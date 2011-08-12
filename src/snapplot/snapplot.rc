@@ -1,0 +1,7 @@
+ICO_SNAP16 ICON snap16.ico
+ICO_SNAP32 ICON snap32.ico
+IDB_SPLASHSCREEN BITMAP splash.bmp
+IDB_SNAP BITMAP snap.bmp
+CUR_CROSSHAIR2 CURSOR crosshair2.cur
+
+#include "wx/msw/wx.rc"

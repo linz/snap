@@ -1,0 +1,24 @@
+log("###################################")
+log("In testcrash script")
+
+log("\$_crash = $_crash")
+if $_crash == "exit" then exit endif
+log("passed crash=exit")
+if $_crash == "return" then return true endif
+log("passed crash=return")
+if $_crash == "crash" then non_existent_function() endif
+log("passed crash=crash")
+
+test_crash($_crash)
+log("Finished testcrash script")
+
+
+function test_crash( $crash )
+log("\$crash = $crash in func")
+if $_crash == "func_exit" then exit endif
+log("passed crash=exit in func")
+if $_crash == "func_return" then return true endif
+log("passed crash=return in func")
+if $_crash == "func_crash" then non_existent_function() endif
+log("passed crash=crash in func")
+end_function

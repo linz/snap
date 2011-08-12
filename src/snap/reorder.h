@@ -1,0 +1,34 @@
+#ifndef _REORDER_H
+#define _REORDER_H
+
+/*
+   $Log: reorder.h,v $
+   Revision 1.1  1996/01/03 22:06:11  CHRIS
+   Initial revision
+
+*/
+
+#ifndef REORDER_H_RCSID
+#define REORDER_H_RCSID "$Id: reorder.h,v 1.1 1996/01/03 22:06:11 CHRIS Exp $"
+#endif
+
+#define SKIP_REORDERING    0
+#define FORCE_REORDERING   1
+#define DEFAULT_REORDERING 2
+
+int  init_connections( int nnodes );
+void term_connections();
+void add_connection( int stn1, int stn2 );
+int get_connection_count( int stn );
+int get_connection( int stn, int nconn );
+int setup_parameters( void );
+
+#ifdef REORDER_C
+int save_connections = 1;
+int reorder_stations = DEFAULT_REORDERING;
+#else
+extern int save_connections;
+extern int reorder_stations;
+#endif
+
+#endif

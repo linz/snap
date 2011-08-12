@@ -1,0 +1,521 @@
+@rem = '--*-Perl-*-- 
+@echo off
+if "%OS%" == "Windows_NT" goto WinNT
+perl -x -S "%0" %1 %2 %3 %4 %5 %6 %7 %8 %9
+goto endofperl
+:WinNT
+perl -x -S %0 %*
+if NOT "%COMSPEC%" == "%SystemRoot%\system32\cmd.exe" goto endofperl
+if %errorlevel% == 9009 echo You do not have Perl in your PATH.
+if errorlevel 1 goto script_failed_so_exit_with_non_zero_val 2>nul
+goto endofperl
+@rem ';
+#!/usr/bin/perl
+#line 15
+#===============================================================================
+#
+# PROGRAM:             %M%
+#
+# VERSION:             %I%
+#
+# WHAT STRING:         %W%
+#
+# Description:       Extracts test data from a CRS adjustment report with the 
+#                    DBUG "dumpsql" output included.
+#
+# Dependencies:      Uses the following modules: 
+#                      FileHandle  
+#
+# History
+# Name                 Date        Description
+# ===================  ==========  ============================================
+# Chris Crook         23/04/2000  Created
+#===============================================================================
+
+use strict;
+use FindBin;
+use FileHandle;
+use Win32::Clipboard;
+use IO::String;
+
+# CRS2 column name fixes
+
+# May need reworking to reverse the direction, as runadj may be modified
+# to use new column names.
+
+
+die "Parameters: list_file_name  snap_file_root\n" if @ARGV != 2;
+my($lst,$snaproot)=@ARGV;
+
+
+my $datasets = 
+{
+getadj=>{ds=>'adj',id=>'ADJ_ID '},
+getadjprm=>{ds=>'prm',id=>'COEF_CODE '},
+getnode=>{ds=>'nod',id=>'NOD_ID '},
+getobn=>{ds=>'obn',id=>'OBN_ID '},
+getoba=>{ds=>'oba',id=>'OBN_ID1 OBN_ID2 '},
+getsrv=>{ds=>'wrk',id=>'WRK_ID '},
+crdsys=>{ds=>'cos',id=>'COS_ID '},
+getcor=>{ds=>'cor',id=>'ID'},
+};
+
+my @month = qw/Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec/;
+
+my $adjdata  = {};
+
+my $reffile = "$FindBin::Bin/$FindBin::Script.refdata";
+my $reff;
+if( -e $reffile && open($reff,$reffile) )
+{
+   &ReadCSVData($reff,$adjdata,$datasets);
+   close($reff);
+}
+
+my $flst;
+
+if( lc($lst) eq '-c' )
+{
+  $lst = "the clipboard";
+  my $clip = Win32::Clipboard;
+  my $txt = $clip->GetText() || die "Error: Cannot read from the clipboard\n";
+  $flst = new IO::String($txt);
+  
+}
+else
+{
+   open($flst,"<$lst") || die "Error: Cannot open $lst\n";
+}
+
+
+
+&ReadCSVData( $flst, $adjdata, $datasets );
+close($flst);
+
+if( ! exists $adjdata->{adj} )
+{
+   die "Error: Incorrect Landonline adjustment listing in $lst - use the DUMPSQL parameter\n";
+}
+
+
+my $adj = $adjdata->{adj};
+my $cos = $adjdata->{cos};
+my $nod = $adjdata->{nod};
+my $obn = $adjdata->{obn};
+my $oba = $adjdata->{oba};
+my $wrk = $adjdata->{wrk};
+my $prm = $adjdata->{prm};
+my $cor = $adjdata->{cor};
+
+my ($adjid) = keys %$adj;
+$adj=$adj->{$adjid};
+
+if( $adj->{SOFTWARE_USED} !~ /^LNZ[CT]$/ )
+{
+   die "Error: Currently only cadastral adjustments can be converted to SNAP\n";
+}
+
+if( ! $cos )
+{
+   die "Error: No coordinate system information found - probably due to an error encountered in the Landonline adjustment\n";
+}
+
+my $adjcos = $cos->{$adj->{COS_ID}};
+my $dtmid = $adjcos->{DTM_ID};
+if( $dtmid ne '19' )
+{
+   die "Error: Currently only adjustments based on NZGD2000 can be converted - this adjustment uses another datum\n";
+}
+
+my $projcos = $adjcos->{COS_CODE};
+
+foreach my $prmk (keys %$prm){ $prm->{$prmk}=$prm->{$prmk}->{COEF_VALUE};}
+
+my $orders={};
+foreach my $cork( keys %$cor ) 
+{ 
+    $orders->{$cork}=$cor->{$cork}->{DISPLAY} if $cor->{$cork}->{DTM_ID} eq $dtmid; 
+}
+
+my $snapcmd = $snaproot.".snp";
+my $snapcrd = $snaproot.".crd";
+my $snapobs = $snaproot.".dat";
+my $rootname = $snaproot;
+$rootname =~ s/.*[\\\/]//;
+
+my($sfile,$cfile,$ofile);
+open( $sfile, ">".$snapcmd ) || die "Cannot open $snapcmd for output\n";
+open( $cfile, ">".$snapcrd ) || die "Cannot open $snapcrd for output\n";
+open( $ofile, ">".$snapobs ) || die "Cannot open $snapobs for output\n";
+
+
+my $plan = $wrk->{$adj->{WRK_ID}}->{SURVEY_NUMBER} if $adj->{WRK_ID};
+ 
+my $title = 'Landonline adjustment : '.$adj->{ADJ_ID}.' - '.($adj->{DESCRIPTION} || ($adj->{METHOD_NAME} .' - ' .$plan ));
+
+print $cfile <<"EOD";
+$title
+NZGD2000
+options station_orders ellipsoidal_heights no_geoid
+
+EOD
+
+# Print marks
+
+print $ofile $title,"\n";
+
+my @fixed = ();
+my @free = ();
+my $markname={};
+
+foreach my $id ( sort {$nod->{$a}->{COR_ID} <=> $nod->{$b}->{COR_ID} || 
+               $nod->{$a}->{MARK_NAME} cmp $nod->{$b}->{MARK_NAME}} keys %$nod )
+{
+     my $mrk = $nod->{$id};
+     my $c1 = &FormatDMS($mrk->{VALUE1},6,'SN');
+     my $c2 = &FormatDMS($mrk->{VALUE2},6,'WE');
+     my $c3 = sprintf("%.3f",$mrk->{VALUE3}); 
+     my $order = $orders->{$mrk->{COR_ID}};
+     $order = '?' if $order eq '';
+     my $name = $mrk->{MARK_NAME};
+     printf $cfile "%-10s %s %s %s %s %s\n",$id,$c1,$c2,$c3,$order,$name;
+   
+     $markname->{$id} = $name;
+
+     my $adjust = $mrk->{COO_CONSTRAINT};
+     push(@fixed, $id) if $adjust =~ /^FIX[H3]/;
+     push(@free, $id) if $adjust !~ /^FIX[H3]/;
+}
+
+
+# Print observations.  Sort by coordinate system, observation set, 
+# and obs id.  Assume that observation sets don't span coordinate system
+# Note that for cadastral surveys (current scope) observation set doesn't
+# apply in any case.
+
+my $lastcos = '';
+my $lasttype = '';
+my $lastbe = '';
+my $lastsclass = '';
+my $lastcclass = '';
+my $lastrefdate = '';
+my $lastsurvey = '';
+
+my $brngerrs = {};
+my $nodeinfo = {};
+
+my $nerr = 0;
+
+my $brsw = uc($prm->{BRSW}) || 'BY_SURVEY SET * 0';
+my $brswcos = $brsw =~ /\bBY_CRDSYS\b/i;
+my $brswbase = $plan;
+$brswbase = $projcos if $brswcos;
+$brswbase =~ s/\s+/_/g;
+
+
+my $survey={};
+foreach my $id (keys %$wrk) { $survey->{$id}=$wrk->{$id}->{SURVEY_NUMBER}; }
+
+foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} || 
+               $obn->{$a}->{OBS_ID} cmp $obn->{$b}->{OBS_ID} ||
+               $obn->{$a}->{OBN_ID} cmp $obn->{$b}->{OBN_ID}}  keys %$obn )
+{
+     my $obs = $obn->{$id};
+     my $var = $oba->{"$id:$id"};
+     my $obscos = $cos->{$obs->{COS_ID}};
+     $obscos = $obscos ? $obscos->{COS_CODE} : 'DEFAULT';
+     my $from = $obs->{NOD_ID_LOCAL};
+     my $to = $obs->{NOD_ID_REMOTE};
+     my $type = $obs->{SUB_TYPE};
+     my $accmult = $obs->{ACC_MULTIPLIER};
+     my $refdate = $obs->{REF_DATETIME};
+     $refdate =~ s/\s.*//;
+     my $sclass = $obs->{SURVEYED_CLASS};
+     $sclass = 'unknown' if $sclass eq '';
+     my $cclass = $obs->{CADASTRAL_CLASS};
+     $cclass = 'unknown' if $cclass eq '';
+     my @snapobs;
+     my $exclude = $obs->{EXCLUDE} eq 'Y' ? '* ' : '';
+     my $obssurvey = $survey->{$obs->{WRK_ID}};
+     $obssurvey =~ s/\s+/_/g;
+     $obssurvey = 'unknown' if $obssurvey eq '';
+
+     if( $sclass ne $lastsclass )
+     {
+          print $ofile "\n#classify surveyed_class $sclass\n";
+          $lastsclass = $sclass;
+     }
+     if( $cclass ne $lastcclass )
+     {
+          print $ofile "\n#classify cadastral_class $cclass\n";
+          $lastcclass = $cclass;
+     }
+     if( $obssurvey ne $lastsurvey )
+     {
+          $lastsurvey = $obssurvey;
+          print $ofile "\n#classify survey $obssurvey\n";
+     }
+     if( $refdate ne $lastrefdate )
+     {
+	  $lastrefdate = $refdate;
+          if( $refdate =~ /^(\d+)\-(\d+)\-(\d+)$/ ) 
+          {
+              $refdate = "$3 $month[$2-1] $1";
+          }
+          else
+          {
+              $refdate = 'unknown';
+          }
+          print $ofile "\n#date $refdate\n";
+     }
+
+     if( $type eq 'SLDI' )
+     {
+          push(@snapobs,{ 
+              type=>'ED',
+              value=>sprintf("%.4f",$obs->{VALUE1}),
+              error=>sprintf("%.4f",$accmult*sqrt($var->{VALUE_11}))
+              });
+     }
+     elsif ($type eq 'BEAR' || $type eq 'ARCO')
+     {
+         if( $obscos ne $lastcos )
+         {
+             print $ofile "\n\! Note: LOL cadastral adjustments use adjustment projection for all projection bearings\n#projection $projcos\n" if $projcos;
+             undef $projcos;
+             print $ofile "\n#classify pb circuit $obscos\n";
+             $lastcos = $obscos;
+                  
+         }
+         my $be = $brswcos ? $obscos : $obssurvey; 
+         $be = uc($be);
+
+          $brngerrs->{$be}++;
+          push(@snapobs,{ 
+              type=>'PB',
+              value=>&FormatDMS($obs->{VALUE1},1),
+              error=>sprintf("%.1f",$accmult*3600.0*sqrt($var->{VALUE_11}))
+              });
+          if( $type eq 'ARCO' )
+          {
+              my $r = $obs->{ARC_RADIUS};
+              my $sa = $obs->{VALUE2}/(2.0*$r);
+              my $cl = 2.0*$r*sin($sa);
+              my $ef = abs(cos($sa));
+              $ef = 0.5 if $ef < 0.5;
+              push(@snapobs,{ 
+                  type=>'ED',
+                  value=>sprintf("%.4f",$cl),
+                  error=>sprintf("%.4f",$accmult*$ef*sqrt($var->{VALUE_22}))
+                  });
+          }
+     }
+     else
+     {
+         print "Error: Cannot process $type observations\n";
+         $nerr++;
+         next;
+     }
+
+     foreach my $o (@snapobs )
+     {
+          my $stype = $o->{type};
+          print $ofile "\n#data $stype id value error no_heights\n\n" if $type ne $lasttype;
+          $lasttype = $stype;
+
+          print $ofile "$exclude$from $to $id $o->{value} $o->{error} ! $markname->{$from} : $markname->{$to}\n";
+          $nodeinfo->{$from}->{count}++;
+          $nodeinfo->{$to}->{count}++;
+     }
+}
+
+
+my $mode = 'adjustment';
+$mode = 'free_net_adjustment' if lc($prm->{FNAD}) eq 'yes';
+my $maxit = $prm->{MXIT} || 10;
+my $maxch = $prm->{MXCH} || 1000;
+my $conv = $prm->{CNVG} || 0.001;
+
+print $sfile <<"EOD";
+title $title
+
+coordinate_file $rootname.crd
+data_file $rootname.dat
+
+mode 2d $mode
+
+convergence_tolerance $conv
+max_iterations $maxit
+max_adjustment $maxch
+
+EOD
+
+my $free = 'free';
+my $float = $prm->{WCRD};
+
+if( $float > 0 )
+{
+    print "\nhorizontal_float_error $float\n";
+    $free = "float horizontal";
+}
+
+if( $#fixed < $#free )
+{
+    print $sfile "\n$free all\n";
+
+    foreach my $fid (sort @fixed)
+    {
+         print $sfile "fix 3d $fid\n";
+         $nodeinfo->{$fid}->{fix} = 1;
+    }
+}
+else
+{
+    print $sfile "\nfix 3d all\n";
+    foreach my $n (keys %$nodeinfo) { $nodeinfo->{$n}->{fix} = 1;}
+
+    foreach my $fid (sort @free)
+    {
+         print $sfile "$free $fid\n";
+         $nodeinfo->{$fid}->{fix} = 0;
+    }
+}
+
+print "\n";
+
+my $fixedbrsw = 0;
+print $sfile "bearing_orientation_error use ",brswcos ? "projection" : "survey","\n";
+print $sfile "! bearing_orientation_error use ",brswcos ? "survey" : "projection","\n";
+foreach my $brset ($brsw =~ /\b(calc\s+\S+|set\s+\S+\s+\S+)\b/ig)
+{
+    my($status,$code,$value) = split(' ',$brset);
+    $code = uc($code);
+    $code = $brswbase if $code eq '*0';
+    next if $code ne '*' && ! exists $brngerrs->{$code};
+    $status = lc($status) eq 'calc' ? 'calculate ' : '';
+    $fixedbrsw = 1 if ! $status;
+    $value += 0.0;
+    print $sfile "bearing_orientation_error $status$code $value\n";
+}
+
+if( lc($prm->{AFIX}) eq 'yes' )
+{
+        my $ncon = 0;
+        my $ndmax = '';
+
+	for my $n ( keys %$nodeinfo )
+        {
+            if( $nodeinfo->{$n}->{fix} ) { $ndmax = ''; last; }
+            if( $nodeinfo->{$n}->{count} > $ncon ) { $ncon = $nodeinfo->{$n}->{count}; $ndmax = $n }
+        }
+        if( $ndmax )
+        {
+            print $sfile "\n\n! Fixing node to emulate Landonline adjustment\nfix $ndmax\n";
+            print "Fixing node $ndmax to emulate Landonline adjustment\n";
+        }
+
+        if( ! $fixedbrsw )
+        {
+            $ncon = 0;
+            my $bsmax = '';
+            foreach my $bs (keys %$brngerrs )
+            {
+               if( $brngerrs->{$bs} > $ncon ) { $ncon = $brngerrs->{$bs}; $bsmax = $bs; }
+            }
+            if( $bsmax ne '' )
+            {
+            print $sfile "\n\n! Fixing bearing swing to emulate Landonline adjustment\nbearing_orientation_error set $bsmax 0.0\n";
+            print "Fixing bearing swing  $bsmax to emulate Landonline adjustment\n";
+            }
+            
+        }
+}
+
+
+
+
+sub ReadCSVData
+{
+   my( $fh, $adjdata, $datasets ) = @_;
+
+
+while( my $line = $fh->getline ) {
+   next if ! ($line =~ /^\@([\@\*])(\w+)\|/);
+   my ($header,$type,$record) = ($1,$2,$');
+   next if ! exists $datasets->{$type};
+   chomp($line);
+   my @data = split(/\|/,$record);
+   if( $header eq '*')
+   {
+       &SetupDataset($datasets->{$type},\@data);
+   }
+   else
+   {   
+      &LoadData($datasets->{$type},$adjdata,\@data);
+   }
+   }
+}
+  
+
+sub SetupDataset
+{
+   my($dataset,$fields) = @_;
+   foreach (@$fields) { s/\./_/g; }
+   $dataset->{fields} = $fields;
+   my @id = split(' ',$dataset->{id});
+   $dataset->{id} = \@id;
+}
+	
+
+sub LoadData
+{
+   my($dataset,$adjdata,$data) = @_;
+   return if ! $dataset->{fields};
+   my $fields = $dataset->{fields};
+   my $record={};
+   for my $i ( 0 .. $#$fields )
+   {
+      $record->{$fields->[$i]} = $data->[$i];
+   }
+   my $key = join(':',map { $record->{$_} } @{$dataset->{id}});
+   $adjdata->{$dataset->{ds}}->{$key} = $record;
+}
+
+
+#===============================================================================
+#
+#   SUBROUTINE:   FormatDMS
+#
+#   DESCRIPTION:  Formats an angle as degrees, minutes, seconds
+#
+#   PARAMETERS:   
+#
+#   RETURNS:      
+#
+#   GLOBALS:
+#
+#===============================================================================
+
+sub FormatDMS {
+    my($value,$ndp,$codes) = @_;
+    my($deg,$min,$sec,$hem);
+    if( $codes ne '' ) {
+       $hem = substr($codes,($value < 0 ? 0 : 1),1);
+       $value = -$value if $value < 0;
+       }
+    else {
+       $value += 360.0 while $value < 0.0;
+       }
+    $ndp = int($ndp);
+    my $ndp3 = $ndp+3;
+
+    $deg = int($value);
+    $value = ($value - $deg)*60;
+    $min = int($value);
+    $sec = ($value-$min)*60;
+    return sprintf("%d %02d %$ndp3.$ndp"."f %s",$deg,$min,$sec,$hem);
+    }
+
+
+__END__
+:endofperl

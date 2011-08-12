@@ -1,0 +1,6 @@
+ICO_SNAP16 ICON snap16.ico
+ICO_SNAP32 ICON snap32.ico
+IDB_SPLASHSCREEN BITMAP splash.bmp
+IDB_SNAP BITMAP snap.bmp
+
+#include "wx/msw/wx.rc"

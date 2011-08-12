@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="NZMapConv, coordinate systems">
+<title>NZMapConv coordinate systems</title>
+<link rel="stylesheet" type="text/css" href="help.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1><a name="coordinate-systems"></a>NZMapConv coordinate systems</h1>
+
+<p>
+The coordinate systems in the NZMapConv program may be categorized in two ways - by the datum, and by the type of coordinate.  </p>
+<p>The geodetic datum defines the spatial reference frame for mapping and positioning.  The two datums used in NZMapConv are NZGD1949, which was established in 1949, and NZGD2000, which replaced it in 2000.  Although NZGD1949 is no longer current, much mapping and spatial information is still defined in terms of this datum.  The main purpose of the NZMapConv program is to facilitate conversions between these two datums.
+</p>
+<p>
+There are three types of coordinates used by NZMapConv. 
+</p>
+<ul>
+<li>Map references: these are used to refer to positions on 1:50000 topographic maps in terms of the map on which they appear and the grid square on that map.</li>
+<li>Projection coordinates: these are underlying coordinate systems of the topographic maps. (There are many other projection coordinate systems used in New Zealand which are not available in the NZMapConv program).  These define position in terms of eastings and northings, which can be thought of as defining the position in terms of metres east and north of a reference point.</li>
+<li>Latitude/longitude coordinates: these are the coordinate systems of the datum and define the position globally in terms of latitude (degrees south of the equator) and longitude (degrees east of the Greenwich meridian).</li>
+</ul>
+<p>The coordinate systems can be summarised in the following table</p>
+<table>
+<tr>
+<td class="header">Coordinate type</td>
+<td class="header">NZGD1949 datum</td>
+<td class="header">NZGD2000 datum</td>
+</tr>
+<tr>
+<td class="header">Map reference</td>
+<td><a href="nzms260.html">NZMS260 map references</a></td>
+<td><a href="nztopo50.html">NZTopo50 map references</a></td>
+</tr>
+<tr>
+<td class="header">Projection</td>
+<td><a href="nzmg.html">New Zealand Map Grid (NZMG)</a></td>
+<td><a href="nztm.html">New Zealand Transverse Mercator 2000 (NZTM2000)</a></td>
+</tr>
+<tr>
+<td class="header">Latitude/longitude</td>
+<td><a href="nzgd1949.html">NZGD1949 latitude/longitude</a></td>
+<td><a href="nzgd2000.html">NZGD2000 latitude/longitude</a></td>
+</tr>
+</table>
+<p>Note that the NZGD2000 coordinate system is for practical purposes the same
+as the WGS84 system used by many GPS receivers.</p>
+
+<h3>See also:</h3>
+
+<p><a href="index.html">NZMapConv overview</a></p>
+<p><a href="usage.html">Using NZMapConv</a></p>
+
+</div>
+</body>
+</html>

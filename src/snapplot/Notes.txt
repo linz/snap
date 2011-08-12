@@ -1,0 +1,227 @@
+To do list - minimum for initial release:
+
+- Figure out unrepeated crash on bigjob
+- Figure out hang on exit in debugger in bigjob
+- Look for crash in concord
+- wxSimpleDialog ... using hot key on label for text/number box doesn't get cursor to the box
+- Dialog (rather than control) validation, for things like number of groups to show less than 1, greater than max...
+- Invalid menu options when not using binary file .. eg colour by stdres, redfac
+- Check list box ... want to create a derived type that sets/unsets on clicking, rather than selecting/unselecting.
+  or is this a style?
+- Look at frame event handlers to see which should update the data list window as well as the map
+- Keyboard & selection events on grids (eg station selector) may not be desirable
+- Check use of flag_station_visible ... set this for connections so that connected points can be moved.
+- Check accelerator keys throughout
+- Details window formatting of highlighted text - underlining too horrible!
+- Error handling in process_configuration_file .. and elsewhere in application?
+- Station selector control has issues with cell colours displayed.
+- Header of station list to identify sort column?
+- Sort of station list to include original order (ie by station number)
+- More spacing by right justified columns in listing ... add a margin?
+- Look at changing short to int throughout, then review large structures where short would still have value
+- Snapplot configuration needs to cover additional options .. obs between hidden stations
+- Observation file editor window? 
+- Save configuration as menu item ...
+- Change sp_print to print_log
+- Build windows interface to adjustment version - snapadjust (? can this include an abort button)
+- Build command shell?
+- Default name for snapplot configuration to include command file name?
+- Configuration file colours seem to not work ...
+- Key and other options to be disabled when don't have adjustment binary and/or command file
+- Text colour option not working ... want to add background colour as well, and make text colour
+  or symbol colour act as symbol border?
+
+- Look at explicitly releasing resources so that debugging closing is quicker??
+
+- Keyboard navigation .. Keyboard to focus map, stations, observations, details.  Shortcut keys in each for rapid navigation.
+  On idle handler to display which window is focussed and show shortcut keys in status bar
+  
+- Command line option to ignore unreferenced stations
+
+- Jump to file editor from observation window
+
+- Better colours and colour options
+- Base spacing between observations on char/symbol size.  Also size of error bar..
+- Font options for station details
+
+- Create a nicer loading window/bitmap!
+- Startup dialog box for getting snap filename if none specified ... or maybe even other startup 
+  options ...
+- Create a suitable icon for the application
+
+To do before general release
+- Help documentation
+- Station list option .. fix up code order to use numerical prefix
+- Improve station and observation listing grids.  
+  More columns/column options.
+  Sorting on any column.  
+  Display and control of highlighting
+  Maybe add something like button column or right click menu to clarify options
+  Right click menu to get column options, plus options for selected stations
+  
+- Toolbar buttons for various functions, eg zoom
+- Copy details to clipboard
+- Copy grids to clipboard?
+- Copy map to clipboard
+- Export to map to images
+- Print map
+- More info in the title page .. details of observations, etc
+- Better keyboard navigation of application, should be able to do everything without the mouse
+
+- Right click menus and rationalise options  
+  
+
+=====================================================
+
+Bugs:
+
+Job garbage.snp.  Zoomed in close to station. Shifted one mark to different position.
+Crash with stack corruption around buf variable in SnapplotMapView::OnIdle
+
+.. Happened again shifting mark with 
+
+
+=====================================================
+
+Wish list
+
+========================
+
+Tasks done
+
+- Save/Restore configuration
+- Configuration menu
+- Selection and display of highlighted stations
+- Station display options dialog
+- Station highlighting dialog
+- Hide/show stations dialog
+- Find out if events are passed to parent classes, as well as parent controls, if skipped. ... Answer = yes
+- Zoom to and highlight selected observations
+- Link from station and observation grids to details window/map window
+- Highlighting of selected station/observation
+- Drag stations to offset
+- Find out how to use cell attributes in virtual class
+- Window title to show job name
+- Palette popup location - constrain by main window not screen
+- Set up initial sizing of splitters
+- Station symbol disappears if station shifted outside original extents
+- Observation classifications into colour by menu
+- Fix up definitions of which stations are shown, which are highlighted, etc..
+- Used dashed line style with better dash spacing ...
+- Layout of observation listing dialog - may be fixed by moving sort order onto grid headers...
+- wxSimpleDialog ... validators don't give any errors on failure ... Basic error message for number field...
+- Standardised residuals -1.1 where redundancy 0??? see wannon job
+- Check directions of one way observations ... looks right in code but wrong on plot?
+- Sort order on standardised residuals isn't right???
+- Ensure that errors are displayed if load fails
+
+========================
+
+Implementation of wxWidgets in SNAPPLOT
+
+1) created the wsWidgets property sheet for including in to projects/configurations.
+This basically sets up the include directories (C++ and resources) and other options required to make wxWidgets work.
+
+2) add wx.rc resource file to the project, to ensure that wxWidgets resources are available.
+
+=======================
+
+Outstanding issues:
+
+Initial positioning of sash when window is initially created ... doesn't seem to be a good entry
+point for sizing code once the window size is established, and before finally writing.
+
+wxWidgets 2.8.0 states that a wxMouseCaptureLost event should be handled wherever 
+mouse capture is enabled.  However none of example applications do this 
+(two call CaptureMouse), and it is not clear to me what they are supposed to do.
+
+Too easy to zoom in by mistake when dragging very short distance.  Dragger needs to implement
+minimum drag distance..
+
+Use of wxHtmlWindow - expensive in terms of code?  <a></a> underlining looks ugly.
+
+Location of palette popup doesn't work with multiple monitors
+
+=============================
+Fixed issues 
+
+%n format specifier not enabled by default in MS Visual C++.
+Need to call _set_printf_count_output(1);
+
+After building with .C files ...
+Error	308	error LNK2005: _isdigit already defined in LIBCMT.lib(_ctype.obj)	MSVCRTD.lib	
+Needed to ensure consistent runtime library options in C/C++ -> Code generation -> Runtime library properties
+
+Patched wxGrid::SetTable (from version 2.8.0) to make resetting table in a wxGrid work, 
+at least as far as tested so far.  Patch submitted to Sourceforge ... see below...
+
+=======================
+wxWidgets patch... (note: this has been incorporated into source stream)
+
+Patches item #1636377, was opened at 2007-01-16 14:48
+Message generated for change (Tracker Item Submitted) made by Item Submitter
+You can respond by visiting: 
+https://sourceforge.net/tracker/?func=detail&atid=309863&aid=1636377&group_id=9863 
+
+Please note that this message will contain a full copy of the comment thread,
+including the initial issue submission, for this request,
+not just the latest update.
+Category: Grid
+Group: bug fix
+Status: Open
+Resolution: None
+Priority: 5
+Private: No
+Submitted By: chris_crook (chris_crook)
+Assigned to: Nobody/Anonymous (nobody)
+Summary: Improve wxGrid::SetTable for resetting table
+
+Initial Comment:
+The current implementation of wxGrid doesn't support resetting the wxGridTableBase *table data source for the grid.  The main problem I have identified is with the column and row size arrays, which after resetting the table retain the counts from the original table.  This various failures (assert failures, heap corruption?).  
+
+This patch makes some small changes to the wxGrid::SetTable function to clear these arrays.
+
+There is a workaround for this, which is to call
+
+grid->SetDefaultColSize( GetDefaultColSize(), true );
+grid->SetDefaultRowSize( GetDefaultRowSize(), true );
+
+before grid->SetTable( ... ).
+
+
+
+
+
+--- wxWidgets-1.8.0-original\src\generic\grid.cpp	Mon Dec  4 19:44:38 2006
++++ wxWidgets-2.8.0\src\generic\grid.cpp	Tue Jan 16 14:09:04 2007
+@@ -4358,19 +4358,24 @@
+         // stop all processing
+         m_created = false;
+ 
+-        if (m_ownTable)
++        if (m_table) 
+         {
+-            wxGridTableBase *t = m_table;
+-            m_table = NULL;
+-            delete t;
++            m_table->SetView(0);
++            if( m_ownTable ) delete m_table;
+         }
++        m_table = NULL;
+ 
+         delete m_selection;
+-
+-        m_table = NULL;
+         m_selection = NULL;
++
+         m_numRows = 0;
+         m_numCols = 0;
++
++        // kill row and column size arrays
++        m_colWidths.Empty();
++        m_colRights.Empty();
++        m_rowHeights.Empty();
++        m_rowBottoms.Empty();
+     }
+ 
+     if (table)

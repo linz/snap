@@ -1,0 +1,28 @@
+format_name SNAP CSV obs format
+FORMAT CSV HEADER=Y
+required_columns obstype fromstn tostn 
+
+OBSERVATION
+TYPE @obstype
+ID @id
+SET_ID @obsset
+REJECTED rejcode(@status)
+INSTRUMENT_STATION @fromstn
+INSTRUMENT_HEIGHT @fromhgt
+TARGET_STATION @tostn
+TARGET_HEIGHT @tohgt
+DATETIME @date
+DATETIME_FORMAT YMDhms
+VALUE @value1 " " @value2 " " @value3 DEFAULT @value
+ERROR @error default @error1 " " @error2 " " @error3 " " @corr12 " " @corr13 " " @corr23 
+VECTOR_ERROR_TYPE enu_correlation
+PROJECTION c_Projection
+CLASSIFICATION_COLUMNS c_**
+END_OBSERVATION
+
+LOOKUP rejcode
+rej Y
+default N
+END_LOOKUP
+
+

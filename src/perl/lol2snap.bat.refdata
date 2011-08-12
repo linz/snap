@@ -1,0 +1,234 @@
+@*getcor|ID|DISPLAY|DESCRIPTION|DTM_ID|ORDER_GROUP|ERROR|AUDIT_ID|
+@@getcor|1901|0|NZGD 2000 Zero Order permanent GPS station|19|1|0.05|1|
+@@getcor|1902|1|NZGD 2000 1st order|19|1|0.0501|2|
+@@getcor|1903|2|NZGD 2000 2nd order|19|1|0.1|3|
+@@getcor|1904|3|NZGD 2000 3rd order|19|1|0.1001|4|
+@@getcor|1905|4|NZGD 2000 4th order|19|2|0.15|5|
+@@getcor|1906|5|NZGD 2000 5th order|19|2|0.1501|6|
+@@getcor|1907|6|NZGD 2000 6th order (Traverses)|19|3|0.1502|7|
+@@getcor|1908|7|NZGD 2000 7th order (Cadastral Class A)|19|4|0.2|8|
+@@getcor|1909|8|NZGD 2000 8th order (Cadastral Class B)|19|4|0.5|9|
+@@getcor|1911|9|NZGD 2000 9th order (Cadastral Class C)|19|4|5.0|11|
+@@getcor|1912|10|NZGD 2000 10th order|19|5|20.0|12|
+@@getcor|1913|11|NZGD 2000 11th order|19|5|50.0|13|
+@@getcor|1914|12|NZGD 2000 12th order|19|5|500.0|234|
+@@getcor|13001|0|RSRGD 2000 Zero Order permanent GPS station|130|1|0.05|14|
+@@getcor|13002|1|RSRGD 2000 1st order|130|1|0.071|15|
+@@getcor|13003|2|RSRGD 2000 2nd order|130|1|0.087|16|
+@@getcor|13004|3|RSRGD 2000 3rd order|130|2|0.1|17|
+@@getcor|13005|4|RSRGD 2000 4th order|130|3|0.112|18|
+@@getcor|13006|5|RSRGD 2000 5th order|130|3|0.125|19|
+@@getcor|13007|6|RSRGD 2000 6th order|130|4|0.2|20|
+@@getcor|13008|7|RSRGD 2000 7th order|130|5|0.3|21|
+@@getcor|13009|8|RSRGD 2000 8th order|130|6|0.5|22|
+@@getcor|13010|9|RSRGD 2000 9th order|130|6|2.5|23|
+@@getcor|13011|10|RSRGD 2000 10th order|130|6|40.0|24|
+@@getcor|401|1|CID 1979 1st Order|4|1|0.0|25|
+@@getcor|402|2|CID 1979 2nd Order|4|2|0.1|26|
+@@getcor|403|3|CID 1979 3rd Order|4|3|0.125|27|
+@@getcor|404|4a|CID 1979 4th Order derived from 2nd & 3rd Order|4|4|0.2|28|
+@@getcor|405|4b|CID 1979 coordinate supplied by DO|4|4|0.2|29|
+@@getcor|406|4c|CID 1979 coordinate fixed by hanging line|4|4|0.2|30|
+@@getcor|407|5|CID 1979 derived from Old Cad trigs adjusted|4|5|0.3|31|
+@@getcor|408|6a|CID 1979 derived from OCD by double entry tables|4|5|5.0|32|
+@@getcor|409|6b|CID 1979 coordinates (scaled)|4|5|5.0|33|
+@@getcor|410|7|CID 1979 (DCDB Derivative) |4|6|10.0|34|
+@@getcor|411|8|CID 1979 (DCDB Derivative) |4|6|20.0|35|
+@@getcor|412|9|CID 1979 (DCDB Derivative) |4|6|40.0|36|
+@@getcor|301|1|Camp Area Datum 1st Order|3|1|0.0|37|
+@@getcor|302|2|Camp Area Datum 2nd Order|3|2|0.1|38|
+@@getcor|303|3|Camp Area Datum 3rd Order|3|3|0.125|39|
+@@getcor|304|4|Camp Area Datum 4th Order|3|4|0.2|40|
+@@getcor|305|5|Camp Area Datum derived from Old trigs adjusted|3|5|0.3|41|
+@@getcor|306|6|CID 1979 coordinates (scaled)|3|6|5.0|42|
+@@getcor|1801|1|NZGD49 1st Order|18|1|0.0|43|
+@@getcor|1802|2|NZGD49 2nd Order|18|2|0.1|44|
+@@getcor|1803|2d|NZGD49 2nd Order derived from NZGD 2000 surveys|18|2|0.1|45|
+@@getcor|1804|3|NZGD49 3rd Order|18|3|0.125|46|
+@@getcor|1805|3d|NZGD49 3rd Order derived from NZGD 2000 surveys|18|3|0.125|47|
+@@getcor|1806|4a|NZGD49 4th Order derived from 2nd & 3rd Order|18|4|0.2|48|
+@@getcor|1807|4b|NZGD49 coordinate supplied by DO|18|4|0.2|49|
+@@getcor|1808|4c|NZGD49 coordinate fixed by hanging line|18|4|0.2|50|
+@@getcor|1809|4d|NZGD49 4th Order derived from NZGD 2000 surveys|18|4|0.2|51|
+@@getcor|1810|4h|NZGD49 derived from Hawkes Bay 1931 Datum|18|4|0.2|52|
+@@getcor|1811|5|NZGD49 derived from Old Cad trigs adjusted|18|5|0.3|53|
+@@getcor|1812|6a|NZGD49 derived from OCD by double entry tables|18|6|5.0|54|
+@@getcor|1813|6b|NZGD49 coordinates (scaled)|18|6|5.0|55|
+@@getcor|1814|7|NZGD49 (DCDB Derivative) |18|6|10.0|56|
+@@getcor|1815|8|NZGD49 (DCDB Derivative) |18|6|20.0|57|
+@@getcor|1816|9|NZGD49 (DCDB Derivative) |18|6|40.0|58|
+@@getcor|101|1V|First  & Second  order precise levelling|1|1|0.01|59|
+@@getcor|102|2V|Third order levelling|1|2|0.03|60|
+@@getcor|103|3V|Less accurate spirit levelling|1|3|0.05|61|
+@@getcor|104|4V|Conventional vertical angle observations|1|4|0.1|62|
+@@getcor|105|5V|Station height unknown reliability|1|5|0.5|63|
+@@getcor|201|1V|First  & Second  order precise levelling|2|1|0.01|64|
+@@getcor|202|2V|Third order levelling|2|2|0.03|65|
+@@getcor|203|3V|Less accurate spirit levelling|2|3|0.05|66|
+@@getcor|204|4V|Conventional vertical angle observations|2|4|0.1|67|
+@@getcor|205|5V|Station height unknown reliability|2|5|0.5|68|
+@@getcor|501|1V|First  & Second  order precise levelling|5|1|0.01|69|
+@@getcor|502|2V|Third order levelling|5|2|0.03|70|
+@@getcor|503|3V|Less accurate spirit levelling|5|3|0.05|71|
+@@getcor|504|4V|Conventional vertical angle observations|5|4|0.1|72|
+@@getcor|505|5V|Station height unknown reliability|5|5|0.5|73|
+@@getcor|601|1V|First  & Second  order precise levelling|6|1|0.01|74|
+@@getcor|602|2V|Third order levelling|6|2|0.03|75|
+@@getcor|603|3V|Less accurate spirit levelling|6|3|0.05|76|
+@@getcor|604|4V|Conventional vertical angle observations|6|4|0.1|77|
+@@getcor|605|5V|Station height unknown reliability|6|5|0.5|78|
+@@getcor|701|1V|First  & Second  order precise levelling|7|1|0.01|79|
+@@getcor|702|2V|Third order levelling|7|2|0.03|80|
+@@getcor|703|3V|Less accurate spirit levelling|7|3|0.05|81|
+@@getcor|704|4V|Conventional vertical angle observations|7|4|0.1|82|
+@@getcor|705|5V|Station height unknown reliability|7|5|0.5|83|
+@@getcor|801|1V|First  & Second  order precise levelling|8|1|0.01|84|
+@@getcor|802|2V|Third order levelling|8|2|0.03|85|
+@@getcor|803|3V|Less accurate spirit levelling|8|3|0.05|86|
+@@getcor|804|4V|Conventional vertical angle observations|8|4|0.1|87|
+@@getcor|805|5V|Station height unknown reliability|8|5|0.5|88|
+@@getcor|901|1V|First  & Second  order precise levelling|9|1|0.01|89|
+@@getcor|902|2V|Third order levelling|9|2|0.03|90|
+@@getcor|903|3V|Less accurate spirit levelling|9|3|0.05|91|
+@@getcor|904|4V|Conventional vertical angle observations|9|4|0.1|92|
+@@getcor|905|5V|Station height unknown reliability|9|5|0.5|93|
+@@getcor|2901|1V|First  & Second  order precise levelling|29|1|0.01|94|
+@@getcor|2902|2V|Third order levelling|29|2|0.03|95|
+@@getcor|2903|3V|Less accurate spirit levelling|29|3|0.05|96|
+@@getcor|2904|4V|Conventional vertical angle observations|29|4|0.1|97|
+@@getcor|2905|5V|Station height unknown reliability|29|5|0.5|98|
+@@getcor|1301|1V|First  & Second  order precise levelling|13|1|0.01|99|
+@@getcor|1302|2V|Third order levelling|13|2|0.03|100|
+@@getcor|1303|3V|Less accurate spirit levelling|13|3|0.05|101|
+@@getcor|1304|4V|Conventional vertical angle observations|13|4|0.1|102|
+@@getcor|1305|5V|Station height unknown reliability|13|5|0.5|103|
+@@getcor|1501|1V|First  & Second  order precise levelling|15|1|0.01|104|
+@@getcor|1502|2V|Third order levelling|15|2|0.03|105|
+@@getcor|1503|3V|Less accurate spirit levelling|15|3|0.05|106|
+@@getcor|1504|4V|Conventional vertical angle observations|15|4|0.1|107|
+@@getcor|1505|5V|Station height unknown reliability|15|5|0.5|108|
+@@getcor|1601|1V|First  & Second  order precise levelling|16|1|0.01|109|
+@@getcor|1602|2V|Third order levelling|16|2|0.03|110|
+@@getcor|1603|3V|Less accurate spirit levelling|16|3|0.05|111|
+@@getcor|1604|4V|Conventional vertical angle observations|16|4|0.1|112|
+@@getcor|1605|5V|Station height unknown reliability|16|5|0.5|113|
+@@getcor|1701|1V|First  & Second  order precise levelling|17|1|0.01|114|
+@@getcor|1702|2V|Third order levelling|17|2|0.03|115|
+@@getcor|1703|3V|Less accurate spirit levelling|17|3|0.05|116|
+@@getcor|1704|4V|Conventional vertical angle observations|17|4|0.1|117|
+@@getcor|1705|5V|Station height unknown reliability|17|5|0.5|118|
+@@getcor|2101|1V|First  & Second  order precise levelling|21|1|0.01|119|
+@@getcor|2102|2V|Third order levelling|21|2|0.03|120|
+@@getcor|2103|3V|Less accurate spirit levelling|21|3|0.05|121|
+@@getcor|2104|4V|Conventional vertical angle observations|21|4|0.1|122|
+@@getcor|2105|5V|Station height unknown reliability|21|5|0.5|123|
+@@getcor|2201|1V|First  & Second  order precise levelling|22|1|0.01|124|
+@@getcor|2202|2V|Third order levelling|22|2|0.03|125|
+@@getcor|2203|3V|Less accurate spirit levelling|22|3|0.05|126|
+@@getcor|2204|4V|Conventional vertical angle observations|22|4|0.1|127|
+@@getcor|2205|5V|Station height unknown reliability|22|5|0.5|128|
+@@getcor|2301|1V|First  & Second  order precise levelling|23|1|0.01|129|
+@@getcor|2302|2V|Third order levelling|23|2|0.03|130|
+@@getcor|2303|3V|Less accurate spirit levelling|23|3|0.05|131|
+@@getcor|2304|4V|Conventional vertical angle observations|23|4|0.1|132|
+@@getcor|2305|5V|Station height unknown reliability|23|5|0.5|133|
+@@getcor|2401|1V|First  & Second  order precise levelling|24|1|0.01|134|
+@@getcor|2402|2V|Third order levelling|24|2|0.03|135|
+@@getcor|2403|3V|Less accurate spirit levelling|24|3|0.05|136|
+@@getcor|2404|4V|Conventional vertical angle observations|24|4|0.1|137|
+@@getcor|2405|5V|Station height unknown reliability|24|5|0.5|138|
+@@getcor|2501|1V|First  & Second  order precise levelling|25|1|0.01|139|
+@@getcor|2502|2V|Third order levelling|25|2|0.03|140|
+@@getcor|2503|3V|Less accurate spirit levelling|25|3|0.05|141|
+@@getcor|2504|4V|Conventional vertical angle observations|25|4|0.1|142|
+@@getcor|2505|5V|Station height unknown reliability|25|5|0.5|143|
+@@getcor|2801|1V|First  & Second  order precise levelling|28|1|0.01|144|
+@@getcor|2802|2V|Third order levelling|28|2|0.03|145|
+@@getcor|2803|3V|Less accurate spirit levelling|28|3|0.05|146|
+@@getcor|2804|4V|Conventional vertical angle observations|28|4|0.1|147|
+@@getcor|2805|5V|Station height unknown reliability|28|5|0.5|148|
+@@getcor|5001|1V|First  & Second  order precise levelling|50|1|0.01|149|
+@@getcor|5002|2V|Third order levelling|50|2|0.03|150|
+@@getcor|5003|3V|Less accurate spirit levelling|50|3|0.05|151|
+@@getcor|5004|4V|Conventional vertical angle observations|50|4|0.1|152|
+@@getcor|5005|5V|Station height unknown reliability|50|5|0.5|153|
+@@getcor|5201|1V|First  & Second  order precise levelling|52|1|0.01|154|
+@@getcor|5202|2V|Third order levelling|52|2|0.03|155|
+@@getcor|5203|3V|Less accurate spirit levelling|52|3|0.05|156|
+@@getcor|5204|4V|Conventional vertical angle observations|52|4|0.1|157|
+@@getcor|5205|5V|Station height unknown reliability|52|5|0.5|158|
+@@getcor|13101|?|ITRS coordinate - unspecified accuracy|131|1|10.0|159|
+@@getcor|1001|1|Hawkes Bay Datum 1931 1st Order|10|1|0.0|160|
+@@getcor|1002|2|Hawkes Bay Datum 1931 2nd Order|10|2|0.1|161|
+@@getcor|1003|3|Hawkes Bay Datum 1931 3rd Order|10|3|0.125|162|
+@@getcor|1004|4a|Hawkes Bay Datum 1931 4th Order derived from 2nd & 3rd Order|10|4|0.2|163|
+@@getcor|1005|4b|Hawkes Bay Datum 1931 coordinate supplied by DO|10|4|0.2|164|
+@@getcor|1006|4c|Hawkes Bay Datum 1931 coordinate fixed by hanging line|10|4|0.2|165|
+@@getcor|1007|5|Hawkes Bay Datum 1931 derived from Old Cad trigs adjusted|10|5|0.3|166|
+@@getcor|1008|6a|Hawkes Bay Datum 1931 derived from OCD by double entry tables|10|6|5.0|167|
+@@getcor|1009|6b|Hawkes Bay Datum 1931 coordinates (scaled)|10|6|5.0|168|
+@@getcor|1010|7|Hawkes Bay Datum 1931 (DCDB Derivative) |10|6|10.0|169|
+@@getcor|1011|8|Hawkes Bay Datum 1931 (DCDB Derivative) |10|6|20.0|170|
+@@getcor|1012|9|Hawkes Bay Datum 1931 (DCDB Derivative) |10|6|40.0|171|
+@@getcor|14001|1V|First & second order precise levelling|140|1|0.01|172|
+@@getcor|14002|2V|Third order precise levelling|140|2|0.03|173|
+@@getcor|14003|3V|Less accurate spirit levelling|140|3|0.05|174|
+@@getcor|14004|4V|Conventional vertical angle observations|140|4|0.1|175|
+@@getcor|14005|5V|Station height of unknown reliability|140|5|0.5|176|
+@@getcor|14101|1V|First & second order precise levelling|141|1|0.01|177|
+@@getcor|14102|2V|Third order precise levelling|141|2|0.03|178|
+@@getcor|14103|3V|Less accurate spirit levelling|141|3|0.05|179|
+@@getcor|14104|4V|Conventional vertical angle observations|141|4|0.1|180|
+@@getcor|14105|5V|Station height of unknown reliability|141|5|0.5|181|
+@@getcor|14201|1V|First & second order precise levelling|142|1|0.01|182|
+@@getcor|14202|2V|Third order precise levelling|142|2|0.03|183|
+@@getcor|14203|3V|Less accurate spirit levelling|142|3|0.05|184|
+@@getcor|14204|4V|Conventional vertical angle observations|142|4|0.1|185|
+@@getcor|14205|5V|Station height of unknown reliability|142|5|0.5|186|
+@@getcor|14301|1V|First & second order precise levelling|143|1|0.01|187|
+@@getcor|14302|2V|Third order precise levelling|143|2|0.03|188|
+@@getcor|14303|3V|Less accurate spirit levelling|143|3|0.05|189|
+@@getcor|14304|4V|Conventional vertical angle observations|143|4|0.1|190|
+@@getcor|14305|5V|Station height of unknown reliability|143|5|0.5|191|
+@@getcor|14401|1V|First & second order precise levelling|144|1|0.01|192|
+@@getcor|14402|2V|Third order precise levelling|144|2|0.03|193|
+@@getcor|14403|3V|Less accurate spirit levelling|144|3|0.05|194|
+@@getcor|14404|4V|Conventional vertical angle observations|144|4|0.1|195|
+@@getcor|14405|5V|Station height of unknown reliability|144|5|0.5|196|
+@@getcor|14501|1V|First & second order precise levelling|145|1|0.01|197|
+@@getcor|14502|2V|Third order precise levelling|145|2|0.03|198|
+@@getcor|14503|3V|Less accurate spirit levelling|145|3|0.05|199|
+@@getcor|14504|4V|Conventional vertical angle observations|145|4|0.1|200|
+@@getcor|14505|5V|Station height of unknown reliability|145|5|0.5|201|
+@@getcor|14601|1V|First & second order precise levelling|146|1|0.01|202|
+@@getcor|14602|2V|Third order precise levelling|146|2|0.03|203|
+@@getcor|14603|3V|Less accurate spirit levelling|146|3|0.05|204|
+@@getcor|14604|4V|Conventional vertical angle observations|146|4|0.1|205|
+@@getcor|14605|5V|Station height of unknown reliability|146|5|0.5|206|
+@@getcor|14701|1V|First & second order precise levelling|147|1|0.01|207|
+@@getcor|14702|2V|Third order precise levelling|147|2|0.03|208|
+@@getcor|14703|3V|Less accurate spirit levelling|147|3|0.05|209|
+@@getcor|14704|4V|Conventional vertical angle observations|147|4|0.1|210|
+@@getcor|14705|5V|Station height of unknown reliability|147|5|0.5|211|
+@@getcor|14801|1V|First & second order precise levelling|148|1|0.01|212|
+@@getcor|14802|2V|Third order precise levelling|148|2|0.03|213|
+@@getcor|14803|3V|Less accurate spirit levelling|148|3|0.05|214|
+@@getcor|14804|4V|Conventional vertical angle observations|148|4|0.1|215|
+@@getcor|14805|5V|Station height of unknown reliability|148|5|0.5|216|
+@@getcor|14901|1V|First & second order precise levelling|149|1|0.01|217|
+@@getcor|14902|2V|Third order precise levelling|149|2|0.03|218|
+@@getcor|14903|3V|Less accurate spirit levelling|149|3|0.05|219|
+@@getcor|14904|4V|Conventional vertical angle observations|149|4|0.1|220|
+@@getcor|14905|5V|Station height of unknown reliability|149|5|0.5|221|
+@@getcor|15001|1V|First & second order precise levelling|150|1|0.01|222|
+@@getcor|15002|2V|Third order precise levelling|150|2|0.03|223|
+@@getcor|15003|3V|Less accurate spirit levelling|150|3|0.05|224|
+@@getcor|15004|4V|Conventional vertical angle observations|150|4|0.1|225|
+@@getcor|15005|5V|Station height of unknown reliability|150|5|0.5|226|
+@@getcor|15101|1V|First & second order precise levelling|151|1|0.01|227|
+@@getcor|15102|2V|Third order precise levelling|151|2|0.03|228|
+@@getcor|15103|3V|Less accurate spirit levelling|151|3|0.05|229|
+@@getcor|15104|4V|Conventional vertical angle observations|151|4|0.1|230|
+@@getcor|15105|5V|Station height of unknown reliability|151|5|0.5|231|
+@@getcor|20001|10|ITRF 10th order|131|6|40.0|232|
+@@getcor|20002|5|WGS 72 5th order|26|3|0.25|233|

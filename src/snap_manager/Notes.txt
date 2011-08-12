@@ -1,0 +1,87 @@
+Snap manager program ... windows shell for running snap programs.
+
+Runs of snap command files with extension (.snap).  On each save adds a set of formatted comments listing all the files 
+referenced with their date and timestamp.  On start up and on each activation checks for changes to any files.  
+
+Keeps a log of changes in .snap.log file with datestamp and user id.  Requests comments from user when any changes are 
+made.  Notes when significant events occur.  
+
+Runs programs snapplot, snap, other utilities.  etc.
+
+Reads at least data files and coordinate file.  Checks for valid coordinate system.  For data files summarises number of observations,
+which stations are referenced, which are not in coordinate file.
+
+For each file provides options for viewing in snapplot, or in editor.  For data files provides option of running data check adjustment
+to verify data.
+
+Consider building components with DLLs..
+
+Provide GUI for snap using DDE ... 
+
+Set up manager to have a configuration file driven list of tools each with preconditions, templated commands, options, etc... each
+defining where it is to be installed in menu
+
+Add/import tools for data files, tool to acquire coordinates from various sources
+
+Would be really good to add classifications, or at least order, to SNAP coordinate file ...
+
+wxConfig
+wxFileHistory
+
+Add a command window to the menu ...
+
+==================================================
+
+Snap manager configuration.  Basic components are:
+
+CONFIG name value description   - configuration items, may be overwritten by user configuration settings in wxConfig \ConfigurationSettings\name
+
+MENU_ITEM "menu_path" "name" "description"  Menu path could be something like "View/Observations", or "File/Import/S
+
+REQUIRE condition   .... menu item will only be enabled if condition is met.  Will have a set of standard conditions 
+        such as JobLoaded, BinFileAvailable, etc...  These will be provided by script environment. 
+       
+SCRIPT  
+END_SCRIPT ... basic script language for implementing actions.  Language includes
+
+variables
+asString
+asBoolean
+$name
+"literal value"
+
+SET variable variable
+SET variable FILENAME basename EXTENSION=variable UNIQUE
+SET variable GET_FILE ...  standard file dialog box
+
+IF condition
+ELSEIF condition
+ELSE
+ENDIF
+
+MESSAGE "message" "title"
+START job plus parameters (asynchronous)
+RUN job plus parameters (synchronous)
+
+conditions
+ASK  "question" "title" - basic YES/NO/CANCEL dialog box 
+FILE_EXISTS filename
+variable
+
+DIALOG...
+...
+CHECK_BUTTON variable (=>conditional) "text"
+RADIO_BUTTONS variable
+"value" "string"
+"value "string"
+FILE_
+
+END_DIALOG
+
+variables
+
+
+END_SCRIPT
+
+
+

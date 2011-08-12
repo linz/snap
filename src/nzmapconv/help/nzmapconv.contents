@@ -1,0 +1,13 @@
+1	NZMapConv overview	./index.html
+1	Using the NZMapConv program	./usage.html
+ 2	NZMapConv options	./options.html
+ 3	NZMapConv registry settings	./registry.html
+1	NZMapConv coordinate systems	./coordsys.html
+ 2	NZMS260 map references	./nzms260.html
+ 2	New Zealand Map Grid coordinates	./nzmg.html
+ 2	New Zealand Geodetic Datum 1949	./nzgd1949.html
+ 2	NZTopo50 map references	./nztopo50.html
+ 2	New Zealand Transverse Mercator coordinates	./nztm.html
+ 2	New Zealand Geodetic Datum 2000	./nzgd2000.html
+ 2	NZMS260 map sheets	./nzms260sheets.html
+ 2	NZTopo50 map sheets	./nztopo50sheets.html

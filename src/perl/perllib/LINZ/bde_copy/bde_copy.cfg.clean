@@ -1,0 +1,12 @@
+# Configuration file to fix up characters to for simple clean loading
+# $Id$
+
+keep_escapes no
+
+# Pipes and slaches deleted replaced by spaces
+replace | \x20
+replace \\ \x20
+
+# Carriage return and line feed replaced by \r and \n
+replace \x0A \\n
+replace \x0D \\r

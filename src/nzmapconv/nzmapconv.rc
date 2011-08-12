@@ -1,0 +1,5 @@
+ICO_NZMAPCONV16 ICON nzmapconv16.ico
+ICO_NZMAPCONV32 ICON nzmapconv32.ico
+IDB_SPLASHSCREEN BITMAP nzmapconv_splash.bmp
+
+#include "wx/msw/wx.rc"

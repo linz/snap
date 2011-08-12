@@ -1,0 +1,182 @@
+! Configuration file for listgps
+
+! Anything between text and end_text gets printed verbatim
+
+text
+end_text
+
+! Define angle format (essentially defines strings appearing after degrees,
+! minutes, and seconds).  See below for defining strings.  The first character
+! is used as a delimiter between the strings)
+!
+! The angle format can be varied throughout the configuration file.  Each
+! angle column in a table uses the most recent format defined.
+
+angle_format ###\xF8##'##"
+
+
+! Define a table.... between table and end_table
+! There can be more than one table in the output.  Each table definition
+! must include the commands "data", "delimiter", and at least one "column"
+! command.
+
+table
+
+! data definition is required.  Currently this must specify gps station.
+
+data gps
+
+! Specify the column delimiter.  The default is a tab character.
+! Use \ for no delimiter.  You can also use "tab", "blank", and "comma".
+! Or you can enter a string as defined below.
+!
+! Also you can define the quote character
+
+delimiter tab
+quote "
+
+! Specify the output columns.  Each column is formatted as
+!   column field_name options
+! where field_name is the name of the information to print, and options
+! provide formatting information.
+!
+! Valid column names are:
+!   from               From station code
+!   to                 To station code
+!   obs_ell_dist       Observed ellipsoidal distance
+!   calc_ell_dist      Calculated ellipsoidal distance
+!   ell_dist_err       Error in ellipsoidal distance
+!   ppm_ell_dist_err   Ppm error "  "  "
+!   rf_ell_dist_err    RF error  "  "  "
+!   hor_vec_err        Length of error in horizontal component of vector
+!   ppm_hor_vec_err    ditto as ppm of horizontal length of vector
+!   obs_prj_brng       Observed projection bearing
+!   calc_prj_brng      Calculated projection bearing
+!   prj_brng_err       Error in projection bearing (in seconds)
+!   ppm_prj_brng_err   Ppm error "  "  "
+!   rf_prj_brng_err    RF error  "  "  "
+!   rf_hor_vec_err     ditto as RF
+!
+! Options for columns are as follows:
+!   width=###          Output width
+!   align=##           Alignment of field in column (left, centre, or right)
+!   ndp=#              Number of decimal places to print
+!   quote              Field is quoted
+!   prefix=...         Printed in front of the field (outside the quotes)
+!   suffix=...         Printed behind the field (outside the quotes);
+!   header=...         Defines the column header.  See below for definition
+!                      of string formatting.  For multiline headers separate
+!                      lines by \n  (new line)
+! Options must be as a single string with no enclosed spaces.  For spaces
+! in headers use the underscore character (see below).
+!
+
+column from                  header=From
+column from_name             header=Name
+column to                    header=To
+column to_name               header=Name
+column obs_ell_dist          header=Distance
+column calc_ell_dist         header=Calculated
+column ell_dist_err          header=Corrn
+column ppm_ell_dist_err      header=ppm
+column rf_ell_dist_err       header=RF
+column hor_vec_err           header=Vector
+column ppm_hor_vec_err       header=ppm
+column rf_hor_vec_err        header=RF
+column obs_prj_brng          header=Bearing
+column calc_prj_brng         header=Calculated
+column prj_brng_err suffix=" header=Corrn
+column ppm_prj_brng_err      header=ppm
+column rf_prj_brng_err       header=RF
+
+end_table
+
+!
+text
+
+end_text
+
+!========================================================================
+! Define a table.... between table and end_table
+
+table
+
+! data definition is required.
+
+data stations
+
+! Specify the column delimiter.
+
+delimiter tab
+quote "
+
+! The coordinate system for the marks
+
+! coordsys code
+
+! Specify the output columns.  Each column is formatted as
+!   column field_name options
+! where field_name is the name of the information to print, and options
+! provide formatting information.
+!
+! Valid column names are:
+!   code               The station code
+!   name               The station name
+!   order              The station order
+!   northing           The station northing
+!   easting            The station easting
+!   height             The height of the station
+!   h_max_error        The length of the major axis of the error ellipse
+!   h_min_error        The length of the minor axis of the error ellipse
+!   h_max_brng         The orientation of the major axis
+!   change_east        The east component of the coordinate change
+!   change_north       The east component of the coordinate change
+!   change_up          The east component of the coordinate change
+!
+! Options for columns are as follows:
+!   width=###          Output width
+!   align=##           Alignment of field in column (left, centre, or right)
+!   ndp=#              Number of decimal places to print
+!   quote              Field is quoted
+!   decimal            Angle is in decimal degrees
+!   prefix=...         Printed in front of the field (outside the quotes)
+!   suffix=...         Printed behind the field (outside the quotes);
+!   header=...         Defines the column header.  See below for definition
+!                      of string formatting.  For multiline headers separate
+!                      lines by \n  (new line)
+! Options must be as a single string with no enclosed spaces.  For spaces
+! in headers use the underscore character (see below).
+!
+
+column code 
+column name
+column northing
+column easting
+column height
+column h_max_error
+column h_min_error
+column h_max_brng
+column change_east
+column change_north
+column change_up
+
+end_table
+
+! Definition of strings
+!
+! The angle_format, delimiter, and quote commands and the header option
+! of the column command all require strings to be input.  In these strings
+! the \ and _ characters are treated specially.
+!
+! The underscore is replaced by a blank in the output.
+! The backslash is used to enter "escape sequences", which are characters
+! that cannot be entered conveniently into the string.  Valid escape
+! sequences are:
+!    \b   Print a blank (same as _)
+!    \n   Print a new line
+!    \t   Print a tab character
+!    \x## Print the character with hex value ##
+! Any other character after a backslash is printed literally. So
+!    \\   Prints a backslash
+!    \_   Prints an underscore
+!
