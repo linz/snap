@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta name="keywords" content="concord, coordinate system, coordinate conversion, coordinate">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>Examples of concord</title>
+
+
+</head>
+
+<body>
+
+
+<h1>Examples of concord</h1>
+
+<p>To use concord to convert a few
+coordinates from the keyboard use the command</p>
+
+<p class="Commandexample">C:&gt; concord</p>
+
+<p>This will prompt for the input and output
+coordinate systems and prompt for input and output file names as shown in the example below. 
+This illustrates converting New Zealand Map Grid coordinates to New Zealand Transverse Mercator.
+No input and output file names are specified, so the 
+the coordinates are entered from the keyboard and displayed on the screen.
+</p>
+
+<p>This same conversion could have been putting the coordinates into an 
+input file (say input.txt) and running the command:
+</p>
+
+<p class="Commandexample">C:&gt; concord -inzmg,en -onztm,en -n10 input.txt output.txt</p>
+
+<pre class="Listing">
+C:\&gt;concord
+
+concord:  Coordinate conversion program
+
+Input coordinates:
+    Enter input circuit code or ?: <span class="UserInput">nzmg</span>
+    Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)
+    Enter input coordinate order(default EN): <span class="UserInput">en</span>
+
+Output coordinates:
+    Enter output circuit code or ?: <span class="UserInput">nztm</span>
+    Coordinate order can be EN, ENH, ENO, NE, NEH, or NEO (O = ortho. height)
+    Enter output coordinate order(default EN): <span class="UserInput">en</span>
+    Enter number of decimal places for output (default 3): <span class="UserInput">3</span>
+
+Each point you convert can have a name.  If you want to use names you must
+specify the length of the longest name you want to use
+
+Enter maximum name length, or 0 for no names (default 0): <span class="UserInput">10</span>
+
+You can enter the coordinates to convert yourself, or read them from a file
+If you want to read them from a file then specify the name of the file,
+otherwise just press Enter
+
+Enter coordinate input filename:
+
+If you want the output to go to a file, enter the file name
+
+Enter output file name:
+
+
+=====================================================================
+
+          concord - coordinate conversion program
+
+Input coordinates:  New Zealand Map Grid
+
+Output coordinates: New Zealand Transverse Mercator Projection
+
+You can now enter coordinates you want converted.  Your input should look
+something like this:
+
+STN_3  315378.28  728910.43
+
+Each item should be separated by at least one blank space.
+The name cannot include blanks.
+When you have finished enter a blank line to quit the program
+
+
+Enter name, easting, northing: <span class="UserInput">point1  2429637.34 5931152.65</span>
+                                1519673.605  5369483.399
+Enter name, easting, northing: <span class="UserInput">point1  2512939.36 6061427.7</span>
+                                1602951.181  5499699.403
+Enter name, easting, northing:
+
+C:\&gt;
+</pre>
+</body>
+
+</html>

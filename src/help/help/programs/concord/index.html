@@ -1,0 +1,294 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta name="keywords" content="concord, coordinate system, coordinate conversion, coordinate">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>concord - coordinate conversion program</title>
+
+
+</head>
+
+<body>
+
+
+<h1>Concord - coordinate conversion program</h1>
+
+<p>Concord is a program to convert
+coordinates between the various coordinate systems. It is designed primarily
+to convert coordinates in data files, but can also be used to convert manually
+entered coordinates. The program supports conversions which involve
+projections (Transverse and equatorial Mercator, Polar stereographic, Lambert
+Conformal Conic, New Zealand Map Grid), and changes of geodetic reference frame
+(e.g. WGS84 to NZGD49). It also can convert between ellipsoidal and
+orthometric heights (the accuracy of this is limited by the geoid model used -
+errors of up to 1 metre are typical).</p>
+
+<p>Coordinate systems used by concord are
+defined in a file called coordsys.def in the same directory as the 
+concord program. For each coordinate system this
+specifies the reference frame, ellipsoid, and projection that is used. This
+is a simple text file and can be readily edited to include additional coordinate
+systems.</p>
+
+<p>Conversions between ellipsoidal and
+orthometric height are done using a <a href="../../coordsys/geoid.html">geoid model</a> specified with the -G parameter.  For converting New Zealand points the
+NZGeoid09 model is recommended (-gNZGeoid09).  If overseas points are being 
+converted then the global 
+model EGM96 from NASA and NIMA (http://cddis.gsfc.gov/926/egm96/egm96.html)
+will need to be used (-gEGM96).
+</p>
+
+<h2>Command syntax</h2>
+
+<p>The syntax for running concord is one of:</p>
+
+<p class="Commanddefinition">concord<p>
+
+<p>to run an interactive session, or<p>
+
+<p class="Commanddefinition">concord [<i>switches</i>] [<i>input_file_name</i>]
+[<i>output_file_name</i>]</p>
+
+<p>to convert coordinates in a file, or </p>
+
+<p class="Commanddefinition">concord -l <i>coordsys_code ...</i>
+
+<p>to list the available coordinate systems (if no code is supplied) or to describe one or more coordinates systems.</p>
+
+<p>The two parameters that can be specified
+are:</p>
+
+<table class="NormalTable">
+ <tr>
+  <td>
+  <p><i>input_file_nam</i>e</p>
+  </td>
+  <td>
+  <p>Specifies the name of the input file of
+  coordinates. This parameter may only be supplied if the -K switch (see below)
+  is not present. If it is not specified input is taken from the standard input
+  channel. A file name of - is equivalent to the standard input channel.
+  The required format of an input file is defined below. </p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p><i>output_file_name</i></p>
+  </td>
+  <td>
+  <p>Defines where output is to be directed.
+  If no output file is specified, or if the file name is - then output is
+  directed to the standard output stream. If a file is specified, then a
+  summary of the processing is sent to the standard output stream.</p>
+  </td>
+ </tr>
+</table>
+
+<p>The command line switches that can be
+specified are:</p>
+
+<table class="NormalTable">
+ <tr>
+  <td>
+  <p>-A</p>
+  </td>
+  <td>
+  <p>Ask for all parameters interactively
+  rather than using only the information in the command line. All the options
+  described below are available interactively using the -A switch. If no
+  switches other than the C and G switches are specified then this becomes the
+  default.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-I<i>xxxx</i></p>
+  </td>
+  <td>
+  <p>Defines the input coordinate system to be
+  <i>xxxx</i>. The format for the code is described below.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-K</p>
+  </td>
+  <td>
+  <p>Keyboard entry of coordinates - prompts
+  for coordinates to be converted at the keyboard rather than reading from a
+  file. Converted coordinates are always displayed on the standard output with
+  this option. The coordinates may also be directed to a file by specifying an
+  output file name in the command line.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-L</p>
+  </td>
+  <td>
+  <p>Lists the valid coordinate system codes
+  to the standard output stream. No coordinate conversion is done.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-O<i>xxxx</i></p>
+  </td>
+  <td>
+  <p>Defines the output coordinate system. The
+  code <i>xxxx</i> is described below.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-Nc</p>
+  </td>
+  <td>
+  <p>If the -N switch is present then the
+  input coordinates are assumed to be preceded by a point identifier. The
+  switch can specify the maximum number of characters in the identifier as c.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-Pn</p>
+  </td>
+  <td>
+  <p>Defines the number of decimal places in
+  the output coordinates.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-Sc</p>
+  </td>
+  <td>
+  <p>Defines a field separator to be used for
+  the input and output files. The default separator is whitespace (blank or tab
+  characters).</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-V</p>
+  </td>
+  <td>
+  <p>Verbose output - columns of coordinates
+  are headed and input coordinates are echoed in the output.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-C<i>filename</i></p>
+  </td>
+  <td>
+  <p>Specifies the name of the coordinate
+  system definition file (default is coordsys.def). The format of the file is
+  described below.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-G<i>filename</i></p>
+  </td>
+  <td>
+  <p>Specifies the name of the geoid model
+  file (default is geoid.bin). The format of this file is defined below.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-H</p>
+  </td>
+  <td>
+  <p>Print a help page listing these switches.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>-Z</p>
+  </td>
+  <td>
+  <p>List the program version and copyright
+  information. No coordinate conversion is done.</p>
+  </td>
+ </tr>
+</table>
+
+<p>The input and output coordinate systems are
+specified by a code which consists of up to three items separated by commas or colons. </p>
+
+<p>The first item is the code for the
+coordinate system. This must match an entry in the coordinate system
+definition file (the format of this file is described below). </p>
+
+<p>The second item defines the order of the
+coordinates in the input or output file. This is a two or three character
+string in which each character defines one of the coordinates in the file. The
+first two must be characters must be EN (easting/longitude followed by
+northing/latitude) or NE (northing/latitude followed by easting/longitude).
+The third character specifies the height and can be H for ellipsoidal height or
+O for orthometric height. If the third character is omitted then input file is
+assumed to contain no height data. (i.e. heights are 0).</p>
+
+<p>For latitude/longitude coordinates the
+definition can include a third character which specifies how the angles are
+entered. Use H for hexaguesimal format (degrees, minutes, seconds followed by
+a hemisphere), M for degrees and decimal minutes, or D for decimal degrees.</p>
+
+<p>For example the input coordinate system
+could be defined by a switch -iNZGD49:ENO:H.This specifies that the input
+is in the NZGD49 coordinate system (New Zealand Geodetic Datum 1949). This is
+a latitude and longitude coordinate system. The coordinates are ordered as
+longitude, latitude, ellipsoidal height. An example of the input in this case
+could be</p>
+
+<p>172 43 58.22 E 42 25 02.179 S 298.53</p>
+
+
+<h2>Input data file format</h2>
+
+<p>Files of input coordinates should contain
+one pair of coordinates per line. Blank lines and lines starting with an
+exclamation mark are ignored, and pass unchanged into the output file. Each
+data line should contain the following fields separated by space or tab
+characters (or a delimiter character specified with the -S switch).</p>
+
+<p><i> id coordinate1
+coordinate2 coordinate3 additional_data</i></p>
+
+<p>The id must be present if the -N switch is
+specified, and must be omitted otherwise. The -N switch defines the maximum
+number of characters that are read from the id. It can be longer than this
+specified length, but any extra characters will be discarded and will not be
+copied to the output file. Following the id are the two or three coordinates
+and then optional additional data (which is copied to the output file without
+modification). The order and format of the coordinates is defined by the -I
+switch as described above.</p>
+
+<p>Hexaguesimal latitudes and longitudes each
+comprise four fields, these being the degrees, minutes, and seconds of the
+angle and the hemisphere indicator (N, S, E, or W). The hemisphere can precede
+or follow the angle, and if it follows the angle, need not be separated by a
+space from the angle. If a separator is specified by the -S switch it must be
+used between the components of angles as well as between the different
+coordinates.</p>
+
+<p>Similarly, degrees and minutes format angles comprise three fields.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="../../coordsys/whatiscoordsys.html">What is a coordinate system</a></p>
+<p><a href="example.html">Examples of concord</a></p>
+<p><a href="../../coordsys/index.html">Coordinate system definition</a></p>
+<p><a href="../../coordsys/crdsys_standard_list.html">Standard coordinate systems provided with concord</a></p>
+<p><a href="../../coordsys/geoid.html">Geoid files</a></p>
+
+
+</div>
+</body>
+
+</html>

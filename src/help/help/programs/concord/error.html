@@ -1,0 +1,57 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta name="keywords" content="concord, coordinate system, coordinate conversion, coordinate">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>concord error messages</title>
+
+
+</head>
+
+
+<body>
+<h1>Concord error messages</h1>
+
+<p>Errors can occur at two stages in the
+program - firstly processing the command line options, and secondly in
+converting the data. </p>
+
+<p>If errors are encountered processing the
+command line a message is printed and the program stops immediately. Generally
+the error message is fairly self explanatory.</p>
+
+<p>Errors occurring while converting
+coordinates do not stop the program. An error message is written to the output
+file, and the program continues reading data from the input file. All error
+messages in the output file start with the string &quot;****&quot;. The error
+messages that may occur in the output are</p>
+
+<p class="Commanddefinition">Error reading data</p> 
+
+<p class="Commanddescription">The data format is invalid.</p>
+
+<p class="Commanddefinition">Input coordinate range error</p>
+
+<p class="Commanddescription">The input coordinates are not valid values for the circuit and units
+specified. This is a likely error if the order of the coordinates is specified
+incorrectly so that eastings and northings are confused..</p>
+
+<p class="Commanddefinition">Output coordinate range error</p>
+
+<p class="Commanddescription">The input coordinates are outside the valid range of the output
+coordinate system.</p>
+
+<p class="Commanddefinition">Cannot calculate geoid height</p>
+
+<p class="Commanddescription">The geoid height cannot be calculated for the height. This may be
+because the point is outside the extents of the geoid model supplied.
+Note that the NZGeoid09 model is only defined in the vicinity of 
+New Zealand.</p>
+
+
+</body>
+
+</html>

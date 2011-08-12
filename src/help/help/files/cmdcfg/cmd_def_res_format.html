@@ -1,0 +1,252 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="Listing file, format, residuals">
+<title>Defining the residual listing format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_def_res_format"></a>Defining the residual listing format</h1>
+
+<p>The listing of residuals is generally the most important component of the output.  In SNAP you can choose what information you want in that listing and how it is to be laid out.  The commands that control this section are:</p>
+
+<p>define_residual_format: Defines the data that will be included in the residual listing (described below)</p>
+
+<p>add_residual_column: Appends additional columns to the residual listing (described below)</p>
+
+<p><a href="cmd_output_precision.html">output_precision</a>: Specifies the precision used to list the observations and residuals</p>
+
+<p><a href="cmd_error_type.html">error_type</a>: Chooses a priori or a posteriori errors</p>
+
+<p><a href="cmd_flag_significance.html">flag_significance</a>: Defines the significance at which residuals are flagged as being potential errors</p>
+
+<p><a href="cmd_redundancy_flag_level.html">redundancy_flag_level</a>: Defines the level at which a warning flag is shown for observations with low redundancy</p>
+
+<p><a href="cmd_sort_observations.html">sort_observations</a>: specifies the order in which the observations are presented.</p>
+
+<p><a href="cmd_file_location_frequency.html">file_location_frequency</a>: Specifies how frequently in the listing the input data file and line number are listed</p>
+
+<p>The define_residual_format and add_residual_column commands define the columns that will be output for each data type.  define_residual_format creates an entirely new format, whereas add_residual_column  extends the existing formats.  The syntax for these two commands is identical:</p>
+
+<p class="Commanddefinition">define_residual_format  <i>data_types  columns</i><br>add_residual_column<i>  data_types  columns</i></p>
+
+<p>In these commands <code>data_types</code> specifies the data types for which the format applies.  This can be any of the data type codes (e.g. HA, SD, GB), or it can be ALL (all data types), POINT (point data types - latitude and longitude), LINE (line data types such as angles and distances), or VECTOR (vector data types, currently only GPS).  You can also combine several data types separating them with a / character, e.g.  ED/SD/HD.</p>
+
+<p>The <code>columns</code> parameter specifies the data to be output in the residual listing.  Each column in the output is specified by a string of the form</p>
+
+<p class="Commanddefinition">field_name:width:title1:title2</p>
+
+<p>Here <code>field</code> is the name of the field to output (see table below), <code>width</code> is the number of characters allowed for the field in the residual listing,  and <code>title1</code> and <code>title2</code> are the titles used to head the output columns.  The width and titles do not need to be specified - SNAP will choose defaults for these.</p>
+
+<p>The column definition cannot include any blank characters.  To put a blank into the title use an underscore character in the definition.  If you need an underscore, colon, or backslash in the title then these must be preceded by a backslash in the definition.  As a rather contrived example, the definition </p>
+
+<p class="Commanddefinition"> from:12:Obs_station\::\\code\_name</p>
+
+<p>would create a column 12 characters wide listing the instrument station codes and headed</p>
+
+<p class="Commanddefinition">Obs station:
+\code_name</p>
+
+<p>By default a single blank character is inserted between each output field.  If you want to insert extra space, you can do this with the field specification S:n, where n is the number of spaces to leave.  You can also spread the information over more than one line by using the  NL field specification to start a new line.</p>
+
+<p>Here is an example of a simple residual listing format:</p>
+
+<p class="Commanddefinition">define_residual_format  line from to type res_val res_err alt_res std_res flags</p>
+
+<p>The add_residual_column command can be used to add a column to the default format, or to build up the format where it cannot easily be represented on just one line of the command file.  (That is, you can start a format with the define_residual_format command, and add each column with the add_residual_column command).</p>
+
+<p>An example of this command to add part per million residuals to distance observations would be</p>
+
+<p class="Commanddefinition">add_residual_column   sd/hd/ed   alt_res:8:ppm:residual</p>
+
+<p>The following fields can be included in the residuals listing.</p>
+
+<table>
+
+<tr>
+<td><b>Field name</b></td>
+<td><b>Contents</b></td>
+</tr>
+
+<tr>
+<td>from</td>
+<td>Station code of the instrument station</td>
+</tr>
+
+<tr>
+<td>to</td>
+<td>Station code of the target station</td>
+</tr>
+
+<tr>
+<td>from_name</td>
+<td>Station name of the instrument station</td>
+</tr>
+
+<tr>
+<td>to_name</td>
+<td>Station name of the target station</td>
+</tr>
+
+<tr>
+<td>hgt_inst</td>
+<td>Height of the instrument</td>
+</tr>
+
+<tr>
+<td>hgt_trgt</td>
+<td>Height of the target</td>
+</tr>
+
+<tr>
+<td>type</td>
+<td>Code for the type of observation (e.g. SD, HA...)</td>
+</tr>
+
+<tr>
+<td>date</td>
+<td>Date of the observation if known</td>
+</tr>
+
+<tr>
+<td>file</td>
+<td>Name of the source data file</td>
+</tr>
+
+<tr>
+<td>file_no</td>
+<td>Number of the source data file</td>
+</tr>
+
+<tr>
+<td>line_no</td>
+<td>Line number of the observation in the data file</td>
+</tr>
+
+<tr>
+<td>obs_val</td>
+<td>Observed value</td>
+</tr>
+
+<tr>
+<td>obs_err</td>
+<td>Error of the observed value</td>
+</tr>
+
+<tr>
+<td>calc_val</td>
+<td>Calculated value</td>
+</tr>
+
+<tr>
+<td>calc_err</td>
+<td>Error of the calculated value</td>
+</tr>
+
+<tr>
+<td>res_val</td>
+<td>Residual</td>
+</tr>
+
+<tr>
+<td>res_err</td>
+<td>Error of the residual</td>
+</tr>
+
+<tr>
+<td>alt_res</td>
+<td>Alternative representation of the residual</td>
+</tr>
+
+<tr>
+<td>std_res</td>
+<td>Standardized residual</td>
+</tr>
+
+<tr>
+<td>redundancy</td>
+<td>Redundancy factor of the observation</td>
+</tr>
+
+<tr>
+<td>mde_power</td>
+<td>Marginal detectable error</td>
+</tr>
+
+<tr>
+<td>flags</td>
+<td>Significant residual and rejected observation flags</td>
+</tr>
+
+<tr>
+<td>azimuth</td>
+<td>Azimuth of the line</td>
+</tr>
+
+<tr>
+<td>prj_azimuth</td>
+<td>Projection azimuth (blank for geodetic coordinate files)</td>
+</tr>
+
+<tr>
+<td>hgt_diff</td>
+<td>Height difference on the line</td>
+</tr>
+
+<tr>
+<td>arc_dist</td>
+<td>Ellipsoidal arc distance of the line</td>
+</tr>
+
+<tr>
+<td>slp_dist</td>
+<td>Slope distance of the line</td>
+</tr>
+
+<tr>
+<td>C=xxxx</td>
+<td>The xxxx classification of the observation</td>
+</tr>
+
+<tr>
+<td>S</td>
+<td>a blank space</td>
+</tr>
+
+<tr>
+<td>NL</td>
+<td>start a new line</td>
+</tr>
+</table><br>
+
+<p>The alternative representation of the residual (alt_res) depends upon the data type.  For distances, height differences, and GPS baselines it gives the error in part per million of the line length.  For horizontal angles and azimuths it the equivalent horizontal offset perpendicular to the line.  For zenith distances it is the equivalent error in the height difference.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_output_precision.html">The output_precision command</a></p>
+
+<p><a href="cmd_error_type.html">The error_type command</a></p>
+
+<p><a href="cmd_flag_significance.html">The flag_significance command</a></p>
+
+<p><a href="cmd_redundancy_flag_level.html">The redundancy_flag_level command</a></p>
+
+<p><a href="cmd_sort_observations.html">The sort_observations command</a></p>
+
+<p><a href="cmd_file_location_frequency.html">The file_location_frequency command</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

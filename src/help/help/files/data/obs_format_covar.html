@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format, grouped, covariance">
+<title>Grouped observations with covariance format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_format_covar"></a>Grouped observations with covariance format</h1>
+
+<p>Grouped observations with covariance are formatted in the same way as <a href="obs_format_grouped.html">grouped</a> observations, but with a covariance or correlation matrix following each group.  The covariance is separated from the data by a <i>#end_set</i> data definition command.  This format is used for multistation GPS data.  The format is:</p>
+
+<pre class="Commandexample">
+inst_stn_definition
+trgt_stn_definition  observation 
+trgt_stn_definition  observation 
+trgt_stn_definition  observation 
+#end_set
+covariance_matrix_elements ....
+covariance_matrix_elements ....
+
+inst_stn_definition
+trgt_stn_definition  observation 
+trgt_stn_definition  observation 
+....
+</pre>
+
+<p>If the observations are point observations then the instrument station line is omitted, that is:</p>
+
+
+<pre class="Commandexample">
+trgt_stn_definition  observation 
+trgt_stn_definition  observation 
+trgt_stn_definition  observation 
+#end_set
+covariance_matrix_elements ....
+covariance_matrix_elements ....
+
+</pre>
+<p>The station definitions <i>inst_stn_definition</i> and <i>trgt_stn_definition</i> (instrument station definition and target station definition) define the station code (the station code from the coordinate file) and the height of the equipment above the station.  The preceding <a href="obs_ddc_data.html">#data</a> command may specify that the height is to be omitted (with the no_heights option), in which case the height is treated as being zero.</p>
+
+<p>Each observation definition (<i>observation</i> in the formats above) includes the value of the observation (e.g. the length for a distance measurement).  It may also include the error of the observation, and additional information such as refraction coefficient codes, observation classifications, and so on.  There may be more than one observation type on each line.  For example a data block may hold readings from a total station which include horizontal angle, zenith distance, and slope distance.  The contents of the observation section is defined in the preceding #data command.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_gps_err_format.html">GPS error formats</a></p>
+
+<p><a href="obs_gx_err_format.html">Point coordinate error formats</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+</div>
+</body>
+</html>

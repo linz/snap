@@ -1,0 +1,225 @@
+
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, snapplot configuration, configuration files">
+<title>Snapplot configuration commands</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>Snapplot configuration commands</h1>
+
+<p>The following commands can be used in snapplot configuration commands</p>
+
+<h2>Configuration menu</h2>
+<p class="Commanddefinition">
+config_menu  cfg_file_name  menu_text
+</p>
+<p class="Commanddescription">
+Adds a configuration file to the "Config" menu.  This is useful for frequently used configuration files.  This command is only used in start up configuration files - it is ignored in configuration files loaded from the menu.  This is most sensibly placed in one of the automatically loaded configuration files to reference other configuration files in the default directories (either the program or users directory).  In this command cfg_file_name is the name of the configuration file, and menu_text is text that will appear in the menu.  The menu text can include an "&" before a character to define it as the hot-key character (i.e. the character that can be used to select the menu item).  It can also include spaces.
+</p>
+<h2>Station display options</h2>
+<!--
+<p class="Commanddefinition">
+station_size  [type]  size [times_default]
+</p>
+<p class="Commanddescription">
+Specifies the size that station symbols and text (names and codes) will be plotted.  In this command type is one of "symbol" or "text" to indicate what the size applies to.  If neither are specified then the size applies for both.    size is  the size that will be used and is either a size in metres at true scale, or it is expressed a multiple of the default size that SNAPPLOT will use (e.g. 2.0 times_default).  If the size is expressed as a multiple of the default then the actual size will vary as the scale of the plot changes so that the plotted size is approximately constant.
+</p>
+<p class="Commanddefinition">
+use_fixed_size_font  yes|no
+</p>
+<p class="Commanddescription">
+This command provides the option of using a fixed size font for plotting station names and codes.  The fixed size font is generally more legible than the variable sized font.  However it is not used when DXF files are plotted, so that while this option is selected the screen will not exactly reflect the contents of a DXF file generated from it.
+</p>
+-->
+<p class="Commanddefinition">
+offset_station  code  east_offset  north_offset
+</p>
+<p class="Commanddescription">
+Specifies stations that are to be plotted out of position on the map. In this command station_code is the code of the station to be offset, and east_offset and north_offset are the offset distances in metres. The offset is always expressed in metres east and north, regardless of the coordinate system of the data file.  A separate command is required for each offset station. 
+</p>
+<p class="Commanddefinition">
+ignore_station_offsets  yes|no
+</p>
+<p class="Commanddescription">
+Specifies whether stations are to be plotted in their offset locations.
+</p>
+<p class="Commanddefinition">
+highlight station_list
+<br>
+highlight station_list
+</p>
+<p class="Commanddescription">
+Specifies stations that are to be highlighted or not.  This command can be used multiple times to select the required stations.  The stations are entered in the same way as in snap command file <a href="../../files/cmdcfg/cmd_stn_list.html">station lists</a>.
+</p>
+<p class="Commanddefinition">
+hide station_list
+<br>
+show station_list
+</p>
+<p class="Commanddescription">
+Specifies stations that are to be hidden or shown.  This command can be used multiple times to select the required stations.  The stations are entered in the same way as in snap command file <a href="../../files/cmdcfg/cmd_stn_list.html">station lists</a>.
+</p>
+<h2>Observation display options</h2>
+<p class="Commanddefinition">
+observation_colours  by_type
+<br>
+observation_colours  by_file
+<br>
+observation_colours  by_std_residual  [apriori|aposteriori]  max_sres  ngroups
+<br>
+observation_colours  by_redundancy  ngroups
+<br>
+observation_colours  by_classification  class_name
+</p>
+<p class="Commanddescription">
+Defines the colour scheme that will be used to plot observations. The basic options are to colour observations by_type (e.g. slope distance, horizontal angle), by_file (i.e. according to the data file from which the observations are read), by_std_residual, by_redundancy, or by_classification. 
+</p>
+<p class="Commanddescription">
+To colour by standardised residual you must specify whether apriori or aposteriori standardised residuals are to be used, what is the maximum standardised residual to be in the groupings that will be generated, and how many groups to form. 
+</p>
+<p class="Commanddescription">
+To colour by redundancy you must specify how many groups (ranges of redundancy values) to form.
+</p>
+<p class="Commanddescription">
+To colour by classification you must specify which classification to use.  This should correspond to one of the classifications defined in one of the data files.
+</p>
+<p class="Commanddefinition">
+observation_options  options...
+</p>
+<p class="Commanddescription">
+Specifies some options related to plotting observations.   In this command options can include any of the following:
+</p>
+<table class="Commanddescription">
+ <tr>
+  <td>show_obs_direction</td>
+  <td>Observations for which the direction of observation is important (for example horizontal angle observations) are shown with a dotted line at the target station and a solid line at the instrument station.</td>
+ </tr>
+ <tr>
+  <td>no_show_obs_direction</td>
+  <td>All observations are shown as a solid line</td>
+ </tr>
+ <tr>
+  <td>merge_all_obs</td>
+  <td>All observations between two stations are represented with a single line between the stations (that is, observations are not offset).</td>
+ </tr>
+ <tr>
+  <td>merge_similar_obs</td>
+  <td>Observations of a line corresponding to different entries in the key are offset from one another. </td>
+ </tr>
+ <tr>
+  <td>no_merge_obs</td>
+  <td>All observations of a line are offset from one another.</td>
+ </tr>
+ <tr>
+  <td>show_hidden_station_obs</td>
+  <td>Show observations between hidden stations.</td>
+ </tr>
+ <tr>
+  <td>no_show_hidden_station_obs</td>
+  <td>Don't show observations between hidden stations.</td>
+ </tr>
+</table>
+<p class="Commanddefinition">
+observation_spacing  offset  [times_default]
+</p>
+<p class="Commanddescription">
+This command specifies the offset between observations if the merge_similar_obs or no_merge_obs observation  options are in force.  The offset is expressed as either a distance in metres at true scale, or as a multiple of a default offset calculated by SNAPPLOT (e.g. 2 times_default)
+</p>
+<p class="Commanddefinition">
+highlight_observations  option  [threshold]
+</p>
+<p class="Commanddescription">
+Specifies which observations are to be highlighted.  option can be one of
+</p>
+<table class="Commanddescription">
+ <tr>
+  <td>none</td>
+  <td>No observations are highlighted</td>
+ </tr>
+ <tr>
+  <td>rejected</td>
+  <td>Rejected observations are highlighted</td>
+ </tr>
+ <tr>
+  <td>unused</td>
+  <td>Observations between rejected stations that are not explicitly rejected are highlighted.</td>
+ </tr>
+ <tr>
+  <td>std_residual</td>
+  <td>Observations with apriori standardised residual greater than threshold are highlighted</td>
+ </tr>
+ <tr>
+  <td>apost_std_residual</td>
+  <td>Observations with aposteriori standardised residual greater than threshold are highlighted</td>
+ </tr>
+ <tr>
+  <td>redundancy</td>
+  <td>Observations with redundancy less than threshold are highlighted</td>
+ </tr>
+ <tr>
+  <td>to_stations</td>
+  <td>Observations to or from highlighted stations are highlighted</td>
+ </tr>
+ <tr>
+  <td>between_stations</td>
+  <td>Observations between highlighted stations are highlighted</td>
+ </tr>
+</table>
+<p class="Commanddefinition">
+obs_listing_fields field1 field2 ...
+</p>
+<p class="Commanddescription">
+Lists the fields that will be displayed in the list of observations.  The fields
+can be any of "from", "to", "data_type", "status", "std_residual", "redundancy", "data_file", "line_number", "line_length" or the name of any data classification.
+</p>
+<p class="Commanddefinition">
+obs_listing_order field
+<p>
+<p class="Commanddescription">
+Defines the field that will be used as the basis for ordering the 
+observation listing.
+</p>
+
+</p>
+<h2>Error options</h2>
+<p class="Commanddefinition">
+error_type  [apriori|aposteriori] standard_error
+<br>
+error_type  [apriori|aposteriori] conf confidence
+</p>
+<p class="Commanddescription">
+Defines how errors and standardised residuals will be represented by SNAPPLOT.  The error can be apriori or aposteriori (the default is to leave unchanged), and standard errors or a percentage confidence limit.  The percentage confidence limit applies only to error ellipses and height errors - it does not apply to the errors of observations  or residuals written in the text window.
+</p>
+<p class="Commanddefinition">
+error_scale [horizontal|vertical]  exaggeration [times_default]
+</p>
+<p class="Commanddescription">
+Defines the scaling used for plotting error ellipses and height errors and the station adjustments.  These are plotted at an exaggerated scale on the plot (e.g. 1000 times true size at true scale).    The command can apply to just the horizontal or just the vertical errors.  If neither horizontal nor vertical is specified it applies to both.  The exaggeration can be expressed as a fixed value (e.g. 1000), or as a multiple of the default value determined by SNAPPLOT (e.g. 2.0 times_default).
+</p>
+<h2>Colour settings</h2>
+<p class="Commanddefinition">
+key  "key item name" [on|off] [colour]
+</p>
+<p class="Commanddescription">
+This command specifies the settings for an item on the key.  "key item name" is the exact text of the item on the key, and is enclosed in quotes. "on" or "off" specify that the item is selected or unselected, and colour specifies the colour for the item. "colour" can be either be a colour name (black, white, red, etc) or a specification or the red, green, and blue components of the colour from 0 to 255 formatted as "rgb(255,0,255)" or "#FF00FF".
+</p>
+
+<!-- ------------------------------------------------------------------------------------------- -->
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="configuration.html">Snapplot configuration</a></p>
+<p><a href="sp_commandfile.html">Snapplot commands in the command file</a></p>
+</div>
+</body>
+</html>

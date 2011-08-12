@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, snapplot configuration, configuration files">
+<title>The key</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>The key</h1>
+
+<img class="RightImage" src="images/sp_window_key.png" alt="Example of key window">
+
+<p>
+The snapplot key window is used to select colours for each feature on the map
+and to select which features are displayed.  Each feature may have an associated
+colour and a checkbox. 
+</p>
+<p>To hide or display a feature click the check box.  Some features may
+be represented by more than one check box.  For example a horizontal angle
+ observation in the adjustment will be affected by the 
+"horizontal angle" check box, and the "Used obs" checkbox.  
+It will only be displayed if both are selected.
+</p>
+<p>To change the colour of a feature, position the mouse over the colour box,
+and hold down the the left mouse button.  This will give display a colour
+palette.  Drag the mouse to a new colour, and release the button to 
+select it.
+<p>
+<img src="images/sp_eg_palette.png" alt="Picture of colour palette">
+<p>Additional colours can be added to the palette using the 
+<span class="MenuItem">View | Add colour to palette</span> menu item.
+<p>
+
+<h2>Features</h2>
+<p>The following features may be included in the key:</p>
+<table>
+<tr>
+<td>Free stations<br>Hor fixed stns<br>...</td>
+<td>This has a category for each usage of station in the adjustment
+(free (adjusted), fixed (constrained), or rejected).  Rejected stations
+are those that are explicitly rejected in the snap command file,
+or automatically rejected because there are insufficient observations
+to calculate their coordinates.
+The colour box is used to choose the colour of the station symbol (if it
+is displayed).
+Note that hiding a group of stations with the check box may also hide all the
+obserations to and from those stations.  This behaviour is controlled by
+the <a href="dlg_obs_display_options.html">display options</a> dialog.
+Note also that stations may be shown or hidden with the <a href="dlg_hideshow_stations.html">hide stations</a> dialog.
+</td>
+</tr>
+<tr>
+<td>Symbol<br>Name<br>Code</td>
+<td>Chooses whether symbols, names, or codes are displayed for each station</td>
+</tr>
+<td>
+<tr>
+<td>Error ellipses<br>...</td>
+<td>Controls the display of error ellipses of stations, relative error
+ellipses of observed lines between stations, vertical error bars and relative
+error bars, and station adjustments (changes to stations coordinates).  The 
+scaling of errors is controlled by the <a href="dlg_error_options.html">error options</a> dialog.
+</td>
+</tr>
+<tr>
+<td>OBSERVATIONS</td>
+<td>The categories of observations displayed may be changed using the
+<span class="MenuItem">Observations | colour coding</span> menu item.  
+They can be coded by observation type, data file, size of residual,
+redundancy, or any observation classifications.  The key will always 
+provide options for hiding or showing each observation data type.
+</td>
+</tr>
+<tr>
+<td>Used obs<br>Rejected obs<br>Unused obs</td>
+<td>Used obs are observations used to calculate coordinates, or contributing
+to the adjustment statistics.  Rejected obs are observations explicitly 
+rejected in the data file. Unused obs are observations which are not used
+in the adjustment because they are to automatically rejected stations.
+</td>
+</tr>
+<tr>
+<td>BACKGROUND</td>
+<td>General features of the map.  Additionally if background
+<a href="background.html">background</a> graphical features have been
+added to the plot their display options will be shown here.
+</tr>
+<tr>
+<td>Map background</td>
+<td>Changes the colour used for the map background.</td>
+</tr>
+<tr>
+<td>Text</td>
+<td>Changes the colour used for text (station names or codes).  This colour is also used for the border of station symbols.</td>
+</tr>
+<tr>
+<td>Highlight</td>
+<td>Selects the colour used to highlight stations and observations (highlighted
+stations are selected with the <a href="dlg_highlight_stations.html">highlight stations</a> dialog, highlighted observations are selected with the 
+<a href="dlg_highlight_observations.html">highlight observations</a> dialog).</td>
+</tr>
+<tr>
+<td>Selected</td>
+<td>Selects the colour used to represent the selected station or observation.
+</td>
+</tr>
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="dlg_obs_display_options.html">The observation display options dialog</a></p>
+</div>
+</body>
+</html>

@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="data_file">
+<title>The data_file command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_data_file"></a>The data_file command</h1>
+
+<p class="Commanddefinition">data_file  <i>data_file_name</i> [error_factor <i>factor</i>]</p>
+<p class="Commanddefinition">data_file  <i>data_file_name</i> [error_factor <i>factor</i>] csv <i>csv_options</i></p>
+
+<p>Specifies a data file containing observations to be used in the adjustment.  The data can be either a <a href="../data/obs_file_format.html">SNAP</a> or <a href="../data/csv_obs_files.html">CSV</a> formatted data file.  </p>
+<p>
+This command can be repeated as many times as required to specify all the data files being used.  The parameters of this command are:</p>
+
+<p class="Commanddefinition"><i>data_file_name</i></p><p class="Commanddescription">The name of a data file.  Each data file needs a separate data_file command.  </p>
+
+	<p class="Commanddefinition"><i>factor</i></p><p class="Commanddescription">is a factor by which all observation errors in the file are multiplied.</p>
+
+	<p class="Commanddefinition"><i>csv_options</i></p><p class="Commanddescription"> are the options defining how the CSV file is structured.  The option &quot;format=<i>dtf_name</i>&quot; defines the <a href="csv_format_definition.html">format definition</a> file.  The default format is &quot;obs&quot;.  Any other options are dependent on the format definition.</p>
+
+<p>The error factor may also be defined by the <a href="cmd_classification.html">classification</a> command.</p>
+
+<p>Examples of the data_file command are</p>
+
+<p class="Commanddefinition">
+data_file  traverse.dat<br />
+data_file  1614.ha gb error_factor 1.5<br />
+data_file  vectors.csv csv format=vecc1
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

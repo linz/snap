@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="output_csv">
+<title>The output_csv command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_output_csv"></a>The output_csv command</h1>
+
+<p class="Commanddefinition">output_csv <i>output_options</i></p>
+
+<p>The output_csv command is used to control output of csv (comma separated) files of 
+adjustment results that can be imported into other software.  SNAP can generate three types of CSV files - metadata, station, and observation files.  The metadata file contains summary and configuration information.  The station and observation files contain input and calculated information about the stations, and observations in the adjustment.  
+</p>
+<p>The files can be formatted either with comma separated fields in which text fields are delimited by 
+quote (&quot;) characters, or with tab character separated fieldsd, in which text fields are unquoted.  In the comma separated format, quote characters within the text fields are replaced with two quote characters - eg &quot;Bearing swing 5&quot;&quot; clockwise&quot;.  The first line of each file contains the names of the columns.  This format is compatible with many software packages, for example Microsoft Excel.
+</p>
+<p>The output CSV files are named with the name of the command file followed by &quot;-<i>type</i>.<i>ext</i>&quot;, where <i>type</i> is one of &quot;metadata&quot;, &quot;stn&quot;, or &quot;obs&quot;, and <i>ext</i> is either &quot;csv&quot; for comma separated files, or &quot;txt&quot; for tab delimited files.
+<p>
+The syntax of the output_csv command is very similar to that for the list command - it may be followed by several options separated by spaces.  Each option can be negated by preceding it with "no_", for example "no_stations".  The options that are available with the output command are:</p>
+
+<p class="Commanddefinition">metadata</p><p class="Commanddescription">Creates a metadata CSV file.</p>
+
+<p class="Commanddefinition">stations</p><p class="Commanddescription">Creates a CSV file of station data.</p>
+
+<p class="Commanddefinition">observations</p><p class="Commanddescription">Creates a CSV file of observation data</p>
+
+<p class="Commanddefinition">all</p><p class="Commanddescription">A shorthand for &quot;metadata stations observations&quot;.  (It is recommented that this shorthand is not used in configuration files - just in command files).</p>
+
+<p class="Commanddefinition">tab_delimited</p><p class="Commanddescription">Generate tab delimited files instead of the default comma delimiters</p>
+
+<p class="Commanddefinition">wkt_shape</p><p class="Commanddescription">Include a column &quot;shape&quot; containing a well known text format description of the geometry of the object, for inclusion into GIS systems.  This will be a POINT geometry for stations and point type observations, and a LINESTRING geometry for other observations</p>
+
+<p>The following options are used to control how vector observations are represented in the observation file.  The file can contain the individual components of the vector, or summary information for the three components, or both.  These can be split into separate records for each component, or placed in a single record.  If vector components are included  then their errors and residuals can be expressed in terms of XYZ components or ENU components (the observations are always XYZ components).  Also if components are written inline then the record can include correlations of the vector and residual errors.  
+
+<p class="Commanddefinition">vector_components</p><p class="Commanddescription">Include vector components in the file.  This is the default - use no_vector_components to cancel this option.</p>
+
+<p class="Commanddefinition">vector_summary</p><p class="Commanddescription">Include a summary of each vector in the file.  This is the default - use no_vector_summary to cancel this option.</p>
+
+<p class="Commanddefinition">vectors_inline</p><p class="Commanddescription">All the components and summary information are included in a single record.  This is the default - use no_vectors_inline to cancel this option.. </p>
+
+<p class="Commanddefinition">enu_residuals</p><p class="Commanddescription">Output errors and residuals of vectors in terms of E,N,U components.  This is the default - use no_vector_components to cancel this option.</p>
+
+<p class="Commanddefinition">correlations</p><p class="Commanddescription">Include correlations between vector components in the file. This only applies if the vector components are represented inline.</p>
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_output.html">The output command</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

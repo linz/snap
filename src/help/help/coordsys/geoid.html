@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta name="keywords" content="concord, coordinate system, coordinate conversion, coordinate, geoid, geoid file">
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+<title>Geoid grid files</title>
+
+
+</head>
+
+<body>
+
+<h1>Geoid grid files</h1>
+
+<p>For conversions between ellipsoidal and orthometric
+height a file of geoid heights is used. This is a binary file which defines
+the geoid heights at a grid of points. The heights at points of interest are
+calculated by interpolating from the grid points. Geoid heights represent the
+height of sea level above the ellipsoid defined by a reference frame, and so
+depend upon the reference frame being used. The geoid binary file defines the
+coordinate system for which the heights have been calculated. This system must
+be defined in the coordsys.def file in order for concord to convert the
+heights into the input and output reference frames.</p>
+
+<p>The default name for the geoid file is
+geoid.grd. If a different file name is used the file can be specified either
+by setting an environment variable GEOIDBIN to the name of the file, or by
+specifying the name of the file on the command line with the -G switch. The
+format of the geoid file is defined in the following section.</p>
+
+<p>Snap and concord come with two gridded geoid models</p>
+
+<table>
+
+<tr><td><p>nzgeoid09.grd</p></td><td>
+<p>The New Zealand Geoid 2009 geoid model.  This is generally accurate
+to within about 10cm.  It is applicable in the vicinity of New Zealand only.
+The model has been gridded at a 1" spacing.
+</p>
+</td></tr>
+
+<tr><td><p>egm96.grd</p></td><td>
+<p>The EGM96 model.  This is a global gravity model which is generally 
+accurate to within 1m.  The model has been gridded has been calculated at a 15" spacing.
+</p>
+</td></tr>
+
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="gridfile_c.html">Grid file format</a></p>
+<!--
+<p><a href="../programs/concord/index.html">Concord coordinate conversion program</a></p>
+<p><a href="../programs/snapgeoid/index.html">Snapgeoid - add geoid heights to SNAP coordinate files</a></p>
+-->
+</div>
+</body>
+</html>

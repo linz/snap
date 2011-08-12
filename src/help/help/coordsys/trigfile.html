@@ -1,0 +1,147 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta name="keywords" content="SNAP, deformation, triangulated data file format, deformation model, deformation">
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+<title>Triangulated data file format</title>
+
+
+</head>
+
+<body>
+
+<h1>Triangulated data file format</h1>
+
+<p>The triangulated file format is used to represent deformation or velocity components of 
+a <a href="linzdefmodel.html">deformation model</a>.  The format defines the values at a set 
+of points, and how the points are connected to form a triangulation.  The triangulation is
+assumed to be valid - that is no triangles are overlapping.  The current limitations of the 
+model also require that the outer boundary of the triangulation is convex.  Note that where
+the triangulation is defined in terms of latitude and longitude the triangluation takes no
+account of curvature, either in forming the triangles or in interpolating values across them.
+</p>
+
+<p>A triangulated data file can be constructed using the maketrig.pl perl script supplied with SNAP.  
+This builds a binary format triangulation file based on a text format defined below.  The SNAP
+programs only used triangulated data as part of a <a href="linzdeffile.html">deformation model file</a>,
+which is built directly from the text format.
+</p>
+
+<p>The text format comprises a set of header
+records followed by records defining the values at each grid node, and then records defining 
+each triangle. Each record
+comprises a code defining the contents of the record, followed by a colon and
+the value of the record. </p>
+
+<p>The records are as follows:</p>
+
+<table class="NormalTable">
+ <tr>
+  <td> <p>Code</p> </td>
+  <td> <p>Type</p> </td>
+  <td> <p>Description</p> </td>
+ </tr>
+ <tr>
+  <td> <p>FORMAT </p> </td>
+  <td> <p>string</p> </td>
+  <td>
+  <p>Defines the variant of the binary trig file format to generate.  The possible values are 
+  </p>
+  <table>
+    <tr>
+      <td> TRIG1L </td>
+      <td> Little endian binary format (this is the preferred option for SNAP) </td>
+    </tr>
+    <tr>
+      <td> TRIG1B </td>
+      <td> Big endian binary format </td>
+    </tr>
+  </table>
+  </td>
+</tr>
+<tr>
+  <td> <p>HEADER0 </p> </td>
+  <td> <p>string </p> </td>
+  <td> <p>Descriptive information about the model (an arbitrary character string) </p> </td>
+</tr>
+<tr>
+  <td> <p>HEADER1 </p> </td>
+  <td> <p>string </p> </td>
+  <td> <p>Descriptive information about the model </p> </td>
+</tr>
+<tr>
+  <td> <p>HEADER2 </p> </td>
+  <td> <p>string </p> </td>
+  <td> <p>Descriptive information about the model </p> </td>
+</tr>
+<tr>
+  <td> <p>CRDSYS </p> </td>
+  <td> <p>string </p> </td>
+  <td> <p>Code for the coordinate system upon which the model is based (for example NZGD2000) </p> </td>
+</tr>
+<tr>
+  <td> <p>NDIM </p> </td>
+  <td> <p>integer </p> </td>
+  <td> <p>The number of values defined at each node </p> </td>
+</tr>
+<tr>
+  <td> <p>P </p> </td>
+  <td> <p>string </p> </td>
+  <td> <p>Defines a triangulation node.  The string defines an integer node id, longitude, latitude, and the NDIM data values at the node.  </p> </td>
+</tr>
+<tr>
+  <td> <p>T </p></td>
+  <td> <p>string </p></td>
+  <td> <p>Defines the set of nodes on a triangle face in terms of their node ids.  The nodes must be ordered in an anticlockwise direction around the triangle.  </p> </td>
+</tr>
+</table>
+
+
+<p>An example of a text format triangulation file
+follows:</p>
+
+<pre class="ConfigFile">
+FORMAT TRIG1L
+HEADER0 Fiordland earthquake July 2009
+HEADER1 Coseismic deformation
+HEADER2 Initial model - horizontal deformation only
+CRDSYS NZGD2000
+NDIM 2
+P 1 176.189748 -39.978909 -1.718 -2.976
+P 2 176.200639 -39.999405 -2.471 -4.280
+P 3 176.199652 -39.999242 -2.472 -4.282
+P 4 176.233484 -40.035296 0.878 1.521
+P 5 176.206731 -40.002636 2.259 3.913
+P 6 176.185682 -40.034024 1.270 2.199
+P 7 176.206435 -39.985896 -1.983 -3.435
+P 8 176.203769 -40.002379 2.351 4.073
+...
+...
+...
+T 2 14 28
+T 2 28 15
+T 1 7 82
+T 1 82 18
+T 1 18 41
+T 1 41 44
+T 1 44 71
+T 1 71 47
+T 1 47 31
+T 1 31 7
+...
+...
+...
+</pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="linzdefmodel.html">The LINZ deformation model</a></p>
+<p><a href="linzdeffile.html">The LINZ deformation file format</a></p>
+<p><a href="gridfile_s.html">Gridded component file format</a></p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="COORDSYS.DEF, ellipsoid">
+<title>Ellipsoid definition format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_ellipsoid_def"></a>Ellipsoid definition format</h1>
+
+<p>Ellipsoid definitions in the coordinate system definition file have the following format</p>
+
+<pre><code>code  description  semi_major_axis  reciprocal_flattening</code></pre>
+
+<p>where </p>
+
+<p><i>code</i> is an identifier for the ellipsoid.  This may contain letters, numbers, and the underscore character.  It cannot contain blanks.</p>
+
+<p><i>description</i> is a quoted text description of the ellipsoid</p>
+
+<p><i>semi_major_axis</i> is the length of the semi-major axis in metres</p>
+
+<p><i>reciprocal_flattening</i> is the reciprocal of the flattening</p>
+
+<p>Here is an example of the ellipsoid definition section</p>
+
+<pre><code>[ellipsoids]
+INTERNATIONAL "International ellipsoid" 6378388.0 297.0
+WGS84 "WGS84 ellipsoid" 6378137 298.257223563</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+
+</div>
+</body>
+</html>

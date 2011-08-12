@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, data types, distance ratios">
+<title>Distance ratio observations (DR)</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_distance_ratios"></a>Distance ratio observations (DR)</h1>
+
+<p>Distance ratios (or line ratios) are a set of distances observed from a single station which are assumed to have a common scale error.  This assumption may be supported by using an appropriate observation scheme, such as observing rounds of distances.</p>
+
+<p>Distance ratios are entered into SNAP as the measured slope distances in metres.  They should not be reduced by (for example) dividing by one of the distances to obtain literal ratios.  Atmospheric corrections should be applied if their proportional affect is not the same for all lines (for example if reflector station temperature and pressure are measured and used).</p>
+
+<p>In SNAP you can choose to treat distance ratios as either a set of ratios (that is, with a common scale error), or as a set of uncorrelated slope distance observations using the <a href="../cmdcfg/cmd_use_distance_ratios.html">use_distance_ratios</a> command in the SNAP command file. </p>
+
+<p>The data file must specify the error associated with the distance.  If this is expressed for each observation individually it is expressed in metres.</p>
+
+<p>If it is defined for a group of observations the error is defined by a millimetre and a part per million component.  The two components of the error are treated as being statistically independent.  That is, the total error of the distance is calculated as the square root of the sum of the squares of the millimetre and part per million components. For example, on a 3km line with a 4mm +/- 1ppm error the error of an observations is 4mm +/- 3mm (1ppm of 3km) giving a root mean square total of 5mm.  See <a href="obs_ddc_ds_error.html">#ds_error </a> for more information.</p>
+
+<p>As for distances, <a href="obs_dist_scale_errors.html">distance scale errors</a> and the <a href="obs_refframe_scale_error.html">reference frame scale error</a> can apply to distance ratio data.  However they will only affect the result if the observations are treated as uncorrelated distances.  Otherwise they will be incorporated into the scale factor applying for the set of ratios.</p>
+
+<p>The SNAP output listing expresses the distances and their residuals in metres by default.  It can also include the residuals expressed in parts per million.   If observations are treated as distance ratios then SNAP will also output the scale error for each set of distance ratios.</p>
+
+<p>See also</p>
+
+<p><a href="index.html">Observation file overview</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_distance_data.html">Distance data</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_ds_error.html">The #ds_error command</a></p>
+
+<p><a href="obs_ddc_distance_scale_error.html">The #distance_scale_error command</a></p>
+
+<p><a href="../cmdcfg/cmd_use_distance_ratios.html">The use_distance_ratios command</a></p>
+
+</body>
+</html>

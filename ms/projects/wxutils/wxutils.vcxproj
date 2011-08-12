@@ -1,0 +1,87 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{04A34FC0-A432-4F35-A2F7-BE0BC8FB7C03}</ProjectGuid>
+    <RootNamespace>wxutils</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\snapwin.props" />
+    <Import Project="..\wsWidgetsRelease.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\snapwin.props" />
+    <Import Project="..\wsWidgets.props" />
+    <Import Project="..\debug_fix.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <PreBuildEventUseInBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</PreBuildEventUseInBuild>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\wxutils\wxhelpabout.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxlayerkey.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxmainprogwindow.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxmap.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxmapdc.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxmapdrawer.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxmapscale.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxmapwindow.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxnumbervalidator.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxpalettepopup.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxregexvalidator.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxsimpledialog.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxsplashimage.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxsymbology.cpp" />
+    <ClCompile Include="..\..\..\src\wxutils\wxtabbedtextgrid.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\wxutils\wx_includes.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxhelpabout.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxlayerkey.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxmainprogwindow.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxmap.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxmapdc.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxmapdrawer.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxmapscale.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxmapwindow.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxnumbervalidator.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxpalettepopup.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxregexvalidator.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxsimpledialog.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxsimpleevent.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxsplashimage.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxsymbology.hpp" />
+    <ClInclude Include="..\..\..\src\wxutils\wxtabbedtextgrid.hpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

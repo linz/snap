@@ -1,0 +1,90 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapspec, algorithm">
+<title>Snapspec order calculation algorithm</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1><a name="snapspec"></a>Snapspec order calculation algorithm</h1>
+
+<p>
+Snapspec assigns orders to the adjusted marks based on the absolute and relative accuracies of the calculated coordinates.  Each coordinate order has defined absolute and relative accuracy requirements.  The orders are assigned such that each station of a given order meets these accuracy requirements - the relative accuracy requirements are met in relation to all stations of the same or higher assigned order.  The algorithm is designed to assign as many stations as possible to each order, starting with the highest order.  This is not a strict mathematical optimisition.
+</p>
+
+<p>
+The accuracy requirements for each order are defined in terms of the following 
+components.
+</p>
+<table>
+<tr><td>&nbsp;</td><td>h_abs_max<td>
+    <td>The maximum absolute horizontal error allowed (millimetres)</td></tr>
+<tr><td>&nbsp;</td><td>h_rel_to_control<td>
+    <td>The maximum absolute horizontal error allowed as a function of the
+        distance from the nearest control mark.  
+        Defined in terms of a 
+        fixed component (millimetres), and a distance dependent component
+        (part per million of the distance to the control mark).  
+        The allowed error is the root sum of squares of these components. 
+        </td></tr>
+<tr><td>&nbsp;</td><td>h_rel<td>
+    <td>The maximum relative horizontal error allowed to any other mark of this
+        or a higher order.  
+        Defined in terms of a 
+        fixed component (millimetres), and a distance dependent component
+        (part per million of the distance to the other mark).  
+        The allowed error is the root sum of squares of these components. 
+        </td></tr>
+<tr><td>&nbsp;</td><td>h_rel_min_abs<td>
+    <td>
+    Relative accuracy by absolute accuracy optimisation.  Any coordinates with an absolute error less than this
+    value are assumed to pass the relative accuracy test.  This is specified
+    in millimetres. This is an optional optimisation to reduce the amount
+    of relative accuracy testing required.
+    </td></tr>
+</table>
+<p>The relative accuracy requirement can be restricted to only apply to stations within a specified distance of each other.  This distance can be specified or it can ba calculated as a multiple of the largest distance between an adjusted mark and a control mark.  This builds on the assumption that control marks tend to fix coordinates around them, so relative accuracy beyond a control mark is irrelevant.
+</p>
+<p>There are equivalent vertical vertical accuracy specification (v_abs_max, v_rel_to_control, v_rel, v_rel_main_abs).  Snapspec can test horizontal and/or vertical accuracies.  If both are being tested then both must be passed for a coordinate to achieve an order. </p>
+<p>The horizontal error, or relative error, is defined in terms of the length of the semi-major axis of the coordinate error ellipse (or relative error ellipse).  The vertical accuracy is the error of the height ordinate, or for relative errors the error of the difference in height between two marks. 
+The errors may be assessed using a priori or a posteriori errors at a chosen
+level of confidence.
+</p>
+
+<p>In assigning orders snapspec processes each order in turn starting with the 
+highest order.  Each coordinate is passed or failed against the tests for that order.  Those which pass are assigned that order - the remainder are tested against the following orders.
+</p>
+
+<p>
+The absolute errors of each station are tested first.  Those which fail (against either the absolute error or absolute error relative to control) are failed.  Those which pass and also pass the "relative accuracy by absolute accuracy optimisation" test are passed.  The remaining stations are tested against the relative accuracy specifications. 
+</p>
+<p>
+Initially each control station coordinate and those passed already passed for this order or a higher order are assigned a status of "pass", and the remaining adjusted coordinates a status of "unknown".  The following steps are used iteratively to assign "pass" or "fail" status to each of the unknown coordinates.  
+</p>
+
+<ol>
+<li>For each unknown coordinate, test relative accuracies between this coordinate and the passed coordinates within the maximum range for relative accuracy tests.  If any fail, set the status of the coordinate to "fail".
+</li>
+<li>
+For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate within the maximum distance specified for relative accuracy tests.
+</li>
+<li>	Set the status to "fail" for any coordinates with status unknown for which there are no test lines are left (all other coordinates are beyond the test range).</li>
+<li>	Set the status to "pass" for each coordinate for which all test lines pass.</li>
+<li>	If any coordinates still have status unknown, then select and fail that 
+ with the highest ratio of test failures against test lines. If two or more coordinates have exactly the same ratio, select the one with the highest absolute error.  If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be muliplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.
+</li>
+<li>	Return to step 1 if there are still any unknown coordinates.
+</li>
+</ol>
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapspec</a></p>
+
+</div>
+</body>
+</html>

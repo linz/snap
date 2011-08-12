@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="fix">
+<title>The fix command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_fix"></a>The fix command</h1>
+
+<p class="Commanddefinition">fix   [type]  [all]  [station_list]</p>
+
+<p>Defines which stations are to be held fixed in the adjustment.  This command cannot precede the coordinate_file command.  By default all stations are adjusted if there are adequate observations to them.  The parameters are:</p>
+
+<p class="Commanddefinition">type</p><p class="Commanddescription">specifies which coordinates are to be fixed.  It can be one of "horizontal",  "vertical", or "3d".  If the <code>type</code> is omitted then all the station coordinates are held fixed.</p>
+
+<p class="Commanddefinition">all</p><p class="Commanddescription">may be included if you want to fix all stations.  You can then use the free command to select a few stations that are to be adjusted.  (This is useful if you only want to adjust a few stations).</p>
+
+<p class="Commanddefinition">station_list</p><p class="Commanddescription">is a list of stations to be held fixed separated by blank spaces. </p>
+
+<p>Here are some examples of the fix command</p>
+
+<p class="Commanddefinition">fix all
+fix 1  5  23<br>
+fix horizontal 1A BM3 50-55 <br>
+fix vertical 3 4 5A<br>
+fix 3d order=1 order=2 order=3
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_station_options.html">Using stations in adjustments</a></p>
+
+<p><a href="cmd_float.html">The float command</a></p>
+
+<p><a href="cmd_free.html">The free command</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

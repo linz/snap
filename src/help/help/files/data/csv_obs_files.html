@@ -1,0 +1,81 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format, data file, observation file">
+<title>CSV observation file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="csv_obs_files"></a>CSV observation file format</h1>
+
+<p>The CSV observation file format holds observations in a generic delimited text file format.  The contents of the file are defined by a <a href="../cmdcfg/csv_format_definition.html">format definition</a> file, which may be stored in the command file directory, or in one of the SNAP configuration directories (eg the program file directory). This defines the columns in the CSV file and how they are used to construct an observation (ie what column represents the station codes, observation value, error, and so on).  Generally column names will be specified on the first line of the CSV file, but they can
+also be defined in the format definition file.</p>
+<p>The data is loaded into SNAP using the <a href="../cmdcfg/cmd_data_file.html">data_file</a> command, which includes the &quot;csv&quot; option, and optionally additional parameters.  In particular it can include a &quot;format=<i>dtf_file</i>&quot; parameter which specifies the format definition file to use.
+</p>
+<p>Each line in the CSV file can define one or more observations of various types.  Each observation 
+is treated as statistically independent - there is no way to specify correlated observations 
+CSV formatted files.  However sets of horizontal angles can be defined by including an observation set id as a column - consecutive observations with the same non-blank set id and same instrument station
+are treated as a round of angles.</p>
+<p>In CSV formatted observation files all distances and distance errors are in metres, and all angles and angle errors are in metres.</p>
+<p>
+As an example, a format definition &quot;vecc1.dtf&quot; may define a format as:
+</p>
+<pre class="listing">
+FORMAT CSV HEADER=Y
+OBSERVATION
+  TYPE "GB"
+  INSTRUMENT_STATION @FCODE
+  TARGET_STATION @TCODE
+  TIME @DATE " " @TIME
+  TIME_FORMAT YEhm
+  VALUE @DX " " @DY " " @DZ
+  ERROR METHOD_ERROR(@METH)
+  VECTOR_ERROR_TYPE calculated
+  ERROR_FACTOR @EFAC DEFAULT 1.0
+  CLASSIFICATION METHOD @METH
+  NOTE @COMM
+END_OBSERVATION
+
+LOOKUP METHOD_ERROR
+CORS1 3 3 6 mm 0.4 0.4 0.8 ppm
+STAT1 4 4 8 mm 0.5 0.5 1 ppm
+RTK1 8 8 12 mm 1 1 1 ppm
+default 8 8 12 mm 1 1 1 ppm
+END_LOOKUP
+</pre>
+
+<p>The corresponding observation file &quot;gps1.csv&quot;could contain:</p>
+<pre class="listing">
+FCODE,TCODE,DATE,TIME,dX,dY,dZ,ROBG,COMM,METH,EFAC
+BU34,EH91,2010.249,00.15,-9.763,269.983,49.653,VIII,Warkworth,RTK1,
+BU34,C5MH,2010.249,00.22,-152.001,-193.381,175.123,VIII,Warkworth,RTK1,
+BU34,C5MK,2010.249,00.28,-347.701,-130.806,470.525,VIII,Warkworth,RTK1,
+DMJN,DLLL,2010.279,19.46,-11.350,-280.642,-37.460,VII,Mangawhai Heads,STAT1,
+DMJN,EHJJ,2010.279,19.46,-27.044,255.856,-41.026,VII,Mangawhai Heads,STAT1,
+EHJJ,WHNG,2010.279,19.59,-15739.35,26173.264,24988.307,VII,Mangawhai Heads,STAT1,
+EHJJ,DLLL,2010.279,20.06,15.693,-536.502,3.585,VII,Mangawhai Heads,STAT1,
+DLLL,DLL1,2010.279,20.12,421.616,607.343,-495.790,VII,Mangawhai Heads,STAT1,3
+EHJJ,DLL1,2010.279,20.12,437.321,70.833,-492.196,VII,Mangawhai Heads,STAT1,
+</pre>
+
+<p>This would be loaded into SNAP by including the following data in the command file</p>
+
+<p class="Commanddefinition">data_file gps1.csv csv format=vecc1<p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_file_format.html">SNAP observation file format</a></p>
+
+<p><a href="../cmdcfg/csv_format_definition.html">CSV format definition files</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+</div>
+</body>
+</html>

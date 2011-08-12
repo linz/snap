@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="data definition command, #data, observations">
+<title>The #data command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_ddc_data"></a>The #data command</h1>
+
+<p><b>#data <i>[options] </i>  <i>[data_type data_items] [data_type data_items] ...</i> </b></p>
+
+<p>The #data command lists the observations that will appear after each target station.  Each observation is represented by a data type code (such as SD for slope distances) and one or more data items defining the fields (such as errors, classifications, and so on) that make up the observation. </p>
+
+<p>The #data command may also include options defining overall characteristics of the data format.  The options can be placed before or after the data items.  The available options are: </p>
+
+<p><i>grouped</i> specifies that the data layout is as for grouped data.  This is redundant if the data includes observations which force grouping (horizontal angles and distance ratios).  </p>
+
+<p><i>no_heights</i> specifies that the instrument and target station definitions do not include a station height (it is assumed to be 0). </p>
+
+<p>Each observation is represented by a data type and some data items.  For example distance data may include the measured slope distance, the error in the distance, and the equipment  classification of the distance.  In the data definition this would look like</p>
+
+<p>#data  no_heights sd error equipment</p>
+
+<p>and in the data block the data could be</p>
+
+<p>STN1 STN2  1234.567 0.002  DI20</p>
+
+<p>If an observation is unavailable then it can be replaced in the data file with a hyphen -.  This is useful in a data block with more than one observation per line.  For example each line may contain an angle and a distance observation.  If the distance to one station is not measured then it can be replaced by a hyphen.  The hyphen replaces all the data items relating to the observation.  For example the data definition could specify that each line contains a horizontal angle, a slope distance, and the error of the slope distance.  The definition would be</p>
+
+<p>#data no_heights ha sd error</p>
+
+<p>and the corresponding data block could include</p>
+
+<p>STN1<br>
+STN2      0 00 00.0   1234.45  0.03<br>
+STN3    58 02 25.3            -<br>
+STN4    89 08 37.5     987.65  0.02</p>
+
+<p>Here the distance from STN1 to STN3 is missing.  (Note that this example the data is in grouped format because it includes horizontal angle data).</p>
+
+<p>The available data types are listed in the table below.</p>
+
+<p>The data type may be followed by any of the following items.</p>
+
+<p><i>value</i> the measurement itself.  The value item can be omitted if it is the first item after the data type.  In the data block, this field is read as an optional '*' (indicating a rejected observation), followed by the measurement, followed optionally by the word "error" and the error of the measurement.</p>
+
+<p><i>error</i> the error of the measurement.  If this is not specified then current default error for the data type is used  (as specified by data definition commands listed below).  The units of the error in the data block is listed in the following table</p>
+
+<p><i>time</i> the time of the measurement formatted as hh:mm or hh.mm.</p>
+
+<p><i>distance_scale_error</i> the distance scale error code for the measurement (only applies to distance data)</p>
+
+<p><i>refraction_coefficient</i> the refraction coefficient code for the measurement (only applies to zenith distance data)</p>
+
+<p><i>bearing_orientation_error</i> the bearing orientation error code for the measurement (only applies to azimuth and projection bearing data)</p>
+
+<p><i>classification</i> The data item is the name of a classification of the data (e.g. EQUIPMENT).  This classification must already be defined in the data file by a #classification command (see below).  The data block should contain the corresponding classification of the measurement (e.g. T2).  See <a href="obs_classifications.html">observation classifications</a></p>
+
+<p><i>systematic_error</i> The data item is the name of a systematic error.  The data record contains the influence of the systematic error on the observation.</p>
+
+<p><i>id</i> The id of the observation.  This is an integer id.  It is not used by SNAP.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_ddc_by_func.html">Data definition commands by function</a></p>
+
+<p><a href="obs_ddc_alphabetically.html">Data definition commands listed alphabetically</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_classifications.html">Observation classifications</a></p>
+
+</div>
+</body>
+</html>

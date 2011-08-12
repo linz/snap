@@ -1,0 +1,195 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 1 September 2005), see www.w3.org">
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<meta name="keywords" content=
+"snap_manager, script, menu, dialog box">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>snap_manager scripting user interface components</title>
+</head>
+<body>
+<h1>snap_manager scripting user interface components</h1>
+<p>The snap manager program uses a scripting language to define
+menu options. This can be customised as required. This page defines 
+the user interface components (menus and dialog boxes) 
+that can be used in scripts.
+</p>
+<p>
+The functions 
+<a href="script_functions.html#func_Message">Message</a>, 
+<a href="script_functions.html#func_Ask">Ask</a>, 
+<a href="script_functions.html#func_GetOpenFilename">GetOpenFilename</a>, and
+<a href="script_functions.html#func_GetSaveFileName">GetSaveFileName</a>
+also run standard dialog boxes providing user interface components.
+</p>
+<h2>Scripting reference index</h2>
+<p><a href="script.html#constants">Constants</a><br>
+<a href="script.html#variables">Variables</a><br>
+<a href="script.html#functions">Function calls</a><br>
+<a href="script.html#expressions">Expressions</a><br>
+<a href="script.html#statements">Statements</a><br>
+<a href="script.html#udf">User defined functions</a><br>
+<a href="script_ui.html#menu">Menu items</a><br>
+<a href="script_ui.html#dialog">Dialog boxes</a><br>
+<a href="script_functions.html#sysvar">System variables</a><br>
+<a href="script_functions.html#function_index">Built-in functions</a><br></p>
+<hr>
+<a name="menu" id="menu"></a>
+<h2>Menu items</h2>
+<p>Menu items are used when the configuration script is read (as
+snap manager starts up) to define items to include in the snap
+manager menus. The menu item defines preconditions for the menu
+item to be valid, and actions to run if it is chosen. If the
+preconditions are not met the menu item will be greyed out and
+unavailable to the user.</p>
+<p>Menu items are formatted as</p>
+<pre class="Commandexample">
+menu_item <i>menu_label</i> <i>description</i>
+  requirements
+    <i>statements</i>
+  actions
+    <i>statements</i>
+end_menu_item
+</pre>
+<p>Here <i>menu_label</i> is the label used in the menu for the
+item, and <i>description</i> is the description of the item. The
+label can define the main menu and sub-menus, each level is
+separated by a vertical bar character. For example
+"&amp;Adjust|&amp;Run" is the label for the Run item in the Adjust
+menu. Note that the &amp; character is used to identify a shortcut
+key for the menu item .. it is not required.</p>
+<p>The requirements and actions sections are effectively
+parameterless functions that are run by the menu item.</p>
+<p>The requirements function is optional. It is run before the menu
+is displayed, and if it evaluates to false then the menu item is
+disabled. This is often a simple statement, for example:</p>
+<p class="Commandexample">requirements $job_valid</p>
+<p>The actions function is required, and defines what happens when
+the menu item is selected</p>
+<hr>
+<a name="dialog" id="dialog"></a>
+<h2>Dialog boxes</h2>
+<p>The script can define dialog boxes to get input from the user.
+The syntax is</p>
+<pre class="Commandexample">
+dialog <i>title</i> <i>$variable</i> <i>buttons</i>
+   <i>dialog_controls</i>
+end_dialog
+</pre>
+<p>The dialog will be displayed with the specified title and
+controls, and with an Ok and Cancel button. When the user exits the
+variable will be set to true if the user pressed Ok, or false if
+the user pressed cancel. The variable can be omitted .. in this
+case the script will exit if the user presses cancel. If buttons is
+specified it can be one of "none", "ok", "cancel", "ok+cancel". The
+default is "ok+cancel".</p>
+<p>Each dialog control defines an element that appears on the
+dialog, for example a text entry field, check box, or whatever.
+Most define a variable which will be used to populate the control
+when the dialog is started, and will hold the final value of the
+control when the dialog is closed.</p>
+<p>Controls are organised vertically in the order that they are
+defined. The dialog can specify that a new column of controls is to
+be started.</p>
+<p>The dialog can include the following controls</p>
+<p class="Commanddefinition">label <i>text</i></p>
+<p class="Commanddescription">Write the label text on the
+dialog.</p>
+<p class="Commanddefinition">textbox <i>$variable</i> <i>label</i>
+<i>specification</i></p>
+<p class="Commanddescription">Defines a text field. The
+specification is optional and consists of a string organised as
+"width:height:validation", any part is optional. Width width of the
+text field in characters, height is the height (if more than one
+then the text box will accept multiple rows of text. Validation
+defines rules about data entry and is structured as
+~chars~regexp~message, where ~ is any character, chars is a list of
+valid characters that may be entered into the list box, regexp is a
+<a href="resyntax.html">regular expression</a> defining valid
+entries, and message is a message that will be displayed if the
+data entered is invalid. Alternatively validation can be just
+"readonly", to specify that data may not be edited.</p>
+<p class="Commanddefinition">listbox <i>$variable</i> <i>label</i>
+<i>valuelist</i> <i>options</i></p>
+<p class="Commanddescription">Creates a list box selector for
+selecting one or more values from a list of strings. The valuelist
+is supplied as a strings separated by a delimiter. The first
+character of the string is used as the delimiter. When the dialog
+exits the selected strings are saved in the variable separated by
+the same delimiter. options can include one of "single", "multiple", and
+"extended". "single" permits selection of only one string at a
+time. "multiple" and "extended" allow more than one string, with
+"extended" allowing many strings to be selected easily. The default
+is "single".  The options can also include a string <i>width</i>x<i>height</i>
+which specifies the width and height of the list box (in characters).  
+An example of options would be &quot;extended&nbsp;50x15&quot;.
+</p>
+<p class="Commanddefinition">dropdown_selector <i>$variable</i>
+<i>label</i> <i>options_list</i></p>
+<p class="Commanddescription">Defines list from which a user can
+select a value. The options_list is a string organised as
+~value1~display~value2~display2... where ~ is any character,
+value1, value2, ... are the values assigned to the variable, and
+display1, display2, ... are the corresponding options displayed to
+the user.</p>
+<p class="Commanddefinition">radio_selector <i>$variable</i>
+<i>label</i> <i>options_list</i></p>
+<p class="Commanddescription">Defines a set of radio button options
+from which the user can select a value. The options_list is a
+string organised as ~value1~display~value2~display2... where ~ is
+any character, value1, value2, ... are the values assigned to the
+variable, and display1, display2, ... are the corresponding options
+displayed to the user.</p>
+<p class="Commanddefinition">checkbox <i>$variable</i>
+<i>label</i></p>
+<p class="Commanddescription">Defines a check box that the user can
+select as true or false.</p>
+<p class="Commanddefinition">open_file_selector <i>$variable</i>
+<i>label</i> <i>filter_list</i> <i>message</i></p>
+<p class="Commanddescription">Adds a field for specifying the name
+of an existing file. The filter_list string defines wildcard file
+values and descriptions formatted as "Listing files
+(*.lst)|*.lst|All files (*.*)|*.*". The message is optional .. if
+it is included then the file name is required, and the
+corresponding message is displayed if it is not selected.</p>
+<p class="Commanddefinition">save_file_selector <i>$variable</i>
+<i>label</i> <i>filter_list</i> <i>message</i></p>
+<p class="Commanddescription">Adds a field for specifying the name
+of a new file to create. The filter_list string defines wildcard
+file values and descriptions formatted as "Listing files
+(*.lst)|*.lst|All files (*.*)|*.*". The message is optional .. if
+it is included then the file name is required, and the
+corresponding message is displayed if it is not selected.</p>
+<p class="Commanddefinition">button <i>label</i>
+<i>statements</i></p>
+<p class="Commanddescription">Places a button on the dialog. When
+the button is pressed the following statements are executed. These
+can use the values of the other dialog controls (that is, the
+values of the corresponding variables. If a return or exit
+statement is run, the dialog will close.</p>
+<p class="Commanddefinition">validator <i>statements</i></p>
+<p class="Commanddescription">The validator is not displayed on the
+dialog box, but when the dialog exits (if it is not cancelled),
+then the statements will be run. If they return a false value then
+the dialog will remain open. For example:</p>
+<pre class="Commandexample">
+open_file_selector $filename "Select a command file" "Command files (*.snp)|*.snp"
+validator
+   if not FileExists($filename) then
+      Message("You must choose a valid command file","Input error")
+      return false
+   endif
+   return true 
+</pre>
+<p class="Commanddefinition">spacer</p>
+<p class="Commanddescription">Adds a spacer before the next
+control</p>
+<p class="Commanddefinition">new_column</p>
+<p class="Commanddescription">Starts a new column of controls</p>
+<hr>
+<a name="sysvar" id="sysvar"></a>
+</body>
+</html>

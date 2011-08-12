@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="gps_vertical">
+<title>The gps_vertical command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_gps_vertical"></a>The gps_vertical command</h1>
+
+<p class="Commanddefinition">gps_vertical  <i>location</i></p>
+
+<p>Defines how covariances are transformed from topocentric components to geocentric components and vice versa for GPS baselines and point position observations.  There are two options:</p>
+<ul>
+<li>
+a separate rotation rotation matrix can be calculated for each point or baseline (based on the midpoint of the baseline)
+</li>
+<li>a single rotation matrix can be used for all observations based on a central point of the network.  The reference point in the network can be specified with the <a href="cmd_topocentre.html">topocentre</a> command. This provides some computational efficiency, but is less rigorous. 
+</ul>
+<p>By default SNAP will calculate a separate matrix for each observation or baseline.</p>
+
+<p class="Commanddefinition">location</p><p class="Commanddescription">can either be &quot;individual&quot; to compute individually, or &quot;topocentre&quot; to use a single point for all transformations.  </p>
+
+<p>For example:</p>
+
+<p class="Commanddefinition">gps_vertical topocentre
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_topocentre.html">The topocentre command</a></p>
+
+</div>
+</body>
+</html>

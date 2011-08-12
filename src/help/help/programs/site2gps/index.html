@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name="keywords" content="site2gps, coordinate file, data file, station coordinates">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+
+<title>site2gps - calculate a dummy gps data file</title>
+
+
+</head>
+
+<body>
+
+
+
+<h1>site2gps - calculate a dummy gps data file</h1>
+
+<h2>Overview</h2>
+
+<p>site2gps is a program to create a data file of "dummy" GPS observations 
+between stations in a coordinate file.  This can be used to assist in 
+network design before carrying out a survey.
+</p>
+<p>
+The typical usage would include the following steps:
+</p>
+<p class="BulletList">
+Create a SNAP coordinate file with the stations to be surveyed and their 
+approximate coordinates.
+</p>
+<p class="BulletList">
+Run site2gps to generate a data file of vectors between the stations.  This can either generate specific vectors, or all possible vectors between the stations.
+Usually this would include the vectors in the proposed survey.
+</p>
+<p class="BulletList">
+Edit the generated data file to specify the expected accuracy of the GPS observations.  
+</p>
+<p class="BulletList">
+Create/edit a SNAP command file using the station file and data file.  This will
+include specifications of which stations are to be fixed.  This will typically be a "network analysis" mode adjustment.
+</p>
+<p class="BulletList">
+Run SNAP to determine the expected accuracies of the surveyed points.
+</p>
+<p class="BulletList">
+Analyse the output with snapplot, snapspec, or by reviewing the listing file
+to see whether the required coordinate accuracies are achieved.
+</p>
+
+
+<h2>Running site2gps</h2>
+
+<p>The program requires as input a SNAP coordinate file and optionally a 
+file listing the proposed observations.
+</p>
+<p>
+The proposed observation file is a simple text file on which each line contains
+a set two or more station codes (separated by space characters).  site2gps 
+can generate either a multistation data set including each station in the set,
+or a set of vectors between each pair of stations.
+</p>
+or in batch mode. In interactive mode it
+can create a new coordinate file, whereas in batch mode it can only be used to
+add stations to an existing coordinate file. </p>
+
+<p>To run the program use the command</p>
+
+<p class="Commanddefinition">site2gps [options] coord_file line_list_file output_file</p>
+
+<p>or</p>
+
+<p class="Commanddefinition">site2gps -a [options] coord_file output_file</p>
+
+<p>The program can take the following options:</p>
+<table>
+
+<tr><td><p class="Commanddefinition">
+-b
+</p></td><td><p>
+Generate individual baselines between pairs of stations rather than 
+ multistation GPS observations.
+</p></td></tr>
+
+<tr><td><p class="Commanddefinition">
+-c#
+</p></td><td><p>
+Specifies that lines less than # kilometers will not be generated
+</p></td></tr>
+
+<tr><td><p class="Commanddefinition">
+-f#
+</p></td><td><p>
+Specifies that lines greater than # kilometers will not be generated
+</p></td></tr>
+
+<tr><td><p class="Commanddefinition">
+-n#
+</p></td><td><p>
+Specifies that no more than n stations will be connected to each base 
+station (these will be the n closest stations, not including any 
+excluded by the -c parameter
+</p></td></tr>
+
+</table>
+
+<h3>See also:</h3>
+<p><a href="../../files/crd/index.html">Coordinate files</a></p>
+<p><a href="../../files/data/index.html">Data files</a></p>
+<p><a href="../../files/cmdcfg/index.html">Command files</a></p>
+
+</div>
+</body>
+
+</html>

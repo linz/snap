@@ -1,0 +1,428 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="change log, version, history">
+<title>Change log</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body>
+
+
+
+<h1><a name="change_log"></a>Change log</h1>
+
+<!--
+<h2>Known issues</h2>
+<h3>snapplot</h3>
+<p>Printing when the colours have been reset to show light vectors on a dark background doesn't work
+properly.  Something, somewhere, changes the background colour, but not the foreground colours, when printing
+so that text ends up being printed white on white.</p>
+<p>
+In snapadjust the progress bar and all progress updates are no longer displayed if the window loses focus, 
+even if focus is restored.
+</p>
+-->
+<!-- -------------------------------------------------------------------------- 
+<h2>Release: </h2>
+<h3>snap</h3>
+<p>Enhancement: Added support for using deformation model from coordinate system
+definition (by default)</p>
+
+<hr />
+-->
+
+<h2>Relase: 11 August 2011</h2>
+<p><b>Note:</b> SNAP binary files have changed in this release - binary files
+from old adjustments cannot be loaded and will need to be rebuilt.</p>
+<h3>snap</h3>
+<p>Enhancement: SNAP can read <a href="../files/crd/csv_stn_files.html">station coordinates</a> and <a href="../files/data/csv_obs_files.html">observations</a> from CSV files (character
+delimited text files) as well as SNAP formatted text files.  The encoding of information
+in the text files is controlled by <a href="../files/cmdcfg/csv_format_definition.html">CSV format definition</a>
+ configuration files.
+<p>
+<p>Enhancement: SNAP can output CSV (comma separated value) 
+formatted files of adjustment results 
+(station/coordinate information, observation information, and adjustment metdata).  
+This simplifies importing adjustment data into other analysis packages. CSV format files
+are generated using the <a href="../files/cmdcfg/cmd_output_csv.html">output_csv</a> command 
+in the SNAP command file.
+</p>
+<p>Enhancement: SNAP is able to calculate the geoid undulation and deflections of the vertical
+from the geoid model after loading the coordinates, so that this can built into the adjustment
+configuration, rather than relying on the user to run the sngeoid program.  This is done with
+the <a href="../files/cmdcfg/cmd_geoid.html">geoid</a> command in the SNAP command/configuration file.
+</p>
+<p>
+Enhancement: (Warning - this is an experimental feature and will change). The coordsys.def file can include a specification for a <a href="../coordsys/crdsys_refframe_def.html">deformation model</a> associated with the datum.  
+SNAP will use this model by default, unless it is overridden by a <a href="../files/cmdcfg/cmd_deformation.html">deformation</a> command in the SNAP command file.
+In conjunction with this there is a currently undocumented feature in concord 
+whereby the coordinate system specifications can include an epoch (eg NZGD2000@2011.0 would represent the coordinates of an NZGD2000 point at epoch 2011 (in effect the current ITRS coordinate of the point).
+ Note that the deformation model currently included in coordsys.def is still the IGNS98 model.
+</p>
+<p>Enhancement: The handling of bearing orientation errors, distance scale errors, refraction coefficients, and vector reference frames has been modified.
+Each of these previously had values defined by codes used in the data file
+using #bearing_orientation_error, #distance_scale_error, #refraction_coefficient, and #reference_frame <a href="../files/data/obs_ddc_alphabetically.html">data definition commands</a> in the configuration files.  Now they can be defined
+defined in terms of any <a href="../files/data/obs_classifications.html">observation classifications</a> in the data as selected by <a href="../files/cmdcfg/cmd_additional_parameter_commands.html">parameter commands</a> in the command file.
+This makes it easy to test the effect of different factors on these parameters.
+</p>
+
+</p>
+<p>Enhancement: SNAP observations can include an integer observation id.  This is not 
+used at all by SNAP, but is displayed in outputs.  This is mainly for data from other sources, and 
+allows for easy matching of the output information with the source data.  The id is defined using 
+either the <a href="../files/data/obs_ddc_data.html">#data</a> command in SNAP format observation 
+files, or in the <a href="../files/cmdcfg/csv_format_definition.html">CSV format definition</a> 
+file for CSV formatted observations.
+</p>
+<h3>snap_manager</h3>
+<p>Change: updated import GDB stations function to use revised web location.</p>
+
+<hr />
+<h2>Release: 27 April 2011</h2>
+<h3>snap</h3>
+<p>Bug fix: Error in calculation of LINZ deformation model (this does not apply to the simple grid 
+deformation model used in NZGD2000 prior to this date).</p>
+<h3>snapplot</h3>
+<p>Bug fix: Some observations were not displayed in the observation list</p>
+<p>Bug fix: Line lengths were not displayed in observation list</p>
+<h3>snap_manager</h3>
+<p>Enhancement: Added support for importing Antarctic stations</p>
+<hr />
+<h2>Release: 23 August 2010</h2>
+<h3>General</h3>
+<p>Enhancement: Added the site2gps program back into the SNAP suite for distribution.</p>
+<h3>snap</h3>
+<p>Bug fix: Using options like order=1 in station list would pick all marks with no order defined 
+if there were no stations of order 1.</p>
+<p>Change: Changed configuration files for specification testing in snap and snapspec to reflect changes to
+LINZ accuracy standards.</p>
+<h2>Release: 24 May 2010</h2>
+<h3>General</h3>
+<p>Change: Removed the relationship between Camp Area datum and WGS84.  This was incorrectly assumed to
+be the same as the WGS72 relationship (based on Doppler observations).  In fact the datum predates the Doppler
+observations and the relationship is undefined.</p>
+<h3>snap</h3>
+<p>Enhancement: Added XYZ position, mean sea level distance, orthometric height and ellipsoidal height data types.</p>
+<p>Enhancement: Added options for all angles and angle errors to be entered in degrees instead of 
+degrees, minutes, seconds.</p>
+<p>Change: The binary format used for triangulation data has been changed.  This only affects deformation models with triangulated patches.  
+ Currently no such models have been published, but possible future models will use this format.  
+</p>
+<p>Change: Updated accuracy specifications of NZGD2000 orders in configuration files reflecting new Surveyor General 
+standards.</p>
+<h3>snapspec</h3>
+<p>Change: Updated accuracy specifications of NZGD2000 orders in configuration files reflecting new Surveyor General 
+standards.</p>
+<hr />
+<h2>Release: 14 October 2009</h2>
+<h3>snap</h3>
+<p>Bug fix: Fix to bug causing SNAP to require observation dates in data files even when the 
+adjustment does not include a deformation model.</p>
+
+<hr />
+<h2>Release: 6 October 2009</h2>
+<h3>General</h3>
+<p>The NZGeoid09 geoid model replaces the previously used unofficial NZGeoid05.  This affects concord and snapgeoid.</p>
+<p>The scale factor of the WGS72 coordinate system has been changed to match that in PROJ and EPSG.  This will affect calculated heights only.</p>
+
+<h3>snap</h3>
+<p>Enhancement: Added ability to use a full LINZ deformation model, including ongoing national deformation components and
+local &quot;patches&quot;.</p>
+<p>Enhancement: Added &quot;output decomposition&quot; option to include the Choleski decomposition of
+the normal equations in the binary file (for use by snapspec instead of using the using the full covariance
+matrix).</p>
+<p>Enhancement: Coordinate files can now include additional columns of station classifications.  These can be used in SNAP to select groups of stations 
+for processing (for example in the &quot;fix&quot command).  They can also be used in snapplot for colour coding stations.</p>
+
+<h3>snapplot</h3>
+<p>Enhancement: added facility to allow colouring stations by classification (such as order, etc)
+as well as the default colouring by usage.</p>
+
+<h3>snapspec</h3>
+<p>
+Enhancement: Modified to allow use of the Choleski decomposition instead of the full coordinate covariance matrix.
+Also added a number of optimisations for calculating orders.
+</p>
+<p>
+Enhancement: Added testing of vertical as well as horizontal accuracy specifications.
+</p>
+<p>
+Enhancement: Added &quot;limit_order&quot; and &quot;configuration&quot; commands to snapspec configuration to 
+allow constrain the orders that stations can be assigned to (for example according to
+mark type) and to allow configuration to be defined in multiple files.
+</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 18 March 2009</h2>
+<h3>General</h3>
+<p>
+Enhancement: Update antarctic coordinate systems (Darwin Glacier Lambert Conic).
+</p>
+<h3>snapspec</h3>
+<p>
+Bug fix: Corrected calculation of orders when using a posteriori statistics.
+</p>
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 31 July 2008</h2>
+<h3>snap_manager</h3>
+<p>
+Change: Updated the import GDB stations function to reflect changes to the LINZ website.
+</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 29 April 2008</h2>
+<h3>General</h3>
+<p>
+Change: Tidied up Chatham Islands coordinate systems in coordsys.def.  Replaced CHATTM1979 with CITM1979. Removed CHAT (which is the same as CHAT1979).
+</p>
+<p>Enhancement: Added listgps software to SNAP distribution</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 4 February 2008</h2>
+<h3>General</h3>
+<p>Enhancement: Removed limit of 32,000 stations imposed by use of 16bit integers.  Note
+that binary files from previous versions are incompatible with this version.  Updated version
+of all SNAP utilities to 2.3.0</p>
+<p>Maintenance: Updated wxWidgets graphics library used by snapplot and snap_manager to version
+2.8.7.</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 18 December 2007</h2>
+<h3>coordsys.def</h3>
+<p>Enhancement: Added new coordinate systems defined by LINZ standard LINZS25002.</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 20 November 2007</h2>
+<h3>Snapplot</h3>
+<p>Bug fix: Corrected error on orientation of plotted error ellipses.</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 8 August 2007</h2>
+<h3>Installer</h3>
+<p>Change: Removed script to add the SNAP program directory to the path, as this stops the installer
+running on Vista. Users wanting SNAP in the path will need to add this manually.  Note that SNAP is in
+the path for the DOS box run from the snap_manager menu.</p>
+<h3>snap_manager</h3>
+<p>Bug fix: Fixed a problem with the snap_manager window disappearing to the background after
+running an adjustment.</p>
+<h3>snapplot</h3>
+<p>Bug fix: Fixed a bug which disabled panning the map window.</p>
+<p>Enhancement: Added option to choose font for plotting station names and codes.</p>
+<p>Enhancement: Tidied up highight stations and hide stations dialog boxes.</p>
+
+<!--
+<p>Updated to wxWidgets version 2.8.4 which incorporates the patch fixing grids required
+by snapplot</p>
+<p>Changed concord to be statically linked to simplify continued distribution of concord
+program without requiring an installation package</p>
+-->
+<hr />
+<h2>Release: 6 July 2007</h2>
+<h3>snap_manager</h3>
+<p>Enhancement: Added the continue statement</p>
+<p>Enhancement: Added more functions into the data files dialog based on scripts written
+by Jeremy Palmer</p>
+<p>Enhancement: Split up configuration file into separate include files for main function areas</p>
+<p>Bug fix: Fixed error in the precedence of the "." operator.</p>
+<p>Documentation: Included documentation of the regular expression syntax</p>
+<h3>snapgeoid</h3>
+<p>Bug fix: Fixed bug preventing calculation of geoid heights where input coordinate system was a projection
+coordinate system with a specified range.</p>
+<h3>Installer</h3>
+<p>Change: Changed Programs menu folder to be SNAP, rather than SNAP subfolder of LINZ folder.</p>
+
+<hr />
+
+<h2>Release: 25 June 2007</h2>
+<h3>snapplot</h3>
+<p>Bug fix: Fixed bug whereby when plotting from data files (ie not from binary file), snapplot could not
+load projection bearings if not in the network coordinate system.</p>
+<p>Bug fix: Fixed bug whereby when plotting from data files on a network drive snapplot fails with an error
+about not being able to create a binary file.  This occurs because it was trying to create a temporary file
+on the root directory of the network drive.</p>
+
+<h2>Release: 22 June 2007</h2>
+
+<h3>Installer</h3>
+<p>Enhancement: Now adds SNAP installation directory to the path</p>
+
+<h3>snapplot</h3>
+<p>Enhancement: Rationalised highlighting and hiding stations by error ellipses and 
+height errors to use the current error options when testing against a threshold value.</p>
+
+<h3>snap</h3>
+<p>New: Added the trvtest and gpstest SNAP configuration files to the build.</p>
+
+<h3>snap_manager</h3>
+<p>Enhancement: Added the ExecuteFuntion function to the scripting language.  Added
+listbox to available items in a dialog box</p>
+<p>Enhancement: Added plotting and editing data files to the menu</p>
+<p>Enhancement: Changed all menu functions to be executed by functions, which can be overridden
+by local configuration, so that behaviours can be changed.</p>
+<p>Enhancement: Added option of customising by included "*_menu.cfg" files in the scripts directory.
+These will be run as part of the startup configuration.</p>
+
+<h3>Documentation</h3>
+<p>Enhancement: Tidied up many pages where formatting was particularly bad!</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 11 May 2007</h2>
+
+<h3>snap_manager</h3>
+<p>New: Added import from GDB function.</p>
+<p>Enhancement: Added two string processing functions (Match, Replace), a date function (GetDate), 
+an environment variable GetEnv() and a function to retrieve the value of a variable (GetValue) 
+to the scripting language.  Added (positive integer) 
+numbers as unquoted strings.</p>
+<p>Bug fix: Fixed New|SNAP file project.  New project now uses a template file in the scripts
+directory.</p>
+<p>Bug fix: Fixed errors in scripts where the coordinate file is not in the command file directory.</p>
+
+<h3>snap</h3>
+<p>Bug fix: Fixed bug whereby accuracy tests not applied to the last station in test_specifications
+options</p>
+
+<h3>snapplot</h3>
+<p>Bug fix: PNG image export now actually exports a .PNG file, not a .BMP file named xxx.png.</p>
+<p>Bug fix: Snapplot locks the binary file so that adjustments cannot be rerun while snapplot is open.
+This avoids snapplot displaying corrupt data due to the binary file changing.</p>
+<p>Change: Left clicking on the station or observation list highlights the station/observation on the map but doesn't show the details.  To show details, double click on the station or observation.</p>
+<p>Enhancement: Added more options to the highlight and hide/show stations dialog box.</p>
+<p>Enhancement: Added a "find station" menu item for quickly looking up a station.</p>
+
+<h3>snapspec</h3>
+<p>Enhancement: Incorporated station file coordinate orders into snapspec.  Added options to base
+highest order tested on lowest order of control (-a), and to generate an updated coordinate file
+containing the revised orders (-u).</p>
+<h3>help</h3>
+<p>Enhancement: improved the layout of the descriptions of SNAP commands.</p>
+
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 27 April 2007</h2>
+
+<h3>Coordinate file format</h3>
+<p>Enhancement: The format of the third line of the station coordinate file has been changed 
+to a more general and clearer format.  This consists of the keyword "options"
+followed by options specifying which station attributes are included in the file.
+Old format station coordinate files will be read without problem, but the generated
+coordinate files will have the new format header line. See <a href="../files/crd/stn_file_format.html">coordinate file</a> documentation.
+</p>
+
+<h3>Binary file format</h3>
+<p>Change: The format of the binary file is incompatible with previous versions. Binary
+files will need to be rebuilt by rerunning adjustments.
+</p>
+
+<h3>snap</h3>
+<p>Enhancement: Added option to include station orders in coordinate file, and to include order=x in station lists
+in the command file</p>
+<h3>snapgeoid</h3>
+<p>Enhancement: Rationallised the processing of geoid options 
+in snapgeoid, and the 
+processing of these in snapgeoid.  The command line options for snapgeoid 
+have been modified reflecting this .. see 
+the <a href="../programs/snapgeoid/index.html">snapgeoid documentation</a>. </p>
+
+<h3>snapplot</h3>
+<p>Enhancement: Added help button to dialog boxes</p>
+<p>Enhancement: Restored Ctrl+Shift+Right click function of the DOS snapplot  map to clear the station offset of a single station.</p>
+<p>Enhancement: Rationallised the colour key and added an option for the selected station/observation 
+colour to give full control of map colours</p>
+<p>Enhancement: Added "order" to the station listing columns.</p>
+<p>Enhancement: Added options to export map as an image (PNG or BMP), and reinstated the DXF export
+option (by popular demand!)</p>
+<p>Enhancement: Added print map command to send the map to a printer</p>
+<p>Enhancement: Add Copy menu for copying information from map and text windows to clipboard</p>
+
+<h3>snapgeoid</h3>
+<p>Change: Renamed nzvd05.grd geoid model to more correct nzgeoid05, to distinguish between
+ the geoid model and the vertical datum.</p>
+ <p>Enhancement: Calculation of deflections based upon geoid model, as well as undulations.</p>
+ 
+<h3>dat2site</h3>
+<p>Add options to just list the stations in the data files, or to list the
+stations in the data files missing from the station file.</p>
+
+<h3>snapmerge</h3>
+<p>New: Added a new program <a href="../programs/snapmerge/index.html">snapmerge</a>
+for merging station information from one coordinate file into another</p>
+
+<h3>snap_manager</h3>
+<p>Note: The hitherto undocumented scripting function has been updated in this
+version - any previous customisation may not work.  This change does provide
+customisation options which will not be overwritten by new releases.
+</p>
+<p>Enhancement: Scripting language enhanced to include dialog boxes.</p>
+<p>Enhancement: Snap manager window is a little more informative ...</p>
+<p>Enhancement: Configuration and scripting (briefly) <a href="../programs/snap_manager/script.html">documented</a></p>
+
+<h3>coordsys.def</h3>
+<p>Change: Rationalised coordinate systems in the coordsys.def file.  Commented out old codes for 
+cadastral coordinate systems, as well as link systems, and duplicate codes for coordinate systems.
+</p>
+<h3>help</h3>
+<p>Bug fix: Help index wasn't working correctly.  That has now been fixed</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 29 March 2007</h2>
+<h3>snapplot</h3>
+<p>Bug fix: Fixed error causing snapplot to crash on exit when started without specifying a snap job to display</p>
+<p>Bug fix: Fixed error when using right mouse button to go back through details text view whereby
+if after going back the mouse is still on a link the view returns back to the starting page.</p>
+<p>Bug fix: Fixed bug that prevented controlling text colour</p>
+<p>Bug fix: Fixed bug that caused error ellipses to sometimes be displayed with dashed lines</p>
+<p>Enhancement: Added help file</p>
+<p>Enhancement: Added option to change map background colour.</p>
+<p>Enhancement: Fixed observations list to allow sorting on any column by clicking the column header.  
+Changed the observation listing options to give more control and choices over columns listed.  </p>
+<p>Enhancement: Added a menu option for turning station offsets on or off</p>
+
+<h3>snapgeoid</h3>
+<p>Enhancement: Added -g option to specify the name of a geoid or geoid file</p>
+    <p>
+        Change: Changed the use of environment variables to select the geoid file to use.
+        Now uses the GEOID to specify a geoid name or GEOIDBIN to specify a specific geoid
+        file. Changed the default name from geoid.bin to geoid.grd</p>
+<h3>Concord</h3>
+<p>Change: Changed the use of environment variables to select the geoid file to use.  Now uses the GEOID to
+specify a geoid name or GEOIDBIN to specify a specific geoid file.  Changed the default name from geoid.bin
+to geoid.grd</p>
+
+<!-- -------------------------------------------------------------------------- -->
+<hr />
+<h2>Release: 20 March 2007</h2>
+<h3>snap_manager</h3>
+<p>Enhancement: SNAP manager program uses a scripting language to simplify 
+future additions of functions, and to simplify customisations for LINZ/contractor 
+use.  This is still under development.</p>
+<h3>snapplot</h3>
+<p>Bug fix: Fixed a bug that caused the last line on the plot to be not 
+displayed. This was identified when a
+ significant adjustment vector was not displayed</p>
+<p>Enhancement: Reinstated the back function on details view.  Right
+clicking the details window will revert to the previous details information.
+Up to 20 pages can be reversed.  Note that this is a non conventional 
+use of the right mouse button and may be changed in the future.</p>
+<p>Enhancement: Allow observations to be turned off as well as coloured 
+according the the category</p>
+<p>Enhancement: Ensure that highlighted stations are always displayed over
+unhighlighted stations (this was already the case for observations)</p>
+<h3>Snapspec</h3>
+<p>Bug fix: Fixed a bug whereby snapspec was not able to find 
+its default configuration file.</p>
+
+</body>
+</html>

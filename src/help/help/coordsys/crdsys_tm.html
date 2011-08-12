@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="Transverse mercator projection, COORDSYS.DEF, projection">
+<title>Transverse Mercator projection definition format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_tm"></a>Transverse Mercator projection definition format</h1>
+
+<p>A Transverse Mercator projection is defined the word TM and the following items
+
+<ul>
+	<li>the central meridian longitude in decimal degrees<br><br></li>
+
+	<li>the origin of latitude in decimal degrees<br><br></li>
+
+	<li>the central meridian scale factor<br><br></li>
+
+	<li>the false origin easting  in projection units<br><br></li>
+
+	<li>the false origin northing in projection units<br><br></li>
+
+	<li>the unit to metres conversion factor</li>
+</ul>
+
+<p>Here is an example of a Transverse Mercator projection coordinate system.  Note the use of  &amp; to continue the definition over two lines</p>
+
+<pre><code>AMUR  "Amuri Circuit"   REF_FRAME NZGD49  PROJECTION &amp;
+     TM 173.01013339 -42.68911658 1.000000 &amp;
+           300000.00 700000.00 0.999998261</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+
+<p><a href="crdsys_crdsys_def.html">Coordinate system definition format</a></p>
+
+</div>
+</body>
+</html>

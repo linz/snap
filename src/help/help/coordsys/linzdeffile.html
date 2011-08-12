@@ -1,0 +1,456 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<meta name="keywords" content=
+"SNAP, deformation, LINZ deformation model, file format">
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+<title>LINZ deformation file format</title>
+</head>
+<body>
+<h1>LINZ deformation file format</h1>
+<p>The LINZ deformation model format is used to represent complex
+<a href="linzdefmodel.html">deformation fields</a> which can
+comprise both an ongoing national deformation model and local
+perturbations to this field due to earthquakes or other
+deformation.</p>
+<p>The deformation file used by SNAP is a binary file format. The
+file is generated from a number text files using the
+makelinzdefmodel.pl script supplied with SNAP. The main file is an
+index file which defines the deformation model, and the deformation
+sequences and components of which it comprises (as described in the
+<a href="linzdefmodel.html">LINZ deformation model</a>). Each
+component is in turn represented by either a <a href=
+"gridfile_s.html">gridded data file</a> or <a href=
+"trigfile.html">triangulated data file</a>.</p>
+<p>The index file is structured with a header section followed by
+one or more deformation sequences. Each sequence has one or more
+deformation components. Each record comprised a code defining the
+content of the record, followed by the value of the record. Dates
+in the file are formatted as dd-mmm-yyyy, for example
+&ldquo;20-Jan-2004&rdquo;. This can optionally be followed by a
+time such as &ldquo;12:30&rdquo;</p>
+<p>The header section should contain the following records:</p>
+<table class="NormalTable">
+<tr>
+<td>
+<p>Code</p>
+</td>
+<td>
+<p>Type</p>
+</td>
+<td>
+<p>Description</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DEFORMATION_MODEL</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>The name of the deformation model</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>FORMAT</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>Defines the variant of the binary file format to generate. The
+possible values are</p>
+<table>
+<tr>
+<td>LINZDEF1B</td>
+<td>Big endian binary format</td>
+</tr>
+<tr>
+<td>LINDEF1L</td>
+<td>Little endian binary format (the preferred format for
+SNAP)</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td>
+<p>VERSION_NUMBER</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>The version of the deformation model</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>VERSION_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>The date on which the version was authoritative</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>START_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>The first date for which the model may be used &ndash; dates
+before this are invalid</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>END_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>The last date for which the model may be used &ndash; dates
+after this are invalid</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>COORDYS</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>A code for the coordinate system in which the deformation is
+defined &ndash; eg NZGD2000.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p>
+</td>
+<td>
+<p>text</p>
+</td>
+<td>
+<p>Description of the model</p>
+</td>
+<td></td>
+</tr>
+</table>
+<p>The header should be followed by one or more deformation
+sequence section. Each deformation sequence section should contain
+the following records:</p>
+<table class="NormalTable">
+<tr>
+<td>
+<p>Code</p>
+</td>
+<td>
+<p>Type</p>
+</td>
+<td>
+<p>Description</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DEFORMATION_SEQUENCE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>The name of the sequence (eg National model, Arthurs&rsquo; Pass
+earthquake)</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DATA_TYPE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>Defines the type of model data, either deformation or
+velocity</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DIMENSION</p>
+</td>
+<td>
+<p>integer</p>
+</td>
+<td>
+<p>The dimension of the deformation (1 = height only, 2 =
+horizontal only, 3 = 3d deformation</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>START_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>The first date at which the sequence applies &ndash; it is
+assumed to be zero before this</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>END_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>The last date at which the sequence applies &ndash; It is
+assumed to be zero after this date</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>ZERO_BEYOND_RANGE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>Either &ldquo;yes&rdquo; or &ldquo;no&rdquo;. If
+&ldquo;yes&rdquo;, then the deformation sequence defines the
+deformation to be zero beyond the spatial extents of the
+components. If &ldquo;no&rdquo; then the deformation is undefined
+beyond the extents of the component &ndash; deformations cannot be
+calculated outside the extents.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p>
+</td>
+<td>
+<p>text</p>
+</td>
+<td>
+<p>Description of the model</p>
+</td>
+</tr>
+</table>
+<p>Each deformation sequence should be followed by one or more
+deformation components which define the sequence.</p>
+<p>For deformation type sequences the deformation components
+sequences must be defined in ascending order of reference date. The
+deformation for the sequence at a given time is then calculated
+based upon the components before and after the calculation time. If
+the calculation time is before the first or after the last
+component of the sequence, then it is calculated using the first or
+last component. Note that it is possible to define incompatible
+data, for example by specifying a deformation of "zero" after one
+deformation component and "interpolate" before the next.</p>
+<p>For velocity type sequences the deformation from each component
+is simply added, so the order is unimportant. Usually a velocity
+sequence will only have one component.</p>
+<p>Each deformation component should contain the following
+records:</p>
+<table class="NormalTable">
+<tr>
+<td>
+<p>Code</p>
+</td>
+<td>
+<p>Type</p>
+</td>
+<td>
+<p>Description</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DEFORMATION_COMPONENT</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>The name of the <a href="gridfile_s.html">grid</a> or <a href=
+"trigfile.html">triangulation</a> data file containing the model.
+This must match the dimension of the sequence. The name may be
+followed by additional parameters to be used to generate the grid
+or trig file (by the makegrid.pl or maketrig.pl scripts).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>MODEL_TYPE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>Either &ldquo;grid&rdquo; or &ldquo;trig&rdquo;</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>REF_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>A reference date used with the deformation component</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>BEFORE_REF_DATE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>One of &ldquo;zero&rdquo;, &ldquo;fixed&rdquo;, or
+&ldquo;interpolate&rdquo;. Defines how the component is evaluated
+before the reference data. Options are:</p>
+<table>
+<tr>
+<td>zero</td>
+<td>The deformation is not evaluated before the reference date
+&ndash; it is zero.</td>
+</tr>
+<tr>
+<td>fixed</td>
+<td>For deformation type models the deformation is constant before
+the reference date at the value defined by the model data. For
+velocity models the deformation is interpolated using the velocity
+defined by the model.</td>
+</tr>
+<tr>
+<td>interpolate</td>
+<td>For deformation type models the deformation is interpolated
+from the calculated deformation of this component and that of the
+previous component in the sequence if it exists, or from the next
+if there is no previous. For velocity models the deformation is
+calculated based using the velocity defined by the model data.</td>
+</tr>
+</table>
+</td>
+</tr>
+<tr>
+<td>
+<p>AFTER_REF_DATE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>One of &ldquo;zero&rdquo;, &ldquo;fixed&rdquo;,
+&ldquo;interpolate&rdquo;, equivalent to the BEFORE_REF_DATE
+option.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p>
+</td>
+<td>
+<p>text</p>
+</td>
+<td>
+<p>Description of the component</p>
+</td>
+</tr>
+</table>
+<p>The following is a (somewhat contrived) example of a LINZ
+deformation model index file</p>
+<pre class="ConfigFile">
+DEFORMATION_MODEL NZGD2000 deformation model
+FORMAT LINZDEF1B
+VERSION_NUMBER 1.0
+VERSION_DATE  12-Mar-2004
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2200
+COORDSYS NZGD2000
+DESCRIPTION
+This is the description of the model
+This is a first try
+END_DESCRIPTION
+
+# National model
+
+DEFORMATION_SEQUENCE National model
+DATA_TYPE velocity
+DIMENSION 2
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2101
+ZERO_BEYOND_RANGE no
+DESCRIPTION
+National velocity model
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT velgrid.gdf
+MODEL_TYPE grid
+REF_DATE 1-Jan-2000
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+National velocity grid deformation model
+END_DESCRIPTION
+
+# 15 July 2009 Fiordland earthquake
+
+DEFORMATION_SEQUENCE Fiordland earthquake 15 July 2009
+DATA_TYPE deformation
+DIMENSION 2
+START_DATE 1-Jan-2020
+END_DATE 1-Jan-2030
+ZERO_BEYOND_RANGE yes
+DESCRIPTION
+Deformation patch with single model, zero before, fixed after
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_a.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+BEFORE_REF_DATE zero
+AFTER_REF_DATE fixed
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake
+END_DESCRIPTION
+
+</pre>
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="linzdefmodel.html">The LINZ deformation model</a></p>
+<p><a href="gridfile_s.html">Gridded component file format</a></p>
+<p><a href="trigfile.html">Triangulated component file
+format</a></p>
+<p><a href="../programs/snap/index.html">SNAP adjustment
+program</a></p>
+<p><a href="../files/cmdcfg/cmd_deformation.html">The SNAP
+deformation command</a></p>
+</div>
+</body>
+</html>

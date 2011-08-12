@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="station coordinate file">
+<title>Examples of station coordinate files</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="stn_crd_file_example"></a>Examples of station coordinate files</h1>
+
+<h2>Example 1: Geodetic coordinates with geoid information</h2>
+
+<p>The following example shows the beginning of a station coordinate file containing coordinates in a geodetic (latitude and longitude) coordinate system, in this case NZGD49.  The file lists the deflections and geoid undulation of each station. The data do not need to be aligned in columns, though the file is more readable if they are.  The comment line start !Code is not required.
+No options are specified, so the default options of deflections and geoid_heights apply.
+
+</p>
+
+<pre class="Listing">
+Mataura 3rd Order Control
+NZGD49
+
+!Code  Latitude       Longitude     Height   Xi  Eta  Geoid  Name
+3   46 08 20.525 S 168 52 00.279 E  480.270  0.0 0.0  6.356  L Waimumu Hd
+4   46 11 28.068 S 168 47 48.332 E  150.570  0.0 0.0  6.328  R Lindhurst Hd
+74  46 09 34.880 S 168 50 16.999 E  146.900  0.0 0.0  6.339  Q Waimumu Hd
+79  46 11 39.771 S 168 52 40.207 E  110.300  0.0 0.0  6.373  I Tuturau SD
+83  46 12 19.375 S 168 51 08.065 E   51.130  0.0 0.0  6.362  N Lindhurst Hd
+221 46 13 38.262 S 168 53 17.920 E  309.810  0.0 0.0  6.382  Mataura No2
+</pre>
+
+<h2>Example 2: Projection coordinates</h2>
+
+<p>The following example shows a station coordinate file containing projection coordinates.   The projection is defined by the code BLUF on the second line.  This is defined in the COORDSYS.DEF file as a Transverse Mercator projection based upon NZGD49.  In this case the deflections and undulation are not included.  This is specified in the options line.</p>
+
+
+
+<pre class="Listing">
+Mataura 3rd Order Control
+BLUF
+options no_geoid
+
+3    340483.70  751109.23  480.27   L Waimumu Hd
+4    335042.67  745351.66  150.57   R Lindhurst Hd
+74   338252.52  748827.58  146.90   Q Waimumu Hd
+79   341299.31  744951.34  110.30   I Tuturau SD
+83   339315.64  743741.47   51.13   N Lindhurst Hd
+221  342082.84  741287.14  309.81   Mataura No2
+</pre>
+
+<h3>Example 3: Projection coordinates, geoid heights, and station orders</h3> 
+<p>
+This example of a station file includes ellipsoidal heights with geoid heights.
+Also it includes a column of station orders that can be used to select stations
+in the adjustment, and a column of mark types.
+</p>
+<pre class="Listing">
+Karori coordinates updated 7 March 2007
+WELLTM2000
+options ellipsoidal_heights no_deflections geoid_heights station_orders c=MarkType
+! Geoid undulations from New Zealand Geoid 2009 (NZGeoid09)
+
+8115    396934.598   800557.926    368.866  13.126 4 PIN WRIGHT HILL
+BB3L    395613.241   801481.386    153.661  13.078 3 PIN SS 7K 22 SO 30955
+BDQ7    395954.890   802562.612    290.159  13.094 4 PEG RM IV DP 67708
+BDQ8    396974.886   801900.119    181.487  13.133 4 PIN SS 6K18 SO 32647
+BDQ9    397635.790   801117.566    257.596  13.152 4 PIN SS 3J26 SO 32645
+DFWH    396168.477   802427.370    244.388  13.103 5 PIPE LP VIII DP 63882
+A28B    397845.805   801485.001      0.000  13.160 5 PIPE OLD KARORI
+</pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Station coordinate file</a></p>
+
+<p><a href="stn_code.html">Station codes</a></p>
+
+<p><a href="stn_file_format.html">Station coordinate file format</a></p>
+
+
+
+</div>
+</body>
+</html>

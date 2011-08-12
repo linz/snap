@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="station lists">
+<title>Station lists</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_stn_list"></a>Station lists</h1>
+
+<p>Several commands (for example reject,  ignore, fix) use a list of station codes to identify the stations that are affected.  This list can include:</p>
+
+<p class="BulletList">individual station codes</p>
+<p class="BulletList">ranges of stations codes - entered as two station codes separated by a hyphen (eg 5-15).
+Station ranges are interpreted by ordering the codes numerically using the leading digits in the code, and then alphabetically using any remaining characters in the code.  Using this scheme the range 5-15 would include 10 and 10A, but not 100.  If there is a station with a code the same as the range in the station list, then the
+range will be treated as an individual station code.</p>
+
+<p class="BulletList">stations specified by order - entered as order=<i>order</i> (eg order=3).  This can be used if the coordinate file specifies station orders.</p>
+
+<p class="BulletList">stations specified by other classifications defined in the coordinate file - entered as <i>class_name</i>=<i>order</i> (eg mark_type=pin).</p>
+
+<p class="BulletList">stations defined in a station list file - entered as @<i>filename</i>.</p>
+
+<p>When a group of stations will be referenced in several adjustments it may be convenient to put the list into a a station list file.  
+For example if you wanted to be able to easily exclude all benchmarks from an adjustment, you could create a file called BENCHMRK.LST.  In this you would specify all benchmarks.  Then in the command file you would include  the command</p>
+
+<p class="Commanddefinition">reject @benchmrk.lst</p>
+
+<p>to reject them. </p>
+
+<p>A station list file may contain any number of station codes and station code ranges.  It cannot include references to other list files.  The codes can be spread over several lines.  They should be separated by blank characters.  The file can include comments as lines starting with the character !.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="../crd/stn_code.html">Station codes</a></p>
+
+<p><a href="cmd_station_options.html">Using stations in adjustments</a></p>
+
+<p><a href="../crd/index.html">The station coordinate file</a></p>
+
+</div>
+</body>
+</html>

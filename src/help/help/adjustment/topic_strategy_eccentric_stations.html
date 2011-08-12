@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, eccentric stations, station">
+<title>Handling eccentric stations</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_ecc"></a>Handling eccentric stations</h1>
+
+<p>SNAP does not have any facilities for handling observations from eccentric stations.  These can be dealt with in two ways:
+
+<ul>
+	<li>add the eccentric stations and the observations defining their eccentricity to the adjustment<br><br></li>
+
+	<li>reduce the observations to the central station</li>
+</ul>
+
+<p>Adding eccentric stations to the adjustment is the more rigorous approach as the errors in defining the eccentricity are properly accounted for.  If the observations are reduced to the central station before being used in SNAP then the observations defining the eccentricity are being treated as error free.</p>
+
+<p>Occasionally this approach may give rise to problems in the adjustment where eccentric stations are very close to the central station.  You should ensure that errors of the observations defining the eccentricity are defined sensibly.  For example, an eccentric station 1/Ecc may be defined as being 5 metres from station 1 and on line to station 2.  The alignment must be entered into SNAP as a horizontal angle observation at station 1.  If the alignment has been observed to a better accuracy than 0.5 mm, the error of the angle is 0.5mm in 5 metres, or about 20 seconds of arc.</p>
+
+<p>If eccentric stations are being calculated in the adjustment then you also need to calculate reasonable trial coordinates for the stations.  These should not be the same as the coordinates of the central station, and should be in approximately the correct direction from the central station.</p>
+
+<p>In large adjustments with many eccentric stations it may be preferable to reduce the observations.  This avoids significantly increasing the number of stations the adjustment, and avoids the need to calculate initial coordinates for those stations.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Adjustment strategies</a></p>
+
+</div>
+</body>
+</html>

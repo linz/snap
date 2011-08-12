@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="float">
+<title>The float command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_float"></a>The float command</h1>
+
+<p class="Commanddefinition">float [type] [all]  [station_list]</p>
+
+<p>Defines stations that are to be floated (i.e. their current location is used as an observation with a specified tolerance).</p>
+
+<p>The options are identical to the fix command.  The horizontal and vertical errors applied are the current defaults for the command file.  Initially values of 1 metre are used for each.  They are changed with the horizontal_float_error and vertical_float_error commands described below.  An example of the use of these commands would be</p>
+
+<pre class="Commandexample">horizontal_float_error  0.5
+vertical_float_error  1.0
+float  horizontal  bm3  stn4  
+float vertical  stn8 stn9
+float stn7
+</pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_station_options.html">Using stations in adjustments</a></p>
+
+<p><a href="cmd_fix.html">The fix command</a></p>
+
+<p><a href="cmd_free.html">The free command</a></p>
+
+<p><a href="cmd_horizontal_float_error.html">The horizontal_float_error command</a></p>
+
+<p><a href="cmd_vertical_float_error.html">The vertical_float_error command</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

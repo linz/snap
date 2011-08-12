@@ -1,0 +1,114 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="COORDSYS.DEF, reference frame">
+<title>Reference frame definition format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_refframe_def"></a>Reference frame definition format</h1>
+
+<p>The reference frame definition specifies the ellipsoid for a reference frame, and the location, orientation, and scale of coordinates relative to a reference system.  The reference system is arbitrary.  Conversions can only be done between coordinates which have the same reference system. </p>
+
+<p>Reference frame definitions have the following format in the coordinate system definition file: </p>
+
+<pre><code>
+code description ELLIPSOID ellipsoid_code refcode 
+		 Tx Ty Tz Rx Ry Rz scale
+                 <i>grid_conversion_definition</i>
+                 <i>deformation_model_definition</i>
+</code></pre>
+
+<p>where</p>
+
+<p><i>code</i> is an identifier for the reference frame.  This may contain letters, numbers, and the underscore character.  It cannot contain blanks.</p>
+
+<p><i>description</i> is a quoted text description of the reference frame</p>
+
+<p><i>ellipsoid_code</i> is the code for the ellipsoid associated with the reference frame.  This code must have been defined in an earlier [ellipsoids] section of the file.</p>
+
+<p><i>refcode</i> is a code identifying the reference system in terms of which translations, rotations, and scale are defined.  This need not be  the same a reference frame in the coordinate system file, but it must be the same for all reference frames between which coordinate conversions are required.</p>
+
+<p><i>Tx Ty Tz</i> is XYZ position of the origin of the reference frame in the reference system (i.e. the translation that must be applied to coordinates to convert them back to the reference system).  The coordinates are in metres.</p>
+
+<p><i>Rx Ry Rz</i> are the rotations about the X, Y, and Z axes required to convert coordinates from the reference frame back to the reference system.   The rotations are in arc seconds.</p>
+
+<p><i>scale</i> is the scale difference between the reference frame and the reference system.  It is applied to coordinates to convert them back to the reference system.  The scale is defined in parts per million.</p>
+
+<p><i>grid_conversion_definition</i> defines a grid based conversion between the base reference frame and this one.  The grid model is applied in addition to the seven parameter transformation.  Currently only one format of grid conversion is defined:
+</p>
+
+<pre><code>
+GRID SNAP2D <i>filename</i> <i>description</i>
+</code></pre>
+<p>where <i>filename</i> is the name of the <a href="gridfile_c.html">grid file</a> containing the grid defining
+the latitude and longitude offsets to be applied, and <i>description</i> is a text description of the model.</p>
+
+<p><i>deformation_model_definition</i> defines a deformation model that applies for the datum.  The deformation model is used to convert coordinates between different epochs.  The definition is structured as: 
+</p>
+
+<pre><code>
+DEFORMATION <i>conversion_epoch</i> <i>type</i> <i>parameters</i>
+</code></pre>
+
+<p>Here <i>conversion_epoch</i> is the default epoch for conversions between
+different datums.  Two convert between two datums with deformation models, the 
+coordinates are first converted from their defined epoch to the conversion epoch, 
+then the transformation parameters are applied, then the coordinate is converted to the target epoch.
+If the datums have a different conversion epoch then the coordinates cannot be transformed from one to the other, unless the conversion epoch is overridden with a user specified epoch.
+</p>
+<p>There are currently four model types supported by concord and SNAP. These are <p>
+<pre><code>
+VELGRID <i>grid_file_name</i> <i>reference_epoch</i><br />
+LINZDEF <i>def_model_file</i>
+BW14 <i>reference_epoch dTx dTy dTz dRx dRy dRz dS</i> 
+EULER <i>reference_epoch Plon Plat rate</i>
+NONE
+</code></pre>
+<p>
+The VELGRID model is a gridded velocity model defining the east and north
+components of velocities on the grid.  It requires a reference epoch which 
+defines the time at which the deformation is zero.
+</p>
+<p>
+The LINZDEF model is a <a href="linzdefmodel.html">complex model</a> comprising 
+multiple components.  This has just one parameter, the name of the model definition file.  This also uses the epoch 0 to mean coordinates with no deformation model applied.  This does not necessarily correspond to actual coordinates at any real epoch.  For NZGD2000 this would be the reference coordinates used to refer to a mark.
+</p>
+<p>
+THe BW14 model adds a rate change to the Bursa Wolf model. It has parameters of a reference epoch, at which the deformation is zero, and translation rates (mm/year), rotation rates (msec/year), and scale change rate (ppb/year).
+</p>
+<p>
+The EULER model calculates deformation based on a Euler rotation pole and rate.  It has parameters of a reference epoch at which the deformation is zero, the longitude and latitude of the pole (in degrees), and the rotation rate in msec/year.
+</p>
+
+<p>Here is an example of the reference frames section of the coordinate system definition file:</p>
+
+<pre><code>[reference_frames]
+ 
+WGS84  &quot;World Geodetic System 1984&quot; &amp;
+    ELLIPSOID WGS84 &amp;
+    WGS84 0.0 0.0 0.0 0.0 0.0 0.0 0.0
+
+NZGD49 &quot;New Zealand Geodetic Datum 1949&quot; &amp;
+    ELLIPSOID INTERNATIONAL &amp;
+    WGS84 59.47 -5.04 187.44 -0.47 0.10 -1.024 -4.5993 &amp;
+    GRID SNAP2D def492kt.grd &quot;LINZ NZGD49-NZGD2000 conversion grid&quot;
+
+NZGD2000 &quot;New Zealand Geodetic Datum 2000&quot; ELLIPSOID GRS80 &amp;
+   WGS84 0 0 0 0 0 0 0 &amp;
+   DEFORMATION 2000.0 VELGRID igns98b 2000.0
+</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+
+</div>
+</body>
+</html>

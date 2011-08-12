@@ -1,0 +1,18 @@
+[OPTIONS]
+Auto Index=Yes
+Compatibility=1.1 or later
+Compiled file=concord.chm
+Contents file=concord.hhc
+Default topic=help\programs\concord\index.html
+Display compile notes=No
+Display compile progress=No
+Full-text search=Yes
+Index file=concord.hhk
+Language=0x1409 English (New Zealand)
+Title=Concord help
+
+
+[FILES]
+
+[INFOTYPES]
+

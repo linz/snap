@@ -1,0 +1,27 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, parameters, systematic errors, user defined errors">
+<title>User defined systematic errors</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_user_errors"></a>User defined systematic errors</h1>
+
+<p>You can use SNAP to calculate parameters other than those specifically defined in the adjustment.  For example you may believe that  an EDM is introducing an unknown constant error into the data.  You can specify this in a data file by defining the systematic error, say as EDM_CONSTANT, and then defining its influence on each observation.  If you want to calculate EDM_CONSTANT in millimetres, then its influence on each distance observation is 0.001 metres.   </p>
+
+<p>Systematic errors are implemented using the "#systematic_error" and "#data" data definition  commands in data files, and the "systematic_error" command in the command file.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="../cmdcfg/cmd_additional_parameters.html">Additional adjustment parameters</a></p>
+
+</div>
+</body>
+</html>

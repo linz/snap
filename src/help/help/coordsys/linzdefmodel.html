@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name="keywords" content="SNAP, deformation model, NZGD2000">
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+<title>LINZ deformation model</title>
+
+
+</head>
+
+<body>
+
+<h1>LINZ deformation model</h1>
+
+<p>
+The NZGD2000 datum is defined as a semi-dynamic datum, which means that NZGD2000 spatial coordinates
+are defined at a specific epoch (currently 2000.0 - 1 January 2000), and that a deformation model is 
+used to calculate the equivalent coordinates at other times.  The deformation model will include the 
+long term regional deformation trend and may include deformation related to specific events such as 
+earthquakes.
+</p>
+<p>The regional deformation reflects the relative movement of the Pacific and Australasian
+tectonic plates and the distribution of this movement across New Zealand.  Over a timespan of decades this
+is dominated by a constant velocity component.  Individual deformation events can be represented as
+short term perturbations of this.
+</p>
+<p>
+The deformation model associated with NZGD2000 will be periodically updated, both to reflect new deformation events, and as a result of improved calculation of the long term component.
+</p>
+
+<p>
+In order to represent this deformation field the LINZ deformation model can include an arbitrary number 
+&quot;deformation sequences&quot;, each of which consists of one or more &quot;deformation components&quot;. 
+The deformation at any time and place is determined by adding the corresponding deformation of from each sequence. 
+</p>
+<p>
+Each deformation sequence represents either a regional deformation or a specific deformation event.  It can have a number of components, each representing either the deformation or velocity before, after, or at a specific reference time.  
+For deformation sequences the deformation at other times is based on the deformation components before and after that time (or the two nearest components if the calculation time is beyond the range of the components).  The value may be determined using linear interpolation (extrapolation), or by using the next or previous value, depending on how the component is specified.
+For velocity sequences the velocities of each applicable component are added - each velocity component may apply before or after the reference time or both - and the total velocity is used to determine deformation.
+</p>
+<p>
+Each sequence comprises one or more components which can define either horizontal, vertical, or three dimensional deformation/velocity field, and can be represented as 
+either a grid of values (on a regular grid in the coordinate system of the deformation model), or by a triangulated model.  The spatial interpolation of the deformation across grid squares uses bilinear interpolation and across triangles uses linear interpolation.  The east/north/up components of deformation are interpolated independently.  
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="linzdeffile.html">The SNAP LINZ deformation file format</a></p>
+<p><a href="../programs/snap/index.html">SNAP adjustment program</a></p>
+<p><a href="../files/cmdcfg/cmd_deformation.html">The SNAP deformation command</a></p>
+</div>
+</body>
+
+</html>

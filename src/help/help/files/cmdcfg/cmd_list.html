@@ -1,0 +1,101 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="list">
+<title>The list command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_list"></a>The list command</h1>
+
+<p class="Commanddefinition">list <i>list_options</i><br>
+print<i> list_options</i> </p>
+
+<p>The list (or print) command specifies which components of the output listing are to be printed, and also provides some control over the format of those sections.  <code>list_options</code> is a list of sections that can be included in the output.  For example the listing can include the adjusted coordinates of the stations.  This section is referred to as station_coordinates in the list command.  So to include this section the command required is </p>
+
+<p class="Commanddefinition">list  station_coordinates</p>
+
+<p>If the section is not wanted, it can be excluded by prefixing the station name with no_.  The command to exclude station coordinates is thus </p>
+
+<p class="Commanddefinition">list  no_station_coordinates</p>
+
+<p>Several sections can be included in the same list command, each separated by one or more spaces.  Here is a more complex list command</p>
+
+<p class="Commanddefinition">list   command_file   no_file_summary   no_station_coordinates </p>
+
+<p>The following section names can be included in the list command.  They are described here in the order that they would appear in an output listing file.
+Sections marked with an asterisk (*) are output by default. </p>
+
+<p class="Commanddefinition">command_file</p><p class="Commanddescription">Puts a copy of the input command file into the output listing.  Note that this does not list included command files or configuration files that also affect the adjustment.  </p>
+
+<p class="Commanddefinition">file_summary*</p><p class="Commanddescription">Lists the input data files used in the adjustment.  The listing describes the number of each type of observation that have been read from each file.</p>
+
+<p class="Commanddefinition">input_data</p><p class="Commanddescription">Makes a detailed list of the input data.  The format of the data is not very readable.  This is intended for debugging the program more than for use in interpreting the adjustment.</p>
+
+<p class="Commanddefinition">problem_definition</p><p class="Commanddescription">Summarizes the adjustment that will be done.  This section lists the stations that will be adjusted or fixed and the additional parameters that will be calculated in the adjustment. </p>
+
+<p class="Commanddefinition">iteration_summary*</p><p class="Commanddescription">Prints a summary of each iteration which lists the maximum change to a station coordinate.  </p>
+
+<p class="Commanddefinition">observation_equations</p><p class="Commanddescription">Prints a list of the least squares observation equations at each iteration.  This is intended for debugging purposes only.</p>
+
+<p class="Commanddefinition">station_adjustments</p><p class="Commanddescription">Prints a list of all adjustments to station coordinates at each iteration.  </p>
+
+<p class="Commanddefinition">solution_summary*</p><p class="Commanddescription">Summarizes the statistics of the solution (number of observations, number of parameters, degrees of freedom, and so on).</p>
+
+<p class="Commanddefinition">station_coordinates*</p><p class="Commanddescription">Prints a list of station coordinates, total adjustments to the coordinates, error ellipses, and height errors.</p>
+
+<p class="Commanddefinition">floated_stations*</p><p class="Commanddescription">Prints a list of adjustments of floated stations with their significance.</p>
+
+<p class="Commanddefinition">reference_frames*</p><p class="Commanddescription">Prints a list of reference frames used by GPS data.</p>
+
+<p class="Commanddefinition">parameters*</p><p class="Commanddescription">Prints a list of additional parameters of the adjustment with their values and errors.</p>
+
+<p class="Commanddefinition">residuals*</p><p class="Commanddescription">Prints a list of all observations used.  By default this includes the residuals errors and standardized residuals for each observation.  However the contents of this section can be changed with the define_residual_format and add_residual_column commands.  </p>
+
+<p class="Commanddefinition">error_summary*</p><p class="Commanddescription">This section presents accumulated error summaries.  By default it presents summaries of the errors for each data file and for each data type.  However you can obtain other summaries using the summarize_errors_by command.</p>
+
+<p class="Commanddefinition">worst_residuals*</p><p class="Commanddescription">Prints a list of the worst standardized residual errors in the adjustment.  By default the 10 worst residuals are listed.  This can be modified with the number_of_worst_residuals command.</p>
+
+<p>The list and print command are also used to modify the presentation of  some sections of the output.  The following items can be included as list options.  Again the options are turned off by prefixing them with no_.</p>
+
+<p class="Commanddefinition">notes</p><p class="Commanddescription">Specifies that notes associated with observations (using #note in the data file) will be copied to the list of residuals.</p>
+
+<p class="Commanddefinition">rejected_stations</p><p class="Commanddescription">Specifies that rejected stations will be included in the output.  If rejection stations are excluded (using list no_rejected_stations) then rejected stations and observations to them are omitted from the output.  This causes rejected stations to be treated the same way as ignored stations.</p>
+
+<p class="Commanddefinition">grouped_data_by_type</p><p class="Commanddescription">By default observations are listed in the same order as they occur in the input.  If this option is selected then grouped data involving more than one data type are listed showing each type separately.  This is often a lot clearer.  For example if the input contained grouped data with a horizontal angle and a slope distance on each line. then the output would contain all the distances for the each set followed by all the angles.</p>
+
+<p class="Commanddefinition">sort_stations</p><p class="Commanddescription">By default stations are listed in the listing file in the same order that they appear in the input coordinate file.  Using this option causes them to be sorted according to the station code.</p>
+
+<p class="Commanddefinition">form_feeds</p><p class="Commanddescription">By default sections in the output file are separated by form feed characters.  These can be suppressed using the no_form_feeds option.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_title.html">The title command</a></p>
+
+<p><a href="cmd_station_code_width.html">The station_code_width command</a></p>
+
+<p><a href="cmd_coordinate_precision.html">The coordinate_precision command</a></p>
+
+<p><a href="cmd_def_res_format.html">Defining the residual listing format</a></p>
+
+<p><a href="cmd_summarize_errors_by.html">The summarize_errors_by command</a></p>
+
+<p><a href="cmd_number_of_worst_residuals.html">The number_of_worst_residuals command</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

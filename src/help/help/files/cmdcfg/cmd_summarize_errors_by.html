@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="summarize_errors_by">
+<title>The summarize_errors_by command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_summarize_errors_by"></a>The summarize_errors_by command</h1>
+
+<p class="Commanddefinition">summarize_errors_by <i>definition definition ...</i></p>
+
+<p>The error summary in the listing file presents error statistics compiled for groups of observations.  The groups defined by observation classifications including the default classifications data_file and data_type.</p>
+
+<p>The summarize_errors_by command is followed by one or more summary definitions.  Each definition consists of one or more classifications separated by the slash character /.  </p>
+
+<p>The default output is created by the command</p>
+
+<p class="Commanddefinition">summarize_errors_by  data_type  data_file</p>
+
+<p>This creates two separate error summaries. The first shows the statistics accumulated for each data type, and the second the statistics for each data file.</p>
+
+<p>If the command were changed to </p>
+
+<p class="Commanddefinition">summarize_errors_by  data_file/data_type</p>
+
+<p>then the listing would show the statistics for each data file, and accumulations for each data type <i>within</i> each data file.  </p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

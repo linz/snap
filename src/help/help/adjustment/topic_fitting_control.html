@@ -1,0 +1,85 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, control">
+<title>Fitting existing control</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_fitting"></a>Fitting existing control</h1>
+
+<p>Often a survey must fit into an existing control network.  In SNAP this is done by fixing the coordinates (horizontal, vertical, or both) of the control stations.  These coordinates are constrained to not alter in the adjustment.  </p>
+
+<p>If there are sufficient data and redundancy in the network then you should attempt to identify gross errors and assess the observation errors using a minimum constraints adjustment before fitting into the control network (as described above).</p>
+
+<p>An adjustment with fixed control stations may have significant residuals for a number of reasons:
+
+<ul>
+	<li>the data contain undetected gross errors in observations with low redundancy in the minimum constraints adjustment<br><br></li>
+
+	<li>the coordinates in the station file are wrong or the stations are incorrectly identified (for example by confusing eccentric stations)<br><br></li>
+
+	<li>the control network is not as accurate as the survey that it is fitted to<br><br></li>
+
+	<li>there are datum differences between the control network and the survey (this applies mainly for GPS surveys, see below)</li>
+</ul>
+
+<p>The first two cases - gross errors in observations or incorrect station coordinates - cannot be separated if the observations have little or no redundancy.  Both the observation and the control must be reviewed critically.  If there is not obvious error in either, then the observation should be rejected.  The control station will then have no affect on the adjustment.</p>
+
+<p>If the control network causes large residuals in observations which have been checked by a minimum constraints adjustment then the station coordinates may be in error.  Obviously the first step is to check that the coordinates are entered correctly into the coordinate file and the stations are correctly identified. </p>
+
+<p>It is often the case that the control network is not as accurate as the survey that is fitted to it.  The control coordinates may be based upon old observations with less accurate equipment.  SNAP provides some options for resolving the difference between the control and the survey.   It can calculate an overall scale difference by adding to the command file:</p>
+
+<p>reference_frame_scale_error calculate</p>
+
+<p>You can also handle differences in orientation for azimuth and projection bearing data by assigning a bearing orientation error to the data.  To do this put the line</p>
+
+<p>#bearing_orientation_error DEFAULT </p>
+
+<p>before any observations in the data files, and add the line</p>
+
+<p>bearing_orientation_error DEFAULT calculate</p>
+
+<p>to the command file.</p>
+
+<p>For GPS data rotations and scale difference are handled by the GPS reference frame.  This is discussed below.</p>
+
+<p>If these options cannot resolve the differences between the survey and the control then you can try floating the stations rather than fixing them.  When the stations are floated their original coordinates are treated as observations rather than as constraints.  By reviewing the floated stations section of the output file you can see whether there are discrepancies in just on or two stations, or whether the lack of fit with the control is more pervasive.</p>
+
+<p>Ultimately you will have to accept some degree of incompatibility between the control and the survey data.  There are several  ways that you can deal with this:
+
+<ul>
+	<li>fix the control stations and accept the distortion that this introduces in the new survey.  This may be adequate if the survey and control fit together reasonably well.<br><br></li>
+
+	<li>float the control stations using sensible values for the horizontal and vertical errors.  This will introduce less distortion into the network.  Also the error ellipses of the adjusted stations will be more realistic, since they will indicate how the error in the control stations is propagated into the network.<br><br></li>
+
+	<li>model the distortion between the control and a minimum constraints adjustment, and apply this distortion to the coordinates from the minimum constraints adjustment.  This will require a separate program, but is a more realistic approach.</li>
+</ul>
+
+<p>One concern with fixing or floating the control stations is that the distortion in the adjusted coordinates depends upon the geometry of the network, which is nothing to do with the errors in the control.  </p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Adjustment strategies</a></p>
+
+<p><a href="topic_strategy_gross_errors.html">Using a minimum constraints adjustment to find gross errors</a></p>
+
+<p><a href="topic_strategy_obs_errors.html">Improving estimates of observation errors</a></p>
+
+<p><a href="../files/cmdcfg/cmd_station_options.html">Using stations in adjustments</a></p>
+
+<p><a href="../files/data/obs_refframe_scale_error.html">Reference frame scale error</a></p>
+
+<p><a href="../files/data/obs_bearing_error.html">Bearing orientation errors</a></p>
+
+<p><a href="../files/data/obs_gps_ref_frames.html">GPS reference frames</a></p>
+
+</div>
+</body>
+</html>

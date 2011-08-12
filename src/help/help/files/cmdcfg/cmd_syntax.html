@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="Command file, configuration file, syntax">
+<title>Command file syntax</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_syntax"></a>Command file syntax</h1>
+
+<p>Each line of a command or configuration file is an instruction to SNAP.  It consists of a command followed by a list of parameters.  For example the coordinate file may be specified by the command</p>
+
+<p class="Commanddefinition">coordinate_file   job52.crd</p>
+
+<p>Here the command is coordinate_file and it has one parameter job52.crd.</p>
+
+<p>Blank lines in the command file are ignored.  Also any information after an exclamation mark (!) on a line is ignored.  You can use the exclamation mark to include comments in the command file.  </p>
+
+<p>The descriptions in this help file define the valid syntax for commands. Note that some commands include the underscore character.  This must not be omitted.  Many commands can be repeated as often as required.   For example there should be a separate data_file command for each data file in the adjustment.  Some commands, such as coordinate_file, cannot be used more than once in a command file.</p>
+
+<p>In the following descriptions of commands brackets [] are used to signify parts that are optional.  Parameters in italics are items that must be replaced with sensible information.  For example, the definition of the data file command is </p>
+
+<p class="Commanddefinition">data_file  data_file_name [format] [error_factor value]</p>
+
+<p>In this command the items <code>[format]</code>and <code>[error_factor value]</code>can be omitted.  The items <code>data_file_name</code>, <code>format</code>, and <code>value</code> must be replaced by the user.  So in a configuration file the command might look like</p>
+
+<p class="Commanddefinition">data_file 1530.dat  error_factor 1.5</p>
+
+<p>Here <code>data_file</code> has been replaced with 1530.dat, and <code>value</code> has been replaced with 1.5.   The format parameter has been omitted.  </p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

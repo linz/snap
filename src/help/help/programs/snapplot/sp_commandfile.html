@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, command file, background graphics, configuration">
+<title>snapplot commands in the command file</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>snapplot commands in the command file</h1>
+
+<p>The snap command file may include the following instructions for 
+snapplot. These commands are ignored by snap.</p>
+<p class="Commanddefinition">plot configuration <i>config_file_name</i></p>
+<p>Specifies a <a href="configuration.html">snapplot configuration</a> file
+to load when snapplot starts up.  Snapplot will look for the file in
+the command file directory and snapplot program directory.
+</p>
+
+<p class="Commanddefinition">plot projection <i>projection_crdsys_code</i></p>
+<p>Specifies the projection coordinate system to use for the snapplot <a href="Map_window.html">map</a>.</p>
+
+<p class="Commanddefinition">plot background <i>background_file</i></p>
+<p>Specifies a file of <a href="background.html">background graphical features</a> to plot on the map underlying the stations and observations.
+</p>
+
+<p class="Commanddefinition">plot offset_station <i>station_code</i> <i>east_offset</i> <i>north_offset</i></p>
+<p>Specifies an offset to be applied to the station coordinates when plotting the
+station on the map, generally used so that stations close together can be distinguished.
+The offset is always specified in metres east and north, regardless of the
+coordinate system of the adjustment.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="starting.html">Starting snapplot</a></p>
+<p><a href="../../files/cmdcfg/index.html">The snap command file</a></p>
+<p><a href="configuration.html">Configuring snapplot</a></p>
+<p><a href="configuration.html">Configuring snapplot</a></p>
+<p><a href="background.html">Displaying background features</a></p>
+<p><a href="../../coordsys/crdsys_standard_list.html">Coordinate system codes</a></p>
+
+</div>
+</body>
+</html>

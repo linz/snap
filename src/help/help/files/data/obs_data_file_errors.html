@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format, error, data file">
+<title>Troubleshooting data file errors</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_data_file_errors"></a>Troubleshooting data file errors</h1>
+
+<p>When you create data files by typing information in from field books you may make errors which will prevent SNAP from being able to correctly read the file.  If this occurs SNAP will create a list of errors relating to the file.  Each error message includes a description of the error, the name of the data file, and the line number at which the error was detected. </p>
+
+<p>An example of an error is:</p>
+
+<p>Error: File: testerr.dat   Line: 9<br>
+       Invalid error definition - use syntax #ha_error #.# sec</p>
+
+<p>In this case the error occurred at line 9 of the file testerr.dat.  The error message indicates that the syntax of the #ha_error command is incorrect and gives an example of how it should be formatted.  (This is a likely error when using data files from version 1 of SNAP, in which the angle units could be entered as secs or seconds)</p>
+
+<p>Here are some common error messages and explanations of what they mean.</p>
+
+<p><b>Definition of data format missing - use #data</b></p>
+
+<p>This occurs if the program encounters a line of data before the first #data command.  SNAP requires a #data command to define the format of the data, and so it cannot interpret the input.  To fix this problem ensure that a #data command precedes the first line of data in the file.</p>
+
+<p><b>Invalid data definition command #*****</b></p>
+
+<p>SNAP has encountered a data definition command that it cannot interpret.  This is most likely because the command has been misspelled.</p>
+
+<p><b>Field ***** invalid or out of place in #*****</b></p>
+
+<p>The named field cannot be part of the specified data definition command.  The most likely reason is that the field has been misspelled.</p>
+
+<p><b>No data is specified in #data</b></p>
+
+<p>A #data command does not define any data items.  Every #data command must define at least one data type to be loaded.  The #data command needs to be corrected.</p>
+
+<p><b>***** obs not compatible with *****</b></p>
+
+<p>The #data command includes two types of data which cannot be combined.  For example it could specify  both GPS data (vector data) and slope distance data (line data).  The data will need to be split up into two separate data blocks to fix this.</p>
+
+<p><b>Cannot combine **** with other observations</b></p>
+
+<p>The named observation type must be the only data item in a data definition command (currently this applies only for GPS data).  </p>
+
+<p><b>Invalid error definition - use syntax *******</b></p>
+
+<p>An error definition is not correctly formatted.  This error message lists the correct syntax for specifying the error.</p>
+
+<p><b>Error of  ****** not defined - use #****</b></p>
+
+<p>The data block includes data for which an error is not explicitly defined (that is, the error is not listed individually with each observation) and for which no default error has been defined.  The error message will indicate the data definition command needed to specify the error (e.g. #ha_error).  The specified command must be inserted before the data.</p>
+
+<p><b>Missing or invalid projection - check #projection in data file</b></p>
+
+<p>The data includes projection bearings, but no projection has been defined in the data file (there is no #projection command), or the projection is not the same as that of the coordinate file, or the #projection command defines a coordinate system for which no projection is defined.</p>
+
+<p><b>Invalid ***** station code ****</b></p>
+
+<p>The data file specifies a station code which is not listed in the coordinate file.  This may be because the code is incorrectly entered, or because the station has been omitted from the coordinate file.  </p>
+
+<p><b>Invalid or missing *****</b></p>
+
+<p>An item is missing from an input line, or is incorrectly formatted.  This is usually because the items in a data block do not match those specified in the preceding  #data command.</p>
+
+<p><b>Extra data in data file</b></p>
+
+<p>A line in a data block contains more items than expected from the preceding #data command.  To fix this identify and remove the extra items or correct the #data command.</p>
+
+<p><b>The ***** matrix is missing</b></p>
+
+<p>For GPS multistation data - the covariance or correlation matrix is missing.  This may be because the set of observations is not separated from the matrix by a #end_set command, or it may be because the matrix is missing.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+</div>
+</body>
+</html>

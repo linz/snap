@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, error options dialog">
+<title>The error options dialog</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>The error options dialog</h1>
+
+<img class="RightImage" src="images/sp_dlg_error_options.png" alt="Picture of error options dialog">
+
+<p>
+The error options dialog controls how observation errors, 
+and station error ellipses and vertical error bars are displayed.
+This dialog is accessed from the <span class="MenuItem">Error | Error options</span>
+menu item.
+</p>
+
+
+<p>The items in this dialog are:</p>
+<table>
+
+<tr>
+<td>A priori errors</td>
+<td>All errors will be represented by a priori values .. that is based upon
+the purely specified errors of the observation, and not on how well they 
+fit together and with the fixed coordinates.
+</td>
+</tr>
+
+<tr>
+<td>A posteriori errors</td>
+<td>All errors will be represented by a posteriori errors .. that is scaled
+by the standard error of unit weight</td>
+</tr>
+
+<tr>
+<td>Standard errors</td>
+<td>Error ellipses and height errors will be displayed a standard errors</td>
+</tr>
+
+<tr>
+<td>Confidence limits</td>
+<td>Error ellipses and height errors will be displayed as confidence limits
+at the specified confidence level</td>
+</tr>
+
+<tr>
+<td>Confidence level</td>
+<td>The confidence level to use when errors are displayed as confidence
+limits</td>
+</tr>
+
+<tr>
+<td>Horizontal error exaggeration</td>
+<td>Specifies the exaggeration used to display error ellipses on the map.
+If autoscale is true then as the map scale changes the exaggeration will 
+change so that the ellipses are drawn at an approximately consistent size.
+Note: These settings also apply to drawing the horizontal adjustment 
+vector</td>
+</tr>
+
+<tr>
+<td>Vertical error exaggeration</td>
+<td>Specifies the exaggeration used to display vertical error bars on
+If autoscale is true then as the map scale changes the exaggeration will 
+change so that the ellipses are drawn at an approximately consistent size.
+Note these settings also apply to drawing the vertical adjustment.</td>
+</tr>
+
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+</div>
+</body>
+</html>

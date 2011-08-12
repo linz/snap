@@ -1,0 +1,52 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, parameters, reference frames, GPS">
+<title>GPS reference frames</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><sup><a name="obs_gps_refframe"></a></sup>GPS reference frames</h1>
+
+<p>GPS baselines and point coordinate (XYZ) observations are often expressed in a different reference frame from that used in the adjustmnent.  For example GPS baselines are usually expressed as vector components in the WGS84 reference frame.  
+This may differ by translation, rotation, and possibly also scale. In order to use the observations correctly in the adjustment the difference between the reference frames needs to be accounted for.  In SNAP this difference can be defined in the command file, or it can be calculated by the adjustment.</p>
+
+<p>The reference frames may also appear to differ if geoid heights are not available for the stations.   In this case the station elevations in the coordinate file are orthometric heights measured above the geoid (sea level), whereas GPS vectors are in terms of ellipsoidal heights and take no account of the height of the geoid.  The geoid can be modelled locally by a sloping surface relative to the ellipsoid.  When geoid heights are not available to SNAP the effect is as if the geoid were removed.  To use GPS vectors in the adjustment, the vectors must have the geoid heights removed from them also.  Locally this can be approximated by rotating the vector to remove the slope of the geoid surface.   Because the geoid heights are unknown, the rotation is also unknown and must be calculated as part of the adjustment</p>
+
+<p>In SNAP each GPS observation and point coordinate observation has an associated reference frame code.  By default this is GPS for all observations.  Each code defines a reference frame which may differ from the coordinate file frame by its own translation ,rotation, and scale difference.</p>
+
+<p>The reference frame translation, rotation, and scale can be calculated by including the command</p>
+
+<p>reference_frame GPS calculate translation rotation scale</p>
+
+<p>in the command file. If only some components are to be calculated the others  can be omitted from the command.</p>
+
+<p>The rotation is expressed in terms of components of rotation about three axes.  These can be either the XYZ axes of the fixed station reference frame, or topocentric axes (east, north, and up directions at the midpoint of the network or a reference point defined in the command file with the topocentre command).   In the listing file the rotations are listed in both ways.</p>
+
+<p>In order to be able to calculate the reference frame rotations and scales you need at least two horizontally fixed stations and three vertically fixed stations.  The vertically fixed stations will ideally span the extents of the network.  They should not lie in, or near to, a straight line.  </p>
+
+<p>Note that in a minimum constraints adjustment of GPS data only it is simplest to not calculate the reference frame parameters and just fix one station.  However if the survey includes conventional observations then the reference frame parameters should be calculated.</p>
+
+<p>You should always do three dimensional adjustments of GPS data.  In a survey of mixed GPS and conventional data there may be some stations which cannot be fixed in three dimensions.  These should be fixed or floated.  For example a station which is fixed by horizontal angles only can be fixed or floated vertically.</p>
+
+<p>See also</p>
+
+<p><a href="obs_gps_data.html">GPS observations</a></p>
+
+<p><a href="obs_gx_data.html">Point coordinate observations</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_reference_frame.html">The #reference_frame command (data file)</a></p>
+
+<p><a href="../cmdcfg/cmd_reference_frame.html">The reference_frame command (command file)</a></p>
+
+<p><a href="../cmdcfg/cmd_topocentre.html">The topocentre command</a></p>
+
+</body>
+</html>

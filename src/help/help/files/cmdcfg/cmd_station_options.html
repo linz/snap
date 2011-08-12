@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="Stations, fixed, free, floating, accepted, rejected, ignored">
+<title>Using stations in adjustments</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_station_options"></a>Using stations in adjustments</h1>
+
+<p><b>Fixed, free, and floating stations</b></p>
+
+<p>When you adjust survey data you usually need to supply constraints on one or more stations in order to obtain a solution.  SNAP provides two methods for constraining stations.  These are:</p>
+
+<p>Fixing stations:  The coordinates of the station are not altered in the adjustment.  In a 3d adjustment a station can be fixed horizontally, vertically, or in all directions.</p>
+
+<p>Floating stations:  A floating station is one for which the initial coordinates are held fixed with a specified tolerance.  The initial station coordinate is treated not as a constraint, but as an observation with a specified error.  Again stations can be floated horizontally, vertically, or in all directions.  You can specify different errors for the horizontal and vertical coordinates.</p>
+
+<p>Note that floating station coordinates are treated as observations and do affect the statistics coming from the adjustment.  For example if you give the floating stations a very large tolerance then the residuals on the station coordinates will tend to be small, and will result in a smaller standard error of unit weight.</p>
+
+<p><b>Accepted, rejected and ignored stations</b></p>
+
+<p>You can also choose to reject stations or ignore stations.  </p>
+
+<p>If a station is rejected from the adjustment then it is not adjusted and none of the data relating to that station are used in the adjustment.  However the observations are still listed in the output file with residual errors.</p>
+
+<p>If you ignore a station then it, and any data relating to it, are completely removed from the adjustment and from all output files.</p>
+
+<p>SNAP will automatically reject stations which have not been observed.  It will also reject stations for which there are fewer observations than the number of coordinates to be calculated.  For example in a 2d adjustment a station with just one observation to it will be rejected.  There may still be stations which are not rejected, and yet which cannot be adjusted with the data supplied. For example there could be a station connected to the network by three distance observations all to the same station.  This would not be rejected by SNAP even though its position cannot be calculated. In this case the adjustment will be singular and the error listing from the adjustment will indicate which station is causing the problem.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_fix.html">The fix command</a></p>
+
+<p><a href="cmd_free.html">The free command</a></p>
+
+<p><a href="cmd_float.html">The float command</a></p>
+
+<p><a href="cmd_reject.html">The reject, accept, and ignore commands</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+<p><a href="../crd/index.html">The station coordinate file</a></p>
+
+</div>
+</body>
+</html>

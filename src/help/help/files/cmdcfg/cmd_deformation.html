@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="deformation, velocity model">
+<title>The deformation command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_deformation"></a>The deformation command</h1>
+
+<p>
+By default SNAP uses the deformation model associated with the datum of in the adjustment <a href="../../coordsys/whatiscoordsys.html">coordinate system</a>.  However this can be overridden using the &quot;deformation&quot; command.
+</p>
+<p class="Commanddefinition">deformation  none</p>
+<p class="Commanddefinition">deformation  datum</p>
+<p class="Commanddefinition">deformation  type=<i>type</i>   model=<i>model</i>   epoch=<i>epoch</i>   <!-- [<i>params</i>]</p> -->
+
+<p>Defines a deformation model that applies for the adjustment.  The first version does not apply any deformation model, even  that associated with the coordinate system.  The second version specifies that the model associated with the coordinate system will be applied (this is the default).  The third defines a specific deformation that will be used.
+</p>
+<p>SNAP supports two types of deformation model, &quot;velocity&quot;, which defines horizontal velocities of stations on a grid, and &quot;linz&quot;, which is the LINZ deformation model defining the deformation using a set of grid and triangulated models.  
+</p>
+<p>
+The deformation model is used to adjust observations from multiple epochs to be included in a common adjustment.  
+The station coordinates (fixed and calculated) are assumed to apply at a specified epoch.  Each observation is compared then compared coordinates as they would have been at the time of the observation based on the coordinate at the reference epoch and the deformation between that time and the observation.
+</p>
+<p>
+If a deformation model is used then every observation must have a defined date of observation.</p>
+
+<p class="Commanddefinition">type</p><p class="Commanddescription">The type of deformation model to use.  One of &quot;velocity&quot; or &quot;linz&quot;.</p>
+
+<p class="Commanddefinition">model</p><p class="Commanddescription">Defines the specific model to apply - the name of a binary file containing the <a href="../../coordsys/gridfile_s.html">gridded velocity 
+model</a> or LINZ model. SNAP will look for this file in the same directory as the command file, and in the SNAP program directory. </p>
+
+<p class="Commanddefinition">epoch</p><p class="Commanddescription">The date of the coordinates in the coordinate file, (and the date at which coordinates are calculated). This is entered as a decimal year number, eg 1997.5.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="../../coordsys/gridfile_s.html">Velocity grid file format</a></p>
+
+<p><a href="../../coordsys/linzdeffile.html">LINZ deformation model file format</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

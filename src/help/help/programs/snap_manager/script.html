@@ -1,0 +1,202 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 1 September 2005), see www.w3.org">
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<meta name="keywords" content=
+"snap_manager, script, menu, dialog box">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>snap_manager scripting</title>
+</head>
+<body>
+<h1>snap_manager scripting</h1>
+<p>The snap manager program uses a scripting language to define
+menu options. This can be customised as required. When the program
+starts it loads a script called "snap_manager.cfg" located in the
+same directory as the snap_manager program. This sets up
+the menu options, then looks for additional configuration scripts
+in the scripts subdirectory of the program. It will run any scripts
+called "*_menu.cfg", and then a script "local.cfg" if it exists.
+Local customisations are best installed into the local.cfg file.
+All the menu actions are implemented by functions. These functions
+can be overwritten in the local configuration to change their
+behaviour.</p>
+<h2>Scripting reference index</h2>
+<p><a href="script.html#constants">Constants</a><br>
+<a href="script.html#variables">Variables</a><br>
+<a href="script.html#functions">Function calls</a><br>
+<a href="script.html#expressions">Expressions</a><br>
+<a href="script.html#statements">Statements</a><br>
+<a href="script.html#udf">User defined functions</a><br>
+<a href="script_ui.html#menu">Menu items</a><br>
+<a href="script_ui.html#dialog">Dialog boxes</a><br>
+<a href="script_functions.html#sysvar">System variables</a><br>
+<a href="script_functions.html#function_index">Built-in functions</a><br></p>
+<hr>
+<a name="constants" id="constants"></a>
+<h2>Constants</h2>
+<p>Constants are either string or logical values (true or false). A
+non-empty string is equivalent to the logical value true.</p>
+<p>String constants are enclosed in quote marks, eg "string". The
+may span several lines in a script. They can include "\t" for tab
+characters, "\n" for new line, and "\r" for carriage return. Use
+"\\" to include the backslash character in the string.</p>
+<p>Strings may also include variable names ($name), which will be
+substituted with the value of the variable. The name may be
+terminated with an additional $ character if necessary to avoid
+ambiguity. Use "\$" to include the dollar character in the
+string.</p>
+<p>Strings can also be quoted with single quotes ('). In this case
+the text between the quotes will be returned without any
+modification. This text can include any characters except single
+quotes.</p>
+<p>Finally, strings can be entered as unquoted integer values (one
+or more digits).</p>
+<hr>
+<a name="variables" id="variables"></a>
+<h2>Variables</h2>
+<p>Variables are named with a leading "$" character followed by
+letters, numbers, or underscore characters. For example
+"$my_job_file". Some variable have predefined values .. 
+see <a href="#sysvar">System variables</a> below. 
+Variables starting with "$_" are global variables
+... they remain defined until snap_manager terminates. Other
+variables exist only for the duration of the script or function in
+which they are defined. For example:</p>
+<p class="Commandexample">$errorfile = FindJobFile(".err")</p>
+<hr>
+<a name="functions" id="functions"></a>
+<h2>Function calls</h2>
+<p>Functions are called by a function name followed by zero or more
+parameters in brackets. snap_manager defines a number of <a href=
+"script.html#sysfunc">built-in functions</a>. The script can also
+define new <a href="script.html#udf">user defined functions</a>.
+Examples of function calls are:</p>
+<p class="Commandexample">SetConfig("editor","notepad.exe")</p>
+<p class="Commandexample">$tempfile = TempFile()</p>
+<hr>
+<a name="expressions" id="expressions"></a>
+<h2>Expressions</h2>
+<p>Expressions define values calculated from constants, variables,
+and other expressions. Expressions can include the following
+operators</p>
+<table>
+<tr>
+<td>.</td>
+<td>
+<p>String concatenation uses the "." operator. For example</p>
+<p class="Commandexample">$name . $extension</p>
+</td>
+</tr>
+<tr>
+<td>not</td>
+<td>
+<p>Reverses the logical value of an expression. For example</p>
+<p class="Commandexample">not FileExists($datafile)</p>
+</td>
+</tr>
+<tr>
+<td>and, or</td>
+<td>
+<p>Logical operators combining variables</p>
+</td>
+</tr>
+<tr>
+<td>==, !=</td>
+<td>
+<p>String comparison operators. Return true when strings are equal
+(==), or not equal (!=).</p>
+</td>
+</tr>
+</table>
+<p>Expression can be combined with parentheses to define the order
+of evaluation, for example</p>
+<p class="Commandexample">not ($job_valid and FileExists($binfile)
+)</p>
+<hr>
+<a name="statements" id="statements"></a>
+<h2>Statements</h2>
+<p>The basic statements of the scripting language are assignment
+statements, conditional statements, and loop statements.</p>
+<p>Assignment statements assign a value to a variable, using the
+"=" operator. For example:</p>
+<p class="Commanddefinition">variable = expression</p>
+<p>Conditional statements define statements that may or may not be
+executed, depending upon some conditions. These are structured
+as</p>
+<p class="Commanddefinition">if <i>expression</i> then
+<i>statements</i> endif</p>
+<p>The statement may also define alternative branches using elseif
+and else components. For example:</p>
+<pre class="Commandexample">
+if FileExists($errorfile) then
+   if Ask("There were errors in the job\r\nDo you want to see the error file?","Errors") then
+      Start($_editor,$errorfile)
+   endif
+else
+   Message("The job completed successfully")
+endif
+</pre>
+<p>There are two forms of loop statement. The "while" statement
+is</p>
+<p class="Commanddefinition">while <i>expression</i> do
+<i>statements</i> endwhile</p>
+<p>This will execute the statements repeatedly as long as the
+expression is true. By default this will iterate a maximum of 100
+times if the expression remains true. The maximum number of
+iterations can be reset by defining a value for the variable
+$max_while_loop_iterations, for example:</p>
+<p class="Commanddefinition">$max_while_loop_iterations="3"</p>
+<p>The foreach statement executes for each component of a string
+(splitting the string up using a specified delimiter, by default
+the new line delimiter "\n"). The format of this is</p>
+<p class="Commanddefinition">foreach <i>variable</i> in
+<i>expression</i> do <i>statements</i> endforeach</p>
+<p>This will take set the variable to each substring of the
+expression in turn and execute the statements. If a delimiter other
+than "\n" is required then the expression can be specified as:</p>
+<p class="Commanddefinition"><i>expression</i> delimited_by
+<i>delimiter_expression</i></p>
+<p>The delimiter is treated as a <a href="resyntax.html">regular
+expression</a>. If it contains capture groups (enclosed in
+parenthesis), then these are returned in addition to the delimited
+text.</p>
+<p>There is another form of foreach statement where the expression
+is replaced with</p>
+<p class="Commanddefinition"><i>expression</i> matches
+<i>match_expression</i></p>
+<p>This will return every occurrence of the the match expression
+(again a regular expression) within the string. If the expression
+contains capture groups then only the capture groups will be
+returned, otherwise the matched strings will be returned.</p>
+<p>There are also four exit statements available</p>
+<p class="Commanddefinition">continue</p>
+<p class="Commanddefinition">break</p>
+<p class="Commanddefinition">return <i>expression</i></p>
+<p class="Commanddefinition">exit</p>
+<p>The continue statement applies within a while or foreach loop,
+and causes the rest of the statements in the loop to be skipped,
+immediately starting the next iteration of the loop. The break
+statement terminates the current while or foreach loop. The return
+statement exits the current function. The exit statement exits the
+current script.</p>
+<hr>
+<a name="udf" id="udf"></a>
+<h2>User defined functions</h2>
+<p>User defined functions may be defined with the syntax:</p>
+<pre class="Commandexample">
+function <i>name</i>( <i>$param1</i>,<i>$param2</i>, ... )
+   <i>statements</i>
+end_function
+</pre>
+<p>This is activated by a function call defined which defines the
+values of each of the parameters. Any missing parameters are
+defined to be empty strings.</p>
+<p>The function can include one or more return statements defining
+a value to return to the calling script. Otherwise the function
+returns the value from the last statement executed.</p>
+<hr>
+</body>
+</html>

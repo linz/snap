@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="output">
+<title>The output command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_output"></a>The output command</h1>
+
+<p class="Commanddefinition">output <i>output_options</i></p>
+
+<p>The output command is used to control output of the files other than the listing file.  Its syntax is very similar to that for the list command - it may be followed by several options separated by spaces.  Each option can be negated by preceding it with "no_", for example "no_binary_file".  The options that are available with the output command are:</p>
+
+<p class="Commanddefinition">binary_file</p><p class="Commanddescription">Creates a binary file which is used by SNAPPLOT and other programs to obtain information about the adjustment for subsequent display and processing. </p>
+
+<p class="Commanddefinition">decomposition</p><p class="Commanddescription">Includes the choleski decomposition of the normal equations in the binary file.  This may be used by analysis programs, eg <a href="../../programs/snapspec/index.html">snapspec</a>.</p>
+
+<p class="Commanddefinition">all_relative_covariances</p><p class="Commanddescription">Includes complete station coordinate covariance information in the binary file.  This may be used by analysis programs, eg <a href="../../programs/snapspec/index.html">snapspec</a>.  Note that for a large adjustment this can generate a very large binary file.  It also forces SNAP to invert the full normal equations, which may take a long while for large adjustments.</p>
+
+<p class="Commanddefinition">coordinate_file</p><p class="Commanddescription">Creates a new version of the station coordinate file. </p>
+
+<p class="Commanddefinition">rejected_station_coordinates</p><p class="Commanddescription">By default rejected and ignored stations are copied into the new coordinate file.  The can be omitted by using the no_rejected_station_coordinates option.</p>
+
+<p class="Commanddefinition">covariance_matrix_file</p><p class="Commanddescription">Creates a text file listing the covariance matrix of the derived coordinates.  This may be used as input to other programs.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

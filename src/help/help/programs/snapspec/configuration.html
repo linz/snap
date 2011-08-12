@@ -1,0 +1,187 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapspec, coordinate order, analysis, stations, coordinates, error ellipses">
+<title>Snapspec configuration file</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1><a name="snapspec"></a>Snapspec configuration file</h1>
+
+<p>Snapspec uses a configuration file
+to defining the specifications
+for each order to be tested.  The name of the configuration file
+can be specified on the snapspec command line - by default it is called snapspec.cfg.  
+Snapspec will look for the configuration file first in the same 
+directory as the snap binary file, and then in the directory in which the 
+snapspec program is installed.
+</p>
+
+<h2>Configuration commands</h2>
+<p>
+The configuration file includes both 
+general settings and the specifications of orders.  It can also
+include comments on lines beginning with "!".  Each setting is defined on a line in 
+which the first word is the command name, and the following text define the 
+command options. The file can include the following commands.
+</p>
+
+<p class="CommandDefinition">test <i>test definition</i></p>
+<p class="CommandDescription">Each order is defined by a test command, which specifies the accuracy requirements a 
+station must achieve to be assigned to that order.  The accuracy requirement comprises a number
+of components as defined by the <a href="algorithm.html">snapspec algorithm</a>.  These are:</p>
+<table class="CommandDescription">
+<tr>
+<td class="nobr">h_abs_max  <i>##</i> mm</td>
+ <td>The maximum absolute horizontal error of coordinates</td>
+</tr>
+<tr>
+<td class="nobr">h_rel_to_control <i>##</i> mm <i>##</i> ppm</td>
+ <td>The maximum horizontal error relative to a control station (includes a distance dependent component).</td>
+</tr>
+<tr>
+<td class="nobr">h_rel <i>##</i> mm <i>##</i> ppm</td>
+ <td>The maximum permissible horizontal relative error of coordinates.</td>
+</tr>
+<tr>
+<td class="nobr">h_rel_min_abs <i>##</i> mm</td>
+ <td>Coordinates with an absolute horizontal error less than this are assumed to pass the relative accuracy tests (allows more efficient processing or relative accuracy tests).</td>
+</tr>
+<tr>
+<td class="nobr">v_abs_max  <i>##</i> mm</td>
+ <td>The maximum absolute vertical error of coordinates</td>
+</tr>
+<tr>
+<td class="nobr">v_rel_to_control <i>##</i> mm <i>##</i> ppm</td>
+ <td>The maximum vertical error relative to a control station (includes a distance dependent component).</td>
+</tr>
+<tr>
+<td class="nobr">v_rel <i>##</i> mm <i>##</i> ppm</td>
+ <td>The maximum permissible vertical relative error of coordinates.</td>
+</tr>
+<tr>
+<td class="nobr">v_rel_min_abs <i>##</i> mm</td>
+ <td>Coordinates with an absolute vertical error less than this are assumed to pass the relative accuracy tests (allows more efficient processing or relative accuracy tests).</td>
+</tr>
+<tr>
+<td class="nobr">range <i>#####</i> m</td>
+ <td>The maximum length of line for which relative accuracy tests are applied</td>
+</tr>
+<tr>
+<td class="nobr">autorange</td>
+ <td>If present then the maximum length for relative accuracy tests will be based upon the distance to the nearest control mark.</td>
+</tr>
+
+</table>
+<p class="CommandDefinition">confidence <i>percentage</i></p>
+<p class="CommandDescription">
+Defines the confidence level to be used for calculating error ellipses and vertical errors for testing accuracy.
+</p>
+<p class="CommandDefinition">vertical_error_factor <i>factor</i></p>
+<p class="CommandDescription">
+Defines the factor by which vertical errors are multiplied when comparing them with horizontal orders in order
+to choose which station to reject (see the description of the snapspec algorithm). (Note: this is only used in 
+selecting stations, not in calculating the vertical error for vertical accuracy tests)
+</p>
+<p class="CommandDefinition">error_type <i>apriori</i>|<i>aposteriori</i></p>
+<p class="CommandDescription">
+Defines whether the accuracy tests are based on apriori or aposteriori statistics.
+</p>
+<p class="CommandDefinition">default_order <i>order</i></p>
+<p class="CommandDescription">
+Specifies the order that will be assigned to stations that fail to meet the accuracy standard for any of the 
+orders.
+</p>
+<p class="CommandDefinition">limit_order <i>order  station_list</i></p>
+<p class="CommandDescription">
+Specifies the best (most accuracte) order that specific stations will be considered for.  
+The <a href="../../files/cmdcfg/cmd_stn_list.html">station list</a> can include specific
+stations, or groups of stations identified by classification.
+</p>
+<p class="CommandDefinition">configuration <i>configuration_file_name</i></p>
+<p class="CommandDescription">
+Reads additional configuration information from a separate configuration file.
+</p>
+<p class="CommandDefinition">log_level <i>level</i></p>
+<p class="CommandDescription">
+Defines the amount of information recorded in the log file.  This may be useful for analysing the assignment of
+station orders when the results are unexpected.  This is a numeric value calculated by adding the following 
+options
+</p>
+<table class="CommandDescription">
+<tr><td>1</td><td>list the steps used in assigning orders</td></tr>
+<tr><td>2</td><td>lists details of specific tests</td></tr>
+<tr><td>4</td><td>lists details of accuracy calculations</td></tr>
+<tr><td>8</td><td>lists calculated distances</td></tr>
+<tr><td>16</td><td>lists additional information about relative accuracy calcs</td></tr>
+<tr><td>32&nbsp;&nbsp;</td><td>lists timings of accuracy tests</td></tr>
+</table>
+
+<!--
+<p class="CommandDefinition">output_log <i>on</i>|<i>off</i></p>
+<p class="CommandDescription">
+Replicates the output log on the screen while snapspec runs.
+</p>
+<p class="CommandDefinition">options <i>option_code</i></p>
+<p class="CommandDescription">
+Defines some controls on how the analysis is performed.  The option_code is formed by adding the following values:
+</p>
+<table class="CommandDescription">
+<tr><td>1</td><td>Defines whether relative accuracy tests run in two passes which allows only the required covariance
+matrix elements to be calculated.  This is set by snapspec if the binary file includes the Choleski decomposition.
+</td></tr>
+<tr><td>2</td><td>Allows the relative accuracy  tests to be short circuited if the test can be passed or failed 
+based on the endpoint station variances without accounting for correlation.
+</td></tr>
+<tr><td>4</td><td>Makes the short circuited relative accuracy tests more strict.  By default they assume that station
+coordinates will not be negatively correlated, so the covariance is no more than the sum of the variances.
+</td></tr>
+</table>
+-->
+
+<p>The following is an 
+annotated example of a configuration file for assigning horizontal orders
+which illustrates the commands that can be included in the configuration file.  </p>
+
+
+<pre class="ConfigFile">
+! Configuration file for snapspec
+
+! Order accuracy requirements
+
+test 2 h_rel 3 mm 1 ppm 
+test 3 h_rel 10 mm 3 ppm
+test 4 h_rel 10 mm 10 ppm
+test 5 h_rel 10 mm 30 ppm
+test 6 h_rel 20 mm 100 ppm
+
+default_order 8
+
+! Error type used for settings
+
+confidence 95%
+error_type apriori
+vertical_error_factor 1.0
+
+! Limit orders based on mark type
+
+limit_order 6 marktype=peg 
+
+! Output option
+
+log_level 0
+</pre>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="algorithm.html">snapspec algorithm</a></p>
+<p><a href="index.html">snapspec</a></p>
+
+</div>
+</body>
+</html>

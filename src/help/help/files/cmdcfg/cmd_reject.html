@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="reject, accept, ignore">
+<title>The reject, accept, and ignore commands</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_reject"></a>The reject, accept, and ignore commands</h1>
+
+<p class="Commanddefinition">
+reject  [all] <i>station_list</i><br>
+ignore  [all] <i>station_list</i><br>
+accept  [all] <i>station_list</i>
+</p>
+
+<p>Defines stations that are to be rejected, ignored, or accepted  from the adjustment.  Rejected station are not used in the adjustment, and observations to or from them are treated as rejected.  Ignored stations are removed from the adjustment.  Neither the stations nor any observations pertaining to them appear in the SNAP output.  The accept command cancels reject or ignore commands.  To select just few stations use ignore all and then accept the stations of interest. </p>
+
+<p class="Commanddefinition">all</p><p class="Commanddescription">if present specifies that all stations are affected</p>
+
+<p class="Commanddefinition">station_list</p><p class="Commanddescription">is a <a href="cmd_stn_list.html">list of stations</a> to be affected.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_station_options.html">Using stations in adjustments</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

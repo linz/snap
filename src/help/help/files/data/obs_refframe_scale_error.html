@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, parameters, reference frame scale error, errors, scale">
+<title>Reference frame scale error</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_refframe_scale_error"></a>Reference frame scale error</h1>
+
+<p>The NZGD49 datum is considerably less accurate than modern survey equipment.   In particular it contains scale errors of several part per million. </p>
+
+<p>SNAP can include a reference frame scale error into the adjustment.  In effect this allows all observations which define scale (distance observations and GPS baselines) to be scaled to be consistent with the datum.  </p>
+
+<p>The reference frame scale error is applied in addition to the GPS reference frame scale or the distance scale error that may apply to the data.</p>
+
+<p>You can either define a value for the reference frame scale error, or you can let SNAP calculate the value best fitting the data.</p>
+
+<p>The reference frame scale error is defined by the reference_frame_scale_error command in the SNAP command file.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_distance_data.html">Distance data</a></p>
+
+<p><a href="obs_gps_data.html">GPS observations</a></p>
+
+<p><a href="../cmdcfg/cmd_additional_parameter_commands.html">The reference_frame_scale_error  command</a></p>
+
+</div>
+</body>
+</html>

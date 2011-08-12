@@ -1,0 +1,344 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name=Generator content="Microsoft Word 11 (filtered)">
+<meta name="keywords" content="concord, geoid, distortion grid, grid file, grid format">
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+<title>Grid file format</title>
+
+
+</head>
+
+<body>
+
+<h1>Grid file format</h1>
+
+<p>Gridded data are used in concord for:</p>
+
+<p class="BulletList"> defining the geoid model to convert between ellipsoidal and
+orthometric heights</p>
+
+<p class="BulletList"> defining distortion in a reference frame definition</p>
+<p class="BulletList"> defining velocity models to account for deformation in adjustments</p>
+<p class="BulletList"> defining components of the <a href="linzdefmodel.html">LINZ deformation model</a>.</p>
+
+<p>For each of these functions the grid model
+is stored as a binary file. The grid model is aligned with its coordinate
+system  that is grid lines run along lines of constant longitude and latitude,
+or easting and northing. Model values at a point within the grid are
+calculated by bilinear interpolation of the values at the four corners of the
+grid cell within which the point lies.</p>
+
+<p>A set of values are defined at each node in
+the grid. For the a geoid model there is just one value, which is the height
+of the geoid in metres at the node. For the distortion model there are two
+values, being the adjustment in degrees to apply to the longitude and latitude
+after the base 7 parameter model has been applied to convert from the distorted
+datum to the reference datum. For velocity grids there are two values each
+node, being the east and north velocities in metres per year.</p>
+
+<p>For compactness and efficiency the data values are stored
+in the binary file as integer values. The grid model defines a scale
+factor to convert from the stored integer format to the actual data values.</p>
+
+<p>The binary file is created from a text
+formatted file using the makegrid.pl script supplied with concord. This
+requires the perl script interpreter to run (perl for Windows and be obtained
+from www.activestate.com). The binary data can be converted back to text
+format using the dumpgrid.pl script. </p>
+
+<p>The text format comprises a set of header
+records followed by records defining the values at each grid node. Each record
+comprises a code defining the contents of the record, followed by a colon and
+the value of the record. </p>
+
+<p>The records are as follows:</p>
+
+<table class="NormalTable">
+ <tr>
+  <td>
+  <p>Code</p>
+  </td>
+  <td>
+  <p>Type</p>
+  </td>
+  <td>
+  <p>Description</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>FORMAT</p>
+  </td>
+  <td>
+  <p>string</p>
+  </td>
+  <td>
+  <p>Defines the variant of the binary
+  grid file format to generate. The possible values are </p>
+  <table>
+  <tr>
+  <td><p>GEOID</p></td>
+  <td><p>Format specifically for SNAP binary
+  geoid files  only allows one grid value at each node</p></td>
+  </tr><tr>
+  <td><p>GRID1L</p></td>
+  <td><p>Little endian binary format 
+  used for distortion grids and velocity grids</p></td>
+  </tr><tr>
+  <td><p>GRID2L</p></td>
+  <td><p>Little endian binary format 
+  used for distortion grids and velocity grids. This format 
+  has greater precision for data values (4 bytes rather than 2) 
+  and employs some data compression. 
+  Calculation speed is slightly slower.</p></td>
+  </tr>
+  </table>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>HEADER0</p>
+  </td>
+  <td>
+  <p>string</p>
+  </td>
+  <td>
+  <p>Descriptive information about the
+  model (an arbitrary character string)</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>HEADER1</p>
+  </td>
+  <td>
+  <p>string</p>
+  </td>
+  <td>
+  <p>Descriptive information about the
+  model</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>HEADER2</p>
+  </td>
+  <td>
+  <p>string</p>
+  </td>
+  <td>
+  <p>Descriptive information about the
+  model</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>CRDSYS</p>
+  </td>
+  <td>
+  <p>string</p>
+  </td>
+  <td>
+  <p>Code for the coordinate system upon
+  which the model is based (for example NZGD2000)</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>NGRDX</p>
+  </td>
+  <td>
+  <p>integer</p>
+  </td>
+  <td>
+  <p>The number of columns of values in
+  the grid.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>NGRDY</p>
+  </td>
+  <td>
+  <p>integer</p>
+  </td>
+  <td>
+  <p>The number of rows of values in the
+  grid.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>XMIN</p>
+  </td>
+  <td>
+  <p>real</p>
+  </td>
+  <td>
+  <p>The x value of the first (eastmost)
+  column of the grid</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>XMAX</p>
+  </td>
+  <td>
+  <p>real</p>
+  </td>
+  <td>
+  <p>The x value of the last (westmost)
+  column of the grid</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>YMIN</p>
+  </td>
+  <td>
+  <p>real</p>
+  </td>
+  <td>
+  <p>The y value of the first (southmost)
+  row of the grid</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>YMAX</p>
+  </td>
+  <td>
+  <p>real</p>
+  </td>
+  <td>
+  <p>The y value of the last (northmost)
+  row of the grid</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>VRES</p>
+  </td>
+  <td>
+  <p>real</p>
+  </td>
+  <td>
+  <p>The resolution of the data values in
+  the grid. The values are stored as integers. Multiplying by VRES converts
+  these to the actual data values</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>NDIM</p>
+  </td>
+  <td>
+  <p>integer</p>
+  </td>
+  <td>
+  <p>Defines the number of data values at
+  each grid node</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>LATLON</p>
+  </td>
+  <td>
+  <p>integer</p>
+  </td>
+  <td>
+  <p>Either 0 or 1. If this is 1, then
+  the grid coordinate system is treated assumed to be in terms of longitude (X)
+  and latitude (Y). This means that calculating grid values can accommodate
+  360 degree offsets in the X coordinate (eg -170 is treated as equivalent to
+  190). Also if the grid spans 360 degrees then the code can treat the grid as
+  cylindrical, so that the eastmost column of the grid can be used to
+  interpolate beyond the westmost edge of the grid.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>VALUES</p>
+  </td>
+  <td>
+  <p>string</p>
+  </td>
+  <td>
+  <p>Either REAL or INTEGER. If it is
+  REAL, then the data values in the text file are expressed as their actual
+  values. If it is INTEGER then the data values are expressed as the integer
+  values in which they are stored in the binary file.</p>
+  </td>
+ </tr>
+ <tr>
+  <td>
+  <p>Vn,m</p>
+  </td>
+  <td>
+  <p>integer<br/>or<br/>real</p>
+  </td>
+  <td>
+  <p>Stores the data values at the column
+  n and row m of the grid. The westmost column and southmost row are numbered 1
+  with values increasing eastwards and northwards.
+  The data values are entered separated by white
+  space. They will be either integer or real values, depending upon the
+  contents of the VALUES header. The values should be ordered as</p>
+  <p>V<sub>1,1</sub><br/>
+  V<sub>2,1</sub><br/>
+  V<sub>3,1</sub><br/>
+  <br/>
+  V<sub>XMAX,1</sub><br/>
+  V<sub>1,2</sub><br/>
+  V<sub>2,2</sub><br/>
+  <br/>
+  V<sub>XMAX,</sub><sub>YMAX</sub></p>
+  </td>
+ </tr>
+</table>
+
+<p>An example of a text format grid file
+follows:</p>
+
+<pre class="ConfigFile">
+FORMAT: GRID1L
+HEADER0: Grid converting NZD49 lat/long to NZGD2000 lat/long - built 22/11/1999
+HEADER1: Input coordinates are NZGD49 lat/lon
+HEADER2: Output coordinates are NZGD2000 with 7 parameter transformation
+applied.
+CRDSYS: NZGD49
+NGRDX: 141
+NGRDY: 141
+XMIN: 166
+XMAX: 180
+YMIN: -48
+YMAX: -34
+VRES: 2e-008
+NDIM: 2
+LATLON: 1
+V1,1: 7.502e-005 -3.27e-005
+V2,1: 7.452e-005 -3.188e-005
+V3,1: 7.404e-005 -3.104e-005
+V4,1: 7.354e-005 -3.022e-005
+V5,1: 7.304e-005 -2.938e-005
+...
+...
+V137,141: -0.00011994 1.222e-005
+V138,141: -0.00012204 1.3e-005
+V139,141: -0.00012414 1.378e-005
+V140,141: -0.00012624 1.456e-005
+V141,141: -0.00012834 1.534e-005
+</pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="../programs/concord/index.html">Geoid files</a></p>
+<p><a href="geoid.html">Geoid files</a></p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,363 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 1 September 2005), see www.w3.org">
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<meta name="keywords" content=
+"snap_manager, script, menu, dialog box">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>snap_manager scripting system functions and variables</title>
+</head>
+<body>
+<h1>snap_manager scripting system functions and variables</h1>
+<p>The snap manager program uses a scripting language to define
+menu options. This can be customised as required. 
+This page describes the built in system variables and functions
+that can be used in scripts.
+When the program
+</p>
+<h2>Scripting reference index</h2>
+<p><a href="script.html#constants">Constants</a><br>
+<a href="script.html#variables">Variables</a><br>
+<a href="script.html#functions">Function calls</a><br>
+<a href="script.html#expressions">Expressions</a><br>
+<a href="script.html#statements">Statements</a><br>
+<a href="script.html#udf">User defined functions</a><br>
+<a href="script_ui.html#menu">Menu items</a><br>
+<a href="script_ui.html#dialog">Dialog boxes</a><br>
+<a href="script_functions.html#sysvar">System variables</a><br>
+<a href="script_functions.html#function_index">Built-in functions</a><br></p>
+<hr>
+<a name="function_index"></a>
+<h2>Function index</h2>
+<p>
+<a href="#func_AppendFile">AppendFile</a>(<i>filename</i>,<i>text</i>)<br />
+<a href="#func_Ask">Ask</a>(<i>message</i>,<i>title</i>)<br />
+<a href="#func_ClearLog">ClearLog</a>()<br />
+<a href="#func_CopyFile">CopyFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
+<a href="#func_DeleteFile">DeleteFile</a>(<i>filename</i>)<br />
+<a href="#func_Directory">Directory</a>(<i>path</i>, <i>filespec</i>)<br />
+<a href="#func_ExecuteFunction">ExecuteFunction</a>(<i>functionname</i>,<i>parameter</i>,...)<br />
+<a href="#func_FileExists">FileExists</a>(<i>filename</i>)<br />
+<a href="#func_Filename">Filename</a>(<i>filename</i>,<i>part</i>,<i>path</i>)<br />
+<a href="#func_FindJobFile">FindJobFile</a>(<i>extension</i>)<br />
+<a href="#func_FindProgram">FindProgram</a>(<i>programname</i>)<br />
+<a href="#func_GetConfig">GetConfig</a>(<i>item</i>)<br />
+<a href="#func_GetDate">GetDate</a>(<i>format</i>)<br />
+<a href="#func_GetEnv">GetEnv</a>(<i>envvar</i>)<br />
+<a href="#func_GetOpenFilename">GetOpenFilename</a>(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)<br />
+<a href="#func_GetSaveFilename">GetSaveFilename</a>(<i>prompt</i>,<i>filter</i>)<br />
+<a href="#func_GetValue">GetValue</a>(<i>variablename</i>)<br />
+<a href="#func_LoadJob">LoadJob</a>(<i>jobfile</i>)<br />
+<a href="#func_Log">Log</a>(<i>message</i>)<br />
+<a href="#func_LogRun">LogRun</a>(<i>program</i>,<i>parameter</i>,...)<br />
+<a href="#func_Match">Match</a>(<i>string</i>,<i>regex</i>,<i>nMatch</i>)<br />
+<a href="#func_Message">Message</a>(<i>message</i>,<i>title</i>)<br />
+<a href="#func_ReadFile">ReadFile</a>(<i>filename</i>,<i>regex</i>,<i>count</i>)<br />
+<a href="#func_RenameFile">RenameFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
+<a href="#func_Replace">Replace</a>(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)<br />
+<a href="#func_Run">Run</a>(<i>program</i>,<i>parameter</i>,...)<br />
+<a href="#func_RunScript">RunScript</a>(<i>scriptfile</i>)<br />
+<a href="#func_SetConfig">SetConfig</a>(<i>item</i>,<i>value</i>)<br />
+<a href="#func_SetExtension">SetExtension</a>(<i>filename</i>,<i>extension</i>)<br />
+<a href="#func_Start">Start</a>(<i>program</i>,<i>parameter</i>,...)<br />
+<a href="#func_TempFile">TempFile</a>()<br />
+<a href="#func_UnloadJob">UnloadJob</a>()<br />
+<a href="#func_UpdateJob">UpdateJob</a>()<br />
+<a href="#func_WriteFile">WriteFile</a>(<i>filename</i>,<i>text</i>)<br />
+</p>
+<hr />
+<a name="sysvar" id="sysvar"></a>
+<h2>System variables</h2>
+<p>The following system variables are defined by snap_manager.</p>
+<table>
+<tr>
+<td>
+<p class="Commanddefinition">$job_valid</p>
+</td>
+<td>
+<p>A job file is loaded into snap_manager and appears to be
+valid.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$job_file</p>
+</td>
+<td>
+<p>The name of the current job file.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$coordinate_file</p>
+</td>
+<td>
+<p>The coordinate file of the current job</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$data_files</p>
+</td>
+<td>
+<p>The list of data files defined for the job, separated by
+newlines.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$job_title</p>
+</td>
+<td>
+<p>The title of the current job</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$job_path</p>
+</td>
+<td>
+<p>The base directory of the current job. (Note that when a job is
+loaded the base directory is made the current directory).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$load_errors</p>
+</td>
+<td>
+<p>A list of errors encountered loading the job file - currently
+this is almost empty as the snap_manager program does almost no
+testing of the job files.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$snap_path</p>
+</td>
+<td>
+<p>The snap program directory. Note that this is included in the
+PATH environment variable for any programs run by snap manager.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$script_path</p>
+</td>
+<td>
+<p>The snap script directory.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p class="Commanddefinition">$coordsys_list</p>
+</td>
+<td>
+<p>A list of coordinate system names and codes for use in a dialog
+box selector.</p>
+</td>
+</tr>
+</table>
+<hr>
+<a name="sysfunc" id="sysfunc"></a>
+<h2>Built-in functions</h2>
+<p>The following system functions are defined by snap_manager.</p>
+<p class="Commanddefinition"><a name="func_Message"></a>Message(<i>message</i>,<i>title</i>)</p>
+<p class="Commanddescription">Displays a message box with the
+specified message and title. Always returns true.</p>
+<p class="Commanddefinition"><a name="func_Ask"></a>Ask(<i>message</i>,<i>title</i>)</p> <p class="Commanddescription">Displays a message box with the
+specified message and title, and with Yes, No, and Cancel buttons.
+Returns true or false if the yes or no buttons are pressed, and
+aborts the script if Cancel is pressed.</p>
+<p class="Commanddefinition"><a name="func_GetOpenFilename"></a>GetOpenFilename(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)</p>
+<p class="Commanddescription">Request the name of an existing file
+from the user. The prompt is used to title the dialog box, and the
+filter defines the files shown. The filter is formatted as "List
+files (*.lst)|*.lst|All files (*.*)|*.*". This will only return the
+name of an existing file. The multiple parameter is optional .. if
+true then the user can select more than one file.</p>
+<p class="Commanddefinition"><a name="func_GetSaveFilename"></a>GetSaveFilename(<i>prompt</i>,<i>filter</i>)</p>
+<p class="Commanddescription">Request the name of file to save
+information to from the user. The prompt is used to title the
+dialog box, and the filter defines the files shown. The filter is
+formatted as "List files (*.lst)|*.lst|All files (*.*)|*.*". This
+will prompt to warn the user of overwriting if an existing file
+name is selected.</p>
+<p class="Commanddefinition"><a name="func_FindProgram"></a>FindProgram(<i>programname</i>)</p> <p class="Commanddescription">Looks for a program on the executable
+path, and returns its full path if found. Returns false if it is
+not found. For example: FindProgram("perl.exe").</p>
+<p class="Commanddefinition"><a name="func_LoadJob"></a>LoadJob(<i>jobfile</i>)</p> <p class="Commanddescription">Loads the specified job into
+snap_manager. Returns true if the job is successfully loaded.</p>
+<p class="Commanddefinition"><a name="func_UnloadJob"></a>UnloadJob()</p> <p class="Commanddescription">Unloads the job from snap_manager.
+Returns true if the job is successfully unloaded.</p>
+<p class="Commanddefinition"><a name="func_UpdateJob"></a>UpdateJob()</p> <p class="Commanddescription">Causes snap_manager to reload the
+information from the job file, such as the job_title, etc. This
+will normally happen when a script function completes in any case
+.. this function is only required if updated information is
+required before a script completes.</p>
+<p class="Commanddefinition"><a name="func_FindJobFile"></a>FindJobFile(<i>extension</i>)</p> <p class="Commanddescription">Looks for and returns the name of a
+file with the same name as the job file, and with the specified
+extension. Returns false if the file does not exist, or the
+filename if it does. For example: FindJobFile("err")</p>
+<p class="Commanddefinition"><a name="func_Directory"></a>Directory(<i>path</i>, <i>filespec</i>)</p>
+<p class="Commanddescription">Returns a list of files in the
+specified directory separated by newline characters. If filespec is
+given then only the names matching that are returned.</p>
+<p class="Commanddefinition"><a name="func_Filename"></a>Filename(<i>filename</i>,<i>part</i>,<i>path</i>)</p>
+<p class="Commanddescription">Returns the specified part of a
+filename. Options for part are "path", "name", "extension",
+"fullname" (name + extension). Also "absolute" to make the name
+absolute in terms of the specified path (default current
+directory), and "relative" to make the name relative to the
+specified path. Note that when a job is opened the command file
+directory becomes the current directory.</p>
+<p class="Commanddefinition"><a name="func_SetExtension"></a>SetExtension(<i>filename</i>,<i>extension</i>)</p>
+<p class="Commanddescription">Returns a filename based on a source
+file name but with a specified extension.</p>
+<p class="Commanddefinition"><a name="func_FileExists"></a>FileExists(<i>filename</i>)</p> <p class="Commanddescription">Returns true if the file exists,
+false otherwise.</p>
+<p class="Commanddefinition"><a name="func_DeleteFile"></a>DeleteFile(<i>filename</i>)</p> <p class="Commanddescription">Deletes the specified file, returning
+true if the file is successfully deleted (or didn't exist in the
+first place), and false otherwise.</p>
+<p class="Commanddefinition"><a name="func_RenameFile"></a>RenameFile(<i>from_filename</i>,<i>to_filename</i>)</p>
+<p class="Commanddescription">Renames a file. If a file with the
+target name already exists then it will be replaced with the
+renamed file. Returns true if the file is successfully renamed,
+false otherwise.</p>
+<p class="Commanddefinition"><a name="func_CopyFile"></a>CopyFile(<i>from_filename</i>,<i>to_filename</i>)</p>
+<p class="Commanddescription">Copies a file. If a file with the
+target name already exists then it will be replaced with the copied
+file. Returns true if the file is successfully renamed, false
+otherwise.</p>
+<p class="Commanddefinition"><a name="func_TempFile"></a>TempFile()</p> <p class="Commanddescription">Creates and returns the name of a
+temporary file.</p>
+<p class="Commanddefinition"><a name="func_ReadFile"></a>ReadFile(<i>filename</i>,<i>regex</i>,<i>count</i>)</p>
+<p class="Commanddescription">Reads the contents of the file into
+a variable.  If regex is supplied then only lines matching the expression
+are returned.  If count is supplied and is greater than zero then no more than
+this number of lines is returned.</p>
+<p class="Commanddefinition"><a name="func_WriteFile"></a>WriteFile(<i>filename</i>,<i>text</i>)</p>
+<p class="Commanddescription">Writes the specified text to the
+file. If the file already exists then it will be overwritten.</p>
+<p class="Commanddefinition"><a name="func_AppendFile"></a>AppendFile(<i>filename</i>,<i>text</i>)</p>
+<p class="Commanddescription">Appends the specified text to the
+file. If the file does not exist then it will be created.</p>
+<p class="Commanddefinition"><a name="func_RunScript"></a>RunScript(<i>scriptfile</i>)</p> <p class="Commanddescription">Runs the script in the named file.
+The script should be in the scripts subdirectory of the SNAP
+program directory.</p>
+<p class="Commanddefinition"><a name="func_Run"></a>Run(<i>program</i>,<i>parameter</i>,...)</p>
+<p class="Commanddescription">Runs a program with the specified
+parameters. Waits for the program to finish.</p>
+<p class="Commanddefinition"><a name="func_LogRun"></a>LogRun(<i>program</i>,<i>parameter</i>,...)</p>
+<p class="Commanddescription">Similer to the run() function, except
+that output from the program is collected and returned by the
+function, rather than being displayed as it occurs.</p>
+<p class="Commanddefinition"><a name="func_Start"></a>Start(<i>program</i>,<i>parameter</i>,...)</p>
+<p class="Commanddescription">Starts a program with the specified
+parameters. Does not wait for the program to finish.</p>
+<p class="Commanddefinition"><a name="func_ExecuteFunction"></a>ExecuteFunction(<i>functionname</i>,<i>parameter</i>,...)</p>
+<p class="Commanddescription">Executes the function specified as
+the first parameter with the subsequent parameters.</p>
+<p class="Commanddefinition"><a name="func_GetConfig"></a>GetConfig(<i>item</i>)</p> <p class="Commanddescription">Gets the value of a configuration
+item from the users configuration.</p>
+<p class="Commanddefinition"><a name="func_SetConfig"></a>SetConfig(<i>item</i>,<i>value</i>)</p>
+<p class="Commanddescription">Sets the value of a configuration
+item from the users configuration.</p>
+<p class="Commanddefinition"><a name="func_Match"></a>Match(<i>string</i>,<i>regex</i>,<i>nMatch</i>)</p>
+<p class="Commanddescription">Returns the first match of the
+<a href="resyntax.html">regular expression</a> in the string, or
+false if there is no match. The nMatch parameter is optional. If
+present it identifies the number of the match group to return
+(match groups are defined by parentheses in the regular
+expression). The default behaviour is to return the entire matched
+substring.</p>
+<p class="Commanddefinition"><a name="func_Replace"></a>Replace(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)</p>
+<p class="Commanddescription">Returns the input string with each
+occurrence of the <a href="resyntax.html">regular expressions</a>
+replaced with the replacement string. The last parameter is
+optional, and specifies the maximum number of replacements that
+will be made (the default value is 10000). Note that the \ and
+&amp; characters in the replacement string are special characters
+that reference capture groups in the regular expressions - see
+<a href="resyntax.html#replacing">regular expression syntax</a></p>
+<p class="Commanddefinition"><a name="func_GetValue"></a>GetValue(<i>variablename</i>)</p> <p class="Commanddescription">Returns the value of a variable from
+its name. For example GetValue($varname) where $varname contains
+the name of a variable (eg "$snap_path")</p>
+<p class="Commanddefinition"><a name="func_GetEnv"></a>GetEnv(<i>envvar</i>)</p> <p class="Commanddescription">Returns the value of a windows
+environment variable.</p>
+<p class="Commanddefinition"><a name="func_GetDate"></a>GetDate(<i>format</i>)</p> <p class="Commanddescription">Returns the current date and time.
+The format parameter is optional. If it is supplied then the it is
+used as a template for the generated date, with the following
+substitutions being made:</p>
+<table class="Commanddescription_compact">
+<tr>
+<td>%Y</td>
+<td>Four digit year</td>
+</tr>
+<tr>
+<td>%y</td>
+<td>Two digit year</td>
+</tr>
+<tr>
+<td>%B</td>
+<td>Full name of month</td>
+</tr>
+<tr>
+<td>%b</td>
+<td>Abbreviated name of month</td>
+</tr>
+<tr>
+<td>%m</td>
+<td>Two digit number of month including leading 0</td>
+</tr>
+<tr>
+<td>%#m</td>
+<td>Number of month excluding leading 0</td>
+</tr>
+<tr>
+<td>%d</td>
+<td>Two digit day of month including leading 0</td>
+</tr>
+<tr>
+<td>%#d</td>
+<td>Day of month excluding leading 0</td>
+</tr>
+<tr>
+<td>%H</td>
+<td>Two digit hour including leading 0</td>
+</tr>
+<tr>
+<td>%#H</td>
+<td>Hour excluding leading 0</td>
+</tr>
+<tr>
+<td>%M</td>
+<td>Two digit minute including leading 0</td>
+</tr>
+<tr>
+<td>%#M</td>
+<td>Minute excluding leading 0</td>
+</tr>
+<tr>
+<td>%s</td>
+<td>Two digit seconds including leading 0</td>
+</tr>
+<tr>
+<td>%A</td>
+<td>Full name of day of week</td>
+</tr>
+<tr>
+<td>%a</td>
+<td>Abbreviated name of day of week</td>
+</tr>
+</table>
+<p class="Commanddefinition"><a name="func_Log"></a>Log(<i>message</i>)</p> <p class="Commanddescription">Writes the message to the log
+window.</p>
+<p class="Commanddefinition"><a name="func_ClearLog"></a>ClearLog()</p> <p class="Commanddescription">Clears all messages from the log
+window.</p>
+</body>
+</html>
+

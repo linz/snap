@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment">
+<title>Adjustment strategies</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_strategies"></a>Adjustment strategies</h1>
+
+<p>The following sections provide some guidelines for adjusting survey data.  These suggestions should not be followed rigorously - each adjustment you do should be interpreted individually with regard to all the information available about the data.  A good understanding of least squares is the most useful asset in interpreting the results of adjustments.</p>
+
+<p>Essentially a least squares adjustment is very simple.  You create the input files, run the adjustment, and thats it!  However there are several reasons that why an adjustment may require more attention than this.  In particular you may want to
+
+<ul>
+	<li>identify and eliminate any gross errors in the data (see <a href="topic_strategy_gross_errors.html">using a minimum constraints adjustment to find gross errors</a>).<br><br></li>
+
+	<li>improve your estimates of the errors of the observations in order to get more realistic statistics in the output data (see <a href="topic_strategy_obs_errors.html">improving estimates of observation errors</a>).<br><br></li>
+
+	<li>fit the data into imperfect existing control (see <a href="topic_fitting_control.html">Fitting observations into existing control</a>).</li>
+</ul>
+
+<p>The simplest way to handle these problems is one at a time.  If you are trying to identify gross errors and bad control at the same time it may be difficult to determine whether a large residual arises because of a problem in the data or in the fixed station coordinates.  Similarly it is difficult to estimate the typical errors of the observations if the statistics from the adjustment are corrupted by gross errors or bad station coordinates.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="topic_strategy_gps_surveys.html">Adjusting GPS surveys</a></p>
+
+<p><a href="topic_strategy_eccentric_stations.html">Handling eccentric stations</a></p>
+
+<p><a href="../programs/snap/snap_proc_preanalysis.html">Using SNAP for network preanalysis</a></p>
+
+<p><a href="../programs/snap/snap_proc_vertical.html">Using SNAP for vertical adjustments</a></p>
+
+<p><a href="../programs/snap/snap_proc_accspec.html">Using SNAP to test accuracy specifications</a></p>
+
+<p><a href="../programs/snap/snap_common_problems.html">Common problems in SNAP adjustments</a></p>
+
+</div>
+</body>
+</html>

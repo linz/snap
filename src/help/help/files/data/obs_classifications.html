@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, classification">
+<title>Observation classifications</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_classifications"></a>Observation classifications</h1>
+
+<p>Each observation in the SNAP adjustment has a number of classifications (attributes) assigned to it which may affect how it is used in the adjustment.  SNAP automatically assigns classifications to observations based on data type (one of the <a href="obs_data_types.html">data type codes</a>), and data file.  
+</p>
+<p>Some observation types have other classifications assigned to them.
+GPS observations are assigned a reference frame classification (&quot;GPS&quot;) by default, and projection bearings are assigned a projection classification defining the projection of the data.
+Distances may optionally have a distance scale factor classification, and bearings and azimuths a bearing orientation classification.
+</p>
+<p>Also any number of additional user defined classifications can be specified. 
+As examples cadastral observations could have a classification &quot;survey_plan&quot;, and GPS observations could have a classification &quot;method&quot;.
+In <a href="obs_file_format.html">SNAP format files</a> these are defined using the <a href="obs_ddc_classification.html">#classification</a> and <a href="obs_ddc_classify.html">#classify</a> data definition commands. In <a href="csv_obs_files.html">CSV formatted data files</a> these are specified in the <a href="../cmdcfg/csv_format_definition.html">format definition</a> files.</p>
+
+<p>Data classifications are used for several things in the SNAP file:</p>
+<ul>
+
+<li>You can exclude observations from the adjustment or reweight them based upon their classification  (see the <a href="../cmdcfg/cmd_classification.html">classification</a> command).  For example if you are doing a horizontal adjustment you can exclude all zenith distance data. </li>
+
+<li>You can summarize the residual errors in the data based upon the classification.  (see the <a href="../cmdcfg/cmd_summarize_errors_by.html">summarize_errors_by</a> command)  For example you can output a summary of the standard errors accumulated for each data file, and within each data file accumulated for each data type.  On the basis of this information you may rerun the adjustment with different input weights.</li>
+
+<li>You can define and calculate <a href="../cmdcfg/cmd_reference_frame.html">GPS reference frame parameters</a>, <a href="../cmdcfg/cmd_additional_parameter_commands.html">refraction coefficient</a>, <a href="../cmdcfg/cmd_additional_parameter_commands.html">bearing orientation errors</a>, and <a href="../cmdcfg/cmd_additional_parameter_commands.html">distance scale factor</a> based on a classification.</li>
+</ul>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_ddc_classification.html">The #classification command</a></p>
+
+<p><a href="obs_ddc_classify.html">The #classify command</a></p>
+
+<p><a href="../cmdcfg/csv_format_definition.html">CSV file format definition</a></p>
+
+<p><a href="../cmdcfg/cmd_classification.html">The classification command (command file)</a></p>
+
+<p><a href="../cmdcfg/cmd_summarize_errors_by.html">The summarize_errors_by command</a></p>
+
+<p><a href="obs_example_classification.html">Example of data classification</a></p>
+
+</div>
+</body>
+</html>

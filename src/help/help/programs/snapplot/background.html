@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, analysis, map, stations, coordinates, observations, error ellipses, background graphics">
+<title>Background graphics</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot_background"></a>Background graphics</h1>
+
+<p>Snapplot can display reference features such as coastlines and roads 
+to provide a visual reference for stations and observations.  Reference 
+features are defined in simple text files.  These are loaded either by 
+include the files in the <a href="../../files/cmdcfg/index.html">snap command
+file</a>, or by specifing them when snapplot is started using the -b command
+line option.
+<p>
+<p>Background files are specified in the command file with the command</p>
+<p class="Commanddefinition">plot background <i>file_name</i><p>
+<p>The format of the background file is very simple.  It consists of two 
+commands to specify the name of the background layer, and the coordinate system used for coordinates, and a series of coordinates defining the features.  Each
+coordinate has a pen code of 1 (to start a new feature) or 0 (to continue the
+feature).  The following example illustrates this:
+</p>
+<pre class="ConfigFile">
+#layer coast
+#coordsys nzmg
+1 2125878.0 5329937.0
+0 2126545.0 5330337.0
+0 2127211.0 5329802.0
+0 2127745.0 5329668.0
+0 2128812.0 5330201.0
+0 2129613.0 5331000.0
+0 2129614.0 5332067.0
+1 2670951.0 6040404.0
+0 2670836.0 6040318.0
+0 2670167.0 6038718.0
+0 2669099.0 6037519.0
+0 2668000.0 6036480.0
+0 2666562.0 6035121.0
+0 2666562.0 6034587.0
+0 2666961.0 6033787.0
+0 2668028.0 6033785.0
+0 2672167.0 6037915.0
+0 2672969.0 6039381.0
+0 2673769.0 6039914.0
+0 2673370.0 6040715.0
+0 2671370.0 6040717.0
+0 2670951.0 6040404.0
+</pre>
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="../../coordsys/crdsys_standard_list.html">Projection codes</a></p>
+</div>
+</body>
+</html>

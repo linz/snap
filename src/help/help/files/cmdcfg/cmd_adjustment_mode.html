@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="adjustment, mode, network analysis, data checking, free net adjustment">
+<title>Adjustment mode</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_adjustment_mode"></a>Adjustment mode</h1>
+
+<p>The program can operate in four basic modes.  These are:</p>
+
+<p><b>Network analysis</b>:  This is used for planning surveys.  An artificial set of data is used to see how accurately stations are located.  Only the errors of the observations are used - their values are ignored </p>
+
+<p><b>Data checking</b>:  The input data are compared with the station coordinates as a check for gross errors (such as typing errors) in the data files.  Obviously this is only useful if the station coordinates are quite accurate.  Even though coordinates are not being calculated SNAP may still be doing a least squares adjustment to calculate parameters such as refraction coefficients, and orientations of horizontal circles.  This is effectively the same as fixing all stations.</p>
+
+<p><b>Free net adjustment</b>:  The input data is adjusted without holding any stations fixed.  SNAP generates a minimum set of constraints to adjust the data without compromising the data.  This provides a check on the internal consistency of the data.  It may be useful to distinguish between gross errors in the data, and errors in the assumed station coordinates.  </p>
+
+<p><b>Adjustment</b>:  This is the normal mode in which station coordinates are adjusted to best fit the observations.</p>
+
+<p>The program can also be constrained to adjust only horizontal or vertical coordinates  rather than doing three dimensional adjustment.  This is effectively the same as fixing all vertical or horizontal coordinates.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

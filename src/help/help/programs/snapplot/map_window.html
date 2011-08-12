@@ -1,0 +1,155 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, snapplot configuration, configuration files">
+<title>The map window</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>The map window</h1>
+
+<img class="RightImage" src="images/sp_window_map.png" alt="Map window">
+<p>
+The map window has three main components:
+</p>
+<p class="BulletList">the map, displaying stations, observations, error ellipses, vertical error bars, adjustment vectors, and background features.</p>
+<p class="BulletList">the <a href="key_window.html">key</a> used to display choose which features are displayed, and what colours to use</p>
+<p class="BulletList">the coordinate window, which shows the coordinates of the cursor, and the
+code and name of the station that the cursor is over, if any</p>
+<h2>Using the map window</h2>
+<p>The map window is mainly operated using the mouse (or other pointing 
+device).  The following descriptions
+use the term "click" to mean briefly click a mouse button while the cursor is
+is located over a fixed point, and "drag" to mean move the mouse cursor from 
+one point to another while holding a mouse button down.  The mouse buttons
+are referred to as left and right.  So for example left+click a point means
+position the cursor over a point, and click the left mouse button.
+</p>
+<p>Some of the mouse operations are affected by holding down
+ the Shift, Alt, and Ctrl keys on the keyboard at the same time.
+For example, Ctrl+Shift+left+drag means drag the cursor while holding 
+down the left mouse button, and the Ctrl and Shift keys on the keyboard!
+</p>
+<table>
+<tr>
+<td>Zoom in</td>
+<td>Mouse: Left+drag a rectangle over the area of interest.  
+Note that you can move the rectangle by holding down the 
+shift key while dragging.<br></td>
+</tr>
+<tr>
+<td>Zoom out</td>
+<td>Mouse: Shift+Right click anywhere on the map<br>
+    Keyboard: Press Alt+Z<br>
+    Menu: Select <span class="MenuItem">View | Zoom out</span><br>
+</td>
+</tr>
+<tr>
+<td>Pan</td>
+<td>Mouse: Shift+Left+Drag a point on the map to its position
+in the panned view.
+<br>
+</td>
+</tr>
+<tr>
+<td>View entire map</td>
+<td>Mouse: Alt+Right+Click anywhere on the map<br>
+Keyboard: Press Alt+A<br>
+Menu: Select <span class="MenuItem">View | All</span><br>
+</td>
+</tr>
+<tr>
+<td>Undo last zoom/pan</td>
+<td>Mouse: Right+Click anywhere on the map<br>
+Keyboard: Press Alt+P<br>
+Menu: Select <span class="MenuItem">View | Previous</span><br>
+</td>
+</tr>
+<tr>
+<td>Get station/obs information</td>
+<td>Mouse: Left+click on the station or observation.  Detailed information
+will be shown in the <a href="details_window.html">details</a> window. Left+click on the selected station will "lock" it, so that clicking other stations
+will select the vector from the locked station to it.  Left+click on a locked
+station to unlock it.  Hold the Shift key down when selecting a station or
+observation to zoom in to it when it is selected.
+</td>
+</tr>
+<tr>
+<td>Offset a station</td>
+<td>Mouse: Shift+Ctrl+Left+drag to move a station to a different position.
+Note: this only affects where the station is displayed on the map, not its
+coordinates.  This is used to 
+clarify the view of the network where stations are very close.
+</td>
+</tr>
+<tr>
+<td>Clear station offset</td>
+<td>Mouse: Shift+Ctrl+Right+click on a station will set its offset
+back to zero.
+</td>
+</tr>
+</table>
+
+<h2>Getting information about stations and observations</h2>
+<p>The map window interacts with the text windows (station/observation lists
+and details window) in a number of ways. </p>
+<p>Left+clicking on a station or observation will give detailed information
+about it in the details window.  The map shows the selected station or
+observation with a yellow outline</p>
+<img src="images/sp_eg_selected_mark.png" alt="highlighted mark">
+<img src="images/sp_eg_selected_obs.png" alt="highlighted observation">
+<p>Whenever the station or observation in the details window changes, the 
+corresponding station or observation is highlighted on the map</p>
+<p>Station and observations can also be selected by click them in 
+the station/observation lists or on hyperlinks in the details window.
+Holding the shift key down while selecting stations or observations will
+cause the map window to zoom into the chosen item.</p>
+
+
+<h2>Changing the information displayed</h2>
+
+<p>There are several ways to change the information displayed on the 
+map:</p>
+<p class="BulletList">
+Choosing to hide or display items or changing colours 
+using the <a href="key_window.html">key</a>. </p>
+<p class="BulletList">
+Choosing different ways of colour coding observations, for example by the size of the standardised residual, by the redundancy, or by any of the <a href="../../files/data/obs_classifications.html">observation classifications"</a> using the <span class="MenuItem">Observations | Colour coding</span> menu option
+</p>
+<p class="BulletList">
+Changing the how multiple observations of a line are displayed with the <a href="dlg_obs_display_options.html">Observation display options</a> dialog using the <span class="MenuItem">Observations | Display options</span> menu option.
+</p>
+<p class="BulletList">
+Highlighting observations using various criteria with the <a href="dlg_highlight_observations.html">Highlight observations</a> dialog from the <span class="MenuItem">Observations | Highlight observations</span> menu option.
+</p>
+<p class="BulletList">
+Hiding or showing specific stations or categories of stations using the <a href="dlg_hideshow_stations.html">Hide stations</a> dialog using the <span class="MenuItem">Stations | Hide stations</span> menu option. Optionally the 
+observations to and from hidden stations will also be hidden.
+</p>
+<p class="BulletList">
+Highlighting specific stations or categories of stations using the <a href="dlg_highlight_stations.html">Highlight stations</a> dialog using the <span class="MenuItem">Stations | Highlight stations</span> menu option.
+</p>
+<p class="BulletList">
+Changing the font used to display station codes and names using the 
+<span class="MenuItem">View | Select station font</span> menu option
+</p>
+<p class="BulletList">
+Changing the scaling of error ellipses and vertical error bars using the
+<a href="dlg_error_options.html">Error options</a> dialog from the <span class="MenuItem">Error | Error options</span> menu option.
+</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="key_window.html">Using the map key</a></p>
+<p><a href="background.html">Displaying background graphical items</a></p>
+</div>
+</body>
+</html>

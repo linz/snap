@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, data types, azimuth data">
+<title>Azimuth observations (AZ)</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_azimuth_data"></a>Azimuth observations (AZ)</h1>
+
+<p>Azimuth data are observed bearings from the instrument station to a target station.  These are expressed as an angle measured from north through east.  </p>
+
+<p>Azimuth measurements are often done by observing celestial objects.  They may be significantly influenced by the deflection of the vertical.  SNAP assumes that the data have already been corrected for the deflection.  (This is because to apply a correction it is necessary to know the position of the celestial object - this information is not supplied to SNAP.)</p>
+
+<p>Azimuths may be subject to an associated bearing orientation error.  This is a constant angular offset (measured in seconds) which may be applied to, or calculated for, a group of azimuth observations.</p>
+
+<p>The azimuths are formatted in data files as either as degrees, minutes, and seconds, in the HP format, or as decimal degrees as define by the <a href="obs_ddc_angles.html">#hp_angles, #deg_angles, and #dms_angles</a> data definition commands. The error may be specified in the data file in either seconds, or degrees (depending on the angle format).</p>
+
+<p>Errors and residuals of azimuths are expressed in seconds of arc in SNAP outputs.</p>
+
+<p>See also</p>
+
+<p><a href="index.html">Observation file overview</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_horizontal_angles.html">Horizontal angle data</a></p>
+
+<p><a href="obs_projection_bearings.html">Projection bearing data</a></p>
+
+<p><a href="obs_bearing_error.html">Bearing orientation errors</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_hazdaz_error.html">The #az_error command</a></p>
+
+<p><a href="obs_ddc_bearing_orientation_error.html">The #bearing_orientation_error command</a></p>
+
+<p><a href="obs_ddc_angles.html">The #hp_angles, #deg_angles, and #dms_angles commands</a></p>
+
+</body>
+</html>

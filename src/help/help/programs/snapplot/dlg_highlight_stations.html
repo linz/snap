@@ -1,0 +1,116 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, highlight stations dialog">
+<title>The highlight stations dialog</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>The highlight stations dialog</h1>
+
+<img class="NoWrapImage" src="images/sp_dlg_highlight_stations.png" alt="Picture of highlight stations dialog">
+
+
+<p>
+This dialog is used to choose which stations to highlight on
+the map. It is accessed from the <span class="MenuItem">Stations | Highlight stations</span> menu item.
+</p>
+<p>
+Selected stations are displayed using the highlight colour, which may
+be chosen on the <a href="key_window.html">key</a>.
+</p>
+<p>
+This dialog displays a list of stations from which stations for highlighting
+can be selected.  It also allows categories of stations to be
+highlighted.
+</p>
+
+
+<p>The items in this dialog are:</p>
+<table>
+
+<tr>
+<td>Station list</td>
+<td>This displays a list of stations in the adjustment which may be 
+highlighted.  The stations that are shown are highlighted in this
+list (have a coloured background) will be highlighted on the map.  
+Stations can be highlighted or cleared by
+clicking them in this list.  Click on the column headers to sort the 
+list according to name or code.
+</td>
+</tr>
+
+
+<tr>
+<td>Stations to change</td>
+<td>This is used to highlight or clear a set of stations based upon some criteria.  
+	Stations matching the selected critera can be added or removed from the list 
+	of highlighted stations using the Add and Remove buttons.  
+	Other stations are unaffected - they remain
+	highlighted or not as they were.
+<br>
+<br>
+Many of the criteria 
+(such as magnitude of the horizontal error,
+status, and so on) compare the station attributes with a  test value.  
+For most criteria
+the test value is entered into the threshold box.  
+<br>
+<br>
+For the "By status"
+criteria one or more status options can be chosen.  Note that some options
+are exclusive.  For example no station can be both fixed and adjusted
+horizontally, so if both these options are selected, then no stations
+will be affected.
+<br>
+<br>
+Note: most of these options will not apply if a SNAP binary file
+has not been loaded by snapplot when it started.
+
+</td>
+</tr>
+
+
+<tr>
+<td>Highlight observations</td>
+<td>Select how observations will be highlighted.  They can either be 
+unhighlighted, highlighted if both endpoints are on highlighted stations,
+or highlighted if either end connects to a highlighted station.
+Other criteria for highlighting observations may be selected in the 
+<a href="dlg_highlight_observations.html">highlight observations</a> dialog.
+</td>
+</tr>
+
+<tr>
+<td>Add</td>
+<td>Stations matching the "stations to change" criteria will be added to 
+	the list of highlighted stations</td>
+</tr>
+<tr>
+<td>Remove</td>
+<td>Stations matching the "stations to change" criteria will be removed to 
+	the list of highlighted stations</td>
+</tr>
+<tr>
+<td>Clear</td>
+<td>All stations will be removed from the list of highlighted stations</td>
+</tr>
+<tr>
+<td>Done</td>
+<td>Exit the dialog box.  The map will be updated to hide the selected stations</td>
+</tr>
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="map_window.html">The map</a></p>
+<p><a href="dlg_highlight_observations.html">The highlight observations dialog</a></p>
+</div>
+</body>
+</html>

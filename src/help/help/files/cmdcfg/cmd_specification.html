@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="Specifications, accuracy tests, specification">
+<title>The specification command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_specification"></a>The specification command</h1>
+
+<p class="Commanddefinition">specification <i>name</i> confidence <i>conf</i>% horizontal <i>habs</i> mm <i>hppm</i> ppm vertical <i>vabs</i> mm <i>vppm</i> ppm</p>
+
+<p>This command defines an accuracy specification that can be used to test the relative accuracy with which stations are positioned in an adjustment.  There may be several specifications used in an adjustment (for example relating to different orders of station).  Each specification is given a name which is used to refer to it in the <a href="cmd_test_specification.html">test_specification</a> command (which defines which stations it applies to).</p>
+
+<p>The parameters of the command are:</p>
+
+<p class="Commanddefinition">name</p><p class="Commanddescription">The name used to refer to the specification.</p>
+
+<p class="Commanddefinition">conf</p><p class="Commanddescription">The percentage confidence to use for the test</p>
+
+<p class="Commanddefinition">habs</p><p class="Commanddescription">The absolute component of the horizontal tolerance in millimetres</p>
+
+<p class="Commanddefinition">hppm</p><p class="Commanddescription">The distance dependent component of the horizontal tolerance in part per million.</p>
+
+<p class="Commanddefinition">vabs</p><p class="Commanddescription">The absolute component of the vertical tolerance in millimetres.</p>
+
+<p class="Commanddefinition">vppm</p><p class="Commanddescription">The distance dependent component of the vertical tolerance in part per million.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_test_specification.html">The test_specification command</a></p>
+
+<p><a href="cmd_spec_test_options.html">The spec_test_options command</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

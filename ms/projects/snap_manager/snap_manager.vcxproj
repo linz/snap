@@ -1,0 +1,120 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{93E0BE1E-DDC6-44E7-AA76-4D41FE266084}</ProjectGuid>
+    <RootNamespace>snap_manager</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+    <Import Project="..\LAPG_syntax_file.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\snapwin.props" />
+    <Import Project="..\wsWidgetsRelease.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\snapwin.props" />
+    <Import Project="..\wsWidgets.props" />
+    <Import Project="..\debug_fix.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(IntDir)versioninfo.obj" del /q "$(IntDir)versioninfo.obj"
+copy /y $(SolutionDir)..\..\src\snap_manager\snap_manager.cfg $(OutDir)
+copy /y $(SolutionDir)..\..\src\snap_manager\scripts\*  $(OutDir)scripts
+copy /y $(SolutionDir)..\..\src\perl\*  $(OutDir)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <RandomizedBaseAddress>false</RandomizedBaseAddress>
+      <DataExecutionPrevention>
+      </DataExecutionPrevention>
+    </Link>
+    <PostBuildEvent>
+      <Command>if exist "$(IntDir)versioninfo.obj" del /q "$(IntDir)versioninfo.obj"
+copy /y $(SolutionDir)..\..\src\snap_manager\snap_manager.cfg $(OutDir)
+copy /y $(SolutionDir)..\..\src\snap_manager\scripts\*  $(OutDir)scripts
+copy /y $(SolutionDir)..\..\src\perl\*  $(OutDir)
+</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\snap_manager\script.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\scriptimp.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\scriptimp_dialog.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\scriptimp_parse.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\snap_manager.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\snap_scriptenv.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\snapjob.cpp" />
+    <ClCompile Include="..\..\..\src\snap_manager\versioninfo.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <LAPG_compile_grammer Include="..\..\..\src\snap_manager\scriptimp_parse.syntax" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\snap_manager\script.hpp" />
+    <ClInclude Include="..\..\..\src\snap_manager\scriptimp.hpp" />
+    <ClInclude Include="..\..\..\src\snap_manager\snap_scriptenv.hpp" />
+    <ClInclude Include="..\..\..\src\snap_manager\snapjob.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="..\..\..\src\snap_manager\snap_manager.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\src\perl\linz_gdb_stations.bat" />
+    <None Include="..\..\..\src\snap_manager\Notes.txt" />
+    <None Include="..\..\..\src\snap_manager\snap_manager.cfg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\snaplib\snaplib.vcxproj">
+      <Project>{5ca465b6-1c7d-4dbb-8b43-c717f8bbc96f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+    <ProjectReference Include="..\wxutils\wxutils.vcxproj">
+      <Project>{04a34fc0-a432-4f35-a2f7-be0bc8fb7c03}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\LAPG_syntax_file.targets" />
+  </ImportGroup>
+</Project>

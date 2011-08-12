@@ -1,0 +1,100 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, GPS, covariance, error, format">
+<title>GPS error formats</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_gps_err_format"></a>GPS error formats</h1>
+
+<p>Errors of GPS baseline and multistation data can be expressed either by a data definition statement #gps_enu_error, or explicitly for each vector.  </p>
+
+<p>The format for the #gps_enu_error data definition command is </p>
+
+<p><b>#gps_enu_error  <i>value value value</i> mm <i>value value value</i> ppm</b></p>
+
+<p>The error is expressed as the millimetre and part per million errors for the east north and up components of the vector.  SNAP assumes that there is no correlation between the components or between the millimetre and part per million errors.  The part per million error is calculated from the total length of the baseline, not from components of the lengths in the east, north and up directions.  Suppose that the vector is 10 km long and the north error is defined as 3ppm &plusmn; 40mm.  The part per million error is 3ppm &times; 10km = 30mm.  The standard error of the north component of the vector is thus (30<sup>2</sup> + 40<sup>2</sup>) = 50mm.</p>
+
+<p>Multistation data is entered as a set of baselines measured from a reference station.  However any of the stations in the set could have been used as a reference station.  The #gps_enu_error specifies the error between any two stations in the set. SNAP calculates the correlation between the vectors such that any vector calculated between two target stations has the correct error.</p>
+
+<p>For example the multistation data may give the vectors to stations B and C from station A.  The #gps_enu_error defines the errors of A-B and A-C, and  the correlation between them.  From this information it is possible to calculate the errors of the vector from B-C.  The correlations are calculated so that the errors on this vector match the values specified in #gps_enu_error command for a vector of that length.</p>
+
+<p>The east north and up directions can be calculated either for the midpoint of each baseline individually or for a single reference point in the network.  This is controlled by the <a href="../cmdcfg/cmd_gps_vertical.html">gps_vertical</a> command in the command file.  If a single point is used then by default it is the midpoint of the network.  It can be explicitly defined in the command file using the <a href="../cmdcfg/cmd_topocentre.html">topocentre</a> command.</p>
+
+<p>For baseline data the default values for the error can be overridden for a specific vector.  This is done by following the value of the vector by the word error and then the east, north, and up components of the error in metres.  For example a vector between STN1 and STN2 could be entered as</p>
+
+<p>STN1  STN2  93.0 1234.4 -888.0  error 0.03 0.06 0.09</p>
+
+<p>Errors cannot be overridden for multistation data because there is no convenient way of  describing the correlation of the modified vector with each other vector in the set.</p>
+
+<p>GPS errors are entered explicitly for each vector if the #data data definition command includes error with the definition of the GPS observation.  The format used to express the error is defined by the #gps_error_type data definition command.  The format also differs between baseline data (<a href="obs_format_line.html">line format</a>) and multistation data (<a href="obs_format_covar.html">grouped data format</a>).</p>
+
+<p>For baseline data the errors of each vector are listed with the observation.  The format defined by #gps_error_type can be one of full (the default), correlation, diagonal, or enu.  The data required for each format is as follows:
+
+<ul>
+	<li>full:  The error consists of 6 elements of the covariance matrix of the XYZ components in the order 
+<p>Cxx Cyx Cyy Czx Czy Czz
+</li>
+
+	<li>correlation:  The error consists of the standard errors of the XYZ components followed by their correlations
+<p>Sx  Sy  Sz  cyx  czx  czz
+</li>
+
+	<li>diagonal:  The error consists of just the standard errors of the XYZ components, with the correlations assumed to be zero.  This is generally not a realistic model.  The error is formatted as
+<p>Sx  Sy  Sz
+</li>
+
+	<li>enu: The error consists of the standard errors in the local east, north, and up coordinate system.  Correlation between the components is assumed to be zero.  The format is 
+<p>Se  Sn  Su
+</li>
+</ul>
+
+<p>In all cases covariances are expressed in metres squared, and standard errors in metres.</p>
+
+<p>For multistation data the errors must express the correlation between the vectors as well as between the components of each vector.  This is done with the grouped with covariance format.  That is, the set of observations is followed by a covariance matrix.  The covariance matrix starts with a data definition command #end_set, which marks the end of the data.  Subsequent lines contain the matrix values.  These values may be spread over as many lines as are required.  </p>
+
+<p>Errors of multistation data can be expressed in any of the four formats listed above.  However the diagonal and enu errors are not generally appropriate, as they cannot express the correlations between the baseline vectors.  </p>
+
+<p>For the full format the lower triangle of the covariance matrix follows the set of observations.  The rows of the matrix represent the X, Y, and Z components of the first vector, then of the second vector, and so on.  The order of elements is thus</p>
+
+<p>C(x1,x1) <br>
+C(y1,x1) C(y1,y1) <br>
+C(z1,x1) C(z1,y1) C(z1,z1)<br>
+C(x2,x1) C(x2,y1) C(x2,z1) C(x2,x2) <br>
+C(y2,x1) ....</p>
+
+<p>where C(x2,y1) represents the covariance between the x component of the second vector and the y component of the first.</p>
+
+<p>For  the correlation format the standard errors of the XYZ components of the vector are listed on  the same line as the vectors as three numbers (Sx, Sy, Sz).  The set of observations is followed by the lower triangle of the correlation matrix.  In this case the leading diagonal of the matrix is omitted, since each element must be 1.  The order of elements in the matrix is thus</p>
+
+<p>c(y1,x1) <br>
+c(z1,x1) c(z1,y1) <br>
+c(x2,x1) c(x2,y1) c(x2,z1) <br>
+c(y2,x1) ....</p>
+
+<p>where c(x2,y1) represents the correlation between the x component of the second vector and the y component of the first.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_gps_data.html">GPS observations</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_gps_enu_error.html">The #gps_enu_error command</a></p>
+
+<p><a href="obs_ddc_gps_error_type.html">The #gps_error_type command</a></p>
+
+<p><a href="../cmdcfg/cmd_gps_vertical.html">The gps_vertical command</a></p>
+
+<p><a href="../cmdcfg/cmd_topocentre.html">The topocentre command</a></p>
+
+</div>
+</body>
+</html>

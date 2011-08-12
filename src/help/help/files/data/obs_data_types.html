@@ -1,0 +1,190 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, data types">
+<title>Data types</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_data_types"></a>Data types</h1>
+
+<table>
+
+<tr>
+<td><b>Observation type</b></td>
+<td><b>Code</b></td>
+<td><b>Units</b></td>
+<td><b>Format</b></td>
+<td><b>Default error<br>
+command</b></td>
+</tr>
+
+<tr>
+<td><a href="obs_distance_data.html">slope distances</a></td>
+<td>SD</td>
+<td>metres</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#ds_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_distance_data.html">horizontal distances</a></td>
+<td>HD</td>
+<td>metres</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#ds_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_distance_data.html">ellipsoidal distances</a></td>
+<td>ED</td>
+<td>metres</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#ds_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_distance_data.html">mean sea level distances</a></td>
+<td>MD</td>
+<td>metres</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#ds_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_distance_ratios.html">distance ratios</a></td>
+<td>DR</td>
+<td>metres</td>
+<td><a href="obs_format_grouped.html">grouped</a></td>
+<td>#ds_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_horizontal_angles.html">horizontal angles</a></td>
+<td>HA</td>
+<td>*angle</td>
+<td><a href="obs_format_grouped.html">grouped</a></td>
+<td>#ha_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_zenith_distances.html">zenith distances</a></td>
+<td>ZD</td>
+<td>*angle</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#zd_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_azimuth_data.html">azimuths</a></td>
+<td>AZ</td>
+<td>*angle</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#az_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_projection_bearings.html">projection bearings</a></td>
+<td>PB</td>
+<td>*angle</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#az_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_height_differences.html">levelling data</a></td>
+<td>LV</td>
+<td>metres</td>
+<td><a href="obs_format_line.html">line</a>/<a href="obs_format_grouped.html">grouped</a></td>
+<td>#lv_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_latlon_data.html">observed longitude</a></td>
+<td>LN</td>
+<td>*angle</td>
+<td><a href="obs_format_point.html">point</a></td>
+<td>#ln_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_latlon_data.html">observed latitude</a></td>
+<td>LT</td>
+<td>metres</td>
+<td><a href="obs_format_point.html">point</a></td>
+<td>#lt_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_height_data.html">ellipsoidal height</a></td>
+<td>EH</td>
+<td>metres</td>
+<td><a href="obs_format_point.html">point</a></td>
+<td>#eh_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_height_data.html">orthometric height</a></td>
+<td>OH</td>
+<td>*angle</td>
+<td><a href="obs_format_point.html">point</a></td>
+<td>#oh_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_gps_data.html">GPS baselines</a></td>
+<td>GB /GPS</td>
+<td>metres</td>
+<td><a href="obs_format_line.html">line</a></td>
+<td>#gps_enu_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_gps_data.html">GPS multistation</a></td>
+<td>GB /GPS</td>
+<td>metres</td>
+<td><a href="obs_format_grouped.html">grouped</a>/<a href="obs_format_covar.html">covar</a></td>
+<td>#gps_enu_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_gx_data.html">GPS point coords</a></td>
+<td>GX</td>
+<td>metres</td>
+<td><a href="obs_format_point.html">point</a></td>
+<td>#gx_enu_error</td>
+</tr>
+
+<tr>
+<td><a href="obs_gx_data.html">GPS point coord set</a></td>
+<td>GX</td>
+<td>metres</td>
+<td><a href="obs_format_grouped.html">grouped</a>/<a href="obs_format_covar.html">covar</a></td>
+<td>#gx_enu_error</td>
+</tr>
+</table><br>
+
+<p><b>Notes:</b></p>
+
+<p>The code is used to identify the observation type in the <a href="obs_ddc_data.html">#data</a> command</p>
+
+<p>The format refers to the layout of the data block; point format, line format, grouped format, or grouped with covariance format</p>
+
+<p>The default error command is the command used to specify errors of a block of observations in the data file when they are not being explicitly defined for each observation.</p>
+
+<p>*By default angle observations are entered as degrees minutes and seconds, as three separate digits, for example &quot;10 05 47.1&quot;.  This may be altered by the <a href="obs_ddc_angles.html">#hp_angles and #deg_angles commands</a>.</p>
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+</div>
+</body>
+</html>

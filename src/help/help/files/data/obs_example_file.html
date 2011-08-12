@@ -1,0 +1,96 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format, data file">
+<title>Example data file</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_example_file"></a>Example data file</h1>
+
+<pre><code>SNAP demonstration data set
+
+# date 12 May 1992
+
+! Example of distance and horizontal angle data
+
+# data sd ha
+
+# ds_error 10 mm 2 ppm
+# ha_error 2 sec
+
+# classify SD EQUIPMENT DI20
+# classify HA EQUIPMENT T2
+
+! Note that the default errors have been overridden for
+! two observations.  Also note that one distance is missing.
+
+!From To  H.I.    Distance    error      Direction   error
+
+ 1        1.55
+      2   1.30    21110.75                0 00 00.0
+      3   1.15        -                  15 23 16.8  error 5
+      4   1.20    17967.48  error 0.03   48 58 07.2
+
+! The distance to station 1 is rejected in the following set
+
+ 4        1.20
+      3   1.62    21314.218               0 00 00.0
+      5   1.34    14296.911              70 18 54.6
+      1   1.03 *  17969.434             241 23 01.2
+
+
+! Example of gps baseline data
+
+# data gps no_heights
+
+# reference_frame GPS
+# gps_enu_error 15 30 50 mm
+
+! From  To        X           Y          Z
+
+  1     2     -399.32    20958.80    2497.10
+  1     3    -6943.55    31476.72   10172.31
+  1     4    -8808.29    10306.10   11790.89
+
+! Example of multistation GPS data
+
+#data gb error grouped no_heights
+#gps_error_type full
+
+1
+  5       16688.7857  -109992.9680   -34179.4465
+  6        5782.9042  -128377.1792   -25222.3289
+#end_set
+  2.52189989E-05
+ -3.51365053E-06  1.45083257E-06
+  1.99479380E-05 -2.27106609E-06  1.93004819E-05
+  6.20761587E-06 -8.96910370E-07  5.36535610E-06  2.28536949E-05
+ -9.00332437E-07  3.24931104E-07 -7.97373532E-07 -2.45152986E-06
+  9.70341277E-07
+  5.34392361E-06 -7.91887378E-07  5.21602684E-06  1.94275136E-05
+ -2.10103471E-06  1.87209786E-05
+
+! Example of point format (lat and long) data
+
+#date unknown
+# data lt error ln error no_heights
+
+!      Latitude     Error     Longitude     Error
+
+1     41 19 06.32 S   0.1        -
+3     41 11 38.20 S   0.1   175 23 55.35 E   0.1</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+</div>
+</body>
+</html>

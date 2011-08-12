@@ -1,0 +1,253 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{702D822F-6506-4996-9C2C-AA91431341DB}</ProjectGuid>
+    <RootNamespace>snaplib</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\snapwin.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\snapwin.props" />
+    <Import Project="..\debug_fix.props" />
+    <Import Project="..\snapdebug.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\built\$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)..\temp\$(ProjectName)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <DisableSpecificWarnings>4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <DisableSpecificWarnings>4127;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_binsrc.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_blob.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_date.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_grid.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_lnzdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trig.c" />
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\snap_dbl4_interface.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_conv.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys_describe.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys_parse.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell_func.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell_parse.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_func.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_install.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_parse.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_register.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf_func.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf_parse.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_bw.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_grid.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_linzdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc_grid.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_csdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_default.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_lists.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\emproj.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\emprojr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\gnproj.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\gnprojr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\isometrc.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\lambert.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\lambertr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\nzmg.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\nzmgr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\paramdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\psproj.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\psprojr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\tmproj.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\tmprojr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\geoid\geoid.c" />
+    <ClCompile Include="..\..\..\src\snaplib\geoid\griddata.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\netcalcs.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\netlist.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\netlist1.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\netstns.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\netstns1.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\network.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkb.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkd.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkm.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networks.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkt.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkw.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\datatype.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\geoddata.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\gpscvr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\loaddata.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\snapdata.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\bearing.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\bindata.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\cfgprocs.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\datastat.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\deform.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\genparam.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\gpscvr2.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\rftrans.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\rftrndmp.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\snapglob.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\stnadj.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\survfile.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\survfilr.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\avltree.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\binfile.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\chkallcx.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\chkalloc.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\classify.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\datafile.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\dateutil.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\dms.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\dstring.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\errdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\fileutil.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\geodetic.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\get_date.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\iostring.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\leastsqu.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\license.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\linklist.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\lsobseq.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\probfunc.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\progress.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\readcfg.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\strarray.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_types.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_alloc.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_binsrc.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_blob.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_date.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_error.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_grid.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_lnzdef.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_progress.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trace.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trig.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_utl_yield.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\mi.h" />
+    <ClInclude Include="..\..\..\src\snaplib\dbl4\snap_dbl4_interface.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\coordsys.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\crdsys_prj.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_bw.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_grid.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_linzdef.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc_grid.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\crdsys_src.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\emproj.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\emprojr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\gnproj.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\gnprojr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\isometrc.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\lambert.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\lambertr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\nzmg.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\nzmgr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\paramdef.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\psproj.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\psprojr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\tmproj.h" />
+    <ClInclude Include="..\..\..\src\snaplib\coordsys\tmprojr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\geoid\geoid.h" />
+    <ClInclude Include="..\..\..\src\snaplib\geoid\griddata.h" />
+    <ClInclude Include="..\..\..\src\snaplib\network\network.h" />
+    <ClInclude Include="..\..\..\src\snaplib\network\networkb.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\bearing.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\bindata.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\cfgprocs.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\datastat.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\deform.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\genparam.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\gpscvr2.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\rftrans.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\rftrndmp.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\snapglob.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\stnadj.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\survfile.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\survfilr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snapdata\datatype.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snapdata\geoddata.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snapdata\gpscvr.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snapdata\loaddata.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snapdata\snapdata.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snapdata\survdata.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\avltree.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\binfile.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\bltmatrx.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\chkalloc.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\classify.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\datafile.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\dateutil.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\dms.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\dstring.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\errdef.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\fileutil.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\geodetic.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\get_date.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\iostring.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\leastsqu.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\license.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\linklist.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\lsobseq.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\pi.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\probfunc.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\progress.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\readcfg.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\strarray.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\symmatrx.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\xprintf.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\..\..\bin\lapg.exe" />
+    <None Include="..\..\..\..\..\..\bin\lapg.txt" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

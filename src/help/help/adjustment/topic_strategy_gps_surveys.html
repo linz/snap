@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, procedure, GPS, adjustment">
+<title>Adjusting GPS surveys</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_gps"></a>Adjusting GPS surveys</h1>
+
+<p>GPS baselines are usually expressed as vector components in the WGS84 reference frame.  However the coordinates of the fixed stations in an adjustment are often expressed in a different reference frame for which the X, Y, and Z axes are not exactly parallel to the WGS84 axes.  The observed vectors must be converted to the reference frame of the fixed stations before they can be used in an adjustment.</p>
+
+<p>In New Zealand, for example, survey stations are usually referenced to the NZGD49 datum, which is defined in terms of the horizontal coordinates of the stations in the 1949 adjustment.  The vertical reference in New Zealand is defined by levelling from a number of tide gauges.  At any location the difference between WGS84 and the NZGD49 reference frames can be approximated by a scale, a rotation, and a translation.  This difference varies across the country, as the NZGD49 datum is not internally consistent to the accuracy of current survey equipment.  </p>
+
+<p>The reference frames may also appear to differ if geoid heights are not available for the stations.   In this case the station elevations in the coordinate file are orthometric heights measured above the geoid (sea level), whereas GPS vectors are in terms of ellipsoidal heights and take no account of the height of the geoid.  The geoid can be modelled locally by a sloping surface relative to the ellipsoid.  When geoid heights are not available to SNAP the effect is as if the geoid were removed.  To use GPS vectors in the adjustment, the vectors must have the geoid heights removed from them also.  Locally this can be approximated by rotating the vector to remove the slope of the geoid surface.   Because the geoid heights are unknown, the rotation is also unknown and must be calculated as part of the adjustment</p>
+
+<p>In SNAP each GPS observation has an associated reference frame code.  By default this is GPS for all observations.  Each code defines a reference frame which may differ from the coordinate file frame by a scale and rotation.</p>
+
+<p>The reference frame scale and rotation can be calculated by including the command</p>
+
+<p>reference_frame GPS calculate scale rotation</p>
+
+<p>in the command file.  </p>
+
+<p>In order to be able to calculate the reference frame rotations and scales you need at least two horizontally fixed stations and three vertically fixed stations.  The vertically fixed stations will ideally span the extents of the network.  They should not lie in, or near to, a straight line.  </p>
+
+<p>Note that in a minimum constraints adjustment of GPS data only it is simplest to not calculate the reference frame parameters and just fix one station.  However if the survey includes conventional observations then the reference frame parameters should be calculated.</p>
+
+<p>You should always do three dimensional adjustments of GPS data.  In a survey of mixed GPS and conventional data there may be some stations which cannot be fixed in three dimensions.  These should be fixed or floated.  For example a station which is fixed by horizontal angles only can be fixed or floated vertically.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Adjustment strategies</a></p>
+
+<p><a href="../files/data/obs_gps_data.html">GPS observations</a></p>
+
+<p><a href="../files/data/obs_gps_ref_frames.html">GPS reference frames</a></p>
+
+<p><a href="../files/data/obs_gps_err_format.html">GPS error formats</a></p>
+
+<p><a href="topic_strategy_gross_errors.html">Using a minimum constraints adjustment to find gross errors</a></p>
+
+</div>
+</body>
+</html>

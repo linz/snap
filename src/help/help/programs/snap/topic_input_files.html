@@ -1,0 +1,45 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="files, data file, observation file, coordinate file">
+<title>Creating input files</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_basic_input"></a>Creating input files</h1>
+
+<p>SNAP requires at least three input files to run.  These are:
+
+<ul>
+	<li>a <a href="../../files/crd/index.html">coordinate file</a> which lists all the stations that will be used in the adjustment.  Each station is assigned a <a href="../../files/crd/stn_code.html">code</a> which is used to identify it in the observations files. <br><br></li>
+
+	<li>one or more <a href="../../files/data/index.html">observation files</a>.  Each observation file contains data, which may be of several different types (distances, horizontal angles, etc). <br><br></li>
+
+	<li>a <a href="../../files/cmdcfg/index.html">command files</a> which instructs SNAP what to do.</li>
+</ul>
+
+<p>One way to create these files is simply to type them in using a text editor.  If a word processing program is used you must ensure that it saves just the text of the files and not any formatting or other characters.</p>
+
+<p>In many cases you can generate some of the input files from other information. For example GPS data is generated in various formats by GPS processing software.  Some utility programs are available for converting these formats to the SNAP input format. These translators create the vector observation file, and may also create coordinate and command files.</p>
+
+<p>The program DAT2SITE can be used to create a station coordinate file from observations.  It requires you to enter the coordinates of one station, and then deduces the others from the GPS data.</p>
+
+<p>As a convention it is recommended that you use the filename extension .CMD for command files and .CRD for coordinate files (see <a href="../../files/index.html">file names used by SNAP</a>).</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">The SNAP program</a></p>
+
+<p><a href="topic_adjustment_outputs.html">Reviewing adjustment results</a></p>
+
+<p><a href="../../adjustment/index.html">Adjustment strategies</a></p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, data types, gps data, baseline data, multistation data">
+<title>GPS observations (GB or GPS)</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_gps_data"></a>GPS observations (GB or GPS)</h1>
+
+<p>GPS data are represented as vector differences between two GPS receivers.  The vector is typically expressed as X, Y, and Z components in a geocentric reference frame (e.g. WGS84).</p>
+
+<p>SNAP can handle baseline vectors, which are simple vectors between two stations, and multistation data, which are a correlated group of vectors observed and processed simultaneously.  The two are distinguished by the format of the data.  If the data are in <a href="obs_format_covar.html">grouped format</a> then they are multistation data; if they are in <a href="obs_format_line.html">line format</a> they are individual baselines.</p>
+
+<p>All GPS observations are corrected for differences between the <a href="obs_gps_ref_frames.html">GPS reference frame</a> and the coordinate file reference frame.  The difference is modelled by a rotation and a scale difference.</p>
+
+<p>SNAP can use more than one GPS reference frame - each frame is identified by a short code.  By default the reference frame code for all observations is  GPS.   SNAP can calculate a rotation and scale for each reference frame.</p>
+
+<p>GPS data in SNAP is also influenced by the <a href="obs_refframe_scale_error.html">reference frame scale error</a>, which is a scale error associated with the reference frame implied by the fixed station coordinates.</p>
+
+<p>The errors of GPS vectors can be expressed in several ways:
+
+<ul>
+	<li>a full covariance matrix of the X, Y, and Z vector components<br><br></li>
+
+	<li>the standard errors of the X, Y, and Z vector components and their correlation matrix<br><br></li>
+
+	<li>the standard errors of the East, North, and Up components.  The correlation between the components is assumed to be zero</li>
+</ul>
+
+<p>All errors are expressed in metres. Covariances in m<sup>2</sup>.  There are many ways that GPS errors can be expressed.  The options are controlled by the <a href="obs_ddc_gps_error_type.html">#gps_error_type</a> command.  For more details see <a href="obs_gps_err_format.html">GPS error formats</a>.</p>
+
+<p>In the listing file the residuals are expressed as components in the east, north, and up directions.  Also the overall residual for the vector itself is calculated.  The residuals can be expressed in both metres and in part per million.</p>
+
+<p>See also</p>
+
+<p><a href="index.html">Observation file overview</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_gps_ref_frames.html">GPS reference frames</a></p>
+
+<p><a href="obs_refframe_scale_error.html">The reference frame scale error</a></p>
+
+<p><a href="obs_gps_err_format.html">GPS error formats</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_gps_enu_error.html">The #gps_enu_error command</a></p>
+
+<p><a href="obs_ddc_gps_error_type.html">The #gps_error_type command</a></p>
+
+<p><a href="obs_ddc_reference_frame.html">The #reference_frame command (data file)</a></p>
+
+<p><a href="../cmdcfg/cmd_reference_frame.html">The reference_frame command (command file)</a></p>
+
+<p><a href="../cmdcfg/cmd_gps_vertical.html">The gps_vertical command</a></p>
+
+</body>
+</html>

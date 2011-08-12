@@ -1,0 +1,690 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<meta name="generator" content=
+"HTML Tidy for Windows (vers 1 September 2005), see www.w3.org">
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<meta name="keywords" content=
+"snap_manager, script, regular expression">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+<title>Regular expression syntax</title>
+</head>
+<body bgcolor="#FFFFFF">
+<h1>Regular expression syntax</h1>
+<p>A <i>regular expression</i> describes character strings of
+characters by patterns of characters that the string may contain.
+This is used in snap manager scripting for the delimiter in the
+foreach statement, and as expressions in the Match and Replace
+functions. These can be used to extract information from and
+replace components of text strings.</p>
+<p>This documentation is not a tutorial on regular expressions - it
+is a reference on the particular syntax used in snap_manager. The
+regular expression syntax used in snap_manager scripts comes from
+the <a href="http://www.wxwidgets.org">wxWidgets</a> library that
+snap_manager is built with. Much of this documentation below is
+extracted verbatim from the wxWidgets documentation. The snap
+manager implementation uses what are called "Advanced regular
+expressions" (ARE) in wxWidgets.</p>
+<p><a href="resyntax.html#resyntax">Regular Expression
+Syntax</a><br>
+<a href="resyntax.html#wxresynbracket">Bracket Expressions</a><br>
+<a href="resyntax.html#wxresynescapes">Escapes</a><br>
+<a href="resyntax.html#remetasyntax">Metasyntax</a><br>
+<a href="resyntax.html#wxresynmatching">Matching</a><br>
+<a href="resyntax.html#replacing">Replacing text</a><br>
+<a href="resyntax.html#patterns">Useful patterns</a></p>
+<hr>
+<a name="resyntax" id="resyntax"></a>
+<h2>Regular Expression Syntax</h2>
+<p>These regular expressions are implemented using the package
+written by Henry Spencer, based on the 1003.2 spec and some (not
+quite all) of the Perl5 extensions. Much of the description of
+regular expressions below is copied verbatim from his manual
+entry.</p>
+<p>A regular expression is one or more <i>branches</i>, separated
+by '<b>|</b>', matching anything that matches any of the
+branches.</p>
+<p>A branch is zero or more <i>constraints</i> or <i>quantified
+atoms</i>, concatenated. It matches a match for the first, followed
+by a match for the second, etc; an empty branch matches the empty
+string.</p>
+<p>A quantified atom is an <i>atom</i> possibly followed by a
+single <i>quantifier</i>. Without a quantifier, it matches a match
+for the atom. The quantifiers, and what a so-quantified atom
+matches, are:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>*</b></td>
+<td valign="top">a sequence of 0 or more matches of the atom</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>+</b></td>
+<td valign="top">a sequence of 1 or more matches of the atom</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>?</b></td>
+<td valign="top">a sequence of 0 or 1 matches of the atom</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>{m}</b></td>
+<td valign="top">a sequence of exactly <i>m</i> matches of the
+atom</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>{m,}</b></td>
+<td valign="top">a sequence of <i>m</i> or more matches of the
+atom</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>{m,n}</b></td>
+<td valign="top">a sequence of <i>m</i> through <i>n</i>
+(inclusive) matches of the atom; <i>m</i> may not exceed
+<i>n</i></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>*? +? ?? {m}? {m,}? {m,n}?</b></td>
+<td valign="top"><i>non-greedy</i> quantifiers, which match the
+same possibilities, but prefer the smallest number rather than the
+largest number of matches (see <a href=
+"resyntax.html#wxresynmatching">Matching</a>)</td>
+</tr>
+</tbody>
+</table>
+<p>The forms using <b>{</b> and <b>}</b> are known as
+<i>bound</i>s. The numbers <i>m</i> and <i>n</i> are unsigned
+decimal integers with permissible values from 0 to 255 inclusive.
+An atom is one of:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>(re)</b></td>
+<td valign="top">(where <i>re</i> is any regular expression)
+matches a match for <i>re</i>, with the match noted for possible
+reporting</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>(?:re)</b></td>
+<td valign="top">as previous, but does no reporting (a
+"non-capturing'' set of parentheses)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>()</b></td>
+<td valign="top">matches an empty string, noted for possible
+reporting</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>(?:)</b></td>
+<td valign="top">matches an empty string, without reporting</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>[chars]</b></td>
+<td valign="top">a <i>bracket expression</i>, matching any one of
+the <i>chars</i> (see <a href=
+"resyntax.html#wxresynbracket">Bracket Expressions</a> for more
+detail)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>.</b></td>
+<td valign="top">matches any single character</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\k</b></td>
+<td valign="top">(where <i>k</i> is a non-alphanumeric character)
+matches that character taken as an ordinary character, e.g. \\
+matches a backslash character</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\c</b></td>
+<td valign="top">where <i>c</i> is alphanumeric (possibly followed
+by other characters), an <i>escape</i>, see <a href=
+"resyntax.html#wxresynescapes">Escapes</a> below</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>{</b></td>
+<td valign="top">when followed by a character other than a digit,
+matches the left-brace character '<b>{</b>'; when followed by a
+digit, it is the beginning of a <i>bound</i> (see above)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>x</b></td>
+<td valign="top">where <i>x</i> is a single character with no other
+significance, matches that character.</td>
+</tr>
+</tbody>
+</table>
+<p>A <i>constraint</i> matches an empty string when specific
+conditions are met. A constraint may not be followed by a
+quantifier. The simple constraints are as follows; some more
+constraints are described later, under <a href=
+"resyntax.html#wxresynescapes">Escapes</a>.</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>^</b></td>
+<td valign="top">matches at the beginning of a line</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>$</b></td>
+<td valign="top">matches at the end of a line</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>(?=re)</b></td>
+<td valign="top"><i>positive lookahead</i> matches at any point
+where a substring matching <i>re</i> begins</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>(?!re)</b></td>
+<td valign="top"><i>negative lookahead</i> matches at any point
+where no substring matching <i>re</i> begins</td>
+</tr>
+</tbody>
+</table>
+<p>The lookahead constraints may not contain back references (see
+later), and all parentheses within them are considered
+non-capturing.</p>
+<p>An RE may not end with '<b>\</b>'.</p>
+<hr>
+<a name="wxresynbracket" id="wxresynbracket"></a>
+<h2>Bracket Expressions</h2>
+<p>A <i>bracket expression</i> is a list of characters enclosed in
+'<b>[]</b>'. It normally matches any single character from the list
+(but see below). If the list begins with '<b>^</b>', it matches any
+single character (but see below) <i>not</i> from the rest of the
+list.</p>
+<p>If two characters in the list are separated by '<b>-</b>', this
+is shorthand for the full <i>range</i> of characters between those
+two (inclusive) in the collating sequence, e.g. <b>[0-9]</b> in
+ASCII matches any decimal digit. Two ranges may not share an
+endpoint, so e.g. <b>a-c-e</b> is illegal. Ranges are very
+collating-sequence-dependent, and portable programs should avoid
+relying on them.</p>
+<p>To include a literal <b>]</b> or <b>-</b> in the list, the
+simplest method is to enclose it in <b>[.</b> and <b>.]</b> to make
+it a collating element (see below). Alternatively, make it the
+first character (following a possible '<b>^</b>'), or precede it
+with '<b>\</b>'. Alternatively, for '<b>-</b>', make it the last
+character, or the second endpoint of a range. To use a literal
+<b>-</b> as the first endpoint of a range, make it a collating
+element or precede it with '<b>\</b>'. With the exception of these,
+some combinations using <b>[</b> (see next paragraphs), and
+escapes, all other special characters lose their special
+significance within a bracket expression.</p>
+<p>Within a bracket expression, a collating element (a character, a
+multi-character sequence that collates as if it were a single
+character, or a collating-sequence name for either) enclosed in
+<b>[.</b> and <b>.]</b> stands for the sequence of characters of
+that collating element.</p>
+<p>Within a bracket expression, the name of a <i>character
+class</i> enclosed in <b>[:</b> and <b>:]</b> stands for the list
+of all characters (not all collating elements!) belonging to that
+class. Standard character classes are:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="119"><b>alpha</b></td>
+<td valign="top">A letter.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>upper</b></td>
+<td valign="top">An upper-case letter.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>lower</b></td>
+<td valign="top">A lower-case letter.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>digit</b></td>
+<td valign="top">A decimal digit.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>xdigit</b></td>
+<td valign="top">A hexadecimal digit.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>alnum</b></td>
+<td valign="top">An alphanumeric (letter or digit).</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>print</b></td>
+<td valign="top">An alphanumeric (same as alnum).</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>blank</b></td>
+<td valign="top">A space or tab character.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>space</b></td>
+<td valign="top">A character producing white space in displayed
+text.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>punct</b></td>
+<td valign="top">A punctuation character.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>graph</b></td>
+<td valign="top">A character with a visible representation.</td>
+</tr>
+<tr>
+<td valign="top" width="119"><b>cntrl</b></td>
+<td valign="top">A control character.</td>
+</tr>
+</tbody>
+</table>
+<p>A character class may not be used as an endpoint of a range.</p>
+<p><i>wxWidgets</i>: In a non-Unicode build, these character
+classifications depend on the current locale, and correspond to the
+values return by the ANSI C 'is' functions: isalpha, isupper, etc.
+In Unicode mode they are based on Unicode classifications, and are
+not affected by the current locale.</p>
+<hr>
+<a name="wxresynescapes" id="wxresynescapes"></a>
+<h2>Escapes</h2>
+<p>Escapes (AREs only), which begin with a <b>\</b> followed by an
+alphanumeric character, come in several varieties: character entry,
+class shorthands, constraint escapes, and back references. A
+<b>\</b> followed by an alphanumeric character but not constituting
+a valid escape is illegal in AREs. In EREs, there are no escapes:
+outside a bracket expression, a <b>\</b> followed by an
+alphanumeric character merely stands for that character as an
+ordinary character, and inside a bracket expression, <b>\</b> is an
+ordinary character. (The latter is the one actual incompatibility
+between EREs and AREs.)</p>
+<p>Character-entry escapes (AREs only) exist to make it easier to
+specify non-printing and otherwise inconvenient characters in
+REs:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>\a</b></td>
+<td valign="top">alert (bell) character, as in C</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\b</b></td>
+<td valign="top">backspace, as in C</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\B</b></td>
+<td valign="top">synonym for <b>\</b> to help reduce backslash
+doubling in some applications where there are multiple levels of
+backslash processing</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\c<i>X</i></b></td>
+<td valign="top">(where X is any character) the character whose
+low-order 5 bits are the same as those of <i>X</i>, and whose other
+bits are all zero</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\e</b></td>
+<td valign="top">the character whose collating-sequence name is
+'<b>ESC</b>', or failing that, the character with octal value
+033</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\f</b></td>
+<td valign="top">formfeed, as in C</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\n</b></td>
+<td valign="top">newline, as in C</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\r</b></td>
+<td valign="top">carriage return, as in C</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\t</b></td>
+<td valign="top">horizontal tab, as in C</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\u<i>wxyz</i></b></td>
+<td valign="top">(where <i>wxyz</i> is exactly four hexadecimal
+digits) the Unicode character <b>U+<i>wxyz</i></b> in the local
+byte ordering</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\U<i>stuvwxyz</i></b></td>
+<td valign="top">(where <i>stuvwxyz</i> is exactly eight
+hexadecimal digits) reserved for a somewhat-hypothetical Unicode
+extension to 32 bits</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\v</b></td>
+<td valign="top">vertical tab, as in C are all available.</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\x<i>hhh</i></b></td>
+<td valign="top">(where <i>hhh</i> is any sequence of hexadecimal
+digits) the character whose hexadecimal value is
+<b>0x<i>hhh</i></b> (a single character no matter how many
+hexadecimal digits are used).</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\0</b></td>
+<td valign="top">the character whose value is <b>0</b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\<i>xy</i></b></td>
+<td valign="top">(where <i>xy</i> is exactly two octal digits, and
+is not a <i>back reference</i> (see below)) the character whose
+octal value is <b>0<i>xy</i></b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\<i>xyz</i></b></td>
+<td valign="top">(where <i>xyz</i> is exactly three octal digits,
+and is not a back reference (see below)) the character whose octal
+value is <b>0<i>xyz</i></b></td>
+</tr>
+</tbody>
+</table>
+<p>Hexadecimal digits are '<b>0</b>'-'<b>9</b>',
+'<b>a</b>'-'<b>f</b>', and '<b>A</b>'-'<b>F</b>'. Octal digits are
+'<b>0</b>'-'<b>7</b>'.</p>
+<p>The character-entry escapes are always taken as ordinary
+characters. For example, <b>\135</b> is <b>]</b> in ASCII, but
+<b>\135</b> does not terminate a bracket expression. Beware,
+however, that some applications (e.g., C compilers) interpret such
+sequences themselves before the regular-expression package gets to
+see them, which may require doubling (quadrupling, etc.) the
+'<b>\</b>'.</p>
+<p>Class-shorthand escapes (AREs only) provide shorthands for
+certain commonly-used character classes:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>\d</b></td>
+<td valign="top"><b>[[:digit:]]</b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\s</b></td>
+<td valign="top"><b>[[:space:]]</b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\w</b></td>
+<td valign="top"><b>[[:alnum:]_]</b> (note underscore)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\D</b></td>
+<td valign="top"><b>[^[:digit:]]</b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\S</b></td>
+<td valign="top"><b>[^[:space:]]</b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\W</b></td>
+<td valign="top"><b>[^[:alnum:]_]</b> (note underscore)</td>
+</tr>
+</tbody>
+</table>
+<p>Within bracket expressions, '<b>\d</b>', '<b>\s</b>', and
+'<b>\w</b>' lose their outer brackets, and '<b>\D</b>',
+'<b>\S</b>', and '<b>\W</b>' are illegal. (So, for example,
+<b>[a-c\d]</b> is equivalent to <b>[a-c[:digit:]]</b>. Also,
+<b>[a-c\D]</b>, which is equivalent to <b>[a-c^[:digit:]]</b>, is
+illegal.)</p>
+<p>A constraint escape (AREs only) is a constraint, matching the
+empty string if specific conditions are met, written as an
+escape:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>\A</b></td>
+<td valign="top">matches only at the beginning of the string (see
+<a href="resyntax.html#wxresynmatching">Matching</a>, below, for
+how this differs from '<b>^</b>')</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\m</b></td>
+<td valign="top">matches only at the beginning of a word</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\M</b></td>
+<td valign="top">matches only at the end of a word</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\y</b></td>
+<td valign="top">matches only at the beginning or end of a
+word</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\Y</b></td>
+<td valign="top">matches only at a point that is not the beginning
+or end of a word</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\Z</b></td>
+<td valign="top">matches only at the end of the string (see
+<a href="resyntax.html#wxresynmatching">Matching</a>, below, for
+how this differs from '<b>$</b>')</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\<i>m</i></b></td>
+<td valign="top">(where <i>m</i> is a nonzero digit) a <i>back
+reference</i>, see below</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>\<i>mnn</i></b></td>
+<td valign="top">(where <i>m</i> is a nonzero digit, and <i>nn</i>
+is some more digits, and the decimal value <i>mnn</i> is not
+greater than the number of closing capturing parentheses seen so
+far) a <i>back reference</i>, see below</td>
+</tr>
+</tbody>
+</table>
+<p>A word is defined as in the specification of <b>[[:&lt;:]]</b>
+and <b>[[:&gt;:]]</b> above. Constraint escapes are illegal within
+bracket expressions.</p>
+<p>A back reference (AREs only) matches the same string matched by
+the parenthesized subexpression specified by the number, so that
+(e.g.) <b>([bc])\1</b> matches <b>bb</b> or <b>cc</b> but not
+'<b>bc</b>'. The subexpression must entirely precede the back
+reference in the RE. Subexpressions are numbered in the order of
+their leading parentheses. Non-capturing parentheses do not define
+subexpressions.</p>
+<p>There is an inherent historical ambiguity between octal
+character-entry escapes and back references, which is resolved by
+heuristics, as hinted at above. A leading zero always indicates an
+octal escape. A single non-zero digit, not followed by another
+digit, is always taken as a back reference. A multi-digit sequence
+not starting with a zero is taken as a back reference if it comes
+after a suitable subexpression (i.e. the number is in the legal
+range for a back reference), and otherwise is taken as octal.</p>
+<hr>
+<a name="remetasyntax" id="remetasyntax"></a>
+<h2>Metasyntax</h2>
+<p>In addition to the main syntax described above, there are some
+special forms and miscellaneous syntactic facilities available.</p>
+<p>Normally the flavor of RE being used is specified by
+application-dependent means. However, this can be overridden by a
+<i>director</i>. If an RE of any flavor begins with '<b>***:</b>',
+the rest of the RE is an ARE. If an RE of any flavor begins with
+'<b>***=</b>', the rest of the RE is taken to be a literal string,
+with all characters considered ordinary characters.</p>
+<p>An ARE may begin with <i>embedded options</i>: a sequence
+<b>(?xyz)</b> (where <i>xyz</i> is one or more alphabetic
+characters) specifies options affecting the rest of the RE. These
+supplement, and can override, any options specified by the
+application. The available option letters are:</p>
+<table>
+<tbody>
+<tr>
+<td valign="top" width="158"><b>b</b></td>
+<td valign="top">rest of RE is a BRE</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>c</b></td>
+<td valign="top">case-sensitive matching (usual default)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>e</b></td>
+<td valign="top">rest of RE is an ERE</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>i</b></td>
+<td valign="top">case-insensitive matching (see <a href=
+"resyntax.html#wxresynmatching">Matching</a>, below)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>m</b></td>
+<td valign="top">historical synonym for <b>n</b></td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>n</b></td>
+<td valign="top">newline-sensitive matching (see <a href=
+"resyntax.html#wxresynmatching">Matching</a>, below)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>p</b></td>
+<td valign="top">partial newline-sensitive matching (see <a href=
+"resyntax.html#wxresynmatching">Matching</a>, below)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>q</b></td>
+<td valign="top">rest of RE is a literal ("quoted'') string, all
+ordinary characters</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>s</b></td>
+<td valign="top">non-newline-sensitive matching (usual
+default)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>t</b></td>
+<td valign="top">tight syntax (usual default; see below)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>w</b></td>
+<td valign="top">inverse partial newline-sensitive ("weird'')
+matching (see <a href="resyntax.html#wxresynmatching">Matching</a>,
+below)</td>
+</tr>
+<tr>
+<td valign="top" width="158"><b>x</b></td>
+<td valign="top">expanded syntax (see below)</td>
+</tr>
+</tbody>
+</table>
+<p>Embedded options take effect at the <b>)</b> terminating the
+sequence. They are available only at the start of an ARE, and may
+not be used later within it.</p>
+<p>In addition to the usual (<i>tight</i>) RE syntax, in which all
+characters are significant, there is an <i>expanded</i> syntax,
+available in AREs with the embedded x option. In the expanded
+syntax, white-space characters are ignored and all characters
+between a <b>#</b> and the following newline (or the end of the RE)
+are ignored, permitting paragraphing and commenting a complex RE.
+There are three exceptions to that basic rule:</p>
+<ul>
+<li>a white-space character or '<b>#</b>' preceded by '<b>\</b>' is
+retained</li>
+<li>white space or '<b>#</b>' within a bracket expression is
+retained</li>
+<li>white space and comments are illegal within multi-character
+symbols like the ARE '<b>(?:</b>' or the BRE '<b>\(</b>'</li>
+</ul>
+Expanded-syntax white-space characters are blank, tab, newline, and
+any character that belongs to the <i>space</i> character class.
+<p>Finally, in an ARE, outside bracket expressions, the sequence
+'<b>(?#ttt)</b>' (where <i>ttt</i> is any text not containing a
+'<b>)</b>') is a comment, completely ignored. Again, this is not
+allowed between the characters of multi-character symbols like
+'<b>(?:</b>'. Such comments are more a historical artifact than a
+useful facility, and their use is deprecated; use the expanded
+syntax instead.</p>
+<p><i>None</i> of these metasyntax extensions is available if the
+application (or an initial <b>***=</b> director) has specified that
+the user's input be treated as a literal string rather than as an
+RE.</p>
+<hr>
+<a name="wxresynmatching" id="wxresynmatching"></a>
+<h2>Matching</h2>
+<p>In the event that an RE could match more than one substring of a
+given string, the RE matches the one starting earliest in the
+string. If the RE could match more than one substring starting at
+that point, its choice is determined by its <i>preference</i>:
+either the longest substring, or the shortest.</p>
+<p>Most atoms, and all constraints, have no preference. A
+parenthesized RE has the same preference (possibly none) as the RE.
+A quantified atom with quantifier <b>{m}</b> or <b>{m}?</b> has the
+same preference (possibly none) as the atom itself. A quantified
+atom with other normal quantifiers (including <b>{m,n}</b> with
+<i>m</i> equal to <i>n</i>) prefers longest match. A quantified
+atom with other non-greedy quantifiers (including <b>{m,n}?</b>
+with <i>m</i> equal to <i>n</i>) prefers shortest match. A branch
+has the same preference as the first quantified atom in it which
+has a preference. An RE consisting of two or more branches
+connected by the <b>|</b> operator prefers longest match.</p>
+<p>Subject to the constraints imposed by the rules for matching the
+whole RE, subexpressions also match the longest or shortest
+possible substrings, based on their preferences, with
+subexpressions starting earlier in the RE taking priority over ones
+starting later. Note that outer subexpressions thus take priority
+over their component subexpressions.</p>
+<p>Note that the quantifiers <b>{1,1}</b> and <b>{1,1}?</b> can be
+used to force longest and shortest preference, respectively, on a
+subexpression or a whole RE.</p>
+<p>Match lengths are measured in characters, not collating
+elements. An empty string is considered longer than no match at
+all. For example, <b>bb*</b> matches the three middle characters of
+'<b>abbbc</b>', <b>(week|wee)(night|knights)</b> matches all ten
+characters of '<b>weeknights</b>', when <b>(.*).*</b> is matched
+against <b>abc</b> the parenthesized subexpression matches all
+three characters, and when <b>(a*)*</b> is matched against
+<b>bc</b> both the whole RE and the parenthesized subexpression
+match an empty string.</p>
+<p>If case-independent matching is specified, the effect is much as
+if all case distinctions had vanished from the alphabet. When an
+alphabetic that exists in multiple cases appears as an ordinary
+character outside a bracket expression, it is effectively
+transformed into a bracket expression containing both cases, so
+that <b>x</b> becomes '<b>[xX]</b>'. When it appears inside a
+bracket expression, all case counterparts of it are added to the
+bracket expression, so that <b>[x]</b> becomes <b>[xX]</b> and
+<b>[^x]</b> becomes '<b>[^xX]</b>'.</p>
+<p>If newline-sensitive matching is specified, <b>.</b> and bracket
+expressions using <b>^</b> will never match the newline character
+(so that matches will never cross newlines unless the RE explicitly
+arranges it) and <b>^</b> and <b>$</b> will match the empty string
+after and before a newline respectively, in addition to matching at
+beginning and end of string respectively. ARE <b>\A</b> and
+<b>\Z</b> continue to match beginning or end of string
+<i>only</i>.</p>
+<p>If partial newline-sensitive matching is specified, this affects
+<b>.</b> and bracket expressions as with newline-sensitive
+matching, but not <b>^</b> and '<b>$</b>'.</p>
+<p>If inverse partial newline-sensitive matching is specified, this
+affects <b>^</b> and <b>$</b> as with newline-sensitive matching,
+but not <b>.</b> and bracket expressions. This isn't very useful
+but is provided for symmetry.</p>
+<hr>
+<a name="replacing" id="replacing"></a>
+<h2>Replacing text</h2>
+<p>The Replace function is used to replace text in a string that
+matches a regular expression with alternative text. The replacement
+text can include special characters \n, where n is a number, which
+represents the nth capture group in the input regular expression,
+and \0 or &amp;, which is equivalent to the entire matched string.
+To include the backslash or ampersand character literally in the
+replacement string, use \\ or \&amp;.</p>
+<hr>
+<a name="patterns" id="patterns"></a>
+<h2>Useful patterns</h2>
+<p>Sometimes we want to match regular strings literally without any
+characters being treated as special regular expression components.
+This can by either prepending the expression with "(?q)", that
+is</p>
+<p class="Commandexample">$re = "(?q)".$string</p>
+<p>or by prepending all non alphanumeric characters with a
+backslash ..</p>
+<p class="Commandexample">$re = Replace($string,'\W','\\\0')</p>
+<p>Similarly, we may want a replacement string to be treated
+completely literally. We can ensure this by escaping the \ and
+&amp; characters in the string ..</p>
+<p class="Commandexample">$replacestring =
+Replace($string,'(\\|\&amp;)','\\\0')</p>
+</body>
+</html>

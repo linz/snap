@@ -1,0 +1,68 @@
+No keywords in help/files/cmdcfg/cmd_magic_number.html
+No keywords in help/programs/snap_manager/resyntax.html
+No keywords in help/programs/snap_manager/script.html
+Merging "data definition commands" and "data definition command"
+Merging "specifications" and "specification"
+Merging "reference frames" and "reference frame"
+Merging "configuration files" and "configuration file"
+Merging "bearings" and "bearing"
+Merging "coordinates" and "coordinate"
+Merging "projection bearings" and "projection bearing"
+Merging "problems" and "problem"
+Merging "command files" and "command file"
+Merging "errors" and "error"
+Merging "refraction_coefficients" and "refraction_coefficient"
+Merging "stations" and "station"
+Merging "residuals" and "residual"
+Merging "distance scale errors" and "distance scale error"
+Contents file description doesn't match title for help/coordsys/crdsys_standard_list.html
+    title:    Standard coordinate systems provided with SNAP and concord
+    contents: Standard coordinate systems provided with SNAP
+Contents file description doesn't match title for help/coordsys/index.html
+    title:    Coordinate systems in SNAP and concord
+    contents: Coordinate systems in SNAP
+Contents file description doesn't match title for help/files/cmdcfg/cmd_additional_parameter_commands.html
+    title:    Additional parameter commands
+    contents: systematic_error
+Contents file description doesn't match title for help/files/cmdcfg/cmd_list.html
+    title:    The list command
+    contents: print
+Contents file description doesn't match title for help/files/cmdcfg/cmd_reject.html
+    title:    The reject, accept, and ignore commands
+    contents: reject
+Microsoft HTML Help Compiler 4.74.8702
+
+Compiling c:\ccrook\projects\snapwin\src\help\snaphelp.chm
+
+
+Compile time: 0 minutes, 3 seconds
+177	Topics
+1,717	Local links
+1	Internet link
+0	Graphics
+
+
+Created c:\ccrook\projects\snapwin\src\help\snaphelp.chm, 394,693 bytes
+Compression decreased file by 395,902 bytes.
+        1 file(s) copied.
+        1 file(s) copied.
+Contents file description doesn't match title for help/coordsys/crdsys_standard_list.html
+    title:    Standard coordinate systems provided with SNAP and concord
+    contents: Standard coordinate systems provided with SNAP
+Contents file description doesn't match title for help/coordsys/index.html
+    title:    Coordinate systems in SNAP and concord
+    contents: Coordinate systems in SNAP
+Microsoft HTML Help Compiler 4.74.8702
+
+Compiling c:\ccrook\projects\snapwin\src\help\concord.chm
+
+
+Compile time: 0 minutes, 3 seconds
+166	Topics
+1,049	Local links
+1	Internet link
+15	Graphics
+
+
+Created c:\ccrook\projects\snapwin\src\help\concord.chm, 359,980 bytes
+Compression decreased file by 275,845 bytes.

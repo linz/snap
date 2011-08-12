@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+<meta name="keywords" content="snapmerge, coordinate file, station file">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+
+<title>snapmerge - merging coordinate files</title>
+
+
+
+</head>
+
+<body>
+
+
+
+<h1>snapmerge - merging coordinate files</h1>
+
+<p>snapmerge merges two coordinate files.
+The syntax for snapmerge is:</p>
+
+<p class="Commanddefinition">snapmerge [options] base_crd_file new_crd_file [output_crd_file]</p>
+
+<p>where</p>
+
+<table class="CommandOptions">
+<tr><td>
+<p class="Commanddefinition">base_crd_file</p></td><td><p> is
+the name of the base coordinate file to be added to.  The output file will
+include all stations in this file, and will be in the coordinate system and
+with the options defined in this file.</p>
+</td></tr><tr><td>
+
+<p class="Commanddefinition">new_crd_file</p></td><td><p> is the
+coordinate file from which new stations will be read.  The use of these
+stations is controlled by the options selected.</p>
+</td></tr><tr><td>
+
+<p class="Commanddefinition">output_crd_file</p></td><td><p> is the
+name of the output file to be created.  If this is omitted then
+the base coordinate file will be overwritten with the new 
+coordinates.</p>
+</td></tr>
+</table>
+
+<p>The command can include the following options</p>
+
+
+<table class="CommandOptions">
+<tr><td>
+<p class="Commanddefinition">
+-o
+</p></td><td><p> 
+overwrite base stations with the corresponding stations in the new file.
+The default is to leave existing stations unchanged.
+</p></td></tr>
+
+<tr><td>
+<p class="Commanddefinition">
+-u
+</p></td><td><p> 
+Upgrade the base file station with the corresponding stations in the new
+file.  Don't add any new stations.
+</p></td></tr>
+
+<tr><td>
+<p class="Commanddefinition">
+-l <i>listfile</i>
+</p></td><td><p> 
+only add or update stations included in the <i>listfile</i>.
+This is a simple text file containing a list of station codes.
+</p></td></tr>
+
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="../../files/crd/index.html">Station coordinate files</a></p>
+</div>
+</body>
+
+</html>

@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, errors, rejecting data">
+<title>Rejecting observations</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_rejecting_data"></a>Rejecting observations</h1>
+
+<p>Often after the data has been adjusted some of the observations appear to have large residual errors.  That is, they do not fit will with the other observations and the fixed stations.  A common practice is to redo the adjustment without using the suspect observations.  In SNAP you can exclude the observations from the adjustment without removing them from the data file.  These observations are still listed in the output file and their residual errors are still calculated. </p>
+
+<p>To reject an observation from an adjustment the data should be preceded by an asterisk *.  Here is an example of a rejected observation:</p>
+
+<p>#data sd equipment value error no_heights<br>
+<br>
+STN1 STN2   DI20 *1234.56   0.002</p>
+
+<p>Note that the asterisk precedes the value part of the observation.  </p>
+
+<p>Observations can also be rejected by putting the asterisk at the beginning of a line.  For example:</p>
+
+<p>* STN1 STN2 DI20  1234.56 0.002</p>
+
+<p>If the line contains more than one observation then putting the asterisk at the beginning of the line rejects them all.</p>
+
+<p>When rejecting observations you should try and identify a reason why the observation could be in error.  It is good practice to put this information into a note in the data file.  For example:</p>
+
+<p>#data ha no_heights<br>
+<br>
+STN1<br>
+STN2      0 00 00.0<br>
+#note  Observer had difficulty identifying target<br>
+#note   (See field book 101/3 page 15)<br>
+STN3  *30 00 23.4</p>
+
+</body>
+</html>

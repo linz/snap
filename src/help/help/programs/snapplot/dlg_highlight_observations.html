@@ -1,0 +1,97 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, highlight observations dialog">
+<title>The highlight observations dialog</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>The highlight observations dialog</h1>
+
+<img class="RightImage" src="images/sp_dlg_highlight_observations.png" alt="Picture of highlight observations dialog">
+
+
+<p>
+The highlight observations dialog is used to highlight a set of observations on the <a href="map_window.html">map</a> according to some criteria.  
+Highlighted observations are displayed in the highlight colour, which can be
+changed on the <a href="key_window.html">key</a>
+This dialog is accessed from the 
+<span class="MenuItem">Observations | Highlight observations</span> menu item.
+</p>
+
+<p>The items in this dialog are:</p>
+<table>
+
+<tr>
+<td>Don't highlight observations</td>
+<td>Turn off all highlighting of observations</td>
+</tr>
+
+<tr>
+<td>Standardised residuals greater than threshold</td>
+<td>Highlight observations for which the a priori 
+standardised residual is greater
+than the threshold value entered into the dialog.</td>
+</tr>
+
+<tr>
+<td>A posteriori standardised residual greater than threshold</td>
+<td>Highlight observations for which the a priori 
+standardised residual is greater
+than the threshold value entered into the dialog.</td>
+</tr>
+
+<tr>
+<td>Redundancy factor less than threshold</td>
+<td>Highlight observations with a redundancy factor less than the
+threshold value entered into the dialog.</td>
+</tr>
+
+<tr>
+<td>Rejected observations</td>
+<td>Highlight observations which have been explicitly rejected from
+the adjustment.</td>
+</tr>
+
+<tr>
+<td>Unused observations</td>
+<td>Highlight observations which have not been used in the 
+adjustment.  This includes rejected observations and those which
+are not used because there was not enough information to calculate
+coordinates of the endpoint stations.</td>
+</tr>
+
+<tr>
+<td>Between highlighted stations</td>
+<td>Highlight observations between highlighted stations.  Stations
+are highlighted using the <a href="dlg_highlight_stations.html">highlight stations</a> dialog.</td>
+</tr>
+
+<tr>
+<td>To or from highlighted stations</td>
+<td>Highlight observations which connnect to highlighted stations.  Stations
+are highlighted using the <a href="dlg_highlight_stations.html">highlight stations</a> dialog.</td>
+</tr>
+
+<tr>
+<td>Threshold value</td>
+<td>The value used as a criteria for highlighting based on
+standardised residuals or redundancy factor.</td>
+</tr>
+
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="map_window.html">The map</a></p>
+<p><a href="dlg_highlight_stations.html">The highlight stations dialog</a></p>
+
+</div>
+</body>
+</html>

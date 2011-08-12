@@ -1,0 +1,31 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, problems, errors, troubleshooting, convergence">
+<title>The adjustment does not converge</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_prob_converge"></a>The adjustment does not converge</h1>
+
+<p>The least squares adjustment may not reach a solution if the initial coordinates supplied for the stations are very inaccurate, if the data contain very large errors,  or if the station codes for the data are incorrect.  </p>
+
+<p>When this occurs it is often helpful to run the program in data_check mode to see how well the observations fit the initial station coordinates.  This may identify unusually bad observations or initial station coordinates.</p>
+
+<p>If this does not highlight the problem stop the adjustment after one iteration and check whether any stations are moving excessive distances.  This is done by including the command max_iterations 1 in the command file.  It may be helpful to display the station adjustments with SNAPPLOT.  Stations with excessive adjustments may indicate defects in the network geometry or insufficient constraints on the adjustment.</p>
+
+<p>In some cases where the adjustment is weakly constrained it may converge, but only very slowly.  In this case the program may terminate because the maximum number of iterations has been exceeded.  You can avoid this by increasing the maximum number of iterations in the command file.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="snap_common_problems.html">Common problems in SNAP adjustments</a></p>
+
+</div>
+</body>
+</html>

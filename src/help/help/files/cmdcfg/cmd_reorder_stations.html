@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="reorder_stations">
+<title>The reorder_stations command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_reorder_stations"></a>The reorder_stations command</h1>
+
+<p class="Commanddefinition">reorder_stations  <i>option</i> [except <i>station_list</i>]</p>
+
+<p>SNAP may reorder the stations that are being adjusted to minimize the bandwidth of the normal equations (this allows a more efficient adjustment).  By default it only does this if there are more than about 50 stations being adjusted.  However you can force SNAP to do (or not do) reordering with this command.  You can also select stations that will not be involved in the reordering.  These stations are put at the end of the normal equations.  You would normally do this with stations that are connected by observations to very distant stations.  In practice there is rarely any need to modify the default behaviour of  SNAP.</p>
+
+<p class="Commanddefinition">option</p><p class="Commanddescription">can be one "on", "off".  If "on" then the parameters of the adjustment are reordered to minimize the bandwidth of the normal equations.  If "off", then the full normal equation matrix is used.  By default reordering is done if there are more than 50 stations in the adjustment.  </p>
+
+<p class="Commanddefinition">station_list</p><p class="Commanddescription">is a list of stations as described above.  </p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

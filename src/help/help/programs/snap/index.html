@@ -1,0 +1,84 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, running, command line">
+<title>SNAP - network adjustment program</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+<h1><a name="snap_program"></a>SNAP - network adjustment program</h1>
+
+<p>Snap is the main program in the snap package.  It performs a least squares 
+adjustment of coordinates to best fit survey data. 
+</p>
+<p>The adjustment is defined in a <a href="../../files/cmdcfg/index.html">command file</a>.  This in turn defines a <a href="../../files/crd/index.html">station coordinate file</a> containing the names and coordinates of the fixed and adjusted stations, and one or more <a href="../../files/data/index.html">data files</a> containing the observations used to calculate the new station coordinates.
+</p>
+<p>The two principal outputs of the adjustment are a listing file (<i>command_file</i>.lst) 
+containing a textual report of the adjustmnet, and a binary file (<i>command_file</i>.bin) 
+which may be viewed with the <a href="../snapplot/index.html">snapplot</a> 
+program to analyse the results.
+</p>
+<p>
+If the adjustment is unable to run then snap will also generate an 
+error file (<i>command_file</i>.err).
+</p>
+<p>
+There is also a "windows" version of snap, snapadjust, which differs only that
+it displays its progress in a window rather than in the DOS window.
+</p>
+
+
+<h2>Running SNAP</h2>
+
+<p>Snap is most conveniently run from the <a href="../snap_manager/index.html">snap_manager</a>
+program, but it can be run directly from a DOS prompt using the command:</p>
+
+<p class="Commanddefinition">SNAP  [options] command_file</p>
+
+<p>
+where
+</p>
+<table>
+<tr>
+<td><p class="Commanddefinition">command_file</p></td>
+<td><p>is the name of the command file defining the adjustment.  Snap uses
+default extension ".snp" for this file if none is specified.</p></td>
+</tr>
+</table>
+<p>Two options may be specified when starting SNAP.  These are</p>
+<table>
+<tr>
+<td><p class="Commanddefinition">-c config_file</p></td>
+<td><p>Specifies a <a href="../../files/cmdcfg/cfg_file.html">configuration file</a>
+ that snap will use for configuration settings before processing the command
+file.
+</p>
+</td>
+</tr>
+<tr>
+<td><p class="Commanddefinition">-u user_directory</p></td>
+<td><p>
+Defines the user directory in which SNAP will look for default or user specified configuration files</p>
+</td>
+</tr>
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="topic_input_files.html">Creating input files</a></p>
+
+<p><a href="topic_adjustment_outputs.html">Reviewing adjustment results</a></p>
+
+<p><a href="../../adjustment/index.html">Adjustment strategies</a></p>
+
+<p><a href="../../files/cmdcfg/index.html">Command files overview</a></p>
+
+<p><a href="../../files/cmdcfg/cfg_file.html">Configuration file overview</a></p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="LAPG_compile_grammer">
+      <Targets>_LAPG_compile_grammer</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+    TaskName="LAPG_compile_grammer"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+    Name="_LAPG_compile_grammer"
+    BeforeTargets="$(LAPG_compile_grammerBeforeTargets)"
+    AfterTargets="$(LAPG_compile_grammerAfterTargets)"
+    Condition="'@(LAPG_compile_grammer)' != ''"
+    DependsOnTargets="$(LAPG_compile_grammerDependsOn);ComputeLAPG_compile_grammerOutput"
+    Outputs="%(LAPG_compile_grammer.Outputs)"
+    Inputs="%(LAPG_compile_grammer.Identity);%(LAPG_compile_grammer.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <LAPG_compile_grammer
+        Remove="@(LAPG_compile_grammer)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <LAPG_compile_grammer_tlog
+        Include="%(LAPG_compile_grammer.Outputs)"
+        Condition="'%(LAPG_compile_grammer.Outputs)' != '' and '%(LAPG_compile_grammer.ExcludedFromBuild)' != 'true'">
+        <Source>@(LAPG_compile_grammer, '|')</Source>
+      </LAPG_compile_grammer_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(LAPG_compile_grammer.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(LAPG_compile_grammer_tlog)' != '' and '%(LAPG_compile_grammer_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(LAPG_compile_grammer_tlog.Source);@(LAPG_compile_grammer_tlog-&gt;'%(Fullpath)')" />
+    <LAPG_compile_grammer
+      Condition="'@(LAPG_compile_grammer)' != '' and '%(LAPG_compile_grammer.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(LAPG_compile_grammer.CommandLineTemplate)"
+      AdditionalOptions="%(LAPG_compile_grammer.AdditionalOptions)"
+      Inputs="%(LAPG_compile_grammer.Identity)" />
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeLAPG_compile_grammerOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeLAPG_compile_grammerOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeLAPG_compile_grammerOutput"
+    Condition="'@(LAPG_compile_grammer)' != ''">
+    <ItemGroup>
+      <LAPG_compile_grammerDirsToMake
+        Condition="'@(LAPG_compile_grammer)' != '' and '%(LAPG_compile_grammer.ExcludedFromBuild)' != 'true'"
+        Include="%(LAPG_compile_grammer.Outputs)" />
+      <Link
+        Include="%(LAPG_compile_grammerDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(LAPG_compile_grammerDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(LAPG_compile_grammerDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(LAPG_compile_grammerDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+</Project>

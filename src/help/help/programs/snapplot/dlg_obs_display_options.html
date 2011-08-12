@@ -1,0 +1,77 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="snapplot, display options dialog">
+<title>The observation display options dialog</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snapplot"></a>The observation display options dialog</h1>
+
+<img class="RightImage" src="images/sp_dlg_obs_display_options.png" alt="Picture of display options dialog">
+
+
+<p>
+The observation display options dialog is used to control how observations
+are displayed in the <a href="map_window.html">map</a>.  It is accessed from
+the <span class="MenuItem">Observations | Display options</span> menu item.
+</p>
+
+<p>The items in this dialog are:</p>
+<table>
+
+<tr>
+<td>Observations of the same line</td>
+<td>Choose how multiple observations of the same line are displayed.  
+As an example consider a line between two station on which there are 
+two distance observations, one height difference, and one angle observation.
+Suppose distance observations and height differences are shown in blue and
+angle observations in red.
+<ul>
+<li>
+"Merge all observations" displays just one line on the map, which may be either blue or red (arbitrarily)</li>
+<li>
+"Show observations with different colours separately" displays two parallel lines on the map, one blue and red"
+</li>
+<li>
+"Show all observations separately" displays four parallel lines, three blue and one red. </li>
+</ul>
+</td>
+</tr>
+
+<tr>
+<td>Show one way observations with dotted line</td>
+<td>If this option is selected then observations which are direction 
+dependent will be displayed with a line that is solid at the instrument
+station end and dotted at the target station end.  Note that this only
+applies to observations such as horizontal angles, where it is significant
+which end is the target and which is the instrument</td>
+</tr>
+
+<tr>
+<td>Show observations to and from hidden stations</td>
+<td>If this is selected then observations will be displayed even if the endpoint
+ stations are hidden. 
+Stations are hidden with the <a href="dlg_hideshow_stations.html">hide stations</a> dialog.</td>
+</tr>
+
+<tr>
+<td>Offset between observations</td>
+<td>Determines the spacing between observations where more than one is shown on the same line.  This is entered as a scale factor for a default spacing.</td>
+</tr>
+
+</table>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="index.html">snapplot</a></p>
+<p><a href="map_window.html">The map window</a></p>
+<p><a href="dlg_hideshow_stations.html">The hide stations dialog</a></p>
+</div>
+</body>
+</html>

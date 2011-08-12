@@ -1,0 +1,67 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="command files, configuration files, options">
+<title>Command files</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_file_overview"></a>Command files</h1>
+
+<p>The command file instructs SNAP what to do.  It defines the coordinate and data files, the program options, and the output options.</p>
+
+<p>There are about 45 different commands that can be used in the command file.  However the only commands that are required are:</p>
+
+<p><a href="cmd_title.html">title</a>: defining the title of the job</p>
+
+<p><a href="cmd_mode.html">mode</a>:  defining what is to be done</p>
+
+<p><a href="cmd_coordinate_file.html">coordinate_file</a>:  defining the coordinate file</p>
+
+<p><a href="cmd_data_file.html">data_file</a>:  defining the data to be used</p>
+
+<p>Usually you will also want to specify some stations to be held fixed with the <a href="cmd_fix.html">fix</a> command.  Here is an example of  a command file using just these commands:</p>
+
+<pre><code>title Demonstration SNAP adjustment
+!
+! The name of the coordinate file.
+coordinate_file  demo.crd
+!
+! Data files - in this case there are two
+data_file  demo.dat
+data_file  demogps.dat
+!
+! Do a three dimensional adjustment
+mode 3d adjustment
+!
+! Fix stations TrigX and 1150, and fix the height of
+! BM328
+fix  TrigX  1150 
+fix vertical  BM328
+</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_adjustment_mode.html">Adjustment mode</a></p>
+
+<p><a href="cmd_station_options.html">Using stations in adjustments</a></p>
+
+<p><a href="cmd_def_res_format.html">Defining the residual listing format</a></p>
+
+
+
+</div>
+</body>
+</html>

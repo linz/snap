@@ -1,0 +1,130 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=windows-1252">
+<meta name="keywords" content="snapgeoid, geoid, coordinate file, station">
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+
+<title>snapgeoid - calculate geoid heights</title>
+
+</head>
+
+<body>
+
+
+
+<h1>snapgeoid - calculate geoid heights</h1>
+
+<h2>Overview</h2>
+
+<p>SNAP coordinate files can optionally
+contain information about the gravity field that SNAP can use in an
+adjustment. This information can include
+the geoid height (also called the separation or undulation) and the deflection
+of the vertical. 
+</p>
+
+<p>The height information for a station in a
+coordinate file can be one of </p>
+
+<p class="BulletList"> orthometric height</p>
+
+<p class="BulletList"> ellipsoidal height</p>
+
+<p class="BulletList"> orthometric height and geoid information</p>
+
+<p class="BulletList"> ellipsoidal height and geoid information</p>
+
+<p>snapgeoid is a program to convert between
+these options. It calculates geoid
+heights and deflections of the vertical 
+from a gridded model stored in a binary file.</p>
+
+<p>Note that in transforming and adding geoid information, the type of
+height is coordinate file specifies what is considered as the "principal"
+height, which will be preserved in the transformation.</p>
+
+<p>The geoid data file is called geoid.grd and
+is stored in the same directory as the snapgeoid program. 
+An alternative file can be specified using the -g command line option.
+</p>
+
+<p>Two geoid files are supplied with SNAP.  
+If the data points are in New Zealand then the New Zealand Geoid 2009 (NZGeoid09) is recommended (-g NZGeoid09). 
+This is applicable in the vicinity of New Zealand and has an accuracy of 
+about 10cm.  
+Alternatively the EGM96 model can be used, which is a global gravity model (-g EGM96).  
+The error of this model is probably of the order of 1 metre.</p>
+
+<h2>Running snapgeoid</h2>
+
+<p>snapgeoid is a command line
+utility run from a DOS prompt. The syntax for the command is</p>
+
+<p class="Commanddefinition">snapgeoid [-g geoid] [-c] [-x] [-e] [-o] station_file [new_file]</p>
+
+<p>In this command:</p>
+
+<table class="CommandOptions">
+<tr><td>
+<p class="Commanddefinition">station_file</p></td><td><p> is the
+name of the input station coordinate file</p>
+</td></tr><tr><td>
+
+<p class="Commanddefinition">new_file</p></td><td><p> is
+the name of the new file that will be created.
+If this is not specified then it will have the same name as
+the input file, but with extension ".new".</p>
+</td></tr>
+</table>
+
+<p>There are two switches that can be used to
+change the action of snapgeoid.</p>
+
+<table class="CommandOptions">
+<tr><td>
+<p class="Commanddefinition">-g <i>geoid</i></p></td><td>
+<p> Specifies the geoid to use to calculate geoid undulations.
+Currently <i>geoid</i> may be "nzgeoid09" or "egm96".
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-c</p></td><td><p> Causes
+snapgeoid to calculate new geoid heights even if the coordinate
+file already contains geoid heights.
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-x</p></td><td><p> Causes
+snapgeoid to exclude the geoid information from the output coordinate file.  
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-e</p></td><td><p> Causes
+snapgeoid to output ellipsoidal heights in the coordinate file.</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-o</p></td><td><p> Causes
+snapgeoid to output orthometric heights in the coordinate file.</p>
+</td></tr>
+</table>
+
+<p>Note that you cannot specify both the -e and -o options.  If neither
+are specified then the output coordinate file will retain the same
+height type as the input file.
+</p>
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="../../files/crd/index.html">Coordinate files</a></p>
+<p><a href="../../coordsys/geoid.html">Geoid files</a></p>
+
+
+</div>
+</body>
+
+</html>

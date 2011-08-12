@@ -1,0 +1,56 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="reference_frame">
+<title>The reference_frame command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_reference_frame"></a>The reference_frame command</h1>
+
+<p class="Commanddefinition">reference_frame use <i>classification_name</i></p> 
+
+<p class="Commanddefinition">reference_frame  [type]  [calculate]  <i>code</i>   [<i>parameter</i>  [<i>value</i> [?]]]</p>
+
+<p>Defines the reference frame parameters for GPS vector and point coordinate observations.</p>
+
+<p>The first command defines the <a href="../data/obs_classifications.html">classification</a> use to determine the GPS reference frame for an observation.  By default this is &quot;ref_frame_code&quot;, defined by the <a href="../data/obs_ddc_reference_frame.html">#reference_frame</a> data definition command.
+
+<p class="Commanddefinition">type</p><p class="Commanddescription">may be "geocentric" or "topocentric".  The default is topocentric.</p>
+
+<p class="Commanddefinition">code</p><p class="Commanddescription">is the code of the reference frame.</p>
+
+<p class="Commanddefinition">parameter</p><p class="Commanddescription">may be "translation", "rotation", or "scale".  The parameter section can be repeated for each section.</p>
+
+<p class="Commanddefinition">value</p><p class="Commanddescription">is the value associated with the parameter. For rotations and translations there are three values corresponding to the X, Y, and Z axes for geocentric reference frames, or the East, North, and Up axes for topocentric systems.  The scale is specified as ppm and the rotations in arc seconds.  Each value can be followed by a ? to indicate that it should be calculated.</p>
+
+<p>Note that the reference frame type (topocentric or geocentric) is set the first time the reference frame is referred to in the command file.  Subsequent commands cannot change the type.  The only reason for choosing one or other type is to allow reference frame rotations to be defined in one or other system.  The output file will list both the topocentric and the geocentric definition regardless of the type.</p>
+
+<p>Topocentric reference frames are calculated using the topocentric axes at the midpoint of the network.  This point can be explicitly defined using the topocentre command.  If this is not done then SNAP will determine the midpoint of the network automatically.</p>
+
+<p>The following example sets the values for the scale and rotation of reference frame parameters of the default reference frame, which has code GPS.</p>
+
+<p class="Commanddefinition">reference_frame GPS scale -4.6 rotation -0.47 0.10 -1.024</p>
+
+<p>The second example calculates a scale and a rotation about the vertical axis, but restrains the tilts (rotations about horizontal axes) to be 0.  To do this the reference frame type is geocentric, and a ? is placed after the third rotation component (which is rotation about the vertical axis).</p>
+
+<p class="Commanddefinition">reference_frame topocentric GPS scale 0 ? rotation  0  0  0 ?</p>
+
+<p>The final example calculates all parameters for a reference frame with code GPS2</p>
+
+<p class="Commanddefinition">reference_frame calculate GPS2</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

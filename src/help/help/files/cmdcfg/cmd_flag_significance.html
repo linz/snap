@@ -1,0 +1,44 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="flag_significance">
+<title>The flag_significance command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_flag_significance"></a>The flag_significance command</h1>
+
+<p class="Commanddefinition">flag_significance  [maximum] <i>value1</i>  [maximum] <i>value2</i></p>
+
+<p>In the list of residual errors SNAP flags the observations which have excessive residuals.  There are two thresholds which control this flagging.  Residuals for which the statistical significance exceeds the first threshold (<code>value1</code>) are indicated by ? in the listing.  Residuals which exceed the second (<code>value2</code>) are identified by ???. </p>
+
+<p>Each threshold can be entered as either a percentage (e.g.  95), or as maximum followed by a percentage.  </p>
+
+<p>Entering just the percentage will flag residuals that specified significance within the individual adjustment.  For example if the threshold is set at 95%, you would expect 5% of observations in an adjustment to exceed it. </p>
+
+<p>Entering maximum and a number will flag residuals that exceed the maximum residual that would be expected in the specified percentage of adjustments.  That is, if you enter the threshold as maximum 95, then you would only expect an observation to be flagged in 5% of all adjustments.</p>
+
+<p>The default flag levels are 95% and 99% .   A good alternative would be to use the following command:</p>
+
+<p class="Commanddefinition">flag_significance 95 maximum 95
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_def_res_format.html">Defining the residual listing format</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

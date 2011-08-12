@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, refraction coefficient, parameters">
+<title>Refraction coefficients</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_ref_coeff"></a>Refraction coefficients</h1>
+
+<p>SNAP automatically applies atmospheric refraction corrections to zenith distance data.  The correction is based upon a refraction coefficient, as defined by Bomford, and is the deflection of the light path divided by the angle subtended by the line at the centre of the earth.  Commonly used values are 0.075 or 0.07.</p>
+
+<p>Each zenith distance observation has an associated refraction coefficient code, which defines the refraction coefficient to be applied.  The default code is DEFAULT.  You can use as many other codes as you wish.  For example you may want to use codes DAY and NIGHT to apply different coefficients for daytime and nighttime observations.   The refraction coefficient for each code can be specified in the command file, or it can be calculated by SNAP.</p>
+
+<p>Reference: G.Bomford (1971), Geodesy,  Third Edition. Oxford University Press.  Section 3.20, page 264</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_zenith_distances.html">Zenith distance data</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_ref_coeff.html">The #refraction_coefficient command (data file)</a></p>
+
+<p><a href="../cmdcfg/cmd_additional_parameter_commands.html">The refraction_coefficient command  (command file)</a></p>
+
+<p><a href="../cmdcfg/cmd_default_refraction_coefficient.html">The default_refraction_coefficient command</a></p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="Configuration file, options">
+<title>Configuration files</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cfg_file"></a>Configuration files</h1>
+
+<p>Many of the commands that you can put into a command file are to select options which you want to apply every time you run SNAP.  For example you may want a different output format from the default.  In SNAP you can do this by creating one or more  configuration files.  These files contain commands to change the default options of SNAP. </p>
+
+<p>Configuration files differ from command files only in that they cannot contain commands specific to an adjustment.  For example they cannot specify data files, or fixed stations.   </p>
+
+<p>SNAP  may use several configuration files before running an adjustment.  The files it will try to use are:</p>
+
+<p class="Bulletlist">SNAP.CFG in the same directory as the SNAP program. </p>
+
+<p class="Bulletlist">SNAP.CFG in the users directory. This directory is defined using either the SNAPDIR environment variable, or the -u option on the SNAP command line.</p>
+
+<p class="Bulletlist">SNAP.CFG in the same directory as the command file</p>
+
+<p>SNAP will check for the existence of each of these files and use it if it exists.</p>
+
+<p>You can also specify additional configuration files within the command file.  This can be used to easily change options for different types of adjustment.  For example, you may want different listing formats for trial adjustments and for the final adjustment.  You can put the options into configuration files called TEST.CFG and FINAL.CFG.  Then in the command file you only need to enter the command configuration TEST or configuration FINAL to select the options.</p>
+
+<p>SNAP will look for named configuration files in the following places:</p>
+
+<p class="Bulletlist">the same directory as the command file</p>
+
+<p class="Bulletlist">the user's directory. This directory is defined using either the SNAPDIR environment variable, or the -u option on the SNAP command line.</p>
+
+<p class="Bulletlist">the same directory as the SNAP program</p>
+
+<p>If the file is found in more than one of these directories the first one found is used.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_adjustment_mode.html">Adjustment mode</a></p>
+
+<p><a href="cmd_def_res_format.html">Defining the residual listing format</a></p>
+
+</div>
+</body>
+</html>

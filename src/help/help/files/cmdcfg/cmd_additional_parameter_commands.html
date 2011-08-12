@@ -1,0 +1,86 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="refraction_coefficient, distance_scale_error, bearing_orientation_error, systematic_error, reference_frame_scale_error, parameters">
+<title>Additional parameter commands</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_additional_parameter_commands"></a>Additional parameter commands</h1>
+
+<p>Observation <a href="../data/obs_classifications.html">classifications</a> are used in SNAP to define parameters that are used to determine the expected (calculated) value of the observation.  These parameters are the <a href="cmd_reference_frame.html">reference frame</a> for GPS observations, the refraction coefficient for zenith distance observations, and optionally bearing orientation errors for bearing and azimuth data, and scale factor errors for distance data.</p>
+
+<p>The following commands define how these parameters are applied in the adjustment:</p>
+
+
+<pre class="Commandexample">
+<b>Selection of classification to use:</b>
+  refraction_coefficient use <i>classification_name</i>
+  distance_scale_error  use <i>classification_name</i>
+  bearing_orientation_error  use <i>classification_name</i>
+
+<b>Definition of value:</b>
+  refraction_coefficient [calculate] <i>code</i> [<i>value</i> [?]]
+  distance_scale_error  [calculate]  <i>code</i>  [<i>value</i> [?]]
+  bearing_orientation_error  [calculate]  <i>code</i>  [<i>value</i> [?]]
+  systematic_error  [calculate]  <i>code</i>  [<i>value</i> [?]]
+  reference_frame_scale_error [calculate] [<i>value</i> [?]]
+
+<b>Forcing coefficients to have the same value:</b>
+  refraction_coefficient   code1 = code2
+  distance_scale_error   code1 = code2
+  bearing_orientation_error  code1 = code2
+  systematic_error  code1 = code2
+</pre>
+
+<p>The first three commands define what <a href="../data/obs_classifications.html">classification</a> will be used for the observation.  The default classifications are &quot;"refraction_coef_code&quot; for refraction coefficients, &quot;distance_scale_code&quot; for the distance scale error, and &quot;bearing_error_code&quot; for the bearing orientation error.
+</p>
+<p>The second set commands specify how the refraction coefficients, distance scale errors, bearing orientation errors, user defined systematic errors, and reference frame scale error are calculated.  The parameters of the commands are:</p>
+
+<p class="Commanddefinition">calculate</p><p class="Commanddescription">If present, specifies that the value of the named refraction coefficient is to be calculated in the adjustment</p>
+
+<p class="Commanddefinition">code</p><p class="Commanddescription">Is the code of the additional parameter.  If the code ends with an asterisk * then any code matching the beginning of the code will be affected.  For example, if a refraction coefficient code is specified as DAY* then the command will apply for any refraction coefficient starting DAY.  Codes such as DAY, DAY_ONE, and DAYTIME would be affected.</p>
+
+<p class="Commanddefinition">value</p><p class="Commanddescription">Is the initial value used for the coefficient.  If it is followed with "?" then the value will be calculated (equivalent to the "calculate" keyword).  If the parameter is being calculated then the value specified is used as an initial trial value.</p>
+
+<p>Examples would be</p>
+
+<pre class="Commandexample">
+refraction_coefficient * 0.08
+refraction_coefficient calculate DAY
+distance_scale_error  DI20 0.5 ?
+reference_frame_scale_error calculate
+</pre>
+
+<p>The third set of commands allows different parameter codes to be treated as equivalent.  These specify that two or more codes will be treated as identical in the adjustment.  The effect of this command is that the additional parameter (or parameters) corresponding to <code>code1</code> are made identical to <code>code2</code>.  Furthermore, if <code>code2</code> is being adjusted, then all the codes will be adjusted to the same value.  </p>
+
+<p>Note that the = must have a space on either side.</p>
+
+<p class="Commanddefinition">code1</p><p class="Commanddescription">The code of  parameters that are to be modified.  This can end with a *, in which case any parameter matching the start of code1 is affected.</p>
+
+<p class="Commanddefinition">code2</p><p class="Commanddescription">The parameter that the <code>code1</code> parameter is being matched with.</p>
+
+<p>For example to do an adjustment in which all the refraction coefficients are treated equally, use the commands</p>
+
+<pre class="Commandexample">
+refraction_coefficient calculate DEFAULT 0.075
+refraction_coefficient  * = DEFAULT
+</pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

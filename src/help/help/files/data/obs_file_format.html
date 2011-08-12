@@ -1,0 +1,120 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format, data file, observation file">
+<title>SNAP Observation file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_file_format"></a>SNAP Observation file format</h1>
+
+<p>An observation file contains a header line, some data definition commands which describe what is in the file, and then the data themselves.  This may be followed by further data definition commands, and another set of data.  For example the first set of data may be a set of GPS vectors, and the second set distances and angles to offset stations.   </p>
+
+<p>The following example illustrates the layout of a typical SNAP data file.</p>
+
+<table>
+
+<tr>
+<td>
+<pre><code>Demonstration data set</code></pre>
+</td>
+<td>Header line to describe the contents of the file</td>
+</tr>
+
+<tr>
+<td>
+<pre><code>#data sd
+#ds_error  10mm 2ppm</code></pre>
+</td>
+<td>Data definition commands (these start with a # character) The file will contain slope distances (SD) and the error associated with the distances is 10mm &plusmn; 2 ppm</td>
+</tr>
+
+<tr>
+<td>
+<pre><code>
+S01  1.31  S02  1.25   1051.822
+S01  1.31  S03  0.98    988.015
+S01  1.31  S08  1.13    403.229
+
+S02  1.21  S01  0.95   1051.815
+</code></pre>
+</td>
+<td>The first line of the data is for a line from S01 to S02.  The instrument is 1.31 metres above S01 and the target is 1.25 metres above S02.  The slope distance from the instrument to the target is 1051.822</td>
+</tr>
+</table><br>
+
+<p>In this example there is just one data block which holds slope distance observations.  However this could be followed by another data block containing horizontal angle observations.</p>
+
+<p>Data definition commands are lines in the data file starting with the hash character (#).  They are used to specify:
+
+<ul>
+	<li>the data types and format in the following data block<br><br></li>
+
+	<li>the default errors that will be used for the data if none are defined explicitly<br><br></li>
+
+	<li>the format of GPS errors<br><br></li>
+
+	<li>data classifications and additional parameters (such as refraction coefficient) that apply to the data.</li>
+</ul>
+
+<p>The data definition commands can throughout the file.  In the data file illustrated above there may be a #ds_error command further down to specify a different error for the following distance observations, or there could be a #data command to specify that the following observations are horizontal angles.</p>
+
+<p>Each data definition applies to the data following it until it is overridden by a subsequent data definition.</p>
+
+<p>Following the data definition commands is are one or more blocks of data.</p>
+
+<p>The observation types can be classified into three groups.  These are
+
+<ul>
+	<li>vector data:  GPS baselines and multistation data<br><br></li>
+
+	<li>point data: latitude and longitude observations<br><br></li>
+
+	<li>conventional data: all other data types</li>
+</ul>
+
+<p>Each data block can contain only one of these groups.  So, for example, you cannot include GPS baselines (vector data) in the same data block as levelling data.  However one data file can contain several blocks of data, which may be of different types.</p>
+
+<p>Each data block can be laid out in four basic ways:
+
+<ul>
+	<li><a href="obs_format_point.html">point format</a>: latitude, longitude observations<br><br></li>
+
+	<li><a href="obs_format_line.html">line format</a>: conventional data, gps baselines<br><br></li>
+
+	<li><a href="obs_format_grouped.html">grouped format</a>: conventional data, multistation GPS data<br><br></li>
+
+	<li><a href="obs_format_covar.html">grouped format with covariance</a>: multistation GPS data</li>
+</ul>
+
+<p>Every observation must have an associated error.  Errors can either be specified individually with  each observation, or they can be defined for the entire data block in the data definition commands (as in the example above).</p>
+
+<p>The data definition commands and observations do not need to be entered in specific columns.  Each line consists of a number of items such as station names, observations, and so on separated by one or more spaces.  If the information cannot be fitted onto a single line then it can be continued onto a second line by ending the first line with an ampersand &amp; to indicate that there is more to follow.</p>
+
+<p>Comments can be inserted anywhere into the data file.  Comments are lines starting with an exclamation mark !.  These comments are ignored when the file is read.  You can also add notes using the #note data definition command.  Unlike comments, notes are saved with the data when SNAP reads the file, and may appear in the output listings.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_format_point.html">Point observation format</a></p>
+
+<p><a href="obs_format_line.html">Line observation format</a></p>
+
+<p><a href="obs_format_grouped.html">Grouped observation format</a></p>
+
+<p><a href="obs_format_covar.html">Grouped observations with covariance format</a></p>
+
+<p><a href="obs_ddc_by_func.html">Data definition commands by function</a></p>
+
+<p><a href="obs_ddc_alphabetically.html">Data definition commands listed alphabetically</a></p>
+
+</div>
+</body>
+</html>

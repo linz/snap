@@ -1,0 +1,37 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="data definition commands, #gx_enu_error, Point coordinate observation, error">
+<title>The #gx_enu_error command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_ddc_gx_enu_error"></a>The #gx_enu_error command</h1>
+
+<p><b>#gx_enu_error  <i>value value value</i> mm <i>value value value</i> mmr <i>value value value</i> ppmr</b></p>
+
+<p>This specifies the default error for point coordinate observations.  The error is specified by a millimetre absolute error (mm) at each point, and optionally a millimetre (mmr) and part per million (ppmr) covariance between the coordinates.  SNAP assumes that there is no correlation between the east, north, and up components.  The covariance of each component is the root sum of squares of the millimetre and part per million errors. Either or both covariance components can be omitted.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_gx_data.html">Point coordinate observations</a></p>
+
+<p><a href="obs_gps_err_format.html">GPS error formats</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_ddc_by_func.html">Data definition commands by function</a></p>
+
+<p><a href="obs_ddc_alphabetically.html">Data definition commands listed alphabetically</a></p>
+
+</div>
+</body>
+</html>

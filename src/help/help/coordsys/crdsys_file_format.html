@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="COORDSYS.DEF, coordinate system">
+<title>Coordinate system file format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_file_format"></a>Coordinate system file format</h1>
+
+<p>The coordinate system definition file consists of three sections defining
+
+<ul>
+	<li><a href="crdsys_ellipsoid_def.html">ellipsoids</a><br><br></li>
+
+	<li><a href="crdsys_refframe_def.html">reference frames</a><br><br></li>
+
+	<li><a href="crdsys_crdsys_def.html">coordinate systems</a></li>
+</ul>
+
+<p>Each section is starts with the name of the section enclosed in square brackets, e.g. [reference_frames].  Within each section are a number of definitions, one per line.  For coordinate systems the definitions can be quite long.  They may be extended over more than one line by ending each incomplete line with an ampersand (&amp;).</p>
+
+<p>Comments can be inserted anywhere in the file on lines starting with an exclamation mark (!).  Blank lines and comments are ignored. </p>
+
+<p>The basic structure of the file is thus:</p>
+
+<pre><code>[ellipsoids]
+<i>ellipsoid definitions</i>
+
+[reference_frames]
+<i>reference frame definitions</i>
+
+[coordinate_systems]
+<i>coordinate system definitions</i></code></pre>
+
+<p>See also</p>
+
+<p><a href="index.html">Coordinate systems in SNAP</a></p>
+
+<p><a href="whatiscoordsys.html">What is a coordinate system</a></p>
+
+<p><a href="crdsys_ellipsoid_def.html">Ellipsoid definition format</a></p>
+
+<p><a href="crdsys_refframe_def.html">Reference frame definition format</a></p>
+
+<p><a href="crdsys_crdsys_def.html">Coordinate system definition format</a></p>
+
+</body>
+</html>

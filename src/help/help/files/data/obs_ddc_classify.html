@@ -1,0 +1,49 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="data definition command, #classify, classification">
+<title>The #classify command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_ddc_classify"></a>The #classify command</h1>
+
+<p><b>#classify  <i>[data_types]  classification  value</i></b></p>
+
+<p>This specifies the value for a classification that will be used for subsequent observations.  For example, it may be used to indicate that the equipment for the following distance observations is DI20.  </p>
+
+<p><i>data_types</i>specifies the observation types for classifications.  This can include one or more of the data types as listed for the #data command.  If more than one type is to be specified, the codes should be separated by / characters.  For example SD/HD indicates that the classification will apply for slope distances and horizontal distances.</p>
+
+<p><i>classification</i>is the name of the classification being defined, for example equipment.  This need not have been specified in a #classification command - SNAP will create a new classification if necessary.</p>
+
+<p><i>value</i>is the value to be used.  For example this might the name of the equipment.  </p>
+
+<p>The following extract from a data file shows how the classification commands are used.  In this case we are defining a classification called CONDITIONS.  This will be set to GOOD, FAIR,  or BAD according to how the conditions seemed to the observer.  When we analyse the data we will be able to determine how the residuals in GOOD conditions compared with those in BAD conditions, and we will be able to easily modify the weighting of the data according to these conditions. </p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_classifications.html">Observation classifications</a></p>
+
+<p><a href="obs_ddc_classification.html">The #classification command</a></p>
+
+<p><a href="../cmdcfg/cmd_classification.html">The classification command (command file)</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_example_classification.html">Example of data classification</a></p>
+
+<p><a href="obs_ddc_by_func.html">Data definition commands by function</a></p>
+
+<p><a href="obs_ddc_alphabetically.html">Data definition commands listed alphabetically</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+</div>
+</body>
+</html>

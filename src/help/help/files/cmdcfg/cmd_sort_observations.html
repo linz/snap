@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="sort_observations">
+<title>The sort_observations command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_sort_observations"></a>The sort_observations command</h1>
+
+<p class="Commanddefinition">sort_observations <i> [option]</i></p>
+
+<p>By default observations are listed in the output file in the same order as they occur in the input file (except that grouped data may be reordered with the list grouped_data_by_type command).   The sort_observations command can be used to obtain different orderings.  The possible values for <code>option</code> are:</p>
+
+<p class="Commanddefinition">by_line</p><p class="Commanddescription">Observations are sorted according to the line measured.  Observations between each pair of stations are grouped together regardless of which direction the observation was made.  For example a distance measurement from station 01 to station 02 will be listed with measurements from 02  to 01.  For observation types where the instrument and target are not interchangeable (for example horizontal angles) only the instrument station is used for sorting. </p>
+
+<p class="Commanddefinition">by_instrument_station</p><p class="Commanddescription">Observations are sorted first by the instrument station, then by the target station  In this case a distance from 02 to 01 will be listed with other observations from 02, not with observations from 01 to 02.</p>
+
+<p class="Commanddefinition">by_type</p><p class="Commanddescription">Observations are sorted by the type of observation.  In this case all the distances are listed first, then the angles, and so on.</p>
+
+<p>If the sort_observations is used without a parameter then observations are sorted by line.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_def_res_format.html">Defining the residual listing format</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

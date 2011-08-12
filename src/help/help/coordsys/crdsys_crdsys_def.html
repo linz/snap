@@ -1,0 +1,64 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="COORDSYS.DEF, coordinate system">
+<title>Coordinate system definition format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_crdsys_def"></a>Coordinate system definition format</h1>
+
+<p>The coordinate system is defined in the coordinate system definition file using the following format:</p>
+
+<pre><code>code description REF_FRAME ref_frame_code type
+              [proj_definition] [RANGE extents]</code></pre>
+
+<p>In this definition the square brackets denote optional components.   The components of the definition are:</p>
+
+<p><i>code</i> is an identifier for the coordinate system.  This may contain letters, numbers, and the underscore character.  It cannot contain blanks.  It is used in SNAP coordinate files  to specify which coordinate system to use.</p>
+
+<p><i>description</i> is a quoted text description of the reference frame</p>
+
+<p><i>ref_frame_code</i> is the code for the reference associated with the reference frame.  This code must have been defined in an earlier [reference&nbsp;frames] section of the file.</p>
+
+<p><i>type</i> is the type of coordinate system.  This can be one of GEOCENTRIC, GEODETIC, or PROJECTION</p>
+
+<p><i>proj_definition</i> is the projection definition.  It is only defined for projection coordinate systems.  The contents of this definition depends upon the type of the definition.</p>
+
+<p><i>extents</i> optionally defines the range of coordinates over which the projection is valid.  This is detailed below.</p>
+
+<p>The coordinate system definition may optionally be followed by a range defining valid values for coordinates.  This does not apply for geocentric systems.  For geodetic systems the range defines  the minimum and maximum latitudes and longitudes of the coordinates in decimal degrees.  The format is</p>
+
+<pre><code>RANGE min_long min_lat max_long max_lat</code></pre>
+
+<p>For projection coordinate systems the range defines the minimum and maximum values of the easting and northing, formatted as</p>
+
+<pre><code>RANGE min_easting min_northing max_easting max_northing</code></pre>
+
+<p>The following example shows a geocentric and a geodetic coordinate system definition.  </p>
+
+<pre><code>[coordinate_systems]
+WGS84_XYZ  "World Geodetic System 1984 - XYZ" REF_FRAME WGS84 GEOCENTRIC
+NZGD49 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD49 GEODETIC</code></pre>
+
+<p>The following projection coordinate systems are supported:</p>
+
+<p><a href="crdsys_nzmg.html">New Zealand Map Grid</a></p>
+
+<p><a href="crdsys_tm.html">Transverse Mercator projection</a></p>
+
+<p><a href="crdsys_em.html">Equatorial Mercator projection</a></p>
+
+<p><a href="crdsys_lcc.html">Lambert Conformal Conic projection</a></p>
+
+<p><a href="crdsys_ps.html">Polar Stereographic projection</a></p>
+
+<p><a href="crdsys_gn.html">Gnomic projection</a></p>
+
+</body>
+</html>

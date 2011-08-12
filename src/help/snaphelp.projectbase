@@ -1,0 +1,18 @@
+[OPTIONS]
+Auto Index=Yes
+Compatibility=1.1 or later
+Compiled file=snaphelp.chm
+Contents file=snaphelp.hhc
+Default topic=help\index.html
+Display compile notes=No
+Display compile progress=No
+Full-text search=Yes
+Index file=snaphelp.hhk
+Language=0x1409 English (New Zealand)
+Title=SNAP help
+
+
+[FILES]
+
+[INFOTYPES]
+

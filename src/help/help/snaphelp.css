@@ -1,0 +1,164 @@
+body {
+	font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 10pt;
+}
+
+h1 {
+        color: #000055;
+        font-size: 14;
+	font-weight: bold;
+	border-width: 1px;
+	border-style: solid;
+	border-color: black;
+	background-color: #DDDDFF;
+	padding: 5px;
+}
+
+h2 {
+        margin-top: 2em;
+        margin-bottom: 1em;
+        color: #000055;
+        font-size: 12;
+	font-weight: bold;
+}
+
+h3 {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        color: #000055;
+        font-size: 12;
+}
+
+
+a {
+	color: #000055;
+        text-decoration: underline;
+}
+
+
+td {
+	padding-top: 10pt;
+	font-size: 10pt;
+	vertical-align: top;
+}
+
+p
+{
+	margin-top: 1em;
+	margin-left: 1em;
+}
+
+p.BulletList 
+{
+	display: list-item;
+	list-style-type: disc;
+        margin-top: 0.5em;
+	margin-left: 5em;
+}
+
+p.Commanddefinition,
+p.Commanddescexample
+{
+	white-space: nowrap;
+	font-family: monospace;
+	margin-left: 3em;
+}
+
+p.Commandexample 
+{
+	font-family: monospace;
+	margin-left: 5em;
+}
+
+pre.Commandexample 
+{
+	font-family: monospace;
+	margin-left: 5em;
+}
+
+p.Commanddescription
+{
+	margin-left: 5em;
+}
+
+table
+{
+	margin-left: 1em;
+}
+
+table.Commanddescription,
+table.Commanddescription_compact
+{
+	margin-left: 5em;
+}
+/*
+table.Commanddescription_compact tr td
+{
+	padding-top: 0;
+}
+*/
+
+table.Commanddescription tr td
+{
+	padding: 1px 0 1px 1em;
+}
+
+table.CommandOptions tr td p
+{
+	margin-left: 2em;
+}
+
+.nobr
+{
+	white-space: nowrap
+}
+
+p.Commandlistitem 
+{
+}
+
+p.Listing,
+p.Listingbody ,
+p.Listingbodyj ,
+p.Listinghead ,
+p.Listingtail,
+{
+	white-space: pre-line;
+	font-family: monospace;
+	font-size: 80%;
+	background-color: #FFFFAA;
+	margin-top: 0;
+	margin-bottom: 0;
+}
+
+pre.Listing,
+pre.ConfigFile
+{
+	font-family: monospace;
+	font-size: 80%;
+	background-color: #FFFFAA;
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+pre.Listing span.UserInput
+{
+	font-weight: bold;
+}
+
+span.MenuItem
+{
+	white-space: nowrap;
+	background-color: #CCCCCC;
+}
+
+img
+{
+	border-width: 1px;
+	border-style: solid;
+}
+
+img.RightImage
+{
+	float: right;
+}

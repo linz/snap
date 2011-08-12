@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="mode">
+<title>The mode command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_mode"></a>The mode command</h1>
+
+<p class="Commanddefinition">mode  <i>dimension  mode</i></p>
+
+<p>Defines how the program will operate.   The parameters are:</p>
+
+<p class="Commanddefinition">dimension</p><p class="Commanddescription">one of "horizontal", "2d", "vertical", "1d", or "3d".  
+The effect of selecting horizontal  or 2d is that all ellipsoidal height coordinates are held fixed.  Similarly selecting vertical or 1d fixes all latitudes and longitudes.</p>
+
+<p class="Commanddefinition">mode</p><p class="Commanddescription">one of "network_analysis", "data_check", "free_net_adjustment", or "adjustment".  Network_analysis mode is for testing the accuracy of coordinates coming from a proposed  survey - it ignores errors in the data, and does not calculate new coordinates.  Data_check holds all coordinates fixed and reports on the errors in observations - this is for checking how well observations comply with the trial coordinates.   Free_net_adjustment allows the coordinates to change without any constraints, and is used to determine the self consistency of the observations.  Adjustment mode is for calculating new coordinates and observation residuals subject to the coordinates constraints defined by the <a href="cmd_fix.html">fix</a> and <a href="cmd_free.html">free</a> commands.</p>
+
+<p>Examples of the mode command are:</p>
+
+<p class="Commanddefinition">mode  3d adjustment
+mode  horizontal network_analysis
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

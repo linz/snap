@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, network preanalysis">
+<title>Network preanalysis</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_preanalysis"></a>Network preanalysis</h1>
+
+<p>SNAP has a preanalysis mode which can be used to assist designing survey networks.  The procedure for preanalysis is much the same as that for normal adjustments except that the data is invented rather than observed.  Generally you do not need to use sensible values for observations - you can just put 0 for all values.  The only exception is that for distance and GPS data the observed values are used to calculate part per million errors for the observations.  To ensure that appropriate values are used you can either enter suitable distances and vector differences in the data file, or avoid using part per million errors.</p>
+
+<p>For GPS data you can use the utility program site2gps to create trial GPS baselines or multistation data files from the station coordinates.</p>
+
+<p>For network analysis you should modify the residual listing to display the redundancy factor of the observations.  This provides an indication of how useful the data are in the adjustment, and how well they are checked.  The redundancy factor is a number between 0 and 1.  Values near 0 indicate observations that are very poorly checked, where there is insufficient redundancy.  Values near 1 indicate observations which are almost completely redundant, and could be removed from the observation scheme without weakening the network.</p>
+
+<p>SNAPPLOT is useful for reviewing the results of the preanalysis.   You can use it to view  station error ellipses, relative error ellipses and errors in heights and relative heights.  You can also view the redundancy factor (highlighting observations according to the value of the redundancy factor).</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="../../adjustment/index.html">Adjustment strategies</a></p>
+
+<p><a href="../../files/cmdcfg/cmd_adjustment_mode.html">Adjustment mode</a></p>
+
+<p><a href="../site2gps/index.html">The site2gps program</a></p>
+
+</div>
+</body>
+</html>

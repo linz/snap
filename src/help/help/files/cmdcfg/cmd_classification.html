@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="classification">
+<title>The classification command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_classification"></a>The classification command</h1>
+
+<p class="Commanddefinition">classification <i>type</i> [ignore] [reject] <i>name </i>[error_factor <i>value</i>]</p>
+
+<p>The classification command is used to modify input data based upon its <a href="../data/obs_classifications.html">classifications</a>. The actions that can be done are to ignore or reject the data, or to apply a scale factor to its error.  The parameters are</p>
+
+<p class="Commanddefinition">type</p><p class="Commanddescription">The type of classification.  This can be &quot;data_type&quot;, &quot;data_file&quot;, or a user defined classification, such as EQUIPMENT".</p>
+
+<p class="Commanddefinition">ignore</p><p class="Commanddescription">If present then the data with the specified classification are completely ignored. </p>
+
+<p class="Commanddefinition">reject</p><p class="Commanddescription">If present then the data with the specified classification are not used in the adjustment, but their residuals are listed.</p>
+
+<p class="Commanddefinition">name</p><p class="Commanddescription">The value of classification which is affected, for example "T2" for classification EQUIPMENT.</p>
+
+<p class="Commanddefinition">value</p><p class="Commanddescription">A scale factor applied to the errors for the data.  </p>
+
+<p>Here are some examples of classification commands.  This command causes all zenith distance data to be ignored.</p>
+
+<p class="Commanddefinition">classification data_type ignore ZD</p>
+
+<p>The following command change the weighting applied to horizontal angle data and to data with its equipment classification set to T2.</p>
+
+<p class="Commanddefinition">classification equipment T2 error_factor 0.5</p>
+<p class="Commanddefinition">classification data_type HA error_factor 3</p>
+
+<p>With these two commands a horizontal angle with equipment classification T2 will have both error factors applied to it.  That is, the error as specified in the data file will be multiplied by 0.5 and by 3.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

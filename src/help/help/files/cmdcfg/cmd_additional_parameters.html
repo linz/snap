@@ -1,0 +1,41 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="parameters, refraction_coefficients, scale errors">
+<title>Additional adjustment parameters</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_additional_parameters"></a>Additional adjustment parameters</h1>
+
+<p>Many observations may depend upon parameters other than that station coordinates.  For example zenith distance observations depend upon the refraction coefficient. </p>
+
+<p>The values of these parameters are not entered in the data file.  Instead each observation is assigned a code corresponding to the value of the parameter.  There can be several different codes for each parameter.  For example there may be refraction coefficient codes DAY and NIGHT.  </p>
+
+<p>The command file defines how SNAP is to treat each code.  In the command file you can </p>
+
+<p class="Bulletlist">specify the value for a code (for example refrection_coefficient DAY 0.08)</p>
+
+<p class="Bulletlist">specify that the value is to be calculated as part of the adjustment</p>
+
+<p class="Bulletlist">specify that one or more calculated codes have identical values. For example you may want to compare an adjustment in which DAY and NIGHT coefficients are allowed different values to one in which they have the same value</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

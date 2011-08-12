@@ -1,0 +1,83 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, minimum constraints, gross errors">
+<title>Minimum constraints adjustment to find gross errors</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_adj_mincon"></a>Minimum constraints adjustment to find gross errors</h1>
+
+<p>Generally the best way to start with new data is to use it in a minimum constraints adjustment.  In this adjustment the fixed coordinates (constraints) are chosen so that they do not influence the observation residuals at all.  In other words the residuals are due to the inherent inconsistencies of the data and not due to the station coordinates.</p>
+
+<p>For a GPS adjustment this is usually quite simple - all that you need to do is fix one station.  The reference frame rotation and scale should not be calculated (as one fixed station is not adequate control to do this).</p>
+
+<p>It may be more complicated generating a minimum constraints adjustment with terrestrial data as the constraints required depend upon the observations available.  Also the survey may include hanging lines to control stations which cannot be adjusted without fixing the station coordinates.</p>
+
+<p>SNAP does have a facility for automatically doing a minimum constraints adjustment.  To do this the command file should include the command</p>
+
+<p>mode  3d  free_net_adjustment</p>
+
+<p>However SNAP is not always able to correctly determine the constraints required.  </p>
+
+<p>Consider for example a two dimensional adjustment of horizontal angle data only.  Intuitively you might expect to have to fix two stations to determine the position, scale, and orientation of the survey.  However the size of the network can be deduced from the spherical excess in closed figures.  Less obviously, the orientation and even the latitude can be determined by taking account of the effects of eccentricity of the spheroid on the network.  In practice these parameters are very poorly determined and SNAP should supply constraints to fix them.  If SNAP does attempt to determine them in a free net adjustment then it is likely that the adjustment will not converge.</p>
+
+<p>One way of dealing this problem is to create an additional data file of invented observations to provide the missing constraints.  In the  example above this could include a latitude, longitude, azimuth, and distance observation.  These additional observations should have (very nearly) zero residuals when the adjustment is done.  If they do not then they are redundant and should be deleted.</p>
+
+<p>Once a minimum constraints adjustment has converged you can check the residuals for gross errors in the data.  </p>
+
+<p>At the end of the SNAP output file is a list of the observations with the worst residuals.  Observations containing gross errors are most likely to appear at the top of this list.  Below is an example of the list of worst residuals.  In this example two observations have already been rejected.  The standardised residuals of these observations, 2397 and 862, are much greater than those of the remaining data, which are all less than 4.</p>
+
+<pre><code>The following table lists the 2 worst residuals of rejected data
+From   To     Type     S.R.  Sig (%)       Line  File
+3      245     SD*  2397.896  100.000 ???     11  mat_sd.dat
+3      79      SD*  862.300  100.000 ???     12  mat_sd.dat
+
+The following table lists the 10 worst residuals of used data
+From   To     Type     S.R.  Sig (%)       Line  File
+74     260     HA     3.561   99.982 ???     30  mat_ha.dat
+221    79      SD     3.461   99.972 ???     18  mat_sd.dat
+245    83      SD     2.491   98.866 ?       15  mat_sd.dat
+239    221     SD     2.469   98.785 ?        9  mat_sd.dat
+245    260     HA     2.429   98.627 ?       89  mat_ha.dat
+260    74      HD     2.178   97.196 ?        6  mat_hd.dat
+245    4       SD     2.157   97.035 ?       16  mat_sd.dat
+79     236     SD     2.121   96.743 ?       20  mat_sd.dat
+83     4       SD     2.107   96.622 ?       23  mat_sd.dat
+221    236     SD     2.045   96.030 ?       19  mat_sd.dat</code></pre>
+
+<p>The residual listed in this section is the standardised residual.  This is a measure of how much bigger the residual is than its statistically expected value.  It takes into account the expected error of the observation and the redundancy of the network.  Standardised residuals of up to about 3 are quite normal.  In the example above, two observations with very large errors have been rejected.  The two largest remaining standardised residuals are still over 3, and are considerably greater than the next largest residual.   </p>
+
+<p>If the worst few standardised residuals are significantly greater than the rest then they should be investigated.  If there are many observations with large standardised residuals, but none outstanding,  then this may indicate either that the errors assigned to some of the data are too low, or that the network geometry is too weak to allow the gross errors to be located.  </p>
+
+<p>Note that the observations with the largest residuals are not necessarily bad.  In a survey of 100 observations you would expect 5% of the observations to be significant at the 95% confidence level.   These observations still contain important information for the adjustment. </p>
+
+<p>As a general policy it is better to use observations unless there is good reason to believe they are wrong.  Examples of good reasons would be difficulty identifying a target for an angle observation, or poor return signal strength for a distance measurement.  Unfortunately there may be gross errors in the data for which no explanation is available.  </p>
+
+<p>Bad observations should be rejected, not removed from the adjustment (see <a href="../files/data/obs_rejecting_data.html">rejecting data</a>).   A rejected observation is still listed in the output file, and will have residuals calculated for it. If you subsequently change the weighting of observations or reject additional observations, it is possible that an observation that appeared to be in error initially will no longer be inconsistent with the remaining data.</p>
+
+<p>It is sensible to reject only the worst one or two observations at a time.   Although many observations may have large residuals this is often because the least squares adjustment has distributed the gross error in one observation into neighbouring observations. When the incorrect observation is rejected the other observations may be able to form a consistent adjustment with no unduly large residuals. </p>
+
+<p>If several observations have the same standardised residual then they should be all accepted or all rejected.  If you reject one and accept another then you may be biasing the solution.</p>
+
+<p>You should always check the residuals of observations that have been rejected after you have done an adjustment in case any rejected observations no longer have large residuals and can be brought back into the adjustment.</p>
+
+<p>You may not be able to identify all gross errors in a survey using a minimum constraints adjustment.  Observations with little or no redundancy, such as hanging lines, may still have undetected gross errors.  SNAP identifies these line by an @ in the listing.  These lines can only be checked by adding additional information to the adjustment, either by making additional observations, or by including fixed station coordinates which are known to be correct.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Adjustment strategies</a></p>
+
+<p><a href="topic_strategy_obs_errors.html">Improving estimates of observation errors</a></p>
+
+<p><a href="topic_fitting_control.html">Fitting observations into existing control</a></p>
+
+</div>
+</body>
+</html>

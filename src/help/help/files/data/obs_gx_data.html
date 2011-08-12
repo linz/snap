@@ -1,0 +1,68 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, data types, gps data, point coordinate data, multistation data">
+<title>Point coordinate observations (GX)</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_gx_data"></a>Point coordinate observations (GX)</h1>
+
+<p>Point coordinate data are represented as geocentric X,Y,Z coordinate 
+referenced the centre of the earth (as defined by the <a href="obs_gps_ref_frames.html">reference frame</a>).
+</p>
+
+<p>SNAP can single point coordinate observations, and correlated sets of point coordinates.
+The two are distinguished by the &quot;grouped&quot; option in the <a href="obs_ddc_data.html">#data</a> command.  If the data are in <a href="obs_format_covar.html">grouped format</a> then they are correlated sets of points; if they are in <a href="obs_format_point.html">point format</a> they are individual coordinates.</p>
+
+<p>Point observations are corrected for differences between the <a href="obs_gps_ref_frames.html">reference frame</a> and the coordinate file reference frame.  The difference is modelled by a translation, rotation and a scale difference.</p>
+
+<p>SNAP can use more than one reference frame - each frame is identified by a short code.  By default the reference frame code for all observations is &quot;GPS&quot;. SNAP can calculate the translation, rotation and scale for each reference frame.
+This is specified by the <a href="../cmdcfg/cmd_reference_frame.html">reference_frame command</a> in the SNAP command file.</p>
+
+<p>The errors of point observations can be expressed in several ways:</p>
+
+<ul>
+	<li>a full covariance matrix of the X, Y, and Z vector components<br><br></li>
+
+	<li>the standard errors of the X, Y, and Z vector components and their correlation matrix<br><br></li>
+
+	<li>the standard errors of the East, North, and Up components.  The correlation between the components is assumed to be zero</li>
+</ul>
+
+<p>All errors are expressed in metres. Covariances are in m<sup>2</sup>.<p>
+<p>The format of the errors is defined in the same way as GPS baseline observations by the <a href="obs_ddc_gps_error_type.html">#gps_error_type</a> command.  For more details see <a href="obs_gx_err_format.html">GPS error formats</a>.</p>
+
+<p>In the listing file the residuals are expressed as components in the east, north, and up directions.  Also the overall residual for the vector itself is calculated.  The residuals are expressed in metres.</p>
+
+<p>See also</p>
+
+<p><a href="index.html">Observation file overview</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_gps_ref_frames.html">Reference frames</a></p>
+
+<p><a href="obs_gx_err_format.html">Point coordinate error formats</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_gps_enu_error.html">The #gx_enu_error command</a></p>
+
+<p><a href="obs_ddc_gps_error_type.html">The #gps_error_type command</a></p>
+
+<p><a href="obs_ddc_reference_frame.html">The #reference_frame command (data file)</a></p>
+
+<p><a href="../cmdcfg/cmd_reference_frame.html">The reference_frame command (command file)</a></p>
+
+<p><a href="../cmdcfg/cmd_gps_vertical.html">The gps_vertical command</a></p>
+
+</body>
+</html>

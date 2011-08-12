@@ -1,0 +1,133 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="station, coordinate, station coordinate file, format, coordinate system, geoid">
+<title>SNAP station coordinate file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="stn_crd_file_format"></a>SNAP station coordinate file format</h1>
+
+<p>A station coordinate file contains two or three lines of header information followed by a list of stations, one per line.  The file may also contain blank lines and comments which are ignored.  Any line starting with the exclamation mark (!) is treated as a comment.</p>
+
+<p><b>The file header</b></p>
+
+<p>The station file header contains two or three lines, which define the network name, the coordinate system, and the format of the station coordinates (specifically, whether the coordinates include information about the geoid).</p>
+
+<p>The header lines are:</p>
+<p class="BulletList">title line - this is a description of the network.  It cannot be blank</p>
+<p class="BulletList">coordinate system code - this defines the coordinate system for the coordinates in the file.  It should contain a code matching one defined
+in the <a href="../../coordsys/index.html">coordinate system definition file</a></p>
+<p class="BulletList">options line -  defines which station attributes
+are included in the file.  This line consists of a series of options 
+separated by spaces.</p> 
+
+<p>
+The options line consists of the keyword "options", followed by any of the 
+following options</p>
+<table class="Commanddescription">
+<tr>
+<td>orthometric_heights</td>
+<td>Station heights are orthometric heights (the default)</td>
+</tr>
+<tr>
+<td>ellipsoidal_heights</td>
+<td>Station heights are ellipsoidal heights</td>
+</tr>
+<tr>
+<td>deflections</td>
+<td>Deflections of the vertical are included in the file</td>
+</tr>
+<tr>
+<td>geoid_heights</td>
+<td>Geoid heights are included in the file</td>
+</tr>
+<tr>
+<td>geoid</td>
+<td>Shorthand for both deflections and geoid_heights</td>
+</tr>
+<tr>
+<td>station_orders</td>
+<td>Station coordinate orders are included in the file</td>
+</tr>
+<tr>
+<td>c=<i>xxxx</i></td>
+<td>Additional classifications of marks that will be in the station data, for example mark type. 
+The station_orders option is equivalent to &quot;c=Order&quot;.</td>
+</tr>
+<tr>
+<td>degrees</td>
+<td>Latitude and longitude are entered as decimal degrees rather than 
+degrees, minutes, and seconds.</td>
+</tr>
+</table>
+<p>The options line can also include options "no_deflections", "no_geoid_heights", "no_geoid", and "no_station_orders" to specify that these are not included, 
+which are the default options.</p>
+
+<p>If the options line is not included then the it is taken as 
+</p>
+<p class="Commanddescexample">options orthometric_heights deflections geoid_heights</p>
+<p>
+Note that the options for geoid heights and deflections only specify whether 
+they are included in the file.  If they are not included, they are treated 
+as if the deflections or geoid heights are zero.  In this case
+ellipsoidal and orthometric heights are equivalent.  
+</p>
+
+
+<p><b>Station data</b></p>
+
+<p>After the header lines each station is specified on a separate line.  The format for the station coordinates depends upon whether the coordinate system is an ellipsoid or a projection.  The basic layout is</p>
+
+<p><i>code [coordinates]  [geoid data]  [order/classifications] [name]</i></p>
+
+<p><i>code</i> is the code of the station.  Every station in the file must have a unique code.  The code is used to reference stations in data files.  </p>
+<p><i>coordinates</i> defines the position of the station.  The format depends upon the type of coordinate system used.  This may be a projection system, a geodetic system, or a geocentric (XYZ) system.  (Geocentric systems are not well supported by SNAP - in the output listing they are converted to a geodetic system).  </p>
+
+<p>For projection coordinate systems the position is specified by  an easting, a northing, and a height.   All are in metres.  The height is treated as an orthometric height unless the header specifies ellipsoidal heights.  Here is an example of a projection position.</p>
+
+<p class="Commanddescexample">2538291.085  6771032.082  135.20</p>
+
+<p>For geodetic coordinate systems the position is specified by the latitude, longitude, and height.  Latitude and longitude are in degrees, minutes, and seconds followed by the hemisphere.  The height is in metres - it is orthometric unless the header specifies ellipsoidal heights.  Here is an example of a geodetic position</p>
+
+<p class="Commanddescexample">41 08 21.12734 S 170 23 17.55275 E 135.20</p>
+
+<p>If the &quot;degrees&quot; option is included in the header then the latitude
+and longitude are entered as decimal degrees, for example</p>
+
+<p class="Commanddescexample">-41.139202 170.388209 135.20</p>
+
+<p>For geocentric coordinate systems the position is defined by the X, Y, and Z coordinates.  For example</p>
+
+<p class="Commanddescexample">-4747566.374    837115.029  -4162353.283</p>
+
+<p><i>geoid data</i> is only present if the options line does not include the line no_geoid.  If geoid information is present (ie if the third line of the header is omitted), then the geoid data should define the deflection of the vertical north and east (in seconds), and the geoid undulation (the height of the geoid above the ellipsoid in metres).  An example of geoid information is </p>
+
+<p class="Commanddescexample">-5.0 3.0 25.23</p>
+
+<p><i>order/classifications</i> are the station order and/or station classifications in the order they are entered in the options file.  Each order and classification value must be separated by one or more blank characters, and cannot themselves include a blank character. 
+</p>
+
+<p><i>name</i> is the name of the station.  This is optional: if it is omitted then the station code is used for a name.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Station coordinate file</a></p>
+
+<p><a href="csv_stn_files.html">CSV format station files</a></p>
+
+<p><a href="stn_code.html">Station codes</a></p>
+
+<p><a href="stn_crd_file_example.html">Examples of station coordinate files</a></p>
+
+<p><a href="../../coordsys/crdsys_standard_list.html">Standard coordinate systems provided with SNAP</a></p>
+
+</div>
+</body>
+</html>

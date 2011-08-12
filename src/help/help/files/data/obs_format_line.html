@@ -1,0 +1,39 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format">
+<title>Line observation format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_format_line"></a>Line observation format</h1>
+
+<p>Each line contains an instrument station, a target station, and the observations.  This can apply for most data types except horizontal angles.  The format is:<p>
+<pre class="Commandexample">
+inst_stn_definition   trgt_stn_definition   observation   observation
+inst_stn_definition   trgt_stn_definition   observation   observation
+inst_stn_definition   trgt_stn_definition   observation   observation
+........
+</pre>
+
+<p>The station definitions <i>inst_stn_definition</i> and <i>trgt_stn_definition</i> (instrument station definition and target station definition) define the station code (the station code from the coordinate file) and the height of the equipment above the station.  The preceding <a href="obs_ddc_data.html">#data</a> command may specify that the height is to be omitted (with the no_heights option), in which case the height is treated as being zero.</p>
+
+<p>Each observation definition (<i>observation</i> in the formats above) includes the value of the observation (e.g. the length for a distance measurement).  It may also include the error of the observation, and additional information such as refraction coefficient codes, observation classifications, and so on.  There may be more than one observation type on each line.  For example a data block may hold readings from a total station which include horizontal angle, zenith distance, and slope distance.  The contents of the observation section is defined in the preceding #data command.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+</div>
+</body>
+</html>

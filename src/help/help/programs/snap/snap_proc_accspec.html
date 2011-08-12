@@ -1,0 +1,149 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, accuracy specifications">
+<title>Testing accuracy specifications</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_accspec"></a>Testing accuracy specifications</h1>
+
+<p>Often an adjustment is done to test whether a survey or set of observations meet some accuracy criteria.  SNAP provides a number of functions to help with such tests.</p>
+
+<p>Before any tests are done the data should be checked for gross errors  (see <a href="../../adjustment/topic_strategy_gross_errors.html">using a minimum constraints adjustment to find gross errors</a>).</p>
+
+<p>There are two types of accuracy specifications that may be tested:
+
+<ul>
+	<li>observation accuracy:  The observations may be required to meet criteria defined in terms of a class of observation. Typically these requirements are tested with a minimum constraints adjustment.<br><br></li>
+
+	<li>coordinate accuracy:  The survey may be required to achieve a specified relative accuracy between the calculated coordinates of each pair of stations.  This could either be in the context of a free network adjustment - testing the inherent strength of the survey - or in the context of an adjustment constrained by (typically) higher order stations.</li>
+</ul>
+
+<p>The accuracy is generally defined in terms of a constant component and a distance dependent component (for example 3 mm &plusmn; 1 ppm).  This accuracy is associated with a given confidence level - for example a 95% confidence level.</p>
+
+<p>Observation accuracies can be tested with the following (simplistic) procedure:
+
+<ul>
+	<li>set the observation accuracies in the data files to the tolerance defined by the specifications.  This is easy to do for distance and GPS data, for which the errors in the data file are defined as a constant and a part per million component.  It is difficult for angle observations - with the current version of SNAP this can only be done by specifying the errors individually depending upon the length of the observation.<br><br></li>
+
+	<li>configure SNAP to highlight (or flag) observations at the confidence level specified in the specifications using the <a href="../../files/cmdcfg/cmd_flag_significance.html">flag_significance</a> command.  For example the LINZ standards specify that the level is 95%.  This is specified as "maximum 95" in the flag_significance command. ie
+<p>flag_significance 95 maximum 95
+
+<p>In this case the second flag level is set at "maximum 95", so observations exceeding the tolerance for the survey  will be marked with "???"
+</li>
+
+	<li>run the adjustment<br><br></li>
+
+	<li>check that the standard error of unit weight is not greater than 1<br><br></li>
+
+	<li>check that none of the observations are flagged with "???".  This is most easily done by reviewing the "most significant residuals" section at the end of the listing file as in the following example.</li>
+</ul>
+
+<pre><code>================================================================
+                   MOST SIGNIFICANT RESIDUALS
+================================================================
+
+The 123 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used: 110    Unused:   1
+Under 95.00%M significant    Used:   8    Unused:   1
+Over  95.00%M significant    Used:   3    Unused:   0
+
+The 'M'indicates that the significance applies to the maximum
+of all residuals rather than to the individual residuals.
+Note: Only the overall residual for vector data is counted
+
+The following table lists the 10 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+221    79      SD     4.233   99.999 ???     18  mat_sd.dat
+221    3       ZD     4.150   99.999 ???     47  mat_zd.dat
+74     260     HA     3.825   99.993 ???     30  mat_ha.dat
+245    260     HA     2.589   99.112 ?       89  mat_ha.dat
+83     4       SD     2.472   98.740 ?       23  mat_sd.dat
+</code></pre>
+
+<p>SNAP has some facilities for more sophisticated quality assurance of observations.  In particular it can be configured to calculate the minimum detectable error for each observation (see <a href="../../files/cmdcfg/cmd_define_residual_format.html">add_residual_column</a>).</p>
+
+<p>Testing the relative accuracies of calculated coordinates is done using the <a href="../../files/cmdcfg/cmd_specification.html">specification</a> and <a href="../../files/cmdcfg/cmd_test_specification.html">test_specification</a> commands.  The specification command defines the accuracy specifications that are to be tested.  For example the command file could define the following specifications</p>
+
+<p>specification order_1 confidence 95% horizontal 3mm 0.1ppm vertical 3mm 0.3ppm<br>
+specification order_2 confidence 95% horizontal 3mm 1ppm vertical 10mm 3ppm</p>
+
+<p>As the specifications could be used for many different adjustments they may be included in a configuration file.</p>
+
+<p>The test_specification command defines which stations are to be tested with each specification.  The command file could include the following commands:</p>
+
+<p>test_specification order_1 A123 AZB1 AA8X<br>
+test_specification order_2 A01C B0XP B1FG<br>
+test_specification order_2 B09A AZ01 A123</p>
+
+<p>Note that there more than one order (specification) can be tested in an adjustment, and that a station can be included in more than order for the purposes of testing.  Also there may be many commands for each specification.  In this case every vector between the six stations listed for order_2 will be calculated and tested against the order_2 specifications.  Similarly every vector between the three stations listed for order_1 testing will be tested.  This results in a report in the listing file detailing how well the survey matched against the specifications.  The content of the report may be modified with the <a href="../../files/cmdcfg/cmd_spec_test_options.html">spec_test_options</a> command.  This command is also used to choose whether apriori or aposteriori errors are used in the test.  </p>
+
+<p>The relative accuracy of the coordinates depends very much upon the accuracies specified for the observations.  In particular if the apriori accuracies are used, then scaling all the observation accuracies will have the effect of scaling the apparent relative accuracy of the coordinates by the same amount.  Clearly it is meaningless to apply these tests unless the specified observation accuracies are about correct (see <a href="../../adjustment/topic_strategy_obs_errors.html">Improving estimates of observation errors</a>).  </p>
+
+<p>If apriori accuracies are tested, then the tests are only valid if the standard error of unit weight is one or less.</p>
+
+<p>The procedure for testing the relative accuracies of stations in the adjustment is thus:
+
+<ul>
+	<li>possibly reweight the observations to realistic values <br><br></li>
+
+	<li>define the specifications in the command file<br><br></li>
+
+	<li>define which stations are to be tested in the command file<br><br></li>
+
+	<li>run the adjustment<br><br></li>
+
+	<li>check the standard error of unit weight<br><br></li>
+
+	<li>check the accuracy specifications section of the output file.</li>
+</ul>
+
+<p>This will result in a listing similar to that shown below:</p>
+
+<pre><code>================================================================
+                     RELATIVE ACCURACY TESTS
+================================================================
+
+Testing order specifications: ORDER_3
+
+Based on 95.00 apriori confidence limits
+Horizontal accuracy:  10.0 mm    3.000 ppm  (error multiplier:   1.73)
+
+Ratio of calculated error to tolerance
+
+     ===================================
+     From   To      Length    Horizontal
+     ===================================
+
+     4      239       1927         1.52
+     79     236       1951         1.22
+     83     239       3985         1.18
+
+Horizontal tolerance:
+    Stations tested:                     15
+    Vectors tested:                     120
+    Vectors exceeding tolerance:          3
+    Largest error/tolerance:           1.52 (4 to 239)</code></pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="../../adjustment/index.html">Adjustment strategies</a></p>
+
+<p><a href="../../files/cmdcfg/cmd_specification.html">The specification command</a></p>
+
+<p><a href="../../files/cmdcfg/cmd_test_specification.html">The test_specification command</a></p>
+
+<p><a href="../../files/cmdcfg/cmd_spec_test_options.html">The spec_test_options command</a></p>
+
+</div>
+</body>
+</html>

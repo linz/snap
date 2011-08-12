@@ -1,0 +1,43 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="error_type">
+<title>The error_type command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_error_type"></a>The error_type command</h1>
+
+<p class="Commanddefinition">error_type  <i>type</i></p>
+
+<p>This command specifies how errors are to be represented in the listings.  The parameter is:</p>
+
+<p class="Commanddefinition">type</p><p class="Commanddescription">can be "apriori" or "aposteriori"</p>
+
+<p>apriori errors are calculated purely in terms of the errors specified in the input data.  They take no account of how well the data fit together with the fixed stations.  aposteriori errors are scaled to reflect the quality of fit of the data.  </p>
+
+<p>Generally apriori errors are more appropriate where there is little redundancy in the data, or where the quality of the observations is well known from previous surveys or tests.  If there is little redundancy then there are not enough spare observations to determine the quality of fit of the data.</p>
+
+<p>Aposteriori errors are better suited when the quality of the data is uncertain and there is good redundancy in the observations.</p>
+
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_def_res_format.html">Defining the residual listing format</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

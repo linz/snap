@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, adjustment, errors, observations, data">
+<title>Improving estimates of observation errors</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_proc_obserr"></a>Improving estimates of observation errors</h1>
+
+<p>To do a least squares adjustment we need to provide expected errors for the observations.  These will generally be based either on our experience with the equipment and observation techniques, or on manufacturers specifications.  For GPS data they may also be determined by the GPS software.</p>
+
+<p>The SNAP listing includes an error summary which by default provides statistics for each data type and each data file in the adjustment.  Here is an example of the statistics for each data type:</p>
+
+<pre><code>Summary of residuals classified by data type
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+slope distance                              1.83   15 1801.87    2  618.04   17
+horizontal angle                            0.85   60     -      -    0.85   60</code></pre>
+
+<p>This listing may be used to revise the expected errors of the observations.  </p>
+
+<p>You should first ensure that there are no gross errors used in the adjustment.  The listing  should be obtained minimum constraints adjustment (as described above) to ensure that the observations are not being influenced by incorrect fixed stations coordinates.</p>
+
+<p>In the example above the root mean square error (RMS) of slope distance residuals is 1.83 compared with 0.85 for horizontal angles.  Both these values are based upon a reasonable number of observations (in the Count column), and so are reliable statistics.  This suggests that the expected errors of slope distances should be multiplied by 1.83, and the expected errors of angles should be multiplied by 0.85.  You can do this either by modifying the data file, or by including the following lines in the command file:</p>
+
+<p>classification    data_type   SD    error_factor  1.83<br>
+classification    data_type   HA    error_factor  0.85</p>
+
+<p>SNAP allows you to further classify the observations in any way that you want.  For example, if you have several different  EDMs in a survey you may want to estimate different errors for each meter.  In the data files you can define a classification called EQUIPMENT, and specify EQUIPMENT for each observation (see <a href="../files/data/obs_classifications.html">observation classifications</a> for more detail on how to do this).  SNAP is then able to generate an error summary for each equipment by adding the command</p>
+
+<p>summarize_errors_by data_type equipment</p>
+
+<p>to the configuration file.</p>
+
+<p>Avoid using statistics based upon only a few observations - you cannot reliably update expected errors using statistics based on only a few observations.  As a rough guide you should have at least 20 degrees of freedom in the adjustment, and at least 10 observations for each data type for which you are going to change the expected error.</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Adjustment strategies</a></p>
+
+<p><a href="topic_strategy_gross_errors.html">Using a minimum constraints adjustment to find gross errors</a></p>
+
+<p><a href="topic_fitting_control.html">Fitting observations into existing control</a></p>
+
+</div>
+</body>
+</html>

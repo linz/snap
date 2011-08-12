@@ -1,0 +1,42 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="data definition command, #hp_angles, #dms_angles, angle format, horizontal angles, zenith distance data, vertical angles, azimuth data, projection bearings, bearings">
+<title>The #hp_angles, #deg_angles, and #dms_angles commands</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_ddc_angles"></a>The #hp_angles, #deg_angles, and #dms_angles commands</h1>
+
+<p><b>#hp_angles<br>
+#deg_angles<br>
+#dms_angles</b></p>
+
+<p>These commands specify the angle format used for subsequent horizontal angle, zenith distance, azimuth, and projection bearing data.  <i>#hp_angles</i> specifies that the angles will be represented in the format commonly used by Hewlett-Packard calculators. This is as a single number representing degrees by the digits before the decimal place, minutes by the two digits after the decimal places, and seconds by the next two digits.  Additional digits are the decimal part of the seconds (i.e.&nbsp;DDD.MMSSss).  <i>#dms_angles</i> specifies that angles are represented as three numbers, the degrees, minutes, and seconds separated by spaces (i.e.&nbsp;DDD&nbsp;MM&nbsp;SS.ss).  <i>#deg_angles</i> specifies that the
+angles will be entered as decimal degrees (DDD.ddddd).  By default the <i>#dms_angles</i> format is used.</p>
+
+<p>
+The error of angle observations is entered in seconds of arc unless the <i>#deg_angles</i> option is specified, in which case the error is specified in degrees.
+</p>
+<div class="SeeAlso">
+
+<h3>See also:</h3>
+
+<p><a href="obs_ddc_by_func.html">Data definition commands by function</a></p>
+
+<p><a href="obs_ddc_alphabetically.html">Data definition commands listed alphabetically</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+</div>
+</body>
+</html>

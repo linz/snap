@@ -1,0 +1,102 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, Point coordinate observation, covariance, error, format">
+<title>Point coordinate error formats</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_gps_err_format"></a>Point coordinate error formats</h1>
+
+<p>Errors of point coordinate observations can be expressed either by a data definition statement #gx_enu_error, or explicitly for each vector.  </p>
+
+<p>The format for the #gx_enu_error data definition command is </p>
+
+<p><b>#gx_enu_error  <i>value value value</i> mm <i>value value value</i> mmr <i>value value value</i> ppmr</b></p>
+
+<p>The error is expressed as the millimetre error (mm) for the east north and up components of the vector.  Optionally there can also be a covariance between components,expressed in terms of a millimetres (mmr) and part per million (ppmr) for the east, north and up dirextions.  SNAP assumes that there is no correlation between the east, north, and up components or between the millimetre and part per million errors.  The part per million error is calculated from the total length of the vector between the points, not from components of the lengths in the east, north and up directions.  
+</p>
+
+<p>The east north and up directions can be calculated either for the midpoint of each baseline individually or for a single reference point in the network.  This is controlled by the <a href="../cmdcfg/cmd_gps_vertical.html">gps_vertical</a> command in the command file.  If a single point is used then by default it is the midpoint of the network.  It can be explicitly defined in the command file using the <a href="../cmdcfg/cmd_topocentre.html">topocentre</a> command.</p>
+
+<p>The default values for the error can be overridden for a specific point observation.  This is done by following the value of the vector by the word error and then the east, north, and up components of the error in metres.  For example:</p>
+
+<pre class="Commandexample">
+50939     -5017447.3274  2541871.5325  -2999379.7199 error 0.03 0.06 0.09
+</pre>
+
+<p>Errors cannot be overridden for grouped sets of point coordinates. </p>
+
+<p>Point coordinate errors are entered explicitly for each vector if the #data data definition command includes &quot;error&quot; with the definition of the GPS observation.  The format used to express the error is defined by the #gps_error_type data definition command.  The format differs between individual point observations (<a href="obs_format_line.html">line format</a>) and correlated sets of point observations (<a href="obs_format_covar.html">grouped data format</a>).</p>
+
+<p>For individual point observations the errors of each vector are listed with the observation.  The format defined by #gps_error_type can be one of full (the default), correlation, diagonal, or enu.  The data required for each format is as follows:
+
+<ul>
+	<li>full:  The error consists of 6 elements of the covariance matrix of the XYZ components in the order 
+<p>Cxx Cyx Cyy Czx Czy Czz
+</li>
+
+	<li>correlation:  The error consists of the standard errors of the XYZ components followed by their correlations
+<p>Sx  Sy  Sz  cyx  czx  czz
+</li>
+
+	<li>diagonal:  The error consists of just the standard errors of the XYZ components, with the correlations assumed to be zero.  This is generally not a realistic model.  The error is formatted as
+<p>Sx  Sy  Sz
+</li>
+
+	<li>enu: The error consists of the standard errors in the local east, north, and up coordinate system.  Correlation between the components is assumed to be zero.  The format is 
+<p>Se  Sn  Su
+</li>
+</ul>
+
+<p>In all cases covariances are expressed in metres squared, and standard errors in metres.</p>
+
+<p>For grouped point coordinate observations the errors must express the correlation between the vectors as well as between the components of each vector.  This is done with the grouped with covariance format.  That is, the set of observations is followed by a covariance matrix.  The covariance matrix starts with a data definition command #end_set, which marks the end of the data.  Subsequent lines contain the matrix values.  These values may be spread over as many lines as are required.  </p>
+
+<p>Errors of grouped observations can be expressed in any of the four formats listed above.</p>
+
+<p>For the full format the lower triangle of the covariance matrix follows the set of observations.  The rows of the matrix represent the X, Y, and Z components of the first vector, then of the second vector, and so on.  The order of elements is thus</p>
+
+<p>C(x1,x1) <br>
+C(y1,x1) C(y1,y1) <br>
+C(z1,x1) C(z1,y1) C(z1,z1)<br>
+C(x2,x1) C(x2,y1) C(x2,z1) C(x2,x2) <br>
+C(y2,x1) ....</p>
+
+<p>where C(x2,y1) represents the covariance between the x component of the second vector and the y component of the first.</p>
+
+<p>For  the correlation format the standard errors of the XYZ components of the vector are listed on  the same line as the vectors as three numbers (Sx, Sy, Sz).  The set of observations is followed by the lower triangle of the correlation matrix.  In this case the leading diagonal of the matrix is omitted, since each element must be 1.  The order of elements in the matrix is thus</p>
+
+<p>c(y1,x1) <br>
+c(z1,x1) c(z1,y1) <br>
+c(x2,x1) c(x2,y1) c(x2,z1) <br>
+c(y2,x1) ....</p>
+
+<p>where c(x2,y1) represents the correlation between the x component of the second vector and the y component of the first.</p>
+
+<p>The diagonal and enu formats are entered just the same way as for individual observations (and indeed there is no advantage to grouping the observations, as there is no correlation between them.
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="obs_gx_data.html">Point coordinate observations</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_gx_enu_error.html">The #gx_enu_error command</a></p>
+
+<p><a href="obs_ddc_gps_error_type.html">The #gps_error_type command</a></p>
+
+<p><a href="../cmdcfg/cmd_gps_vertical.html">The gps_vertical command</a></p>
+
+<p><a href="../cmdcfg/cmd_topocentre.html">The topocentre command</a></p>
+
+</div>
+</body>
+</html>

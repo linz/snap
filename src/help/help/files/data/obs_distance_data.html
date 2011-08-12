@@ -1,0 +1,63 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, distances, data types">
+<title>Distance observations (SD, HD, ED)</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="obs_distance_data"></a>Distance observations (SD, HD, ED)</h1>
+
+<p>SNAP supports four types of distance measurement.  These are:
+
+<ul>
+	<li>slope distances (SD):  the measured distances between an instrument and target.</li>
+
+	<li>horizontal distances (HD): the distance between points at the same horizontal location as the instrument and target, but at the mean elevation of the instrument and target.</li>
+
+	<li>ellipsoidal distances (ED): the arc distance between the instrument and targets reduced to the ellipsoid.</li>
+
+	<li>mean sea level distances (MD): the arc distance between the instrument and targets reduced to sea level (taken as the mean of the endpoint geoid heights).</li>
+
+</ul>
+</p>
+
+<p>The data file should contain the distance in metres.  For all types the distance should be corrected for atmospheric effects.  </p>
+
+<p>The data file must specify the error associated with the distance.  If this is expressed for each observation individually it is expressed in metres.</p>
+
+<p>If it is defined for a group of observations the error is defined by a millimetre and a part per million component.  The two components of the error are treated as being statistically independent.  That is, the total error of the distance is calculated as the square root of the sum of the squares of the millimetre and part per million components.  For example, on a 3km line with a 4mm +/- 1ppm error the error of an observations is 4mm +/- 3mm (1ppm of 3km) giving a root mean square total of 5mm.  See <a href="obs_ddc_ds_error.html">#ds_error </a> for more information.</p>
+
+<p>Distances can have an associated distance scale error.  This is a code which references a scale error.  For example the code could be the name of the instrument.  In SNAP you can specify a scale error to apply for each code.  You can also instruct SNAP to calculate a scale error corresponding to the code. See <a href="obs_dist_scale_errors.html">distance scale errors</a> for more information.</p>
+
+<p>Distances in SNAP may also be influenced by the reference frame scale error.  This is an error in the local scale of the reference frame (i.e. the fixed stations used to constrain the adjustment).  See <a href="obs_refframe_scale_error.html">reference frame scale error</a> for more information.</p>
+
+<p>The SNAP output listing includes the distance and its residual in metres by default.  It can also show the residual expressed in parts per million.</p>
+
+<p>See also</p>
+
+<p><a href="index.html">Observation file overview</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+<p><a href="obs_file_format.html">Observation file format</a></p>
+
+<p><a href="obs_distance_ratios.html">Distance ratio data</a></p>
+
+<p><a href="obs_dist_scale_errors.html">Distance scale errors</a></p>
+
+<p><a href="obs_refframe_scale_error.html">The reference frame scale error</a></p>
+
+<p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="obs_ddc_ds_error.html">The #ds_error command</a></p>
+
+<p><a href="obs_ddc_distance_scale_error.html">The #distance_scale_error command</a></p>
+
+</body>
+</html>
