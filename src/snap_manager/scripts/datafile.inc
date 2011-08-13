@@ -4,6 +4,7 @@ $_data_file_re = '(?ni)^\s*data_file\s+(\S+)(?:\s+error_factor\s+(\d+(?:\.\d*)?)
 $_data_file_prefix = 'data_file '
 
 function DataFileList()
+   if not $job_file then return '' endif
    $files = ReadFile( $job_file, $_data_file_re )
    # Normalize file prefix to simplify matching ...
    $files = Replace($files,'(?ni)^\s*data_file\s+',$_data_file_prefix)
@@ -43,7 +44,7 @@ function EditDataFileOptions( $dfd )
    return $dfd
 end_function
 
-function CreateNewDataFile()
+function CreateNewDataFile($jobpath)
    $datafile = ""
    $datafile = GetSaveFilename(
    	"Create new SNAP data file",
@@ -54,7 +55,7 @@ function CreateNewDataFile()
 
    $_title = $job_title
    CopyTemplate("default.dat",$datafile)
-   $datafile = $_data_file_prefix.Filename($datafile, "relative", $job_path)."\n"
+   $datafile = $_data_file_prefix.Filename($datafile, "relative", $jobpath)."\n"
    return $datafile
 end_function
 
@@ -96,7 +97,7 @@ end_function
 ######################################################################
 # Functions to edit options for data files
 
-function GetDataFileOptions( $filelist )
+function GetDataFileOptions( $jobpath, $filelist )
    $csvtypere = '(?i)\yformat\=(\S+)\s*'
    $filename = Match($filelist,$_data_file_re,1)
    $factor = Match($filelist,$_data_file_re,2)
@@ -107,9 +108,9 @@ function GetDataFileOptions( $filelist )
    if $csvtype then $csvtype = 'csv format='.$csvtype endif
    dialog "Edit data file settings" $ok
       label "Files: ".DataFileNamesFromList($filelist)
-       dropdown_selector $csvtype  "Format: " DataFileFormatList($csvtype)
-       textbox $csvopts "CSV config: " "20"
-       textbox $factor "Error factor: " '10::~0123456789.~(?:\d+\.?\d*)?~Error factor must be a number'
+       dropdown_selector $csvtype  "Format: " DataFileFormatList($csvtype,$jobpath)
+       textbox $csvopts "CSV configuration (name=value ...)" "20"
+       textbox $factor "Error factor:" '10::~0123456789.~(?:\d+\.?\d*)?~Error factor must be a number'
    end_dialog
  
    $options = ''
@@ -139,8 +140,8 @@ function CSVDataTypesOnPath( $path )
    return $types
 end_function
 
-function DataFileFormatList( $filetype )
-   $typelist = "~~SNAP data format".CSVDataTypesOnPath($snap_path).CSVDataTypesOnPath($job_path)
+function DataFileFormatList( $filetype, $jobpath )
+   $typelist = "~~SNAP data format".CSVDataTypesOnPath($snap_path).CSVDataTypesOnPath($jobpath)
    $filetypere = '\~'.Replace($filetype,'\W','\\\0').'\~'
    if not Match($typelist,$filetypere) then
       $typelist = $typelist."~$filetype~$filetype format"
@@ -179,7 +180,8 @@ end_function
 ######################################################################
 # Main dialog
 
-function DataFileDialog()
+function DataFileDialog($jobpath)
+    if not $jobpath then $jobpath = $job_path endif
     $datafiles = DataFileList()
     $listfiles = ListBoxFileList($datafiles)
     dialog "Edit/View data files" $ok
@@ -187,10 +189,10 @@ function DataFileDialog()
     new_column
     spacer
     button "New ..."
-        $datafiles = $datafiles .CreateNewDataFile()
+        $datafiles = $datafiles .CreateNewDataFile($jobpath)
         $listfiles = ListBoxFileList($datafiles)
     button "Add ..."
-	$datafiles = $datafiles . AdditionalDataFiles()
+	$datafiles = $datafiles . AdditionalDataFiles($jobpath)
         $listfiles = ListBoxFileList($datafiles)
     button "Remove ..."
         if $selectedfiles then
@@ -203,7 +205,7 @@ function DataFileDialog()
         endif
     button "EditOptions"
 	if $selectedfiles then 
-	    $options = GetDataFileOptions( DataFileListFromSelected($selectedfiles) )
+	    $options = GetDataFileOptions( $jobpath, DataFileListFromSelected($selectedfiles) )
             if $options then 
                 $options = Replace($options,'^filename','')
                 $options = Replace($options,'(\\|\&)','\\\0')
@@ -220,11 +222,8 @@ function DataFileDialog()
 	PlotDataFiles( DataFileNamesFromList(DataFileListFromSelected($selectedfiles)) )
     spacer
     end_dialog
-    if $ok then
+    if $ok and $job_file then
         UpdateDataFilesInJob( $datafiles )
     endif
-end_function
-
-function test()
-    DataFileDialog()
+    return $datafiles
 end_function

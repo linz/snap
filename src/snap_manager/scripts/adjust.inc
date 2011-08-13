@@ -43,6 +43,7 @@ end_function
 # Function to update coordinates from adjustment
 
 function UpdateAdjustmentCoordinates()
+    if not CheckCoordinateFile(true) then exit endif
     BackupCoordinateFile()
     RenameFile(SetExtension($coordinate_file,"new"),$coordinate_file)
     $relname = Filename($coordinate_file,"relative",$job_path)

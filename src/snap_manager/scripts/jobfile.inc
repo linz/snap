@@ -77,17 +77,15 @@ if $coordinatefile == $commandfile then
    exit
 endif
 
-$datafiles = GetDataFileListDialog($jobpath)
+
+$datafiles = DataFileDialog($jobpath)
 
 #=============================================================
 # Create the job file
 
 $_coordfile = Filename($coordinatefile,"relative",$jobpath)
 
-$_datafilelist = ''
-foreach $datafile in $datafiles do
-   $_datafilelist = $_datafilelist . "data_file $datafile\n"
-endforeach
+$_datafilelist = $datafiles
 
 if not CopyTemplate("default.snp",$commandfile) then 
    message("Cannot create the command file","Error")

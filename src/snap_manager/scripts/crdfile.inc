@@ -3,6 +3,9 @@
 ######################################################################
 # Function to process the coordinate file and coordinates
 
+$_crdfile_is_snap = true
+$_tested_job_file = ''
+
 function BackupCoordinateFile()
   $backup_file = false
   if $coordinate_file then
@@ -16,8 +19,14 @@ function BackupCoordinateFile()
   return $backup_file
 end_function
 
-function CheckCoordinateFile()
-  if FileExists($coordinate_file) then return true endif
+function CheckCoordinateFile( $needsnap )
+  if FileExists($coordinate_file) then 
+     if $needsnap and not CoordinateFileIsSnap() then
+        Message("This function can only be used with SNAP format coordinate files","Coordinate format error")
+	return false
+     endif
+     return true 
+  endif
   $message = "The coordinate file $coordinate_file is missing\n"
   if not $coordinate_file then
       $message = "The coordinate file is not defined in the command file\n"
@@ -30,11 +39,21 @@ function EditCoordinateFile()
     start($_editor,$coordinate_file)
 end_function
 
+function CoordinateFileIsSnap()
+   if $coordinate_file and $job_file != $_tested_job_file then
+      $csvcrdfile = ReadFile($job_file,'(?i)^\s*coordinate_file\s+\S+\s+csv(?:\s|$)',1)
+      $_tested_job_file = $job_file
+      $_crdfile_is_snap = true
+      if $csvcrdfile then $_crdfile_is_snap = false endif
+   endif
+   return $_crdfile_is_snap
+end_function
+
 #######################################################################
 # Function to change the coordinate system of the coordinate file
 
 function ChangeCoordinateSystem()
-    if not CheckCoordinateFile() then exit endif
+    if not CheckCoordinateFile(true) then exit endif
     $relname = Filename($coordinate_file,"relative",$job_path)
     
     # Would be much nicer if knew what it is in coordinate file
@@ -63,7 +82,7 @@ end_function
 # Function to add geoid heights
 
 function AddGeoidHeights()
-    if not CheckCoordinateFile() then exit endif
+    if not CheckCoordinateFile(true) then exit endif
     $relname = Filename($coordinate_file,"relative",$job_path)
     $geoid = "nzgeoid09"
     
@@ -88,7 +107,7 @@ end_function
 # Function to add calculate missing stations
 
 function CalculateMissingStations()
-    if not CheckCoordinateFile() then exit endif
+    if not CheckCoordinateFile(true) then exit endif
     $backupfile = BackupCoordinateFile($coordinate_file)
     if not $backupfile then 
        message("Could not create backup file of $relname","Error")
@@ -162,7 +181,7 @@ function ImportLINZGDB()
     $perl = FindPerl()
     if not $perl then exit endif
 
-    if not CheckCoordinateFile() then exit endif
+    if not CheckCoordinateFile(true) then exit endif
     
     # Get the overwrite option
 
