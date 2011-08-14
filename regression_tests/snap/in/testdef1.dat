@@ -1,0 +1,15 @@
+Test data set testdef1
+
+#date 1 Jan 2000
+
+#classify ObsClass default
+
+#classify SrvClass MEAS
+
+#data no_heights SD error
+N1 N2 234378.6725 0.2344
+N1 N3 140031.7777 0.1400
+
+#date 1 Jan 3000
+N1 N2 234364.6389 0.2344
+N1 N3 140031.3127 0.1400

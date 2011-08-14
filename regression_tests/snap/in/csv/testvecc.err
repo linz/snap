@@ -1,0 +1,24 @@
+================================================================================
+
+                          PROGRAM SNAP  Version 2.3.53
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug  2 2011 11:47:59
+
+================================================================================
+                          Run at  2-AUG-2011 12:01:34
+
+
+
+================================================================================
+                                                             2-AUG-2011 12:01:34
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Column EFAC is not defined
+       Line: 1  File: testvecc.csv

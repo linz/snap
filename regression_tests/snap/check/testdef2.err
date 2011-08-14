@@ -1,0 +1,29 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+================================================================================
+                                                            
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Missing or invalid projection - check #projection in data file
+       Line: 39  File: testdef2.dat
+
+Error: Missing or invalid projection - check #projection in data file
+       Line: 72  File: testdef2.dat
+
+Error: 2 errors reported reading the data files

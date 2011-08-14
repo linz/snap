@@ -1,0 +1,73 @@
+Test data set testdef2
+
+#date 1 Jan 2000
+
+#classify ObsClass default
+
+#classify SrvClass MEAS
+
+#data no_heights grouped HA error
+
+N1
+N2 62 29 42.01  2.0016
+N3 292 52 30.09  2.0016
+N4 338 04 42.46  2.0016
+
+#data no_heights AZ error
+N1 N2 62 29 42.01  3.9996
+N1 N3 292 52 30.09  3.9996
+
+#data no_heights SD error
+N1 N2 234378.6725 0.2344
+N1 N3 140031.7777 0.1400
+
+#data no_heights ED error
+N1 N2 234391.8474 0.7032
+N1 N3 140034.5858 0.4202
+
+#data no_heights HD error
+N1 N2 234378.6725 0.4688
+N1 N3 140031.7777 0.2801
+
+#data no_heights ZD error
+N1 N2 91 03 08.05  5.0004
+N1 N3 90 37 42.50  5.0004
+
+#projection NZMGTM1949
+
+#data no_heights PB error
+N1 N2 65 02 40.99  2.9988
+N1 N3 295 27 12.81  2.9988
+
+#date 1 Jan 3000
+
+#data no_heights grouped HA error
+
+N1
+N2 62 29 25.66  2.0016
+N3 292 52 54.06  2.0016
+N4 338 04 54.29  2.0016
+
+#data no_heights AZ error
+N1 N2 62 29 25.66  3.9996
+N1 N3 292 52 54.06  3.9996
+
+#data no_heights SD error
+N1 N2 234364.6389 0.2344
+N1 N3 140031.3127 0.1400
+
+#data no_heights ED error
+N1 N2 234377.8115 0.7032
+N1 N3 140034.1207 0.4202
+
+#data no_heights HD error
+N1 N2 234364.6389 0.4687
+N1 N3 140031.3127 0.2801
+
+#data no_heights ZD error
+N1 N2 91 03 07.82  5.0004
+N1 N3 90 37 42.49  5.0004
+
+#data no_heights PB error
+N1 N2 65 02 24.39  2.9988
+N1 N3 295 27 36.49  2.9988

@@ -1,0 +1,9 @@
+title Testing grouped vector data in snapplot
+
+coordinate_file testvec.crd
+data_file testvec.dat
+mode 3d adjustment
+
+free all
+
+output_csv all wkt_shape

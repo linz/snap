@@ -1,0 +1,203 @@
+<!DOCTYPE qgis PUBLIC 'http://mrcc.com/qgis.dtd' 'SYSTEM'>
+<qgis projectname="" version="1.8.0-Trunk">
+    <title></title>
+    <mapcanvas>
+        <units>degrees</units>
+        <extent>
+            <xmin>164.593793</xmin>
+            <ymin>-47.612415</ymin>
+            <xmax>180.382583</xmax>
+            <ymax>-34.071005</ymax>
+        </extent>
+        <projections>1</projections>
+        <destinationsrs>
+            <spatialrefsys>
+                <proj4>+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs</proj4>
+                <srsid>3303</srsid>
+                <srid>4167</srid>
+                <authid>EPSG:4167</authid>
+                <description>NZGD2000</description>
+                <projectionacronym>longlat</projectionacronym>
+                <ellipsoidacronym>GRS80</ellipsoidacronym>
+                <geographicflag>true</geographicflag>
+            </spatialrefsys>
+        </destinationsrs>
+    </mapcanvas>
+    <legend>
+        <legendlayer open="true" checked="Qt::Checked" name="test2010" showFeatureCount="0">
+            <filegroup open="true" hidden="false">
+                <legendlayerfile isInOverview="0" layerid="test201020110530192837765" visible="1"/>
+            </filegroup>
+        </legendlayer>
+        <legendlayer open="true" checked="Qt::Checked" name="coastll" showFeatureCount="0">
+            <filegroup open="true" hidden="false">
+                <legendlayerfile isInOverview="0" layerid="coastll20110530190921046" visible="1"/>
+            </filegroup>
+        </legendlayer>
+    </legend>
+    <projectlayers layercount="2">
+        <maplayer minimumScale="0" maximumScale="1e+08" geometry="Line" type="vector" hasScaleBasedVisibilityFlag="0">
+            <id>coastll20110530190921046</id>
+            <datasource>../../../deformation/darfield_eq/qgis/coastll.shp</datasource>
+            <layername>coastll</layername>
+            <srs>
+                <spatialrefsys>
+                    <proj4>+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs</proj4>
+                    <srsid>3303</srsid>
+                    <srid>4167</srid>
+                    <authid>EPSG:4167</authid>
+                    <description>NZGD2000</description>
+                    <projectionacronym>longlat</projectionacronym>
+                    <ellipsoidacronym>GRS80</ellipsoidacronym>
+                    <geographicflag>true</geographicflag>
+                </spatialrefsys>
+            </srs>
+            <transparencyLevelInt>255</transparencyLevelInt>
+            <provider encoding="System">ogr</provider>
+            <vectorjoins/>
+            <renderer-v2 symbollevels="0" type="singleSymbol">
+                <symbols>
+                    <symbol outputUnit="MM" alpha="1" type="line" name="0">
+                        <layer pass="0" class="SimpleLine" locked="0">
+                            <prop k="capstyle" v="square"/>
+                            <prop k="color" v="137,97,192,255"/>
+                            <prop k="customdash" v="5;2"/>
+                            <prop k="joinstyle" v="bevel"/>
+                            <prop k="offset" v="0"/>
+                            <prop k="penstyle" v="solid"/>
+                            <prop k="use_custom_dash" v="0"/>
+                            <prop k="width" v="0.26"/>
+                        </layer>
+                    </symbol>
+                </symbols>
+                <rotation field=""/>
+                <sizescale field=""/>
+            </renderer-v2>
+            <customproperties/>
+            <displayfield>gid</displayfield>
+            <label>0</label>
+            <labelattributes>
+                <label fieldname="" text="Label"/>
+                <family fieldname="" name="MS Shell Dlg 2"/>
+                <size fieldname="" units="pt" value="12"/>
+                <bold fieldname="" on="0"/>
+                <italic fieldname="" on="0"/>
+                <underline fieldname="" on="0"/>
+                <strikeout fieldname="" on="0"/>
+                <color fieldname="" red="0" blue="0" green="0"/>
+                <x fieldname=""/>
+                <y fieldname=""/>
+                <offset x="0" y="0" units="pt" yfieldname="" xfieldname=""/>
+                <angle fieldname="" value="0" auto="0"/>
+                <alignment fieldname="" value="center"/>
+                <buffercolor fieldname="" red="255" blue="255" green="255"/>
+                <buffersize fieldname="" units="pt" value="1"/>
+                <bufferenabled fieldname="" on=""/>
+                <multilineenabled fieldname="" on=""/>
+                <selectedonly on=""/>
+            </labelattributes>
+            <edittypes>
+                <edittype type="0" name="elevation"/>
+                <edittype type="0" name="gid"/>
+            </edittypes>
+            <editform></editform>
+            <editforminit></editforminit>
+            <annotationform></annotationform>
+            <attributeactions/>
+        </maplayer>
+        <maplayer minimumScale="0" maximumScale="1e+08" geometry="Point" type="vector" hasScaleBasedVisibilityFlag="0">
+            <id>test201020110530192837765</id>
+            <datasource>file:./test2010.csv?delimiter=%5B,%5D&amp;delimiterType=regexp&amp;xField=x2000&amp;yField=y2000</datasource>
+            <layername>test2010</layername>
+            <srs>
+                <spatialrefsys>
+                    <proj4>+proj=tmerc +lat_0=0 +lon_0=173 +k=0.9996 +x_0=1600000 +y_0=10000000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs</proj4>
+                    <srsid>177</srsid>
+                    <srid>2193</srid>
+                    <authid>EPSG:2193</authid>
+                    <description>NZGD2000 / New Zealand Transverse Mercator 2000</description>
+                    <projectionacronym>tmerc</projectionacronym>
+                    <ellipsoidacronym>GRS80</ellipsoidacronym>
+                    <geographicflag>false</geographicflag>
+                </spatialrefsys>
+            </srs>
+            <transparencyLevelInt>255</transparencyLevelInt>
+            <provider encoding="System">delimitedtext</provider>
+            <vectorjoins/>
+            <renderer-v2 arrowHeadSize="0.3" scale="427.806551716" yfieldname="dy" baseColor="#000000" arrowWidth="0.7" showonscalebox="True" baseBorderColor="#000000" scaleboxtext="" angleFromNorth="True" scalegroup="" usemapunit="False" mode="0" scalegroupfactor="1.0" arrowMaxHeadSize="3.0" xfieldname="dx" degrees="True" baseSize="2.0" arrowColor="#000000" outputunit="MM" type="VectorFieldRenderer" legendtext="">
+                <plugin version="0.12" url="http://pygqgis.org/repo/contributed" name="VectorFieldRenderer"/>
+            </renderer-v2>
+            <customproperties/>
+            <displayfield>code</displayfield>
+            <label>0</label>
+            <labelattributes>
+                <label fieldname="" text="Label"/>
+                <family fieldname="" name="MS Shell Dlg 2"/>
+                <size fieldname="" units="pt" value="12"/>
+                <bold fieldname="" on="0"/>
+                <italic fieldname="" on="0"/>
+                <underline fieldname="" on="0"/>
+                <strikeout fieldname="" on="0"/>
+                <color fieldname="" red="0" blue="0" green="0"/>
+                <x fieldname=""/>
+                <y fieldname=""/>
+                <offset x="0" y="0" units="pt" yfieldname="" xfieldname=""/>
+                <angle fieldname="" value="0" auto="0"/>
+                <alignment fieldname="" value="center"/>
+                <buffercolor fieldname="" red="255" blue="255" green="255"/>
+                <buffersize fieldname="" units="pt" value="1"/>
+                <bufferenabled fieldname="" on=""/>
+                <multilineenabled fieldname="" on=""/>
+                <selectedonly on=""/>
+            </labelattributes>
+            <edittypes>
+                <edittype type="0" name="code"/>
+                <edittype type="0" name="dx"/>
+                <edittype type="0" name="dy"/>
+                <edittype type="0" name="x2000"/>
+                <edittype type="0" name="x2010"/>
+                <edittype type="0" name="y2000"/>
+                <edittype type="0" name="y2010"/>
+            </edittypes>
+            <editform></editform>
+            <editforminit></editforminit>
+            <annotationform></annotationform>
+            <attributeactions/>
+        </maplayer>
+    </projectlayers>
+    <properties>
+        <WMSServiceAbstract type="QString"></WMSServiceAbstract>
+        <WMSContactPerson type="QString"></WMSContactPerson>
+        <Identify>
+            <disabledLayers type="QStringList"/>
+        </Identify>
+        <WMSContactPhone type="QString"></WMSContactPhone>
+        <SpatialRefSys>
+            <ProjectCRSProj4String type="QString">+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs</ProjectCRSProj4String>
+            <ProjectCrs type="QString">EPSG:4326</ProjectCrs>
+            <ProjectCRSID type="int">3303</ProjectCRSID>
+            <ProjectionsEnabled type="int">1</ProjectionsEnabled>
+        </SpatialRefSys>
+        <Gui>
+            <SelectionColorBluePart type="int">0</SelectionColorBluePart>
+            <CanvasColorGreenPart type="int">255</CanvasColorGreenPart>
+            <CanvasColorRedPart type="int">255</CanvasColorRedPart>
+            <SelectionColorRedPart type="int">255</SelectionColorRedPart>
+            <SelectionColorAlphaPart type="int">255</SelectionColorAlphaPart>
+            <SelectionColorGreenPart type="int">255</SelectionColorGreenPart>
+            <CanvasColorBluePart type="int">255</CanvasColorBluePart>
+        </Gui>
+        <Paths>
+            <Absolute type="bool">false</Absolute>
+        </Paths>
+        <WMSContactMail type="QString"></WMSContactMail>
+        <PositionPrecision>
+            <DecimalPlaces type="int">2</DecimalPlaces>
+            <Automatic type="bool">true</Automatic>
+        </PositionPrecision>
+        <WMSAddWktGeometry type="bool">false</WMSAddWktGeometry>
+        <WMSContactOrganization type="QString"></WMSContactOrganization>
+        <WMSServiceCapabilities type="bool">false</WMSServiceCapabilities>
+        <WMSServiceTitle type="QString"></WMSServiceTitle>
+    </properties>
+</qgis>

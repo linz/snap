@@ -1,0 +1,14 @@
+
+concord: Valid coordinate systems are:
+  WGS84      World Geodetic System 1984
+  NZGD2000   New Zealand Geodetic Datum 2000
+  NZGD2000D  New Zealand Geodetic Datum 2000 (deformation)
+  NZGD2000_XYZ New Zealand Geodetic Datum 2000 - Cartesian XYZ
+  NZGD1949   New Zealand Geodetic Datum 1949
+  WGS84BW    Australian Geodetic Datum 1984
+  NZMG       New Zealand Map Grid
+  WELLTM2000 Wellington Circuit 2000
+  ANT_PS     WGS 84 / Antarctic Polar Stereographic
+  ST57-60_LCC SCAR IMW ST57-60 Lambert Conformal Conic
+  NZTM_D     New Zealand Transverse Mercator Projection
+

@@ -3,3 +3,7 @@
 *.ipch
 *.suo
 *.user
+/built/
+/install/
+/lib/
+/temp/

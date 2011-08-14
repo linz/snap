@@ -1,0 +1,68 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+Program options read from testsl3.snp
+
+Job: Regression tests - station lists
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testsl.crd
+      20 stations read
+
+Data file 1: testsl.dat
+      19 height differences
+      20 latitudes
+      20 longitudes
+
+
+================================================================================
+Regression tests - station lists                            
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station      Adj  Row  Name
+
+11           F     -  4 BOLT
+1            F     -  2 PIN
+B            F     -  1 SPIK
+PINTOFALE    3    13  4 BOLT
+QQ           3    16  3 PIN
+C_100        3     4  3 BOLT
+PEGGY        3     7  4 -
+2            3    19  2 PEG
+100          3    25  2 PIN
+3            3    22  4 BOLT
+D            F     -  6 SPIK
+C_101        F     -  3 SPIK
+C_10         F     -  4 PIN
+B00          F     -  10 BOLT
+PIND         3    10  3 SPIK
+A            3     1  - BOLT
+TUBBY        F     -  2 -
+BXXXXX       F     -  0 BOLT
+10           F     -  6 SPIK
+C_11         F     -  - BOLT

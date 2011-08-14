@@ -1,0 +1,37 @@
+title Regression test 1 - data types and observation equations
+
+coordinate_file testgx3.crd
+data_file testgx3.dat
+
+mode 3d adjustment
+
+list command_file
+list file_summary
+list problem_definition
+list observation_equations
+list solution_summary
+list station_coordinates
+list floated_stations
+list reference_frames
+list parameters
+list residuals
+list error_summary
+list worst_residuals
+
+reference_frame GPS_T translation 0 ? 0 ? 0 ?
+reference_frame GPS_S scale 0 ?
+reference_frame GPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
+reference_frame GPS_R rotation 0 ? 0 ? 0 ?
+reference_frame calculate GPS_TRS scale rotation translation
+
+reference_frame topocentric TGPS_T translation 0 ? 0 ? 0 ?
+reference_frame topocentric TGPS_S scale 0 ?
+reference_frame topocentric TGPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
+reference_frame topocentric TGPS_R rotation 0 ? 0 ? 0 ?
+reference_frame topocentric calculate TGPS_TRS scale rotation translation
+
+fix all
+
+! To force a second iteration
+!ignore 4 
+free 4

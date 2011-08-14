@@ -1,0 +1,231 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+Program options read from testdef3.snp
+
+Job: Test data set testdef3
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testdef3.crd
+       4 stations read
+
+Data file 1: testdef3.dat
+      13 latitudes
+      13 longitudes
+
+
+================================================================================
+Test data set testdef3                                      
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+
+================================================================================
+Test data set testdef3                                      
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              26
+Number of parameters:                 0
+
+Degrees of freedom:                  26
+Sum of squared residuals:             0.00000
+Standard error of unit weight:        0.00000
+
+The probability of an SSR this low is 0.000% (from Chi squared (26))
+
+You may have over-estimated the errors of the data.
+
+
+================================================================================
+Test data set testdef3                                      
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+   a = 6378388.000  1/f = 297.000000
+The error ellipse and height error represent the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ N1     39 58 56.928000 S      -         -          Node N1
+       176 10 53.904000 E      -         -
+               0.0000          -         -
+
+ N2     40 00 00.000000 S      -         -          Node N2
+       176 12 00.126000 E      -         -
+               0.0000          -         -
+
+ N3     40 06 00.000000 S      -         -          Node N3
+       176 00 00.000000 E      -         -
+               0.0000          -         -
+
+ N4     40 03 25.200000 S      -         -          Node N4
+       176 10 48.000000 E      -         -
+               0.0000          -         -
+
+
+================================================================================
+Test data set testdef3                                      
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   LT  latitudes
+   LN  longitudes
+
+From  Type     Value      +/-        Calc      +/-    Res   +/-    S.R.      
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N4    LT    40 03 25.20000 S 0.03600  40 03 25.20000 S 0.00000 0.00000 0.03600   0.00     
+
+N4    LN   176 10 48.00000 E 0.03600 176 10 48.00000 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N4    LT    40 03 25.20000 S 0.03600  40 03 25.20000 S 0.00000 0.00000 0.03600   0.00     
+
+N4    LN   176 10 48.00000 E 0.03600 176 10 48.00000 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N1    LT    39 58 56.92800 S 0.03600  39 58 56.92800 S 0.00000 0.00000 0.03600   0.00     
+
+N1    LN   176 10 53.90400 E 0.03600 176 10 53.90400 E 0.00000 0.00000 0.03600   0.00     
+
+N4    LT    40 03 25.20000 S 0.03600  40 03 25.20000 S 0.00000 0.00000 0.03600   0.00     
+
+N4    LN   176 10 48.00000 E 0.03600 176 10 48.00000 E 0.00000 0.00000 0.03600   0.00     
+
+
+================================================================================
+Test data set testdef3                                      
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+latitude                                    0.00   13     -      -    0.00   13
+
+longitude                                   0.00   13     -      -    0.00   13
+
+
+================================================================================
+Test data set testdef3                                      
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 26 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:  26    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   0    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 10 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+N1             LT     0.000     -            12  testdef3.dat
+
+N1             LN     0.000     -            12  testdef3.dat
+
+N4             LT     0.000     -            13  testdef3.dat
+
+N4             LN     0.000     -            13  testdef3.dat
+
+N1             LT     0.000     -            16  testdef3.dat
+
+N1             LN     0.000     -            16  testdef3.dat
+
+N1             LT     0.000     -            19  testdef3.dat
+
+N1             LN     0.000     -            19  testdef3.dat
+
+N4             LT     0.000     -            20  testdef3.dat
+
+N4             LN     0.000     -            20  testdef3.dat

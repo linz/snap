@@ -1,0 +1,181 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+Program options read from testdef1.snp
+
+Job: Test data set testdef1
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testdef1.crd
+       3 stations read
+
+Data file 1: testdef1.dat
+       4 slope distances
+
+
+================================================================================
+Test data set testdef1                                      
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+
+================================================================================
+Test data set testdef1                                      
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:               4
+Number of parameters:                 0
+
+Degrees of freedom:                   4
+Sum of squared residuals:         19215.47855
+Standard error of unit weight:       69.30995
+
+The probability of an SSR this high is 0.000% (from Chi squared (4))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+================================================================================
+Test data set testdef1                                      
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+   a = 6378388.000  1/f = 297.000000
+
+The following deformation model has been applied
+Model type: velocity
+Model name: cmn_test_velgrid.grd
+New Zealand velocity model, computed by IGNS, version Nov 1998
+Calculated on a 0.2 x 0.2 degree grid for Long 165 to 180 & Lat -48 to -32
+Ref: Beavan, Nov 1998, IGNS Client Report 43865B and Bevin & Haines, 1997
+Reference epoch: 2000.0
+
+The error ellipse and height error represent the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ N1     40 00 00.000000 S      -         -          Node N1
+       177 00 00.000000 E      -         -
+               0.0000          -         -
+
+ N2     39 00 00.000000 S      -         -          Node N2
+       179 24 00.000000 E      -         -
+               0.0000          -         -
+
+ N3     39 30 00.000000 S      -         -          Node N3
+       175 30 00.000000 E      -         -
+               0.0000          -         -
+
+
+================================================================================
+Test data set testdef1                                      
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   SD  slope distances
+Note: Calculated values for slope distances include equipment heights
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File testdef1.dat: line 10
+
+N1    N2    SD   234378.6725 0.2344 234378.6725 0.0000  0.0000 0.2344   0.00     
+
+N1    N3    SD   140031.7777 0.1400 140031.7777 0.0000 -0.0000 0.1400   0.00     
+
+N1    N2    SD   234364.6389 0.2344 234378.6725 0.0000 -14.0336 0.2344  59.87  ???
+
+N1    N3    SD   140031.3127 0.1400 140048.8161 0.0000 -17.5034 0.1400 125.02  ???
+
+
+================================================================================
+Test data set testdef1                                      
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+slope distance                             69.31    4     -      -   69.31    4
+
+
+================================================================================
+Test data set testdef1                                      
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 4 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   2    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   2    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 4 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+N1     N3      SD   125.024  100.000 ???     15  testdef1.dat
+
+N1     N2      SD    59.870  100.000 ???     14  testdef1.dat
+
+N1     N3      SD     0.000    0.021         11  testdef1.dat
+
+N1     N2      SD     0.000    0.001         10  testdef1.dat

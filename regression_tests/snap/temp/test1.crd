@@ -1,0 +1,9 @@
+Test 1 - basic obs type tests
+NZGD1949
+options ellipsoidal_heights station_orders geoid_heights c=Mark_Type
+
+1        41 00 46.8000000 S  173 19 15.6000000 E 150.0 0.0 2 PIN Node one
+2        41 00 25.2000000 S  173 19 40.8000000 E 250.0 0.0 2 PEG Node two
+3        41 00 28.8000000 S  173 19 58.8000000 E 70.0  0.0 3 BOLT Node three
+4        41 00 46.8000000 S  173 19 15.6000000 E 150.0 30.0 2 PIN Node four
+5        41 00 25.2000000 S  173 19 40.8000000 E 250.0 30.0 2 PEG Node five

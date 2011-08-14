@@ -1,0 +1,18 @@
+format_name SNAP CSV station format
+FORMAT CSV HEADER=Y
+required_columns code name crdsys
+! Cannot require coordinates as format supports alternative names
+
+code @code
+name @name
+coordinate_system @crdsys
+height_type @height_type
+longitude @longitude default @easting
+latitude @latitude default @northing
+height @height default @ellheight
+geoid_undulation @geoidhgt
+deflection_east @xi
+deflection_north @eta
+classification_columns c_**
+
+

@@ -1,0 +1,290 @@
+================================================================================
+
+                          PROGRAM SNAP  Version 2.3.51
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun  8 2011 09:23:17
+
+================================================================================
+                          Run at  8-JUN-2011 13:33:03
+
+
+
+Program options read from testvec.snp
+
+Job: Testing grouped vector data in snapplot
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testvec.crd
+       3 stations read
+
+Data file 1: testvec.dat
+       2 GPS baselines
+       5 GPS point coords
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 186.0491 metres at station 2
+             3 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0020 metres at station 2
+             3 station adjustments exceed convergence criteria
+
+Iteration 3: Maximum change is 0.0000 metres at station 1
+             0 station adjustments exceed convergence criteria
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              21
+Number of parameters:                 9
+
+Degrees of freedom:                  12
+Sum of squared residuals:         4104733.94484
+Standard error of unit weight:      584.85995
+
+The probability of an SSR this high is 0.000% (from Chi squared (12))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 2000
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+   a = 6378137.000  1/f = 298.257222
+The error ellipse and height error represent the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 44.418080 S    73.4821    0.0287   0  1
+       173 19 15.599792 E    -0.0049    0.0186  90
+             320.9152       170.9152    0.0558
+
+ 2      41 00 22.818070 S    73.4834    0.0287 180  2
+       173 19 40.800014 E     0.0003    0.0186  90
+             420.9228       170.9228    0.0558
+
+ 3      41 00 26.601236 S    67.8307    0.0300 180  3
+       173 19 58.800178 E     0.0042    0.0191  90
+             233.2684       163.2684    0.0574
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Topocentric axes are east, north, up directions at
+    41 00 33.60038S    173 19 38.40059E
+
+Reference frame: GPS
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                          Value       Error  
+      X translation (m)                   0.0000       -    
+      Y translation (m)                   0.0000       -    
+      Z translation (m)                   0.0000       -    
+      X rotation (arc sec)                0.0000       -    
+      Y rotation (arc sec)                0.0000       -    
+      Z rotation (arc sec)                0.0000       -    
+      Scale factor (ppm)                  0.0000       -    
+
+      Correlation matrix:
+          1.0000
+          0.0000    1.0000
+          0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+
+   Topocentric definition
+
+      Parameter                          Value       Error  
+      E translation (m)                   0.0000       -    
+      N translation (m)                   0.0000       -    
+      U translation (m)                   0.0000       -    
+      N-S tilt (arc sec)                  0.0000       -    
+      W-E tilt (arc sec)                  0.0000       -    
+      Vertical rotation (arc sec)         0.0000       -    
+      Scale factor (ppm)                  0.0000       -    
+
+      Correlation matrix:
+          1.0000
+          0.0000    1.0000
+          0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+
+From  Type     Value      +/-        Calc      +/-    Res   +/-    S.R.      
+               X,Y,Z                X,Y,Z            E,N,U                   
+
+File testvec.dat: line 13
+
+1     GX      -4787264.52  0.10    -4787222.88  0.05   0.00  0.04   0.14     
+                560595.57  0.04      560590.70  0.02  16.96  0.05 321.73  ???
+              -4163681.80  0.09    -4163667.82  0.04  40.81  0.11 384.25  ???
+               6369333.96           6369293.09        44.20       289.35  ???
+
+2     GX      -4787842.22  0.10    -4787800.58  0.05  -0.00  0.04   0.01     
+                560070.26  0.04      560065.39  0.02  16.96  0.05 321.65  ???
+              -4163244.59  0.09    -4163230.60  0.04  40.82  0.11 384.27  ???
+               6369436.19           6369395.31        44.20       289.32  ???
+
+1     GX      -4787264.52  0.10    -4787222.88  0.05   0.00  0.04   0.14     
+                560595.57  0.04      560590.70  0.02  16.96  0.05 321.73  ???
+              -4163681.80  0.09    -4163667.82  0.04  40.81  0.11 384.25  ???
+               6369333.96           6369293.09        44.20       289.35  ???
+
+2     GX      -4787842.22  0.10    -4787800.58  0.05  -0.00  0.04   0.01     
+                560070.26  0.04      560065.39  0.02  16.96  0.05 321.65  ???
+              -4163244.59  0.09    -4163230.60  0.04  40.82  0.11 384.27  ???
+               6369436.19           6369395.31        44.20       289.32  ???
+
+3     GX      -4787466.15  0.10    -4787632.72  0.05  -0.00  0.04   0.12     
+                559602.77  0.04      559622.24  0.02 -67.83  0.05 1305.37  ???
+              -4163139.60  0.09    -4163195.54  0.04 -163.27  0.11 1549.43  ???
+               6369043.78           6369207.27       176.80       1169.72  ???
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+                    X,Y,Z              X,Y,Z            E,N,U                    
+
+1     2     GB      -577.704  0.026    -577.703  0.025  -0.000  0.002   0.03     
+                    -525.308  0.010    -525.308  0.010   0.000  0.006   0.03     
+                     437.217  0.025     437.217  0.024   0.000  0.007   0.01     
+                     894.901            894.901          0.000          0.02     
+
+      3     GB      -419.267  0.026    -409.847  0.025   0.001  0.002   0.37     
+                    -967.359  0.010    -968.460  0.010   5.653  0.005 1054.26  ???
+                     471.517  0.025     472.273  0.024   7.653  0.006 1247.52  ???
+                    1154.944           1152.793          9.514        943.01  ???
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                              666.81    6     -      -  666.81    6
+        East component                      0.27    2     -      -    0.27    2
+        North component                   745.48    2     -      -  745.48    2
+        Up component                      882.13    2     -      -  882.13    2
+
+GPS point coord                           583.63   15     -      -  583.63   15
+        East component                      0.10    5     -      -    0.10    5
+        North component                   650.83    5     -      -  650.83    5
+        Up component                      773.48    5     -      -  773.48    5
+
+
+================================================================================
+Testing grouped vector data in snapplot                      8-JUN-2011 13:33:03
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 7 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   1    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   6    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 7 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+(null)  3       GX   1169.720  100.000 ???     20  testvec.dat
+
+1      3       GB   943.012  100.000 ???     27  testvec.dat
+
+(null)  1       GX   289.347  100.000 ???     13  testvec.dat
+
+(null)  1       GX   289.347  100.000 ???     18  testvec.dat
+
+(null)  2       GX   289.321  100.000 ???     14  testvec.dat
+
+(null)  2       GX   289.321  100.000 ???     19  testvec.dat
+
+1      2       GB     0.023    0.002         26  testvec.dat

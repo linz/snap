@@ -1,0 +1,352 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+Program options read from testvecc.snp
+
+Job: Testing CSV input
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testmdfc.csv
+       9 stations read
+
+Data file 1: testvecc.csv
+       9 GPS baselines
+
+Data file 2: testdist.csv
+       3 slope distances
+
+
+================================================================================
+Testing CSV input                                           
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d data checking
+
+
+Number of observations:              30
+Number of parameters:                 0
+
+Degrees of freedom:                  30
+Sum of squared residuals:         1875662030.97221
+Standard error of unit weight:     7907.08971
+
+The probability of an SSR this high is 0.000% (from Chi squared (30))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+================================================================================
+Testing CSV input                                           
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 2000
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+   a = 6378137.000  1/f = 298.257222
+The error ellipse and height error represent the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ BU34   36 24 47.915280 S      -         -          BU34
+       174 40 11.472168 E      -         -
+             151.1240          -         -
+
+ C5MH   36 24 40.774680 S      -         -          C5MH
+       174 40 19.766856 E      -         -
+             154.5160          -         -
+
+ C5MK   36 24 29.198160 S      -         -          C5MK
+       174 40 17.995584 E      -         -
+             140.6720          -         -
+
+ DLL1   36 05 17.589480 S      -         -          DLL1
+       174 35 06.594864 E      -         -
+              53.2220          -         -
+
+ DLLL   36 04 57.664056 S      -         -          DLLL
+       174 35 32.351208 E      -         -
+              54.1410          -         -
+
+ DMJN   36 04 56.388756 S      -         -          DMJN
+       174 35 21.222492 E      -         -
+              47.8680          -         -
+
+ EH91   36 24 45.948672 S      -         -          EH91
+       174 40 00.719184 E      -         -
+             149.6620          -         -
+
+ EHJJ   36 04 56.492904 S      -         -          EHJJ
+       174 35 11.062716 E      -         -
+             109.7630          -         -
+
+ WHNG   35 48 13.577256 S      -         -          WHNG
+       174 18 52.440120 E      -         -
+             172.8150          -         -
+
+
+================================================================================
+Testing CSV input                                           
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Topocentric axes are east, north, up directions at
+    36 11 54.11982S    174 35 38.38588E
+
+Reference frame: GPS
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                          Value       Error  
+      X rotation (arc sec)                0.0000       -    
+      Y rotation (arc sec)                0.0000       -    
+      Z rotation (arc sec)                0.0000       -    
+      Scale factor (ppm)                  0.0000       -    
+
+      Correlation matrix:
+          1.0000
+          0.0000    1.0000
+          0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    1.0000
+
+   Topocentric definition
+
+      Parameter                          Value       Error  
+      N-S tilt (arc sec)                  0.0000       -    
+      W-E tilt (arc sec)                  0.0000       -    
+      Vertical rotation (arc sec)         0.0000       -    
+      Scale factor (ppm)                  0.0000       -    
+
+      Correlation matrix:
+          1.0000
+          0.0000    1.0000
+          0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+
+================================================================================
+Testing CSV input                                           
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   SD  slope distances
+Note: Calculated values for slope distances include equipment heights
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+                    X,Y,Z              X,Y,Z            E,N,U                    
+
+File testvecc.csv: line 2
+
+
+Warkworth
+BU34  EH91  GB        -9.763  0.011      -9.763  0.000   0.001  0.008   0.09     
+                     269.983  0.008     269.984  0.000   0.000  0.008   0.04     
+                      49.653  0.010      49.653  0.000  -0.000  0.012   0.03     
+                     274.684            274.685          0.001          0.06     
+
+
+Warkworth
+BU34  C5MH  GB      -152.001  0.011    -152.001  0.000  -0.000  0.008   0.04     
+                    -193.381  0.008    -193.381  0.000   0.001  0.008   0.12     
+                     175.123  0.010     175.122  0.000  -0.001  0.012   0.06     
+                     301.941            301.941          0.001          0.08     
+
+
+Warkworth
+BU34  C5MK  GB      -347.701  0.011    -347.701  0.000   0.000  0.008   0.03     
+                    -130.806  0.008    -130.806  0.000   0.001  0.008   0.09     
+                     470.525  0.010     470.524  0.000  -0.000  0.012   0.03     
+                     599.500            599.499          0.001          0.06     
+
+
+Mangawhai Heads
+DMJN  DLLL  GB       -11.350  0.007      -8.247  0.000   2.027  0.004 506.35  ???
+                    -280.642  0.004    -278.900  0.000   0.108  0.004  26.92  ???
+                     -37.460  0.006     -35.462  0.000   3.540  0.008 442.25  ???
+                     283.358            281.266          4.081        388.46  ???
+
+
+Mangawhai Heads
+DMJN  EHJJ  GB       -27.044  0.007     -23.941  0.000   2.030  0.004 507.26  ???
+                     255.856  0.004     257.601  0.000   0.123  0.004  30.80  ???
+                     -41.026  0.006     -39.047  0.000   3.529  0.008 440.89  ???
+                     260.532            261.641          4.073        388.43  ???
+
+
+Mangawhai Heads
+EHJJ  WHNG  GB    -15739.350  0.035  -15738.558  0.000  -0.387  0.020  19.23  ???
+                   26173.264  0.020   26172.798  0.000  -0.482  0.020  23.92  ???
+                   24988.307  0.029   24989.506  0.000   1.378  0.040  34.23  ???
+                   39461.150          39461.285          1.510         26.54  ???
+
+
+Mangawhai Heads
+EHJJ  DLLL  GB        15.693  0.007      15.694  0.000   0.001  0.004   0.20     
+                    -536.502  0.004    -536.501  0.000   0.000  0.004   0.04     
+                       3.585  0.006       3.585  0.000   0.000  0.008   0.06     
+                     536.743            536.743          0.001          0.12     
+
+
+Mangawhai Heads
+DLLL  DLL1  GB       421.616  0.021     421.627  0.000  -0.008  0.012   0.65     
+                     607.343  0.012     607.334  0.000  -0.000  0.012   0.02     
+                    -495.790  0.017    -495.781  0.000   0.015  0.024   0.62     
+                     890.187            890.181          0.017          0.52     
+
+
+Mangawhai Heads
+EHJJ  DLL1  GB       437.321  0.007     437.321  0.000  -0.000  0.004   0.07     
+                      70.833  0.004      70.833  0.000  -0.000  0.004   0.07     
+                    -492.196  0.006    -492.196  0.000  -0.000  0.008   0.02     
+                     662.211            662.211          0.000          0.06     
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File testdist.csv: line 2
+
+BU34  EH91  SD      272.3500 0.0081    274.6851 0.0000 -2.3351 0.0081 288.16  ???
+
+BU34  C5MH  SD      583.2100 0.0131    301.9409 0.0000 281.2691 0.0131 21443.23  ???
+
+BU34  C5MK  SD      287.1100 0.0083    599.4990 0.0000 -312.3890 0.0083 37614.62  ???
+
+
+================================================================================
+Testing CSV input                                           
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                              183.33   27     -      -  183.33   27
+        East component                    239.00    9     -      -  239.00    9
+        North component                    15.80    9     -      -   15.80    9
+        Up component                      208.47    9     -      -  208.47    9
+
+slope distance                           24998.36    3     -      - 24998.36    3
+
+
+Summary of residuals classified by input file
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+testvecc.csv                              183.33   27     -      -  183.33   27
+
+testdist.csv                             24998.36    3     -      - 24998.36    3
+
+
+================================================================================
+Testing CSV input                                           
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 12 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   6    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   6    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 10 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+BU34   C5MK    SD   37614.616  100.000 ???      4  testdist.csv
+
+BU34   C5MH    SD   21443.233  100.000 ???      3  testdist.csv
+
+BU34   EH91    SD   288.155  100.000 ???      2  testdist.csv
+
+Mangawhai Heads
+
+DMJN   DLLL    GB   388.459  100.000 ???      5  testvecc.csv
+
+Mangawhai Heads
+
+DMJN   EHJJ    GB   388.433  100.000 ???      6  testvecc.csv
+
+Mangawhai Heads
+
+EHJJ   WHNG    GB    26.544  100.000 ???      7  testvecc.csv
+
+Mangawhai Heads
+
+DLLL   DLL1    GB     0.520   15.302          9  testvecc.csv
+
+Mangawhai Heads
+
+EHJJ   DLLL    GB     0.122    0.247          8  testvecc.csv
+
+Warkworth
+
+BU34   C5MH    GB     0.084    0.081          3  testvecc.csv
+
+Warkworth
+
+BU34   EH91    GB     0.060    0.029          2  testvecc.csv

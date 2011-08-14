@@ -1,0 +1,144 @@
+!===========================================================================
+! ELLIPSOIDS:
+! Format:
+!  code "name" a rf
+! where a is the semi-major axis in metres, and rf is the reciprocal of the
+! flattening
+
+[ellipsoids]
+
+GRS80 "Geodetic Reference System 1980 (GRS80)" 6378137 298.257222101
+INTERNATIONAL "International Ellipsoid" 6378388 297
+WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
+
+!===========================================================================
+! REFERENCE FRAMES:
+
+[reference_frames]
+
+NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
+   WGS84 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
+   SNAP2D testrfgrid.grd "LINZ NZGD49-NZGD2000 conversion grid"
+NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
+
+NZGD2000D "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0  DEFORMATION 2000.0 VELGRID igns98b 2000.0
+
+WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 WGS84 0 0 0 0 0 0 0
+GRS80 "Geodetic Referency System 1980" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
+
+WGS84BW "Australian Geodetic Datum 1984" ELLIPSOID WGS84 WGS84 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
+
+!===========================================================================
+! COORDINATE SYSTEMS:
+!
+! code name REF_FRAME ref_frame_code
+!    GEODETIC|GEOCENTRIC|PROJECTION [projection_definition]
+!    [RANGE emin nmin emax nmax]
+!
+! For projection coordinate systems, the projection definition can be one of
+!
+! New Zealand Map Grid
+!   "NZMG"
+!
+! Transverse mercator projection
+!   "TM" (the projection type)
+!   central meridian longitude (in decimal degrees)
+!   origin of latitude (in decimal degrees)
+!   central meridian scale factor
+!   false easting (projection metres)
+!   false northing (projection metres)
+!   unit to metres conversion factor
+!
+! Equatorial mercator projection
+!   "EM"
+!   central meridian longitude
+!   standard parallel
+!
+! Lambert conformal conic projection
+!   "LCC"
+!   First standard parallel
+!   Second standard parallel
+!   Origin of latitude
+!   Origin of longitude
+!   False easting
+!   False northing
+!
+! Polar Stereographic projection
+!   "PS"
+!   "North" or "South"
+!   Central meridian
+!   Scale factor
+!   False easting
+!   False northing
+!
+! Gnomic projection
+!   Origin of latitude
+!   Central meridian
+!   False easting
+!   False northing
+!
+!
+! The coordinate system definition may optionally be followed by a range
+! defining the minimum and maximum latitudes and longitudes of the
+! coordinates in decimal degrees, or for projections the minimum and maximum
+! values of the easting and northing.  The format is
+!    RANGE min_long min_lat max_long max_lat
+! or
+!    RANGE min_easting min_northing max_easting max_northing
+!
+
+[coordinate_systems]
+
+
+! Global systems
+
+WGS84 "World Geodetic System 1984" REF_FRAME WGS84 GEODETIC
+
+! NZGD2000 geodetic systems
+
+NZGD2000 "New Zealand Geodetic Datum 2000" REF_FRAME NZGD2000 GEODETIC
+NZGD2000D "New Zealand Geodetic Datum 2000 (deformation)" REF_FRAME NZGD2000D GEODETIC
+NZGD2000_XYZ "New Zealand Geodetic Datum 2000 - Cartesian XYZ" REF_FRAME NZGD2000 GEOCENTRIC
+NZGD1949 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
+
+WGS84BW "Australian Geodetic Datum 1984"  REF_FRAME WGS84BW GEODETIC
+
+NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
+          PROJECTION NZMG &
+          RANGE 1600000 4800000 3600000 7200000
+
+WELLTM2000 "Wellington Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 174.7763888889 -41.3011111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84 &
+          PROJECTION PS "South" 0 0.97276901289 0 0
+ 
+ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84 &
+          PROJECTION LCC -76.66667 -79.33333 -89.999999 168 0.0 0.0
+
+NZTM_D "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000D &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+!================================================================
+! Note: Height references currently not used by SNAP and Concord.
+!
+
+[height_references]
+
+! Height references are defined by
+!
+! Code - used to reference it
+! Name - name of the reference system
+! crdsys - code of reference ellipsoidal coordinate system for ellipsoidal heights
+! 
+! GEOID + Geoid file name - a geoid grid for generating orthometric heights
+
+NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID NZGtest09
+
+[height_coordinate_systems]
+!
+! Orthometric height datums 
+!
+BLUFHT1955 "Bluff 1955" NZVD09 0.36
+STISHT1977 "Stewart Island 1977" NZVD09 0.39

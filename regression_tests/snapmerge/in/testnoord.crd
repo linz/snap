@@ -1,0 +1,9 @@
+Karori coordinates updated 7 March 2007
+WELLTM2000
+options ellipsoidal_heights no_deflections no_geoid_heights 
+! Input coord file
+
+!Code      Easting     Northing    Ell.Hgt Name
+ANOT   395954.8900  802562.6118   290.1590 RM IV DP 67708
+BB3L   395613.2410  801481.3858   153.6610 SS 7K 22 SO 30955
+HER_BDQ8   396974.8860  801900.1188   181.4870 SS 6K18 SO 32647

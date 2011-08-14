@@ -1,0 +1,34 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+Program options read from testdef2.snp
+
+Job: Test data set testdef2
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testdef2.crd
+       4 stations read
+
+Data file 1: testdef2.dat
+       4 slope distances
+       4 horizontal distances
+       4 ellipsoidal distances
+       6 horizontal angles
+       4 azimuths
+       4 zenith distances
+   *** 2 errors reading the file

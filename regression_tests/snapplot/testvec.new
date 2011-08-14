@@ -1,0 +1,9 @@
+Test of grouped vector data in snapplot
+NZGD2000
+options ellipsoidal_heights no_deflections no_geoid_heights
+! Updated by SNAP version 2.3.51 at  8-JUN-2011 13:33:03
+
+!Code       Latitude          Longitude        Ell.Hgt Name
+1      41 00 44.418080 S 173 19 15.599792 E   320.9152 1
+2      41 00 22.818070 S 173 19 40.800014 E   420.9228 2
+3      41 00 26.601236 S 173 19 58.800178 E   233.2684 3

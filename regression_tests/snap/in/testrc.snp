@@ -1,0 +1,36 @@
+title Regression test 1 - data types and observation equations
+
+coordinate_file testrc.crd
+data_file testrc.dat
+
+mode 3d adjustment
+
+fix horizontal all
+fix vertical 1 11
+
+! list command_file
+list file_summary
+list input_data
+list problem_definition
+! list observation_equations
+list solution_summary
+list station_coordinates
+! list floated_stations
+! list reference_frames
+list parameters
+list residuals
+! list error_summary
+! list worst_residuals
+
+refraction_coefficient DEFAULT 0.075
+refraction_coefficient TEST 0.0 ?
+
+bearing_orientation_error use plan
+bearing_orientation_error calculate plan1
+bearing_orientation_error plan_b* = plan1
+bearing_orientation_error calculate plan_c
+bearing_orientation_error plan_abc 10 
+
+distance_scale_error use equipment
+distance_scale_error calculate edm_k*
+distance_scale_error test_edm 5

@@ -1,0 +1,4 @@
+Using geoid: New Zealand Geoid 2009 (NZGeoid09)
+
+448 coordinates converted
+2 errors occurred reading or converting coordinates

@@ -1,0 +1,10 @@
+**** Coordinate range error for point BB3L ****  BB3L   45 17 15.937966 S 168 43 26.475812 E   153.6610 SS 7K 22 SO 30955
+BDQ7      419693.132964   698437.106524 RM IV DP 67708
+**** Coordinate range error for point BDQ8 ****  BDQ8   38 17 02.387195 S 181 15 34.999025 W   181.4870 SS 6K18 SO 32647
+**** Coordinate range error for point BDQ8A ****  BDQ8A  38 17 02.387195 S 178 44 25.000975 E   181.4870 4    SS 6K18 SO 32647
+**** Coordinate range error for point BDQ9 ****  BDQ9   38 17 27.761635 S 171 44 53.391243 E   257.5960 SS 3J26 SO 32645
+**** Conversion error for point NOTNZ ****  NOTNZ  20 17 27.761635 S 130 44 53.391243 E   257.5960 SS 3J26 SO 32645
+TEST       18216.245263   836121.156831 Test
+**** Error reading data for point TEST2 ****  TEST2  40 80 00.000000 S 170 00 00.000000 E     0.0000 Test
+**** Error reading data for point TEST2 ****  TEST2  40 00.000000 S 170 00 00.000000 E     0.0000 Test
+**** Error reading data for point TEST ****  TEST   40 00 00.000000 S 170 00 00.000000 E     Test

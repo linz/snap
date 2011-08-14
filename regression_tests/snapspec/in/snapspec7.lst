@@ -1,0 +1,321 @@
+================================================================================
+
+                          PROGRAM SNAP  Version 2.3.24
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Sep 10 2009 15:50:07
+
+================================================================================
+                          Run at 11-SEP-2009 12:20:20
+
+
+
+Program options read from snapspec7.snp
+
+Job: Test data set snapspec7
+
+
+Solution type: Horizontal coordinate adjustment
+
+
+Coordinates file snapspec7.crd
+      14 stations read
+
+Data file 1: snapspec7.dat
+      11 ellipsoidal distances
+      11 height differences
+      11 projection bearings
+
+
+================================================================================
+Test data set snapspec7                                     11-SEP-2009 12:20:20
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 0.0003 metres at station F2
+             9 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0000 metres at station F3
+             0 station adjustments exceed convergence criteria
+
+
+================================================================================
+Test data set snapspec7                                     11-SEP-2009 12:20:20
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: Horizontal coordinate adjustment
+
+
+Number of observations:              30
+Number of parameters:                18
+
+Degrees of freedom:                  12
+Sum of squared residuals:         252679.00000
+Standard error of unit weight:      145.10887
+
+The probability of an SSR this high is 0.000% (from Chi squared (12))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+Station reordering has reduced the matrix size by 63%
+
+
+================================================================================
+Test data set snapspec7                                     11-SEP-2009 12:20:20
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: North Taieri Circuit 1949
+Ellipsoid: International Ellipsoid
+   a = 6378388.000  1/f = 297.000000
+Projection: Transverse Mercator
+   Central meridian           170 16 57.3208E
+   Origin of latitude          45 51 41.4481S
+   Scale factor               0.999960
+   False easting              300000.000
+   False northing             700000.000
+   Unit to metres conversion  0.999998
+The error ellipse and height error represent the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Easting   Adjustment  Error  Brng  Name
+            Northing   (metres)  Ellipse
+            Height               Hgt err
+
+ F0      350000.0000      -         -          F0
+         679999.9997      -         -
+              0.0000      -         -
+
+ F1      350019.9998    -0.0002    0.1000  90  F1
+         679999.9997    -0.0000    0.0050 180
+              0.0000      -         -
+
+ F2      350039.9997    -0.0003    0.1005  90  F2
+         679999.9997    -0.0000    0.0058 180
+              0.0000      -         -
+
+ F3      350060.0001     0.0001    0.0981  90  F3
+         679999.9997     0.0000    0.0050 180
+              0.0000      -         -
+
+ F4      350080.0000      -         -          F4
+         679999.9997      -         -
+              0.0000      -         -
+
+ F5      350099.9998    -0.0002    0.1401  90  F5
+         679999.9997    -0.0000    0.0127 180
+              0.0000      -         -
+
+ F6      350099.9998    -0.0002    0.1401  90  F6
+         679999.9997    -0.0000    0.0127 180
+              0.0000      -         -
+
+ F7      350099.9998    -0.0002    0.1401  90  F7
+         679999.9997    -0.0000    0.0127 180
+              0.0000      -         -
+
+ F8      350099.9998    -0.0002    0.1401  90  F8
+         679999.9997    -0.0000    0.0127 180
+              0.0000      -         -
+
+ F9      350099.9998    -0.0002    0.1401  90  F9
+         679999.9997    -0.0000    0.0127 180
+              0.0000      -         -
+
+ F10     350099.9998    -0.0002    0.1401  90  F10
+         679999.9997    -0.0000    0.0127 180
+              0.0000      -         -
+
+#F11     350100.0000      -         -          F11
+         679999.9997      -         -
+              0.0000      -         -
+
+#F13     350100.0000      -         -          F13
+         679999.9997      -         -
+              0.0000      -         -
+
+
+================================================================================
+Test data set snapspec7                                     11-SEP-2009 12:20:20
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   ED  ellipsoidal distances
+   LV  height differences
+   PB  projection bearings
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File snapspec7.dat: line 10
+
+F0    F1    ED       20.0000 0.1000     20.0000 0.1000 -0.0000 0.0000    -   @   
+
+F1    F2    ED       20.0000 0.0100     20.0000 0.0100  0.0000 0.0000    -   @   
+
+F0    F3    ED       60.0000 0.5000     60.0006 0.0981 -0.0006 0.4903   0.00     
+
+F3    F4    ED       20.0000 0.1000     20.0000 0.0981 -0.0000 0.0196   0.00     
+
+F3    F5    ED       40.0000 0.1000     40.0000 0.1000  0.0000 0.0000    -   @   
+
+F3    F6    ED       40.0000 0.1000     40.0000 0.1000  0.0000 0.0000    -   @   
+
+F3    F7    ED       40.0000 0.1000     40.0000 0.1000  0.0000 0.0000    -   @   
+
+F3    F8    ED       40.0000 0.1000     40.0000 0.1000  0.0000 0.0000    -   @   
+
+F3    F9    ED       40.0000 0.1000     40.0000 0.1000  0.0000 0.0000    -   @   
+
+F3    F10   ED       40.0000 0.1000     40.0000 0.1000  0.0000 0.0000    -   @   
+
+File snapspec7.dat: line 20
+
+F3    F11   ED#      40.0000 0.1000     40.0002 0.0981 -0.0002 0.1401   0.00 #   
+
+F0    F1    LV       10.0000 0.2000      0.0000 0.0000 10.0000 0.2000  50.00  ???
+
+F1    F2    LV       10.0000 0.0200      0.0000 0.0000 10.0000 0.0200 500.00  ???
+
+F0    F3    LV        2.0000 1.0000      0.0000 0.0000  2.0000 1.0000   2.00  ?  
+
+F3    F4    LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+F3    F5    LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+F3    F6    LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+F3    F7    LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+F3    F8    LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+F3    F9    LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+File snapspec7.dat: line 33
+
+F3    F10   LV        1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00  ???
+
+F3    F11   LV#       1.0000 0.2000      0.0000 0.0000  1.0000 0.2000   5.00 #???
+
+F0    F1    PB    90 00 00.0   60.0  90 00 00.0   52.0     0.0   30.0   0.00     
+
+F1    F2    PB    90 00 00.0   60.0  90 00 00.0   52.0     0.0   30.0   0.00     
+
+F2    F3    PB    90 00 00.0   60.0  90 00 00.0   52.0     0.0   30.0   0.00     
+
+F3    F4    PB    90 00 00.0   60.0  90 00 00.0   52.0     0.0   30.0   0.00     
+
+F3    F5    PB    90 00 00.0   60.0  90 00 00.0   60.0     0.0    0.0    -   @   
+
+F3    F6    PB    90 00 00.0   60.0  90 00 00.0   60.0     0.0    0.0    -   @   
+
+F3    F7    PB    90 00 00.0   60.0  90 00 00.0   60.0     0.0    0.0    -   @   
+
+F3    F8    PB    90 00 00.0   60.0  90 00 00.0   60.0     0.0    0.0    -   @   
+
+File snapspec7.dat: line 48
+
+F3    F9    PB    90 00 00.0   60.0  90 00 00.0   60.0     0.0    0.0    -   @   
+
+F3    F10   PB    90 00 00.0   60.0  90 00 00.0   60.0     0.0    0.0    -   @   
+
+F3    F11   PB#   90 00 00.0   60.0  90 00 00.0   26.0     0.0   65.4   0.00 #   
+
+
+================================================================================
+Test data set snapspec7                                     11-SEP-2009 12:20:20
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+ellipsoidal distance                        0.00    2    0.00    1    0.00    3
+
+height difference                         158.96   10    5.00    1  151.57   11
+
+projection bearing                          0.00    4    0.00    1    0.00    5
+
+
+================================================================================
+Test data set snapspec7                                     11-SEP-2009 12:20:20
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 19 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   6    Unused:   2
+Under 99.00%  significant    Used:   1    Unused:   0
+Over  99.00%  significant    Used:   9    Unused:   1
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 3 worst residuals of rejected data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+F3     F11     LV#    5.000  100.000 ???     34  snapspec7.dat
+
+F3     F11     ED#    0.001    0.098         20  snapspec7.dat
+
+F3     F11     PB#    0.000    0.000         50  snapspec7.dat
+
+
+The following table lists the 10 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+F1     F2      LV   500.000  100.000 ???     25  snapspec7.dat
+
+F0     F1      LV    50.000  100.000 ???     24  snapspec7.dat
+
+F3     F4      LV     5.000  100.000 ???     27  snapspec7.dat
+
+F3     F5      LV     5.000  100.000 ???     28  snapspec7.dat
+
+F3     F6      LV     5.000  100.000 ???     29  snapspec7.dat
+
+F3     F7      LV     5.000  100.000 ???     30  snapspec7.dat
+
+F3     F8      LV     5.000  100.000 ???     31  snapspec7.dat
+
+F3     F9      LV     5.000  100.000 ???     32  snapspec7.dat
+
+F3     F10     LV     5.000  100.000 ???     33  snapspec7.dat
+
+F0     F3      LV     2.000   95.450 ?       26  snapspec7.dat

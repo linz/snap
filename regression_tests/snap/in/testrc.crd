@@ -1,0 +1,10 @@
+Test rc - Refraction coefficient tests
+NZGD1949
+no_geoid ellipsoidal_heights no_station_orders
+
+1        41 00 46.8000000 S  173 19 15.6000000 E 150.0 Node one
+2        41 00 25.2000000 S  173 19 40.8000000 E 250.0 Node two
+3        41 00 28.8000000 S  173 19 58.8000000 E 70.0 Node three
+11        41 00 46.8000000 S  173 19 15.6000000 E 150.0 Node one
+12        41 00 25.2000000 S  173 19 40.8000000 E 250.0 Node two
+13        41 00 28.8000000 S  173 19 58.8000000 E 70.0 Node three

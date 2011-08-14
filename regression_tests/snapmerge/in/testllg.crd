@@ -1,0 +1,14 @@
+Karori coordinates updated 7 March 2007
+NZGD2000
+options ellipsoidal_heights no_deflections geoid_heights station_orders
+! Geoid undulations from New Zealand Vertical Datum 2005 Geoid model (NZVD05)
+
+!Code        Latitude          Longitude        Ell.Hgt   G.Hgt Ordr Name
+BB3L   41 17 15.937960 S 174 43 26.475812 E    153.661  13.078 3    SS 7K 22 SO 30955
+BDQ7   41 16 40.896351 S 174 43 41.184258 E    290.159  13.094 4    RM IV DP 67708
+BDQ8   41 17 02.387189 S 174 44 25.000975 E    181.487  13.133 4    SS 6K18 SO 32647
+BDQ9   41 17 27.761628 S 174 44 53.391243 E    257.596  13.152 4    SS 3J26 SO 32645
+DFWH   41 16 45.283982 S 174 43 50.358889 E    244.388  13.103 5    LP VIII DP 63882
+A28B   41 17 15.853318 S 174 45 02.421920 E      0.000  13.160 5    OLD KARORI
+D67P   41 17 01.035860 S 174 45 00.376507 E      0.000  13.161 5    SS 14J14 SO 32647
+D67Q   41 17 02.684056 S 174 44 54.399116 E      0.000  13.156 5    SS 15J14 SO 32647

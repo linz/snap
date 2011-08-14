@@ -1,0 +1,11 @@
+Karori coordinates updated 7 March 2007
+EDENTM2000
+options ellipsoidal_heights deflections geoid_heights station_orders
+! Geoid undulations from EGM96 gravity model evaluated on 0.25x0.25 degree grid
+
+!Code      Easting     Northing    Ell.Hgt    Xi   Eta   G.Hgt Ordr Name
+8115    397958.506   309756.547    368.866  -1.0  -7.4  0.0 4    WRIGHT HILL
+BB3L    396637.417   310680.096    153.670  -0.3  -8.6  0.0 4    SS 7K 22 SO 30955
+BDQ7    396979.178   311761.169    290.159   0.0  -8.7  0.0 4    RM IV DP 67708
+BDQ8    397998.978   311098.599    181.487  -0.6  -7.7  0.0 4    SS 6K18 SO 32647
+BDQ9    398659.706   310316.032    257.596  -1.0  -7.1  0.0 4    SS 3J26 SO 32645

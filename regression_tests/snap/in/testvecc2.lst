@@ -1,0 +1,35 @@
+================================================================================
+
+                          PROGRAM SNAP  Version 2.3.53
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 12 2011 20:01:32
+
+================================================================================
+                          Run at 14-AUG-2011 07:50:51
+
+
+
+Program options read from testvecc2.snp
+
+Job: Testing CSV input
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testmdfc.csv
+       9 stations read
+
+Data file 1: testvecc.csv
+        Errors multiplied by 2.00
+       9 GPS baselines
+
+Data file 2: testdist.csv
+       3 slope distances
+
+Data file 3: test1.dat
+   *** 168 errors reading the file

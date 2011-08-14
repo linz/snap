@@ -1,2 +1,16 @@
-.svn
+.svn/
 *.swp
+/boost/
+/documents/
+/help/
+/distribution/
+/packages/
+/redundant_code/
+/temp/
+/testdata/
+/tools/
+/unit_tests/
+/unix/
+/images/
+/wxWidgets/
+/backup/

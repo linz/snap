@@ -1,0 +1,51 @@
+Test data set snapspec7h
+
+#date 1 Dec 1998
+
+#classify ObsClass 1
+
+#classify SrvClass MEAS
+
+#data no_heights ED error
+F0 F1 20.0 0.10
+F1 F2 20.0 0.01
+F0 F3 60.0 0.5
+F3 F4 20.0 0.10
+F3 F5 40.0 0.10
+F3 F6 40.0 0.10
+F3 F7 40.0 0.10
+F3 F8 40.0 0.10
+F3 F9 40.0 0.10
+F3 F10 40.0 0.10
+F3 F11 40.0 0.10
+F3 F12 40.0 0.10
+
+#data no_heights LV error
+F0 F1 10.0 0.20
+F1 F2 10.0 0.02
+F0 F3 2.0 1.0
+F3 F4 1.0 0.20
+F3 F5 1.0 0.20
+F3 F6 1.0 0.20
+F3 F7 1.0 0.20
+F3 F8 1.0 0.20
+F3 F9 1.0 0.20
+F3 F10 1.0 0.20
+F3 F11 1.0 0.20
+F3 F12 1.0 0.20
+
+#projection TAIETM1949
+
+#data no_heights PB error
+F0 F1 90 00 00.00  60
+F1 F2 90 00 00.00  60
+F2 F3 90 00 00.00  60
+F3 F4 90 00 00.00  60
+F3 F5 90 00 00.00  60
+F3 F6 90 00 00.00  60
+F3 F7 90 00 00.00  60
+F3 F8 90 00 00.00  60
+F3 F9 90 00 00.00  60
+F3 F10 90 00 00.00  60
+F3 F11 90 00 00.00  60
+F3 F12 90 00 00.00  60

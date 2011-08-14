@@ -1,0 +1,28 @@
+title Regression test 1 - data types and observation equations
+
+coordinate_file test1.crd
+data_file test1.dat
+
+mode 3d data_check
+
+list command_file
+list file_summary
+list input_data
+list problem_definition
+list observation_equations
+list solution_summary
+list station_coordinates
+list floated_stations
+list reference_frames
+list parameters
+list residuals
+list error_summary
+list worst_residuals
+
+output_csv metadata stations observations wkt_shape vector_components 
+
+! error_type aposteriori
+
+refraction_coefficient DEFAULT 0.0
+
+add_residual_column all  S Id:4 S c=class:4 S c=equpt:3

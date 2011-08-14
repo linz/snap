@@ -1,0 +1,4 @@
+Using geoid: EGM96 gravity model evaluated on 0.25x0.25 degree grid
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
