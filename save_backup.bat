@@ -1,0 +1,1 @@
+c:\bin\pscp -r  backup ccrook@dogbert:temp/snapwin
