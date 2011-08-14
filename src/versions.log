@@ -939,3 +939,29 @@ Build: 2011-08-12 20:08
   snapplot: 2.3.53
   snapspec: 2.3.53
   snap_manager: 2.3.50
+
+Build: 2011-08-14 08:32
+  concord: 3.3.69
+  dat2site: 2.3.53
+  listgps: 2.3.53
+  site2gps: 2.3.46
+  snap: 2.3.53
+  snapconv: 2.3.53
+  snapgeoid: 2.3.53
+  snapmerge: 2.3.69
+  snapplot: 2.3.53
+  snapspec: 2.3.53
+  snap_manager: 2.3.50
+
+Build: 2011-08-14 08:35
+  concord: 3.3.70
+  dat2site: 2.3.54
+  listgps: 2.3.54
+  site2gps: 2.3.47
+  snap: 2.3.54
+  snapconv: 2.3.54
+  snapgeoid: 2.3.54
+  snapmerge: 2.3.70
+  snapplot: 2.3.54
+  snapspec: 2.3.54
+  snap_manager: 2.3.51
