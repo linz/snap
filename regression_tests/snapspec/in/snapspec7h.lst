@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version 2.3.24
+                          PROGRAM SNAP  Version 2.3.53
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep 10 2009 15:50:07
+                       Version date: Aug 12 2011 20:01:36
 
 ================================================================================
-                          Run at 11-SEP-2009 12:20:21
+                          Run at 15-AUG-2011 07:36:03
 
 
 
@@ -26,12 +26,12 @@ Coordinates file snapspec7h.crd
 
 Data file 1: snapspec7h.dat
       11 ellipsoidal distances
-      11 height differences
       11 projection bearings
+      11 height differences
 
 
 ================================================================================
-Test data set snapspec7h                                    11-SEP-2009 12:20:21
+Test data set snapspec7h                                    15-AUG-2011 07:36:03
 
                                ITERATION_SUMMARY
 
@@ -45,7 +45,7 @@ Iteration 2: Maximum change is 0.0000 metres at station F3
 
 
 ================================================================================
-Test data set snapspec7h                                    11-SEP-2009 12:20:21
+Test data set snapspec7h                                    15-AUG-2011 07:36:03
 
                                 SOLUTION SUMMARY
 
@@ -71,7 +71,7 @@ Station reordering has reduced the matrix size by 63%
 
 
 ================================================================================
-Test data set snapspec7h                                    11-SEP-2009 12:20:21
+Test data set snapspec7h                                    15-AUG-2011 07:36:03
 
                               STATION COORDINATES
 
@@ -148,7 +148,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Test data set snapspec7h                                    11-SEP-2009 12:20:21
+Test data set snapspec7h                                    15-AUG-2011 07:36:03
 
                              OBSERVATION RESIDUALS
 
@@ -166,8 +166,8 @@ Observations with redundancy less than 0.10 are flagged @
 
 The following codes are used to identify data types
    ED  ellipsoidal distances
-   LV  height differences
    PB  projection bearings
+   LV  height differences
 
 From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
 
@@ -247,7 +247,7 @@ F3    F11   PB#   90 00 00.0   60.0  90 00 00.0   26.0     0.0   65.4   0.00 #
 
 
 ================================================================================
-Test data set snapspec7h                                    11-SEP-2009 12:20:21
+Test data set snapspec7h                                    15-AUG-2011 07:36:03
 
                                  ERROR SUMMARY
 
@@ -263,13 +263,13 @@ Classification                               Used        Unused       Total
 
 ellipsoidal distance                        0.00    2    0.00    1    0.00    3
 
-height difference                         158.96   10    5.00    1  151.57   11
-
 projection bearing                          0.00    4    0.00    1    0.00    5
+
+height difference                         158.96   10    5.00    1  151.57   11
 
 
 ================================================================================
-Test data set snapspec7h                                    11-SEP-2009 12:20:21
+Test data set snapspec7h                                    15-AUG-2011 07:36:03
 
                            MOST SIGNIFICANT RESIDUALS
 

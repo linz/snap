@@ -584,7 +584,7 @@ void ldt_inststn( int stn_id, double ihgt )
     od = NULL;
     vd = NULL;
     pd = NULL;
-    cancelled = 0;
+    cancelled = stn_id < 0 ? 1 : 0;
 }
 
 
@@ -593,7 +593,7 @@ void ldt_tgtstn( int stn_id, double ihgt  )
     DEBUG_PRINT(("LDT: ldt_tgtstn %d %.3lf", (int) stn_id, ihgt ));
     tgt_id = stn_id;
     tgt_hgt = ihgt;
-    trgt_cancelled = 0;
+    trgt_cancelled = stn_id < 0 ? 1 : 0;
     trgt_init_nobs = data.nobs;
 }
 

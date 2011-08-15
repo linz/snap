@@ -70,7 +70,8 @@ SnapCsvObs::CsvObservation::CsvObservation( SnapCsvObs *owner ) :
     _disterrorcalced( false ),
     _vecerrorformat(CVR_TOPOCENTRIC),
     _owner(owner),
-    _dateformat("YMDhms")
+    _dateformat("YMDhms"),
+    _ignoremissingobs(false)
 {
     _parts.push_back(&_type);
     _parts.push_back(&_fromstn);
@@ -262,13 +263,32 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     {
         continued = _owner->ContinueSet( setid, fromcode );
     }
-    int idfrom = ldt_get_id( ID_STATION, 0, _fromstn.value().c_str());
-    if( idfrom == 0 ) dataError("From station code missing or invalid");
+    if( _ignoremissingobs && _value.value() == "" )
+    {
+        return false;
+    }
+    int idfrom = 0;
+    if( _fromstn.value() == "" )
+    {
+        dataError("From station code is missing");
+    }
+    else
+    {
+        idfrom = ldt_get_id( ID_STATION, 0, _fromstn.value().c_str());
+        if( idfrom == 0 ) dataError("From station code is invalid");
+    }
     int idto = 0;
     if( ! type->ispoint )
     {
-        idto = ldt_get_id( ID_STATION, 0, _tostn.value().c_str());
-        if( idto == 0 ) dataError("To station code missing or invalid");
+        if( _tostn.value() == "" )
+        {
+            dataError("To station code is missing");
+        }
+        else
+        {
+            idto = ldt_get_id( ID_STATION, 0, _tostn.value().c_str());
+            if( idto == 0 ) dataError("To station code is invalid");
+        }
     }
     double fromhgt = 0.0;
     double tohgt = 0.0;
@@ -696,6 +716,10 @@ void SnapCsvObs::loadObservationDefinition( RecordStream &rs, CsvObservation &ob
             {
                 definitionError("Date/time format value missing");
             }
+        }
+        else if( command == "ignore_missing_observations" )
+        {
+            obs.setIgnoreMissingObs();
         }
         else
         {
