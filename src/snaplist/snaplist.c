@@ -1,7 +1,7 @@
 #include "snapconfig.h"
 
 /*
-   $Log: listgps.c,v $
+   $Log: snaplist.c,v $
    Revision 1.6  2003/10/27 21:59:36  ccrook
    Fixed calculation of ellipsoidal distance to account for curvature of the earth:wq
 
@@ -9,14 +9,14 @@
    Added facility to include coordinate changes in output listing
 
    Revision 1.4  2003/03/13 02:45:40  ccrook
-   Updated listgps to allow the from and to mark names to be included in the
+   Updated snaplist to allow the from and to mark names to be included in the
    output listing.
 
    Revision 1.3  2002/10/09 00:58:21  ccrook
    Fixed bug in handling of column names in configuration file.
 
    Revision 1.2  2001/06/27 23:31:52  ccrook
-   Updated listgps to include facility to tabulate station data.
+   Updated snaplist to include facility to tabulate station data.
 
    Revision 1.1  1996/01/03 22:49:56  CHRIS
    Initial revision
@@ -49,7 +49,7 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: listgps.c,v 1.6 2003/10/27 21:59:36 ccrook Exp $";
+static char rcsid[]="$Id: snaplist.c,v 1.6 2003/10/27 21:59:36 ccrook Exp $";
 
 static coord_conversion to_xyz;
 static coord_conversion from_xyz;
@@ -892,7 +892,7 @@ int reload_covariances( BINARY_FILE *b )
 
 
 
-static char *default_cfg_name = "listgps";
+static char *default_cfg_name = "snaplist";
 
 int main( int argc, char *argv[] )
 {
@@ -903,12 +903,12 @@ int main( int argc, char *argv[] )
     char *cfn, *basecfn, *ofn;
     char *exefile;
 
-    printf( "listgps:   Creates a table listing GPS observations in a SNAP binary file\n");
+    printf( "snaplist:   Creates a table listing GPS observations in a SNAP binary file\n");
     printf( "           Facilitates the use of GPS data in survey plans\n");
 
     if( argc != 3 && argc != 4 )
     {
-        printf("Syntax: listgps binary_file_name [config_file_name] listing_file_name\n");
+        printf("Syntax: snaplist binary_file_name [config_file_name] listing_file_name\n");
         return 0;
     }
 
@@ -938,7 +938,7 @@ int main( int argc, char *argv[] )
 
     if( !is_projection( net->crdsys ) )
     {
-        printf( "Cannot use listgps on coordinate systems without projections\n");
+        printf( "Cannot use snaplist on coordinate systems without projections\n");
         return 0;
     }
 

@@ -147,13 +147,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
+        "MsmKey" = "8:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_8938EC896D824F95AF22AA18688268DD"
+        "MsmKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -166,6 +166,12 @@
         "Entry"
         {
         "MsmKey" = "8:_9026652865F04304A0B5C365E18E0BC7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9656A9296382449F8E63975887248B84"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -202,13 +208,13 @@
         "Entry"
         {
         "MsmKey" = "8:_A2BC34928EF2EC93937E8D9F551D96F1"
-        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
+        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A2BC34928EF2EC93937E8D9F551D96F1"
-        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
+        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -327,72 +333,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_022D23B7400D4AA8A881275B7D0F2CE6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_F342A8E716484DC29C69D6823B517437"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_ED8B227EC3554205A6EF4092A654E66F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_BD0DCF4E68D4445E9B01D4080F9BF85F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_898F8D9FCE44427E83FD6D8BBC410700"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_8938EC896D824F95AF22AA18688268DD"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_DA135AB80C194AFAA396F7197A46EF03"
-        "OwnerKey" = "8:_0BFF881D74D848DA8D4D388B9DD09CFB"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_DA939587CF7E49D58A85CE18C9D85190"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -466,12 +406,6 @@
         "Entry"
         {
         "MsmKey" = "8:_FBF9DB5F03324AC7840139737FDED9B1"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_FC22D90828A5427A8F58D35AA7D9FB2F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -921,6 +855,26 @@
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\snap_manager.cfg"
             "TargetName" = "8:snap_manager.cfg"
+            "Tag" = "8:"
+            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9656A9296382449F8E63975887248B84"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snaplist\\snaplist.tbf"
+            "TargetName" = "8:snaplist.tbf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
             "Condition" = "8:"
@@ -1561,26 +1515,6 @@
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\obs.dtf"
             "TargetName" = "8:obs.dtf"
-            "Tag" = "8:"
-            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FC22D90828A5427A8F58D35AA7D9FB2F"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\listgps\\listgps.tbf"
-            "TargetName" = "8:listgps.tbf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
             "Condition" = "8:"
@@ -2325,20 +2259,6 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_DA135AB80C194AFAA396F7197A46EF03"
-            {
-            "UseDynamicProperties" = "11:TRUE"
-            "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
-                "Properties"
-                {
-                }
-            "LanguageId" = "3:0"
-            "Exclude" = "11:FALSE"
-            "Folder" = "8:"
-            "Feature" = "8:"
-            "IsolateTo" = "8:"
-            }
         }
         "ProjectOutput"
         {
@@ -2454,6 +2374,34 @@
                 {
                 }
             }
+            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
+            {
+            "SourcePath" = "8:..\\..\\built\\Release\\snaplist.exe"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            "ProjectOutputGroupRegister" = "3:1"
+            "OutputConfiguration" = "8:"
+            "OutputGroupCanonicalName" = "8:Built"
+            "OutputProjectGuid" = "8:{B859668A-6BA4-4209-9504-145AF620F6D4}"
+            "ShowKeyOutput" = "11:TRUE"
+                "ExcludeFilters"
+                {
+                }
+            }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_848D279AE87F4FF984BFDAF0E0CF24D4"
             {
             "SourcePath" = "8:..\\..\\built\\Release\\snapmerge.exe"
@@ -2477,34 +2425,6 @@
             "OutputConfiguration" = "8:"
             "OutputGroupCanonicalName" = "8:Built"
             "OutputProjectGuid" = "8:{2604D75B-D821-4F74-971D-B2A81B2FCECB}"
-            "ShowKeyOutput" = "11:TRUE"
-                "ExcludeFilters"
-                {
-                }
-            }
-            "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_8938EC896D824F95AF22AA18688268DD"
-            {
-            "SourcePath" = "8:..\\..\\built\\Release\\listgps.exe"
-            "TargetName" = "8:"
-            "Tag" = "8:"
-            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            "ProjectOutputGroupRegister" = "3:1"
-            "OutputConfiguration" = "8:"
-            "OutputGroupCanonicalName" = "8:Built"
-            "OutputProjectGuid" = "8:{B859668A-6BA4-4209-9504-145AF620F6D4}"
             "ShowKeyOutput" = "11:TRUE"
                 "ExcludeFilters"
                 {

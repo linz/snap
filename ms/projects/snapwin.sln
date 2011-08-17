@@ -18,7 +18,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "snapgeoid", "snapgeoid\snap
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "snapspec", "snapspec\snapspec.vcxproj", "{E6FD1677-A245-4B8A-A264-E3A39EC8F46B}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "listgps", "listgps\listgps.vcxproj", "{B859668A-6BA4-4209-9504-145AF620F6D4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "snaplist", "snaplist\snaplist.vcxproj", "{B859668A-6BA4-4209-9504-145AF620F6D4}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "wxutils", "wxutils\wxutils.vcxproj", "{04A34FC0-A432-4F35-A2F7-BE0BC8FB7C03}"
 EndProject

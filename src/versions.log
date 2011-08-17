@@ -978,3 +978,16 @@ Build: 2011-08-15 11:58
   snapplot: 2.3.55
   snapspec: 2.3.55
   snap_manager: 2.3.52
+
+Build: 2011-08-18 10:15
+  concord: 3.3.72
+  dat2site: 2.3.56
+  site2gps: 2.3.49
+  snap: 2.3.56
+  snapconv: 2.3.56
+  snapgeoid: 2.3.56
+  snaplist: 2.3.56
+  snapmerge: 2.3.72
+  snapplot: 2.3.56
+  snapspec: 2.3.56
+  snap_manager: 2.3.53

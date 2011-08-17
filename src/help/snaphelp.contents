@@ -45,7 +45,7 @@
  2	Snapspec - calculate coordinate orders	help/programs/snapspec/index.html
   3	Snapspec order calculation algorithm	help/programs/snapspec/algorithm.html
   3	Snapspec configuration file	help/programs/snapspec/configuration.html
- 2	listgps - list adjustment results	help/programs/listgps/index.html
+ 2	snaplist - list adjustment results	help/programs/snaplist/index.html
  2	concord - coordinate conversion program	help/programs/concord/index.html
   3	Concord error messages	help/programs/concord/error.html
   3	Examples of concord	help/programs/concord/example.html
