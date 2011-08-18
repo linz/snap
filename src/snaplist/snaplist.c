@@ -946,7 +946,7 @@ int main( int argc, char *argv[] )
     /* Set up the bits we need to calculate ellipsoidal distances
        and projection bearings */
 
-    xyzcs = related_coordsys( net->crdsys, CSTP_GEOCENTRIC );
+    xyzcs = related_coordsys( net->crdsys, CSTP_CARTESIAN );
     define_coord_conversion( &to_xyz, net->crdsys, xyzcs );
     define_coord_conversion( &from_xyz, xyzcs, net->crdsys );
     el = net->crdsys->rf->el;

@@ -1477,11 +1477,11 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fi
         temp = load_coordsys( "WGS84" );
         if( !temp|| define_coord_conversion(&towgs84,netcs,temp) != OK )
         {
-            wgs84 = related_coordsys( net->crdsys, CSTP_GEOCENTRIC );
+            wgs84 = related_coordsys( net->crdsys, CSTP_CARTESIAN );
         }
         else
         {
-            wgs84 = related_coordsys( temp, CSTP_GEOCENTRIC );
+            wgs84 = related_coordsys( temp, CSTP_CARTESIAN );
         }
         if( temp ) delete_coordsys( temp );
         define_coord_conversion( &towgs84, netcs, wgs84 );
@@ -1584,11 +1584,11 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
         temp = load_coordsys( "WGS84" );
         if( !temp|| define_coord_conversion( &tonet, temp, netcs ) != OK )
         {
-            wgs84 = related_coordsys( net->crdsys, CSTP_GEOCENTRIC );
+            wgs84 = related_coordsys( net->crdsys, CSTP_CARTESIAN );
         }
         else
         {
-            wgs84 = related_coordsys( temp, CSTP_GEOCENTRIC );
+            wgs84 = related_coordsys( temp, CSTP_CARTESIAN );
         }
         if( temp ) delete_coordsys( temp );
         define_coord_conversion( &tonet, wgs84, netcs );

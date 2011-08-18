@@ -34,7 +34,7 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYS_CODE_LEN 20
 #define CRDSYS_NAME_LEN 128
 
-enum { CSTP_GEOCENTRIC, CSTP_GEODETIC, CSTP_PROJECTION };
+enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
 enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_INVALID };
 
 /* Definition of an ellipsoid.  In addition to the ID, code and

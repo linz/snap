@@ -40,7 +40,7 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
     char csname[CRDSYS_NAME_LEN+1];
     char rfcode[CRDSYS_CODE_LEN+1];
     char typecode[CRDSYS_CODE_LEN+1];
-    int cstype = CSTP_GEOCENTRIC;
+    int cstype = CSTP_CARTESIAN;
     ref_frame *rf = NULL;
     projection *prj = NULL;
     coordsys *cs = NULL;
@@ -75,7 +75,7 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
     {
         if( _stricmp( typecode, "GEOCENTRIC" ) == 0 )
         {
-            cstype = CSTP_GEOCENTRIC;
+            cstype = CSTP_CARTESIAN;
         }
         else if( _stricmp( typecode, "GEODETIC" ) == 0 )
         {
