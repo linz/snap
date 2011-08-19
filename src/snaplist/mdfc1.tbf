@@ -1,0 +1,18 @@
+table
+data stations
+delimiter ,
+quote "
+escape "
+column code header=CODE quote
+column class=MRKS header=MRKS quote
+column class=MRKT header=MRKT quote
+column class=EXMK header=EXMK quote
+column class=DISTRICT header=DISTRICT quote
+column class=Order header=CROD quote
+column latitude header=ORDV1
+column longitude header=ORDV2
+column height header=ORDV3
+column name header=NAME quote
+column class=ALTN header=ALTN quote
+column class=COMM header=COMM quote
+end_table

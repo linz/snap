@@ -43,6 +43,7 @@
 #include "snap/survfile.h"
 #include "snap/rftrans.h"
 #include "snap/rftrndmp.h"
+#include "network/network.h"
 #include "coordsys/coordsys.h"
 #include "util/readcfg.h"
 #include "util/dstring.h"
@@ -65,13 +66,14 @@ typedef struct
 static covariance *covar;
 
 enum {JST_LEFT, JST_CENTRE, JST_RIGHT };
+enum {QT_NONE, QT_QUOTE, QT_LITERAL };
 enum {TYPE_STRING, TYPE_PSTRING, TYPE_DOUBLE, TYPE_ANGLE };
 
 #define MAX_HEADERS 3
 
 typedef struct
 {
-    char *name;
+    const char *name;
     int width;
     int ndp;
     int quote;
@@ -103,12 +105,30 @@ static double hor_vec_err;
 static double ppm_hor_vec_err;
 static double rf_hor_vec_err;
 
-#define MAX_DELIM 30
-static char quote[MAX_DELIM+1] = { '\"', 0 };
-static char delim[MAX_DELIM+1] = { '\t', 0 };
+#define MAX_DELIM 1
+static char quote[MAX_DELIM+1] = { '"', 0 };
+static char delim[MAX_DELIM+1] = { ',', 0 };
+static char escape[MAX_DELIM+1] = { '"', 0 };
+static char qescape[MAX_DELIM+MAX_DELIM+1];
+static char qquote[MAX_DELIM+MAX_DELIM+1];
+static char qnewline[MAX_DELIM+MAX_DELIM+1];
+static char nqescape[MAX_DELIM+MAX_DELIM+1];
+static char nqquote[MAX_DELIM+MAX_DELIM+1];
+static char nqdelim[MAX_DELIM+MAX_DELIM+1];
+static char nqnewline[MAX_DELIM+MAX_DELIM+1];
+static char canquote = 0;
 
 static FILE *out;
 static BINARY_FILE *b;
+
+#define MAXCLASS 20
+static int classid[MAXCLASS];
+static char *classname[MAXCLASS];
+static const char *classvalue[MAXCLASS];
+static char *blankvalue = "";
+static int nclass = 0;
+
+static column_def classcol = { "",0,0,0,JST_LEFT,TYPE_PSTRING,NULL,NULL };
 
 static column_def obs_valid_columns[] =
 {
@@ -154,6 +174,8 @@ static column_def stn_valid_columns[] =
     { "order",0,0,0,JST_LEFT,TYPE_PSTRING,&stn_order,NULL},
     { "northing",0,3,0,JST_RIGHT,TYPE_DOUBLE,&stn_northing,NULL},
     { "easting",0,3,0,JST_RIGHT,TYPE_DOUBLE,&stn_easting,NULL},
+    { "latitude",0,8,0,JST_RIGHT,TYPE_DOUBLE,&stn_northing,NULL},
+    { "longitude",0,8,0,JST_RIGHT,TYPE_DOUBLE,&stn_easting,NULL},
     { "height",0,3,0,JST_RIGHT,TYPE_DOUBLE,&stn_height,NULL},
     { "h_max_error",0,3,0,JST_RIGHT,TYPE_DOUBLE,&stn_h_max_error,NULL},
     { "h_min_error",0,3,0,JST_RIGHT,TYPE_DOUBLE,&stn_h_min_error,NULL},
@@ -165,6 +187,7 @@ static column_def stn_valid_columns[] =
 };
 
 static column_def *valid_columns = 0;
+static int stn_data = 0;
 
 static void *table_columns = NULL;
 static int table_header_rows = 0;
@@ -177,6 +200,33 @@ static column_def *get_column_def( char *name )
         if( _stricmp(c->name,name) == 0 ) return c;
     }
     return NULL;
+}
+
+static column_def *get_class_column_def( char *cls )
+{
+    if( nclass >= MAXCLASS )
+    {
+        return 0;
+    }
+    int id;
+    const char *name = cls;
+    if( stn_data )
+    {
+        id = network_class_id( net, cls, 0 );
+        if( id ) name = network_class_name(net,id);
+    }
+    else
+    {
+        id = classification_id( &obs_classes, cls, 0 );
+        if( id ) name = classification_name( &obs_classes, id );
+    }
+    classid[nclass] = id;
+    classname[nclass] = copy_string(name);
+    classvalue[nclass] = blankvalue;
+    classcol.name = classname[nclass];
+    classcol.data = &classvalue[nclass];
+    nclass++;
+    return &classcol;
 }
 
 static void delete_column_def( void *pcd )
@@ -201,8 +251,68 @@ static void init_table( void )
     clear_list( table_columns, delete_column_def );
     table_header_rows = 0;
     valid_columns = 0;
+    if( nclass > 0 )
+    {
+        for( int i = 0; i < nclass; i++ )
+        {
+            check_free( classname[i] );
+            classname[i] = 0;
+        }
+    }
+    nclass = 0;
 }
+   
 
+static void print_field( column_def *cd, const char *s, int quotefield, FILE *out )
+{
+        int left, right, spare;
+        if( cd->extralen < 0 )
+        {
+            cd->extralen = 0;
+            if( quotefield == QT_QUOTE) cd->extralen += 2 * strlen( quote );
+            if( cd->prefix ) cd->extralen += strlen( cd->prefix );
+            if( cd->suffix ) cd->extralen += strlen( cd->suffix );
+        }
+        spare = cd->width - strlen(s) - cd->extralen;
+        left = right = 0;
+
+        if( spare > 0 ) switch( cd->just )
+            {
+            case JST_CENTRE:  right = spare/2; left = spare - right; break;
+            case JST_RIGHT:   left = spare; break;
+            default:          right = spare; break;
+            }
+        while( left-- ) fputc( ' ', out );
+        if( cd->prefix ) fputs( cd->prefix, out );
+        if( quotefield == QT_LITERAL )
+        {
+            fputs(s,out);
+        }
+        else if( quotefield == QT_QUOTE && canquote )
+        {
+        fputs( quote, out );
+        for( const char *sc = s; *sc; sc++ )
+        {
+            if( *sc == *quote ) fputs( qquote, out );
+            else if( *sc == *escape ) fputs( qescape, out  );
+            else fputc(*sc, out );
+        }
+        fputs( quote, out );
+        }
+        else
+        {
+        for( const char *sc = s; *sc; sc++ )
+        {
+            if( *sc == *quote ) fputs( nqquote, out );
+            else if( *sc == *escape ) fputs( nqescape, out  );
+            else if( *sc == *delim ) fputs( nqdelim, out );
+            else if( *sc == '\n' ) fputs( nqnewline, out );
+            else fputc(*sc, out );
+        }        
+        }
+        if( cd->suffix ) fputs( cd->suffix, out );
+        while( right-- ) fputc( ' ', out );
+}
 void print_table_row( FILE *out )
 {
     column_def *cd;
@@ -214,7 +324,6 @@ void print_table_row( FILE *out )
     {
 
         char buf[80];
-        int left, right, spare;
         char *s = NULL;
         switch( cd->type )
         {
@@ -235,34 +344,27 @@ void print_table_row( FILE *out )
             break;
         }
         if( !s ) { buf[0] = 0; s = buf; }
-        if( cd->extralen < 0 )
-        {
-            cd->extralen = 0;
-            if( cd->quote ) cd->extralen += 2 * strlen( quote );
-            if( cd->prefix ) cd->extralen += strlen( cd->prefix );
-            if( cd->suffix ) cd->extralen += strlen( cd->suffix );
-        }
-        spare = cd->width - strlen(s) - cd->extralen;
-        left = right = 0;
-
-        if( spare > 0 ) switch( cd->just )
-            {
-            case JST_CENTRE:  right = spare/2; left = spare - right; break;
-            case JST_RIGHT:   left = spare; break;
-            default:          right = spare; break;
-            }
         if( first ) first = 0; else fputs( delim, out );
-        while( left-- ) fputc( ' ', out );
-        if( cd->prefix ) fputs( cd->prefix, out );
-        if( cd->quote ) fputs( quote, out );
-        fputs( s, out );
-        if( cd->quote ) fputs( quote, out );
-        if( cd->suffix ) fputs( cd->suffix, out );
-        while( right-- ) fputc( ' ', out );
+        print_field( cd, s, cd->quote, out );
     }
     fputc('\n',out);
 }
 
+
+static char *get_obs_classification_name( trgtdata *t, survdata *sd, int class_id )
+{
+    int ic;
+    for( ic = 0; ic < t->nclass; ic++ )
+    {
+        classdata *cd;
+        cd = sd->clsf + ic + t->iclass;
+        if( cd->class_id == class_id )
+        {
+            return class_value_name( &obs_classes, class_id, cd->name_id );
+        }
+    }
+    return NULL;
+}
 
 void list_vecdata_residuals( FILE *out, survdata  *v )
 {
@@ -368,6 +470,16 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
         ppm_hor_vec_err = vecppm;
         rf_hor_vec_err = vecrf;
 
+        for( int i = 0; i < nclass; i++ )
+        {
+            int idclass = classid[i];
+            classvalue[i] = blankvalue;
+            if( idclass > 0 )
+            {
+                classvalue[i] = get_obs_classification_name( &(t->tgt), v, idclass );
+            }
+        }
+
         print_table_row( out );
     }
 }
@@ -403,6 +515,12 @@ static int list_stations( FILE *out )
     station *st;
     stn_adjustment *sa;
     double enh[3];
+    projection *prj;
+
+    unsigned char projection_coords;
+
+    projection_coords = is_projection( net->crdsys ) ? 1 : 0;
+    prj = net->crdsys->prj;
 
     nstns = number_of_stations( net );
     for( istn = 0; istn++ < nstns; )
@@ -416,8 +534,15 @@ static int list_stations( FILE *out )
         stn_order = network_order( net, network_station_order( net, st ) );
         if( stn_order == NULL ) stn_order = "-";
 
-        stn_northing = enh[CRD_NORTH];
-        stn_easting = enh[CRD_EAST];
+        if( projection_coords )
+        {
+            geog_to_proj( prj, st->ELon, st->ELat, &stn_easting, &stn_northing );
+        }
+        else
+        {
+            stn_northing =  st->ELon*RTOD;
+            stn_easting = st->ELat*RTOD;
+        } 
         stn_height = enh[CRD_HGT];
         if( covar )
         {
@@ -434,6 +559,17 @@ static int list_stations( FILE *out )
         stn_dn = ( st->ELat - sa->initELat ) * st->dNdLt;
         stn_de = ( st->ELon - sa->initELon ) * st->dEdLn;
         stn_dh = st->OHgt - sa->initOHgt;
+
+        for( int i = 0; i < nclass; i++ )
+        {
+            int idclass = classid[i];
+            classvalue[i] = blankvalue;
+            if( idclass > 0 )
+            {
+                int idvalue = get_station_class( st, idclass );
+                if(idvalue > 0 ) classvalue[i] = network_class_value( net, idclass, idvalue );
+            }
+        }
         print_table_row( out );
     }
     return OK;
@@ -442,7 +578,6 @@ static int list_stations( FILE *out )
 static void print_table_header( FILE *out )
 {
     column_def *cd;
-    int left, right, spare;
     char *blank = "";
     int row;
     int first;
@@ -456,18 +591,8 @@ static void print_table_header( FILE *out )
             char *s;
             s = cd->header[row];
             if( !s ) s = blank;
-            left = right = 0;
-            spare = cd->width - strlen(s);
-            if( spare > 0 ) switch( cd->just )
-                {
-                case JST_CENTRE:  right = spare/2; left = spare - right; break;
-                case JST_RIGHT:   left = spare; break;
-                default:          right = spare; break;
-                }
             if( first ) first = 0; else fputs( delim, out );
-            while( left-- ) fputc( ' ', out );
-            fputs( s, out );
-            while( right-- ) fputc( ' ', out );
+            print_field( cd, s, QT_QUOTE, out );
         }
         fputc('\n',out);
     }
@@ -475,8 +600,59 @@ static void print_table_header( FILE *out )
 
 static void print_table( void )
 {
+
+    
+    if( ! stn_data && !is_projection( net->crdsys ) )
+    {
+        printf( "Cannot print snaplist data for coordinate systems without projections\n");
+        return;
+    }
+
+    // Sort out delimiters
+    if( *delim == 0 ) strcpy(delim,",");
+    if( *quote == *delim ) *quote = 0;
+    if( *escape == *delim ) *escape = 0;
+    canquote = *quote ? 1 : 0;
+
+    char *replace = *delim == ' ' ? "_" : " ";
+
+    if( *escape  && *escape != *quote )
+    {
+        strcpy(nqescape,escape);
+        strcat(nqescape,escape);
+        strcpy(nqdelim,escape);
+        strcat(nqdelim,delim);
+        strcpy(nqnewline,escape);
+        strcat(nqnewline,"\n");
+        strcpy(nqquote,escape);
+        strcat(nqquote,quote);
+    }
+    else
+    {
+        strcat(nqescape,replace);
+        strcat(nqdelim,replace);
+        strcat(nqnewline,replace);
+        strcat(nqquote,replace);
+    }
+
+    if( canquote )
+    {
+        if( *escape )
+        {
+            strcpy(qquote,escape);
+            strcat(qquote,quote);
+            strcpy(qescape,escape);
+            strcat(qescape,escape);
+        }
+        else
+        {
+            strcpy(qquote,replace);
+        }
+    }
+
     printf("\nPrinting table...\n");
     print_table_header( out );
+
     if( valid_columns == obs_valid_columns )
     {
         list_observations( out, b );
@@ -510,11 +686,14 @@ static config_item main_commands[] =
     {NULL}
 };
 
+enum { CHAR_DELIM, CHAR_QUOTE, CHAR_ESCAPE };
+
 static config_item table_commands[] =
 {
     {"data",NULL,ABSOLUTE,0,read_data,CFG_ONEONLY | CFG_REQUIRED,0},
-    {"delimiter",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY | CFG_REQUIRED,0},
-    {"quote",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY,1},
+    {"delimiter",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY | CFG_REQUIRED,CHAR_DELIM},
+    {"quote",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_QUOTE},
+    {"escape",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_ESCAPE},
     {"column",NULL,ABSOLUTE,0,read_column,CFG_REQUIRED,0},
     {"angle_format",NULL,ABSOLUTE,0,read_angle_format,0,0},
     {"end_table",NULL,ABSOLUTE,0,STORE_AS_STRING,CFG_END,0},
@@ -528,9 +707,7 @@ static char *interpret_escaped_string( char *source, char *target, int maxtgt )
     int nch = maxtgt;
     char escape;
     if( nch < 1 || !target ) {return target; }
-    if( nch == 1 ) { *target = 0; return target; }
     escape = 0;
-    nch--;
     for( ; *s; s++ )
     {
         if( !escape && *s == '\\' )
@@ -643,7 +820,8 @@ static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int co
     int sts;
     init_table();
     strcpy(quote,"\"");
-    strcpy(delim,"\t");
+    strcpy(delim,",");
+    strcpy(escape,"\"");
     read_opts = set_config_read_options( cfg, CFG_INIT_ITEMS | CFG_CHECK_MISSING | CFG_POSITIONAL_COMMENT );
     sts = read_config_file( cfg, table_commands );
     if( sts == OK ) print_table();
@@ -661,10 +839,12 @@ static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int cod
     if( _stricmp( s, "stations" ) == 0 )
     {
         coltype = stn_valid_columns;
+        stn_data = 1;
     }
     else if( _stricmp( s, "gps" ) == 0 )
     {
         coltype = obs_valid_columns;
+        stn_data = 0;
     }
     else
     {
@@ -683,7 +863,14 @@ static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int cod
 static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
     char *s, *t;
-    t = code ? quote : delim;
+    switch( code )
+    {
+    case CHAR_QUOTE: t=quote; break;
+    case CHAR_DELIM: t=delim; break;
+    case CHAR_ESCAPE: t=escape; break;
+    default:
+        return INVALID_DATA;
+    }
     s = strtok( string, whitespace );
     if( !s ) return MISSING_DATA;
     if( _stricmp(s,"tab") == 0 )
@@ -724,7 +911,7 @@ static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int c
     int width = -1;
     int just = -1;
     int ndp = -1;
-    int quote = 0;
+    int quote = QT_NONE;
     static char header[1024];
     char *h;
     int nh;
@@ -736,7 +923,15 @@ static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int c
     suffix[0] = 0;
     data = strtok(string,whitespace);
     if( !data ) return MISSING_DATA;
-    cd = get_column_def( data );
+    cd = 0;
+    if( _strnicmp(data,"class=",6) == 0)
+    {
+        cd = get_class_column_def( data+6 );
+    }
+    else
+    {
+        cd = get_column_def( data );
+    }
     if( !cd )
     {
         char errmess[80];
@@ -749,7 +944,8 @@ static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int c
 
     while( NULL != (opt = strtok(NULL, whitespace) ) )
     {
-        if( _stricmp(opt,"quote") == 0 ) { quote = 1; continue; }
+        if( _stricmp(opt,"quote") == 0 ) { quote = QT_QUOTE; continue; }
+        if( _stricmp(opt,"literal") == 0 ) { quote = QT_LITERAL; continue; }
         for( val = opt; *val; val++ )
         {
             if( *val == '=' ) break;
@@ -935,12 +1131,6 @@ int main( int argc, char *argv[] )
     /* Only reload covariances if available */
 
     reload_covariances( b );
-
-    if( !is_projection( net->crdsys ) )
-    {
-        printf( "Cannot use snaplist on coordinate systems without projections\n");
-        return 0;
-    }
 
 
     /* Set up the bits we need to calculate ellipsoidal distances

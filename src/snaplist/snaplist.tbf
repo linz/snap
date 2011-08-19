@@ -30,10 +30,11 @@ data gps
 ! Use \ for no delimiter.  You can also use "tab", "blank", and "comma".
 ! Or you can enter a string as defined below.
 !
-! Also you can define the quote character
+! Also you can define the quote and escape characters
 
 delimiter tab
 quote "
+escape "
 
 ! Specify the output columns.  Each column is formatted as
 !   column field_name options
@@ -56,12 +57,14 @@ quote "
 !   ppm_prj_brng_err   Ppm error "  "  "
 !   rf_prj_brng_err    RF error  "  "  "
 !   rf_hor_vec_err     ditto as RF
+!   class=classname    Classification 
 !
 ! Options for columns are as follows:
 !   width=###          Output width
 !   align=##           Alignment of field in column (left, centre, or right)
 !   ndp=#              Number of decimal places to print
 !   quote              Field is quoted
+!   literal            Field is literal - no quoting or escaping
 !   prefix=...         Printed in front of the field (outside the quotes)
 !   suffix=...         Printed behind the field (outside the quotes);
 !   header=...         Defines the column header.  See below for definition
@@ -132,6 +135,7 @@ quote "
 !   change_east        The east component of the coordinate change
 !   change_north       The east component of the coordinate change
 !   change_up          The east component of the coordinate change
+!   class=classname    Classification 
 !
 ! Options for columns are as follows:
 !   width=###          Output width
