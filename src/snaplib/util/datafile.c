@@ -46,6 +46,9 @@ static int default_reclen = 256;
 
 #define ISSPACE(x) ((x)==' ' || (x)=='\r' || (x)=='\n' || (x)=='\t' || (x)=='\x1A')
 
+static char *utf8_bom = "\xEF\xBB\xBF";
+static char *utf16_bom = "\xFF\xFE\x46";
+
 int df_data_file_default_reclen( int newlen )
 {
     int oldlen = default_reclen;
@@ -58,6 +61,9 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     FILE *f;
     DATAFILE *d;
     char msg[80];
+    int nch;
+    char unicode;
+    char binary;
 
     f = fopen( fname, "r" );
     if( f == NULL )
@@ -69,6 +75,34 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
         }
         return NULL;
     }
+
+    nch = fread(msg,1,80,f);
+    unicode = 0;
+    binary = 0;
+    if( nch >= strlen(utf8_bom) &&memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
+    if( nch >= strlen(utf16_bom) &&memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
+    if( ! unicode )
+    {
+        for( int i = 0; i < nch; i++ )
+        {
+            if( msg[i] == 0 || (msg[i] & '\x80')) { binary=1; break; }
+        }
+    }
+    if( unicode )
+    {
+        fclose(f);
+        sprintf(msg,"Cannot use unicode file - convert to ASCII");
+        handle_error(FILE_OPEN_ERROR,msg,fname);
+        return NULL;
+    }
+    if( binary )
+    {
+        fclose(f);
+        sprintf(msg,"File appears to contain binary data");
+        handle_error(FILE_OPEN_ERROR,msg,fname);
+        return NULL;
+    }
+    fseek(f,0L,SEEK_SET);
 
 
     d = (DATAFILE *) check_malloc( sizeof(DATAFILE) +  strlen(fname) + 1 );
@@ -84,6 +118,7 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     d->inrec[0] = 0;
     d->inrecptr = d->inrec;
     d->lastrecptr = d->inrec;
+    d->unicode = false;
     d->errcount = 0;
     d->comment_char = COMMENT_CHR;
     d->continuation_char = CONTINUATION_CHR;

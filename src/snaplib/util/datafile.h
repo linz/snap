@@ -31,6 +31,7 @@ typedef struct
     long lineno;
     int  maxreclen;
     int  errcount;
+    char unicode;
     char *inrec;
     char *inrecptr;
     char *lastrecptr;
@@ -64,7 +65,7 @@ int df_data_file_errcount( DATAFILE *d );
 void  df_save_data_file_loc( DATAFILE *d, datafile_loc *dl );
 void  df_reset_data_file_loc( DATAFILE *d, datafile_loc *dl );
 
-/* The following functions should really be handled by he input string def .. */
+/* The following functions should really be handled by the input string def .. */
 
 int df_skip_character( DATAFILE *d );
 int df_read_field( DATAFILE *d, char *field, int nfld );
