@@ -581,6 +581,14 @@ char *pen_name( int ipen )
     return (char *) symbology->GetLayer(ipen).Name().c_str();
 }
 
+void get_pen_colour( int ipen, unsigned char &red, unsigned char &green, unsigned char &blue )
+{
+    const wxColour &c = symbology->LayerColour(ipen);
+    red = c.Red();
+    green = c.Green();
+    blue = c.Blue();
+}
+
 int option_selected( int option )
 {
     return pen_selected( baseoptid[option] );
