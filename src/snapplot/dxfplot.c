@@ -58,7 +58,8 @@ struct dxfcolour
     unsigned char B;
 };
 
-static dxfcolour colourtable[] = {
+static dxfcolour colourtable[] =
+{
     {1,255,0,0},
     {2,255,255,0},
     {3,0,255,0},
@@ -355,7 +356,7 @@ static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char 
     for( dxfcolour *c = colourtable; c->id > 0; c++ )
     {
         int dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
-        if( dist < distance ){ colour = c->id; distance = dist; }
+        if( dist < distance ) { colour = c->id; distance = dist; }
     }
     return colour;
 }
@@ -406,27 +407,27 @@ int open_dxf_file( const char *dxfname )
 
         fprintf(dxf,"  0\nTABLE\n");
         fprintf(dxf,"  2\nLTYPE\n");
-        fprintf(dxf," 70\n     2\n");
+        fprintf(dxf," 70\n1\n");
         fprintf(dxf,"  0\nLTYPE\n");
         fprintf(dxf,"  2\nCONTINUOUS\n");
-        fprintf(dxf," 70\n    64\n");
+        fprintf(dxf," 70\n64\n");
         fprintf(dxf,"  3\nSolid line\n");
-        fprintf(dxf," 72\n    65\n");
-        fprintf(dxf," 73\n     0\n");
+        fprintf(dxf," 72\n65\n");
+        fprintf(dxf," 73\n0\n");
         fprintf(dxf," 40\n0.0\n");
         fprintf(dxf,"  0\nENDTAB\n");
 
         fprintf(dxf,"  0\nTABLE\n");
         fprintf(dxf,"  2\nLAYER\n");
-        fprintf(dxf," 70\n43\n");
+        fprintf(dxf," 70\n%d\n",nlayer);
 
         for( i = 0; i < nlayer; i++ )
         {
             unsigned char red, green, blue;
             get_pen_colour( i, red, green, blue );
             int colourid = dxf_colour_id( red, green, blue );
-            fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n0\n 62\n%d\n", 
-                layer_name[i],colourid);
+            fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
+                    layer_name[i],colourid);
         }
         fprintf(dxf,"  0\nENDTAB\n");
 
