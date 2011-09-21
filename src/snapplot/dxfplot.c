@@ -323,7 +323,7 @@ static void clear_dxf_layers( void )
     int i;
     if( layer_name )
     {
-        for( i = 0; i<nlayer; i++ ) check_free( layer_name[i] );
+        for( i = 0; i<=nlayer; i++ ) { if( layer_name[i] ) check_free( layer_name[i] ); }
         check_free( layer_name );
         layer_name = NULL;
         nlayer = 0;
@@ -335,18 +335,35 @@ static int setup_dxf_layers( void )
     int i;
     char *c;
     int npen;
+    int nused = 0;
     clear_dxf_layers();
     npen = pen_count();
-    if( npen <= 0 ) return 0;
-    layer_name = (char **) check_malloc( sizeof( char * ) * npen );
-    for( i=0; i<npen; i++)
+    if( npen <= 0 ) return nused;
+    layer_name = (char **) check_malloc( sizeof( char * ) * (npen+1) );
+    layer_name[0] = copy_string("ANNOTATION");
+    nused = 1;
+    for( i=1; i<=npen; i++)
     {
-        layer_name[i] = copy_string(pen_name(i));
+        char *name = pen_name(i-1);
+        layer_name[i] = 0;
+        if( !name || ! name[0] || ! pen_has_colour(i-1) ) continue;
+        nused++;
+        layer_name[i] = copy_string(name);
         _strupr( layer_name[i] );
         for( c = layer_name[i]; *c; c++ ) if( *c == ' ') *c = '_';
+        for( int j = 0; j < i; j++ )
+        {
+            if( layer_name[j] && stricmp(layer_name[j],layer_name[i]) == 0 )
+            {
+                char buf[40];
+                sprintf(buf,"_LAYER_%04d",i);
+                check_free( layer_name[i] );
+                layer_name[i] = copy_string(buf);
+            }
+        }
     }
     nlayer = npen;
-    return 0;
+    return nused;
 }
 
 static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char blue )
@@ -363,13 +380,17 @@ static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char 
 
 static void set_layer( int pen )
 {
-    if( pen > 0 && pen <= nlayer )
+    if( pen > 0 && pen <= nlayer && layer_name[pen] )
     {
-        cur_layer = layer_name[pen-1];
+        cur_layer = layer_name[pen];
+    }
+    else if( pen < 0 )
+    {
+        cur_layer = default_layer;
     }
     else
     {
-        cur_layer = default_layer;
+        cur_layer = layer_name[0];
     }
 }
 
@@ -387,7 +408,7 @@ int open_dxf_file( const char *dxfname )
     {
         /* Initiallize layers etc.. */
 
-        setup_dxf_layers( );
+        int usedlayers = setup_dxf_layers( );
         fprintf(dxf,"  0\nSECTION\n");
         fprintf(dxf,"  2\nHEADER\n");
         fprintf(dxf,"  9\n$LTSCALE\n");
@@ -419,13 +440,18 @@ int open_dxf_file( const char *dxfname )
 
         fprintf(dxf,"  0\nTABLE\n");
         fprintf(dxf,"  2\nLAYER\n");
-        fprintf(dxf," 70\n%d\n",nlayer);
+        fprintf(dxf," 70\n%d\n",usedlayers);
 
-        for( i = 0; i < nlayer; i++ )
+        for( i = 0; i <= nlayer; i++ )
         {
             unsigned char red, green, blue;
-            get_pen_colour( i, red, green, blue );
-            int colourid = dxf_colour_id( red, green, blue );
+            int colourid = 1;
+            if( ! layer_name[i] ) continue;
+            if( i > 0 )
+            {
+                get_pen_colour( i-1, red, green, blue );
+                int colourid = dxf_colour_id( red, green, blue );
+            }
             fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
                     layer_name[i],colourid);
         }

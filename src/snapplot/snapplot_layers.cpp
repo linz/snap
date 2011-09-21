@@ -581,6 +581,11 @@ char *pen_name( int ipen )
     return (char *) symbology->GetLayer(ipen).Name().c_str();
 }
 
+bool pen_has_colour( int ipen )
+{
+    return symbology->GetLayer(ipen).HasColour();
+}
+
 void get_pen_colour( int ipen, unsigned char &red, unsigned char &green, unsigned char &blue )
 {
     const wxColour &c = symbology->LayerColour(ipen);
