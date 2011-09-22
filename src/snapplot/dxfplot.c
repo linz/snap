@@ -581,6 +581,7 @@ static void start_block( char *blockname )
     fprintf(dxf,"  0\nBLOCK\n");
     fprintf(dxf,"  8\n0\n");
     fprintf(dxf,"  2\n%s\n",blockname);
+    fprintf(dxf," 70\n0\n");
     fprintf(dxf," 10\n0.0\n");
     fprintf(dxf," 20\n0.0\n");
     fprintf(dxf,"  3\n%s\n",blockname);
