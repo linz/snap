@@ -40,7 +40,7 @@ static double save_x1, save_y1;
 static double save_x2, save_y2;
 static int nppt;
 static int inpoly;
-static int precision = 2;
+static int precision = 3;
 
 static char **layer_name = NULL;
 static int nlayer = 0;
