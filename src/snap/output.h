@@ -46,6 +46,7 @@ SCOPE char output_input_data;
 SCOPE char output_file_summary;
 SCOPE char output_problem_definition;
 SCOPE char output_observation_equations;
+SCOPE char output_deformation;
 SCOPE char output_station_adjustments;
 SCOPE char output_iteration_summary;
 SCOPE char output_ls_summary;
@@ -113,8 +114,16 @@ typedef struct
 
 SCOPE output_option output[];
 SCOPE output_option csvopt[];
+SCOPE char *lst_name;
+SCOPE char *err_name;
+SCOPE FILE *lst;
+SCOPE FILE *err;
 
 #else
+char *lst_name = 0;
+char *err_name = 0;
+FILE *lst = 0;
+FILE *err = 0;
 
 output_option output[] =
 {
@@ -123,6 +132,7 @@ output_option output[] =
     {"file_summary",&output_file_summary,1,{0}},
     {"problem_definition",&output_problem_definition,0,{0}},
     {"observation_equations",&output_observation_equations,0,{0}},
+    {"observation_deformation",&output_deformation,0,{0}},
     {"station_adjustments",&output_station_adjustments,0,{ PREANALYSIS, 0}},
     {"iteration_summary",&output_iteration_summary,1,{ PREANALYSIS, 0}},
     {"solution_summary",&output_ls_summary,1,{ 0 }},
@@ -176,10 +186,6 @@ output_option csvopt[] =
 
 #endif
 
-SCOPE char *lst_name;
-SCOPE char *err_name;
-SCOPE FILE *lst;
-SCOPE FILE *err;
 
 #define REJECTED_OBS_FLAG   '*'
 #define REJECTED_STN_FLAG   '#'

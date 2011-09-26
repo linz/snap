@@ -28,6 +28,7 @@
 #include <math.h>
 
 #include "snapmain.h"
+#include "util/dateutil.h"
 #include "util/lsobseq.h"
 #include "util/leastsqu.h"
 #include "stnobseq.h"
@@ -197,6 +198,13 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
 
     if( deformation && calc_deformation( deformation, st, date, denu ) == OK )
     {
+        if( output_deformation && lst )
+        {
+            fprintf(lst,"Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n",
+                stn_name_width,st->Code,date_as_year(date),
+                denu[0],denu[1],denu[2],
+                st->Name);
+        }
         oe_add_value( hA, irow, -(denu[0]*dst[0] + denu[1]*dst[1] + denu[2]*dst[2]) );
     }
 

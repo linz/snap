@@ -110,9 +110,10 @@ my $cor = $adjdata->{cor};
 my ($adjid) = keys %$adj;
 $adj=$adj->{$adjid};
 
-if( $adj->{SOFTWARE_USED} !~ /^LNZ[CT]$/ )
+my $software = $adj->{SOFTWARE_USED};
+if( $software !~ /^LNZ[CTG]$/ )
 {
-   die "Error: Currently only cadastral adjustments can be converted to SNAP\n";
+   die "Error: Currently only cadastral and geodetic adjustments can be converted to SNAP\n";
 }
 
 if( ! $cos )
@@ -164,9 +165,12 @@ EOD
 
 print $ofile $title,"\n";
 
-my @fixed = ();
-my @free = ();
+my $constraint={};
 my $markname={};
+
+my $fixmap = {FREX=>'FREE', FXHX=>'FIXH', FXVX=>'FIXV'};
+$fixmap  = { FIXH=>'FIX3', FIXV=>'FREE' } if $software ne 'LNZG';
+
 
 foreach my $id ( sort {$nod->{$a}->{COR_ID} <=> $nod->{$b}->{COR_ID} || 
                $nod->{$a}->{MARK_NAME} cmp $nod->{$b}->{MARK_NAME}} keys %$nod )
@@ -183,8 +187,8 @@ foreach my $id ( sort {$nod->{$a}->{COR_ID} <=> $nod->{$b}->{COR_ID} ||
      $markname->{$id} = $name;
 
      my $adjust = $mrk->{COO_CONSTRAINT};
-     push(@fixed, $id) if $adjust =~ /^FIX[H3]/;
-     push(@free, $id) if $adjust !~ /^FIX[H3]/;
+     $adjust = $fixmap->{$adjust} || $adjust;
+     push(@{$constraint->{$adjust}},$id);
 }
 
 
@@ -203,6 +207,7 @@ my $lastsurvey = '';
 
 my $brngerrs = {};
 my $nodeinfo = {};
+my $badtype = {};
 
 my $nerr = 0;
 
@@ -214,6 +219,7 @@ $brswbase =~ s/\s+/_/g;
 
 
 my $survey={};
+my $have_gps_error_type = 0;
 foreach my $id (keys %$wrk) { $survey->{$id}=$wrk->{$id}->{SURVEY_NUMBER}; }
 
 foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} || 
@@ -310,9 +316,19 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
                   });
           }
      }
+     elsif ($type eq 'DXYZ')
+    {
+        my $ac2 = $accmult*$accmult;
+        push( @snapobs,{
+                type=>'GB',
+                value=>join(' ',$obs->{VALUE1},$obs->{VALUE2},$obs->{VALUE3}),
+                error=>join(' ',$var->{VALUE_11}*$ac2,$var->{VALUE_12}*$ac2,$var->{VALUE_22}*$ac2,$var->{VALUE_13}*$ac2,$var->{VALUE_23}*$ac2,$var->{VALUE_33}*$ac2),
+            });
+    }
      else
      {
-         print "Error: Cannot process $type observations\n";
+         print "Error: Cannot process $type observations\n" if ! $badtype->{$type};
+         $badtype->{$type}++;
          $nerr++;
          next;
      }
@@ -320,6 +336,11 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
      foreach my $o (@snapobs )
      {
           my $stype = $o->{type};
+          if( $type eq 'GB' && ! $have_gps_error_type )
+          {
+                print $ofile "\n#gps_error_type full\n";
+                $have_gps_error_type = 1;
+          }
           print $ofile "\n#data $stype id value error no_heights\n\n" if $type ne $lasttype;
           $lasttype = $stype;
 
@@ -330,11 +351,21 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
 }
 
 
+for my $k (keys %$oba)
+{
+    next if $k =~ /^(\d+)\:\1$/;
+    print "Error: Cannot process covariances between observations\n";
+    $nerr++;
+    last;
+}
+
+
 my $mode = 'adjustment';
 $mode = 'free_net_adjustment' if lc($prm->{FNAD}) eq 'yes';
 my $maxit = $prm->{MXIT} || 10;
 my $maxch = $prm->{MXCH} || 1000;
 my $conv = $prm->{CNVG} || 0.001;
+my $dim = $software eq 'LNZG' ? '3d' : '2d';
 
 print $sfile <<"EOD";
 title $title
@@ -342,7 +373,7 @@ title $title
 coordinate_file $rootname.crd
 data_file $rootname.dat
 
-mode 2d $mode
+mode $dim $mode
 
 convergence_tolerance $conv
 max_iterations $maxit
@@ -353,39 +384,30 @@ EOD
 my $free = 'free';
 my $float = $prm->{WCRD};
 
+my $consmap = { FREE=>'',FIX3=>'fix',FIXH=>'fix horizontal',FIXV=>'fix vertical' };
 if( $float > 0 )
 {
     print "\nhorizontal_float_error $float\n";
-    $free = "float horizontal";
+    $consmap->{FREE} = "float horizontal";
 }
 
-if( $#fixed < $#free )
+foreach my $cons (sort keys %$constraint)
 {
-    print $sfile "\n$free all\n";
+    my $cmd = $consmap->{$cons};
+    next if ! $cmd;
+    my @ids = @{$constraint->{$cons}};
 
-    foreach my $fid (sort @fixed)
+    while( my @slice = splice(@ids,0,8))
     {
-         print $sfile "fix 3d $fid\n";
-         $nodeinfo->{$fid}->{fix} = 1;
-    }
-}
-else
-{
-    print $sfile "\nfix 3d all\n";
-    foreach my $n (keys %$nodeinfo) { $nodeinfo->{$n}->{fix} = 1;}
-
-    foreach my $fid (sort @free)
-    {
-         print $sfile "$free $fid\n";
-         $nodeinfo->{$fid}->{fix} = 0;
+        print $sfile join(' ',$cmd,@slice),"\n";
     }
 }
 
 print "\n";
 
 my $fixedbrsw = 0;
-print $sfile "bearing_orientation_error use ",brswcos ? "projection" : "survey","\n";
-print $sfile "! bearing_orientation_error use ",brswcos ? "survey" : "projection","\n";
+print $sfile "bearing_orientation_error use ",$brswcos ? "projection" : "survey","\n";
+print $sfile "! bearing_orientation_error use ",$brswcos ? "survey" : "projection","\n";
 foreach my $brset ($brsw =~ /\b(calc\s+\S+|set\s+\S+\s+\S+)\b/ig)
 {
     my($status,$code,$value) = split(' ',$brset);

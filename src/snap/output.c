@@ -66,7 +66,6 @@ static int errcount = 0;
 static int page_width = 80;
 static char *divider = NULL;
 
-
 int open_output_files( )
 {
     char errmess[80];
@@ -109,6 +108,7 @@ int open_output_files( )
 static void close_listing_file( void )
 {
     if( lst ) fclose( lst );
+    lst = 0;
     xprintf("\n\n****************************************************\n\n");
     xprintf("The results are in file %s\n\n",lst_name);
 }
@@ -117,6 +117,7 @@ static void close_listing_file( void )
 static void close_error_file( const char *mess1, const char *mess2 )
 {
     if( err ) fclose( err );
+    err = 0;
     if( errcount <= 0 )
     {
         _unlink( err_name );
