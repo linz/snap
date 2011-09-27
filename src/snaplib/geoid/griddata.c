@@ -571,7 +571,7 @@ static int calc_grid_linear( grid_def *def, double x, double y, double *value )
             for( j = 0; j < 2; j++ )
             {
                 long rv;
-                if( xfactor[i] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) continue;
+                if( xfactor[j] < 1.0e-8 && xfactor[j] >= -1.0e-8 ) continue;
                 rv = row[xrow[j]+v];
                 if( rv == def->undef ) return MISSING_DATA;
                 sum += rv*xfactor[j];
