@@ -157,13 +157,13 @@ my $title = 'Landonline adjustment : '.$adj->{ADJ_ID}.' - '.($adj->{DESCRIPTION}
 print $cfile <<"EOD";
 $title
 NZGD2000
-options station_orders ellipsoidal_heights no_geoid
+options station_orders ellipsoidal_heights degrees no_geoid
 
 EOD
 
 # Print marks
 
-print $ofile $title,"\n";
+print $ofile $title,"\n\n#deg_angles\n";
 
 my $constraint={};
 my $markname={};
@@ -176,9 +176,9 @@ foreach my $id ( sort {$nod->{$a}->{COR_ID} <=> $nod->{$b}->{COR_ID} ||
                $nod->{$a}->{MARK_NAME} cmp $nod->{$b}->{MARK_NAME}} keys %$nod )
 {
      my $mrk = $nod->{$id};
-     my $c1 = &FormatDMS($mrk->{VALUE1},6,'SN');
-     my $c2 = &FormatDMS($mrk->{VALUE2},6,'WE');
-     my $c3 = sprintf("%.3f",$mrk->{VALUE3}); 
+     my $c1 = $mrk->{VALUE1};
+     my $c2 = $mrk->{VALUE2};
+     my $c3 = $mrk->{VALUE3}; 
      my $order = $orders->{$mrk->{COR_ID}};
      $order = '?' if $order eq '';
      my $name = $mrk->{MARK_NAME};
@@ -299,7 +299,7 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
           $brngerrs->{$be}++;
           push(@snapobs,{ 
               type=>'PB',
-              value=>&FormatDMS($obs->{VALUE1},1),
+              value=>$obs->{VALUE1},
               error=>sprintf("%.1f",$accmult*3600.0*sqrt($var->{VALUE_11}))
               });
           if( $type eq 'ARCO' )

@@ -99,6 +99,10 @@ static  int CDECL stncmp( const void *st1, const void *st2 )
     return stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
 }
 
+static int CDECL stnptrcmp( const void *st1, const void *st2 )
+{
+    return st1 == st2;
+}
 
 static void index_stations( station_list *sl )
 {
@@ -120,13 +124,19 @@ static void index_stations( station_list *sl )
     sl->indexed = 1;
 }
 
-
 int sl_find_station( station_list *sl, const char *code )
 {
     station **match;
-
     if( !sl->indexed ) index_stations( sl );
     match = (station **) bsearch( code, sl->index+1, sl->count, sizeof(station *), stncodecmps );
+    return match ? match - sl->index : 0;
+}
+
+int sl_station_id( station_list *sl, station *st )
+{
+    station **match;
+    if( !sl->indexed ) index_stations( sl );
+    match = (station **) bsearch( st, sl->index+1, sl->count, sizeof(station *), stnptrcmp );
     return match ? match - sl->index : 0;
 }
 

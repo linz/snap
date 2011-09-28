@@ -103,7 +103,11 @@ static int rf_grid_calc( ref_frame *rf, double lon, double lat, double epoch, do
     if( epoch == 0 ) return OK;
     epoch -= gd->refepoch;
     if( epoch == 0 ) return OK;
-    return grd_calc_linear( gd->grid, lon*RTOD, lat*RTOD, denu );
+    sts = grd_calc_linear( gd->grid, lon*RTOD, lat*RTOD, denu );
+    denu[0] *= epoch;
+    denu[1] *= epoch;
+    denu[2] *= epoch;
+    return sts;
 }
 
 static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, double epochto )

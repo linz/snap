@@ -256,6 +256,7 @@ void    sl_add_station( station_list *sl, station *st );
 void    sl_remove_station( station_list *sl, station *st );
 
 int   sl_find_station( station_list *sl, const char *code );
+int   sl_station_id( station_list *sl, station *st );
 station *sl_station_ptr( station_list *sl, int stnindex );
 
 void    sl_reset_station_list( station_list *sl, int sorted );
@@ -307,6 +308,7 @@ int   add_station( network *nw, station *st );
 void    remove_station( network *nw, station *st );
 
 int   find_station( network *nw, const char *code );
+int station_id( network *nw, station *st );
 station *station_ptr( network *nw, int stnindex );
 
 void    reset_station_list( network *nw, int sorted );

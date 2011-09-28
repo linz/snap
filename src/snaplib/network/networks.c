@@ -182,9 +182,14 @@ void remove_station( network *nw, station *st )
 
 int find_station( network *nw, const char *code )
 {
-
     if( !nw->stnlist ) return 0;
     return sl_find_station( nw->stnlist, code );
+}
+
+int station_id( network *nw, station *st )
+{
+    if( !nw->stnlist ) return 0;
+    return sl_station_id( nw->stnlist, st );
 }
 
 

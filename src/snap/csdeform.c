@@ -116,7 +116,7 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
     if( ! model ) return OK;
 
     /*!!! This has to be really inefficient - don't we already know the id */
-    stnid = find_station( net, st->Code );
+    stnid = station_id( net, st );
     std = &(model->stdefs[stnid]);
 
     year = date_as_year( date );
