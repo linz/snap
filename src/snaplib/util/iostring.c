@@ -212,3 +212,15 @@ int write_output_string( output_string_def *os, const char *s )
     if( os->write ) return (*os->write)( s, os->sink );
     return FILE_WRITE_ERROR;
 }
+
+static int sfputs( const char *s, void *f )
+{
+    return (int) fputs( s, (FILE *) f );
+}
+
+void output_string_to_file( output_string_def *os, FILE *f )
+{
+    os->sink = f;
+    os->write = sfputs;
+}
+

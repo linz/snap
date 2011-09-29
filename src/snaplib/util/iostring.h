@@ -58,6 +58,7 @@ char *unread_string( input_string_def *is );
 void report_string_error( input_string_def *is, int status, char *message );
 
 int write_output_string( output_string_def *os, const char *s );
+void output_string_to_file( output_string_def *os, FILE *f );
 
 #endif
 

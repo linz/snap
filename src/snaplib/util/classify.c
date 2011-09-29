@@ -29,6 +29,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "util/binfile.h"
 #include "util/chkalloc.h"
@@ -109,6 +110,14 @@ static class_value *create_class_value( class_type *ct )
     return cv;
 }
 
+static void clean_name( char *name )
+{
+    for( ; *name; name++ )
+    {
+        if( isspace(*name)) *name = '_';
+    }
+}
+
 static int class_type_value_id( class_type *ct, const char *name, int create )
 {
     int cmax;
@@ -132,12 +141,13 @@ static int class_type_value_id( class_type *ct, const char *name, int create )
 
     for( i=0; i<cmax; i++ )
     {
-        if( _stricmp(cvs[i]->value.name, name) == 0 ) return i;
+        if( ismatch(cvs[i]->value.name, name) ) return i;
     }
     if( ! create ) return CLASS_VALUE_NOT_DEFINED;
 
     cv = create_class_value(ct);
     cv->value.name = copy_string( name );
+    clean_name( cv->value.name );
     return ct->count-1;
 }
 
@@ -145,6 +155,7 @@ static class_type *create_class_type( const char*name, int type, char *dflt )
 {
     class_type *ct = (class_type *) check_malloc( sizeof( class_type ) );
     ct->name = copy_string( name );
+    clean_name( ct->name );
     ct->type = type;
     ct->count = 0;
     ct->alloc_size = 0;
@@ -200,7 +211,7 @@ static int find_classification_id( classifications *csf, const char *name )
     int class_count = csf->class_count;
     for( i = 0; i<class_count; i++ )
     {
-        if( _stricmp(name, csf->class_index[i]->name ) == 0 ) return i+1;
+        if( ismatch(name, csf->class_index[i]->name )) return i+1;
     }
     return 0;
 }

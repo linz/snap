@@ -196,15 +196,19 @@ int snap_main( int argc, char *argv[] )
     {
         if( deformation )
         {
+            /*
             handle_error( WARNING_ERROR,
                           "The adjustment is using deformation model which overrides that of the coordinate system",
                           NO_MESSAGE);
+            */
         }
         else if( ignore_deformation )
         {
+            /*
             handle_error( WARNING_ERROR,
                           "The adjustment is not using the deformation model of the coordinate system",
                           NO_MESSAGE);
+            */
         }
         else
         {

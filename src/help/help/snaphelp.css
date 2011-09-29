@@ -81,6 +81,17 @@ p.Commanddescription
 	margin-left: 5em;
 }
 
+
+p.alert 
+{
+        color: #000000;
+	border-width: 1px;
+	border-style: solid;
+	border-color: #FFEE00;
+	background-color: #FFFFCC;
+	padding: 5px;
+}
+
 table
 {
 	margin-left: 1em;
@@ -106,6 +117,17 @@ table.Commanddescription tr td
 table.CommandOptions tr td p
 {
 	margin-left: 2em;
+}
+
+table.coordsys_table td.header
+{
+	font-weight: bold;
+	padding: 1em 0 1px 1em;
+}
+
+table.coordsys_table td
+{
+	padding: 1px 0 1px 1em;
 }
 
 .nobr

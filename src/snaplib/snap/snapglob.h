@@ -102,7 +102,7 @@ SCOPE double   obs_errfct[ NOBSTYPE ];
 SCOPE long     obstypecount[ NOBSTYPE ];
 SCOPE int  maxworst;
 SCOPE unsigned char use_distance_ratios;
-SCOPE int ignore_deformation;
+SCOPE int ignore_deformation; /* Ignore the coordinate system deformation */
 SCOPE deformation_model *deformation;
 SCOPE classifications obs_classes;
 

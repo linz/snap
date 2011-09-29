@@ -10,6 +10,9 @@ max_iterations 5
 
 deformation type=velocity model=cmn_test_velgrid.grd epoch=2000.0
 
+output observation_deformation
+add_residual_column all date
+
 list solution_summary station_coordinates residuals 
 
 ! Adjustment parameters

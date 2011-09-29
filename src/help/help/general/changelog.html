@@ -47,7 +47,7 @@ formatted files of adjustment results
 (station/coordinate information, observation information, and adjustment metdata).  
 This simplifies importing adjustment data into other analysis packages. CSV format files
 are generated using the <a href="../files/cmdcfg/cmd_output_csv.html">output_csv</a> command 
-in the SNAP command file.
+in the SNAP command file.  Note that this feature is &quot;under development&quot; - the implementation is likely to change in the next release of SNAP.
 </p>
 <p>Enhancement: SNAP is able to calculate the geoid undulation and deflections of the vertical
 from the geoid model after loading the coordinates, so that this can built into the adjustment
@@ -55,11 +55,14 @@ configuration, rather than relying on the user to run the sngeoid program.  This
 the <a href="../files/cmdcfg/cmd_geoid.html">geoid</a> command in the SNAP command/configuration file.
 </p>
 <p>
-Enhancement: (Warning - this is an experimental feature and will change). The coordsys.def file can include a specification for a <a href="../coordsys/crdsys_refframe_def.html">deformation model</a> associated with the datum.  
+Enhancement: The coordsys.def file can include a specification for a <a href="../coordsys/crdsys_refframe_def.html">deformation model</a> associated with the datum.  
 SNAP will use this model by default, unless it is overridden by a <a href="../files/cmdcfg/cmd_deformation.html">deformation</a> command in the SNAP command file.
+<!--
 In conjunction with this there is a currently undocumented feature in concord 
 whereby the coordinate system specifications can include an epoch (eg NZGD2000@2011.0 would represent the coordinates of an NZGD2000 point at epoch 2011 (in effect the current ITRS coordinate of the point).
- Note that the deformation model currently included in coordsys.def is still the IGNS98 model.
+-->
+Note that the deformation model currently included in coordsys.def is still the IGNS98 model. 
+This is under development and may change with the next release.
 </p>
 <p>Enhancement: The handling of bearing orientation errors, distance scale errors, refraction coefficients, and vector reference frames has been modified.
 Each of these previously had values defined by codes used in the data file

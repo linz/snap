@@ -363,10 +363,6 @@ void print_coordinate_changes( FILE *out )
 
 }
 
-static int sfputs( const char *s, void *f )
-{
-    return (int) fputs( s, (FILE *) f );
-}
 
 void print_adjusted_coordinates( FILE *lst )
 {
@@ -383,8 +379,7 @@ void print_adjusted_coordinates( FILE *lst )
 
     print_section_heading(lst,"STATION COORDINATES");
 
-    os.sink = lst;
-    os.write = sfputs;
+    output_string_to_file( &os, lst );
     cs = net->crdsys;
     write_output_string( &os, "Coordinate system: " );
     write_output_string( &os, cs->name );
@@ -397,6 +392,12 @@ void print_adjusted_coordinates( FILE *lst )
         fprintf(lst,"\nThe following deformation model has been applied\n");
         print_deformation_model( deformation, lst, "");
         fprintf(lst,"\n");
+    }
+
+    if( has_deformation_model(net->crdsys) && ignore_deformation )
+    {
+        fprintf(lst,"\nNote: the deformation model associated with %s has not been used\n\n",
+            cs->name);
     }
 
     adjusted = program_mode != PREANALYSIS;

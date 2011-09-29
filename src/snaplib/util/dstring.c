@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "util/dstring.h"
 #include "util/chkalloc.h"
@@ -48,5 +49,27 @@ char *reload_string( FILE *b )
     fread( s, len, 1, b );
     s[len] = 0;
     return s;
+}
+
+int ismatch( const char *string1, const char *string2 )
+{
+    static const char *map =
+        "________________________________"
+        "_!\"#$%&'()*+,-./0123456789:;<=>?"
+        "@abcdefghijklmnopqrstuvwxyz[\\]^_"
+        "`abcdefghijklmnopqrstuvwxyz{|}~_"
+        "________________________________"
+        "________________________________"
+        "________________________________"
+        "________________________________";
+
+    const char *s1;
+    const char *s2;
+    for( s1 = string1, s2=string2; ; s1++, s2++ )
+    {
+        if( *s1 != *s2 && map[*s1] != map[*s2] ) return 0;
+        if( ! *s1 ) break;
+    }
+    return 1;
 }
 

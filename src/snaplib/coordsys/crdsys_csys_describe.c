@@ -118,3 +118,12 @@ int  describe_coordsys(  output_string_def *os, coordsys *cs )
     return OK;
 }
 
+int  describe_deformation_model( output_string_def *os, ref_frame *rf )
+{
+    if( rf->def )
+    {
+        return rf->def->describe_func( rf, os );
+    }
+    return OK;
+}
+

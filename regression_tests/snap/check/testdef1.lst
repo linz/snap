@@ -34,6 +34,22 @@ Test data set testdef1
                                ITERATION_SUMMARY
 
 ================================================================================
+Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
+Deformation at N2   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N2
+Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
+Deformation at N3   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N3
+Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
+Deformation at N2   , 3000.00 (-31.7657,31.3000, 0.0000)  Node N2
+Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
+Deformation at N3   , 3000.00 (-2.4680,36.5805, 0.0000)  Node N3
+Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
+Deformation at N2   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N2
+Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
+Deformation at N3   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N3
+Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
+Deformation at N2   , 3000.00 (-31.7657,31.3000, 0.0000)  Node N2
+Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
+Deformation at N3   , 3000.00 (-2.4680,36.5805, 0.0000)  Node N3
 
 
 ================================================================================
@@ -50,14 +66,12 @@ Number of observations:               4
 Number of parameters:                 0
 
 Degrees of freedom:                   4
-Sum of squared residuals:         19215.47855
-Standard error of unit weight:       69.30995
+Sum of squared residuals:             0.00005
+Standard error of unit weight:        0.00358
 
-The probability of an SSR this high is 0.000% (from Chi squared (4))
+The probability of an SSR this low is 0.000% (from Chi squared (4))
 
-You may have under-estimated the errors of the data,
-or there may be gross errors in the data
-or the fixed stations may be incorrectly positioned
+You may have over-estimated the errors of the data.
 
 
 ================================================================================
@@ -120,17 +134,17 @@ The following codes are used to identify data types
    SD  slope distances
 Note: Calculated values for slope distances include equipment heights
 
-From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.          Date   
 
 File testdef1.dat: line 10
 
-N1    N2    SD   234378.6725 0.2344 234378.6725 0.0000  0.0000 0.2344   0.00     
+N1    N2    SD   234378.6725 0.2344 234378.6725 0.0000  0.0000 0.2344   0.00      01/01/2000
 
-N1    N3    SD   140031.7777 0.1400 140031.7777 0.0000 -0.0000 0.1400   0.00     
+N1    N3    SD   140031.7777 0.1400 140031.7777 0.0000 -0.0000 0.1400   0.00      01/01/2000
 
-N1    N2    SD   234364.6389 0.2344 234378.6725 0.0000 -14.0336 0.2344  59.87  ???
+N1    N2    SD   234364.6389 0.2344 234364.6382 0.0000  0.0007 0.2344   0.00      01/01/3000
 
-N1    N3    SD   140031.3127 0.1400 140048.8161 0.0000 -17.5034 0.1400 125.02  ???
+N1    N3    SD   140031.3127 0.1400 140031.3118 0.0000  0.0009 0.1400   0.01      01/01/3000
 
 
 ================================================================================
@@ -148,7 +162,7 @@ Classification                               Used        Unused       Total
 
 
 
-slope distance                             69.31    4     -      -   69.31    4
+slope distance                              0.00    4     -      -    0.00    4
 
 
 ================================================================================
@@ -161,9 +175,9 @@ Test data set testdef1
 
 The 4 residuals from this data are classified as follows:
 
-Under 95.00%  significant    Used:   2    Unused:   0
+Under 95.00%  significant    Used:   4    Unused:   0
 Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   2    Unused:   0
+Over  99.00%  significant    Used:   0    Unused:   0
 
 Note: Only the overall residual for vector data is counted
 
@@ -172,10 +186,10 @@ The following table lists the 4 worst residuals of used data
 
 From   To     Type     S.R.  Sig (%)       Line  File
 
-N1     N3      SD   125.024  100.000 ???     15  testdef1.dat
+N1     N3      SD     0.007    0.521         15  testdef1.dat
 
-N1     N2      SD    59.870  100.000 ???     14  testdef1.dat
+N1     N2      SD     0.003    0.233         14  testdef1.dat
 
-N1     N3      SD     0.000    0.021         11  testdef1.dat
+N1     N2      SD     0.000    0.008         10  testdef1.dat
 
-N1     N2      SD     0.000    0.001         10  testdef1.dat
+N1     N3      SD     0.000    0.007         11  testdef1.dat

@@ -1414,6 +1414,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
         if( value == NULL ) value = "";
         if( _stricmp(item,"type") == 0 )
         {
+            ignore_deformation = 1;
             if( _stricmp(value,"velocity") == 0 || _stricmp(value,"velgrid"))
             {
                 type = DTP_VELOCITY;
