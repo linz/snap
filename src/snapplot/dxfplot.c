@@ -39,13 +39,15 @@ static FILE *dxf = NULL;
 static double save_x1, save_y1;
 static double save_x2, save_y2;
 static int nppt;
-static int inpoly;
+static long poly_id;
 static int precision = 3;
+static long entid = 0;
 
 static char **layer_name = NULL;
 static int nlayer = 0;
 static char *cur_layer;
 static char *default_layer = "0";
+static int text_layer = 0;
 
 static Trimmer tr;
 static char TrimLines;
@@ -350,10 +352,11 @@ static int setup_dxf_layers( void )
         nused++;
         layer_name[i] = copy_string(name);
         _strupr( layer_name[i] );
+        if( strcmp(layer_name[i],"TEXT") == 0 ) text_layer=i;
         for( c = layer_name[i]; *c; c++ ) if( *c == ' ') *c = '_';
         for( int j = 0; j < i; j++ )
         {
-            if( layer_name[j] && stricmp(layer_name[j],layer_name[i]) == 0 )
+            if( layer_name[j] && _stricmp(layer_name[j],layer_name[i]) == 0 )
             {
                 char buf[40];
                 sprintf(buf,"_LAYER_%04d",i);
@@ -401,8 +404,9 @@ int open_dxf_file( const char *dxfname )
 {
     int i;
     dxf = fopen(dxfname,"w");
-    inpoly = 0;
+    poly_id = 0;
     nppt = 0;
+    entid = 0;
     cur_layer = default_layer;
     if( dxf )
     {
@@ -450,7 +454,7 @@ int open_dxf_file( const char *dxfname )
             if( i > 0 )
             {
                 get_pen_colour( i-1, red, green, blue );
-                int colourid = dxf_colour_id( red, green, blue );
+                colourid = dxf_colour_id( red, green, blue );
             }
             fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
                     layer_name[i],colourid);
@@ -473,32 +477,45 @@ int open_dxf_file( const char *dxfname )
     return dxf ? OK : FILE_OPEN_ERROR;
 }
 
-static void end_line( void )
+static long write_dxf_entity_id()
 {
-    if( inpoly )
+    entid++;
+    fprintf(dxf,"  5\n%ld\n",entid);
+    return entid;
+}
+
+static long end_line( void )
+{
+    long id = 0;
+    if( poly_id )
     {
         fprintf(dxf,"  0\nSEQEND\n");
-        inpoly = 0;
+        id = poly_id;
+        poly_id = 0;
     }
     else if( nppt > 1 )
     {
         fprintf(dxf,"  0\nLINE\n  8\n%s\n",cur_layer);
+        id =write_dxf_entity_id();
         fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n",
                 precision, save_x1, precision, save_y1, precision, save_x2, precision, save_y2 );
     }
     nppt = 0;
+    return id;
 }
 
 static void start_polyline( void )
 {
     fprintf(dxf,"  0\nPOLYLINE\n  8\n%s\n 66\n1\n",cur_layer);
-    inpoly = 1;
+    entid = write_dxf_entity_id();
+    poly_id = entid;
 }
 
 
 static void write_poly_vertex( double x, double y )
 {
     fprintf(dxf,"  0\nVERTEX\n  8\n%s\n", cur_layer);
+    write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
 }
 
@@ -508,7 +525,7 @@ static int write_dxf_point( double x, double y, int pen )
 
     if( pen != 0 ) { end_line(); set_layer(pen); }
 
-    if( inpoly )
+    if( poly_id )
     {
         write_poly_vertex( x, y );
     }
@@ -532,124 +549,120 @@ static int write_dxf_point( double x, double y, int pen )
 }
 
 
-static int write_dxf_text( double x, double y, int pen, double size,
+static long write_dxf_text( double x, double y, int pen, double size,
                            double angle, char *text )
 {
-
-    if( !dxf ) return FILE_OPEN_ERROR;
+    long id;
+    if( !dxf ) return 0;
     end_line();
     set_layer( pen );
 
-    fprintf(dxf,"  0\nTEXT\n  8\n%s\n",cur_layer);
+    fprintf(dxf,"  0\nTEXT\n  8\n%s\n 62\n256\n",cur_layer);
+    id = write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
     fprintf(dxf," 40\n%.*lf\n  1\n%s\n",precision,size,text);
     fprintf(dxf," 50\n%.6lf\n",angle);
 
-    return OK;
+    return id;
 }
 
-static int write_dxf_circle( double x, double y, double rad, int pen )
+static long write_dxf_circle( double x, double y, double rad, int pen )
 {
-    if( !dxf ) return FILE_OPEN_ERROR;
+    long id;
+    if( !dxf ) return 0;
     end_line();
     set_layer( pen );
-    fprintf(dxf,"  0\nCIRCLE\n  8\n%s\n",cur_layer);
+    fprintf(dxf,"  0\nCIRCLE\n  8\n%s\n 62\n256\n",cur_layer);
+    id = write_dxf_entity_id();
     fprintf(dxf,"  10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
     fprintf(dxf,"  40\n%.*lf\n",precision,rad);
 
-    return OK;
+    return id;
 }
 
-static int write_dxf_blockref( double x, double y, char *blkname, double blocksize, int pen )
+static long write_dxf_blockref( double x, double y, char *blkname, double blocksize, int pen )
 {
-    if( !dxf ) return FILE_OPEN_ERROR;
+    long id;
+    if( !dxf ) return 0;
     end_line();
     set_layer( pen );
 
     fprintf(dxf,"  0\nINSERT\n");
-    fprintf(dxf,"  8\n%s\n",cur_layer);
+    fprintf(dxf,"  8\n%s\n 62\n0\n",cur_layer);
+    id = write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
     fprintf(dxf,"  2\n%s\n",blkname);
     fprintf(dxf," 41\n%.*lf\n 42\n%.*lf\n",precision,blocksize,precision,blocksize );
 
-    return OK;
+    return id;
 }
 
 
-static void start_block( char *blockname )
+static long start_block( char *blockname )
 {
+    long id;
     fprintf(dxf,"  0\nBLOCK\n");
     fprintf(dxf,"  8\n0\n");
+    id = write_dxf_entity_id();
     fprintf(dxf,"  2\n%s\n",blockname);
     fprintf(dxf," 70\n0\n");
     fprintf(dxf," 10\n0.0\n");
     fprintf(dxf," 20\n0.0\n");
     fprintf(dxf,"  3\n%s\n",blockname);
+    return id;
 }
 
-static void end_block( void )
+static void end_block( long edge_id )
 {
     fprintf(dxf,"  0\nENDBLK\n");
 }
 
+static char *symbol_block_name( int symbol )
+{
+    static char *free_station = "free_station";
+    static char *fixed_station = "fixed_station";
+    static char *hor_fixed_station = "hor_fixed_station";
+    static char *vrt_fixed_station = "vrt_fixed_station";
+    static char *rejected_station = "rejected_station";
+
+    switch (symbol)
+    {
+    case FREE_STN_SYM: return free_station;
+    case FIXED_STN_SYM: return fixed_station;
+    case HOR_FIXED_STN_SYM: return hor_fixed_station;
+    case VRT_FIXED_STN_SYM: return vrt_fixed_station;
+    case REJECTED_STN_SYM: return rejected_station;
+    }
+    return free_station;
+}
 static void write_symbol_blocks()
 {
+    const int maxpts=32;
+    symbolpoint points[maxpts];
 
-    double s1;
-    double s2;
-    double s3;
-    double px;
-    double py;
+    for( int symbol = 0; symbol < N_STN_SYM; symbol++ )
+    {
+        char *blockname = symbol_block_name( symbol );
+        int npt = get_symbol_points( symbol, points, maxpts );
+        if( npt < 0 ){ npt = 0; points[0].x = 1.0; }
 
-    s1 = 0.5;
-    s2 = 0.25;
-    s3 = 0.43333333333333;
-    px = 0;
-    py = 0;
-
-    /* Creates a DXF block for each symbol type */
-
-    start_block("free_station");
-    write_dxf_circle( 0.0, 0.0, s1, -1 );
-    end_block();
-
-    start_block("fixed_station");
-    write_dxf_point( px, py+s1, -1 );
-    write_dxf_point( px+s3, py-s2, 0 );
-    write_dxf_point( px-s3, py-s2, 0 );
-    write_dxf_point( px, py+s1, 0 );
-    write_dxf_point( px, py-s1, -1 );
-    write_dxf_point( px+s3, py+s2, 0 );
-    write_dxf_point( px-s3, py+s2, 0 );
-    write_dxf_point( px, py-s1, 0 );
-    end_line();
-    end_block();
-
-    start_block("hor_fixed_station");
-    write_dxf_point( px, py+s1, -1 );
-    write_dxf_point( px+s3, py-s2, 0 );
-    write_dxf_point( px-s3, py-s2, 0 );
-    write_dxf_point( px, py+s1, 0 );
-    end_line();
-    end_block();
-
-    start_block("vrt_fixed_station");
-    write_dxf_point( px, py-s1, -1 );
-    write_dxf_point( px+s3, py+s2, 0 );
-    write_dxf_point( px-s3, py+s2, 0 );
-    write_dxf_point( px, py-s1, 0 );
-    end_line();
-    end_block();
-
-    start_block("rejected_station");
-    write_dxf_point( px-s1, py-s1, -1 );
-    write_dxf_point( px+s1, py-s1, 0 );
-    write_dxf_point( px+s1, py+s1, 0 );
-    write_dxf_point( px-s1, py+s1, 0 );
-    write_dxf_point( px-s1, py-s1, 0 );
-    end_line();
-    end_block();
-
+        start_block( blockname );
+        long edge_id;
+        if( npt == 0 )
+        {
+            edge_id = write_dxf_circle( 0.0, 0.0, points[0].x, text_layer );
+        }
+        else
+        {
+            write_dxf_point( points[npt-1].x,points[npt-1].y,text_layer );
+            for( int i = 0; i < npt; i++ )
+            {
+                write_dxf_point( points[i].x,points[i].y,0 );
+            }
+            edge_id = end_line();
+        }
+        end_block( edge_id);
+    }
 
 }
 
@@ -739,22 +752,10 @@ static void dxf_ellipse( void *dummy, double x, double y, double a, double b, do
 
 }
 
-
 static void dxf_symbol( void *dummy, double px, double py, int pen, int symbol )
 {
-    char *blockname;
-    switch( symbol )
-    {
-    case FREE_STN_SYM: blockname="free_station"; break;
-    case FIXED_STN_SYM: blockname="fixed_station"; break;
-    case HOR_FIXED_STN_SYM: blockname="hor_fixed_station"; break;
-    case VRT_FIXED_STN_SYM: blockname="vrt_fixed_station"; break;
-    case REJECTED_STN_SYM: blockname="rejected_station"; break;
-    default: blockname="free_station"; break;
-    }
-
+    char *blockname = symbol_block_name( symbol );
     write_dxf_blockref( px, py, blockname, stn_symbol_size, pen );
-
 }
 
 int close_dxf_file()

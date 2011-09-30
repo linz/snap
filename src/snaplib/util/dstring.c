@@ -65,6 +65,7 @@ int ismatch( const char *string1, const char *string2 )
 
     const char *s1;
     const char *s2;
+    if( ! string1 || ! string2 ) return 0;
     for( s1 = string1, s2=string2; ; s1++, s2++ )
     {
         if( *s1 != *s2 && map[*s1] != map[*s2] ) return 0;

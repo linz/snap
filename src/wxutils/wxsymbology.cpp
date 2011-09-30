@@ -459,6 +459,21 @@ void PointSymbology::CalcOffsets( int refSize )
     }
 }
 
+bool PointSymbology::GetPoint( int ipt, double *x, double *y )
+{
+    if( npt == 0 && ipt == 0 )
+    {
+        *x = size;
+        *y = 0.0;
+        return false;
+    }
+    if( ipt < 0 || ipt > npt ) return false;
+    CalcOffsets(1000.0);
+    *x = pointOffsets[ipt].x/1000.0;
+    *y = pointOffsets[ipt].y/1000.0;
+    return true;
+}
+
 
 // TODO: Consider buffering of this symbology..
 

@@ -24,5 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\snaplist\snaplist.tbf" />
+    <None Include="..\..\..\src\snaplist\mdfc1.tbf" />
   </ItemGroup>
 </Project>

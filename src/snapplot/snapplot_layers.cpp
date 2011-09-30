@@ -555,6 +555,26 @@ int get_symbol( int id )
     return symbol_lookup[id];
 }
 
+int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts )
+{
+    PointSymbology *symbol = symbology->GetPointSymbol(symbol_id);
+    if( ! symbol ) return -1;
+    int npts = symbol->NPoints();
+    if( maxpts < symbol->NPoints() || maxpts < 1 ) return -1;
+    if( npts == 0 )
+    {
+        symbol->GetPoint(0,&ptlist[0].x, &ptlist[0].y);
+    }
+    else
+    {
+        for( int i = 0; i < npts; i++ ) 
+        {
+            symbol->GetPoint(i,&ptlist[i].x, &ptlist[i].y);
+        }
+    }
+    return npts;
+}
+
 void set_pen_colour_range( )
 {
     char **colour = range_colours; \

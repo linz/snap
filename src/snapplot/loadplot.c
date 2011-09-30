@@ -129,7 +129,7 @@ static long snap_id( int type, int group_id, const char *code )
 
 static const char *snap_name( int type, int group_id, long id )
 {
-    char *name;
+    const char *name;
     name = NULL;
     switch (type)
     {
@@ -138,7 +138,7 @@ static const char *snap_name( int type, int group_id, long id )
         break;
     case ID_CLASSTYPE: name = classification_name( &obs_classes, (int) id ); break;
     case ID_CLASSNAME: name = class_value_name( &obs_classes, group_id, (int) id ); break;
-    case ID_PROJCTN:
+    case ID_PROJCTN: name = bproj_name( id ); break;
     case ID_COEF:
     case ID_SYSERR:
     case ID_NOTE:      name = NULL; break;

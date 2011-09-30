@@ -72,12 +72,19 @@ typedef struct
     int  datapen;
 } key_def;
 
+typedef struct 
+{
+    double x;
+    double y;
+} symbolpoint;
+
 void setup_data_layers( int ndatapens, char **datapennames, char *header, int sorted  );
 void setup_station_layers( int class_id );
 void rebuild_station_symbols();
 int get_pen( int item_code );
 int pen_visible( int pen );
 int get_symbol( int item_code );
+int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts );
 void set_pen_colour_range();
 int pen_colour( int pen );
 int pen_count( void );

@@ -60,6 +60,7 @@
     <ClCompile Include="..\..\..\src\snaplist\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\src\snaplist\mdfc1.tbf" />
     <None Include="..\..\..\src\snaplist\snaplist.tbf" />
   </ItemGroup>
   <ItemGroup>
