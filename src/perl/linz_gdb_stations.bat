@@ -62,7 +62,9 @@ my $response = $ua->request(
      
 die $response->message."\n" if ! $response->is_success;
                     
-die "Cannot read coordinates from GDB\n" if $response->content !~ /^.*\n(:?NZGD2000|RSRGD2000)\n/;
+die "Cannot read coordinates from GDB\n" 
+    if $response->content !~ /^.*\n(:?NZGD2000|RSRGD2000)\n/ 
+        && $response->content !~ /^.*\bORDV1\b.*\bORDV2\b.*\bORDV3\b/i;
   
 open(OUT,">$crdfile1") || die "Cannot create coordinate file $crdfile1\n";
 print OUT $response->content;

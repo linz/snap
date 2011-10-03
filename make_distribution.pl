@@ -24,12 +24,6 @@ system($zipexe,
    "src/coordsys/def492kt.grd",
    "src/coordsys/egm96.grd",
    "src/coordsys/nzgeoid09.grd",
-   "src/perl/makegrid.pl",
-   "src/perl/dumpgrid.pl",
+   "src/coordsys/igns98b.grd",
    "src/help/concord.chm",
-   );
-chdir('src/perl');
-system($zipexe,
-   "../../$zip",
-   "perllib/Packer.pm"
    );
