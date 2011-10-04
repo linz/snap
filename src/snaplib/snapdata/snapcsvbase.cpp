@@ -345,7 +345,7 @@ void SnapCsvBase::loadValueDefinition( const std::string &valuestr, CsvValue &va
             }
             else
             {
-                lv->setSource(new NamedValue(match[9].str()+match[10].str()));
+                lv->setSource(new NamedValue(match[9].str()+match[10].str(),""));
             }
             cvalue->add(lv);
         }

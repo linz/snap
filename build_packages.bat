@@ -85,6 +85,8 @@ __END__
 
 root src/snap_manager
 root src/perl
+root src/snaplist
+root src/snap/config
 
 package devel
 description 
@@ -145,6 +147,23 @@ file src/perl/perllib/Geodetic/Datum.pm
 file src/perl/perllib/Geodetic/Ellipsoid.pm
 file src/perl/perllib/Geodetic/TMProjection.pm
 
+package contractor
+description
+Menu options for LINZ geodetic contractors
+
+Creates menu items for creating contract data test adjustments
+(File | Import | Contract data), for updating contract mark data
+files with GDB coordinates (Stations | Update MDFC from GDB), and 
+update contract mark data files with calculated coordinates
+(Adjust | Update MDFC coord file).
+
+Restart SNAP to access this menu.
+end_description
+file src/snap_manager/scripts/contractor_menu.cfg
+file src/snap_manager/scripts/contractor_command_file.template
+file src/snap/config/mdfc1.dtf
+file src/snap/config/vecc1.dtf
+file src/snaplist/mdfc1.tbf
 end
 
 :endofperl

@@ -31,13 +31,29 @@ end_function
 #######################################################################
 # Copy a template file, replacing $xxxx strings with corresponding
 # system or global variables...
+# or parameter defined as !name!value!name!value... where ! is any 
+# character
 
-
-function CopyTemplate($template,$newfile)
+function CopyTemplate($template,$newfile,$params)
     $templatetext = ReadFile( "$script_path/$template.template" )
     $newtext = ''
+    $delim = Match($params,'.')
+    if not Match($delim,'\w') then $delim = '\'.$delim endif
+    $skipre = ''
+    if $delim and $params then
+        $skipre = $delim.'[^'.$delim.']*'
+        $skipre = "(?:$skipre$$skipre$)*"
+    endif
     foreach $part in $templatetext delimited_by '(\$\w+)' do
-       if Match($part,'\$\w+') then $part = GetValue($part) endif
+       if Match($part,'\$\w+') then 
+            $value = GetValue($part)
+            if not $value and $skipre then
+                $param = Match($part,'\$(.*)',1)
+                $re = '(?i)^'.$skipre.$delim.$param.$delim.'([^'.$delim.']*)'
+                $value = Match($params,$re,1)
+            endif
+            $part = $value
+       endif
        $newtext = $newtext.$part
     endforeach
     return WriteFile($newfile,$newtext)

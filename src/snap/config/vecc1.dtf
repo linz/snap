@@ -1,6 +1,6 @@
 format_name LINZ geodetic contract vector data file
 FORMAT CSV HEADER=Y
-required_columns FCODE TCODE DATE TIME DX DY DZ METH
+required_columns FCODE TCODE DATE TIME DX DY DZ
 
 OBSERVATION
 TYPE "GB"

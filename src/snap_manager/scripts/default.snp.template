@@ -33,9 +33,9 @@ mode 3d adjustment
 fix
 
 ! Deformation model should be included for NZGD2000 adjustments.  
-! Comment out for adjustments extending beyond NZ land area
+! Set to "deformation none" for adjustments extending beyond NZ land area
 
-deformation type=velocity model=igns98b epoch=2000.0
+deformation datum
 
 ! If the data include stations not in the coordinate file, these observations
 ! can be ignored by uncommenting the following line.  Otherwise missing stations
