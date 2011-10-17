@@ -51,6 +51,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "util/chkalloc.h"
 #include "util/readcfg.h"
@@ -134,7 +135,8 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch )
     while( c != EOF && c != '\n' )
     {
         if (c == cmnt) nch = 0;
-        if (nch && c != '\r' && c != '\x1A' ) { *l++ = c; nch--; }
+
+        if (nch && c != '\r' && c != '\x1A' ) { *l++ = isspace(c) ? ' ' : c; nch--; }
         c = fgetc(cfg->f);
         if( cfg->read_options & CFG_POSITIONAL_COMMENT )
         {
