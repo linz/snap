@@ -387,9 +387,6 @@ static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len,
 
 static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    int sts;
-    int got_filename = 0;
-    int got_option = 0;
     char *opt;
 
     opt = strtok( string, " " );

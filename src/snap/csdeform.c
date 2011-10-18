@@ -154,7 +154,6 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
 static int print_csdef( void *deformation, FILE *out, char *prefix )
 {
     if( ! deformation ) return OK;
-    CrdsysDefModel *model = (CrdsysDefModel *) deformation;
     fputs(prefix,out);
     fputs("Applying coordinate system deformation model\n",out);
     output_string_def os;

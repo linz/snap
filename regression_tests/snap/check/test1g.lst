@@ -97,6 +97,8 @@ Regression test 1g - calculation of geoid in snap
 Coordinate system: New Zealand Geodetic Datum 1949
 Ellipsoid: International Ellipsoid
    a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
 The error ellipse and height error represent the apriori errors
 
 Rejected stations are flagged #
@@ -107,23 +109,23 @@ Rejected stations are flagged #
 
  1      41 00 46.800000 S      -         -          Node one
        173 19 15.600000 E      -         -
-             148.7432          -         -
+             150.0000          -         -
 
  2      41 00 25.200000 S      -         -          Node two
        173 19 40.800000 E      -         -
-             248.7922          -         -
+             250.0000          -         -
 
  3      41 00 28.800000 S      -         -          Node three
        173 19 58.800000 E      -         -
-              68.8097          -         -
+              70.0000          -         -
 
  4      41 00 46.800000 S      -         -          Node four
        173 19 15.600000 E      -         -
-             148.7432          -         -
+             150.0000          -         -
 
  5      41 00 25.200000 S      -         -          Node five
        173 19 40.800000 E      -         -
-             248.7922          -         -
+             250.0000          -         -
 
 
 ================================================================================

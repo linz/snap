@@ -132,6 +132,8 @@ typedef struct
     classifications stnclasses;  /* Array of classifications used for stations */
 } network;
 
+/* Network options flags */
+
 #define NW_GEOID_HEIGHTS       1
 #define NW_DEFLECTIONS         2
 #define NW_ELLIPSOIDAL_HEIGHTS 4

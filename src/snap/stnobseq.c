@@ -369,9 +369,10 @@ void print_adjusted_coordinates( FILE *lst )
     station *st;
     stn_adjustment *sa;
     projection *prj;
-    double cvr[6], emax, emin, brng, OHgt, northing, easting;
+    double cvr[6], emax, emin, brng, OHgt, northing, easting, hgt;
     double dn, de, dh;
     char adjusted;
+    char ellipsoidal;
     double semult;
     unsigned char projection_coords;
     output_string_def os;
@@ -386,6 +387,15 @@ void print_adjusted_coordinates( FILE *lst )
     write_output_string( &os, "\n" );
     describe_ellipsoid( &os, cs->rf->el );
     describe_projection( &os, cs->prj );
+
+    ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
+
+    fprintf(lst, "\nStation heights are %s heights.\n",
+        ellipsoidal ? "ellipsoidal" : "orthometric" );
+    if( ! (net->options & NW_GEOID_HEIGHTS) )
+    {
+        fprintf(lst, "Geoid heights not defined - orthometric and ellipsoidal heights are the same.\n");
+    }
 
     if( deformation )
     {
@@ -529,13 +539,15 @@ void print_adjusted_coordinates( FILE *lst )
         /* Print the third line - height */
 
         fprintf(lst,"%*s",stn_name_width,"");
+        hgt = st->OHgt;
+        if( ellipsoidal ) hgt += st->GUnd;
         if( projection_coords )
         {
-            fprintf(lst,"  %13.*lf  ",(int) coord_precision, st->OHgt);
+            fprintf(lst,"  %13.*lf  ",(int) coord_precision, hgt);
         }
         else
         {
-            fprintf(lst,"  %14.*lf      ",(int) coord_precision, st->OHgt);
+            fprintf(lst,"  %14.*lf      ",(int) coord_precision, hgt);
         }
 
         if( adjusted )
