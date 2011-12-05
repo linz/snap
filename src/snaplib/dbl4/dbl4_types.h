@@ -42,18 +42,24 @@ typedef int  StatusType;        /* Used for function return values */
 
 typedef struct
 {
+    double years;
+    float dtSec;
     short dtYear;
     short dtMon;
     short dtDay;
     short dtHour;
     short dtMin;
-    float dtSec;
-    double years;
 }  DateTimeType;
 
 /* Database handle types */
 
 typedef void *DBHandle;
 typedef void *DBRowHandle;
+
+/* Integers of specific sizes */
+
+#define INT1 signed char
+#define INT2 short
+#define INT4 int
 
 #endif /* DBL4_TYPES_H not defined */

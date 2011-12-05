@@ -23,6 +23,8 @@ static char dbl4_utl_trace_h_sccsid[] = "%W%";
 
 
 /* Predefined trace classes and levels */
+/* Note: max length of trace class is 18 chars, so suffix in XADPRINTF
+   can be no more than 7 chars */
 
 #define TRACE_CRSCALL(m)   XADPRINTF("",          20, m)
 #define TRACE_XFMFUNC1(m)  XADPRINTF("",          50, m)
@@ -43,20 +45,22 @@ static char dbl4_utl_trace_h_sccsid[] = "%W%";
 #define TRACE_GRID2(m)
 #define TRACE_GRID3(m)
 
-#define TRACE_TRIG(m)      XADPRINTF("_trig",     50, m)
-#define TRACE_TRIG2(m)     XADPRINTF("_trig",    100, m)
-#define TRACE_LNZDEF(m)    XADPRINTF("_lnzdef",   50, m)
-#define TRACE_SHIFT(m)     XADPRINTF("_shift",    50, m)
-#define TRACE_SHIFT2(m)    XADPRINTF("_shift",  100, m)
-#define TRACE_WKB(m)       XADPRINTF("_wkb",      50, m)
-#define TRACE_STATUS(m)    XADPRINTF("",          20, m)
-#define TRACE_ABORT(m)     XADPRINTF("",          10, m)
-#define TRACE_ADJUST(m)    XADPRINTF("",          20, m)
-#define TRACE_ADJPRM(m)    XADPRINTF("_adjprm", 100, m)
-#define TRACE_ADJLOAD(m)   XADPRINTF("_adjlod",  50, m)
-#define TRACE_ADJLOAD2(m)  XADPRINTF("_adjlod", 100, m)
-#define TRACE_ADJCALC(m)   XADPRINTF("_adjcal",  50, m)
-#define TRACE_ADJCALC2(m)  XADPRINTF("_adjcal", 100, m)
+#define TRACE_TRIG(m)       XADPRINTF("_trig",      50, m)
+#define TRACE_TRIG2(m)      XADPRINTF("_trig",     100, m)
+#define TRACE_LNZDEF(m)     XADPRINTF("_lnzdef",    50, m)
+#define TRACE_SHIFT(m)      XADPRINTF("_shift",     50, m)
+#define TRACE_SHIFT2(m)     XADPRINTF("_shift",    100, m)
+#define TRACE_CALCSHIFT(m)  XADPRINTF("_cshift", 50, m)
+#define TRACE_CALCSHIFT2(m) XADPRINTF("_cshift",100, m)
+#define TRACE_WKB(m)        XADPRINTF("_wkb",       50, m)
+#define TRACE_STATUS(m)     XADPRINTF("",           20, m)
+#define TRACE_ABORT(m)      XADPRINTF("",           10, m)
+#define TRACE_ADJUST(m)     XADPRINTF("",           20, m)
+#define TRACE_ADJPRM(m)     XADPRINTF("_adjprm",   100, m)
+#define TRACE_ADJLOAD(m)    XADPRINTF("_adjlod",    50, m)
+#define TRACE_ADJLOAD2(m)   XADPRINTF("_adjlod",   100, m)
+#define TRACE_ADJCALC(m)    XADPRINTF("_adjcal",    50, m)
+#define TRACE_ADJCALC2(m)   XADPRINTF("_adjcal",   100, m)
 
 /* Function entry and exit */
 

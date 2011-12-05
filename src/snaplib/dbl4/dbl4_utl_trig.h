@@ -24,6 +24,11 @@ static char dbl4_utl_trig_h_sccsid[] = "%W%";
 #include "dbl4_utl_binsrc.h"
 #endif
 
+/* Note: code assumes headers are all the same length */
+
+#define TRGDAT_FILE_HEADER_1 "SNAP trig binary v2.0 \r\n\x1A"
+#define TRGDAT_FILE_HEADER_2 "CRS trig binary v2.0  \r\n\x1A"
+
 typedef void *hTrig;
 
 StatusType utlCreateTrig( hBinSrc blob, hTrig * trig);

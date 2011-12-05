@@ -53,11 +53,6 @@ static char sccsid[] = "%W%";
 #include "dbl4_utl_alloc.h"
 #include "dbl4_utl_error.h"
 
-/* Note: code below assumes headers are all the same length */
-
-#define TRGDAT_FILE_HEADER_1 "SNAP trig binary v2.0 \r\n\x1A"
-#define TRGDAT_FILE_HEADER_2 "CRS trig binary v2.0  \r\n\x1A"
-
 /* Maximum number of rows stored in triangle block cache */
 
 #define MAGIC_NUMBER 0x8E215AA7
@@ -176,7 +171,7 @@ static short find_nearest( hTrigDef trig, double ptx, double pty )
     offset = (ptx - x0) + fabs(xy[i0*2+1]-pty);
     i0--;
 
-    while(i0 >= 0 && i1 < npts)
+    while(i0 >= 0 || i1 < npts)
     {
         if( i0 >=0 )
         {
@@ -275,6 +270,7 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
     short ptid,pt1id,pt2id,pt3id,plast;
     int sts, finished;
     int nnode,i;
+    int maxiterations;
     hPointDef pp1, pp2, pp3;
 
     if( xt < trig->minx || xt > trig->maxx ||
@@ -301,6 +297,7 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
     TRACE_TRIG2(("find_triangle: Base point %d (%.6lf %.6lf)",(int) pt1id, pp1->xy[0],pp1->xy[2]));
 
     finished = 0;
+    maxiterations = trig->npts;
     sts = STS_OK;
     if (xt==pp1->xy[0] && yt==pp1->xy[1] )
     {
@@ -315,7 +312,11 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
 
     else do
         {
-
+            if( maxiterations-- <= 0 )
+            {
+                THROW_EXCEPTION("Corrupt triangulation or code error in find_triangle");
+                RETURN_STATUS( STS_INVALID_DATA );
+            }
             nnode = pp1->nnode;
 
             xp = pp1->xy[0];
@@ -371,7 +372,7 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
                     if (x3*y-y3*x >= 0) finished = 1;
                     else
                     {
-                        ptid = pp1->opposite[i == 0 ? nnode : i-1];
+                        ptid = pp1->opposite[i == 0 ? nnode-1 : i-1];
                         /* Check for flip-flopping across an edge */
                         if(ptid == 0 )
                         {
@@ -593,8 +594,8 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
 {
     hTrigDef trig;
     int version;
-    INT2 ival=0;
-    INT4 ival4=0;
+    INT2 ival;
+    INT4 ival4;
     StatusType sts;
 
     /*> Check that the header and get the format version with check_header */

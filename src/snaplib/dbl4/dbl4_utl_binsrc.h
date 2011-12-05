@@ -37,12 +37,9 @@ typedef struct
    statement */
 
 #define BINSRC_CONTINUE -1
-#define BINSRC_MAX_STRING_LEN 1024
+#define BINSRC_MAX_STRING_LEN 0x7FFFFFFF
 
-#define INT1 signed char
-#define INT2 short
-#define INT4 int
-
+int utlIsBigEndian( void );
 StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc);
 StatusType utlCreateEmbeddedBinSrc( hBinSrc binsrc, long offset, hBinSrc *embsrc);
 StatusType utlReleaseBinSrc( hBinSrc binsrc);

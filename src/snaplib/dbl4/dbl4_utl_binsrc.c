@@ -20,6 +20,8 @@
 *************************************************************************
 */
 
+static char sccsid[] = "%W%";
+
 #include "dbl4_common.h"
 
 #include <stdlib.h>
@@ -140,6 +142,20 @@ static int check_endian( int big_wanted)
 }
 
 /*************************************************************************
+** Function name: utlIsBigEndian
+**//**
+**      Function to return the endianness of the system
+**
+**  \return                    Returns true if it is big endian
+**
+**************************************************************************
+*/
+int utlIsBigEndian()
+{
+    return check_endian(0);
+}
+
+/*************************************************************************
 ** Function name: utlCreateBinSrc
 **//**
 **       Constructs a hBinSrc object from a hBlob object.
@@ -160,13 +176,13 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
     (*binsrc) = NULL;
 
     /* Was coded with ASSERT(), but this crashed CC optimizer?! */
-#ifndef NDEBUG
+    #ifndef NDEBUG
     if( sizeof(INT4) != 4 || sizeof(INT2) != 2 || sizeof(INT1) != 1 )
     {
         THROW_EXCEPTION("Binary data compilation error: sizeof INT4, INT2, INT1 not correct");
         RETURN_STATUS(STS_INVALID_DATA);
     }
-#endif
+    #endif
 
     bs = (hBinSrc) utlAlloc( sizeof( BinSrc ) );
     if( ! bs )
@@ -474,11 +490,10 @@ StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, char **data )
     sts = utlBinSrcLoad2( binsrc, offset, 1, (void *) (&len) );
     if( sts != STS_OK ) RETURN_STATUS(sts);
     if( len < 0 || len > BINSRC_MAX_STRING_LEN ) RETURN_STATUS(STS_INVALID_DATA);
-    if( len == 0 ) return STS_OK;
 
     s = (char *) utlAlloc( len+1 );
     if( ! s ) RETURN_STATUS(STS_ALLOC_FAILED);
-    sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, s );
+    if( len > 0 ) sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, s );
     if( sts != STS_OK )
     {
         utlFree(s);

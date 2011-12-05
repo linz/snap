@@ -47,11 +47,6 @@ static char sccsid[] = "%W%";
 
 #define DTOR (M_PI/180)
 
-/* Note: code below assumes headers are all the same length */
-
-#define SHIFTMODEL_FILE_HEADER_1 "LINZ shift model v1.0L\r\n\x1A"
-#define SHIFTMODEL_FILE_HEADER_2 "LINZ shift model v1.0B\r\n\x1A"
-
 typedef enum { defModelGrid, defModelTrig } ShiftModelType;
 
 typedef struct
@@ -93,8 +88,12 @@ typedef struct
     hShiftCmp firstcmp;
     hShiftCmp lastcmp;
     hBinSrc binsrc;
-    double latconv;
-    double lonconv;
+    double lat0;
+    double latcnv0;
+    double latcnv1;
+    double loncnv0;
+    double loncnv1;
+    double loncnv2;
 } ShiftMod, *hShiftMod;
 
 
@@ -280,6 +279,8 @@ static StatusType load_component( hBinSrc binsrc, hShiftCmp *pcmp )
     hShiftCmp cmp;
     StatusType sts;
 
+    INT2 usebefore=0;
+    INT2 useafter=0;
     INT2 istrig=0;
     INT2 dimension=0;
     INT2 negative=0;
@@ -307,22 +308,31 @@ static StatusType load_component( hBinSrc binsrc, hShiftCmp *pcmp )
 
     sts = STS_OK;
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(cmp->description) );
+    if( sts == STS_OK ) TRACE_SHIFT(("Component %s loaded",
+                                         cmp->description ? cmp->description : "(No description)"));
 
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.ymin) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.ymax) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.xmin) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.xmax) );
 
+    if( sts == STS_OK ) TRACE_SHIFT(("Range (%.4lf %.4lf %.4lf %.4lf)",
+                                         cmp->range.xmin, cmp->range.xmax,
+                                         cmp->range.ymin, cmp->range.ymax ));
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &istrig );
     if( istrig ) cmp->type = defModelTrig;
+    if( sts == STS_OK ) TRACE_SHIFT(("Trig? %d: ",(int) cmp->type ));
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &dimension );
     cmp->dimension = dimension;
+    if( sts == STS_OK ) TRACE_SHIFT(("Dimension %d: ",(int) cmp->dimension ));
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &negative );
     cmp->negative = negative;
+    if( sts == STS_OK ) TRACE_SHIFT(("Negative? %d: ",(int) cmp->negative ));
 
     if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, &(cmp->offset) );
+    if( sts == STS_OK ) TRACE_SHIFT(("Location  %d: ",(int) cmp->offset ));
 
     /*> If the load was not successful, delete the partially loaded object with
         delete_def_comp */
@@ -332,16 +342,6 @@ static StatusType load_component( hBinSrc binsrc, hShiftCmp *pcmp )
         delete_def_comp( cmp );
         RETURN_STATUS( sts );
     }
-
-    TRACE_SHIFT(("Component %s loaded",
-                 cmp->description ? cmp->description : "(No description)"));
-    TRACE_SHIFT(("Range (%.2lf %.2lf %.2lf %.2lf)",
-                 cmp->range.xmin, cmp->range.xmax,
-                 cmp->range.ymin, cmp->range.ymax ));
-    TRACE_SHIFT(("Trig? %d: ",(int) cmp->type ));
-    TRACE_SHIFT(("Dimension %d: ",(int) cmp->dimension ));
-    TRACE_SHIFT(("Negative? %d: ",(int) cmp->negative ));
-    TRACE_SHIFT(("Location  %d: ",(int) cmp->offset ));
 
     (*pcmp) = cmp;
 
@@ -588,7 +588,8 @@ static StatusType create_shift_model( hShiftMod* pdef, hBinSrc binsrc)
     int idcomp;
     INT2 ncomp=0;
 
-    double a, f, lat0, slat, clat, b, e0, M, N;
+    double a, a2, b2, f, slat, clat, b, bsac, lat0, ltrange, lnc[3], ltc[3];
+    int i;
 
     (*pdef) = NULL;
 
@@ -614,26 +615,21 @@ static StatusType create_shift_model( hShiftMod* pdef, hBinSrc binsrc)
 
     sts = STS_OK;
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, indexloc, &(def->name) );
+    if( sts == STS_OK) TRACE_SHIFT(("Shift model header loaded: %s",def->name));
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->version) );
+    if( sts == STS_OK ) TRACE_SHIFT(("Version: %s",def->version));
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->crdsyscode) );
+    if( sts == STS_OK ) TRACE_SHIFT(("CrdSys: %s",def->crdsyscode));
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->description) );
+    if( sts == STS_OK ) TRACE_SHIFT(("Description: %s",def->description));
 
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(def->range.ymin) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(def->range.ymax) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(def->range.xmin) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(def->range.xmax) );
+    if( sts == STS_OK ) TRACE_SHIFT(("Range: (%.4lf %.4lf %.4lf %.4lf)",def->range.xmin,def->range.xmax,def->range.ymin,def->range.ymax));
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ncomp );
-
-    if( sts == STS_OK )
-    {
-        TRACE_SHIFT(("Shift model header loaded: %s",def->name));
-        TRACE_SHIFT(("Version: %s",def->version));
-        TRACE_SHIFT(("CrdSys: %s",def->crdsyscode));
-        TRACE_SHIFT(("Description: %s",def->description));
-        TRACE_SHIFT(("Range: (%.2lf %.2lf %.2lf %.2lf)",def->range.xmin,def->range.xmax,def->range.ymin,def->range.ymax));
-        TRACE_SHIFT(("Components: %d",(int)ncomp));
-    }
 
     /*> Load the each of the shift model components with load_component */
 
@@ -662,21 +658,36 @@ static StatusType create_shift_model( hShiftMod* pdef, hBinSrc binsrc)
 
     a = 6378137.0;
     f = 1.0/298.257222101;
-
-    lat0 = DTOR*(def->range.ymin+def->range.ymax)/2.0;
-    slat = sin(lat0);
-    clat = cos(lat0);
-
     b = a*(1.0-f);
-    e0 = a*sqrt(1.0-slat*slat*f*(2.0-f));
-    M=(a*a*b*b)/(e0*e0*e0);
-    N=a*a/e0;
+    a2 = a*a;
+    b2 = b*b;
 
-    def->latconv = 1.0/(M*DTOR);
-    def->lonconv = 1.0/(N*clat*DTOR);
+    lat0 = (def->range.ymin+def->range.ymax)/2.0;
+    ltrange = def->range.ymax - def->range.ymin;
 
-    TRACE_SHIFT(("Lat conv: %.12lf",def->latconv));
-    TRACE_SHIFT(("Lon conv: %.12lf",def->lonconv));
+    for( i = 0; i < 3; i++ )
+    {
+        double lat = DTOR*(lat0+(i-1)*ltrange/2.0);
+        slat = sin(lat);
+        clat = cos(lat);
+        bsac = sqrt( b2*slat*slat + a2*clat*clat);
+        lnc[i] = bsac/(a2*clat*DTOR);
+        ltc[i] = (bsac*bsac*bsac)/(a2*b2*DTOR);
+    }
+
+    def->lat0 = lat0;
+
+    def->latcnv0 = (ltc[0]+ltc[2]+2*ltc[1])/4;
+    def->latcnv1 = (ltc[2]-ltc[0])/ltrange;
+
+    def->loncnv0 = lnc[1];
+    def->loncnv1 = (lnc[2]-lnc[0])/ltrange;
+    def->loncnv2 = 2*(lnc[0]+lnc[2]-2*lnc[1])/(ltrange*ltrange);
+
+    TRACE_SHIFT(("Conversion reference latitude: %.5lf",def->lat0));
+    TRACE_SHIFT(("Lat conv: %.12lf + %.12lf*lat",def->latcnv0,def->latcnv1));
+    TRACE_SHIFT(("Lon conv: %.12lf + %.12lf*lat + %.12lf*lat*lat",
+                 def->loncnv0, def->loncnv1, def->loncnv2));
 
     TRACE_SHIFT(("Shift model loaded: %s",def->name));
 
@@ -915,7 +926,10 @@ StatusType utlCalcShiftModel( hPointShiftModel def, double x, double y,
 **    Routine to apply the shift to a coordinate.  This assumes that the
 **    coordinate is geographic (lon, lat, height) and that the
 **    shift model defines changes in metres.  The conversion
-**    to lon/lat shifts uses an approximate radius of the earth...
+**    to lon/lat shifts uses an approximation to lat/lon conversion.
+**    For a model covering the extents of NZ this is good to about
+**    0.6% of actual value in east direction, and 0.1% in north
+**    direction (see code in create_shift_model).
 **
 **  \param def                 The shift model
 **  \param crd                 Array of coordinates that will be
@@ -938,8 +952,11 @@ StatusType utlApplyShiftModel( hPointShiftModel def, double * crd)
     sts = calc_def_mod( model, crd[0], crd[1], shift );
     if( sts == STS_OK )
     {
-        crd[0] += shift[0]*model->lonconv;
-        crd[1] += shift[1]*model->latconv;
+        double lat = crd[1] - model->lat0;
+        double lonfactor = model->loncnv0 + (model->loncnv1 + model->loncnv2*lat)*lat;
+        double latfactor = model->latcnv0 + model->latcnv1*lat;
+        crd[0] += shift[0]*lonfactor;
+        crd[1] += shift[1]*latfactor;
         crd[2] += shift[2];
     }
     else if( sts != STS_CRD_RANGE_ERR )

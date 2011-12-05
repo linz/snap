@@ -22,6 +22,11 @@ static char dbl4_utl_shiftmodel_h_sccsid[] = "%W%";
 #include "dbl4_utl_binsrc.h"
 #endif
 
+/* Note: code assumes headers are all the same length */
+
+#define SHIFTMODEL_FILE_HEADER_1 "LINZ shift model v1.0L\r\n\x1A"
+#define SHIFTMODEL_FILE_HEADER_2 "LINZ shift model v1.0B\r\n\x1A"
+
 typedef void *hPointShiftModel;
 
 StatusType utlCreateShiftModel( hBinSrc blob, hPointShiftModel *def );
