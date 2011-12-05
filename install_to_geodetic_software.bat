@@ -42,6 +42,10 @@ if( -e $ti )
 print "Copying new version of snap_install.msi\n";
 copy($si,$ti);
 };
+if( $@ )
+{
+   print $@;
+}
 
 opendir(my $dir, $ps);
 
