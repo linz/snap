@@ -176,9 +176,9 @@ foreach my $id ( sort {$nod->{$a}->{COR_ID} <=> $nod->{$b}->{COR_ID} ||
                $nod->{$a}->{MARK_NAME} cmp $nod->{$b}->{MARK_NAME}} keys %$nod )
 {
      my $mrk = $nod->{$id};
-     my $c1 = $mrk->{VALUE1};
-     my $c2 = $mrk->{VALUE2};
-     my $c3 = $mrk->{VALUE3}; 
+     my $c1 = sprintf("%.8f",$mrk->{VALUE1});
+     my $c2 = sprintf("%.8f",$mrk->{VALUE2});
+     my $c3 = sprintf("%.4f",$mrk->{VALUE3} || 0.0); 
      my $order = $orders->{$mrk->{COR_ID}};
      $order = '?' if $order eq '';
      my $name = $mrk->{MARK_NAME};
@@ -299,8 +299,8 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
           $brngerrs->{$be}++;
           push(@snapobs,{ 
               type=>'PB',
-              value=>$obs->{VALUE1},
-              error=>sprintf("%.1f",$accmult*3600.0*sqrt($var->{VALUE_11}))
+              value=>sprintf("%.4f",$obs->{VALUE1}),
+              error=>sprintf("%.5f",$accmult*sqrt($var->{VALUE_11}))
               });
           if( $type eq 'ARCO' )
           {
