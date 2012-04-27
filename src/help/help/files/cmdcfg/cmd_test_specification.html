@@ -17,6 +17,8 @@
 
 <p>This command defines the list of stations for which a relative accuracy test will be applied.  The command can be used several time, either to add new stations to the list applying for a specification, or to define sets of stations for different specifications.  The relative accuracy will be tested between all stations associated with a specification, regardless of whether they are defined in the same or different test_specification commands.</p>
 
+<p>SNAP also comes with a separate program <a href="../../programs/snapspec/index.html">snapspec</a> that tests relative (and absolute) accuracy specifications. 
+Unlike the test_specification command, snapspec is not used to test a specific set of stations.  Instead it tries to find the largest possible group of stations that meet the specifications.</p>
 <p>The parameters of the command are:</p>
 
 <p class="Commanddefinition">name</p><p class="Commanddescription">The name of the accuracy specification to apply (as defined in the specification command)</p>

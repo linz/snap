@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
@@ -96,6 +97,40 @@ ellipsoid * load_ellipsoid( char *code )
     return el;
 }
 
+static int parse_epoch( const char *epochstr, double *epoch )
+{
+    if( _stricmp(epochstr,"now") == 0 )
+    {
+        *epoch = date_as_year(snap_datetime_now());
+        return 1;
+    }
+    if( epochstr[0] != '1' && epochstr[0] != '2' ) return 0;
+    if( strlen(epochstr) == 8 && epochstr[4] != '.' )
+    {
+        int i, y,m,d;
+        for( i = 1; i < 8; i++ )
+        {
+            if( ! isdigit(epochstr[i])) return 0;
+        }
+        sscanf(epochstr,"%4d%2d%2d",&y,&m,&d);
+        *epoch = date_as_year( snap_date(y,m,d));
+        return 1;
+    }
+    if( strlen(epochstr) >= 4 )
+    {
+        int i;
+        for( i = 1; i < strlen(epochstr); i++ )
+        {
+            char c = epochstr[i];
+            if( i == 4 && c == '.' ) continue;
+            if( i != 4 && isdigit(c) ) continue;
+            return 0;
+        }
+        if ( sscanf(epochstr,"%lf",epoch) == 1 ) return 1;
+    }
+
+    return 0;
+}
 
 /* Coordinate systems defined by code, optionally followed by @epoch, where
    epoch is either a decimal year number (eg 2007.5) or "now" */
@@ -111,16 +146,9 @@ coordsys * load_coordsys( const char *code )
 
     /* Look for an @ character, defining an epoch */
     for( nch = 0; code[nch] != 0 && code[nch] != '@'; nch++ ) {}
-    if( code[nch] )
+    if( code[nch] && ! parse_epoch( code+nch+1, &epoch ) )
     {
-        if( _stricmp(code+nch+1,"now") == 0 )
-        {
-            epoch = date_as_year(snap_datetime_now());
-        }
-        else if (sscanf(code+nch+1,"%lf",&epoch) != 1 )
-        {
-            return NULL;
-        }
+        return NULL;
     }
     if( nch > CRDSYS_CODE_LEN ) return NULL;
     strncpy(cscode,code,nch);

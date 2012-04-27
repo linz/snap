@@ -55,6 +55,7 @@
 typedef struct
 {
     char    Code[STNCODELEN+1];   /* Station ID */
+    int     id;        /* Used to identify the station - populated when indexed */
     double  ELat;      /* Ellipsoidal lat, long, hgt */
     double  ELon;
     double  OHgt;      /* Orthometric height */

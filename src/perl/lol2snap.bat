@@ -353,8 +353,8 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
 
 for my $k (keys %$oba)
 {
-    next if $k =~ /^(\d+)\:\1$/;
-    print "Error: Cannot process covariances between observations\n";
+    next if $k =~ /^(\-?\d+)\:\1$/;
+    print "Error: Cannot process covariances between observations $k\n";
     $nerr++;
     last;
 }
@@ -387,7 +387,7 @@ my $float = $prm->{WCRD};
 my $consmap = { FREE=>'',FIX3=>'fix',FIXH=>'fix horizontal',FIXV=>'fix vertical' };
 if( $float > 0 )
 {
-    print "\nhorizontal_float_error $float\n";
+    print $sfile "\nhorizontal_float_error $float\n";
     $consmap->{FREE} = "float horizontal";
 }
 
@@ -403,7 +403,7 @@ foreach my $cons (sort keys %$constraint)
     }
 }
 
-print "\n";
+print $sfile "\n";
 
 my $fixedbrsw = 0;
 print $sfile "bearing_orientation_error use ",$brswcos ? "projection" : "survey","\n";

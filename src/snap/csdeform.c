@@ -54,7 +54,7 @@ static CrdsysDefModel *init_csdefmodel()
 static int init_csdef_deformation( void *deformation )
 {
     double csepoch;
-    int nstns, istn;
+    int nstns, istn, nmaxid;
     StationDeformation *stdefs;
     char buf[128];
     CrdsysDefModel *model = (CrdsysDefModel *) deformation;
@@ -76,7 +76,7 @@ static int init_csdef_deformation( void *deformation )
         station *st;
         StationDeformation *std;
         st = station_ptr( net, istn );
-        std = stdefs+istn;
+        std = stdefs+station_id( net, st );
 
         xyz[CRD_LAT] = st->ELat;
         xyz[CRD_LON] = st->ELon;
@@ -90,10 +90,13 @@ static int init_csdef_deformation( void *deformation )
             int sts;
             sts = ref_deformation_at_epoch( net->crdsys->rf, xyz,
                                             csepoch, std->y0def );
-            sprintf(buf,"Cannot calculate deformation of %-20s at date %.1lf",
-                    st->Code, csepoch);
-            handle_error(WARNING_ERROR,buf,NO_MESSAGE);
-            return INVALID_DATA;
+            if( sts != OK )
+            {
+                sprintf(buf,"Cannot calculate deformation of %-20s at date %.1lf",
+                        st->Code, csepoch);
+                handle_error(WARNING_ERROR,buf,NO_MESSAGE);
+                return INVALID_DATA;
+            }
         }
     }
 
@@ -115,9 +118,8 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
     denu[0] = denu[1] = denu[2] = 0.0;
     if( ! model ) return OK;
 
-    /*!!! This has to be really inefficient - don't we already know the id */
     stnid = station_id( net, st );
-    std = &(model->stdefs[stnid]);
+    std = model->stdefs+stnid;
 
     year = date_as_year( date );
 

@@ -99,11 +99,6 @@ static  int CDECL stncmp( const void *st1, const void *st2 )
     return stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
 }
 
-static int CDECL stnptrcmp( const void *st1, const void *st2 )
-{
-    return st1 == st2;
-}
-
 static void index_stations( station_list *sl )
 {
     int i;
@@ -116,10 +111,15 @@ static void index_stations( station_list *sl )
     sl->index[0] = NULL;
     for( i = 0; i++ < sl->count; )
     {
-        sl->index[i] = (station *) next_list_item( sl->list );
+        sl->index[i] = (station *) next_list_item( sl->list );;
     }
 
     qsort( sl->index+1, sl->count, sizeof( station * ), stncmp );
+
+    for( i = 0; i++ < sl->count; )
+    {
+        sl->index[i]->id = i;
+    }
 
     sl->indexed = 1;
 }
@@ -134,10 +134,8 @@ int sl_find_station( station_list *sl, const char *code )
 
 int sl_station_id( station_list *sl, station *st )
 {
-    station **match;
     if( !sl->indexed ) index_stations( sl );
-    match = (station **) bsearch( st, sl->index+1, sl->count, sizeof(station *), stnptrcmp );
-    return match ? match - sl->index : 0;
+    return st->id;
 }
 
 station *sl_station_ptr( station_list *sl, int istn )
@@ -197,3 +195,4 @@ int sl_number_of_stations( station_list *sl )
 {
     return sl->count;
 }
+

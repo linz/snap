@@ -14,6 +14,9 @@
 <p>
 Snapspec assigns orders to the adjusted marks based on the absolute and relative accuracies of the calculated coordinates.  Each coordinate order has defined absolute and relative accuracy requirements.  The orders are assigned such that each station of a given order meets these accuracy requirements - the relative accuracy requirements are met in relation to all stations of the same or higher assigned order.  The algorithm is designed to assign as many stations as possible to each order, starting with the highest order.  This is not a strict mathematical optimisition.
 </p>
+<p>
+It is useful to understand that assignment of stations to orders is an ambiguous process.  For example, if there are three stations A, B, C, for which the vectors A-B and A-C meet the relative accuracy standards for an order and the vector A-B does not, then either pair of stations A,B or A,C can be assigned to that order, but not all three.  snapspec uses a set of rules described below to determine which stations are assigned to any particular order, and which are not.  This is an iterative process of assigning and discarding stations until all stations have been processed. This process is repeated for each order, starting with the most accurate.
+</p>
 
 <p>
 The accuracy requirements for each order are defined in terms of the following 

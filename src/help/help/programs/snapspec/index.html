@@ -20,6 +20,11 @@ a configuration file defining the required accuracies for various
 orders of coordinates.  It then attempts to assign optimal orders to 
 coordinates such that the specifications are met.
 </p>
+<p>
+This program servers a similar function to the snap <a href="../../files/cmdcfg/cmd_test_specification.html">test_specification</a> command.  The main difference is that whereas the test_specification command checks that a defined group of stations meets an accuracy specification, 
+the snapspec program tries to work out which stations could meet specifications.  
+The method it uses to do this attempts to choose stations meeting the specification in a way which that gets the most stations meeting the specification.
+</p>
 <p>The program uses the same <a href="algorithm.html">algorithm</a> as used in Landonline to attribute
 orders to stations (though unlike Landonline it may test both horizontal and 
 vertical accuracies).

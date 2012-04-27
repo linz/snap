@@ -114,6 +114,7 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
 {
     double denu[3];
     int sts;
+    int i;
     ref_deformation *def = rf->def;
     ref_deformation_grid *gd = (ref_deformation_grid *)(def->data);
     if( epochfrom == 0 ) epochfrom = gd->refepoch;
@@ -123,6 +124,7 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
     if( sts != OK ) return sts;
     sts = grd_calc_linear( gd->grid, llh[CRD_LON]*RTOD, llh[CRD_LAT]*RTOD, denu );
     if( sts != OK ) return sts;
+    for( i = 0; i < 3; i++ ) denu[i] *= (epochto-epochfrom);
     return rf_apply_enu_deformation_to_llh( rf, llh, denu );
 }
 
