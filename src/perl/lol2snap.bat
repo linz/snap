@@ -406,8 +406,8 @@ foreach my $cons (sort keys %$constraint)
 print $sfile "\n";
 
 my $fixedbrsw = 0;
-print $sfile "bearing_orientation_error use ",$brswcos ? "projection" : "survey","\n";
-print $sfile "! bearing_orientation_error use ",$brswcos ? "survey" : "projection","\n";
+print $sfile "bearing_orientation_error use ",$brswcos ? "circuit" : "survey","\n";
+print $sfile "! bearing_orientation_error use ",$brswcos ? "survey" : "circuit","\n";
 foreach my $brset ($brsw =~ /\b(calc\s+\S+|set\s+\S+\s+\S+)\b/ig)
 {
     my($status,$code,$value) = split(' ',$brset);
