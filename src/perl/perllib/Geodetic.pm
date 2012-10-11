@@ -96,6 +96,7 @@ Geodetic - modules for geodetic calculations
     my $cs = $cslist->coordsys('NZGD2000');
     print $cslist->coordsysname('NZMG');
     my $crd = $cs->coord( $lat, $lon, $hgt );
+    my $crdtm = $cstm->coord( $northing, $easting, $hgt );
     my $newcs = $cslist->coordsys('NZTM');
     my $newcrd = $crd->as($newcs);
     printf "Coord is (%f,%f,%f)\n",$newcrd->northing, $newcrd->easting, $newcrd->hgt;

@@ -47,6 +47,8 @@ use IO::String;
 die "Parameters: list_file_name  snap_file_root\n" if @ARGV != 2;
 my($lst,$snaproot)=@ARGV;
 
+my $degangles = 0;
+
 
 my $datasets = 
 {
@@ -163,7 +165,8 @@ EOD
 
 # Print marks
 
-print $ofile $title,"\n\n#deg_angles\n";
+print $ofile $title,"\n\n";
+print $ofile "#deg_angles\n" if $degangles;
 
 my $constraint={};
 my $markname={};
@@ -210,6 +213,19 @@ my $nodeinfo = {};
 my $badtype = {};
 
 my $nerr = 0;
+my $avfunc;
+my $aefunc;
+
+if( $degangles )
+{
+    $avfunc = sub { return sprintf("%.4f",$_[0]); };
+    $aefunc = sub { return sprintf("%.4f",$_[0]); };
+}
+else
+{
+    $avfunc = sub { return FormatDMS($_[0],1); };
+    $aefunc = sub { return sprintf("%.1f",$_[0] * 3600.0); };
+}
 
 my $brsw = uc($prm->{BRSW}) || 'BY_SURVEY SET * 0';
 my $brswcos = $brsw =~ /\bBY_CRDSYS\b/i;
@@ -299,8 +315,8 @@ foreach my $id ( sort {$obn->{$a}->{COS_ID} <=> $obn->{$b}->{COS_ID} ||
           $brngerrs->{$be}++;
           push(@snapobs,{ 
               type=>'PB',
-              value=>sprintf("%.4f",$obs->{VALUE1}),
-              error=>sprintf("%.5f",$accmult*sqrt($var->{VALUE_11}))
+              value=>$avfunc->($obs->{VALUE1}),
+              error=>$aefunc->($accmult*sqrt($var->{VALUE_11}))
               });
           if( $type eq 'ARCO' )
           {
@@ -522,10 +538,11 @@ sub FormatDMS {
     my($value,$ndp,$codes) = @_;
     my($deg,$min,$sec,$hem);
     if( $codes ne '' ) {
-       $hem = substr($codes,($value < 0 ? 0 : 1),1);
+       $hem = ' '.substr($codes,($value < 0 ? 0 : 1),1);
        $value = -$value if $value < 0;
        }
     else {
+       $hem = '';
        $value += 360.0 while $value < 0.0;
        }
     $ndp = int($ndp);
@@ -535,7 +552,7 @@ sub FormatDMS {
     $value = ($value - $deg)*60;
     $min = int($value);
     $sec = ($value-$min)*60;
-    return sprintf("%d %02d %$ndp3.$ndp"."f %s",$deg,$min,$sec,$hem);
+    return sprintf("%d %02d %$ndp3.$ndp"."f%s",$deg,$min,$sec,$hem);
     }
 
 

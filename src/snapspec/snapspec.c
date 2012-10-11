@@ -546,7 +546,7 @@ static double relacc_try_calc_missing_verr( stn_relacc_array *ra, int istn, int 
 
     if (blt_is_nonzero_element( ra->blt, irow, jrow ))
     {
-        return relacc_calc_missing_covar( ra, istn, jstn );
+        return relacc_calc_missing_verr( ra, istn, jstn );
     }
 
     return SDC_COVAR_UNAVAILABLE;
