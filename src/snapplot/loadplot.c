@@ -146,6 +146,27 @@ static const char *snap_name( int type, int group_id, long id )
     return name;
 }
 
+static double snap_calc_value( int type, long id1, long id2 )
+{
+    if( type == CALC_DISTANCE )
+    {
+        double dist;
+        station *st1 = stnptr(id1);
+        station *st2 = stnptr(id2);
+        dist = calc_distance( st1, 0.0, st2, 0.0, NULL, NULL );
+        return dist;
+    }
+    else if ( type == CALC_HDIST )
+    {
+        double dist;
+        station *st1 = stnptr(id1);
+        station *st2 = stnptr(id2);
+        dist = calc_horizontal_distance( st1, st2, NULL, NULL );
+        return dist;
+    }
+    return 0.0;
+}
+
 
 static int flag_missing_stations( survdata *sd )
 {
@@ -187,7 +208,7 @@ static void add_survdata( survdata *sd )
 
 static void init_load_plot( void )
 {
-    init_load_data( add_survdata, snap_id, snap_name );
+    init_load_data( add_survdata, snap_id, snap_name, snap_calc_value );
 }
 
 static void term_load_plot( void )

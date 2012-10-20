@@ -89,8 +89,8 @@ static char stdres[20];
 static char redundancy[20];
 static char typecode[10];
 static char flags[10];
-static char hgti[10];
-static char hgtt[10];
+static char hgti[20];
+static char hgtt[20];
 static char slpdst[20];
 static char arcdst[20];
 static char hgtdiff[20];
@@ -952,13 +952,22 @@ static char *get_obs_classification_name( trgtdata *t, survdata *sd, int class_i
     return NULL;
 }
 
+void set_residual_field_value( int id, int ndp, double value )
+{
+    char buffer[256];
+    char *buf = get_field_buffer(id);
+    sprintf( buffer, "%.*lf", (int) ndp, value );
+    if( strlen(buffer) < 20 ) strcpy(buf,buffer);
+    else sprintf(buf,"%.8e",value);
+}
+
 void set_survdata_fields( survdata *sd )
 {
     if( sd->from )
     {
         set_residual_field( OF_FROM, station_code( sd->from ));
         set_residual_field( OF_FROMNAME, stnptr(sd->from)->Name );
-        sprintf(get_field_buffer(OF_HI),"%.3lf",sd->fromhgt );
+        set_residual_field_value( OF_HI, 3, sd->fromhgt );
     }
     set_date_field( sd );
 }
@@ -975,7 +984,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
         {
             set_residual_field( OF_TO, station_code( t->to ));
             set_residual_field( OF_TONAME, stnptr(t->to)->Name );
-            sprintf(get_field_buffer(OF_HT),"%.3lf",t->tohgt );
+            set_residual_field_value(OF_HT,3,t->tohgt);
             set_calculated_fields(sd,t);
         }
     }
@@ -983,7 +992,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
     {
         set_residual_field( OF_FROM, station_code( t->to ));
         set_residual_field( OF_FROMNAME, stnptr(t->to)->Name );
-        sprintf(get_field_buffer(OF_HI),"%.3lf",t->tohgt );
+        set_residual_field_value(OF_HI,3,t->tohgt);
     }
     sprintf( fileno, "%d", (int) (sd->file) );
     set_residual_field( OF_FILENO, fileno );
@@ -1009,11 +1018,6 @@ char *get_field_buffer( int id )
     fields[id].source = fields[id].buffer;
     fields[id].buffer[0] = 0;
     return fields[id].buffer;
-}
-
-void set_residual_field_value( int id, int ndp, double value )
-{
-    sprintf( get_field_buffer(id), "%.*lf", (int) ndp, value );
 }
 
 void set_residual_field_dms( int id, void *format, double value )

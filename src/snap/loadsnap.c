@@ -580,10 +580,31 @@ static const char *snap_name( int type, int group_id, long id )
     return name;
 }
 
+static double snap_calc_value( int type, long id1, long id2 )
+{
+    if( type == CALC_DISTANCE )
+    {
+        double dist;
+        station *st1 = stnptr(id1);
+        station *st2 = stnptr(id2);
+        dist = calc_distance( st1, 0.0, st2, 0.0, NULL, NULL );
+        return dist;
+    }
+    else if ( type == CALC_HDIST )
+    {
+        double dist;
+        station *st1 = stnptr(id1);
+        station *st2 = stnptr(id2);
+        dist = calc_horizontal_distance( st1, st2, NULL, NULL );
+        return dist;
+    }
+    return 0.0;
+}
+
 void init_load_snap( void )
 {
     set_require_obs_date( deformation == NULL ? 0 : 1 );
-    init_load_data( load_snap, snap_id, snap_name );
+    init_load_data( load_snap, snap_id, snap_name, snap_calc_value );
     init_snap_gps_covariance();
     missing_data = 0;
 }

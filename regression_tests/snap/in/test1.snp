@@ -2,6 +2,7 @@ title Regression test 1 - data types and observation equations
 
 coordinate_file test1.crd
 data_file test1.dat
+data_file test1a.dat
 
 mode 3d data_check
 

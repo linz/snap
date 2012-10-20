@@ -902,7 +902,7 @@ static double f_vrterror2( void *env, int stn1, int stn2 )
 
     istn1 = f_station_id( env, stn1 );
     istn2 = f_station_id( env, stn2 );
-    verr = relacc_get_covar( ra, istn1, istn2 );
+    verr = relacc_get_verr( ra, istn1, istn2 );
     if( verr > 0.0 ) verr *= varmult;
     return verr;
 }

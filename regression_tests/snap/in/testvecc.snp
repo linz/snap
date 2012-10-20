@@ -11,3 +11,4 @@ deformation none
 
 data_file testvecc.csv csv format=vecc1
 data_file testdist.csv csv format=dist
+data_file testha.csv csv format=haerror

@@ -205,6 +205,10 @@ double calc_z( station *st, vector3 dst ) ;
 double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
                       vector3 dst1, vector3 dst2 );
 
+/* Horizontal distance (metres), ie at mean height of marks */
+
+double calc_horizontal_distance( station *st1, station *st2,
+                                  vector3 dst1, vector3 dst2 );
 /* Ellipsoidal distance (metres) */
 
 double calc_ellipsoidal_distance( station *st1, station *st2,

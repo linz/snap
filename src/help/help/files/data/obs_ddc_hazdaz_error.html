@@ -13,11 +13,17 @@
 
 <h1><a name="obs_ddc_hazdaz_error"></a>Angle observation errors</h1>
 
-<p><b>#ha_error  <i>value</i> sec<br>
+<p><b>#ha_error  <i>value</i> sec <i>value</i> mm<br>
 #zd_error  <i>value</i> sec<br>
-#az_error  <i>value</i> sec</b></p>
+#az_error  <i>value</i> sec <i>value</i> mm</b></p>
 
-<p>These define the default error in seconds for subsequent horizontal angle, zenith distance, and azimuth data.  Projection bearings are assigned the same errors as azimuth data.</p>
+<p>These define the default error in seconds for subsequent horizontal angle, zenith distance, and azimuth data.  Projection bearings are assigned the same errors as azimuth data.
+
+For horizontal angles and azimuths this may include a mm component, representing a plumbing error in 
+millimetres. This will be converted to an angle error based on the length on the line.  
+Note that SNAP calculates this based on the coordinates when the observations are loaded - they do not get
+updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
+coordinates to recalculate the errors.</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

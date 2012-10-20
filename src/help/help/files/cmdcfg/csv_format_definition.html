@@ -288,6 +288,23 @@ defined as:</p>
 		</td></tr>
 	</table>
 	<p class="Commanddefinition">
+	ANGLE_ERROR_TYPE <i>error_type</i>
+	</p>
+	<p class="Commanddescription">
+        Defines how the error for angle observations (horizontal angles, azimuth and bearing 
+        observations) is derived.  This can be one of:
+	</p>
+	<table class="Commanddescription">
+		<tr><td>error</td><td>The error is a value in degrees</td></tr>
+		<tr><td>calculated</td><td>
+				The error is a string formatted as &quot;<i>SCd</i>&nbsp;sec&nbsp;<i>SPd</i>&nbsp;mm&quot;
+				where <i>SCd</i> is the constant component of the standard error in seconds and <i>SPd</i> is the component due to plumbing errors in mm which is converted to an angle error based on the length of the line.  The root sum of squares of these components is the total angle error.
+Note that SNAP calculates this based on the coordinates when the observations are loaded - they do not get
+updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
+coordinates to recalculate the errors.</p>
+		</td></tr>
+	</table>
+	<p class="Commanddefinition">
 	DATETIME_FORMAT <i>format_string</i>
 	</p>
 	<p class="Commanddescription">

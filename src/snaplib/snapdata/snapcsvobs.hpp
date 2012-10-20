@@ -56,6 +56,7 @@ class SnapCsvObs : public SnapCsvBase
         CsvValue &rejected() { return _rejected; }
         bool setVectorErrorType( const string &format );
         bool setDistanceErrorType( const string &format );
+		bool setAngleErrorType( const string &format );
         bool setDateTimeFormat( const string &format );
         bool setIgnoreMissingObs(){ _ignoremissingobs = true; return true; }
         CsvClassification *classification( const string &classname );
@@ -87,6 +88,8 @@ class SnapCsvObs : public SnapCsvBase
         CsvValue _note;
         CsvValue _setid;
         CsvValue _rejected;
+        long _stnidfrom;
+        long _stnidto;
         std::vector<CsvValue *> _parts;
         std::vector<std::unique_ptr<CsvClassification> > _classifications;
 
@@ -97,6 +100,7 @@ class SnapCsvObs : public SnapCsvBase
         bool _ignoremissingobs;
         int _vecerrorformat;
         bool _disterrorcalced;
+        bool _angleerrorcalced;
         int _nvecerror;
         SnapCsvObs *_owner;
         std::string _dateformat;

@@ -717,6 +717,18 @@ static const  char * get_name( int type, int group_id, long id )
     }
 }
 
+static double get_value( int type, long id1, long id2 )
+{
+    switch( type )
+    {
+        case CALC_DISTANCE:
+        case CALC_HDIST:     
+            return 1000.0;
+            break;
+    }
+    return 0.0;
+} 
+
 static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
 {
     conn *cn, *rcn;
@@ -3063,7 +3075,7 @@ int main( int argc, char *argv[] )
     net = new_network();
     if( !net ) { printf("Cannot create a network - memory problem?\n"); return 0;}
 
-    init_load_data( load_data, get_id, get_name );
+    init_load_data( load_data, get_id, get_name, get_value );
 
     if( interactive )
     {

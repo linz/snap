@@ -91,10 +91,12 @@ static int cvrdim = 0;
 
 void (*usedata_func)( survdata *sd );
 
-/* The functions for converting codes to and from numeric id's */
+/* The functions for converting codes to and from numeric id's,
+   and for calculating values  */
 
 long (*id_func)( int type, int group_id, const char *code );
 const char * (*code_func)( int type, int group_id, long id );
+double (*calc_func)( int type, long id1, long id2 );
 
 /* The function for computing gps covariances is handled with a function
    pointer to avoid linking in the associated code when we are not
@@ -180,12 +182,14 @@ static void report_error( char *location )
 
 void init_load_data( void (*usedata)( survdata *sd ),
                      long (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*codefunc)( int type, int group_id, long id ))
+                     const char * (*codefunc)( int type, int group_id, long id ),
+                     double (*calcfunc)( int type, long id1, long id2 ))
 {
     DEBUG_PRINT(("LDT: init_load_data"));
     usedata_func = usedata;
     id_func = idfunc;
     code_func = codefunc;
+    calc_func = calcfunc;
 
     data.nobs = 0;
     noteloc = 0;
@@ -522,6 +526,11 @@ long ldt_get_id( int type, int group_id, const char *code )
 const char *ldt_get_code( int type, int group_id, long id )
 {
     return (*code_func)( type, group_id, id );
+}
+
+double ldt_calc_value( int calc_type, long id1, long id2 )
+{
+    return (*calc_func)( calc_type, id1, id2 );
 }
 
 void ldt_file( int fileno  )

@@ -68,6 +68,7 @@ SnapCsvObs::CsvObservation::CsvObservation( SnapCsvObs *owner ) :
     _setid("Observation set id"),
     _rejected("Observation rejected"),
     _disterrorcalced( false ),
+    _angleerrorcalced( false ),
     _vecerrorformat(CVR_TOPOCENTRIC),
     _owner(owner),
     _dateformat("YMDhms"),
@@ -276,6 +277,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     {
         idfrom = ldt_get_id( ID_STATION, 0, _fromstn.value().c_str());
         if( idfrom == 0 ) dataError("From station code is invalid");
+        _stnidfrom = idfrom;
     }
     int idto = 0;
     if( ! type->ispoint )
@@ -288,6 +290,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         {
             idto = ldt_get_id( ID_STATION, 0, _tostn.value().c_str());
             if( idto == 0 ) dataError("To station code is invalid");
+            _stnidto = idto;
         }
     }
     double fromhgt = 0.0;
@@ -300,6 +303,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     if( _errorfactor.hasValue()) _errorfactor >> errorfactor;
     if( ! type->isvector )
     {
+        bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
         _value >> value[0];
         if( _disterrorcalced && type->isdistance)
         {
@@ -331,6 +335,46 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             }
 
             if( error[0] > 0.0 ) error[0] = sqrt(error[0]);
+        }
+        else if( _angleerrorcalced && ishorangle )
+        {
+            double errcomp;
+            double mmerr = 0.0;
+            double secerr = 0.0;
+            double *pcomp;
+
+            string component="";
+            bool ok = true;
+            std::istringstream istr(_error.value());
+            for( int i = 0; i < 2; i++ )
+            {
+                istr >> errcomp >> component;
+                if( istr.fail()) break;
+                if( boost::iequals(component,"mm")) { errcomp *= 0.001; pcomp = &mmerr; }
+                else if( boost::iequals( component,"sec")) { errcomp *= STOR; pcomp = &secerr; }
+                else
+                {
+                    dataError(string("Invalid angle error component ") + component);
+                    ok = false;
+                    break;
+                }
+                *pcomp += errcomp*errcomp;
+            }
+            if( component == "" )
+            {
+                    dataError(string("Missing angle error") + component);
+                    ok = false;
+            }
+ 
+            if( mmerr > 0.0 )
+            {
+                double hdist = ldt_calc_value( CALC_HDIST, _stnidfrom, _stnidto );
+                hdist *= hdist;
+                if( hdist < mmerr/4.0) hdist=mmerr/4.0;
+                mmerr /= hdist;
+            }
+            error[0] = secerr + mmerr;
+            if( error[0] > 0.0 ) error[0] = sqrt(error[0])*RTOD;
         }
         else
         {
@@ -529,6 +573,24 @@ bool SnapCsvObs::CsvObservation::setDistanceErrorType( const string &format )
     return ok;
 }
 
+bool SnapCsvObs::CsvObservation::setAngleErrorType( const string &format )
+{
+    bool ok = true;
+    if( boost::iequals(format,"error"))
+    {
+        _angleerrorcalced = false;
+    }
+   else if( boost::iequals(format,"calculated"))
+    {
+        _angleerrorcalced = true;
+    }
+    else
+    {
+        definitionError(string("Invalid angle error type ") + format );
+        ok = false;
+    }
+    return ok;
+}
 bool SnapCsvObs::CsvObservation::setVectorErrorType( const string &format )
 {
     bool ok = true;
@@ -695,6 +757,18 @@ void SnapCsvObs::loadObservationDefinition( RecordStream &rs, CsvObservation &ob
             else
             {
                 definitionError("Distance_error_type value is missing");
+            }
+        }
+        else if( command == "angle_error_type" )
+        {
+            string format;
+            if( rs.record() >> format )
+            {
+                obs.setAngleErrorType(unquoteString(format));
+            }
+            else
+            {
+                definitionError("Angle_error_type value is missing");
             }
         }
         else if( command == "classification_columns" )

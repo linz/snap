@@ -175,6 +175,37 @@ double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
     return dist;
 }
 
+double calc_horizontal_distance( station *st1, station *st2, vector3 dst1, vector3 dst2 )
+{
+    double dist, h1, h2;
+    vector3 dif;
+
+    h1 = st1->OHgt+st1->GUnd;
+    h2 = st2->OHgt+st2->GUnd;
+
+    calc_inst_dif( st1, (h2-h1)/2.0, st2, (h1-h2)/2.0, dif );
+
+    dist = veclen( dif );
+
+    if( dst1 )
+    {
+        if( dist > DIST_TOL )
+        {
+            scalevec( dif, -1.0/dist );
+            rotvec( dif, &st1->rTopo, dst1 );
+            scalevec( dif, -1.0 );
+            rotvec( dif, &st2->rTopo, dst2 );
+        }
+        else
+        {
+            dst1[0] = dst1[1] = dst1[2] = 0.0;
+            dst2[0] = dst2[1] = dst2[2] = 0.0;
+        }
+    }
+
+    return dist;
+}
+
 double calc_ellipsoidal_distance( station *st1, station *st2,
                                   vector3 dst1, vector3 dst2 )
 {

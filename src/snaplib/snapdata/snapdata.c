@@ -161,7 +161,9 @@ typedef struct
     int coef_class_id[N_COEF_CLASSES];
 
     double dserr, dsppmerr;    /* Definitions of errors */
-    double haerr, azerr, zderr;
+    double haerr, hammerr;
+    double azerr, azmmerr;
+    double zderr;
     double lverr;
     double lnerr, lterr;
     double oherr;
@@ -189,6 +191,8 @@ typedef struct
     double date;        /* Miscellaneous data */
     double value;       /* Used for default error of scalar data */
     snap_data_type *obstype;      /* Current observation type */
+    int stn_id_inst;
+    int stn_id_trgt;
     int obsclass;
     int rejobs;
     int skipobs;
@@ -302,7 +306,9 @@ static void init_snapfile_def( snapfile_def *sd, DATAFILE *df )
     sd->dserr = -1;
     sd->dsppmerr = -1;
     sd->haerr = -1;
+    sd->hammerr = -1;
     sd->azerr = -1;
+    sd->azmmerr = -1;
     sd->zderr = -1;
     sd->lverr = -1;
     sd->lnerr = -1;
@@ -788,9 +794,23 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
         errcodes[0].code = mm;
         break;
 
-    case HA_ERR:  errcodes[0].value = &sd->haerr; break;
+    case HA_ERR:  
+        errcodes[0].value = &sd->haerr; 
+        errcodes[1].code = mm;
+        errcodes[1].fact = 0.001;
+        errcodes[1].value = &sd->hammerr;
+        nerrcodes = 2;
+        break;
+        
+    case AZ_ERR:  
+        errcodes[0].value = &sd->azerr; 
+        errcodes[1].code = mm;
+        errcodes[1].fact = 0.001;
+        errcodes[1].value = &sd->azmmerr;
+        nerrcodes = 2;
+        break;
+                  
     case ZD_ERR:  errcodes[0].value = &sd->zderr; break;
-    case AZ_ERR:  errcodes[0].value = &sd->azerr; break;
     case LT_ERR:  errcodes[0].value = &sd->lterr; break;
     case LN_ERR:  errcodes[0].value = &sd->lnerr; break;
 
@@ -950,9 +970,38 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
         ldt_error( &error );
         break;
 
-    case HA_ERR: ldt_error( &sd->haerr ); break;
-    case ZD_ERR: ldt_error( &sd->zderr ); break;
+    case HA_ERR: 
+        error = sd->haerr;
+        if( sd->hammerr > 0 )
+        {
+            double mmerr, dist;
+            mmerr = sd->hammerr;
+            dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
+            /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
+
+			if( dist < mmerr/2.0 ) dist = mmerr/2.0;
+            error = hypot(error, mmerr/dist);
+        }
+        ldt_error( &error ); 
+        break;
+
     case AZ_ERR: ldt_error( &sd->azerr ); break;
+        error = sd->azerr;
+        if( sd->azmmerr > 0 )
+        {
+            double mmerr, dist;
+            mmerr = sd->azmmerr;
+            dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
+            /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
+
+			if( dist < mmerr/2.0 ) dist = mmerr/2.0;
+            error = hypot(error, mmerr/dist);
+        }
+        ldt_error( &error ); 
+        break;
+
+
+    case ZD_ERR: ldt_error( &sd->zderr ); break;
 
     case LT_ERR: ldt_error( &sd->lterr ); break;
     case LN_ERR: ldt_error( &sd->lnerr ); break;
@@ -2035,6 +2084,7 @@ static int read_data_line( snapfile_def *sd, int rej )
         if( sd->ingroup ) end_group(sd, 0);
         start_group( sd );
 
+        sd->stn_id_inst = -1;
         if( sd->noinststn )
         {
             startgrp = 0;
@@ -2043,6 +2093,7 @@ static int read_data_line( snapfile_def *sd, int rej )
         else
         {
             ldt_inststn( stn_id, ihgt );
+            sd->stn_id_inst = stn_id;
             sd->rejgroup = rej;
         }
         ldt_date( sd->date );
@@ -2065,10 +2116,12 @@ static int read_data_line( snapfile_def *sd, int rej )
     {
         if( ! sd->noinststn) sts = read_station( sd, &stn_id, &ihgt );
         ldt_tgtstn( stn_id, ihgt );
+        sd->stn_id_trgt = stn_id;
     }
     else if( !startgrp )
     {
         ldt_tgtstn( stn_id, ihgt );
+        sd->stn_id_trgt = stn_id;
     }
 
     if( sts != OK )

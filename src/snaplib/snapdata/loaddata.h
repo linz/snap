@@ -19,7 +19,7 @@
 #include "snapdata/survdata.h"
 #endif
 
-/* Init load data takes the addresses of two callback functions which
+/* Init load data takes the addresses of three callback functions which
    act as translators between names (of stations, refraction coeffs,
    etc, and codes.
 
@@ -42,6 +42,14 @@
 
    Return values of 0 are taken as missing or undefined
 
+   The third function is for calculations, currently calculating the 
+   distance between two stations.  It takes three parameters and returns
+   an double value.  The parameters are a type and two ids 
+
+   type             id1              id2              Value
+   CALC_DISTANCE    From station id  To station id    Slope distance
+   CALC_HDIST       From station id  To station id    Horizonal distance
+
 */
 
 enum { ID_STATION, ID_PROJCTN, ID_CLASSTYPE, ID_CLASSNAME, ID_COEF,
@@ -51,6 +59,12 @@ enum { ID_STATION, ID_PROJCTN, ID_CLASSTYPE, ID_CLASSNAME, ID_COEF,
 /* These must match the coef_classes array in loaddata.c */
 
 enum { COEF_CLASS_DISTSF, COEF_CLASS_BRNGREF, COEF_CLASS_REFCOEF, COEF_CLASS_REFFRM, N_COEF_CLASSES };
+
+/* Calculation types */
+
+enum { CALC_DISTANCE, CALC_HDIST };
+
+/*  */
 
 struct coef_class_info 
 { 
@@ -66,7 +80,8 @@ void set_coef_class( int coeftype, const char *name );
 
 void init_load_data( void (*usedata_func)( survdata *sd ),
                      long (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*namefunc)( int type, int group_id, long id ));
+                     const char * (*namefunc)( int type, int group_id, long id ),
+                     double (*calcfunc)( int type, long id1, long id2 ));
 void term_load_data( void );
 
 /* The following routine can be called to enable handling of GPS covariances.
@@ -84,6 +99,7 @@ void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
 
 long ldt_get_id( int type, int group_id, const char *code );
 const char *ldt_get_code( int type, int group_id, long id );
+double ldt_calc_value( int calc_type, long id1, long id2 );
 
 /* Set state - can happen at any time */
 

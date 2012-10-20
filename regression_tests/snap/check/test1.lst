@@ -17,6 +17,7 @@ The command file test1.snp contains:
      
      coordinate_file test1.crd
      data_file test1.dat
+     data_file test1a.dat
      
      mode 3d data_check
      
@@ -80,6 +81,20 @@ Data file 1: test1.dat
        2 ellipsoidal heights
        6 latitudes
        6 longitudes
+
+Data file 2: test1a.dat
+       2 slope distances
+       2 horizontal distances
+       2 ellipsoidal distances
+       4 mean sea level distances
+       2 distance ratios
+       6 horizontal angles
+       4 azimuths
+       2 projection bearings
+       2 zenith distances
+       2 height differences
+       2 latitudes
+       2 longitudes
 
 
 ================================================================================
@@ -614,6 +629,70 @@ Fil/Lin  From  Height To    Height Type   Value      Error
 
                   6 
      6   0.00824977 
+
+ 2:9     1     0.000  2     0.000  HA   141 28 15.8     40.0
+ 2:10                 3     0.000  HA   161 11 26.3     40.0
+
+ 2:13    2     0.000  1     0.000  HA     1 27 59.3     40.0
+ 2:14                 3     0.000  HA   244 47 28.1     40.0
+
+ 2:22    2     0.000  1     0.000  HA   121 27 59.3    709.8
+ 2:23                 3     0.000  HA     4 47 28.1   1429.2
+
+ 2:31    1     0.000  2     0.000  AZ    41 28 15.8     20.0
+
+ 2:32    1     0.000  3     0.000  AZ    61 11 26.3     20.0
+
+ 2:36    1     0.000  2     0.000  AZ    41 28 15.8    200.0
+
+ 2:37    1     0.000  3     0.000  AZ    61 11 26.3    200.0
+
+ 2:42    1     0.000  2     0.000  PB    40 30 56.8    200.0
+     projection = WELLTM1949
+
+ 2:43    1     0.000  3     0.000  PB    60 14 07.3    200.0
+     projection = WELLTM1949
+
+ 2:48    1     0.000  2     0.000  SD      894.9014   0.0219
+
+ 2:49    1     0.000  3     0.000  SD     1154.9438   0.0231
+
+ 2:54    1     0.000  2     0.000  ED      889.2687   0.0200
+
+ 2:55    1     0.000  3     0.000  ED     1152.1500   0.0200
+
+ 2:60    1     0.000  2     0.000  MD      889.2687   0.0889
+
+ 2:61    1     0.000  3     0.000  MD     1152.1500   0.1152
+
+ 2:62    4     0.000  5     0.000  MD      889.2687   0.0889
+
+ 2:63    1     0.000  5     0.000  MD      889.2687   0.0889
+
+ 2:68    1     0.000  2     0.000  HD      889.2966   0.0219
+
+ 2:69    1     0.000  3     0.000  HD     1152.1698   0.0231
+
+ 2:75    1     0.000  2     0.000  DR      894.9461   0.0219
+ 2:76                 3     0.000  DR     1155.0015   0.0231
+
+ 2:81    1     0.000  2     0.000  ZD    83 35 17.3     20.0   DEFAULT
+     refraction_coef_code = Default
+
+ 2:82    1     0.000  3     0.000  ZD    93 58 37.5     20.0   DEFAULT
+     refraction_coef_code = Default
+
+ 2:87    1     0.000  2     0.000  LV      100.0000   0.0200
+
+ 2:88    1     0.000  3     0.000  LV      -80.0000   0.0200
+
+ 2:93    1     0.000               LN   173 19 15.60 E    1.20
+
+ 2:94    2     0.000               LN   173 19 40.80 E    1.20
+
+ 2:99    1     0.000               LT    41 00 46.80 S    1.50
+
+ 2:100   2     0.000               LT    41 00 25.20 S    1.50
 
 
 
@@ -1797,6 +1876,202 @@ File test1.dat: line 419: Station 1 : GX ...
      6 4.47927e-003 -5.23974e-004 5.32182e-003 5.31141e-003 -6.21316e-004 8.24977e-003 
 
 
+File test1a.dat: line 9: Station 1 to 2 : HA ...
+
+ 1  0.00000e+000          SCH 
+    1.93925e-004 1.00000e+000 
+
+ 2  -6.45369e-008          SCH 
+    1.93925e-004 1.00000e+000 
+
+
+File test1a.dat: line 13: Station 2 to 1 : HA ...
+
+ 1  0.00000e+000          SCH 
+    1.93925e-004 1.00000e+000 
+
+ 2  -8.24511e-008          SCH 
+    1.93925e-004 1.00000e+000 
+
+
+File test1a.dat: line 22: Station 2 to 1 : HA ...
+
+ 1  0.00000e+000          SCH 
+    3.44106e-003 1.00000e+000 
+
+ 2  -8.24511e-008          SCH 
+    6.92874e-003 1.00000e+000 
+
+
+File test1a.dat: line 31: Station 1 to 2 : AZ
+
+ 1  4.83991e-008 
+    9.69627e-005 
+
+
+File test1a.dat: line 32: Station 1 to 3 : AZ
+
+ 1  -1.61378e-008 
+    9.69627e-005 
+
+
+File test1a.dat: line 36: Station 1 to 2 : AZ
+
+ 1  4.83991e-008 
+    9.69627e-004 
+
+
+File test1a.dat: line 37: Station 1 to 3 : AZ
+
+ 1  -1.61378e-008 
+    9.69627e-004 
+
+
+File test1a.dat: line 42: Station 1 to 2 : PB
+
+ 1  8.27605e-008 
+    9.69627e-004 
+
+
+File test1a.dat: line 43: Station 1 to 3 : PB
+
+ 1  2.32667e-007 
+    9.69627e-004 
+
+
+File test1a.dat: line 48: Station 1 to 2 : SD
+
+ 1  3.55580e-005 
+    2.19108e-002 
+
+
+File test1a.dat: line 49: Station 1 to 3 : SD
+
+ 1  -4.83206e-005 
+    2.30952e-002 
+
+
+File test1a.dat: line 54: Station 1 to 2 : ED
+
+ 1  -2.31140e-006 
+    2.00000e-002 
+
+
+File test1a.dat: line 55: Station 1 to 3 : ED
+
+ 1  3.76519e-005 
+    2.00000e-002 
+
+
+File test1a.dat: line 60: Station 1 to 2 : MD
+
+ 1  -2.31140e-006 
+    8.89269e-002 
+
+
+File test1a.dat: line 61: Station 1 to 3 : MD
+
+ 1  3.76519e-005 
+    1.15215e-001 
+
+
+File test1a.dat: line 62: Station 4 to 5 : MD
+
+ 1  -4.18786e-003 
+    8.89269e-002 
+
+
+File test1a.dat: line 63: Station 1 to 5 : MD
+
+ 1  -2.09509e-003 
+    8.89269e-002 
+
+
+File test1a.dat: line 68: Station 1 to 2 : HD
+
+ 1  -5.25985e-006 
+    2.18880e-002 
+
+
+File test1a.dat: line 69: Station 1 to 3 : HD
+
+ 1  -1.94403e-005 
+    2.30814e-002 
+
+
+File test1a.dat: line 75: Station 1 to 2 : DR ...
+
+ 1  4.47356e-002          SCH 
+    2.19110e-002 8.94901e-004 
+
+ 2  5.76517e-002          SCH 
+    2.30955e-002 1.15494e-003 
+
+
+File test1a.dat: line 81: Station 1 to 2 : ZD
+
+ 1  1.81811e-007 
+    9.69627e-005 
+
+
+File test1a.dat: line 82: Station 1 to 3 : ZD
+
+ 1  -1.48521e-008 
+    9.69627e-005 
+
+
+File test1a.dat: line 87: Station 1 to 2 : LV
+
+ 1  0.00000e+000 
+    2.00000e-002 
+
+
+File test1a.dat: line 88: Station 1 to 3 : LV
+
+ 1  0.00000e+000 
+    2.00000e-002 
+
+
+File test1a.dat: line 93: Station 1 : LN
+
+ 1  0.00000e+000 
+    5.81776e-006 
+
+
+                  1 
+     1 3.38464e-011 
+
+
+File test1a.dat: line 94: Station 2 : LN
+
+ 1  0.00000e+000 
+    5.81776e-006 
+
+
+                  1 
+     1 3.38464e-011 
+
+
+File test1a.dat: line 99: Station 1 : LT
+
+ 1  0.00000e+000 
+    7.27221e-006 
+
+
+                  1 
+     1 5.28850e-011 
+
+
+File test1a.dat: line 100: Station 2 : LT
+
+ 1  0.00000e+000 
+    7.27221e-006 
+
+
+                  1 
+     1 5.28850e-011 
+
+
 
 ================================================================================
 Regression test 1 - data types and observation equations    
@@ -1808,15 +2083,15 @@ Regression test 1 - data types and observation equations
 Solution type: 3d data checking
 
 
-Number of observations:             127
+Number of observations:             159
 Number of parameters:                 0
-Number of implicit parameters:       10
+Number of implicit parameters:       14
 
-Degrees of freedom:                 117
-Sum of squared residuals:             0.20963
-Standard error of unit weight:        0.04233
+Degrees of freedom:                 145
+Sum of squared residuals:             0.21242
+Standard error of unit weight:        0.03828
 
-The probability of an SSR this low is 0.000% (from Chi squared (117))
+The probability of an SSR this low is 0.000% (from Chi squared (145))
 
 You may have over-estimated the errors of the data.
 
@@ -2355,6 +2630,78 @@ File test1.dat: line 386
                        -4163244.59  0.09    -4163244.59  0.00  -0.00  0.12   0.00 *                    
                         6369436.19           6369436.19         0.00         0.00 *                    
 
+From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    S.R.         Id class equpt
+
+File test1a.dat: line 9
+
+1     2            0 HA   141 28 15.8   40.0 141 28 15.8   28.3     0.0   28.3   0.00         0            
+      3            0 HA   161 11 26.3   40.0 161 11 26.3   28.3    -0.0   28.3   0.00         0            
+
+2     1            0 HA     1 27 59.3   40.0   1 27 59.3   28.3     0.0   28.3   0.00         0            
+      3            0 HA   244 47 28.1   40.0 244 47 28.1   28.3    -0.0   28.3   0.00         0            
+
+2     1            0 HA   121 27 59.3  709.8 121 27 59.3  635.7     0.0  315.7   0.00         0            
+      3            0 HA     4 47 28.1 1429.2   4 47 28.1  635.7    -0.0 1280.0   0.00         0            
+
+1     2            0 AZ    41 28 15.8   20.0  41 28 15.8    0.0     0.0   20.0   0.00         0            
+
+1     3            0 AZ    61 11 26.3   20.0  61 11 26.3    0.0    -0.0   20.0   0.00         0            
+
+1     2            0 AZ    41 28 15.8  200.0  41 28 15.8    0.0     0.0  200.0   0.00         0            
+
+1     3            0 AZ    61 11 26.3  200.0  61 11 26.3    0.0    -0.0  200.0   0.00         0            
+
+1     2            0 PB    40 30 56.8  200.0  40 30 56.8    0.0     0.0  200.0   0.00         0            
+
+1     3            0 PB    60 14 07.3  200.0  60 14 07.3    0.0     0.0  200.0   0.00         0            
+
+1     2            0 SD      894.9014 0.0219    894.9014 0.0000  0.0000 0.0219   0.00         0            
+
+File test1a.dat: line 49
+
+1     3            0 SD     1154.9438 0.0231   1154.9438 0.0000 -0.0000 0.0231   0.00         0            
+
+1     2            0 ED      889.2687 0.0200    889.2687 0.0000 -0.0000 0.0200   0.00         0            
+
+1     3            0 ED     1152.1500 0.0200   1152.1500 0.0000  0.0000 0.0200   0.00         0            
+
+1     2            0 MD      889.2687 0.0889    889.2687 0.0000 -0.0000 0.0889   0.00         0            
+
+1     3            0 MD     1152.1500 0.1152   1152.1500 0.0000  0.0000 0.1152   0.00         0            
+
+4     5            0 MD      889.2687 0.0889    889.2729 0.0000 -0.0042 0.0889   0.05         0            
+
+1     5            0 MD      889.2687 0.0889    889.2708 0.0000 -0.0021 0.0889   0.02         0            
+
+1     2            0 HD      889.2966 0.0219    889.2966 0.0000 -0.0000 0.0219   0.00         0            
+
+1     3            0 HD     1152.1698 0.0231   1152.1698 0.0000 -0.0000 0.0231   0.00         0            
+
+1     2            0 DR      894.9461 0.0219    894.9461 0.0139  0.0000 0.0170   0.00         0            
+      3            0 DR     1155.0015 0.0231   1155.0015 0.0179 -0.0000 0.0146   0.00         0            
+
+            Distance scale factor 49.9ppm +/- 15.5ppm
+
+File test1a.dat: line 81
+
+1     2            0 ZD    83 35 17.3   20.0  83 35 17.3    0.0     0.0   20.0   0.00         0            
+
+1     3            0 ZD    93 58 37.5   20.0  93 58 37.5    0.0    -0.0   20.0   0.00         0            
+
+1     2            0 LV      100.0000 0.0200    100.0000 0.0000  0.0000 0.0200   0.00         0            
+
+1     3            0 LV      -80.0000 0.0200    -80.0000 0.0000  0.0000 0.0200   0.00         0            
+
+From        Id Type     Value      +/-        Calc      +/-    Res   +/-    S.R.         Id class equpt
+
+1            0 LN   173 19 15.60 E  1.20 173 19 15.60 E  0.00   0.00  1.20   0.00         0            
+
+2            0 LN   173 19 40.80 E  1.20 173 19 40.80 E  0.00   0.00  1.20   0.00         0            
+
+1            0 LT    41 00 46.80 S  1.50  41 00 46.80 S  0.00   0.00  1.50   0.00         0            
+
+2            0 LT    41 00 25.20 S  1.50  41 00 25.20 S  0.00   0.00  1.50   0.00         0            
+
 
 ================================================================================
 Regression test 1 - data types and observation equations    
@@ -2381,33 +2728,45 @@ GPS point coord                             0.00   36    0.00   27    0.00   63
         North component                     0.00   12    0.00    9    0.00   21
         Up component                        0.00   12    0.00    9    0.00   21
 
-slope distance                              0.02    4    0.02    2    0.02    6
+slope distance                              0.01    6    0.02    2    0.02    8
 
-horizontal distance                         0.00    2     -      -    0.00    2
+horizontal distance                         0.00    4     -      -    0.00    4
 
-ellipsoidal distance                        0.00    4     -      -    0.00    4
+ellipsoidal distance                        0.00    6     -      -    0.00    6
 
-mean sea level distance                     0.23    4     -      -    0.23    4
+mean sea level distance                     0.16    8     -      -    0.16    8
 
-distance ratio                              0.02    2     -      -    0.02    2
+distance ratio                              0.02    4     -      -    0.02    4
 
-horizontal angle                            0.00   14    0.00    2    0.00   16
+horizontal angle                            0.00   20    0.00    2    0.00   22
 
-azimuth                                     0.01    4    0.01    2    0.01    6
+azimuth                                     0.01    8    0.01    2    0.01   10
 
-projection bearing                          0.01    2    0.01    4    0.01    6
+projection bearing                          0.01    4    0.01    4    0.01    8
 
-zenith distance                             0.01    4     -      -    0.01    4
+zenith distance                             0.00    6     -      -    0.00    6
 
-height difference                           0.00    4     -      -    0.00    4
+height difference                           0.00    6     -      -    0.00    6
 
 orthometric height                          0.00    2     -      -    0.00    2
 
 ellipsoidal height                          0.00    2     -      -    0.00    2
 
-latitude                                    0.00    4    0.00    2    0.00    6
+latitude                                    0.00    6    0.00    2    0.00    8
 
-longitude                                   0.00    4    0.00    2    0.00    6
+longitude                                   0.00    6    0.00    2    0.00    8
+
+
+Summary of residuals classified by input file
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+test1.dat                                   0.04  125    0.00   71    0.03  196
+
+test1a.dat                                  0.01   32     -      -    0.01   32
 
 
 ================================================================================
@@ -2418,9 +2777,9 @@ Regression test 1 - data types and observation equations
 ================================================================================
 
 
-The 112 residuals from this data are classified as follows:
+The 144 residuals from this data are classified as follows:
 
-Under 95.00%  significant    Used:  79    Unused:  33
+Under 95.00%  significant    Used: 111    Unused:  33
 Under 99.00%  significant    Used:   0    Unused:   0
 Over  99.00%  significant    Used:   0    Unused:   0
 
@@ -2460,7 +2819,11 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 
 1      5           0   MD     0.203   16.118         45  test1.dat
 
+4      5           0   MD     0.047    3.756         62  test1a.dat
+
 1      2           0   AZ     0.028    2.233        173  test1.dat
+
+1      5           0   MD     0.024    1.880         63  test1a.dat
 
 1      3           0   DR     0.023    1.817         56  test1.dat
 
@@ -2471,7 +2834,3 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 1      2           0   SD     0.016    1.290         32  test1.dat
 
 1      2           0   SD     0.016    1.290        123  test1.dat
-
-1      2           0   SD     0.016    1.290        179  test1.dat
-
-1      3           0   PB     0.012    0.957         28  test1.dat

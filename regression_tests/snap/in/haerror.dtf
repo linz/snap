@@ -1,0 +1,12 @@
+format_name Test calculated distance error file
+observation
+type "HA"
+instrument_station @from
+target_station @to
+set_id @set
+datetime @date
+datetime_format YMD
+value @angle
+error "6sec 10mm"
+angle_error_type calculated
+end_observation

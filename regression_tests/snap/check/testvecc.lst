@@ -30,6 +30,9 @@ Data file 1: testvecc.csv
 Data file 2: testdist.csv
        3 slope distances
 
+Data file 3: testha.csv
+       3 horizontal angles
+
 
 ================================================================================
 Testing CSV input                                           
@@ -41,14 +44,15 @@ Testing CSV input
 Solution type: 3d data checking
 
 
-Number of observations:              30
+Number of observations:              33
 Number of parameters:                 0
+Number of implicit parameters:        1
 
-Degrees of freedom:                  30
-Sum of squared residuals:         1875662030.97221
-Standard error of unit weight:     7907.08971
+Degrees of freedom:                  32
+Sum of squared residuals:         1877458144.71395
+Standard error of unit weight:     7659.67147
 
-The probability of an SSR this high is 0.000% (from Chi squared (30))
+The probability of an SSR this high is 0.000% (from Chi squared (32))
 
 You may have under-estimated the errors of the data,
 or there may be gross errors in the data
@@ -186,6 +190,7 @@ Vector residual east, north, up directions are calculated at baseline midpoint
 The following codes are used to identify data types
    GB  GPS baselines
    SD  slope distances
+   HA  horizontal angles
 Note: Calculated values for slope distances include equipment heights
 
 From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
@@ -266,6 +271,12 @@ BU34  C5MH  SD      583.2100 0.0131    301.9409 0.0000 281.2691 0.0131 21443.23 
 
 BU34  C5MK  SD      287.1100 0.0083    599.4990 0.0000 -312.3890 0.0083 37614.62  ???
 
+File testha.csv: line 2
+
+BU34  EH91  HA     0 00 00.0    9.6   1 10 24.8    4.8 -4224.8    8.3 506.52  ???
+      C5MH  HA   124 30 00.0    9.1 121 37 15.2    4.8 10364.8    7.7 1339.73  ???
+      C5MK  HA    93 06 00.0    6.9  94 09 30.3    4.8 -3810.3    5.0 761.72  ???
+
 
 ================================================================================
 Testing CSV input                                           
@@ -289,6 +300,8 @@ GPS baseline                              183.33   27     -      -  183.33   27
 
 slope distance                           24998.36    3     -      - 24998.36    3
 
+horizontal angle                          936.60    3     -      -  936.60    3
+
 
 Summary of residuals classified by input file
 
@@ -301,6 +314,8 @@ testvecc.csv                              183.33   27     -      -  183.33   27
 
 testdist.csv                             24998.36    3     -      - 24998.36    3
 
+testha.csv                                936.60    3     -      -  936.60    3
+
 
 ================================================================================
 Testing CSV input                                           
@@ -310,11 +325,11 @@ Testing CSV input
 ================================================================================
 
 
-The 12 residuals from this data are classified as follows:
+The 15 residuals from this data are classified as follows:
 
 Under 95.00%  significant    Used:   6    Unused:   0
 Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   6    Unused:   0
+Over  99.00%  significant    Used:   9    Unused:   0
 
 Note: Only the overall residual for vector data is counted
 
@@ -326,6 +341,12 @@ From   To     Type     S.R.  Sig (%)       Line  File
 BU34   C5MK    SD   37614.616  100.000 ???      4  testdist.csv
 
 BU34   C5MH    SD   21443.233  100.000 ???      3  testdist.csv
+
+BU34   C5MH    HA   1339.735  100.000 ???      3  testha.csv
+
+BU34   C5MK    HA   761.721  100.000 ???      4  testha.csv
+
+BU34   EH91    HA   506.517  100.000 ???      2  testha.csv
 
 BU34   EH91    SD   288.155  100.000 ???      2  testdist.csv
 
@@ -344,15 +365,3 @@ EHJJ   WHNG    GB    26.544  100.000 ???      7  testvecc.csv
 Mangawhai Heads
 
 DLLL   DLL1    GB     0.520   15.302          9  testvecc.csv
-
-Mangawhai Heads
-
-EHJJ   DLLL    GB     0.122    0.247          8  testvecc.csv
-
-Warkworth
-
-BU34   C5MH    GB     0.084    0.081          3  testvecc.csv
-
-Warkworth
-
-BU34   EH91    GB     0.060    0.029          2  testvecc.csv
