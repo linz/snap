@@ -1,0 +1,12 @@
+format_name Test calculated distance error file
+observation
+type "ZD"
+instrument_station @from
+target_station @to
+set_id @set
+datetime @date
+datetime_format YMD
+value @angle
+error "6sec 10mmh 20mmv"
+zenith_distance_error_type calculated
+end_observation
