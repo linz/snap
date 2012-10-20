@@ -374,7 +374,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         azmax = 0.0;
     }
 
-    display[rfRotx] = display[rfRoty] = display[rfRotx] = 1;
+    display[rfRotx] = display[rfRoty] = display[rfRotz] = 1;
     display[rfScale] = 1;
     display[rfTx] = display[rfTy] = display[rfTz] = rf->istrans;
 
