@@ -305,6 +305,23 @@ coordinates to recalculate the errors.</p>
 		</td></tr>
 	</table>
 	<p class="Commanddefinition">
+	ZENITH_DISTANCE_ERROR_TYPE <i>error_type</i>
+	</p>
+	<p class="Commanddescription">
+        Defines how the error for angle observations (horizontal angles, azimuth and bearing 
+        observations) is derived.  This can be one of:
+	</p>
+	<table class="Commanddescription">
+		<tr><td>error</td><td>The error is a value in degrees</td></tr>
+		<tr><td>calculated</td><td>
+                        The error is a string formatted as &quot;<i>SCd</i>&nbsp;sec&nbsp;<i>SPh</i>&nbsp;mmh&nbsp;<i>SPv</i>mmv&quot;
+                        where <i>SCd</i> is the constant component of the standard error in seconds, <i>SPh</i> is the component due to plumbing errors in mm, and <i>SPv</i> is the component due to instrument heighting errors in mm.  The root sum of squares of these components is the total angle error.
+Note that SNAP calculates the total error using the distance between the endpoint station coordinates when the observations are loaded - they do not get
+updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
+coordinates to recalculate the errors.</p>
+		</td></tr>
+	</table>
+	<p class="Commanddefinition">
 	DATETIME_FORMAT <i>format_string</i>
 	</p>
 	<p class="Commanddescription">

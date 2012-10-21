@@ -90,22 +90,22 @@ typedef struct
 /* Valid types of data field */
 
 enum { DFT_START,          /* Start of a group relating to an observation
-				 id     = type number in snap_type array
-				 sec_id = combination of flags
-					  FLG_DFLT_DATA and FLG_DFLT_ERROR */
+                 id     = type number in snap_type array
+                 sec_id = combination of flags
+                      FLG_DFLT_DATA and FLG_DFLT_ERROR */
        DFT_DATA,           /* Data item for the group
-				 id     = type number in snap type array */
+                 id     = type number in snap type array */
        DFT_ERROR,          /* Error item for the group
-				 id     = type number in snap type array */
+                 id     = type number in snap type array */
        DFT_TIME,           /* Time of the observation */
        DFT_OBSID,          /* Id of the observation */
        DFT_CLASS,          /* Classification item for the group
-				 id     = index into array of cclass types */
+                 id     = index into array of cclass types */
        DFT_SYSERR
      };       /* Systematic error
-				 id     = systematic error id
-				 sec_id = id of classification it depends on,
-					  or -1. */
+                 id     = systematic error id
+                 sec_id = id of classification it depends on,
+                      or -1. */
 
 #define FLG_DFLT_DATA  1
 #define FLG_DFLT_ERROR 2
@@ -163,7 +163,7 @@ typedef struct
     double dserr, dsppmerr;    /* Definitions of errors */
     double haerr, hammerr;
     double azerr, azmmerr;
-    double zderr;
+    double zderr, zdmmherr, zdmmverr;
     double lverr;
     double lnerr, lterr;
     double oherr;
@@ -310,6 +310,8 @@ static void init_snapfile_def( snapfile_def *sd, DATAFILE *df )
     sd->azerr = -1;
     sd->azmmerr = -1;
     sd->zderr = -1;
+    sd->zdmmherr = -1;
+    sd->zdmmverr = -1;
     sd->lverr = -1;
     sd->lnerr = -1;
     sd->lterr = -1;
@@ -754,6 +756,8 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
 
     char *ppm = "ppm";
     char *mm  = "mm";
+    char *mmh = "mmh";
+    char *mmv = "mmv";
     char *mmr = "mmr";
     char *ppmr = "ppmr";
     char *secs = "sec";
@@ -810,7 +814,17 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
         nerrcodes = 2;
         break;
                   
-    case ZD_ERR:  errcodes[0].value = &sd->zderr; break;
+    case ZD_ERR:  
+        errcodes[0].value = &sd->zderr;
+        errcodes[1].code = mmh;
+        errcodes[1].fact = 0.001;
+        errcodes[1].value = &sd->zdmmherr;
+        errcodes[2].code = mmv;
+        errcodes[2].fact = 0.001;
+        errcodes[2].value = &sd->zdmmverr;
+        nerrcodes = 3;
+        break;
+
     case LT_ERR:  errcodes[0].value = &sd->lterr; break;
     case LN_ERR:  errcodes[0].value = &sd->lnerr; break;
 
@@ -972,6 +986,7 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
     case HA_ERR: 
         error = sd->haerr;
+        if( error < 0.0 ) error = 0.0;
         if( sd->hammerr > 0 )
         {
             double mmerr, dist;
@@ -979,14 +994,15 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
 
-			if( dist < mmerr/2.0 ) dist = mmerr/2.0;
+            if( dist < mmerr/2.0 ) dist = mmerr/2.0;
             error = hypot(error, mmerr/dist);
         }
         ldt_error( &error ); 
         break;
 
-    case AZ_ERR: ldt_error( &sd->azerr ); break;
+    case AZ_ERR: 
         error = sd->azerr;
+        if( error < 0.0 ) error = 0.0;
         if( sd->azmmerr > 0 )
         {
             double mmerr, dist;
@@ -994,14 +1010,33 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             dist = ldt_calc_value( CALC_HDIST, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
 
-			if( dist < mmerr/2.0 ) dist = mmerr/2.0;
+            if( dist < mmerr/2.0 ) dist = mmerr/2.0;
             error = hypot(error, mmerr/dist);
         }
         ldt_error( &error ); 
         break;
 
+    case ZD_ERR: 
+        error = sd->zderr;
+        if( error < 0.0 ) error = 0.0;
+        if( sd->zdmmherr > 0 || sd->zdmmverr > 0)
+        {
+            double mmherr, mmverr, dist, angle;
+            mmherr = sd->zdmmherr;
+            mmverr = sd->zdmmverr;
+            if( mmherr < 0 ) mmherr = 0.0;
+            if( mmverr < 0 ) mmverr = 0.0;
 
-    case ZD_ERR: ldt_error( &sd->zderr ); break;
+            dist = ldt_calc_value( CALC_DISTANCE, sd->stn_id_inst, sd->stn_id_trgt );
+            /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
+            if( mmherr < dist/2.0 ) mmherr/=dist; else mmherr = 2;
+            if( mmverr < dist/2.0 ) mmverr/=dist; else mmverr = 2;
+            mmherr *= cos(value);
+            mmverr *= sin(value);
+            error = sqrt(error*error+mmherr*mmherr+mmverr*mmverr);
+        }
+        ldt_error( &error ); 
+        break;
 
     case LT_ERR: ldt_error( &sd->lterr ); break;
     case LN_ERR: ldt_error( &sd->lnerr ); break;
@@ -1373,11 +1408,11 @@ static int read_data_command( snapfile_def *sd, int id, char *cmd )
     /* Now read each item in turn.   The valid items are
     type_code    Starts a group of fields relating to an observation
     "value"      Reads the value relating to the observation
-    	     If not present, the value is assumed to be the
-    	     first item.
+             If not present, the value is assumed to be the
+             first item.
     "error"      Defines the error of the observation.  If not
-    	     present then the default error for the type
-    	     of observation is used
+             present then the default error for the type
+             of observation is used
     "distance_scale_error"   Reads the name of the sf
     "refraction_coefficient"  Reads the name of the rc
     "bearing_orientation_error"  Reads the name of the boe
@@ -1385,7 +1420,7 @@ static int read_data_command( snapfile_def *sd, int id, char *cmd )
     systematic_error_type Reads the influence for the se.
 
     grouped      Defines that the observations are in grouped
-    	     format (forced for some data types)
+             format (forced for some data types)
     no_heights   Specifies that instrument heights are not defined
     time         Defines the time of the observation eg 12.30 or 12:30
 

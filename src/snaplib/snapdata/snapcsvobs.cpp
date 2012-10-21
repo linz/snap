@@ -69,6 +69,7 @@ SnapCsvObs::CsvObservation::CsvObservation( SnapCsvObs *owner ) :
     _rejected("Observation rejected"),
     _disterrorcalced( false ),
     _angleerrorcalced( false ),
+    _zderrorcalced( false ),
     _vecerrorformat(CVR_TOPOCENTRIC),
     _owner(owner),
     _dateformat("YMDhms"),
@@ -376,6 +377,51 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             error[0] = secerr + mmerr;
             if( error[0] > 0.0 ) error[0] = sqrt(error[0])*RTOD;
         }
+        else if( _zderrorcalced && type->id == ZD )
+        {
+            double errcomp;
+            double mmverr = 0.0;
+            double mmherr = 0.0;
+            double secerr = 0.0;
+            double *pcomp;
+
+            string component="";
+            bool ok = true;
+            std::istringstream istr(_error.value());
+            for( int i = 0; i < 3; i++ )
+            {
+                istr >> errcomp >> component;
+                if( istr.fail()) break;
+                if( boost::iequals(component,"mmh")) { errcomp *= 0.001; pcomp = &mmherr; }
+                else if( boost::iequals(component,"mmv")) { errcomp *= 0.001; pcomp = &mmverr; }
+                else if( boost::iequals( component,"sec")) { errcomp *= STOR; pcomp = &secerr; }
+                else
+                {
+                    dataError(string("Invalid zenith distance error component ") + component);
+                    ok = false;
+                    break;
+                }
+                *pcomp += errcomp*errcomp;
+            }
+            if( component == "" )
+            {
+                    dataError(string("Missing angle error") + component);
+                    ok = false;
+            }
+ 
+            if( mmherr > 0.0 || mmverr > 0.0 )
+            {
+                double distance = ldt_calc_value( CALC_DISTANCE, _stnidfrom, _stnidto );
+                double zendist = value[0] * DTOR;
+                distance *= distance;
+                if( mmherr < distance/4 ) mmherr /= distance; else mmherr = 4.0;
+                if( mmverr < distance/4 ) mmverr /= distance; else mmverr = 4.0;
+                mmherr *= cos(zendist)*cos(zendist);
+                mmverr *= sin(zendist)*sin(zendist);
+            }
+            error[0] = secerr + mmherr + mmverr;
+            if( error[0] > 0.0 ) error[0] = sqrt(error[0])*RTOD;
+        }
         else
         {
             _error >> error[0];
@@ -591,6 +637,26 @@ bool SnapCsvObs::CsvObservation::setAngleErrorType( const string &format )
     }
     return ok;
 }
+
+bool SnapCsvObs::CsvObservation::setZenDistErrorType( const string &format )
+{
+    bool ok = true;
+    if( boost::iequals(format,"error"))
+    {
+        _zderrorcalced = false;
+    }
+   else if( boost::iequals(format,"calculated"))
+    {
+        _zderrorcalced = true;
+    }
+    else
+    {
+        definitionError(string("Invalid zenith distance error type ") + format );
+        ok = false;
+    }
+    return ok;
+}
+
 bool SnapCsvObs::CsvObservation::setVectorErrorType( const string &format )
 {
     bool ok = true;
@@ -769,6 +835,18 @@ void SnapCsvObs::loadObservationDefinition( RecordStream &rs, CsvObservation &ob
             else
             {
                 definitionError("Angle_error_type value is missing");
+            }
+        }
+        else if( command == "zenith_distance_error_type" )
+        {
+            string format;
+            if( rs.record() >> format )
+            {
+                obs.setZenDistErrorType(unquoteString(format));
+            }
+            else
+            {
+                definitionError("Zenith_distance_error_type value is missing");
             }
         }
         else if( command == "classification_columns" )

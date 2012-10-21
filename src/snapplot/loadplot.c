@@ -153,6 +153,7 @@ static double snap_calc_value( int type, long id1, long id2 )
         double dist;
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
+        if( !st1 || ! st2 ) return 0.0;
         dist = calc_distance( st1, 0.0, st2, 0.0, NULL, NULL );
         return dist;
     }
@@ -161,6 +162,7 @@ static double snap_calc_value( int type, long id1, long id2 )
         double dist;
         station *st1 = stnptr(id1);
         station *st2 = stnptr(id2);
+        if( !st1 || ! st2 ) return 0.0;
         dist = calc_horizontal_distance( st1, st2, NULL, NULL );
         return dist;
     }

@@ -7,6 +7,6 @@ set_id @set
 datetime @date
 datetime_format YMD
 value @angle
-error "6sec 10mmh 20mmv"
+error @SEC "sec " @MMH "mmh " @MMV "mmv"
 zenith_distance_error_type calculated
 end_observation
