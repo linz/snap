@@ -45,7 +45,9 @@ use strict;
 #   Class:       Geodetic::Datum
 #
 #   Description: Defines the following routines:
-#                  $datum = new Geodetic::Datum($name, $ellipsoid, $baseref, $transfunc)
+#                  $datum = new Geodetic::Datum(
+#                    $name, $ellipsoid, $baseref, $transfunc, $code, $defmodel
+#                    );
 #
 #                  $name = $datum->name
 #                  $ellipsoid = $datum->ellipsoid
@@ -60,7 +62,9 @@ my $id;
 #
 #   Method:       new
 #
-#   Description:  $datum = new Geodetic::Datum($name, $ellipsoid, $baseref, $transfunc)
+#   Description:  $datum = new Geodetic::Datum(
+#                    $name, $ellipsoid, $baseref, $transfunc
+#                 )
 #
 #   Parameters:   $name       The name of the datum
 #                 $ellipsoid  The ellipsoid object used by the frame
@@ -71,18 +75,22 @@ my $id;
 #                             cartesian coordinates to and from the 
 #                             base datum.
 #                 $code       Optional code identifying the datum
+#                 $defmodel   Optional deformation transform object for the
+#                             datum
 #
 #   Returns:      $datum   The blessed ref frame hash
 #
 #===============================================================================
 
 sub new {
-  my ($class, $name, $ellipsoid, $baseref, $transfunc, $code ) = @_;
+  my ($class, $name, $ellipsoid, $baseref, $transfunc, $code, $defmodel )
+    = @_;
   my $self = { name=>$name, 
                ellipsoid=>$ellipsoid, 
                baseref=>$baseref,
                transfunc=>$transfunc,
                code=>$code,
+               defmodel=>$defmodel,
                id=>$id };
   $id++;
   return bless $self, $class;
@@ -95,5 +103,6 @@ sub id { return $_[0]->{id} }
 sub ellipsoid { return $_[0]->{ellipsoid}}
 sub baseref { return $_[0]->{baseref}}
 sub transfunc { return $_[0]->{transfunc}}
+sub defmodel { return $_[0]->{defmodel} }
 
 1;

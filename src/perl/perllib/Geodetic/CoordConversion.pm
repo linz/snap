@@ -45,19 +45,24 @@ package Geodetic::CoordConversion;
 #
 #   Method:       new
 #
-#   Description:  $conv = new Geodetic::CoordConversion($from, $to, $funcref)
+#   Description:  $conv = Geodetic::CoordConversion->new(
+#                            $from, $to, $funcref, $target_epoch, $trans_epoch
+#                         );
 #
-#   Parameters:   $from       The source coordinate system
-#                 $to         The target coordinate system
-#                 $funcref    Reference to the function to do the conversion
+#   Parameters:   $from             The source coordinate system
+#                 $to               The target coordinate system
+#                 $funcref          Reference to the function to do the
+#                                   conversion
+#                 $conversion_epoch Optional ref epoch when transformations
+#                                   between reference frames are computed
 #
 #   Returns:      $conv       The blessed conversion object
 #
 #===============================================================================
 
 sub new {
-  my( $class, $from, $to, $funcref ) = @_;
-  my $self = [$from, $to, $funcref];
+  my( $class, $from, $to, $funcref, $conversion_epoch ) = @_;
+  my $self = [$from, $to, $funcref, $conversion_epoch];
   return bless $self, $class;
   }
 
@@ -66,11 +71,13 @@ sub new {
 #
 #   Subroutine:   convert
 #
-#   Description:   $crd2 = $conv->convert($crd)
+#   Description:   $crd2 = $conv->convert($crd, $target_epoch)
 #                  Applies the coordinate conversion to a coordinate and
 #                  returns the resulting coordinate.
 #
-#   Parameters:    $crd      The coordinate to convert
+#   Parameters:    $crd           The coordinate to convert
+#                  $target_epoch  Optional target epoch for the output
+#                                 coordinate system's coordinates
 #
 #   Returns:                 The converted coordinate
 #
@@ -78,7 +85,11 @@ sub new {
 
 sub convert {
   my $self=shift;
-  return $self->[2]->( @_ )->setcs($self->[1]);
+  my $in_crd=shift;
+  my $target_epoch=shift;
+  my $out_crd = $self->[2]->($in_crd, $target_epoch);
+  $out_crd->setepoch($target_epoch) if $target_epoch;
+  return $out_crd->setcs($self->[1]) if $out_crd;
   }
 
 
@@ -117,5 +128,22 @@ sub to {
   return $_[0]->[1];
   }
 
-1;
+#===============================================================================
+#
+#   Subroutine:   to
+#
+#   Description:   $epoch = $conv->conversion_epoch
+#                  Returns the epoch for transformations between reference
+#                  frames are computed
+#
+#   Parameters:    None
+#
+#   Returns:       The reference frame conversion epoch
+#
+#===============================================================================
 
+sub conversion_epoch {
+  return $_[0]->[3];
+  }
+
+1;

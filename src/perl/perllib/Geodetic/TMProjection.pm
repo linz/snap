@@ -274,7 +274,9 @@ sub geog {
    return new Geodetic::GeodeticCrd(
                $lt*$rad2deg,
                $ln*$rad2deg,
-               $crd->[2]);
+               $crd->[2],
+               undef,
+               $crd->[4] );
    }
 
 
@@ -352,7 +354,7 @@ sub proj {
    my $cn = ($eta*$t)*(((($trm4*$wc2+$trm3)*$wc2+$trm2)*$wc2+$trm1)*$wc2);
    $cn = ($cn+$m-$om)*$sf/$utom+$fn;
 
-   return new Geodetic::ProjectionCrd($cn, $ce, $crd->[2]);
+   return new Geodetic::ProjectionCrd($cn, $ce, $crd->[2], undef, $crd->[4]);
    }
 
 

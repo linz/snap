@@ -359,7 +359,7 @@ sub geog {
       }
    my $ln = $ln0 + $z1->imag * $rad2deg;
    my $lt = $lt0 + $cfl->evaluate($z1->real) * $z1->real / 0.036;
-   return new Geodetic::GeodeticCrd( $lt, $ln, $crd->[2] );
+   return new Geodetic::GeodeticCrd( $lt, $ln, $crd->[2], undef, $crd->[4] );
    }
 
 
@@ -389,7 +389,9 @@ sub proj {
    return new Geodetic::ProjectionCrd(
              $n0 + $z0->real * $a,
              $e0 + $z0->imag * $a, 
-             $crd->[2] );
+             $crd->[2],
+             undef, 
+             $crd->[4] );
    }
 
 1;

@@ -115,8 +115,9 @@ sub ApplyTo {
 
   return new Geodetic::CartesianCrd ( $Txyz->[0] + $sf * $x,
                                        $Txyz->[1] + $sf * $y,
-                                       $Txyz->[2] + $sf * $z );
- 
+                                       $Txyz->[2] + $sf * $z,
+                                       undef, $crd->[4] );
+
   }
    
 
@@ -153,7 +154,7 @@ sub ApplyInverseTo {
                       $R->[0]->[2]*$x + $R->[1]->[2]*$y + $R->[2]->[2]*$z );
     }
 
-  return new Geodetic::CartesianCrd ( $x, $y, $z );
+  return new Geodetic::CartesianCrd ( $x, $y, $z, undef, $crd->[4] );
   }
 
 1;

@@ -107,6 +107,74 @@ sub newEmbedded {
    return $self;
    }
 
+sub WriteToFile
+{
+    my($self,$filename,@options) = @_;
+    my %options = ref($options[0]) ? %{$options[0]} : @options;
+    my $fmt = $options{format} || $self->{output_format} || 
+        ($self->{format} eq 'ASCII' ? 'TRIG2L' : 'ASCII');
+    $fmt = uc($fmt);
+    my $dumptopology = $options{dumptopology};
+    die "Invalid trig output format - can only handle ASCII\n"
+        if $fmt ne 'ASCII';
+
+    open( my $fh, ">", $filename ) || 
+        die "Cannot open triangle output file $filename\n";
+
+    print $fh "FORMAT ",$self->{format},"\n";
+    print $fh "HEADER0 ",$self->{titles}->[0],"\n";
+    print $fh "HEADER1 ",$self->{titles}->[1],"\n";
+    print $fh "HEADER2 ",$self->{titles}->[2],"\n";
+    print $fh "CRDSYS ",$self->{crdsyscode},"\n";
+    print $fh "FORMAT ",$self->{format},"\n";
+    my $ndim = $self->{ndim};
+    my $npts = $self->{npts};
+    print $fh "NDIM ",$ndim,"\n";
+    my $xy = $self->{xy};
+    my $data = $self->{data};
+    my $nd = 0;
+    foreach my $i (0 .. $npts-1)
+    {
+        printf $fh "P %d %lf %lf",$i+1,$xy->[$i*2],$xy->[$i*2+1];
+        foreach my $id ( 1 .. $ndim )
+        {
+            printf $fh " %lf",$data->[$nd];
+            $nd++;
+        }
+        print $fh "\n";
+    }
+    if( $dumptopology )
+    {
+        foreach my $i (0 .. $npts-1)
+        {
+            my $itp = $self->{topoidx}->[$i];
+            my $nedge = $self->{topodata}->[$itp];
+            printf $fh "#PT %d %d",$i+1,$nedge;
+            foreach my $edge (1 .. $nedge*2)
+            {
+                $itp++;
+                printf $fh " %d",$self->{topodata}->[$itp];
+            }
+            printf $fh "\n";
+        }
+    }
+    foreach my $i (0 .. $npts-1)
+    {
+        my $pt0 = $i+1;
+        my $itp = $self->{topoidx}->[$i];
+        my $nedge = $self->{topodata}->[$itp];
+        my $pt2 = $self->{topodata}->[$itp+$nedge];
+        foreach my $edge (1 .. $nedge)
+        {
+            my $pt1 = $pt2;
+            $itp++;
+            $pt2 = $self->{topodata}->[$itp];
+            printf $fh "T %d %d %d\n",$pt0,$pt1,$pt2  if $pt0 < $pt1 && $pt0 < $pt2;
+        }
+    }
+    $fh->close;
+}
+
 # Default set up for a LINZ triangle file
 
 sub Setup {
@@ -148,6 +216,7 @@ sub Setup {
    my @topodata = $unpacker->read_short( $narray );
 
    $self->{ titles } = [$s1,$s2,$s3];
+   $self->{ format } = $fmt;
    $self->{ crdsyscode } = $s4;
    $self->{ xmin } = $xmn;
    $self->{ xmax } = $xmx;

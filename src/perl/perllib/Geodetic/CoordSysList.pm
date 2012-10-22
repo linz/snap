@@ -300,19 +300,74 @@ sub datum {
                          ([+-]?\d+\.?\d*)\s+
                          ([+-]?\d+\.?\d*)
                          (?:
-                           \s+grid\s+(\S+)\s+(\S+)\s+
-                           (\"[^\"]*\")?
+                           \s+(grid|deformation)\s+
+                           (?:
+                             (?:(\S+)\s+(\S+)\s+(\"[^\"]*\")?)
+                             |
+                             (?:
+                               (\d+\.?\d*)\s+
+                               (?:(bwv|linzdm)\s+
+                                   (?:(?:
+                                     ([+-]?\d+\.?\d*)\s+
+                                     ([+-]?\d+\.?\d*)\s+
+                                     ([+-]?\d+\.?\d*)\s+
+                                     ([+-]?\d+\.?\d*)\s+
+                                     ([+-]?\d+\.?\d*)\s+
+                                     ([+-]?\d+\.?\d*)\s+
+                                     ([+-]?\d+\.?\d*)
+                                   )
+                                   |
+                                   (?:(\S+)\s+(\"[^\"]*\"))
+                                 )
+                               )
+                             )
+                           )
                          )?
                          (?:\s+deformation\s+\S+.*)?
                          \s*$/xi;
 
-     my ($name, $ellcode, $baserf, $tx, $ty, $tz, $rx, $ry, $rz, $sf,$gridtype, $gridfile) =
-            ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12);
+     my ($name, $ellcode, $baserf, $tx, $ty, $tz, $rx, $ry, $rz, $sf, $type) =
+            ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,lc($11));
+     my $gridtype;
+     my $gridfile;
+     my $gridname;
+     my $defmodel;
+
      require Geodetic::Datum;
      require Geodetic::BursaWolf;
      my $ellipsoid = $self->ellipsoid($ellcode);
      my $transfunc = new Geodetic::BursaWolf( $tx, $ty, $tz, $rx, $ry, $rz, $sf );
      if( $gridfile ne '') {
+
+     if ($type eq 'grid') {
+        $gridtype = $12;
+        $gridfile = $13;
+        $gridname = $14;
+        }
+     elsif ($type eq 'deformation') {
+        my $ref_epoch = $15;
+        my $def_type = lc($16);
+        if ($def_type eq 'bwv') {
+           my($vtx,$vty,$vtz,$vrx,$vry,$vrz,$vsf)
+              = ($17,$18,$19,$20,$21,$22,$23);
+           require Geodetic::BursaWolfVelocity;
+           $defmodel = Geodetic::BursaWolfVelocity->new(
+              $ref_epoch,$vtx,$vty,$vtz,$vrx,$vry,$vrz,$vsf
+              );
+           }
+        elsif ($def_type eq 'linzdm') {
+           my $modelfile = $24;
+           my $modelname = $25;
+           if( $self->{filename} ) {
+              my ($filepath) = $self->{filename} =~ /^(.*[\\\/])/;
+              $modelfile = $filepath.$modelfile if -r $filepath.$modelfile;
+              }
+           require Geodetic::DefModelTransform;
+           $defmodel = Geodetic::DefModelTransform->new(
+              $modelfile, $def_type, $ref_epoch, $ellipsoid
+              );
+           }
+        }
          # Check for filename relative to coordinate system definition file.
          if( $self->{filename} ) {
             my ($filepath) = $self->{filename} =~ /^(.*[\\\/])/;
@@ -321,15 +376,16 @@ sub datum {
          require Geodetic::GridTransform;
          $transfunc = new Geodetic::GridTransform($gridfile,$gridtype,$ellipsoid,$transfunc);
          }
-            
-    
+
+
      $dtmdef->{object} = $dtm = 
            new Geodetic::Datum( 
                            $name, 
                            $ellipsoid,
-                           uc($baserf), 
+                           uc($baserf),
                            $transfunc,
-                           $dtmcode
+                           $dtmcode,
+                           $defmodel
                            );
      }
   return $dtm;

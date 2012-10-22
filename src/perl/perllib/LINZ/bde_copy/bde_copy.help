@@ -22,7 +22,10 @@ Options:
   -f xxx   Overrides the field defined in the BDE header.  xxx is formatted
            as name1=type1:name2=type2: ... Generally the BDE header is
            correct and this can be ignored.
-  -o xxx   Specifies which field are required in the output file.  Field names
+  -w xxx   Where condition to filter fields. xxx is formatted as 
+           name1=value1:name2=value2.  The operator can be = or !=.  This is
+           interpreted as "where name1 = value1 and name2 = value2 ...."
+  -o xxx   Specifies which field are copied to the output file.  Field names
            are specified as name1:name2:name3...  The default is to output
            all fields
   -e ##    Specifies the maximum number of errors permitted before the 
@@ -60,13 +63,12 @@ BDE datasets after that date.
 
 Configuration
 
-The bde_copy program may read several configuration files.  It always tries
-to read bde_copy.cfg in the folder in which the program is installed. It
-will then read files specified with the -c option.  This can include many
-configuration files, separated by "+".  If a configuration file is just a name
-(without a path or extension) then the program will assume that this is a file
-installed with the program (in the program folder), called bde_copy.cfg.xxx
-where xxx is the name supplied.
+The bde_copy program may read several configuration files located in its config
+data directory. It always tries to read the bde_copy.cfg file and reads additional
+files as specified with the -c option.  This can include many configuration files,
+separated by "+".  If a configuration file is just a name (without a path or extension)
+then the program will assume that this is a file installed with the program (in
+the program folder), called bde_copy.cfg.xxx where xxx is the name supplied.
 
 Installed with bde_copy are the following configurations:
    clean - Replaces pipe characters, backslash characters, and new lines
@@ -74,4 +76,11 @@ Installed with bde_copy are the following configurations:
    mssql - Fixes dates before 1800, to comply with MS SQL server
    pgis -  Fixes spatial objects by adding 160 to longitudes and prefixing with
            the NZGD2000 SRID.
-   utf8 -  Replaces non-ASCII characters with the utf-8 equivalent 
+   utf8 -  Replaces non-ASCII characters with the utf-8 equivalent
+
+bde_copy will first try to find these configuration files in the folder in
+which the program is installed. If this fails it then tries BDECOPY_DATADIR
+environment variable path. Lastly a compile time path as defined by the DATADIR
+cmake configuration variable will be searched. On Linux this compile time path
+will typically be /usr/share/bde-copy on Windows it will be
+c:/Program Files/bde_copy

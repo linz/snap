@@ -246,33 +246,39 @@ sub coord {
 #
 #   Method:       conversionto
 #
-#   Description:  $conv = $cs->conversionto($cstarget)
+#   Description:  $conv = $cs->conversionto( $cstarget, $conversion_epoch );
 #                 The coordinate system maintains a list of constructed
 #                 conversion functions.  If the target system is not in
-#                 this list then the function reference is constructed 
-#                 by creating a definition string that is passed to 
+#                 this list then the function reference is constructed
+#                 by creating a definition string that is passed to
 #                 eval to build the function.
 #
-#   Parameters:   $cstarget  The target coordinate system
+#   Parameters:   $cstarget          The target coordinate system
+#                 $conversion_epoch  Optional ref epoch when transformations
+#                                    between reference frames are computed
 #
 #   Returns:      $conv      The blessed coordinate conversion object
 #
 #===============================================================================
 
 sub conversionto {
-   my ($self, $target) = @_;
+   my ($self, $target, $conversion_epoch) = @_;
    my $result = $self->{_conv}->{$target->{csid}};
-   return $result if $result;
+   return $result if $result && $result->conversion_epoch == $conversion_epoch;
 
+   my $src_datum = $self->datum;
+   my $tar_datum = $target->datum;
    die "Cannot convert ".$self->name." to ".$target->name."\n"
-      if  $self->datum->baseref ne $target->datum->baseref;
+      if $src_datum->baseref ne $tar_datum->baseref;
 
-   my $def = 'sub { my $crd = [@{$_[0]}]; ';
+   my $def = 'sub {';
+   $def .= 'my $crd = bless [@{$_[0]}], ref($_[0]) if ref($_[0]) ne \'ARRAY\';';
+   $def .= 'my $target_epoch = $_[1];';
 
    my $type = $self->{type};
 
-   if( $target->{csid} == $self->{csid} ) {
-      $def .= 'bless $crd, ref($_[0]) if ref($_[0]) ne \'ARRAY\'';
+   if ( $target->{csid} == $self->{csid} && !$src_datum->defmodel ) {
+      $def .= 'return $crd;';
       }
    else {
       if( $type == &Geodetic::PROJECTION ) {
@@ -280,13 +286,75 @@ sub conversionto {
          $type = &Geodetic::GEODETIC;
          }
 
-      if( $self->datum ne $target->datum ) {
+      if( $src_datum ne $tar_datum ) {
          if( $type == &Geodetic::GEODETIC ){
             $def .= '$crd = $self->ellipsoid->xyz($crd);';
             $type = &Geodetic::CARTESIAN;
             }
-         $def .= '$crd = $self->datum->transfunc->ApplyTo($crd);';
-         $def .= '$crd = $target->datum->transfunc->ApplyInverseTo($crd);';
+         $def .= '$crd = $src_datum->transfunc->ApplyTo($crd);';
+         $def .= '$crd = $tar_datum->transfunc->ApplyInverseTo($crd);';
+
+         my $src_defmodel  = $src_datum->defmodel;
+         my $tar_defmodel  = $tar_datum->defmodel;
+         if ( $src_defmodel || $tar_defmodel) {
+            if( !$conversion_epoch && $src_defmodel && $tar_defmodel ) {
+               if( $src_defmodel->RefEpoch ne $tar_defmodel->RefEpoch ) {
+                  die "The transformation epoch between reference frames are "
+                     ."not the same\n";
+                  }
+               }
+            $def .= 'if ($crd->epoch || $target_epoch) {';
+            if ($src_defmodel) {
+               $conversion_epoch = $src_defmodel->RefEpoch
+                  unless $conversion_epoch;
+               $def .= '$crd->setepoch($src_datum->defmodel->RefEpoch) ';
+               }
+            else {
+               $conversion_epoch = $tar_defmodel->RefEpoch
+                  unless $conversion_epoch;
+               $def .= '$crd->setepoch($tar_datum->defmodel->RefEpoch) ';
+               }
+            $def .= 'if !$crd->epoch;';
+
+            if( $src_defmodel ) {
+               $def .= '$crd = $src_datum->defmodel';
+               $def .= '->ApplyTo($crd, $conversion_epoch);';
+               }
+            if ( $tar_defmodel ) {
+               $def .= '$crd = $tar_datum->defmodel';
+               $def .= '->ApplyInverseTo($crd, $conversion_epoch);';
+               }
+
+            $def .= '$crd->setepoch($conversion_epoch);';
+
+            if ($tar_defmodel) {
+               $def .= '$target_epoch = $tar_datum->defmodel->RefEpoch '
+               }
+            else {
+               $def .= '$target_epoch = $src_datum->defmodel->RefEpoch '
+               }
+            $def .= 'if !$target_epoch;';
+
+            if ( $tar_defmodel ) {
+               $def .= '$crd = $tar_datum->defmodel';
+               $def .= '->ApplyTo($crd, $target_epoch);';
+               }
+            if ( $src_defmodel ) {
+               $def .= '$crd = $src_datum->defmodel';
+               $def .= '->ApplyInverseTo($crd, $target_epoch);';
+               }
+            }
+            $def .= '}';
+         }
+      else {
+         if( $src_datum->defmodel ) {
+            $def .= 'if ($crd->epoch) {';
+            $def .= '$target_epoch = $src_datum->defmodel->RefEpoch ';
+            $def .= 'if !$target_epoch;';
+            $def .= '$crd = $self->datum->defmodel';
+            $def .= '->ApplyInverseTo($crd, $target_epoch);';
+            $def .= '}';
+            }
          }
 
       if( $type != $target->{type} ) {
@@ -306,11 +374,13 @@ sub conversionto {
                $def .= '$crd = $target->projection->proj($crd);';
                }
            }
+   $def .= 'return $crd;';
         }
       }
    $def .= '}';
 
-   $result =  new Geodetic::CoordConversion( $self, $target, eval $def );
+   $result = new Geodetic::CoordConversion(
+      $self, $target, eval $def, $conversion_epoch );
 
    # Store the result indexed by the target coordinate system id to 
    # avoid having to recalculate when requested again.

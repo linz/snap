@@ -22,14 +22,14 @@
 
 use strict;
 
-   
+
 #===============================================================================
 #
 #   Class:       Geodetic::ProjectionCrd
 #
 #   Description: Defines the following routines:
-#                  $prj = new Geodetic::ProjectionCrd( $north, $east, $hgt );
-#                  $prj = new Geodetic::ProjectionCrd( [$north, $east, $hgt] );
+#                  $prj = new Geodetic::ProjectionCrd( $north, $east, $hgt, $cs, $epoch );
+#                  $prj = new Geodetic::ProjectionCrd( [$north, $east, $hgt, $cs, $epoch] );
 #
 #                  $northing = $prj->northing
 #                  $easting = $prj->easting

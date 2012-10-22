@@ -30,8 +30,8 @@ use strict;
 #   Class:       Geodetic::GeodeticCrd
 #
 #   Description: Defines the following routines:
-#                  $llh = new Geodetic::GeodeticCrd( $lat, $lon, $hgt );
-#                  $llh = new Geodetic::GeodeticCrd( [$lat, $lon, $hgt] );
+#                  $llh = new Geodetic::GeodeticCrd( $lat, $lon, $hgt, $cs, $epoch );
+#                  $llh = new Geodetic::GeodeticCrd( [$lat, $lon, $hgt, $cs, $epoch] );
 #
 #                  $lat = $llh->lat
 #                  $lon = $llh->lon
@@ -53,8 +53,10 @@ use vars qw/@ISA/;
 
 
 sub lat { $_[0]->[0]; }
+sub latitude { $_[0]->[0]; }
 
 sub lon { $_[0]->[1]; }
+sub longitude { $_[0]->[1]; }
 
 sub hgt { $_[0]->[2]; }
 

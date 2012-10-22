@@ -33,8 +33,8 @@ use strict;
 #   Description: Derived from Geodetic::Coordinate, from which the constructor
 #                and coordinate conversion functions are derived.
 #
-#                $xyz = new Geodetic::CartesianCrd( $x, $y, $z, $cs );
-#                $xyz = new Geodetic::CartesianCrd( [$x, $y, $z, $cs] );
+#                $xyz = new Geodetic::CartesianCrd( $x, $y, $z, $cs, $epoch );
+#                $xyz = new Geodetic::CartesianCrd( [$x, $y, $z, $cs, $epoch] );
 #
 #                $x = $xyz->X
 #                $y = $xyz->Y

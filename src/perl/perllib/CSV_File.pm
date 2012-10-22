@@ -199,6 +199,9 @@ sub new {
      my $typedef = "package $recordtype;\n";
      $typedef .= "our %col=();\n";
      $typedef .= "sub value { my(\$self,\$field) = (\$_[0],uc(\$_[1]));\n return undef if ! exists(\$col{\$field});\n return \$self->[\$col{\$field}]; }\n";
+     $typedef .= "sub get { return \$_[0]->value(\$_[1]);}\n";
+     $typedef .= "sub columns { return \$columns; }\n";
+     $typedef .= "sub fields { return \$_[0]; }\n";
      
      foreach my $ic (0..$#$columns)
      {
@@ -655,8 +658,9 @@ sub field {
 #
 #   Method:       record
 #
-#   Description:  Return the current record as a hash
-#                  $data = $csv->record
+#   Description:  Return the current record as a type with each field name
+#                 as an accessor function, and synonymous functions get and
+#                 value for accessing the records.
 #
 #   Returns:      $data       An hash of field values
 #
@@ -777,6 +781,7 @@ CSV_File: Read and write modified copy of CSV file
           my $record = $csv->record;
           my $id = $record->id;
           my $id = $record->value('id');
+          my $id = $record->get('id');
       }
    };
    if( $@ )

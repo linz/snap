@@ -25,11 +25,12 @@ use strict;
 #   Description: A base class for coordinates.  Provides service functions
 #                and coordinate conversion functions.  The coordinate is 
 #                defined as an array reference with three ordinate elements
-#                followed optionally by a coordinate system reference.
-# 
+#                followed optionally by a coordinate system reference and then
+#                a epoch
+#
 #                Defines the following routines:
 #                  $crd = new Geodetic::Coordinate($crd)
-#                  $crd = new Geodetic::Coordinate($ord1, $ord2, $ord3, $cs)
+#                  $crd = new Geodetic::Coordinate($ord1, $ord2, $ord3, $cs, $epoch)
 #
 #                  $crd->setcs($cs)
 #                  $cs = $crd->coordsys
@@ -56,7 +57,7 @@ package Geodetic::Coordinate;
 
 sub new {
    my ($class, $crd ) = @_;
-   $crd = [@_[1..4]] if ! ref($crd);
+   $crd = [@_[1..5]] if ! ref($crd);
    return bless $crd, $class;
    }
 
@@ -97,23 +98,62 @@ sub coordsys {
    return $_[0]->[3];
    }
 
+#===============================================================================
+#
+#   Subroutine:   epoch
+#
+#   Description:   $cs = $crd->epoch
+#                  Returns the epoch for the coordinate
+#
+#   Parameters:    None
+#
+#   Returns:       $cs    The epoch of the coordinate in decimal years
+#
+#===============================================================================
+
+sub epoch {
+   return $_[0]->[4];
+   }
+
+#===============================================================================
+#
+#   Subroutine:   setepoch
+#
+#   Description:   $crd->setepoch($epoch)
+#                  Set the epoch for the coordinate
+#
+#   Parameters:    $epoch       The coordinaste epoch
+#
+#   Returns:       The coordinate
+#
+#===============================================================================
+
+sub setepoch {
+   $_[0]->[4] = $_[1];
+   return $_[0];
+   }
 
 #===============================================================================
 #
 #   Method:       as
 #
-#   Description:  $crd2 = $crd->as($cstarget)
+#   Description:  $crd2 = $crd->as($cstarget, $target_epoch, $conversion_epoch)
 #
-#   Parameters:   $cstarget    The target coordinate system
+#   Parameters:   $cstarget         The target coordinate system
+#                 $target_epoch     Optional target epoch for the output
+#                                   coordinate system's coordinates
+#                 $conversion_epoch Optional ref epoch when transformations
+#                                   between reference frames are computed
 #
-#   Returns:      $crd2        The coordinate converted to the target
-#                              coordinate system
+#   Returns:      $crd2          The coordinate converted to the target
+#                                coordinate system
 #
 #===============================================================================
 
 sub as {
-   my ($self,$target) = @_;
-   return $self->coordsys->conversionto($target)->convert($self);
+   my ($self,$target,$target_epoch,$conversion_epoch) = @_;
+   return $self->coordsys
+      ->conversionto($target, $conversion_epoch)->convert($self, $target_epoch);
    }
 
 1;

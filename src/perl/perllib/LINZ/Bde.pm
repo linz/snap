@@ -1,8 +1,8 @@
 ################################################################################
 #
-# $Id: Bde.pm 1222 2011-05-10 06:24:33Z jpalmer $
+# $Id: Bde.pm 1481 2011-11-16 00:06:30Z ccrook $
 #
-# LINZ Bde Perl package
+# linz_bde_loader -  LINZ BDE loader for PostgreSQL
 #
 # Copyright 2011 Crown copyright (c)
 # Land Information New Zealand and the New Zealand Government.
@@ -365,6 +365,8 @@ sub copy
     my $flds = join(':',split(' ',$self->{override_flds}));
     push(@copyopts,'-f',$flds) if $flds;
 
+    my $where = join(':',split(' ',$opts->{filter}));
+    push(@copyopts,'-w',$where) if $where;
 
     $flds = $opts->{output_fields};
     if( $flds )
@@ -511,7 +513,7 @@ sub _files
    {
       my $files = {};
       my $p = $self->{path};
-      opendir(my $dh, $p) || die "Can't open dataset directory $p: $!\n";;
+      opendir(my $dh, $p);
       foreach my $d ( grep { /\.crs(?:\.gz)?$/i && -f "$p/$_" } readdir($dh) )
       {
          my $fn = lc($d);
@@ -548,7 +550,7 @@ sub open
        my $archive = $self->{archive};
        my @archive_files = ();
 
-       opendir(my $dh, $archive) || die "Can't open archive directory $archive: $!\n";
+       opendir(my $dh, $archive);
        foreach my $af (readdir($dh))
        {
            my @parts = split(/\./,$af);
@@ -620,7 +622,7 @@ sub datasets
    if( ! $self->{datasets} )
    {
       my $p = $self->{path};
-      opendir(my $dh, $p) || die "Can't open datasets directory $p: $!\n";
+      opendir(my $dh, $p);
       my @dirs = sort grep { /^\d{14}$/ && -d "$p/$_" } readdir($dh);
       closedir($dh);
       my @datasets = 
@@ -679,6 +681,7 @@ LINZ::Bde -- Reads and parses Landonline BDE files
   $bdefile->copy( $outputfile, 
         config=>$cfg, 
         output_fields=>'id|shape',
+        filter=>'status=AUTH type!=STRING',
         add_file=>'/archive/l0/zajb.l0.1.gz+/archive/l0/zajb.l0.2.gz',
         use_archive=>0,
         append=>0,

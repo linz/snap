@@ -121,7 +121,12 @@ sub xyz {
    my ($t1,$t2) = ($b*$slt, $a*$clt);
    my $bsac = sqrt($t1*$t1+$t2*$t2);
    my $p = $a2*$clt/$bsac + $h*$clt;
-   return new Geodetic::CartesianCrd( $p*$cln, $p*$sln, $b2*$slt/$bsac + $h*$slt );
+   return new Geodetic::CartesianCrd( 
+             $p*$cln, 
+             $p*$sln, 
+             $b2*$slt/$bsac + $h*$slt, 
+             undef, 
+             $crd->[4] );
    }
 
 
@@ -160,7 +165,12 @@ sub geog {
       last if $lt-$lt0 < $convergence && $lt0-$lt < $convergence;
       }
    my $h = $p*$clt + $z*$slt - $bsac;
-   return new Geodetic::GeodeticCrd($lt*$rad2deg, $ln*$rad2deg, $h );
+   return new Geodetic::GeodeticCrd(
+             $lt*$rad2deg, 
+             $ln*$rad2deg, 
+             $h, 
+             undef, 
+             $crd->[4] );
    }
 
 1;
