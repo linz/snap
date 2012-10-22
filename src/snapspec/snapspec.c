@@ -2106,5 +2106,6 @@ int main( int argc, char *argv[] )
 
     delete_test(hsdc);
     delete_relacc( ra );
+
     return 0;
 }
