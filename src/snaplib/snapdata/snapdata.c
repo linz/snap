@@ -879,7 +879,8 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
     {
         char name[10];
         status = OK;
-        if( !df_read_double( sd->df, &value[0] )) break;
+        if( df_end_of_line( sd->df )) break;
+        if( !df_read_double( sd->df, &value[0] )) { status = INVALID_DATA; break; }
         for( iv = 1; iv < nerrvals; iv++ )
         {
             status = MISSING_DATA;

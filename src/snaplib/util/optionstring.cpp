@@ -87,7 +87,7 @@ bool OptionString::defines( const std::string &option )
    return _options.find(key) != _options.end();
 }
 
-const std::string &OptionString::valueOf( const std::string &option, const std::string &default )
+const std::string &OptionString::valueOf( const std::string &option, const std::string &dflt )
 {
     std::string key = option;
     boost::to_lower( key );
@@ -98,7 +98,7 @@ const std::string &OptionString::valueOf( const std::string &option, const std::
     }
     else
     {
-        return default;
+        return dflt;
     }
 }
 

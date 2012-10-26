@@ -4,6 +4,7 @@
 
 #include <string>
 #include <map>
+#include <vector>
 
 namespace LINZ
 {
@@ -18,7 +19,7 @@ class OptionString
 public:
     OptionString( const std::string &options );
     bool defines( const std::string &option );
-    const std::string &valueOf( const std::string &key, const std::string &default="" );
+    const std::string &valueOf( const std::string &key, const std::string &dflt="" );
     bool isValid(){ return _invalid.size() > 0; }
     const std::vector<const std::string> errors(){ return _invalid; }
 private:
