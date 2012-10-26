@@ -8,7 +8,7 @@
 "NIMP",14,"Number of implicit parameters"
 "NCON",0,"Number of arbitrary constraints"
 "NDOF",153,"Degrees of freedom"
-"SSR",0.212483,"Sum of squared residuals"
+"SSR",0.212484,"Sum of squared residuals"
 "SEU",0.03727,"Standard error of unit weight"
 "CONVERGED","N","Adjustment met convergence criteria"
 "ERRTYPE","apriori","Errors presented as apriori or aposteriori"
