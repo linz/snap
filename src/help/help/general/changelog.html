@@ -29,6 +29,13 @@ even if focus is restored.
 <h3>snap</h3>
 <p>Enhancement: Added support for using deformation model from coordinate system
 definition (by default)</p>
+<p>Enhancement: Added option calculating errors of angle errors in observations files
+based on angle error and constant error.  (But note that this is based on the calculated 
+length based on the input coordinates - it is not updated as the coordinates change at
+each iteration</p>
+<p>Bug fix: Obscure bug in calculating errors of residuals of grouped GPS vector observations
+when some of the vectors in the group are rejected.
+</p>
 
 <hr />
 -->
