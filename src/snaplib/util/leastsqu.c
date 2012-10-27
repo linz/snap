@@ -1054,7 +1054,7 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
             /* First form a row of N"A~ */
 
-            for( jcol = 1; jcol < ncol; jcol++ )
+            for( jcol = 0; jcol < ncol; jcol++ )
             {
                 tmp[cols[jcol]] = vecprd_ol( obs, N, cols[jcol] );
             }
