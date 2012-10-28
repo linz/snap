@@ -316,7 +316,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     gotvtol = spec->gotvtol && (spec->vtolmax > 0.0);
     if( ! gothtol && ! gotvtol ) return;
 
-    fprintf(lst, "\n------------------------\nAbsolute accuracy tests\n");
+    fprintf(lst, "\n------------------------\nAbsolute (network) accuracy tests\n");
 
     nstns = number_of_stations( net );
 

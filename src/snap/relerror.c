@@ -208,7 +208,7 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
 
     init_calc_covar();
 
-    fprintf(lst, "\n------------------------\nRelative accuracy tests\n");
+    fprintf(lst, "\n------------------------\nRelative (local) accuracy tests\n");
 
     nstns = number_of_stations( net );
 
