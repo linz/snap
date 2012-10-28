@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 #define VERSIONINFO
 #define PROGRAM "listgps"
-#define VERSION "2.3.64"
+#define VERSION "2.3.65"
 
 #include "util/versioninfo.h"
