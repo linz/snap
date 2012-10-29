@@ -1769,7 +1769,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP"
         "ProductCode" = "8:{8D11E62E-F321-48B0-972C-DEB54B78BAFB}"
-        "PackageCode" = "8:{C11F8C24-A528-4234-B0D7-052522965C4F}"
+        "PackageCode" = "8:{BB7E43F8-4377-4FE2-BC6E-45A5636BE68A}"
         "UpgradeCode" = "8:{3219AF83-83AE-414A-AE78-E25619B3120B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
