@@ -87,24 +87,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3F1E9FD84639136661ED393BFED90DF1"
-        "OwnerKey" = "8:_898F8D9FCE44427E83FD6D8BBC410700"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3F1E9FD84639136661ED393BFED90DF1"
-        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_3F1E9FD84639136661ED393BFED90DF1"
-        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_46EFB6A4F92641F3BE9349C11F6A5447"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -167,6 +149,72 @@
         {
         "MsmKey" = "8:_794A9D5E9CFB4C059DCE30596808F7EA"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_022D23B7400D4AA8A881275B7D0F2CE6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_F342A8E716484DC29C69D6823B517437"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_ED8B227EC3554205A6EF4092A654E66F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_BD0DCF4E68D4445E9B01D4080F9BF85F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_898F8D9FCE44427E83FD6D8BBC410700"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
+        "OwnerKey" = "8:_0BFF881D74D848DA8D4D388B9DD09CFB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -269,72 +317,6 @@
         {
         "MsmKey" = "8:_AC92E80E3AA0490C8AF0F8555C85B940"
         "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_022D23B7400D4AA8A881275B7D0F2CE6"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_F342A8E716484DC29C69D6823B517437"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_ED8B227EC3554205A6EF4092A654E66F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_BD0DCF4E68D4445E9B01D4080F9BF85F"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_898F8D9FCE44427E83FD6D8BBC410700"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B21B61AFA59F4247AC17CB673E2F3E84"
-        "OwnerKey" = "8:_0BFF881D74D848DA8D4D388B9DD09CFB"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -539,7 +521,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\ms\\install\\snap\\release\\snap_install.msi"
+        "OutputFilename" = "8:..\\..\\install\\snap\\release\\snap_install.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -583,7 +565,7 @@
         {
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_010FC8BDF3864747A6FF2B32A9E4A99D"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\station.jpg"
+            "SourcePath" = "8:..\\..\\..\\src\\resources\\station.jpg"
             "TargetName" = "8:station.jpg"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -603,7 +585,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_07BB49ADAC3F40E5BDC1D1BE871478B4"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\jobfile.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\jobfile.inc"
             "TargetName" = "8:jobfile.inc"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -623,7 +605,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_142CC566A1D44D90A0B82FB5C65E208C"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\coordsys\\nzgeoid09.grd"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nzgeoid09.grd"
             "TargetName" = "8:nzgeoid09.grd"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -643,7 +625,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1F6DFB9D234E41F990B871FAC59D7F61"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\default.crd.template"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\default.crd.template"
             "TargetName" = "8:default.crd.template"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -663,7 +645,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2029C5D58B404BD5AEC99A68D44C03DE"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap\\config\\vecc1.dtf"
+            "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\vecc1.dtf"
             "TargetName" = "8:vecc1.dtf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -683,7 +665,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27E4A19693904F32A807D1DEEF988BF9"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap\\config\\gpstest.cfg"
+            "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\gpstest.cfg"
             "TargetName" = "8:gpstest.cfg"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -703,7 +685,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2F92D1A1C9384C5CBBC94FD04E49B0DE"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap\\config\\trvtest.cfg"
+            "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\trvtest.cfg"
             "TargetName" = "8:trvtest.cfg"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -723,7 +705,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_314C0E085BE44BDEA47BD435192A80A3"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snaplist\\mdfc1.tbf"
+            "SourcePath" = "8:..\\..\\..\\src\\snaplist\\mdfc1.tbf"
             "TargetName" = "8:mdfc1.tbf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -743,7 +725,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3335AF8580F74D0E9260585E718EB3B2"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\linz_gdb_stations.bat"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\linz_gdb_stations.bat"
             "TargetName" = "8:linz_gdb_stations.bat"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -761,29 +743,9 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F1E9FD84639136661ED393BFED90DF1"
-            {
-            "SourcePath" = "8:RPCRT4.dll"
-            "TargetName" = "8:RPCRT4.dll"
-            "Tag" = "8:"
-            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:TRUE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_46EFB6A4F92641F3BE9349C11F6A5447"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Packer.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Packer.pm"
             "TargetName" = "8:Packer.pm"
             "Tag" = "8:"
             "Folder" = "8:_EA843B42C23C4379B0FC9104125396C2"
@@ -803,7 +765,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5677773B93B1403994C2A40C28B11BA5"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\coordsys\\coordsys.def"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\coordsys.def"
             "TargetName" = "8:coordsys.def"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -823,7 +785,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_692C344BA2B948028C48B6807535DD3A"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\adjust.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\adjust.inc"
             "TargetName" = "8:adjust.inc"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -843,7 +805,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6981739F32984F859A264792DEF166A4"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\snap32.ico"
+            "SourcePath" = "8:..\\..\\..\\src\\resources\\snap32.ico"
             "TargetName" = "8:snap32.ico"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -863,7 +825,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7507A7A9FF6E4D6CAD1C0EAA2EB3179B"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\coordsys\\egm96.grd"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\egm96.grd"
             "TargetName" = "8:egm96.grd"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -883,7 +845,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75BD86B8EFFB4A49B1B87103D94E84E8"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\maketrig.pl"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\maketrig.pl"
             "TargetName" = "8:maketrig.pl"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -903,7 +865,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_76D702347AF94EC0B88B8A8352D82936"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap\\config\\stn.dtf"
+            "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\stn.dtf"
             "TargetName" = "8:stn.dtf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -923,7 +885,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_776FF26EE7A84386BFBB12115A38AE3A"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\GPS\\SkiFile.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\GPS\\SkiFile.pm"
             "TargetName" = "8:SkiFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_4ECB21E0F0C74BA4AB7BE2FFA201B5CB"
@@ -943,7 +905,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_77CA60C7EC76458C801797A1F01AE8DE"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\default.dat.template"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\default.dat.template"
             "TargetName" = "8:default.dat.template"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -963,7 +925,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_794A9D5E9CFB4C059DCE30596808F7EA"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Time\\Timezone.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Time\\Timezone.pm"
             "TargetName" = "8:Timezone.pm"
             "Tag" = "8:"
             "Folder" = "8:_9C481565F1E44E2F8D6AD07132BC4BDC"
@@ -983,7 +945,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9026652865F04304A0B5C365E18E0BC7"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\snap_manager.cfg"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\snap_manager.cfg"
             "TargetName" = "8:snap_manager.cfg"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1003,7 +965,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9656A9296382449F8E63975887248B84"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snaplist\\snaplist.tbf"
+            "SourcePath" = "8:..\\..\\..\\src\\snaplist\\snaplist.tbf"
             "TargetName" = "8:snaplist.tbf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1023,7 +985,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_989E9C787BD24AB59E7CECE704D6EA9D"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\Ellipsoid.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Ellipsoid.pm"
             "TargetName" = "8:Ellipsoid.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
@@ -1043,7 +1005,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A7BB315642941AEBCB320F08C5E880B"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\makelinzdefmodel.pl"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\makelinzdefmodel.pl"
             "TargetName" = "8:makelinzdefmodel.pl"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1063,7 +1025,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9FB4476733964878B223F2D3CCEE499D"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\coordsys\\def492kt.grd"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\def492kt.grd"
             "TargetName" = "8:def492kt.grd"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1083,7 +1045,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A190E75F9ECD496EA143DD6A7BA0C416"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\coordsys\\igns98b.grd"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\igns98b.grd"
             "TargetName" = "8:igns98b.grd"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1123,7 +1085,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A749D4505CEA402EA42CE31F40E9B2E6"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\TrigFile.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\TrigFile.pm"
             "TargetName" = "8:TrigFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_EA843B42C23C4379B0FC9104125396C2"
@@ -1143,7 +1105,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A79793657C28454C9F8784F2809F9303"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\default.snp.template"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\default.snp.template"
             "TargetName" = "8:default.snp.template"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -1163,7 +1125,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC38582C4D3549E4BE3B3B24DB661C0D"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\snap16.ico"
+            "SourcePath" = "8:..\\..\\..\\src\\resources\\snap16.ico"
             "TargetName" = "8:snap16.ico"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1183,7 +1145,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC92E80E3AA0490C8AF0F8555C85B940"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\DMS.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\DMS.pm"
             "TargetName" = "8:DMS.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
@@ -1203,7 +1165,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B476991AFC074BA1AF2AFEA5E8C64079"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\Coordinate.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Coordinate.pm"
             "TargetName" = "8:Coordinate.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
@@ -1223,7 +1185,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB62F789CA974F9AAE1B1351A2D0F613"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Unpacker.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Unpacker.pm"
             "TargetName" = "8:Unpacker.pm"
             "Tag" = "8:"
             "Folder" = "8:_EA843B42C23C4379B0FC9104125396C2"
@@ -1243,7 +1205,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C3277F99B8134DE892614068DDAE83C5"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\GPS\\GPSurveyFile.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\GPS\\GPSurveyFile.pm"
             "TargetName" = "8:GPSurveyFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_4ECB21E0F0C74BA4AB7BE2FFA201B5CB"
@@ -1263,7 +1225,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4022BB9437D4A6BAF4E51075DDACF78"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\tools.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\tools.inc"
             "TargetName" = "8:tools.inc"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -1283,7 +1245,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C53DA395193341EF9B8B533369833884"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\makegrid.pl"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\makegrid.pl"
             "TargetName" = "8:makegrid.pl"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1303,7 +1265,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C565F17357304E73BA81CAD78B0B369A"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\GPS.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\GPS.pm"
             "TargetName" = "8:GPS.pm"
             "Tag" = "8:"
             "Folder" = "8:_EA843B42C23C4379B0FC9104125396C2"
@@ -1323,7 +1285,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C922DC61725548BD8ACB1F8F88C0D99E"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Time\\JulianDay.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Time\\JulianDay.pm"
             "TargetName" = "8:JulianDay.pm"
             "Tag" = "8:"
             "Folder" = "8:_9C481565F1E44E2F8D6AD07132BC4BDC"
@@ -1343,7 +1305,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D34A84F424CF40438027EED87BCED3A5"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\GeodeticCrd.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GeodeticCrd.pm"
             "TargetName" = "8:GeodeticCrd.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
@@ -1383,7 +1345,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D48F506FB9A5436CAAF1B585AA81BAA5"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\GridFile.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\GridFile.pm"
             "TargetName" = "8:GridFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_EA843B42C23C4379B0FC9104125396C2"
@@ -1403,7 +1365,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8DA7D2F79334DBFA11A6BD16DB48B0E"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\datafile.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\datafile.inc"
             "TargetName" = "8:datafile.inc"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -1423,7 +1385,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D95D0064A8FB4694A2CEE873C4E857AD"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap\\config\\mdfc1.dtf"
+            "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\mdfc1.dtf"
             "TargetName" = "8:mdfc1.dtf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1443,7 +1405,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA939587CF7E49D58A85CE18C9D85190"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\help\\snaphelp.chm"
+            "SourcePath" = "8:..\\..\\..\\src\\help\\snaphelp.chm"
             "TargetName" = "8:snaphelp.chm"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1463,7 +1425,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DB631AC93A424C49A0239D9E98123E52"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\gpstrans.bat"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\gpstrans.bat"
             "TargetName" = "8:gpstrans.bat"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1483,7 +1445,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA21E843CCE145C895B082EBDA5BAC08"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic.pm"
             "TargetName" = "8:Geodetic.pm"
             "Tag" = "8:"
             "Folder" = "8:_EA843B42C23C4379B0FC9104125396C2"
@@ -1503,7 +1465,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EB7149467B3C4F0D8714C6ADA558C694"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\install_snap_package.bat"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\install_snap_package.bat"
             "TargetName" = "8:install_snap_package.bat"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1523,7 +1485,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0C3A31CE91243BF8E071F76086C6DFF"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\utility.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\utility.inc"
             "TargetName" = "8:utility.inc"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -1543,7 +1505,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0EE785905E149BF85616B114E40E05A"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\CartesianCrd.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CartesianCrd.pm"
             "TargetName" = "8:CartesianCrd.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
@@ -1563,7 +1525,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F4CC0F309DAB4CF68E4C4F432EF262AF"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snapspec\\snapspec.cfg"
+            "SourcePath" = "8:..\\..\\..\\src\\snapspec\\snapspec.cfg"
             "TargetName" = "8:snapspec.cfg"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1603,7 +1565,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F771C9C557234BBF9C74EFA40FCFE08A"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\scripts\\crdfile.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\scripts\\crdfile.inc"
             "TargetName" = "8:crdfile.inc"
             "Tag" = "8:"
             "Folder" = "8:_E5BC183548014C4D8084F8EC7E64DB34"
@@ -1623,7 +1585,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F8466D5B968A4B54BF7D97515B0EDFDC"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\install.jpg"
+            "SourcePath" = "8:..\\..\\..\\src\\resources\\install.jpg"
             "TargetName" = "8:install.jpg"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1643,7 +1605,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FBF9DB5F03324AC7840139737FDED9B1"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap\\config\\obs.dtf"
+            "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\obs.dtf"
             "TargetName" = "8:obs.dtf"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -1806,15 +1768,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP"
-        "ProductCode" = "8:{F870AA8B-C0BF-4BD3-9B30-1D243A3DAFD6}"
-        "PackageCode" = "8:{85B48DB0-1B75-437B-B801-98B24510B8B5}"
+        "ProductCode" = "8:{8D11E62E-F321-48B0-972C-DEB54B78BAFB}"
+        "PackageCode" = "8:{C11F8C24-A528-4234-B0D7-052522965C4F}"
         "UpgradeCode" = "8:{3219AF83-83AE-414A-AE78-E25619B3120B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.2.19"
+        "ProductVersion" = "8:1.2.20"
         "Manufacturer" = "8:Land Information New Zealand"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.linz.govt.nz"
@@ -2389,11 +2351,11 @@
         }
         "MergeModule"
         {
-            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_B21B61AFA59F4247AC17CB673E2F3E84"
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_7BA69D3EBAAC487F9078F8AD2FB8C3EF"
             {
             "UseDynamicProperties" = "11:TRUE"
             "IsDependency" = "11:TRUE"
-            "SourcePath" = "8:Microsoft_VC100_DebugCRT_x86.msm"
+            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
                 "Properties"
                 {
                 }
@@ -2408,7 +2370,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_022D23B7400D4AA8A881275B7D0F2CE6"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\dat2site.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\dat2site.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2436,7 +2398,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0BFF881D74D848DA8D4D388B9DD09CFB"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snapspec.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snapspec.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2464,7 +2426,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_113522599DC74AD18F8C7ABFC406B2D3"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\concord.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\concord.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2492,7 +2454,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4EF1C99612D44A799AEFCB5656402AB7"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snapgeoid.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snapgeoid.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2520,7 +2482,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snaplist.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snaplist.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2548,7 +2510,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_848D279AE87F4FF984BFDAF0E0CF24D4"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snapmerge.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snapmerge.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2576,7 +2538,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_898F8D9FCE44427E83FD6D8BBC410700"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snapplot.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snapplot.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2604,7 +2566,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA39279D2D5C47D9960AF0B4734A442A"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snapadjust.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snapadjust.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2632,7 +2594,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BA5442E434F7454DA342C6C7CB2F4E4D"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snap_manager.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snap_manager.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2660,7 +2622,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD0DCF4E68D4445E9B01D4080F9BF85F"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snap.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snap.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2688,7 +2650,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_ED8B227EC3554205A6EF4092A654E66F"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\site2gps.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\site2gps.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -2716,7 +2678,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F342A8E716484DC29C69D6823B517437"
             {
-            "SourcePath" = "8:..\\..\\built\\Debug\\snapconv.exe"
+            "SourcePath" = "8:..\\..\\built\\Release\\snapconv.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
