@@ -25,7 +25,7 @@
 //	symbol - saves symbol for subsequent using and returns its number
 int GrammarBuilder::symbol( char *sname, int def_type, char *type, int sibling )
 {
-	unsigned i, e;
+	int i, e;
 	Symbol s;
 
 	// search's for a symbol in the table

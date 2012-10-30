@@ -1,7 +1,7 @@
 //
 // File: parse.cpp 
 // Generated from: syntax 
-// Date: 2010-08-24 14:47:19
+// Date: 2010-09-14 10:01:18
 // 
 // Built by lapg: 
 
@@ -288,43 +288,43 @@ int lalr1::parse()
 		lapg_n.sym = NULL;
 		switch( lapg_n.lexem ) {
 			case 1: {
-				#line 30 "syntax"
+				// #line 30 "syntax"
 				 *(char* *)&lapg_n.sym = _strdup(token); 
 			} break;
 			case 2: {
-				#line 31 "syntax"
+				// #line 31 "syntax"
 				 *(char* *)&lapg_n.sym = strstrip(token); 
 			} break;
 			case 3: {
-				#line 32 "syntax"
+				// #line 32 "syntax"
 				 *(char* *)&lapg_n.sym = _strdup(token+1); 
 			} break;
 			case 4: {
-				#line 33 "syntax"
+				// #line 33 "syntax"
 				 *(char* *)&lapg_n.sym = _strdup(token+3); 
 			} break;
 			case 5: {
-				#line 34 "syntax"
+				// #line 34 "syntax"
 				 *(char* *)&lapg_n.sym = strstrip(token); 
 			} break;
 			case 6: {
-				#line 35 "syntax"
+				// #line 35 "syntax"
 				 *(char* *)&lapg_n.sym=strstriplines(token); 
 			} break;
 			case 7: {
-				#line 36 "syntax"
+				// #line 36 "syntax"
 				 *(char* *)&lapg_n.sym = strstrip(token); 
 			} break;
 			case 8: {
-				#line 37 "syntax"
+				// #line 37 "syntax"
 				 *(char* *)&lapg_n.sym = strstrip(token); 
 			} break;
 			case 9: {
-				#line 38 "syntax"
+				// #line 38 "syntax"
 				 *(int *)&lapg_n.sym = strtol(token,NULL,10); 
 			} break;
 			case 11: {
-				#line 41 "syntax"
+				// #line 41 "syntax"
 				 continue; 
 			} break;
 		}
@@ -340,85 +340,85 @@ int lalr1::parse()
 				lapg_gg.pos = (lapg_rlen[lapg_i])?lapg_m[lapg_head+1-lapg_rlen[lapg_i]].pos:lapg_n.pos;
 				switch( lapg_i ) {
 					case 2: {
-						#line 65 "syntax"
+						// #line 65 "syntax"
 						 lapg_gg.pos.line++; 
 					} break;
 					case 4: {
-						#line 65 "syntax"
+						// #line 65 "syntax"
 						 lapg_gg.pos.line += strcount(((char*)lapg_m[lapg_head-0].sym),'\n')+1; 
 					} break;
 					case 5: {
-						#line 69 "syntax"
+						// #line 69 "syntax"
 						lapg_gg.sym = concat( NULL, ((char*)lapg_m[lapg_head-0].sym), sourcename, lapg_m[lapg_head-0].pos.line );
 					} break;
 					case 6: {
-						#line 71 "syntax"
+						// #line 71 "syntax"
 						lapg_gg.sym = concat( *(char* *)&lapg_gg.sym, ((char*)lapg_m[lapg_head-0].sym), sourcename, (lapg_m[lapg_head-1].pos.line+1!=lapg_m[lapg_head-0].pos.line)?lapg_m[lapg_head-0].pos.line:-1 );
 						lapg_gg.pos = lapg_m[lapg_head-0].pos;
 					} break;
 					case 9: {
-						#line 79 "syntax"
+						// #line 79 "syntax"
 						process_directive( ((char*)lapg_m[lapg_head-1].sym), ((char*)lapg_m[lapg_head-0].sym), lapg_m[lapg_head-2].pos.line, lapg_m[lapg_head-2].pos.column );
 						delete[] ((char*)lapg_m[lapg_head-1].sym);
 					} break;
 					case 10: {
-						#line 83 "syntax"
+						// #line 83 "syntax"
 						process_directive( ((char*)lapg_m[lapg_head-1].sym), ((int)lapg_m[lapg_head-0].sym), lapg_m[lapg_head-2].pos.line, lapg_m[lapg_head-2].pos.column );
 						delete[] ((char*)lapg_m[lapg_head-1].sym);
 					} break;
 					case 15: {
-						#line 89 "syntax"
+						// #line 89 "syntax"
 						 if( ((int)lapg_m[lapg_head-0].sym) < 0 || ((int)lapg_m[lapg_head-0].sym) >= BITS ) *(int *)&lapg_gg.sym = 0; else *(int *)&lapg_gg.sym = 1 << ((int)lapg_m[lapg_head-0].sym); 
 					} break;
 					case 17: {
-						#line 90 "syntax"
+						// #line 90 "syntax"
 						 *(int *)&lapg_gg.sym |= ((int)lapg_m[lapg_head-0].sym); 
 					} break;
 					case 18: {
-						#line 91 "syntax"
+						// #line 91 "syntax"
 						 lb.currentgroups = ((int)lapg_m[lapg_head-1].sym); 
 					} break;
 					case 19: {
-						#line 95 "syntax"
+						// #line 95 "syntax"
 						gb.terminal(((char*)lapg_m[lapg_head-1].sym)); delete[] ((char*)lapg_m[lapg_head-1].sym); 
 					} break;
 					case 20: {
-						#line 98 "syntax"
+						// #line 98 "syntax"
 						gb.terminal(((char*)lapg_m[lapg_head-2].sym),((char*)lapg_m[lapg_head-1].sym)); delete[] ((char*)lapg_m[lapg_head-2].sym); delete[] ((char*)lapg_m[lapg_head-1].sym);
 					} break;
 					case 23: {
-						#line 101 "syntax"
+						// #line 101 "syntax"
 						lb.lexem( gb.terminal(((char*)lapg_m[lapg_head-4].sym)), ((char*)lapg_m[lapg_head-2].sym), ((char*)lapg_m[lapg_head-4].sym), ((char*)lapg_m[lapg_head-0].sym), ((int)lapg_m[lapg_head-1].sym) );
 						delete[] ((char*)lapg_m[lapg_head-4].sym); delete[] ((char*)lapg_m[lapg_head-2].sym); delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 24: {
-						#line 105 "syntax"
+						// #line 105 "syntax"
 						lb.lexem( gb.terminal(((char*)lapg_m[lapg_head-3].sym)), ((char*)lapg_m[lapg_head-1].sym), ((char*)lapg_m[lapg_head-3].sym), NULL, ((int)lapg_m[lapg_head-0].sym) );
 						delete[] ((char*)lapg_m[lapg_head-3].sym); delete[] ((char*)lapg_m[lapg_head-1].sym);
 					} break;
 					case 25: {
-						#line 109 "syntax"
+						// #line 109 "syntax"
 						lb.lexem( gb.terminal(((char*)lapg_m[lapg_head-5].sym), ((char*)lapg_m[lapg_head-4].sym)), ((char*)lapg_m[lapg_head-2].sym), ((char*)lapg_m[lapg_head-5].sym), ((char*)lapg_m[lapg_head-0].sym), ((int)lapg_m[lapg_head-1].sym) );
 						delete[] ((char*)lapg_m[lapg_head-5].sym); delete[] ((char*)lapg_m[lapg_head-4].sym); delete[] ((char*)lapg_m[lapg_head-2].sym); delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 26: {
-						#line 113 "syntax"
+						// #line 113 "syntax"
 						lb.lexem( gb.terminal(((char*)lapg_m[lapg_head-4].sym), ((char*)lapg_m[lapg_head-3].sym)), ((char*)lapg_m[lapg_head-1].sym), ((char*)lapg_m[lapg_head-4].sym), NULL, ((int)lapg_m[lapg_head-0].sym) );
 						delete[] ((char*)lapg_m[lapg_head-4].sym); delete[] ((char*)lapg_m[lapg_head-3].sym); delete[] ((char*)lapg_m[lapg_head-1].sym);
 					} break;
 					case 32: {
-						#line 122 "syntax"
+						// #line 122 "syntax"
 						gb.symbol( ((char*)lapg_m[lapg_head-0].sym), 0, NULL, gb.symbol( ((char*)lapg_m[lapg_head-2].sym), 0 ) );
 						delete[] ((char*)lapg_m[lapg_head-2].sym);
 						delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 33: {
-						#line 126 "syntax"
+						// #line 126 "syntax"
 						gb.symbol( ((char*)lapg_m[lapg_head-0].sym), 0, NULL, -1 );
 						delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 44: {
-						#line 147 "syntax"
+						// #line 147 "syntax"
 						if( !strcmp(((char*)lapg_m[lapg_head-0].sym),"left")) lapg_gg.sym = (void*)1;
 						else if( !strcmp(((char*)lapg_m[lapg_head-0].sym),"right")) lapg_gg.sym = (void*)2;
 						else if( !strcmp(((char*)lapg_m[lapg_head-0].sym),"nonassoc")) lapg_gg.sym = (void*)3;
@@ -426,39 +426,39 @@ int lalr1::parse()
 						delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 46: {
-						#line 154 "syntax"
+						// #line 154 "syntax"
 						 gb.addprio(((char*)lapg_m[lapg_head-0].sym),((int)lapg_m[lapg_head-1].sym),0); 
 					} break;
 					case 47: {
-						#line 154 "syntax"
+						// #line 154 "syntax"
 						 gb.addprio(((char*)lapg_m[lapg_head-0].sym),((int)lapg_m[lapg_head-2].sym),1); 
 					} break;
 					case 48: {
-						#line 157 "syntax"
+						// #line 157 "syntax"
 						 *(int *)&lapg_gg.sym = gb.symbol( ((char*)lapg_m[lapg_head-0].sym), 0 ); delete[] ((char*)lapg_m[lapg_head-0].sym); 
 					} break;
 					case 49: {
-						#line 158 "syntax"
+						// #line 158 "syntax"
 						 *(int *)&lapg_gg.sym = -1; 
 					} break;
 					case 50: {
-						#line 162 "syntax"
+						// #line 162 "syntax"
 						gb.rule( length, ((int)lapg_m[lapg_head-1].sym), ((char*)lapg_m[lapg_head-0].sym), rule, lapg_gg.pos.line );
 					} break;
 					case 51: {
-						#line 165 "syntax"
+						// #line 165 "syntax"
 						gb.rule( length, ((int)lapg_m[lapg_head-0].sym), NULL, rule, lapg_gg.pos.line );
 					} break;
 					case 52: {
-						#line 168 "syntax"
+						// #line 168 "syntax"
 						gb.rule( 0, ((int)lapg_m[lapg_head-0].sym), ((char*)lapg_m[lapg_head-1].sym), rule, lapg_gg.pos.line );
 					} break;
 					case 53: {
-						#line 171 "syntax"
+						// #line 171 "syntax"
 						gb.rule( 0, ((int)lapg_m[lapg_head-0].sym), NULL, rule, lapg_gg.pos.line );
 					} break;
 					case 56: {
-						#line 176 "syntax"
+						// #line 176 "syntax"
 						if( ((char*)lapg_m[lapg_head-1].sym) ) {
 							length += 2;
 							rule[length] = gb.symbol( ((char*)lapg_m[lapg_head-0].sym), 0 );
@@ -468,7 +468,7 @@ int lalr1::parse()
 						delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 57: {
-						#line 185 "syntax"
+						// #line 185 "syntax"
 						length = 0;
 						if( ((char*)lapg_m[lapg_head-1].sym) ) {
 							length += 2;
@@ -479,12 +479,12 @@ int lalr1::parse()
 						delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 58: {
-						#line 197 "syntax"
+						// #line 197 "syntax"
 						rule[0] = gb.symbol( ((char*)lapg_m[lapg_head-0].sym), 1 );
 						delete[] ((char*)lapg_m[lapg_head-0].sym);
 					} break;
 					case 59: {
-						#line 201 "syntax"
+						// #line 201 "syntax"
 						rule[0] = gb.symbol( ((char*)lapg_m[lapg_head-1].sym), 1, ((char*)lapg_m[lapg_head-0].sym) );
 						delete[] ((char*)lapg_m[lapg_head-1].sym);
 						delete[] ((char*)lapg_m[lapg_head-0].sym);

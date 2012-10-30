@@ -26,7 +26,7 @@ SRC=common.cpp gbuild.cpp lalr1.cpp lapg.cpp lbuild.cpp srcgen.cpp engine.cpp
 GEN=parse.cpp templates.cpp defaults.cpp
 CF=$(SRC) $(GEN)
 HF=common.h gbuild.h lalr1.h lbuild.h srcgen.h
-PARAMS=-DGCC_COMPILER -O2
+PARAMS=-DGCC_COMPILER -g -fpermissive -Wno-write-strings
 
 ../lapg : $(OF)
 	$(CC) -o ../lapg $(PARAMS) $(OF)
