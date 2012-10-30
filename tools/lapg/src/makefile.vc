@@ -1,0 +1,52 @@
+#   Makefile
+#
+#   Lapg (Lexical Analyzer and Parser Generator)
+#   Copyright (C) 2002-07  Evgeny Gryaznov (inspirer@inbox.ru)
+#
+#   This program is free software; you can redistribute it and/or modify
+#   it under the terms of the GNU General Public License as published by
+#   the Free Software Foundation; either version 2 of the License, or
+#   (at your option) any later version.
+#
+#   This program is distributed in the hope that it will be useful,
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#   GNU General Public License for more details.
+#
+#   You should have received a copy of the GNU General Public License
+#   along with this program; if not, write to the Free Software
+#   Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+VER=100
+
+TMPDIR=objs
+SRC=common.cpp gbuild.cpp lalr1.cpp lapg.cpp lbuild.cpp srcgen.cpp engine.cpp
+GEN=parse.cpp templates.cpp defaults.cpp
+OBJS=$(patsubst %.cpp,$(TMPDIR)/%.obj, $(SRC) $(GEN))
+HF=common.h gbuild.h lalr1.h lbuild.h srcgen.h
+CPARAMS=/nologo /O2 /Ob1 /D "WIN32" /D "NDEBUG" /D "_CONSOLE" /D "_CRT_SECURE_NO_DEPRECATE" /D "_VC80_UPGRADE=0x0600" /D "_MBCS" /GF /FD /EHsc /MT /Gy /W3 /TP /wd4018 /Fo".\$(TMPDIR)/" /Fd".\$(TMPDIR)/" 
+LPARAMS=/nologo /INCREMENTAL:NO /SUBSYSTEM:CONSOLE /MACHINE:X86 
+
+lapg.exe : $(TMPDIR) $(OBJS)
+	link $(LPARAMS) /OUT:$@ $(OBJS)
+
+$(TMPDIR):
+	mkdir $(TMPDIR) >nul 2>&1
+
+$(TMPDIR)/%.obj : %.cpp $(HF) 
+	cl $(CPARAMS) /c $<
+
+clean :
+	del /q $(TMPDIR) errors states parse.cpp templates.cpp defaults.cpp >nul 2>&1
+
+$(TMPDIR)/txt2c++.exe: $(TMPDIR)/txt2c++.obj
+	link $(LPARAMS) /OUT:$@ $<
+
+templates.cpp: templ_cs templ_cpp templ_js templ_java templ_c templ_text $(TMPDIR)/txt2c++.exe
+	./$(TMPDIR)/txt2c++.exe templates.cpp templ_cs templ_cpp templ_js templ_java templ_c templ_text
+
+defaults.cpp: default_cpp default_cs default_js default_java default_c $(TMPDIR)/txt2c++.exe
+	./$(TMPDIR)/txt2c++.exe defaults.cpp default_cpp default_cs default_js default_java default_c
+
+parse.cpp: syntax
+	lapg
