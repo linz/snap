@@ -187,6 +187,7 @@ function ImportLINZGDB()
 
     $overwrite = true
     $addmarktypes = true
+    $clearorders = true
     dialog "Import LINZ GDB coordinates"
        label "Import coordinates from LINZ geodetic database for all station"
        label "referenced in the data files or the coordinate file"
@@ -198,6 +199,7 @@ function ImportLINZGDB()
        spacer
        checkbox $addmarktypes "Include mark types in downloaded coordinates"
        checkbox $overwrite "Overwrite existing coordinates with values from GDB"
+       checkbox $clearorders "Clear existing coordinate orders"
     end_dialog
 
     $backupfile = BackupCoordinateFile($coordinate_file)
@@ -257,6 +259,7 @@ function ImportLINZGDB()
 
     $options = ""
     if not $overwrite then $options = "-o" endif
+    if $clearorders then $options = $options." -cd" endif
 
     $result = LogRun("snapmerge -q $options \"$newcrdfile\" \"$coordinate_file\"")
     RenameFile($newcrdfile,$coordinate_file)

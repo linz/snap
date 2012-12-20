@@ -1,9 +1,9 @@
-snapspec version 2.3.21: Calculation of station orders
-Run at 31-AUG-2009 09:17:12
+snapspec version 0.0.0: Calculation of station orders
+Run at 1-JAN-2000 00:00:00
 SNAP binary file: in\snapspec5.bin
 Spec configuration file: in\snapspec5.cfg
 Vertical tests will not be applied as no stations are adjusted vertically
-SNAP run time: 31-AUG-2009 09:17:12
+SNAP run time: 1-JAN-2000 00:00:00
 Running apriori tests
 
 
@@ -61,24 +61,24 @@ Applying relative accuracy test
   Pass 3: Calculating missing covariance information
    Calculating covariances from decomposition
    True relative accuracy test pass    Vector 3 to 2 passes rel accuracy (0.00010000 < 0.01502124)
-   .. Completed third pass using missing covariances took 0.02 seconds (total 0.02 seconds)
-   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.02 seconds)
+   .. Completed third pass using missing covariances took 0.00 seconds (total 0.00 seconds)
+   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   Status of marks
     Station 2: 2 tests: 0 bad
     Station 3: 2 tests: 0 bad
   Station 2 passes rel accuracy tests (2)
   Station 3 passes rel accuracy tests (2)
-   .. Relative accuracy tests completed took 0.00 seconds (total 0.02 seconds)
+   .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
 Setting node orders
   Setting order of node 2 to 5
   Setting order of node 3 to 5
-   .. Orders updated took 0.00 seconds (total 0.02 seconds)
+   .. Orders updated took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Applying default order to remaining nodes
   Setting order of node 4 to default 
   Setting order of node 5 to default 
   Setting order of node 6 to default 
-   .. Default order applied to remaining nodes took 0.00 seconds (total 0.02 seconds)
+   .. Default order applied to remaining nodes took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Results of order calculations
 

@@ -17,3 +17,10 @@ copy in\test.crd out\test7.crd
 %SNAPDIR%\snapmerge in/testnoord.crd in/test2class.crd out/test10.crd
 %SNAPDIR%\snapmerge in/test2class.crd in/test.crd out/test11.crd
 
+REM clearing orders
+%SNAPDIR%\snapmerge in/test.crd in/testaltord.crd out/test20.crd
+%SNAPDIR%\snapmerge -cb in/test.crd in/testaltord.crd out/test21.crd
+%SNAPDIR%\snapmerge -cd in/test.crd in/testaltord.crd out/test22.crd
+%SNAPDIR%\snapmerge -c in/test.crd in/testaltord.crd out/test23.crd
+%SNAPDIR%\snapmerge -cd in/test.crd in/testnoord.crd out/test24.crd
+

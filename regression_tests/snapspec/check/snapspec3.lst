@@ -1,8 +1,8 @@
-snapspec version 2.3.24: Calculation of station orders
-Run at 31-AUG-2009 09:21:59
+snapspec version 0.0.0: Calculation of station orders
+Run at 1-JAN-2000 00:00:00
 SNAP binary file: in\snapspec3.bin
 Spec configuration file: in\snapspec3.cfg
-SNAP run time: 31-AUG-2009 09:21:59
+SNAP run time: 1-JAN-2000 00:00:00
 Running apriori tests
 
 

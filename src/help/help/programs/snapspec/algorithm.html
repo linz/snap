@@ -74,7 +74,8 @@ Initially each control station coordinate and those passed already passed for th
 <li>
 For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate within the maximum distance specified for relative accuracy tests.
 </li>
-<li>	Set the status to "fail" for any coordinates with status unknown for which there are no test lines are left (all other coordinates are beyond the test range).</li>
+
+<li>	<strong>Note: this step has been removed by default - a station is considered valid if there are no relative accuracy failures.</strong> Set the status to "fail" for any coordinates with status unknown for which there are no test lines are left (all other coordinates are beyond the test range). (This step canbe enabled by including "options 8" in the configuration file)</li>
 <li>	Set the status to "pass" for each coordinate for which all test lines pass.</li>
 <li>	If any coordinates still have status unknown, then select and fail that 
  with the highest ratio of test failures against test lines. If two or more coordinates have exactly the same ratio, select the one with the highest absolute error.  If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be muliplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.

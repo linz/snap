@@ -1,8 +1,8 @@
-snapspec version 2.3.21: Calculation of station orders
-Run at 31-AUG-2009 09:17:12
+snapspec version 0.0.0: Calculation of station orders
+Run at 1-JAN-2000 00:00:00
 SNAP binary file: in\snapspec4.bin
 Spec configuration file: in\snapspec4.cfg
-SNAP run time: 31-AUG-2009 09:17:12
+SNAP run time: 1-JAN-2000 00:00:00
 Running apriori tests
 
 
@@ -18,11 +18,11 @@ Initiallizing SDC tests
    .. Initiallizing SDC tests took 0.00 seconds (total 0.00 seconds)
 Loading marks for SDC tests
     Station 1 is a control mark
-    Station 2 is to be tested. Error H/V = 0.01000000/0.01000000 m2
-    Station 3 is to be tested. Error H/V = 0.01010000/0.01010000 m2
-    Station 4 is to be tested. Error H/V = 0.25000000/0.25000000 m2
-    Station 5 is to be tested. Error H/V = 0.25999999/0.25999999 m2
-    Station 6 is to be tested. Error H/V = 0.25999999/0.25999999 m2
+    Station 2 is to be tested. Error H/V = 0.01000000/0.04000000 m2
+    Station 3 is to be tested. Error H/V = 0.01010000/0.04040000 m2
+    Station 4 is to be tested. Error H/V = 0.25000000/1.00000000 m2
+    Station 5 is to be tested. Error H/V = 0.25999999/1.03999996 m2
+    Station 6 is to be tested. Error H/V = 0.25999999/1.03999996 m2
    .. Stations loaded took 0.00 seconds (total 0.00 seconds)
 Finding nearest control for each mark
     Station 2 is 500.00 m2 from control
@@ -55,41 +55,26 @@ Applying relative accuracy test
   Calculating status for each vector
   Pass 1: Using existing covariance information
    Relative accuracy pass by absolute    Vector 2 to 1 passes rel accuracy (0.01000000 < 0.01502124)
-   Relative vrt accuracy pass by absolute    Vector 2 to 1 passes rel vrt accuracy (0.01000000 < 0.01502124)
+   Relative vrt accuracy fail by absolute    Station 2 fails on rel vrt accuracy to passed station 1 (0.04000000 > 0.01502124)
    Relative accuracy pass by absolute    Vector 3 to 1 passes rel accuracy (0.01010000 < 0.01502124)
-   Relative vrt accuracy pass by absolute    Vector 3 to 1 passes rel vrt accuracy (0.01010000 < 0.01502124)
-    Vector 3 to 2 rel accuracy unavailable
-    Vector 3 to 2 rel vrt accuracy unavailable
+   Relative vrt accuracy fail by absolute    Station 3 fails on rel vrt accuracy to passed station 1 (0.04040000 > 0.01502124)
    Relative accuracy fail by absolute    Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502124)
    Relative accuracy fail by absolute    Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502124)
    Relative accuracy fail by absolute    Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502124)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
-  Pass 2: Recording missing covariance information
-    Requesting covariance 3 to 2
-    Requesting vrt covariance 3 to 2
-   .. Completed second pass requesting missing covariances took 0.00 seconds (total 0.00 seconds)
-  Pass 3: Calculating missing covariance information
-   Calculating covariances from decomposition
-   True relative accuracy test pass    Vector 3 to 2 passes rel accuracy (0.00010000 < 0.01502124)
-   True relative vrt accuracy test pass    Vector 3 to 2 passes rel vrt accuracy (0.00010000 < 0.01502124)
-   .. Completed third pass using missing covariances took 0.02 seconds (total 0.02 seconds)
-   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.02 seconds)
+   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   Status of marks
-    Station 2: 2 tests: 0 bad
-    Station 3: 2 tests: 0 bad
-  Station 2 passes rel accuracy tests (2)
-  Station 3 passes rel accuracy tests (2)
-   .. Relative accuracy tests completed took 0.00 seconds (total 0.02 seconds)
+   .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
 Setting node orders
-  Setting order of node 2 to 5
-  Setting order of node 3 to 5
-   .. Orders updated took 0.00 seconds (total 0.02 seconds)
+   .. Orders updated took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Applying default order to remaining nodes
+  Setting order of node 2 to default 
+  Setting order of node 3 to default 
   Setting order of node 4 to default 
   Setting order of node 5 to default 
   Setting order of node 6 to default 
-   .. Default order applied to remaining nodes took 0.00 seconds (total 0.02 seconds)
+   .. Default order applied to remaining nodes took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Results of order calculations
 
@@ -97,10 +82,8 @@ Control stations
 F0
 
 Stations assigned order 8
+F1
+F2
 F3
 F4
 F5
-
-Stations achieving order 5
-F1
-F2

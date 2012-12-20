@@ -41,6 +41,8 @@ int main( int argc, char *argv[] )
     int overwrite = 0;
     int syntaxerror = 0;
     int mergeopt = 0;
+    int clearbaseorders = 0;
+    int cleardataorders = 0;
 
     exefile = find_image(argv[0]);
 
@@ -56,6 +58,24 @@ int main( int argc, char *argv[] )
 
         case 'u':
         case 'U': updateonly = 1; overwrite = 1; break;
+
+        case 'c':
+        case 'C':
+                  switch (argv[1][2])
+                  {
+                      case 0:
+                      case 'b':
+                      case 'B': clearbaseorders= 1; 
+                                break;
+                      case 'd':
+                      case 'D': cleardataorders= 1; 
+                                break;
+                      default:
+                          syntaxerror=1;
+                          break;
+                  };
+                  break;
+
 
         case 'l':
         case 'L':
@@ -98,6 +118,8 @@ int main( int argc, char *argv[] )
         printf("and options are:\n");
         printf("  -o          overwrite existing stations with new versions\n");
         printf("  -u          update only .. don't add any new stations\n");
+        printf("  -c or -cb   Remove coordinate orders from basefile\n");
+        printf("  -cd         Remove coordinate orders from datafile\n");
         printf("  -l listfile defines a file with a list of station codes to include\n");
         printf("              from data file - only these codes will be added\n");
         printf("  -q          quiet mode - minimal output\n");
@@ -117,12 +139,33 @@ int main( int argc, char *argv[] )
         printf("Cannot open base coordinate file %s\n",basefile);
         return 2;
     }
+    if( clearbaseorders && base->orderclsid > 0)
+    {
+        int nstn= number_of_stations( base );
+        int clsid = base->orderclsid;
+        for( int istn = 1; istn <= nstn; istn++ )
+        {
+            station *st = station_ptr( base, istn );
+            set_station_class( st, clsid, 0 );
+        }
+
+    }
 
     data = new_network();
     if( read_network( data, datafile, 0 ) != OK )
     {
         printf("Cannot open data coordinate file %s\n",datafile);
         return 2;
+    }
+    if( cleardataorders && data->orderclsid > 0)
+    {
+        int nstn= number_of_stations( data );
+        int clsid = data->orderclsid;
+        for( int istn = 1; istn <= nstn; istn++ )
+        {
+            station *st = station_ptr( data, istn );
+            set_station_class( st, clsid, 0 );
+        }
     }
 
     strarray_init( &codes );

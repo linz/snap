@@ -87,3 +87,6 @@ del in\*.bin >nul 2>&1
 del in\*.new >nul 2>&1
 :end
 
+perl cleanlist.pl out/*.lst
+del out\*.bak > nul 2>&1
+

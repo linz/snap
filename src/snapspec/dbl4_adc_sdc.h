@@ -11,10 +11,6 @@
 **  Description:
 **      Header for code applying SDC order algorithm
 **
-**  History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
-**
 ** $Id: dbl4_adc_sdc.h,v 1.1 2003/05/28 01:40:45 ccrook Exp $
 **
 **************************************************************************
@@ -24,27 +20,27 @@
 
 typedef struct
 {
-    IdType  idOrder;       /* Order of the nodes passing the test */
-    SysCodeType scOrder;   /* Order display code */
-    Boolean blnAutoRange;  /* Range is calculated based on nearest control */
+    IdType  idOrder;       /**< Order of the nodes passing the test */
+    SysCodeType scOrder;   /**< Order display code */
+    Boolean blnAutoRange;  /**< Range is calculated based on nearest control */
 
-    Boolean blnTestHor;    /* Test horizontal accuracy */
-    double  dblRange;      /* Range used in rel accuracy test - <=0 for no limit */
-    double  dblAbsTestAbsMax;  /* Absolute test fail limit */
-    double  dblAbsTestDDMax;   /* Relative to control dist dep m/100m */
-    double  dblAbsTestDFMax;   /* Relative to control fixed component */
-    double  dblRelTestAbsMin;  /* Rel Acc by absolute accuracy limit */
-    double  dblRelTestDDMax;   /* Rel Acc dist dependent m/100m */
-    double  dblRelTestDFMax;   /* Rel Accuracy fixed component */
+    Boolean blnTestHor;    /**< Test horizontal accuracy */
+    double  dblRange;      /**< Range used in rel accuracy test - <=0 for no limit */
+    double  dblAbsTestAbsMax;  /**< Absolute test fail limit */
+    double  dblAbsTestDDMax;   /**< Relative to control dist dep m/100m */
+    double  dblAbsTestDFMax;   /**< Relative to control fixed component */
+    double  dblRelTestAbsMin;  /**< Rel Acc by absolute accuracy limit */
+    double  dblRelTestDDMax;   /**< Rel Acc dist dependent m/100m */
+    double  dblRelTestDFMax;   /**< Rel Accuracy fixed component */
 
-    Boolean blnTestVrt;   /* Test vertical accuracy */
-    double  dblAbsTestAbsMaxV;  /* Absolute test fail limit */
-    double  dblAbsTestDDMaxV;   /* Relative to control dist dep m/100m */
-    double  dblAbsTestDFMaxV;   /* Relative to control fixed component */
-    double  dblRelTestAbsMinV;  /* Rel Acc by absolute accuracy limit */
-    double  dblRelTestDDMaxV;   /* Rel Acc dist dependent m/100m */
-    double  dblRelTestDFMaxV;   /* Rel Accuracy fixed component */
-    double  dblVertHorRatio;    /* Ratio of vert/horizontal accuracies when
+    Boolean blnTestVrt;   /**< Test vertical accuracy */
+    double  dblAbsTestAbsMaxV;  /**< Absolute test fail limit */
+    double  dblAbsTestDDMaxV;   /**< Relative to control dist dep m/100m */
+    double  dblAbsTestDFMaxV;   /**< Relative to control fixed component */
+    double  dblRelTestAbsMinV;  /**< Rel Acc by absolute accuracy limit */
+    double  dblRelTestDDMaxV;   /**< Rel Acc dist dependent m/100m */
+    double  dblRelTestDFMaxV;   /**< Rel Accuracy fixed component */
+    double  dblVertHorRatio;    /**< Ratio of vert/horizontal accuracies when
                                   determining station with maximum error
                                   to reject */
 
@@ -79,6 +75,10 @@ typedef struct
 #define SDC_OPT_NO_SHORTCIRCUIT_CVR     2
 #define SDC_OPT_STRICT_SHORTCIRCUIT_CVR 4
 
+/* Option to reject mark if no relative accuracy tests available */
+
+#define SDC_OPT_FAIL_NORELACC           8
+
 #define SDC_DEFAULT  -1  /* Passed to SDCTest.pfSetOrder for the default order */
 
 /* Codes passed to *pfError2 stn1 to set the mode for two pass calculation */
@@ -93,16 +93,16 @@ typedef struct
 
 typedef struct
 {
-    void *env;         /* Environment passed to function pointers */
-    int  nmark;        /* Number of marks - ids are 0 .. nmark-1  */
-    int  norder;           /* The number of orders in the test */
-    int  maxorder;         /* The number of orders allocated in tests */
-    int  options;          /* Options controlling application of SDC algorithm */
-    int  loglevel;         /* Greater than 0 for logging */
-    SDCOrderTest *tests;   /* The definitions of each test */
-    IdType idFailOrder;    /* The order to apply if all tests fail */
-    SysCodeType scFailOrder;  /* Display string for fail order */
-    double dblErrFactor;   /* Factor by which errors are multiplied for test */
+    void *env;         /**< Environment passed to function pointers */
+    int  nmark;        /**< Number of marks - ids are 0 .. nmark-1  */
+    int  norder;           /**< The number of orders in the test */
+    int  maxorder;         /**< The number of orders allocated in tests */
+    int  options;          /**< Options controlling application of SDC algorithm */
+    int  loglevel;         /**< Greater than 0 for logging */
+    SDCOrderTest *tests;   /**< The definitions of each test */
+    IdType idFailOrder;    /**< The order to apply if all tests fail */
+    SysCodeType scFailOrder;  /**< Display string for fail order */
+    double dblErrFactor;   /**< Factor by which errors are multiplied for test */
 
     long (*pfStationId) ( /* Function to get the id of the station */
         void *env,
@@ -110,7 +110,7 @@ typedef struct
 
     int (*pfStationRole) ( /* Function to get the role of the station in the  tests */
         void *env,         /* Returns one of the above status, or the number */
-        int  stn );        /* of the lowest test to apply */
+        int  stn );        /**< of the lowest test to apply */
 
     double (*pfDistance2) ( /* Function to get square of the distance between two marks */
         void *env,

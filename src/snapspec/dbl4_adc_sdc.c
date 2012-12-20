@@ -6,18 +6,16 @@
 **
 **  What string: %W%
 **
-**  Description:
+** $Id: dbl4_adc_sdc.c,v 1.1 2003/05/28 01:40:45 ccrook Exp $
+**//**
+** \file
 **      Code for applying the SDC test algorithm to calculate coordinate
 **      orders.
 **
-**  History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
-**
-** $Id: dbl4_adc_sdc.c,v 1.1 2003/05/28 01:40:45 ccrook Exp $
-**
-**************************************************************************
+*************************************************************************
 */
+
+#include "dbl4_common.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -47,23 +45,23 @@
 
 typedef struct
 {
-    char role;       /* Role of the station in the test */
-    char status;     /* Status of the station (one of SDC_STS macro values) */
-    int nrelrow;   /* Row number used for relative accuracy testing */
-    int nreltest;  /* Number of relative accuracy tests applying */
-    int nrelbad;   /* Number of relative accuracy tests failed */
-    int nrelfail;  /* Number of rel.acc. tests to passed nodes that failed */
-    float error2;    /* Square of semi-major axis of error ellipse */
-    float verror2;   /* Square of the vertical error */
-    float ctldist2;  /* Square of distance to nearest control (fixed stn) */
+    char role;       /**< Role of the station in the test */
+    char status;     /**< Status of the station (one of SDC_STS macro values) */
+    int nrelrow;   /**< Row number used for relative accuracy testing */
+    int nreltest;  /**< Number of relative accuracy tests applying */
+    int nrelbad;   /**< Number of relative accuracy tests failed */
+    int nrelfail;  /**< Number of rel.acc. tests to passed nodes that failed */
+    float error2;    /**< Square of semi-major axis of error ellipse */
+    float verror2;   /**< Square of the vertical error */
+    float ctldist2;  /**< Square of distance to nearest control (fixed stn) */
 } SDCStation, *hSDCStation;
 
 /* SDCLine is the information required for relative accuracy tests */
 
 typedef struct
 {
-    float distance;  /* Square of the length of the line */
-    float error;     /* Square of semi-major of rel err ellipse -
+    float distance;  /**< Square of the length of the line */
+    float error;     /**< Square of semi-major of rel err ellipse -
                         or SDC_COVAR_UNAVAILABLE if not yet computed */
 } SDCLine, *hSDCLine;
 
@@ -71,20 +69,20 @@ typedef struct
 
 typedef struct
 {
-    hSDCTest sdc;      /* The definition of the tests to apply */
-    hSDCStation stns;  /* The list of stations to apply the tests to */
-    char *relstatus;   /* An array of rel accuracy status information */
-    int *lookup;       /* Lookup from relative accuracy order to station order */
-    float maxctldist2; /* The maximum distance to nearest control squared */
-    float maxerror2;   /* The maximum squared semi-major axis of the error ellipse */
-    float maxverror2;  /* The maximum squared semi-major axis of the error ellipse */
-    int nreltest;      /* Number of relative accuracy marks */
-    int testhor;       /* True if testing horizontal errors */
-    int testvrt;       /* True if testing vertical errors */
-    int loglevel;      /* The log level to use */
-    char logbuffer[1024]; /* Buffer used for writing log messages */
-    clock_t reftime;   /* Reference time for timestamps */
-    clock_t lasttime;  /* Time of last timestamp */
+    hSDCTest sdc;      /**< The definition of the tests to apply */
+    hSDCStation stns;  /**< The list of stations to apply the tests to */
+    char *relstatus;   /**< An array of rel accuracy status information */
+    int *lookup;       /**< Lookup from relative accuracy order to station order */
+    float maxctldist2; /**< The maximum distance to nearest control squared */
+    float maxerror2;   /**< The maximum squared semi-major axis of the error ellipse */
+    float maxverror2;  /**< The maximum squared semi-major axis of the error ellipse */
+    int nreltest;      /**< Number of relative accuracy marks */
+    int testhor;       /**< True if testing horizontal errors */
+    int testvrt;       /**< True if testing vertical errors */
+    int loglevel;      /**< The log level to use */
+    char logbuffer[1024]; /**< Buffer used for writing log messages */
+    clock_t reftime;   /**< Reference time for timestamps */
+    clock_t lasttime;  /**< Time of last timestamp */
 } SDCTestImp, *hSDCTestImp;
 
 /* Relative accuracy information is stored in a lower triangle format for
@@ -121,24 +119,14 @@ static long sdcStationId( hSDCTestImp sdci, int istn );
 static void sdcTimeStamp( hSDCTestImp sdci, char *status );
 
 /*************************************************************************
-** Function name:
-**    sdcCreateSDCTest
-**
-** Description:
+** Function name: sdcCreateSDCTest
+**//**
 **    Routine allocates memory for an SDC test object
 **
-** Special Comments:
+**  \param maxorder            The maximum number of orders in the
+**                             test.
 **
-** Parameters:
-**      Name            Type            Comment
-**      maxorder        int             The maximum number of orders in the
-**                                      test.
-** Return value:
-**                      hSDCTest        Pointer to the object created.
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    Pointer to the object created.
 **
 **************************************************************************
 */
@@ -184,24 +172,13 @@ hSDCTest sdcCreateSDCTest( int maxorder )
 }
 
 /*************************************************************************
-** Function name:
-**    sdcDropSDCTest
-**
-** Description:
+** Function name: sdcDropSDCTest
+**//**
 **    Release the resources alloced to the SDCTest object
 **
-** Special Comments:
+**  \param sdc                 The definition of the test to drop
 **
-** Parameters:
-**      Name            Type            Comment
-**      sdc             hSDCTest        The definition of the test to drop
-**
-** Return value:
-**                      void
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return
 **
 **************************************************************************
 */
@@ -216,27 +193,15 @@ void sdcDropSDCTest( hSDCTest sdc )
 }
 
 /*************************************************************************
-** Function name:
-**    sdcCalcSDCOrders
-**
-** Description:
+** Function name: sdcCalcSDCOrders
+**//**
 **    Routine calculates orders of stations using the "SDC algorithm",
 **    which tries orders sequentially to find an order that matches the
 **    absolute and relative accuracy requirements.
 **
-** Special Comments:
+**  \param sdc                 The definition of the test to apply
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdc             hSDCTest        The definition of the test to apply
-**
-** Return value:
-**                      void
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return
 **
 **************************************************************************
 */
@@ -424,28 +389,15 @@ StatusType sdcCalcSDCOrders( hSDCTest sdc)
 
 
 /*************************************************************************
-** Function name:
-**    sdcInitTestImp
-**
-** Description:
+** Function name: sdcInitTestImp
+**//**
 **    Initiallizes the SDCTestImp structure - simply associates the
 **    test definition with it and sets the pointers to NULL.
 **
+**  \param sdci                The implementation object
+**  \param sdc                 The test definition object
 **
-** Special Comments:
-**
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The implementation object
-**      sdc             hSDCTest        The test definition object
-**
-** Return value:
-**                      void
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return
 **
 **************************************************************************
 */
@@ -468,34 +420,28 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
     sdci->testvrt = 0;
     for(i = 0; i < sdc->norder; i++ )
     {
-        if( sdc->tests[i].blnTestHor ) { sdci->testhor = 1; }
-        if( sdc->tests[i].blnTestVrt ) { sdci->testvrt = 1;;}
+        if( sdc->tests[i].blnTestHor )
+        {
+            sdci->testhor = 1;
+        }
+        if( sdc->tests[i].blnTestVrt )
+        {
+            sdci->testvrt = 1;;
+        }
     }
 }
 
 
 
 /*************************************************************************
-** Function name:
-**    sdcReleaseTestImp
-**
-** Description:
+** Function name: sdcReleaseTestImp
+**//**
 **    Releases the resources assigned to the SDCTestImp object.
 **
-** Special Comments:
+**  \param sdci                The object from which to release
+**                             resources.
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The object from which to release
-**                                      resources.
-**
-** Return value:
-**                      void
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return
 **
 **************************************************************************
 */
@@ -503,33 +449,33 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
 static void sdcReleaseTestImp( hSDCTestImp sdci)
 {
     /*> Release the memory allocated to the stations */
-    if( sdci->stns ) { utlFree( sdci->stns ); sdci->stns = NULL; }
-    if( sdci->relstatus ) { utlFree( sdci->relstatus ); sdci->relstatus = NULL; }
-    if( sdci->lookup ) { utlFree( sdci->lookup ); sdci->lookup = NULL; }
+    if( sdci->stns )
+    {
+        utlFree( sdci->stns );
+        sdci->stns = NULL;
+    }
+    if( sdci->relstatus )
+    {
+        utlFree( sdci->relstatus );
+        sdci->relstatus = NULL;
+    }
+    if( sdci->lookup )
+    {
+        utlFree( sdci->lookup );
+        sdci->lookup = NULL;
+    }
 }
 
 
 /*************************************************************************
-** Function name:
-**    sdcLoadSDCStations
-**
-** Description:
+** Function name: sdcLoadSDCStations
+**//**
 **    Creates and initiallizes an array of SDCStation objects in the
 **    test implementation SDCTestImp
 **
-** Special Comments:
+**  \param sdci                The test implementation
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**
-** Return value:
-**                      StatusType      Used for abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    Used for abort status
 **
 **************************************************************************
 */
@@ -598,28 +544,16 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
 
 
 /*************************************************************************
-** Function name:
-**    sdcFindStationsForTest
-**
-** Description:
+** Function name: sdcFindStationsForTest
+**//**
 **    Adds stations to the test which apply to the current order, but
 **    which have been skipped in previous orders.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param ntest               The order being tested
+**  \param nleft               The number of stations to be tested
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      ntest           int             The order being tested
-**      nleft           int *           The number of stations to be tested
-**
-** Return value:
-**                      StatusType      The abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The abort status
 **
 **************************************************************************
 */
@@ -655,26 +589,14 @@ static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nlef
 
 
 /*************************************************************************
-** Function name:
-**    sdcFindNearestControl
-**
-** Description:
+** Function name: sdcFindNearestControl
+**//**
 **    Finds the nearest fixed point (ie control) to each station being
 **    tested.
 **
-** Special Comments:
+**  \param sdci                The test implementation
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**
-** Return value:
-**                      StatusType      returns abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    returns abort status
 **
 **************************************************************************
 */
@@ -747,30 +669,18 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
 
 
 /*************************************************************************
-** Function name:
-**    sdcApplyAbsAccuracy
-**
-** Description:
+** Function name: sdcApplyAbsAccuracy
+**//**
 **    Applies the absolute accuracy test and also the relative accuracy
 **    by absolute accuracy tests.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param test                Definition of the current order
+**                             being tested.
+**  \param nleft               Returns the number of marks still
+**                             to assign a status
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      test            hSDCOrderTest   Definition of the current order
-**                                      being tested.
-**      nleft           int *           Returns the number of marks still
-**                                      to assign a status
-**
-** Return value:
-**                      StatusType      returns the abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    returns the abort status
 **
 **************************************************************************
 */
@@ -916,28 +826,16 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
 
 
 /*************************************************************************
-** Function name:
-**    sdcCreateRelTest
-**
-** Description:
+** Function name: sdcCreateRelTest
+**//**
 **    Creates the matrices required to hold the relative accuracy test
 **    information, and initiallizes the array of distances between marks,
 **    as this will always be required (either to apply a test, or to
 **    determine that a test need not be applied).
 **
-** Special Comments:
+**  \param sdci                The test implementation
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**
-** Return value:
-**                      StatusType      Returns the abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    Returns the abort status
 **
 **************************************************************************
 */
@@ -993,27 +891,15 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
 
 
 /*************************************************************************
-** Function name:
-**    sdcApplyRelTest
-**
-** Description:
+** Function name: sdcApplyRelTest
+**//**
 **    Applies the relative accuracy test .. a relative complex algorithm!
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param test                Definition of the current order
+**                             being tested.
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      test            hSDCOrderTest   Definition of the current order
-**                                      being tested.
-**
-** Return value:
-**                      StatusType      Returns the abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    Returns the abort status
 **
 **************************************************************************
 */
@@ -1051,27 +937,15 @@ static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
 
 
 /*************************************************************************
-** Function name:
-**    sdcApplyRelTestPass
-**
-** Description:
+** Function name: sdcApplyRelTestPass
+**//**
 **    Seeks all marks that pass the relative accuracy test because all
 **    test vectors from them pass.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param pnpass              The number of passed nodes
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      pnpass          int *           The number of passed nodes
-**
-** Return value:
-**                      StatusType      The abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The abort status
 **
 **************************************************************************
 */
@@ -1096,7 +970,7 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
              set the station status to SDC_STS_PASS */
 
         if( stni->status == SDC_STS_UNKNOWN &&
-                stni->nreltest > 0 &&
+                /* stni->nreltest > 0 && */
                 stni->nrelbad <= 0 )
         {
             sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld passes rel accuracy tests (%d)\n",
@@ -1112,26 +986,15 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
 
 
 /*************************************************************************
-** Function name:
-**    sdcApplyRelTestFail
-**
-** Description:
+** Function name: sdcApplyRelTestFail
+**//**
 **    Seeks all marks that fail the relative accuracy test because one
 **    or more vectors from them to an already passed node fails.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param pnfail              Returns the number of nodes failed
 **
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      pnfail          int *           Returns the number of nodes failed
-**
-** Return value:
-**                      StatusType      Returns the abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    Returns the abort status
 **
 **************************************************************************
 */
@@ -1162,16 +1025,19 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
 
     /*> Reject any stations for which no test vectors remain */
 
-    for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
+    if( sdci->sdc->options & SDC_OPT_FAIL_NORELACC )
     {
-        hSDCStation stni = &(stns[istn]);
-        if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
-        if( stni->status == SDC_STS_UNKNOWN && stni->nreltest == 0 )
+        for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
         {
-            sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails with no tests left\n",
-                         sdcStationId(sdci,istn) );
-            sdcSetRelTestStatus( sdci, istn, SDC_STS_UNTESTABLE );
-            nfail++;
+            hSDCStation stni = &(stns[istn]);
+            if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
+            if( stni->status == SDC_STS_UNKNOWN && stni->nreltest == 0 )
+            {
+                sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails with no tests left\n",
+                             sdcStationId(sdci,istn) );
+                sdcSetRelTestStatus( sdci, istn, SDC_STS_UNTESTABLE );
+                nfail++;
+            }
         }
     }
 
@@ -1181,30 +1047,18 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
 
 
 /*************************************************************************
-** Function name:
-**    sdcSeekRelTestFail
-**
-** Description:
+** Function name: sdcSeekRelTestFail
+**//**
 **    Seeks a candidate node to fail when there is no automatic choice.
 **    Seaches for the unassigned (ie unknown status) station with the
 **    highest percentage of failed vectors.  If more than one match,
 **    then pick the node with the highest absolute error.
 **
+**  \param sdci                The test implementation
+**  \param test                The order being tested
+**  \param pfailed             True if a node is failed
 **
-** Special Comments:
-**
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      pfailed         int *           True if a node is failed
-**
-** Return value:
-**                      StatusType      Returns the abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    Returns the abort status
 **
 **************************************************************************
 */
@@ -1268,10 +1122,8 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
 
 
 /*************************************************************************
-** Function name:
-**    sdcSetRelTestStatus
-**
-** Description:
+** Function name: sdcSetRelTestStatus
+**//**
 **    Set the status of a node to pass or fail, and updated the relative
 **    accuracy results to reflect this.  If the node is passed, then
 **    increment the count of failed tests for any node to which it is
@@ -1279,22 +1131,12 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
 **    the counts of any vectors to it from the nodes to which they are
 **    connected.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param istn                The station for which the status is
+**                             to be set
+**  \param status              The status to set it to.
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      istn            int             The station for which the status is
-**                                      to be set
-**      status          char            The status to set it to.
-**
-** Return value:
-**                      void
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return
 **
 **************************************************************************
 */
@@ -1378,31 +1220,19 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 
 
 /*************************************************************************
-** Function name:
-**    sdcSetupRelAccuracyStatus
-**
-** Description:
+** Function name: sdcSetupRelAccuracyStatus
+**//**
 **    Sets up the relative accuracy status matrix for a given order.  This
 **    finds all vectors which are within the test range for the order,
 **    calculates the error to see if they pass or fail, and for each node
 **    counts the number of tests, the number of passed tests.  This will
 **    also fail nodes which are connected to passed nodes by failed vectors.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param test                Definition of the current order
+**                             being tested.
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      test            hSDCOrderTest   Definition of the current order
-**                                      being tested.
-**
-** Return value:
-**                      StatusType      The abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The abort status
 **
 **************************************************************************
 */
@@ -1489,7 +1319,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     {
         double maxerror = sdci->maxverror2;
         double factor = 2.0;
-        if( strictcovar ) factor = sqrt(factor);
+        if( strictcovar ) factor=sqrt(factor);
         maxerror *= factor;
         maxtestdistv = (maxerror - ftolv) / dtolv;
         usemaxdistancev = 1;
@@ -1524,7 +1354,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
 
-        if( i % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+        if( i % ABORT_FREQUENCY == 0 )
+        {
+            sts = utlCheckAbort();
+            if( sts != STS_OK ) return sts;
+        }
 
         if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
@@ -1539,7 +1373,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
             *relstatus = SDC_STS_SKIP;
 
-            if( j % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+            if( j % ABORT_FREQUENCY == 0 )
+            {
+                sts = utlCheckAbort();
+                if( sts != STS_OK ) return sts;
+            }
 
             /*>> If neither station needs status calculated then continue */
 
@@ -1607,7 +1445,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         error = (sdc->pfError2)(sdc->env,istni,istnj);
                         if( error != SDC_COVAR_UNAVAILABLE )
                         {
-                            if( error < tolij ) stsij = SDC_STS_PASS; else stsij = SDC_STS_FAIL;
+                            if( error < tolij ) stsij = SDC_STS_PASS;
+                            else stsij = SDC_STS_FAIL;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
                         }
                     }
@@ -1722,7 +1561,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         error = (sdc->pfVrtError2)(sdc->env,istni,istnj);
                         if( error != SDC_COVAR_UNAVAILABLE )
                         {
-                            if( error < tolij ) stsij = SDC_STS_PASS; else stsij = SDC_STS_FAIL;
+                            if( error < tolij ) stsij = SDC_STS_PASS;
+                            else stsij = SDC_STS_FAIL;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative vrt accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
                         }
                     }
@@ -1828,7 +1668,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             char stsi = stni->status;
             char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
-            if( i % ABORT_FREQUENCY == 0 )  { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+            if( i % ABORT_FREQUENCY == 0 )
+            {
+                sts = utlCheckAbort();
+                if( sts != STS_OK ) return sts;
+            }
 
             if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
@@ -1836,7 +1680,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             {
                 int istnj = sdci->lookup[j];
 
-                if( j % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+                if( j % ABORT_FREQUENCY == 0 )
+                {
+                    sts = utlCheckAbort();
+                    if( sts != STS_OK ) return sts;
+                }
 
                 if( ! ((*relstatus) & (SDC_STS_NEED_HOR | SDC_STS_NEED_VRT) ) ) continue;
 
@@ -1888,7 +1736,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             char stsi = stni->status;
             char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
-            if( i % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+            if( i % ABORT_FREQUENCY == 0 )
+            {
+                sts = utlCheckAbort();
+                if( sts != STS_OK ) return sts;
+            }
 
 
             if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
@@ -1904,7 +1756,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 double tolij;
                 double dist;
 
-                if( j % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+                if( j % ABORT_FREQUENCY == 0 )
+                {
+                    sts = utlCheckAbort();
+                    if( sts != STS_OK ) return sts;
+                }
 
                 if( ! ((*relstatus) & (SDC_STS_NEED_HOR | SDC_STS_NEED_VRT) ) ) continue;
 
@@ -2052,7 +1908,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         char stsi = stni->status;
         char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
 
-        if( i % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+        if( i % ABORT_FREQUENCY == 0 )
+        {
+            sts = utlCheckAbort();
+            if( sts != STS_OK ) return sts;
+        }
 
         if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
@@ -2063,7 +1923,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
-            if( j % ABORT_FREQUENCY == 0 ) { sts = utlCheckAbort(); if( sts != STS_OK ) return sts; }
+            if( j % ABORT_FREQUENCY == 0 )
+            {
+                sts = utlCheckAbort();
+                if( sts != STS_OK ) return sts;
+            }
             if( *relstatus == SDC_STS_SKIP ) continue;
 
             if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
@@ -2107,28 +1971,16 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
 
 /*************************************************************************
-** Function name:
-**    sdcUpdateOrders
-**
-** Description:
+** Function name: sdcUpdateOrders
+**//**
 **    Updates the orders of stations which pass a given order test, and
 **    initiallizes their status for the next order to be tested.
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param itest               The number of the order being
+**                             tested.
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      itest           int             The number of the order being
-**                                      tested.
-**
-** Return value:
-**                      StatusType      The abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The abort status
 **
 **************************************************************************
 */
@@ -2172,26 +2024,14 @@ static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest)
 
 
 /*************************************************************************
-** Function name:
-**    sdcApplyDefaultOrder
-**
-** Description:
+** Function name: sdcApplyDefaultOrder
+**//**
 **    Applies a default order for all stations which have not been assigned
 **    an order from any of the order tests.
 **
-** Special Comments:
+**  \param sdci                The test implementation
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**
-** Return value:
-**                      StatusType      The abort status
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The abort status
 **
 **************************************************************************
 */
@@ -2226,28 +2066,16 @@ static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci)
 
 
 /*************************************************************************
-** Function name:
-**    sdcWriteLog
-**
-** Description:
+** Function name: sdcWriteLog
+**//**
 **    Writes log information to the log file if required by the log level
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param level               The log level for the output
+**  \param fmt                 The format string
+**                             The format parameters
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      level           int             The log level for the output
-**      fmt             char *          The format string
-**      ...                             The format parameters
-**
-** Return value:
-**                      void
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return
 **
 **************************************************************************
 */
@@ -2274,26 +2102,14 @@ static void sdcWriteLog( hSDCTestImp sdci, int level, char *fmt, ... )
 
 
 /*************************************************************************
-** Function name:
-**    sdcStationId
-**
-** Description:
+** Function name: sdcStationId
+**//**
 **    Returns the external id of a specified station
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param istn                The station for which the id is required
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      istn            int             The station for which the id is required
-**
-** Return value:
-**                      long            The external id of the station.
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The external id of the station.
 **
 **************************************************************************
 */
@@ -2313,26 +2129,14 @@ static long sdcStationId( hSDCTestImp sdci, int istn )
 
 
 /*************************************************************************
-** Function name:
-**    sdcTimeStamp
-**
-** Description:
+** Function name: sdcTimeStamp
+**//**
 **    Write a timestamp message
 **
-** Special Comments:
+**  \param sdci                The test implementation
+**  \param status              The completed phase
 **
-**
-** Parameters:
-**      Name            Type            Comment
-**      sdci            hSDCTestImp     The test implementation
-**      status          char *          The completed phase
-**
-** Return value:
-**                      long            The external id of the station.
-**
-** History:
-**      Date        Initials           Comment
-**      25/06/2000  CNC                Created
+**  \return                    The external id of the station.
 **
 **************************************************************************
 */
