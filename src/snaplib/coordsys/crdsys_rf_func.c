@@ -125,7 +125,10 @@ int rf_apply_enu_deformation_to_llh( ref_frame *rf, double llh[3], double denu[3
     if( denu[0] != 0 || denu[1] != 0 )
     {
         double xyz[3], dEdLn, dNdLt;
-        llh_to_xyz( rf->el, llh, xyz, &dEdLn, &dNdLt );
+		xyz[CRD_LAT] = llh[CRD_LAT];
+		xyz[CRD_LON] = llh[CRD_LON];
+		xyz[CRD_HGT] = 0.0;
+        llh_to_xyz( rf->el, xyz, xyz, &dEdLn, &dNdLt );
         /* Need to set status to error of dxdy are 0.0 */
         if( dEdLn == 0.0 || dNdLt == 0.0 )
         {
