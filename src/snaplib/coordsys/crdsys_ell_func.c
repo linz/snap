@@ -29,19 +29,20 @@ static char rcsid[]="$Id: crdsyse2.c,v 1.1 1995/12/22 16:33:40 CHRIS Exp $";
 double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
                      double *dEdLn, double *dNdLt )
 {
-    double bsac,p,clt,slt,cln,sln;
+    double bsac,p,clt,slt,cln,sln,hgt;
     clt  = cos(llh[CRD_LAT]);
     slt  = sin(llh[CRD_LAT]);
     cln  = cos(llh[CRD_LON]);
     sln  = sin(llh[CRD_LON]);
+	hgt = llh[CRD_HGT];
     bsac = _hypot( el->b*slt, el->a*clt );
-    p    = el->a2*clt/bsac + llh[CRD_HGT]*clt;
+    p    = el->a2*clt/bsac + hgt*clt;
     xyz[0] = p*cln;
     xyz[1] = p*sln;
     xyz[2] = el->b2*slt/bsac + llh[CRD_HGT]*slt;
 
     if( dEdLn ) *dEdLn = p;
-    if( dNdLt ) *dNdLt = (el->a2 * el->b2)/(bsac*bsac*bsac) + llh[CRD_HGT];
+    if( dNdLt ) *dNdLt = (el->a2 * el->b2)/(bsac*bsac*bsac) + hgt;
 
     return &xyz[0];
 }
