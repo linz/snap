@@ -1292,12 +1292,20 @@ static void open_files( void )
 
 static void head_output( FILE * out )
 {
+	int use_deformation = cnv.from_def || cnv.to_def;
     fprintf(out,"\n          %s - coordinate conversion program\n",PROGNAME);
-    fprintf(out,"\nInput coordinates:  %s\n", input_cs->name);
+    fprintf(out,"\nInput coordinates:  %s", input_cs->name);
+    if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom);
+    fprintf(out,"\n");
     if( input_ortho ) fprintf(out,"                    Input heights are orthometric\n");
-    fprintf(out,  "\nOutput coordinates: %s\n", output_cs->name );
+    fprintf(out,  "\nOutput coordinates: %s", output_cs->name );
+    if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto);
+    fprintf(out,"\n");
     if( output_ortho ) fprintf(out,"                    Output heights are orthometric\n");
-
+    if( use_deformation && ! identical_ref_frame_axes( input_cs->rf, output_cs->rf ))
+    {
+        fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
+    }
     if( transform_heights ) fprintf(out,"\nGeoid heights from %s\n",get_geoid_model( geoiddef ));
 }
 
@@ -1796,6 +1804,7 @@ int main( int argc, char *argv[] )
         rplen = path_len( exefile, 0 );
         exefile[rplen] = 0;
         sts = install_default_crdsys_file( exefile );
+        set_application_name( "concord" );
         set_find_file_directories( exefile, NULL, NULL );
     }
     if( sts != OK )
