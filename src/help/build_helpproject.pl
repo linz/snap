@@ -1,22 +1,53 @@
 use strict;
 use File::Find;
+use File::Copy;
+use FindBin;
 use HTML::LinkExtor;
 use URI;
 
 
-@ARGV>=2 || die "Syntax: help_file_name base_directory(ies) \n";
+my $hhc = "C:/Program Files/HTML Help Workshop/hhc.exe";
+$hhc = "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" if ! -x $hhc;
 
-my $helpname = shift(@ARGV);
+my $helpname = '';
 my @srcdir = ();
+my $homedir = $FindBin::Bin;
+my $helpfile = '';
+my $buildhelp = 0;
+my @copyto = ();
 my $skipre = '';
-my $isskip = 0;
 
+my $inarg = '';
 foreach(@ARGV)
 {
-   if( $_ eq '-x') { $isskip = 1; }
-   elsif( $isskip ) { $skipre .= '|' . quotemeta($_); }
-   push(@srcdir,$_);
+   if( $inarg eq '-x' ) { $skipre .= '|' . quotemeta($_); }
+   elsif( $inarg eq '-h' ) { $homedir = $_; $inarg=''; }
+   elsif( $inarg eq '-c' ) { push(@copyto,$_); $inarg=''; }
+   elsif( $_ =~ /^\-[cxh]$/) { $inarg = $_; }
+   elsif( $_ eq '-b' ) { $buildhelp = 1; }
+   elsif( ! $helpname ) { $helpname = $_; }
+   else { push(@srcdir,$_); }
 }
+
+@srcdir  || die <<EOD;
+
+Syntax: help_file_name base_directory(ies)
+
+Options:
+   -h homedir   Home directory.  Processing will be based
+                on this directory
+   -b           Build the help file
+   -c target    Copy compiled file to target
+   -x ...       Following args are excluded directories
+
+EOD
+
+print "Compiling help file $helpname\n";
+print "Using source directories\n  ",join("\n  ",@srcdir),"\n";
+print "Exclude pattern: $skipre\n";
+print "Copying to\n  ",join("\n  ",@copyto),"\n";
+
+chdir($homedir);
 
 $skipre = substr($skipre,1) if $skipre ne '';
 
@@ -49,7 +80,29 @@ my $contentsfiles = &BuildContents( $helpname.".contents", $helpname.".hhc" );
 my @filelist = sort keys %$htmlfiles;
 push( @filelist, sort keys %$otherfiles );
 
+unlink($helpname.'.hhp');
 &WriteFilesIntoProject( $helpname.".projectbase", $helpname.".hhp", \@filelist );
+
+die "Failed to create help file source $helpname.hhp\n" if ! -e $helpname.'.hhp';
+
+if( $buildhelp )
+{
+    my $chm = $helpname.'.chm';
+    die "Help compiler $hhc not installed\n" if ! -x $hhc;
+    system($hhc,$helpname.'.hhp');
+    die "Failed to compile help file $chm\n" if ! -e $chm;
+    foreach my $copydir (@copyto)
+    {
+        if( ! -d $copydir  )
+        {
+            print "Invalid target $copydir for copy\n";
+        }
+        else
+        {
+            copy($chm,$copydir.'/'.$chm);
+        }
+    }
+}
 
 sub ProcessHtmlFile
 {
