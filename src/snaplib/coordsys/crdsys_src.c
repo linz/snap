@@ -62,7 +62,7 @@ void uninstall_crdsys_lists( void )
 }
 
 
-ref_frame * load_ref_frame( char *code )
+ref_frame * load_ref_frame( const char *code )
 {
     crdsys_source_def *csd;
     int sts;
@@ -80,7 +80,7 @@ ref_frame * load_ref_frame( char *code )
 }
 
 
-ellipsoid * load_ellipsoid( char *code )
+ellipsoid * load_ellipsoid( const char *code )
 {
     crdsys_source_def *csd;
     int sts;

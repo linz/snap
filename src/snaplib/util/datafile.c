@@ -64,6 +64,7 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     int nch;
     char unicode;
     char binary;
+    int i;
 
     f = fopen( fname, "r" );
     if( f == NULL )
@@ -83,7 +84,7 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     if( nch >= strlen(utf16_bom) &&memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
     if( ! unicode )
     {
-        for( int i = 0; i < nch; i++ )
+        for( i = 0; i < nch; i++ )
         {
             if( msg[i] == 0 || (msg[i] & '\x80')) { binary=1; break; }
         }
@@ -118,7 +119,7 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     d->inrec[0] = 0;
     d->inrecptr = d->inrec;
     d->lastrecptr = d->inrec;
-    d->unicode = false;
+    d->unicode = 0;
     d->errcount = 0;
     d->comment_char = COMMENT_CHR;
     d->continuation_char = CONTINUATION_CHR;
@@ -188,7 +189,7 @@ static void df_expand_buffer( DATAFILE *d )
 
 int df_read_data_file( DATAFILE *d )
 {
-    bool eof = false;
+    int eof = 0;
 
     d->startlineno = d->lineno;
     d->startloc = ftell( d->f );
@@ -199,7 +200,7 @@ int df_read_data_file( DATAFILE *d )
     while( ! d->inrec[0] && ! eof)
     {
         int offset = 0;
-        bool continued = true;
+        int continued = 1;
         char *line;
         d->reclineno = 0;
 
@@ -209,7 +210,7 @@ int df_read_data_file( DATAFILE *d )
             while( 1 )
             {
                 char *start = d->inrec+offset;
-                if( ! fgets( start, d->maxreclen-offset, d->f )) { eof = true; break; }
+                if( ! fgets( start, d->maxreclen-offset, d->f )) { eof = 1; break; }
                 int len = strlen(start);
                 if( ! len ) break;
                 if( start[len-1] == '\n' ) break;
@@ -236,7 +237,7 @@ int df_read_data_file( DATAFILE *d )
             }
             else
             {
-                continued = false;
+                continued = 0;
             }
         }
         // Retrim in case continuation only adds blanks
@@ -354,7 +355,7 @@ int df_read_int( DATAFILE *d, int *v )
 int df_read_short( DATAFILE *d, short *v )
 {
     char field[30], chk[2];
-    int i;
+    short i;
     chk[0]=0;
     if( !df_read_field( d, field, 30 ) ) return 0;
     if( sscanf( field, "%hd%1s", &i, chk ) < 1 || chk[0] ) return 0;

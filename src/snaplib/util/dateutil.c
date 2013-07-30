@@ -101,13 +101,15 @@ double snap_datetime_parse( const char *definition, const char *format )
     const char *defaultformat = "YMDhms";
     char buffer[16];
     const char *dp;
+    const char *fp;
+    int i;
 
     if( ! format ) format = defaultformat;
 
     dp = definition;
 
     /* For each field in the format */
-    for( const char *fp = format; *fp; fp++ )
+    for( fp = format; *fp; fp++ )
     {
         const char *pfc;
         int idx;
@@ -163,7 +165,7 @@ double snap_datetime_parse( const char *definition, const char *format )
         if( ymdhmse[6] > 366 ) return 0.0;
         ymdhmse[1] = ymdhmse[2] = 1;
     }
-    for( int i = 0; i < 5; i++ )
+    for( i = 0; i < 5; i++ )
     {
         if( ymdhmse[i] < minval[i] || ymdhmse[i] > maxval[i] ) return 0.0;
     }
