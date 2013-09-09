@@ -276,12 +276,15 @@ coordsys   *parse_coordsys_def  ( input_string_def *is,
 /* Return 1 for true, 0 otherwise.                                     */
 /* Related coordinate systems have the same reference frame, but need  */
 /* not be of the same type                                             */
+/* Identical datum may be the same reference frame but at a different  */
+/* epoch                                                               */
 /* Note that identical coordinate systems does not test the range or   */
 /* the units of the coordinate system.                                 */
 
 int  related_coordinate_systems( coordsys *c1, coordsys *c2 );
 int  identical_coordinate_systems( coordsys *c1, coordsys *c2 );
 int  identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 );
+int  identical_datum( ref_frame *rf1, ref_frame *rf2 );
 int  identical_ref_frame_func( ref_frame_func *rff1, ref_frame_func *rff2 );
 int  identical_ref_deformation( ref_deformation *def1, ref_deformation *def2 );
 int  identical_ellipsoids( ellipsoid *el1, ellipsoid *el2 );

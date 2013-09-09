@@ -96,6 +96,7 @@ void delete_ref_frame( ref_frame *rf )
     check_free( rf );
 }
 
+
 int identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 )
 {
     int i;
@@ -108,6 +109,20 @@ int identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 )
     if( rf1->scale != rf2->scale ) return 0;
     if( ! identical_ref_frame_func(rf1->func,rf2->func)) return 0;
     if( ! identical_ref_deformation(rf1->def,rf2->def)) return 0;
+    return 1;
+}
+
+int identical_datum( ref_frame *rf1, ref_frame *rf2 )
+{
+    int i;
+    if( strcmp(rf1->refcode,rf2->refcode) != 0 ) return 0;
+    for( i=0; i<3; i++ )
+    {
+        if( rf1->txyz[i] != rf2->txyz[i] ) return 0;
+        if( rf1->rxyz[i] != rf2->rxyz[i] ) return 0;
+    }
+    if( rf1->scale != rf2->scale ) return 0;
+    if( ! identical_ref_frame_func(rf1->func,rf2->func)) return 0;
     return 1;
 }
 

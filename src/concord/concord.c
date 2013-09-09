@@ -1293,7 +1293,8 @@ static void open_files( void )
 static void head_output( FILE * out )
 {
 	int use_deformation = cnv.from_def || cnv.to_def;
-    fprintf(out,"\n          %s - coordinate conversion program\n",PROGNAME);
+    fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
+         PROGNAME,VERSION,PROGDATE);
     fprintf(out,"\nInput coordinates:  %s", input_cs->name);
     if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom);
     fprintf(out,"\n");
@@ -1302,7 +1303,7 @@ static void head_output( FILE * out )
     if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto);
     fprintf(out,"\n");
     if( output_ortho ) fprintf(out,"                    Output heights are orthometric\n");
-    if( use_deformation && ! identical_ref_frame_axes( input_cs->rf, output_cs->rf ))
+    if( use_deformation && ! identical_datum( input_cs->rf, output_cs->rf ))
     {
         fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
     }
