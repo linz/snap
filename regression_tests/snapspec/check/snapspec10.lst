@@ -1,0 +1,7 @@
+snapspec version 0.0.0: Calculation of station orders
+Run at 1-JAN-2000 00:00:00
+SNAP binary file: in\snapspec10.bin
+Spec configuration file: in\snapspec10.cfg
+
+1 errors in configuration file in\snapspec10.cfg
+Test aborted
