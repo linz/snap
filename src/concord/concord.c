@@ -3,7 +3,7 @@
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 
 #define PROGNAME "concord"
-#define VERSION  "3.3"
+#define VERSION  "3.4"
 #define PROGDATE __DATE__
 
 /* Revision history:
@@ -409,6 +409,12 @@ static int pause_output( void )
 {
     int c;
     int domore;
+    return 1;
+    /*
+     * No longer interested in pausing output - almost any terminal window
+     * these days will be scrollable...
+     */
+    /*
     if( ! _isatty(_fileno(stdout)) || ! _isatty(_fileno(stdin)) ) return 1;
     printf("Press return to continue: ");
     domore = 1;
@@ -419,6 +425,7 @@ static int pause_output( void )
     }
     while( c != '\n' && c != EOF );
     return domore;
+    */
 }
 
 static void help( void )
@@ -440,7 +447,7 @@ static void help( void )
     puts("           -E       Skip over input format errors");
     puts("           -Cfile   Specify the coordinate system definition file");
     puts("           -Gfile   Specify the geoid file");
-    puts("           -Yyyyy   Specify the conversion epoch for conversions with deformation");
+    puts("           -Yyyyy   Specify the conversion epoch for conversions");
     puts("           -H       List this help information");
     puts("           -Z       List the program version");
     puts("");
@@ -455,6 +462,16 @@ static void help( void )
     puts("For lat/long systems this can be followed by \",H\", \",M\", or \",D\" for");
     puts("for degrees minutes and seconds, degrees and minutes or");
     puts("decimal degrees respectively\n");
+    puts("The conversion epoch is the date at which conversions apply. It affects");
+    puts("coordinate systems with a deformation model, and transformations between");
+    puts("datums with a time dependent terms (eg between different ITRS realisations).");
+    puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
+    puts("the current date.");
+    puts("For coordinate systems such as NZGD2000 which include a deformation model");
+    puts("the coordinate system code used in the -I and -O parameters can include a");
+    puts("date, for example NZGD2000@20120512 defines coordinates in terms of the");
+    puts("deformation model on 13 May 2012 rather than using the NZGD2000");
+    puts("reference coordinates.");
 }
 
 /*-------------------------------------------------------------------*/
@@ -552,7 +569,7 @@ static int decode_number( char *s, int min, int max, char *type )
 
 static int printf_func( const char *s, void *dummy )
 {
-    printf(s);
+    printf("%s",s);
     return 0;
 }
 
@@ -586,9 +603,9 @@ static void list_circuits_and_exit( int argc, char *argv[] )
         os.write = printf_func;
         for( i = 0; i < argc; i++ )
         {
+            ncs++;
             cs = load_coordsys( argv[i] );
             if( ! cs ) continue;
-            ncs++;
             printf("\n");
             describe_coordsys( &os, cs );
             delete_coordsys( cs );
@@ -679,7 +696,7 @@ static void process_command_line( int argc, char *argv[] )
             case 'V': { verbose = TRUE; break; }
             case 'Y':
             {
-                if( sscanf(s,"%lf",&conv_epoch) != 1 )
+                if( ! parse_crdsys_epoch(s,&conv_epoch) )
                     error_exit("Invalid value for conversion epoch (-Y parameter)","");
                 break;
             }
@@ -867,7 +884,7 @@ static void prompt_for_filename(char *prompt, FILE **file, char *mode, char *nam
 
     for(;;)
     {
-        printf(prompt);
+        printf("%s",prompt);
         nstr = read_string( stdin, DEFAULT_SEPARATOR, name, 80 );
         copy_to_newline(stdin,NULL,NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
@@ -899,13 +916,6 @@ static void prompt_for_parameters( void )
     prompt_for_proj(&output_cs,&output_dms,&output_ne,&output_h,&output_ortho,"output");
     prompt_for_number("    Enter number of decimal places for output",
                       &output_prec,0,15);
-    if( has_deformation_model(input_cs) && has_deformation_model(output_cs)
-            && input_cs->rf->def->conv_epoch != output_cs->rf->def->conv_epoch )
-    {
-        printf("\nInput and output coordinate systems have different default conversion epochs\n");
-        prompt_for_double("Specify the epoch at which the conversion should be applied",
-                          &conv_epoch);
-    }
     printf("\nEach point you convert can have a name.  If you want to use names you must\n");
     printf("specify the length of the longest name you want to use\n\n");
     id_length = 0;
@@ -1083,8 +1093,15 @@ static void setup_transformation( void )
 
     if( define_coord_conversion_epoch( &cnv, input_cs, output_cs, conv_epoch ) != OK )
     {
-        fprintf(stderr,"Cannot convert coordinates from %s to %s\n",
+        if( strlen(cnv.errmsg) > 0 )
+        {
+            fprintf(stderr,"%s\n",cnv.errmsg);
+        }
+        else
+        {
+            fprintf(stderr,"Cannot convert coordinates from %s to %s\n",
                 input_cs->code, output_cs->code );
+        }
         exit(1);
     }
 
@@ -1233,12 +1250,18 @@ static void setup_geoid_calculations( void )
 
     if( input_ortho && define_coord_conversion( &ingcnv, input_cs, geoid_coordsys ) != OK )
     {
-        error_exit("Cannot convert between input system and geoid reference frame","");
+        char errmsg[256];
+        sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
+            input_cs->code, geoid_coordsys->code );
+        error_exit(errmsg,"");
     }
 
     if( output_ortho && define_coord_conversion( &outgcnv, output_cs, geoid_coordsys ) != OK )
     {
-        error_exit("Cannot convert between output system and geoid reference frame","");
+        char errmsg[256];
+        sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
+            output_cs->code, geoid_coordsys->code );
+        error_exit(errmsg,"");
     }
 }
 
@@ -1292,18 +1315,17 @@ static void open_files( void )
 
 static void head_output( FILE * out )
 {
-	int use_deformation = cnv.from_def || cnv.to_def;
     fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
          PROGNAME,VERSION,PROGDATE);
     fprintf(out,"\nInput coordinates:  %s", input_cs->name);
-    if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom);
+    /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     fprintf(out,"\n");
     if( input_ortho ) fprintf(out,"                    Input heights are orthometric\n");
     fprintf(out,  "\nOutput coordinates: %s", output_cs->name );
-    if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto);
+    /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto); */
     fprintf(out,"\n");
     if( output_ortho ) fprintf(out,"                    Output heights are orthometric\n");
-    if( use_deformation && ! identical_datum( input_cs->rf, output_cs->rf ))
+    if( cnv.needsepoch )
     {
         fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
     }
@@ -1663,9 +1685,10 @@ static void report_conv_error( int sts )
     char *bl = "";
     char *msg1 = "Coordinate range error";
     char *msg2 = "Conversion error";
-    char *em;
+    const char *em;
 
     em = sts == INCONSISTENT_DATA ? msg1 : msg2;
+    if( strlen(cnv.errmsg) > 0 ) em=cnv.errmsg;
     if (point_ids) { s1 = fp; s2 = id; }
     else s1 = s2 = bl;
     if (ask_coords) printf("%*s**** %s ****",
@@ -1805,6 +1828,7 @@ int main( int argc, char *argv[] )
         rplen = path_len( exefile, 0 );
         exefile[rplen] = 0;
         sts = install_default_crdsys_file( exefile );
+        /* set_application_name( "concord" ); */
         set_find_file_directories( exefile, NULL, NULL );
     }
     if( sts != OK )

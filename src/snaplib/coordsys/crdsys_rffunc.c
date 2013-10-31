@@ -38,11 +38,9 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
 
     *rff = 0;
     loc = get_string_loc( is );
-    sts = next_string_field( is, type, 20 );
-    if( sts == NO_MORE_DATA ) return OK;
-    if( _stricmp(type,"GRID") != 0 )
+    if( ! test_next_string_field( is, "GRID" ) ) 
     {
-        set_string_loc(is,loc);
+        sts = OK;
     }
     else
     {

@@ -21,6 +21,7 @@
 #include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
+#include "util/string.h"
 
 static char rcsid[]="$Id: iostring.c,v 1.4 2004/04/22 02:35:25 ccrook Exp $";
 
@@ -101,6 +102,21 @@ int next_string_field( input_string_def *is, char *buf, int nbuf )
 
     buf[length] = 0;
     return OK;
+}
+
+int test_next_string_field( input_string_def *is, const char *test )
+{
+    int length;
+    char *start;
+    double loc;
+    int sts;
+
+    loc = get_string_loc(is);
+    sts = read_next_field( is, &start, &length );
+    if( sts != OK ) return 0;
+    if( strlen(test) == length && _strnicmp(test,start,length)==0 ) return 1;
+    set_string_loc(is,loc);
+    return 0;
 }
 
 int skip_string_field( input_string_def *is )
@@ -211,6 +227,60 @@ int write_output_string( output_string_def *os, const char *s )
 {
     if( os->write ) return (*os->write)( s, os->sink );
     return FILE_WRITE_ERROR;
+}
+
+int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix )
+{
+    if( ! os->write ) return FILE_WRITE_ERROR;
+    const char *ptrs;
+    const char *ptre;
+    int triml = options & OSW_TRIML;
+    int trimr = options & OSW_TRIMR;
+    int skipblank = options & OSW_SKIPBLANK;
+    ptrs = s;
+    while( *ptrs )
+    {
+        const char *start;
+        int nch;
+        ptre=ptrs;
+        start=ptrs;
+        if( triml ) while( *start && *start != '\n' && isspace(*start)) start++;
+        if( ! *start ) break;
+        if( *start == '\n' )
+        {
+            nch=0;
+            ptrs=start;
+        }
+        else
+        {
+            nch=0;
+            ptre=start;
+            while( *ptre && *ptre != '\n' )
+            {
+                if( ! isspace(*ptre) ) nch=ptre-start+1;
+                ptre++;
+            }
+            if( ! trimr ) nch=ptre-start;
+            ptrs = ptre;
+        }
+        if( nch > 0 || ! skipblank )
+        {
+            if( nch && prefix ) write_output_string(os,prefix);
+            while( nch > 0 )
+            {
+                char buffer[33];
+                int ncopy = nch > 32 ? 32 : nch;
+                strncpy( buffer,start,ncopy );
+                buffer[ncopy]=0;
+                write_output_string(os,buffer);
+                start += ncopy;
+                nch -= ncopy;
+            }
+            write_output_string(os,"\n");
+        }
+        if( *ptrs ) ptrs++;
+    }
+    return 0;
 }
 
 static int sfputs( const char *s, void *f )

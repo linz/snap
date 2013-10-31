@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <ctype.h>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_linzdef.h"
@@ -129,11 +130,9 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
         for( i = 1; i <= 3; i++ )
         {
             sts = utlLinzDefTitle( model->linzdef, i, &title );
-            if( sts == STS_OK && title  && title[0])
+            if( sts == STS_OK && title && title[0])
             {
-                write_output_string(os,"    ");
-                write_output_string(os,title);
-                write_output_string(os,"\n");
+                write_output_string2(os,title,OSW_TRIMR | OSW_SKIPBLANK,"    ");
             }
         }
     }

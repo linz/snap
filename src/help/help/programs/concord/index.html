@@ -93,6 +93,93 @@ specified are:</p>
 <table class="NormalTable">
  <tr>
   <td>
+  <p>-I<i>xxxx</i></p>
+  </td>
+  <td>
+  <p>Defines the input coordinate system to be
+  <i>xxxx</i>. The format for the code is described below.</p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+  <p>-O<i>xxxx</i></p>
+  </td>
+  <td>
+  <p>Defines the output coordinate system. The
+  code <i>xxxx</i> is described below.</p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+      <p>-Y<i>yyyymmdd</i> or -Y<i>yyyy.y</i></p>
+  </td>
+  <td>
+      <p>Defines the date at which the transformation is to be applied.  This is relevant for conversions 
+      between coordinate systems that involve a deformation model, or for which the reference frames have
+      a time dependent transformation.  The date can be entered as year, month, and day, or as a decimal 
+      year (for example 20120513 or 2012.43).
+      </p>
+  </td>
+ </tr>
+
+
+ <tr>
+  <td>
+  <p>-Nc</p>
+  </td>
+  <td>
+  <p>If the -N switch is present then the
+  input coordinates are assumed to be preceded by a point identifier. The
+  switch can specify the maximum number of characters in the identifier as c.</p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+  <p>-Pn</p>
+  </td>
+  <td>
+  <p>Defines the number of decimal places in
+  the output coordinates.</p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+  <p>-Sc</p>
+  </td>
+  <td>
+  <p>Defines a field separator to be used for
+  the input and output files. The default separator is whitespace (blank or tab
+  characters).</p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+  <p>-E</p>
+  </td>
+  <td>
+      <p>Specifies that badly formatted input data are just copied to the output file without
+      changing.  Otherwise they will be copied with an error message.
+  </p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
+  <p>-V</p>
+  </td>
+  <td>
+  <p>Verbose output - columns of coordinates
+  are headed and input coordinates are echoed in the output.</p>
+  </td>
+ </tr>
+
+ <tr>
+  <td>
   <p>-A</p>
   </td>
   <td>
@@ -103,15 +190,7 @@ specified are:</p>
   default.</p>
   </td>
  </tr>
- <tr>
-  <td>
-  <p>-I<i>xxxx</i></p>
-  </td>
-  <td>
-  <p>Defines the input coordinate system to be
-  <i>xxxx</i>. The format for the code is described below.</p>
-  </td>
- </tr>
+
  <tr>
   <td>
   <p>-K</p>
@@ -124,62 +203,22 @@ specified are:</p>
   output file name in the command line.</p>
   </td>
  </tr>
+
  <tr>
   <td>
   <p>-L</p>
   </td>
   <td>
   <p>Lists the valid coordinate system codes
-  to the standard output stream. No coordinate conversion is done.</p>
+  to the standard output stream. No coordinate conversion is done.  This can also be followed
+  by the code of a coordinate system to display informaton about that system, for example</p>
+  <pre><code>
+  concord -L NZGD2000
+  </code></pre>
   </td>
  </tr>
- <tr>
-  <td>
-  <p>-O<i>xxxx</i></p>
-  </td>
-  <td>
-  <p>Defines the output coordinate system. The
-  code <i>xxxx</i> is described below.</p>
-  </td>
- </tr>
- <tr>
-  <td>
-  <p>-Nc</p>
-  </td>
-  <td>
-  <p>If the -N switch is present then the
-  input coordinates are assumed to be preceded by a point identifier. The
-  switch can specify the maximum number of characters in the identifier as c.</p>
-  </td>
- </tr>
- <tr>
-  <td>
-  <p>-Pn</p>
-  </td>
-  <td>
-  <p>Defines the number of decimal places in
-  the output coordinates.</p>
-  </td>
- </tr>
- <tr>
-  <td>
-  <p>-Sc</p>
-  </td>
-  <td>
-  <p>Defines a field separator to be used for
-  the input and output files. The default separator is whitespace (blank or tab
-  characters).</p>
-  </td>
- </tr>
- <tr>
-  <td>
-  <p>-V</p>
-  </td>
-  <td>
-  <p>Verbose output - columns of coordinates
-  are headed and input coordinates are echoed in the output.</p>
-  </td>
- </tr>
+
+
  <tr>
   <td>
   <p>-C<i>filename</i></p>
@@ -190,6 +229,7 @@ specified are:</p>
   described below.</p>
   </td>
  </tr>
+
  <tr>
   <td>
   <p>-G<i>filename</i></p>
@@ -199,6 +239,7 @@ specified are:</p>
   file (default is geoid.bin). The format of this file is defined below.</p>
   </td>
  </tr>
+
  <tr>
   <td>
   <p>-H</p>
@@ -207,6 +248,7 @@ specified are:</p>
   <p>Print a help page listing these switches.</p>
   </td>
  </tr>
+
  <tr>
   <td>
   <p>-Z</p>
@@ -222,8 +264,13 @@ specified are:</p>
 specified by a code which consists of up to three items separated by commas or colons. </p>
 
 <p>The first item is the code for the
-coordinate system. This must match an entry in the coordinate system
-definition file (the format of this file is described below). </p>
+coordinate system. This must match an entry in the 
+<a href="../../coordsys/index.html">coordinate system definition file</a>. 
+For coordinate systems that include a deformation model, the code can include a 
+date, for example NZGD2000@20120512, to specify that the coordinates are in terms of
+the deformation applying at that date, rather than in terms of the reference coordinates
+for the deformation model.
+</p>
 
 <p>The second item defines the order of the
 coordinates in the input or output file. This is a two or three character

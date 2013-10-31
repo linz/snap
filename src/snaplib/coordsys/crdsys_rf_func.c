@@ -23,7 +23,7 @@ static char rcsid[]="$Id: crdsysr2.c,v 1.3 2004/04/22 02:34:21 ccrook Exp $";
 /* Routines to convert to and from the standard reference frame used to
    define reference frame position, orientation, and scale */
 
-int xyz_to_std( ref_frame *rf, double xyz[3] )
+int xyz_to_std( ref_frame *rf, double xyz[3], double date )
 {
     int axis[] = { 1, 2, 0, 1 };
     int i;
@@ -31,8 +31,10 @@ int xyz_to_std( ref_frame *rf, double xyz[3] )
 
     if( rf->func && rf->func->xyz_to_std_func )
     {
-        return (*(rf->func->xyz_to_std_func))( rf, xyz );
+        return (*(rf->func->xyz_to_std_func))( rf, xyz, date );
     }
+
+    if( rf->use_rates && rf->calcdate != date ) init_ref_frame( rf, date );
 
     for( i=0; i<3; i++ )
     {
@@ -46,14 +48,14 @@ int xyz_to_std( ref_frame *rf, double xyz[3] )
 
     for( i=0; i<3; i++ )
     {
-        xyz[i] = xyz[i] * rf->ratio + rf->txyz[i];
+        xyz[i] = xyz[i] * rf->sclfct + rf->trans[i];
     }
     return OK;
 }
 
 
 
-int std_to_xyz( ref_frame *rf, double xyz[3] )
+int std_to_xyz( ref_frame *rf, double xyz[3], double date )
 {
     int axis[] = { 1, 2, 0, 1 };
     int i;
@@ -61,12 +63,14 @@ int std_to_xyz( ref_frame *rf, double xyz[3] )
 
     if( rf->func && rf->func->std_to_xyz_func )
     {
-        return (*(rf->func->std_to_xyz_func))( rf, xyz );
+        return (*(rf->func->std_to_xyz_func))( rf, xyz, date );
     }
+
+    if( rf->use_rates && rf->calcdate != date ) init_ref_frame( rf, date );
 
     for( i=0; i<3; i++ )
     {
-        xyz[i] = (xyz[i] - rf->txyz[i]) / rf->ratio;
+        xyz[i] = (xyz[i] - rf->trans[i]) / rf->sclfct;
     }
 
     for( i=3; i--;  )

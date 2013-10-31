@@ -37,30 +37,67 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 ! between reference systems with common reference codes.  Translations
 ! are in metres, rotations in seconds, and scale in ppm.
 !
+! The transformation parameters may be preceded by "IERS" to denote using
+! IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  These also use the 
+! opposite sign convention for the rotations.
+!
+! The transformation paramters may be followed by "RATES", a reference date,
+! and the rates of change of each of the parameters.
 
 [reference_frames]
+NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def20130801l.bin
 
-CHAT1979 "Chatham 1979" ELLIPSOID INTERNATIONAL WGS84 174.05 -25.49 112.57 0 0 -0.554 0.2263
+RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
+
+WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 ITRF96 0 0 4.5 0 0 -0.554 0.219
+WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 ITRF96 0 0 0 0 0 0 0
+
+
+ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 NONE
+
+ITRF2008 "International Terrestrial Reference Frame 2008" ELLIPSOID GRS80 &
+   ITRF96 IERS      4.8    2.09  -17.67  -0.16508   0.26897   0.11984   1.40901 &
+   RATES 2000.0    0.79  -0.6    -1.34  -0.01347   0.01514   0.01973  -0.10201  
+ITRF2005 "International Terrestrial Reference Frame 2005" ELLIPSOID GRS80 &
+   ITRF96 IERS    6.8    2.99  -12.97  -0.16508   0.26897   0.11984    0.46901 &
+   RATES 2000.0  0.49  -0.6    -1.34  -0.01347   0.01514   0.01973   -0.10201 
+
+ITRF2000 "International Terrestrial Reference Frame 2000" ELLIPSOID GRS80 &
+   ITRF96 IERS    6.7    3.79   -7.17  -0.16508   0.26897   0.11984    0.06901 &
+   RATES 2000.0  0.69  -0.7     0.46  -0.01347   0.01514   0.01973   -0.18201 
+
+ITRF97 "International Terrestrial Reference Frame 1997" ELLIPSOID GRS80 &
+   ITRF96 IERS   -0     -0.51   15.53  -0.16508   0.26897   0.05984   -1.51099 &
+   RATES 2000.0  0.69  -0.1     1.86  -0.01347   0.01514  -0.00027   -0.19201 
+
+CHAT1979 "Chatham 1979" ELLIPSOID INTERNATIONAL ITRF96 174.05 -25.49 112.57 0 0 -0.554 0.2263
+
 FIJI "Fiji datum" ELLIPSOID WGS72 FIJI 0 0 0 0 0 0 0
+
 NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
-   WGS84 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
+   NZGD2000 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
    SNAP2D def492kt.grd "LINZ NZGD49-NZGD2000 conversion grid"
-NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID INTERNATIONAL WGS84 84 -22 209 0 0 0 0
-NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0 &
-   DEFORMATION 2000.0 LINZDEF nzgd2000_def20130801l.bin
-WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 WGS84 0 0 4.5 0 0 -0.554 0.219
-WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 WGS84 0 0 0 0 0 0 0
-GRS80 "Geodetic Referency System 1980" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
-RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
-! Camp area datum for conversion of GDB coordinates to RSRGD2000 
-CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL CAMPAREA 0 0 0 0 0 0 0
+
+NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID INTERNATIONAL NZGD2000 84 -22 209 0 0 0 0
+
+! Camp area datum - no established relationship with another datum (reference datum=CAMPAREA)
+
+CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL NONE
+
 
 ! Transformation parameters from AGD66 and AGD84 to WGS84 (approx GDA94) from GDA technical 
 ! manual
+!
+! Note - these parameters may need revision to properly select the correct ITRF against which GDA/AGD are 
+! (in theory) referenced.
 
-GDA94 "Geocentric Datm of Australia (GDA94)" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
-AGD66 "Australian Geodetic Datum 1966" ELLIPSOID ANS WGS84 -117.808 -51.536 137.784 -0.303 -0.446 -0.234 -0.290
-AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS WGS84 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
+GDA94 "Geocentric Datum of Australia (GDA94)" ELLIPSOID GRS80 &
+    ITRF96 0 0 0 0 0 0 0
+AGD66 "Australian Geodetic Datum 1966" ELLIPSOID ANS &
+    ITRF96 -117.808 -51.536 137.784 -0.303 -0.446 -0.234 -0.290
+AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS &
+    ITRF96 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
 
 !===========================================================================
 ! COORDINATE SYSTEMS:
@@ -128,8 +165,28 @@ AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS WGS84 -117.763 -51.510 139.
 
 WGS72 "World Geodetic System 1972" REF_FRAME WGS72 GEODETIC
 WGS84 "World Geodetic System 1984" REF_FRAME WGS84 GEODETIC
-GRS80 "Geodetic Reference System 1980" REF_FRAME GRS80 GEODETIC
+! GRS80 "Geodetic Reference System 1980" REF_FRAME GRS80 GEODETIC
 WGS84_XYZ "World Geodetic System 1984 - XYZ" REF_FRAME WGS84 GEOCENTRIC
+
+! For ITRF systems use GRS80 ellipsoid....
+! More consistent with ITRF to have ITRFxxxx as the XYZ system and another, for example
+! ITRFxxx_GRS80 for the ellispoidal system.  But use codes below to be more consistent
+! with the rest of SNAP/concord coordinate systems.
+
+ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ" REF_FRAME ITRF96 GEOCENTRIC
+ITRF96 "International Terrestrial Reference Frame 1996" REF_FRAME ITRF96 GEODETIC
+
+ITRF97_XYZ "International Terrestrial Reference Frame 1997 XYZ" REF_FRAME ITRF97 GEOCENTRIC
+ITRF97 "International Terrestrial Reference Frame 1997" REF_FRAME ITRF97 GEODETIC
+
+ITRF2000_XYZ "International Terrestrial Reference Frame 2000 XYZ" REF_FRAME ITRF2000 GEOCENTRIC
+ITRF2000 "International Terrestrial Reference Frame 2000" REF_FRAME ITRF2000 GEODETIC
+
+ITRF2005_XYZ "International Terrestrial Reference Frame 2005 XYZ" REF_FRAME ITRF2005 GEOCENTRIC
+ITRF2005 "International Terrestrial Reference Frame 2005" REF_FRAME ITRF2005 GEODETIC
+
+ITRF2008_XYZ "International Terrestrial Reference Frame 2008 XYZ" REF_FRAME ITRF2008 GEOCENTRIC
+ITRF2008 "International Terrestrial Reference Frame 2008" REF_FRAME ITRF2008 GEODETIC
 
 ! NZGD2000 geodetic systems
 
@@ -137,7 +194,7 @@ NZGD2000 "New Zealand Geodetic Datum 2000" REF_FRAME NZGD2000 GEODETIC
 NZGD2000_XYZ "New Zealand Geodetic Datum 2000 - Cartesian XYZ" REF_FRAME NZGD2000 GEOCENTRIC
 
 ! Several versions of NZGD49.  
-! Note: NZGD1949 is the Landoline code for this coordinate system
+! Note: NZGD1949 is the Landonline code for this coordinate system
 
 ! NZGD49 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
 NZGD1949 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
@@ -364,16 +421,16 @@ YORKTM1949 "Mount York Circuit 1949" REF_FRAME NZGD1949 &
 CITM2000 "Chatham Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
           PROJECTION TM -176.5 0.0 1.0 3500000.0 10000000.0 1.0
 
-AKTM2000 "Auckland Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
+AKTM2000 "Auckland Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
           PROJECTION TM 166.0 0.0 1.0 3500000.0 10000000.0 1.0
 
-CATM2000 "Campbell Island Transverse Mercator 2000" REF_FRAME NZGD2000 &
+CATM2000 "Campbell Island Transverse Mercator 2000" REF_FRAME ITRF96 &
           PROJECTION TM 169.0 0.0 1.0 3500000.0 10000000.0 1.0
 
-AITM2000 "Antipodes Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
+AITM2000 "Antipodes Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
           PROJECTION TM 179.0 0.0 1.0 3500000.0 10000000.0 1.0
 
-RITM2000 "Raoul Island Transverse Mercator 2000" REF_FRAME NZGD2000 &
+RITM2000 "Raoul Island Transverse Mercator 2000" REF_FRAME ITRF96 &
           PROJECTION TM -178.0 0.0 1.0 3500000.0 10000000.0 1.0
 
 ! Continental Shelf Projection

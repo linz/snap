@@ -70,7 +70,13 @@ p.Commandexample
 	margin-left: 5em;
 }
 
-pre.Commandexample 
+pre
+{
+	font-family: monospace;
+	margin-left: 5em;
+}
+
+pre.Commandexample
 {
 	font-family: monospace;
 	margin-left: 5em;

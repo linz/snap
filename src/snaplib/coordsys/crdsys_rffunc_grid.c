@@ -114,7 +114,7 @@ static int rf_grid_describe( ref_frame *rf, output_string_def *os )
     return OK;
 }
 
-static int rf_grid_xyz_to_std( ref_frame *rf, double xyz[3] )
+static int rf_grid_xyz_to_std( ref_frame *rf, double xyz[3], double date )
 {
     rf_grid_def *gd;
     double llh[3];
@@ -137,12 +137,12 @@ static int rf_grid_xyz_to_std( ref_frame *rf, double xyz[3] )
     llh_to_xyz( rf->el, llh, xyz, NULL, NULL );
     rff = rf->func;
     rf->func = NULL;
-    xyz_to_std( rf, xyz );
+    xyz_to_std( rf, xyz, date );
     rf->func = rff;
     return sts;
 }
 
-static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3] )
+static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
 {
     rf_grid_def *gd;
     double llh[3];
@@ -157,7 +157,7 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3] )
     if( gd->status != OK ) return gd->status;
     rff = rf->func;
     rf->func = NULL;
-    std_to_xyz( rf, xyz );
+    std_to_xyz( rf, xyz, date );
     rf->func = rff;
     xyz_to_llh( rf->el, xyz, llh );
     lon = llh[CRD_LON]*RTOD;

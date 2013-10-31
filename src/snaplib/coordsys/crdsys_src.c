@@ -97,7 +97,7 @@ ellipsoid * load_ellipsoid( const char *code )
     return el;
 }
 
-static int parse_epoch( const char *epochstr, double *epoch )
+int parse_crdsys_epoch( const char *epochstr, double *epoch )
 {
     if( _stricmp(epochstr,"now") == 0 )
     {
@@ -144,9 +144,9 @@ coordsys * load_coordsys( const char *code )
     int sts;
     coordsys *cs= NULL;
 
-    /* Look for an @ character, defining an epoch */
+    /* Look for an @ character, defining an deformation model reference epoch */
     for( nch = 0; code[nch] != 0 && code[nch] != '@'; nch++ ) {}
-    if( code[nch] && ! parse_epoch( code+nch+1, &epoch ) )
+    if( code[nch] && ! parse_crdsys_epoch( code+nch+1, &epoch ) )
     {
         return NULL;
     }
@@ -162,6 +162,6 @@ coordsys * load_coordsys( const char *code )
             sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscode, &cs );
         }
 
-    if( cs ) define_coordsys_epoch(cs,epoch);
+    if( cs ) define_deformation_model_epoch(cs,epoch);
     return cs;
 }

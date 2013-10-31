@@ -34,7 +34,7 @@ static char rcsid[]="$Id: crdsysc3.c,v 1.2 2003/05/26 22:53:58 ccrook Exp $";
          }
 
 coordsys *parse_coordsys_def  ( input_string_def *is,
-                                ref_frame *(*getrf)(const char *code ))
+                                ref_frame *(*getrf)(const char *code, int loadref ))
 {
     char cscode[CRDSYS_CODE_LEN+1];
     char csname[CRDSYS_NAME_LEN+1];
@@ -60,7 +60,7 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
         if( _stricmp( rfcode, "REF_FRAME" ) != 0 )
         {
             set_string_loc( is , loc );
-            rf = parse_ref_frame_def( is, 0, 1 );
+            rf = parse_ref_frame_def( is, 0, 0, 1, 1 );
             if( !rf ) return NULL;
         }
         else
@@ -140,7 +140,7 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
 
     if( sts == OK && !rf )
     {
-        if( getrf ) rf = (*getrf)(rfcode);
+        if( getrf ) rf = (*getrf)(rfcode,1);
         if( !rf )
         {
             char errmess[80];

@@ -198,7 +198,9 @@ static ellipsoid *ellipsoid_from_code( const char *code)
     return el;
 }
 
-static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf )
+static ref_frame *ref_frame_from_code( const char *code, int loadref );
+
+static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf, int loadref)
 {
     crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     input_string_def *instr;
@@ -206,17 +208,22 @@ static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf 
     instr = cfs_code_def( cfs, id, CS_REF_FRAME, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
-    *rf = parse_ref_frame_def( instr, ellipsoid_from_code, 0 );
+    *rf = parse_ref_frame_def( instr, ellipsoid_from_code, ref_frame_from_code, 0, loadref );
     return *rf ? OK : INVALID_DATA;
 }
 
-static ref_frame *ref_frame_from_code( const char *code )
+static ref_frame *ref_frame_from_code( const char *code, int loadref )
 {
     ref_frame *rf;
     int sts;
-    sts = get_ref_frame( input_cfs, CS_ID_UNAVAILABLE, code, &rf );
+    sts = get_ref_frame( input_cfs, CS_ID_UNAVAILABLE, code, &rf, loadref );
     if( sts != OK ) rf = NULL;
     return rf;
+}
+
+static int get_ref_frame_cs( void *pcfs, long id, const char *code, ref_frame **rf )
+{
+    return get_ref_frame( pcfs, id, code, rf, 1 );
 }
 
 
@@ -300,7 +307,7 @@ static int create_crdsys_file_source( const char *filename )
     scan_coordsys_defs( cfs );
     csd.data = cfs;
     csd.getel = get_ellipsoid;
-    csd.getrf = get_ref_frame;
+    csd.getrf = get_ref_frame_cs;
     csd.getcs = get_coordsys;
     csd.getcodes = get_codes;
     csd.delsource = delete_crdsys_file_source;

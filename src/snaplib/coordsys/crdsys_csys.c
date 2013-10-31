@@ -42,7 +42,6 @@ coordsys *create_coordsys( const char *code, const char *name, int type,
     cs->hmult = 1.0;
     cs->vunits = metre_units;
     cs->vmult = 1.0;
-    cs->epoch = 0;
     return cs;
 }
 
@@ -54,7 +53,6 @@ coordsys *copy_coordsys( coordsys *cs )
                             copy_ref_frame(cs->rf), copy_projection( cs->prj ) );
     if( !copy ) return copy;
     copy->source = copy_string( cs->source );
-    copy->epoch = cs->epoch;
     if( copy->prj && copy->rf->el )
         set_projection_ellipsoid( copy->prj, copy->rf->el );
     if( cs->gotrange )
@@ -94,9 +92,9 @@ coordsys *related_coordsys( coordsys *cs, int type )
     return copy;
 }
 
-void define_coordsys_epoch( coordsys *cs, double epoch )
+void define_deformation_model_epoch( coordsys *cs, double epoch )
 {
-    cs->epoch = epoch;
+    cs->rf->defepoch = epoch;
 }
 
 void define_coordsys_units( coordsys *cs, char *hunits, double hmult,
@@ -213,6 +211,11 @@ int has_deformation_model( coordsys *cs )
     return cs->rf->def ? 1 : 0;
 }
 
+double deformation_model_epoch( coordsys *cs )
+{
+    return cs->rf->defepoch;
+}
+
 int identical_coordinate_systems( coordsys *cs1, coordsys *cs2 )
 {
     if( cs1->crdtype != cs2->crdtype ) return 0;
@@ -220,7 +223,6 @@ int identical_coordinate_systems( coordsys *cs1, coordsys *cs2 )
             !identical_projections( cs1->prj, cs2->prj ) ) return 0;
     if( !identical_ellipsoids( cs1->rf->el, cs2->rf->el ) ) return 0;
     if( !identical_ref_frame_axes( cs1->rf, cs2->rf ) ) return 0;
-    if( cs1->epoch != cs2->epoch ) return 0;
     return 1;
 }
 
