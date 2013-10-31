@@ -169,7 +169,7 @@ int rfdef_parse_bw14def( ref_deformation *def, input_string_def *is )
         }
         else
         {
-            strcpy("Invalid value for ",errmess);
+            strcpy(errmess,"Invalid value for ");
             strcat(errmess,bad);
         }
         report_string_error( is, sts, errmess );

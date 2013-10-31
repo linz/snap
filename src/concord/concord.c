@@ -301,7 +301,7 @@ static int read_string( FILE *input, char separator, char *string, int nch )
         {
             if(c == ' ' || c == '\t' ) break;
         }
-        if( c == '\n' || c == EOF) break;
+        if( c=='\r' || c == '\n' || c == EOF) break;
         if (i<nch) {*string++ = c; i++;}
         c = getc(input);
     }
@@ -1805,7 +1805,6 @@ int main( int argc, char *argv[] )
         rplen = path_len( exefile, 0 );
         exefile[rplen] = 0;
         sts = install_default_crdsys_file( exefile );
-        set_application_name( "concord" );
         set_find_file_directories( exefile, NULL, NULL );
     }
     if( sts != OK )
