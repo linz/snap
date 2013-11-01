@@ -342,6 +342,7 @@ static int copy_to_newline( FILE *input, FILE *output, char *prefix )
         if (c==EOF) break;
         if (output)
         {
+			if( c == '\r' ) continue;
             if( prefix && c != '\n' )
             {
                 fputs( prefix, output );
@@ -1287,7 +1288,7 @@ static void open_files( void )
         }
         else
         {
-            crdin = fopen(crdin_fname,"r");
+            crdin = fopen(crdin_fname,"rb");
         }
         if (crdin == NULL)
             error_exit("Cannot open input file ",crdin_fname);

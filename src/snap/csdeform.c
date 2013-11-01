@@ -69,7 +69,7 @@ static int init_csdef_deformation( void *deformation )
 
     /* For each station calculate the coordsys epoch coords */
 
-    csepoch = net->crdsys->epoch;
+    csepoch = deformation_model_epoch(net->crdsys);
     for( istn = 1; istn <= nstns; istn++ )
     {
         double xyz[3];

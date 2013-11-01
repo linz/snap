@@ -53,6 +53,7 @@ int main( int argc, char *argv[] )
     char quiet = 0;
     char setformat = 0;
     char degoption = 0;
+	double epoch = 0.0;
 #ifdef SNAPCONV_GRID
     char *gridfile;
     char *gridname;
@@ -75,6 +76,14 @@ int main( int argc, char *argv[] )
         case 'd': setformat = 1; degoption = NW_DEC_DEGREES; break;
         case 'H':
         case 'h': setformat = 1; degoption = 0; break;
+		case 'Y':
+		case 'y': 
+                if( argc < 3 || ! parse_crdsys_epoch(argv[2],&epoch) )
+				{
+					printf("Invalid value for conversion epoch (-Y %s)\n",argv[2]);
+					return 1;
+				}
+                break;
         default:
             argc = 0;
         }
@@ -165,7 +174,7 @@ int main( int argc, char *argv[] )
     if( grid ) apply_grid_distortion( net, grid, grid_dim, undo_grid  );
 #endif
 
-    if( set_network_coordsys( net, cs ) != OK )
+    if( set_network_coordsys( net, cs, epoch ) != OK )
     {
         printf("Unable to convert network coordinate system to %s\n",argv[2]);
         return 2;
@@ -224,7 +233,7 @@ void apply_grid_distortion( network *net, grid_def *grid, int dim, int undo )
         exit(0);
     }
 
-    if( set_network_coordsys( net, gcs ) != OK )
+    if( set_network_coordsys( net, gcs, epoch ) != OK )
     {
         printf("\nUnable to convert coordinates to grid coordinate system %s\n",
                grd_coordsys_def(grid));

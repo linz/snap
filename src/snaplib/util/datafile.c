@@ -66,7 +66,7 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     char binary;
     int i;
 
-    f = fopen( fname, "r" );
+    f = fopen( fname, "rb" );
     if( f == NULL )
     {
         if( description )

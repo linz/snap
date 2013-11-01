@@ -21,7 +21,6 @@
 #include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
-#include "util/string.h"
 
 static char rcsid[]="$Id: iostring.c,v 1.4 2004/04/22 02:35:25 ccrook Exp $";
 

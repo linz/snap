@@ -295,7 +295,7 @@ int write_network( network *nw, const char *filename, const char *comment,
 int merge_network( network *base, network *data, int mergeopts,
                    int (*select)(station *code) );
 
-int   set_network_coordsys( network *nw, coordsys *cs );
+int   set_network_coordsys( network *nw, coordsys *cs, double epoch );
 void    set_network_name( network *nw, const char *name );
 
 station * new_network_station( network *nw,

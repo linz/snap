@@ -716,10 +716,10 @@ static void write_metadata_csv()
     write_csv_string(csv,net->crdsys->name);
     end_output_csv_record(csv);
 
-    if( has_deformation_model(net->crdsys) && net->crdsys->epoch > 0 )
+    if( has_deformation_model(net->crdsys) && deformation_model_epoch(net->crdsys) > 0 )
     {
         write_csv_string(csv,"CRDSYSEPOCH");
-        write_csv_double(csv,net->crdsys->epoch,1);
+        write_csv_double(csv,deformation_model_epoch(net->crdsys),1);
         write_csv_string(csv,"Coordinate system epoch");
         end_output_csv_record(csv);
     }

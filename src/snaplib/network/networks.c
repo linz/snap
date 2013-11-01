@@ -58,7 +58,7 @@ static void convert_stn_coords( coord_conversion *ccv, station *st )
 }
 
 
-int set_network_coordsys( network *nw, coordsys *cs )
+int set_network_coordsys( network *nw, coordsys *cs, double epoch )
 {
     coordsys *geosys, *csold;
     coord_conversion cconv;
@@ -78,7 +78,7 @@ int set_network_coordsys( network *nw, coordsys *cs )
     {
         if( nw->stnlist )
         {
-            if( define_coord_conversion( &cconv, nw->geosys, geosys ) != OK )
+            if( define_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch ) != OK )
             {
                 delete_coordsys( geosys );
                 return INCONSISTENT_DATA;

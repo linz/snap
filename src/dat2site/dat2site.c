@@ -2658,7 +2658,7 @@ static int get_net_coordsys( void )
         }
         if( cs ) break;
     }
-    set_network_coordsys( net, cs );
+    set_network_coordsys( net, cs, 0.0 );
     delete_coordsys( cs );
     return 1;
 }
