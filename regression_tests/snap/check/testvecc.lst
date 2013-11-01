@@ -70,7 +70,7 @@ Testing CSV input
 ================================================================================
 Coordinate system: New Zealand Geodetic Datum 2000
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
-   a = 6378137.000  1/f = 298.257222
+  a = 6378137.000  1/f = 298.257222
 
 Station heights are ellipsoidal heights.
 Geoid heights not defined - orthometric and ellipsoidal heights are the same.

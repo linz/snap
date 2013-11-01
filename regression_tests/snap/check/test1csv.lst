@@ -1817,7 +1817,7 @@ Regression test 1 - data types and observation equations
 ================================================================================
 Coordinate system: New Zealand Geodetic Datum 1949
 Ellipsoid: International Ellipsoid
-   a = 6378388.000  1/f = 297.000000
+  a = 6378388.000  1/f = 297.000000
 
 Station heights are ellipsoidal heights.
 The error ellipse and height error represent the apriori errors
