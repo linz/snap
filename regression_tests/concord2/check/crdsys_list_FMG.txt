@@ -1,0 +1,12 @@
+
+Coordinate system: Fiji Map Grid
+Reference frame: Fiji datum
+Ellipsoid: World Geodetic System 1972 Ellipsoid(WGS72)
+  a = 6378135.000  1/f = 298.260000
+Projection: Transverse Mercator
+  Central meridian           178 45 00.0000E
+  Origin of latitude          17 00 00.0000S
+  Scale factor               0.999850
+  False easting              2000000.000
+  False northing             4000000.000
+  Unit to metres conversion  1.000000

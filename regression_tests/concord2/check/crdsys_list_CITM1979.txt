@@ -1,0 +1,16 @@
+
+Coordinate system: Chatham Island Transverse Mercator 1979
+Reference frame: Chatham 1979
+  Relative to ITRF96
+    Translation         (m)   174.05000  -25.49000  112.57000
+    Rotation          (sec)     0.00000    0.00000   -0.55400
+    Scale             (ppm)     0.22630
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+Projection: Transverse Mercator
+  Central meridian           176 30 00.0000W
+  Origin of latitude          44 00 00.0000S
+  Scale factor               1.000000
+  False easting              350000.000
+  False northing             650000.000
+  Unit to metres conversion  1.000000

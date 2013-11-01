@@ -1,0 +1,27 @@
+
+Coordinate system: Test IERS params control
+Reference frame: Australian Geodetic Datum 1984
+  Relative to WGS84
+    Translation         (m)  -117.76300  -51.51000  139.06100
+    Rotation          (sec)    -0.29200   -0.44300   -0.27700
+    Scale             (ppm)    -0.19100
+Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
+  a = 6378137.000  1/f = 298.257224
+IERS version of ref frame transformation
+
+Coordinate system: Test IERS params IERS params
+Reference frame: Australian Geodetic Datum 1984
+  Relative to WGS84
+    Translation        (mm)  -117763.00000 -51510.00000 139061.00000
+    IERS rotation     (mas)   292.00000  443.00000  277.00000
+    Scale             (ppb)  -191.00000
+Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
+  a = 6378137.000  1/f = 298.257224
+IERS version of ref frame transformation
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+IERS version of ref frame transformation
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates

@@ -1,0 +1,364 @@
+=======================
+Testing NZGD2000
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing NZGD2000_XYZ
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing AMURTM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing BLUFTM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing BULLTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing COLLTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing EDENTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing GAWLTM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing GREYTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing HAWKTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing HOKITM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing JACKTM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing KARATM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing LINDTM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing MARLTM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing NELSTM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing NICHTM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing TAIETM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing OBSETM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing OKARTM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing PLEATM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing PLENTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing POVETM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing TARATM2000
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing TIMATM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing TUHITM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing WAIRTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing WANGTM2000
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing WELLTM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing YORKTM2000
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing NZGD1949
+
+6 coordinates converted
+4 errors occurred reading or converting coordinates
+=======================
+Testing AMURTM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing BLUFTM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing BULLTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing COLLTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing EDENTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing GAWLTM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing GREYTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing HAWKTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing HOKITM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing JACKTM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing KARATM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing LINDTM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing MARLTM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing NELSTM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing NICHTM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing OBSETM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing OKARTM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing PLEATM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing PLENTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing POVETM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing TAIETM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing TARATM1949
+
+2 coordinates converted
+8 errors occurred reading or converting coordinates
+=======================
+Testing TIMATM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing TUHITM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing WAIRTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing WANGTM1949
+
+3 coordinates converted
+7 errors occurred reading or converting coordinates
+=======================
+Testing WELLTM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing YORKTM1949
+
+1 coordinates converted
+9 errors occurred reading or converting coordinates
+=======================
+Testing NZMG
+
+6 coordinates converted
+4 errors occurred reading or converting coordinates
+=======================
+Testing NZTM
+
+6 coordinates converted
+4 errors occurred reading or converting coordinates
+=======================
+Testing CITM2000
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing UTM58
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing UTM59
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing UTM60
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing CHAT1979
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing CITM1979
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing FMG
+Conversion between coordinate systems ITRF96 and FMG is not possible
+=======================
+Testing RSRGD2000
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing CAMPAREA
+Conversion between coordinate systems ITRF96 and CAMPAREA is not possible
+=======================
+Testing CAMP_LCC
+Conversion between coordinate systems ITRF96 and CAMP_LCC is not possible
+=======================
+Testing WGS72
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing WGS84
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+=======================
+Testing WGS84_XYZ
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates

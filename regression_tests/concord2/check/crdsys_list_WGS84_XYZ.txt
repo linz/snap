@@ -1,0 +1,5 @@
+
+Coordinate system: World Geodetic System 1984 - XYZ
+Reference frame: World Geodetic System 1984 (WGS84)
+Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
+  a = 6378137.000  1/f = 298.257224

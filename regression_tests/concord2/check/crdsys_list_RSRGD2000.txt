@@ -1,0 +1,5 @@
+
+Coordinate system: Ross Sea Region Geodetic Datum 2000
+Reference frame: Ross Sea Region Geodetic Datum 2000
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222

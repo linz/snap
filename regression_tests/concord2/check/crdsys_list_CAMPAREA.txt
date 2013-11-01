@@ -1,0 +1,5 @@
+
+Coordinate system: Camp area datum
+Reference frame: Camp area datum (International ellipsoid)
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000

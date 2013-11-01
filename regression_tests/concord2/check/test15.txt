@@ -1,14 +1,30 @@
 
-Coordinate system: New Zealand Geodetic Datum 2000
+Coordinate system: New Zealand Geodetic Datum 2000 (deformation)
 Reference frame: New Zealand Geodetic Datum 2000
+Gridded velocity deformation model
+    New Zealand velocity model, computed by IGNS, version Nov 1998
+    Calculated on a 0.1 x 0.1 degree grid for Long 165 to 180 & Lat -48 to -32
+    Ref: Beavan, Nov 1998, IGNS Client Report 43865B and Beavan & Haines, 1997
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
-   a = 6378137.000  1/f = 298.257222
+  a = 6378137.000  1/f = 298.257222
+Calculated at epoch 2010.0
+epoch = 0
 
 30 coordinates converted
 1 errors occurred reading or converting coordinates
+epoch = 2000.0
 
 30 coordinates converted
 1 errors occurred reading or converting coordinates
+epoch = 2010.0
+
+30 coordinates converted
+1 errors occurred reading or converting coordinates
+epoch = 2010.0 - same datum
+
+30 coordinates converted
+1 errors occurred reading or converting coordinates
+Converting epochs - same datum
 
 30 coordinates converted
 1 errors occurred reading or converting coordinates

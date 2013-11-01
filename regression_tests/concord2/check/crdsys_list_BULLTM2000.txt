@@ -1,0 +1,20 @@
+
+Coordinate system: Buller Circuit 2000
+Reference frame: New Zealand Geodetic Datum 2000
+LINZ deformation model
+    NZGD2000 deformation model
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20130801
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           171 34 52.0000E
+  Origin of latitude          41 48 38.0000S
+  Scale factor               1.000000
+  False easting              400000.000
+  False northing             800000.000
+  Unit to metres conversion  1.000000

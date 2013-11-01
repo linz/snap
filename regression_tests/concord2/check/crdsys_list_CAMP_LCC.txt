@@ -1,0 +1,12 @@
+
+Coordinate system: Camp Area Lambert Conformal Conic
+Reference frame: Camp area datum (International ellipsoid)
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+Projection: Lambert Conformal Conic
+  First standard parallel    76 40 00.0120S
+  Second standard parallel   79 19 59.9880S
+  Origin of latitude         78 01 16.2120S
+  Origin of longitude       162 30 00.0000E
+  False easting             500000.000
+  False northing            300000.000

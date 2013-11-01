@@ -1,0 +1,12 @@
+
+Coordinate system: UTM zone 60 (south)
+Reference frame: World Geodetic System 1984 (WGS84)
+Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
+  a = 6378137.000  1/f = 298.257224
+Projection: Transverse Mercator
+  Central meridian           177 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000

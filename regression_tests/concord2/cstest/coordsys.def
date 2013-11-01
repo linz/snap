@@ -21,12 +21,37 @@ NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
    SNAP2D testrfgrid.grd "LINZ NZGD49-NZGD2000 conversion grid"
 NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
 
-NZGD2000D "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0  DEFORMATION 2000.0 VELGRID igns98b 2000.0
+NZGD2000D "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0  DEFORMATION VELGRID testgridef 2000.0
+
+TESTBW14 "Test 14 parameter BW reference frame" ELLIPSOID GRS80 &
+    WGS84 100 -125 0 0 0 0 0  &
+    RATES 2000 -5 3 -8 0 0 0 0 &
 
 WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 WGS84 0 0 0 0 0 0 0
 GRS80 "Geodetic Referency System 1980" ELLIPSOID GRS80 WGS84 0 0 0 0 0 0 0
 
-WGS84BW "Australian Geodetic Datum 1984" ELLIPSOID WGS84 WGS84 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
+IERSBW "Australian Geodetic Datum 1984" ELLIPSOID WGS84 WGS84 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
+IERSBWE "Australian Geodetic Datum 1984" ELLIPSOID WGS84 WGS84 IERS -117763.0 -51510.0 139061.0 292 443 277 -191
+
+BAD1 "Invalid non-null dependency on self" ELLIPSOID INTERNATIONAL &
+   BAD1 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993
+
+Depends on itself but non-null transformation
+
+BAD1 "Invalid non-null dependency on self" ELLIPSOID INTERNATIONAL &
+   BAD1 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993
+
+
+Cyclic dependency
+BAD2 "Cyclic ref frame dependency 1" ELLIPSOID INTERNATIONAL &
+   BAD3 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993
+
+BAD3 "Cyclic ref frame dependency 2" ELLIPSOID INTERNATIONAL &
+   BAD2 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993
+
+BAD4 "Cyclic ref frame dependency 2" ELLIPSOID INTERNATIONAL &
+   BAD2 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993
+
 
 !===========================================================================
 ! COORDINATE SYSTEMS:
@@ -100,8 +125,12 @@ NZGD2000 "New Zealand Geodetic Datum 2000" REF_FRAME NZGD2000 GEODETIC
 NZGD2000D "New Zealand Geodetic Datum 2000 (deformation)" REF_FRAME NZGD2000D GEODETIC
 NZGD2000_XYZ "New Zealand Geodetic Datum 2000 - Cartesian XYZ" REF_FRAME NZGD2000 GEOCENTRIC
 NZGD1949 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
+TESTBW14_XYZ "Bursa Wolf 14 param - XYZ" REF_FRAME TESTBW14 GEOCENTRIC
+TESTBW14E_XYZ "Bursa Wolf 14 param - XYZ" REF_FRAME TESTBW14E GEOCENTRIC
 
-WGS84BW "Australian Geodetic Datum 1984"  REF_FRAME WGS84BW GEODETIC
+IERSBW "Test IERS params control"  REF_FRAME IERSBW GEODETIC
+IERSBW_XYZ "Test IERS params control"  REF_FRAME IERSBW GEOCENTRIC
+IERSBWE_XYZ "Test IERS params IERS params"  REF_FRAME IERSBWE GEOCENTRIC
 
 NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
           PROJECTION NZMG &
@@ -117,9 +146,19 @@ ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84 &
 ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84 &
           PROJECTION LCC -76.66667 -79.33333 -89.999999 168 0.0 0.0
 
+NZTM "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
 NZTM_D "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000D &
           PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
           RANGE 1000000 4650000 2300000 6350000
+
+! Bad coordinate systems
+BAD1 "Invalid base reference frame" REF_FRAME BAD1 GEODETIC
+BAD2 "Invalid cyclic reference frame" REF_FRAME BAD2 GEODETIC
+BAD4 "Invalid cyclic reference frame 2" REF_FRAME BAD4 GEODETIC
+
 !================================================================
 ! Note: Height references currently not used by SNAP and Concord.
 !

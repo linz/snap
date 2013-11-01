@@ -1,0 +1,147 @@
+===== ITRF96 =====
+
+Coordinate system: International Terrestrial Reference Frame 1996
+Reference frame: International Terrestrial Reference Frame 1996
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF96_XYZ =====
+
+Coordinate system: International Terrestrial Reference Frame 1996 XYZ
+Reference frame: International Terrestrial Reference Frame 1996
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF2000 =====
+
+Coordinate system: International Terrestrial Reference Frame 2000
+Reference frame: International Terrestrial Reference Frame 2000
+  Relative to ITRF96
+        Reference date   (year)  2000.00
+    Translation        (mm)     6.70000    3.79000   -7.17000
+           rate     (mm/yr)     0.69000   -0.70000    0.46000
+    IERS rotation     (mas)    -0.16508    0.26897    0.11984
+           rate    (mas/yr)    -0.01347    0.01514    0.01973
+    Scale             (ppb)     0.06901
+           rate    (ppb/yr)    -0.18201
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF2000_XYZ =====
+
+Coordinate system: International Terrestrial Reference Frame 2000 XYZ
+Reference frame: International Terrestrial Reference Frame 2000
+  Relative to ITRF96
+        Reference date   (year)  2000.00
+    Translation        (mm)     6.70000    3.79000   -7.17000
+           rate     (mm/yr)     0.69000   -0.70000    0.46000
+    IERS rotation     (mas)    -0.16508    0.26897    0.11984
+           rate    (mas/yr)    -0.01347    0.01514    0.01973
+    Scale             (ppb)     0.06901
+           rate    (ppb/yr)    -0.18201
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF2005 =====
+
+Coordinate system: International Terrestrial Reference Frame 2005
+Reference frame: International Terrestrial Reference Frame 2005
+  Relative to ITRF96
+        Reference date   (year)  2000.00
+    Translation        (mm)     6.80000    2.99000  -12.97000
+           rate     (mm/yr)     0.49000   -0.60000   -1.34000
+    IERS rotation     (mas)    -0.16508    0.26897    0.11984
+           rate    (mas/yr)    -0.01347    0.01514    0.01973
+    Scale             (ppb)     0.46901
+           rate    (ppb/yr)    -0.10201
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF2005_XYZ =====
+
+Coordinate system: International Terrestrial Reference Frame 2005 XYZ
+Reference frame: International Terrestrial Reference Frame 2005
+  Relative to ITRF96
+        Reference date   (year)  2000.00
+    Translation        (mm)     6.80000    2.99000  -12.97000
+           rate     (mm/yr)     0.49000   -0.60000   -1.34000
+    IERS rotation     (mas)    -0.16508    0.26897    0.11984
+           rate    (mas/yr)    -0.01347    0.01514    0.01973
+    Scale             (ppb)     0.46901
+           rate    (ppb/yr)    -0.10201
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF2008 =====
+
+Coordinate system: International Terrestrial Reference Frame 2008
+Reference frame: International Terrestrial Reference Frame 2008
+  Relative to ITRF96
+        Reference date   (year)  2000.00
+    Translation        (mm)     4.80000    2.09000  -17.67000
+           rate     (mm/yr)     0.79000   -0.60000   -1.34000
+    IERS rotation     (mas)    -0.16508    0.26897    0.11984
+           rate    (mas/yr)    -0.01347    0.01514    0.01973
+    Scale             (ppb)     1.40901
+           rate    (ppb/yr)    -0.10201
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+===== ITRF2008_XYZ =====
+
+Coordinate system: International Terrestrial Reference Frame 2008 XYZ
+Reference frame: International Terrestrial Reference Frame 2008
+  Relative to ITRF96
+        Reference date   (year)  2000.00
+    Translation        (mm)     4.80000    2.09000  -17.67000
+           rate     (mm/yr)     0.79000   -0.60000   -1.34000
+    IERS rotation     (mas)    -0.16508    0.26897    0.11984
+           rate    (mas/yr)    -0.01347    0.01514    0.01973
+    Scale             (ppb)     1.40901
+           rate    (ppb/yr)    -0.10201
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+ITRF96 to ITRF2000 without defining an epoch
+Conversion between reference frames ITRF96 and ITRF2000 requires a date
+ITRF96 to ITRF2000
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+ITRF96 to ITRF2005
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+ITRF96 to ITRF2008
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+NZGD2000 to ITRF96
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+NZGD2000 to ITRF2000
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+NZGD2000 to ITRF2005
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+NZGD2000 to ITRF2008
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates
+
+31 coordinates converted
+0 errors occurred reading or converting coordinates

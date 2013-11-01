@@ -1,0 +1,6 @@
+
+Warning: Reference frame BAD1 cannot have a non-null transformation to itself
+Line: 36  File: cstest/coordsys.def
+
+Warning: Cannot load reference frame BAD1
+Line: 36  File: cstest/coordsys.def

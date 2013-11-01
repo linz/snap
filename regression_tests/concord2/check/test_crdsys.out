@@ -5,10 +5,18 @@ concord: Valid coordinate systems are:
   NZGD2000D  New Zealand Geodetic Datum 2000 (deformation)
   NZGD2000_XYZ New Zealand Geodetic Datum 2000 - Cartesian XYZ
   NZGD1949   New Zealand Geodetic Datum 1949
-  WGS84BW    Australian Geodetic Datum 1984
+  TESTBW14_XYZ Bursa Wolf 14 param - XYZ
+  TESTBW14E_XYZ Bursa Wolf 14 param - XYZ
+  IERSBW     Test IERS params control
+  IERSBW_XYZ Test IERS params control
+  IERSBWE_XYZ Test IERS params IERS params
   NZMG       New Zealand Map Grid
   WELLTM2000 Wellington Circuit 2000
   ANT_PS     WGS 84 / Antarctic Polar Stereographic
   ST57-60_LCC SCAR IMW ST57-60 Lambert Conformal Conic
+  NZTM       New Zealand Transverse Mercator Projection
   NZTM_D     New Zealand Transverse Mercator Projection
+  BAD1       Invalid base reference frame
+  BAD2       Invalid cyclic reference frame
+  BAD4       Invalid cyclic reference frame 2
 

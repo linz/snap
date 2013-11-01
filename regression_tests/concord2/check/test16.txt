@@ -1,0 +1,23 @@
+
+Coordinate system: Bursa Wolf 14 param - XYZ
+Reference frame: Test 14 parameter BW reference frame
+  Relative to WGS84
+        Reference date   (year)  2000.00
+    Translation         (m)   100.00000 -125.00000    0.00000
+           rate      (m/yr)    -5.00000    3.00000   -8.00000
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Reference XYZ coords
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+epoch = 2000.0
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+epoch = 2010.0
+
+7 coordinates converted
+3 errors occurred reading or converting coordinates
+no epoch
+Conversion between reference frames NZGD2000 and TESTBW14 requires a date

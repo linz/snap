@@ -1,0 +1,17 @@
+
+Coordinate system: Wanganui Circuit 1949
+Reference frame: New Zealand Geodetic Datum 1949 (NZGD49)
+  Relative to NZGD2000
+    Translation         (m)    59.47000   -5.04000  187.44000
+    Rotation          (sec)    -0.47000    0.10000   -1.02400
+    Scale             (ppm)    -4.59930
+Transformation uses LINZ NZGD49-NZGD2000 conversion grid
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+Projection: Transverse Mercator
+  Central meridian           175 29 17.1586E
+  Origin of latitude          40 14 31.0097S
+  Scale factor               1.000000
+  False easting              300000.000
+  False northing             700000.000
+  Unit to metres conversion  0.999998
