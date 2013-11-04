@@ -1249,7 +1249,7 @@ static void setup_geoid_calculations( void )
         error_exit(errmess,"");
     }
 
-    if( input_ortho && define_coord_conversion( &ingcnv, input_cs, geoid_coordsys ) != OK )
+    if( input_ortho && define_coord_conversion_epoch( &ingcnv, input_cs, geoid_coordsys, DEFAULT_GEOID_CRDSYS_EPOCH ) != OK )
     {
         char errmsg[256];
         sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
@@ -1257,7 +1257,7 @@ static void setup_geoid_calculations( void )
         error_exit(errmsg,"");
     }
 
-    if( output_ortho && define_coord_conversion( &outgcnv, output_cs, geoid_coordsys ) != OK )
+    if( output_ortho && define_coord_conversion_epoch( &outgcnv, output_cs, geoid_coordsys, DEFAULT_GEOID_CRDSYS_EPOCH ) != OK )
     {
         char errmsg[256];
         sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",

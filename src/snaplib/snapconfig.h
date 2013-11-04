@@ -24,4 +24,13 @@
 #define _strdup strdup
 #endif
 
+
+
+/* Default epoch for coordinate conversions between geoid coordinate system and 
+   other coordinate systems.  Use this as don't want to be stopped from converting
+   when there is a dynamic relationship (14 param BW or deformation), as this 
+   conversion doesn't need to be that accurate... */
+
+#define DEFAULT_GEOID_CRDSYS_EPOCH 2000.0
+
 #endif
