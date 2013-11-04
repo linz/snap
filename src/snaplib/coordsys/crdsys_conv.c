@@ -40,8 +40,7 @@ int define_coord_conversion( coord_conversion *conv,
 int define_coord_conversion_epoch( coord_conversion *conv,
                                    coordsys *from, coordsys *to, double convepoch )
 {
-    ref_deformation *fromdef;
-    ref_deformation *todef;
+
     char conv_el;
     conv->from = from;
     conv->to = to;
@@ -60,7 +59,6 @@ int define_coord_conversion_epoch( coord_conversion *conv,
         char *common_rf=0;
         char *from_code=from->rf->code;
         ref_frame *from_rf=from->rf;
-        ref_frame *to_rf=to->rf;
         int nfrom=0;
         int nto=0;
         int changeepoch=0; /* Different deformation ref epoch */
@@ -173,7 +171,6 @@ int define_coord_conversion_epoch( coord_conversion *conv,
                 nextrf=crf;
                 if( ! needsepoch && ! conv->crf[i].def_only )
                 {
-                    int ia;
                     if( crf->def ||
                             crf->dtxyz[0] != 0.0 ||
                             crf->dtxyz[1] != 0.0 ||

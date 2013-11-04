@@ -1022,7 +1022,7 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
         if( error < 0.0 ) error = 0.0;
         if( sd->zdmmherr > 0 || sd->zdmmverr > 0)
         {
-            double mmherr, mmverr, dist, angle;
+            double mmherr, mmverr, dist;
             mmherr = sd->zdmmherr;
             mmverr = sd->zdmmverr;
             if( mmherr < 0 ) mmherr = 0.0;

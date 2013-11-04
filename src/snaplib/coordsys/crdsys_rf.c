@@ -131,7 +131,6 @@ void delete_ref_frame( ref_frame *rf )
 
 int identical_ref_frame_axes( ref_frame *rf1, ref_frame *rf2 )
 {
-    int i;
     if( ! identical_datum( rf1, rf2 )  ) return 0;
     if( ! identical_ref_deformation(rf1->def,rf2->def)) return 0;
     if( rf1->def && rf1->defepoch != rf2->defepoch ) return 0;

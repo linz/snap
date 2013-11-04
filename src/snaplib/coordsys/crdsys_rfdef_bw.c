@@ -37,24 +37,6 @@ static void rf_xyz_delete( void *pdxyz )
     check_free( dxyz );
 }
 
-static void *rf_xyz_copy( void *pdxyz )
-{
-    ref_deformation_xyz *dxyz = (ref_deformation_xyz *) pdxyz;
-    ref_deformation_xyz *dxyz2 = (ref_deformation_xyz *) check_malloc( sizeof(ref_deformation_xyz) );
-    memcpy( dxyz2, dxyz, sizeof(ref_deformation_xyz));
-    dxyz2->description = copy_string( dxyz->description );
-    return dxyz2;
-}
-
-static int rf_xyz_identical( void *pgd1, void *pgd2 )
-{
-    ref_deformation_xyz *gd1 = (ref_deformation_xyz *) pgd1;
-    ref_deformation_xyz *gd2 = (ref_deformation_xyz *) pgd2;
-    if( gd1->refepoch != gd2->refepoch ) return 0;
-    if( strcmp(gd1->description,gd2->description) != 0 ) return 0;
-    return 1;
-}
-
 static int rf_xyz_describe(  ref_frame *rf, output_string_def *os )
 {
     ref_deformation *def = rf->def;

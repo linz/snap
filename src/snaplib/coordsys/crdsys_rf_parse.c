@@ -55,7 +55,6 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     int iersunits=0;
     ellipsoid *el = 0;
     ref_frame *rf = 0;
-    ref_frame *stdrf = 0;
     ref_frame_func *rff = 0;
     ref_deformation *rdf = 0;
     int sts;

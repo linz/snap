@@ -43,7 +43,6 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
     const char *ratestr="       rate";
     const char *iers_units[]={"mm","mas","ppb"};
     const char *std_units[]={"m","sec","ppm"};
-    const char **units;
 
     write_output_string( os, "Reference frame: " );
     write_output_string( os, rf->name );
