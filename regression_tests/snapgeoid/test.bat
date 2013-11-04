@@ -14,7 +14,7 @@ echo ================ >> out\snapgeoid.txt
 rem different and invalid geoid model
 
 echo ================ >> out\snapgeoid.txt 
-%SNAPDIR%\snapgeoid -g egm96nz2k.grd in/test.crd   out/test3.crd >> out/snapgeoid.txt 2>&1
+%SNAPDIR%\snapgeoid -g egm96 in/test.crd   out/test3.crd >> out/snapgeoid.txt 2>&1
 echo ================ >> out\snapgeoid.txt 
 %SNAPDIR%\snapgeoid -g garbage in/test.crd   out/test4.crd > out/test4.err >> out/snapgeoid.txt 2>&1
 
@@ -40,6 +40,7 @@ echo ================ >> out\snapgeoid.txt
 rem default geoid
 
 echo ================ >> out\snapgeoid.txt 
+SET GEOID=NZGEOID05
 %SNAPDIR%\snapgeoid in/test.crd  out/test10.crd >> out/snapgeoid.txt 2>&1
 
 rem out of range coordinates
