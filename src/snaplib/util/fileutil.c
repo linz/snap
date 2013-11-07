@@ -93,6 +93,35 @@ char *build_filespec( char *spec, int nspec,
     return spec;
 }
 
+
+
+char *build_config_filespec( char *spec, int nspec,
+                      const char *dir, const char *config, const char *name, const char *dflt_ext )
+{
+    int nch = 0;
+	int ncfg = MAX_FILENAME_LEN;
+	char configname[MAX_FILENAME_LEN];
+
+
+    if( config )
+    {
+        nch = strlen( config );
+        strncpy( configname, configname, ncfg - 2 );
+    }
+    else
+    {
+        nch = 0;
+    }
+
+    if( nch < ncfg-2 )
+    {
+		configname[nch++] = PATH_SEPARATOR;
+        strncpy( configname+nch, name, ncfg-nch-1);
+    }
+    configname[ncfg-1] = 0;
+	return build_filespec(spec,nspec,dir,configname,dflt_ext);
+}
+
 /* Routine looks for the image file corresponding to the argument supplied */
 
 #ifdef UNIX
@@ -120,9 +149,9 @@ char *find_image( const char *argv0 )
     path = 0;
     if ( len != -1 )
     {
-      proc[len] = '\0';
-      path = check_malloc(strlen(proc)+1 );
-      path = strcpy( path, proc );
+        proc[len] = '\0';
+        path = check_malloc(strlen(proc)+1 );
+        path = strcpy( path, proc );
     }
     return path;
 }
@@ -171,7 +200,21 @@ char *find_image( const char *argv0 )
     }
     return image;
 }
+
 #endif
+
+char *default_homedir( const char *application )
+{
+    char *appdata = getenv("APPDATA");
+    if( ! appdata ) return NULL;
+    int l = strlen(appdata);
+    char *homedir = (char *) check_malloc( l + 2 + strlen(application) + 1);
+    strcpy(homedir,appdata);
+    homedir[l] = PATH_SEPARATOR;
+    strcpy(homedir+l+1,".");
+    strcpy(homedir+l+2,application);
+    return homedir;
+}
 
 #else
 
@@ -179,11 +222,25 @@ char *find_image( const char *argv0 )
 {
 
     char *path=NULL;
-
     _get_pgmptr(&path);
-    if( path ) { return copy_string(path); }
+    if( path ) {
+        return copy_string(path);
+    }
     return copy_string("");
+}
 
+char *default_homedir( const char *application )
+{
+    char *appdata = getenv("APPDATA");
+    if( ! appdata ) return NULL;
+    int l = strlen(appdata);
+    char *homedir = (char *) check_malloc( l + 6 + strlen(application) + 1);
+    strcpy(homedir,appdata);
+    homedir[l] = PATH_SEPARATOR;
+    strcpy(homedir+l+1,"LINZ");
+    homedir[l+5] = PATH_SEPARATOR;
+    strcpy(homedir+l+6,application);
+    return homedir;
 }
 
 #endif
@@ -195,8 +252,31 @@ char *find_image( const char *argv0 )
 static char *base_dir = NULL;
 static char *prog_dir = NULL;
 static char *home_dir = NULL;
+static char home_dir_set=NULL;
+static char *application=NULL;
+static const char *default_application="snap";
+
 
 static char spec[MAX_FILENAME_LEN];
+
+void set_application_name( const char *appname )
+{
+    if( application ) check_free(application);
+    application = copy_string( appname );
+}
+
+const char *get_app_home_dir()
+{
+    if( ! home_dir_set )
+    {
+        const char *app = application ? application : default_application;
+        char *dflt_home = default_homedir( app );
+        set_find_file_home_dir(dflt_home);
+        if( dflt_home ) check_free( dflt_home );
+    }
+    return home_dir;
+}
+
 
 void set_find_file_directories( const char *progname, const char *basedir, const char *homeenv )
 {
@@ -208,7 +288,7 @@ void set_find_file_directories( const char *progname, const char *basedir, const
     {
         set_find_file_base_dir( basedir );
     }
-    if( homeenv ) 
+    if( homeenv )
     {
         char *homedir = getenv( homeenv );
         if( homedir )
@@ -231,7 +311,10 @@ void set_find_file_base_dir( const char *basefile )
 void set_find_file_home_dir( const char *homedir )
 {
     int l;
+    home_dir_set = 1;
     if( home_dir ) check_free( home_dir );
+    home_dir = 0;
+    if( ! homedir || ! strlen(homedir)) return;
     l = strlen(homedir);
     home_dir = (char *) check_malloc( l+2 );
     strcpy( home_dir, homedir );
@@ -266,13 +349,47 @@ char *find_file( const char *name, const char *dflt_ext, int options )
     {
         return spec;
     }
-    else if( (options & FF_TRYHOMEDIR) && home_dir && file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, home_dir, name, dflt_ext )) )
+    else if( options & FF_TRYHOMEDIR )
     {
-        return spec;
+        const char *hd = get_app_home_dir();
+        if(  hd && file_exists (
+                    build_filespec( spec, MAX_FILENAME_LEN, hd, name, dflt_ext )) )
+        {
+            return spec;
+        }
     }
     else if( (options & FF_TRYPROGDIR) && prog_dir && file_exists (
                  build_filespec( spec, MAX_FILENAME_LEN, prog_dir, name, dflt_ext )) )
+    {
+        return spec;
+    }
+    return NULL;
+}
+
+char *find_config_file( const char *name, const char *dflt_ext, const char *configdir, int options )
+{
+
+    if( (options & FF_TRYBASEDIR) && file_exists(
+                build_filespec( spec, MAX_FILENAME_LEN, base_dir, name, dflt_ext )) )
+    {
+        return spec;
+    }
+    else if( (options & FF_TRYCURDIR) && file_exists (
+                 build_filespec( spec, MAX_FILENAME_LEN, NULL, name, dflt_ext )) )
+    {
+        return spec;
+    }
+    else if( options & FF_TRYHOMEDIR )
+    {
+        const char *hd = get_app_home_dir();
+        if(  hd && file_exists (
+                    build_config_filespec( spec, MAX_FILENAME_LEN, hd, configdir, name, dflt_ext )) )
+        {
+            return spec;
+        }
+    }
+    else if( (options & FF_TRYPROGDIR) && prog_dir && file_exists (
+                 build_config_filespec( spec, MAX_FILENAME_LEN, prog_dir, configdir, name, dflt_ext )) )
     {
         return spec;
     }
@@ -335,9 +452,16 @@ FILE *snaptmpfile()
     name = _strdup(_tempnam("/tmp","snaptmp.") );
     if( ! name ) return NULL;
     f = fopen(name,"w+b");
-    if( ! f ) { check_free(name); return NULL; }
+    if( ! f ) {
+        check_free(name);
+        return NULL;
+    }
     def = (tmpfile_def *) check_malloc( sizeof(tmpfile_def) );
-    if( ! def ) { fclose(f); check_free(name); return NULL; }
+    if( ! def ) {
+        fclose(f);
+        check_free(name);
+        return NULL;
+    }
     if( ! tmpfile_list ) atexit( delete_temp_files );
     def->handle = f;
     def->name = name;

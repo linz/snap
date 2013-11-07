@@ -9,8 +9,7 @@
 
 # identificators
 Lfuncid (Token *):          /[a-zA-Z_][a-zA-Z_0-9]*/ -1 { @ = new IdToken(this,token); }
-Lvariable (Token *): /\$[a-zA-Z0-9_]*/ -1 { @ = new VariableToken(this,token); }
-
+Lvariable (Token *): /\$[a-zA-Z0-9_]*/ -1 { @ = this->GetVariable( token ); }
 # $$ = xxx.lexem
 # $Lfuncid is null
 # $0 is zero
@@ -24,9 +23,9 @@ Lvariable (Token *): /\$[a-zA-Z0-9_]*/ -1 { @ = new VariableToken(this,token); }
 #  Could have built the $(varname) and \x bits as part of grammar, but that means
 #  having to handle spaces, which means they get into all the other rules too... pain
 
-Lstring (StringToken *):      /"([^"\\]|\\(.|\n))*"/ { @ = new StringToken(this,token); }
-Lstringquot (StringToken *):      /'([^'])*'/ { @ = new StringToken(this,token); }
-Lstringint (StringToken *):   /[0-9]+/ { @ = new StringToken(this,token); }
+Lstring (Token *):      /"([^"\\]|\\(.|\n))*"/ { @ = this->InterpolateString(token); }
+Lstringquot (Token *):      /'([^'])*'/ { @ = this->InterpolateString(token); }
+Lstringint (Token *):   /[0-9]+/ { @ = new StringToken(this,token); }
 
 # Comment
 
@@ -394,6 +393,5 @@ using namespace std;
 using namespace Scripter;
 
 #define PTK(x) (static_cast<Token *>(x))
-#define STK(x) (static_cast<StringToken *>(x))
 #define JOIN(x,y) (PTK(x)->SetNext(PTK(y)))
 #define FUNCID(x) ((static_cast<IdToken *>(x))->id)

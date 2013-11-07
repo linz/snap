@@ -79,83 +79,9 @@ void BooleanToken::print( const wxString &prefix, ostream &str )
     str << prefix << "BooleanToken: " << value << endl;
 }
 
-StringToken::StringToken( ScriptImp *owner, wxString dtext ) :
-    Token( owner )
-{
-    // Remove intial and final quote marks
-
-    interpolate = dtext[0] == '"';
-    if( dtext[0] == '"' || dtext[0] == '\'' )
-    {
-        text = dtext.substr(1,dtext.size()-2);
-    }
-    else
-    {
-        text = dtext;
-    }
-}
-
 Value StringToken::evaluate()
 {
-    wxString value;
-    wxString name;
-    Value variable;
-    if( ! interpolate )
-    {
-        value = text;
-    }
-    else
-    {
-        bool escape = false;
-        bool invariable = false;
-        int last = text.size();
-        for( int i = 0; i < last; i++ )
-        {
-            char c = text.at(i);
-            if( invariable )
-            {
-                if( isalnum(c) || c == '_' )
-                {
-                    name.append(c);
-                    continue;
-                }
-                if( Owner()->GetValue(name,variable) ) value.append( variable.AsString() );
-                invariable = false;
-                if( c == '$' ) continue;
-            }
-
-            if( escape )
-            {
-                escape = false;
-                switch( c )
-                {
-                case 'n': c = '\n'; break;
-                case 'r': c = '\r'; break;
-                case 't': c = '\t'; break;
-                }
-            }
-            else if( c == '\\' )
-            {
-                escape = true;
-                continue;
-            }
-            else if( c == '$' )
-            {
-                invariable = true;
-                name.clear();
-                name.append(c);
-                continue;
-            }
-            value.append( c );
-        }
-
-        if( invariable )
-        {
-            if( Owner()->GetValue(name,variable) ) value.append( variable.AsString() );
-        }
-    }
-
-    Value v(value);
+    Value v(text);
     LOG(("Evaluated %s as %s\n","StringToken",v.AsString().c_str()));
     return v;
 }
@@ -858,6 +784,129 @@ bool ScriptImp::AddFunction( FunctionDef *func )
         functions.insert( pair<wxString,FunctionDef *>(name, func ) );
         result = true;
     }
+    return result;
+}
+
+Token *ScriptImp::GetVariable(const wxString &name )
+{
+    if( name == wxString("$script_file"))
+    {
+        return new StringToken(this,sourceFile);
+    }
+    else
+    {
+        return new VariableToken(this,name);
+    }
+}
+
+
+Token *ScriptImp::InterpolateString(const wxString &dtext )
+{
+    // Remove intial and final quote marks
+
+    bool interpolate = dtext[0] == '"';
+    wxString text;
+    if( dtext[0] == '"' || dtext[0] == '\'' )
+    {
+        text = dtext.substr(1,dtext.size()-2);
+    }
+    else
+    {
+        text = dtext;
+    }
+    if( ! interpolate || text.Len() == 0 )
+    {
+        return new StringToken(this,text);
+    }
+    Token *result = 0;
+    wxString value;
+    wxString name;
+
+        bool escape = false;
+        bool invariable = false;
+        int last = text.size();
+        for( int i = 0; i <= last; i++ )
+        {
+            char c = i < last ? text.at(i) : 0;
+            if( invariable )
+            {
+                if( isalnum(c) || c == '_' )
+                {
+                    name.append(c);
+                    continue;
+                }
+                if( name.Len() > 0 )
+                {
+                    if( value.Len() > 0 )
+                    {
+                        Token *next = new StringToken( this, value );
+                        value.clear();
+                        if( result )
+                        {
+                            result = new Operator(this,opConcat,result,next);
+                        }
+                        else
+                        {
+                            result = next;
+                        }
+                    }
+                    Token *var = this->GetVariable( name );
+                    if( result )
+                    {
+                        result = new Operator(this,opConcat,result,var);
+                    }
+                    else
+                    {
+                        result = var;
+                    }
+                }
+                else
+                {
+                    value.append('$');
+                }
+                invariable = false;
+            }
+
+            if( escape && c )
+            {
+                escape = false;
+                switch( c )
+                {
+                case 'n': c = '\n'; break;
+                case 'r': c = '\r'; break;
+                case 't': c = '\t'; break;
+                }
+            }
+            else if( c == '\\' )
+            {
+                escape = true;
+                continue;
+            }
+            else if( c == '$' )
+            {
+                invariable = true;
+                name.clear();
+                name.append(c);
+                continue;
+            }
+            else if( c )
+            {
+                value.append( c );
+            }
+        }
+
+        if( ! result || value.Len() > 0 )
+                   {
+                        Token *next = new StringToken( this, value );
+                        if( result )
+                        {
+                            result = new Operator(this,opConcat,result,next);
+                        }
+                        else
+                        {
+                            result = next;
+                        }
+                    }
     return result;
 }
 

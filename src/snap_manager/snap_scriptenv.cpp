@@ -1,4 +1,6 @@
+#include <stdio.h>
 #include "snapconfig.h"
+#include "util/fileutil.h"
 #include "wx_includes.hpp"
 #include "snap_scriptenv.hpp"
 #include "fstream"
@@ -149,9 +151,13 @@ void SnapMgrScriptEnv::AddSnapDirToPath()
     wxString pathEnv;
     ::wxGetEnv( _T("PATH"), &pathEnv );
     wxString newPath = imagePath;
+	newPath.Append(PATHENV_SEP);
+	newPath.Append(imagePath);
+	newPath.Append(PATH_SEPARATOR);
+	newPath.Append(_T("tools"));
     if( ! pathEnv.IsEmpty() )
     {
-        newPath.Append( _T(";"));   // NOTE: This only works for MSDOS ...
+        newPath.Append( _T(PATHENV_SEP));   // NOTE: This only works for MSDOS ...
         newPath.Append( pathEnv );
     }
     ::wxSetEnv( _T("PATH"), newPath);
@@ -202,6 +208,8 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxEmptyString));
     DEFINE_VARIABLE("$snap_path",imagePath);
     DEFINE_VARIABLE("$script_path",scriptPath);
+    const char *home_dir = get_app_home_dir();
+    DEFINE_VARIABLE("$user_path",home_dir ? home_dir : wxEmptyString);
     DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxEmptyString));
     DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxEmptyString));
     DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxEmptyString));

@@ -28,11 +28,13 @@ char *find_image( const char *argv0 );
 #define PATH_SEPARATOR2 '/'
 #define DRIVE_SEPARATOR ':'
 #define EXTENSION_SEPARATOR '.'
+#define PATHENV_SEP ";"
 #else
 #define PATH_SEPARATOR '/'
 #define PATH_SEPARATOR2 '\\'
 #define DRIVE_SEPARATOR '\0'
 #define EXTENSION_SEPARATOR '.'
+#define PATHENV_SEP ":"
 #endif
 
 #define MAX_FILENAME_LEN 256
@@ -42,14 +44,15 @@ char *find_image( const char *argv0 );
 #define FF_TRYCURDIR  8
 #define FF_TRYALL    15
 
+void set_application_name( const char *appname );
 void set_find_file_directories( const char *progname, const char *basedir, const char *homeenv );
 void set_find_file_prog_dir( const char *progname );
 void set_find_file_home_dir( const char *homedir );
 void set_find_file_base_dir( const char *basefile );
 char *find_file( const char *name, const char *dflt_ext, int options );
+char *find_config_file( const char *name, const char *dflt_ext, const char *configdir, int options );
 char *find_file_from_base( const char *base, const char *name, const char *dflt_ext );
-FILE *snaptmpfile( void );
-
-
+const char *get_app_home_dir();
+FILE *snaptmpfile();
 
 #endif

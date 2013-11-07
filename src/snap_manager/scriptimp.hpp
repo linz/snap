@@ -63,11 +63,10 @@ public:
 class StringToken : public Token
 {
 public:
-    StringToken( ScriptImp *owner, wxString text );
+    StringToken( ScriptImp *owner, const wxString &text ) : Token(owner), text(text) {};
     virtual Value evaluate();
     virtual void print( const wxString &prefix, ostream &str );
     wxString text;
-    bool interpolate;
 };
 
 class IdToken : public Token
@@ -365,6 +364,8 @@ public:
     MenuItem *AddMenuItem( MenuItem *item );
     bool AddFunction( FunctionDef *func );
 
+    Token *GetVariable( const wxString &name );
+    Token *InterpolateString( const wxString &text );
     void SetValue( const wxString &name, const Value &value );
     bool GetValue( const wxString &name, Value &value );
     void EvaluateFunction( const wxString &name, int nParams, Value params[], Value &result );

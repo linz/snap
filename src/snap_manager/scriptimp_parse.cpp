@@ -1,7 +1,7 @@
 //
 // File: scriptimp_parse.cpp 
 // Generated from: scriptimp_parse.syntax 
-// Date: 2013-11-05 13:06:43
+// Date: 2013-02-20 08:45:56
 // 
 // Built by lapg: 
 
@@ -15,7 +15,6 @@ using namespace std;
 using namespace Scripter;
 
 #define PTK(x) (static_cast<Token *>(x))
-#define STK(x) (static_cast<StringToken *>(x))
 #define JOIN(x,y) (PTK(x)->SetNext(PTK(y)))
 #define FUNCID(x) ((static_cast<IdToken *>(x))->id)
 struct lapg_place {
@@ -818,30 +817,30 @@ int ScriptImp::parse()
 			} break;
 			case 2: {
 				#line 12 "scriptimp_parse.syntax"
-				 *(Token * *)&lapg_n.sym = new VariableToken(this,token); 
+				 *(Token * *)&lapg_n.sym = this->GetVariable( token ); 
 			} break;
 			case 3: {
-				#line 27 "scriptimp_parse.syntax"
-				 *(StringToken * *)&lapg_n.sym = new StringToken(this,token); 
+				#line 26 "scriptimp_parse.syntax"
+				 *(Token * *)&lapg_n.sym = this->InterpolateString(token); 
 			} break;
 			case 4: {
-				#line 28 "scriptimp_parse.syntax"
-				 *(StringToken * *)&lapg_n.sym = new StringToken(this,token); 
+				#line 27 "scriptimp_parse.syntax"
+				 *(Token * *)&lapg_n.sym = this->InterpolateString(token); 
 			} break;
 			case 5: {
-				#line 29 "scriptimp_parse.syntax"
-				 *(StringToken * *)&lapg_n.sym = new StringToken(this,token); 
+				#line 28 "scriptimp_parse.syntax"
+				 *(Token * *)&lapg_n.sym = new StringToken(this,token); 
 			} break;
 			case 6: {
-				#line 34 "scriptimp_parse.syntax"
+				#line 33 "scriptimp_parse.syntax"
 				 continue;
 			} break;
 			case 23: {
-				#line 66 "scriptimp_parse.syntax"
+				#line 65 "scriptimp_parse.syntax"
 				 *(Token * *)&lapg_n.sym = new BooleanToken( this, true ) ; 
 			} break;
 			case 24: {
-				#line 67 "scriptimp_parse.syntax"
+				#line 66 "scriptimp_parse.syntax"
 				 *(Token * *)&lapg_n.sym = new BooleanToken( this, false ); 
 			} break;
 		}
@@ -857,311 +856,311 @@ int ScriptImp::parse()
 				lapg_gg.pos = (lapg_rlen[lapg_i])?lapg_m[lapg_head+1-lapg_rlen[lapg_i]].pos:lapg_n.pos;
 				switch( lapg_i ) {
 					case 0: {
-						#line 121 "scriptimp_parse.syntax"
+						#line 120 "scriptimp_parse.syntax"
 						 program = static_cast<Token *>(lapg_m[lapg_head-0].sym); 
 					} break;
 					case 1: {
-						#line 125 "scriptimp_parse.syntax"
+						#line 124 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new StatementBlockToken( this, 0 ); 
 					} break;
 					case 2: {
-						#line 126 "scriptimp_parse.syntax"
+						#line 125 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-1].sym; 
 					} break;
 					case 3: {
-						#line 128 "scriptimp_parse.syntax"
+						#line 127 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new StatementBlockToken( this, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 4: {
-						#line 129 "scriptimp_parse.syntax"
+						#line 128 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-1].sym; (static_cast<StatementBlockToken *>(lapg_gg.sym))->AddStatements(PTK(lapg_m[lapg_head-0].sym)); 
 					} break;
 					case 5: {
-						#line 133 "scriptimp_parse.syntax"
+						#line 132 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new StatementBlockToken( this, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 6: {
-						#line 134 "scriptimp_parse.syntax"
+						#line 133 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-1].sym; (static_cast<StatementBlockToken *>(lapg_gg.sym))->AddStatements(PTK(lapg_m[lapg_head-0].sym)); 
 					} break;
 					case 7: {
-						#line 138 "scriptimp_parse.syntax"
+						#line 137 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 8: {
-						#line 139 "scriptimp_parse.syntax"
+						#line 138 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 9: {
-						#line 140 "scriptimp_parse.syntax"
+						#line 139 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 10: {
-						#line 142 "scriptimp_parse.syntax"
+						#line 141 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 11: {
-						#line 143 "scriptimp_parse.syntax"
+						#line 142 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 12: {
-						#line 144 "scriptimp_parse.syntax"
+						#line 143 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 13: {
-						#line 145 "scriptimp_parse.syntax"
+						#line 144 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 14: {
-						#line 146 "scriptimp_parse.syntax"
+						#line 145 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 15: {
-						#line 151 "scriptimp_parse.syntax"
+						#line 150 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new AssignmentToken( this, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 16: {
-						#line 156 "scriptimp_parse.syntax"
+						#line 155 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ExitToken(this,elLoopInner);
 					} break;
 					case 17: {
-						#line 158 "scriptimp_parse.syntax"
+						#line 157 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ExitToken(this,elLoop);
 					} break;
 					case 18: {
-						#line 160 "scriptimp_parse.syntax"
+						#line 159 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ExitToken(this,elReturn,PTK(lapg_m[lapg_head-0].sym)); 
 					} break;
 					case 19: {
-						#line 162 "scriptimp_parse.syntax"
+						#line 161 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ExitToken(this,elExit); 
 					} break;
 					case 20: {
-						#line 170 "scriptimp_parse.syntax"
+						#line 169 "scriptimp_parse.syntax"
 						 AddFunction(new FunctionDef( this, FUNCID(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-1].sym) )); lapg_gg.sym = 0; 
 					} break;
 					case 21: {
-						#line 175 "scriptimp_parse.syntax"
+						#line 174 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new FunctionToken(this, FUNCID(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 22: {
-						#line 180 "scriptimp_parse.syntax"
+						#line 179 "scriptimp_parse.syntax"
 						 lapg_gg.sym = ((Token *)lapg_m[lapg_head-0].sym); 
 					} break;
 					case 23: {
-						#line 186 "scriptimp_parse.syntax"
+						#line 185 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-1].sym; 
 					} break;
 					case 24: {
-						#line 188 "scriptimp_parse.syntax"
+						#line 187 "scriptimp_parse.syntax"
 						lapg_gg.sym = 0; 
 					} break;
 					case 25: {
-						#line 193 "scriptimp_parse.syntax"
+						#line 192 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 26: {
-						#line 195 "scriptimp_parse.syntax"
+						#line 194 "scriptimp_parse.syntax"
 						 lapg_gg.sym = JOIN(lapg_m[lapg_head-2].sym, lapg_m[lapg_head-0].sym ); 
 					} break;
 					case 27: {
-						#line 203 "scriptimp_parse.syntax"
+						#line 202 "scriptimp_parse.syntax"
 						 lapg_gg.sym = (static_cast<MenuItem *>(lapg_m[lapg_head-3].sym))->AddRequirements(PTK(lapg_m[lapg_head-2].sym))->AddActions(PTK(lapg_m[lapg_head-1].sym));
 					} break;
 					case 28: {
-						#line 206 "scriptimp_parse.syntax"
+						#line 205 "scriptimp_parse.syntax"
 						 lapg_gg.sym = (static_cast<MenuItem *>(lapg_m[lapg_head-2].sym))->AddActions(PTK(lapg_m[lapg_head-1].sym)); 
 					} break;
 					case 29: {
-						#line 214 "scriptimp_parse.syntax"
+						#line 213 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new MenuItem( this, PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 31: {
-						#line 222 "scriptimp_parse.syntax"
+						#line 221 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 32: {
-						#line 226 "scriptimp_parse.syntax"
+						#line 225 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 35: {
-						#line 234 "scriptimp_parse.syntax"
+						#line 233 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogToken( this,PTK(lapg_m[lapg_head-4].sym), PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-2].sym) ); 
 					} break;
 					case 36: {
-						#line 237 "scriptimp_parse.syntax"
+						#line 236 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogToken( this,PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-1].sym), 0, 0 ); 
 					} break;
 					case 37: {
-						#line 241 "scriptimp_parse.syntax"
+						#line 240 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 38: {
-						#line 242 "scriptimp_parse.syntax"
+						#line 241 "scriptimp_parse.syntax"
 						lapg_gg.sym = JOIN(lapg_m[lapg_head-1].sym,lapg_m[lapg_head-0].sym); 
 					} break;
 					case 39: {
-						#line 247 "scriptimp_parse.syntax"
+						#line 246 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctLabel, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 40: {
-						#line 250 "scriptimp_parse.syntax"
+						#line 249 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctTextBox, PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-2].sym), 0, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 41: {
-						#line 253 "scriptimp_parse.syntax"
+						#line 252 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctDropDownSelector, PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 42: {
-						#line 256 "scriptimp_parse.syntax"
+						#line 255 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctListBox, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 43: {
-						#line 259 "scriptimp_parse.syntax"
+						#line 258 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctRadioSelector, PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 44: {
-						#line 262 "scriptimp_parse.syntax"
+						#line 261 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctCheckBox, PTK(lapg_m[lapg_head-0].sym), PTK(lapg_m[lapg_head-1].sym) ); 
 					} break;
 					case 45: {
-						#line 265 "scriptimp_parse.syntax"
+						#line 264 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctOpenFileSelector, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 46: {
-						#line 268 "scriptimp_parse.syntax"
+						#line 267 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctSaveFileSelector, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-1].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 47: {
-						#line 271 "scriptimp_parse.syntax"
+						#line 270 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctButton, PTK(lapg_m[lapg_head-1].sym), 0, 0, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 48: {
-						#line 274 "scriptimp_parse.syntax"
+						#line 273 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctValidator, 0, 0, 0, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 49: {
-						#line 277 "scriptimp_parse.syntax"
+						#line 276 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctSpacer ); 
 					} break;
 					case 50: {
-						#line 280 "scriptimp_parse.syntax"
+						#line 279 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new DialogControlToken( this, ctNewColumn ); 
 					} break;
 					case 55: {
-						#line 294 "scriptimp_parse.syntax"
+						#line 293 "scriptimp_parse.syntax"
 						 PTK(lapg_m[lapg_head-3].sym)->SetNext(PTK(lapg_m[lapg_head-2].sym))-> SetNext(PTK(lapg_m[lapg_head-1].sym));  lapg_gg.sym = new ConditionalStatement( this, PTK(lapg_m[lapg_head-3].sym) ); 
 					} break;
 					case 57: {
-						#line 304 "scriptimp_parse.syntax"
+						#line 303 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ConditionalBranch( this, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 58: {
-						#line 309 "scriptimp_parse.syntax"
+						#line 308 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 59: {
-						#line 311 "scriptimp_parse.syntax"
+						#line 310 "scriptimp_parse.syntax"
 						 lapg_gg.sym = JOIN(lapg_m[lapg_head-2].sym,lapg_m[lapg_head-0].sym); 
 					} break;
 					case 60: {
-						#line 316 "scriptimp_parse.syntax"
+						#line 315 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ConditionalBranch( this, 0, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 62: {
-						#line 328 "scriptimp_parse.syntax"
+						#line 327 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ConditionalBranch( this, PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-1].sym), true ); 
 					} break;
 					case 63: {
-						#line 336 "scriptimp_parse.syntax"
+						#line 335 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ForeachToken( this, PTK(lapg_m[lapg_head-5].sym), PTK(lapg_m[lapg_head-3].sym), 0, PTK(lapg_m[lapg_head-1].sym)); 
 					} break;
 					case 64: {
-						#line 338 "scriptimp_parse.syntax"
+						#line 337 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ForeachToken( this, PTK(lapg_m[lapg_head-7].sym), PTK(lapg_m[lapg_head-5].sym), PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-1].sym)); 
 					} break;
 					case 65: {
-						#line 340 "scriptimp_parse.syntax"
+						#line 339 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new ForeachToken( this, PTK(lapg_m[lapg_head-7].sym), PTK(lapg_m[lapg_head-5].sym), PTK(lapg_m[lapg_head-3].sym), PTK(lapg_m[lapg_head-1].sym), true); 
 					} break;
 					case 66: {
-						#line 347 "scriptimp_parse.syntax"
+						#line 346 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 67: {
-						#line 348 "scriptimp_parse.syntax"
+						#line 347 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 68: {
-						#line 349 "scriptimp_parse.syntax"
+						#line 348 "scriptimp_parse.syntax"
 						lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 69: {
-						#line 353 "scriptimp_parse.syntax"
+						#line 352 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 70: {
-						#line 357 "scriptimp_parse.syntax"
+						#line 356 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 71: {
-						#line 358 "scriptimp_parse.syntax"
+						#line 357 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 72: {
-						#line 359 "scriptimp_parse.syntax"
+						#line 358 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 73: {
-						#line 360 "scriptimp_parse.syntax"
+						#line 359 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 74: {
-						#line 361 "scriptimp_parse.syntax"
+						#line 360 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 75: {
-						#line 362 "scriptimp_parse.syntax"
+						#line 361 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-1].sym; 
 					} break;
 					case 76: {
-						#line 366 "scriptimp_parse.syntax"
+						#line 365 "scriptimp_parse.syntax"
 						lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 77: {
-						#line 367 "scriptimp_parse.syntax"
+						#line 366 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new Operator( this, opConcat, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 78: {
-						#line 371 "scriptimp_parse.syntax"
+						#line 370 "scriptimp_parse.syntax"
 						lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 79: {
-						#line 372 "scriptimp_parse.syntax"
+						#line 371 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new Operator( this, opEq, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 80: {
-						#line 373 "scriptimp_parse.syntax"
+						#line 372 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new Operator( this, opNe, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 81: {
-						#line 377 "scriptimp_parse.syntax"
+						#line 376 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 82: {
-						#line 378 "scriptimp_parse.syntax"
+						#line 377 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new Operator( this, opNot, PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 83: {
-						#line 382 "scriptimp_parse.syntax"
+						#line 381 "scriptimp_parse.syntax"
 						 lapg_gg.sym = lapg_m[lapg_head-0].sym; 
 					} break;
 					case 84: {
-						#line 383 "scriptimp_parse.syntax"
+						#line 382 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new Operator( this, opAnd, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 					case 85: {
-						#line 384 "scriptimp_parse.syntax"
+						#line 383 "scriptimp_parse.syntax"
 						 lapg_gg.sym = new Operator( this, opOr, PTK(lapg_m[lapg_head-2].sym), PTK(lapg_m[lapg_head-0].sym) ); 
 					} break;
 				}
