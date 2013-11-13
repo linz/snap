@@ -13,8 +13,8 @@
 #endif
 
 int read_command_file( char *fname );
-int read_configuration_file( char *fname );
-char *find_configuration_file( char *name, int use_cmd_dir, int use_home_dir );
+int read_configuration_file( const char *fname );
+const char *find_configuration_file( const char *name );
 int process_default_configuration( void );
 
 #endif

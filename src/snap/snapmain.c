@@ -113,7 +113,7 @@ int snap_main( int argc, char *argv[] )
 
     get_date( run_time );
 
-    init_snap_globals( argv[0] );
+    init_snap_globals();
 
     if( read_parameters( argc, argv ) != OK )
     {
@@ -123,7 +123,7 @@ int snap_main( int argc, char *argv[] )
 
     /* Load the coordinate system definition file */
 
-    install_default_crdsys_file( prog_dir );
+    install_default_crdsys_file();
 
     /* Check that the command file exists */
 
@@ -593,23 +593,6 @@ static int read_parameters( int argc, char *argv[] )
                 }
                 break;
 
-            case 'u':
-            case 'U': if( arg[2] )
-                {
-                    set_snap_user_dir( arg+2 );
-                }
-                else if( argc )
-                {
-                    set_snap_user_dir( *++argv );
-                    argc--;
-                }
-                else
-                {
-                    xprintf("\nUser directory name missing after -u switch\n");
-                    sts = MISSING_DATA;
-                }
-                break;
-
                 /* Option for testing so that output doesn't contain run time specific info */
             case 'q':
             case 'Q':
@@ -645,8 +628,8 @@ static int read_parameters( int argc, char *argv[] )
 
     if( cfg_file )
     {
-        char *cf;
-        cf = find_configuration_file( cfg_file, 0, 1 );
+        const char *cf;
+        cf = find_configuration_file( cfg_file );
         if( cf )
         {
             set_snap_config_file( copy_string( cf ));

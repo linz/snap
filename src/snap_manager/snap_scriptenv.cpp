@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "snapconfig.h"
 #include "util/fileutil.h"
+#include "snap/filenames.h"
 #include "wx_includes.hpp"
 #include "snap_scriptenv.hpp"
 #include "fstream"
@@ -48,25 +49,31 @@ void SnapMgrScriptEnv::SetupConfiguration()
     // Add the image path to the path variable ...
     // Mainly for the shell command ..
 
-    imageName = wxStandardPaths::Get().GetExecutablePath();
-    wxFileName cfg(imageName);
-    imagePath = cfg.GetPath();
-    wxFileName scriptDir(imageName);
-    scriptDir.AppendDir(_T("scripts"));
-    scriptPath = scriptDir.GetPath();
-
+    set_user_config_from_env( SNAPENV );
     AddSnapDirToPath();
 
-    cfg.SetExt( _T("cfg") );
-    if( cfg.FileExists() )
+	scriptPath=wxString(_T(system_config_dir()));
+	scriptPath.Append(_T(PATH_SEPARATOR));
+	scriptPath.Append("snap_manager");
+	scriptPath.Append(_T(PATH_SEPARATOR));
+	scriptPath.Append("scripts");
+
+	userScriptPath=wxString(_T(user_config_dir()));
+	userScriptPath.Append(_T(PATH_SEPARATOR));
+	userScriptPath.Append("snap_manager");
+	userScriptPath.Append(_T(PATH_SEPARATOR));
+	userScriptPath.Append("scripts");
+
+	const char *cfgfile=find_config_file("snap_manager","snap_manager.cfg",0);
+    if( cfgfile )
     {
-        script->ExecuteScript( cfg.GetFullPath().c_str() );
+        script->ExecuteScript( cfgfile );
     }
 }
 
 void SnapMgrScriptEnv::GetCoordSysList()
 {
-    install_default_crdsys_file( (char *) wxStandardPaths::Get().GetExecutablePath().c_str());
+    install_default_crdsys_file();
     coordsyslist.Empty();
     for( int i = 0; i < coordsys_list_count(); i++ )
     {
@@ -146,21 +153,42 @@ bool SnapMgrScriptEnv::UpdateJob()
     return updated;
 }
 
+void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar )
+{
+	// Ensure path is using correct delimiter
+	wxString psep=PATH_SEPARATOR;
+	wxString psep2=PATH_SEPARATOR2;
+	wxString envsep=PATHENV_SEP;
+	wxString pathval=path;
+	pathval.Replace(psep2,psep);
+
+	// Remove the
+
+	wxString envval;
+    ::wxGetEnv( envvar, &envval )	;
+	if( envval.IsEmpty() )
+	{
+		envval = pathval;
+	}
+	else
+	{
+		wxArrayString paths=::wxStringTokenize(envval,envsep);
+		envval=pathval;
+		for( size_t i = 0; i < paths.Count(); i++ )
+		{
+			if( paths[i] != pathval )
+			{
+				envval.Append(_T(PATHENV_SEP));
+				envval.Append(paths[i]);
+			}
+		}
+	}
+	::wxSetEnv(envvar,envval);
+}
+
 void SnapMgrScriptEnv::AddSnapDirToPath()
 {
-    wxString pathEnv;
-    ::wxGetEnv( _T("PATH"), &pathEnv );
-    wxString newPath = imagePath;
-	newPath.Append(PATHENV_SEP);
-	newPath.Append(imagePath);
-	newPath.Append(PATH_SEPARATOR);
-	newPath.Append(_T("tools"));
-    if( ! pathEnv.IsEmpty() )
-    {
-        newPath.Append( _T(PATHENV_SEP));   // NOTE: This only works for MSDOS ...
-        newPath.Append( pathEnv );
-    }
-    ::wxSetEnv( _T("PATH"), newPath);
+	InsertPath( image_dir());
 }
 
 
@@ -206,15 +234,16 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$job_file",(job ? job->GetFilename() : wxEmptyString ));
     DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxEmptyString));
     DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxEmptyString));
-    DEFINE_VARIABLE("$snap_path",imagePath);
-    DEFINE_VARIABLE("$script_path",scriptPath);
-    const char *home_dir = get_app_home_dir();
-    DEFINE_VARIABLE("$user_path",home_dir ? home_dir : wxEmptyString);
+    DEFINE_VARIABLE("$snap_path",image_dir());
+    DEFINE_VARIABLE("$user_config_path",user_config_dir());
+	DEFINE_VARIABLE("$system_config_path", system_config_dir());
     DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxEmptyString));
     DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxEmptyString));
     DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxEmptyString));
     DEFINE_VARIABLE("$coordsys_list", coordsyslist );
-    return false;
+	DEFINE_VARIABLE("$user_script_path",userScriptPath );
+    DEFINE_VARIABLE("$system_script_path",scriptPath);    
+	return false;
 }
 
 // Functions used by scripts
@@ -328,6 +357,9 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxFileName file(STRPRM(0));
     file.SetExt(STRPRM(1));
     RETURN( file.GetFullPath() )
+
+    DEFINE_FUNCTION("DirectoryExists",1)
+    RETURN( ::wxDirExists( STRPRM(0)) )
 
     DEFINE_FUNCTION("FileExists",1)
     RETURN( ::wxFileExists( STRPRM(0)) )
@@ -528,6 +560,16 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     bool result = config->Write(STRPRM(0),STRPRM(1));
     RETURN( result );
 
+	// Get a configuration file
+
+	DEFINE_FUNCTION2("FindConfigFile",2,3)
+	const char *cfgsec=STRPRM(0).c_str();
+	const char *fname=STRPRM(1).c_str();
+	const char *fext=nParams > 2 ? STRPRM(2).c_str() : 0;
+	const char *cfgfile=find_config_file(cfgsec,fname,fext);
+	wxString result = cfgfile ? _T(cfgfile) : _T("");
+	RETURN( result );
+
     // Regular expression match
 
     DEFINE_FUNCTION2("Match",2,3)
@@ -576,12 +618,29 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     result = wxDateTime::Now().Format( format );
     RETURN( result )
 
+	// Insert path into environment variable (default PATH)
+
+	DEFINE_FUNCTION2("InsertPath",1,2)
+	wxString pathval=STRPRM(0);
+	wxString pathvar= nParams > 0 ? STRPRM(1) : _T("PATH");
+	InsertPath(pathval,pathvar);
+	wxString result;
+	wxGetEnv(pathvar,&result);
+	RETURN( result )
+
     // Environment variable
 
     DEFINE_FUNCTION("GetEnv",1)
     wxString result;
     wxGetEnv( STRPRM(0), &result );
     RETURN( result )
+
+    // Environment variable
+
+    DEFINE_FUNCTION("SetEnv",2)
+    wxString value=STRPRM(1);
+    wxSetEnv( STRPRM(0), value.c_str() );
+    RETURN( value )
 
     // Loading and unloading job is passed back to the frame window,
     // to ensure the user interface is updated...

@@ -49,10 +49,11 @@ echo PS projection
 %concord% -iWGS84,NEH,H -oANT_PS,NEH -N6 in\test1.in out\test7.out > out\test7.txt  2>&1
 
 echo Geoid calculation
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gNZgTest09 -N6 in\test1.in out\test8.out > out\test8.txt 2>&1
+%concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest\NZgTest09 -N6 in\test1.in out\test8.out > out\test8.txt 2>&1
 
 echo Default geoid - egm96 in this case
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -N6 in\test1.in out\test8a.out > out\test8a.txt 2>&1
+rem (Test no longer valid - just loadng file directly)
+%concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest\geoid -N6 in\test1.in out\test8a.out > out\test8a.txt 2>&1
 
 echo Geoid calculation - invalid geoid
 %concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gNoSuchGeoid -N6 in\test1.in out\test8b.out > out\test8b.txt 2>&1
@@ -66,7 +67,7 @@ echo Different output options
 
 %concord% -iNZGD2000,NEH,H -oNZGD2000,ENH -N6 in\test1.in out\test11.out > out\test11.txt  2>&1
 
-%concord% -INZGD2000,ENH,D -oNZGD2000,ENO,H -gNZgTest09 -p5 in\test.lln out\test12.out > out\test12.txt 2>&1
+%concord% -INZGD2000,ENH,D -oNZGD2000,ENO,H -gcstest\NZgTest09 -p5 in\test.lln out\test12.out > out\test12.txt 2>&1
 
 echo Reference frame conversions
 

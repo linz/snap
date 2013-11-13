@@ -42,17 +42,17 @@ private:
     // Sets up the image file name, used to identify the path to
     // utility programs and load the configuration script ..
     void SetupConfiguration();
+	void InsertPath( const wxString &path, const wxString &envvar=_T("PATH") );
     void AddSnapDirToPath();
     void GetCoordSysList();
 
     wxWindow *frameWindow;
     Scripter::Script *script;
     SnapJob *job;
-    wxString imageName;
-    wxString imagePath;
-    wxString scriptPath;
     wxString coordsyslist;
     wxConfig *config;
+	wxString scriptPath;
+	wxString userScriptPath;
     wxArrayString tmpFiles;
 
 };

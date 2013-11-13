@@ -17,7 +17,7 @@ int read_plot_command_file( char *command_file, int got_data );
 /* Done before configuration file read */
 void add_default_configuration_files( void );
 /* Done before list processed */
-int add_configuration_file( char *fname );
+int add_configuration_file( const char *fname );
 /* Done after file loaded */
 int process_configuration_file_list( void );
 
@@ -39,5 +39,7 @@ int write_config_file( FILE *out, int key_only );
 
 
 #define SNAPPLOT_CONFIG_EXT ".spc"
+#define SNAPPLOT_CONFIG_FILE "snapplot.spc"
+#define SNAPPLOT_CONFIG_SECTION "snapplot"
 
 #endif

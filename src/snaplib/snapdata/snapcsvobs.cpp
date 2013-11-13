@@ -935,8 +935,8 @@ int load_snap_csv_obs( const char *options, DATAFILE *df, int (*check_progress)(
     {
         OptionString config(options ? options : ""); 
         std::string format = config.valueOf("format","obs");
-        char *formatfile;
-        formatfile = find_file( format.c_str(), ".dtf", FF_TRYALL );
+        const char *formatfile;
+        formatfile = find_file( format.c_str(), ".dtf", df->fname, FF_TRYALL, CSVFORMAT_CONFIG );
         if( ! formatfile )
         {
             std::ostringstream os;

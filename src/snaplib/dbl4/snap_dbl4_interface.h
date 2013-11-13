@@ -3,7 +3,7 @@
 
 #include "dbl4_utl_blob.h"
 
-int utlCreateReadonlyFileBlob( char *filename, hBlob *blob );
+int utlCreateReadonlyFileBlob( const char *filename, hBlob *blob );
 
 #endif
 

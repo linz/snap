@@ -61,7 +61,7 @@ static int npens = 0;
 static long npts = 0;
 static char *whitespace = " \r\n\t";
 
-void add_background_file( char *fname, char *crdsysdef, char *layer )
+void add_background_file( const char *fname, char *crdsysdef, char *layer )
 {
     background_file *bf;
     if( !bkg_list )

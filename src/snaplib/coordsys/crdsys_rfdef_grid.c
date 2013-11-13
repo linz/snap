@@ -22,7 +22,7 @@ typedef struct
 } ref_deformation_grid;
 
 
-static ref_deformation_grid *rf_grid_create( char *filename, double refepoch )
+static ref_deformation_grid *rf_grid_create( const char *filename, double refepoch )
 {
     ref_deformation_grid *gd;
     gd = (ref_deformation_grid *) check_malloc( sizeof(ref_deformation_grid) );
@@ -132,7 +132,7 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
 int rfdef_parse_griddef( ref_deformation *def, input_string_def *is )
 {
     double refepoch;
-    char *gridfile;
+    const char *gridfile;
     char filename[MAX_FILENAME_LEN];
     int sts;
 
@@ -150,7 +150,7 @@ int rfdef_parse_griddef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
-    gridfile = find_file_from_base( is->sourcename, filename, ".grd" );
+    gridfile = find_relative_file( is->sourcename, filename, ".grd" );
     if( ! gridfile )
     {
         char errmess[80+MAX_FILENAME_LEN];

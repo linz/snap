@@ -69,6 +69,6 @@
       <Filter>Source Files</Filter>
     </None>
     <None Include="..\..\..\src\snap_manager\Notes.txt" />
-    <None Include="..\..\..\src\snap_manager\snap_manager.cfg" />
+    <None Include="..\..\..\src\snap_manager\config\snap_manager\snap_manager.cfg" />
   </ItemGroup>
 </Project>

@@ -32,39 +32,16 @@
 
 static char rcsid[]="$Id: snapglob.c,v 1.5 2003/11/24 01:34:13 ccrook Exp $";
 
-void init_snap_globals( char *prog_file )
+void init_snap_globals()
 {
-    int nch;
     int i;
-
-    program_file_name = find_image(prog_file);
     command_file = NULL;
     config_file = NULL;
     root_name = NULL;
     cmd_dir = NULL;
-    user_dir = getenv( SNAPENV );
-    if( user_dir )
-    {
-        nch = strlen(user_dir);
-        if( user_dir[nch-1] != PATH_SEPARATOR )
-        {
-            char *u = user_dir;
-            user_dir = (char *) check_malloc( nch+2 );
-            strcpy( user_dir, u );
-            user_dir[nch] = PATH_SEPARATOR;
-            user_dir[nch+1] = '\0';
-        }
-    }
-    prog_dir = NULL;
-    nch = path_len( program_file_name, 0 );
-    if( nch )
-    {
-        prog_dir = (char *) check_malloc( nch + 1 );
-        strncpy( prog_dir, program_file_name, nch );
-        prog_dir[nch] = 0;
-    }
+	set_user_config_from_env( SNAPENV );
 
-    job_title[0] = 0;
+	job_title[0] = 0;
     dimension = 2;
     program_mode = ADJUST;
     max_iterations = 5;
@@ -92,14 +69,11 @@ void init_snap_globals( char *prog_file )
         obs_precision[i] = datatype[i].dfltndp;
     }
     init_classifications( &obs_classes );
-    set_find_file_directories( program_file_name, 0, user_dir );
 }
 
 
 void set_snap_command_file( char *cmd_file )
 {
-    int nch;
-
     if( file_exists( cmd_file ) )
     {
         command_file = copy_string( cmd_file );
@@ -122,21 +96,9 @@ void set_snap_command_file( char *cmd_file )
         command_file = cf;
     }
 
-
-    set_find_file_base_dir( command_file );
-
-    nch = path_len( command_file, 0 );
-    if( nch )
-    {
-        cmd_dir = (char *) check_malloc( nch+1);
-        strncpy( cmd_dir, command_file, nch );
-        cmd_dir[nch] = 0;
-    }
-
-    nch = path_len( cmd_file, 1 );
-    root_name = (char *) check_malloc( nch+1 );
-    if( nch > 0 ) memcpy( root_name, cmd_file, nch );
-    root_name[nch] = 0;
+	cmd_dir=copy_string_nch( command_file, path_len(command_file,0));
+	root_name=copy_string_nch( command_file, path_len(command_file,1));
+    set_project_dir( cmd_dir );
 }
 
 
@@ -144,13 +106,6 @@ void set_snap_config_file( char *cfg_file )
 {
     config_file = cfg_file;
 }
-
-void set_snap_user_dir( char *usr_dir )
-{
-    set_find_file_home_dir( usr_dir );
-    user_dir = usr_dir;
-}
-
 
 
 void dump_snap_globals( BINARY_FILE *b )

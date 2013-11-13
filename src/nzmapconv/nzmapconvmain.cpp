@@ -878,8 +878,7 @@ void NZMapConvWindow::ShowError( const wxString &error )
 bool NZMapConvWindow::SetupConversions(wxChar *image)
 {
     bool result = true;
-    install_default_crdsys_file(image);
-    set_find_file_directories( image, NULL, NULL );
+    install_default_crdsys_file();
 
     coordsys *cnzmg = load_coordsys("NZMG");
     if( ! cnzmg )

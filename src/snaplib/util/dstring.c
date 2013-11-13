@@ -22,14 +22,18 @@ static char rcsid[]="$Id: dstring.c,v 1.2 2004/04/22 02:35:24 ccrook Exp $";
 
 char *copy_string( const char *string )
 {
-    char *s;
-
-    if( ! string ) return 0;
-    s = (char *) check_malloc( strlen(string) + 1 );
-    strcpy( s, string );
-    return s;
+	return copy_string_nch( string, string ? strlen(string) : 0 );
 }
 
+char *copy_string_nch( const char *string, int nch )
+{
+	char *s;
+	if( ! string || nch < 0 ) return 0;
+    s = (char *) check_malloc( nch + 1 );
+    strncpy( s, string, nch );
+	s[nch]=0;
+    return s;
+}
 
 void dump_string( const char *string, FILE *b )
 {

@@ -103,7 +103,7 @@ typedef struct
 
 /* Basic routines for reading a configuration file */
 
-CFG_FILE *open_config_file( char *name, char comment_char );
+CFG_FILE *open_config_file( const char *name, char comment_char );
 void close_config_file( CFG_FILE *cfg );
 
 int set_config_read_options( CFG_FILE *cfg, int options );

@@ -400,8 +400,8 @@ int load_snap_csv_stations( const char *filename, const char *options )
     {
         OptionString config(options ? options : "");
         std::string format = config.valueOf("format","stn");
-        char *formatfile;
-        formatfile = find_file( format.c_str(), ".dtf", FF_TRYALL );
+        const char *formatfile;
+        formatfile = find_file( format.c_str(), ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG );
         if( ! formatfile )
         {
             std::ostringstream os;

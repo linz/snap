@@ -15,6 +15,8 @@
 #include "util/calcdltfile.hpp"
 #include "util/datafile.h"
 
+#define CSVFORMAT_CONFIG "format"
+
 namespace LINZ
 {
 namespace SNAP

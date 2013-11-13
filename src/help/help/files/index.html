@@ -3,15 +3,83 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
 <meta name="keywords" content="filenames, extensions, files">
-<title>File names used by SNAP</title>
+<title>Organisation of SNAP files</title>
 <link rel="stylesheet" type="text/css" href="../snaphelp.css">
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 
+<h1><a name="snap_file_locations"></a>Organisation of SNAP files</h1>
 
+<p>SNAP uses a number of configuration files defining aspects of its operation such as the coordinate system 
+definitions, adjustment configuration options, data file formats, and scripts used in the snap_manager program.
+These are held in system and user configuration directories.  
+</p>
+<p>Generally if a SNAP program is looking for a 
+configuration file it will look in the directory of the snap command file (if applicable), the current directory,
+and then the appropriate directory in the user and system configuration areas, in that order.  For some types of
+files some of these options may be omitted.  
+</p>
+<p>
+By default the user configuration information is in subdirectories of the directory defined by the APPDATA 
+environment variable at %APPDATA%\linz, and the system configuration directory is the config subdirectory of the 
+application installation directory.  Within each of these areas the files are organised into directories as follows:
+</p>
+<table>
+    <tr>
+        <td>coordsys</td>
+        <td>The coordsys.def coordinate system definition file, as well as geoid files, deformation files etc.</td>
+    </tr>
+    <tr>
+        <td>perl</td>
+        <td>perl scripts and batch files.  If perl is available these directories are added to the PATH
+        environment variable in snap_manager.</td>
+    </tr>
+    <tr>
+        <td>perl\perllib</td>
+        <td>perl library modules.  If perl is available these directories are added the PERL5LIB 
+            environment variable in snap_manager.</td>
+    </tr>
+    <tr>
+        <td>format</td>
+        <td>Data format definition files (for delimited text formats such as CSV files).</td>
+    </tr>
+    <tr>
+        <td>snap</td>
+        <td>SNAP configuration files</td>
+    </tr>
+    <tr>
+        <td>snapplot</td>
+        <td>snapplot configuration files (including colour schemes, additional menu commands, etc</td>
+    </tr>
+    <tr>
+        <td>snap_manager</td>
+        <td>The snap manager configuration script snap_manager.cfg</td>
+    </tr>
+    <tr>
+        <td>snap_manager\scripts</td>
+        <td>Additional snap manager scripts.  Scripts named *_menu.cfg (where * is any name) are automatically 
+            loaded when the snap_manager starts
+        </td>
+    </tr>
+    <tr>
+        <td>snap_manager\packages</td>
+        <td>snap_manager packages (defining additional functionality) are loaded into subdirectories of this 
+            directory, each taking the name of the package it defines. Scripts named *_menu.cfg are automatically
+            loaded when snap_manager starts.
+        </td>
+    </tr>
+    <tr>
+        <td>snaplist</td>
+        <td>snaplist output template files</td>
+    </tr>
+    <tr>
+        <td>snapspec</td>
+        <td>snapspec accuracy testing configuration files</td>
+    </tr>
+</table>
 
-<h1><a name="snap_files"></a>File names used by SNAP</h1>
+<h2><a name="snap_files"></a>File names used by SNAP</h2>
 
 <p>The following file names are used by SNAP and related programs.</p>
 
@@ -29,11 +97,12 @@
 
 <tr>
 <td>geoid.grd</td>
-<td>A binary file containing a <a href=""../coordsys/geoid.html">gridded geoid model</a></td>
+<td>A binary file containing a <a href="../coordsys/geoid.html">gridded geoid model</a></td>
 </tr>
 
+<tr>
 <td>*.dtf</td>
-<td><a href="cmdcfg/csv_format_definition.html">Format definition</a> files defining the delimited text format <a href="data/csv_obs_files.html">observation</a> and <a href="crd/csv_stn_files.html">station coordinate</a> files</a> use by SNAP.</td>
+<td><a href="cmdcfg/csv_format_definition.html">Format definition</a> files defining the delimited text format <a href="data/csv_obs_files.html">observation</a> and <a href="crd/csv_stn_files.html">station coordinate</a> files use by SNAP.</td>
 </tr>
 
 

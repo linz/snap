@@ -45,7 +45,7 @@ static void rf_linzdef_delete( void *data )
     return;
 }
 
-static void *rf_linzdef_create( char *ldeffile )
+static void *rf_linzdef_create( const char *ldeffile )
 {
     LinzDefModel *model;
     model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));
@@ -141,7 +141,7 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
 
 int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
 {
-    char *ldeffile;
+    const char *ldeffile;
     char filename[MAX_FILENAME_LEN];
     int sts;
 
@@ -152,7 +152,7 @@ int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
-    ldeffile = find_file_from_base( is->sourcename, filename, ".grd" );
+    ldeffile = find_relative_file( is->sourcename, filename, ".grd" );
     if( ! ldeffile )
     {
         char errmess[80+MAX_FILENAME_LEN];

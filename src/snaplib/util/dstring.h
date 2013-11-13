@@ -16,6 +16,7 @@
 #endif
 
 char *copy_string( const char *string);
+char *copy_string_nch( const char *string, int nch );
 void dump_string( const char *string, FILE *f );
 char *reload_string( FILE *f );
 /* Case insensitive and underscore/whitespace insensitive match */

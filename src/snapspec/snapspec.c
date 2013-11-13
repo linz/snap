@@ -1603,7 +1603,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
     set_error_location( get_config_location(cfg));
     nerr = get_error_count();
 
-    process_selected_stations( net,data,&p,set_max_order);
+    process_selected_stations( net,data,cfg->name,&p,set_max_order);
 
     set_error_location(NULL);
     cfg->errcount += (get_error_count()-nerr);
@@ -1669,7 +1669,7 @@ static config_item cfg_commands[] =
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
     char *basecfn;
-    char *cfn;
+    const char *cfn;
     CFG_FILE *cfg2;
     cfg_stack *stack;
     int nerr;
@@ -1680,7 +1680,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, 
         send_config_error( cfg, INVALID_DATA, "Configuration file name missing");
         return OK;
     }
-    cfn = find_file( basecfn, ".cfg", FF_TRYALL );
+    cfn = find_file( basecfn, ".cfg", cfg->name, FF_TRYALL, "snapspec" );
 
     if( cfn )
     {
@@ -1816,7 +1816,8 @@ int main( int argc, char *argv[] )
 {
     char *bfn;
     CFG_FILE *cfg = 0;
-    char *cfn, *basecfn, *ofn;
+    const char *cfn;
+	char *basecfn, *ofn;
     int nstns;
     int nerr;
     hSDCTest hsdc;
@@ -1828,12 +1829,10 @@ int main( int argc, char *argv[] )
     const char *max_control_str = NULL;
     char *newcrdfile = NULL;
     char *updatecrdfile = NULL;
-    char *image;
     int autominorder = 0;
     int hvmode = SRA_HVMODE_AUTO;
     int sts;
 
-    image = find_image( argv[0] );
     get_date( spec_run_time );
 
     printf( "snapspec %s: Tests adjustments against relative accuracy specifications\n"
@@ -1933,11 +1932,10 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    set_find_file_directories( image, bfn, SNAPENV );
-    init_snap_globals( image );
+    init_snap_globals();
     install_default_projections();
-    install_default_crdsys_file( prog_dir );
-    cfn = find_file( basecfn, ".cfg", FF_TRYALL );
+    install_default_crdsys_file();
+    cfn = find_file( basecfn, ".cfg", bfn, FF_TRYALL, "snapspec" );
 
     fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
     fprintf(out,"Run at %s\n",spec_run_time);

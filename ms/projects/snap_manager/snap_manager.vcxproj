@@ -53,9 +53,6 @@
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(IntDir)versioninfo.obj" del /q "$(IntDir)versioninfo.obj"
-copy /y $(SolutionDir)..\..\src\snap_manager\snap_manager.cfg $(OutDir)
-copy /y $(SolutionDir)..\..\src\snap_manager\scripts\*  $(OutDir)scripts
-copy /y $(SolutionDir)..\..\src\perl\*  $(OutDir)
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -100,8 +97,8 @@ copy /y $(SolutionDir)..\..\src\perl\*  $(OutDir)
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\perl\linz_gdb_stations.bat" />
+    <None Include="..\..\..\src\snap_manager\config\snap_manager\snap_manager.cfg" />
     <None Include="..\..\..\src\snap_manager\Notes.txt" />
-    <None Include="..\..\..\src\snap_manager\snap_manager.cfg" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">

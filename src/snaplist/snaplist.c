@@ -1096,8 +1096,8 @@ int main( int argc, char *argv[] )
     coordsys *xyzcs;
     double lat, lon;
     CFG_FILE *cfg = 0;
-    char *cfn, *basecfn, *ofn;
-    char *exefile;
+    const char *cfn;
+	char *basecfn, *ofn;
 
     printf( "snaplist:   Creates a table listing GPS observations in a SNAP binary file\n");
     printf( "           Facilitates the use of GPS data in survey plans\n");
@@ -1108,11 +1108,9 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    exefile = find_image( argv[0] );
-    set_find_file_directories( exefile, NULL, SNAPENV );
-    init_snap_globals( argv[0] );
+    init_snap_globals();
     install_default_projections();
-    install_default_crdsys_file( prog_dir );
+    install_default_crdsys_file( );
 
     bfn = argv[1];
     b = open_binary_file( bfn, BINFILE_SIGNATURE );
@@ -1158,7 +1156,7 @@ int main( int argc, char *argv[] )
         ofn = argv[3];
     }
 
-    cfn = find_file( basecfn, ".tbf", FF_TRYALL );
+    cfn = find_file( basecfn, ".tbf", bfn, FF_TRYALL, "snaplist" );
     if( cfn ) { cfg = open_config_file( cfn, '!' );}
     if( !cfn || !cfg )
     {

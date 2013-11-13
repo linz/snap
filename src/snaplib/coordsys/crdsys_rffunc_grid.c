@@ -44,7 +44,7 @@ typedef struct
 } rf_grid_def;
 
 
-static rf_grid_def *rf_grid_create( char *filename, int type )
+static rf_grid_def *rf_grid_create( const char *filename, int type )
 {
     rf_grid_def *gd;
     if( type != SNAP2D_GRID ) return NULL;
@@ -174,7 +174,7 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     return OK;
 }
 
-ref_frame_func *create_rf_grid_func( char *type, char *filename, char *description )
+ref_frame_func *create_rf_grid_func( const char *type, const char *filename, char *description )
 {
     int gridtype = NULL_GRID;
     void *pgd;

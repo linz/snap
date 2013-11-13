@@ -31,6 +31,8 @@
 #include "geoid/griddata.h"
 #include "coordsys/coordsys.h"
 
+#define GEOID_GRID_EXTENSION ".grd"
+
 typedef struct
 {
     grid_def *grd;

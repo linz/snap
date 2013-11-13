@@ -34,37 +34,23 @@ The coordinate system file is located in one of the following places.
 
 static char rcsid[]="$Id: crdsysf1.c,v 1.2 1996/05/20 16:36:08 CHRIS Exp $";
 
-static char *CRDSYSENV = "COORDSYSDEF";
-static char *CRDSYSFILE = "coordsys.def";
 
-int install_default_crdsys_file( const char *path )
+
+int install_default_crdsys_file()
 {
-    char *filename;
+    const char *filename;
     install_default_projections();
 
     /* Try for an environment variable definition */
 
     filename = getenv(CRDSYSENV);
-    if( filename && file_exists(filename) && install_crdsys_file(filename) == OK ) return OK;
-
-    /* Now try the path with CRDSYSFILE appended */
-
-    if( path )
-    {
-        int len;
-        int sts;
-        len = path_len(path,0);
-        filename = (char *) check_malloc( len + strlen(CRDSYSFILE) + 1 );
-        memcpy(filename,path,len);
-        strcpy(filename+len,CRDSYSFILE);
-        sts = FILE_OPEN_ERROR;
-        if( file_exists( filename ) ) sts = install_crdsys_file(filename);
-        check_free( filename );
-        if( sts == OK ) return sts;
-    }
-
-    if( !file_exists( CRDSYSFILE ) ) return FILE_OPEN_ERROR;
-    return install_crdsys_file( CRDSYSFILE );
+    if( ! filename )
+	{
+		/* Now try the user and system configuration directories  */
+		filename = find_file(CRDSYSFILE,0,0,FF_TRYALL,COORDSYS_CONFIG_SECTION);
+	}
+	if( ! filename )  return FILE_OPEN_ERROR;
+    return install_crdsys_file( filename );
 }
 
 

@@ -228,7 +228,7 @@ int read_command_file( char *command_file )
 }
 
 
-static int process_configuration_file( char *file_name, char cfg_only )
+static int process_configuration_file( const char *file_name, char cfg_only )
 {
     CFG_FILE *cfg;
     int sts;
@@ -252,64 +252,37 @@ static int process_configuration_file( char *file_name, char cfg_only )
     return sts;
 }
 
-int read_configuration_file( char *file_name )
+int read_configuration_file( const char *file_name )
 {
     return process_configuration_file( file_name, 1 );
 }
 
 
-static char *snap_find_file( char *name, int use_cmd_dir, int use_home_dir, char *ext )
+const char *find_configuration_file( const char *name )
 {
-    static char spec[MAX_FILENAME_LEN];
-
-    if( use_cmd_dir && file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, cmd_dir, name, ext )) )
-    {
-        return spec;
-    }
-    else if( file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, NULL, name, ext )) )
-    {
-        return spec;
-    }
-    else if( use_home_dir && user_dir && file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, user_dir, name, ext )) )
-    {
-        return spec;
-    }
-    else if( use_home_dir && prog_dir && file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, prog_dir, name, ext )) )
-    {
-        return spec;
-    }
-    return NULL;
-}
-
-char *find_configuration_file( char *name, int use_cmd_dir, int use_home_dir )
-{
-    return snap_find_file( name, use_cmd_dir, use_home_dir, DFLTCONFIG_EXT );
+    return find_file( name, DFLTCONFIG_EXT, 0, FF_TRYPROJECT, SNAP_CONFIG_SECTION );
 }
 
 int process_default_configuration( void )
 {
     int sts, sts1;
-    char spec[MAX_FILENAME_LEN];
+    const char *spec;
     sts = OK;
-    if( prog_dir && file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, prog_dir, CONFIG_FILE, NULL )) )
+    spec=build_config_filespec(0, 0, system_config_dir(),0,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, NULL );
+    if( file_exists( spec ))
     {
         sts = read_configuration_file( spec );
     }
 
-    if( user_dir && file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, user_dir, CONFIG_FILE, NULL )) )
+    spec=build_config_filespec(0, 0, user_config_dir(),0,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, NULL );
+    if( file_exists( spec ))
     {
         sts1 = read_configuration_file( spec );
         if( sts == OK ) sts = sts1;
     }
 
-    if( file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, NULL, CONFIG_FILE, NULL )) )
+    spec=build_config_filespec( 0, 0, command_file, 1, 0, SNAP_CONFIG_FILE, NULL );
+    if( file_exists( spec ))
     {
         sts1 = read_configuration_file( spec );
         if( sts == OK ) sts = sts1;
@@ -570,7 +543,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
         set_error_location( get_config_location(cfg));
         nerr = get_error_count();
 
-        process_selected_stations( net,field,&spm,set_station_mode);
+        process_selected_stations( net,field,cfg->name,&spm,set_station_mode);
 
         set_error_location(NULL);
         cfg->errcount += (get_error_count()-nerr);
@@ -1687,7 +1660,7 @@ static int set_magic_number( CFG_FILE *cfg, char *string ,void *value, int len, 
 
 static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value, int len, int code )
 {
-    char *cfgfile;
+    const char *cfgfile;
     char *ptr;
     char errmsg[100];
     char cfg_only;
@@ -1698,7 +1671,9 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
     while( ptr && NULL != (cfgfile=strtok(ptr," \t\n")))
     {
         ptr = strtok(NULL,"\n");
-        cfgfile = snap_find_file( cfgfile, 1, cfg_only, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT );
+        cfgfile = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
+			0, FF_TRYPROJECT, 
+			cfg_only ? SNAP_CONFIG_SECTION : 0 );
         if( cfgfile )
         {
             if( process_configuration_file( cfgfile, cfg_only ) != OK )

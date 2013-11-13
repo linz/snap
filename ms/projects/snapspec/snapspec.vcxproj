@@ -53,7 +53,7 @@
     </Link>
     <PostBuildEvent>
       <Command>if exist "$(IntDir)versioninfo.obj" del /q "$(IntDir)versioninfo.obj"
-copy /y $(SolutionDir)..\..\src\snapspec\snapspec.cfg $(OutDir)
+
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

@@ -408,15 +408,15 @@ static void concord_init( void )
 
 static int pause_output( void )
 {
-    int c;
-    int domore;
-    return 1;
     /*
      * No longer interested in pausing output - almost any terminal window
      * these days will be scrollable...
      */
     /*
-    if( ! _isatty(_fileno(stdout)) || ! _isatty(_fileno(stdin)) ) return 1;
+    int c;
+    int domore;
+	
+	if( ! _isatty(_fileno(stdout)) || ! _isatty(_fileno(stdin)) ) return 1;
     printf("Press return to continue: ");
     domore = 1;
     do
@@ -427,6 +427,7 @@ static int pause_output( void )
     while( c != '\n' && c != EOF );
     return domore;
     */
+	return 1;
 }
 
 static void help( void )
@@ -852,28 +853,6 @@ static void prompt_for_number( char *prompt, int *value, int min, int max)
             break;
         }
         printf("    **** Invalid data or out of range ****\n");
-    }
-}
-
-static void prompt_for_double( char *prompt, double *value)
-{
-    double newval;
-    char checkend;
-    char instring[21];
-    int nstr;
-
-    for(;;)
-    {
-        printf("%s: ",prompt);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR, instring, 20);
-        copy_to_newline( stdin, NULL,NULL);
-        if (nstr<0) error_exit("Unexpected EOF in input","");
-        if (sscanf(instring,"%lf%c",&newval,&checkend)==1 )
-        {
-            *value = newval;
-            break;
-        }
-        printf("    **** Invalid data ****\n");
     }
 }
 
@@ -1811,10 +1790,7 @@ static void summarise_job( FILE *out )
 
 int main( int argc, char *argv[] )
 {
-    int rplen;
     int sts;
-    char *exefile;
-    exefile = find_image( argv[0] );
 
     concord_init();
     get_definition_files( argc, argv );
@@ -1822,19 +1798,14 @@ int main( int argc, char *argv[] )
     {
         install_default_projections();
         sts = install_crdsys_file( coordsys_file );
-        set_find_file_directories( coordsys_file, NULL, NULL );
     }
     else
     {
-        rplen = path_len( exefile, 0 );
-        exefile[rplen] = 0;
-        sts = install_default_crdsys_file( exefile );
-        /* set_application_name( "concord" ); */
-        set_find_file_directories( exefile, NULL, NULL );
+        sts = install_default_crdsys_file();
     }
     if( sts != OK )
     {
-        printf("Cannot read COORDSYS.DEF file\n");
+        printf("Cannot read coordsys.def file\n");
         return 0;
     }
     process_command_line(argc,argv);
@@ -1845,18 +1816,12 @@ int main( int argc, char *argv[] )
     {
         const char *gfile = geoid_file;
         const char *title = NULL;
-        geoiddef = 0;
-        if( ! file_exists(gfile) &&input_cs && input_cs->source && strncmp(input_cs->source,"file:",5) == 0 )
-        {
-            set_find_file_directories((input_cs->source + 5),NULL,NULL);
+
+	    if( ! gfile || ! file_exists(gfile) )
+		{
             gfile = create_geoid_filename(geoid_file);
         }
-        set_find_file_directories(exefile,NULL,NULL);
-        if( ! file_exists(gfile))
-        {
-            gfile = create_geoid_filename(geoid_file);
-        }
-        if( ! file_exists(gfile) )
+        if( ! gfile || ! file_exists(gfile) )
         {
             printf("Cannot find geoid file %s\n",geoid_file ? geoid_file : "");
             return 0;

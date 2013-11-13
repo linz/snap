@@ -23,6 +23,7 @@
 #include "util/fileutil.h"
 #include "util/errdef.h"
 #include "util/versioninfo.h"
+#include "snap/filenames.h"
 
 static char rcsid[]="$Id: sngeoid.c,v 1.2 1996/05/17 22:53:14 CHRIS Exp $";
 
@@ -32,7 +33,6 @@ int main( int argc, char *argv[] )
     int gbformat;
     int nch;
     network net;
-    char *exefile;
     char remove_geoid = 0;
     char calc_geoid = 0;
     char syntax_error = 0;
@@ -43,8 +43,6 @@ int main( int argc, char *argv[] )
     char *geoid = NULL;
     geoid_def *gd = NULL;
 
-    exefile = find_image(argv[0]);
-    set_find_file_directories( exefile, NULL, NULL );
     geoid_msg[0] = 0;
 
     while( argc > 1 && argv[1][0] == '-' )
@@ -126,7 +124,8 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    install_default_crdsys_file( exefile );
+	set_user_config_from_env( SNAPENV );
+    install_default_crdsys_file();
     /* Load the station file */
 
     init_network( &net );

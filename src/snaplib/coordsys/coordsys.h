@@ -31,6 +31,12 @@ This includes managing reference frames, ellipsoids, and projections.
 #include "util/iostring.h"
 #endif
 
+/* Configuration area for coordinate system files */
+
+#define COORDSYS_CONFIG_SECTION "coordsys"
+#define CRDSYSFILE "coordsys.def"
+#define CRDSYSENV "COORDSYSDEF"
+
 #define CRDSYS_CODE_LEN 20
 #define CRDSYS_NAME_LEN 128
 
@@ -417,7 +423,7 @@ void install_crdsys_nz_metre_circuits( void );
 /* Get definitions from a file file  */
 
 int install_crdsys_file( const char *file_name );
-int install_default_crdsys_file( const char *path );
+int install_default_crdsys_file();
 void  install_default_projections( void );
 
 /* Clear the list of definitions */

@@ -21,12 +21,35 @@
 #include <sys/types.h>
 #include <unistd.h>
 #endif
+#define SYS_CONFIG_BASE "config"
+#define USER_CONFIG_BASE "linz"
 
 #include "util/fileutil.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 
 static char rcsid[]="$Id: fileutil.c,v 1.3 2004/04/22 02:35:24 ccrook Exp $";
+
+static char *usercfg=NULL;
+static char *syscfg=NULL;
+static char *imgpath=NULL;
+static char *imgdir=NULL;
+static char *projdir=NULL;
+static char *filename=NULL;
+static int filenamelen=0;
+
+static char *filenameptr( int reqlen )
+{
+    if( ! filename || reqlen > filenamelen )
+    {
+        if( filename ) check_free(filename);
+        reqlen = reqlen*2;
+        if( reqlen < MAX_FILENAME_LEN ) reqlen=MAX_FILENAME_LEN;
+        filename = (char *) check_malloc(reqlen+1);
+        filenamelen = reqlen;
+    }
+    return filename;
+}
 
 int path_len( const char *base, int want_name )
 {
@@ -54,83 +77,57 @@ int file_exists( const char *file )
     return _access( file, 04 ) == 0 ? 1 : 0;
 }
 
-
-char *build_filespec( char *spec, int nspec,
-                      const char *dir, const char *name, const char *dflt_ext )
+char *build_config_filespec( char *spec, int nspec,
+                      const char *dir, int pathonly, const char *config, 
+                      const char *name, const char *dflt_ext )
 {
-    int nch;
+    int nch = 0;
+    char *end;
+    if( dir ) nch += strlen(dir) + 1;
+    if( config ) nch += strlen(config) + 1;
+    if( name ) nch += strlen(name);
+    if( dflt_ext ) nch += strlen(dflt_ext);
 
-    if( dir )
+    if( spec && nch >= nspec ) { spec[0]=0; return spec; }
+    if( ! spec )
     {
-        nch = strlen( dir );
-        strncpy( spec, dir, nspec - 1 );
-    }
-    else
-    {
-        nch = 0;
-    }
-
-    if( nch < nspec-1 )
-    {
-        strncpy( spec+nch, name, nspec-nch-1);
-    }
-    spec[nspec-1] = 0;
-
-    nch = strlen( spec );
-    if( dflt_ext && nch < nspec-1 && nch == path_len(spec,1) )
-    {
-        strncpy( spec+nch, dflt_ext, nspec-nch-1);
-        spec[nspec-1] = 0;
+        spec=filenameptr(nch);
     }
 
-    /* Ensure that the path separator is compatible with the operating system */
-
-    for( nch = strlen(spec); nch--; )
-    {
-        if( spec[nch] == PATH_SEPARATOR2 ) spec[nch] = PATH_SEPARATOR;
+    *spec=0;
+    end=spec;
+    if( dir ) 
+    { 
+        strcpy(end,dir); 
+        end += pathonly ? path_len(dir, 0) : strlen(dir); 
+        *end=PATH_SEPARATOR; 
+        end++; 
+        *end=0; 
     }
+    if( config ){ strcpy(end,config); end += strlen(config); *end=PATH_SEPARATOR; end++; *end=0; }
+    if( name ){ strcpy(end,name); }
+    if( dflt_ext ) strcat(end,dflt_ext);
 
     return spec;
 }
 
-
-
-char *build_config_filespec( char *spec, int nspec,
-                      const char *dir, const char *config, const char *name, const char *dflt_ext )
+char *build_filespec( char *spec, int nspec,
+                      const char *dir, const char *name, const char *dflt_ext )
 {
-    int nch = 0;
-	int ncfg = MAX_FILENAME_LEN;
-	char configname[MAX_FILENAME_LEN];
-
-
-    if( config )
-    {
-        nch = strlen( config );
-        strncpy( configname, configname, ncfg - 2 );
-    }
-    else
-    {
-        nch = 0;
-    }
-
-    if( nch < ncfg-2 )
-    {
-		configname[nch++] = PATH_SEPARATOR;
-        strncpy( configname+nch, name, ncfg-nch-1);
-    }
-    configname[ncfg-1] = 0;
-	return build_filespec(spec,nspec,dir,configname,dflt_ext);
+    return build_config_filespec(spec,nspec,dir,0,0,name,dflt_ext);
 }
+
+
 
 /* Routine looks for the image file corresponding to the argument supplied */
 
 #ifdef UNIX
 
-char *find_image( const char *argv0 )
+const char *image_path()
 {
-    char* path;
     char _link[20];
     char buf[10];
+    if( imgpath ) return imgpath;
     pid_t pid = getpid();
     sprintf( buf,"%d", pid );
     strcpy( _link, "/proc/" );
@@ -146,275 +143,205 @@ char *find_image( const char *argv0 )
 #endif
     char proc[512];
     ssize_t len = readlink( _link, proc, 512);
-    path = 0;
     if ( len != -1 )
     {
         proc[len] = '\0';
-        path = check_malloc(strlen(proc)+1 );
-        path = strcpy( path, proc );
+        imgpath = check_malloc(strlen(proc)+1 );
+        strcpy( imgpath, proc );
     }
-    return path;
+    return imgpath;
 }
 
-#if 0
-char *find_image( const char *argv0 )
+const char *system_config_dir()
 {
-    char *image;
-    char *path = getenv("PATH");
-    char *p;
-    int maxlen;
     int len;
+    const char *imgpath=image_path();
+    int plen=path_len(imgpath,0);
+    if( syscfg ) return syscfg;
+    len = plen + strlen(SYS_CONFIG_BASE) + 2;
 
-    /* Find the longest string in the path */
-
-    for( p = path, len = 1; *p; p++, len++ )
-    {
-        if( *p == ';' || *p == ':' ) len = 0;
-        if( len > maxlen ) maxlen = len;
-    }
-
-    /* Allocate a string big enough for the path plus the argv[0] name */
-
-    image = (char *)  check_malloc( maxlen + strlen(argv0) + 3);
-    if( _access(argv0,X_OK)==0 )
-    {
-        strcpy(image,argv0);
-    }
-    else
-    {
-        p = path;
-        image[0] = 0;
-        while( *p )
-        {
-            char *e = p;
-            while( *e && *e != ';' && *e != ':' ) e++;
-            len = e-p;
-            if( len > 0 ) strncpy( image, p, len );
-            image[len] = PATH_SEPARATOR;
-            strcpy( image+len+1, argv0 );
-            if( _access(image,X_OK) == 0 ) break;
-            image[0] = 0;
-            p = e;
-            if( *p ) p++;
-        }
-    }
-    return image;
+    syscfg = (char *) check_malloc(len);
+    strncpy(syscfg,imgpath,plen);
+    len=strlen(syscfg);
+    syscfg[len]=PATH_SEPARATOR;
+    strcpy(syscfg+len+1,SYS_CONFIG_BASE);
+    return syscfg;
 }
 
-#endif
-
-char *default_homedir( const char *application )
+const char *user_config_dir()
 {
-    char *appdata = getenv("APPDATA");
-    if( ! appdata ) return NULL;
-    int l = strlen(appdata);
-    char *homedir = (char *) check_malloc( l + 2 + strlen(application) + 1);
-    strcpy(homedir,appdata);
-    homedir[l] = PATH_SEPARATOR;
-    strcpy(homedir+l+1,".");
-    strcpy(homedir+l+2,application);
-    return homedir;
+    char *homedir;
+    int len;
+    if( usercfg ) return usercfg;
+    homedir = getenv("HOME");
+    if( ! homedir ) return NULL;
+    len = strlen(homedir);
+    usercfg = (char *) check_malloc( len + strlen(USER_CONFIG_BASE) + 3);
+    strcpy(usercfg,homedir);
+    usercfg[len] = PATH_SEPARATOR;
+    usercfg[len+1]='.';
+    strcpy(usercfg+len+2,USER_CONFIG_BASE);
+    return usercfg;
 }
 
 #else
 
-char *find_image( const char *argv0 )
+const char *image_path()
 {
 
     char *path=NULL;
+    if( imgpath ) return imgpath;
     _get_pgmptr(&path);
-    if( path ) {
-        return copy_string(path);
-    }
-    return copy_string("");
+    if( path ) imgpath=copy_string(path);
+    else imgpath=copy_string("");
+    return imgpath;
 }
 
-char *default_homedir( const char *application )
+const char *system_config_dir()
 {
-    char *appdata = getenv("APPDATA");
+    const char *imgpath;
+    int len, plen;
+    if( syscfg ) return syscfg;
+    imgpath = image_path();
+    plen=path_len(imgpath,0);
+    len = plen+strlen(SYS_CONFIG_BASE)+2;
+
+    syscfg = (char *) check_malloc( len );
+    strncpy(syscfg,imgpath,plen);
+    syscfg[plen]=PATH_SEPARATOR;
+    strcpy(syscfg+plen+1,SYS_CONFIG_BASE);
+    return syscfg;
+}
+
+const char *user_config_dir()
+{
+
+    char *appdata;
+    int len;
+    if( usercfg ) return usercfg;
+    appdata = getenv("APPDATA");
     if( ! appdata ) return NULL;
-    int l = strlen(appdata);
-    char *homedir = (char *) check_malloc( l + 6 + strlen(application) + 1);
-    strcpy(homedir,appdata);
-    homedir[l] = PATH_SEPARATOR;
-    strcpy(homedir+l+1,"LINZ");
-    homedir[l+5] = PATH_SEPARATOR;
-    strcpy(homedir+l+6,application);
-    return homedir;
+    len = strlen(appdata);
+    usercfg = (char *) check_malloc( len + strlen(USER_CONFIG_BASE) + 2);
+    strcpy(usercfg,appdata);
+    usercfg[len] = PATH_SEPARATOR;
+    strcpy(usercfg+len+1,USER_CONFIG_BASE);
+    return usercfg;
 }
 
 #endif
 
-
-/*======================================================================*/
-/* Support for configuration and other file search paths...             */
-
-static char *base_dir = NULL;
-static char *prog_dir = NULL;
-static char *home_dir = NULL;
-static char home_dir_set=NULL;
-static char *application=NULL;
-static const char *default_application="snap";
-
-
-static char spec[MAX_FILENAME_LEN];
-
-void set_application_name( const char *appname )
+const char *image_dir()
 {
-    if( application ) check_free(application);
-    application = copy_string( appname );
+	int plen;
+	const char *imgpath;
+	if( imgdir ) return imgdir;
+	imgpath = image_path();
+	plen = path_len(imgpath,0);
+	imgdir = copy_string_nch(imgpath,plen);
+	return imgdir;
 }
 
-const char *get_app_home_dir()
+const char *project_dir()
 {
-    if( ! home_dir_set )
-    {
-        const char *app = application ? application : default_application;
-        char *dflt_home = default_homedir( app );
-        set_find_file_home_dir(dflt_home);
-        if( dflt_home ) check_free( dflt_home );
-    }
-    return home_dir;
+    return projdir;
 }
 
-
-void set_find_file_directories( const char *progname, const char *basedir, const char *homeenv )
+void set_user_config_from_env( const char *envvar )
 {
-    if( progname )
+    char *envval;
+    envval=getenv(envvar);
+    if( envval )
     {
-        set_find_file_prog_dir( progname );
+        set_user_config_dir( envval );
     }
-    if( basedir )
+}
+
+void set_user_config_dir( const char *cfgdir )
+{
+    if( usercfg ) check_free(usercfg);
+    usercfg = copy_string(cfgdir);
+}
+
+void set_project_dir( const char *project_dir )
+{
+    if( projdir ) check_free(projdir);
+    projdir=0;
+    if( project_dir ) projdir=copy_string(project_dir);
+}
+
+const char *find_config_file( const char *config, const char *name, const char *dflt_ext )
+{
+    const char *spec;
+    const char *cfg;
+
+    cfg = user_config_dir();
+    if( cfg )
     {
-        set_find_file_base_dir( basedir );
-    }
-    if( homeenv )
-    {
-        char *homedir = getenv( homeenv );
-        if( homedir )
+        spec=build_config_filespec( 0, 0, cfg, 0, config, name, dflt_ext);
+        if( file_exists(spec) ) return spec;
+        if( dflt_ext )
         {
-            set_find_file_home_dir( homedir );
+            spec=build_config_filespec( 0, 0, cfg, 0, config, name, 0);
+            if( file_exists(spec) ) return spec;
         }
     }
-}
 
-void set_find_file_base_dir( const char *basefile )
-{
-    int l;
-    l = path_len( basefile, 0 );
-    if( base_dir ) check_free( base_dir);
-    base_dir = (char *) check_malloc( l + 1 );
-    strncpy( base_dir, basefile, l );
-    base_dir[l] = 0;
-}
-
-void set_find_file_home_dir( const char *homedir )
-{
-    int l;
-    home_dir_set = 1;
-    if( home_dir ) check_free( home_dir );
-    home_dir = 0;
-    if( ! homedir || ! strlen(homedir)) return;
-    l = strlen(homedir);
-    home_dir = (char *) check_malloc( l+2 );
-    strcpy( home_dir, homedir );
-    if( home_dir[l-1] != PATH_SEPARATOR )
+    cfg = system_config_dir();
+    if( cfg )
     {
-        home_dir[l] = PATH_SEPARATOR;
-        home_dir[l+1] = '\0';
-    }
-}
-
-void set_find_file_prog_dir( const char *progname )
-{
-    int l;
-    l = path_len( progname, 0 );
-    if( prog_dir ) check_free( prog_dir );
-    prog_dir = (char *) check_malloc( l + 1 );
-    strncpy( prog_dir, progname, l );
-    prog_dir[l] = 0;
-}
-
-
-char *find_file( const char *name, const char *dflt_ext, int options )
-{
-
-    if( (options & FF_TRYBASEDIR) && file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, base_dir, name, dflt_ext )) )
-    {
-        return spec;
-    }
-    else if( (options & FF_TRYCURDIR) && file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, NULL, name, dflt_ext )) )
-    {
-        return spec;
-    }
-    else if( options & FF_TRYHOMEDIR )
-    {
-        const char *hd = get_app_home_dir();
-        if(  hd && file_exists (
-                    build_filespec( spec, MAX_FILENAME_LEN, hd, name, dflt_ext )) )
+        spec=build_config_filespec( 0, 0, cfg, 0, config, name, dflt_ext);
+        if( file_exists(spec) ) return spec;
+        if( dflt_ext )
         {
-            return spec;
+            spec=build_config_filespec( 0, 0, cfg, 0, config, name, 0);
+            if( file_exists(spec) ) return spec;
         }
     }
-    else if( (options & FF_TRYPROGDIR) && prog_dir && file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, prog_dir, name, dflt_ext )) )
-    {
-        return spec;
-    }
+
     return NULL;
 }
 
-char *find_config_file( const char *name, const char *dflt_ext, const char *configdir, int options )
+const char *find_relative_file( const char *base, const char *name, const char *dflt_ext )
 {
+    const char *spec;
+    spec=build_config_filespec( 0, 0, base, 1, 0, name, dflt_ext);
+    if( file_exists(spec) ) return spec;
+    
+    if( dflt_ext )
+    {
+        spec=build_config_filespec( 0, 0, base, 1, 0, name, 0);
+        if( file_exists(spec) ) return spec;
+    }
 
-    if( (options & FF_TRYBASEDIR) && file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, base_dir, name, dflt_ext )) )
-    {
-        return spec;
-    }
-    else if( (options & FF_TRYCURDIR) && file_exists (
-                 build_filespec( spec, MAX_FILENAME_LEN, NULL, name, dflt_ext )) )
-    {
-        return spec;
-    }
-    else if( options & FF_TRYHOMEDIR )
-    {
-        const char *hd = get_app_home_dir();
-        if(  hd && file_exists (
-                    build_config_filespec( spec, MAX_FILENAME_LEN, hd, configdir, name, dflt_ext )) )
-        {
-            return spec;
-        }
-    }
-    else if( (options & FF_TRYPROGDIR) && prog_dir && file_exists (
-                 build_config_filespec( spec, MAX_FILENAME_LEN, prog_dir, configdir, name, dflt_ext )) )
-    {
-        return spec;
-    }
     return NULL;
 }
 
-char *find_file_from_base( const char *base, const char *name, const char *dflt_ext )
+const char *find_file( const char *name, const char *dflt_ext, const char *relative, int tryopt, const char *config )
 {
-    char base_dir[MAX_FILENAME_LEN];
-    int len = 0;
-
-    base_dir[0] = 0;
-    if( base ) len = path_len(base,0);
-    if( len > 0 && len < MAX_FILENAME_LEN )
+    const char *spec=0;
+    const char *projdir = project_dir();
+    if( relative )
     {
-        strncpy(base_dir,base,len);
-        base_dir[len] = 0;
+        spec = find_relative_file( relative, name, dflt_ext );
     }
-
-    if( file_exists(
-                build_filespec( spec, MAX_FILENAME_LEN, base_dir, name, dflt_ext )) )
+    if( ! spec && projdir && (tryopt && FF_TRYPROJECT) )
     {
-        return spec;
+        spec = build_filespec(0,0,projdir,name,dflt_ext);
+        if( dflt_ext && ! file_exists(spec)) spec = build_filespec(0,0,projdir,name,0);
+        if( ! file_exists(spec)) spec = 0;
     }
-    return NULL;
+    if( ! spec && (tryopt && FF_TRYLOCAL) )
+    {
+        spec = build_filespec(0,0,0,name,dflt_ext);
+        if( dflt_ext && ! file_exists(spec)) spec = build_filespec(0,0,0,name,0);
+        if( ! file_exists(spec)) spec = 0;
+    }
+    if( ! spec && config )
+    {
+        spec = find_config_file( config, name, dflt_ext );
+    }
+    return spec;
 }
 
 typedef struct s_tmpfile_def

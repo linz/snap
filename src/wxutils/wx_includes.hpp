@@ -66,4 +66,6 @@
 #include <wx/dataobj.h>
 #include <wx/process.h>
 
+#include <wx/arrstr.h>
+
 #endif

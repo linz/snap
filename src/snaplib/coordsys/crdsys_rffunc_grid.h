@@ -17,6 +17,6 @@
 #include "coordsys/coordsys.h"
 #endif
 
-ref_frame_func *create_rf_grid_func( char *type, char *filename, char *description );
+ref_frame_func *create_rf_grid_func( const char *type, const char *filename, char *description );
 
 #endif

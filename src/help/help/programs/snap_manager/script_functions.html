@@ -39,9 +39,11 @@ When the program
 <a href="#func_CopyFile">CopyFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
 <a href="#func_DeleteFile">DeleteFile</a>(<i>filename</i>)<br />
 <a href="#func_Directory">Directory</a>(<i>path</i>, <i>filespec</i>)<br />
+<a href="#func_DirectoryExists">DirectoryExists</a>(<i>dirname</i>)<br />
 <a href="#func_ExecuteFunction">ExecuteFunction</a>(<i>functionname</i>,<i>parameter</i>,...)<br />
 <a href="#func_FileExists">FileExists</a>(<i>filename</i>)<br />
 <a href="#func_Filename">Filename</a>(<i>filename</i>,<i>part</i>,<i>path</i>)<br />
+<a href="#func_FindConfigFile">FindConfigFile</a>(<i>section</i>,<i>name</i>,<i>extension</i>)<br />
 <a href="#func_FindJobFile">FindJobFile</a>(<i>extension</i>)<br />
 <a href="#func_FindProgram">FindProgram</a>(<i>programname</i>)<br />
 <a href="#func_GetConfig">GetConfig</a>(<i>item</i>)<br />
@@ -50,6 +52,7 @@ When the program
 <a href="#func_GetOpenFilename">GetOpenFilename</a>(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)<br />
 <a href="#func_GetSaveFilename">GetSaveFilename</a>(<i>prompt</i>,<i>filter</i>)<br />
 <a href="#func_GetValue">GetValue</a>(<i>variablename</i>)<br />
+<a href="#func_InsertPath">InsertPath</a>(<i>path</i>,<i>envvar</i>)<br />
 <a href="#func_LoadJob">LoadJob</a>(<i>jobfile</i>)<br />
 <a href="#func_Log">Log</a>(<i>message</i>)<br />
 <a href="#func_LogRun">LogRun</a>(<i>program</i>,<i>parameter</i>,...)<br />
@@ -61,6 +64,7 @@ When the program
 <a href="#func_Run">Run</a>(<i>program</i>,<i>parameter</i>,...)<br />
 <a href="#func_RunScript">RunScript</a>(<i>scriptfile</i>)<br />
 <a href="#func_SetConfig">SetConfig</a>(<i>item</i>,<i>value</i>)<br />
+<a href="#func_SetEnv">SetEnv</a>(<i>envvar</i>,<i>envvalue</i>)<br />
 <a href="#func_SetExtension">SetExtension</a>(<i>filename</i>,<i>extension</i>)<br />
 <a href="#func_Start">Start</a>(<i>program</i>,<i>parameter</i>,...)<br />
 <a href="#func_TempFile">TempFile</a>()<br />
@@ -134,6 +138,7 @@ this is almost empty as the snap_manager program does almost no
 testing of the job files.</p>
 </td>
 </tr>
+
 <tr>
 <td>
 <p class="Commanddefinition">$snap_path</p>
@@ -143,14 +148,54 @@ testing of the job files.</p>
 PATH environment variable for any programs run by snap manager.</p>
 </td>
 </tr>
+
 <tr>
 <td>
-<p class="Commanddefinition">$script_path</p>
+<p class="Commanddefinition">$system_config_path</p>
 </td>
 <td>
-<p>The snap script directory.</p>
+<p>The base directory for system SNAP configuration files.
+</p>
 </td>
 </tr>
+
+<tr>
+<td>
+<p class="Commanddefinition">$user_config_path</p>
+</td>
+<td>
+<p>The base directory for user SNAP configuration files.
+</p>
+</td>
+</tr>
+
+<tr>
+<td>
+<p class="Commanddefinition">$system_script_path</p>
+</td>
+<td>
+<p>The system snap manager script directory.</p>
+</td>
+</tr>
+
+<tr>
+<td>
+<p class="Commanddefinition">$user_script_path</p>
+</td>
+<td>
+<p>The user snap manager script directory.</p>
+</td>
+</tr>
+
+<tr>
+<td>
+<p class="Commanddefinition">$script_file</p>
+</td>
+<td>
+<p>The filename of the script file in which the variable is used.</p>
+</td>
+</tr>
+
 <tr>
 <td>
 <p class="Commanddefinition">$coordsys_list</p>
@@ -219,6 +264,8 @@ directory becomes the current directory.</p>
 file name but with a specified extension.</p>
 <p class="Commanddefinition"><a name="func_FileExists"></a>FileExists(<i>filename</i>)</p> <p class="Commanddescription">Returns true if the file exists,
 false otherwise.</p>
+<p class="Commanddefinition"><a name="func_DirectoryExists"></a>DirectoryExists(<i>dirname</i>)</p> <p class="Commanddescription">Returns true if the directory exists,
+false otherwise.</p>
 <p class="Commanddefinition"><a name="func_DeleteFile"></a>DeleteFile(<i>filename</i>)</p> <p class="Commanddescription">Deletes the specified file, returning
 true if the file is successfully deleted (or didn't exist in the
 first place), and false otherwise.</p>
@@ -266,6 +313,12 @@ item from the users configuration.</p>
 <p class="Commanddefinition"><a name="func_SetConfig"></a>SetConfig(<i>item</i>,<i>value</i>)</p>
 <p class="Commanddescription">Sets the value of a configuration
 item from the users configuration.</p>
+<p class="Commanddefinition"><a name="func_FindConfigFile"></a>FindConfigFile(<i>section</i>,<i>name</i>,<i>extension</i>)</p> <p class="Commanddescription">
+Finds and returns the name of a configuration file in the configuration section  <i>section</i> and named <i>name</i>.
+<i>extension</i> is an optional parameter which will be used as the file name extension if the file is not found without the extension
+This will search first in the user configuration, then in the system configuration.  
+Returns an empty string if no such file is found.</i>
+</p>
 <p class="Commanddefinition"><a name="func_Match"></a>Match(<i>string</i>,<i>regex</i>,<i>nMatch</i>)</p>
 <p class="Commanddescription">Returns the first match of the
 <a href="resyntax.html">regular expression</a> in the string, or
@@ -286,8 +339,16 @@ that reference capture groups in the regular expressions - see
 <p class="Commanddefinition"><a name="func_GetValue"></a>GetValue(<i>variablename</i>)</p> <p class="Commanddescription">Returns the value of a variable from
 its name. For example GetValue($varname) where $varname contains
 the name of a variable (eg "$snap_path")</p>
+
 <p class="Commanddefinition"><a name="func_GetEnv"></a>GetEnv(<i>envvar</i>)</p> <p class="Commanddescription">Returns the value of a windows
 environment variable.</p>
+
+<p class="Commanddefinition"><a name="func_SetEnv"></a>SetEnv(<i>envvar</i>,<i>envvalue</i>)</p> <p class="Commanddescription">Sets the value of a windows
+environment variable <i>envvar</i> to the value <i>envvalue</i>, and returns the new value.</p>
+
+<p class="Commanddefinition"><a name="func_InsertPath"></a>InsertPath(<i>path</i>,<i>envvar</i>)</p> 
+<p class="Commanddescription">Adds a directory path <i>path</i> to the beginning of an environment variable <i>envvar</i>.  The second parameter is optional - by default the variable PATH is updated.</p>
+
 <p class="Commanddefinition"><a name="func_GetDate"></a>GetDate(<i>format</i>)</p> <p class="Commanddescription">Returns the current date and time.
 The format parameter is optional. If it is supplied then the it is
 used as a template for the generated date, with the following

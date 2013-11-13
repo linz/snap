@@ -13,6 +13,7 @@
 #include "util/fileutil.h"
 #include "util/dstring.h"
 #include "util/versioninfo.h"
+#include "snap/filenames.h"
 
 
 static char rcsid[]="$Id:$";
@@ -31,7 +32,6 @@ int select_station( station *st )
 
 int main( int argc, char *argv[] )
 {
-    char *exefile;
     char *stnlistfile = NULL;
     char *basefile = NULL;
     char *datafile = NULL;
@@ -43,8 +43,6 @@ int main( int argc, char *argv[] )
     int mergeopt = 0;
     int clearbaseorders = 0;
     int cleardataorders = 0;
-
-    exefile = find_image(argv[0]);
 
     while( ! syntaxerror && argc > 1 && argv[1][0] == '-' )
     {
@@ -131,7 +129,8 @@ int main( int argc, char *argv[] )
     datafile = argv[2];
     newfile = argc > 3 ? argv[3] : argv[1];
 
-    install_default_crdsys_file( exefile );
+	set_user_config_from_env( SNAPENV );
+    install_default_crdsys_file();
 
     base = new_network();
     if( read_network( base, basefile, 0 ) != OK )

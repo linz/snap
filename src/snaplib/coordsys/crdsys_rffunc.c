@@ -44,7 +44,7 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
     else
     {
         char gridtype[20+1];
-        char *gfile = 0;
+        const char *gfile = 0;
         char gridfile[MAX_FILENAME_LEN+1];
         char description[255+1];
         sts = next_string_field( is, gridtype, 20 );
@@ -52,7 +52,7 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
             sts = next_string_field( is, gridfile, MAX_FILENAME_LEN );
         if( sts == OK )
         {
-            gfile = find_file_from_base( is->sourcename, gridfile, ".grd" );
+            gfile = find_relative_file( is->sourcename, gridfile, ".grd" );
             if( ! gfile )
             {
                 sts = INVALID_DATA;

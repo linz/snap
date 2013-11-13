@@ -54,14 +54,13 @@ static void delete_linzdefmodel( LinzDefModel *model )
 
 static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
 {
-    char *deffile;
+    const char *deffile;
     LinzDefModel *model;
     int sts;
 
     model = NULL;
 
-    set_find_file_directories( program_file_name, cmd_dir, user_dir );
-    deffile = find_file( pmodel, ".ldm", FF_TRYPROGDIR | FF_TRYHOMEDIR | FF_TRYBASEDIR );
+    deffile = find_file( pmodel, ".ldm", 0, FF_TRYPROJECT, COORDSYS_CONFIG_SECTION );
     if( !deffile ) return NULL;
 
     model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));

@@ -42,6 +42,7 @@
 #include "util/datafile.h"
 #include "snapdata/snapdata.h"
 #include "snapdata/loaddata.h"
+#include "snap/filenames.h"
 #include "util/linklist.h"
 #include "util/fileutil.h"
 #include "util/geodetic.h"
@@ -1309,7 +1310,7 @@ static void update_fix_info( stn *from, stn *newfix )
 }
 
 
-static void fix_station( stn *st, double lat, double lon, double hgt, char flag )
+static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
 {
     char fixneeded;
     conn *cn;
@@ -2578,39 +2579,22 @@ static int check_fixed_stn( station *st )
 /* Get the location of the network                                     */
 
 static char inrec[256];
-static char crdfname[80];
-static char rootname[80];
-static char logname[80];
+static char * crdfname = 0;
+static char *logname = 0;
 static int gotroot = 0;
-static int gotlogname = 0;
 static char newcrdfile = 0;
 
 static FILE *logfile = NULL;
 
-static void set_rootname( char *name )
-{
-    int l;
-    if( gotroot ) return;
-    rootname[0] = 0;
-    gotroot = 1;
-    l = path_len(name,0);
-    if( l >= 79 ) return;
-    strncpy( rootname, name, l );
-    rootname[l] = 0;
-    set_find_file_directories( NULL, rootname, NULL );
-}
 
-static void set_logname( char *name )
+static void set_logname( const char *name )
 {
     int l;
-    if( gotlogname ) return;
-    gotlogname = 1;
-    logname[0] = 0;
+    if( logname ) return;
     l = path_len(name,1);
-    if( l >= (79-4) ) return;
+	logname=(char *) check_malloc(strlen(name)+4+1);
     strncpy( logname, name, l );
-    logname[l] = 0;
-    strcat(logname,".LIS" );
+    strcat(logname,".lis" );
 }
 
 
@@ -2849,13 +2833,12 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
                              int recalconly )
 {
     DATAFILE *d;
-    char *f;
+    const char *f;
     f = NULL;
-    if( gotroot ) f = find_file( coord_file, NULL, FF_TRYCURDIR | FF_TRYBASEDIR );
+    if( gotroot ) f = find_file( coord_file, 0, 0, FF_TRYALL, 0 );
     if( !f  ) f = coord_file;
+	crdfname=copy_string(f);
 
-    strncpy( crdfname, f, 79 );
-    crdfname[79] = 0;
     if( read_network(net,crdfname,0) != OK )
     {
         printf("Error reading coordinate file %s\n",crdfname);
@@ -2873,12 +2856,11 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
         close_station_list();
     }
 
-    if( !gotroot ) set_rootname( crdfname );
-    if( !gotlogname ) set_logname( crdfname );
+    set_logname( crdfname );
 
     for( ; ndatafiles-- > 0 ; data_files++ )
     {
-        f = find_file( *data_files, NULL, FF_TRYCURDIR | FF_TRYBASEDIR );
+        f = find_file( *data_files, 0, 0, FF_TRYALL, 0 );
         if( !f ) f = *data_files;
         d = df_open_data_file( f, "SNAP data file" );
         if( d )
@@ -2932,19 +2914,25 @@ static config_item snap_commands[] =
 static void load_command_file( char *cmd_file, int recalconly )
 {
     CFG_FILE *cfg;
-    char *f;
+    const char *f;
 
     int sts;
 
-    f = find_file( cmd_file, ".snp", FF_TRYCURDIR );
-    if( !f ) f = find_file( cmd_file, ".CMD", FF_TRYCURDIR );
+    f = find_file( cmd_file, DFLTCOMMAND_EXT2, 0, FF_TRYLOCAL, 0 );
+    if( !f ) f = find_file( cmd_file, DFLTCOMMAND_EXT, 0, FF_TRYLOCAL, 0 );
     if( !f ) f = cmd_file;
 
     cfg = open_config_file( f, COMMENT_CHAR );
 
     if(cfg)
     {
-        set_rootname( f );
+		int pl=path_len(f,0);
+		char *pdir=pl ? copy_string_nch(f,pl) : 0;
+		if( pdir )
+		{
+			set_project_dir( pdir );
+			check_free(pdir);
+		}
         set_logname( f );
         set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_IGNORE_BAD );
         sts = read_config_file( cfg, snap_commands );
@@ -2984,15 +2972,10 @@ int main( int argc, char *argv[] )
     char **filelist;
     int nrecalclist;
     char **recalclist;
-    char *exepath;
     char *outputfile = NULL;
 
     errcount = 0;
     errlog = stdout;
-
-    exepath = find_image( argv[0] );
-    i = path_len( exepath, 0 );
-    exepath[i] = 0;
 
     interactive = 0;
     recalc = 0;
@@ -3068,7 +3051,8 @@ int main( int argc, char *argv[] )
 
     stnlist = create_list( sizeof(stn) );
 
-    install_default_crdsys_file( exepath );
+	set_user_config_from_env( SNAPENV );
+    install_default_crdsys_file();
 
     /* Load the coordinate file */
 
@@ -3132,7 +3116,7 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    if( gotlogname )
+    if( logname )
     {
         logfile = fopen( logname, "w" );
     }

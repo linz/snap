@@ -36,6 +36,7 @@
 #include "coordsys/coordsys.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
+#include "util/fileutil.h"
 #include "util/versioninfo.h"
 #include "plotbin.h"
 #include "loadplot.h"
@@ -64,7 +65,6 @@ int snapplot_load( int argc, char *argv[] )
 
     int sts;
     int binary_data;
-    char *image;
     char *firstfile = NULL;
     char *filelist[MAXFILES];
     char *cfgfile[MAXFILES];
@@ -79,8 +79,6 @@ int snapplot_load( int argc, char *argv[] )
     int i;
 
     /* print_header(); */
-
-    image = argv[0];
 
     for( narg = 1; narg < argc; narg++ )
     {
@@ -196,7 +194,7 @@ int snapplot_load( int argc, char *argv[] )
         return 0;
     }
 
-    init_snap_globals( image );
+    init_snap_globals();
     init_snap_gps_covariance();
 
 
@@ -212,7 +210,7 @@ int snapplot_load( int argc, char *argv[] )
       }
       */
 
-    install_default_crdsys_file( prog_dir );
+    install_default_crdsys_file();
 
     if( projection )
     {
@@ -291,7 +289,8 @@ int snapplot_load( int argc, char *argv[] )
 
     for( i = 0; i < ncfgfiles; i++ )
     {
-        if( add_configuration_file( cfgfile[i] ) != 0 )
+		const char *filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, 0, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
+        if( add_configuration_file( filename ) != 0 )
         {
             handle_error( FILE_OPEN_ERROR, "Configuration file cannot be found", cfgfile[i] );
         }

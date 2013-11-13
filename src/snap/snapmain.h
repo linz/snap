@@ -86,7 +86,7 @@
 
 #define DEFAULT_RETURN_STATUS 1
 
-#define CONFIG_FILE     "snap.cfg"
+
 
 #ifndef _SNAPGLOB_H
 #include "snap/snapglob.h"

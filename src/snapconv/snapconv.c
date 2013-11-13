@@ -31,6 +31,7 @@
 #include "util/fileutil.h"
 #include "util/dstring.h"
 #include "util/versioninfo.h"
+#include "snap/filenames.h"
 
 #ifdef SNAPCONV_GRID
 #include "geoid/griddata.h"
@@ -49,7 +50,6 @@ int main( int argc, char *argv[] )
     coordsys *cs;
     network *net;
     char *msg;
-    char *exefile;
     char quiet = 0;
     char setformat = 0;
     char degoption = 0;
@@ -61,8 +61,6 @@ int main( int argc, char *argv[] )
     int undo_grid;
     grid_def *grid = NULL;
 #endif
-
-    exefile = find_image(argv[0]);
 
     /* Crude fix to allow suppression of output */
 
@@ -152,9 +150,8 @@ int main( int argc, char *argv[] )
             return 1;
         }
 
-    install_default_crdsys_file( exefile );
-    set_find_file_directories( exefile, NULL, NULL );
-
+	set_user_config_from_env( SNAPENV );
+    install_default_crdsys_file();
 
     cs = load_coordsys( argv[2] );
     if( !cs )

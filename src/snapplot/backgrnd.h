@@ -16,7 +16,7 @@
 #include "plotfunc.h"
 #endif
 
-void add_background_file( char *fname, char *crdsysdef, char *layer );
+void add_background_file( const char *fname, char *crdsysdef, char *layer );
 void load_background_files( void );
 int background_layer_count( void );
 char *background_layer_name( int nlayer );

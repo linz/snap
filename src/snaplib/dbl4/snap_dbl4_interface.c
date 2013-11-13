@@ -152,7 +152,7 @@ void utlReleaseBlobDB( void * blob)
     fclose((FILE *) blob);
 }
 
-int utlCreateReadonlyFileBlob( char *filename, hBlob *blob )
+int utlCreateReadonlyFileBlob( const char *filename, hBlob *blob )
 {
     FILE *f;
     StatusType sts;

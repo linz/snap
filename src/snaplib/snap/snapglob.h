@@ -45,34 +45,22 @@
 #include "snap/classify.h"
 #endif
 
+#ifndef _FILENAMES_H
+#include "snap/filenames.h"
+#endif 
+
 #ifdef _SNAPGLOB_C
 #define SCOPE
 #else
 #define SCOPE extern
 #endif
 
-#define DFLTCOMMAND_EXT ".cmd"
-#define DFLTCOMMAND_EXT2 ".snp"
-#define DFLTCONFIG_EXT  ".cfg"
-#define LISTINGFILE_EXT ".lst"
-#define ERRORFILE_EXT   ".err"
-#define NEWSTNFILE_EXT  ".new"
-#define BINFILE_EXT     ".bin"
-#define CVRFILE_EXT     ".cvr"
-#define DFLTSTLIST_EXT  ".stl"
-
-#define SNAPENV         "SNAPDIR"
-#define BINFILE_SIGNATURE "SNAP binary file version 2.5"
-
 /* The program output files */
 
-SCOPE char *program_file_name;
 SCOPE char *command_file;
 SCOPE char *config_file;
 SCOPE char *root_name;
 SCOPE char *cmd_dir;   /* drive/directory of the command file */
-SCOPE char *user_dir;  /* drive/directory of the users snap directory */
-SCOPE char *prog_dir;  /* drive/directory of the snap program */
 
 /* Program modes */
 
@@ -121,10 +109,9 @@ SCOPE char taumax[2];
 SCOPE double mde_power;
 SCOPE double redundancy_flag_level;
 
-void init_snap_globals( char *prog_file );
+void init_snap_globals();
 void set_snap_command_file( char *cmd_file );
 void set_snap_config_file( char *cfg_file );
-void set_snap_user_dir( char *usr_dir );
 
 #ifdef _BINFILE_H
 void dump_snap_globals( BINARY_FILE *b );

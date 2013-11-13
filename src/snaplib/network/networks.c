@@ -27,7 +27,7 @@
 
 static char rcsid[]="$Id: networks.c,v 1.2 1998/05/21 04:00:28 ccrook Exp $";
 
-#define DFLTSTLIST_EXT  ".stl"
+
 #define COMMENT_CHAR '!'
 
 static void convert_stn_coords( coord_conversion *ccv, station *st )
@@ -205,15 +205,15 @@ void process_stations( network *nw, void *data, void (*function)( station *st, v
     if( nw->stnlist ) sl_process_stations( nw->stnlist, data, function );
 }
 
-static void process_selected_stations1( network *nw, char *select, void *data, void (*function)( station *st, void *data ), char *stnfile );
+static void process_selected_stations1( network *nw, char *select, const char *basefile, void *data, void (*function)( station *st, void *data ), char *stnfile );
 
-static void process_station_file_list(network *nw, char *file, void *data, void (*function)(station *st, void *data))
+static void process_station_file_list(network *nw, char *file, const char *basefile, void *data, void (*function)(station *st, void *data))
 {
-    char *spec;
+    const char *spec;
     FILE *list_file;
     char buf[2048];
 
-    spec = find_file( file,DFLTSTLIST_EXT,FF_TRYALL);
+    spec = find_file( file,DFLTSTLIST_EXT,basefile,1,0);
     list_file = NULL;
     if( spec ) list_file = fopen( spec, "r" );
 
@@ -230,11 +230,12 @@ static void process_station_file_list(network *nw, char *file, void *data, void 
         char *b = buf;
         while( *b && isspace(*b) ) b++;
         if( ! *b || *b == COMMENT_CHAR ) continue;
-        process_selected_stations1(nw,b,data,function,file);
+        process_selected_stations1(nw,b,basefile,data,function,file);
     }
 }
 
-static void process_selected_stations1( network *nw, char *select, void *data, void (*function)( station *st, void *data ), char *stnfile )
+static void process_selected_stations1( network *nw, char *select, const char *basefile, 
+	void *data, void (*function)( station *st, void *data ), char *stnfile )
 {
     char *field;
     char *s = select;
@@ -271,7 +272,7 @@ static void process_selected_stations1( network *nw, char *select, void *data, v
 
         if( ! stnfile && field[0] == '@' && field[1] )
         {
-            process_station_file_list( nw,field+1,data,function);
+            process_station_file_list( nw,field+1,basefile,data,function);
             continue;
         }
 
@@ -344,10 +345,11 @@ static void process_selected_stations1( network *nw, char *select, void *data, v
     }
 }
 
-void process_selected_stations( network *nw, const char *select, void *data, void (*function)( station *st, void *data ))
+void process_selected_stations( network *nw, const char *select, const char *basefile,
+	void *data, void (*function)( station *st, void *data ))
 {
     char *sel = copy_string(select);
-    process_selected_stations1( nw, sel, data, function, NULL);
+    process_selected_stations1( nw, sel, basefile, data, function, NULL);
     check_free(sel);
 }
 

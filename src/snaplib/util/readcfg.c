@@ -60,7 +60,7 @@
 
 static char rcsid[]="$Id: readcfg.c,v 1.2 2004/04/22 02:35:27 ccrook Exp $";
 
-CFG_FILE *open_config_file( char *name, char comment_char )
+CFG_FILE *open_config_file( const char *name, char comment_char )
 {
     FILE *cfgfil;
     CFG_FILE *cfg;

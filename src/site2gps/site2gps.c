@@ -13,6 +13,7 @@
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/versioninfo.h"
+#include "snap/filenames.h"
 
 void print_gps_baselines( FILE *out, int *stn, int nstns )
 {
@@ -97,7 +98,6 @@ int main( int argc, char *argv[] )
     int *stn2;
     double *dst;
     int nstns;
-    char *exefile = NULL;
     int baselines = 0;
     int autolist = 0;
     double maxlen = 99999999999.0;
@@ -144,8 +144,8 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    exefile = find_image(argv[0]);
-    install_default_crdsys_file( exefile );
+	set_user_config_from_env( SNAPENV );
+    install_default_crdsys_file();
 
     if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0 ) != OK )
     {
