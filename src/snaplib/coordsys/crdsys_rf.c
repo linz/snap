@@ -44,7 +44,7 @@ void init_ref_frame( ref_frame *rf, double convepoch )
 ref_frame *create_ref_frame( const char *code, const char *name, ellipsoid *el,
                              const char *refcode, double txyz[3], double rxyz[3], double scale,
                              double refdate, double dtxyz[3], double drxyz[3], double dscale
-        )
+                           )
 {
     ref_frame *rf;
     int i;
@@ -97,8 +97,8 @@ ref_frame *copy_ref_frame( ref_frame *rf )
     {
         rf1->use_iersunits=rf->use_iersunits;
     }
-    if( rf1 ) 
-    { 
+    if( rf1 )
+    {
         rf1->func = copy_ref_frame_func( rf->func );
         rf1->def = copy_ref_deformation( rf->def );
         rf1->defepoch = rf->defepoch;

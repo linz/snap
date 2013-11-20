@@ -234,8 +234,8 @@ static void process_station_file_list(network *nw, char *file, const char *basef
     }
 }
 
-static void process_selected_stations1( network *nw, char *select, const char *basefile, 
-	void *data, void (*function)( station *st, void *data ), char *stnfile )
+static void process_selected_stations1( network *nw, char *select, const char *basefile,
+                                        void *data, void (*function)( station *st, void *data ), char *stnfile )
 {
     char *field;
     char *s = select;
@@ -346,7 +346,7 @@ static void process_selected_stations1( network *nw, char *select, const char *b
 }
 
 void process_selected_stations( network *nw, const char *select, const char *basefile,
-	void *data, void (*function)( station *st, void *data ))
+                                void *data, void (*function)( station *st, void *data ))
 {
     char *sel = copy_string(select);
     process_selected_stations1( nw, sel, basefile, data, function, NULL);

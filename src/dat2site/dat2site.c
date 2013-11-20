@@ -722,13 +722,13 @@ static double get_value( int type, long id1, long id2 )
 {
     switch( type )
     {
-        case CALC_DISTANCE:
-        case CALC_HDIST:     
-            return 1000.0;
-            break;
+    case CALC_DISTANCE:
+    case CALC_HDIST:
+        return 1000.0;
+        break;
     }
     return 0.0;
-} 
+}
 
 static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
 {
@@ -2592,7 +2592,7 @@ static void set_logname( const char *name )
     int l;
     if( logname ) return;
     l = path_len(name,1);
-	logname=(char *) check_malloc(strlen(name)+4+1);
+    logname=(char *) check_malloc(strlen(name)+4+1);
     strncpy( logname, name, l );
     strcat(logname,".lis" );
 }
@@ -2837,7 +2837,7 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
     f = NULL;
     if( gotroot ) f = find_file( coord_file, 0, 0, FF_TRYALL, 0 );
     if( !f  ) f = coord_file;
-	crdfname=copy_string(f);
+    crdfname=copy_string(f);
 
     if( read_network(net,crdfname,0) != OK )
     {
@@ -2926,13 +2926,13 @@ static void load_command_file( char *cmd_file, int recalconly )
 
     if(cfg)
     {
-		int pl=path_len(f,0);
-		char *pdir=pl ? copy_string_nch(f,pl) : 0;
-		if( pdir )
-		{
-			set_project_dir( pdir );
-			check_free(pdir);
-		}
+        int pl=path_len(f,0);
+        char *pdir=pl ? copy_string_nch(f,pl) : 0;
+        if( pdir )
+        {
+            set_project_dir( pdir );
+            check_free(pdir);
+        }
         set_logname( f );
         set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_IGNORE_BAD );
         sts = read_config_file( cfg, snap_commands );

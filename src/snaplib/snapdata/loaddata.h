@@ -42,9 +42,9 @@
 
    Return values of 0 are taken as missing or undefined
 
-   The third function is for calculations, currently calculating the 
+   The third function is for calculations, currently calculating the
    distance between two stations.  It takes three parameters and returns
-   an double value.  The parameters are a type and two ids 
+   an double value.  The parameters are a type and two ids
 
    type             id1              id2              Value
    CALC_DISTANCE    From station id  To station id    Slope distance
@@ -66,8 +66,8 @@ enum { CALC_DISTANCE, CALC_HDIST };
 
 /*  */
 
-struct coef_class_info 
-{ 
+struct coef_class_info
+{
     const char *default_classname;
     bool datatypedef::*useclass;
 };

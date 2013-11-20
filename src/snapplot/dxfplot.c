@@ -550,7 +550,7 @@ static int write_dxf_point( double x, double y, int pen )
 
 
 static long write_dxf_text( double x, double y, int pen, double size,
-                           double angle, char *text )
+                            double angle, char *text )
 {
     long id;
     if( !dxf ) return 0;
@@ -644,7 +644,7 @@ static void write_symbol_blocks()
     {
         char *blockname = symbol_block_name( symbol );
         int npt = get_symbol_points( symbol, points, maxpts );
-        if( npt < 0 ){ npt = 0; points[0].x = 1.0; }
+        if( npt < 0 ) { npt = 0; points[0].x = 1.0; }
 
         start_block( blockname );
         long edge_id;

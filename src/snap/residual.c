@@ -160,7 +160,7 @@ void save_residual( int from, int to, int id, int type,
     rs.from = from;
     rs.to = to;
     rs.id = id,
-    rs.type = type;
+       rs.type = type;
     rs.file = file;
     rs.line = line;
     rs.unused = unused;

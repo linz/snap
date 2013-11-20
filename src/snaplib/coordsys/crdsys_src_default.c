@@ -45,11 +45,11 @@ int install_default_crdsys_file()
 
     filename = getenv(CRDSYSENV);
     if( ! filename )
-	{
-		/* Now try the user and system configuration directories  */
-		filename = find_file(CRDSYSFILE,0,0,FF_TRYALL,COORDSYS_CONFIG_SECTION);
-	}
-	if( ! filename )  return FILE_OPEN_ERROR;
+    {
+        /* Now try the user and system configuration directories  */
+        filename = find_file(CRDSYSFILE,0,0,FF_TRYALL,COORDSYS_CONFIG_SECTION);
+    }
+    if( ! filename )  return FILE_OPEN_ERROR;
     return install_crdsys_file( filename );
 }
 

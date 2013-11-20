@@ -105,18 +105,18 @@ long read_data_files( char *base_dir, FILE *lst )
         init_file_display( d->f );
         switch( sd->format )
         {
-        case GB_FORMAT:    
+        case GB_FORMAT:
             read_gb_data( d, datafile_progress);
             break;
-        case SNAP_FORMAT:  
+        case SNAP_FORMAT:
             read_snap_data( d, datafile_progress );
             break;
-        case CSV_FORMAT: 
+        case CSV_FORMAT:
             load_snap_csv_obs( sd->subtype, d, datafile_progress );
             break;
-        default: 
+        default:
             handle_error( INTERNAL_ERROR, "Program error: Invalid file format",
-                                   "Occurred in read_data_files");
+                          "Occurred in read_data_files");
             break;
         }
         end_file_display();

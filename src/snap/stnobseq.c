@@ -202,9 +202,9 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
         if( output_deformation && lst )
         {
             fprintf(lst,"Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n",
-                stn_name_width,st->Code,date_as_year(date),
-                denu[0],denu[1],denu[2],
-                st->Name);
+                    stn_name_width,st->Code,date_as_year(date),
+                    denu[0],denu[1],denu[2],
+                    st->Name);
         }
         oe_add_value( hA, irow, -(denu[0]*dst[0] + denu[1]*dst[1] + denu[2]*dst[2]) );
     }
@@ -391,7 +391,7 @@ void print_adjusted_coordinates( FILE *lst )
     ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
 
     fprintf(lst, "\nStation heights are %s heights.\n",
-        ellipsoidal ? "ellipsoidal" : "orthometric" );
+            ellipsoidal ? "ellipsoidal" : "orthometric" );
     if( ! (net->options & NW_GEOID_HEIGHTS) )
     {
         fprintf(lst, "Geoid heights not defined - orthometric and ellipsoidal heights are the same.\n");
@@ -407,7 +407,7 @@ void print_adjusted_coordinates( FILE *lst )
     if( has_deformation_model(net->crdsys) && ignore_deformation )
     {
         fprintf(lst,"\nNote: the deformation model associated with %s has not been used\n\n",
-            cs->name);
+                cs->name);
     }
 
     adjusted = program_mode != PREANALYSIS;

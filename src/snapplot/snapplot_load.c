@@ -289,7 +289,7 @@ int snapplot_load( int argc, char *argv[] )
 
     for( i = 0; i < ncfgfiles; i++ )
     {
-		const char *filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, 0, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
+        const char *filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, 0, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
         if( add_configuration_file( filename ) != 0 )
         {
             handle_error( FILE_OPEN_ERROR, "Configuration file cannot be found", cfgfile[i] );
@@ -317,7 +317,7 @@ int snapplot_load( int argc, char *argv[] )
 
     // TODO: see if this is needed - may need setup_key somewhere here ... init_options();
 
-	init_displayed_fields();
+    init_displayed_fields();
 
     setup_data_pens( DPEN_BY_TYPE );
 

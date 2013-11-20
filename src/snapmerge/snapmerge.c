@@ -59,20 +59,20 @@ int main( int argc, char *argv[] )
 
         case 'c':
         case 'C':
-                  switch (argv[1][2])
-                  {
-                      case 0:
-                      case 'b':
-                      case 'B': clearbaseorders= 1; 
-                                break;
-                      case 'd':
-                      case 'D': cleardataorders= 1; 
-                                break;
-                      default:
-                          syntaxerror=1;
-                          break;
-                  };
-                  break;
+            switch (argv[1][2])
+            {
+            case 0:
+            case 'b':
+            case 'B': clearbaseorders= 1;
+                break;
+            case 'd':
+            case 'D': cleardataorders= 1;
+                break;
+            default:
+                syntaxerror=1;
+                break;
+            };
+            break;
 
 
         case 'l':

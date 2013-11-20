@@ -40,8 +40,8 @@ static char rcsid[]="$Id: crdsysr3.c,v 1.3 2004/01/27 21:16:34 ccrook Exp $";
          }
 
 ref_frame  *parse_ref_frame_def ( input_string_def *is,
-                                  ellipsoid *(*getel)(const char *code ), 
-                                  ref_frame *(*getrf)(const char *code, int loadref ), 
+                                  ellipsoid *(*getel)(const char *code ),
+                                  ref_frame *(*getrf)(const char *code, int loadref ),
                                   int embedded, int loadref )
 {
     char refcode[CRDSYS_CODE_LEN+1];
@@ -179,7 +179,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             }
             if( sf != 0.0 || dsf != 0.0 ) ok=0;
             if( rff != 0 ) ok=0;
-            if( ! ok ) 
+            if( ! ok )
             {
                 char errmsg[80+CRDSYS_CODE_LEN];
                 strcpy( errmsg, "Reference frame ");
@@ -195,7 +195,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     {
         sts = parse_ref_deformation_def( is, &rdf );
     }
-    
+
 
     if( sts == OK && !el )
     {
@@ -235,7 +235,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     if( sts == OK )
     {
         rf = create_ref_frame(  refcode, refname, el, stdfrm, txyz, rxyz, sf,
-               refdate, dtxyz, drxyz, dsf );
+                                refdate, dtxyz, drxyz, dsf );
         rf->func = rff;
         rf->def = rdf;
         rf->use_iersunits=iersunits;
@@ -244,15 +244,15 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     /* If we are loading the base reference frame ... */
     if( sts == OK && loadref && getrf )
     {
-       ref_frame *base=rf;
-       while( sts==OK && base->refcode )
-       {
+        ref_frame *base=rf;
+        while( sts==OK && base->refcode )
+        {
             /* Check we are not creating a cyclic dependency */
             ref_frame *check=rf;
             ref_frame *newbase=0;
             while( check )
             {
-                if( _stricmp(check->code,base->refcode) == 0 ) 
+                if( _stricmp(check->code,base->refcode) == 0 )
                 {
                     char errmsg[80+CRDSYS_CODE_LEN];
                     strcpy( errmsg, "Reference frame ");
@@ -266,9 +266,9 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
                 check=check->refrf;
             }
             if( sts != OK ) break;
-            /* Get the base reference frame.  If this is null, then exit.  It 
+            /* Get the base reference frame.  If this is null, then exit.  It
              * will be NULL if there is no corresponding reference frame (ie an
-             * arbitrary base system) or if the last base reference frame is 
+             * arbitrary base system) or if the last base reference frame is
              * based on itself
              *
              * Invalid defintions of the base system are not reported correctly,
@@ -278,7 +278,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             if( ! newbase ) break;
             base->refrf=newbase;
             base=newbase;
-       }
+        }
     }
 
     if( sts != OK && bad )

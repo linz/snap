@@ -173,7 +173,7 @@ int main( int argc, char *argv[] )
             print_geoid_header( gd, stdout, 0, "   " );
         }
 
-        sprintf(geoid_msg,"Geoid undulations from %.80s",get_geoid_model( gd ));        
+        sprintf(geoid_msg,"Geoid undulations from %.80s",get_geoid_model( gd ));
         int sts = set_network_geoid_def( &net, gd );
         if( sts != OK ) return 2;
     }

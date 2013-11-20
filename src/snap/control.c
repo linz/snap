@@ -645,7 +645,7 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
 
     if( use )
     {
-        if( sts == OK ) 
+        if( sts == OK )
         {
             switch( code )
             {
@@ -881,7 +881,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
         if( ! use && _stricmp( prmname, "use") == 0 )
         {
             rfname = strtok(NULL," ");
-            if( rfname ) 
+            if( rfname )
             {
                 set_coef_class( COEF_CLASS_REFFRM, rfname );
                 if( strtok(NULL," ")) sts = INVALID_DATA;
@@ -1672,8 +1672,8 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
     {
         ptr = strtok(NULL,"\n");
         cfgfile = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
-			0, FF_TRYPROJECT, 
-			cfg_only ? SNAP_CONFIG_SECTION : 0 );
+                             0, FF_TRYPROJECT,
+                             cfg_only ? SNAP_CONFIG_SECTION : 0 );
         if( cfgfile )
         {
             if( process_configuration_file( cfgfile, cfg_only ) != OK )

@@ -457,9 +457,9 @@ static void save_whole_survdata( survdata *sd )
     save_observation( sd->from, to, t->type, loc );
 }
 
-    //case ID_REFCOEF:    id = refcoef_prm( code ); break;
-    //case ID_DISTSF:     id = distsf_prm( code ); break;
-    //case ID_BRNGREF:    id = brngref_prm( code ); break;
+//case ID_REFCOEF:    id = refcoef_prm( code ); break;
+//case ID_DISTSF:     id = distsf_prm( code ); break;
+//case ID_BRNGREF:    id = brngref_prm( code ); break;
 static void load_snap( survdata *sd )
 {
     int nignore;
@@ -470,7 +470,7 @@ static void load_snap( survdata *sd )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",
-            survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
+                survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
         handle_error(INVALID_DATA,"Observation date not defined", location);
         missing_data++;
         return;
@@ -482,7 +482,7 @@ static void load_snap( survdata *sd )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",
-            survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
+                survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
         handle_error(INVALID_DATA,"Observation covariance not defined", location);
         missing_data++;
         return;

@@ -38,11 +38,11 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
     char translation;
     char scale;
     char rotation;
-    const char *iers_components[]={"Translation","IERS rotation","Scale"};
-    const char *std_components[]={"Translation","Rotation","Scale"};
+    const char *iers_components[]= {"Translation","IERS rotation","Scale"};
+    const char *std_components[]= {"Translation","Rotation","Scale"};
     const char *ratestr="       rate";
-    const char *iers_units[]={"mm","mas","ppb"};
-    const char *std_units[]={"m","sec","ppm"};
+    const char *iers_units[]= {"mm","mas","ppb"};
+    const char *std_units[]= {"m","sec","ppm"};
 
     write_output_string( os, "Reference frame: " );
     write_output_string( os, rf->name );
@@ -95,7 +95,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
             {
                 sprintf(unitstr,"(%s/yr)",units[0]);
                 sprintf(out,format1,ratestr,unitstr,
-                    uf*rf->dtxyz[0], uf*rf->dtxyz[1], uf*rf->dtxyz[2] );
+                        uf*rf->dtxyz[0], uf*rf->dtxyz[1], uf*rf->dtxyz[2] );
                 write_output_string( os, out );
             }
         }
@@ -109,7 +109,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
             {
                 sprintf(unitstr,"(%s/yr)",units[1]);
                 sprintf(out,format1,ratestr,unitstr,
-                    af*rf->drxyz[0], af*rf->drxyz[1], af*rf->drxyz[2] );
+                        af*rf->drxyz[0], af*rf->drxyz[1], af*rf->drxyz[2] );
                 write_output_string( os, out );
             }
         }

@@ -1817,7 +1817,7 @@ int main( int argc, char *argv[] )
     char *bfn;
     CFG_FILE *cfg = 0;
     const char *cfn;
-	char *basecfn, *ofn;
+    char *basecfn, *ofn;
     int nstns;
     int nerr;
     hSDCTest hsdc;

@@ -230,17 +230,17 @@ int add_configuration_file( const char *fname )
 void add_default_configuration_files( void )
 {
     int nch;
-	char *spec;
-	const char *cfgdir;
-	
-	cfgdir = system_config_dir();
+    char *spec;
+    const char *cfgdir;
+
+    cfgdir = system_config_dir();
     if( cfgdir )
     {
         spec=build_config_filespec( 0, 0, cfgdir,0,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, 0 );
         if( file_exists( spec )) store_configuration_file( spec );
     }
-	
-	cfgdir = user_config_dir();
+
+    cfgdir = user_config_dir();
     if( cfgdir )
     {
         spec=build_config_filespec( 0, 0, cfgdir,0,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, 0 );
@@ -308,7 +308,7 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *value, int l
     while( ptr && NULL != (cmdfile=strtok(ptr,whitespace)))
     {
         ptr = strtok(NULL,"\n");
-		cmdfile = find_file( cmdfile, SNAPPLOT_CONFIG_EXT, cfg->name, 0, SNAPPLOT_CONFIG_SECTION );  
+        cmdfile = find_file( cmdfile, SNAPPLOT_CONFIG_EXT, cfg->name, 0, SNAPPLOT_CONFIG_SECTION );
         if( cmdfile )
         {
 
@@ -339,9 +339,9 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
 
     if( _stricmp( plot_command, "configuration" ) == 0 )
     {
-		const char *cfgfile;
-		if( ! plot_data ) return MISSING_DATA;
-		cfgfile=find_file(plot_data,SNAPPLOT_CONFIG_EXT,cfg->name,0,SNAPPLOT_CONFIG_SECTION);
+        const char *cfgfile;
+        if( ! plot_data ) return MISSING_DATA;
+        cfgfile=find_file(plot_data,SNAPPLOT_CONFIG_EXT,cfg->name,0,SNAPPLOT_CONFIG_SECTION);
         if( !cfg ) return MISSING_DATA;
         if( ! cfgfile || add_configuration_file( cfgfile ) != OK )
         {
@@ -914,7 +914,7 @@ static int read_ignore_offsets( CFG_FILE *cfg, char *string, void *value, int le
 static int read_config_menu_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
     char *s1, *s2;
-	const char *fspec;
+    const char *fspec;
     s1 = strtok(string,whitespace);
     s2 = strtok(NULL,"\n");
     if( !s2 ) return MISSING_DATA;

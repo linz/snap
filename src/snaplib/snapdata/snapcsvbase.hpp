@@ -48,7 +48,7 @@ public:
 public:
     SnapCsvBase( const std::string &name, const OptionString &config = OptionString(""));
     virtual ~SnapCsvBase();
-    void disableColumnCheck( bool check = false ){ _checkColumnEnabled = check; }
+    void disableColumnCheck( bool check = false ) { _checkColumnEnabled = check; }
     bool load( const std::string &filename );
     bool load( InputBase &input );
 protected:

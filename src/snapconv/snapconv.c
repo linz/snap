@@ -53,7 +53,7 @@ int main( int argc, char *argv[] )
     char quiet = 0;
     char setformat = 0;
     char degoption = 0;
-	double epoch = 0.0;
+    double epoch = 0.0;
 #ifdef SNAPCONV_GRID
     char *gridfile;
     char *gridname;
@@ -74,14 +74,14 @@ int main( int argc, char *argv[] )
         case 'd': setformat = 1; degoption = NW_DEC_DEGREES; break;
         case 'H':
         case 'h': setformat = 1; degoption = 0; break;
-		case 'Y':
-		case 'y': 
-                if( argc < 3 || ! parse_crdsys_epoch(argv[2],&epoch) )
-				{
-					printf("Invalid value for conversion epoch (-Y %s)\n",argv[2]);
-					return 1;
-				}
-                break;
+        case 'Y':
+        case 'y':
+            if( argc < 3 || ! parse_crdsys_epoch(argv[2],&epoch) )
+            {
+                printf("Invalid value for conversion epoch (-Y %s)\n",argv[2]);
+                return 1;
+            }
+            break;
         default:
             argc = 0;
         }

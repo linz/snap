@@ -59,7 +59,7 @@ class SnapCsvObs : public SnapCsvBase
         bool setAngleErrorType( const string &format );
         bool setZenDistErrorType( const string &format );
         bool setDateTimeFormat( const string &format );
-        bool setIgnoreMissingObs(){ _ignoremissingobs = true; return true; }
+        bool setIgnoreMissingObs() { _ignoremissingobs = true; return true; }
         CsvClassification *classification( const string &classname );
         CsvClassification *addClassification( const string &classname );
         void addColumnClassification( const std::string &colname );

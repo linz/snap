@@ -47,7 +47,7 @@
 
 #ifndef _FILENAMES_H
 #include "snap/filenames.h"
-#endif 
+#endif
 
 #ifdef _SNAPGLOB_C
 #define SCOPE

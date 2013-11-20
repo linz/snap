@@ -683,7 +683,7 @@ static int read_proj_command( snapfile_def *sd, int id, char *cmd )
                 COMMAND_PREFIX, cmd );
         df_data_file_error( sd->df, MISSING_DATA, errmsg );
         return OK; // Already reported
-    }   
+    }
     sd->projctn = ldt_get_id( ID_PROJCTN, 0, name );
     return OK;
 }
@@ -798,23 +798,23 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
         errcodes[0].code = mm;
         break;
 
-    case HA_ERR:  
-        errcodes[0].value = &sd->haerr; 
+    case HA_ERR:
+        errcodes[0].value = &sd->haerr;
         errcodes[1].code = mm;
         errcodes[1].fact = 0.001;
         errcodes[1].value = &sd->hammerr;
         nerrcodes = 2;
         break;
-        
-    case AZ_ERR:  
-        errcodes[0].value = &sd->azerr; 
+
+    case AZ_ERR:
+        errcodes[0].value = &sd->azerr;
         errcodes[1].code = mm;
         errcodes[1].fact = 0.001;
         errcodes[1].value = &sd->azmmerr;
         nerrcodes = 2;
         break;
-                  
-    case ZD_ERR:  
+
+    case ZD_ERR:
         errcodes[0].value = &sd->zderr;
         errcodes[1].code = mmh;
         errcodes[1].fact = 0.001;
@@ -985,7 +985,7 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
         ldt_error( &error );
         break;
 
-    case HA_ERR: 
+    case HA_ERR:
         error = sd->haerr;
         if( error < 0.0 ) error = 0.0;
         if( sd->hammerr > 0 )
@@ -998,10 +998,10 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             if( dist < mmerr/2.0 ) dist = mmerr/2.0;
             error = hypot(error, mmerr/dist);
         }
-        ldt_error( &error ); 
+        ldt_error( &error );
         break;
 
-    case AZ_ERR: 
+    case AZ_ERR:
         error = sd->azerr;
         if( error < 0.0 ) error = 0.0;
         if( sd->azmmerr > 0 )
@@ -1014,10 +1014,10 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             if( dist < mmerr/2.0 ) dist = mmerr/2.0;
             error = hypot(error, mmerr/dist);
         }
-        ldt_error( &error ); 
+        ldt_error( &error );
         break;
 
-    case ZD_ERR: 
+    case ZD_ERR:
         error = sd->zderr;
         if( error < 0.0 ) error = 0.0;
         if( sd->zdmmherr > 0 || sd->zdmmverr > 0)
@@ -1036,7 +1036,7 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
             mmverr *= sin(value);
             error = sqrt(error*error+mmherr*mmherr+mmverr*mmverr);
         }
-        ldt_error( &error ); 
+        ldt_error( &error );
         break;
 
     case LT_ERR: ldt_error( &sd->lterr ); break;

@@ -89,7 +89,7 @@ class LookupMapImp : public map<const string, const string>
     friend class LookupMap;
 private:
     LookupMapImp(bool caseSensitive) :
-        map<const string, const string>(), 
+        map<const string, const string>(),
         _default(""),
         _caseSensitive( caseSensitive )
     {}
@@ -105,9 +105,9 @@ class LookupMap : public shared_ptr<LookupMapImp>
 
 public:
     LookupMap( bool caseSensitive = true ) :
-        shared_ptr<LookupMapImp>( new LookupMapImp(caseSensitive) ){}
-    void add( const string &key, const string &value ){ (*this)->add(key,value); }
-    void setDefault( const string &dfltstr ){ (*this)->setDefault( dfltstr ); }
+        shared_ptr<LookupMapImp>( new LookupMapImp(caseSensitive) ) {}
+    void add( const string &key, const string &value ) { (*this)->add(key,value); }
+    void setDefault( const string &dfltstr ) { (*this)->setDefault( dfltstr ); }
     const string *lookup( const string &key ) const { return (*this)->lookup(key); }
 };
 
@@ -143,7 +143,7 @@ public:
     void clear();
     // Adding a pointer transfers ownership
     ConcatValue &add( CalcValue *column );
-    ConcatValue &add( const CalcValue &column ){ return add( column.clone()); }
+    ConcatValue &add( const CalcValue &column ) { return add( column.clone()); }
     ConcatValue &add( const std::string &value ) { return add(new StringValue(value)); }
     ConcatValue &operator<< ( CalcValue &column ) { return add(column); }
     ConcatValue &operator<< ( const std::string &value ) { return add(new StringValue(value)); }

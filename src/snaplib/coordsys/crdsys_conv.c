@@ -90,20 +90,20 @@ int define_coord_conversion_epoch( coord_conversion *conv,
                     break;
                 }
                 if( ! to_rf ) break;
-                if( to_rf ) 
-                { 
-                    to_code=to_rf->refcode; 
-                    to_rf=to_rf->refrf; 
+                if( to_rf )
+                {
+                    to_code=to_rf->refcode;
+                    to_rf=to_rf->refrf;
                     nto++;
                 }
                 if( nfrom+nto > CONVMAXRF ) break;
                 if( ! to_code ) break;
             }
             if( common_rf || ! from_rf ) break;
-            if( from_rf ) 
-            { 
-                from_code=from_rf->refcode; 
-                from_rf=from_rf->refrf; 
+            if( from_rf )
+            {
+                from_code=from_rf->refcode;
+                from_rf=from_rf->refrf;
                 nfrom++;
             }
             if( nfrom > CONVMAXRF ) break;
@@ -188,8 +188,8 @@ int define_coord_conversion_epoch( coord_conversion *conv,
             {
                 conv->valid=0;
                 sprintf(conv->errmsg,
-                    "Conversion between reference frames %.20s and %.20s requires a date",
-                    from->rf->code, to->rf->code);
+                        "Conversion between reference frames %.20s and %.20s requires a date",
+                        from->rf->code, to->rf->code);
             }
             conv->needsepoch = needsepoch;
         }
@@ -263,7 +263,7 @@ int convert_coords( coord_conversion *conv,
 
     if( geoid )
     {
-        if( isgeoc ){ xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
+        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
         gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
         gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
         gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
@@ -271,7 +271,7 @@ int convert_coords( coord_conversion *conv,
 
     if( conv->need_xyz && ! isgeoc )
     {
-        llh_to_xyz( from->rf->el, xyz, xyz, 0, 0 ); 
+        llh_to_xyz( from->rf->el, xyz, xyz, 0, 0 );
         isgeoc=1;
     }
 
@@ -290,28 +290,28 @@ int convert_coords( coord_conversion *conv,
                 if( rf->def )
                 {
                     double tgtepoch= defonly ? 0.0 : conv->epochconv;
-                    if( isgeoc ){ xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
+                    if( isgeoc ) { xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
                     if( tgtepoch != rf->defepoch )
                     {
-                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
                         sts=apply_ref_deformation_llh( rf, xyz, rf->defepoch, tgtepoch );
                         if( sts != OK ) break;
-                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                     }
                 }
                 /*  Apply change to reference frame axes */
                 if( ! defonly )
                 {
-                    if( ! isgeoc ){ llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
+                    if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = xyz_to_std( rf, xyz, conv->epochconv );
                     if( sts != OK ) break;
                 }
             }
-            else 
+            else
             {
                 if( ! defonly )
                 {
-                    if( ! isgeoc ){ llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
+                    if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = std_to_xyz( rf, xyz, conv->epochconv );
                     if( sts != OK ) break;
                 }
@@ -319,28 +319,28 @@ int convert_coords( coord_conversion *conv,
                 if( rf->def )
                 {
                     double srcepoch=defonly ? 0.0 : conv->epochconv;
-                    if( isgeoc ){ xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
+                    if( isgeoc ) { xyz_to_llh( rf->el, xyz, xyz ); isgeoc=0; }
                     if( srcepoch != rf->defepoch )
                     {
-                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
                         sts=apply_ref_deformation_llh( rf, xyz, srcepoch, rf->defepoch );
                         if( sts != OK ) break;
-                        if( geoid ){ int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
+                        if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                     }
                 }
             }
 
             if( crf->need_xyz && ! isgeoc )
             {
-                llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); 
+                llh_to_xyz( rf->el, xyz, xyz, 0, 0 );
                 isgeoc=1;
             }
         }
         if( sts != OK )
         {
             sprintf(conv->errmsg,
-                "Cannot convert coordinates between reference frames %.20s and %.20s",
-                from->rf->code, to->rf->code);
+                    "Cannot convert coordinates between reference frames %.20s and %.20s",
+                    from->rf->code, to->rf->code);
         }
     }
 
@@ -350,7 +350,7 @@ int convert_coords( coord_conversion *conv,
 
         if( geoid )
         {
-            if( isgeoc ){ xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
+            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
             gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
             gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
             gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
@@ -361,14 +361,14 @@ int convert_coords( coord_conversion *conv,
 
         if( to->gotrange && to->rf->el )
         {
-            if( isgeoc ){ xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
+            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
             in_range = check_crdsys_range( to, xyz );
             if( ! in_range )
             {
                 sts=INCONSISTENT_DATA;
                 sprintf(conv->errmsg,
-                   "Converted coordinates are outside range of %.20s coordinate system",
-                   to->code);
+                        "Converted coordinates are outside range of %.20s coordinate system",
+                        to->code);
             }
         }
         else
@@ -380,7 +380,7 @@ int convert_coords( coord_conversion *conv,
 
         if( in_range && conv->to_prj )
         {
-            if( isgeoc ){ xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
+            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
             geog_to_proj( to->prj,
                           xyz[CRD_LON], xyz[CRD_LAT], xyz+CRD_EAST, xyz+CRD_NORTH );
         }
@@ -390,7 +390,7 @@ int convert_coords( coord_conversion *conv,
         }
         else if( isgeoc )
         {
-            xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; 
+            xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0;
         }
     }
 

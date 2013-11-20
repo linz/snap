@@ -176,13 +176,13 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
     (*binsrc) = NULL;
 
     /* Was coded with ASSERT(), but this crashed CC optimizer?! */
-    #ifndef NDEBUG
+#ifndef NDEBUG
     if( sizeof(INT4) != 4 || sizeof(INT2) != 2 || sizeof(INT1) != 1 )
     {
         THROW_EXCEPTION("Binary data compilation error: sizeof INT4, INT2, INT1 not correct");
         RETURN_STATUS(STS_INVALID_DATA);
     }
-    #endif
+#endif
 
     bs = (hBinSrc) utlAlloc( sizeof( BinSrc ) );
     if( ! bs )

@@ -42,7 +42,7 @@ int path_len( const char *base, int want_name );
 int file_exists( const char *file );
 
 /* Compile a filename.  If spec is null then it will return a static variable which
-   may be modified by other calls to these routines. 
+   may be modified by other calls to these routines.
 
    build_config_filespec adds the ability to extract the directory from dir, assuming
    it is a filename, and to include a config subdirectory of dir
@@ -51,8 +51,8 @@ int file_exists( const char *file );
 char *build_filespec( char *spec, int nspec,
                       const char *dir, const char *name, const char *dflt_ext );
 char *build_config_filespec( char *spec, int nspec,
-                      const char *dir, int pathonly, const char *config, 
-					  const char *name, const char *dflt_ext );
+                             const char *dir, int pathonly, const char *config,
+                             const char *name, const char *dflt_ext );
 
 
 const char *image_path();
@@ -72,7 +72,7 @@ void set_user_config_dir( const char *cfgdir );
 
 void set_project_dir( const char *project_dir );
 
-/* Note: find..file return a static character string.  The result should be used 
+/* Note: find..file return a static character string.  The result should be used
    straight away or copied */
 
 /* Searches for a file with a given name and extension in configuration files, first the user

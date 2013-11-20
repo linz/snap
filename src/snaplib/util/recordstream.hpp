@@ -14,7 +14,7 @@ namespace LINZ
 //  Class RecordStream
 //
 //  Reads records from a file, ignoring blank records, and optionally
-//  accounting for comments and line continuation (line ends with blank 
+//  accounting for comments and line continuation (line ends with blank
 //  plus continuation character)
 
 class RecordStream
@@ -23,18 +23,18 @@ public:
     RecordStream( const std::string &fname );
     ~RecordStream();
 
-    RecordStream &setComment( char comment='!' ){ _comment = comment; return *this; }
-    RecordStream &setLeadingComment( char leadcomment = '#'){ _leadcomment=leadcomment; return *this; }
-    RecordStream &setContinuation( char contchar='&' ){ _contchar = contchar; return *this; }
+    RecordStream &setComment( char comment='!' ) { _comment = comment; return *this; }
+    RecordStream &setLeadingComment( char leadcomment = '#') { _leadcomment=leadcomment; return *this; }
+    RecordStream &setContinuation( char contchar='&' ) { _contchar = contchar; return *this; }
 
     void setControlChars( char comment='!', char contchar='&');
 
     // Finds the next nonblank record, after removing comments,
     // and joining continued lines
     const std::string &filename() { return _filename; }
-    bool good(){ return _str.good(); }
+    bool good() { return _str.good(); }
     bool readRecord();
-    int lineNo(){ return _lineNo; }
+    int lineNo() { return _lineNo; }
 
     // Returns the current record as a string
     const std::string &recordString() { return _recordstr; }

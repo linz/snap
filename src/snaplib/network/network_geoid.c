@@ -29,11 +29,11 @@ int set_network_geoid_def( network *nw, geoid_def *gd )
     coordsys *geoid_crdsys = get_geoid_coordsys( gd );
 
     /* Define the conversion to and from the geoid coordinate system */
-	
-	/* Note that the coordinate conversion does not need to be very precise, so
-	   use a default epoch of 2000 to allow conversion between different
-	   dynamically related coordinate systems (eg 14 param bursa wolf or 
-	   deformation model */
+
+    /* Note that the coordinate conversion does not need to be very precise, so
+       use a default epoch of 2000 to allow conversion between different
+       dynamically related coordinate systems (eg 14 param bursa wolf or
+       deformation model */
 
     coord_conversion to_geoid;
     coord_conversion from_geoid;

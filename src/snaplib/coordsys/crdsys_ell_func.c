@@ -34,7 +34,7 @@ double * llh_to_xyz( ellipsoid *el, double llh[3], double xyz[3],
     slt  = sin(llh[CRD_LAT]);
     cln  = cos(llh[CRD_LON]);
     sln  = sin(llh[CRD_LON]);
-	hgt = llh[CRD_HGT];
+    hgt = llh[CRD_HGT];
     bsac = _hypot( el->b*slt, el->a*clt );
     p    = el->a2*clt/bsac + hgt*clt;
     xyz[0] = p*cln;

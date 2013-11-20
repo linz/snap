@@ -72,7 +72,7 @@ typedef struct
     int  datapen;
 } key_def;
 
-typedef struct 
+typedef struct
 {
     double x;
     double y;

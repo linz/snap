@@ -40,7 +40,7 @@ void init_snap_globals()
     root_name = NULL;
     cmd_dir = NULL;
 
-	job_title[0] = 0;
+    job_title[0] = 0;
     dimension = 2;
     program_mode = ADJUST;
     max_iterations = 5;
@@ -95,8 +95,8 @@ void set_snap_command_file( char *cmd_file )
         command_file = cf;
     }
 
-	cmd_dir=copy_string_nch( command_file, path_len(command_file,0));
-	root_name=copy_string_nch( command_file, path_len(command_file,1));
+    cmd_dir=copy_string_nch( command_file, path_len(command_file,0));
+    root_name=copy_string_nch( command_file, path_len(command_file,1));
     set_project_dir( cmd_dir );
 }
 

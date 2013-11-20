@@ -261,35 +261,35 @@ static void init_table( void )
     }
     nclass = 0;
 }
-   
+
 
 static void print_field( column_def *cd, const char *s, int quotefield, FILE *out )
 {
-        int left, right, spare;
-        if( cd->extralen < 0 )
-        {
-            cd->extralen = 0;
-            if( quotefield == QT_QUOTE) cd->extralen += 2 * strlen( quote );
-            if( cd->prefix ) cd->extralen += strlen( cd->prefix );
-            if( cd->suffix ) cd->extralen += strlen( cd->suffix );
-        }
-        spare = cd->width - strlen(s) - cd->extralen;
-        left = right = 0;
+    int left, right, spare;
+    if( cd->extralen < 0 )
+    {
+        cd->extralen = 0;
+        if( quotefield == QT_QUOTE) cd->extralen += 2 * strlen( quote );
+        if( cd->prefix ) cd->extralen += strlen( cd->prefix );
+        if( cd->suffix ) cd->extralen += strlen( cd->suffix );
+    }
+    spare = cd->width - strlen(s) - cd->extralen;
+    left = right = 0;
 
-        if( spare > 0 ) switch( cd->just )
-            {
-            case JST_CENTRE:  right = spare/2; left = spare - right; break;
-            case JST_RIGHT:   left = spare; break;
-            default:          right = spare; break;
-            }
-        while( left-- ) fputc( ' ', out );
-        if( cd->prefix ) fputs( cd->prefix, out );
-        if( quotefield == QT_LITERAL )
+    if( spare > 0 ) switch( cd->just )
         {
-            fputs(s,out);
+        case JST_CENTRE:  right = spare/2; left = spare - right; break;
+        case JST_RIGHT:   left = spare; break;
+        default:          right = spare; break;
         }
-        else if( quotefield == QT_QUOTE && canquote )
-        {
+    while( left-- ) fputc( ' ', out );
+    if( cd->prefix ) fputs( cd->prefix, out );
+    if( quotefield == QT_LITERAL )
+    {
+        fputs(s,out);
+    }
+    else if( quotefield == QT_QUOTE && canquote )
+    {
         fputs( quote, out );
         for( const char *sc = s; *sc; sc++ )
         {
@@ -298,9 +298,9 @@ static void print_field( column_def *cd, const char *s, int quotefield, FILE *ou
             else fputc(*sc, out );
         }
         fputs( quote, out );
-        }
-        else
-        {
+    }
+    else
+    {
         for( const char *sc = s; *sc; sc++ )
         {
             if( *sc == *quote ) fputs( nqquote, out );
@@ -308,10 +308,10 @@ static void print_field( column_def *cd, const char *s, int quotefield, FILE *ou
             else if( *sc == *delim ) fputs( nqdelim, out );
             else if( *sc == '\n' ) fputs( nqnewline, out );
             else fputc(*sc, out );
-        }        
         }
-        if( cd->suffix ) fputs( cd->suffix, out );
-        while( right-- ) fputc( ' ', out );
+    }
+    if( cd->suffix ) fputs( cd->suffix, out );
+    while( right-- ) fputc( ' ', out );
 }
 void print_table_row( FILE *out )
 {
@@ -542,7 +542,7 @@ static int list_stations( FILE *out )
         {
             stn_northing =  st->ELon*RTOD;
             stn_easting = st->ELat*RTOD;
-        } 
+        }
         stn_height = enh[CRD_HGT];
         if( covar )
         {
@@ -601,7 +601,7 @@ static void print_table_header( FILE *out )
 static void print_table( void )
 {
 
-    
+
     if( ! stn_data && !is_projection( net->crdsys ) )
     {
         printf( "Cannot print snaplist data for coordinate systems without projections\n");
@@ -1097,7 +1097,7 @@ int main( int argc, char *argv[] )
     double lat, lon;
     CFG_FILE *cfg = 0;
     const char *cfn;
-	char *basecfn, *ofn;
+    char *basecfn, *ofn;
 
     printf( "snaplist:   Creates a table listing GPS observations in a SNAP binary file\n");
     printf( "           Facilitates the use of GPS data in survey plans\n");

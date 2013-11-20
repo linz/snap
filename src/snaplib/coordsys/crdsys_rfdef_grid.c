@@ -122,7 +122,7 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
     if( epochfrom == epochto ) return OK;
     sts = rf_grid_open_file( gd );
     if( sts != OK ) return sts;
-	denu[0] = denu[1] = denu[2] = 0.0;
+    denu[0] = denu[1] = denu[2] = 0.0;
     sts = grd_calc_linear( gd->grid, llh[CRD_LON]*RTOD, llh[CRD_LAT]*RTOD, denu );
     if( sts != OK ) return sts;
     for( i = 0; i < 3; i++ ) denu[i] *= (epochto-epochfrom);

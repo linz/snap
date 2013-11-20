@@ -195,7 +195,7 @@ int df_read_data_file( DATAFILE *d )
     d->startloc = ftell( d->f );
     d->inrec[0] = 0;
     d->reclineno = 0;
-        
+
     // Until we get to a non-blank line...
     while( ! d->inrec[0] && ! eof)
     {
@@ -228,7 +228,7 @@ int df_read_data_file( DATAFILE *d )
             }
             // Trim whitespace
             int nch = strlen(line);
-            while( nch-- && isspace(line[nch])){ line[nch] = 0; }
+            while( nch-- && isspace(line[nch])) { line[nch] = 0; }
             offset = lineoffset + nch;
             // Check for line continuation
             if( nch >= 1 && line[nch] == d->continuation_char && isspace(line[nch-1]))

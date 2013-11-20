@@ -263,7 +263,7 @@ public:
     Reader( std::istream &is, const Format &parser = Format::Csv, const Options &options = Options() );
     virtual ~Reader();
 
-    const std::string &streamName(){ return _input->name(); }
+    const std::string &streamName() { return _input->name(); }
 
     // Configuration
 

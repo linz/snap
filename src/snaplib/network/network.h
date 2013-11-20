@@ -210,7 +210,7 @@ double calc_distance( station *st1, double hgt1, station *st2, double hgt2,
 /* Horizontal distance (metres), ie at mean height of marks */
 
 double calc_horizontal_distance( station *st1, station *st2,
-                                  vector3 dst1, vector3 dst2 );
+                                 vector3 dst1, vector3 dst2 );
 /* Ellipsoidal distance (metres) */
 
 double calc_ellipsoidal_distance( station *st1, station *st2,
@@ -329,12 +329,12 @@ void    process_stations( network *nw, void *data, void (*function)( station *st
      code               station with specified code
      code1-code2        stations with codes in the specified range
      class=value        stations matching a specified classification
-     @file              read selection criteria from each line in file (the file will be sought  
+     @file              read selection criteria from each line in file (the file will be sought
 	                    relative to base file and in the current directory)
-	                
+
 */
-void    process_selected_stations( network *nw, const char *select, const char *basefile, 
-	void *data, void (*function)( station *st, void *data) );
+void    process_selected_stations( network *nw, const char *select, const char *basefile,
+                                   void *data, void (*function)( station *st, void *data) );
 
 int   number_of_stations( network *nw );
 

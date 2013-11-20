@@ -134,7 +134,7 @@ public:
     void SetSymbol( int nNodes = 0, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
     void AddSymbol( int nNodes, double size = 1.0, double indent = 0.0, const wxColour &colourBorder = wxNullColour, const wxColour &colourFill = wxNullColour  );
     void Render( wxDC &dc, const wxPoint &pt, int refSize, const wxColour &defaultColour );
-    int NPoints(){ return npt; }
+    int NPoints() { return npt; }
     bool GetPoint( int ipt, double *x, double *y );
 
 private:
