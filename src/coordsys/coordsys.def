@@ -745,3 +745,19 @@ DUNEHT1958 "Dunedin 1958" NZVD09 0.49
 DUBLHT1960 "Dunedin-Bluff 1960" NZVD09 0.38
 BLUFHT1955 "Bluff 1955" NZVD09 0.36
 STISHT1977 "Stewart Island 1977" NZVD09 0.39
+
+# Notes can be provided for a coordinate system or datum, or 
+# for a conversion between coordinate systems and datums.  This
+# can include coordinates systems and datums not defined, or 
+# conversions not permitted.  
+#
+# Each note starts with a line containing a code or space separated
+# list of codes.  Codes can be structured code1:code2 to define a note
+# for a conversion between code1 and code2
+# 
+# The text of the note follows, possibly spanning multiple lines. 
+# The note ends with a line containing just "end_note"
+
+[coordinate_system_notes]
+
+[reference_frame_notes]

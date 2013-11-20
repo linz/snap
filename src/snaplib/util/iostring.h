@@ -30,10 +30,12 @@ typedef struct
 /* Output string def - defines a way of sending strings to some form
    of output device */
 
+typedef int (*output_string_func)( const char *string, void *sink );
+
 typedef struct
 {
     void *sink;
-    int (*write)( const char *string, void *sink );
+    output_string_func write;
 } output_string_def;
 
 /* Input string functions.  Return status values are as defined in

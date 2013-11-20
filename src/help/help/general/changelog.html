@@ -24,17 +24,39 @@ In snapadjust the progress bar and all progress updates are no longer displayed 
 even if focus is restored.
 </p>
 -->
-<!-- -------------------------------------------------------------------------- 
-<h2>Release: </h2>
+<!-- 
+-->
+<h2>Release: 20 November 2013</h2>
+<p>There are two main changes in this release of SNAP</p>
+<ul>
+	<li>Support for installing configuration information in user files, rather
+	than system files, has been improved.  This has meant some reorganisation of 
+	where these files are are installed, as documented in the <a href="../files/index.html">snap files</a> documentation.  
+	</li>
+	<li>
+	SNAP and concord have been updated to better and more consistent use of
+	a deformation model, and for a deformation model including reverse patches.
+	This has included time dependent transformations in concord, and including
+	the epoch in SNAP coordinate systems (eg NZGD2000@2013.5).
+	</li>
+</ul>
+
 <h3>snap</h3>
-<p>Enhancement: Added support for using deformation model from coordinate system
-definition (by default)</p>
-<p>Enhancement: Added option calculating errors of angle errors in observations files
-based on angle error and constant error.  (But note that this is based on the calculated 
-length based on the input coordinates - it is not updated as the coordinates change at
+<p>Enhancement: Added option calculating errors of angle errors in 
+observations files based on angle error and constant error.  
+(But note that this is based on the calculated length based on the 
+input coordinates - it is not updated as the coordinates change at
 each iteration</p>
-<p>Bug fix: Obscure bug in calculating errors of residuals of grouped GPS vector observations
-when some of the vectors in the group are rejected.
+<p>Bug fix: Obscure bug in calculating errors of residuals of 
+grouped GPS vector observations when some of the vectors in the group are rejected.
+</p>
+<h3>snapplot</h3>
+<p>Bug fix: Sorting list of observations was not working properly if the observations
+did not have an observation id
+</p>
+<p>
+Enhancement: Observations dates are more displayed in the observation lists, and
+dates include times.
 </p>
 <h3>snap_manager</h3>
 <p>
@@ -51,7 +73,6 @@ defined.
 </p>
 
 <hr />
--->
 
 <h2>Relase: 11 August 2011</h2>
 <p><b>Note:</b> SNAP binary files have changed in this release - binary files

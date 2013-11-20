@@ -72,7 +72,7 @@ function ChangeCoordinateSystem()
        message("Could not create backup file of $relname","Error")
        exit
     endif
-   $output = LogRun("snapconv $dms \"$backupfile\" $coordsys \"$coordinate_file\"")
+   $output = debuglogrun("\"$snap_path/snapconv\" $dms \"$backupfile\" $coordsys \"$coordinate_file\"")
    $output = "$output"
    if $output == "true" then $output = "" endif
    log("\n$output\n$relname coordinate system changed to $coordsys")
@@ -99,7 +99,7 @@ function AddGeoidHeights()
        message("Could not create backup file of $relname","Error")
        exit
     endif
-   $output = LogRun("snapgeoid -c -g $geoid \"$backupfile\" \"$coordinate_file\"")
+   $output = debuglogrun("\"$snap_path/snapgeoid\" -c -g $geoid \"$backupfile\" \"$coordinate_file\"")
    log("\n$output\nGeoid heights added to $relname")
 end_function
 
@@ -115,8 +115,8 @@ function CalculateMissingStations()
     endif
     $newfile = SetExtension($coordinate_file,"new")
     DeleteFile($newfile)
-    $command = "dat2site \"$job_file\""
-    $output = LogRun($command)
+    $command = "\"$snap_path/dat2site\" \"$job_file\""
+    $output = debuglogrun($command)
     log("\n")
     log($output)
     if FileExists($newfile) then
@@ -163,12 +163,12 @@ function ImportCoordFile()
 
     if $onlyindata then
        $listfile = TempFile()
-       $command = "dat2site -l -o \"$listfile\" \"$job_file\""
-       LogRun($command)
+       $command = "\"$snap_path/dat2site\" -l -o \"$listfile\" \"$job_file\""
+       debuglogrun($command)
        $options = $options." -l \"$listfile\""
     endif
     
-    $result = LogRun("snapmerge -q $options \"$coordinate_file\" \"$importfile\"")
+    $result = debuglogrun("\"$snap_path/snapmerge\" -q $options \"$coordinate_file\" \"$importfile\"")
     
     log("\nCoordinates imported from $importfile")
        
@@ -215,7 +215,7 @@ function ImportLINZGDB()
     # coordinate file
  
     $listfile = TempFile()
-    $command = "dat2site -m -o \"$listfile\" \"$job_file\""
+    $command = "\"$snap_path/dat2site\" -m -o \"$listfile\" \"$job_file\""
     debuglogrun($command)
     $missing = ReadFile($listfile)
     DeleteFile($listfile)
@@ -237,7 +237,7 @@ function ImportLINZGDB()
     DeleteFile($newcrdfile)
     $options=""
     if $addmarktypes then $options="-m" endif
-    $command = "perl \"$snap_path\\linz_gdb_stations.bat\" $options \"$inputfile\" \"$newcrdfile\""
+    $command = "linz_gdb_stations.bat $options \"$inputfile\" \"$newcrdfile\""
     $gdbresult = debuglogrun( $command )
     DeleteFile($inputfile)
 
@@ -261,7 +261,7 @@ function ImportLINZGDB()
     if not $overwrite then $options = "-o" endif
     if $clearorders then $options = $options." -cd" endif
 
-    $result = LogRun("snapmerge -q $options \"$newcrdfile\" \"$coordinate_file\"")
+    $result = debuglogrun("\"$snap_path/snapmerge\" -q $options \"$newcrdfile\" \"$coordinate_file\"")
     RenameFile($newcrdfile,$coordinate_file)
 
     log("\nCoordinates imported from LINZ geodetic database")

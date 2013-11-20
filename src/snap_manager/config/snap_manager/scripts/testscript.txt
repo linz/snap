@@ -1,4 +1,0 @@
-log("####################################")
-log("Running testscript.txt")
-message("hello world from test script!","hello")
-

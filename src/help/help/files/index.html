@@ -15,14 +15,9 @@
 definitions, adjustment configuration options, data file formats, and scripts used in the snap_manager program.
 These are held in system and user configuration directories.  
 </p>
-<p>Generally if a SNAP program is looking for a 
-configuration file it will look in the directory of the snap command file (if applicable), the current directory,
-and then the appropriate directory in the user and system configuration areas, in that order.  For some types of
-files some of these options may be omitted.  
-</p>
 <p>
 By default the user configuration information is in subdirectories of the directory defined by the APPDATA 
-environment variable at %APPDATA%\linz, and the system configuration directory is the config subdirectory of the 
+environment variable at <i>%APPDATA%\linz</i>, and the system configuration directory is the <i>/config</i> subdirectory of the 
 application installation directory.  Within each of these areas the files are organised into directories as follows:
 </p>
 <table>
@@ -53,19 +48,9 @@ application installation directory.  Within each of these areas the files are or
         <td>snapplot configuration files (including colour schemes, additional menu commands, etc</td>
     </tr>
     <tr>
-        <td>snap_manager</td>
-        <td>The snap manager configuration script snap_manager.cfg</td>
-    </tr>
-    <tr>
-        <td>snap_manager\scripts</td>
-        <td>Additional snap manager scripts.  Scripts named *_menu.cfg (where * is any name) are automatically 
-            loaded when the snap_manager starts
-        </td>
-    </tr>
-    <tr>
-        <td>snap_manager\packages</td>
-        <td>snap_manager packages (defining additional functionality) are loaded into subdirectories of this 
-            directory, each taking the name of the package it defines. Scripts named *_menu.cfg are automatically
+        <td>snapscript</td>
+        <td>Scripts used by snap_manager. 
+            Scripts named *_menu.cfg (where * is any name) are automatically 
             loaded when snap_manager starts.
         </td>
     </tr>
@@ -77,7 +62,56 @@ application installation directory.  Within each of these areas the files are or
         <td>snapspec</td>
         <td>snapspec accuracy testing configuration files</td>
     </tr>
+    <tr>
+        <td>package</td>
+        <td>Additional snap manager packages which may themselves contain menu options, configuration items, and perl scripts.</td>
+    </tr>
+    <tr>
+	<td>package/<i>name</i>/ABOUT</td>
+	<td>Descriptive information about package <i>name</i>.</td>
+    </tr>
+    <tr>
+	<td>package/<i>name</i>/*_menu.cfg</td>
+	<td>Snap manager scripts automatically run when snap manager is loaded.  These generally 
+		install additional menu items.</i>.</td>
+    </tr>
+    <tr>
+	<td>package/<i>name</i>/perl</td>
+	<td>Perl scripts used by the package</td>
+    </tr>
+    <tr>
+	<td>package/<i>name</i>/perl/perllib</td>
+	<td>Perl library items used by the package</td>
+    </tr>
+    <tr>
+	<td>package/<i>name</i>/config</td>
+	<td>Additional configuration files used by the package.  This may contain coordsys, format, snap,
+		snapplot, snaplist, and snapspec configuration sections.
+    </tr>
 </table>
+
+<h2><a name="cfg_file_path"></a>Finding configuration files</h2>
+<p>Generally if a SNAP program is looking for a 
+configuration file it will look in the following locations:
+</p>
+<ul>
+	<li>the directory of the snap command file (if applicable)</li>
+	<li>the current directory<li>
+	<li>the appropriate configuration subdirectory of any directories specified by the SNAPDIR environment variable</li>
+	<li><i>(within snap manager)</i> the appropriate subdirectory of each user package /config directory </li>
+	<li>the appropriate subdirectory in the user configuration area</li>
+	<li><i>(within snap manager)</i> the appropriate subdirectory of each system package /config directory </li>
+	<li>the appropriate subdirectory in the system configuration area</li>
+</ul>
+<p>Here <i>the appropriate directory</i> refers to the directory corresponding to the type of configuration
+file, for example <i>/format</i> for a delimited text format definition file.
+</p>
+<p>Note that when snap_manager starts it adds the /config areas of any packages to the SNAPDIR 
+environment variable to ensure they are included in the search path.  These directories are not 
+automatically searched by snap programs that are run outside the snap_manager environment.
+</p>
+<p>
+</p>
 
 <h2><a name="snap_files"></a>File names used by SNAP</h2>
 

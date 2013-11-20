@@ -21,19 +21,21 @@
 #define PATH_SEPARATOR2 '/'
 #define DRIVE_SEPARATOR ':'
 #define EXTENSION_SEPARATOR '.'
-#define PATHENV_SEP ";"
+#define PATHENV_SEP ';'
 
 #else
 #define PATH_SEPARATOR '/'
 #define PATH_SEPARATOR2 '\\'
 #define DRIVE_SEPARATOR '\0'
 #define EXTENSION_SEPARATOR '.'
-#define PATHENV_SEP ":"
+#define PATHENV_SEP ':'
 
 /* #define SYS_CONFIG_BASE "/usr/local/share" */
 #endif
+#define SNAPENV              "SNAPDIR"
+#define SYS_CONFIG_BASE      "config"
+#define USER_CONFIG_BASE     "linz"
 
-#define CONFIG_BASE "linz"
 #define MAX_FILENAME_LEN 256
 
 int path_len( const char *base, int want_name );
@@ -59,9 +61,11 @@ const char *system_config_dir();
 const char *user_config_dir();
 const char *project_dir();
 
-/* Override the default user environment using a specified environment variable */
+/* Reset config directories - use if environment variable is redefined */
+void reset_config_dirs();
+
+/* Override the default user environment */
 void set_user_config_dir( const char *cfgdir );
-void set_user_config_from_env( const char *envvar );
 
 /* Set the project dir, that can be included in the find_file search.  Supply the name
    of the project file - the path will be extracted .*/

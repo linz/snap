@@ -8,6 +8,8 @@
 
 using namespace std;
 
+#define SNAPSCRIPT_DIR "snapscript"
+
 //extern "C"
 //{
 #include "coordsys/coordsys.h"
@@ -28,7 +30,7 @@ SnapMgrScriptEnv::SnapMgrScriptEnv( wxWindow *frameWindow )
     script = new Script( *this );
     config = new wxConfig( _T("SnapMgr"),_T("LINZ"));
     SetupConfiguration();
-    GetCoordSysList();
+	coordsyslist="";
     job = 0;
 }
 
@@ -49,30 +51,26 @@ void SnapMgrScriptEnv::SetupConfiguration()
     // Add the image path to the path variable ...
     // Mainly for the shell command ..
 
-    set_user_config_from_env( SNAPENV );
     AddSnapDirToPath();
 
 	scriptPath=wxString(_T(system_config_dir()));
 	scriptPath.Append(_T(PATH_SEPARATOR));
-	scriptPath.Append("snap_manager");
-	scriptPath.Append(_T(PATH_SEPARATOR));
-	scriptPath.Append("scripts");
+	scriptPath.Append(SNAPSCRIPT_DIR);
 
 	userScriptPath=wxString(_T(user_config_dir()));
 	userScriptPath.Append(_T(PATH_SEPARATOR));
-	userScriptPath.Append("snap_manager");
-	userScriptPath.Append(_T(PATH_SEPARATOR));
-	userScriptPath.Append("scripts");
+	userScriptPath.Append(SNAPSCRIPT_DIR);
 
-	const char *cfgfile=find_config_file("snap_manager","snap_manager.cfg",0);
+	const char *cfgfile=find_config_file(SNAPSCRIPT_DIR,"snap_manager.cfg",0);
     if( cfgfile )
     {
         script->ExecuteScript( cfgfile );
     }
 }
 
-void SnapMgrScriptEnv::GetCoordSysList()
+wxString &SnapMgrScriptEnv::GetCoordSysList()
 {
+	reset_config_dirs();
     install_default_crdsys_file();
     coordsyslist.Empty();
     for( int i = 0; i < coordsys_list_count(); i++ )
@@ -82,6 +80,7 @@ void SnapMgrScriptEnv::GetCoordSysList()
         coordsyslist.append(_T("\n"));
         coordsyslist.append(_T(coordsys_list_desc(i)));
     }
+	return coordsyslist;
 }
 
 bool SnapMgrScriptEnv::LoadJob( const wxString &jobFile )
@@ -155,6 +154,7 @@ bool SnapMgrScriptEnv::UpdateJob()
 
 void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar )
 {
+	if( path.IsEmpty()) return;
 	// Ensure path is using correct delimiter
 	wxString psep=PATH_SEPARATOR;
 	wxString psep2=PATH_SEPARATOR2;
@@ -240,7 +240,7 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxEmptyString));
     DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxEmptyString));
     DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxEmptyString));
-    DEFINE_VARIABLE("$coordsys_list", coordsyslist );
+    DEFINE_VARIABLE("$coordsys_list", GetCoordSysList() );
 	DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
 	return false;
@@ -369,7 +369,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxFileName file(STRPRM(0));
     wxString part(STRPRM(1));
 
-    if( part.IsSameAs("path",false) ) { result = file.GetPath(); }
+    if( part.IsSameAs("path",false) ) { result = file.GetPath(true); }
+	else if( part.IsSameAs("directory",false) ) { result=file.GetPath(false); }
     else if( part.IsSameAs("name",false) ) { result = file.GetName(); }
     else if( part.IsSameAs("fullname",false) ) { result = file.GetFullName(); }
     else if( part.IsSameAs("extension",false) ) { result = file.GetExt(); }
@@ -476,22 +477,35 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
     //
 
-    DEFINE_FUNCTION("RunScript",1)
+    DEFINE_FUNCTION2("RunScript",1,2)
     wxFileName scriptFile(STRPRM(0));
+	bool result = true;
 
     if( ! scriptFile.IsAbsolute() )
     {
-        scriptFile.MakeAbsolute(scriptPath);
+		if(nParams > 1)
+		{
+			wxString basePath=STRPRM(1);
+			if( ! wxDirExists(basePath)) 
+			{
+				wxFileName bfn(basePath);
+				basePath=bfn.GetPath(false);
+			}
+            scriptFile.MakeAbsolute(basePath);
+		}
+		else
+		{
+			const char *sf=find_config_file("snapscript",STRPRM(0).c_str(),0);
+			if( sf ) scriptFile=wxString(sf); else result=false;
+		}
     }
 
-    bool result = false;
-    if( scriptFile.FileExists() )
+    result = result && scriptFile.FileExists();
+    if( result )
     {
         result = script->ExecuteScript( (const char *) scriptFile.GetFullPath().c_str() );
     }
     RETURN( result )
-
-
 
     // Functions to run programs
 
@@ -622,7 +636,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
 	DEFINE_FUNCTION2("InsertPath",1,2)
 	wxString pathval=STRPRM(0);
-	wxString pathvar= nParams > 0 ? STRPRM(1) : _T("PATH");
+	wxString pathvar= nParams > 1 ? STRPRM(1) : _T("PATH");
 	InsertPath(pathval,pathvar);
 	wxString result;
 	wxGetEnv(pathvar,&result);

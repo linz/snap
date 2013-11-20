@@ -19,9 +19,12 @@ static wxRadioBoxOption obsListOptions[] =
     {0,0}
 };
 
+// Note: The order here should match the order initiallized for displayFields in plotconn.c
 static wxRadioBoxOption fieldListOptions[] =
 {
-    { "Data type", SRF_TYPE },
+	{ "Obs id", SRF_OBSID },   	
+	{ "Date", SRF_DATE }, 
+	{ "Data type", SRF_TYPE },
     { "Status", SRF_STATUS },
     { "Standardised residual", SRF_SRES },
     { "Redundancy factor", SRF_RFAC },

@@ -44,7 +44,7 @@ private:
     void SetupConfiguration();
 	void InsertPath( const wxString &path, const wxString &envvar=_T("PATH") );
     void AddSnapDirToPath();
-    void GetCoordSysList();
+    wxString &GetCoordSysList();
 
     wxWindow *frameWindow;
     Scripter::Script *script;

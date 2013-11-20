@@ -144,7 +144,6 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-	set_user_config_from_env( SNAPENV );
     install_default_crdsys_file();
 
     if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0 ) != OK )

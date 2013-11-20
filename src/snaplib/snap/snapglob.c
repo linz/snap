@@ -39,7 +39,6 @@ void init_snap_globals()
     config_file = NULL;
     root_name = NULL;
     cmd_dir = NULL;
-	set_user_config_from_env( SNAPENV );
 
 	job_title[0] = 0;
     dimension = 2;

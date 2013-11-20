@@ -33,7 +33,10 @@ my $comment = $zip->zipfileComment();
 die "$ARGV[0] is not a SNAP package\n"
   if $comment !~ /^SNAP\:/;
 
-$zip->extractTree('',$FindBin::Bin."/");
+my $target=$ARGV[1] || $FindBind::Bin."../package";
+$target .= "/";
+
+$zip->extractTree('',$target);
 
 $comment =~ s/^SNAP\:\s+//g;
 print "Successfully installed $comment\n";

@@ -95,6 +95,7 @@ int get_sres_display_option();
 void set_sres_sort_col( int col );
 void set_sres_sort_option( int option );
 int get_sres_sort_option();
+void init_displayed_fields();
 void set_displayed_fields( int *fields, int nFields );
 int get_displayed_fields( int *fields, int maxFields );
 int get_display_field_code( const char *name );
@@ -122,6 +123,7 @@ void write_display_fields_definition( char *def, int nchar );
 #define SRF_FILE   -8
 #define SRF_LINENO -9
 #define SRF_OBSID  -10
+#define SRF_DATE   -11
 
 int get_connection_count( int istn );
 int connection_observation_count(  int from, int index );

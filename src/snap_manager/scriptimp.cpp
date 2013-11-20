@@ -745,6 +745,18 @@ void ScriptImp::error( const char *format, ... )
 
 MenuItem *ScriptImp::AddMenuItem( MenuItem *item )
 {
+	// If the menu item is already defined, then replace it ... 
+	for( vector<MenuItem *>::iterator it = menuItems.begin();
+        it != menuItems.end();
+        it++ )
+    {
+		if( (*it)->MenuName().Lower() == item->MenuName().Lower() )
+		{
+			delete (*it);
+			(*it) = item;
+			return item;
+		}
+    }
     menuItems.push_back( item );
     return item;
 }
@@ -865,6 +877,7 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
                     value.append('$');
                 }
                 invariable = false;
+				if( c == '$' ) continue;
             }
 
             if( escape && c )
@@ -876,6 +889,7 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
                 case 'r': c = '\r'; break;
                 case 't': c = '\t'; break;
                 }
+				value.append(c);
             }
             else if( c == '\\' )
             {

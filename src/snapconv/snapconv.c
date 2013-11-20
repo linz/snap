@@ -150,7 +150,6 @@ int main( int argc, char *argv[] )
             return 1;
         }
 
-	set_user_config_from_env( SNAPENV );
     install_default_crdsys_file();
 
     cs = load_coordsys( argv[2] );

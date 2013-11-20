@@ -23,13 +23,17 @@ function InstallSnapPackage()
 
    $package = ''
    $result = ''
+   $allusers = ''
    dialog "Install snap package" $ok
+   checkbox $allusers "Install for all users"
    open_file_selector $package "Snap package file" "Snap package files (*.zip)|*.zip"
    end_dialog
    if $ok then
       if $package != '' then
+         $installdir="$user_config_path/package"
+	 if $allusers then $installdir="$system_config_path/package" endif
          log("Installing $package\n")
-         $command = "\"$snap_path/install_snap_package.bat\"  \"$package\""
+         $command = "install_snap_package.bat  \"$package\" \"$installdir\""
          $result = debuglogrun($command)
          log($result)
       endif

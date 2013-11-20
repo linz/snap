@@ -317,6 +317,8 @@ int snapplot_load( int argc, char *argv[] )
 
     // TODO: see if this is needed - may need setup_key somewhere here ... init_options();
 
+	init_displayed_fields();
+
     setup_data_pens( DPEN_BY_TYPE );
 
     process_configuration_file_list();

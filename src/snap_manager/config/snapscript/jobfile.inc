@@ -96,7 +96,7 @@ endif
 # Create the coordinate file file
 
 if $crdfileoption == "copy" then
-   LogRun($snap_path."/snapconv.exe",$coordinatefile_source,$_coordsys,$coordinatefile)
+   debuglogrun("\"$snap_path/snapconv.exe\" \"$coordinatefile_source\" \"$_coordsys\" \"$coordinatefile\"")
 elseif $crdfileoption == "new" then
    $crdfileok = CopyTemplate("default.crd",$coordinatefile)
 endif

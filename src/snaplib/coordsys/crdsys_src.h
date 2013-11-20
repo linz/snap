@@ -37,6 +37,7 @@ typedef struct csd_s
     int (*getrf)( void *data, long id, const char *code, ref_frame **rf );
     int (*getel)( void *data, long id, const char *code, ellipsoid **el );
     int (*getcs)( void *data, long id, const char *code, coordsys  **cs );
+	int (*getnotes)( void *data, int type, const char *code, void *sink, int (*puttext)(const char *note, void *sink ));
     int (*getcodes)( void *data, void (*addfunc)( int type, long id, const char *code, const char *desc ) );
     int (*delsource)( void *data );
 } crdsys_source_def;

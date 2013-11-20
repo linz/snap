@@ -104,6 +104,7 @@ typedef struct
     int id;              /* observation id from source file */
     float sres;            /* standardised residual */
     float rfac;            /*  factor */
+	double date;           /*  date of observation */
     long bloc;             /* location of binary data in data source */
     int idata;           /* Index of data in data block in file */
     int cclass[1];        /* Classifications */
@@ -654,6 +655,7 @@ void add_survdata_connections( survdata *sd, long bloc )
         connection->type = t->type;
         connection->file = sd->file;
         connection->line = t->lineno;
+		connection->date = sd->date;
         connection->id = t->id;
         connection->rfac = 1.0;    /* Completely redundant if not used */
         if( binary_data )
@@ -1510,12 +1512,12 @@ typedef struct
     union
     {
         char *cpr;
-        float fval;
+        double fval;
         long ival;
     } cmpval;
 } SresDef;
 
-#define MAX_DISPLAY_FIELDS 20
+#define MAX_DISPLAY_FIELDS 32
 
 static SresDef *srList = NULL;
 static long *srIndex = NULL;
@@ -1525,9 +1527,9 @@ static long srIndexCount = 0;
 static int srListMode = SRL_ALL;
 static int srListOrder = SRF_SRES;
 static int indexValid = 0;
-static int displayFields[MAX_DISPLAY_FIELDS] = {SRF_FROM, SRF_TO, SRF_OBSID, SRF_TYPE, SRF_STATUS, SRF_SRES, SRF_RFAC};
+static int displayFields[MAX_DISPLAY_FIELDS] = {SRF_FROM, SRF_TO, SRF_OBSID, SRF_DATE, SRF_TYPE, SRF_STATUS, SRF_SRES, SRF_RFAC};
 static int displayFieldWidths[MAX_DISPLAY_FIELDS];
-static int nDisplayFields = 6;
+static int nDisplayFields = 8;
 
 struct
 {
@@ -1539,6 +1541,7 @@ struct
     {"from",SRF_FROM,0},
     {"to",SRF_TO,0},
     {"data_type", SRF_TYPE,6},
+	{"date", SRF_DATE,19},
     {"status", SRF_STATUS,10},
     {"std_residual", SRF_SRES,12},
     {"redundancy", SRF_RFAC, 12},
@@ -1692,6 +1695,22 @@ static void set_display_field_widths( void )
     }
 }
 
+void init_displayed_fields()
+{
+	if( ! have_obs_ids )
+	{
+		int nf;
+		int nt=0;
+		for( nf = 0; nf < nDisplayFields; nf++ )
+		{
+			if( displayFields[nf] != SRF_OBSID )
+			{
+				displayFields[nt++] = displayFields[nf];
+			}
+		}
+		nDisplayFields=nt;
+	}
+}
 
 void set_displayed_fields( int *fields, int nFields )
 {
@@ -1722,7 +1741,7 @@ static int cmp_srdef_float_base( const void *p1, const void *p2, char reverse )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    float diff = srList[i1].cmpval.fval - srList[i2].cmpval.fval;
+    double diff = srList[i1].cmpval.fval - srList[i2].cmpval.fval;
     if( reverse ) diff = -diff;
     if( diff < 0.0 ) return -1;
     if( diff > 0.0 ) return 1;
@@ -1941,6 +1960,10 @@ static void SetupSresIndex( void )
             case SRF_FILE:
             case SRF_LINENO:
                 break;
+			case SRF_DATE:
+				get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
+				sr->cmpval.fval=connection->date;
+				break;
             case SRF_LENGTH:  value = 0.0;
                 to = connlst[sr->from].to[sr->to_id].to;
                 if( to )
@@ -1977,6 +2000,7 @@ static void SetupSresIndex( void )
     case SRF_STATUS:  cmp_func = cmp_srdef_stri; break;
     case SRF_SRES:    cmp_func = cmp_srdef_reversefloat; break;
     case SRF_RFAC:    cmp_func = cmp_srdef_float; break;
+	case SRF_DATE:    cmp_func = cmp_srdef_float; break;
     case SRF_OBSID:   cmp_func = cmp_srdef_int; break;
     case SRF_FILE:
     case SRF_LINENO:  cmp_func = cmp_srdef_fileloc; break;
@@ -2066,9 +2090,10 @@ char *sres_list_header()
         case SRF_STATUS:  data =   "Status"; break;
         case SRF_SRES:    data = "Std.res"; number = 1; break;
         case SRF_RFAC:    data = "Redundancy"; number = 1; break;
+		case SRF_DATE:    data = "Date/time"; number=1; break;
         case SRF_FILE:    data = "File"; break;
         case SRF_LINENO:  data = "Line no"; number = 1; break;
-        case SRF_OBSID:   if( ! have_obs_ids ) continue; data = "Id"; number = 1; break;
+        case SRF_OBSID:   data = "Id"; number = 1; break;
         case SRF_LENGTH:	data = "Length"; number = 1; break;
         default:          if( displayFields[i] > 0 )
             {
@@ -2091,6 +2116,21 @@ char *sres_list_header()
     return sres_buf;
 }
 
+static char *date_as_string( double date, char *buffer )
+{
+	if( date == UNKNOWN_DATE )
+	{
+		buffer[0]=0;
+	}
+	else
+	{
+		int dy, mn, yr, hr, mt, sc;
+		date_as_ymdhms( connection->date, &yr, &mn, &dy, &hr, &mt, &sc );
+		sprintf(buffer,"%2d/%02d/%-4d %02d:%02d:%02d",dy,mn,yr,hr,mt,sc);
+	}
+	return buffer;
+}
+
 char *sres_item_description( long id )
 {
     SresDef *sr;
@@ -2103,7 +2143,7 @@ char *sres_item_description( long id )
     float sres;
     if( !indexValid ) SetupSresIndex();
     if( !indexValid ) return NULL;
-    if( id < 0 || id > srIndexCount ) return NULL;
+    if( id < 0 || id >= srIndexCount ) return NULL;
     id = srIndex[id];
     sr = srList + id;
     sfrom = stnptr( sr->from );
@@ -2117,7 +2157,7 @@ char *sres_item_description( long id )
     for( i = 0; i < nDisplayFields; i++ )
     {
         char *data = 0;
-        char number[20];
+        char number[32];
         int datalen;
         switch( displayFields[i] )
         {
@@ -2135,10 +2175,13 @@ char *sres_item_description( long id )
             data = number;
             break;
         case SRF_OBSID:   
-            if( ! have_obs_ids ) continue;
             sprintf(number, "%d", (int) (connection->id));
             data = number;
             break;
+		case SRF_DATE:
+			date_as_string( connection->date,number);
+			data=number;
+			break;
         case SRF_LENGTH:  if( sto )
             {
                 value = calc_distance( sfrom, 0.0, sto, 0.0, NULL, NULL );
@@ -2179,7 +2222,7 @@ void sres_item_info( long id, PutTextInfo *jmp )
     jmp->type = ptfNone;
     if( !indexValid ) SetupSresIndex();
     if( !indexValid ) return;
-    if( id < 0 || id > srIndexCount ) return;
+    if( id < 0 || id >= srIndexCount ) return;
     id = srIndex[id];
     sr = srList + id;
     tp = &connlst[sr->from].to[sr->to_id];
@@ -2670,7 +2713,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
         sprintf(buf,"%s %5s",datatype[obstype].name, reverse ? "(rvs)" : "");
         buf[0] = toupper(buf[0]);
-        for( nch = strlen(buf); nch < 22; nch++ ) { buf[nch] = ' ';}
+        for( nch = strlen(buf); nch < 26; nch++ ) { buf[nch] = ' ';}
         buf[nch] = 0;
 
         if( binary_data )
@@ -2694,6 +2737,13 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             }
             nch = strlen(buf);
         }
+		{
+			char dbuff[32];
+			date_as_string( connection->date, dbuff );
+			sprintf( buf+nch, "%21s", dbuff );
+			nch=strlen(buf);
+		}
+		nch=strlen(buf);
         sprintf(buf+nch,"   Line %2d: %.40s", connection->line,
                 survey_data_file_name( connection->file ));
         (*f)( dest, &jump, buf );
@@ -2745,9 +2795,9 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, long binloc, int ind
 
     if( sd->date != UNKNOWN_DATE )
     {
-        int dy, mn, yr;
-        date_as_ymd( sd->date, &yr, &mn, &dy );
-        sprintf(buf,"Date:  %2d/%02d/%-4hd",dy,mn,yr);
+		char dbuff[32];
+		date_as_string( sd->date, dbuff );
+        sprintf(buf,"Date/time:  %s",dbuff);
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (o->tgt.lineno),
@@ -3031,9 +3081,9 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
 
     if( sd->date != UNKNOWN_DATE )
     {
-        int dy, mn, yr;
-        date_as_ymd( sd->date, &yr, &mn, &dy );
-        sprintf(buf,"Date:  %2d/%02d/%-4hd",dy,mn,yr);
+		char dbuff[32];
+		date_as_string( sd->date, dbuff );
+        sprintf(buf,"Date/time:  %s",dbuff);
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (tgt->lineno),
@@ -3251,9 +3301,9 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     }
     if( sd->date != UNKNOWN_DATE )
     {
-        int dy, mn, yr;
-        date_as_ymd( sd->date, &yr, &mn, &dy );
-        sprintf(buf,"Date:  %2d/%02d/%-4hd",dy,mn,yr);
+		char dbuff[32];
+		date_as_string( sd->date, dbuff );
+        sprintf(buf,"Date/time:  %s",dbuff);
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (p->tgt.lineno),

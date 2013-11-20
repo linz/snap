@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_00C3662859AD44CD9A43F5B0A59034C9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_010FC8BDF3864747A6FF2B32A9E4A99D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -27,13 +33,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_02EAF562F5A8466F9BD79ABF2480C4A6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_04B476B48D6D4C5EB70208320E701C4D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_07BB49ADAC3F40E5BDC1D1BE871478B4"
+        "MsmKey" = "8:_0926A943367A414E90D7022E7B66D441"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -63,13 +75,43 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_1F6DFB9D234E41F990B871FAC59D7F61"
+        "MsmKey" = "8:_1A114AA4E8BF4272893F5E7435D0C7DE"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_20BBCDD8191946F7B71A398AB33275C9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2107BDBBAE0F407F85C811F6B4D832C5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_279CDB41D43A461BB7B40FAEB28A7E45"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_3335AF8580F74D0E9260585E718EB3B2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_34E52D974044409485CC0B821B1E7B0F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_3B8D920EBC244F3EAD89EA629D22447C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -87,6 +129,24 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_48D1489B0B6541B794033536E20348D2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_48DE8674DEB648E58874AC8D55131658"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_4B04DDFC2F88442DABB028B20FCA5055"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4C390D9C881E41829D80B905CFA25AE2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -99,7 +159,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4DBF157DF32140BBAA29E968D64D1C66"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5284630A49CE414888875138D86F31D0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_528A8EAF02FF4CF89AFFAF0917F74C92"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -111,19 +189,31 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_59C4095BBB144E1782DE26576A757678"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_665CB8A6DFFD4A0AB4EE7AD1AACF2F89"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_66C9FB1AE3E54CE59BBD6D9118D46313"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_692C344BA2B948028C48B6807535DD3A"
+        "MsmKey" = "8:_6981739F32984F859A264792DEF166A4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_6981739F32984F859A264792DEF166A4"
+        "MsmKey" = "8:_70C4F55F4A0542078B61B798F4B41C60"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -147,13 +237,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_77CA60C7EC76458C801797A1F01AE8DE"
+        "MsmKey" = "8:_794A9D5E9CFB4C059DCE30596808F7EA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_794A9D5E9CFB4C059DCE30596808F7EA"
+        "MsmKey" = "8:_7BB83569A3A34956A52ACCF4967F2681"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -171,13 +261,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_865849C7756E4D8389864E8AE9814334"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_898F8D9FCE44427E83FD6D8BBC410700"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9026652865F04304A0B5C365E18E0BC7"
+        "MsmKey" = "8:_90D52F616DA046A6953DB01613B0F1E6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -190,6 +286,12 @@
         "Entry"
         {
         "MsmKey" = "8:_989E9C787BD24AB59E7CECE704D6EA9D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_9A6448516A37401F8047DB515F65EC7D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -208,6 +310,12 @@
         "Entry"
         {
         "MsmKey" = "8:_A190E75F9ECD496EA143DD6A7BA0C416"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A29AD8D57E304A299A5EE66E3B02FC4C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -237,12 +345,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_A79793657C28454C9F8784F2809F9303"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -261,7 +363,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AFE11795F1D445E7A4B2ED64337E88FA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_B476991AFC074BA1AF2AFEA5E8C64079"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B7A27EA39508448297AA20142F7B712C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B827E9A3400F4FF0BD6553F8EE66FF80"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -291,12 +411,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_C4022BB9437D4A6BAF4E51075DDACF78"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_C53DA395193341EF9B8B533369833884"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -315,7 +429,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CAA676E50EA24D6D832A87F5D1822E46"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_CC7C3C9252924D9E88E27B17E83314F5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D34A84F424CF40438027EED87BCED3A5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D406A6F9B45C4983BC64B8173A9A7BCE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -333,7 +465,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D8DA7D2F79334DBFA11A6BD16DB48B0E"
+        "MsmKey" = "8:_D9AE1A41413443CD9E700305CA76A446"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -375,13 +507,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_F0C3A31CE91243BF8E071F76086C6DFF"
+        "MsmKey" = "8:_EE4949CF6AF44C118B9FCCCA366DB533"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EFCC5E39ACE1488F9563E357FC1F2129"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_F0EE785905E149BF85616B114E40E05A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F2905B10D5CE4ED38490FA50C5BF73C8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -400,12 +544,6 @@
         "Entry"
         {
         "MsmKey" = "8:_F6880A1FED3846E984CCEB122A7994CE"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F771C9C557234BBF9C74EFA40FCFE08A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -497,6 +635,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00C3662859AD44CD9A43F5B0A59034C9"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZMS260MapRef.pm"
+            "TargetName" = "8:NZMS260MapRef.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_010FC8BDF3864747A6FF2B32A9E4A99D"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\station.jpg"
@@ -514,6 +672,26 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02EAF562F5A8466F9BD79ABF2480C4A6"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\tools.inc"
+            "TargetName" = "8:tools.inc"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
@@ -537,12 +715,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_07BB49ADAC3F40E5BDC1D1BE871478B4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0926A943367A414E90D7022E7B66D441"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\jobfile.inc"
-            "TargetName" = "8:jobfile.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\template\\default.dat"
+            "TargetName" = "8:default.dat"
             "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
+            "Folder" = "8:_AA85EB7C0F7344D28E798F9C31800EB2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -597,12 +775,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1F6DFB9D234E41F990B871FAC59D7F61"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A114AA4E8BF4272893F5E7435D0C7DE"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\default.crd.template"
-            "TargetName" = "8:default.crd.template"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\recodestn.bat"
+            "TargetName" = "8:recodestn.bat"
             "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20BBCDD8191946F7B71A398AB33275C9"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GeoidGrid.pm"
+            "TargetName" = "8:GeoidGrid.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2107BDBBAE0F407F85C811F6B4D832C5"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZMGProjection.pm"
+            "TargetName" = "8:NZMGProjection.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_279CDB41D43A461BB7B40FAEB28A7E45"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZTopo50MapRef.pm"
+            "TargetName" = "8:NZTopo50MapRef.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -622,7 +860,47 @@
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\linz_gdb_stations.bat"
             "TargetName" = "8:linz_gdb_stations.bat"
             "Tag" = "8:"
-            "Folder" = "8:_9415F077782B4287B543FA74E24E6565"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_34E52D974044409485CC0B821B1E7B0F"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Projection.pm"
+            "TargetName" = "8:Projection.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B8D920EBC244F3EAD89EA629D22447C"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CoordConversion.pm"
+            "TargetName" = "8:CoordConversion.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -677,6 +955,66 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48D1489B0B6541B794033536E20348D2"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\datafile.inc"
+            "TargetName" = "8:datafile.inc"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48DE8674DEB648E58874AC8D55131658"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\adjust.inc"
+            "TargetName" = "8:adjust.inc"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4B04DDFC2F88442DABB028B20FCA5055"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GridTransform.pm"
+            "TargetName" = "8:GridTransform.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4C390D9C881E41829D80B905CFA25AE2"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\snap\\trvtest.cfg"
@@ -717,12 +1055,112 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4DBF157DF32140BBAA29E968D64D1C66"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\snap_manager.cfg"
+            "TargetName" = "8:snap_manager.cfg"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5284630A49CE414888875138D86F31D0"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\TMProjection.pm"
+            "TargetName" = "8:TMProjection.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_528A8EAF02FF4CF89AFFAF0917F74C92"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\ProjectionCrd.pm"
+            "TargetName" = "8:ProjectionCrd.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5677773B93B1403994C2A40C28B11BA5"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\coordsys\\coordsys.def"
             "TargetName" = "8:coordsys.def"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59C4095BBB144E1782DE26576A757678"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\HgtRef.pm"
+            "TargetName" = "8:HgtRef.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_665CB8A6DFFD4A0AB4EE7AD1AACF2F89"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CoordSys.pm"
+            "TargetName" = "8:CoordSys.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -757,12 +1195,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_692C344BA2B948028C48B6807535DD3A"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6981739F32984F859A264792DEF166A4"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\adjust.inc"
-            "TargetName" = "8:adjust.inc"
+            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\snap32.ico"
+            "TargetName" = "8:snap32.ico"
             "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
+            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -777,12 +1215,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6981739F32984F859A264792DEF166A4"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70C4F55F4A0542078B61B798F4B41C60"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\resources\\snap32.ico"
-            "TargetName" = "8:snap32.ico"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\BursaWolf.pm"
+            "TargetName" = "8:BursaWolf.pm"
             "Tag" = "8:"
-            "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -822,7 +1260,7 @@
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\maketrig.pl"
             "TargetName" = "8:maketrig.pl"
             "Tag" = "8:"
-            "Folder" = "8:_9415F077782B4287B543FA74E24E6565"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -857,26 +1295,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_77CA60C7EC76458C801797A1F01AE8DE"
-            {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\default.dat.template"
-            "TargetName" = "8:default.dat.template"
-            "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_794A9D5E9CFB4C059DCE30596808F7EA"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Time\\Timezone.pm"
@@ -897,12 +1315,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9026652865F04304A0B5C365E18E0BC7"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7BB83569A3A34956A52ACCF4967F2681"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\snap_manager.cfg"
-            "TargetName" = "8:snap_manager.cfg"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\utility.inc"
+            "TargetName" = "8:utility.inc"
             "Tag" = "8:"
-            "Folder" = "8:_BAE9DE0C26BD40F98EDB8511D80A7855"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_865849C7756E4D8389864E8AE9814334"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\recodecrd.bat"
+            "TargetName" = "8:recodecrd.bat"
+            "Tag" = "8:"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90D52F616DA046A6953DB01613B0F1E6"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\template\\default.crd"
+            "TargetName" = "8:default.crd"
+            "Tag" = "8:"
+            "Folder" = "8:_AA85EB7C0F7344D28E798F9C31800EB2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -957,12 +1415,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A6448516A37401F8047DB515F65EC7D"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\HgtCrdSys.pm"
+            "TargetName" = "8:HgtCrdSys.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A7BB315642941AEBCB320F08C5E880B"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\makelinzdefmodel.pl"
             "TargetName" = "8:makelinzdefmodel.pl"
             "Tag" = "8:"
-            "Folder" = "8:_9415F077782B4287B543FA74E24E6565"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1017,6 +1495,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A29AD8D57E304A299A5EE66E3B02FC4C"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\dumpgrid.pl"
+            "TargetName" = "8:dumpgrid.pl"
+            "Tag" = "8:"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2BC34928EF2EC93937E8D9F551D96F1"
             {
             "SourcePath" = "8:COMDLG32.dll"
@@ -1043,26 +1541,6 @@
             "TargetName" = "8:TrigFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_9F2472EF31FC4A059CEC5AD8E1D43E3B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A79793657C28454C9F8784F2809F9303"
-            {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\default.snp.template"
-            "TargetName" = "8:default.snp.template"
-            "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1117,10 +1595,70 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFE11795F1D445E7A4B2ED64337E88FA"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\BursaWolfVelocity.pm"
+            "TargetName" = "8:BursaWolfVelocity.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B476991AFC074BA1AF2AFEA5E8C64079"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\Coordinate.pm"
             "TargetName" = "8:Coordinate.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B7A27EA39508448297AA20142F7B712C"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZMS1MapRef.pm"
+            "TargetName" = "8:NZMS1MapRef.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B827E9A3400F4FF0BD6553F8EE66FF80"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CoordSysList.pm"
+            "TargetName" = "8:CoordSysList.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
@@ -1177,32 +1715,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4022BB9437D4A6BAF4E51075DDACF78"
-            {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\tools.inc"
-            "TargetName" = "8:tools.inc"
-            "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C53DA395193341EF9B8B533369833884"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\makegrid.pl"
             "TargetName" = "8:makegrid.pl"
             "Tag" = "8:"
-            "Folder" = "8:_9415F077782B4287B543FA74E24E6565"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1257,12 +1775,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CAA676E50EA24D6D832A87F5D1822E46"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\recode.bat"
+            "TargetName" = "8:recode.bat"
+            "Tag" = "8:"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC7C3C9252924D9E88E27B17E83314F5"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\DefModelTransform.pm"
+            "TargetName" = "8:DefModelTransform.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D34A84F424CF40438027EED87BCED3A5"
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\GeodeticCrd.pm"
             "TargetName" = "8:GeodeticCrd.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D406A6F9B45C4983BC64B8173A9A7BCE"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\jobfile.inc"
+            "TargetName" = "8:jobfile.inc"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1317,12 +1895,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D8DA7D2F79334DBFA11A6BD16DB48B0E"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D9AE1A41413443CD9E700305CA76A446"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\datafile.inc"
-            "TargetName" = "8:datafile.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\template\\default.snp"
+            "TargetName" = "8:default.snp"
             "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
+            "Folder" = "8:_AA85EB7C0F7344D28E798F9C31800EB2"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1362,7 +1940,7 @@
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\gpstrans.bat"
             "TargetName" = "8:gpstrans.bat"
             "Tag" = "8:"
-            "Folder" = "8:_9415F077782B4287B543FA74E24E6565"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1422,7 +2000,7 @@
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\install_snap_package.bat"
             "TargetName" = "8:install_snap_package.bat"
             "Tag" = "8:"
-            "Folder" = "8:_9415F077782B4287B543FA74E24E6565"
+            "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1437,12 +2015,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0C3A31CE91243BF8E071F76086C6DFF"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE4949CF6AF44C118B9FCCCA366DB533"
             {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\utility.inc"
-            "TargetName" = "8:utility.inc"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Datum.pm"
+            "TargetName" = "8:Datum.pm"
             "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EFCC5E39ACE1488F9563E357FC1F2129"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\crdfile.inc"
+            "TargetName" = "8:crdfile.inc"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1461,6 +2059,26 @@
             {
             "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\perl\\perllib\\Geodetic\\CartesianCrd.pm"
             "TargetName" = "8:CartesianCrd.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F2905B10D5CE4ED38490FA50C5BF73C8"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\LCCProjection.pm"
+            "TargetName" = "8:LCCProjection.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
@@ -1503,26 +2121,6 @@
             "TargetName" = "8:uninstall_snap.bat"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F771C9C557234BBF9C74EFA40FCFE08A"
-            {
-            "SourcePath" = "8:\\\\VBOXSVR\\ccrook\\ccrook\\projects\\snap\\src\\snap_manager\\config\\snap_manager\\scripts\\crdfile.inc"
-            "TargetName" = "8:crdfile.inc"
-            "Tag" = "8:"
-            "Folder" = "8:_7E2E133C6A63477C86D893FC6ED5CDB3"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1629,64 +2227,9 @@
             "Property" = "8:TARGETDIR"
                 "Folders"
                 {
-                    "{9EF0B969-E518-4E46-987F-47570745A589}:_9415F077782B4287B543FA74E24E6565"
-                    {
-                    "Name" = "8:perl"
-                    "AlwaysCreate" = "11:FALSE"
-                    "Condition" = "8:"
-                    "Transitive" = "11:FALSE"
-                    "Property" = "8:_80390B86494942F782715DAF877AFF57"
-                        "Folders"
-                        {
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_9F2472EF31FC4A059CEC5AD8E1D43E3B"
-                            {
-                            "Name" = "8:perllib"
-                            "AlwaysCreate" = "11:FALSE"
-                            "Condition" = "8:"
-                            "Transitive" = "11:FALSE"
-                            "Property" = "8:_E2FA9CACDF184AC49003C2FBE2F61B24"
-                                "Folders"
-                                {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-                                    {
-                                    "Name" = "8:Geodetic"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_C2CB45658E694E23BCBE09EEE29D2BD3"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_4ECB21E0F0C74BA4AB7BE2FFA201B5CB"
-                                    {
-                                    "Name" = "8:GPS"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_3D2837CA353741F8A5142F526BFBA4AF"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_9C481565F1E44E2F8D6AD07132BC4BDC"
-                                    {
-                                    "Name" = "8:Time"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_8D347A503F0741E5881B5605F109BC9A"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
                     "{9EF0B969-E518-4E46-987F-47570745A589}:_E456300C22234D7FBFCD6B569657F513"
                     {
-                    "Name" = "8:linz"
+                    "Name" = "8:config"
                     "AlwaysCreate" = "11:FALSE"
                     "Condition" = "8:"
                     "Transitive" = "11:FALSE"
@@ -1702,6 +2245,61 @@
                             "Property" = "8:_337413A42C564951A6A6CA189AF4EB19"
                                 "Folders"
                                 {
+                                }
+                            }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_23E9E3413F094B1C81C6019961B0BAED"
+                            {
+                            "Name" = "8:perl"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_80390B86494942F782715DAF877AFF57"
+                                "Folders"
+                                {
+                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_9F2472EF31FC4A059CEC5AD8E1D43E3B"
+                                    {
+                                    "Name" = "8:perllib"
+                                    "AlwaysCreate" = "11:FALSE"
+                                    "Condition" = "8:"
+                                    "Transitive" = "11:FALSE"
+                                    "Property" = "8:_E2FA9CACDF184AC49003C2FBE2F61B24"
+                                        "Folders"
+                                        {
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+                                            {
+                                            "Name" = "8:Geodetic"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_C2CB45658E694E23BCBE09EEE29D2BD3"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_4ECB21E0F0C74BA4AB7BE2FFA201B5CB"
+                                            {
+                                            "Name" = "8:GPS"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_3D2837CA353741F8A5142F526BFBA4AF"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_9C481565F1E44E2F8D6AD07132BC4BDC"
+                                            {
+                                            "Name" = "8:Time"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_8D347A503F0741E5881B5605F109BC9A"
+                                                "Folders"
+                                                {
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_4EEE01A274454ECF9F1DB0F9CB918BD2"
@@ -1748,26 +2346,26 @@
                                 {
                                 }
                             }
-                            "{9EF0B969-E518-4E46-987F-47570745A589}:_BAE9DE0C26BD40F98EDB8511D80A7855"
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_AA85EB7C0F7344D28E798F9C31800EB2"
                             {
-                            "Name" = "8:snap_manager"
+                            "Name" = "8:template"
                             "AlwaysCreate" = "11:FALSE"
                             "Condition" = "8:"
                             "Transitive" = "11:FALSE"
-                            "Property" = "8:_E1CB89D59C0A4750A7D590C99F4EA0FA"
+                            "Property" = "8:_79BC43E221384FFE95FF19B80DFAC305"
                                 "Folders"
                                 {
-                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_7E2E133C6A63477C86D893FC6ED5CDB3"
-                                    {
-                                    "Name" = "8:script"
-                                    "AlwaysCreate" = "11:FALSE"
-                                    "Condition" = "8:"
-                                    "Transitive" = "11:FALSE"
-                                    "Property" = "8:_EF537E1891D04834B50C2CFD96DB657A"
-                                        "Folders"
-                                        {
-                                        }
-                                    }
+                                }
+                            }
+                            "{9EF0B969-E518-4E46-987F-47570745A589}:_C622BBEA8FAE4172BC1348CE78E249FC"
+                            {
+                            "Name" = "8:snapscript"
+                            "AlwaysCreate" = "11:FALSE"
+                            "Condition" = "8:"
+                            "Transitive" = "11:FALSE"
+                            "Property" = "8:_EF537E1891D04834B50C2CFD96DB657A"
+                                "Folders"
+                                {
                                 }
                             }
                             "{9EF0B969-E518-4E46-987F-47570745A589}:_E17C382697E24C029D816041BFB450A5"

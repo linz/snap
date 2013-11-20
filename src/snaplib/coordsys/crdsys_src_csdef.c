@@ -39,91 +39,77 @@ that the file had not been modified in the mean time - tricky .
 #define REFFRAME_TAG  "[reference_frames]"
 #define ELLIPSOID_TAG "[ellipsoids]"
 #define COORDSYS_TAG  "[coordinate_systems]"
+#define REFFRAME_NOTE_TAG  "[reference_frame_notes]"
+#define COORDSYS_NOTE_TAG  "[coordinate_system_notes]"
+
+#define END_NOTE_MARKER "end_note"
 
 static char rcsid[]="$Id: crdsysfl.c,v 1.1 1995/12/22 16:36:03 CHRIS Exp $";
 
 /* Structure used to record reference frames and ellipsoids already
    passed when loading a coordinate system */
 
-#define CODE_BLOCK_SIZE 20
-
-typedef struct
+typedef struct code_loc_s
 {
-    char type;
-    char code[CRDSYS_CODE_LEN+1];
+    struct code_loc_s *next;
+    char *code;
     datafile_loc loc;
 } code_loc;
-
-typedef struct code_loc_block_s
-{
-    struct code_loc_block_s *next;
-    int ncode;
-    code_loc codes[CODE_BLOCK_SIZE];
-} code_loc_block;
-
 
 /* Structure defining a coordinate system definition file */
 
 typedef struct
 {
     DATAFILE *df;
-    code_loc_block *codes;
+    code_loc *codes[CS_COORDSYS_COUNT];
 } crdsys_file_source;
 
-/* Management of an expandable array of codes */
+/* Add a new code */
 
-static code_loc *get_code_loc( code_loc_block *codes, int ncode )
+static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, datafile_loc *loc )
 {
-    if( !codes ) return NULL;
-    while( ncode >= codes->ncode )
+    code_loc **next;
+    code_loc *newloc;
+    char *newcode;
+    if( type < 0  || type >= CS_COORDSYS_COUNT )
     {
-        if( !codes->next ) return NULL;
-        ncode -= codes->ncode;
-        codes = codes->next;
+        return 0;
     }
-    if( ncode < 0 ) return NULL;
-    return codes->codes + ncode;
+    next = &(csf->codes[type]);
+    while( *next ) next=&((*next)->next);
+    newloc = (code_loc *) check_malloc( sizeof(code_loc) + strlen(code) + 1 );
+    newcode = ((char *) newloc)+sizeof(code_loc);
+    strcpy(newcode,code);
+    newloc->next=0;
+    newloc->code=newcode;
+    memcpy(&(newloc->loc),loc,sizeof(datafile_loc));
+    (*next)=newloc;
+    return newloc;
 }
 
-static code_loc *find_code_loc( code_loc_block *codes, const char type, const char *code )
+static code_loc *find_code_loc( crdsys_file_source *csf, const char type, const char *code )
 {
-    for( ; codes; codes = codes->next )
+    code_loc *loc;
+    if( type < 0  || type >= CS_COORDSYS_COUNT )
     {
-        code_loc *cl;
-        int nc;
-        for( cl = codes->codes, nc=codes->ncode; nc--; cl++)
-        {
-            if( cl->type == type && _stricmp(cl->code,code) == 0 ) return cl;
-        }
+        return 0;
     }
-    return NULL;
+    loc=csf->codes[type];
+    while( loc && _stricmp(loc->code, code) != 0 ) loc=loc->next;
+    return loc;
 }
 
-static code_loc *add_code_loc( code_loc_block **codes )
+static void delete_code_locs( code_loc **codes )
 {
-    /* Find the last block */
-    while( (*codes) )
+    code_loc *code;
+    code_loc *next;
+    code = (*codes);
+    (*codes)=0;
+    while( code )
     {
-        if( (*codes)->ncode < CODE_BLOCK_SIZE ) break;
-        codes = &((*codes)->next);
-    }
-    if( !(*codes) )
-    {
-        (*codes) = (code_loc_block *) check_malloc( sizeof(code_loc_block) );
-        (*codes)->next = NULL;
-        (*codes)->ncode = 0;
-    }
-    return (*codes)->codes + ((*codes)->ncode++);
-}
-
-static void delete_code_locs( code_loc_block *codes )
-{
-    code_loc_block *next;
-    while( codes )
-    {
-        next = codes->next;
-        check_free( codes );
-        codes = next;
+        next = code->next;
+        check_free( code );
+        code = next;
     }
 }
 
@@ -135,28 +121,84 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
     {
         input_string_def *is;
         datafile_loc loc;
-        char code[CRDSYS_CODE_LEN+1];
+        char code[CRDCNV_CODE_LEN+1];
         df_save_data_file_loc( cfs->df, &loc );
         is =  df_input_string( cfs->df );
-        if( next_string_field( is ,code, CRDSYS_CODE_LEN+1 ) != OK ) continue;
+        if( next_string_field( is ,code, CRDCNV_CODE_LEN+1 ) != OK ) continue;
         if( code[0] == '[' )
         {
             if( _stricmp(code,ELLIPSOID_TAG) == 0 ) type = CS_ELLIPSOID;
             else if( _stricmp(code,REFFRAME_TAG) == 0 ) type = CS_REF_FRAME;
             else if( _stricmp(code,COORDSYS_TAG ) == 0 ) type = CS_COORDSYS;
+            else if( _stricmp(code,COORDSYS_NOTE_TAG ) == 0 ) type = CS_COORDSYS_NOTE;
+            else if( _stricmp(code,REFFRAME_NOTE_TAG ) == 0 ) type = CS_REF_FRAME_NOTE;
             else type = CS_INVALID;
         }
         else if( type != CS_INVALID )
         {
-            code_loc *cl;
-            cl = add_code_loc( &cfs->codes );
-            cl->type = type;
-            strcpy( cl->code, code );
-            memcpy( &cl->loc, &loc, sizeof( datafile_loc ) );
+            add_code( cfs, type, code, &loc );
+            if( type == CS_COORDSYS_NOTE || type == CS_REF_FRAME_NOTE )
+            {
+                /* Notes can refer to multiple codes - get a complete list */
+                while( next_string_field( is ,code, CRDSYS_CODE_LEN+1 ) == OK )
+                {
+                    add_code( cfs, type, code, &loc );
+                }
+                /* Notes continue to a line ending end_note ... */
+                while( df_read_data_file( cfs->df ) == OK )
+                {
+                    is =  df_input_string( cfs->df );
+                    if( test_next_string_field( is, END_NOTE_MARKER )) break;
+                }
+            }
         }
     }
 }
 
+
+/* Load all codes defined in the coordinate system file */
+
+static int get_codes( void *pcfs,
+                      void (*addfunc)( int type, long id, const char *code, const char *desc ))
+{
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
+    char name[CRDSYS_NAME_LEN];
+    long id;
+    int type;
+    code_loc *cl;
+    input_string_def *instr;
+
+    if( !cfs ) return OK;
+
+    id = 0;
+    for( type=0; type < CS_COORDSYS_COUNT; type++ )
+    {
+        for( cl=cfs->codes[type]; cl; cl=cl->next )
+        {
+            df_reset_data_file_loc( cfs->df, &cl->loc );
+            instr = df_input_string( cfs->df );
+            skip_string_field( instr );
+            if( next_string_field( instr, name, CRDSYS_NAME_LEN ) != OK)
+            {
+                strcpy(name,"(unnamed)");
+            }
+            (*addfunc)((int) type, id, cl->code, name );
+            id++;
+        }
+    }
+    return OK;
+}
+
+static code_loc *get_code_loc( crdsys_file_source *cfs, int type, long id )
+{
+    code_loc *cl;
+    if( !cfs ) return 0;
+    if( type < 0 || type >= CS_COORDSYS_COUNT ) return 0;
+    if( id < 0 ) return 0;
+    cl=cfs->codes[type];
+    while( cl && id--) cl=cl->next;
+    return cl;
+}
 
 static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, const char type, const char *code )
 {
@@ -164,11 +206,11 @@ static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, const c
     input_string_def *instr;
     if( id == CS_ID_UNAVAILABLE )
     {
-        cl = find_code_loc( cfs->codes, type, code );
+        cl = find_code_loc( cfs, type, code );
     }
     else
     {
-        cl = get_code_loc( cfs->codes, (int) id );
+        cl = get_code_loc( cfs, type, (int) id );
     }
     if( !cl ) return NULL;
     df_reset_data_file_loc( cfs->df, &cl->loc );
@@ -247,45 +289,38 @@ static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
     return *cs ? OK : INVALID_DATA;
 }
 
-
-/* Load all codes defined in the coordinate system file */
-
-static int get_codes( void *pcfs,
-                      void (*addfunc)( int type, long id, const char *code, const char *desc ))
+static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, int (*puttext)(const char *note, void *sptr ))
 {
     crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    char name[CRDSYS_NAME_LEN];
-    long id;
-    code_loc_block *cb;
     code_loc *cl;
     input_string_def *instr;
 
-    if( !cfs ) return OK;
+    if( type != CS_COORDSYS_NOTE && type != CS_REF_FRAME_NOTE ) return INVALID_DATA;
 
-    id = 0;
-    for( cb = cfs->codes; cb; cb=cb->next )
+    cl = find_code_loc( cfs, type, code );
+    if( ! cl ) return INVALID_DATA;
+
+    df_reset_data_file_loc( cfs->df, &cl->loc );
+    /* df_read_data_file( cfs->df ); */
+
+    while( df_read_data_file( cfs->df ) == OK )
     {
-        int nc;
-        for( nc = cb->ncode, cl = cb->codes; nc--; cl++, id++ )
-        {
-            df_reset_data_file_loc( cfs->df, &cl->loc );
-            instr = df_input_string( cfs->df );
-            skip_string_field( instr );
-            if( next_string_field( instr, name, CRDSYS_NAME_LEN ) != OK)
-            {
-                strcpy(name,"(unnamed)");
-            }
-            (*addfunc)((int) cl->type, id, cl->code, name );
-        }
+        const char *text;
+        instr = df_input_string( cfs->df );
+        if( test_next_string_field( instr, END_NOTE_MARKER )) break;
+        text = unread_string( instr );
+        (*puttext)( text, sptr );
+        (*puttext)( "\n", sptr );
     }
     return OK;
 }
 
 static int delete_crdsys_file_source( void *pcfs )
 {
+    int type;
     crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     df_close_data_file( cfs->df );
-    delete_code_locs( cfs->codes );
+    for( type=0; type<CS_COORDSYS_COUNT; type++ ) delete_code_locs(&(cfs->codes[type]));
     check_free( cfs );
     return 0;
 }
@@ -296,6 +331,7 @@ static int create_crdsys_file_source( const char *filename )
     crdsys_file_source *cfs;
     crdsys_source_def csd;
     int dfreclen;
+    int type;
 
     dfreclen = df_data_file_default_reclen( MAXRECLEN );
     df = df_open_data_file( filename, "coordinate systems definition" );
@@ -303,12 +339,13 @@ static int create_crdsys_file_source( const char *filename )
     if( !df ) return FILE_OPEN_ERROR;
     cfs = (crdsys_file_source *) check_malloc( sizeof( crdsys_file_source ));
     cfs->df = df;
-    cfs->codes = NULL;
+    for( type=0; type<CS_COORDSYS_COUNT; type++ ) cfs->codes[type]=0;
     scan_coordsys_defs( cfs );
     csd.data = cfs;
     csd.getel = get_ellipsoid;
     csd.getrf = get_ref_frame_cs;
     csd.getcs = get_coordsys;
+    csd.getnotes = get_csdef_notes;
     csd.getcodes = get_codes;
     csd.delsource = delete_crdsys_file_source;
     register_crdsys_source( &csd );

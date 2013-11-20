@@ -129,7 +129,6 @@ int main( int argc, char *argv[] )
     datafile = argv[2];
     newfile = argc > 3 ? argv[3] : argv[1];
 
-	set_user_config_from_env( SNAPENV );
     install_default_crdsys_file();
 
     base = new_network();

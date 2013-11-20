@@ -113,6 +113,7 @@ static void register_lists( void )
     csd.getel = NULL;
     csd.getrf = NULL;
     csd.getcs = NULL;
+    csd.getnotes = NULL;
     csd.getcodes = NULL;
     csd.delsource = delete_crdsys_lists;
     register_crdsys_source( &csd );

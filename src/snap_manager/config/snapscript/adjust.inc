@@ -9,7 +9,7 @@ function RunAdjustment()
    DeleteFile(FindJobFile("lst"))
    DeleteFile(FindJobFile("err"))
    
-   run("snapadjust",$job_file)
+   debugrun("\"$snap_path/snapadjust\" \"$job_file\"")
    $error_file = FindJobFile("err")
    if $error_file then
       if Ask("SNAP has reported errors with this job\r\nView the error file","SNAP errors") then
@@ -22,7 +22,7 @@ end_function
 # Function to plot an adjustment
  
 function PlotAdjustment()
-   start("snapplot",$job_file)
+   start("$snap_path/snapplot",$job_file)
 end_function
  
 #######################################################################
@@ -84,7 +84,7 @@ function CalculateCoordinateOrders()
       DeleteFile($newcrdfile)
       $newcrd = "-u \"$newcrdfile\""
    endif
-   $output = LogRun("snapspec $maxorder $usectrl $newcrd \"$binfile\" \"$lstfile\"")
+   $output = debuglogrun("\"$snap_path/snapspec\" $maxorder $usectrl $newcrd \"$binfile\" \"$lstfile\"")
    
    if not FileExists($lstfile) then
       message("Snapspec failed\n\n$output","Error")
@@ -102,7 +102,7 @@ function CalculateCoordinateOrders()
    endif
    
    if ask($message."\n\nDo you want to view the listing file\n","View report") then
-      start("$_editor \"$lstfile")
+      start($_editor,$lstfile)
    endif
 end_function
  

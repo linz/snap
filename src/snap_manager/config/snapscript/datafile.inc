@@ -90,7 +90,7 @@ end_function
 function PlotDataFiles( $datafilelist )
       if $datafilelist then
          $dflist = Replace($datafilelist,"\n"," ")
-         start("snapplot","-f",$coordinate_file,$dflist)
+         start("$snap_path/snapplot","-f",$coordinate_file,$dflist)
       endif
 end_function
 

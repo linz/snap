@@ -3051,7 +3051,6 @@ int main( int argc, char *argv[] )
 
     stnlist = create_list( sizeof(stn) );
 
-	set_user_config_from_env( SNAPENV );
     install_default_crdsys_file();
 
     /* Load the coordinate file */

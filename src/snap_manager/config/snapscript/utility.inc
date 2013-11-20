@@ -27,6 +27,48 @@ function RemoveFromList( $list, $badelements )
 	return Replace($newlist,'\A\n','')
 end_function
 
+#######################################################################
+#  Functions to load menu scripts from a config directory, set up
+#  necessary path, config, and perl lib directories, and load 
+#  packages
+
+function LoadMenuScripts( $dir )
+    foreach $scriptfile in Directory($dir,"*_menu.cfg") do
+        RunScript(Filename($scriptfile,"absolute",$dir))
+    endforeach
+end_function
+
+function LoadPerlPaths( $dir )
+    if $_perlexe then
+        $plib=Filename("perl","absolute",$dir)
+        if DirectoryExists($plib) then InsertPath($plib) endif
+        $plib=Filename("perllib","absolute",$plib)
+        if DirectoryExists($plib) then InsertPath($plib,"PERL5LIB") endif
+    endif
+end_function
+
+function LoadPackages( $dir )
+   $pkgbase=Filename("package","absolute",$dir)
+   foreach $pkg in Directory($pkgbase) do
+       $pkgdir=Filename($pkg,"absolute",$pkgbase)
+       if DirectoryExists($pkgdir) then
+           LoadMenuScripts($pkgdir)
+           LoadPerlPaths($pkgdir)
+           $cfgdir=Filename("config","absolute",$pkgdir)
+           if DirectoryExists($cfgdir) then InsertPath($cfgdir,"SNAPDIR") endif
+
+           if $_installed_packages then $_installed_packages = $_installed_packages . "\n" endif
+           $_installed_packages = $_installed_packages . $pkg
+           $_package_dirs = $_package_dirs . ":" . $pkg . "=" . $pkgdir
+       endif
+   endforeach
+end_function
+
+
+function PackagePath( $pkg )
+   $pkgdir=Match($_package_dirs,'\:$pkg\=([^\:]*)',1)
+   return $pkgdir
+end_function
 
 #######################################################################
 # Copy a template file, replacing $xxxx strings with corresponding
@@ -35,7 +77,12 @@ end_function
 # character
 
 function CopyTemplate($template,$newfile,$params)
-    $templatetext = ReadFile( "$script_path/$template.template" )
+    $tfile=FindConfigFile("template",$template)
+    if not $tfile then
+    	Message("Cannot find template $template","Template missing")
+	return ''
+    endif
+    $templatetext = ReadFile($tfile)
     $newtext = ''
     $delim = Match($params,'.')
     if not Match($delim,'\w') then $delim = '\'.$delim endif
@@ -81,6 +128,13 @@ end_function
 function debuglogrun( $command )
   if $_debug then log("\nRunning $command") endif
   $output = LogRun( $command )
+  if $_debug then log("\nOutput:\n") log($output) endif
+  return $output
+end_function
+
+function debugrun( $command )
+  if $_debug then log("\nRunning $command") endif
+  $output = Run( $command )
   if $_debug then log("\nOutput:\n") log($output) endif
   return $output
 end_function
