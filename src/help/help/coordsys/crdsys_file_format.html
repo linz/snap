@@ -13,7 +13,8 @@
 
 <h1><a name="crdsys_file_format"></a>Coordinate system file format</h1>
 
-<p>The coordinate system definition file consists of three sections defining
+<p>The coordinate system definition file (coordsys.def) consists of 
+three sections defining
 
 <ul>
 	<li><a href="crdsys_ellipsoid_def.html">ellipsoids</a><br><br></li>
@@ -38,6 +39,22 @@
 [coordinate_systems]
 <i>coordinate system definitions</i></code></pre>
 
+<p>
+The file can also contain additional sections defining textual information
+associated with coordinates systems, reference frames, and with transformations 
+between them.
+</p>
+
+<p>
+This is defined in sections
+</p>
+
+<pre>[reference_frame_notes]
+<i>reference frame notes</i>
+
+[coordinate_system_notes]
+<i>coordinate system notes</i></code></pre>
+
 <p>See also</p>
 
 <p><a href="index.html">Coordinate systems in SNAP</a></p>
@@ -49,6 +66,8 @@
 <p><a href="crdsys_refframe_def.html">Reference frame definition format</a></p>
 
 <p><a href="crdsys_crdsys_def.html">Coordinate system definition format</a></p>
+
+<p><a href="crdsys_file_notes.html">Coordinate system notes format</a></p>
 
 </body>
 </html>

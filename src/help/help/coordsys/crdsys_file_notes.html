@@ -1,0 +1,60 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="COORDSYS.DEF, coordinate system">
+<title>Coordinate system notes format</title>
+<link rel="stylesheet" type="text/css" href="../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="crdsys_notes_format"></a>Coordinate system notes format</h1>
+
+<p>The <a href="crdsys_file_format.html">coordinate system definition file</a> can define textual notes
+associated with each coordinate system, reference frame, and with conversions between them.
+This can include notes about coordinate systems not defined in the file (for example explaining why they are
+not defined), and about conversions that are not possible (explaining why not).
+</p>
+
+<p>
+These are defined in sections
+</p>
+
+<pre>[reference_frame_notes]
+<i>reference frame notes</i>
+
+[coordinate_system_notes]
+<i>coordinate system notes</i></code></pre>
+
+<p>
+Within each section the notes are organised as:
+
+<pre><i>code1 code2 code3...
+First line of notes
+Second line of notes
+...</i>
+end_note</pre>
+
+<p>The first line of each note defines the coordinate systems or reference frames that the note applies to.
+It can also define conversion between coordinate systems or reference frames as <i>code1:code2</i>.
+This will apply for transformations from system <i>code1</i> to <i>code2</i>.  It will also apply to the
+reverse transformation, unless a note is explicitly defined for it.
+</p>
+<p>The codes line is followed by the text of the note, which may use as many lines as required, 
+and then a final line with just the text &quot;end_note&quot;.
+</p>
+
+
+<p>See also</p>
+
+<p><a href="index.html">Coordinate systems in SNAP</a></p>
+
+<p><a href="whatiscoordsys.html">What is a coordinate system</a></p>
+
+<p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+
+</body>
+</html>
