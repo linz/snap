@@ -1,0 +1,6 @@
+Dynanet XML files import function
+
+Creates a new menu item File | Import | Dynanet XML file which will
+read a Dynanet XML files (station, observation, or mixed) and 
+generate SNAP command, coordinate and observations files.  
+

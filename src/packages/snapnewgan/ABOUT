@@ -1,0 +1,9 @@
+Newgan import function
+
+Creates a new menu item File | Import | Newgan file which will
+read a Newgan input file and convert it to SNAP command, coordinate
+and observations files.  
+
+This is a "beta" level product .. it has only had limited testing
+on a few Newgan input files.
+

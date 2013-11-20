@@ -1,0 +1,8 @@
+Menu options for LINZ geodetic contractors
+
+Creates menu items for creating contract data test adjustments
+(File | Import | Contract data), for updating contract mark data
+files with GDB coordinates (Stations | Update MDFC from GDB), and 
+update contract mark data files with calculated coordinates
+(Adjust | Update MDFC coord file).
+
