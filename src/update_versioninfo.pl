@@ -48,7 +48,7 @@ foreach my $file (@files)
         if( $major ) { $v2++; $v3=0; } else { $v3++; }
         $version="$v1.$v2.$v3";
         print "Updating to $version\n";
-        $data =~ s/^(\s*\#define\s+VERSION\s+\")(\d+\.\d+\.)(\d+)(")/$1.$version.$3/em;
+        $data =~ s/^(\s*\#define\s+VERSION\s+\")(\d+\.\d+\.\d+)(")/$1.$version.$3/em;
         $fh = new FileHandle(">$file");
         $fh->print($data);
         $fh->close;
