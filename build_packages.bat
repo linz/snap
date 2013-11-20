@@ -44,7 +44,7 @@ foreach my $pkgd ( glob("$source/*") )
     
     my $zip=new Archive::Zip;
 
-   $zip->zipfileComment("SNAP2: $description");
+   $zip->zipfileComment("SNAP_PACKAGE_V2: $description");
 
    print "Description: $description";
    foreach my $sourcefile (@files)

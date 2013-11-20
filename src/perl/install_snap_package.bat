@@ -31,7 +31,7 @@ die "Cannot open $ARGV[0]\n" if $status != AZ_OK;
 
 my $comment = $zip->zipfileComment();
 die "$ARGV[0] is not a SNAP package\n"
-  if $comment !~ /^SNAP2\:/;
+  if $comment !~ /^SNAP_PACKAGE_V2\:/;
 
 my $target=$ARGV[1] || $FindBind::Bin."../package";
 $target .= "/";
