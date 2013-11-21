@@ -1,6 +1,8 @@
 use strict;
 use File::Find;
 use File::Copy;
+use File::Copy::Recursive qw(dircopy);
+use File::Path qw(remove_tree);
 use FindBin;
 use HTML::LinkExtor;
 use URI;
@@ -8,10 +10,12 @@ use URI;
 
 my $hhc = "C:/Program Files/HTML Help Workshop/hhc.exe";
 $hhc = "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" if ! -x $hhc;
+die "Cannot find HTML Help Workshop help compiler\n" if ! -x $hhc;
 
 my $helpname = '';
 my @srcdir = ();
 my $homedir = $FindBin::Bin;
+my $tmpdir = '';
 my $helpfile = '';
 my $buildhelp = 0;
 my @copyto = ();
@@ -22,8 +26,9 @@ foreach(@ARGV)
 {
    if( $inarg eq '-x' ) { $skipre .= '|' . quotemeta($_); }
    elsif( $inarg eq '-h' ) { $homedir = $_; $inarg=''; }
+   elsif( $inarg eq '-t' ) { $tmpdir = $_; $inarg=''; }
    elsif( $inarg eq '-c' ) { push(@copyto,$_); $inarg=''; }
-   elsif( $_ =~ /^\-[cxh]$/) { $inarg = $_; }
+   elsif( $_ =~ /^\-[cxht]$/) { $inarg = $_; }
    elsif( $_ eq '-b' ) { $buildhelp = 1; }
    elsif( ! $helpname ) { $helpname = $_; }
    else { push(@srcdir,$_); }
@@ -39,11 +44,14 @@ Options:
    -b           Build the help file
    -c target    Copy compiled file to target
    -x ...       Following args are excluded directories
+   -t ...       Temporary folder in which to actually run help compiler
+                (as doesn't like network drives)
 
 EOD
 
 print "Compiling help file $helpname\n";
 print "Using source directories\n  ",join("\n  ",@srcdir),"\n";
+print "Using temporary build directory $tmpdir\n" if $tmpdir;
 print "Exclude pattern: $skipre\n";
 print "Copying to\n  ",join("\n  ",@copyto),"\n";
 
@@ -87,10 +95,26 @@ die "Failed to create help file source $helpname.hhp\n" if ! -e $helpname.'.hhp'
 
 if( $buildhelp )
 {
+    my $incopy=0;
+    if( $tmpdir && $tmpdir ne $homedir )
+    {
+        $tmpdir .= "/buildhelp_$$";
+        print "Building in temporary area $tmpdir\n";
+        remove_tree($tmpdir);
+        dircopy($homedir,$tmpdir);
+        chdir($tmpdir);
+    }
     my $chm = $helpname.'.chm';
     die "Help compiler $hhc not installed\n" if ! -x $hhc;
     system($hhc,$helpname.'.hhp');
     die "Failed to compile help file $chm\n" if ! -e $chm;
+    if( $tmpdir )
+    {
+        print "Copying $chm to $homedir/$chm\n";
+        copy($chm,"$homedir/$chm") || die "Failed to copy chm file\n";
+        chdir($homedir);
+        remove_tree($tmpdir);
+    }
     foreach my $copydir (@copyto)
     {
         if( ! -d $copydir  )
