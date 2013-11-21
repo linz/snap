@@ -381,6 +381,9 @@ foreach my $f (sort keys %$htmlfiles )
    print "File $f not in  contents\n" if ! exists $contentsfiles{$f};
 }
 
+close(H);
+close(C);
+
 }
 
 sub ContentsTitle
