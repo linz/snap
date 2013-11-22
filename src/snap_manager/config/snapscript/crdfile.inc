@@ -23,7 +23,7 @@ function CheckCoordinateFile( $needsnap )
   if FileExists($coordinate_file) then 
      if $needsnap and not CoordinateFileIsSnap() then
         Message("This function can only be used with SNAP format coordinate files","Coordinate format error")
-	return false
+        return false
      endif
      return true 
   endif
@@ -146,10 +146,17 @@ function ImportCoordFile()
        spacer
        checkbox $overwrite "Overwrite existing coordinates with values from source file"
        checkbox $onlyindata "Only import stations used in the job data files"
-    end_dialog
+
+       validator
+           if not FileExists($importfile) then
+              Message("You must choose an existing coordinate file to import","Missing file")
+              return false
+           endif
+           return true 
+           end_dialog
 
     if not FileExists($coordinate_file) then
-    	CopyFile($importfile,$coordinate_file)
+        CopyFile($importfile,$coordinate_file)
     endif
 
     $backupfile = BackupCoordinateFile($coordinate_file)
@@ -182,6 +189,7 @@ function ImportLINZGDB()
     if not $perl then exit endif
 
     if not CheckCoordinateFile(true) then exit endif
+    $relname = Filename($coordinate_file,"relative",$job_path)
     
     # Get the overwrite option
 

@@ -38,12 +38,15 @@ $target .= "/";
 
 $zip->extractTree('',$target);
 
-$comment =~ s/^SNAP\:\s+//g;
+$comment =~ s/^SNAP_PACKAGE_V2\:\s+//g;
 print "Successfully installed $comment\n";
+print "You may need to restart snap to complete the installation\n";
 };
 if( $@ || @errors)
 {
-   print "$ARGV[0] is not a valid SNAP package\n";
+   print "$ARGV[0] could not be installed\n";
+   print $@ if $@;
+   print @errors if @errors;
 }
 
 __END__

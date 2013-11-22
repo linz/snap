@@ -193,6 +193,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     }
     if( sts == OK )
     {
+		bad=0;
         sts = parse_ref_deformation_def( is, &rdf );
     }
 

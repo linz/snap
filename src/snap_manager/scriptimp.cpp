@@ -644,7 +644,7 @@ ScriptImp::~ScriptImp()
 
 }
 
-bool ScriptImp::PushStack()
+bool ScriptImp::PushStack( const wxString &name )
 {
 
     if( stackDepth >= maxStackDepth )
@@ -652,7 +652,7 @@ bool ScriptImp::PushStack()
         error("Maximum stack depth exceeded");
         return false;
     }
-    StackFrame *newframe = new StackFrame;
+    StackFrame *newframe = new StackFrame(name);
     newframe->next = frame;
     frame = newframe;
     variables = &(frame->variables);
@@ -739,6 +739,14 @@ void ScriptImp::error( const char *format, ... )
     delete [] buf;
 
     if( sourceFile != "" ) errorMessage = errorMessage + "\nFile: " + sourceFile;
+    for( StackFrame *f = frame; f; f=f->next )
+    {
+        if( f->name != _T("") )
+        {
+            errorMessage = errorMessage + "\nIn function: " + f->name;
+            break;
+        }
+    }
     environment.ReportError( errorMessage );
     SetExitLevel( elError );
 }
@@ -1003,7 +1011,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, int nParams, Value p
             status = fsOk;
 
             FunctionDef *f = function_ptr->second;
-            if( PushStack() )
+            if( PushStack(name) )
             {
                 // Setup the parameters ..
 

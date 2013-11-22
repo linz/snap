@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 #define VERSIONINFO
 #define PROGRAM "snapmerge"
-#define VERSION "2.4.1"
+#define VERSION "2.4.3"
 
 #include "util/versioninfo.h"

@@ -32,6 +32,7 @@
 #endif
 
 #include "util/chkalloc.h"
+#include "util/fileutil.h"
 #include "util/datafile.h"
 #include "util/pi.h"
 #include "util/errdef.h"
@@ -492,8 +493,8 @@ int df_end_of_line( DATAFILE *d )
 
 int df_data_file_error( DATAFILE *d, int sts, const char *errmsg )
 {
-    char fmsg[100];
-    sprintf(fmsg,"Line: %ld  File: %.60s", d->reclineno, d->fname );
+    char fmsg[MAX_FILENAME_LEN+40];
+    sprintf(fmsg,"Line: %ld  File: %.*s", d->reclineno, MAX_FILENAME_LEN, d->fname );
     handle_error(sts,errmsg,fmsg );
     if( sts > WARNING_ERROR ) d->errcount++;
     return sts;

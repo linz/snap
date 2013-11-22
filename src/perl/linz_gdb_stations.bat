@@ -70,6 +70,8 @@ open(OUT,">$crdfile1") || die "Cannot create coordinate file $crdfile1\n";
 print OUT $response->content;
 close(OUT);
 
+print "Coordinates successfully updated from LINZ GDB\n";
+
 
 __END__
 :endofperl

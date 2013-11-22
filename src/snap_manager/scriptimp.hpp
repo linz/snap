@@ -326,7 +326,9 @@ private:
 class StackFrame
 {
 public:
-    StackFrame() : variables(), next(0) {}
+    StackFrame( const wxString &name) :  name(name), variables(), next(0) {}
+    StackFrame( ) :  name(_T("")), variables(), next(0) {}
+    wxString name;
     VariableList variables;
     StackFrame *next;
 };
@@ -382,7 +384,7 @@ public:
     void Print( ostream &os );
 
 private:
-    bool PushStack();
+    bool PushStack( const wxString &name = _T("") );
     void PopStack();
 
     StackFrame *frame;

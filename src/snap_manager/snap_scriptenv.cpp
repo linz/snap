@@ -184,6 +184,8 @@ void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar 
 		}
 	}
 	::wxSetEnv(envvar,envval);
+    wxString setenv = envvar + _T("=") + envval;
+    _putenv( setenv.c_str() );
 }
 
 void SnapMgrScriptEnv::AddSnapDirToPath()
@@ -369,8 +371,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxFileName file(STRPRM(0));
     wxString part(STRPRM(1));
 
-    if( part.IsSameAs("path",false) ) { result = file.GetPath(true); }
-	else if( part.IsSameAs("directory",false) ) { result=file.GetPath(false); }
+    if( part.IsSameAs("path",false) ) { result = file.GetPath(wxPATH_GET_VOLUME | wxPATH_GET_SEPARATOR); }
+	else if( part.IsSameAs("directory",false) ) { result=file.GetPath(wxPATH_GET_VOLUME); }
     else if( part.IsSameAs("name",false) ) { result = file.GetName(); }
     else if( part.IsSameAs("fullname",false) ) { result = file.GetFullName(); }
     else if( part.IsSameAs("extension",false) ) { result = file.GetExt(); }
@@ -580,6 +582,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 	const char *cfgsec=STRPRM(0).c_str();
 	const char *fname=STRPRM(1).c_str();
 	const char *fext=nParams > 2 ? STRPRM(2).c_str() : 0;
+    reset_config_dirs();
 	const char *cfgfile=find_config_file(cfgsec,fname,fext);
 	wxString result = cfgfile ? _T(cfgfile) : _T("");
 	RETURN( result );
@@ -654,6 +657,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("SetEnv",2)
     wxString value=STRPRM(1);
     wxSetEnv( STRPRM(0), value.c_str() );
+    wxString setenv = STRPRM(0) + _T("=") + value;
+    _putenv( setenv.c_str() );
     RETURN( value )
 
     // Loading and unloading job is passed back to the frame window,
