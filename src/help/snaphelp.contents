@@ -14,7 +14,6 @@
    4	Format errors in the input files	help/programs/snap/snap_prob_format.html
    4	The adjustment fails with a singularity	help/programs/snap/snap_prob_singularity.html
    4	There is not enough memory for the program.	help/programs/snap/snap_prob_memory.html
-  3	File names used by SNAP	help/files/index.html
  2	Snapplot - graphical view of adjustments	help/programs/snapplot/index.html
   3	Starting snapplot	help/programs/snapplot/starting.html
   3	Snapplot configuration	help/programs/snapplot/configuration.html
@@ -203,4 +202,5 @@
  2	Network preanalysis	help/programs/snap/snap_proc_preanalysis.html
  2	Vertical adjustments	help/programs/snap/snap_proc_vertical.html
  2	Testing accuracy specifications	help/programs/snap/snap_proc_accspec.html
+1	Files used by SNAP	help/files/index.html
 1	Change log	help/general/changelog.html

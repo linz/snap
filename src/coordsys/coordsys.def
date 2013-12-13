@@ -41,7 +41,7 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 ! IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  These also use the 
 ! opposite sign convention for the rotations.
 !
-! The transformation paramters may be followed by "RATES", a reference date,
+! The transformation parameters may be followed by "RATES", a reference date,
 ! and the rates of change of each of the parameters.
 
 [reference_frames]
@@ -50,8 +50,35 @@ NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
 
-WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 ITRF96 0 0 4.5 0 0 -0.554 0.219
-WGS84 "World Geodetic System 1984 (WGS84)" ELLIPSOID WGS84 ITRF96 0 0 0 0 0 0 0
+! The reference frame commonly described as "WGS84" has been realised several 
+! times since the original realization based on the TRANSIT Doppler system. Each
+! of these subsequent realizations is identified by the GPS week during which it was
+! implemented (which is not the same as the reference epoch). Strictly speaking, 
+! it is only the initial realisation that should be identified as "WGS84". The vast
+! majority of WGS84 users actually use one of the later GPS realisations, so to
+! avoid inadvertent transformations using the original Doppler realisation, it is 
+! identified here by the code "WGS84_D".
+
+WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 WGS84_D 0 0 4.5 0 0 -0.554 0.219
+
+WGS84_D "World Geodetic System 1984 (Doppler)" ELLIPSOID WGS84 &
+   ITRF90 IERS -60 517 223 11 -18.3 0.3 -7
+   
+WGS84_G730 "World Geodetic System 1984 (G730)" ELLIPSOID WGS84 &
+   ITRF91 IERS 0 0 0 0 0 0 0 &
+   RATES 1994.0 0 0 0 0 0 0 0
+   
+WGS84_G873 "World Geodetic System 1984 (G873)" ELLIPSOID WGS84 &
+   ITRF94 IERS 0 0 0 0 0 0 0 &
+   RATES 1997.0 0 0 0 0 0 0 0
+   
+WGS84_G1150 "World Geodetic System 1984 (G1150)" ELLIPSOID WGS84 &
+   ITRF2000 IERS 0 0 0 0 0 0 0 &
+   RATES 2001.0 0 0 0 0 0 0 0
+   
+WGS84_G1674 "World Geodetic System 1984 (G1674)" ELLIPSOID WGS84 &
+   ITRF2008 IERS 0 0 0 0 0 0 0 &
+   RATES 2005.0 0 0 0 0 0 0 0
 
 
 ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 NONE
@@ -70,6 +97,73 @@ ITRF2000 "International Terrestrial Reference Frame 2000" ELLIPSOID GRS80 &
 ITRF97 "International Terrestrial Reference Frame 1997" ELLIPSOID GRS80 &
    ITRF96 IERS   -0     -0.51   15.53  -0.16508   0.26897   0.05984   -1.51099 &
    RATES 2000.0  0.69  -0.1     1.86  -0.01347   0.01514  -0.00027   -0.19201 
+   
+ITRF94 "International Terrestrial Reference Frame 1994" ELLIPSOID GRS80 &
+   ITRF96 IERS   0 0 0 0 0 0 0 &
+   RATES 2000.0  0 0 0 0 0 0 0
+   
+ITRF93 "International Terrestrial Reference Frame 1993" ELLIPSOID GRS80 &
+   ITRF96 IERS    28.8    0.2     5.4   -0.49      1.71      1.48      0.36 &
+   RATES 2000.0    2.9   -0.4    -0.8    0         0.11      0.19     -0.05
+   
+ITRF92 "International Terrestrial Reference Frame 1992" ELLIPSOID GRS80 &
+   ITRF96 IERS -8 -2 8 0.71 0 0 0 &
+   RATES 2000.0 0 0 0 0 0 0 0
+   
+ITRF91 "International Terrestrial Reference Frame 1991" ELLIPSOID GRS80 &
+   ITRF96 IERS -20 -16 14 -0.69 0 0 0 &
+   RATES 2000.0 0 0 0 0 0 0 0  
+
+ITRF90 "International Terrestrial Reference Frame 1990" ELLIPSOID GRS80 &
+   ITRF96 IERS -18 -12 30 -0.99 0 0 0 &
+   RATES 2000.0 0 0 0 0 0 0 0    
+
+ITRF89 "International Terrestrial Reference Frame 1989" ELLIPSOID GRS80 &
+   ITRF96 IERS -23 -36 68 -4.39 0 0 0 &
+   RATES 2000.0 0 0 0 0 0 0 0 
+   
+ITRF88 "International Terrestrial Reference Frame 1988" ELLIPSOID GRS80 &
+   ITRF96 IERS -18 0 92 -7.49 -0.1 0 0 &
+   RATES 2000.0 0 0 0 0 0 0 0
+   
+! Geocentric Datum of Australia transformation parameters
+
+GDA94 "Geocentric Datum of Australia" ELLIPSOID GRS80 NONE
+
+! Note - ITRF to GDA94 transformations below use the IERS convention for the sign
+! of the rotations. Often in Australia, the opposite convention is used. Parameters
+! sourced from Dawson and Woods (2010) "ITRF to GDA94 coordinate transformations"
+! Table 2 published in "Journal of Applied Geodesy"
+
+ITRF2008_DW "International Terrestrial Reference Frame 2008 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+GDA94 IERS    -84.68 -19.42   32.01   9.710     0.4254   -2.2578   -2.4015 &   
+RATES 1994.0    1.42   1.34    0.90   0.109    -1.5461   -1.1820   -1.1551
+
+ITRF2005_DW "International Terrestrial Reference Frame 2005 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+GDA94 IERS    -79.73  -6.86   38.03   6.636     0.0351   -2.1211   -2.1411 &   
+RATES 1994.0    2.25  -0.62   -0.56   0.294    -1.4707   -1.1443   -1.1701
+
+ITRF2000_DW "International Terrestrial Reference Frame 2000 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+GDA94 IERS    -45.91 -29.85  -20.37   7.070     1.6705   -0.4594   -1.9356 &   
+RATES 1994.0   -4.66   3.55   11.24   0.249    -1.7454   -1.4868   -1.2240
+
+ITRF97_DW "International Terrestrial Reference Frame 1997 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+GDA94 IERS    -14.63 -27.62  -25.32   6.695     1.7893    0.6047   -0.9962 &   
+RATES 1994.0   -8.60   0.36   11.25   0.007    -1.6394   -1.5198   -1.3801
+
+ITRF96_DW "International Terrestrial Reference Frame 1996 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+GDA94 IERS     24.54 -36.43  -68.12   6.901     2.7359    2.0431   -0.3731 &   
+RATES 1994.0  -21.80   4.71   26.27   0.388    -2.0203   -2.1735   -1.6290
+
+! Note - the following transformations use the usual Australian sign convention for
+! rotations, not the IERS convention. Parameters sourced from GDA Technical Manual 
+! v2.3(1) Table 7.1
+
+AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS &
+GDA94 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
+
+AGD66 "Australian Geodetic Datum 1966" ELLIPSOID ANS &
+GDA94 -117.808 -51.536 137.784 -0.303 -0.446 -0.234 -0.290
 
 CHAT1979 "Chatham 1979" ELLIPSOID INTERNATIONAL ITRF96 174.05 -25.49 112.57 0 0 -0.554 0.2263
 
@@ -84,20 +178,6 @@ NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID I
 ! Camp area datum - no established relationship with another datum (reference datum=CAMPAREA)
 
 CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL NONE
-
-
-! Transformation parameters from AGD66 and AGD84 to WGS84 (approx GDA94) from GDA technical 
-! manual
-!
-! Note - these parameters may need revision to properly select the correct ITRF against which GDA/AGD are 
-! (in theory) referenced.
-
-GDA94 "Geocentric Datum of Australia (GDA94)" ELLIPSOID GRS80 &
-    ITRF96 0 0 0 0 0 0 0
-AGD66 "Australian Geodetic Datum 1966" ELLIPSOID ANS &
-    ITRF96 -117.808 -51.536 137.784 -0.303 -0.446 -0.234 -0.290
-AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS &
-    ITRF96 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
 
 !===========================================================================
 ! COORDINATE SYSTEMS:
@@ -163,15 +243,50 @@ AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS &
 
 ! Global systems
 
-WGS72 "World Geodetic System 1972" REF_FRAME WGS72 GEODETIC
-WGS84 "World Geodetic System 1984" REF_FRAME WGS84 GEODETIC
 ! GRS80 "Geodetic Reference System 1980" REF_FRAME GRS80 GEODETIC
-WGS84_XYZ "World Geodetic System 1984 - XYZ" REF_FRAME WGS84 GEOCENTRIC
+
+WGS72 "World Geodetic System 1972" REF_FRAME WGS72 GEODETIC
+
+WGS84_D "World Geodetic System 1984 (Doppler)" REF_FRAME WGS84_D GEODETIC
+WGS84_D_XYZ "World Geodetic System 1984 - XYZ (Doppler)" REF_FRAME WGS84_D GEOCENTRIC
+
+WGS84_G730 "World Geodetic System 1984 (G730)" REF_FRAME WGS84_G730 GEODETIC
+WGS84_G730_XYZ "World Geodetic System 1984 - XYZ (G730)" REF_FRAME WGS84_G730 GEOCENTRIC
+
+WGS84_G873 "World Geodetic System 1984 (G873)" REF_FRAME WGS84_G873 GEODETIC
+WGS84_G873_XYZ "World Geodetic System 1984 - XYZ (G873)" REF_FRAME WGS84_G873 GEOCENTRIC
+
+WGS84_G1150 "World Geodetic System 1984 (G1150)" REF_FRAME WGS84_G1150 GEODETIC
+WGS84_G1150_XYZ "World Geodetic System 1984 - XYZ (G1150)" REF_FRAME WGS84_G1150 GEOCENTRIC
+
+WGS84_G1674 "World Geodetic System 1984 (G1674)" REF_FRAME WGS84_G1674 GEODETIC
+WGS84_G1674_XYZ "World Geodetic System 1984 - XYZ (G1674)" REF_FRAME WGS84_G1674 GEOCENTRIC
 
 ! For ITRF systems use GRS80 ellipsoid....
 ! More consistent with ITRF to have ITRFxxxx as the XYZ system and another, for example
 ! ITRFxxx_GRS80 for the ellispoidal system.  But use codes below to be more consistent
 ! with the rest of SNAP/concord coordinate systems.
+
+ITRF88_XYZ "International Terrestrial Reference Frame 1988 XYZ" REF_FRAME ITRF88 GEOCENTRIC
+ITRF88 "International Terrestrial Reference Frame 1988" REF_FRAME ITRF88 GEODETIC
+
+ITRF89_XYZ "International Terrestrial Reference Frame 1989 XYZ" REF_FRAME ITRF89 GEOCENTRIC
+ITRF89 "International Terrestrial Reference Frame 1989" REF_FRAME ITRF89 GEODETIC
+
+ITRF90_XYZ "International Terrestrial Reference Frame 1990 XYZ" REF_FRAME ITRF90 GEOCENTRIC
+ITRF90 "International Terrestrial Reference Frame 1990" REF_FRAME ITRF90 GEODETIC
+
+ITRF91_XYZ "International Terrestrial Reference Frame 1991 XYZ" REF_FRAME ITRF91 GEOCENTRIC
+ITRF91 "International Terrestrial Reference Frame 1991" REF_FRAME ITRF91 GEODETIC
+
+ITRF92_XYZ "International Terrestrial Reference Frame 1992 XYZ" REF_FRAME ITRF92 GEOCENTRIC
+ITRF92 "International Terrestrial Reference Frame 1992" REF_FRAME ITRF92 GEODETIC
+
+ITRF93_XYZ "International Terrestrial Reference Frame 1993 XYZ" REF_FRAME ITRF93 GEOCENTRIC
+ITRF93 "International Terrestrial Reference Frame 1993" REF_FRAME ITRF93 GEODETIC
+
+ITRF94_XYZ "International Terrestrial Reference Frame 1994 XYZ" REF_FRAME ITRF94 GEOCENTRIC
+ITRF94 "International Terrestrial Reference Frame 1994" REF_FRAME ITRF94 GEODETIC
 
 ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ" REF_FRAME ITRF96 GEOCENTRIC
 ITRF96 "International Terrestrial Reference Frame 1996" REF_FRAME ITRF96 GEODETIC
@@ -458,11 +573,11 @@ SNAT_L "South Island National Grid (links)" REF_FRAME NZGD1949 &
 
 [coordinate_systems]
 
-UTM58 "UTM zone 58 (south)" REF_FRAME WGS84 &
+UTM58 "UTM zone 58 (south)" REF_FRAME ITRF96 &
           PROJECTION TM 165 0 0.9996 500000 10000000 1
-UTM59 "UTM zone 59 (south)" REF_FRAME WGS84 &
+UTM59 "UTM zone 59 (south)" REF_FRAME ITRF96 &
           PROJECTION TM 171 0 0.9996 500000 10000000 1
-UTM60 "UTM zone 60 (south)" REF_FRAME WGS84 &
+UTM60 "UTM zone 60 (south)" REF_FRAME ITRF96 &
           PROJECTION TM 177 0 0.9996 500000 10000000 1
 
 [not_coordinate_systems]
@@ -497,10 +612,10 @@ CHAT1979_XYZ "Chatham Island XYZ" REF_FRAME CHAT1979 GEOCENTRIC
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" REF_FRAME RSRGD2000 GEODETIC
 
-ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84 &
+ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84_G1674 &
           PROJECTION PS "South" 0 0.97276901289 0 0
  
-ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84 &
+ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84_G1674 &
           PROJECTION LCC -76.66667 -79.33333 -89.999999 168 0.0 0.0
 
 CAMPAREA "Camp area datum" REF_FRAME CAMPAREA GEODETIC
@@ -759,5 +874,40 @@ STISHT1977 "Stewart Island 1977" NZVD09 0.39
 # The note ends with a line containing just "end_note"
 
 [coordinate_system_notes]
+
+WGS84 
+There are several WGS84 reference frames. Please select one of &
+WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674
+end_note
+
+ITRF2008:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF2008_DW
+end_note
+
+ITRF2005:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF2005_DW
+end_note
+
+ITRF2000:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF2000_DW
+end_note
+
+ITRF97:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF97_DW
+end_note
+
+ITRF96:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF96_DW
+end_note
 
 [reference_frame_notes]

@@ -262,7 +262,6 @@ static DMS *deg_dms( double deg, DMS *dms, int prec, char no_seconds )
     while (prec--) offset /= 10.0;
 
     if (dms->neg = deg<0.0) deg = -deg;
-    deg += offset/3600.0;
     if( no_seconds ) deg += offset/60.0; else deg += offset/3600.0;
     deg -= (dms->degrees = floor(deg));
     if( ! no_seconds )
@@ -795,6 +794,7 @@ static void prompt_for_proj(coordsys **proj,
                 break;
             }
             printf("    **** Invalid coordinate system code ****\n");
+            get_notes( CS_COORDSYS_NOTE, instring, &printf_writer);
         }
     }
 
@@ -845,6 +845,36 @@ static void prompt_for_proj(coordsys **proj,
         }
 }
 
+static void prompt_for_epoch( char *prompt, double *value )
+{
+    double epoch;
+    char instring[20];
+    int ok;
+    int nstr;
+
+    for(;;)
+    {
+        printf("%s (default \"now\"): ",prompt);
+        nstr = read_string( stdin, DEFAULT_SEPARATOR, instring, 20);
+        copy_to_newline( stdin, NULL,NULL);
+        if (nstr<0) error_exit("Unexpected EOF in input","");
+        if (nstr==0) strcpy(instring,"now");
+        ok = parse_crdsys_epoch(instring,&epoch);
+        if( ! ok )
+        {
+            printf("    **** Invalid data ****\n");
+            continue;
+        }
+        if( epoch < 1800.0 || epoch > 2500.0 )
+        {
+            printf("    **** Invalid coordinate epoch ****\n");
+            continue;
+        }
+        *value = epoch;
+        break;
+    }
+
+}
 
 static void prompt_for_number( char *prompt, int *value, int min, int max)
 {
@@ -908,6 +938,10 @@ static void prompt_for_parameters( void )
     prompt_for_proj(&input_cs,&input_dms,&input_ne,&input_h,&input_ortho,"input");
     printf("\nOutput coordinates:\n");
     prompt_for_proj(&output_cs,&output_dms,&output_ne,&output_h,&output_ortho,"output");
+    printf("\nSome conversions depend on the date of the coordinatesr. This can be\n");
+    printf("formatted as YYYYMMDD, or a decimal year, or \"now\"\n");
+    prompt_for_epoch( "Enter the conversion date",&conv_epoch);
+
     prompt_for_number("    Enter number of decimal places for output",
                       &output_prec,0,15);
     printf("\nEach point you convert can have a name.  If you want to use names you must\n");

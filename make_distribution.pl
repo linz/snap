@@ -1,5 +1,7 @@
 #!/usr/bin/perl
 use strict;
+use File::Path qw(remove_tree make_path);
+use File::Copy;
 
 my $zipexe = "c:\\bin\\zip.exe";
 die "Cannot find zip program\n" if ! -e $zipexe;
@@ -15,15 +17,19 @@ system($zipexe,
    "$zip",
    "ms/install/snap/release/snap_install.msi",
    );
-$zip = "distribution/concord$version.zip";
+print "Building concord zip file\n";
+$zip = "concord$version.zip";
+remove_tree('temp/concord');
+make_path('temp/concord','temp/concord/config','temp/concord/config/coordsys');
+copy('ms/built/release/concord.exe','temp/concord') || die "Cannot find concord.exe\n";
+foreach my $cf (glob('src/coordsys/*'))
+{
+    copy($cf,'temp/concord/config/coordsys');
+}
+chdir('temp/concord');
 system($zipexe,
-   "-j",
-   "$zip",
-   "ms/built/release/concord.exe",
-   "src/coordsys/coordsys.def",
-   "src/coordsys/def492kt.grd",
-   "src/coordsys/egm96.grd",
-   "src/coordsys/nzgeoid09.grd",
-   "src/coordsys/igns98b.grd",
-   "src/help/concord.chm",
+   "-r",
+   "../../distribution/$zip",
+   "*"
    );
+chdir('../..');
