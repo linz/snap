@@ -1,14 +1,14 @@
 #===============================================================================
 # Module:             CoordSys.pm
 #
-# Description:       Defines packages: 
+# Description:       Defines packages:
 #                      Geodetic::CoordSys
 #
-# Dependencies:      Uses the following modules: 
+# Dependencies:      Uses the following modules:
 #                      Geodetic::CoordConversion
 #                      Geodetic::CartesianCrd
 #                      Geodetic::GeodeticCrd
-#                      Geodetic::ProjectionCrd  
+#                      Geodetic::ProjectionCrd
 #
 #  $Id: CoordSys.pm,v 1.3 2000/11/14 03:20:26 gdb Exp $
 #
@@ -29,7 +29,6 @@
 
 use strict;
 
-   
 #===============================================================================
 #
 #   Class:       Geodetic::CoordSys
@@ -54,21 +53,21 @@ use strict;
 #                Define a conversion to another coordinate system
 #                  $conv = $cs->conversionto($cstarget)
 #
-#                The coordinate system object is a blessed hash with 
+#                The coordinate system object is a blessed hash with
 #                the following components:
 #
 #                 csid        A uniquely defined identifier for the coordinate
 #                             system used as a hash key for conversion functions
 #                 name        The name of the system
-#                 type        The type, one of &Geodetic::CARTESIAN, 
+#                 type        The type, one of &Geodetic::CARTESIAN,
 #                             &Geodetic::GEODETIC, &Geodetic::PROJECTION
-#                 datum    The datum object used by the 
+#                 datum    The datum object used by the
 #                             coordinate system.
 #                 projection  The projection used by the projection
 #                 _conv       A reference to a hash of conversion functions
 #                             from this coordinate system.  The key for the
 #                             hash is the target coordinate system id.
-#                  
+#
 #               The coordinate system may install pointers in the reference
 #               frame when it is constructed.  Geocentric coordinate systems
 #               install themselves as $datum->{_cscart} and geodetic systems
@@ -84,7 +83,6 @@ require Geodetic::CartesianCrd;
 require Geodetic::ProjectionCrd;
 
 my $csid = 0;
-
 
 #===============================================================================
 #
@@ -104,53 +102,64 @@ my $csid = 0;
 #
 #===============================================================================
 
-sub new {
-  my ($class, $type, $name, $datum, $projection, $code ) = @_;
-  $class = ref($class) if ref($class);
- 
-  # For geocentric and geodetic systems only want one version for
-  # the datum - check if it is already defined
-  # This does mean that the name may get corrupted :-(
-  # Fix up the name if with the supplied name if it is not blank.
+sub new
+{
+    my ( $class, $type, $name, $datum, $projection, $code ) = @_;
+    $class = ref($class) if ref($class);
 
-  my $self;
-  $self = $datum->{_cscart} if $type == &Geodetic::CARTESIAN;
-  $self = $datum->{_csgeod} if $type == &Geodetic::GEODETIC;
+    # For geocentric and geodetic systems only want one version for
+    # the datum - check if it is already defined
+    # This does mean that the name may get corrupted :-(
+    # Fix up the name if with the supplied name if it is not blank.
 
-  if( $self ) {
-    $self->{name} = $name if $name;
-    return $self;
+    my $self;
+    $self = $datum->{_cscart} if $type == &Geodetic::CARTESIAN;
+    $self = $datum->{_csgeod} if $type == &Geodetic::GEODETIC;
+
+    if ($self)
+    {
+        $self->{name} = $name if $name;
+        return $self;
     }
 
-  # Projection isn't required if not a projection coordinate system
+    # Projection isn't required if not a projection coordinate system
 
-  if( $type == &Geodetic::PROJECTION ) {
-     die "Missing projection definition\n" if ! $projection;
-     }
-  else {
-     $projection = undef;
-     }
+    if ( $type == &Geodetic::PROJECTION )
+    {
+        die "Missing projection definition\n" if !$projection;
+    }
+    else
+    {
+        $projection = undef;
+    }
 
-  # Invent a name for geodetic/geocentric systems if none supplied..
+    # Invent a name for geodetic/geocentric systems if none supplied..
 
-  if( ! $name ) {
-     $name = $datum->name if $type == &Geodetic::GEODETIC;
-     $name = $datum->name." (XYZ)" if $type == &Geodetic::CARTESIAN;
-     }
+    if ( !$name )
+    {
+        $name = $datum->name            if $type == &Geodetic::GEODETIC;
+        $name = $datum->name . " (XYZ)" if $type == &Geodetic::CARTESIAN;
+    }
 
-  # Now need to create the projection
-  $self = {name=>$name, code=>$code, type=>$type, datum=>$datum,
-                  projection=>$projection, csid=>$csid};
-  $csid++;
-  bless $self, $class;
+    # Now need to create the projection
+    $self = {
+        name       => $name,
+        code       => $code,
+        type       => $type,
+        datum      => $datum,
+        projection => $projection,
+        csid       => $csid
+    };
+    $csid++;
+    bless $self, $class;
 
-  # If it is geodetic or geocentric then store in the datum...
+    # If it is geodetic or geocentric then store in the datum...
 
-  $datum->{_cscart} = $self if $type == &Geodetic::CARTESIAN;
-  $datum->{_csgeod} = $self if $type == &Geodetic::GEODETIC;
+    $datum->{_cscart} = $self if $type == &Geodetic::CARTESIAN;
+    $datum->{_csgeod} = $self if $type == &Geodetic::GEODETIC;
 
-  return $self;
-  }
+    return $self;
+}
 
 #===============================================================================
 #
@@ -162,12 +171,12 @@ sub new {
 #                 type
 #===============================================================================
 
-sub name { return $_[0]->{name} }
-sub code { return $_[0]->{code} }
-sub datum { return $_[0]->{datum}}
-sub ellipsoid { return $_[0]->datum->ellipsoid; }
+sub name       { return $_[0]->{name} }
+sub code       { return $_[0]->{code} }
+sub datum      { return $_[0]->{datum} }
+sub ellipsoid  { return $_[0]->datum->ellipsoid; }
 sub projection { return $_[0]->{projection} }
-sub type { return $_[0]->{type}}
+sub type       { return $_[0]->{type} }
 
 #===============================================================================
 #
@@ -186,8 +195,12 @@ sub type { return $_[0]->{type}}
 #
 #===============================================================================
 
-sub asgeog { return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum);}
-sub asgeodetic { return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum);}
+sub asgeog { return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum ); }
+
+sub asgeodetic
+{
+    return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum );
+}
 
 #===============================================================================
 #
@@ -206,15 +219,18 @@ sub asgeodetic { return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum);}
 #
 #===============================================================================
 
-sub asxyz { return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum);}
-sub ascartesian { return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum);}
+sub asxyz { return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum ); }
 
+sub ascartesian
+{
+    return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum );
+}
 
 #===============================================================================
 #
 #   Subroutine:   coord
 #
-#   Description:   Returns a coordinate system defined for the 
+#   Description:   Returns a coordinate system defined for the
 #                  coordinate system
 #
 #   Parameters:    Either a reference to an array, or a list of ordinates
@@ -223,24 +239,27 @@ sub ascartesian { return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum);
 #
 #===============================================================================
 
-sub coord {
-   my $self = shift;
-   my $crd = $_[0];
-   $crd = [$crd, $_[1], $_[2]] if ! ref($crd);
-   my $type = $self->{type};
-   if( $type == &Geodetic::GEODETIC ) {
-      $crd = new Geodetic::GeodeticCrd( $crd );
-      }
-   elsif( $type == &Geodetic::CARTESIAN ) {
-      $crd = new Geodetic::CartesianCrd( $crd );
-      }
-   else {
-      $crd = new Geodetic::ProjectionCrd( $crd );
-      }
-   $crd->setcs( $self );
-   return $crd;
+sub coord
+{
+    my $self = shift;
+    my $crd  = $_[0];
+    $crd = [ $crd, $_[1], $_[2] ] if !ref($crd);
+    my $type = $self->{type};
+    if ( $type == &Geodetic::GEODETIC )
+    {
+        $crd = new Geodetic::GeodeticCrd($crd);
+    }
+    elsif ( $type == &Geodetic::CARTESIAN )
+    {
+        $crd = new Geodetic::CartesianCrd($crd);
+    }
+    else
+    {
+        $crd = new Geodetic::ProjectionCrd($crd);
+    }
+    $crd->setcs($self);
+    return $crd;
 }
-
 
 #===============================================================================
 #
@@ -261,134 +280,160 @@ sub coord {
 #
 #===============================================================================
 
-sub conversionto {
-   my ($self, $target, $conversion_epoch) = @_;
-   my $result = $self->{_conv}->{$target->{csid}};
-   return $result if $result && $result->conversion_epoch == $conversion_epoch;
+sub conversionto
+{
+    my ( $self, $target, $conversion_epoch ) = @_;
+    my $result = $self->{_conv}->{ $target->{csid} };
+    return $result if $result && $result->conversion_epoch == $conversion_epoch;
 
-   my $src_datum = $self->datum;
-   my $tar_datum = $target->datum;
-   die "Cannot convert ".$self->name." to ".$target->name."\n"
-      if $src_datum->baseref ne $tar_datum->baseref;
+    my $src_datum = $self->datum;
+    my $tar_datum = $target->datum;
 
-   my $def = 'sub {';
-   $def .= 'my $crd = bless [@{$_[0]}], ref($_[0]) if ref($_[0]) ne \'ARRAY\';';
-   $def .= 'my $target_epoch = $_[1];';
+    # Find a conversion from the source datum to the target datum
+    # Each datum has a baseref which is either another datum or a string defining a base
+    # code to which datums are aligned by their transformation function
 
-   my $type = $self->{type};
+    my $dtmtrans = [];
+    my $ndtmfwd  = 0;
+    my $matched = 1;
 
-   if ( $target->{csid} == $self->{csid} && !$src_datum->defmodel ) {
-      $def .= 'return $crd;';
-      }
-   else {
-      if( $type == &Geodetic::PROJECTION ) {
-         $def .= '$crd = $self->projection->geog($crd);';
-         $type = &Geodetic::GEODETIC;
-         }
-
-      if( $src_datum ne $tar_datum ) {
-         if( $type == &Geodetic::GEODETIC ){
-            $def .= '$crd = $self->ellipsoid->xyz($crd);';
-            $type = &Geodetic::CARTESIAN;
+    if ( $src_datum ne $tar_datum )
+    {
+        $matched = 0;
+        my $sdtm = $src_datum;
+        my $sdcd = $sdtm->code;
+        while ($sdcd)
+        {
+            my $dtmto   = [];
+            my $tdtm = $tar_datum;
+            my $tdcd = $tdtm->code;
+            while( $tdcd )
+            {
+                $matched = $sdcd eq $tdcd;
+                last if $matched;
+                last if ! $tdtm;
+                push(@$dtmto,$tdtm);
+                $tdtm=$tdtm->baseref;
+                $tdcd=ref($tdtm) ? $tdtm->code : $tdtm;
+                $tdtm=undef if ! ref($tdtm);
+                last if $tdcd eq 'NONE';
             }
-         $def .= '$crd = $src_datum->transfunc->ApplyTo($crd);';
-         $def .= '$crd = $tar_datum->transfunc->ApplyInverseTo($crd);';
-
-         my $src_defmodel  = $src_datum->defmodel;
-         my $tar_defmodel  = $tar_datum->defmodel;
-         if ( $src_defmodel || $tar_defmodel) {
-            if( !$conversion_epoch && $src_defmodel && $tar_defmodel ) {
-               if( $src_defmodel->RefEpoch ne $tar_defmodel->RefEpoch ) {
-                  die "The transformation epoch between reference frames are "
-                     ."not the same\n";
-                  }
-               }
-            $def .= 'if ($crd->epoch || $target_epoch) {';
-            if ($src_defmodel) {
-               $conversion_epoch = $src_defmodel->RefEpoch
-                  unless $conversion_epoch;
-               $def .= '$crd->setepoch($src_datum->defmodel->RefEpoch) ';
-               }
-            else {
-               $conversion_epoch = $tar_defmodel->RefEpoch
-                  unless $conversion_epoch;
-               $def .= '$crd->setepoch($tar_datum->defmodel->RefEpoch) ';
-               }
-            $def .= 'if !$crd->epoch;';
-
-            if( $src_defmodel ) {
-               $def .= '$crd = $src_datum->defmodel';
-               $def .= '->ApplyTo($crd, $conversion_epoch);';
-               }
-            if ( $tar_defmodel ) {
-               $def .= '$crd = $tar_datum->defmodel';
-               $def .= '->ApplyInverseTo($crd, $conversion_epoch);';
-               }
-
-            $def .= '$crd->setepoch($conversion_epoch);';
-
-            if ($tar_defmodel) {
-               $def .= '$target_epoch = $tar_datum->defmodel->RefEpoch '
-               }
-            else {
-               $def .= '$target_epoch = $src_datum->defmodel->RefEpoch '
-               }
-            $def .= 'if !$target_epoch;';
-
-            if ( $tar_defmodel ) {
-               $def .= '$crd = $tar_datum->defmodel';
-               $def .= '->ApplyTo($crd, $target_epoch);';
-               }
-            if ( $src_defmodel ) {
-               $def .= '$crd = $src_datum->defmodel';
-               $def .= '->ApplyInverseTo($crd, $target_epoch);';
-               }
+            if( $matched )
+            {
+                if( $sdtm && $tdtm && $sdtm->refepoch != $tdtm->refepoch )
+                {
+                    push(@$dtmtrans,$sdtm);
+                    push(@$dtmto,$tdtm);
+                }
+                $ndtmfwd=scalar(@$dtmtrans);
+                push(@$dtmtrans,reverse(@$dtmto));
+                last;
             }
-            $def .= '}';
-         }
-      else {
-         if( $src_datum->defmodel ) {
-            $def .= 'if ($crd->epoch) {';
-            $def .= '$target_epoch = $src_datum->defmodel->RefEpoch ';
-            $def .= 'if !$target_epoch;';
-            $def .= '$crd = $self->datum->defmodel';
-            $def .= '->ApplyInverseTo($crd, $target_epoch);';
-            $def .= '}';
-            }
-         }
-
-      if( $type != $target->{type} ) {
-         if( $target->{type} == &Geodetic::CARTESIAN ) {
-            # If got here then didn't change datums, and
-            # $type must be geodetic, so convert to geocentric
-            $def .= '$crd = $self->ellipsoid->xyz($crd);';
-            }
-         else {
-            # If type is geocentric then we must want geodetic or
-            # projection, so convert to geodetic
-            if( $type == &Geodetic::CARTESIAN ) {
-               $def .= '$crd = $target->ellipsoid->geog($crd);';
-               $type = &Geodetic::GEODETIC;
-               }
-            if( $target->{type} == &Geodetic::PROJECTION ) {
-               $def .= '$crd = $target->projection->proj($crd);';
-               }
-           }
-   $def .= 'return $crd;';
+            last if ! $sdtm;
+            push(@$dtmtrans,$sdtm);
+            $sdtm=$sdtm->baseref;
+            $sdcd=ref($sdtm) ? $sdtm->code : $sdtm;
+            $sdtm=undef if ! ref($sdtm);
+            last if $sdcd eq 'NONE';
         }
-      }
-   $def .= '}';
+    }
 
-   $result = new Geodetic::CoordConversion(
-      $self, $target, eval $def, $conversion_epoch );
+    my $src_defmodel = $src_datum->defmodel;
+    my $tar_defmodel = $tar_datum->defmodel;
 
-   # Store the result indexed by the target coordinate system id to 
-   # avoid having to recalculate when requested again.
+    die "Cannot convert " . $self->name . " to " . $target->name . "\n"
+      if ! $matched;
 
-   $self->{_conv}->{$target->{csid}} = $result;
-   return $result;
-   } 
+    my $def = 'sub {';
+    $def .=
+      'my $crd = ref($_[0]) !~ /Geodetic/ ?  bless [@{$_[0]}], ref($_[0]) : $self->coord(@_);';
 
-         
-      
+    $def .= '$crd->setepoch($conversion_epoch) if ! $crd->epoch; ';
+
+    my $type = $self->{type};
+    
+
+    if ( $target->{csid} == $self->{csid} )
+    {
+        $def .= 'return $crd;';
+    }
+    else
+    {
+        if ( $type == &Geodetic::PROJECTION )
+        {
+            $def .= '$crd = $self->projection->geog($crd);';
+            $type = &Geodetic::GEODETIC;
+        }
+
+        if ( @$dtmtrans )
+        {
+            if ( $type == &Geodetic::GEODETIC )
+            {
+                $def .= '$crd = $self->ellipsoid->xyz($crd);';
+                $type = &Geodetic::CARTESIAN;
+            }
+                if ( $src_defmodel && $ndtmfwd > 0 )
+                {
+                    $def .= '$crd = $src_defmodel->ApplyTo($crd);';
+                }
+            for my $ndtm (0..$#$dtmtrans)
+            {
+                my $func=$ndtm < $ndtmfwd ? 'ApplyTo' : 'ApplyInverseTo';
+                $def .= "\$crd = \$dtmtrans->[$ndtm]->transfunc->$func(\$crd);";
+            }
+
+                if ( $tar_defmodel && $ndtmfwd < scalar(@$dtmtrans))
+                {
+                    $def .= '$crd = $tar_defmodel->ApplyInverseTo($crd);';
+                }
+            }
+        }
+
+        if ( $type != $target->{type} )
+        {
+            if ( $target->{type} == &Geodetic::CARTESIAN )
+            {
+
+                # If got here then didn't change datums, and
+                # $type must be geodetic, so convert to geocentric
+                $def .= '$crd = $self->ellipsoid->xyz($crd);';
+            }
+            else
+            {
+
+                # If type is geocentric then we must want geodetic or
+                # projection, so convert to geodetic
+                if ( $type == &Geodetic::CARTESIAN )
+                {
+                    $def .= '$crd = $target->ellipsoid->geog($crd);';
+                    $type = &Geodetic::GEODETIC;
+                }
+                if ( $target->{type} == &Geodetic::PROJECTION )
+                {
+                    $def .= '$crd = $target->projection->proj($crd);';
+                }
+            }
+            $def .= 'return $crd;';
+        }
+
+    $def .= '}';
+
+    #    open(my $tmpf, "| perltidy - -o convsub.pl");
+    #    foreach my $i  (0 .. $#$dtmtrans)
+    #    {
+    #        my $rf=$dtmtrans->[$i];
+    #        print $tmpf "# \$dtmtrans->[$i]: ",$rf->code," (",$rf->refepoch,") ",$i<$ndtmfwd ? "forward" : "reverse","\n";
+    #    }
+    #    print $tmpf $def;
+    #    close($tmpf);
+
+    $result = new Geodetic::CoordConversion( $self, $target, eval $def, $conversion_epoch );
+
+    # Store the result indexed by the target coordinate system id to
+    # avoid having to recalculate when requested again.
+
+    $self->{_conv}->{ $target->{csid} } = $result;
+    return $result;
+}
+
 1;

@@ -102,6 +102,7 @@ sub asstring {
       $y = sprintf($ndp,$self->[1]);
       $z = sprintf($ndp,$self->[2]);
       }
-   return [ $x, $y, $z ];
+   my $result=[ $x, $y, $z ];
+   return wantarray ? @$result : $result;
    }
 1;

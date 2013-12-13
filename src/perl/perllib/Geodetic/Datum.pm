@@ -70,6 +70,8 @@ my $id;
 #                 $ellipsoid  The ellipsoid object used by the frame
 #                 $baseref    The code for the base datum used for
 #                             coordinate conversion between datums
+#                             or a datum object to which the 
+#                             transformtion applies.
 #                 $transfunc  An object providing function ApplyTo and 
 #                             ApplyInverseTo, which convert 
 #                             cartesian coordinates to and from the 
@@ -83,7 +85,7 @@ my $id;
 #===============================================================================
 
 sub new {
-  my ($class, $name, $ellipsoid, $baseref, $transfunc, $code, $defmodel )
+  my ($class, $name, $ellipsoid, $baseref, $transfunc, $code, $defmodel, $refepoch )
     = @_;
   my $self = { name=>$name, 
                ellipsoid=>$ellipsoid, 
@@ -91,7 +93,9 @@ sub new {
                transfunc=>$transfunc,
                code=>$code,
                defmodel=>$defmodel,
-               id=>$id };
+               refpoch=>$defmodel ? $refepoch : 0,
+               id=>$id,
+           };
   $id++;
   return bless $self, $class;
   }
@@ -104,5 +108,6 @@ sub ellipsoid { return $_[0]->{ellipsoid}}
 sub baseref { return $_[0]->{baseref}}
 sub transfunc { return $_[0]->{transfunc}}
 sub defmodel { return $_[0]->{defmodel} }
+sub refepoch { return $_[0]->{refepoch} }
 
 1;

@@ -102,9 +102,9 @@ sub SetupTrans {
 #   Description:  $crd2 = $bwv->ApplyTo($crd, $epoch)
 #                 Applies the Bursa-Wolf transformation to geocentric
 #                 (XYZ) coordinates using propogated velocity parameters
+#                 to bring back to underlying datum
 #
 #   Parameters:   $crd     The coordinates to transform
-#                 $epoch   The epoch to propogate the coordinate to.
 #
 #   Returns:               The converted coordinates as a GeodeticCrd
 #                          object.
@@ -113,7 +113,10 @@ sub SetupTrans {
 
 sub ApplyTo {
   my ($self, $crd, $conv_epoch ) = @_;
-  my $period = $crd->epoch - $conv_epoch;
+  my $crd_epoch = $crd->epoch;
+  die "Cannot apply deformation model - coordinate epoch not defined\n"
+      if ! $crd_epoch;
+  my $period = $self->RefEpoch - $crd->epoch;
   return bless [@$crd], ref($crd) unless $period;
   $self->SetupTrans($period)
     if !$self->[TRANSFORM] || $self->[TRANS_PERIOD] ne $period;
@@ -130,7 +133,6 @@ sub ApplyTo {
 #                 (XYZ) coordinates using propogated velocity parameters
 #
 #   Parameters:   $crd     The coordinates to transform
-#                 $epoch   The epoch to propogate the coordinate to.
 #
 #   Returns:               The converted coordinates as a GeodeticCrd
 #                          object.
@@ -139,7 +141,10 @@ sub ApplyTo {
 
 sub ApplyInverseTo {
   my ($self, $crd, $conv_epoch) = @_;
-  my $period = $conv_epoch - $crd->epoch;
+  my $crd_epoch = $crd->epoch;
+  die "Cannot apply deformation model - coordinate epoch not defined\n"
+      if ! $crd_epoch;
+  my $period = $crd->epoch - $self->RefEpoch;
   return bless [@$crd], ref($crd) unless $period;
   $self->SetupTrans($period)
     if !$self->[TRANSFORM] || $self->[TRANS_PERIOD] ne $period;

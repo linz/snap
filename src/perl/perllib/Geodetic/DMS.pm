@@ -65,11 +65,13 @@ sub FormatDMS {
    $value = abs($value);
    # Offset value to avoid rounding seconds up to 60 (ie so that we don't
    # get results like 1 59 60.0 instead of 2 00 00.0)
-   $value += 1/(7200 * 10**$ndp);
+   my $offset=1/(2*10**$ndp);
+   $value += $offset/3600.0;
    my $deg = int($value);
    $value = ($value-$deg)*60;
    my $min = int($value);
-   $value = abs(($value-$min)*60 - (1/(2*10**$ndp))); 
+   $value = ($value-$min)*60;
+   $value = abs($value - $offset);
    my $ndp3 = $ndp + ($ndp ? 3 : 2 );
    return sprintf("%d %02d %0$ndp3.$ndp"."f %s", $deg,$min,$value,$hem);
    }

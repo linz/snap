@@ -57,7 +57,7 @@ sub new {
   my( $class, $file, $modeltype, $ref_epoch, $ellipsoid ) = @_;
   die "Cannot open grid transformation file $file\n" if ! -r $file;
   die "Invalid deformation model type $modeltype specified\n"
-    if uc($modeltype) ne 'LINZDM';
+    if uc($modeltype) ne 'LINZDEF';
   my $self = {
     file      => $file,
     modeltype => $modeltype,
@@ -99,7 +99,9 @@ sub InstallModel {
 #
 #   Description:  $crd2 = $modelxform->ApplyTo($crd, $epoch)
 #                 Applies the deformation to xyz coordinates
-#                 coordinates.
+#                 coordinates - converts from the reference coordinates
+#                 (or the coordinates at a reference epoch if defined)
+#                 to the coordinates of the underlying datum.  
 #
 #   Parameters:   $crd     The coordinates to transform
 #                 $epoch   The epoch to propogate the coordinate to.
@@ -110,18 +112,19 @@ sub InstallModel {
 #===============================================================================
 
 sub ApplyTo {
-  my ($self, $crd, $conv_epoch) = @_;
+  my ($self, $crd) = @_;
   my $crd_epoch = $crd->epoch;
-  return bless [@$crd], ref($crd) unless $crd_epoch - $conv_epoch;
-  my $dxyz = $self->CalcDef($crd, $conv_epoch);
-  return Geodetic::CartesianCrd->new(
-    $crd->[0] - $dxyz->[0],
-    $crd->[1] - $dxyz->[1],
-    $crd->[2] - $dxyz->[2],
-    $crd->[3],
-    $crd->[4],
-    );
+  die "Cannot apply deformation model - coordinate epoch not defined\n"
+      if ! $crd_epoch;
+  my $ref_epoch = $self->RefEpoch;
+  my $result = bless [@$crd], ref($crd);
+  my $denu =  $self->CalcDef($result,$ref_epoch,$crd_epoch);
+  $result->[0] += $denu->[0];
+  $result->[1] += $denu->[1];
+  $result->[2] += $denu->[2];
+  return $result;
   }
+
 
 
 #===============================================================================
@@ -139,17 +142,17 @@ sub ApplyTo {
 #===============================================================================
 
 sub ApplyInverseTo {
-  my ($self, $crd, $conv_epoch) = @_;
+  my ($self, $crd) = @_;
   my $crd_epoch = $crd->epoch;
-  return bless [@$crd], ref($crd) unless $crd_epoch - $conv_epoch;
-  my $dxyz = $self->CalcDef($crd, $conv_epoch);
-  return Geodetic::CartesianCrd->new(
-    $crd->[0] + $dxyz->[0],
-    $crd->[1] + $dxyz->[1],
-    $crd->[2] + $dxyz->[2],
-    $crd->[3],
-    $crd->[4],
-    );
+  die "Cannot apply deformation model - coordinate epoch not defined\n"
+      if ! $crd_epoch;
+  my $ref_epoch = $self->RefEpoch;
+  my $result = bless [@$crd], ref($crd);
+  my $denu =  $self->CalcDef($result,$crd_epoch,$ref_epoch);
+  $result->[0] += $denu->[0];
+  $result->[1] += $denu->[1];
+  $result->[2] += $denu->[2];
+  return $result;
   }
 
 #===============================================================================
@@ -184,15 +187,36 @@ sub RefEpoch {
 #===============================================================================
 
 sub CalcDef {
-  my ($self, $crd, $conv_epoch) = @_;
+  my ($self, $crd, $src_epoch, $tgt_epoch) = @_;
   my $model = $self->{model};
+  my $denu=[0,0,0];
+  return $denu if $src_epoch == $tgt_epoch;
+
   $model = $self->InstallModel if ! $model;
   my $geog = $self->{ellipsoid}->geog($crd);
-  my ($e, $n, $u) = $model->Calc($conv_epoch, $geog->lon, $geog->lat);
-  my ($de, $dn, $du) = $model->Calc($crd->epoch, $geog->lon, $geog->lat);
-  my $denu = Vector3->new( $e-$de, $n-$dn, $u-$du );
-  my $rtopo = RotMat3->new($geog->lon, $geog->lat);
-  return $rtopo->ApplyInverseTo($denu);
+  my $lon=$geog->lon;
+  my $lat=$geog->lat;
+
+  if( $src_epoch )
+  {
+    my ($e, $n, $u) = $model->Calc($src_epoch, $lon, $lat);
+    printf "DefModel %.2f %.5f %.5f: %.4f %.4f %.4f\n",$src_epoch,$lon,$lat,$e,$n,$u;
+    $denu->[0] -= $e;
+    $denu->[1] -= $n;
+    $denu->[2] -= $u;
+  }
+  if( $tgt_epoch )
+  {
+    my ($e, $n, $u) = $model->Calc($tgt_epoch, $lon, $lat);
+    printf "DefModel %.2f %.5f %.5f: %.4f %.4f %.4f\n",$tgt_epoch,$lon,$lat,$e,$n,$u;
+    $denu->[0] += $e;
+    $denu->[1] += $n;
+    $denu->[2] += $u;
+  }
+  my $denu = Vector3->new( @$denu );
+  my $rtopo = RotMat3->new($lon, $lat);
+  $denu=$rtopo->ApplyInverseTo($denu);
+  return $denu;
   }
 
 1;
