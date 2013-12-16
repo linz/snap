@@ -31,7 +31,7 @@ public:
     Token( ScriptImp *owner) : owner(owner), next(0) {}
     virtual ~Token();
 
-    virtual Value evaluate() = 0;
+    Value GetValue();
 
     Token *SetNext( Token *n ) { Token *t = this; while( t->next ) { t = t->next; }; t->next = n; return this; }
     Token *Next() { return next; }
@@ -39,10 +39,12 @@ public:
     int Count();
 
     ScriptImp *Owner() { return owner; }
+    virtual void SetOwnerValue( const Value &value ); 
     ostream &Print( const wxString &prefix, ostream &str );
     ostream &PrintSubtoken( Token *subtoken, const wxString &prefix, ostream &str );
 
 protected:
+    virtual Value evaluate() = 0;
     virtual void print( const wxString &prefix, ostream &str ) = 0;
 
 private:
@@ -82,12 +84,11 @@ class VariableToken : public Token
 {
 public:
     VariableToken( ScriptImp *owner, wxString name ) : Token(owner), name(name) {}
-    Value GetValue() { return evaluate(); }
     bool GetValue( Value &v );
     wxString &Name() { return name; }
-    void SetValue( const Value &value );
     virtual Value evaluate();
     virtual void print( const wxString &prefix, ostream &str );
+    virtual void SetOwnerValue( const Value &value ); 
 private:
     wxString name;
 };
@@ -204,7 +205,11 @@ enum OperatorType
     opNot,
     opAnd,
     opOr,
-    opConcat
+    opConcat,
+    opPlus,
+    opMinus,
+    opMultiply,
+    opDivide
 };
 
 class Operator : public Token
@@ -370,7 +375,7 @@ public:
     Token *InterpolateString( const wxString &text );
     void SetValue( const wxString &name, const Value &value );
     bool GetValue( const wxString &name, Value &value );
-    void EvaluateFunction( const wxString &name, int nParams, Value params[], Value &result );
+    void EvaluateFunction( const wxString &name, const Value *params, Value &result );
     ExitLevel GetExitLevel() { return exitLevel; }
     void SetExitLevel( ExitLevel level ) { if( level > exitLevel ) exitLevel = level; }
     bool CanRun() { return exitLevel == elOk; }

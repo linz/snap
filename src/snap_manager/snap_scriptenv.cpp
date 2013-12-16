@@ -267,7 +267,7 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
 #define STRPRM(i)  params[i].AsString()
 #define BOOLPRM(i) params[i].AsBool()
 
-FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName, int nParams, Value params[], Value &vresult )
+FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName, const Value *params, Value &vresult )
 {
 
     // Message box function

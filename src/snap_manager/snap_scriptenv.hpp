@@ -34,7 +34,7 @@ public:
     // Virtual functions to support script environment
 
     virtual bool GetValue( const wxString &name, Value &value );
-    virtual FunctionStatus EvaluateFunction( const wxString &name, int nParams, Value params[], Value &result );
+    virtual FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result );
     virtual void ReportError( const wxString &error );
 
 private:

@@ -7,22 +7,27 @@ using namespace std;
 
 // Script variable class
 
-Value::Value()
+Value::Value() : next(0)
 {
     SetValue(false);
 }
 
-Value::Value( wxString value )
+Value::Value( wxString value ) : next(0)
 {
     SetValue( value );
 }
 
-Value::Value( bool value)
+Value::Value( bool value) : next(0)
 {
     SetValue( value );
 }
 
-Value::Value( const char *value )
+Value::Value( double value) : next(0)
+{
+    SetValue( value );
+}
+
+Value::Value( const char *value ) : next(0)
 {
     SetValue( wxString(value) );
 }
@@ -31,40 +36,75 @@ void Value::SetValue( bool value )
 {
     if( value ) { stringValue = wxString("true"); }
     else { stringValue = wxString(""); }
+    doubleValue = value ? 1.0 : 0.0;
     boolValue = value;
 }
 
 void Value::SetValue( const wxString &value )
 {
     stringValue = value;
+    if( ! value.ToDouble( &doubleValue ) ) doubleValue=0.0;
     boolValue = value != "";
+}
+
+void Value::SetValue( double value )
+{
+    doubleValue = value;
+    stringValue = "";
+    stringValue << value;
+    boolValue = value != 0.0;
 }
 
 Value::Value( const Value &value )
 {
+    doubleValue = value.doubleValue;
     stringValue = value.stringValue;
     boolValue = value.boolValue;
+    SetNext(next);
+}
+
+void Value::SetNext( Value *v )
+{
+    Value *nv = new Value(*v);
+    next = nv;
+}
+
+Value *Value::Next() const
+{
+    return next;
 }
 
 Value::~Value()
 {
+    if( next )
+    {
+        Value *v=next;
+        next=0;
+        delete v;
+    }
 }
 
 Value &Value::operator = ( const Value &value )
 {
     boolValue = value.boolValue;
+    doubleValue = value.doubleValue;
     stringValue = value.stringValue;
     return *this;
 }
 
-wxString &Value::AsString()
+const wxString &Value::AsString() const
 {
     return stringValue;
 }
 
-bool Value::AsBool()
+bool Value::AsBool() const
 {
     return boolValue;
+}
+
+double Value::AsDouble() const
+{
+    return doubleValue;
 }
 
 //////////////////////////////////////////////////////////////////

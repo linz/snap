@@ -62,6 +62,19 @@ int Token::Count()
     return i;
 }
 
+Value Token::GetValue()
+{
+    Value value=evaluate();
+    if( next )
+    {
+        value.SetNext( next.GetValue() );
+    }
+}
+
+void Token::SetOwnerValue( const Value &value )
+{
+    Owner()->error("Cannot set variable for token without variable name");
+}
 
 ostream &operator <<( ostream &str, Token &token ) { return token.Print( wxString(""), str ); }
 
@@ -119,9 +132,13 @@ Value VariableToken::evaluate()
     return v;
 }
 
-void VariableToken::SetValue( const Value &value )
+void VariableToken::SetOwnerValue( const Value &value )
 {
     Owner()->SetValue( name, value );
+    if( Next())
+    {
+        Next()->SetOwnerValue( value.Next() ? *(value.Next()) : Value());
+    }
 }
 
 bool VariableToken::GetValue( Value &value )
@@ -141,23 +158,10 @@ FunctionToken::~FunctionToken()
 
 Value FunctionToken::evaluate()
 {
-    Value v;
-    v = Value(true);
-    int nparams = params ? params->Count() : 0;
-    Value *paramValues = 0;
-    if( nparams > 0 )
-    {
-        paramValues = new Value[ nparams ];
-        int i = 0;
-        for( Token *p = params; p; p = p->Next() )
-        {
-            paramValues[i++] = p->evaluate();
-        }
-    }
+    Value v(true);
+    Value pv = params->GetValue();
 
-    Owner()->EvaluateFunction( name, nparams, paramValues, v );
-
-    if( paramValues ) delete [] paramValues;
+    Owner()->EvaluateFunction( name, params, v );
 
     LOG(("Evaluated %s as %s\n","FunctionToken",v.AsString().c_str()));
     return v;
@@ -253,13 +257,16 @@ Value ForeachToken::evaluate()
 {
     Value v;
     VariableToken *var = static_cast<VariableToken *>( variable );
-    wxString str = string->evaluate().AsString();
-    if( str.IsEmpty() ) return v;
 
     wxString del(_T("\n"));
-    if( delimiter ) del = delimiter->evaluate().AsString();
     wxRegEx re;
-    if( ! re.Compile(del,wxRE_ADVANCED) )
+
+    // Use a regular expression if the delimiter is explicitely defined, or if there is just
+    // one variable..
+    
+    bool usere = delimiter || ! (string->Next());
+    if( delimiter ) del = delimiter->evaluate().AsString();
+    if( usere && ! re.Compile(del,wxRE_ADVANCED) )
     {
         Owner()->error("Invalid regular expression %s specified",(char *) del.c_str() );
         return v;
@@ -267,52 +274,65 @@ Value ForeachToken::evaluate()
 
     RunPermission rp(Owner(),elLoop);
 
-    int start = 0;
-
-    wxArrayString strings;
-    while( rp.CanRun() && re.Matches( str.Mid(start) ) )
+    for( Token *strtok=string; strtok; strtok=strtok->Next())
     {
-        size_t mstart;
-        size_t mlen;
-        int nmatch;
-        re.GetMatch( &mstart, &mlen, 0 );
-        nmatch = re.GetMatchCount();
-        if( ! isMatch )
+        if( ! usere )
         {
-            var->SetValue( str.Mid(start,mstart) );
-            RunLoop();
-        }
-
-        // If no bracketed expressions then return the whole match
-        else if( nmatch == 1 )
-        {
-            var->SetValue( str.Mid(start+mstart, mlen) );
-            RunLoop();
-        }
-
-        // In either case return explicitly selected groups
-
-        if( nmatch > 1 )
-        {
-            for( int i = 1; rp.CanRun() && i < nmatch; i++ )
+            if( rp.CanRun() ) 
             {
-                size_t sstart;
-                size_t slen;
-                re.GetMatch( &sstart, &slen, i );
-                var->SetValue( str.Mid(start+sstart, slen ) );
+                var->SetValue( strtok->evaluate() );
+                RunLoop();
+            }
+            continue;
+        }
+
+        int start = 0;
+        wxString str = strtok->evaluate().AsString();
+
+        while( rp.CanRun() && re.Matches( str.Mid(start) ) )
+        {
+            size_t mstart;
+            size_t mlen;
+            int nmatch;
+            re.GetMatch( &mstart, &mlen, 0 );
+            nmatch = re.GetMatchCount();
+            if( ! isMatch )
+            {
+                var->SetValue( str.Mid(start,mstart) );
+                RunLoop();
+            }
+
+            // If no bracketed expressions then return the whole match
+            else if( nmatch == 1 )
+            {
+                var->SetValue( str.Mid(start+mstart, mlen) );
+                RunLoop();
+            }
+
+            // In either case return explicitly selected groups
+
+            if( nmatch > 1 )
+            {
+                for( int i = 1; rp.CanRun() && i < nmatch; i++ )
                 {
-                    RunLoop();
+                    size_t sstart;
+                    size_t slen;
+                    re.GetMatch( &sstart, &slen, i );
+                    var->SetValue( str.Mid(start+sstart, slen ) );
+                    {
+                        RunLoop();
+                    }
                 }
             }
+            if( mstart + mlen == 0 ) break;
+            start += mstart + mlen;
         }
-        if( mstart + mlen == 0 ) break;
-        start += mstart + mlen;
-    }
 
-    if( rp.CanRun() && ! isMatch )
-    {
-        var->SetValue( str.Mid(start) );
-        RunLoop();
+        if( rp.CanRun() && ! isMatch )
+        {
+            var->SetValue( str.Mid(start) );
+            RunLoop();
+        }
     }
 
     LOG(("Evaluated %s as %s\n","ForeachToken",v.AsString().c_str()));
@@ -347,10 +367,8 @@ AssignmentToken::~AssignmentToken()
 
 Value AssignmentToken::evaluate()
 {
-    Value v;
-    v = value->evaluate();
-    Owner()->SetValue( static_cast<VariableToken *>(variable)->Name(), v );
-    LOG(("Evaluated %s as %s\n","AssignmentToken",v.AsString().c_str()));
+    Value v = value->GetValue();
+    variable->SetOwnerValue( v );
     return v;
 }
 
@@ -546,10 +564,49 @@ Value Operator::evaluate()
         break;
 
     case opConcat:
-        wxString concat = result.AsString();
-        concat.append( operand2->evaluate().AsString() );
-        result = Value( concat );
+        {
+            wxString concat = result.AsString();
+            concat.append( operand2->evaluate().AsString() );
+            result = Value( concat );
+        }
         break;
+
+    case opPlus:
+        {
+            double dval = result.AsDouble() + operand2->evaluate().AsDouble();
+            result = Value( dval );
+        }
+        break;
+
+    case opMinus:
+        {
+            double dval = result.AsDouble() - operand2->evaluate().AsDouble();
+            result = Value( dval );
+        }
+        break;
+
+    case opMultiply:
+        {
+            double dval = result.AsDouble() * operand2->evaluate().AsDouble();
+            result = Value( dval );
+        }
+        break;
+
+    case opDivide:
+        {
+            double dval = result.AsDouble();
+            double dval2 =  operand2->evaluate().AsDouble();
+            if( dval2 == 0.0 )
+            {
+                Owner()->error("Cannot divide by 0");
+                result=Value(0.0);
+            }
+            else
+            {
+                result=Value(dval/dval2);
+            }
+            break;
+        }
     }
     LOG(("Evaluated %s as %s\n","Operator",result.AsString().c_str()));
 
@@ -588,6 +645,26 @@ void Operator::print( const wxString &prefix, ostream &str )
 
     case opConcat:
         str << "concat";
+        binary = true;
+        break;
+
+    case opPlus:
+        str << "plus";
+        binary = true;
+        break;
+
+    case opMinus:
+        str << "minus";
+        binary = true;
+        break;
+
+    case opMultiply:
+        str << "multiply";
+        binary = true;
+        break;
+
+    case opDivide:
+        str << "divide";
         binary = true;
         break;
     }
@@ -959,7 +1036,7 @@ bool ScriptImp::GetValue( const wxString &name, Value &value )
 }
 
 
-void ScriptImp::EvaluateFunction( const wxString &funcname, int nParams, Value params[], Value &result )
+void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params, Value &result )
 {
     wxString name(funcname);
 
@@ -969,15 +1046,14 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, int nParams, Value p
 
     while( name.IsSameAs("ExecuteFunction",false) && status == fsBadFunction )
     {
-        if( nParams < 1 )
+        if( ! params  )
         {
             status = fsBadParameters;
         }
         else
         {
-            name = params[0].AsString();
-            nParams--;
-            params++;
+            name = params->AsString();
+            params = params->Next();
         }
     }
 
@@ -985,13 +1061,13 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, int nParams, Value p
 
     if( name.IsSameAs("GetValue",false) )
     {
-        if( nParams != 1 )
+        if( ! params )
         {
             status = fsBadParameters;
         }
         else
         {
-            GetValue( params[0].AsString(), result );
+            GetValue( params->AsString(), result );
             status = fsOk;
         }
     }
@@ -999,7 +1075,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, int nParams, Value p
 
     // Is the function defined by the environment ...
 
-    if( status == fsBadFunction ) status = environment.EvaluateFunction( name, nParams, params, result );
+    if( status == fsBadFunction ) status = environment.EvaluateFunction( name, params, result );
 
     // Is this function defined by the script ...
 
@@ -1015,13 +1091,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, int nParams, Value p
             {
                 // Setup the parameters ..
 
-                int np = 0;
-                for( Token *t = f->Parameters(); t; t = t->Next(), np++ )
-                {
-                    Value v = np < nParams ? params[np] : Value(false);
-                    static_cast<VariableToken *>(t)->SetValue( v );
-                }
-
+                f->Parameters()->SetOwnerValue( params );
                 RunPermission rp( this, elReturn );
                 result = f->evaluate();
                 PopStack();

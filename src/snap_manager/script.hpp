@@ -15,21 +15,29 @@ public:
     Value();
     Value( wxString value );
     Value( bool value);
-    Value( const char *value );
+    Value( const char *values );
+    Value( double value );
     Value( const Value &variable );
     ~Value();
     Value & operator= (const Value &value );
     Value & operator= (const wxString &value ) { SetValue(value); }
     Value & operator= (const char *value ) { SetValue( wxString(_T(value))); }
     Value & operator = (bool value) { SetValue(value); }
+    Value & operator = (double value) { SetValue(value); }
     void SetValue( const wxString &value );
+    void SetValue( double );
     void SetValue( bool value );
-    wxString &AsString();
-    bool AsBool();
+    const wxString &AsString() const;
+    double AsDouble() const;
+    bool AsBool() const;
+    void SetNext( Value *svalue );
+    Value *Next() const;
 
 private:
     bool boolValue;
+    double doubleValue;
     wxString stringValue;
+    Value *next;
 };
 
 class VariableList : public map<wxString,Value>
@@ -60,7 +68,7 @@ public:
     EnvBase() {}
     virtual ~EnvBase() {}
     virtual bool GetValue( const wxString &name, Value &value ) = 0;
-    virtual FunctionStatus EvaluateFunction( const wxString &name, int nParams, Value params[], Value &result ) = 0;
+    virtual FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result ) = 0;
     virtual void ReportError( const wxString &error ) = 0;
 private:
 };
