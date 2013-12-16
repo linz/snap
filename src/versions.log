@@ -1186,3 +1186,16 @@ Build: 2013-11-29 08:52
   snapplot: 2.4.3
   snapconv: 2.4.3
   site2gps: 2.4.3
+
+Build: 2013-12-17 09:18
+  snap: 2.4.4
+  snapspec: 2.4.072
+  concord: 3.3.85
+  snaplist: 2.4.4
+  snapmerge: 2.4.4
+  snapgeoid: 2.4.4
+  dat2site: 2.4.4
+  snap_manager: 2.4.4
+  snapplot: 2.4.4
+  snapconv: 2.4.4
+  site2gps: 2.4.4
