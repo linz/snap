@@ -40,6 +40,7 @@ When the program
 <a href="#func_ClearLog">ClearLog</a>()<br />
 <a href="#func_CopyFile">CopyFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
 <a href="#func_DeleteFile">DeleteFile</a>(<i>filename</i>)<br />
+<a href="#func_DeleteMenu">DeleteMenu</a>(<i>menuname</i>)<br />
 <a href="#func_Directory">Directory</a>(<i>path</i>, <i>filespec</i>)<br />
 <a href="#func_DirectoryExists">DirectoryExists</a>(<i>dirname</i>)<br />
 <a href="#func_ExecuteFunction">ExecuteFunction</a>(<i>functionname</i>,<i>parameter</i>,...)<br />
@@ -417,6 +418,8 @@ substitutions being made:</p>
 <td>Abbreviated name of day of week</td>
 </tr>
 </table>
+<p class="Commanddefinition"><a name="func_DeleteMenu"></a>DeleteMenu(<i>menuname</i>)</p> <p class="Commanddescription">Deletes the menu or menu item specified.  Only items created with <a href="script_ui.html#menu">menu_item</a> commands can be deleted.  The menu name can specify the name of a menu or submenu, in which case all items created in that menu will be deleted.  If the name ends with the pipe character &quot;|&quot; then the menu itself will remain and the items within it will be deleted.  If the menu name is specified without the pipe character the menu itself is deleted.
+</p>
 <p class="Commanddefinition"><a name="func_Log"></a>Log(<i>message</i>)</p> <p class="Commanddescription">Writes the message to the log
 window.</p>
 <p class="Commanddefinition"><a name="func_ClearLog"></a>ClearLog()</p> <p class="Commanddescription">Clears all messages from the log

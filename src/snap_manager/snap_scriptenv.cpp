@@ -24,18 +24,23 @@ DEFINE_EVENT_TYPE(wxEVT_SNAP_CLEARLOG);
 
 const int maxReplace = 10000;
 
-SnapMgrScriptEnv::SnapMgrScriptEnv( wxWindow *frameWindow )
+BEGIN_EVENT_TABLE( SnapMgrScriptEnv, wxEvtHandler )
+END_EVENT_TABLE()
+
+SnapMgrScriptEnv::SnapMgrScriptEnv( wxFrame *frameWindow )
     : frameWindow( frameWindow )
 {
+    job = 0;
+	coordsyslist="";
     script = new Script( *this );
     config = new wxConfig( _T("SnapMgr"),_T("LINZ"));
     SetupConfiguration();
-	coordsyslist="";
-    job = 0;
+    frameWindow->PushEventHandler(this);
 }
 
 SnapMgrScriptEnv::~SnapMgrScriptEnv()
 {
+    frameWindow->PopEventHandler();
     UnloadJob( false );
     uninstall_crdsys_lists();
     for( size_t i = 0; i < tmpFiles.Count(); i++ )
@@ -116,6 +121,8 @@ bool SnapMgrScriptEnv::LoadJob( const wxString &jobFile )
         frameWindow->ProcessEvent(evt);
     }
 
+    script->EnableMenuItems();
+
     return true;
 }
 
@@ -136,6 +143,7 @@ bool SnapMgrScriptEnv::UnloadJob( bool canVeto )
     wxCommandEvent evt( wxEVT_SNAP_JOBUPDATED );
     evt.SetInt( SNAP_JOBUPDATED_NEWJOB );
     frameWindow->ProcessEvent(evt);
+    script->EnableMenuItems();
     return true;
 }
 
@@ -199,27 +207,150 @@ void SnapMgrScriptEnv::ReportError( const wxString &error )
     wxMessageBox( error,_T("SNAP - error"), wxOK | wxICON_ERROR );
 }
 
-
-// Pass through menu functions ...
-
-int SnapMgrScriptEnv::GetMenuItemCount()
+wxMenuItem *SnapMgrScriptEnv::GetMenuItemByLabel( wxMenu *menu, const wxString &label, bool wantSubMenu )
 {
-    return script ? script->GetMenuItemCount() : 0;
+    for( int i = 0; i < menu->GetMenuItemCount(); i++ )
+    {
+        wxMenuItem *mi=menu->FindItemByPosition(i);
+        if( wantSubMenu && ! mi->GetSubMenu()) continue;
+        if( ! wantSubMenu && mi->GetSubMenu()) continue;
+        if( mi->GetItemLabel()==label )
+        {
+            return mi;
+        }
+    }
+    return 0;
 }
 
-bool SnapMgrScriptEnv::GetMenuDefinition( int i, MenuDef &def )
+size_t SnapMgrScriptEnv::GetMenuInsertPosition( wxMenu *menu )
 {
-    return script ? script->GetMenuDefinition(i, def ) : false;
+    size_t insertPos;
+    for( insertPos=0; insertPos < menu->GetMenuItemCount(); insertPos++ )
+    {
+        if( menu->FindItemByPosition(insertPos)->GetId() == wxID_SEPARATOR ) break;
+    }
+    return insertPos;
 }
 
-bool SnapMgrScriptEnv::MenuIsValid( int i )
+wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent, bool createParents )
 {
-    return script ? script->MenuIsValid(i) : false;
+    // Set up the file menu ..
+
+    wxMenuBar *menuBar = frameWindow->GetMenuBar();
+    if( parent ) (*parent)=0;
+    if( ! menuBar ) return 0;
+
+    wxString delimiter=_T("|");
+    bool wantMenu = name.EndsWith(delimiter.c_str());
+    wxString menuName=name;
+    if( wantMenu ) { menuName=name.BeforeLast('|'); }
+
+    // Must have at least one sub menu ... put into a "&Scripts" menu if there isn't one
+
+    wxStringTokenizer menuParts(menuName,_T("|"));
+
+    if( menuParts.CountTokens() < 1 ) return false;
+    if( menuParts.CountTokens() > 1 )
+    {
+        menuName = menuParts.GetNextToken();
+    }
+    else
+    {
+        menuName = wxString(_T("&Scripts"));
+    }
+
+    // Find the menu, or create it if it doesn't exist...
+
+    int menuId = menuBar->FindMenu( menuName );
+    wxMenu *menu;
+    if( menuId == wxNOT_FOUND )
+    {
+        if( ! createParents ) return 0;
+        menu = new wxMenu;
+        menuBar->Insert( menuBar->GetMenuCount()-1, menu, menuName );
+    }
+    else
+    {
+        menu = menuBar->GetMenu( menuId );
+    }
+
+    // Track down any further submenus, creating as necessary
+
+    while( menuParts.CountTokens() > 1 )
+    {
+        wxMenu *submenu = 0;
+        menuName = menuParts.GetNextToken();
+        wxMenuItem *mi = GetMenuItemByLabel( menu, menuName, true );
+        if( mi ) 
+        {
+            submenu=mi->GetSubMenu();
+        }
+        else
+        {
+            if( ! createParents ) return 0;
+            submenu = new wxMenu;
+            wxMenuItem *item=new wxMenuItem(menu,0,menuName,_T(""),wxITEM_NORMAL,submenu);
+            menu->Insert(GetMenuInsertPosition(menu),item);
+            menu = submenu;
+        }
+        menu = submenu;
+    }
+
+    // Check the item doesn't already exist
+
+    menuName = menuParts.GetNextToken();
+    if( parent ) (*parent)=menu;
+    wxMenuItem *result=GetMenuItemByLabel( menu, menuName, wantMenu );
+    return result;
 }
 
-void SnapMgrScriptEnv::RunMenuActions( int i )
+bool SnapMgrScriptEnv::AddMenuItem( const wxString &name, const wxString &description, int id )
 {
-    if( script ) script->RunMenuActions( i );
+    wxMenu *parent;
+    wxString menuName=name.AfterLast('|');
+    if( menuName.IsEmpty()) return false;
+    wxMenuItem *item = GetMenuItem( name, &parent, true );
+    if( ! parent ) return false;
+
+    if( item )
+    {
+        // Check the item doesn't already exist
+        wxString message = wxString::Format(_T("Configuration error: Cannot create menu item %s of %s"),
+                                            menuName.c_str(), name.c_str() );
+        ::wxMessageBox( message, _T("Configuration error"), wxOK | wxICON_ERROR, frameWindow );
+        return false;
+    }
+
+    parent->Insert( GetMenuInsertPosition(parent), CMD_CONFIG_BASE + id, menuName, description);
+    this->Connect( CMD_CONFIG_BASE + id, wxEVT_COMMAND_MENU_SELECTED,
+                wxCommandEventHandler(SnapMgrScriptEnv::OnCmdConfigMenuItem ));
+    return true;
+}
+
+bool SnapMgrScriptEnv::RemoveMenuItem( const wxString &name )
+{
+    wxMenu *parent=0;
+    wxMenuItem *item=GetMenuItem(name,&parent);
+    if( ! item ) return false;
+    if( item->GetSubMenu() && item->GetSubMenu()->GetMenuItemCount() > 0 ) return false;
+    parent->Remove( item );
+    delete item;
+    return true;
+}
+
+void SnapMgrScriptEnv::EnableMenuItem( const wxString &name, bool enabled )
+{
+    wxMenuItem *item=GetMenuItem(name);
+    if( item ) item->Enable( enabled );
+}
+
+void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
+{
+    int id = event.GetId() - CMD_CONFIG_BASE;
+    if( id >= 0 )
+    {
+        if( script ) script->RunMenuActions( id );
+    }
 }
 
 // Variables used by the script
@@ -263,12 +394,15 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
 	return fsOk; \
 	}
 
-#define CSTRPRM(i) params[i].AsString().c_str()
-#define STRPRM(i)  params[i].AsString()
-#define BOOLPRM(i) params[i].AsBool()
+#define CSTRPRM(i) params->AsString(i).c_str()
+#define STRPRM(i)  params->AsString(i)
+#define BOOLPRM(i) params->AsBool(i)
 
-FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName, int nParams, Value params[], Value &vresult )
+FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName, const Value *params, Value &vresult )
 {
+    Value dummy;
+    int nParams=params ? params->Count() : 0;
+    if( ! params ) params=&dummy;
 
     // Message box function
 

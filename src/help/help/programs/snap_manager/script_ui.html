@@ -41,9 +41,9 @@ also run standard dialog boxes providing user interface components.
 <hr>
 <a name="menu" id="menu"></a>
 <h2>Menu items</h2>
-<p>Menu items are used when the configuration script is read (as
-snap manager starts up) to define items to include in the snap
-manager menus. The menu item defines preconditions for the menu
+<p>Menu items are added to the snap manager menus to provide 
+additional functionality. 
+The menu item defines preconditions for the menu
 item to be valid, and actions to run if it is chosen. If the
 preconditions are not met the menu item will be greyed out and
 unavailable to the user.</p>
@@ -71,6 +71,9 @@ disabled. This is often a simple statement, for example:</p>
 <p class="Commandexample">requirements $job_valid</p>
 <p>The actions function is required, and defines what happens when
 the menu item is selected</p>
+<p>Menus can be deleted with the 
+<a href="script_functions.html#func_DeleteMenu">DeleteMenu</a> function
+</p>
 <hr>
 <a name="dialog" id="dialog"></a>
 <h2>Dialog boxes</h2>

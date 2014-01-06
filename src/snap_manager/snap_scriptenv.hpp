@@ -12,11 +12,12 @@ DECLARE_EVENT_TYPE(wxEVT_SNAP_CLEARLOG,-1);
 
 #define SNAP_JOBUPDATED_NEWJOB 1
 #define SNAP_JOBLOADING 2
+#define CMD_CONFIG_BASE 100
 
-class SnapMgrScriptEnv : public Scripter::EnvBase
+class SnapMgrScriptEnv : public wxEvtHandler, public Scripter::EnvBase
 {
 public:
-    SnapMgrScriptEnv( wxWindow *frameWindow );
+    SnapMgrScriptEnv( wxFrame *frameWindow );
     ~SnapMgrScriptEnv();
 
     bool LoadJob( const wxString &jobFile );
@@ -24,29 +25,30 @@ public:
     bool UnloadJob( bool canVeto = true );
     SnapJob *Job() { return job; }
 
-    // Functions supporting the definition of the menu items
-
-    int GetMenuItemCount();
-    bool GetMenuDefinition( int i, MenuDef &def );
-    bool MenuIsValid( int i );
-    void RunMenuActions( int i );
-
     // Virtual functions to support script environment
 
     virtual bool GetValue( const wxString &name, Value &value );
-    virtual FunctionStatus EvaluateFunction( const wxString &name, int nParams, Value params[], Value &result );
+    virtual bool AddMenuItem( const wxString &name, const wxString &description, int id );
+    virtual bool RemoveMenuItem( const wxString &name );
+    virtual void EnableMenuItem( const wxString &name, bool enabled );
+    virtual FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result );
     virtual void ReportError( const wxString &error );
 
 private:
 
     // Sets up the image file name, used to identify the path to
     // utility programs and load the configuration script ..
+    void OnCmdConfigMenuItem( wxCommandEvent &event );
     void SetupConfiguration();
     void InsertPath( const wxString &path, const wxString &envvar=_T("PATH") );
     void AddSnapDirToPath();
     wxString &GetCoordSysList();
+    // GetMenuItem - creates parents if parent is not null
+    wxMenuItem *GetMenuItem( const wxString &name, wxMenu **parent=0, bool createParents=false );
+    wxMenuItem *GetMenuItemByLabel( wxMenu *menu, const wxString &label, bool wantSubMenu );
+    size_t GetMenuInsertPosition( wxMenu *menu );
 
-    wxWindow *frameWindow;
+    wxFrame *frameWindow;
     Scripter::Script *script;
     SnapJob *job;
     wxString coordsyslist;
@@ -54,6 +56,8 @@ private:
     wxString scriptPath;
     wxString userScriptPath;
     wxArrayString tmpFiles;
+
+    DECLARE_EVENT_TABLE()
 
 };
 

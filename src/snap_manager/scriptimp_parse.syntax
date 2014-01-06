@@ -108,6 +108,14 @@ Kexit: /exit/
 '.': /\./
 '==': /\=\=/
 '!=': /\!\=/
+'<': /\</
+'>': /\>/
+'<=': /\<\=/
+'>=': /\>\=/
+'+': /\+/
+'-': /\-/
+'*': /\*/
+'/': /\//
 
 # Attributes
 
@@ -146,8 +154,8 @@ statement ::
 ;
 
 assignment_statement ::
-   = variable '=' expression 
-   { $$ = new AssignmentToken( this, PTK($variable), PTK($expression) ); }
+   = variable_list '=' expression 
+   { $$ = new AssignmentToken( this, PTK($variable_list), PTK($expression) ); }
 ;
 
 exit_statement ::
@@ -165,8 +173,8 @@ exit_statement ::
 # Function definitions and implementation
 
 function_definition ::
-   = Kfunction function_name parameters statement_block Kend_function 
-     { AddFunction(new FunctionDef( this, FUNCID($function_name), PTK($parameters), PTK($statement_block) )); $$ = 0; }
+   = Kfunction function_name formal_parameters statement_block Kend_function 
+     { AddFunction(new FunctionDef( this, FUNCID($function_name), PTK($formal_parameters), PTK($statement_block) )); $$ = 0; }
 ;
    
 function ::
@@ -177,23 +185,21 @@ function ::
 function_name ::
    = Lfuncid
     { $$ = $Lfuncid; }
-  
 ;
    
-parameters ::
-   = '(' parameter_list ')'
-   { $$ = $parameter_list; }
+formal_parameters ::
+   = '(' variable_list ')'
+   { $$ = $variable_list; }
    = '(' ')'
    {$$ = 0; }
 ;
-
-parameter_list ::
-   = expression
-    { $$ = $expression; }
-   = parameter_list ',' expression
-    { $$ = JOIN($parameter_list#1, $expression ); }
+   
+parameters ::
+   = '(' expression ')'
+   { $$ = $expression; }
+   = '(' ')'
+   {$$ = 0; }
 ;
-
 ##########################################################
 # Menu items
 
@@ -339,6 +345,17 @@ foreach_statement ::
    { $$ = new ForeachToken( this, PTK($variable), PTK($expression#0), PTK($expression#1), PTK($statement_block), true); }   
 ;
 
+
+########################################################################
+# List expressions
+
+variable_list ::
+   = variable
+    { $$ = $variable; }
+   = variable_list ',' variable
+    { $$ = JOIN($variable_list#1, $variable ); }
+;
+
 ########################################################################
 # Basic expression 
 
@@ -360,27 +377,50 @@ primary_expression ::
    = Kfalse    { $$ = $0; }
    = '(' expression ')' { $$ = $1; }
 ;
+   
+unary_expression ::
+   = primary_expression { $$ = $0; }
+   = Knot primary_expression { $$ = new Operator( this, opNot, PTK($1) ); }
+;
 
 string_expression ::
-   = primary_expression {$$ = $0; }
-   = string_expression '.' primary_expression { $$ = new Operator( this, opConcat, PTK($0), PTK($2) ); }
+   = unary_expression {$$ = $0; }
+   = string_expression '.' unary_expression { $$ = new Operator( this, opConcat, PTK($0), PTK($2) ); }
+;
+
+mult_expression ::
+   = string_expression {$$ = $0; }
+   = mult_expression '*' string_expression { $$ = new Operator( this, opMultiply, PTK($0), PTK($2) ); }
+   = mult_expression '/' string_expression { $$ = new Operator( this, opDivide, PTK($0), PTK($2) ); }
+;
+
+plus_expression ::
+   = mult_expression {$$ = $0; }
+   = plus_expression '+' mult_expression { $$ = new Operator( this, opPlus, PTK($0), PTK($2) ); }
+   = plus_expression '-' mult_expression { $$ = new Operator( this, opMinus, PTK($0), PTK($2) ); }
 ;
 
 comp_expression ::
-   = string_expression {$$ = $0; }
-   = string_expression '==' string_expression { $$ = new Operator( this, opEq, PTK($0), PTK($2) ); }
-   = string_expression '!=' string_expression { $$ = new Operator( this, opNe, PTK($0), PTK($2) ); }
+   = plus_expression {$$ = $0; }
+   = plus_expression '<' plus_expression { $$ = new Operator( this, opLt, PTK($0), PTK($2) ); }
+   = plus_expression '>' plus_expression { $$ = new Operator( this, opGt, PTK($0), PTK($2) ); }
+   = plus_expression '<=' plus_expression { $$ = new Operator( this, opLe, PTK($0), PTK($2) ); }
+   = plus_expression '>=' plus_expression { $$ = new Operator( this, opGe, PTK($0), PTK($2) ); }
+   = plus_expression '==' plus_expression { $$ = new Operator( this, opEq, PTK($0), PTK($2) ); }
+   = plus_expression '!=' plus_expression { $$ = new Operator( this, opNe, PTK($0), PTK($2) ); }
 ;
-   
-unary_expression ::
+
+log_expression ::
    = comp_expression { $$ = $0; }
-   = Knot comp_expression { $$ = new Operator( this, opNot, PTK($1) ); }
+   = log_expression Kand comp_expression { $$ = new Operator( this, opAnd, PTK($0), PTK($2) ); }
+   = log_expression Kor comp_expression { $$ = new Operator( this, opOr, PTK($0), PTK($2) ); }
 ;
 
 expression ::
-   = unary_expression { $$ = $0; }
-   = expression Kand unary_expression { $$ = new Operator( this, opAnd, PTK($0), PTK($2) ); }
-   = expression Kor unary_expression { $$ = new Operator( this, opOr, PTK($0), PTK($2) ); }
+   = log_expression
+    { $$ = $log_expression; }
+   = expression ',' log_expression
+    { $$ = JOIN($expression#1, $log_expression ); }
 ;
 
 %%

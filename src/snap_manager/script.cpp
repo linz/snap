@@ -7,22 +7,27 @@ using namespace std;
 
 // Script variable class
 
-Value::Value()
+Value::Value() : next(0)
 {
     SetValue(false);
 }
 
-Value::Value( wxString value )
+Value::Value( wxString value ) : next(0)
 {
     SetValue( value );
 }
 
-Value::Value( bool value)
+Value::Value( bool value) : next(0)
 {
     SetValue( value );
 }
 
-Value::Value( const char *value )
+Value::Value( double value) : next(0)
+{
+    SetValue( value );
+}
+
+Value::Value( const char *value ) : next(0)
 {
     SetValue( wxString(value) );
 }
@@ -31,40 +36,102 @@ void Value::SetValue( bool value )
 {
     if( value ) { stringValue = wxString("true"); }
     else { stringValue = wxString(""); }
+    doubleValue = value ? 1.0 : 0.0;
     boolValue = value;
 }
 
 void Value::SetValue( const wxString &value )
 {
     stringValue = value;
+    if( ! value.ToDouble( &doubleValue ) ) doubleValue=0.0;
     boolValue = value != "";
 }
 
-Value::Value( const Value &value )
+void Value::SetValue( double value )
 {
+    doubleValue = value;
+    stringValue = "";
+    stringValue << value;
+    boolValue = value != 0.0;
+}
+
+Value::Value( const Value &value, bool valueOnly )
+{
+    doubleValue = value.doubleValue;
     stringValue = value.stringValue;
     boolValue = value.boolValue;
+    next = 0;
+    if( ! valueOnly && value.Next() ) SetNext(value.Next());
+}
+
+void Value::SetNext( Value *v )
+{
+    SetNext( *v );
+}
+
+void Value::SetNext( const Value &v )
+{
+    Value *np=this;
+    while( np->next ) np=np->next;
+    Value *nv = new Value(v);
+    np->next = nv;
+}
+
+Value *Value::Next() const
+{
+    return next;
 }
 
 Value::~Value()
 {
+    if( next )
+    {
+        Value *v=next;
+        next=0;
+        delete v;
+    }
 }
 
 Value &Value::operator = ( const Value &value )
 {
-    boolValue = value.boolValue;
-    stringValue = value.stringValue;
+    if( &value != this )
+    {
+        boolValue = value.boolValue;
+        doubleValue = value.doubleValue;
+        stringValue = value.stringValue;
+        if( next ) { Value *v=next; next=0; delete( v ); }
+        if( value.Next() ) SetNext(value.Next());
+    }
     return *this;
 }
 
-wxString &Value::AsString()
+wxString Value::AsString(int index) const
 {
-    return stringValue;
+    const Value *vp=this;
+    while( index-- && vp ) vp=vp->next;
+    return vp ? vp->stringValue : wxString();
 }
 
-bool Value::AsBool()
+bool Value::AsBool(int index) const
 {
-    return boolValue;
+    const Value *vp=this;
+    while( index-- && vp ) vp=vp->next;
+    return vp ? vp->boolValue : false;
+}
+
+double Value::AsDouble(int index) const
+{
+    const Value *vp=this;
+    while( index-- && vp ) vp=vp->next;
+    return vp ? vp->doubleValue :  0.0;
+}
+
+int Value::Count() const
+{
+    const Value *vp=this;
+    int count=1;
+    while( vp->next ){ vp=vp->next; count++; }
+    return count;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -123,36 +190,12 @@ bool Script::ExecuteScript( const char *filename )
     return implementation->ExecuteScript( filename );
 }
 
-int Script::GetMenuItemCount()
+void Script::RunMenuActions( int id )
 {
-    return implementation->MenuItemCount();
+    implementation->RunMenuActions( id );
 }
 
-bool Script::GetMenuDefinition( int i, MenuDef &def )
+void Script::EnableMenuItems()
 {
-    MenuItem *mi = implementation->GetMenuItem( i );
-    bool result = mi != 0;
-    if( result )
-    {
-        def.menu_name = mi->MenuName().c_str();
-        def.description = mi->Description().c_str();
-    }
-    return result;
-}
-
-bool Script::MenuIsValid( int i )
-{
-    MenuItem *mi = implementation->GetMenuItem( i );
-    bool result = false;
-    if( mi )
-    {
-        result = mi->IsValid();
-    }
-    return result;
-}
-
-void Script::RunMenuActions( int i )
-{
-    MenuItem *mi = implementation->GetMenuItem( i );
-    if( mi ) mi->Execute();
+    implementation->EnableMenuItems();
 }

@@ -15,21 +15,31 @@ public:
     Value();
     Value( wxString value );
     Value( bool value);
-    Value( const char *value );
-    Value( const Value &variable );
+    Value( const char *values );
+    Value( double value );
+    Value( const Value &variable, bool valueOnly=false );
     ~Value();
     Value & operator= (const Value &value );
-    Value & operator= (const wxString &value ) { SetValue(value); }
-    Value & operator= (const char *value ) { SetValue( wxString(_T(value))); }
-    Value & operator = (bool value) { SetValue(value); }
+    Value & operator= (const wxString &value ) { SetValue(value); return *this; }
+    Value & operator= (const char *value ) { SetValue( wxString(_T(value))); return *this; }
+    Value & operator= (bool value) { SetValue(value); return *this; }
+    Value & operator= (double value) { SetValue(value); return *this; }
     void SetValue( const wxString &value );
+    void SetValue( double );
     void SetValue( bool value );
-    wxString &AsString();
-    bool AsBool();
+    wxString AsString(int index=0) const;
+    double AsDouble(int index=0) const;
+    bool AsBool(int index=0) const;
+    int Count() const;
+    void SetNext( const Value &value );
+    void SetNext( Value *pvalue );
+    Value *Next() const;
 
 private:
     bool boolValue;
+    double doubleValue;
     wxString stringValue;
+    Value *next;
 };
 
 class VariableList : public map<wxString,Value>
@@ -60,18 +70,15 @@ public:
     EnvBase() {}
     virtual ~EnvBase() {}
     virtual bool GetValue( const wxString &name, Value &value ) = 0;
-    virtual FunctionStatus EvaluateFunction( const wxString &name, int nParams, Value params[], Value &result ) = 0;
+    virtual bool AddMenuItem( const wxString &name, const wxString &description, int id ) = 0;
+    virtual bool RemoveMenuItem( const wxString &name ) = 0;
+    virtual void EnableMenuItem( const wxString &name, bool enabled ) = 0;
+    virtual FunctionStatus EvaluateFunction( const wxString &name, const Value *params, Value &result ) = 0;
     virtual void ReportError( const wxString &error ) = 0;
 private:
 };
 
 class ScriptImp;
-
-struct MenuDef
-{
-    const char *menu_name;
-    const char *description;
-};
 
 class Script
 {
@@ -80,10 +87,8 @@ public:
     ~Script();
 
     bool ExecuteScript( const char *filename );
-    int GetMenuItemCount();
-    bool GetMenuDefinition( int i, MenuDef &def );
-    bool MenuIsValid( int i );
-    void RunMenuActions( int i );
+    void RunMenuActions( int id );
+    void EnableMenuItems();
 private:
     ScriptImp *implementation;
 };
