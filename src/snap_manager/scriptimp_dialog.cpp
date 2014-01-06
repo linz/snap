@@ -93,7 +93,7 @@ void ScriptDialog::ResetInitialValues()
     {
         if( controls[i].token->Variable() )
         {
-            controls[i].token->Variable()->SetValue( controls[i].initValue );
+            controls[i].token->Variable()->SetOwnerValue( controls[i].initValue );
         }
     }
 }
@@ -131,20 +131,20 @@ void ScriptDialog::AddControls()
 
         if( ctk.Label() )
         {
-            label = wxString( _T( ctk.Label()->evaluate().AsString()) );
+            label = wxString( _T( ctk.Label()->GetValue().AsString()) );
         }
         cpLabel = (char *) label.c_str();
 
         if( ctk.Selector() )
         {
-            control.selector = ctk.Selector()->evaluate().AsString();
+            control.selector = ctk.Selector()->GetValue().AsString();
             selector = control.selector;
             cpSelector = (char *) selector.c_str();
         }
 
         if( ctk.Info() )
         {
-            info = wxString( _T( ctk.Info()->evaluate().AsString() ) );
+            info = wxString( _T( ctk.Info()->GetValue().AsString() ) );
             cpInfo = (char *) info.c_str();
         }
 
@@ -297,7 +297,7 @@ bool ScriptDialog::RunDialogProgram( Token *program, bool isValidation )
     TransferDataFromWindow();
     Apply();
 
-    Value v = program->evaluate();
+    Value v = program->GetValue();
     bool result = v.AsBool();
 
     if( ! isValidation )
@@ -349,7 +349,7 @@ void ScriptDialog::ReadData()
         {
             if( ctk.Selector() )
             {
-                wxString selector = ctk.Selector()->evaluate().AsString();
+                wxString selector = ctk.Selector()->GetValue().AsString();
                 if( selector != control.selector )
                 {
                     if( ctk.Type() == ctListBox )
@@ -383,17 +383,17 @@ void ScriptDialog::Apply()
         case ctListBox:
         case ctOpenFileSelector:
         case ctSaveFileSelector:
-            ctk.Variable()->SetValue( Value(control.stringVal) );
+            ctk.Variable()->SetOwnerValue( Value(control.stringVal) );
             break;
 
         case ctCheckBox:
-            ctk.Variable()->SetValue( Value( control.boolVal ));
+            ctk.Variable()->SetOwnerValue( Value( control.boolVal ));
             break;
 
         case ctRadioSelector:
         case ctDropDownSelector:
             wxString selectorValue = GetSelectedValue( control.selector, control.intVal );
-            ctk.Variable()->SetValue( Value(selectorValue) );
+            ctk.Variable()->SetOwnerValue( Value(selectorValue) );
             break;
         }
 
@@ -473,13 +473,13 @@ Value DialogToken::evaluate()
     long buttons = wxOK | wxCANCEL;
     if( options )
     {
-        strOptions = options->evaluate().AsString();
+        strOptions = options->GetValue().AsString();
         if( strOptions.IsSameAs("ok",false)) buttons=wxOK;
         if( strOptions.IsSameAs("cancel",false)) buttons=wxCANCEL;
         if( strOptions.IsSameAs("none",false)) buttons=0;
     }
 
-    ScriptDialog dialog( label->evaluate().AsString(), controls, buttons );
+    ScriptDialog dialog( label->GetValue().AsString(), controls, buttons );
     bool ok = dialog.RunDialog();
 
     // Inital values may have been altered when running dialog programs
@@ -487,7 +487,7 @@ Value DialogToken::evaluate()
     if( ! ok ) dialog.ResetInitialValues();
     if( variable )
     {
-        variable->SetValue(Value(ok));
+        variable->SetOwnerValue(Value(ok));
     }
     else if ( ! ok )
     {

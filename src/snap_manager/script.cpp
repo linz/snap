@@ -55,18 +55,26 @@ void Value::SetValue( double value )
     boolValue = value != 0.0;
 }
 
-Value::Value( const Value &value )
+Value::Value( const Value &value, bool valueOnly )
 {
     doubleValue = value.doubleValue;
     stringValue = value.stringValue;
     boolValue = value.boolValue;
-    SetNext(next);
+    next = 0;
+    if( ! valueOnly && value.Next() ) SetNext(value.Next());
 }
 
 void Value::SetNext( Value *v )
 {
-    Value *nv = new Value(*v);
-    next = nv;
+    SetNext( *v );
+}
+
+void Value::SetNext( const Value &v )
+{
+    Value *np=this;
+    while( np->next ) np=np->next;
+    Value *nv = new Value(v);
+    np->next = nv;
 }
 
 Value *Value::Next() const
@@ -86,25 +94,44 @@ Value::~Value()
 
 Value &Value::operator = ( const Value &value )
 {
-    boolValue = value.boolValue;
-    doubleValue = value.doubleValue;
-    stringValue = value.stringValue;
+    if( &value != this )
+    {
+        boolValue = value.boolValue;
+        doubleValue = value.doubleValue;
+        stringValue = value.stringValue;
+        if( next ) { Value *v=next; next=0; delete( v ); }
+        if( value.Next() ) SetNext(value.Next());
+    }
     return *this;
 }
 
-const wxString &Value::AsString() const
+wxString Value::AsString(int index) const
 {
-    return stringValue;
+    const Value *vp=this;
+    while( index-- && vp ) vp=vp->next;
+    return vp ? vp->stringValue : wxString();
 }
 
-bool Value::AsBool() const
+bool Value::AsBool(int index) const
 {
-    return boolValue;
+    const Value *vp=this;
+    while( index-- && vp ) vp=vp->next;
+    return vp ? vp->boolValue : false;
 }
 
-double Value::AsDouble() const
+double Value::AsDouble(int index) const
 {
-    return doubleValue;
+    const Value *vp=this;
+    while( index-- && vp ) vp=vp->next;
+    return vp ? vp->doubleValue :  0.0;
+}
+
+int Value::Count() const
+{
+    const Value *vp=this;
+    int count=1;
+    while( vp->next ){ vp=vp->next; count++; }
+    return count;
 }
 
 //////////////////////////////////////////////////////////////////
@@ -163,36 +190,12 @@ bool Script::ExecuteScript( const char *filename )
     return implementation->ExecuteScript( filename );
 }
 
-int Script::GetMenuItemCount()
+void Script::RunMenuActions( int id )
 {
-    return implementation->MenuItemCount();
+    implementation->RunMenuActions( id );
 }
 
-bool Script::GetMenuDefinition( int i, MenuDef &def )
+void Script::EnableMenuItems()
 {
-    MenuItem *mi = implementation->GetMenuItem( i );
-    bool result = mi != 0;
-    if( result )
-    {
-        def.menu_name = mi->MenuName().c_str();
-        def.description = mi->Description().c_str();
-    }
-    return result;
-}
-
-bool Script::MenuIsValid( int i )
-{
-    MenuItem *mi = implementation->GetMenuItem( i );
-    bool result = false;
-    if( mi )
-    {
-        result = mi->IsValid();
-    }
-    return result;
-}
-
-void Script::RunMenuActions( int i )
-{
-    MenuItem *mi = implementation->GetMenuItem( i );
-    if( mi ) mi->Execute();
+    implementation->EnableMenuItems();
 }

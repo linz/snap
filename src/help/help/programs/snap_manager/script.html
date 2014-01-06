@@ -93,6 +93,14 @@ operators</p>
 </td>
 </tr>
 <tr>
+<tr>
+<td>+, -, *, /</td>
+<td>
+<p>Numerical operator -
+variables are interpreted as numbers and added, subtracted,
+multiplied or divided</p>
+</td>
+</tr>
 <td>not</td>
 <td>
 <p>Reverses the logical value of an expression. For example</p>
@@ -112,6 +120,19 @@ operators</p>
 (==), or not equal (!=).</p>
 </td>
 </tr>
+<tr>
+<td>&lt;, &lt;=, &gt;=, &gt;</td>
+<td>
+<p>Inequality operators, return true if the left operand is less than,
+less than or equal to, greater than or equal to, or greater than the right operand.
+Comparison of strings is slightly non-intuitive.  The strings are interpreted as 
+floating point numbers up to the first non-valid character, then as a string residual.
+Comparison is first on the numerical value of the numbers, and if they are the same, 
+then on a text based comparison of the residuals.  If the beginning of the string 
+cannot be interpreted as a number then the number part is taken to be 0.0, and the 
+residual the entire string.
+</td>
+</tr>
 </table>
 <p>Expression can be combined with parentheses to define the order
 of evaluation, for example</p>
@@ -125,6 +146,8 @@ statements, conditional statements, and loop statements.</p>
 <p>Assignment statements assign a value to a variable, using the
 "=" operator. For example:</p>
 <p class="Commanddefinition">variable = expression</p>
+<p>Assignments can also assign multiple values at once, as in</p>
+<p class="Commanddefinition">variable1,variable2,.. = expression1,expression2,..</p>
 <p>Conditional statements define statements that may or may not be
 executed, depending upon some conditions. These are structured
 as</p>
@@ -151,24 +174,32 @@ times if the expression remains true. The maximum number of
 iterations can be reset by defining a value for the variable
 $max_while_loop_iterations, for example:</p>
 <p class="Commanddefinition">$max_while_loop_iterations="3"</p>
-<p>The foreach statement executes for each component of a string
-(splitting the string up using a specified delimiter, by default
-the new line delimiter "\n"). The format of this is</p>
+<p>The foreach statement has several formats.  It can either be specified with
+a set of expressions, as in </p>
+<p class="Commanddefinition">foreach <i>variable</i> in
+<i>expression1, expression2, ...</i> 
+do <i>statements</i> endforeach</p>
+<p>In this case the variable will be set to each expression value in turn 
+and the statements in the loop are executed.</p>
+<p>If just one expression is specified then it is interpreted as a string
+and the loop is executed setting the variable to each line in the string 
+(delimited by "\n").</p>
 <p class="Commanddefinition">foreach <i>variable</i> in
 <i>expression</i> do <i>statements</i> endforeach</p>
-<p>This will take set the variable to each substring of the
-expression in turn and execute the statements. If a delimiter other
-than "\n" is required then the expression can be specified as:</p>
-<p class="Commanddefinition"><i>expression</i> delimited_by
-<i>delimiter_expression</i></p>
-<p>The delimiter is treated as a <a href="resyntax.html">regular
-expression</a>. If it contains capture groups (enclosed in
-parenthesis), then these are returned in addition to the delimited
-text.</p>
-<p>There is another form of foreach statement where the expression
-is replaced with</p>
-<p class="Commanddefinition"><i>expression</i> matches
-<i>match_expression</i></p>
+<p>Each form can be used with a "delimited_by" clause, in which case the string
+(or strings if there is more than one expression) will be split using the 
+<a href="resyntax.html">regular expression</a> 
+defined in the delimited_by clause.  If the expression contains capture
+groups then the variable is set to each of these in turn as well as the delimited text.
+The format of this is</p>
+<p class="Commanddefinition">foreach <i>variable</i> in
+<i>expression</i> delimited_by <i>delimiter_expression</i>
+do <i>statements</i> endforeach</p>
+<p>The final form of the foreach statement finds all substrings within an expression
+that matches a regular expression</p>
+<p class="Commanddefinition">foreach <i>variable</i> in
+<i>expression</i> matches <i>match_expression</i>
+do <i>statements</i> endforeach</p>
 <p>This will return every occurrence of the the match expression
 (again a regular expression) within the string. If the expression
 contains capture groups then only the capture groups will be
@@ -176,14 +207,14 @@ returned, otherwise the matched strings will be returned.</p>
 <p>There are also four exit statements available</p>
 <p class="Commanddefinition">continue</p>
 <p class="Commanddefinition">break</p>
-<p class="Commanddefinition">return <i>expression</i></p>
+<p class="Commanddefinition">return <i>expression1, expression2, ...</i></p>
 <p class="Commanddefinition">exit</p>
 <p>The continue statement applies within a while or foreach loop,
 and causes the rest of the statements in the loop to be skipped,
 immediately starting the next iteration of the loop. The break
 statement terminates the current while or foreach loop. The return
-statement exits the current function. The exit statement exits the
-current script.</p>
+statement exits the current function and specifies the value or values to return. 
+The exit statement exits the current script.</p>
 <hr>
 <a name="udf" id="udf"></a>
 <h2>User defined functions</h2>
@@ -198,7 +229,17 @@ values of each of the parameters. Any missing parameters are
 defined to be empty strings.</p>
 <p>The function can include one or more return statements defining
 a value to return to the calling script. Otherwise the function
-returns the value from the last statement executed.</p>
+returns the value from the last statement executed.  The return statement
+can also multiple values, for example</p>
+<pre class="Commandexample">
+function <i>minmax</i>( <i>$v1</i>,<i>$v2</i> )
+   if $v1 &lt; $v2 then return $v1, $v2 endif
+   return $v2, $v1
+end_function
+
+$vmin,$vmax=minmax(5,3)
+
+</pre>
 <hr>
 </body>
 </html>

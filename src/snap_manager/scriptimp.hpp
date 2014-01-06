@@ -32,6 +32,7 @@ public:
     virtual ~Token();
 
     Value GetValue();
+    Value GetValueList();
 
     Token *SetNext( Token *n ) { Token *t = this; while( t->next ) { t = t->next; }; t->next = n; return this; }
     Token *Next() { return next; }
@@ -202,6 +203,10 @@ enum OperatorType
 {
     opEq,
     opNe,
+    opLt,
+    opLe,
+    opGe,
+    opGt,
     opNot,
     opAnd,
     opOr,
@@ -288,25 +293,39 @@ private:
 
 class MenuItem : public Token
 {
+    class Functions
+    {
+    public:
+        Functions() : refcount(1), actions(0), requirements(0){}
+        ~Functions();
+        int refcount;
+        Token *requirements;
+        Token *actions;
+    };
+
 public:
     MenuItem( ScriptImp *owner, Token *menu_name_expression, Token *description_expression );
+    MenuItem( MenuItem &src );
     virtual ~MenuItem();
-    MenuItem *AddRequirements( Token *requirements ) { this->requirements = requirements; return this; }
-    MenuItem *AddActions( Token *actions ) { this->actions = actions; return this; }
+    MenuItem *AddRequirements( Token *requirements ) { functions->requirements = requirements; return this; }
+    MenuItem *AddActions( Token *actions ) { functions->actions = actions; return this; }
     bool IsValid();
     void Execute();
     const wxString &MenuName() { return menu_name; }
     const wxString &Description() { return description; }
+    int Id(){ return id; }
+    void SetId( int newid ){ id=newid; }
     virtual Value evaluate();
     virtual void print( const wxString &prefix, ostream &str );
 private:
     Token *menu_name_expression;
     Token *description_expression;
-    Token *requirements;
-    Token *actions;
+    Functions *functions;
     wxString menu_name;
     wxString description;
+    int id;
     bool installed;
+    static int nextId;
 };
 
 
@@ -359,12 +378,9 @@ public:
 
     // Functions for loading menu items and programs
     bool ExecuteScript( const char *filename );
-    Value Run(Token *program);
-
-    // Functions for accessing menu items
-
-    int MenuItemCount();
-    MenuItem *GetMenuItem( int i );
+    void RunMenuActions( int id );
+    void EnableMenuItems();
+    Value Run( Token *program );
 
     // Functions used by Tokens
 
@@ -391,6 +407,8 @@ public:
 private:
     bool PushStack( const wxString &name = _T("") );
     void PopStack();
+    void PostRunActions();
+    void RemoveMenuItem( const wxString &name );
 
     StackFrame *frame;
     int stackDepth;
@@ -405,6 +423,7 @@ private:
 
     // Keep a list of allocated tokens to
     vector<MenuItem *> menuItems;
+    vector<MenuItem *> deleteMenuItems;
     map< wxString, FunctionDef *> functions;
 
     // Stuff for parsing

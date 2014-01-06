@@ -9,8 +9,6 @@ enum
     CMD_FILE_CLOSE = 1,
     CMD_HELP_HELP,
     CMD_HELP_ABOUT,
-
-    CMD_CONFIG_BASE
 };
 
 class wxLogPlainTextCtrl : public wxLog
@@ -37,7 +35,6 @@ public:
 private:
     void SetupIcons();
     void SetupMenu();
-    void EnableMenuItems( wxMenu *menu );
     void SetupWindows();
     void ClearLog();
 
@@ -45,8 +42,6 @@ private:
     void OnCmdClose( wxCommandEvent &event );
     void OnCmdHelpHelp( wxCommandEvent &event );
     void OnCmdHelpAbout( wxCommandEvent &event );
-    void OnCmdConfigMenuItem( wxCommandEvent &event );
-    void OnMenuOpen( wxMenuEvent &event );
     void OnActivate( wxActivateEvent &event );
 
     void OnJobUpdated( wxCommandEvent &event );
@@ -72,7 +67,6 @@ BEGIN_EVENT_TABLE( SnapMgrFrame, wxFrame )
     EVT_MENU( CMD_HELP_HELP, SnapMgrFrame::OnCmdHelpHelp )
     EVT_MENU( CMD_HELP_ABOUT, SnapMgrFrame::OnCmdHelpAbout )
     EVT_MENU_RANGE( wxID_FILE1, wxID_FILE9, SnapMgrFrame::OnFileHistory )
-    EVT_MENU_OPEN( SnapMgrFrame::OnMenuOpen )
     EVT_ACTIVATE( SnapMgrFrame::OnActivate )
     EVT_CLOSE( SnapMgrFrame::OnClose )
 END_EVENT_TABLE()
@@ -96,10 +90,6 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     config = new wxConfig(_T("SnapMgr"),_T("LINZ"));
 
-    // Load the scripting environment
-
-    scriptenv = new SnapMgrScriptEnv(this);
-
     // Restore the previous working directory
 
     wxString curDir;
@@ -110,7 +100,7 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     SetupIcons();
 
-    // SetupMenu must be called after loading the scripting environment
+    // SetupMenu must be called before loading the scripting environment
 
     SetupMenu();
 
@@ -126,6 +116,10 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     wxFileName helpFile(wxStandardPaths::Get().GetExecutablePath());
     helpFile.SetName(_T("snaphelp"));
     help->Initialize( helpFile.GetFullPath() );
+
+    // Load the scripting environment
+
+    scriptenv = new SnapMgrScriptEnv(this);
 
     if( ! jobfile.IsEmpty() ) scriptenv->LoadJob( jobfile );
 }
@@ -164,97 +158,6 @@ void SnapMgrFrame::SetupMenu()
     wxMenu *fileMenu = new wxMenu;
     menuBar->Append( fileMenu, _T("&File") );
 
-
-    wxMenu *helpMenu = new wxMenu;
-    helpMenu->Append( CMD_HELP_HELP,
-                      _T("&Help\tF1"),
-                      _T("Get help about snapplot"));
-    menuBar->Append( helpMenu, _T("&Help") );
-
-    // Set up the script based menu items ... these can add to the File menu if that is specified ..
-
-    nScriptMenuItems = scriptenv->GetMenuItemCount();
-
-    for( int i = 0; i < nScriptMenuItems; i++ )
-    {
-        MenuDef def;
-        if( ! scriptenv->GetMenuDefinition( i, def ) ) continue;
-
-        // Must have at least one sub menu ... put into a "&Scripts" menu if there isn't one
-
-        wxStringTokenizer menuParts(_T(def.menu_name),_T("|"));
-
-        if( menuParts.CountTokens() < 1 ) continue;
-        wxString menuName;
-        if( menuParts.CountTokens() > 1 )
-        {
-            menuName = menuParts.GetNextToken();
-        }
-        else
-        {
-            menuName = wxString(_T("&Scripts"));
-        }
-
-        // Find the menu, or create it if it doesn't exist...
-
-        int menuId = menuBar->FindMenu( menuName );
-        wxMenu *menu;
-        if( menuId == wxNOT_FOUND )
-        {
-            menu = new wxMenu;
-            menuBar->Insert( menuBar->GetMenuCount()-1, menu, menuName );
-        }
-        else
-        {
-            menu = menuBar->GetMenu( menuId );
-        }
-
-        // Track down any further submenus, creating as necessary
-
-        while( menuParts.CountTokens() > 1 )
-        {
-            menuName = menuParts.GetNextToken();
-            int id = menu->FindItem( menuName );
-            if( id == wxNOT_FOUND )
-            {
-                wxMenu *nm = new wxMenu;
-                menu->AppendSubMenu( nm, menuName );
-                menu = nm;
-            }
-            else
-            {
-                // Not clear if this should be FindItem or FindItemByPosition...
-
-                wxMenuItem *item = menu->FindItem( id );
-                wxMenu *subMenu = item->GetSubMenu();
-                if( subMenu == NULL )
-                {
-                    wxString message = wxString::Format(_T("Configuration error: Cannot create submenu %s of %s"),
-                                                        menuName.c_str(), def.menu_name );
-                    ::wxMessageBox( message, _T("Configuration error"), wxOK | wxICON_ERROR, this );
-                    continue;
-                }
-                menu = subMenu;
-            }
-        }
-
-        // Check the item doesn't already exist
-
-        menuName = menuParts.GetNextToken();
-        int id = menu->FindItem( menuName );
-        if( id != wxNOT_FOUND )
-        {
-            wxString message = wxString::Format(_T("Configuration error: Cannot create menu item %s of %s"),
-                                                menuName.c_str(), def.menu_name );
-            ::wxMessageBox( message, _T("Configuration error"), wxOK | wxICON_ERROR, this );
-            continue;
-        }
-
-        menu->Append( CMD_CONFIG_BASE + i, menuName, _T(def.description) );
-        Connect( CMD_CONFIG_BASE + i, wxEVT_COMMAND_MENU_SELECTED,
-                 wxCommandEventHandler(SnapMgrFrame::OnCmdConfigMenuItem ));
-    }
-
     // Add items at the end of the file menu, add the help menu, and install the menu
     // bar...
 
@@ -265,31 +168,22 @@ void SnapMgrFrame::SetupMenu()
 
     fileHistory.UseMenu( fileMenu );
 
+
+    wxMenu *helpMenu = new wxMenu;
+    helpMenu->Append( CMD_HELP_HELP,
+                      _T("&Help\tF1"),
+                      _T("Get help about snapplot"));
+
     helpMenu->AppendSeparator();
     helpMenu->Append( CMD_HELP_ABOUT,
                       _T("&About"),
                       _T("Information about this version snaplot program"));
 
+    menuBar->Append( helpMenu, _T("&Help") );
 
     SetMenuBar(menuBar);
 }
 
-void SnapMgrFrame::EnableMenuItems( wxMenu *menu )
-{
-    int nItems = menu->GetMenuItemCount();
-    for( int i = 0; i < nItems; i++ )
-    {
-        wxMenuItem *item = menu->FindItemByPosition( i );
-        int id = item->GetId() - CMD_CONFIG_BASE;
-        if( id >= 0 && id < nScriptMenuItems )
-        {
-            item->Enable( scriptenv->MenuIsValid( id ));
-        }
-        wxMenu *subMenu = item->GetSubMenu();
-        if( subMenu ) EnableMenuItems( subMenu );
-    }
-
-}
 
 void SnapMgrFrame::SetupWindows()
 {
@@ -362,22 +256,6 @@ void SnapMgrFrame::OnCmdClose( wxCommandEvent & WXUNUSED(event) )
 void SnapMgrFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 {
     help->DisplayContents();
-}
-
-void SnapMgrFrame::OnCmdConfigMenuItem( wxCommandEvent &event )
-{
-    int id = event.GetId() - CMD_CONFIG_BASE;
-    if( id >= 0 && id < nScriptMenuItems )
-    {
-        scriptenv->RunMenuActions( id );
-
-    }
-}
-
-void SnapMgrFrame::OnMenuOpen( wxMenuEvent &event )
-{
-    wxMenu *menu = event.GetMenu();
-    if( menu ) EnableMenuItems( menu );
 }
 
 void SnapMgrFrame::OnClearLog( wxCommandEvent & WXUNUSED(event) )

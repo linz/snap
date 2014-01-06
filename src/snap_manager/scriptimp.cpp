@@ -64,11 +64,17 @@ int Token::Count()
 
 Value Token::GetValue()
 {
-    Value value=evaluate();
-    if( next )
+    return evaluate();
+}
+
+Value Token::GetValueList()
+{
+    Value v = GetValue();
+    for( Token *pt=this->next; pt; pt=pt->next )
     {
-        value.SetNext( next.GetValue() );
+        v.SetNext( pt->GetValue() );
     }
+    return v;
 }
 
 void Token::SetOwnerValue( const Value &value )
@@ -134,11 +140,17 @@ Value VariableToken::evaluate()
 
 void VariableToken::SetOwnerValue( const Value &value )
 {
-    Owner()->SetValue( name, value );
-    if( Next())
+    VariableToken *pvar = this;
+    const Value *pval=&value;
+
+    while( pvar->Next() )
     {
-        Next()->SetOwnerValue( value.Next() ? *(value.Next()) : Value());
+        Value v( *pval, true );
+        Owner()->SetValue( pvar->name, pval ? *pval : Value() );
+        pvar=static_cast<VariableToken *> (pvar->Next());
+        if( pval ) pval=pval->Next();
     }
+    Owner()->SetValue( pvar->Name(), pval ? *pval : Value() );
 }
 
 bool VariableToken::GetValue( Value &value )
@@ -159,9 +171,10 @@ FunctionToken::~FunctionToken()
 Value FunctionToken::evaluate()
 {
     Value v(true);
-    Value pv = params->GetValue();
+    Value pv;
+    if( params ) pv = params->GetValueList();
 
-    Owner()->EvaluateFunction( name, params, v );
+    Owner()->EvaluateFunction( name, params ? &pv : 0, v );
 
     LOG(("Evaluated %s as %s\n","FunctionToken",v.AsString().c_str()));
     return v;
@@ -195,10 +208,10 @@ Value ConditionalBranch::evaluate()
     if( iterate )
     {
         RunPermission rp( Owner(), elLoop );
-        while( Owner()->CanRun() && maxIterations-- > 0 && condition->evaluate().AsBool() )
+        while( Owner()->CanRun() && maxIterations-- > 0 && condition->GetValue().AsBool() )
         {
             RunPermission rp1( Owner(), elLoopInner );
-            v = actions->evaluate();
+            v = actions->GetValue();
         }
     }
 
@@ -227,9 +240,9 @@ Value ConditionalStatement::evaluate()
     for( Token *t = options; t; t = t->Next() )
     {
         ConditionalBranch *branch = static_cast<ConditionalBranch *>(t);
-        if( ! branch->Condition() || branch->Condition()->evaluate().AsBool() )
+        if( ! branch->Condition() || branch->Condition()->GetValue().AsBool() )
         {
-            v = branch->Actions()->evaluate();
+            v = branch->Actions()->GetValue();
             break;
         }
     }
@@ -265,7 +278,7 @@ Value ForeachToken::evaluate()
     // one variable..
     
     bool usere = delimiter || ! (string->Next());
-    if( delimiter ) del = delimiter->evaluate().AsString();
+    if( delimiter ) del = delimiter->GetValue().AsString();
     if( usere && ! re.Compile(del,wxRE_ADVANCED) )
     {
         Owner()->error("Invalid regular expression %s specified",(char *) del.c_str() );
@@ -280,14 +293,14 @@ Value ForeachToken::evaluate()
         {
             if( rp.CanRun() ) 
             {
-                var->SetValue( strtok->evaluate() );
+                var->SetOwnerValue( strtok->GetValue() );
                 RunLoop();
             }
             continue;
         }
 
         int start = 0;
-        wxString str = strtok->evaluate().AsString();
+        wxString str = strtok->GetValue().AsString();
 
         while( rp.CanRun() && re.Matches( str.Mid(start) ) )
         {
@@ -298,14 +311,14 @@ Value ForeachToken::evaluate()
             nmatch = re.GetMatchCount();
             if( ! isMatch )
             {
-                var->SetValue( str.Mid(start,mstart) );
+                var->SetOwnerValue( str.Mid(start,mstart) );
                 RunLoop();
             }
 
             // If no bracketed expressions then return the whole match
             else if( nmatch == 1 )
             {
-                var->SetValue( str.Mid(start+mstart, mlen) );
+                var->SetOwnerValue( str.Mid(start+mstart, mlen) );
                 RunLoop();
             }
 
@@ -318,7 +331,7 @@ Value ForeachToken::evaluate()
                     size_t sstart;
                     size_t slen;
                     re.GetMatch( &sstart, &slen, i );
-                    var->SetValue( str.Mid(start+sstart, slen ) );
+                    var->SetOwnerValue( str.Mid(start+sstart, slen ) );
                     {
                         RunLoop();
                     }
@@ -330,7 +343,7 @@ Value ForeachToken::evaluate()
 
         if( rp.CanRun() && ! isMatch )
         {
-            var->SetValue( str.Mid(start) );
+            var->SetOwnerValue( str.Mid(start) );
             RunLoop();
         }
     }
@@ -342,7 +355,7 @@ Value ForeachToken::evaluate()
 void ForeachToken::RunLoop()
 {
     RunPermission rp(Owner(),elLoopInner);
-    actions->evaluate();
+    actions->GetValue();
 }
 
 void ForeachToken::print( const wxString &prefix, ostream &str )
@@ -367,7 +380,7 @@ AssignmentToken::~AssignmentToken()
 
 Value AssignmentToken::evaluate()
 {
-    Value v = value->GetValue();
+    Value v = value->GetValueList();
     variable->SetOwnerValue( v );
     return v;
 }
@@ -394,7 +407,7 @@ Value ExitToken::evaluate()
     v = Value(true);
     if( expression )
     {
-        v = expression->evaluate();
+        v = expression->GetValueList();
     }
 
     Owner()->SetExitLevel(level);
@@ -414,41 +427,53 @@ void ExitToken::print( const wxString &prefix, ostream &str )
     }
 }
 
+int MenuItem::nextId=1;
+
+MenuItem::Functions::~Functions()
+{
+    if( requirements ){ delete requirements; }
+    if( actions ){ delete actions; }
+}
+
 MenuItem::~MenuItem()
 {
     if( menu_name_expression ) delete menu_name_expression;
     if( description_expression ) delete description_expression;
-    if( requirements ) delete requirements;
-    if( actions ) delete actions;
+    if( functions )
+    {
+        functions->refcount--;
+        if( functions->refcount <= 0 ) delete functions;
+    }
 }
 
 MenuItem::MenuItem( ScriptImp *owner, Token *menu_name_expression, Token *description_expression )
     : Token(owner), menu_name_expression(menu_name_expression), description_expression(description_expression)
 {
-    requirements = 0;
-    actions = 0;
+    functions=new Functions();
+    id=nextId++;
     installed = false;
 }
+
+// Create a copy for installation ...
+
+MenuItem::MenuItem( MenuItem &src ) :
+    Token( src.Owner() )
+{
+    menu_name_expression=0;
+    description_expression=0;
+    id=src.id;
+    menu_name = src.menu_name_expression->GetValue().AsString();
+    description = src.description_expression->GetValue().AsString();
+    functions=src.functions;
+    functions->refcount++;
+    }
 
 Value MenuItem::evaluate()
 {
     Value v;
-    if(   ! installed )
-    {
-        // Create a copy of this MenuItem to install, transferring ownership of requirements and
-        // actions to it...
 
-        installed = true;
-
-        MenuItem *copy = new MenuItem( Owner(), 0, 0 );
-        copy->installed = true;
-
-        copy->requirements = requirements; requirements = 0;
-        copy->actions = actions; actions = 0;
-        copy->menu_name = menu_name_expression->evaluate().AsString();
-        copy->description = description_expression->evaluate().AsString();
-        Owner()->AddMenuItem( copy );
-    }
+    // Create a copy of this menu item to be owned by the owner...
+    Owner()->AddMenuItem( new MenuItem(*this) );
 
     v = Value(true);
     LOG(("Evaluated %s as %s\n","MenuItem",v.AsString().c_str()));
@@ -460,23 +485,23 @@ void MenuItem::print( const wxString &prefix, ostream &str )
 {
     str << prefix << "MenuItem: \"" << menu_name << "\" \"" << description << "\"" << endl;
     str << prefix << "...requirements" << endl;
-    PrintSubtoken( requirements, prefix, str );
+    PrintSubtoken( functions->requirements, prefix, str );
     str << prefix << "...actions" << endl;
-    PrintSubtoken( actions, prefix, str );
+    PrintSubtoken( functions->actions, prefix, str );
 }
 
 bool MenuItem::IsValid()
 {
     Value v(true);
-    if( requirements ) v = Owner()->Run(requirements);
+    if( functions->requirements ) v = Owner()->Run(functions->requirements);
     return v.AsBool();
 }
 
 void MenuItem::Execute()
 {
-    if( actions )
+    if( functions->actions )
     {
-        Owner()->Run( actions );
+        Owner()->Run( functions->actions );
     }
 }
 
@@ -492,7 +517,7 @@ Value FunctionDef::evaluate()
     bool wasinuse = inuse;
     inuse = true;
     // Strictly should put try ... finally round this ...
-    v = actions->evaluate();
+    v = actions->GetValue();
     inuse = wasinuse;
     LOG(("Evaluated %s as %s\n","FunctionDef",v.AsString().c_str()));
     return v;
@@ -518,7 +543,7 @@ Value StatementBlockToken::evaluate()
     RunPermission rp( Owner(), elOk );
     for( Token *s = statements; rp.CanRun() && s != 0; s = s->Next() )
     {
-        v = s->evaluate();
+        v = s->GetValue();
     }
     LOG(("Evaluated %s as %s\n","StatementBlockToken",v.AsString().c_str()));
     return v;
@@ -537,57 +562,98 @@ Operator::~Operator()
     if( operand2 ) delete operand2;
 }
 
+static int compValue( const Value &value1, const Value &value2 )
+{
+    wxString s1=value1.AsString();
+    wxString s2=value2.AsString();
+    double v1=0.0;
+    double v2=0.0;
+    wxRegEx reNumber=wxT("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
+    if( reNumber.Matches(s1) )
+    {
+        double v;
+        if( reNumber.GetMatch(s1,1).ToDouble(&v) ) v1=v;
+        s1=reNumber.GetMatch(s1,2);
+    }
+    if( reNumber.Matches(s2) )
+    {
+        double v;
+        if( reNumber.GetMatch(s2,1).ToDouble(&v) ) v2=v;
+        s2=reNumber.GetMatch(s2,2);
+    }
+    if( v1 < v2 ) return -1;
+    if( v1 > v2 ) return 1;
+    return s1.Cmp(s2);
+}
+
 Value Operator::evaluate()
 {
-    Value result = operand1->evaluate();
+    Value result = operand1->GetValue();
 
     switch( type )
     {
     case opEq:
-        result = Value( result.AsString() == operand2->evaluate().AsString() );
+        result = Value( result.AsString() == operand2->GetValue().AsString() );
         break;
 
     case opNe:
-        result = Value( result.AsString() != operand2->evaluate().AsString() );
+        result = Value( result.AsString() != operand2->GetValue().AsString() );
         break;
+
+    case opLt:
+        result = Value( compValue( result, operand2->GetValue() ) < 0 );
+        break;
+
+    case opLe:
+        result = Value( compValue( result, operand2->GetValue() ) <= 0 );
+        break;
+
+    case opGe:
+        result = Value( compValue( result, operand2->GetValue() ) >= 0 );
+        break;
+
+    case opGt:
+        result = Value( compValue( result, operand2->GetValue() ) > 0 );
+        break;
+
 
     case opNot:
         result = Value( ! result.AsBool() );
         break;
 
     case opAnd:
-        if( result.AsBool() ) result = operand2->evaluate();
+        if( result.AsBool() ) result = operand2->GetValue();
         break;
 
     case opOr:
-        if( ! result.AsBool() ) result = operand2->evaluate();
+        if( ! result.AsBool() ) result = operand2->GetValue();
         break;
 
     case opConcat:
         {
             wxString concat = result.AsString();
-            concat.append( operand2->evaluate().AsString() );
+            concat.append( operand2->GetValue().AsString() );
             result = Value( concat );
         }
         break;
 
     case opPlus:
         {
-            double dval = result.AsDouble() + operand2->evaluate().AsDouble();
+            double dval = result.AsDouble() + operand2->GetValue().AsDouble();
             result = Value( dval );
         }
         break;
 
     case opMinus:
         {
-            double dval = result.AsDouble() - operand2->evaluate().AsDouble();
+            double dval = result.AsDouble() - operand2->GetValue().AsDouble();
             result = Value( dval );
         }
         break;
 
     case opMultiply:
         {
-            double dval = result.AsDouble() * operand2->evaluate().AsDouble();
+            double dval = result.AsDouble() * operand2->GetValue().AsDouble();
             result = Value( dval );
         }
         break;
@@ -595,7 +661,7 @@ Value Operator::evaluate()
     case opDivide:
         {
             double dval = result.AsDouble();
-            double dval2 =  operand2->evaluate().AsDouble();
+            double dval2 =  operand2->GetValue().AsDouble();
             if( dval2 == 0.0 )
             {
                 Owner()->error("Cannot divide by 0");
@@ -770,6 +836,7 @@ bool ScriptImp::ExecuteScript( const char *filename  )
         if( result )
         {
             Run(prog);
+            PostRunActions();
         }
         if( prog ) delete prog;
     }
@@ -781,6 +848,22 @@ bool ScriptImp::ExecuteScript( const char *filename  )
     return result;
 }
 
+void ScriptImp::RunMenuActions( int id )
+{
+    for( vector<MenuItem *>::iterator it = menuItems.begin(); 
+        it !=menuItems.end();
+        it++ )
+    {
+        MenuItem *mi = (*it);
+        if( mi->Id() == id )
+        {
+        mi->Execute();
+        PostRunActions();
+        break;
+        }
+    }
+}
+
 Value ScriptImp::Run( Token *program )
 {
     Value result;
@@ -790,10 +873,41 @@ Value ScriptImp::Run( Token *program )
         exitLevel = elOk;
         RunPermission rp(this, elExit);
         errorMessage.empty();
-        result = program->evaluate();
+        result = program->GetValue();
         PopStack();
     }
     return result;
+}
+
+void ScriptImp::PostRunActions()
+{
+    // Post run clean up...
+    // Remove deleted menu items
+
+    for( vector<MenuItem *>::iterator it = deleteMenuItems.begin();
+    it != deleteMenuItems.end();
+    it++ )
+    {
+
+			if(*it) delete (*it);
+			(*it) = 0;
+    }
+    deleteMenuItems.clear();
+    EnableMenuItems();
+}
+
+void ScriptImp::EnableMenuItems()
+{
+    // Enable/disable menu items
+
+    for( vector<MenuItem *>::iterator it = menuItems.begin();
+    it != menuItems.end();
+    it++ )
+    {
+        MenuItem *mi=(*it);
+        bool valid=mi->IsValid();
+        environment.EnableMenuItem( mi->MenuName(), valid );
+    }
 }
 
 char ScriptImp::getchar()
@@ -835,20 +949,93 @@ MenuItem *ScriptImp::AddMenuItem( MenuItem *item )
         it != menuItems.end();
         it++ )
     {
-		if( (*it)->MenuName().Lower() == item->MenuName().Lower() )
+        MenuItem *mi = (*it);
+		if( mi->MenuName() == item->MenuName() )
 		{
-			delete (*it);
-			(*it) = item;
-			return item;
+            item->SetId( mi->Id());
+            deleteMenuItems.push_back(mi);
+            (*it)=item;
+            return item;
 		}
     }
-    menuItems.push_back( item );
+    if( environment.AddMenuItem( item->MenuName(), item->Description(), item->Id()))
+    {
+        menuItems.push_back( item );
+    }
+    else
+    {
+        delete( item );
+        item=0;
+    }
     return item;
 }
 
-MenuItem *ScriptImp::GetMenuItem( int i )
+void ScriptImp::RemoveMenuItem( const wxString &name )
 {
-    return menuItems[i];
+    wxString itemname=name;
+    wxString match=name;
+    wxString delimiter(_T("|"));
+    wxArrayString eraseMenus;
+    vector<MenuItem *> eraseItems;
+
+    if( ! match.EndsWith(delimiter.c_str())) 
+    {
+        eraseMenus.Add(match);
+        match.Append(delimiter);
+    }
+
+	for( vector<MenuItem *>::iterator it = menuItems.begin();
+        it != menuItems.end();
+        it++ )
+    {
+        wxString rest;
+        MenuItem *mi = (*it);
+        bool matched = mi->MenuName() == itemname;
+        if( ! matched && mi->MenuName().StartsWith(match.c_str(),&rest) )
+        {
+            matched=true;
+            while( rest.Contains(delimiter) )
+            {
+                rest=rest.BeforeLast(delimiter[0]);
+                wxString menuname=match+rest;
+                if( eraseMenus.Index(menuname.c_str()) == wxNOT_FOUND )
+                {
+                    eraseMenus.Add(menuname);
+                }
+            }
+        }
+        if( matched )
+        {
+            eraseItems.push_back( mi );
+        }
+    }
+
+	for( vector<MenuItem *>::iterator it = eraseItems.begin();
+        it != eraseItems.end();
+        it++ )
+    {
+        MenuItem *mi =(*it);
+        if( environment.RemoveMenuItem( mi->MenuName()) )
+        {
+            for( vector<MenuItem *>::iterator it2 = menuItems.begin();
+                it2 != menuItems.end();
+                it2++ )
+            {
+                if( (*it2) == mi )
+                {
+                    menuItems.erase(it2);
+                    deleteMenuItems.push_back(mi);
+                    break;
+                }
+            }
+        }
+    }
+
+    eraseMenus.Sort(true);
+    for( int i=0; i < eraseMenus.Count(); i++ )
+    {
+        environment.RemoveMenuItem( eraseMenus[i] + _T("|") );
+    }
 }
 
 bool ScriptImp::AddFunction( FunctionDef *func )
@@ -1072,7 +1259,20 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
         }
     }
 
+    // Is this the DeleteMenu function
 
+    if( name.IsSameAs("DeleteMenu",false) )
+    {
+        if( ! params )
+        {
+            status = fsBadParameters;
+        }
+        else
+        {
+            RemoveMenuItem( params->AsString());
+            status = fsOk;
+        }
+    }
     // Is the function defined by the environment ...
 
     if( status == fsBadFunction ) status = environment.EvaluateFunction( name, params, result );
@@ -1091,7 +1291,7 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
             {
                 // Setup the parameters ..
 
-                f->Parameters()->SetOwnerValue( params );
+                if( f->Parameters()) f->Parameters()->SetOwnerValue( params ? *params : Value() );
                 RunPermission rp( this, elReturn );
                 result = f->evaluate();
                 PopStack();
@@ -1120,12 +1320,6 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
 
     return;
 }
-
-int ScriptImp::MenuItemCount()
-{
-    return menuItems.size();
-}
-
 
 void ScriptImp::Print( ostream &str )
 {

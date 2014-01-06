@@ -108,6 +108,10 @@ Kexit: /exit/
 '.': /\./
 '==': /\=\=/
 '!=': /\!\=/
+'<': /\</
+'>': /\>/
+'<=': /\<\=/
+'>=': /\>\=/
 '+': /\+/
 '-': /\-/
 '*': /\*/
@@ -398,6 +402,10 @@ plus_expression ::
 
 comp_expression ::
    = plus_expression {$$ = $0; }
+   = plus_expression '<' plus_expression { $$ = new Operator( this, opLt, PTK($0), PTK($2) ); }
+   = plus_expression '>' plus_expression { $$ = new Operator( this, opGt, PTK($0), PTK($2) ); }
+   = plus_expression '<=' plus_expression { $$ = new Operator( this, opLe, PTK($0), PTK($2) ); }
+   = plus_expression '>=' plus_expression { $$ = new Operator( this, opGe, PTK($0), PTK($2) ); }
    = plus_expression '==' plus_expression { $$ = new Operator( this, opEq, PTK($0), PTK($2) ); }
    = plus_expression '!=' plus_expression { $$ = new Operator( this, opNe, PTK($0), PTK($2) ); }
 ;
