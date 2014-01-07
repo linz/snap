@@ -410,7 +410,7 @@ Value ExitToken::evaluate()
         v = expression->GetValueList();
     }
 
-    Owner()->SetExitLevel(level);
+    Owner()->SetExitLevel(level,v);
 
     LOG(("Evaluated %s as %s\n","ExitToken",v.AsString().c_str()));
     return v;
@@ -518,9 +518,12 @@ Value FunctionDef::evaluate()
     inuse = true;
     // Strictly should put try ... finally round this ...
     v = actions->GetValue();
+    // Set the exit value if not already set by a return statement
+    // (Note: SetExitLevel does nothing if the exit level is not increased)
+    Owner()->SetExitLevel( elReturn, v );
     inuse = wasinuse;
     LOG(("Evaluated %s as %s\n","FunctionDef",v.AsString().c_str()));
-    return v;
+    return Owner()->ExitValue();
 }
 
 void FunctionDef::print( const wxString &prefix, ostream &str )

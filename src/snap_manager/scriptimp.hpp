@@ -393,7 +393,8 @@ public:
     bool GetValue( const wxString &name, Value &value );
     void EvaluateFunction( const wxString &name, const Value *params, Value &result );
     ExitLevel GetExitLevel() { return exitLevel; }
-    void SetExitLevel( ExitLevel level ) { if( level > exitLevel ) exitLevel = level; }
+    const Value &ExitValue(){ return exitValue; }
+    void SetExitLevel( ExitLevel level, const Value &value=Value() ) { if( level > exitLevel ) { exitLevel = level; exitValue=value; }}
     bool CanRun() { return exitLevel == elOk; }
 
     // Program generated and used by LAPG grammar processor ..
@@ -417,6 +418,7 @@ private:
 
     bool inConfig;
     ExitLevel exitLevel;
+    Value exitValue;
     wxString errorMessage;
 
     EnvBase &environment;
