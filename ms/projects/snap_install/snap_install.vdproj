@@ -352,13 +352,13 @@
         "Entry"
         {
         "MsmKey" = "8:_A2BC34928EF2EC93937E8D9F551D96F1"
-        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
+        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
         "MsmKey" = "8:_A2BC34928EF2EC93937E8D9F551D96F1"
-        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
+        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -526,6 +526,12 @@
         "Entry"
         {
         "MsmKey" = "8:_ED8B227EC3554205A6EF4092A654E66F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EE209DECB48D474E9089CD56264A04B3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -2119,6 +2125,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE209DECB48D474E9089CD56264A04B3"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\cfgfile.inc"
+            "TargetName" = "8:cfgfile.inc"
+            "Tag" = "8:"
+            "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE4949CF6AF44C118B9FCCCA366DB533"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Datum.pm"
@@ -3091,7 +3117,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_022D23B7400D4AA8A881275B7D0F2CE6"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\dat2site.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\dat2site.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3119,7 +3145,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0BFF881D74D848DA8D4D388B9DD09CFB"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snapspec.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snapspec.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3147,7 +3173,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_113522599DC74AD18F8C7ABFC406B2D3"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\concord.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\concord.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3175,7 +3201,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4EF1C99612D44A799AEFCB5656402AB7"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snapgeoid.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snapgeoid.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3203,7 +3229,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snaplist.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snaplist.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3231,7 +3257,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_848D279AE87F4FF984BFDAF0E0CF24D4"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snapmerge.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snapmerge.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3259,7 +3285,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_898F8D9FCE44427E83FD6D8BBC410700"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snapplot.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snapplot.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3287,7 +3313,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA39279D2D5C47D9960AF0B4734A442A"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snapadjust.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snapadjust.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3315,7 +3341,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BA5442E434F7454DA342C6C7CB2F4E4D"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snap_manager.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snap_manager.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3343,7 +3369,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD0DCF4E68D4445E9B01D4080F9BF85F"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snap.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snap.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3371,7 +3397,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_ED8B227EC3554205A6EF4092A654E66F"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\site2gps.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\site2gps.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3399,7 +3425,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F342A8E716484DC29C69D6823B517437"
             {
-            "SourcePath" = "8:..\\..\\built\\Release\\snapconv.exe"
+            "SourcePath" = "8:..\\..\\built\\Debug\\snapconv.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
