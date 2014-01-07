@@ -93,6 +93,7 @@ Kbutton: /button/
 Kvalidator: /validator/
 Kspacer: /spacer/
 Knew_column: /new_column/
+Knew_row: /new_row/
 
 # exit
 
@@ -283,6 +284,9 @@ dialog_control ::
      
    = Knew_column 
      { $$ = new DialogControlToken( this, ctNewColumn ); }
+	      
+   = Knew_row 
+     { $$ = new DialogControlToken( this, ctNewRow ); }
 ;
 
 

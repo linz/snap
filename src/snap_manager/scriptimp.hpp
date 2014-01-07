@@ -259,7 +259,8 @@ enum DialogControlTokenType
     ctButton,
     ctValidator,
     ctSpacer,
-    ctNewColumn
+    ctNewColumn,
+    ctNewRow
 };
 
 class DialogControlToken : public Token

@@ -103,8 +103,10 @@ void ScriptDialog::AddControls()
     wxString label;
     wxString info;
     wxString selector;
+    wxBoxSizer *rows = new wxBoxSizer( wxVERTICAL );
     wxBoxSizer *columns = new wxBoxSizer( wxHORIZONTAL );
     wxBoxSizer *sizer = new wxBoxSizer( wxVERTICAL );
+    rows->Add(columns);
     columns->Add(sizer);
 
     wxSizerFlags sizerFlags;
@@ -241,6 +243,14 @@ void ScriptDialog::AddControls()
             sizer->AddSpacer( GetCharHeight() );
             break;
 
+        case ctNewRow:
+            columns = new wxBoxSizer( wxHORIZONTAL );
+            rows->Add(columns);
+            sizer = new wxBoxSizer( wxVERTICAL );
+            columns->AddSpacer( GetCharWidth()*2 );
+            columns->Add( sizer );
+            break;
+
         case ctNewColumn:
             sizer = new wxBoxSizer( wxVERTICAL );
             columns->AddSpacer( GetCharWidth()*2 );
@@ -250,7 +260,7 @@ void ScriptDialog::AddControls()
         if( cpLabel && cpLabel[0] ) { sizer->Add( Label( cpLabel ), sizerFlags ); }
         if( wxctrl ) { sizer->Add( wxctrl, sizerFlags ); control.control = wxctrl;  }
     }
-    AddSizer( columns );
+    AddSizer( rows );
 }
 
 void ScriptDialog::HandleButton( wxEvent &event )
