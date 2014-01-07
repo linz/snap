@@ -562,6 +562,9 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("CopyFile",2)
     RETURN( ::wxCopyFile( STRPRM(0), STRPRM(1),true ));
 
+    DEFINE_FUNCTION("MakeDir",1)
+    RETURN( wxFileName::Mkdir( STRPRM(0), 0777, wxPATH_MKDIR_FULL ))
+    
     DEFINE_FUNCTION("TempFile",0)
     wxString tmpFile = wxFileName::CreateTempFileName("snap.tmp");
     tmpFiles.Add( tmpFile );
