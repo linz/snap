@@ -74,6 +74,7 @@ function EditConfigFile( $name, $description, $cfgdir, $ext )
       label $description
       label "Note: you may need to run as an Administrator to edit system configuration files"
       spacer
+      new_row
       listbox $srcopt "Current files" ConfigFileListBoxOptions($cfgfiles)
       spacer
       button "Edit file"
@@ -84,9 +85,6 @@ function EditConfigFile( $name, $description, $cfgdir, $ext )
 	   start($_editor,$srcfile)
 	endif
       new_column
-      spacer
-      spacer
-      spacer
       radio_selector $copydir "Copy file to" $copydirs
       textbox $copyname "Rename copy to" "15:1:~abcdefghijklmnopqrstuvwxyz_01234556789"
       spacer
