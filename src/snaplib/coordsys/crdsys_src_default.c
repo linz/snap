@@ -36,7 +36,7 @@ static char rcsid[]="$Id: crdsysf1.c,v 1.2 1996/05/20 16:36:08 CHRIS Exp $";
 
 
 
-int install_default_crdsys_file()
+const char *get_default_crdsys_file()
 {
     const char *filename;
     install_default_projections();
@@ -49,7 +49,15 @@ int install_default_crdsys_file()
         /* Now try the user and system configuration directories  */
         filename = find_file(CRDSYSFILE,0,0,FF_TRYALL,COORDSYS_CONFIG_SECTION);
     }
+    return filename;
+}
+
+
+int install_default_crdsys_file()
+{
+    const char *filename=get_default_crdsys_file();
     if( ! filename )  return FILE_OPEN_ERROR;
+    install_default_projections();
     return install_crdsys_file( filename );
 }
 

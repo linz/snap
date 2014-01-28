@@ -103,7 +103,7 @@ static FILE *crdin;
 static FILE *crdout;
 static FILE *crdcom;
 
-static char *coordsys_file;
+static const char *coordsys_file;
 static char *geoid_file;
 
 static char *crdin_fname;
@@ -639,6 +639,7 @@ static void list_program_details_and_exit( void )
     printf("\nProgram %s version %s, dated %s\n",PROGNAME,VERSION,PROGDATE);
     printf("Copyright: Land Information New Zealand\n");
     printf("Author: Chris Crook\n");
+    printf("Coordsys file: %s\n",coordsys_file);
     /* printf("Licensed to: %s\n",decrypted_license()); */
     exit(1);
 }
@@ -1851,18 +1852,19 @@ int main( int argc, char *argv[] )
 
     concord_init();
     get_definition_files( argc, argv );
-    if( coordsys_file )
+    if( ! coordsys_file )
     {
-        install_default_projections();
-        sts = install_crdsys_file( coordsys_file );
+        coordsys_file=get_default_crdsys_file();
     }
-    else
+    if( ! coordsys_file )
     {
-        sts = install_default_crdsys_file();
+        printf("Cannot find coordsys.def file\n");
     }
+    install_default_projections();
+    sts = install_crdsys_file( coordsys_file );
     if( sts != OK )
     {
-        printf("Cannot read coordsys.def file\n");
+        printf("Cannot read coordsys.def file %s\n",coordsys_file);
         return 0;
     }
     process_command_line(argc,argv);

@@ -424,6 +424,7 @@ void install_crdsys_nz_metre_circuits( void );
 /* Get definitions from a file file  */
 
 int install_crdsys_file( const char *file_name );
+const char* get_default_crdsys_file();
 int install_default_crdsys_file();
 void  install_default_projections( void );
 
