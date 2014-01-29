@@ -36,7 +36,7 @@ function InstallSnapPackage()
          $command = "install_snap_package.bat  \"$package\" \"$installdir\""
          $result = debuglogrun($command)
          log($result)
-         $pkgdir="$installdir/$pkgdir"
+         $pkgdir="$installdir/$package"
          if DirectoryExists($pkgdir) then
              LoadPackage($pkgdir)
          endif
