@@ -237,8 +237,18 @@ void SnapMgrFrame::OnJobUpdated( wxCommandEvent &event )
             ClearLog();
             wxLogMessage( "Job location: %s", job->GetPath().c_str());
             wxLogMessage( "Command file: %s", job->GetFilename().c_str());
-            wxLogMessage( "Job title:    %s", job->Title().c_str());
-            wxLogMessage( "Coordinate file: %s", job->CoordinateFilename().c_str());
+            if( job->IsOk())
+            {
+                wxLogMessage( "Job title:    %s", job->Title().c_str());
+                wxLogMessage( "Coordinate file: %s", job->CoordinateFilename().c_str());
+            }
+            else
+            {
+                for( size_t i = 0; i < job->Errors().Count(); i++ )
+                {
+                    wxLogMessage( "%s\n", job->Errors()[i].c_str() );
+                }
+            }
         }
     }
     else

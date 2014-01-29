@@ -47,19 +47,24 @@ function LoadPerlPaths( $dir )
     endif
 end_function
 
+function LoadPackage( $pkgdir )
+   $pkg=Filename($pkgdir,"fullname")
+   LoadMenuScripts($pkgdir)
+   LoadPerlPaths($pkgdir)
+   $cfgdir=Filename("config","absolute",$pkgdir)
+   if DirectoryExists($cfgdir) then InsertPath($cfgdir,"SNAPDIR") endif
+
+   if $_installed_packages then $_installed_packages = $_installed_packages . "\n" endif
+   $_installed_packages = $_installed_packages . $pkg
+   $_package_dirs = $_package_dirs . ":" . $pkg . "=" . $pkgdir
+end_function
+
 function LoadPackages( $dir )
    $pkgbase=Filename("package","absolute",$dir)
    foreach $pkg in Directory($pkgbase) do
        $pkgdir=Filename($pkg,"absolute",$pkgbase)
        if DirectoryExists($pkgdir) then
-           LoadMenuScripts($pkgdir)
-           LoadPerlPaths($pkgdir)
-           $cfgdir=Filename("config","absolute",$pkgdir)
-           if DirectoryExists($cfgdir) then InsertPath($cfgdir,"SNAPDIR") endif
-
-           if $_installed_packages then $_installed_packages = $_installed_packages . "\n" endif
-           $_installed_packages = $_installed_packages . $pkg
-           $_package_dirs = $_package_dirs . ":" . $pkg . "=" . $pkgdir
+           LoadPackage($pkgdir)
        endif
    endforeach
 end_function

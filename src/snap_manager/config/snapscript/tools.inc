@@ -31,13 +31,34 @@ function InstallSnapPackage()
    if $ok then
       if $package != '' then
          $installdir="$user_config_path/package"
-	 if $allusers then $installdir="$system_config_path/package" endif
+         if $allusers then $installdir="$system_config_path/package" endif
          log("Installing $package\n")
          $command = "install_snap_package.bat  \"$package\" \"$installdir\""
          $result = debuglogrun($command)
          log($result)
+         $pkgdir="$installdir/$pkgdir"
+         if DirectoryExists($pkgdir) then
+             LoadPackage($pkgdir)
+         endif
       endif
    endif
+end_function
+ 
+#######################################################################
+# Function to list packages
+
+function ListInstalledPackages()
+   ClearLog()
+   log("The following packages are currently installed:")
+   $area="User"
+   foreach $config_path in $user_config_path, $system_config_path do
+      $packagedir=Filename("package","absolute",$config_path)
+      foreach $pkgdir in Directory($packagedir) do
+         if not $pkgdir then continue endif
+         log("    ($area) $pkgdir")
+      endforeach
+      $area="System"
+   endforeach
 end_function
  
 #######################################################################

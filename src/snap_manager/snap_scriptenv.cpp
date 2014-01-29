@@ -99,21 +99,18 @@ bool SnapMgrScriptEnv::LoadJob( const wxString &jobFile )
     }
 
     wxFileName jobfilename( jobFile );
+    if( ! jobfilename.FileExists())
+    {
+        wxString error(_T("Command file "));
+        error << jobFile;
+        error << " does not exists";
+        ReportError(error);
+        return false;
+    }
     jobfilename.MakeAbsolute();
     wxSetWorkingDirectory( jobfilename.GetPath() );
 
     job = new SnapJob(jobFile);
-    if( ! job->IsOk() )
-    {
-        wxString errormsg;
-        for( size_t i = 0; i < job->Errors().Count(); i++ )
-        {
-            errormsg.Append( job->Errors()[i] );
-            errormsg.Append( "\n" );
-        }
-        ReportError( errormsg );
-        return false;
-    }
 
     {
         wxCommandEvent evt( wxEVT_SNAP_JOBUPDATED );
