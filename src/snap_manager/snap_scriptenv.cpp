@@ -572,7 +572,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     bool result = false;
     if( of.good() )
     {
-        of << params[1].AsString();
+        of << STRPRM(1);
         of.close();
         result = true;
     }
@@ -605,7 +605,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     bool result = false;
     if( of.good() )
     {
-        of << params[1].AsString();
+        of << STRPRM(1);
         of.close();
         result = true;
     }
