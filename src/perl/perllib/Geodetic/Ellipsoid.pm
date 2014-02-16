@@ -46,6 +46,13 @@ use strict;
 
 package Geodetic::Ellipsoid;
 
+use constant
+{
+    GRS80_name=>"Geodetic Reference System 1980",
+    GRS80_a=>6378137.0,
+    GRS80_rf=>298.257222101
+};
+
 require Geodetic::CartesianCrd;
 require Geodetic::GeodeticCrd;
 
@@ -106,7 +113,7 @@ sub code { return $_[0]->[7]; }
 #
 #===============================================================================
 
-sub cartesian { return geodetic(@_); }
+sub cartesian { return xyz(@_); }
 sub xyz {
    my($self,$crd) = @_;
    my $lt = $crd->[0];
@@ -143,7 +150,7 @@ sub xyz {
 #
 #===============================================================================
 
-sub geodetic { return geodetic(@_); }
+sub geodetic { return geog(@_); }
 sub geog {
    my($self,$crd)=@_;
    my $x = $crd->[0];
@@ -172,5 +179,10 @@ sub geog {
              undef, 
              $crd->[4] );
    }
+
+sub GRS80
+{
+    return new Geodetic::Ellipsoid(GRS80_a,GRS80_rf,GRS80_name);
+}
 
 1;
