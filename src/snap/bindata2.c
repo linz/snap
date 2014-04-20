@@ -1683,18 +1683,18 @@ void write_vecdata_csv_inline( output_csv *csv, survdata *sd, int iobs, double s
         write_csv_double( csv, rescvr[3], 4 );
         write_csv_double( csv, rescvr[4], 4 );
     }
+    if( output_csv_vecsum )
+    {
+        sres = vd->vsres;
+        if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
+        write_csv_double( csv,sres, 3 );
+    }
     for( dim = 0; dim < 3; dim++ )
     {
 
         sres = rescvr[cvridx[dim]];
         if( sres <= 0.0 ) sres = 1.0;
         sres = res[dim] / sres;
-        if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-        write_csv_double( csv,sres, 3 );
-    }
-    if( output_csv_vecsum )
-    {
-        sres = vd->vsres;
         if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
         write_csv_double( csv,sres, 3 );
     }
