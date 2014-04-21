@@ -2203,7 +2203,14 @@ static int read_data_line( snapfile_def *sd, int rej )
 
     if( !df_end_of_line( sd->df ) )
     {
-        df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in data file");
+        if( startgrp )
+        {
+            df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in group header line");
+        }
+        else
+        {
+           df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in data file");
+        }
     }
     return OK;
 }
