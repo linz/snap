@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "snapconfig.h"
 #include "util/fileutil.h"
+#include "coordsys/coordsys.h"
 #include "snap/filenames.h"
 #include "wx_includes.hpp"
 #include "snap_scriptenv.hpp"
@@ -366,14 +367,15 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxEmptyString));
     DEFINE_VARIABLE("$snap_path",image_dir());
     DEFINE_VARIABLE("$user_config_path",user_config_dir());
-	DEFINE_VARIABLE("$system_config_path", system_config_dir());
+    DEFINE_VARIABLE("$system_config_path", system_config_dir());
     DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxEmptyString));
     DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxEmptyString));
     DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxEmptyString));
     DEFINE_VARIABLE("$coordsys_list", GetCoordSysList() );
-	DEFINE_VARIABLE("$user_script_path",userScriptPath );
+    DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
+    DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
-	return false;
+    return false;
 }
 
 // Functions used by scripts

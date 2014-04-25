@@ -120,3 +120,32 @@ function EditConfigFile( $name, $description, $cfgdir, $ext )
 
     end_dialog
 end_function
+
+function LogConfig()
+  ClearLog()
+  Log("Snap configuration information\n")
+  Log("Snap directory: $snap_path\n")
+  Log("Snap configuration directory: $system_config_path\n")
+  Log("User configuration directory: $user_config_path\n")
+  Log("Coordinate system definition file: $coordsys_file\n")
+
+  if $_snapdirenv != "" then
+     Log("Using environment variable SNAPDIR: $_snapdirenv")
+  endif
+
+  if GetEnv("COORDSYSDEF") != "" then
+     $csd=GetEnv("COORDSYSDEF")
+     Log("Using environment variable COORDSYSDEF: $csd")
+  endif
+
+  Log("\nInstalled packages:\n")
+  $area="User"
+  foreach $config_path in $user_config_path, $system_config_path do
+      $packagedir=Filename("package","absolute",$config_path)
+      foreach $pkgdir in Directory($packagedir) do
+         if not $pkgdir then continue endif
+         log("    ($area) $pkgdir")
+      endforeach
+      $area="System"
+  endforeach
+end_function
