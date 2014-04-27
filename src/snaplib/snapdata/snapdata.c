@@ -2205,7 +2205,7 @@ static int read_data_line( snapfile_def *sd, int rej )
     {
         if( startgrp )
         {
-            df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in group header line");
+            df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in grouped data instrument station line");
         }
         else
         {
