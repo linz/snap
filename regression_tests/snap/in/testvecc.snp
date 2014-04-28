@@ -13,3 +13,4 @@ data_file testvecc.csv csv format=vecc1
 data_file testdist.csv csv format=dist
 data_file testha.csv csv format=haerror
 data_file testzd.csv csv format=zderror
+data_file testlv.csv csv format=lverror

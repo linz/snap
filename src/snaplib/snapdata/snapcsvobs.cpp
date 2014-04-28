@@ -393,18 +393,24 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             {
                 istr >> errcomp >> component;
                 if( istr.fail()) break;
-                if( boost::iequals(component,"mm")) { errcomp *= 0.001; pcomp = &mmherr; }
-                else if( boost::iequals(component,"ppm")) 
+                if( boost::iequals(component,"mm")) { errcomp *= 0.001; pcomp = &mmerr; }
+                else if( boost::iequals(component,"mmrkm")) 
                 { 
-                    istr >> component >> runlen >> component;
-                    if( istr.fail()) break;
+                    istr >> component >> runlen;
+                    if( istr.fail()) 
+                    {
+                        dataError(string("Incomplete height difference distance error mmrkm component"));
+                        ok = false;
+                        break;
+                    }
                     if( boost::iequals(component,"sqrt"))
                     {
-                        errcomp *= 0.000001*runlen; pcomp = &pmmverr; 
+                        runlen=sqrt(fabs(runlen)/1000.0);
+                        errcomp *= 0.001*runlen; pcomp = &ppmerr; 
                     }
                     else
                     {
-                        dataError(string("Invalid height difference distance error ppm component"));
+                        dataError(string("Invalid height difference distance error mmrkm component"));
                         ok = false;
                         break;
                     }

@@ -332,10 +332,11 @@ coordinates to recalculate the errors.</p>
 	<table class="Commanddescription">
 		<tr><td>error</td><td>The error is a value in metres</td></tr>
 		<tr><td>calculated</td><td>
-                        The error is a string formatted as &quot;<i>SCd</i>&nbsp;mm&nbsp;<i>SPh</i>&nbsp;ppm sqrt&nbsp;<i>rlen</i>&quot;
+                        The error is a string formatted as &quot;<i>SCd</i>&nbsp;mm&nbsp;<i>SPh</i>&nbsp;mmrkm sqrt&nbsp;<i>rlen</i>&quot;
                         where <i>SCd</i> is the constant component of the standard error in millimetres, 
-                        <i>SPh</i> is a component proportional to the square root of the levelling run, and <i>rlen</i> is
-                        the length of the lenvelling run (this will usually be derived from a column, eg @RUNLEN.
+                        <i>SPh</i> is a component proportional to the square root of the levelling run 
+                        in millimetres per root kilometres, and <i>rlen</i> is
+                        the length of the levelling run in metres (this will usually be derived from a column, eg @RUNLEN.
                         The root sum of squares of these components is the total height difference error.
                         </p>
 		</td></tr>
