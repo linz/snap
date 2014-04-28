@@ -70,6 +70,7 @@ SnapCsvObs::CsvObservation::CsvObservation( SnapCsvObs *owner ) :
     _disterrorcalced( false ),
     _angleerrorcalced( false ),
     _zderrorcalced( false ),
+    _hderrorcalced( false ),
     _vecerrorformat(CVR_TOPOCENTRIC),
     _owner(owner),
     _dateformat("YMDhms"),
@@ -377,6 +378,53 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             error[0] = secerr + mmerr;
             if( error[0] > 0.0 ) error[0] = sqrt(error[0])*RTOD;
         }
+        else if( _hderrorcalced && type->id == LV )
+        {
+            double errcomp;
+            double runlen;
+            double mmerr = 0.0;
+            double ppmerr = 0.0;
+            double *pcomp;
+
+            string component="";
+            bool ok = true;
+            std::istringstream istr(_error.value());
+            for( int i = 0; i < 2; i++ )
+            {
+                istr >> errcomp >> component;
+                if( istr.fail()) break;
+                if( boost::iequals(component,"mm")) { errcomp *= 0.001; pcomp = &mmherr; }
+                else if( boost::iequals(component,"ppm")) 
+                { 
+                    istr >> component >> runlen >> component;
+                    if( istr.fail()) break;
+                    if( boost::iequals(component,"sqrt"))
+                    {
+                        errcomp *= 0.000001*runlen; pcomp = &pmmverr; 
+                    }
+                    else
+                    {
+                        dataError(string("Invalid height difference distance error ppm component"));
+                        ok = false;
+                        break;
+                    }
+                }
+                else
+                {
+                    dataError(string("Invalid zenith distance error component ") + component);
+                    ok = false;
+                    break;
+                }
+                *pcomp += errcomp*errcomp;
+            }
+            if( component == "" )
+            {
+                    dataError(string("Missing height difference error") + component);
+                    ok = false;
+            }
+            error[0] = ppmerr + mmerr;
+            if( error[0] > 0.0 ) error[0] = sqrt(error[0]);
+        }
         else if( _zderrorcalced && type->id == ZD )
         {
             double errcomp;
@@ -657,6 +705,25 @@ bool SnapCsvObs::CsvObservation::setZenDistErrorType( const string &format )
     return ok;
 }
 
+bool SnapCsvObs::CsvObservation::setHgtDiffErrorType( const string &format )
+{
+    bool ok = true;
+    if( boost::iequals(format,"error"))
+    {
+        _hderrorcalced = false;
+    }
+   else if( boost::iequals(format,"calculated"))
+    {
+        _hderrorcalced = true;
+    }
+    else
+    {
+        definitionError(string("Invalid zenith distance error type ") + format );
+        ok = false;
+    }
+    return ok;
+}
+
 bool SnapCsvObs::CsvObservation::setVectorErrorType( const string &format )
 {
     bool ok = true;
@@ -847,6 +914,18 @@ void SnapCsvObs::loadObservationDefinition( RecordStream &rs, CsvObservation &ob
             else
             {
                 definitionError("Zenith_distance_error_type value is missing");
+            }
+        }
+        else if( command == "height_difference_error_type" )
+        {
+            string format;
+            if( rs.record() >> format )
+            {
+                obs.setHgtDiffErrorType(unquoteString(format));
+            }
+            else
+            {
+                definitionError("Height_difference_error_type value is missing");
             }
         }
         else if( command == "classification_columns" )
