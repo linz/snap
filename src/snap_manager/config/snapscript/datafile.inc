@@ -16,11 +16,12 @@ function AddDataFile( $datfile, $options )
    $newfiles=""
    foreach $dfd in $datafiles do
        $filename=Match($dfd,$_data_file_re,1)
+       if $filename=='' then continue endif
        if $filename == $datfile then continue endif
        $newfiles=$newfiles.$dfd."\n"
    endforeach
    if $options != '' then
-   	$datfile=$datfile.' '.$options
+           $datfile=$datfile.' '.$options
    endif
    $newfiles=$newfiles.$_data_file_prefix.$datfile."\n"
    UpdateDataFilesInJob($newfiles)
@@ -61,8 +62,8 @@ end_function
 function CreateNewDataFile($jobpath)
    $datafile = ""
    $datafile = GetSaveFilename(
-   	"Create new SNAP data file",
-   	"SNAP data files (*.dat)|*.dat"
+           "Create new SNAP data file",
+           "SNAP data files (*.dat)|*.dat"
    )
 
    if not $datafile then return '' endif
@@ -178,13 +179,37 @@ end_function
 
 function UpdateDataFilesInJob( $datafiles )
    $jobfilecontent = ReadJobFile()
+   $comment_re = '(?ni)^\s*\!'
+   $dfcomment_re = '(?ni)^\s*\!\s+data\s+files?\s*$'
+   $nonblankre = '\S'
    $newcontent = ''
+   $pending=false
+   $nonblank=false
    foreach $line in $jobfilecontent do
+      if Match($line,$comment_re) then
+          if Match($line,$dfcomment_re) then 
+              $pending=true
+	      $datafiles="\n".$datafiles
+          endif
+          $newcontent=$newcontent.$line."\n"
+          continue
+      endif
       if Match($line,$_data_file_re ) then
-          $newcontent = $newcontent.$datafiles
-          $datafiles = ''
+          $pending=true
+          continue
+      endif
+      if $pending then
+         $newcontent=$newcontent.$datafiles
+         $datafiles=''
+      endif
+      if Match($line,$nonblankre) then
+      	$newcontent = $newcontent.$line."\n"
+	$nonblank=true
       else
-          $newcontent = $newcontent.$line."\n"
+        if $nonblank then
+      	   $newcontent = $newcontent.$line."\n"
+	endif
+	$nonblank=false
       endif
    endforeach
    $newcontent = $newcontent.$datafiles
@@ -206,7 +231,7 @@ function DataFileDialog($jobpath)
         $datafiles = $datafiles .CreateNewDataFile($jobpath)
         $listfiles = ListBoxFileList($datafiles)
     button "Add ..."
-	$datafiles = $datafiles . AdditionalDataFiles($jobpath)
+        $datafiles = $datafiles . AdditionalDataFiles($jobpath)
         $listfiles = ListBoxFileList($datafiles)
     button "Remove ..."
         if $selectedfiles then
@@ -218,8 +243,8 @@ function DataFileDialog($jobpath)
         $listfiles = ListBoxFileList($datafiles)
         endif
     button "EditOptions"
-	if $selectedfiles then 
-	    $options = GetDataFileOptions( $jobpath, DataFileListFromSelected($selectedfiles) )
+        if $selectedfiles then 
+            $options = GetDataFileOptions( $jobpath, DataFileListFromSelected($selectedfiles) )
             if $options then 
                 $options = Replace($options,'^filename','')
                 $options = Replace($options,'(\\|\&)','\\\0')
@@ -231,9 +256,9 @@ function DataFileDialog($jobpath)
         endif
         $listfiles = ListBoxFileList($datafiles)
     button "Edit"
-	EditDataFiles( DataFileNamesFromList(DataFileListFromSelected($selectedfiles)) )
+        EditDataFiles( DataFileNamesFromList(DataFileListFromSelected($selectedfiles)) )
     button "Plot"
-	PlotDataFiles( DataFileNamesFromList(DataFileListFromSelected($selectedfiles)) )
+        PlotDataFiles( DataFileNamesFromList(DataFileListFromSelected($selectedfiles)) )
     spacer
     end_dialog
     if $ok and $job_file then

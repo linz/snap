@@ -1,6 +1,6 @@
 $_title
 $_coordsys
-options ellipsoidal_heights no_deflections no_undulations station_orders
+options ellipsoidal_heights no_deflections no_geoid_heights station_orders
 
 ! Enter a list of station codes, coordinates, and names
 

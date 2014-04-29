@@ -2594,7 +2594,7 @@ static void set_logname( const char *name )
     l = path_len(name,1);
     logname=(char *) check_malloc(strlen(name)+4+1);
     strncpy( logname, name, l );
-    strcat(logname,".lis" );
+    strcpy( logname+l,".lis" );
 }
 
 
