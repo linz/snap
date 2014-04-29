@@ -11,6 +11,20 @@ function DataFileList()
    return $files
 end_function
 
+function AddDataFile( $datfile, $options )
+   $datafiles=DataFileList()
+   $newfiles=""
+   foreach $dfd in $datafiles do
+       $filename=Match($dfd,$_data_file_re,1)
+       if $filename == $datfile then continue endif
+       $newfiles=$newfiles.$dfd."\n"
+   endforeach
+   if $options != '' then
+   	$datfile=$datfile.' '.$options
+   endif
+   $newfiles=$newfiles.$_data_file_prefix.$datfile."\n"
+   UpdateDataFilesInJob($newfiles)
+end_function
 
 function ProcessDataFile( $datafiles,$dfspec,$action )
    $result = ""

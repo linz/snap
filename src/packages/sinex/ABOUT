@@ -1,0 +1,5 @@
+Support for loading SINEX files into SNAP
+
+Adds a menu item Data | Import | SINEX file for convert a SINEX 
+data file to a SNAP file and importing it into the job.
+
