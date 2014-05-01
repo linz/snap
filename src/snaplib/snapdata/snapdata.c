@@ -1730,7 +1730,10 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
                 {
                     int rj = row[j3];
 
-                    while( df_end_of_line( df ) ) df_read_data_file( df );
+                    while( df_end_of_line( df ) )
+                    {
+                        if( df_read_data_file( df ) != OK ) break;
+                    }
                     ok = df_read_double( df, &val );
                     if( ri >= 0 && rj >= 0 ) Lij(cvr,ri,rj) = val;
                     if( !ok )
