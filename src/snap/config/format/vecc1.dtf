@@ -20,6 +20,8 @@ LOOKUP METHOD_ERROR
 CORS1 3 3 6 mm 0.4 0.4 0.8 ppm
 STAT1 4 4 8 mm 0.5 0.5 1 ppm
 RTK1 8 8 12 mm 1 1 1 ppm
+PPK1 8 8 12 mm 1 1 1 ppm
+NTRK1 8 8 12 mm 0.4 0.4 0.8 ppm
 default 8 8 12 mm 1 1 1 ppm
 END_LOOKUP
 
