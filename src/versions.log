@@ -1251,3 +1251,16 @@ Build: 2014-02-10 15:06
   snapplot: 2.5.3
   snapconv: 2.5.3
   site2gps: 2.5.3
+
+Build: 2014-08-15 21:07
+  snap: 2.5.4
+  snapspec: 2.5.4
+  concord: 3.4.4
+  snaplist: 2.5.4
+  snapmerge: 2.5.4
+  snapgeoid: 2.5.4
+  dat2site: 2.5.4
+  snap_manager: 2.5.4
+  snapplot: 2.5.4
+  snapconv: 2.5.4
+  site2gps: 2.5.4
