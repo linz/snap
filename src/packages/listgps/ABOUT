@@ -1,0 +1,6 @@
+Menu options for LINZ geodetic contractors
+
+Creates menu items for exporting local circuit distances and 
+bearings from SNAP adjustments
+(Adjust | Export GPS_as_dist_bearing).
+
