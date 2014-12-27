@@ -53,8 +53,10 @@ static char sccsid[] = "%W%";
 
 /* Note: code below assumes headers are all the same length */
 
-#define LNZDEF_FILE_HEADER_1 "LINZ deformation model v1.0L\r\n\x1A"
-#define LNZDEF_FILE_HEADER_2 "LINZ deformation model v1.0B\r\n\x1A"
+#define LNZDEF_FILE_HEADER_1L "LINZ deformation model v1.0L\r\n\x1A"
+#define LNZDEF_FILE_HEADER_1B "LINZ deformation model v1.0B\r\n\x1A"
+#define LNZDEF_FILE_HEADER_2L "LINZ deformation model v2.0L\r\n\x1A"
+#define LNZDEF_FILE_HEADER_2B "LINZ deformation model v2.0B\r\n\x1A"
 
 typedef enum { defModelGrid, defModelTrig } DefModelType;
 typedef enum { defEvalZero, defEvalFixed, defEvalInterp } DefEvalMode;
@@ -68,6 +70,12 @@ typedef struct
     double ymax;
 } CrdRange, *hCrdRange;
 
+typedef struct
+{
+    double year;
+    double factor;
+} TimeModelPoint, *hTimeModelPoint;
+
 typedef struct s_DefCmp
 {
     int id;
@@ -75,8 +83,11 @@ typedef struct s_DefCmp
     DateTimeType refdate;
     CrdRange range;
     int dimension;
-    DefEvalMode beforemode;
-    DefEvalMode aftermode;
+    DefEvalMode beforemode; /* LINZDEF version 1 parameter */
+    DefEvalMode aftermode; /* LINZDEF version 1 parameter */
+    INT2 nTimeModel;
+    double factor0;
+    hTimeModelPoint timeModel;
     DefModelType type;
     INT4 offset;
     hBinSrc refbinsrc;
@@ -100,8 +111,9 @@ typedef struct s_DefSeq
     DateTimeType enddate;
     CrdRange range;
     int dimension;
-    DefValueType valtype;
+    DefValueType valtype; /* LINZDEF version 1 parameter */
     Boolean zerobeyond;
+    Boolean nested;
     hDefCmp firstcmp;
     hDefCmp lastcmp;
     struct s_DefSeq *nextseq;
@@ -151,18 +163,28 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     int version;
     int big_endian=0;
     version = 0;
-    len = strlen( LNZDEF_FILE_HEADER_1 );
+    len = strlen( LNZDEF_FILE_HEADER_1L );
     if( utlBinSrcLoad1( binsrc, 0, len, buf ) != STS_OK ) return 0;
 
-    if(  memcmp( buf, LNZDEF_FILE_HEADER_1, len ) == 0 )
+    if(  memcmp( buf, LNZDEF_FILE_HEADER_1L, len ) == 0 )
     {
         version = 1;
         big_endian = 0;
     }
-    else if(  memcmp( buf, LNZDEF_FILE_HEADER_2, len ) == 0 )
+    else if(  memcmp( buf, LNZDEF_FILE_HEADER_1B, len ) == 0 )
     {
         version = 1;
         big_endian = 1;
+    }
+    else if(  memcmp( buf, LNZDEF_FILE_HEADER_2B, len ) == 0 )
+    {
+        version = 2;
+        big_endian = 1;
+    }
+    else if(  memcmp( buf, LNZDEF_FILE_HEADER_2L, len ) == 0 )
+    {
+        version = 2;
+        big_endian = 0;
     }
     utlBinSrcSetBigEndian( binsrc, big_endian );
 
@@ -220,6 +242,10 @@ static void delete_def_comp( hDefCmp cmp )
     {
         utlReleaseBinSrc(cmp->binsrc);
         cmp->binsrc = 0;
+    }
+    if( cmp->timeModel )
+    {
+        utlFree( cmp->timeModel );
     }
 
     /*> Release memory allocated to the component */
@@ -372,6 +398,8 @@ static StatusType load_date( hBinSrc binsrc, long offset, DateTimeType *date )
 **    definition of it.  The actual model is loaded only when it is first
 **    required.
 **
+**  \param version             The model format version
+**  \param seq                 The sequence for which the component is being loaded
 **  \param binsrc              The binary source from which to load
 **                             the component
 **  \param pcmp                The component object that is created.
@@ -382,7 +410,7 @@ static StatusType load_date( hBinSrc binsrc, long offset, DateTimeType *date )
 */
 
 
-static StatusType load_component( hBinSrc binsrc, hDefCmp *pcmp )
+static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDefCmp *pcmp )
 {
     hDefCmp cmp;
     StatusType sts;
@@ -390,6 +418,7 @@ static StatusType load_component( hBinSrc binsrc, hDefCmp *pcmp )
     INT2 usebefore=0;
     INT2 useafter=0;
     INT2 istrig=0;
+    INT2 tmtype=0;
 
     /*> Allocate a DefCmp object */
 
@@ -407,6 +436,9 @@ static StatusType load_component( hBinSrc binsrc, hDefCmp *pcmp )
     cmp->loadstatus = STS_OK;
     cmp->beforemode = defEvalZero;
     cmp->aftermode = defEvalZero;
+    cmp->nTimeModel = 0;
+    cmp->timeModel = 0;
+    cmp->factor0 = 0.0;
     cmp->type = defModelGrid;
     cmp->nextcmp = NULL;
     cmp->dimension = 0;
@@ -422,16 +454,89 @@ static StatusType load_component( hBinSrc binsrc, hDefCmp *pcmp )
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.xmin) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->range.xmax) );
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &usebefore );
-    if( usebefore == 1 ) cmp->beforemode = defEvalFixed;
-    if( usebefore == 2 ) cmp->beforemode = defEvalInterp;
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &useafter );
-    if( useafter == 1 ) cmp->aftermode = defEvalFixed;
-    if( useafter == 2 ) cmp->aftermode = defEvalInterp;
+    if( version == 1 )
+    {
+        int nTimeModel=1;
+        int iref=0;
+        int i;
+        double refyear=utlDateAsYear(&(cmp->refdate));
+        int isvel = seq->valtype == defValueVelocity;
+
+        if( sts == STS_OK && version == 1 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &usebefore );
+        if( usebefore == 1 ) cmp->beforemode = defEvalFixed;
+        if( usebefore == 2 ) { cmp->beforemode = defEvalInterp; iref++; nTimeModel++; }
+
+        if( sts == STS_OK && version == 1 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &useafter );
+        if( useafter == 1 ) cmp->aftermode = defEvalFixed;
+        if( useafter == 2 ) { cmp->aftermode = defEvalInterp; nTimeModel++; }
+
+        if( isvel )
+        {
+            cmp->nTimeModel=3;
+            cmp->timeModel=utlAlloc(sizeof(TimeModelPoint)*3);
+            cmp->timeModel[0].year=utlDateAsYear(&(seq->startdate));
+            cmp->timeModel[0].factor=usebefore ? cmp->timeModel[0].year-refyear : 0.0;
+            cmp->timeModel[1].year=refyear;
+            cmp->timeModel[1].factor=0.0;
+            cmp->timeModel[2].year=utlDateAsYear(&(seq->enddate));
+            cmp->timeModel[2].factor=useafter ? cmp->timeModel[2].year-refyear : 0.0;
+        }
+        else 
+        {
+            cmp->factor0 = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
+            cmp->nTimeModel=nTimeModel;
+            cmp->timeModel=utlAlloc(sizeof(TimeModelPoint)*nTimeModel);
+            for( i = 0; i < nTimeModel; i++ )
+            {
+                hTimeModelPoint tmi = &(cmp->timeModel[i]);
+                tmi->year=refyear;
+                if( i < iref )
+                {
+                    tmi->factor = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
+                }
+                else if ( i == iref )
+                {
+                    tmi->factor = cmp->aftermode != defEvalZero ? 1.0 : 0.0;
+                }
+                else
+                {
+                    tmi->factor = 0.0;
+                }
+            }
+        }
+    }
+    else
+    {
+        if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &tmtype );
+        /* Can only handle type 1 (piecewise linear) time models */
+        if( tmtype != 1 ) SET_STATUS(sts, STS_INVALID_DATA);
+        if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &(cmp->nTimeModel) );
+        if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(cmp->factor0) );
+        if( sts == STS_OK && cmp->nTimeModel > 0 )
+        {
+            INT2 i;
+            cmp->timeModel=utlAlloc(sizeof(TimeModelPoint)*cmp->nTimeModel);
+            for( i = 0; i < cmp->nTimeModel; i++ )
+            {
+                DateTimeType eventDate;
+                hTimeModelPoint tmi = &(cmp->timeModel[i]);
+                if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &eventDate );
+                if( sts == STS_OK ) tmi->year = utlDateAsYear( &eventDate );
+                if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(tmi->factor) );
+            }
+        }
+    }
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &istrig );
-    if( istrig ) cmp->type = defModelTrig;
+    if( istrig ) 
+    {
+        /* Current implementation does not support triangulated data in 
+         * nested model, as does not properly check if point lies within a 
+         * triangulation in calc_seq_def */
+        if( seq->nested ) SET_STATUS( sts, STS_INVALID_DATA );
+        cmp->type = defModelTrig;
+    }
 
     if( sts == STS_OK ) sts = utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, &(cmp->offset) );
 
@@ -446,6 +551,7 @@ static StatusType load_component( hBinSrc binsrc, hDefCmp *pcmp )
 
     TRACE_LNZDEF(("Component %s loaded",
                   cmp->description ? cmp->description : "(No description)"));
+    TRACE_LNZDEF(("Component built with  %d time steps",cmp->nTimeModel));
 
     (*pcmp) = cmp;
 
@@ -578,6 +684,7 @@ static StatusType calc_component_model( hDefCmp cmp, double x, double y, double 
 **//**
 **    Creates and loads the deformation sequence object from a binary stream.
 **
+**  \param version             The model format version
 **  \param binsrc              The binary source object
 **  \param pseq                Returns the deformation sequence
 **                             object that is created.
@@ -587,13 +694,14 @@ static StatusType calc_component_model( hDefCmp cmp, double x, double y, double 
 **************************************************************************
 */
 
-static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
+static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
 {
     hDefSeq seq;
     StatusType sts;
     INT2 isvel=0;
     INT2 dimension=0;
     INT2 zerobeyond=0;
+    INT2 nested=0;
     INT2 ncomponents=0;
     int idcomp;
 
@@ -613,6 +721,7 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
     seq->firstcmp = NULL;
     seq->lastcmp = NULL;
     seq->nextseq = NULL;
+    seq->nested= BLN_FALSE;
 
     sts = STS_OK;
 
@@ -630,7 +739,7 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(seq->range.xmin) );
     if( sts == STS_OK ) sts = utlBinSrcLoad8( binsrc, BINSRC_CONTINUE, 1, &(seq->range.xmax) );
 
-    if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &isvel );
+    if( sts == STS_OK && version == 1 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &isvel );
     seq->valtype = isvel ? defValueVelocity : defValueDeformation;
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &dimension );
@@ -638,6 +747,9 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &zerobeyond );
     seq->zerobeyond = zerobeyond ? BLN_TRUE : BLN_FALSE;
+
+    if( sts == STS_OK && version == 2 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &nested );
+    seq->nested = nested ? BLN_TRUE : BLN_FALSE;
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ncomponents );
 
@@ -649,7 +761,7 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
     while( sts == STS_OK && ncomponents-- )
     {
         hDefCmp cmp;
-        sts = load_component( binsrc, &cmp );
+        sts = load_component( version, seq, binsrc, &cmp );
         if( sts == STS_OK )
         {
             idcomp++;
@@ -658,6 +770,28 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
             if( ! seq->firstcmp ) seq->firstcmp = cmp;
             if( seq->lastcmp ) seq->lastcmp->nextcmp = cmp;
             seq->lastcmp = cmp;
+        }
+    }
+
+    /* If version is 1 then set up time model for version */
+
+    if( version == 1 && seq->firstcmp )
+    {
+        hDefCmp cmp=seq->firstcmp;
+        while( cmp->nextcmp )
+        {
+            hDefCmp cmp0=cmp;
+            cmp=cmp->nextcmp;
+            if( cmp0->aftermode == defEvalInterp )
+            {
+                hTimeModelPoint tmi=&(cmp0->timeModel[cmp0->nTimeModel-1]);
+                tmi->year = utlDateAsYear(&(cmp->refdate));
+            }
+            if( cmp->beforemode == defEvalInterp )
+            {
+                hTimeModelPoint tmi=&(cmp->timeModel[0]);
+                tmi->year = utlDateAsYear(&(cmp0->refdate));
+            }
         }
     }
 
@@ -674,6 +808,28 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
 
     (*pseq) = seq;
     return sts;
+}
+
+/*************************************************************************
+** Function name: check_range
+**//**
+**    Function to check whether a specified point is inside or outside
+**    a coordinate range.
+**
+**  \param range               The coordinate range
+**  \param x                   The x coordinate
+**  \param y                   The y coordinate
+**
+**  \return                    The return status
+**
+**************************************************************************
+*/
+
+static StatusType check_range( hCrdRange range, double x, double y )
+{
+    if( x < range->xmin || x > range->xmax ||
+            y < range->ymin || y > range->ymax ) RETURN_STATUS( STS_CRD_RANGE_ERR );
+    return STS_OK;
 }
 
 
@@ -700,14 +856,11 @@ static StatusType load_sequence( hBinSrc binsrc, hDefSeq *pseq )
 static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, double *value )
 {
 
-    hDefCmp cmp0;
-    double dateoffset0=0.0;
-    double factor0=0.0;
-    hDefCmp cmp1;
-    double dateoffset1;
-    double factor1=0.0;
+    hDefCmp cmp;
+    double factor;
     double cval[3];
     StatusType sts;
+    StatusType stscalc;
     int i;
 
     cval[0] = cval[1] = cval[2] = 0;
@@ -717,270 +870,94 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
         value[i] = 0.0;
     }
 
-    /*> Search through the components of the sequence to identify the
-        components before and after the evaluation date.  This may end
-        up finding the first or last two elements if the date is outside
-        the range of deformation models.  */
+    /*> Process the components in turn.  For each test if the evaluation point
+        lies within the range of the component.  If so then determine the 
+        scale factor, and add to the total deformation.  
 
-    cmp0 = NULL;
-    cmp1 = seq->firstcmp;
-    dateoffset1 = date - utlDateAsYear( &(cmp1->refdate) );
-    while(cmp1->nextcmp)
-    {
-        cmp0 = cmp1;
-        dateoffset0 = dateoffset1;
-        cmp1 = cmp1->nextcmp;
-        dateoffset1 = date - utlDateAsYear( &(cmp1->refdate) );
-        if( dateoffset1 < 0 ) break;
-    }
-
-    /*> Work out either one or two components that will be used to evaluate
-        the deformation, and a multiplication factor for each component */
-
-    /*> If there is Only one component in sequence and the component is to be
-        evaluated at the required date (ie is not set to zero) then it
-        is simply evaluated at that time */
-
-    sts = STS_OK;
-
-    if( ! cmp0 )
-    {
-        if( (dateoffset1 < 0 && cmp1->beforemode == defEvalZero) ||
-                (dateoffset1 >= 0 && cmp1->aftermode == defEvalZero) )
-        {
-            cmp1 = NULL;
-        }
-        else
-        {
-            factor1 = 1.0;
-        }
-    }
-
-    /*> Else if the date is before the first component, then determine whether
-        it is zero, equal to the first component, or interpolated between
-        the first two components, and set the components used and multiples
-        accordingly. */
-
-    else if( dateoffset0 < 0 )
-    {
-        switch ( cmp0->beforemode )
-        {
-        case defEvalZero:
-            cmp0 = cmp1 = NULL;
-            break;
-        case defEvalFixed:
-            cmp1 = NULL;
-            factor0 = 1.0;
-            break;
-        case defEvalInterp:
-            factor0 = dateoffset1/(dateoffset1-dateoffset0);
-            factor1 = 1.0-factor0;
-            break;
-        default:
-            SET_STATUS(sts,STS_INVALID_DATA);
-            break;
-        };
-    }
-
-    /*> Else if the date is after the last component then determine
-        it is zero, equal to the last component, or interpolated between
-        the last two components */
-
-
-    else if( dateoffset1 > 0 )
-    {
-        switch ( cmp1->aftermode )
-        {
-        case defEvalZero:
-            cmp0 = cmp1 = NULL;
-            break;
-        case defEvalFixed:
-            cmp0 = NULL;
-            factor1 = 1.0;
-            break;
-        case defEvalInterp:
-            factor0 = dateoffset1/(dateoffset1-dateoffset0);
-            factor1 = 1.0-factor0;
-            break;
-        default:
-            SET_STATUS(sts,STS_INVALID_DATA);
-            break;
-        };
-    }
-
-    /*> Otherwise it is between two components, so use the components
-        before and after evaluation flags to determine whether the value
-        should be zero, equal to the first component, equal to the second
-        component, or interpolated between them. */
-
-    else
-    {
-        if( cmp0->aftermode == defEvalInterp &&
-                cmp1->beforemode == defEvalInterp )
-        {
-            factor0 = dateoffset1/(dateoffset1-dateoffset0);
-            factor1 = 1.0-factor0;
-        }
-        else if( cmp0->aftermode == defEvalFixed &&
-                 cmp1->beforemode == defEvalZero )
-        {
-            factor0 = 1.0;
-            cmp1 = NULL;
-        }
-        else if( cmp0->aftermode == defEvalZero &&
-                 cmp1->beforemode == defEvalFixed )
-        {
-            factor1 = 1.0;
-            cmp0 = NULL;
-        }
-        else if( cmp0->aftermode == defEvalZero &&
-                 cmp1->beforemode == defEvalZero )
-        {
-            cmp0 = cmp1 = NULL;
-        }
-        else
-        {
-            SET_STATUS( sts, STS_INVALID_DATA );
-        }
-    }
-
-    /*> Finally evaluate the 0, 1, or 2 components, scale the calculated
-        values by the factor determined, and return the result.  If the
-        evaluation fails then return the corresponding failed status.
-        The evaluation uses calc_component_model. */
-
-    if( cmp0 )
-    {
-        StatusType stscmp;
-        stscmp = calc_component_model( cmp0, x, y, cval );
-        if( stscmp == STS_OK )
-        {
-            for( i = 0; i < seq->dimension; i++ )
-            {
-                value[i] += factor0 * cval[i];
-            }
-            TRACE_LNZDEF(("calc_seq_def: Adding component %d, factor %.4lf, value %.4lf %.4lf %.4lf",
-                          cmp0->id,factor0,cval[0],cval[1],cval[2]));
-        }
-        else
-        {
-            sts = stscmp;
-        }
-    }
-
-    if( cmp1 )
-    {
-        StatusType stscmp;
-        stscmp = calc_component_model( cmp1, x, y, cval );
-        if( stscmp == STS_OK )
-        {
-            for( i = 0; i < seq->dimension; i++ )
-            {
-                value[i] += factor1 * cval[i];
-            }
-            TRACE_LNZDEF(("calc_seq_def: Adding component %d, factor %.4lf, value %.4lf %.4lf %.4lf",
-                          cmp1->id,factor1,cval[0],cval[1],cval[2]));
-        }
-        else
-        {
-            sts = stscmp;
-        }
-    }
-
-    if( sts != STS_OK ) RETURN_STATUS( sts );
-    return STS_OK;
-}
-
-
-/*************************************************************************
-** Function name: calc_seq_vel
-**//**
-**    Calculate a velocity deformation sequence at a specific location and time.
-**    Returns the displacement evaluated at the specified time.
-**
-**  \param seq                 The sequence
-**  \param date                The date at which it is to be evaluated
-**  \param x                   The x coordinate
-**  \param y                   The y coordinate
-**  \param value               Array to return the resulting offset
-**
-**  \return                    The return status
-**
-**************************************************************************
-*/
-
-static StatusType calc_seq_vel( hDefSeq seq, double date, double x, double y,
-                                double *value )
-{
-
-    hDefCmp cmp;
-    DefEvalMode mode;
-    double cval[3];
-    int i;
-    StatusType sts = STS_OK;
-    StatusType stscmp;
-
-    cval[0] = cval[1] = cval[2] = 0.0;
-
-    /*> Initiallize the results array to zero */
-
-    for( i = 0; i < seq->dimension; i++ )
-    {
-        value[i] = 0.0;
-    }
-
-    /*> For each component in the sequence determine whether the evaluation
-        date is before or after the reference date for the component, then
-        look at the corresponding evaluation mode (before or after) to determine
-        whether the deformation is to be evaluated.  If it is then evaluate the
-        component velocity with calc_component_model, multiply by the time
-        difference, and add the resulting displacement to the results array.
+        If this is a nested sequence then stop after the first one within
+        range.
         */
 
-    for( cmp = seq->firstcmp; cmp; cmp = cmp->nextcmp )
+    sts=STS_CRD_RANGE_ERR;
+    stscalc=STS_OK;
+
+    for( cmp = seq->firstcmp; cmp; cmp=cmp->nextcmp )
     {
-        double dateoffset = date - utlDateAsYear( &(cmp->refdate) );
-        mode =  dateoffset <= 0 ? cmp->beforemode : cmp->aftermode;
-        if( mode == defEvalZero ) continue;
-        stscmp = calc_component_model( cmp, x, y, cval );
-        if( stscmp == STS_OK )
+        int ntm;
+        StatusType stscmp;
+
+        /*>> First check that the point is within the range defined for the component.
+             If it is not then continue on to the next component. 
+             */
+
+        stscmp = check_range( &(cmp->range), x, y );
+        if( stscmp != STS_OK ) continue;
+        sts=STS_OK;
+
+        /*>> Evaluate the scale factor to apply to the component based on the time
+             model */
+
+        ntm = cmp->nTimeModel-1;
+        factor=cmp->factor0;
+        if( cmp->nTimeModel > 0 )
         {
-            for( i = 0; i < seq->dimension; i++ )
+            if( date <= cmp->timeModel[0].year )
             {
-                value[i] += dateoffset * cval[i];
+                factor=cmp->factor0;
+            }
+            else if( date > cmp->timeModel[ntm].year )
+            {
+                factor=cmp->timeModel[ntm].factor;
+            }
+            else
+            {
+                hTimeModelPoint tm0, tm1;
+                for( i=1; i <= ntm; i++ )
+                {
+                    if( date <= cmp->timeModel[i].year )
+                    {
+                        break;
+                    }
+                }
+                tm0=&(cmp->timeModel[i-1]);
+                tm1=&(cmp->timeModel[i]);
+                factor=((date-tm0->year)*tm1->factor+(tm1->year-date)*tm0->factor)/(tm1->year-tm0->year);
             }
         }
-        else
+
+        /*>> If the factor is greater than 0 then calculate the model and add the 
+             scaled model deformation to the total.
+             */
+
+        if( factor != 0.0 )
         {
-            sts = stscmp;
+            stscmp = calc_component_model( cmp, x, y, cval );
+            if( stscmp == STS_OK )
+            {
+                for( i = 0; i < seq->dimension; i++ )
+                {
+                    value[i] += factor * cval[i];
+                }
+                TRACE_LNZDEF(("calc_seq_def: Adding component %d, factor %.4lf, value %.4lf %.4lf %.4lf",
+                              cmp->id,factor,cval[0],cval[1],cval[2]));
+            }
+            else
+            {
+                if( stscalc == STS_OK ) stscalc = stscmp;
+            }
         }
-        TRACE_LNZDEF(("calc_seq_val: Adding component %d, factor %.4f, value %.4f %.4f %.4f",
-                      cmp->id, dateoffset, cval[0], cval[1], cval[2] ));
+
+        /*>> If the sequence is nested then do not process any more components.  
+
+             NOTE: This is not technically correct, as for triangulated components we have only
+             tested whether the model is within bounds, not actually within the triangulation.
+             */
+        if( seq->nested ) break;
     }
+
+    if( sts == STS_OK ) sts=stscalc;
+
     if( sts != STS_OK ) RETURN_STATUS( sts );
-    return sts;
-}
-
-
-/*************************************************************************
-** Function name: check_range
-**//**
-**    Function to check whether a specified point is inside or outside
-**    a coordinate range.
-**
-**  \param range               The coordinate range
-**  \param x                   The x coordinate
-**  \param y                   The y coordinate
-**
-**  \return                    The return status
-**
-**************************************************************************
-*/
-
-static StatusType check_range( hCrdRange range, double x, double y )
-{
-    if( x < range->xmin || x > range->xmax ||
-            y < range->ymin || y > range->ymax ) RETURN_STATUS( STS_CRD_RANGE_ERR );
     return STS_OK;
 }
 
@@ -1025,26 +1002,14 @@ static StatusType add_sequence( hDefSeq seq, double date, double x,
         with calc_range.
 
         If they are then evaluate the displacement for the deformation
-        sequence using calc_seq_def (for deformation sequences) or
-        calc_seq_vel (for velocity sequences).
+        sequence using calc_seq_def (for deformation sequences)
         */
 
     sts = check_range( &(seq->range), x, y );
 
     if( sts == STS_OK )
     {
-        switch( seq->valtype )
-        {
-        case defValueDeformation:
-            sts = calc_seq_def( seq, date, x, y, seqval );
-            break;
-        case defValueVelocity:
-            sts = calc_seq_vel( seq, date, x, y, seqval );
-            break;
-        default:
-            sts = STS_INVALID_DATA;
-            break;
-        }
+        sts = calc_seq_def( seq, date, x, y, seqval );
     }
 
     /*> If either the check or the evaluation gives a coordinate range error,
@@ -1151,7 +1116,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     while( sts == STS_OK && nseq-- )
     {
         hDefSeq seq;
-        sts = load_sequence( binsrc, &seq );
+        sts = load_sequence( version, binsrc, &seq );
         if( sts == STS_OK )
         {
             idseq++;

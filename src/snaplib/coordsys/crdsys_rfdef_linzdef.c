@@ -127,7 +127,8 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
     }
     else
     {
-        for( i = 1; i <= 3; i++ )
+        /* Output name and title, but not version string */
+        for( i = 1; i < 3; i++ )
         {
             sts = utlLinzDefTitle( model->linzdef, i, &title );
             if( sts == STS_OK && title && title[0])

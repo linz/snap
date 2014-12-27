@@ -67,13 +67,21 @@ time such as &ldquo;12:30&rdquo;</p>
 possible values are</p>
 <table>
 <tr>
+<td>LINZDEF2B</td>
+<td>Big endian binary format - version 2</td>
+</tr>
+<tr>
+<td>LINDEF2L</td>
+<td>Little endian binary format - version 2 (the preferred format for
+SNAP)</td>
+</tr>
+<tr>
 <td>LINZDEF1B</td>
-<td>Big endian binary format</td>
+<td>Big endian binary format version 1</td>
 </tr>
 <tr>
 <td>LINDEF1L</td>
-<td>Little endian binary format (the preferred format for
-SNAP)</td>
+<td>Little endian binary format version 1</td>
 </tr>
 </table>
 </td>
@@ -186,7 +194,7 @@ earthquake)</p>
 <p>string</p>
 </td>
 <td>
-<p>Defines the type of model data, either deformation or
+<p>(Version 1 only) Defines the type of model data, either deformation or
 velocity</p>
 </td>
 </tr>
@@ -244,6 +252,19 @@ calculated outside the extents.</p>
 </tr>
 <tr>
 <td>
+<p>NESTED_SEQUENCE</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p> (Version 2 only) Either "yes" or "no".  If yes then only the first component of 
+the sequence which spatially includes a point will be used to evaluate the sequence.
+</p>
+</td>
+</tr>
+<tr>
+<td>
 <p>DESCRIPTION<br>
 <i>text ...</i><br>
 END_DESCRIPTION</p>
@@ -258,7 +279,7 @@ END_DESCRIPTION</p>
 </table>
 <p>Each deformation sequence should be followed by one or more
 deformation components which define the sequence.</p>
-<p>For deformation type sequences the deformation components
+<p>For version 1 deformation type sequences the deformation components
 sequences must be defined in ascending order of reference date. The
 deformation for the sequence at a given time is then calculated
 based upon the components before and after the calculation time. If
@@ -267,9 +288,19 @@ component of the sequence, then it is calculated using the first or
 last component. Note that it is possible to define incompatible
 data, for example by specifying a deformation of "zero" after one
 deformation component and "interpolate" before the next.</p>
-<p>For velocity type sequences the deformation from each component
+<p>For version 1 velocity type sequences the deformation from each component
 is simply added, so the order is unimportant. Usually a velocity
 sequence will only have one component.</p>
+<p>For version 2 models each component of the sequence is evaluated by default.
+However if the sequence is defined as a nested sequence then only the first 
+component which includes the evaluation point is calculated.  Subsequent components
+of the sequence are ignored. If the sequence is not nested then each component is
+evaluated and added.  Each component defines its own time model, which
+may be a piecewise linear model (which can also defined step functions) or 
+a velocity model.
+</p>
+
+
 <p>Each deformation component should contain the following
 records:</p>
 <table class="NormalTable">
@@ -318,7 +349,8 @@ or trig file (by the makegrid.pl or maketrig.pl scripts).</p>
 <p>date</p>
 </td>
 <td>
-<p>A reference date used with the deformation component</p>
+<p>A reference date used with the deformation component.  Only applies to
+velocity models.</p>
 </td>
 </tr>
 <tr>
@@ -329,7 +361,7 @@ or trig file (by the makegrid.pl or maketrig.pl scripts).</p>
 <p>string</p>
 </td>
 <td>
-<p>One of &ldquo;zero&rdquo;, &ldquo;fixed&rdquo;, or
+<p>(Version 1 only) One of &ldquo;zero&rdquo;, &ldquo;fixed&rdquo;, or
 &ldquo;interpolate&rdquo;. Defines how the component is evaluated
 before the reference data. Options are:</p>
 <table>
@@ -364,9 +396,38 @@ calculated based using the velocity defined by the model data.</td>
 <p>string</p>
 </td>
 <td>
-<p>One of &ldquo;zero&rdquo;, &ldquo;fixed&rdquo;,
+<p>(Version 1 only) One of &ldquo;zero&rdquo;, &ldquo;fixed&rdquo;,
 &ldquo;interpolate&rdquo;, equivalent to the BEFORE_REF_DATE
 option.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>TIME_MODEL</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>(Version 2 only) 
+A string defining the time model.  The time model evaluates a factor by which the 
+deformation component is multiplied at a given date.  Options are:
+</p>
+<ul>
+<li>
+&quot;PIECEWISE_LINEAR f0 d1 f1 ... dn fn" defining a list of scale factors and dates 
+representing a piecewise linear time function multiplying the model value.  
+f0 applies before the first date, fn after the date.  
+For deformation data type the value beween dn and dn+1 is interpolated from fn and fn+1
+Step functions are represented by two consecutive factors with the same date.
+</li>
+<li>
+&quot;VELOCITY f0 d1 f1 ... dn fn" defining a list of scale factors and dates used to calculate velocities.
+The model defines a velocity component evaluating to 0 at the reference date.  
+The velocity from the spatial component is multiplied by f0 for dates before d1,
+f1 between d1 and d2, .. and fn after dn.
+</li>
+</ul>
 </td>
 </tr>
 <tr>
@@ -384,7 +445,71 @@ END_DESCRIPTION</p>
 </tr>
 </table>
 <p>The following is a (somewhat contrived) example of a LINZ
-deformation model index file</p>
+deformation model version 2 index file</p>
+<pre class="ConfigFile">
+DEFORMATION_MODEL NZGD2000 deformation model
+FORMAT LINZDEF2B
+VERSION_NUMBER 1.0
+VERSION_DATE  12-Mar-2004
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2200
+COORDSYS NZGD2000
+DESCRIPTION
+This is the description of the model
+This is a first try
+END_DESCRIPTION
+
+# National model
+
+DEFORMATION_SEQUENCE National model
+DIMENSION 2
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2101
+ZERO_BEYOND_RANGE no
+DESCRIPTION
+National velocity model
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT velgrid.gdf
+MODEL_TYPE grid
+REF_DATE 1-Jan-2000
+TIME_MODEL velocity
+DESCRIPTION
+National velocity grid deformation model
+END_DESCRIPTION
+
+# 15 July 2009 Fiordland earthquake
+
+DEFORMATION_SEQUENCE Fiordland earthquake 15 July 2009
+DIMENSION 2
+START_DATE 1-Jan-2020
+END_DATE 1-Jan-2030
+ZERO_BEYOND_RANGE yes
+NESTED_SEQUENCE yes
+DESCRIPTION
+Deformation patch with single model, zero before, fixed after
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_a.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 0.8 20-Jul-2009 1.0
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_b.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 1.0
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake (near-field)
+END_DESCRIPTION
+
+</pre>
+
+<p>The following is an equally contrived example of a LINZ
+deformation model version 1 index file</p>
 <pre class="ConfigFile">
 DEFORMATION_MODEL NZGD2000 deformation model
 FORMAT LINZDEF1B

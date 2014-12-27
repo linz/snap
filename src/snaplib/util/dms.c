@@ -142,10 +142,14 @@ void *create_dms_format( int ndeg, int ndp, int fmt,
     if( ndp > ndpmax ) ndp = ndpmax;
     dmsf->ndp = ndp;
 
-    offset = 0.5/3600.0;
-    for( i=ndp; i--;) offset /= 10;
-    if( dmsf->type == 1 ) offset *= 60.0;
-    if( dmsf->type == 2 ) offset = 0;
+    offset = 0.0;
+    if( dmsf->type != 2 )
+    {
+      offset=0.5;
+      for( i=ndp; i--;) offset /= 10;
+      if( dmsf->type == 1 ) offset /= 60.0;
+      else offset /= 3600.0;
+    }
     dmsf->offset = offset;
 
     if( deg )

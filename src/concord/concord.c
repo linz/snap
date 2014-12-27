@@ -3,7 +3,7 @@
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 
 #define PROGNAME "concord"
-#define VERSION  "3.4"
+#define VERSION  "3.5"
 #define PROGDATE __DATE__
 
 /* Revision history:
@@ -293,6 +293,7 @@ static DMS *deg_dms( double deg, DMS *dms, int prec, char no_seconds )
 static int read_string( FILE *input, char separator, char *string, int nch )
 {
     int i,c;
+    char *s0;
 
     /* Skip over leading spaces and tabs, to first character not one
        of these */
@@ -302,6 +303,7 @@ static int read_string( FILE *input, char separator, char *string, int nch )
     /* Read characters up to next space, storing first nch in string */
 
     i = 0;
+    s0 = string;
     for(;;)
     {
         if( separator )
@@ -317,9 +319,15 @@ static int read_string( FILE *input, char separator, char *string, int nch )
         c = getc(input);
     }
 
-    /* terminate string */
+    /* terminate string  and remove trailing whitespace */
 
     *string = '\0';
+    while( string > s0 )
+    {
+        string--;
+        if( *string != ' ' && *string != '\t' ) break;
+        *string=0;
+    }
 
     /* If terminating character was newline, restore to the input buffer */
 
@@ -480,11 +488,6 @@ static void help( void )
     puts("datums with a time dependent terms (eg between different ITRS realisations).");
     puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
     puts("the current date.");
-    puts("For coordinate systems such as NZGD2000 which include a deformation model");
-    puts("the coordinate system code used in the -I and -O parameters can include a");
-    puts("date, for example NZGD2000@20120512 defines coordinates in terms of the");
-    puts("deformation model on 13 May 2012 rather than using the NZGD2000");
-    puts("reference coordinates.");
 }
 
 /*-------------------------------------------------------------------*/
@@ -1777,11 +1780,12 @@ static void process_coordinates( void )
     int sts;
     double gh;
     char sep[2];
+    char *prtsep;
     sep[0] = separator ? separator : ' ';
     sep[1] = 0;
     for(;;)
     {
-
+        prtsep=sep;
         if(find_next_data_line()==EOF) break;
         start_loc = ftell(crdin);
         if(point_ids) read_point_id();
@@ -1797,7 +1801,7 @@ static void process_coordinates( void )
             if( transform_heights && input_ortho )
             {
                 sts = calc_geoid_height( &ingcnv, inxyz, &gh );
-                if( sts != OK && !skip_errors) report_geoid_error();
+                if( sts != OK && ! skip_errors) report_geoid_error();
                 inxyz[2] += gh;
             }
             if( sts == OK )
@@ -1824,8 +1828,9 @@ static void process_coordinates( void )
         {
             if( start_loc != EOF && ! ask_coords )
                 fseek( crdin, start_loc, SEEK_SET );
+            if( skip_errors ) prtsep=0;
         }
-        copy_to_newline(crdin,crdcom,sep);
+        copy_to_newline(crdin,crdcom,prtsep);
     }
 }
 
