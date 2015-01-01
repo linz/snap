@@ -26,12 +26,13 @@
 use strict;
 
 use FindBin;
-use lib $FindBin::Bin.'/perllib';
+use lib $FindBin::RealBin.'/perllib';
+use Time::JulianDay;
 
 use Getopt::Std;
 use Packer;
 
-my $prgdir = $FindBin::Bin;
+my $prgdir = $FindBin::RealBin;
 
 # Used to identify redundant triangle edges (ie zero length).
 
@@ -61,6 +62,18 @@ my $endianness = {
        trigparam => '-f TRIG2L',
        bigendian => 0
        },
+   LINZDEF2B =>
+     { sig => "LINZ deformation model v2.0B\r\n\x1A",
+       gridparam => '-f GRID2B',
+       trigparam => '-f TRIG2B',
+       bigendian => 1
+       },
+   LINZDEF2L =>
+     { sig => "LINZ deformation model v2.0L\r\n\x1A",
+       gridparam => '-f GRID2L',
+       trigparam => '-f TRIG2L',
+       bigendian => 0
+       },
    };
 
 my @temp_files;
@@ -69,7 +82,7 @@ my $ntmpfile = 1000;
 
 my %model_param = qw/
     FORMAT         (LINZDEF1B|LINZDEF1L|LINZDEF2B|LINZDEF2L)
-    VERSION_NUMBER \d+\.\d+
+    VERSION_NUMBER \d+(\.\d+)?
     VERSION_DATE   date
     START_DATE     date
     END_DATE       date
@@ -107,7 +120,7 @@ my %comp_param1 = qw/
 my %comp_param2 = qw/
     MODEL_TYPE         (trig|grid)
     REF_DATE           date
-    TIME_MODEL         (PIECEWISE_LINEAR\s+\d+(\.\d+)?(\s+date\s+\d+(\.\d+)?)*|VELOCITY(\s+\d+(\.\d+)?(\s+date\s+\d+(\.\d+))*)?)
+    TIME_MODEL         (PIECEWISE_LINEAR\s+float(\s+date\s+float)*|VELOCITY(\s+float(\s+date\s+float)*)?)
     DESCRIPTION        .*
     /;
 
@@ -164,28 +177,11 @@ sub LoadDefinition {
             die "Only one DEFORMATION_MODEL can be defined\n" if $curmod;
             $curmod = { type=>$rectype, name=>$value, params=>\%model_param,
                         sequences=>[] };
-            if( $curmod->{FORMAT} =~ /^LINZDEF([12])[BL]$/ )
-            {
-                $curmod->{version}=$1;
-                if( $1 eq '1' )
-                {
-                    $seq_param=\%seq_param1;
-                    $comp_param=\%comp_param1;
-                }
-                else
-                {
-                    $seq_param=\%seq_param2;
-                    $comp_param=\%comp_param2;
-                }
-            }
-            else
-            {
-                die "Invalid model format $curmod->{FORMAT}\n";
-            }
             $curobj = $curmod;
             }
          elsif( $rectype eq 'DEFORMATION_SEQUENCE' ) {
             die "Must define DEFORMATION_MODEL before $rectype\n" if ! $curmod;
+            $seq_param=$curmod->{FORMAT} =~ /2/ ? \%seq_param2 : \%seq_param1;
             $curseq = { type=>$rectype, name=>$value, params=>$seq_param,
                         components=>[], model=>$curmod };
             push(@{$curmod->{sequences}}, $curseq );
@@ -193,6 +189,7 @@ sub LoadDefinition {
             }
          else {
             die "Must define DEFORMATION_SEQUENCE before $rectype\n" if ! $curseq;
+            $comp_param=$curmod->{FORMAT} =~ /2/ ? \%comp_param2 : \%comp_param1;
             $curcomp = { type=>$rectype, source=>$value, params=>$comp_param,
                         components=>[], sequence=>$curseq };
             push(@{$curseq->{components}}, $curcomp );
@@ -333,18 +330,20 @@ sub CheckObject {
    my ($obj) = @_;
    my $nerror = 0;
    my $params = $obj->{params};
-   my $datere='([0-2]?[1-9]|10|20|30|31)\-
-       (jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\-
-       ([12]\d\d\d)
-       (?:\s+([0-1]\d|2[0-3])\:([0-5]\d)\:[0-5]\d)?';
+   my $datere='(?:[0-2]?[1-9]|10|20|30|31)\-
+       (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\-
+       [12]\d\d\d
+       (?:\s+(?:[0-1]\d|2[0-3])\:[0-5]\d\:[0-5]\d)?';
    $datere=~s/\s//g;
+   my $floatre='\-?\d+(?:\.\d+)?';
 
    foreach my $k (sort keys %$params) {
       my $pattern = $params->{$k};
       my $value = $obj->{$k};
       my $result;
       $pattern =~ s/date/$datere/g;
-      $result = $value =~ /^$pattern$/s;
+      $pattern =~ s/float/$floatre/g;
+      $result = $value =~ /^$pattern$/is;
       if( ! $result ) {
         print $value eq '' ? "Missing value" : "Invalid value $value",
               " for $k in ",$obj->{type},"\n";
@@ -412,8 +411,8 @@ sub CheckSyntax {
    }
 
    
-sub PackDate {
-   my ($pack,$date) = @_;
+sub ParseDate {
+   my ($date) = @_;
    
    my $month = {
        jan=>1, feb=>2, mar=>3, apr=>4, may=>5, jun=>6, 
@@ -425,7 +424,23 @@ sub PackDate {
        ([12]\d\d\d)
        (?:\s+([0-2]\d)\:([0-5]\d)\:[0-5]\d)?$/ix;
    
-   return $pack->short($3+0,$month->{lc($2)},$1+0,$4+0,$5+0,$6+0);
+   return [$3+0,$month->{lc($2)},$1+0,$4+0,$5+0,$6+0];
+   }
+
+sub DateToYear {
+   my ($date)=@_;
+   my $dateparts=ParseDate($date);
+   my ($y,$m,$d,$hr,$mn,$sc) = @$dateparts;
+   my $y0 = julian_day($y,1,1);
+   my $y1 = julian_day($y+1,1,1);
+   my $yd = julian_day($y,$m,$d)+ ($hr+$mn/60+$sc/3600)/24;
+   return $y + ($yd-$y0)/($y1-$y0);
+}
+   
+sub PackDate {
+   my ($pack,$date) = @_;
+   my $dateparts=ParseDate($date);
+   return $pack->short(@$dateparts);
    }
 
 sub WriteModelBinaryV1 {
@@ -542,6 +557,7 @@ sub WriteModelBinaryV2 {
    print OUT $pack->short( $model->{nsequences} );
                           
    foreach my $s (@{$model->{sequences}}) {
+     print "Building sequence ",$s->{name},"\n";
      print OUT $pack->string( @{$s}{qw/name DESCRIPTION/});
      print OUT &PackDate($pack,$s->{START_DATE});
      print OUT &PackDate($pack,$s->{END_DATE});
@@ -557,11 +573,41 @@ sub WriteModelBinaryV2 {
        my @tmparts=split(' ',$tmodel);
        my $tmtype=shift(@tmparts);
        push(@tmparts,'1.0') if ! @tmparts;
-       my $nstep=int($#tmparts/2);
+       if( lc($tmtype) eq 'velocity' )
+       {
+           # Convert a velocity time sequence to a displacement time sequence
+           # that is zero at the reference epoch..
+           my $offset=0;
+           my $yref=DateToYear($c->{REF_DATE});
+           unshift(@tmparts,0.0,$s->{START_DATE});
+           push(@tmparts,$s->{END_DATE},0.0);
+           my $y0=DateToYear($tmparts[1]);
+           my $v0=$tmparts[2];
+           $tmparts[2]=0.0;
+           my $factor=0.0;
+           for( my $i=3; $i < $#tmparts; $i++ )
+           {
+               my $v1=$tmparts[$i+1];
+               my $y1=DateToYear($tmparts[$i]);
+               if( $y0 <= $yref && $y1 > $yref )
+               {
+                   $offset=$factor+($yref-$y0)*$v0;
+               }
+               $factor += ($y1-$y0)*$v0;
+               $tmparts[$i+1]=$factor;
+               $v0=$v1;
+               $y0=$y1;
+           }
+           for( my $i=0; $i <= $#tmparts; $i+=2 )
+           {
+               $tmparts[$i] -= $offset;
+           }
+       }
        print OUT $pack->string( $c->{DESCRIPTION} );
        print OUT &PackDate($pack,$c->{REF_DATE});
        print OUT $pack->double( @{$c->{sourcefile}->{range}} );
-       print OUT $pack->short(lc($tmtype) eq 'piecewise_linear' ? 1 : 2);
+       print OUT $pack->short(1); # Time model type - always piecewise linear
+       my $nstep=int($#tmparts/2);
        print OUT $pack->short($nstep);
        print OUT $pack->double( shift(@tmparts));
        while( $nstep-- )
@@ -622,7 +668,7 @@ __END__
 
 
 DEFORMATION_MODEL NZGD2000 deformation model
-# Format is LINZDEF1L or LINZDEF1B, depending upon endian-ness.  Can be
+# Format is LINZDEF2L or LINZDEF2B, depending upon endian-ness.  Can be
 # over-ridden by command line parameter to script.
 FORMAT LINZDEF2B
 VERSION_NUMBER 1.0

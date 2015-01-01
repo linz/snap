@@ -1264,3 +1264,16 @@ Build: 2014-08-15 21:07
   snapplot: 2.5.4
   snapconv: 2.5.4
   site2gps: 2.5.4
+
+Build: 2015-01-01 18:38
+  snap: 2.5.5
+  snapspec: 2.5.5
+  concord: 3.5.1
+  snaplist: 2.5.5
+  snapmerge: 2.5.5
+  snapgeoid: 2.5.5
+  dat2site: 2.5.5
+  snap_manager: 2.5.5
+  snapplot: 2.5.5
+  snapconv: 2.5.5
+  site2gps: 2.5.5

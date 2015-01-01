@@ -216,9 +216,7 @@ void delete_dms_format( void *dmsf )
     check_free( dmsf );
 }
 
-#define FMT ((DMS_format *)dmsf)
-
-char *dms_string( double d, void *dmsf, char *str )
+char *dms_string( double d, void *pdmsf, char *str )
 {
     static char dmsstr[80];
     char *sign;
@@ -227,28 +225,29 @@ char *dms_string( double d, void *dmsf, char *str )
     double offset;
     int seclen;
     char *tgt;
+    DMS_format *dmsf=(DMS_format *)pdmsf;
 
     tgt = str ? str : dmsstr;
 
-    if( FMT->radians ) d *= RTOD;
-    sign = FMT->plus;
-    if(d < 0 ) { d = -d; sign = FMT->minus; }
+    if( dmsf->radians ) d *= RTOD;
+    sign = dmsf->plus;
+    if(d < 0 ) { d = -d; sign = dmsf->minus; }
 
-    if( FMT->type == 2 )
+    if( dmsf->type == 2 )
     {
-        sprintf(tgt,"%s%.*lf%s",(FMT->prfx ? sign : ""),
-                (int) (FMT->ndp), d, (FMT->prfx ? "" : sign) );
+        sprintf(tgt,"%s%.*lf%s",(dmsf->prfx ? sign : ""),
+                (int) (dmsf->ndp), d, (dmsf->prfx ? "" : sign) );
 
         return tgt;
     }
 
-    d += FMT->offset;
-    offset = FMT->offset*60.0;
+    d += dmsf->offset;
+    offset = dmsf->offset*60.0;
 
     deg = floor(d);
     d -= deg;
     min = 0;
-    if( FMT->type == 0 )
+    if( dmsf->type != 1 )
     {
         d *= 60.0;
         min = floor(d);
@@ -258,19 +257,19 @@ char *dms_string( double d, void *dmsf, char *str )
     sec = d*60.0 - offset;
     if( sec < 0 ) sec = 0.0;
 
-    seclen = FMT->ndp ? FMT->ndp+3 : FMT->ndp+2;
+    seclen = dmsf->ndp ? dmsf->ndp+3 : dmsf->ndp+2;
 
-    if( FMT->type == 1 )
+    if( dmsf->type == 1 )
     {
-        sprintf(tgt,"%s%*d%s%0*.*lf%s%s",(FMT->prfx ? sign : ""),
-                (int) (FMT->ndeg), (int)deg, FMT->deg,
-                seclen,(int)(FMT->ndp), sec, FMT->min, (FMT->prfx ? "" : sign) );
+        sprintf(tgt,"%s%*d%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
+                (int) (dmsf->ndeg), (int)deg, dmsf->deg,
+                seclen,(int)(dmsf->ndp), sec, dmsf->min, (dmsf->prfx ? "" : sign) );
     }
     else
     {
-        sprintf(tgt,"%s%*d%s%02d%s%0*.*lf%s%s",(FMT->prfx ? sign : ""),
-                (int) (FMT->ndeg), (int)deg, FMT->deg, (int)min, FMT->min,
-                seclen,(int)(FMT->ndp), sec, FMT->sec, (FMT->prfx ? "" : sign) );
+        sprintf(tgt,"%s%*d%s%02d%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
+                (int) (dmsf->ndeg), (int)deg, dmsf->deg, (int)min, dmsf->min,
+                seclen,(int)(dmsf->ndp), sec, dmsf->sec, (dmsf->prfx ? "" : sign) );
     }
 
     return tgt;

@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 #define VERSIONINFO
 #define PROGRAM "concord"
-#define VERSION "3.5.1"
+#define VERSION "3.5.2"
 
 #include "util/versioninfo.h"

@@ -45,7 +45,7 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 ! and the rates of change of each of the parameters.
 
 [reference_frames]
-NZGD2000 "New Zealand Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20150101l.bin
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0

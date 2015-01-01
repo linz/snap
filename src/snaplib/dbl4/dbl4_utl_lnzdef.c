@@ -474,7 +474,7 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         if( isvel )
         {
             cmp->nTimeModel=3;
-            cmp->timeModel=utlAlloc(sizeof(TimeModelPoint)*3);
+            cmp->timeModel=(hTimeModelPoint) utlAlloc(sizeof(TimeModelPoint)*3);
             cmp->timeModel[0].year=utlDateAsYear(&(seq->startdate));
             cmp->timeModel[0].factor=usebefore ? cmp->timeModel[0].year-refyear : 0.0;
             cmp->timeModel[1].year=refyear;
@@ -486,7 +486,7 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         {
             cmp->factor0 = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
             cmp->nTimeModel=nTimeModel;
-            cmp->timeModel=utlAlloc(sizeof(TimeModelPoint)*nTimeModel);
+            cmp->timeModel=(hTimeModelPoint) utlAlloc(sizeof(TimeModelPoint)*nTimeModel);
             for( i = 0; i < nTimeModel; i++ )
             {
                 hTimeModelPoint tmi = &(cmp->timeModel[i]);
@@ -516,7 +516,7 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
         if( sts == STS_OK && cmp->nTimeModel > 0 )
         {
             INT2 i;
-            cmp->timeModel=utlAlloc(sizeof(TimeModelPoint)*cmp->nTimeModel);
+            cmp->timeModel=(hTimeModelPoint) utlAlloc(sizeof(TimeModelPoint)*cmp->nTimeModel);
             for( i = 0; i < cmp->nTimeModel; i++ )
             {
                 DateTimeType eventDate;
