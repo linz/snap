@@ -13,13 +13,25 @@
 
 <h1><a name="cmd_error_type"></a>The error_type command</h1>
 
-<p class="Commanddefinition">error_type  <i>type</i></p>
+<p class="Commanddefinition">error_type  <i>error_type value value_type</i></p>
 
-<p>This command specifies how errors are to be represented in the listings.  The parameter is:</p>
+<p>This command specifies how errors are to be represented in the listings.  For most errors this determines 
+whether apriori or aposteriori errors are used.  For station coordinate error ellipses and height errors this can also
+specify a confidence limit or a multiple of the standard error.  The parameters are:</p>
 
-<p class="Commanddefinition">type</p><p class="Commanddescription">can be "apriori" or "aposteriori"</p>
+<p class="Commanddefinition">error_type</p><p class="Commanddescription">can be "apriori" or "aposteriori"</p>
 
-<p>apriori errors are calculated purely in terms of the errors specified in the input data.  They take no account of how well the data fit together with the fixed stations.  aposteriori errors are scaled to reflect the quality of fit of the data.  </p>
+<p class="Commanddefinition">value</p><p class="Commanddescription">either a probability in percent (eg 95.0) 
+or a multiple to apply to the standard error (eg 1.0).  Only applies to coordinate error ellipses and
+height errors.</p>
+
+<p class="Commanddefinition">value_type</p><p class="Commanddescription">
+either "standard_error" or "confidence_limit".  Determines the how <i>value</i> is interpreted.
+</p>
+
+<p>The <i>value</i> and <i>value_type</i> parameters may be omitted - the default &quot;1 standard_error&quot; will be used.</p>
+
+<p>Apriori errors are calculated purely in terms of the errors specified in the input data.  They take no account of how well the data fit together with the fixed stations.  Aposteriori errors are scaled to reflect the quality of fit of the data.  </p>
 
 <p>Generally apriori errors are more appropriate where there is little redundancy in the data, or where the quality of the observations is well known from previous surveys or tests.  If there is little redundancy then there are not enough spare observations to determine the quality of fit of the data.</p>
 

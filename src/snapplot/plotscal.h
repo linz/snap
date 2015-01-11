@@ -21,7 +21,7 @@ void set_errell_exaggeration( double scale, int autoscl );
 void get_errell_exaggeration( double *scale, int *autoscl );
 void set_hgterr_exaggeration( double scale, int autoscl );
 void get_hgterr_exaggeration( double *scale, int *autoscl );
-void set_confidence_limit( double limit, int aposteriori );
+void set_confidence_limit();
 double calc_default_stn_size( void );
 double calc_default_error_scale( void );
 double calc_obs_offset( void );

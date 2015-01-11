@@ -7,6 +7,8 @@ IF "%1" == "-v" (
   )
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
+IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\release
+IF "%1" == "-r" SHIFT
 
 SET t=%1
 SET vi=c:\bin\vim\vim72\gvim.exe

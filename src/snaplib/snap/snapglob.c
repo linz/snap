@@ -48,6 +48,8 @@ void init_snap_globals()
     convergence_tol = 0.001;
     maxworst = 10;
     apriori = 1;
+    errconflim = 0;
+    errconfval = 1.0;
     flag_level[0] = 95.0;
     flag_level[1] = 99.0;
     mde_power = 80.0;
@@ -128,11 +130,13 @@ void dump_snap_globals( BINARY_FILE *b )
     DUMP_BIN(apriori, b);
     DUMP_BIN(flag_level[0], b);
     DUMP_BIN(flag_level[1], b);
-    /* TODO : Codeguard complains attempting to access 4 bytes from 2 byte block.  Possibly getting sizeof address rather than sizeof addressee */DUMP_BIN(taumax[0], b);
+    /* TODO : Codeguard complains attempting to access 4 bytes from 2 byte block.  Possibly getting sizeof address rather than sizeof addressee */
+    DUMP_BIN(taumax[0], b);
     DUMP_BIN(taumax[1], b);
     DUMP_BIN(coord_precision, b);
     DUMP_BIN(have_obs_ids, b);
-
+    DUMP_BIN(errconflim, b);
+    DUMP_BIN(errconfval, b);
     end_section( b );
 }
 
@@ -162,7 +166,9 @@ int reload_snap_globals( BINARY_FILE *b )
     RELOAD_BIN(taumax[1], b);
     RELOAD_BIN(coord_precision, b);
     RELOAD_BIN(have_obs_ids, b);
-
+    if( check_end_section(b) == OK ) return OK;
+    RELOAD_BIN(errconflim, b);
+    RELOAD_BIN(errconfval, b);
     return check_end_section( b );
 }
 

@@ -270,6 +270,11 @@ void SnapplotDetailsView::ShowTitleInfo()
             sprintf(buf,"Error ellipses and height errors are %.2lf%% confidence limits",confidence_limit );
             AddString( buf );
         }
+        else if( confidence_limit != 1.0 )
+        {
+            sprintf(buf,"Error ellipses and height errors are %.1lf times standard error",confidence_limit );
+            AddString( buf );
+        }
 
         nch = 3;
         if( dimension != 1 )

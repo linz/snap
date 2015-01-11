@@ -103,7 +103,13 @@ SCOPE int  obs_precision[ NOBSTYPE ];
 
 /* Information relating to statistics from the program */
 
+/* errconflim is 0 or 1 depending on whether coordinate errors are presented as
+ * confidence limits or multiples of standard error. errconfval is either a multiple
+ * of standard errors or a percentage confidence */
+
 SCOPE char apriori;
+SCOPE char errconflim;
+SCOPE double errconfval;
 SCOPE double flag_level[2];
 SCOPE char taumax[2];
 SCOPE double mde_power;

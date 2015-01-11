@@ -27,7 +27,7 @@ use strict;
 
 use FindBin;
 use lib $FindBin::RealBin.'/perllib';
-use Time::JulianDay;
+#use Time::JulianDay;
 
 use Getopt::Std;
 use Packer;
@@ -54,25 +54,29 @@ my $endianness = {
      { sig => "LINZ deformation model v1.0B\r\n\x1A",
        gridparam => '-f GRID2B',
        trigparam => '-f TRIG2B',
-       bigendian => 1
+       bigendian => 1,
+       version => 1,
        },
    LINZDEF1L =>
      { sig => "LINZ deformation model v1.0L\r\n\x1A",
        gridparam => '-f GRID2L',
        trigparam => '-f TRIG2L',
-       bigendian => 0
+       bigendian => 0,
+       version => 1,
        },
    LINZDEF2B =>
      { sig => "LINZ deformation model v2.0B\r\n\x1A",
        gridparam => '-f GRID2B',
        trigparam => '-f TRIG2B',
-       bigendian => 1
+       bigendian => 1,
+       version => 2,
        },
    LINZDEF2L =>
      { sig => "LINZ deformation model v2.0L\r\n\x1A",
        gridparam => '-f GRID2L',
        trigparam => '-f TRIG2L',
-       bigendian => 0
+       bigendian => 0,
+       version => 2,
        },
    };
 
@@ -181,6 +185,8 @@ sub LoadDefinition {
             }
          elsif( $rectype eq 'DEFORMATION_SEQUENCE' ) {
             die "Must define DEFORMATION_MODEL before $rectype\n" if ! $curmod;
+            my $endian = $endianness->{$curmod->{FORMAT}};
+            $curmod->{version} = $endian->{version};
             $seq_param=$curmod->{FORMAT} =~ /2/ ? \%seq_param2 : \%seq_param1;
             $curseq = { type=>$rectype, name=>$value, params=>$seq_param,
                         components=>[], model=>$curmod };
@@ -333,7 +339,7 @@ sub CheckObject {
    my $datere='(?:[0-2]?[1-9]|10|20|30|31)\-
        (?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\-
        [12]\d\d\d
-       (?:\s+(?:[0-1]\d|2[0-3])\:[0-5]\d\:[0-5]\d)?';
+       (?:(?:\s+|T)(?:[0-1]\d|2[0-3])\:[0-5]\d\:[0-5]\d)?';
    $datere=~s/\s//g;
    my $floatre='\-?\d+(?:\.\d+)?';
 
@@ -422,11 +428,30 @@ sub ParseDate {
      /^([0-3]?\d)\-
        (jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\-
        ([12]\d\d\d)
-       (?:\s+([0-2]\d)\:([0-5]\d)\:[0-5]\d)?$/ix;
+       (?:(?:\s+|T)([0-2]\d)\:([0-5]\d)\:[0-5]\d)?$/ix;
    
    return [$3+0,$month->{lc($2)},$1+0,$4+0,$5+0,$6+0];
    }
 
+# Extracted from Time::JulianDay (as not available on all systems)
+# calculate the julian day, given $year, $month and $day
+sub julian_day
+{
+    my($year, $month, $day) = @_;
+    my($tmp);
+
+    use Carp;
+#    confess() unless defined $day;
+
+    $tmp = $day - 32075
+      + 1461 * ( $year + 4800 - ( 14 - $month ) / 12 )/4
+      + 367 * ( $month - 2 + ( ( 14 - $month ) / 12 ) * 12 ) / 12
+      - 3 * ( ( $year + 4900 - ( 14 - $month ) / 12 ) / 100 ) / 4
+      ;
+
+    return($tmp);
+
+}
 sub DateToYear {
    my ($date)=@_;
    my $dateparts=ParseDate($date);

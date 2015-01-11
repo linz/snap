@@ -5,6 +5,7 @@
 
 //extern "C" {
 #include "plotscal.h"
+#include "snap/snapglob.h"
 //}
 
 class ErrorOptionsDialog : public wxSimpleDialog
@@ -32,7 +33,7 @@ ErrorOptionsDialog::ErrorOptionsDialog( wxHelpController *help )
     AddSpacer();
     AddLabel("For coordinate error ellipses and height errors");
     AddRadioBox("",useConfLimit,"|&Standard errors|&Confidence limits");
-    AddNumberBox("C&onfidence level (percent)",confLimit,true,3);
+    AddNumberBox("C&onfidence level (percent) or SE multipl",confLimit,true,3);
     AddSpacer();
     AddControls(3,
                 Label("&Horizontal error exaggeration"),
@@ -48,9 +49,9 @@ ErrorOptionsDialog::ErrorOptionsDialog( wxHelpController *help )
 
 void ErrorOptionsDialog::ReadData()
 {
-    aPosteriori = aposteriori_errors ? 1 : 0;
-    useConfLimit = use_confidence_limit ? 1 : 0;
-    confLimit = confidence_limit;
+    aPosteriori = apriori ? 0 : 1;
+    useConfLimit = errconflim ? 1 : 0;
+    confLimit = errconfval;
     horErrorFactor = errell_scale;
     vrtErrorFactor = hgterr_scale;
 
@@ -64,7 +65,10 @@ void ErrorOptionsDialog::ReadData()
 
 void ErrorOptionsDialog::Apply()
 {
-    set_confidence_limit( useConfLimit ? confLimit : -1.0, aPosteriori  );
+    apriori=aPosteriori ? 0 : 1;
+    errconflim=useConfLimit ? 1 : 0;
+    errconfval=confLimit;
+    set_confidence_limit();
     double dfltscl = calc_default_error_scale();
     double scl = horErrorFactor;
     if( horAutoScale ) scl = 1.1 * scl / dfltscl;

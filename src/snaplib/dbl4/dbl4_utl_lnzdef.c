@@ -778,19 +778,70 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
     if( version == 1 && seq->firstcmp )
     {
         hDefCmp cmp=seq->firstcmp;
-        while( cmp->nextcmp )
+        hDefCmp lastcmp=NULL;
+        double fixfirst=0.0;
+        double fixlast=0.0;
+        for( ; cmp; lastcmp=cmp, cmp=cmp->nextcmp )
         {
-            hDefCmp cmp0=cmp;
-            cmp=cmp->nextcmp;
-            if( cmp0->aftermode == defEvalInterp )
-            {
-                hTimeModelPoint tmi=&(cmp0->timeModel[cmp0->nTimeModel-1]);
-                tmi->year = utlDateAsYear(&(cmp->refdate));
-            }
+            hDefCmp nextcmp=cmp->nextcmp;
             if( cmp->beforemode == defEvalInterp )
             {
                 hTimeModelPoint tmi=&(cmp->timeModel[0]);
-                tmi->year = utlDateAsYear(&(cmp0->refdate));
+                if( lastcmp )
+                {
+                    tmi->year = utlDateAsYear(&(lastcmp->refdate));
+                }
+                else if( nextcmp )
+                {
+                    double y0=utlDateAsYear(&(cmp->refdate));
+                    double y1=utlDateAsYear(&(nextcmp->refdate));
+                    if( y1 > y0 ) 
+                    {
+                        tmi->year=utlDateAsYear(&(seq->startdate));
+                        tmi->factor=(tmi->year-y1)/(y0-y1);
+                        fixfirst=1.0-tmi->factor;
+                    }
+                }
+            }
+            if( cmp->aftermode == defEvalInterp )
+            {
+                hTimeModelPoint tmi=&(cmp->timeModel[cmp->nTimeModel-1]);
+                if( nextcmp )
+                {
+                    tmi->year = utlDateAsYear(&(nextcmp->refdate));
+                }
+                else if( lastcmp )
+                {
+                    double y0=utlDateAsYear(&(cmp->refdate));
+                    double y1=utlDateAsYear(&(lastcmp->refdate));
+                    if( y1 < y0 ) 
+                    {
+                        tmi->year=utlDateAsYear(&(seq->enddate));
+                        tmi->factor=(tmi->year-y1)/(y0-y1);
+                        fixlast=1.0-tmi->factor;
+                    }
+                }
+            }
+        }
+        if( fixfirst != 0.0 )
+        {
+            cmp=seq->firstcmp->nextcmp;
+            if( cmp->nTimeModel > 1 )
+            {
+                cmp->timeModel[0].year=utlDateAsYear(&(seq->startdate));
+                cmp->timeModel[0].factor=fixfirst;
+            }
+        }
+        if( fixlast != 0.0 )
+        {
+            int ntm;
+            cmp=seq->firstcmp;
+            while( cmp->nextcmp->nextcmp ) cmp=cmp->nextcmp;
+            ntm=cmp->nTimeModel-1;
+            if( ntm > 0 )
+            {
+                cmp->timeModel[ntm].year=utlDateAsYear(&(seq->enddate));
+                cmp->timeModel[ntm].factor=fixlast;
             }
         }
     }

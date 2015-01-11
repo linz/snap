@@ -38,8 +38,12 @@ void init_plot_scales( void )
     set_stn_symbol_size( 1.0, 1 );
     set_errell_exaggeration( 1.0, 1 );
     set_hgterr_exaggeration( 1.0, 1 );
-    set_confidence_limit( 95.0, 0 );      /* Set a default for conf lim */
-    set_confidence_limit( -1.0, program_mode == PREANALYSIS ? 0 : 1 );
+    /*
+    apriori=program_mode == PREANALYSIS ? 1 : 0;
+    errconflim=0;
+    errconfval=1.0;
+    */
+    set_confidence_limit();
     offset_spacing = 1.0;
     autospacing = 1.0;
     show_oneway_obs = 1;
@@ -163,19 +167,19 @@ void get_hgterr_exaggeration( double *scale, int *autoscl )
 }
 
 
-void set_confidence_limit( double limit, int apost )
+void set_confidence_limit()
 {
     double prob;
     int dofd;
 
-    use_confidence_limit = limit >= 0.0 && limit <= 100.0;
-    aposteriori_errors = apost ? 1 : 0;
+    use_confidence_limit = errconflim;
+    confidence_limit=errconfval;
+    aposteriori_errors = apriori ? 0 : 1;
 
-    if( use_confidence_limit )
+    if( errconflim )
     {
-        confidence_limit = limit;
         prob = (100 - confidence_limit) / 100.0;
-        dofd = aposteriori_errors ? dof : 0;
+        dofd = apriori ? 0 :  dof;
         hgterr_factor = inv_f_distn( prob, 1, dofd );
         hgterr_factor = hgterr_factor > 0.0 ? sqrt(hgterr_factor) : 0.0;
         errell_factor = inv_f_distn( prob, 2, dofd );
@@ -183,10 +187,10 @@ void set_confidence_limit( double limit, int apost )
     }
     else
     {
-        errell_factor = hgterr_factor = 1.0;
+        errell_factor = hgterr_factor = confidence_limit;
     }
 
-    if( aposteriori_errors )
+    if( ! apriori )
     {
         errell_factor *= seu;
         hgterr_factor *= seu;

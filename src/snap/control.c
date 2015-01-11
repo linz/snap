@@ -1278,14 +1278,68 @@ static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, 
     return OK;
 }
 
-
 static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    if( _stricmp(string,"apriori")==0 ) { apriori = 1; return OK; }
-    if( _stricmp(string,"aposteriori") == 0 ) { apriori = 0; return OK; }
-    return INVALID_DATA;
-}
+    char *fld;
+    double conf=1.0;
+    int useconf=0;
 
+    fld = strtok( string, " ");
+    if( !fld ) return MISSING_DATA;
+    if( _stricmp( fld, "aposteriori" ) == 0 )
+    {
+        apriori = 0;
+        fld = strtok( NULL, " ");
+    }
+    else if( _stricmp( fld, "apriori" ) == 0 )
+    {
+        apriori = 1;
+        fld = strtok( NULL, " ");
+    }
+    else
+    {
+         send_config_error( cfg, INVALID_DATA, "Expected \"apriori\" or \"aposteriori\"");
+         return OK;
+    }
+
+    if( fld ) 
+    {
+        if( _stricmp(fld,"standard_error") == 0 )
+        {
+            useconf = 0;
+        }
+        else
+        {
+            if( sscanf(fld,"%lf",&conf) != 1 )
+            {
+                send_config_error( cfg, INVALID_DATA, "Expected \"standard_error\" or \"##.#% confidence_limit\"");
+                return OK;
+            }
+            if( conf <= 0.0 || conf >= 100.0 )
+            {
+                send_config_error( cfg, INVALID_DATA, "Confidence limit not between 0 and 100");
+                return OK;
+            }
+            fld = strtok( NULL, " " );
+            if( ! fld ) return MISSING_DATA;
+            if( _stricmp(fld,"standard_error") == 0 )
+            {
+                useconf = 0;
+            }
+            else if( _stricmp(fld,"confidence_limit") == 0 )
+            {
+                useconf = 1;
+            }
+            else
+            {
+                send_config_error( cfg, INVALID_DATA, "Expected \"standard_error\" or \"confidence_limit\"");
+            }
+        }
+    }
+    errconflim = useconf;
+    errconfval = conf;
+    return OK;
+}
 
 static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

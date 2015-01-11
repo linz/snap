@@ -456,33 +456,64 @@ static int read_station_size_command( CFG_FILE *cfg, char *string, void *value, 
 static int read_error_type_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
     char *fld;
-    int apost = aposteriori_errors;
-    double conf;
-    fld = strtok( string, whitespace);
+    double conf=1.0;
+    int useconf=0;
+
+    fld = strtok( string, " ");
     if( !fld ) return MISSING_DATA;
     if( _stricmp( fld, "aposteriori" ) == 0 )
     {
-        apost = 1;
-        fld = strtok( NULL, whitespace);
+        apriori = 0;
+        fld = strtok( NULL, " ");
     }
     else if( _stricmp( fld, "apriori" ) == 0 )
     {
-        apost = 0;
-        fld = strtok( NULL, whitespace);
-    }
-    if( !fld ) return MISSING_DATA;
-    if( _stricmp(fld,"standard_error") == 0 )
-    {
-        conf = -1;
+        apriori = 1;
+        fld = strtok( NULL, " ");
     }
     else
     {
-        if( sscanf(fld,"%lf",&conf) != 1 || conf <= 0.0 || conf >= 100.0 )
+         send_config_error( cfg, INVALID_DATA, "Expected \"apriori\" or \"aposteriori\"");
+         return OK;
+    }
+
+    if( fld ) 
+    {
+        if( _stricmp(fld,"standard_error") == 0 )
         {
-            return INVALID_DATA;
+            useconf = 0;
+        }
+        else
+        {
+            if( sscanf(fld,"%lf",&conf) != 1 )
+            {
+                send_config_error( cfg, INVALID_DATA, "Expected \"standard_error\" or \"##.#% confidence_limit\"");
+                return OK;
+            }
+            if( conf <= 0.0 || conf >= 100.0 )
+            {
+                send_config_error( cfg, INVALID_DATA, "Confidence limit not between 0 and 100");
+                return OK;
+            }
+            fld = strtok( NULL, " " );
+            if( ! fld ) return MISSING_DATA;
+            if( _stricmp(fld,"standard_error") == 0 )
+            {
+                useconf = 0;
+            }
+            else if( _stricmp(fld,"confidence_limit") == 0 )
+            {
+                useconf = 1;
+            }
+            else
+            {
+                send_config_error( cfg, INVALID_DATA, "Expected \"standard_error\" or \"confidence_limit\"");
+            }
         }
     }
-    set_confidence_limit( conf, apost );
+    errconflim = useconf;
+    errconfval = conf;
+    set_confidence_limit();
     return OK;
 }
 
@@ -953,11 +984,11 @@ int write_config_file( FILE *out, int key_only )
         fprintf( out, "error_type %s", aposteriori_errors ? "aposteriori" : "apriori");
         if( use_confidence_limit )
         {
-            fprintf(out," %.2lf confidence\n",confidence_limit);
+            fprintf(out," %.2lf confidence_limit\n",confidence_limit);
         }
         else
         {
-            fputs(" standard_error\n",out);
+            fprintf(out," %.1lf standard_error\n",confidence_limit);
         }
         get_errell_exaggeration( &val, &autoscl );
         fprintf( out, "error_scale horizontal %.2lf%s\n",

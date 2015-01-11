@@ -1854,7 +1854,7 @@ Ellipsoid: International Ellipsoid
   a = 6378388.000  1/f = 297.000000
 
 Station heights are ellipsoidal heights.
-The error ellipse and height error represent the apriori errors
+The error ellipse and height error are the apriori errors
 
 Rejected stations are flagged #
 

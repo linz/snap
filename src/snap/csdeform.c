@@ -54,7 +54,7 @@ static CrdsysDefModel *init_csdefmodel()
 static int init_csdef_deformation( void *deformation )
 {
     double csepoch;
-    int nstns, istn, nmaxid;
+    int nstns, istn;
     StationDeformation *stdefs;
     char buf[128];
     CrdsysDefModel *model = (CrdsysDefModel *) deformation;

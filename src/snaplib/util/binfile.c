@@ -265,9 +265,13 @@ int find_section( BINARY_FILE *b, char *section )
 int check_end_section( BINARY_FILE *bin )
 {
     char endsec[80];
-    if( fread( endsec, strlen(ENDSECTION)+1, 1, bin->f ) != 1 ||
-            strcmp(endsec,ENDSECTION) != 0 ) return INVALID_DATA;
-    return OK;
+    long loc;
+
+    loc=ftell(bin->f);
+    if( fread( endsec, strlen(ENDSECTION)+1, 1, bin->f ) == 1 &&
+            strcmp(endsec,ENDSECTION) == 0 ) return OK;
+    fseek( bin->f, loc, SEEK_SET );
+    return INVALID_DATA;
 }
 
 

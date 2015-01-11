@@ -2661,6 +2661,10 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
         {
             sprintf(buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
         }
+        else if( confidence_limit != 1.0 )
+        {
+            sprintf(buf+nch,"%.1lf times ", confidence_limit);
+        }
         nch = strlen(buf);
 
         if( cvr.emax > 0.0 && dimension != 1 )

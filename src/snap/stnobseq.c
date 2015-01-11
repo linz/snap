@@ -31,6 +31,7 @@
 #include "util/dateutil.h"
 #include "util/lsobseq.h"
 #include "util/leastsqu.h"
+#include "util/probfunc.h"
 #include "snapdata/survdata.h" /* For UNKNOWN_DATE */
 #include "stnobseq.h"
 #include "adjparam.h"
@@ -364,6 +365,37 @@ void print_coordinate_changes( FILE *out )
 }
 
 
+static void calc_confidence_limit_factors( double *perrmult, double *phgtmult )
+{
+    double prob;
+    int dofd;
+    double hgterr_factor;
+    double errell_factor;
+
+    if( errconflim )
+    {
+        prob = (100 - errconfval) / 100.0;
+        dofd = apriori ? 0 : dof;
+        hgterr_factor = inv_f_distn( prob, 1, dofd );
+        hgterr_factor = hgterr_factor > 0.0 ? sqrt(hgterr_factor) : 0.0;
+        errell_factor = inv_f_distn( prob, 2, dofd );
+        errell_factor = errell_factor > 0.0 ? sqrt(errell_factor*2.0) : 0.0;
+    }
+    else
+    {
+        errell_factor = hgterr_factor = errconfval;
+    }
+
+    if( ! apriori )
+    {
+        errell_factor *= seu;
+        hgterr_factor *= seu;
+    }
+
+    *perrmult=errell_factor;
+    *phgtmult=hgterr_factor;
+}
+
 void print_adjusted_coordinates( FILE *lst )
 {
     station *st;
@@ -373,7 +405,7 @@ void print_adjusted_coordinates( FILE *lst )
     double dn, de, dh;
     char adjusted;
     char ellipsoidal;
-    double semult;
+    double errmult, hgtmult;
     unsigned char projection_coords;
     output_string_def os;
     coordsys *cs;
@@ -412,10 +444,23 @@ void print_adjusted_coordinates( FILE *lst )
 
     adjusted = program_mode != PREANALYSIS;
 
-    fprintf(lst,"The error ellipse and height error represent the %s errors\n",
-            apriori ? "apriori" : "aposteriori" );
+    calc_confidence_limit_factors( &errmult, &hgtmult );
 
-    semult = apriori ? 1 : seu;
+    if( errconflim )
+    {
+        fprintf(lst,"The error ellipse and height error are the %s %.2f confidence limits\n",
+            apriori ? "apriori" : "aposteriori", errconfval );
+    }
+    else if ( errconfval == 1.0 )
+    {
+        fprintf(lst,"The error ellipse and height error are the %s errors\n",
+            apriori ? "apriori" : "aposteriori" );
+    }
+    else
+    {
+        fprintf(lst,"The error ellipse and height error are %s %.1f times standard errors\n",
+            apriori ? "apriori" : "aposteriori", errconfval );
+    }
 
     if( output_rejected_stations )
     {
@@ -501,7 +546,7 @@ void print_adjusted_coordinates( FILE *lst )
             else fprintf(lst,"    -      ");
         }
 
-        if( stnadj(st)->flag.adj_h ) fprintf(lst,"%8.4lf %3.0lf  ",emax*semult,brng);
+        if( stnadj(st)->flag.adj_h ) fprintf(lst,"%8.4lf %3.0lf  ",emax*errmult,brng);
         else fprintf(lst,"   -          ");
         fprintf(lst,"%s\n",st->Name);
 
@@ -529,7 +574,7 @@ void print_adjusted_coordinates( FILE *lst )
         {
             brng += 90.0;
             if( brng >= 180.0 ) brng -= 180.0;
-            fprintf(lst,"%8.4lf %3.0lf\n",emin*semult,brng);
+            fprintf(lst,"%8.4lf %3.0lf\n",emin*errmult,brng);
         }
         else
         {
@@ -556,7 +601,7 @@ void print_adjusted_coordinates( FILE *lst )
             else fprintf(lst,"    -      ");
         }
 
-        if( stnadj(st)->flag.adj_v ) fprintf(lst,"%8.4lf\n",OHgt*semult);
+        if( stnadj(st)->flag.adj_v ) fprintf(lst,"%8.4lf\n",OHgt*hgtmult);
         else fprintf(lst,"   -\n");
     }
 

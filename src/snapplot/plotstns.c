@@ -614,6 +614,10 @@ void list_station_summary( void *dest, PutTextFunc f )
             {
                 sprintf(slist_buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
             }
+            else if( confidence_limit != 1.0 )
+            {
+                sprintf(slist_buf+nch,"%.lf times ",confidence_limit);
+            }
             nch = strlen(slist_buf);
             sprintf(slist_buf+nch," horizontal error %.1lf mm",cvrmaxh* errell_factor * 1000.0);
             (*f)( dest, NULL, slist_buf );
@@ -636,6 +640,10 @@ void list_station_summary( void *dest, PutTextFunc f )
             if( use_confidence_limit )
             {
                 sprintf(slist_buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
+            }
+            else if( confidence_limit != 1.0 )
+            {
+                sprintf(slist_buf+nch,"%.lf times ",confidence_limit);
             }
             nch = strlen(slist_buf);
             sprintf(slist_buf+nch," vertical error %.1lf mm",cvrmaxv* hgterr_factor * 1000.0);
@@ -764,6 +772,10 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
         {
             sprintf(slist_buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
         }
+        else if( confidence_limit != 1.0 )
+        {
+            sprintf(slist_buf+nch,"%.1lf times ",confidence_limit);
+        }
         nch = strlen(slist_buf);
 
         if( sa->flag.adj_h && dimension != 1 )
@@ -779,7 +791,7 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
             emax *= errell_factor * 1000.0;
             emin *= errell_factor * 1000.0;
 
-            sprintf(slist_buf+nch,"error ellipse %.1lfmm at N%.0lfE, %.1lfmm at N%.0lfE\n",
+            sprintf(slist_buf+nch,"error ellipse %.1lfmm at N%.0lfE, %.1lfmm at N%.0lfE",
                     emax,b1,emin,b2 );
             (*f)( dest, NULL, slist_buf );
         }
@@ -789,7 +801,7 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
             double hgterr;
             get_height_error( istn, &hgterr );
             hgterr *= hgterr_factor * 1000.0;
-            sprintf(slist_buf+nch,"height error %.1lfmm\n",hgterr);
+            sprintf(slist_buf+nch,"height error %.1lfmm",hgterr);
             (*f)( dest, NULL, slist_buf );
         }
 

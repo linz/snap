@@ -244,7 +244,7 @@ int snapplot_load( int argc, char *argv[] )
         binary_data = 0;
     }
 
-    set_confidence_limit( -1, apriori ? 0 : 1 );  /* Set error type to match binary file */
+    set_confidence_limit();  /* Set error type to match binary file */
 
     add_default_configuration_files();
 

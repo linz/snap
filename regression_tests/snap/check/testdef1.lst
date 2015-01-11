@@ -95,7 +95,7 @@ Calculated on a 0.2 x 0.2 degree grid for Long 165 to 180 & Lat -48 to -32
 Ref: Beavan, Nov 1998, IGNS Client Report 43865B and Bevin & Haines, 1997
 Reference epoch: 2000.0
 
-The error ellipse and height error represent the apriori errors
+The error ellipse and height error are the apriori errors
 
 Rejected stations are flagged #
 

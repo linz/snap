@@ -821,6 +821,10 @@ void write_dxf_title_block( map_plotter *plotter )
         {
             sprintf(text+nch,"%.2lf%% confidence limits",confidence_limit);
         }
+        else if( confidence_limit != 1.0 )
+        {
+            sprintf(text+nch,"%.1lf times standard error",confidence_limit);
+        }
         else
         {
             strcpy(text+nch,"standard errors");

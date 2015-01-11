@@ -447,7 +447,11 @@ void SnapplotFrame::SetErrorTypeStatus()
     GetStatusBar()->SetStatusText(msg,1);
     if( use_confidence_limit )
     {
-        msg = wxString::Format("Coord errors: %.1lf%% conf limit",confidence_limit);
+        msg = wxString::Format("Coord errors: %.2lf%% conf limit",confidence_limit);
+    }
+    else if( confidence_limit != 1.0 )
+    {
+        msg = wxString::Format("Coord errors: %.1lf times standard error",confidence_limit);
     }
     else
     {
