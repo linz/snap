@@ -1316,3 +1316,16 @@ Build: 2015-01-12 11:56
   snapplot: 2.5.8
   snapconv: 2.5.8
   site2gps: 2.5.8
+
+Build: 2015-01-12 12:58
+  snap: 2.5.9
+  snapspec: 2.5.9
+  concord: 3.5.5
+  snaplist: 2.5.9
+  snapmerge: 2.5.9
+  snapgeoid: 2.5.9
+  dat2site: 2.5.9
+  snap_manager: 2.5.9
+  snapplot: 2.5.9
+  snapconv: 2.5.9
+  site2gps: 2.5.9
