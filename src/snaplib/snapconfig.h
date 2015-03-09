@@ -9,7 +9,9 @@
 
 
 #if defined(UNIX)
+// unix version of functions
 #include <ctype.h>
+#include <unistd.h>
 #define _fileno fileno
 #define _unlink unlink
 #define _setmode setmode
@@ -22,6 +24,9 @@
 #define _strupr(x) {char *c=(x);while(*c){ *c=(char) toupper((int)*c); c++; }}
 #define _strlwr(x) {char *c=(x);while(*c){ *c=(char) tolower((int)*c); c++; }}
 #define _strdup strdup
+
+// std::regex not fully supported by g++ at 4.8
+#define REGEX_BOOST 1
 #endif
 
 

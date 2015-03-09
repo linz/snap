@@ -3,9 +3,15 @@
 #include <iostream>
 #include <sstream>
 #include <memory>
-#include <regex>
 #include <vector>
 #include <algorithm>
+#ifdef REGEX_BOOST
+#include <boost/regex.hpp>
+#define RGX boost
+#else
+#include <regex>
+#define RGX std
+#endif
 #include <boost/algorithm/string.hpp>
 
 #include "snapdata/snapcsvbase.hpp"
@@ -182,12 +188,12 @@ bool SnapCsvBase::checkColumns()
 void SnapCsvBase::normaliseColumnNames( CalcReader *reader )
 {
     std::vector<std::string> columnNames;
-    std::regex re("[^A-Za-z0-9]+");
+    RGX::regex re("[^A-Za-z0-9]+");
     for( int i = 0; i < reader->columnCount(); i++ )
     {
         std::string colName = reader->column(i).name();
         boost::trim(colName);
-        columnNames.push_back( std::regex_replace( colName, re, string("_")));
+        columnNames.push_back( RGX::regex_replace( colName, re, string("_")));
 
     }
     reader->setColumnNames(columnNames);
@@ -281,7 +287,7 @@ void SnapCsvBase::loadValueDefinition( const std::string &valuestr, CsvValue &va
 {
     ConcatValue *cvalue = &(value.cvalue());
     cvalue->clear();
-    std::regex re(
+    RGX::regex re(
         "\\s*(?:"
         "(default)|"                            // Start of default (1)
         "(\\-?\\d+\\.?\\d*)|"                   // A number (2)
@@ -293,10 +299,10 @@ void SnapCsvBase::loadValueDefinition( const std::string &valuestr, CsvValue &va
         "\\s*\\)|"                              // End of lookup
         "(\\S)"                                 // Invalid content (11)
         ")(?:\\s|$)",                           // Terminating space or end
-        std::regex_constants::icase
+        RGX::regex_constants::icase
     );
-    std::sregex_iterator imatch(valuestr.begin(), valuestr.end(), re);
-    std::sregex_iterator end;
+    RGX::sregex_iterator imatch(valuestr.begin(), valuestr.end(), re);
+    RGX::sregex_iterator end;
     for( ; imatch != end; imatch++ )
     {
         auto match = *imatch;
@@ -315,7 +321,7 @@ void SnapCsvBase::loadValueDefinition( const std::string &valuestr, CsvValue &va
         // Literal text
         else if( match[3].length() > 0 )
         {
-            string text = std::regex_replace( match[3].str(),std::regex("\\\"\\\""),string("\""));
+            string text = RGX::regex_replace( match[3].str(),RGX::regex("\\\"\\\""),string("\""));
             cvalue->add( text );
         }
         // Config item
@@ -419,7 +425,7 @@ static char getChar( const std::string &chardef )
 
 void SnapCsvBase::loadFormatDefinition( const std::string &formatstr )
 {
-    std::regex re(
+    RGX::regex re(
         "^\\s*"
         "(?:"
         "(csv)|"                    // CSV format
@@ -429,10 +435,10 @@ void SnapCsvBase::loadFormatDefinition( const std::string &formatstr )
         "(?:\\s+escape=(\\S|tab|space))?"
         ")"
         "(?:\\s+header=(?:y|(n)))?$", // Read headers? Default is Y,
-        std::regex_constants::icase
+        RGX::regex_constants::icase
     );
-    std::smatch match;
-    if( std::regex_match( formatstr.begin(), formatstr.end(), match, re ))
+    RGX::smatch match;
+    if( RGX::regex_match( formatstr.begin(), formatstr.end(), match, re ))
     {
         if( match[1].length() > 0 ) { _format.reset(new CsvFormat());}
         else if( match[2].length() > 0 ) { _format.reset(new WhitespaceFormat());}

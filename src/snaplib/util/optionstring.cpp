@@ -1,6 +1,13 @@
+#include <snapconfig.hpp>
 #include <string>
 #include <map>
+#ifdef REGEX_BOOST
+#include <boost/regex.hpp>
+#define RGX boost
+#else
 #include <regex>
+#define RGX std
+#endif
 #include <boost/algorithm/string.hpp>
 
 #include <optionstring.hpp>
@@ -18,7 +25,7 @@ void OptionString::_load( const std::string &options )
     _options.clear();
     _invalid.clear();
 
-    std::regex re(
+    RGX::regex re(
         "\\s*"   // Optional initial whitespace
         "(?:"
         "\\-([a-z_]\\w*)"  // negated option
@@ -32,10 +39,10 @@ void OptionString::_load( const std::string &options )
         "|"
         "(\\S+)"              // Catchall for invalid data
         ")(?:\\s|$)",          // Terminator
-        std::regex_constants::icase
+        RGX::regex_constants::icase
     );
-    std::sregex_iterator match(options.begin(), options.end(), re);
-    std::sregex_iterator end;
+    RGX::sregex_iterator match(options.begin(), options.end(), re);
+    RGX::sregex_iterator end;
     for( ; match != end; match++ )
     {
         bool valid = true;
@@ -60,7 +67,7 @@ void OptionString::_load( const std::string &options )
             // Quoted
             else
             {
-                value = std::regex_replace( (*match)[4].str(),std::regex("\\\"\\\""),std::string("\""));
+                value = RGX::regex_replace( (*match)[4].str(),RGX::regex("\\\"\\\""),std::string("\""));
             }
         }
         else

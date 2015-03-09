@@ -20,12 +20,12 @@ public:
     OptionString( const std::string &options );
     bool defines( const std::string &option );
     const std::string &valueOf( const std::string &key, const std::string &dflt="" );
-    bool isValid() { return _invalid.size() > 0; }
-    const std::vector<const std::string> errors() { return _invalid; }
+    bool isValid(){ return _invalid.size() > 0; }
+    const std::vector<std::string> errors(){ return _invalid; }
 private:
     void _load( const std::string &options );
     std::map<const std::string, const std::string> _options;
-    std::vector<const std::string> _invalid;
+    std::vector<std::string> _invalid;
 };
 
 }  // End of namespace LINZ
