@@ -1,0 +1,80 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="station, coordinate, station coordinate file, format, offset, deformation">
+<title>SNAP station offset file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="stn_offset_file_format"></a>SNAP station offset file format</h1>
+
+<p>A station offset file defines the history of station offsets for selected stations as a time series.  
+The offsets of each stations may be either relative to the deformation model used in the adjustment, or to the datum on which it is based.  In the latter case the deformation model is ignored of the station.
+More than one offset can be defined for each station - all the offsets that apply at a given date are added together.
+</p>
+<p>
+Each offset is specified using the format:
+</p>
+<p class="Commanddefinition">code [coordtype] [offset_type] [mode] type data </p>
+<p>
+The <i>coordtype</i> keyword can be one of:
+</p>
+<ul>
+    <li>
+    &quot;enu&quot; - the default value, offsets are specified as 
+    east/north/up components
+    </li>
+    <li>
+    &quot;height&quot; - the offset is just a vertical component
+    </li>
+    <li>
+    &quot;xyz&quot; - the offset is specified in terms of geocentric XYZ
+    coordinates
+    </li>
+</ul>
+<p>The <i>offset_type</i> keyword can be:
+<ul>
+    <li>
+    &quot;offset&quot; - the default value, offsets are relative to the 
+    deformation model
+    </li>
+    <li>
+    &quot;deformation&quot; - the offset replaces the deformation model
+    for the station.
+    </li>
+</ul>
+<p>The <i>mode</i> keyword can be:
+<ul>
+    <li>
+    &quot;step&quot; - the default value, the data will consist of a date,
+    followed by the coordinate offset.  The offset will apply to all 
+    station coordinates after that date.`
+    </li>
+    <li>
+    &quot;time_series&quot; - the data consists of a series of values
+    <i>offset date offset ... date offset</i>.  The dates must be in sequence.
+    The first offset applies before the first date, and the last offset after the last date. 
+    Between two dates the offset is interpolated linearly between the values after those dates.
+    </li>
+    <li>
+    &quot;velocity&quot; - the model data consists of a date and velocity components.
+    The offset at any date is given by applying the velocity relative to the
+    specified date.
+    </li>
+</ul>
+Dates are entered using the format &quot;YYYYMMDD&quot; or &quot;dd-mmm-yyyy&quot;.  All offsets are specified in metres, and velocities in metres per year.
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="index.html">Station coordinate file</a></p>
+
+<p><a href="stn_code.html">Station codes</a></p>
+
+</div>
+</body>
+</html>
