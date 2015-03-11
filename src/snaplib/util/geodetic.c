@@ -123,11 +123,11 @@ void vecadd2( vector3 vec1, double mult1, vector3 vec2, double mult2,
     for (i=0; i<3; i++) res[i] = vec1[i]*mult1 + vec2[i]*mult2;
 }
 
-void vecadd( vector3 vec1, vector3 vec2, vector3 dif )
+void vecadd( vector3 vec1, vector3 vec2, vector3 sum )
 {
-    dif[0] = vec1[0] + vec2[0];
-    dif[1] = vec1[1] + vec2[1];
-    dif[2] = vec1[2] + vec2[2];
+    sum[0] = vec1[0] + vec2[0];
+    sum[1] = vec1[1] + vec2[1];
+    sum[2] = vec1[2] + vec2[2];
 }
 
 void vecdif( vector3 vec1, vector3 vec2, vector3 dif )

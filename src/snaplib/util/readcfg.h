@@ -45,7 +45,7 @@ typedef int (*config_store_func)( CFG_FILE *cfg, char *valst, void *value, int v
 
 typedef struct
 {
-    char *option;   /* Address of option name */
+    const char *option;   /* Address of option name */
     void *value;    /* Address into which value is to be stored */
     int offset;     /* Offset from address pointed to */
     int  vallen;    /* Length allocated to store value for strings..*/
@@ -111,7 +111,7 @@ int set_config_command_flag( CFG_FILE *cfg, int flag );
 void initiallize_config_items( config_item item[] );
 int read_config_file( CFG_FILE *cfg, config_item item[] );
 int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
-int send_config_error( CFG_FILE *cfg, int errstat, char *errmsg );
+int send_config_error( CFG_FILE *cfg, int errstat, const char *errmsg );
 char *get_config_line( CFG_FILE *cfg, char *line, int nch );
 char *get_config_location( CFG_FILE *cfg );
 

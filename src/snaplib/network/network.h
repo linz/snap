@@ -43,6 +43,7 @@
 #endif
 
 #define DFLTSTLIST_EXT  ".stl"
+#define DFLTSTOFFS_EXT  ".sts"
 
 /*------------------------------------------------------------------------
    Structures
@@ -77,6 +78,7 @@ typedef struct
     int   nclass;      /* Count of classifications */
     int   *classval;   /* Array of class values */
     char    *Name;     /* Pointer to station name */
+    void    *ts;       /* Station coordinate time series data */
     void    *hook;     /* Pointer to user defined info */
 } station;
 
@@ -160,6 +162,7 @@ List of station/network functions supplied by the library
 
 station *new_station( void );
 void    delete_station( station *st );
+void    delete_station_offset( station *st );
 
 void    init_station( station *st,
                       const char *code, const char *Name,
@@ -282,6 +285,12 @@ station_list *reload_station_list( FILE *f );
 
 int stncodecmp( const char *s1, const char *s2 );
 
+/* Calculate the station offset at a given date */
+
+int station_has_offset( station *st );
+int station_offset_is_deformation( station *st );
+void calc_station_offset( station *st, double date, double denu[3] );
+
 /*------------------------------------------------------------------*/
 /* The network                                                      */
 
@@ -311,7 +320,10 @@ void    modify_network_station_coords( network *nw, station *st, double Lat,
 int set_network_geoid( network *nw, const char *geoid );
 int set_network_geoid_def( network *nw, geoid_def *gd );
 
+int read_network_station_offsets( network *nw, const char *filename );
+
 /* Only to be used by network routines .. use new_network_station */
+
 int   add_station( network *nw, station *st );
 
 void    remove_station( network *nw, station *st );

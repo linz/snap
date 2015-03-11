@@ -157,7 +157,7 @@ char *get_config_location( CFG_FILE *cfg )
     return location;
 }
 
-int send_config_error( CFG_FILE *cfg, int stat, char *mess1 )
+int send_config_error( CFG_FILE *cfg, int stat, const char *mess1 )
 {
     char *mess2 = get_config_location(cfg);
     handle_error(stat,mess1,mess2);

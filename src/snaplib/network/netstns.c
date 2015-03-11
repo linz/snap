@@ -28,6 +28,7 @@ station *new_station( void )
     st->nclass = 0;
     st->classval = NULL;
     st->Name = NULL;
+    st->ts = NULL;
     st->hook = NULL;
     return st;
 }
@@ -37,6 +38,7 @@ void delete_station( station *st )
     if( !st ) return;
     if( st->Name ) check_free( st->Name );
     if( st->classval ) check_free( st->classval );
+    if (st->ts ) delete_station_offset( st );
     check_free( st );
 }
 

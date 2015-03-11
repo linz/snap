@@ -14,6 +14,7 @@
 
 #include "snap/snapglob.h"
 #include "util/readcfg.h"
+#include "util/fileutil.h"
 #include "util/errdef.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
@@ -88,6 +89,34 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
     }
 
     return sts == OK ? OK : NO_MORE_DATA;
+}
+
+int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    const char *filename;
+    const char *filespec;
+    int sts;
+
+    filename=strtok(string," ");
+    if( ! filename )
+    {
+        send_config_error( cfg, INVALID_DATA, "station_offset_file command requires a filename");
+        return OK;
+    }
+
+    filespec = find_file( filename,DFLTSTOFFS_EXT,station_filespec,1,0);
+    if(! filespec )  find_file( filename,DFLTSTOFFS_EXT,station_filespec,1,0);
+    if(! filespec )
+    {
+        send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
+        return OK;
+    }
+    sts=read_network_station_offsets( net, filename );
+    if( sts != OK )
+    {
+        send_config_error( cfg, INVALID_DATA, "Errors reading station offset file");
+    }
+    return OK;
 }
 
 

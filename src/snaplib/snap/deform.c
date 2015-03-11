@@ -23,7 +23,9 @@
 #include <math.h>
 
 #include "snap/deform.h"
+#include "network/network.h"
 #include "util/chkalloc.h"
+#include "util/errdef.h"
 
 static char rcsid[]="$Id: deform.c,v 1.3 2004/04/22 02:35:43 ccrook Exp $";
 
@@ -53,7 +55,26 @@ int init_deformation( deformation_model *deformation )
 
 int calc_deformation( deformation_model *deformation, station *st, double date, double denu[3] )
 {
-    return (*(deformation->calc_deformation))( deformation->data, st, date, denu );
+    int sts = OK;
+    int hasoffset=station_has_offset(st);
+
+    if( hasoffset && station_offset_is_deformation(st) ) 
+    {
+        denu[0]=denu[1]=denu[2]=0.0;
+    }
+    else
+    {
+        sts=(*(deformation->calc_deformation))( deformation->data, st, date, denu );
+    }
+    if( hasoffset )
+    {
+        double dsenu[3];
+        calc_station_offset( st, date, dsenu );
+        denu[0] += dsenu[0];
+        denu[1] += dsenu[1];
+        denu[2] += dsenu[2];
+    }
+    return sts;
 }
 
 int print_deformation_model( deformation_model *deformation, FILE *out, char *prefix )
