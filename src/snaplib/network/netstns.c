@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "network/network.h"
+#include "network/stnoffset.h"
 #include "util/errdef.h"
 #include "util/dstring.h"
 #include "util/chkalloc.h"

@@ -13,6 +13,6 @@
 #define SNAP_CONFIG_SECTION  "snap"
 #define SNAP_CONFIG_FILE     "snap.cfg"
 
-#define BINFILE_SIGNATURE    "SNAP binary file version 2.5"
+#define BINFILE_SIGNATURE    "SNAP binary file version 2.6"
 
 #endif

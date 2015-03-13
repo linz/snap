@@ -472,6 +472,12 @@ int snap_main( int argc, char *argv[] )
         print_floated_stations( lst );
     }
 
+    if( output_station_offsets )
+    {
+        xprintf("   Listing station offsets\n");
+        print_station_offsets( lst );
+    }
+
     if( output_reference_frames )
     {
         xprintf("   Listing reference frames\n");

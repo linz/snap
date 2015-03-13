@@ -1,0 +1,18 @@
+! Station offset models
+
+! X001 - no offset
+
+X002 offset 2005-03-02 0.50 0.10 -0.20
+X003 enu offset 2005-03-02 0.5 0.1 -0.2
+X004 xyz offset 2005-03-02 0.5 0.1 -0.2
+X005 height offset 2005-03-02 0.5 
+X006 deformation 2005-03-02 0.50 0.10 -0.20
+X007 enu offset step 2005-03-02 0.5 0.1 -0.2
+X008 enu offset velocity 2001-01-01 0.5 0.1 -0.2
+X009 enu deformation time_series -0.3 0.5 -0.2 2005-03-02 0.5 0.1 -0.2 2005-03-22 1.0 -0.3 -0.6
+X010 2005-03-02 0.50 0.10 -0.20
+X011 offset 2005-03-02 0.50 0.10 -0.20
+X011 offset 2006-10-02 0.40 0.20 -0.30
+
+! Missing station - should be handled OK
+XQQQ offset 2005-03-02 0.50 0.10 -0.20

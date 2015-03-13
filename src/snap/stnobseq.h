@@ -47,5 +47,6 @@ void get_station_covariance( station *st, double cvr[] );
 void dump_station_covariances( BINARY_FILE *b );
 void print_adjusted_coordinates( FILE *out );
 void print_floated_stations( FILE *out );
+void print_station_offsets( FILE *out );
 
 #endif

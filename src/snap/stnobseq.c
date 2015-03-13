@@ -914,6 +914,30 @@ void print_floated_stations( FILE *out )
     }
 }
 
+void print_station_offsets( FILE *out )
+{
+    station *st;
+    char first=1;
+
+    for( reset_station_list(net,(int)output_sorted_stations);
+            NULL != (st = next_station(net)); )
+    {
+        if( ! station_has_offset(st)) continue;
+        if( first )
+        {
+            first=0;
+
+            print_section_heading(lst,"STATION OFFSETS");
+
+            fprintf(lst,"\nThe following coordinate offsets apply to stations in the network.\n");
+            fprintf(lst,"Each offset is applied for determining station coordinates based on the date\n"
+                    "at which the coordinate is required.\n");
+        }
+
+        fprintf(lst,"\n");
+        print_station_offset(lst,st);
+    }
+}
 
 void max_station_adjustment( double tol, int *pmaxadjstn,
                              double *pmaxadj, int *pnstnadj )

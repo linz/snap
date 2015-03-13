@@ -16,6 +16,7 @@
 #endif
 /* Header file for dateutil.c - SNAP date functions */
 
+#define DAYS_PER_YEAR 365.25
 
 /* Snap uses dates as double day number */
 

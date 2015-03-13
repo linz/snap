@@ -98,6 +98,7 @@ enum { DFT_START,          /* Start of a group relating to an observation
        DFT_ERROR,          /* Error item for the group
                  id     = type number in snap type array */
        DFT_TIME,           /* Time of the observation */
+       DFT_DATE,           /* Date of the observation */
        DFT_OBSID,          /* Id of the observation */
        DFT_CLASS,          /* Classification item for the group
                  id     = index into array of cclass types */
@@ -1073,49 +1074,42 @@ static int read_angle_type_command( snapfile_def *sd, int id, char *cmd )
 
 static int read_date_command( snapfile_def *sd, int id, char *cmd )
 {
-    char mon[4];
-    char unknown[10];
-    int dy, mn, yr;
+    char datestr[32];
     int ok;
+    double date;
     DATAFILE *d;
-    char *months[] = { "JAN","FEB","MAR","APR","MAY","JUN","JUL",
-                       "AUG","SEP","OCT","NOV","DEC"
-                     };
-
-    /* Is the date unknown */
 
     d = sd->df;
-
-    ok = df_read_field( d, unknown, 10 ) &&
-         _stricmp(unknown, "unknown") == 0;
-    if( ok ) { sd->date = UNKNOWN_DATE; return 1; }
-
-    /* Otherwise read the date */
-
-    df_reread_field( d );
-    dy = mn = yr = 0;
-    ok = df_read_int( d, &dy ) &&
-         df_read_field( d, mon, 4 ) &&
-         df_read_int( d, &yr ) &&
-         ( dy >= 1 || dy <= 31 );
-    if( ok )
+    ok=df_read_rest(d,datestr,32);
+    _strupr(datestr);
+    if( ! ok )
     {
-        if( yr < 100 ) yr += 1900;
-        for( mn = 0; mn < 12; mn++ )
-            if ( _stricmp(mon,months[mn]) == 0 ) break;
-        ok = mn < 12;
-        mn++;
+        char errmsg[100];
+        sprintf(errmsg,"Missing date definition, use \"%c%s unknown\" or eg %c%s 5 MAY 1993",
+                COMMAND_PREFIX,cmd,COMMAND_PREFIX,cmd );
+        df_data_file_error( d, INVALID_DATA, errmsg );
+        return OK;
     }
-    if( ok )
+
+    if( _stricmp(datestr, "unknown") == 0 )
     {
-        sd->date = snap_date( yr, mn, dy ) + 0.5;
+        sd->date = UNKNOWN_DATE; 
+        return OK;
     }
-    else
+
+    date=snap_datetime_parse(datestr,"YMD");
+    if( date == 0.0 ) date=snap_datetime_parse(datestr,"DMY");
+
+    if( date == 0.0 )
     {
         char errmsg[100];
         sprintf(errmsg,"Invalid date definition, use \"%c%s unknown\" or eg %c%s 5 MAY 1993",
                 COMMAND_PREFIX,cmd,COMMAND_PREFIX,cmd );
         df_data_file_error( d, INVALID_DATA, errmsg );
+    }
+    else
+    {
+        sd->date=date+0.5;  /* To be consistent with existing code */
     }
 
     return OK; /* As errors are handled */
@@ -1135,6 +1129,18 @@ static int read_time( DATAFILE *d, double *obstime )
 
     *obstime = (hr + min/60.0)/24.0;
     return 1;
+}
+
+
+static int read_date( DATAFILE *d, double *obsdate )
+{
+    char datestr[20];
+
+    if( !df_read_field( d, datestr, 20 ) ) return 0;
+
+    (*obsdate)=snap_datetime_parse(datestr,"YMD");
+    if( *obsdate == 0 ) (*obsdate)=snap_datetime_parse(datestr,"DMY");
+    return (*obsdate == 0) ? 0 :  1;
 }
 
 
@@ -1171,6 +1177,21 @@ static int read_data_time( snapfile_def *sd, data_field *fld )
     {
         df_data_file_error( sd->df, INVALID_DATA,
                             "Invalid time - use syntax eg \"15:20\"");
+    }
+    return OK; /* Since errors are already handled */
+}
+
+static int read_data_date( snapfile_def *sd, data_field *fld )
+{
+    double obsdate;
+    if( read_date( sd->df, &obsdate ) )
+    {
+        ldt_date( obsdate );
+    }
+    else
+    {
+        df_data_file_error( sd->df, INVALID_DATA,
+                            "Invalid date - use syntax eg \"2012-03-25\"");
     }
     return OK; /* Since errors are already handled */
 }
@@ -1435,6 +1456,7 @@ static int read_data_command( snapfile_def *sd, int id, char *cmd )
         if( _stricmp( name, "grouped" ) == 0 ) { sd->grouped = 1; continue; }
         if( _stricmp( name, "no_heights") == 0 ) { sd->heights = 0; continue; }
         if( _stricmp( name, "time" ) == 0 ) { next_data_field( sd, DFT_TIME, 0, 0 ); continue; }
+        if( _stricmp( name, "date" ) == 0 ) { next_data_field( sd, DFT_DATE, 0, 0 ); continue; }
 
         /* An observation type */
 
@@ -2191,6 +2213,7 @@ static int read_data_line( snapfile_def *sd, int rej )
                 break;
             case DFT_DATA:   read_data_data( sd, fld ); break;
             case DFT_ERROR:  read_data_error( sd, fld ); break;
+            case DFT_DATE:   read_data_date( sd, fld ); break;
             case DFT_TIME:   read_data_time( sd, fld ); break;
             case DFT_OBSID:  read_data_obs_id( sd ); break;
             case DFT_CLASS:  read_data_classification( sd, fld ); break;

@@ -162,7 +162,6 @@ List of station/network functions supplied by the library
 
 station *new_station( void );
 void    delete_station( station *st );
-void    delete_station_offset( station *st );
 
 void    init_station( station *st,
                       const char *code, const char *Name,
@@ -285,11 +284,12 @@ station_list *reload_station_list( FILE *f );
 
 int stncodecmp( const char *s1, const char *s2 );
 
-/* Calculate the station offset at a given date */
+/* Functions for processing station offsets */
 
 int station_has_offset( station *st );
 int station_offset_is_deformation( station *st );
 void calc_station_offset( station *st, double date, double denu[3] );
+void print_station_offset( FILE *lst, station *st );
 
 /*------------------------------------------------------------------*/
 /* The network                                                      */

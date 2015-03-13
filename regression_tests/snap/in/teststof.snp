@@ -1,0 +1,11 @@
+title Regression test stof - Station offsets
+
+coordinate_file teststof.crd
+station_offset_file teststof.sto
+data_file teststof.dat
+
+mode 3d data_check
+
+list command_file
+list station_coordinates
+add_residual_column all date

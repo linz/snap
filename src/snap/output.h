@@ -54,6 +54,7 @@ SCOPE char output_residuals;
 SCOPE char output_error_summary;
 SCOPE char output_worst_residuals;
 SCOPE char output_station_coordinates;
+SCOPE char output_station_offsets;
 SCOPE char output_floated_stations;
 SCOPE char output_sort_by_type;
 SCOPE char output_rejected_stations;
@@ -142,12 +143,13 @@ output_option output[] =
     {"grouped_data_by_type",&output_sort_by_type,1,{0}},
     {
         "station_coordinates",&output_station_coordinates,1,
-        {DATA_CONSISTENCY, DATA_CHECK, 0}
+        {DATA_CONSISTENCY, 0}
     },
     {
         "floated_stations",&output_floated_stations,1,
         {DATA_CONSISTENCY, DATA_CHECK, 0}
     },
+    {"station_offsets",&output_station_offsets,1,{0}},
     {"rejected_stations",&output_rejected_stations,1,{0}},
     {"rejected_station_coordinates",&output_rejected_coordinates,1,{0}},
     {"reference_frames",&output_reference_frames,1,{DATA_CONSISTENCY, 0}},

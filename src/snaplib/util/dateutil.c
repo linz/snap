@@ -153,7 +153,7 @@ double snap_datetime_parse( const char *definition, const char *format )
             buffer[4] = 0;
             mptr = strstr( months, buffer );
             if( ! mptr ) return 0.0;
-            ymdhmse[idx] = (mptr-months)/4;
+            ymdhmse[idx] = (mptr-months)/4+1;
         }
         else
         {
