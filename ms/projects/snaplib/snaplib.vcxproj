@@ -118,6 +118,7 @@
     <ClCompile Include="..\..\..\src\snaplib\network\networkt.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\networkw.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\snapcsvbase.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\datatype.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\geoddata.c" />

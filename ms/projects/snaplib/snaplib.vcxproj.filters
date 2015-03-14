@@ -403,6 +403,9 @@
     <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.c">
       <Filter>Source Files\network</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.c">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">

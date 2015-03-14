@@ -28,6 +28,7 @@ stn_offset_comp *create_stn_offset_comp( int mode, int isxyz, int ntspoints )
     component->ntspoints=ntspoints;
     component->tspoints = ntspoints == 0 ? 0 :
         (stn_tspoint *)(void *)(((char*)component)+sizeof(stn_offset_comp));
+    component->next=0;
     return component;
 }
 

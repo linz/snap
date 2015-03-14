@@ -9,8 +9,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\..\src\snap_manager\scripts\test_menu.cfg = ..\..\src\snap_manager\scripts\test_menu.cfg
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "UnitTests", "UnitTests", "{8D1B4404-668F-4601-A3F6-7B07289BEC6E}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dat2site", "dat2site\dat2site.vcxproj", "{03E93D61-1DA2-4A61-A799-ED60B96BE40E}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "snapconv", "snapconv\snapconv.vcxproj", "{902052C7-5367-4BAE-A526-2730BD7C048C}"
@@ -46,8 +44,6 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nzmapconv", "nzmapconv\nzmapconv.vcxproj", "{7290F77A-6D58-44D0-863A-9A781F390B70}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "nzmapconv_install", "nzmapconv_install\nzmapconv_install.vdproj", "{C73AB20E-F120-4E79-9BDB-736746107FE4}"
-EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "testgrid", "..\..\unit_tests\ms\projects\testgrid\testgrid.vcxproj", "{4DDE34D3-117F-4AB8-86C9-193FF79920F6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "site2gps", "site2gps\site2gps.vcxproj", "{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}"
 EndProject
@@ -125,10 +121,6 @@ Global
 		{7290F77A-6D58-44D0-863A-9A781F390B70}.Release|Win32.Build.0 = Release|Win32
 		{C73AB20E-F120-4E79-9BDB-736746107FE4}.Debug|Win32.ActiveCfg = Debug
 		{C73AB20E-F120-4E79-9BDB-736746107FE4}.Release|Win32.ActiveCfg = Release
-		{4DDE34D3-117F-4AB8-86C9-193FF79920F6}.Debug|Win32.ActiveCfg = Debug|Win32
-		{4DDE34D3-117F-4AB8-86C9-193FF79920F6}.Debug|Win32.Build.0 = Debug|Win32
-		{4DDE34D3-117F-4AB8-86C9-193FF79920F6}.Release|Win32.ActiveCfg = Release|Win32
-		{4DDE34D3-117F-4AB8-86C9-193FF79920F6}.Release|Win32.Build.0 = Release|Win32
 		{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}.Debug|Win32.Build.0 = Debug|Win32
 		{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}.Release|Win32.ActiveCfg = Release|Win32
@@ -140,8 +132,5 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-		{4DDE34D3-117F-4AB8-86C9-193FF79920F6} = {8D1B4404-668F-4601-A3F6-7B07289BEC6E}
 	EndGlobalSection
 EndGlobal
