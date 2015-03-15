@@ -505,6 +505,11 @@ static void print_title( FILE *out )
                 need_space = 0;
                 justify = LEFT_JUST;
             }
+            else if( column->column & CLASSIFICATION_FIELD )
+            {
+                justify=LEFT_JUST;
+                need_space = 1;
+            }
             else
             {
                 listing_field_def *fld;
