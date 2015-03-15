@@ -476,7 +476,8 @@ LookupMap &SnapCsvBase::lookup( const std::string &lookupName )
 DatafileInput::DatafileInput( const std::string &filename, const std::string &description ) :
     InputBase( filename),
     _df(df_open_data_file( filename.c_str(), description.c_str() )),
-    _check_progress(0)
+    _check_progress(0),
+    _aborted(false)
 {
     if( ! _df )
     {
@@ -491,7 +492,8 @@ DatafileInput::DatafileInput( const std::string &filename, const std::string &de
 DatafileInput::DatafileInput( DATAFILE *df, int (*check_progress)( DATAFILE *df ) ) :
     InputBase( df_file_name( df )),
     _df(df),
-    _check_progress(check_progress)
+    _check_progress(check_progress),
+    _aborted(false)
 {
     _owner = false;
     df_set_data_file_comment( df, 0 );
