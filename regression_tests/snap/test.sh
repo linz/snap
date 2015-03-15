@@ -1,7 +1,13 @@
 #!/bin/sh
 
 if [ -z $SNAPDIR ]; then
-SNAPDIR='../../../unix/debug/install'
+SNAPDIR='/home/ccrook/projects/snap/unix/debug/install'
+fi
+
+if [ "$1" = "-r" ]; then 
+    echo "Testing release version"
+    shift
+    SNAPDIR='/home/ccrook/projects/snap/unix/release/install'
 fi
 
 # SET t=%1
@@ -27,7 +33,7 @@ cd in
 for f in ${t}.snp; do
     base=`basename $f .snp`
     echo "Running ${base}"
-    rm -f ../out/${base}.*1
+    rm -f ../out/${base}.* ../out/${base}-*
     ${g}${SNAPDIR}/snap $base ${o}
     #> /dev/null
     for of in ${base}.lst ${base}.err ${base}-*.csv; do

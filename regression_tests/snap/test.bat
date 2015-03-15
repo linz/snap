@@ -5,7 +5,7 @@ IF "%1" == "-v" (
   SHIFT
   echo on
   )
-IF "%1" == "-i" SET SNAPDIR=C:\Program Files\Land Information New Zealand\SNAP
+IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
 IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\release
 IF "%1" == "-r" SHIFT
@@ -19,6 +19,7 @@ IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\..\ms\built\debug
 FOR %%F IN (%t%.snp) DO (
   echo Running %%F
   del /q /f ..\out\%%~nF.* > nul 2>&1
+  echo Running "%SNAPDIR%\snap %%F
   "%SNAPDIR%\snap" %%F > nul
   perl ..\clean_snap_listing.pl %%~nF.lst > ..\out\%%~nF.lst
   IF EXIST %%~nF.err perl ..\clean_snap_listing.pl %%~nF.err > ..\out\%%~nF.err
