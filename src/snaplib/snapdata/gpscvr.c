@@ -29,8 +29,6 @@
 #include "util/geodetic.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: gpscvr.c,v 1.1 1995/12/22 18:45:31 CHRIS Exp $";
-
 char fixed_gps_vertical = 0;
 static double fixed_rmat[3][3];
 static char fixed_rmat_calculated = 0;

@@ -41,12 +41,12 @@ void SnapCsvBase::CsvValue::attach( CalcReader *reader )
 // SnapCsvBase
 
 SnapCsvBase::SnapCsvBase( const std::string &name, const OptionString &config) :
-    _name(name),
     _definitionLoaded(false),
-    _reader(0),
+    _name(name),
     _format( new CsvFormat()),
     _config(config),
-    _checkColumnEnabled( false )
+    _checkColumnEnabled( false ),
+    _reader(0)
 {
 }
 

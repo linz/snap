@@ -67,14 +67,14 @@ SnapCsvObs::CsvObservation::CsvObservation( SnapCsvObs *owner ) :
     _note("Note"),
     _setid("Observation set id"),
     _rejected("Observation rejected"),
+    _ignoremissingobs(false),
     _disterrorcalced( false ),
     _angleerrorcalced( false ),
     _zderrorcalced( false ),
     _hderrorcalced( false ),
     _vecerrorformat(CVR_TOPOCENTRIC),
     _owner(owner),
-    _dateformat("YMDhms"),
-    _ignoremissingobs(false)
+    _dateformat("YMDhms")
 {
     _parts.push_back(&_type);
     _parts.push_back(&_fromstn);
@@ -312,7 +312,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double errcomp;
             error[0] = 0.0;
             string component="";
-            bool ok = true;
+            // bool ok = true;
             std::istringstream istr(_error.value());
             for( int i = 0; i < 2; i++ )
             {
@@ -324,7 +324,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 else
                 {
                     dataError(string("Invalid distance error component ") + component);
-                    ok = false;
+                    // ok = false;
                     break;
                 }
                 error[0] += (errcomp*errcomp*factor*factor);
@@ -333,7 +333,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             if( component == "" )
             {
                     dataError(string("Missing distance error") + component);
-                    ok = false;
+                    // ok = false;
             }
 
             if( error[0] > 0.0 ) error[0] = sqrt(error[0]);
@@ -346,7 +346,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double *pcomp;
 
             string component="";
-            bool ok = true;
+            // bool ok = true;
             std::istringstream istr(_error.value());
             for( int i = 0; i < 2; i++ )
             {
@@ -357,7 +357,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 else
                 {
                     dataError(string("Invalid angle error component ") + component);
-                    ok = false;
+                    // ok = false;
                     break;
                 }
                 *pcomp += errcomp*errcomp;
@@ -365,7 +365,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             if( component == "" )
             {
                     dataError(string("Missing angle error") + component);
-                    ok = false;
+                    // ok = false;
             }
  
             if( mmerr > 0.0 )
@@ -387,7 +387,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double *pcomp;
 
             string component="";
-            bool ok = true;
+            // bool ok = true;
             std::istringstream istr(_error.value());
             for( int i = 0; i < 2; i++ )
             {
@@ -400,7 +400,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                     if( istr.fail()) 
                     {
                         dataError(string("Incomplete height difference distance error mmrkm component"));
-                        ok = false;
+                        // ok = false;
                         break;
                     }
                     if( boost::iequals(component,"sqrt"))
@@ -411,14 +411,14 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                     else
                     {
                         dataError(string("Invalid height difference distance error mmrkm component"));
-                        ok = false;
+                        // ok = false;
                         break;
                     }
                 }
                 else
                 {
                     dataError(string("Invalid zenith distance error component ") + component);
-                    ok = false;
+                    // ok = false;
                     break;
                 }
                 *pcomp += errcomp*errcomp;
@@ -426,7 +426,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             if( component == "" )
             {
                     dataError(string("Missing height difference error") + component);
-                    ok = false;
+                    // ok = false;
             }
             error[0] = ppmerr + mmerr;
             if( error[0] > 0.0 ) error[0] = sqrt(error[0]);
@@ -440,7 +440,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double *pcomp;
 
             string component="";
-            bool ok = true;
+            // bool ok = true;
             std::istringstream istr(_error.value());
             for( int i = 0; i < 3; i++ )
             {
@@ -452,7 +452,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 else
                 {
                     dataError(string("Invalid zenith distance error component ") + component);
-                    ok = false;
+                    // ok = false;
                     break;
                 }
                 *pcomp += errcomp*errcomp;
@@ -460,7 +460,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             if( component == "" )
             {
                     dataError(string("Missing angle error") + component);
-                    ok = false;
+                    // ok = false;
             }
  
             if( mmherr > 0.0 || mmverr > 0.0 )
@@ -833,14 +833,14 @@ static std::string &unquoteString( std::string &value )
 void SnapCsvObs::loadObservationDefinition( RecordStream &rs, CsvObservation &obs )
 {
     std::string command;
-    bool finished = false;
+    // bool finished = false;
     while( rs.readRecord() )
     {
         rs.record() >> command;
         boost::to_lower(command);
         if( command == "end_observation" )
         {
-            finished = true;
+            // finished = true;
             break;
         }
         else if( command == "type" ) { loadValueDefinition(rs,obs.type()); }

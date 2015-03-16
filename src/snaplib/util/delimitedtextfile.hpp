@@ -68,18 +68,18 @@ public:
         runtime_error( message ),
         _message(message),
         _filename(filename),
+        _location(""),
         _lineno(lineno),
         _recordno(recordno),
-        _location(""),
         _type( RuntimeError )
     { _setLocation(); }
     Error( ErrorType type, const std::string &message, const std::string &filename="", int lineno=-1, int recordno=-1 ) :
         runtime_error( message ),
         _message(message),
         _filename(filename),
+        _location(""),
         _lineno(lineno),
         _recordno(recordno),
-        _location(""),
         _type( type )
     { _setLocation(); }
     ~Error() throw () {};
@@ -111,7 +111,7 @@ public:
     bool operator>>( std::string &strvalue ) const;
 private:
     Column( const Reader &dlt, std::string name, int index ) :
-        _dlt(dlt), _name(name), _index(index), _value("") {}
+        _dlt(dlt), _name(name), _value(""), _index(index) {}
     void setName( const std::string &name ) { _name = name; }
     void clear() { _value.clear(); }
     void handleReadError() const;
@@ -190,8 +190,8 @@ protected:
     virtual bool parseRecord();
 private:
     char _delimiter;
-    char _quote;
     char _escape;
+    char _quote;
 };
 
 class Options

@@ -100,11 +100,11 @@ class SnapCsvObs : public SnapCsvBase
         std::vector<CsvClassColumn> _classCols;
 
         bool _ignoremissingobs;
-        int _vecerrorformat;
         bool _disterrorcalced;
         bool _angleerrorcalced;
         bool _zderrorcalced;
         bool _hderrorcalced;
+        int _vecerrorformat;
         int _nvecerror;
         SnapCsvObs *_owner;
         std::string _dateformat;

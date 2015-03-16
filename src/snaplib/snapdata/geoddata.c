@@ -22,11 +22,9 @@
 
 #define NAMELEN 20
 
-static char rcsid[]="$Id: geoddata.c,v 1.1 1995/12/22 18:44:45 CHRIS Exp $";
-
 static struct
 {
-    char *code;
+    const char *code;
     int type;
     char heights;
     char dms;

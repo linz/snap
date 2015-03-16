@@ -76,8 +76,6 @@
 
 #define ISEQ(s1,s2) (_stricmp(s1,s2)==0)
 
-static char rcsid[]="$Id: snapdata.c,v 1.4 2004/04/22 02:35:15 ccrook Exp $";
-
 /* Definition of a data field in the file */
 
 typedef struct
@@ -241,7 +239,7 @@ static int read_endset_command( snapfile_def *sd, int id, char *cmd );
 
 typedef struct
 {
-    char *command;
+    const char *command;
     int id;
     int (*action)( snapfile_def *sd, int id, char *cmd );
     int flags;
@@ -755,13 +753,13 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
 {
     double value[3];
 
-    char *ppm = "ppm";
-    char *mm  = "mm";
-    char *mmh = "mmh";
-    char *mmv = "mmv";
-    char *mmr = "mmr";
-    char *ppmr = "ppmr";
-    char *secs = "sec";
+    const char *ppm = "ppm";
+    const char *mm  = "mm";
+    const char *mmh = "mmh";
+    const char *mmv = "mmv";
+    const char *mmr = "mmr";
+    const char *ppmr = "ppmr";
+    const char *secs = "sec";
     int nerrvals;
     int goterr = 0;
     int status;
@@ -1868,7 +1866,7 @@ static int read_data_error( snapfile_def *sd, data_field *fld )
 }
 
 
-static int read_sign( DATAFILE *df, char *sign, double *value )
+static int read_sign( DATAFILE *df, const char *sign, double *value )
 {
     char field[2];
 
