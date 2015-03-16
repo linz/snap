@@ -29,8 +29,6 @@
 #include "util/leastsqu.h"
 #include "output.h"
 
-static char rcsid[]="$Id: rftrnadj.c,v 1.1 1996/01/03 22:08:33 CHRIS Exp $";
-
 /* Parameter short names and descriptive names for each
    translation parameter */
 

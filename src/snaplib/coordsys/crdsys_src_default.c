@@ -32,8 +32,6 @@ The coordinate system file is located in one of the following places.
 #include "util/chkalloc.h"
 #include "util/fileutil.h"
 
-static char rcsid[]="$Id: crdsysf1.c,v 1.2 1996/05/20 16:36:08 CHRIS Exp $";
-
 
 
 const char *get_default_crdsys_file()

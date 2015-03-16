@@ -73,8 +73,6 @@ where
 #include "util/symmatrx.h"
 #include "util/chkalloc.h"
 
-static char rcsid[]="$Id: leastsqu.c,v 1.5 2004/04/22 02:35:43 ccrook Exp $";
-
 /*------------------------------------------------------------*/
 /*  Variables used in least squares summation                 */
 /*                                                            */
@@ -125,7 +123,7 @@ static int   ncols = 0;
 /*------------------------------------------------------------*/
 
 
-static void sequence_error( char *routine )
+static void sequence_error( const char *routine )
 {
     handle_error( INTERNAL_ERROR, "Internal error: Out of sequence call to LSQ routine", routine);
 }

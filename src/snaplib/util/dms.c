@@ -19,8 +19,6 @@
 #include "util/errdef.h"
 #include "util/chkalloc.h"
 
-static char rcsid[]="$Id: dms.c,v 1.2 2004/04/22 02:35:24 ccrook Exp $";
-
 /*------------------------------------------------------------------*/
 /*  Angle format conversion routines - DMS to radians and           */
 /*  vice-versa.  Uses the structure DMS defined in geodetic.h       */
@@ -101,7 +99,8 @@ typedef struct
 
 
 void *create_dms_format( int ndeg, int ndp, int fmt,
-                         char *deg, char *min, char *sec, char *plus, char *minus )
+                         const char *deg, const char *min, const char *sec, 
+                         const char *plus, const char *minus )
 {
 
     void *data;
@@ -216,7 +215,7 @@ void delete_dms_format( void *dmsf )
     check_free( dmsf );
 }
 
-char *dms_string( double d, void *pdmsf, char *str )
+const char *dms_string( double d, void *pdmsf, char *str )
 {
     static char dmsstr[80];
     char *sign;

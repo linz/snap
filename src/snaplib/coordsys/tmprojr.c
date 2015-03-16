@@ -18,8 +18,6 @@
 #include "coordsys/tmproj.h"
 #include "coordsys/tmprojr.h"
 
-static char rcsid[]="$Id: tmprojr.c,v 1.1 1995/12/22 17:01:58 CHRIS Exp $";
-
 static param_def tmparams[]  =
 {
     {
@@ -74,8 +72,8 @@ static int tm_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_tm_projection( void )
 {
-    char *code = "TM";
-    char *name = "Transverse Mercator";
+    const char *code = "TM";
+    const char *name = "Transverse Mercator";
 
     projection_type tm;
 

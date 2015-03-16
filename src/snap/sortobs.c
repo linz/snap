@@ -27,8 +27,6 @@
 #define CDECL
 #endif
 
-static char rcsid[]="$Id: sortobs.c,v 1.1 1996/01/03 22:10:57 CHRIS Exp $";
-
 typedef struct
 {
     int from;  /* From station */

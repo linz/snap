@@ -27,8 +27,6 @@
 #include "util/chkalloc.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: deform.c,v 1.3 2004/04/22 02:35:43 ccrook Exp $";
-
 
 deformation_model *create_deformation_model(
     void *data,

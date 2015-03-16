@@ -18,8 +18,6 @@
 #include "util/errdef.h"
 
 
-static char rcsid[]="$Id: networkw.c,v 1.1 1995/12/22 17:38:10 CHRIS Exp $";
-
 /*=============================================================*/
 /* Basic routine to write a station data file                  */
 
@@ -211,7 +209,7 @@ int write_network( network *nw, const char *fname, const char *comment,
         if( nw->options & NW_DEFLECTIONS )
         {
             fprintf(stf," %5.1lf %5.1lf",st->GXi*3600.0/DTOR,
-                    st->GEta*3600.0/DTOR, cp );
+                    st->GEta*3600.0/DTOR );
         }
         if( nw->options & NW_GEOID_HEIGHTS )
         {

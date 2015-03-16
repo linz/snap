@@ -13,8 +13,6 @@
 #include "coordsys/crdsys_prj.h"
 #include "util/chkalloc.h"
 
-static char rcsid[]="$Id: crdsysp0.c,v 1.1 1995/12/22 16:39:34 CHRIS Exp $";
-
 projection *create_projection(  projection_type *type )
 {
     projection *prj;

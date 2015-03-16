@@ -16,8 +16,6 @@
 #include "coordsys/tmproj.h"
 
 
-static char rcsid[]="$Id: tmproj.c,v 1.2 2001/10/17 20:42:37 ccrook Exp $";
-
 static double meridian_arc( tmprojection *tm, double lt );
 
 void define_tmprojection( tmprojection *tm, double a, double rf,

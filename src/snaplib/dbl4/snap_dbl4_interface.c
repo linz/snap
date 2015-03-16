@@ -71,7 +71,7 @@ void utlAbort( char *message )
 
 
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 void start_trace( char *c, long l )
 {

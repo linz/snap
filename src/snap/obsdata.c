@@ -45,8 +45,6 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: obsdata.c,v 1.6 2004/04/22 02:35:43 ccrook Exp $";
-
 static void *hafmt = NULL;
 static void *azfmt = NULL;
 static void *pbfmt = NULL;

@@ -48,8 +48,6 @@
 #include "snapdata/gpscvr.h"
 #include "snap/datastat.h"
 
-static char rcsid[]="$Id: vecdata.c,v 1.6 2004/04/22 02:35:44 ccrook Exp $";
-
 int vecdata_obseq( survdata  *v, void *hA, int nextra )
 {
     vector3 dif;

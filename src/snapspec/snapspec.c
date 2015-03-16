@@ -51,8 +51,6 @@
 #include "dbl4_utl_error.h"
 
 
-static char rcsid[]="$Id: snapspec.c,v 1.4 2004/03/10 21:18:54 ccrook Exp $";
-
 char spec_run_time[GETDATELEN];
 static double test_confidence = 95.0;
 static int test_apriori = 1;
@@ -811,7 +809,7 @@ static int reload_choleski_decomposition( BINARY_FILE *b, stn_relacc_array *ra )
 /*======================================================================*/
 /* Functions used by SDC module                                         */
 
-#pragma warning ( disable : 4100 )
+// #pragma warning ( disable : 4100 )
 
 static long f_station_id( void *env, int stn )
 {
@@ -1645,7 +1643,7 @@ static int read_error_type(CFG_FILE *cfg, char *string, void *value, int len, in
    what is supposed to happen!
 */
 
-#pragma warning ( disable : 4305 )
+// #pragma warning ( disable : 4305 )
 
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 
@@ -1664,7 +1662,7 @@ static config_item cfg_commands[] =
     {NULL}
 };
 
-#pragma warning ( default : 4305 )
+// #pragma warning ( default : 4305 )
 
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

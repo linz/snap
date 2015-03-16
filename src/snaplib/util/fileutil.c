@@ -27,8 +27,6 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 
-static char rcsid[]="$Id: fileutil.c,v 1.3 2004/04/22 02:35:24 ccrook Exp $";
-
 static char *usercfg=NULL;
 static char *syscfg=NULL;
 static char *imgpath=NULL;
@@ -95,7 +93,7 @@ char *build_config_filespec( char *spec, int nspec,
     if( dir ) 
     {
         dirlen=pathonly ? path_len(dir,0) : strlen(dir);
-        if( dirlen > 0 && dir[dirlen-1]==PATH_SEPARATOR || dir[dirlen-1]==PATH_SEPARATOR2 ) dirlen--;
+        if( dirlen > 0 && (dir[dirlen-1]==PATH_SEPARATOR || dir[dirlen-1]==PATH_SEPARATOR2) ) dirlen--;
         if( dirlen > 0 ) nch += dirlen + 1;
     }
     if( config ) nch += strlen(config) + 1;
@@ -161,7 +159,7 @@ const char *image_path()
     if ( len != -1 )
     {
         proc[len] = '\0';
-        imgpath = check_malloc(strlen(proc)+1 );
+        imgpath = (char *) check_malloc(strlen(proc)+1 );
         strcpy( imgpath, proc );
     }
     return imgpath;

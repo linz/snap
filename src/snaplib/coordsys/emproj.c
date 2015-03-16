@@ -14,8 +14,6 @@
 #include "coordsys/isometrc.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: emproj.c,v 1.1 1995/12/22 16:50:38 CHRIS Exp $";
-
 void define_EMProjection( EMProjection *em, double a, double rf, double cm, double rlat )
 {
     double e2;

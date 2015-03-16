@@ -32,8 +32,6 @@
 #include "util/fileutil.h"
 #include "snapplot_util.h"
 
-static char rcsid[]="$Id: backgrnd.c,v 1.1 1996/01/03 22:15:07 CHRIS Exp $";
-
 typedef struct
 {
     char *filename;

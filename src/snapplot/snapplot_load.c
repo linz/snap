@@ -52,8 +52,6 @@
 
 #define VERSION ProgramVersion.version
 
-static char rcsid[]="$Id: snapplot.c,v 1.4 1999/05/20 10:59:01 ccrook Exp $";
-
 /* static void print_header( void ); */
 
 static void print_help( void );

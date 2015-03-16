@@ -19,8 +19,6 @@
 #include "util/errdef.h"
 
 
-static char rcsid[]="$Id: networkd.c,v 1.2 1998/05/21 04:00:26 ccrook Exp $";
-
 /*=============================================================*/
 /* Routines to dump and reload a network to a binary data file */
 

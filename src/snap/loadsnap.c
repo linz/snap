@@ -84,8 +84,6 @@ into SNAP
 #include "util/errdef.h"
 
 
-static char rcsid[]="$Id: loadsnap.c,v 1.3 2003/11/25 01:29:58 ccrook Exp $";
-
 /*********************************************************************/
 /* Code to manage a list of missing stations...                      */
 /* Callback function used by loaddata to get id's of various objects */

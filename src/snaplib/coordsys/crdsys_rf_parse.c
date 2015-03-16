@@ -25,8 +25,6 @@
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
 
-static char rcsid[]="$Id: crdsysr3.c,v 1.3 2004/01/27 21:16:34 ccrook Exp $";
-
 #define READ_STRING( name, str, len ) \
 	 if( sts == OK ) { \
         bad = name; \
@@ -58,7 +56,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     ref_frame_func *rff = 0;
     ref_deformation *rdf = 0;
     int sts;
-    char *bad;
+    const char *bad;
     long loc;
     int reported;
 

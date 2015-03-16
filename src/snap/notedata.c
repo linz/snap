@@ -18,8 +18,6 @@
 #include "notedata.h"
 
 
-static char rcsid[]="$Id: notedata.c,v 1.2 1999/06/14 09:20:31 ccrook Exp $";
-
 /*===================================================*/
 
 

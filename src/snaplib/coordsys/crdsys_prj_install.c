@@ -16,8 +16,6 @@
 #include "coordsys/lambertr.h"
 #include "coordsys/psprojr.h"
 
-static char rcsid[]="$Id: crdsysp4.c,v 1.1 1995/12/22 17:13:26 CHRIS Exp $";
-
 void install_default_projections( void )
 {
     register_nzmg_projection();

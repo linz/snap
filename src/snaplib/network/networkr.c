@@ -28,8 +28,6 @@
 #define INRECLEN 256
 
 
-static char rcsid[]="$Id: networkr.c,v 1.2 1998/05/21 04:00:27 ccrook Exp $";
-
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
 /* Reads a SNAP format file, or the very similar geodetic      */
@@ -47,7 +45,6 @@ int read_network( network *nw, const char *fname, int gbformat )
     int sts, dfsts;
     char projection_coords;
     char geocentric_coords;
-    char ellipsoidal_heights;
     char options;
     char degrees;
     int nclass;
@@ -90,7 +87,6 @@ int read_network( network *nw, const char *fname, int gbformat )
     nw->crdsysdef = copy_string( inrec );
     projection_coords = is_projection( nw->crdsys );
     geocentric_coords = is_geocentric( nw->crdsys );
-    ellipsoidal_heights = geocentric_coords;
 
     /* If geodetic branch format then skip over comments section */
 

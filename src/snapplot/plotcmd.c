@@ -41,8 +41,6 @@
 
 #define COMMENT_CHAR '!'
 
-static char rcsid[]="$Id: plotcmd.c,v 1.4 1998/06/15 02:17:21 ccrook Exp $";
-
 static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_include_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
@@ -296,7 +294,7 @@ int process_configuration_file( char *fname )
     return sts;
 }
 
-#pragma warning ( disable : 4100 )
+// #pragma warning ( disable : 4100 )
 
 static int read_include_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

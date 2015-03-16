@@ -25,8 +25,6 @@
 #include "util/versioninfo.h"
 #include "snap/filenames.h"
 
-static char rcsid[]="$Id: sngeoid.c,v 1.2 1996/05/17 22:53:14 CHRIS Exp $";
-
 int main( int argc, char *argv[] )
 {
     char *oldfn, *newfn;

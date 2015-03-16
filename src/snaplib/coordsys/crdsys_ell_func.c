@@ -11,8 +11,6 @@
 #include "coordsys/coordsys.h"
 
 
-static char rcsid[]="$Id: crdsyse2.c,v 1.1 1995/12/22 16:33:40 CHRIS Exp $";
-
 /*------------------------------------------------------------------*/
 /*  Conversions between geodetic coordinates (ellipsoidal heights)  */
 /*  and geocentric coordinates.                                     */

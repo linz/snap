@@ -13,8 +13,6 @@
 #include "coordsys/paramdef.h"
 #include "coordsys/coordsys.h"
 
-static char rcsid[]="$Id: crdsyse3.c,v 1.1 1995/12/22 16:34:25 CHRIS Exp $";
-
 static param_def ell_params[] =
 {
     {
@@ -32,7 +30,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def *is, int embedded )
     char elcode[CRDSYS_CODE_LEN + 1];
     char elname[CRDSYS_NAME_LEN + 1];
     ellipsoid el;
-    char *bad;
+    const char *bad;
     int sts;
 
     bad = "code";

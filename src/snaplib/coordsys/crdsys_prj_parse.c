@@ -12,8 +12,6 @@
 #include "util/errdef.h"
 #include "coordsys/crdsys_prj.h"
 
-static char rcsid[]="$Id: crdsysp3.c,v 1.1 1995/12/22 16:40:53 CHRIS Exp $";
-
 projection *parse_projection_def( input_string_def *is )
 {
     char typecode[CRDSYS_CODE_LEN+1];

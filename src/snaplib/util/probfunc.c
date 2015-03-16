@@ -20,14 +20,12 @@
 #include "util/probfunc.h"
 
 #ifdef __BORLANDC__
-#pragma warn -par
+// #pragma warn -par
 #endif
 
 #ifdef __TSC__
-#pragma warn(wpnu=>off)
+// #pragma warn(wpnu=>off)
 #endif
-
-static char rcsid[]="$Id: probfunc.c,v 1.3 2004/04/22 02:35:26 ccrook Exp $";
 
 static double inverse_distribution( double prob,
                                     double (*distfunc)( double value, long prm1, long prm2 ),
@@ -55,7 +53,7 @@ double normal_distn( double value )
     return prob;
 }
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 static double ndf2( double value, long dum1, long dum2 )
 {
@@ -265,7 +263,7 @@ double inv_tau_distn( double prob, long dof )
    It will only search VALUE>0.
 */
 
-#pragma warning ( disable: 4127 )
+// #pragma warning ( disable: 4127 )
 static double inverse_distribution( double prob,
                                     double (*distfunc)( double value, long prm1, long prm2),
                                     long prm1, long prm2 )

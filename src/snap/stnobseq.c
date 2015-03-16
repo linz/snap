@@ -42,8 +42,6 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: stnobseq.c,v 1.6 2005/08/02 00:37:39 ccrook Exp $";
-
 int scale_error = 0;
 char  floating_stations;
 

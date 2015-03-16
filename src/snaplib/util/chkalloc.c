@@ -33,8 +33,6 @@
 #define MAGIC_SPACE (sizeof(unsigned))
 #define OFFSET_SIZE( size )  {size += MAGIC_SPACE;}
 #define OFFSET_PTR( ptr ) { *(unsigned *)ptr = MAGIC_NUMBER; \
-static char rcsid[]="$Id: chkalloc.c,v 1.2 2004/04/22 02:35:23 ccrook Exp $";
-
 ptr = (void *)((char *)ptr + MAGIC_SPACE);
 }
 #define RESET_PTR( ptr ) { check_magic_number( ptr ); \

@@ -12,8 +12,6 @@
 #include <math.h>
 #include "util/geodetic.h"
 
-static char rcsid[]="$Id: geodetic.c,v 1.2 2004/04/22 02:35:25 ccrook Exp $";
-
 /*----------------------------------------------------------------*/
 /*  Procedure to compute the rotations relating the topocentric   */
 /*  and gravimetric coordinate systems to the geocentric system   */

@@ -18,8 +18,6 @@
 #include "snap/snapglob.h"
 #include "adjparam.h"
 
-static char rcsid[]="$Id: adjparam.c,v 1.2 2001/05/14 18:26:17 ccrook Exp $";
-
 void set_param_obseq( int pid, void *hA, int irow, double v )
 {
     int rowno;

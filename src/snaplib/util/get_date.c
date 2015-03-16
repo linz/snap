@@ -14,11 +14,9 @@
 #include <time.h>
 #include "util/get_date.h"
 
-static char rcsid[]="$Id: get_date.c,v 1.2 2004/04/22 02:35:25 ccrook Exp $";
-
 static time_t now;
 static struct tm *lt;
-static char *mon[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG",
+static const char *mon[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG",
                       "SEP", "OCT", "NOV", "DEC"
                      };
 static char runtime[GETDATELEN];

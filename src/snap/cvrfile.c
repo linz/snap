@@ -31,8 +31,6 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: cvrfile.c,v 1.3 2004/04/22 02:35:43 ccrook Exp $";
-
 void print_coord_covariance( void )
 {
     int nch;

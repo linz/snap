@@ -19,8 +19,6 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysc2.c,v 1.2 2004/04/22 02:34:21 ccrook Exp $";
-
 /* Conversion of coordinates from one coordinate system to another     */
 /* Converts coordinates, deflections, and undulations.  Input coords   */
 /* are either projection northing, easting, or lat and long in radians */

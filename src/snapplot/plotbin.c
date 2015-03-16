@@ -36,8 +36,6 @@
 #include "snapplot_util.h"
 
 
-static char rcsid[]="$Id: plotbin.c,v 1.2 1997/04/28 10:58:55 CHRIS Exp $";
-
 static int reload_observations( BINARY_FILE *b );
 static int reload_relative_covariances( BINARY_FILE *b );
 

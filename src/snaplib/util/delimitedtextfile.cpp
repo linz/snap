@@ -203,18 +203,18 @@ bool IstreamInput::getNextLine( std::string &line )
 // Reader code
 
 Reader::Reader( InputBase &input, const Format &parser, const Options &options ) :
-    _options( options ),
     _input(&input),
-    _ownInput( false )
+    _ownInput( false ),
+    _options( options )
 {
     _badColumn = 0;
     setup( parser );
 }
 
 Reader::Reader( const std::string filename, const Format &parser, const Options &options ) :
-    _options( options ),
     _input(0),
-    _ownInput( false )
+    _ownInput( false ),
+    _options( options )
 {
     _badColumn = 0;
     _input = new IstreamInput( filename );

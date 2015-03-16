@@ -18,8 +18,6 @@
 #include "coordsys/emproj.h"
 #include "coordsys/emprojr.h"
 
-static char rcsid[]="$Id: emprojr.c,v 1.1 1995/12/22 16:51:42 CHRIS Exp $";
-
 static param_def emparams[]  =
 {
     {
@@ -57,8 +55,8 @@ static int em_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_em_projection( void )
 {
-    char *code = "EM";
-    char *name = "Equatorial Mercator";
+    const char *code = "EM";
+    const char *name = "Equatorial Mercator";
 
     projection_type em;
 

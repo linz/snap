@@ -42,7 +42,7 @@ int pvt_chol_dec( ltmat N, int *col, int np );
 void pvt_chol_slv( ltmat N, ltmat b, ltmat r, int *col, int np );
 void pvt_chol_inv( ltmat N, ltmat tmp, int *col, int np );
 
-void print_ltmat( FILE *out, ltmat N, int nrow, char *format, int indent );
+void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent );
 
 
 #endif

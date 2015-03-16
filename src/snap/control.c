@@ -74,8 +74,6 @@
 #define DTP_VELOCITY 1
 #define DTP_LINZDEF  2
 
-static char rcsid[]="$Id: control.c,v 1.9 2004/04/22 02:35:43 ccrook Exp $";
-
 static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -292,7 +290,7 @@ int process_default_configuration( void )
 }
 
 
-#pragma warning( disable : 4100 )
+// #pragma warning( disable : 4100 )
 
 static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

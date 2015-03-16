@@ -59,8 +59,6 @@
 
 #define RTOD (180.0/PI)
 
-static char rcsid[]="$Id: bindata2.c,v 1.6 2004/04/22 02:35:42 ccrook Exp $";
-
 /* Definition of output fields that may be put in a residual listing file */
 
 typedef struct
@@ -1132,7 +1130,7 @@ static void setup_default_format( int type )
     }
 }
 
-#pragma warning (disable : 4127)
+// #pragma warning (disable : 4127)
 
 static void setup_format_definitions( void )
 {

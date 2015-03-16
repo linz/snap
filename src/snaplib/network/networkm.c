@@ -16,8 +16,6 @@
 #include "network/network.h"
 
 
-static char rcsid[]="$Id: networkw.c,v 1.1 1995/12/22 17:38:10 CHRIS Exp $";
-
 /*=============================================================*/
 /* Routine to merge two networks.                              */
 

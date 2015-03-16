@@ -35,8 +35,6 @@
 #define FILL_CHAR '*'
 #endif
 
-static char rcsid[]="$Id: progress.c,v 1.3 2004/04/22 01:44:36 ccrook Exp $";
-
 static long increment;
 static long lasttick;
 static long meter_max;

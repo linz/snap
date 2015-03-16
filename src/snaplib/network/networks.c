@@ -25,8 +25,6 @@
 
 
 
-static char rcsid[]="$Id: networks.c,v 1.2 1998/05/21 04:00:28 ccrook Exp $";
-
 
 #define COMMENT_CHAR '!'
 

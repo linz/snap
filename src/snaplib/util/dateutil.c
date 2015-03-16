@@ -24,8 +24,6 @@
 #include <ctype.h>
 #include "util/dateutil.h"
 
-static char rcsid[]="$Id: julian.c,v 1.2 2004/04/22 02:35:26 ccrook Exp $";
-
 static long julian_day (int day, int month,int year)
 {
     long jdn;

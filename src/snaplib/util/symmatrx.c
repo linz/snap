@@ -35,8 +35,6 @@
 
 #define ROW(N,i) N + ((long) (i) * ((i)+1))/2
 
-static char rcsid[]="$Id: symmatrx.c,v 1.3 2004/04/22 02:35:27 ccrook Exp $";
-
 int chol_dec( ltmat N, int np )
 {
     ltmat r1, r2;
@@ -116,7 +114,7 @@ void chol_inv( ltmat N, ltmat tmp, int np )
 
 
 
-void print_ltmat( FILE *out, ltmat N, int nrow, char *format, int indent )
+void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
 {
     int i, j, k, cols, wid;
     char *f;

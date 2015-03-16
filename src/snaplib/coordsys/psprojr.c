@@ -18,8 +18,6 @@
 #include "coordsys/psproj.h"
 #include "coordsys/psprojr.h"
 
-static char rcsid[]="$Id: psprojr.c,v 1.1 1995/12/22 17:00:20 CHRIS Exp $";
-
 static int read_north_south( input_string_def *is, void *address );
 static int print_north_south( output_string_def *os, void *address );
 
@@ -73,8 +71,8 @@ static int ps_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_ps_projection( void )
 {
-    char *code = "PS";
-    char *name = "Polar Stereographic";
+    const char *code = "PS";
+    const char *name = "Polar Stereographic";
 
     projection_type ps;
 

@@ -41,8 +41,8 @@ int SnapCsvStn::CsvClassification::classValue()
 // CsvClassColumn
 
 SnapCsvStn::CsvClassColumn::CsvClassColumn( network *net, const std::string &classname, const Column *column ) :
-    _net(net),
-    _column(column)
+    _column(column),
+    _net(net)
 {
     _classId = network_class_id(_net, classname.c_str(), 1 );
 }
@@ -52,7 +52,6 @@ SnapCsvStn::CsvClassColumn::CsvClassColumn( network *net, const std::string &cla
 
 SnapCsvStn::SnapCsvStn( network *net, const std::string &name, const OptionString &config) :
     SnapCsvBase(name, config),
-    _net(net),
     _code("Station code"),
     _name("Station name"),
     _crdlon("Longitude/easting"),
@@ -63,6 +62,7 @@ SnapCsvStn::SnapCsvStn( network *net, const std::string &name, const OptionStrin
     _crdeta("Deflection north"),
     _crdsys("Coordinate system"),
     _hgttype("Height type"),
+    _net(net),
     _haveGeoid(false),
     _ellipsoidalHeights(false)
 {

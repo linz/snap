@@ -20,8 +20,6 @@
 #define M_PI PI
 #endif
 
-static char rcsid[]="$Id:$";
-
 static double epoch;
 static grid_def *velgrid;
 static char *model;
@@ -43,7 +41,7 @@ static char *desc3 = NULL;
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 static int init_grid_deformation(  char *pmodel, double pepoch )
 {

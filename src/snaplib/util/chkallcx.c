@@ -33,8 +33,6 @@
 
 #define MAGIC_NUMBER 0xA55A
 
-static char rcsid[]="$Id: chkallcx.c,v 1.2 2004/04/22 02:35:23 ccrook Exp $";
-
 typedef struct MemFile_s
 {
     struct MemFile_s *next;

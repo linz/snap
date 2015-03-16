@@ -11,8 +11,6 @@
 #include "util/errdef.h"
 #include "string.h"
 
-static char rcsid[]="$Id: datatype.c,v 1.1 1995/12/22 18:41:13 CHRIS Exp $";
-
 /* Definition of survey datatypes. */
 
 datatypedef datatype[] =

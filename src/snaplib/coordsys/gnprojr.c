@@ -18,8 +18,6 @@
 #include "coordsys/gnproj.h"
 #include "coordsys/gnprojr.h"
 
-static char rcsid[]="$Id: gnprojr.c,v 1.1 1995/12/22 16:53:25 CHRIS Exp $";
-
 static param_def gnparams[]  =
 {
     {
@@ -65,8 +63,8 @@ static int gn_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_gnomic_projection( void )
 {
-    char *code = "GN";
-    char *name = "Gnomic";
+    const char *code = "GN";
+    const char *name = "Gnomic";
 
     projection_type gn;
 

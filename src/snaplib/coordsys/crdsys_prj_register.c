@@ -16,8 +16,6 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 
-static char rcsid[]="$Id: crdsys_prj.c,v 1.1 1995/12/22 16:43:40 CHRIS Exp $";
-
 typedef struct prj_list_s
 {
     struct prj_list_s *next;

@@ -15,8 +15,6 @@
 #include "util/dstring.h"
 
 
-static char rcsid[]="$Id: crdsyse0.c,v 1.1 1995/12/22 16:32:47 CHRIS Exp $";
-
 void init_ellipsoid( ellipsoid *el, double a, double rf )
 {
     el->a = a;

@@ -24,8 +24,6 @@
 #include "util/errdef.h"
 
 
-static char rcsid[]="$Id: crdsysd0.c,v 1.1 1995/12/22 16:28:07 CHRIS Exp $";
-
 static crdsys_source_def *sources = NULL;
 static int update_id = 0;
 

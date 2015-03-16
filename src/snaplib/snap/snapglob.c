@@ -30,8 +30,6 @@
 #include "util/fileutil.h"
 
 
-static char rcsid[]="$Id: snapglob.c,v 1.5 2003/11/24 01:34:13 ccrook Exp $";
-
 void init_snap_globals()
 {
     int i;

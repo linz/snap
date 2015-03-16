@@ -17,8 +17,6 @@
 #include "util/chkalloc.h"
 
 
-static char rcsid[]="$Id: netstns.c,v 1.1 1995/12/22 17:31:03 CHRIS Exp $";
-
 /* Create a station ... */
 
 station *new_station( void )

@@ -50,8 +50,6 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: snaplist.c,v 1.6 2003/10/27 21:59:36 ccrook Exp $";
-
 static coord_conversion to_xyz;
 static coord_conversion from_xyz;
 static ellipsoid *el;
@@ -757,7 +755,7 @@ static char *interpret_escaped_string( char *source, char *target, int maxtgt )
     return target;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -784,7 +782,7 @@ static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len,
     return OK;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -812,7 +810,7 @@ static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int cod
     return OK;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -829,7 +827,7 @@ static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int co
     return OK;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -858,7 +856,7 @@ static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int cod
     return OK;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -898,7 +896,7 @@ static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, in
 }
 
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 #define MAX_PREFIX 30
 

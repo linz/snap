@@ -37,11 +37,12 @@ DMS *deg_dms( double d, DMS *dms );
 #define DMSF_FMT_INPUT_RADIANS 8
 
 void *create_dms_format( int ndeg, int ndp, int fmt,
-                         char *deg, char *min, char *sec, char *plus, char *minus );
+                         const char *deg, const char *min, const char *sec, 
+                         const char *plus, const char *minus );
 void delete_dms_format( void *dmsf );
 
 /* Note: if str is null this returns a static string */
 
-char *dms_string( double d, void *dmsf, char *str );
+const char *dms_string( double d, void *dmsf, char *str );
 
 #endif

@@ -45,8 +45,6 @@
 #include "notedata.h"
 #include "snap/datastat.h"
 
-static char rcsid[]="$Id: residual.c,v 1.6 2004/04/22 02:35:44 ccrook Exp $";
-
 typedef struct
 {
     int from;

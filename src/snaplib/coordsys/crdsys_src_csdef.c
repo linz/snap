@@ -44,8 +44,6 @@ that the file had not been modified in the mean time - tricky .
 
 #define END_NOTE_MARKER "end_note"
 
-static char rcsid[]="$Id: crdsysfl.c,v 1.1 1995/12/22 16:36:03 CHRIS Exp $";
-
 /* Structure used to record reference frames and ellipsoids already
    passed when loading a coordinate system */
 

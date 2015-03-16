@@ -61,8 +61,8 @@ enum
 struct datatypedef
 {
     int    id;
-    char   *code;
-    char   *name;
+    const char   *code;
+    const char   *name;
     bool   ispoint;    /* True if is a point observation (ie no target station) */
     bool   isvector;   /* True if multiple components of observation */
     bool   isangle;    /* True if components are read as angles */

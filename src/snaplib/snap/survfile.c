@@ -18,8 +18,6 @@
 #include "util/errdef.h"
 #include "util/fileutil.h"
 
-static char rcsid[]="$Id: survfile.c,v 1.1 1995/12/22 18:36:41 CHRIS Exp $";
-
 static survey_data_file **sdindx = NULL;
 static int nsdindx = 0;
 static int maxsdindx = 0;

@@ -45,7 +45,7 @@ private:
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 
 LinzDefModel::LinzDefModel( char *filename, double pepoch )

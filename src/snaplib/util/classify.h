@@ -57,7 +57,7 @@ int classification_id( classifications *csf, const char *name, int create );
 char * classification_name( classifications *csf, int id );
 int classification_type( classifications *csf, int class_id );
 
-void set_default_class_value( classifications *csf, int class_id, char *dflt );
+void set_default_class_value( classifications *csf, int class_id, const char *dflt );
 int class_value_id( classifications *csf, int class_id, const char *name, int create );
 char * class_value_name( classifications *csf, int class_id, int id );
 int class_value_count( classifications *csf, int class_id );

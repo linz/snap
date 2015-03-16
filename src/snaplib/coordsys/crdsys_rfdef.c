@@ -31,8 +31,6 @@
 #include "util/fileutil.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysr4.c,v 1.3 2004/04/22 02:34:21 ccrook Exp $";
-
 static int default_describe_func(ref_frame *rf, output_string_def *os )
 {
     char buf[32];
@@ -56,7 +54,6 @@ int parse_ref_deformation_def ( input_string_def *is, ref_deformation **prdf )
 {
     char type[20+1];
     int sts;
-    long loc;
     ref_deformation *rdf;
 
     *prdf = 0;

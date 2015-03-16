@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 #ifndef _LINZ_CALCDLTFILE_HPP
 #define _LINZ_CALCDLTFILE_HPP
 

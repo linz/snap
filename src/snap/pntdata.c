@@ -50,8 +50,6 @@
 #include "util/pi.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: pntdata.c,v 1.6 2004/04/22 02:35:44 ccrook Exp $";
-
 static void *latobsfmt = NULL;
 static void *lonobsfmt = NULL;
 

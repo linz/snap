@@ -86,8 +86,6 @@
 #include "util/leastsqu.h"
 #include "version.h"
 
-static char rcsid[]="$Id: snapmain.c,v 1.10 2004/04/22 02:35:44 ccrook Exp $";
-
 static void print_help( void );
 static void print_command_file( void );
 static int read_parameters( int argc, char *argv[] );

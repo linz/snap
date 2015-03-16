@@ -29,8 +29,8 @@
 
 struct projection_type_s
 {
-    char *code;        /* Code for the projection type, eg TM, NZMG, LCC */
-    char *name;        /* Name of the type, eg Transverse Mercator */
+    const char *code;        /* Code for the projection type, eg TM, NZMG, LCC */
+    const char *name;        /* Name of the type, eg Transverse Mercator */
     int size;
 
     param_def *params;  /* List of parameters */

@@ -129,6 +129,7 @@ static ref_deformation_xyz *rf_xyz_create( ref_deformation *def, char *descripti
     def->data = dxyz;
     def->apply_llh = rf_xyz_apply;
     def->calc_denu = rf_xyz_calc;
+    def->copy_func= rf_xyz_copy;
     def->delete_func = rf_xyz_delete;
     def->describe_func = rf_xyz_describe;
     def->identical = rf_xyz_identical;
@@ -142,7 +143,7 @@ int rfdef_parse_bw14def( ref_deformation *def, input_string_def *is )
     double rx=0, ry=0, rz=0;
     double sf=0;
     int sts = OK;
-    char *bad = 0;
+    const char *bad = 0;
     ref_deformation_xyz *dxyz;
     char description[256];
 
@@ -218,7 +219,7 @@ int rfdef_parse_eulerdef( ref_deformation *def, input_string_def *is )
     double refepoch=0;
     double lon=0,lat=0,rate=0;
     int sts = OK;
-    char *bad = 0;
+    const char *bad = 0;
     double clt, slt, cln, sln;
     char description[256];
     ref_deformation_xyz *dxyz;
@@ -240,7 +241,7 @@ int rfdef_parse_eulerdef( ref_deformation *def, input_string_def *is )
         }
         else
         {
-            strcpy("Invalid value for ",errmess);
+            strcpy(errmess,"Invalid value for ");
             strcat(errmess,bad);
         }
         report_string_error( is, sts, errmess );

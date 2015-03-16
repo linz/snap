@@ -21,8 +21,6 @@
 #include "util/linklist.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: linklist.c,v 1.2 2004/04/22 02:35:26 ccrook Exp $";
-
 typedef struct element_s
 {
     struct element_s *next;   /* Next member of list */

@@ -15,8 +15,6 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: psproj.c,v 1.1 1995/12/22 16:59:38 CHRIS Exp $";
-
 void define_PSProjection( PSProjection *psp, double a, double rf,
                           double cm, double sf, double fe, double fn, char south )
 {

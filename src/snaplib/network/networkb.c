@@ -17,8 +17,6 @@
 
 #define SECTION_NAME "Network"
 
-static char rcsid[]="$Id: networkb.c,v 1.1 1995/12/22 17:32:55 CHRIS Exp $";
-
 void dump_network_to_bin( network *net, BINARY_FILE *b )
 {
     create_section( b, SECTION_NAME );

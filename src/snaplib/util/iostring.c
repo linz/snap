@@ -22,15 +22,13 @@
 #include "util/errdef.h"
 #include "util/iostring.h"
 
-static char rcsid[]="$Id: iostring.c,v 1.4 2004/04/22 02:35:25 ccrook Exp $";
-
 void set_input_string_def( input_string_def *is, char *string )
 {
     is->ptr = string;
     is->buffer = string;
     is->sourcename = 0;
     is->source = NULL;
-    is->report_error = (int (*)(void *,int,char*)) 0;
+    is->report_error = (input_string_errfunc) 0;
 }
 
 static int find_next_field( input_string_def *is )
@@ -126,7 +124,7 @@ int skip_string_field( input_string_def *is )
 }
 
 
-static int parse_number( input_string_def *is, char *fmt, void *value )
+static int parse_number( input_string_def *is, const char *fmt, void *value )
 {
     int length, nfld, sts;
     char *fld, save, garbage;
@@ -212,7 +210,7 @@ char *unread_string( input_string_def *is )
     return is->ptr;
 }
 
-void report_string_error( input_string_def *is, int status, char *message )
+void report_string_error( input_string_def *is, int status, const char *message )
 {
     if( is->report_error )
     {

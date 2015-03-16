@@ -19,8 +19,6 @@
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
 
-static char rcsid[]="$Id: crdsysc3.c,v 1.2 2003/05/26 22:53:58 ccrook Exp $";
-
 #define READ_STRING( name, str, len ) \
   if( sts == OK ) { \
         bad = name; \
@@ -46,7 +44,7 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
     coordsys *cs = NULL;
     char got_range;
     double range[4];
-    char *bad = "";
+    const char *bad = "";
     int sts = OK;
     long loc;
 

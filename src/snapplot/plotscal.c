@@ -20,8 +20,6 @@
 #include "util/probfunc.h"
 #include "snap/snapglob.h"
 
-static char rcsid[]="$Id: plotscal.c,v 1.2 1996/07/12 20:33:13 CHRIS Exp $";
-
 static char autoscale_stnsize;
 static char autoscale_txtsize;
 static double stn_autosf;

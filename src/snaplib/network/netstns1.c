@@ -15,8 +15,6 @@
 #include "util/dstring.h"
 #include "util/chkalloc.h"
 
-static char rcsid[]="$Id: netstns1.c,v 1.1 1995/12/22 17:31:54 CHRIS Exp $";
-
 /* Procedure to dump the station coordinates to a binary file */
 /* Flags are dumped separately to improve binary file compatibility
    between different compilers */

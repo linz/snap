@@ -28,8 +28,6 @@
 #include "plotscal.h"
 #include "coordsys/tmprojr.h"
 
-static char rcsid[]="$Id: plotstns.c,v 1.2 1996/07/12 20:33:24 CHRIS Exp $";
-
 /* Structure used to hold plotting information about a station */
 
 typedef struct

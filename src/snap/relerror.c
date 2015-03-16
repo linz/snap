@@ -43,8 +43,6 @@
 #include "relerror.h"
 #include "util/progress.h"
 
-static char rcsid[]="$Id: relerror.c,v 1.8 2003/10/23 01:29:04 ccrook Exp $";
-
 static void calc_relative_obseq( station *st1, station *st2, void *hA )
 {
     vector3 dif;

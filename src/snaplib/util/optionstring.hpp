@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 #ifndef _LINZ_OPTIONSTRING_HPP
 #define _LINZ_OPTIONSTRING_HPP
 

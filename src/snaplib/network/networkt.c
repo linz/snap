@@ -13,8 +13,6 @@
 
 #include "network/network.h"
 
-static char rcsid[]="$Id: networkt.c,v 1.1 1995/12/22 17:37:50 CHRIS Exp $";
-
 static void calc_topocentre( network *nw )
 {
     int i;

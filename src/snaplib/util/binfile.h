@@ -39,10 +39,10 @@ typedef struct
 BINARY_FILE *create_binary_file( char *fname, char *header );
 BINARY_FILE *open_binary_file( char *fname, char *header );
 void close_binary_file( BINARY_FILE *bin );
-void create_section_ex( BINARY_FILE *bin, char *section, long version );
-void create_section( BINARY_FILE *bin, char *section );
+void create_section_ex( BINARY_FILE *bin, const char *section, long version );
+void create_section( BINARY_FILE *bin, const char *section );
 void end_section( BINARY_FILE *bin );
-int find_section( BINARY_FILE *bin, char *section );
+int find_section( BINARY_FILE *bin, const char *section );
 int check_end_section( BINARY_FILE *bin );
 
 #define DUMP_BIN(x,b)   fwrite(&x,sizeof(x),1,b->f)

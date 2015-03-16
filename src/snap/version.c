@@ -21,8 +21,6 @@
 #include "version.h"
 #include "util/versioninfo.h"
 
-static char rcsid[] = "$Id: version.c,v 1.3 2004/03/10 21:18:48 ccrook Exp $";
-
 char *version_number( void ) { return ProgramVersion.version; }
 char *version_date( void ) { return ProgramVersion.builddate; }
 

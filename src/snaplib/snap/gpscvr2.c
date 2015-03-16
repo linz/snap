@@ -19,8 +19,6 @@
 #include "snap/stnadj.h"
 #include "snap/rftrans.h"
 
-static char rcsid[]="$Id: gpscvr2.c,v 1.1 1995/12/22 17:44:59 CHRIS Exp $";
-
 static double dflttmat[] = { 1.0, 0.0, 0.0,
                              0.0, 1.0, 0.0,
                              0.0, 0.0, 1.0

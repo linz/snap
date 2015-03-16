@@ -54,8 +54,6 @@
 #define W1 2
 #define W2 1
 
-static char rcsid[]="$Id: reorder.c,v 1.2 2004/04/22 02:35:44 ccrook Exp $";
-
 typedef struct
 {
     int count;

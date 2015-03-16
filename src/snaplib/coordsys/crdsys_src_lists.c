@@ -20,8 +20,6 @@
 #include "util/linklist.h"
 #include "util/chkalloc.h"
 
-static char rcsid[]="$Id: crdsysd1.c,v 1.1 1995/12/22 16:29:18 CHRIS Exp $";
-
 typedef struct
 {
     long id;
@@ -93,7 +91,7 @@ static void delete_crdsys_list( crdsys_list *cl )
     cl->count = 0;
 }
 
-#pragma warning( disable : 4100)
+// #pragma warning( disable : 4100)
 
 static int delete_crdsys_lists( void *dummy )
 {

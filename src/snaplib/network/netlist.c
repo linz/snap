@@ -23,8 +23,6 @@
 #define CDECL
 #endif
 
-static char rcsid[]="$Id: netlist.c,v 1.1 1995/12/22 17:29:51 CHRIS Exp $";
-
 /*=======================================================*/
 /* Maintain a list of stations ...                       */
 /* The stations are entered as a linked list.  Once entry*/

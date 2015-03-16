@@ -36,8 +36,6 @@
 #include "output.h"
 
 
-static char rcsid[]="$Id: ressumry.c,v 1.2 1998/06/15 02:21:01 ccrook Exp $";
-
 /* summary_def defines a summary that is required.  The levels are defined
    as an array of level_id's.  Possible values are BY_DATA_TYPE, BY_FILE,
    or the number of a classification type.  */

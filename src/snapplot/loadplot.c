@@ -33,8 +33,6 @@
 #include "snapplot_util.h"
 
 
-static char rcsid[]="$Id: loadplot.c,v 1.3 1996/07/12 20:32:06 CHRIS Exp $";
-
 /* Callback function used by loaddata to get id's of various objects */
 
 typedef struct missing_stn_s

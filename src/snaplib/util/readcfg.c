@@ -58,8 +58,6 @@
 
 
 
-static char rcsid[]="$Id: readcfg.c,v 1.2 2004/04/22 02:35:27 ccrook Exp $";
-
 CFG_FILE *open_config_file( const char *name, char comment_char )
 {
     FILE *cfgfil;
@@ -202,7 +200,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
     int end, initcount;
     config_item *it;
     int errstat;
-    char *blank="";
+    const char *blank="";
 
     /* Get the initial error count */
 
@@ -336,15 +334,15 @@ void clear_config_abort( CFG_FILE *cfg )
 }
 
 #ifdef __BORLANDC__
-#pragma warn -par
+// #pragma warn -par
 #endif
 
 #ifdef __TSC__
-#pragma warn(wpnu=>off)
+// #pragma warn(wpnu=>off)
 #endif
 
 
-#pragma warning( disable: 4100 )
+// #pragma warning( disable: 4100 )
 
 int readcfg_int( CFG_FILE *cfg, char *str, void *value, int length, int code )
 {

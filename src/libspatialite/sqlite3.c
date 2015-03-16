@@ -258,11 +258,11 @@
 
 /* Disable nuisance warnings on Borland compilers */
 #if defined(__BORLANDC__)
-#pragma warn -rch /* unreachable code */
-#pragma warn -ccc /* Condition is always true or false */
-#pragma warn -aus /* Assigned value is never used */
-#pragma warn -csu /* Comparing signed and unsigned */
-#pragma warn -spa /* Suspicious pointer arithmetic */
+// #pragma warn -rch /* unreachable code */
+// #pragma warn -ccc /* Condition is always true or false */
+// #pragma warn -aus /* Assigned value is never used */
+// #pragma warn -csu /* Comparing signed and unsigned */
+// #pragma warn -spa /* Suspicious pointer arithmetic */
 #endif
 
 /* Needed for various definitions... */

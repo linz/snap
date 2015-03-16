@@ -32,8 +32,6 @@
 #define TOLERANCE 1.0e-9
 
 
-static char rcsid[]="$Id: lambert.c,v 1.1 1995/12/22 16:55:15 CHRIS Exp $";
-
 static double calc_m( double e, double lt )
 {
     double es;

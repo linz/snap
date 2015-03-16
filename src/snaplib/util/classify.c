@@ -40,8 +40,6 @@
 
 #define BLOCK_SIZE 10
 
-static char rcsid[]="$Id: classify.c,v 1.1 1995/12/22 17:40:45 CHRIS Exp $";
-
 #ifdef DEBUG
 
 #define CHECK_CLASS_ID( csf, id) check_class_id( csf, id )
@@ -269,7 +267,7 @@ int classification_count(  classifications *csf )
     return csf->class_count;
 }
 
-void set_default_class_value( classifications *csf, int class_id, char *dflt )
+void set_default_class_value( classifications *csf, int class_id, const char *dflt )
 {
     class_type *ct;
 

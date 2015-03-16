@@ -16,9 +16,7 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: gnproj.c,v 1.1 1995/12/22 16:52:54 CHRIS Exp $";
-
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 void define_gnomic_projection( GnomicProjection *gp, double a, double rf,
                                double orglat, double orglon, double fe, double fn )

@@ -17,7 +17,7 @@
 
 /* Definitions of an input and output string structure */
 
-typedef int (*input_string_errfunc)( void *source, int status, char *message );
+typedef int (*input_string_errfunc)( void *source, int status, const char *message );
 typedef struct
 {
     char *buffer;   /* The input string data */
@@ -58,7 +58,7 @@ long get_string_loc( input_string_def *is );
 void set_string_loc( input_string_def *is, long loc );
 int end_of_string( input_string_def *is );
 char *unread_string( input_string_def *is );
-void report_string_error( input_string_def *is, int status, char *message );
+void report_string_error( input_string_def *is, int status, const char *message );
 
 int write_output_string( output_string_def *os, const char *s );
 int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix );

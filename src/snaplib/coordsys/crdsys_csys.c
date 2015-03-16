@@ -17,10 +17,8 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysc0.c,v 1.1 1995/12/22 16:25:13 CHRIS Exp $";
-
-static char *metre_units = "m";
-static char *radian_units = "rad";
+static const char *metre_units = "m";
+static const char *radian_units = "rad";
 
 coordsys *create_coordsys( const char *code, const char *name, int type,
                            ref_frame *rf, projection *prj )

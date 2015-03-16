@@ -18,8 +18,6 @@
 #include "util/dstring.h"
 #include "util/chkalloc.h"
 
-static char rcsid[]="$Id: dstring.c,v 1.2 2004/04/22 02:35:24 ccrook Exp $";
-
 char *copy_string( const char *string )
 {
     return copy_string_nch( string, string ? strlen(string) : 0 );
@@ -72,7 +70,7 @@ int ismatch( const char *string1, const char *string2 )
     if( ! string1 || ! string2 ) return 0;
     for( s1 = string1, s2=string2; ; s1++, s2++ )
     {
-        if( *s1 != *s2 && map[*s1] != map[*s2] ) return 0;
+        if( *s1 != *s2 && map[(int)(*s1)] != map[(int)(*s2)] ) return 0;
         if( ! *s1 ) break;
     }
     return 1;

@@ -18,8 +18,6 @@
 #include "util/errdef.h"
 
 
-static char rcsid[]="$Id: netlist1.c,v 1.1 1995/12/22 17:30:10 CHRIS Exp $";
-
 void dump_station_list( station_list *sl, FILE *f )
 {
     station *st;

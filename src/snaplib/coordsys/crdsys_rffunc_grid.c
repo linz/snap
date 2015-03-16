@@ -31,8 +31,6 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysr5.c,v 1.3 2004/04/22 02:34:21 ccrook Exp $";
-
 enum {NULL_GRID, SNAP2D_GRID};
 
 typedef struct

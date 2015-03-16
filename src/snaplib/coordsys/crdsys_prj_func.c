@@ -9,8 +9,6 @@
 #include <stdio.h>
 #include "coordsys/crdsys_prj.h"
 
-static char rcsid[]="$Id: crdsysp2.c,v 1.1 1995/12/22 16:40:21 CHRIS Exp $";
-
 /* Routines for convert to and from coordinate system projections */
 
 /* Projection to and from geodetic coordinates                 */

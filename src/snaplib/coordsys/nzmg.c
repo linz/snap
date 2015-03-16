@@ -9,8 +9,6 @@
 #include "util/pi.h"
 #include "coordsys/nzmg.h"
 
-static char rcsid[]="$Id: nzmg.c,v 1.1 1995/12/22 16:56:53 CHRIS Exp $";
-
 /*
   Coefficients for converting NZMG coordinates to longitude and latitude
   From L+S technical note set 1973/32

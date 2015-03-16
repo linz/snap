@@ -15,8 +15,6 @@
 #include "util/dstring.h"
 
 
-static char rcsid[]="$Id: rftrndmp.c,v 1.1 1995/12/22 17:47:24 CHRIS Exp $";
-
 void dump_rftransformations( BINARY_FILE *b )
 {
     int nrf;

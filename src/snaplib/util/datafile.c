@@ -41,14 +41,12 @@
 #define COMMENT_CHR      '!'
 #define QUOTE_CHR        '\"'
 
-static char rcsid[]="$Id: datafile.c,v 1.4 2004/04/22 02:35:24 ccrook Exp $";
-
 static int default_reclen = 256;
 
 #define ISSPACE(x) ((x)==' ' || (x)=='\r' || (x)=='\n' || (x)=='\t' || (x)=='\x1A')
 
-static char *utf8_bom = "\xEF\xBB\xBF";
-static char *utf16_bom = "\xFF\xFE\x46";
+static const char *utf8_bom = "\xEF\xBB\xBF";
+static const char *utf16_bom = "\xFF\xFE\x46";
 
 int df_data_file_default_reclen( int newlen )
 {
@@ -81,8 +79,8 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     nch = fread(msg,1,80,f);
     unicode = 0;
     binary = 0;
-    if( nch >= strlen(utf8_bom) &&memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
-    if( nch >= strlen(utf16_bom) &&memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
+    if( nch >= strlen(utf8_bom) && memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
+    if( nch >= strlen(utf16_bom) && memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
     if( ! unicode )
     {
         for( i = 0; i < nch; i++ )

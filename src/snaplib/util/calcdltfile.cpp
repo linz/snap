@@ -195,12 +195,15 @@ void LookupValue::calcValue( string &value )
 ///////////////////////////////////////////////////////////////
 // ConcatValue
 
-ConcatValue::ConcatValue() : _binder(0), _default(0)
+ConcatValue::ConcatValue() : 
+    _default(0),
+    _binder(0)
 {
 }
 
-ConcatValue::ConcatValue( const ConcatValue &ccol )
-    : _binder(0), _default(0)
+ConcatValue::ConcatValue( const ConcatValue &ccol ) :
+    _default(0),
+    _binder(0)
 
 {
     for( vector<CalcValue *>::const_iterator c = ccol._components.begin(); c < ccol._components.end(); c++ )

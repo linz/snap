@@ -46,8 +46,6 @@
 #include "util/progress.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: testspec.c,v 1.8 2004/03/05 02:27:41 ccrook Exp $";
-
 static SpecDef *spechead = NULL;
 static int *stn_testids = NULL;
 static int ntestid = 0;

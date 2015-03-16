@@ -75,8 +75,6 @@
 #include "util/errdef.h"
 
 
-static char rcsid[]="$Id: bltmatrx.c,v 1.5 2004/04/22 02:35:43 ccrook Exp $";
-
 enum { BLT_UNINIT, BLT_ROWS, BLT_READY };
 
 #ifndef BLT_INV_CACHE_SIZE
@@ -314,7 +312,7 @@ void expand_bltmatrix_to_requested( bltmatrix *blt )
     for( i = 0; i < blt->nrow; i++ )
     {
         bltrow *r = &(blt->row[i]);
-        if( r->req < r->col || i >= blt->nsparse && r->col > 0 )
+        if( r->req < r->col || (i >= blt->nsparse && r->col > 0) )
         {
             expand = 1; break;
         }

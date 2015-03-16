@@ -62,8 +62,6 @@ The procedure requires the following sequence of calls
 #include "util/binfile.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: genparam.c,v 1.2 1999/05/18 14:38:30 ccrook Exp $";
-
 typedef struct
 {
     unsigned char action;

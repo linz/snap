@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 #ifndef _SNAP_SNAPCSVBASE_HPP
 #define _SNAP_SNAPCSVBASE_HPP
 

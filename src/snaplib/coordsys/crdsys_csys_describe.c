@@ -20,8 +20,6 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: crdsysc4.c,v 1.2 2003/11/28 01:59:25 ccrook Exp $";
-
 int  describe_ellipsoid( output_string_def *os, ellipsoid *el )
 {
     char out[80];
@@ -72,9 +70,9 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         double af=rf->use_iersunits ? -1000.0 : 1.0;
         const char **components=rf->use_iersunits ? iers_components : std_components;
         const char **units=rf->use_iersunits ? iers_units : std_units;
-        char *format1="    %-14s %8s  %10.5lf %10.5lf %10.5lf\n";
-        char *format2="    %-14s %8s  %10.5lf\n";
-        char *format3="    %-14s %8s  %7.2lf\n";
+        const char *format1="    %-14s %8s  %10.5lf %10.5lf %10.5lf\n";
+        const char *format2="    %-14s %8s  %10.5lf\n";
+        const char *format3="    %-14s %8s  %7.2lf\n";
         int rates = rf->use_rates;
 
         write_output_string( os, "  Relative to ");

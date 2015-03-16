@@ -37,8 +37,6 @@
 #define DEBUG_PRINT(x)
 #endif
 
-static char rcsid[]="$Id: loaddata.c,v 1.2 2004/04/22 02:35:15 ccrook Exp $";
-
 #define ID_UNDEFINED -1
 
 static survdata data;
@@ -171,7 +169,7 @@ static int get_coef_id( int coeftype, int idname )
     return idcoef;
 }
 
-static void report_error( char *location )
+static void report_error( const char *location )
 {
     char msg[100];
 
@@ -610,13 +608,11 @@ void ldt_tgtstn( int stn_id, double ihgt  )
 
 void ldt_nextdata( int type )
 {
-    void *next;
-
     DEBUG_PRINT(("LDT: ldt_nextdata %d", (int) type ));
 
     if( data.format == SD_PNTDATA && data.nobs ) ldt_end_data();
 
-    next = next_data(type);
+    next_data(type);
     if( trgt_cancelled ) ldt_cancel_data();
 }
 

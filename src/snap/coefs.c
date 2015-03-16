@@ -21,8 +21,6 @@
 #include "util/geodetic.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: coefs.c,v 1.2 2001/01/18 00:01:43 ccrook Exp $";
-
 /* The following variables must match the definition of PRM_xxxx in
    the header file */
 

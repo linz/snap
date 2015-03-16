@@ -61,8 +61,6 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: plotconn.c,v 1.6 2001/07/26 00:46:36 ccrook Exp $";
-
 typedef union              /* Location of data on file or in memory */
 {
     long floc;

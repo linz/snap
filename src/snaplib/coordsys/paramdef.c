@@ -19,8 +19,6 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: paramdef.c,v 1.2 2004/04/22 02:34:22 ccrook Exp $";
-
 #define DO_PRINT(fmt,type) \
 	char buf[40];           \
    sprintf(buf,fmt,*(type*)address); \
@@ -126,7 +124,7 @@ int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base
 }
 
 void print_param_list( output_string_def *os, param_def *prms, int nprm,
-                       void *base, char *prefix )
+                       void *base, const char *prefix )
 {
     int iprm;
     int maxlen = 0;

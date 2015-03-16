@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 #ifndef _SNAPCONFIG_HPP
 #define _SNAPCONFIG_HPP
 

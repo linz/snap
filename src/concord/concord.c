@@ -97,8 +97,6 @@
 #define TRUE 1
 #define FALSE 0
 
-static char rcsid[]="$Id: concord2.c,v 1.12 2004/04/22 02:35:49 ccrook Exp $";
-
 static FILE *crdin;
 static FILE *crdout;
 static FILE *crdcom;
@@ -222,7 +220,7 @@ static void clear_screen(void)
 }
 
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 static int printf_func( const char *s, void *dummy )
 {

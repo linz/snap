@@ -23,8 +23,6 @@
 #undef BINDATA_C
 
 
-static char rcsid[]="$Id: bindata.c,v 1.1 1995/12/22 17:38:46 CHRIS Exp $";
-
 static long start_loc;
 static long maxsize = 0;
 

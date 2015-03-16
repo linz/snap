@@ -12,8 +12,6 @@
 #include "util/pi.h"
 #include "coordsys/isometrc.h"
 
-static char rcsid[]="$Id: isometrc.c,v 1.1 1995/12/22 16:54:17 CHRIS Exp $";
-
 /* =================================================================== */
 /* Converts geodetic latitude to isometric                             */
 

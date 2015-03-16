@@ -14,8 +14,6 @@
 
 #include "network/network.h"
 
-static char rcsid[]="$Id: netcalcs.c,v 1.2 2001/11/22 00:31:36 ccrook Exp $";
-
 /*
    Procedure for computing observations equations of basic geodetic
    quantities involving one or two stations.  In each case we return

@@ -32,8 +32,6 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: dxfplot.c,v 1.2 1996/09/06 20:13:36 CHRIS Exp $";
-
 static FILE *dxf = NULL;
 
 static double save_x1, save_y1;
@@ -670,7 +668,7 @@ static void write_symbol_blocks()
 /* DXF plotting routines                                             */
 
 
-#pragma warning (disable: 4100)
+// #pragma warning (disable: 4100)
 
 static void dxf_line( void *dummy, double x, double y, int pen, int dashed )
 {

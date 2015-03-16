@@ -24,8 +24,6 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: bearing.c,v 1.1 2004/04/20 00:58:36 ccrook Exp $";
-
 #define DIST_TOL 1.0e-5
 #define DIST_TOL_2 (DIST_TOL*DIST_TOL)
 

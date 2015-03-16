@@ -20,8 +20,6 @@
 #include "util/dstring.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: crdsysr0.c,v 1.2 2003/11/28 01:59:25 ccrook Exp $";
-
 /* Routine to calculate sines/cosines of rotations and scale difference
    as a ratio, at a specific epoch */
 

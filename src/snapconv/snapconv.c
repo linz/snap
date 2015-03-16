@@ -38,8 +38,6 @@
 #endif
 
 
-static char rcsid[]="$Id: snapconv.c,v 1.6 2004/02/02 03:27:28 ccrook Exp $";
-
 #ifdef SNAPCONV_GRID
 void apply_grid_distortion( network *net, grid_def *grid, int dim, int undo );
 #endif

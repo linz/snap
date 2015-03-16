@@ -16,8 +16,6 @@
 #include "snap/filenames.h"
 
 
-static char rcsid[]="$Id:$";
-
 strarray codes;
 network *base = 0;
 char updateonly = 0;

@@ -15,8 +15,6 @@
 
 #include "snap/datastat.h"
 
-static char rcsid[]="$Id: datastat.c,v 1.1 1996/02/23 16:59:03 CHRIS Exp $";
-
 static double mde_value_used = 0.0;
 static double mde_value_unused = 0.0;
 

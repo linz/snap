@@ -15,8 +15,6 @@
 #define TOP  0x04
 #define BOTTOM 0x08
 
-static char rcsid[]="$Id: trimmer.c,v 1.1 1996/01/03 22:32:46 CHRIS Exp $";
-
 void SetTrimmerExtents( Trimmer *t, double xmin, double ymin, double xmax, double ymax )
 {
     t->xmin = xmin;

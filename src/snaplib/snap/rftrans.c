@@ -20,8 +20,6 @@
 #include "util/pi.h"
 
 
-static char rcsid[]="$Id: rftrans.c,v 1.1 1995/12/22 17:46:54 CHRIS Exp $";
-
 /* Definition of a reference frame transformation   */
 
 /*  A reference frame is related to the local coordinate system by the

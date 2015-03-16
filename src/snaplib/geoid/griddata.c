@@ -26,8 +26,6 @@
 
 #define MAXCACHE 60
 
-static char rcsid[]="$Id: griddata.c,v 1.4 2004/04/22 02:34:33 ccrook Exp $";
-
 #define LOAD(x) if( fread( &(def->x), sizeof(def->x), 1, def->bin ) != 1 ) \
                   { delete_grid_def( def ); return INVALID_DATA; }
 #define LOADV(x) if( fread( &(x), sizeof(x), 1, def->bin ) != 1 ) \

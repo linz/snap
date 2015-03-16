@@ -42,8 +42,6 @@
 #define VERSION_SECTION "\x01_BF_VERSION\x02"
 #define BF_VERSION 1
 
-static char rcsid[]="$Id: binfile.c,v 1.4 2004/04/22 02:35:23 ccrook Exp $";
-
 BINARY_FILE *create_binary_file( char *fname, char *signature )
 {
     FILE *f = NULL;
@@ -196,13 +194,13 @@ void close_binary_file( BINARY_FILE *b )
 }
 
 
-void create_section( BINARY_FILE *b, char *section )
+void create_section( BINARY_FILE *b, const char *section )
 {
     create_section_ex( b, section, 0L );
 }
 
 
-void create_section_ex( BINARY_FILE *b, char *section, long version )
+void create_section_ex( BINARY_FILE *b, const char *section, long version )
 {
     long end;
     end = 0L;
@@ -221,7 +219,7 @@ void create_section_ex( BINARY_FILE *b, char *section, long version )
 }
 
 
-int find_section( BINARY_FILE *b, char *section )
+int find_section( BINARY_FILE *b, const char *section )
 {
     long next;
     char *match;

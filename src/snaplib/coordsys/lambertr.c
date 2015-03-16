@@ -18,8 +18,6 @@
 #include "coordsys/lambertr.h"
 #include "util/pi.h"
 
-static char rcsid[]="$Id: lambertr.c,v 1.1 1995/12/22 16:56:01 CHRIS Exp $";
-
 static projection_type *LCC_type = NULL;
 
 static param_def LCCparams[] =
@@ -74,8 +72,8 @@ static int LCC_geog_to_proj( void *data, double ln, double lt, double *e, double
 
 void register_lcc_projection( void )
 {
-    char *code = "LCC";
-    char *name = "Lambert Conformal Conic";
+    const char *code = "LCC";
+    const char *name = "Lambert Conformal Conic";
     projection_type lcc;
 
     if( LCC_type ) return;

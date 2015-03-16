@@ -34,16 +34,14 @@
 
 #define PLURAL(d) ( ((d)>1) ? "s" : "" )
 
-static char rcsid[]="$Id: survfilr.c,v 1.3 2004/04/22 02:34:48 ccrook Exp $";
-
-#pragma warning ( disable : 4100 )
+// #pragma warning ( disable : 4100 )
 
 static int datafile_progress( DATAFILE *df )
 {
     update_file_display();
     return 1;
 }
-#pragma warning ( default : 4100 )
+// #pragma warning ( default : 4100 )
 
 long read_data_files( char *base_dir, FILE *lst )
 {
@@ -153,7 +151,7 @@ long read_data_files( char *base_dir, FILE *lst )
     return total_errors;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 void count_obs( int type, int ifile, char unused )
 {

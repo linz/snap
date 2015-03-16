@@ -19,8 +19,6 @@
 #define LICENSE_HEADER_LEN 12
 #define MAX_LICENSE_TEXT   80
 
-static char rcsid[]="$Id: license.c,v 1.2 2004/04/22 02:35:26 ccrook Exp $";
-
 char *decrypted_license( unsigned char *license_text )
 {
     int i;

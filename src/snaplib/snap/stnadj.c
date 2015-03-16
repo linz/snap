@@ -20,8 +20,6 @@
 #include "util/fileutil.h"
 #include "util/errdef.h"
 
-static char rcsid[]="$Id: stnadj.c,v 1.1 1995/12/22 17:49:40 CHRIS Exp $";
-
 /* Global variables holding the definition of the network */
 
 network *net = NULL;

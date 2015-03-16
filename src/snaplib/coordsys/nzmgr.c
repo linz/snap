@@ -14,11 +14,9 @@
 #include "coordsys/nzmg.h"
 #include "coordsys/nzmgr.h"
 
-static char rcsid[]="$Id: nzmgr.c,v 1.1 1995/12/22 16:57:25 CHRIS Exp $";
-
 static projection_type *nzmg_type = NULL;
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 static int nzmg_proj_to_geog( void *data, double e, double n, double *ln, double *lt )
 {
@@ -34,8 +32,8 @@ static int nzmg_geog_to_proj( void *data, double ln, double lt, double *e, doubl
 
 void register_nzmg_projection( void )
 {
-    char *code = "NZMG";
-    char *name = "New Zealand Map Grid";
+    const char *code = "NZMG";
+    const char *name = "New Zealand Map Grid";
     projection_type nzmg;
 
     if( nzmg_type ) return;

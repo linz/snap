@@ -19,8 +19,6 @@
 #include "util/avltree.h"
 
 
-static char rcsid[]="$Id: avltree.c,v 1.2 2004/04/22 02:35:23 ccrook Exp $";
-
 typedef enum { BALANCED, LEFT_TALLER, RIGHT_TALLER } balance_t;
 enum { NO_CHANGE, IS_TALLER };
 

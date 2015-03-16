@@ -222,26 +222,26 @@ typedef struct
 
 /* Structure used to define valid specification commands within the data file */
 
-static int read_error_command( snapfile_def *sd, int id, char *cmd );
-static int read_angle_type_command( snapfile_def *sd, int id, char *cmd );
-static int read_date_command( snapfile_def *sd, int id, char *cmd );
-static int read_time_command( snapfile_def *sd, int id, char *cmd );
-static int read_proj_command( snapfile_def *sd, int id, char *cmd );
-static int read_coef_command( snapfile_def *sd, int id, char *cmd );
-static int read_gps_errtype_command( snapfile_def *sd, int id, char *cmd );
-static int read_syserr_command( snapfile_def *sd, int id, char *cmd );
-static int read_classification( snapfile_def *sd, int id, char *cmd );
-static int read_classify_command( snapfile_def *sd, int id, char *cmd );
-static int read_endset_command( snapfile_def *sd, int id, char *cmd );
-static int read_note_command( snapfile_def *sd, int id, char *cmd );
-static int read_data_command( snapfile_def *sd, int id, char *cmd );
-static int read_endset_command( snapfile_def *sd, int id, char *cmd );
+static int read_error_command( snapfile_def *sd, int id, const char *cmd );
+static int read_angle_type_command( snapfile_def *sd, int id, const char *cmd );
+static int read_date_command( snapfile_def *sd, int id, const char *cmd );
+static int read_time_command( snapfile_def *sd, int id, const char *cmd );
+static int read_proj_command( snapfile_def *sd, int id, const char *cmd );
+static int read_coef_command( snapfile_def *sd, int id, const char *cmd );
+static int read_gps_errtype_command( snapfile_def *sd, int id, const char *cmd );
+static int read_syserr_command( snapfile_def *sd, int id, const char *cmd );
+static int read_classification( snapfile_def *sd, int id, const char *cmd );
+static int read_classify_command( snapfile_def *sd, int id, const char *cmd );
+static int read_endset_command( snapfile_def *sd, int id, const char *cmd );
+static int read_note_command( snapfile_def *sd, int id, const char *cmd );
+static int read_data_command( snapfile_def *sd, int id, const char *cmd );
+static int read_endset_command( snapfile_def *sd, int id, const char *cmd );
 
 typedef struct
 {
     const char *command;
     int id;
-    int (*action)( snapfile_def *sd, int id, char *cmd );
+    int (*action)( snapfile_def *sd, int id, const char *cmd );
     int flags;
 } command;
 
@@ -669,9 +669,9 @@ static void load_data_syserrs( snapfile_def *sd )
 /* Handling of refraction coefficients, distance scale errors, and     */
 /* bearing orientation errors                                          */
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_proj_command( snapfile_def *sd, int id, char *cmd )
+static int read_proj_command( snapfile_def *sd, int id, const char *cmd )
 {
     char name[NAMELEN];
 
@@ -699,7 +699,7 @@ static int get_coef_class_id( snapfile_def *sd, int id )
     return classid;
 }
 
-static int read_coef_command( snapfile_def *sd, int id, char *cmd )
+static int read_coef_command( snapfile_def *sd, int id, const char *cmd )
 {
     char name[NAMELEN]={0};
     int classid;
@@ -747,9 +747,9 @@ static void load_projection( snapfile_def *sd )
 
 /*=====================================================================*/
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
+static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
 {
     double value[3];
 
@@ -766,7 +766,7 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
 
     struct
     {
-        char *code;
+        const char *code;
         double fact;
         double *value;
         int  found;
@@ -943,7 +943,7 @@ static int read_error_command( snapfile_def *sd, int errtype, char *cmd )
 static void report_missing_default_error( snapfile_def *sd, snap_data_type *obstype )
 {
     char errmsg[100];
-    char *errcmd;
+    const char *errcmd;
     int ic;
 
     errcmd = 0;
@@ -1060,17 +1060,17 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 /*===================================================================*/
 /* Routines to define and read a data field element                  */
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_angle_type_command( snapfile_def *sd, int id, char *cmd )
+static int read_angle_type_command( snapfile_def *sd, int id, const char *cmd )
 {
     sd->dmsformat = id;
     return OK;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_date_command( snapfile_def *sd, int id, char *cmd )
+static int read_date_command( snapfile_def *sd, int id, const char *cmd )
 {
     char datestr[32];
     int ok;
@@ -1142,9 +1142,9 @@ static int read_date( DATAFILE *d, double *obsdate )
 }
 
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_time_command( snapfile_def *sd, int id, char *cmd )
+static int read_time_command( snapfile_def *sd, int id, const char *cmd )
 {
     double obstime;
     if( read_time( sd->df, &obstime ) )
@@ -1162,7 +1162,7 @@ static int read_time_command( snapfile_def *sd, int id, char *cmd )
     return OK; /* Since errors are already handled */
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
 static int read_data_time( snapfile_def *sd, data_field *fld )
 {
@@ -1209,9 +1209,9 @@ static void calc_nveccvr( snapfile_def *sd )
     return;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_gps_errtype_command( snapfile_def *sd, int id, char *cmd )
+static int read_gps_errtype_command( snapfile_def *sd, int id, const char *cmd )
 {
     char option[20];
     int ok;
@@ -1242,9 +1242,9 @@ static int read_gps_errtype_command( snapfile_def *sd, int id, char *cmd )
     return OK; /* As error is already handled */
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_syserr_command( snapfile_def *sd, int id, char *cmd )
+static int read_syserr_command( snapfile_def *sd, int id, const char *cmd )
 {
     char name[NAMELEN];
     char classname[NAMELEN];
@@ -1273,9 +1273,9 @@ static int read_syserr_command( snapfile_def *sd, int id, char *cmd )
 }
 
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_classification( snapfile_def *sd, int id, char *cmd )
+static int read_classification( snapfile_def *sd, int id, const char *cmd )
 {
     char name[NAMELEN];
     if( !df_read_field( sd->df, name, NAMELEN ) )
@@ -1291,9 +1291,9 @@ static int read_classification( snapfile_def *sd, int id, char *cmd )
     return OK;
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_classify_command( snapfile_def *sd, int id, char *cmd )
+static int read_classify_command( snapfile_def *sd, int id, const char *cmd )
 {
     char fields[3][NAMELEN];
     char *types, *clsf, *value;
@@ -1363,16 +1363,16 @@ static int read_classify_command( snapfile_def *sd, int id, char *cmd )
     return OK; /* All errors are already reported */
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_endset_command( snapfile_def *sd, int id, char *cmd )
+static int read_endset_command( snapfile_def *sd, int id, const char *cmd )
 {
     return OK; /* Nothing to do - just marks end of the group */
 }
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_note_command( snapfile_def *sd, int id, char *cmd )
+static int read_note_command( snapfile_def *sd, int id, const char *cmd )
 {
     char note[NOTELEN];
     if( sd->definition_err ) return OK;
@@ -1403,9 +1403,9 @@ static data_field *next_data_field( snapfile_def *sd, int dftype, int id, int se
 }
 
 
-#pragma warning(disable: 4100)
+// #pragma warning(disable: 4100)
 
-static int read_data_command( snapfile_def *sd, int id, char *cmd )
+static int read_data_command( snapfile_def *sd, int id, const char *cmd )
 {
     int nobs = 0;
     int oneonly = 0;

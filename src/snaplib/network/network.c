@@ -17,11 +17,6 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 
-
-static char rcsid[]="$Id: network.c,v 1.2 1998/05/21 04:00:26 ccrook Exp $";
-
-static char *default_order = "-";
-
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
 

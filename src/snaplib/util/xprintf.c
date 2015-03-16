@@ -4,7 +4,7 @@
 
 static xprintf_func pf = 0;
 
-int xprintf( char *format, ... )
+int xprintf( const char *format, ... )
 {
     int result;
     va_list args;

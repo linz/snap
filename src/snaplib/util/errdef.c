@@ -25,8 +25,6 @@
 
 #include "util/errdef.h"    /* Error code definitions */
 
-static char rcsid[]="$Id: errdef.c,v 1.2 2004/04/22 02:35:24 ccrook Exp $";
-
 static errhandler_type user_error_handler = (errhandler_type) 0;
 static FILE *error_file = NULL;
 static int error_count = 0;

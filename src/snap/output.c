@@ -59,8 +59,6 @@
 #define RTOD (180.0/PI)
 
 
-static char rcsid[]="$Id: output.c,v 1.8 2004/04/22 02:35:44 ccrook Exp $";
-
 static int print_err( int sts, const char *mess1, const char *mess2 );
 static int errcount = 0;
 static int page_width = 80;

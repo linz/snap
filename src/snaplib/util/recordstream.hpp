@@ -1,4 +1,4 @@
-#pragma once
+// #pragma once
 #ifndef _LINZ_RECORDSTREAM_HPP
 #define _LINZ_RECORDSTREAM_HPP
 

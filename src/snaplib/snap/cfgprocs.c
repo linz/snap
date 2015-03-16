@@ -21,11 +21,9 @@
 #include "snap/cfgprocs.h"
 #include "util/xprintf.h"
 
-static char rcsid[]="$Id: cfgprocs.c,v 1.2 2004/04/22 02:34:47 ccrook Exp $";
-
 int stations_read = 0;
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

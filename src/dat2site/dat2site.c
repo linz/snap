@@ -56,8 +56,6 @@
 
 #define COMMENT_CHAR '!'
 
-static char rcsid[]="$Id: dat2site.c,v 1.5 1999/05/18 14:38:56 ccrook Exp $";
-
 typedef struct
 {
     double xyz[3];
@@ -688,7 +686,7 @@ static void load_data( survdata *sd )
 }
 
 
-#pragma warning (disable : 4100)
+// #pragma warning (disable : 4100)
 
 static long get_id( int type, int group_id, const char *code )
 {
@@ -2663,7 +2661,7 @@ static int get_option( char *prompt, int dflt )
     return dflt;
 }
 
-#pragma warning ( disable : 4127 )
+// #pragma warning ( disable : 4127 )
 
 static int add_stations( void )
 {
