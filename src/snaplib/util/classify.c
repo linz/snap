@@ -308,7 +308,7 @@ static class_value *get_class_value(  classifications *csf, int class_id, int va
 
     if( ct->type == CLASS_TYPE_CHAR )
     {
-        CHECK_VALUE_ID( csf, class_id, id );
+        CHECK_VALUE_ID( csf, class_id, val_id );
         return ct->value[val_id];
     }
 
@@ -338,7 +338,7 @@ char * class_value_name( classifications *csf, int class_id, int id )
         sprintf(ct->valuebuf,"%d",id);
         return ct->valuebuf;
     }
-    CHECK_VALUE_ID( csv, class_id, id );
+    CHECK_VALUE_ID( csf, class_id, id );
     return csf->class_index[class_id-1]->value[id]->value.name;
 }
 

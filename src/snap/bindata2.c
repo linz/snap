@@ -412,6 +412,9 @@ void calc_residuals( void )
 
     l.calccvr = (ltmat) malloc( maxelt * sizeof( double ) );
     l.rescvr  = (ltmat) malloc( maxelt * sizeof( double ) );
+    l.sch=0.0;
+    l.schvar=0.0;
+    l.diagonal=0;
 
     hA = create_oe( nprm );
     b = create_bindata();

@@ -703,7 +703,7 @@ static int get_coef_class_id( snapfile_def *sd, int id )
 
 static int read_coef_command( snapfile_def *sd, int id, char *cmd )
 {
-    char name[NAMELEN];
+    char name[NAMELEN]={0};
     int classid;
 
     coef_class_info *cinfo = coef_class( id );
