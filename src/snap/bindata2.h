@@ -71,7 +71,7 @@ void write_observation_csv();
 /* Functions relating to the residual listing format */
 
 int define_residual_formats( char *typelist, int add_columns  );
-int add_residual_field( char *code, int width, char *title1, char *title2 );
+int add_residual_field( const char *code, int width, const char *title1, const char *title2 );
 
 int set_residual_listing_data_type( FILE *out, int itype );
 void clear_residual_field_defs(void);
@@ -83,7 +83,7 @@ void print_residual_title( FILE *out );
 void clear_residual_fields( void );
 /* Note: value in the following call must be valid until
    print_residual_line is called */
-void set_residual_field( int field_id, char *value );
+void set_residual_field( int field_id, const char *value );
 void clear_residual_field( int field_id );
 void set_survdata_fields( survdata *sd );
 void set_trgtdata_fields( trgtdata *t, survdata *sd);

@@ -1,12 +1,19 @@
 @echo off
 SETLOCAL
 
+IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
+IF "%1" == "-i" SHIFT
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\release
+IF "%1" == "-r" SHIFT
 IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\debug
+
 SET concord="%SNAPDIR%\concord"
 SET coordsysdef=cstest\coordsys.def
 dir %concord%.*
 
 del /q out\*.*
+
+echo Running %concord%
 
 %concord% -Z > out\test_version.out
 %concord% -L > out\test_crdsys.out

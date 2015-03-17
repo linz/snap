@@ -42,7 +42,7 @@
 #define VERSION_SECTION "\x01_BF_VERSION\x02"
 #define BF_VERSION 1
 
-BINARY_FILE *create_binary_file( char *fname, char *signature )
+BINARY_FILE *create_binary_file( char *fname, const char *signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;
@@ -98,7 +98,7 @@ BINARY_FILE *create_binary_file( char *fname, char *signature )
 }
 
 
-BINARY_FILE *open_binary_file( char *fname, char *signature )
+BINARY_FILE *open_binary_file( char *fname, const char *signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;

@@ -7,9 +7,9 @@
 
 typedef struct
 {
-    char *program;
-    char *version;
-    char *builddate;
+    const char *program;
+    const char *version;
+    const char *builddate;
 } VersionInfo;
 
 #ifdef VERSIONINFO

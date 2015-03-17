@@ -24,7 +24,7 @@ typedef struct
     void *data;
     int (*init_deformation)( void *model );
     int (*calc_deformation)( void *model, station *st, double date, double denu[3] );
-    int (*print_model)( void *model, FILE *out, char *prefix );
+    int (*print_model)( void *model, FILE *out, const char *prefix );
     int (*delete_model)( void *model );
 } deformation_model;
 
@@ -33,7 +33,7 @@ deformation_model *create_deformation_model(
     void *data,
     int (*init_deformation)( void *model ),
     int (*calc_deformation)( void *model, station *st, double date, double denu[3] ),
-    int (*print_model)( void *model, FILE *out, char *prefix ),
+    int (*print_model)( void *model, FILE *out, const char *prefix ),
     int (*delete_model)( void *model )
 );
 
@@ -52,7 +52,7 @@ int calc_deformation( deformation_model *deformation, station *st, double date, 
 
 /* Describe the deformation model in an output file */
 
-int print_deformation_model( deformation_model *deformation, FILE *out, char *prefix );
+int print_deformation_model( deformation_model *deformation, FILE *out, const char *prefix );
 
 /* Delete the deformation model */
 

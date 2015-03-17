@@ -21,9 +21,9 @@ void check_free( void *ptr );
 long check_memory_allocation_counts();
 
 
-void *check_malloc_x( size_t size, char *file, int line );
-void *check_realloc_x( void *ptr, size_t size, char *file, int line );
-void check_free_x( void *ptr, char *file, int line );
+void *check_malloc_x( size_t size, const char *file, int line );
+void *check_realloc_x( void *ptr, size_t size, const char *file, int line );
+void check_free_x( void *ptr, const char *file, int line );
 long check_memory_allocation_counts_x();
 void list_memory_allocations_x( FILE *out );
 

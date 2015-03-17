@@ -73,7 +73,7 @@ static void define_dms_formats( void )
 
 int print_latitude( output_string_def *os, void *address )
 {
-    char *buf;
+    const char *buf;
     if( !latfmt ) define_dms_formats();
     buf = dms_string( * (double *) address * RTOD, latfmt, NULL );
     return (*os->write)(buf,os->sink);
@@ -81,7 +81,7 @@ int print_latitude( output_string_def *os, void *address )
 
 int print_longitude( output_string_def *os, void *address )
 {
-    char *buf;
+    const char *buf;
     if( !latfmt ) define_dms_formats();
     buf = dms_string( * (double *) address * RTOD, lonfmt, NULL );
     return (*os->write)(buf,os->sink);

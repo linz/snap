@@ -152,9 +152,9 @@ typedef struct
 
     /* NOTE: units information is a placeholder at present - not used */
 
-    char *hunits;        /* Name of horizontal units */
+    const char *hunits;  /* Name of horizontal units */
     double hmult;        /* Multiplier for horizontal units */
-    char *vunits;        /* Name of vertical units */
+    const char *vunits;  /* Name of vertical units */
     double vmult;        /* Multiplier for vertical units */
 } coordsys;
 
@@ -268,7 +268,8 @@ void define_coordsys_range( coordsys *cs,
                             double emin, double nmin, double emax, double nmax );
 
 void define_coordsys_units( coordsys *cs,
-                            char *hunit, double hmult, char *vunit, double vmult );
+                            const char *hunit, double hmult, 
+                            const char *vunit, double vmult );
 
 /* For projection coordinate systems checks that xyz[CRD_EAST] lies in the
    range emin to emax, and xyz[CRD_NORTH] lies in the range nmin to nmax.

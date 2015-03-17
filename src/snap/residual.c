@@ -118,11 +118,11 @@ static void setup_flag_values( void )
 }
 
 
-char *residual_flag( int unused, int rank, double sres )
+const char *residual_flag( int unused, int rank, double sres )
 {
-    static char *blank = "";
-    static char *flag1 = FLAG1;
-    static char *flag2 = FLAG2;
+    const static char *blank = "";
+    const static char *flag1 = FLAG1;
+    const static char *flag2 = FLAG2;
     int used;
 
     if( !flag_values_set ) setup_flag_values();

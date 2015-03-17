@@ -256,7 +256,7 @@ static int confirm_status = CONFIRM_NONE;
 static int logfix = 1;
 #define LOGFIX logfix
 
-static void printlog( char *fmt,...);
+static void printlog( const char *fmt,...);
 #define PRINTLOG(x,y) if(x) printlog y
 
 #define FOR_ALL_STATIONS(st) \
@@ -2538,7 +2538,7 @@ static int fix_unknown_stations( void )
 
 /*=====================================================================*/
 
-static int print_unfixed_stations( FILE *out, char status, char mask, char *prompt)
+static int print_unfixed_stations( FILE *out, char status, char mask, const char *prompt)
 {
     stn *st;
     int lineno = 0;
@@ -2646,12 +2646,12 @@ static int get_net_coordsys( void )
 }
 
 
-static int get_option( char *prompt, int dflt )
+static int get_option( const char *prompt, int dflt )
 {
     char *s;
     for(;;)
     {
-        printf(prompt);
+        printf("%s",prompt);
         if( ! fgets(inrec,256,stdin) ) exit(0);
         s = strtok( inrec, " \t\n");
         if( !s ) break;
@@ -2950,7 +2950,7 @@ static void load_command_file( char *cmd_file, int recalconly )
 
 }
 
-static void printlog( char *fmt, ... )
+static void printlog( const char *fmt, ... )
 {
     va_list argptr;
     va_start(argptr, fmt);

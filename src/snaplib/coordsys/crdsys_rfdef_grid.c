@@ -160,10 +160,11 @@ int rfdef_parse_griddef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
+    def->data = rf_grid_create( gridfile, refepoch );
     def->delete_func = rf_grid_delete;
     def->copy_func = rf_grid_copy;
+    def->identical = rf_grid_identical;
     def->describe_func = rf_grid_describe;
-    def->data = rf_grid_create( gridfile, refepoch );
     def->calc_denu = rf_grid_calc;
     def->apply_llh = rf_grid_apply;
     return sts;

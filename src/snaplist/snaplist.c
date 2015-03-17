@@ -109,7 +109,6 @@ static char delim[MAX_DELIM+1] = { ',', 0 };
 static char escape[MAX_DELIM+1] = { '"', 0 };
 static char qescape[MAX_DELIM+MAX_DELIM+1];
 static char qquote[MAX_DELIM+MAX_DELIM+1];
-static char qnewline[MAX_DELIM+MAX_DELIM+1];
 static char nqescape[MAX_DELIM+MAX_DELIM+1];
 static char nqquote[MAX_DELIM+MAX_DELIM+1];
 static char nqdelim[MAX_DELIM+MAX_DELIM+1];
@@ -123,7 +122,7 @@ static BINARY_FILE *b;
 static int classid[MAXCLASS];
 static char *classname[MAXCLASS];
 static const char *classvalue[MAXCLASS];
-static char *blankvalue = "";
+static const char *blankvalue = "";
 static int nclass = 0;
 
 static column_def classcol = { "",0,0,0,JST_LEFT,TYPE_PSTRING,NULL,NULL };
@@ -159,8 +158,6 @@ static double stn_height;
 static double stn_h_max_error;
 static double stn_h_min_error;
 static double stn_h_max_brng;
-static double stn_latitude;
-static double stn_longitude;
 static double stn_de;
 static double stn_dn;
 static double stn_dh;
@@ -576,7 +573,7 @@ static int list_stations( FILE *out )
 static void print_table_header( FILE *out )
 {
     column_def *cd;
-    char *blank = "";
+    const char *blank = "";
     int row;
     int first;
     for( row = 0; row < table_header_rows; row++ )
@@ -586,7 +583,7 @@ static void print_table_header( FILE *out )
                 NULL != ( cd = (column_def *) next_list_item( table_columns ));
            )
         {
-            char *s;
+            const char *s;
             s = cd->header[row];
             if( !s ) s = blank;
             if( first ) first = 0; else fputs( delim, out );
@@ -612,7 +609,7 @@ static void print_table( void )
     if( *escape == *delim ) *escape = 0;
     canquote = *quote ? 1 : 0;
 
-    char *replace = *delim == ' ' ? "_" : " ";
+    const char *replace = *delim == ' ' ? "_" : " ";
 
     if( *escape  && *escape != *quote )
     {
@@ -667,7 +664,7 @@ static char deg[30] = {' ', 0 };
 static char min[30] = {' ', 0 };
 static char sec[30] = {0};
 
-static char *whitespace = " \r\t\n";
+static const char *whitespace = " \r\t\n";
 
 static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -1024,7 +1021,7 @@ static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int c
         if( h )
         {
             char *end, more;
-            for( end = h; *end && *end != '\n'; *end++ ) {}
+            for( end = h; *end && *end != '\n'; end++ ) {}
             more = *end;
             *end = 0;
             tblcol->header[i] = copy_string( h );
@@ -1086,7 +1083,7 @@ int reload_covariances( BINARY_FILE *b )
 
 
 
-static char *default_cfg_name = "snaplist";
+static const char *default_cfg_name = "snaplist";
 
 int main( int argc, char *argv[] )
 {
@@ -1095,7 +1092,7 @@ int main( int argc, char *argv[] )
     double lat, lon;
     CFG_FILE *cfg = 0;
     const char *cfn;
-    char *basecfn, *ofn;
+    const char *basecfn, *ofn;
 
     printf( "snaplist:   Creates a table listing GPS observations in a SNAP binary file\n");
     printf( "           Facilitates the use of GPS data in survey plans\n");

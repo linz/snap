@@ -64,10 +64,10 @@
 typedef struct
 {
     int id;
-    char *code;
-    char *title1;  /* Default titles - title2 used for vector formats only */
-    char *title2;
-    char *source;
+    const char *code;
+    const char *title1;  /* Default titles - title2 used for vector formats only */
+    const char *title2;
+    const char *source;
     char *buffer;
     int width;
     char justify;
@@ -165,8 +165,8 @@ typedef struct
 {
     int column;
     int width;
-    char *title1;
-    char *title2;
+    const char *title1;
+    const char *title2;
     char *data;
 } listing_column;
 
@@ -192,12 +192,12 @@ column_heading_def *headings;
 
 static int maxrow, maxlt, last_file_loc;
 
-static void program_error( char *msg, char *routine )
+static void program_error( const char *msg, const char *routine )
 {
     char msg1[120];
     char msg2[80];
-    sprintf(msg1,"Internal program error: %s",msg);
-    sprintf(msg2,"Occurred in %s",routine);
+    sprintf(msg1,"Internal program error: %.100s",msg);
+    sprintf(msg2,"Occurred in %.60s",routine);
     handle_error( INTERNAL_ERROR, msg1, msg2 );
 }
 
@@ -475,9 +475,9 @@ void calc_residuals( void )
 
 static void print_title( FILE *out )
 {
-    static char *blank = "";
-    static char *lftjst = "%-*s";
-    static char *centrejst = "%-*s%-*s";
+    static const char *blank = "";
+    static const char *lftjst = "%-*s";
+    static const char *centrejst = "%-*s%-*s";
     listing_column *column;
     int ncolumn;
     int need_space;
@@ -492,7 +492,7 @@ static void print_title( FILE *out )
         for( ; ncolumn--; column++ )
         {
             int width = column->width;
-            char *source = (ipass == 0) ? column->title1 : column->title2;
+            const char *source = (ipass == 0) ? column->title1 : column->title2;
             if( column->title2 ) needpass2 = 1;
             if( !source ) source = blank;
             if( column->column == SPACE_FIELD )
@@ -642,7 +642,7 @@ int set_residual_listing_data_type( FILE *out, int newtype )
     return 0;
 }
 
-static char *get_column_heading( char *text )
+static char *get_column_heading( const char *text )
 {
     column_heading_def *hdr, **phdr;
     if( !text ) return NULL;
@@ -662,7 +662,7 @@ void clear_residual_field_defs()
     listing_format->ncolumn = 0;
 }
 
-static int add_residual_field_def( int type, char *code, int width, char *title1, char *title2 )
+static int add_residual_field_def( int type, const char *code, int width, const char *title1, const char *title2 )
 {
     int i;
     int column;
@@ -728,7 +728,7 @@ static int add_residual_field_def( int type, char *code, int width, char *title1
     return column == INVALID_FIELD ? INVALID_DATA : OK;
 }
 
-int add_residual_field( char *code, int width, char *title1, char *title2 )
+int add_residual_field( const char *code, int width, const char *title1, const char *title2 )
 {
     int itype;
     for( itype = 0; itype < NOBSTYPE; itype++ )
@@ -779,7 +779,7 @@ static void merge_residual_titles( void )
         for( icol = 0; icol < idef->ncolumn; icol++ )
         {
             int maxwidth = idef->col[icol].width;
-            char *title;
+            const char *title;
             int ttlen;
             for( jtype = itype+1; jtype < NOBSTYPE; jtype++ )
             {
@@ -805,9 +805,9 @@ static void merge_residual_titles( void )
 
 void print_residual_line( FILE *out )
 {
-    static char *blank = "";
-    static char *lftjst = "%-*s";
-    static char *rgtjst = "%*s";
+    static const char *blank = "";
+    static const char *lftjst = "%-*s";
+    static const char *rgtjst = "%*s";
     listing_column *col;
     int ncolumn = listing_format->ncolumn;
     int need_space = 0;
@@ -833,7 +833,7 @@ void print_residual_line( FILE *out )
         else
         {
             listing_field_def *fld;
-            char *source;
+            const char *source;
             fld = fields + col->column;
             if( fld->id == OF_OBSID && ! have_obs_ids ) continue;
             source = fld->source;
@@ -856,7 +856,7 @@ void clear_residual_fields( void )
     }
 }
 
-void set_residual_field( int field_id, char *value )
+void set_residual_field( int field_id, const char *value )
 {
     fields[field_id].source = value;
 }
@@ -935,7 +935,7 @@ static void set_date_field( survdata *sd )
         {
             int dy,mn,yr;
             date_as_ymd(sd->date,&yr,&mn,&dy);
-            sprintf(get_field_buffer(OF_DATE),"%2.2d/%02.2d/%04.4d",
+            sprintf(get_field_buffer(OF_DATE),"%2d/%02d/%04d",
                     (int)dy, (int)mn, (int)yr);
         }
     }
@@ -1418,16 +1418,15 @@ void list_file_location( FILE *out, int file, int lineno )
 
 static int obsset = 0;
 
-static void write_observation_csv_common_start( output_csv *csv, survdata *sd, trgtdata *tgt, char *component )
+static void write_observation_csv_common_start( output_csv *csv, survdata *sd, trgtdata *tgt, const char *component )
 {
     char type[16];
-    static survdata *lastsd = 0;
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
     if( ! from ) { from = to; to = 0; }
 
     strcpy( type, datatype[tgt->type].code);
-    if(component) { strcat(type,"-"); strcat(type,component); }
+    if(component && strlen(type)+strlen(component)+2 < 16) { strcat(type,"-"); strcat(type,component); }
     if( have_obs_ids ) write_csv_int( csv, tgt->id );
     write_csv_string(csv,from->Code);
     write_csv_string(csv,to ? to->Code : 0);
@@ -1584,9 +1583,9 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
     vecdata *vd = &(sd->obs.vdata[iobs]);
     trgtdata *t = &(vd->tgt);
     int ndp = obs_precision[t->type];
-    char *xyzcomp[3] = {"X","Y","Z"};
-    char *topocomp[3] = {"X-E","Y-N","Z-U"};
-    char **comp = output_csv_vecenu ? topocomp : xyzcomp;
+    const char *xyzcomp[3] = {"X","Y","Z"};
+    const char *topocomp[3] = {"X-E","Y-N","Z-U"};
+    const char **comp = output_csv_vecenu ? topocomp : xyzcomp;
     int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
 
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, 0);

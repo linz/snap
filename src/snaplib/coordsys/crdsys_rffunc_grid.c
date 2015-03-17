@@ -5,7 +5,6 @@
 
    Uses the griddata functions for handling the grid based conversion.
 
-/*
    $Log: crdsysr5.c,v $
    Revision 1.3  2004/04/22 02:34:21  ccrook
    Setting up to support linux compilation (x86 architecture)

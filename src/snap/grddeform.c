@@ -152,7 +152,7 @@ static int calc_griddef( void *deformation, station *st, double date, double den
 
 /* Describe the deformation model in an output file */
 
-static int print_griddef_model( void *deformation, FILE *out, char *prefix )
+static int print_griddef_model( void *deformation, FILE *out, const char *prefix )
 {
     fprintf(out,"%sModel type: velocity\n",prefix );
     fprintf(out,"%sModel name: %s\n", prefix,model );

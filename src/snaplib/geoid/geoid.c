@@ -144,7 +144,7 @@ coordsys *get_geoid_coordsys(  geoid_def *gd )
     return gd->cs;
 }
 
-void print_geoid_header( geoid_def *gd, FILE *out, int width, char *prefix )
+void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix )
 {
     int i, nblank;
     if( !gd->grd ) return;

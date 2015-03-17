@@ -36,8 +36,8 @@ typedef struct
 } BINARY_FILE;
 
 
-BINARY_FILE *create_binary_file( char *fname, char *header );
-BINARY_FILE *open_binary_file( char *fname, char *header );
+BINARY_FILE *create_binary_file( char *fname, const char *header );
+BINARY_FILE *open_binary_file( char *fname, const char *header );
 void close_binary_file( BINARY_FILE *bin );
 void create_section_ex( BINARY_FILE *bin, const char *section, long version );
 void create_section( BINARY_FILE *bin, const char *section );

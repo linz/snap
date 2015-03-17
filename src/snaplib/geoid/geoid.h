@@ -45,7 +45,7 @@ void delete_geoid_filename( const char *filename );
 
 geoid_def *create_geoid_grid( const char *filename );
 void delete_geoid_grid( geoid_def *gd );
-void print_geoid_header( geoid_def *gd, FILE *out, int width, char *prefix );
+void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix );
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid );
 coordsys *get_geoid_coordsys( geoid_def *gd );
 const char *get_geoid_model( geoid_def *gd );

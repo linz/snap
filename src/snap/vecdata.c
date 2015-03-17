@@ -268,7 +268,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
     double sres[3], redundancy[3];
     double obslength = 0.0, serlim;
     double mde[3];
-    char isvecdif;
+    // char isvecdif;
 
 
     if( !output_rejected_stations && rejected_station( v->from ) ) return;
@@ -279,7 +279,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
     {
 
         t = &v->obs.vdata[iobs];
-        isvecdif = t->tgt.type == GB;
+        // isvecdif = t->tgt.type == GB;
 
         if( output_rejected_stations || !rejected_station( t->tgt.to ) )
         {

@@ -8,7 +8,7 @@
 
 */
 
-char *version_number( void );
-char *version_date( void );
+const char *version_number( void );
+const char *version_date( void );
 
 #endif

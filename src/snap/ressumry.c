@@ -81,9 +81,9 @@ static int obstype_from_index[NOBSTYPE];
 /* Read a summary definition as a string of items separated by "/" characters,
    e.g. "file/data_type", "equipment/data_type", ... */
 
-int define_error_summary( char *definition )
+int define_error_summary( const char *definition )
 {
-    char *start, *end;
+    const char *start, *end;
     int nlevel, ilevel;
     summary_def *sdf;
     int sts;
@@ -105,20 +105,24 @@ int define_error_summary( char *definition )
     while( sts == OK )
     {
         end = strchr( start, ERROR_SUMMARY_DELIMITER );
-        if( end ) *end = 0;
-        if( strlen( start ) )
+        if( ! end ) end=start+strlen(start);
+        if( end > start && end-start < 32)
         {
-            if( _stricmp(start,DATA_TYPE_STR) == 0 )
+            char field[32];
+            strncpy(field,start,32);
+            field[end-start]=0;
+
+            if( _stricmp(field,DATA_TYPE_STR) == 0 )
             {
                 sdf->level_id[nlevel] = BY_DATA_TYPE;
             }
-            else if( _stricmp(start,FILE_STR) == 0 )
+            else if( _stricmp(field,FILE_STR) == 0 )
             {
                 sdf->level_id[nlevel] = BY_FILE;
             }
             else
             {
-                sdf->level_id[nlevel] = classification_id( &obs_classes, start, 1 );
+                sdf->level_id[nlevel] = classification_id( &obs_classes, field, 1 );
             }
             for( ilevel = 0; ilevel < nlevel; ilevel++ )
             {
@@ -131,8 +135,7 @@ int define_error_summary( char *definition )
             sts = INVALID_DATA;
         }
 
-        if( !end ) break;
-        *end = ERROR_SUMMARY_DELIMITER;
+        if( ! *end ) break;
         start = end+1;
     }
 
@@ -465,7 +468,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
             {
                 int indent;
                 int ttlwidth;
-                char *title;
+                const char *title;
                 indent = ilevel * LEVEL_INDENT;
                 if( iaxis ) indent += AXIS_INDENT;
                 ttlwidth = TITLE_WIDTH - indent;

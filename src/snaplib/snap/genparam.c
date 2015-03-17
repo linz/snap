@@ -95,7 +95,7 @@ int param_count( void )
     return nparam;
 }
 
-static unsigned int hash( char *name )
+static unsigned int hash( const char *name )
 {
     unsigned int h;
     for( h = 0; *name; name++ ) h = (h<<3) + h + *name;
@@ -119,7 +119,7 @@ static param *reset_param( param *p, double value, int adjust )
 
 static void sort_param( int n )
 {
-    char *name;
+    const char *name;
     int np;
 
     np = srtlist[n];
@@ -133,7 +133,7 @@ static void sort_param( int n )
     srtlist[n] = np;
 }
 
-int define_param( char *name, double value, int adjust )
+int define_param( const char *name, double value, int adjust )
 {
     int p;
     param *prm;
@@ -236,7 +236,7 @@ static void merge_params( param *p1, param *p2 )
 
 }
 
-int find_param( char *name )
+int find_param( const char *name )
 {
     int p;
     unsigned int hashedname;
@@ -266,7 +266,7 @@ void update_param_value( int pid, double value, double var )
     }
 }
 
-char *param_name( int p )
+const char *param_name( int p )
 {
     return p ? prmlist[p-1]->name : "";
 }

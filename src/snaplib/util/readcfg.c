@@ -200,7 +200,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
     int end, initcount;
     config_item *it;
     int errstat;
-    const char *blank="";
+    char blank[2]={0,0};
 
     /* Get the initial error count */
 
@@ -264,20 +264,23 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* Is there a value defined ... */
 
-        if( (val = strtok(NULL,"\n")) == 0 )
+        if( (val = strtok(NULL,"\n")) )
         {
-            val = blank;
+            /* Delete leading field delimiters, then trailing blanks
+               and tab characters */
+
+            while( *val && strchr( FIELD_DELIMS, *val )) val++;
+            end = strlen(val)-1;
+            while( end >= 0 && (val[end]==' ' || val[end]=='\t') )
+            {
+                val[end] = '\0';
+                end--;
+            }
         }
-
-        /* Delete leading field delimiters, then trailing blanks
-           and tab characters */
-
-        while( *val && strchr( FIELD_DELIMS, *val )) val++;
-        end = strlen(val)-1;
-        while( end >= 0 && (val[end]==' ' || val[end]=='\t') )
+        else
         {
-            val[end] = '\0';
-            end--;
+            blank[0]=0;
+            val=blank;
         }
 
         /* Get the address in which the value is to be stored */

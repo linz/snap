@@ -88,7 +88,7 @@ SCOPE char output_csv_tab;
 
 typedef struct
 {
-    char *name;
+    const char *name;
     char *status;
     char dflt;
     char incompatible[MAX_INCOMPATIBLE_MODES];
@@ -202,7 +202,7 @@ void init_output_options( void );
 void eliminate_inconsistent_outputs( void );
 void print_header( FILE *out );
 void print_control_options( FILE *out );
-void print_section_heading( FILE *out, char *heading );
+void print_section_heading( FILE *out, const char *heading );
 void handle_singularity( int sts );
 void print_iteration_header( int iteration );
 void print_iteration_update( int iteration, double maxadj,
@@ -212,7 +212,7 @@ void print_ls_summary( FILE *out );
 void xprint_ls_summary();
 void print_solution_summary( FILE *out );
 
-output_csv *open_output_csv( char *type);
+output_csv *open_output_csv( const char *type);
 void close_output_csv( output_csv *csv );
 void end_output_csv_record( output_csv *csv );
 void write_csv_header( output_csv *csv, const char *fieldname );

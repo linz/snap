@@ -127,12 +127,12 @@ static ref_deformation_xyz *rf_xyz_create( ref_deformation *def, char *descripti
     }
 
     def->data = dxyz;
-    def->apply_llh = rf_xyz_apply;
-    def->calc_denu = rf_xyz_calc;
-    def->copy_func= rf_xyz_copy;
     def->delete_func = rf_xyz_delete;
-    def->describe_func = rf_xyz_describe;
+    def->copy_func= rf_xyz_copy;
     def->identical = rf_xyz_identical;
+    def->describe_func = rf_xyz_describe;
+    def->calc_denu = rf_xyz_calc;
+    def->apply_llh = rf_xyz_apply;
     return dxyz;
 }
 

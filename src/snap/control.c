@@ -1408,7 +1408,8 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
     int type;
     char *rest;
     char *item;
-    char *value;
+    const char *value;
+    const char *blank="";
     char first;
     first = 1;
     epoch = -1;
@@ -1434,7 +1435,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
         first = 0;
         item = strtok(item,"=");
         value = strtok( NULL,"");
-        if( value == NULL ) value = "";
+        if( value == NULL ) value = blank;
         if( _stricmp(item,"type") == 0 )
         {
             ignore_deformation = 1;
@@ -1458,7 +1459,15 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
         }
         else if (_stricmp(item,"model") == 0 )
         {
-            model = value;
+            if( ! model ) 
+            {
+                model = copy_string(value);
+            }
+            else
+            {
+                send_config_error( cfg, INVALID_DATA, "Duplicated model in deformation definition" );
+            }
+
         }
         else if (_stricmp(item,"epoch") == 0 )
         {
@@ -1499,6 +1508,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
         send_config_error( cfg, INVALID_DATA, "Invalid parameters in LINZ deformation definition");
     }
     check_free( params );
+    if( model ) check_free( model );
     return OK;
 }
 

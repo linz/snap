@@ -32,7 +32,7 @@ deformation_model *create_deformation_model(
     void *data,
     int (*init_deformation)( void *model ),
     int (*calc_deformation)( void *model, station *st, double date, double denu[3] ),
-    int (*print_model)( void *model, FILE *out, char *prefix ),
+    int (*print_model)( void *model, FILE *out, const char *prefix ),
     int (*delete_model)( void *model )
 )
 {
@@ -75,7 +75,7 @@ int calc_deformation( deformation_model *deformation, station *st, double date, 
     return sts;
 }
 
-int print_deformation_model( deformation_model *deformation, FILE *out, char *prefix )
+int print_deformation_model( deformation_model *deformation, FILE *out, const char *prefix )
 {
     return (*(deformation->print_model))( deformation->data, out, prefix );
 }

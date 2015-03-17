@@ -138,7 +138,7 @@ typedef struct
 
     void (*pfWriteLog) (   /* Writes log information */
         void *env,
-        char *text );
+        const char *text );
 } SDCTest, *hSDCTest;
 
 hSDCTest sdcCreateSDCTest( int maxorder );

@@ -78,7 +78,7 @@ static void remove_mem_handle( MemHandle *mh )
     }
 }
 
-static MemFile *get_mem_file( char *fname )
+static MemFile *get_mem_file( const char *fname )
 {
     MemFile *mf;
     for( mf = filelist; mf; mf = mf->next )
@@ -119,14 +119,14 @@ static void release_mem_file( MemFile *mf )
 }
 
 
-static void report_error( int sts, char *msg, char *file, int line )
+static void report_error( int sts, const char *msg, const char *file, int line )
 {
     char errmess[80];
     sprintf(errmess,"File %.60s: line %.4d",file ? file : "Unknown",line);
     handle_error( sts,msg,errmess);
 }
 
-static MemHandle *get_mem_handle( void *ptr, char *file, int line )
+static MemHandle *get_mem_handle( void *ptr, const char *file, int line )
 {
     MemHandle *mh;
     mh = (MemHandle *)( (char *)ptr - sizeof(MemHandle) );
@@ -140,7 +140,7 @@ static MemHandle *get_mem_handle( void *ptr, char *file, int line )
 
 #define MEM_FROM_HANDLE(mh) ((void *)((char *)mh + sizeof(MemHandle)))
 
-void *check_malloc_x( size_t size, char *file, int line )
+void *check_malloc_x( size_t size, const char *file, int line )
 {
     MemHandle *mh;
 
@@ -163,7 +163,7 @@ void *check_malloc_x( size_t size, char *file, int line )
 }
 
 
-void *check_realloc_x( void *ptr, size_t size, char *file, int line )
+void *check_realloc_x( void *ptr, size_t size, const char *file, int line )
 {
     void *mem;
     MemHandle *mh;
@@ -181,7 +181,7 @@ void *check_realloc_x( void *ptr, size_t size, char *file, int line )
 }
 
 
-void check_free_x( void *ptr, char *file, int line )
+void check_free_x( void *ptr, const char *file, int line )
 {
     MemHandle *mh;
     mh = get_mem_handle( ptr, file, line );

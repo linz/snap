@@ -1,17 +1,16 @@
 ===== ITRF96 =====
-
 Coordinate system: International Terrestrial Reference Frame 1996
 Reference frame: International Terrestrial Reference Frame 1996
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF96_XYZ =====
 
+===== ITRF96_XYZ =====
 Coordinate system: International Terrestrial Reference Frame 1996 XYZ
 Reference frame: International Terrestrial Reference Frame 1996
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF2000 =====
 
+===== ITRF2000 =====
 Coordinate system: International Terrestrial Reference Frame 2000
 Reference frame: International Terrestrial Reference Frame 2000
   Relative to ITRF96
@@ -24,8 +23,8 @@ Reference frame: International Terrestrial Reference Frame 2000
            rate    (ppb/yr)    -0.18201
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF2000_XYZ =====
 
+===== ITRF2000_XYZ =====
 Coordinate system: International Terrestrial Reference Frame 2000 XYZ
 Reference frame: International Terrestrial Reference Frame 2000
   Relative to ITRF96
@@ -38,8 +37,8 @@ Reference frame: International Terrestrial Reference Frame 2000
            rate    (ppb/yr)    -0.18201
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF2005 =====
 
+===== ITRF2005 =====
 Coordinate system: International Terrestrial Reference Frame 2005
 Reference frame: International Terrestrial Reference Frame 2005
   Relative to ITRF96
@@ -52,8 +51,8 @@ Reference frame: International Terrestrial Reference Frame 2005
            rate    (ppb/yr)    -0.10201
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF2005_XYZ =====
 
+===== ITRF2005_XYZ =====
 Coordinate system: International Terrestrial Reference Frame 2005 XYZ
 Reference frame: International Terrestrial Reference Frame 2005
   Relative to ITRF96
@@ -66,8 +65,8 @@ Reference frame: International Terrestrial Reference Frame 2005
            rate    (ppb/yr)    -0.10201
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF2008 =====
 
+===== ITRF2008 =====
 Coordinate system: International Terrestrial Reference Frame 2008
 Reference frame: International Terrestrial Reference Frame 2008
   Relative to ITRF96
@@ -80,8 +79,8 @@ Reference frame: International Terrestrial Reference Frame 2008
            rate    (ppb/yr)    -0.10201
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
-===== ITRF2008_XYZ =====
 
+===== ITRF2008_XYZ =====
 Coordinate system: International Terrestrial Reference Frame 2008 XYZ
 Reference frame: International Terrestrial Reference Frame 2008
   Relative to ITRF96
@@ -94,6 +93,7 @@ Reference frame: International Terrestrial Reference Frame 2008
            rate    (ppb/yr)    -0.10201
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
+
 ITRF96 to ITRF2000 without defining an epoch
 Conversion between reference frames ITRF96 and ITRF2000 requires a date
 ITRF96 to ITRF2000

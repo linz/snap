@@ -21,6 +21,6 @@
 #include "version.h"
 #include "util/versioninfo.h"
 
-char *version_number( void ) { return ProgramVersion.version; }
-char *version_date( void ) { return ProgramVersion.builddate; }
+const char *version_number( void ) { return ProgramVersion.version; }
+const char *version_date( void ) { return ProgramVersion.builddate; }
 

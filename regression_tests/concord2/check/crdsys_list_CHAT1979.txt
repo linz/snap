@@ -1,4 +1,3 @@
-
 Coordinate system: Chatham Island 1979
 Reference frame: Chatham 1979
   Relative to ITRF96
@@ -7,3 +6,4 @@ Reference frame: Chatham 1979
     Scale             (ppm)     0.22630
 Ellipsoid: International Ellipsoid
   a = 6378388.000  1/f = 297.000000
+

@@ -1,4 +1,3 @@
-
 Coordinate system: Bursa Wolf 14 param - XYZ
 Reference frame: Test 14 parameter BW reference frame
   Relative to WGS84
@@ -7,6 +6,7 @@ Reference frame: Test 14 parameter BW reference frame
            rate      (m/yr)    -5.00000    3.00000   -8.00000
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
+
 Reference XYZ coords
 
 7 coordinates converted

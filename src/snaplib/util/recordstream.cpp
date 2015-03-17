@@ -14,8 +14,8 @@ using namespace LINZ;
 using std::string;
 
 RecordStream::RecordStream( const string &fname ) :
-    _filename(fname),
-    _str(fname.c_str())
+    _str(fname.c_str()),
+    _filename(fname)
 {
     _recordLineNo = 0;
     _lineNo = 0;

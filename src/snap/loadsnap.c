@@ -105,10 +105,6 @@ static int need_obs_date = 0;
 
 static int missing_data = 0;
 
-static int refcoef_class_id = 0;
-static int distsf_class_id = 0;
-static int brngerr_class_id = 0;
-
 void set_ignore_missing_stations( int option )
 {
     ignore_missing_stations = option;

@@ -24,7 +24,7 @@
 /* The following variables must match the definition of PRM_xxxx in
    the header file */
 
-static char *coefprefix[] =
+static const char *coefprefix[] =
 {
     "Refr coef ",
     "Scale error ",
@@ -32,15 +32,15 @@ static char *coefprefix[] =
     "Systematic: "
 };
 
-static const char *coefname[] =
-{
-    "Refraction coefficient",
-    "Distance scale error",
-    "Bearing error",
-    "Systematic error"
-};
-
-static int coefclassid[] = {0, 0, 0, 0};
+//static const char *coefname[] =
+//{
+//    "Refraction coefficient",
+//    "Distance scale error",
+//    "Bearing error",
+//    "Systematic error"
+//};
+//
+//static int coefclassid[] = {0, 0, 0, 0};
 
 static int prefixlen[] =
 {

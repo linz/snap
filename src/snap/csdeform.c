@@ -153,7 +153,7 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
 
 /* Describe the deformation model in an output file */
 
-static int print_csdef( void *deformation, FILE *out, char *prefix )
+static int print_csdef( void *deformation, FILE *out, const char *prefix )
 {
     if( ! deformation ) return OK;
     fputs(prefix,out);

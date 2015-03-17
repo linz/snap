@@ -1,4 +1,3 @@
-
 Coordinate system: New Zealand Geodetic Datum 2000 (deformation)
 Reference frame: New Zealand Geodetic Datum 2000
 Gridded velocity deformation model
@@ -8,6 +7,7 @@ Gridded velocity deformation model
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Calculated at epoch 2010.0
+
 epoch = 0
 
 30 coordinates converted

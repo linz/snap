@@ -1,4 +1,3 @@
-
 Coordinate system: New Zealand Map Grid
 Reference frame: New Zealand Geodetic Datum 1949 (NZGD49)
   Relative to NZGD2000
@@ -9,3 +8,4 @@ Transformation uses LINZ NZGD49-NZGD2000 conversion grid
 Ellipsoid: International Ellipsoid
   a = 6378388.000  1/f = 297.000000
 Projection: New Zealand Map Grid
+

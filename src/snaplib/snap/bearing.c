@@ -44,7 +44,7 @@
 static brngProjection **bplist = NULL;
 static int nbplist = 0;
 static int nbproj = 0;
-static char *null_bpname = "null";
+static const char *null_bpname = "null";
 
 static int find_bproj( const char *name )
 {

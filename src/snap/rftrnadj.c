@@ -32,7 +32,7 @@
 /* Parameter short names and descriptive names for each
    translation parameter */
 
-static char *geoPrmNames[7] =
+static const char *geoPrmNames[7] =
 {
     " X shift (m)",
     " Y shift (m)",
@@ -42,7 +42,7 @@ static char *geoPrmNames[7] =
     " rotn Z (sec)",
     " scale (ppm)"
 };
-static char *topoPrmNames[7] =
+static const char *topoPrmNames[7] =
 {
     " E shift (m)",
     " N shift (m)",
@@ -53,7 +53,7 @@ static char *topoPrmNames[7] =
     " scale (ppm)"
 };
 
-static char *grownames[] =
+static const char *grownames[] =
 {
     "X translation (m)",
     "Y translation (m)",
@@ -63,7 +63,7 @@ static char *grownames[] =
     "Z rotation (arc sec)",
     "Scale factor (ppm)"
 };
-static char *trownames[] =
+static const char *trownames[] =
 {
     "E translation (m)",
     "N translation (m)",
@@ -78,7 +78,7 @@ static void init_rftrans_prms( rfTransformation *rf )
 {
     char prmname[REFFRAMELEN + 20];
     char *prmtype;
-    char **prmNames;
+    const char **prmNames;
     int i;
 
     /* Define the parameters of the reference frame */
@@ -242,7 +242,7 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
     }
 }
 
-static void print_rftrans_def( char *rownames[], int *row, int *identical,
+static void print_rftrans_def( const char *rownames[], int *row, int *identical,
                                double *val, double *cvr, double semult, int *display, FILE *out )
 {
     int i, j, ii, ij;

@@ -1509,7 +1509,7 @@ typedef struct
     char unused;
     union
     {
-        char *cpr;
+        const char *cpr;
         double fval;
         long ival;
     } cmpval;
@@ -1813,8 +1813,8 @@ static int cmp_srdef_line( const void *p1, const void *p2 )
     SresDef *sr2 = srList + i2;
     int cmp;
     int to1, to2;
-    char *f1, *f2;
-    char *t1, *t2;
+    const char *f1, *f2;
+    const char *t1, *t2;
 
     f1 = sr1->cmpval.cpr;
     f2 = sr2->cmpval.cpr;
@@ -1823,8 +1823,8 @@ static int cmp_srdef_line( const void *p1, const void *p2 )
     t1 = to1 ? stnptr(to1)->Code : "";
     t2 = to2 ? stnptr(to2)->Code : "";
 
-    if( stncodecmp(f1,t1) > 0 ) { char *t = t1; t1 = f1; f1 = t; }
-    if( stncodecmp(f2,t2) > 0 ) { char *t = t2; t2 = f2; f2 = t; }
+    if( stncodecmp(f1,t1) > 0 ) { const char *t = t1; t1 = f1; f1 = t; }
+    if( stncodecmp(f2,t2) > 0 ) { const char *t = t2; t2 = f2; f2 = t; }
 
     cmp = stncodecmp( f1, f2 );
     if( cmp == 0 ) cmp = stncodecmp(t1,t2);
@@ -2154,7 +2154,7 @@ char *sres_item_description( long id )
     nch = 0;
     for( i = 0; i < nDisplayFields; i++ )
     {
-        char *data = 0;
+        const char *data = 0;
         char number[32];
         int datalen;
         switch( displayFields[i] )

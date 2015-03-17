@@ -142,7 +142,7 @@ int find_station_row( int row, char *param, int plen )
     int istn, maxstn;
     stn_adjustment *st;
 
-    char *crdname[] = {"north coordinate", "east coordinate", "elevation"};
+    const char *crdname[] = {"north coordinate", "east coordinate", "elevation"};
 
     maxstn = number_of_stations(net);
 
@@ -817,7 +817,7 @@ void print_floated_stations( FILE *out )
 {
     station *st;
     stn_adjustment *sa;
-    char *coordname[3] = { "East", "North", "Up" };
+    const char *coordname[3] = { "East", "North", "Up" };
     double cvr[6];
     double obserr[3];
     double calcerr[3];

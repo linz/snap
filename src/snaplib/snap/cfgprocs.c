@@ -102,14 +102,14 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int cod
         return OK;
     }
 
-    filespec = find_file( filename,DFLTSTOFFS_EXT,station_filespec,1,0);
-    if(! filespec )  find_file( filename,DFLTSTOFFS_EXT,station_filespec,1,0);
+    filespec = find_relative_file( station_filespec, filename,DFLTSTOFFS_EXT);
+    if(! filespec )  filespec=find_file( filename,DFLTSTOFFS_EXT,cmd_dir,FF_TRYALL,0);
     if(! filespec )
     {
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
         return OK;
     }
-    sts=read_network_station_offsets( net, filename );
+    sts=read_network_station_offsets( net, filespec );
     if( sts != OK )
     {
         send_config_error( cfg, INVALID_DATA, "Errors reading station offset file");

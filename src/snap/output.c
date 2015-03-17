@@ -208,7 +208,7 @@ static void print_line( FILE *out )
     fputs( divider, out );
 }
 
-static void print_centred( FILE *out, char *heading )
+static void print_centred( FILE *out, const char *heading )
 {
     int pos;
     pos = (page_width - strlen(heading))/2;
@@ -274,7 +274,7 @@ void print_control_options( FILE *lst )
 
 
 
-void print_section_heading( FILE *out, char *heading )
+void print_section_heading( FILE *out, const char *heading )
 {
     int rtl;
 
@@ -570,7 +570,7 @@ void print_solution_summary( FILE *lst )
 }
 
 
-output_csv *open_output_csv(char *type)
+output_csv *open_output_csv(const char *type)
 {
     int rlen;
     output_csv *csv;

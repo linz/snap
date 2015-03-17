@@ -38,7 +38,6 @@
 static long increment;
 static long lasttick;
 static long meter_max;
-static long reftime;
 static int meter_drawn;
 static int npts;
 static FILE *infile = NULL;
@@ -63,6 +62,9 @@ static void (*end_meter)( void ) = default_end_progress_meter;
 #endif
 
 #ifdef USE_TIME
+
+static long reftime;
+
 static long elapsed_time ( long ref_time )
 {
     struct time tm;

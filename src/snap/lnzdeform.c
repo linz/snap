@@ -210,7 +210,7 @@ static int calc_linzdef_deformation( void *deformation, station *st, double date
 
 /* Describe the deformation model in an output file */
 
-static int print_linzdef( void *deformation, FILE *out, char *prefix )
+static int print_linzdef( void *deformation, FILE *out, const char *prefix )
 {
     char *title;
     int i;

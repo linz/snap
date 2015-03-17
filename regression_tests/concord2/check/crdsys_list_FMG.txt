@@ -1,4 +1,3 @@
-
 Coordinate system: Fiji Map Grid
 Reference frame: Fiji datum
 Ellipsoid: World Geodetic System 1972 Ellipsoid(WGS72)
@@ -10,3 +9,4 @@ Projection: Transverse Mercator
   False easting              2000000.000
   False northing             4000000.000
   Unit to metres conversion  1.000000
+

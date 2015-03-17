@@ -31,10 +31,8 @@
 int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
 {
     int sts;
-    long loc;
 
     *rff = 0;
-    loc = get_string_loc( is );
     if( ! test_next_string_field( is, "GRID" ) )
     {
         sts = OK;

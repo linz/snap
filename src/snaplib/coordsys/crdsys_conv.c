@@ -123,7 +123,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
             conv->valid=0;
             sprintf(conv->errmsg,
                     "Conversion between coordinate systems %.20s and %.20s is too complex (> %d steps)",
-                    from->code, to->code,nfrom+nto,CONVMAXRF );
+                    from->code, to->code, CONVMAXRF );
         }
         else
         {

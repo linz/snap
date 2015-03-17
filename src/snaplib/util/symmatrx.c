@@ -117,7 +117,7 @@ void chol_inv( ltmat N, ltmat tmp, int np )
 void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
 {
     int i, j, k, cols, wid;
-    char *f;
+    const char *f;
 
     for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++);
     if( *f )

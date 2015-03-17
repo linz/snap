@@ -154,8 +154,8 @@ static coord_conversion outgcnv;
 
 /* Latitude and longitude hemisphere indicators */
 
-static char *ns_string = "NS";
-static char *ew_string = "EW";
+static const char *ns_string = "NS";
+static const char *ew_string = "EW";
 
 /* Input and output coordinates */
 
@@ -167,8 +167,8 @@ static double outxyz[3];
 
 static double *in1, *in2, *in3;
 static double *out1, *out2, *out3;
-static char *indms1, *indms2;
-static char *outdms1, *outdms2;
+static const char *indms1, *indms2;
+static const char *outdms1, *outdms2;
 
 /* Input (echoed) and output field lengths */
 
@@ -259,7 +259,8 @@ static DMS *deg_dms( double deg, DMS *dms, int prec, char no_seconds )
     offset = 0.49;
     while (prec--) offset /= 10.0;
 
-    if (dms->neg = deg<0.0) deg = -deg;
+    dms->neg = deg<0.0;
+    if( dms->neg ) deg = -deg;
     if( no_seconds ) deg += offset/60.0; else deg += offset/3600.0;
     deg -= (dms->degrees = floor(deg));
     if( ! no_seconds )
@@ -494,7 +495,7 @@ static void help( void )
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static void error_exit( char *errmsg1, char * errmsg2 )
+static void error_exit( const char *errmsg1, const char * errmsg2 )
 {
     printf("%s: %s%s\n\n",PROGNAME,errmsg1,errmsg2);
     printf("Enter %s -H for a list of command line parameters\n", PROGNAME);
@@ -511,7 +512,8 @@ static void error_exit( char *errmsg1, char * errmsg2 )
 /*-------------------------------------------------------------------*/
 
 static void decode_proj_string( char *code, coordsys **proj,
-                                char *dms, char *orderne, char *gothgt, char *ortho, char *iostring )
+                                char *dms, char *orderne, char *gothgt, char *ortho, 
+                                const char *iostring )
 {
     char *s;
     char errmsg[80];
@@ -568,7 +570,7 @@ static void decode_proj_string( char *code, coordsys **proj,
 
 /*-------------------------------------------------------------------*/
 
-static int decode_number( char *s, int min, int max, char *type )
+static int decode_number( const char *s, int min, int max, const char *type )
 {
     char checkend;
     int value;
@@ -762,7 +764,7 @@ static void process_command_line( int argc, char *argv[] )
 
 static void prompt_for_proj(coordsys **proj,
                             char *dms, char *ne, char *gothgt,
-                            char *orthohgt, char *iostring)
+                            char *orthohgt, const char *iostring)
 {
     char instring[21];
     int nstr;
@@ -847,7 +849,7 @@ static void prompt_for_proj(coordsys **proj,
         }
 }
 
-static void prompt_for_epoch( char *prompt, double *value )
+static void prompt_for_epoch( const char *prompt, double *value )
 {
     double epoch;
     char instring[20];
@@ -878,7 +880,7 @@ static void prompt_for_epoch( char *prompt, double *value )
 
 }
 
-static void prompt_for_number( char *prompt, int *value, int min, int max)
+static void prompt_for_number( const char *prompt, int *value, int min, int max)
 {
     int newval;
     char checkend;
@@ -902,7 +904,7 @@ static void prompt_for_number( char *prompt, int *value, int min, int max)
     }
 }
 
-static void prompt_for_filename(char *prompt, FILE **file, char *mode, char *name,
+static void prompt_for_filename(const char *prompt, FILE **file, const char *mode, char *name,
                                 char **nameptr, char *opened)
 {
     FILE *newfile;
@@ -991,9 +993,9 @@ static void head_output( FILE *out );
 
 static void show_example_input( void  )
 {
-    static char *east[] = {"315378.28","2571312.90","171.14238","171 30.21 E","171 41 53.55 E"};
-    static char *north[] = {"728910.43","6025519.64","-41.25531","41 22.05 S","41 22 03.26 S"};
-    char *c1, *c2;
+    static const char *east[] = {"315378.28","2571312.90","171.14238","171 30.21 E","171 41 53.55 E"};
+    static const char *north[] = {"728910.43","6025519.64","-41.25531","41 22.05 S","41 22 03.26 S"};
+    const char *c1, *c2;
     int ncd;
 
     clear_screen();
@@ -1169,7 +1171,6 @@ static void setup_transformation( void )
     }
 
     /* Set up pointers to output coordinates and parameters */
-
 
     output_latlong = 0;
     if (is_projection(output_cs))
@@ -1374,12 +1375,12 @@ static void head_output( FILE * out )
 
 static void head_columns( FILE *out )
 {
-    char *prjcol[3] = { "Easting", "Northing", "Height" };
-    char *geocol[3] = { "Longitude", "Latitude", "Height" };
-    char *xyzcol[3] = { "X", "Y", "Z" };
+    const char *prjcol[3] = { "Easting", "Northing", "Height" };
+    const char *geocol[3] = { "Longitude", "Latitude", "Height" };
+    const char *xyzcol[3] = { "X", "Y", "Z" };
     int  enorder[3] = { 0, 1, 2 };
     int  neorder[3] = { 1, 0, 2 };
-    char **cols;
+    const char **cols;
     int  *order;
     int  ncol;
     int  icol;
@@ -1480,7 +1481,7 @@ static void read_point_id( void )
 /*             negative hemisphere characters, e.g. "NS".            */
 /*-------------------------------------------------------------------*/
 
-static int read_dms( FILE *input, DMS *dms, char *hem )
+static int read_dms( FILE *input, DMS *dms, const char *hem )
 {
     char string[21];
     char checkend;
@@ -1620,7 +1621,7 @@ static void write_point_id( FILE * out )
     }
 }
 
-static void write_dms( FILE *out, double deg, int prec, char no_secs, char *hem )
+static void write_dms( FILE *out, double deg, int prec, char no_secs, const char *hem )
 {
     DMS dms;
     deg_dms( deg, &dms, prec, no_secs );
@@ -1644,7 +1645,7 @@ static void write_dms( FILE *out, double deg, int prec, char no_secs, char *hem 
 
 
 static void write_coords( FILE *out, double *c1, double *c2, double *c3,
-                          char *h1, char *h2, int len, int prec,
+                          const char *h1, const char *h2, int len, int prec,
                           int vlen, int vprec, char dms, char radians )
 {
 
@@ -1706,9 +1707,9 @@ static void write_results( void )
 
 static void report_read_error( void )
 {
-    char *s1, *s2;
-    char *fp = " for point ";
-    char *bl = "";
+    const char *s1, *s2;
+    const char *fp = " for point ";
+    const char *bl = "";
 
     if (point_ids) { s1 = fp; s2 = id; }
     else s1 = s2 = bl;
@@ -1719,11 +1720,11 @@ static void report_read_error( void )
 
 static void report_conv_error( int sts )
 {
-    char *s1, *s2;
-    char *fp = " for point ";
-    char *bl = "";
-    char *msg1 = "Coordinate range error";
-    char *msg2 = "Conversion error";
+    const char *s1, *s2;
+    const char *fp = " for point ";
+    const char *bl = "";
+    const char *msg1 = "Coordinate range error";
+    const char *msg2 = "Conversion error";
     const char *em;
 
     em = sts == INCONSISTENT_DATA ? msg1 : msg2;
@@ -1738,9 +1739,9 @@ static void report_conv_error( int sts )
 
 static void report_geoid_error( void )
 {
-    char *s1, *s2;
-    char *fp = " for point ";
-    char *bl = "";
+    const char *s1, *s2;
+    const char *fp = " for point ";
+    const char *bl = "";
 
     if (point_ids) { s1 = fp; s2 = id; }
     else s1 = s2 = bl;

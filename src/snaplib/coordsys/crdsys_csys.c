@@ -95,8 +95,9 @@ void define_deformation_model_epoch( coordsys *cs, double epoch )
     cs->rf->defepoch = epoch;
 }
 
-void define_coordsys_units( coordsys *cs, char *hunits, double hmult,
-                            char *vunits, double vmult )
+void define_coordsys_units( coordsys *cs, 
+                            const char *hunits, double hmult,
+                            const char *vunits, double vmult )
 {
     if( hunits != metre_units && hunits != radian_units )
     {
@@ -107,8 +108,8 @@ void define_coordsys_units( coordsys *cs, char *hunits, double hmult,
         vunits = copy_string( vunits );
     }
 
-    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( cs->hunits );
-    if( cs->vunits != metre_units ) check_free( cs->vunits );
+    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *) (cs->hunits) );
+    if( cs->vunits != metre_units ) check_free( (void *) (cs->vunits) );
 
     cs->hunits = hunits;
     cs->vunits = vunits;
@@ -184,8 +185,8 @@ void delete_coordsys( coordsys *cs )
     check_free( cs->source );
     delete_ref_frame( cs->rf );
     delete_projection( cs->prj );
-    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( cs->hunits );
-    if( cs->vunits != metre_units ) check_free( cs->vunits );
+    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *)(cs->hunits) );
+    if( cs->vunits != metre_units ) check_free( (void *)(cs->vunits) );
     check_free( cs );
 }
 

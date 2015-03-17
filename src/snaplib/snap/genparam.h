@@ -31,13 +31,13 @@ typedef struct param_s
 #define PRM_USED   0x02  /* Flags that data have been used... */
 #define PRM_LISTED 0x04  /* Flags that parameters have already been listed */
 
-int define_param( char *name, double value, int adjust );
-int find_param( char *name );
+int define_param( const char *name, double value, int adjust );
+int find_param( const char *name );
 void   flag_param_used( int p);
 void   flag_param_listed( int p );
 double param_value( int p );
 void update_param_value( int p, double v, double var );
-char *param_name( int p );
+const char *param_name( int p );
 int param_rowno( int p );
 int identical_param( int p );
 int param_count( void );

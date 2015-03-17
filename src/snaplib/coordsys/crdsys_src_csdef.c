@@ -85,7 +85,7 @@ static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, 
     return newloc;
 }
 
-static code_loc *find_code_loc( crdsys_file_source *csf, const char type, const char *code )
+static code_loc *find_code_loc( crdsys_file_source *csf, int type, const char *code )
 {
     code_loc *loc;
     if( type < 0  || type >= CS_COORDSYS_COUNT )
@@ -198,7 +198,7 @@ static code_loc *get_code_loc( crdsys_file_source *cfs, int type, long id )
     return cl;
 }
 
-static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, const char type, const char *code )
+static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, int type, const char *code )
 {
     code_loc *cl;
     input_string_def *instr;
@@ -208,7 +208,7 @@ static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, const c
     }
     else
     {
-        cl = get_code_loc( cfs, type, (int) id );
+        cl = get_code_loc( cfs, type, id );
     }
     if( !cl ) return NULL;
     df_reset_data_file_loc( cfs->df, &cl->loc );

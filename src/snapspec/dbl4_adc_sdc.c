@@ -114,9 +114,9 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
 static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status );
 static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest );
 static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci );
-static void sdcWriteLog( hSDCTestImp sdci, int level, char *fmt, ... );
+static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... );
 static long sdcStationId( hSDCTestImp sdci, int istn );
-static void sdcTimeStamp( hSDCTestImp sdci, char *status );
+static void sdcTimeStamp( hSDCTestImp sdci, const char *status );
 
 /*************************************************************************
 ** Function name: sdcCreateSDCTest
@@ -2080,7 +2080,7 @@ static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci)
 **************************************************************************
 */
 
-static void sdcWriteLog( hSDCTestImp sdci, int level, char *fmt, ... )
+static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... )
 {
     va_list ap;
 
@@ -2141,7 +2141,7 @@ static long sdcStationId( hSDCTestImp sdci, int istn )
 **************************************************************************
 */
 
-static void sdcTimeStamp( hSDCTestImp sdci, char *status )
+static void sdcTimeStamp( hSDCTestImp sdci, const char *status )
 {
     double ttotal;
     double tlast;

@@ -1,4 +1,3 @@
-
 Coordinate system: Chatham Island Transverse Mercator 1979
 Reference frame: Chatham 1979
   Relative to ITRF96
@@ -14,3 +13,4 @@ Projection: Transverse Mercator
   False easting              350000.000
   False northing             650000.000
   Unit to metres conversion  1.000000
+

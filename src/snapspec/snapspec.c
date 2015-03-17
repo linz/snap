@@ -286,7 +286,6 @@ static int calc_inverse_matrix( stn_relacc_array *ra )
 {
     bltmatrix *bltdec = ra->bltdec;
     bltmatrix *blt = ra->blt;
-    int nrow;
 
     if( ! blt || ! bltdec ) return 0;
 
@@ -294,8 +293,6 @@ static int calc_inverse_matrix( stn_relacc_array *ra )
     {
         fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
     }
-    nrow = bltdec->nrow;
-
     copy_bltmatrix( bltdec, blt );
     blt_chol_inv( blt );
     ra->bltvalid = 1;
@@ -911,7 +908,7 @@ static void f_set_order( void *env, int stn, int order )
     ra->order[stn] = order+1;
 }
 
-static void f_write_log( void *env, char *text )
+static void f_write_log( void *env, const char *text )
 {
     stn_relacc_array *ra = (stn_relacc_array *) env;
     if( ra->logfile ) { fputs( text, ra->logfile ); }
@@ -1169,7 +1166,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
 
         if( ignored_station(istn) || rejected_station(istn) ) continue;
 
-        if( ra->testhor && sa->hrowno || ra->testvrt && sa->vrowno ) continue;
+        if( (ra->testhor && sa->hrowno) || (ra->testvrt && sa->vrowno) ) continue;
 
         orderid = network_station_order(net,st);
         iorder = order_lookup[orderid];
@@ -1801,6 +1798,7 @@ static void set_test_confidence( hSDCTest hsdc )
     }
 
     hsdc->dblErrFactor = htolfactor;
+    // At the moment vertical tolerance not implemented properly ...
 }
 
 
@@ -1808,14 +1806,14 @@ static void set_test_confidence( hSDCTest hsdc )
 
 
 
-static char *default_cfg_name = "snapspec";
+static const char *default_cfg_name = "snapspec";
 
 int main( int argc, char *argv[] )
 {
     char *bfn;
     CFG_FILE *cfg = 0;
     const char *cfn;
-    char *basecfn, *ofn;
+    const char *basecfn, *ofn;
     int nstns;
     int nerr;
     hSDCTest hsdc;

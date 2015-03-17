@@ -1,4 +1,3 @@
-
 Coordinate system: Jacksons Bay Circuit 1949
 Reference frame: New Zealand Geodetic Datum 1949 (NZGD49)
   Relative to NZGD2000
@@ -15,3 +14,4 @@ Projection: Transverse Mercator
   False easting              300000.000
   False northing             700000.000
   Unit to metres conversion  0.999998
+
