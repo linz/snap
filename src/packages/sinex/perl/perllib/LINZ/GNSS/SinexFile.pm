@@ -175,6 +175,7 @@ sub _scan
     my $station={};
 
     open( my $sf, "<$filename" ) || croak("Cannot open SINEX file $filename\n");
+    binmode($sf);
     my $header=<$sf>;
     croak("$filename is not a valid SINEX file\n") if $header !~ /^\%\=SNX\s(\d\.\d\d)\s+/;
     my $version=$1;
@@ -218,6 +219,11 @@ sub _scanStats
     {
         my $ctl=substr($line,0,1);
         last if $ctl eq '-';
+        if( $ctl eq '+' )
+        {
+            carp("Invalid SINEX file - SOLUTION/STATISTICS not terminated\n");
+            last;
+        }
         next if $ctl ne ' ';
         my $item=_trim(substr($line,1,30));
         my $value=_trim(substr($line,32,22));
@@ -250,6 +256,11 @@ sub _scanStationXYZ
         my $ctl=substr($line,0,1);
         last if $ctl eq '-';
         next if $ctl eq '*';
+        if( $ctl eq '+' )
+        {
+            carp("Invalid SINEX file - SOLUTION/ESTIMATE not terminated\n");
+            last;
+        }
         croak("Invalid SOLUTION/ESTIMATE line $line in ".$self->{filename}."\n")
         if $line !~ /^
              \s([\s\d]{5})  # param id
@@ -311,6 +322,11 @@ sub _scanStationXYZ
         my $ctl=substr($line,0,1);
         last if $ctl eq '-';
         next if $ctl eq '*';
+        if( $ctl eq '+' )
+        {
+            carp("Invalid SINEX file - SOLUTION/MATRIX_ESTIMATE not terminated\n");
+            last;
+        }
         croak("Invalid SOLUTION/MATRIX_ESTIMATE line $line in ".$self->{filename}."\n")
         if $line !~ /^
             \s([\s\d]{5})
@@ -353,6 +369,11 @@ sub _scanStationXYZ
         my $ctl=substr($line,0,1);
         last if $ctl eq '-';
         next if $ctl eq '*';
+        if( $ctl eq '+' )
+        {
+            carp("Invalid SINEX file - SOLUTION/EPOCHS not terminated\n");
+            last;
+        }
         croak("Invalid SOLUTION/EPOCH line $line in ".$self->{filename}."\n")
         if $line !~ /^
             \s([\s\w]{4})  # point id
