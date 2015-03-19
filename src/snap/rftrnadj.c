@@ -73,6 +73,17 @@ static const char *trownames[] =
     "Vertical rotation (arc sec)",
     "Scale factor (ppm)"
 };
+static const char *valformat[] = 
+{ 
+    "  %10.4lf     ", 
+    "  %10.4lf     ", 
+    "  %10.4lf     ", 
+    "  %15.9lf",
+    "  %15.9lf",
+    "  %15.9lf",
+    "  %15.9lf"
+};
+static const char *missingstr = "      -          ";
 
 static void init_rftrans_prms( rfTransformation *rf )
 {
@@ -258,13 +269,14 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         }
         cvr[ii] = 1.0;
     }
-    fprintf(out,"\n      %-30s  %10s  %10s\n","Parameter","Value  ","Error  ");
+    fprintf(out,"\n      %-30s  %15s  %15s\n","Parameter","Value    ","Error    ");
     for( i = 0; i < 7; i++ )
     {
         if( ! display[i]) continue;
-        fprintf(out,"      %-30s  %10.4lf",rownames[i],val[i]);
-        if( row[i] ) fprintf(out,"  %10.4lf",se[i]*semult);
-        else { fprintf(out,"  %10s","-    "); }
+        fprintf(out,"      %-30s",rownames[i] );
+        fprintf(out,valformat[i],val[i]);
+        if( row[i] ) fprintf(out,valformat[i],se[i]*semult);
+        else { fprintf(out,"%s",missingstr);}
         if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
         fprintf(out,"\n");
     }
