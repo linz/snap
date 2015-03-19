@@ -363,7 +363,9 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
                 {
                     ndp = obs_precision[t->tgt.type];
                     obslength = veclen(t->vector);
-                    if( ndp && obslength > 999999.0 ) ndp--;
+                    // Don't want to reduce precision for longer lines any more...
+                    // Doesn't apply for GX observations.
+                    // if( ndp && obslength > 999999.0 ) ndp--; 
                     if( obslength <= 0.0 ) obslength = 1.0;  /* Avoid divide by 0 */
                     obslength /= 1.0e6;
                     set_trgtdata_fields(&t->tgt,v);

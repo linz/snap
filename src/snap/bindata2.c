@@ -1050,7 +1050,8 @@ static void setup_data_field_widths( int itype )
     for( icol = 0; icol < format->ncolumn; icol++ )
     {
         int width = format->col[icol].width;
-        if( width > 0 ) continue;
+        int width0 = width;
+        // if( width > 0 ) continue;
         switch( format->col[icol].column )
         {
         case OF_OBS:
@@ -1063,7 +1064,7 @@ static void setup_data_field_widths( int itype )
         case OF_CALCERR:
         case OF_RESERR:   width = errwid; break;
         }
-        format->col[icol].width = width;
+        if( width > width0 ) format->col[icol].width = width;
     }
 }
 
