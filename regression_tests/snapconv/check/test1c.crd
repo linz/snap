@@ -1,0 +1,11 @@
+Test 1 - NZGD2000
+NZGD2000_XYZ
+options no_deflections geoid_heights c=Order c=Mark_Type
+! Converted from NZGD2000
+
+!Code         X           Y            Z       G.Hgt Order Mark_Type Name
+1     -4787046.8941  560570.0861 -4163611.1037  0.0000 2     PIN   Node one
+2     -4787624.5820  560044.8031 -4163173.9017  0.0000 2     PEG   Node two
+3     -4787466.1451  559602.7718 -4163139.5994  0.0000 3     BOLT  Node three
+4     -4787046.8941  560570.0861 -4163611.1037 30.0000 2     PIN   Node four
+5     -4787624.5820  560044.8031 -4163173.9017 30.0000 2     PEG   Node five
