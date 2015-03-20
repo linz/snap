@@ -117,7 +117,7 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     /* Print details of the the program creating the file */
 
-    if( comment ) fprintf( stf,"! %s\n", comment );
+    if( comment && strlen(comment) > 0 ) fprintf( stf,"! %s\n", comment );
 
     fprintf(stf,"\n");
 

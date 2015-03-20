@@ -49,33 +49,63 @@ function CoordinateFileIsSnap()
    return $_crdfile_is_snap
 end_function
 
+function CoordFileCoordSys()
+    $x=ReadFile($coordinate_file,'\S',5)
+    $c=Match($x,'\n\s*(\S+)',1)
+    $d=Match($x,'(?i)\n\s*options\s+(?:.*\s)?(degrees)(?:\s|$)',1)
+    if $d == '' then $d='dms' endif
+    return $c,$d
+end_function
+
+function SetCoordFileCoordSys( $coordsys, $convdate, $degformat )
+    $backupfile = BackupCoordinateFile($coordinate_file)
+    $relname = Filename($coordinate_file,"relative",$job_path)
+    if not $backupfile then 
+       return false,"Could not create backup file of $relname"
+    endif
+    if $convdate != "" then $convdate="-y $convdate" endif
+    $degopt='-h'
+    if $degformat == 'degrees' then $degopt='-d' endif
+    $output = debuglogrun("\"$snap_path/snapconv\" $convdate $degopt \"$backupfile\" $coordsys \"$coordinate_file\"")
+    $output = "$output"
+    $result=false
+    if $output == "true" then $output = ""  $result=true endif
+    if ReadFile($coordinate_file,'.',5) != ReadFile($backupfile,'.',5) then
+       $result=true
+       $output="$output\n$relname coordinate system changed to $coordsys"
+    endif
+    return $result, $output
+end_function
+
 #######################################################################
 # Function to change the coordinate system of the coordinate file
 
 function ChangeCoordinateSystem()
     if not CheckCoordinateFile(true) then exit endif
+    $coordsys,$degformat=CoordFileCoordSys()
+
     $relname = Filename($coordinate_file,"relative",$job_path)
     
     # Would be much nicer if knew what it is in coordinate file
-    $coordsys = "NZGD2000"
-    $dms = "-h"
+    $convdate=""
     dialog "Change coordinate system"
        label "Update the coordinate system of the station file"
        label "Coordinate file: $relname"
        spacer
        dropdown_selector $coordsys "Select the new coordinate system" $coordsys_list
        spacer 
-       radio_selector $dms "Angle format: " "~-d~Decimal degrees~-h~Deg/Min/Sec"
+       textbox $convdate "Conversion epoch (if required, YYYY-MM-DD)" '10:1:~0123456789:/-~^((19|20)\d\d([-/:])[01]\d\3[0123]\d)?$~Date must be formatted as YYYY-MM-DD'
+       spacer 
+       radio_selector $degformat "Angle format: " "~degrees~Decimal degrees~dms~Deg/Min/Sec"
+       validator
+           $result,$message=SetCoordFileCoordSys($coordsys,$convdate,$degformat)
+	   if $result then 
+	   	Log($message)
+	   else
+	   	Message($message,"Error")
+	   endif
+	   return $result
     end_dialog
-    $backupfile = BackupCoordinateFile($coordinate_file)
-    if not $backupfile then 
-       message("Could not create backup file of $relname","Error")
-       exit
-    endif
-   $output = debuglogrun("\"$snap_path/snapconv\" $dms \"$backupfile\" $coordsys \"$coordinate_file\"")
-   $output = "$output"
-   if $output == "true" then $output = "" endif
-   log("\n$output\n$relname coordinate system changed to $coordsys")
 end_function
 
 #######################################################################

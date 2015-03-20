@@ -1,5 +1,3 @@
 
-Coordinate system: World Geodetic System 1984
-Reference frame: World Geodetic System 1984 (WGS84)
-Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
-  a = 6378137.000  1/f = 298.257224
+Coordinate system WGS84 is not defined
+There are several WGS84 reference frames. Please select one of WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674

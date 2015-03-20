@@ -97,37 +97,10 @@ ellipsoid * load_ellipsoid( const char *code )
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch )
 {
-    if( _stricmp(epochstr,"now") == 0 )
-    {
-        *epoch = date_as_year(snap_datetime_now());
-        return 1;
-    }
-    if( epochstr[0] != '1' && epochstr[0] != '2' ) return 0;
-    if( strlen(epochstr) == 8 && epochstr[4] != '.' )
-    {
-        int i, y,m,d;
-        for( i = 1; i < 8; i++ )
-        {
-            if( ! isdigit(epochstr[i])) return 0;
-        }
-        sscanf(epochstr,"%4d%2d%2d",&y,&m,&d);
-        *epoch = date_as_year( snap_date(y,m,d));
-        return 1;
-    }
-    if( strlen(epochstr) >= 4 )
-    {
-        int i;
-        for( i = 1; i < strlen(epochstr); i++ )
-        {
-            char c = epochstr[i];
-            if( i == 4 && c == '.' ) continue;
-            if( i != 4 && isdigit(c) ) continue;
-            return 0;
-        }
-        if ( sscanf(epochstr,"%lf",epoch) == 1 ) return 1;
-    }
-
-    return 0;
+    *epoch=snap_datetime_parse(epochstr,0);
+    if( ! *epoch ) return 0;
+    *epoch = date_as_year(*epoch);
+    return 1;
 }
 
 /* Coordinate systems defined by code, optionally followed by @epoch, where

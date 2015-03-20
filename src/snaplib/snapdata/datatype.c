@@ -40,8 +40,8 @@ datatypedef datatype[] =
       types in datatype.h
 
         Code   Name                       P  V  A  F  T  Pj C  Ds D  B  N  J  D Wid Ewid Rwid Ndp*/
-    {GB, "GB", "GPS baseline",           0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 12,  6,   7,  3},
-    {GX, "GX", "GPS point coord",        1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 12,  6,   7,  3},
+    {GB, "GB", "GPS baseline",           0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 13,  7,   7,  4},
+    {GX, "GX", "GPS point coord",        1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 13,  7,   7,  4},
     {SD, "SD", "slope distance",         0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  9,  6,   7,  4},
     {HD, "HD", "horizontal distance",    0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  9,  6,   7,  4},
     {ED, "ED", "ellipsoidal distance",   0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0,  9,  6,   7,  4},

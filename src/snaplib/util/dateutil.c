@@ -96,13 +96,36 @@ double snap_datetime_parse( const char *definition, const char *format )
     int maxchars[7] = { 4, 2, 2, 2, 2, 2, 3 };
     const char *months = " JAN FEB MAR APR MAY JUN JUL AUG SEP OCT NOV DEC";
     const char *formatchars = "YMDhmsN";
-    const char *defaultformat = "YMDhms";
     char buffer[16];
     const char *dp;
     const char *fp;
     int i;
 
-    if( ! format ) format = defaultformat;
+    if( _stricmp(definition,"now") == 0 )
+    {
+        return snap_datetime_now();
+    }
+
+    if( ! format ) 
+    {
+        double result=snap_datetime_parse(definition, "YMDhms");
+        if( ! result ) result=snap_datetime_parse(definition, "DMYhms");
+        if( ! result ) result=snap_datetime_parse(definition, "Y");
+        return result;
+    }
+
+    if( strcmp(format,"Y")==0 )
+    {
+        char extra[2]={0};
+        double years;
+        double result=0.0;
+        if( sscanf(definition,"%lf%1s",&years,extra) > 0 
+            && extra[0]==0 && years > 1000.0 && years < 4000.0 )
+        {
+            result=year_as_snapdate(years);
+        }
+        return result;
+    }
 
     dp = definition;
 
@@ -130,7 +153,7 @@ double snap_datetime_parse( const char *definition, const char *format )
 
         nbuf = maxchars[idx];
         isname = 0;
-        if( !isdigit(*dp))
+        if( *dp && !isdigit(*dp))
         {
             buffer[0] = ' ';
             ibuf = 1;
@@ -144,7 +167,11 @@ double snap_datetime_parse( const char *definition, const char *format )
             buffer[ibuf++] = *dp++;
         }
         buffer[ibuf] = 0;
-        if( isname )
+        if( ! ibuf )
+        {
+            ymdhmse[idx]=0;
+        }
+        else if( isname )
         {
             const char *mptr;
             if( strlen( buffer ) < 4 ) return 0.0;
@@ -189,6 +216,16 @@ double date_as_year( double snapdate )
     }
     year += year0;
     return year;
+}
+
+double year_as_snapdate( double years )
+{
+    double d0, d1;
+    int y0;
+    y0=int(years);
+    d0=snap_date(y0,1,1);
+    d1=snap_date(y0+1,1,1);
+    return d0+(d1-d0)*(years-y0);
 }
 
 void date_as_ymd( double snapdate, int *year, int *month, int *day )

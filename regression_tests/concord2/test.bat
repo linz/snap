@@ -136,7 +136,7 @@ for /F %%c in ( crdsyslist2.txt ) do (
    echo ======================= >> out\crdsys.txt
    echo Testing %%c >> out\crdsys.txt
    %concord% -L %%c > out\crdsys_list_%%c.txt 2>&1
-   %concord% -IITRF96,NEH,H -o%%c -N6 -P6 in\test1.in out\test_%%c.out >> out\crdsys.txt 2>&1
+   %concord% -IITRF96,NEH,H -o%%c -Y2000.5 -N6 -P6 in\test1.in out\test_%%c.out >> out\crdsys.txt 2>&1
    )
 
 REM List ITRF coordinate systems

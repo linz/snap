@@ -82,7 +82,7 @@ int read_network( network *nw, const char *fname, int gbformat )
         return INVALID_DATA;
     }
 
-    set_network_coordsys( nw, cs, 0.0 );
+    set_network_coordsys( nw, cs, 0.0, 0, 0 );
     delete_coordsys( cs );
     nw->crdsysdef = copy_string( inrec );
     projection_coords = is_projection( nw->crdsys );

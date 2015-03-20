@@ -166,8 +166,7 @@ int read_network_station_offsets( network *nw, const char *filename )
                 ok=df_read_field( tsf, word, WORDLEN+1 );
                 if( ok ) 
                 {
-                    tsp->date=snap_datetime_parse(word,"YMD");
-                    if( tsp->date == 0.0 ) tsp->date=snap_datetime_parse(word,"DMY");
+                    tsp->date=snap_datetime_parse(word,0);
                     if( tsp->date==0) ok=0;
                 }
             }

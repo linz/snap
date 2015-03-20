@@ -1095,9 +1095,8 @@ static int read_date_command( snapfile_def *sd, int id, const char *cmd )
         return OK;
     }
 
-    date=snap_datetime_parse(datestr,"YMD");
-    if( date == 0.0 ) date=snap_datetime_parse(datestr,"DMY");
-
+    date=snap_datetime_parse(datestr,0);
+    
     if( date == 0.0 )
     {
         char errmsg[100];
@@ -1107,7 +1106,7 @@ static int read_date_command( snapfile_def *sd, int id, const char *cmd )
     }
     else
     {
-        sd->date=date+0.5;  /* To be consistent with existing code */
+        sd->date=date; 
     }
 
     return OK; /* As errors are handled */
@@ -1132,12 +1131,11 @@ static int read_time( DATAFILE *d, double *obstime )
 
 static int read_date( DATAFILE *d, double *obsdate )
 {
-    char datestr[20];
+    char datestr[32];
 
-    if( !df_read_field( d, datestr, 20 ) ) return 0;
+    if( !df_read_field( d, datestr, 32 ) ) return 0;
 
-    (*obsdate)=snap_datetime_parse(datestr,"YMD");
-    if( *obsdate == 0 ) (*obsdate)=snap_datetime_parse(datestr,"DMY");
+    (*obsdate)=snap_datetime_parse(datestr,0);
     return (*obsdate == 0) ? 0 :  1;
 }
 
