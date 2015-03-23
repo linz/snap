@@ -72,7 +72,7 @@ network *reload_network( FILE *f )
     }
     else
     {
-        set_network_coordsys( nw, cs, 0.0 );
+        set_network_coordsys( nw, cs, 0.0, 0, 0 );
         delete_coordsys( cs );
         reload_classifications( &(nw->stnclasses), f );
         nw->stnlist = reload_station_list( f );

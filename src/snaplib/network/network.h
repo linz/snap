@@ -306,7 +306,11 @@ int write_network( network *nw, const char *filename, const char *comment,
 int merge_network( network *base, network *data, int mergeopts,
                    int (*select)(station *code) );
 
-int   set_network_coordsys( network *nw, coordsys *cs, double epoch );
+/* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
+ * If errmsg is not null will copy up to nsmg chars of error message to it
+ */
+
+int   set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg, int nmsg );
 void    set_network_name( network *nw, const char *name );
 
 station * new_network_station( network *nw,

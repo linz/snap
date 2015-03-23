@@ -38,17 +38,17 @@ Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
 Deformation at N2   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N2
 Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
 Deformation at N3   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N3
-Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
-Deformation at N2   , 3000.00 (-31.7657,31.3000, 0.0000)  Node N2
-Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
+Deformation at N1   , 3000.00 (-9.7625,21.8937, 0.0000)  Node N1
+Deformation at N2   , 3000.00 (-31.7656,31.3000, 0.0000)  Node N2
+Deformation at N1   , 3000.00 (-9.7625,21.8937, 0.0000)  Node N1
 Deformation at N3   , 3000.00 (-2.4680,36.5805, 0.0000)  Node N3
 Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
 Deformation at N2   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N2
 Deformation at N1   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N1
 Deformation at N3   , 2000.00 (-0.0000, 0.0000, 0.0000)  Node N3
-Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
-Deformation at N2   , 3000.00 (-31.7657,31.3000, 0.0000)  Node N2
-Deformation at N1   , 3000.00 (-9.7625,21.8938, 0.0000)  Node N1
+Deformation at N1   , 3000.00 (-9.7625,21.8937, 0.0000)  Node N1
+Deformation at N2   , 3000.00 (-31.7656,31.3000, 0.0000)  Node N2
+Deformation at N1   , 3000.00 (-9.7625,21.8937, 0.0000)  Node N1
 Deformation at N3   , 3000.00 (-2.4680,36.5805, 0.0000)  Node N3
 
 
@@ -67,7 +67,7 @@ Number of parameters:                 0
 
 Degrees of freedom:                   4
 Sum of squared residuals:             0.00005
-Standard error of unit weight:        0.00358
+Standard error of unit weight:        0.00356
 
 The probability of an SSR this low is 0.000% (from Chi squared (4))
 
@@ -191,8 +191,8 @@ From   To     Type     S.R.  Sig (%)       Line  File
 
 N1     N3      SD     0.007    0.521         15  testdef1.dat
 
-N1     N2      SD     0.003    0.233         14  testdef1.dat
+N1     N2      SD     0.003    0.226         14  testdef1.dat
 
-N1     N2      SD     0.000    0.008         10  testdef1.dat
+N1     N3      SD     0.000    0.008         11  testdef1.dat
 
-N1     N3      SD     0.000    0.007         11  testdef1.dat
+N1     N2      SD     0.000    0.001         10  testdef1.dat

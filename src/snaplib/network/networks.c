@@ -28,9 +28,10 @@
 
 #define COMMENT_CHAR '!'
 
-static void convert_stn_coords( coord_conversion *ccv, station *st )
+static int convert_stn_coords( coord_conversion *ccv, station *st, int testonly )
 {
     double llh[3], xeu[3];
+    int sts;
 
     /* Convert the coordinates from the input system to the output
        system */
@@ -42,7 +43,9 @@ static void convert_stn_coords( coord_conversion *ccv, station *st )
     xeu[CRD_LON] = st->GEta;
     xeu[CRD_HGT] = st->GUnd;
 
-    convert_coords( ccv, llh, xeu, llh, xeu );
+    sts=convert_coords( ccv, llh, xeu, llh, xeu );
+
+    if( testonly ) return sts; 
 
     st->GXi  = xeu[CRD_LAT];
     st->GEta = xeu[CRD_LON];
@@ -52,11 +55,12 @@ static void convert_stn_coords( coord_conversion *ccv, station *st )
        ellipsoid */
 
     modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], st->OHgt, ccv->to->rf->el );
+    return OK;
 
 }
 
 
-int set_network_coordsys( network *nw, coordsys *cs, double epoch )
+int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg, int nmsg )
 {
     coordsys *geosys, *csold;
     coord_conversion cconv;
@@ -76,17 +80,35 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch )
     {
         if( nw->stnlist )
         {
-            if( define_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch ) != OK )
+            int sts;
+            sts=define_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch );
+
+            /* Trial conversion to check coordinates can be converted */
+
+            reset_station_list( nw, 0 );
+            while( sts == OK && NULL != (st = next_station(nw)) )
             {
+                sts=convert_stn_coords( &cconv, st, 1 );
+                if( sts != OK ) break;
+            }
+
+            if( sts != OK )
+            {
+                if( errmsg && cconv.errmsg[0] )
+                {
+                    strncpy(errmsg,cconv.errmsg,nmsg);
+                    errmsg[nmsg-1]=0;
+                }
                 delete_coordsys( geosys );
                 return INCONSISTENT_DATA;
             }
 
-            reset_station_list( nw, 0 );
+            /* If all OK, then actually convert coordinates */
 
+            reset_station_list( nw, 0 );
             while( NULL != (st = next_station(nw)) )
             {
-                convert_stn_coords( &cconv, st );
+                sts=convert_stn_coords( &cconv, st, 0 );
             }
         }
 

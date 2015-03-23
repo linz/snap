@@ -1,6 +1,6 @@
 BB3L     1266497.0059  4980485.1018
 BDQ7     1746622.9729  5432013.6813
-**** Cannot convert coordinates between reference frames NZGD2000D and NZGD2000D for point BDQ8 ****  BDQ8   -38.25 181.25
+**** Cannot apply NZGD2000D deformation model for point BDQ8 ****  BDQ8   -38.25 181.25
 BDQ8A    2103314.4345  5750781.4211
 BDQ9     1490624.9072  5765707.6638
 POINT1   1639148.5929  6086271.2611

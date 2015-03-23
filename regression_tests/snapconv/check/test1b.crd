@@ -1,0 +1,11 @@
+Test 1 - NZGD2000
+NZTM
+options ellipsoidal_heights no_deflections geoid_heights c=Order c=Mark_Type
+! Converted from NZGD2000
+
+!Code      Easting     Northing    Ell.Hgt   G.Hgt Order Mark_Type Name
+1     1626991.3064 5459750.1956   150.0000  0.0000 2     PIN   Node one
+2     1627582.4048 5460414.0676   250.0000  0.0000 2     PEG   Node two
+3     1628002.4456 5460301.4663    70.0000  0.0000 3     BOLT  Node three
+4     1626991.3064 5459750.1956   150.0000 30.0000 2     PIN   Node four
+5     1627582.4048 5460414.0676   250.0000 30.0000 2     PEG   Node five

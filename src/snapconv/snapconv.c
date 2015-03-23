@@ -30,35 +30,21 @@
 #include "network/network.h"
 #include "util/fileutil.h"
 #include "util/dstring.h"
+#include "util/chkalloc.h"
 #include "util/versioninfo.h"
 #include "snap/filenames.h"
-
-#ifdef SNAPCONV_GRID
-#include "geoid/griddata.h"
-#endif
-
-
-#ifdef SNAPCONV_GRID
-void apply_grid_distortion( network *net, grid_def *grid, int dim, int undo );
-#endif
-
 
 int main( int argc, char *argv[] )
 {
     coordsys *cs;
     network *net;
-    char *msg;
+    char msg[256];
     char quiet = 0;
     char setformat = 0;
     char degoption = 0;
     double epoch = 0.0;
-#ifdef SNAPCONV_GRID
-    char *gridfile;
-    char *gridname;
-    int grid_dim;
-    int undo_grid;
-    grid_def *grid = NULL;
-#endif
+    char *epochstr=0;
+    char *netcrdsys=0;
 
     /* Crude fix to allow suppression of output */
 
@@ -74,9 +60,21 @@ int main( int argc, char *argv[] )
         case 'h': setformat = 1; degoption = 0; break;
         case 'Y':
         case 'y':
-            if( argc < 3 || ! parse_crdsys_epoch(argv[2],&epoch) )
+            if( argv[1][2] ) { epochstr=argv[1]+2; }
+            else if( argc >= 3 )
             {
-                printf("Invalid value for conversion epoch (-Y %s)\n",argv[2]);
+                epochstr=argv[2];
+                argc--;
+                argv++;
+            }
+            else
+            {
+                printf("Missing value for conversion epoch (-Y)\n");
+                return 1;
+            }
+            if( ! parse_crdsys_epoch( epochstr, &epoch ))
+            {
+                printf("Invalid value for conversion epoch (-Y %s)\n",epochstr);
                 return 1;
             }
             break;
@@ -94,57 +92,18 @@ int main( int argc, char *argv[] )
                ProgramVersion.program, ProgramVersion.version);
     }
 
-#ifdef SNAPCONV_GRID
-    if( argc == 6 && _strnicmp(argv[1],"-g",2)==0 )
-    {
-        undo_grid = argv[1][2] == '-';
-        set_find_file_directories( exefile, NULL, NULL );
-        gridname = argv[2];
-        gridfile = find_file( gridname, ".grd", FF_TRYALL );
-
-        if( gridfile )
-        {
-            gridfile = copy_string( gridfile );
-            if( grd_open_grid_file(gridfile,2,&grid) == OK )
-            {
-                grid_dim = 2;
-            }
-            else if( grd_open_grid_file(gridfile,3,&grid) == OK )
-            {
-                grid_dim = 3;
-            }
-            else
-            {
-                grid = NULL;
-            }
-        }
-        if( ! grid )
-        {
-            printf("Cannot open grid file %s\n",gridname);
-            return 0;
-        }
-        argv += 2;
-        argc -= 2;
-    }
-    else
-#endif
 
         if( argc != 4 )
         {
             printf ("snapconv: Missing or invalid parameters\n\n");
 
-#ifdef SNAPCONV_GRID
-            printf("Syntax: snapconv [-g grid_file] input_coord_file new_coordsys_code output_coord_file\n");
-            printf("\nThe -g grid_file option applies a distortion defined in the grid file to coordinates\n");
-            printf("Use -g- gridfile to reverse the distortion\n");
-#else
             printf("Syntax: snapconv [-d][-h][-q] input_coord_file new_coordsys_code output_coord_file\n\n");
             printf("Options are:\n");
             printf("  -d   Output angles in decimal degrees\n");
             printf("  -h   Output angles in degrees/minutes/seconds\n");
+            printf("  -y yyyymmdd Specify a conversion date for conversions requiring it\n");
             printf("  -q   Operate quietly\n");
 
-#endif
             return 1;
         }
 
@@ -163,40 +122,25 @@ int main( int argc, char *argv[] )
         printf("Cannot open coordinate file %s\n",argv[1]);
         return 2;
     }
+    netcrdsys=copy_string(net->crdsysdef);
 
-#ifdef SNAPCONV_GRID
-    if( grid ) apply_grid_distortion( net, grid, grid_dim, undo_grid  );
-#endif
-
-    if( set_network_coordsys( net, cs, epoch ) != OK )
+    msg[0]=0;
+    if( set_network_coordsys( net, cs, epoch, msg, 256 ) != OK )
     {
-        printf("Unable to convert network coordinate system to %s\n",argv[2]);
+        printf("Unable to convert network coordinate system to %s\n%s\n",argv[2],msg);
         return 2;
     }
 
-    msg = NULL;
-#ifdef SNAPCONV_GRID
-    if( grid )
+    msg[0]=0;
+    if( netcrdsys )
     {
-        char *modname = grd_title( grid, 1 );
-        if( modname )
-        {
-            msg = malloc( strlen(modname)+20 );
-            if( msg )
-            {
-                if( undo_grid )
-                {
-                    strcpy(msg,"Removed: ");
-                }
-                else
-                {
-                    strcpy(msg,"Applied: ");
-                }
-                strcat( msg, modname );
-            }
-        }
+        sprintf(msg,"Converted from %.32s",netcrdsys);
+        check_free( netcrdsys );
     }
-#endif
+    if( epochstr && msg[0] )
+    {
+        sprintf(msg+strlen(msg)," at epoch %.32s",epochstr);
+    }
 
     if( setformat )
     {
@@ -211,56 +155,4 @@ int main( int argc, char *argv[] )
     return 0;
 }
 
-#ifdef SNAPCONV_GRID
-void apply_grid_distortion( network *net, grid_def *grid, int dim, int undo )
-{
-    coordsys *gcs;    /* Grid coordinate system */
-    station *st;
-    double factor;
-    int sign;
-
-    gcs = load_coordsys( grd_coordsys_def(grid) );
-    if( !gcs )
-    {
-        printf("\nUnable to find a definition of grid coordinate system %s\n",
-               grd_coordsys_def(grid) );
-        exit(0);
-    }
-
-    if( set_network_coordsys( net, gcs, epoch ) != OK )
-    {
-        printf("\nUnable to convert coordinates to grid coordinate system %s\n",
-               grd_coordsys_def(grid));
-        exit(0);
-    }
-
-    /* Geodetic (lat/lon) coordinates are in radians, whereas grid files will
-       be in degrees, so convert to degrees */
-
-    if( is_geodetic(gcs) )
-    {
-        factor = M_PI/180.0;
-    }
-    else
-    {
-        factor = 1.0;
-    }
-    sign = undo ? -1 : 1;
-
-    reset_station_list( net, 0 );
-
-    while( NULL != (st=next_station(net)) )
-    {
-        double xyz[3], dxyz[3];
-        get_network_coordinates( net, st, xyz );
-        grd_calc_linear( grid, xyz[CRD_EAST]/factor, xyz[CRD_NORTH]/factor,dxyz );
-        xyz[CRD_EAST] += dxyz[0]*sign*factor;
-        xyz[CRD_NORTH] += dxyz[1]*sign*factor;
-
-        /* Note: degrees to radians factor doesn't apply to the height ordinate */
-        if( dim == 3 ) xyz[CRD_HGT] += dxyz[2]*sign;
-        set_network_coordinates( net, st, xyz );
-    }
-}
-#endif
 

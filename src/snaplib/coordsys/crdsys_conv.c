@@ -293,7 +293,13 @@ int convert_coords( coord_conversion *conv,
                     {
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
                         sts=apply_ref_deformation_llh( rf, xyz, rf->defepoch, tgtepoch );
-                        if( sts != OK ) break;
+                        if( sts != OK ) 
+                        {
+                            sprintf(conv->errmsg,
+                                    "Cannot apply %s deformation model",
+                                    rf->code);
+                            break;
+                        }
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                     }
                 }
@@ -302,7 +308,13 @@ int convert_coords( coord_conversion *conv,
                 {
                     if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = xyz_to_std( rf, xyz, conv->epochconv );
-                    if( sts != OK ) break;
+                    if( sts != OK ) 
+                    {
+                        sprintf(conv->errmsg,
+                                "Cannot convert from %s to %s",
+                                rf->code, rf->refcode ? rf->refcode : "base" );
+                        break;
+                    }
                 }
             }
             else
@@ -311,7 +323,16 @@ int convert_coords( coord_conversion *conv,
                 {
                     if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = std_to_xyz( rf, xyz, conv->epochconv );
-                    if( sts != OK ) break;
+                    if( sts != OK ) 
+                    {
+                        if( sts != OK ) 
+                        {
+                            sprintf(conv->errmsg,
+                                    "Cannot convert from %s to %s",
+                                    rf->refcode ? rf->refcode : "base", rf->code );
+                            break;
+                        }
+                    }
                 }
                 /*  Apply deformation model */
                 if( rf->def )
@@ -322,7 +343,13 @@ int convert_coords( coord_conversion *conv,
                     {
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]-=xyz[i]; }
                         sts=apply_ref_deformation_llh( rf, xyz, srcepoch, rf->defepoch );
-                        if( sts != OK ) break;
+                        if( sts != OK ) 
+                        {
+                            sprintf(conv->errmsg,
+                                    "Cannot apply %s deformation model",
+                                    rf->code);
+                            break;
+                        }
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
                     }
                 }
@@ -333,12 +360,6 @@ int convert_coords( coord_conversion *conv,
                 llh_to_xyz( rf->el, xyz, xyz, 0, 0 );
                 isgeoc=1;
             }
-        }
-        if( sts != OK )
-        {
-            sprintf(conv->errmsg,
-                    "Cannot convert coordinates between reference frames %.20s and %.20s",
-                    from->rf->code, to->rf->code);
         }
     }
 
