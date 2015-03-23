@@ -33,13 +33,17 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 !   code name ELLIPSOID ellipsoid_code refcode Ty Ty Tz Rx Ry Rz scale
 !
 ! Here the translations and rotations must be defined in terms of a
-! common system for each refcode.  Transformations are only available
+! common system for each refcode.  Transformation parameters are
+! from the reference frame being defined to the underlying 
+! reference frame.  Transformations are only available
 ! between reference systems with common reference codes.  Translations
 ! are in metres, rotations in seconds, and scale in ppm.
 !
 ! The transformation parameters may be preceded by "IERS" to denote using
 ! IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  These also use the 
-! opposite sign convention for the rotations.
+! opposite sign convention for the rotations. Note that the order of parameters
+! in this file (Ty Ty Tz Rx Ry Rz scale) may differ from other published
+! sources, such as the IERS website.
 !
 ! The transformation parameters may be followed by "RATES", a reference date,
 ! and the rates of change of each of the parameters.
@@ -51,8 +55,8 @@ NZGD2000 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 IT
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
 
 ! The reference frame commonly described as "WGS84" has been realised several 
-! times since the original realization based on the TRANSIT Doppler system. Each
-! of these subsequent realizations is identified by the GPS week during which it was
+! times since the original realisation based on the TRANSIT Doppler system. Each
+! of these subsequent realisations is identified by the GPS week during which it was
 ! implemented (which is not the same as the reference epoch). Strictly speaking, 
 ! it is only the initial realisation that should be identified as "WGS84". The vast
 ! majority of WGS84 users actually use one of the later GPS realisations, so to
@@ -61,8 +65,9 @@ RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0
 
 WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 WGS84_D 0 0 4.5 0 0 -0.554 0.219
 
+! As published with ITRF at ftp://itrf.ensg.ign.fr/pub/itrf/WGS84.TXT
 WGS84_D "World Geodetic System 1984 (Doppler)" ELLIPSOID WGS84 &
-   ITRF90 IERS -60 517 223 11 -18.3 0.3 -7
+   ITRF90 IERS -60 517 223 -18.3 0.3 -7 11
    
 WGS84_G730 "World Geodetic System 1984 (G730)" ELLIPSOID WGS84 &
    ITRF91 IERS 0 0 0 0 0 0 0 &
@@ -79,13 +84,18 @@ WGS84_G1150 "World Geodetic System 1984 (G1150)" ELLIPSOID WGS84 &
 WGS84_G1674 "World Geodetic System 1984 (G1674)" ELLIPSOID WGS84 &
    ITRF2008 IERS 0 0 0 0 0 0 0 &
    RATES 2005.0 0 0 0 0 0 0 0
+   
+WGS84_G1762 "World Geodetic System 1984 (G1762)" ELLIPSOID WGS84 &
+   ITRF2008 IERS 0 0 0 0 0 0 0 &
+   RATES 2005.0 0 0 0 0 0 0 0
 
 
 ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 NONE
 
 ITRF2008 "International Terrestrial Reference Frame 2008" ELLIPSOID GRS80 &
    ITRF96 IERS      4.8    2.09  -17.67  -0.16508   0.26897   0.11984   1.40901 &
-   RATES 2000.0    0.79  -0.6    -1.34  -0.01347   0.01514   0.01973  -0.10201  
+   RATES 2000.0    0.79  -0.6    -1.34  -0.01347   0.01514   0.01973  -0.10201 
+   
 ITRF2005 "International Terrestrial Reference Frame 2005" ELLIPSOID GRS80 &
    ITRF96 IERS    6.8    2.99  -12.97  -0.16508   0.26897   0.11984    0.46901 &
    RATES 2000.0  0.49  -0.6    -1.34  -0.01347   0.01514   0.01973   -0.10201 
@@ -95,7 +105,7 @@ ITRF2000 "International Terrestrial Reference Frame 2000" ELLIPSOID GRS80 &
    RATES 2000.0  0.69  -0.7     0.46  -0.01347   0.01514   0.01973   -0.18201 
 
 ITRF97 "International Terrestrial Reference Frame 1997" ELLIPSOID GRS80 &
-   ITRF96 IERS   -0     -0.51   15.53  -0.16508   0.26897   0.05984   -1.51099 &
+   ITRF96 IERS   0     -0.51   15.53  -0.16508   0.26897   0.05984   -1.51099 &
    RATES 2000.0  0.69  -0.1     1.86  -0.01347   0.01514  -0.00027   -0.19201 
    
 ITRF94 "International Terrestrial Reference Frame 1994" ELLIPSOID GRS80 &
@@ -103,27 +113,27 @@ ITRF94 "International Terrestrial Reference Frame 1994" ELLIPSOID GRS80 &
    RATES 2000.0  0 0 0 0 0 0 0
    
 ITRF93 "International Terrestrial Reference Frame 1993" ELLIPSOID GRS80 &
-   ITRF96 IERS    28.8    0.2     5.4   -0.49      1.71      1.48      0.36 &
-   RATES 2000.0    2.9   -0.4    -0.8    0         0.11      0.19     -0.05
+   ITRF96 IERS    28.8    0.2     5.4   1.71      1.48      0.36      -0.49 &
+   RATES 2000.0    2.9   -0.4    -0.8   0.11      0.19     -0.05       0
    
 ITRF92 "International Terrestrial Reference Frame 1992" ELLIPSOID GRS80 &
-   ITRF96 IERS -8 -2 8 0.71 0 0 0 &
+   ITRF96 IERS -8 -2 8 0 0 0 0.71 &
    RATES 2000.0 0 0 0 0 0 0 0
    
 ITRF91 "International Terrestrial Reference Frame 1991" ELLIPSOID GRS80 &
-   ITRF96 IERS -20 -16 14 -0.69 0 0 0 &
+   ITRF96 IERS -20 -16 14 0 0 0 -0.69 &
    RATES 2000.0 0 0 0 0 0 0 0  
 
 ITRF90 "International Terrestrial Reference Frame 1990" ELLIPSOID GRS80 &
-   ITRF96 IERS -18 -12 30 -0.99 0 0 0 &
+   ITRF96 IERS -18 -12 30 0 0 0 -0.99 &
    RATES 2000.0 0 0 0 0 0 0 0    
 
 ITRF89 "International Terrestrial Reference Frame 1989" ELLIPSOID GRS80 &
-   ITRF96 IERS -23 -36 68 -4.39 0 0 0 &
+   ITRF96 IERS -23 -36 68 0 0 0 -4.39 &
    RATES 2000.0 0 0 0 0 0 0 0 
    
 ITRF88 "International Terrestrial Reference Frame 1988" ELLIPSOID GRS80 &
-   ITRF96 IERS -18 0 92 -7.49 -0.1 0 0 &
+   ITRF96 IERS -18 0 92 -0.1 0 0 -7.49 &
    RATES 2000.0 0 0 0 0 0 0 0
    
 ! Geocentric Datum of Australia transformation parameters
@@ -136,24 +146,24 @@ GDA94 "Geocentric Datum of Australia" ELLIPSOID GRS80 NONE
 ! Table 2 published in "Journal of Applied Geodesy"
 
 ITRF2008_DW "International Terrestrial Reference Frame 2008 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -84.68 -19.42   32.01   9.710     0.4254   -2.2578   -2.4015 &   
-RATES 1994.0    1.42   1.34    0.90   0.109    -1.5461   -1.1820   -1.1551
+GDA94 IERS    -84.68 -19.42   32.01   0.4254   -2.2578   -2.4015    9.710 &   
+RATES 1994.0    1.42   1.34    0.90  -1.5461   -1.1820   -1.1551    0.109
 
 ITRF2005_DW "International Terrestrial Reference Frame 2005 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -79.73  -6.86   38.03   6.636     0.0351   -2.1211   -2.1411 &   
-RATES 1994.0    2.25  -0.62   -0.56   0.294    -1.4707   -1.1443   -1.1701
+GDA94 IERS    -79.73  -6.86   38.03   0.0351   -2.1211   -2.1411    6.636 &   
+RATES 1994.0    2.25  -0.62   -0.56  -1.4707   -1.1443   -1.1701    0.294
 
 ITRF2000_DW "International Terrestrial Reference Frame 2000 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -45.91 -29.85  -20.37   7.070     1.6705   -0.4594   -1.9356 &   
-RATES 1994.0   -4.66   3.55   11.24   0.249    -1.7454   -1.4868   -1.2240
+GDA94 IERS    -45.91 -29.85  -20.37   1.6705   -0.4594   -1.9356    7.070 &   
+RATES 1994.0   -4.66   3.55   11.24  -1.7454   -1.4868   -1.2240    0.249
 
 ITRF97_DW "International Terrestrial Reference Frame 1997 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -14.63 -27.62  -25.32   6.695     1.7893    0.6047   -0.9962 &   
-RATES 1994.0   -8.60   0.36   11.25   0.007    -1.6394   -1.5198   -1.3801
+GDA94 IERS    -14.63 -27.62  -25.32   1.7893    0.6047   -0.9962    6.695 &   
+RATES 1994.0   -8.60   0.36   11.25  -1.6394   -1.5198   -1.3801    0.007
 
 ITRF96_DW "International Terrestrial Reference Frame 1996 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS     24.54 -36.43  -68.12   6.901     2.7359    2.0431   -0.3731 &   
-RATES 1994.0  -21.80   4.71   26.27   0.388    -2.0203   -2.1735   -1.6290
+GDA94 IERS     24.54 -36.43  -68.12   2.7359    2.0431   -0.3731    6.901 &   
+RATES 1994.0  -21.80   4.71   26.27  -2.0203   -2.1735   -1.6290    0.388
 
 ! Note - the following transformations use the usual Australian sign convention for
 ! rotations, not the IERS convention. Parameters sourced from GDA Technical Manual 
@@ -248,65 +258,69 @@ CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL NON
 WGS72 "World Geodetic System 1972" REF_FRAME WGS72 GEODETIC
 
 WGS84_D "World Geodetic System 1984 (Doppler)" REF_FRAME WGS84_D GEODETIC
-WGS84_D_XYZ "World Geodetic System 1984 - XYZ (Doppler)" REF_FRAME WGS84_D GEOCENTRIC
+WGS84_D_XYZ "World Geodetic System 1984 (Doppler) XYZ" REF_FRAME WGS84_D GEOCENTRIC
 
 WGS84_G730 "World Geodetic System 1984 (G730)" REF_FRAME WGS84_G730 GEODETIC
-WGS84_G730_XYZ "World Geodetic System 1984 - XYZ (G730)" REF_FRAME WGS84_G730 GEOCENTRIC
+WGS84_G730_XYZ "World Geodetic System 1984 (G730) XYZ" REF_FRAME WGS84_G730 GEOCENTRIC
 
 WGS84_G873 "World Geodetic System 1984 (G873)" REF_FRAME WGS84_G873 GEODETIC
-WGS84_G873_XYZ "World Geodetic System 1984 - XYZ (G873)" REF_FRAME WGS84_G873 GEOCENTRIC
+WGS84_G873_XYZ "World Geodetic System 1984 (G873) XYZ" REF_FRAME WGS84_G873 GEOCENTRIC
 
 WGS84_G1150 "World Geodetic System 1984 (G1150)" REF_FRAME WGS84_G1150 GEODETIC
-WGS84_G1150_XYZ "World Geodetic System 1984 - XYZ (G1150)" REF_FRAME WGS84_G1150 GEOCENTRIC
+WGS84_G1150_XYZ "World Geodetic System 1984 (G1150) XYZ" REF_FRAME WGS84_G1150 GEOCENTRIC
 
 WGS84_G1674 "World Geodetic System 1984 (G1674)" REF_FRAME WGS84_G1674 GEODETIC
-WGS84_G1674_XYZ "World Geodetic System 1984 - XYZ (G1674)" REF_FRAME WGS84_G1674 GEOCENTRIC
+WGS84_G1674_XYZ "World Geodetic System 1984 (G1674) XYZ" REF_FRAME WGS84_G1674 GEOCENTRIC
+
+WGS84_G1762 "World Geodetic System 1984 (G1762)" REF_FRAME WGS84_G1762 GEODETIC
+WGS84_G1762_XYZ "World Geodetic System 1984 (G1762) XYZ" REF_FRAME WGS84_G1762 GEOCENTRIC
 
 ! For ITRF systems use GRS80 ellipsoid....
 ! More consistent with ITRF to have ITRFxxxx as the XYZ system and another, for example
 ! ITRFxxx_GRS80 for the ellispoidal system.  But use codes below to be more consistent
 ! with the rest of SNAP/concord coordinate systems.
 
-ITRF88_XYZ "International Terrestrial Reference Frame 1988 XYZ" REF_FRAME ITRF88 GEOCENTRIC
-ITRF88 "International Terrestrial Reference Frame 1988" REF_FRAME ITRF88 GEODETIC
+ITRF88_XYZ "International Terrestrial Reference Frame 1988 XYZ (NZ LINZ transformation)" REF_FRAME ITRF88 GEOCENTRIC
+ITRF88 "International Terrestrial Reference Frame 1988 (NZ LINZ transformation)" REF_FRAME ITRF88 GEODETIC
 
-ITRF89_XYZ "International Terrestrial Reference Frame 1989 XYZ" REF_FRAME ITRF89 GEOCENTRIC
-ITRF89 "International Terrestrial Reference Frame 1989" REF_FRAME ITRF89 GEODETIC
+ITRF89_XYZ "International Terrestrial Reference Frame 1989 XYZ (NZ LINZ transformation)" REF_FRAME ITRF89 GEOCENTRIC
+ITRF89 "International Terrestrial Reference Frame 1989 (NZ LINZ transformation)" REF_FRAME ITRF89 GEODETIC
 
-ITRF90_XYZ "International Terrestrial Reference Frame 1990 XYZ" REF_FRAME ITRF90 GEOCENTRIC
-ITRF90 "International Terrestrial Reference Frame 1990" REF_FRAME ITRF90 GEODETIC
+ITRF90_XYZ "International Terrestrial Reference Frame 1990 XYZ (NZ LINZ transformation)" REF_FRAME ITRF90 GEOCENTRIC
+ITRF90 "International Terrestrial Reference Frame 1990 (NZ LINZ transformation)" REF_FRAME ITRF90 GEODETIC
 
-ITRF91_XYZ "International Terrestrial Reference Frame 1991 XYZ" REF_FRAME ITRF91 GEOCENTRIC
-ITRF91 "International Terrestrial Reference Frame 1991" REF_FRAME ITRF91 GEODETIC
+ITRF91_XYZ "International Terrestrial Reference Frame 1991 XYZ (NZ LINZ transformation)" REF_FRAME ITRF91 GEOCENTRIC
+ITRF91 "International Terrestrial Reference Frame 1991 (NZ LINZ transformation)" REF_FRAME ITRF91 GEODETIC
 
-ITRF92_XYZ "International Terrestrial Reference Frame 1992 XYZ" REF_FRAME ITRF92 GEOCENTRIC
-ITRF92 "International Terrestrial Reference Frame 1992" REF_FRAME ITRF92 GEODETIC
+ITRF92_XYZ "International Terrestrial Reference Frame 1992 XYZ (NZ LINZ transformation)" REF_FRAME ITRF92 GEOCENTRIC
+ITRF92 "International Terrestrial Reference Frame 1992 (NZ LINZ transformation)" REF_FRAME ITRF92 GEODETIC
 
-ITRF93_XYZ "International Terrestrial Reference Frame 1993 XYZ" REF_FRAME ITRF93 GEOCENTRIC
-ITRF93 "International Terrestrial Reference Frame 1993" REF_FRAME ITRF93 GEODETIC
+ITRF93_XYZ "International Terrestrial Reference Frame 1993 XYZ (NZ LINZ transformation)" REF_FRAME ITRF93 GEOCENTRIC
+ITRF93 "International Terrestrial Reference Frame 1993 (NZ LINZ transformation)" REF_FRAME ITRF93 GEODETIC
 
-ITRF94_XYZ "International Terrestrial Reference Frame 1994 XYZ" REF_FRAME ITRF94 GEOCENTRIC
-ITRF94 "International Terrestrial Reference Frame 1994" REF_FRAME ITRF94 GEODETIC
+ITRF94_XYZ "International Terrestrial Reference Frame 1994 XYZ (NZ LINZ transformation)" REF_FRAME ITRF94 GEOCENTRIC
+ITRF94 "International Terrestrial Reference Frame 1994 (NZ LINZ transformation)" REF_FRAME ITRF94 GEODETIC
 
-ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ" REF_FRAME ITRF96 GEOCENTRIC
-ITRF96 "International Terrestrial Reference Frame 1996" REF_FRAME ITRF96 GEODETIC
+ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ (NZ LINZ transformation)" REF_FRAME ITRF96 GEOCENTRIC
+ITRF96 "International Terrestrial Reference Frame 1996 (NZ LINZ transformation)" REF_FRAME ITRF96 GEODETIC
 
-ITRF97_XYZ "International Terrestrial Reference Frame 1997 XYZ" REF_FRAME ITRF97 GEOCENTRIC
-ITRF97 "International Terrestrial Reference Frame 1997" REF_FRAME ITRF97 GEODETIC
+ITRF97_XYZ "International Terrestrial Reference Frame 1997 XYZ (NZ LINZ transformation)" REF_FRAME ITRF97 GEOCENTRIC
+ITRF97 "International Terrestrial Reference Frame 1997 (NZ LINZ transformation)" REF_FRAME ITRF97 GEODETIC
 
-ITRF2000_XYZ "International Terrestrial Reference Frame 2000 XYZ" REF_FRAME ITRF2000 GEOCENTRIC
-ITRF2000 "International Terrestrial Reference Frame 2000" REF_FRAME ITRF2000 GEODETIC
+ITRF2000_XYZ "International Terrestrial Reference Frame 2000 XYZ (NZ LINZ transformation)" REF_FRAME ITRF2000 GEOCENTRIC
+ITRF2000 "International Terrestrial Reference Frame 2000 (NZ LINZ transformation)" REF_FRAME ITRF2000 GEODETIC
 
-ITRF2005_XYZ "International Terrestrial Reference Frame 2005 XYZ" REF_FRAME ITRF2005 GEOCENTRIC
-ITRF2005 "International Terrestrial Reference Frame 2005" REF_FRAME ITRF2005 GEODETIC
+ITRF2005_XYZ "International Terrestrial Reference Frame 2005 XYZ (NZ LINZ transformation)" REF_FRAME ITRF2005 GEOCENTRIC
+ITRF2005 "International Terrestrial Reference Frame 2005 (NZ LINZ transformation)" REF_FRAME ITRF2005 GEODETIC
 
-ITRF2008_XYZ "International Terrestrial Reference Frame 2008 XYZ" REF_FRAME ITRF2008 GEOCENTRIC
-ITRF2008 "International Terrestrial Reference Frame 2008" REF_FRAME ITRF2008 GEODETIC
+ITRF2008_XYZ "International Terrestrial Reference Frame 2008 XYZ (NZ LINZ transformation)" REF_FRAME ITRF2008 GEOCENTRIC
+ITRF2008 "International Terrestrial Reference Frame 2008 (NZ LINZ transformation)" REF_FRAME ITRF2008 GEODETIC
 
 ! NZGD2000 geodetic systems
 
+NZGD2000_XYZ "New Zealand Geodetic Datum 2000 XYZ" REF_FRAME NZGD2000 GEOCENTRIC
 NZGD2000 "New Zealand Geodetic Datum 2000" REF_FRAME NZGD2000 GEODETIC
-NZGD2000_XYZ "New Zealand Geodetic Datum 2000 - Cartesian XYZ" REF_FRAME NZGD2000 GEOCENTRIC
+
 
 ! Several versions of NZGD49.  
 ! Note: NZGD1949 is the Landonline code for this coordinate system
@@ -533,17 +547,17 @@ YORKTM1949 "Mount York Circuit 1949" REF_FRAME NZGD1949 &
 
 ! Offshore Island NZGD2000 projections
 
-CITM2000 "Chatham Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
-          PROJECTION TM -176.5 0.0 1.0 3500000.0 10000000.0 1.0
+AITM2000 "Antipodes Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
+          PROJECTION TM 179.0 0.0 1.0 3500000.0 10000000.0 1.0
 
 AKTM2000 "Auckland Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
-          PROJECTION TM 166.0 0.0 1.0 3500000.0 10000000.0 1.0
+          PROJECTION TM 166.0 0.0 1.0 3500000.0 10000000.0 1.0          
 
 CATM2000 "Campbell Island Transverse Mercator 2000" REF_FRAME ITRF96 &
           PROJECTION TM 169.0 0.0 1.0 3500000.0 10000000.0 1.0
-
-AITM2000 "Antipodes Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
-          PROJECTION TM 179.0 0.0 1.0 3500000.0 10000000.0 1.0
+          
+CITM2000 "Chatham Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM -176.5 0.0 1.0 3500000.0 10000000.0 1.0
 
 RITM2000 "Raoul Island Transverse Mercator 2000" REF_FRAME ITRF96 &
           PROJECTION TM -178.0 0.0 1.0 3500000.0 10000000.0 1.0
@@ -600,6 +614,7 @@ UTM60_NZGD49 "UTM zone 60 (S) on NZGD49" REF_FRAME NZGD1949 &
 ! Chatham island systems
 
 ! CHAT "Chatham Island 1979" REF_FRAME CHAT1979 GEODETIC
+CHAT1979_XYZ "Chatham Island 1979 XYZ" REF_FRAME CHAT1979 GEOCENTRIC
 CHAT1979 "Chatham Island 1979" REF_FRAME CHAT1979 GEODETIC
 ! CHATTM1979 "Chatham Island Transverse Mercator 1979" REF_FRAME CHAT1979 &
 !           PROJECTION TM -176.5 -44 1 350000 650000 1.
@@ -609,19 +624,15 @@ CITM1979 "Chatham Island Transverse Mercator 1979" REF_FRAME CHAT1979 &
 !           PROJECTION TM -176.5 -44 1 400000 800000 1. &
 !           RANGE 0 500000 600000 1200000
 
-CHAT1979_XYZ "Chatham Island XYZ" REF_FRAME CHAT1979 GEOCENTRIC
-
 ! Antarctic systems
 
-
-
-
+RSRGD2000_XYZ "Ross Sea Region Geodetic Datum 2000 XYZ" REF_FRAME RSRGD2000 GEOCENTRIC
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" REF_FRAME RSRGD2000 GEODETIC
 
-ANT_PS "WGS 84 / Antarctic Polar Stereographic" REF_FRAME WGS84_G1674 &
+ANT_PS "Antarctic Polar Stereographic / WGS 84 (G1762)" REF_FRAME WGS84_G1762 &
           PROJECTION PS "South" 0 0.97276901289 0 0
  
-ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic" REF_FRAME WGS84_G1674 &
+ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic / WGS 84 (G1762)" REF_FRAME WGS84_G1762 &
           PROJECTION LCC -76.6666666667 -79.3333333333 -89.999999 168 0.0 0.0
 
 CAMPAREA "Camp area datum" REF_FRAME CAMPAREA GEODETIC
@@ -634,12 +645,11 @@ DGLC2000 "Darwin Glacier Lambert Conformal 2000" REF_FRAME RSRGD2000 &
           RANGE 177960 970000 822032 1582844
 
 ! Antarctic projections from LINZ standard LINZS25008 (MSLC2000, BCLC2000, PCLC2000, RSPS2000)
+BCLC2000 "Borchgrevink Coast Lambert Conformal 2000" REF_FRAME RSRGD2000 &
+          PROJECTION LCC -73.6666666667 -75.3333333333 -74.500000 165.0 5000000 3000000 
 
 MSLC2000 "McMurdo Sound Lambert Conformal 2000" REF_FRAME RSRGD2000 &
           PROJECTION LCC -76.6666666667 -79.3333333333 -78.000000 163.0 7000000 5000000 
-
-BCLC2000 "Borchgrevink Coast Lambert Conformal 2000" REF_FRAME RSRGD2000 &
-          PROJECTION LCC -73.6666666667 -75.3333333333 -74.500000 165.0 5000000 3000000 
 
 PCLC2000 "Pennell Coast Lambert Conformal 2000" REF_FRAME RSRGD2000 &
           PROJECTION LCC -70.6666666667 -72.3333333333 -71.500000 166.0 3000000 1000000 
@@ -647,25 +657,37 @@ PCLC2000 "Pennell Coast Lambert Conformal 2000" REF_FRAME RSRGD2000 &
 RSPS2000 "Ross Sea Polar Stereographic 2000" REF_FRAME RSRGD2000 &
           PROJECTION PS South 180.0 0.994 5000000 1000000
 
-
-FMG "Fiji Map Grid" REF_FRAME FIJI &
-          PROJECTION TM 178.75 -17 0.99985 2000000.0 4000000.0 1
-
-
 [coordinate_systems]
 
-
 FMG "Fiji Map Grid" REF_FRAME FIJI &
           PROJECTION TM 178.75 -17 0.99985 2000000.0 4000000.0 1
-
 
 [coordinate_systems]
 
 ! Australian datums
 
-GDA94 "Geocentric Datm of Australia (GDA94)" REF_FRAME GDA94 GEODETIC
+GDA94 "Geocentric Datum of Australia (GDA94)" REF_FRAME GDA94 GEODETIC
 AGD66 "Australian Geodetic Datum 1966"  REF_FRAME AGD66 GEODETIC
 AGD84 "Australian Geodetic Datum 1984"  REF_FRAME AGD84 GEODETIC
+
+! Australian "versions" of ITRF. Required to apply the Dawson and Woods parameters for
+! ITRF to GDA94 transformations.
+
+ITRF96_XYZ_DW "International Terrestrial Reference Frame 1996 XYZ (Australia D&W transformation)" REF_FRAME ITRF96_DW GEOCENTRIC
+ITRF96_DW "International Terrestrial Reference Frame 1996 (Australia D&W transformation)" REF_FRAME ITRF96_DW GEODETIC
+
+ITRF97_XYZ_DW "International Terrestrial Reference Frame 1997 XYZ (Australia D&W transformation)" REF_FRAME ITRF97_DW GEOCENTRIC
+ITRF97_DW "International Terrestrial Reference Frame 1997 (Australia D&W transformation)" REF_FRAME ITRF97_DW GEODETIC
+
+ITRF2000_XYZ_DW "International Terrestrial Reference Frame 2000 XYZ (Australia D&W transformation)" REF_FRAME ITRF2000_DW GEOCENTRIC
+ITRF2000_DW "International Terrestrial Reference Frame 2000 (Australia D&W transformation)" REF_FRAME ITRF2000_DW GEODETIC
+
+ITRF2005_XYZ_DW "International Terrestrial Reference Frame 2005 XYZ (Australia D&W transformation)" REF_FRAME ITRF2005_DW GEOCENTRIC
+ITRF2005_DW "International Terrestrial Reference Frame 2005 (Australia D&W transformation)" REF_FRAME ITRF2005_DW GEODETIC
+
+ITRF2008_XYZ_DW "International Terrestrial Reference Frame 2008 XYZ (Australia D&W transformation)" REF_FRAME ITRF2008_DW GEOCENTRIC
+ITRF2008_DW "International Terrestrial Reference Frame 2008 (Australia D&W transformation)" REF_FRAME ITRF2008_DW GEODETIC
+
 
 ! Map Grid of Australia 1994
 
@@ -928,7 +950,7 @@ STISHT1977 "Stewart Island 1977" NZVD09 0.39
 
 WGS84 
 There are several WGS84 reference frames. Please select one of &
-WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674
+WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674, WGS84_G1762
 end_note
 
 ITRF2008:GDA94
