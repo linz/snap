@@ -256,6 +256,7 @@ CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL NON
 ! GRS80 "Geodetic Reference System 1980" REF_FRAME GRS80 GEODETIC
 
 WGS72 "World Geodetic System 1972" REF_FRAME WGS72 GEODETIC
+WGS72_XYZ "World Geodetic System 1972" REF_FRAME WGS72 GEOCENTRIC
 
 WGS84_D "World Geodetic System 1984 (Doppler)" REF_FRAME WGS84_D GEODETIC
 WGS84_D_XYZ "World Geodetic System 1984 (Doppler) XYZ" REF_FRAME WGS84_D GEOCENTRIC
@@ -280,41 +281,41 @@ WGS84_G1762_XYZ "World Geodetic System 1984 (G1762) XYZ" REF_FRAME WGS84_G1762 G
 ! ITRFxxx_GRS80 for the ellispoidal system.  But use codes below to be more consistent
 ! with the rest of SNAP/concord coordinate systems.
 
-ITRF88_XYZ "International Terrestrial Reference Frame 1988 XYZ (NZ LINZ transformation)" REF_FRAME ITRF88 GEOCENTRIC
-ITRF88 "International Terrestrial Reference Frame 1988 (NZ LINZ transformation)" REF_FRAME ITRF88 GEODETIC
+ITRF88_XYZ "International Terrestrial Reference Frame 1988 XYZ (LINZ transformation)" REF_FRAME ITRF88 GEOCENTRIC
+ITRF88 "International Terrestrial Reference Frame 1988 (LINZ transformation)" REF_FRAME ITRF88 GEODETIC
 
-ITRF89_XYZ "International Terrestrial Reference Frame 1989 XYZ (NZ LINZ transformation)" REF_FRAME ITRF89 GEOCENTRIC
-ITRF89 "International Terrestrial Reference Frame 1989 (NZ LINZ transformation)" REF_FRAME ITRF89 GEODETIC
+ITRF89_XYZ "International Terrestrial Reference Frame 1989 XYZ (LINZ transformation)" REF_FRAME ITRF89 GEOCENTRIC
+ITRF89 "International Terrestrial Reference Frame 1989 (LINZ transformation)" REF_FRAME ITRF89 GEODETIC
 
-ITRF90_XYZ "International Terrestrial Reference Frame 1990 XYZ (NZ LINZ transformation)" REF_FRAME ITRF90 GEOCENTRIC
-ITRF90 "International Terrestrial Reference Frame 1990 (NZ LINZ transformation)" REF_FRAME ITRF90 GEODETIC
+ITRF90_XYZ "International Terrestrial Reference Frame 1990 XYZ (LINZ transformation)" REF_FRAME ITRF90 GEOCENTRIC
+ITRF90 "International Terrestrial Reference Frame 1990 (LINZ transformation)" REF_FRAME ITRF90 GEODETIC
 
-ITRF91_XYZ "International Terrestrial Reference Frame 1991 XYZ (NZ LINZ transformation)" REF_FRAME ITRF91 GEOCENTRIC
-ITRF91 "International Terrestrial Reference Frame 1991 (NZ LINZ transformation)" REF_FRAME ITRF91 GEODETIC
+ITRF91_XYZ "International Terrestrial Reference Frame 1991 XYZ (LINZ transformation)" REF_FRAME ITRF91 GEOCENTRIC
+ITRF91 "International Terrestrial Reference Frame 1991 (LINZ transformation)" REF_FRAME ITRF91 GEODETIC
 
-ITRF92_XYZ "International Terrestrial Reference Frame 1992 XYZ (NZ LINZ transformation)" REF_FRAME ITRF92 GEOCENTRIC
-ITRF92 "International Terrestrial Reference Frame 1992 (NZ LINZ transformation)" REF_FRAME ITRF92 GEODETIC
+ITRF92_XYZ "International Terrestrial Reference Frame 1992 XYZ (LINZ transformation)" REF_FRAME ITRF92 GEOCENTRIC
+ITRF92 "International Terrestrial Reference Frame 1992 (LINZ transformation)" REF_FRAME ITRF92 GEODETIC
 
-ITRF93_XYZ "International Terrestrial Reference Frame 1993 XYZ (NZ LINZ transformation)" REF_FRAME ITRF93 GEOCENTRIC
-ITRF93 "International Terrestrial Reference Frame 1993 (NZ LINZ transformation)" REF_FRAME ITRF93 GEODETIC
+ITRF93_XYZ "International Terrestrial Reference Frame 1993 XYZ (LINZ transformation)" REF_FRAME ITRF93 GEOCENTRIC
+ITRF93 "International Terrestrial Reference Frame 1993 (LINZ transformation)" REF_FRAME ITRF93 GEODETIC
 
-ITRF94_XYZ "International Terrestrial Reference Frame 1994 XYZ (NZ LINZ transformation)" REF_FRAME ITRF94 GEOCENTRIC
-ITRF94 "International Terrestrial Reference Frame 1994 (NZ LINZ transformation)" REF_FRAME ITRF94 GEODETIC
+ITRF94_XYZ "International Terrestrial Reference Frame 1994 XYZ (LINZ transformation)" REF_FRAME ITRF94 GEOCENTRIC
+ITRF94 "International Terrestrial Reference Frame 1994 (LINZ transformation)" REF_FRAME ITRF94 GEODETIC
 
-ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ (NZ LINZ transformation)" REF_FRAME ITRF96 GEOCENTRIC
-ITRF96 "International Terrestrial Reference Frame 1996 (NZ LINZ transformation)" REF_FRAME ITRF96 GEODETIC
+ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ (LINZ transformation)" REF_FRAME ITRF96 GEOCENTRIC
+ITRF96 "International Terrestrial Reference Frame 1996 (LINZ transformation)" REF_FRAME ITRF96 GEODETIC
 
-ITRF97_XYZ "International Terrestrial Reference Frame 1997 XYZ (NZ LINZ transformation)" REF_FRAME ITRF97 GEOCENTRIC
-ITRF97 "International Terrestrial Reference Frame 1997 (NZ LINZ transformation)" REF_FRAME ITRF97 GEODETIC
+ITRF97_XYZ "International Terrestrial Reference Frame 1997 XYZ (LINZ transformation)" REF_FRAME ITRF97 GEOCENTRIC
+ITRF97 "International Terrestrial Reference Frame 1997 (LINZ transformation)" REF_FRAME ITRF97 GEODETIC
 
-ITRF2000_XYZ "International Terrestrial Reference Frame 2000 XYZ (NZ LINZ transformation)" REF_FRAME ITRF2000 GEOCENTRIC
-ITRF2000 "International Terrestrial Reference Frame 2000 (NZ LINZ transformation)" REF_FRAME ITRF2000 GEODETIC
+ITRF2000_XYZ "International Terrestrial Reference Frame 2000 XYZ (LINZ transformation)" REF_FRAME ITRF2000 GEOCENTRIC
+ITRF2000 "International Terrestrial Reference Frame 2000 (LINZ transformation)" REF_FRAME ITRF2000 GEODETIC
 
-ITRF2005_XYZ "International Terrestrial Reference Frame 2005 XYZ (NZ LINZ transformation)" REF_FRAME ITRF2005 GEOCENTRIC
-ITRF2005 "International Terrestrial Reference Frame 2005 (NZ LINZ transformation)" REF_FRAME ITRF2005 GEODETIC
+ITRF2005_XYZ "International Terrestrial Reference Frame 2005 XYZ (LINZ transformation)" REF_FRAME ITRF2005 GEOCENTRIC
+ITRF2005 "International Terrestrial Reference Frame 2005 (LINZ transformation)" REF_FRAME ITRF2005 GEODETIC
 
-ITRF2008_XYZ "International Terrestrial Reference Frame 2008 XYZ (NZ LINZ transformation)" REF_FRAME ITRF2008 GEOCENTRIC
-ITRF2008 "International Terrestrial Reference Frame 2008 (NZ LINZ transformation)" REF_FRAME ITRF2008 GEODETIC
+ITRF2008_XYZ "International Terrestrial Reference Frame 2008 XYZ (LINZ transformation)" REF_FRAME ITRF2008 GEOCENTRIC
+ITRF2008 "International Terrestrial Reference Frame 2008 (LINZ transformation)" REF_FRAME ITRF2008 GEODETIC
 
 ! NZGD2000 geodetic systems
 
