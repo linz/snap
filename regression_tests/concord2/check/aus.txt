@@ -1,0 +1,477 @@
+========== GDA94 ============
+Coordinate system: Geocentric Datum of Australia (GDA94)
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to GDA94
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== AGD66 ============
+Coordinate system: Australian Geodetic Datum 1966
+Reference frame: Australian Geodetic Datum 1966
+  Relative to GDA94
+    Translation         (m)  -117.80800  -51.53600  137.78400
+    Rotation          (sec)    -0.30300   -0.44600   -0.23400
+    Scale             (ppm)    -0.29000
+Ellipsoid: Australian National Spheroid (ANS)
+  a = 6378160.000  1/f = 298.250000
+
+GDA94 to AGD66
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== AGD84 ============
+Coordinate system: Australian Geodetic Datum 1984
+Reference frame: Australian Geodetic Datum 1984
+  Relative to GDA94
+    Translation         (m)  -117.76300  -51.51000  139.06100
+    Rotation          (sec)    -0.29200   -0.44300   -0.27700
+    Scale             (ppm)    -0.19100
+Ellipsoid: Australian National Spheroid (ANS)
+  a = 6378160.000  1/f = 298.250000
+
+GDA94 to AGD84
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF96_DW ============
+Coordinate system: International Terrestrial Reference Frame 1996 (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 1996 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)    24.54000  -36.43000  -68.12000
+           rate     (mm/yr)   -21.80000    4.71000   26.27000
+    IERS rotation     (mas)     2.73590    2.04310   -0.37310
+           rate    (mas/yr)    -2.02030   -2.17350   -1.62900
+    Scale             (ppb)     6.90100
+           rate    (ppb/yr)     0.38800
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF96_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF97_DW ============
+Coordinate system: International Terrestrial Reference Frame 1997 (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 1997 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -14.63000  -27.62000  -25.32000
+           rate     (mm/yr)    -8.60000    0.36000   11.25000
+    IERS rotation     (mas)     1.78930    0.60470   -0.99620
+           rate    (mas/yr)    -1.63940   -1.51980   -1.38010
+    Scale             (ppb)     6.69500
+           rate    (ppb/yr)     0.00700
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF97_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF2000_DW ============
+Coordinate system: International Terrestrial Reference Frame 2000 (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 2000 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -45.91000  -29.85000  -20.37000
+           rate     (mm/yr)    -4.66000    3.55000   11.24000
+    IERS rotation     (mas)     1.67050   -0.45940   -1.93560
+           rate    (mas/yr)    -1.74540   -1.48680   -1.22400
+    Scale             (ppb)     7.07000
+           rate    (ppb/yr)     0.24900
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF2000_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF2005_DW ============
+Coordinate system: International Terrestrial Reference Frame 2005 (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 2005 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -79.73000   -6.86000   38.03000
+           rate     (mm/yr)     2.25000   -0.62000   -0.56000
+    IERS rotation     (mas)     0.03510   -2.12110   -2.14110
+           rate    (mas/yr)    -1.47070   -1.14430   -1.17010
+    Scale             (ppb)     6.63600
+           rate    (ppb/yr)     0.29400
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF2005_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF2008_DW ============
+Coordinate system: International Terrestrial Reference Frame 2008 (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 2008 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -84.68000  -19.42000   32.01000
+           rate     (mm/yr)     1.42000    1.34000    0.90000
+    IERS rotation     (mas)     0.42540   -2.25780   -2.40150
+           rate    (mas/yr)    -1.54610   -1.18200   -1.15510
+    Scale             (ppb)     9.71000
+           rate    (ppb/yr)     0.10900
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF2008_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-48 ============
+Coordinate system: MGA94 zone 48
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           105 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-48
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-49 ============
+Coordinate system: MGA94 zone 49
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           111 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-49
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-50 ============
+Coordinate system: MGA94 zone 50
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           117 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-50
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-51 ============
+Coordinate system: MGA94 zone 51
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           123 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-51
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-52 ============
+Coordinate system: MGA94 zone 52
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           129 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-52
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-53 ============
+Coordinate system: MGA94 zone 53
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           135 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-53
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-54 ============
+Coordinate system: MGA94 zone 54
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           141 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-54
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-55 ============
+Coordinate system: MGA94 zone 55
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           147 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-55
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-56 ============
+Coordinate system: MGA94 zone 56
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           153 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-56
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-57 ============
+Coordinate system: MGA94 zone 57
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           159 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-57
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== MGA94-58 ============
+Coordinate system: MGA94 zone 58
+Reference frame: Geocentric Datum of Australia
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Projection: Transverse Mercator
+  Central meridian           165 00 00.0000E
+  Origin of latitude           0 00 00.0000N
+  Scale factor               0.999600
+  False easting              500000.000
+  False northing             10000000.000
+  Unit to metres conversion  1.000000
+
+GDA94 to MGA94-58
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF96_XYZ_DW ============
+Coordinate system: International Terrestrial Reference Frame 1996 XYZ (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 1996 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)    24.54000  -36.43000  -68.12000
+           rate     (mm/yr)   -21.80000    4.71000   26.27000
+    IERS rotation     (mas)     2.73590    2.04310   -0.37310
+           rate    (mas/yr)    -2.02030   -2.17350   -1.62900
+    Scale             (ppb)     6.90100
+           rate    (ppb/yr)     0.38800
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF96_XYZ_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF97_XYZ_DW ============
+Coordinate system: International Terrestrial Reference Frame 1997 XYZ (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 1997 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -14.63000  -27.62000  -25.32000
+           rate     (mm/yr)    -8.60000    0.36000   11.25000
+    IERS rotation     (mas)     1.78930    0.60470   -0.99620
+           rate    (mas/yr)    -1.63940   -1.51980   -1.38010
+    Scale             (ppb)     6.69500
+           rate    (ppb/yr)     0.00700
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF97_XYZ_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF2000_XYZ_DW ============
+Coordinate system: International Terrestrial Reference Frame 2000 XYZ (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 2000 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -45.91000  -29.85000  -20.37000
+           rate     (mm/yr)    -4.66000    3.55000   11.24000
+    IERS rotation     (mas)     1.67050   -0.45940   -1.93560
+           rate    (mas/yr)    -1.74540   -1.48680   -1.22400
+    Scale             (ppb)     7.07000
+           rate    (ppb/yr)     0.24900
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF2000_XYZ_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF2005_XYZ_DW ============
+Coordinate system: International Terrestrial Reference Frame 2005 XYZ (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 2005 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -79.73000   -6.86000   38.03000
+           rate     (mm/yr)     2.25000   -0.62000   -0.56000
+    IERS rotation     (mas)     0.03510   -2.12110   -2.14110
+           rate    (mas/yr)    -1.47070   -1.14430   -1.17010
+    Scale             (ppb)     6.63600
+           rate    (ppb/yr)     0.29400
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF2005_XYZ_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+========== ITRF2008_XYZ_DW ============
+Coordinate system: International Terrestrial Reference Frame 2008 XYZ (Australia D&W transformation)
+Reference frame: International Terrestrial Reference Frame 2008 (Dawson and Woods parameters)
+  Relative to GDA94
+        Reference date   (year)  1994.00
+    Translation        (mm)   -84.68000  -19.42000   32.01000
+           rate     (mm/yr)     1.42000    1.34000    0.90000
+    IERS rotation     (mas)     0.42540   -2.25780   -2.40150
+           rate    (mas/yr)    -1.54610   -1.18200   -1.15510
+    Scale             (ppb)     9.71000
+           rate    (ppb/yr)     0.10900
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+GDA94 to ITRF2008_XYZ_DW
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates
+
+6 coordinates converted
+0 errors occurred reading or converting coordinates

@@ -1,0 +1,11 @@
+Test 1 - NZGD2000
+ITRF2008
+options ellipsoidal_heights no_deflections geoid_heights degrees c=Order c=Mark_Type
+! Converted from NZGD2000 at epoch 2005
+
+!Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
+1        -41.01299808402    173.32099960874   149.9854 -0.0146 2     PIN   Node one
+2        -41.00699808438    173.32799960876   249.9854 -0.0146 2     PEG   Node two
+3        -41.00799808471    173.33299960752    69.9854 -0.0146 3     BOLT  Node three
+4        -41.01299808402    173.32099960874   149.9854 29.9854 2     PIN   Node four
+5        -41.00699808438    173.32799960876   249.9854 29.9854 2     PEG   Node five

@@ -1,6 +1,5 @@
 
-snapgeoid version 2.5.17
-
+snapconv version
 Calculates geoid undulations on a SNAP coordinate file
 
 Unable to load geoid model

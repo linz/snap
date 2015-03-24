@@ -1,0 +1,102 @@
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The revised station file is out/test1.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The revised station file is out/test2.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   EGM96 gravity model evaluated on 0.25x0.25 degree grid
+   Reference: http://www.nima.mil/GandG/wgs-84/egm96.html
+   Evaluated on WGS84 ellipsoid
+
+The revised station file is out/test3.crd
+================  
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The revised station file is out/test5.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The revised station file is out/test6.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The revised station file is out/test7.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The revised station file is out/test8.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The revised station file is out/test8a.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The revised station file is out/test9.crd
+================  
+
+snapconv version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The revised station file is out/test10.crd
+================  

@@ -222,7 +222,7 @@ double year_as_snapdate( double years )
 {
     double d0, d1;
     int y0;
-    y0=int(years);
+    y0=(int)years;
     d0=snap_date(y0,1,1);
     d1=snap_date(y0+1,1,1);
     return d0+(d1-d0)*(years-y0);

@@ -139,57 +139,43 @@ for /F %%c in ( crdsyslist2.txt ) do (
    %concord% -IITRF96,NEH,H -o%%c -Y2000.5 -N6 -P6 in\test1.in out\test_%%c.out >> out\crdsys.txt 2>&1
    )
 
-REM List ITRF coordinate systems
 
-echo Testing ITRF coordinate systems
+echo Testing ITRF systems
+for /f %%c in ( itrf_csys.txt) do (
+   echo ========== %%c ============ >> out\itrf.txt
+   %concord% -L %%c >> out\itrf.txt 2>&1
+   echo ITRF96 to %%c >> out\itrf.txt
+   %concord% -IITRF96_XYZ -o%%c_XYZ -Y2000 -N6 -P4 in\global.xyz out\test_%%cb.out >> out\itrf.txt 2>&1
+   %concord% -IITRF96_XYZ -o%%c_XYZ -Y2010 -N6 -P4 in\global.xyz out\test_%%cc.out >> out\itrf.txt 2>&1
+   echo NZGD2000 to %%c >> out\itrf.txt
+   %concord% -INZGD2000,NE,D -o%%c,NEH,D -Y2000 -N8 -P8 in\test15.in out\test_%%cd.out >> out\itrf.txt 2>&1
+   %concord% -INZGD2000,NE,D -o%%c,NEH,D -Y2010 -N8 -P8 in\test15.in out\test_%%ce.out >> out\itrf.txt 2>&1
+  )
 
-echo ===== ITRF96 ===== > out\itrf.txt
-%concord% -L ITRF96 >> out\itrf.txt 2>&1
-echo ===== ITRF96_XYZ ===== >> out\itrf.txt
-%concord% -L ITRF96_XYZ >> out\itrf.txt 2>&1
-echo ===== ITRF2000 ===== >> out\itrf.txt
-%concord% -L ITRF2000 >> out\itrf.txt 2>&1
-echo ===== ITRF2000_XYZ ===== >> out\itrf.txt
-%concord% -L ITRF2000_XYZ >> out\itrf.txt 2>&1
-echo ===== ITRF2005 ===== >> out\itrf.txt
-%concord% -L ITRF2005 >> out\itrf.txt 2>&1
-echo ===== ITRF2005_XYZ ===== >> out\itrf.txt
-%concord% -L ITRF2005_XYZ >> out\itrf.txt 2>&1
-echo ===== ITRF2008 ===== >> out\itrf.txt
-%concord% -L ITRF2008 >> out\itrf.txt 2>&1
-echo ===== ITRF2008_XYZ ===== >> out\itrf.txt
-%concord% -L ITRF2008_XYZ >> out\itrf.txt 2>&1
+rem Australian coordinate systems
 
-echo ITRF96 to ITRF2000 without defining an epoch >> out\itrf.txt
-%concord% -IITRF96_XYZ -oITRF2000_XYZ -N6 -P4 in\global.xyz out\test_bad >> out\itrf.txt 2>&1
-
-echo ITRF96 to ITRF2000 >> out\itrf.txt
-%concord% -IITRF96_XYZ -oITRF2000_XYZ -Y2000 -N6 -P4 in\global.xyz out\test_ITRF2000b.out >> out\itrf.txt 2>&1
-%concord% -IITRF96_XYZ -oITRF2000_XYZ -Y2010 -N6 -P4 in\global.xyz out\test_ITRF2000c.out >> out\itrf.txt 2>&1
-
-echo ITRF96 to ITRF2005 >> out\itrf.txt
-%concord% -IITRF96_XYZ -oITRF2005_XYZ -Y2000 -N6 -P4 in\global.xyz out\test_ITRF2005b.out >> out\itrf.txt 2>&1
-%concord% -IITRF96_XYZ -oITRF2005_XYZ -Y2010 -N6 -P4 in\global.xyz out\test_ITRF2005c.out >> out\itrf.txt 2>&1
-
-echo ITRF96 to ITRF2008 >> out\itrf.txt
-%concord% -IITRF96_XYZ -oITRF2008_XYZ -Y2000 -N6 -P4 in\global.xyz out\test_ITRF2008b.out >> out\itrf.txt 2>&1
-%concord% -IITRF96_XYZ -oITRF2008_XYZ -Y2010 -N6 -P4 in\global.xyz out\test_ITRF2008c.out >> out\itrf.txt 2>&1
-
-echo NZGD2000 to ITRF96 >> out\itrf.txt
-%concord% -INZGD2000,NE,D -oITRF96,NEH,D -Y2000 -N8 -P8 in\test15.in out\test_ITRF96d.out >> out\itrf.txt 2>&1
-%concord% -INZGD2000,NE,D -oITRF96,NEH,D -Y2010 -N8 -P8 in\test15.in out\test_ITRF96e.out >> out\itrf.txt 2>&1
-
-echo NZGD2000 to ITRF2000 >> out\itrf.txt
-%concord% -INZGD2000,NE,D -oITRF2000,NEH,D -Y2000 -N8 -P8 in\test15.in out\test_ITRF2000d.out >> out\itrf.txt 2>&1
-%concord% -INZGD2000,NE,D -oITRF2000,NEH,D -Y2010 -N8 -P8 in\test15.in out\test_ITRF2000e.out >> out\itrf.txt 2>&1
-
-echo NZGD2000 to ITRF2005 >> out\itrf.txt
-%concord% -INZGD2000,NE,D -oITRF2005,NEH,D -Y2000 -N8 -P8 in\test15.in out\test_ITRF2005d.out >> out\itrf.txt 2>&1
-%concord% -INZGD2000,NE,D -oITRF2005,NEH,D -Y2010 -N8 -P8 in\test15.in out\test_ITRF2005e.out >> out\itrf.txt 2>&1
-
-echo NZGD2000 to ITRF2008 >> out\itrf.txt
-%concord% -INZGD2000,NE,D -oITRF2008,NEH,D -Y2000 -N8 -P8 in\test15.in out\test_ITRF2008d.out >> out\itrf.txt 2>&1
-%concord% -INZGD2000,NE,D -oITRF2008,NEH,D -Y2010 -N8 -P8 in\test15.in out\test_ITRF2008e.out >> out\itrf.txt 2>&1
+echo Testing Australian systems
+for /f %%c in ( aus_csys.txt) do (
+   echo ========== %%c ============ >> out\aus.txt
+   %concord% -L %%c >> out\aus.txt 2>&1
+   echo GDA94 to %%c >> out\aus.txt
+   %concord% -IGDA94:NEH:D -o%%c:ENH:D -Y2000 -N8 -P8 in\aus.in out\test_%%cb.out >> out\aus.txt 2>&1
+   %concord% -IGDA94:NEH:D -o%%c:ENH:D -Y2010 -N8 -P8 in\aus.in out\test_%%cc.out >> out\aus.txt 2>&1
+  )
+for /f %%c in ( aus_proj.txt) do (
+   echo ========== %%c ============ >> out\aus.txt
+   %concord% -L %%c >> out\aus.txt 2>&1
+   echo GDA94 to %%c >> out\aus.txt
+   %concord% -IGDA94:NEH:D -o%%c:ENH -Y2000 -N8 -P4 in\aus.in out\test_%%cb.out >> out\aus.txt 2>&1
+   %concord% -IGDA94:NEH:D -o%%c:ENH -Y2010 -N8 -P4 in\aus.in out\test_%%cc.out >> out\aus.txt 2>&1
+  )
+for /f %%c in ( aus_xyz.txt) do (
+   echo ========== %%c ============ >> out\aus.txt
+   %concord% -L %%c >> out\aus.txt 2>&1
+   echo GDA94 to %%c >> out\aus.txt
+   %concord% -IGDA94:NEH:D -o%%c -Y2000 -N8 -P4 in\aus.in out\test_%%cb.out >> out\aus.txt 2>&1
+   %concord% -IGDA94:NEH:D -o%%c -Y2010 -N8 -P4 in\aus.in out\test_%%cc.out >> out\aus.txt 2>&1
+  )
 
 perl fix_output.pl out\*.*
 del /q out\*.bak

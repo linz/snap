@@ -1,3 +1,3 @@
 
 Coordinate system WGS84 is not defined
-There are several WGS84 reference frames. Please select one of WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674
+There are several WGS84 reference frames. Please select one of WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674, WGS84_G1762

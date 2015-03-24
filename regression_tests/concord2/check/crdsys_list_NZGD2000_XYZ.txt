@@ -1,4 +1,4 @@
-Coordinate system: New Zealand Geodetic Datum 2000 - Cartesian XYZ
+Coordinate system: New Zealand Geodetic Datum 2000 XYZ
 Reference frame: New Zealand Geodetic Datum 2000 (version 20150101)
 LINZ deformation model
     NZGD2000 deformation model
