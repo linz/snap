@@ -31,6 +31,7 @@ foreach my $pkgd ( glob("$source/*") )
     next if ! -d $pkgd;
     next if ! -f "$pkgd/ABOUT";
     my $pkg = substr($pkgd,$pos);
+    print "===========================\n";
     print "Building package $pkg\n";
 
     my @files=();

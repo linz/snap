@@ -117,6 +117,51 @@ function EditConfigFile( $name, $description, $cfgdir, $ext )
            $cfgfiles=FindConfigFiles($cfgdir,$ext)
 	   start($_editor,$copyfile)
 	endif
+      new_column
+      button "Import"
+	$newfile=GetOpenFilename("Save file as...","$name (*.$ext)|*.$ext|All files|*.*") 
+	if $newfile then
+	    $filename=FileName($newfile,"name")
+	    $target="$copydir/$filename.$ext"
+	    debuglog("Target is $target")
+	    $ok=true
+	    if FileExists($target) then
+	       dialog "Overwrite file" $ok 
+	          label "The file $filename already exists"
+	          label "Do you want to overwrite the file?"
+	       end_dialog
+	    endif
+	    if $ok then
+	        MakeDir($copydir)
+	        CopyFile($newfile,$target)
+                $cfgfiles=FindConfigFiles($cfgdir,$ext)
+	    endif
+	endif
+      button "Export"
+        $srcfile=ConfigFileListFileName($cfgfiles,$srcopt)
+        if not $srcfile then
+	   Message("You must select a file to export","Missing file name")
+	else
+	   $newfile=GetSaveFilename("Save file as...","$name (*.$ext)|*.$ext)|All files|*.*") 
+	   if $newfile then
+	   	CopyFile($srcfile,$newfile)
+	   endif
+	endif
+      button "Delete"
+        $srcfile=ConfigFileListFileName($cfgfiles,$srcopt)
+        if not $srcfile then
+	   Message("You must select a file to delete","Missing file name")
+	else
+	   $ok=false
+	   $srcname=Filename($srcfile,"name")
+	   dialog "Delete file" $ok 
+	      label "Are you sure you want to delete $srcname"
+	   end_dialog
+	   if $ok then 
+	       DeleteFile($srcfile) 
+               $cfgfiles=FindConfigFiles($cfgdir,$ext)
+	   endif
+	endif
 
     end_dialog
 end_function
