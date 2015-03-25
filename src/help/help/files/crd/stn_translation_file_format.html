@@ -1,0 +1,76 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="station, coordinate, station coordinate file, format, translation">
+<title>SNAP station translation file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="stn_translation_file_format"></a>SNAP station translation file format</h1>
+
+<p>A station translation file defines translations of station codes when data
+files are read into SNAP. They have two main uses
+</p>
+<ul>
+    <li>To change the codes used in data files where they do not match those in 
+    the coordinate file.
+    </li>
+    <li>To experiment with possibly moved stations by creating a new station 
+    in place of an existing one for a specific range of dates.
+    </li>
+</ul>
+<p>
+Station translations can be applied globally, that is for all files loaded into a snap job, using the <a href="../cmdcfg/cmd_station_translation_file.html">station_translation_file</a> command, or for an individual data file with the <a href="../cmdcfg/cmd_data_file.html">data_file</a> command.  Translations may also be explicitly defined in the command file with
+the <a href="../cmdcfg/cmd_translate.html">translate</a> command.
+</p>
+<p>The station translation file (or files) define translations of station codes.  Each translation defines a code in the data file and the code that it translates to.  
+The translation may also specify a date range.  When an observation is read the last defined
+applicable date range translation is used.  If none is defined then the last define 
+undated translation is applied.  If none is found then the station code is not modified
+</p>
+<p>
+Translations defined in the command file are applied after those specified for the data 
+file.  The translated data file codes are may be translated again by the command file
+translations.
+</p>
+
+<p>When the station code has been translated the SNAP will check if it is defined in the
+configuration file.  If it is not defined and if the original code is defined then the SNAP will 
+create a new station based on the original one.
+</p>
+
+<p>Each line in the station translation file defines one translation, except that blank lines and lines starting with &quot;!&quot; are ignored.
+</p>
+
+<p>
+Each translation line is formatted as:
+</p>
+<p class="Commanddefinition">code newcode [date_from date_to]</p>
+<p>
+The <i>code</i> and <i>newcode</i> define the original and translated codes.
+If <i>from_date</i> and<i>to_date</i> are specified then these define a date range
+for which the translation applies.  
+</p>
+<p>
+Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DD:hh:mm:ss&quot;.  
+One or other date can be replace with &quot;-&quot; meaning any date before or after the other date.
+</p>
+<div class="SeeAlso">
+    <h3>See also:</h3>
+
+    <p><a href="index.html">Station coordinate file</a></p>
+
+    <p><a href="stn_code.html">Station codes</a></p>
+
+    <p><a href="../cmdcfg/cmd_station_translation_file.html">The station_translation_file command</a></p>
+
+    <p><a href="../cmdcfg/cmd_translate.html">The translate command</a></p>
+
+</div>
+</body>
+</html>

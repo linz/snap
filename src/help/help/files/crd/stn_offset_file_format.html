@@ -27,8 +27,10 @@ Note that where the offset replaces a deformation model then it must be defined 
 same reference frame as that underlying the deformation model.  For example if it is replacing the
 NZGD2000 deformation model then it must define the station time series in terms of ITRF96.
 </p>
+<p>Each line in the station offset file defines one offset, except that blank lines and lines starting with &quot;!&quot; are ignored.
+</p>
 <p>
-Each offset is specified using the format:
+Each offset line is formatted as:
 </p>
 <p class="Commanddefinition">code [coordtype] [offset_type] [mode] type data </p>
 <p>
@@ -84,6 +86,8 @@ Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DD:hh
 <p><a href="index.html">Station coordinate file</a></p>
 
 <p><a href="stn_code.html">Station codes</a></p>
+
+<p><a href="../cmdcfg/cmd_station_offset_file.html">The station_offset_file command</a></p>
 
 </div>
 </body>
