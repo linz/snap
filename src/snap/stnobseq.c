@@ -32,7 +32,7 @@
 #include "util/lsobseq.h"
 #include "util/leastsqu.h"
 #include "util/probfunc.h"
-#include "snapdata/survdata.h" /* For UNKNOWN_DATE */
+#include "snapdata/survdata.h" /* For UNDEFINED_DATE */
 #include "stnobseq.h"
 #include "adjparam.h"
 #include "util/binfile.h"
@@ -196,7 +196,7 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
 
     sa = stnadj( st );
 
-    if( deformation && date != UNKNOWN_DATE && calc_deformation( deformation, st, date, denu ) == OK  )
+    if( deformation && date != UNDEFINED_DATE && calc_deformation( deformation, st, date, denu ) == OK  )
     {
         if( output_deformation && lst )
         {

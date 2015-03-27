@@ -27,6 +27,7 @@
 #include "snapdata/loaddata.h"
 #include "snapdata/survdata.h"
 #include "util/errdef.h"
+#include "util/dateutil.h"
 #include "util/dstring.h"
 
 #define INC_SIZE 5   /* Increment for data blocks */
@@ -552,7 +553,7 @@ void ldt_date( double obsdate )
 void ldt_time( double time )
 {
     DEBUG_PRINT(("LDT: ldt_time %.5lf",time));
-    if( data.date != UNKNOWN_DATE ) data.date = floor(data.date)+time;
+    if( data.date != UNDEFINED_DATE ) data.date = floor(data.date)+time;
 }
 
 void ldt_projection( int proj_id )
@@ -577,7 +578,7 @@ void ldt_inststn( int stn_id, double ihgt )
 
     data.from = stn_id;
     data.fromhgt = ihgt;
-    data.date = UNKNOWN_DATE;
+    data.date = UNDEFINED_DATE;
     data.reffrm = ID_UNDEFINED;
     data.format = 0;
     data.nobs = 0;

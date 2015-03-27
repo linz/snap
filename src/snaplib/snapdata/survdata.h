@@ -147,10 +147,6 @@ typedef struct           /* Data relating to an observation or set of obs */
 #define IGNORE_OBS_BIT   0x02
 #define UNUSED_OBS_BIT   0x04   /* Unused for another reason...*/
 
-/* Unspecified date */
-
-#define UNKNOWN_DATE     0.0
-
 /* Get the i'th target for an observations */
 
 #define get_trgtdata(o,i) \

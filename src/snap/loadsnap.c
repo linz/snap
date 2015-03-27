@@ -80,6 +80,7 @@ into SNAP
 #include "snapdata/gpscvr.h"
 #include "snap/gpscvr2.h"
 #include "coefs.h"
+#include "util/dateutil.h"
 #include "util/chkalloc.h"
 #include "util/errdef.h"
 
@@ -460,7 +461,7 @@ static void load_snap( survdata *sd )
 
     /* Fail if need observation date and is not provided */
 
-    if( need_obs_date && sd->date == UNKNOWN_DATE )
+    if( need_obs_date && sd->date == UNDEFINED_DATE )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",

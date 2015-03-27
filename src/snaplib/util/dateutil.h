@@ -18,6 +18,10 @@
 
 #define DAYS_PER_YEAR 365.25
 
+/* Unspecified date */
+
+#define UNDEFINED_DATE     0.0
+
 /* Snap uses dates as double day number */
 
 double snap_date( int year, int month, int day );

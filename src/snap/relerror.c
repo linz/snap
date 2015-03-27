@@ -34,6 +34,8 @@
 #include "util/binfile.h"
 #include "util/leastsqu.h"
 #include "util/lsobseq.h"
+#include "util/dateutil.h"
+#include "util/progress.h"
 #include "network/network.h"
 #include "stnobseq.h"
 #include "reorder.h"
@@ -41,7 +43,6 @@
 #include "snap/snapglob.h"
 #include "output.h"
 #include "relerror.h"
-#include "util/progress.h"
 
 static void calc_relative_obseq( station *st1, station *st2, void *hA )
 {
@@ -53,8 +54,8 @@ static void calc_relative_obseq( station *st1, station *st2, void *hA )
     for( axis = 0; axis < 3; axis++ )
     {
         int irow = axis+1;
-        set_station_obseq( st1, dst1[axis], hA, irow, UNKNOWN_DATE );
-        set_station_obseq( st2, dst2[axis], hA, irow, UNKNOWN_DATE );
+        set_station_obseq( st1, dst1[axis], hA, irow, UNDEFINED_DATE );
+        set_station_obseq( st2, dst2[axis], hA, irow, UNDEFINED_DATE );
         oe_value( hA, irow+axis, dif[axis] );
         oe_covar( hA, irow, irow, 1.0 );
     }

@@ -560,7 +560,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
 
     int obsid = 0;
-    double snaptime = UNKNOWN_DATE;
+    double snaptime = UNDEFINED_DATE;
     if( _obsid.hasValue() && _obsid.value() != "") _obsid >> obsid;
     if( _time.value() != "" )
     {

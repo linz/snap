@@ -927,7 +927,7 @@ static void set_date_field( survdata *sd )
 {
     if( WANT(OF_DATE) )
     {
-        if( sd->date == UNKNOWN_DATE )
+        if( sd->date == UNDEFINED_DATE )
         {
             strcpy(obsdate,"Unknown");
         }

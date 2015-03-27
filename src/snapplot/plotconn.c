@@ -2116,7 +2116,7 @@ char *sres_list_header()
 
 static char *date_as_string( double date, char *buffer )
 {
-    if( date == UNKNOWN_DATE )
+    if( date == UNDEFINED_DATE )
     {
         buffer[0]=0;
     }
@@ -2795,7 +2795,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, long binloc, int ind
         (*f)( dest, &jmp, buf );
     }
 
-    if( sd->date != UNKNOWN_DATE )
+    if( sd->date != UNDEFINED_DATE )
     {
         char dbuff[32];
         date_as_string( sd->date, dbuff );
@@ -3081,7 +3081,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         (*f)( dest, &jmp, buf );
     }
 
-    if( sd->date != UNKNOWN_DATE )
+    if( sd->date != UNDEFINED_DATE )
     {
         char dbuff[32];
         date_as_string( sd->date, dbuff );
@@ -3301,7 +3301,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         sprintf(buf,"Id: %d", p->tgt.id );
         (*f)( dest, &jmp, buf );
     }
-    if( sd->date != UNKNOWN_DATE )
+    if( sd->date != UNDEFINED_DATE )
     {
         char dbuff[32];
         date_as_string( sd->date, dbuff );

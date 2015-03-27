@@ -335,7 +335,7 @@ static void init_snapfile_def( snapfile_def *sd, DATAFILE *df )
     sd->cvrupper = 0;
     sd->dfltcvrtype = CVR_FULL;
     sd->cvrtype = 0;
-    sd->date = UNKNOWN_DATE;
+    sd->date = UNDEFINED_DATE;
     sd->noinststn = 0;
     sd->grouped = 0;
     sd->ingroup = 0;
@@ -1091,7 +1091,7 @@ static int read_date_command( snapfile_def *sd, int id, const char *cmd )
 
     if( _stricmp(datestr, "unknown") == 0 )
     {
-        sd->date = UNKNOWN_DATE; 
+        sd->date = UNDEFINED_DATE; 
         return OK;
     }
 
@@ -1147,7 +1147,7 @@ static int read_time_command( snapfile_def *sd, int id, const char *cmd )
     double obstime;
     if( read_time( sd->df, &obstime ) )
     {
-        if( sd->date != UNKNOWN_DATE ) sd->date = floor( sd->date) + obstime;
+        if( sd->date != UNDEFINED_DATE ) sd->date = floor( sd->date) + obstime;
         ldt_date( sd->date );
     }
     else
