@@ -24,16 +24,32 @@ range will be treated as an individual station code.</p>
 
 <p class="BulletList">stations specified by other classifications defined in the coordinate file - entered as <i>class_name</i>=<i>order</i> (eg mark_type=pin).</p>
 
-<p class="BulletList">stations defined in a station list file - entered as @<i>filename</i>.</p>
+<p class="BulletList">stations defined in a station list file - entered as @<i>filename</i>. The default extension for a station list file is &quot;.stl&quot;.</p>
+
+<p class="BulletList">stations defined by a polygon spatial extent - entered as <i>inside crdsys wktfile</i> or <i>outside crdsys wktfile</i>.  
+Here <i>crdsys</i> is the coordinate system in which the polygon is defined 
+and <i>wktfile</i> is the name of a file containing the coordinates of a polygon extent
+in WKT (well known text) format.  The default extension for the file is &quot;.wkt&quot;.</p>
 
 <p>When a group of stations will be referenced in several adjustments it may be convenient to put the list into a a station list file.  
-For example if you wanted to be able to easily exclude all benchmarks from an adjustment, you could create a file called BENCHMRK.LST.  In this you would specify all benchmarks.  Then in the command file you would include  the command</p>
+For example if you wanted to be able to easily exclude all benchmarks from an adjustment  you could create a file called benchmrk.stl.  In this you would specify all benchmarks.  Then in the command file you would include  the command</p>
 
-<p class="Commanddefinition">reject @benchmrk.lst</p>
+<p class="Commanddefinition">reject @benchmrk</p>
 
 <p>to reject them. </p>
 
-<p>A station list file may contain any number of station codes and station code ranges.  It cannot include references to other list files.  The codes can be spread over several lines.  They should be separated by blank characters.  The file can include comments as lines starting with the character !.</p>
+<p>The well known text format used to define polygons is a common format for GIS systems. 
+Many polygons can be defined in the file.  However a very simplistic algorithm is used
+to parse the file, so it may give incorrect results if the file contains other data.
+The critical part of the file are one or more sequences of:
+</p>
+<p class="Commanddefinition">(x1 y1, x2, y2, ... , xn yn )</p>
+<p>
+where x and y are the longitude and latitude or easting and northing coordinates. The final 
+coordinates in the list must be the same as the initial coordinates.  Note that if the file contains overlapping polygons then a point that inside an even number of them will be considerered outside the total extent.
+Similarly a point that is inside an odd number of them is considered inside the total extent.
+</p>
+<p>A station list file may contain any number of station codes and station code ranges and polygon definitions.  It cannot include references to other list files.  The codes can be spread over several lines.  They should be separated by blank characters.  The file can include comments as lines starting with the character !.</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

@@ -76,3 +76,16 @@ int ismatch( const char *string1, const char *string2 )
     return 1;
 }
 
+char *next_field( char **start )
+{
+    char *result=0;
+    char *s=*start;
+    while( isspace(*s) ) s++;
+    (*start)=s;
+    if( ! *s ) return 0;
+    result = s;
+    while( *s && ! isspace(*s) ) s++;
+    if( *s ) {*s=0; s++; }
+    (*start)=s;
+    return result;
+}

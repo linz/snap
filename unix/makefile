@@ -138,3 +138,5 @@ clean:
 	$(RM) -r $(OBJ)
 	@echo Deleting built files
 	$(RM) -r $(INSTALL)
+	@echo Deleting makefile.inc
+	$(RM) makefile.inc

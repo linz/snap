@@ -44,6 +44,12 @@ This includes managing reference frames, ellipsoids, and projections.
 enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
 enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_COORDSYS_COUNT, CS_INVALID };
 
+/* Default epoch for low accuracy coordinate conversions between coordinate systems.
+   Use this to allow conversions where an epoch is required but is not available.
+   */
+
+#define DEFAULT_CRDSYS_EPOCH 2000.0
+
 /* Definition of an ellipsoid.  In addition to the ID, code and
 	two parameters, it contains several calculated values which are
 	useful in coordinate conversions. */

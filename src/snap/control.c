@@ -512,13 +512,6 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
         }
     }
 
-    if( !setall && field && _stricmp( field, "all" ) == 0 )
-    {
-        setall = 1;
-        field = strtok(NULL, " ");
-    }
-
-
     if( setall )
     {
         int istn;

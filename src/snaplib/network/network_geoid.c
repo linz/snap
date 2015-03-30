@@ -38,8 +38,8 @@ int set_network_geoid_def( network *nw, geoid_def *gd )
     coord_conversion to_geoid;
     coord_conversion from_geoid;
 
-    if( define_coord_conversion_epoch( &to_geoid, nw->geosys, geoid_crdsys, DEFAULT_GEOID_CRDSYS_EPOCH ) != OK ||
-            define_coord_conversion_epoch( &from_geoid, geoid_crdsys, nw->geosys, DEFAULT_GEOID_CRDSYS_EPOCH ) != OK )
+    if( define_coord_conversion_epoch( &to_geoid, nw->geosys, geoid_crdsys, DEFAULT_CRDSYS_EPOCH ) != OK ||
+            define_coord_conversion_epoch( &from_geoid, geoid_crdsys, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
     {
         handle_error( INVALID_DATA,
                       "Cannot relate geoid and network coordinate systems",NO_MESSAGE );

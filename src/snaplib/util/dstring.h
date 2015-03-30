@@ -21,5 +21,10 @@ void dump_string( const char *string, FILE *f );
 char *reload_string( FILE *f );
 /* Case insensitive and underscore/whitespace insensitive match */
 int ismatch( const char *string1, const char *string2 );
+/* Next field - skips whitespace, puts zero delimiter at end of next 
+ * field in string, and returns pointer to field if found, 0 otherwise.
+ * String pointer is updated to start of next search.
+ */
+char *next_field( char **start );
 
 #endif

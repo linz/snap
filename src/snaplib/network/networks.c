@@ -22,8 +22,8 @@
 #include "util/dstring.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
-
-
+#include "util/polygon.h"
+#include "util/pi.h"
 
 
 #define COMMENT_CHAR '!'
@@ -259,24 +259,111 @@ static void process_selected_stations1( network *nw, char *select, const char *b
 {
     char *field;
     char *s = select;
-    char end = 0;
     char *delim;
     int istn;
+    char errmess[200];
+    char src[80];
 
-    while( 1 )
+    errmess[0] = 0;
+    if( stnfile )
+    {
+        sprintf( src, "station list file %.50s", stnfile );
+    }
+    else
+    {
+        strcpy( src, "station list");
+    }
+
+    while( (field=next_field(&s)) )
     {
         /* Skip leading blanks */
 
-        if( end ) *s = end;
-        while( isspace(*s) ) s++;
-        if( ! *s ) break;
+        if( _stricmp( field, "ALL" ) == 0 )
+        {
+            int istn;
+            for( istn = number_of_stations(nw); istn; istn-- )
+            {
+                (*function)(station_ptr(nw,istn),data);
+            }
+            continue;
+        }
 
-        field = s;
-        while( *s && ! isspace(*s) ) s++;
-        end = *s;
-        if( end ) *s = 0;
+        if( _stricmp( field, "inside" ) == 0 || _stricmp( field, "outside" ) == 0 )
+        {
+            char *crdsys;
+            char *pgnfile;
+            char *spec;
+            void *pgn=0;
+            int istn;
+            int isgeodetic;
+            coordsys *cs;
+            coord_conversion conv;
+            int wantinside=_stricmp(field,"inside") == 0 ? 1 : 0;
+            crdsys=next_field(&s);
+            pgnfile=next_field(&s);
+            if( ! pgnfile )
+            {
+                sprintf(errmess,"Invalid \"%s\" option in %s requires coord sys code and wkt file name",field,src);
+                break;
+            }
+            cs=load_coordsys( crdsys );
+            if( ! cs )
+            {
+                sprintf(errmess,"Invalid coordinate system %-20s in \"%s\" option in %s",crdsys,field,src);
+                break;
+            }
+            if( define_coord_conversion_epoch( &conv, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK )
+            {
+                sprintf(errmess,"Cannot use WKT coordinate system %.20s in %s option in %s",
+                        crdsys,field,src);
+                break;
+            }
+            spec = find_file( pgnfile,DFLT_WKT_EXT,basefile,1,0);
+            isgeodetic=is_geodetic(cs);
+            if( spec ) pgn=read_polygon_wkt( spec, is_geodetic(cs) );
+            if( ! pgn )
+            {
+                sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
+                        crdsys,src);
+                break;
+            }
 
-        _strupr(field);
+            for( istn = number_of_stations(nw); istn; istn-- )
+            {
+                station *st=station_ptr(nw,istn);
+                double llh[3];
+                double lon;
+                double lat;
+                int isinside;
+                llh[CRD_LAT]=st->ELat;
+                llh[CRD_LON]=st->ELon;
+                llh[CRD_HGT]=st->OHgt+st->GUnd;
+                convert_coords( &conv, llh, NULL, llh, NULL );
+                if( isgeodetic )
+                {
+                    lon=llh[CRD_LON]*RTOD;
+                    lat=llh[CRD_LAT]*RTOD;
+                }
+                else
+                {
+                    lon=llh[CRD_EAST];
+                    lat=llh[CRD_NORTH];
+                }
+                isinside=polygon_contains_point( pgn, lon, lat ) ? 1 : 0;
+                if( isinside == wantinside )
+                {
+                    (*function)(station_ptr(nw,istn),data);
+                }
+            }
+            delete_polygon( pgn );
+            continue;
+        }
+
+        /* Allow \ escape on station names matching keywords */
+
+        if( field[0] == '\\' ) field++;
+        if( ! field[0] ) continue;
+
         istn = find_station( nw, field );
 
         /* Is the string matched as a station */
@@ -351,17 +438,14 @@ static void process_selected_stations1( network *nw, char *select, const char *b
         /* Bother - it must be a mistake */
 
         {
-            char errmess[200];
-            if( stnfile )
-            {
-                sprintf(errmess,"Invalid station %.50s in station list file %.50s",field,stnfile);
-            }
-            else
-            {
-                sprintf(errmess,"Invalid station %.50s in list of stations",field);
-            }
+            sprintf(errmess,"Invalid station %.50s in %50s",field,src);
             handle_error(INVALID_DATA,errmess,NULL);
+            errmess[0] = 0;
         }
+    }
+    if( errmess[0] )
+    {
+        handle_error(INVALID_DATA,errmess,NULL);
     }
 }
 
