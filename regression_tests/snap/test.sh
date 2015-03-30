@@ -14,12 +14,12 @@ fi
 # IF "%t%" == "" SET t=test*
 t='*'
 g=''
-#o='> /dev/null'
+o='/dev/null'
 if [ "$1" = "-g" ] ; then
     echo "Debugging"
     shift
     g='gdb --args '
-    o=''
+    o='/dev/stdout'
 fi
 
 if [ "$1" != "" ]; then
@@ -34,12 +34,15 @@ for f in ${t}.snp; do
     base=`basename $f .snp`
     echo "Running ${base}"
     rm -f ../out/${base}.* ../out/${base}-*
-    ${g}${SNAPDIR}/snap $base ${o}
+    ${g}${SNAPDIR}/snap $base > ${o}
     #> /dev/null
     for of in ${base}.lst ${base}.err ${base}-*.csv; do
         if [ -e ${of} ]; then
             perl ../clean_snap_listing.pl ${of} > ../out/${of}
+            rm $of
         fi
-        rm $of
     done
 done
+
+cd ..
+diff -q -r -B -b out check

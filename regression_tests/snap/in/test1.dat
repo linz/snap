@@ -79,15 +79,20 @@ Test 1 - basic obs type tests
 
 ! Date commands
 
-#date 2 Jan 1889
-#date 13 Feb 2009
-#date 16 Mar 1909
+#date 2Jan1889
+#date 2009 Feb 13 
+#date 16 Mar 1909 12:20:58
 #date 14 Apr 2009
+#date 20090401122003
 #date 15 May 1999
+#date 1999-05-15T03:45:18
 #date 7 Jun 2009
 #date 18 Jul 2002
 #date 19 Aug 2003
+#date 19 August 2003
 #date 20 Sep 2009
+#date 20 09 2009
+#date 2009 09 20
 #date 21 Oct 2010
 #date 22 Nov 2009
 #date 23 Dec 2009
