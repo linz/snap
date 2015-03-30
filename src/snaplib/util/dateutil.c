@@ -143,6 +143,7 @@ double snap_datetime_parse( const char *definition, const char *format )
         idx = pfc - formatchars;
 
         /* Find the beginning of the field */
+
         while( *dp )
         {
             if( isdigit(*dp)) break;
@@ -163,7 +164,8 @@ double snap_datetime_parse( const char *definition, const char *format )
 
         while( *dp && isalnum(*dp) && ibuf < nbuf )
         {
-            if( ! isdigit(*dp) && ! isname) return 0.0;
+            if( ! isdigit(*dp) && ! isname) break;
+            if( isdigit(*dp) && isname) break;
             buffer[ibuf++] = *dp++;
         }
         buffer[ibuf] = 0;
