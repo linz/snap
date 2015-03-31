@@ -17,6 +17,7 @@
 #include "snap/survfile.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
+#include "util/dateutil.h"
 
 static survey_data_file **sdindx = NULL;
 static int nsdindx = 0;
@@ -28,6 +29,7 @@ static int maxsdindx = 0;
 static int add_data_file_nocopy( char *name, int format, char *subtype, double errfct )
 {
     survey_data_file *sd;
+    int i;
 
     sd = (survey_data_file *) check_malloc( sizeof( survey_data_file ) );
     if( nsdindx >= maxsdindx )
@@ -43,6 +45,10 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     sd->format = format;
     sd->subtype = subtype;
     sd->errfct = errfct;
+    sd->mindate=UNDEFINED_DATE;
+    sd->maxdate=UNDEFINED_DATE;
+    sd->nnodate=0;
+    for( i=0; i < NOBSTYPE; i++ ) sd->obscount[i]=0;
     sd->usage = 0;
 
     return OK;

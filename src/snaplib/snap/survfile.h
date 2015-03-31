@@ -27,6 +27,9 @@ typedef struct
     int format;
     char *subtype;
     double errfct;
+    double mindate;
+    double maxdate;
+    long nnodate;
     long obscount[NOBSTYPE];
     unsigned char usage;
 } survey_data_file;

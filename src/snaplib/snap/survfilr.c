@@ -29,6 +29,7 @@
 #include "util/progress.h"
 #include "util/errdef.h"
 #include "util/chkalloc.h"
+#include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/xprintf.h"
 
@@ -90,6 +91,8 @@ long read_data_files( char *base_dir, FILE *lst )
         }
 
         for( c = 0; c < NOBSTYPE; c++ ) sd->obscount[c] = 0;
+        sd->mindate=sd->maxdate=UNDEFINED_DATE;
+        sd->nnodate=0;
 
         xprintf("\n   Reading data from %s\n",sd->name);
         if( lst )
@@ -130,6 +133,15 @@ long read_data_files( char *base_dir, FILE *lst )
                             datatype[c].name,PLURAL(sd->obscount[c]) );
             }
         }
+        if( sd->mindate != UNDEFINED_DATE )
+        {
+            fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,0,0));
+            fprintf(lst,"and %s\n",date_as_string(sd->maxdate,0,0));
+        }
+        if( sd->nnodate > 0 )
+        {
+            fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
+        }
 
 
         file_errors = df_data_file_errcount( d );
@@ -153,8 +165,25 @@ long read_data_files( char *base_dir, FILE *lst )
 
 // #pragma warning(disable: 4100)
 
-void count_obs( int type, int ifile, char unused )
+void count_obs( int type, int ifile, double date, char unused )
 {
-    survey_data_file_ptr(ifile)->obscount[type]++;
+    survey_data_file *sd=survey_data_file_ptr(ifile);
+    sd->obscount[type]++;
+    if( date == UNDEFINED_DATE )
+    {
+        sd->nnodate++;
+    }
+    else if( sd->mindate == UNDEFINED_DATE )
+    {
+        sd->mindate=sd->maxdate=date;
+    }
+    else if( date < sd->mindate )
+    {
+        sd->mindate=date;
+    }
+    else if( date > sd->maxdate )
+    {
+        sd->maxdate=date;
+    }
     obstypecount[type]++;
 }

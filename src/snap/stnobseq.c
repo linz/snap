@@ -611,9 +611,11 @@ void write_station_csv()
     station *st;
     stn_adjustment *sa;
     projection *prj;
+    ellipsoid *elp;
     double cvr[6], emax, emin, brng, OHgt, northing, easting, height;
     double dn, de, dh;
     unsigned char projection_coords;
+    unsigned char geocentric_coords;
     output_csv *csv;
     int i;
     int defl;
@@ -637,26 +639,39 @@ void write_station_csv()
         }
     }
 
+    geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     prj = net->crdsys->prj;
+    elp = net->crdsys->rf->el;
 
     csv = open_output_csv("stn");
     if( ! csv ) return;
 
     write_csv_header( csv, "code" );
     write_csv_header( csv, "crdsys" );
-    if( projection_coords )
+    if( geocentric_coords )
     {
-        write_csv_header( csv,"easting");
-        write_csv_header( csv,"northing");
+        /* Set ellipsoidal as true so that ellipsoidal height is calced */
+        ellipsoidal=1;
+        write_csv_header( csv,"X");
+        write_csv_header( csv,"Y");
+        write_csv_header( csv,"Z");
     }
     else
     {
-        write_csv_header( csv,"longitude");
-        write_csv_header( csv,"latitude");
+        if( projection_coords )
+        {
+            write_csv_header( csv,"easting");
+            write_csv_header( csv,"northing");
+        }
+        else
+        {
+            write_csv_header( csv,"longitude");
+            write_csv_header( csv,"latitude");
+        }
+        write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
+        write_csv_header( csv, "height_type" );
     }
-    write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
-    write_csv_header( csv, "height_type" );
     if( geoid ) write_csv_header( csv, "geoidhgt" );
     if( defl ) { write_csv_header( csv, "xi"); write_csv_header( csv, "eta" ); }
     if( adjusted )
@@ -727,20 +742,34 @@ void write_station_csv()
         write_csv_string( csv, st->Code );
         write_csv_string(csv,net->crdsys->code);
 
-        if( projection_coords )
+        if( geocentric_coords )
         {
-            geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
-            write_csv_double( csv, easting, coord_precision );
-            write_csv_double( csv, northing, coord_precision );
+            double llh[3], xyz[3];
+            llh[CRD_LON]=st->ELon;
+            llh[CRD_LAT]=st->ELat;
+            llh[CRD_HGT]=height;
+            llh_to_xyz( elp, llh, xyz, 0, 0);
+            write_csv_double( csv, xyz[CRD_X], coord_precision );
+            write_csv_double( csv, xyz[CRD_Y], coord_precision );
+            write_csv_double( csv, xyz[CRD_Z], coord_precision );
         }
         else
         {
-            write_csv_double( csv, st->ELon*RTOD, coord_precision+5 );
-            write_csv_double( csv, st->ELat*RTOD, coord_precision+5 );
-        }
+            if( projection_coords )
+            {
+                geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
+                write_csv_double( csv, easting, coord_precision );
+                write_csv_double( csv, northing, coord_precision );
+            }
+            else
+            {
+                write_csv_double( csv, st->ELon*RTOD, coord_precision+5 );
+                write_csv_double( csv, st->ELat*RTOD, coord_precision+5 );
+            }
 
-        write_csv_double( csv, height, coord_precision );
-        write_csv_string( csv, ellipsoidal ? "ellipsoidal" : "orthometric" );
+            write_csv_double( csv, height, coord_precision );
+            write_csv_string( csv, ellipsoidal ? "ellipsoidal" : "orthometric" );
+        }
         if( geoid ) write_csv_double( csv, st->GUnd, coord_precision );
         if( defl )
         {

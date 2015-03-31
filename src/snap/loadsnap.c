@@ -231,7 +231,7 @@ static void record_parameter_usage( survdata *sd )
         type = t->type;
         dt = datatype + type;
 
-        count_obs( type, sd->file, unused );
+        count_obs( type, sd->file, sd->date, unused );
         if( sd->from ) count_stn_obs( type, sd->from, unused );
         if( t->to ) count_stn_obs( type, t->to, unused );
 

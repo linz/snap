@@ -199,6 +199,25 @@ double snap_datetime_parse( const char *definition, const char *format )
     return snap_datetime(ymdhmse[0],ymdhmse[1],ymdhmse[2],ymdhmse[3],ymdhmse[4],ymdhmse[5])+ymdhmse[6];
 }
 
+const char *date_as_string( double snapdate, char *format, char *buffer )
+{
+    static char datebuffer[MAX_DATE_LEN];
+    if( ! buffer ) buffer=datebuffer;
+    /* Current ignoring format */
+    if( snapdate == UNDEFINED_DATE )
+    {
+        strcpy(buffer,"undefined");
+    }
+    else
+    {
+        int y,m,d,hh,mm,ss;
+        date_as_ymdhms(snapdate,&y,&m,&d,&hh,&mm,&ss);
+        sprintf(buffer,"%04d-%02d-%02d %02d:%02d:%02d",y,m,d,hh,mm,ss);
+    }
+    return buffer;
+}
+
+
 double date_as_year( double snapdate )
 {
     static double refdate=0.0;
