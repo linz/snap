@@ -693,11 +693,6 @@ void write_csv_null_field( output_csv *csv )
 
 void write_csv_date( output_csv *csv, double date )
 {
-    char datestr[32];
-    int year, month, day, hour, min, sec;
-    if( date == 0 ) { write_csv_null_field( csv ); return; }
-
-    date_as_ymdhms( date, &year, &month, &day, &hour, &min, &sec );
-    sprintf( datestr,"%04d-%02d-%02d %02d:%02d:%02d",year,month,day,hour,min,sec);
-    write_csv_string( csv, datestr );
+    if( date == UNDEFINED_DATE ) { write_csv_null_field( csv ); return; }
+    write_csv_string( csv, date_as_string(date,0,0) );
 }

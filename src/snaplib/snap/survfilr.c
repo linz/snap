@@ -122,6 +122,15 @@ long read_data_files( char *base_dir, FILE *lst )
         }
         end_file_display();
 
+        if( sd->mindate != UNDEFINED_DATE )
+        {
+            fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,0,0));
+            fprintf(lst," and %s\n",date_as_string(sd->maxdate,0,0));
+        }
+        if( sd->nnodate > 0 )
+        {
+            fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
+        }
         for( c = 0; c < NOBSTYPE; c++ )
         {
             if( sd->obscount[c] )
@@ -133,16 +142,6 @@ long read_data_files( char *base_dir, FILE *lst )
                             datatype[c].name,PLURAL(sd->obscount[c]) );
             }
         }
-        if( sd->mindate != UNDEFINED_DATE )
-        {
-            fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,0,0));
-            fprintf(lst,"and %s\n",date_as_string(sd->maxdate,0,0));
-        }
-        if( sd->nnodate > 0 )
-        {
-            fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
-        }
-
 
         file_errors = df_data_file_errcount( d );
         if( file_errors )
