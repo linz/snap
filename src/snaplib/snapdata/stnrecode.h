@@ -47,7 +47,8 @@ typedef int (*get_recode_station_func)( void *data, const char *codefrom, const 
 typedef struct 
 {
     stn_recode_list *stlists;
-    stn_recode_list *index;
+    stn_recode_list **index;
+    int nindex;
     network *net;
     get_recode_station_func getstation;
     void *getstationdata;
@@ -61,15 +62,17 @@ typedef struct
  * does.  getstationdata is data used by the getstation function
  */
 
-stn_recode *create_station_recode_map( network *net, get_recode_station_func getstation, void *getstationdata );
+stn_recode_map *create_stn_recode_map( network *net, get_recode_station_func getstation, void *getstationdata );
 
-void delete_station_translation( stn_recode_map *stt );
+void delete_stn_recode_map( stn_recode_map *stt );
 
 int add_station_recode( stn_recode_map *stt, const char *codefrom, const char *codeto, double datefrom, double dateto );
 
-int read_station_recode_map( DATAFILE *d, stn_recode_map *stt );
+int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile );
 
-const char *translate_code( stn_recode_map *stt, stn_recode_map *sttbase, const char *code, double date );
+void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int stn_name_width, const char *prefix );
+
+const char *get_stn_recode( stn_recode_map *stt, stn_recode_map *sttbase, const char *code, double date );
 
 #endif /* defined _STNRECODE_HPP */
 

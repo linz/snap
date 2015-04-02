@@ -77,6 +77,7 @@
 static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_classification( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -145,6 +146,7 @@ static config_item snap_commands[] =
     {"horizontal_float_error",&dflt_herr,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"vertical_float_error",&dflt_verr,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"ignore_missing_stations",NULL,ABSOLUTE,0,read_ignore_missing_stations,CONFIG_CMD,0},
+    {"recode",NULL,ABSOLUTE,0,read_recode,0,0},
     {"max_iterations",&max_iterations,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"max_adjustment",&max_adjustment,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"convergence_tolerance",&convergence_tol,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
@@ -541,6 +543,23 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
         cfg->errcount += (get_error_count()-nerr);
     }
 
+    return OK;
+}
+
+static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+
+    if( ! stations_read )
+    {
+        send_config_error(cfg,INVALID_DATA,
+                          "Stations cannot be recoded before the station file is loaded");
+        return OK;
+    }
+    if( ! stnrecode ) stnrecode=create_stn_recode_map( net, 0, 0 );
+    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
+    {
+        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
+    }
     return OK;
 }
 

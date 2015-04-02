@@ -21,6 +21,10 @@
 #include "network/network.h"
 #endif
 
+#ifndef _STNRECODE_H
+#include "snapdata/stnrecode.h"
+#endif
+
 #ifndef _BINFILE_H
 #include "util/binfile.h"
 #endif
@@ -57,6 +61,7 @@ typedef struct
 enum { STN_FORMAT_SNAP, STN_FORMAT_GB, STN_FORMAT_CSV };
 
 extern network *net;
+extern stn_recode_map *stnrecode;
 extern char *station_filename;
 extern char *station_filespec;
 extern int station_filetype;

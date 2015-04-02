@@ -57,6 +57,7 @@ enum { OF_FROM, OF_TO, OF_FROMNAME, OF_TONAME,
 
 
 void print_input_data( FILE *out );
+void print_station_recoding( FILE *out );
 
 int max_syserr_params( survdata *sd );
 

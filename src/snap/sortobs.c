@@ -21,12 +21,6 @@
 
 #undef SORTOBS_C
 
-#ifdef __BORLANDC__
-#define CDECL _cdecl
-#else
-#define CDECL
-#endif
-
 typedef struct
 {
     int from;  /* From station */
@@ -67,7 +61,7 @@ void save_observation( int from, int to, int type, long loc )
 }
 
 
-static int CDECL cmp_obsdef( const void *p1, const void *p2 )
+static int cmp_obsdef( const void *p1, const void *p2 )
 {
     obsdef *o1, *o2;
     int diftype, difline;

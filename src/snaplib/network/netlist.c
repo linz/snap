@@ -17,12 +17,6 @@
 #include "util/chkalloc.h"
 #include "util/errdef.h"
 
-#ifdef __BORLANDC__
-#define CDECL _cdecl
-#else
-#define CDECL
-#endif
-
 /*=======================================================*/
 /* Maintain a list of stations ...                       */
 /* The stations are entered as a linked list.  Once entry*/
@@ -84,7 +78,7 @@ int stncodecmp( const char *s1, const char *s2 )
     return _stricmp( s1, s2 );
 }
 
-static  int CDECL stncodecmps( const void *code, const void *st )
+static  int stncodecmps( const void *code, const void *st )
 {
     char *s1, *s2;
     s1 = (char *) code;
@@ -92,7 +86,7 @@ static  int CDECL stncodecmps( const void *code, const void *st )
     return stncodecmp( s1, s2 );
 }
 
-static  int CDECL stncmp( const void *st1, const void *st2 )
+static  int stncmp( const void *st1, const void *st2 )
 {
     return stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
 }

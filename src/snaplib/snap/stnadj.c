@@ -23,6 +23,7 @@
 /* Global variables holding the definition of the network */
 
 network *net = NULL;
+stn_recode_map *stnrecode = NULL;
 char *station_filename = NULL;
 char *station_filespec = NULL;
 int station_filetype = STN_FORMAT_SNAP;
@@ -71,11 +72,13 @@ static void clear_globals( void )
 {
     if( net ) delete_network( net );
     if( netadj ) check_free( netadj );
+    if( stnrecode ) delete_stn_recode_map( stnrecode );
     if( station_filename ) check_free( station_filename );
     if( station_filespec ) check_free( station_filespec );
     if( station_fileoptions ) check_free( station_fileoptions );
     net = NULL;
     netadj = NULL;
+    stnrecode = NULL;
     station_filename = NULL;
     station_filespec = NULL;
     station_fileoptions = NULL;

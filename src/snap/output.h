@@ -43,6 +43,7 @@
 
 SCOPE char output_command_file;
 SCOPE char output_input_data;
+SCOPE char output_stn_recode;
 SCOPE char output_file_summary;
 SCOPE char output_problem_definition;
 SCOPE char output_observation_equations;
@@ -130,6 +131,7 @@ output_option output[] =
 {
     {"command_file",&output_command_file,0,{0}},
     {"input_data",&output_input_data,0,{0}},
+    {"station_recoding",&output_stn_recode,0,{0}},
     {"file_summary",&output_file_summary,1,{0}},
     {"problem_definition",&output_problem_definition,0,{0}},
     {"observation_equations",&output_observation_equations,0,{0}},
@@ -154,7 +156,7 @@ output_option output[] =
     {"rejected_station_coordinates",&output_rejected_coordinates,1,{0}},
     {"reference_frames",&output_reference_frames,1,{DATA_CONSISTENCY, 0}},
     {"parameters",&output_parameters,1,{DATA_CONSISTENCY, 0}},
-    {"form_feeds",&output_form_feeds,1,{0}},
+    {"form_feeds",&output_form_feeds,0,{0}},
     {
         "coordinate_file",&output_coordinate_file,1,
         {DATA_CONSISTENCY,DATA_CHECK,PREANALYSIS,0}

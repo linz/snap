@@ -290,6 +290,7 @@ int snap_main( int argc, char *argv[] )
     /* Echo the input data if required */
 
     if( output_input_data ) print_input_data( lst );
+    if( output_stn_recode ) print_station_recoding( lst );
 
     if( sort_obs ) sort_observation_list();
 

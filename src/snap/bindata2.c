@@ -40,6 +40,7 @@
 #include "pntdata.h"
 #include "util/classify.h"
 #include "snapdata/gpscvr.h"
+#include "snapdata/stnrecode.h"
 #include "adjparam.h"
 #include "util/errdef.h"
 #include "output.h"
@@ -251,6 +252,19 @@ void print_input_data( FILE *out )
 
     delete_bindata(b);
 
+    fprintf(out,"\n");
+}
+
+
+void print_station_recoding( FILE *out )
+{
+    if( output_stn_recode && stnrecode )
+    {
+        /* Note: for the moment print all recoding.  Ultimately may only want those used. */
+        print_section_heading( out, "RECODED STATIONS" );
+        fprintf(out,"\nThe following stations are being recoded as they are read from data files\n\n");
+        print_stn_recode_list( out, stnrecode, 0, stn_name_width,"     ");
+    }
     fprintf(out,"\n");
 }
 
