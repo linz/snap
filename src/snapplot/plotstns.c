@@ -21,7 +21,7 @@
 
 #include "util/binfile.h"
 #include "snap/stnadj.h"
-#include "snap/snapglob.h"  /* For dimension */
+#include "snap/snapglob.h"  /* For dimension, coord_precision */
 #include "plotstns.h"
 #include "plotpens.h"
 #include "plotfunc.h"
@@ -525,27 +525,27 @@ char *station_list_item( int istnsrt )
         case STNF_NAME: strncpy(buf,stn->Name,MAXCOLWIDTH); buf[MAXCOLWIDTH] = 0; replace_tabs(buf); break;
         case STNF_LAT:  dms_string( stn->ELat * RTOD, latfmt, buf ); strcat(buf," "); break;
         case STNF_LON:  dms_string( stn->ELon * RTOD, lonfmt, buf ); strcat(buf," "); break;
-        case STNF_EAST: sprintf(buf,"%.3lf ",stns[istn].easting); break;
-        case STNF_NRTH: sprintf(buf,"%.3lf ",stns[istn].northing); break;
-        case STNF_HGT:  sprintf(buf,"%.3lf ",stn->OHgt); break;
+        case STNF_EAST: sprintf(buf,"%.*lf ",coord_precision,stns[istn].easting); break;
+        case STNF_NRTH: sprintf(buf,"%.*lf ",coord_precision,stns[istn].northing); break;
+        case STNF_HGT:  sprintf(buf,"%.*lf ",coord_precision,stn->OHgt); break;
         case STNF_STS:  strcpy(buf,station_flag_status(sa)); break;
         case STNF_HERR:
             get_error_ellipse( istn, &emax, &emin, &b1 );
             emax *= errell_factor;
-            sprintf(buf,"%.3lf ",emax);
+            sprintf(buf,"%.*lf ",coord_precision,emax);
             break;
         case STNF_HADJ:
             if( ! gotadj ) {get_station_adjustment( istn, dxyz ); gotadj = 1; }
-            sprintf(buf,"%.3lf ",_hypot(dxyz[0],dxyz[1]));
+            sprintf(buf,"%.*lf ",coord_precision,_hypot(dxyz[0],dxyz[1]));
             break;
         case STNF_VERR:
             get_height_error( istn, &hgterr );
             hgterr *= hgterr_factor;
-            sprintf(buf,"%.3lf ",hgterr);
+            sprintf(buf,"%.*lf ",coord_precision,hgterr);
             break;
         case STNF_VADJ:
             if( ! gotadj ) {get_station_adjustment( istn, dxyz ); gotadj = 1; }
-            sprintf(buf,"%.3lf ",dxyz[2]);
+            sprintf(buf,"%.*lf ",coord_precision,dxyz[2]);
             break;
         default:
             classid = slist_field[icol]-STNF_CLASS;
