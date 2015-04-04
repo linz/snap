@@ -32,10 +32,16 @@ char *station_fileoptions = 0;
 char *geoid_file = 0;
 char overwrite_geoid = 0;
 
-static stn_adjustment *netadj = NULL;
-
-static void init_stn_adjustment( station *st, stn_adjustment *sa )
+static void delete_stn_adjustment( station *st )
 {
+    if( st && st->hook ) check_free( st->hook );
+}
+
+static void init_stn_adjustment( station *st )
+{
+    stn_adjustment *sa;
+    delete_stn_adjustment( st );
+    sa = (stn_adjustment *) check_malloc( sizeof(stn_adjustment) );
     sa->initELat = st->ELat;
     sa->initELon = st->ELon;
     sa->initOHgt = st->OHgt;
@@ -49,35 +55,47 @@ static void init_stn_adjustment( station *st, stn_adjustment *sa )
     sa->flag.rejected = 0;
     sa->flag.autoreject = 0;
     sa->flag.noreorder = 0;
+    st->hook=(void *) sa;
 }
-
 
 static void setup_stn_adjustments( void )
 {
     int nstns, istn;
     station *st;
 
-    if( netadj ) check_free( netadj );
-    nstns = number_of_stations( net );
-    netadj = (stn_adjustment *) check_malloc( (nstns+1) * sizeof( stn_adjustment ) );
+    nstns=number_of_stations( net );
     for( istn = 1; istn <= nstns; istn++ )
     {
         st = stnptr( istn );
-        init_stn_adjustment( st, &netadj[istn] );
-        st->hook = (void *) &netadj[istn];
+        init_stn_adjustment( st );
+    }
+}
+
+static void delete_stn_adjustments( void )
+{
+    int nstns, istn;
+    station *st;
+
+    nstns=number_of_stations( net );
+    for( istn = 1; istn <= nstns; istn++ )
+    {
+        st = stnptr( istn );
+        delete_stn_adjustment( st );
     }
 }
 
 static void clear_globals( void )
 {
-    if( net ) delete_network( net );
-    if( netadj ) check_free( netadj );
+    if( net ) 
+    {
+        delete_stn_adjustments();
+        delete_network( net );
+    }
     if( stnrecode ) delete_stn_recode_map( stnrecode );
     if( station_filename ) check_free( station_filename );
     if( station_filespec ) check_free( station_filespec );
     if( station_fileoptions ) check_free( station_fileoptions );
     net = NULL;
-    netadj = NULL;
     stnrecode = NULL;
     station_filename = NULL;
     station_filespec = NULL;

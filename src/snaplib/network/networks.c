@@ -167,6 +167,31 @@ station * new_network_station( network *nw,
     return st;
 }
 
+station * duplicate_network_station( network *nw,
+        station *st, const char *newcode, const char *newname )
+{
+
+    station *stnew;
+
+    if( !nw->crdsys ) return NULL;
+
+    stnew = new_station();
+
+    init_station( stnew, newcode, newname, 
+            st->ELat, st->ELon, st->OHgt, 
+            st->GXi, st->GEta, st->GUnd, nw->crdsys->rf->el );
+
+    init_station_classes( stnew, network_classification_count(nw) );
+
+    add_station( nw, stnew );
+    if( stnew->nclass == st->nclass )
+    {
+        memcpy( stnew->classval, st->classval, sizeof(int)*st->nclass);
+    }
+
+    return st;
+}
+
 
 void modify_network_station_coords( network *nw, station *st, double Lat,
                                     double Lon, double Hgt )
@@ -219,6 +244,17 @@ station *station_ptr( network *nw, int istn )
     return sl_station_ptr( nw->stnlist, istn );
 }
 
+int   find_station_sorted_id( network *nw, const char *code )
+{
+    if( !nw->stnlist ) return 0;
+    return sl_find_station_sorted_id( nw->stnlist, code );
+}
+
+station *station_sorted_ptr( network *nw, int sortedid )
+{
+    if( !nw->stnlist ) return 0;
+    return sl_station_sorted_ptr( nw->stnlist, sortedid );
+}
 
 void process_stations( network *nw, void *data, void (*function)( station *st, void *data ) )
 {
@@ -419,15 +455,13 @@ static void process_selected_stations1( network *nw, char *select, const char *b
         {
             int ist1, ist2;
             *delim = 0;
-            if( 0 != (ist1=find_station( nw,field)) &&
-                    0 != (ist2=find_station( nw,delim+1)) &&
+            if( 0 != (ist1=find_station_sorted_id( nw,field)) &&
+                    0 != (ist2=find_station_sorted_id( nw,delim+1)) &&
                     ist2 >= ist1 )
             {
-
-
                 while( ist1 <= ist2 )
                 {
-                    (*function)(station_ptr(nw,ist1),data);
+                    (*function)(station_sorted_ptr(nw,ist1),data);
                     ist1++;
                 }
                 continue;

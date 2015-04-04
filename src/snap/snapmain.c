@@ -264,14 +264,14 @@ int snap_main( int argc, char *argv[] )
     sts = term_load_snap();
     if( read_errors )
     {
-        xprintf( "\n%d errors reported reading the data files", (int) read_errors);
+        xprintf( "\n%d errors reported reading the data files\n", (int) read_errors);
         sprintf( errmess, "%d errors reported reading the data files", (int) read_errors);
         handle_error(INVALID_DATA, errmess, NO_MESSAGE );
         return DEFAULT_RETURN_STATUS;
     }
     else if ( sts != OK )
     {
-        xprintf("\nErrors encountered reading the data files");
+        xprintf("\nErrors encountered reading the data files\n");
         handle_error( INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE );
         return DEFAULT_RETURN_STATUS;
     }

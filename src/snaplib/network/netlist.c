@@ -11,11 +11,22 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include "network/network.h"
 #include "util/linklist.h"
 #include "util/chkalloc.h"
 #include "util/errdef.h"
+
+#define STNLIST_INIT_INDEX_SIZE 1024
+
+/* Searching by code will normally create the code index 
+ * but will just to a linear search if less than 
+ * STNLIST_MAX_LINEAR_SEARCH stations are not in the 
+ * code index.
+ */
+
+#define STNLIST_MAX_LINEAR_SEARCH 64
 
 /*=======================================================*/
 /* Maintain a list of stations ...                       */
@@ -29,41 +40,53 @@ station_list *new_station_list( void )
 
     sl = (station_list *) check_malloc( sizeof(station_list) );
     sl->count = 0;
-    sl->list = create_list( 0 );
-    sl->indexed = 0;
-    sl->index = NULL;
-    sl->use_sorted = 0;
-    sl->nextstn = 0;
+    sl->lastid=0;
+    sl->indexsize=STNLIST_INIT_INDEX_SIZE;
+    sl->index=(station **) check_malloc(sizeof(station *) * sl->indexsize );
+    sl->index[0]=0;
+    sl->nsorted=0;
+    sl->maxsortid=0;
+    sl->codeindex=0;
+    sl->usesorted=0;
+    sl->nextstn=0;
     return sl;
 }
 
 void delete_station_list( station_list *sl )
 {
-    station *st;
-    reset_list_pointer( sl->list );
-    while( NULL != (st = (station *) next_list_item( sl->list )) )
-        delete_station( st );
-    free_list( sl->list, NO_ACTION );
+    int i;
+    for( i=1; i < sl->lastid; i++ )
+    {
+        if( sl->index[i] ) delete_station(sl->index[i] );
+    }
     if( sl->index ) check_free( sl->index );
+    if( sl->codeindex ) check_free( sl->codeindex );
     check_free( sl );
 }
 
 void sl_add_station( station_list *sl, station *st )
 {
 
-    add_to_list( sl->list, st );
-    sl->count++;                /* Increment count and invalidate the indexes */
-    sl->indexed = 0;
+    sl->count++;
+    sl->lastid++;
+    if( sl->lastid >= sl->indexsize )
+    {
+        sl->indexsize *= 2;
+        sl->index=(station **) check_realloc((void *)(sl->index), sizeof(station *) * sl->indexsize );
+    }
+    sl->index[sl->lastid]=st;
+    st->id=sl->lastid;
 }
 
 void sl_remove_station( station_list *sl, station *st )
 {
-    st = (station *) del_list_item( sl->list, st );
-    if( st )
+    int id = st->id;
+    if( id > 0 && id <= sl->lastid && sl->index[id] == st )
     {
-        delete_station( st );
+        sl->index[id]=0;
+        st->id=0;
         sl->count--;
-        sl->indexed = 0;
+        if( id <= sl->maxsortid ) sl->maxsortid=0;
     }
 }
 
@@ -86,63 +109,98 @@ static  int stncodecmps( const void *code, const void *st )
     return stncodecmp( s1, s2 );
 }
 
-static  int stncmp( const void *st1, const void *st2 )
+static int stncmp( const void *st1, const void *st2 )
 {
     return stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
 }
 
 static void index_stations( station_list *sl )
 {
-    int i;
-    if( sl->indexed ) return;
+    int i, ic, count; 
 
-    if( sl->index ) check_free( sl->index );
-    sl->index = (station **) check_malloc( (1+sl->count) * sizeof(station *) );
+    if( sl->maxsortid == sl->lastid ) return;
 
-    reset_list_pointer( sl->list );
-    sl->index[0] = NULL;
-    for( i = 0; i++ < sl->count; )
+    count=sl->count;
+    if( sl->codeindex ) check_free( sl->codeindex );
+    sl->codeindex = (station **) check_malloc( (1+count) * sizeof(station *) );
+    sl->codeindex[0] = 0;
+
+    ic=0;
+    for( i = 1; i <= sl->lastid; i++ )
     {
-        sl->index[i] = (station *) next_list_item( sl->list );;
+        if( sl->index[i] )
+        {
+            ic++;
+            if( ic <= count ) sl->codeindex[ic]=sl->index[i];
+        }
     }
+    assert( ic == count );
+    qsort( sl->codeindex+1, count, sizeof( station * ), stncmp );
 
-    qsort( sl->index+1, sl->count, sizeof( station * ), stncmp );
+    sl->maxsortid=sl->lastid;
+    sl->nsorted=count;
+}
 
-    for( i = 0; i++ < sl->count; )
-    {
-        sl->index[i]->id = i;
-    }
-
-    sl->indexed = 1;
+static int sl_lookup_codeindex( station_list *sl, const char *code )
+{
+    station **match;
+    if( sl->nsorted < 1 ) return 0;
+    match = (station **) bsearch( code, sl->codeindex+1, sl->nsorted, sizeof(station *), stncodecmps );
+    return match ? match - sl->codeindex : 0;
 }
 
 int sl_find_station( station_list *sl, const char *code )
 {
-    station **match;
-    if( !sl->indexed ) index_stations( sl );
-    match = (station **) bsearch( code, sl->index+1, sl->count, sizeof(station *), stncodecmps );
-    return match ? match - sl->index : 0;
+    int i;
+    if( sl->count < 0 ) return 0;
+    if( sl->lastid > sl->maxsortid )
+    {
+        if( sl->lastid - sl->maxsortid > STNLIST_MAX_LINEAR_SEARCH )
+        {
+            index_stations(sl);
+        }
+        else
+        {
+            for( i = sl->maxsortid+1; i <= sl->lastid; i++ )
+            {
+                station *st=sl->index[i];
+                if( st && stncodecmp(st->Code,code)==0 ) return i;
+            }
+        }
+    }
+    i=sl_lookup_codeindex( sl, code );
+    return i ? sl->codeindex[i]->id: 0;
+}
+
+int sl_find_station_sorted_id( station_list *sl, const char *code )
+{
+    index_stations(sl);
+    return sl_lookup_codeindex( sl, code );
 }
 
 int sl_station_id( station_list *sl, station *st )
 {
-    if( !sl->indexed ) index_stations( sl );
     return st->id;
 }
 
 station *sl_station_ptr( station_list *sl, int istn )
 {
-    if( istn < 1 || istn > sl->count ) return NULL;
-    if( !sl->indexed ) index_stations( sl );
+    if( istn < 1 || istn > sl->lastid ) return NULL;
     return sl->index[istn];
+}
+
+station *sl_station_sorted_ptr( station_list *sl, int istn )
+{
+    if( istn < 1 || istn > sl->nsorted ) return NULL;
+    return sl->codeindex[istn];
 }
 
 
 void sl_process_stations( station_list *sl, void *data, void (*function)( station *st, void *data ) )
 {
     int i;
-    if( !sl->indexed ) index_stations( sl );
-    for( i=0; i++ < sl->count; )
+    index_stations( sl );
+    for( i=0; i++ < sl->nsorted; )
     {
         if(sl->index[i]) (*function)( sl->index[i], data );
     }
@@ -150,34 +208,30 @@ void sl_process_stations( station_list *sl, void *data, void (*function)( statio
 
 void sl_reset_station_list( station_list *sl, int sorted )
 {
-    if( sorted )
-    {
-        if( !sl->indexed ) index_stations( sl );
-        sl->use_sorted = 1;
-        sl->nextstn = 1;
-    }
-    else
-    {
-        sl->use_sorted = 0;
-        reset_list_pointer( sl->list );
-    }
+    if( sorted ) index_stations( sl );
+    sl->usesorted = sorted;
+    sl->nextstn = 1;
 }
 
 station *sl_next_station( station_list *sl )
 {
-    station *st;
-    st = NULL;
-    if( sl->use_sorted )
+    station *st=0;
+
+    if( sl->usesorted )
     {
-        if( sl->indexed && sl->nextstn <= sl->count )
+        if( sl->nextstn <= sl->nsorted ) 
         {
-            st = sl->index[sl->nextstn];
+            st=sl->codeindex[sl->nextstn];
             sl->nextstn++;
         }
     }
     else
     {
-        st = (station *) next_list_item( sl->list );
+        while( sl->nextstn <= sl->lastid && ! st )
+        {
+            st=sl->index[sl->nextstn];
+            sl->nextstn++;
+        }
     }
     return st;
 }
