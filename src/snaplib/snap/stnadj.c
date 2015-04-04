@@ -37,7 +37,7 @@ static void delete_stn_adjustment( station *st )
     if( st && st->hook ) check_free( st->hook );
 }
 
-static void init_stn_adjustment( station *st )
+static void create_stn_adjustment( station *st )
 {
     stn_adjustment *sa;
     delete_stn_adjustment( st );
@@ -58,39 +58,9 @@ static void init_stn_adjustment( station *st )
     st->hook=(void *) sa;
 }
 
-static void setup_stn_adjustments( void )
-{
-    int nstns, istn;
-    station *st;
-
-    nstns=number_of_stations( net );
-    for( istn = 1; istn <= nstns; istn++ )
-    {
-        st = stnptr( istn );
-        init_stn_adjustment( st );
-    }
-}
-
-static void delete_stn_adjustments( void )
-{
-    int nstns, istn;
-    station *st;
-
-    nstns=number_of_stations( net );
-    for( istn = 1; istn <= nstns; istn++ )
-    {
-        st = stnptr( istn );
-        delete_stn_adjustment( st );
-    }
-}
-
 static void clear_globals( void )
 {
-    if( net ) 
-    {
-        delete_stn_adjustments();
-        delete_network( net );
-    }
+    if( net ) delete_network( net );
     if( stnrecode ) delete_stn_recode_map( stnrecode );
     if( station_filename ) check_free( station_filename );
     if( station_filespec ) check_free( station_filespec );
@@ -115,6 +85,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
     if( options ) station_fileoptions = copy_string( options );
 
     net = new_network();
+    set_network_initstn_func( net, create_stn_adjustment, delete_stn_adjustment );
     switch( format )
     {
     case STN_FORMAT_SNAP:
@@ -135,7 +106,6 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
     if( sts == OK )
     {
         station_filename = copy_string( fname );
-        setup_stn_adjustments();
     }
     else
     {
@@ -231,8 +201,6 @@ void dump_stations( BINARY_FILE *b )
     end_section( b );
 }
 
-
-
 int reload_stations( BINARY_FILE *b )
 {
     stn_adjustment *st;
@@ -242,13 +210,12 @@ int reload_stations( BINARY_FILE *b )
 
     clear_globals();
     net = new_network();
+    set_network_initstn_func( net, create_stn_adjustment, delete_stn_adjustment );
     sts = reload_network_from_bin( net, b );
 
     if( sts != OK ) return sts;
 
     if(find_section(b,"STNADJ") != OK ) return MISSING_DATA;
-
-    setup_stn_adjustments();
 
     /* Reload the station definitions */
 

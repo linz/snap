@@ -118,6 +118,7 @@ network:
 
 ------------------------------------------------------------------------*/
 
+typedef void (*stationfunc)( station *st);
 
 typedef struct
 {
@@ -134,6 +135,8 @@ typedef struct
     char         options;        /* Flags availability of info about geoid */
     int          orderclsid;     /* Classification id used for station orders */
     classifications stnclasses;  /* Array of classifications used for stations */
+    stationfunc  initstation;    /* Function called when a station is added */
+    stationfunc  uninitstation;  /* Function called when a station is deleted */
 } network;
 
 /* Network options flags */
@@ -304,6 +307,7 @@ void print_station_offset( FILE *lst, station *st );
 
 network *new_network( void );
 void init_network( network *nw );
+void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc );
 void clear_network( network *nw );
 void delete_network( network *nw );
 

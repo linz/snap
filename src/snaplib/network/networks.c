@@ -142,6 +142,8 @@ int add_station( network *nw, station *st )
 
     sl_add_station( nw->stnlist, st );
 
+    if( nw->initstation ) nw->initstation( st );
+
     return OK;
 }
 

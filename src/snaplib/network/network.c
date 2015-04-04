@@ -42,7 +42,15 @@ void init_network( network *nw )
     nw->got_topocentre = 0;
     nw->options = 0;
     nw->orderclsid = 0;
+    nw->initstation = 0;
+    nw->uninitstation = 0;
     init_classifications( &(nw->stnclasses));
+}
+
+void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc )
+{
+    nw->initstation=initfunc;
+    nw->uninitstation=uninitfunc;
 }
 
 void set_network_name( network *nw, const char *n )
@@ -55,9 +63,18 @@ void set_network_name( network *nw, const char *n )
     for( pn = nw->name; *pn; pn++ ) {if( *pn == '\n' ) *pn = 0;}
 }
 
+static void uninit_station( station *st, void *pnw )
+{
+    network *nw=(network *)pnw;
+    nw->uninitstation( st );
+}
 
 void clear_network( network *nw )
 {
+    if( nw->uninitstation )
+    {
+        process_stations( nw, nw, uninit_station );
+    }
     if( nw->name ) { check_free( nw->name ); nw->name = 0; }
     if( nw->crdsysdef ) { check_free( nw->crdsysdef ); nw->crdsysdef = 0; }
     if( nw->stnlist ) { delete_station_list( nw->stnlist ); nw->stnlist = 0; }
