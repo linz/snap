@@ -76,6 +76,7 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
     cfg->lineno = 0;
     cfg->errcount = 0;
     cfg->command_flag = 0;
+    cfg->ignore_flag = 0;
     cfg->abort = 0;
     cfg->read_options = CFG_INIT_ITEMS | CFG_CHECK_MISSING;
     cfg->comment_char = comment_char;
@@ -105,6 +106,14 @@ int set_config_command_flag( CFG_FILE *cfg, int flag )
     int old_flag;
     old_flag = cfg->command_flag;
     cfg->command_flag = flag;
+    return old_flag;
+}
+
+int set_config_ignore_flag( CFG_FILE *cfg, int flag )
+{
+    int old_flag;
+    old_flag = cfg->ignore_flag;
+    cfg->ignore_flag = flag;
     return old_flag;
 }
 
@@ -246,6 +255,10 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
             }
             continue;
         }
+
+        /* Is this option to be ignored */
+
+        if( it->flags & cfg->ignore_flag ) continue;
 
         /* Is this option illegally duplicated */
 

@@ -89,6 +89,10 @@ into SNAP
 /* Code to manage a list of missing stations...                      */
 /* Callback function used by loaddata to get id's of various objects */
 
+/* Id returned for stations that will be ignored                     */
+
+#define IGNORE_ID -1 
+
 typedef struct missing_stn_s
 {
     struct missing_stn_s *next;
@@ -97,8 +101,9 @@ typedef struct missing_stn_s
     int id;
 } missing_stn;
 
+
 static missing_stn *missing = NULL;
-static int missing_id = 0;
+static int missing_id = IGNORE_ID;
 
 static int ignore_missing_stations = 0;
 
@@ -157,7 +162,7 @@ static void delete_missing_station_list( void )
         check_free( missing );
         missing = ms;
     }
-    missing_id = 0;
+    missing_id = IGNORE_ID;
 }
 
 static void list_missing_stations( void )
@@ -289,18 +294,11 @@ static int set_usage_flag( survdata *sd )
     int i, ic;
     trgtdata *t;
     int nignore;
-    int ignore_stn;
 
     nignore = 0;
-
-    ignore_stn = (sd->from && ignored_station( sd->from )) ? 1 : 0;
-
     for( i=0; i<sd->nobs; i++ )
     {
         t = get_trgtdata( sd, i );
-
-        if( t->unused ) t->unused = REJECT_OBS_BIT;
-        if( ignore_stn || (t->to && ignored_station( t->to )) ) t->unused |= IGNORE_OBS_BIT;
         t->unused |= obs_usage[t->type] | survey_data_file_ptr( sd->file )->usage;
         for( ic = 0; ic < t->nclass; ic++ )
         {
@@ -527,8 +525,16 @@ static long snap_id( int type, int group_id, const char *code )
     id = 0;
     switch (type)
     {
-    case ID_STATION:    id = find_station( net, code );
-        if( !id ) id = missing_station_id( code );
+    case ID_STATION:    
+        id = find_station( net, code );
+        if( id )
+        {
+            if( ignored_station(id) ) id=IGNORE_ID;
+        }
+        else
+        { 
+            if( !id ) id = missing_station_id( code );
+        }
         break;
     case ID_COEF:
         switch( group_id )

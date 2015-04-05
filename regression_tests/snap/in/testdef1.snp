@@ -1,5 +1,4 @@
-title Test data set testdef1
-
+title Test data set testdef1 - velocity deformation model
 
 coordinate_file testdef1.crd
 data_file testdef1.dat

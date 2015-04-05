@@ -46,9 +46,10 @@ static int tgt_id;
 static double tgt_hgt;
 static long file_lineno;
 static long noteloc;
-static int cancelled;
-static int data_cancelled;
+static int inst_cancelled;
 static int trgt_cancelled;
+static int data_cancelled;
+static int ndata_cancelled;
 static int trgt_init_nobs;
 
 static obsdata *od;
@@ -255,7 +256,7 @@ static void setup_data_format( int format )
 
 static void check_data( void )
 {
-    if( cancelled || data_cancelled ) return;
+    if( inst_cancelled || data_cancelled ) return;
 
     if( !gotval || !goterr)
     {
@@ -344,7 +345,6 @@ static void check_data( void )
     case SD_PNTDATA:
         break;
     }
-
 }
 
 
@@ -372,7 +372,6 @@ static void *next_data( int type )
 
     if( data.nobs ) check_data();
     obsdatatype = datatypedef_from_id( type );
-
 
     if( obsdatatype->isvector )
     {
@@ -444,6 +443,7 @@ static void *next_data( int type )
 
     default: report_error("nextdata");
     }
+
     setup_target( type );
 
     return obs;
@@ -592,7 +592,8 @@ void ldt_inststn( int stn_id, double ihgt )
     od = NULL;
     vd = NULL;
     pd = NULL;
-    cancelled = stn_id < 0 ? 1 : 0;
+    inst_cancelled = stn_id < 0 ? 1 : 0;
+    ndata_cancelled = 0;
 }
 
 
@@ -668,7 +669,7 @@ ltmat ldt_covariance( int type, double* mmerr )
         return NULL;
     }
 
-    if( !gpscvr_func || cancelled )
+    if( !gpscvr_func || inst_cancelled )
     {
         data.cvr = NULL;
         data.calccvr = NULL;
@@ -700,7 +701,7 @@ void ldt_unused()
         report_error( "ldt_unused" );
         return;
     }
-    tgt->unused = REJECT_OBS_BIT;
+    tgt->unused |= REJECT_OBS_BIT;
 }
 
 
@@ -822,35 +823,129 @@ void ldt_cancel_data( void )
     DEBUG_PRINT(("LDT: ldt_cancel_data"));
     if( !data_cancelled )
     {
-        data.nobs--;
+        tgt->unused |= IGNORE_OBS_BIT;
         data_cancelled = 1;
+        ndata_cancelled++;
     }
 }
 
 void ldt_cancel_inst( void )
 {
     DEBUG_PRINT(("LDT: ldt_cancel_inst"));
-    cancelled = 1;
+    inst_cancelled = 1;
 }
 
 
 void ldt_cancel_trgt( void )
 {
+    int i;
     DEBUG_PRINT(("LDT: ldt_cancel_trgt"));
-    data.nobs = trgt_init_nobs;
     trgt_cancelled = 1;
     data_cancelled = 1;
+    trgt_init_nobs = data.nobs;
+    for( i=trgt_init_nobs; i < data.nobs; i++ )
+    {
+        trgtdata *tgt=get_trgtdata(&data,i);
+        tgt->unused |= IGNORE_OBS_BIT;
+    }
 }
 
 int ldt_data_cancelled( void )
 {
-    return cancelled || data_cancelled;
+    return inst_cancelled || data_cancelled;
+}
+
+static void remove_ignored_obs()
+{
+    int i;
+    survdata *sd = &data;
+    if( ndata_cancelled <= 0 ) return;
+
+    /* Remove the extraneous rows form the covariance matrix ... */
+
+    if( data.format == SD_VECDATA && cvr )
+    {
+        int cvrperobs=3;
+        int ir0, ir1, ir, njr, j, jr0, jtgt;
+        int itgt=0;
+        for( i = 0; i < data.nobs; i++ )
+        {
+            trgtdata *t;
+            t = get_trgtdata( sd, i );
+            if( t->unused & IGNORE_OBS_BIT ) continue;
+            ir0 = i*cvrperobs;
+            if( ir0 == itgt ) continue;
+            ir1 = ir0+cvrperobs;
+            for( ir = ir0; ir < ir1; ir++, itgt++ )
+            {
+                njr = cvrperobs;
+                jtgt=0;
+                for( j = 0; j <= i; j++ )
+                {
+                    if( j != i )
+                    {
+                        trgtdata *tj;
+                        tj = get_trgtdata( sd, j );
+                        if( tj->unused & IGNORE_OBS_BIT ) continue;
+                        jr0 = j * cvrperobs;
+                    }
+                    else
+                    {
+                        jr0 = ir0;
+                        njr = ir-ir0+1;
+                    }
+                    while( njr-- )
+                    {
+                        Lij(cvr,itgt,jtgt)=Lij(cvr,ir,jr0);
+                        Lij(cvr,ir,jr0)=0.0;
+                        jtgt++;
+                        jr0++;
+                    }
+                }
+            }
+        }
+    }
+
+    /* Now remove the extra rows from the observations, classifications,
+     * and systematic errors
+     */
+
+    int nused=0;
+    int iclass=0;
+    int isyserr=0;
+
+    for( i=0; i<data.nobs; i++ )
+    {
+        trgtdata *tgt=get_trgtdata(&data,i);
+        if( tgt->unused & IGNORE_OBS_BIT ) continue;
+        if( i == nused ) continue;
+        if( tgt->nclass > 0 )
+        {
+            int nc=tgt->nclass;
+            int iclass0=tgt->iclass;
+            memcpy( &(data.clsf[iclass]),&(data.clsf[iclass0]),(sizeof(classdata))*nc);
+            tgt->iclass=iclass;
+            iclass += nc;
+        }
+        if( tgt->nsyserr > 0 )
+        {
+            int ns=tgt->nsyserr;
+            int isyserr0=tgt->isyserr;
+            memcpy( &(data.clsf[isyserr]),&(data.clsf[isyserr0]),(sizeof(syserrdata))*ns);
+            tgt->isyserr=isyserr;
+            isyserr += ns;
+        }
+
+        memcpy( (void *) get_trgtdata(&data,nused), (void *) tgt, data.obssize );
+        nused++;
+    }
+    data.nobs=nused;
 }
 
 void ldt_end_data( void )
 {
     DEBUG_PRINT(("LDT: ldt_end_data"));
-    if( data.nobs > 0 && !cancelled )
+    if( data.nobs > ndata_cancelled && !inst_cancelled )
     {
         check_data();
 
@@ -887,8 +982,11 @@ void ldt_end_data( void )
         {
             data.reffrm = 0;
         }
+
+        if( ndata_cancelled ) remove_ignored_obs();
         if( usedata_func ) (*usedata_func)( &data );
     }
     data.nobs = 0;
+    ndata_cancelled=0;
 }
 

@@ -150,7 +150,7 @@ typedef struct           /* Data relating to an observation or set of obs */
 /* Get the i'th target for an observations */
 
 #define get_trgtdata(o,i) \
-    ((trgtdata *)(void *)( (unsigned char *)(void *)(o->obs.odata) + o->obssize * i ))
+    ((trgtdata *)(void *)( (unsigned char *)(void *)((o)->obs.odata) + (o)->obssize * i ))
 
 snap_data_type *snap_data_type_from_id( int idtype );
 

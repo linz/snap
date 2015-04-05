@@ -33,6 +33,7 @@ typedef struct
     int errcount;                 /* The number of errors encountered */
     int read_options;             /* Options controlling reading of config file */
     int command_flag;             /* Flag defining which commands are acceptable */
+    int ignore_flag;             /* Flag defining which commands are to be ignored */
     char comment_char;		/* Text after this character is ignored */
     char abort;
 } CFG_FILE;
@@ -108,6 +109,7 @@ void close_config_file( CFG_FILE *cfg );
 
 int set_config_read_options( CFG_FILE *cfg, int options );
 int set_config_command_flag( CFG_FILE *cfg, int flag );
+int set_config_ignore_flag( CFG_FILE *cfg, int flag );
 void initiallize_config_items( config_item item[] );
 int read_config_file( CFG_FILE *cfg, config_item item[] );
 int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
