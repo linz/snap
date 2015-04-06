@@ -15,7 +15,7 @@ LAPG = ../tools/lapg/lapg
 ifeq ($(TYPE),debug)
 LDFLAGS = -lm -lboost_regex -lefence
 CCPARAM = -Wall -g -fpermissive -std=c++0x
-MACROS = UNIX
+MACROS = UNIX CHECKBLT
 endif
 
 ifeq ($(TYPE), release)

@@ -569,6 +569,15 @@ void print_solution_summary( FILE *lst )
     }
 }
 
+void print_json_start( FILE *out, const char *name )
+{
+    fprintf( out, "\nBEGIN_JSON %s\n",name);
+}
+
+void print_json_end( FILE *out, const char *name )
+{
+    fprintf( out, "\nEND_JSON %s\n",name);
+}
 
 output_csv *open_output_csv(const char *type)
 {

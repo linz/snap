@@ -96,4 +96,8 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
 bltmatrix *lsq_normal_matrix( void );
 
+/* Print the normal equations - only generates output during summing phase */
+
+void print_normal_equations_json( FILE *out, const char *prefix );
+
 #endif

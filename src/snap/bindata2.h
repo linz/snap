@@ -61,7 +61,7 @@ void print_station_recoding( FILE *out );
 
 int max_syserr_params( survdata *sd );
 
-void sum_bindata( void );
+void sum_bindata( int iteration );
 
 int got_vector_data( void );
 void calc_residuals( void );

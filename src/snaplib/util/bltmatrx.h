@@ -86,6 +86,7 @@ double *blt_get_row_data( bltmatrix * blt, int irow );
 /* Only returns rows fully populated to diagonal */
 void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
+void print_bltmatrix_json( bltmatrix *blt, FILE *out, const char *prefix );
 
 #endif
 

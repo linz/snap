@@ -334,12 +334,21 @@ int snap_main( int argc, char *argv[] )
 
         xprintf("   Summing the data\n");
 
-        sum_bindata();
+        sum_bindata( iterations );
         sum_floating_stations();
 
         /* Solve the equations - if we are doing preanalysis we want to
         ignore any information from the input observations - we are
          only interested in the covariance of the derived parameters */
+
+        if( output_observation_equations )
+        {
+            char header[30];
+            sprintf(header,"normal_equations_%d",iterations);
+            print_json_start(lst,header);
+            print_normal_equations_json( lst, 0 );
+            print_json_end(lst,header);
+        }
 
         xprintf("   Solving the equations\n");
 

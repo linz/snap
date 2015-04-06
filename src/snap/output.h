@@ -214,6 +214,9 @@ void print_ls_summary( FILE *out );
 void xprint_ls_summary();
 void print_solution_summary( FILE *out );
 
+void print_json_start( FILE *out, const char *name );
+void print_json_end( FILE *out, const char *name );
+
 output_csv *open_output_csv( const char *type);
 void close_output_csv( output_csv *csv );
 void end_output_csv_record( output_csv *csv );

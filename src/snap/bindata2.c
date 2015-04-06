@@ -51,6 +51,8 @@
 #include "util/progress.h"
 #include "residual.h"
 #include "snap/stnadj.h"
+#include "snap/genparam.h"
+#include "snap/stnobseq.h"
 #include "coefs.h"
 #include "snap/datastat.h"
 #include "util/dms.h"
@@ -336,6 +338,7 @@ static int bindata_obseq( bindata *b, void *hA )
 }
 
 
+/*
 static void print_obsheader( FILE *lst, bindata *b )
 {
     survdata *sd;
@@ -345,13 +348,7 @@ static void print_obsheader( FILE *lst, bindata *b )
     sd = (survdata *) b->data;
     ntgt = sd->nobs;
 
-    switch( sd->format )
-    {
-    case SD_OBSDATA: tgt = &(sd->obs.odata[0].tgt); break;
-    case SD_VECDATA: tgt = &(sd->obs.odata[0].tgt); break;
-    case SD_PNTDATA: tgt = &(sd->obs.odata[0].tgt); break;
-    }
-
+    tgt=get_trgtdata(sd,0);
     fprintf(lst,"\nFile %s: line %d: Station ",
             survey_data_file_name(sd->file),(int)(tgt->lineno));
     if( sd->from ) { fprintf(lst,"%s ",stnptr(sd->from)->Code ); }
@@ -360,17 +357,41 @@ static void print_obsheader( FILE *lst, bindata *b )
     if( ntgt > 1 ) fprintf(lst," ...");
     fprintf(lst,"\n\n");
 }
+*/
 
 
-void sum_bindata( void )
+void sum_bindata( int iteration )
 {
+    char header[30];
     void *hA;
     bindata *b;
     int nrow;
     long nbin;
+    int stno;
 
     if( output_observation_equations )
+    {
+        sprintf(header,"observation_equations_%d",iteration);
         print_section_heading(lst, "OBSERVATION EQUATIONS");
+        print_json_start(lst,header);
+        fprintf(lst,"\nBEGIN_JSON obs_equations_%d\n{",iteration);
+        fprintf(lst,"  \"nparam\":%d,\n  \"parameters\": [",nprm);
+        for( int i = 0; i++ < nprm; )
+        {
+            char paramname[40];
+            if( ! find_param_row(i,paramname,40) && !(stno=find_station_row(i,paramname,40)))
+            {
+                sprintf(paramname,"Parameter %d",i);
+            }
+            fprintf(lst,"%s\n    \"%s%s%s\"", 
+                    i > 1 ? "," : "", 
+                    stno ? station_code(stno) : "",
+                    stno ? " " : "",
+                    paramname );
+        }
+        fprintf(lst,"\n],\n  \"obs_equations\": [\n");
+    }
+
 
     maxrow = maxlt = 0;
     hA = create_oe( nprm );
@@ -388,8 +409,20 @@ void sum_bindata( void )
             lsq_sum_obseqn( hA );
             if( output_observation_equations )
             {
-                print_obsheader( lst, b );
-                print_obseqn( lst, hA );
+                char source[200];
+                survdata *sd = (survdata *) b->data;
+                trgtdata *tgt=get_trgtdata(sd,0);
+                sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"type\": \"%s\",\"nobs\": %d}",
+                    survey_data_file_name(sd->file),
+                    (int)(tgt->lineno),
+                    sd->from ? stnptr(sd->from)->Code : "",
+                    sd->from && tgt->to ? " - " : "",
+                    tgt->to ? stnptr(tgt->to)->Code : "",
+                    datatype[tgt->type].code,
+                    sd->nobs
+                    );
+                if( nbin > 1 )  fprintf(lst,",\n");
+                print_obseqn_json( lst, hA, source );
             }
             nrow = obseqn_rows( hA );
             if( nrow > maxrow ) maxrow = nrow;
@@ -400,6 +433,11 @@ void sum_bindata( void )
 
     delete_bindata(b);
     delete_oe( hA );
+
+    if( output_observation_equations )
+    {
+        print_json_end(lst,header);
+    }
 }
 
 

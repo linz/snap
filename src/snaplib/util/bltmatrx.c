@@ -726,6 +726,47 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
     return OK;
 }
 
+void print_bltmatrix_json( bltmatrix *blt, FILE *out, const char *prefix )
+{
+    int ir,ic,ir0,ic0,col0;
+    int nrows=blt->nrow;
+    if( ! prefix ) prefix="";
+
+    fprintf(out,"{\n%s\"nrows\": %d\n%s\"col0\": [",prefix,nrows,prefix);
+    for( ir=0; ir < nrows; ir++ )
+    {
+        if( ir )
+        {
+            if( ir %20 == 0 ) fprintf(out,",\n%s",prefix);
+            else fprintf(out,",");
+        }
+        fprintf( out, "%d", blt->row[ir].col );
+    }
+    fprintf(out,"],\n");
+    fprintf(out,"%s\"matrix\": [",prefix);
+    for( ir=0; ir < nrows; ir++ )
+    {
+        fprintf(out,"%s\n%s  [",ir ? "," : "",prefix);
+        for( ic=0; ic < nrows; ic++ )
+        {
+            double val=0.0;
+            ic0=ic < ir ? ic : ir;
+            ir0=ic < ir ? ir : ic;
+            col0=blt->row[ir0].col;
+            if( ic0 >= col0 ) val=blt->row[ir0].address[ic0-col0];
+            if( ic ) 
+            {
+                fprintf(out,",");
+                if( ic % 20 == 0 ) fprintf(out,"\n%s  ",prefix);
+            }
+            fprintf( out, "%15.8le", val );
+        }
+        fprintf(out,"]");
+    }
+    fprintf(out,"]",prefix);
+    fprintf(out,"\n%s}",prefix);
+}
+
 
 #ifdef TESTBLT
 

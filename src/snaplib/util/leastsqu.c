@@ -1122,11 +1122,31 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
 }
 
+void print_normal_equations_json( FILE *out, const char *prefix )
+{
+    int ir;
+    char prefix2[20];
+    if( lsq_status != LSQ_SUMMING ) return;
+
+    if( ! prefix ) prefix="";
+    sprintf(prefix2,"%.17s  ",prefix);
+
+    fprintf(out,"{\n%s\"nparam\": %d\n%s\"b\": [",prefix,nprm,prefix,prefix);
+    for( ir=0; ir < nprm; ir++ )
+    {
+        if( ir ) 
+        {
+            fprintf(out,",");
+            if( ir % 20 == 0 ) fprintf(out,"\n%s  ",prefix);
+        }
+        fprintf(out,"%15.8le",b[ir]);
+    }
+    fprintf(out,"%s  ],\n%s\"N\": ",prefix,prefix);
+    print_bltmatrix_json( N, out, prefix2 );
+    fprintf(out,"\n%s}",prefix);
+}
 
 #ifdef TESTLSQ
-
-
-
 
 /*===================================================================*/
 /*  TEST CODE FOR LEAST SQUARES ROUTINES                             */

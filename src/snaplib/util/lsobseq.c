@@ -183,8 +183,6 @@ void oe_covar( void *hA, int irow, int icol, double v )
     }
 }
 
-
-
 void print_obseqn( FILE *out, void *hA )
 {
     obseqn *A;
@@ -231,5 +229,83 @@ void print_obseqn( FILE *out, void *hA )
         print_ltmat( out, A->cvr, A->nrow, "%12.5le", 0 );
         fprintf(out,"\n");
     }
+}
 
+void print_obseqn_json( FILE *out, void *hA, const char *srcjson )
+{
+    obseqn *A;
+    int i, j;
+    obsrow *obs;
+    ltmat cvr;
+    int printcvr;
+
+    A = (obseqn *) hA;
+    cvr = A->cvr;
+
+    printcvr = !(A->flag & OE_DIAGONAL_CVR );
+
+    fprintf( out, "{\n" );
+    if( srcjson )
+    {
+        fprintf( out, "  \"source\": %s,\n",srcjson );
+    }
+    fprintf( out, "  \"nobs\": %d,\n", A->nrow );
+    fprintf( out, "  \"obs\": [\n");
+    for( i = 0; i++<A->nrow; )
+    {
+        obs = A->obs[i-1];
+        fprintf( out, "   {\n");
+        fprintf(out,"    \"value\": %15.8le,\n",obs->obsv);
+        if( A->flag & OE_SCHREIBER )
+        {
+            fprintf(out,"    \"schreiber\": %15.8le,\n",obs->schv);
+        }
+        fprintf(out,"    \"ncolumns\": %d,\n",obs->ncol);
+        fprintf(out,"    \"columns\": [");
+        for( j = 0; j< obs->ncol; j++ )
+        {
+            fprintf(out,"%s%d",j ? ", " : "",(int) (obs->col[j]+1));
+        }
+        fprintf(out,"],\n");
+        fprintf(out,"    \"values\": [");
+        for( j = 0; j< obs->ncol; j++ )
+        {
+            fprintf(out,"%s%15.8le",j ? ", " : "",(obs->val[j]));
+        }
+        fprintf(out,"]\n");
+        fprintf( out, "   }%s\n", i < A->nrow ? "," : "");
+    }
+    fprintf( out, "  ],\n");
+    if (A->flag & OE_DIAGONAL_CVR )
+    {
+        int ir;
+        fprintf( out, "  \"cvrdiag\": [\n" );
+        for( ir=0; ir < A->nrow; ir++ )
+        {
+            fprintf(out,"%s%15.8le",
+                    ir == 0 ? "" :
+                    ir %10 == 0 ? ",\n    " :
+                    ",", cvr[ir]);
+        }
+        fprintf( out, "\n  ]\n");
+    }
+    else
+    {
+        int ir, ic;
+        fprintf( out, "  \"cvr\": [\n" );
+        for( ir=0; ir < A->nrow; ir++ )
+        {
+            fprintf( out, "%s\n    [",ir ? "," : "" );
+            for( ic=0; ic < A->nrow; ic++ )
+            {
+                fprintf(out,"%s%15.8le",
+                        ic == 0 ? "" :
+                        ic %10 == 0 ? ",\n    " :
+                        ",", Lij(cvr,ir,ic));
+            }
+            fprintf( out, "]");
+        }
+        fprintf( out, "\n  ]\n");
+    }
+    fprintf( out, "}\n" );
 }

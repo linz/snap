@@ -18,8 +18,4 @@ list residuals
 list error_summary
 list worst_residuals
 
-refraction_coefficient DEFAULT 0.0
-
-add_residual_column all  S Id:4 S c=class:4 S c=equpt:3
-
-ignore 1
+! ignore 1

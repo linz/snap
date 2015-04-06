@@ -31,7 +31,9 @@ Testing Vector formats
         0.000245902529    -0.000028769436     0.000615297466 
 
 #gx_enu_error 40 60 120 mm 20 30 50 mmr 10 25 100 ppmr
-#data GX value no_heights
+#data GX value grouped no_heights
 
 1     -4787264.5250  560595.5704 -4163681.8023 
 2     -4787842.2236  560070.2623 -4163244.5556 
+3     -4787607.0580  559604.4234 -4163000.4058 
+#end_set

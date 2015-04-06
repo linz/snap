@@ -142,7 +142,7 @@ int find_station_row( int row, char *param, int plen )
     int istn, maxstn;
     stn_adjustment *st;
 
-    const char *crdname[] = {"north coordinate", "east coordinate", "elevation"};
+    const char *crdname[] = {"north coordinate", "east coordinate", "height coordinate"};
 
     maxstn = number_of_stations(net);
 
