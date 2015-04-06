@@ -360,7 +360,7 @@ static void print_obsheader( FILE *lst, bindata *b )
 */
 
 
-void sum_bindata( int iteration )
+int sum_bindata( int iteration )
 {
     char header[30];
     void *hA;
@@ -368,14 +368,14 @@ void sum_bindata( int iteration )
     int nrow;
     long nbin;
     int stno;
+    int sts;
 
     if( output_observation_equations )
     {
-        sprintf(header,"observation_equations_%d",iteration);
+        sprintf(header,"obs_equation_%d",iteration);
         print_section_heading(lst, "OBSERVATION EQUATIONS");
         print_json_start(lst,header);
-        fprintf(lst,"\nBEGIN_JSON obs_equations_%d\n{",iteration);
-        fprintf(lst,"  \"nparam\":%d,\n  \"parameters\": [",nprm);
+        fprintf(lst,"{\n  \"nparam\":%d,\n  \"parameters\": [",nprm);
         for( int i = 0; i++ < nprm; )
         {
             char paramname[40];
@@ -405,8 +405,12 @@ void sum_bindata( int iteration )
         update_progress_meter( nbin );
         if ( b->bintype != NOTEDATA )
         {
-            if( bindata_obseq( b, hA ) != OK ) continue;
-            lsq_sum_obseqn( hA );
+            int stsobs=bindata_obseq( b, hA );
+            if( stsobs != OK ) 
+            {
+                sts=stsobs;
+                continue;
+            }
             if( output_observation_equations )
             {
                 char source[200];
@@ -424,6 +428,19 @@ void sum_bindata( int iteration )
                 if( nbin > 1 )  fprintf(lst,",\n");
                 print_obseqn_json( lst, hA, source );
             }
+            stsobs=lsq_sum_obseqn( hA );
+            if( stsobs != OK )
+            {
+                char location[200];
+                survdata *sd = (survdata *) b->data;
+                trgtdata *tgt=get_trgtdata(sd,0);
+                sprintf(location,"Cannot sum observation from %.80s line %d\n",
+                        survey_data_file_name(sd->file),
+                        (int)(tgt->lineno)
+                       );
+                handle_error(INVALID_DATA,"Observation error",location);
+                sts=stsobs;
+            }
             nrow = obseqn_rows( hA );
             if( nrow > maxrow ) maxrow = nrow;
             if( !obseqn_cvr_diagonal(hA) && nrow > maxlt ) maxlt = nrow;
@@ -436,8 +453,10 @@ void sum_bindata( int iteration )
 
     if( output_observation_equations )
     {
+        fprintf(lst,"]}\n");
         print_json_end(lst,header);
     }
+    return sts;
 }
 
 

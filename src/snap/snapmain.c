@@ -334,7 +334,13 @@ int snap_main( int argc, char *argv[] )
 
         xprintf("   Summing the data\n");
 
-        sum_bindata( iterations );
+        sts=sum_bindata( iterations );
+        if( sts != OK )
+        {
+            xprintf("\nThe adjustment cannot be solved - observations cannot be summed\n");
+            return DEFAULT_RETURN_STATUS;
+        }
+
         sum_floating_stations();
 
         /* Solve the equations - if we are doing preanalysis we want to

@@ -260,6 +260,7 @@ void print_obseqn_json( FILE *out, void *hA, const char *srcjson )
         {
             fprintf(out,"    \"schreiber\": %15.8le,\n",obs->schv);
         }
+        fprintf(out,"    \"useobs\": %s,\n",obs->flag & OE_UNUSED ? "false" : "true" );
         fprintf(out,"    \"ncolumns\": %d,\n",obs->ncol);
         fprintf(out,"    \"columns\": [");
         for( j = 0; j< obs->ncol; j++ )
@@ -292,7 +293,7 @@ void print_obseqn_json( FILE *out, void *hA, const char *srcjson )
     else
     {
         int ir, ic;
-        fprintf( out, "  \"cvr\": [\n" );
+        fprintf( out, "  \"cvr\": [" );
         for( ir=0; ir < A->nrow; ir++ )
         {
             fprintf( out, "%s\n    [",ir ? "," : "" );

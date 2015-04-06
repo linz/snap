@@ -732,7 +732,7 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, const char *prefix )
     int nrows=blt->nrow;
     if( ! prefix ) prefix="";
 
-    fprintf(out,"{\n%s\"nrows\": %d\n%s\"col0\": [",prefix,nrows,prefix);
+    fprintf(out,"{\n%s\"nrows\": %d,\n%s\"col0\": [",prefix,nrows,prefix);
     for( ir=0; ir < nrows; ir++ )
     {
         if( ir )

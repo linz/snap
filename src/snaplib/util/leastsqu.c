@@ -488,13 +488,17 @@ int lsq_sum_obseqn( void * hA)
     if( A->flag & OE_SCHREIBER && !(A->flag & OE_DIAGONAL_CVR) )
     {
         handle_error(INTERNAL_ERROR, "Internal error: Incompatible flags passed to sum_obseqn", NO_MESSAGE );
-        return 1;
+        return INTERNAL_ERROR;
     }
 
     /* Convert the covariance matrix to a weight matrix */
 
     sts = calc_weight_matrix( A );
-    if( sts ) return sts;
+    if( sts ) 
+    {
+        handle_error(INVALID_DATA,"Cannot form inverse of observation covariance matrix",NO_MESSAGE);
+        return INVALID_DATA;
+    }
 
     /* Sum the observation equations  - if there are no Schreiber equns
        or all the obs are flagged as unused, stop at this point. */
@@ -510,7 +514,7 @@ int lsq_sum_obseqn( void * hA)
     Asch->wgt[0] = -Asch->wgt[0];
     nobs -= sum_eobs( Asch );
 
-    return 0;
+    return OK;
 }
 
 
@@ -1131,7 +1135,7 @@ void print_normal_equations_json( FILE *out, const char *prefix )
     if( ! prefix ) prefix="";
     sprintf(prefix2,"%.17s  ",prefix);
 
-    fprintf(out,"{\n%s\"nparam\": %d\n%s\"b\": [",prefix,nprm,prefix,prefix);
+    fprintf(out,"{\n%s\"nparam\": %d,\n%s\"b\": [",prefix,nprm,prefix,prefix);
     for( ir=0; ir < nprm; ir++ )
     {
         if( ir ) 
