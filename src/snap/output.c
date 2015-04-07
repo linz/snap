@@ -705,3 +705,29 @@ void write_csv_date( output_csv *csv, double date )
     if( date == UNDEFINED_DATE ) { write_csv_null_field( csv ); return; }
     write_csv_string( csv, date_as_string(date,0,0) );
 }
+
+void print_json_params( FILE *lst, int nprefix )
+{
+    fprintf(lst,"%*s\"nparam\":%d",nprefix,"",nprm);
+    if( nprm )
+    {
+        fprintf(lst,",\n%*s\"parameters\": [",nprefix,"");
+        for( int i = 0; i++ < nprm; )
+        {
+            int stno=0;
+            char paramname[40];
+            if( ! find_param_row(i,paramname,40) && 
+                    !(stno=find_station_row(i,paramname,40)))
+            {
+                sprintf(paramname,"Parameter %d",i);
+            }
+            fprintf(lst,"%s\n%*s\"%s%s%s\"", 
+                    i > 1 ? "," : "", 
+                    nprefix+2,"",
+                    stno ? station_code(stno) : "",
+                    stno ? " " : "",
+                    paramname );
+        }
+        fprintf(lst,"\n%*s]",nprefix,"");
+    }
+}

@@ -122,7 +122,7 @@ void oe_add_param( obseqn *A, int irow, int c, double v );
 
 void print_obseqn( FILE *out, void *hA );
 
-void print_obseqn_json( FILE *out, void *hA, const char *source );
+void print_obseqn_json( FILE *out, void *hA, const char *source, int nprefix );
 
 #define obseqn_rows(hA) (((obseqn *)hA)->nrow)
 #define obseqn_cvr_diagonal(hA) (((obseqn *)hA)->flag & OE_DIAGONAL_CVR)

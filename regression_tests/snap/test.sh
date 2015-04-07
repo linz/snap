@@ -42,6 +42,11 @@ for f in ${t}.snp; do
             rm $of
         fi
     done
+    for of in ${base}.bin; do
+        if [ -e ${of} ]; then
+            rm $of
+        fi
+    done
 done
 
 cd ..

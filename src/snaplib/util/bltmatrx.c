@@ -726,45 +726,78 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
     return OK;
 }
 
-void print_bltmatrix_json( bltmatrix *blt, FILE *out, const char *prefix )
+void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format )
 {
     int ir,ic,ir0,ic0,col0;
     int nrows=blt->nrow;
-    if( ! prefix ) prefix="";
+    int matonly = options & BLT_JSON_MATRIX_ONLY;
+    int rows = options & BLT_JSON_FULL;
+    int lower = rows == BLT_JSON_LOWER;
 
-    fprintf(out,"{\n%s\"nrows\": %d,\n%s\"col0\": [",prefix,nrows,prefix);
-    for( ir=0; ir < nrows; ir++ )
+    if( matonly && ! rows ){ rows=BLT_JSON_LOWER; }
+    if( ! format ) format = "%15.8le";
+
+    if( ! matonly )
     {
-        if( ir )
+        fprintf(out,"{\n%*s\"nrows\": %d,\n%*s\"nsparse\": %d,\n%*s\"col0\": [",
+                nprefix,"",nrows,nprefix,"",blt->nsparse,nprefix,"");
+        for( ir=0; ir < nrows; ir++ )
         {
-            if( ir %20 == 0 ) fprintf(out,",\n%s",prefix);
-            else fprintf(out,",");
+            if( ir )
+            {
+                if( ir %20 == 0 ) fprintf(out,",\n%*s",nprefix,"");
+                else fprintf(out,",");
+            }
+            fprintf( out, "%d", blt->row[ir].col );
         }
-        fprintf( out, "%d", blt->row[ir].col );
+        fprintf(out,"],\n");
+        fprintf(out,"%*s\"matrix\": ",nprefix,"");
+        nprefix += 2;
     }
-    fprintf(out,"],\n");
-    fprintf(out,"%s\"matrix\": [",prefix);
+
+    fprintf(out,"[");
     for( ir=0; ir < nrows; ir++ )
     {
-        fprintf(out,"%s\n%s  [",ir ? "," : "",prefix);
+        fprintf(out,"%s\n%*s  [",ir ? "," : "",nprefix,"");
         for( ic=0; ic < nrows; ic++ )
         {
             double val=0.0;
-            ic0=ic < ir ? ic : ir;
-            ir0=ic < ir ? ir : ic;
+            if( ic > ir )
+            {
+               if( lower ) continue;
+               ic0=ir;
+               ir0=ic;
+            }
+            else
+            {
+                ic0=ic;
+                ir0=ir;
+            }
             col0=blt->row[ir0].col;
-            if( ic0 >= col0 ) val=blt->row[ir0].address[ic0-col0];
+            if( ic0 < col0 )
+            {
+                if( ! rows ) continue;
+            }
+            else
+            {
+                val=blt->row[ir0].address[ic0-col0];
+            }
             if( ic ) 
             {
                 fprintf(out,",");
-                if( ic % 20 == 0 ) fprintf(out,"\n%s  ",prefix);
+                if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
             }
-            fprintf( out, "%15.8le", val );
+            fprintf( out, format, val );
         }
         fprintf(out,"]");
     }
-    fprintf(out,"]",prefix);
-    fprintf(out,"\n%s}",prefix);
+    fprintf(out,"]");
+
+    if( ! matonly )
+    {
+        nprefix -= 2;
+        fprintf(out,"\n%*s}",nprefix,"");
+    }
 }
 
 

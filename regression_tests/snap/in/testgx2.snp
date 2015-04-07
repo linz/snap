@@ -9,6 +9,7 @@ list command_file
 list file_summary
 list problem_definition
 list observation_equations
+list normal_equations
 list solution_summary
 list station_coordinates
 list floated_stations

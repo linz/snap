@@ -1127,32 +1127,32 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
 }
 
-void print_normal_equations_json( FILE *out, const char *prefix )
+void lsq_print_normal_equations_json( FILE *out, int nprefix )
 {
     int ir;
-    char prefix2[20];
-    if( lsq_status != LSQ_SUMMING ) return;
+    if( lsq_status != LSQ_SUMMING ) sequence_error( "lsq_print_normal_equations_json" );
 
-    if( ! prefix ) prefix="";
-    sprintf(prefix2,"%.17s  ",prefix);
-
-    fprintf(out,"{\n%s\"nparam\": %d",prefix,nprm);
+    fprintf(out,"{\n%*s\"nparam\": %d",nprefix,"",nprm);
     if( nprm )
     {
-        fprintf(out,",\n%s\"b\": [",prefix);
+        fprintf(out,",\n%*s\"b\": [",nprefix,"");
         for( ir=0; ir < nprm; ir++ )
         {
             if( ir ) 
             {
                 fprintf(out,",");
-                if( ir % 20 == 0 ) fprintf(out,"\n%s  ",prefix);
+                if( ir % 20 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
             }
             fprintf(out,"%15.8le",b[ir]);
         }
-        fprintf(out,"%s  ],\n%s\"N\": ",prefix,prefix);
-        if( N ) print_bltmatrix_json( N, out, prefix2 );
+        fprintf(out,"%*s  ]",nprefix,"");
+        if( N ) 
+        {
+            fprintf(out,",\n%*s\"N\": ",nprefix,"");
+            print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, 0 );
+        }
     }
-    fprintf(out,"\n%s}",prefix);
+    fprintf(out,"\n%*s}",nprefix,"");
 }
 
 #ifdef TESTLSQ

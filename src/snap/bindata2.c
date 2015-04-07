@@ -367,7 +367,6 @@ int sum_bindata( int iteration )
     bindata *b;
     int nrow;
     long nbin;
-    int stno;
     int sts=OK;
 
     if( output_observation_equations )
@@ -375,23 +374,10 @@ int sum_bindata( int iteration )
         sprintf(header,"obs_equation_%d",iteration);
         print_section_heading(lst, "OBSERVATION EQUATIONS");
         print_json_start(lst,header);
-        fprintf(lst,"{\n  \"nparam\":%d,\n  \"parameters\": [",nprm);
-        for( int i = 0; i++ < nprm; )
-        {
-            char paramname[40];
-            if( ! find_param_row(i,paramname,40) && !(stno=find_station_row(i,paramname,40)))
-            {
-                sprintf(paramname,"Parameter %d",i);
-            }
-            fprintf(lst,"%s\n    \"%s%s%s\"", 
-                    i > 1 ? "," : "", 
-                    stno ? station_code(stno) : "",
-                    stno ? " " : "",
-                    paramname );
-        }
-        fprintf(lst,"\n],\n  \"obs_equations\": [\n");
+        fprintf(lst,"{\n");
+        print_json_params(lst,2);
+        fprintf(lst,",\n  \"obs_equations\": [\n");
     }
-
 
     maxrow = maxlt = 0;
     hA = create_oe( nprm );
@@ -426,7 +412,7 @@ int sum_bindata( int iteration )
                     sd->nobs
                     );
                 if( nbin > 1 )  fprintf(lst,",\n");
-                print_obseqn_json( lst, hA, source );
+                print_obseqn_json( lst, hA, source, 0 );
             }
             stsobs=lsq_sum_obseqn( hA );
             if( stsobs != OK )
@@ -453,7 +439,7 @@ int sum_bindata( int iteration )
 
     if( output_observation_equations )
     {
-        fprintf(lst,"]}\n");
+        fprintf(lst,"\n]}\n");
         print_json_end(lst,header);
     }
     return sts;

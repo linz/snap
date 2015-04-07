@@ -353,7 +353,11 @@ int snap_main( int argc, char *argv[] )
             sprintf(header,"normal_equations_%d",iterations);
             print_section_heading( lst, "NORMAL EQUATIONS" );
             print_json_start(lst,header);
-            print_normal_equations_json( lst, 0 );
+            fprintf(lst,"{\n");
+            print_json_params(lst,2);
+            fprintf(lst,",\n\"normal_equations\": ");
+            lsq_print_normal_equations_json( lst, 2 );
+            fprintf(lst,"\n}");
             print_json_end(lst,header);
         }
 

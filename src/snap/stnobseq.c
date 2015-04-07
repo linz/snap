@@ -259,7 +259,7 @@ void sum_floating_stations( int iteration )
                 sprintf(source,"{\"station\":\"%.20s\",\"float\":\"horizontal\"}",st->Code);
                 if( nfloat ) fprintf(lst,",\n");
                 nfloat++;
-                print_obseqn_json( lst, hA, source );
+                print_obseqn_json( lst, hA, source, 2 );
             }
             lsq_sum_obseqn( hA );
         }
@@ -276,11 +276,10 @@ void sum_floating_stations( int iteration )
                 sprintf(source,"{\"station\":\"%.20s\",\"float\":\"vertical\"}",st->Code);
                 if( nfloat ) fprintf(lst,",\n");
                 nfloat++;
-                print_obseqn_json( lst, hA, source );
+                print_obseqn_json( lst, hA, source, 2 );
             }
             lsq_sum_obseqn( hA );
         }
-
     }
 
     if( output_observation_equations )

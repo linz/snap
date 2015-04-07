@@ -98,6 +98,6 @@ bltmatrix *lsq_normal_matrix( void );
 
 /* Print the normal equations - only generates output during summing phase */
 
-void print_normal_equations_json( FILE *out, const char *prefix );
+void lsq_print_normal_equations_json( FILE *out, int nprefix );
 
 #endif

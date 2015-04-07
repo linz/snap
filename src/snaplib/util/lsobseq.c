@@ -231,64 +231,66 @@ void print_obseqn( FILE *out, void *hA )
     }
 }
 
-void print_obseqn_json( FILE *out, void *hA, const char *srcjson )
+void print_obseqn_json( FILE *out, void *hA, const char *srcjson, int nprefix )
 {
     obseqn *A;
     int i, j;
     obsrow *obs;
     ltmat cvr;
-    int printcvr;
 
     A = (obseqn *) hA;
     cvr = A->cvr;
 
-    printcvr = !(A->flag & OE_DIAGONAL_CVR );
-
-    fprintf( out, "{\n" );
+    fprintf( out, "{\n%*s",nprefix,"" );
     if( srcjson )
     {
-        fprintf( out, "  \"source\": %s,\n",srcjson );
+        fprintf( out, "  \"source\": %s,\n%*s",srcjson,nprefix,"" );
     }
-    fprintf( out, "  \"nobs\": %d,\n", A->nrow );
-    fprintf( out, "  \"obs\": [\n");
+    fprintf( out, "  \"nobs\": %d,\n%*s", A->nrow,nprefix,"" );
+    fprintf( out, "  \"obs\": [\n%*s",nprefix,"");
     for( i = 0; i++<A->nrow; )
     {
         obs = A->obs[i-1];
-        fprintf( out, "   {\n");
-        fprintf(out,"    \"value\": %15.8le,\n",obs->obsv);
+        fprintf( out, "   {\n%*s",nprefix,"");
+        fprintf(out,"    \"value\": %15.8le,\n%*s",obs->obsv,nprefix,"");
         if( A->flag & OE_SCHREIBER )
         {
-            fprintf(out,"    \"schreiber\": %15.8le,\n",obs->schv);
+            fprintf(out,"    \"schreiber\": %15.8le,\n%*s",obs->schv,nprefix,"");
         }
-        fprintf(out,"    \"useobs\": %s,\n",obs->flag & OE_UNUSED ? "false" : "true" );
-        fprintf(out,"    \"ncolumns\": %d,\n",obs->ncol);
+        fprintf(out,"    \"useobs\": %s,\n%*s",obs->flag & OE_UNUSED ? "false" : "true",nprefix,"" );
+        fprintf(out,"    \"ncolumns\": %d,\n%*s",obs->ncol,nprefix,"");
         fprintf(out,"    \"columns\": [");
         for( j = 0; j< obs->ncol; j++ )
         {
             fprintf(out,"%s%d",j ? ", " : "",(int) (obs->col[j]+1));
         }
-        fprintf(out,"],\n");
+        fprintf(out,"],\n%*s",nprefix,"");
         fprintf(out,"    \"values\": [");
         for( j = 0; j< obs->ncol; j++ )
         {
             fprintf(out,"%s%15.8le",j ? ", " : "",(obs->val[j]));
         }
-        fprintf(out,"]\n");
-        fprintf( out, "   }%s\n", i < A->nrow ? "," : "");
+        fprintf(out,"]\n%*s",nprefix,"");
+        fprintf( out, "   }%s\n%*s", i < A->nrow ? "," : "",nprefix,"");
     }
-    fprintf( out, "  ],\n");
+    fprintf( out, "  ],\n%*s",nprefix,"");
     if (A->flag & OE_DIAGONAL_CVR )
     {
         int ir;
-        fprintf( out, "  \"cvrdiag\": [\n" );
+        fprintf( out, "  \"cvrdiag\": [\n%*s",nprefix,"" );
         for( ir=0; ir < A->nrow; ir++ )
         {
-            fprintf(out,"%s%15.8le",
-                    ir == 0 ? "" :
-                    ir %10 == 0 ? ",\n    " :
-                    ",", cvr[ir]);
+            if( ir )
+            {
+                if( ir )
+                {
+                    fprintf(out,",");
+                    if( ir % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
+                }
+            }
+            fprintf( out, "%15.8le", cvr[ir] );
         }
-        fprintf( out, "\n  ]\n");
+        fprintf( out, "\n%*s  ]\n%*s",nprefix,"",nprefix,"");
     }
     else
     {
@@ -296,17 +298,19 @@ void print_obseqn_json( FILE *out, void *hA, const char *srcjson )
         fprintf( out, "  \"cvr\": [" );
         for( ir=0; ir < A->nrow; ir++ )
         {
-            fprintf( out, "%s\n    [",ir ? "," : "" );
+            fprintf( out, "%s\n%*s    [",ir ? "," : "",nprefix,"" );
             for( ic=0; ic < A->nrow; ic++ )
             {
-                fprintf(out,"%s%15.8le",
-                        ic == 0 ? "" :
-                        ic %10 == 0 ? ",\n    " :
-                        ",", Lij(cvr,ir,ic));
+                if( ic )
+                {
+                    fprintf(out,",");
+                    if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
+                }
+                fprintf( out, "%15.8le", Lij(cvr,ir,ic));
             }
             fprintf( out, "]");
         }
-        fprintf( out, "\n  ]\n");
+        fprintf( out, "\n%*s  ]\n%*s",nprefix,"",nprefix,"");
     }
-    fprintf( out, "}\n" );
+    fprintf( out, "}" );
 }
