@@ -33,10 +33,10 @@
 #include "util/leastsqu.h"
 #include "util/probfunc.h"
 #include "snapdata/survdata.h" /* For UNDEFINED_DATE */
+#include "output.h"
 #include "stnobseq.h"
 #include "adjparam.h"
 #include "util/binfile.h"
-#include "output.h"
 #include "residual.h"
 #include "snap/deform.h"
 #include "util/dms.h"
@@ -217,14 +217,23 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
 }
 
 
-void sum_floating_stations( void )
+void sum_floating_stations( int iteration )
 {
+    char header[20];
     int istn, maxstn;
     station *st;
     stn_adjustment *sa;
     void *hA;
+    int nfloat=0;
 
     if( !floating_stations ) return;
+
+    if( output_observation_equations )
+    {
+        sprintf(header,"float_stations_%d",iteration);
+        print_json_start(lst,header);
+        fprintf(lst,"\n{ \"float_stations\": [\n");
+    }
 
     hA = create_oe( nprm );
 
@@ -244,6 +253,14 @@ void sum_floating_stations( void )
             oe_value( hA, 2, (sa->initELat - st->ELat)*st->dNdLt );
             oe_param( hA, 2, sa->hrowno+1, 1.0 );
             oe_covar( hA, 2, 2, (double) sa->herror * sa->herror );
+            if( output_observation_equations )
+            {
+                char source[100];
+                sprintf(source,"{\"station\":\"%.20s\",\"float\":\"horizontal\"}",st->Code);
+                if( nfloat ) fprintf(lst,",\n");
+                nfloat++;
+                print_obseqn_json( lst, hA, source );
+            }
             lsq_sum_obseqn( hA );
         }
 
@@ -253,9 +270,23 @@ void sum_floating_stations( void )
             oe_value( hA, 1, (sa->initOHgt - st->OHgt ) );
             oe_param( hA, 1, sa->vrowno, 1.0 );
             oe_covar( hA, 1, 1, (double) sa->verror * sa->verror );
+            if( output_observation_equations )
+            {
+                char source[100];
+                sprintf(source,"{\"station\":\"%.20s\",\"float\":\"vertical\"}",st->Code);
+                if( nfloat ) fprintf(lst,",\n");
+                nfloat++;
+                print_obseqn_json( lst, hA, source );
+            }
             lsq_sum_obseqn( hA );
         }
 
+    }
+
+    if( output_observation_equations )
+    {
+        fprintf(lst,"]}\n");
+        print_json_end(lst,header);
     }
 
     delete_oe( hA );

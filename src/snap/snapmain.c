@@ -341,16 +341,17 @@ int snap_main( int argc, char *argv[] )
             return DEFAULT_RETURN_STATUS;
         }
 
-        sum_floating_stations();
+        sum_floating_stations(iterations);
 
         /* Solve the equations - if we are doing preanalysis we want to
         ignore any information from the input observations - we are
          only interested in the covariance of the derived parameters */
 
-        if( output_observation_equations )
+        if( output_normal_equations )
         {
             char header[30];
             sprintf(header,"normal_equations_%d",iterations);
+            print_section_heading( lst, "NORMAL EQUATIONS" );
             print_json_start(lst,header);
             print_normal_equations_json( lst, 0 );
             print_json_end(lst,header);

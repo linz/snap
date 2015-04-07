@@ -47,6 +47,7 @@ SCOPE char output_stn_recode;
 SCOPE char output_file_summary;
 SCOPE char output_problem_definition;
 SCOPE char output_observation_equations;
+SCOPE char output_normal_equations;
 SCOPE char output_deformation;
 SCOPE char output_station_adjustments;
 SCOPE char output_iteration_summary;
@@ -135,6 +136,7 @@ output_option output[] =
     {"file_summary",&output_file_summary,1,{0}},
     {"problem_definition",&output_problem_definition,0,{0}},
     {"observation_equations",&output_observation_equations,0,{0}},
+    {"normal_equations",&output_normal_equations,0,{0}},
     {"observation_deformation",&output_deformation,0,{0}},
     {"station_adjustments",&output_station_adjustments,0,{ PREANALYSIS, 0}},
     {"iteration_summary",&output_iteration_summary,1,{ PREANALYSIS, 0}},
