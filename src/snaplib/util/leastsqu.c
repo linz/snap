@@ -496,7 +496,8 @@ int lsq_sum_obseqn( void * hA)
     sts = calc_weight_matrix( A );
     if( sts ) 
     {
-        handle_error(INVALID_DATA,"Cannot form inverse of observation covariance matrix",NO_MESSAGE);
+        handle_error(INVALID_DATA,"Cannot sum observations as covariance matrix is not positive definite",
+                NO_MESSAGE );
         return INVALID_DATA;
     }
 
@@ -1135,18 +1136,22 @@ void print_normal_equations_json( FILE *out, const char *prefix )
     if( ! prefix ) prefix="";
     sprintf(prefix2,"%.17s  ",prefix);
 
-    fprintf(out,"{\n%s\"nparam\": %d,\n%s\"b\": [",prefix,nprm,prefix,prefix);
-    for( ir=0; ir < nprm; ir++ )
+    fprintf(out,"{\n%s\"nparam\": %d",prefix,nprm);
+    if( nprm )
     {
-        if( ir ) 
+        fprintf(out,",\n%s\"b\": [",prefix);
+        for( ir=0; ir < nprm; ir++ )
         {
-            fprintf(out,",");
-            if( ir % 20 == 0 ) fprintf(out,"\n%s  ",prefix);
+            if( ir ) 
+            {
+                fprintf(out,",");
+                if( ir % 20 == 0 ) fprintf(out,"\n%s  ",prefix);
+            }
+            fprintf(out,"%15.8le",b[ir]);
         }
-        fprintf(out,"%15.8le",b[ir]);
+        fprintf(out,"%s  ],\n%s\"N\": ",prefix,prefix);
+        if( N ) print_bltmatrix_json( N, out, prefix2 );
     }
-    fprintf(out,"%s  ],\n%s\"N\": ",prefix,prefix);
-    print_bltmatrix_json( N, out, prefix2 );
     fprintf(out,"\n%s}",prefix);
 }
 

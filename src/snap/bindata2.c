@@ -368,7 +368,7 @@ int sum_bindata( int iteration )
     int nrow;
     long nbin;
     int stno;
-    int sts;
+    int sts=OK;
 
     if( output_observation_equations )
     {
