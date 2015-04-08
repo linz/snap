@@ -413,7 +413,7 @@ static void concord_init( void )
 
     input_prec = -1;
     input_vprec = -1;
-    output_prec = 3;
+    output_prec = -1;
     output_vprec = -1;
 }
 
@@ -1056,6 +1056,20 @@ static void tidy_up_parameters( void )
     /* Determine the input coordinate precision to be used for
        echoing.  Attempt to get similar accuracy to output
        coordinates */
+
+    if( output_prec < 0 )
+    {
+        output_prec=3;
+        if( is_geodetic(output_cs))
+        {
+            switch(output_dms)
+            {
+                case AF_DEG:  output_prec += 5; break;
+                case AF_DM:   output_prec += 3; break;
+                case AF_DMS:  output_prec += 1; break;
+            }
+        }
+    }
 
     input_prec = output_prec;
     if (is_geodetic(output_cs))
