@@ -100,7 +100,7 @@ ref_frame *copy_ref_frame( ref_frame *rf )
         rf1->func = copy_ref_frame_func( rf->func );
         rf1->def = copy_ref_deformation( rf->def );
         rf1->defepoch = rf->defepoch;
-        rf1->refrf = copy_ref_frame( rf1->refrf );
+        rf1->refrf = copy_ref_frame( rf->refrf );
     }
     else
     {
