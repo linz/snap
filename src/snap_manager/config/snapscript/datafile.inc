@@ -1,6 +1,6 @@
 
 
-$_data_file_re = '(?ni)^\s*data_file\s+(\S+)(?:\s+error_factor\s+(\d+(?:\.\d*)?))?(?:\s+(csv)(?:\s+(.*\S))?)?\s*$'
+$_data_file_re = '(?ni)^\s*data_file\s+(\S+)(?:\s+error_factor\s+(\d+(?:\.\d*)?))?(?:\s+recode\s+(\S+))?(?:\s+(csv)(?:\s+(.*\S))?)?\s*$'
 $_data_file_prefix = 'data_file '
 
 function DataFileList()
@@ -47,12 +47,14 @@ function EditDataFileOptions( $dfd )
    $csvtypere = '(?i)\yformat\=(\S+)'
    $filename = Match($dfd,$_data_file_re,1)
    $factor = Match($dfd,$_data_file_re,2)
-   $csv = Match($dfd,$_data_file_re,3)
-   $csvopts = Match($dfd,$_data_file_re,4)
+   $recode = Match($dfd,$_data_file_re,3)
+   $csv = Match($dfd,$_data_file_re,4)
+   $csvopts = Match($dfd,$_data_file_re,5)
    $csvtype = Match($csvopts,$csvtypere,1)
    $csvopts = Replace($csvopts,$csvtypere,'')
    Log("File: $filename")
    Log("Factor: $factor")
+   Log("Recode: $recode")
    Log("CSV: $csv")
    Log("Type: $csvtype")
    Log("Options: $csvopts")
@@ -116,8 +118,9 @@ function GetDataFileOptions( $jobpath, $filelist )
    $csvtypere = '(?i)\yformat\=(\S+)\s*'
    $filename = Match($filelist,$_data_file_re,1)
    $factor = Match($filelist,$_data_file_re,2)
-   $csv = Match($filelist,$_data_file_re,3)
-   $csvopts = Match($filelist,$_data_file_re,4)
+   $recode = Match($filelist,$_data_file_re,3)
+   $csv = Match($filelist,$_data_file_re,4)
+   $csvopts = Match($filelist,$_data_file_re,5)
    $csvtype = Match($csvopts,$csvtypere,1)
    $csvopts = Replace($csvopts,$csvtypere,'')
    if $csvtype then $csvtype = 'csv format='.$csvtype endif
@@ -126,12 +129,14 @@ function GetDataFileOptions( $jobpath, $filelist )
        dropdown_selector $csvtype  "Format: " DataFileFormatList($csvtype,$jobpath)
        textbox $csvopts "CSV configuration (name=value ...)" "20"
        textbox $factor "Error factor:" '10::~0123456789.~(?:\d+\.?\d*)?~Error factor must be a number'
+       textbox $recode "Station recode file" '15::~~\S*~Recode must be file name or blank'
    end_dialog
  
    $options = ''
    if $ok then 
        $options = 'filename'
        if $factor then $options = ' error_factor '.$factor endif
+       if $recode then $options = $options.' recode '.$recode endif
        if $csvtype then $options = $options.' '.$csvtype.' '.$csvopts endif
    endif
    return $options

@@ -87,7 +87,7 @@ const char *find_config_file( const char *configdir, const char *name, const cha
 
 const char *find_relative_file( const char *base, const char *name, const char *dflt_ext );
 
-/* General purpose find file ... can include a base file, whcih will use find_relative_file,
+/* General purpose find file ... can include a base file, which will use find_relative_file,
    try_local, which will try then name with and without the extension if true,
    and a config section to try the user and system configuration directories */
 

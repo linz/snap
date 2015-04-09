@@ -97,7 +97,7 @@ int main( int argc, char *argv[] )
         {
             printf ("snapconv: Missing or invalid parameters\n\n");
 
-            printf("Syntax: snapconv [-d][-h][-q] input_coord_file new_coordsys_code output_coord_file\n\n");
+            printf("Syntax: snapconv [-d][-h][-q][-y yyyymmdd] input_coord_file new_coordsys_code output_coord_file\n\n");
             printf("Options are:\n");
             printf("  -d   Output angles in decimal degrees\n");
             printf("  -h   Output angles in degrees/minutes/seconds\n");

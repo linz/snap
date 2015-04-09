@@ -37,10 +37,14 @@ typedef struct stn_recode_list_s
 } stn_recode_list;
 
 /* get_station_func should return 
- * 0 - cannot create station
- * 1 - station already exists, no need to create
- * 2 - copy of old station created 
+ * STN_RECODE_FAIL   cannot create station
+ * STN_RECODE_EXISTS station already exists, no need to create
+ * STN_RECODE_NEW    copy of old station created 
  */
+
+#define STN_RECODE_FAIL   0
+#define STN_RECODE_EXISTS 1
+#define STN_RECODE_NEW    2
 
 typedef int (*get_recode_station_func)( void *data, const char *codefrom, const char *codeto );
 
@@ -50,9 +54,14 @@ typedef struct
     stn_recode_list **index;
     int nindex;
     network *net;
-    get_recode_station_func getstation;
-    void *getstationdata;
 } stn_recode_map;
+
+typedef struct
+{
+    stn_recode_map *global_map;
+    stn_recode_map *file_map;
+    network *net;
+} stn_recode_data;
 
 
 /* 
@@ -62,17 +71,19 @@ typedef struct
  * does.  getstationdata is data used by the getstation function
  */
 
-stn_recode_map *create_stn_recode_map( network *net, get_recode_station_func getstation, void *getstationdata );
+stn_recode_map *create_stn_recode_map( network *net );
 
 void delete_stn_recode_map( stn_recode_map *stt );
 
-int add_station_recode( stn_recode_map *stt, const char *codefrom, const char *codeto, double datefrom, double dateto );
+void add_stn_recode_to_map( stn_recode_map *stt, 
+        const char *codefrom, const char *codeto, double datefrom, double dateto );
 
 int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile );
 
 void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int stn_name_width, const char *prefix );
 
-const char *get_stn_recode( stn_recode_map *stt, stn_recode_map *sttbase, const char *code, double date );
+const char *get_stn_recode( stn_recode_map *stt, const char *code, double date );
 
-#endif /* defined _STNRECODE_HPP */
+const char *recoded_network_station( void *recode_data, const char *code, double date );
 
+#endif /* _STNRECODE_HPP */

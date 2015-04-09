@@ -21,11 +21,13 @@
 #include <string.h>
 
 #include "snap/snapglob.h"
+#include "snap/stnadj.h"
 #include "snap/survfilr.h"
 #include "snapdata/snapdata.h"
 #include "snapdata/loaddata.h"
 #include "snapdata/geoddata.h"
 #include "snapdata/snapcsvobs.h"
+#include "snapdata/stnrecodefile.h"
 #include "util/progress.h"
 #include "util/errdef.h"
 #include "util/chkalloc.h"
@@ -46,11 +48,16 @@ static int datafile_progress( DATAFILE *df )
 
 long read_data_files( char *base_dir, FILE *lst )
 {
-    DATAFILE *d;
+    DATAFILE *d=0;
     survey_data_file *sd;
     int i, c, nfile, nch;
     long file_errors, total_errors;
     char *fname;
+    stn_recode_map *filemap=0;
+    stn_recode_data recodedata;
+
+    recodedata.global_map=stnrecode;
+    recodedata.net=net;
 
     total_errors = 0;
 
@@ -73,6 +80,7 @@ long read_data_files( char *base_dir, FILE *lst )
     for( i = 0; i < nfile; i++ )
     {
         char *filename;
+
         sd = survey_data_file_ptr(i);
         filename = sd->name;
 
@@ -82,12 +90,43 @@ long read_data_files( char *base_dir, FILE *lst )
             if( file_exists( fname )) filename = fname;
         }
 
+        if( d ) 
+        {
+            df_close_data_file( d );
+            d = 0;
+        }
+
         d = df_open_data_file( filename, "survey data file" );
         if( !d )
         {
             xprintf("\n   Unable to open data file %s\n",sd->name);
             total_errors++;
             continue;
+        }
+
+        if( filemap )
+        {
+            delete_stn_recode_map(filemap);
+            filemap=0;
+        }
+
+        if( sd->recodefile )
+        {
+            int sts;
+            filemap=create_stn_recode_map( net );
+            sts = read_station_recode_file( filemap, sd->recodefile, filename );
+            if( sts != OK )
+            {
+                xprintf("\n   Unable to read station recode file %s\n",sd->recodefile);
+                total_errors++;
+                continue;
+            }
+            recodedata.file_map=filemap;
+            set_stn_recode_func( recoded_network_station, &recodedata );
+        }
+        else
+        {
+            set_stn_recode_func( 0, 0 );
         }
 
         for( c = 0; c < NOBSTYPE; c++ ) sd->obscount[c] = 0;
@@ -156,8 +195,12 @@ long read_data_files( char *base_dir, FILE *lst )
         }
 
         df_close_data_file( d );
+        d=0;
     }
 
+    set_stn_recode_func( 0, 0 );
+    if( d ) df_close_data_file( d );
+    if( filemap ) delete_stn_recode_map(filemap);
     if( fname ) check_free( fname );
     return total_errors;
 }

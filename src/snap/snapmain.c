@@ -294,6 +294,15 @@ int snap_main( int argc, char *argv[] )
 
     if( sort_obs ) sort_observation_list();
 
+
+    xprintf("\nReading the station constraint commands %s\n", command_file );
+    if( read_command_file_constraints( command_file ) != OK )
+    {
+        xprintf("\nErrors loading command file %s\n", command_file );
+        handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
+        return DEFAULT_RETURN_STATUS;
+    }
+
     /* Set up parameters - sorts out which stations are to be used, creates
        station ordering, numbers station coordinate and other parameters,
        and allocates the least squares matrices */

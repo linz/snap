@@ -8,6 +8,7 @@
 #include <ctype.h>
 
 #include "snapdata/stnrecode.h"
+#include "snapdata/stnrecodefile.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "snapdata/datatype.h"
@@ -85,14 +86,12 @@ static void delete_stn_recode_list( stn_recode_list *list )
 }
 
 
-stn_recode_map *create_stn_recode_map( network *net, get_recode_station_func getstation, void *getstationdata )
+stn_recode_map *create_stn_recode_map( network *net )
 {
     stn_recode_map *stt=(stn_recode_map *) check_malloc( sizeof(stn_recode_map));
     stt->stlists=0;
     stt->index=0;
     stt->net=net;
-    stt->getstationdata=getstationdata;
-    stt->getstation=getstation;
     return stt;
 }
 
@@ -107,8 +106,6 @@ void delete_stn_recode_map( stn_recode_map *stt ) {
     if( stt->index ) check_free( stt->index );
     stt->index=0;
     stt->stlists=0;
-    stt->getstationdata=0;
-    stt->getstation=0;
     check_free( stt );
 }
 
@@ -180,12 +177,12 @@ typedef struct
     char *suffix;
     double datefrom;
     double dateto;
-} stn_recode_data;
+} stn_recode_suffix_data;
 
 static void apply_recode_suffix( station *st, void *psrd )
 {
     char codeto[STNCODELEN+1];
-    stn_recode_data *srd=(stn_recode_data *) psrd;
+    stn_recode_suffix_data *srd=(stn_recode_suffix_data *) psrd;
     char *suffix=srd->suffix;
     int sfxlen=strlen(suffix);
     const char *codefrom=st->Code;
@@ -227,9 +224,26 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         strcpy(msg,"Missing source station code in recode definition");
         ok=0;
     }
+    else if ( _stricmp(field,"file") == 0 )
+    {
+        char *filename=next_field(&def);
+        int sts;
+        if( ! filename )
+        {
+            handle_error(INVALID_DATA,"Filename missing in station recode",msg);
+            return INVALID_DATA;
+        }
+        sts=read_station_recode_file( stt, filename, basefile );
+        return sts;
+    }
     else if ( _stricmp(field,"suffix") == 0 )
     {
         suffix=next_field(&def);
+        if( ! suffix )
+        {
+            handle_error(INVALID_DATA,"Suffix missing in station recode",msg);
+            return INVALID_DATA;
+        }
     }
     else
     {
@@ -336,7 +350,7 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         }
         else
         {
-            stn_recode_data srd;
+            stn_recode_suffix_data srd;
             srd.srm=stt;
             srd.suffix=suffix;
             srd.datefrom=datefrom;
@@ -395,29 +409,50 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
     }
 }
 
-
-const char *get_stn_recode( stn_recode_map *stt, stn_recode_map *sttbase, const char *code, double date )
+const char *get_stn_recode( stn_recode_map *stt, const char *code, double date )
 {
-    const char *srccode=code;
+    stn_recode *src=0;
     stn_recode_list *list=lookup_station_recode( stt, code );
-    if( list )
-    {
-        stn_recode *src;
-        for( src=list->translations; src; src=src->next )
-        {
-            if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) break;
-            else if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) break;
-            else if( src->dateto == UNDEFINED_DATE && date >= src->datefrom ) break;
-            else if(date <= src->dateto && date > src->datefrom ) break;
-        }
-        if( src ) code=src->codeto;
-    }
-    if( sttbase )
-    {
-        const char *code2 = get_stn_recode( sttbase, 0, code, date );
-        if( code2 ) code = code2;
-    }
+    if( ! list ) return 0;
 
-    return code == srccode ? 0 : code;
+    for( src=list->translations; src; src=src->next )
+    {
+        if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) break;
+        if( date == UNDEFINED_DATE ) continue;
+        else if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) break;
+        else if( src->dateto == UNDEFINED_DATE && date >= src->datefrom ) break;
+        else if(date <= src->dateto && date >= src->datefrom ) break;
+    }
+    if( ! src ) return 0;
+    src->used=1;
+    return src->codeto;
 }
 
+const char *recoded_network_station( void *recode_data, const char *code, double date )
+{
+    const char *code1=0;
+    const char *code2=0;
+    int id;
+    stn_recode_data *srd=(stn_recode_data *)recode_data;
+    if( ! srd ) return 0;
+    if( srd->file_map ) code1=get_stn_recode(srd->file_map,code,date);
+    if( srd->global_map ) code2=get_stn_recode(srd->global_map,code1 ? code1 : code2,date);
+    if( ! code2 ) { code2 = code1; code1 = 0; }
+    if( ! code2 ) return 0;
+
+    if( srd->net )
+    {
+        id = find_station( srd->net, code2 );
+        if( ! id )
+        {
+            if( code1 ) id = find_station( srd->net, code1 );
+            if( ! id ) id = find_station( srd->net, code );
+            if( id )
+            {
+                station *st=station_ptr(srd->net,id);
+                duplicate_network_station( srd->net, st, code2, st->Name );
+            }
+        }
+    }
+    return code2;
+}

@@ -26,7 +26,7 @@ static int maxsdindx = 0;
 #define SDINDX_INC 10
 
 
-static int add_data_file_nocopy( char *name, int format, char *subtype, double errfct )
+static int add_data_file_nocopy( char *name, int format, char *subtype, double errfct, char *recode )
 {
     survey_data_file *sd;
     int i;
@@ -45,6 +45,7 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     sd->format = format;
     sd->subtype = subtype;
     sd->errfct = errfct;
+    sd->recodefile=recode;
     sd->mindate=UNDEFINED_DATE;
     sd->maxdate=UNDEFINED_DATE;
     sd->nnodate=0;
@@ -53,11 +54,12 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
 
     return OK;
 }
-int add_data_file( char *name, int format, char *subtype, double errfct )
+int add_data_file( char *name, int format, char *subtype, double errfct, char *recode )
 {
     name = copy_string( name );
     subtype = copy_string( subtype );
-    return add_data_file_nocopy( name, format, subtype, errfct );
+    recode = copy_string( recode );
+    return add_data_file_nocopy( name, format, subtype, errfct, recode );
 }
 
 survey_data_file *survey_data_file_ptr( int  ifile )
@@ -102,6 +104,7 @@ void dump_filenames( BINARY_FILE *b )
         fwrite( &sdindx[i]->errfct, sizeof(sdindx[i]->errfct), 1, b->f );
         dump_string( sdindx[i]->name, b->f );
         dump_string( sdindx[i]->subtype, b->f );
+        dump_string( sdindx[i]->recodefile, b->f );
     }
     end_section( b );
 }
@@ -113,6 +116,7 @@ int reload_filenames( BINARY_FILE *b )
     double errfct;
     char *name;
     char *subtype;
+    char *recodefile;
 
     if( find_section(b,"DATA_FILES") != OK ) return MISSING_DATA;
     fread( &i, sizeof(i), 1, b->f );
@@ -122,8 +126,9 @@ int reload_filenames( BINARY_FILE *b )
         fread( &errfct, sizeof(errfct), 1, b->f );
         name = reload_string( b->f );
         subtype = reload_string( b->f );
+        recodefile = reload_string( b->f );
 
-        add_data_file_nocopy( name, fmt, subtype, errfct );
+        add_data_file_nocopy( name, fmt, subtype, errfct, recodefile );
     }
     return check_end_section( b );
 }

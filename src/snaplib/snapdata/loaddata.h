@@ -84,6 +84,13 @@ void init_load_data( void (*usedata_func)( survdata *sd ),
                      double (*calcfunc)( int type, long id1, long id2 ));
 void term_load_data( void );
 
+
+/* Station recode function */
+
+void set_stn_recode_func( 
+        const char *(*recode)( void *recodedata, const char *code, double date ), 
+        void *recodedata);
+
 /* The following routine can be called to enable handling of GPS covariances.
    Otherwise the request for a covariance array (ldt_covariance)
    returns NULL, and input covariance information should be ignored */

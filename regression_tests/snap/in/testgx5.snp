@@ -8,14 +8,15 @@ mode 3d adjustment
 list command_file
 list file_summary
 list problem_definition
+list input_data
 list observation_equations
+list normal_equations
 list solution_summary
 list station_coordinates
-list floated_stations
 list reference_frames
 list parameters
 list residuals
 list error_summary
 list worst_residuals
 
-! ignore 1
+ignore 2

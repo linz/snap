@@ -69,6 +69,8 @@
 #include "testspec.h"
 
 #define CONFIG_CMD CFG_USERFLAG1
+#define CONSTRAINT_CMD CFG_USERFLAG2
+
 #define COMMENT_CHAR '!'
 
 #define DTP_VELOCITY 1
@@ -137,14 +139,14 @@ static config_item snap_commands[] =
     {"topocentre",NULL,ABSOLUTE,0,read_topocentre,CFG_ONEONLY,0},
     {"data_file",NULL,ABSOLUTE,0,load_data_file,CFG_REQUIRED,0},
     {"geoid",NULL,ABSOLUTE,0,read_geoid_option,CONFIG_CMD,0},
-    {"fix",NULL,ABSOLUTE,0,process_station_list,0,FIX_STATIONS},
-    {"free",NULL,ABSOLUTE,0,process_station_list,0,FREE_STATIONS},
-    {"float",NULL,ABSOLUTE,0,process_station_list,0,FLOAT_STATIONS},
+    {"fix",NULL,ABSOLUTE,0,process_station_list,CONSTRAINT_CMD,FIX_STATIONS},
+    {"free",NULL,ABSOLUTE,0,process_station_list,CONSTRAINT_CMD,FREE_STATIONS},
+    {"float",NULL,ABSOLUTE,0,process_station_list,CONSTRAINT_CMD,FLOAT_STATIONS},
     {"ignore",NULL,ABSOLUTE,0,process_station_list,0,IGNORE_STATIONS},
     {"reject",NULL,ABSOLUTE,0,process_station_list,0,REJECT_STATIONS},
     {"accept",NULL,ABSOLUTE,0,process_station_list,0,ACCEPT_STATIONS},
-    {"horizontal_float_error",&dflt_herr,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
-    {"vertical_float_error",&dflt_verr,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
+    {"horizontal_float_error",&dflt_herr,ABSOLUTE,0,readcfg_double,CONFIG_CMD | CONSTRAINT_CMD,0},
+    {"vertical_float_error",&dflt_verr,ABSOLUTE,0,readcfg_double,CONFIG_CMD | CONSTRAINT_CMD,0},
     {"ignore_missing_stations",NULL,ABSOLUTE,0,read_ignore_missing_stations,CONFIG_CMD,0},
     {"recode",NULL,ABSOLUTE,0,read_recode,0,0},
     {"max_iterations",&max_iterations,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
@@ -214,6 +216,7 @@ int read_command_file( char *command_file )
     if(cfg)
     {
         set_config_read_options( cfg, CFG_CHECK_MISSING );
+        set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
         sts = sts ? INVALID_DATA : OK;
@@ -225,6 +228,28 @@ int read_command_file( char *command_file )
 
     set_default_refcoef( dflt_rc );
 
+    return sts;
+}
+
+int read_command_file_constraints( char *command_file )
+{
+    CFG_FILE *cfg;
+
+    int sts;
+
+    cfg = open_config_file( command_file, COMMENT_CHAR );
+    if(cfg)
+    {
+        set_config_read_options( cfg, CFG_IGNORE_BAD );
+        set_config_command_flag( cfg, CONSTRAINT_CMD );
+        sts = read_config_file( cfg, snap_commands );
+        close_config_file( cfg );
+        sts = sts ? INVALID_DATA : OK;
+    }
+    else
+    {
+        sts = FILE_OPEN_ERROR;
+    }
     return sts;
 }
 
@@ -555,7 +580,7 @@ static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int c
                           "Stations cannot be recoded before the station file is loaded");
         return OK;
     }
-    if( ! stnrecode ) stnrecode=create_stn_recode_map( net, 0, 0 );
+    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
     if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
     {
         send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
@@ -1451,7 +1476,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
         if( _stricmp(item,"type") == 0 )
         {
             ignore_deformation = 1;
-            if( _stricmp(value,"velocity") == 0 || _stricmp(value,"velgrid"))
+            if( _stricmp(value,"velocity") == 0 || _stricmp(value,"velgrid") == 0 )
             {
                 type = DTP_VELOCITY;
             }

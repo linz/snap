@@ -122,6 +122,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
 {
     char *fname, *format, errmess[80];
     char *options = 0;
+    char *recode = 0;
     int ftype;
     double factor;
 
@@ -146,11 +147,9 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
         {
             ftype = GB_FORMAT;
         }
-        else if ( _stricmp(format,"CSV") == 0 )
+        else if ( _stricmp(format,"RECODE") == 0 )
         {
-            ftype = CSV_FORMAT;
-            options = strtok(NULL,"");
-            break;
+            recode = strtok(NULL," ");
         }
         else if ( _stricmp(format,"ERROR_FACTOR") == 0 )
         {
@@ -161,6 +160,12 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
                 return OK;
             }
         }
+        else if ( _stricmp(format,"CSV") == 0 )
+        {
+            ftype = CSV_FORMAT;
+            options = strtok(NULL,"");
+            break;
+        }
         else
         {
             sprintf(errmess,"Invalid format %.20s specified for data file",format);
@@ -169,7 +174,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
         }
     }
 
-    add_data_file( fname, ftype, options, factor );
+    add_data_file( fname, ftype, options, factor, recode );
 
     return OK;
 }

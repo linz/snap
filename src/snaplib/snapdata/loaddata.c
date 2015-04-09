@@ -87,6 +87,12 @@ static ltmat calccvr = NULL;
 static ltmat rescvr = NULL;
 static int cvrdim = 0;
 
+static char *saved_codes=NULL;
+static int saved_codes_len=0;
+static int next_saved_id=1;
+#define SAVED_CODES_LEN_INC 2048
+#define GET_REAL_STATION_ID 42
+
 /* The function to call when data has been read */
 
 void (*usedata_func)( survdata *sd );
@@ -97,6 +103,11 @@ void (*usedata_func)( survdata *sd );
 long (*id_func)( int type, int group_id, const char *code );
 const char * (*code_func)( int type, int group_id, long id );
 double (*calc_func)( int type, long id1, long id2 );
+
+/* A function for recoding station codes read from data files */
+
+static const char *(*recode_func)( void *recodedata, const char *code, double date ) = 0;
+static void *recode_data=0; 
 
 /* The function for computing gps covariances is handled with a function
    pointer to avoid linking in the associated code when we are not
@@ -171,6 +182,40 @@ static int get_coef_id( int coeftype, int idname )
     return idcoef;
 }
 
+static long save_code( const char *code )
+{
+    int len=strlen(code)+1;
+    int sclen = saved_codes_len;
+    long id=next_saved_id;
+    while( len + next_saved_id >= sclen ) sclen=sclen+SAVED_CODES_LEN_INC;
+    if( sclen != saved_codes_len )
+    {
+        saved_codes=(char *) check_realloc(saved_codes,sclen);
+        saved_codes_len=sclen;
+    }
+    strcpy( saved_codes + next_saved_id, code );
+    next_saved_id += len;
+    return id;
+}
+
+static const char *saved_code( long id )
+{
+    return saved_codes+id;
+}
+
+static void reset_saved_codes()
+{
+    next_saved_id=1;
+}
+
+static void clear_saved_codes()
+{ 
+    check_free( saved_codes );
+    saved_codes=0;
+    saved_codes_len=0;
+    next_saved_id=1;
+}
+
 static void report_error( const char *location )
 {
     char msg[100];
@@ -178,6 +223,17 @@ static void report_error( const char *location )
     sprintf(msg,"Internal programming error in call to %s",location);
     handle_error( INTERNAL_ERROR, msg, "In module loaddata.c");
     return;
+}
+
+static int recoded_id( int id )
+{
+    const char * src;
+    const char * tgt;
+    if( id  <= 0 ) return id;
+    src=saved_code(id);
+    tgt=(*recode_func)(recode_data,src,data.date);
+    if( ! tgt ) tgt = src;
+    return ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt );
 }
 
 void init_load_data( void (*usedata)( survdata *sd ),
@@ -210,6 +266,7 @@ void term_load_data( void )
     if( datablock ) check_free( datablock );
     if( classblock ) check_free( classblock );
     if( syserrblock ) check_free( syserrblock );
+    clear_saved_codes();
 
     cvrdim = 0;
     cvr = NULL;
@@ -221,6 +278,16 @@ void term_load_data( void )
     datasize = 0;
     classblocksize = 0;
     syserrblocksize = 0;
+}
+
+
+void set_stn_recode_func( 
+        const char *(*recode)( void *recodedata, const char *code, double date ), 
+        void *recodedata)
+{
+    DEBUG_PRINT(("LDT: set_stn_recode_func"));
+    recode_func = recode;
+    recode_data = recodedata;
 }
 
 void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
@@ -256,7 +323,6 @@ static void setup_data_format( int format )
 
 static void check_data( void )
 {
-    if( inst_cancelled || data_cancelled ) return;
 
     if( !gotval || !goterr)
     {
@@ -516,14 +582,23 @@ static classdata *getclassdata( void )
     return classblock + idx;
 }
 
-
 long ldt_get_id( int type, int group_id, const char *code )
 {
+    if( type == ID_STATION && recode_func )
+    {
+        if( group_id != GET_REAL_STATION_ID ) return save_code( code );
+        group_id=0;
+    }
     return (*id_func)( type, group_id, code );
 }
 
 const char *ldt_get_code( int type, int group_id, long id )
 {
+    if( type == ID_STATION && recode_func )
+    {
+        if( group_id != GET_REAL_STATION_ID ) return saved_code( id );
+        group_id=0;
+    }
     return (*code_func)( type, group_id, id );
 }
 
@@ -596,7 +671,6 @@ void ldt_inststn( int stn_id, double ihgt )
     ndata_cancelled = 0;
 }
 
-
 void ldt_tgtstn( int stn_id, double ihgt  )
 {
     DEBUG_PRINT(("LDT: ldt_tgtstn %d %.3lf", (int) stn_id, ihgt ));
@@ -605,7 +679,6 @@ void ldt_tgtstn( int stn_id, double ihgt  )
     trgt_cancelled = stn_id < 0 ? 1 : 0;
     trgt_init_nobs = data.nobs;
 }
-
 
 
 void ldt_nextdata( int type )
@@ -872,10 +945,14 @@ static void remove_ignored_obs()
         {
             trgtdata *t;
             t = get_trgtdata( sd, i );
-            if( t->unused & IGNORE_OBS_BIT ) continue;
             ir0 = i*cvrperobs;
-            if( ir0 == itgt ) continue;
             ir1 = ir0+cvrperobs;
+            if( t->unused & IGNORE_OBS_BIT ) continue;
+            if( ir0 == itgt )
+            {
+                itgt=ir1;
+                continue;
+            }
             for( ir = ir0; ir < ir1; ir++, itgt++ )
             {
                 njr = cvrperobs;
@@ -918,7 +995,7 @@ static void remove_ignored_obs()
     {
         trgtdata *tgt=get_trgtdata(&data,i);
         if( tgt->unused & IGNORE_OBS_BIT ) continue;
-        if( i == nused ) continue;
+        if( i == nused) { nused++; continue; }
         if( tgt->nclass > 0 )
         {
             int nc=tgt->nclass;
@@ -931,7 +1008,7 @@ static void remove_ignored_obs()
         {
             int ns=tgt->nsyserr;
             int isyserr0=tgt->isyserr;
-            memcpy( &(data.clsf[isyserr]),&(data.clsf[isyserr0]),(sizeof(syserrdata))*ns);
+            memcpy( &(data.syserr[isyserr]),&(data.syserr[isyserr0]),(sizeof(syserrdata))*ns);
             tgt->isyserr=isyserr;
             isyserr += ns;
         }
@@ -942,9 +1019,48 @@ static void remove_ignored_obs()
     data.nobs=nused;
 }
 
+static void recode_stations()
+{
+    int i;
+    int lastid, lastrecoded;
+    if( ! recode_func ) return;
+    if( data.from )
+    {
+        data.from=recoded_id( data.from );
+        if( data.from < 0 ) inst_cancelled=1;
+        return;
+    }
+    lastid=0;
+    lastrecoded=0;
+    for( i=0; i < data.nobs; i++ )
+    {
+        trgtdata *tgt=get_trgtdata(&data,i);
+        if( ! tgt->to ) continue;
+        if( tgt->to == lastid )
+        {
+            tgt->to=lastrecoded;
+        }
+        else
+        {
+            lastid=tgt->to;
+            lastrecoded=tgt->to=recoded_id( tgt->to );
+        }
+        if( lastrecoded < 0 ) 
+        {
+            ndata_cancelled++;
+            tgt->unused |= IGNORE_OBS_BIT;
+        }
+        tgt->to=recoded_id( tgt->to );
+    }
+}
+
 void ldt_end_data( void )
 {
     DEBUG_PRINT(("LDT: ldt_end_data"));
+    if( recode_func && ! inst_cancelled )
+    {
+        recode_stations();
+    }
     if( data.nobs > ndata_cancelled && !inst_cancelled )
     {
         check_data();
@@ -960,12 +1076,6 @@ void ldt_end_data( void )
 
         case SD_VECDATA:
             data.obs.vdata = (vecdata *) datablock;
-            if( data.cvr )
-            {
-                (*gpscvr_func)( &data, cvrtype, cvr_mmerr );
-                clear_cvr( data.nobs * 3, data.calccvr );
-                clear_cvr( data.nobs * 3, data.rescvr );
-            }
             break;
 
         case SD_PNTDATA:
@@ -984,9 +1094,22 @@ void ldt_end_data( void )
         }
 
         if( ndata_cancelled ) remove_ignored_obs();
+
+        if( data.format == SD_VECDATA )
+        {
+            if( data.cvr )
+            {
+                (*gpscvr_func)( &data, cvrtype, cvr_mmerr );
+                clear_cvr( data.nobs * 3, data.calccvr );
+                clear_cvr( data.nobs * 3, data.rescvr );
+            }
+        }
+
         if( usedata_func ) (*usedata_func)( &data );
     }
+
     data.nobs = 0;
     ndata_cancelled=0;
+    reset_saved_codes();
 }
 

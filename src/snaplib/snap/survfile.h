@@ -27,6 +27,7 @@ typedef struct
     int format;
     char *subtype;
     double errfct;
+    char *recodefile;
     double mindate;
     double maxdate;
     long nnodate;
@@ -34,7 +35,7 @@ typedef struct
     unsigned char usage;
 } survey_data_file;
 
-int  add_data_file( char *name, int format, char *subtype, double errfct );
+int  add_data_file( char *name, int format, char *subtype, double errfct, char *recode );
 survey_data_file *survey_data_file_ptr( int ifile );
 char *survey_data_file_name( int ifile );
 int survey_data_file_id( char *name );

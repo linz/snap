@@ -1825,8 +1825,7 @@ static int read_vector_error( snapfile_def *sd )
 
 static void validate_vector_error( snapfile_def *sd )
 {
-    if( !ldt_data_cancelled() && sd->currvecerr )
-        sd->currvecerr->nvecobs = ++sd->nvecgood;
+    if( sd->currvecerr ) sd->currvecerr->nvecobs = ++sd->nvecgood;
 }
 
 
