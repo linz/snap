@@ -74,6 +74,12 @@ static int *order1, *order2;
 
 /* Routines to maintain the list of connections */
 
+static void init_connection( connections *conn )
+{
+        conn->count = conn->maxcount = 0;
+        conn->list = NULL;
+}
+
 int init_connections( int nnodes )
 {
     int i;
@@ -81,30 +87,29 @@ int init_connections( int nnodes )
     if( !save_connections ) return 0;
 
     connlst = (connections *) check_malloc( (nnodes+1) * sizeof(connections) );
-    order1 = (int *) check_malloc( (nnodes+1)*2*sizeof(int) );
-    order2 = order1 + nnodes + 1;
     for( i = 0; i++ < nnodes; )
     {
-        connlst[i].count = connlst[i].maxcount = 0;
-        connlst[i].list = NULL;
-        order1[i] = 0;
-        order2[i] = 0;
+        init_connection( connlst+i);
     }
     maxconnlst = nconnlst = lastnode = nnodes;
 
     return 1;
 }
 
-static int grow_connection_list( int nnodes )
+static void grow_connection_list( int nnodes )
 {
     int maxconn0=maxconnlst;
     while( nnodes > maxconnlst ) maxconnlst += CONNLIST_INC;
     if( maxconnlst > maxconn0 )
     {
+        int i;
         connlst = (connections *) check_realloc( connlst, (maxconnlst+1) * sizeof(connections) );
+        for( i=maxconn0+1; i<=maxconnlst; i++ )
+        {
+            init_connection(connlst+i);
+        }
     }
 }
-
 
 void term_connections( void )
 {
@@ -118,6 +123,16 @@ void term_connections( void )
     check_free( order1 );
     connlst = NULL;
     nconnlst = 0;
+}
+
+void create_order_arrays( void )
+{
+    int i;
+    if( order1 ) check_free(order1);
+    if( order2 ) check_free(order2);
+    order1 = (int *) check_malloc( (nconnlst+1)*2*sizeof(int) );
+    order2 = order1 + nconnlst + 1;
+    for( int i=0; i<=nconnlst;i++){ order1[i]=0; order2[i]=0; }
 }
 
 
@@ -155,9 +170,11 @@ static void add_station_connection( int stn, connections *conn )
 void add_connection( int stn1, int stn2 )
 {
     if( connlst == NULL ) return;
-    if( stn1 > maxconnlst || stn2 > maxconnlst )
+    if( stn1 > nconnlst || stn2 > nconnlst )
     {
-        grow_connection_list( stn1 > stn2 ? stn1 : stn2 );
+        int maxstn=stn1 > stn2 ? stn1 : stn2;
+        lastnode=nconnlst=maxstn;
+        if( maxstn > maxconnlst ) grow_connection_list( maxstn );
     }
     add_station_connection( stn1, connlst+stn2 );
     add_station_connection( stn2, connlst+stn1 );
@@ -607,6 +624,7 @@ int setup_parameters( void )
 
         xprintf("\nReordering the stations\n");
 
+        create_order_arrays();
         exclude_stations();   /* for unobserved stations */
         order_nodes();
         set_row_numbers( nrowst );

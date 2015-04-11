@@ -125,6 +125,8 @@
     <ClCompile Include="..\..\..\src\snaplib\snapdata\gpscvr.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\loaddata.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\snapcsvobs.cpp" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecode.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecodefile.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snap\snapcsvstn.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\snapdata.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\survdata.c" />
@@ -163,6 +165,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\linklist.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\lsobseq.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\optionstring.cpp" />
+    <ClCompile Include="..\..\..\src\snaplib\util\polygon.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\probfunc.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\progress.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\readcfg.c" />

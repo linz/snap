@@ -406,6 +406,15 @@
     <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.c">
       <Filter>Source Files\network</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\polygon.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecode.c">
+      <Filter>Source Files\snapdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecodefile.cpp">
+      <Filter>Source Files\snapdata</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">
