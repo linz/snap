@@ -1,0 +1,17 @@
+title Regression test - station recoding rejecting with multiple types
+
+coordinate_file test1.crd
+data_file testsr4.dat
+
+mode 3d data_check
+
+list command_file
+list file_summary
+list input_data
+list problem_definition
+list residuals
+
+recode 2 to *
+recode 3 to 3B
+
+

@@ -3,12 +3,17 @@ title Test data set testdef3 - LINZ deformation model format
 
 coordinate_file testdef3.crd
 data_file testdef3.dat
+data_file testdef3xyz.dat
 
 mode 3d adjustment
 convergence_tolerance 0.001
 max_iterations 5
 
 output_precision lt 5 ln 5
+
+list observation_deformation
+
+add_residual_column all date
 
 deformation type=linz model=cmn_test_linzdef.ldm epoch=2000.0
 

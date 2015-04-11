@@ -1,0 +1,32 @@
+title Regression test 1b - float stations
+
+coordinate_file test1.crd
+data_file test1.dat
+
+mode 3d adjustment
+
+float horizontal 2 3
+horizontal_float_error 0.5 
+float vertical 3 4
+vertical_float_error 0.02
+float 5
+
+list command_file
+list file_summary
+list input_data
+list problem_definition
+list observation_equations
+list solution_summary
+list station_coordinates
+list floated_stations
+list reference_frames
+list parameters
+list residuals
+list error_summary
+list worst_residuals
+
+! error_type aposteriori
+
+refraction_coefficient DEFAULT 0.0
+
+add_residual_column all  S Id:4 S c=class:4 S c=equpt:3

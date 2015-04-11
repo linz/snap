@@ -1,0 +1,291 @@
+================================================================================
+
+                          PROGRAM SNAP  Version 2.5.20
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Apr 11 2015 20:25:43
+
+================================================================================
+                          Run at 12-APR-2015 08:24:06
+
+
+
+Program options read from testdef2.snp
+
+Job: Test data set testdef2 - deformation with different data types
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testdef2.crd
+       4 stations read
+
+Data file 1: testdef2.dat
+    Observations between 2000-01-01 00:00:00 and 3000-01-01 00:00:00
+       4 slope distances
+       4 horizontal distances
+       4 ellipsoidal distances
+       6 horizontal angles
+       4 azimuths
+       4 projection bearings
+       4 zenith distances
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              30
+Number of parameters:                 0
+Number of implicit parameters:        2
+
+Degrees of freedom:                  28
+Sum of squared residuals:         40269.08861
+Standard error of unit weight:       37.92337
+
+The probability of an SSR this high is 0.000% (from Chi squared (28))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are orthometric heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ N1     40 00 00.000000 S      -         -          Node N1
+       177 00 00.000000 E      -         -
+               0.0000          -         -
+
+ N2     39 00 00.000000 S      -         -          Node N2
+       179 24 00.000000 E      -         -
+               0.0000          -         -
+
+ N3     39 30 00.000000 S      -         -          Node N3
+       175 30 00.000000 E      -         -
+               0.0000          -         -
+
+ N4     37 00 00.000000 S      -         -          Node N4
+       175 30 00.000000 E      -         -
+               0.0000          -         -
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                                OTHER PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Parameter                          value         +/-
+
+Refr coef DEFAULT                    0.07500       -     
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   SD  slope distances
+   HD  horizontal distances
+   ED  ellipsoidal distances
+   HA  horizontal angles
+   AZ  azimuths
+   PB  projection bearings
+   ZD  zenith distances
+Note: Calculated values for slope distances include equipment heights
+      Calculated values for zenith distances include equipment heights
+
+From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File testdef2.dat: line 12
+
+N1    N2    HA    62 29 42.0    2.0  62 29 42.0    1.2     0.0    1.6   0.00     
+      N3    HA   292 52 30.1    2.0 292 52 30.1    1.2    -0.0    1.6   0.00     
+      N4    HA   338 04 42.5    2.0 338 04 42.5    1.2     0.0    1.6   0.00     
+
+N1    N2    AZ    62 29 42.0    4.0  62 29 42.0    0.0     0.0    4.0   0.00     
+
+N1    N3    AZ   292 52 30.1    4.0 292 52 30.1    0.0    -0.0    4.0   0.00     
+
+N1    N2    SD   234378.6725 0.2344 234378.6725 0.0000  0.0000 0.2344   0.00     
+
+N1    N3    SD   140031.7777 0.1400 140031.7777 0.0000 -0.0000 0.1400   0.00     
+
+N1    N2    ED   234391.8474 0.7032 234391.8467 0.0000  0.0007 0.7032   0.00     
+
+N1    N3    ED   140034.5858 0.4202 140034.5857 0.0000  0.0001 0.4202   0.00     
+
+N1    N2    HD   234378.6725 0.4688 234378.6725 0.0000  0.0000 0.4688   0.00     
+
+N1    N3    HD   140031.7777 0.2801 140031.7777 0.0000 -0.0000 0.2801   0.00     
+
+N1    N2    ZD    91 03 08.1    5.0  90 53 39.9    0.0   568.1    5.0 113.61  ???
+
+File testdef2.dat: line 34
+
+N1    N3    ZD    90 37 42.5    5.0  90 32 03.1    0.0   339.4    5.0  67.87  ???
+
+N1    N2    PB    65 02 41.0    3.0  65 02 41.0    0.0    -0.0    3.0   0.00     
+
+N1    N3    PB   295 27 12.8    3.0 295 27 12.8    0.0     0.0    3.0   0.00     
+
+N1    N2    HA    62 29 25.7    2.0  62 29 48.5    1.2   -22.8    1.6  13.97  ???
+      N3    HA   292 52 54.1    2.0 292 52 36.6    1.2    17.5    1.6  10.70  ???
+      N4    HA   338 04 54.3    2.0 338 04 48.9    1.2     5.3    1.6   3.27  ???
+
+N1    N2    AZ    62 29 25.7    4.0  62 29 42.0    0.0   -16.3    4.0   4.09  ???
+
+N1    N3    AZ   292 52 54.1    4.0 292 52 30.1    0.0    24.0    4.0   5.99  ???
+
+N1    N2    SD   234364.6389 0.2344 234378.6725 0.0000 -14.0336 0.2344  59.87  ???
+
+N1    N3    SD   140031.3127 0.1400 140031.7777 0.0000 -0.4650 0.1400   3.32  ???
+
+N1    N2    ED   234377.8115 0.7032 234391.8467 0.0000 -14.0352 0.7032  19.96  ???
+
+N1    N3    ED   140034.1207 0.4202 140034.5857 0.0000 -0.4650 0.4202   1.11     
+
+File testdef2.dat: line 64
+
+N1    N2    HD   234364.6389 0.4687 234378.6725 0.0000 -14.0336 0.4687  29.94  ???
+
+N1    N3    HD   140031.3127 0.2801 140031.7777 0.0000 -0.4650 0.2801   1.66     
+
+N1    N2    ZD    91 03 07.8    5.0  90 53 39.9    0.0   567.9    5.0 113.56  ???
+
+N1    N3    ZD    90 37 42.5    5.0  90 32 03.1    0.0   339.3    5.0  67.86  ???
+
+N1    N2    PB    65 02 24.4    3.0  65 02 41.0    0.0   -16.6    3.0   5.54  ???
+
+N1    N3    PB   295 27 36.5    3.0 295 27 12.8    0.0    23.7    3.0   7.90  ???
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+slope distance                             29.98    4     -      -   29.98    4
+
+horizontal distance                        14.99    4     -      -   14.99    4
+
+ellipsoidal distance                        9.99    4     -      -    9.99    4
+
+horizontal angle                            7.31    6     -      -    7.31    6
+
+azimuth                                     3.63    4     -      -    3.63    4
+
+projection bearing                          4.82    4     -      -    4.82    4
+
+zenith distance                            93.56    4     -      -   93.56    4
+
+
+
+================================================================================
+Test data set testdef2 - deformation with different data types   12-APR-2015 08:24:06
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 30 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:  15    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:  15    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 10 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+N1     N2      ZD   113.611  100.000 ???     33  testdef2.dat
+
+N1     N2      ZD   113.565  100.000 ???     68  testdef2.dat
+
+N1     N3      ZD    67.865  100.000 ???     34  testdef2.dat
+
+N1     N3      ZD    67.863  100.000 ???     69  testdef2.dat
+
+N1     N2      SD    59.870  100.000 ???     56  testdef2.dat
+
+N1     N2      HD    29.942  100.000 ???     64  testdef2.dat
+
+N1     N2      ED    19.959  100.000 ???     60  testdef2.dat
+
+N1     N2      HA    13.971  100.000 ???     47  testdef2.dat
+
+N1     N3      HA    10.698  100.000 ???     48  testdef2.dat
+
+N1     N3      PB     7.898  100.000 ???     73  testdef2.dat

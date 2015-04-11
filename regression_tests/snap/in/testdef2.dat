@@ -33,7 +33,7 @@ N1 N3 140031.7777 0.2801
 N1 N2 91 03 08.05  5.0004
 N1 N3 90 37 42.50  5.0004
 
-#projection NZMGTM1949
+#projection NZMG
 
 #data no_heights PB error
 N1 N2 65 02 40.99  2.9988

@@ -1,0 +1,17 @@
+Test station lists
+
+#date 1 may 2000
+
+#lt_error 1 sec
+#ln_error 1 sec
+
+#data LT no_heights
+
+PINTOFALE  41 00 55.715881 S
+PEGRID     41 00 31.174026 S
+QQ         41 00 53.362162 S
+C_101      41 00 24.477565 S
+D          41 00 47.893884 S
+
+#date 1 may 2006
+QQ         41 00 53.362162 S
