@@ -15,7 +15,7 @@
 
 Program options read from testdef1.snp
 
-Job: Test data set testdef1
+Job: Test data set testdef1 - velocity deformation model
 
 
 Solution type: 3d coordinate adjustment
@@ -25,11 +25,13 @@ Coordinates file testdef1.crd
        3 stations read
 
 Data file 1: testdef1.dat
+    Observations between 2000-01-01 00:00:00 and 3000-01-01 00:00:00
        4 slope distances
 
-
+
+
 ================================================================================
-Test data set testdef1                                      
+Test data set testdef1 - velocity deformation model         
 
                                ITERATION_SUMMARY
 
@@ -51,9 +53,10 @@ Deformation at N2   , 3000.00 (-31.7656,31.3000, 0.0000)  Node N2
 Deformation at N1   , 3000.00 (-9.7625,21.8937, 0.0000)  Node N1
 Deformation at N3   , 3000.00 (-2.4680,36.5805, 0.0000)  Node N3
 
-
+
+
 ================================================================================
-Test data set testdef1                                      
+Test data set testdef1 - velocity deformation model         
 
                                 SOLUTION SUMMARY
 
@@ -73,9 +76,10 @@ The probability of an SSR this low is 0.000% (from Chi squared (4))
 
 You may have over-estimated the errors of the data.
 
-
+
+
 ================================================================================
-Test data set testdef1                                      
+Test data set testdef1 - velocity deformation model         
 
                               STATION COORDINATES
 
@@ -115,9 +119,10 @@ Rejected stations are flagged #
        175 30 00.000000 E      -         -
                0.0000          -         -
 
-
+
+
 ================================================================================
-Test data set testdef1                                      
+Test data set testdef1 - velocity deformation model         
 
                              OBSERVATION RESIDUALS
 
@@ -149,9 +154,10 @@ N1    N2    SD   234364.6389 0.2344 234364.6382 0.0000  0.0007 0.2344   0.00    
 
 N1    N3    SD   140031.3127 0.1400 140031.3118 0.0000  0.0009 0.1400   0.01       1/01/3000
 
-
+
+
 ================================================================================
-Test data set testdef1                                      
+Test data set testdef1 - velocity deformation model         
 
                                  ERROR SUMMARY
 
@@ -167,9 +173,10 @@ Classification                               Used        Unused       Total
 
 slope distance                              0.00    4     -      -    0.00    4
 
-
+
+
 ================================================================================
-Test data set testdef1                                      
+Test data set testdef1 - velocity deformation model         
 
                            MOST SIGNIFICANT RESIDUALS
 

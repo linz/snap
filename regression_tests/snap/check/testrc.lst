@@ -25,11 +25,13 @@ Coordinates file testrc.crd
        6 stations read
 
 Data file 1: testrc.dat
+      19 observations do not have a date
        5 ellipsoidal distances
        6 projection bearings
        8 zenith distances
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -108,7 +110,8 @@ Fil/Lin  From  Height To    Height Type   Value      Error
      projection = WELLTM1949
 
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -143,7 +146,8 @@ Refr coef TEST
 Scale error EDM_K
 Scale error EDM_K1
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -157,7 +161,8 @@ Iteration 1: Maximum change is 0.1045 metres at station 3
 Iteration 2: Maximum change is 0.0000 metres at station 3
              0 station adjustments exceed convergence criteria
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -181,7 +186,8 @@ You may have under-estimated the errors of the data,
 or there may be gross errors in the data
 or the fixed stations may be incorrectly positioned
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -226,7 +232,8 @@ Rejected stations are flagged #
        173 19 58.800000 E      -         -
               69.8955        -0.1045    0.0198
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -262,7 +269,8 @@ Scale error EDM_T                    0.00000       -
 
 Scale error TEST_EDM                 5.00000       -     
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -330,7 +338,8 @@ File testrc.dat: line 30
 
 1     2     PB    40 33 00.0   10.0  40 33 00.0   10.0    -0.0    0.0    -   @   
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -352,7 +361,8 @@ projection bearing                          1.24    5     -      -    1.24    5
 
 zenith distance                             2.83    8     -      -    2.83    8
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 

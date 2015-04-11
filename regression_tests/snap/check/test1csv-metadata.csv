@@ -1,7 +1,7 @@
 "code","value","comment"
 "SNAPVER",,"SNAP version"
 "RUNTIME",,"Run time"
-"TITLE","Regression test 1 - data types and observation equations","Job title"
+"TITLE","Regression test 1csv - CSV format data/coords","Job title"
 "CRDSYS","NZGD1949","New Zealand Geodetic Datum 1949"
 "NOBS",127,"Number of observations"
 "NPRM",0,"Number of parameters"

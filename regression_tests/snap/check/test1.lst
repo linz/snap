@@ -44,7 +44,8 @@ The command file test1.snp contains:
      add_residual_column all  S Id:4 S c=class:4 S c=equpt:3
 
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -65,6 +66,8 @@ Coordinates file test1.crd
        5 stations read
 
 Data file 1: test1.dat
+    Observations between 2008-01-01 00:00:00 and 2009-12-23 00:00:00
+       6 observations do not have a date
       21 GPS baselines
       21 GPS point coords
        6 slope distances
@@ -83,6 +86,8 @@ Data file 1: test1.dat
        6 longitudes
 
 Data file 2: test1a.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       6 observations do not have a date
        2 slope distances
        2 horizontal distances
        2 ellipsoidal distances
@@ -96,7 +101,8 @@ Data file 2: test1a.dat
        2 latitudes
        2 longitudes
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -184,137 +190,137 @@ Fil/Lin  From  Height To    Height Type   Value      Error
 
  1:77    2     0.000               LT    41 00 25.20 S    0.30
 
- 1:104   1     2.300  2     1.500  HA*  141 28 15.8     20.0
+ 1:109   1     2.300  2     1.500  HA*  141 28 15.8     20.0
      class = A1
- 1:105                3     -1.500  HA   161 11 26.3     20.0
+ 1:110                3     -1.500  HA   161 11 26.3     20.0
      class = B
 
- 1:108   2     1.200  1     1.800  HA     1 27 59.3     20.0
+ 1:113   2     1.200  1     1.800  HA     1 27 59.3     20.0
      class = A1
- 1:109                3     1.800  HA   244 47 28.1     20.0
+ 1:114                3     1.800  HA   244 47 28.1     20.0
      class = C
 
- 1:112   2     1.300  1     0.200  HA   121 27 59.3     20.0
+ 1:117   2     1.300  1     0.200  HA   121 27 59.3     20.0
      class = D
- 1:113                3     3.000  HA     4 47 28.1     20.0
+ 1:118                3     3.000  HA     4 47 28.1     20.0
      class = E
 
- 1:117   1     1.500  2     1.500  AZ    41 28 15.8      4.0
+ 1:122   1     1.500  2     1.500  AZ    41 28 15.8      4.0
      class = X
 
- 1:118   1     2.500  3     1.500  AZ*   61 11 26.3      4.0
+ 1:123   1     2.500  3     1.500  AZ*   61 11 26.3      4.0
      class = XXXXXX
 
- 1:123   1     0.000  2     0.000  PB*   40 30 56.8      4.0
+ 1:128   1     0.000  2     0.000  PB*   40 30 56.8      4.0
      projection = WELLTM1949
- 1:123                             SD      894.9014   0.0022
+ 1:128                             SD      894.9014   0.0022
 
- 1:124   1     0.000  3     0.000  PB*   60 14 07.3      4.0
+ 1:129   1     0.000  3     0.000  PB*   60 14 07.3      4.0
      projection = WELLTM1949
- 1:124                             SD*    1154.9438   0.0023
+ 1:129                             SD*    1154.9438   0.0023
 
- 1:130   1     0.000  2     0.000  ED      889.2687   0.0103
+ 1:135   1     0.000  2     0.000  ED      889.2687   0.0103
      class = A
      equpt = EDM
 
- 1:131   1     0.000  3     0.000  ED     1152.1500   0.0106
+ 1:136   1     0.000  3     0.000  ED     1152.1500   0.0106
      class = B
      equpt = Tape
 
- 1:135   1     0.000  2     0.000  ZD    83 35 17.3      5.0   DEFAULT
+ 1:140   1     0.000  2     0.000  ZD    83 35 17.3      5.0   DEFAULT
      refraction_coef_code = Default
 
- 1:136   1     0.000  3     0.000  ZD    93 58 37.5      5.0   DEFAULT
+ 1:141   1     0.000  3     0.000  ZD    93 58 37.5      5.0   DEFAULT
      refraction_coef_code = Default
 
- 1:140   1     0.000  2     0.000  LV      100.0000   0.0100
+ 1:145   1     0.000  2     0.000  LV      100.0000   0.0100
 
- 1:141   1     0.000  3     0.000  LV      -80.0000   0.0300
+ 1:146   1     0.000  3     0.000  LV      -80.0000   0.0300
 
- 1:145   1     0.000               LN   173 19 15.60 E    0.20
+ 1:150   1     0.000               LN   173 19 15.60 E    0.20
      class = C
      equpt = Theodolite
 
- 1:146   2     0.000               LN*  173 19 40.80 E    0.30
+ 1:151   2     0.000               LN*  173 19 40.80 E    0.30
      class = E
      equpt = Compass
 
- 1:150   1     0.000               LT    41 00 46.80 S    0.20
+ 1:155   1     0.000               LT    41 00 46.80 S    0.20
      class = C
      equpt = Theodolite
 
- 1:151   2     0.000               LT*   41 00 25.20 S    0.30
+ 1:156   2     0.000               LT*   41 00 25.20 S    0.30
      class = E
      equpt = Astrolabe
 
- 1:160   1     2.300  2     1.500  HA*  141 28 15.8     18.0
+ 1:165   1     2.300  2     1.500  HA*  141 28 15.8     18.0
      class = A1
- 1:161                3     -1.500  HA   161 11 26.3     18.0
+ 1:166                3     -1.500  HA   161 11 26.3     18.0
      class = B
 
- 1:164   2     1.200  1     1.800  HA     1 27 59.3     18.0
+ 1:169   2     1.200  1     1.800  HA     1 27 59.3     18.0
      class = A1
- 1:165                3     1.800  HA   244 47 28.1     18.0
+ 1:170                3     1.800  HA   244 47 28.1     18.0
      class = C
 
- 1:168   2     1.300  1     0.200  HA   121 27 59.3     18.0
+ 1:173   2     1.300  1     0.200  HA   121 27 59.3     18.0
      class = D
- 1:169                3     3.000  HA     4 47 28.1     18.0
+ 1:174                3     3.000  HA     4 47 28.1     18.0
      class = E
 
- 1:173   1     1.500  2     1.500  AZ    41 28 15.8      0.4
+ 1:178   1     1.500  2     1.500  AZ    41 28 15.8      0.4
      class = X
 
- 1:174   1     2.500  3     1.500  AZ*   61 11 26.3      0.4
+ 1:179   1     2.500  3     1.500  AZ*   61 11 26.3      0.4
      class = XXXXXX
 
- 1:179   1     0.000  2     0.000  PB*   40 30 56.8      3.6
+ 1:184   1     0.000  2     0.000  PB*   40 30 56.8      3.6
      projection = WELLTM1949
- 1:179                             SD      894.9014   0.0022
+ 1:184                             SD      894.9014   0.0022
 
- 1:180   1     0.000  3     0.000  PB*   60 14 07.3      3.6
+ 1:185   1     0.000  3     0.000  PB*   60 14 07.3      3.6
      projection = WELLTM1949
- 1:180                             SD*    1154.9438   0.0023
+ 1:185                             SD*    1154.9438   0.0023
 
- 1:184   1     0.000               LN   173 19 15.60 E    0.72
+ 1:189   1     0.000               LN   173 19 15.60 E    0.72
      class = C
      equpt = Theodolite
 
- 1:185   2     0.000               LN*  173 19 40.80 E    1.08
+ 1:190   2     0.000               LN*  173 19 40.80 E    1.08
      class = E
      equpt = Compass
 
- 1:189   1     0.000               LT    41 00 46.80 S    0.72
+ 1:194   1     0.000               LT    41 00 46.80 S    0.72
      class = C
      equpt = Theodolite
 
- 1:190   2     0.000               LT*   41 00 25.20 S    1.08
+ 1:195   2     0.000               LT*   41 00 25.20 S    1.08
      class = E
      equpt = Astrolabe
 
- 1:194   1     0.000               OH         150.0000  2.0000
+ 1:199   1     0.000               OH         150.0000  2.0000
 
- 1:200   1     0.000               OH         152.0000  0.2000
+ 1:205   1     0.000               OH         152.0000  0.2000
 
- 1:205   1     0.000               EH         150.0000  2.0000
+ 1:210   1     0.000               EH         150.0000  2.0000
 
- 1:211   1     0.000               EH         152.0000  0.2000
+ 1:216   1     0.000               EH         152.0000  0.2000
 
- 1:218   1     0.000  2     0.000  GB     -577.7036      0.00067681   -0.00006751    0.00024590   GPS
+ 1:223   1     0.000  2     0.000  GB     -577.7036      0.00067681   -0.00006751    0.00024590   GPS
                                           -525.3081     -0.00006751    0.00010790   -0.00002878
                                            437.2267      0.00024590   -0.00002878    0.00061529
      ref_frame_code = GPS
 
- 1:223   1     0.000  3     0.000  GB*    -419.2468      0.00067681   -0.00006748    0.00024590   GPS
+ 1:228   1     0.000  3     0.000  GB*    -419.2468      0.00067681   -0.00006748    0.00024590   GPS
                                           -967.3587     -0.00006748    0.00010790   -0.00002877
                                            471.5165      0.00024590   -0.00002877    0.00061530
      ref_frame_code = GPS
 
- 1:231   1     0.000  2     0.000  GB     -577.7036     GPS
+ 1:236   1     0.000  2     0.000  GB     -577.7036     GPS
                                           -525.3081  
                                            437.2167  
      ref_frame_code = GPS
- 1:232                3     0.000  GB*    -419.2668  
+ 1:237                3     0.000  GB*    -419.2668  
                                           -967.3587  
                                            471.5165  
      ref_frame_code = GPS
@@ -332,21 +338,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00061530 
 
- 1:250   1     0.000  2     0.000  GB     -577.7036      0.00067681   -0.00006751    0.00024590   GPS
+ 1:255   1     0.000  2     0.000  GB     -577.7036      0.00067681   -0.00006751    0.00024590   GPS
                                           -525.3081     -0.00006751    0.00010790   -0.00002878
                                            437.2167      0.00024590   -0.00002878    0.00061529
      ref_frame_code = GPS
 
- 1:254   1     0.000  3     0.000  GB*    -419.2668      0.00067681   -0.00006748    0.00024590   GPS
+ 1:259   1     0.000  3     0.000  GB*    -419.2668      0.00067681   -0.00006748    0.00024590   GPS
                                           -967.3587     -0.00006748    0.00010789   -0.00002877
                                            471.5165      0.00024590   -0.00002877    0.00061530
      ref_frame_code = GPS
 
- 1:261   1     0.000  2     0.000  GB     -577.7036     GPS
+ 1:266   1     0.000  2     0.000  GB     -577.7036     GPS
                                           -525.3081  
                                            437.2167  
      ref_frame_code = GPS
- 1:262                3     0.000  GB*    -419.2668  
+ 1:267                3     0.000  GB*    -419.2668  
                                           -967.3587  
                                            471.5165  
      ref_frame_code = GPS
@@ -364,21 +370,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00061530 
 
- 1:277   1     0.000  2     0.000  GB     -577.7036      0.00067681    0.00000000    0.00000000   GPS
+ 1:282   1     0.000  2     0.000  GB     -577.7036      0.00067681    0.00000000    0.00000000   GPS
                                           -525.3081      0.00000000    0.00010790    0.00000000
                                            437.2167      0.00000000    0.00000000    0.00061529
      ref_frame_code = GPS
 
- 1:280   1     0.000  3     0.000  GB*    -419.2668      0.00067681    0.00000000    0.00000000   GPS
+ 1:285   1     0.000  3     0.000  GB*    -419.2668      0.00067681    0.00000000    0.00000000   GPS
                                           -967.3587      0.00000000    0.00010789    0.00000000
                                            471.5165      0.00000000    0.00000000    0.00061530
      ref_frame_code = GPS
 
- 1:285   1     0.000  2     0.000  GB     -577.7036     GPS
+ 1:290   1     0.000  2     0.000  GB     -577.7036     GPS
                                           -525.3081  
                                            437.2167  
      ref_frame_code = GPS
- 1:286                3     0.000  GB*    -419.2668  
+ 1:291                3     0.000  GB*    -419.2668  
                                           -967.3587  
                                            471.5165  
      ref_frame_code = GPS
@@ -396,21 +402,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00061530 
 
- 1:295   1     0.000  2     0.000  GB     -577.7036      0.00040060    0.00003233    0.00024954   GPS
+ 1:300   1     0.000  2     0.000  GB     -577.7036      0.00040060    0.00003233    0.00024954   GPS
                                           -525.3081      0.00003233    0.00067302   -0.00002921
                                            437.2167      0.00024954   -0.00002921    0.00032638
      ref_frame_code = GPS
 
- 1:298   1     0.000  3     0.000  GB*    -419.2668      0.00040059    0.00003232    0.00024954   GPS
+ 1:303   1     0.000  3     0.000  GB*    -419.2668      0.00040059    0.00003232    0.00024954   GPS
                                           -967.3587      0.00003232    0.00067303   -0.00002920
                                            471.5165      0.00024954   -0.00002920    0.00032638
      ref_frame_code = GPS
 
- 1:303   1     0.000  2     0.000  GB     -577.7036     GPS
+ 1:308   1     0.000  2     0.000  GB     -577.7036     GPS
                                           -525.3081  
                                            437.2167  
      ref_frame_code = GPS
- 1:304                3     0.000  GB*    -419.2668  
+ 1:309                3     0.000  GB*    -419.2668  
                                           -967.3587  
                                            471.5165  
      ref_frame_code = GPS
@@ -428,26 +434,26 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00032638 
 
- 1:310   1     0.000  2     0.000  GB     -577.7036      0.00650420   -0.00070506    0.00447930   GPS
+ 1:315   1     0.000  2     0.000  GB     -577.7036      0.00650420   -0.00070506    0.00447930   GPS
                                           -525.3081     -0.00070506    0.00056260   -0.00052426
                                            437.2167      0.00447930   -0.00052426    0.00532229
      ref_frame_code = GPS
 
- 1:312   1     0.000  2     0.000  GB     -577.7036      0.46690836   -0.04411317    0.19180252   GPS
+ 1:317   1     0.000  2     0.000  GB     -577.7036      0.46690836   -0.04411317    0.19180252   GPS
                                           -525.3081     -0.04411317    0.09516298   -0.02244847
                                            437.2167      0.19180252   -0.02244847    0.41792865
      ref_frame_code = GPS
 
- 1:314   1     0.000  3     0.000  GB*    -419.2668      0.00964064   -0.00106550    0.00693704   GPS
+ 1:319   1     0.000  3     0.000  GB*    -419.2668      0.00964064   -0.00106550    0.00693704   GPS
                                           -967.3587     -0.00106550    0.00065805   -0.00081160
                                            471.5165      0.00693704   -0.00081160    0.00780734
      ref_frame_code = GPS
 
- 1:318   1     0.000  2     0.000  GB     -577.7036     GPS
+ 1:323   1     0.000  2     0.000  GB     -577.7036     GPS
                                           -525.3081  
                                            437.2167  
      ref_frame_code = GPS
- 1:319                3     0.000  GB*    -419.2668  
+ 1:324                3     0.000  GB*    -419.2668  
                                           -967.3587  
                                            471.5165  
      ref_frame_code = GPS
@@ -465,21 +471,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00780734 
 
- 1:327   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
+ 1:332   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
                                         560595.5704     -0.00006751    0.00010790   -0.00002878
                                         -4163681.8023      0.00024590   -0.00002878    0.00061529
      ref_frame_code = GPS
 
- 1:332   2     0.000               GX   -4787842.2236      0.00067681   -0.00006748    0.00024590   GPS
+ 1:337   2     0.000               GX   -4787842.2236      0.00067681   -0.00006748    0.00024590   GPS
                                         560070.2623     -0.00006748    0.00010790   -0.00002877
                                         -4163244.5856      0.00024590   -0.00002877    0.00061530
      ref_frame_code = GPS
 
- 1:339   1     0.000               GX   -4787264.5200     GPS
+ 1:344   1     0.000               GX   -4787264.5200     GPS
                                         560595.5704  
                                         -4163681.8023  
      ref_frame_code = GPS
- 1:340   2     0.000               GX*  -4787842.2236  
+ 1:345   2     0.000               GX*  -4787842.2236  
                                         560070.2623  
                                         -4163244.5856  
      ref_frame_code = GPS
@@ -497,21 +503,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00061530 
 
- 1:355   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
+ 1:360   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
                                         560595.5704     -0.00006751    0.00010790   -0.00002878
                                         -4163681.8023      0.00024590   -0.00002878    0.00061529
      ref_frame_code = GPS
 
- 1:359   2     0.000               GX*  -4787842.2236      0.00067681   -0.00006748    0.00024590   GPS
+ 1:364   2     0.000               GX*  -4787842.2236      0.00067681   -0.00006748    0.00024590   GPS
                                         560070.2623     -0.00006748    0.00010789   -0.00002877
                                         -4163244.5856      0.00024590   -0.00002877    0.00061530
      ref_frame_code = GPS
 
- 1:365   1     0.000               GX   -4787264.5200     GPS
+ 1:370   1     0.000               GX   -4787264.5200     GPS
                                         560595.5704  
                                         -4163681.8023  
      ref_frame_code = GPS
- 1:366   2     0.000               GX*  -4787842.2236  
+ 1:371   2     0.000               GX*  -4787842.2236  
                                         560070.2623  
                                         -4163244.5856  
      ref_frame_code = GPS
@@ -529,21 +535,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00061530 
 
- 1:379   1     0.000               GX   -4787264.5200      0.00067681    0.00000000    0.00000000   GPS
+ 1:384   1     0.000               GX   -4787264.5200      0.00067681    0.00000000    0.00000000   GPS
                                         560595.5704      0.00000000    0.00010790    0.00000000
                                         -4163681.8023      0.00000000    0.00000000    0.00061529
      ref_frame_code = GPS
 
- 1:382   2     0.000               GX*  -4787842.2236      0.00067681    0.00000000    0.00000000   GPS
+ 1:387   2     0.000               GX*  -4787842.2236      0.00067681    0.00000000    0.00000000   GPS
                                         560070.2623      0.00000000    0.00010789    0.00000000
                                         -4163244.5856      0.00000000    0.00000000    0.00061530
      ref_frame_code = GPS
 
- 1:386   1     0.000               GX   -4787264.5200     GPS
+ 1:391   1     0.000               GX   -4787264.5200     GPS
                                         560595.5704  
                                         -4163681.8023  
      ref_frame_code = GPS
- 1:388   2     0.000               GX*  -4787842.2236  
+ 1:393   2     0.000               GX*  -4787842.2236  
                                         560070.2623  
                                         -4163244.5856  
      ref_frame_code = GPS
@@ -561,21 +567,21 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00061530 
 
- 1:395   1     0.000               GX   -4787264.5200      0.00040058    0.00003235    0.00024954   GPS
+ 1:400   1     0.000               GX   -4787264.5200      0.00040058    0.00003235    0.00024954   GPS
                                         560595.5704      0.00003235    0.00067302   -0.00002922
                                         -4163681.8023      0.00024954   -0.00002922    0.00032640
      ref_frame_code = GPS
 
- 1:398   2     0.000               GX*  -4787842.2236      0.00040062    0.00003231    0.00024954   GPS
+ 1:403   2     0.000               GX*  -4787842.2236      0.00040062    0.00003231    0.00024954   GPS
                                         560070.2623      0.00003231    0.00067303   -0.00002919
                                         -4163244.5856      0.00024954   -0.00002919    0.00032635
      ref_frame_code = GPS
 
- 1:402   1     0.000               GX   -4787264.5200     GPS
+ 1:407   1     0.000               GX   -4787264.5200     GPS
                                         560595.5704  
                                         -4163681.8023  
      ref_frame_code = GPS
- 1:404   2     0.000               GX*  -4787842.2236  
+ 1:409   2     0.000               GX*  -4787842.2236  
                                         560070.2623  
                                         -4163244.5856  
      ref_frame_code = GPS
@@ -593,26 +599,26 @@ Fil/Lin  From  Height To    Height Type   Value      Error
                   6 
      6   0.00032635 
 
- 1:412   1     0.000               GX   -4787264.5200      0.00963887   -0.00094136    0.00531149   GPS
+ 1:417   1     0.000               GX   -4787264.5200      0.00963887   -0.00094136    0.00531149   GPS
                                         560595.5704     -0.00094136    0.00171024   -0.00062198
                                         -4163681.8023      0.00531149   -0.00062198    0.00825089
      ref_frame_code = GPS
 
- 1:414   1     0.000               GX   -4787264.5200      0.46688302   -0.04413354    0.19180397   GPS
+ 1:419   1     0.000               GX   -4787264.5200      0.46688302   -0.04413354    0.19180397   GPS
                                         560595.5704     -0.04413354    0.09516810   -0.02246052
                                         -4163681.8023      0.19180397   -0.02246052    0.41794888
      ref_frame_code = GPS
 
- 1:416   2     0.000               GX*  -4787842.2236      0.00964021   -0.00094052    0.00531141   GPS
+ 1:421   2     0.000               GX*  -4787842.2236      0.00964021   -0.00094052    0.00531141   GPS
                                         560070.2623     -0.00094052    0.00171002   -0.00062132
                                         -4163244.5856      0.00531141   -0.00062132    0.00824977
      ref_frame_code = GPS
 
- 1:419   1     0.000               GX   -4787264.5200     GPS
+ 1:424   1     0.000               GX   -4787264.5200     GPS
                                         560595.5704  
                                         -4163681.8023  
      ref_frame_code = GPS
- 1:420   2     0.000               GX*  -4787842.2236  
+ 1:425   2     0.000               GX*  -4787842.2236  
                                         560070.2623  
                                         -4163244.5856  
      ref_frame_code = GPS
@@ -719,7 +725,8 @@ Fil/Lin  From  Height To    Height Type   Value      Error
      refraction_coef_code = Default
 
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -742,7 +749,8 @@ Station  Adj  Row  Name
 4        F     -  Node four
 5        F     -  Node five
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -750,1401 +758,2938 @@ Regression test 1 - data types and observation equations
 
 ================================================================================
 
-File test1.dat: line 8: Station 1 to 2 : HA ...
+BEGIN_JSON obs_equation_1
+{
+  "nparam":0,
+  "obs_equations": [
+{
+  "source": {"file": "test1.dat","lineno": 8, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -6.45368954e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009,9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 12, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.24510904e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009,9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 16, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.24510895e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009,9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 21, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 4.83990643e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 22, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.61378317e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 27, "station": "1 - 2", "type": "PB","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 8.27605066e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 28, "station": "1 - 3", "type": "PB","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 2.32666900e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 32, "station": "1 - 2", "type": "SD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.55579524e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.84000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 33, "station": "1 - 3", "type": "SD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.83206491e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 37, "station": "1 - 2", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31140211e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 38, "station": "1 - 3", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76518678e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.12360000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 42, "station": "1 - 2", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31140211e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 43, "station": "1 - 3", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76518678e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.12360000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 44, "station": "4 - 5", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.18786228e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 45, "station": "1 - 5", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.09508684e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 49, "station": "1 - 2", "type": "HD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -5.25984763e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.93600000e-005
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 50, "station": "1 - 3", "type": "HD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.94403021e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+2.11600000e-005
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 55, "station": "1 - 2", "type": "DR","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 4.47355580e-002,
+    "schreiber": 8.94901364e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 5.76516794e-002,
+    "schreiber": 1.15494385e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.84000000e-006,5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 61, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.87610763e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 62, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.87610763e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 66, "station": "1 - 2", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 67, "station": "1 - 3", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 71, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.40177222e-013]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 72, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.11539875e-012]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 76, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.40177222e-013]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 77, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.11539875e-012]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 109, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -6.53681282e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009,9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 113, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.32571914e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009,9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 117, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.29578388e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009,9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 122, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 4.88483946e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 123, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.57559612e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 128, "station": "1 - 2", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 8.27605066e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.55579524e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010,4.84000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 129, "station": "1 - 3", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 2.32666900e-007,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.83206491e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-010,5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 135, "station": "1 - 2", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31140211e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 136, "station": "1 - 3", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76518678e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.12360000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 140, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.87610763e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 141, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.87610763e-010
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 145, "station": "1 - 2", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 146, "station": "1 - 3", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 150, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.40177222e-013]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 151, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.11539875e-012]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 155, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.40177222e-013]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 156, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.11539875e-012]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 165, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -6.53681291e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.61543549e-009,7.61543549e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 169, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.12791514e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.61543549e-009,7.61543549e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 173, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -5.96867826e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.61543549e-009,7.61543549e-009
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 178, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 4.88483953e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-012
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 179, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.57559610e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-012
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 184, "station": "1 - 2", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": -1.86043378e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.55579524e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-010,4.84000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 185, "station": "1 - 3", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 3.24582419e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.83206491e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-010,5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 189, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [1.21846968e-011]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 190, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.44089210e-016,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.74155678e-011]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 194, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [1.21846968e-011]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 195, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.11022302e-016,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.74155678e-011]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 199, "station": "1", "type": "OH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e+000]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 205, "station": "1", "type": "OH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e-002]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 210, "station": "1", "type": "EH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e+000]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 216, "station": "1", "type": "EH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e-002]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 223, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.00297560e-002,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806000e-004,-6.75090000e-005,2.45901000e-004],
+    [-6.75090000e-005,1.07901000e-004,-2.87800000e-005],
+    [2.45901000e-004,-2.87800000e-005,6.15293000e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 228, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 2.00489637e-002,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76807000e-004,-6.74840000e-005,2.45903000e-004],
+    [-6.74840000e-005,1.07895000e-004,-2.87690000e-005],
+    [2.45903000e-004,-2.87690000e-005,6.15297000e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 236, "station": "1 - 2", "type": "GB","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805629e-004,-6.75090500e-005,2.45900672e-004,3.38385905e-004,-3.37704050e-005,1.22951263e-004],
+    [-6.75090500e-005,1.07901226e-004,-2.87800950e-005,-3.37704050e-005,5.39545590e-005,-1.43977690e-005],
+    [2.45900672e-004,-2.87800950e-005,6.15293145e-004,1.22951263e-004,-1.43977690e-005,3.07659536e-004],
+    [3.38385905e-004,-3.37704050e-005,1.22951263e-004,6.76807256e-004,-6.74837270e-005,2.45902529e-004],
+    [-3.37704050e-005,5.39545590e-005,-1.43977690e-005,-6.74837270e-005,1.07895278e-004,-2.87694360e-005],
+    [1.22951263e-004,-1.43977690e-005,3.07659536e-004,2.45902529e-004,-2.87694360e-005,6.15297466e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 255, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806240e-004,-6.75090084e-005,2.45901041e-004],
+    [-6.75090084e-005,1.07900987e-004,-2.87799985e-005],
+    [2.45901041e-004,-2.87799985e-005,6.15292986e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 259, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806761e-004,-6.74839775e-005,2.45902949e-004],
+    [-6.74839775e-005,1.07894963e-004,-2.87689945e-005],
+    [2.45902949e-004,-2.87689945e-005,6.15296955e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 266, "station": "1 - 2", "type": "GB","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805720e-004,-6.75090448e-005,2.45900657e-004,3.38385931e-004,-3.37704222e-005,1.22951268e-004],
+    [-6.75090448e-005,1.07901195e-004,-2.87800881e-005,-3.37704013e-005,5.39545759e-005,-1.43977669e-005],
+    [2.45900657e-004,-2.87800881e-005,6.15292986e-004,1.22951248e-004,-1.43977749e-005,3.07659491e-004],
+    [3.38385931e-004,-3.37704013e-005,1.22951248e-004,6.76807281e-004,-6.74837604e-005,2.45902529e-004],
+    [-3.37704222e-005,5.39545759e-005,-1.43977749e-005,-6.74837604e-005,1.07895378e-004,-2.87694479e-005],
+    [1.22951268e-004,-1.43977669e-005,3.07659491e-004,2.45902529e-004,-2.87694479e-005,6.15297451e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 282, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806240e-004,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,1.07900987e-004,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,6.15292986e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 285, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806761e-004,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,1.07894963e-004,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,6.15296955e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 290, "station": "1 - 2", "type": "GB","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805720e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,1.07901195e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,6.15292986e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,6.76807281e-004,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,1.07895378e-004,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,6.15297451e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 300, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00600483e-004,3.23269875e-005,2.49536067e-004],
+    [3.23269875e-005,6.73022705e-004,-2.92055799e-005],
+    [2.49536067e-004,-2.92055799e-005,3.26377025e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 303, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00593013e-004,3.23157052e-005,2.49542866e-004],
+    [3.23157052e-005,6.73025976e-004,-2.91953380e-005],
+    [2.49542866e-004,-2.91953380e-005,3.26379689e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 308, "station": "1 - 2", "type": "GB","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00600564e-004,3.23269171e-005,2.49535964e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [3.23269171e-005,6.73022193e-004,-2.92055679e-005,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [2.49535964e-004,-2.92055679e-005,3.26377143e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,4.00593475e-004,3.23157120e-005,2.49542906e-004],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,3.23157120e-005,6.73026495e-004,-2.91953426e-005],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,2.49542906e-004,-2.91953426e-005,3.26380140e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 315, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.50420466e-003,-7.05060053e-004,4.47930431e-003],
+    [-7.05060053e-004,5.62604735e-004,-5.24255599e-004],
+    [4.47930431e-003,-5.24255599e-004,5.32229069e-003]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 317, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.66908363e-001,-4.41131715e-002,1.91802524e-001],
+    [-4.41131715e-002,9.51629841e-002,-2.24484741e-002],
+    [1.91802524e-001,-2.24484741e-002,4.17928653e-001]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 319, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.64063691e-003,-1.06550497e-003,6.93704242e-003],
+    [-1.06550497e-003,6.58048586e-004,-8.11601233e-004],
+    [6.93704242e-003,-8.11601233e-004,7.80734174e-003]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 323, "station": "1 - 2", "type": "GB","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 7.84232611e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.19858246e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.97559992e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.89636853e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.36262340e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-006,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.50420466e-003,-7.05060053e-004,4.47930431e-003,6.52410568e-003,-7.28915625e-004,4.80367209e-003],
+    [-7.05060053e-004,5.62604735e-004,-5.24255599e-004,-7.28915625e-004,3.80957783e-004,-5.62162038e-004],
+    [4.47930431e-003,-5.24255599e-004,5.32229069e-003,4.80367209e-003,-5.62162038e-004,5.25370136e-003],
+    [6.52410568e-003,-7.28915625e-004,4.80367209e-003,9.64063691e-003,-1.06550497e-003,6.93704242e-003],
+    [-7.28915625e-004,3.80957783e-004,-5.62162038e-004,-1.06550497e-003,6.58048586e-004,-8.11601233e-004],
+    [4.80367209e-003,-5.62162038e-004,5.25370136e-003,6.93704242e-003,-8.11601233e-004,7.80734174e-003]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 332, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806000e-004,-6.75090000e-005,2.45901000e-004],
+    [-6.75090000e-005,1.07901000e-004,-2.87800000e-005],
+    [2.45901000e-004,-2.87800000e-005,6.15293000e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 337, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.38757750e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76807000e-004,-6.74840000e-005,2.45903000e-004],
+    [-6.74840000e-005,1.07895000e-004,-2.87690000e-005],
+    [2.45903000e-004,-2.87690000e-005,6.15297000e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 344, "station": "1", "type": "GX","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805629e-004,-6.75090500e-005,2.45900672e-004,3.38385905e-004,-3.37704050e-005,1.22951263e-004],
+    [-6.75090500e-005,1.07901226e-004,-2.87800950e-005,-3.37704050e-005,5.39545590e-005,-1.43977690e-005],
+    [2.45900672e-004,-2.87800950e-005,6.15293145e-004,1.22951263e-004,-1.43977690e-005,3.07659536e-004],
+    [3.38385905e-004,-3.37704050e-005,1.22951263e-004,6.76807256e-004,-6.74837270e-005,2.45902529e-004],
+    [-3.37704050e-005,5.39545590e-005,-1.43977690e-005,-6.74837270e-005,1.07895278e-004,-2.87694360e-005],
+    [1.22951263e-004,-1.43977690e-005,3.07659536e-004,2.45902529e-004,-2.87694360e-005,6.15297466e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 360, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806240e-004,-6.75090084e-005,2.45901041e-004],
+    [-6.75090084e-005,1.07900987e-004,-2.87799985e-005],
+    [2.45901041e-004,-2.87799985e-005,6.15292986e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 364, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806761e-004,-6.74839775e-005,2.45902949e-004],
+    [-6.74839775e-005,1.07894963e-004,-2.87689945e-005],
+    [2.45902949e-004,-2.87689945e-005,6.15296955e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 370, "station": "1", "type": "GX","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805720e-004,-6.75090448e-005,2.45900657e-004,3.38385931e-004,-3.37704222e-005,1.22951268e-004],
+    [-6.75090448e-005,1.07901195e-004,-2.87800881e-005,-3.37704013e-005,5.39545759e-005,-1.43977669e-005],
+    [2.45900657e-004,-2.87800881e-005,6.15292986e-004,1.22951248e-004,-1.43977749e-005,3.07659491e-004],
+    [3.38385931e-004,-3.37704013e-005,1.22951248e-004,6.76807281e-004,-6.74837604e-005,2.45902529e-004],
+    [-3.37704222e-005,5.39545759e-005,-1.43977749e-005,-6.74837604e-005,1.07895378e-004,-2.87694479e-005],
+    [1.22951268e-004,-1.43977669e-005,3.07659491e-004,2.45902529e-004,-2.87694479e-005,6.15297451e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 384, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806240e-004,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,1.07900987e-004,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,6.15292986e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 387, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806761e-004,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,1.07894963e-004,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,6.15296955e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 391, "station": "1", "type": "GX","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76806240e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,1.07900987e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,6.15292986e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,6.76806761e-004,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,1.07894963e-004,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,0.00000000e+000,6.15296955e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 400, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00578480e-004,3.23466686e-005,2.49537944e-004],
+    [3.23466686e-005,6.73018399e-004,-2.92212526e-005],
+    [2.49537944e-004,-2.92212526e-005,3.26403335e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 403, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00622167e-004,3.23074091e-005,2.49539100e-004],
+    [3.23074091e-005,6.73027518e-004,-2.91904835e-005],
+    [2.49539100e-004,-2.91904835e-005,3.26348993e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 407, "station": "1", "type": "GX","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00578480e-004,3.23466686e-005,2.49537944e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [3.23466686e-005,6.73018399e-004,-2.92212526e-005,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [2.49537944e-004,-2.92212526e-005,3.26403335e-004,0.00000000e+000,0.00000000e+000,0.00000000e+000],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,4.00622167e-004,3.23074091e-005,2.49539100e-004],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,3.23074091e-005,6.73027518e-004,-2.91904835e-005],
+    [0.00000000e+000,0.00000000e+000,0.00000000e+000,2.49539100e-004,-2.91904835e-005,3.26348993e-004]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 417, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.63887304e-003,-9.41363611e-004,5.31149446e-003],
+    [-9.41363611e-004,1.71023503e-003,-6.21983652e-004],
+    [5.31149446e-003,-6.21983652e-004,8.25089193e-003]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 419, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.66883023e-001,-4.41335448e-002,1.91803967e-001],
+    [-4.41335448e-002,9.51681017e-002,-2.24605208e-002],
+    [1.91803967e-001,-2.24605208e-002,4.17948875e-001]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 421, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.64020784e-003,-9.40524166e-004,5.31141447e-003],
+    [-9.40524166e-004,1.71002025e-003,-6.21316483e-004],
+    [5.31141447e-003,-6.21316483e-004,8.24977191e-003]
+  ]
+},
+{
+  "source": {"file": "test1.dat","lineno": 424, "station": "1", "type": "GX","nobs": 2},
+  "nobs": 6,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.03753991e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.95764005e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.38757750e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.23612476e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.77985819e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.63887304e-003,-9.41363611e-004,5.31149446e-003,6.50475667e-003,-7.04751613e-004,4.47927055e-003],
+    [-9.41363611e-004,1.71023503e-003,-6.21983652e-004,-7.04751613e-004,5.62524997e-004,-5.23974290e-004],
+    [5.31149446e-003,-6.21983652e-004,8.25089193e-003,4.47927055e-003,-5.23974290e-004,5.32181841e-003],
+    [6.50475667e-003,-7.04751613e-004,4.47927055e-003,9.64020784e-003,-9.40524166e-004,5.31141447e-003],
+    [-7.04751613e-004,5.62524997e-004,-5.23974290e-004,-9.40524166e-004,1.71002025e-003,-6.21316483e-004],
+    [4.47927055e-003,-5.23974290e-004,5.32181841e-003,5.31141447e-003,-6.21316483e-004,8.24977191e-003]
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 9, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -6.45368954e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-008,3.76070889e-008
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 13, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.24510904e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.76070889e-008,3.76070889e-008
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 22, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -8.24510895e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.18408697e-005,4.80074313e-005
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 31, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 4.83990643e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 32, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.61378317e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 36, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 4.83990643e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+2.11716134e-005
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 37, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.61378317e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.29929507e-005
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 42, "station": "1 - 2", "type": "PB","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 8.27605066e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+2.11716134e-005
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 43, "station": "1 - 3", "type": "PB","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 2.32666900e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.29929507e-005
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 48, "station": "1 - 2", "type": "SD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.55579524e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.80084852e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 49, "station": "1 - 3", "type": "SD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.83206491e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.33389518e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 54, "station": "1 - 2", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31140211e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 55, "station": "1 - 3", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76518678e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 60, "station": "1 - 2", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31140211e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.90798821e-003
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 61, "station": "1 - 3", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76518678e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.32744962e-002
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 62, "station": "4 - 5", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.18786228e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.90798821e-003
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 63, "station": "1 - 5", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.09508684e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.90798821e-003
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 68, "station": "1 - 2", "type": "HD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -5.25984763e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.79084844e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 69, "station": "1 - 3", "type": "HD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.94403021e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.32749525e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 75, "station": "1 - 2", "type": "DR","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 4.47355580e-002,
+    "schreiber": 8.94901364e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 5.76516794e-002,
+    "schreiber": 1.15494385e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.80092852e-004,5.33402847e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 81, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 82, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.40177222e-009
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 87, "station": "1 - 2", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 88, "station": "1 - 3", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.00000000e-004
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 93, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [3.38463800e-011]
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 94, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [3.38463800e-011]
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 99, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [5.28849687e-011]
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 100, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [5.28849687e-011]
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 106, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.87610763e-010
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 107, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.87610763e-010
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 110, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.55725201e-008
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 111, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.60632415e-009
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 114, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.23310318e-008
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 115, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.46077707e-009
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 118, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.81810778e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+2.84911626e-008
+  ]
+},
+{
+  "source": {"file": "test1a.dat","lineno": 119, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.48520884e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.16547120e-008
+  ]
+}
+]}
+
+END_JSON obs_equation_1
 
- 1  0.00000e+000          SCH 
-    9.69627e-005 1.00000e+000 
 
- 2  -6.45369e-008          SCH 
-    9.69627e-005 1.00000e+000 
 
-
-File test1.dat: line 12: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.69627e-005 1.00000e+000 
-
- 2  -8.24511e-008          SCH 
-    9.69627e-005 1.00000e+000 
-
-
-File test1.dat: line 16: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.69627e-005 1.00000e+000 
-
- 2  -8.24511e-008          SCH 
-    9.69627e-005 1.00000e+000 
-
-
-File test1.dat: line 21: Station 1 to 2 : AZ
-
- 1  4.83991e-008 
-    1.93925e-005 
-
-
-File test1.dat: line 22: Station 1 to 3 : AZ
-
- 1  -1.61378e-008 
-    1.93925e-005 
-
-
-File test1.dat: line 27: Station 1 to 2 : PB
-
- 1  8.27605e-008 
-    1.93925e-005 
-
-
-File test1.dat: line 28: Station 1 to 3 : PB
-
- 1  2.32667e-007 
-    1.93925e-005 
-
-
-File test1.dat: line 32: Station 1 to 2 : SD
-
- 1  3.55580e-005 
-    2.20000e-003 
-
-
-File test1.dat: line 33: Station 1 to 3 : SD
-
- 1  -4.83206e-005 
-    2.30000e-003 
-
-
-File test1.dat: line 37: Station 1 to 2 : ED
-
- 1  -2.31140e-006 
-    1.03000e-002 
-
-
-File test1.dat: line 38: Station 1 to 3 : ED
-
- 1  3.76519e-005 
-    1.06000e-002 
-
-
-File test1.dat: line 42: Station 1 to 2 : MD
-
- 1  -2.31140e-006 
-    1.03000e-002 
-
-
-File test1.dat: line 43: Station 1 to 3 : MD
-
- 1  3.76519e-005 
-    1.06000e-002 
-
-
-File test1.dat: line 44: Station 4 to 5 : MD
-
- 1  -4.18786e-003 
-    1.03000e-002 
-
-
-File test1.dat: line 45: Station 1 to 5 : MD
-
- 1  -2.09509e-003 
-    1.03000e-002 
-
-
-File test1.dat: line 49: Station 1 to 2 : HD
-
- 1  -5.25985e-006 
-    4.40000e-003 
-
-
-File test1.dat: line 50: Station 1 to 3 : HD
-
- 1  -1.94403e-005 
-    4.60000e-003 
-
-
-File test1.dat: line 55: Station 1 to 2 : DR ...
-
- 1  4.47356e-002          SCH 
-    2.20000e-003 8.94901e-004 
-
- 2  5.76517e-002          SCH 
-    2.30000e-003 1.15494e-003 
-
-
-File test1.dat: line 61: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    2.42407e-005 
-
-
-File test1.dat: line 62: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    2.42407e-005 
-
-
-File test1.dat: line 66: Station 1 to 2 : LV
-
- 1  0.00000e+000 
-    1.00000e-002 
-
-
-File test1.dat: line 67: Station 1 to 3 : LV
-
- 1  0.00000e+000 
-    3.00000e-002 
-
-
-File test1.dat: line 71: Station 1 : LN
-
- 1  0.00000e+000 
-    9.69627e-007 
-
-
-                  1 
-     1 9.40177e-013 
-
-
-File test1.dat: line 72: Station 2 : LN
-
- 1  0.00000e+000 
-    1.45444e-006 
-
-
-                  1 
-     1 2.11540e-012 
-
-
-File test1.dat: line 76: Station 1 : LT
-
- 1  0.00000e+000 
-    9.69627e-007 
-
-
-                  1 
-     1 9.40177e-013 
-
-
-File test1.dat: line 77: Station 2 : LT
-
- 1  0.00000e+000 
-    1.45444e-006 
-
-
-                  1 
-     1 2.11540e-012 
-
-
-File test1.dat: line 104: Station 1 to 2 : HA ...
-
-*1  0.00000e+000          SCH 
-    9.69627e-005 1.00000e+000 
-
- 2  -6.53681e-008          SCH 
-    9.69627e-005 1.00000e+000 
-
-
-File test1.dat: line 108: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.69627e-005 1.00000e+000 
-
- 2  -8.32572e-008          SCH 
-    9.69627e-005 1.00000e+000 
-
-
-File test1.dat: line 112: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.69627e-005 1.00000e+000 
-
- 2  -8.29578e-008          SCH 
-    9.69627e-005 1.00000e+000 
-
-
-File test1.dat: line 117: Station 1 to 2 : AZ
-
- 1  4.88484e-008 
-    1.93925e-005 
-
-
-File test1.dat: line 118: Station 1 to 3 : AZ
-
-*1  -1.57560e-008 
-    1.93925e-005 
-
-
-File test1.dat: line 123: Station 1 to 2 : PB ...
-
-*1  8.27605e-008 
-    1.93925e-005 
-
- 2  3.55580e-005 
-    2.20000e-003 
-
-
-File test1.dat: line 124: Station 1 to 3 : PB ...
-
-*1  2.32667e-007 
-    1.93925e-005 
-
-*2  -4.83206e-005 
-    2.30000e-003 
-
-
-File test1.dat: line 130: Station 1 to 2 : ED
-
- 1  -2.31140e-006 
-    1.03000e-002 
-
-
-File test1.dat: line 131: Station 1 to 3 : ED
-
- 1  3.76519e-005 
-    1.06000e-002 
-
-
-File test1.dat: line 135: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    2.42407e-005 
-
-
-File test1.dat: line 136: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    2.42407e-005 
-
-
-File test1.dat: line 140: Station 1 to 2 : LV
-
- 1  0.00000e+000 
-    1.00000e-002 
-
-
-File test1.dat: line 141: Station 1 to 3 : LV
-
- 1  0.00000e+000 
-    3.00000e-002 
-
-
-File test1.dat: line 145: Station 1 : LN
-
- 1  0.00000e+000 
-    9.69627e-007 
-
-
-                  1 
-     1 9.40177e-013 
-
-
-File test1.dat: line 146: Station 2 : LN
-
-*1  0.00000e+000 
-    1.45444e-006 
-
-
-                  1 
-     1 2.11540e-012 
-
-
-File test1.dat: line 150: Station 1 : LT
-
- 1  0.00000e+000 
-    9.69627e-007 
-
-
-                  1 
-     1 9.40177e-013 
-
-
-File test1.dat: line 151: Station 2 : LT
-
-*1  0.00000e+000 
-    1.45444e-006 
-
-
-                  1 
-     1 2.11540e-012 
-
-
-File test1.dat: line 160: Station 1 to 2 : HA ...
-
-*1  0.00000e+000          SCH 
-    8.72665e-005 1.00000e+000 
-
- 2  -6.53681e-008          SCH 
-    8.72665e-005 1.00000e+000 
-
-
-File test1.dat: line 164: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    8.72665e-005 1.00000e+000 
-
- 2  -8.12792e-008          SCH 
-    8.72665e-005 1.00000e+000 
-
-
-File test1.dat: line 168: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    8.72665e-005 1.00000e+000 
-
- 2  -5.96868e-008          SCH 
-    8.72665e-005 1.00000e+000 
-
-
-File test1.dat: line 173: Station 1 to 2 : AZ
-
- 1  4.88484e-008 
-    1.74533e-006 
-
-
-File test1.dat: line 174: Station 1 to 3 : AZ
-
-*1  -1.57560e-008 
-    1.74533e-006 
-
-
-File test1.dat: line 179: Station 1 to 2 : PB ...
-
-*1  -1.86043e-008 
-    1.74533e-005 
-
- 2  3.55580e-005 
-    2.20000e-003 
-
-
-File test1.dat: line 180: Station 1 to 3 : PB ...
-
-*1  3.24582e-008 
-    1.74533e-005 
-
-*2  -4.83206e-005 
-    2.30000e-003 
-
-
-File test1.dat: line 184: Station 1 : LN
-
- 1  0.00000e+000 
-    3.49066e-006 
-
-
-                  1 
-     1 1.21847e-011 
-
-
-File test1.dat: line 185: Station 2 : LN
-
-*1  -4.44089e-016 
-    5.23599e-006 
-
-
-                  1 
-     1 2.74156e-011 
-
-
-File test1.dat: line 189: Station 1 : LT
-
- 1  0.00000e+000 
-    3.49066e-006 
-
-
-                  1 
-     1 1.21847e-011 
-
-
-File test1.dat: line 190: Station 2 : LT
-
-*1  1.11022e-016 
-    5.23599e-006 
-
-
-                  1 
-     1 2.74156e-011 
-
-
-File test1.dat: line 194: Station 1 : OH
-
- 1  0.00000e+000 
-    2.00000e+000 
-
-
-                  1 
-     1 4.00000e+000 
-
-
-File test1.dat: line 200: Station 1 : OH
-
- 1  0.00000e+000 
-    2.00000e-001 
-
-
-                  1 
-     1 4.00000e-002 
-
-
-File test1.dat: line 205: Station 1 : EH
-
- 1  0.00000e+000 
-    2.00000e+000 
-
-
-                  1 
-     1 4.00000e+000 
-
-
-File test1.dat: line 211: Station 1 : EH
-
- 1  0.00000e+000 
-    2.00000e-001 
-
-
-                  1 
-     1 4.00000e-002 
-
-
-File test1.dat: line 218: Station 1 to 2 : GB
-
- 1  7.84233e-006 
-    2.60155e-002 
-
- 2  -2.19858e-005 
-    -6.75090e-005 
-
- 3  1.00298e-002 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87800e-005 6.15293e-004 
-
-
-File test1.dat: line 223: Station 1 to 3 : GB
-
-*1  2.00490e-002 
-    2.60155e-002 
-
-*2  -3.36262e-005 
-    -6.74840e-005 
-
-*3  -3.13148e-006 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74840e-005 1.07895e-004 
-     3 2.45903e-004 -2.87690e-005 6.15297e-004 
-
-
-File test1.dat: line 231: Station 1 to 2 : GB ...
-
- 1  7.84233e-006 
-    2.60155e-002 
-
- 2  -2.19858e-005 
-    -6.75090e-005 
-
- 3  2.97560e-005 
-    1.56812e-002 
-
-*4  4.89637e-005 
-    1.83953e-002 
-
-*5  -3.36262e-005 
-    -3.37704e-005 
-
-*6  -3.13148e-006 
-    1.10883e-002 
-
-
-                  1            2            3            4            5            6 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-     4 3.38386e-004 -3.37704e-005 1.22951e-004 6.76807e-004 
-     5 -3.37704e-005 5.39546e-005 -1.43978e-005 -6.74837e-005 1.07895e-004 
-     6 1.22951e-004 -1.43978e-005 3.07660e-004 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File test1.dat: line 250: Station 1 to 2 : GB
-
- 1  7.84233e-006 
-    2.60155e-002 
-
- 2  -2.19858e-005 
-    -6.75090e-005 
-
- 3  2.97560e-005 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87800e-005 6.15293e-004 
-
-
-File test1.dat: line 254: Station 1 to 3 : GB
-
-*1  4.89637e-005 
-    2.60155e-002 
-
-*2  -3.36262e-005 
-    -6.74840e-005 
-
-*3  -3.13148e-006 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74840e-005 1.07895e-004 
-     3 2.45903e-004 -2.87690e-005 6.15297e-004 
-
-
-File test1.dat: line 261: Station 1 to 2 : GB ...
-
- 1  7.84233e-006 
-    2.60155e-002 
-
- 2  -2.19858e-005 
-    -6.75090e-005 
-
- 3  2.97560e-005 
-    1.56812e-002 
-
-*4  4.89637e-005 
-    1.83953e-002 
-
-*5  -3.36262e-005 
-    -3.37704e-005 
-
-*6  -3.13148e-006 
-    1.10883e-002 
-
-
-                  1            2            3            4            5            6 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-     4 3.38386e-004 -3.37704e-005 1.22951e-004 6.76807e-004 
-     5 -3.37704e-005 5.39546e-005 -1.43978e-005 -6.74838e-005 1.07895e-004 
-     6 1.22951e-004 -1.43978e-005 3.07659e-004 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File test1.dat: line 277: Station 1 to 2 : GB
-
- 1  7.84233e-006 
-    2.60155e-002 
-
- 2  -2.19858e-005 
-    0.00000e+000 
-
- 3  2.97560e-005 
-    0.00000e+000 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 0.00000e+000 1.07901e-004 
-     3 0.00000e+000 0.00000e+000 6.15293e-004 
-
-
-File test1.dat: line 280: Station 1 to 3 : GB
-
-*1  4.89637e-005 
-    2.60155e-002 
-
-*2  -3.36262e-005 
-    0.00000e+000 
-
-*3  -3.13148e-006 
-    0.00000e+000 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 0.00000e+000 1.07895e-004 
-     3 0.00000e+000 0.00000e+000 6.15297e-004 
-
-
-File test1.dat: line 285: Station 1 to 2 : GB ...
-
- 1  7.84233e-006 
-    2.60155e-002 
-
- 2  -2.19858e-005 
-    0.00000e+000 
-
- 3  2.97560e-005 
-    0.00000e+000 
-
-*4  4.89637e-005 
-    0.00000e+000 
-
-*5  -3.36262e-005 
-    0.00000e+000 
-
-*6  -3.13148e-006 
-    0.00000e+000 
-
-
-                  1            2            3            4            5            6 
-     1 6.76806e-004 
-     2 0.00000e+000 1.07901e-004 
-     3 0.00000e+000 0.00000e+000 6.15293e-004 
-     4 0.00000e+000 0.00000e+000 0.00000e+000 6.76807e-004 
-     5 0.00000e+000 0.00000e+000 0.00000e+000 0.00000e+000 1.07895e-004 
-     6 0.00000e+000 0.00000e+000 0.00000e+000 0.00000e+000 0.00000e+000 6.15297e-004 
-
-
-File test1.dat: line 295: Station 1 to 2 : GB
-
- 1  7.84233e-006 
-    2.00150e-002 
-
- 2  -2.19858e-005 
-    5.68568e-003 
-
- 3  2.97560e-005 
-    1.57967e-002 
-
-
-                  1            2            3 
-     1 4.00600e-004 
-     2 3.23270e-005 6.73023e-004 
-     3 2.49536e-004 -2.92056e-005 3.26377e-004 
-
-
-File test1.dat: line 298: Station 1 to 3 : GB
-
-*1  4.89637e-005 
-    2.00148e-002 
-
-*2  -3.36262e-005 
-    5.68469e-003 
-
-*3  -3.13148e-006 
-    1.57969e-002 
-
-
-                  1            2            3 
-     1 4.00593e-004 
-     2 3.23157e-005 6.73026e-004 
-     3 2.49543e-004 -2.91953e-005 3.26380e-004 
-
-
-File test1.dat: line 303: Station 1 to 2 : GB ...
-
- 1  7.84233e-006 
-    2.00150e-002 
-
- 2  -2.19858e-005 
-    5.68568e-003 
-
- 3  2.97560e-005 
-    1.57967e-002 
-
-*4  4.89637e-005 
-    0.00000e+000 
-
-*5  -3.36262e-005 
-    0.00000e+000 
-
-*6  -3.13148e-006 
-    0.00000e+000 
-
-
-                  1            2            3            4            5            6 
-     1 4.00601e-004 
-     2 3.23269e-005 6.73022e-004 
-     3 2.49536e-004 -2.92056e-005 3.26377e-004 
-     4 0.00000e+000 0.00000e+000 0.00000e+000 4.00593e-004 
-     5 0.00000e+000 0.00000e+000 0.00000e+000 3.23157e-005 6.73026e-004 
-     6 0.00000e+000 0.00000e+000 0.00000e+000 2.49543e-004 -2.91953e-005 3.26380e-004 
-
-
-File test1.dat: line 310: Station 1 to 2 : GB
-
- 1  7.84233e-006 
-    8.06486e-002 
-
- 2  -2.19858e-005 
-    -7.05060e-004 
-
- 3  2.97560e-005 
-    6.69276e-002 
-
-
-                  1            2            3 
-     1 6.50420e-003 
-     2 -7.05060e-004 5.62605e-004 
-     3 4.47930e-003 -5.24256e-004 5.32229e-003 
-
-
-File test1.dat: line 312: Station 1 to 2 : GB
-
- 1  7.84233e-006 
-    6.83307e-001 
-
- 2  -2.19858e-005 
-    -4.41132e-002 
-
- 3  2.97560e-005 
-    4.37953e-001 
-
-
-                  1            2            3 
-     1 4.66908e-001 
-     2 -4.41132e-002 9.51630e-002 
-     3 1.91803e-001 -2.24485e-002 4.17929e-001 
-
-
-File test1.dat: line 314: Station 1 to 3 : GB
-
-*1  4.89637e-005 
-    9.81867e-002 
-
-*2  -3.36262e-005 
-    -1.06550e-003 
-
-*3  -3.13148e-006 
-    8.32889e-002 
-
-
-                  1            2            3 
-     1 9.64064e-003 
-     2 -1.06550e-003 6.58049e-004 
-     3 6.93704e-003 -8.11601e-004 7.80734e-003 
-
-
-File test1.dat: line 318: Station 1 to 2 : GB ...
-
- 1  7.84233e-006 
-    8.06486e-002 
-
- 2  -2.19858e-005 
-    -7.05060e-004 
-
- 3  2.97560e-005 
-    6.69276e-002 
-
-*4  4.89637e-005 
-    8.07719e-002 
-
-*5  -3.36262e-005 
-    -7.28916e-004 
-
-*6  -3.13148e-006 
-    6.93085e-002 
-
-
-                  1            2            3            4            5            6 
-     1 6.50420e-003 
-     2 -7.05060e-004 5.62605e-004 
-     3 4.47930e-003 -5.24256e-004 5.32229e-003 
-     4 6.52411e-003 -7.28916e-004 4.80367e-003 9.64064e-003 
-     5 -7.28916e-004 3.80958e-004 -5.62162e-004 -1.06550e-003 6.58049e-004 
-     6 4.80367e-003 -5.62162e-004 5.25370e-003 6.93704e-003 -8.11601e-004 7.80734e-003 
-
-
-File test1.dat: line 327: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60155e-002 
-
- 2  -1.03754e-005 
-    -6.75090e-005 
-
- 3  -1.95764e-006 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87800e-005 6.15293e-004 
-
-
-File test1.dat: line 332: Station 2 : GX
-
- 1  1.38758e-005 
-    2.60155e-002 
-
- 2  -3.23612e-005 
-    -6.74840e-005 
-
- 3  2.77986e-005 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74840e-005 1.07895e-004 
-     3 2.45903e-004 -2.87690e-005 6.15297e-004 
-
-
-File test1.dat: line 339: Station 1 : GX ...
-
- 1  6.03404e-006 
-    2.60155e-002 
-
- 2  -1.03754e-005 
-    -6.75090e-005 
-
- 3  -1.95764e-006 
-    1.56812e-002 
-
-*4  1.38758e-005 
-    1.83953e-002 
-
-*5  -3.23612e-005 
-    -3.37704e-005 
-
-*6  2.77986e-005 
-    1.10883e-002 
-
-
-                  1            2            3            4            5            6 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-     4 3.38386e-004 -3.37704e-005 1.22951e-004 6.76807e-004 
-     5 -3.37704e-005 5.39546e-005 -1.43978e-005 -6.74837e-005 1.07895e-004 
-     6 1.22951e-004 -1.43978e-005 3.07660e-004 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File test1.dat: line 355: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60155e-002 
-
- 2  -1.03754e-005 
-    -6.75090e-005 
-
- 3  -1.95764e-006 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87800e-005 6.15293e-004 
-
-
-File test1.dat: line 359: Station 2 : GX
-
-*1  1.38758e-005 
-    2.60155e-002 
-
-*2  -3.23612e-005 
-    -6.74840e-005 
-
-*3  2.77986e-005 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74840e-005 1.07895e-004 
-     3 2.45903e-004 -2.87690e-005 6.15297e-004 
-
-
-File test1.dat: line 365: Station 1 : GX ...
-
- 1  6.03404e-006 
-    2.60155e-002 
-
- 2  -1.03754e-005 
-    -6.75090e-005 
-
- 3  -1.95764e-006 
-    1.56812e-002 
-
-*4  1.38758e-005 
-    1.83953e-002 
-
-*5  -3.23612e-005 
-    -3.37704e-005 
-
-*6  2.77986e-005 
-    1.10883e-002 
-
-
-                  1            2            3            4            5            6 
-     1 6.76806e-004 
-     2 -6.75090e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-     4 3.38386e-004 -3.37704e-005 1.22951e-004 6.76807e-004 
-     5 -3.37704e-005 5.39546e-005 -1.43978e-005 -6.74838e-005 1.07895e-004 
-     6 1.22951e-004 -1.43978e-005 3.07659e-004 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File test1.dat: line 379: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60155e-002 
-
- 2  -1.03754e-005 
-    0.00000e+000 
-
- 3  -1.95764e-006 
-    0.00000e+000 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 0.00000e+000 1.07901e-004 
-     3 0.00000e+000 0.00000e+000 6.15293e-004 
-
-
-File test1.dat: line 382: Station 2 : GX
-
-*1  1.38758e-005 
-    2.60155e-002 
-
-*2  -3.23612e-005 
-    0.00000e+000 
-
-*3  2.77986e-005 
-    0.00000e+000 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 0.00000e+000 1.07895e-004 
-     3 0.00000e+000 0.00000e+000 6.15297e-004 
-
-
-File test1.dat: line 386: Station 1 : GX ...
-
- 1  6.03404e-006 
-    2.60155e-002 
-
- 2  -1.03754e-005 
-    0.00000e+000 
-
- 3  -1.95764e-006 
-    0.00000e+000 
-
-*4  1.38758e-005 
-    0.00000e+000 
-
-*5  -3.23612e-005 
-    0.00000e+000 
-
-*6  2.77986e-005 
-    0.00000e+000 
-
-
-                  1            2            3            4            5            6 
-     1 6.76806e-004 
-     2 0.00000e+000 1.07901e-004 
-     3 0.00000e+000 0.00000e+000 6.15293e-004 
-     4 0.00000e+000 0.00000e+000 0.00000e+000 6.76807e-004 
-     5 0.00000e+000 0.00000e+000 0.00000e+000 0.00000e+000 1.07895e-004 
-     6 0.00000e+000 0.00000e+000 0.00000e+000 0.00000e+000 0.00000e+000 6.15297e-004 
-
-
-File test1.dat: line 395: Station 1 : GX
-
- 1  6.03404e-006 
-    2.00145e-002 
-
- 2  -1.03754e-005 
-    5.68741e-003 
-
- 3  -1.95764e-006 
-    1.57968e-002 
-
-
-                  1            2            3 
-     1 4.00578e-004 
-     2 3.23467e-005 6.73018e-004 
-     3 2.49538e-004 -2.92213e-005 3.26403e-004 
-
-
-File test1.dat: line 398: Station 2 : GX
-
-*1  1.38758e-005 
-    2.00155e-002 
-
-*2  -3.23612e-005 
-    5.68396e-003 
-
-*3  2.77986e-005 
-    1.57968e-002 
-
-
-                  1            2            3 
-     1 4.00622e-004 
-     2 3.23074e-005 6.73028e-004 
-     3 2.49539e-004 -2.91905e-005 3.26349e-004 
-
-
-File test1.dat: line 402: Station 1 : GX ...
-
- 1  6.03404e-006 
-    2.00145e-002 
-
- 2  -1.03754e-005 
-    5.68741e-003 
-
- 3  -1.95764e-006 
-    1.57968e-002 
-
-*4  1.38758e-005 
-    0.00000e+000 
-
-*5  -3.23612e-005 
-    0.00000e+000 
-
-*6  2.77986e-005 
-    0.00000e+000 
-
-
-                  1            2            3            4            5            6 
-     1 4.00578e-004 
-     2 3.23467e-005 6.73018e-004 
-     3 2.49538e-004 -2.92213e-005 3.26403e-004 
-     4 0.00000e+000 0.00000e+000 0.00000e+000 4.00622e-004 
-     5 0.00000e+000 0.00000e+000 0.00000e+000 3.23074e-005 6.73028e-004 
-     6 0.00000e+000 0.00000e+000 0.00000e+000 2.49539e-004 -2.91905e-005 3.26349e-004 
-
-
-File test1.dat: line 412: Station 1 : GX
-
- 1  6.03404e-006 
-    9.81778e-002 
-
- 2  -1.03754e-005 
-    -9.41364e-004 
-
- 3  -1.95764e-006 
-    7.28800e-002 
-
-
-                  1            2            3 
-     1 9.63887e-003 
-     2 -9.41364e-004 1.71024e-003 
-     3 5.31149e-003 -6.21984e-004 8.25089e-003 
-
-
-File test1.dat: line 414: Station 1 : GX
-
- 1  6.03404e-006 
-    6.83288e-001 
-
- 2  -1.03754e-005 
-    -4.41335e-002 
-
- 3  -1.95764e-006 
-    4.37954e-001 
-
-
-                  1            2            3 
-     1 4.66883e-001 
-     2 -4.41335e-002 9.51681e-002 
-     3 1.91804e-001 -2.24605e-002 4.17949e-001 
-
-
-File test1.dat: line 416: Station 2 : GX
-
-*1  1.38758e-005 
-    9.81846e-002 
-
-*2  -3.23612e-005 
-    -9.40524e-004 
-
-*3  2.77986e-005 
-    7.28795e-002 
-
-
-                  1            2            3 
-     1 9.64021e-003 
-     2 -9.40524e-004 1.71002e-003 
-     3 5.31141e-003 -6.21316e-004 8.24977e-003 
-
-
-File test1.dat: line 419: Station 1 : GX ...
-
- 1  6.03404e-006 
-    9.81778e-002 
-
- 2  -1.03754e-005 
-    -9.41364e-004 
-
- 3  -1.95764e-006 
-    7.28800e-002 
-
-*4  1.38758e-005 
-    8.06521e-002 
-
-*5  -3.23612e-005 
-    -7.04752e-004 
-
-*6  2.77986e-005 
-    6.69274e-002 
-
-
-                  1            2            3            4            5            6 
-     1 9.63887e-003 
-     2 -9.41364e-004 1.71024e-003 
-     3 5.31149e-003 -6.21984e-004 8.25089e-003 
-     4 6.50476e-003 -7.04752e-004 4.47927e-003 9.64021e-003 
-     5 -7.04752e-004 5.62525e-004 -5.23974e-004 -9.40524e-004 1.71002e-003 
-     6 4.47927e-003 -5.23974e-004 5.32182e-003 5.31141e-003 -6.21316e-004 8.24977e-003 
-
-
-File test1a.dat: line 9: Station 1 to 2 : HA ...
-
- 1  0.00000e+000          SCH 
-    1.93925e-004 1.00000e+000 
-
- 2  -6.45369e-008          SCH 
-    1.93925e-004 1.00000e+000 
-
-
-File test1a.dat: line 13: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    1.93925e-004 1.00000e+000 
-
- 2  -8.24511e-008          SCH 
-    1.93925e-004 1.00000e+000 
-
-
-File test1a.dat: line 22: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    3.44106e-003 1.00000e+000 
-
- 2  -8.24511e-008          SCH 
-    6.92874e-003 1.00000e+000 
-
-
-File test1a.dat: line 31: Station 1 to 2 : AZ
-
- 1  4.83991e-008 
-    9.69627e-005 
-
-
-File test1a.dat: line 32: Station 1 to 3 : AZ
-
- 1  -1.61378e-008 
-    9.69627e-005 
-
-
-File test1a.dat: line 36: Station 1 to 2 : AZ
-
- 1  4.83991e-008 
-    4.60126e-003 
-
-
-File test1a.dat: line 37: Station 1 to 3 : AZ
-
- 1  -1.61378e-008 
-    3.60457e-003 
-
-
-File test1a.dat: line 42: Station 1 to 2 : PB
-
- 1  8.27605e-008 
-    4.60126e-003 
-
-
-File test1a.dat: line 43: Station 1 to 3 : PB
-
- 1  2.32667e-007 
-    3.60457e-003 
-
-
-File test1a.dat: line 48: Station 1 to 2 : SD
-
- 1  3.55580e-005 
-    2.19108e-002 
-
-
-File test1a.dat: line 49: Station 1 to 3 : SD
-
- 1  -4.83206e-005 
-    2.30952e-002 
-
-
-File test1a.dat: line 54: Station 1 to 2 : ED
-
- 1  -2.31140e-006 
-    2.00000e-002 
-
-
-File test1a.dat: line 55: Station 1 to 3 : ED
-
- 1  3.76519e-005 
-    2.00000e-002 
-
-
-File test1a.dat: line 60: Station 1 to 2 : MD
-
- 1  -2.31140e-006 
-    8.89269e-002 
-
-
-File test1a.dat: line 61: Station 1 to 3 : MD
-
- 1  3.76519e-005 
-    1.15215e-001 
-
-
-File test1a.dat: line 62: Station 4 to 5 : MD
-
- 1  -4.18786e-003 
-    8.89269e-002 
-
-
-File test1a.dat: line 63: Station 1 to 5 : MD
-
- 1  -2.09509e-003 
-    8.89269e-002 
-
-
-File test1a.dat: line 68: Station 1 to 2 : HD
-
- 1  -5.25985e-006 
-    2.18880e-002 
-
-
-File test1a.dat: line 69: Station 1 to 3 : HD
-
- 1  -1.94403e-005 
-    2.30814e-002 
-
-
-File test1a.dat: line 75: Station 1 to 2 : DR ...
-
- 1  4.47356e-002          SCH 
-    2.19110e-002 8.94901e-004 
-
- 2  5.76517e-002          SCH 
-    2.30955e-002 1.15494e-003 
-
-
-File test1a.dat: line 81: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    9.69627e-005 
-
-
-File test1a.dat: line 82: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    9.69627e-005 
-
-
-File test1a.dat: line 87: Station 1 to 2 : LV
-
- 1  0.00000e+000 
-    2.00000e-002 
-
-
-File test1a.dat: line 88: Station 1 to 3 : LV
-
- 1  0.00000e+000 
-    2.00000e-002 
-
-
-File test1a.dat: line 93: Station 1 : LN
-
- 1  0.00000e+000 
-    5.81776e-006 
-
-
-                  1 
-     1 3.38464e-011 
-
-
-File test1a.dat: line 94: Station 2 : LN
-
- 1  0.00000e+000 
-    5.81776e-006 
-
-
-                  1 
-     1 3.38464e-011 
-
-
-File test1a.dat: line 99: Station 1 : LT
-
- 1  0.00000e+000 
-    7.27221e-006 
-
-
-                  1 
-     1 5.28850e-011 
-
-
-File test1a.dat: line 100: Station 2 : LT
-
- 1  0.00000e+000 
-    7.27221e-006 
-
-
-                  1 
-     1 5.28850e-011 
-
-
-File test1a.dat: line 106: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    2.42407e-005 
-
-
-File test1a.dat: line 107: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    2.42407e-005 
-
-
-File test1a.dat: line 110: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    1.24790e-004 
-
-
-File test1a.dat: line 111: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    6.00527e-005 
-
-
-File test1a.dat: line 114: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    1.11045e-004 
-
-
-File test1a.dat: line 115: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    8.63758e-005 
-
-
-File test1a.dat: line 118: Station 1 to 2 : ZD
-
- 1  1.81811e-007 
-    1.68793e-004 
-
-
-File test1a.dat: line 119: Station 1 to 3 : ZD
-
- 1  -1.48521e-008 
-    1.07957e-004 
-
-
-
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2167,7 +3712,8 @@ The probability of an SSR this low is -0.000% (from Chi squared (153))
 
 You may have over-estimated the errors of the data.
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2207,7 +3753,8 @@ Rejected stations are flagged #
        173 19 40.800000 E      -         -
              250.0000          -         -
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2268,7 +3815,8 @@ Reference frame: GPS
    Maximum error of horizontal tilt is 0.00000 arc sec
    Rotation axis of maximum tilt error has azimuth 0 degrees
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2282,7 +3830,8 @@ Parameter                          value         +/-
 
 Refr coef DEFAULT                    0.00000       -     
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2411,7 +3960,7 @@ From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    
 
 1     3            0 SD*    1154.9438 0.0023   1154.9438 0.0000 -0.0000 0.0023   0.02 *       0            
 
-File test1.dat: line 124
+File test1.dat: line 129
 
 1     3            0 PB*   60 14 07.3    4.0  60 14 07.3    0.0     0.0    4.0   0.01 *       0            
 
@@ -2448,7 +3997,7 @@ From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    
 2     1            0 HA   121 27 59.3   18.0 121 27 59.3   12.7     0.0   12.7   0.00         0 D          
       3            0 HA     4 47 28.1   18.0   4 47 28.1   12.7    -0.0   12.7   0.00         0 E          
 
-File test1.dat: line 173
+File test1.dat: line 178
 
 1     2            0 AZ    41 28 15.8    0.4  41 28 15.8    0.0     0.0    0.4   0.03         0 X          
 
@@ -2508,7 +4057,7 @@ From  To          Id Type     Value      +/-        Calc       +/-      Res    +
                                437.2167  0.0248      437.2167  0.0000 -0.0000  0.0300   0.00                      
                                894.9014              894.9014          0.0000           0.00                      
 
-File test1.dat: line 254
+File test1.dat: line 259
 
 1     3         1001 GB*      -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0100   0.00 *    1001            
                               -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0200   0.00 *                    
@@ -2575,7 +4124,7 @@ File test1.dat: line 254
                                437.2167  0.6465      437.2167  0.0000 -0.0000  0.8000   0.00                      
                                894.9014              894.9014          0.0000           0.00                      
 
-File test1.dat: line 314
+File test1.dat: line 319
 
 1     3         1001 GB*      -419.2668  0.0982     -419.2668  0.0000  0.0000  0.0231   0.00 *    1001            
                               -967.3587  0.0257     -967.3587  0.0000 -0.0000  0.0416   0.00 *                    
@@ -2645,7 +4194,7 @@ From        Id Type     Value       +/-         Calc       +/-      Res    +/-  
                      -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0254   0.00 *                    
                       6369436.1867           6369436.1867          0.0000           0.00 *                    
 
-File test1.dat: line 386
+File test1.dat: line 391
 
 1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0108   0.00         0            
                        560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0253   0.00                      
@@ -2794,7 +4343,8 @@ File test1a.dat: line 118
 
 1     3            0 ZD    93 58 37.5   22.3  93 58 37.5    0.0    -0.0   22.3   0.00         0            
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2860,7 +4410,8 @@ test1.dat                                   0.06  125    0.10   71    0.08  196
 
 test1a.dat                                  0.01   40     -      -    0.01   40
 
-
+
+
 ================================================================================
 Regression test 1 - data types and observation equations    
 
@@ -2882,25 +4433,25 @@ The following table lists the 10 worst residuals of rejected data
 
 From   To         Id  Type     S.R.  Sig (%)       Line  File
 
-1      3        1001   GB*    0.494   13.407        223  test1.dat
+1      3        1001   GB*    0.494   13.407        228  test1.dat
 
-1      3           0   SD*    0.021    1.676        124  test1.dat
+1      3           0   SD*    0.021    1.676        129  test1.dat
 
-1      3           0   SD*    0.021    1.676        180  test1.dat
+1      3           0   SD*    0.021    1.676        185  test1.dat
 
-1      3           0   PB*    0.012    0.957        124  test1.dat
+1      3           0   PB*    0.012    0.957        129  test1.dat
 
-1      3           0   AZ*    0.009    0.720        174  test1.dat
+1      3           0   AZ*    0.009    0.720        179  test1.dat
 
-1      2           0   PB*    0.004    0.341        123  test1.dat
+1      2           0   PB*    0.004    0.341        128  test1.dat
 
-1      3           0   PB*    0.002    0.148        180  test1.dat
+1      3           0   PB*    0.002    0.148        185  test1.dat
 
-1      2           0   PB*    0.001    0.085        179  test1.dat
+1      2           0   PB*    0.001    0.085        184  test1.dat
 
-1      3           0   AZ*    0.001    0.065        118  test1.dat
+1      3           0   AZ*    0.001    0.065        123  test1.dat
 
-1      2           0   HA*    0.001    0.042        160  test1.dat
+1      2           0   HA*    0.001    0.042        165  test1.dat
 
 
 The following table lists the 10 worst residuals of used data
@@ -2913,9 +4464,9 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 
 4      5           0   MD     0.047    3.756         62  test1a.dat
 
-1      2           0   AZ     0.028    2.233        173  test1.dat
+1      2           0   AZ     0.028    2.233        178  test1.dat
 
-1      2        1000   GB     0.252    2.100        218  test1.dat
+1      2        1000   GB     0.252    2.100        223  test1.dat
 
 1      5           0   MD     0.024    1.880         63  test1a.dat
 

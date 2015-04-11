@@ -1,0 +1,223 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+Program options read from testsr1.snp
+
+Job: Regression tests - station recoding options
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testsl.crd
+      20 stations read
+
+Data file 1: testsr1.dat
+    Observations between 1998-05-01 00:00:00 and 2010-05-01 00:00:00
+      29 latitudes
+
+Data file 2: testsr2.dat
+    Observations between 2000-05-01 00:00:00 and 2006-05-01 00:00:00
+       5 latitudes
+    Recoding stations:
+    C_101      ignored
+    PEGRID     => PEGGY    
+    QQ         => QE3       after   2005-01-01 00:00:00
+               => QE2      
+
+Data file 3: testsr3.dat
+    Observations between 2000-05-01 00:00:00 and 2000-05-01 00:00:00
+       2 latitudes
+    Recoding stations:
+    D          => D        
+    QQ         => QQ        before  2005-01-01 00:00:00
+    Ignoring other stations
+
+
+
+================================================================================
+Regression tests - station recoding options                 
+
+                                   INPUT DATA
+
+================================================================================
+
+The following codes are used to identify data types
+   LT  latitudes
+
+Fil/Lin  From      Height To        Height Type   Value      Error
+
+ 1:10    11        0.000                   LT    41 00 16.67 S    1.00
+
+ 1:11    OTHER1    0.000                   LT    41 00 13.03 S    1.00
+
+ 1:12    B         0.000                   LT    41 00 36.25 S    1.00
+
+ 1:13    PINTOFALE 0.000                   LT    41 00 55.72 S    1.00
+
+ 1:14    QQ        0.000                   LT    41 00 53.36 S    1.00
+
+ 1:15    C_100     0.000                   LT    41 00 51.01 S    1.00
+
+ 1:16    PEGS      0.000                   LT    41 00 31.17 S    1.00
+
+ 1:17    2         0.000                   LT    41 00 12.74 S    1.00
+
+ 1:18    100       0.000                   LT    41 00 34.10 S    1.00
+
+ 1:19    3         0.000                   LT    41 00 25.32 S    1.00
+
+ 1:20    D         0.000                   LT    41 00 47.89 S    1.00
+
+ 1:21    C_101     0.000                   LT    41 00 24.48 S    1.00
+
+ 1:22    C_10      0.000                   LT    41 00 43.50 S    1.00
+
+ 1:23    B00       0.000                   LT    41 00 28.80 S    1.00
+
+ 1:24    PIND      0.000                   LT    41 00 28.80 S    1.00
+
+ 1:25    A         0.000                   LT    41 00 28.80 S    1.00
+
+ 1:27    BXXXXX    0.000                   LT    41 00 28.80 S    1.00
+
+ 1:28    10        0.000                   LT    41 00 28.80 S    1.00
+
+ 1:29    C_11      0.000                   LT    41 00 28.80 S    1.00
+
+ 1:33    11        0.000                   LT    41 00 16.67 S    1.00
+
+ 1:34    1BC       0.000                   LT    41 00 13.03 S    1.00
+
+ 1:38    11        0.000                   LT    41 00 16.67 S    1.00
+
+ 1:39    1WHEN     0.000                   LT    41 00 13.03 S    1.00
+
+ 1:43    11        0.000                   LT    41 00 16.67 S    1.00
+
+ 1:44    1AD       0.000                   LT    41 00 13.03 S    1.00
+
+ 1:48    2_RC      0.000                   LT    41 00 12.74 S    1.00
+
+ 1:49    100       0.000                   LT    41 00 34.10 S    1.00
+
+ 1:50    3_RC      0.000                   LT    41 00 25.32 S    1.00
+
+ 1:51    D         0.000                   LT    41 00 47.89 S    1.00
+
+ 2:10    PINTOFALE 0.000                   LT    41 00 55.72 S    1.00
+
+ 2:11    PEGS      0.000                   LT    41 00 31.17 S    1.00
+
+ 2:12    QE2       0.000                   LT    41 00 53.36 S    1.00
+
+ 2:14    D         0.000                   LT    41 00 47.89 S    1.00
+
+ 2:17    QE3       0.000                   LT    41 00 53.36 S    1.00
+
+ 3:12    QQ        0.000                   LT    41 00 53.36 S    1.00
+
+ 3:14    D         0.000                   LT    41 00 47.89 S    1.00
+
+
+
+
+================================================================================
+Regression tests - station recoding options                 
+
+                                RECODED STATIONS
+
+================================================================================
+
+The following stations are being recoded as they are read from data files
+
+     PEGGY      => PEGS     
+     TUBBY      ignored
+     1          => 1WHEN     between 2005-02-01 00:00:00 and 2006-05-01 00:00:00
+                => 1AD       after   2010-01-01 09:30:34
+                => 1BC       before  2000-01-01 09:30:34
+                => OTHER1   
+     2          => 2_RC      after   2001-01-01 00:00:00
+     3          => 3_RC      after   2001-01-01 00:00:00
+
+
+
+
+================================================================================
+Regression tests - station recoding options                 
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d data checking
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station      Adj  Row  Name
+
+11           F     -  4 BOLT
+B            F     -  1 SPIK
+PINTOFALE    F     -  4 BOLT
+QQ           F     -  3 PIN
+C_100        F     -  3 BOLT
+2            F     -  2 PEG
+100          F     -  2 PIN
+3            F     -  4 BOLT
+D            F     -  6 SPIK
+C_101        F     -  3 SPIK
+C_10         F     -  4 PIN
+B00          F     -  10 BOLT
+PIND         F     -  3 SPIK
+A            F     -  - BOLT
+BXXXXX       F     -  0 BOLT
+10           F     -  6 SPIK
+C_11         F     -  - BOLT
+OTHER1       F     -  2 PIN
+PEGS         F     -  4 -
+1BC          F     -  2 PIN
+1WHEN        F     -  2 PIN
+1AD          F     -  2 PIN
+2_RC         F     -  2 PEG
+3_RC         F     -  4 BOLT
+QE2          F     -  3 PIN
+QE3          F     -  3 PIN
+
+
+
+The following stations have been rejected.  Those denoted with '*'
+have been rejected automatically because there is insufficient data
+to locate them.
+
+Station      Name
+
+*1           2 PIN
+*PEGGY       4 -
+*TUBBY       2 -
+
+
+The following deformation has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20150101
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.

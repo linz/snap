@@ -1,0 +1,750 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+The command file testsr5.snp contains:
+     title Regression test - station recoding rejecting with multiple types
+     
+     coordinate_file test1.crd
+     data_file testsr4.dat
+     
+     mode 3d data_check
+     
+     list command_file
+     list file_summary
+     list input_data
+     list problem_definition
+     list residuals
+     
+     recode 2 to *
+     recode 3 to 3B
+     
+     
+
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testsr5.snp
+
+Job: Regression test - station recoding rejecting with multiple types
+
+
+Solution type: 3d data checking
+
+
+Coordinates file test1.crd
+       5 stations read
+
+Data file 1: testsr4.dat
+    Observations between 2005-01-01 00:00:00 and 2005-01-01 00:00:00
+      10 GPS baselines
+      11 GPS point coords
+       2 slope distances
+       1 horizontal distance
+       1 ellipsoidal distance
+       3 mean sea level distances
+       1 distance ratio
+       1 horizontal angle
+       1 azimuth
+       2 projection bearings
+       1 zenith distance
+       1 height difference
+       2 orthometric heights
+       2 ellipsoidal heights
+       2 latitudes
+       2 longitudes
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                                   INPUT DATA
+
+================================================================================
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+   SD  slope distances
+   HD  horizontal distances
+   ED  ellipsoidal distances
+   MD  mean sea level distances
+   DR  distance ratios
+   HA  horizontal angles
+   AZ  azimuths
+   PB  projection bearings
+   ZD  zenith distances
+   LV  height differences
+   OH  orthometric heights
+   EH  ellipsoidal heights
+   LT  latitudes
+   LN  longitudes
+
+Fil/Lin  From  Height To    Height Type   Value      Error
+
+ 1:9     1     0.000  3B    0.000  HA   161 11 26.3     20.0
+
+ 1:22    1     0.000  3B    0.000  AZ    61 11 26.3      4.0
+
+ 1:28    1     0.000  3B    0.000  PB    60 14 07.3      4.0
+     projection = WELLTM1949
+
+ 1:33    1     0.000  3B    0.000  SD     1154.9438   0.0023
+
+ 1:38    1     0.000  3B    0.000  ED     1152.1500   0.0106
+
+ 1:43    1     0.000  3B    0.000  MD     1152.1500   0.0106
+
+ 1:44    4     0.000  5     0.000  MD      889.2687   0.0103
+
+ 1:45    1     0.000  5     0.000  MD      889.2687   0.0103
+
+ 1:50    1     0.000  3B    0.000  HD     1152.1698   0.0046
+
+ 1:56    1     0.000  3B    0.000  DR     1155.0015   0.0023
+
+ 1:62    1     0.000  3B    0.000  ZD    93 58 37.5      5.0   DEFAULT
+     refraction_coef_code = Default
+
+ 1:67    1     0.000  3B    0.000  LV      -80.0000   0.0300
+
+ 1:71    1     0.000               LN   173 19 15.60 E    0.20
+
+ 1:76    1     0.000               LT    41 00 46.80 S    0.20
+
+ 1:85    1     0.000  3B    0.000  PB    60 14 07.3      3.6
+     projection = WELLTM1949
+ 1:85                              SD     1154.9438   0.0023
+
+ 1:91    1     0.000               LN   173 19 15.60 E    0.72
+     class = C
+     equpt = Theodolite
+
+ 1:96    1     0.000               LT    41 00 46.80 S    0.72
+     class = C
+     equpt = Theodolite
+
+ 1:101   1     0.000               OH         150.0000  2.0000
+
+ 1:107   1     0.000               OH         152.0000  0.2000
+
+ 1:112   1     0.000               EH         150.0000  2.0000
+
+ 1:118   1     0.000               EH         152.0000  0.2000
+
+ 1:130   1     0.000  3B    0.000  GB     -419.2468      0.00067681   -0.00006748    0.00024590   GPS
+                                          -967.3587     -0.00006748    0.00010790   -0.00002877
+                                           471.5165      0.00024590   -0.00002877    0.00061530
+     ref_frame_code = GPS
+
+ 1:139   1     0.000  3B    0.000  GB     -419.2668      0.00067681   -0.00006748    0.00024590   GPS
+                                          -967.3587     -0.00006748    0.00010790   -0.00002877
+                                           471.5165      0.00024590   -0.00002877    0.00061530
+     ref_frame_code = GPS
+
+ 1:161   1     0.000  3B    0.000  GB     -419.2668      0.00067681   -0.00006748    0.00024590   GPS
+                                          -967.3587     -0.00006748    0.00010789   -0.00002877
+                                           471.5165      0.00024590   -0.00002877    0.00061530
+     ref_frame_code = GPS
+
+ 1:169   1     0.000  3B    0.000  GB     -419.2668      0.00067681   -0.00006748    0.00024590   GPS
+                                          -967.3587     -0.00006748    0.00010790   -0.00002877
+                                           471.5165      0.00024590   -0.00002877    0.00061530
+     ref_frame_code = GPS
+
+ 1:187   1     0.000  3B    0.000  GB     -419.2668      0.00067681    0.00000000    0.00000000   GPS
+                                          -967.3587      0.00000000    0.00010789    0.00000000
+                                           471.5165      0.00000000    0.00000000    0.00061530
+     ref_frame_code = GPS
+
+ 1:193   1     0.000  3B    0.000  GB     -419.2668      0.00067681    0.00000000    0.00000000   GPS
+                                          -967.3587      0.00000000    0.00010790    0.00000000
+                                           471.5165      0.00000000    0.00000000    0.00061530
+     ref_frame_code = GPS
+
+ 1:205   1     0.000  3B    0.000  GB     -419.2668      0.00040059    0.00003232    0.00024954   GPS
+                                          -967.3587      0.00003232    0.00067303   -0.00002920
+                                           471.5165      0.00024954   -0.00002920    0.00032638
+     ref_frame_code = GPS
+
+ 1:211   1     0.000  3B    0.000  GB     -419.2668      0.00040059    0.00003232    0.00024954   GPS
+                                          -967.3587      0.00003232    0.00067303   -0.00002920
+                                           471.5165      0.00024954   -0.00002920    0.00032638
+     ref_frame_code = GPS
+
+ 1:221   1     0.000  3B    0.000  GB     -419.2668      0.00964064   -0.00106550    0.00693704   GPS
+                                          -967.3587     -0.00106550    0.00065805   -0.00081160
+                                           471.5165      0.00693704   -0.00081160    0.00780734
+     ref_frame_code = GPS
+
+ 1:226   1     0.000  3B    0.000  GB     -419.2668      0.00964064   -0.00106550    0.00693704   GPS
+                                          -967.3587     -0.00106550    0.00065805   -0.00081160
+                                           471.5165      0.00693704   -0.00081160    0.00780734
+     ref_frame_code = GPS
+
+ 1:234   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
+                                        560595.5704     -0.00006751    0.00010790   -0.00002878
+                                        -4163681.8023      0.00024590   -0.00002878    0.00061529
+     ref_frame_code = GPS
+
+ 1:246   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
+                                        560595.5704     -0.00006751    0.00010790   -0.00002878
+                                        -4163681.8023      0.00024590   -0.00002878    0.00061529
+     ref_frame_code = GPS
+
+ 1:262   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
+                                        560595.5704     -0.00006751    0.00010790   -0.00002878
+                                        -4163681.8023      0.00024590   -0.00002878    0.00061529
+     ref_frame_code = GPS
+
+ 1:272   1     0.000               GX   -4787264.5200      0.00067681   -0.00006751    0.00024590   GPS
+                                        560595.5704     -0.00006751    0.00010790   -0.00002878
+                                        -4163681.8023      0.00024590   -0.00002878    0.00061529
+     ref_frame_code = GPS
+
+ 1:286   1     0.000               GX   -4787264.5200      0.00067681    0.00000000    0.00000000   GPS
+                                        560595.5704      0.00000000    0.00010790    0.00000000
+                                        -4163681.8023      0.00000000    0.00000000    0.00061529
+     ref_frame_code = GPS
+
+ 1:293   1     0.000               GX   -4787264.5200      0.00067681    0.00000000    0.00000000   GPS
+                                        560595.5704      0.00000000    0.00010790    0.00000000
+                                        -4163681.8023      0.00000000    0.00000000    0.00061529
+     ref_frame_code = GPS
+
+ 1:302   1     0.000               GX   -4787264.5200      0.00040058    0.00003235    0.00024954   GPS
+                                        560595.5704      0.00003235    0.00067302   -0.00002922
+                                        -4163681.8023      0.00024954   -0.00002922    0.00032640
+     ref_frame_code = GPS
+
+ 1:309   1     0.000               GX   -4787264.5200      0.00040058    0.00003235    0.00024954   GPS
+                                        560595.5704      0.00003235    0.00067302   -0.00002922
+                                        -4163681.8023      0.00024954   -0.00002922    0.00032640
+     ref_frame_code = GPS
+
+ 1:319   1     0.000               GX   -4787264.5200      0.00963887   -0.00094136    0.00531149   GPS
+                                        560595.5704     -0.00094136    0.00171024   -0.00062198
+                                        -4163681.8023      0.00531149   -0.00062198    0.00825089
+     ref_frame_code = GPS
+
+ 1:321   1     0.000               GX   -4787264.5200      0.46688302   -0.04413354    0.19180397   GPS
+                                        560595.5704     -0.04413354    0.09516810   -0.02246052
+                                        -4163681.8023      0.19180397   -0.02246052    0.41794888
+     ref_frame_code = GPS
+
+ 1:326   1     0.000               GX   -4787264.5200      0.00963887   -0.00094136    0.00531149   GPS
+                                        560595.5704     -0.00094136    0.00171024   -0.00062198
+                                        -4163681.8023      0.00531149   -0.00062198    0.00825089
+     ref_frame_code = GPS
+
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d data checking
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  Node one
+4        F     -  Node four
+5        F     -  Node five
+3B       F     -  Node three
+
+
+
+The following stations have been rejected.  Those denoted with '*'
+have been rejected automatically because there is insufficient data
+to locate them.
+
+Station  Name
+
+*2       Node two
+*3       Node three
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d data checking
+
+
+Number of observations:              85
+Number of parameters:                 0
+Number of implicit parameters:        2
+
+Degrees of freedom:                  83
+Sum of squared residuals:             1.25001
+Standard error of unit weight:        0.12272
+
+The probability of an SSR this low is 0.000% (from Chi squared (83))
+
+You may have over-estimated the errors of the data.
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          Node one
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+#2      41 00 25.200000 S      -         -          Node two
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+#3      41 00 28.800000 S      -         -          Node three
+       173 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 46.800000 S      -         -          Node four
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 5      41 00 25.200000 S      -         -          Node five
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3B     41 00 28.800000 S      -         -          Node three
+       173 19 58.800000 E      -         -
+              70.0000          -         -
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Topocentric axes are east, north, up directions at
+    41 00 34.56033S    173 19 34.32061E
+
+Reference frame: GPS
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000           -          
+      Y translation (m)                   0.0000           -          
+      Z translation (m)                   0.0000           -          
+      X rotation (arc sec)                0.000000000      -          
+      Y rotation (arc sec)                0.000000000      -          
+      Z rotation (arc sec)                0.000000000      -          
+      Scale factor (ppm)                  0.000000000      -          
+
+      Correlation matrix:
+          1.0000
+          0.0000    1.0000
+          0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0000           -          
+      N translation (m)                   0.0000           -          
+      U translation (m)                   0.0000           -          
+      N-S tilt (arc sec)                  0.000000000      -          
+      W-E tilt (arc sec)                  0.000000000      -          
+      Vertical rotation (arc sec)         0.000000000      -          
+      Scale factor (ppm)                  0.000000000      -          
+
+      Correlation matrix:
+          1.0000
+          0.0000    1.0000
+          0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                                OTHER PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Parameter                          value         +/-
+
+Refr coef DEFAULT                    0.07500       -     
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+   SD  slope distances
+   HD  horizontal distances
+   ED  ellipsoidal distances
+   MD  mean sea level distances
+   DR  distance ratios
+   HA  horizontal angles
+   AZ  azimuths
+   PB  projection bearings
+   ZD  zenith distances
+   LV  height differences
+   OH  orthometric heights
+   EH  ellipsoidal heights
+   LT  latitudes
+   LN  longitudes
+Note: Calculated values for slope distances include equipment heights
+      Calculated values for zenith distances include equipment heights
+
+From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File testsr4.dat: line 9
+
+1     3B           0 HA   161 11 26.3   20.0 161 11 26.3   20.0     0.0    0.0    -   @   
+
+1     3B           0 AZ    61 11 26.3    4.0  61 11 26.3    0.0    -0.0    4.0   0.00     
+
+1     3B           0 PB    60 14 07.3    4.0  60 14 07.3    0.0     0.0    4.0   0.01     
+
+1     3B           0 SD     1154.9438 0.0023   1154.9438 0.0000 -0.0000 0.0023   0.02     
+
+1     3B           0 ED     1152.1500 0.0106   1152.1500 0.0000  0.0000 0.0106   0.00     
+
+1     3B           0 MD     1152.1500 0.0106   1152.1500 0.0000  0.0000 0.0106   0.00     
+
+4     5            0 MD      889.2687 0.0103    889.2729 0.0000 -0.0042 0.0103   0.41     
+
+1     5            0 MD      889.2687 0.0103    889.2708 0.0000 -0.0021 0.0103   0.20     
+
+1     3B           0 HD     1152.1698 0.0046   1152.1698 0.0000 -0.0000 0.0046   0.00     
+
+1     3B           0 DR     1155.0015 0.0023   1155.0015 0.0023 -0.0000 0.0000    -   @   
+
+            Distance scale factor 49.9ppm +/- 2.0ppm
+
+File testsr4.dat: line 62
+
+1     3B           0 ZD    93 58 37.5    5.0  93 58 34.7    0.0     2.8    5.0   0.56     
+
+1     3B           0 LV      -80.0000 0.0300    -80.0000 0.0000  0.0000 0.0300   0.00     
+
+From        Id Type     Value       +/-        Calc       +/-     Res    +/-    S.R.      
+
+1            0 LN   173 19 15.60 E   0.20 173 19 15.60 E   0.00    0.00   0.20   0.00     
+
+1            0 LT    41 00 46.80 S   0.20  41 00 46.80 S   0.00    0.00   0.20   0.00     
+
+From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+1     3B           0 SD     1154.9438 0.0023   1154.9438 0.0000 -0.0000 0.0023   0.02     
+
+1     3B           0 PB    60 14 07.3    3.6  60 14 07.3    0.0     0.0    3.6   0.00     
+
+From        Id Type     Value       +/-        Calc       +/-     Res    +/-    S.R.      
+
+1            0 LN   173 19 15.60 E   0.72 173 19 15.60 E   0.00    0.00   0.72   0.00     
+
+1            0 LT    41 00 46.80 S   0.72  41 00 46.80 S   0.00    0.00   0.72   0.00     
+
+1            0 OH         150.0000 2.0000       150.0000 0.0000  0.0000 2.0000   0.00     
+
+1            0 OH         152.0000 0.2000       152.0000 0.0000  0.0000 0.2000   0.00     
+
+1            0 EH         150.0000 2.0000       150.0000 0.0000  0.0000 2.0000   0.00     
+
+1            0 EH         152.0000 0.2000       152.0000 0.0000  0.0000 0.2000   0.00     
+
+From  To          Id Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
+                              X,Y,Z                 X,Y,Z              E,N,U                     
+
+1     3B        1001 GB       -419.2468  0.0260     -419.2668  0.0000 -0.0023  0.0100   0.23     
+                              -967.3587  0.0104     -967.3587  0.0000 -0.0131  0.0200   0.65     
+                               471.5165  0.0248      471.5165  0.0000 -0.0150  0.0300   0.50     
+                              1154.9366             1154.9438          0.0200           0.49     
+
+1     3B           0 GB       -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0100   0.00     
+                              -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0200   0.00     
+                               471.5165  0.0248      471.5165  0.0000 -0.0000  0.0300   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B        1001 GB       -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0100   0.00     
+                              -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0200   0.00     
+                               471.5165  0.0248      471.5165  0.0000 -0.0000  0.0300   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B           0 GB       -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0100   0.00     
+                              -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0200   0.00     
+                               471.5165  0.0248      471.5165  0.0000 -0.0000  0.0300   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B        1001 GB       -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0108   0.00     
+                              -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0253   0.00     
+                               471.5165  0.0248      471.5165  0.0000 -0.0000  0.0254   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B           0 GB       -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0108   0.00     
+                              -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0253   0.00     
+                               471.5165  0.0248      471.5165  0.0000 -0.0000  0.0254   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+File testsr4.dat: line 205
+
+1     3B        1001 GB       -419.2668  0.0200     -419.2668  0.0000  0.0000  0.0260   0.00     
+                              -967.3587  0.0259     -967.3587  0.0000 -0.0000  0.0104   0.00     
+                               471.5165  0.0181      471.5165  0.0000 -0.0000  0.0248   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B           0 GB       -419.2668  0.0200     -419.2668  0.0000  0.0000  0.0260   0.00     
+                              -967.3587  0.0259     -967.3587  0.0000 -0.0000  0.0104   0.00     
+                               471.5165  0.0181      471.5165  0.0000 -0.0000  0.0248   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B        1001 GB       -419.2668  0.0982     -419.2668  0.0000  0.0000  0.0231   0.00     
+                              -967.3587  0.0257     -967.3587  0.0000 -0.0000  0.0416   0.00     
+                               471.5165  0.0884      471.5165  0.0000 -0.0000  0.1259   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+1     3B           0 GB       -419.2668  0.0982     -419.2668  0.0000  0.0000  0.0231   0.00     
+                              -967.3587  0.0257     -967.3587  0.0000 -0.0000  0.0416   0.00     
+                               471.5165  0.0884      471.5165  0.0000 -0.0000  0.1259   0.00     
+                              1154.9439             1154.9438          0.0001           0.00     
+
+From        Id Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      
+                        X,Y,Z                  X,Y,Z               E,N,U                     
+
+1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00     
+                       560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00     
+                     -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00     
+                       560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00     
+                     -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00     
+                       560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00     
+                     -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00     
+                       560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00     
+                     -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0108   0.00     
+                       560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0253   0.00     
+                     -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0254   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0108   0.00     
+                       560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0253   0.00     
+                     -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0254   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+File testsr4.dat: line 302
+
+1            0 GX    -4787264.5200  0.0200  -4787264.5200  0.0000  0.0000  0.0260   0.00     
+                       560595.5704  0.0259    560595.5704  0.0000 -0.0000  0.0104   0.00     
+                     -4163681.8023  0.0181  -4163681.8023  0.0000 -0.0000  0.0248   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0200  -4787264.5200  0.0000  0.0000  0.0260   0.00     
+                       560595.5704  0.0259    560595.5704  0.0000 -0.0000  0.0104   0.00     
+                     -4163681.8023  0.0181  -4163681.8023  0.0000 -0.0000  0.0248   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0982  -4787264.5200  0.0000  0.0000  0.0400   0.00     
+                       560595.5704  0.0414    560595.5704  0.0000 -0.0000  0.0600   0.00     
+                     -4163681.8023  0.0908  -4163681.8023  0.0000 -0.0000  0.1200   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.6833  -4787264.5200  0.0000  0.0000  0.3000   0.00     
+                       560595.5704  0.3085    560595.5704  0.0000 -0.0000  0.5000   0.00     
+                     -4163681.8023  0.6465  -4163681.8023  0.0000 -0.0000  0.8000   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+1            0 GX    -4787264.5200  0.0982  -4787264.5200  0.0000  0.0000  0.0400   0.00     
+                       560595.5704  0.0414    560595.5704  0.0000 -0.0000  0.0600   0.00     
+                     -4163681.8023  0.0908  -4163681.8023  0.0000 -0.0000  0.1200   0.00     
+                      6369333.9627           6369333.9627          0.0000           0.00     
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.16   30     -      -    0.16   30
+        East component                      0.07   10     -      -    0.07   10
+        North component                     0.21   10     -      -    0.21   10
+        Up component                        0.16   10     -      -    0.16   10
+
+GPS point coord                             0.00   33     -      -    0.00   33
+        East component                      0.00   11     -      -    0.00   11
+        North component                     0.00   11     -      -    0.00   11
+        Up component                        0.00   11     -      -    0.00   11
+
+slope distance                              0.02    2     -      -    0.02    2
+
+horizontal distance                         0.00    1     -      -    0.00    1
+
+ellipsoidal distance                        0.00    1     -      -    0.00    1
+
+mean sea level distance                     0.26    3     -      -    0.26    3
+
+distance ratio                               -      -     -      -     -      -
+
+horizontal angle                             -      -     -      -     -      -
+
+azimuth                                     0.00    1     -      -    0.00    1
+
+projection bearing                          0.01    2     -      -    0.01    2
+
+zenith distance                             0.56    1     -      -    0.56    1
+
+height difference                           0.00    1     -      -    0.00    1
+
+orthometric height                          0.00    2     -      -    0.00    2
+
+ellipsoidal height                          0.00    2     -      -    0.00    2
+
+latitude                                    0.00    2     -      -    0.00    2
+
+longitude                                   0.00    2     -      -    0.00    2
+
+
+
+================================================================================
+Regression test - station recoding rejecting with multiple types   
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 41 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:  41    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   0    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 10 worst residuals of used data
+
+From   To         Id  Type     S.R.  Sig (%)       Line  File
+
+1      3B          0   ZD     0.558   42.312         62  testsr4.dat
+
+4      5           0   MD     0.407   31.569         44  testsr4.dat
+
+1      5           0   MD     0.203   16.118         45  testsr4.dat
+
+1      3B       1001   GB     0.494   13.407        130  testsr4.dat
+
+1      3B          0   SD     0.021    1.676         33  testsr4.dat
+
+1      3B          0   SD     0.021    1.676         85  testsr4.dat
+
+1      3B          0   PB     0.012    0.957         28  testsr4.dat
+
+1      3B          0   HD     0.004    0.337         50  testsr4.dat
+
+1      3B          0   ED     0.004    0.283         38  testsr4.dat
+
+1      3B          0   MD     0.004    0.283         43  testsr4.dat

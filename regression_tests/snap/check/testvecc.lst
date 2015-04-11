@@ -25,21 +25,27 @@ Coordinates file testmdfc.csv
       10 stations read
 
 Data file 1: testvecc.csv
+    Observations between 2010-09-07 00:14:59 and 2010-10-07 20:12:00
        9 GPS baselines
 
 Data file 2: testdist.csv
+    Observations between 2010-03-05 00:00:00 and 2010-12-25 00:00:00
        3 slope distances
 
 Data file 3: testha.csv
+    Observations between 2010-03-05 00:00:00 and 2010-03-05 00:00:00
        3 horizontal angles
 
 Data file 4: testzd.csv
+    Observations between 2010-03-05 00:00:00 and 2010-03-05 00:00:00
        8 zenith distances
 
 Data file 5: testlv.csv
+    Observations between 2010-03-05 00:00:00 and 2010-03-05 00:00:00
        6 height differences
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 
@@ -64,7 +70,8 @@ You may have under-estimated the errors of the data,
 or there may be gross errors in the data
 or the fixed stations may be incorrectly positioned
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 
@@ -128,7 +135,8 @@ Rejected stations are flagged #
        174 18 52.440120 E      -         -
              172.8150          -         -
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 
@@ -177,7 +185,8 @@ Reference frame: GPS
    Maximum error of horizontal tilt is 0.00000 arc sec
    Rotation axis of maximum tilt error has azimuth 0 degrees
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 
@@ -191,7 +200,8 @@ Parameter                          value         +/-
 
 Refr coef DEFAULT                    0.07500       -     
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 
@@ -336,7 +346,8 @@ BU34  BUZZ  LV      100.1000 0.0036    100.0000 0.0000  0.1000 0.0036  27.78  ??
 
 BU34  BUZZ  LV      100.1000 0.0035    100.0000 0.0000  0.1000 0.0035  28.86  ???
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 
@@ -383,7 +394,8 @@ testzd.csv                                352.62    8     -      -  352.62    8
 
 testlv.csv                                 65.45    6     -      -   65.45    6
 
-
+
+
 ================================================================================
 Testing CSV input                                           
 

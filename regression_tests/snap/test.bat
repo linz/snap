@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 
 SETLOCAL
 IF "%1" == "-v" (

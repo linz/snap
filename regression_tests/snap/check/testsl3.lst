@@ -25,11 +25,13 @@ Coordinates file testsl.crd
       20 stations read
 
 Data file 1: testsl.dat
+    Observations between 2000-05-01 00:00:00 and 2000-05-01 00:00:00
       19 height differences
       20 latitudes
       20 longitudes
 
-
+
+
 ================================================================================
 Regression tests - station lists                            
 
@@ -49,19 +51,19 @@ Station      Adj  Row  Name
 11           F     -  4 BOLT
 1            F     -  2 PIN
 B            F     -  1 SPIK
-PINTOFALE    3    13  4 BOLT
-QQ           3    16  3 PIN
-C_100        3     4  3 BOLT
-PEGGY        3     7  4 -
-2            3    19  2 PEG
-100          3    25  2 PIN
-3            3    22  4 BOLT
+PINTOFALE    3     1  4 BOLT
+QQ           3     4  3 PIN
+C_100        3     7  3 BOLT
+PEGGY        3    10  4 -
+2            3    13  2 PEG
+100          3    16  2 PIN
+3            3    19  4 BOLT
 D            F     -  6 SPIK
 C_101        F     -  3 SPIK
 C_10         F     -  4 PIN
 B00          F     -  10 BOLT
-PIND         3    10  3 SPIK
-A            3     1  - BOLT
+PIND         3    22  3 SPIK
+A            3    25  - BOLT
 TUBBY        F     -  2 -
 BXXXXX       F     -  0 BOLT
 10           F     -  6 SPIK

@@ -26,7 +26,8 @@ The command file teststof.snp contains:
      add_residual_column all date
 
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -47,9 +48,11 @@ Coordinates file teststof.crd
       11 stations read
 
 Data file 1: teststof.dat
+    Observations between 2004-12-25 00:00:00 and 2006-11-07 00:00:00
       28 GPS point coords
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -73,7 +76,8 @@ You may have under-estimated the errors of the data,
 or there may be gross errors in the data
 or the fixed stations may be incorrectly positioned
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -150,7 +154,8 @@ Rejected stations are flagged #
        174 40 11.472170 E      -         -
              115.5960          -         -
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -195,7 +200,8 @@ X011 offset
     ENU offset       02-03-2005      0.5000     0.1000    -0.2000
     ENU offset       02-10-2006      0.4000     0.2000    -0.3000
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -256,7 +262,8 @@ Reference frame: GPS
    Maximum error of horizontal tilt is 0.00000 arc sec
    Rotation axis of maximum tilt error has azimuth 0 degrees
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -428,7 +435,8 @@ X011  GX    -5116779.9365  0.0269  -5116779.9599  0.0000 -0.9436  0.0200  47.18 
             -3765265.9031  0.0240  -3765265.1483  0.0000  0.5000  0.0300  16.67  ???           
              6370758.2392           6370757.7411          1.2101          33.23  ???           
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 
@@ -449,7 +457,8 @@ GPS point coord                            22.35   84     -      -   22.35   84
         North component                    15.35   28     -      -   15.35   28
         Up component                       10.31   28     -      -   10.31   28
 
-
+
+
 ================================================================================
 Regression test stof - Station offsets                      
 

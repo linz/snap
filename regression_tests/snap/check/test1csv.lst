@@ -13,7 +13,7 @@
 
 
 The command file test1csv.snp contains:
-     title Regression test 1 - data types and observation equations
+     title Regression test 1csv - CSV format data/coords
      
      coordinate_file teststn.csv csv
      data_file testobs.csv csv format=obs
@@ -43,9 +43,10 @@ The command file test1csv.snp contains:
      add_residual_column all  S Id:4 S c=class:4 S c=equpt:3
 
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                              SUMMARY OF INPUT FILES
 
@@ -54,7 +55,7 @@ Regression test 1 - data types and observation equations
 
 Program options read from test1csv.snp
 
-Job: Regression test 1 - data types and observation equations
+Job: Regression test 1csv - CSV format data/coords
 
 
 Solution type: 3d data checking
@@ -64,6 +65,8 @@ Coordinates file teststn.csv
        5 stations read
 
 Data file 1: testobs.csv
+    Observations between 2008-01-01 12:00:00 and 2009-12-23 12:00:00
+       6 observations do not have a date
       21 GPS baselines
       21 GPS point coords
        6 slope distances
@@ -81,9 +84,10 @@ Data file 1: testobs.csv
        6 latitudes
        6 longitudes
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                                    INPUT DATA
 
@@ -544,9 +548,10 @@ Fil/Lin  From  Height To    Height Type   Value      Error
      ref_frame_code = GPS
 
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                              DEFINITION OF PROBLEM
 
@@ -567,1227 +572,2417 @@ Station  Adj  Row  Name
 4        F     -  Node four
 5        F     -  Node five
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                              OBSERVATION EQUATIONS
 
 ================================================================================
 
-File testobs.csv: line 2: Station 1 to 2 : HA ...
+BEGIN_JSON obs_equation_1
+{
+  "nparam":0,
+  "obs_equations": [
+{
+  "source": {"file": "testobs.csv","lineno": 2, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.22717759e-007,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.41682107e-009,9.41682107e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 4, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.42838407e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.41682107e-009,9.41682107e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 6, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.42838407e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.41682107e-009,9.41682107e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 8, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.25972579e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 9, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.25481997e-009,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 10, "station": "1 - 2", "type": "PB","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.21548122e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 11, "station": "1 - 3", "type": "PB","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 2.13274579e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 12, "station": "1 - 2", "type": "SD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.55576616e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.84000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 13, "station": "1 - 3", "type": "SD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.83183153e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 14, "station": "1 - 2", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31158344e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 15, "station": "1 - 3", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76542921e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.12360000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 16, "station": "1 - 2", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31158344e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 17, "station": "1 - 3", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76542921e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.12360000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 18, "station": "4 - 5", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -4.18786246e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 19, "station": "1 - 5", "type": "MD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.09508702e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 20, "station": "1 - 2", "type": "HD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -5.26002896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.93600000e-005
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 21, "station": "1 - 3", "type": "HD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -1.94378779e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+2.11600000e-005
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 22, "station": "1 - 2", "type": "DR","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 4.47355577e-002,
+    "schreiber": 8.94901364e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 5.76516817e-002,
+    "schreiber": 1.15494385e-003,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+4.84000000e-006,5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 24, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 2.01204400e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.88551317e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 25, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -7.30309317e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.88551317e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 26, "station": "1 - 2", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.00000000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 27, "station": "1 - 3", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.00000000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 28, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.55280228e-013]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 29, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.09850940e-012]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 30, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.55280228e-013]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 31, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.09850940e-012]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 32, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.23548991e-007,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.41682107e-009,9.41682107e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 34, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.50899426e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.41682107e-009,9.41682107e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 36, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.47905891e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.41682107e-009,9.41682107e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 38, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.26421909e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 39, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.63669028e-009,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 40, "station": "1 - 2", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 1.21548122e-007,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.55576616e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010,4.84000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 42, "station": "1 - 3", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 2.13274579e-007,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.83183153e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.75319123e-010,5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 44, "station": "1 - 2", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -2.31158344e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.06090000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 45, "station": "1 - 3", "type": "ED","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.76542921e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.12360000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 46, "station": "1 - 2", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 2.01204400e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.88551317e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 47, "station": "1 - 3", "type": "ZD","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": -7.30309317e-008,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+5.88551317e-010
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 48, "station": "1 - 2", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+1.00000000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 49, "station": "1 - 3", "type": "LV","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+9.00000000e-004
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 50, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.55280228e-013]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 51, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.09850940e-012]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 52, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.55280228e-013]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 53, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.09850940e-012]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 54, "station": "1 - 2", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -1.23548991e-007,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.61543549e-009,7.61543549e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 56, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.50899426e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.61543549e-009,7.61543549e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 58, "station": "2 - 1", "type": "HA","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -2.47905891e-008,
+    "schreiber": 1.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+7.61543549e-009,7.61543549e-009
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 60, "station": "1 - 2", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 1.26421909e-007,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-012
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 61, "station": "1 - 3", "type": "AZ","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 3.63669028e-009,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-012
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 62, "station": "1 - 2", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": -5.29848030e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.55576616e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-010,4.84000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 64, "station": "1 - 3", "type": "PB","nobs": 2},
+  "nobs": 2,
+  "obs": [
+   {
+    "value": 3.87416534e-008,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.83183153e-005,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvrdiag": [
+3.04617420e-010,5.29000000e-006
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 66, "station": "1", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [1.21846968e-011]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 67, "station": "2", "type": "LN","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.74155678e-011]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 68, "station": "1", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [1.21846968e-011]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 69, "station": "2", "type": "LT","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [2.74155678e-011]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 70, "station": "1", "type": "OH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e+000]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 71, "station": "1", "type": "OH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e-002]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 72, "station": "1", "type": "EH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e+000]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 73, "station": "1", "type": "EH","nobs": 1},
+  "nobs": 1,
+  "obs": [
+   {
+    "value": 0.00000000e+000,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00000000e-002]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 74, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805629e-004,-6.75090503e-005,2.45900672e-004],
+    [-6.75090503e-005,1.07901226e-004,-2.87800950e-005],
+    [2.45900672e-004,-2.87800950e-005,6.15293145e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 75, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76807256e-004,-6.74837275e-005,2.45902529e-004],
+    [-6.74837275e-005,1.07895278e-004,-2.87694357e-005],
+    [2.45902529e-004,-2.87694357e-005,6.15297466e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 76, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805629e-004,-6.75090503e-005,2.45900672e-004],
+    [-6.75090503e-005,1.07901226e-004,-2.87800950e-005],
+    [2.45900672e-004,-2.87800950e-005,6.15293145e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 77, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76807256e-004,-6.74837275e-005,2.45902529e-004],
+    [-6.74837275e-005,1.07895278e-004,-2.87694357e-005],
+    [2.45902529e-004,-2.87694357e-005,6.15297466e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 78, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805629e-004,-6.75090503e-005,2.45900672e-004],
+    [-6.75090503e-005,1.07901226e-004,-2.87800950e-005],
+    [2.45900672e-004,-2.87800950e-005,6.15293145e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 79, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76807256e-004,-6.74837275e-005,2.45902529e-004],
+    [-6.74837275e-005,1.07895278e-004,-2.87694357e-005],
+    [2.45902529e-004,-2.87694357e-005,6.15297466e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 80, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76805629e-004,-6.75090503e-005,2.45900672e-004],
+    [-6.75090503e-005,1.07901226e-004,-2.87800950e-005],
+    [2.45900672e-004,-2.87800950e-005,6.15293145e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 81, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76807256e-004,-6.74837275e-005,2.45902529e-004],
+    [-6.74837275e-005,1.07895278e-004,-2.87694357e-005],
+    [2.45902529e-004,-2.87694357e-005,6.15297466e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 82, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76989558e-004,-1.44638369e-008,6.31658706e-008],
+    [-1.44638369e-008,1.07875319e-004,-1.14050088e-008],
+    [6.31658706e-008,-1.14050088e-008,6.15446923e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 83, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76980683e-004,-2.70384750e-008,6.39981857e-008],
+    [-2.70384750e-008,1.07884193e-004,-8.33770769e-009],
+    [6.39981857e-008,-8.33770769e-009,6.15446924e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 84, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76989558e-004,-1.44638369e-008,6.31658706e-008],
+    [-1.44638369e-008,1.07875319e-004,-1.14050088e-008],
+    [6.31658706e-008,-1.14050088e-008,6.15446923e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 85, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76980683e-004,-2.70384750e-008,6.39981857e-008],
+    [-2.70384750e-008,1.07884193e-004,-8.33770769e-009],
+    [6.39981857e-008,-8.33770769e-009,6.15446924e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 86, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00761920e-004,3.23354989e-005,2.49630493e-004],
+    [3.23354989e-005,6.73255869e-004,-2.92166315e-005],
+    [2.49630493e-004,-2.92166315e-005,3.26510811e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 87, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00754770e-004,3.23241151e-005,2.49632378e-004],
+    [3.23241151e-005,6.73258631e-004,-2.92058105e-005],
+    [2.49632378e-004,-2.92058105e-005,3.26515198e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 88, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00761920e-004,3.23354989e-005,2.49630493e-004],
+    [3.23354989e-005,6.73255869e-004,-2.92166315e-005],
+    [2.49630493e-004,-2.92166315e-005,3.26510811e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 89, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00754770e-004,3.23241151e-005,2.49632378e-004],
+    [3.23241151e-005,6.73258631e-004,-2.92058105e-005],
+    [2.49632378e-004,-2.92058105e-005,3.26515198e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 90, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.50398400e-003,-7.05038528e-004,4.47934813e-003],
+    [-7.05038528e-004,5.62565466e-004,-5.24260727e-004],
+    [4.47934813e-003,-5.24260727e-004,5.32205514e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 91, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.66908363e-001,-4.41131715e-002,1.91802524e-001],
+    [-4.41131715e-002,9.51629841e-002,-2.24484741e-002],
+    [1.91802524e-001,-2.24484741e-002,4.17928653e-001]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 92, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.64031657e-003,-1.06544170e-003,6.93658226e-003],
+    [-1.06544170e-003,6.58261652e-004,-8.11547396e-004],
+    [6.93658226e-003,-8.11547396e-004,7.80714388e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 93, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.92155811e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 7.80118471e-005,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 3.29755068e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.50398400e-003,-7.05038528e-004,4.47934813e-003],
+    [-7.05038528e-004,5.62565466e-004,-5.24260727e-004],
+    [4.47934813e-003,-5.24260727e-004,5.32205514e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 94, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.51038177e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.33628213e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.96868517e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.64031657e-003,-1.06544170e-003,6.93658226e-003],
+    [-1.06544170e-003,6.58261652e-004,-8.11547396e-004],
+    [6.93658226e-003,-8.11547396e-004,7.80714388e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 95, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780065e-004,-6.75060150e-005,2.45903056e-004],
+    [-6.75060150e-005,1.07900864e-004,-2.87909749e-005],
+    [2.45903056e-004,-2.87909749e-005,6.15319071e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 96, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780835e-004,-6.74704342e-005,2.45907097e-004],
+    [-6.74704342e-005,1.07892529e-004,-2.87656205e-005],
+    [2.45907097e-004,-2.87656205e-005,6.15326636e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 97, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780065e-004,-6.75060150e-005,2.45903056e-004],
+    [-6.75060150e-005,1.07900864e-004,-2.87909749e-005],
+    [2.45903056e-004,-2.87909749e-005,6.15319071e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 98, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780835e-004,-6.74704342e-005,2.45907097e-004],
+    [-6.74704342e-005,1.07892529e-004,-2.87656205e-005],
+    [2.45907097e-004,-2.87656205e-005,6.15326636e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 99, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780065e-004,-6.75060150e-005,2.45903056e-004],
+    [-6.75060150e-005,1.07900864e-004,-2.87909749e-005],
+    [2.45903056e-004,-2.87909749e-005,6.15319071e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 100, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780835e-004,-6.74704342e-005,2.45907097e-004],
+    [-6.74704342e-005,1.07892529e-004,-2.87656205e-005],
+    [2.45907097e-004,-2.87656205e-005,6.15326636e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 101, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780065e-004,-6.75060150e-005,2.45903056e-004],
+    [-6.75060150e-005,1.07900864e-004,-2.87909749e-005],
+    [2.45903056e-004,-2.87909749e-005,6.15319071e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 102, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76780835e-004,-6.74704342e-005,2.45907097e-004],
+    [-6.74704342e-005,1.07892529e-004,-2.87656205e-005],
+    [2.45907097e-004,-2.87656205e-005,6.15326636e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 103, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76994312e-004,-2.91680701e-008,6.84515797e-008],
+    [-2.91680701e-008,1.07870559e-004,9.49030438e-009],
+    [6.84515797e-008,9.49030438e-009,6.15446930e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 104, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76980691e-004,-1.71091848e-008,6.02646167e-008],
+    [-1.71091848e-008,1.07884192e-004,-1.19380685e-008],
+    [6.02646167e-008,-1.19380685e-008,6.15446916e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 105, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76994312e-004,-2.91680701e-008,6.84515797e-008],
+    [-2.91680701e-008,1.07870559e-004,9.49030438e-009],
+    [6.84515797e-008,9.49030438e-009,6.15446930e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 106, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [6.76980691e-004,-1.71091848e-008,6.02646167e-008],
+    [-1.71091848e-008,1.07884192e-004,-1.19380685e-008],
+    [6.02646167e-008,-1.19380685e-008,6.15446916e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 107, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00739908e-004,3.23551855e-005,2.49632371e-004],
+    [3.23551855e-005,6.73251561e-004,-2.92323102e-005],
+    [2.49632371e-004,-2.92323102e-005,3.26537130e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 108, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00783935e-004,3.23158165e-005,2.49628611e-004],
+    [3.23158165e-005,6.73260174e-004,-2.92009543e-005],
+    [2.49628611e-004,-2.92009543e-005,3.26484491e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 109, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00739908e-004,3.23551855e-005,2.49632371e-004],
+    [3.23551855e-005,6.73251561e-004,-2.92323102e-005],
+    [2.49632371e-004,-2.92323102e-005,3.26537130e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 110, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.00783935e-004,3.23158165e-005,2.49628611e-004],
+    [3.23158165e-005,6.73260174e-004,-2.92009543e-005],
+    [2.49628611e-004,-2.92009543e-005,3.26484491e-004]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 111, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.63887304e-003,-9.41363611e-004,5.31149446e-003],
+    [-9.41363611e-004,1.71023503e-003,-6.21983652e-004],
+    [5.31149446e-003,-6.21983652e-004,8.25089193e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 112, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [4.66883023e-001,-4.41335448e-002,1.91803967e-001],
+    [-4.41335448e-002,9.51681017e-002,-2.24605208e-002],
+    [1.91803967e-001,-2.24605208e-002,4.17948875e-001]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 113, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.64020784e-003,-9.40524166e-004,5.31141447e-003],
+    [-9.40524166e-004,1.71002025e-003,-6.21316483e-004],
+    [5.31141447e-003,-6.21316483e-004,8.24977191e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 114, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 6.03403896e-006,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -4.10375418e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 2.98042316e-004,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.63887304e-003,-9.41363611e-004,5.31149446e-003],
+    [-9.41363611e-004,1.71023503e-003,-6.21983652e-004],
+    [5.31149446e-003,-6.21983652e-004,8.25089193e-003]
+  ]
+},
+{
+  "source": {"file": "testobs.csv","lineno": 115, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.86122614e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.32363532e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.72202601e-004,
+    "useobs": false,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.64020784e-003,-9.40524166e-004,5.31141447e-003],
+    [-9.40524166e-004,1.71002025e-003,-6.21316483e-004],
+    [5.31141447e-003,-6.21316483e-004,8.24977191e-003]
+  ]
+}
+]}
+
+END_JSON obs_equation_1
 
- 1  0.00000e+000          SCH 
-    9.70403e-005 1.00000e+000 
 
- 2  -1.22718e-007          SCH 
-    9.70403e-005 1.00000e+000 
 
-
-File testobs.csv: line 4: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.70403e-005 1.00000e+000 
-
- 2  -2.42838e-008          SCH 
-    9.70403e-005 1.00000e+000 
-
-
-File testobs.csv: line 6: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.70403e-005 1.00000e+000 
-
- 2  -2.42838e-008          SCH 
-    9.70403e-005 1.00000e+000 
-
-
-File testobs.csv: line 8: Station 1 to 2 : AZ
-
- 1  1.25973e-007 
-    1.93732e-005 
-
-
-File testobs.csv: line 9: Station 1 to 3 : AZ
-
- 1  3.25482e-009 
-    1.93732e-005 
-
-
-File testobs.csv: line 10: Station 1 to 2 : PB
-
- 1  1.21548e-007 
-    1.93732e-005 
-
-
-File testobs.csv: line 11: Station 1 to 3 : PB
-
- 1  2.13275e-007 
-    1.93732e-005 
-
-
-File testobs.csv: line 12: Station 1 to 2 : SD
-
- 1  3.55577e-005 
-    2.20000e-003 
-
-
-File testobs.csv: line 13: Station 1 to 3 : SD
-
- 1  -4.83183e-005 
-    2.30000e-003 
-
-
-File testobs.csv: line 14: Station 1 to 2 : ED
-
- 1  -2.31158e-006 
-    1.03000e-002 
-
-
-File testobs.csv: line 15: Station 1 to 3 : ED
-
- 1  3.76543e-005 
-    1.06000e-002 
-
-
-File testobs.csv: line 16: Station 1 to 2 : MD
-
- 1  -2.31158e-006 
-    1.03000e-002 
-
-
-File testobs.csv: line 17: Station 1 to 3 : MD
-
- 1  3.76543e-005 
-    1.06000e-002 
-
-
-File testobs.csv: line 18: Station 4 to 5 : MD
-
- 1  -4.18786e-003 
-    1.03000e-002 
-
-
-File testobs.csv: line 19: Station 1 to 5 : MD
-
- 1  -2.09509e-003 
-    1.03000e-002 
-
-
-File testobs.csv: line 20: Station 1 to 2 : HD
-
- 1  -5.26003e-006 
-    4.40000e-003 
-
-
-File testobs.csv: line 21: Station 1 to 3 : HD
-
- 1  -1.94379e-005 
-    4.60000e-003 
-
-
-File testobs.csv: line 22: Station 1 to 2 : DR ...
-
- 1  4.47356e-002          SCH 
-    2.20000e-003 8.94901e-004 
-
- 2  5.76517e-002          SCH 
-    2.30000e-003 1.15494e-003 
-
-
-File testobs.csv: line 24: Station 1 to 2 : ZD
-
- 1  2.01204e-007 
-    2.42601e-005 
-
-
-File testobs.csv: line 25: Station 1 to 3 : ZD
-
- 1  -7.30309e-008 
-    2.42601e-005 
-
-
-File testobs.csv: line 26: Station 1 to 2 : LV
-
- 1  0.00000e+000 
-    1.00000e-002 
-
-
-File testobs.csv: line 27: Station 1 to 3 : LV
-
- 1  0.00000e+000 
-    3.00000e-002 
-
-
-File testobs.csv: line 28: Station 1 : LN
-
- 1  0.00000e+000 
-    9.77384e-007 
-
-
-                  1 
-     1 9.55280e-013 
-
-
-File testobs.csv: line 29: Station 2 : LN
-
- 1  0.00000e+000 
-    1.44862e-006 
-
-
-                  1 
-     1 2.09851e-012 
-
-
-File testobs.csv: line 30: Station 1 : LT
-
- 1  0.00000e+000 
-    9.77384e-007 
-
-
-                  1 
-     1 9.55280e-013 
-
-
-File testobs.csv: line 31: Station 2 : LT
-
- 1  0.00000e+000 
-    1.44862e-006 
-
-
-                  1 
-     1 2.09851e-012 
-
-
-File testobs.csv: line 32: Station 1 to 2 : HA ...
-
-*1  0.00000e+000          SCH 
-    9.70403e-005 1.00000e+000 
-
- 2  -1.23549e-007          SCH 
-    9.70403e-005 1.00000e+000 
-
-
-File testobs.csv: line 34: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.70403e-005 1.00000e+000 
-
- 2  -2.50899e-008          SCH 
-    9.70403e-005 1.00000e+000 
-
-
-File testobs.csv: line 36: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    9.70403e-005 1.00000e+000 
-
- 2  -2.47906e-008          SCH 
-    9.70403e-005 1.00000e+000 
-
-
-File testobs.csv: line 38: Station 1 to 2 : AZ
-
- 1  1.26422e-007 
-    1.93732e-005 
-
-
-File testobs.csv: line 39: Station 1 to 3 : AZ
-
-*1  3.63669e-009 
-    1.93732e-005 
-
-
-File testobs.csv: line 40: Station 1 to 2 : PB ...
-
-*1  1.21548e-007 
-    1.93732e-005 
-
- 2  3.55577e-005 
-    2.20000e-003 
-
-
-File testobs.csv: line 42: Station 1 to 3 : PB ...
-
-*1  2.13275e-007 
-    1.93732e-005 
-
-*2  -4.83183e-005 
-    2.30000e-003 
-
-
-File testobs.csv: line 44: Station 1 to 2 : ED
-
- 1  -2.31158e-006 
-    1.03000e-002 
-
-
-File testobs.csv: line 45: Station 1 to 3 : ED
-
- 1  3.76543e-005 
-    1.06000e-002 
-
-
-File testobs.csv: line 46: Station 1 to 2 : ZD
-
- 1  2.01204e-007 
-    2.42601e-005 
-
-
-File testobs.csv: line 47: Station 1 to 3 : ZD
-
- 1  -7.30309e-008 
-    2.42601e-005 
-
-
-File testobs.csv: line 48: Station 1 to 2 : LV
-
- 1  0.00000e+000 
-    1.00000e-002 
-
-
-File testobs.csv: line 49: Station 1 to 3 : LV
-
- 1  0.00000e+000 
-    3.00000e-002 
-
-
-File testobs.csv: line 50: Station 1 : LN
-
- 1  0.00000e+000 
-    9.77384e-007 
-
-
-                  1 
-     1 9.55280e-013 
-
-
-File testobs.csv: line 51: Station 2 : LN
-
-*1  0.00000e+000 
-    1.44862e-006 
-
-
-                  1 
-     1 2.09851e-012 
-
-
-File testobs.csv: line 52: Station 1 : LT
-
- 1  0.00000e+000 
-    9.77384e-007 
-
-
-                  1 
-     1 9.55280e-013 
-
-
-File testobs.csv: line 53: Station 2 : LT
-
-*1  0.00000e+000 
-    1.44862e-006 
-
-
-                  1 
-     1 2.09851e-012 
-
-
-File testobs.csv: line 54: Station 1 to 2 : HA ...
-
-*1  0.00000e+000          SCH 
-    8.72665e-005 1.00000e+000 
-
- 2  -1.23549e-007          SCH 
-    8.72665e-005 1.00000e+000 
-
-
-File testobs.csv: line 56: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    8.72665e-005 1.00000e+000 
-
- 2  -2.50899e-008          SCH 
-    8.72665e-005 1.00000e+000 
-
-
-File testobs.csv: line 58: Station 2 to 1 : HA ...
-
- 1  0.00000e+000          SCH 
-    8.72665e-005 1.00000e+000 
-
- 2  -2.47906e-008          SCH 
-    8.72665e-005 1.00000e+000 
-
-
-File testobs.csv: line 60: Station 1 to 2 : AZ
-
- 1  1.26422e-007 
-    1.74533e-006 
-
-
-File testobs.csv: line 61: Station 1 to 3 : AZ
-
-*1  3.63669e-009 
-    1.74533e-006 
-
-
-File testobs.csv: line 62: Station 1 to 2 : PB ...
-
-*1  -5.29848e-008 
-    1.74533e-005 
-
- 2  3.55577e-005 
-    2.20000e-003 
-
-
-File testobs.csv: line 64: Station 1 to 3 : PB ...
-
-*1  3.87417e-008 
-    1.74533e-005 
-
-*2  -4.83183e-005 
-    2.30000e-003 
-
-
-File testobs.csv: line 66: Station 1 : LN
-
- 1  0.00000e+000 
-    3.49066e-006 
-
-
-                  1 
-     1 1.21847e-011 
-
-
-File testobs.csv: line 67: Station 2 : LN
-
-*1  0.00000e+000 
-    5.23599e-006 
-
-
-                  1 
-     1 2.74156e-011 
-
-
-File testobs.csv: line 68: Station 1 : LT
-
- 1  0.00000e+000 
-    3.49066e-006 
-
-
-                  1 
-     1 1.21847e-011 
-
-
-File testobs.csv: line 69: Station 2 : LT
-
-*1  0.00000e+000 
-    5.23599e-006 
-
-
-                  1 
-     1 2.74156e-011 
-
-
-File testobs.csv: line 70: Station 1 : OH
-
- 1  0.00000e+000 
-    2.00000e+000 
-
-
-                  1 
-     1 4.00000e+000 
-
-
-File testobs.csv: line 71: Station 1 : OH
-
- 1  0.00000e+000 
-    2.00000e-001 
-
-
-                  1 
-     1 4.00000e-002 
-
-
-File testobs.csv: line 72: Station 1 : EH
-
- 1  0.00000e+000 
-    2.00000e+000 
-
-
-                  1 
-     1 4.00000e+000 
-
-
-File testobs.csv: line 73: Station 1 : EH
-
- 1  0.00000e+000 
-    2.00000e-001 
-
-
-                  1 
-     1 4.00000e-002 
-
-
-File testobs.csv: line 74: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.60155e-002 
-
- 2  7.80118e-005 
-    -6.75091e-005 
-
- 3  3.29755e-004 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75091e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-
-
-File testobs.csv: line 75: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.60155e-002 
-
-*2  -3.33628e-004 
-    -6.74837e-005 
-
-*3  4.96869e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74837e-005 1.07895e-004 
-     3 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File testobs.csv: line 76: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.60155e-002 
-
- 2  7.80118e-005 
-    -6.75091e-005 
-
- 3  3.29755e-004 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75091e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-
-
-File testobs.csv: line 77: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.60155e-002 
-
-*2  -3.33628e-004 
-    -6.74837e-005 
-
-*3  4.96869e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74837e-005 1.07895e-004 
-     3 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File testobs.csv: line 78: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.60155e-002 
-
- 2  7.80118e-005 
-    -6.75091e-005 
-
- 3  3.29755e-004 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75091e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-
-
-File testobs.csv: line 79: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.60155e-002 
-
-*2  -3.33628e-004 
-    -6.74837e-005 
-
-*3  4.96869e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74837e-005 1.07895e-004 
-     3 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File testobs.csv: line 80: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.60155e-002 
-
- 2  7.80118e-005 
-    -6.75091e-005 
-
- 3  3.29755e-004 
-    1.56812e-002 
-
-
-                  1            2            3 
-     1 6.76806e-004 
-     2 -6.75091e-005 1.07901e-004 
-     3 2.45901e-004 -2.87801e-005 6.15293e-004 
-
-
-File testobs.csv: line 81: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.60155e-002 
-
-*2  -3.33628e-004 
-    -6.74837e-005 
-
-*3  4.96869e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76807e-004 
-     2 -6.74837e-005 1.07895e-004 
-     3 2.45903e-004 -2.87694e-005 6.15297e-004 
-
-
-File testobs.csv: line 82: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.60190e-002 
-
- 2  7.80118e-005 
-    -1.44638e-008 
-
- 3  3.29755e-004 
-    2.51328e-004 
-
-
-                  1            2            3 
-     1 6.76990e-004 
-     2 -1.44638e-008 1.07875e-004 
-     3 6.31659e-008 -1.14050e-008 6.15447e-004 
-
-
-File testobs.csv: line 83: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.60189e-002 
-
-*2  -3.33628e-004 
-    -2.70385e-008 
-
-*3  4.96869e-004 
-    2.52979e-004 
-
-
-                  1            2            3 
-     1 6.76981e-004 
-     2 -2.70385e-008 1.07884e-004 
-     3 6.39982e-008 -8.33771e-009 6.15447e-004 
-
-
-File testobs.csv: line 84: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.60190e-002 
-
- 2  7.80118e-005 
-    -1.44638e-008 
-
- 3  3.29755e-004 
-    2.51328e-004 
-
-
-                  1            2            3 
-     1 6.76990e-004 
-     2 -1.44638e-008 1.07875e-004 
-     3 6.31659e-008 -1.14050e-008 6.15447e-004 
-
-
-File testobs.csv: line 85: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.60189e-002 
-
-*2  -3.33628e-004 
-    -2.70385e-008 
-
-*3  4.96869e-004 
-    2.52979e-004 
-
-
-                  1            2            3 
-     1 6.76981e-004 
-     2 -2.70385e-008 1.07884e-004 
-     3 6.39982e-008 -8.33771e-009 6.15447e-004 
-
-
-File testobs.csv: line 86: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.00190e-002 
-
- 2  7.80118e-005 
-    5.68643e-003 
-
- 3  3.29755e-004 
-    1.57997e-002 
-
-
-                  1            2            3 
-     1 4.00762e-004 
-     2 3.23355e-005 6.73256e-004 
-     3 2.49630e-004 -2.92166e-005 3.26511e-004 
-
-
-File testobs.csv: line 87: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.00189e-002 
-
-*2  -3.33628e-004 
-    5.68543e-003 
-
-*3  4.96869e-004 
-    1.57998e-002 
-
-
-                  1            2            3 
-     1 4.00755e-004 
-     2 3.23241e-005 6.73259e-004 
-     3 2.49632e-004 -2.92058e-005 3.26515e-004 
-
-
-File testobs.csv: line 88: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    2.00190e-002 
-
- 2  7.80118e-005 
-    5.68643e-003 
-
- 3  3.29755e-004 
-    1.57997e-002 
-
-
-                  1            2            3 
-     1 4.00762e-004 
-     2 3.23355e-005 6.73256e-004 
-     3 2.49630e-004 -2.92166e-005 3.26511e-004 
-
-
-File testobs.csv: line 89: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    2.00189e-002 
-
-*2  -3.33628e-004 
-    5.68543e-003 
-
-*3  4.96869e-004 
-    1.57998e-002 
-
-
-                  1            2            3 
-     1 4.00755e-004 
-     2 3.23241e-005 6.73259e-004 
-     3 2.49632e-004 -2.92058e-005 3.26515e-004 
-
-
-File testobs.csv: line 90: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    8.06473e-002 
-
- 2  7.80118e-005 
-    -7.05039e-004 
-
- 3  3.29755e-004 
-    6.69279e-002 
-
-
-                  1            2            3 
-     1 6.50398e-003 
-     2 -7.05039e-004 5.62565e-004 
-     3 4.47935e-003 -5.24261e-004 5.32206e-003 
-
-
-File testobs.csv: line 91: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    6.83307e-001 
-
- 2  7.80118e-005 
-    -4.41132e-002 
-
- 3  3.29755e-004 
-    4.37953e-001 
-
-
-                  1            2            3 
-     1 4.66908e-001 
-     2 -4.41132e-002 9.51630e-002 
-     3 1.91803e-001 -2.24485e-002 4.17929e-001 
-
-
-File testobs.csv: line 92: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    9.81851e-002 
-
-*2  -3.33628e-004 
-    -1.06544e-003 
-
-*3  4.96869e-004 
-    8.32861e-002 
-
-
-                  1            2            3 
-     1 9.64032e-003 
-     2 -1.06544e-003 6.58262e-004 
-     3 6.93658e-003 -8.11547e-004 7.80714e-003 
-
-
-File testobs.csv: line 93: Station 1 to 2 : GB
-
- 1  -3.92156e-004 
-    8.06473e-002 
-
- 2  7.80118e-005 
-    -7.05039e-004 
-
- 3  3.29755e-004 
-    6.69279e-002 
-
-
-                  1            2            3 
-     1 6.50398e-003 
-     2 -7.05039e-004 5.62565e-004 
-     3 4.47935e-003 -5.24261e-004 5.32206e-003 
-
-
-File testobs.csv: line 94: Station 1 to 3 : GB
-
-*1  -1.51038e-004 
-    9.81851e-002 
-
-*2  -3.33628e-004 
-    -1.06544e-003 
-
-*3  4.96869e-004 
-    8.32861e-002 
-
-
-                  1            2            3 
-     1 9.64032e-003 
-     2 -1.06544e-003 6.58262e-004 
-     3 6.93658e-003 -8.11547e-004 7.80714e-003 
-
-
-File testobs.csv: line 95: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60150e-002 
-
- 2  -4.10375e-004 
-    -6.75060e-005 
-
- 3  2.98042e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76780e-004 
-     2 -6.75060e-005 1.07901e-004 
-     3 2.45903e-004 -2.87910e-005 6.15319e-004 
-
-
-File testobs.csv: line 96: Station 2 : GX
-
- 1  -3.86123e-004 
-    2.60150e-002 
-
- 2  -3.32364e-004 
-    -6.74704e-005 
-
- 3  -3.72203e-004 
-    1.56814e-002 
-
-
-                  1            2            3 
-     1 6.76781e-004 
-     2 -6.74704e-005 1.07893e-004 
-     3 2.45907e-004 -2.87656e-005 6.15327e-004 
-
-
-File testobs.csv: line 97: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60150e-002 
-
- 2  -4.10375e-004 
-    -6.75060e-005 
-
- 3  2.98042e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76780e-004 
-     2 -6.75060e-005 1.07901e-004 
-     3 2.45903e-004 -2.87910e-005 6.15319e-004 
-
-
-File testobs.csv: line 98: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.60150e-002 
-
-*2  -3.32364e-004 
-    -6.74704e-005 
-
-*3  -3.72203e-004 
-    1.56814e-002 
-
-
-                  1            2            3 
-     1 6.76781e-004 
-     2 -6.74704e-005 1.07893e-004 
-     3 2.45907e-004 -2.87656e-005 6.15327e-004 
-
-
-File testobs.csv: line 99: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60150e-002 
-
- 2  -4.10375e-004 
-    -6.75060e-005 
-
- 3  2.98042e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76780e-004 
-     2 -6.75060e-005 1.07901e-004 
-     3 2.45903e-004 -2.87910e-005 6.15319e-004 
-
-
-File testobs.csv: line 100: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.60150e-002 
-
-*2  -3.32364e-004 
-    -6.74704e-005 
-
-*3  -3.72203e-004 
-    1.56814e-002 
-
-
-                  1            2            3 
-     1 6.76781e-004 
-     2 -6.74704e-005 1.07893e-004 
-     3 2.45907e-004 -2.87656e-005 6.15327e-004 
-
-
-File testobs.csv: line 101: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60150e-002 
-
- 2  -4.10375e-004 
-    -6.75060e-005 
-
- 3  2.98042e-004 
-    1.56813e-002 
-
-
-                  1            2            3 
-     1 6.76780e-004 
-     2 -6.75060e-005 1.07901e-004 
-     3 2.45903e-004 -2.87910e-005 6.15319e-004 
-
-
-File testobs.csv: line 102: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.60150e-002 
-
-*2  -3.32364e-004 
-    -6.74704e-005 
-
-*3  -3.72203e-004 
-    1.56814e-002 
-
-
-                  1            2            3 
-     1 6.76781e-004 
-     2 -6.74704e-005 1.07893e-004 
-     3 2.45907e-004 -2.87656e-005 6.15327e-004 
-
-
-File testobs.csv: line 103: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60191e-002 
-
- 2  -4.10375e-004 
-    -2.91681e-008 
-
- 3  2.98042e-004 
-    2.61633e-004 
-
-
-                  1            2            3 
-     1 6.76994e-004 
-     2 -2.91681e-008 1.07871e-004 
-     3 6.84516e-008 9.49030e-009 6.15447e-004 
-
-
-File testobs.csv: line 104: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.60189e-002 
-
-*2  -3.32364e-004 
-    -1.71092e-008 
-
-*3  -3.72203e-004 
-    2.45489e-004 
-
-
-                  1            2            3 
-     1 6.76981e-004 
-     2 -1.71092e-008 1.07884e-004 
-     3 6.02646e-008 -1.19381e-008 6.15447e-004 
-
-
-File testobs.csv: line 105: Station 1 : GX
-
- 1  6.03404e-006 
-    2.60191e-002 
-
- 2  -4.10375e-004 
-    -2.91681e-008 
-
- 3  2.98042e-004 
-    2.61633e-004 
-
-
-                  1            2            3 
-     1 6.76994e-004 
-     2 -2.91681e-008 1.07871e-004 
-     3 6.84516e-008 9.49030e-009 6.15447e-004 
-
-
-File testobs.csv: line 106: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.60189e-002 
-
-*2  -3.32364e-004 
-    -1.71092e-008 
-
-*3  -3.72203e-004 
-    2.45489e-004 
-
-
-                  1            2            3 
-     1 6.76981e-004 
-     2 -1.71092e-008 1.07884e-004 
-     3 6.02646e-008 -1.19381e-008 6.15447e-004 
-
-
-File testobs.csv: line 107: Station 1 : GX
-
- 1  6.03404e-006 
-    2.00185e-002 
-
- 2  -4.10375e-004 
-    5.68816e-003 
-
- 3  2.98042e-004 
-    1.57998e-002 
-
-
-                  1            2            3 
-     1 4.00740e-004 
-     2 3.23552e-005 6.73252e-004 
-     3 2.49632e-004 -2.92323e-005 3.26537e-004 
-
-
-File testobs.csv: line 108: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.00196e-002 
-
-*2  -3.32364e-004 
-    5.68470e-003 
-
-*3  -3.72203e-004 
-    1.57996e-002 
-
-
-                  1            2            3 
-     1 4.00784e-004 
-     2 3.23158e-005 6.73260e-004 
-     3 2.49629e-004 -2.92010e-005 3.26484e-004 
-
-
-File testobs.csv: line 109: Station 1 : GX
-
- 1  6.03404e-006 
-    2.00185e-002 
-
- 2  -4.10375e-004 
-    5.68816e-003 
-
- 3  2.98042e-004 
-    1.57998e-002 
-
-
-                  1            2            3 
-     1 4.00740e-004 
-     2 3.23552e-005 6.73252e-004 
-     3 2.49632e-004 -2.92323e-005 3.26537e-004 
-
-
-File testobs.csv: line 110: Station 2 : GX
-
-*1  -3.86123e-004 
-    2.00196e-002 
-
-*2  -3.32364e-004 
-    5.68470e-003 
-
-*3  -3.72203e-004 
-    1.57996e-002 
-
-
-                  1            2            3 
-     1 4.00784e-004 
-     2 3.23158e-005 6.73260e-004 
-     3 2.49629e-004 -2.92010e-005 3.26484e-004 
-
-
-File testobs.csv: line 111: Station 1 : GX
-
- 1  6.03404e-006 
-    9.81778e-002 
-
- 2  -4.10375e-004 
-    -9.41364e-004 
-
- 3  2.98042e-004 
-    7.28800e-002 
-
-
-                  1            2            3 
-     1 9.63887e-003 
-     2 -9.41364e-004 1.71024e-003 
-     3 5.31149e-003 -6.21984e-004 8.25089e-003 
-
-
-File testobs.csv: line 112: Station 1 : GX
-
- 1  6.03404e-006 
-    6.83288e-001 
-
- 2  -4.10375e-004 
-    -4.41335e-002 
-
- 3  2.98042e-004 
-    4.37954e-001 
-
-
-                  1            2            3 
-     1 4.66883e-001 
-     2 -4.41335e-002 9.51681e-002 
-     3 1.91804e-001 -2.24605e-002 4.17949e-001 
-
-
-File testobs.csv: line 113: Station 2 : GX
-
-*1  -3.86123e-004 
-    9.81846e-002 
-
-*2  -3.32364e-004 
-    -9.40524e-004 
-
-*3  -3.72203e-004 
-    7.28795e-002 
-
-
-                  1            2            3 
-     1 9.64021e-003 
-     2 -9.40524e-004 1.71002e-003 
-     3 5.31141e-003 -6.21316e-004 8.24977e-003 
-
-
-File testobs.csv: line 114: Station 1 : GX
-
- 1  6.03404e-006 
-    9.81778e-002 
-
- 2  -4.10375e-004 
-    -9.41364e-004 
-
- 3  2.98042e-004 
-    7.28800e-002 
-
-
-                  1            2            3 
-     1 9.63887e-003 
-     2 -9.41364e-004 1.71024e-003 
-     3 5.31149e-003 -6.21984e-004 8.25089e-003 
-
-
-File testobs.csv: line 115: Station 2 : GX
-
-*1  -3.86123e-004 
-    9.81846e-002 
-
-*2  -3.32364e-004 
-    -9.40524e-004 
-
-*3  -3.72203e-004 
-    7.28795e-002 
-
-
-                  1            2            3 
-     1 9.64021e-003 
-     2 -9.40524e-004 1.71002e-003 
-     3 5.31141e-003 -6.21316e-004 8.24977e-003 
-
-
-
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                                 SOLUTION SUMMARY
 
@@ -1808,9 +3003,10 @@ The probability of an SSR this low is 0.000% (from Chi squared (117))
 
 You may have over-estimated the errors of the data.
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                               STATION COORDINATES
 
@@ -1848,9 +3044,10 @@ Rejected stations are flagged #
        173 19 40.800000 E      -         -
              250.0000          -         -
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                            REFERENCE FRAME PARAMETERS
 
@@ -1909,9 +3106,10 @@ Reference frame: GPS
    Maximum error of horizontal tilt is 0.00000 arc sec
    Rotation axis of maximum tilt error has azimuth 0 degrees
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                                 OTHER PARAMETERS
 
@@ -1923,9 +3121,10 @@ Parameter                          value         +/-
 
 Refr coef DEFAULT                    0.00000       -     
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                              OBSERVATION RESIDUALS
 
@@ -2345,9 +3544,10 @@ File testobs.csv: line 108
             -4163244.5860  0.0908  -4163244.5856  0.0000  0.0005  0.1200   0.00 *                
              6369436.1872           6369436.1867          0.0006           0.01 *                
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                                  ERROR SUMMARY
 
@@ -2399,9 +3599,10 @@ latitude                                    0.00    4    0.00    2    0.00    6
 
 longitude                                   0.00    4    0.00    2    0.00    6
 
-
+
+
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1csv - CSV format data/coords               
 
                            MOST SIGNIFICANT RESIDUALS
 

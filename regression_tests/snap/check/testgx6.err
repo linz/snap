@@ -12,7 +12,8 @@
                           Run at 
 
 
-
+
+
 ================================================================================
                                                             
 
@@ -20,10 +21,4 @@
 
 ================================================================================
 
-Error: Missing or invalid projection - check #projection in data file
-       Line: 39  File: testdef2.dat
-
-Error: Missing or invalid projection - check #projection in data file
-       Line: 72  File: testdef2.dat
-
-Error: 2 errors reported reading the data files
+Warning: Station 2          is not in the coordinate file.  Used 4 times
