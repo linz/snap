@@ -1,7 +1,7 @@
 #ifndef _STNRECODEFILE_H
 #define _STNRECODEFILE_H
 
-#define DFLTSTRCD_EXT ".rcd"
+#define DFLTSTRCD_EXT ".csv"
 
 #include "snapdata/stnrecode.h"
 

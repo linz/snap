@@ -158,6 +158,7 @@ int snap_main( int argc, char *argv[] )
         {
             xprintf("\nErrors loading configuration file %s\n", config_file );
             handle_error( INVALID_DATA, "The configuration file is not correct", NO_MESSAGE );
+            close_output_files(0,0);
             return DEFAULT_RETURN_STATUS;
         }
     }
@@ -169,6 +170,7 @@ int snap_main( int argc, char *argv[] )
     {
         xprintf("\nErrors loading command file %s\n", command_file );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
+        close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -227,6 +229,7 @@ int snap_main( int argc, char *argv[] )
         if( dump == NULL )
         {
             xprintf("\nUnable to create binary file\n");
+            close_output_files(0,0);
             return DEFAULT_RETURN_STATUS;
         }
         create_section( dump, "OBSERVATIONS" );
@@ -247,7 +250,11 @@ int snap_main( int argc, char *argv[] )
         if( !(net->options & NW_GEOID_HEIGHTS) || overwrite_geoid )
         {
             sts = set_network_geoid( net, geoid_file );
-            if( sts != OK ) return DEFAULT_RETURN_STATUS;
+            if( sts != OK ) 
+            {
+                close_output_files(0,0);
+                return DEFAULT_RETURN_STATUS;
+            }
         }
     }
 
@@ -262,34 +269,41 @@ int snap_main( int argc, char *argv[] )
     init_load_snap();
     read_errors = read_data_files( cmd_dir, output_file_summary ? lst : NULL );
     sts = term_load_snap();
+    end_bindata();
+    if( dump ) end_section( dump );
+
+
+    /* Report information from loading the data before stopping as this 
+       could help understand what went wrong.
+
+       Annotate the file summary section of the list file with those
+       observations that will have error factors applied, or are being
+       rejected or ignored */
+
+    summarize_data_modifications( lst );
+    if( output_input_data ) print_input_data( lst );
+
     if( read_errors )
     {
         xprintf( "\n%d errors reported reading the data files\n", (int) read_errors);
         sprintf( errmess, "%d errors reported reading the data files", (int) read_errors);
         handle_error(INVALID_DATA, errmess, NO_MESSAGE );
+        close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
     }
     else if ( sts != OK )
     {
         xprintf("\nErrors encountered reading the data files\n");
         handle_error( INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE );
+        close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
     }
 
     /* Mark the end of the binary data */
 
-    end_bindata();
-    if( dump ) end_section( dump );
-
-    /* Annotate the file summary section of the list file with those
-       observations that will have error factors applied, or are being
-       rejected or ignored */
-
-    summarize_data_modifications( lst );
 
     /* Echo the input data if required */
 
-    if( output_input_data ) print_input_data( lst );
     if( output_stn_recode ) print_station_recoding( lst );
 
     if( sort_obs ) sort_observation_list();
@@ -300,6 +314,7 @@ int snap_main( int argc, char *argv[] )
     {
         xprintf("\nErrors loading command file %s\n", command_file );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
+        close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -314,6 +329,7 @@ int snap_main( int argc, char *argv[] )
     {
         xprintf("\nUnable to initiallize the deformation model\n");
         handle_error( INVALID_DATA, "Unable to initiallized deformation model", NO_MESSAGE );
+        close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -347,6 +363,7 @@ int snap_main( int argc, char *argv[] )
         if( sts != OK )
         {
             xprintf("\nThe adjustment cannot be solved - observations cannot be summed\n");
+            close_output_files(0,0);
             return DEFAULT_RETURN_STATUS;
         }
 
@@ -388,6 +405,7 @@ int snap_main( int argc, char *argv[] )
         {
             handle_singularity( sts );
             xprintf("\nThe adjustment cannot be solved - equations are singular\n");
+            close_output_files(0,0);
             return DEFAULT_RETURN_STATUS;
         }
 
@@ -584,8 +602,7 @@ int snap_main( int argc, char *argv[] )
        allocations */
     list_memory_allocations( lst );
 
-    close_output_files( NULL, NULL );
-
+    close_output_files( 0, 0 );
     return DEFAULT_RETURN_STATUS;
 }
 

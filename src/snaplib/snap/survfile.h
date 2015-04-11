@@ -15,9 +15,8 @@
 #define SURVFILE_H_RCSID "$Id: survfile.h,v 1.2 1998/06/15 02:27:45 ccrook Exp $"
 #endif
 
-#ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
-#endif
+#include "snapdata/stnrecode.h"
 
 enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT };
 
@@ -33,6 +32,7 @@ typedef struct
     long nnodate;
     long obscount[NOBSTYPE];
     unsigned char usage;
+    stn_recode_map *recode;
 } survey_data_file;
 
 int  add_data_file( char *name, int format, char *subtype, double errfct, char *recode );
@@ -41,6 +41,9 @@ char *survey_data_file_name( int ifile );
 int survey_data_file_id( char *name );
 int survey_data_file_count( void );
 double survey_data_file_errfct( int ifile );
+
+void delete_survey_file_recodes();
+void delete_survey_file_list();
 
 #ifdef _BINFILE_H
 void dump_filenames( BINARY_FILE *b );

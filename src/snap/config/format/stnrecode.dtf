@@ -2,7 +2,7 @@ format_name SNAP CSV station recode format
 FORMAT CSV HEADER=Y
 required_columns codefrom codeto
 
-codefrom @code
-nameto @name
+codefrom @codefrom
+codeto @codeto
 datefrom @datefrom
 dateto @dateto

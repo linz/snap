@@ -92,7 +92,7 @@ static int init_csdef_deformation( void *deformation )
                                             csepoch, std->y0def );
             if( sts != OK )
             {
-                sprintf(buf,"Cannot calculate deformation of %-20s at date %.1lf",
+                sprintf(buf,"Cannot calculate deformation of %.20s at date %.1lf",
                         st->Code, csepoch);
                 handle_error(WARNING_ERROR,buf,NO_MESSAGE);
                 return INVALID_DATA;
@@ -133,7 +133,7 @@ static int calc_csdef_deformation( void *deformation, station *st, double date, 
                                         year, std->def );
         if( sts != OK )
         {
-            sprintf(buf,"Cannot calculate deformation of %-20s at %.1lf",
+            sprintf(buf,"Cannot calculate deformation of %.20s at %.1lf",
                     st->Code, year);
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;

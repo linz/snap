@@ -52,7 +52,7 @@
 #include "residual.h"
 #include "snap/stnadj.h"
 #include "snap/genparam.h"
-#include "snap/stnobseq.h"
+#include "stnobseq.h"
 #include "coefs.h"
 #include "snap/datastat.h"
 #include "util/dms.h"
@@ -260,12 +260,12 @@ void print_input_data( FILE *out )
 
 void print_station_recoding( FILE *out )
 {
-    if( output_stn_recode && stnrecode )
+    if( output_stn_recode && stnrecode && recodes_used(stnrecode) )
     {
         /* Note: for the moment print all recoding.  Ultimately may only want those used. */
         print_section_heading( out, "RECODED STATIONS" );
         fprintf(out,"\nThe following stations are being recoded as they are read from data files\n\n");
-        print_stn_recode_list( out, stnrecode, 0, stn_name_width,"     ");
+        print_stn_recode_list( out, stnrecode, 1, stn_name_width,"     ");
     }
     fprintf(out,"\n");
 }

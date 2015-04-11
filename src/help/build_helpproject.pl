@@ -8,10 +8,6 @@ use HTML::LinkExtor;
 use URI;
 
 
-my $hhc = "C:/Program Files/HTML Help Workshop/hhc.exe";
-$hhc = "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" if ! -x $hhc;
-die "Cannot find HTML Help Workshop help compiler\n" if ! -x $hhc;
-
 my $helpname = '';
 my @srcdir = ();
 my $homedir = $FindBin::Bin;
@@ -48,6 +44,10 @@ Options:
                 (as doesn't like network drives)
 
 EOD
+
+my $hhc = "C:/Program Files/HTML Help Workshop/hhc.exe";
+$hhc = "C:/Program Files (x86)/HTML Help Workshop/hhc.exe" if $buildhelp && ! -x $hhc;
+die "Cannot find HTML Help Workshop help compiler\n" if $buildhelp && ! -x $hhc;
 
 print "Compiling help file $helpname\n";
 print "Using source directories\n  ",join("\n  ",@srcdir),"\n";
@@ -339,7 +339,7 @@ EOD
 
 my %contentsfiles = ();
 while(<C>) {
-   chomp;
+   s/\s+$//;
    my( $level, $title, $url ) = split(/\t/);
    next if ! $level || $title eq '';
    while( $dlevel < $level ) { print H "\t"x$dlevel,"<UL>\n"; $dlevel++; }

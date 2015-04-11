@@ -1,0 +1,66 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="station, coordinate, station coordinate file, format, recode">
+<title>SNAP station recode file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="stn_recode_file"></a>Station recode file</h1>
+
+<p>Station recode files define recoding of stations when data
+files are read into SNAP. They have two main uses
+</p>
+<ul>
+    <li>To change the codes used in data files where they do not match those in 
+    the coordinate file.
+    </li>
+    <li>To experiment with possibly moved stations by creating a new station 
+    in place of an existing one for a specific range of dates.
+    </li>
+</ul>
+<p>
+Station recoding can be applied globally, that is for all files loaded into a snap job, using the <a href="../cmdcfg/cmd_recode.html">recode</a> command, or for an individual data file with the <a href="../cmdcfg/cmd_data_file.html">data_file</a> command.  
+The recode command can define a station recode file or explicitly defines stations to recode.
+</p>
+<p>The station recode file (or files) is a CSV formatted file with columns 
+&quot;codefrom&quot;, &quot;codeto&quot; and optionally &quot;datefrom&quot; and &quot;dateto&quot;.  Each record in the file defines a code in the data file and the code that it is to be changed to.  Stations can also be recoded to &quot;*&quot;, in which case they will be ignored.  If &quot;codefrom&quot; and &quot;codeto&quot; are both &quot;*&quot; then all stations will be ignored except those explicitly recoded in the file.
+</p>
+<p>
+The recode may also specify a date range.  The recoding will only apply after the <i>datefrom</i> and before the <i>dateto</i> dates.  Either or both can be blank - for example if <i>datefrom</i> is blank then any date before dateto will apply.
+</p>
+<p>
+Multiple recodings can be specified for each station.  The last matching recoding record with a date range matching the observation will be used in preference.  If there is none, then the last recoding record without a date range is used.
+</p>
+
+<p>
+Global recoding (from the command file) is applied after recoding specific to
+a data file. 
+The recoded data file codes are may be recoded again by the command file
+recodes.
+</p>
+
+<p>When the station code has been recoded the SNAP will check if it is defined in the
+configuration file.  If it is not defined and if the original code is defined then the SNAP will 
+create a new station based on the original one.
+</p>
+<p>
+Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DD:hh:mm:ss&quot;.  
+</p>
+<div class="SeeAlso">
+    <h3>See also:</h3>
+
+    <p><a href="index.html">Station coordinate file</a></p>
+
+    <p><a href="stn_code.html">Station codes</a></p>
+
+    <p><a href="../cmdcfg/cmd_recode.html">The recode command</a></p>
+
+</div>
+</body>
+</html>

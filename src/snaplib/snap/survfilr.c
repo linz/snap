@@ -53,7 +53,6 @@ long read_data_files( char *base_dir, FILE *lst )
     int i, c, nfile, nch;
     long file_errors, total_errors;
     char *fname;
-    stn_recode_map *filemap=0;
     stn_recode_data recodedata;
 
     recodedata.global_map=stnrecode;
@@ -104,24 +103,22 @@ long read_data_files( char *base_dir, FILE *lst )
             continue;
         }
 
-        if( filemap )
-        {
-            delete_stn_recode_map(filemap);
-            filemap=0;
-        }
-
-        if( sd->recodefile )
+        if( sd->recodefile && ! sd->recode )
         {
             int sts;
-            filemap=create_stn_recode_map( net );
-            sts = read_station_recode_file( filemap, sd->recodefile, filename );
+            sd->recode=create_stn_recode_map( net );
+            sts = read_station_recode_file( sd->recode, sd->recodefile, filename );
             if( sts != OK )
             {
                 xprintf("\n   Unable to read station recode file %s\n",sd->recodefile);
                 total_errors++;
                 continue;
             }
-            recodedata.file_map=filemap;
+        }
+
+        recodedata.file_map=sd->recode;
+        if( recodedata.global_map || recodedata.file_map )
+        {
             set_stn_recode_func( recoded_network_station, &recodedata );
         }
         else
@@ -181,6 +178,12 @@ long read_data_files( char *base_dir, FILE *lst )
                             datatype[c].name,PLURAL(sd->obscount[c]) );
             }
         }
+        
+        if( sd->recode && recodes_used( sd->recode ) )
+        {
+            fprintf(lst,"    Recoding stations:\n");
+            print_stn_recode_list( lst, sd->recode, 1, stn_name_width, "    ");
+        }
 
         file_errors = df_data_file_errcount( d );
         if( file_errors )
@@ -194,13 +197,18 @@ long read_data_files( char *base_dir, FILE *lst )
                         PLURAL(file_errors) );
         }
 
+        if( sd->recode ) 
+        {
+            delete_stn_recode_map( sd->recode );
+            sd->recode = 0;
+        }
+
         df_close_data_file( d );
         d=0;
     }
 
     set_stn_recode_func( 0, 0 );
     if( d ) df_close_data_file( d );
-    if( filemap ) delete_stn_recode_map(filemap);
     if( fname ) check_free( fname );
     return total_errors;
 }

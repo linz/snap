@@ -52,7 +52,9 @@ typedef struct
 {
     stn_recode_list *stlists;
     stn_recode_list **index;
+    stn_recode_list *global;
     int nindex;
+    int used;
     network *net;
 } stn_recode_map;
 
@@ -74,6 +76,8 @@ typedef struct
 stn_recode_map *create_stn_recode_map( network *net );
 
 void delete_stn_recode_map( stn_recode_map *stt );
+
+int recodes_used( stn_recode_map *stt );
 
 void add_stn_recode_to_map( stn_recode_map *stt, 
         const char *codefrom, const char *codeto, double datefrom, double dateto );

@@ -96,6 +96,7 @@
   3	output_precision	help/files/cmdcfg/cmd_output_precision.html
   3	plot	help/files/cmdcfg/cmd_plot.html
   3	print	help/files/cmdcfg/cmd_list.html
+  3	recode	help/files/cmdcfg/cmd_recode.html
   3	redundancy_flag_level	help/files/cmdcfg/cmd_redundancy_flag_level.html
   3	reference_frame	help/files/cmdcfg/cmd_reference_frame.html
   3	reference_frame_scale_error	help/files/cmdcfg/cmd_additional_parameter_commands.html
@@ -106,6 +107,7 @@
   3	spec_test_options	help/files/cmdcfg/cmd_spec_test_options.html
   3	specification	help/files/cmdcfg/cmd_specification.html
   3	station_code_width	help/files/cmdcfg/cmd_station_code_width.html
+  3	station_offset_file	help/files/cmdcfg/cmd_station_offset_file.html
   3	summarize_errors_by	help/files/cmdcfg/cmd_summarize_errors_by.html
   3	systematic_error	help/files/cmdcfg/cmd_additional_parameter_commands.html
   3	test_specification	help/files/cmdcfg/cmd_test_specification.html
@@ -118,6 +120,8 @@
  2	SNAP Station coordinate file format	help/files/crd/stn_file_format.html
  2	CSV format station coordinate files	help/files/crd/csv_stn_files.html
  2	Examples of station coordinate files	help/files/crd/stn_crd_file_example.html
+ 2	Station offset file format	help/files/crd/stn_offset_file_format.html
+ 2	Station recode file	help/files/crd/stn_recode_file.html
 1	Observation files	help/files/data/index.html
  2	Data types	help/files/data/obs_data_types.html
   3	Azimuth observations (AZ)	help/files/data/obs_azimuth_data.html

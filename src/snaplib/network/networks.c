@@ -330,7 +330,7 @@ static void process_selected_stations1( network *nw, char *select, const char *b
         {
             char *crdsys;
             char *pgnfile;
-            char *spec;
+            const char *spec;
             void *pgn=0;
             int istn;
             int isgeodetic;

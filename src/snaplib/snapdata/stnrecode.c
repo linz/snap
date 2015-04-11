@@ -91,8 +91,15 @@ stn_recode_map *create_stn_recode_map( network *net )
     stn_recode_map *stt=(stn_recode_map *) check_malloc( sizeof(stn_recode_map));
     stt->stlists=0;
     stt->index=0;
+    stt->global=0;
+    stt->used=0;
     stt->net=net;
     return stt;
+}
+
+int recodes_used( stn_recode_map *stt )
+{
+    return stt->used;
 }
 
 void delete_stn_recode_map( stn_recode_map *stt ) {
@@ -104,6 +111,7 @@ void delete_stn_recode_map( stn_recode_map *stt ) {
         lists=next;
     }
     if( stt->index ) check_free( stt->index );
+    if( stt->global ) delete_stn_recode_list(stt->global);
     stt->index=0;
     stt->stlists=0;
     check_free( stt );
@@ -155,17 +163,34 @@ void add_stn_recode_to_map( stn_recode_map *stt, const char *codefrom, const cha
 {
     stn_recode_list *stlist=stt->stlists;
     stn_recode *stc;
-    while( stlist )
+    int global=_stricmp(codefrom,RECODE_IGNORE_CODE) == 0 ? 1 : 0;
+    /* Global recoding only applies for ignoring codes */
+    if( global && _stricmp(codeto,RECODE_IGNORE_CODE) != 0 ) return;
+    if( global )
     {
-        if( _stricmp(stlist->codefrom,codefrom) == 0 ) break;
-        stlist=stlist->next;
+        stlist=stt->global;
+    }
+    else
+    {
+        while( stlist )
+        {
+            if( _stricmp(stlist->codefrom,codefrom) == 0 ) break;
+            stlist=stlist->next;
+        }
     }
     if( ! stlist )
     {
         stlist=create_stn_recode_list( codefrom );
-        stlist->next=stt->stlists;
-        stt->stlists=stlist;
-        if( stt->index ) { check_free( stt->index ); stt->index=0; }
+        if( global )
+        {
+            stt->global=stlist;
+        }
+        else
+        {
+            stlist->next=stt->stlists;
+            stt->stlists=stlist;
+            if( stt->index ) { check_free( stt->index ); stt->index=0; }
+        }
     }
     stc=create_stn_recode( codeto, datefrom, dateto );
     add_stn_recode_to_list( stlist, stc );
@@ -200,7 +225,7 @@ static void apply_recode_suffix( station *st, void *psrd )
 
 int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile )
 {
-    char msg[80];
+    char msg[100];
     char *field;
     char *codefrom=0;
     char *codeto=0;
@@ -230,19 +255,26 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         int sts;
         if( ! filename )
         {
-            handle_error(INVALID_DATA,"Filename missing in station recode",msg);
-            return INVALID_DATA;
+            strcpy(msg,"Filename missing in station recode");
+            ok=0;
         }
-        sts=read_station_recode_file( stt, filename, basefile );
-        return sts;
+        else
+        {
+            sts=read_station_recode_file( stt, filename, basefile );
+            if( sts != OK )
+            {
+                sprintf(msg,"Error reading station recode file %.40s",filename);
+                ok=0;
+            }
+        }
     }
     else if ( _stricmp(field,"suffix") == 0 )
     {
         suffix=next_field(&def);
         if( ! suffix )
         {
-            handle_error(INVALID_DATA,"Suffix missing in station recode",msg);
-            return INVALID_DATA;
+            strcpy(msg,"Suffix missing in station recode");
+            ok=0;
         }
     }
     else
@@ -256,12 +288,17 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
             strcpy(msg,"Missing target station code in recode definition");
             ok=0;
         }
+        if( _stricmp(codefrom,RECODE_IGNORE_CODE)==0 && _stricmp(codeto,RECODE_IGNORE_CODE) != 0 )
+        {
+            sprintf(msg,"Cannot recode from %.20s to %.20s",codefrom,codeto);
+            ok=0;
+        }
     }
 
     datefrom=UNDEFINED_DATE;
     dateto=UNDEFINED_DATE;
     field=next_field(&def);
-    if( field )
+    if( ok && field )
     {
         char *fromdef=0;
         char *todef=0;
@@ -380,7 +417,7 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
         int first=1;
         for( stn_recode *src=srl->translations; src; src=src->next )
         {
-            if( onlyused && src->used == RECODE_UNUSED ) continue;
+            if( onlyused && (src->used == RECODE_UNUSED) ) continue;
             if( first )
             {
                 first=0;
@@ -390,7 +427,45 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
             {
                 fprintf(out,"%s%-*s ", prefix,stn_name_width," ");
             }
-            fprintf( out, " => %-*s",stn_name_width,src->codeto );
+            if( _stricmp(src->codeto,RECODE_IGNORE_CODE ) == 0 )
+            {
+                fprintf( out," ignored");
+            }
+            else
+            {
+                fprintf( out, " => %-*s",stn_name_width,src->codeto );
+            }
+            if( src->datefrom != UNDEFINED_DATE && src->dateto != UNDEFINED_DATE )
+            {
+                fprintf( out, " between %s",date_as_string(src->datefrom,0,0) );
+                fprintf( out, " and %s",date_as_string(src->dateto,0,0) );
+            }
+            else if( src->datefrom != UNDEFINED_DATE )
+            {
+                fprintf( out, " after   %s",date_as_string(src->datefrom,0,0) );
+            }
+            else if( src->dateto != UNDEFINED_DATE )
+            {
+                fprintf( out, " before  %s",date_as_string(src->dateto,0,0) );
+            }
+            fprintf( out, "\n");
+        }
+    }
+    if( stt->global )
+    {
+        int first=1;
+        for( stn_recode *src=stt->global->translations; src; src=src->next )
+        {
+            if( onlyused && src->used == RECODE_UNUSED ) continue;
+            if( first )
+            {
+                first=0;
+                fprintf(out,"%sIgnoring other stations");
+            }
+            else
+            {
+                fprintf(out,"%s%             ", prefix,stn_name_width," ");
+            }
             if( src->datefrom != UNDEFINED_DATE && src->dateto != UNDEFINED_DATE )
             {
                 fprintf( out, " between %s",date_as_string(src->datefrom,0,0) );
@@ -413,6 +488,7 @@ const char *get_stn_recode( stn_recode_map *stt, const char *code, double date )
 {
     stn_recode *src=0;
     stn_recode_list *list=lookup_station_recode( stt, code );
+    if( ! list ) list=stt->global;
     if( ! list ) return 0;
 
     for( src=list->translations; src; src=src->next )
@@ -424,7 +500,8 @@ const char *get_stn_recode( stn_recode_map *stt, const char *code, double date )
         else if(date <= src->dateto && date >= src->datefrom ) break;
     }
     if( ! src ) return 0;
-    src->used=1;
+    src->used=RECODE_USED;
+    stt->used=RECODE_USED;
     return src->codeto;
 }
 
@@ -436,11 +513,11 @@ const char *recoded_network_station( void *recode_data, const char *code, double
     stn_recode_data *srd=(stn_recode_data *)recode_data;
     if( ! srd ) return 0;
     if( srd->file_map ) code1=get_stn_recode(srd->file_map,code,date);
-    if( srd->global_map ) code2=get_stn_recode(srd->global_map,code1 ? code1 : code2,date);
+    if( srd->global_map ) code2=get_stn_recode(srd->global_map,code1 ? code1 : code,date);
     if( ! code2 ) { code2 = code1; code1 = 0; }
     if( ! code2 ) return 0;
 
-    if( srd->net )
+    if( _stricmp(code2,RECODE_IGNORE_CODE) != 0 && srd->net )
     {
         id = find_station( srd->net, code2 );
         if( ! id )

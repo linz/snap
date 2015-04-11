@@ -51,15 +51,45 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     sd->nnodate=0;
     for( i=0; i < NOBSTYPE; i++ ) sd->obscount[i]=0;
     sd->usage = 0;
-
+    sd->recode=0;
     return OK;
 }
+
 int add_data_file( char *name, int format, char *subtype, double errfct, char *recode )
 {
     name = copy_string( name );
     subtype = copy_string( subtype );
     recode = copy_string( recode );
     return add_data_file_nocopy( name, format, subtype, errfct, recode );
+}
+
+void delete_survey_data_file_recodes()
+{
+    int i;
+    for( i=0; i<nsdindx; i++ )
+    {
+        survey_data_file *sd=sdindx[i];
+        if( sd->recode ) delete_stn_recode_map( sd->recode );
+        sd->recode=0;
+    }
+}
+
+void delete_survey_file_list()
+{
+    int i;
+    for( i=0; i<nsdindx; i++ )
+    {
+        survey_data_file *sd=sdindx[i];
+        if( sd->recode ) delete_stn_recode_map( sd->recode );
+        if( sd->name ) check_free( sd->name );
+        if( sd->subtype ) check_free( sd->subtype );
+        if( sd->recodefile ) check_free( sd->recodefile );
+        check_free( sd );
+        sdindx[i] = 0;
+    }
+    check_free( sdindx );
+    sdindx=0;
+    nsdindx=0;
 }
 
 survey_data_file *survey_data_file_ptr( int  ifile )

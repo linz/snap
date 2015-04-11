@@ -103,13 +103,13 @@ static int init_linzdef_deformation( void *deformation )
     vcs = load_coordsys( vcsdef );
     if( !vcs )
     {
-        sprintf( buf,"Cannot load deformation model coordinate system %-20s",vcsdef);
+        sprintf( buf,"Cannot load deformation model coordinate system %.20s",vcsdef);
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
     if( define_coord_conversion( &tovcs, net->geosys, vcs ) != OK )
     {
-        sprintf(buf,"Cannot convert station coordinates to coordinate system %-20s of deformation model",
+        sprintf(buf,"Cannot convert station coordinates to coordinate system %.20s of deformation model",
                 vcs->code);
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
@@ -137,7 +137,7 @@ static int init_linzdef_deformation( void *deformation )
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
         if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
         {
-            sprintf(buf,"Cannot convert coordinates of %-20s to deformation model coordinate system %-20s",
+            sprintf(buf,"Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
                     st->Code, vcs->code);
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
@@ -153,7 +153,7 @@ static int init_linzdef_deformation( void *deformation )
             sts = utlCalcLinzDef( model->linzdef, model->epoch, std->x, std->y, std->y0def );
             if( sts != STS_OK )
             {
-                sprintf(buf,"Cannot calculate deformation of %-20s at date %.1lf",
+                sprintf(buf,"Cannot calculate deformation of %.20s at date %.1lf",
                         st->Code, model->epoch);
                 handle_error(WARNING_ERROR,buf,NO_MESSAGE);
                 return INVALID_DATA;
@@ -190,7 +190,7 @@ static int calc_linzdef_deformation( void *deformation, station *st, double date
         sts = utlCalcLinzDef( model->linzdef, year, std->x, std->y, std->def );
         if( sts != STS_OK )
         {
-            sprintf(buf,"Cannot calculate deformation of %-20s at %.1lf",
+            sprintf(buf,"Cannot calculate deformation of %.20s at %.1lf",
                     st->Code,year);
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;

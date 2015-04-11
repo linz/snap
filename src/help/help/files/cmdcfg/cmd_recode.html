@@ -1,0 +1,65 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="recode">
+<title>The recode command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_recode"></a>The recode command</h1>
+
+<p class="Commanddefinition">
+recode  <i>code</i> to  <i>newcode</i></i><br />
+recode  <i>code</i> to <i>newcode</i></i> <i>date_range</i><br />
+recode  suffix <i>suffix</i> <i>date_range</i> for <i>station_list</i><br />
+recode  file <i>station_recode_file</i>
+</p>
+
+<p>Specifies a translation of a station code that is applied when data files are read. These translations
+are applied to all files. Individual data files can be recoded using the <a href="cmd_data_file.html">data_file</a>
+command.
+</p>
+<p>
+The <i>code</i> and <i>newcode</i> define the data file code and the codes that they are recoded to in SNAP.
+The <i>newcode</i> can be &quot;*&quot;, which means that the station will be ignored.
+</p>
+<p>
+Station recoding can be restricted to a range of dates - valid date range specifications are:
+</p>
+<p class="Commanddefinition">
+between <i>date_from</i> and <i>date_to</i><br />
+before <i>date_to</i><br />
+after <i>date_from</i>
+</p>
+<p>
+Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DDThh:mm:ss&quot;.  
+</p>
+<p>Station recoding can also be applied to a list of files using the <i>recode suffix</i> option.  All the 
+stations specified in the <a href="cmd_stn_list.html">station list</a> will be recoded by appending the suffix
+to the code.  This is only applied with a date range.  
+</p>
+<p>The <i>recode file</i> option can specify a <a href="../crd/stn_recode_file.html">station recode file</a>
+containing a list of station recode specifications.
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_data_file.html">The data_file command</a></p>
+
+<p><a href="../crd/stn_recode_file.html">The station recode file</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

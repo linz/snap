@@ -87,6 +87,8 @@ void term_load_data( void );
 
 /* Station recode function */
 
+#define RECODE_IGNORE_CODE "*"
+
 void set_stn_recode_func( 
         const char *(*recode)( void *recodedata, const char *code, double date ), 
         void *recodedata);

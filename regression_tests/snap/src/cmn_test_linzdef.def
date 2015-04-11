@@ -1,0 +1,217 @@
+DEFORMATION_MODEL NZGD1949 deformation model
+FORMAT LINZDEF1B
+VERSION_NUMBER 1.0
+VERSION_DATE  12-Mar-2004
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2200
+COORDSYS NZGD1949
+DESCRIPTION
+This is the description of the model
+This is a first try
+END_DESCRIPTION
+
+# National model
+
+DEFORMATION_SEQUENCE National model
+DATA_TYPE velocity
+DIMENSION 2
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2101
+ZERO_BEYOND_RANGE no
+DESCRIPTION
+National velocity model
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_velgrid.gdf
+MODEL_TYPE grid
+REF_DATE 1-Jan-2000
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+END_DESCRIPTION
+
+
+# Discrete event ...
+# 2020-2030: Deformation patch after time for nation model so 
+#            that resuls come from  patch only.  
+#            Simple deformation at 2125, zero before, fixed after
+
+DEFORMATION_SEQUENCE Patch
+DATA_TYPE deformation
+DIMENSION 2
+START_DATE 1-Jan-2020
+END_DATE 1-Jan-2030
+ZERO_BEYOND_RANGE yes
+DESCRIPTION
+Deformation patch with single model, zero before, fixed after
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2022 13:40:00
+BEFORE_REF_DATE zero
+AFTER_REF_DATE fixed
+DESCRIPTION
+2022-Jun-30
+END_DESCRIPTION
+
+# Discrete event ...
+# 2120-2130: Deformation patch after time for nation model so 
+#            that resuls come from  patch only.  
+#            Simple deformation at 2125, zero before, fixed after
+
+DEFORMATION_SEQUENCE Patch
+DATA_TYPE deformation
+DIMENSION 2
+START_DATE 1-Jan-2120
+END_DATE 1-Jan-2130
+ZERO_BEYOND_RANGE yes
+DESCRIPTION
+Deformation patch with single model, zero before, fixed after
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2125 13:40:00
+BEFORE_REF_DATE zero
+AFTER_REF_DATE fixed
+DESCRIPTION
+2125-Jun-30
+END_DESCRIPTION
+
+# Discrete event ...
+# 2140-2150: Deformation patch after time for nation model so 
+#            that resuls come from  patch only.  Also has four
+#            epochs, with fixed model before and after ...
+#            models at 30/6/ 2142, 2143, 2144, 2146
+#            Interpolating between epochs, fixed before and 
+#            after for testing individual grids...
+
+DEFORMATION_SEQUENCE Patch
+DATA_TYPE deformation
+DIMENSION 2
+START_DATE 1-Jan-2140
+END_DATE 1-Jan-2150
+ZERO_BEYOND_RANGE yes
+DESCRIPTION
+Deformation patch with fixed deformation before and after, after
+end of time allocated for national model, so can test individually.
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2142 13:40:00
+BEFORE_REF_DATE fixed
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2142-Jun-30
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig2.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2143 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2143-Jun-30
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 1-Jan-2144 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2144-Jan-1
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig2.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2146 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE fixed
+DESCRIPTION
+2146-Jun-30
+END_DESCRIPTION
+
+# Test of interpolation beyond end dates
+# 2150-2160: Deformation patch after time for nation model so 
+#            that resuls come from  patch only.  Also has four
+#            epochs, with fixed model before and after ...
+#            models at 30/6/ 2152, 2153, 2154, 2156
+#            Interpolating between epochs, as well as before and 
+#            after...
+
+DEFORMATION_SEQUENCE Patch
+DATA_TYPE deformation
+DIMENSION 2
+START_DATE 1-Jan-2150
+END_DATE 1-Jan-2160
+ZERO_BEYOND_RANGE yes
+DESCRIPTION
+Deformation patch with fixed deformation before and after, after
+end of time allocated for national model, so can test individually.
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2152 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2152-Jun-30
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig2.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2153 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2153-Jun-30
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 1-Jan-2154 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2154-Jan-1
+END_DESCRIPTION
+
+
+# Test of interpolation beyond end dates
+# 2160-2170: Deformation patch after time for nation model so 
+#            that resuls come from  patch only.  Uses two epochs
+#            evaluating as a velocity model
+
+DEFORMATION_SEQUENCE Patch
+DATA_TYPE velocity
+DIMENSION 2
+START_DATE 1-Jan-2160
+END_DATE 1-Jan-2170
+ZERO_BEYOND_RANGE yes
+DESCRIPTION
+Deformation patch using velocity model. 
+end of time allocated for national model, so can test individually.
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig1.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2162 13:40:00
+BEFORE_REF_DATE interpolate
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2162-Jun-30
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT cmn_test_deftrig2.trg -c
+MODEL_TYPE trig
+REF_DATE 30-Jun-2153 13:40:00
+BEFORE_REF_DATE zero
+AFTER_REF_DATE interpolate
+DESCRIPTION
+2164-Jun-30
+END_DESCRIPTION
+

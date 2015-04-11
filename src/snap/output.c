@@ -105,6 +105,13 @@ int open_output_files( )
 
 static void close_listing_file( void )
 {
+    if( ! lst ) return;
+    if( errcount > 0 )
+    {
+        int ierrname=path_len(err_name,0);
+        print_section_heading( lst, "ERRORS" );
+        fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,err_name+ierrname);
+    }
     if( lst ) fclose( lst );
     lst = 0;
     xprintf("\n\n****************************************************\n\n");
@@ -114,6 +121,7 @@ static void close_listing_file( void )
 
 static void close_error_file( const char *mess1, const char *mess2 )
 {
+    set_error_handler( DEFAULT_ERROR_HANDLER );
     if( err ) fclose( err );
     err = 0;
     if( errcount <= 0 )
@@ -143,7 +151,6 @@ static int print_err( int sts, const char *mess1, const char *mess2 )
     if( FATAL_ERROR_CONDITION(sts) )
     {
         close_output_files( mess1, mess2 );
-        set_error_handler( DEFAULT_ERROR_HANDLER );
     }
     return sts;
 }
