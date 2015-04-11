@@ -460,7 +460,7 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
             if( first )
             {
                 first=0;
-                fprintf(out,"%sIgnoring other stations");
+                fprintf(out,"%sIgnoring other stations",prefix);
             }
             else
             {
@@ -488,16 +488,20 @@ const char *get_stn_recode( stn_recode_map *stt, const char *code, double date )
 {
     stn_recode *src=0;
     stn_recode_list *list=lookup_station_recode( stt, code );
-    if( ! list ) list=stt->global;
-    if( ! list ) return 0;
-
-    for( src=list->translations; src; src=src->next )
+    int global;
+    for( global=0; global<2; global++ )
     {
-        if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) break;
-        if( date == UNDEFINED_DATE ) continue;
-        else if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) break;
-        else if( src->dateto == UNDEFINED_DATE && date >= src->datefrom ) break;
-        else if(date <= src->dateto && date >= src->datefrom ) break;
+        if( global ) list=stt->global;
+        if( ! list ) continue;
+        for( src=list->translations; src; src=src->next )
+        {
+            if( src->datefrom == UNDEFINED_DATE && src->dateto == UNDEFINED_DATE ) break;
+            if( date == UNDEFINED_DATE ) continue;
+            else if( src->datefrom == UNDEFINED_DATE && date < src->dateto ) break;
+            else if( src->dateto == UNDEFINED_DATE && date >= src->datefrom ) break;
+            else if(date <= src->dateto && date >= src->datefrom ) break;
+        }
+        if( src ) break;
     }
     if( ! src ) return 0;
     src->used=RECODE_USED;

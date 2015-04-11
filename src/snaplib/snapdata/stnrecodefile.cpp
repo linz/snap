@@ -79,15 +79,21 @@ void SnapCsvRecode::loadRecord()
     if( datefromstr != "" && datefromstr != "" )
     {
         datefrom=snap_datetime_parse( datefromstr.c_str(), 0 );
-        if( datefrom == UNDEFINED_DATE ) dataError(string("Invalid from date ")+datefromstr);
-        return;
+        if( datefrom == UNDEFINED_DATE ) 
+        {
+            dataError(string("Invalid from date ")+datefromstr);
+            return;
+        }
     }
 
     if( datetostr != "" && datetostr != "" )
     {
         dateto=snap_datetime_parse( datetostr.c_str(), 0 );
-        if( dateto == UNDEFINED_DATE ) dataError(string("Invalid to date ")+datetostr);
-        return;
+        if( dateto == UNDEFINED_DATE ) 
+        {
+            dataError(string("Invalid to date ")+datetostr);
+            return;
+        }
     }
 
     add_stn_recode_to_map( _stt, codefrom.c_str(), codeto.c_str(), datefrom, dateto );
@@ -113,6 +119,7 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
     {
         const char *recodefile;
         recodefile=find_file(filename,DFLTSTRCD_EXT,basefile,FF_TRYALL,0);
+        std::string recodefilename(recodefile);
         if( ! recodefile )
         {
             std::ostringstream os;
@@ -120,8 +127,9 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
             handle_error( INVALID_DATA, os.str().c_str(), 0 );
             return INVALID_DATA;
         }
+
         const char *formatfile;
-        formatfile = find_file( "stnrecode", ".dtf", recodefile, FF_TRYALL, CSVFORMAT_CONFIG );
+        formatfile = find_file( "stnrecode", ".dtf", recodefilename.c_str(), FF_TRYALL, CSVFORMAT_CONFIG );
         if( ! formatfile )
         {
             std::ostringstream os;
@@ -130,7 +138,7 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
             return INVALID_DATA;
         }
         SnapCsvRecode csvstnrecode( stt, formatfile );
-        DatafileInput dfi( recodefile,"station recode file" );
+        DatafileInput dfi( recodefilename.c_str(),"station recode file" );
         csvstnrecode.load( dfi );
         if( dfi.errorCount()) sts = INVALID_DATA;
     }

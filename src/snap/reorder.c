@@ -65,10 +65,12 @@ typedef struct
 
 
 static connections *connlst = NULL;
+static int maxconnlst;
 static int nconnlst;
 static int lastnode;
 static int *order1, *order2;
 
+#define CONNLIST_INC 128
 
 /* Routines to maintain the list of connections */
 
@@ -88,9 +90,19 @@ int init_connections( int nnodes )
         order1[i] = 0;
         order2[i] = 0;
     }
-    nconnlst = lastnode = nnodes;
+    maxconnlst = nconnlst = lastnode = nnodes;
 
     return 1;
+}
+
+static int grow_connection_list( int nnodes )
+{
+    int maxconn0=maxconnlst;
+    while( nnodes > maxconnlst ) maxconnlst += CONNLIST_INC;
+    if( maxconnlst > maxconn0 )
+    {
+        connlst = (connections *) check_realloc( connlst, (maxconnlst+1) * sizeof(connections) );
+    }
 }
 
 
@@ -143,6 +155,10 @@ static void add_station_connection( int stn, connections *conn )
 void add_connection( int stn1, int stn2 )
 {
     if( connlst == NULL ) return;
+    if( stn1 > maxconnlst || stn2 > maxconnlst )
+    {
+        grow_connection_list( stn1 > stn2 ? stn1 : stn2 );
+    }
     add_station_connection( stn1, connlst+stn2 );
     add_station_connection( stn2, connlst+stn1 );
 }
