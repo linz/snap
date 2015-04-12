@@ -112,6 +112,7 @@ static int create_rftrans( const char *name, int topocentric )
 
     rf->name = copy_string( name );
     _strupr( rf->name );
+    rf->userates=0
     rf->istrans = 0;
     rf->isorigin = 0;
     rf->istopo = topocentric ? 1 : 0;
