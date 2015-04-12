@@ -118,6 +118,9 @@ static int create_rftrans( const char *name, int topocentric )
     rf->calctrans = 0;
     rf->calcrot = 0;
     rf->calcscale = 0;
+    rf->calctransrate = 0;
+    rf->calcrotrate = 0;
+    rf->calcscalerate = 0;
 
     rf->origin[0] = 0.0;
     rf->origin[1] = 0.0;
@@ -127,14 +130,14 @@ static int create_rftrans( const char *name, int topocentric )
     rf->trans[1] = 0.0;
     rf->trans[2] = 0.0;
 
-    for( i = 0; i < 7; i++ )
+    for( i = 0; i < 14; i++ )
     {
         rf->prm[i] = 0.0;
         rf->calcPrm[i] = 0;
         rf->prmId[i] = 0;
         rf->prmUsed[i] = 0;
     }
-    for( i = 0; i < 28; i++ )
+    for( i = 0; i < 105; i++ )
     {
         rf->prmCvr[i] = 0.0;
     }
@@ -219,6 +222,52 @@ void set_rftrans_translation( int rf, double tran[3], int adjust[3] )
     }
 
     if( rfp->istopo ) premult3( (double *) rfp->invtoporot, rfp->prm+rfTx, rfp->trans, 1 );
+
+}
+
+void set_rftrans_scalerate( int rf , double scale, int adjust )
+{
+    rfTransformation *rfp;
+    rfp = rflist[rf-1];
+    if( scale != 0.0 || adjust ) rfp->userates = 1;
+    rfp->prm[rfScaleRate] = scale;
+    rfp->calcPrm[rfScaleRate] = adjust;
+}
+
+
+void set_rftrans_rotationrate( int rf, double rot[3], int adjust[3] )
+{
+    rfTransformation *rfp;
+    int i;
+
+    rfp = rflist[rf-1];
+    rfp->userates = 1;
+
+    for( i= 0; i<3; i++ )
+    {
+        if( rot[i] != 0.0 || adjust[i] ) rfp->userates=1;
+        rfp->prm[rfRotxRate+i] = rot[i];
+        rfp->calcPrm[rfRotxRate+i] = adjust[i];
+    }
+
+}
+
+
+void set_rftrans_translationrate( int rf, double tran[3], int adjust[3] )
+{
+    rfTransformation *rfp;
+    int i;
+
+    rfp = rflist[rf-1];
+
+    for( i= 0; i<3; i++ )
+    {
+        if( tran[i] != 0.0 || adjust[i] ) rfp->userates=1;
+        rfp->prm[rfTxRate+i] = tran[i];
+        rfp->calcPrm[rfTxRate+i] = adjust[i];
+    }
+
+    // if( rfp->istopo ) premult3( (double *) rfp->invtoporot, rfp->prm+rfTxRate, rfp->trans, 1 );
 
 }
 

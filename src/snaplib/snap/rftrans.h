@@ -25,23 +25,35 @@ enum
     rfRoty,
     rfRotz,
     rfScale,
+    rfTxRate,
+    rfTyRate,
+    rfTzRate,
+    rfRotxRate,
+    rfRotyRate,
+    rfRotzRate,
+    rfScaleRate,
 };
 
 typedef struct
 {
     int id;               /* Id used to reference the frame */
     char *name;           /* The name of the reference frame     */
-    double prm[7];        /* Parameters of the transformation */
-    double prmCvr[28];
-    char calcPrm[7];
-    int prmId[7];       /* The adjustment parameter ids of the tranformation */
+    double refdate;       /* The reference date for the reference frame */
+    double prm[14];        /* Parameters of the transformation */
+    double prmCvr[105];
+    char calcPrm[14];
+    int prmId[14];       /* The adjustment parameter ids of the tranformation */
+    unsigned  userates:1;  /* True if rates are being used or calculated */
     unsigned  istopo:1; /* True if the reference frame is topocentric */
     unsigned  istrans:1; /* True if the translation component is used */
     unsigned  isorigin:1; /* True if the origin is offset */
     unsigned  calctrans:1; /* True if translation components are being calculated */
     unsigned  calcrot:1;   /* True if rotations components are being calculated */
     unsigned  calcscale:1; /* True if scale is being calculated */
-    char  prmUsed[7];     /* True if the reference frame is used  in data sets */
+    unsigned  calctransrate:1; /* True if translation components are being calculated */
+    unsigned  calcrotrate:1;   /* True if rotations components are being calculated */
+    unsigned  calcscalerate:1; /* True if scale is being calculated */
+    char  prmUsed[14];     /* True if the reference frame is used  in data sets */
     double origin[3];  /* The reference point for the rotation and scale */
     double trans[3];      /* Translation components as XYZ */
     tmatrix tmat;         /* The matrix (1+s).Rx.Ry.Rz           */
