@@ -3,9 +3,9 @@ SETLOCAL
 
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
 IF "%1" == "-r" SHIFT
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
 
 del /q in\*.bin >null 2>&1
 del /q in\*.lst >null 2>&1
@@ -94,3 +94,5 @@ del in\*.new >nul 2>&1
 perl cleanlist.pl out/*.lst
 del out\*.bak > nul 2>&1
 
+
+diff -r -b -B -q out check
