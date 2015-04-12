@@ -203,7 +203,8 @@ void dump_stations( BINARY_FILE *b )
 
 int reload_stations( BINARY_FILE *b )
 {
-    stn_adjustment *st;
+    station *st;
+    stn_adjustment *sa;
     int istn, nstns, sts;
 
     /* Restore the critical static information */
@@ -222,10 +223,14 @@ int reload_stations( BINARY_FILE *b )
     nstns = number_of_stations( net );
     for( istn = 0; istn++ < nstns; )
     {
-        st = stnadj(stnptr(istn));
-        fread(st,sizeof(stn_adjustment)-sizeof(st->flag),1,b->f);
-        reload_stnadj_flags( st, b->f );
+        st = stnptr(istn);
+        create_stn_adjustment( st );
+        sa = stnadj(stnptr(istn));
+        fread(sa,sizeof(stn_adjustment)-sizeof(sa->flag),1,b->f);
+        reload_stnadj_flags( sa, b->f );
     }
+
+    set_network_initstn_func( net, create_stn_adjustment, delete_stn_adjustment );
     return check_end_section( b );
 }
 
