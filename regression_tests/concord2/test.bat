@@ -3,9 +3,9 @@ SETLOCAL
 
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
 IF "%1" == "-r" SHIFT
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
 
 SET concord="%SNAPDIR%\concord"
 SET coordsysdef=cstest\coordsys.def
@@ -180,3 +180,4 @@ for /f %%c in ( aus_xyz.txt) do (
 perl fix_output.pl out\*.*
 del /q out\*.bak
 
+diff -b -B -r -q out check

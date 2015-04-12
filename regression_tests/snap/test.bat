@@ -28,3 +28,5 @@ FOR %%F IN (%t%.snp) DO (
   move %%~nF-obs.csv ..\out > nul 2>&1
   del /q /f %%~nF.err %%~nF.lst %%~nF.bin %%~nF.new %%~nF-*.csv
   )
+
+diff -b -B -r -q out check
