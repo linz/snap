@@ -599,7 +599,7 @@ void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
 {
     wxString cmdDir;
     if( cmd_dir ) { cmdDir.Append(_T(cmd_dir)); }
-    else { cmdDir.Append(_T(".")); }
+    if( cmdDir.IsEmpty() ) { cmdDir.Append(_T(".")); }
     wxString configFile = wxFileSelector(
                               _T("Select configuration file to restore"),
                               cmdDir,
@@ -621,7 +621,7 @@ void SnapplotFrame::OnCmdExportImage( wxCommandEvent & WXUNUSED(event) )
 
     wxString cmdDir;
     if( cmd_dir ) { cmdDir.Append(_T(cmd_dir)); }
-    else { cmdDir.Append(_T(".")); }
+    if( cmdDir.IsEmpty() ) { cmdDir.Append(_T(".")); }
     wxFileDialog dlgFile(
         this,
         _T("Image file name"),
@@ -667,7 +667,7 @@ void SnapplotFrame::OnCmdExportDxf( wxCommandEvent & WXUNUSED(event) )
 
     wxString cmdDir;
     if( cmd_dir ) { cmdDir.Append(_T(cmd_dir)); }
-    else { cmdDir.Append(_T(".")); }
+    if( cmdDir.IsEmpty() ) { cmdDir.Append(_T(".")); }
     wxFileDialog dlgFile(
         this,
         _T("DXF file name"),
