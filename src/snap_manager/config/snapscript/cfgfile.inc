@@ -38,7 +38,6 @@ end_function
 function ConfigFileListBoxOptions( $cfgfiles )
    $options=''
    foreach $cfile in $cfgfiles do
-      # debuglog($cfile)
       if $cfile then
       	$options=$options.'|'.Match($cfile,'^[^\)]*\)')
       endif
@@ -50,9 +49,7 @@ function ConfigFileListFileName( $cfgfiles, $option )
    $filename=""
    foreach $cfile in $cfgfiles do
       $opt=Match($cfile,'^[^\)]*\)')
-      debuglog("Trying |$opt|$option|")
       if $opt == $option then
-         debuglog("Found $cfile")
          $filename=Replace($cfile,'^[^\)]*\)\s*','')
 	 break
       endif
@@ -123,7 +120,6 @@ function EditConfigFile( $name, $description, $cfgdir, $ext )
 	if $newfile then
 	    $filename=FileName($newfile,"name")
 	    $target="$copydir/$filename.$ext"
-	    debuglog("Target is $target")
 	    $ok=true
 	    if FileExists($target) then
 	       dialog "Overwrite file" $ok 

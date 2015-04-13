@@ -142,14 +142,20 @@ function GetDataFileOptions( $jobpath, $filelist )
    return $options
 end_function
 
-function CSVDataTypesOnPath( $path )
-   $types = ''
-   foreach $type in Directory($path, '*.dtf' ) do
-      if not ReadFile( $path.'/'.$type,'(?i)^\s*observation\s*$',1) then
-          continue
-      endif
-      $typecode = Replace($type,'(?i)\.dtf','')
-      $typename = ReadFile( $path.'/'.$type,'(?i)^\s*format_name\s+',1 )
+function CSVDataTypes( $path )
+   $cfgtypes=FindConfigFiles('format','dtf')
+   $typecodes=''
+   $types=''
+   foreach $type in $cfgtypes do
+      $typecode,$area,$dtf=MatchGroups($type,'^(\S+)\s*\((\S+)\)\s+(.*)$')
+      if not FileExists($dtf) then continue endif
+      $utype=UpperCase($typecode)
+      if Match($typecodes,'\|'.$typecode) then continue endif
+      $typecodes=$typecodes.'|'.$typecode
+
+      if not ReadFile( $dtf,'(?i)^\s*observation\s*$',1) then continue endif
+
+      $typename = ReadFile( $dtf,'(?i)^\s*format_name\s+',1 )
       if $typename then
          $typename = Replace(Replace($typename,'(?i)\s*format_name\s+(.*?)\s*','\1'),'\~','')
       else
@@ -161,7 +167,7 @@ function CSVDataTypesOnPath( $path )
 end_function
 
 function DataFileFormatList( $filetype, $jobpath )
-   $typelist = "~~SNAP data format".CSVDataTypesOnPath($snap_path).CSVDataTypesOnPath($jobpath)
+   $typelist = "~~SNAP data format".CSVDataTypes($snap_path)
    $filetypere = '\~'.Replace($filetype,'\W','\\\0').'\~'
    if not Match($typelist,$filetypere) then
       $typelist = $typelist."~$filetype~$filetype format"
@@ -247,7 +253,7 @@ function DataFileDialog($jobpath)
         endif
         $listfiles = ListBoxFileList($datafiles)
         endif
-    button "EditOptions"
+    button "Edit Options"
         if $selectedfiles then 
             $options = GetDataFileOptions( $jobpath, DataFileListFromSelected($selectedfiles) )
             if $options then 
