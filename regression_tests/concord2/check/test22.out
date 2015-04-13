@@ -4,7 +4,7 @@ concord - coordinate conversion program (version 0.0 dated 1 April 1066)
 Input coordinates:  New Zealand Geodetic Datum 2000
 
 Output coordinates: New Zealand Map Grid
-This transformation uses the grid deformation model.
+Be aware of the strangeness of the NZGD2000-NZGD1949 datum conversions
 
 ID                    Latitude              Longitude         Height           Northing           Easting
 BB3L      45 17 15.937966000 S  168 43 26.475812000 E   153.66100000   5537990.95945638  2174629.13822371 SS 7K 22 SO 30955

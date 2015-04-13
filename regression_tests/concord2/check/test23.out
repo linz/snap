@@ -4,7 +4,7 @@ concord - coordinate conversion program (version 0.0 dated 1 April 1066)
 Input coordinates:  New Zealand Geodetic Datum 1949
 
 Output coordinates: New Zealand Geodetic Datum 2000
-This transformation uses the grid deformation model.
+NZGD1949-NZGD2000 is even stranger than the other way around
 
 ID                   Latitude             Longitude        Height               Latitude             Longitude
 BB3L      45 17 15.93796600 S  168 43 26.47581200 E   153.6610000    45 17 10.09136766 S  168 43 26.74154194 E SS 7K 22 SO 30955

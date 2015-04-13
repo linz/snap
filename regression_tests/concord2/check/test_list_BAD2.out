@@ -7,3 +7,4 @@ Warning: Cannot load reference frame BAD2
 Line: 11  File: cstest/coordsys.def
 
 Coordinate system BAD2 is not defined
+This is bad coordinate system 2

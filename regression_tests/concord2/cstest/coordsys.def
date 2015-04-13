@@ -184,44 +184,36 @@ STISHT1977 "Stewart Island 1977" NZVD09 0.39
 
 [coordinate_system_notes]
 
+BAD1 BAD4 BAD5
+These are bad coordinate systems - they are not properly defined...
+Various problems, non-existent, cyclic, no base ref frame
+etc ...
+   end_note
+
+BAD2
+This is bad coordinate system 2
+end_note
+
 WGS84 
 There are several WGS84 reference frames. Please select one of &
 WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674, WGS84_G1762
 end_note
 
-ITRF2008:GDA94
-This transformation requires parameters developed by Dawson and Woods &
-(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
-Use ITRF2008_DW
-end_note
-
-ITRF2005:GDA94
-This transformation requires parameters developed by Dawson and Woods &
-(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
-Use ITRF2005_DW
-end_note
-
-ITRF2000:GDA94
-This transformation requires parameters developed by Dawson and Woods &
-(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
-Use ITRF2000_DW
-end_note
-
-ITRF97:GDA94
-This transformation requires parameters developed by Dawson and Woods &
-(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
-Use ITRF97_DW
-end_note
-
-ITRF96:GDA94
-This transformation requires parameters developed by Dawson and Woods &
-(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
-Use ITRF96_DW
-end_note
-
 [reference_frame_notes]
 
-NZGD1949:NZGD2000
-This transformation uses the grid deformation model.
+BAD1
+BAD reference frame BAD1
+end_note
 
+BAD2
+BAD reference frame BAD2
+end_note
+
+NZGD2000:NZGD1949
+Be aware of the strangeness of the NZGD2000-NZGD1949 datum conversions!
+end_note
+
+NZGD1949:NZGD2000
+NZGD1949-NZGD2000 is even stranger than the other way around!
+end_note
 

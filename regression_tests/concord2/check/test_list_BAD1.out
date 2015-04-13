@@ -7,3 +7,6 @@ Warning: Cannot load reference frame BAD1
 Line: 36  File: cstest/coordsys.def
 
 Coordinate system BAD1 is not defined
+These are bad coordinate systems - they are not properly defined...
+Various problems, non-existent, cyclic, no base ref frame
+etc ...
