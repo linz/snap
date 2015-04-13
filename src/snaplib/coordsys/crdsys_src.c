@@ -200,26 +200,19 @@ int get_conv_notes( coord_conversion *conv, output_string_def *os )
 {
     int sts = MISSING_DATA;
     int icrf;
+    const char *code1, *code2;
     if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code, conv->to->code, os ) == OK )
     {
         sts = OK;
     }
+    code2=conv->from->rf->code;
     for( icrf=0; icrf < conv->ncrf; icrf++ )
     {
-        const char *code1, *code2;
         coord_conversion_rf *crf = &(conv->crf[icrf]);
         if( crf->def_only ) continue;
         if( ! crf->rf ) continue;
-        if( crf->xyz_to_std )
-        {
-            code1=crf->rf->code;
-            code2=crf->rf->refcode;
-        }
-        else
-        {
-            code1=crf->rf->refcode;
-            code2=crf->rf->code;
-        }
+        code1=code2;
+        code2=crf->rf->code;
         if( get_conv_code_notes( CS_REF_FRAME_NOTE,code1,code2, os ) == OK )
         {
             sts = OK;
