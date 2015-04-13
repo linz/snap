@@ -573,7 +573,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
 
     wxString cmdDir;
     if( cmd_dir ) { cmdDir.Append(_T(cmd_dir)); }
-    else { cmdDir.Append(_T(".")); }
+    if( cmdDir.IsEmpty() ) { cmdDir.Append(_T(".")); }
     wxFileDialog dlgFile(
         this,
         _T("Select configuration filename for save"),
