@@ -1,7 +1,7 @@
-title Regression tests - station recoding options
+title Regression tests - Missing recode file
 coordinate_file testsl.crd
 data_file testsr1.dat
-data_file testsr2.dat recode testsr2_recode.csv
+data_file testsr2.dat recode no_such_file.csv
 data_file testsr3.dat recode testsr3_recode.csv
 mode 3d data_check
 

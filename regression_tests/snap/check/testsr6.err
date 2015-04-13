@@ -1,0 +1,26 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+
+================================================================================
+                                                            
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Cannot find station recode file no_such_file.csv
+
+Error: 1 errors reported reading the data files
