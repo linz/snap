@@ -25,11 +25,6 @@ REM Example descriptive outputs
 
 echo basic conversion with and without output file
 
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEH,H -N6 in\test1.in out\test1.out > out\test1.txt
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEH,H -N6 in\test1.in  > out\test2.txt
-
-REM Invalid defintions 
-
 %concord% -L BAD1 > out\test_list_BAD1.out 2>&1
 %concord% -L BAD2 > out\test_list_BAD2.out 2>&1
 %concord% -L BAD4 > out\test_list_BAD4.out 2>&1
