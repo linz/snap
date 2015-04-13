@@ -49,11 +49,11 @@ echo NZMG projection
 %concord% -iNZGD1949,NEH,H -oNZMG,NEH -N6 in\test1.in out\test5.out > out\test5.txt  2>&1
 
 echo LCC projection
-%concord% -iWGS84,NEH,H -oST57-60_LCC,NEH -N6 in\test1.in out\test6.out > out\test6.txt  2>&1
+%concord% -iWGS84_D,NEH,H -oST57-60_LCC,NEH -N6 in\test1.in out\test6.out > out\test6.txt  2>&1
 
 
 echo PS projection
-%concord% -iWGS84,NEH,H -oANT_PS,NEH -N6 in\test1.in out\test7.out > out\test7.txt  2>&1
+%concord% -iWGS84_D,NEH,H -oANT_PS,NEH -N6 in\test1.in out\test7.out > out\test7.txt  2>&1
 
 echo Geoid calculation
 %concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest\NZgTest09 -N6 in\test1.in out\test8.out > out\test8.txt 2>&1
