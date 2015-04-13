@@ -145,8 +145,9 @@ void VariableToken::SetOwnerValue( const Value &value )
 
     while( pvar->Next() )
     {
-        Value v( *pval, true );
-        Owner()->SetValue( pvar->name, pval ? *pval : Value() );
+        Value v;
+        if( pval ) v=Value(*pval,true);
+        Owner()->SetValue( pvar->name, v );
         pvar=static_cast<VariableToken *> (pvar->Next());
         if( pval ) pval=pval->Next();
     }

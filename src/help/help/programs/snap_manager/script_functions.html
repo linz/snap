@@ -59,6 +59,7 @@ When the program
 <a href="#func_LoadJob">LoadJob</a>(<i>jobfile</i>)<br />
 <a href="#func_Log">Log</a>(<i>message</i>)<br />
 <a href="#func_LogRun">LogRun</a>(<i>program</i>,<i>parameter</i>,...)<br />
+<a href="#func_LowerCase">LowerCase</a>( <i>string</i> )<br />
 <a href="#func_MakeDir">MakeDir</a>(<i>dirname</i>)<br />
 <a href="#func_Match">Match</a>(<i>string</i>,<i>regex</i>,<i>nMatch</i>)<br />
 <a href="#func_MatchGroups">MatchGroups</a>(<i>string</i>,<i>regex</i>)<br />
@@ -72,9 +73,11 @@ When the program
 <a href="#func_SetEnv">SetEnv</a>(<i>envvar</i>,<i>envvalue</i>)<br />
 <a href="#func_SetExtension">SetExtension</a>(<i>filename</i>,<i>extension</i>)<br />
 <a href="#func_Start">Start</a>(<i>program</i>,<i>parameter</i>,...)<br />
+<a href="#func_SubString">SubString</a>( <i>string</i>, <i>start</i>, <i>length</i> )<br />
 <a href="#func_TempFile">TempFile</a>()<br />
 <a href="#func_UnloadJob">UnloadJob</a>()<br />
 <a href="#func_UpdateJob">UpdateJob</a>()<br />
+<a href="#func_UpperCase">UpperCase</a>( <i>string</i> )<br />
 <a href="#func_WriteFile">WriteFile</a>(<i>filename</i>,<i>text</i>)<br />
 </p>
 <hr />
@@ -335,6 +338,19 @@ Finds and returns the name of a configuration file in the configuration section 
 This will search first in the user configuration, then in the system configuration.  
 Returns an empty string if no such file is found.</i>
 </p>
+
+<p class="Commanddefinition"><a name="func_LowerCase"></a>LowerCase(<i>string</i>)</p>
+<p class="Commanddescription">Returns the string converted to lower case.</p>
+
+<p class="Commanddefinition"><a name="func_UpperCase"></a>UpperCase(<i>string</i>)</p>
+<p class="Commanddescription">Returns the string converted to lower case.</p>
+
+<p class="Commanddefinition"><a name="func_SubString"></a>SubString(<i>string</i>,<i>start</i>,<i>length</i>)</p>
+<p class="Commanddescription">Returns a substring of the input string starting at the <i>start</i> character, where 
+the first character of the string is 0.  The optional <i>length</i> parameter defines the number of characters to 
+select.  If it is omitted the string from the start character to the end is returned.
+</p>
+
 <p class="Commanddefinition"><a name="func_Match"></a>Match(<i>string</i>,<i>regex</i>,<i>nMatch</i>)</p>
 <p class="Commanddescription">Returns the first match of the
 <a href="resyntax.html">regular expression</a> in the string, or
@@ -343,6 +359,7 @@ present it identifies the number of the match group to return
 (match groups are defined by parentheses in the regular
 expression). The default behaviour is to return the entire matched
 substring.</p>
+
 <p class="Commanddefinition"><a name="func_MatchGroups"></a>MatchGroups(<i>string</i>,<i>regex</i>)</p>
 <p class="Commanddescription">Returns a value for each match group
 in the 

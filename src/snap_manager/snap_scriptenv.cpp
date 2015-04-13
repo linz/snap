@@ -818,6 +818,25 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     _putenv( setenv.c_str() );
     RETURN( value )
 
+    // String functions
+
+    DEFINE_FUNCTION("UpperCase",1)
+    wxString value=STRPRM(0);
+    RETURN( value.MakeUpper() )
+
+    DEFINE_FUNCTION("LowerCase",1)
+    wxString value=STRPRM(0);
+    RETURN( value.MakeLower() )
+
+    DEFINE_FUNCTION2("SubString",2,3)
+    wxString value=STRPRM(0);
+    size_t start=0;
+    size_t length=wxStringBase::npos;
+    long nm;
+    if( STRPRM(1).ToLong(&nm) ) start = nm;
+    if( nParams == 3 && STRPRM(2).ToLong(&nm) ) length = nm;
+    RETURN( value.Mid(start,length) )
+
     // Loading and unloading job is passed back to the frame window,
     // to ensure the user interface is updated...
 
