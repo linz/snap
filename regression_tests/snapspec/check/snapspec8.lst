@@ -9,18 +9,18 @@ Running apriori tests
 Station lookup for SDC test module
      1 F0                 1 F0        
      2 F1                 2 F1        
-     3 F10                3 F10       
-     4 F11                4 F11       
-     5 F12                5 F12       
-     6 F13                6 F13       
-     7 F2                 7 F2        
-     8 F3                 8 F3        
-     9 F4                 9 F4        
-    10 F5                10 F5        
-    11 F6                11 F6        
-    12 F7                12 F7        
-    13 F8                13 F8        
-    14 F9                14 F9        
+     3 F2                11 F10       
+     4 F3                12 F11       
+     5 F4                13 F12       
+     6 F5                14 F13       
+     7 F6                 3 F2        
+     8 F7                 4 F3        
+     9 F8                 5 F4        
+    10 F9                 6 F5        
+    11 F10                7 F6        
+    12 F11                8 F7        
+    13 F12                9 F8        
+    14 F13               10 F9        
 
 Initiallizing SDC tests
 Loading marks for SDC tests
@@ -36,14 +36,14 @@ Applying absolute accuracy test
 Setting up array for relative accuracy tests
 Applying relative accuracy test
   Station 3 passes rel accuracy tests (5)
-  Station 7 passes rel accuracy tests (5)
-  Station 8 passes rel accuracy tests (5)
-  Station 14 passes rel accuracy tests (5)
+  Station 4 passes rel accuracy tests (5)
+  Station 10 passes rel accuracy tests (5)
+  Station 11 passes rel accuracy tests (5)
 Setting node orders
   Setting order of node 3 to 4
-  Setting order of node 7 to 4
-  Setting order of node 8 to 4
-  Setting order of node 14 to 4
+  Setting order of node 4 to 4
+  Setting order of node 10 to 4
+  Setting order of node 11 to 4
 ==============================================================
 Running test for order 5
    Absolute accuracy maximum = 1000.000 m
@@ -54,12 +54,12 @@ Running test for order 5
 Applying absolute accuracy test
 Applying relative accuracy test
   Station 2 passes rel accuracy tests (8)
-  Station 12 passes rel accuracy tests (8)
-  Station 13 passes rel accuracy tests (8)
+  Station 8 passes rel accuracy tests (8)
+  Station 9 passes rel accuracy tests (8)
 Setting node orders
   Setting order of node 2 to 5
-  Setting order of node 12 to 5
-  Setting order of node 13 to 5
+  Setting order of node 8 to 5
+  Setting order of node 9 to 5
 ==============================================================
 Running test for order 6
    Absolute accuracy maximum = 1000.000 m
@@ -69,11 +69,11 @@ Running test for order 6
    Relative accuracy maximum = 6.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
 Applying relative accuracy test
-  Station 10 passes rel accuracy tests (10)
-  Station 11 passes rel accuracy tests (10)
+  Station 6 passes rel accuracy tests (10)
+  Station 7 passes rel accuracy tests (10)
 Setting node orders
-  Setting order of node 10 to 6
-  Setting order of node 11 to 6
+  Setting order of node 6 to 6
+  Setting order of node 7 to 6
 ==============================================================
 Running test for order 7
    Absolute accuracy maximum = 1000.000 m

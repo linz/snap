@@ -1,7 +1,7 @@
 title Regression tests - station recoding options
 coordinate_file testsl.crd
 data_file testsr1.dat
-data_file testsr2.dat recode testsr2_recode.csv
+data_file testsr2.dat  error_factor 3 recode recodeall csv format=vecc1 
 data_file testsr3.dat recode testsr3_recode.csv
 mode 3d data_check
 
@@ -19,7 +19,6 @@ list no_worst_residuals
 
 !fix all
 !free inside NZGD2000 testsl4_wkt.csv
-
 recode 1 to 1BC before 2000-01-01T09:30:35
 recode 1 to 1AD after 2010-01-01T09:30:35
 recode PEGGY TO PEGS
@@ -27,3 +26,4 @@ recode 1 to OTHER1
 recode 1 to 1WHEN between 2005-02-01 AND 1MAY2006
 recode suffix _RC after 2001/01/01 for 2-10
 recode TUBBY to *
+

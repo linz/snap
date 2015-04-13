@@ -7,14 +7,14 @@ IF "%1" == "-v" (
   )
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\release
+IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\Release
 IF "%1" == "-r" SHIFT
 
 SET t=%1
 IF "%t%" == "" SET t=test*
 
 CD /d %~d0%~p0in
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\..\ms\built\debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\..\ms\built\Debug
 
 FOR %%F IN (%t%.snp) DO (
   echo Running %%F
@@ -28,5 +28,7 @@ FOR %%F IN (%t%.snp) DO (
   move %%~nF-obs.csv ..\out > nul 2>&1
   del /q /f %%~nF.err %%~nF.lst %%~nF.bin %%~nF.new %%~nF-*.csv
   )
+
+cd ..
 
 diff -b -B -r -q out check

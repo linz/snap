@@ -58,4 +58,6 @@ perl -pi.bak -e "s/snapgeoid\s+version[\s\d\.]*/snapconv version/" out\snapgeoid
 
 del /q out\*.bak
 
+echo ==========================================
+echo Differences between output and check files
 diff -r -b -B -q out check

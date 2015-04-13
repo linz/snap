@@ -7,7 +7,7 @@ IF "%1" == "-v" (
   )
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
 IF "%1" == "-r" SHIFT
 
 SET t=%1
@@ -15,7 +15,7 @@ IF "%t%" == "" SET t=test*
 
 del /f /q out\*
 
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
 
 
 echo Null conversion
@@ -53,3 +53,6 @@ echo Testing date formats
 for %%f in (out\*.log) do perl -pi.bak -e s/snapconv[\s\d\.]*\:/snapconv:/ %%f 
 del /q out\*.bak
 
+echo "============================================="
+echo "Differences between generated and check files"
+diff -r -b -B -q out check
