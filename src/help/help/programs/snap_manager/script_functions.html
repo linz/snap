@@ -61,6 +61,7 @@ When the program
 <a href="#func_LogRun">LogRun</a>(<i>program</i>,<i>parameter</i>,...)<br />
 <a href="#func_MakeDir">MakeDir</a>(<i>dirname</i>)<br />
 <a href="#func_Match">Match</a>(<i>string</i>,<i>regex</i>,<i>nMatch</i>)<br />
+<a href="#func_MatchGroups">MatchGroups</a>(<i>string</i>,<i>regex</i>)<br />
 <a href="#func_Message">Message</a>(<i>message</i>,<i>title</i>)<br />
 <a href="#func_ReadFile">ReadFile</a>(<i>filename</i>,<i>regex</i>,<i>count</i>)<br />
 <a href="#func_RenameFile">RenameFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
@@ -342,6 +343,13 @@ present it identifies the number of the match group to return
 (match groups are defined by parentheses in the regular
 expression). The default behaviour is to return the entire matched
 substring.</p>
+<p class="Commanddefinition"><a name="func_MatchGroups"></a>MatchGroups(<i>string</i>,<i>regex</i>)</p>
+<p class="Commanddescription">Returns a value for each match group
+in the 
+<a href="resyntax.html">regular expression</a> as it is matched in 
+the string. For example:<br />
+$hour,$mins=MatchGroups($time,'^(\d+)\:(\d+)$'))
+</p>
 <p class="Commanddefinition"><a name="func_Replace"></a>Replace(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)</p>
 <p class="Commanddescription">Returns the input string with each
 occurrence of the <a href="resyntax.html">regular expressions</a>
