@@ -86,7 +86,7 @@ errhandler_type set_error_handler( errhandler_type errhndler )
 int get_error_count( void )
 {
     int errc = error_count;
-    error_count = 0;
+    // error_count = 0;
     return errc;
 }
 

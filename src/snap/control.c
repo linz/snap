@@ -126,6 +126,7 @@ typedef struct
 
 #define INC_COMMAND 0
 #define CFG_COMMAND 1
+#define CON_COMMAND 2
 
 #define DEFINE_RESIDUAL_COLUMNS 0
 #define ADD_RESIDUAL_COLUMNS    1
@@ -186,6 +187,7 @@ static config_item snap_commands[] =
     {"magic_number",NULL,ABSOLUTE,0,set_magic_number,CONFIG_CMD,0},
     {"configuration",NULL,ABSOLUTE,0,read_configuration_command,0,CFG_COMMAND},
     {"include",NULL,ABSOLUTE,0,read_configuration_command,0,INC_COMMAND},
+    {"include",NULL,ABSOLUTE,0,read_configuration_command,CONSTRAINT_CMD,CON_COMMAND},
     {"test_specification",NULL,ABSOLUTE,0,process_station_list,0,SPEC_TEST},
     {"specification",NULL,ABSOLUTE,0,read_specification_command,CONFIG_CMD,0},
     {"spec_test_options",NULL,ABSOLUTE,0,read_spec_test_options,CONFIG_CMD,0},
@@ -267,6 +269,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     {
         set_config_read_options( cfg, 0 );
         if( cfg_only ) set_config_command_flag( cfg, CONFIG_CMD );
+        else set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
         sts = sts ? INVALID_DATA : OK;
@@ -1764,8 +1767,10 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
     char *ptr;
     char errmsg[100];
     char cfg_only;
+    char constraint;
 
     cfg_only = code == CFG_COMMAND;
+    constraint = code == CON_COMMAND;
 
     ptr = string;
     while( ptr && NULL != (cfgfile=strtok(ptr," \t\n")))
@@ -1776,10 +1781,21 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
                              cfg_only ? SNAP_CONFIG_SECTION : 0 );
         if( cfgfile )
         {
-            if( process_configuration_file( cfgfile, cfg_only ) != OK )
+            if( constraint )
             {
-                sprintf(errmsg,"Invalid data in configuration file %.40s",string);
-                send_config_error(cfg,INVALID_DATA,errmsg);
+                if( read_command_file_constraints( cfgfile ) != OK )
+                {
+                    sprintf(errmsg,"Invalid data in configuration file %.40s",string);
+                    send_config_error(cfg,INVALID_DATA,errmsg);
+                }
+            }
+            else 
+            {
+                if( process_configuration_file( cfgfile, cfg_only ) != OK )
+                {
+                    sprintf(errmsg,"Invalid data in configuration file %.40s",string);
+                    send_config_error(cfg,INVALID_DATA,errmsg);
+                }
             }
         }
         else
