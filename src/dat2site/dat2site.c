@@ -2984,6 +2984,8 @@ static void printlog( const char *fmt, ... )
     va_list argptr;
     va_start(argptr, fmt);
     if( logfile ) { vfprintf(logfile, fmt, argptr); fflush(logfile); }
+    va_end(argptr);
+    va_start(argptr, fmt);
     vfprintf(stdout, fmt, argptr);
     va_end(argptr);
 }
