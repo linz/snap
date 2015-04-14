@@ -158,31 +158,34 @@ long read_data_files( char *base_dir, FILE *lst )
         }
         end_file_display();
 
-        if( sd->mindate != UNDEFINED_DATE )
+        if( lst )
         {
-            fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,0,0));
-            fprintf(lst," and %s\n",date_as_string(sd->maxdate,0,0));
-        }
-        if( sd->nnodate > 0 )
-        {
-            fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
-        }
-        for( c = 0; c < NOBSTYPE; c++ )
-        {
-            if( sd->obscount[c] )
+            if( sd->mindate != UNDEFINED_DATE )
             {
-                xprintf("        %4ld %s%s\n",sd->obscount[c],
-                        datatype[c].name,PLURAL(sd->obscount[c]) );
-                if( lst )
-                    fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
-                            datatype[c].name,PLURAL(sd->obscount[c]) );
+                fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,0,0));
+                fprintf(lst," and %s\n",date_as_string(sd->maxdate,0,0));
             }
-        }
-        
-        if( sd->recode && recodes_used( sd->recode ) )
-        {
-            fprintf(lst,"    Recoding stations:\n");
-            print_stn_recode_list( lst, sd->recode, 1, stn_name_width, "    ");
+            if( sd->nnodate > 0 )
+            {
+                fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
+            }
+            for( c = 0; c < NOBSTYPE; c++ )
+            {
+                if( sd->obscount[c] )
+                {
+                    xprintf("        %4ld %s%s\n",sd->obscount[c],
+                            datatype[c].name,PLURAL(sd->obscount[c]) );
+                    if( lst )
+                        fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
+                                datatype[c].name,PLURAL(sd->obscount[c]) );
+                }
+            }
+            
+            if( sd->recode && recodes_used( sd->recode ) )
+            {
+                fprintf(lst,"    Recoding stations:\n");
+                print_stn_recode_list( lst, sd->recode, 1, stn_name_width, "    ");
+            }
         }
 
         file_errors = df_data_file_errcount( d );

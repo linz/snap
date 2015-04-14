@@ -1083,6 +1083,7 @@ static void remove_ignored_obs()
                         tj = get_trgtdata( sd, j );
                         if( tj->unused & IGNORE_OBS_BIT ) continue;
                         jr0 = j * cvrperobs;
+                        njr = cvrperobs;
                     }
                     else
                     {

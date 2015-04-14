@@ -421,6 +421,7 @@ long save_survdata_subset( survdata *sd, int iobs, int type )
                             if( type >= 0 && t->type != type ) continue;
                             if( t->unused & IGNORE_OBS_BIT ) continue;
                             jr0 = j * cvrperobs;
+                            njr=cvrperobs;
                         }
                         else
                         {
