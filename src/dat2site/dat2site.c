@@ -2592,7 +2592,7 @@ static void set_logname( const char *name )
     l = path_len(name,1);
     logname=(char *) check_malloc(strlen(name)+4+1);
     strncpy( logname, name, l );
-    strcpy( logname+l,".lis" );
+    strcpy( logname+l,".lst" );
 }
 
 
@@ -2872,44 +2872,56 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
 
 #define MAX_DATA_FILES 80
 
-static char cfname[80];
-static char *dfname[MAX_DATA_FILES];
+static char *cfname = 0;
+static char **dfname=0;
 static int ndfname = 0;
+static int maxdfname=0;
 
 static int read_filename( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    char *s, *d;
+    char *s;
     s = strtok(string," \t\n");
     if( !s ) return MISSING_DATA;
     if( code )
     {
-        if( ndfname >= MAX_DATA_FILES )
+        if( ndfname >= maxdfname )
         {
-            send_config_error( cfg, TOO_MUCH_DATA, "Too many data files in configuration file" );
-            return OK;
+            maxdfname = maxdfname ? maxdfname *2 : 128;
+            dfname = (char **) check_realloc( dfname, maxdfname * sizeof( char *));
         }
-        d = dfname[ndfname] = (char *) check_malloc( 80 );
+        dfname[ndfname] = copy_string( s );
         ndfname++;
     }
     else
     {
-        d = cfname;
+        if( ! cfname ) cfname=copy_string(s);
     }
-    strncpy( d, s, 79 );
-    d[79] = 0;
     return OK;
 }
+
+static void free_file_names()
+{
+    check_free( cfname );
+    cfname = 0;
+    for( int i = 0; i < ndfname; i++ ) check_free( dfname[i] );
+    check_free( dfname );
+    ndfname = 0;
+    maxdfname = 0;
+    dfname = 0;
+}
+
+static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static config_item snap_commands[] =
 {
     {"coordinate_file",NULL,ABSOLUTE,0,read_filename,CFG_REQUIRED+CFG_ONEONLY, 0},
     {"data_file",NULL,ABSOLUTE,0,read_filename,CFG_REQUIRED,1},
+    {"include",NULL,ABSOLUTE,0,read_include_file,0,0},
     {NULL}
 };
 
 
-
-static void load_command_file( char *cmd_file, int recalconly )
+static void load_command_file( char *cmd_file, int recalconly, int included )
 {
     CFG_FILE *cfg;
     const char *f;
@@ -2946,9 +2958,26 @@ static void load_command_file( char *cmd_file, int recalconly )
         printf("\n\nErrors encountered reading command file\n");
         exit(0);
     }
-    load_data_files( cfname, dfname, ndfname, recalconly );
-
+    if( ! included )
+    {
+        if( ! cfname || ! dfname )
+        {
+            printf("\n\nCoordinate or data file not found in configuration file\n");
+            exit(0);
+        }
+        load_data_files( cfname, dfname, ndfname, recalconly );
+        free_file_names();
+    }
 }
+
+static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    char *s;
+    s = strtok(string," \t\n");
+    if( !s ) return MISSING_DATA;
+    load_command_file( s,  0, 1 );
+}
+
 
 static void printlog( const char *fmt, ... )
 {
@@ -3065,7 +3094,7 @@ int main( int argc, char *argv[] )
 
     else if( command_file )
     {
-        load_command_file( filelist[0], recalc );
+        load_command_file( filelist[0], recalc, 0 );
     }
     else
     {
