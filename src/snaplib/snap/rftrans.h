@@ -38,7 +38,7 @@ typedef struct
 {
     int id;               /* Id used to reference the frame */
     char *name;           /* The name of the reference frame     */
-    double refdate;       /* The reference date for the reference frame */
+    double refepoch;      /* The reference date for the reference frame as a decimal year*/
     double prm[14];        /* Parameters of the transformation */
     double prmCvr[105];
     char calcPrm[14];
@@ -54,11 +54,15 @@ typedef struct
     unsigned  calcrotrate:1;   /* True if rotations components are being calculated */
     unsigned  calcscalerate:1; /* True if scale is being calculated */
     char  prmUsed[14];     /* True if the reference frame is used  in data sets */
-    double origin[3];  /* The reference point for the rotation and scale */
+    double origin[3];     /* The reference point for the rotation and scale */
     double trans[3];      /* Translation components as XYZ */
+    double transrate[3];  /* Translation components as XYZ */
     tmatrix tmat;         /* The matrix (1+s).Rx.Ry.Rz           */
     tmatrix invtmat;      /* The inverse of tmat                */
     tmatrix dtmatdrot[3]; /* The differential of tmat wrt x rot. */
+    tmatrix tmatrate;     /* The matrix (1+s).Rx.Ry.Rz           */
+    tmatrix invtmatrate;  /* The inverse of tmat                */
+    tmatrix dtmatratedrot[3]; /* The differential of tmat wrt x rot. */
     tmatrix toporot;      /* Conversion to and from topocentric system */
     tmatrix invtoporot;
 } rfTransformation;
@@ -76,9 +80,13 @@ rfTransformation *rftrans_from_id( int id );
 void clear_rftrans_list( void );
 rfTransformation *new_rftrans( void );
 
+void set_rftrans_refdate( int rf, double date );
 void set_rftrans_scale( int rf, double scale, int adjust ) ;
 void set_rftrans_rotation( int rf, double rot[3], int adjust[3] ) ;
 void set_rftrans_translation( int rf, double tran[3], int adjust[3] ) ;
+void set_rftrans_scalerate( int rf, double scale, int adjust ) ;
+void set_rftrans_rotationrate( int rf, double rot[3], int adjust[3] ) ;
+void set_rftrans_translationrate( int rf, double tran[3], int adjust[3] ) ;
 void set_rftrans_origin( rfTransformation *, double origin[3] );
 
 void flag_rftrans_used( int rf, int usage_type );
@@ -97,8 +105,8 @@ const char *   rftrans_name( int rf );
 
 /* Convert a vector to from the reference frame to the standard reference */
 
-void rftrans_correct_vector( int nrf, double vd[3] );
-void rftrans_correct_point( int nrf, double vd[3] );
+void rftrans_correct_vector( int nrf, double vd[3], double date );
+void rftrans_correct_point( int nrf, double vd[3], double date );
 
 
 #endif

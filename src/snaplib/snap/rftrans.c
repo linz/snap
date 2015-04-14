@@ -16,6 +16,7 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/geodetic.h"
+#include "util/dateutil.h"
 /* #include "errdef.h" */
 #include "util/pi.h"
 
@@ -44,6 +45,8 @@
 */
 
 #define RFLIST_INC 10
+
+#define DEFAULT_REF_EPOCH 2000
 
 static rfTransformation **rflist = NULL;
 static int nrflist = 0;
@@ -112,6 +115,7 @@ static int create_rftrans( const char *name, int topocentric )
 
     rf->name = copy_string( name );
     _strupr( rf->name );
+    rf->refepoch=DEFAULT_REF_EPOCH;
     rf->userates=0
     rf->istrans = 0;
     rf->isorigin = 0;
@@ -181,6 +185,13 @@ int get_topocentric_rftrans( const char *name )
 int rftrans_topocentric( int rf )
 {
     return rflist[rf-1]->istopo;
+}
+
+void set_rftrans_refdate( int rf , double date )
+{
+    rfTransformation *rfp;
+    rfp = rflist[rf-1];
+    rfp->refepoch = date_as_year(date);
 }
 
 void set_rftrans_scale( int rf , double scale, int adjust )
@@ -357,6 +368,9 @@ void setup_rftrans( rfTransformation *rf )
         rf->trans[0] = rf->prm[rfTx];
         rf->trans[1] = rf->prm[rfTy];
         rf->trans[2] = rf->prm[rfTz];
+        rf->transrate[0] = rf->prm[rfTxRate];
+        rf->transrate[1] = rf->prm[rfTyRate];
+        rf->transrate[2] = rf->prm[rfTzRate];
     }
     else
     {
@@ -367,6 +381,7 @@ void setup_rftrans( rfTransformation *rf )
         }
 
         premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
+        premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->transrate, 1 );
     }
 
     for( axis = 3; axis--; )
@@ -414,14 +429,71 @@ void setup_rftrans( rfTransformation *rf )
     scl = 1.0 + rf->prm[rfScale] * 1.0e-6;
 
     for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
+    {
+        rf->tmat[i][j] *= scl;
+        rf->invtmat[i][j] /= scl;
+        for( k=0; k<3; k++ )
         {
-            rf->tmat[i][j] *= scl;
-            rf->invtmat[i][j] /= scl;
-            for( k=0; k<3; k++ )
+            rf->dtmatdrot[k][i][j] *= scl;
+        }
+    }
+
+    if( rf->userates )
+    {
+        for( axis = 3; axis--; )
+        {
+            angle = rf->prm[rfRotxRate+axis] * STOR;
+            cs = cos(angle);
+            sn = sin(angle);
+
+            calcrotmatrate( axis, cs, sn, mult );
+
+            premult3( DS mult, DS rf->tmatrate, DS rf->tmatrate, 3 );
+            for( i = 0; i<3; i++ )
+                if( i != axis )
+                    premult3( DS mult, DS rf->dtmatratedrot[i], DS rf->dtmatratedrot[i], 3 );
+
+            calcdrotdang( axis, cs, sn, mult );
+            premult3( DS mult, DS rf->dtmatratedrot[axis], DS rf->dtmatratedrot[axis], 3 );
+
+            calcrotmatrate( axis, cs, -sn, mult );
+            memcpy( temp, rf->invtmatrate, sizeof( tmatraterix ) );
+            premult3( DS temp, DS mult, DS rf->invtmatrate, 3 );
+        }
+
+        if( rf->istopo )
+        {
+            premult3( DS invtoporot, DS rf->tmatrate, DS rf->tmatrate, 3 );
+            for( i=0; i<3; i++ )
             {
-                rf->dtmatdrot[k][i][j] *= scl;
+                premult3( DS invtoporot, DS rf->dtmatratedrot[i], DS rf->dtmatratedrot[i], 3 );
             }
         }
+
+        rf->invtmatrate[0][0] = rf->tmatrate[0][0];
+        rf->invtmatrate[0][1] = rf->tmatrate[1][0];
+        rf->invtmatrate[0][2] = rf->tmatrate[2][0];
+        rf->invtmatrate[1][0] = rf->tmatrate[0][1];
+        rf->invtmatrate[1][1] = rf->tmatrate[1][1];
+        rf->invtmatrate[1][2] = rf->tmatrate[2][1];
+        rf->invtmatrate[2][0] = rf->tmatrate[0][2];
+        rf->invtmatrate[2][1] = rf->tmatrate[1][2];
+        rf->invtmatrate[2][2] = rf->tmatrate[2][2];
+
+        /* Apply the scale factor */
+
+        scl = 1.0 + rf->prm[rfScaleRate] * 1.0e-6;
+
+        for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
+        {
+            rf->tmatrate[i][j] *= scl;
+            rf->invtmatrate[i][j] /= scl;
+            for( k=0; k<3; k++ )
+            {
+                rf->dtmatratedrot[k][i][j] *= scl;
+            }
+        }
+    }
 }
 
 
@@ -476,20 +548,22 @@ const char * rftrans_name( int rf )
     return rflist[rf-1]->name;
 }
 
-void rftrans_correct_vector( int nrf, double vd[3] )
+void rftrans_correct_vector( int nrf, double vd[3], double date )
 {
     rfTransformation *rf;
     rf = rflist[nrf-1];
     premult3( DS rf->invtmat, vd, vd, 1 );
 }
 
-void rftrans_correct_point( int nrf, double vd[3] )
+void rftrans_correct_point( int nrf, double vd[3], double date )
 {
     rfTransformation *rf;
     rf = rflist[nrf-1];
     vecdif(vd, rf->origin,vd);
+
     premult3( DS rf->invtmat, vd, vd, 1 );
     vecadd(vd, rf->trans, vd);
+
     vecadd(vd,rf->origin,vd);
 }
 
