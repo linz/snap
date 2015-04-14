@@ -269,6 +269,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     {
         set_config_read_options( cfg, 0 );
         if( cfg_only ) set_config_command_flag( cfg, CONFIG_CMD );
+        else set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
         sts = sts ? INVALID_DATA : OK;
