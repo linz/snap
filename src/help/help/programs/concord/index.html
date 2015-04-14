@@ -34,11 +34,12 @@ is a simple text file and can be readily edited to include additional coordinate
 systems.</p>
 
 <p>Conversions between ellipsoidal and
-orthometric height are done using a <a href="../../coordsys/geoid.html">geoid model</a> specified with the -G parameter.  For converting New Zealand points the
-NZGeoid09 model is recommended (-gNZGeoid09).  If overseas points are being 
+orthometric height are done using a <a href="../../coordsys/geoid.html">geoid model</a> 
+specified with the -g parameter.  For converting New Zealand points the
+NZGeoid09 model is recommended (-g NZGeoid09).  If overseas points are being 
 converted then the global 
 model EGM96 from NASA and NIMA (http://cddis.gsfc.gov/926/egm96/egm96.html)
-will need to be used (-gEGM96).
+will need to be used (-g EGM96).
 </p>
 
 <h2>Command syntax</h2>
@@ -49,7 +50,7 @@ will need to be used (-gEGM96).
 
 <p>to run an interactive session, or</p>
 
-<p class="Commanddefinition">concord [<i>switches</i>] [<i>input_file_name</i>]
+<p class="Commanddefinition">concord [<i>options</i>] [<i>input_file_name</i>]
 [<i>output_file_name</i>]</p>
 
 <p>to convert coordinates in a file, or </p>
@@ -68,7 +69,7 @@ are:</p>
   </td>
   <td>
   <p>Specifies the name of the input file of
-  coordinates. This parameter may only be supplied if the -K switch (see below)
+  coordinates. This parameter may only be supplied if the -k option (see below)
   is not present. If it is not specified input is taken from the standard input
   channel. A file name of - is equivalent to the standard input channel.
   The required format of an input file is defined below. </p>
@@ -87,13 +88,13 @@ are:</p>
  </tr>
 </table>
 
-<p>The command line switches that can be
+<p>The command line options that can be
 specified are:</p>
 
 <table class="NormalTable">
  <tr>
   <td>
-  <p>-I<i>xxxx</i></p>
+  <p>-i <i>xxxx</i></p>
   </td>
   <td>
   <p>Defines the input coordinate system to be
@@ -103,7 +104,7 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-O<i>xxxx</i></p>
+  <p>-o <i>xxxx</i></p>
   </td>
   <td>
   <p>Defines the output coordinate system. The
@@ -113,7 +114,7 @@ specified are:</p>
 
  <tr>
   <td>
-      <p>-Y<i>yyyymmdd</i> or -Y<i>yyyy.y</i></p>
+      <p>-y <i>yyyymmdd</i> or -Y<i>yyyy.y</i></p>
   </td>
   <td>
       <p>Defines the date at which the transformation is to be applied.  This is relevant for conversions 
@@ -127,50 +128,50 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-Nc</p>
+      <p>-n <i>or</i> -n### </p>
   </td>
   <td>
-  <p>If the -N switch is present then the
+  <p>If the -n option is present then the
   input coordinates are assumed to be preceded by a point identifier. The
-  switch can specify the maximum number of characters in the identifier as c.</p>
+  option can specify the maximum number of characters in the identifier (the default is 10 characters).</p>
   </td>
  </tr>
 
  <tr>
   <td>
-  <p>-Pn</p>
+  <p>-p #  <i>or</i>  -p  #:#</p>
   </td>
   <td>
   <p>Defines the number of decimal places in
-  the output coordinates.</p>
+  the output coordinates. This can specify bo</p>
   </td>
  </tr>
 
  <tr>
   <td>
-  <p>-Sc</p>
+  <p>-s c</p>
   </td>
   <td>
-  <p>Defines a field separator to be used for
+  <p>Defines a field separator character c to be used for
   the input and output files. The default separator is whitespace (blank or tab
-  characters).</p>
+  characters).  Use &quot;tab&quot; to use the tab character as a delimiter.</p>
   </td>
  </tr>
 
  <tr>
   <td>
-  <p>-E</p>
+  <p>-e</p>
   </td>
   <td>
       <p>Specifies that badly formatted input data are just copied to the output file without
-      changing.  Otherwise they will be copied with an error message.
+      modification.  Otherwise they will be copied with an error message.
   </p>
   </td>
  </tr>
 
  <tr>
   <td>
-  <p>-V</p>
+  <p>-v</p>
   </td>
   <td>
   <p>Verbose output - columns of coordinates
@@ -180,20 +181,20 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-A</p>
+  <p>-a</p>
   </td>
   <td>
   <p>Ask for all parameters interactively
   rather than using only the information in the command line. All the options
-  described below are available interactively using the -A switch. If no
-  switches other than the C and G switches are specified then this becomes the
+  described below are available interactively using the -a option. If no
+  switches other than the c and g switches are specified then this is the
   default.</p>
   </td>
  </tr>
 
  <tr>
   <td>
-  <p>-K</p>
+  <p>-k</p>
   </td>
   <td>
   <p>Keyboard entry of coordinates - prompts
@@ -206,14 +207,14 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-L</p>
+  <p>-l</p>
   </td>
   <td>
   <p>Lists the valid coordinate system codes
   to the standard output stream. No coordinate conversion is done.  This can also be followed
   by the code of a coordinate system to display informaton about that system, for example</p>
   <pre><code>
-  concord -L NZGD2000
+  concord -l NZGD2000
   </code></pre>
   </td>
  </tr>
@@ -221,7 +222,7 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-C<i>filename</i></p>
+  <p>-c <i>filename</i></p>
   </td>
   <td>
   <p>Specifies the name of the coordinate
@@ -232,7 +233,7 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-G<i>filename</i></p>
+  <p>-g <i>filename</i></p>
   </td>
   <td>
   <p>Specifies the name of the geoid model
@@ -242,16 +243,16 @@ specified are:</p>
 
  <tr>
   <td>
-  <p>-H</p>
+  <p>-h</p>
   </td>
   <td>
-  <p>Print a help page listing these switches.</p>
+  <p>Print a help page listing these options.</p>
   </td>
  </tr>
 
  <tr>
   <td>
-  <p>-Z</p>
+  <p>-z</p>
   </td>
   <td>
   <p>List the program version and copyright
@@ -287,7 +288,7 @@ entered. Use H for hexaguesimal format (degrees, minutes, seconds followed by
 a hemisphere), M for degrees and decimal minutes, or D for decimal degrees.</p>
 
 <p>For example the input coordinate system
-could be defined by a switch -iNZGD49:ENO:H.This specifies that the input
+could be defined by the options -i NZGD49:ENO:H.This specifies that the input
 is in the NZGD49 coordinate system (New Zealand Geodetic Datum 1949). This is
 a latitude and longitude coordinate system. The coordinates are ordered as
 longitude, latitude, ellipsoidal height. An example of the input in this case
@@ -302,18 +303,18 @@ could be</p>
 one pair of coordinates per line. Blank lines and lines starting with an
 exclamation mark are ignored, and pass unchanged into the output file. Each
 data line should contain the following fields separated by space or tab
-characters (or a delimiter character specified with the -S switch).</p>
+characters (or a delimiter character specified with the -s option).</p>
 
 <p><i> id coordinate1
 coordinate2 coordinate3 additional_data</i></p>
 
-<p>The id must be present if the -N switch is
-specified, and must be omitted otherwise. The -N switch defines the maximum
+<p>The id must be present if the -n option is
+specified, and must be omitted otherwise. The -n option can also define the maximum
 number of characters that are read from the id. It can be longer than this
 specified length, but any extra characters will be discarded and will not be
 copied to the output file. Following the id are the two or three coordinates
 and then optional additional data (which is copied to the output file without
-modification). The order and format of the coordinates is defined by the -I
+modification). The order and format of the coordinates is defined by the -i
 switch as described above.</p>
 
 <p>Hexaguesimal latitudes and longitudes each

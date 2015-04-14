@@ -102,7 +102,7 @@ static FILE *crdout;
 static FILE *crdcom;
 
 static const char *coordsys_file;
-static char *geoid_file;
+static const char *geoid_file;
 
 static char *crdin_fname;
 static char *crdout_fname;
@@ -415,6 +415,8 @@ static void concord_init( void )
     input_vprec = -1;
     output_prec = -1;
     output_vprec = -1;
+
+    set_error_file( stdout );
 }
 
 /*-------------------------------------------------------------------*/
@@ -456,25 +458,25 @@ static void help( void )
     puts("");
     printf("Syntax:  %s [switches] [input_file] [output_file]\n",PROGNAME);
     puts("");
-    puts("Switches:  -A       Ask for program parameters");
-    puts("           -K       Ask for coordinates at the keyboard");
-    puts("           -L       List the coord system codes used by the program");
-    puts("           -Ixxxx   Define input coord system, and order - e.g.NZMG:EN");
-    puts("           -Oxxxx   Define output coord system, and order");
-    puts("           -Nn      Specifies coordinates preceded by up to n character id");
-    puts("           -Pn      Define the precision of output coordinates");
-    puts("           -Sc      Defines input and output field separator is c");
-    puts("           -E       Skip over input format errors");
-    puts("           -Cfile   Specify the coordinate system definition file");
-    puts("           -Gfile   Specify the geoid file");
-    puts("           -Yyyyy   Specify the conversion epoch for conversions");
-    puts("           -H       List this help information");
-    puts("           -Z       List the program version");
+    puts("Switches:  -a       Ask for program parameters");
+    puts("           -k       Ask for coordinates at the keyboard");
+    puts("           -l       List the coord system codes used by the program");
+    puts("           -i XXXX  Define input coord system, and order - e.g.NZMG:EN");
+    puts("           -o XXXX  Define output coord system, and order");
+    puts("           -n#      Specifies coordinates preceded by up to n character id");
+    puts("           -p #     Define the precision of output coordinates");
+    puts("           -s c     Defines input and output field separator is c");
+    puts("           -e       Skip over input format errors");
+    puts("           -c file  Specify the coordinate system definition file");
+    puts("           -g file  Specify the geoid file");
+    puts("           -y yyyy  Specify the conversion epoch for conversions");
+    puts("           -h       List this help information");
+    puts("           -z       List the program version");
     puts("");
     pause_output();
-    puts("The -I and -O switches are required to specify the input and output");
+    puts("The -i and -o switches are required to specify the input and output");
     puts("coordinate systems.  These specify the coordinate system code. Use");
-    puts("concord -L for a list of valid codes\n");
+    puts("concord -l for a list of valid codes\n");
     puts("For non-geocentric coordinate systems the code may be followed by a");
     puts("colon and the order of the coordinates (one of EN, NE, ENH, NEH, ENO,");
     puts("NEO.  Here E and N are the east and north coordinates, H is ellipsoidal");
@@ -487,6 +489,8 @@ static void help( void )
     puts("datums with a time dependent terms (eg between different ITRS realisations).");
     puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
     puts("the current date.");
+    puts("The -n switch specifies there is an id or code before each coordinate. By");
+    puts("default this is up to 10 characters long.  Use -n### to specify a longer id.");
 }
 
 /*-------------------------------------------------------------------*/
@@ -649,95 +653,150 @@ static void list_program_details_and_exit( void )
 
 /*-------------------------------------------------------------------*/
 
-static void get_definition_files( int argc, char *argv[] )
+static const char *param_args="CGIONPSYH";
+static char *param_value[9]={0,0,0,0,0,0,0,0,0};
+static const char *switch_args="AELKH?ZVN";
+static int switch_value[9]={0,0,0,0,0,0,0,0,0};
+static char **unused_args;
+static int nunused_args;
+
+static int switch_option( char opt )
 {
-    char *s;
-    while (--argc)
-    {
-        s = *++argv;
-        if( _strnicmp(s,"-C",2) == 0 ) coordsys_file = s+2;
-        else if( _strnicmp(s,"-G",2) == 0 ) geoid_file = s+2;
-    }
+    const char *prm=strchr(switch_args,opt);
+    return prm ? switch_value[prm-switch_args] : 0;
 }
 
-static void process_command_line( int argc, char *argv[] )
+static char * command_line_option( char opt )
 {
-    char *s;
-    char c;
-    int narg;
+    const char *prm=strchr(param_args,opt);
+    return prm ? param_value[prm-param_args] : 0;
+}
 
-    narg = 0;
-    while (--argc)
+static void parse_command_line( int argc, char **argv )
+{
+    char errmsg[20];
+    
+    for( argc--, argv++; argc;  argc--, argv++)
     {
-        narg++;
-        s = *++argv;
-        if (s[0]=='-' && s[1])
+        char *arg=*argv;
+        const char *prm;
+        char argchar;
+
+        if( arg[0] != '-' ) break;
+        if( ! arg[1] )
         {
-            c= *++s;
-            if( islower(c) ) c = toupper(c);
-            ++s;
-            switch ( c )
-            {
-            case 'A': { ask_params = TRUE; break; }
-            case 'C': { narg--; break; } /* Coord sys def file */
-            case 'E': { skip_errors = TRUE; break; }
-            case 'G': { narg--; break; } /* Geoid file definition */
-            case 'I':
-            {
-                decode_proj_string(s,&input_cs,&input_dms,
-                                   &input_ne,&input_h,&input_ortho,"input"); break;
-            }
-            case 'K': { ask_coords = TRUE; break; }
-            case 'L': { list_circuits_and_exit( argc-1, argv+1 ); break; }
-            case 'O':
-            {
-                decode_proj_string(s,&output_cs,&output_dms,
-                                   &output_ne,&output_h,&output_ortho, "output"); break;
-            }
-            case 'N':
-            {
-                point_ids = TRUE;
-                if (*s != '\0')
-                    id_length = decode_number(s,0,80,"point id length");
-                break;
-            }
-            case 'P':
-            {
-                char *s1, *s2;
-                s1 = strtok(s,",");
-                s2 = strtok(NULL,"");
-                output_prec = decode_number(s1,0,20,"output precision");
-                if( s2 )
-                    output_vprec = decode_number(s2,0,20,"output precision");
-                break;
-            }
-            case 'S': { separator = *s; break; }
-            case 'V': { verbose = TRUE; break; }
-            case 'Y':
-            {
-                if( ! parse_crdsys_epoch(s,&conv_epoch) )
-                    error_exit("Invalid value for conversion epoch (-Y parameter)","");
-                break;
-            }
-            case 'Z': { list_program_details_and_exit(); break;}
-            case 'H':
-            case '?': { help(); exit(0); break; }
-            default : error_exit("Invalid switch ",--s);
-            }
+            error_exit("Invalid switch -","");
         }
-        else
+        argchar=toupper(arg[1]);
+        prm=strchr(switch_args,argchar);
+        if( prm )
         {
-            if (crdout_fname != NULL)
-                error_exit("Too many parameters on command line","");
-            else
-            {
-                if (crdin_fname==NULL) crdin_fname = s;
-                else crdout_fname = s;
-            }
+            switch_value[prm-switch_args]=TRUE;
+            if( ! arg[2] ) continue;
         }
+        prm=strchr(param_args,argchar);
+        if( prm )
+        {
+            char *pval=arg+2;
+            if( ! *pval )
+            {
+                argv++;
+                argc--;
+                if( ! argc )
+                {
+                    sprintf(errmsg,"Value missing for %s option",arg);
+                    error_exit(errmsg,"");
+                }
+                pval=*argv;
+            }
+            param_value[prm-param_args]=pval;
+            continue;
+        }
+        prm=strchr(switch_args,argchar);
+        if( prm )
+        {
+            switch_value[prm-switch_args]=0;
+            continue;
+        }
+        arg[2]=0;
+        sprintf(errmsg,"Invalid option %s",arg);
+        error_exit(errmsg,"");
+    }
+    unused_args=argv;
+    nunused_args=argc;
+
+    if( switch_option('H') || switch_option('?') ){ help(); exit(0); }
+
+    coordsys_file=command_line_option('C');
+    geoid_file=command_line_option('G');
+}
+
+static void process_command_line_options()
+{
+    char *pval;
+
+    if( switch_option('L') )
+    {
+        list_circuits_and_exit( nunused_args, unused_args );
+    }
+    if( switch_option('Z') ) { list_program_details_and_exit(); }
+
+    ask_params=switch_option('A');
+    ask_coords=switch_option('K');
+    skip_errors=switch_option('E');
+    point_ids=switch_option('N');
+    verbose=switch_option('V');
+
+    pval=command_line_option('I');
+    if( pval ) decode_proj_string(pval,&input_cs,&input_dms,
+                     &input_ne,&input_h,&input_ortho,"input"); 
+
+    pval=command_line_option('O');
+    if( pval ) decode_proj_string(pval,&output_cs,&output_dms,
+                      &output_ne,&output_h,&output_ortho, "output"); 
+
+    pval=command_line_option('Y');
+    if( pval &&  ! parse_crdsys_epoch(pval,&conv_epoch) )
+    {
+        error_exit("Invalid value for conversion epoch (-Y parameter)","");
     }
 
-    if( ! narg ) ask_params = ask_coords = TRUE;
+    pval=command_line_option('N');
+    if( pval ) id_length = decode_number(pval,0,80,"point id length");
+
+    pval=command_line_option('P');
+    if( pval )
+    {
+        char *s1, *s2;
+        s1 = strtok(pval,":,");
+        s2 = strtok(NULL,"");
+        output_prec = decode_number(s1,0,20,"output precision");
+        if( s2 )
+            output_vprec = decode_number(s2,0,20,"output precision");
+    }
+
+    pval=command_line_option('S');
+    if( pval )
+    {
+        if( _stricmp(pval,"tab") == 0 || _stricmp(pval,"t") == 0 ) separator='\t';
+        else if ( _stricmp(pval,"blank") == 0 ) separator=' ';
+        else separator=*pval;
+    }
+
+    if( nunused_args > 2 )
+    {
+        error_exit("Invalid extra arguments on command line","");
+    }
+    else if( ! nunused_args ) 
+    {
+        ask_coords = TRUE;
+        if( ! input_cs || ! output_cs ) ask_params=TRUE;
+    }
+    else
+    {
+        crdin_fname=unused_args[0];
+        if( nunused_args > 1 ) crdout_fname=unused_args[1];
+    }
 
     /* If asking for coordinates then there cannot be an input file */
 
@@ -1869,7 +1928,7 @@ int main( int argc, char *argv[] )
     int sts;
 
     concord_init();
-    get_definition_files( argc, argv );
+    parse_command_line( argc, argv );
     if( ! coordsys_file )
     {
         coordsys_file=get_default_crdsys_file();
@@ -1885,7 +1944,7 @@ int main( int argc, char *argv[] )
         printf("Cannot read coordsys.def file %s\n",coordsys_file);
         return 0;
     }
-    process_command_line(argc,argv);
+    process_command_line_options();
     if(ask_params) prompt_for_parameters();
     tidy_up_parameters();
     setup_transformation();

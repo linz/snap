@@ -1,6 +1,6 @@
 
 concord: Valid coordinate systems are:
-  WGS84      World Geodetic System 1984
+  WGS84_D    World Geodetic System 1984
   NZGD2000   New Zealand Geodetic Datum 2000
   NZGD2000D  New Zealand Geodetic Datum 2000 (deformation)
   NZGD2000_XYZ New Zealand Geodetic Datum 2000 - Cartesian XYZ

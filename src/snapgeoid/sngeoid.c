@@ -41,6 +41,7 @@ int main( int argc, char *argv[] )
     char *geoid = NULL;
     geoid_def *gd = NULL;
 
+    set_error_file( stdout );
     geoid_msg[0] = 0;
 
     while( argc > 1 && argv[1][0] == '-' )

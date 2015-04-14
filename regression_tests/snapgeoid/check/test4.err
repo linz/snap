@@ -1,8 +1,9 @@
 
+
 snapconv version
 Calculates geoid undulations on a SNAP coordinate file
 
-Unable to load geoid model
 
 Warning: Unable to load geoid grid model
 garbage
+Unable to load geoid model

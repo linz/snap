@@ -3,9 +3,9 @@ SETLOCAL
 
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
 IF "%1" == "-r" SHIFT
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
 
 "%SNAPDIR%\snapmerge" in/test.crd in/testll.crd out/test1.crd
 "%SNAPDIR%\snapmerge" -o in/test.crd in/testll.crd out/test2.crd
@@ -28,3 +28,4 @@ REM clearing orders
 "%SNAPDIR%\snapmerge" -c in/test.crd in/testaltord.crd out/test23.crd
 "%SNAPDIR%\snapmerge" -cd in/test.crd in/testnoord.crd out/test24.crd
 
+diff -r -b -B -q out check

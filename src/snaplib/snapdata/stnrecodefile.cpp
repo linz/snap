@@ -119,7 +119,6 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
     {
         const char *recodefile;
         recodefile=find_file(filename,DFLTSTRCD_EXT,basefile,FF_TRYALL,0);
-        std::string recodefilename(recodefile);
         if( ! recodefile )
         {
             std::ostringstream os;
@@ -128,6 +127,7 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
             return INVALID_DATA;
         }
 
+        std::string recodefilename(recodefile);
         const char *formatfile;
         formatfile = find_file( "stnrecode", ".dtf", recodefilename.c_str(), FF_TRYALL, CSVFORMAT_CONFIG );
         if( ! formatfile )

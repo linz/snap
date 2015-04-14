@@ -3,9 +3,9 @@ SETLOCAL
 
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
 IF "%1" == "-r" SHIFT
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
 
 del /s /q out\*
 
@@ -57,3 +57,7 @@ for %%f in (out\*.err) do perl -pi.bak -e "s/snapgeoid\s+version[\s\d\.]*/snapco
 perl -pi.bak -e "s/snapgeoid\s+version[\s\d\.]*/snapconv version/" out\snapgeoid.txt
 
 del /q out\*.bak
+
+echo ==========================================
+echo Differences between output and check files
+diff -r -b -B -q out check

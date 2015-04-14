@@ -207,7 +207,7 @@ void SnapMgrScriptEnv::ReportError( const wxString &error )
 
 wxMenuItem *SnapMgrScriptEnv::GetMenuItemByLabel( wxMenu *menu, const wxString &label, bool wantSubMenu )
 {
-    for( int i = 0; i < menu->GetMenuItemCount(); i++ )
+    for( size_t i = 0; i < menu->GetMenuItemCount(); i++ )
     {
         wxMenuItem *mi=menu->FindItemByPosition(i);
         if( wantSubMenu && ! mi->GetSubMenu()) continue;
@@ -382,7 +382,10 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
 
 #define DEFINE_FUNCTION(func,nprm) \
 	if( _stricmp(func,functionName.c_str()) == 0 ) { \
-    if( nParams != nprm ) return fsBadParameters;
+    if( nParams != nprm )                            \
+    {                                                \
+        return fsBadParameters;                      \
+    }     
 
 #define DEFINE_FUNCTION2(func,nprm1,nprm2) \
 	if( _stricmp(func,functionName.c_str()) == 0 ) { \
@@ -741,6 +744,24 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
         //re.GetMatch( result, 0 );
     }
     RETURN( result )
+     
+    // Regular expression match
+
+    DEFINE_FUNCTION("MatchGroups",2)
+    Value result;
+    wxString text(STRPRM(0));
+    wxRegEx re;
+    if( re.Compile(STRPRM(1),wxRE_ADVANCED) && re.Matches(text) )
+    {
+        size_t nMatch = re.GetMatchCount();
+        for( size_t nm = 1; nm < nMatch; nm++ )
+        {
+            if( nm == 1 ) result.SetValue(re.GetMatch(text,nm));
+            else result.SetNext(re.GetMatch(text,nm));
+        }
+        //re.GetMatch( result, 0 );
+    }
+    RETURN( result ) 
 
     DEFINE_FUNCTION2("Replace",3,4)
     wxString result( STRPRM(0) );
@@ -748,7 +769,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     if( re.Compile(STRPRM(1),wxRE_ADVANCED))
     {
         int nReplace = 0;
-        long nr;
+        long nr=0;
         if( nParams == 4  && STRPRM(3).ToLong(&nr) ) { nReplace = nr; }
         if( nReplace <= 0 ) nReplace = maxReplace;
         re.Replace( &result, STRPRM(2), nReplace );
@@ -796,6 +817,25 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxString setenv = STRPRM(0) + _T("=") + value;
     _putenv( setenv.c_str() );
     RETURN( value )
+
+    // String functions
+
+    DEFINE_FUNCTION("UpperCase",1)
+    wxString value=STRPRM(0);
+    RETURN( value.MakeUpper() )
+
+    DEFINE_FUNCTION("LowerCase",1)
+    wxString value=STRPRM(0);
+    RETURN( value.MakeLower() )
+
+    DEFINE_FUNCTION2("SubString",2,3)
+    wxString value=STRPRM(0);
+    size_t start=0;
+    size_t length=wxStringBase::npos;
+    long nm;
+    if( STRPRM(1).ToLong(&nm) ) start = nm;
+    if( nParams == 3 && STRPRM(2).ToLong(&nm) ) length = nm;
+    RETURN( value.Mid(start,length) )
 
     // Loading and unloading job is passed back to the frame window,
     // to ensure the user interface is updated...

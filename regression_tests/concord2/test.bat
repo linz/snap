@@ -25,11 +25,6 @@ REM Example descriptive outputs
 
 echo basic conversion with and without output file
 
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEH,H -N6 in\test1.in out\test1.out > out\test1.txt
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEH,H -N6 in\test1.in  > out\test2.txt
-
-REM Invalid defintions 
-
 %concord% -L BAD1 > out\test_list_BAD1.out 2>&1
 %concord% -L BAD2 > out\test_list_BAD2.out 2>&1
 %concord% -L BAD4 > out\test_list_BAD4.out 2>&1
@@ -49,11 +44,11 @@ echo NZMG projection
 %concord% -iNZGD1949,NEH,H -oNZMG,NEH -N6 in\test1.in out\test5.out > out\test5.txt  2>&1
 
 echo LCC projection
-%concord% -iWGS84,NEH,H -oST57-60_LCC,NEH -N6 in\test1.in out\test6.out > out\test6.txt  2>&1
+%concord% -iWGS84_D,NEH,H -oST57-60_LCC,NEH -N6 in\test1.in out\test6.out > out\test6.txt  2>&1
 
 
 echo PS projection
-%concord% -iWGS84,NEH,H -oANT_PS,NEH -N6 in\test1.in out\test7.out > out\test7.txt  2>&1
+%concord% -iWGS84_D,NEH,H -oANT_PS,NEH -N6 in\test1.in out\test7.out > out\test7.txt  2>&1
 
 echo Geoid calculation
 %concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest\NZgTest09 -N6 in\test1.in out\test8.out > out\test8.txt 2>&1
@@ -118,6 +113,17 @@ echo IERS version of ref frame transformation >> out\test17.txt
 %concord% -INZGD2000,NEH,H -oIERSBW_XYZ -P4 -N6 in\test1.in out\test17a >> out\test17.txt 2>&1
 echo IERS version of ref frame transformation >> out\test17.txt
 %concord% -INZGD2000,NEH,H -oIERSBWE_XYZ -P4 -N6 in\test1.in out\test17b >> out\test17.txt 2>&1
+
+echo Testing notes...
+%concord% -iWGS84,NEH,H -oNZGD2000,NEH -V -N6 in\test1.in out\test20.out > out\test20.txt  2>&1
+%concord% -iNZGD2000,NEH,H -oWGS84,NEH -V -N6 in\test1.in out\test21.out > out\test21.txt  2>&1
+%concord% -iNZGD2000,NEH,H -oNZMG,NE -V -P8 -N6 in\test1.in  out\test22.out > out\test22.txt 2>&1
+%concord% -iNZGD1949,NEH,H -oNZGD2000,NE -V -P8 -N6 in\test1.in  out\test23.out > out\test23.txt 2>&1
+
+echo Testing separator
+%concord% -INZGD2000,NE,D -oNZGD2000,NE,H -N8 -S, -P8 in\testsep.in out\test30.out >> out\test30.txt 2>&1
+%concord% -INZGD2000,NE,D -oNZGD2000,NE,H -E -N8 -S, -P8 in\testsep.in out\test31.out >> out\test31.txt 2>&1
+
 
 echo Test each coordinate system with official coordsysdef file
 
