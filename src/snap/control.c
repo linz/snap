@@ -205,7 +205,7 @@ static void initiallize_config( void )
 }
 
 
-int read_command_file( char *command_file )
+int read_command_file( const char *command_file )
 {
     CFG_FILE *cfg;
 
@@ -233,7 +233,7 @@ int read_command_file( char *command_file )
     return sts;
 }
 
-int read_command_file_constraints( char *command_file )
+int read_command_file_constraints( const char *command_file )
 {
     CFG_FILE *cfg;
 
