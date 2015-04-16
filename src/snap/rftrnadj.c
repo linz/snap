@@ -16,6 +16,7 @@
 #include "rftrnadj.h"
 #include "snap/rftrans.h"
 #include "util/chkalloc.h"
+#include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/geodetic.h"
 #include "util/dms.h"
@@ -142,7 +143,7 @@ static const char *trownames[] =
     "Vertical rotation rate (arc sec/year)"
 };
 
-static const double iers_mult[14] =
+static double iers_mult[14] =
 { 
     1000.0,
     1000.0,
@@ -313,37 +314,36 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
     /* Make a full covariance and rotation matrix */
 
     for( i = 0, ij=0; i < 14; i++ ) for( j = 0; j <= i; j++, ij++ )
-        {
-            fullcvr[i][j] = fullcvr[j][i] = cvr[ij];
-            fullxfm[i][j] = fullxfm[j][i] = 0.0;
-        }
+    {
+        fullcvr[i][j] = fullcvr[j][i] = cvr[ij];
+        fullxfm[i][j] = fullxfm[j][i] = 0.0;
+    }
     for( i = 0; i < 3; i++ ) for ( j = 0; j < 3; j++ )
-        {
+    {
             fullxfm[i+rfTx][j] = xform[i][j];
             fullxfm[i+rfRotx][j+rfRotx] = xform[i][j];
             fullxfm[i+rfTxRate][j] = xform[i][j];
             fullxfm[i+rfRotxRate][j+rfRotx] = xform[i][j];
-        }
-        }
+    }
     fullxfm[rfScale][rfScale]=1.0;
 
     /* Premultiply by xform */
 
     for( i=0; i<14; i++ ) for( j=0; j<14; j++ )
-        {
-            double sum = 0;
-            for( k = 0; k < 14; k++ ) sum += fullxfm[i][k]*fullcvr[k][j];
-            temp[i][j] = sum;
-        }
+    {
+        double sum = 0;
+        for( k = 0; k < 14; k++ ) sum += fullxfm[i][k]*fullcvr[k][j];
+        temp[i][j] = sum;
+    }
 
     /* Postmultiply and store back into cvr */
 
     for( i=0, ij=0; i<14; i++ ) for( j=0; j<=i; j++, ij++ )
-        {
-            double sum = 0;
-            for( k = 0; k < 14; k++ ) sum += temp[i][k]*fullxfm[j][k];
-            cvr[ij] = sum;
-        }
+    {
+        double sum = 0;
+        for( k = 0; k < 14; k++ ) sum += temp[i][k]*fullxfm[j][k];
+        cvr[ij] = sum;
+    }
 
     /* Apply the transformation to the transformation values */
 
@@ -360,7 +360,7 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
                                double *val, double *cvr, double *vmult, double semult, int *display, 
                                int userates, FILE *out )
 {
-    int i, j, ii, ij;
+    int i, j, ii, ij, j0, j1;
     double se[14];
     int nval;
 
@@ -394,14 +394,16 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         if( j0 ) fprintf(out,"\n");
         for( i = 0, ij = 0; i < nval; i++ )
         {
+            int used=0;
             if( display[i]) fprintf(out,"      ");
             for( j = 0; j <= i; j++, ij++ )
             {
                 if( ! display[i] || ! display[j] ) continue;
                 if( j < j0 || j >= j1 ) continue;
                 fprintf(out, "  %8.4lf", cvr[ij] );
+                used=1;
             }
-            if( display[i]) fprintf(out,"\n" );
+            if( used ) fprintf(out,"\n" );
         }
     }
 }
@@ -468,7 +470,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         oshift[0] = rf->origin[0];
         oshift[1] = rf->origin[1];
         oshift[2] = rf->origin[2];
-        rftrans_correct_vector( rf->id, oshift );
+        rftrans_correct_vector( rf->id, oshift, year_as_snapdate( rf->refepoch) );
         oshift[0] = gval[0] + (rf->origin[0]-oshift[0]);
         oshift[1] = gval[1] + (rf->origin[1]-oshift[1]);
         oshift[2] = gval[2] + (rf->origin[2]-oshift[2]);
@@ -516,6 +518,14 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         fprintf(out,"\n   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n",
                 rf->origin[0], rf->origin[1], rf->origin[2] );
     }
+    if( rf->userates )
+    {
+        double epoch_date;
+        int y,m,d;
+        epoch_date=year_as_snapdate(rf->refepoch);
+        date_as_ymd( epoch_date, &y, &m, &d );
+        fprintf(out,"\n   Reference epoch of frame %02d-%02d-%04d\n",d,m,y);
+    }
 
     if( output_reffrm_iers )
     {
@@ -523,13 +533,13 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         print_rftrans_def( irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, userates, out );
     }
 
-    if( output_reffrm_iers )
+    if( output_reffrm_geo )
     {
         fprintf(out,"\n   Geocentric definition\n");
         print_rftrans_def( grownames, grow, gidentical, gval, gcvr, 0, semult, display, userates, out );
     }
 
-    if( output_reffrm_iers )
+    if( output_reffrm_topo )
     {
         fprintf(out,"\n   Topocentric definition\n");
         print_rftrans_def( trownames, trow, tidentical, tval, tcvr, 0, semult, display, userates, out );
@@ -686,6 +696,7 @@ void vd_rftrans_corr_vector( int nrf, double vd[3], double date,
 
     if( rf->userates )
     {
+        double vr[3];
         premult3( DS rf->tmatrate, vd, vr, 1 );
         premult3( DS rf->tmat, vd, vd, 1 );
         vecadd2( vd, 1, vr, dmult, vd );

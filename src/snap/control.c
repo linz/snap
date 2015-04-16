@@ -896,6 +896,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     char *rfname, *prmname;
     int rf;
     double val[14];
+    double date;
     int i, nval, nprm;
     int sts;
     int calculate;
@@ -951,7 +952,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             if( !got_type )
             {
                 topocentric = 0;
-                iers=1;
+                iers=0;
                 got_type = 1;
             }
             else
@@ -964,7 +965,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             if( !got_type )
             {
                 topocentric = 1;
-                iers=1;
+                iers=0;
                 got_type = 1;
             }
             else
@@ -1020,10 +1021,16 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
 
     if( iers )
     {
-        double date = snap_datetime_parse( prmname, 0 );
+        if( ! prmname )
+        {
+            sprintf(errmess,"Missing epoch date for IERS reference frame transformation",prmname);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+        date=snap_datetime_parse( prmname, 0 );
         if( date == UNDEFINED_DATE )
         {
-            sprintf(errmess,"Invalid date %s for IERS reference frame transformation",prmname);
+            sprintf(errmess,"Invalid epoch date %s for IERS reference frame transformation",prmname);
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -1117,7 +1124,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
                 if( prmname ) date = snap_datetime_parse( prmname, 0 );
                 if( date == UNDEFINED_DATE )
                 {
-                    sprintf(errmess,"Invalid or missing date %s for reference frame transformation",prmname);
+                    sprintf(errmess,"Invalid or missing epoch date %s for reference frame transformation",prmname);
                     send_config_error( cfg, INVALID_DATA, errmess );
                     return OK;
                 }

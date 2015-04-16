@@ -87,7 +87,7 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
 
             /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
 
-            vd_rftrans_corr_vector( v->reffrm, dif, dst1, dst2, hA, irow );
+            vd_rftrans_corr_vector( v->reffrm, dif, v->date, dst1, dst2, hA, irow );
 
             /* Apply the global reference frame scale error */
 
@@ -104,7 +104,7 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
 
             /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
 
-            vd_rftrans_corr_point( v->reffrm, dif, dst2, hA, irow );
+            vd_rftrans_corr_point( v->reffrm, dif, v->date, dst2, hA, irow );
 
             /* Apply the global reference frame scale error */
             /* This is not properly valid for an XYZ position?

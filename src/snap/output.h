@@ -63,9 +63,9 @@ SCOPE char output_rejected_stations;
 SCOPE char output_rejected_coordinates;
 SCOPE char output_parameters;
 SCOPE char output_reference_frames;
-SCOPE char output_reffrm_topo
-SCOPE char output_reffrm_geo
-SCOPE char output_reffrm_iers
+SCOPE char output_reffrm_topo;
+SCOPE char output_reffrm_geo;
+SCOPE char output_reffrm_iers;
 SCOPE char output_form_feeds;
 SCOPE char output_coordinate_file;
 SCOPE char output_binary_file;
@@ -163,7 +163,7 @@ output_option output[] =
     {"reference_frames",&output_reference_frames,1,{DATA_CONSISTENCY, 0}},
     {"topocentric_ref_frames",&output_reffrm_topo,1,{0}},
     {"geocentric_ref_frames",&output_reffrm_geo,1,{0}},
-    {"iers_ref_frames",&output_reffrm_iers,1,{0}},
+    {"iers_ref_frames",&output_reffrm_iers,0,{0}},
     {"parameters",&output_parameters,1,{DATA_CONSISTENCY, 0}},
     {"form_feeds",&output_form_feeds,0,{0}},
     {

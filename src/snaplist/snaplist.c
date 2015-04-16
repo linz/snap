@@ -381,7 +381,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
         t = &v->obs.vdata[iobs];
         if( t->tgt.type != GB ) continue;
         for( axis = 0; axis < 3; axis++ ) { d1xyz[axis] = t->vector[axis]; }
-        if( v->reffrm ) rftrans_correct_vector( v->reffrm, d1xyz );
+        if( v->reffrm ) rftrans_correct_vector( v->reffrm, d1xyz, v->date );
 
         from = station_ptr( net, v->from );
         to = station_ptr( net, t->tgt.to );

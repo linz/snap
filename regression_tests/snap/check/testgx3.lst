@@ -3627,13 +3627,13 @@ Reference frame: GPS_T
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  -1.2000           0.0563     
-      Y translation (m)                   0.3000           0.0248     
-      Z translation (m)                 -15.8000           0.0505     
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      X translation (m)                  -1.2000          0.0563    
+      Y translation (m)                   0.3000          0.0248    
+      Z translation (m)                 -15.8000          0.0505    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3647,13 +3647,13 @@ Reference frame: GPS_T
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                  -0.0536           0.0232     
-      N translation (m)                 -11.4310           0.0346     
-      U translation (m)                  10.9772           0.0678     
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      E translation (m)                  -0.0536          0.0232    
+      N translation (m)                 -11.4310          0.0346    
+      U translation (m)                  10.9772          0.0678    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3675,13 +3675,13 @@ Reference frame: GPS_S
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                   0.0000           -          
-      Y translation (m)                   0.0000           -          
-      Z translation (m)                   0.0000           -          
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  2.499996420      0.010504689
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3695,13 +3695,13 @@ Reference frame: GPS_S
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                   0.0000           -          
-      N translation (m)                   0.0000           -          
-      U translation (m)                   0.0000           -          
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  2.499996420      0.010504689
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3713,8 +3713,8 @@ Reference frame: GPS_S
           0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
 
    Minimum error of horizontal tilt is 0.00000 arc sec
-   Maximum error of horizontal tilt is 0.00000 arc sec
-   Rotation axis of maximum tilt error has azimuth 0 degrees
+   Maximum error of horizontal tilt is 0.01050 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
 
 Reference frame: GPS_TS
 
@@ -3725,48 +3725,48 @@ Reference frame: GPS_TS
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  10.8944           0.0565     
-      Y translation (m)                  -2.1718           0.0254     
-      Z translation (m)                  -5.7400           0.0510     
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  2.500004180      0.031422574
+      X translation (m)                  10.8944          0.0565    
+      Y translation (m)                  -2.1718          0.0254    
+      Z translation (m)                  -5.7400          0.0510    
+      Scale factor (ppm)                  2.5000042       0.0314226 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
          -0.3408    1.0000
           0.5817   -0.2498    1.0000
-          0.0000    0.0000    0.0000    1.0000
+          0.0919   -0.2094    0.1285    1.0000
           0.0000    0.0000    0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
-          0.0919   -0.2094    0.1285    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                  -0.0537           0.0236     
-      N translation (m)                 -11.4836           0.0346     
-      U translation (m)                  -4.9472           0.0684     
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  2.500004180      0.031422574
+      E translation (m)                  -0.0537          0.0236    
+      N translation (m)                 -11.4836          0.0346    
+      U translation (m)                  -4.9472          0.0684    
+      Scale factor (ppm)                  2.5000042       0.0314226 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
           0.0213    1.0000
           0.0315    0.0022    1.0000
-          0.0000    0.0000    0.0000    1.0000
+          0.1770    0.0334   -0.1302    1.0000
           0.0000    0.0000    0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
-          0.1770    0.0334   -0.1302    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
 
    Translation at origin (-1.2000, 0.3000, -15.8000)
 
    Minimum error of horizontal tilt is 0.00000 arc sec
-   Maximum error of horizontal tilt is 0.00000 arc sec
-   Rotation axis of maximum tilt error has azimuth 0 degrees
+   Maximum error of horizontal tilt is 0.03142 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
 
 Reference frame: GPS_R
 
@@ -3775,46 +3775,46 @@ Reference frame: GPS_R
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                   0.0000           -          
-      Y translation (m)                   0.0000           -          
-      Z translation (m)                   0.0000           -          
-      X rotation (arc sec)               29.999992509      0.005167519
-      Y rotation (arc sec)               -4.999994724      0.001420215
-      Z rotation (arc sec)               64.999998690      0.004189715
-      Scale factor (ppm)                  0.000000000      -          
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               29.9999925       0.0051675 
+      Y rotation (arc sec)               -4.9999947       0.0014202 
+      Z rotation (arc sec)               64.9999987       0.0041897 
 
       Correlation matrix:
           1.0000
           0.0000    1.0000
           0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000   -0.5991    1.0000
-          0.0000    0.0000    0.0000    0.9731   -0.6126    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000   -0.5991    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.9731   -0.6126    1.0000
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                   0.0000           -          
-      N translation (m)                   0.0000           -          
-      U translation (m)                   0.0000           -          
-      N-S tilt (arc sec)                 -1.108392084      0.001132082
-      W-E tilt (arc sec)                 30.972607204      0.000756283
-      Vertical rotation (arc sec)       -64.726102906      0.006664864
-      Scale factor (ppm)                  0.000000000      -          
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                 -1.1083921       0.0011321 
+      W-E tilt (arc sec)                 30.9726072       0.0007563 
+      Vertical rotation (arc sec)       -64.7261029       0.0066649 
 
       Correlation matrix:
           1.0000
           0.0000    1.0000
           0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0075    1.0000
-          0.0000    0.0000    0.0000    0.1362    0.1334    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0075    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.1362    0.1334    1.0000
 
-   Minimum error of horizontal tilt is 0.00076 arc sec
+   Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00113 arc sec
-   Rotation axis of maximum tilt error has azimuth 89 degrees
+   Rotation axis of maximum tilt error has azimuth 0 degrees
 
 Reference frame: GPS_TRS
 
@@ -3825,48 +3825,48 @@ Reference frame: GPS_TRS
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                -203.0827           0.0578     
-      Y translation (m)                -941.4477           0.0257     
-      Z translation (m)                  20.8375           0.0521     
-      X rotation (arc sec)               30.000054374      0.016527052
-      Y rotation (arc sec)               -4.999930937      0.024310826
-      Z rotation (arc sec)               64.999970223      0.018759017
-      Scale factor (ppm)                  2.500250610      0.031511911
+      X translation (m)                -203.0827          0.0578    
+      Y translation (m)                -941.4477          0.0257    
+      Z translation (m)                  20.8375          0.0521    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      X rotation (arc sec)               30.0000544       0.0165271 
+      Y rotation (arc sec)               -4.9999309       0.0243108 
+      Z rotation (arc sec)               64.9999702       0.0187590 
 
       Correlation matrix:
           1.0000
          -0.3562    1.0000
           0.5922   -0.2537    1.0000
-          0.1124   -0.0052    0.1651    1.0000
-         -0.0750    0.0733   -0.0637    0.3586    1.0000
-         -0.1782    0.0897   -0.1621   -0.8297   -0.1598    1.0000
-          0.0895   -0.1991    0.1340    0.0356   -0.0121   -0.0010    1.0000
+          0.0895   -0.1991    0.1340    1.0000
+          0.1124   -0.0052    0.1651    0.0356    1.0000
+         -0.0750    0.0733   -0.0637   -0.0121    0.3586    1.0000
+         -0.1782    0.0897   -0.1621   -0.0010   -0.8297   -0.1598    1.0000
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                 963.0457           0.0237     
-      N translation (m)                  22.7419           0.0350     
-      U translation (m)                  -5.1332           0.0702     
-      N-S tilt (arc sec)                 -1.108466967      0.025195182
-      W-E tilt (arc sec)                 30.972554852      0.023139939
-      Vertical rotation (arc sec)       -64.726121834      0.006768045
-      Scale factor (ppm)                  2.500250610      0.031511911
+      E translation (m)                 963.0457          0.0237    
+      N translation (m)                  22.7419          0.0350    
+      U translation (m)                  -5.1332          0.0702    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      N-S tilt (arc sec)                 -1.1084670       0.0251952 
+      W-E tilt (arc sec)                 30.9725549       0.0231399 
+      Vertical rotation (arc sec)       -64.7261218       0.0067680 
 
       Correlation matrix:
           1.0000
           0.0071    1.0000
           0.0271    0.0001    1.0000
-          0.0455   -0.0197   -0.0570    1.0000
-          0.0112   -0.0287    0.1972    0.2393    1.0000
-          0.0830   -0.1395   -0.0195   -0.1392   -0.0875    1.0000
-          0.1680    0.0437   -0.1302    0.0068   -0.0181   -0.0709    1.0000
+          0.1680    0.0437   -0.1302    1.0000
+          0.0455   -0.0197   -0.0570    0.0068    1.0000
+          0.0112   -0.0287    0.1972   -0.0181    0.2393    1.0000
+          0.0830   -0.1395   -0.0195   -0.0709   -0.1392   -0.0875    1.0000
 
    Translation at origin (-1.1998, 0.3003, -15.8027)
 
-   Minimum error of horizontal tilt is 0.02091 arc sec
-   Maximum error of horizontal tilt is 0.02708 arc sec
-   Rotation axis of maximum tilt error has azimuth 55 degrees
+   Minimum error of horizontal tilt is 0.02519 arc sec
+   Maximum error of horizontal tilt is 0.03151 arc sec
+   Rotation axis of maximum tilt error has azimuth 89 degrees
 
 Reference frame: TGPS_T
 
@@ -3875,13 +3875,13 @@ Reference frame: TGPS_T
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  -1.2000           0.0563     
-      Y translation (m)                   0.3000           0.0248     
-      Z translation (m)                 -15.8000           0.0505     
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      X translation (m)                  -1.2000          0.0563    
+      Y translation (m)                   0.3000          0.0248    
+      Z translation (m)                 -15.8000          0.0505    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3895,13 +3895,13 @@ Reference frame: TGPS_T
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                  -0.0536           0.0232     
-      N translation (m)                 -11.4310           0.0346     
-      U translation (m)                  10.9772           0.0678     
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      E translation (m)                  -0.0536          0.0232    
+      N translation (m)                 -11.4310          0.0346    
+      U translation (m)                  10.9772          0.0678    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3923,13 +3923,13 @@ Reference frame: TGPS_S
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                   0.0000           -          
-      Y translation (m)                   0.0000           -          
-      Z translation (m)                   0.0000           -          
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  2.499996420      0.010504689
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3943,13 +3943,13 @@ Reference frame: TGPS_S
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                   0.0000           -          
-      N translation (m)                   0.0000           -          
-      U translation (m)                   0.0000           -          
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  2.499996420      0.010504689
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -3961,8 +3961,8 @@ Reference frame: TGPS_S
           0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
 
    Minimum error of horizontal tilt is 0.00000 arc sec
-   Maximum error of horizontal tilt is 0.00000 arc sec
-   Rotation axis of maximum tilt error has azimuth 0 degrees
+   Maximum error of horizontal tilt is 0.01050 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
 
 Reference frame: TGPS_TS
 
@@ -3973,48 +3973,48 @@ Reference frame: TGPS_TS
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  10.8944           0.0565     
-      Y translation (m)                  -2.1718           0.0254     
-      Z translation (m)                  -5.7400           0.0510     
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  2.500004180      0.031422574
+      X translation (m)                  10.8944          0.0565    
+      Y translation (m)                  -2.1718          0.0254    
+      Z translation (m)                  -5.7400          0.0510    
+      Scale factor (ppm)                  2.5000042       0.0314226 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
          -0.3408    1.0000
           0.5817   -0.2498    1.0000
-          0.0000    0.0000    0.0000    1.0000
+          0.0919   -0.2094    0.1285    1.0000
           0.0000    0.0000    0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
-          0.0919   -0.2094    0.1285    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                  -0.0537           0.0236     
-      N translation (m)                 -11.4836           0.0346     
-      U translation (m)                  -4.9472           0.0684     
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  2.500004180      0.031422574
+      E translation (m)                  -0.0537          0.0236    
+      N translation (m)                 -11.4836          0.0346    
+      U translation (m)                  -4.9472          0.0684    
+      Scale factor (ppm)                  2.5000042       0.0314226 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
           0.0213    1.0000
           0.0315    0.0022    1.0000
-          0.0000    0.0000    0.0000    1.0000
+          0.1770    0.0334   -0.1302    1.0000
           0.0000    0.0000    0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
-          0.1770    0.0334   -0.1302    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
 
    Translation at origin (-1.2000, 0.3000, -15.8000)
 
    Minimum error of horizontal tilt is 0.00000 arc sec
-   Maximum error of horizontal tilt is 0.00000 arc sec
-   Rotation axis of maximum tilt error has azimuth 0 degrees
+   Maximum error of horizontal tilt is 0.03142 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
 
 Reference frame: TGPS_R
 
@@ -4023,46 +4023,46 @@ Reference frame: TGPS_R
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                   0.0000           -          
-      Y translation (m)                   0.0000           -          
-      Z translation (m)                   0.0000           -          
-      X rotation (arc sec)               30.001925701      0.005167839
-      Y rotation (arc sec)               -4.990541748      0.001419228
-      Z rotation (arc sec)               65.000280083      0.004189814
-      Scale factor (ppm)                  0.000000000      -          
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               30.0019257       0.0051678 
+      Y rotation (arc sec)               -4.9905417       0.0014192 
+      Z rotation (arc sec)               65.0002801       0.0041898 
 
       Correlation matrix:
           1.0000
           0.0000    1.0000
           0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000   -0.5984    1.0000
-          0.0000    0.0000    0.0000    0.9731   -0.6120    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000   -0.5984    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.9731   -0.6120    1.0000
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                   0.0000           -          
-      N translation (m)                   0.0000           -          
-      U translation (m)                   0.0000           -          
-      N-S tilt (arc sec)                 -1.118040710      0.001132303
-      W-E tilt (arc sec)                 30.972823986      0.000756262
-      Vertical rotation (arc sec)       -64.726282319      0.006664928
-      Scale factor (ppm)                  0.000000000      -          
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                 -1.1180407       0.0011323 
+      W-E tilt (arc sec)                 30.9728240       0.0007563 
+      Vertical rotation (arc sec)       -64.7262823       0.0066649 
 
       Correlation matrix:
           1.0000
           0.0000    1.0000
           0.0000    0.0000    1.0000
           0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0077    1.0000
-          0.0000    0.0000    0.0000    0.1376    0.1333    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.0077    1.0000
+          0.0000    0.0000    0.0000    0.0000    0.1376    0.1333    1.0000
 
-   Minimum error of horizontal tilt is 0.00076 arc sec
+   Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00113 arc sec
-   Rotation axis of maximum tilt error has azimuth 89 degrees
+   Rotation axis of maximum tilt error has azimuth 0 degrees
 
 Reference frame: TGPS_TRS
 
@@ -4073,48 +4073,48 @@ Reference frame: TGPS_TRS
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                -203.0827           0.0578     
-      Y translation (m)                -941.4477           0.0257     
-      Z translation (m)                  20.8375           0.0521     
-      X rotation (arc sec)               30.001987565      0.016526631
-      Y rotation (arc sec)               -4.990477962      0.024310220
-      Z rotation (arc sec)               65.000251606      0.018759650
-      Scale factor (ppm)                  2.500250610      0.031511911
+      X translation (m)                -203.0827          0.0578    
+      Y translation (m)                -941.4477          0.0257    
+      Z translation (m)                  20.8375          0.0521    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      X rotation (arc sec)               30.0019876       0.0165266 
+      Y rotation (arc sec)               -4.9904780       0.0243102 
+      Z rotation (arc sec)               65.0002516       0.0187597 
 
       Correlation matrix:
           1.0000
          -0.3562    1.0000
           0.5922   -0.2537    1.0000
-          0.1124   -0.0052    0.1651    1.0000
-         -0.0750    0.0733   -0.0637    0.3585    1.0000
-         -0.1782    0.0896   -0.1621   -0.8297   -0.1599    1.0000
-          0.0895   -0.1991    0.1340    0.0356   -0.0121   -0.0010    1.0000
+          0.0895   -0.1991    0.1340    1.0000
+          0.1124   -0.0052    0.1651    0.0356    1.0000
+         -0.0750    0.0733   -0.0637   -0.0121    0.3585    1.0000
+         -0.1782    0.0896   -0.1621   -0.0010   -0.8297   -0.1599    1.0000
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                 963.0457           0.0237     
-      N translation (m)                  22.7419           0.0350     
-      U translation (m)                  -5.1332           0.0702     
-      N-S tilt (arc sec)                 -1.118115592      0.025194321
-      W-E tilt (arc sec)                 30.972771627      0.023140342
-      Vertical rotation (arc sec)       -64.726301241      0.006768422
-      Scale factor (ppm)                  2.500250610      0.031511911
+      E translation (m)                 963.0457          0.0237    
+      N translation (m)                  22.7419          0.0350    
+      U translation (m)                  -5.1332          0.0702    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      N-S tilt (arc sec)                 -1.1181156       0.0251943 
+      W-E tilt (arc sec)                 30.9727716       0.0231403 
+      Vertical rotation (arc sec)       -64.7263012       0.0067684 
 
       Correlation matrix:
           1.0000
           0.0071    1.0000
           0.0271    0.0001    1.0000
-          0.0455   -0.0197   -0.0570    1.0000
-          0.0112   -0.0287    0.1972    0.2393    1.0000
-          0.0830   -0.1395   -0.0195   -0.1395   -0.0876    1.0000
-          0.1680    0.0437   -0.1302    0.0068   -0.0181   -0.0709    1.0000
+          0.1680    0.0437   -0.1302    1.0000
+          0.0455   -0.0197   -0.0570    0.0068    1.0000
+          0.0112   -0.0287    0.1972   -0.0181    0.2393    1.0000
+          0.0830   -0.1395   -0.0195   -0.0709   -0.1395   -0.0876    1.0000
 
    Translation at origin (-1.1998, 0.3003, -15.8027)
 
-   Minimum error of horizontal tilt is 0.02090 arc sec
-   Maximum error of horizontal tilt is 0.02708 arc sec
-   Rotation axis of maximum tilt error has azimuth 55 degrees
+   Minimum error of horizontal tilt is 0.02519 arc sec
+   Maximum error of horizontal tilt is 0.03151 arc sec
+   Rotation axis of maximum tilt error has azimuth 89 degrees
 
 Reference frame: GPS
 
@@ -4123,13 +4123,13 @@ Reference frame: GPS
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                   0.0000           -          
-      Y translation (m)                   0.0000           -          
-      Z translation (m)                   0.0000           -          
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
       Correlation matrix:
           1.0000
@@ -4143,13 +4143,13 @@ Reference frame: GPS
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                   0.0000           -          
-      N translation (m)                   0.0000           -          
-      U translation (m)                   0.0000           -          
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
       Correlation matrix:
           1.0000
