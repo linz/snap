@@ -17,21 +17,60 @@
 
 <p class="Commanddefinition">reference_frame  [type]  [calculate]  <i>code</i>   [<i>parameter</i>  [<i>value</i> [?]]]</p>
 
+<p class="Commanddefinition">reference_frame  IERS_ETSR  [calculate] <i>code</i>  <i>epoch_date Tx Ty Tz S Rx Ry Rz dTx dTy dTz dS dRx dRy dRz</i> </p>
+
+
 <p>Defines the reference frame parameters for GPS vector and point coordinate observations.</p>
 
-<p>The first command defines the <a href="../data/obs_classifications.html">classification</a> use to determine the GPS reference frame for an observation.  By default this is &quot;ref_frame_code&quot;, defined by the <a href="../data/obs_ddc_reference_frame.html">#reference_frame</a> data definition command.
+<p>The first command defines the <a href="../data/obs_classifications.html">classification</a> use to determine the GPS reference frame for an observation.  By default this is &quot;ref_frame_code&quot;, defined by the <a href="../data/obs_ddc_reference_frame.html">#reference_frame</a> data definition command.</p>
 
-<p class="Commanddefinition">type</p><p class="Commanddescription">may be "geocentric" or "topocentric".  The default is topocentric.</p>
+<p>The following two options are alternative ways of defining the reference frame parameters.  The first defines individual components - translation, rotation, and/or scale and their rates.  These may be defined in terms of geocentrix (X,Y,Z) or topocentric (E,N,U) axes.  The second defines all the parameters of a 14 parameter
+transformation together - epoch, translation, scale, rotation (ETSR) and the translation, scale, and rotation rates.  
+</p>
+<p>Note that (confusingly) the two options differ in the
+the units used for the parameters and the convention used for rotations.  The first form uses metres for translations, arc seconds for rotations, and part per million for scale.  It follows IGS conventions for rotations.  The second
+format follows IERS (International Earth Rotation Service) conventions 
+with units of millimetres, part per billion, and milli-arc seconds for translation, scale and rotation, and the IERS convention for the sign of rotations (ie negative of the IGS convention). </p>
+
+<p>
+
+<p>The parameters of these options are:</p>
+
+<p class="Commanddefinition">type</p><p class="Commanddescription">
+may be &quot;geocentric&quot; or &quot;topocentric&quot;.  The default is topocentric.</p>
 
 <p class="Commanddefinition">code</p><p class="Commanddescription">is the code of the reference frame.</p>
 
-<p class="Commanddefinition">parameter</p><p class="Commanddescription">may be "translation", "rotation", or "scale".  The parameter section can be repeated for each section.</p>
+<p class="Commanddefinition">parameter</p><p class="Commanddescription">may 
+be &quot;translation&quot;, &quot;rotation&quot;, &quot;scale&quot;, 
+&quot;translation_rate&quot;, &quot;rotation_rate&quot;, &quot;scale_rate&quot;
+or &quot;epoch&quot;.  
+The parameter section can be repeated for each parameter to be specified.
+Parameters not specified are set to zero.</p>
 
-<p class="Commanddefinition">value</p><p class="Commanddescription">is the value associated with the parameter. For rotations and translations there are three values corresponding to the X, Y, and Z axes for geocentric reference frames, or the East, North, and Up axes for topocentric systems.  The scale is specified as ppm and the rotations in arc seconds.  Each value can be followed by a ? to indicate that it should be calculated.</p>
+<p class="Commanddefinition">value</p><p class="Commanddescription">is the value associated with the parameter. 
+For rotations and translations there are three values corresponding to the 
+X, Y, and Z axes for geocentric reference frames, 
+or the East, North, and Up axes for topocentric frames.  
+The translations are in metres, the scale in ppm and the rotations in arc seconds.  
+Each value can be followed by a ? to indicate that it should be calculated.
+The epoch can be entered as, for example, 2005-01-01</i>
 
-<p>Note that the reference frame type (topocentric or geocentric) is set the first time the reference frame is referred to in the command file.  Subsequent commands cannot change the type.  The only reason for choosing one or other type is to allow reference frame rotations to be defined in one or other system.  The output file will list both the topocentric and the geocentric definition regardless of the type.</p>
+<p class="Commanddefinition">epoch Tx Ty Tz ... dRy dRz</p><p class="Commanddescription">
+are the parameters of the IERS 14 parameter transformation.  As noted above translations are in millimetres, scale in part per billion, and rotations in milli arc seconds.  Rates (dTx ... dRz) are per year.  
+The reference epoch is a date formatted as 2005-01-01, for example.  Other formats
+are also accepted.
+Each of the transformation parameters may be followed by a &quot;?&quot; to signify that it should be calculated in the adjustment.  
+Alternatively the &quot;calculate&quot; option can be included on the command line to specify that all are to be calculated.
+</p>
 
-<p>Topocentric reference frames are calculated using the topocentric axes at the midpoint of the network.  This point can be explicitly defined using the topocentre command.  If this is not done then SNAP will determine the midpoint of the network automatically.</p>
+<p>Note that the reference frame type (topocentric or geocentric) is set the first time the reference frame is referred to in the command file.  Subsequent commands cannot change the type.  IERS reference frames are geocentric.
+The only reason for choosing one or other type is to allow reference frame rotations to be defined in one or other system
+(for example to determine a rotation about a vertical axis but not a horizontal axis).  
+The output file will list both the topocentric and the geocentric definition regardless of the type.</p>
+
+<p>Topocentric reference frames are calculated using the topocentric axes at the midpoint of the network.  This point can be explicitly defined using the <a href="cmd_topocentre.html">topocentre</a> command.  
+If this is not done then SNAP will determine the midpoint of the network automatically.</p>
 
 <p>The following example sets the values for the scale and rotation of reference frame parameters of the default reference frame, which has code GPS.</p>
 
@@ -41,12 +80,19 @@
 
 <p class="Commanddefinition">reference_frame topocentric GPS scale 0 ? rotation  0  0  0 ?</p>
 
+<p>The third example defines an IERS reference frame.  Translations and
+translation rates will be calculated.</p>
+
+<p class="Commanddefinition">reference_frame iers_etsr itrf2008 
+2000-01-01 4.8? 2.09? -17.67? 1.40901 -0.16508 0.26897 0.11984 0.79 -0.6 -1.34 -0.10201 -0.01347 0.01514 0.01973 scale 0 ? rotation  0  0  0 ?</p> 
+
 <p>The final example calculates all parameters for a reference frame with code GPS2</p>
 
 <p class="Commanddefinition">reference_frame calculate GPS2</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
+<p><a href="cmd_topocentre.html">The topocentre command</a></p>
 <p><a href="cmd_syntax.html">Command file syntax</a></p>
 <p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
 <p><a href="cmd_function_summary.html">Summary of commands by function</a></p>

@@ -116,7 +116,7 @@ static int create_rftrans( const char *name, int topocentric )
     rf->name = copy_string( name );
     _strupr( rf->name );
     rf->refepoch=DEFAULT_REF_EPOCH;
-    rf->userates=0
+    rf->userates=0;
     rf->istrans = 0;
     rf->isorigin = 0;
     rf->istopo = topocentric ? 1 : 0;
@@ -187,7 +187,7 @@ int rftrans_topocentric( int rf )
     return rflist[rf-1]->istopo;
 }
 
-void set_rftrans_refdate( int rf , double date )
+void set_rftrans_ref_date( int rf , double date )
 {
     rfTransformation *rfp;
     rfp = rflist[rf-1];
@@ -237,7 +237,7 @@ void set_rftrans_translation( int rf, double tran[3], int adjust[3] )
 
 }
 
-void set_rftrans_scalerate( int rf , double scale, int adjust )
+void set_rftrans_scale_rate( int rf , double scale, int adjust )
 {
     rfTransformation *rfp;
     rfp = rflist[rf-1];
@@ -247,13 +247,12 @@ void set_rftrans_scalerate( int rf , double scale, int adjust )
 }
 
 
-void set_rftrans_rotationrate( int rf, double rot[3], int adjust[3] )
+void set_rftrans_rotation_rate( int rf, double rot[3], int adjust[3] )
 {
     rfTransformation *rfp;
     int i;
 
     rfp = rflist[rf-1];
-    rfp->userates = 1;
 
     for( i= 0; i<3; i++ )
     {
@@ -265,7 +264,7 @@ void set_rftrans_rotationrate( int rf, double rot[3], int adjust[3] )
 }
 
 
-void set_rftrans_translationrate( int rf, double tran[3], int adjust[3] )
+void set_rftrans_translation_rate( int rf, double tran[3], int adjust[3] )
 {
     rfTransformation *rfp;
     int i;
@@ -368,9 +367,6 @@ void setup_rftrans( rfTransformation *rf )
         rf->trans[0] = rf->prm[rfTx];
         rf->trans[1] = rf->prm[rfTy];
         rf->trans[2] = rf->prm[rfTz];
-        rf->transrate[0] = rf->prm[rfTxRate];
-        rf->transrate[1] = rf->prm[rfTyRate];
-        rf->transrate[2] = rf->prm[rfTzRate];
     }
     else
     {
@@ -381,7 +377,6 @@ void setup_rftrans( rfTransformation *rf )
         }
 
         premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
-        premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->transrate, 1 );
     }
 
     for( axis = 3; axis--; )
@@ -440,33 +435,56 @@ void setup_rftrans( rfTransformation *rf )
 
     if( rf->userates )
     {
+        if( !rf->istopo )
+        {
+            calcrotmat( 0, 1.0, 0.0, rf->tmatrate );
+            for( i = 0; i<3; i++ ) calcrotmat( 0, 1.0, 0.0, rf->dtmatdrotrate[i] );
+            rf->transrate[0] = rf->prm[rfTxRate];
+            rf->transrate[1] = rf->prm[rfTyRate];
+            rf->transrate[2] = rf->prm[rfTzRate];
+        }
+        else
+        {
+            memcpy(rf->tmatrate,toporot,sizeof(tmatrix) );
+            for( i=0; i<3; i++ )
+            {
+                memcpy(rf->dtmatdrotrate[i],toporot,sizeof(tmatrix) );
+            }
+
+            premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->transrate, 1 );
+        }
+
         for( axis = 3; axis--; )
         {
             angle = rf->prm[rfRotxRate+axis] * STOR;
             cs = cos(angle);
             sn = sin(angle);
 
-            calcrotmatrate( axis, cs, sn, mult );
+            calcrotmat( axis, cs, sn, mult );
 
             premult3( DS mult, DS rf->tmatrate, DS rf->tmatrate, 3 );
             for( i = 0; i<3; i++ )
                 if( i != axis )
-                    premult3( DS mult, DS rf->dtmatratedrot[i], DS rf->dtmatratedrot[i], 3 );
+                    premult3( DS mult, DS rf->dtmatdrotrate[i], DS rf->dtmatdrotrate[i], 3 );
 
             calcdrotdang( axis, cs, sn, mult );
-            premult3( DS mult, DS rf->dtmatratedrot[axis], DS rf->dtmatratedrot[axis], 3 );
+            premult3( DS mult, DS rf->dtmatdrotrate[axis], DS rf->dtmatdrotrate[axis], 3 );
 
-            calcrotmatrate( axis, cs, -sn, mult );
-            memcpy( temp, rf->invtmatrate, sizeof( tmatraterix ) );
+            calcrotmat( axis, cs, -sn, mult );
+            memcpy( temp, rf->invtmatrate, sizeof( tmatrix ) );
             premult3( DS temp, DS mult, DS rf->invtmatrate, 3 );
         }
+        /* As dealing with rate of change need to remove 1 from leading diagonal */
+        rf->tmatrate[0][0] -= 1;
+        rf->tmatrate[1][1] -= 1;
+        rf->tmatrate[2][2] -= 1;
 
         if( rf->istopo )
         {
             premult3( DS invtoporot, DS rf->tmatrate, DS rf->tmatrate, 3 );
             for( i=0; i<3; i++ )
             {
-                premult3( DS invtoporot, DS rf->dtmatratedrot[i], DS rf->dtmatratedrot[i], 3 );
+                premult3( DS invtoporot, DS rf->dtmatdrotrate[i], DS rf->dtmatdrotrate[i], 3 );
             }
         }
 
@@ -490,7 +508,7 @@ void setup_rftrans( rfTransformation *rf )
             rf->invtmatrate[i][j] /= scl;
             for( k=0; k<3; k++ )
             {
-                rf->dtmatratedrot[k][i][j] *= scl;
+                rf->dtmatdrotrate[k][i][j] *= scl;
             }
         }
     }
@@ -552,6 +570,15 @@ void rftrans_correct_vector( int nrf, double vd[3], double date )
 {
     rfTransformation *rf;
     rf = rflist[nrf-1];
+    if( rf->userates )
+    {
+        double vr[3];
+        double factor=date_as_year(date)-rf->refepoch;
+        premult3( DS rf->invtmatrate, vd, vr, 1 );
+        premult3( DS rf->invtmat, vd, vd, 1 );
+        vecadd2( vd, 1, vr, factor, vd );
+        return;
+    }
     premult3( DS rf->invtmat, vd, vd, 1 );
 }
 
@@ -560,13 +587,21 @@ void rftrans_correct_point( int nrf, double vd[3], double date )
     rfTransformation *rf;
     rf = rflist[nrf-1];
     vecdif(vd, rf->origin,vd);
-
-    premult3( DS rf->invtmat, vd, vd, 1 );
-    vecadd(vd, rf->trans, vd);
+    if( rf->userates )
+    {
+        double vr[3];
+        double factor=date_as_year(date)-rf->refepoch;
+        premult3( DS rf->invtmatrate, vd, vr, 1 );
+        premult3( DS rf->invtmat, vd, vd, 1 );
+        vecadd2( vd, 1, vr, factor, vd );
+        vecadd2( vd, 1, rf->transrate, factor, vd );
+    }
+    else
+    {
+        premult3( DS rf->invtmat, vd, vd, 1 );
+        vecadd(vd, rf->trans, vd);
+    }
 
     vecadd(vd,rf->origin,vd);
 }
-
-
-
 

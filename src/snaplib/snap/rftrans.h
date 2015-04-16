@@ -21,17 +21,17 @@ enum
     rfTx,
     rfTy,
     rfTz,
+    rfScale,
     rfRotx,
     rfRoty,
     rfRotz,
-    rfScale,
     rfTxRate,
     rfTyRate,
     rfTzRate,
+    rfScaleRate,
     rfRotxRate,
     rfRotyRate,
-    rfRotzRate,
-    rfScaleRate,
+    rfRotzRate
 };
 
 typedef struct
@@ -62,7 +62,7 @@ typedef struct
     tmatrix dtmatdrot[3]; /* The differential of tmat wrt x rot. */
     tmatrix tmatrate;     /* The matrix (1+s).Rx.Ry.Rz           */
     tmatrix invtmatrate;  /* The inverse of tmat                */
-    tmatrix dtmatratedrot[3]; /* The differential of tmat wrt x rot. */
+    tmatrix dtmatdrotrate[3]; /* The differential of tmat wrt x rot. */
     tmatrix toporot;      /* Conversion to and from topocentric system */
     tmatrix invtoporot;
 } rfTransformation;
@@ -80,13 +80,15 @@ rfTransformation *rftrans_from_id( int id );
 void clear_rftrans_list( void );
 rfTransformation *new_rftrans( void );
 
-void set_rftrans_refdate( int rf, double date );
+/* Note: date is set as a snap date (converted internally to decimal year) */
+
+void set_rftrans_ref_date( int rf, double date );
 void set_rftrans_scale( int rf, double scale, int adjust ) ;
 void set_rftrans_rotation( int rf, double rot[3], int adjust[3] ) ;
 void set_rftrans_translation( int rf, double tran[3], int adjust[3] ) ;
-void set_rftrans_scalerate( int rf, double scale, int adjust ) ;
-void set_rftrans_rotationrate( int rf, double rot[3], int adjust[3] ) ;
-void set_rftrans_translationrate( int rf, double tran[3], int adjust[3] ) ;
+void set_rftrans_scale_rate( int rf, double scale, int adjust ) ;
+void set_rftrans_rotation_rate( int rf, double rot[3], int adjust[3] ) ;
+void set_rftrans_translation_rate( int rf, double tran[3], int adjust[3] ) ;
 void set_rftrans_origin( rfTransformation *, double origin[3] );
 
 void flag_rftrans_used( int rf, int usage_type );
@@ -104,6 +106,7 @@ double * rftrans_invtmat( int rf );
 const char *   rftrans_name( int rf );
 
 /* Convert a vector to from the reference frame to the standard reference */
+/* Takes a date (snap date format) against which the vector is tested */
 
 void rftrans_correct_vector( int nrf, double vd[3], double date );
 void rftrans_correct_point( int nrf, double vd[3], double date );

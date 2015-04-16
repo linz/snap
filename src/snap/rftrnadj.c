@@ -32,25 +32,60 @@
 /* Parameter short names and descriptive names for each
    translation parameter */
 
-static const char *geoPrmNames[7] =
+#define MAXPRMNAMELEN 22
+
+static const char *geoPrmNames[] =
 {
     " X shift (m)",
     " Y shift (m)",
     " Z shift (m)",
+    " scale (ppm)",
     " rotn X (sec)",
     " rotn Y (sec)",
     " rotn Z (sec)",
-    " scale (ppm)"
+    " X shift rate (m/yr)",
+    " Y shift rate (m/yr)",
+    " Z shift rate (m/yr)",
+    " scale rate (ppm/yr)",
+    " rotn X rate (sec/yr)",
+    " rotn Y rate (sec/yr)",
+    " rotn Z rate (sec/yr)"
 };
-static const char *topoPrmNames[7] =
+
+static const char *IERSPrmNames[] =
+{
+    " X shift (mm)",
+    " Y shift (mm)",
+    " Z shift (mm)",
+    " scale (ppb)",
+    " rotn X (mas)",
+    " rotn Y (mas)",
+    " rotn Z (mas)",
+    " X shift rate (mm/yr)",
+    " Y shift rate (mm/yr)",
+    " Z shift rate (mm/yr)",
+    " scale rate (ppb/yr)",
+    " rotn X rate (mas/yr)",
+    " rotn Y rate (mas/yr)",
+    " rotn Z rate (mas/yr)"
+};
+
+static const char *topoPrmNames[] =
 {
     " E shift (m)",
     " N shift (m)",
     " U shift (m)",
+    " scale (ppm)",
     " rotn E (sec)",
     " rotn N (sec)",
     " rotn U (sec)",
-    " scale (ppm)"
+    " E shift rate (m)",
+    " N shift rate (m)",
+    " U shift rate (m)",
+    " scale rate (ppm)",
+    " rotn E rate (sec)",
+    " rotn N rate (sec)",
+    " rotn U rate (sec)"
 };
 
 static const char *grownames[] =
@@ -58,36 +93,97 @@ static const char *grownames[] =
     "X translation (m)",
     "Y translation (m)",
     "Z translation (m)",
+    "Scale factor (ppm)",
     "X rotation (arc sec)",
     "Y rotation (arc sec)",
     "Z rotation (arc sec)",
-    "Scale factor (ppm)"
+    "X translation rate (m/year)",
+    "Y translation rate (m/year)",
+    "Z translation rate (m/year)",
+    "Scale factor rate (ppm/year)",
+    "X rotation rate (arc sec/year)",
+    "Y rotation rate (arc sec/year)",
+    "Z rotation rate (arc sec/year)"
 };
+
+static const char *irownames[] =
+{
+    "X translation (mm)",
+    "Y translation (mm)",
+    "Z translation (mm)",
+    "Scale factor (ppb)",
+    "X rotation (mas)",
+    "Y rotation (mas)",
+    "Z rotation (mas)",
+    "X translation rate (mm/year)",
+    "Y translation rate (mm/year)",
+    "Z translation rate (mm/year)",
+    "Scale factor rate (ppb/year)",
+    "X rotation rate (mas/year)",
+    "Y rotation rate (mas/year)",
+    "Z rotation rate (mas/year)"
+};
+
 static const char *trownames[] =
 {
     "E translation (m)",
     "N translation (m)",
     "U translation (m)",
+    "Scale factor (ppm)",
     "N-S tilt (arc sec)",
     "W-E tilt (arc sec)",
     "Vertical rotation (arc sec)",
-    "Scale factor (ppm)"
+    "E translation rate (m/year)",
+    "N translation rate (m/year)",
+    "U translation rate (m/year)",
+    "Scale factor rate (ppm/year)",
+    "N-S tilt rate (arc sec/year)",
+    "W-E tilt rate (arc sec/year)",
+    "Vertical rotation rate (arc sec/year)"
 };
+
+static const double iers_mult[14] =
+{ 
+    1000.0,
+    1000.0,
+    1000.0,
+    1000.0,
+    -1000.0,
+    -1000.0,
+    -1000.0,
+    1000.0,
+    1000.0,
+    1000.0,
+    1000.0,
+    -1000.0,
+    -1000.0,
+    -1000.0
+};
+
+
 static const char *valformat[] = 
 { 
-    "  %10.4lf     ", 
-    "  %10.4lf     ", 
-    "  %10.4lf     ", 
-    "  %15.9lf",
-    "  %15.9lf",
-    "  %15.9lf",
-    "  %15.9lf"
+    "  %10.4lf    ", 
+    "  %10.4lf    ", 
+    "  %10.4lf    ", 
+    "  %13.7lf ",
+    "  %13.7lf ",
+    "  %13.7lf ",
+    "  %13.7lf ",
+    "  %11.5lf   ", 
+    "  %11.5lf   ", 
+    "  %11.5lf   ", 
+    "  %14.8lf",
+    "  %14.8lf",
+    "  %14.8lf",
+    "  %14.8lf"
 };
-static const char *missingstr = "      -          ";
+
+static const char *missingstr = "      -        ";
 
 static void init_rftrans_prms( rfTransformation *rf )
 {
-    char prmname[REFFRAMELEN + 20];
+    char prmname[REFFRAMELEN + MAXPRMNAMELEN];
     char *prmtype;
     const char **prmNames;
     int i;
@@ -100,7 +196,7 @@ static void init_rftrans_prms( rfTransformation *rf )
 
     prmNames = rf->istopo ? topoPrmNames : geoPrmNames;
 
-    for( i = 0; i < 7; i++ )
+    for( i = 0; i < 14; i++ )
     {
         if( ! rf->calcPrm[i] && ! rf->prmId[i] ) continue;
         if( !rf->prmId[i] )
@@ -117,9 +213,13 @@ static void init_rftrans_prms( rfTransformation *rf )
     rf->calcrot = (rf->calcPrm[rfRotx] || rf->calcPrm[rfRoty] || rf->calcPrm[rfRotx]) ? 1 : 0;
     rf->calcscale = rf->calcPrm[rfScale];
 
+    rf->calctransrate = (rf->calcPrm[rfTxRate] || rf->calcPrm[rfTyRate] || rf->calcPrm[rfTxRate]) ? 1 : 0;
+    rf->calcrotrate = (rf->calcPrm[rfRotxRate] || rf->calcPrm[rfRotyRate] || rf->calcPrm[rfRotxRate]) ? 1 : 0;
+    rf->calcscalerate = rf->calcPrm[rfScaleRate];
+
     /* Set up an origin if the scale is being calculated */
 
-    rf->isorigin = (rf->calctrans && (rf->calcrot || rf->calcscale)) ? 1 : 0;
+    rf->isorigin = (rf->calctrans && (rf->calcrot || rf->calcscale || rf->calcrotrate || rf->calcscalerate)) ? 1 : 0;
     if( rf->isorigin )
     {
         double origin[3];
@@ -133,14 +233,14 @@ static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
 {
     int i, j;
     double cvr[28];
-    double dummy[7];
-    int rowidx[7];
-    int rowno[7];
+    double dummy[14];
+    int rowidx[14];
+    int rowno[14];
     int nprm;
     double *s, *d;
 
     nprm = 0;
-    for( i = 0; i < 7; i++ )
+    for( i = 0; i < 14; i++ )
     {
         rowidx[i] = 0;
         if( rf->prmId[i] )
@@ -162,7 +262,7 @@ static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
     /* Copy into the reference frame covariance */
 
     s = cvr; d = rf->prmCvr;
-    for( i = 0; i < 7; i++ ) for( j = 0; j <= i; j++, d++ )
+    for( i = 0; i < 14; i++ ) for( j = 0; j <= i; j++, d++ )
         {
             if( get_covariance && rowidx[i] && rowidx[j] )
             {
@@ -204,62 +304,67 @@ void update_rftrans_prms_list( int get_covariance )
 
 static void transform_rftrans( double xform[3][3], double *val, double *cvr )
 {
-    double fullcvr[7][7];
-    double fullxfm[7][7];
-    double temp[7][7];
-    double vtemp[7];
+    double fullcvr[14][14];
+    double fullxfm[14][14];
+    double temp[14][14];
+    double vtemp[14];
     int i, j, k, ij;
 
     /* Make a full covariance and rotation matrix */
 
-    for( i = 0, ij=0; i < 7; i++ ) for( j = 0; j <= i; j++, ij++ )
+    for( i = 0, ij=0; i < 14; i++ ) for( j = 0; j <= i; j++, ij++ )
         {
             fullcvr[i][j] = fullcvr[j][i] = cvr[ij];
             fullxfm[i][j] = fullxfm[j][i] = 0.0;
         }
     for( i = 0; i < 3; i++ ) for ( j = 0; j < 3; j++ )
         {
-            fullxfm[i][j] = xform[i][j];
-            fullxfm[i+3][j+3] = xform[i][j];
+            fullxfm[i+rfTx][j] = xform[i][j];
+            fullxfm[i+rfRotx][j+rfRotx] = xform[i][j];
+            fullxfm[i+rfTxRate][j] = xform[i][j];
+            fullxfm[i+rfRotxRate][j+rfRotx] = xform[i][j];
         }
-    fullxfm[6][6]=1.0;
+        }
+    fullxfm[rfScale][rfScale]=1.0;
 
     /* Premultiply by xform */
 
-    for( i=0; i<7; i++ ) for( j=0; j<7; j++ )
+    for( i=0; i<14; i++ ) for( j=0; j<14; j++ )
         {
             double sum = 0;
-            for( k = 0; k < 7; k++ ) sum += fullxfm[i][k]*fullcvr[k][j];
+            for( k = 0; k < 14; k++ ) sum += fullxfm[i][k]*fullcvr[k][j];
             temp[i][j] = sum;
         }
 
     /* Postmultiply and store back into cvr */
 
-    for( i=0, ij=0; i<7; i++ ) for( j=0; j<=i; j++, ij++ )
+    for( i=0, ij=0; i<14; i++ ) for( j=0; j<=i; j++, ij++ )
         {
             double sum = 0;
-            for( k = 0; k < 7; k++ ) sum += temp[i][k]*fullxfm[j][k];
+            for( k = 0; k < 14; k++ ) sum += temp[i][k]*fullxfm[j][k];
             cvr[ij] = sum;
         }
 
     /* Apply the transformation to the transformation values */
 
-    for( i=0; i<7; i++ ) vtemp[i] = val[i];
-    for( i=0; i<7; i++ )
+    for( i=0; i<14; i++ ) vtemp[i] = val[i];
+    for( i=0; i<14; i++ )
     {
         double sum = 0;
-        for( k = 0; k < 7; k++ ) sum += fullxfm[i][k] * vtemp[k];
+        for( k = 0; k < 14; k++ ) sum += fullxfm[i][k] * vtemp[k];
         val[i] = sum;
     }
 }
 
 static void print_rftrans_def( const char *rownames[], int *row, int *identical,
-                               double *val, double *cvr, double semult, int *display, FILE *out )
+                               double *val, double *cvr, double *vmult, double semult, int *display, 
+                               int userates, FILE *out )
 {
     int i, j, ii, ij;
-    double se[7];
+    double se[14];
+    int nval;
 
-    for( i = 0, ii = 0, ij = 0; i < 7; i++, ij = ii+1, ii += i+1 )
+    for( i = 0, ii = 0, ij = 0; i < 14; i++, ij = ii+1, ii += i+1 )
     {
         se[i] = cvr[ii];
         if( se[i] > 0.0 ) se[i] = sqrt(se[i]);
@@ -270,37 +375,46 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         cvr[ii] = 1.0;
     }
     fprintf(out,"\n      %-30s  %15s  %15s\n","Parameter","Value    ","Error    ");
-    for( i = 0; i < 7; i++ )
+    nval = userates ? 14 : 7;
+    for( i = 0; i < nval; i++ )
     {
+        double factor = vmult ? vmult[i] : 1.0;
         if( ! display[i]) continue;
         fprintf(out,"      %-30s",rownames[i] );
-        fprintf(out,valformat[i],val[i]);
-        if( row[i] ) fprintf(out,valformat[i],se[i]*semult);
+        fprintf(out,valformat[i],val[i]*factor);
+        if( row[i] ) fprintf(out,valformat[i],se[i]*semult*fabs(factor));
         else { fprintf(out,"%s",missingstr);}
         if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
         fprintf(out,"\n");
     }
     fprintf(out,"\n      Correlation matrix:\n");
-    for( i = 0, ij = 0; i < 7; i++ )
+    for( j0 = 0; j0 < nval; j0 += 7 )
     {
-        if( display[i]) fprintf(out,"      ");
-        for( j = 0; j <= i; j++, ij++ )
+        j1=j0+7;
+        if( j0 ) fprintf(out,"\n");
+        for( i = 0, ij = 0; i < nval; i++ )
         {
-            if( ! display[i] || ! display[j] ) continue;
-            fprintf(out, "  %8.4lf", cvr[ij] );
+            if( display[i]) fprintf(out,"      ");
+            for( j = 0; j <= i; j++, ij++ )
+            {
+                if( ! display[i] || ! display[j] ) continue;
+                if( j < j0 || j >= j1 ) continue;
+                fprintf(out, "  %8.4lf", cvr[ij] );
+            }
+            if( display[i]) fprintf(out,"\n" );
         }
-        if( display[i]) fprintf(out,"\n" );
     }
 }
 
 static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
 {
     double *tval, *tcvr, *gval, *gcvr;
-    int trow[7], tidentical[7], grow[7], gidentical[7], display[7];
-    double sval[7], scvr[28], dval[7], dcvr[28], oshift[3];
+    int trow[14], tidentical[14], grow[14], gidentical[14], display[14];
+    double sval[14], scvr[105], dval[14], dcvr[105], oshift[3];
     int *srow, *sidentical, *drow, *didentical;
     double c1, c2, c3, cmin, cmax, azmax;
     int i, k;
+    int userates=rf->userates;;
     tmatrix *trot;
 
     /* s is source system, d is destination, t = topocentric, g = geocentric */
@@ -323,7 +437,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         trot = &rf->toporot;
     }
 
-    for( i = 0; i < 7; i++ )
+    for( i = 0; i < 14; i++ )
     {
         int pn;
         dval[i] = sval[i] = rf->prm[i];
@@ -336,7 +450,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         drow[i] = srow[i] ? -1 : 0;
     }
 
-    for( k = 0; k < 28; k++ )
+    for( k = 0; k < 105; k++ )
     {
         dcvr[k] = scvr[k] = rf->prmCvr[k];
     }
@@ -388,6 +502,10 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     display[rfScale] = 1;
     display[rfTx] = display[rfTy] = display[rfTz] = rf->istrans;
 
+    display[rfRotxRate] = display[rfRotyRate] = display[rfRotzRate] = userates;
+    display[rfScaleRate] = userates;
+    display[rfTxRate] = display[rfTyRate] = display[rfTzRate] = rf->istrans && userates;
+
     /* OK - now all we need to do is to print out the results... */
 
     fprintf(out,"\nReference frame: %s\n",rf->name );
@@ -398,22 +516,39 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         fprintf(out,"\n   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n",
                 rf->origin[0], rf->origin[1], rf->origin[2] );
     }
-    fprintf(out,"\n   Geocentric definition\n");
-    print_rftrans_def( grownames, grow, gidentical, gval, gcvr, semult, display, out );
-    fprintf(out,"\n   Topocentric definition\n");
-    print_rftrans_def( trownames, trow, tidentical, tval, tcvr, semult, display, out );
+
+    if( output_reffrm_iers )
+    {
+        fprintf(out,"\n   IERS definition\n");
+        print_rftrans_def( irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, userates, out );
+    }
+
+    if( output_reffrm_iers )
+    {
+        fprintf(out,"\n   Geocentric definition\n");
+        print_rftrans_def( grownames, grow, gidentical, gval, gcvr, 0, semult, display, userates, out );
+    }
+
+    if( output_reffrm_iers )
+    {
+        fprintf(out,"\n   Topocentric definition\n");
+        print_rftrans_def( trownames, trow, tidentical, tval, tcvr, 0, semult, display, userates, out );
+    }
 
     if( rf->isorigin && rf->istrans )
     {
         fprintf(out,"\n   Translation at origin (%.4lf, %.4lf, %.4lf)\n",oshift[0],oshift[1],oshift[2]);
     }
 
-    fprintf(out,"\n   Minimum error of horizontal tilt is %.5lf arc sec\n",
-            cmin * semult);
-    fprintf(out,"   Maximum error of horizontal tilt is %.5lf arc sec\n",
-            cmax * semult );
-    fprintf(out,"   Rotation axis of maximum tilt error has azimuth %.0lf degrees\n",
-            azmax * RTOD);
+    if( output_reffrm_topo )
+    {
+        fprintf(out,"\n   Minimum error of horizontal tilt is %.5lf arc sec\n",
+                cmin * semult);
+        fprintf(out,"   Maximum error of horizontal tilt is %.5lf arc sec\n",
+                cmax * semult );
+        fprintf(out,"   Rotation axis of maximum tilt error has azimuth %.0lf degrees\n",
+                azmax * RTOD);
+    }
 }
 
 
@@ -428,22 +563,26 @@ void print_rftrans_list( FILE *out )
     void *latfmt, *lonfmt;
 
     if( rftrans_count() <= 0 ) return;
+    if( ! output_reffrm_topo && ! output_reffrm_geo && ! output_reffrm_iers ) return;
 
     print_section_heading( out, "REFERENCE FRAME PARAMETERS");
 
     fprintf(lst,"\nThe errors listed for calculated parameters are %s errors\n",
             apriori ? "apriori" : "aposteriori" );
 
-    latfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "N", "S" );
-    lonfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "E", "W" );
-    get_network_topocentre( net, &topolat, &topolon );
-    fprintf(out,"\nTopocentric axes are east, north, up directions at\n   ");
-    fputs( dms_string( topolat* RTOD, latfmt, NULL ), out );
-    fputs( "    ", out );
-    fputs( dms_string( topolon* RTOD, lonfmt, NULL ), out );
-    fputs( "\n", out );
-    check_free( latfmt );
-    check_free( lonfmt );
+    if( output_reffrm_topo )
+    {
+        latfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "N", "S" );
+        lonfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "E", "W" );
+        get_network_topocentre( net, &topolat, &topolon );
+        fprintf(out,"\nTopocentric axes are east, north, up directions at\n   ");
+        fputs( dms_string( topolat* RTOD, latfmt, NULL ), out );
+        fputs( "    ", out );
+        fputs( dms_string( topolon* RTOD, lonfmt, NULL ), out );
+        fputs( "\n", out );
+        check_free( latfmt );
+        check_free( lonfmt );
+    }
 
     semult = apriori ? 1.0 : seu;
 
@@ -461,16 +600,23 @@ void print_rftrans_list( FILE *out )
    to the station rows into the observation equations hA, irow (irow is
    the first of the three rows for the vector difference observation) */
 
-void vd_rftrans_corr_vector( int nrf, double vd[3],
+void vd_rftrans_corr_vector( int nrf, double vd[3], double date,
                              double dst1[3][3], double dst2[3][3],
                              void *hA, int irow )
 {
 
     rfTransformation *rf;
     double dvdprm[3];
+    double dmult;
     int i, axis;
-
+    
     rf = rftrans_from_id( nrf );
+
+    dmult=0.0;
+    if( date != UNDEFINED_DATE && rf->userates )
+    {
+        dmult=date_as_year( date ) - rf->refepoch;
+    }
 
     /* Before we modify the vector difference, calculate the differential
        effects of rotation for summing into the normal equations.. */
@@ -503,13 +649,53 @@ void vd_rftrans_corr_vector( int nrf, double vd[3],
                 }
             }
         }
+
+        if( rf->userates && dmult != 0.0 )
+        {
+
+            /* Scale factor rate */
+
+            if( rf->calcscalerate )
+            {
+                double scl;
+                premult3( (double *) rf->tmat, vd, dvdprm, 1 );
+                scl = 1.0e-6 / ( 1 + dmult * rf->prm[rfScaleRate] * 1.0e-6 );
+
+                for( i = 0; i < 3; i++ )
+                    set_param_obseq( rf->prmId[rfScaleRate], hA, irow+i, dmult*dvdprm[i]*scl );
+            }
+
+            /* Now the rotation rates */
+
+            if( rf->calcrotrate )
+            {
+                for( axis = 0; axis < 3; axis++ )
+                {
+                    premult3( (double *) rf->dtmatdrotrate[axis], vd, dvdprm, 1 );
+                    for( i = 0; i < 3; i++ )
+                    {
+                        set_param_obseq( rf->prmId[rfRotxRate+axis], hA, irow+i, dmult*dvdprm[i] );
+                    }
+                }
+            }
+
+        }
     }
 
     /* Now modify the vector and the differentials wrt lat, long, hgt */
 
-    premult3( (double *) rf->tmat, vd, vd, 1 );
-    premult3( (double *) rf->tmat, DS dst1, DS dst1, 3 );
-    premult3( (double *) rf->tmat, DS dst2, DS dst2, 3 );
+    if( rf->userates )
+    {
+        premult3( DS rf->tmatrate, vd, vr, 1 );
+        premult3( DS rf->tmat, vd, vd, 1 );
+        vecadd2( vd, 1, vr, dmult, vd );
+    }
+    else
+    {
+        premult3( DS rf->tmat, vd, vd, 1 );
+    }
+    premult3( DS rf->tmat, DS dst1, DS dst1, 3 );
+    premult3( DS rf->tmat, DS dst2, DS dst2, 3 );
 
 }
 
@@ -521,15 +707,22 @@ void vd_rftrans_corr_vector( int nrf, double vd[3],
    to the station rows into the observation equations hA, irow (irow is
    the first of the three rows for the vector difference observation) */
 
-void vd_rftrans_corr_point( int nrf, double vd[3],
+void vd_rftrans_corr_point( int nrf, double vd[3], double date,
                             double dst1[3][3], void *hA, int irow )
 {
 
     rfTransformation *rf;
     double dvdprm[3], scl;
+    double dmult;
     int i, axis;
 
     rf = rftrans_from_id( nrf );
+
+    dmult=0.0;
+    if( date != UNDEFINED_DATE && rf->userates )
+    {
+        dmult=date_as_year( date ) - rf->refepoch;
+    }
 
     /* Apply the origin shift */
 
@@ -538,6 +731,10 @@ void vd_rftrans_corr_point( int nrf, double vd[3],
     /* Apply the translation */
 
     vecdif( vd, rf->trans, vd );
+    if( dmult ) 
+    {
+        vecadd2( vd, 1, rf->transrate, -1.0*dmult, vd );
+    }
 
     /* Before we modify the position, calculate the differential
        effects of rotation for summing into the normal equations.. */
@@ -590,12 +787,68 @@ void vd_rftrans_corr_point( int nrf, double vd[3],
                 }
             }
         }
+
+        if( rf->userates && dmult != 0.0 )
+        {
+            /* Scale factor */
+
+            if( rf->calcscalerate )
+            {
+                premult3( (double *) rf->tmat, vd, dvdprm, 1 );
+                scl = 1.0e-6 / ( 1 + dmult*rf->prm[rfScale] * 1.0e-6 );
+
+                for( i = 0; i < 3; i++ )
+                    set_param_obseq( rf->prmId[rfScale], hA, irow+i, dmult*dvdprm[i]*scl );
+            }
+
+            /* Each translation component */
+
+            if( rf->calctransrate )
+            {
+                for( axis = 0; axis < 3; axis++ )
+                {
+                    dvdprm[0] = dvdprm[1] = dvdprm[2] = 0.0;
+                    dvdprm[axis] = -1.0;
+                    if( rf->istopo )
+                    {
+                        premult3( (double *) rf->invtoporot, dvdprm, dvdprm, 1 );
+                    }
+                    premult3( (double *) rf->tmat, dvdprm, dvdprm, 1 );
+                    for( i = 0; i < 3; i++ )
+                    {
+                        set_param_obseq( rf->prmId[rfTxRate+axis], hA, irow+i, dmult*dvdprm[i] );
+                    }
+
+                }
+            }
+
+            /* Now the rotations */
+
+            if( rf->calcrotrate )
+            {
+                for( axis = 0; axis < 3; axis++ )
+                {
+                    premult3( (double *) rf->dtmatdrotrate[axis], vd, dvdprm, 1 );
+                    for( i = 0; i < 3; i++ )
+                    {
+                        set_param_obseq( rf->prmId[rfRotxRate+axis], hA, irow+i, dmult*dvdprm[i] );
+                    }
+                }
+            }
+        }
     }
 
     /* Now modify the vector and the differentials wrt lat, long, hgt */
 
-    premult3( (double *) rf->tmat, vd, vd, 1 );
-    premult3( (double *) rf->tmat, DS dst1, DS dst1, 3 );
+    premult3( DS rf->tmat, vd, vd, 1 );
+    if( rf->userates )
+    {
+        double vr[3];
+        premult3( DS rf->tmatrate, vd, vr, 1 );
+        vecadd2( vd, 1, vr, dmult, vd );
+    }
+
+    premult3( DS rf->tmat, DS dst1, DS dst1, 3 );
 
     vecadd( vd, rf->origin, vd );
 }

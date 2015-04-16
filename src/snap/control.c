@@ -39,34 +39,35 @@
 #include <ctype.h>
 
 #include "control.h"
-#include "snapmain.h"
-#include "util/chkalloc.h"
-#include "util/fileutil.h"
-#include "util/datafile.h"
-#include "util/errdef.h"
-#include "util/readcfg.h"
-#include "snap/survfile.h"
-#include "snap/stnadj.h"
 #include "snap/cfgprocs.h"
-#include "snapdata/datatype.h"
-#include "util/dstring.h"
-#include "util/pi.h"
-#include "output.h"
-#include "stnobseq.h"
-#include "coefs.h"
-#include "snap/rftrans.h"
-#include "vecdata.h"
-#include "reorder.h"
-#include "util/bltmatrx.h"
-#include "sortobs.h"
-#include "snapdata/gpscvr.h"
-#include "util/classify.h"
-#include "ressumry.h"
-#include "loadsnap.h"
 #include "snap/deform.h"
+#include "snap/rftrans.h"
+#include "snap/stnadj.h"
+#include "snap/survfile.h"
+#include "snapdata/datatype.h"
+#include "snapdata/gpscvr.h"
+#include "util/bltmatrx.h"
+#include "util/chkalloc.h"
+#include "util/classify.h"
+#include "util/datafile.h"
+#include "util/dateutil.h"
+#include "util/dstring.h"
+#include "util/errdef.h"
+#include "util/fileutil.h"
+#include "util/pi.h"
+#include "util/readcfg.h"
+#include "coefs.h"
 #include "grddeform.h"
 #include "lnzdeform.h"
+#include "loadsnap.h"
+#include "output.h"
+#include "reorder.h"
+#include "ressumry.h"
+#include "snapmain.h"
+#include "sortobs.h"
+#include "stnobseq.h"
 #include "testspec.h"
+#include "vecdata.h"
 
 #define CONFIG_CMD CFG_USERFLAG1
 #define CONSTRAINT_CMD CFG_USERFLAG2
@@ -894,19 +895,21 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
 {
     char *rfname, *prmname;
     int rf;
-    double val[3];
+    double val[14];
     int i, nval, nprm;
     int sts;
     int calculate;
     int use;
-    int calcval[3];
+    int calcval[14];
     int got_type;
+    int iers;
     int topocentric;
     char errmess[256];
 
     calculate = 0;
     topocentric = 0;
     got_type = 0;
+    iers=0;
     rfname = NULL;
     use = 0;
 
@@ -948,6 +951,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             if( !got_type )
             {
                 topocentric = 0;
+                iers=1;
                 got_type = 1;
             }
             else
@@ -960,6 +964,20 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             if( !got_type )
             {
                 topocentric = 1;
+                iers=1;
+                got_type = 1;
+            }
+            else
+            {
+                sts = INVALID_DATA;
+            }
+        }
+        else if( _stricmp( prmname, "iers_etsr" ) == 0 )
+        {
+            if( !got_type )
+            {
+                topocentric = 0;
+                iers=1;
                 got_type = 1;
             }
             else
@@ -1000,61 +1018,160 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
 
     sts = MISSING_DATA;
 
-    while( prmname )
+    if( iers )
     {
-        sts = OK;
-        if( _stricmp(prmname,"scale") == 0  ) { nval = 1; nprm = 1; }
-        else if (_stricmp(prmname,"rotation") == 0 ) { nval = 3; nprm = 2; }
-        else if (_stricmp(prmname,"translation") == 0 ) { nval = 3; nprm = 3; }
-        else
+        double date = snap_datetime_parse( prmname, 0 );
+        if( date == UNDEFINED_DATE )
         {
-            sprintf(errmess,"Invalid parameter %s in reference_frame command",prmname);
+            sprintf(errmess,"Invalid date %s for IERS reference frame transformation",prmname);
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
 
-        /* Try to read values for the parameter */
-
-        val[0] = val[1] = val[2] = 0;
-        calcval[0] = calcval[1] = calcval[2] = calculate;
-
-        prmname = strtok(NULL, " ");
-
-        if( prmname && sscanf(prmname,"%lf",val) == 1 )
+        nval=14;
+        for( i = 0; i < 14; i++ )
         {
-            for( i = 1; i < nval; i++ )
+            prmname = strtok( NULL, " ");
+            if( i && prmname && strcmp(prmname,"?") == 0 )
             {
-                prmname = strtok( NULL, " ");
-                if( prmname && strcmp(prmname,"?") == 0 )
+                i--;
+                calcval[i] = 1;
+            }
+            if( ! prmname )
+            {
+                if( i == 7 ) 
                 {
-                    i--;
-                    calcval[i] = 1;
-                }
-                else if( !prmname || sscanf(prmname,"%lf",val+i) != 1 )
-                {
-                    sts = MISSING_DATA;
+                    nval=7;
                     break;
                 }
+                sts = MISSING_DATA;
+                break;
             }
-            prmname = strtok(NULL," ");
-            if( prmname && strcmp(prmname,"?") == 0 )
+            if( prmname[strlen(prmname)-1] == '?' )
             {
-                calcval[nval-1] = 1;
-                prmname = strtok(NULL, " ");
+                prmname[strlen(prmname)-1] = 0;
+                calcval[i] = 1;
+            }
+            if( sscanf(prmname,"%lf",val+i) != 1 )
+            {
+                sts = MISSING_DATA;
+                break;
             }
         }
-
-        if( sts != OK ) break;
-
-        /* Set the values */
-
-        switch( nprm )
+        if( prmname ) prmname = strtok(NULL," ");
+        if( prmname && strcmp(prmname,"?") == 0 )
         {
-        case 1: set_rftrans_scale( rf, val[0], calcval[0] ); break;
-        case 2: set_rftrans_rotation( rf, val, calcval ); break;
-        case 3: set_rftrans_translation( rf, val, calcval ); break;
+            calcval[13] = 1;
+            prmname = strtok(NULL, " ");
         }
+        if( sts != OK )
+        {
+            sprintf(errmess,"Invalid or missing IERS reference frame parameters");
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+        if( prmname )
+        {
+            sprintf(errmess,"Extraneous data in IERS reference frame parameters");
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+        /* Convert to legacy conventions */
+        for( int i = 0; i < nval; i++ ) { val[i] *= 0.001; calcval[i] |= calculate; }
+        for( int i = 0; i < 3; i++ ){ val[i+4] *= -1; val[i+11] *= -1; } 
+            
+        set_rftrans_ref_date( rf, date );
+        set_rftrans_translation( rf, val, calcval ); 
+        set_rftrans_scale( rf, val[3], calcval[3] );
+        set_rftrans_rotation( rf, val+4, calcval+4 );
+        if( nval > 7 )
+        {
+            set_rftrans_translation_rate( rf+7, val+7, calcval+7 );
+            set_rftrans_scale_rate( rf, val[10], calcval[10] );
+            set_rftrans_rotation_rate( rf, val+11, calcval+11 );
+        }
+    }
+    else
+    {
+        while( prmname )
+        {
+            sts = OK;
+            if( _stricmp(prmname,"epoch") == 0  ) { nval = 1; nprm = 0; }
+            else if( _stricmp(prmname,"scale") == 0  ) { nval = 1; nprm = 1; }
+            else if (_stricmp(prmname,"rotation") == 0 ) { nval = 3; nprm = 2; }
+            else if (_stricmp(prmname,"translation") == 0 ) { nval = 3; nprm = 3; }
+            else if( _stricmp(prmname,"scale_rate") == 0  ) { nval = 1; nprm = 4; }
+            else if (_stricmp(prmname,"rotation_rate") == 0 ) { nval = 3; nprm = 5; }
+            else if (_stricmp(prmname,"translation_rate") == 0 ) { nval = 3; nprm = 6; }
+            else
+            {
+                sprintf(errmess,"Invalid parameter %s in reference_frame command",prmname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
+            }
 
+            if( nprm == 0 )
+            {
+                double date = UNDEFINED_DATE;
+                prmname = strtok(NULL, " ");
+                if( prmname ) date = snap_datetime_parse( prmname, 0 );
+                if( date == UNDEFINED_DATE )
+                {
+                    sprintf(errmess,"Invalid or missing date %s for reference frame transformation",prmname);
+                    send_config_error( cfg, INVALID_DATA, errmess );
+                    return OK;
+                }
+                set_rftrans_ref_date( rf, date );
+                prmname = strtok(NULL," ");
+                continue;
+            }
+
+            /* Try to read values for the parameter */
+
+            val[0] = val[1] = val[2] = 0;
+            calcval[0] = calcval[1] = calcval[2] = calculate;
+
+            prmname = strtok(NULL, " ");
+
+            if( prmname && sscanf(prmname,"%lf",val) == 1 )
+            {
+                for( i = 1; i < nval; i++ )
+                {
+                    prmname = strtok( NULL, " ");
+                    if( prmname && strcmp(prmname,"?") == 0 )
+                    {
+                        i--;
+                        calcval[i] = 1;
+                    }
+                    else if( !prmname || sscanf(prmname,"%lf",val+i) != 1 )
+                    {
+                        sts = MISSING_DATA;
+                        break;
+                    }
+                }
+                prmname = strtok(NULL," ");
+                if( prmname && strcmp(prmname,"?") == 0 )
+                {
+                    calcval[nval-1] = 1;
+                    prmname = strtok(NULL, " ");
+                }
+            }
+
+            if( sts != OK ) break;
+
+            /* Set the values */
+
+            switch( nprm )
+            {
+            case 1: set_rftrans_scale( rf, val[0], calcval[0] ); break;
+            case 2: set_rftrans_rotation( rf, val, calcval ); break;
+            case 3: set_rftrans_translation( rf, val, calcval ); break;
+            case 4: set_rftrans_scale_rate( rf, val[0], calcval[0] ); break;
+            case 5: set_rftrans_rotation_rate( rf, val, calcval ); break;
+            case 6: set_rftrans_translation_rate( rf, val, calcval ); break;
+            }
+
+        }
     }
 
     if( sts != OK )
