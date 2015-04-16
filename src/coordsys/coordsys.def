@@ -30,7 +30,7 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 !===========================================================================
 ! REFERENCE FRAMES:
 ! Format:
-!   code name ELLIPSOID ellipsoid_code refcode Ty Ty Tz Rx Ry Rz scale
+!   code name ELLIPSOID ellipsoid_code refcode Tx Ty Tz Rx Ry Rz scale
 !
 ! Here the translations and rotations must be defined in terms of a
 ! common system for each refcode.  Transformation parameters are
@@ -39,14 +39,17 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 ! between reference systems with common reference codes.  Translations
 ! are in metres, rotations in seconds, and scale in ppm.
 !
-! The transformation parameters may be preceded by "IERS" to denote using
-! IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  These also use the 
-! opposite sign convention for the rotations. Note that the order of parameters
-! in this file (Ty Ty Tz Rx Ry Rz scale) may differ from other published
-! sources, such as the IERS website.
-!
 ! The transformation parameters may be followed by "RATES", a reference date,
 ! and the rates of change of each of the parameters.
+!
+! The transformation parameters may be preceded by "IERS_TSR" or "IERS_ETSR"
+! to denote using ! IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  
+! These also use the opposite sign convention for the rotations and change the 
+! order of the parameters to Tx Ty Tz scale Rx Ry Rx, and for IERS_ETSR, include
+! the reference date (epoch) before the parameters.  ie the are one of:
+!
+!    IERS_TSR Tx Ty Tz scale Rx Ry Rz
+!    IERS_ETSR refdate Tx Ty Tz scale Rx Ry Rz dTx dTy dTz dscale dRx dRy dRz
 
 [reference_frames]
 NZGD2000 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
@@ -67,74 +70,74 @@ WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 WGS84_D 0 0 4.5 0 0 -
 
 ! As published with ITRF at ftp://itrf.ensg.ign.fr/pub/itrf/WGS84.TXT
 WGS84_D "World Geodetic System 1984 (Doppler)" ELLIPSOID WGS84 &
-   ITRF90 IERS -60 517 223 -18.3 0.3 -7 11
+  ITRF90 IERS_TSR -60    517    223    11       -18.3      0.3     -7      
    
 WGS84_G730 "World Geodetic System 1984 (G730)" ELLIPSOID WGS84 &
-   ITRF91 IERS 0 0 0 0 0 0 0 &
-   RATES 1994.0 0 0 0 0 0 0 0
+  ITRF91 IERS_ETSR 1994.0   0      0      0     0        0        0        0       &
+                            0      0      0     0        0        0        0      
    
 WGS84_G873 "World Geodetic System 1984 (G873)" ELLIPSOID WGS84 &
-   ITRF94 IERS 0 0 0 0 0 0 0 &
-   RATES 1997.0 0 0 0 0 0 0 0
+  ITRF94 IERS_ETSR 1997.0   0      0      0     0        0        0        0       &
+                            0      0      0     0        0        0        0      
    
 WGS84_G1150 "World Geodetic System 1984 (G1150)" ELLIPSOID WGS84 &
-   ITRF2000 IERS 0 0 0 0 0 0 0 &
-   RATES 2001.0 0 0 0 0 0 0 0
+  ITRF2000 IERS_ETSR 2001.0   0      0      0     0        0        0        0       &
+                              0      0      0     0        0        0        0      
    
 WGS84_G1674 "World Geodetic System 1984 (G1674)" ELLIPSOID WGS84 &
-   ITRF2008 IERS 0 0 0 0 0 0 0 &
-   RATES 2005.0 0 0 0 0 0 0 0
+  ITRF2008 IERS_ETSR 2005.0   0      0      0     0        0        0        0       &
+                              0      0      0     0        0        0        0      
    
 WGS84_G1762 "World Geodetic System 1984 (G1762)" ELLIPSOID WGS84 &
-   ITRF2008 IERS 0 0 0 0 0 0 0 &
-   RATES 2005.0 0 0 0 0 0 0 0
+  ITRF2008 IERS_ETSR 2005.0   0      0      0     0        0        0        0       &
+                              0      0      0     0        0        0        0      
 
 
 ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 NONE
 
 ITRF2008 "International Terrestrial Reference Frame 2008" ELLIPSOID GRS80 &
-   ITRF96 IERS      4.8    2.09  -17.67  -0.16508   0.26897   0.11984   1.40901 &
-   RATES 2000.0    0.79  -0.6    -1.34  -0.01347   0.01514   0.01973  -0.10201 
+  ITRF96 IERS_ETSR 2000.0   4.8    2.09 -17.67  1.40901 -0.16508  0.26897  0.11984 &
+                            0.79  -0.6   -1.34 -0.10201 -0.01347  0.01514  0.01973
    
 ITRF2005 "International Terrestrial Reference Frame 2005" ELLIPSOID GRS80 &
-   ITRF96 IERS    6.8    2.99  -12.97  -0.16508   0.26897   0.11984    0.46901 &
-   RATES 2000.0  0.49  -0.6    -1.34  -0.01347   0.01514   0.01973   -0.10201 
+  ITRF96 IERS_ETSR 2000.0   6.8    2.99 -12.97  0.46901 -0.16508  0.26897  0.11984 &
+                            0.49  -0.6   -1.34 -0.10201 -0.01347  0.01514  0.01973
 
 ITRF2000 "International Terrestrial Reference Frame 2000" ELLIPSOID GRS80 &
-   ITRF96 IERS    6.7    3.79   -7.17  -0.16508   0.26897   0.11984    0.06901 &
-   RATES 2000.0  0.69  -0.7     0.46  -0.01347   0.01514   0.01973   -0.18201 
+  ITRF96 IERS_ETSR 2000.0   6.7    3.79  -7.17  0.06901 -0.16508  0.26897  0.11984 &
+                            0.69  -0.7    0.46 -0.18201 -0.01347  0.01514  0.01973
 
 ITRF97 "International Terrestrial Reference Frame 1997" ELLIPSOID GRS80 &
-   ITRF96 IERS   0     -0.51   15.53  -0.16508   0.26897   0.05984   -1.51099 &
-   RATES 2000.0  0.69  -0.1     1.86  -0.01347   0.01514  -0.00027   -0.19201 
+  ITRF96 IERS_ETSR 2000.0   0     -0.51  15.53 -1.51099 -0.16508  0.26897  0.05984 &
+                            0.69  -0.1    1.86 -0.19201 -0.01347  0.01514 -0.00027
    
 ITRF94 "International Terrestrial Reference Frame 1994" ELLIPSOID GRS80 &
-   ITRF96 IERS   0 0 0 0 0 0 0 &
-   RATES 2000.0  0 0 0 0 0 0 0
+  ITRF96 IERS_ETSR 2000.0   0      0      0     0        0        0        0       &
+                            0      0      0     0        0        0        0      
    
 ITRF93 "International Terrestrial Reference Frame 1993" ELLIPSOID GRS80 &
-   ITRF96 IERS    28.8    0.2     5.4   1.71      1.48      0.36      -0.49 &
-   RATES 2000.0    2.9   -0.4    -0.8   0.11      0.19     -0.05       0
+  ITRF96 IERS_ETSR 2000.0  28.8    0.2    5.4  -0.49     1.71     1.48     0.36    &
+                            2.9   -0.4   -0.8   0        0.11     0.19    -0.05   
    
 ITRF92 "International Terrestrial Reference Frame 1992" ELLIPSOID GRS80 &
-   ITRF96 IERS -8 -2 8 0 0 0 0.71 &
-   RATES 2000.0 0 0 0 0 0 0 0
+  ITRF96 IERS_ETSR 2000.0  -8     -2      8     0.71     0        0        0       &
+                            0      0      0     0        0        0        0      
    
 ITRF91 "International Terrestrial Reference Frame 1991" ELLIPSOID GRS80 &
-   ITRF96 IERS -20 -16 14 0 0 0 -0.69 &
-   RATES 2000.0 0 0 0 0 0 0 0  
+  ITRF96 IERS_ETSR 2000.0 -20    -16     14    -0.69     0        0        0       &
+                            0      0      0     0        0        0        0      
 
 ITRF90 "International Terrestrial Reference Frame 1990" ELLIPSOID GRS80 &
-   ITRF96 IERS -18 -12 30 0 0 0 -0.99 &
-   RATES 2000.0 0 0 0 0 0 0 0    
+  ITRF96 IERS_ETSR 2000.0 -18    -12     30    -0.99     0        0        0       &
+                            0      0      0     0        0        0        0      
 
 ITRF89 "International Terrestrial Reference Frame 1989" ELLIPSOID GRS80 &
-   ITRF96 IERS -23 -36 68 0 0 0 -4.39 &
-   RATES 2000.0 0 0 0 0 0 0 0 
+  ITRF96 IERS_ETSR 2000.0 -23    -36     68    -4.39     0        0        0       &
+                            0      0      0     0        0        0        0      
    
 ITRF88 "International Terrestrial Reference Frame 1988" ELLIPSOID GRS80 &
-   ITRF96 IERS -18 0 92 -0.1 0 0 -7.49 &
-   RATES 2000.0 0 0 0 0 0 0 0
+  ITRF96 IERS_ETSR 2000.0 -18      0     92    -7.49    -0.1      0        0       &
+                            0      0      0     0        0        0        0      
    
 ! Geocentric Datum of Australia transformation parameters
 
@@ -146,24 +149,24 @@ GDA94 "Geocentric Datum of Australia" ELLIPSOID GRS80 NONE
 ! Table 2 published in "Journal of Applied Geodesy"
 
 ITRF2008_DW "International Terrestrial Reference Frame 2008 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -84.68 -19.42   32.01   0.4254   -2.2578   -2.4015    9.710 &   
-RATES 1994.0    1.42   1.34    0.90  -1.5461   -1.1820   -1.1551    0.109
+  GDA94 IERS_ETSR 1994.0 -84.68 -19.42  32.01  9.710    0.4254  -2.2578  -2.4015  &
+                           1.42   1.34   0.90  0.109   -1.5461  -1.1820  -1.1551 
 
 ITRF2005_DW "International Terrestrial Reference Frame 2005 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -79.73  -6.86   38.03   0.0351   -2.1211   -2.1411    6.636 &   
-RATES 1994.0    2.25  -0.62   -0.56  -1.4707   -1.1443   -1.1701    0.294
+  GDA94 IERS_ETSR 1994.0 -79.73  -6.86  38.03  6.636    0.0351  -2.1211  -2.1411  &
+                           2.25  -0.62  -0.56  0.294   -1.4707  -1.1443  -1.1701 
 
 ITRF2000_DW "International Terrestrial Reference Frame 2000 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -45.91 -29.85  -20.37   1.6705   -0.4594   -1.9356    7.070 &   
-RATES 1994.0   -4.66   3.55   11.24  -1.7454   -1.4868   -1.2240    0.249
+  GDA94 IERS_ETSR 1994.0 -45.91 -29.85 -20.37  7.070    1.6705  -0.4594  -1.9356  &
+                          -4.66   3.55  11.24  0.249   -1.7454  -1.4868  -1.2240 
 
 ITRF97_DW "International Terrestrial Reference Frame 1997 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS    -14.63 -27.62  -25.32   1.7893    0.6047   -0.9962    6.695 &   
-RATES 1994.0   -8.60   0.36   11.25  -1.6394   -1.5198   -1.3801    0.007
+  GDA94 IERS_ETSR 1994.0 -14.63 -27.62 -25.32  6.695    1.7893   0.6047  -0.9962  &
+                          -8.60   0.36  11.25  0.007   -1.6394  -1.5198  -1.3801 
 
 ITRF96_DW "International Terrestrial Reference Frame 1996 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
-GDA94 IERS     24.54 -36.43  -68.12   2.7359    2.0431   -0.3731    6.901 &   
-RATES 1994.0  -21.80   4.71   26.27  -2.0203   -2.1735   -1.6290    0.388
+  GDA94 IERS_ETSR 1994.0  24.54 -36.43 -68.12  6.901    2.7359   2.0431  -0.3731  &
+                         -21.80   4.71  26.27  0.388   -2.0203  -2.1735  -1.6290 
 
 ! Note - the following transformations use the usual Australian sign convention for
 ! rotations, not the IERS convention. Parameters sourced from GDA Technical Manual 

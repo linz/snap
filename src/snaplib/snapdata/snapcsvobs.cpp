@@ -613,6 +613,8 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     if( type->isvector )
     {
         ltmat cvr = ldt_covariance( _vecerrorformat, error );
+        if( cvr )
+        {
         switch( _vecerrorformat )
         {
         case CVR_DEFAULT: break;
@@ -637,6 +639,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
 
         default:
             dataError("Error in CsvObservation::loadObservation - unknown error format (2)");
+        }
         }
 
     }

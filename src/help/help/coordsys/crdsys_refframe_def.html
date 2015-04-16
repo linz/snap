@@ -19,8 +19,23 @@
 
 <pre><code>
 code description ELLIPSOID ellipsoid_code refcode 
-                 [IERS] Tx Ty Tz Rx Ry Rz scale
+                 Tx Ty Tz Rx Ry Rz scale
                  [RATES year0 dTx dTy dTz dRx dRy dRz dscale]
+                 <i>grid_conversion_definition</i>
+                 <i>deformation_model_definition</i>
+</code></pre>
+
+<pre><code>
+code description ELLIPSOID ellipsoid_code refcode 
+                 IERS_TSR Tx Ty Tz scale Rx Ry Rz
+                 <i>grid_conversion_definition</i>
+                 <i>deformation_model_definition</i>
+</code></pre>
+
+<pre><code>
+code description ELLIPSOID ellipsoid_code refcode 
+                 IERS_ETSR year0 Tx Ty Tz scale Rx Ry Rz scale 
+                                dTx dTy dTz dscale dRx dRy dRz
                  <i>grid_conversion_definition</i>
                  <i>deformation_model_definition</i>
 </code></pre>
@@ -40,18 +55,21 @@ reference frames with a common base code.  This need not direct.  For example if
 B and C reference frame D, then conversion between any of the frames is possible.  Circular referencing is not allowed, so if frame A references B, and B reference C, then C cannot reference A or B.  The reference code can be 'NONE',
 in which case there is base frame, and the transformation and deformation components cannot be included.</p>
 
-<p><i>IERS</i> (as literal text) can be used to change the units used for the transformation components from metres, seconds, ppm to millimetres, mas (milli arc seconds), and ppb.  This also changes the sense of the rotation components 
-from the NGS convention to the IERS convention.</p>
+<p><i>IERS_TSR</i> iand <i>IERS_ETSR</i> (as literal text) are used to express the refrence frame transformations 
+in terms of IERS (International Earth Rotation Service) conventions.  This changes the units used for components, the order
+of the components, and the sense of the rotation components (from NGS to IERS).  The units for IERS transformations are
+ppm to millimetres, mas (milli arc seconds), and ppb.  </p>
 
-<p><i>Tx Ty Tz</i> is XYZ position of the origin of the reference frame in the reference system (i.e. the translation that must be applied to coordinates to convert them back to the reference system).  The coordinates are in metres (or mm).</p>
+<p><i>Tx Ty Tz</i> is XYZ position of the origin of the reference frame in the reference system (i.e. the translation that must be applied to coordinates to convert them back to the reference system).  The coordinates are in mm for IERS format transformations or metres
+for NGS format transformations. </p>
 
-<p><i>Rx Ry Rz</i> are the rotations about the X, Y, and Z axes required to convert coordinates from the reference frame back to the reference system.   The rotations are in arc seconds (or milli arc seconds).</p>
+<p><i>Rx Ry Rz</i> are the rotations about the X, Y, and Z axes required to convert coordinates from the reference frame back to the reference system.   The rotations are in milli arc seconds for IERS format transformations or arc seconds for NGS format transformations.</p>
 
-<p><i>scale</i> is the scale difference between the reference frame and the reference system.  It is applied to coordinates to convert them back to the reference system.  The scale is defined in parts per million or parts per billion.</p>
+<p><i>scale</i> is the scale difference between the reference frame and the reference system.  It is applied to coordinates to convert them back to the reference system.  The scale is defined in parts per billion for IERS format transformations or parts per million for NGS format transformations.</p>
 
-<p><i>RATES</i> is an optional section defining the rates of change of the transformation components.</p>
+<p><i>RATES</i> is an optional section for NGS format transformations defining the rates of change of the transformation components.</p>
 
-<p><i>year0</i> is the year at which the transformation applies.</p>
+<p><i>year0</i> is the date at which the transformation applies as a decimal year.</p>
 
 <p><i>dTx dTy dTz</i> are the rates of change of the transformation components.</p>
 
@@ -99,8 +117,11 @@ Coordinates in the
 This does not necessarily correspond to actual coordinates at any real epoch.  
 For NZGD2000 this would be the reference coordinates used to refer to a mark.
 </p>
+<p>The BW14 and EULER models are both equivalent to 14 parameter Bursa Wolf transformations and can be implemented in the transformation
+definition section (with RATES or IERS_ETSR).  The EULER model does provide a convenient alternative formulation however.
+</p>
 <p>
-THe BW14 model adds a rate change to the Bursa Wolf model. It has parameters of a reference epoch, at which the deformation is zero, and translation rates (mm/year), rotation rates (msec/year), and scale change rate (ppb/year).
+The BW14 model adds a rate change to the Bursa Wolf model. It has parameters of a reference epoch, at which the deformation is zero, and translation rates (mm/year), rotation rates (msec/year), and scale change rate (ppb/year). 
 </p>
 <p>
 The EULER model calculates deformation based on a Euler rotation pole and rate.  It has parameters of a reference epoch at which the deformation is zero, the longitude and latitude of the pole (in degrees), and the rotation rate in msec/year.

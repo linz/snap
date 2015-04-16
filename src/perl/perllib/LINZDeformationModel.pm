@@ -1,4 +1,3 @@
-#!/usr/local/bin/perl
 #===============================================================================
 #
 # PROGRAM:             %M%
@@ -30,22 +29,28 @@ use FileHandle;
 package LINZDeformationModel;
 
 use vars qw/$debug/;
+use vars qw/$AUTOLOAD/;
 
 $debug = 0;
 
 # Each possible triangle file format has a specified header record.  Valid records
 # are listed here.  The %formats hash converts these to a format definition
-# string - one of DEF1L (little endian version 1 format), or
-# DEF1B (big endian version 1 format).
+# string - one of DEF1L (little endian version 1 format), 
+# DEF1B (big endian version 1 format), DEF2L, or DEF2B
 
 my $sigdef1l = "LINZ deformation model v1.0L\r\n\x1A";
 my $sigdef1b = "LINZ deformation model v1.0B\r\n\x1A";
+my $sigdef2l = "LINZ deformation model v2.0L\r\n\x1A";
+my $sigdef2b = "LINZ deformation model v2.0B\r\n\x1A";
 
 my $siglen = length($sigdef1l);
 
 my %formats = (
     $sigdef1l => 'DEF1L',
-    $sigdef1b => 'DEF1B' );
+    $sigdef1b => 'DEF1B',
+    $sigdef2l => 'DEF2L',
+    $sigdef2b => 'DEF2B',
+);
 
 sub new {
    my ($class, $filename) = @_;
@@ -59,7 +64,7 @@ sub new {
    my $self = {
        filename=>$filename,
        fh=>$fh,
-       titles=>["Triangle mesh data from file $filename"],
+       titles=>["Undefined deformation model"],
        crdsyscode=>'NONE'
        };
 
@@ -69,6 +74,17 @@ sub new {
 
    return $self;
    }
+
+# Access file parameter
+
+sub AUTOLOAD
+{
+    my ($self)=@_;
+    my $function=$AUTOLOAD;
+    $function =~ s/.*:://;
+    return $self->{$function} if exists $self->{$function};
+    return '';
+}
 
 # Default set up for a LINZ triangle file
 
@@ -92,7 +108,9 @@ sub Setup {
    # host (ie bytes must be reversed for numeric types).  $shortcode and
    # $longcode are the pack/unpack codes for unsigned short and long integers.
    
-   my $filebigendian = $fmt eq 'DEF1B';
+   my $filebigendian = $fmt =~ /B$/;
+   my $format_version = $1 if $fmt =~ /^DEF(\d+)[LB]$/;
+
    my $unpacker = new Unpacker($filebigendian,$fh);
    
    # Read location in the file of the deformation index data
@@ -100,7 +118,7 @@ sub Setup {
    my $loc=$unpacker->read_long;
    die "Deformation file not completed\n" if ! $loc;
    
-   # Jump to the index and  read the triangle data
+   # Jump to the index and read the header data
    
    seek($fh,$loc,0);
    
@@ -114,10 +132,24 @@ sub Setup {
    my $range = LINZDeformationModel::Range->read($unpacker);
    my $isgeog = $unpacker->read_short;
    my $nseq = $unpacker->read_short;
+
+   if( $debug )
+   {
+        print "Loading LINZ deformation model\n";
+        print "    name=$name\n";
+        print "    version=$version\n";
+        print "    crdsyscode=$crdsyscode\n";
+        print "    description=$description\n";
+        print "    versiondate=$versiondate->{years}\n";
+        print "    startdate=$startdate->{years}\n";
+        print "    enddate=$enddate->{years}\n";
+        printf "    range=%s\n",$range->tostring;
+        print "    isgeog=$isgeog\n";
+   }
    
    my @sequences = ();
    for my $iseq (1..$nseq) {
-      my $s = LINZDeformationModel::Sequence->read($fh,$unpacker);
+      my $s = LINZDeformationModel::Sequence->read($format_version,$fh,$unpacker);
       $s->{seqid} = $iseq;
       push(@sequences,$s );
       }
@@ -145,10 +177,23 @@ sub Calc {
 
    my @components;
    foreach my $s (@{$self->{sequences}} ) {
-      if( $debug ) {
-         print "Evaluating sequence ",$s->{seqid},"\n";
+      my @seqcomp=$s->CalcComponents($date,$x,$y);
+      if( $debug )
+      {
+         my $name=$s->{name};
+         $name =~ s/\s+//g;
+         $name = substr($name,0,40);
+         print "Evaluating sequence ",$s->{seqid}," $name\n";
+         foreach my $c (@seqcomp)
+         {
+             my $desc=$c->[0]->{description};
+             my $factor=$c->[1];
+             $desc =~ s/\s+/ /g;
+             $desc = substr($desc,0,40);
+             print "   $factor * $desc\n";
          }
-      push(@components,$s->CalcComponents($date,$x,$y));
+      }
+      push(@components,@seqcomp);
       }
 
 
@@ -157,6 +202,7 @@ sub Calc {
    my @def = (0,0,0);
    foreach my $cv (@components) {
       my ($c,$mult,$zerobeyond,$ndim) = @$cv;
+      next if $mult == 0;
       eval {
         my @cdef = $c->Calc( $x, $y );
         if( $ndim == 1 ) {
@@ -218,23 +264,22 @@ sub ReadDate {
 package LINZDeformationModel::Sequence;
 
 sub read {
-  my( $class,$fh,$unpacker ) = @_;
+  my( $class,$format_version,$fh,$unpacker ) = @_;
 
    my $name = $unpacker->read_string;
    my $description = $unpacker->read_string;
    my $startdate = &LINZDeformationModel::ReadDate($unpacker);
    my $enddate = &LINZDeformationModel::ReadDate($unpacker);
    my $range = LINZDeformationModel::Range->read($unpacker);
-   my ($isvelocity,$dimension,$zerobeyond,$ncomponents) = $unpacker->read_short(4);
+   my ($isvelocity,$isnested)=(0,0);
+   $isvelocity=$unpacker->read_short if $format_version == 1;
+   my ($dimension,$zerobeyond) = $unpacker->read_short(2);
+   $isnested=$unpacker->read_short if $format_version > 1;
+   my $ncomponents = $unpacker->read_short;
   
    my @components = ();
-   for my $icomp (1..$ncomponents) {
-      my $c = LINZDeformationModel::Component->read($fh,$unpacker);
-      $c->{compid} = $icomp;
-      push(@components,$c);
-      }
    
-   my $self = {
+   my $self = bless {
       name => $name,
       description => $description,
       startdate => $startdate,
@@ -242,11 +287,83 @@ sub read {
       range => $range,
       dimension => $dimension,
       isvelocity => $isvelocity,
+      isnested => $isnested,
       zerobeyond => $zerobeyond,
       components => \@components,
-      };
+      }, $class;
+
+   if( $LINZDeformationModel::debug )
+   {
+        my $dsc=$description;
+        $dsc =~ s/\s*$//;
+        $dsc =~ s/\s+/ /;
+        print "Loading sequence:\n";
+        print "    name=$name\n";
+        print "    description=$dsc\n";
+        printf "    startdate=%.3f\n",$startdate->{years};
+        printf "    enddate=%.3f\n",$enddate->{years};
+        printf "    range=%s\n",$range->tostring;
+        print "    dimension=$dimension\n";
+        print "    isvelocity=$isvelocity\n";
+        print "    isnested=$isnested\n";
+        print "    zerobeyond=$zerobeyond\n";
+   };
+
+   for my $icomp (1..$ncomponents) {
+      my $c = LINZDeformationModel::Component->read($format_version,$self,$fh,$unpacker);
+      if( $c->{istrig} && $isnested )
+      {
+          die "Cannot handle triangulated component in nested sequence\n";
+      }
+      $c->{compid} = $icomp;
+      push(@components,$c);
+      }
+
+   # Fix up version 1 time model which interpolate between components.
+   # Note: This doesn't handle first and last components extrapolating.
+
+   if( $format_version == 1 )
+   {
+      foreach my $i (1..$ncomponents-1)
+      {
+          if( $components[$i]->{usebefore} == 2 )
+          {
+              $components[$i]->{timemodel}->[0]->[0] = 
+                 $components[$i-1]->{refdate}->{year};
+          }
+          if( $components[$i-1]->{useafter} == 2 )
+          {
+              $components[$i-1]->{timemodel}->[-1]->[0] = 
+                 $components[$i]->{refdate}->{year};
    
-   return bless $self, $class;
+          }
+      }
+   }
+
+   if( $LINZDeformationModel::debug )
+   {
+       foreach my $c (@components)
+       {
+           my $dsc=$c->{description};
+           $dsc =~ s/\s+/ /;
+           $dsc =~ s/\s*$//;
+           print "    Component:\n";
+           print "      description=$dsc\n";
+           printf "      refdate=%.3f\n",$c->{refdate}->{years};
+           printf "      range=%s\n",$c->{range}->tostring;
+           print "      usebefore=$c->{usebefore}\n";
+           print "      useafter=$c->{useafter}\n";
+           print "      istrig=$c->{istrig}\n";
+           print "      fileloc=$c->{fileloc}\n";
+           print "      factor0=$c->{factor0}\n";
+           foreach my $t (@{$c->{timemodel}})
+           {
+               printf "        time %.3f factor %.4f\n",$t->[0],$t->[1];
+           }
+       }
+   }
+   
+   return $self;
    }
 
 sub CalcComponents {
@@ -264,126 +381,88 @@ sub CalcComponents {
         if ! $self->{zerobeyond};
       return ();
       }
-   if( $self->{isvelocity} ) {
-      if( $LinzDeformationModel::debug ) {
-         print "Calculating velocity sequence ",$self->{seqid},"\n";
-         }
-      return $self->CalcVelocityComponents($date,$x,$y);
-      }
-   else {
-      if( $LinzDeformationModel::debug ) {
-         print "Calculating deformation sequence ",$self->{seqid},"\n";
-         }
-      return $self->CalcDeformationComponents($date,$x,$y);
-      }
+   my $components=$self->{components};
+   my @results=();
+   foreach my $c (@$components)
+   {
+       next if ! $c->{range}->Includes( $x, $y );
+
+       my $factor=$c->{factor0};
+       my $tm=$c->{timemodel};
+       if( @$tm && $date > $tm->[0]->[0] )
+       {
+           $factor=$tm->[-1]->[1];
+           foreach my $i (1 .. $#$tm)
+           {
+               if( $date <= $tm->[$i]->[0] )
+               {
+                   my $y0=$tm->[$i-1]->[0];
+                   my $f0=$tm->[$i-1]->[1];
+                   my $y1=$tm->[$i]->[0];
+                   my $f1=$tm->[$i]->[1];
+                   $factor=(($y1-$date)*$f0+($date-$y0)*$f1)/($y1-$y0);
+               }
+           }
+       }
+       push( @results,[$c,$factor,$c->{zerobeyond},$self->{dimension}] );
+       last if $self->{isnested};
    }
-
-
-sub CalcVelocityComponents {
-   my( $self, $date, $x, $y ) = @_;
-   my $components = $self->{components};
-   my $zerobeyond = $self->{zerobeyond};
-   my $dimension = $self->{dimension};
-   my @results = ();
-   for my $c (@$components) { 
-     my $dy = $date - $c->{refdate}->{years}; 
-     if( $dy < 0  && $c->{usebefore} || $dy > 0 && $c->{useafter} ) {
-        $x = $self->{range}->WrapLongitude($x);
-        if( $c->{range}->Includes($x,$y) ) {
-          push( @results, [$c,$dy,$zerobeyond,$dimension] );
-          }
-        elsif( ! $c->{zerobeyond} ) {
-          die "Cannot evaluate ".$self->{name}." at $x $y\n";
-          }
-        }
-     }
    return @results;
    }
 
-
-sub CalcDeformationComponents {
-   my( $self, $date, $x, $y ) = @_;
-   my $components = $self->{components};
-   my $zerobeyond = $self->{zerobeyond};
-   my $dimension = $self->{dimension};
-   my ($i0,$i1,$y0,$y1);
-   my $nc0 = $#$components;
-   for my $i (0 .. $nc0) {
-      $i1 = $i;
-      $y1 = $components->[$i]->{refdate}->{years};
-      last if $y1 > $date;  
-      $i0 = $i1;
-      $y0 = $y1;
-      }
-
-   # If between two components, valid options are  ...
-
-   if( $i1 > 0 && $i0 < $nc0 ) {
-      my $c0 = $components->[$i0];
-      my $c1 = $components->[$i1];
-      if( $c0->{useafter} == 2 && $c1->{usebefore} == 2 ) {
-         $y0 = ($y1-$date)/($y1-$y0);
-         $y1 = 1-$y0;
-         return ([$c0,$y0,$zerobeyond,$dimension],[$c1,$y1,$zerobeyond,$dimension]);
-         }
-      elsif( $c0->{useafter} == 1 && ! $c1->{usebefore} ) {
-         return ([$c0,1,$zerobeyond,$dimension]);
-         }
-      elsif( $c1->{usebefore} == 1 && ! $c0->{useafter} ) {
-         return ([$c1,1,$zerobeyond,$dimension]);
-         }
-      elsif( ! $c0->{useafter} && ! $c1->{usebefore} ) {
-         return ();
-         }
-      else {
-         die "Inconsistent usage of components in sequence ".$self->{name}."\n";
-         }
-      }
-
-   # Else if only one component ...
-   elsif ( $nc0 == 0 ) { 
-      my $c1 = $components->[0];
-      if( ($c1->{usebefore}==1 && $y1 > $date) || ($c1->{useafter}==1 && $y1 <= $date) ) {
-         return ([$c1,1,$zerobeyond,$dimension]);
-         }
-       return ();
-       }
-
-   # else if before first ...
-   elsif ( $i1 == 0 ) {
-      my $c1 = $components->[0];
-      return () if ! $c1->{usebefore};
-      return ([$c1,1,$zerobeyond,$dimension]) if $c1->{usebefore} == 1;
-      my $c0 = $components->[1];
-      my $y0 = $c0->{refdate}->{years};
-      $y1 = ($date-$y0)/($y1-$y0);
-      $y0 = 1-$y1;
-      return ([$c1,$y1,$zerobeyond,$dimension],[$c0,$y0,$zerobeyond,$dimension]);
-      }
-
-   # else if after last ...
-   elsif ( $i0 == $nc0 ) {
-      my $c0 = $components->[$nc0];
-      return () if ! $c0->{useafter};
-      return ([$c0,1,$zerobeyond,$dimension]) if $c0->{useafter} == 1;
-      my $c1 = $components->[$nc0-1];
-      my $y1 = $c1->{refdate}->{years};
-      $y1 = ($date-$y0)/($y1-$y0);
-      $y0 = 1-$y1;
-      return ([$c1,$y1,$zerobeyond,$dimension],[$c0,$y0,$zerobeyond,$dimension]);
-      }
-   }
 
 #======================================================================
 
 package LINZDeformationModel::Component;
 
 sub read {
-   my( $class,$fh,$unpacker ) = @_;
+   my( $class,$format_version,$sequence,$fh,$unpacker ) = @_;
    my $description = $unpacker->read_string;
    my $refdate = &LINZDeformationModel::ReadDate($unpacker);
    my $range = LINZDeformationModel::Range->read($unpacker);
-   my ($usebefore,$useafter,$istrig) = $unpacker->read_short(3);
+   my ($usebefore,$useafter) = (0,0);
+   my $factor0=0.0;
+   my @timemodel=();
+   if( $format_version == 1 )
+   {
+       # Convert version 1 time model to version 2 equivalent (partly here,
+       # partly in Sequence.read, as need to take account of interpolation between
+       # components.
+      ($usebefore,$useafter) = $unpacker->read_short(2);
+      if( $sequence->{isvelocity} )
+      {
+          my $year=$sequence->{startdate}->{years};
+          my $factor=$year-$refdate->{years};
+          $factor0=$factor;
+          push(@timemodel,[$year,$factor]);
+          push(@timemodel,[$refdate->{years},0.0]);
+          $year=$sequence->{enddate}->{years};
+          $factor=$year-$refdate->{years};
+          push(@timemodel,[$year,$factor]);
+      }
+      else
+      {
+          my $year=$refdate->{years};
+          $factor0=$usebefore == 1 ? 1.0 : 0.0;
+          push(@timemodel,[$year,0.0]) if $usebefore == 2;
+          push(@timemodel,[$year,1.0]) if $useafter == 2;
+          push(@timemodel,[$year,$useafter == 1 ? 1.0 : 0.0]);
+      }
+   }
+   else
+   {
+       my $tmtype=$unpacker->read_short;
+       die "Invalid time model type $tmtype: can only use piecewise linear time model\n" if $tmtype != 1;
+       my $ntimemodel=$unpacker->read_short;
+       $factor0=$unpacker->read_double;
+       while( $ntimemodel-- > 0 )
+       {
+           my $tmdate = &LINZDeformationModel::ReadDate($unpacker);
+           my $tmvalue = $unpacker->read_double;
+           push(@timemodel,[$tmdate->{years},$tmvalue]);
+       }
+   }
+   my $istrig = $unpacker->read_short;
    my $fileloc = $unpacker->read_long;
    
    my $self = {
@@ -393,6 +472,8 @@ sub read {
       usebefore => $usebefore,
       useafter =>$useafter,
       istrig => $istrig,
+      factor0 => $factor0,
+      timemodel => \@timemodel,
       fileloc => $fileloc,
       fh => $fh,
       model => undef
@@ -445,5 +526,11 @@ sub Includes {
    return $y >= $self->[0] && $y <= $self->[1] &&
           $x >= $self->[2] && $x <= $self->[3];
    }
+
+sub tostring
+{
+    my( $self ) = @_;
+    return sprintf("%.5f,%.5f,%.5f,%.5f",@$self);
+}
  
 1;

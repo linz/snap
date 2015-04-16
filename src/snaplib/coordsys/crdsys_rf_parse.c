@@ -110,32 +110,57 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
         }
         else
         {
+            int ierstsr;
+            int iersrates;
             stdfrm = stdcode;
 
-            iersunits=test_next_string_field( is, "IERS");
+            iersunits=0;
+            ierstsr=0;
+            iersrates=0;
+            if( test_next_string_field( is, "IERS") )
+            {
+                iersunits=1;
+            }
+            else if( test_next_string_field( is, "IERS_TSR" ) )
+            {
+                iersunits=1;
+                ierstsr=1;
+            }
+            else if( test_next_string_field( is, "IERS_ETSR" ) )
+            {
+                iersunits=1;
+                ierstsr=1;
+                iersrates=1;
+                READ_DOUBLE( "reference date", &refdate );
+            }
 
             READ_DOUBLE( "x translation", &txyz[0] );
             READ_DOUBLE( "y translation", &txyz[1] );
             READ_DOUBLE( "z translation", &txyz[2] );
 
+            if( ierstsr ) { READ_DOUBLE( "scale factor", &sf ); }
+
             READ_DOUBLE( "x rotation", &rxyz[0] );
             READ_DOUBLE( "y rotation", &rxyz[1] );
             READ_DOUBLE( "z rotation", &rxyz[2] );
 
-            READ_DOUBLE( "scale factor", &sf );
+            if( ! ierstsr ) { READ_DOUBLE( "scale factor", &sf ); }
 
-            if( sts == OK && test_next_string_field( is, "RATES" ))
+            if( sts == OK && (iersrates || test_next_string_field( is, "RATES" )))
             {
-                READ_DOUBLE( "reference date", &refdate );
+                if( ! iersrates ) { READ_DOUBLE( "reference date", &refdate ); }
                 READ_DOUBLE( "x translation rate", &dtxyz[0] );
                 READ_DOUBLE( "y translation rate", &dtxyz[1] );
                 READ_DOUBLE( "z translation rate", &dtxyz[2] );
+
+                if( ierstsr ) { READ_DOUBLE( "scale factor rate", &dsf ); }
 
                 READ_DOUBLE( "x rotation rate", &drxyz[0] );
                 READ_DOUBLE( "y rotation rate", &drxyz[1] );
                 READ_DOUBLE( "z rotation rate", &drxyz[2] );
 
-                READ_DOUBLE( "scale factor rate", &dsf );
+                if( ! ierstsr ) { READ_DOUBLE( "scale factor rate", &dsf ); }
+
             }
 
             if( iersunits )

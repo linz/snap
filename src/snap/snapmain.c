@@ -166,6 +166,10 @@ int snap_main( int argc, char *argv[] )
     /* Read the command file */
 
     xprintf("\nReading the command file %s\n", command_file );
+
+    /* Set station initiallization for reading the station file before it is loaded by read_command_file */
+    set_stnadj_init_network();
+
     if( read_command_file( command_file ) != OK )
     {
         xprintf("\nErrors loading command file %s\n", command_file );
