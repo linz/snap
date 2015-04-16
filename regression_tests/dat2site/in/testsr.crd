@@ -1,0 +1,10 @@
+Test 1 - basic obs type tests
+NZGD2000
+options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=Mark_Type
+! Converted from NZGD1949
+
+!Code       Latitude          Longitude        Ell.Hgt Order Mark_Type Name
+11       -41.00288798564    173.31812185878    84.4551 4     BOLT  4 BOLT
+1        -41.00187518547    173.32663759992   164.4579 2     PIN   2 PIN
+B        -41.00832528625    173.31907568848    84.4367 1     SPIK  1 SPIK
+PINTOFALE    -41.01373368659    173.32106044107    84.4185 4     BOLT  4 BOLT
