@@ -58,7 +58,12 @@ static void create_stn_adjustment( station *st )
     st->hook=(void *) sa;
 }
 
-static void clear_globals( void )
+void set_stnadj_init_network( void )
+{
+    set_network_initstn_func( 0, create_stn_adjustment, delete_stn_adjustment );
+}
+
+static void clear_stnadj_globals( void )
 {
     if( net ) delete_network( net );
     if( stnrecode ) delete_stn_recode_map( stnrecode );
@@ -76,7 +81,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
 {
     int nch, sts;
 
-    clear_globals();
+    clear_stnadj_globals();
 
     nch = strlen( fname ) + (base_dir ? strlen(base_dir) : 0) + 1;
     station_filespec = (char *) check_malloc( nch );
@@ -85,7 +90,6 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
     if( options ) station_fileoptions = copy_string( options );
 
     net = new_network();
-    set_network_initstn_func( net, create_stn_adjustment, delete_stn_adjustment );
     switch( format )
     {
     case STN_FORMAT_SNAP:
@@ -109,7 +113,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
     }
     else
     {
-        clear_globals();
+        clear_stnadj_globals();
     }
 
     return sts;
@@ -209,9 +213,8 @@ int reload_stations( BINARY_FILE *b )
 
     /* Restore the critical static information */
 
-    clear_globals();
+    clear_stnadj_globals();
     net = new_network();
-    set_network_initstn_func( net, create_stn_adjustment, delete_stn_adjustment );
     sts = reload_network_from_bin( net, b );
 
     if( sts != OK ) return sts;
@@ -236,5 +239,5 @@ int reload_stations( BINARY_FILE *b )
 
 void unload_stations( void )
 {
-    clear_globals();
+    clear_stnadj_globals();
 }

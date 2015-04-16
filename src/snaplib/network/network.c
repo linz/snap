@@ -20,6 +20,8 @@
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
 
+static stationfunc default_initstation=0;
+static stationfunc default_uninitstation=0;
 
 network *new_network( void )
 {
@@ -42,15 +44,23 @@ void init_network( network *nw )
     nw->got_topocentre = 0;
     nw->options = 0;
     nw->orderclsid = 0;
-    nw->initstation = 0;
-    nw->uninitstation = 0;
+    nw->initstation = default_initstation;
+    nw->uninitstation = default_uninitstation;
     init_classifications( &(nw->stnclasses));
 }
 
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc )
 {
-    nw->initstation=initfunc;
-    nw->uninitstation=uninitfunc;
+    if( nw )
+    {
+        nw->initstation=initfunc;
+        nw->uninitstation=uninitfunc;
+    }
+    else
+    {
+        default_initstation=initfunc;
+        default_uninitstation=uninitfunc;
+    }
 }
 
 void set_network_name( network *nw, const char *n )

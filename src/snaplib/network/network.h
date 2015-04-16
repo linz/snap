@@ -307,6 +307,9 @@ void print_station_offset( FILE *lst, station *st );
 
 network *new_network( void );
 void init_network( network *nw );
+/* Set the function hook called when network station is created or removed.
+ * If nw is NULL then sets default values that are used for a new network.
+ */
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc );
 void clear_network( network *nw );
 void delete_network( network *nw );

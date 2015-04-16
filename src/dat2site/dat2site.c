@@ -37,21 +37,25 @@
 #include <math.h>
 
 #define MAIN
-#include "coordsys/coordsys.h"
-#include "snapdata/datatype.h"
 #include "util/datafile.h"
-#include "snapdata/snapdata.h"
-#include "snapdata/loaddata.h"
-#include "snap/filenames.h"
 #include "util/linklist.h"
 #include "util/fileutil.h"
 #include "util/geodetic.h"
-#include "network/network.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/readcfg.h"
 #include "util/dms.h"
 #include "util/pi.h"
+#include "coordsys/coordsys.h"
+#include "network/network.h"
+#include "snapdata/datatype.h"
+#include "snapdata/snapdata.h"
+#include "snapdata/loaddata.h"
+#include "snap/filenames.h"
+#include "snap/stnadj.h"
+#include "snap/cfgprocs.h"
+#include "snap/survfile.h"
+#include "snap/survfilr.h"
 
 
 #define COMMENT_CHAR '!'
@@ -234,7 +238,6 @@ static void *stnlist;
 static stn **stations;
 static ro_def *ro_list;
 static double max_ro_diff;
-static network *net;
 
 static int next_stn = 1;
 static int nostns;
@@ -351,7 +354,7 @@ static double ds_calc_height_diff( stn *from, stn *to )
 }
 
 
-static char *station_code( int id )
+static char *dstation_code( int id )
 {
     stn *st;
     st = station_from_id( id );
@@ -708,7 +711,7 @@ static const  char * get_name( int type, int group_id, long id )
 {
     if( type == ID_STATION )
     {
-        return station_code( (int) id );
+        return dstation_code( (int) id );
     }
     else
     {
@@ -2827,6 +2830,17 @@ static void load_interactively( void )
 }
 
 
+void set_recalc_list()
+{
+    int istn, maxstns;
+    maxstns = number_of_stations( net );
+    for( istn = 1; istn <= maxstns; istn++ )
+    {
+        get_station( station_ptr(net,istn)->Code );
+    }
+    close_station_list();
+}
+
 static void load_data_files( char *coord_file, char **data_files, int ndatafiles,
                              int recalconly )
 {
@@ -2843,16 +2857,7 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
         exit(0);
     }
 
-    if( recalconly )
-    {
-        int istn, maxstns;
-        maxstns = number_of_stations( net );
-        for( istn = 1; istn <= maxstns; istn++ )
-        {
-            get_station( station_ptr(net,istn)->Code );
-        }
-        close_station_list();
-    }
+    if( recalconly ) set_recalc_list();
 
     set_logname( crdfname );
 
@@ -2869,53 +2874,23 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
     }
 }
 
-
-#define MAX_DATA_FILES 80
-
-static char *cfname = 0;
-static char **dfname=0;
-static int ndfname = 0;
-static int maxdfname=0;
-
-static int read_filename( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    char *s;
-    s = strtok(string," \t\n");
-    if( !s ) return MISSING_DATA;
-    if( code )
+    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
+    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
     {
-        if( ndfname >= maxdfname )
-        {
-            maxdfname = maxdfname ? maxdfname *2 : 128;
-            dfname = (char **) check_realloc( dfname, maxdfname * sizeof( char *));
-        }
-        dfname[ndfname] = copy_string( s );
-        ndfname++;
-    }
-    else
-    {
-        if( ! cfname ) cfname=copy_string(s);
+        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
     }
     return OK;
-}
-
-static void free_file_names()
-{
-    check_free( cfname );
-    cfname = 0;
-    for( int i = 0; i < ndfname; i++ ) check_free( dfname[i] );
-    check_free( dfname );
-    ndfname = 0;
-    maxdfname = 0;
-    dfname = 0;
 }
 
 static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static config_item snap_commands[] =
 {
-    {"coordinate_file",NULL,ABSOLUTE,0,read_filename,CFG_REQUIRED+CFG_ONEONLY, 0},
-    {"data_file",NULL,ABSOLUTE,0,read_filename,CFG_REQUIRED,1},
+    {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED+CFG_ONEONLY, 0},
+    {"data_file",NULL,ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
+    {"recode",NULL,ABSOLUTE,0,read_recode,0,1},
     {"include",NULL,ABSOLUTE,0,read_include_file,0,0},
     {NULL}
 };
@@ -2925,14 +2900,17 @@ static void load_command_file( char *cmd_file, int recalconly, int included )
 {
     CFG_FILE *cfg;
     const char *f;
+    char *cfgfile;
 
     int sts;
 
     f = find_file( cmd_file, DFLTCOMMAND_EXT2, 0, FF_TRYLOCAL, 0 );
     if( !f ) f = find_file( cmd_file, DFLTCOMMAND_EXT, 0, FF_TRYLOCAL, 0 );
     if( !f ) f = cmd_file;
+    cfgfile=copy_string(f);
 
-    cfg = open_config_file( f, COMMENT_CHAR );
+    cfg = open_config_file( cfgfile, COMMENT_CHAR );
+    if( ! included ) set_logname( cfgfile );
 
     if(cfg)
     {
@@ -2943,7 +2921,6 @@ static void load_command_file( char *cmd_file, int recalconly, int included )
             set_project_dir( pdir );
             check_free(pdir);
         }
-        set_logname( f );
         set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_IGNORE_BAD );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
@@ -2960,14 +2937,17 @@ static void load_command_file( char *cmd_file, int recalconly, int included )
     }
     if( ! included )
     {
-        if( ! cfname || ! dfname )
+        if( ! net || ! survey_data_file_count() )
         {
             printf("\n\nCoordinate or data file not found in configuration file\n");
             exit(0);
         }
-        load_data_files( cfname, dfname, ndfname, recalconly );
-        free_file_names();
+        if( recalconly ) set_recalc_list();
+        read_data_files( cfgfile, stdout );
+        crdfname=copy_string( station_filename );
+        delete_survey_file_list();
     }
+    check_free(cfgfile);
 }
 
 static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
@@ -2976,6 +2956,7 @@ static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len,
     s = strtok(string," \t\n");
     if( !s ) return MISSING_DATA;
     load_command_file( s,  0, 1 );
+    return OK;
 }
 
 
