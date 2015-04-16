@@ -43,6 +43,7 @@
 
 static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_include_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static int read_station_size_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_type_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -67,6 +68,7 @@ static config_item snapplot_general_commands[] =
     {"title",job_title,ABSOLUTE,JOBTITLELEN,STORE_AS_STRING,CFG_ONEONLY,0},
     {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED+CFG_ONEONLY, 0},
     {"data_file",NULL,ABSOLUTE,0,load_data_file,0,0},
+    {"recode",NULL,ABSOLUTE,0,read_recode,0,0},
     {"plot",NULL,ABSOLUTE,0,load_plot_data,0,0},
     {"include",NULL,ABSOLUTE,0,read_include_command,0,0},
     {NULL}
@@ -321,6 +323,16 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *value, int l
             sprintf(errmsg,"Cannot find command file %.40s",string);
             send_config_error( cfg, INVALID_DATA, errmsg );
         }
+    }
+    return OK;
+}
+
+static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
+    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
+    {
+        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
     }
     return OK;
 }
