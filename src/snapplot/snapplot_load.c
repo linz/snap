@@ -268,6 +268,10 @@ int snapplot_load( int argc, char *argv[] )
     else
     {
         print_log("\nReading coordinates from file %s\n",firstfile);
+        /* Adding the following line as init function was removed from read_station_file.
+         * Possibly not necessary?
+         */
+        set_stnadj_init_network();
         sts = read_station_file( firstfile, cmd_dir, STN_FORMAT_SNAP, 0 );
         if( sts == OK )
         {
