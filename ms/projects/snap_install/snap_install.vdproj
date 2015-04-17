@@ -375,6 +375,72 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_022D23B7400D4AA8A881275B7D0F2CE6"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_F342A8E716484DC29C69D6823B517437"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_ED8B227EC3554205A6EF4092A654E66F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_BD0DCF4E68D4445E9B01D4080F9BF85F"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_BA5442E434F7454DA342C6C7CB2F4E4D"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_898F8D9FCE44427E83FD6D8BBC410700"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A967AE85E0CB404F976F9A406C949AEA"
+        "OwnerKey" = "8:_0BFF881D74D848DA8D4D388B9DD09CFB"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AA39279D2D5C47D9960AF0B4734A442A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -2635,15 +2701,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP"
-        "ProductCode" = "8:{E510123F-C839-4DE9-B3CA-C2F4E77CE4F4}"
-        "PackageCode" = "8:{1B7DBD44-7351-476C-BBF2-3D3C92F9F4FB}"
+        "ProductCode" = "8:{A437045F-58DE-47E1-93EF-3321B6F24D9C}"
+        "PackageCode" = "8:{73AEF88A-A9DF-4927-B5EE-EE84AD2668DD}"
         "UpgradeCode" = "8:{3219AF83-83AE-414A-AE78-E25619B3120B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.3.10"
+        "ProductVersion" = "8:1.3.11"
         "Manufacturer" = "8:Land Information New Zealand"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.linz.govt.nz"
@@ -3218,6 +3284,20 @@
         }
         "MergeModule"
         {
+            "{CEE29DC0-9FBA-4B99-8D47-5BC643D9B626}:_A967AE85E0CB404F976F9A406C949AEA"
+            {
+            "UseDynamicProperties" = "11:TRUE"
+            "IsDependency" = "11:TRUE"
+            "SourcePath" = "8:Microsoft_VC100_CRT_x86.msm"
+                "Properties"
+                {
+                }
+            "LanguageId" = "3:0"
+            "Exclude" = "11:FALSE"
+            "Folder" = "8:"
+            "Feature" = "8:"
+            "IsolateTo" = "8:"
+            }
         }
         "ProjectOutput"
         {

@@ -1456,47 +1456,33 @@ Topocentric axes are east, north, up directions at
 
 Reference frame: GPS
 
-   Calculated as a geocentric reference frame
+   Defined as a geocentric reference frame
+
+   Reference point for rotation and scale (-4787479.529   560083.504 -4163276.103)
 
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                   0.0000           -          
-      Y translation (m)                   0.0000           -          
-      Z translation (m)                   0.0000           -          
-      X rotation (arc sec)                0.000000000      -          
-      Y rotation (arc sec)                0.000000000      -          
-      Z rotation (arc sec)                0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
-
-      Correlation matrix:
-          1.0000
-          0.0000    1.0000
-          0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
 
    Topocentric definition
 
       Parameter                             Value            Error    
-      E translation (m)                   0.0000           -          
-      N translation (m)                   0.0000           -          
-      U translation (m)                   0.0000           -          
-      N-S tilt (arc sec)                  0.000000000      -          
-      W-E tilt (arc sec)                  0.000000000      -          
-      Vertical rotation (arc sec)         0.000000000      -          
-      Scale factor (ppm)                  0.000000000      -          
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
 
-      Correlation matrix:
-          1.0000
-          0.0000    1.0000
-          0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
-          0.0000    0.0000    0.0000    0.0000    0.0000    0.0000    1.0000
+   Translation at origin (0.0000, 0.0000, 0.0000)
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00000 arc sec
