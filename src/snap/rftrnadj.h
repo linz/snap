@@ -12,6 +12,7 @@
 #define RFTRNADJ_H_RCSID "$Id: rftrnadj.h,v 1.1 1996/01/03 22:08:51 CHRIS Exp $"
 #endif
 
+void set_use_refframe_topocentre( int use );
 
 void init_rftrans_prms_list( void );
 

@@ -13,24 +13,34 @@
 
 <h1><a name="cmd_reference_frame"></a>The reference_frame command</h1>
 
+<p class="Commanddefinition">reference_frame use_topocentre_origin</p> 
+<p class="Commanddefinition">reference_frame use_zero_origin</p> 
 <p class="Commanddefinition">reference_frame use <i>classification_name</i></p> 
 
-<p class="Commanddefinition">reference_frame  [type]  [calculate]  <i>code</i>   [<i>parameter</i>  [<i>value</i> [?]]]</p>
+<p class="Commanddefinition">reference_frame  [<i>type</i>]  [origin <i>origin</i>] [calculate]  <i>code</i>   [<i>parameter</i>  [<i>value</i> [?]]]</p>
 
-<p class="Commanddefinition">reference_frame  IERS_ETSR  [calculate] <i>code</i>  <i>epoch_date Tx Ty Tz S Rx Ry Rz dTx dTy dTz dS dRx dRy dRz</i> </p>
+<p class="Commanddefinition">reference_frame  IERS_ETSR  [origin <i>origin</i>] [calculate] <i>code</i>  <i>epoch_date Tx Ty Tz S Rx Ry Rz dTx dTy dTz dS dRx dRy dRz</i> </p>
 
 
 <p>Defines the reference frame parameters for GPS vector and point coordinate observations.</p>
 
-<p>The first command defines the <a href="../data/obs_classifications.html">classification</a> use to determine the GPS reference frame for an observation.  By default this is &quot;ref_frame_code&quot;, defined by the <a href="../data/obs_ddc_reference_frame.html">#reference_frame</a> data definition command.</p>
+<p>The three command define set up the way reference frames are used.  &quot;use classification&quot; defines <a href="../data/obs_classifications.html">classification</a> use to define the GPS reference frame for an observation.  By default this is &quot;ref_frame_code&quot;, defined by the <a href="../data/obs_ddc_reference_frame.html">#reference_frame</a> data definition command.   
+The &quot;use_topocentre_origin&quot; and 
+&quot;use_zero_origin&quot; specify whether translations, rotations and scales are calculated relative 
+to the topocentre of the network - the default, 
+or relative to the centre of the earth by default.  These can be overridden for
+individual reference frames by
+the <i>origin</i> option.  These three options affect all reference frames used in the 
+adjustment.</p>
 
-<p>The following two options are alternative ways of defining the reference frame parameters.  The first defines individual components - translation, rotation, and/or scale and their rates.  These may be defined in terms of geocentrix (X,Y,Z) or topocentric (E,N,U) axes.  The second defines all the parameters of a 14 parameter
+<p>The following two options are alternative ways of defining the reference frame parameters for individual.  The first defines individual components - translation, rotation, and/or scale and their rates.  These may be defined in terms of geocentrix (X,Y,Z) or topocentric (E,N,U) axes.  The second defines all the parameters of a 14 parameter
 transformation together - epoch, translation, scale, rotation (ETSR) and the translation, scale, and rotation rates.  
 </p>
 <p>Note that (confusingly) the two options differ in the
 the units used for the parameters and the convention used for rotations.  The first form uses metres for translations, arc seconds for rotations, and part per million for scale.  It follows IGS conventions for rotations.  The second
 format follows IERS (International Earth Rotation Service) conventions 
-with units of millimetres, part per billion, and milli-arc seconds for translation, scale and rotation, and the IERS convention for the sign of rotations (ie negative of the IGS convention). </p>
+with units of millimetres, part per billion, and milli-arc seconds for translation, scale and rotation, and the IERS convention for the sign of rotations (ie negative of the IGS convention). IERS formatted reference frames
+always use a zero origin (ie relative to the centre of the earth) unless overridden by an <i>origin</i> option.</p>
 
 <p>
 
@@ -38,6 +48,10 @@ with units of millimetres, part per billion, and milli-arc seconds for translati
 
 <p class="Commanddefinition">type</p><p class="Commanddescription">
 may be &quot;geocentric&quot; or &quot;topocentric&quot;.  The default is topocentric.</p>
+
+<p class="Commanddefinition">origin</p><p class="Commanddescription">
+Defines the origin at which the transformation applies.  This is either &quot;topocentre&quot; or &quot;zero&quot;.
+</p>
 
 <p class="Commanddefinition">code</p><p class="Commanddescription">is the code of the reference frame.</p>
 

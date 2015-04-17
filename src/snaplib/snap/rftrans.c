@@ -118,6 +118,7 @@ static int create_rftrans( const char *name, int topocentric )
     rf->refepoch=DEFAULT_REF_EPOCH;
     rf->userates=0;
     rf->istrans = 0;
+    rf->origintype = REFFRM_ORIGIN_DEFAULT;
     rf->isorigin = 0;
     rf->istopo = topocentric ? 1 : 0;
     rf->calctrans = 0;
@@ -193,6 +194,14 @@ void set_rftrans_ref_date( int rf , double date )
     rfp = rflist[rf-1];
     rfp->refepoch = date_as_year(date);
 }
+
+void set_rftrans_origintype( int rf, int origintype )
+{
+    rfTransformation *rfp;
+    rfp = rflist[rf-1];
+    rfp->origintype = origintype;
+}
+
 
 void set_rftrans_scale( int rf , double scale, int adjust )
 {

@@ -53,6 +53,7 @@ typedef struct
     unsigned  calctransrate:1; /* True if translation components are being calculated */
     unsigned  calcrotrate:1;   /* True if rotations components are being calculated */
     unsigned  calcscalerate:1; /* True if scale is being calculated */
+    int   origintype;       /* One of the REFFRM_ORIGIN_ options */
     char  prmUsed[14];     /* True if the reference frame is used  in data sets */
     double origin[3];     /* The reference point for the rotation and scale */
     double trans[3];      /* Translation components as XYZ */
@@ -69,6 +70,10 @@ typedef struct
 
 #define REFFRAMELEN 20
 
+#define REFFRM_ORIGIN_DEFAULT     0
+#define REFFRM_ORIGIN_ZERO        1
+#define REFFRM_ORIGIN_TOPOCENTRE  2
+
 #define FRF_VECDIFF  1
 #define FRF_ABSOLUTE 2
 
@@ -83,6 +88,7 @@ rfTransformation *new_rftrans( void );
 /* Note: date is set as a snap date (converted internally to decimal year) */
 
 void set_rftrans_ref_date( int rf, double date );
+void set_rftrans_origintype( int rf, int origintype );
 void set_rftrans_scale( int rf, double scale, int adjust ) ;
 void set_rftrans_rotation( int rf, double rot[3], int adjust[3] ) ;
 void set_rftrans_translation( int rf, double tran[3], int adjust[3] ) ;

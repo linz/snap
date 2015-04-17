@@ -63,6 +63,7 @@
 #include "output.h"
 #include "reorder.h"
 #include "ressumry.h"
+#include "rftrnadj.h"
 #include "snapmain.h"
 #include "sortobs.h"
 #include "stnobseq.h"
@@ -900,11 +901,12 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     int i, nval, nprm;
     int sts;
     int calculate;
-    int use;
+    int first;
     int calcval[14];
     int got_type;
     int iers;
     int topocentric;
+    int origintype=REFFRM_ORIGIN_DEFAULT;
     char errmess[256];
 
     calculate = 0;
@@ -912,30 +914,54 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     got_type = 0;
     iers=0;
     rfname = NULL;
-    use = 0;
 
     /* Process to handle the calculate, geocentric/topocentric, and name
        fields */
 
     sts = OK;
+    first = 1;
 
     for( prmname = strtok( string, " " ); prmname; prmname = strtok(NULL, " ") )
     {
-        if( ! use && _stricmp( prmname, "use") == 0 )
+        if( first )
         {
-            rfname = strtok(NULL," ");
-            if( rfname )
+            char global_command=0;
+            if( _stricmp( prmname, "use") == 0 )
             {
-                set_coef_class( COEF_CLASS_REFFRM, rfname );
-                if( strtok(NULL," ")) sts = INVALID_DATA;
+                rfname = strtok(NULL," ");
+                if( rfname )
+                {
+                    set_coef_class( COEF_CLASS_REFFRM, rfname );
+                    if( strtok(NULL," ")) sts = INVALID_DATA;
+                }
+                else
+                {
+                    sts = MISSING_DATA;
+                }
+                global_command=1;
             }
-            else
+            if( _stricmp( prmname, "use_topocentre_origin") == 0 )
             {
-                sts = MISSING_DATA;
+                set_use_refframe_topocentre( 1 );
+                global_command=1;
             }
-            return sts;
+            else if( _stricmp( prmname, "use_zero_origin") == 0 )
+            {
+                set_use_refframe_topocentre( 0 );
+                global_command=1;
+            }
+            if( global_command )
+            {
+                prmname=strtok(NULL," ");
+                if( prmname )
+                {
+                    send_config_error(cfg,INVALID_DATA,"Extraneous data in reference_frame command");
+                }
+                return OK;
+            }
         }
-        use = 1;
+
+        first = 0;
         if( !calculate && _stricmp( prmname, "calculate" ) == 0 )
         {
             if( !calculate )
@@ -980,10 +1006,36 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
                 topocentric = 0;
                 iers=1;
                 got_type = 1;
+                origintype=REFFRM_ORIGIN_ZERO;
             }
             else
             {
                 sts = INVALID_DATA;
+            }
+        }
+        else if( _stricmp( prmname, "origin" ) == 0 )
+        {
+            prmname=strtok(NULL," ");
+            if( ! prmname )
+            {
+                send_config_error(cfg,INVALID_DATA,
+                        "Origin type missing in reference_frame command");
+                return OK;
+            }
+            else if( _stricmp(prmname,"topocentre") == 0 )
+            {
+                origintype=REFFRM_ORIGIN_TOPOCENTRE;
+            }
+            else if( _stricmp(prmname,"zero") == 0 )
+            {
+                origintype=REFFRM_ORIGIN_ZERO;
+            }
+            else
+            {
+                sprintf(errmess,"Origin %.*s invalid in reference frame command. "
+                        "Must be either topocentre or zero.",20,prmname);
+                send_config_error(cfg,INVALID_DATA,errmess);
+                return OK;
             }
         }
         else if( !rfname )
@@ -1009,6 +1061,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
         rf = get_rftrans( rfname );
         if( rftrans_topocentric( rf ) ) sts = INVALID_DATA;
     }
+    set_rftrans_origintype( rf, origintype);
 
     if( sts == INVALID_DATA )
     {
@@ -1023,7 +1076,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     {
         if( ! prmname )
         {
-            sprintf(errmess,"Missing epoch date for IERS reference frame transformation",prmname);
+            sprintf(errmess,"Missing epoch date for IERS reference frame transformation");
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -1035,6 +1088,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             return OK;
         }
 
+        sts=OK;
         nval=14;
         for( i = 0; i < 14; i++ )
         {
@@ -1097,6 +1151,15 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             set_rftrans_scale_rate( rf, val[10], calcval[10] );
             set_rftrans_rotation_rate( rf, val+11, calcval+11 );
         }
+    }
+    else if( (! prmname) && calculate )
+    {
+        val[0]=val[1]=val[2]=0.0;
+        calcval[0]=calcval[1]=calcval[2]=1;
+        set_rftrans_scale( rf, 0.0, 1 ); 
+        set_rftrans_rotation( rf, val, calcval ); 
+        set_rftrans_translation( rf, val, calcval ); 
+        sts=OK;
     }
     else
     {
@@ -1536,6 +1599,7 @@ static int read_topocentre( CFG_FILE *cfg, char *string, void *value, int len, i
             lt > -90.0 && lt < 90.0 && ln >= -180.0 && ln <= 180.0 )
     {
         set_network_topocentre( net, lt*DTOR, ln*DTOR );
+        return OK;
     }
 
     return INVALID_DATA;

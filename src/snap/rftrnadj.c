@@ -181,6 +181,13 @@ static const char *valformat[] =
 };
 
 static const char *missingstr = "      -        ";
+static int use_refframe_topocentre=1;
+
+void set_use_refframe_topocentre( int use )
+{
+    use_refframe_topocentre=use;
+}
+
 
 static void init_rftrans_prms( rfTransformation *rf )
 {
@@ -218,9 +225,11 @@ static void init_rftrans_prms( rfTransformation *rf )
     rf->calcrotrate = (rf->calcPrm[rfRotxRate] || rf->calcPrm[rfRotyRate] || rf->calcPrm[rfRotxRate]) ? 1 : 0;
     rf->calcscalerate = rf->calcPrm[rfScaleRate];
 
-    /* Set up an origin if the scale is being calculated */
+    /* Set up an origin unless forcing otherwise */
+ 
+    rf->isorigin = rf->origintype == REFFRM_ORIGIN_DEFAULT ? use_refframe_topocentre :
+                   rf->origintype == REFFRM_ORIGIN_TOPOCENTRE ? 1 : 0;
 
-    rf->isorigin = (rf->calctrans && (rf->calcrot || rf->calcscale || rf->calcrotrate || rf->calcscalerate)) ? 1 : 0;
     if( rf->isorigin )
     {
         double origin[3];
@@ -363,6 +372,7 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
     int i, j, ii, ij, j0, j1;
     double se[14];
     int nval;
+    int gotcvr=0;
 
     for( i = 0, ii = 0, ij = 0; i < 14; i++, ij = ii+1, ii += i+1 )
     {
@@ -382,28 +392,36 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         if( ! display[i]) continue;
         fprintf(out,"      %-30s",rownames[i] );
         fprintf(out,valformat[i],val[i]*factor);
-        if( row[i] ) fprintf(out,valformat[i],se[i]*semult*fabs(factor));
+        if( row[i] ) 
+        {
+            fprintf(out,valformat[i],se[i]*semult*fabs(factor));
+            gotcvr=1;
+        }
         else { fprintf(out,"%s",missingstr);}
         if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
         fprintf(out,"\n");
     }
-    fprintf(out,"\n      Correlation matrix:\n");
-    for( j0 = 0; j0 < nval; j0 += 7 )
+    if( gotcvr )
     {
-        j1=j0+7;
-        if( j0 ) fprintf(out,"\n");
-        for( i = 0, ij = 0; i < nval; i++ )
+        fprintf(out,"\n      Correlation matrix:\n");
+        for( j0 = 0; j0 < nval; j0 += 7 )
         {
-            int used=0;
-            if( display[i]) fprintf(out,"      ");
-            for( j = 0; j <= i; j++, ij++ )
+            j1=j0+7;
+            if( j0 ) fprintf(out,"\n");
+            for( i = 0, ij = 0; i < nval; i++ )
             {
-                if( ! display[i] || ! display[j] ) continue;
-                if( j < j0 || j >= j1 ) continue;
-                fprintf(out, "  %8.4lf", cvr[ij] );
-                used=1;
+                int used=0;
+                if( display[i]) fprintf(out,"      ");
+                for( j = 0; j <= i; j++, ij++ )
+                {
+                    if( ! display[i] || ! display[j] ) continue;
+                    if( j < j0 || j >= j1 ) continue;
+                    if( ! used ) fprintf(out,"      ");
+                    fprintf(out, "  %8.4lf", cvr[ij] );
+                    used=1;
+                }
+                if( used ) fprintf(out,"\n" );
             }
-            if( used ) fprintf(out,"\n" );
         }
     }
 }
@@ -417,6 +435,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     double c1, c2, c3, cmin, cmax, azmax;
     int i, k;
     int userates=rf->userates;;
+    int nval, calced;
     tmatrix *trot;
 
     /* s is source system, d is destination, t = topocentric, g = geocentric */
@@ -439,6 +458,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         trot = &rf->toporot;
     }
 
+    calced=0;
     for( i = 0; i < 14; i++ )
     {
         int pn;
@@ -446,7 +466,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         pn = rf->prmId[i];
         srow[i] = 0;
         sidentical[i] = 0;
-        if( pn ) srow[i] = param_rowno(pn);
+        if( pn ) { srow[i] = param_rowno(pn); calced=1; }
         if( srow[i] ) sidentical[i] = identical_param( pn );
         didentical[i] = 0;
         drow[i] = srow[i] ? -1 : 0;
@@ -511,7 +531,8 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     /* OK - now all we need to do is to print out the results... */
 
     fprintf(out,"\nReference frame: %s\n",rf->name );
-    fprintf(out,"\n   Calculated as a %s reference frame\n",
+    fprintf(out,"\n   %s as a %s reference frame\n",
+            calced ? "Calculated" : "Defined",
             rf->istopo ? "topocentric" : "geocentric" );
     if( rf->isorigin )
     {
