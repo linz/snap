@@ -77,45 +77,46 @@ typedef struct
 #define FRF_VECDIFF  1
 #define FRF_ABSOLUTE 2
 
-int get_rftrans( const char *name ) ;
-int get_topocentric_rftrans( const char *name );
-int rftrans_topocentric( int rf );
+int get_rftrans_id( const char *name ) ;
+int get_topocentric_rftrans_id( const char *name );
 int rftrans_count( void );
+
 rfTransformation *rftrans_from_id( int id );
 void clear_rftrans_list( void );
 rfTransformation *new_rftrans( void );
 
-/* Note: date is set as a snap date (converted internally to decimal year) */
-
-void set_rftrans_ref_date( int rf, double date );
-void set_rftrans_origintype( int rf, int origintype );
-void set_rftrans_scale( int rf, double scale, int adjust ) ;
-void set_rftrans_rotation( int rf, double rot[3], int adjust[3] ) ;
-void set_rftrans_translation( int rf, double tran[3], int adjust[3] ) ;
-void set_rftrans_scale_rate( int rf, double scale, int adjust ) ;
-void set_rftrans_rotation_rate( int rf, double rot[3], int adjust[3] ) ;
-void set_rftrans_translation_rate( int rf, double tran[3], int adjust[3] ) ;
-void set_rftrans_origin( rfTransformation *, double origin[3] );
-
-void flag_rftrans_used( int rf, int usage_type );
-
 /* Setup up reference frames, defining the topocentre */
 
-void setup_rftrans( rfTransformation *rf );
 void setup_rftrans_list( double lt, double ln ) ;
+void setup_rftrans( rfTransformation *rf );
+
+/* Note: date is set as a snap date (converted internally to decimal year) */
+
+int rftrans_topocentric( rfTransformation * rf );
+void set_rftrans_ref_date( rfTransformation *rf, double date );
+void set_rftrans_origintype( rfTransformation *rf, int origintype );
+void set_rftrans_scale( rfTransformation *rf, double scale, int adjust ) ;
+void set_rftrans_rotation( rfTransformation *rf, double rot[3], int adjust[3] ) ;
+void set_rftrans_translation( rfTransformation *rf, double tran[3], int adjust[3] ) ;
+void set_rftrans_scale_rate( rfTransformation *rf, double scale, int adjust ) ;
+void set_rftrans_rotation_rate( rfTransformation *rf, double rot[3], int adjust[3] ) ;
+void set_rftrans_translation_rate( rfTransformation *rf, double tran[3], int adjust[3] ) ;
+void set_rftrans_origin( rfTransformation *rf, double origin[3] );
+
+void flag_rftrans_used( rfTransformation *rf, int usage_type );
 
 /* tmat converts a vector to the reference frame,
    invtmat converts a vector from the reference frame */
 
-double * rftrans_tmat( int rf );
-double * rftrans_invtmat( int rf );
-const char *   rftrans_name( int rf );
+double * rftrans_tmat( rfTransformation *rf );
+double * rftrans_invtmat( rfTransformation *rf );
+const char *   rftrans_name( rfTransformation *rf );
 
 /* Convert a vector to from the reference frame to the standard reference */
 /* Takes a date (snap date format) against which the vector is tested */
 
-void rftrans_correct_vector( int nrf, double vd[3], double date );
-void rftrans_correct_point( int nrf, double vd[3], double date );
+void rftrans_correct_vector( int rfid, double vd[3], double date );
+void rftrans_correct_point( int rfid, double vd[3], double date );
 
 
 #endif

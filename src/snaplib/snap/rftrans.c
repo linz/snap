@@ -154,7 +154,7 @@ static int create_rftrans( const char *name, int topocentric )
 }
 
 
-int get_rftrans( const char *name )
+int get_rftrans_id( const char *name )
 {
     int rf;
 
@@ -170,10 +170,10 @@ int rftrans_count( void )
 
 rfTransformation *rftrans_from_id( int id )
 {
-    return id ? rflist[id-1] : NULL;
+    return id > 0 && id <= nrftrans ? rflist[id-1] : NULL;
 }
 
-int get_topocentric_rftrans( const char *name )
+int get_topocentric_rftrans_id( const char *name )
 {
     int rf;
 
@@ -183,130 +183,98 @@ int get_topocentric_rftrans( const char *name )
 }
 
 
-int rftrans_topocentric( int rf )
+int rftrans_topocentric( rfTransformation *rf )
 {
-    return rflist[rf-1]->istopo;
+    return rf->istopo;
 }
 
-void set_rftrans_ref_date( int rf , double date )
+void set_rftrans_ref_date( rfTransformation *rf , double date )
 {
-    rfTransformation *rfp;
-    rfp = rflist[rf-1];
-    rfp->refepoch = date_as_year(date);
+    rf->refepoch = date_as_year(date);
 }
 
-void set_rftrans_origintype( int rf, int origintype )
+void set_rftrans_origintype( rfTransformation *rf, int origintype )
 {
-    rfTransformation *rfp;
-    rfp = rflist[rf-1];
-    rfp->origintype = origintype;
+    rf->origintype = origintype;
 }
 
 
-void set_rftrans_scale( int rf , double scale, int adjust )
+void set_rftrans_scale( rfTransformation *rf , double scale, int adjust )
 {
-    rfTransformation *rfp;
-    rfp = rflist[rf-1];
-    rfp->prm[rfScale] = scale;
-    rfp->calcPrm[rfScale] = adjust;
+    rf->prm[rfScale] = scale;
+    rf->calcPrm[rfScale] = adjust;
 }
 
 
-void set_rftrans_rotation( int rf, double rot[3], int adjust[3] )
+void set_rftrans_rotation( rfTransformation *rf, double rot[3], int adjust[3] )
 {
-    rfTransformation *rfp;
     int i;
-
-    rfp = rflist[rf-1];
-
     for( i= 0; i<3; i++ )
     {
-        rfp->prm[rfRotx+i] = rot[i];
-        rfp->calcPrm[rfRotx+i] = adjust[i];
+        rf->prm[rfRotx+i] = rot[i];
+        rf->calcPrm[rfRotx+i] = adjust[i];
     }
-
 }
 
 
-void set_rftrans_translation( int rf, double tran[3], int adjust[3] )
+void set_rftrans_translation( rfTransformation *rf, double tran[3], int adjust[3] )
 {
-    rfTransformation *rfp;
     int i;
-
-    rfp = rflist[rf-1];
-
     for( i= 0; i<3; i++ )
     {
-        rfp->prm[rfTx+i] = tran[i];
-        rfp->calcPrm[rfTx+i] = adjust[i];
-        rfp->trans[i] = tran[i];
+        rf->prm[rfTx+i] = tran[i];
+        rf->calcPrm[rfTx+i] = adjust[i];
+        rf->trans[i] = tran[i];
     }
-
-    if( rfp->istopo ) premult3( (double *) rfp->invtoporot, rfp->prm+rfTx, rfp->trans, 1 );
-
+    if( rf->istopo ) premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
 }
 
-void set_rftrans_scale_rate( int rf , double scale, int adjust )
+void set_rftrans_scale_rate( rfTransformation *rf , double scale, int adjust )
 {
-    rfTransformation *rfp;
-    rfp = rflist[rf-1];
-    if( scale != 0.0 || adjust ) rfp->userates = 1;
-    rfp->prm[rfScaleRate] = scale;
-    rfp->calcPrm[rfScaleRate] = adjust;
+    if( scale != 0.0 || adjust ) rf->userates = 1;
+    rf->prm[rfScaleRate] = scale;
+    rf->calcPrm[rfScaleRate] = adjust;
 }
 
 
-void set_rftrans_rotation_rate( int rf, double rot[3], int adjust[3] )
+void set_rftrans_rotation_rate( rfTransformation *rf, double rot[3], int adjust[3] )
 {
-    rfTransformation *rfp;
     int i;
-
-    rfp = rflist[rf-1];
-
     for( i= 0; i<3; i++ )
     {
-        if( rot[i] != 0.0 || adjust[i] ) rfp->userates=1;
-        rfp->prm[rfRotxRate+i] = rot[i];
-        rfp->calcPrm[rfRotxRate+i] = adjust[i];
+        if( rot[i] != 0.0 || adjust[i] ) rf->userates=1;
+        rf->prm[rfRotxRate+i] = rot[i];
+        rf->calcPrm[rfRotxRate+i] = adjust[i];
     }
-
 }
 
 
-void set_rftrans_translation_rate( int rf, double tran[3], int adjust[3] )
+void set_rftrans_translation_rate( rfTransformation *rf, double tran[3], int adjust[3] )
 {
-    rfTransformation *rfp;
     int i;
-
-    rfp = rflist[rf-1];
-
     for( i= 0; i<3; i++ )
     {
-        if( tran[i] != 0.0 || adjust[i] ) rfp->userates=1;
-        rfp->prm[rfTxRate+i] = tran[i];
-        rfp->calcPrm[rfTxRate+i] = adjust[i];
+        if( tran[i] != 0.0 || adjust[i] ) rf->userates=1;
+        rf->prm[rfTxRate+i] = tran[i];
+        rf->calcPrm[rfTxRate+i] = adjust[i];
     }
-
-    // if( rfp->istopo ) premult3( (double *) rfp->invtoporot, rfp->prm+rfTxRate, rfp->trans, 1 );
-
+    // if( rf->istopo ) premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->trans, 1 );
 }
 
-void set_rftrans_origin ( rfTransformation *rfp, double origin[3] )
+void set_rftrans_origin ( rfTransformation *rf, double origin[3] )
 {
-    veccopy(origin,rfp->origin);
+    veccopy(origin,rf->origin);
 }
 
-void flag_rftrans_used( int rf, int usage_type )
+void flag_rftrans_used( rfTransformation *rf, int usage_type )
 {
-    rfTransformation *rfp;
     int i;
-    rfp = rflist[rf-1];
-    rfp->prmUsed[rfScale] = 1;
-    for( i=0; i<3; i++ ) rfp->prmUsed[rfRotx+i] = 1;
+    rf->prmUsed[rfScale] = 1;
+    for( i=0; i<3; i++ ) rf->prmUsed[rfRotx+i] = 1;
     if( usage_type == FRF_ABSOLUTE )
     {
-        rfp->istrans = 1;
-        for( i=0; i<3; i++ ) rfp->prmUsed[rfTx+i] = 1;
+        rf->istrans = 1;
+        for( i=0; i<3; i++ ) rf->prmUsed[rfTx+i] = 1;
     }
 }
 
@@ -560,25 +528,24 @@ void setup_rftrans_list( double lt, double ln )
     frames_setup = 1;
 }
 
-double * rftrans_tmat( int rf )
+double * rftrans_tmat( rfTransformation *rf )
 {
-    return (double *) (rflist[rf-1]->tmat);
+    return (double *) (rf->tmat);
 }
 
-double * rftrans_invtmat( int rf )
+double * rftrans_invtmat( rfTransformation *rf )
 {
-    return (double *) (rflist[rf-1]->invtmat);
+    return (double *) (rf->invtmat);
 }
 
-const char * rftrans_name( int rf )
+const char * rftrans_name( rfTransformation *rf )
 {
-    return rflist[rf-1]->name;
+    return rf->name;
 }
 
-void rftrans_correct_vector( int nrf, double vd[3], double date )
+void rftrans_correct_vector( int rfid, double vd[3], double date )
 {
-    rfTransformation *rf;
-    rf = rflist[nrf-1];
+    rfTransformation *rf=rftrans_from_id(rfid);
     if( rf->userates )
     {
         double vr[3];
@@ -591,10 +558,9 @@ void rftrans_correct_vector( int nrf, double vd[3], double date )
     premult3( DS rf->invtmat, vd, vd, 1 );
 }
 
-void rftrans_correct_point( int nrf, double vd[3], double date )
+void rftrans_correct_point( int rfid, double vd[3], double date )
 {
-    rfTransformation *rf;
-    rf = rflist[nrf-1];
+    rfTransformation *rf=rftrans_from_id(rfid);
     vecdif(vd, rf->origin,vd);
     if( rf->userates )
     {

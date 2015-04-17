@@ -216,7 +216,7 @@ void list_vecdata( FILE *out, survdata  *v )
             }
 
             if( axis == 0 && iobs == 0 ) fprintf(out,"   %s",
-                                                     rftrans_name(v->reffrm) );
+                                  rftrans_name(rftrans_from_id(v->reffrm) ));
 
             fputs("\n", out );
         }

@@ -59,19 +59,20 @@ static void get_vertical( int id, double vrt[3] )
     }
 }
 
-static double *get_transformation( int reffrm, int inverse )
+static double *get_transformation( int rfid, int inverse )
 {
-    if( reffrm <= 0 || reffrm > rftrans_count() )
+    rfTransformation *rf = rftrans_from_id( rfid );
+    if( ! rf )
     {
         return dflttmat;
     }
     if( inverse )
     {
-        return rftrans_invtmat( reffrm );
+        return rftrans_invtmat( rf );
     }
     else
     {
-        return rftrans_tmat( reffrm );
+        return rftrans_tmat( rf );
     }
 }
 

@@ -126,7 +126,7 @@ static void get_enu_rmat( int st1, int st2, double rmat[3][3] )
 
 #define SWAPD(a,b)  {double tmp; tmp = a; a=b; b=tmp;}
 
-static void get_enu_rf_xform( int st1, int st2, int rf,
+static void get_enu_rf_xform( int st1, int st2, int rfid,
                               double xform[3][3] )
 {
     double *tmat;
@@ -143,7 +143,7 @@ static void get_enu_rf_xform( int st1, int st2, int rf,
 
     if( xfmfunc )
     {
-        tmat = (*xfmfunc)( rf, 0 );
+        tmat = (*xfmfunc)( rfid, 0 );
     }
     else
     {

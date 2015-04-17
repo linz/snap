@@ -268,7 +268,8 @@ static void record_parameter_usage( survdata *sd )
             break;
 
             case SD_VECDATA:
-                flag_rftrans_used( sd->reffrm, dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
+                flag_rftrans_used( rftrans_from_id(sd->reffrm), 
+                        dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
                 break;
 
             case SD_PNTDATA:
@@ -542,7 +543,7 @@ static long snap_id( int type, int group_id, const char *code )
         case COEF_CLASS_DISTSF:  id = distsf_prm( code ); break;
         case COEF_CLASS_BRNGREF: id = brngref_prm( code ); break;
         case COEF_CLASS_REFCOEF: id = refcoef_prm( code ); break;
-        case COEF_CLASS_REFFRM:  id = get_rftrans( code ); break;
+        case COEF_CLASS_REFFRM:  id = get_rftrans_id( code ); break;
         }
         break;
     case ID_PROJCTN:    id = get_bproj( code ); break;

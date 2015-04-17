@@ -895,7 +895,8 @@ static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int 
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
     char *rfname, *prmname;
-    int rf;
+    int rfid;
+    rfTransformation *rf;
     double val[14];
     double date;
     int i, nval, nprm;
@@ -1053,12 +1054,14 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
 
     if( topocentric )
     {
-        rf = get_topocentric_rftrans( rfname );
+        rfid = get_topocentric_rftrans_id( rfname );
+        rf=rftrans_from_id( rfid );
         if( ! rftrans_topocentric( rf ) ) sts = INVALID_DATA;
     }
     else
     {
-        rf = get_rftrans( rfname );
+        rfid = get_rftrans_id( rfname );
+        rf=rftrans_from_id( rfid );
         if( rftrans_topocentric( rf ) ) sts = INVALID_DATA;
     }
     set_rftrans_origintype( rf, origintype);
