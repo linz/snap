@@ -18,6 +18,8 @@ list residuals
 list error_summary
 list worst_residuals
 
+add_residual_column c=ref_frame_code
+
 reference_frame GPS_T translation 0 ? 0 ? 0 ?
 reference_frame GPS_S scale 0 ?
 reference_frame GPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
@@ -29,6 +31,7 @@ reference_frame TGPS_S topocentric scale 0 ?
 reference_frame TGPS_TS topocentric translation 0 ? 0 ? 0 ? scale 0 ?
 reference_frame TGPS_R topocentric rotation 0 ? 0 ? 0 ?
 reference_frame TGPS_TRS topocentric calculate scale rotation translation
+
 
 fix all
 

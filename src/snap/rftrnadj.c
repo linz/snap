@@ -217,7 +217,7 @@ static void init_rftrans_prms( rfTransformation *rf )
     /* Set up an origin unless forcing otherwise */
  
     origin[0] = origin[1] = origin[2] = 0.0;
-    if( rf->isorigin )
+    if( rf->localorigin )
     {
         get_network_topocentre_xyz( net, origin );
     }
@@ -352,7 +352,7 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
 
 static void print_rftrans_def( const char *rownames[], int *row, int *identical,
                                double *val, double *cvr, double *vmult, double semult, int *display, 
-                               int userates, FILE *out )
+                               FILE *out )
 {
     int i, j, ii, ij, j0, j1;
     double se[14];
@@ -370,8 +370,9 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         cvr[ii] = 1.0;
     }
     fprintf(out,"\n      %-30s  %15s  %15s\n","Parameter","Value    ","Error    ");
-    nval = userates ? 14 : 7;
-    for( i = 0; i < nval; i++ )
+    nval=0;
+    gotcvr=0;
+    for( i = 0; i < 14; i++ )
     {
         double factor = vmult ? vmult[i] : 1.0;
         if( ! display[i]) continue;
@@ -380,20 +381,23 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         if( row[i] ) 
         {
             fprintf(out,valformat[i],se[i]*semult*fabs(factor));
-            gotcvr=1;
+            gotcvr++;
         }
         else { fprintf(out,"%s",missingstr);}
         if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
         fprintf(out,"\n");
+        nval++;
     }
-    if( gotcvr )
+    nval = nval > 8 ? 0 : 7;
+    if( gotcvr > 1)
     {
         fprintf(out,"\n      Correlation matrix:\n");
-        for( j0 = 0; j0 < nval; j0 += 7 )
+        for( j0 = 0; j0 < 14; j0 += 7+nval  )
         {
-            j1=j0+7;
+            j1=j0+7+nval;
             if( j0 ) fprintf(out,"\n");
-            for( i = 0, ij = 0; i < nval; i++ )
+            ij=(j0*(j0+1))/2;
+            for( i = j0; i < 14; i++ )
             {
                 int used=0;
                 if( display[i]) fprintf(out,"      ");
@@ -470,7 +474,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
 
     /* Shift at origin */
     oshift[0] = oshift[1] = oshift[2] = 0.0;
-    if( rf->istrans && rf->isorigin )
+    if( rf->usetrans && rf->localorigin )
     {
         oshift[0] = rf->origin[0];
         oshift[1] = rf->origin[1];
@@ -507,11 +511,11 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
 
     display[rfRotx] = display[rfRoty] = display[rfRotz] = 1;
     display[rfScale] = 1;
-    display[rfTx] = display[rfTy] = display[rfTz] = rf->istrans;
+    display[rfTx] = display[rfTy] = display[rfTz] = rf->usetrans;
 
     display[rfRotxRate] = display[rfRotyRate] = display[rfRotzRate] = userates;
     display[rfScaleRate] = userates;
-    display[rfTxRate] = display[rfTyRate] = display[rfTzRate] = rf->istrans && userates;
+    display[rfTxRate] = display[rfTyRate] = display[rfTzRate] = rf->usetrans && userates;
 
     /* OK - now all we need to do is to print out the results... */
 
@@ -519,7 +523,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     fprintf(out,"\n   %s as a %s reference frame\n",
             calced ? "Calculated" : "Defined",
             rf->istopo ? "topocentric" : "geocentric" );
-    if( rf->isorigin )
+    if( rf->localorigin )
     {
         fprintf(out,"\n   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n",
                 rf->origin[0], rf->origin[1], rf->origin[2] );
@@ -536,24 +540,28 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     if( output_reffrm_iers )
     {
         fprintf(out,"\n   IERS definition\n");
-        print_rftrans_def( irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, userates, out );
+        print_rftrans_def( irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, out );
     }
 
     if( output_reffrm_geo )
     {
         fprintf(out,"\n   Geocentric definition\n");
-        print_rftrans_def( grownames, grow, gidentical, gval, gcvr, 0, semult, display, userates, out );
+        print_rftrans_def( grownames, grow, gidentical, gval, gcvr, 0, semult, display,  out );
     }
 
     if( output_reffrm_topo )
     {
         fprintf(out,"\n   Topocentric definition\n");
-        print_rftrans_def( trownames, trow, tidentical, tval, tcvr, 0, semult, display, userates, out );
+        print_rftrans_def( trownames, trow, tidentical, tval, tcvr, 0, semult, display,  out );
     }
 
-    if( rf->isorigin && rf->istrans )
+    if( rf->localorigin && rf->usetrans )
     {
         fprintf(out,"\n   Translation at origin (%.4lf, %.4lf, %.4lf)\n",oshift[0],oshift[1],oshift[2]);
+    }
+    if( ! rf->usetrans )
+    {
+        fprintf(out,"\n   Reference frame translations are not used in this adjustment\n");
     }
 
     if( output_reffrm_topo )

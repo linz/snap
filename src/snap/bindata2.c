@@ -667,10 +667,12 @@ int define_residual_formats( char *typelist, int add_columns )
         if( *tp ) tp++;
         if( status != OK ) break;
     }
+    /* If string doesn't define a type, then assume all types are being defined
+     * and return INVALID_DATA
+     */
     if( status != OK )
     {
-        for( itype = 0; itype < NOBSTYPE; itype++ ) defining_format[itype] = 0;
-        return status;
+        for( itype = 0; itype < NOBSTYPE; itype++ ) defining_format[itype] = 1;
     }
     for( itype = 0; itype < NOBSTYPE; itype++ )
     {
@@ -684,7 +686,7 @@ int define_residual_formats( char *typelist, int add_columns )
             data_format[itype].ncolumn = 0;
         }
     }
-    return OK;
+    return status;
 }
 
 int set_residual_listing_data_type( FILE *out, int newtype )

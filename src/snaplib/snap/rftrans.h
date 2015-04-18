@@ -48,8 +48,8 @@ typedef struct
     int prmId[14];       /* The adjustment parameter ids of the tranformation */
     unsigned  userates:1;  /* True if rates are being used or calculated */
     unsigned  istopo:1; /* True if the reference frame is topocentric */
-    unsigned  istrans:1; /* True if the translation component is used */
-    unsigned  isorigin:1; /* True if the origin is offset */
+    unsigned  usetrans:1; /* True if the translation component is used */
+    unsigned  localorigin:1; /* True if the origin is offset */
     unsigned  calctrans:1; /* True if translation components are being calculated */
     unsigned  calcrot:1;   /* True if rotations components are being calculated */
     unsigned  calcscale:1; /* True if scale is being calculated */
@@ -111,7 +111,7 @@ void set_rftrans_origin( rfTransformation *rf, double origin[3] );
 
 void flag_rftrans_used( rfTransformation *rf, int usage_type );
 
-/* Set calculation flags and isorigin */
+/* Set calculation flags and localorigin */
 
 void setup_rftrans_calcs( rfTransformation *rf );
 

@@ -170,12 +170,13 @@ static config_item snap_commands[] =
     {"list",NULL,ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
     {"output_csv",NULL,ABSOLUTE,0,read_output_options,CONFIG_CMD,CSV_OPTIONS},
     {"define_residual_format",NULL,ABSOLUTE,0,read_residual_format,CONFIG_CMD,DEFINE_RESIDUAL_COLUMNS},
+    {"define_residual_columns",NULL,ABSOLUTE,0,read_residual_format,CONFIG_CMD,DEFINE_RESIDUAL_COLUMNS},
     {"add_residual_column",NULL,ABSOLUTE,0,read_residual_format,CONFIG_CMD,ADD_RESIDUAL_COLUMNS},
     {"output_precision",NULL,ABSOLUTE,0,read_output_precision,CONFIG_CMD,0},
     {"classification",NULL,ABSOLUTE,0,read_classification,0,0},
     {"sort_observations",NULL,ABSOLUTE,0,read_sort_option,CONFIG_CMD,0},
     {"summarize_errors_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
-    {"summarise_errors_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
+    {"summarise_residuals_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
     {"number_of_worst_residuals",&maxworst,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"station_code_width",&stn_name_width,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"file_location_frequency",&file_location_frequency,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
@@ -989,8 +990,9 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
         {
             prmname=strtok( NULL, " ");
             if( _stricmp(prmname,"zero") == 0 ) origintype=REFFRM_ORIGIN_ZERO;
-            if( _stricmp(prmname,"topocentre") == 0 ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
-            if( _stricmp(prmname,"default") == 0 ) origintype=REFFRM_ORIGIN_DEFAULT;
+            else if( _stricmp(prmname,"0") == 0 ) origintype=REFFRM_ORIGIN_ZERO;
+            else if( _stricmp(prmname,"topocentre") == 0 ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
+            else if( _stricmp(prmname,"default") == 0 ) origintype=REFFRM_ORIGIN_DEFAULT;
             else 
             {
                 sprintf(errmess,"Invalid origin type %.20s for reference frame %.20s",
@@ -1078,7 +1080,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
                     break;
                 }
                 sprintf(errmess,"Missing %.20s value for reference frame %.20s command",
-                        valuetype,prmname );
+                        valuetype,rfname );
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
@@ -1114,7 +1116,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             else
             {
                 prmname=strtok(NULL," ");
-                if( strcmp(prmname,"?") == 0 )
+                if( prmname && strcmp(prmname,"?") == 0 )
                 {
                     calcval[ival]=1;
                 }
@@ -1222,15 +1224,18 @@ static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int l
     types = strtok( string, " " );
     if( !types ) return MISSING_DATA;
 
-    if( define_residual_formats( types, code ) != OK )
+    /* If types doesn't define valid types, then assume it is all and
+     * use as column definition */
+
+    if( define_residual_formats( types, code ) == OK )
     {
-        char errmess[80];
-        sprintf( errmess, "Invalid data types %.30s",types);
-        send_config_error( cfg, MISSING_DATA, errmess );
-        return OK;
+        string = strtok( NULL, "\n");
+    }
+    else
+    {
+        string = types;
     }
 
-    string = strtok( NULL, "\n");
     while( NULL != (column = strtok( string, " " )) )
     {
         char *endcol;
