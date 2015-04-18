@@ -15,6 +15,9 @@
 typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
 /* Parameters of a reference frame transformation */
+/* Note: Code control.c (snap) assumes these are ordered as for
+ * IERS parameters.
+ */
 
 enum
 {
@@ -57,7 +60,7 @@ typedef struct
     char  prmUsed[14];     /* True if the reference frame is used  in data sets */
     double origin[3];     /* The reference point for the rotation and scale */
     double trans[3];      /* Translation components as XYZ */
-    double transrate[3];  /* Translation components as XYZ */
+    double transrate[3];  /* Translation rate components as XYZ */
     tmatrix tmat;         /* The matrix (1+s).Rx.Ry.Rz           */
     tmatrix invtmat;      /* The inverse of tmat                */
     tmatrix dtmatdrot[3]; /* The differential of tmat wrt x rot. */
@@ -95,6 +98,7 @@ void setup_rftrans( rfTransformation *rf );
 int rftrans_topocentric( rfTransformation * rf );
 void set_rftrans_ref_date( rfTransformation *rf, double date );
 void set_rftrans_origintype( rfTransformation *rf, int origintype );
+void set_rftrans_parameters( rfTransformation *rf, double val[14], int calcval[14], int defined[14]);
 void set_rftrans_scale( rfTransformation *rf, double scale, int adjust ) ;
 void set_rftrans_rotation( rfTransformation *rf, double rot[3], int adjust[3] ) ;
 void set_rftrans_translation( rfTransformation *rf, double tran[3], int adjust[3] ) ;
@@ -103,7 +107,13 @@ void set_rftrans_rotation_rate( rfTransformation *rf, double rot[3], int adjust[
 void set_rftrans_translation_rate( rfTransformation *rf, double tran[3], int adjust[3] ) ;
 void set_rftrans_origin( rfTransformation *rf, double origin[3] );
 
+/* True if ok to use the topocentre for a calculating a reference frame */
+
 void flag_rftrans_used( rfTransformation *rf, int usage_type );
+
+/* Set calculation flags and isorigin */
+
+void setup_rftrans_calcs( rfTransformation *rf );
 
 /* tmat converts a vector to the reference frame,
    invtmat converts a vector from the reference frame */

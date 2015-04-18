@@ -30,6 +30,10 @@ even if focus is restored.
 <h3>Snap</h3>
 <p>Bug fix: Fixed bug whereby the covariance matrix of grouped vector data was corrupted if one or more stations in the set are ignored.</p>
 <p>Bug fix: Fixed bug whereby SNAP would still run despite errors in a command file.</p>
+<p>Enhancement: Reference frames for GNSS baseline and point position data can now
+include time dependent terms (rates of change of translation, scale, and orientation).
+<b>Note:</b> this has required some changes to the <a href="../files/cmdcfg/cmd_reference_frame.html">reference frame</a> command which means that some old command files may need
+modification to work as previously.</p>
 <p>Enhancement: Added the <a href="../files/cmdcfg/cmd_recode.html">recode</a> and <a href="../files/cmdcfg/cmd_data_file.html">data_file .. recode</a> commands to allow recoding stations read from
 command file. This allows stations in data files to be recoded, optionally for specific date ranges.  This
 can be used where stations are miscoded in data files, to test if stations have moved for

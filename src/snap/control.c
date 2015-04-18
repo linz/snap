@@ -36,6 +36,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include <ctype.h>
 
 #include "control.h"
@@ -894,26 +895,35 @@ static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int 
 
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    char *rfname, *prmname;
+    char *rfname, *prmname, *valuetype;
     int rfid;
     rfTransformation *rf;
     double val[14];
+    int calcval[14];
+    int defined[14];
     double date;
-    int i, nval, nprm;
+    int i, nval, ival;
     int sts;
     int calculate;
-    int first;
-    int calcval[14];
-    int got_type;
-    int iers;
     int topocentric;
     int origintype=REFFRM_ORIGIN_DEFAULT;
+    int iers;
+    int prmread;
     char errmess[256];
+    int first;
 
     calculate = 0;
     topocentric = 0;
-    got_type = 0;
+    for( i = 0; i < 14; i++ )
+    {
+        val[i]=0.0;
+        defined[i]=0;
+        calcval[i]=0;
+    }
+    date=UNDEFINED_DATE;
+    sts=OK;
     iers=0;
+
     rfname = NULL;
 
     /* Process to handle the calculate, geocentric/topocentric, and name
@@ -922,135 +932,201 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     sts = OK;
     first = 1;
 
-    for( prmname = strtok( string, " " ); prmname; prmname = strtok(NULL, " ") )
+    rfname=strtok( string, " " );
+    if( _stricmp(rfname,"use") == 0 )
     {
-        if( first )
+        prmname = strtok(NULL," ");
+        if( prmname )
         {
-            char global_command=0;
-            if( _stricmp( prmname, "use") == 0 )
-            {
-                rfname = strtok(NULL," ");
-                if( rfname )
-                {
-                    set_coef_class( COEF_CLASS_REFFRM, rfname );
-                    if( strtok(NULL," ")) sts = INVALID_DATA;
-                }
-                else
-                {
-                    sts = MISSING_DATA;
-                }
-                global_command=1;
-            }
-            if( _stricmp( prmname, "use_topocentre_origin") == 0 )
-            {
-                set_use_refframe_topocentre( 1 );
-                global_command=1;
-            }
-            else if( _stricmp( prmname, "use_zero_origin") == 0 )
-            {
-                set_use_refframe_topocentre( 0 );
-                global_command=1;
-            }
-            if( global_command )
-            {
-                prmname=strtok(NULL," ");
-                if( prmname )
-                {
-                    send_config_error(cfg,INVALID_DATA,"Extraneous data in reference_frame command");
-                }
-                return OK;
-            }
+            set_coef_class( COEF_CLASS_REFFRM, prmname );
+            if( strtok(NULL," ")) sts = INVALID_DATA;
         }
+        else
+        {
+            sts = MISSING_DATA;
+        }
+        return sts;
+    }
 
-        first = 0;
-        if( !calculate && _stricmp( prmname, "calculate" ) == 0 )
+    for( prmread=0, prmname = strtok(NULL, " ");
+            prmname;
+            prmname = prmread ? prmname : strtok(NULL, " "), prmread=0)
+    {
+        nval=0;
+        ival=0;
+        valuetype=prmname;
+        if( _stricmp( prmname, "calculate" ) == 0 )
         {
-            if( !calculate )
-            {
-                calculate = 1;
-            }
-            else
-            {
-                sts = INVALID_DATA;
-            }
-        }
-        else if( _stricmp( prmname, "geocentric" ) == 0 )
-        {
-            if( !got_type )
-            {
-                topocentric = 0;
-                iers=0;
-                got_type = 1;
-            }
-            else
-            {
-                sts = INVALID_DATA;
-            }
+            calculate=1;
         }
         else if( _stricmp( prmname, "topocentric" ) == 0 )
         {
-            if( !got_type )
-            {
-                topocentric = 1;
-                iers=0;
-                got_type = 1;
-            }
-            else
-            {
-                sts = INVALID_DATA;
-            }
+            topocentric=1;
         }
-        else if( _stricmp( prmname, "iers_etsr" ) == 0 )
+        else if( _stricmp( prmname, "geocentric" ) == 0 )
         {
-            if( !got_type )
+            topocentric=0;
+        }
+        else if( _stricmp( prmname, "epoch" ) == 0 )
+        {
+            prmname=strtok( NULL, " ");
+            if( ! prmname )
             {
-                topocentric = 0;
-                iers=1;
-                got_type = 1;
-                origintype=REFFRM_ORIGIN_ZERO;
+                sprintf(errmess,"Missing epoch date for reference frame %.20s",rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
             }
-            else
+            date=snap_datetime_parse( prmname, 0 );
+            if( date == UNDEFINED_DATE )
             {
-                sts = INVALID_DATA;
+                sprintf(errmess,"Invalid epoch date %.20s for reference frame %.20s",
+                        prmname,rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
             }
         }
         else if( _stricmp( prmname, "origin" ) == 0 )
         {
-            prmname=strtok(NULL," ");
-            if( ! prmname )
+            prmname=strtok( NULL, " ");
+            if( _stricmp(prmname,"zero") == 0 ) origintype=REFFRM_ORIGIN_ZERO;
+            if( _stricmp(prmname,"topocentre") == 0 ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
+            if( _stricmp(prmname,"default") == 0 ) origintype=REFFRM_ORIGIN_DEFAULT;
+            else 
             {
-                send_config_error(cfg,INVALID_DATA,
-                        "Origin type missing in reference_frame command");
-                return OK;
-            }
-            else if( _stricmp(prmname,"topocentre") == 0 )
-            {
-                origintype=REFFRM_ORIGIN_TOPOCENTRE;
-            }
-            else if( _stricmp(prmname,"zero") == 0 )
-            {
-                origintype=REFFRM_ORIGIN_ZERO;
-            }
-            else
-            {
-                sprintf(errmess,"Origin %.*s invalid in reference frame command. "
-                        "Must be either topocentre or zero.",20,prmname);
-                send_config_error(cfg,INVALID_DATA,errmess);
+                sprintf(errmess,"Invalid origin type %.20s for reference frame %.20s",
+                        prmname,rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
         }
-        else if( !rfname )
+        else if( _stricmp( prmname, "translation" ) == 0 )
         {
-            rfname = prmname;
+            ival=rfTx;
+            nval=3;
+        }
+        else if( _stricmp( prmname, "translation_rate" ) == 0 )
+        {
+            ival=rfTxRate;
+            nval=3;
+        }
+        else if( _stricmp( prmname, "scale" ) == 0 )
+        {
+            ival=rfScale;
+            nval=1;
+        }
+        else if( _stricmp( prmname, "scale_rate" ) == 0 )
+        {
+            ival=rfScaleRate;
+            nval=1;
+        }
+        else if( _stricmp( prmname, "rotation" ) == 0 )
+        {
+            ival=rfRotx;
+            nval=3;
+        }
+        else if( _stricmp( prmname, "rotation_rate" ) == 0 )
+        {
+            ival=rfRotxRate;
+            nval=3;
+        }
+        else if( _stricmp( prmname, "iers_tsr" ) == 0 )
+        {
+            ival=rfTx;
+            nval=7;
+            iers=1;
+        }
+        else if( _stricmp( prmname, "iers_etsr" ) == 0 )
+        {
+            prmname=strtok( NULL, " ");
+            if( ! prmname )
+            {
+                sprintf(errmess,"Missing IERS_ETSR epoch date for reference frame %.20s",rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
+            }
+            date=snap_datetime_parse( prmname, 0 );
+            if( date == UNDEFINED_DATE )
+            {
+                sprintf(errmess,"Invalid IERS_ETSR epoch date %.20s for reference frame %.20s",
+                        prmname,rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
+            }
+            ival=rfTx;
+            nval=14;
+            iers=1;
         }
         else
         {
-            break;
+            sprintf(errmess,"Invalid parameter %.20s for reference frame %.20s command",
+                    prmname, rfname);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+
+        first=1;
+        for( ; nval; nval--, ival++, first=0 )
+        {
+            char *endptr;
+            double value;
+            prmname=prmread ? prmname : strtok(NULL, " ");
+            if( ! prmname )
+            {
+                if( first )
+                {
+                    while( nval--) calcval[ival++]=calculate;
+                    break;
+                }
+                sprintf(errmess,"Missing %.20s value for reference frame %.20s command",
+                        valuetype,prmname );
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
+            }
+                
+            calcval[ival]=0;
+            value=strtod(prmname,&endptr);
+            if( endptr == prmname )
+            {
+                if( first )
+                {
+                    while( nval--) calcval[ival++]=calculate;
+                    prmread=1;
+                    break;
+                }
+                sprintf(errmess,"Invalid %.20s value %.20s for reference frame %.20s command",
+                        valuetype, prmname, rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
+            }
+            if( *endptr )
+            {
+                if( strcmp(endptr,"?" )==0 ) 
+                {
+                    calcval[ival]=1;
+                }
+                else
+                {
+                    sprintf(errmess,"Invalid %.20s value %.20s for reference frame %.20s command",
+                            valuetype, prmname, rfname);
+                    send_config_error( cfg, INVALID_DATA, errmess );
+                }
+            }
+            else
+            {
+                prmname=strtok(NULL," ");
+                if( strcmp(prmname,"?") == 0 )
+                {
+                    calcval[ival]=1;
+                }
+                else
+                {
+                    prmread=1;
+                }
+            }
+            defined[ival]=value;
+            val[ival]=value;
         }
     }
-
-    if( !rfname ) sts = MISSING_DATA;
-    if( sts != OK ) return sts;
 
     if( topocentric )
     {
@@ -1064,7 +1140,6 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
         rf=rftrans_from_id( rfid );
         if( rftrans_topocentric( rf ) ) sts = INVALID_DATA;
     }
-    set_rftrans_origintype( rf, origintype);
 
     if( sts == INVALID_DATA )
     {
@@ -1073,187 +1148,22 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
         return OK;
     }
 
-    sts = MISSING_DATA;
-
+    if( origintype != REFFRM_ORIGIN_DEFAULT ) set_rftrans_origintype( rf, origintype );
+    if( date != UNDEFINED_DATE ) set_rftrans_ref_date( rf, date );
+    
     if( iers )
     {
-        if( ! prmname )
-        {
-            sprintf(errmess,"Missing epoch date for IERS reference frame transformation");
-            send_config_error( cfg, INVALID_DATA, errmess );
-            return OK;
-        }
-        date=snap_datetime_parse( prmname, 0 );
-        if( date == UNDEFINED_DATE )
-        {
-            sprintf(errmess,"Invalid epoch date %s for IERS reference frame transformation",prmname);
-            send_config_error( cfg, INVALID_DATA, errmess );
-            return OK;
-        }
-
-        sts=OK;
-        nval=14;
-        for( i = 0; i < 14; i++ )
-        {
-            prmname = strtok( NULL, " ");
-            if( i && prmname && strcmp(prmname,"?") == 0 )
-            {
-                i--;
-                calcval[i] = 1;
-            }
-            if( ! prmname )
-            {
-                if( i == 7 ) 
-                {
-                    nval=7;
-                    break;
-                }
-                sts = MISSING_DATA;
-                break;
-            }
-            if( prmname[strlen(prmname)-1] == '?' )
-            {
-                prmname[strlen(prmname)-1] = 0;
-                calcval[i] = 1;
-            }
-            if( sscanf(prmname,"%lf",val+i) != 1 )
-            {
-                sts = MISSING_DATA;
-                break;
-            }
-        }
-        if( prmname ) prmname = strtok(NULL," ");
-        if( prmname && strcmp(prmname,"?") == 0 )
-        {
-            calcval[13] = 1;
-            prmname = strtok(NULL, " ");
-        }
-        if( sts != OK )
-        {
-            sprintf(errmess,"Invalid or missing IERS reference frame parameters");
-            send_config_error( cfg, INVALID_DATA, errmess );
-            return OK;
-        }
-        if( prmname )
-        {
-            sprintf(errmess,"Extraneous data in IERS reference frame parameters");
-            send_config_error( cfg, INVALID_DATA, errmess );
-            return OK;
-        }
-        /* Convert to legacy conventions */
-        for( int i = 0; i < nval; i++ ) { val[i] *= 0.001; calcval[i] |= calculate; }
-        for( int i = 0; i < 3; i++ ){ val[i+4] *= -1; val[i+11] *= -1; } 
-            
-        set_rftrans_ref_date( rf, date );
-        set_rftrans_translation( rf, val, calcval ); 
-        set_rftrans_scale( rf, val[3], calcval[3] );
-        set_rftrans_rotation( rf, val+4, calcval+4 );
-        if( nval > 7 )
-        {
-            set_rftrans_translation_rate( rf+7, val+7, calcval+7 );
-            set_rftrans_scale_rate( rf, val[10], calcval[10] );
-            set_rftrans_rotation_rate( rf, val+11, calcval+11 );
+        for( i=0; i<14; i++) val[i]=0.001*val[i];
+        for( i=0; i<3; i++ ) 
+        { 
+            val[rfRotx+i]=-val[rfRotx+i];
+            val[rfRotxRate+i]=-val[rfRotxRate+i];
         }
     }
-    else if( (! prmname) && calculate )
-    {
-        val[0]=val[1]=val[2]=0.0;
-        calcval[0]=calcval[1]=calcval[2]=1;
-        set_rftrans_scale( rf, 0.0, 1 ); 
-        set_rftrans_rotation( rf, val, calcval ); 
-        set_rftrans_translation( rf, val, calcval ); 
-        sts=OK;
-    }
-    else
-    {
-        while( prmname )
-        {
-            sts = OK;
-            if( _stricmp(prmname,"epoch") == 0  ) { nval = 1; nprm = 0; }
-            else if( _stricmp(prmname,"scale") == 0  ) { nval = 1; nprm = 1; }
-            else if (_stricmp(prmname,"rotation") == 0 ) { nval = 3; nprm = 2; }
-            else if (_stricmp(prmname,"translation") == 0 ) { nval = 3; nprm = 3; }
-            else if( _stricmp(prmname,"scale_rate") == 0  ) { nval = 1; nprm = 4; }
-            else if (_stricmp(prmname,"rotation_rate") == 0 ) { nval = 3; nprm = 5; }
-            else if (_stricmp(prmname,"translation_rate") == 0 ) { nval = 3; nprm = 6; }
-            else
-            {
-                sprintf(errmess,"Invalid parameter %s in reference_frame command",prmname);
-                send_config_error( cfg, INVALID_DATA, errmess );
-                return OK;
-            }
-
-            if( nprm == 0 )
-            {
-                double date = UNDEFINED_DATE;
-                prmname = strtok(NULL, " ");
-                if( prmname ) date = snap_datetime_parse( prmname, 0 );
-                if( date == UNDEFINED_DATE )
-                {
-                    sprintf(errmess,"Invalid or missing epoch date %s for reference frame transformation",prmname);
-                    send_config_error( cfg, INVALID_DATA, errmess );
-                    return OK;
-                }
-                set_rftrans_ref_date( rf, date );
-                prmname = strtok(NULL," ");
-                continue;
-            }
-
-            /* Try to read values for the parameter */
-
-            val[0] = val[1] = val[2] = 0;
-            calcval[0] = calcval[1] = calcval[2] = calculate;
-
-            prmname = strtok(NULL, " ");
-
-            if( prmname && sscanf(prmname,"%lf",val) == 1 )
-            {
-                for( i = 1; i < nval; i++ )
-                {
-                    prmname = strtok( NULL, " ");
-                    if( prmname && strcmp(prmname,"?") == 0 )
-                    {
-                        i--;
-                        calcval[i] = 1;
-                    }
-                    else if( !prmname || sscanf(prmname,"%lf",val+i) != 1 )
-                    {
-                        sts = MISSING_DATA;
-                        break;
-                    }
-                }
-                prmname = strtok(NULL," ");
-                if( prmname && strcmp(prmname,"?") == 0 )
-                {
-                    calcval[nval-1] = 1;
-                    prmname = strtok(NULL, " ");
-                }
-            }
-
-            if( sts != OK ) break;
-
-            /* Set the values */
-
-            switch( nprm )
-            {
-            case 1: set_rftrans_scale( rf, val[0], calcval[0] ); break;
-            case 2: set_rftrans_rotation( rf, val, calcval ); break;
-            case 3: set_rftrans_translation( rf, val, calcval ); break;
-            case 4: set_rftrans_scale_rate( rf, val[0], calcval[0] ); break;
-            case 5: set_rftrans_rotation_rate( rf, val, calcval ); break;
-            case 6: set_rftrans_translation_rate( rf, val, calcval ); break;
-            }
-
-        }
-    }
-
-    if( sts != OK )
-    {
-        send_config_error( cfg, MISSING_DATA, "Invalid or missing data in reference_frame command");
-    }
-
+    set_rftrans_parameters( rf, val, calcval, defined );
     return OK;
 }
+
 
 static int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

@@ -198,6 +198,15 @@ void set_rftrans_origintype( rfTransformation *rf, int origintype )
     rf->origintype = origintype;
 }
 
+void set_rftrans_parameters( rfTransformation *rf, double val[14], int calcval[14], int defined[14])
+{
+    int i;
+    for( i=0; i<14; i++ )
+    {
+        if( defined[i] ) rf->prm[i]=val[i];
+        if( calcval[i] ) rf->calcPrm[i]=1;
+    }
+}
 
 void set_rftrans_scale( rfTransformation *rf , double scale, int adjust )
 {
@@ -264,6 +273,7 @@ void set_rftrans_translation_rate( rfTransformation *rf, double tran[3], int adj
 void set_rftrans_origin ( rfTransformation *rf, double origin[3] )
 {
     veccopy(origin,rf->origin);
+    rf->isorigin = (origin[0] != 0 || origin[1] != 0 || origin[2] != 0) ? 1 : 0;
 }
 
 void flag_rftrans_used( rfTransformation *rf, int usage_type )
@@ -276,6 +286,58 @@ void flag_rftrans_used( rfTransformation *rf, int usage_type )
         rf->istrans = 1;
         for( i=0; i<3; i++ ) rf->prmUsed[rfTx+i] = 1;
     }
+}
+
+/* Determine whether it is OK to use an offset origin for
+ * reference frame calculations
+ */
+
+void setup_rftrans_calcs( rfTransformation *rf )
+{
+    int calctrans;
+    int calctransrate;
+
+    /* If only used vectors rather than absolute positions then
+     * then cannot calculate translations
+     */
+
+    if( ! rf->istrans ) 
+    {
+        rf->calcPrm[rfTx]=rf->calcPrm[rfTy]=rf->calcPrm[rfTz]=0;
+        rf->calcPrm[rfTxRate]=rf->calcPrm[rfTyRate]=rf->calcPrm[rfTzRate]=0;
+    }
+
+    /* Set the calculation types */
+
+    rf->calctrans = (rf->calcPrm[rfTx] || rf->calcPrm[rfTy] || rf->calcPrm[rfTx]) ? 1 : 0;
+    calctrans = (rf->calcPrm[rfTx] && rf->calcPrm[rfTy] && rf->calcPrm[rfTx]);
+    rf->calcrot = (rf->calcPrm[rfRotx] || rf->calcPrm[rfRoty] || rf->calcPrm[rfRotx]) ? 1 : 0;
+    rf->calcscale = rf->calcPrm[rfScale];
+
+    rf->calctransrate = (rf->calcPrm[rfTxRate] || rf->calcPrm[rfTyRate] || rf->calcPrm[rfTxRate]) ? 1 : 0;
+    calctransrate = (rf->calcPrm[rfTxRate] && rf->calcPrm[rfTyRate] && rf->calcPrm[rfTxRate]);
+    rf->calcrotrate = (rf->calcPrm[rfRotxRate] || rf->calcPrm[rfRotyRate] || rf->calcPrm[rfRotxRate]) ? 1 : 0;
+    rf->calcscalerate = rf->calcPrm[rfScaleRate];
+
+    /* Set flag for using offset origin in calculations */
+    rf->isorigin=1;
+
+    /* If only using vectors then no advantage in offsetting origin */
+    if( ! rf->istrans ) rf->isorigin=0;
+
+    /* If the user has requested not to, then don't */
+    if( rf->origintype == REFFRM_ORIGIN_ZERO ) rf->isorigin=0;
+
+    /* If calculating rotation and scale, but not equivalent rates
+     * then can't offset origin
+     */
+
+    if( (rf->calcrot || rf->calcscale) && ! calctrans ) rf->isorigin=0;
+    if( (rf->calcrotrate || rf->calcscalerate) && ! calctransrate ) rf->isorigin=0;
+
+    /* If not calculating scales or rotations then no point */
+
+    if( ! (rf->calcrot || rf->calcrotrate || rf->calcscale || rf->calcscalerate ) ) rf->isorigin=0;
 }
 
 

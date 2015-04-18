@@ -22,13 +22,13 @@ reference_frame GPS_T translation 0 ? 0 ? 0 ?
 reference_frame GPS_S scale 0 ?
 reference_frame GPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
 reference_frame GPS_R rotation 0 ? 0 ? 0 ?
-reference_frame calculate GPS_TRS scale rotation translation
+reference_frame GPS_TRS calculate scale rotation translation
 
-reference_frame topocentric TGPS_T translation 0 ? 0 ? 0 ?
-reference_frame topocentric TGPS_S scale 0 ?
-reference_frame topocentric TGPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
-reference_frame topocentric TGPS_R rotation 0 ? 0 ? 0 ?
-reference_frame topocentric calculate TGPS_TRS scale rotation translation
+reference_frame TGPS_T topocentric translation 0 ? 0 ? 0 ?
+reference_frame TGPS_S topocentric scale 0 ?
+reference_frame TGPS_TS topocentric translation 0 ? 0 ? 0 ? scale 0 ?
+reference_frame TGPS_R topocentric rotation 0 ? 0 ? 0 ?
+reference_frame TGPS_TRS topocentric calculate scale rotation translation
 
 fix all
 

@@ -181,12 +181,6 @@ static const char *valformat[] =
 };
 
 static const char *missingstr = "      -        ";
-static int use_refframe_topocentre=1;
-
-void set_use_refframe_topocentre( int use )
-{
-    use_refframe_topocentre=use;
-}
 
 
 static void init_rftrans_prms( rfTransformation *rf )
@@ -194,6 +188,7 @@ static void init_rftrans_prms( rfTransformation *rf )
     char prmname[REFFRAMELEN + MAXPRMNAMELEN];
     char *prmtype;
     const char **prmNames;
+    double origin[3];
     int i;
 
     /* Define the parameters of the reference frame */
@@ -203,6 +198,8 @@ static void init_rftrans_prms( rfTransformation *rf )
     prmtype = prmname + strlen(prmname);
 
     prmNames = rf->istopo ? topoPrmNames : geoPrmNames;
+
+    setup_rftrans_calcs( rf );
 
     for( i = 0; i < 14; i++ )
     {
@@ -217,26 +214,14 @@ static void init_rftrans_prms( rfTransformation *rf )
         if( rf->prmUsed[i] ) flag_param_used( rf->prmId[i] );
     }
 
-    rf->calctrans = (rf->calcPrm[rfTx] || rf->calcPrm[rfTy] || rf->calcPrm[rfTx]) ? 1 : 0;
-    rf->calcrot = (rf->calcPrm[rfRotx] || rf->calcPrm[rfRoty] || rf->calcPrm[rfRotx]) ? 1 : 0;
-    rf->calcscale = rf->calcPrm[rfScale];
-
-    rf->calctransrate = (rf->calcPrm[rfTxRate] || rf->calcPrm[rfTyRate] || rf->calcPrm[rfTxRate]) ? 1 : 0;
-    rf->calcrotrate = (rf->calcPrm[rfRotxRate] || rf->calcPrm[rfRotyRate] || rf->calcPrm[rfRotxRate]) ? 1 : 0;
-    rf->calcscalerate = rf->calcPrm[rfScaleRate];
-
     /* Set up an origin unless forcing otherwise */
  
-    rf->isorigin = rf->origintype == REFFRM_ORIGIN_DEFAULT ? use_refframe_topocentre :
-                   rf->origintype == REFFRM_ORIGIN_TOPOCENTRE ? 1 : 0;
-
+    origin[0] = origin[1] = origin[2] = 0.0;
     if( rf->isorigin )
     {
-        double origin[3];
         get_network_topocentre_xyz( net, origin );
-        set_rftrans_origin( rf, origin );
     }
-
+    set_rftrans_origin( rf, origin );
 }
 
 static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
@@ -435,7 +420,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     double c1, c2, c3, cmin, cmax, azmax;
     int i, k;
     int userates=rf->userates;;
-    int nval, calced;
+    int calced;
     tmatrix *trot;
 
     /* s is source system, d is destination, t = topocentric, g = geocentric */
