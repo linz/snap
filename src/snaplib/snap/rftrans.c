@@ -119,6 +119,7 @@ static int create_rftrans( const char *name, int topocentric )
     rf->userates=0;
     rf->usetrans = 0;
     rf->origintype = REFFRM_ORIGIN_DEFAULT;
+    rf->localoriginok = 0;
     rf->localorigin = 0;
     rf->istopo = topocentric ? 1 : 0;
     rf->calctrans = 0;
@@ -292,7 +293,7 @@ void flag_rftrans_used( rfTransformation *rf, int usage_type )
  * reference frame calculations
  */
 
-void setup_rftrans_calcs( rfTransformation *rf )
+static void setup_rftrans_flags( rfTransformation *rf )
 {
     int calctrans;
     int calctransrate;
@@ -306,7 +307,6 @@ void setup_rftrans_calcs( rfTransformation *rf )
         rf->calcPrm[rfTx]=rf->calcPrm[rfTy]=rf->calcPrm[rfTz]=0;
         rf->calcPrm[rfTxRate]=rf->calcPrm[rfTyRate]=rf->calcPrm[rfTzRate]=0;
     }
-
 
     /* Set the calculation types */
     /* calctrans and calctransrate check if all translation parameters are calculated */
@@ -334,24 +334,24 @@ void setup_rftrans_calcs( rfTransformation *rf )
     if( rf->calctransrate || rf->calcrotrate || rf->calcscalerate ) rf->userates=1;
 
     /* Set flag for using offset origin in calculations */
-    rf->localorigin=1;
+    rf->localoriginok=1;
 
     /* If only using vectors then no advantage in offsetting origin */
-    if( ! rf->usetrans ) rf->localorigin=0;
+    if( ! rf->usetrans ) rf->localoriginok=0;
 
     /* If the user has requested not to, then don't */
-    if( rf->origintype == REFFRM_ORIGIN_ZERO ) rf->localorigin=0;
+    if( rf->origintype == REFFRM_ORIGIN_ZERO ) rf->localoriginok=0;
 
     /* If calculating rotation and scale, but not equivalent rates
      * then can't offset origin
      */
 
-    if( (rf->calcrot || rf->calcscale) && ! calctrans ) rf->localorigin=0;
-    if( (rf->calcrotrate || rf->calcscalerate) && ! calctransrate ) rf->localorigin=0;
+    if( (rf->calcrot || rf->calcscale) && ! calctrans ) rf->localoriginok=0;
+    if( (rf->calcrotrate || rf->calcscalerate) && ! calctransrate ) rf->localoriginok=0;
 
     /* If not calculating scales or rotations then no point */
 
-    if( ! (rf->calcrot || rf->calcrotrate || rf->calcscale || rf->calcscalerate ) ) rf->localorigin=0;
+    if( ! (rf->calcrot || rf->calcrotrate || rf->calcscale || rf->calcscalerate ) ) rf->localoriginok=0;
 }
 
 
@@ -396,13 +396,68 @@ static void calcdrotdang( int axis, double cs, double sn, tmatrix drot )
 
 #define DS (double *)
 
+static void calc_tmat( rfTransformation *rf, double *prm, tmatrix tmat, tmatrix invtmat )
+{
+    double cs, sn;
+    tmatrix mult;
+    int axis;
+    double angle;
+    double scl;
+    int i, j;
+
+    if( !rf->istopo )
+    {
+        calcrotmat( 0, 1.0, 0.0, tmat );
+    }
+    else
+    {
+        memcpy(tmat,rf->toporot,sizeof(tmatrix) );
+    }
+
+    for( axis = 3; axis--; )
+    {
+        angle = prm[rfRotx+axis] * STOR;
+        cs = cos(angle);
+        sn = sin(angle);
+        calcrotmat( axis, cs, sn, mult );
+        premult3( DS mult, DS tmat, DS tmat, 3 );
+    }
+
+    if( rf->istopo )
+    {
+        premult3( DS (rf->invtoporot), DS tmat, DS tmat, 3 );
+    }
+
+    invtmat[0][0] = tmat[0][0];
+    invtmat[0][1] = tmat[1][0];
+    invtmat[0][2] = tmat[2][0];
+    invtmat[1][0] = tmat[0][1];
+    invtmat[1][1] = tmat[1][1];
+    invtmat[1][2] = tmat[2][1];
+    invtmat[2][0] = tmat[0][2];
+    invtmat[2][1] = tmat[1][2];
+    invtmat[2][2] = tmat[2][2];
+
+    /* Apply the scale factor */
+
+    scl = 1.0 + prm[rfScale] * 1.0e-6;
+
+    for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
+    {
+        tmat[i][j] *= scl;
+        invtmat[i][j] /= scl;
+    }
+}
+
+#define TMAT_CALC_MULT 10
+
 void setup_rftrans( rfTransformation *rf )
 {
     tmatrix mult;
     double angle, cs, sn, scl;
     int i, j, k, axis;
-    tmatrix temp;
 
+    setup_rftrans_flags( rf );
 
     for( i = 0; i < 3; i++ ) for( j = 0; j < 3; j++ )
         {
@@ -410,26 +465,54 @@ void setup_rftrans( rfTransformation *rf )
             rf->invtoporot[i][j] = invtoporot[i][j];
         }
 
-    /*  Calc all the matrices - first set them to identity matrices,
-        then premultiply by each rotation component in turn  */
+    /* Calculate the translation component */
 
     if( !rf->istopo )
     {
-        calcrotmat( 0, 1.0, 0.0, rf->tmat );
-        for( i = 0; i<3; i++ ) calcrotmat( 0, 1.0, 0.0, rf->dtmatdrot[i] );
         rf->trans[0] = rf->prm[rfTx];
         rf->trans[1] = rf->prm[rfTy];
         rf->trans[2] = rf->prm[rfTz];
     }
     else
     {
-        memcpy(rf->tmat,toporot,sizeof(tmatrix) );
+        premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
+    }
+
+
+    /* Calculate that transformation matrix and inverse.
+     * Calculate for rates by averaging over TMAT_CALC_MULT years after ref epoch */
+
+    calc_tmat( rf, rf->prm, rf->tmat, rf->invtmat );
+    if( rf->userates )
+    {
+        double prm[7];
+        for( i=0; i<7; i++ )
+        {
+            prm[i]=rf->prm[i]+rf->prm[i+7]*TMAT_CALC_MULT;
+        }
+        calc_tmat( rf, prm, rf->tmatrate, rf->invtmatrate );
+        for( i=0; i<3; i++ )
+        {
+            for( j=0; j<3; j++ )
+            {
+                rf->tmatrate[i][j]=(rf->tmatrate[i][j]-rf->tmat[i][j])/TMAT_CALC_MULT;
+                rf->invtmatrate[i][j]=(rf->invtmatrate[i][j]-rf->invtmat[i][j])/TMAT_CALC_MULT;
+            }
+        }
+    }
+        
+    /*  Calc change of coords for unit change in rotations */
+
+    if( !rf->istopo )
+    {
+        for( i = 0; i<3; i++ ) calcrotmat( 0, 1.0, 0.0, rf->dtmatdrot[i] );
+    }
+    else
+    {
         for( i=0; i<3; i++ )
         {
             memcpy(rf->dtmatdrot[i],toporot,sizeof(tmatrix) );
         }
-
-        premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
     }
 
     for( axis = 3; axis--; )
@@ -439,38 +522,24 @@ void setup_rftrans( rfTransformation *rf )
         sn = sin(angle);
 
         calcrotmat( axis, cs, sn, mult );
-
-        premult3( DS mult, DS rf->tmat, DS rf->tmat, 3 );
         for( i = 0; i<3; i++ )
+        {
             if( i != axis )
+            {
                 premult3( DS mult, DS rf->dtmatdrot[i], DS rf->dtmatdrot[i], 3 );
-
+            }
+        }
         calcdrotdang( axis, cs, sn, mult );
         premult3( DS mult, DS rf->dtmatdrot[axis], DS rf->dtmatdrot[axis], 3 );
-
-        calcrotmat( axis, cs, -sn, mult );
-        memcpy( temp, rf->invtmat, sizeof( tmatrix ) );
-        premult3( DS temp, DS mult, DS rf->invtmat, 3 );
     }
 
     if( rf->istopo )
     {
-        premult3( DS invtoporot, DS rf->tmat, DS rf->tmat, 3 );
         for( i=0; i<3; i++ )
         {
-            premult3( DS invtoporot, DS rf->dtmatdrot[i], DS rf->dtmatdrot[i], 3 );
+            premult3( DS (rf->invtoporot), DS rf->dtmatdrot[i], DS rf->dtmatdrot[i], 3 );
         }
     }
-
-    rf->invtmat[0][0] = rf->tmat[0][0];
-    rf->invtmat[0][1] = rf->tmat[1][0];
-    rf->invtmat[0][2] = rf->tmat[2][0];
-    rf->invtmat[1][0] = rf->tmat[0][1];
-    rf->invtmat[1][1] = rf->tmat[1][1];
-    rf->invtmat[1][2] = rf->tmat[2][1];
-    rf->invtmat[2][0] = rf->tmat[0][2];
-    rf->invtmat[2][1] = rf->tmat[1][2];
-    rf->invtmat[2][2] = rf->tmat[2][2];
 
     /* Apply the scale factor */
 
@@ -478,91 +547,9 @@ void setup_rftrans( rfTransformation *rf )
 
     for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
     {
-        rf->tmat[i][j] *= scl;
-        rf->invtmat[i][j] /= scl;
         for( k=0; k<3; k++ )
         {
             rf->dtmatdrot[k][i][j] *= scl;
-        }
-    }
-
-    if( rf->userates )
-    {
-        if( !rf->istopo )
-        {
-            calcrotmat( 0, 1.0, 0.0, rf->tmatrate );
-            for( i = 0; i<3; i++ ) calcrotmat( 0, 1.0, 0.0, rf->dtmatdrotrate[i] );
-            rf->transrate[0] = rf->prm[rfTxRate];
-            rf->transrate[1] = rf->prm[rfTyRate];
-            rf->transrate[2] = rf->prm[rfTzRate];
-        }
-        else
-        {
-            memcpy(rf->tmatrate,toporot,sizeof(tmatrix) );
-            for( i=0; i<3; i++ )
-            {
-                memcpy(rf->dtmatdrotrate[i],toporot,sizeof(tmatrix) );
-            }
-
-            premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->transrate, 1 );
-        }
-
-        for( axis = 3; axis--; )
-        {
-            angle = rf->prm[rfRotxRate+axis] * STOR;
-            cs = cos(angle);
-            sn = sin(angle);
-
-            calcrotmat( axis, cs, sn, mult );
-
-            premult3( DS mult, DS rf->tmatrate, DS rf->tmatrate, 3 );
-            for( i = 0; i<3; i++ )
-                if( i != axis )
-                    premult3( DS mult, DS rf->dtmatdrotrate[i], DS rf->dtmatdrotrate[i], 3 );
-
-            calcdrotdang( axis, cs, sn, mult );
-            premult3( DS mult, DS rf->dtmatdrotrate[axis], DS rf->dtmatdrotrate[axis], 3 );
-
-            calcrotmat( axis, cs, -sn, mult );
-            memcpy( temp, rf->invtmatrate, sizeof( tmatrix ) );
-            premult3( DS temp, DS mult, DS rf->invtmatrate, 3 );
-        }
-        /* As dealing with rate of change need to remove 1 from leading diagonal */
-        rf->tmatrate[0][0] -= 1;
-        rf->tmatrate[1][1] -= 1;
-        rf->tmatrate[2][2] -= 1;
-
-        if( rf->istopo )
-        {
-            premult3( DS invtoporot, DS rf->tmatrate, DS rf->tmatrate, 3 );
-            for( i=0; i<3; i++ )
-            {
-                premult3( DS invtoporot, DS rf->dtmatdrotrate[i], DS rf->dtmatdrotrate[i], 3 );
-            }
-        }
-
-        rf->invtmatrate[0][0] = rf->tmatrate[0][0];
-        rf->invtmatrate[0][1] = rf->tmatrate[1][0];
-        rf->invtmatrate[0][2] = rf->tmatrate[2][0];
-        rf->invtmatrate[1][0] = rf->tmatrate[0][1];
-        rf->invtmatrate[1][1] = rf->tmatrate[1][1];
-        rf->invtmatrate[1][2] = rf->tmatrate[2][1];
-        rf->invtmatrate[2][0] = rf->tmatrate[0][2];
-        rf->invtmatrate[2][1] = rf->tmatrate[1][2];
-        rf->invtmatrate[2][2] = rf->tmatrate[2][2];
-
-        /* Apply the scale factor */
-
-        scl = 1.0 + rf->prm[rfScaleRate] * 1.0e-6;
-
-        for( i=0; i<3; i++ ) for( j=0 ; j<3; j++ )
-        {
-            rf->tmatrate[i][j] *= scl;
-            rf->invtmatrate[i][j] /= scl;
-            for( k=0; k<3; k++ )
-            {
-                rf->dtmatdrotrate[k][i][j] *= scl;
-            }
         }
     }
 }

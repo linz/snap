@@ -191,6 +191,8 @@ static void init_rftrans_prms( rfTransformation *rf )
     double origin[3];
     int i;
 
+    setup_rftrans( rf );
+
     /* Define the parameters of the reference frame */
 
     strncpy( prmname, rf->name, REFFRAMELEN );
@@ -198,8 +200,6 @@ static void init_rftrans_prms( rfTransformation *rf )
     prmtype = prmname + strlen(prmname);
 
     prmNames = rf->istopo ? topoPrmNames : geoPrmNames;
-
-    setup_rftrans_calcs( rf );
 
     for( i = 0; i < 14; i++ )
     {
@@ -217,7 +217,7 @@ static void init_rftrans_prms( rfTransformation *rf )
     /* Set up an origin unless forcing otherwise */
  
     origin[0] = origin[1] = origin[2] = 0.0;
-    if( rf->localorigin )
+    if( rf->localoriginok )
     {
         get_network_topocentre_xyz( net, origin );
     }
@@ -695,7 +695,7 @@ void vd_rftrans_corr_vector( int nrf, double vd[3], double date,
             {
                 for( axis = 0; axis < 3; axis++ )
                 {
-                    premult3( (double *) rf->dtmatdrotrate[axis], vd, dvdprm, 1 );
+                    premult3( (double *) rf->dtmatdrot[axis], vd, dvdprm, 1 );
                     for( i = 0; i < 3; i++ )
                     {
                         set_param_obseq( rf->prmId[rfRotxRate+axis], hA, irow+i, dmult*dvdprm[i] );
@@ -737,7 +737,7 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
 {
 
     rfTransformation *rf;
-    double dvdprm[3], scl;
+    double dvdprm[3];
     double dmult;
     int i, axis;
 
@@ -766,16 +766,14 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
 
     if( hA )
     {
-
         /* Scale factor */
-
+        
         if( rf->calcscale )
         {
             premult3( (double *) rf->tmat, vd, dvdprm, 1 );
-            scl = 1.0e-6 / ( 1 + rf->prm[rfScale] * 1.0e-6 );
 
             for( i = 0; i < 3; i++ )
-                set_param_obseq( rf->prmId[rfScale], hA, irow+i, dvdprm[i]*scl );
+                set_param_obseq( rf->prmId[rfScale], hA, irow+i, dvdprm[i]*1.0e-6 );
         }
 
         /* Each translation component */
@@ -820,10 +818,8 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
             if( rf->calcscalerate )
             {
                 premult3( (double *) rf->tmat, vd, dvdprm, 1 );
-                scl = 1.0e-6 / ( 1 + dmult*rf->prm[rfScale] * 1.0e-6 );
-
                 for( i = 0; i < 3; i++ )
-                    set_param_obseq( rf->prmId[rfScale], hA, irow+i, dmult*dvdprm[i]*scl );
+                    set_param_obseq( rf->prmId[rfScale], hA, irow+i, dmult*dvdprm[i]*1.0e-6 );
             }
 
             /* Each translation component */
@@ -843,7 +839,6 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
                     {
                         set_param_obseq( rf->prmId[rfTxRate+axis], hA, irow+i, dmult*dvdprm[i] );
                     }
-
                 }
             }
 
@@ -853,7 +848,7 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
             {
                 for( axis = 0; axis < 3; axis++ )
                 {
-                    premult3( (double *) rf->dtmatdrotrate[axis], vd, dvdprm, 1 );
+                    premult3( (double *) rf->dtmatdrot[axis], vd, dvdprm, 1 );
                     for( i = 0; i < 3; i++ )
                     {
                         set_param_obseq( rf->prmId[rfRotxRate+axis], hA, irow+i, dmult*dvdprm[i] );

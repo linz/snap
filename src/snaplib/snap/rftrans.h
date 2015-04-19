@@ -49,6 +49,7 @@ typedef struct
     unsigned  userates:1;  /* True if rates are being used or calculated */
     unsigned  istopo:1; /* True if the reference frame is topocentric */
     unsigned  usetrans:1; /* True if the translation component is used */
+    unsigned  localoriginok:1; /* True if the origin can be offset */
     unsigned  localorigin:1; /* True if the origin is offset */
     unsigned  calctrans:1; /* True if translation components are being calculated */
     unsigned  calcrot:1;   /* True if rotations components are being calculated */
@@ -63,10 +64,9 @@ typedef struct
     double transrate[3];  /* Translation rate components as XYZ */
     tmatrix tmat;         /* The matrix (1+s).Rx.Ry.Rz           */
     tmatrix invtmat;      /* The inverse of tmat                */
-    tmatrix dtmatdrot[3]; /* The differential of tmat wrt x rot. */
     tmatrix tmatrate;     /* The matrix (1+s).Rx.Ry.Rz           */
     tmatrix invtmatrate;  /* The inverse of tmat                */
-    tmatrix dtmatdrotrate[3]; /* The differential of tmat wrt x rot. */
+    tmatrix dtmatdrot[3]; /* The differential of tmat wrt x rot. */
     tmatrix toporot;      /* Conversion to and from topocentric system */
     tmatrix invtoporot;
 } rfTransformation;
@@ -111,10 +111,6 @@ void set_rftrans_origin( rfTransformation *rf, double origin[3] );
 
 void flag_rftrans_used( rfTransformation *rf, int usage_type );
 
-/* Set calculation flags and localorigin */
-
-void setup_rftrans_calcs( rfTransformation *rf );
-
 /* tmat converts a vector to the reference frame,
    invtmat converts a vector from the reference frame */
 
@@ -127,6 +123,5 @@ const char *   rftrans_name( rfTransformation *rf );
 
 void rftrans_correct_vector( int rfid, double vd[3], double date );
 void rftrans_correct_point( int rfid, double vd[3], double date );
-
 
 #endif

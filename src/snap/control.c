@@ -1111,6 +1111,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
                     sprintf(errmess,"Invalid %.20s value %.20s for reference frame %.20s command",
                             valuetype, prmname, rfname);
                     send_config_error( cfg, INVALID_DATA, errmess );
+                    return OK;
                 }
             }
             else
@@ -1125,36 +1126,26 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
                     prmread=1;
                 }
             }
-            defined[ival]=value;
+            if( defined[ival] )
+            {
+                sprintf(errmess,"Duplicated %.20s value definition for reference frame %.20s command",
+                        valuetype, prmname, rfname);
+                send_config_error( cfg, INVALID_DATA, errmess );
+                return OK;
+            }
+            defined[ival]=1;
             val[ival]=value;
         }
     }
-
-    if( topocentric )
-    {
-        rfid = get_topocentric_rftrans_id( rfname );
-        rf=rftrans_from_id( rfid );
-        if( ! rftrans_topocentric( rf ) ) sts = INVALID_DATA;
-    }
-    else
-    {
-        rfid = get_rftrans_id( rfname );
-        rf=rftrans_from_id( rfid );
-        if( rftrans_topocentric( rf ) ) sts = INVALID_DATA;
-    }
-
-    if( sts == INVALID_DATA )
-    {
-        sprintf(errmess,"Ref frame %s defined as both topocentric and geocentric",rfname);
-        send_config_error( cfg, INVALID_DATA, errmess );
-        return OK;
-    }
-
-    if( origintype != REFFRM_ORIGIN_DEFAULT ) set_rftrans_origintype( rf, origintype );
-    if( date != UNDEFINED_DATE ) set_rftrans_ref_date( rf, date );
     
     if( iers )
     {
+        if( topocentric )
+        {
+            sprintf(errmess,"Ref frame %s cannot be defined with IERS parameters and topocentric",rfname);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
         for( i=0; i<14; i++) val[i]=0.001*val[i];
         for( i=0; i<3; i++ ) 
         { 
@@ -1162,6 +1153,33 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             val[rfRotxRate+i]=-val[rfRotxRate+i];
         }
     }
+
+    if( topocentric )
+    {
+        rfid = get_topocentric_rftrans_id( rfname );
+        rf=rftrans_from_id( rfid );
+        if( ! rftrans_topocentric( rf ) ) 
+        {
+            sprintf(errmess,"Ref frame %s defined as both topocentric and geocentric",rfname);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+    }
+    else
+    {
+        rfid = get_rftrans_id( rfname );
+        rf=rftrans_from_id( rfid );
+        if( rftrans_topocentric( rf ) && iers ) 
+        {
+            sprintf(errmess,"Topocentric ref frame %s cannot be defined with IERS parameters",rfname);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+    }
+
+    if( origintype != REFFRM_ORIGIN_DEFAULT ) set_rftrans_origintype( rf, origintype );
+    if( date != UNDEFINED_DATE ) set_rftrans_ref_date( rf, date );
+
     set_rftrans_parameters( rf, val, calcval, defined );
     return OK;
 }
