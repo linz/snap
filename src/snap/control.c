@@ -1085,7 +1085,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
                 return OK;
             }
                 
-            calcval[ival]=0;
+            calcval[ival]=calculate;
             value=strtod(prmname,&endptr);
             if( endptr == prmname )
             {
@@ -1129,7 +1129,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             if( defined[ival] )
             {
                 sprintf(errmess,"Duplicated %.20s value definition for reference frame %.20s command",
-                        valuetype, prmname, rfname);
+                        valuetype, rfname);
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
@@ -1233,6 +1233,7 @@ static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int l
 {
     char *types;
     char *column;
+    char *nextcol;
     char *saveptr, save;
     char title1[81];
     char title2[81];
@@ -1245,25 +1246,35 @@ static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int l
     /* If types doesn't define valid types, then assume it is all and
      * use as column definition */
 
+    nextcol=types;
     if( define_residual_formats( types, code ) == OK )
     {
-        string = strtok( NULL, "\n");
+        nextcol=0;
     }
-    else
-    {
-        string = types;
-    }
+    string = strtok( NULL, "\n");
 
-    while( NULL != (column = strtok( string, " " )) )
+    while( 1 )
     {
         char *endcol;
         char *number;
         int valid = 1;
         int i;
+
+        if( nextcol )
+        {
+            column=nextcol;
+            nextcol=0;
+        }
+        else
+        {
+            column = strtok( string, " " );
+            string = strtok( NULL, "\n" );  /* Save a pointer to the rest */
+        }
+        if( ! column ) break;
+
         width = 0;
         ttl1 = NULL;
         ttl2 = NULL;
-        string = strtok( NULL, "\n" );  /* Save a pointer to the rest */
         for( endcol = column; *endcol; endcol++ )
         {
             if( *endcol == ':' ) break;

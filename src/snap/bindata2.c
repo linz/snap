@@ -771,9 +771,6 @@ static int add_residual_field_def( int type, const char *code, int width, const 
         column |= CLASSIFICATION_FIELD;
     }
 
-    /* Would be neat to do something with classifications here, say
-       c=xxxxx */
-
     if( column != INVALID_FIELD )
     {
         lc = listing_format->col + listing_format->ncolumn;

@@ -45,6 +45,7 @@ typedef struct
     double prm[14];        /* Parameters of the transformation */
     double prmCvr[105];
     char calcPrm[14];
+    int usage;            /* Or'ed usage flags */
     int prmId[14];       /* The adjustment parameter ids of the tranformation */
     unsigned  userates:1;  /* True if rates are being used or calculated */
     unsigned  istopo:1; /* True if the reference frame is topocentric */
@@ -58,7 +59,7 @@ typedef struct
     unsigned  calcrotrate:1;   /* True if rotations components are being calculated */
     unsigned  calcscalerate:1; /* True if scale is being calculated */
     int   origintype;       /* One of the REFFRM_ORIGIN_ options */
-    char  prmUsed[14];     /* True if the reference frame is used  in data sets */
+    char  prmUsed[14];     /* True if the reference frame is used in data sets */
     double origin[3];     /* The reference point for the rotation and scale */
     double trans[3];      /* Translation components as XYZ */
     double transrate[3];  /* Translation rate components as XYZ */

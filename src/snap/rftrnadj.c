@@ -227,7 +227,7 @@ static void init_rftrans_prms( rfTransformation *rf )
 static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
 {
     int i, j;
-    double cvr[28];
+    double cvr[105];
     double dummy[14];
     int rowidx[14];
     int rowno[14];
@@ -819,7 +819,7 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
             {
                 premult3( (double *) rf->tmat, vd, dvdprm, 1 );
                 for( i = 0; i < 3; i++ )
-                    set_param_obseq( rf->prmId[rfScale], hA, irow+i, dmult*dvdprm[i]*1.0e-6 );
+                    set_param_obseq( rf->prmId[rfScaleRate], hA, irow+i, dmult*dvdprm[i]*1.0e-6 );
             }
 
             /* Each translation component */

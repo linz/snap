@@ -116,6 +116,7 @@ static int create_rftrans( const char *name, int topocentric )
     rf->name = copy_string( name );
     _strupr( rf->name );
     rf->refepoch=DEFAULT_REF_EPOCH;
+    rf->usage=0;
     rf->userates=0;
     rf->usetrans = 0;
     rf->origintype = REFFRM_ORIGIN_DEFAULT;
@@ -136,6 +137,9 @@ static int create_rftrans( const char *name, int topocentric )
     rf->trans[0] = 0.0;
     rf->trans[1] = 0.0;
     rf->trans[2] = 0.0;
+    rf->transrate[0] = 0.0;
+    rf->transrate[1] = 0.0;
+    rf->transrate[2] = 0.0;
 
     for( i = 0; i < 14; i++ )
     {
@@ -280,12 +284,21 @@ void set_rftrans_origin ( rfTransformation *rf, double origin[3] )
 void flag_rftrans_used( rfTransformation *rf, int usage_type )
 {
     int i;
+    rf->usage |= usage_type;
     rf->prmUsed[rfScale] = 1;
-    for( i=0; i<3; i++ ) rf->prmUsed[rfRotx+i] = 1;
+    rf->prmUsed[rfScaleRate] = 1;
+    for( i=0; i<3; i++ ) 
+    {
+        rf->prmUsed[rfRotx+i] = 1;
+        rf->prmUsed[rfRotxRate+i] = 1;
+    }
     if( usage_type == FRF_ABSOLUTE )
     {
-        rf->usetrans = 1;
-        for( i=0; i<3; i++ ) rf->prmUsed[rfTx+i] = 1;
+        for( i=0; i<3; i++ ) 
+        {
+            rf->prmUsed[rfTx+i] = 1;
+            rf->prmUsed[rfTxRate+i] = 1;
+        }
     }
 }
 
@@ -299,13 +312,19 @@ static void setup_rftrans_flags( rfTransformation *rf )
     int calctransrate;
 
     /* If only used vectors rather than absolute positions then
-     * then cannot calculate translations
+     * then cannot calculate translations.  
+     *
+     * Only apply this if usage flag has been set..
      */
 
-    if( ! rf->usetrans ) 
+    if( rf->usage )
     {
-        rf->calcPrm[rfTx]=rf->calcPrm[rfTy]=rf->calcPrm[rfTz]=0;
-        rf->calcPrm[rfTxRate]=rf->calcPrm[rfTyRate]=rf->calcPrm[rfTzRate]=0;
+        rf->usetrans = rf->usage & FRF_ABSOLUTE ? 1 : 0;
+        if( ! rf->usetrans ) 
+        {
+            rf->calcPrm[rfTx]=rf->calcPrm[rfTy]=rf->calcPrm[rfTz]=0;
+            rf->calcPrm[rfTxRate]=rf->calcPrm[rfTyRate]=rf->calcPrm[rfTzRate]=0;
+        }
     }
 
     /* Set the calculation types */
@@ -472,11 +491,16 @@ void setup_rftrans( rfTransformation *rf )
         rf->trans[0] = rf->prm[rfTx];
         rf->trans[1] = rf->prm[rfTy];
         rf->trans[2] = rf->prm[rfTz];
+        rf->transrate[0] = rf->prm[rfTxRate];
+        rf->transrate[1] = rf->prm[rfTyRate];
+        rf->transrate[2] = rf->prm[rfTzRate];
     }
     else
     {
         premult3( (double *) rf->invtoporot, rf->prm+rfTx, rf->trans, 1 );
+        premult3( (double *) rf->invtoporot, rf->prm+rfTxRate, rf->transrate, 1 );
     }
+
 
 
     /* Calculate that transformation matrix and inverse.
