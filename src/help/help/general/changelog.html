@@ -33,7 +33,8 @@ even if focus is restored.
 <p>Enhancement: Reference frames for GNSS baseline and point position data can now
 include time dependent terms (rates of change of translation, scale, and orientation).
 <b>Note:</b> this has required some changes to the <a href="../files/cmdcfg/cmd_reference_frame.html">reference frame</a> command which means that some old command files may need
-modification to work as previously.</p>
+modification to work as previously.  Also added to the reference frame options in the 
+<a href="../files/cmd_list.html">list</a> command.</p>
 <p>Enhancement: Added the <a href="../files/cmdcfg/cmd_recode.html">recode</a> and <a href="../files/cmdcfg/cmd_data_file.html">data_file .. recode</a> commands to allow recoding stations read from
 command file. This allows stations in data files to be recoded, optionally for specific date ranges.  This
 can be used where stations are miscoded in data files, to test if stations have moved for
@@ -43,6 +44,7 @@ specific ranges of dates, and to remove observations from data files (in the sam
 coordinate offsets to apply at each station.</p>
 <p>Enhancement: Added an option for selecting station inside or outside a polygon area in <a href="../files/cmdcfg/cmd_stn_list.html">station lists</a>.
 </p>
+<p>Enhancement: Added <a href="../files/cmdcfg/cmd_min_iterations.html">min_iterations</a> command.</p>
 <p>Enhancement: Fixed precision of GX (GPS point position) data in output.</p>
 <p>Enhancement: Increased precision of GPS datum transformation parameters.</p>
 <p>Enhancement: Changed format of dumped observation equations to JSON format to more easily import into other software.</p>
