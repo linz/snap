@@ -19,6 +19,7 @@
 #include "util/pi.h"
 #include "util/calcdltfile.hpp"
 #include "util/recordstream.hpp"
+#include "util/datafileinput.hpp"
 #include "util/errdef.h"
 
 
@@ -106,7 +107,7 @@ void SnapCsvObs::CsvObservation::definitionError( const string &message )
     }
     else
     {
-        throw Error(message);
+        throw RecordError(message);
     }
 }
 
@@ -118,7 +119,7 @@ void SnapCsvObs::CsvObservation::runtimeError( const string &message )
     }
     else
     {
-        throw Error(message);
+        throw RecordError(message);
     }
 }
 
@@ -1037,7 +1038,7 @@ int load_snap_csv_obs( const char *options, DATAFILE *df, int (*check_progress)(
         csvobs.load( dfi );
         if( dfi.aborted() ) return OPERATION_ABORTED;
     }
-    catch( Error &error )
+    catch( RecordError &error )
     {
         handle_error( INVALID_DATA, error.message().c_str(), error.location().c_str() );
         return INVALID_DATA;

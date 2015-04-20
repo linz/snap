@@ -11,10 +11,13 @@
 
 #include "delimitedtextfile.hpp"
 
+
 namespace LINZ
 {
 namespace DelimitedTextFile
 {
+
+using namespace LINZ;
 
 using std::istream;
 using std::string;
@@ -190,7 +193,7 @@ public:
         : Reader( filename, parser, options ) {}
     CalcReader( istream &is, const Format &parser = Format::Csv, const Options &options = Options() )
         : Reader( is, parser, options ) {}
-    CalcReader( InputBase &input, const Format &parser = Format::Csv, const Options &options = Options() )
+    CalcReader( RecordInputBase &input, const Format &parser = Format::Csv, const Options &options = Options() )
         : Reader( input, parser, options ) {}
 
     Column &addColumn( const std::string &name, const CalcValue &column );

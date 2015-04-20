@@ -148,7 +148,7 @@ void SnapCsvBase::loadDefinition( RecordStream &rs )
 
 bool SnapCsvBase::load( const std::string &filename )
 {
-    IstreamInput is(filename);
+    IstreamRecordInput is(filename);
     return load( is );
 }
 
@@ -199,7 +199,7 @@ void SnapCsvBase::normaliseColumnNames( CalcReader *reader )
     reader->setColumnNames(columnNames);
 }
 
-bool SnapCsvBase::load( InputBase &input )
+bool SnapCsvBase::load( RecordInputBase &input )
 {
     try
     {
@@ -228,7 +228,7 @@ bool SnapCsvBase::load( InputBase &input )
 
         attachReader(0);
     }
-    catch( Error &error )
+    catch( RecordError &error )
     {
         attachReader(0);
         runtimeError( error.message() );
@@ -259,7 +259,7 @@ void SnapCsvBase::definitionError( const std::string &message )
         filename = _defstream->filename();
         lineno = _defstream->lineNo();
     }
-    throw Error( message, filename, lineno );
+    throw RecordError( message, filename, lineno );
 }
 
 void SnapCsvBase::runtimeError( const string &message )
@@ -272,7 +272,7 @@ void SnapCsvBase::runtimeError( const string &message )
     }
     else
     {
-        throw Error(message);
+        throw RecordError(message);
     }
 }
 
@@ -467,71 +467,4 @@ LookupMap &SnapCsvBase::lookup( const std::string &lookupName )
         _lookups.insert( pair<string,LookupMap>( name, LookupMap(false) ));
     }
     return _lookups[name];
-}
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// DatafileInput
-
-DatafileInput::DatafileInput( const std::string &filename, const std::string &description ) :
-    InputBase( filename),
-    _df(df_open_data_file( filename.c_str(), description.c_str() )),
-    _check_progress(0),
-    _aborted(false)
-{
-    if( ! _df )
-    {
-        throw Error(string("Cannot open ") + description + " " + filename );
-    }
-    _owner = true;
-    df_set_data_file_comment( _df, 0 );
-    df_set_data_file_quote( _df, 0 );
-    df_set_data_file_continuation( _df, 0 );
-}
-
-DatafileInput::DatafileInput( DATAFILE *df, int (*check_progress)( DATAFILE *df ) ) :
-    InputBase( df_file_name( df )),
-    _df(df),
-    _check_progress(check_progress),
-    _aborted(false)
-{
-    _owner = false;
-    df_set_data_file_comment( df, 0 );
-    df_set_data_file_quote( df, 0 );
-    df_set_data_file_continuation( df, 0 );
-}
-
-DatafileInput::~DatafileInput()
-{
-    if( _owner && _df )
-    {
-        df_close_data_file( _df );
-        _df = 0;
-    }
-}
-
-bool DatafileInput::getNextLine( std::string &line )
-{
-    if( df_read_data_file(_df ) != OK )
-    {
-        return false;
-    }
-    line = df_rest_of_line( _df );
-    return true;
-}
-
-bool DatafileInput::handleError( const Error &error )
-{
-    int status = INVALID_DATA;
-    if( error.type() == Warning )
-    {
-        status = WARNING_ERROR;
-    }
-    df_data_file_error( _df, status, error.message().c_str());
-    return true;
-}
-
-int DatafileInput::errorCount()
-{
-    return df_data_file_errcount( _df );
 }

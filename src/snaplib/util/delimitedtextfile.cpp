@@ -8,20 +8,6 @@ namespace LINZ
 namespace DelimitedTextFile
 {
 
-//////////////////////////////////////////////////////////////////////
-// Error class
-
-void Error::_setLocation()
-{
-    if( _filename != "" )
-    {
-        std::ostringstream location;
-        location << "File: " << _filename;
-        if( _lineno >= 0 ) location << "  line: " << _lineno;
-        if( _recordno >= 0 ) location << "  record: " << _recordno;
-        _location = location.str();
-    }
-}
 
 //////////////////////////////////////////////////////////////////////
 // Format implementations used for delimited text files
@@ -39,7 +25,7 @@ void Format::runtimeError( const std::string message ) const
     }
     else
     {
-        throw Error("Source text file not specified in field parser");
+        throw RecordError("Source text file not specified in field parser");
     }
 }
 
@@ -166,43 +152,9 @@ void Column::handleReadError() const
 }
 
 //////////////////////////////////////////////////////////////////////
-// InputBase code
-
-InputBase::~InputBase() {}
-bool InputBase::handleError( const Error &error ) { return false; }
-
-//////////////////////////////////////////////////////////////////////
-// IstreamInput code
-
-IstreamInput::IstreamInput( std::istream &is ) : InputBase("unnamed source"), _is(&is), _ownInput(false) {}
-
-IstreamInput::IstreamInput( const std::string &filename ) :
-    InputBase(filename),
-    _ownInput( false )
-{
-    _is = new std::ifstream(filename);
-    if( ! _is->good())
-    {
-        delete _is;
-        throw Error(std::string("Unable to open file ") + filename);
-    }
-    _ownInput = true;
-}
-IstreamInput::~IstreamInput() { if( _ownInput ) delete _is; }
-
-bool IstreamInput::getNextLine( std::string &line )
-{
-
-    if( _is->eof()) return false;
-    std::getline( *_is, line );
-    if( _is->fail()) return false; \
-    return true;
-}
-
-//////////////////////////////////////////////////////////////////////
 // Reader code
 
-Reader::Reader( InputBase &input, const Format &parser, const Options &options ) :
+Reader::Reader( RecordInputBase &input, const Format &parser, const Options &options ) :
     _input(&input),
     _ownInput( false ),
     _options( options )
@@ -217,13 +169,13 @@ Reader::Reader( const std::string filename, const Format &parser, const Options 
     _options( options )
 {
     _badColumn = 0;
-    _input = new IstreamInput( filename );
+    _input = new IstreamRecordInput( filename );
     _ownInput = true;
     setup( parser );
 }
 
 Reader::Reader( std::istream &is, const Format &parser, const Options &options ) :
-    _input( new IstreamInput(is)),
+    _input( new IstreamRecordInput(is)),
     _ownInput(true),
     _options( options )
 {
@@ -416,16 +368,16 @@ void Reader::columnIndexError( int i ) const
 
 void Reader::runtimeError( const std::string &message ) const
 {
-    handleError( Error(message,_input ? _input->name() : "", _lineno, _recordno ));
+    handleError( RecordError(message,_input ? _input->name() : "", _lineno, _recordno ));
 }
 
 void Reader::warning( const std::string &message ) const
 {
-    handleError( Error(Warning, message,_input ? _input->name() : "", _lineno, _recordno ));
+    handleError( RecordError(Warning, message,_input ? _input->name() : "", _lineno, _recordno ));
 }
-void Reader::handleError( const Error &error ) const
+void Reader::handleError( const RecordError &error ) const
 {
-    ErrorType type = error.type();
+    RecordErrorType type = error.type();
     if( type != FatalError && _input && _input->handleError(error)) return;
     if( type != Warning ) throw error;
 }

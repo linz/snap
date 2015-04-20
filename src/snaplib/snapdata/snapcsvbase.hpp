@@ -50,7 +50,7 @@ public:
     virtual ~SnapCsvBase();
     void disableColumnCheck( bool check = false ) { _checkColumnEnabled = check; }
     bool load( const std::string &filename );
-    bool load( InputBase &input );
+    bool load( RecordInputBase &input );
 protected:
     // Implementation functions
     virtual void initiallizeLoadDefinition();
@@ -111,24 +111,6 @@ private:
     // Currently used definition input
     RecordStream *_defstream;
 
-};
-
-class DatafileInput : public InputBase
-{
-public:
-    DatafileInput( const std::string &filename, const std::string &description = "data file" );
-    DatafileInput( DATAFILE *df, int (*check_progress)( DATAFILE *df ) = 0 );
-    ~DatafileInput();
-    virtual bool getNextLine( std::string &line );
-    // Return true if the error is handled
-    virtual bool handleError( const Error &error );
-    int errorCount();
-    bool aborted() { return _aborted; }
-private:
-    DATAFILE *_df;
-    bool _owner;
-    int (*_check_progress)( DATAFILE *df );
-    bool _aborted;
 };
 
 } // End of namespace SNAP

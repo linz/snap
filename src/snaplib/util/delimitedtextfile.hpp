@@ -8,10 +8,15 @@
 #include <vector>
 #include <stdexcept>
 
+#include "util/recordinputbase.hpp"
+
+
 namespace LINZ
 {
 namespace DelimitedTextFile
 {
+
+using namespace LINZ;
 
 //! DelimitedTextFile: reading delimited text files (eg CSV files) into fields
 /*!
@@ -45,7 +50,7 @@ namespace DelimitedTextFile
  *
  *          ...
  *      }
- *      catch( DelimitedTextFile::Error *error )
+ *      catch( DelimitedTextFile::RecordError *error )
  *      {
  *          cout << error.message() << endl;
  *      }
@@ -59,45 +64,6 @@ namespace DelimitedTextFile
 
 class Reader;
 
-enum ErrorType { FatalError, RuntimeError, Warning };
-
-class Error : public std::runtime_error
-{
-public:
-    Error( const std::string &message, const std::string &filename="", int lineno=-1, int recordno=-1 ) :
-        runtime_error( message ),
-        _message(message),
-        _filename(filename),
-        _location(""),
-        _lineno(lineno),
-        _recordno(recordno),
-        _type( RuntimeError )
-    { _setLocation(); }
-    Error( ErrorType type, const std::string &message, const std::string &filename="", int lineno=-1, int recordno=-1 ) :
-        runtime_error( message ),
-        _message(message),
-        _filename(filename),
-        _location(""),
-        _lineno(lineno),
-        _recordno(recordno),
-        _type( type )
-    { _setLocation(); }
-    ~Error() throw () {};
-    const std::string &message() const { return _message; }
-    const std::string &location() const { return _location; }
-    const std::string &filename() const { return _filename; }
-    const int lineno() const { return _lineno; }
-    const int recordno() const { return _recordno; }
-    ErrorType type() const { return _type; }
-private:
-    void _setLocation();
-    std::string _message;
-    std::string _filename;
-    std::string _location;
-    int _lineno;
-    int _recordno;
-    ErrorType _type;
-};
 
 class Column
 {
@@ -223,42 +189,13 @@ private:
     int _nSkipLines;
 };
 
-// Abstract Base Input class
-
-class InputBase
-{
-public:
-    InputBase( const std::string &name ) : _name(name) {}
-    virtual ~InputBase();
-    const std::string &name() { return _name;}
-    virtual bool getNextLine( std::string &line ) = 0;
-    // Return true if the error is handled
-    virtual bool handleError( const Error &error );
-private:
-    std::string _name;
-};
-
-// Istream input implementation
-
-class IstreamInput : public InputBase
-{
-public:
-    IstreamInput( std::istream &is );
-    IstreamInput( const std::string &filename );
-    virtual ~IstreamInput();
-    virtual bool getNextLine( std::string &line );
-private:
-    std::istream *_is;
-    bool _ownInput;
-};
-
 // Reader class
 class Reader
 {
     friend class Format;
     friend class Column;
 public:
-    Reader( InputBase &input, const Format &parser=Format::Csv, const Options &options = Options() );
+    Reader( RecordInputBase &input, const Format &parser=Format::Csv, const Options &options = Options() );
     Reader( const std::string filename, const Format &parser = Format::Csv, const Options &options = Options() );
     Reader( std::istream &is, const Format &parser = Format::Csv, const Options &options = Options() );
     virtual ~Reader();
@@ -303,7 +240,7 @@ private:
     void setup( const Format &parser );
     void readHeader();
     void columnIndexError( int string ) const;
-    void handleError( const Error &error ) const;
+    void handleError( const RecordError &error ) const;
     Column &columnNamed( const std::string &name ) const;
     // Field parser functions
     bool getNextLine( std::string &buffer );
@@ -311,7 +248,7 @@ private:
 
     // Data members
     std::vector<Column *> _columns;
-    InputBase *_input;
+    RecordInputBase *_input;
     bool _ownInput;
     std::string _dummyValue;
     bool _columnsSet;

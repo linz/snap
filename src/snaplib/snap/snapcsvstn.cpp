@@ -15,6 +15,7 @@
 
 #include "snap/snapcsvstn.hpp"
 #include "snap/snapcsvstn.h"
+#include "util/datafileinput.hpp"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "network/network.h"
@@ -416,7 +417,7 @@ int load_snap_csv_stations( const char *filename, const char *options )
         csvstn.load( dfi );
         if( dfi.errorCount()) sts = INVALID_DATA;
     }
-    catch( Error &error )
+    catch( RecordError &error )
     {
         handle_error( INVALID_DATA, error.message().c_str(), error.location().c_str() );
         return INVALID_DATA;
