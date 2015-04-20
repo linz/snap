@@ -149,16 +149,16 @@ static double iers_mult[14] =
     1000.0,
     1000.0,
     1000.0,
-    -1000.0,
-    -1000.0,
-    -1000.0,
     1000.0,
     1000.0,
     1000.0,
     1000.0,
-    -1000.0,
-    -1000.0,
-    -1000.0
+    1000.0,
+    1000.0,
+    1000.0,
+    1000.0,
+    1000.0,
+    1000.0
 };
 
 
@@ -358,6 +358,7 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
     double se[14];
     int nval;
     int gotcvr=0;
+    int dispcvr[14];
 
     for( i = 0, ii = 0, ij = 0; i < 14; i++, ij = ii+1, ii += i+1 )
     {
@@ -375,6 +376,7 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
     for( i = 0; i < 14; i++ )
     {
         double factor = vmult ? vmult[i] : 1.0;
+        dispcvr[i]=0;
         if( ! display[i]) continue;
         fprintf(out,"      %-30s",rownames[i] );
         fprintf(out,valformat[i],val[i]*factor);
@@ -382,6 +384,7 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
         {
             fprintf(out,valformat[i],se[i]*semult*fabs(factor));
             gotcvr++;
+            dispcvr[i]=1;
         }
         else { fprintf(out,"%s",missingstr);}
         if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
@@ -399,17 +402,17 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
             ij=(j0*(j0+1))/2;
             for( i = j0; i < 14; i++ )
             {
-                int used=0;
-                if( display[i]) fprintf(out,"      ");
+                int started=0;
+                if( dispcvr[i]) fprintf(out,"      ");
                 for( j = 0; j <= i; j++, ij++ )
                 {
-                    if( ! display[i] || ! display[j] ) continue;
+                    if( ! dispcvr[i] || ! dispcvr[j] ) continue;
                     if( j < j0 || j >= j1 ) continue;
-                    if( ! used ) fprintf(out,"      ");
+                    if( ! started ) fprintf(out,"      ");
                     fprintf(out, "  %8.4lf", cvr[ij] );
-                    used=1;
+                    started=1;
                 }
-                if( used ) fprintf(out,"\n" );
+                if( started ) fprintf(out,"\n" );
             }
         }
     }

@@ -440,7 +440,7 @@ int snap_main( int argc, char *argv[] )
 
         /* Check whether we have converged or run out of iterations */
 
-        if( maxadj < convergence_tol ) break;
+        if( iterations >= min_iterations && maxadj < convergence_tol ) break;
 
         if( iterations >= max_iterations  )
         {

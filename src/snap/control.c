@@ -154,6 +154,7 @@ static config_item snap_commands[] =
     {"ignore_missing_stations",NULL,ABSOLUTE,0,read_ignore_missing_stations,CONFIG_CMD,0},
     {"recode",NULL,ABSOLUTE,0,read_recode,0,0},
     {"max_iterations",&max_iterations,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
+    {"min_iterations",&min_iterations,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"max_adjustment",&max_adjustment,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"convergence_tolerance",&convergence_tol,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"coordinate_precision",&coord_precision,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
@@ -1147,11 +1148,6 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             return OK;
         }
         for( i=0; i<14; i++) val[i]=0.001*val[i];
-        for( i=0; i<3; i++ ) 
-        { 
-            val[rfRotx+i]=-val[rfRotx+i];
-            val[rfRotxRate+i]=-val[rfRotxRate+i];
-        }
     }
 
     if( topocentric )

@@ -75,6 +75,7 @@ SCOPE char run_time[GETDATELEN];
 SCOPE int dimension;
 SCOPE int program_mode;
 SCOPE int max_iterations;
+SCOPE int min_iterations;
 SCOPE double max_adjustment;
 SCOPE double convergence_tol;
 SCOPE long nobs, nschp, ncon, dof;

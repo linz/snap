@@ -41,6 +41,7 @@ void init_snap_globals()
     job_title[0] = 0;
     dimension = 2;
     program_mode = ADJUST;
+    min_iterations = 0;
     max_iterations = 5;
     max_adjustment = 1000.0;
     convergence_tol = 0.001;

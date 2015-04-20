@@ -21,6 +21,7 @@ list no_worst_residuals
 
 fix all
 free 4
+min_iterations 3
 
 add_residual_column c=ref_frame_code  date
 summarise_residuals_by ref_frame_code
