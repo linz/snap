@@ -422,7 +422,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
 {
     double *tval, *tcvr, *gval, *gcvr;
     int trow[14], tidentical[14], grow[14], gidentical[14], display[14];
-    double sval[14], scvr[105], dval[14], dcvr[105], oshift[3];
+    double sval[14], scvr[105], dval[14], dcvr[105], oshift[3], oshiftrate[3];
     int *srow, *sidentical, *drow, *didentical;
     double c1, c2, c3, cmin, cmax, azmax;
     int i, k;
@@ -477,15 +477,21 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
 
     /* Shift at origin */
     oshift[0] = oshift[1] = oshift[2] = 0.0;
+    oshiftrate[0] = oshiftrate[1] = oshiftrate[2] = 0.0;
     if( rf->usetrans && rf->localorigin )
     {
-        oshift[0] = rf->origin[0];
-        oshift[1] = rf->origin[1];
-        oshift[2] = rf->origin[2];
+        int i;
+        for( i=0; i<3; i++ )
+        {
+            oshift[i] = oshiftrate[i] = rf->origin[i];
+        }
         rftrans_correct_vector( rf->id, oshift, year_as_snapdate( rf->refepoch) );
-        oshift[0] = gval[0] + (rf->origin[0]-oshift[0]);
-        oshift[1] = gval[1] + (rf->origin[1]-oshift[1]);
-        oshift[2] = gval[2] + (rf->origin[2]-oshift[2]);
+        rftrans_correct_vector( rf->id, oshiftrate, year_as_snapdate( rf->refepoch + 10.0) );
+        for( i=0; i<3; i++ )
+        {
+            oshiftrate[i]=gval[7+i] - (oshiftrate[i]-oshift[i])/10.0;
+            oshift[i] = gval[i] + (rf->origin[i]-oshift[i]);
+        }
     }
 
     /* Maximum tilt error */
@@ -561,7 +567,13 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     if( rf->localorigin && rf->usetrans )
     {
         fprintf(out,"\n   Translation at origin (%.4lf, %.4lf, %.4lf)\n",oshift[0],oshift[1],oshift[2]);
+        if( rf->userates )
+        {
+            fprintf(out,"\n   Translation rate at origin (%.4lf, %.4lf, %.4lf)\n",
+                    oshiftrate[0],oshiftrate[1],oshiftrate[2]);
+        }
     }
+
     if( ! rf->usetrans )
     {
         fprintf(out,"\n   Reference frame translations are not used in this adjustment\n");

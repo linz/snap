@@ -1,7 +1,7 @@
 title Regression test 1 - data types and observation equations
 
 coordinate_file testrf1.crd
-data_file testrf1.dat
+data_file testrf2.dat
 
 mode 3d adjustment
 
@@ -37,5 +37,6 @@ reference_frame GPS_Rrate epoch 2008 calculate rotation_rate
 reference_frame GPS_TS translation -1.2 0.3 -15.8 scale 2.5
 reference_frame GPS_R rotation 30 -5 65
 
-reference_frame GPS_rate calculate translation scale rotation translation_rate scale_rate rotation_rate
+reference_frame GPS_rate epoch 2008 calculate translation scale rotation translation_rate scale_rate rotation_rate
+reference_frame GPS_rateZ epoch 2008 origin zero calculate translation scale rotation translation_rate scale_rate rotation_rate
 
