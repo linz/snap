@@ -697,6 +697,10 @@ long ldt_get_id( int type, int group_id, const char *code )
         if( group_id != GET_REAL_STATION_ID ) return save_code( code );
         group_id=0;
     }
+    if( type == ID_COEFCLASS )
+    {
+        return coef_class_id[group_id].idclass;
+    }
     return (*id_func)( type, group_id, code );
 }
 
@@ -875,7 +879,7 @@ ltmat ldt_covariance( int type, double* mmerr )
         cvrtype = type;
         for( i = 0; i < 9; i++ )
         {
-            cvr_mmerr[i] = mmerr[i];
+            cvr_mmerr[i] = mmerr ? mmerr[i] : 0.0;
         }
 
         data.ncvr = data.nobs * 3;
@@ -945,6 +949,7 @@ void ldt_classification( int class_id, int name_id )
     {
         data.reffrm = get_coef_id( COEF_CLASS_REFFRM, name_id );
         reffrm_classification = name_id;
+        reffrm_classified=1;
     }
 }
 

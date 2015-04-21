@@ -37,6 +37,7 @@
    ID_CLASSTYPE   Y        -          Classification type
    ID_CLASSNAME   Y      class_id     Name of a classification within a type
    ID_COEF        Y      coef_id      Name of a coefficient type
+   ID_COEFCLASS   Y      coef_id      Returns id of coef class
    ID_SYSERROR    Y        -          Systematic error type
    ID_NOTE        N     continuation  Note attached to data
 
@@ -53,7 +54,7 @@
 */
 
 enum { ID_STATION, ID_PROJCTN, ID_CLASSTYPE, ID_CLASSNAME, ID_COEF,
-       ID_SYSERR, ID_NOTE, N_ID_TYPE
+       ID_COEFCLASS, ID_SYSERR, ID_NOTE, N_ID_TYPE
      };
 
 /* These must match the coef_classes array in loaddata.c */

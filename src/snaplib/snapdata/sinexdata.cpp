@@ -121,7 +121,7 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
         {
             id=points.size();
             codeMap[code]=id;
-            points.push_back( std::unique_ptr<PointData>() );
+            points.push_back( std::unique_ptr<PointData>( new PointData) );
             points[id]->id=id;
             points[id]->lineno=dfi.lineNumber();
             points[id]->code=code;
@@ -149,7 +149,10 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
 
     // Try creating the record
     
-    int idreffrm=ldt_get_id( ID_CLASSNAME, COEF_CLASS_REFFRM, ref_frame.c_str());
+    
+    // coef_class_info *ci=coef_class( COEF_CLASS_REFFRM );
+    int classid=ldt_get_id( ID_COEFCLASS, COEF_CLASS_REFFRM, 0 );
+    int idreffrm=ldt_get_id( ID_CLASSNAME, classid, ref_frame.c_str());
 
     ldt_inststn( 0, 0.0 );
     ldt_date( obsdate );
@@ -158,12 +161,12 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
         for( auto pt=points.begin(); pt != points.end(); pt++ )
         {
             int tgtid=ldt_get_id( ID_STATION, 0, (*pt)->code.c_str());
-            if( tgtid <= 0 ) dfi.raiseError(std::string("Undefined station ")+(*pt)->code);
+            if( tgtid == 0 ) dfi.raiseError(std::string("Undefined station ")+(*pt)->code);
+            ldt_lineno( (*pt)->lineno );
             ldt_tgtstn(tgtid,0.0);
             ldt_nextdata( GX );
             ldt_value( (*pt)->xyz );
-            ldt_lineno( (*pt)->lineno );
-            ldt_classification( COEF_CLASS_REFFRM, idreffrm );
+            ldt_classification( classid, idreffrm );
         }
 
         double *cvr=ldt_covariance( CVR_FULL, 0 );
@@ -182,7 +185,7 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
                 int prm2=atoi(input.substr(7,5).c_str());
                 if( prm2 < 1 ) continue;
                 int col=13;
-                for( ; prm2 <= prm1 && col < 78; prm2++, col += 23 )
+                for( ; prm2 <= prm1 && col < 78; prm2++, col += 22 )
                 {
                     int jcvr=prmMap[prm2];
                     if( jcvr < 0 ) continue;
@@ -225,7 +228,7 @@ void SinexDataReader::findSection(RecordInputBase &dfi, const std::string sectio
 
 double SinexDataReader::readSinexDate( const std::string datestr )
 {
-    RGX::regex re("^\\s*(\\d\\d?)\\:(\\d\\d\\d\\)\\:(\\d\\d\\d\\d\\d)\\s*$");
+    RGX::regex re("^\\s*(\\d\\d?)\\:(\\d\\d\\d)\\:(\\d\\d\\d\\d\\d)\\s*$");
     RGX::smatch match;
     if( ! RGX::regex_match(datestr.begin(),datestr.end(),match,re))
     {
