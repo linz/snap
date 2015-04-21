@@ -464,7 +464,7 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
             }
             else
             {
-                fprintf(out,"%s%             ", prefix,stn_name_width," ");
+                fprintf(out,"%s                       ", prefix);
             }
             if( src->datefrom != UNDEFINED_DATE && src->dateto != UNDEFINED_DATE )
             {

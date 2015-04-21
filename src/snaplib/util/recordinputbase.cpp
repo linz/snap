@@ -27,6 +27,12 @@ void RecordError::_setLocation()
 
 RecordInputBase::~RecordInputBase() {}
 bool RecordInputBase::handleError( const RecordError &error ) { return false; }
+int  RecordInputBase::lineNumber(){ return -1; }
+int  RecordInputBase::recordNumber(){ return -1; }
+void RecordInputBase::raiseError( const std::string message )
+{
+    throw RecordError( message, name(), lineNumber(), recordNumber() );
+}
 
 //////////////////////////////////////////////////////////////////////
 // IstreamRecordInput code
@@ -44,6 +50,7 @@ IstreamRecordInput::IstreamRecordInput( const std::string &filename ) :
         throw RecordError(std::string("Unable to open file ") + filename);
     }
     _ownInput = true;
+    _lineno = 0;
 }
 IstreamRecordInput::~IstreamRecordInput() { if( _ownInput ) delete _is; }
 
@@ -52,8 +59,10 @@ bool IstreamRecordInput::getNextLine( std::string &line )
     if( _is->eof()) return false;
     std::getline( *_is, line );
     if( _is->fail()) return false; 
+    _lineno++;
     return true;
 }
 
+int  IstreamRecordInput::lineNumber(){ return _lineno; }
 
 }  // End of LINZ namespace

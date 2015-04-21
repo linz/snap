@@ -23,6 +23,7 @@ public:
     virtual bool getNextLine( std::string &line );
     // Return true if the error is handled
     virtual bool handleError( const RecordError &error );
+    virtual int lineNumber();
     int errorCount();
     bool aborted() { return _aborted; }
 private:

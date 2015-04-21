@@ -11,6 +11,8 @@
 #include "util/fileutil.h"
 #include "util/dateutil.h"
 #include "util/datafile.h"
+#include "util/recordinputbase.hpp"
+#include "util/datafileinput.hpp"
 
 #include "snapdata/stnrecodefile.hpp"
 #include "snapdata/stnrecodefile.h"
@@ -142,7 +144,7 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
         csvstnrecode.load( dfi );
         if( dfi.errorCount()) sts = INVALID_DATA;
     }
-    catch( Error &error )
+    catch( RecordError &error )
     {
         handle_error( INVALID_DATA, error.message().c_str(), error.location().c_str() );
         return INVALID_DATA;

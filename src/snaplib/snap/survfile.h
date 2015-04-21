@@ -18,7 +18,7 @@
 #include "snapdata/datatype.h"
 #include "snapdata/stnrecode.h"
 
-enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT };
+enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT, SINEX_FORMAT };
 
 typedef struct
 {

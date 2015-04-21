@@ -77,6 +77,11 @@ double snap_datetime( int year, int month, int day, int hour, int min, int sec )
     return ((double) julian_day( day, month, year )) + (hour+min/60.0+sec/3600.0)/24.0;
 }
 
+double snap_yds( int year, int dayno, int secs )
+{
+    return snap_datetime( year, 1, dayno, 0, 0, secs );
+}
+
 double snap_datetime_now()
 {
     time_t now;

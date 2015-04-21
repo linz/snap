@@ -166,6 +166,12 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
             options = strtok(NULL,"");
             break;
         }
+        else if ( _stricmp(format,"SINEX") == 0 )
+        {
+            ftype = SINEX_FORMAT;
+            options = strtok(NULL,"");
+            break;
+        }
         else
         {
             sprintf(errmess,"Invalid format %.20s specified for data file",format);

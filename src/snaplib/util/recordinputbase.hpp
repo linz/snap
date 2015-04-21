@@ -59,8 +59,12 @@ public:
     virtual ~RecordInputBase();
     const std::string &name() { return _name;}
     virtual bool getNextLine( std::string &line ) = 0;
+    virtual int lineNumber();
+    virtual int recordNumber();
     // Return true if the error is handled
+    void raiseError( const std::string message );
     virtual bool handleError( const RecordError &error );
+protected:
 private:
     std::string _name;
 };
@@ -74,8 +78,10 @@ public:
     IstreamRecordInput( const std::string &filename );
     virtual ~IstreamRecordInput();
     virtual bool getNextLine( std::string &line );
+    virtual int lineNumber();
 private:
     std::istream *_is;
+    int _lineno;
     bool _ownInput;
 };
 

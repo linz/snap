@@ -27,6 +27,7 @@
 #include "snapdata/loaddata.h"
 #include "snapdata/geoddata.h"
 #include "snapdata/snapcsvobs.h"
+#include "snapdata/sinexdata.h"
 #include "snapdata/stnrecodefile.h"
 #include "util/progress.h"
 #include "util/errdef.h"
@@ -150,6 +151,9 @@ long read_data_files( char *base_dir, FILE *lst )
             break;
         case CSV_FORMAT:
             load_snap_csv_obs( sd->subtype, d, datafile_progress );
+            break;
+        case SINEX_FORMAT:
+            load_sinex_obs( sd->subtype, d, datafile_progress );
             break;
         default:
             handle_error( INTERNAL_ERROR, "Program error: Invalid file format",

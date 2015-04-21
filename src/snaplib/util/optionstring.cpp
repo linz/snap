@@ -1,16 +1,10 @@
 #include <snapconfig.hpp>
 #include <string>
 #include <map>
-#ifdef REGEX_BOOST
-#include <boost/regex.hpp>
-#define RGX boost
-#else
-#include <regex>
-#define RGX std
-#endif
 #include <boost/algorithm/string.hpp>
+#include "util/snapregex.hpp"
 
-#include <optionstring.hpp>
+#include "util/optionstring.hpp"
 
 namespace LINZ
 {
@@ -94,7 +88,7 @@ bool OptionString::defines( const std::string &option )
    return _options.find(key) != _options.end();
 }
 
-const std::string &OptionString::valueOf( const std::string &option, const std::string &dflt )
+const std::string &OptionString::valueOf( const std::string &option, const std::string &dflt ) const
 {
     std::string key = option;
     boost::to_lower( key );

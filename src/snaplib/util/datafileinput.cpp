@@ -56,6 +56,12 @@ bool DatafileInput::getNextLine( std::string &line )
     return true;
 }
 
+
+int DatafileInput::lineNumber()
+{
+    return _df ? df_line_number( _df ) : -1;
+}
+
 bool DatafileInput::handleError( const RecordError &error )
 {
     int status = INVALID_DATA;

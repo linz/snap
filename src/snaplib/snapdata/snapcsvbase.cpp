@@ -5,14 +5,8 @@
 #include <memory>
 #include <vector>
 #include <algorithm>
-#ifdef REGEX_BOOST
-#include <boost/regex.hpp>
-#define RGX boost
-#else
-#include <regex>
-#define RGX std
-#endif
 #include <boost/algorithm/string.hpp>
+#include "util/snapregex.hpp"
 
 #include "snapdata/snapcsvbase.hpp"
 
