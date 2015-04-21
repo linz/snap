@@ -40,3 +40,6 @@ reference_frame GPS_R rotation 30 -5 65
 reference_frame GPS_rate epoch 2008 calculate translation scale rotation translation_rate scale_rate rotation_rate
 reference_frame GPS_rateZ epoch 2008 origin zero calculate translation scale rotation translation_rate scale_rate rotation_rate
 
+reference_frame GPS_rateT topocentric epoch 2008 calculate translation scale rotation translation_rate scale_rate rotation_rate
+reference_frame GPS_rateZT topocentric epoch 2008 origin zero calculate translation scale rotation translation_rate scale_rate rotation_rate
+

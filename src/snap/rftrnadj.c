@@ -314,12 +314,13 @@ static void transform_rftrans( double xform[3][3], double *val, double *cvr )
     }
     for( i = 0; i < 3; i++ ) for ( j = 0; j < 3; j++ )
     {
-            fullxfm[i+rfTx][j] = xform[i][j];
+            fullxfm[i+rfTx][j+rfTx] = xform[i][j];
             fullxfm[i+rfRotx][j+rfRotx] = xform[i][j];
-            fullxfm[i+rfTxRate][j] = xform[i][j];
-            fullxfm[i+rfRotxRate][j+rfRotx] = xform[i][j];
+            fullxfm[i+rfTxRate][j+rfTxRate] = xform[i][j];
+            fullxfm[i+rfRotxRate][j+rfRotxRate] = xform[i][j];
     }
     fullxfm[rfScale][rfScale]=1.0;
+    fullxfm[rfScaleRate][rfScaleRate]=1.0;
 
     /* Premultiply by xform */
 
