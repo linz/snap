@@ -34,7 +34,10 @@ even if focus is restored.
 include time dependent terms (rates of change of translation, scale, and orientation).
 <b>Note:</b> this has required some changes to the <a href="../files/cmdcfg/cmd_reference_frame.html">reference frame</a> command which means that some old command files may need
 modification to work as previously.  Also added to the reference frame options in the 
-<a href="../files/cmd_list.html">list</a> command.</p>
+<a href="../files/cmdcfg/cmd_list.html">list</a> command.</p>
+<p>Enhancement: SNAP can read observations from
+    <a href="../files/data/sinex_obs_files.html">SINEX</a> files
+    </p>
 <p>Enhancement: Added the <a href="../files/cmdcfg/cmd_recode.html">recode</a> and <a href="../files/cmdcfg/cmd_data_file.html">data_file .. recode</a> commands to allow recoding stations read from
 command file. This allows stations in data files to be recoded, optionally for specific date ranges.  This
 can be used where stations are miscoded in data files, to test if stations have moved for
@@ -158,7 +161,7 @@ from old adjustments cannot be loaded and will need to be rebuilt.</p>
 delimited text files) as well as SNAP formatted text files.  The encoding of information
 in the text files is controlled by <a href="../files/cmdcfg/csv_format_definition.html">CSV format definition</a>
  configuration files.
-<p>
+</p>
 <p>Enhancement: SNAP can output CSV (comma separated value) 
 formatted files of adjustment results 
 (station/coordinate information, observation information, and adjustment metdata).  
@@ -188,7 +191,6 @@ defined in terms of any <a href="../files/data/obs_classifications.html">observa
 This makes it easy to test the effect of different factors on these parameters.
 </p>
 
-</p>
 <p>Enhancement: SNAP observations can include an integer observation id.  This is not 
 used at all by SNAP, but is displayed in outputs.  This is mainly for data from other sources, and 
 allows for easy matching of the output information with the source data.  The id is defined using 
@@ -256,7 +258,7 @@ local &quot;patches&quot;.</p>
 the normal equations in the binary file (for use by snapspec instead of using the using the full covariance
 matrix).</p>
 <p>Enhancement: Coordinate files can now include additional columns of station classifications.  These can be used in SNAP to select groups of stations 
-for processing (for example in the &quot;fix&quot command).  They can also be used in snapplot for colour coding stations.</p>
+for processing (for example in the &quot;fix&quot; command).  They can also be used in snapplot for colour coding stations.</p>
 
 <h3>snapplot</h3>
 <p>Enhancement: added facility to allow colouring stations by classification (such as order, etc)
@@ -276,7 +278,7 @@ allow constrain the orders that stations can be assigned to (for example accordi
 mark type) and to allow configuration to be defined in multiple files.
 </p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 18 March 2009</h2>
 <h3>General</h3>
@@ -287,7 +289,7 @@ Enhancement: Update antarctic coordinate systems (Darwin Glacier Lambert Conic).
 <p>
 Bug fix: Corrected calculation of orders when using a posteriori statistics.
 </p>
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 31 July 2008</h2>
 <h3>snap_manager</h3>
@@ -295,7 +297,7 @@ Bug fix: Corrected calculation of orders when using a posteriori statistics.
 Change: Updated the import GDB stations function to reflect changes to the LINZ website.
 </p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 29 April 2008</h2>
 <h3>General</h3>
@@ -304,7 +306,7 @@ Change: Tidied up Chatham Islands coordinate systems in coordsys.def.  Replaced 
 </p>
 <p>Enhancement: Added listgps software to SNAP distribution</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 4 February 2008</h2>
 <h3>General</h3>
@@ -314,19 +316,19 @@ of all SNAP utilities to 2.3.0</p>
 <p>Maintenance: Updated wxWidgets graphics library used by snapplot and snap_manager to version
 2.8.7.</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 18 December 2007</h2>
 <h3>coordsys.def</h3>
 <p>Enhancement: Added new coordinate systems defined by LINZ standard LINZS25002.</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 20 November 2007</h2>
 <h3>Snapplot</h3>
 <p>Bug fix: Corrected error on orientation of plotted error ellipses.</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 8 August 2007</h2>
 <h3>Installer</h3>
@@ -396,7 +398,7 @@ These will be run as part of the startup configuration.</p>
 <h3>Documentation</h3>
 <p>Enhancement: Tidied up many pages where formatting was particularly bad!</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 11 May 2007</h2>
 
@@ -430,7 +432,7 @@ containing the revised orders (-u).</p>
 <p>Enhancement: improved the layout of the descriptions of SNAP commands.</p>
 
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 27 April 2007</h2>
 
@@ -497,7 +499,7 @@ cadastral coordinate systems, as well as link systems, and duplicate codes for c
 <h3>help</h3>
 <p>Bug fix: Help index wasn't working correctly.  That has now been fixed</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 29 March 2007</h2>
 <h3>snapplot</h3>
@@ -523,7 +525,7 @@ Changed the observation listing options to give more control and choices over co
 specify a geoid name or GEOIDBIN to specify a specific geoid file.  Changed the default name from geoid.bin
 to geoid.grd</p>
 
-<!-- -------------------------------------------------------------------------- -->
+<!-- ========================================================================== -->
 <hr />
 <h2>Release: 20 March 2007</h2>
 <h3>snap_manager</h3>

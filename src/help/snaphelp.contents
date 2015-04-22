@@ -89,6 +89,7 @@
   3	max_adjustment	help/files/cmdcfg/cmd_max_adjustment.html
   3	max_iterations	help/files/cmdcfg/cmd_max_iterations.html
   3	mde_power	help/files/cmdcfg/cmd_mde_power.html
+  3	min_iterations	help/files/cmdcfg/cmd_min_iterations.html
   3	mode	help/files/cmdcfg/cmd_mode.html
   3	number_of_worst_residuals	help/files/cmdcfg/cmd_number_of_worst_residuals.html
   3	output	help/files/cmdcfg/cmd_output.html
@@ -157,6 +158,7 @@
   3	Orthometric and ellipsoidal height errors	help/files/data/obs_ddc_oheh_error.html
   3	Data definition commands by function	help/files/data/obs_ddc_by_func.html
   3	Data definition commands alphabetically	help/files/data/obs_ddc_alphabetically.html
+ 2	SINEX observation files	help/files/data/sinex_obs_files.html
    4	The #bearing_orientation_error command	help/files/data/obs_ddc_bearing_orientation_error.html
    4	The #classification command	help/files/data/obs_ddc_classification.html
    4	The #classify command	help/files/data/obs_ddc_classify.html
@@ -193,7 +195,7 @@
   3	Coordinate system notes format	help/coordsys/crdsys_file_notes.html
  2	Standard coordinate systems provided with concord	help/coordsys/crdsys_standard_list.html
  2	Geoid grid files	help/coordsys/geoid.html
-  3	Grid file format	help/coordsys/gridfile_c.html
+  3	Grid file format	help/coordsys/gridfile_s.html
  2	LINZ deformation model	help/coordsys/linzdefmodel.html
   3	LINZ deformation file format	help/coordsys/linzdeffile.html
   3	Triangulated data file format	help/coordsys/trigfile.html
