@@ -1,0 +1,537 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+The command file testrf1.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testrf1.crd
+     data_file testrf1.dat
+     
+     mode 3d adjustment
+     
+     list command_file
+     list file_summary
+     list problem_definition
+     list no_observation_equations
+     list solution_summary
+     list station_coordinates
+     list floated_stations
+     list reference_frames
+     list no_topocentric_ref_frame
+     list parameters
+     list residuals
+     list error_summary
+     list no_worst_residuals
+     
+     fix all
+     free 4
+     
+     add_residual_column c=ref_frame_code  date
+     summarise_residuals_by ref_frame_code
+     
+     reference_frame GPS_T epoch 2008 translation -1.2 0.3 -15.8 
+     reference_frame GPS_S epoch 2008 scale 2.5 
+     reference_frame GPS_R epoch 2008 rotation 30 -5 65
+     
+     reference_frame GPS_Trate epoch 2008 translation_rate -.12 0.03 -1.58 
+     reference_frame GPS_Srate epoch 2008 scale_rate 0.25 
+     reference_frame GPS_Rrate epoch 2008 rotation_rate 3 -0.5 6.5
+     
+     reference_frame GPS_TS translation -1.2 0.3 -15.8 scale 2.5
+     reference_frame GPS_R rotation 30 -5 65
+     
+     reference_frame GPS_rate translation -1.2 0.3 -15.8 scale 2.5 rotation 0 0 0 epoch 2008 translation_rate .12 -0.03 1.58 scale_rate -0.25 rotation_rate 3 -0.5 6.5
+     
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testrf1.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testrf1.crd
+       4 stations read
+
+Data file 1: testrf1.dat
+    Observations between 2008-01-01 00:00:00 and 2018-01-01 00:00:00
+      21 GPS point coords
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  1
+2        F     -  2
+3        F     -  3
+4        3     1  4
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 30.8494 metres at station 4
+             1 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0001 metres at station 4
+             0 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              63
+Number of parameters:                 3
+
+Degrees of freedom:                  60
+Sum of squared residuals:             0.01098
+Standard error of unit weight:        0.01353
+
+The probability of an SSR this low is 0.000% (from Chi squared (60))
+
+You may have over-estimated the errors of the data.
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          1
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      34 00 25.200000 S      -         -          2
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3      41 00 28.800000 S      -         -          3
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 28.800005 S    30.8494    0.0600   0  4
+       163 19 58.799981 E    -0.0005    0.0400  90
+              70.0001         0.0001    0.1200
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS_T
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                  -1.2000          -        
+      Y translation (m)                   0.3000          -        
+      Z translation (m)                 -15.8000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+Reference frame: GPS_S
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.5000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+Reference frame: GPS_R
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               30.0000000       -        
+      Y rotation (arc sec)               -5.0000000       -        
+      Z rotation (arc sec)               65.0000000       -        
+
+Reference frame: GPS_TRATE
+
+   Defined as a geocentric reference frame
+
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)        -0.12000         -        
+      Y translation rate (m/year)         0.03000         -        
+      Z translation rate (m/year)        -1.58000         -        
+      Scale factor rate (ppm/year)        0.00000000      -        
+      X rotation rate (arc sec/year)      0.00000000      -        
+      Y rotation rate (arc sec/year)      0.00000000      -        
+      Z rotation rate (arc sec/year)      0.00000000      -        
+
+Reference frame: GPS_SRATE
+
+   Defined as a geocentric reference frame
+
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         0.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.25000000      -        
+      X rotation rate (arc sec/year)      0.00000000      -        
+      Y rotation rate (arc sec/year)      0.00000000      -        
+      Z rotation rate (arc sec/year)      0.00000000      -        
+
+Reference frame: GPS_RRATE
+
+   Defined as a geocentric reference frame
+
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         0.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.00000000      -        
+      X rotation rate (arc sec/year)      3.00000000      -        
+      Y rotation rate (arc sec/year)     -0.50000000      -        
+      Z rotation rate (arc sec/year)      6.50000000      -        
+
+Reference frame: GPS_TS
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                  -1.2000          -        
+      Y translation (m)                   0.3000          -        
+      Z translation (m)                 -15.8000          -        
+      Scale factor (ppm)                  2.5000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+Reference frame: GPS_RATE
+
+   Defined as a geocentric reference frame
+
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                  -1.2000          -        
+      Y translation (m)                   0.3000          -        
+      Z translation (m)                 -15.8000          -        
+      Scale factor (ppm)                  2.5000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         0.12000         -        
+      Y translation rate (m/year)        -0.03000         -        
+      Z translation rate (m/year)         1.58000         -        
+      Scale factor rate (ppm/year)       -0.25000000      -        
+      X rotation rate (arc sec/year)      3.00000000      -        
+      Y rotation rate (arc sec/year)     -0.50000000      -        
+      Z rotation rate (arc sec/year)      6.50000000      -        
+
+Reference frame: DUMMY
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code    Date   
+               X,Y,Z                  X,Y,Z               E,N,U                                              
+
+File testrf1.dat: line 14
+
+1     GX    -4787263.3200  0.0982  -4787263.3200  0.0000  0.0000  0.0400   0.00     GPS_T           1/01/2018
+              560595.2704  0.0414    560595.2704  0.0000 -0.0000  0.0600   0.00     GPS_T                    
+            -4163666.0023  0.0908  -4163666.0023  0.0000 -0.0000  0.1200   0.00     GPS_T                    
+             6369322.7058           6369322.7058          0.0000           0.00     GPS_T                    
+
+1     GX    -4787276.4882  0.0982  -4787276.4882  0.0000  0.0000  0.0400   0.00     GPS_S           1/01/2018
+              560596.9719  0.0414    560596.9719  0.0000  0.0000  0.0600   0.00     GPS_S                    
+            -4163692.2115  0.0908  -4163692.2115  0.0000  0.0000  0.1200   0.00     GPS_S                    
+             6369349.8861           6369349.8861          0.0000           0.00     GPS_S                    
+
+1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000 -0.0000  0.0400   0.00     GPS_R           1/01/2018
+              561498.5759  0.0414    561498.5759  0.0000  0.0002  0.0600   0.00     GPS_R                    
+            -4163647.4692  0.0908  -4163647.4695  0.0000 -0.0002  0.1200   0.00     GPS_R                    
+             6369333.9625           6369333.9627          0.0003           0.00     GPS_R                    
+
+2     GX    -5257306.6538  0.1044  -5257306.6539  0.0000  0.0001  0.0400   0.00     GPS_R           1/01/2018
+              616140.5375  0.0416    616140.5376  0.0000 -0.0003  0.0600   0.01     GPS_R                    
+            -3547246.5749  0.0835  -3547246.5746  0.0000  0.0001  0.1200   0.00     GPS_R                    
+             6371958.9356           6371958.9355          0.0004           0.00     GPS_R                    
+
+1     GX    -4787263.3200  0.0982  -4787263.3200  0.0000  0.0000  0.0400   0.00     GPS_Trate       1/01/2018
+              560595.2704  0.0414    560595.2704  0.0000 -0.0000  0.0600   0.00     GPS_Trate                
+            -4163666.0023  0.0908  -4163666.0023  0.0000 -0.0000  0.1200   0.00     GPS_Trate                
+             6369322.7058           6369322.7058          0.0000           0.00     GPS_Trate                
+
+1     GX    -4787276.4882  0.0982  -4787276.4882  0.0000  0.0000  0.0400   0.00     GPS_Srate       1/01/2018
+              560596.9719  0.0414    560596.9719  0.0000  0.0000  0.0600   0.00     GPS_Srate                
+            -4163692.2115  0.0908  -4163692.2115  0.0000  0.0000  0.1200   0.00     GPS_Srate                
+             6369349.8861           6369349.8861          0.0000           0.00     GPS_Srate                
+
+1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000 -0.0000  0.0400   0.00     GPS_Rrate       1/01/2018
+              561498.5759  0.0414    561498.5759  0.0000  0.0002  0.0600   0.00     GPS_Rrate                
+            -4163647.4692  0.0908  -4163647.4695  0.0000 -0.0002  0.1200   0.00     GPS_Rrate                
+             6369333.9625           6369333.9627          0.0003           0.00     GPS_Rrate                
+
+2     GX    -5257306.6538  0.1044  -5257306.6539  0.0000  0.0001  0.0400   0.00     GPS_Rrate       1/01/2018
+              616140.5375  0.0416    616140.5376  0.0000 -0.0003  0.0600   0.01     GPS_Rrate                
+            -3547246.5749  0.0835  -3547246.5746  0.0000  0.0001  0.1200   0.00     GPS_Rrate                
+             6371958.9356           6371958.9355          0.0004           0.00     GPS_Rrate                
+
+1     GX    -4787275.2882  0.0982  -4787275.2882  0.0000  0.0000  0.0400   0.00     GPS_TS          1/01/2008
+              560596.6719  0.0414    560596.6719  0.0000 -0.0000  0.0600   0.00     GPS_TS                   
+            -4163676.4115  0.0908  -4163676.4115  0.0000  0.0001  0.1200   0.00     GPS_TS                   
+             6369338.6292           6369338.6291          0.0001           0.00     GPS_TS                   
+
+2     GX    -5257426.6756  0.1044  -5257426.6756  0.0000  0.0000  0.0400   0.00     GPS_TS          1/01/2008
+              615000.9619  0.0416    615000.9619  0.0000 -0.0000  0.0600   0.00     GPS_TS                   
+            -3547277.4309  0.0835  -3547277.4309  0.0000 -0.0000  0.1200   0.00     GPS_TS                   
+             6371965.0505           6371965.0505          0.0001           0.00     GPS_TS                   
+
+File testrf1.dat: line 43
+
+3     GX    -4617780.0375  0.0953  -4617780.0375  0.0000 -0.0000  0.0400   0.00     GPS_TS          1/01/2008
+             1382501.9228  0.0476   1382501.9228  0.0000 -0.0000  0.0600   0.00     GPS_TS                   
+            -4163204.8938  0.0908  -4163204.8938  0.0000 -0.0000  0.1200   0.00     GPS_TS                   
+             6369260.4774           6369260.4774          0.0001           0.00     GPS_TS                   
+
+1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000 -0.0000  0.0400   0.00     GPS_R           1/01/2008
+              561498.5759  0.0414    561498.5759  0.0000  0.0002  0.0600   0.00     GPS_R                    
+            -4163647.4692  0.0908  -4163647.4695  0.0000 -0.0002  0.1200   0.00     GPS_R                    
+             6369333.9625           6369333.9627          0.0003           0.00     GPS_R                    
+
+2     GX    -5257306.6538  0.1044  -5257306.6539  0.0000  0.0001  0.0400   0.00     GPS_R           1/01/2008
+              616140.5375  0.0416    616140.5376  0.0000 -0.0003  0.0600   0.01     GPS_R                    
+            -3547246.5749  0.0835  -3547246.5746  0.0000  0.0001  0.1200   0.00     GPS_R                    
+             6371958.9356           6371958.9355          0.0004           0.00     GPS_R                    
+
+3     GX    -4617434.7161  0.0953  -4617434.7162  0.0000 -0.0004  0.0400   0.01     GPS_R           1/01/2008
+             1383348.3782  0.0477   1383348.3778  0.0000 -0.0001  0.0600   0.00     GPS_R                    
+            -4163299.6013  0.0908  -4163299.6011  0.0000  0.0001  0.1200   0.00     GPS_R                    
+             6369255.8171           6369255.8170          0.0005           0.01     GPS_R                    
+
+1     GX    -4787275.2882  0.0982  -4787275.2882  0.0000  0.0000  0.0400   0.00     GPS_rate        1/01/2008
+              560596.6719  0.0414    560596.6719  0.0000 -0.0000  0.0600   0.00     GPS_rate                 
+            -4163676.4115  0.0908  -4163676.4115  0.0000  0.0001  0.1200   0.00     GPS_rate                 
+             6369338.6292           6369338.6291          0.0001           0.00     GPS_rate                 
+
+2     GX    -5257426.6756  0.1044  -5257426.6756  0.0000  0.0000  0.0400   0.00     GPS_rate        1/01/2008
+              615000.9619  0.0416    615000.9619  0.0000 -0.0000  0.0600   0.00     GPS_rate                 
+            -3547277.4309  0.0835  -3547277.4309  0.0000 -0.0000  0.1200   0.00     GPS_rate                 
+             6371965.0505           6371965.0505          0.0001           0.00     GPS_rate                 
+
+3     GX    -4617780.0375  0.0953  -4617780.0375  0.0000 -0.0000  0.0400   0.00     GPS_rate        1/01/2008
+             1382501.9228  0.0476   1382501.9228  0.0000 -0.0000  0.0600   0.00     GPS_rate                 
+            -4163204.8938  0.0908  -4163204.8938  0.0000 -0.0000  0.1200   0.00     GPS_rate                 
+             6369260.4774           6369260.4774          0.0001           0.00     GPS_rate                 
+
+1     GX    -4787188.5515  0.0982  -4787188.5513  0.0000  0.0022  0.0400   0.06     GPS_rate        1/01/2018
+              561498.5759  0.0414    561498.5781  0.0000  0.0001  0.0600   0.00     GPS_rate                 
+            -4163647.4692  0.0908  -4163647.4694  0.0000 -0.0002  0.1200   0.00     GPS_rate                 
+             6369333.9625           6369333.9627          0.0023           0.03     GPS_rate                 
+
+2     GX    -5257306.6538  0.1044  -5257306.6536  0.0000  0.0029  0.0400   0.07     GPS_rate        1/01/2018
+              616140.5375  0.0416    616140.5404  0.0000 -0.0005  0.0600   0.01     GPS_rate                 
+            -3547246.5749  0.0835  -3547246.5745  0.0000  0.0001  0.1200   0.00     GPS_rate                 
+             6371958.9356           6371958.9355          0.0030           0.04     GPS_rate                 
+
+3     GX    -4617434.7161  0.0953  -4617434.7154  0.0000  0.0018  0.0400   0.05     GPS_rate        1/01/2018
+             1383348.3782  0.0476   1383348.3799  0.0000  0.0002  0.0600   0.00     GPS_rate                 
+            -4163299.6013  0.0908  -4163299.6013  0.0000  0.0001  0.1200   0.00     GPS_rate                 
+             6369255.8171           6369255.8169          0.0019           0.03     GPS_rate                 
+
+File testrf1.dat: line 70
+
+4     GX    -4617769.6930  0.0953  -4617769.6930  0.0953 -0.0000  0.0000    -   @   DUMMY           1/01/2018
+             1382498.7670  0.0476   1382498.7670  0.0476  0.0000  0.0000    -   @   DUMMY                    
+            -4163210.2860  0.0908  -4163210.2860  0.0908  0.0000  0.0000    -   @   DUMMY                    
+             6369255.8171           6369255.8171          0.0000            -       DUMMY                    
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by ref_frame_code
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+Default                                      -      -     -      -     -      -
+
+GPS_T                                       0.00    3     -      -    0.00    3
+
+GPS_S                                       0.00    3     -      -    0.00    3
+
+GPS_R                                       0.00   15     -      -    0.00   15
+
+GPS_Trate                                   0.00    3     -      -    0.00    3
+
+GPS_Srate                                   0.00    3     -      -    0.00    3
+
+GPS_Rrate                                   0.00    6     -      -    0.00    6
+
+GPS_TS                                      0.00    9     -      -    0.00    9
+
+GPS_rate                                    0.02   18     -      -    0.02   18
+
+DUMMY                                        -      -     -      -     -      -

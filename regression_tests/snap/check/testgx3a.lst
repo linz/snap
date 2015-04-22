@@ -1,0 +1,1428 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+The command file testgx3a.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testgx3.crd
+     data_file testgx3.dat
+     
+     classification data_type ignore GX
+     
+     mode 3d adjustment
+     
+     list command_file
+     list file_summary
+     list problem_definition
+     list observation_equations
+     list solution_summary
+     list station_coordinates
+     list floated_stations
+     list reference_frames
+     list parameters
+     list residuals
+     list error_summary
+     list worst_residuals
+     
+     add_residual_column c=ref_frame_code
+     
+     reference_frame GPS_T translation 0 ? 0 ? 0 ?
+     reference_frame GPS_S scale 0 ?
+     reference_frame GPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
+     reference_frame GPS_R rotation 0 ? 0 ? 0 ?
+     reference_frame GPS_TRS calculate scale rotation translation
+     
+     reference_frame TGPS_T topocentric translation 0 ? 0 ? 0 ?
+     reference_frame TGPS_S topocentric scale 0 ?
+     reference_frame TGPS_TS topocentric translation 0 ? 0 ? 0 ? scale 0 ?
+     reference_frame TGPS_R topocentric rotation 0 ? 0 ? 0 ?
+     reference_frame TGPS_TRS topocentric calculate scale rotation translation
+     
+     
+     fix all
+     
+     ! To force a second iteration
+     !ignore 4 
+     free 4
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testgx3a.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testgx3.crd
+       4 stations read
+
+Data file 1: testgx3.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+      20 GPS baselines
+
+
+Modifications for different data types:
+   Observations of GPS point coord data are ignored
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  1
+2        F     -  2
+3        F     -  3
+
+
+
+The following stations have been rejected.  Those denoted with '*'
+have been rejected automatically because there is insufficient data
+to locate them.
+
+Station  Name
+
+*4       4
+
+
+The following parameters are also being calculated
+
+GPS_R rotn X (sec)
+GPS_R rotn Y (sec)
+GPS_R rotn Z (sec)
+GPS_S scale (ppm)
+GPS_TRS rotn X (sec)
+GPS_TRS rotn Y (sec)
+GPS_TRS rotn Z (sec)
+GPS_TRS scale (ppm)
+GPS_TS scale (ppm)
+TGPS_R rotn E (sec)
+TGPS_R rotn N (sec)
+TGPS_R rotn U (sec)
+TGPS_S scale (ppm)
+TGPS_TRS rotn E (sec)
+TGPS_TRS rotn N (sec)
+TGPS_TRS rotn U (sec)
+TGPS_TRS scale (ppm)
+TGPS_TS scale (ppm)
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                               ITERATION NUMBER 1
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             OBSERVATION EQUATIONS
+
+================================================================================
+
+BEGIN_JSON obs_equation_1
+{
+  "nparam":18,
+  "parameters": [
+    "GPS_R rotn X (sec)",
+    "GPS_R rotn Y (sec)",
+    "GPS_R rotn Z (sec)",
+    "GPS_S scale (ppm)",
+    "GPS_TRS rotn X (sec)",
+    "GPS_TRS rotn Y (sec)",
+    "GPS_TRS rotn Z (sec)",
+    "GPS_TRS scale (ppm)",
+    "GPS_TS scale (ppm)",
+    "TGPS_R rotn E (sec)",
+    "TGPS_R rotn N (sec)",
+    "TGPS_R rotn U (sec)",
+    "TGPS_S scale (ppm)",
+    "TGPS_TRS rotn E (sec)",
+    "TGPS_TRS rotn N (sec)",
+    "TGPS_TRS rotn U (sec)",
+    "TGPS_TRS scale (ppm)",
+    "TGPS_TS scale (ppm)"
+  ],
+  "obs_equations": [
+{
+  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.34351430e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13771670e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.20335026e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.92655716e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.76434361e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13148274e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [4],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": 1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [4],
+    "values": [5.44041540e-02]
+   },
+   {
+    "value": 1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [4],
+    "values": [6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.23819266e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [4],
+    "values": [1.69494827e-01]
+   },
+   {
+    "value": 2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [4],
+    "values": [8.21903196e-01]
+   },
+   {
+    "value": 1.19686852e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [4],
+    "values": [4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": 1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [5.44041540e-02]
+   },
+   {
+    "value": 1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.23819266e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [1.69494827e-01]
+   },
+   {
+    "value": 2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [8.21903196e-01]
+   },
+   {
+    "value": 1.19686852e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 3.21097866e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [0.00000000e+00, -2.98837912e+00, 2.63758782e-01]
+   },
+   {
+    "value": 2.37807569e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [2.98837912e+00, 0.00000000e+00, 2.27935255e+00]
+   },
+   {
+    "value": 3.45471203e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [-2.63758782e-01, -2.27935255e+00, 0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 2.59008519e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [0.00000000e+00, -2.28597652e-03, 3.98469914e+00]
+   },
+   {
+    "value": -5.33938524e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [2.28597652e-03, 0.00000000e+00, -8.21734109e-01]
+   },
+   {
+    "value": -1.23648603e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [-3.98469914e+00, 8.21734109e-01, 0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 3.09344866e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 5, 6, 7],
+    "values": [-4.70150212e-01, 0.00000000e+00, -2.98837912e+00, 2.63758782e-01]
+   },
+   {
+    "value": 2.37944269e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 5, 6, 7],
+    "values": [5.44041540e-02, 2.98837912e+00, 0.00000000e+00, 2.27935255e+00]
+   },
+   {
+    "value": 4.99571203e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 5, 6, 7],
+    "values": [6.16397440e-01, -2.63758782e-01, -2.27935255e+00, 0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 2.59432919e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 5, 6, 7],
+    "values": [1.69494827e-01, 0.00000000e+00, -2.28597652e-03, 3.98469914e+00]
+   },
+   {
+    "value": -5.13391524e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 5, 6, 7],
+    "values": [8.21903196e-01, 2.28597652e-03, 0.00000000e+00, -8.21734109e-01]
+   },
+   {
+    "value": -1.23647803e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 5, 6, 7],
+    "values": [4.71516503e-04, -3.98469914e+00, 8.21734109e-01, 0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.34351430e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13771816e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 1.20335026e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 1.92656007e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": 4.76435525e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13149417e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": 1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [5.44041540e-02]
+   },
+   {
+    "value": 1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.23819266e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [1.69494827e-01]
+   },
+   {
+    "value": 2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [8.21903196e-01]
+   },
+   {
+    "value": 1.19686851e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": 1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [5.44041540e-02]
+   },
+   {
+    "value": 1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 4.23819266e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [1.69494827e-01]
+   },
+   {
+    "value": 2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [8.21903196e-01]
+   },
+   {
+    "value": 1.19686851e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 3.21097866e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [2.92785663e+00, -1.75641522e-01, -6.29907988e-01]
+   },
+   {
+    "value": 2.37807569e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-5.98385597e-01, -9.49664382e-02, -3.70928212e+00]
+   },
+   {
+    "value": 3.45471203e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [2.28600410e+00, -1.25586716e-01, -1.53068479e-01]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 2.59008519e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [2.23967951e-03, 3.08025275e+00, -2.52781931e+00]
+   },
+   {
+    "value": -5.33938524e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-4.57738249e-04, -6.36697515e-01, 5.19488437e-01]
+   },
+   {
+    "value": -1.23648603e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-7.20560571e-03, 2.58064543e+00, 3.14536030e+00]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 3.09344866e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [17, 14, 15, 16],
+    "values": [-4.70150212e-01, 2.92785663e+00, -1.75641522e-01, -6.29907988e-01]
+   },
+   {
+    "value": 2.37944269e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [17, 14, 15, 16],
+    "values": [5.44041540e-02, -5.98385597e-01, -9.49664382e-02, -3.70928212e+00]
+   },
+   {
+    "value": 4.99571203e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [17, 14, 15, 16],
+    "values": [6.16397440e-01, 2.28600410e+00, -1.25586716e-01, -1.53068479e-01]
+   }
+  ],
+  "cvr": [
+    [1.02769489e-02,-1.01552066e-03,5.18112330e-03],
+    [-1.01552066e-03,1.71885309e-03,-6.06381091e-04],
+    [5.18112330e-03,-6.06381091e-04,7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": 2.59432919e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [17, 14, 15, 16],
+    "values": [1.69494827e-01, 2.23967951e-03, 3.08025275e+00, -2.52781931e+00]
+   },
+   {
+    "value": -5.13391524e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [17, 14, 15, 16],
+    "values": [8.21903196e-01, -4.57738249e-04, -6.36697515e-01, 5.19488437e-01]
+   },
+   {
+    "value": -1.23647803e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [17, 14, 15, 16],
+    "values": [4.71516503e-04, -7.20560571e-03, 2.58064543e+00, 3.14536030e+00]
+   }
+  ],
+  "cvr": [
+    [9.39662700e-03,-1.61079952e-03,5.23984737e-03],
+    [-1.61079952e-03,1.93279456e-03,-1.08256348e-03],
+    [5.23984737e-03,-1.08256348e-03,8.27057843e-03]
+  ]
+}
+]}
+
+END_JSON obs_equation_1
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              60
+Number of parameters:                18
+
+Degrees of freedom:                  42
+Sum of squared residuals:             3.99113
+Standard error of unit weight:        0.30826
+
+The probability of an SSR this low is 0.000% (from Chi squared (42))
+
+You may have over-estimated the errors of the data.
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          1
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      34 00 25.200000 S      -         -          2
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3      41 00 28.800000 S      -         -          3
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+#4      41 00 29.800000 S      -         -          4
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Topocentric axes are east, north, up directions at
+    39 22 03.15284S    168 26 56.94579E
+
+Reference frame: GPS_T
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: GPS_S
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.04056 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: GPS_TS
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.04056 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: GPS_R
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               29.9998214       0.0200630 
+      Y rotation (arc sec)               -5.0001655       0.0313209 
+      Z rotation (arc sec)               65.0005248       0.0236192 
+
+      Correlation matrix:
+                1.0000
+                0.1838    1.0000
+               -0.8145    0.0327    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                 -1.1081905       0.0316720 
+      W-E tilt (arc sec)                 30.9730986       0.0293610 
+      Vertical rotation (arc sec)       -64.7263334       0.0087293 
+
+      Correlation matrix:
+                1.0000
+                0.0396    1.0000
+               -0.1433   -0.0476    1.0000
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.03167 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: GPS_TRS
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4432499       0.0405580 
+      X rotation (arc sec)               29.9999238       0.0200630 
+      Y rotation (arc sec)               -5.0001833       0.0313209 
+      Z rotation (arc sec)               65.0006857       0.0236192 
+
+      Correlation matrix:
+                1.0000
+               -0.0001    1.0000
+                0.0002    0.1838    1.0000
+                0.0001   -0.8145    0.0327    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4432499       0.0405580 
+      N-S tilt (arc sec)                 -1.1081936       0.0316720 
+      W-E tilt (arc sec)                 30.9731571       0.0293610 
+      Vertical rotation (arc sec)       -64.7265158       0.0087293 
+
+      Correlation matrix:
+                1.0000
+               -0.0002    1.0000
+                0.0002    0.0396    1.0000
+                0.0000   -0.1433   -0.0476    1.0000
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.03167 arc sec
+   Maximum error of horizontal tilt is 0.04056 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: TGPS_T
+
+   Defined as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: TGPS_S
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.04056 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: TGPS_TS
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4999964       0.0405580 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.04056 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: TGPS_R
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               29.9998214       0.0200630 
+      Y rotation (arc sec)               -5.0001655       0.0313209 
+      Z rotation (arc sec)               65.0005248       0.0236192 
+
+      Correlation matrix:
+                1.0000
+                0.1838    1.0000
+               -0.8145    0.0327    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                 -1.1081905       0.0316720 
+      W-E tilt (arc sec)                 30.9730986       0.0293610 
+      Vertical rotation (arc sec)       -64.7263334       0.0087293 
+
+      Correlation matrix:
+                1.0000
+                0.0396    1.0000
+               -0.1433   -0.0476    1.0000
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.03167 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: TGPS_TRS
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4432499       0.0405580 
+      X rotation (arc sec)               29.9999238       0.0200630 
+      Y rotation (arc sec)               -5.0001833       0.0313209 
+      Z rotation (arc sec)               65.0006857       0.0236192 
+
+      Correlation matrix:
+                1.0000
+               -0.0001    1.0000
+                0.0002    0.1838    1.0000
+                0.0001   -0.8145    0.0327    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  2.4432499       0.0405580 
+      N-S tilt (arc sec)                 -1.1081936       0.0316720 
+      W-E tilt (arc sec)                 30.9731571       0.0293610 
+      Vertical rotation (arc sec)       -64.7265158       0.0087293 
+
+      Correlation matrix:
+                1.0000
+               -0.0002    1.0000
+                0.0002    0.0396    1.0000
+                0.0000   -0.1433   -0.0476    1.0000
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.03167 arc sec
+   Maximum error of horizontal tilt is 0.04056 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+File testgx3.dat: line 21
+
+1     2     GB    -470150.2121  0.1014  -470150.2121  0.0000  0.0000  0.0400   0.00     GPS_T         
+                    54404.1540  0.0415    54404.1540  0.0000  0.0000  0.0600   0.00     GPS_T         
+                   616397.4396  0.0872   616397.4396  0.0000  0.0000  0.1200   0.00     GPS_T         
+                   777140.1659           777140.1659          0.0000           0.00     GPS_T         
+
+1     3     GB     169494.8269  0.0969   169494.8269  0.0000 -0.0001  0.0400   0.00     GPS_T         
+                   821903.1962  0.0440   821903.1962  0.0000 -0.0000  0.0600   0.00     GPS_T         
+                      471.5165  0.0909      471.5165  0.0000 -0.0000  0.1200   0.00     GPS_T         
+                   839198.1784           839198.1783          0.0001           0.00     GPS_T         
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0191  0.0000  0.0400   0.00     GPS_S         
+                    54404.2900  0.0415    54404.2900  0.0022 -0.0000  0.0511   0.00     GPS_S         
+                   616398.9806  0.0872   616398.9806  0.0250 -0.0001  0.1200   0.00     GPS_S         
+                   777142.1087           777142.1087          0.0001           0.00     GPS_S         
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0069 -0.0000  0.0210   0.00     GPS_S         
+                   821905.2509  0.0440   821905.2509  0.0333 -0.0000  0.0600   0.00     GPS_S         
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     GPS_S         
+                   839200.2763           839200.2763          0.0001           0.00     GPS_S         
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0191  0.0000  0.0400   0.00     GPS_TS        
+                    54404.2900  0.0415    54404.2900  0.0022 -0.0000  0.0511   0.00     GPS_TS        
+                   616398.9806  0.0872   616398.9806  0.0250 -0.0001  0.1200   0.00     GPS_TS        
+                   777142.1087           777142.1087          0.0001           0.00     GPS_TS        
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0069 -0.0000  0.0210   0.00     GPS_TS        
+                   821905.2509  0.0440   821905.2509  0.0333 -0.0000  0.0600   0.00     GPS_TS        
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     GPS_TS        
+                   839200.2763           839200.2763          0.0001           0.00     GPS_TS        
+
+1     2     GB    -470118.1023  0.1014  -470118.1018  0.0936  0.0008  0.0231   0.04     GPS_R         
+                    54641.9616  0.0415    54641.9624  0.0351 -0.0006  0.0600   0.01     GPS_R         
+                   616400.8943  0.0872   616400.8953  0.0726  0.0010  0.0144   0.07     GPS_R         
+                   777140.1653           777140.1659          0.0014           0.27     GPS_R         
+
+1     3     GB     169753.8354  0.0969   169753.8374  0.0941 -0.0004  0.0400   0.01     GPS_R         
+                   821849.8023  0.0440   821849.8015  0.0195  0.0006  0.0481   0.01     GPS_R         
+                      347.8679  0.0909      347.8689  0.0794  0.0023  0.0125   0.18     GPS_R         
+                   839198.1787           839198.1783          0.0024           1.74  ?  GPS_R         
+
+1     2     GB    -470119.2776  0.1014  -470119.2503  0.0955  0.0014  0.0231   0.06     GPS_TRS       
+                    54642.0983  0.0415    54642.0965  0.0352  0.0436  0.0511   0.85     GPS_TRS       
+                   616402.4353  0.0872   616402.4014  0.0767  0.0010  0.0144   0.07     GPS_TRS       
+                   777142.1082           777142.0646          0.0436           0.50     GPS_TRS       
+
+1     3     GB     169754.2598  0.0969   169754.2528  0.0944 -0.0481  0.0210   2.29  ?  GPS_TRS       
+                   821851.8570  0.0440   821851.8093  0.0386  0.0013  0.0481   0.03     GPS_TRS       
+                      347.8687  0.0909      347.8694  0.0794  0.0025  0.0125   0.20     GPS_TRS       
+                   839200.2768           839200.2287          0.0482           2.72  ???GPS_TRS       
+
+File testgx3.dat: line 98
+
+1     2     GB    -470150.2121  0.1014  -470150.2121  0.0000  0.0000  0.0400   0.00     TGPS_T        
+                    54404.1540  0.0415    54404.1540  0.0000  0.0000  0.0600   0.00     TGPS_T        
+                   616397.4396  0.0872   616397.4396  0.0000  0.0000  0.1200   0.00     TGPS_T        
+                   777140.1659           777140.1659          0.0000           0.00     TGPS_T        
+
+1     3     GB     169494.8269  0.0969   169494.8269  0.0000 -0.0001  0.0400   0.00     TGPS_T        
+                   821903.1962  0.0440   821903.1962  0.0000 -0.0000  0.0600   0.00     TGPS_T        
+                      471.5165  0.0909      471.5165  0.0000 -0.0000  0.1200   0.00     TGPS_T        
+                   839198.1784           839198.1783          0.0001           0.00     TGPS_T        
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0191  0.0000  0.0400   0.00     TGPS_S        
+                    54404.2900  0.0415    54404.2900  0.0022 -0.0000  0.0511   0.00     TGPS_S        
+                   616398.9806  0.0872   616398.9806  0.0250 -0.0001  0.1200   0.00     TGPS_S        
+                   777142.1087           777142.1087          0.0001           0.00     TGPS_S        
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0069 -0.0000  0.0210   0.00     TGPS_S        
+                   821905.2509  0.0440   821905.2509  0.0333 -0.0000  0.0600   0.00     TGPS_S        
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     TGPS_S        
+                   839200.2763           839200.2763          0.0001           0.00     TGPS_S        
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0191  0.0000  0.0400   0.00     TGPS_TS       
+                    54404.2900  0.0415    54404.2900  0.0022 -0.0000  0.0511   0.00     TGPS_TS       
+                   616398.9806  0.0872   616398.9806  0.0250 -0.0001  0.1200   0.00     TGPS_TS       
+                   777142.1087           777142.1087          0.0001           0.00     TGPS_TS       
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0069 -0.0000  0.0210   0.00     TGPS_TS       
+                   821905.2509  0.0440   821905.2509  0.0333 -0.0000  0.0600   0.00     TGPS_TS       
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     TGPS_TS       
+                   839200.2763           839200.2763          0.0001           0.00     TGPS_TS       
+
+1     2     GB    -470118.1023  0.1014  -470118.0736  0.0936 -0.0023  0.0231   0.10     TGPS_R        
+                    54641.9616  0.0415    54641.9559  0.0351 -0.0006  0.0600   0.01     TGPS_R        
+                   616400.8943  0.0872   616400.9174  0.0726  0.0372  0.0144   2.59  ???TGPS_R        
+                   777140.1653           777140.1659          0.0373           0.59     TGPS_R        
+
+1     3     GB     169753.8354  0.0969   169753.8363  0.0941 -0.0004  0.0400   0.01     TGPS_R        
+                   821849.8023  0.0440   821849.8017  0.0195 -0.0001  0.0481   0.00     TGPS_R        
+                      347.8679  0.0909      347.8688  0.0794  0.0014  0.0125   0.11     TGPS_R        
+                   839198.1787           839198.1783          0.0014           1.14     TGPS_R        
+
+1     2     GB    -470119.2776  0.1014  -470119.2221  0.0955 -0.0017  0.0231   0.07     TGPS_TRS      
+                    54642.0983  0.0415    54642.0901  0.0352  0.0436  0.0511   0.85     TGPS_TRS      
+                   616402.4353  0.0872   616402.4234  0.0767  0.0373  0.0144   2.59  ???TGPS_TRS      
+                   777142.1082           777142.0646          0.0573           1.30     TGPS_TRS      
+
+1     3     GB     169754.2598  0.0969   169754.2517  0.0944 -0.0481  0.0210   2.29  ?  TGPS_TRS      
+                   821851.8570  0.0440   821851.8096  0.0386  0.0007  0.0481   0.01     TGPS_TRS      
+                      347.8687  0.0909      347.8693  0.0794  0.0016  0.0125   0.13     TGPS_TRS      
+                   839200.2768           839200.2287          0.0481           2.31  ???TGPS_TRS      
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.98   58     -      -    0.98   58
+        East component                      0.72   20     -      -    0.72   20
+        North component                     0.27   20     -      -    0.27   20
+        Up component                        0.82   20     -      -    0.82   20
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 20 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:  17    Unused:   0
+Under 99.00%  significant    Used:   1    Unused:   0
+Over  99.00%  significant    Used:   2    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 10 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+1      3       GB     2.723   99.994 ???     83  testgx3.dat
+
+1      3       GB     2.307   99.884 ???    160  testgx3.dat
+
+1      3       GB     1.741   97.189 ?       68  testgx3.dat
+
+1      2       GB     1.296   81.346        159  testgx3.dat
+
+1      3       GB     1.141   72.805        145  testgx3.dat
+
+1      2       GB     0.592   29.595        144  testgx3.dat
+
+1      2       GB     0.500   13.860         82  testgx3.dat
+
+1      2       GB     0.271    2.588         67  testgx3.dat
+
+1      3       GB     0.001     -            99  testgx3.dat
+
+1      3       GB     0.001     -            22  testgx3.dat
