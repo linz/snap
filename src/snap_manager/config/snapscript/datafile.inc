@@ -1,7 +1,21 @@
 
 
-$_data_file_re = '(?ni)^\s*data_file\s+(\S+)(?:\s+error_factor\s+(\d+(?:\.\d*)?))?(?:\s+recode\s+(\S+))?(?:\s+(csv)(?:\s+(.*\S))?)?\s*$'
+$_data_file_re = 
+    '(?ni)^\s*data_file\s+(\S+)(?:'.
+    '(?:\s+error_factor\s+(\d+(?:\.\d*)?))?|'.
+    '(?:\s+recode\s+(\S+))?|'.
+    '(?:\s+(csv|sinex)(?:\s+\w+\=\S+)*)?'.
+    ')*\s*$' 
+
+$_data_file_df_re='(?ni)^\s*data_file\s+(\S+)'
+$_data_file_ef_re='(?ni)\s+error_factor\s+(\d+(?:\.\d*)?)'
+$_data_file_rc_re='(?ni)\s+recode\s+(\S+)'
+$_data_file_csv_re='(?ni)\s+(csv)((?:\s+\w+\=\S+)*)'
+$_data_file_snx_re='(?ni)\s+(sinex)((?:\s+\w+\=\S+)*)'
+
 $_data_file_prefix = 'data_file '
+
+# Extract the files from the command file.  Note: does not handle included files :-(
 
 function DataFileList()
    if not $job_file then return '' endif
@@ -9,6 +23,38 @@ function DataFileList()
    # Normalize file prefix to simplify matching ...
    $files = Replace($files,'(?ni)^\s*data_file\s+',$_data_file_prefix)
    return $files
+end_function
+
+# Update a file list by replacing definitions from $updates, or adding them
+# at the end if not required
+
+function UpdateDataFileList( $filelist, $updates )
+    $filesmatched=""
+    $result=""
+    foreach $f in $filelist do
+        $filename=Match($f,$_data_file_re,1)
+        if not $filename then continue endif
+        $used=false
+        foreach $fm in $filesmatched do if $fm == $filename then $used=true endif endforeach
+        if $used then continue endif
+        foreach $fu in $updates do 
+        	$ffu=Match($fu,$_data_file_re,1)
+        	if $ffu == $filename then $f = $fu break endif
+        endforeach
+        $filesmatched=$filesmatched.$filename."\n"
+        $result=$result.$f."\n"
+    endforeach
+    foreach $fu in $updates do 
+    	$filename=Match($fu,$_data_file_re,1)
+        if not $filename then continue endif
+        $used=false
+        foreach $fm in $filesmatched do if $fm == $filename then $used=true endif endforeach
+        if $used then continue endif
+        $filesmatched=$filesmatched.$filename."\n"
+        $result=$result.$fu."\n"
+    endforeach
+    $result=Replace($result,'\n$','')
+    return $result
 end_function
 
 function AddDataFile( $datfile, $options )
@@ -21,7 +67,7 @@ function AddDataFile( $datfile, $options )
        $newfiles=$newfiles.$dfd."\n"
    endforeach
    if $options != '' then
-           $datfile=$datfile.' '.$options
+        $datfile=$datfile.' '.$options
    endif
    $newfiles=$newfiles.$_data_file_prefix.$datfile."\n"
    UpdateDataFilesInJob($newfiles)
@@ -43,22 +89,52 @@ function ProcessDataFile( $datafiles,$dfspec,$action )
    return $result
 end_function
    
-function EditDataFileOptions( $dfd )
-   $csvtypere = '(?i)\yformat\=(\S+)'
-   $filename = Match($dfd,$_data_file_re,1)
-   $factor = Match($dfd,$_data_file_re,2)
-   $recode = Match($dfd,$_data_file_re,3)
-   $csv = Match($dfd,$_data_file_re,4)
-   $csvopts = Match($dfd,$_data_file_re,5)
-   $csvtype = Match($csvopts,$csvtypere,1)
-   $csvopts = Replace($csvopts,$csvtypere,'')
-   Log("File: $filename")
-   Log("Factor: $factor")
-   Log("Recode: $recode")
-   Log("CSV: $csv")
-   Log("Type: $csvtype")
-   Log("Options: $csvopts")
+function BuildDataFileDef( $filename,$filetype,$fileopts,$factor,$recode )
+   $dfd=$_data_file_prefix.$filename
+   if $filetype then 
+      $dfd="$dfd $filetype"
+      if $fileopts then
+         $dfd="$dfd $fileopts"
+      endif
+   endif
+   if $factor then
+       $dfd="$dfd error_factor $factor"
+   endif
+   if $recode then
+        $dfd="$dfd recode $recode"
+   endif
    return $dfd
+end_function
+
+function ParseDataFileDef( $dfd )
+   $csvtypere = '(?i)\sformat\=(\S+)'
+   $trimre='^\s*(.*?)\s*$'
+   $filename = Match($dfd,$_data_file_df_re,1)
+   $factor = Match($dfd,$_data_file_ef_re,1)
+   $recode = Match($dfd,$_data_file_rc_re,1)
+   $filetype, $fileopts = MatchGroups($dfd,$_data_file_csv_re)
+   if $filetype  then
+       $filetype='csv'
+       $csvtype = Match($fileopts,$csvtypere,1)
+       $fileopts = Replace($fileopts,$csvtypere,'')
+       if $csvtype then
+          $filetype="csv format=$csvtype"
+       endif
+   else
+       $filetype, $fileopts = MatchGroups($dfd,$_data_file_snx_re)
+       $filetype=LowerCase($filetype)
+   endif
+   $fileopts=Replace($fileopts,'\s+',' ')
+
+   debuglog("File: $filename")
+   debuglog("FileType: $filetype")
+   debuglog("FileOpts: $fileopts")
+   debuglog("Factor: $factor")
+   debuglog("Recode: $recode")
+
+   $dfd=BuildDataFileDef($filename,$filetype,$fileopts,$factor,$recode)
+
+   return $dfd, $filename,$filetype,$fileopts,$factor,$recode
 end_function
 
 function CreateNewDataFile($jobpath)
@@ -77,13 +153,16 @@ function CreateNewDataFile($jobpath)
 end_function
 
 function AdditionalDataFiles($jobpath)
-  $addfiles = GetOpenFilename("SNAP data files","Data files (*.dat)|*.dat|CSV files (*.csv)|*.csv|All files (*.*)|*.*",true)
+  $addfiles = GetOpenFilename("SNAP data files","Data files (*.dat)|*.dat|CSV files (*.csv)|*.csv|SINEX files (*.snx)|*.snx,*.SNX|All files (*.*)|*.*",true)
   if not $addfiles then return '' endif
   $newfiles = ''
   foreach $addfile in $addfiles do
-     $newfiles = $newfiles . $_data_file_prefix.Filename($addfile,"relative",$jobpath) ."\n"
+     $filetype=""
+     if Match($addfile,'(?i)\.csv') then $filetype=" csv" endif
+     if Match($addfile,'(?i)\.snx') then $filetype=" sinex" endif
+     $newfiles = $newfiles . $_data_file_prefix.Filename($addfile,"relative",$jobpath) .$filetype."\n"
   endforeach
-  $options = GetDataFileOptions( $newfiles )
+  $filetype,$fileopts,$factor,$recode = GetDataFileOptions( $newfiles )
   if not $options then return '' endif
   $options = Replace($options,'^filename','')
   if $options then
@@ -114,32 +193,34 @@ end_function
 ######################################################################
 # Functions to edit options for data files
 
-function GetDataFileOptions( $jobpath, $filelist )
-   $csvtypere = '(?i)\yformat\=(\S+)\s*'
-   $filename = Match($filelist,$_data_file_re,1)
-   $factor = Match($filelist,$_data_file_re,2)
-   $recode = Match($filelist,$_data_file_re,3)
-   $csv = Match($filelist,$_data_file_re,4)
-   $csvopts = Match($filelist,$_data_file_re,5)
-   $csvtype = Match($csvopts,$csvtypere,1)
-   $csvopts = Replace($csvopts,$csvtypere,'')
-   if $csvtype then $csvtype = 'csv format='.$csvtype endif
+function UpdateDataFileOptions( $jobpath, $filelist )
+   $filetype=""
+   $fileopts=""
+   $factor=""
+   $recode=""
+   foreach $f in $filelist do
+       $dfd,$filename,$filetype,$fileopts,$factor,$recode=ParseDataFileDef($f)
+       break
+   endforeach
+   
    dialog "Edit data file settings" $ok
       label "Files: ".DataFileNamesFromList($filelist)
-       dropdown_selector $csvtype  "Format: " DataFileFormatList($csvtype,$jobpath)
-       textbox $csvopts "CSV configuration (name=value ...)" "20"
+       dropdown_selector $filetype  "Format: " DataFileFormatList($filetype,$jobpath)
+       textbox $fileopts "CSV/SINEX configuration (name=value ...)" 
+           '20::~~(\s*\w+\=\S+(\s+\w+\=\S+)*)?~Config must be name=value name=value ...'
        textbox $factor "Error factor:" '10::~0123456789.~(?:\d+\.?\d*)?~Error factor must be a number'
        textbox $recode "Station recode file" '15::~~\S*~Recode must be file name or blank'
    end_dialog
- 
-   $options = ''
-   if $ok then 
-       $options = 'filename'
-       if $factor then $options = ' error_factor '.$factor endif
-       if $recode then $options = $options.' recode '.$recode endif
-       if $csvtype then $options = $options.' '.$csvtype.' '.$csvopts endif
+
+   if $ok then
+       $result=""
+       foreach $f in $filelist do
+          $dfd,$filename,$filetypex,$fileoptsx,$factorx,$recodex=ParseDataFileDef($f)
+          $dfd=BuildDataFileDef($filename,$filetype,$fileopts,$factor,$recode)
+          $result=$result.$dfd."\n"
+       endforeach
    endif
-   return $options
+   return $ok,$result
 end_function
 
 function CSVDataTypes( $path )
@@ -158,6 +239,7 @@ function CSVDataTypes( $path )
       $typename = ReadFile( $dtf,'(?i)^\s*format_name\s+',1 )
       if $typename then
          $typename = Replace(Replace($typename,'(?i)\s*format_name\s+(.*?)\s*','\1'),'\~','')
+	 $typename = $typename." (".$typecode.")"
       else
          $typename = $typecode." CSV format"
       endif
@@ -172,6 +254,7 @@ function DataFileFormatList( $filetype, $jobpath )
    if not Match($typelist,$filetypere) then
       $typelist = $typelist."~$filetype~$filetype format"
    endif
+   $typelist = $typelist."~sinex~SINEX format"
    return $typelist
 end_function
 
@@ -187,7 +270,6 @@ function DataFileNamesFromList( $filelist )
    return Replace(Replace( $filelist, $_data_file_re, '\1' ),'\s+',' ')
 end_function
 
-
 function UpdateDataFilesInJob( $datafiles )
    $jobfilecontent = ReadJobFile()
    $comment_re = '(?ni)^\s*\!'
@@ -200,7 +282,7 @@ function UpdateDataFilesInJob( $datafiles )
       if Match($line,$comment_re) then
           if Match($line,$dfcomment_re) then 
               $pending=true
-	      $datafiles="\n".$datafiles
+          $datafiles="\n".$datafiles
           endif
           $newcontent=$newcontent.$line."\n"
           continue
@@ -214,13 +296,13 @@ function UpdateDataFilesInJob( $datafiles )
          $datafiles=''
       endif
       if Match($line,$nonblankre) then
-      	$newcontent = $newcontent.$line."\n"
-	$nonblank=true
+          $newcontent = $newcontent.$line."\n"
+    $nonblank=true
       else
         if $nonblank then
-      	   $newcontent = $newcontent.$line."\n"
-	endif
-	$nonblank=false
+             $newcontent = $newcontent.$line."\n"
+    endif
+    $nonblank=false
       endif
    endforeach
    $newcontent = $newcontent.$datafiles
@@ -239,7 +321,7 @@ function DataFileDialog($jobpath)
     new_column
     spacer
     button "New ..."
-        $datafiles = $datafiles .CreateNewDataFile($jobpath)
+        $datafiles = UpdateDataFileList($datafiles,CreateNewDataFile($jobpath))
         $listfiles = ListBoxFileList($datafiles)
     button "Add ..."
         $datafiles = $datafiles . AdditionalDataFiles($jobpath)
@@ -255,15 +337,11 @@ function DataFileDialog($jobpath)
         endif
     button "Edit Options"
         if $selectedfiles then 
-            $options = GetDataFileOptions( $jobpath, DataFileListFromSelected($selectedfiles) )
-            if $options then 
-                $options = Replace($options,'^filename','')
-                $options = Replace($options,'(\\|\&)','\\\0')
-                foreach $file in $selectedfiles do
-                   $newfile = Replace($_data_file_prefix.$file,$_data_file_re,$_data_file_prefix.'\1 '.$options)."\n"
-                   $datafiles = Replace($datafiles,"(?nq)".$_data_file_prefix.$file."\n",$newfile)
-                endforeach
-            endif
+            $editok,$datafiles = UpdateDataFileOptions( $jobpath, DataFileListFromSelected($selectedfiles) )
+            if $editok then 
+                $datafiles = UpdateDataFileList($datafiles,CreateNewDataFile($jobpath))
+                $listfiles = ListBoxFileList($datafiles)
+	    endif
         endif
         $listfiles = ListBoxFileList($datafiles)
     button "Edit"
