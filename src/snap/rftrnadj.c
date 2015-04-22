@@ -35,6 +35,10 @@
 
 #define MAXPRMNAMELEN 22
 
+#define OUTPUT_GEO  1
+#define OUTPUT_TOPO 2
+#define OUTPUT_IERS 4
+
 static const char *geoPrmNames[] =
 {
     " X shift (m)",
@@ -419,7 +423,7 @@ static void print_rftrans_def( const char *rownames[], int *row, int *identical,
     }
 }
 
-static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
+static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int output_types )
 {
     double *tval, *tcvr, *gval, *gcvr;
     int trow[14], tidentical[14], grow[14], gidentical[14], display[14];
@@ -533,10 +537,9 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
     fprintf(out,"\n   %s as a %s reference frame\n",
             calced ? "Calculated" : "Defined",
             rf->istopo ? "topocentric" : "geocentric" );
-    if( rf->localorigin )
+    if( ! rf->usetrans )
     {
-        fprintf(out,"\n   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n",
-                rf->origin[0], rf->origin[1], rf->origin[2] );
+        fprintf(out,"   Reference frame translations are not used in this adjustment\n");
     }
     if( rf->userates )
     {
@@ -544,43 +547,51 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out )
         int y,m,d;
         epoch_date=year_as_snapdate(rf->refepoch);
         date_as_ymd( epoch_date, &y, &m, &d );
-        fprintf(out,"\n   Reference epoch of frame %02d-%02d-%04d\n",d,m,y);
+        fprintf(out,"   Reference epoch of frame %02d-%02d-%04d\n",d,m,y);
+    }
+    if( rf->localorigin )
+    {
+        fprintf(out,"   Reference point for rotation and scale (%12.3lf %12.3lf %12.3lf)\n",
+                rf->origin[0], rf->origin[1], rf->origin[2] );
     }
 
-    if( output_reffrm_iers )
+    if( output_types & OUTPUT_IERS )
     {
         fprintf(out,"\n   IERS definition\n");
         print_rftrans_def( irownames, grow, gidentical, gval, gcvr, iers_mult, semult, display, out );
     }
 
-    if( output_reffrm_geo )
+    if( output_types & OUTPUT_GEO )
     {
         fprintf(out,"\n   Geocentric definition\n");
         print_rftrans_def( grownames, grow, gidentical, gval, gcvr, 0, semult, display,  out );
     }
 
-    if( output_reffrm_topo )
+    if( rf->localorigin && rf->usetrans && (output_types & (OUTPUT_IERS | OUTPUT_GEO) ))
+    {
+        const char *units="metres";
+        double factor=1.0;
+        if( output_types & OUTPUT_IERS )
+        {
+            units="mm";
+            factor=1000.0;
+        }
+        fprintf(out,"\n   Translation at origin (%.4lf, %.4lf, %.4lf) %s\n",
+                oshift[0]*factor,oshift[1]*factor,oshift[2]*factor,units);
+        if( rf->userates )
+        {
+            fprintf(out,"\n   Translation rate at origin (%.4lf, %.4lf, %.4lf) %s/yr\n",
+                    oshiftrate[0]*factor,oshiftrate[1]*factor,oshiftrate[2]*factor,units);
+        }
+    }
+
+    if( output_types & OUTPUT_TOPO )
     {
         fprintf(out,"\n   Topocentric definition\n");
         print_rftrans_def( trownames, trow, tidentical, tval, tcvr, 0, semult, display,  out );
     }
 
-    if( rf->localorigin && rf->usetrans )
-    {
-        fprintf(out,"\n   Translation at origin (%.4lf, %.4lf, %.4lf)\n",oshift[0],oshift[1],oshift[2]);
-        if( rf->userates )
-        {
-            fprintf(out,"\n   Translation rate at origin (%.4lf, %.4lf, %.4lf)\n",
-                    oshiftrate[0],oshiftrate[1],oshiftrate[2]);
-        }
-    }
-
-    if( ! rf->usetrans )
-    {
-        fprintf(out,"\n   Reference frame translations are not used in this adjustment\n");
-    }
-
-    if( output_reffrm_topo )
+    if( output_types & OUTPUT_TOPO )
     {
         fprintf(out,"\n   Minimum error of horizontal tilt is %.5lf arc sec\n",
                 cmin * semult);
@@ -601,16 +612,31 @@ void print_rftrans_list( FILE *out )
     double semult;
     double topolat, topolon;
     void *latfmt, *lonfmt;
+    int output_types;
+    int topo_header;
 
     if( rftrans_count() <= 0 ) return;
-    if( ! output_reffrm_topo && ! output_reffrm_geo && ! output_reffrm_iers ) return;
+    output_types=0;
+    if( output_reffrm_geo ) output_types |= OUTPUT_GEO;
+    if( output_reffrm_topo ) output_types |= OUTPUT_TOPO;
+    if( output_reffrm_iers ) output_types |= OUTPUT_IERS;
+
+    topo_header=output_types & OUTPUT_TOPO;
+    if( ! output_types )
+    {
+        for( nrf = 1; nrf <= rftrans_count(); nrf++ )
+        {
+            rfTransformation *rf = rftrans_from_id( nrf );
+            if( rftrans_topocentric(rf) ) { topo_header=1; break; }
+        }
+    }
 
     print_section_heading( out, "REFERENCE FRAME PARAMETERS");
 
     fprintf(lst,"\nThe errors listed for calculated parameters are %s errors\n",
             apriori ? "apriori" : "aposteriori" );
 
-    if( output_reffrm_topo )
+    if( topo_header )
     {
         latfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "N", "S" );
         lonfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "E", "W" );
@@ -628,7 +654,15 @@ void print_rftrans_list( FILE *out )
 
     for( nrf = 1; nrf <= rftrans_count(); nrf++ )
     {
-        print_rftrans( rftrans_from_id(nrf), semult, out );
+        rfTransformation *rf = rftrans_from_id( nrf );
+        int ot=output_types;
+        if( ! ot )
+        {
+            if( rftrans_topocentric(rf) ) ot = OUTPUT_TOPO;
+            else if( rftrans_iers(rf) ) ot = OUTPUT_IERS;
+            else ot = OUTPUT_GEO;
+        }
+        print_rftrans( rftrans_from_id(nrf), semult, out, ot );
     }
 }
 

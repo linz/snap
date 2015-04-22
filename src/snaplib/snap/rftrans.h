@@ -47,8 +47,9 @@ typedef struct
     char calcPrm[14];
     int usage;            /* Or'ed usage flags */
     int prmId[14];       /* The adjustment parameter ids of the tranformation */
-    unsigned  userates:1;  /* True if rates are being used or calculated */
     unsigned  istopo:1; /* True if the reference frame is topocentric */
+    unsigned  isiers:1; /* True if the reference frame was defined using IERS units */
+    unsigned  userates:1;  /* True if rates are being used or calculated */
     unsigned  usetrans:1; /* True if the translation component is used */
     unsigned  localoriginok:1; /* True if the origin can be offset */
     unsigned  localorigin:1; /* True if the origin is offset */
@@ -74,6 +75,11 @@ typedef struct
 
 #define REFFRAMELEN 20
 
+#define REFFRM_DEFAULT            0
+#define REFFRM_GEOCENTRIC         0
+#define REFFRM_TOPOCENTRIC        1
+#define REFFRM_IERS               2
+
 #define REFFRM_ORIGIN_DEFAULT     0
 #define REFFRM_ORIGIN_ZERO        1
 #define REFFRM_ORIGIN_TOPOCENTRE  2
@@ -81,8 +87,7 @@ typedef struct
 #define FRF_VECDIFF  1
 #define FRF_ABSOLUTE 2
 
-int get_rftrans_id( const char *name ) ;
-int get_topocentric_rftrans_id( const char *name );
+int get_rftrans_id( const char *name, int rftype ) ;
 int rftrans_count( void );
 
 rfTransformation *rftrans_from_id( int id );
@@ -97,6 +102,7 @@ void setup_rftrans( rfTransformation *rf );
 /* Note: date is set as a snap date (converted internally to decimal year) */
 
 int rftrans_topocentric( rfTransformation * rf );
+int rftrans_iers( rfTransformation * rf );
 void set_rftrans_ref_date( rfTransformation *rf, double date );
 void set_rftrans_origintype( rfTransformation *rf, int origintype );
 void set_rftrans_parameters( rfTransformation *rf, double val[14], int calcval[14], int defined[14]);

@@ -1152,7 +1152,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
 
     if( topocentric )
     {
-        rfid = get_topocentric_rftrans_id( rfname );
+        rfid = get_rftrans_id( rfname, REFFRM_TOPOCENTRIC );
         rf=rftrans_from_id( rfid );
         if( ! rftrans_topocentric( rf ) ) 
         {
@@ -1163,7 +1163,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     }
     else
     {
-        rfid = get_rftrans_id( rfname );
+        rfid = get_rftrans_id( rfname, iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
         rf=rftrans_from_id( rfid );
         if( rftrans_topocentric( rf ) && iers ) 
         {

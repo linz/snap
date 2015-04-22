@@ -106,7 +106,7 @@ void clear_rftrans_list( void )
     nrftrans = 0;
 }
 
-static int create_rftrans( const char *name, int topocentric )
+static int create_rftrans( const char *name, int rftype )
 {
     rfTransformation *rf;
     int i;
@@ -122,13 +122,14 @@ static int create_rftrans( const char *name, int topocentric )
     rf->origintype = REFFRM_ORIGIN_DEFAULT;
     rf->localoriginok = 0;
     rf->localorigin = 0;
-    rf->istopo = topocentric ? 1 : 0;
     rf->calctrans = 0;
     rf->calcrot = 0;
     rf->calcscale = 0;
     rf->calctransrate = 0;
     rf->calcrotrate = 0;
     rf->calcscalerate = 0;
+    rf->istopo = rftype == REFFRM_TOPOCENTRIC;
+    rf->isiers = rftype == REFFRM_IERS;
 
     rf->origin[0] = 0.0;
     rf->origin[1] = 0.0;
@@ -159,12 +160,12 @@ static int create_rftrans( const char *name, int topocentric )
 }
 
 
-int get_rftrans_id( const char *name )
+int get_rftrans_id( const char *name, int rftype )
 {
     int rf;
 
     rf = find_rftrans( name );
-    if( !rf ) rf = create_rftrans( name, 0 );
+    if( !rf ) rf = create_rftrans( name, rftype );
     return rf;
 }
 
@@ -178,19 +179,14 @@ rfTransformation *rftrans_from_id( int id )
     return id > 0 && id <= nrftrans ? rflist[id-1] : NULL;
 }
 
-int get_topocentric_rftrans_id( const char *name )
-{
-    int rf;
-
-    rf = find_rftrans( name );
-    if( !rf ) rf = create_rftrans( name, 1 );
-    return rf;
-}
-
-
 int rftrans_topocentric( rfTransformation *rf )
 {
     return rf->istopo;
+}
+
+int rftrans_iers( rfTransformation *rf )
+{
+    return rf->isiers;
 }
 
 void set_rftrans_ref_date( rfTransformation *rf , double date )

@@ -55,11 +55,13 @@ Sections marked with an asterisk (*) are output by default. </p>
 
 <p class="Commanddefinition">floated_stations*</p><p class="Commanddescription">Prints a list of adjustments of floated stations with their significance.</p>
 
-<p class="Commanddefinition">reference_frames*</p><p class="Commanddescription">Prints a list of reference frames used by GPS data.</p>
+<p class="Commanddefinition">reference_frames*</p><p class="Commanddescription">Prints a list of reference frames used by GPS data.  By default reference frames are printed
+using the same type (geocentric, topocentric, IERS) as they are defined by in the 
+command file.  This can be modified with the geocentric_ref_frame, topocentric_ref_frame, and iers_ref_frame options.</p>
 
-<p class="Commanddefinition">geocentric_ref_frame*</p><p class="Commanddescription">Includes the geocentric reference frame parameters in the listing.</p>
+<p class="Commanddefinition">geocentric_ref_frame</p><p class="Commanddescription">Includes the geocentric reference frame parameters in the listing.</p>
 
-<p class="Commanddefinition">topocentric_ref_frame*</p><p class="Commanddescription">Includes the topocentric reference frame parameters in the listing.</p>
+<p class="Commanddefinition">topocentric_ref_frame</p><p class="Commanddescription">Includes the topocentric reference frame parameters in the listing.</p>
 
 <p class="Commanddefinition">iers_ref_frame</p><p class="Commanddescription"> Includes the geocentric reference frame parameters in IERS format.</p>
 
