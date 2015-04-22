@@ -146,12 +146,10 @@ Testing CSV input
 
 The errors listed for calculated parameters are apriori errors
 
-Topocentric axes are east, north, up directions at
-    36 13 11.50711S    174 36 04.90881E
-
 Reference frame: GPS
 
    Defined as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -160,20 +158,6 @@ Reference frame: GPS
       X rotation (arc sec)                0.0000000       -        
       Y rotation (arc sec)                0.0000000       -        
       Z rotation (arc sec)                0.0000000       -        
-
-   Topocentric definition
-
-      Parameter                             Value            Error    
-      Scale factor (ppm)                  0.0000000       -        
-      N-S tilt (arc sec)                  0.0000000       -        
-      W-E tilt (arc sec)                  0.0000000       -        
-      Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
-
-   Minimum error of horizontal tilt is 0.00000 arc sec
-   Maximum error of horizontal tilt is 0.00000 arc sec
-   Rotation axis of maximum tilt error has azimuth 0 degrees
 
 
 

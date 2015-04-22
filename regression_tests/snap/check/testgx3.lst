@@ -28,6 +28,7 @@ The command file testgx3.snp contains:
      list station_coordinates
      list floated_stations
      list reference_frames
+     list geocentric_ref_frame topocentric_ref_frame
      list parameters
      list residuals
      list error_summary
@@ -3696,7 +3697,6 @@ Reference frame: GPS_S
 Reference frame: GPS_TS
 
    Calculated as a geocentric reference frame
-
    Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
 
    Geocentric definition
@@ -3716,6 +3716,8 @@ Reference frame: GPS_TS
                 0.5817   -0.2498    1.0000
                 0.0919   -0.2094    0.1285    1.0000
 
+   Translation at origin (-1.2000, 0.3000, -15.8000) metres
+
    Topocentric definition
 
       Parameter                             Value            Error    
@@ -3732,8 +3734,6 @@ Reference frame: GPS_TS
                 0.0213    1.0000
                 0.0315    0.0022    1.0000
                 0.1770    0.0334   -0.1302    1.0000
-
-   Translation at origin (-1.2000, 0.3000, -15.8000)
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.03142 arc sec
@@ -3782,7 +3782,6 @@ Reference frame: GPS_R
 Reference frame: GPS_TRS
 
    Calculated as a geocentric reference frame
-
    Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
 
    Geocentric definition
@@ -3805,6 +3804,8 @@ Reference frame: GPS_TRS
                -0.0750    0.0733   -0.0637   -0.0121    0.3586    1.0000
                -0.1782    0.0897   -0.1621   -0.0010   -0.8297   -0.1598    1.0000
 
+   Translation at origin (-1.1998, 0.3003, -15.8027) metres
+
    Topocentric definition
 
       Parameter                             Value            Error    
@@ -3824,8 +3825,6 @@ Reference frame: GPS_TRS
                 0.0455   -0.0197   -0.0570    0.0068    1.0000
                 0.0112   -0.0287    0.1972   -0.0181    0.2393    1.0000
                 0.0830   -0.1395   -0.0195   -0.0709   -0.1392   -0.0875    1.0000
-
-   Translation at origin (-1.1998, 0.3003, -15.8027)
 
    Minimum error of horizontal tilt is 0.02519 arc sec
    Maximum error of horizontal tilt is 0.03151 arc sec
@@ -3904,7 +3903,6 @@ Reference frame: TGPS_S
 Reference frame: TGPS_TS
 
    Calculated as a topocentric reference frame
-
    Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
 
    Geocentric definition
@@ -3924,6 +3922,8 @@ Reference frame: TGPS_TS
                 0.5817   -0.2498    1.0000
                 0.0919   -0.2094    0.1285    1.0000
 
+   Translation at origin (-1.2000, 0.3000, -15.8000) metres
+
    Topocentric definition
 
       Parameter                             Value            Error    
@@ -3940,8 +3940,6 @@ Reference frame: TGPS_TS
                 0.0213    1.0000
                 0.0315    0.0022    1.0000
                 0.1770    0.0334   -0.1302    1.0000
-
-   Translation at origin (-1.2000, 0.3000, -15.8000)
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.03142 arc sec
@@ -3990,7 +3988,6 @@ Reference frame: TGPS_R
 Reference frame: TGPS_TRS
 
    Calculated as a topocentric reference frame
-
    Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
 
    Geocentric definition
@@ -4013,6 +4010,8 @@ Reference frame: TGPS_TRS
                -0.0750    0.0733   -0.0637   -0.0121    0.3585    1.0000
                -0.1782    0.0896   -0.1621   -0.0010   -0.8297   -0.1599    1.0000
 
+   Translation at origin (-1.1998, 0.3003, -15.8027) metres
+
    Topocentric definition
 
       Parameter                             Value            Error    
@@ -4032,8 +4031,6 @@ Reference frame: TGPS_TRS
                 0.0455   -0.0197   -0.0570    0.0068    1.0000
                 0.0112   -0.0287    0.1972   -0.0181    0.2393    1.0000
                 0.0830   -0.1395   -0.0195   -0.0709   -0.1395   -0.0876    1.0000
-
-   Translation at origin (-1.1998, 0.3003, -15.8027)
 
    Minimum error of horizontal tilt is 0.02519 arc sec
    Maximum error of horizontal tilt is 0.03151 arc sec

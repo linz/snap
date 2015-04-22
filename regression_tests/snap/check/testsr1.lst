@@ -33,7 +33,7 @@ Data file 2: testsr2.dat
        5 latitudes
     Recoding stations:
     C_101      ignored
-    PEGRID     => PEGGY    
+    PEGRID     => *PEGGY   
     QQ         => QE3       after   2005-01-01 00:00:00
                => QE2      
 
@@ -119,7 +119,7 @@ Fil/Lin  From      Height To        Height Type   Value      Error
 
  2:10    PINTOFALE 0.000                   LT    41 00 55.72 S    1.00
 
- 2:11    PEGS      0.000                   LT    41 00 31.17 S    1.00
+ 2:11    PEGS      0.000                   LT*   41 00 31.17 S    1.00
 
  2:12    QE2       0.000                   LT    41 00 53.36 S    1.00
 

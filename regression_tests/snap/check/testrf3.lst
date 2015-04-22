@@ -28,9 +28,6 @@ The command file testrf3.snp contains:
      list station_coordinates
      list floated_stations
      list reference_frames
-     list no_topocentric_ref_frame
-     list no_geocentric_ref_frame
-     list iers_ref_frame
      list parameters
      list residuals
      list no_error_summary
@@ -139,7 +136,6 @@ The errors listed for calculated parameters are apriori errors
 Reference frame: ITRF2008
 
    Defined as a geocentric reference frame
-
    Reference epoch of frame 01-01-2000
 
    IERS definition

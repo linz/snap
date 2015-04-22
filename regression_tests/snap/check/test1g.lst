@@ -143,9 +143,6 @@ Regression test 1g - calculation of geoid in snap
 
 The errors listed for calculated parameters are apriori errors
 
-Topocentric axes are east, north, up directions at
-    41 00 34.56033S    173 19 34.32061E
-
 Reference frame: GPS
 
    Defined as a geocentric reference frame
@@ -160,21 +157,6 @@ Reference frame: GPS
       X rotation (arc sec)                0.0000000       -        
       Y rotation (arc sec)                0.0000000       -        
       Z rotation (arc sec)                0.0000000       -        
-
-   Topocentric definition
-
-      Parameter                             Value            Error    
-      E translation (m)                   0.0000          -        
-      N translation (m)                   0.0000          -        
-      U translation (m)                   0.0000          -        
-      Scale factor (ppm)                  0.0000000       -        
-      N-S tilt (arc sec)                  0.0000000       -        
-      W-E tilt (arc sec)                  0.0000000       -        
-      Vertical rotation (arc sec)         0.0000000       -        
-
-   Minimum error of horizontal tilt is 0.00000 arc sec
-   Maximum error of horizontal tilt is 0.00000 arc sec
-   Rotation axis of maximum tilt error has azimuth 0 degrees
 
 
 

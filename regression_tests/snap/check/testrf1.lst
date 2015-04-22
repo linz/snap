@@ -238,7 +238,6 @@ Reference frame: GPS_R
 Reference frame: GPS_TRATE
 
    Defined as a geocentric reference frame
-
    Reference epoch of frame 01-01-2008
 
    Geocentric definition
@@ -262,7 +261,6 @@ Reference frame: GPS_TRATE
 Reference frame: GPS_SRATE
 
    Defined as a geocentric reference frame
-
    Reference epoch of frame 01-01-2008
 
    Geocentric definition
@@ -286,7 +284,6 @@ Reference frame: GPS_SRATE
 Reference frame: GPS_RRATE
 
    Defined as a geocentric reference frame
-
    Reference epoch of frame 01-01-2008
 
    Geocentric definition
@@ -325,7 +322,6 @@ Reference frame: GPS_TS
 Reference frame: GPS_RATE
 
    Defined as a geocentric reference frame
-
    Reference epoch of frame 01-01-2008
 
    Geocentric definition

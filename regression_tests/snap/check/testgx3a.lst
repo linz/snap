@@ -30,6 +30,7 @@ The command file testgx3a.snp contains:
      list station_coordinates
      list floated_stations
      list reference_frames
+     list geocentric_ref_frame topocentric_ref_frame
      list parameters
      list residuals
      list error_summary
@@ -904,6 +905,7 @@ Topocentric axes are east, north, up directions at
 Reference frame: GPS_T
 
    Defined as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -920,8 +922,6 @@ Reference frame: GPS_T
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00000 arc sec
@@ -930,6 +930,7 @@ Reference frame: GPS_T
 Reference frame: GPS_S
 
    Calculated as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -946,8 +947,6 @@ Reference frame: GPS_S
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.04056 arc sec
@@ -956,6 +955,7 @@ Reference frame: GPS_S
 Reference frame: GPS_TS
 
    Calculated as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -972,8 +972,6 @@ Reference frame: GPS_TS
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.04056 arc sec
@@ -982,6 +980,7 @@ Reference frame: GPS_TS
 Reference frame: GPS_R
 
    Calculated as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1008,8 +1007,6 @@ Reference frame: GPS_R
                 1.0000
                 0.0396    1.0000
                -0.1433   -0.0476    1.0000
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.03167 arc sec
@@ -1018,6 +1015,7 @@ Reference frame: GPS_R
 Reference frame: GPS_TRS
 
    Calculated as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1047,8 +1045,6 @@ Reference frame: GPS_TRS
                 0.0002    0.0396    1.0000
                 0.0000   -0.1433   -0.0476    1.0000
 
-   Reference frame translations are not used in this adjustment
-
    Minimum error of horizontal tilt is 0.03167 arc sec
    Maximum error of horizontal tilt is 0.04056 arc sec
    Rotation axis of maximum tilt error has azimuth 90 degrees
@@ -1056,6 +1052,7 @@ Reference frame: GPS_TRS
 Reference frame: TGPS_T
 
    Defined as a topocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1072,8 +1069,6 @@ Reference frame: TGPS_T
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00000 arc sec
@@ -1082,6 +1077,7 @@ Reference frame: TGPS_T
 Reference frame: TGPS_S
 
    Calculated as a topocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1098,8 +1094,6 @@ Reference frame: TGPS_S
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.04056 arc sec
@@ -1108,6 +1102,7 @@ Reference frame: TGPS_S
 Reference frame: TGPS_TS
 
    Calculated as a topocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1125,8 +1120,6 @@ Reference frame: TGPS_TS
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
 
-   Reference frame translations are not used in this adjustment
-
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.04056 arc sec
    Rotation axis of maximum tilt error has azimuth 90 degrees
@@ -1134,6 +1127,7 @@ Reference frame: TGPS_TS
 Reference frame: TGPS_R
 
    Calculated as a topocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1161,8 +1155,6 @@ Reference frame: TGPS_R
                 0.0396    1.0000
                -0.1433   -0.0476    1.0000
 
-   Reference frame translations are not used in this adjustment
-
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.03167 arc sec
    Rotation axis of maximum tilt error has azimuth 0 degrees
@@ -1170,6 +1162,7 @@ Reference frame: TGPS_R
 Reference frame: TGPS_TRS
 
    Calculated as a topocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1199,8 +1192,6 @@ Reference frame: TGPS_TRS
                 0.0002    0.0396    1.0000
                 0.0000   -0.1433   -0.0476    1.0000
 
-   Reference frame translations are not used in this adjustment
-
    Minimum error of horizontal tilt is 0.03167 arc sec
    Maximum error of horizontal tilt is 0.04056 arc sec
    Rotation axis of maximum tilt error has azimuth 90 degrees
@@ -1208,6 +1199,7 @@ Reference frame: TGPS_TRS
 Reference frame: GPS
 
    Defined as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
 
    Geocentric definition
 
@@ -1224,8 +1216,6 @@ Reference frame: GPS
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
-
-   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00000 arc sec
