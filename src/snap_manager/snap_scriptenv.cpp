@@ -747,19 +747,31 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
      
     // Regular expression match
 
-    DEFINE_FUNCTION("MatchGroups",2)
+    DEFINE_FUNCTION2("MatchGroups",2,3)
     Value result;
     wxString text(STRPRM(0));
+    bool global=false;
+    if( nParams == 3 && BOOLPRM(3)) global=true;
     wxRegEx re;
-    if( re.Compile(STRPRM(1),wxRE_ADVANCED) && re.Matches(text) )
+    if( re.Compile(STRPRM(1),wxRE_ADVANCED))
     {
-        size_t nMatch = re.GetMatchCount();
-        for( size_t nm = 1; nm < nMatch; nm++ )
+        size_t index=0;
+        while( re.Matches(text.Mid(index)) )
         {
-            if( nm == 1 ) result.SetValue(re.GetMatch(text,nm));
-            else result.SetNext(re.GetMatch(text,nm));
+            size_t nMatch = re.GetMatchCount();
+            for( size_t nm = 1; nm < nMatch; nm++ )
+            {
+                if( nm == 1 ) result.SetValue(re.GetMatch(text,nm));
+                else result.SetNext(re.GetMatch(text,nm));
+            }
+            if( ! global ) break;
+            size_t start;
+            size_t len;
+            re.GetMatch(&start,&len);
+            if( start + len <= 0 ) break;
+            index += start+len;
+            //re.GetMatch( result, 0 );
         }
-        //re.GetMatch( result, 0 );
     }
     RETURN( result ) 
 

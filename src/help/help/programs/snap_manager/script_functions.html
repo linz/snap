@@ -360,11 +360,13 @@ present it identifies the number of the match group to return
 expression). The default behaviour is to return the entire matched
 substring.</p>
 
-<p class="Commanddefinition"><a name="func_MatchGroups"></a>MatchGroups(<i>string</i>,<i>regex</i>)</p>
+<p class="Commanddefinition"><a name="func_MatchGroups"></a>MatchGroups(<i>string</i>,<i>regex</i>,<i>global</i>)</p>
 <p class="Commanddescription">Returns a value for each match group
 in the 
 <a href="resyntax.html">regular expression</a> as it is matched in 
-the string. For example:<br />
+the string. If the optional global parameter is true, then returns values
+for each match of the expression in the string, otherwise only returns values 
+from the first match of the expression with the string. For example:<br />
 $hour,$mins=MatchGroups($time,'^(\d+)\:(\d+)$'))
 </p>
 <p class="Commanddefinition"><a name="func_Replace"></a>Replace(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)</p>
