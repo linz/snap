@@ -415,6 +415,15 @@
     <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecodefile.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\sinexdata.cpp">
+      <Filter>Source Files\snapdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\recordinputbase.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\datafileinput.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">

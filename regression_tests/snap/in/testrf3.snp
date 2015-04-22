@@ -13,7 +13,9 @@ list solution_summary
 list station_coordinates
 list floated_stations
 list reference_frames
-! list no_topocentric_ref_frames
+list no_topocentric_ref_frame
+list no_geocentric_ref_frame
+list iers_ref_frame
 list parameters
 list residuals
 list no_error_summary

@@ -50,4 +50,4 @@ for f in ${t}.snp; do
 done
 
 cd ..
-diff -q -r -B -b out check
+diff -q -r -B -b out check_unix

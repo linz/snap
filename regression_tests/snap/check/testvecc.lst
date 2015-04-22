@@ -153,8 +153,6 @@ Reference frame: GPS
 
    Defined as a geocentric reference frame
 
-   Reference point for rotation and scale (-5128769.655   484688.324 -3747901.084)
-
    Geocentric definition
 
       Parameter                             Value            Error    
@@ -170,6 +168,8 @@ Reference frame: GPS
       N-S tilt (arc sec)                  0.0000000       -        
       W-E tilt (arc sec)                  0.0000000       -        
       Vertical rotation (arc sec)         0.0000000       -        
+
+   Reference frame translations are not used in this adjustment
 
    Minimum error of horizontal tilt is 0.00000 arc sec
    Maximum error of horizontal tilt is 0.00000 arc sec

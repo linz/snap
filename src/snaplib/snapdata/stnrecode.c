@@ -25,10 +25,15 @@
 
 static stn_recode *create_stn_recode( const char *codeto, double datefrom, double dateto )
 {
-    stn_recode *sct=(stn_recode *) check_malloc(sizeof(stn_recode)+strlen(codeto)+1);
+    int usemark=(codeto[0] == RECODE_IGNORE_CHAR) ? 0 : 1;
+
+    stn_recode *sct=(stn_recode *) check_malloc(sizeof(stn_recode)+strlen(codeto)+1+usemark);
     char *sctcodeto = ((char *)(void *)sct)+sizeof(stn_recode);
-    strcpy(sctcodeto,codeto);
+
+    sctcodeto[0]=RECODE_IGNORE_CHAR;
+    strcpy(sctcodeto+1,codeto+(1-usemark));
     sct->codeto=sctcodeto;
+    sct->usemark=usemark;
     sct->datefrom=datefrom;
     sct->dateto=dateto;
     sct->used=RECODE_UNUSED;
@@ -433,7 +438,7 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
             }
             else
             {
-                fprintf( out, " => %-*s",stn_name_width,src->codeto );
+                fprintf( out, " => %-*s",stn_name_width,src->codeto+src->usemark );
             }
             if( src->datefrom != UNDEFINED_DATE && src->dateto != UNDEFINED_DATE )
             {
@@ -484,11 +489,12 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int st
     }
 }
 
-const char *get_stn_recode( stn_recode_map *stt, const char *code, double date )
+const char *get_stn_recode( stn_recode_map *stt, const char *code, double date, int *reject )
 {
     stn_recode *src=0;
     stn_recode_list *list=lookup_station_recode( stt, code );
     int global;
+    if( reject ) *reject=0;
     for( global=0; global<2; global++ )
     {
         if( global ) list=stt->global;
@@ -506,22 +512,28 @@ const char *get_stn_recode( stn_recode_map *stt, const char *code, double date )
     if( ! src ) return 0;
     src->used=RECODE_USED;
     stt->used=RECODE_USED;
-    return src->codeto;
+    if( reject ) *reject = 1-src->usemark;
+    return src->codeto+1;
 }
 
 const char *recoded_network_station( void *recode_data, const char *code, double date )
 {
     const char *code1=0;
     const char *code2=0;
+    const char *recoded;
+    int rej1=0;
+    int rej2=0;
     int id;
     stn_recode_data *srd=(stn_recode_data *)recode_data;
     if( ! srd ) return 0;
-    if( srd->file_map ) code1=get_stn_recode(srd->file_map,code,date);
-    if( srd->global_map ) code2=get_stn_recode(srd->global_map,code1 ? code1 : code,date);
+    if( srd->file_map ) code1=get_stn_recode(srd->file_map,code,date,&rej1);
+    if( srd->global_map ) code2=get_stn_recode(srd->global_map,code1 ? code1 : code,date, &rej2);
     if( ! code2 ) { code2 = code1; code1 = 0; }
     if( ! code2 ) return 0;
+    recoded=code2;
+    if( rej1 || rej2 ) recoded--;  /* Reset pointer to include '*' char */
 
-    if( _stricmp(code2,RECODE_IGNORE_CODE) != 0 && srd->net )
+    if( _stricmp(recoded,RECODE_IGNORE_CODE) != 0 && srd->net )
     {
         id = find_station( srd->net, code2 );
         if( ! id )
@@ -535,5 +547,5 @@ const char *recoded_network_station( void *recode_data, const char *code, double
             }
         }
     }
-    return code2;
+    return recoded;
 }

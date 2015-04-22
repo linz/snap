@@ -25,6 +25,7 @@ typedef struct stn_recode_s
     const char *codeto;
     double datefrom;
     double dateto;
+    int usemark;  /* 0 if station is to be rejected, 1 otherwise */
     int used;
     struct stn_recode_s *next;
 } stn_recode;
@@ -86,7 +87,7 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
 
 void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int stn_name_width, const char *prefix );
 
-const char *get_stn_recode( stn_recode_map *stt, const char *code, double date );
+const char *get_stn_recode( stn_recode_map *stt, const char *code, double date, int *reject );
 
 const char *recoded_network_station( void *recode_data, const char *code, double date );
 

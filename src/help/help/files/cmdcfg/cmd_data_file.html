@@ -15,8 +15,9 @@
 
 <p class="Commanddefinition">data_file  <i>data_file_name</i> [error_factor <i>factor</i>] [recode <i>station_recode_file</i>]</p>
 <p class="Commanddefinition">data_file  <i>data_file_name</i> [error_factor <i>factor</i>]  [recode <i>station_recode_file</i>] csv <i>csv_options</i></p>
+<p class="Commanddefinition">data_file  <i>data_file_name</i> [error_factor <i>factor</i>]  [recode <i>station_recode_file</i>] sinex <i>sinex_options</i></p>
 
-<p>Specifies a data file containing observations to be used in the adjustment.  The data can be either a <a href="../data/obs_file_format.html">SNAP</a> or <a href="../data/csv_obs_files.html">CSV</a> formatted data file.  </p>
+<p>Specifies a data file containing observations to be used in the adjustment.  The data can be either a <a href="../data/obs_file_format.html">SNAP</a>, <a href="../data/csv_obs_files.html">CSV</a>, or <a href="../data/sinex_obs_files.html">SINEX</a> formatted data file.  </p>
 <p>
 This command can be repeated as many times as required to specify all the data files being used.  The parameters of this command are:</p>
 
@@ -25,6 +26,15 @@ This command can be repeated as many times as required to specify all the data f
 	<p class="Commanddefinition"><i>factor</i></p><p class="Commanddescription">is a factor by which all observation errors in the file are multiplied.</p>
 
 	<p class="Commanddefinition"><i>csv_options</i></p><p class="Commanddescription"> are the options defining how the CSV file is structured.  The option &quot;format=<i>dtf_name</i>&quot; defines the <a href="csv_format_definition.html">format definition</a> file.  The default format is &quot;obs&quot;.  Any other options are dependent on the format definition.</p>
+
+
+        <p class="Commanddefinition"><i>sinex_options</i></p><p class="Commanddescription"> are the options defining how the a SINEX file is read.  
+        The option &quot;code=<i>codetype</i>&quot; defines how the station code is taken from the SINEX file.  <i>codetype</i> can
+        be either SITE, which just uses the SINEX site code, or POINT, which combines the SINEX site and point codes.  The default is SITE.
+        The option &quot;ref_frame=<i>rf_name</i>&quot; defines the <a href="cmd_reference_frame.html">reference frame</a> 
+            to associate with the observations.  The default format is &quot;GNSS&quot;.  
+        The option &quot;date=<i>obsdate</i> can be used to define a different date for the observations to that in the sinex file header.
+            </p>
 
 <p>The error factor may also be defined by the <a href="cmd_classification.html">classification</a> command.</p>
 

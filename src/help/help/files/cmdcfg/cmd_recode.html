@@ -26,7 +26,8 @@ command.
 </p>
 <p>
 The <i>code</i> and <i>newcode</i> define the data file code and the codes that they are recoded to in SNAP.
-The <i>newcode</i> can be &quot;*&quot;, which means that the station will be ignored.
+The <i>newcode</i> can be &quot;*&quot;, which means that the station will be ignored. Also <i>newcode</i>
+can be preceded by '*' to reject all observations involving the mark.
 </p>
 <p>
 Station recoding can be restricted to a range of dates - valid date range specifications are:
@@ -45,6 +46,29 @@ to the code.  This is only applied with a date range.
 </p>
 <p>The <i>recode file</i> option can specify a <a href="../crd/stn_recode_file.html">station recode file</a>
 containing a list of station recode specifications.
+</p>
+
+<p>Some examples of recode commands:</p>
+
+<p class=Commanddefinition>recode ABCD to XYZ </p>
+<p class=Commanddescription>Recoded all mark ABCD to XYZ</p>
+
+<p class=Commanddefinition>recode ABCD to XYZ after 2005-05-01</p>
+<p class=Commanddescription>Recoded mark ABCD to XYZ for observations dated after 1 May 2005.</p>
+
+<p class=Commanddefinition>recode ABCD to *</p>
+<p class=Commanddescription>Ignore all observations involving ABCD</p>
+
+<p class=Commanddefinition>recode ABCD to *ABCD</p>
+<p class=Commanddescription>
+Reject all observations involving ABCD</p>
+
+<p class=Commanddefinition>recode suffix _A after 2005-05-01 for inside NZTM landslip.wkt</p>
+<p class=Commanddescription>
+Recodes all marks inside the extents defined by the polygon defined using NZTM coordinates 
+in the well known text file landslip.wkt for observations after 1 May 2005.  So for example
+ABCD will be recoded to ABCD_A.  Note that stations that already have a suffix _A will not
+be affected.
 </p>
 
 <div class="SeeAlso">

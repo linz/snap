@@ -44,6 +44,7 @@ private:
     void findSection(RecordInputBase &dfi, const std::string section );
     std::string ref_frame;
     bool use_point_code;
+    double obsdate;
     struct PointData
     {
         int id;
@@ -59,9 +60,19 @@ private:
 SinexDataReader::SinexDataReader( const OptionString &config )
 {
     ref_frame=std::string(config.valueOf("ref_frame","GNSS"));
-    std::string code= config.valueOf("name","SITE");
+    std::string code= config.valueOf("code","SITE");
     boost::to_upper(code);
     use_point_code = code=="POINT";
+    std::string datestr= config.valueOf("name","");
+    obsdate=UNDEFINED_DATE;
+    if( datestr != "" )
+    {
+        obsdate=snap_datetime_parse(datestr.c_str(),0);
+        if( obsdate == UNDEFINED_DATE )
+        {
+            throw RecordError(std::string("Invalid date ")+datestr+" specified for SINEX file");
+        }
+    }
 }
 
 SinexDataReader::~SinexDataReader(){}
@@ -75,7 +86,7 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
     double enddate=readSinexDate(input.substr(45,12));
     double nprm=atoi(input.substr(60,5).c_str());
     if( startdate == UNDEFINED_DATE || enddate == UNDEFINED_DATE ) dfi.raiseError("Invalid start/end date in SINEX header");
-    double obsdate=(startdate+enddate)/2.0;
+    if( obsdate == UNDEFINED_DATE ) obsdate=(startdate+enddate)/2.0;
     if( input.substr(68).find('S') == std::string::npos ) dfi.raiseError("Invalid SINEX file - does not contain station data");
 
     // Scan for SITE/ID section

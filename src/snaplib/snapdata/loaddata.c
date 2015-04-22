@@ -99,6 +99,7 @@ typedef struct
     int codeid;   /* Index into saved codes - subtract saved_codes_offset */
     int recoded;  /* Flag for recoded */
     int id;       /* Recoded station id */
+    int reject;   /* Recoded rejection */
 } recoded_id;
 
 static recoded_id *saved_ids=NULL;
@@ -234,6 +235,7 @@ static int save_code( const char *code )
     newid->codeid=codeid;
     newid->recoded=0;
     newid->id=0;
+    newid->reject=0;
     return next_saved_id;
 }
 
@@ -245,10 +247,12 @@ static const char *saved_code( int codeid )
     return saved_codes+codeid;
 }
 
-static int get_recoded_id( int id )
+static int get_recoded_id( int id, int *reject )
 {
     const char * src;
     const char * tgt;
+    
+    if( reject ) *reject=0;
     recoded_id *rid;
     if( id == 0 ) return 0;
     if( id > next_saved_id ) return 0;
@@ -267,10 +271,13 @@ static int get_recoded_id( int id )
         }
         else
         {
-            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt );
+            int reject = tgt[0] == RECODE_IGNORE_CHAR ? 1 : 0;
+            rid->reject = reject;
+            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt+reject );
         }
         rid->recoded=1;
     }
+    if( reject ) *reject=rid->reject;
     return rid->id;
 }
 
@@ -410,16 +417,22 @@ static void setup_data_format( int format )
 
 static void check_data( void )
 {
+    int rejfrom=0;
+    int rejto=0;
+
     if( recoding )
     {
-        get_recoded_id( data.from );
-        get_recoded_id( tgt->to );
+        get_recoded_id( data.from, &rejfrom );
+        get_recoded_id( tgt->to, &rejto );
     }
 
     if( !gotval || !goterr)
     {
         handle_error( INVALID_DATA, "Observation value or error not defined",NO_MESSAGE);
     }
+
+    if( rejfrom || rejto ) ldt_unused();
+
     switch( data.format )
     {
     case SD_OBSDATA:
@@ -722,8 +735,8 @@ double ldt_calc_value( int calc_type, long id1, long id2 )
         {
             case CALC_DISTANCE:
             case CALC_HDIST:
-                id1=get_recoded_id( id1 );
-                id2=get_recoded_id( id2 );
+                id1=get_recoded_id( id1, 0 );
+                id2=get_recoded_id( id2, 0 );
                 break;
         }
     }
@@ -1151,7 +1164,7 @@ static void recode_stations()
     if( data.from )
     {
         lastid=data.from;
-        data.from=get_recoded_id( data.from );
+        data.from=get_recoded_id( data.from, 0 );
         if( data.from < 0 ) inst_cancelled=1;
     }
     for( i=0; i < data.nobs; i++ )
@@ -1159,7 +1172,7 @@ static void recode_stations()
         trgtdata *tgt=get_trgtdata(&data,i);
         if( tgt->to > lastid ) lastid=tgt->to;
         if( ! tgt->to ) continue;
-        tgt->to=get_recoded_id( tgt->to );
+        tgt->to=get_recoded_id( tgt->to, 0 );
         if( tgt->to < 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
         {
             ndata_cancelled++;

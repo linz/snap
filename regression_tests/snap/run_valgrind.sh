@@ -20,12 +20,12 @@ if [ "$1" != "" ]; then
     t=test${1}
 fi
 
-mkdir -p out
-rm -f out/*
+mkdir -p valgrind
+rm -f valgrind/*
 
 for f in in/${t}.snp; do
     base=`basename $f .snp`
     echo "Running ${base}"
-    valgrind --track-origins=yes ${SNAPDIR}/snap $f > ${base}-valgrind.log 2>&1
+    (valgrind --track-origins=yes ${SNAPDIR}/snap 2>&1 ) | grep '^=='  > valgrind/${base}-valgrind.log 2>&1
 done
 

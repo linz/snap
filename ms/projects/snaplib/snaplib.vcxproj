@@ -120,6 +120,7 @@
     <ClCompile Include="..\..\..\src\snaplib\network\networkw.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\sinexdata.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\snapcsvbase.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\datatype.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\geoddata.c" />
@@ -152,6 +153,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\chkalloc.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\classify.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\datafile.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\datafileinput.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\dateutil.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\delimitedtextfile.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\dms.c" />
@@ -170,6 +172,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\probfunc.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\progress.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\readcfg.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\recordinputbase.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\recordstream.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\strarray.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c" />

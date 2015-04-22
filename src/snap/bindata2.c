@@ -1156,8 +1156,11 @@ static void setup_format_columns( listing_def *format )
             }
             col->width = width;
         }
-        fields[col->column].requested = 1;
-        if( !col->width ) col->width = fields[col->column].width;
+        else
+        {
+            fields[col->column].requested = 1;
+            if( !col->width ) col->width = fields[col->column].width;
+        }
     }
 }
 

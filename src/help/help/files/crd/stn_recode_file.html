@@ -29,11 +29,25 @@ Station recoding can be applied globally, that is for all files loaded into a sn
 The recode command can define a station recode file or explicitly defines stations to recode.
 </p>
 <p>The station recode file (or files) is a CSV formatted file with columns 
-&quot;codefrom&quot;, &quot;codeto&quot; and optionally &quot;datefrom&quot; and &quot;dateto&quot;.  Each record in the file defines a code in the data file and the code that it is to be changed to.  Stations can also be recoded to &quot;*&quot;, in which case they will be ignored.  If &quot;codefrom&quot; and &quot;codeto&quot; are both &quot;*&quot; then all stations will be ignored except those explicitly recoded in the file.
+&quot;codefrom&quot;, &quot;codeto&quot; and optionally &quot;datefrom&quot; and &quot;dateto&quot;.  Each record in the file defines a code in the data file and the code that it is to be changed to.  
 </p>
 <p>
 The recode may also specify a date range.  The recoding will only apply after the <i>datefrom</i> and before the <i>dateto</i> dates.  Either or both can be blank - for example if <i>datefrom</i> is blank then any date before dateto will apply.
 </p>
+<p>Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DD:hh:mm:ss&quot;.</p>
+<p>
+Stations can be recoded to &quot;*&quot;, in which case they will be ignored.  If &quot;codefrom&quot; and &quot;codeto&quot; are both &quot;*&quot; then all stations will be ignored except those explicitly recoded in the file.
+</p>
+<p>
+Similarly stations can be recoded to &quot;*XYZ&quot; where XYZ is the name that the station is to be recoded to.
+This will recode the station to XYZ, but reject any observations involving it.  This can be used to reject all observations
+using a station with a date range.  For example
+</p>
+<p class="Commanddefinition">
+codefrom,codeto,datefrom,dateto<br />
+ABCD,*ABCD,2005-06-01,
+</p>
+<p>will reject all observations involving ABCD after 1 June 2005.</p>
 <p>
 Multiple recodings can be specified for each station.  The last matching recoding record with a date range matching the observation will be used in preference.  If there is none, then the last recoding record without a date range is used.
 </p>
@@ -48,9 +62,6 @@ recodes.
 <p>When the station code has been recoded the SNAP will check if it is defined in the
 configuration file.  If it is not defined and if the original code is defined then the SNAP will 
 create a new station based on the original one.
-</p>
-<p>
-Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DD:hh:mm:ss&quot;.  
 </p>
 <div class="SeeAlso">
     <h3>See also:</h3>

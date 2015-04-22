@@ -21,11 +21,12 @@ survey marks.</p>
 
 <p>Observations are entered as measured from an instrument to a target.  The instrument and target are assumed to be located at a specified height above their survey stations.  SNAP has no facility for handling eccentric observations.   To use eccentric data you must either correct the data for the eccentricity or treat the eccentric location as a survey station distinct from the central station.</p>
 
-<p>SNAP supports two basic types of observation file - <a href="obs_file_format.html">SNAP</a> and <a href="csv_obs_files.html">CSV</a> formats.  
+<p>SNAP supports three types of observation file - <a href="obs_file_format.html">SNAP</a>, <a href="csv_obs_files.html">CSV</a>, and <a href="sinex_obs_files.html">SINEX</a> formats.  
 The SNAP format is more flexible in terms of handling all the data types and options supported by SNAP.  
 The CSV format is more limited, but more suitable for integration with other programs.  
 The main limitations of the CSV format are that it doesn't handle correlated sets of GPS baselines or point positions.
-The CSV format also requires a <a href="../cmdcfg/csv_format_definition.html">format definition</a> file to specify the organisation of the observations in the file.
+The CSV format also requires a <a href="../cmdcfg/csv_format_definition.html">format definition</a> file to specify the organisation of the observations in the file. The SINEX format is used by GNSS processing software to output the
+results of processing GNSS data.  It is limited to point data only.
 </p>
 
 <p>SNAP can use multiple data files files each of which can contain many types of data - the data files are defined using <a href="../cmdcfg/cmd_data_file.html">data file commands</a> in the <a href="../cmdcfg/index.html">SNAP command file</a>.</p>
@@ -40,6 +41,8 @@ metres, and all angles and angle errors are expressed in degrees.</p>
 <p><a href="obs_file_format.html">SNAP observation file format</a></p>
 
 <p><a href="csv_obs_files.html">CSV observation file format</a></p>
+
+<p><a href="sinex_obs_files.html">SINEX observation files</a></p>
 
 <p><a href="obs_data_types.html">Summary of data types</a></p>
 

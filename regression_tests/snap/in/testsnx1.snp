@@ -3,7 +3,7 @@ title Testing SINEX file reading
 mode 3d data_check
 coordinate_file testsnx1.crd
 data_file testsnx1.snx SINEX 
-data_file testsnx1.snx SINEX ref_frame=QRF name=POINT
+data_file testsnx1.snx SINEX ref_frame=QRF code=POINT date=1MAY2013 error_factor 2.0
 
 ignore_missing_stations yes
 

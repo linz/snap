@@ -11,6 +11,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #include "snap/snapglob.h"
 #include "util/readcfg.h"
@@ -123,6 +124,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
     char *fname, *format, errmess[80];
     char *options = 0;
     char *recode = 0;
+    char *specs;
     int ftype;
     double factor;
 
@@ -137,8 +139,11 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
     ftype = SNAP_FORMAT;
     factor = 1.0;
 
-    while( NULL != (format = strtok(NULL," ")) )
+    specs = strtok(NULL,"");
+    while( specs && NULL != (format = strtok(specs," ")) )
     {
+        int readoptions=0;
+        specs = strtok(NULL,"");
         if( _stricmp(format,"SNAP") == 0 )
         {
             ftype = SNAP_FORMAT;
@@ -149,11 +154,13 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
         }
         else if ( _stricmp(format,"RECODE") == 0 )
         {
-            recode = strtok(NULL," ");
+            recode = strtok(specs," ");
+            specs = strtok(NULL,"");
         }
         else if ( _stricmp(format,"ERROR_FACTOR") == 0 )
         {
-            format = strtok(NULL," ");
+            format = strtok(specs," ");
+            specs = strtok(NULL,"");
             if( !format || sscanf(format,"%lf",&factor) != 1 )
             {
                 send_config_error( cfg, INVALID_DATA, "Invalid error factor for data file");
@@ -163,20 +170,60 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
         else if ( _stricmp(format,"CSV") == 0 )
         {
             ftype = CSV_FORMAT;
-            options = strtok(NULL,"");
-            break;
+            readoptions=1;
         }
         else if ( _stricmp(format,"SINEX") == 0 )
         {
             ftype = SINEX_FORMAT;
-            options = strtok(NULL,"");
-            break;
+            readoptions=1;
         }
         else
         {
             sprintf(errmess,"Invalid format %.20s specified for data file",format);
             send_config_error( cfg, INVALID_DATA,errmess);
             return OK;
+        }
+
+        if( readoptions && specs )
+        {
+            char *endopts;
+            char *nextfield;
+            int inopts;
+            /* Options are following fields containing '=' */
+
+            while( isspace(*specs) ) specs++;
+            options=specs;
+
+            inopts=0;
+            nextfield=0;
+            endopts=0;
+            for( char *c=specs; *c; c++ )
+            {
+                if( ! isspace(*c))
+                {
+                    if( *c == '=' )
+                    {
+                        inopts=1;
+                        nextfield=0;
+                        endopts=0;
+                    }
+                    else if( ! inopts )
+                    {
+                        if(! nextfield ) nextfield=c;
+                    }
+                }
+                else if( ! inopts )
+                {
+                    break;
+                }
+                else
+                {
+                    endopts=c;
+                }
+            }
+            if( nextfield == options ) options=0;
+            if( endopts ) *endopts=0;
+            specs=nextfield;
         }
     }
 
