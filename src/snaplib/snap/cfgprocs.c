@@ -195,7 +195,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
             options=specs;
 
             inopts=0;
-            nextfield=0;
+            nextfield=options;
             endopts=0;
             for( char *c=specs; *c; c++ )
             {
@@ -218,7 +218,8 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
                 }
                 else
                 {
-                    endopts=c;
+                    inopts=0;
+                    if( ! endopts ) endopts=c;
                 }
             }
             if( nextfield == options ) options=0;
