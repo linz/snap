@@ -1,0 +1,47 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="observations, format, data file, observation file">
+<title>SINEX observation file format</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="sinex_obs_files"></a>SINEX observation file format</h1>
+
+<p>The SINEX format is a format for storing the results of processing GNSS data.  It contains the coordinates
+that have been calculated for stations and the covariance matrix of the coordinates.  The format is defined by the IERS (International Earth Rotation Service) - see <a href="http://www.iers.org/IERS/EN/Organization/AnalysisCoordinator/SinexFormat/sinex.html">http://www.iers.org/IERS/EN/Organization/AnalysisCoordinator/SinexFormat/sinex.html</a>.
+</p>
+<p>SNAP can read coordinates and covariances from SINEX files as a set of correlated point coordinate observations.
+Each SINEX file holds a single group of correlated point coordinates.</p>
+<p>
+Each calculated coordinate in a SINEX file is defined in terms of a four character site code, a two character point code, and four character solution id.  The point code defines the specific monument at a site to which the coordinate is calculated.  The solution code allows multiple coordinates to be calculated for the same monument.  For example this could be before and after an antenna change.
+</p>
+<p>When the data is imported into SNAP either the site code, or the site code and point code can be used to generated the mark code used in SNAP.  For example if the SINEX site code is ABCD and point code is A, then in SNAP this can be
+either ABCD, or ABCD_A.  This is defined by options in the <a href="../cmdcfg/cmd_data_file.html">data_file</a> command
+used to load the SINEX file.  Note that SNAP can only use SINEX files with just one solution per mark - it will
+reject SINEX files with more than one solution.
+</p>
+
+<p>SNAP requires that the covariance information in the SINEX file is stored as covariances rather than correlations,
+and in lower triangular format rather than upper triangular.  The SINEX file should contain a line
+</p>
+
+<p class="Commanddefinition">SOLUTION/MATRIX_ESTIMATE L COVA<p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="../cmdcfg/cmd_data_file.html">The data_file command</a></p>
+
+<p><a href="obs_file_format.html">SNAP observation file format</a></p>
+
+<p><a href="obs_data_types.html">Summary of data types</a></p>
+
+</div>
+</body>
+</html>
