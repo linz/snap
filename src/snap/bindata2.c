@@ -32,6 +32,8 @@
 #include "snap/snapglob.h"
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
+#include "snap/bearing.h"
+#include "snap/rftrans.h"
 #include "util/chkalloc.h"
 #include "snap/bindata.h"
 #include "bindata2.h"
@@ -221,40 +223,163 @@ void print_input_data( FILE *out )
 {
     bindata *b;
     survdata *sd;
+    int first;
+    int type;
     print_section_heading( out, "INPUT DATA" );
+    print_json_start(out,"observations_types");
+    fprintf(out,"{");
+    first=1;
+    for( type=0; type<NOBSTYPE; type++ ) if( obstypecount[type] )
+    {
+        if( first ) { first=0; } else { fprintf(out,","); }
+        fprintf(out,"\n  \"%s\": \"%s\"",datatype[type].code,datatype[type].name);
+    }
+    fprintf(out,"\n}\n");
+    print_json_end(out,"observations_types");
 
-    list_datatypes_used( out );
-
-    fprintf(out,"\nFil/Lin  %-*s Height %-*s Height Type   Value      Error\n",
-            stn_name_width,"From",stn_name_width,"To");
+    print_json_start(out,"observations");
+    fprintf(out,"[");
+    first=1;
 
     b = create_bindata();
     init_get_bindata( 0L );
     while( get_bindata( b ) == OK )
     {
-        switch (b->bintype)
+        int iobs;
+        int ncvrrow=0;
+
+        if( b->bintype != SURVDATA ) continue;
+        sd = (survdata *) b->data;
+        if( first ) { first=0; } else { fprintf(out,","); }
+        fprintf( out, "\n  {\n  \"obs\":\n    [" );
+        for( iobs=0; iobs < sd->nobs; iobs++ )
         {
-        case SURVDATA:
-            sd = (survdata *) b->data;
+            const char *fromstr="from";
+            const char *tostr="to";
+            const char *totype=fromstr;
+            double *value=0;
+            double *error=0;
+            int nvalue=0;
+            trgtdata *tgt=get_trgtdata(sd,iobs);
+
+            if( iobs ) fprintf(out,",");
+            fprintf( out, "\n      {\n");
+            fprintf( out, "        \"id\":%d,\n",tgt->id);
+            if( sd->from )
+            {
+                fprintf( out, "        \"from\":\"%s\",\n",station_code(sd->from));
+                fprintf( out, "        \"from_hgt\":%.4lf,\n",sd->fromhgt);
+                totype=tostr;
+            }
+            fprintf( out, "        \"%s\":\"%s\",\n",totype,station_code(tgt->to));
+            fprintf( out, "        \"%s_hgt\":%.4lf,\n",totype,tgt->tohgt);
+            if( sd->date == UNDEFINED_DATE )
+            {
+                fprintf( out, "        \"date\":null,\n");
+            }
+            else
+            {
+                fprintf( out, "        \"date\":\"%s\",\n",date_as_string(sd->date,0,0));
+            }
+            fprintf( out, "        \"type\":\"%s\",\n",datatype[tgt->type].code);
+
             switch( sd->format )
             {
-            case SD_OBSDATA: list_obsdata( out, sd ); break;
-            case SD_VECDATA: list_vecdata( out, sd ); break;
-            case SD_PNTDATA: list_pntdata( out, sd ); break;
-            default: program_error("Invalid survdata format",
-                                       "print_input_data");
+            case SD_OBSDATA:
+                {
+                    obsdata *o=(obsdata *)(void *)tgt;
+                    value=&(o->value);
+                    error=&(o->value);
+                    nvalue=1;
+                }
+                break;
+            case SD_VECDATA:
+                {
+                    vecdata *v=(vecdata *)(void *)tgt;
+                    value=&(v->vector[0]);
+                    nvalue=3;
+                    ncvrrow+=3;
+                }
+                break;
+            case SD_PNTDATA:
+                {
+                    pntdata *p=(pntdata *)(void *)tgt;
+                    value=&(p->value);
+                    error=&(p->value);
+                    nvalue=1;
+                }
+                break;
             }
-
-        case NOTEDATA: break;
-
-        default:      program_error("Invalid binary type","print_input_bindata");
-            break;
+            if( nvalue )
+            {
+                int ivalue;
+                int ndp=datatype[tgt->type].dfltndp+2;
+                if( datatype[tgt->type].isangle ) ndp+=4;
+                fprintf( out, "        \"value\": [");
+                for( ivalue=0; ivalue<nvalue; ivalue++ )
+                {
+                    if( ivalue ) fprintf(out,",");
+                    fprintf( out, "%.*lf", ndp,value[ivalue]);
+                }
+                fprintf( out, "],\n");
+                if( error )
+                {
+                    fprintf( out, "        \"error\": [%.*lf],\n",
+                            ndp+2,*error);
+                }
+            }
+            if( tgt->type == PB )
+            {
+                fprintf( out, "        \"projection\": \"%s\",\n", bproj_name(sd->reffrm));
+            }
+            if( sd->format == SD_VECDATA )
+            {
+                fprintf( out, "        \"ref_frame\": \"%s\",\n", 
+                                  rftrans_name(rftrans_from_id(sd->reffrm)));
+            }
+            if( tgt->nclass )
+            {
+                int iclass;
+                fprintf( out, "        \"classifications\": {");
+                for( iclass=0; iclass < tgt->nclass; iclass++ )
+                {
+                    classdata *clsf=sd->clsf+iclass+tgt->iclass;
+                    if( iclass ) fprintf(out,",");
+                    fprintf( out, "\n          \"%s\":\"%s\"",
+                            classification_name(&obs_classes,clsf->class_id),
+                            class_value_name(&obs_classes,clsf->class_id,clsf->name_id));
+                }
+                fprintf( out, "\n          },\n");
+            }
+            if( tgt->nsyserr )
+            {
+                int isyserr;
+                fprintf( out, "        \"systematic_errors\": {");
+                for( isyserr=0; isyserr < tgt->nsyserr; isyserr++ )
+                {
+                    syserrdata *syserr=sd->syserr+isyserr+tgt->isyserr;
+                    if( isyserr ) fprintf(out,",");
+                    fprintf( out, "\n          \"%s\":%.8le",
+                            syserr_name(syserr->prm_id), syserr->influence);
+                }
+                fprintf( out, "\n          },\n");
+            }
+            fprintf( out, "        \"useobs\":%s,\n",tgt->unused ? "false" : "true");
+            fprintf( out, "        \"file\":\"%s\",\n",survey_data_file_name(sd->file));
+            fprintf( out, "        \"file_line-no\":%d\n",tgt->lineno);
+            fprintf( out, "      }");
         }
+        fprintf( out, "\n    ]" );
+        if( ncvrrow )
+        {
+            fprintf( out, ",\n  \"covariance\": " );
+            print_ltmat_json(out,sd->cvr,ncvrrow,"%.10lf",4);
+        }
+        fprintf( out, "\n  }");
     }
-
+    fprintf(out,"\n]\n");
     delete_bindata(b);
-
-    fprintf(out,"\n");
+    print_json_end(out,"observations");
 }
 
 

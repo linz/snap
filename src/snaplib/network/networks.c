@@ -474,7 +474,7 @@ static void process_selected_stations1( network *nw, char *select, const char *b
         /* Bother - it must be a mistake */
 
         {
-            sprintf(errmess,"Invalid station %.50s in %50s",field,src);
+            sprintf(errmess,"Invalid station %.50s in %.50s",field,src);
             handle_error(INVALID_DATA,errmess,NULL);
             errmess[0] = 0;
         }

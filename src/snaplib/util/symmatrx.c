@@ -153,6 +153,26 @@ void print_ltmat( FILE *out, ltmat N, int nrow, const char *format, int indent )
     }
 }
 
+void print_ltmat_json( FILE *out, ltmat N, int nrow, const char *format, int indent )
+{
+    int ir, ic;
+    fprintf(out,"[");
+    for( ir=0; ir < nrow; ir++ )
+    {
+        fprintf( out, "%s\n%*s    [",ir ? "," : "",indent,"" );
+        for( ic=0; ic < nrow; ic++ )
+        {
+            if( ic )
+            {
+                fprintf(out,",");
+                if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",indent,"");
+            }
+            fprintf( out, format, Lij(N,ir,ic));
+        }
+        fprintf( out, "]");
+    }
+    fprintf( out, "\n%*s  ]\n%*s",indent,"",indent,"");
+}
 
 /* This code performs a choleski decomposition with pivoting to
    bring the largest remaining diagonal term to the top.  The

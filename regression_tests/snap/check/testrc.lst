@@ -39,76 +39,450 @@ Regression test 1 - data types and observation equations
 
 ================================================================================
 
-The following codes are used to identify data types
-   ED  ellipsoidal distances
-   PB  projection bearings
-   ZD  zenith distances
+BEGIN_JSON observations_types
+{
+  "ED": "ellipsoidal distance",
+  "PB": "projection bearing",
+  "ZD": "zenith distance"
+}
 
-Fil/Lin  From  Height To    Height Type   Value      Error
+END_JSON observations_types
 
- 1:9     1     0.000  2     0.000  ZD    83 35 17.3      5.0   DEFAULT
-     refraction_coef_code = Default
+BEGIN_JSON observations
+[
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.4588882],
+        "error": [1.458888239],
+        "classifications": {
+          "refraction_coef_code":"Default"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":9
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"3",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.6402095],
+        "error": [1.640209526],
+        "classifications": {
+          "refraction_coef_code":"Default"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":10
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"2",
+        "from_hgt":0.0000,
+        "to":"1",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.6827044],
+        "error": [1.682704414],
+        "classifications": {
+          "refraction_coef_code":"Default"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":12
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"3",
+        "from_hgt":0.0000,
+        "to":"1",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.5013831],
+        "error": [1.501383128],
+        "classifications": {
+          "refraction_coef_code":"Default"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":13
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"11",
+        "from_hgt":0.0000,
+        "to":"12",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.4588902],
+        "error": [1.458890178],
+        "classifications": {
+          "refraction_coef_code":"TEST"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":17
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"11",
+        "from_hgt":0.0000,
+        "to":"13",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.6402124],
+        "error": [1.640212434],
+        "classifications": {
+          "refraction_coef_code":"TEST"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":18
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"12",
+        "from_hgt":0.0000,
+        "to":"11",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.6827064],
+        "error": [1.682706354],
+        "classifications": {
+          "refraction_coef_code":"TEST"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":20
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"13",
+        "from_hgt":0.0000,
+        "to":"11",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ZD",
+        "value": [1.5013860],
+        "error": [1.501386037],
+        "classifications": {
+          "refraction_coef_code":"TEST"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":21
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ED",
+        "value": [889.260000],
+        "error": [889.26000000],
+        "classifications": {
+          "equipment":"edm1"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":28
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ED",
+        "value": [889.270000],
+        "error": [889.27000000],
+        "classifications": {
+          "equipment":"edm_k"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":29
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ED",
+        "value": [889.280000],
+        "error": [889.28000000],
+        "classifications": {
+          "equipment":"edm_k1"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":30
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ED",
+        "value": [889.290000],
+        "error": [889.29000000],
+        "classifications": {
+          "equipment":"edm_t"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":31
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"ED",
+        "value": [889.280000],
+        "error": [889.28000000],
+        "classifications": {
+          "equipment":"test_edm"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":32
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"PB",
+        "value": [0.7070329],
+        "error": [0.707032880],
+        "projection": "WELLTM1949",
+        "classifications": {
+          "plan":"plan1",
+          "projection":"WELLTM1949"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":43
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"PB",
+        "value": [0.7070678],
+        "error": [0.707067787],
+        "projection": "WELLTM1949",
+        "classifications": {
+          "plan":"plan_abc",
+          "projection":"WELLTM1949"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":44
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"PB",
+        "value": [0.7071201],
+        "error": [0.707120146],
+        "projection": "WELLTM1949",
+        "classifications": {
+          "plan":"plan_abc",
+          "projection":"WELLTM1949"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":45
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"PB",
+        "value": [0.7070329],
+        "error": [0.707032880],
+        "projection": "WELLTM1949",
+        "classifications": {
+          "plan":"plan_b1",
+          "projection":"WELLTM1949"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":46
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"PB",
+        "value": [0.7070678],
+        "error": [0.707067787],
+        "projection": "WELLTM1949",
+        "classifications": {
+          "plan":"plan_b2",
+          "projection":"WELLTM1949"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":47
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"1",
+        "from_hgt":0.0000,
+        "to":"2",
+        "to_hgt":0.0000,
+        "date":null,
+        "type":"PB",
+        "value": [0.7077310],
+        "error": [0.707731012],
+        "projection": "WELLTM1949",
+        "classifications": {
+          "plan":"plan_c",
+          "projection":"WELLTM1949"
+          },
+        "useobs":true,
+        "file":"testrc.dat",
+        "file_line-no":48
+      }
+    ]
+  }
+]
 
- 1:10    1     0.000  3     0.000  ZD    93 58 37.5      5.0   DEFAULT
-     refraction_coef_code = Default
-
- 1:12    2     0.000  1     0.000  ZD    96 24 42.7      5.0   DEFAULT
-     refraction_coef_code = Default
-
- 1:13    3     0.000  1     0.000  ZD    86 01 22.5      5.0   DEFAULT
-     refraction_coef_code = Default
-
- 1:17    11    0.000  12    0.000  ZD    83 35 17.7      5.0   TEST
-     refraction_coef_code = TEST
-
- 1:18    11    0.000  13    0.000  ZD    93 58 38.1      5.0   TEST
-     refraction_coef_code = TEST
-
- 1:20    12    0.000  11    0.000  ZD    96 24 43.1      5.0   TEST
-     refraction_coef_code = TEST
-
- 1:21    13    0.000  11    0.000  ZD    86 01 23.1      5.0   TEST
-     refraction_coef_code = TEST
-
- 1:28    1     0.000  2     0.000  ED      889.2600   0.5000   EDM1
-     equipment = edm1
-
- 1:29    1     0.000  2     0.000  ED      889.2700   0.5000   EDM_K
-     equipment = edm_k
-
- 1:30    1     0.000  2     0.000  ED      889.2800   0.5000   EDM_K1
-     equipment = edm_k1
-
- 1:31    1     0.000  2     0.000  ED      889.2900   0.5000   EDM_T
-     equipment = edm_t
-
- 1:32    1     0.000  2     0.000  ED      889.2800   0.5000   TEST_EDM
-     equipment = test_edm
-
- 1:43    1     0.000  2     0.000  PB    40 30 36.0     10.0   PLAN1
-     plan = plan1
-     projection = WELLTM1949
-
- 1:44    1     0.000  2     0.000  PB    40 30 43.2     10.0   PLAN_ABC
-     plan = plan_abc
-     projection = WELLTM1949
-
- 1:45    1     0.000  2     0.000  PB    40 30 54.0     10.0   PLAN_ABC
-     plan = plan_abc
-     projection = WELLTM1949
-
- 1:46    1     0.000  2     0.000  PB    40 30 36.0     10.0   PLAN_B1
-     plan = plan_b1
-     projection = WELLTM1949
-
- 1:47    1     0.000  2     0.000  PB    40 30 43.2     10.0   PLAN_B2
-     plan = plan_b2
-     projection = WELLTM1949
-
- 1:48    1     0.000  2     0.000  PB    40 33 00.0     10.0   PLAN_C
-     plan = plan_c
-     projection = WELLTM1949
-
+END_JSON observations
 
 
 

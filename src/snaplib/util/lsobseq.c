@@ -294,23 +294,8 @@ void print_obseqn_json( FILE *out, void *hA, const char *srcjson, int nprefix )
     }
     else
     {
-        int ir, ic;
-        fprintf( out, "  \"cvr\": [" );
-        for( ir=0; ir < A->nrow; ir++ )
-        {
-            fprintf( out, "%s\n%*s    [",ir ? "," : "",nprefix,"" );
-            for( ic=0; ic < A->nrow; ic++ )
-            {
-                if( ic )
-                {
-                    fprintf(out,",");
-                    if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
-                }
-                fprintf( out, "%15.8le", Lij(cvr,ir,ic));
-            }
-            fprintf( out, "]");
-        }
-        fprintf( out, "\n%*s  ]\n%*s",nprefix,"",nprefix,"");
+        fprintf( out, "  \"cvr\": " );
+        print_ltmat_json(out,cvr,A->nrow,"%15.8le",nprefix);
     }
     fprintf( out, "}" );
 }
