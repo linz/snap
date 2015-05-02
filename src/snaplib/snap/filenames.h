@@ -9,10 +9,13 @@
 #define NEWSTNFILE_EXT  ".new"
 #define BINFILE_EXT     ".bin"
 #define CVRFILE_EXT     ".cvr"
+#define SOLNFILE_EXT    ".soln"
+#define JSONFILE_EXT    ".json"
+#define SINEX_EXT       ".snx"
 
 #define SNAP_CONFIG_SECTION  "snap"
 #define SNAP_CONFIG_FILE     "snap.cfg"
 
-#define BINFILE_SIGNATURE    "SNAP binary file version 2.6"
+#define BINFILE_SIGNATURE    "SNAP binary file version 2.7"
 
 #endif

@@ -732,9 +732,50 @@ void print_json_params( FILE *lst, int nprefix )
                     i > 1 ? "," : "", 
                     nprefix+2,"",
                     stno ? station_code(stno) : "",
-                    stno ? " " : "",
+                    stno ? ": " : "",
                     paramname );
         }
         fprintf(lst,"\n%*s]",nprefix,"");
     }
+}
+
+void print_solution_json_file()
+{
+    int nch;
+    char *bfn;
+    FILE *f;
+    bltmatrix *invnorm;
+
+    nch = strlen( root_name ) + strlen(SOLNFILE_EXT)+strlen( JSONFILE_EXT ) + 1;
+    bfn = ( char * ) check_malloc( nch );
+    strcpy( bfn, root_name );
+    strcat( bfn, SOLNFILE_EXT );
+    strcat( bfn, JSONFILE_EXT );
+
+    f = fopen( bfn, "w" );
+    if( !f )
+    {
+        handle_error( FILE_OPEN_ERROR,"Unable to open JSON solution file", bfn );
+    }
+    else
+    {
+        xprintf("\nCreating the JSON solution file %s\n",bfn);
+    }
+    check_free( bfn );
+    if( !f ) return;
+
+    fprintf(f,"{\n");
+    fprintf(f,"  \"nparam\": %d,\n",(int)nprm);
+    fprintf(f,"  \"nimplicit_param\": %ld,\n",(long)(nschp));
+    fprintf(f,"  \"nobs\": %ld,\n",(long)(nobs+nschp));
+    fprintf(f,"  \"nconstraint\": %ld,\n",(long)(ncon));
+    fprintf(f,"  \"dof\": %ld,\n",(long) dof);
+    fprintf(f,"  \"ssr\": %.5lf,\n",ssr);
+    fprintf(f,"  \"seu\": %.5lf,\n",seu);
+    print_json_params( f, 2 );
+    fprintf(f,",\n  \"covariance\":\n  ");
+    invnorm = lsq_normal_matrix();
+    print_bltmatrix_json( invnorm, f, 4, BLT_JSON_FULL | BLT_JSON_MATRIX_ONLY, "%.8le");
+    fprintf(f,"\n}\n");
+    fclose(f);
 }

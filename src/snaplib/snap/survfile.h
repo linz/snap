@@ -40,6 +40,7 @@ survey_data_file *survey_data_file_ptr( int ifile );
 char *survey_data_file_name( int ifile );
 int survey_data_file_id( char *name );
 int survey_data_file_count( void );
+void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate );
 double survey_data_file_errfct( int ifile );
 
 void delete_survey_file_recodes();

@@ -75,6 +75,8 @@ SCOPE char output_all_covariances;
 SCOPE char output_sorted_stations;
 SCOPE char output_notes;
 SCOPE char output_covariance;
+SCOPE char output_covariance_json;
+SCOPE char output_solution_json;
 SCOPE char output_sinex;
 SCOPE char output_full_covariance;
 SCOPE char output_runtime;
@@ -178,6 +180,8 @@ output_option output[] =
     {"sort_stations",&output_sorted_stations,0,{0}},
     {"notes",&output_notes,1,{0}},
     {"covariance_matrix_file",&output_covariance,0,{0}},
+    {"covariance_json",&output_covariance_json,0,{0}},
+    {"solution_json",&output_solution_json,0,{0}},
     {"sinex",&output_sinex,0,{0}},
     {NULL,NULL,0,{0}}
 };
@@ -227,6 +231,7 @@ void print_solution_summary( FILE *out );
 void print_json_start( FILE *out, const char *name );
 void print_json_end( FILE *out, const char *name );
 void print_json_params( FILE *lst, int nprefix );
+void print_solution_json_file();
 
 output_csv *open_output_csv( const char *type);
 void close_output_csv( output_csv *csv );

@@ -34,9 +34,9 @@ for f in ${t}.snp; do
     base=`basename $f .snp`
     echo "Running ${base}"
     rm -f ../out/${base}.* ../out/${base}-*
-    ${g}${SNAPDIR}/snap $base > ${o}
+    ${g}${SNAPDIR}/snap -q $base > ${o}
     #> /dev/null
-    for of in ${base}.lst ${base}.err ${base}-*.csv; do
+    for of in ${base}.lst ${base}.err ${base}-*.csv ${base}*.json ${base}.snx *.cvr; do
         if [ -e ${of} ]; then
             perl ../clean_snap_listing.pl ${of} > ../out/${of}
             rm $of

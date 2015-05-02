@@ -73,7 +73,8 @@ Should be first initiallized with a call to init_dms_string with parameters
 
    ndeg     int       The number of digits to show for degrees
    ndp      int       The number of decimal places in the seconds
-   prfx     int       If True then the sign prefixes the string
+   prfx     int       If 1 then the sign prefixes the string
+                      If 2 then prefix degrees with -
    deg      char *    text between degrees and minutes
    min      char *    text between minutes and seconds
    sec      char *    text after seconds
@@ -128,9 +129,16 @@ void *create_dms_format( int ndeg, int ndp, int fmt,
     *blank = ' ';
     *empty = 0;
     next = blank + 2;
+    if( ! plus ) plus=empty;
+    if( ! minus ) minus=empty;
 
     dmsf->ndeg = ndeg;
-    dmsf->prfx = (fmt & DMSF_FMT_PREFIX_HEM);
+    dmsf->prfx = (fmt & DMSF_FMT_PREFIX_HEM) ? 1 : 0;
+    if( dmsf->prfx && strlen(plus)==0 && strcmp(minus,"-")==0 )
+    {
+        dmsf->prfx=2;
+        minus=plus=empty;
+    }
     dmsf->radians = (fmt & DMSF_FMT_INPUT_RADIANS);
     dmsf->type = 0;
     if( fmt & DMSF_FMT_DM ) dmsf->type = 1;
@@ -184,7 +192,7 @@ void *create_dms_format( int ndeg, int ndp, int fmt,
         dmsf->sec = empty;
     }
 
-    if( plus)
+    if( plus && *plus)
     {
         dmsf->plus = next;
         strcpy( next, plus);
@@ -195,7 +203,7 @@ void *create_dms_format( int ndeg, int ndp, int fmt,
         dmsf->plus = empty;
     }
 
-    if( minus )
+    if( minus && *minus)
     {
         dmsf->minus= next;
         strcpy( next, minus);
@@ -203,7 +211,7 @@ void *create_dms_format( int ndeg, int ndp, int fmt,
     }
     else
     {
-        dmsf->minus= blank;
+        dmsf->minus= empty;
     }
 
     return data;
@@ -212,29 +220,39 @@ void *create_dms_format( int ndeg, int ndp, int fmt,
 
 void delete_dms_format( void *dmsf )
 {
-    check_free( dmsf );
+    if( dmsf )check_free( dmsf );
 }
 
 const char *dms_string( double d, void *pdmsf, char *str )
 {
     static char dmsstr[80];
+    static char degstr[20];
     char *sign;
     int deg, min;
     double sec;
     double offset;
     int seclen;
+    char dneg;
     char *tgt;
+
     DMS_format *dmsf=(DMS_format *)pdmsf;
 
     tgt = str ? str : dmsstr;
 
     if( dmsf->radians ) d *= RTOD;
     sign = dmsf->plus;
-    if(d < 0 ) { d = -d; sign = dmsf->minus; }
+    dneg=0;
+    if(d < 0 ) 
+    { 
+        d = -d; 
+        sign = dmsf->minus; 
+        if( dmsf->prfx == 2 ) { dneg=1; }
+    }
 
     if( dmsf->type == 2 )
     {
-        sprintf(tgt,"%s%.*lf%s",(dmsf->prfx ? sign : ""),
+        if( dneg ) d *= -1;
+        sprintf(tgt,"%s%.*lf%s",(dmsf->prfx == 1 ? sign : ""),
                 (int) (dmsf->ndp), d, (dmsf->prfx ? "" : sign) );
 
         return tgt;
@@ -258,16 +276,17 @@ const char *dms_string( double d, void *pdmsf, char *str )
 
     seclen = dmsf->ndp ? dmsf->ndp+3 : dmsf->ndp+2;
 
+    sprintf( degstr, "%s%d", dneg ? "-" : "", (int) deg );
     if( dmsf->type == 1 )
     {
-        sprintf(tgt,"%s%*d%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
-                (int) (dmsf->ndeg), (int)deg, dmsf->deg,
+        sprintf(tgt,"%s%*s%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
+                (int) (dmsf->ndeg), degstr, dmsf->deg,
                 seclen,(int)(dmsf->ndp), sec, dmsf->min, (dmsf->prfx ? "" : sign) );
     }
     else
     {
-        sprintf(tgt,"%s%*d%s%02d%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
-                (int) (dmsf->ndeg), (int)deg, dmsf->deg, (int)min, dmsf->min,
+        sprintf(tgt,"%s%*s%s%02d%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
+                (int) (dmsf->ndeg), degstr, dmsf->deg, (int)min, dmsf->min,
                 seclen,(int)(dmsf->ndp), sec, dmsf->sec, (dmsf->prfx ? "" : sign) );
     }
 

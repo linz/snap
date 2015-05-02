@@ -275,3 +275,13 @@ void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour
     if( sec ) *sec = s;
 }
 
+
+void date_as_yds( double snapdate, int *year, int *dayno, int *secs )
+{
+    int m,d,hr,mn,sc;
+    double y0;
+    date_as_ymdhms( snapdate,year,&m,&d,&hr,&mn,&sc);
+    y0=snap_datetime(*year,1,1,hr,mn,sc);
+    (*dayno)=(int)(snapdate+1.1-y0);
+    (*secs)=hr*3600+mn*60+sc;
+}

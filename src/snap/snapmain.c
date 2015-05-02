@@ -479,8 +479,12 @@ int snap_main( int argc, char *argv[] )
 
     /* Expand the matrix to a full matrix if required */
 
-    if( do_accuracy_tests || output_covariance ||
-            output_all_covariances || (dump && output_full_covariance) )
+    if( do_accuracy_tests || 
+            output_covariance ||
+            output_covariance_json ||
+            output_sinex ||
+            output_all_covariances || 
+            (dump && output_full_covariance) )
     {
         expand_bltmatrix_to_full(lsq_normal_matrix());
     }
@@ -595,12 +599,12 @@ int snap_main( int argc, char *argv[] )
 
     if( deformation ) delete_deformation( deformation );
 
-    /* Output covariance if required */
+    /* Output covariance products if required */
 
-    if( output_covariance )
-    {
-        print_coord_covariance();
-    }
+    if( output_covariance ) print_coord_covariance();
+    if( output_covariance_json ) print_coord_covariance_json();
+    if( output_solution_json ) print_solution_json_file();
+    if( output_sinex ) print_coord_sinex();
 
     /* If using debug version of memory allocator then list outstanding
        allocations */

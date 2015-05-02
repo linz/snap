@@ -117,6 +117,27 @@ int survey_data_file_count( void )
     return nsdindx;
 }
 
+void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate )
+{
+    double mindat=UNDEFINED_DATE;
+    double maxdat=UNDEFINED_DATE;
+    int nnd=0;
+    int i;
+    for( i=0; i<nsdindx; i++ )
+    {
+        survey_data_file *sd=sdindx[i];
+        if( sd->mindate != UNDEFINED_DATE )
+        {
+            if( sd->mindate < mindat || mindat == UNDEFINED_DATE ) mindat=sd->mindate;
+            if( sd->maxdate > maxdat || maxdat == UNDEFINED_DATE ) maxdat=sd->maxdate;
+            nnd += sd->nnodate;
+        }
+    }
+    if( mindate ) *mindate=mindat;
+    if( maxdate ) *maxdate=maxdat;
+    if( nnodate ) *nnodate=nnd;
+}
+
 double survey_data_file_errfct( int ifile )
 {
     return sdindx[ifile]->errfct;

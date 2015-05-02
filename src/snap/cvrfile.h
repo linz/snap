@@ -13,5 +13,7 @@
 #endif
 
 void print_coord_covariance( void );
+void print_coord_covariance_json( void );
+void print_coord_sinex( void );
 
 #endif
