@@ -27,9 +27,29 @@
 
 <p class="Commanddefinition">rejected_station_coordinates</p><p class="Commanddescription">By default rejected and ignored stations are copied into the new coordinate file.  The can be omitted by using the no_rejected_station_coordinates option.</p>
 
-<p class="Commanddefinition">covariance_matrix_file</p><p class="Commanddescription">Creates a text file listing the covariance matrix of the derived coordinates.  This may be used as input to other programs.</p>
+<p class="Commanddefinition">sinex</p><p class="Commanddescription">
+Creates a SINEX format file of the coordinates and covariances calculated.  Note that this
+will only properly represent the solution if all stations involved in the adjustment are 
+freely adjusted in three dimensions.  Constrained stations will not be included if fully
+constrained.  Stations adjusted in one or two dimensions will be included, but the
+covariance matrix in the SINEX file will be singular.  If the adjustment includes 
+additional parameters then these will not be included in the output, so the number 
+of parameters in the SOLUTION SUMMARY block of the SINEX file will not match the number
+in the covariance matrix.  The SINEX solution date is based on the mid date of the 
+input observations.  If the adjustment uses a deformation model or station offset file
+then this may misrepresent the effective date of the coordinates.
+</p>
 
+<p class="Commanddefinition">covariance_json</p><p class="Commanddescription">
+Creates a JSON formatted text file listing the station coordinates calculated and their
+covariance matrix. This may be used as input to other programs.</p>
 
+<p class="Commanddefinition">solution_json</p><p class="Commanddescription">
+Creates a JSON formatted text file listing the solution parameters, statistics, and 
+the covariance matrix of the solution.
+</p>
+
+<p class="Commanddefinition">covariance_matrix_file</p><p class="Commanddescription">Creates a text file listing the covariance matrix of the derived coordinates.  This may be used as input to other programs.  This is a legacy command - it is recommended that SINEX or covariance_json options are used instead.</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
