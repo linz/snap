@@ -15,6 +15,11 @@
 
 <p><b>#gx_enu_error  <i>value value value</i> mm <i>value value value</i> mmr <i>value value value</i> ppmr</b></p>
 
+<p><b>Note</b>
+The use of the mmr and ppmr components requires care, as the current implementation can result in invalid (not positive definite) covariance matrices.  This
+feature may not be available, or may change incompatibly,  in future versions of SNAP.
+</p>
+
 <p>This specifies the default error for point coordinate observations.  The error is specified by a millimetre absolute error (mm) at each point, and optionally a millimetre (mmr) and part per million (ppmr) covariance between the coordinates.  SNAP assumes that there is no correlation between the east, north, and up components.  The covariance of each component is the root sum of squares of the millimetre and part per million errors. Either or both covariance components can be omitted.</p>
 
 <div class="SeeAlso">
@@ -22,7 +27,7 @@
 
 <p><a href="obs_gx_data.html">Point coordinate observations</a></p>
 
-<p><a href="obs_gps_err_format.html">GPS error formats</a></p>
+<p><a href="obs_gx_err_format.html">Point coordinate error formats</a></p>
 
 <p><a href="obs_data_types.html">Summary of data types</a></p>
 

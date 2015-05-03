@@ -19,6 +19,11 @@
 
 <p><b>#gx_enu_error  <i>value value value</i> mm <i>value value value</i> mmr <i>value value value</i> ppmr</b></p>
 
+<p><b>Note</b>
+The use of the mmr and ppmr components requires care, as the current implementation can result in invalid (not positive definite) covariance matrices.  This
+feature may not be available, or may change incompatibly,  in future versions of SNAP.
+</p>
+
 <p>The error is expressed as the millimetre error (mm) for the east north and up components of the vector.  Optionally there can also be a covariance between components,expressed in terms of a millimetres (mmr) and part per million (ppmr) for the east, north and up dirextions.  SNAP assumes that there is no correlation between the east, north, and up components or between the millimetre and part per million errors.  The part per million error is calculated from the total length of the vector between the points, not from components of the lengths in the east, north and up directions.  
 </p>
 
