@@ -1,3 +1,16 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
 
 The command file testgx8.snp contains:
      title Regression test 1 - data types and observation equations
@@ -58,7 +71,7 @@ Iteration 1: Maximum change is 230.2439 metres at station 2
 Iteration 2: Maximum change is 0.0031 metres at station 1
              2 station adjustments exceed convergence criteria
 
-Iteration 3: Maximum change is 0.0000 metres at station 2
+Iteration 3: Maximum change is 0.0000 metres at station 1
              0 station adjustments exceed convergence criteria
 
 

@@ -34,7 +34,7 @@ for f in ${t}.snp; do
     base=`basename $f .snp`
     echo "Running ${base}"
     rm -f ../out/${base}.* ../out/${base}-*
-    ${g}${SNAPDIR}/snap -q $base > ${o}
+    ${g}${SNAPDIR}/snap $base > ${o}
     #> /dev/null
     for of in ${base}.lst ${base}.err ${base}-*.csv ${base}*.json ${base}.snx *.cvr; do
         if [ -e ${of} ]; then

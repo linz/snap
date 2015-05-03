@@ -24,11 +24,11 @@ Solution type: 3d data checking
 Coordinates file testsnx1.crd
       17 stations read
 
-Data file 1: testsnx1.snx
+Data file 1: testsnx1.in.snx
     Observations between 2001-11-29 11:59:45 and 2001-11-29 11:59:45
       12 GPS point coords
 
-Data file 2: testsnx1.snx
+Data file 2: testsnx1.in.snx
         Errors multiplied by 2.00
     Observations between 2001-11-29 11:59:45 and 2001-11-29 11:59:45
        5 GPS point coords
@@ -66,7 +66,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":166
       },
       {
@@ -81,7 +81,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":169
       },
       {
@@ -96,7 +96,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":172
       },
       {
@@ -111,7 +111,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":178
       },
       {
@@ -126,7 +126,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":184
       },
       {
@@ -141,7 +141,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":187
       },
       {
@@ -156,7 +156,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":190
       },
       {
@@ -171,7 +171,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":193
       },
       {
@@ -186,7 +186,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":214
       },
       {
@@ -201,7 +201,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":217
       },
       {
@@ -216,7 +216,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":220
       },
       {
@@ -231,7 +231,7 @@ BEGIN_JSON observations
           "ref_frame_code":"GNSS"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":223
       }
     ],
@@ -398,7 +398,7 @@ BEGIN_JSON observations
           "ref_frame_code":"QRF"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":175
       },
       {
@@ -413,7 +413,7 @@ BEGIN_JSON observations
           "ref_frame_code":"QRF"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":178
       },
       {
@@ -428,7 +428,7 @@ BEGIN_JSON observations
           "ref_frame_code":"QRF"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":184
       },
       {
@@ -443,7 +443,7 @@ BEGIN_JSON observations
           "ref_frame_code":"QRF"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":187
       },
       {
@@ -458,7 +458,7 @@ BEGIN_JSON observations
           "ref_frame_code":"QRF"
           },
         "useobs":true,
-        "file":"testsnx1.snx",
+        "file":"testsnx1.in.snx",
         "file_line-no":190
       }
     ],
@@ -680,7 +680,7 @@ The following codes are used to identify data types
 From   Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      
                 X,Y,Z                  X,Y,Z               E,N,U                     
 
-File testsnx1.snx: line 166
+File testsnx1.in.snx: line 166
 
 5503   GX     4590634.4192  0.0056   4590634.4189  0.0000  0.0000  0.0048   0.00     
                275479.2224  0.0047    275479.2223  0.0000  0.0000  0.0036   0.00     
@@ -742,7 +742,7 @@ YAR1   GX     2389025.6565  0.0061   2389025.6567  0.0000 -0.0000  0.0067   0.00
               3078530.4054  0.0049   3078530.4057  0.0000 -0.0005  0.0038   0.12     
               6373369.4347           6373369.4351          0.0005           0.07     
 
-File testsnx1.snx: line 175
+File testsnx1.in.snx: line 175
 
 CEDU_A GX     3753472.3421  0.0118   3753472.3421  0.0000  0.0000  0.0122   0.00     
               3912740.9347  0.0079   3912740.9347  0.0000  0.0000  0.0079   0.00     
@@ -799,9 +799,9 @@ Classification                               Used        Unused       Total
 
 
 
-testsnx1.snx                                0.04   36     -      -    0.04   36
+testsnx1.in.snx                             0.04   36     -      -    0.04   36
 
-testsnx1.snx                                0.01   15     -      -    0.01   15
+testsnx1.in.snx                             0.01   15     -      -    0.01   15
 
 
 
@@ -826,25 +826,25 @@ The following table lists the 10 worst residuals of used data
 
 From    To      Type     S.R.  Sig (%)       Line  File
 
-YAR1             GX     0.073    0.054        223  testsnx1.snx
+YAR1             GX     0.073    0.054        223  testsnx1.in.snx
 
-ALIC             GX     0.061    0.031        169  testsnx1.snx
+ALIC             GX     0.061    0.031        169  testsnx1.in.snx
 
-5503             GX     0.056    0.025        166  testsnx1.snx
+5503             GX     0.056    0.025        166  testsnx1.in.snx
 
-TOW2             GX     0.042    0.011        217  testsnx1.snx
+TOW2             GX     0.042    0.011        217  testsnx1.in.snx
 
-WGTN             GX     0.042    0.010        220  testsnx1.snx
+WGTN             GX     0.042    0.010        220  testsnx1.in.snx
 
-HOB2             GX     0.039    0.008        184  testsnx1.snx
+HOB2             GX     0.039    0.008        184  testsnx1.in.snx
 
-AUCK             GX     0.031    0.004        172  testsnx1.snx
+AUCK             GX     0.031    0.004        172  testsnx1.in.snx
 
-MAC1             GX     0.026    0.002        193  testsnx1.snx
+MAC1             GX     0.026    0.002        193  testsnx1.in.snx
 
-CHAT             GX     0.023    0.002        178  testsnx1.snx
+CHAT             GX     0.023    0.002        178  testsnx1.in.snx
 
-KARR             GX     0.020    0.001        190  testsnx1.snx
+KARR             GX     0.020    0.001        190  testsnx1.in.snx
 
 
 

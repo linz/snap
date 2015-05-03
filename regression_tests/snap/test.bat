@@ -24,8 +24,12 @@ FOR %%F IN (%t%.snp) DO (
   perl ..\clean_snap_listing.pl %%~nF.lst > ..\out\%%~nF.lst
   IF EXIST %%~nF.err perl ..\clean_snap_listing.pl %%~nF.err > ..\out\%%~nF.err
   IF EXIST %%~nF-metadata.csv perl ..\clean_snap_listing.pl %%~nF-metadata.csv > ..\out\%%~nF-metadata.csv
+  IF EXIST %%~nF.snx perl ..\clean_snap_listing.pl %%~nF.snx > ..\out\%%~nF.snx
   move %%~nF-stn.csv ..\out > nul 2>&1
   move %%~nF-obs.csv ..\out > nul 2>&1
+  move %%~nF.cvr.json ..\out > nul 2>&1
+  move %%~nF.soln.json ..\out > nul 2>&1
+  move %%~nF.cvr ..\out > nul 2>&1
   del /q /f %%~nF.err %%~nF.lst %%~nF.bin %%~nF.new %%~nF-*.csv
   )
 
