@@ -23,6 +23,8 @@
 #define _tempnam tempnam
 #define _strupr(x) {char *c=(x);while(*c){ *c=(char) toupper((int)*c); c++; }}
 #define _strlwr(x) {char *c=(x);while(*c){ *c=(char) tolower((int)*c); c++; }}
+#define _set_output_format(x)
+#define _TWO_DIGIT_EXPONENT
 #define _strdup strdup
 
 // std::regex not fully supported by g++ at 4.8

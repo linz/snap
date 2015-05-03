@@ -12,8 +12,6 @@
 namespace LINZ
 {
 
-using namespace LINZ;
-
 class DatafileInput : public RecordInputBase
 {
 public:

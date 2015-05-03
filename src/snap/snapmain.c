@@ -109,6 +109,9 @@ int snap_main( int argc, char *argv[] )
     char errmess[256];
     BINARY_FILE *dump;
 
+    /* MS VC compatibility */
+    _set_output_format(_TWO_DIGIT_EXPONENT);
+
     get_date( run_time );
 
     init_snap_globals();
