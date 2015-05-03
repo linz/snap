@@ -3,7 +3,7 @@ Testing Vector formats
 #date 1 Jan 2008
 
 #gps_error_type full 
-#gx_enu_error 40 60 120 mm 20 30 50 mmr 10 25 100 ppmr
+#gx_enu_error 40 60 120 mm correlation 800000 0.5 1000000 0.2
 #gps_enu_error 40 60 120 mm 
 #data GX value no_heights
 

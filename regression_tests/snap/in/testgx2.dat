@@ -87,7 +87,7 @@ Testing Vector formats
 #end_set
 
 
-#gx_enu_error 40 60 120 mm 20 30 50 mmr 10 25 100 ppmr
+#gx_enu_error 40 60 120 mm correlation 0.5
 #data GX value no_heights
 
 1     -4787264.5250  560595.5704 -4163681.8023 
@@ -99,4 +99,12 @@ Testing Vector formats
 #data GX grouped no_heights
 1     -4787264.5150  560595.5704 -4163681.8023 
 * 2     -4787842.2236  560070.2573 -4163244.5856 
+#end_set
+
+#gx_enu_error 40 60 120 mm correlation 600 0.5 1000 0.2
+#data GX value grouped no_heights
+
+1     -4787264.5250  560595.5704 -4163681.8023 
+2     -4787842.2236  560070.2623 -4163244.5556 
+3     -4787607.0580  559604.4234 -4163000.4058 
 #end_set

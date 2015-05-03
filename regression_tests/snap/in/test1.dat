@@ -411,7 +411,7 @@ Test 1 - basic obs type tests
 #end_set
 
 
-#gx_enu_error 40 60 120 mm 20 30 50 mmr 10 25 100 ppmr
+#gx_enu_error 40 60 120 mm correlation 0.5
 #data GX value no_heights
 
 1     -4787264.5200  560595.5704 -4163681.8023 

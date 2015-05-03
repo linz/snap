@@ -15,11 +15,6 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
-
-#ifndef DEBUG
-#define NDEBUG
-#endif
-
 #include <assert.h>
 
 #include "snapdata/gpscvr.h"
@@ -344,19 +339,33 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
 
 
 /* The default covariance for point data is constructed from the supplied
-   station variances mmerr(0..2) and the covariances mmerr(3..5) and ppmerr(6..8) errors
-   between them.
+   station variances mmerr(0..2) and values dist1,corr1,dist2,corr2 defining 
+   the affect of distance on correlation.   Should be corr1 for vectors less
+   than dist1, corr2 for vectors greater than dist2, and proportional to 1/x 
+   between.  Dist1,corr1,dist2,corrw are mmerr(3..6).  If dist1/corr1 are zero 
+   then no correlations...
    */
 
 static void build_default_point_cvr( survdata *vd, double *mmerr )
 {
     double xform[3][3];
-    int havecvr;
     int nobs, i,iobs, jobs, iobs3, jobs3;
     double tcvr[6], dif[3];
     vecdata *t;
     ltmat cvr;
-    double abserr2[3], mmerr2[3], ppmerr2[3];
+    double abserr2[3];
+    double dist1,corr1,dist2,corr2;
+    int calccorr;
+
+    calccorr=1;
+    dist1=mmerr[3];
+    corr1=mmerr[4];
+    dist2=mmerr[5];
+    corr2=mmerr[6];
+    if( dist1 <= 0 || dist1 >= dist2 || corr1 <= 0 || corr2 > corr1 ) calccorr=0;
+    /* Avoid some messy edge cases .. a lazy approach but better than nothing! */
+    if( dist1 < 10.0 ) dist1=10.0;
+    if( dist2 < dist1 ) dist2=0.0;
 
     nobs = vd->nobs;
     cvr = vd->cvr;
@@ -364,14 +373,9 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
 
     /* Convert the mm and ppm errors to more useful numbers */
 
-    havecvr = 0;
     for( i=0; i<3; i++)
     {
         abserr2[i] = mmerr[i]*mmerr[i]*1.0e-6;
-        if( nobs < 2 ) continue;
-        mmerr2[i] = mmerr[i+3]*mmerr[i+3]*1.0e-6;
-        ppmerr2[i] = mmerr[i+6]*mmerr[i+6]*1.0e-12;
-        if( mmerr2[i] > 0.0 || ppmerr2[i] > 0.0) havecvr = 1;
     }
 
     if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
@@ -407,27 +411,33 @@ static void build_default_point_cvr( survdata *vd, double *mmerr )
 
         /* Now handle the off-diagonal elements */
 
-        if( ! havecvr ) continue;
+        if( ! calccorr ) continue;
         for( jobs = 0; jobs < iobs; jobs ++ )
         {
-
-            if( !fixed_gps_vertical ) get_enu_rf_xform( t[iobs].tgt.to, t[iobs].tgt.to, vd->reffrm, xform );
+            int iel,jel;
+            double dist;
+            double corr;
+            jobs3 = jobs*3;
             vecdif(t[iobs].vector,t[jobs].vector, dif);
-            calc_default_cvr( veclen(dif), tcvr, mmerr2, ppmerr2 );
-            transform_cvr( xform, tcvr );
+            dist=veclen(dif);
+            if( dist <= dist1 ) corr=corr1;
+            else if( dist >= dist2 ) corr=corr2;
+            else
+            {
+                double d1,d2,d3;
+                d1=1.0/dist1;
+                d2=1.0/dist2;
+                d3=1.0/dist;
+                corr=(corr1*(d2-d3)+corr2*(d3-d1))/(d2-d1);
+            }
 
             /* Set the diagonal elements */
 
-            jobs3 = jobs*3;
-            Lij(cvr, iobs3,  jobs3  ) = tcvr[0];
-            Lij(cvr, iobs3,  jobs3+1) = tcvr[1];
-            Lij(cvr, iobs3,  jobs3+2) = tcvr[3];
-            Lij(cvr, iobs3+1,jobs3  ) = tcvr[1];
-            Lij(cvr, iobs3+1,jobs3+1) = tcvr[2];
-            Lij(cvr, iobs3+1,jobs3+2) = tcvr[4];
-            Lij(cvr, iobs3+2,jobs3  ) = tcvr[3];
-            Lij(cvr, iobs3+2,jobs3+1) = tcvr[4];
-            Lij(cvr, iobs3+2,jobs3+2) = tcvr[5];
+            for( iel=0; iel < 3; iel++ ) for( jel=0; jel <3; jel++ )
+            {
+                Lij(cvr,iobs3+iel,jobs3+jel)=
+                    corr*sqrt(Lij(cvr,iobs3+iel,iobs3+jel)*Lij(cvr,jobs3+iel,jobs3+jel));
+            }
         }
     }
 }

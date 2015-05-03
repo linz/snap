@@ -1,6 +1,6 @@
 Test rf3 - ITRF2008 to ITRF96 transformation
 
-#gx_enu_error 40 60 120 mm 20 30 50 mmr 10 25 100 ppmr
+#gx_enu_error 40 60 120 mm correlation 0.5
 #data GX value no_heights
 #reference_frame ITRF2008
 

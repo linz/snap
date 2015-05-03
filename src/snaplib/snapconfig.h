@@ -7,6 +7,11 @@
 #endif
 #endif
 
+#ifdef DEBUG
+#ifndef NDEBUG
+#define NDEBUG
+#endif
+#endif
 
 #if defined(UNIX)
 // unix version of functions
@@ -28,8 +33,5 @@
 // std::regex not fully supported by g++ at 4.8
 #define REGEX_BOOST 1
 #endif
-
-
-
 
 #endif

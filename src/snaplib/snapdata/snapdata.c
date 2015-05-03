@@ -40,7 +40,9 @@
 #include <ctype.h>
 
 #ifndef DEBUG
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 #endif
 #include <assert.h>
 
@@ -757,11 +759,13 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
     const char *mm  = "mm";
     const char *mmh = "mmh";
     const char *mmv = "mmv";
-    const char *mmr = "mmr";
-    const char *ppmr = "ppmr";
     const char *secs = "sec";
+    const char *corrstr = "correlation";
     int nerrvals;
     int goterr = 0;
+    int ncorr = 0;
+    int gotcorr = 0;
+    char errmsg[100];
     int status;
 
     struct
@@ -773,6 +777,7 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
     } errcodes[3];
     int nerrcodes;
 
+    double *corrptr=0;
     int ic, iv;
 
     nerrvals = 1;
@@ -850,14 +855,9 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
     case GX_ERR: errcodes[0].code = mm;
         errcodes[0].fact = 1.0; /* 0.001; */
         errcodes[0].value = sd->gpterr;
-        errcodes[1].code = mmr;
-        errcodes[1].fact = 1.0; /* 1.0e-6;*/
-        errcodes[1].value = sd->gpterr+3;
-        errcodes[2].code = ppmr;
-        errcodes[2].fact = 1.0; /* 1.0e-6;*/
-        errcodes[2].value = sd->gpterr+6;
-        nerrcodes = 3;
+        nerrcodes = 1;
         nerrvals = 3;
+        corrptr=sd->gpterr+3;
         break;
 
 
@@ -876,10 +876,17 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
 
     for(;;)
     {
-        char name[10];
+        char field[30],chk[2];
         status = OK;
         if( df_end_of_line( sd->df )) break;
-        if( !df_read_double( sd->df, &value[0] )) { status = INVALID_DATA; break; }
+        if( !df_read_field( sd->df, field, 30 ) ) {status = MISSING_DATA; break; }
+        if( corrptr && _stricmp(field,corrstr) == 0 )
+        {
+            gotcorr=1;
+            break;
+        }
+        chk[0]=0;
+        if( sscanf(field,"%lf%1s",&value[0],chk) < 1 || chk[0] ) { status = INVALID_DATA; break; }
         for( iv = 1; iv < nerrvals; iv++ )
         {
             status = MISSING_DATA;
@@ -887,11 +894,11 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
             status = OK;
         }
         if( status != OK ) break;
-        if( !df_read_field( sd->df, name, 10 ) ) {status = MISSING_DATA; break; }
+        if( !df_read_field( sd->df, field, 30 ) ) {status = MISSING_DATA; break; }
         status = INVALID_DATA;
         for( ic = 0; ic < nerrcodes; ic++ )
         {
-            if( !errcodes[ic].found && _stricmp( errcodes[ic].code, name ) == 0 )
+            if( !errcodes[ic].found && _stricmp( errcodes[ic].code, field ) == 0 )
             {
                 errcodes[ic].found = 1;
                 goterr = 1;
@@ -904,13 +911,11 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
             }
         }
         if( status != OK ) break;
-    }
-
+    } 
     if( status == OK && !goterr ) status = MISSING_DATA;
 
     if( status != OK )
     {
-        char errmsg[100];
         char *s;
         sprintf(errmsg,"%s error definition - use syntax %c%s",
                 status == MISSING_DATA ? "Missing" : "Invalid",
@@ -927,11 +932,82 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
             strcpy( s, errcodes[ic].code );
             s += strlen( s );
         }
+        if( corrptr )
+        {
+            sprintf(s," %s dist1 corr1 dist2 corrs",corrstr);
+        }
 
         df_data_file_error( sd->df, status, errmsg );
     }
 
-    else
+    else if( gotcorr )
+    {
+        /* Reading correlations for GX errors.  Can be either a single correlation,
+         * or four values - dist1 corr1 dist2 corr2
+         */
+
+        int icorr;
+        int ncorr=0;
+        errmsg[0]=0;
+
+        for( icorr=0; icorr<4; icorr++ )
+        {
+            if( df_end_of_line( sd->df ) ) break;
+            if( ! df_read_double( sd->df, corrptr+icorr) ) {status=INVALID_DATA; break;}
+            ncorr++;
+        }
+        if( status != OK )
+        {
+            strcpy(errmsg,"Error reading correlations/distances");
+        }
+        else if( ncorr == 1 )
+        {
+            if( corrptr[0] < 0.0 || corrptr[0] >= 1.0 ) 
+            {
+                strcpy(errmsg,"Correlation must be between 0 and 1");
+                status=INVALID_DATA;
+            }
+
+            /* If just a correlation value, then define as applying to a distance
+             * 100,000km.  This will never be real, so initial correlation will
+             * always be used.
+             */
+
+            corrptr[1]=corrptr[3]=corrptr[0];
+            corrptr[0]=1.0e9;
+            corrptr[2]=2.0e9;
+
+        }
+        else if( status == OK && ncorr == 4 )
+        {
+            /* Correlations must be valid */
+            if( corrptr[1] < 0.0 || corrptr[1] >= 1.0 ||
+                corrptr[3] < 0.0 || corrptr[3] >= 1.0 || corrptr[3] >= corrptr[1] ) 
+            {
+                sprintf(errmsg,"Correlations must be between 0 and 1, and first must be greater than second");
+                status=INVALID_DATA; 
+            }
+
+            /* Distances must be valid */
+            if( status == OK &&  (corrptr[0] <= 0.0  || corrptr[2] <= corrptr[0] ))
+            {
+                sprintf(errmsg,"Correlation distances must be positive and second must be greater than second");
+                status=INVALID_DATA; 
+            }
+        }
+        else
+        {
+            strcpy(errmsg,"Correlations must be supplied as single correlation or dist1 corr1 dist2 corr2");
+
+            status=INVALID_DATA;
+        }
+        if( status != OK )
+        {
+            df_data_file_error( sd->df, status, errmsg );
+        }
+    }
+
+    if( status == OK )
     {
         sd->gotdflterr[errtype] = 1;
     }
