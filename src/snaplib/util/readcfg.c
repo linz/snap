@@ -62,6 +62,7 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
 {
     FILE *cfgfil;
     CFG_FILE *cfg;
+    int nbuffer=CFG_DFLT_BUFFER_SIZE;
 
     cfgfil = fopen( name, "r");
     if( cfgfil == NULL )
@@ -70,7 +71,7 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
         return (CFG_FILE *) NULL;
     }
 
-    cfg = (CFG_FILE *) check_malloc( sizeof(CFG_FILE) + strlen(name) + 1 );
+    cfg = (CFG_FILE *) check_malloc( sizeof(CFG_FILE) + strlen(name) + nbuffer + 1 );
 
     cfg->f = cfgfil;
     cfg->lineno = 0;
@@ -82,7 +83,8 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
     cfg->comment_char = comment_char;
     cfg->name = ((char *) cfg) + sizeof(CFG_FILE);
     strcpy( cfg->name,name);
-
+    cfg->nbuffer=nbuffer;
+    cfg->buffer=cfg->name+strlen(name)+1;
     return cfg;
 }
 
@@ -118,10 +120,12 @@ int set_config_ignore_flag( CFG_FILE *cfg, int flag )
 }
 
 
-char *get_config_line( CFG_FILE *cfg, char *line, int nch )
+char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun )
 {
     char *l;
     char cmnt;
+    int iscmt;
+    int overrun;
     int c;
 
     l = line;
@@ -135,15 +139,30 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch )
     }
     nch--;
 
-    c = fgetc(cfg->f);
+    if( *noverrun ) (*noverrun)=0;
 
+    c = fgetc(cfg->f);
     if( c == EOF ) return NULL;
+
+    iscmt=0;
+    overrun=0;
 
     while( c != EOF && c != '\n' )
     {
-        if (c == cmnt) nch = 0;
+        if (c == cmnt) { nch = 0; iscmt=1; }
 
-        if (nch && c != '\r' && c != '\x1A' ) { *l++ = isspace(c) ? ' ' : c; nch--; }
+        if ( c != '\r' && c != '\x1A' ) 
+        { 
+            if( nch > 0 )
+            {
+                *l++ = isspace(c) ? ' ' : c; 
+                nch--; 
+            }
+            else if( ! iscmt && (overrun || ! isspace(c)) )
+            {
+                overrun++;
+            }
+        }
         c = fgetc(cfg->f);
         if( cfg->read_options & CFG_POSITIONAL_COMMENT )
         {
@@ -153,6 +172,7 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch )
 
     *l = 0;
     cfg->lineno++;
+    if( noverrun ){ (*noverrun) = overrun; }
     return line;
 }
 
@@ -204,9 +224,10 @@ int report_missing_config_items( CFG_FILE *cfg, config_item item[] )
 int read_config_file( CFG_FILE *cfg, config_item item[] )
 {
 
-    char inrec[256], errmess[256];
+    char errmess[256];
     char *opt, *val, *storestr, *address;
     int end, initcount;
+    int overrun;
     config_item *it;
     int errstat;
     char blank[2]={0,0};
@@ -222,12 +243,24 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         initiallize_config_items( item );
     }
 
-    while( !cfg->abort && get_config_line(cfg, inrec, 256) != NULL )
+    while( !cfg->abort && get_config_line(cfg, cfg->buffer, cfg->nbuffer, &overrun) != NULL )
     {
 
         /* If blank line or comment then skip */
 
-        if( NULL == (opt = strtok(inrec,FIELD_DELIMS))) continue;
+        if( NULL == (opt = strtok(cfg->buffer,FIELD_DELIMS))) continue;
+
+        /* Is the record too long?  If so then send error and skip */
+
+        if( overrun )
+        {
+            if( !(cfg->read_options & CFG_IGNORE_BAD) )
+            {
+                sprintf(errmess,"Line %d characters too long in configuration file",overrun);
+                send_config_error(cfg,INVALID_DATA,errmess);
+            }
+            continue;
+        }
 
         /* Is it a valid option record - if not print warning and
             continue */

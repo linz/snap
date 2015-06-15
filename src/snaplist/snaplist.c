@@ -783,12 +783,19 @@ static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len,
 
 static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    int finished, read_opts;
+    int finished, read_opts, overrun;
     static char buf[1024];
     read_opts = set_config_read_options( cfg, CFG_IGNORE_COMMENT );
     finished = 0;
-    while( !finished  && get_config_line( cfg, buf, 1024 ) )
+    while( !finished  && get_config_line( cfg, buf, 1024, &overrun ) )
     {
+        if( overrun )
+        {
+            send_config_error( cfg, INVALID_DATA,
+                           "Text line too long in config file");
+            finished=1;
+            break;
+        }
         if( _strnicmp( buf, "end_text", 8 ) == 0 )
         {
             finished = 1;

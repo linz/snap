@@ -36,6 +36,8 @@ typedef struct
     int ignore_flag;             /* Flag defining which commands are to be ignored */
     char comment_char;		/* Text after this character is ignored */
     char abort;
+    char *buffer;               /* Text buffer for reading options */
+    int nbuffer;                /* Size of buffer */
 } CFG_FILE;
 
 
@@ -88,6 +90,8 @@ typedef struct
 #define CFG_IGNORE_COMMENT 8
 #define CFG_POSITIONAL_COMMENT 16
 
+#define CFG_DFLT_BUFFER_SIZE 1024
+
 #ifndef DEFAULT_ERROR_HANDLER
 #define DEFAULT_ERROR_HANDLER ( (int (*)()) 0 )
 #endif
@@ -114,7 +118,7 @@ void initiallize_config_items( config_item item[] );
 int read_config_file( CFG_FILE *cfg, config_item item[] );
 int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
 int send_config_error( CFG_FILE *cfg, int errstat, const char *errmsg );
-char *get_config_line( CFG_FILE *cfg, char *line, int nch );
+char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun );
 char *get_config_location( CFG_FILE *cfg );
 
 void abort_config_file( CFG_FILE *cfg );
