@@ -153,16 +153,16 @@ static double iers_mult[14] =
     1000.0,
     1000.0,
     1000.0,
+    -1000.0,
+    -1000.0,
+    -1000.0,
     1000.0,
     1000.0,
     1000.0,
     1000.0,
-    1000.0,
-    1000.0,
-    1000.0,
-    1000.0,
-    1000.0,
-    1000.0
+    -1000.0,
+    -1000.0,
+    -1000.0
 };
 
 
@@ -431,7 +431,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
     int *srow, *sidentical, *drow, *didentical;
     double c1, c2, c3, cmin, cmax, azmax;
     int i, k;
-    int userates=rf->userates;;
+    int userates=rf->userates;
     int calced;
     tmatrix *trot;
 
@@ -494,8 +494,8 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
         rftrans_correct_vector( rf->id, oshiftrate, year_as_snapdate( rf->refepoch + 10.0) );
         for( i=0; i<3; i++ )
         {
-            oshiftrate[i]=gval[7+i] - (oshiftrate[i]-oshift[i])/10.0;
-            oshift[i] = gval[i] + (rf->origin[i]-oshift[i]);
+            oshiftrate[i]=gval[7+i] + (oshiftrate[i]-oshift[i])/10.0;
+            oshift[i] = gval[i] + (oshift[i]-rf->origin[i]);
         }
     }
 
@@ -805,10 +805,10 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
 
     /* Apply the translation */
 
-    vecdif( vd, rf->trans, vd );
+    vecadd( vd, rf->trans, vd );
     if( dmult ) 
     {
-        vecadd2( vd, 1, rf->transrate, -1.0*dmult, vd );
+        vecadd2( vd, 1, rf->transrate, dmult, vd );
     }
 
     /* Before we modify the position, calculate the differential
@@ -833,7 +833,7 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
             for( axis = 0; axis < 3; axis++ )
             {
                 dvdprm[0] = dvdprm[1] = dvdprm[2] = 0.0;
-                dvdprm[axis] = -1.0;
+                dvdprm[axis] = 1.0;
                 if( rf->istopo )
                 {
                     premult3( (double *) rf->invtoporot, dvdprm, dvdprm, 1 );
@@ -879,7 +879,7 @@ void vd_rftrans_corr_point( int nrf, double vd[3], double date,
                 for( axis = 0; axis < 3; axis++ )
                 {
                     dvdprm[0] = dvdprm[1] = dvdprm[2] = 0.0;
-                    dvdprm[axis] = -1.0;
+                    dvdprm[axis] = 1.0;
                     if( rf->istopo )
                     {
                         premult3( (double *) rf->invtoporot, dvdprm, dvdprm, 1 );

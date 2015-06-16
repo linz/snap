@@ -18,24 +18,24 @@
 <p>Reference frame definitions have the following format in the coordinate system definition file: </p>
 
 <pre><code>
-code description ELLIPSOID ellipsoid_code refcode 
-                 Tx Ty Tz Rx Ry Rz scale
-                 [RATES year0 dTx dTy dTz dRx dRy dRz dscale]
+<i>code description</i> ELLIPSOID <i>ellipsoid_code refcode </i>
+                 IERS_TSR <i>Tx Ty Tz scale Rx Ry Rz</i>
                  <i>grid_conversion_definition</i>
                  <i>deformation_model_definition</i>
 </code></pre>
 
 <pre><code>
-code description ELLIPSOID ellipsoid_code refcode 
-                 IERS_TSR Tx Ty Tz scale Rx Ry Rz
+<i>code description</i> ELLIPSOID <i>ellipsoid_code refcode </i>
+                 IERS_ETSR <i>year0 Tx Ty Tz scale Rx Ry Rz scale 
+                                dTx dTy dTz dscale dRx dRy dRz</i>
                  <i>grid_conversion_definition</i>
                  <i>deformation_model_definition</i>
 </code></pre>
 
 <pre><code>
-code description ELLIPSOID ellipsoid_code refcode 
-                 IERS_ETSR year0 Tx Ty Tz scale Rx Ry Rz scale 
-                                dTx dTy dTz dscale dRx dRy dRz
+<i>code description</i> ELLIPSOID <i>ellipsoid_code refcode </i>
+                 <i>Tx Ty Tz Rx Ry Rz scale</i> 
+                 [RATES <i>year0 dTx dTy dTz dRx dRy dRz dscale</i>]
                  <i>grid_conversion_definition</i>
                  <i>deformation_model_definition</i>
 </code></pre>
@@ -48,17 +48,26 @@ code description ELLIPSOID ellipsoid_code refcode
 
 <p><i>ellipsoid_code</i> is the code for the ellipsoid associated with the reference frame.  This code must have been defined in an earlier [ellipsoids] section of the file.</p>
 
-<p><i>refcode</i> is a code identifying the reference system in terms of which translations, rotations, scale, and 
+<p><i>refcode</i> is a code identifying the base reference system in terms of which translations, rotations, scale, and 
 deformation are defined.  
 This can be the code of another reference frame, or an arbitrary code.  Conversions are possible between 
 reference frames with a common base code.  This need not direct.  For example if frame A references frame B, and frames
 B and C reference frame D, then conversion between any of the frames is possible.  Circular referencing is not allowed, so if frame A references B, and B reference C, then C cannot reference A or B.  The reference code can be 'NONE',
-in which case there is base frame, and the transformation and deformation components cannot be included.</p>
+in which case there is no base reference frame, and the transformation and deformation components cannot be included.</p>
 
-<p><i>IERS_TSR</i> iand <i>IERS_ETSR</i> (as literal text) are used to express the refrence frame transformations 
-in terms of IERS (International Earth Rotation Service) conventions.  This changes the units used for components, the order
-of the components, and the sense of the rotation components (from NGS to IERS).  The units for IERS transformations are
-ppm to millimetres, mas (milli arc seconds), and ppb.  </p>
+<p>The translations, rotations, and scale change can be expressed using either IERS or NGS conventions.  The main difference is that the sign of the rotation parameters is reversed.  
+</p>
+<p>For IERS convention definitions the translation, scale, and rotation are the transformations
+that must be applied to a coordinate in terms of the reference frame to convert it to a coordinate in terms of the underlying base reference frame.  For the NGS convention, the translation and scale are applied to the coordinates to convert to the base reference frame, but the rotation is reversed.  
+</p>
+<p>
+In the coordsys.def file the convention also affects the units used to express the parameters.
+For the IERS convention definitions the units are millimetres (mm) for translations, part per billion (ppb) for scale change, and milli arc seconds (mas) for rotations. 
+For NGS convention definitions the units are metres, part per million (ppm) and arc seconds. 
+</p>
+<p>
+IERS conventions are used for definitions using first and second formats above, that is including the literal text &quot;IERS_TSR&quot; or &quot;IERS_ETSR&quot;.
+</p>
 
 <p><i>Tx Ty Tz</i> is XYZ position of the origin of the reference frame in the reference system (i.e. the translation that must be applied to coordinates to convert them back to the reference system).  The coordinates are in mm for IERS format transformations or metres
 for NGS format transformations. </p>

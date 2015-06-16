@@ -1,0 +1,42 @@
+title Regression test 1 - data types and observation equations
+
+coordinate_file testrf0.crd
+data_file testrf0.dat
+
+mode 3d adjustment
+
+list command_file
+list file_summary
+list problem_definition
+list no_observation_equations
+list solution_summary
+list station_coordinates
+list floated_stations
+list reference_frames
+list no_topocentric_ref_frame
+list parameters
+list residuals
+list error_summary
+list no_worst_residuals
+
+fix all
+deformation none
+
+add_residual_column c=ref_frame_code  date
+summarise_residuals_by ref_frame_code
+
+reference_frame TESTTX IERS_ETSR 2008 10000 0 0 0 0 0 0   1000 0 0 0 0 0 0
+reference_frame TESTTY IERS_ETSR 2008 0 20000 0 0 0 0 0   0 2000 0 0 0 0 0
+reference_frame TESTTZ IERS_ETSR 2008 0 0 30000 0 0 0 0   0 0 3000 0 0 0 0
+reference_frame TESTS IERS_ETSR 2008 0 0 0 1000 0 0 0    0 0 0 100 0 0 0
+reference_frame TESTRX IERS_ETSR 2008 0 0 0 0 1000 0 0    0 0 0 0 100 0 0
+reference_frame TESTRY IERS_ETSR 2008 0 0 0 0 0 2000 0     0 0 0 0 0 200 0
+reference_frame TESTRZ IERS_ETSR 2008 0 0 0 0 0 0 3000    0 0 0 0 0 0 300
+
+reference_frame TESTALL IERS_ETSR 2008 10000 20000 30000 1000 1000 2000 3000 1000 2000 3000 100 100 200 300
+
+reference_frame TESTTN epoch 2008 translation 10 0 0 translation_rate 1 0 0
+reference_frame TESTSN epoch 2008 scale 1 scale_rate 0.1
+reference_frame TESTRXN epoch 2008 rotation -1 0 0 rotation_rate -0.1 0 0
+reference_frame TESTRYN epoch 2008 rotation 0 -2 0 rotation_rate 0 -0.2 0
+reference_frame TESTRZN epoch 2008 rotation 0 0 -3 rotation_rate 0 0 -0.3

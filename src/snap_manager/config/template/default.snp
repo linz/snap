@@ -4,10 +4,20 @@ title $_title
 ! Data section
 !
 ! Coordinate file containing station codes and trial coordinates
+! Specify either the coordinate file name for a SNAP format file, or 
+! filename csv [format=dtf_file_name] 
+! for CSV format files
 
 coordinate_file $_coordfile
 
-! Data files
+! Data files, on per line. Each line uses one of the formats
+!   data_file filename 
+!   data_file filename csv [format=dtf_file_name ...]
+!   data_file filename sinex [code=SITE|POINT ref_frame=...]
+!
+! These can be follow by options
+!   error_factor ##.##    standard errors are multiplied by factor
+!   recode recode_file_name   Station codes are translated as the file is read
 
 $_datafilelist
 
@@ -36,6 +46,12 @@ fix
 ! Set to "deformation none" for adjustments extending beyond NZ land area
 
 deformation datum
+
+! Reference frame for ITRF2008 GNSS observations relative to ITRF96.  For this
+! to be used the reference frame must be specified as ITRF2008 in the data file
+! (or in the data_file command with ref_frame=ITRF2008 for SINEX format files)
+
+! reference_frame ITRF2008 IERS_ETSR 2000.0 -4.8 -2.09 17.67 -1.40901 0.16508 -0.26897 -0.11984 -0.79 0.6 1.34 0.10201 0.01347 -0.01514 -0.01973 
 
 ! If the data include stations not in the coordinate file, these observations
 ! can be ignored by uncommenting the following line.  Otherwise missing stations

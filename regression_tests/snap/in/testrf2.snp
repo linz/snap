@@ -34,7 +34,7 @@ reference_frame GPS_Trate epoch 2008 calculate translation_rate
 reference_frame GPS_Srate epoch 2008 calculate scale_rate
 reference_frame GPS_Rrate epoch 2008 calculate rotation_rate
 
-reference_frame GPS_TS translation -1.2 0.3 -15.8 scale 2.5
+reference_frame GPS_TS translation 1.2 -0.3 15.8 scale 2.5
 reference_frame GPS_R rotation 30 -5 65
 
 reference_frame GPS_rate epoch 2008 calculate translation scale rotation translation_rate scale_rate rotation_rate

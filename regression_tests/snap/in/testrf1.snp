@@ -25,16 +25,16 @@ free 4
 add_residual_column c=ref_frame_code  date
 summarise_residuals_by ref_frame_code
 
-reference_frame GPS_T epoch 2008 translation -1.2 0.3 -15.8 
+reference_frame GPS_T epoch 2008 translation 1.2 -0.3 15.8 
 reference_frame GPS_S epoch 2008 scale 2.5 
 reference_frame GPS_R epoch 2008 rotation 30 -5 65
 
-reference_frame GPS_Trate epoch 2008 translation_rate -.12 0.03 -1.58 
+reference_frame GPS_Trate epoch 2008 translation_rate 0.12 -0.03 1.58 
 reference_frame GPS_Srate epoch 2008 scale_rate 0.25 
 reference_frame GPS_Rrate epoch 2008 rotation_rate 3 -0.5 6.5
 
-reference_frame GPS_TS translation -1.2 0.3 -15.8 scale 2.5
+reference_frame GPS_TS translation 1.2 -0.3 15.8 scale 2.5
 reference_frame GPS_R rotation 30 -5 65
 
-reference_frame GPS_rate translation -1.2 0.3 -15.8 scale 2.5 rotation 0 0 0 epoch 2008 translation_rate .12 -0.03 1.58 scale_rate -0.25 rotation_rate 3 -0.5 6.5
+reference_frame GPS_rate translation 1.2 -0.3 15.8 scale 2.5 rotation 0 0 0 epoch 2008 translation_rate -0.12 0.03 -1.58 scale_rate -0.25 rotation_rate 3 -0.5 6.5
 

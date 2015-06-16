@@ -1,0 +1,7 @@
+Test rf0 - reference frame transformations
+NZGD2000_XYZ
+no_geoid 
+
+1        10000000 0 0
+2        0 10000000 0 
+3        0 0 10000000

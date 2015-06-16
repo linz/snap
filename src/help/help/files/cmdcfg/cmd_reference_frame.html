@@ -15,24 +15,25 @@
 
 <p class="Commanddefinition">reference_frame use <i>classification_name</i></p> 
 
-<p class="Commanddefinition">reference_frame <i>code</i>  [epoch <i>epoch_date</i>] [origin <i>origin</i>] [calculate]  [<i>parameter</i>  [<i>value</i> [?]]]</p>
-
 <p class="Commanddefinition">reference_frame  <i>code</i> IERS_ETSR  <i>epoch_date Tx Ty Tz S Rx Ry Rz dTx dTy dTz dS dRx dRy dRz</i> </p>
 <p class="Commanddefinition">reference_frame  <i>code</i> IERS_TSR  <i> Tx Ty Tz S Rx Ry Rz</i> </p>
+
+<p class="Commanddefinition">reference_frame <i>code</i>  [epoch <i>epoch_date</i>] [origin <i>origin</i>] [calculate]  [<i>parameter</i>  [<i>value</i> [?]]]</p>
+
 
 <p>Defines the reference frame parameters for GPS vector and point coordinate observations.
 </p>
 
 <p>Each point or vector observation used in SNAP has an associated reference frame 
 defining the scale, location, and orientation of the coordinate system in 
- which it is expressed.  By default this is assumed to be the aligned with 
+ which it is expressed.  By default this is assumed to be aligned with 
  the coordinate system of the network.  
  However this is often not the case.  For example GNSS observations are 
  often in terms of ITRF2008, whereas New Zealand networks are typically defined in terms of
  NZGD2000 (and so calculated in terms of the ITRF96 reference frame).  
  </p>
 
- <p>The reference frame of the data is defined with the data.  In a SNAP data file this
+ <p>The reference frame of the data is defined in the data file.  In a SNAP format data file this
  is typically using the <a href="../data/obs_ddc_reference_frame.html">#reference_frame</a> 
  data specification.  
  However any <a href="../data/obs_classifications.html">classification</a> attribute of the data can be used instead. 
@@ -40,8 +41,14 @@ defining the scale, location, and orientation of the coordinate system in
 
  <p>
  The relationship between the data and network reference frames is defined in terms
- of the translation, rotation, and scale change that is applied to transform from one 
- to the other.  Each of these may change over time, being defined in terms of a
+ of the translation, rotation, and scale change that is applied to the station coordinates to
+ transform them to the reference frame of the observations.  
+ So for
+ example the translation is added to the station XYZ coordinates (however see the comment 
+ below on the NGS convention for rotations).  
+ </p>
+ <p>
+ Each of the reference frame parameters may change over time, being defined in terms of a
  constant component that applies at a reference epoch, and a rate of change per year.
  So in total there are 14 parameters in the relationship, translation 
  components in the X, Y, and Z directions, scale change, rotation about the X, Y, and Z
@@ -53,14 +60,30 @@ defining the scale, location, and orientation of the coordinate system in
  set of axes.  However for some local applications it may be useful to express the 
  translations and rotations in terms of topocentric axes (east, north, and up axes).
  This can be useful for estimating the relationship or changes between local reference frames in terms
- of local or horizontal and vertical changes.
+ of local horizontal and vertical changes.
  </p>
  <p>
  SNAP has two formats for expressing geocentric components. The format used originally
- in SNAP uses uses units of metres, part per million, and arc seconds for translation, scale,
- and rotation.  It now also supports the units used by the IERS (International Earth Rotation Survey) 
- of millimetres, parts per billion (ppb), and milli-arc seconds (mas).  
- In either format the sign of rotations follows the IERS convention .
+ in SNAP follows the US National Geodetic Survey (NGS) convention, in which the translation and 
+ scale are applied to the coordinates to calculate the observed point coordinate or vector, but the 
+ sign of the rotation is reversed.  
+ </p>
+ <p>
+ SNAP now also supports the International Earth Rotation Service (IERS) convention, 
+ in which the translation, scale, and rotation are all
+ defined as they are applied to coordinates to transform them to the observation reference frame.
+ </p>
+ <p>
+ In the reference frame command the convention used to define the parameters also defines the units
+ used to express them.  For NGS convention parameters the units are
+ metres, part per million, and arc seconds for translation, scale,
+ and rotation respectively.  
+ The IERS convention parameters are expressed in terms of millimetres, parts per billion (ppb), and milli-arc seconds (mas).  
+ </p>
+ <p>
+ The second and third command formats above, which include the text &quot;IERS_TSR&quot; or &quot;IERS_ETSR&quot;,
+ use the IERS convention.  The fourth command format uses the NGS convention.
+ </p>
  <p>
  The reference frame command is used to define the 14 parameters (plus epoch date) of each reference frame.
  SNAP can recalculate some or all of these during the adjustment.  One subtlety of this
@@ -119,7 +142,8 @@ the values may be omitted.  The <i>values</i> are the values that apply for the
 parameter.  For translations these are the three components (XYZ or ENU) in metres,
 for scale the scale change in ppm, and for rotations the rotation around the three
 axes (XYZ or ENU) in arc seconds.  The translation, rotation, and scale rates are 
-expressed in metres/year, ppm/year, and arc seconds/year.  Each value can be followed by a ? to indicate that the individual value is to be calculated.</p>
+expressed in metres/year, ppm/year, and arc seconds/year.  
+Each value can be followed by a ? to indicate that the individual value is to be calculated.</p>
 
 <p class="Commanddefinition">IERS_TSR <i>Tx Ty Tz S Rx Ry Rz</i> </p>
 <p class="Commanddefinition">IERS_ETSR <i>epoch_date Tx Ty Tz S Rx Ry Rz dTx dTy dTz dS dRx dRy dRz</i> </p>
@@ -150,7 +174,7 @@ reference frame.</p>
 incorporate ITRF2008 SINEX files into an NZGD2000 adjustment, for example.</p>
 
 <p class="Commanddefinition">
-reference_frame ITRF2008 IERS_ETSR 2000.0 4.8 2.09 -17.67 1.40901 -0.16508 0.26897 0.11984 0.79 -0.6 -1.34 -0.10201 -0.01347 0.01514 0.01973
+reference_frame ITRF2008 IERS_ETSR 2000.0 -4.8 -2.09 17.67 -1.40901 0.16508 -0.26897 -0.11984 -0.79 0.6 1.34 0.10201 0.01347 -0.01514 -0.01973
 </p> 
 
 <div class="SeeAlso">

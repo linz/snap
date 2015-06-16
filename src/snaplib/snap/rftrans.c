@@ -344,8 +344,8 @@ static void setup_rftrans_flags( rfTransformation *rf )
         rf->prm[rfTzRate] != 0 ||
         rf->prm[rfScaleRate] != 0 ||
         rf->prm[rfRotxRate] != 0 ||
-        rf->prm[rfRotxRate] != 0 ||
-        rf->prm[rfRotxRate] != 0 ) rf->userates=1;
+        rf->prm[rfRotyRate] != 0 ||
+        rf->prm[rfRotzRate] != 0 ) rf->userates=1;
     if( rf->calctransrate || rf->calcrotrate || rf->calcscalerate ) rf->userates=1;
 
     /* Set flag for using offset origin in calculations */
@@ -652,12 +652,12 @@ void rftrans_correct_point( int rfid, double vd[3], double date )
         premult3( DS rf->invtmatrate, vd, vr, 1 );
         premult3( DS rf->invtmat, vd, vd, 1 );
         vecadd2( vd, 1, vr, factor, vd );
-        vecadd2( vd, 1, rf->transrate, factor, vd );
+        vecadd2( vd, 1, rf->transrate, -1.0*factor, vd );
     }
     else
     {
         premult3( DS rf->invtmat, vd, vd, 1 );
-        vecadd(vd, rf->trans, vd);
+        vecdif(vd, rf->trans, vd);
     }
 
     vecadd(vd,rf->origin,vd);

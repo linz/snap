@@ -40,18 +40,18 @@ The command file testrf1.snp contains:
      add_residual_column c=ref_frame_code  date
      summarise_residuals_by ref_frame_code
      
-     reference_frame GPS_T epoch 2008 translation -1.2 0.3 -15.8 
+     reference_frame GPS_T epoch 2008 translation 1.2 -0.3 15.8 
      reference_frame GPS_S epoch 2008 scale 2.5 
      reference_frame GPS_R epoch 2008 rotation 30 -5 65
      
-     reference_frame GPS_Trate epoch 2008 translation_rate -.12 0.03 -1.58 
+     reference_frame GPS_Trate epoch 2008 translation_rate 0.12 -0.03 1.58 
      reference_frame GPS_Srate epoch 2008 scale_rate 0.25 
      reference_frame GPS_Rrate epoch 2008 rotation_rate 3 -0.5 6.5
      
-     reference_frame GPS_TS translation -1.2 0.3 -15.8 scale 2.5
+     reference_frame GPS_TS translation 1.2 -0.3 15.8 scale 2.5
      reference_frame GPS_R rotation 30 -5 65
      
-     reference_frame GPS_rate translation -1.2 0.3 -15.8 scale 2.5 rotation 0 0 0 epoch 2008 translation_rate .12 -0.03 1.58 scale_rate -0.25 rotation_rate 3 -0.5 6.5
+     reference_frame GPS_rate translation 1.2 -0.3 15.8 scale 2.5 rotation 0 0 0 epoch 2008 translation_rate -0.12 0.03 -1.58 scale_rate -0.25 rotation_rate 3 -0.5 6.5
      
 
 
@@ -197,9 +197,9 @@ Reference frame: GPS_T
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  -1.2000          -        
-      Y translation (m)                   0.3000          -        
-      Z translation (m)                 -15.8000          -        
+      X translation (m)                   1.2000          -        
+      Y translation (m)                  -0.3000          -        
+      Z translation (m)                  15.8000          -        
       Scale factor (ppm)                  0.0000000       -        
       X rotation (arc sec)                0.0000000       -        
       Y rotation (arc sec)                0.0000000       -        
@@ -250,9 +250,9 @@ Reference frame: GPS_TRATE
       X rotation (arc sec)                0.0000000       -        
       Y rotation (arc sec)                0.0000000       -        
       Z rotation (arc sec)                0.0000000       -        
-      X translation rate (m/year)        -0.12000         -        
-      Y translation rate (m/year)         0.03000         -        
-      Z translation rate (m/year)        -1.58000         -        
+      X translation rate (m/year)         0.12000         -        
+      Y translation rate (m/year)        -0.03000         -        
+      Z translation rate (m/year)         1.58000         -        
       Scale factor rate (ppm/year)        0.00000000      -        
       X rotation rate (arc sec/year)      0.00000000      -        
       Y rotation rate (arc sec/year)      0.00000000      -        
@@ -311,9 +311,9 @@ Reference frame: GPS_TS
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  -1.2000          -        
-      Y translation (m)                   0.3000          -        
-      Z translation (m)                 -15.8000          -        
+      X translation (m)                   1.2000          -        
+      Y translation (m)                  -0.3000          -        
+      Z translation (m)                  15.8000          -        
       Scale factor (ppm)                  2.5000000       -        
       X rotation (arc sec)                0.0000000       -        
       Y rotation (arc sec)                0.0000000       -        
@@ -327,16 +327,16 @@ Reference frame: GPS_RATE
    Geocentric definition
 
       Parameter                             Value            Error    
-      X translation (m)                  -1.2000          -        
-      Y translation (m)                   0.3000          -        
-      Z translation (m)                 -15.8000          -        
+      X translation (m)                   1.2000          -        
+      Y translation (m)                  -0.3000          -        
+      Z translation (m)                  15.8000          -        
       Scale factor (ppm)                  2.5000000       -        
       X rotation (arc sec)                0.0000000       -        
       Y rotation (arc sec)                0.0000000       -        
       Z rotation (arc sec)                0.0000000       -        
-      X translation rate (m/year)         0.12000         -        
-      Y translation rate (m/year)        -0.03000         -        
-      Z translation rate (m/year)         1.58000         -        
+      X translation rate (m/year)        -0.12000         -        
+      Y translation rate (m/year)         0.03000         -        
+      Z translation rate (m/year)        -1.58000         -        
       Scale factor rate (ppm/year)       -0.25000000      -        
       X rotation rate (arc sec/year)      3.00000000      -        
       Y rotation rate (arc sec/year)     -0.50000000      -        

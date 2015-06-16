@@ -1148,6 +1148,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
             return OK;
         }
         for( i=0; i<14; i++) val[i]=0.001*val[i];
+        for( i=0; i<3; i++ ) { val[i+rfRotx]*=-1.0; val[i+rfRotxRate]*=-1.0; }
     }
 
     if( topocentric )
