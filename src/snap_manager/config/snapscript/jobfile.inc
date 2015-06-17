@@ -43,7 +43,7 @@ validator
   endif
   return true
 save_file_selector $coordinatefile "Coordinate file" "Snap coordinate files (*.crd)|*.crd|All files (*.*)|*.*"
-radio_selector $crdfileoption "Coordinate file option" "~use~Use the selected file~copy~Copy the selected file~new~Create a new empty file"
+radio_selector $crdfileoption "Coordinate file option" "~use~Use the selected file~copy~Copy the selected file to the same name as the command file~new~Create a new empty file with the same name as the command file"
 validator
    if $crdfileoption == "use" or $crdfileoption == "copy" then
       if not fileexists($coordinatefile) then

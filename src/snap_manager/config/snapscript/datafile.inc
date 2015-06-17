@@ -165,7 +165,7 @@ function CreateNewDataFile($jobpath)
 end_function
 
 function AdditionalDataFiles($jobpath)
-  $addfiles = GetOpenFilename("SNAP data files","Data files (*.dat)|*.dat|CSV files (*.csv)|*.csv|SINEX files (*.snx)|*.snx,*.SNX|All files (*.*)|*.*",true)
+  $addfiles = GetOpenFilename("SNAP data files","Data files (*.dat)|*.dat|CSV files (*.csv)|*.csv|SINEX files (*.snx)|*.snx|All files (*.*)|*.*",true)
   if not $addfiles then return '' endif
   $newfiles = ''
   foreach $addfile in $addfiles do

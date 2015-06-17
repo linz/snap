@@ -148,7 +148,7 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
             dfi.raiseError(std::string("Cannot have more than one solution for ")+code);
 
         // Store the ordinate
-        double value=strtod(input.substr(48,21).c_str(),0);
+        double value=strtod(input.substr(47,21).c_str(),0);
         points[id]->xyz[ord]=value;
         int prmid=atoi(input.substr(1,5).c_str());
 
