@@ -26,7 +26,7 @@
  * code index.
  */
 
-#define STNLIST_MAX_LINEAR_SEARCH 64
+#define STNLIST_MAX_LINEAR_SEARCH 256
 
 /*=======================================================*/
 /* Maintain a list of stations ...                       */

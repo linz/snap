@@ -87,6 +87,8 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
         }
     }
 
+    if( sts != OK ) abort_config_file( cfg );
+
     return sts == OK ? OK : NO_MORE_DATA;
 }
 

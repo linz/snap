@@ -213,6 +213,15 @@ int read_network( network *nw, const char *fname, int gbformat )
         sts =  df_read_code( stf, stcode, STNCODELEN+1 );
         if( ! sts ) continue;
 
+        if( sl_find_station( nw->stnlist, stcode ) > 0 )
+        {
+            char errmsg [30+STNCODELEN];
+            sprintf(errmsg,"Duplicate station code %s",stcode);
+            df_data_file_error(stf, INVALID_DATA,errmsg);
+            dfsts = INVALID_DATA;
+            continue;
+        }
+
         if( sts )
         {
             if( projection_coords )
