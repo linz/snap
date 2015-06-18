@@ -139,7 +139,7 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun )
     }
     nch--;
 
-    if( *noverrun ) (*noverrun)=0;
+    if( noverrun ) (*noverrun)=0;
 
     c = fgetc(cfg->f);
     if( c == EOF ) return NULL;
