@@ -455,20 +455,33 @@ static void process_selected_stations1( network *nw, char *select, const char *b
         for( delim = field+1; *delim && *delim != '-'; delim++);
         if( *delim )
         {
-            int ist1, ist2;
             *delim = 0;
-            if( 0 != (ist1=find_station_sorted_id( nw,field)) &&
-                    0 != (ist2=find_station_sorted_id( nw,delim+1)) &&
-                    ist2 >= ist1 )
+            for( istn = number_of_stations(nw); istn; istn-- )
             {
-                while( ist1 <= ist2 )
+                station *st = station_ptr(nw,istn);
+                if( stncodecmp(st->Code,field) >= 0 && stncodecmp(delim+1,st->Code) >= 0 )
                 {
-                    (*function)(station_sorted_ptr(nw,ist1),data);
-                    ist1++;
+                    (*function)(st,data);
                 }
-                continue;
             }
             *delim = '-';
+            continue;
+        }
+
+        /* Does it end with a wildcard */
+
+        if( strlen(field) > 0 && strlen(field) < STNCODELEN-1 && field[strlen(field)-1]=='*' )
+        {
+            int testlen=strlen(field)-1;
+            for( istn = number_of_stations(nw); istn; istn-- )
+            {
+                station *st = station_ptr(nw,istn);
+                if( _strnicmp(st->Code,field,testlen) == 0 )
+                {
+                    (*function)(st,data);
+                }
+            }
+            continue;
         }
 
         /* Bother - it must be a mistake */

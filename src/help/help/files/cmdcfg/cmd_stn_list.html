@@ -16,9 +16,12 @@
 <p>Several commands (for example reject,  ignore, fix) use a list of station codes to identify the stations that are affected.  This list can include:</p>
 
 <p class="BulletList">individual station codes</p>
+
 <p class="BulletList">ranges of stations codes - entered as two station codes separated by a hyphen (eg 5-15).
 Station ranges are interpreted by ordering the codes numerically using the leading digits in the code, and then alphabetically using any remaining characters in the code.  Using this scheme the range 5-15 would include 10 and 10A, but not 100.  If there is a station with a code the same as the range in the station list, then the
 range will be treated as an individual station code.</p>
+
+<p class="BulletList">a station name finishing with a &quot;*&quot; wildcard, for example BO*, will match any station starting with the characters before the wildcard</p>
 
 <p class="BulletList">stations specified by order - entered as order=<i>order</i> (eg order=3).  This can be used if the coordinate file specifies station orders.</p>
 

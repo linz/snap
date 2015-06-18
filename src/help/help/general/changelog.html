@@ -30,6 +30,10 @@ even if focus is restored.
 <h3>Snap</h3>
 <p>Bug fix: Fixed error reading SINEX files whereby sign of X,Y,Z coordinate values can be lost.</p>
 <p>Bug fix: Fixed error in sign of 14 parameter transformations.  Clarified definition of transformations in help file.</p>
+<p>Enhancement: Station codes can now be up to 15 characters long (previously this was limited to 10 characters)</p>
+<p>Enhancement: Station lists can specify ranges such as 2-10 for which the start and end values do not need to
+be existing codes.  Previously ranges were only valid if both endpoints were listed station.</p>
+<p>Enhancement: Station lists can specify stations using a &quot;*&quot; wildcard as the last character.  For example BO* will match any station code starting BO.</p>
 <h2>Release: 10 April 2015</h2>
 <h3>Snap</h3>
 <p>Bug fix: Fixed bug whereby the covariance matrix of grouped vector data was corrupted if one or more stations in the set are ignored.</p>
