@@ -53,7 +53,7 @@
             of up to STNCODELEN characters.
 ------------------------------------------------------------------------*/
 
-#define STNCODELEN 10
+#define STNCODELEN 15
 
 typedef struct
 {
