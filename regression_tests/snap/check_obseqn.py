@@ -26,7 +26,7 @@ oejson="".join(oejson)
 
 oe=json.loads("".join(oejson))
 
-print oe
+#print oe
 # Now try building and solving the normal equations.
 
 nprm=oe["nparam"]
@@ -58,6 +58,8 @@ for ie,eqn in enumerate(oe["obs_equations"]):
     N += np.dot(Aw,A.T)
 
 print "Eigenvalues of N: ",np.linalg.eigvals(N)
+print "N:\n",N
+print "b:\n",b
 print "Inverting N"
 N = np.linalg.inv(N)
 print "Calculating x"
