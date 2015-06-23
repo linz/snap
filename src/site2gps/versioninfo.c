@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 #define VERSIONINFO
 #define PROGRAM "site2gps"
-#define VERSION "2.5.33"
+#define VERSION "2.5.34"
 
 #include "util/versioninfo.h"
