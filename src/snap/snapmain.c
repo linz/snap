@@ -416,6 +416,15 @@ int snap_main( int argc, char *argv[] )
             return DEFAULT_RETURN_STATUS;
         }
 
+        if( output_normal_equations )
+        {
+            char header[30];
+            sprintf(header,"solution_vector_%d",iterations);
+            print_json_start(lst,header);
+            lsq_print_solution_vector_json( lst, 0, 0 );
+            print_json_end(lst,header);
+        }
+
         /* Find the maximum adjustment and document the iterations */
 
         max_station_adjustment( convergence_tol, &maxstn, &maxadj, &nstnadj );

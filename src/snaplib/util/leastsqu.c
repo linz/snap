@@ -1155,6 +1155,34 @@ void lsq_print_normal_equations_json( FILE *out, int nprefix )
     fprintf(out,"\n%*s}",nprefix,"");
 }
 
+void lsq_print_solution_vector_json( FILE *out, int print_cvr, int nprefix )
+{
+    int ir;
+    set_lsq_status( print_cvr ? LSQ_INVERTED : LSQ_SOLVED, "lsq_print_solution" );
+
+    fprintf(out,"{\n%*s\"nparam\": %d",nprefix,"",nprm);
+    if( nprm )
+    {
+        fprintf(out,",\n%*s\"b\": [",nprefix,"");
+        for( ir=0; ir < nprm; ir++ )
+        {
+            if( ir ) 
+            {
+                fprintf(out,",");
+                if( ir % 20 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
+            }
+            fprintf(out,"%15.8le",b[ir]);
+        }
+        fprintf(out,"%*s  ]",nprefix,"");
+        if( print_cvr && N ) 
+        {
+            fprintf(out,",\n%*s\"N\": ",nprefix,"");
+            print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, 0 );
+        }
+    }
+    fprintf(out,"\n%*s}",nprefix,"");
+}
+
 #ifdef TESTLSQ
 
 /*===================================================================*/
