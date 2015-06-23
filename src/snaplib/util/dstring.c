@@ -56,7 +56,7 @@ char *reload_string( FILE *b )
 int ismatch( const char *string1, const char *string2 )
 {
     static const char *map =
-        "________________________________"
+        " _______________________________"
         "_!\"#$%&'()*+,-./0123456789:;<=>?"
         "@abcdefghijklmnopqrstuvwxyz[\\]^_"
         "`abcdefghijklmnopqrstuvwxyz{|}~_"
