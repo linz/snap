@@ -7,9 +7,9 @@ code @code
 name @name
 coordinate_system @crdsys
 height_type @height_type
-longitude @longitude default @easting
-latitude @latitude default @northing
-height @height default @ellheight
+longitude @longitude default @easting default @x
+latitude @latitude default @northing default @y
+height @height default @ellheight default @z
 geoid_undulation @geoidhgt
 deflection_east @xi
 deflection_north @eta

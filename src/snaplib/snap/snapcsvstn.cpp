@@ -55,9 +55,9 @@ SnapCsvStn::SnapCsvStn( network *net, const std::string &name, const OptionStrin
     SnapCsvBase(name, config),
     _code("Station code"),
     _name("Station name"),
-    _crdlon("Longitude/easting"),
-    _crdlat("Latitude/northing"),
-    _crdhgt("Height"),
+    _crdlon("Longitude/easting/X"),
+    _crdlat("Latitude/northing/Y"),
+    _crdhgt("Height/Z"),
     _crdund("Geoid height"),
     _crdxi("Deflection east"),
     _crdeta("Deflection north"),
@@ -186,9 +186,12 @@ void SnapCsvStn::loadDefinitionCommand( const string &command, RecordStream &rs 
         else if( command == "name" ) { loadValueDefinition(rs,_name); }
         else if( command == "longitude" ) { loadValueDefinition(rs,_crdlon); }
         else if( command == "easting" ) { loadValueDefinition(rs,_crdlon); }
+        else if( command == "x" ) { loadValueDefinition(rs,_crdlon); }
         else if( command == "latitude" ) { loadValueDefinition(rs,_crdlat); }
         else if( command == "northing" ) { loadValueDefinition(rs,_crdlat); }
+        else if( command == "y" ) { loadValueDefinition(rs,_crdlat); }
         else if( command == "height" ) { loadValueDefinition(rs,_crdhgt); }
+        else if( command == "z" ) { loadValueDefinition(rs,_crdhgt); }
         else if( command == "geoid_undulation" ) { loadValueDefinition(rs,_crdund); }
         else if( command == "deflection_east" ) { loadValueDefinition(rs,_crdxi); }
         else if( command == "deflection_north" ) { loadValueDefinition(rs,_crdeta); }
@@ -238,6 +241,11 @@ void SnapCsvStn::initiallizeLoadData()
 
 void SnapCsvStn::loadRecord()
 {
+    const char *llhords[]={"Longitude","Latitude","Height"};
+    const char *prjords[]={"Easting","Northing","Height"};
+    const char *xyzords[]={"X","Y","Z"};
+    const char **ords;
+
     const std::string &cscode = _crdsys.value();
     std::string heightType = _hgttype.value();
     boost::to_lower( heightType );
@@ -266,6 +274,11 @@ void SnapCsvStn::loadRecord()
     }
 
     if( ! _cs ) return;
+    ords=_projection ? prjords : _geocentric ? xyzords : llhords;
+    _crdlon.setName(ords[0]);
+    _crdlat.setName(ords[1]);
+    _crdhgt.setName(ords[2]);
+
     if( cscode != _cscode )
     {
         dataError(string("Coordinate system code not consistent ")+_cscode+" and "+cscode);
@@ -295,9 +308,13 @@ void SnapCsvStn::loadRecord()
     double crdxi = 0.0;
     double crdeta = 0.0;
 
-    if( ! (_crdlon >> crdlon) ) dataError("Longitude/easting is missing or invalid");
-    if( ! (_crdlat >> crdlat) ) dataError("Latitude/northing is missing or invalid");
-    if( _crdhgt.value() != "" && ! (_crdhgt >> crdhgt)) dataError("Invalid height coordinate");
+    if( ! (_crdlon >> crdlon) ) dataError(string(ords[0]) + " is missing or invalid");
+    if( ! (_crdlat >> crdlat) ) dataError(string(ords[1]) + " is missing or invalid");
+    if( !(_geocentric || _crdhgt.value() != "") && ! (_crdhgt >> crdhgt)) 
+    {
+        if( _geocentric ) dataError(string(ords[2]) + " is missing or invalid");
+        else dataError("Invalid height coordinate");
+    }
 
     if( _haveGeoid )
     {

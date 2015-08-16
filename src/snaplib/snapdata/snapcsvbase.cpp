@@ -26,6 +26,13 @@ SnapCsvBase::CsvValue::~CsvValue()
 {
 }
 
+void SnapCsvBase::CsvValue::setName( const std::string name )
+{
+    _name=name;
+    if( _column != 0 ) _column->setName( name );
+}
+
+
 void SnapCsvBase::CsvValue::attach( CalcReader *reader )
 {
     _column = reader ? &reader->addColumn(_name,_value ) : 0;

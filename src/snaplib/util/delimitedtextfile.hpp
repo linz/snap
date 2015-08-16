@@ -70,6 +70,7 @@ class Column
     friend class Reader;
 public:
     const std::string &name() const { return _name; }
+    void setName( const std::string name ){ _name=name; }
     const std::string &value() const { return _value; }
     std::string &value() { return _value; }
     int index() const { return _index; }
@@ -78,7 +79,6 @@ public:
 private:
     Column( const Reader &dlt, std::string name, int index ) :
         _dlt(dlt), _name(name), _value(""), _index(index) {}
-    void setName( const std::string &name ) { _name = name; }
     void clear() { _value.clear(); }
     void handleReadError() const;
     const Reader &_dlt;
@@ -274,6 +274,7 @@ template<typename T> bool Column::operator>>( T &tvalue ) const
     if( is.fail() || ! is.eof() ) { handleReadError(); return false; }
     return true;
 }
+
 inline bool Column::operator>>( std::string &strvalue ) const
 {
     strvalue = value();

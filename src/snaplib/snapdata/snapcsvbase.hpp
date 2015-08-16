@@ -34,6 +34,7 @@ public:
         CsvValue(const std::string &name) : _name(name), _column(0) {}
         ~CsvValue();
         const std::string &name() { return _name; }
+        void setName( const std::string name );
         const std::string &value() const { return _column->value(); }
         ConcatValue &cvalue() { return _value; }
         bool hasValue() { return _value.hasValue(); }
