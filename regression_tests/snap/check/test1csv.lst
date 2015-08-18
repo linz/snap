@@ -128,8 +128,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"HA",
-        "value": [2.4691358],
-        "error": [2.469135793],
+        "value": [141.4710600],
+        "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":2
@@ -142,8 +142,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"HA",
-        "value": [2.8133074],
-        "error": [2.813307391],
+        "value": [161.1906400],
+        "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":3
@@ -161,8 +161,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"HA",
-        "value": [0.0255947],
-        "error": [0.025594730],
+        "value": [1.4664700],
+        "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":4
@@ -175,8 +175,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"HA",
-        "value": [4.2724114],
-        "error": [4.272411373],
+        "value": [244.7911400],
+        "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":5
@@ -194,8 +194,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"HA",
-        "value": [2.1199898],
-        "error": [2.119989832],
+        "value": [121.4664700],
+        "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":6
@@ -208,8 +208,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"HA",
-        "value": [0.0836212],
-        "error": [0.083621168],
+        "value": [4.7911400],
+        "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":7
@@ -227,8 +227,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"AZ",
-        "value": [0.7238065],
-        "error": [0.723806541],
+        "value": [41.4710600],
+        "error": [0.001110000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":8
@@ -246,8 +246,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"AZ",
-        "value": [1.0679781],
-        "error": [1.067978139],
+        "value": [61.1906400],
+        "error": [0.001110000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":9
@@ -265,8 +265,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"PB",
-        "value": [0.7071338],
-        "error": [0.707133760],
+        "value": [40.5157800],
+        "error": [0.001110000],
         "projection": "WELLTM1949",
         "classifications": {
           "Projection":"WELLTM1949",
@@ -289,8 +289,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"PB",
-        "value": [1.0513054],
-        "error": [1.051305358],
+        "value": [60.2353600],
+        "error": [0.001110000],
         "projection": "WELLTM1949",
         "classifications": {
           "Projection":"WELLTM1949",
@@ -314,7 +314,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"SD",
         "value": [894.901400],
-        "error": [894.90140000],
+        "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":12
@@ -333,7 +333,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"SD",
         "value": [1154.943800],
-        "error": [1154.94380000],
+        "error": [0.00230000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":13
@@ -352,7 +352,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"ED",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":14
@@ -371,7 +371,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"ED",
         "value": [1152.150000],
-        "error": [1152.15000000],
+        "error": [0.01060000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":15
@@ -390,7 +390,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"MD",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":16
@@ -409,7 +409,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"MD",
         "value": [1152.150000],
-        "error": [1152.15000000],
+        "error": [0.01060000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":17
@@ -428,7 +428,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"MD",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":18
@@ -447,7 +447,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"MD",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":19
@@ -466,7 +466,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"HD",
         "value": [889.296600],
-        "error": [889.29660000],
+        "error": [0.00440000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":20
@@ -485,7 +485,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"HD",
         "value": [1152.169800],
-        "error": [1152.16980000],
+        "error": [0.00460000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":21
@@ -504,7 +504,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"DR",
         "value": [894.946100],
-        "error": [894.94610000],
+        "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":22
@@ -518,7 +518,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"DR",
         "value": [1155.001500],
-        "error": [1155.00150000],
+        "error": [0.00230000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":23
@@ -536,8 +536,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"ZD",
-        "value": [1.4588883],
-        "error": [1.458888259],
+        "value": [83.5881400],
+        "error": [0.001390000],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -558,8 +558,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"ZD",
-        "value": [1.6402095],
-        "error": [1.640209467],
+        "value": [93.9770800],
+        "error": [0.001390000],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -581,7 +581,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"LV",
         "value": [100.000000],
-        "error": [100.00000000],
+        "error": [0.01000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":26
@@ -600,7 +600,7 @@ BEGIN_JSON observations
         "date":"2008-01-01 12:00:00",
         "type":"LV",
         "value": [-80.000000],
-        "error": [-80.00000000],
+        "error": [0.03000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":27
@@ -618,8 +618,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LN",
-        "value": [3.02502211],
-        "error": [3.0250221128],
+        "value": [173.32100000],
+        "error": [0.0000560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":28
@@ -637,8 +637,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LN",
-        "value": [3.02514429],
-        "error": [3.0251442859],
+        "value": [173.32800000],
+        "error": [0.0000830000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":29
@@ -656,8 +656,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LT",
-        "value": [-0.71581189],
-        "error": [-0.7158118861],
+        "value": [-41.01300000],
+        "error": [0.0000560000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":30
@@ -675,8 +675,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LT",
-        "value": [-0.71570717],
-        "error": [-0.7157071664],
+        "value": [-41.00700000],
+        "error": [0.0000830000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":31
@@ -694,8 +694,8 @@ BEGIN_JSON observations
         "to_hgt":1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [2.4691358],
-        "error": [2.469135793],
+        "value": [141.4710600],
+        "error": [0.005560000],
         "classifications": {
           "class":"A1"
           },
@@ -711,8 +711,8 @@ BEGIN_JSON observations
         "to_hgt":-1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [2.8133074],
-        "error": [2.813307391],
+        "value": [161.1906400],
+        "error": [0.005560000],
         "classifications": {
           "class":"B"
           },
@@ -733,8 +733,8 @@ BEGIN_JSON observations
         "to_hgt":1.8000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [0.0255947],
-        "error": [0.025594730],
+        "value": [1.4664700],
+        "error": [0.005560000],
         "classifications": {
           "class":"A1"
           },
@@ -750,8 +750,8 @@ BEGIN_JSON observations
         "to_hgt":1.8000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [4.2724114],
-        "error": [4.272411373],
+        "value": [244.7911400],
+        "error": [0.005560000],
         "classifications": {
           "class":"C"
           },
@@ -772,8 +772,8 @@ BEGIN_JSON observations
         "to_hgt":0.2000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [2.1199898],
-        "error": [2.119989832],
+        "value": [121.4664700],
+        "error": [0.005560000],
         "classifications": {
           "class":"D"
           },
@@ -789,8 +789,8 @@ BEGIN_JSON observations
         "to_hgt":3.0000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [0.0836212],
-        "error": [0.083621168],
+        "value": [4.7911400],
+        "error": [0.005560000],
         "classifications": {
           "class":"E"
           },
@@ -811,8 +811,8 @@ BEGIN_JSON observations
         "to_hgt":1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"AZ",
-        "value": [0.7238065],
-        "error": [0.723806541],
+        "value": [41.4710600],
+        "error": [0.001110000],
         "classifications": {
           "class":"X"
           },
@@ -833,8 +833,8 @@ BEGIN_JSON observations
         "to_hgt":1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"AZ",
-        "value": [1.0679781],
-        "error": [1.067978139],
+        "value": [61.1906400],
+        "error": [0.001110000],
         "classifications": {
           "class":"XXXXXX"
           },
@@ -855,8 +855,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"PB",
-        "value": [0.7071338],
-        "error": [0.707133760],
+        "value": [40.5157800],
+        "error": [0.001110000],
         "projection": "WELLTM1949",
         "classifications": {
           "Projection":"WELLTM1949",
@@ -875,7 +875,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"SD",
         "value": [894.901400],
-        "error": [894.90140000],
+        "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":41
@@ -893,8 +893,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"PB",
-        "value": [1.0513054],
-        "error": [1.051305358],
+        "value": [60.2353600],
+        "error": [0.001110000],
         "projection": "WELLTM1949",
         "classifications": {
           "Projection":"WELLTM1949",
@@ -913,7 +913,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"SD",
         "value": [1154.943800],
-        "error": [1154.94380000],
+        "error": [0.00230000],
         "useobs":false,
         "file":"testobs.csv",
         "file_line-no":43
@@ -932,7 +932,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"ED",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "classifications": {
           "class":"A",
           "equpt":"EDM"
@@ -955,7 +955,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"ED",
         "value": [1152.150000],
-        "error": [1152.15000000],
+        "error": [0.01060000],
         "classifications": {
           "class":"B",
           "equpt":"Tape"
@@ -977,8 +977,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"ZD",
-        "value": [1.4588883],
-        "error": [1.458888259],
+        "value": [83.5881400],
+        "error": [0.001390000],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -999,8 +999,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"ZD",
-        "value": [1.6402095],
-        "error": [1.640209467],
+        "value": [93.9770800],
+        "error": [0.001390000],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -1022,7 +1022,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"LV",
         "value": [100.000000],
-        "error": [100.00000000],
+        "error": [0.01000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":48
@@ -1041,7 +1041,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"LV",
         "value": [-80.000000],
-        "error": [-80.00000000],
+        "error": [0.03000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":49
@@ -1059,8 +1059,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
-        "value": [3.02502211],
-        "error": [3.0250221128],
+        "value": [173.32100000],
+        "error": [0.0000560000],
         "classifications": {
           "class":"C",
           "equpt":"Theodolite"
@@ -1082,8 +1082,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
-        "value": [3.02514429],
-        "error": [3.0251442859],
+        "value": [173.32800000],
+        "error": [0.0000830000],
         "classifications": {
           "class":"E",
           "equpt":"Compass"
@@ -1105,8 +1105,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
-        "value": [-0.71581189],
-        "error": [-0.7158118861],
+        "value": [-41.01300000],
+        "error": [0.0000560000],
         "classifications": {
           "class":"C",
           "equpt":"Theodolite"
@@ -1128,8 +1128,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
-        "value": [-0.71570717],
-        "error": [-0.7157071664],
+        "value": [-41.00700000],
+        "error": [0.0000830000],
         "classifications": {
           "class":"E",
           "equpt":"Astrolabe"
@@ -1151,8 +1151,8 @@ BEGIN_JSON observations
         "to_hgt":1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [2.4691358],
-        "error": [2.469135793],
+        "value": [141.4710600],
+        "error": [0.005000000],
         "classifications": {
           "class":"A1"
           },
@@ -1168,8 +1168,8 @@ BEGIN_JSON observations
         "to_hgt":-1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [2.8133074],
-        "error": [2.813307391],
+        "value": [161.1906400],
+        "error": [0.005000000],
         "classifications": {
           "class":"B"
           },
@@ -1190,8 +1190,8 @@ BEGIN_JSON observations
         "to_hgt":1.8000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [0.0255947],
-        "error": [0.025594730],
+        "value": [1.4664700],
+        "error": [0.005000000],
         "classifications": {
           "class":"A1"
           },
@@ -1207,8 +1207,8 @@ BEGIN_JSON observations
         "to_hgt":1.8000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [4.2724114],
-        "error": [4.272411373],
+        "value": [244.7911400],
+        "error": [0.005000000],
         "classifications": {
           "class":"C"
           },
@@ -1229,8 +1229,8 @@ BEGIN_JSON observations
         "to_hgt":0.2000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [2.1199898],
-        "error": [2.119989832],
+        "value": [121.4664700],
+        "error": [0.005000000],
         "classifications": {
           "class":"D"
           },
@@ -1246,8 +1246,8 @@ BEGIN_JSON observations
         "to_hgt":3.0000,
         "date":"2009-12-23 12:00:00",
         "type":"HA",
-        "value": [0.0836212],
-        "error": [0.083621168],
+        "value": [4.7911400],
+        "error": [0.005000000],
         "classifications": {
           "class":"E"
           },
@@ -1268,8 +1268,8 @@ BEGIN_JSON observations
         "to_hgt":1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"AZ",
-        "value": [0.7238065],
-        "error": [0.723806541],
+        "value": [41.4710600],
+        "error": [0.000100000],
         "classifications": {
           "class":"X"
           },
@@ -1290,8 +1290,8 @@ BEGIN_JSON observations
         "to_hgt":1.5000,
         "date":"2009-12-23 12:00:00",
         "type":"AZ",
-        "value": [1.0679781],
-        "error": [1.067978139],
+        "value": [61.1906400],
+        "error": [0.000100000],
         "classifications": {
           "class":"XXXXXX"
           },
@@ -1312,8 +1312,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"PB",
-        "value": [0.7071336],
-        "error": [0.707133585],
+        "value": [40.5157700],
+        "error": [0.001000000],
         "projection": "WELLTM1949",
         "classifications": {
           "Projection":"WELLTM1949",
@@ -1332,7 +1332,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"SD",
         "value": [894.901400],
-        "error": [894.90140000],
+        "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":63
@@ -1350,8 +1350,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"PB",
-        "value": [1.0513052],
-        "error": [1.051305184],
+        "value": [60.2353500],
+        "error": [0.001000000],
         "projection": "WELLTM1949",
         "classifications": {
           "Projection":"WELLTM1949",
@@ -1370,7 +1370,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"SD",
         "value": [1154.943800],
-        "error": [1154.94380000],
+        "error": [0.00230000],
         "useobs":false,
         "file":"testobs.csv",
         "file_line-no":65
@@ -1388,8 +1388,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
-        "value": [3.02502211],
-        "error": [3.0250221128],
+        "value": [173.32100000],
+        "error": [0.0002000000],
         "classifications": {
           "class":"C",
           "equpt":"Theodolite"
@@ -1411,8 +1411,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
-        "value": [3.02514429],
-        "error": [3.0251442859],
+        "value": [173.32800000],
+        "error": [0.0003000000],
         "classifications": {
           "class":"E",
           "equpt":"Compass"
@@ -1434,8 +1434,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
-        "value": [-0.71581189],
-        "error": [-0.7158118861],
+        "value": [-41.01300000],
+        "error": [0.0002000000],
         "classifications": {
           "class":"C",
           "equpt":"Theodolite"
@@ -1457,8 +1457,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
-        "value": [-0.71570717],
-        "error": [-0.7157071664],
+        "value": [-41.00700000],
+        "error": [0.0003000000],
         "classifications": {
           "class":"E",
           "equpt":"Astrolabe"
@@ -1481,7 +1481,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"OH",
         "value": [150.000000],
-        "error": [150.00000000],
+        "error": [2.00000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":70
@@ -1500,7 +1500,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"OH",
         "value": [152.000000],
-        "error": [152.00000000],
+        "error": [0.20000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":71
@@ -1519,7 +1519,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"EH",
         "value": [150.000000],
-        "error": [150.00000000],
+        "error": [2.00000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":72
@@ -1538,7 +1538,7 @@ BEGIN_JSON observations
         "date":"2009-12-23 12:00:00",
         "type":"EH",
         "value": [152.000000],
-        "error": [152.00000000],
+        "error": [0.20000000],
         "useobs":true,
         "file":"testobs.csv",
         "file_line-no":73

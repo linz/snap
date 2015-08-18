@@ -61,8 +61,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.4588882],
-        "error": [1.458888239],
+        "value": [83.5881389],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -83,8 +83,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.6402095],
-        "error": [1.640209526],
+        "value": [93.9770833],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -105,8 +105,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.6827044],
-        "error": [1.682704414],
+        "value": [96.4118611],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -127,8 +127,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.5013831],
-        "error": [1.501383128],
+        "value": [86.0229167],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -149,8 +149,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.4588902],
-        "error": [1.458890178],
+        "value": [83.5882500],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"TEST"
           },
@@ -171,8 +171,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.6402124],
-        "error": [1.640212434],
+        "value": [93.9772500],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"TEST"
           },
@@ -193,8 +193,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.6827064],
-        "error": [1.682706354],
+        "value": [96.4119722],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"TEST"
           },
@@ -215,8 +215,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
-        "value": [1.5013860],
-        "error": [1.501386037],
+        "value": [86.0230833],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"TEST"
           },
@@ -238,7 +238,7 @@ BEGIN_JSON observations
         "date":null,
         "type":"ED",
         "value": [889.260000],
-        "error": [889.26000000],
+        "error": [0.50000000],
         "classifications": {
           "equipment":"edm1"
           },
@@ -260,7 +260,7 @@ BEGIN_JSON observations
         "date":null,
         "type":"ED",
         "value": [889.270000],
-        "error": [889.27000000],
+        "error": [0.50000000],
         "classifications": {
           "equipment":"edm_k"
           },
@@ -282,7 +282,7 @@ BEGIN_JSON observations
         "date":null,
         "type":"ED",
         "value": [889.280000],
-        "error": [889.28000000],
+        "error": [0.50000000],
         "classifications": {
           "equipment":"edm_k1"
           },
@@ -304,7 +304,7 @@ BEGIN_JSON observations
         "date":null,
         "type":"ED",
         "value": [889.290000],
-        "error": [889.29000000],
+        "error": [0.50000000],
         "classifications": {
           "equipment":"edm_t"
           },
@@ -326,7 +326,7 @@ BEGIN_JSON observations
         "date":null,
         "type":"ED",
         "value": [889.280000],
-        "error": [889.28000000],
+        "error": [0.50000000],
         "classifications": {
           "equipment":"test_edm"
           },
@@ -347,8 +347,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
-        "value": [0.7070329],
-        "error": [0.707032880],
+        "value": [40.5100000],
+        "error": [0.002777778],
         "projection": "WELLTM1949",
         "classifications": {
           "plan":"plan1",
@@ -371,8 +371,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
-        "value": [0.7070678],
-        "error": [0.707067787],
+        "value": [40.5120000],
+        "error": [0.002777778],
         "projection": "WELLTM1949",
         "classifications": {
           "plan":"plan_abc",
@@ -395,8 +395,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
-        "value": [0.7071201],
-        "error": [0.707120146],
+        "value": [40.5150000],
+        "error": [0.002777778],
         "projection": "WELLTM1949",
         "classifications": {
           "plan":"plan_abc",
@@ -419,8 +419,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
-        "value": [0.7070329],
-        "error": [0.707032880],
+        "value": [40.5100000],
+        "error": [0.002777778],
         "projection": "WELLTM1949",
         "classifications": {
           "plan":"plan_b1",
@@ -443,8 +443,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
-        "value": [0.7070678],
-        "error": [0.707067787],
+        "value": [40.5120000],
+        "error": [0.002777778],
         "projection": "WELLTM1949",
         "classifications": {
           "plan":"plan_b2",
@@ -467,8 +467,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
-        "value": [0.7077310],
-        "error": [0.707731012],
+        "value": [40.5500000],
+        "error": [0.002777778],
         "projection": "WELLTM1949",
         "classifications": {
           "plan":"plan_c",

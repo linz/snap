@@ -116,8 +116,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"HA",
-        "value": [2.8133074],
-        "error": [2.813307372],
+        "value": [161.1906389],
+        "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":9
@@ -135,8 +135,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"AZ",
-        "value": [1.0679781],
-        "error": [1.067978120],
+        "value": [61.1906389],
+        "error": [0.001111111],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":22
@@ -154,8 +154,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"PB",
-        "value": [1.0513054],
-        "error": [1.051305378],
+        "value": [60.2353611],
+        "error": [0.001111111],
         "projection": "WELLTM1949",
         "classifications": {
           "projection":"WELLTM1949"
@@ -178,7 +178,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"SD",
         "value": [1154.943800],
-        "error": [1154.94380000],
+        "error": [0.00230000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":33
@@ -197,7 +197,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"ED",
         "value": [1152.150000],
-        "error": [1152.15000000],
+        "error": [0.01060000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":38
@@ -216,7 +216,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"MD",
         "value": [1152.150000],
-        "error": [1152.15000000],
+        "error": [0.01060000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":43
@@ -235,7 +235,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"MD",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":44
@@ -254,7 +254,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"MD",
         "value": [889.268700],
-        "error": [889.26870000],
+        "error": [0.01030000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":45
@@ -273,7 +273,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"HD",
         "value": [1152.169800],
-        "error": [1152.16980000],
+        "error": [0.00460000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":50
@@ -292,7 +292,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"DR",
         "value": [1155.001500],
-        "error": [1155.00150000],
+        "error": [0.00230000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":56
@@ -310,8 +310,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"ZD",
-        "value": [1.6402095],
-        "error": [1.640209526],
+        "value": [93.9770833],
+        "error": [0.001388889],
         "classifications": {
           "refraction_coef_code":"Default"
           },
@@ -333,7 +333,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"LV",
         "value": [-80.000000],
-        "error": [-80.00000000],
+        "error": [0.03000000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":67
@@ -351,8 +351,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
-        "value": [3.02502211],
-        "error": [3.0250221128],
+        "value": [173.32100000],
+        "error": [0.0000555556],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":71
@@ -370,8 +370,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
-        "value": [-0.71581189],
-        "error": [-0.7158118861],
+        "value": [-41.01300000],
+        "error": [0.0000555556],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":76
@@ -389,8 +389,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"PB",
-        "value": [1.0513052],
-        "error": [1.051305177],
+        "value": [60.2353496],
+        "error": [0.001000000],
         "projection": "WELLTM1949",
         "classifications": {
           "projection":"WELLTM1949"
@@ -408,7 +408,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"SD",
         "value": [1154.943800],
-        "error": [1154.94380000],
+        "error": [0.00230000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":85
@@ -426,8 +426,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
-        "value": [3.02502211],
-        "error": [3.0250221128],
+        "value": [173.32100000],
+        "error": [0.0002000000],
         "classifications": {
           "class":"C",
           "equpt":"Theodolite"
@@ -449,8 +449,8 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
-        "value": [-0.71581189],
-        "error": [-0.7158118861],
+        "value": [-41.01300000],
+        "error": [0.0002000000],
         "classifications": {
           "class":"C",
           "equpt":"Theodolite"
@@ -473,7 +473,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"OH",
         "value": [150.000000],
-        "error": [150.00000000],
+        "error": [2.00000000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":101
@@ -492,7 +492,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"OH",
         "value": [152.000000],
-        "error": [152.00000000],
+        "error": [0.20000000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":107
@@ -511,7 +511,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"EH",
         "value": [150.000000],
-        "error": [150.00000000],
+        "error": [2.00000000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":112
@@ -530,7 +530,7 @@ BEGIN_JSON observations
         "date":"2005-01-01 00:00:00",
         "type":"EH",
         "value": [152.000000],
-        "error": [152.00000000],
+        "error": [0.20000000],
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":118

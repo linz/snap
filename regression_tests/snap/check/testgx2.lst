@@ -736,6 +736,13 @@ BEGIN_JSON normal_equations_1
 }
 END_JSON normal_equations_1
 
+BEGIN_JSON solution_vector_1
+{
+"nparam": 6,
+"b": [ 4.27200119e-03, 3.07741961e+00, 4.53275113e-03,-2.33487705e+00,-3.77866905e-03, 2.23617858e-03  ]
+}
+END_JSON solution_vector_1
+
 Iteration 1: Maximum change is 3.0774 metres at station 1
              2 station adjustments exceed convergence criteria
 
@@ -1379,6 +1386,13 @@ BEGIN_JSON normal_equations_2
   }
 }
 END_JSON normal_equations_2
+
+BEGIN_JSON solution_vector_2
+{
+"nparam": 6,
+"b": [-1.01222719e-09, 5.15105945e-09, 7.43366203e-07,-1.16001650e-09, 3.70734320e-07, 4.27596743e-07  ]
+}
+END_JSON solution_vector_2
 
 Iteration 2: Maximum change is 0.0000 metres at station 1
              0 station adjustments exceed convergence criteria
