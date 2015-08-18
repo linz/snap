@@ -289,7 +289,7 @@ void print_input_data( FILE *out )
                 {
                     obsdata *o=(obsdata *)(void *)tgt;
                     value=&(o->value);
-                    error=&(o->value);
+                    error=&(o->error);
                     nvalue=1;
                 }
                 break;
@@ -305,7 +305,7 @@ void print_input_data( FILE *out )
                 {
                     pntdata *p=(pntdata *)(void *)tgt;
                     value=&(p->value);
-                    error=&(p->value);
+                    error=&(p->error);
                     nvalue=1;
                 }
                 break;
@@ -313,19 +313,20 @@ void print_input_data( FILE *out )
             if( nvalue )
             {
                 int ivalue;
+                double factor=1.0;
                 int ndp=datatype[tgt->type].dfltndp+2;
-                if( datatype[tgt->type].isangle ) ndp+=4;
+                if( datatype[tgt->type].isangle ) { ndp+=4; factor=RTOD; }
                 fprintf( out, "        \"value\": [");
                 for( ivalue=0; ivalue<nvalue; ivalue++ )
                 {
                     if( ivalue ) fprintf(out,",");
-                    fprintf( out, "%.*lf", ndp,value[ivalue]);
+                    fprintf( out, "%.*lf", ndp,value[ivalue]*factor);
                 }
                 fprintf( out, "],\n");
                 if( error )
                 {
                     fprintf( out, "        \"error\": [%.*lf],\n",
-                            ndp+2,*error);
+                            ndp+2,(*error)*factor);
                 }
             }
             if( tgt->type == PB )
