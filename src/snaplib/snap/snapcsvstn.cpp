@@ -310,10 +310,13 @@ void SnapCsvStn::loadRecord()
 
     if( ! (_crdlon >> crdlon) ) dataError(string(ords[0]) + " is missing or invalid");
     if( ! (_crdlat >> crdlat) ) dataError(string(ords[1]) + " is missing or invalid");
-    if( !(_geocentric || _crdhgt.value() != "") && ! (_crdhgt >> crdhgt)) 
+    if( ! _geocentric && _crdhgt.value() != "" && ! (_crdhgt >> crdhgt)) 
     {
-        if( _geocentric ) dataError(string(ords[2]) + " is missing or invalid");
-        else dataError("Invalid height coordinate");
+        dataError("Invalid height coordinate");
+    }
+    else if( _geocentric && ! (_crdhgt >> crdhgt)) 
+    {
+        dataError(string(ords[2]) + " is missing or invalid");
     }
 
     if( _haveGeoid )
