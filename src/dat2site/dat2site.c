@@ -543,7 +543,7 @@ static void add_lvdata( stn *from, stn *to, double hd )
         diff = fabs( cn->lv.hd - hd);
         if( diff > LV_TOL )
         {
-            fprintf( errlog, "From %s to %s: Height differences differ by %.1fm",
+            fprintf( errlog, "From %s to %s: Height differences differ by %.1fm\n",
                      from->code, to->code, diff);
             errcount++;
         }
