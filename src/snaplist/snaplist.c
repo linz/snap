@@ -1101,8 +1101,7 @@ int main( int argc, char *argv[] )
     const char *cfn;
     const char *basecfn, *ofn;
 
-    printf( "snaplist:   Creates a table listing GPS observations in a SNAP binary file\n");
-    printf( "           Facilitates the use of GPS data in survey plans\n");
+    printf( "snaplist:  Tabulates observations and stations in a SNAP binary file\n");
 
     if( argc != 3 && argc != 4 )
     {
