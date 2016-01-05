@@ -587,7 +587,7 @@ static int decode_number( const char *s, int min, int max, const char *type )
 /*-------------------------------------------------------------------*/
 
 
-static void list_circuits_with_pause( void )
+static void list_coordsys_with_pause( void )
 {
     int maxi;
     int i;
@@ -606,7 +606,7 @@ static void list_circuits_with_pause( void )
     printf("\n");
 }
 
-static void list_circuits_and_exit( int argc, char *argv[] )
+static void list_coordsys_and_exit( int argc, char *argv[] )
 {
     int ncs = 0;
     if( argc )
@@ -636,7 +636,7 @@ static void list_circuits_and_exit( int argc, char *argv[] )
     if( ncs == 0 )
     {
         printf("\n%s: Valid coordinate systems are:\n",PROGNAME);
-        list_circuits_with_pause();
+        list_coordsys_with_pause();
     }
     exit(1);
 }
@@ -736,7 +736,7 @@ static void process_command_line_options()
 
     if( switch_option('L') )
     {
-        list_circuits_and_exit( nunused_args, unused_args );
+        list_coordsys_and_exit( nunused_args, unused_args );
     }
     if( switch_option('Z') ) { list_program_details_and_exit(); }
 
@@ -844,7 +844,7 @@ static void prompt_for_proj(coordsys **proj,
         if (nstr==1 && instring[0]=='?')
         {
             printf("\n    Valid coordinate system codes are:\n");
-            list_circuits_with_pause();
+            list_coordsys_with_pause();
         }
         else
         {
