@@ -836,7 +836,7 @@ static void prompt_for_proj(coordsys **proj,
         *dms = AF_DEG;
         if( nprj ) delete_coordsys( nprj );
         nprj = NULL;
-        printf("    Enter %s circuit code or ?: ",iostring);
+        printf("    Enter %s coord sys code or ?: ",iostring);
         nstr = read_string(stdin,DEFAULT_SEPARATOR,instring,20);
         copy_to_newline(stdin,NULL, NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
