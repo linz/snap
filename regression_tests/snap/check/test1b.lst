@@ -19,6 +19,7 @@ The command file test1b.snp contains:
      data_file test1.dat
      
      mode 3d adjustment
+     convergence_tolerance 0.001
      
      float horizontal 2 3
      horizontal_float_error 0.5 

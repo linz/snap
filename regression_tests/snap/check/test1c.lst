@@ -19,6 +19,7 @@ The command file test1c.snp contains:
      data_file test1.dat
      
      mode 3d adjustment
+     convergence_tolerance 0.001
      
      list command_file
      list file_summary
