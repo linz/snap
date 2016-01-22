@@ -22,8 +22,10 @@ if [ "$1" = "-g" ] ; then
     o='/dev/stdout'
 fi
 
+docheck=1
 if [ "$1" != "" ]; then
     t=test${1}
+    docheck=0
 fi
 
 mkdir -p out
@@ -49,5 +51,7 @@ for f in ${t}.snp; do
     done
 done
 
-cd ..
-diff -q -r -B -b out check_unix
+if [ ${docheck} -gt 0 ]; then
+    cd ..
+    diff -q -r -B -b out check_unix
+fi
