@@ -263,7 +263,11 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     {
         _owner->EndSet();
     }
-    else
+    if( _ignoremissingobs && _value.value() == "" )
+    {
+        return false;
+    }
+    if( ! type->isvector )
     {
         continued = _owner->ContinueSet( setid, fromcode );
     }
