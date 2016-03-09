@@ -283,7 +283,13 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     else
     {
         idfrom = ldt_get_id( ID_STATION, 0, _fromstn.value().c_str());
-        if( idfrom == 0 ) dataError("From station code is invalid");
+        if( idfrom == 0 ) 
+        {
+            string message="From station code ";
+            message += _fromstn.value();
+            message += " is invalid";
+            dataError(message);
+        }
         _stnidfrom = idfrom;
     }
     int idto = 0;
@@ -296,7 +302,13 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         else
         {
             idto = ldt_get_id( ID_STATION, 0, _tostn.value().c_str());
-            if( idto == 0 ) dataError("To station code is invalid");
+            if( idto == 0 )
+            {
+                string message="To station code ";
+                message += _tostn.value();
+                message += " is invalid";
+                dataError(message);
+            }
             _stnidto = idto;
         }
     }
