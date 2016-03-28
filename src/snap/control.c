@@ -177,6 +177,8 @@ static config_item snap_commands[] =
     {"classification",NULL,ABSOLUTE,0,read_classification,0,0},
     {"sort_observations",NULL,ABSOLUTE,0,read_sort_option,CONFIG_CMD,0},
     {"summarize_errors_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
+    {"summarise_errors_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
+    {"summarize_residuals_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
     {"summarise_residuals_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
     {"number_of_worst_residuals",&maxworst,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"station_code_width",&stn_name_width,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
