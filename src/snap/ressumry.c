@@ -15,10 +15,6 @@
 #include <string.h>
 #include <math.h>
 
-#ifndef DEBUG
-#define NDEBUG
-#endif
-
 #include <assert.h>
 
 #include "ressumry.h"
@@ -43,6 +39,7 @@
 typedef struct summary_def_s
 {
     int nlevel;
+    int enu_components;
     int *level_id;
     int *level_count;
     int *obs_id;
@@ -64,22 +61,23 @@ typedef struct
 {
     double ssr;
     long  count;
+    int axis;
+    int used;
 } error_total;
 
-#define VECTOR_BIT 0x8000U
-#define INDEX_MASK 0x7FFFU
+/* Static data used for summing obs .. should be moved to dynamically allocated structure */
 
-/* Array index is an index into the array of totals.  The VECTOR_BIT is used
-   to define whether the item is a vector observation type (ie should also
-   sum east, north, and up components) or a non-vector observation */
-
-static unsigned int *array_index = NULL;
+static int enu_period=0;
 static error_total *total = NULL;
 static int obstype_index[NOBSTYPE];
-static int obstype_from_index[NOBSTYPE];
+static int obstype_from_index[NOBSTYPE*4];
+static int obsenu_from_index[NOBSTYPE*4];
 
 /* Read a summary definition as a string of items separated by "/" characters,
-   e.g. "file/data_type", "equipment/data_type", ... */
+   e.g. "file/data_type", "equipment/data_type", ... 
+   
+   data_type can be followed by :no_enu to suppress calculating summaries for
+   east, north, up components. */
 
 int define_error_summary( const char *definition )
 {
@@ -93,6 +91,7 @@ int define_error_summary( const char *definition )
         if( *start == ERROR_SUMMARY_DELIMITER ) nlevel++;
 
     sdf = (summary_def *) check_malloc( sizeof(summary_def) + nlevel * 3 * sizeof(int) );
+    sdf->enu_components=0;
     sdf->level_id = (int *) ( ((unsigned char *) sdf) + sizeof( summary_def ));
     sdf->level_count = sdf->level_id + nlevel;
     sdf->obs_id = sdf->level_count + nlevel;
@@ -115,6 +114,13 @@ int define_error_summary( const char *definition )
             if( _stricmp(field,DATA_TYPE_STR) == 0 )
             {
                 sdf->level_id[nlevel] = BY_DATA_TYPE;
+                sdf->enu_components = 1;
+            }
+            else if( _strnicmp(field,DATA_TYPE_STR,strlen(DATA_TYPE_STR)) == 0 && 
+                     field[strlen(DATA_TYPE_STR)] == ':' )
+            {
+                sdf->level_id[nlevel] = BY_DATA_TYPE;
+                sdf->enu_components = _stricmp(field+strlen(DATA_TYPE_STR),":no_enu") ? 1 : 0;
             }
             else if( _stricmp(field,FILE_STR) == 0 )
             {
@@ -141,6 +147,22 @@ int define_error_summary( const char *definition )
 
     if( sts == OK && nlevel )
     {
+        for( ilevel = 1; ilevel < nlevel; ilevel++ )
+        {
+            int jlevel;
+            for( jlevel=ilevel-1; jlevel >= 0; jlevel-- )
+            {
+                if( sdf->level_id[ilevel] == sdf->level_id[jlevel] )
+                {
+                    sts=INVALID_DATA;
+                    break;
+                }
+            }
+        }
+    }
+
+    if( sts == OK && nlevel )
+    {
         summary_def **sdptr = &first_def;
         sdf->nlevel = nlevel;
         sdf->next = NULL;
@@ -161,9 +183,8 @@ static int init_summary( summary_def *sdf )
 {
     int i;
     int nobstype_used;
-    int index_size, type_period, error_index;
-    unsigned int is_vector;
-    unsigned int vector_mask[NOBSTYPE];
+    int index_size;
+    char is_vector;
 
     /* Count the number of observation types that are actually referenced
        in the data */
@@ -171,12 +192,20 @@ static int init_summary( summary_def *sdf )
     nobstype_used = 0;
     for( i=0; i<NOBSTYPE; i++ )
     {
+        int ncomp;
+        int icomp;
         if( obstypecount[i] )
         {
             obstype_index[i] = nobstype_used;
-            obstype_from_index[nobstype_used] = i;
-            vector_mask[nobstype_used] = datatype[i].isvector ? VECTOR_BIT : 0;
-            nobstype_used++;
+            is_vector= datatype[i].isvector ? 1 : 0;
+            ncomp=1;
+            if( sdf->enu_components && is_vector ) ncomp=4;
+            for( icomp=0; icomp < ncomp; icomp++ )
+            {
+                obstype_from_index[nobstype_used] = i;
+                obsenu_from_index[nobstype_used]=icomp;
+                nobstype_used++;
+            }
         }
         else
         {
@@ -189,7 +218,7 @@ static int init_summary( summary_def *sdf )
        summary */
 
     index_size = 1;
-    type_period = 0;
+    enu_period = 0;
 
     for( i = 0; i < sdf->nlevel; i++ )
     {
@@ -198,7 +227,7 @@ static int init_summary( summary_def *sdf )
 
         case BY_DATA_TYPE:
             sdf->level_count[i] = nobstype_used;
-            type_period = 1;
+            if( sdf->enu_components ) enu_period = 1;
             break;
 
         case BY_FILE:
@@ -212,33 +241,23 @@ static int init_summary( summary_def *sdf )
         if( sdf->level_count[i] <= 0 ) sdf->level_count[i] = 1;
 
         index_size *= sdf->level_count[i];
-        type_period *= sdf->level_count[i];
+        enu_period *= sdf->level_count[i];
     }
 
-    /* Form the index array */
+    /* Form the totals array with two elements for each array index - used and unused */
 
-    array_index = (unsigned int *) check_malloc( index_size * sizeof(int) );
-    type_period /= nobstype_used;
+    enu_period /= nobstype_used;
+    enu_period *= 2;
+    index_size *= 2;
 
-    error_index = 0;
-    is_vector = 0;
-    for( i=0; i<index_size; i++ )
-    {
+    total = (error_total *) check_malloc( index_size * sizeof( error_total ) );
 
-        if( type_period )
-        {
-            is_vector = vector_mask[(i/type_period) % nobstype_used ];
-        }
-        array_index[i] = error_index | is_vector;
-        error_index += is_vector ? 8 : 2;
-    }
-
-    total = (error_total *) check_malloc( error_index * sizeof( error_total ) );
-
-    for( i=0; i < error_index; i++ )
+    for( i=0; i < index_size; i++ )
     {
         total[i].ssr = 0.0;
         total[i].count = 0;
+        total[i].axis = 0;
+        total[i].used = 0;
     }
 
     return OK;
@@ -246,9 +265,7 @@ static int init_summary( summary_def *sdf )
 
 static void term_summary( void )
 {
-    if( array_index ) check_free( array_index );
     if( total ) check_free( total );
-    array_index = NULL;
     total = NULL;
 }
 
@@ -282,6 +299,7 @@ static void sum_observation( summary_def *sdf, survdata *sd )
         be stored */
 
         t = get_trgtdata( sd, iobs );
+        is_vector= datatype[t->type].isvector ? 1 : 0;
         index = 0;
         for( ilevel = 0; ilevel < sdf->nlevel; ilevel++ )
         {
@@ -312,11 +330,9 @@ static void sum_observation( summary_def *sdf, survdata *sd )
             continue;
         }
 
-        index = array_index[index];
-        is_vector = (index & VECTOR_BIT) ? 1 : 0;
-        index &= INDEX_MASK;
-
         /* Determine whether the observation was used or not */
+
+        index *= 2;
 
         if( t->unused ||
                 (sd->from && rejected_station( sd->from )) ||
@@ -324,7 +340,6 @@ static void sum_observation( summary_def *sdf, survdata *sd )
         {
             index++;
         }
-
 
         /* Sum the observation */
 
@@ -340,6 +355,7 @@ static void sum_observation( summary_def *sdf, survdata *sd )
                 total[index].ssr += od->sres * od->sres;
                 total[index].count++;
             }
+            total[index].used=1;
         }
         break;
 
@@ -349,7 +365,8 @@ static void sum_observation( summary_def *sdf, survdata *sd )
             vd = &sd->obs.vdata[iobs];
             total[index].ssr += vd->vsres*vd->vsres*vd->rank;
             total[index].count += vd->rank;
-            if( is_vector )
+            total[index].used = 1;
+            if( is_vector && enu_period > 0 )
             {
                 int iaxis;
                 double sres[3], serr[3];
@@ -358,13 +375,16 @@ static void sum_observation( summary_def *sdf, survdata *sd )
                                      sres, serr );
                 for( iaxis = 0; iaxis<3; iaxis++)
                 {
-                    index += 2;
+                    index += enu_period;
                     if( serr[iaxis] > 1.0e-6 )
                     {
                         sres[iaxis] = sres[iaxis] / serr[iaxis];
                         total[index].ssr += sres[iaxis] * sres[iaxis];
                         total[index].count++;
+                        /* Really should be setting this up in init_summary, but simpler here! */
+                        total[index].axis=iaxis+1;
                     }
+                    total[index].used = 1;
                 }
             }
         }
@@ -380,6 +400,7 @@ static void sum_observation( summary_def *sdf, survdata *sd )
                 total[index].ssr += pd->sres * pd->sres;
                 total[index].count++;
             }
+            total[index].used=1;
         }
         break;
 
@@ -419,9 +440,10 @@ static void sum_summary( summary_def *sdf )
 #define AXIS_INDENT   8
 
 static void print_summary_level( FILE *lst, summary_def *sdf,
-                                 int ilevel, int index, double semult )
+                                 int ilevel, int index, int axis, double semult )
 {
     int ilvl, sublevel_count;
+    int lastlevel= ilevel >= sdf->nlevel-1;
 
     /* To avoid using unecessary space in the recursive call, enclose
        the working bit and its automatic variables in a block */
@@ -431,61 +453,94 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
     {
         sublevel_count *= sdf->level_count[ilvl];
     }
+    sublevel_count *= 2;
 
     for( ilvl = 0; ilvl < sdf->level_count[ilevel]; ilvl++, index += sublevel_count )
     {
+        int iaxis;
 
         /* Print the information for the current level */
 
         {
-            unsigned char axis_count;
-            error_total sum_total[4][3];
-            int i, j, iaxis;
-            axis_count = (array_index[index] & VECTOR_BIT) ? 4 : 1;
-            for( i=0; i<axis_count; i++ ) for( j=0; j<3; j++ )
-                {
-                    sum_total[i][j].ssr   = 0.0;
-                    sum_total[i][j].count = 0;
-                }
-            for( i=0; i<sublevel_count; i++ )
+            error_total sum_total[3];
+            int i, j;
+            
+            if( sdf->level_id[ilevel] == BY_DATA_TYPE )
+            {
+                iaxis=obsenu_from_index[ilvl];
+                if( axis && iaxis != axis ) continue;
+            }
+            else
+            {
+                iaxis=axis;
+            }
+                
+            for( j=0; j<3; j++ )
+            {
+                sum_total[j].ssr   = 0.0;
+                sum_total[j].count = 0;
+                sum_total[j].used = 0;
+            }
+            for( i=0; i<sublevel_count; i+=2 )
             {
                 error_total *ttl;
-                ttl = total + (array_index[index+i] & INDEX_MASK);
-                for( j=0; j<axis_count; j++, ttl += 2 )
+                ttl = total + index + i;
+                if( ttl[0].axis == iaxis )
                 {
-                    sum_total[j][0].ssr += ttl[0].ssr;
-                    sum_total[j][0].count += ttl[0].count;
-                    sum_total[j][2].ssr += ttl[0].ssr;
-                    sum_total[j][2].count += ttl[0].count;
-                    sum_total[j][1].ssr += ttl[1].ssr;
-                    sum_total[j][1].count += ttl[1].count;
-                    sum_total[j][2].ssr += ttl[1].ssr;
-                    sum_total[j][2].count += ttl[1].count;
+                    sum_total[0].ssr += ttl[0].ssr;
+                    sum_total[0].count += ttl[0].count;
+                    sum_total[2].ssr += ttl[0].ssr;
+                    sum_total[2].count += ttl[0].count;
+                    sum_total[2].used += ttl[0].used;
+                }
+                if( ttl[1].axis == iaxis )
+                {
+                    sum_total[1].ssr += ttl[1].ssr;
+                    sum_total[1].count += ttl[1].count;
+                    sum_total[2].ssr += ttl[1].ssr;
+                    sum_total[2].count += ttl[1].count;
+                    sum_total[2].used += ttl[1].used;
                 }
             }
 
-            for( iaxis = 0; iaxis < axis_count; iaxis++ )
+            /* Don't print data where there are no observations */
+            if( sum_total[2].used == 0 ) continue;
+
             {
                 int indent;
                 int ttlwidth;
                 const char *title;
+                char ttlbuf[32];
                 indent = ilevel * LEVEL_INDENT;
-                if( iaxis ) indent += AXIS_INDENT;
+                if( iaxis && lastlevel ) indent += AXIS_INDENT;
                 ttlwidth = TITLE_WIDTH - indent;
                 if( indent ) fprintf(lst,"%*s",indent,""); else fprintf(lst,"\n");
 
                 title = 0;
-                if( iaxis ) switch( iaxis )
-                    {
-                    case 1: title = "East component"; break;
-                    case 2: title = "North component"; break;
-                    case 3: title = "Up component"; break;
-                    }
-                else switch( sdf->level_id[ilevel] )
+                switch( sdf->level_id[ilevel] )
                     {
 
                     case BY_DATA_TYPE:
-                        title = datatype[obstype_from_index[ilvl]].name;
+                        if( iaxis ) 
+                        {
+                            switch( iaxis )
+                            {
+                            case 1: title = "East component"; break;
+                            case 2: title = "North component"; break;
+                            case 3: title = "Up component"; break;
+                            }
+                            if( ! lastlevel )
+                            {
+                                sprintf(ttlbuf,"%.4s %s",
+                                    datatype[obstype_from_index[ilvl]].code,
+                                    title);
+                                title=ttlbuf;
+                            }
+                        }
+                        else
+                        {
+                            title = datatype[obstype_from_index[ilvl]].name;
+                        }
                         break;
 
                     case BY_FILE:
@@ -502,11 +557,11 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
 
                 for( j=0; j<3; j++)
                 {
-                    if( sum_total[iaxis][j].count )
+                    if( sum_total[j].count )
                     {
                         fprintf(lst," %7.2lf %4ld",
-                                sqrt(sum_total[iaxis][j].ssr/sum_total[iaxis][j].count)/semult,
-                                sum_total[iaxis][j].count );
+                                sqrt(sum_total[j].ssr/sum_total[j].count)/semult,
+                                sum_total[j].count );
                     }
                     else
                     {
@@ -521,7 +576,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
 
         if( ilevel < sdf->nlevel-1 )
         {
-            print_summary_level( lst, sdf, ilevel+1, index, semult );
+            print_summary_level( lst, sdf, ilevel+1, index, iaxis, semult );
         }
     }
 }
@@ -550,7 +605,7 @@ static void print_summary( FILE *lst, summary_def *sdf, double semult )
             "     Used        Unused       Total",
             TITLE_WIDTH,"",
             "    RMS  Count   RMS  Count   RMS  Count\n");
-    print_summary_level( lst, sdf, 0, 0, semult );
+    print_summary_level( lst, sdf, 0, 0, 0, semult );
     term_summary();
 }
 
