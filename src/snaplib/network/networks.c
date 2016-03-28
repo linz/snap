@@ -283,6 +283,8 @@ static void process_station_file_list(network *nw, char *file, const char *basef
         return;
     }
 
+    skip_utf8_bom(list_file);
+
     while( fgets(buf,2048,list_file) )
     {
         char *b = buf;

@@ -153,6 +153,7 @@ static void load_background_file( background_file *bf )
 
     in = fopen( bf->filename, "r" );
     if( !in ) return;
+    skip_utf8_bom(in);
 
     csp = plot_projection();
     bad_coordsys = 1;

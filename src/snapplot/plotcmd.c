@@ -770,6 +770,8 @@ static void process_station_list_file( CFG_FILE *cfg, char *name,
         return;
     }
 
+    skip_utf8_bom( list_file );
+
     while( fscanf(list_file,"%20s",stn_code) == 1 )
     {
 

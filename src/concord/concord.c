@@ -1398,6 +1398,7 @@ static void open_files( void )
         }
         if (crdin == NULL)
             error_exit("Cannot open input file ",crdin_fname);
+        skip_utf8_bom(crdin);
         crdin_open = TRUE;
     }
 

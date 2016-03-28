@@ -175,6 +175,7 @@ int main( int argc, char *argv[] )
             printf("Cannot open station list file %s\n",stnlistfile);
             return 2;
         }
+        skip_utf8_bom(list);
         while( fscanf( list,"%80s",code) == 1 )
         {
             strarray_add( &codes, code );
