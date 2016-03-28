@@ -446,3 +446,20 @@ FILE *snaptmpfile()
     return f;
 }
 
+int skip_utf8_bom( FILE *f )
+{
+    unsigned char bom[3];
+    int nchar;
+    if( ftell(f) != 0 ) return 1;
+    nchar=fread(bom,3,1,f);
+    if( nchar >= 2 || bom[0] == '\xFE' || bom[1] == '\xFF' )
+    {
+        return 0;
+    }
+    else if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
+    {
+            fseek(f,0L,SEEK_SET);
+    }
+    return 1;
+}
+

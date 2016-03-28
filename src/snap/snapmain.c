@@ -722,6 +722,7 @@ static void print_command_file( void )
     char inrec[256];
     cmd = fopen( command_file, "r" );
     if( !cmd ) return;
+    if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nThe command file %s contains:\n", command_file+path_len(command_file,0));
     while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);
     fprintf(lst,"\n");
@@ -731,6 +732,7 @@ static void print_command_file( void )
 
     cmd = fopen( config_file, "r" );
     if( !cmd ) return;
+    if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nAdditional configuration commands were read from %s\n",
             config_file);
     while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);

@@ -27,3 +27,11 @@ output_csv metadata stations observations wkt_shape vector_components correlatio
 refraction_coefficient DEFAULT 0.0
 
 add_residual_column all  S Id:4 S c=class:4 S c=equpt:3
+
+summarize_errors_by data_type
+summarize_errors_by data_type:no_enu
+summarize_errors_by data_type/data_file
+summarize_errors_by data_file/data_type
+summarize_errors_by data_type:no_enu/data_file
+summarize_errors_by data_file/data_type:no_enu
+summarize_errors_by data_type/data_file/equpt

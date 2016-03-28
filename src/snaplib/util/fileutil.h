@@ -101,4 +101,10 @@ const char *find_file( const char *name, const char *dflt_ext, const char *base,
 
 FILE *snaptmpfile();
 
+/* Skip unicode BOM (byte order marker).  Assumes file pointer is set to beginning of file */
+/* Returns 1 if successful (UTF8 or no BOM), 0 if UTF16 BOM at start of file */
+/* Returns 1 if file pointer is not set to the beginning of the file */
+
+int skip_utf8_bom(FILE *f);
+
 #endif

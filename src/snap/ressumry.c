@@ -443,7 +443,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                                  int ilevel, int index, int axis, double semult )
 {
     int ilvl, sublevel_count;
-    int lastlevel= ilevel >= sdf->nlevel-1;
+    int lastlevel= ilevel >= sdf->nlevel-1 && sdf->level_id[ilevel] == BY_DATA_TYPE;
 
     /* To avoid using unecessary space in the recursive call, enclose
        the working bit and its automatic variables in a block */

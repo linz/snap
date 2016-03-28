@@ -42,6 +42,14 @@ The command file test1.snp contains:
      refraction_coefficient DEFAULT 0.0
      
      add_residual_column all  S Id:4 S c=class:4 S c=equpt:3
+     
+     summarize_errors_by data_type
+     summarize_errors_by data_type:no_enu
+     summarize_errors_by data_type/data_file
+     summarize_errors_by data_file/data_type
+     summarize_errors_by data_type:no_enu/data_file
+     summarize_errors_by data_file/data_type:no_enu
+     summarize_errors_by data_type/data_file/equpt
 
 
 
@@ -7030,7 +7038,133 @@ latitude                                    0.00    6    0.00    2    0.00    8
 longitude                                   0.00    6    0.00    2    0.00    8
 
 
-Summary of residuals classified by input file
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.08   33    0.16   30    0.12   63
+
+GPS point coord                             0.00   36    0.00   27    0.00   63
+
+slope distance                              0.01    6    0.02    2    0.02    8
+
+horizontal distance                         0.00    4     -      -    0.00    4
+
+ellipsoidal distance                        0.00    6     -      -    0.00    6
+
+mean sea level distance                     0.16    8     -      -    0.16    8
+
+distance ratio                              0.02    4     -      -    0.02    4
+
+horizontal angle                            0.00   20    0.00    2    0.00   22
+
+azimuth                                     0.01    8    0.01    2    0.01   10
+
+projection bearing                          0.01    4    0.01    4    0.01    8
+
+zenith distance                             0.00   14     -      -    0.00   14
+
+height difference                           0.00    6     -      -    0.00    6
+
+orthometric height                          0.00    2     -      -    0.00    2
+
+ellipsoidal height                          0.00    2     -      -    0.00    2
+
+latitude                                    0.00    6    0.00    2    0.00    8
+
+longitude                                   0.00    6    0.00    2    0.00    8
+
+
+Summary of residuals classified by data type, input file
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.08   33    0.16   30    0.12   63
+     test1.dat                              0.08   33    0.16   30    0.12   63
+
+GB East component                           0.00   11    0.07   10    0.05   21
+     test1.dat                              0.00   11    0.07   10    0.05   21
+
+GB North component                          0.11   11    0.21   10    0.16   21
+     test1.dat                              0.11   11    0.21   10    0.16   21
+
+GB Up component                             0.07   11    0.16   10    0.12   21
+     test1.dat                              0.07   11    0.16   10    0.12   21
+
+GPS point coord                             0.00   36    0.00   27    0.00   63
+     test1.dat                              0.00   36    0.00   27    0.00   63
+
+GX East component                           0.00   12    0.00    9    0.00   21
+     test1.dat                              0.00   12    0.00    9    0.00   21
+
+GX North component                          0.00   12    0.00    9    0.00   21
+     test1.dat                              0.00   12    0.00    9    0.00   21
+
+GX Up component                             0.00   12    0.00    9    0.00   21
+     test1.dat                              0.00   12    0.00    9    0.00   21
+
+slope distance                              0.01    6    0.02    2    0.02    8
+     test1.dat                              0.02    4    0.02    2    0.02    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+horizontal distance                         0.00    4     -      -    0.00    4
+     test1.dat                              0.00    2     -      -    0.00    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+ellipsoidal distance                        0.00    6     -      -    0.00    6
+     test1.dat                              0.00    4     -      -    0.00    4
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+mean sea level distance                     0.16    8     -      -    0.16    8
+     test1.dat                              0.23    4     -      -    0.23    4
+     test1a.dat                             0.03    4     -      -    0.03    4
+
+distance ratio                              0.02    4     -      -    0.02    4
+     test1.dat                              0.02    2     -      -    0.02    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+horizontal angle                            0.00   20    0.00    2    0.00   22
+     test1.dat                              0.00   14    0.00    2    0.00   16
+     test1a.dat                             0.00    6     -      -    0.00    6
+
+azimuth                                     0.01    8    0.01    2    0.01   10
+     test1.dat                              0.01    4    0.01    2    0.01    6
+     test1a.dat                             0.00    4     -      -    0.00    4
+
+projection bearing                          0.01    4    0.01    4    0.01    8
+     test1.dat                              0.01    2    0.01    4    0.01    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+zenith distance                             0.00   14     -      -    0.00   14
+     test1.dat                              0.01    4     -      -    0.01    4
+     test1a.dat                             0.00   10     -      -    0.00   10
+
+height difference                           0.00    6     -      -    0.00    6
+     test1.dat                              0.00    4     -      -    0.00    4
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+orthometric height                          0.00    2     -      -    0.00    2
+     test1.dat                              0.00    2     -      -    0.00    2
+
+ellipsoidal height                          0.00    2     -      -    0.00    2
+     test1.dat                              0.00    2     -      -    0.00    2
+
+latitude                                    0.00    6    0.00    2    0.00    8
+     test1.dat                              0.00    4    0.00    2    0.00    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+longitude                                   0.00    6    0.00    2    0.00    8
+     test1.dat                              0.00    4    0.00    2    0.00    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+
+Summary of residuals classified by input file, data type
 
 Classification                               Used        Unused       Total
                                             RMS  Count   RMS  Count   RMS  Count
@@ -7038,8 +7172,276 @@ Classification                               Used        Unused       Total
 
 
 test1.dat                                   0.06  125    0.10   71    0.08  196
+     GPS baseline                           0.08   33    0.16   30    0.12   63
+             East component                 0.00   11    0.07   10    0.05   21
+             North component                0.11   11    0.21   10    0.16   21
+             Up component                   0.07   11    0.16   10    0.12   21
+     GPS point coord                        0.00   36    0.00   27    0.00   63
+             East component                 0.00   12    0.00    9    0.00   21
+             North component                0.00   12    0.00    9    0.00   21
+             Up component                   0.00   12    0.00    9    0.00   21
+     slope distance                         0.02    4    0.02    2    0.02    6
+     horizontal distance                    0.00    2     -      -    0.00    2
+     ellipsoidal distance                   0.00    4     -      -    0.00    4
+     mean sea level distance                0.23    4     -      -    0.23    4
+     distance ratio                         0.02    2     -      -    0.02    2
+     horizontal angle                       0.00   14    0.00    2    0.00   16
+     azimuth                                0.01    4    0.01    2    0.01    6
+     projection bearing                     0.01    2    0.01    4    0.01    6
+     zenith distance                        0.01    4     -      -    0.01    4
+     height difference                      0.00    4     -      -    0.00    4
+     orthometric height                     0.00    2     -      -    0.00    2
+     ellipsoidal height                     0.00    2     -      -    0.00    2
+     latitude                               0.00    4    0.00    2    0.00    6
+     longitude                              0.00    4    0.00    2    0.00    6
 
 test1a.dat                                  0.01   40     -      -    0.01   40
+     slope distance                         0.00    2     -      -    0.00    2
+     horizontal distance                    0.00    2     -      -    0.00    2
+     ellipsoidal distance                   0.00    2     -      -    0.00    2
+     mean sea level distance                0.03    4     -      -    0.03    4
+     distance ratio                         0.00    2     -      -    0.00    2
+     horizontal angle                       0.00    6     -      -    0.00    6
+     azimuth                                0.00    4     -      -    0.00    4
+     projection bearing                     0.00    2     -      -    0.00    2
+     zenith distance                        0.00   10     -      -    0.00   10
+     height difference                      0.00    2     -      -    0.00    2
+     latitude                               0.00    2     -      -    0.00    2
+     longitude                              0.00    2     -      -    0.00    2
+
+
+Summary of residuals classified by data type, input file
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.08   33    0.16   30    0.12   63
+     test1.dat                              0.08   33    0.16   30    0.12   63
+
+GPS point coord                             0.00   36    0.00   27    0.00   63
+     test1.dat                              0.00   36    0.00   27    0.00   63
+
+slope distance                              0.01    6    0.02    2    0.02    8
+     test1.dat                              0.02    4    0.02    2    0.02    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+horizontal distance                         0.00    4     -      -    0.00    4
+     test1.dat                              0.00    2     -      -    0.00    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+ellipsoidal distance                        0.00    6     -      -    0.00    6
+     test1.dat                              0.00    4     -      -    0.00    4
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+mean sea level distance                     0.16    8     -      -    0.16    8
+     test1.dat                              0.23    4     -      -    0.23    4
+     test1a.dat                             0.03    4     -      -    0.03    4
+
+distance ratio                              0.02    4     -      -    0.02    4
+     test1.dat                              0.02    2     -      -    0.02    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+horizontal angle                            0.00   20    0.00    2    0.00   22
+     test1.dat                              0.00   14    0.00    2    0.00   16
+     test1a.dat                             0.00    6     -      -    0.00    6
+
+azimuth                                     0.01    8    0.01    2    0.01   10
+     test1.dat                              0.01    4    0.01    2    0.01    6
+     test1a.dat                             0.00    4     -      -    0.00    4
+
+projection bearing                          0.01    4    0.01    4    0.01    8
+     test1.dat                              0.01    2    0.01    4    0.01    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+zenith distance                             0.00   14     -      -    0.00   14
+     test1.dat                              0.01    4     -      -    0.01    4
+     test1a.dat                             0.00   10     -      -    0.00   10
+
+height difference                           0.00    6     -      -    0.00    6
+     test1.dat                              0.00    4     -      -    0.00    4
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+orthometric height                          0.00    2     -      -    0.00    2
+     test1.dat                              0.00    2     -      -    0.00    2
+
+ellipsoidal height                          0.00    2     -      -    0.00    2
+     test1.dat                              0.00    2     -      -    0.00    2
+
+latitude                                    0.00    6    0.00    2    0.00    8
+     test1.dat                              0.00    4    0.00    2    0.00    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+longitude                                   0.00    6    0.00    2    0.00    8
+     test1.dat                              0.00    4    0.00    2    0.00    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+
+
+Summary of residuals classified by input file, data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+test1.dat                                   0.06  125    0.10   71    0.08  196
+     GPS baseline                           0.08   33    0.16   30    0.12   63
+     GPS point coord                        0.00   36    0.00   27    0.00   63
+     slope distance                         0.02    4    0.02    2    0.02    6
+     horizontal distance                    0.00    2     -      -    0.00    2
+     ellipsoidal distance                   0.00    4     -      -    0.00    4
+     mean sea level distance                0.23    4     -      -    0.23    4
+     distance ratio                         0.02    2     -      -    0.02    2
+     horizontal angle                       0.00   14    0.00    2    0.00   16
+     azimuth                                0.01    4    0.01    2    0.01    6
+     projection bearing                     0.01    2    0.01    4    0.01    6
+     zenith distance                        0.01    4     -      -    0.01    4
+     height difference                      0.00    4     -      -    0.00    4
+     orthometric height                     0.00    2     -      -    0.00    2
+     ellipsoidal height                     0.00    2     -      -    0.00    2
+     latitude                               0.00    4    0.00    2    0.00    6
+     longitude                              0.00    4    0.00    2    0.00    6
+
+test1a.dat                                  0.01   40     -      -    0.01   40
+     slope distance                         0.00    2     -      -    0.00    2
+     horizontal distance                    0.00    2     -      -    0.00    2
+     ellipsoidal distance                   0.00    2     -      -    0.00    2
+     mean sea level distance                0.03    4     -      -    0.03    4
+     distance ratio                         0.00    2     -      -    0.00    2
+     horizontal angle                       0.00    6     -      -    0.00    6
+     azimuth                                0.00    4     -      -    0.00    4
+     projection bearing                     0.00    2     -      -    0.00    2
+     zenith distance                        0.00   10     -      -    0.00   10
+     height difference                      0.00    2     -      -    0.00    2
+     latitude                               0.00    2     -      -    0.00    2
+     longitude                              0.00    2     -      -    0.00    2
+
+
+Summary of residuals classified by data type, input file, equpt
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.08   33    0.16   30    0.12   63
+     test1.dat                              0.08   33    0.16   30    0.12   63
+          Default                           0.08   33    0.16   30    0.12   63
+
+GB East component                           0.00   11    0.07   10    0.05   21
+     test1.dat                              0.00   11    0.07   10    0.05   21
+          Default                           0.00   11    0.07   10    0.05   21
+
+GB North component                          0.11   11    0.21   10    0.16   21
+     test1.dat                              0.11   11    0.21   10    0.16   21
+          Default                           0.11   11    0.21   10    0.16   21
+
+GB Up component                             0.07   11    0.16   10    0.12   21
+     test1.dat                              0.07   11    0.16   10    0.12   21
+          Default                           0.07   11    0.16   10    0.12   21
+
+GPS point coord                             0.00   36    0.00   27    0.00   63
+     test1.dat                              0.00   36    0.00   27    0.00   63
+          Default                           0.00   36    0.00   27    0.00   63
+
+GX East component                           0.00   12    0.00    9    0.00   21
+     test1.dat                              0.00   12    0.00    9    0.00   21
+          Default                           0.00   12    0.00    9    0.00   21
+
+GX North component                          0.00   12    0.00    9    0.00   21
+     test1.dat                              0.00   12    0.00    9    0.00   21
+          Default                           0.00   12    0.00    9    0.00   21
+
+GX Up component                             0.00   12    0.00    9    0.00   21
+     test1.dat                              0.00   12    0.00    9    0.00   21
+          Default                           0.00   12    0.00    9    0.00   21
+
+slope distance                              0.01    6    0.02    2    0.02    8
+     test1.dat                              0.02    4    0.02    2    0.02    6
+          Default                           0.02    4    0.02    2    0.02    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+horizontal distance                         0.00    4     -      -    0.00    4
+     test1.dat                              0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+ellipsoidal distance                        0.00    6     -      -    0.00    6
+     test1.dat                              0.00    4     -      -    0.00    4
+          Default                           0.00    2     -      -    0.00    2
+          EDM                               0.00    1     -      -    0.00    1
+          Tape                              0.00    1     -      -    0.00    1
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+mean sea level distance                     0.16    8     -      -    0.16    8
+     test1.dat                              0.23    4     -      -    0.23    4
+          Default                           0.23    4     -      -    0.23    4
+     test1a.dat                             0.03    4     -      -    0.03    4
+          Default                           0.03    4     -      -    0.03    4
+
+distance ratio                              0.02    4     -      -    0.02    4
+     test1.dat                              0.02    2     -      -    0.02    2
+          Default                           0.02    2     -      -    0.02    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+horizontal angle                            0.00   20    0.00    2    0.00   22
+     test1.dat                              0.00   14    0.00    2    0.00   16
+          Default                           0.00   14    0.00    2    0.00   16
+     test1a.dat                             0.00    6     -      -    0.00    6
+          Default                           0.00    6     -      -    0.00    6
+
+azimuth                                     0.01    8    0.01    2    0.01   10
+     test1.dat                              0.01    4    0.01    2    0.01    6
+          Default                           0.01    4    0.01    2    0.01    6
+     test1a.dat                             0.00    4     -      -    0.00    4
+          Default                           0.00    4     -      -    0.00    4
+
+projection bearing                          0.01    4    0.01    4    0.01    8
+     test1.dat                              0.01    2    0.01    4    0.01    6
+          Default                           0.01    2    0.01    4    0.01    6
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+zenith distance                             0.00   14     -      -    0.00   14
+     test1.dat                              0.01    4     -      -    0.01    4
+          Default                           0.01    4     -      -    0.01    4
+     test1a.dat                             0.00   10     -      -    0.00   10
+          Default                           0.00   10     -      -    0.00   10
+
+height difference                           0.00    6     -      -    0.00    6
+     test1.dat                              0.00    4     -      -    0.00    4
+          Default                           0.00    4     -      -    0.00    4
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+orthometric height                          0.00    2     -      -    0.00    2
+     test1.dat                              0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+ellipsoidal height                          0.00    2     -      -    0.00    2
+     test1.dat                              0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+latitude                                    0.00    6    0.00    2    0.00    8
+     test1.dat                              0.00    4    0.00    2    0.00    6
+          Default                           0.00    2     -      -    0.00    2
+          Theodolite                        0.00    2     -      -    0.00    2
+          Astrolabe                          -      -    0.00    2    0.00    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
+
+longitude                                   0.00    6    0.00    2    0.00    8
+     test1.dat                              0.00    4    0.00    2    0.00    6
+          Default                           0.00    2     -      -    0.00    2
+          Theodolite                        0.00    2     -      -    0.00    2
+          Compass                            -      -    0.00    2    0.00    2
+     test1a.dat                             0.00    2     -      -    0.00    2
+          Default                           0.00    2     -      -    0.00    2
 
 
 

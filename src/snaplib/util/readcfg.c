@@ -55,6 +55,7 @@
 
 #include "util/chkalloc.h"
 #include "util/readcfg.h"
+#include "util/fileutil.h"
 
 
 
@@ -68,6 +69,12 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
     if( cfgfil == NULL )
     {
         handle_error(FILE_OPEN_ERROR,"Cannot open configuration file",name);
+        return (CFG_FILE *) NULL;
+    }
+    if( ! skip_utf8_bom(cfgfil) )
+    {
+        fclose(cfgfil);
+        handle_error(FILE_OPEN_ERROR,"Cannot handle UTF16 file",name);
         return (CFG_FILE *) NULL;
     }
 
