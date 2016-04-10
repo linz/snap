@@ -643,7 +643,7 @@ static int read_parameters( int argc, char *argv[] )
     for( argc--, argv++; sts==OK && argc; argc--, argv++ )
     {
         arg = argv[0];
-        if( arg[0] == '-' || arg[0] == '/' )
+        if( arg[0] == '-' )
         {
             switch( arg[1] )
             {

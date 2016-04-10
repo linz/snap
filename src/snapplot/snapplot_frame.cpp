@@ -25,6 +25,11 @@
 
 #include "wxhelpabout.hpp"
 
+#ifdef __WXGTK__
+#include "resources/snap16_icon.xpm"
+#include "resources/snap32_icon.xpm"
+#endif
+
 #include "dlg_obs_options.hpp"
 #include "dlg_pen_options.hpp"
 #include "dlg_obs_highlight.hpp"

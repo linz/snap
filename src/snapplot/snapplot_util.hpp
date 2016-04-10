@@ -7,7 +7,7 @@
 
 #include "wx_includes.hpp"
 
-#include <varargs.h>
+#include <stdarg.h>
 
 void ImplementErrorHandler();
 wxString GetLogMessages();

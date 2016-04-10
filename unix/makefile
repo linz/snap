@@ -5,6 +5,12 @@
 # build type either debug or release
 TYPE=release
 
+WXDIR=../wxWidgets-2.8.12/build_gtk
+WXCONFIG=$(WXDIR)/wx-config
+WXFLAGS=`$(WXCONFIG) --cxxflags`
+WXLINK=`$(WXCONFIG) --libs`
+XLINK=-lX11
+
 CC = g++
 AR = ar
 CP = cp
@@ -14,13 +20,13 @@ LAPG = ../tools/lapg/lapg
 
 ifeq ($(TYPE),debug)
 LDFLAGS = -lm -lboost_regex -lefence
-CCPARAM = -Wall -g -fpermissive -std=c++0x
+CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 endif
 
 ifeq ($(TYPE), release)
 LDFLAGS = -lm -lboost_regex -s
-CCPARAM = -Wall -O2 -fpermissive -std=c++0x
+CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 endif
 
@@ -39,11 +45,11 @@ SNAPCONVEXE = $(INSTALL)/snapconv
 SNAPGEOIDEXE = $(INSTALL)/snapgeoid
 SNAPMERGEEXE = $(INSTALL)/snapmerge
 SNAP_MANAGEREXE = $(INSTALL)/snap_manager
+SNAPADJUSTEXE = $(INSTALL)/snapadjust
+SNAPPLOTEXE = $(INSTALL)/snapplot
 
-INCPATH = $(SRCDIR)/snaplib $(SRCDIR)/snaplib/util $(SRCDIR)/wxutils $(SRCDIR)/snapspec $(SRCDIR)/snap $(SRCDIR) $(SRCDIR)/snaplib/dbl4
+INCPATH = $(SRCDIR)/snaplib $(SRCDIR)/snaplib/util $(SRCDIR)/wxutils $(SRCDIR)/snapspec $(SRCDIR)/snap $(SRCDIR) $(SRCDIR)/snaplib/dbl4 $(SRCDIR)
 
-WXFLAGS = `wx-config --cxxflags`
-WXLINK = `wx-config --libs`
 
 
 CCFLAGS := $(CCPARAM) \
@@ -57,6 +63,8 @@ include ./makefile.inc
 snap_all: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) \
 	$(SNAPLIB) support_files
+
+snap_wx: snap_all $(SNAP_MANAGEREXE) $(SNAPPLOT)
 
 all: snap_all
 
@@ -100,8 +108,14 @@ $(SNAPGEOIDEXE): makedirs $(SNAPGEOIDOBJS) $(SNAPLIB)
 $(SNAPMERGEEXE): makedirs $(SNAPMERGEOBJS) $(SNAPLIB)
 	$(CC) $(CCFLAGS) $(SNAPMERGEOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPMERGEEXE)
 
-$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(SNAPLIB)
-	$(CC) $(CCFLAGS) $(WXFLAGS) $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(LDFLAGS) -o $(SNAP_MANAGEREXE)
+$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB)
+	$(CC) $(CCFLAGS) $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDFLAGS) -o $(SNAP_MANAGEREXE)
+
+$(SNAPADJUSTEXE): makedirs $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB)
+	$(CC) $(CCFLAGS) $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDFLAGS) -o $(SNAPADJUSTEXE)
+
+$(SNAPPLOTEXE): makedirs $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB)
+	$(CC) $(CCFLAGS) $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDFLAGS) -o $(SNAPPLOTEXE)
 
 $(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_parse.syntax
 	$(LAPG) $(SRCDIR)/snap_manager/scriptimp_parse.syntax $(SRCDIR)/snap_manager/scriptimp_parse.cpp

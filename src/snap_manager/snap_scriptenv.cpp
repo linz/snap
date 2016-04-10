@@ -362,15 +362,15 @@ void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
 bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
 {
     DEFINE_VARIABLE("$job_valid",(job && job->IsOk()));
-    DEFINE_VARIABLE("$job_file",(job ? job->GetFilename() : wxEmptyString ));
-    DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxEmptyString));
-    DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxEmptyString));
+    DEFINE_VARIABLE("$job_file",(job ? job->GetFilename() : wxString() ));
+    DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxString() ));
+    DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxString() ));
     DEFINE_VARIABLE("$snap_path",image_dir());
     DEFINE_VARIABLE("$user_config_path",user_config_dir());
     DEFINE_VARIABLE("$system_config_path", system_config_dir());
-    DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxEmptyString));
-    DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxEmptyString));
-    DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxEmptyString));
+    DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxString() ));
+    DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxString() ));
+    DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxString() ));
     DEFINE_VARIABLE("$coordsys_list", GetCoordSysList() );
     DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );

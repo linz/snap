@@ -26,6 +26,9 @@
 #define _set_output_format(x)
 #define _TWO_DIGIT_EXPONENT
 #define _strdup strdup
+#define _putenv putenv
+#define vsprintf_s vsnprintf
+#define _set_printf_count_output(x) 
 
 // std::regex not fully supported by g++ at 4.8
 #define REGEX_BOOST 1

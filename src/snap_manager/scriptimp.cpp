@@ -8,7 +8,7 @@
 using namespace Scripter;
 using namespace std;
 
-#define DEBUG_SCRIPTIMP 1
+#define DEBUG_SCRIPTIMP 0
 
 #ifdef DEBUG_SCRIPTIMP
 #define LOG(x) printf x ;
@@ -572,7 +572,7 @@ static int compValue( const Value &value1, const Value &value2 )
     wxString s2=value2.AsString();
     double v1=0.0;
     double v2=0.0;
-    wxRegEx reNumber=wxT("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
+    wxRegEx reNumber(wxT("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)"));
     if( reNumber.Matches(s1) )
     {
         double v;

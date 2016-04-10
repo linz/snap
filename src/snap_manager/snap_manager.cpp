@@ -4,6 +4,11 @@
 #include "snapjob.hpp"
 #include "snap_scriptenv.hpp"
 
+#ifdef __WXGTK__
+#include "resources/snap16_icon.xpm"
+#include "resources/snap32_icon.xpm"
+#endif
+
 enum
 {
     CMD_FILE_CLOSE = 1,
