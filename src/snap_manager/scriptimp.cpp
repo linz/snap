@@ -10,7 +10,7 @@ using namespace std;
 
 #define DEBUG_SCRIPTIMP 0
 
-#ifdef DEBUG_SCRIPTIMP
+#if DEBUG_SCRIPTIMP
 #define LOG(x) printf x ;
 #else
 #define LOG(x)
