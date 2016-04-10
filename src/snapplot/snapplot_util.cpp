@@ -53,6 +53,9 @@ int print_log_args( const char *format, va_list args )
     int len;
     static char * buffer = 0;
     static int buflen = 0;
+    va_list copy;
+
+    va_copy(copy,args);
 
     if( ! buffer )
     {
@@ -70,9 +73,10 @@ int print_log_args( const char *format, va_list args )
 
     if( buffer )
     {
-        len=vsnprintf( buffer, buflen, format, args );
+        len=vsnprintf( buffer, buflen, format, copy );
         wxLogMessage("%s",buffer);
     }
+    va_end(copy);
     return len;
 }
 

@@ -176,6 +176,8 @@ void wxMainProgWindow::AppendString( const wxString &text )
 int wxMainProgWindow::DoPrintArgs( const char *format, va_list args )
 {
     int len;
+    va_list copy;
+    va_copy(copy,args);
 
     if( ! buffer )
     {
@@ -193,9 +195,10 @@ int wxMainProgWindow::DoPrintArgs( const char *format, va_list args )
 
     if( buffer )
     {
-        len=vsnprintf( buffer, buflen, format, args );
+        len=vsnprintf( buffer, buflen, format, copy );
         AppendMessage( buffer );
     }
+    va_end(copy);
     return len;
 }
 
