@@ -652,9 +652,11 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
     DEFINE_FUNCTION2("Run",1,20)
     wxLogNull noLog;
-    char **argv = new char *[nParams+1];
-    for( int i = 0; i < nParams; i++ ) { argv[i] = const_cast<char *>(CSTRPRM(i)); }
-    argv[nParams] = 0;
+    // char **argv = new char *[nParams+1];
+    // for( int i = 0; i < nParams; i++ ) { argv[i] = const_cast<char *>(CSTRPRM(i)); }
+    // argv[nParams] = 0;
+    wxString argv;
+    for( int i = 0; i < nParams; i++ ) { if( i > 0 ) argv.Append(" "); argv.Append( STRPRM(i)); }
     frameWindow->SetCursor( *wxHOURGLASS_CURSOR );
     long result = ::wxExecute( argv, wxEXEC_SYNC );
     frameWindow->Raise();
