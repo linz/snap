@@ -64,7 +64,7 @@ snap_all: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SI
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) \
 	$(SNAPLIB) support_files
 
-snap_wx: snap_all $(SNAP_MANAGEREXE) $(SNAPPLOT)
+snap_wx: snap_all $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
 
 all: snap_all
 
