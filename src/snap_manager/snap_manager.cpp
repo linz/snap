@@ -92,8 +92,11 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     wxLog::SetActiveTarget( logger );
 
     // Get the configuration information
+    // and set it as the global configuration (accessible with Get)
+    // and cleared with 
 
     config = new wxConfig(_T("SnapMgr"),_T("LINZ"));
+    wxConfigBase::Set(config);
 
     // Restore the previous working directory
 
@@ -142,7 +145,6 @@ SnapMgrFrame::~SnapMgrFrame()
     config->Write(_T("WorkingDirectory"),wxGetCwd());
 
     delete scriptenv;
-    delete config;
 }
 
 void SnapMgrFrame::SetupIcons()

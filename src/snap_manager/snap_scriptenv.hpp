@@ -52,7 +52,6 @@ private:
     Scripter::Script *script;
     SnapJob *job;
     wxString coordsyslist;
-    wxConfig *config;
     wxString scriptPath;
     wxString userScriptPath;
     wxArrayString tmpFiles;

@@ -34,7 +34,6 @@ SnapMgrScriptEnv::SnapMgrScriptEnv( wxFrame *frameWindow )
     job = 0;
 	coordsyslist="";
     script = new Script( *this );
-    config = new wxConfig( _T("SnapMgr"),_T("LINZ"));
     SetupConfiguration();
     frameWindow->PushEventHandler(this);
 }
@@ -49,7 +48,6 @@ SnapMgrScriptEnv::~SnapMgrScriptEnv()
         ::wxRemoveFile( tmpFiles[i] );
     }
     delete script;
-    delete config;
 }
 
 void SnapMgrScriptEnv::SetupConfiguration()
@@ -661,7 +659,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     long result = ::wxExecute( argv, wxEXEC_SYNC );
     frameWindow->Raise();
     frameWindow->SetCursor( wxNullCursor );
-    delete [] argv;
+    //delete [] argv;
     wxString resultStr;
     if( result != -1 ) { resultStr << result; }
     RETURN( resultStr );
@@ -706,6 +704,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Configuration settings
 
     DEFINE_FUNCTION("GetConfig",1)
+    wxConfigBase *config=wxConfigBase::Get();
     config->SetPath("/Settings");
     wxString value;
     config->Read( STRPRM(0), &value );
@@ -713,6 +712,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
 
     DEFINE_FUNCTION("SetConfig",2)
+    wxConfigBase *config=wxConfigBase::Get();
     config->SetPath("/Settings");
     bool result = config->Write(STRPRM(0),STRPRM(1));
     RETURN( result );
