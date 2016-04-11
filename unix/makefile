@@ -62,13 +62,15 @@ include ./makefile.inc
 
 .PHONY: clean dirs
 
-snap_all: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
+all: snap_all
+
+# All programs including wxWidgets components
+snap_all: snap_all $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
+
+# Command line programs only
+snap_cmd: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) \
 	$(SNAPLIB) support_files
-
-snap_wx: snap_all $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
-
-all: snap_all
 
 ./makefile.inc:
 	@python build_makefile_inc.py > makefile.inc
