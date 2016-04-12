@@ -116,7 +116,7 @@ end_function
 # or puts up an error message and returns an empty string if not found
 
 function FindPerl()
-    $perl = FindProgram("perl.exe")
+    $perl = FindProgram("perl")
     if $perl then return $perl endif
     Message("Perl must be installed on the computer to use this function","Perl missing")
     return ''

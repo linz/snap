@@ -188,8 +188,16 @@ void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar 
 		}
 	}
 	::wxSetEnv(envvar,envval);
+#ifdef __WINDOWS__
+    // For windows need to modify environment as well
+    // http://wx-users.wxwidgets.narkive.com/P0A4LE9k/wxsetenv-and-putenv
+    //   Under Windows the former uses the Win32 function while the latter modifies
+    //   the CRT env var block. So if you use Win32 GetEnvironmentVariable(), the
+    //   latter wouldn't have any effect. While the former doesn't have any effect
+    //   if you use CRT getenv() which refers to existing env block.
     wxString setenv = envvar + _T("=") + envval;
     _putenv( setenv.c_str() );
+#endif
 }
 
 void SnapMgrScriptEnv::AddSnapDirToPath()
@@ -359,6 +367,16 @@ void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
 
 bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
 {
+#if defined(__WINDOWS__)
+    int iswindows=1;
+    int islinux=0;
+#elif defined(__UNIX_LIKE__)
+    int iswindows=0;
+    int islinux=1;
+#else
+    int iswindows=0;
+    int islinux=0;
+#endif
     DEFINE_VARIABLE("$job_valid",(job && job->IsOk()));
     DEFINE_VARIABLE("$job_file",(job ? job->GetFilename() : wxString() ));
     DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxString() ));
@@ -373,6 +391,8 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
+    DEFINE_VARIABLE("$is_windows",iswindows ? wxString("1") : wxString("0"));    
+    DEFINE_VARIABLE("$is_linux",islinux ? wxString("1") : wxString("0"));    
     return false;
 }
 
@@ -475,6 +495,16 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxPathList paths;
     paths.AddEnvList(_T("PATH"));
     wxString program = paths.FindAbsoluteValidPath(STRPRM(0));
+    if( program != _T("") && !  wxFileName(program).IsFileExecutable())
+    {
+        program=_T(""); }
+    #ifdef __WINDOWS__
+    if( program == _T("") )
+    {
+        wxString expath=STRPRM(0)+".exe";
+        program = paths.FindAbsoluteValidPath(STRPRM(0));
+    }
+    #endif
     RETURN( program );
 
     // Find job file with specified extension
@@ -828,8 +858,11 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("SetEnv",2)
     wxString value=STRPRM(1);
     wxSetEnv( STRPRM(0), value.c_str() );
+    #ifdef __WINDOWS__
+    // See comment above in SnapMgrScriptEnv::InsertPath
     wxString setenv = STRPRM(0) + _T("=") + value;
     _putenv( setenv.c_str() );
+    #endif
     RETURN( value )
 
     // String functions

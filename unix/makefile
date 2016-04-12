@@ -65,7 +65,7 @@ include ./makefile.inc
 all: snap_all
 
 # All programs including wxWidgets components
-snap_all: snap_all $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
+snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
 
 # Command line programs only
 snap_cmd: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
