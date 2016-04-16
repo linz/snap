@@ -645,6 +645,7 @@ static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int 
             {
                 process_station_list( cfg, st, value, len, NOREORDER_STATIONS );
                 reorder_stations = FORCE_REORDERING;
+                break;
             }
         }
         else

@@ -391,8 +391,8 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
-    DEFINE_VARIABLE("$is_windows",iswindows ? wxString("1") : wxString("0"));    
-    DEFINE_VARIABLE("$is_linux",islinux ? wxString("1") : wxString("0"));    
+    DEFINE_VARIABLE("$is_windows",iswindows ? wxString("1") : wxString(""));    
+    DEFINE_VARIABLE("$is_linux",islinux ? wxString("1") : wxString(""));    
     return false;
 }
 

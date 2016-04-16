@@ -4,7 +4,11 @@
 # Function to run a command shell
 
 function RunCommandShell() 
-   start("\"$_commandshell\" $_commandparams")
+   $command=$_commandshell
+   if $_commandparams then
+      $command="\"$command\" $_commandparams"
+   endif
+   start($command)
 end_function   
  
 #######################################################################

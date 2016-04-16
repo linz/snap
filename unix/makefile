@@ -3,7 +3,7 @@
 ###############################################################################
 
 # build type either debug or release
-TYPE=release
+type=release
 
 WXDIR=../wxWidgets-2.8.12/build_gtk
 WXCONFIG=$(WXDIR)/wx-config
@@ -18,14 +18,15 @@ MD = -mkdir -p
 RM = rm -f
 LAPG = ../tools/lapg/lapg
 
-ifeq ($(TYPE),debug)
-LDFLAGS = -lm -lboost_regex -lefence
+ifeq ($(type),debug)
+LDFLAGS = -lm -lboost_regex
+#LDFLAGS = -lm -lboost_regex -lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 endif
 
-ifeq ($(TYPE), release)
+ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -s
 LDWXFLAGS = -lm -lboost_regex -s
 CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
@@ -33,9 +34,9 @@ MACROS = NDEBUG UNIX
 endif
 
 SRCDIR = ../src
-DISTDIR = $(TYPE)/distrib
-INSTALL = $(TYPE)/install
-OBJ = $(TYPE)/obj
+DISTDIR = $(type)/distrib
+INSTALL = $(type)/install
+OBJ = $(type)/obj
 SNAPLIB = $(OBJ)/snaplib.a
 WXUTILSLIB = $(OBJ)/wxutils.a
 SNAPEXE = $(INSTALL)/snap
@@ -135,12 +136,13 @@ $(WXUTILSLIB): makedirs $(WXUTILSOBJS)
 support_files: makedirs
 	@echo Copying support files.
 	mkdir -p $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/coordsys $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snap/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snapspec/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snaplist/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/help/help $(INSTALL)
+	$(CP) -r -p $(SRCDIR)/coordsys $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/help/help $(INSTALL)
 
 $(sort $(DISTDIR)):
 	$(MD) $@
@@ -149,7 +151,7 @@ dist: snap_all $(sort $(DISTDIR))
 	@echo Making distribution.
 	$(CP) $(DISTFILES) $(DISTDIR)
 	@( cd $(DISTDIR); \
-	tar czf ../../snap-bin-$(TYPE).tar.gz *; )
+	tar czf ../../snap-bin-$(type).tar.gz *; )
 
 clean:
 	@echo Deleting object tree $(OBJ)...
