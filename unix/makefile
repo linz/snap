@@ -133,7 +133,7 @@ $(WXUTILSLIB): makedirs $(WXUTILSOBJS)
 	@echo Building wxutils
 	$(AR) r $(WXUTILSLIB) $(WXUTILSOBJS)
 
-support_files: makedirs
+support_files: makedirs helpfile wxhelpdir
 	@echo Copying support files.
 	mkdir -p $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/coordsys $(INSTALL)/config
@@ -142,7 +142,16 @@ support_files: makedirs
 	$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
-	$(CP) -r -p $(SRCDIR)/help/help $(INSTALL)
+
+helpfile:
+	(cd $(SRCDIR)/help && ./build_snaphelp.sh)
+	$(CP) -r $(SRCDIR)/help/snaphelp.zip $(INSTALL)
+
+wxhelpdir:
+	(cd $(SRCDIR)/help && ./build_wxhelp_map.pl)
+	mkdir -p $(INSTALL)/snaphelp
+	$(CP) -r $(SRCDIR)/help/help/* $(INSTALL)/snaphelp/
+	$(CP) -r $(SRCDIR)/help/wxhelp.map $(INSTALL)/snaphelp/
 
 $(sort $(DISTDIR)):
 	$(MD) $@
