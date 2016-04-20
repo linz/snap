@@ -21,7 +21,20 @@
 
 <p class="Commanddefinition">decomposition</p><p class="Commanddescription">Includes the choleski decomposition of the normal equations in the binary file.  This may be used by analysis programs, eg <a href="../../programs/snapspec/index.html">snapspec</a>.</p>
 
-<p class="Commanddefinition">all_relative_covariances</p><p class="Commanddescription">Includes complete station coordinate covariance information in the binary file.  This may be used by analysis programs, eg <a href="../../programs/snapspec/index.html">snapspec</a>.  Note that for a large adjustment this can generate a very large binary file.  It also forces SNAP to invert the full normal equations, which may take a long while for large adjustments.</p>
+<p class="Commanddefinition">relative_covariances [under <i>max_length</i>] [between <i>station_list</i>]</p>
+<p class="Commanddescription">Includes relative station coordinate covariance information in the binary file.  
+This happens by default for observed vectors.  This command can be used to suppress covariance information 
+(no_relative_covariances), or to add additional vectors.  Note that additional vectors are included in the
+station reordering and may affect the efficiency of the adjustment.  If all possible vectors are required then
+the &quot;output all_relative_covariances&quot; option should be used as it does not affect the station reordering and the efficiency of the calculation phase of snap.  
+To add vectors specify the maximum length of vector, and/or a <a href="cmd_stn_list.html">list of stations</a> between which vectors are required.
+The if both options are supplied then only vectors between the listed stations and less than the maximum length
+will be included.  This command can be used multiple times to compile the required vectors. 
+Not that the maximum length test is based in the a priori coordinates, not on the
+calculated final coordinates.  Using this can make analysis programs such as <a href="../../programs/snapspec/index.html">snapspec</a> more efficient to run.  
+</p>
+
+<p class="Commanddefinition">all_relative_covariances</p><p class="Commanddescription">Includes complete station coordinate covariance information in the binary file.  This may be used by analysis programs, eg <a href="../../programs/snapspec/index.html">snapspec</a>.  Note that for a large adjustment this can generate a very large binary file. </p>
 
 <p class="Commanddefinition">coordinate_file</p><p class="Commanddescription">Creates a new version of the station coordinate file. </p>
 
@@ -55,6 +68,8 @@ the covariance matrix of the solution.
 <h3>See also:</h3>
 
 <p><a href="cmd_list.html">The list command</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
 
 <p><a href="cmd_syntax.html">Command file syntax</a></p>
 

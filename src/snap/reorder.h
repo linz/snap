@@ -21,7 +21,7 @@ void term_connections();
 void add_connection( int stn1, int stn2 );
 int get_connection_count( int stn );
 int get_connection( int stn, int nconn );
-int setup_parameters( void );
+int setup_parameters( FILE *lst );
 
 #ifdef REORDER_C
 int save_connections = 1;

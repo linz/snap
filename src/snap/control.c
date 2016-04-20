@@ -88,7 +88,6 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
 static int read_classification( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -1181,51 +1180,6 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     if( date != UNDEFINED_DATE ) set_rftrans_ref_date( rf, date );
 
     set_rftrans_parameters( rf, val, calcval, defined );
-    return OK;
-}
-
-
-static int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code )
-{
-    output_option *output_set;
-    output_option *o;
-    char *st;
-    char set;
-    char errmess[80];
-
-    output_set = code == CSV_OPTIONS ? csvopt : output;
-
-    for( st = strtok(string," "); st; st=strtok(NULL," "))
-    {
-        if( _stricmp( st, "everything") == 0 )
-        {
-            for( o = output_set; o->name; o++ ) *(o->status) = 1;
-            continue;
-        }
-        if( _strnicmp(st,"no_",3) == 0 )
-        {
-            set = 0;
-            st += 3;
-        }
-        else
-        {
-            set = 1;
-        }
-
-        for( o = output_set; o->name; o++ )
-        {
-            if( _stricmp( st, o->name ) == 0 )
-            {
-                *(o->status) = set;
-                break;
-            }
-        }
-        if( !o->name )
-        {
-            sprintf(errmess,"Invalid output option %.30s", st );
-            send_config_error( cfg, INVALID_DATA, errmess );
-        }
-    }
     return OK;
 }
 

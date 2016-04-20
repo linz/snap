@@ -24,6 +24,7 @@
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "stnobseq.h"
+#include "output.h"
 #include "util/geodetic.h"
 #include "util/chkalloc.h"
 #include "util/xprintf.h"
@@ -85,6 +86,7 @@ int init_connections( int nnodes )
     int i;
 
     if( !save_connections ) return 0;
+    if( connlst ) return 1;
 
     connlst = (connections *) check_malloc( (nnodes+1) * sizeof(connections) );
     for( i = 0; i++ < nnodes; )
@@ -127,7 +129,6 @@ void term_connections( void )
 
 void create_order_arrays( void )
 {
-    int i;
     if( order1 ) check_free(order1);
     if( order2 ) check_free(order2);
     order1 = (int *) check_malloc( (nconnlst+1)*2*sizeof(int) );
@@ -489,6 +490,42 @@ static void exclude_node( int node )
     order1[node] = lastnode--;
 }
 
+static void dump_connection_list( FILE *lst )
+{
+    int i1;
+    fprintf(lst,"\nConnection list\n");
+    for( i1=0; i1++ < nconnlst; )
+    {
+        int c;
+        fprintf(lst,"   %3d =>",i1);
+        for( c=0; c < connlst[i1].count; c++ )
+        {
+            if( c && c % 15 == 0 ) fprintf(lst,"\n         ");
+            fprintf(lst," %3d",(int)(connlst[i1].list[c]));
+        }
+        fprintf(lst,"\n");
+    }
+}
+
+static void dump_ordering( FILE *lst )
+{
+    int i1;
+    station *stn;
+
+    for( i1=0; i1++<nconnlst; )
+    {
+        order2[order1[i1]] = i1;
+    }
+
+    fprintf(lst,"\nFinal order...\n");
+
+    for( i1=0; i1++<nconnlst; )
+    {
+        stn=station_ptr(net,order2[i1]);
+        fprintf(lst,"   %s\n",stn->Code);
+    }
+}
+
 
 #ifndef TEST
 
@@ -584,7 +621,7 @@ void exclude_stations( void )
    optimal ordering. */
 
 
-int setup_parameters( void )
+int setup_parameters( FILE *lst )
 {
     int nrowst, nprm, nrow, istn, maxstn;
 
@@ -624,11 +661,20 @@ int setup_parameters( void )
 
         xprintf("\nReordering the stations\n");
 
+        if( output_debug_reordering ) 
+        {
+            print_section_heading( lst, "Station row reordering" );
+            dump_connection_list( lst );
+        }
         create_order_arrays();
         exclude_stations();   /* for unobserved stations */
         order_nodes();
         set_row_numbers( nrowst );
         blt_set_sparse_rows( lsq_normal_matrix(), nrowst );
+        if( output_debug_reordering ) 
+        {
+            dump_ordering( lst );
+        }
     }
 
     /* Otherwise just number them in their current order */
@@ -659,7 +705,7 @@ int main( int argc, char *argv[] )
 
     if( argc < 2 || !(in = fopen(argv[1],"r")) )
     {
-        xprintf("Missing or invalid file name");
+        printf("Missing or invalid file name");
     }
 
     save_connections = 1;
@@ -677,33 +723,10 @@ int main( int argc, char *argv[] )
             exclude_node( i2 );
         }
     }
-
-    xprintf("\nConnections\n");
-    for( i1=0; i1++ < ncon; )
-    {
-        int c;
-        xprintf("%3d =>",i1);
-        for( c=0; c < connlst[i1].count; c++ )
-        {
-            xprintf(" %3d",(int)(connlst[i1].list[c]));
-        }
-        xprintf("\n");
-    }
-
-
+    dump_connection_list(stdout);
     order_nodes();
-
-    for( i1=0; i1++<ncon; )
-    {
-        order2[order1[i1]] = i1;
-    }
-
-    xprintf("\nFinal order...\n");
-
-    for( i1=0; i1++<ncon; )
-    {
-        xprintf("%d\n",(int)order2[i1]);
-    }
+    dump_ordering(stdout);
 }
+
 
 #endif

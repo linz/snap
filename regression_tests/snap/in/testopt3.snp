@@ -1,0 +1,8 @@
+title Testing matrix optimisation
+coordinate_file testopt.crd
+data_file testopt.dat
+mode 3d adjustment
+fix 1
+reorder_stations on
+output relative_covariances under 120.0 between 4 6
+output debug_reordering

@@ -347,8 +347,7 @@ int set_network_geoid_def( network *nw, geoid_def *gd );
 
 int read_network_station_offsets( network *nw, const char *filename );
 
-/* Only to be used by network routines .. use new_network_station */
-
+/* add_station only to be used by network routines .. use new_network_station */
 int   add_station( network *nw, station *st );
 
 void    remove_station( network *nw, station *st );
