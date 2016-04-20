@@ -748,8 +748,10 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
     int name_id;
     int reject;
     int ignore;
+    int missing_error;
     char *st;
 
+    missing_error=INVALID_DATA;
     st = strtok( string, " " );
     if( !st )
     {
@@ -787,6 +789,21 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
         if( reject || ignore ) st = strtok( NULL, " " );
     }
 
+    if( st && class_id == -2 && _stricmp(st,"ignore_missing") == 0 ) 
+    {
+        missing_error=OK;
+        st = strtok( NULL, " " );
+    }
+    else if( st && class_id == -2 && _stricmp(st,"warn_missing") == 0 ) 
+    {
+        missing_error=INFO_ERROR;
+        st = strtok( NULL, " " );
+    }
+    else if( st && class_id == -2 && _stricmp(st,"fail_missing") == 0 ) 
+    {
+        st = strtok( NULL, " " );
+    }
+
     if( !st )
     {
         send_config_error( cfg, MISSING_DATA, "Value of classification is missing");
@@ -798,7 +815,9 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
         name_id = obstype_from_code( st );
         if( name_id < 0 )
         {
-            send_config_error( cfg, INVALID_DATA, "Invalid observation data_type in classification command");
+            char errmess[100];
+            sprintf(errmess,"Invalid observation data_type %.40s in classification command",st);
+            send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
     }
@@ -807,7 +826,12 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
         name_id = survey_data_file_id( st );
         if( name_id < 0 )
         {
-            send_config_error( cfg, INVALID_DATA, "Invalid data_file name in classification command");
+            if( missing_error != OK )
+            { 
+                char errmess[120];
+                sprintf(errmess,"Invalid data_file %.60s in classification command",st);
+                send_config_error( cfg, missing_error, errmess );
+            }
             return OK;
         }
     }
