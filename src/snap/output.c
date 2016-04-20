@@ -453,7 +453,7 @@ static void close_error_file( const char *mess1, const char *mess2 )
 
 static int print_err( int sts, const char *mess1, const char *mess2 )
 {
-    fprintf(err,"\n%s: %s\n", sts == WARNING_ERROR ? "Warning" : "Error", mess1 );
+    fprintf(err,"\n%s: %s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error", mess1 );
     if( mess2 ) fprintf(err,"       %s\n",mess2);
     errcount++;
     if( FATAL_ERROR_CONDITION(sts) )

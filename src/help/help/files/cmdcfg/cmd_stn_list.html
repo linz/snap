@@ -34,6 +34,11 @@ Here <i>crdsys</i> is the coordinate system in which the polygon is defined
 and <i>wktfile</i> is the name of a file containing the coordinates of a polygon extent
 in WKT (well known text) format.  The default extension for the file is &quot;.wkt&quot;.</p>
 
+<p class="BulletList">the commands <i>ignore_missing</i>, <i>warn_missing</i>, or <i>fail_missing</i>. These control the handling of 
+station codes following in the list which are not in the command file. By default missing stations are treated as an error.  Alternatively
+they can be ignored, or generate a warning but not a failure.
+</p>
+
 <p>When a group of stations will be referenced in several adjustments it may be convenient to put the list into a a station list file.  
 For example if you wanted to be able to easily exclude all benchmarks from an adjustment  you could create a file called benchmrk.stl.  In this you would specify all benchmarks.  Then in the command file you would include  the command</p>
 
