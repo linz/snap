@@ -78,10 +78,12 @@ static long elapsed_time ( long ref_time )
 #endif
 
 
-static void draw_meter( void )
+static void draw_meter( int ntick )
 {
+    int nch=0;
+    putchar('\r');
     fputs(HEADER_STRING,stdout);
-    for (npts=METER_LEN; npts--;) putchar(SPACE_CHAR);
+    for (nch=0; nch < METER_LEN; nch++ ) putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
     fputs(TAIL_STRING,stdout);
     putchar('\r');
     fputs(HEADER_STRING,stdout);
@@ -106,15 +108,16 @@ static void default_init_progress_meter( long total_size )
 
 static void default_update_progress_meter( long progress )
 {
+    int redraw=0;
     if( !meter_drawn )
     {
 #ifdef USE_TIME
         if( elapsed_time(reftime) < 100 || progress > meter_max/5 ) return;
+        redraw=1;
 #endif
-        draw_meter();
     }
-    while (progress > lasttick && npts)
-        { putchar(FILL_CHAR); lasttick+=increment; npts--;}
+    while (progress > lasttick ) { redraw=1; lasttick+=increment; }
+    if( redraw ) draw_meter( (int) (lasttick/increment) - 1 );
     fflush(stdout);
 }
 
