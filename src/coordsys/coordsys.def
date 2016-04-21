@@ -915,6 +915,7 @@ YORK_L "Mount York Circuit 1949 (links)" REF_FRAME NZGD1949 &
 ! GEOID + Geoid file name - a geoid grid for generating orthometric heights
 
 NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID nzgeoid09
+NZVD2016 "New Zealand Geoid 2016 NZGD2000 GEOID nzgeoid2016
 
 [height_coordinate_systems]
 !
@@ -930,6 +931,7 @@ NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID nzgeoid09
 
 Code	Datum	RefDtm	Offset	StdDev
 
+NZVD2016 "New Zealand Vertical Datum 2016" NZVD2016 0
 NZVD09 "New Zealand Vertical Datum 2009" NZVD09 0
 ONTPHT1964 "One Tree Point 1964" NZVD09 0.06
 AUCKHT1946 "Auckland 1946" NZVD09 0.34
