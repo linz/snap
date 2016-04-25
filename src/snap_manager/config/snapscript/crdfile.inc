@@ -122,7 +122,7 @@ function AddGeoidHeights()
        label "Add geoid heights and deflections to the station file"
        label "Coordinate file: $relname"
        spacer
-       radio_selector $geoid "Select the new geoid to use" "~nzgeoid09~New Zealand Geoid 2009~egm96~EGM96"
+       radio_selector $geoid "Select the geoid to use" $_geoids
     end_dialog
     $backupfile = BackupCoordinateFile($coordinate_file)
     if not $backupfile then 

@@ -32,6 +32,10 @@
 
 // std::regex not fully supported by g++ at 4.8
 #define REGEX_BOOST 1
+
+#else
+// va_copy not defined on Visual Studio pre 2008
+#define va_copy(dest, src) (dest = src)
 #endif
 
 
