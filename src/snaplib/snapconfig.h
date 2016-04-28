@@ -35,7 +35,9 @@
 
 #else
 // va_copy not defined on Visual Studio pre 2008
+#ifndef va_copy
 #define va_copy(dest, src) (dest = src)
+#endif
 #endif
 
 

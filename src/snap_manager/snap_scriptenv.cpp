@@ -501,8 +501,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     #ifdef __WINDOWS__
     if( program == _T("") )
     {
-        wxString expath=STRPRM(0)+".exe";
-        program = paths.FindAbsoluteValidPath(STRPRM(0));
+        wxString exepath=STRPRM(0)+".exe";
+        program = paths.FindAbsoluteValidPath(exepath);
     }
     #endif
     RETURN( program );
