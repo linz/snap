@@ -93,7 +93,7 @@ my $crdheader='';
 
 for( my $i0=0; $i0 < $ncodes; $i0 += $maxperrequest )
 {
-    my @subset=@codes[$i0 .. $i0+$maxperrequest-1];
+    my @subset=grep /\w/,@codes[$i0 .. $i0+$maxperrequest-1];
     if( $verbose )
     {
         print "Requesting ".scalar(@subset)." stations from GDB - ".($i0+1)." ...\n";
@@ -120,7 +120,7 @@ for( my $i0=0; $i0 < $ncodes; $i0 += $maxperrequest )
     }
     elsif( $output =~ /^.*\bORDV1\b.*\bORDV2\b.*\bORDV3\b/i )
     {
-        $output=~s/^(.*\n)// if $crddata;
+        $output=~s/^(.*\n)//;
         $crdheader=$1 if ! $crdheader 
     }
     else
@@ -130,7 +130,7 @@ for( my $i0=0; $i0 < $ncodes; $i0 += $maxperrequest )
     my %outputcrd={};
     foreach my $crd (split(/\n/,$output))
     {
-        $outputcrd{uc($1)}=$crd."\n" if $crd=~/^\!?\s*(\w{4})\W/;
+        $outputcrd{uc($2)}=$crd."\n" if $crd=~/^\!?\s*(\"?)(\w{4})\1\W/;
     }
 
     foreach my $code (@subset)
