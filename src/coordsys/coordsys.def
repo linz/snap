@@ -52,8 +52,8 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 !    IERS_ETSR refdate Tx Ty Tz scale Rx Ry Rz dTx dTy dTz dscale dRx dRy dRz
 
 [reference_frames]
-NZGD2000 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION LINZDEF nzgd2000_def_20150101l.bin
+NZGD2000 "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20160701l.bin
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
 
@@ -329,8 +329,8 @@ ITRF2014 "International Terrestrial Reference Frame 2014 (LINZ transformation)" 
 
 ! NZGD2000 geodetic systems
 
-NZGD2000_XYZ "New Zealand Geodetic Datum 2000 XYZ" REF_FRAME NZGD2000 GEOCENTRIC
-NZGD2000 "New Zealand Geodetic Datum 2000" REF_FRAME NZGD2000 GEODETIC
+NZGD2000_XYZ "New Zealand Geodetic Datum 2000 XYZ (version 20160701)" REF_FRAME NZGD2000 GEOCENTRIC
+NZGD2000 "New Zealand Geodetic Datum 2000 (version 20160701)" REF_FRAME NZGD2000 GEODETIC
 
 
 ! Several versions of NZGD49.  
