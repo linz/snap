@@ -35,7 +35,7 @@
 #define FILL_CHAR '*'
 #endif
 
-static long increment;
+static long increment=1;
 static long lasttick;
 static long meter_max;
 static int meter_drawn;
@@ -97,6 +97,7 @@ static void default_init_progress_meter( long total_size )
 {
     meter_max = total_size;
     lasttick = increment = total_size / METER_LEN;
+    if(increment <= 0) increment=1;
     meter_drawn = 0;
 #ifdef USE_TIME
     reftime = elapsed_time( 0L );
