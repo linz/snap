@@ -177,7 +177,7 @@ void print_geoid_data( geoid_def *gd, FILE *out, char showGrid )
 int calculate_geoid_undulation( geoid_def *gd, double lat, double lon, double *undulation )
 {
     if( !gd ) return INCONSISTENT_DATA;
-    return grd_calc_cubic( gd->grd, lon*RTOD, lat*RTOD, undulation );
+    return grd_calc_linear( gd->grd, lon*RTOD, lat*RTOD, undulation );
 }
 
 int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
