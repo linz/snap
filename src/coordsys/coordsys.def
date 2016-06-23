@@ -373,7 +373,7 @@ NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
 
 NZTM "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000 &
           PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
-          RANGE 1000000 4650000 2300000 6350000
+          RANGE 500000 3500000 3500000 7500000
 
 ! Old versions of deformation model
 
