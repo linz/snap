@@ -43,7 +43,7 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 ! and the rates of change of each of the parameters.
 !
 ! The transformation parameters may be preceded by "IERS_TSR" or "IERS_ETSR"
-! to denote using ! IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  
+! to denote using IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  
 ! These also use the opposite sign convention for the rotations and change the 
 ! order of the parameters to Tx Ty Tz scale Rx Ry Rx, and for IERS_ETSR, include
 ! the reference date (epoch) before the parameters.  ie the are one of:
@@ -52,8 +52,23 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 !    IERS_ETSR refdate Tx Ty Tz scale Rx Ry Rz dTx dTy dTz dscale dRx dRy dRz
 
 [reference_frames]
-NZGD2000 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000 "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20160701l.bin
+
+NZGD2000_20160701 "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20160701l.bin
+
+NZGD2000_20150101 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20150101l.bin
+
+NZGD2000_20140201 "New Zealand Geodetic Datum 2000 (version 20140201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20140201l.bin
+
+NZGD2000_20130801 "New Zealand Geodetic Datum 2000 (version 20130801)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20130801l.bin
+
+NZGD2000_20010101 "New Zealand Geodetic Datum 2000 (version 20010101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION 2000.0 VELGRID igns98b 2000.0
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
 
@@ -329,8 +344,16 @@ ITRF2014 "International Terrestrial Reference Frame 2014 (LINZ transformation)" 
 
 ! NZGD2000 geodetic systems
 
-NZGD2000_XYZ "New Zealand Geodetic Datum 2000 XYZ" REF_FRAME NZGD2000 GEOCENTRIC
-NZGD2000 "New Zealand Geodetic Datum 2000" REF_FRAME NZGD2000 GEODETIC
+NZGD2000_XYZ "New Zealand Geodetic Datum 2000 XYZ (version 20160701)" REF_FRAME NZGD2000 GEOCENTRIC
+NZGD2000 "New Zealand Geodetic Datum 2000 (version 20160701)" REF_FRAME NZGD2000 GEODETIC
+
+! Old versions of deformation model
+NZGD2000_20160701 "New Zealand Geodetic Datum 2000 (version 20160701)" REF_FRAME NZGD2000_20160701 GEODETIC
+NZGD2000_20150101 "New Zealand Geodetic Datum 2000 (version 20150101)" REF_FRAME NZGD2000_20150101 GEODETIC
+NZGD2000_20140201 "New Zealand Geodetic Datum 2000 (version 20140201)" REF_FRAME NZGD2000_20140201 GEODETIC
+NZGD2000_20130801 "New Zealand Geodetic Datum 2000 (version 20130801)" REF_FRAME NZGD2000_20130801 GEODETIC
+NZGD2000_20000101 "New Zealand Geodetic Datum 2000 (version 20000101)" REF_FRAME NZGD2000_20000101 GEODETIC
+
 
 
 ! Several versions of NZGD49.  
@@ -349,6 +372,28 @@ NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
           RANGE 1600000 4800000 3600000 7200000
 
 NZTM "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 500000 3500000 3500000 7500000
+
+! Old versions of deformation model
+
+NZTM_20160701 "New Zealand Transverse Mercator Projection (20160701)" REF_FRAME NZGD2000_20160701 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20150101 "New Zealand Transverse Mercator Projection (20150101)" REF_FRAME NZGD2000_20150101 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20140201 "New Zealand Transverse Mercator Projection (20140201)" REF_FRAME NZGD2000_20140201 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20130801 "New Zealand Transverse Mercator Projection (20130801)" REF_FRAME NZGD2000_20130801 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20000101 "New Zealand Transverse Mercator Projection (20000101)" REF_FRAME NZGD2000_20000101 &
           PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
           RANGE 1000000 4650000 2300000 6350000
 
@@ -900,51 +945,73 @@ YORK_L "Mount York Circuit 1949 (links)" REF_FRAME NZGD1949 &
           PROJECTION TM 167.73886178 -45.56372617 1.00000 0.0 0.0 0.20116765 &
           RANGE -2000000 -2000000 2000000 2000000
 
+
 !================================================================
-! Note: Height references currently not used by SNAP and Concord.
+! Note: Height reference surfaces currently not used by SNAP and Concord.
 !
 
-[height_references]
+[height_reference_surfaces]
 
-! Height references are defined by
+! Height reference surfaces are defined by
 !
-! Code - used to reference it
+! Code - used to reference it.  This cannot be the same as the name
+!        of an ellipsoidal coordinate system (all ellipsoidal coordinate
+!        systems are defined as height reference surfaces)
 ! Name - name of the reference system
-! crdsys - code of reference ellipsoidal coordinate system for ellipsoidal heights
-! 
+! baseref - code of surface in terms of which the reference surface
+!          is defined, either an ellipsoidal coordinate system 
+!          for ellipsoidal heights or another reference surface.
+!
+! This is followed by a definition of the reference surface relative to the 
+! base reference surface as one of: 
+!
 ! GEOID + Geoid file name - a geoid grid for generating orthometric heights
-
-NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID nzgeoid09
-
-[height_coordinate_systems]
+! GRID + Grid file name - a grid defining height offsets
+! offset - a numeric constant offset
 !
-! Orthometric height datums 
+! The only difference between GEOID and GRID is the sense in which they are 
+! applied, GEOID defines the height of the reference surface relative to
+! the base reference surface, whereas GRID defines the height of 
+! the base reference surface relative to the reference surface.
+
+NZVD09 "New Zealand Vertical Datum 2009" NZGD2000 GEOID nzgeoid09
+NZVD2016 "New Zealand Vertical Datum 2016" NZGD2000 GEOID nzgeoid2016
+EGM96 "Earth Gravitational Model 1996" WGS84 GEOID egm96
+
 !
-! Height coordinate systems are defined by 
+! "Orthometric" height datums 
 !
-! Code - used to reference  the coordinate system
-! Name - the name of the coordinate system
-! HgtRefCode - the code of the reference height system
-! Offset - the offset relative to the reference height system
+
+ONTPHT1964_NZVD09 "One Tree Point 1964 (NZVD09)" NZVD09 0.06
+AUCKHT1946_NZVD09 "Auckland 1946 (NZVD09)"       NZVD09 0.34
+MOTUHT1953_NZVD09 "Moturiki 1953 (NZVD09)"       NZVD09 0.24
+GISBHT1926_NZVD09 "Gisborne 1926 (NZVD09)"       NZVD09 0.34
+NAPIHT1962_NZVD09 "Napier 1962 (NZVD09)"         NZVD09 0.20
+TARAHT1970_NZVD09 "Taranaki 1970 (NZVD09)"       NZVD09 0.32
+WELLHT1953_NZVD09 "Wellington 1953 (NZVD09)"     NZVD09 0.44
+NELSHT1955_NZVD09 "Nelson 1955 (NZVD09)"         NZVD09 0.29
+LYTTHT1937_NZVD09 "Lyttelton 1937 (NZVD09)"      NZVD09 0.47
+DUNEHT1958_NZVD09 "Dunedin 1958 (NZVD09)"        NZVD09 0.49
+DUBLHT1960_NZVD09 "Dunedin-Bluff 1960 (NZVD09)"  NZVD09 0.38
+BLUFHT1955_NZVD09 "Bluff 1955 (NZVD09)"          NZVD09 0.36
+STISHT1977_NZVD09 "Stewart Island 1977 (NZVD09)" NZVD09 0.39
+
+ONTPHT1964 "One Tree Point 1964 (NZVD2016)" NZVD2016 GRID ontpht1964_geoid2016_offset.bin
+AUCKHT1946 "Auckland 1946 (NZVD2016)"       NZVD2016 GRID auckht1946_geoid2016_offset.bin
+MOTUHT1953 "Moturiki 1953 (NZVD2016)"       NZVD2016 GRID motuht1953_geoid2016_offset.bin
+GISBHT1926 "Gisborne 1926 (NZVD2016)"       NZVD2016 GRID gisbht1926_geoid2016_offset.bin
+NAPIHT1962 "Napier 1962 (NZVD2016)"         NZVD2016 GRID napiht1962_Geoid2016_offset.bin
+TARAHT1970 "Taranaki 1970 (NZVD2016)"       NZVD2016 GRID taraht1970_geoid2016_offset.bin
+WELLHT1953 "Wellington 1953 (NZVD2016)"     NZVD2016 GRID wellht1953_geoid2016_offset.bin
+NELSHT1955 "Nelson 1955 (NZVD2016)"         NZVD2016 GRID nelsht1955_geoid2016_offset.bin
+LYTTHT1937 "Lyttelton 1937 (NZVD2016)"      NZVD2016 GRID lyttht1937_geoid2016_offset.bin
+DUNEHT1958 "Dunedin 1958 (NZVD2016)"        NZVD2016 GRID duneht1958_geoid2016_offset.bin
+DUBLHT1960 "Dunedin-Bluff 1960 (NZVD2016)"  NZVD2016 GRID dublht1960_geoid2016_offset.bin
+BLUFHT1955 "Bluff 1955 (NZVD2016)"          NZVD2016 GRID blufht1955_geoid2016_offset.bin
+STISHT1977 "Stewart Island 1977 (NZVD2016)" NZVD2016 GRID stisht1977_geoid2016_offset.bin
 
 
-Code	Datum	RefDtm	Offset	StdDev
-
-NZVD09 "New Zealand Vertical Datum 2009" NZVD09 0
-ONTPHT1964 "One Tree Point 1964" NZVD09 0.06
-AUCKHT1946 "Auckland 1946" NZVD09 0.34
-MOTUHT1953 "Moturiki 1953" NZVD09 0.24
-GISBHT1926 "Gisborne 1926" NZVD09 0.34
-NAPIHT1962 "Napier 1962" NZVD09 0.20
-TARAHT1970 "Taranaki 1970" NZVD09 0.32
-WELLHT1953 "Wellington 1953" NZVD09 0.44
-NELSHT1955 "Nelson 1955" NZVD09 0.29
-LYTTHT1937 "Lyttelton 1937" NZVD09 0.47
-DUNEHT1958 "Dunedin 1958" NZVD09 0.49
-DUBLHT1960 "Dunedin-Bluff 1960" NZVD09 0.38
-BLUFHT1955 "Bluff 1955" NZVD09 0.36
-STISHT1977 "Stewart Island 1977" NZVD09 0.39
-
+!================================================================================
 # Notes can be provided for a coordinate system or datum, or 
 # for a conversion between coordinate systems and datums.  This
 # can include coordinates systems and datums not defined, or 

@@ -1,0 +1,11 @@
+Test 1 - basic obs type tests
+NZGD1949
+options ellipsoidal_heights no_deflections geoid_heights 
+
+!Code       Latitude          Longitude        Ell.Hgt   G.Hgt Name
+1      41 00 46.800000 S 173 19 15.600000 E    150.000   0.000 1
+2      41 00 44.507922 S 173 19 18.625945 E    150.001   0.000 2
+3      41 00 42.215843 S 173 19 21.651862 E    150.002   0.000 3
+4      41 00 39.923742 S 173 19 24.677720 E    150.003   0.000 4
+5      41 00 37.631663 S 173 19 27.703578 E    150.004   0.000 5
+6      41 00 35.339583 S 173 19 30.729407 E    150.005   0.000 6

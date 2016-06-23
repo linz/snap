@@ -31,6 +31,8 @@
 #define NO_MORE_DATA      1
 #define EOF_ENCOUNTERED   2
 
+#define INFO_ERROR       16
+
 #define WARNING_ERROR    32
 #define FILE_OPEN_ERROR  33
 #define FILE_READ_ERROR  34
@@ -43,11 +45,12 @@
 #define TOO_MUCH_DATA     41
 #define OPERATION_ABORTED 42
 
-
 #define FATAL_ERROR      64
 #define MEM_ALLOC_ERROR  65
 #define INTERNAL_ERROR   66
 
+#define REPORTABLE_ERROR(sts)        (sts & (INFO_ERROR | WARNING_ERROR | FATAL_ERROR))
+#define INFO_ERROR_CONDITION(sts)    (sts & INFO_ERROR && !((sts) & (FATAL_ERROR | WARNING_ERROR)))
 #define FATAL_ERROR_CONDITION(sts)    ((sts) & FATAL_ERROR)
 #define WARNING_ERROR_CONDITION(sts)  ((sts) & WARNING_ERROR)
 

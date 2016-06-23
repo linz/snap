@@ -279,6 +279,9 @@ int snap_main( int argc, char *argv[] )
     end_bindata();
     if( dump ) end_section( dump );
 
+    /* Add elements requested for covariance output */
+    add_requested_covariance_connections();
+    delete_requested_covariance_connections();
 
     /* Report information from loading the data before stopping as this 
        could help understand what went wrong.
@@ -330,7 +333,7 @@ int snap_main( int argc, char *argv[] )
        and allocates the least squares matrices */
 
     init_rftrans_prms_list();
-    nprm = setup_parameters();
+    nprm = setup_parameters( lst );
 
     if( deformation && init_deformation( deformation ) != OK )
     {
@@ -352,15 +355,24 @@ int snap_main( int argc, char *argv[] )
 
         iterations++;
 
+        /* Initiallize the least squares equations */
+
+        lsq_init();
+        if( iterations==1 && nprm )
+        {
+            long nfull = ((long) nprm * (nprm+1))/2;
+            long nsave = nfull - lsq_normal_matrix()->nelement;
+            if( nsave > 0 )
+            {
+                xprintf("\nStation reordering has reduced the matrix size by %.1lf%%\n",(nsave*100.0)/nfull);
+            }
+        }
+
         if( show_iterations )
         {
             xprintf("\nIteration %d\n",(int)iterations);
             print_iteration_header( iterations );
         }
-
-        /* Initiallize the least squares equations */
-
-        lsq_init();
 
         /* Sum the observations */
 
@@ -643,7 +655,7 @@ static int read_parameters( int argc, char *argv[] )
     for( argc--, argv++; sts==OK && argc; argc--, argv++ )
     {
         arg = argv[0];
-        if( arg[0] == '-' || arg[0] == '/' )
+        if( arg[0] == '-' )
         {
             switch( arg[1] )
             {

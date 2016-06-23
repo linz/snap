@@ -3,6 +3,11 @@
 #include "wxsplashimage.hpp"
 #include "snapplot_loadlog.hpp"
 
+#ifdef __WXGTK__
+#include "resources/snap16_icon.xpm"
+#include "resources/snap32_icon.xpm"
+#endif
+
 class SnapplotLoadLogger : public wxLog
 {
 public:

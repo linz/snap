@@ -303,6 +303,7 @@ static void process_selected_stations1( network *nw, char *select, const char *b
     int istn;
     char errmess[200];
     char src[80];
+    int missing_status=INVALID_DATA;
 
     errmess[0] = 0;
     if( stnfile )
@@ -325,6 +326,24 @@ static void process_selected_stations1( network *nw, char *select, const char *b
             {
                 (*function)(station_ptr(nw,istn),data);
             }
+            continue;
+        }
+
+        if( _stricmp( field, "ignore_missing" ) == 0 )
+        {
+            missing_status=OK;
+            continue;
+        }
+
+        if( _stricmp( field, "warn_missing" ) == 0 )
+        {
+            missing_status=INFO_ERROR;
+            continue;
+        }
+
+        if( _stricmp( field, "fail_missing" ) == 0 )
+        {
+            missing_status=INVALID_DATA;
             continue;
         }
 
@@ -489,8 +508,11 @@ static void process_selected_stations1( network *nw, char *select, const char *b
         /* Bother - it must be a mistake */
 
         {
-            sprintf(errmess,"Invalid station %.50s in %.50s",field,src);
-            handle_error(INVALID_DATA,errmess,NULL);
+            if( missing_status != OK )
+            {
+                sprintf(errmess,"Invalid station %.50s in %.50s",field,src);
+                handle_error(missing_status,errmess,NULL);
+            }
             errmess[0] = 0;
         }
     }

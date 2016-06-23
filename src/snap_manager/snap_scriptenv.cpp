@@ -34,7 +34,6 @@ SnapMgrScriptEnv::SnapMgrScriptEnv( wxFrame *frameWindow )
     job = 0;
 	coordsyslist="";
     script = new Script( *this );
-    config = new wxConfig( _T("SnapMgr"),_T("LINZ"));
     SetupConfiguration();
     frameWindow->PushEventHandler(this);
 }
@@ -49,7 +48,6 @@ SnapMgrScriptEnv::~SnapMgrScriptEnv()
         ::wxRemoveFile( tmpFiles[i] );
     }
     delete script;
-    delete config;
 }
 
 void SnapMgrScriptEnv::SetupConfiguration()
@@ -190,8 +188,16 @@ void SnapMgrScriptEnv::InsertPath( const wxString &path, const wxString &envvar 
 		}
 	}
 	::wxSetEnv(envvar,envval);
+#ifdef __WINDOWS__
+    // For windows need to modify environment as well
+    // http://wx-users.wxwidgets.narkive.com/P0A4LE9k/wxsetenv-and-putenv
+    //   Under Windows the former uses the Win32 function while the latter modifies
+    //   the CRT env var block. So if you use Win32 GetEnvironmentVariable(), the
+    //   latter wouldn't have any effect. While the former doesn't have any effect
+    //   if you use CRT getenv() which refers to existing env block.
     wxString setenv = envvar + _T("=") + envval;
     _putenv( setenv.c_str() );
+#endif
 }
 
 void SnapMgrScriptEnv::AddSnapDirToPath()
@@ -361,20 +367,32 @@ void SnapMgrScriptEnv::OnCmdConfigMenuItem( wxCommandEvent &event )
 
 bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
 {
+#if defined(__WINDOWS__)
+    int iswindows=1;
+    int islinux=0;
+#elif defined(__UNIX_LIKE__)
+    int iswindows=0;
+    int islinux=1;
+#else
+    int iswindows=0;
+    int islinux=0;
+#endif
     DEFINE_VARIABLE("$job_valid",(job && job->IsOk()));
-    DEFINE_VARIABLE("$job_file",(job ? job->GetFilename() : wxEmptyString ));
-    DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxEmptyString));
-    DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxEmptyString));
+    DEFINE_VARIABLE("$job_file",(job ? job->GetFilename() : wxString() ));
+    DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxString() ));
+    DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxString() ));
     DEFINE_VARIABLE("$snap_path",image_dir());
     DEFINE_VARIABLE("$user_config_path",user_config_dir());
     DEFINE_VARIABLE("$system_config_path", system_config_dir());
-    DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxEmptyString));
-    DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxEmptyString));
-    DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxEmptyString));
+    DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxString() ));
+    DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxString() ));
+    DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxString() ));
     DEFINE_VARIABLE("$coordsys_list", GetCoordSysList() );
     DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
+    DEFINE_VARIABLE("$is_windows",iswindows ? wxString("1") : wxString(""));    
+    DEFINE_VARIABLE("$is_linux",islinux ? wxString("1") : wxString(""));    
     return false;
 }
 
@@ -477,6 +495,16 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     wxPathList paths;
     paths.AddEnvList(_T("PATH"));
     wxString program = paths.FindAbsoluteValidPath(STRPRM(0));
+    if( program != _T("") && !  wxFileName(program).IsFileExecutable())
+    {
+        program=_T(""); }
+    #ifdef __WINDOWS__
+    if( program == _T("") )
+    {
+        wxString exepath=STRPRM(0)+".exe";
+        program = paths.FindAbsoluteValidPath(exepath);
+    }
+    #endif
     RETURN( program );
 
     // Find job file with specified extension
@@ -652,14 +680,21 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
     DEFINE_FUNCTION2("Run",1,20)
     wxLogNull noLog;
-    char **argv = new char *[nParams+1];
-    for( int i = 0; i < nParams; i++ ) { argv[i] = const_cast<char *>(CSTRPRM(i)); }
-    argv[nParams] = 0;
+    #ifdef UNIX
+    wxString argv;
+        for( int i = 0; i < nParams; i++ ) { if( i > 0 ) argv.Append(" "); argv.Append( STRPRM(i)); }
+    #else
+        char **argv = new char *[nParams+1];
+        for( int i = 0; i < nParams; i++ ) { argv[i] = const_cast<char *>(CSTRPRM(i)); }
+        argv[nParams] = 0;
+    #endif
     frameWindow->SetCursor( *wxHOURGLASS_CURSOR );
     long result = ::wxExecute( argv, wxEXEC_SYNC );
     frameWindow->Raise();
     frameWindow->SetCursor( wxNullCursor );
-    delete [] argv;
+    #ifndef UNIX
+        delete [] argv;
+    #endif
     wxString resultStr;
     if( result != -1 ) { resultStr << result; }
     RETURN( resultStr );
@@ -704,6 +739,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Configuration settings
 
     DEFINE_FUNCTION("GetConfig",1)
+    wxConfigBase *config=wxConfigBase::Get();
     config->SetPath("/Settings");
     wxString value;
     config->Read( STRPRM(0), &value );
@@ -711,6 +747,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
 
     DEFINE_FUNCTION("SetConfig",2)
+    wxConfigBase *config=wxConfigBase::Get();
     config->SetPath("/Settings");
     bool result = config->Write(STRPRM(0),STRPRM(1));
     RETURN( result );
@@ -826,8 +863,11 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     DEFINE_FUNCTION("SetEnv",2)
     wxString value=STRPRM(1);
     wxSetEnv( STRPRM(0), value.c_str() );
+    #ifdef __WINDOWS__
+    // See comment above in SnapMgrScriptEnv::InsertPath
     wxString setenv = STRPRM(0) + _T("=") + value;
     _putenv( setenv.c_str() );
+    #endif
     RETURN( value )
 
     // String functions

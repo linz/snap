@@ -5,6 +5,10 @@
 #include "wxsplashimage.hpp"
 #include "util/versioninfo.h"
 
+#ifdef __WXGTK__
+#include "resources/splashscreen_bmp.xpm"
+#endif
+
 class wxHelpAbout : public wxSimpleDialog
 {
 public:

@@ -1,0 +1,7 @@
+title Testing matrix optimisation
+coordinate_file testopt.crd
+data_file testopt.dat
+mode 3d adjustment
+fix 1
+reorder_stations on
+output debug_reordering

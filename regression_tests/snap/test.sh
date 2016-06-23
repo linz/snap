@@ -32,6 +32,8 @@ mkdir -p out
 rm -f out/*
 cd in
 
+echo "Using ${SNAPDIR}"
+
 for f in ${t}.snp; do
     base=`basename $f .snp`
     echo "Running ${base}"

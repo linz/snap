@@ -29,8 +29,8 @@ Lstringint (Token *):   /[0-9]+/ { @ = new StringToken(this,token); }
 
 # Comment
 
-_skip:      /\#[^\n]*/
-_skip:      /[ \t\n]+/   \ continue;
+_skip:      /\#[^\r\n]*/
+_skip:      /[ \t\r\n]+/   \ continue;
 
 # keywords
 

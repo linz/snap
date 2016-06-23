@@ -37,32 +37,340 @@
 #include <ctype.h>
 
 #define OUTPUT_C
-#include "snapmain.h"
-#include "util/chkalloc.h"
-#include "util/fileutil.h"
-#include "util/dateutil.h"
-#include "util/dstring.h"
+
 #include "output.h"
-#include "util/errdef.h"
-#include "snap/stnadj.h"
-#include "stnobseq.h"
 #include "adjparam.h"
-#include "util/probfunc.h"
-#include "version.h"
-#include "util/license.h"
-#include "util/leastsqu.h"
+#include "reorder.h"
 #include "snap/deform.h"
+#include "snap/snapglob.h"
+#include "snap/stnadj.h"
+#include "snapmain.h"
+#include "stnobseq.h"
+#include "util/chkalloc.h"
+#include "util/dateutil.h"
 #include "util/dms.h"
+#include "util/dstring.h"
+#include "util/errdef.h"
+#include "util/fileutil.h"
+#include "util/leastsqu.h"
+#include "util/license.h"
 #include "util/pi.h"
+#include "util/probfunc.h"
 #include "util/xprintf.h"
+#include "version.h"
 
-#define RTOD (180.0/PI)
+#define MAX_SUBCOMMANDS 10
 
+typedef struct
+{
+    const char *name;
+    config_store_func store;
+    int code;
+} output_subcommand;
+
+typedef struct
+{
+    const char *name;
+    char *status;
+    char dflt;
+    char incompatible[MAX_INCOMPATIBLE_MODES];
+    output_subcommand (*subcommands)[MAX_SUBCOMMANDS];
+} output_option;
+
+typedef struct relcvr_opt_s
+{
+    relcvr_opt_s *next;
+    double maxlen;
+    char *stnlist;
+} relcvr_opt;
+
+static int read_cvr_connections( CFG_FILE *cfg, char *string, void *value, int len, int code );
+
+#define RELCVR_CMD_UNDER 0
+#define RELCVR_CMD_BETWEEN 1
+
+static output_subcommand relcvr_subcommands[MAX_SUBCOMMANDS]=
+{
+    {"under",read_cvr_connections,RELCVR_CMD_UNDER},
+    {"between",read_cvr_connections,RELCVR_CMD_BETWEEN},
+    {0,0,0}
+};
+
+static output_option output[] =
+{
+    {"command_file",&output_command_file,0,{0},0},
+    {"input_data",&output_input_data,0,{0},0},
+    {"station_recoding",&output_stn_recode,0,{0},0},
+    {"file_summary",&output_file_summary,1,{0},0},
+    {"problem_definition",&output_problem_definition,0,{0},0},
+    {"observation_equations",&output_observation_equations,0,{0},0},
+    {"normal_equations",&output_normal_equations,0,{0},0},
+    {"observation_deformation",&output_deformation,0,{0},0},
+    {"station_adjustments",&output_station_adjustments,0,{ PREANALYSIS, 0},0},
+    {"iteration_summary",&output_iteration_summary,1,{ PREANALYSIS, 0},0},
+    {"solution_summary",&output_ls_summary,1,{ 0 },0},
+    {"residuals",&output_residuals,1,{ PREANALYSIS, 0},0},
+    {"worst_residuals",&output_worst_residuals,1,{0},0},
+    {"error_summary",&output_error_summary,1,{0},0},
+    {"grouped_data_by_type",&output_sort_by_type,1,{0},0},
+    {
+        "station_coordinates",&output_station_coordinates,1,
+        {DATA_CONSISTENCY, 0}
+    ,0},
+    {
+        "floated_stations",&output_floated_stations,1,
+        {DATA_CONSISTENCY, DATA_CHECK, 0}
+    ,0},
+    {"station_offsets",&output_station_offsets,1,{0},0},
+    {"rejected_stations",&output_rejected_stations,1,{0},0},
+    {"rejected_station_coordinates",&output_rejected_coordinates,1,{0},0},
+    {"reference_frames",&output_reference_frames,1,{DATA_CONSISTENCY, 0},0},
+    {"topocentric_ref_frame",&output_reffrm_topo,0,{0},0},
+    {"geocentric_ref_frame",&output_reffrm_geo,0,{0},0},
+    {"iers_ref_frame",&output_reffrm_iers,0,{0},0},
+    {"parameters",&output_parameters,1,{DATA_CONSISTENCY, 0},0},
+    {"form_feeds",&output_form_feeds,0,{0},0},
+    {
+        "coordinate_file",&output_coordinate_file,1,
+        {DATA_CONSISTENCY,DATA_CHECK,PREANALYSIS,0}
+    ,0},
+    {"binary_file",&output_binary_file,1,{0},0},
+    {"decomposition",&output_decomposition,0,{0},0},
+    {"relative_covariances",&output_relative_covariances,1,{0},&relcvr_subcommands},
+    {"all_relative_covariances",&output_all_covariances,0,{0},0},
+    {"full_covariance_matrix",&output_full_covariance,0,{0},0},
+    {"sort_stations",&output_sorted_stations,0,{0},0},
+    {"notes",&output_notes,1,{0},0},
+    {"covariance_matrix_file",&output_covariance,0,{0},0},
+    {"covariance_json",&output_covariance_json,0,{0},0},
+    {"solution_json",&output_solution_json,0,{0},0},
+    {"sinex",&output_sinex,0,{0},0},
+    {"debug_reordering",&output_debug_reordering,0,{0},0},
+    {NULL,NULL,0,{0},0}
+};
+
+static output_option csvopt[] =
+{
+    {"wkt_shape",&output_csv_shape,0,{0},0},
+    {"vector_components",&output_csv_veccomp,1,{0},0},
+    {"vector_summary",&output_csv_vecsum,1,{0},0},
+    {"vectors_inline",&output_csv_vecinline,1,{0},0},
+    {"enu_residuals",&output_csv_vecenu,1,{0},0},
+    {"correlations",&output_csv_correlations,0,{0},0},
+    {"stations",&output_csv_stations,0,{0},0},
+    {"observations",&output_csv_obs,0,{0},0},
+    {"metadata",&output_csv_metadata,0,{0},0},
+    {"all",&output_csv_allfiles,0,{0},0},
+    {"tab_delimited",&output_csv_tab,0,{0},0},
+    {NULL,NULL,0,{0},0}
+};
 
 static int print_err( int sts, const char *mess1, const char *mess2 );
 static int errcount = 0;
 static int page_width = 80;
 static char *divider = NULL;
+static relcvr_opt *relcvr_opts = NULL;
+
+int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    output_option *output_set;
+    output_option *o=0;
+    char *st;
+    char set;
+    char errmess[80];
+
+    output_set = code == CSV_OPTIONS ? csvopt : output;
+
+    for( st = strtok(string," "); st; st=strtok(NULL," "))
+    {
+        // If the last output command has a matched subcommand, then execute its store
+        // function on the remainder of the string and return 
+        if( o && o->subcommands )
+        {
+            output_subcommand *sc;
+            for( sc=*(o->subcommands); sc->name; sc++ )
+            {
+                if( _stricmp(sc->name, st) == 0 ) break;
+            }
+            if( sc->name )
+            {
+                st=strtok(NULL,"\n");
+                if( ! st )
+                {
+                    sprintf(errmess,"Incomplete output option %.30s", o->name );
+                    send_config_error( cfg, INVALID_DATA, errmess );
+                    return OK;
+                }
+                else
+                {
+                    return (sc->store)(cfg,st,0,0,sc->code);
+                }
+            }
+        }
+
+        if( _stricmp( st, "everything") == 0 )
+        {
+            for( o = output_set; o->name; o++ ) *(o->status) = 1;
+            continue;
+        }
+        if( _strnicmp(st,"no_",3) == 0 )
+        {
+            set = 0;
+            st += 3;
+        }
+        else
+        {
+            set = 1;
+        }
+
+        for( o = output_set; o->name; o++ )
+        {
+            if( _stricmp( st, o->name ) == 0 )
+            {
+                *(o->status) = set;
+                break;
+            }
+        }
+        if( !o->name )
+        {
+            sprintf(errmess,"Invalid output option %.30s", st );
+            send_config_error( cfg, INVALID_DATA, errmess );
+        }
+        if( ! set || ! o->name ) o=0;
+    }
+    return OK;
+}
+
+static int read_cvr_connections( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    char errmess[80];
+    char *st;
+    char *stnlist=NULL;
+    double maxlen=0.0;
+    int listlen;
+    relcvr_opt *rco;
+
+    if( ! net )
+    {
+        send_config_error( cfg, INVALID_DATA, "Cannot specify output relative_covariances before coordinate_file" );
+        return OK;
+    }
+    if( code == RELCVR_CMD_UNDER )
+    {
+        st=strtok(string," ");
+        if( ! st || sscanf(st,"%lf",&maxlen) != 1 )
+        {
+            sprintf(errmess,"Invalid relative covariance max length %.30s",st);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+        st=strtok(NULL," ");
+        if( st && _stricmp( st, "between") == 0 )
+        {
+            code=RELCVR_CMD_BETWEEN;
+            string=strtok(NULL,"\n");
+        }
+        else if( st )
+        {
+            sprintf(errmess,"Invalid option %.30s in output relative_ covariance",st);
+            send_config_error( cfg, INVALID_DATA, errmess );
+            return OK;
+        }
+    }
+    if( code == RELCVR_CMD_BETWEEN )
+    {
+        stnlist=string;
+    }
+
+    listlen=stnlist ? strlen(stnlist)+1 : 0;
+    rco=(relcvr_opt *)check_malloc(sizeof(relcvr_opt)+listlen);
+    rco->next=relcvr_opts;
+    relcvr_opts=rco;
+    rco->maxlen=maxlen;
+    rco->stnlist=0;
+    if( stnlist )
+    {
+        rco->stnlist=((char *)(void *)rco)+sizeof(relcvr_opt);
+        strcpy(rco->stnlist,stnlist);
+    }
+    return OK;
+}
+
+static void set_usenode( station *st, void *data )
+{
+    char *usenode=(char *) data;
+    if( st->id >= 0 ) usenode[st->id]=1;
+}
+
+void delete_requested_covariance_connections()
+{
+    relcvr_opt *rco;
+    while( relcvr_opts )
+    {
+        rco=relcvr_opts;
+        relcvr_opts=relcvr_opts->next;
+        check_free(rco);
+    }
+}
+
+int add_requested_covariance_connections()
+{
+    relcvr_opt *rco;
+    char *usenode;
+    station *stnf, *stnt;
+    int nnode=number_of_stations(net);
+    int sts=OK;
+
+    if( ! relcvr_opts ) return sts;
+
+    // Initiallize list of ids
+    usenode=(char *)check_malloc(sizeof(char)*(nnode+1));
+    
+    for( rco=relcvr_opts; rco; rco=rco->next )
+    {
+        for( int i=0; i <= nnode; i++ )
+        {
+            usenode[i]=0;
+        }
+        if( rco->stnlist )
+        {
+            int errcount=get_error_count();
+            process_selected_stations( net, rco->stnlist, command_file, (void *)usenode, set_usenode );
+            if( get_error_count() > errcount )
+            {
+                handle_error(sts,"Error in relative_covariance station list",rco->stnlist);
+                sts=INVALID_DATA;
+                break;
+            }
+        }
+        else
+        {
+            for( reset_station_list(net,1); (stnf=next_station(net)); )
+            {
+                if( stnf->id >= 0 ) usenode[stnf->id]=1;
+            }
+        }
+        for( int idf=0; idf<nnode; idf++ )
+        {
+            if( ! usenode[idf] ) continue;
+            stnf=station_ptr( net, idf);
+            for( int idt=idf+1; idt<=nnode; idt++ )
+            {
+                if( ! usenode[idt] ) continue;
+                if( rco->maxlen > 0 )
+                {
+                    stnt=station_ptr( net, idt );
+                    double distance=calc_distance(stnf,0.0,stnt,0.0,NULL,NULL);
+                    if( distance > rco->maxlen ) continue;
+                }
+                add_connection( idf, idt );
+            }
+
+        }
+    }
+    check_free(usenode);
+    return sts;
+}
 
 int open_output_files( )
 {
@@ -145,7 +453,7 @@ static void close_error_file( const char *mess1, const char *mess2 )
 
 static int print_err( int sts, const char *mess1, const char *mess2 )
 {
-    fprintf(err,"\n%s: %s\n", sts == WARNING_ERROR ? "Warning" : "Error", mess1 );
+    fprintf(err,"\n%s: %s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error", mess1 );
     if( mess2 ) fprintf(err,"       %s\n",mess2);
     errcount++;
     if( FATAL_ERROR_CONDITION(sts) )
@@ -523,7 +831,6 @@ void print_solution_summary( FILE *lst )
 {
 
     double c2sig;
-    long nsave, nfull;
 
     print_section_heading( lst, "SOLUTION SUMMARY" );
 
@@ -561,17 +868,21 @@ void print_solution_summary( FILE *lst )
                 fprintf(lst,"or the fixed stations may be incorrectly positioned\n");
         }
     }
+    print_bandwidth_reduction( lst );
+}
 
 
+void print_bandwidth_reduction( FILE *lst )
+{
+    long nsave, nfull;
     /* Report effectiveness of bandwidth reduction */
-
     if( nprm )
     {
         nfull = ((long) nprm * (nprm+1))/2;
         nsave = nfull - lsq_normal_matrix()->nelement;
         if( nsave > 0 )
         {
-            fprintf(lst,"\nStation reordering has reduced the matrix size by %ld%%\n",(nsave*100)/nfull);
+            fprintf(lst,"\nStation reordering has reduced the matrix size by %.1lf%%\n",(nsave*100.0)/nfull);
         }
     }
 }

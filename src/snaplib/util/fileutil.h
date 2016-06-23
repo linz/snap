@@ -32,6 +32,7 @@
 
 /* #define SYS_CONFIG_BASE "/usr/local/share" */
 #endif
+
 #define SNAPENV              "SNAPDIR"
 #define SYS_CONFIG_BASE      "config"
 #define USER_CONFIG_BASE     "linz"

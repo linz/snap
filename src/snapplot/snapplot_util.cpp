@@ -53,27 +53,36 @@ int print_log_args( const char *format, va_list args )
     int len;
     static char * buffer = 0;
     static int buflen = 0;
+    va_list copy;
 
-    len = _vscprintf( format, args ) + 1;
-    if( buflen < len )
+    va_copy(copy,args);
+
+    if( ! buffer )
+    {
+        buflen=1024;
+        buffer=new char[buflen];
+    }
+    len = vsnprintf( buffer, buflen, format, args );
+    if( buflen < len+1 )
     {
         if( buffer ) { delete [] buffer; buffer = 0; }
         buflen = 1024;
-        while( buflen < len ) buflen += 1024;
+        while( buflen < len+1 ) buflen += 1024;
         buffer = new char[buflen];
     }
 
     if( buffer )
     {
-        vsprintf_s( buffer, len, format, args );
-        wxLogMessage( "%s", buffer );
+        len=vsnprintf( buffer, buflen, format, copy );
+        wxLogMessage("%s",buffer);
     }
+    va_end(copy);
     return len;
 }
 
 static int error_handler( int sts, const char *msg1, const char *msg2 )
 {
-    char *blank = "";
+    const char *blank = "";
     if( FATAL_ERROR_CONDITION(sts) )
     {
         // For fatal errors run wxMessageBox directly so that user sees it before process

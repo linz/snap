@@ -10,7 +10,7 @@ modules = {}
 for fbase, dirs, files in os.walk(base):
     fbase = fbase[len(base):]
     if not fbase:
-        for p in ('snapplot','nzmapconv','libspatialite','calclinzdef'):
+        for p in ('nzmapconv','libspatialite','calclinzdef'):
             if p in dirs:
                 dirs.remove(p)
     if '.svn' in dirs:
@@ -28,6 +28,11 @@ for fbase, dirs, files in os.walk(base):
             if objdir not in objdirs:
                 objdirs.append(objdir)
             modules[module].append(file)
+
+if 'snapadjust' in modules:
+    for f in modules.get('snap',[]):
+        if not f.endswith('/main.o'):
+            modules['snapadjust'].append(f)
 
 print '''
 OBJDIRS = \\

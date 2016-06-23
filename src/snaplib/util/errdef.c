@@ -35,8 +35,8 @@ static char location[LOCATION_LEN] = {0};
 int handle_error( int sts, const char *mess1, const char *mess2 )
 {
     FILE *out;
-    if (!FATAL_ERROR_CONDITION(sts) & !WARNING_ERROR_CONDITION(sts)) return sts;
-    error_count++;
+    if (! REPORTABLE_ERROR(sts) ) return sts;
+    if ( WARNING_ERROR_CONDITION(sts) ) error_count++;
     if (mess1==NULL) switch (sts)
         {
         case FILE_OPEN_ERROR:  { mess1 = "Error opening file"; break;}
@@ -51,7 +51,17 @@ int handle_error( int sts, const char *mess1, const char *mess2 )
         case MEM_ALLOC_ERROR:  { mess1 = "Memory allocation error"; break; }
         case INTERNAL_ERROR:   { mess1 = "Internal program error"; break;}
         case OPERATION_ABORTED: { mess1 = "Aborted by user"; break;}
-        default:               { mess1 = "Undefined error"; }
+        default:   
+            { 
+                if( INFO_ERROR_CONDITION(sts) )
+                {
+                    mess1="Notice";
+                }
+                else
+                {
+                    mess1 = "Undefined error"; 
+                }
+            }
         }
     if( mess2 == NULL && location[0] ) mess2 = location;
     if( user_error_handler )
@@ -61,8 +71,18 @@ int handle_error( int sts, const char *mess1, const char *mess2 )
     else
     {
         out = error_file ? error_file : stderr;
-        if (FATAL_ERROR_CONDITION(sts)) fprintf(out,"\nFatal error: ");
-        else fprintf(out,"\nWarning: ");
+        if (FATAL_ERROR_CONDITION(sts)) 
+        {
+            fprintf(out,"\nFatal error: ");
+        }
+        else if( WARNING_ERROR_CONDITION(sts)) 
+        {
+            fprintf(out,"\nWarning: ");
+        }
+        else 
+        {
+            fprintf(out,"\nInformation: ");
+        }
         fprintf(out,"%s\n",mess1);
         if (mess2 != NULL) fprintf(out,"%s\n",mess2);
     }

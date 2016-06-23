@@ -26,9 +26,18 @@
 #define _set_output_format(x)
 #define _TWO_DIGIT_EXPONENT
 #define _strdup strdup
+#define _putenv putenv
+#define vsprintf_s vsnprintf
+#define _set_printf_count_output(x) 
 
 // std::regex not fully supported by g++ at 4.8
 #define REGEX_BOOST 1
+
+#else
+// va_copy not defined on Visual Studio pre 2008
+#ifndef va_copy
+#define va_copy(dest, src) (dest = src)
+#endif
 #endif
 
 

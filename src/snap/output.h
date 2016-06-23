@@ -36,10 +36,27 @@
 #define SCOPE extern
 #endif
 
+#include "util/readcfg.h"
 
 #define PLURAL(d) ( ((d)>1) ? "s" : "" )
 
 #define MAX_INCOMPATIBLE_MODES 4
+#define MAX_FOLLOWING_COMMANDS 4
+
+
+typedef struct
+{
+    char *filename;
+    FILE *f;
+    char tab;
+    char first;
+    char delim;
+    char *delimrep;
+    char quote;
+    char *quoterep;
+    char *newlinerep;
+    char charbuf[20];
+} output_csv;
 
 SCOPE char output_command_file;
 SCOPE char output_input_data;
@@ -81,6 +98,7 @@ SCOPE char output_sinex;
 SCOPE char output_full_covariance;
 SCOPE char output_runtime;
 SCOPE char output_noruntime;
+SCOPE char output_debug_reordering;
 
 SCOPE char output_csv_shape;
 SCOPE char output_csv_veccomp;
@@ -94,35 +112,11 @@ SCOPE char output_csv_allfiles;
 SCOPE char output_csv_obs;
 SCOPE char output_csv_tab;
 
-typedef struct
-{
-    const char *name;
-    char *status;
-    char dflt;
-    char incompatible[MAX_INCOMPATIBLE_MODES];
-} output_option;
-
-typedef struct
-{
-    char *filename;
-    FILE *f;
-    char tab;
-    char first;
-    char delim;
-    char *delimrep;
-    char quote;
-    char *quoterep;
-    char *newlinerep;
-    char charbuf[20];
-} output_csv;
-
 #define LIST_OPTIONS 0
 #define CSV_OPTIONS 1
 
 #ifndef OUTPUT_C
 
-SCOPE output_option output[];
-SCOPE output_option csvopt[];
 SCOPE char *lst_name;
 SCOPE char *err_name;
 SCOPE FILE *lst;
@@ -134,76 +128,7 @@ char *err_name = 0;
 FILE *lst = 0;
 FILE *err = 0;
 
-output_option output[] =
-{
-    {"command_file",&output_command_file,0,{0}},
-    {"input_data",&output_input_data,0,{0}},
-    {"station_recoding",&output_stn_recode,0,{0}},
-    {"file_summary",&output_file_summary,1,{0}},
-    {"problem_definition",&output_problem_definition,0,{0}},
-    {"observation_equations",&output_observation_equations,0,{0}},
-    {"normal_equations",&output_normal_equations,0,{0}},
-    {"observation_deformation",&output_deformation,0,{0}},
-    {"station_adjustments",&output_station_adjustments,0,{ PREANALYSIS, 0}},
-    {"iteration_summary",&output_iteration_summary,1,{ PREANALYSIS, 0}},
-    {"solution_summary",&output_ls_summary,1,{ 0 }},
-    {"residuals",&output_residuals,1,{ PREANALYSIS, 0}},
-    {"worst_residuals",&output_worst_residuals,1,{0}},
-    {"error_summary",&output_error_summary,1,{0}},
-    {"grouped_data_by_type",&output_sort_by_type,1,{0}},
-    {
-        "station_coordinates",&output_station_coordinates,1,
-        {DATA_CONSISTENCY, 0}
-    },
-    {
-        "floated_stations",&output_floated_stations,1,
-        {DATA_CONSISTENCY, DATA_CHECK, 0}
-    },
-    {"station_offsets",&output_station_offsets,1,{0}},
-    {"rejected_stations",&output_rejected_stations,1,{0}},
-    {"rejected_station_coordinates",&output_rejected_coordinates,1,{0}},
-    {"reference_frames",&output_reference_frames,1,{DATA_CONSISTENCY, 0}},
-    {"topocentric_ref_frame",&output_reffrm_topo,0,{0}},
-    {"geocentric_ref_frame",&output_reffrm_geo,0,{0}},
-    {"iers_ref_frame",&output_reffrm_iers,0,{0}},
-    {"parameters",&output_parameters,1,{DATA_CONSISTENCY, 0}},
-    {"form_feeds",&output_form_feeds,0,{0}},
-    {
-        "coordinate_file",&output_coordinate_file,1,
-        {DATA_CONSISTENCY,DATA_CHECK,PREANALYSIS,0}
-    },
-    {"binary_file",&output_binary_file,1,{0}},
-    {"decomposition",&output_decomposition,0,{0}},
-    {"relative_covariances",&output_relative_covariances,1,{0}},
-    {"all_relative_covariances",&output_all_covariances,0,{0}},
-    {"full_covariance_matrix",&output_full_covariance,0,{0}},
-    {"sort_stations",&output_sorted_stations,0,{0}},
-    {"notes",&output_notes,1,{0}},
-    {"covariance_matrix_file",&output_covariance,0,{0}},
-    {"covariance_json",&output_covariance_json,0,{0}},
-    {"solution_json",&output_solution_json,0,{0}},
-    {"sinex",&output_sinex,0,{0}},
-    {NULL,NULL,0,{0}}
-};
-
-output_option csvopt[] =
-{
-    {"wkt_shape",&output_csv_shape,0,{0}},
-    {"vector_components",&output_csv_veccomp,1,{0}},
-    {"vector_summary",&output_csv_vecsum,1,{0}},
-    {"vectors_inline",&output_csv_vecinline,1,{0}},
-    {"enu_residuals",&output_csv_vecenu,1,{0}},
-    {"correlations",&output_csv_correlations,0,{0}},
-    {"stations",&output_csv_stations,0,{0}},
-    {"observations",&output_csv_obs,0,{0}},
-    {"metadata",&output_csv_metadata,0,{0}},
-    {"all",&output_csv_allfiles,0,{0}},
-    {"tab_delimited",&output_csv_tab,0,{0}},
-    {NULL,NULL,0,{0}}
-};
-
 #endif
-
 
 #define REJECTED_OBS_FLAG   '*'
 #define REJECTED_STN_FLAG   '#'
@@ -211,6 +136,7 @@ output_option csvopt[] =
 #define FLAG1 "?"
 #define FLAG2 "???"
 
+int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 int open_output_files( );
 void close_output_files( const char *mess1, const char *mess2 );
@@ -227,11 +153,15 @@ void print_problem_summary( FILE *out );
 void print_ls_summary( FILE *out );
 void xprint_ls_summary();
 void print_solution_summary( FILE *out );
+void print_bandwidth_reduction( FILE *out );
 
 void print_json_start( FILE *out, const char *name );
 void print_json_end( FILE *out, const char *name );
 void print_json_params( FILE *lst, int nprefix );
 void print_solution_json_file();
+
+int add_requested_covariance_connections();
+void delete_requested_covariance_connections();
 
 output_csv *open_output_csv( const char *type);
 void close_output_csv( output_csv *csv );

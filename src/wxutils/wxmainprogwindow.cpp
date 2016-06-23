@@ -8,6 +8,11 @@
 #include "util/xprintf.h"
 // }
 
+#ifdef __WXGTK__
+#include "resources/snap16_icon.xpm"
+#include "resources/snap32_icon.xpm"
+#endif
+
 
 BEGIN_EVENT_TABLE( wxMainProgWindow, wxDialog )
     EVT_BUTTON( wxID_CLOSE, wxMainProgWindow::OnCloseButton )
@@ -171,28 +176,35 @@ void wxMainProgWindow::AppendString( const wxString &text )
 int wxMainProgWindow::DoPrintArgs( const char *format, va_list args )
 {
     int len;
+    va_list copy;
+    va_copy(copy,args);
 
-    len = _vscprintf( format, args ) + 1;
-    if( buflen < len )
+    if( ! buffer )
+    {
+        buflen=1024;
+        buffer=new char[buflen];
+    }
+    len = vsnprintf( buffer, buflen, format, args );
+    if( buflen < len+1 )
     {
         if( buffer ) { delete [] buffer; buffer = 0; }
         buflen = 1024;
-        while( buflen < len ) buflen += 1024;
+        while( buflen < len+1 ) buflen += 1024;
         buffer = new char[buflen];
     }
 
     if( buffer )
     {
-        vsprintf_s( buffer, len, format, args );
+        len=vsnprintf( buffer, buflen, format, copy );
         AppendMessage( buffer );
     }
+    va_end(copy);
     return len;
-
 }
 
 int wxMainProgWindow::DoErrorHandler( int sts, const char *msg1, const char *msg2 )
 {
-    char *blank = "";
+    const char *blank = "";
     wxString text = wxString::Format("%s %s\n", msg1 ? msg1 : blank, msg2 ? msg2 : blank );
     AppendString( text );
     return sts;

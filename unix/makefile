@@ -3,7 +3,13 @@
 ###############################################################################
 
 # build type either debug or release
-TYPE=release
+type=release
+
+WXDIR=../wxWidgets-2.8.12/build_gtk
+WXCONFIG=$(WXDIR)/wx-config
+WXFLAGS=`$(WXCONFIG) --cxxflags`
+WXLINK=`$(WXCONFIG) --libs`
+XLINK=-lX11
 
 CC = g++
 AR = ar
@@ -12,22 +18,25 @@ MD = -mkdir -p
 RM = rm -f
 LAPG = ../tools/lapg/lapg
 
-ifeq ($(TYPE),debug)
-LDFLAGS = -lm -lboost_regex -lefence
-CCPARAM = -Wall -g -fpermissive -std=c++0x
+ifeq ($(type),debug)
+LDFLAGS = -lm -lboost_regex
+#LDFLAGS = -lm -lboost_regex -lefence
+LDWXFLAGS = -lm -lboost_regex 
+CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 endif
 
-ifeq ($(TYPE), release)
+ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -s
-CCPARAM = -Wall -O2 -fpermissive -std=c++0x
+LDWXFLAGS = -lm -lboost_regex -s
+CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 endif
 
 SRCDIR = ../src
-DISTDIR = $(TYPE)/distrib
-INSTALL = $(TYPE)/install
-OBJ = $(TYPE)/obj
+DISTDIR = $(type)/distrib
+INSTALL = $(type)/install
+OBJ = $(type)/obj
 SNAPLIB = $(OBJ)/snaplib.a
 WXUTILSLIB = $(OBJ)/wxutils.a
 SNAPEXE = $(INSTALL)/snap
@@ -39,11 +48,11 @@ SNAPCONVEXE = $(INSTALL)/snapconv
 SNAPGEOIDEXE = $(INSTALL)/snapgeoid
 SNAPMERGEEXE = $(INSTALL)/snapmerge
 SNAP_MANAGEREXE = $(INSTALL)/snap_manager
+SNAPADJUSTEXE = $(INSTALL)/snapadjust
+SNAPPLOTEXE = $(INSTALL)/snapplot
 
-INCPATH = $(SRCDIR)/snaplib $(SRCDIR)/snaplib/util $(SRCDIR)/wxutils $(SRCDIR)/snapspec $(SRCDIR)/snap $(SRCDIR) $(SRCDIR)/snaplib/dbl4
+INCPATH = $(SRCDIR)/snaplib $(SRCDIR)/snaplib/util $(SRCDIR)/wxutils $(SRCDIR)/snapspec $(SRCDIR)/snap $(SRCDIR) $(SRCDIR)/snaplib/dbl4 $(SRCDIR)
 
-WXFLAGS = `wx-config --cxxflags`
-WXLINK = `wx-config --libs`
 
 
 CCFLAGS := $(CCPARAM) \
@@ -54,11 +63,15 @@ include ./makefile.inc
 
 .PHONY: clean dirs
 
-snap_all: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
+all: snap_all
+
+# All programs including wxWidgets components
+snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
+
+# Command line programs only
+snap_cmd: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) \
 	$(SNAPLIB) support_files
-
-all: snap_all
 
 ./makefile.inc:
 	@python build_makefile_inc.py > makefile.inc
@@ -100,8 +113,14 @@ $(SNAPGEOIDEXE): makedirs $(SNAPGEOIDOBJS) $(SNAPLIB)
 $(SNAPMERGEEXE): makedirs $(SNAPMERGEOBJS) $(SNAPLIB)
 	$(CC) $(CCFLAGS) $(SNAPMERGEOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPMERGEEXE)
 
-$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(SNAPLIB)
-	$(CC) $(CCFLAGS) $(WXFLAGS) $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(LDFLAGS) -o $(SNAP_MANAGEREXE)
+$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB)
+	$(CC) $(CCFLAGS) $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAP_MANAGEREXE)
+
+$(SNAPADJUSTEXE): makedirs $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB)
+	$(CC) $(CCFLAGS) $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPADJUSTEXE)
+
+$(SNAPPLOTEXE): makedirs $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB)
+	$(CC) $(CCFLAGS) $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPPLOTEXE)
 
 $(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_parse.syntax
 	$(LAPG) $(SRCDIR)/snap_manager/scriptimp_parse.syntax $(SRCDIR)/snap_manager/scriptimp_parse.cpp
@@ -114,15 +133,25 @@ $(WXUTILSLIB): makedirs $(WXUTILSOBJS)
 	@echo Building wxutils
 	$(AR) r $(WXUTILSLIB) $(WXUTILSOBJS)
 
-support_files: makedirs
+support_files: makedirs helpfile wxhelpdir
 	@echo Copying support files.
 	mkdir -p $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/coordsys $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snap/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snapspec/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snaplist/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
-	$(CP) -r $(SRCDIR)/help/help $(INSTALL)
+	$(CP) -r -p $(SRCDIR)/coordsys $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
+	$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
+
+helpfile:
+	(cd $(SRCDIR)/help && ./build_snaphelp.sh)
+	$(CP) -r $(SRCDIR)/help/snaphelp.zip $(INSTALL)
+
+wxhelpdir:
+	(cd $(SRCDIR)/help && ./build_wxhelp_map.pl)
+	mkdir -p $(INSTALL)/snaphelp
+	$(CP) -r $(SRCDIR)/help/help/* $(INSTALL)/snaphelp/
+	$(CP) -r $(SRCDIR)/help/wxhelp.map $(INSTALL)/snaphelp/
 
 $(sort $(DISTDIR)):
 	$(MD) $@
@@ -131,7 +160,7 @@ dist: snap_all $(sort $(DISTDIR))
 	@echo Making distribution.
 	$(CP) $(DISTFILES) $(DISTDIR)
 	@( cd $(DISTDIR); \
-	tar czf ../../snap-bin-$(TYPE).tar.gz *; )
+	tar czf ../../snap-bin-$(type).tar.gz *; )
 
 clean:
 	@echo Deleting object tree $(OBJ)...

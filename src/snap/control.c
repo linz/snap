@@ -88,7 +88,6 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
 static int read_classification( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -645,6 +644,7 @@ static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int 
             {
                 process_station_list( cfg, st, value, len, NOREORDER_STATIONS );
                 reorder_stations = FORCE_REORDERING;
+                break;
             }
         }
         else
@@ -748,8 +748,10 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
     int name_id;
     int reject;
     int ignore;
+    int missing_error;
     char *st;
 
+    missing_error=INVALID_DATA;
     st = strtok( string, " " );
     if( !st )
     {
@@ -787,6 +789,21 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
         if( reject || ignore ) st = strtok( NULL, " " );
     }
 
+    if( st && class_id == -2 && _stricmp(st,"ignore_missing") == 0 ) 
+    {
+        missing_error=OK;
+        st = strtok( NULL, " " );
+    }
+    else if( st && class_id == -2 && _stricmp(st,"warn_missing") == 0 ) 
+    {
+        missing_error=INFO_ERROR;
+        st = strtok( NULL, " " );
+    }
+    else if( st && class_id == -2 && _stricmp(st,"fail_missing") == 0 ) 
+    {
+        st = strtok( NULL, " " );
+    }
+
     if( !st )
     {
         send_config_error( cfg, MISSING_DATA, "Value of classification is missing");
@@ -798,7 +815,9 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
         name_id = obstype_from_code( st );
         if( name_id < 0 )
         {
-            send_config_error( cfg, INVALID_DATA, "Invalid observation data_type in classification command");
+            char errmess[100];
+            sprintf(errmess,"Invalid observation data_type %.40s in classification command",st);
+            send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
     }
@@ -807,7 +826,12 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
         name_id = survey_data_file_id( st );
         if( name_id < 0 )
         {
-            send_config_error( cfg, INVALID_DATA, "Invalid data_file name in classification command");
+            if( missing_error != OK )
+            { 
+                char errmess[120];
+                sprintf(errmess,"Invalid data_file %.60s in classification command",st);
+                send_config_error( cfg, missing_error, errmess );
+            }
             return OK;
         }
     }
@@ -1180,51 +1204,6 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     if( date != UNDEFINED_DATE ) set_rftrans_ref_date( rf, date );
 
     set_rftrans_parameters( rf, val, calcval, defined );
-    return OK;
-}
-
-
-static int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code )
-{
-    output_option *output_set;
-    output_option *o;
-    char *st;
-    char set;
-    char errmess[80];
-
-    output_set = code == CSV_OPTIONS ? csvopt : output;
-
-    for( st = strtok(string," "); st; st=strtok(NULL," "))
-    {
-        if( _stricmp( st, "everything") == 0 )
-        {
-            for( o = output_set; o->name; o++ ) *(o->status) = 1;
-            continue;
-        }
-        if( _strnicmp(st,"no_",3) == 0 )
-        {
-            set = 0;
-            st += 3;
-        }
-        else
-        {
-            set = 1;
-        }
-
-        for( o = output_set; o->name; o++ )
-        {
-            if( _stricmp( st, o->name ) == 0 )
-            {
-                *(o->status) = set;
-                break;
-            }
-        }
-        if( !o->name )
-        {
-            sprintf(errmess,"Invalid output option %.30s", st );
-            send_config_error( cfg, INVALID_DATA, errmess );
-        }
-    }
     return OK;
 }
 

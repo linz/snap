@@ -23,7 +23,10 @@
 
 <p class="Commanddefinition">reject</p><p class="Commanddescription">If present then the data with the specified classification are not used in the adjustment, but their residuals are listed.</p>
 
-<p class="Commanddefinition">name</p><p class="Commanddescription">The value of classification which is affected, for example "T2" for classification EQUIPMENT.</p>
+<p class="Commanddefinition">name</p><p class="Commanddescription">The value of classification which is affected, for example "T2" for classification EQUIPMENT.  For data_file type classifications the name may be preceded by <i>ignore_missing</i>, <i>warn_missing</i>, and <i>fail_missing</i> to 
+modify the handling of unused data files.  For data_type classifications the action is always to fail unrecognized types.  For user
+classifications the action is always to ignore missing values (as the list of possible values is not defined when the command file is 
+processed).</p>
 
 <p class="Commanddefinition">value</p><p class="Commanddescription">A scale factor applied to the errors for the data.  </p>
 

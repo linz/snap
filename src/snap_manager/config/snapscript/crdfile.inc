@@ -122,7 +122,7 @@ function AddGeoidHeights()
        label "Add geoid heights and deflections to the station file"
        label "Coordinate file: $relname"
        spacer
-       radio_selector $geoid "Select the new geoid to use" "~nzgeoid09~New Zealand Geoid 2009~egm96~EGM96"
+       radio_selector $geoid "Select the geoid to use" $_geoids
     end_dialog
     $backupfile = BackupCoordinateFile($coordinate_file)
     if not $backupfile then 
@@ -223,6 +223,7 @@ function ImportLINZGDB()
     
     # Get the overwrite option
 
+    $searchobs = true
     $overwrite = true
     $addmarktypes = true
     $clearorders = true
@@ -235,9 +236,10 @@ function ImportLINZGDB()
        spacer
        label "Coordinate file: $relname"
        spacer
-       checkbox $addmarktypes "Include mark types in downloaded coordinates"
+       checkbox $searchobs "Check observation files for missing stations"
        checkbox $overwrite "Overwrite existing coordinates with values from GDB"
        checkbox $clearorders "Clear existing coordinate orders"
+       checkbox $addmarktypes "Include mark types in downloaded coordinates"
     end_dialog
 
     $backupfile = BackupCoordinateFile($coordinate_file)
@@ -252,11 +254,14 @@ function ImportLINZGDB()
     # Look up station referenced in the data files not already in the
     # coordinate file
  
-    $listfile = TempFile()
-    $command = "\"$snap_path/dat2site\" -m -o \"$listfile\" \"$job_file\""
-    debuglogrun($command)
-    $missing = ReadFile($listfile)
-    DeleteFile($listfile)
+    $missing = ""
+    if $searchobs then
+        $listfile = TempFile()
+        $command = "\"$snap_path/dat2site\" -m -o \"$listfile\" \"$job_file\""
+        debuglogrun($command)
+        $missing = ReadFile($listfile)
+        DeleteFile($listfile)
+    endif
     
     # Construct an input file for the web script containing both the input stations
     # and any missing stations.  Not that the linz_gdb_stations script just uses the 
@@ -275,7 +280,7 @@ function ImportLINZGDB()
     DeleteFile($newcrdfile)
     $options=""
     if $addmarktypes then $options="-m" endif
-    $command = "linz_gdb_stations.bat $options \"$inputfile\" \"$newcrdfile\""
+    $command = "perl -S linz_gdb_stations.bat $options \"$inputfile\" \"$newcrdfile\""
     $gdbresult = debuglogrun( $command )
     DeleteFile($inputfile)
 
