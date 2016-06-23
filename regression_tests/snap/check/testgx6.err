@@ -21,4 +21,4 @@
 
 ================================================================================
 
-Warning: Station 2          is not in the coordinate file.  Used 4 times
+Error: Station 2          is not in the coordinate file.  Used 4 times
