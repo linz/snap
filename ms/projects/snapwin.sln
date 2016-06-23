@@ -43,8 +43,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "snaplibs", "snaplibs\snapli
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nzmapconv", "nzmapconv\nzmapconv.vcxproj", "{7290F77A-6D58-44D0-863A-9A781F390B70}"
 EndProject
-Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "nzmapconv_install", "nzmapconv_install\nzmapconv_install.vdproj", "{C73AB20E-F120-4E79-9BDB-736746107FE4}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "site2gps", "site2gps\site2gps.vcxproj", "{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "calclinzdef", "calclinzdef\calclinzdef.vcxproj", "{77136728-4976-4AA2-AF5C-03A7C345CF3B}"
@@ -119,8 +117,6 @@ Global
 		{7290F77A-6D58-44D0-863A-9A781F390B70}.Debug|Win32.Build.0 = Debug|Win32
 		{7290F77A-6D58-44D0-863A-9A781F390B70}.Release|Win32.ActiveCfg = Release|Win32
 		{7290F77A-6D58-44D0-863A-9A781F390B70}.Release|Win32.Build.0 = Release|Win32
-		{C73AB20E-F120-4E79-9BDB-736746107FE4}.Debug|Win32.ActiveCfg = Debug
-		{C73AB20E-F120-4E79-9BDB-736746107FE4}.Release|Win32.ActiveCfg = Release
 		{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}.Debug|Win32.ActiveCfg = Debug|Win32
 		{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}.Debug|Win32.Build.0 = Debug|Win32
 		{CDE93BB6-A690-46A8-9AE5-65ED620F4D47}.Release|Win32.ActiveCfg = Release|Win32

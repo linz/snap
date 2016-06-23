@@ -1706,3 +1706,16 @@ Build: 2016-04-26 19:04
   concord: 3.5.34
   snapgeoid: 2.5.38
   snap: 2.5.38
+
+Build: 2016-06-23 19:02
+  snap: 2.5.39
+  dat2site: 2.5.39
+  snapspec: 2.5.39
+  snapgeoid: 2.5.39
+  snapplot: 2.5.39
+  concord: 3.5.35
+  snapconv: 2.5.39
+  site2gps: 2.5.39
+  snap_manager: 2.5.39
+  snapmerge: 2.5.39
+  snaplist: 2.5.39
