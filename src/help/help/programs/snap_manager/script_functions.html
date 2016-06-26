@@ -65,6 +65,7 @@ When the program
 <a href="#func_MatchGroups">MatchGroups</a>(<i>string</i>,<i>regex</i>)<br />
 <a href="#func_Message">Message</a>(<i>message</i>,<i>title</i>)<br />
 <a href="#func_ReadFile">ReadFile</a>(<i>filename</i>,<i>regex</i>,<i>count</i>)<br />
+<a href="#func_RemoveDir">RemoveDir</a>(<i>dirname</i>)<br />
 <a href="#func_RenameFile">RenameFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
 <a href="#func_Replace">Replace</a>(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)<br />
 <a href="#func_Run">Run</a>(<i>program</i>,<i>parameter</i>,...)<br />
@@ -303,6 +304,9 @@ false otherwise.</p>
 <p class="Commanddefinition"><a name="func_MakeDir"></a>MakeDir(<i>dirname</i>)</p> <p class="Commanddescription">
 Creates the specified directory if it does not already exist.  Also makes any required parent directories.
 Returns true if the directory exists or is successfully created, false otherwise.</p>
+<p class="Commanddefinition"><a name="func_RemoveDir"></a>RemoveDir(<i>dirname</i>)</p> <p class="Commanddescription">
+Removes the specified directory.  The directory and any subdirectories or files it contains are removed.
+Returns true if the directory is removed, false otherwise.</p>
 <p class="Commanddefinition"><a name="func_DeleteFile"></a>DeleteFile(<i>filename</i>)</p> <p class="Commanddescription">Deletes the specified file, returning
 true if the file is successfully deleted (or didn't exist in the
 first place), and false otherwise.</p>

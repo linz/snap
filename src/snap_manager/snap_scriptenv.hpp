@@ -42,6 +42,7 @@ private:
     void SetupConfiguration();
     void InsertPath( const wxString &path, const wxString &envvar=_T("PATH") );
     void AddSnapDirToPath();
+    bool RemoveDirectory( const wxString &dirpath );
     wxString &GetCoordSysList();
     // GetMenuItem - creates parents if parent is not null
     wxMenuItem *GetMenuItem( const wxString &name, wxMenu **parent=0, bool createParents=false );

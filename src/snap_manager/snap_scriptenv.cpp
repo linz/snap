@@ -205,6 +205,33 @@ void SnapMgrScriptEnv::AddSnapDirToPath()
 	InsertPath( image_dir());
 }
 
+bool SnapMgrScriptEnv::RemoveDirectory(const wxString &dirpath)
+{
+    bool dir_empty = false;
+    {
+        wxDir dir(dirpath);
+        if ( !dir.IsOpened() )
+        {
+            return false;
+        }
+        wxString file;
+
+        bool cont = dir.GetFirst(&file);
+        while ( cont )
+        {
+            file = dirpath + wxFileName::GetPathSeparator()+ file;
+            if(wxFileName::FileExists(file)) wxRemoveFile(file);
+            if( wxFileName::DirExists(file)) RemoveDirectory(file);
+            cont = dir.GetNext(&file);
+        }
+        if(!(dir.HasFiles() || dir.HasSubDirs())) dir_empty = true;
+    }
+    if(dir_empty)
+    {
+        return wxRmdir(dirpath);
+    }
+    return false;
+}
 
 void SnapMgrScriptEnv::ReportError( const wxString &error )
 {
@@ -253,7 +280,7 @@ wxMenuItem *SnapMgrScriptEnv::GetMenuItem( const wxString &name, wxMenu **parent
 
     wxStringTokenizer menuParts(menuName,_T("|"));
 
-    if( menuParts.CountTokens() < 1 ) return false;
+    if( menuParts.CountTokens() < 1 ) return 0;
     if( menuParts.CountTokens() > 1 )
     {
         menuName = menuParts.GetNextToken();
@@ -594,6 +621,9 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
     DEFINE_FUNCTION("MakeDir",1)
     RETURN( wxFileName::Mkdir( STRPRM(0), 0777, wxPATH_MKDIR_FULL ))
+
+    DEFINE_FUNCTION("RemoveDir",1)
+    RETURN( RemoveDirectory( STRPRM(0) ))
     
     DEFINE_FUNCTION("TempFile",0)
     wxString tmpFile = wxFileName::CreateTempFileName("snap.tmp");

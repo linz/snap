@@ -66,6 +66,37 @@ function ListInstalledPackages()
 end_function
  
 #######################################################################
+# Function to remove packages
+
+function RemoveInstalledPackage()
+   ClearLog()
+   $packagelist=''
+   $area="User"
+   foreach $config_path in $user_config_path, $system_config_path do
+      $packagedir=Filename("package","absolute",$config_path)
+      foreach $pkgdir in Directory($packagedir) do
+         if not $pkgdir then continue endif
+	 $packagelist=$packagelist."~$packagedir/$pkgdir~$pkgdir ($area)"
+      endforeach
+      $area="System"
+   endforeach
+   dialog "Remove installed package" $ok
+       label "Select the package to remove"
+       dropdown_selector $delpkg "" $packagelist
+   end_dialog
+   if $ok then
+       $pkgname=FileName($delpkg,"name")
+       $ok=Ask("Are you sure you want to remove package $pkgname","Remove package")
+       if $ok then
+           if RemoveDir($delpkg) then
+	   	log("Deleted package $pkgname")
+	   	log("Please restart SNAP Manager")
+	   endif
+       endif
+   endif
+end_function
+ 
+#######################################################################
 # Function to setup configuration options
 
 function SetConfigurationOptions()

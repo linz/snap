@@ -114,22 +114,25 @@ end_function
 function AddGeoidHeights()
     if not CheckCoordinateFile(true) then exit endif
     $relname = Filename($coordinate_file,"relative",$job_path)
-    $geoid = "nzgeoid09"
+    $geoidlist=$_geoids
+    # $geoidlist=$geoidslist.'~none~Remove geoid heights'
     
     # Would be much nicer if knew what it is in coordinate file
-    $coordsys = "NZGD2000"
+    $geoid = "nzgeoid2016"
     dialog "Add geoid heights and deflections"
        label "Add geoid heights and deflections to the station file"
        label "Coordinate file: $relname"
        spacer
-       radio_selector $geoid "Select the geoid to use" $_geoids
+       radio_selector $geoid "Select the geoid to use" $geoidlist
     end_dialog
     $backupfile = BackupCoordinateFile($coordinate_file)
     if not $backupfile then 
        message("Could not create backup file of $relname","Error")
        exit
     endif
-   $output = debuglogrun("\"$snap_path/snapgeoid\" -c -g $geoid \"$backupfile\" \"$coordinate_file\"")
+   $geoidopt="-c -g $geoid"
+   # if $geoid == "none" then $geoidopt="-x" endif
+   $output = debuglogrun("\"$snap_path/snapgeoid\" $geoidopt \"$backupfile\" \"$coordinate_file\"")
    log("\n$output\nGeoid heights added to $relname")
 end_function
 
