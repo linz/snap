@@ -1784,3 +1784,55 @@ Build: 2016-06-25 08:18
   snap_manager: 2.5.44
   snapmerge: 2.5.44
   snaplist: 2.5.44
+
+Build: 2016-06-27 10:40
+  snap: 2.5.45
+  dat2site: 2.5.45
+  snapspec: 2.5.45
+  snapgeoid: 2.5.45
+  snapplot: 2.5.45
+  concord: 3.5.41
+  snapconv: 2.5.45
+  site2gps: 2.5.45
+  snap_manager: 2.5.45
+  snapmerge: 2.5.45
+  snaplist: 2.5.45
+
+Build: 2016-06-27 10:56
+  snap: 2.5.46
+  dat2site: 2.5.46
+  snapspec: 2.5.46
+  snapgeoid: 2.5.46
+  snapplot: 2.5.46
+  concord: 3.5.42
+  snapconv: 2.5.46
+  site2gps: 2.5.46
+  snap_manager: 2.5.46
+  snapmerge: 2.5.46
+  snaplist: 2.5.46
+
+Build: 2016-06-27 11:00
+  snap: 2.5.47
+  dat2site: 2.5.47
+  snapspec: 2.5.47
+  snapgeoid: 2.5.47
+  snapplot: 2.5.47
+  concord: 3.5.43
+  snapconv: 2.5.47
+  site2gps: 2.5.47
+  snap_manager: 2.5.47
+  snapmerge: 2.5.47
+  snaplist: 2.5.47
+
+Build: 2016-06-27 11:28
+  snap: 2.5.48
+  dat2site: 2.5.48
+  snapspec: 2.5.48
+  snapgeoid: 2.5.48
+  snapplot: 2.5.48
+  concord: 3.5.44
+  snapconv: 2.5.48
+  site2gps: 2.5.48
+  snap_manager: 2.5.48
+  snapmerge: 2.5.48
+  snaplist: 2.5.48
