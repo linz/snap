@@ -115,7 +115,7 @@ function AddGeoidHeights()
     if not CheckCoordinateFile(true) then exit endif
     $relname = Filename($coordinate_file,"relative",$job_path)
     $geoidlist=$_geoids
-    # $geoidlist=$geoidslist.'~none~Remove geoid heights'
+    $geoidlist=$geoidlist.'~none~Remove geoid heights'
     
     # Would be much nicer if knew what it is in coordinate file
     $geoid = "nzgeoid2016"
@@ -131,9 +131,13 @@ function AddGeoidHeights()
        exit
     endif
    $geoidopt="-c -g $geoid"
-   # if $geoid == "none" then $geoidopt="-x" endif
+   if $geoid == "none" then $geoidopt="-x" endif
    $output = debuglogrun("\"$snap_path/snapgeoid\" $geoidopt \"$backupfile\" \"$coordinate_file\"")
-   log("\n$output\nGeoid heights added to $relname")
+   if $geoid == "none" then
+   	log("\nGeoid heights removed from $relname")
+   else
+   	log("\nGeoid heights from $geoid added to $relname")
+   endif
 end_function
 
 #######################################################################
