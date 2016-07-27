@@ -23,7 +23,7 @@
 #undef BINDATA_C
 
 
-static long start_loc;
+static int64_t start_loc;
 static long maxsize = 0;
 
 int init_bindata( FILE *f  )
@@ -37,7 +37,7 @@ int init_bindata( FILE *f  )
         handle_error( FATAL_ERROR, "Unable to open scratch file", NO_MESSAGE );
         return FATAL_ERROR;
     }
-    start_loc = ftell( bindata_file );
+    start_loc = ftell64( bindata_file );
     return OK;
 }
 
@@ -46,16 +46,16 @@ void end_bindata( void )
     write_bindata_header( 0, ENDDATA );
 }
 
-void init_get_bindata( long loc )
+void init_get_bindata(int64_t loc )
 {
     if( loc == 0 ) loc = start_loc;
-    fseek( bindata_file, loc, SEEK_SET );
+    fseek64( bindata_file, loc, SEEK_SET );
 }
 
 
-long write_bindata_header( long size, int type )
+int64_t write_bindata_header( long size, int type )
 {
-    long loc;
+    int64_t loc;
     loc = ftell( bindata_file );
     fwrite( &size, sizeof(size), 1, bindata_file );
     fwrite( &type, sizeof(type), 1, bindata_file );
@@ -85,7 +85,7 @@ int get_bindata( bindata *b )
     long loc;
     int sts;
 
-    loc = ftell( bindata_file );
+    loc = ftell64( bindata_file );
 
     /* Read the size and type of the next data item */
 
@@ -141,11 +141,11 @@ int get_bindata( bindata *b )
 
 void update_bindata( bindata *b )
 {
-    long loc;
-    loc = ftell( bindata_file );
-    fseek( bindata_file, b->loc + sizeof(b->bintype) + sizeof(b->size), SEEK_SET );
+    int64_t loc;
+    loc = ftell64( bindata_file );
+    fseek64( bindata_file, b->loc + sizeof(b->bintype) + sizeof(b->size), SEEK_SET );
     fwrite( b->data, b->size, 1, bindata_file );
-    fseek( bindata_file, loc, SEEK_SET );
+    fseek64( bindata_file, loc, SEEK_SET );
 }
 
 
@@ -204,7 +204,6 @@ static long survdata_size( survdata *sd )
            (sd->ncvr ? (3L * sd->ncvr * (sd->ncvr+1)*sizeof(double)/2) : 0);
 }
 
-
 /*
    Save a subset of the data.  The subset is based upon
      a) iobs.  If iobs >= 0 then only the iobs observation is stored.
@@ -216,8 +215,21 @@ static long survdata_size( survdata *sd )
 
 long save_survdata( survdata *sd )
 {
+    int64_t fileloc;
     long loc;
-    loc = write_bindata_header( survdata_size( sd ), SURVDATA );
+    // Cannot handle locations which are not within the range of long 
+    // at the moment (and on MSW 64 long is 4 bytes).  This should be ok as 
+    // observations are loaded into the binary file before the covariance 
+    // which is the only bit likely to push the size over 2Gb.  For the moment
+    // accept this limitation - this can be fixed as/when the snap codebase
+    // is overhauled.
+    fileloc = write_bindata_header(survdata_size(sd), SURVDATA);
+    loc = (long)fileloc;
+    if (loc != fileloc)
+    {
+        loc = 0;
+        handle_error( FATAL_ERROR, "Cannot save data in binary file - too much data","");
+    }
     fwrite( sd, sizeof(survdata), 1, bindata_file );
     fwrite( sd->obs.odata, sd->obssize, sd->nobs, bindata_file );
     if( sd->nclass )
@@ -255,7 +267,7 @@ long save_survdata_subset( survdata *sd, int iobs, int type )
 {
     int nobs, nclass, nsyserr;
     int cvrperobs, cvrtype;
-    long loc;
+    int64_t loc;
     int i, i0, i1;
 
     /* Determine the possible range of observations */
@@ -302,6 +314,7 @@ long save_survdata_subset( survdata *sd, int iobs, int type )
 
     {
         int oldnobs, oldnclass, oldnsyserr, oldncvr;
+        int64_t fileloc;
 
         oldnobs = sd->nobs;
         oldnclass = sd->nclass;
@@ -313,7 +326,13 @@ long save_survdata_subset( survdata *sd, int iobs, int type )
         sd->nsyserr = nsyserr;
         sd->ncvr = cvrperobs * nobs;
 
-        loc = write_bindata_header( survdata_size( sd ), SURVDATA );
+        fileloc = write_bindata_header( survdata_size( sd ), SURVDATA );
+        loc = (long)fileloc;
+        if (loc != fileloc)
+        {
+            loc = 0;
+            handle_error(FATAL_ERROR, "Cannot save data in binary file - too much data", "");
+        }
 
         fwrite( sd, sizeof(survdata), 1, bindata_file );
 

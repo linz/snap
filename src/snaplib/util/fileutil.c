@@ -450,7 +450,7 @@ int skip_utf8_bom( FILE *f )
 {
     unsigned char bom[3];
     int nchar;
-    if( ftell(f) != 0 ) return 1;
+    if( ftell64(f) != 0 ) return 1;
     nchar=fread(bom,3,1,f);
     if( nchar >= 2 || bom[0] == '\xFE' || bom[1] == '\xFF' )
     {

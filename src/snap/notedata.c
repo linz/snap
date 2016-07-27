@@ -28,11 +28,24 @@
 long save_note( const char *text, int continued )
 {
     int nch;
+    int64_t noteloc;
     long size, loc;
     nch = strlen( text );
     size = nch+3;
 
-    loc = write_bindata_header( size, NOTEDATA );
+    // For the moment we don't want to propogate int64_t to 
+    // the note id (which is a file location), as this would then
+    // impact on snap_id, and thence to all ids.  This can be 
+    // sorted as/when the snap code base gets a proper overhaul.
+    //
+    // In practice long will be big enough as binary files are 
+    // unlikely to exceed 2Gb until the covariance data is written to
+    // them, and this is after the notes have been written (which
+    // is during the data load phase).
+
+    noteloc = write_bindata_header( size, NOTEDATA );
+    loc = (long) noteloc;
+    if (loc != noteloc) loc = 0;
 
     fputc( continued ? ' ' : '\n', bindata_file );
     fwrite( text, nch, 1, bindata_file );
@@ -46,13 +59,13 @@ long save_note( const char *text, int continued )
 
 void list_note( FILE *out, long loc )
 {
-    long curloc;
+    int64_t curloc;
     char note[81];
     long size;
     int block, type;
     int firstline, c;
     if( loc < 0 || !output_notes ) return;
-    curloc = ftell( bindata_file );
+    curloc = ftell64( bindata_file );
     fseek( bindata_file, loc, SEEK_SET );
 
     firstline = 1;
@@ -79,5 +92,5 @@ void list_note( FILE *out, long loc )
         }
     }
 
-    fseek( bindata_file, curloc, SEEK_SET );
+    fseek64( bindata_file, curloc, SEEK_SET );
 }

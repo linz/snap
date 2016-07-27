@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <stdint.h>
 
 #include "util/chkalloc.h"
 #include "util/binfile.h"
@@ -78,15 +79,15 @@ BINARY_FILE *create_binary_file( char *fname, const char *signature )
     fwrite(SIG_TRAILER,strlen(SIG_TRAILER),1,f);      /* DOS eof character */
 
     b->f = f;
-    b->start = ftell(f);
+    b->start = ftell64(f);
 
     /* Invalidate the first character of the signature, so that the file will
        only be valid if not closed properly */
 
     b->sigchar = signature[0];
-    fseek(b->f,0,SEEK_SET);
+    fseek64(b->f,0,SEEK_SET);
     fwrite( &zero, sizeof(char), 1, b->f );
-    fseek( b->f, b->start, SEEK_SET );
+    fseek64( b->f, b->start, SEEK_SET );
     b->section_start = 0L;
     b->section_version = 0L;
     b->bf_version = BF_VERSION;
@@ -150,7 +151,7 @@ BINARY_FILE *open_binary_file( char *fname, const char *signature )
 
     b = (BINARY_FILE *) check_malloc( sizeof( BINARY_FILE ) );
     b->f = f;
-    b->start = ftell(f);
+    b->start = ftell64(f);
     b->section_start = 0L;
     b->section_version = 0L;
     /* Try to find a version section, and if we do, use it to define the
@@ -166,15 +167,15 @@ BINARY_FILE *open_binary_file( char *fname, const char *signature )
 
 void end_section( BINARY_FILE *b )
 {
-    long end;
+    int64_t end;
     if( b->section_start )
     {
-        fseek( b->f, 0L, SEEK_END );
+        fseek64( b->f, 0L, SEEK_END );
         fwrite( ENDSECTION, strlen(ENDSECTION)+1, 1, b->f );
-        end = ftell( b->f );
-        fseek( b->f, b->section_start, SEEK_SET );
+        end = ftell64( b->f );
+        fseek64( b->f, b->section_start, SEEK_SET );
         fwrite( &end, sizeof(end), 1, b->f );
-        fseek( b->f, 0L, SEEK_END );
+        fseek64( b->f, 0L, SEEK_END );
         b->section_start = 0L;
     }
 }
@@ -186,7 +187,7 @@ void close_binary_file( BINARY_FILE *b )
     /* Complete the signature of the file if properly closed */
     if( b->sigchar )
     {
-        fseek( b->f, 0, SEEK_SET );
+        fseek64( b->f, 0, SEEK_SET );
         fwrite( &(b->sigchar), sizeof(char), 1, b->f );
     }
     fclose( b->f );
@@ -205,8 +206,8 @@ void create_section_ex( BINARY_FILE *b, const char *section, long version )
     long end;
     end = 0L;
     end_section( b );
-    fseek( b->f, 0L, SEEK_END );
-    b->section_start = ftell( b->f );
+    fseek64( b->f, 0L, SEEK_END );
+    b->section_start = ftell64( b->f );
     b->section_version = 0;
     fwrite( &end, sizeof(end), 1, b->f );
     fwrite( section, strlen(section)+1, 1, b->f );
@@ -235,7 +236,7 @@ int find_section( BINARY_FILE *b, const char *section )
 
     while( next )
     {
-        fseek( b->f, next, SEEK_SET );
+        fseek64( b->f, next, SEEK_SET );
         if( fread( &next, sizeof(next), 1, b->f ) != 1 ) break;
         if( fread( match, nch, 1, b->f ) != 1 ) break;
         if( strcmp( match, section ) == 0 )
@@ -263,18 +264,11 @@ int find_section( BINARY_FILE *b, const char *section )
 int check_end_section( BINARY_FILE *bin )
 {
     char endsec[80];
-    long loc;
+    int64_t loc;
 
-    loc=ftell(bin->f);
+    loc=ftell64(bin->f);
     if( fread( endsec, strlen(ENDSECTION)+1, 1, bin->f ) == 1 &&
             strcmp(endsec,ENDSECTION) == 0 ) return OK;
-    fseek( bin->f, loc, SEEK_SET );
+    fseek64( bin->f, loc, SEEK_SET );
     return INVALID_DATA;
 }
-
-
-
-
-
-
-

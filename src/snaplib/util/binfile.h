@@ -21,6 +21,8 @@
 
 /* Define a binary file containing a list of binary sections */
 
+#include <stdint.h>
+
 #ifndef _ERRDEF_H
 #include "util/errdef.h"
 #endif
@@ -28,10 +30,10 @@
 typedef struct
 {
     FILE *f;
+    int64_t start;
+    int64_t section_start;
+    int64_t section_version;
     long bf_version;
-    long start;
-    long section_start;
-    long section_version;
     char sigchar;
 } BINARY_FILE;
 

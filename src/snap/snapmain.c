@@ -109,8 +109,11 @@ int snap_main( int argc, char *argv[] )
     char errmess[256];
     BINARY_FILE *dump;
 
-    /* MS VC compatibility */
+    /* MS VC compatibility - pre VS 2015 */
+     
+    #ifdef _TWO_DIGIT_EXPONENT
     _set_output_format(_TWO_DIGIT_EXPONENT);
+    #endif
 
     get_date( run_time );
 

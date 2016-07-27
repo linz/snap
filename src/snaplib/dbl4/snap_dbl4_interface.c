@@ -143,7 +143,7 @@ StatusType utlSeekBlobDB( void *blob, long lngOffset, int whence )
 
 StatusType utlTellBlobDB( void *blob, long *lngOffset )
 {
-    (*lngOffset) = ftell( (FILE *) blob );
+    (*lngOffset) = (long) ftell( (FILE *) blob );
     return STS_OK;
 }
 

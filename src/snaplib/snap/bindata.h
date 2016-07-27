@@ -14,11 +14,13 @@
 
 /* The following structure holds indexes data types */
 
+#include <stdint.h>
+
 typedef struct
 {
+    int64_t loc;      /* Location of structure on the file */
     long size;      /* The size of the data element */
     long allocsize; /* The space allocated */
-    long loc;      /* Location of structure on the file */
     int  bintype;  /* The binary data format - see enum below */
     void *data; /* Pointer to the data structure */
 } bindata;
@@ -35,10 +37,10 @@ enum { SURVDATA,       /* Survey data */
 
 int init_bindata( FILE *f  ) ;
 void end_bindata( void );
-long write_bindata_header( long size, int type );
+int64_t write_bindata_header( long size, int type );
 int read_bindata_header( long *size, int *type );
 
-void init_get_bindata( long loc );
+void init_get_bindata(int64_t loc );
 int get_bindata( bindata *b );
 void update_bindata( bindata *b );
 

@@ -29,12 +29,17 @@
 #define _putenv putenv
 #define vsprintf_s vsnprintf
 #define _set_printf_count_output(x) 
+#define ftell64 ftell
+#define fseek64 fseek
 
 // std::regex not fully supported by g++ at 4.8
 #define REGEX_BOOST 1
 
 #else
 // va_copy not defined on Visual Studio pre 2008
+#include <stdarg.h>
+#define ftell64 _ftelli64
+#define fseek64 _fseeki64
 #ifndef va_copy
 #define va_copy(dest, src) (dest = src)
 #endif

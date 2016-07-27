@@ -16,6 +16,7 @@
 */
 
 #include <stdio.h>
+#include <stdint.h>
 
 #include "util/progress.h"
 
@@ -51,15 +52,6 @@ static void (*update_meter)( long progress ) = default_update_progress_meter;
 static void (*end_meter)( void ) = default_end_progress_meter;
 
 #define DAY (24L*60L*60L*100L)
-
-#ifdef __WATCOMC__
-#define time dostime_t
-#define ti_hour hour
-#define ti_min  minute
-#define ti_sec  second
-#define ti_hund hsecond
-#define gettime _dos_gettime
-#endif
 
 #ifdef USE_TIME
 
