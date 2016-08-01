@@ -18,6 +18,16 @@ system($zipexe,
    "ms/install/snap/release/snap_install.msi",
    );
 print "Built $zip\n";
+
+my $zip = "distribution/snap64_$version.zip";
+unlink $zip;
+system($zipexe,
+   "-j",
+   "$zip",
+   "ms/install/snap64/release/snap64_install.msi",
+   );
+print "Built $zip\n";
+
 print "Building concord zip file\n";
 $zip = "concord$version.zip";
 remove_tree('temp/concord');

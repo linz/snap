@@ -32,7 +32,7 @@ typedef struct
     FILE *f;
     int64_t start;
     int64_t section_start;
-    int64_t section_version;
+    long section_version;
     long bf_version;
     char sigchar;
 } BINARY_FILE;

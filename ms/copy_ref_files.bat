@@ -5,7 +5,7 @@ set OPTS=/E /C /I /Y /F
 set SRCDIR=..\src
 set INSTALL=built
 
-for %%v in (Debug, Release) do (
+for %%v in (Debugx86, Releasex86, Debugx64, Releasex64) do (
 rmdir /S /Q %INSTALL%\%%v\config
 mkdir %INSTALL%\%%v\config
 set SRCDIR=..\src\%version%

@@ -203,7 +203,7 @@ void create_section( BINARY_FILE *b, const char *section )
 
 void create_section_ex( BINARY_FILE *b, const char *section, long version )
 {
-    long end;
+    int64_t end;
     end = 0L;
     end_section( b );
     fseek64( b->f, 0L, SEEK_END );
@@ -222,7 +222,7 @@ void create_section_ex( BINARY_FILE *b, const char *section, long version )
 
 int find_section( BINARY_FILE *b, const char *section )
 {
-    long next;
+    int64_t next;
     char *match;
     int nch;
     int sts;
