@@ -32,7 +32,7 @@ print "Building concord zip file\n";
 $zip = "concord$version.zip";
 remove_tree('temp/concord');
 make_path('temp/concord','temp/concord/config','temp/concord/config/coordsys');
-copy('ms/built/release/concord.exe','temp/concord') || die "Cannot find concord.exe\n";
+copy('ms/built/Releasex86/concord.exe','temp/concord') || die "Cannot find concord.exe\n";
 copy('src/help/concord.chm','temp/concord') || die "Cannot find concord.chm\n";
 foreach my $cf (glob('src/coordsys/*'))
 {

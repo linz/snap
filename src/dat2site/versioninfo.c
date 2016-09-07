@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 #define VERSIONINFO
 #define PROGRAM "dat2site"
-#define VERSION "2.5.52"
+#define VERSION "2.5.54"
 
 #include "util/versioninfo.h"

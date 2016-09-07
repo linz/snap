@@ -1875,3 +1875,29 @@ Build: 2016-08-01 14:28
   snap_manager: 2.5.51
   snapmerge: 2.5.51
   snaplist: 2.5.51
+
+Build: 2016-08-25 07:40
+  snap: 2.5.52
+  dat2site: 2.5.52
+  snapspec: 2.5.52
+  snapgeoid: 2.5.52
+  snapplot: 2.5.52
+  concord: 3.5.48
+  snapconv: 2.5.52
+  site2gps: 2.5.52
+  snap_manager: 2.5.52
+  snapmerge: 2.5.52
+  snaplist: 2.5.52
+
+Build: 2016-08-25 07:51
+  snap: 2.5.53
+  dat2site: 2.5.53
+  snapspec: 2.5.53
+  snapgeoid: 2.5.53
+  snapplot: 2.5.53
+  concord: 3.5.49
+  snapconv: 2.5.53
+  site2gps: 2.5.53
+  snap_manager: 2.5.53
+  snapmerge: 2.5.53
+  snaplist: 2.5.53

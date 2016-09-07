@@ -996,19 +996,19 @@ DUBLHT1960_NZVD09 "Dunedin-Bluff 1960 (NZVD09)"  NZVD09 0.38
 BLUFHT1955_NZVD09 "Bluff 1955 (NZVD09)"          NZVD09 0.36
 STISHT1977_NZVD09 "Stewart Island 1977 (NZVD09)" NZVD09 0.39
 
-ONTPHT1964 "One Tree Point 1964 (NZVD2016)" NZVD2016 GRID ontpht1964_geoid2016_offset.bin
-AUCKHT1946 "Auckland 1946 (NZVD2016)"       NZVD2016 GRID auckht1946_geoid2016_offset.bin
-MOTUHT1953 "Moturiki 1953 (NZVD2016)"       NZVD2016 GRID motuht1953_geoid2016_offset.bin
-GISBHT1926 "Gisborne 1926 (NZVD2016)"       NZVD2016 GRID gisbht1926_geoid2016_offset.bin
-NAPIHT1962 "Napier 1962 (NZVD2016)"         NZVD2016 GRID napiht1962_Geoid2016_offset.bin
-TARAHT1970 "Taranaki 1970 (NZVD2016)"       NZVD2016 GRID taraht1970_geoid2016_offset.bin
-WELLHT1953 "Wellington 1953 (NZVD2016)"     NZVD2016 GRID wellht1953_geoid2016_offset.bin
-NELSHT1955 "Nelson 1955 (NZVD2016)"         NZVD2016 GRID nelsht1955_geoid2016_offset.bin
-LYTTHT1937 "Lyttelton 1937 (NZVD2016)"      NZVD2016 GRID lyttht1937_geoid2016_offset.bin
-DUNEHT1958 "Dunedin 1958 (NZVD2016)"        NZVD2016 GRID duneht1958_geoid2016_offset.bin
-DUBLHT1960 "Dunedin-Bluff 1960 (NZVD2016)"  NZVD2016 GRID dublht1960_geoid2016_offset.bin
-BLUFHT1955 "Bluff 1955 (NZVD2016)"          NZVD2016 GRID blufht1955_geoid2016_offset.bin
-STISHT1977 "Stewart Island 1977 (NZVD2016)" NZVD2016 GRID stisht1977_geoid2016_offset.bin
+ONTPHT1964 "One Tree Point 1964 (NZVD2016)" NZGD2000 GEOID ontpht1964_nzvd2016.grd
+AUCKHT1946 "Auckland 1946 (NZVD2016)"       NZGD2000 GEOID auckht1946_nzvd2016.grd
+MOTUHT1953 "Moturiki 1953 (NZVD2016)"       NZGD2000 GEOID motuht1953_nzvd2016.grd
+GISBHT1926 "Gisborne 1926 (NZVD2016)"       NZGD2000 GEOID gisbht1926_nzvd2016.grd
+NAPIHT1962 "Napier 1962 (NZVD2016)"         NZGD2000 GEOID napiht1962_nzvd2016.grd
+TARAHT1970 "Taranaki 1970 (NZVD2016)"       NZGD2000 GEOID taraht1970_nzvd2016.grd
+WELLHT1953 "Wellington 1953 (NZVD2016)"     NZGD2000 GEOID wellht1953_nzvd2016.grd
+NELSHT1955 "Nelson 1955 (NZVD2016)"         NZGD2000 GEOID nelsht1955_nzvd2016.grd
+LYTTHT1937 "Lyttelton 1937 (NZVD2016)"      NZGD2000 GEOID lyttht1937_nzvd2016.grd
+DUNEHT1958 "Dunedin 1958 (NZVD2016)"        NZGD2000 GEOID duneht1958_nzvd2016.grd
+DUBLHT1960 "Dunedin-Bluff 1960 (NZVD2016)"  NZGD2000 GEOID dublht1960_nzvd2016.grd
+BLUFHT1955 "Bluff 1955 (NZVD2016)"          NZGD2000 GEOID blufht1955_nzvd2016.grd
+STISHT1977 "Stewart Island 1977 (NZVD2016)" NZGD2000 GEOID stisht1977_nzvd2016.grd
 
 
 !================================================================================

@@ -32,8 +32,8 @@ typedef struct
     FILE *f;
     int64_t start;
     int64_t section_start;
-    long section_version;
-    long bf_version;
+    int32_t section_version;
+    int32_t bf_version;
     char sigchar;
 } BINARY_FILE;
 
@@ -50,4 +50,11 @@ int check_end_section( BINARY_FILE *bin );
 #define DUMP_BIN(x,b)   fwrite(&x,sizeof(x),1,b->f)
 #define RELOAD_BIN(x,b) fread(&x,sizeof(x),1,b->f)
 
+#define DUMP_BINI16(x,b)   { int16_t dumpval=(int16_t) x; DUMP_BIN(dumpval,b); }
+#define DUMP_BINI32(x,b)   { int32_t dumpval=(int32_t) x; DUMP_BIN(dumpval,b); }
+#define DUMP_BINI64(x,b)   { int64_t dumpval=(int64_t) x; DUMP_BIN(dumpval,b); }
+
+#define RELOAD_BINI16(x,b)   { int16_t dumpval; RELOAD_BIN(dumpval,b); x=dumpval; }
+#define RELOAD_BINI32(x,b)   { int32_t dumpval; RELOAD_BIN(dumpval,b); x=dumpval; }
+#define RELOAD_BINI64(x,b)   { int64_t dumpval; RELOAD_BIN(dumpval,b); x=dumpval; }
 #endif
