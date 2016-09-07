@@ -79,6 +79,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
 int write_station_file( const char *fname, const char *prog, const char *ver, const char *rtime,
                         int coord_precision, char rejected );
 void set_stnadj_init_network( void );
+void reset_stnadj_initial_coords( void );
 
 void dump_stations( BINARY_FILE *b );
 int reload_stations( BINARY_FILE *b );

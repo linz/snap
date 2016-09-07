@@ -185,6 +185,21 @@ static void reload_stnadj_flags( stn_adjustment *st, FILE *f )
 }
 
 
+void reset_stnadj_initial_coords( void )
+{
+    station *st;
+    stn_adjustment *sa;
+    int istn;
+    for( istn = 0; istn++ < number_of_stations( net ); )
+    {
+        st=stnptr(istn);
+        sa = stnadj(st);
+        sa->initELat = st->ELat;
+        sa->initELon = st->ELon;
+        sa->initOHgt = st->OHgt;
+    }
+}
+
 void dump_stations( BINARY_FILE *b )
 {
     stn_adjustment *st;

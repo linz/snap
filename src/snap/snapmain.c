@@ -265,6 +265,7 @@ int snap_main( int argc, char *argv[] )
                 close_output_files(0,0);
                 return DEFAULT_RETURN_STATUS;
             }
+            reset_stnadj_initial_coords();
         }
     }
 
