@@ -57,13 +57,12 @@
 #include "util/readcfg.h"
 #include "util/fileutil.h"
 
-
-
 CFG_FILE *open_config_file( const char *name, char comment_char )
 {
     FILE *cfgfil;
     CFG_FILE *cfg;
     int nbuffer=CFG_DFLT_BUFFER_SIZE;
+    int pathlen=0;
 
     cfgfil = fopen( name, "r");
     if( cfgfil == NULL )
@@ -78,7 +77,8 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
         return (CFG_FILE *) NULL;
     }
 
-    cfg = (CFG_FILE *) check_malloc( sizeof(CFG_FILE) + strlen(name) + nbuffer + 1 );
+    pathlen=path_len(name,0);
+    cfg = (CFG_FILE *) check_malloc( sizeof(CFG_FILE) + strlen(name) + pathlen + nbuffer + 2 );
 
     cfg->f = cfgfil;
     cfg->lineno = 0;
@@ -90,8 +90,11 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
     cfg->comment_char = comment_char;
     cfg->name = ((char *) cfg) + sizeof(CFG_FILE);
     strcpy( cfg->name,name);
+    cfg->dirname=cfg->name+strlen(name)+1;
+    strncpy(cfg->dirname,name,pathlen);
+    cfg->dirname[pathlen]=0;
     cfg->nbuffer=nbuffer;
-    cfg->buffer=cfg->name+strlen(name)+1;
+    cfg->buffer=cfg->dirname+pathlen+1;
     return cfg;
 }
 
@@ -189,6 +192,16 @@ char *get_config_location( CFG_FILE *cfg )
 {
     sprintf(location,"Line %d: File %.*s",(int) cfg->lineno,CFG_FILE_NAME_LEN,cfg->name);
     return location;
+}
+
+char *get_config_filename( CFG_FILE *cfg )
+{
+    return cfg->name;
+}
+
+char *get_config_directory( CFG_FILE *cfg )
+{
+    return cfg->dirname;
 }
 
 int send_config_error( CFG_FILE *cfg, int stat, const char *mess1 )

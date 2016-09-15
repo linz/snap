@@ -127,6 +127,7 @@ $(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_par
 
 $(SNAPLIB): makedirs $(SNAPLIBOBJS)
 	@echo Building snaplib
+	$(RM) $(SNAPLIB)
 	$(AR) r $(SNAPLIB) $(SNAPLIBOBJS)
 
 $(WXUTILSLIB): makedirs $(WXUTILSOBJS)

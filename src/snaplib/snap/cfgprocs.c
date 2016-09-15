@@ -74,7 +74,7 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
     if( sts == OK )
     {
         xprintf("\nReading coordinates from file %s\n",fname);
-        sts = read_station_file( fname, cmd_dir, format, csvdata );
+        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata );
         if( sts == OK )
         {
             stations_read = 1;
@@ -106,7 +106,7 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int cod
     }
 
     filespec = find_relative_file( station_filespec, filename,DFLTSTOFFS_EXT);
-    if(! filespec )  filespec=find_file( filename,DFLTSTOFFS_EXT,cmd_dir,FF_TRYALL,0);
+    if(! filespec )  filespec=find_file( filename,DFLTSTOFFS_EXT,get_config_directory(cfg),FF_TRYALL,0);
     if(! filespec )
     {
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
@@ -230,7 +230,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
         }
     }
 
-    add_data_file( fname, ftype, options, factor, recode );
+    add_data_file( fname, ftype, options, factor, recode, get_config_directory(cfg) );
 
     return OK;
 }

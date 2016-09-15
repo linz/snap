@@ -220,7 +220,7 @@ void load_connections( )
 {
     init_load_plot();
     set_binary_data( 0 );
-    read_data_files( cmd_dir, NULL );
+    read_data_files( NULL );
     term_load_plot();
     load_observations_from_binary();
     list_missing_stations();

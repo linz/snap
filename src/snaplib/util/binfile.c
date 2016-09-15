@@ -213,8 +213,8 @@ void create_section_ex( BINARY_FILE *b, const char *section, long version )
     fwrite( section, strlen(section)+1, 1, b->f );
     if( b->bf_version > 0 )
     {
-        fwrite( &version, sizeof(version), 1, b->f );
         b->section_version = version;
+        fwrite( &(b->section_version), sizeof(b->section_version), 1, b->f );
     }
     return;
 }

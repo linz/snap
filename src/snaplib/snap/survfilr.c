@@ -47,7 +47,7 @@ static int datafile_progress( DATAFILE *df )
 }
 // #pragma warning ( default : 4100 )
 
-long read_data_files( char *base_dir, FILE *lst )
+long read_data_files( FILE *lst )
 {
     DATAFILE *d=0;
     survey_data_file *sd;
@@ -55,6 +55,8 @@ long read_data_files( char *base_dir, FILE *lst )
     long file_errors, total_errors;
     char *fname;
     stn_recode_data recodedata;
+
+    if( nfile <= 0 ) return 0;
 
     recodedata.global_map=stnrecode;
     recodedata.net=net;
@@ -66,27 +68,29 @@ long read_data_files( char *base_dir, FILE *lst )
     fname = NULL;
     nch = 0;
 
-    if( base_dir )
+    for (i = 0; i < nfile; i++ )
     {
-        for (i = 0; i < nfile; i++ )
-        {
-            c = strlen( survey_data_file_name( i ));
-            if( c > nch ) nch = c;
-        }
-        nch += 1 + strlen( base_dir );
-        fname = (char *) check_malloc( nch );
+        sd = survey_data_file_ptr(i);
+        c = strlen( sd->name )+1;
+        if( sd->refpath ) c += strlen(sd->refpath) + 1;
+        if( c > nch ) nch = c;
     }
+    fname = (char *) check_malloc( nch );
 
+    push_project_dir(0);
     for( i = 0; i < nfile; i++ )
     {
         char *filename;
 
         sd = survey_data_file_ptr(i);
-        filename = sd->name;
 
-        if( base_dir )
+        pop_project_dir();
+        push_project_dir( sd->refpath );
+
+        filename = sd->name;
+        if( sd->refpath )
         {
-            build_filespec( fname, nch, base_dir, filename, NULL );
+            build_filespec( fname, nch, sd->refpath, filename, NULL );
             if( file_exists( fname )) filename = fname;
         }
 
@@ -213,6 +217,7 @@ long read_data_files( char *base_dir, FILE *lst )
         df_close_data_file( d );
         d=0;
     }
+    pop_project_dir();
 
     set_stn_recode_func( 0, 0 );
     if( d ) df_close_data_file( d );

@@ -4,19 +4,20 @@
 
 // SnapJobFile type
 
-SnapJobFile::SnapJobFile( const wxString &fileName, JobFileType type ) :
+SnapJobFile::SnapJobFile( const wxString &fileName, JobFileType type, SnapJobFile *sourceFile ) :
     filename(fileName ),
     type(type),
     next(0)
 {
+    filename.MakeAbsolute( sourceFile ? sourceFile->GetPath() : _T(""));
     if( filename.FileExists() )
     {
-        filename.MakeAbsolute();
         lastModified = filename.GetModificationTime();
         size = filename.GetSize().ToULong();
     }
     else
     {
+        filename=fileName;
         size = -1;
     }
 }
@@ -222,13 +223,14 @@ bool SnapJob::Load()
 {
     DeleteJobFiles();
     errors.Clear();
-    return LoadCommands( GetFullFilename(), errors  );
+    return LoadCommands( this, errors  );
 }
 
-bool SnapJob::LoadCommands( const wxString &cmdfile, wxArrayString &errors )
+bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
 {
     size_t errcount = errors.GetCount();
     wxTextFile cmds;
+    wxString cmdfile=sourceFile->GetFullFilename();
     bool OpenOk;
     {
         wxLogNull noLog;
@@ -261,7 +263,7 @@ bool SnapJob::LoadCommands( const wxString &cmdfile, wxArrayString &errors )
                     }
                     else
                     {
-                        crdfile = new SnapJobFile( tok.GetNextToken(), JFCoordinateFile );
+                        crdfile = new SnapJobFile( tok.GetNextToken(), JFCoordinateFile, sourceFile );
                         AddJobFile( crdfile );
                     }
                 }
@@ -274,7 +276,7 @@ bool SnapJob::LoadCommands( const wxString &cmdfile, wxArrayString &errors )
                     }
                     else
                     {
-                        AddJobFile( new SnapJobFile( tok.GetNextToken(), JFDataFile ) );
+                        AddJobFile( new SnapJobFile( tok.GetNextToken(), JFDataFile, sourceFile ) );
                     }
                 }
                 else if( cmd.IsSameAs(_T("include"),false) )
@@ -286,9 +288,9 @@ bool SnapJob::LoadCommands( const wxString &cmdfile, wxArrayString &errors )
                     }
                     else
                     {
-                        SnapJobFile *commandfile = new SnapJobFile( tok.GetNextToken(), JFCommandFile );
+                        SnapJobFile *commandfile = new SnapJobFile( tok.GetNextToken(), JFCommandFile, sourceFile );
                         AddJobFile( commandfile );
-                        LoadCommands( commandfile->GetFilename(), errors );
+                        LoadCommands( commandfile, errors );
                     }
                 }
             }

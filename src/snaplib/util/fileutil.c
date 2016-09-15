@@ -26,12 +26,13 @@
 #include "util/fileutil.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/errdef.h"
 
 static char *usercfg=NULL;
 static char *syscfg=NULL;
 static char *imgpath=NULL;
 static char *imgdir=NULL;
-static char *projdir=NULL;
+static const char *projdir=NULL;
 static char *filename=NULL;
 static int filenamelen=0;
 
@@ -43,6 +44,10 @@ typedef struct config_path_def_s
 
 static config_path_def *config_dir_list=0;
 static int config_dirs_set=0;
+
+#define MAXPROJSTACK 10
+static const char *projstack[MAXPROJSTACK];
+static int nprojstack=0;
 
 static char *filenameptr( int reqlen )
 {
@@ -323,8 +328,31 @@ void set_user_config_dir( const char *cfgdir )
 void set_project_dir( const char *project_dir )
 {
     if( projdir ) check_free(projdir);
-    projdir=0;
-    if( project_dir ) projdir=copy_string(project_dir);
+    projdir=copy_string(project_dir);
+}
+
+void push_project_dir( const char *project_dir )
+{
+    if( nprojstack >= MAXPROJSTACK )
+    {
+        handle_error(FATAL_ERROR,"push_project_dir failed - stack too deep",0);
+        return;
+    }
+    projstack[nprojstack]=projdir;
+    nprojstack++;
+    projdir=copy_string(project_dir);
+}
+
+void pop_project_dir()
+{
+    if( nprojstack <= 0 )
+    {
+        handle_error(FATAL_ERROR,"pip_project_dir failed - stack empty",0);
+        return;
+    }
+    if( projdir ) check_free( projdir );
+    nprojstack--;
+    projdir=projstack[nprojstack];
 }
 
 const char *find_config_file( const char *config, const char *name, const char *dflt_ext )
@@ -344,7 +372,6 @@ const char *find_config_file( const char *config, const char *name, const char *
             if( file_exists(spec) ) return spec;
         }
     }
-
     return NULL;
 }
 

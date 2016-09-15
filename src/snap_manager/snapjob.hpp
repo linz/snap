@@ -18,7 +18,7 @@ enum JobFileType
 class SnapJobFile
 {
 public:
-    SnapJobFile( const wxString &fileName, JobFileType type );
+    SnapJobFile( const wxString &fileName, JobFileType type, SnapJobFile *sourceFile=nullptr );
     virtual ~SnapJobFile();
     const wxFileName &FileName() { return filename; }
 
@@ -72,7 +72,7 @@ private:
     // Function loads commands from the command file, noting
     // command file, data files, etc...
 
-    bool LoadCommands( const wxString &filename, wxArrayString &errors );
+    bool LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors );
     bool Load();
 
     wxString FileWithExtension( wxString ext );

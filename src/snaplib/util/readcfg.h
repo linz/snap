@@ -28,7 +28,8 @@
 typedef struct
 {
     FILE *f;       			/* The file handle */
-    char *name;            /* The file name */
+    char *name;                 /* The file name */
+    char *dirname;              /* The directory containing the config file (or blank if none)  */
     int lineno;			/* The current line number */
     int errcount;                 /* The number of errors encountered */
     int read_options;             /* Options controlling reading of config file */
@@ -120,6 +121,8 @@ int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
 int send_config_error( CFG_FILE *cfg, int errstat, const char *errmsg );
 char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun );
 char *get_config_location( CFG_FILE *cfg );
+char *get_config_filename( CFG_FILE *cfg );
+char *get_config_directory( CFG_FILE *cfg );
 
 void abort_config_file( CFG_FILE *cfg );
 void cancel_config_abort( CFG_FILE *cfg );

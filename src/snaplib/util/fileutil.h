@@ -72,6 +72,8 @@ void set_user_config_dir( const char *cfgdir );
    of the project file - the path will be extracted .*/
 
 void set_project_dir( const char *project_dir );
+void push_project_dir( const char *project_dir );
+void pop_project_dir();
 
 /* Note: find..file return a static character string.  The result should be used
    straight away or copied */

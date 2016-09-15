@@ -2943,7 +2943,7 @@ static void load_command_file( char *cmd_file, int recalconly, int included )
             exit(0);
         }
         if( recalconly ) set_recalc_list();
-        read_data_files( cfgfile, stdout );
+        read_data_files( stdout );
         crdfname=copy_string( station_filename );
         delete_survey_file_list();
     }

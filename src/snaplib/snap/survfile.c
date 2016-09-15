@@ -26,7 +26,7 @@ static int maxsdindx = 0;
 #define SDINDX_INC 10
 
 
-static int add_data_file_nocopy( char *name, int format, char *subtype, double errfct, char *recode )
+static int add_data_file_nocopy( char *name, int format, char *subtype, double errfct, char *recode, char *refpath )
 {
     survey_data_file *sd;
     int i;
@@ -46,6 +46,7 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     sd->subtype = subtype;
     sd->errfct = errfct;
     sd->recodefile=recode;
+    sd->refpath=refpath;
     sd->mindate=UNDEFINED_DATE;
     sd->maxdate=UNDEFINED_DATE;
     sd->nnodate=0;
@@ -55,12 +56,13 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     return OK;
 }
 
-int add_data_file( char *name, int format, char *subtype, double errfct, char *recode )
+int add_data_file( char *name, int format, char *subtype, double errfct, char *recode, char *refpath )
 {
     name = copy_string( name );
     subtype = copy_string( subtype );
     recode = copy_string( recode );
-    return add_data_file_nocopy( name, format, subtype, errfct, recode );
+    refpath = copy_string( refpath );
+    return add_data_file_nocopy( name, format, subtype, errfct, recode, refpath );
 }
 
 void delete_survey_data_file_recodes()
@@ -84,6 +86,7 @@ void delete_survey_file_list()
         if( sd->name ) check_free( sd->name );
         if( sd->subtype ) check_free( sd->subtype );
         if( sd->recodefile ) check_free( sd->recodefile );
+        if( sd->refpath ) check_free( sd->refpath );
         check_free( sd );
         sdindx[i] = 0;
     }
@@ -156,6 +159,7 @@ void dump_filenames( BINARY_FILE *b )
         dump_string( sdindx[i]->name, b->f );
         dump_string( sdindx[i]->subtype, b->f );
         dump_string( sdindx[i]->recodefile, b->f );
+        dump_string( sdindx[i]->refpath, b->f );
     }
     end_section( b );
 }
@@ -168,6 +172,7 @@ int reload_filenames( BINARY_FILE *b )
     char *name;
     char *subtype;
     char *recodefile;
+    char *refpath;
 
     if( find_section(b,"DATA_FILES") != OK ) return MISSING_DATA;
     fread( &i, sizeof(i), 1, b->f );
@@ -178,8 +183,9 @@ int reload_filenames( BINARY_FILE *b )
         name = reload_string( b->f );
         subtype = reload_string( b->f );
         recodefile = reload_string( b->f );
+        refpath = reload_string( b->f );
 
-        add_data_file_nocopy( name, fmt, subtype, errfct, recodefile );
+        add_data_file_nocopy( name, fmt, subtype, errfct, recodefile, refpath );
     }
     return check_end_section( b );
 }

@@ -278,7 +278,7 @@ int snap_main( int argc, char *argv[] )
     }
 
     init_load_snap();
-    read_errors = read_data_files( cmd_dir, output_file_summary ? lst : NULL );
+    read_errors = read_data_files( output_file_summary ? lst : NULL );
     sts = term_load_snap();
     end_bindata();
     if( dump ) end_section( dump );
