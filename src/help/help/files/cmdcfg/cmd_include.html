@@ -19,6 +19,10 @@
 
 <p class="Commanddefinition">file_name</p><p class="Commanddescription">specifies the name of a file from which additional commands items will be read. This can be used for information common to a group of adjustments.  For example a set of data files can be defined in an include file.</p>
 
+<p>Note that other files referenced in the included file, such as data files, are interpreted as relative to the 
+included file, not relative to the original command file.  For example if the include file is &quot;<tt>inc/datafiles.inc</tt>&quot;
+and it includes a command &quot;<tt>data_file data/traverse.dat</tt>&quot;, then snap will open the data file as &quot;<tt>inc/data/traverse.dat&quot;</tt>.</p>
+
 
 
 <div class="SeeAlso">

@@ -327,7 +327,7 @@ void set_user_config_dir( const char *cfgdir )
 
 void set_project_dir( const char *project_dir )
 {
-    if( projdir ) check_free(projdir);
+    if( projdir ) check_free((void *)projdir);
     projdir=copy_string(project_dir);
 }
 
@@ -350,7 +350,7 @@ void pop_project_dir()
         handle_error(FATAL_ERROR,"pip_project_dir failed - stack empty",0);
         return;
     }
-    if( projdir ) check_free( projdir );
+    if( projdir ) check_free( (void *) projdir );
     nprojstack--;
     projdir=projstack[nprojstack];
 }

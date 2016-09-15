@@ -108,11 +108,46 @@ char *survey_data_file_name( int ifile )
 int survey_data_file_id( char *name )
 {
     int i;
+    int imatch;
+    int matchlen;
+
+    /* Case sensitive match - not checking for ambiguity */
+    for( i = 0; i < nsdindx; i++ )
+    {
+        if( strcmp( name, sdindx[i]->name ) == 0 ) return i;
+    }
+
+    /* Case insensitive match - not checking for ambiguity */
     for( i = 0; i < nsdindx; i++ )
     {
         if( _stricmp( name, sdindx[i]->name ) == 0 ) return i;
     }
-    return -1;
+
+    /* Path insensitive match (but path delimiter character sensitive) */
+    imatch=-1;
+    matchlen=strlen(name);
+    for( i=0; i < nsdindx; i++ )
+    {
+        char *dfname=sdindx[i]->name;
+        int offset=strlen(dfname)-matchlen;
+        if( offset > 0 )
+        {
+            if( _stricmp( dfname+offset, name ) == 0 &&
+                (dfname[offset-1]=='/' || dfname[offset-1]=='\\'))
+            {
+                if( imatch < 0 ) imatch=i;
+                else
+                {
+                    /* Ambiguous filename match */
+                    imatch=-1;
+                    break;
+                }
+            }
+        }
+
+    }
+
+    return imatch;
 }
 
 int survey_data_file_count( void )

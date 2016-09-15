@@ -2994,7 +2994,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP64"
         "ProductCode" = "8:{764D2E8A-E8D2-4987-B00C-85042E823D69}"
-        "PackageCode" = "8:{542CFCA9-9BFA-4BBD-9A95-36872C8D123A}"
+        "PackageCode" = "8:{66690E8C-007D-4F03-ADA9-893C342F6B28}"
         "UpgradeCode" = "8:{F4B4B49E-2F89-4E88-A4C0-1ABC4DE0F465}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
@@ -3017,7 +3017,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:1"
         "PreBuildEvent" = "8:chdir /D \"$(ProjectDir)..\\..\\..\\src\\help\" && buildhelp.bat && chdir /D \"$(ProjectDir)\" && perl ..\\make_uninstaller.pl snap64_install.vdproj uninstall_snap.bat"
-        "PostBuildEvent" = "8:chdir /D $(ProjectDir)..\\..\\..\\src && perl update_versioninfo.pl -l\r\nchdir .. && perl backup.pl\r\nchdir src && perl update_versioninfo.pl -i"
+        "PostBuildEvent" = "8:\r\n"
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"

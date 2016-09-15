@@ -248,6 +248,7 @@ int snapplot_load( int argc, char *argv[] )
 
     if( use_command_file )
     {
+        set_stnadj_init_network();
         sts = read_plot_command_file( command_file, binary_data );
         if( sts != OK )
         {
