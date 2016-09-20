@@ -57,6 +57,7 @@
 #include "util/fileutil.h"
 #include "util/pi.h"
 #include "util/readcfg.h"
+#include "autofix.h"
 #include "coefs.h"
 #include "grddeform.h"
 #include "lnzdeform.h"
@@ -119,6 +120,7 @@ static double dflt_rc;
 
 #define MODE_HOR 1
 #define MODE_VRT 2
+#define MODE_AUTO 4
 
 typedef struct
 {
@@ -258,6 +260,8 @@ int read_command_file_constraints( const char *command_file )
     {
         sts = FILE_OPEN_ERROR;
     }
+    /* In case it has been initiallized */
+    free_station_autofix_data();
     return sts;
 }
 
@@ -440,12 +444,22 @@ static void set_station_mode( station *st, void *modep )
     int mode = spm->mode;
     int fixhor = spm->option & MODE_HOR;
     int fixver = spm->option & MODE_VRT;
+    int fixauto = spm->option & MODE_AUTO;
 
     if( mode == SPEC_TEST )
     {
         int istn = find_station(net,st->Code);
         set_station_spec_testid( istn, spm->option, 1 );
         return;
+    }
+
+    if( fixauto )
+    {
+        int istn = find_station(net,st->Code);
+        int fixflags=station_autofix_constraints( istn );
+        if( ! (fixflags & AUTOFIX_HOR ) ) fixhor=0;
+        if( ! (fixflags & AUTOFIX_VRT ) ) fixver=0;
+        if( ! (fixhor | fixver ) ) return;
     }
 
     sa = stnadj(st);
@@ -527,6 +541,11 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
                 mode == FREE_STATIONS    ) )
     {
         spm.option = 0;
+        if( mode != FREE_STATIONS && _stricmp( field, "automatically") == 0 )
+        {
+            spm.option |= MODE_AUTO;
+            field = strtok( NULL, " ");
+        }
         if( _stricmp( field, "horizontal") == 0 )
         {
             spm.option |= MODE_HOR;

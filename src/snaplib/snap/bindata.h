@@ -16,6 +16,8 @@
 
 #include <stdint.h>
 
+#include "snapdata/survdata.h"
+
 typedef struct
 {
     int64_t loc;      /* Location of structure on the file */
