@@ -58,10 +58,24 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
 
 int add_data_file( char *name, int format, char *subtype, double errfct, char *recode, char *refpath )
 {
+    char *buffer=0;
+
+    /* If refpath is not null then try looking for a matching file */
+
+    if( refpath )
+    {
+        int nch=strlen(name)+strlen(refpath)+2;
+        char *filename;
+        buffer= (char *) check_malloc( nch );
+        filename=build_filespec(buffer,nch,refpath,name,NULL);
+        if( file_exists(filename) ) name=filename;
+    }
+
     name = copy_string( name );
     subtype = copy_string( subtype );
     recode = copy_string( recode );
     refpath = copy_string( refpath );
+    if( buffer ) check_free( buffer );
     return add_data_file_nocopy( name, format, subtype, errfct, recode, refpath );
 }
 
@@ -105,49 +119,68 @@ char *survey_data_file_name( int ifile )
     return sdindx[ifile]->name;
 }
 
-int survey_data_file_id( char *name )
+int survey_data_file_id( char *name, char *refpath )
 {
     int i;
-    int imatch;
+    int matchid=-1;
     int matchlen;
+    char *buffer=0;
+
+    /* If refpath is not null then try looking for a matching file */
+
+    if( refpath )
+    {
+        int nch=strlen(name)+strlen(refpath)+2;
+        char *filename;
+        buffer=(char *) check_malloc( nch );
+        filename=build_filespec(buffer,nch,refpath,name,NULL);
+        if( file_exists(filename) ) name=filename;
+    }
 
     /* Case sensitive match - not checking for ambiguity */
     for( i = 0; i < nsdindx; i++ )
     {
-        if( strcmp( name, sdindx[i]->name ) == 0 ) return i;
+        if( strcmp( name, sdindx[i]->name ) == 0 ) { matchid=i; break; }
     }
 
     /* Case insensitive match - not checking for ambiguity */
-    for( i = 0; i < nsdindx; i++ )
+    if( matchid < 0 )
     {
-        if( _stricmp( name, sdindx[i]->name ) == 0 ) return i;
+        for( i = 0; i < nsdindx; i++ )
+        {
+            if( _stricmp( name, sdindx[i]->name ) == 0 ) { matchid=i; break; }
+        }
     }
 
     /* Path insensitive match (but path delimiter character sensitive) */
-    imatch=-1;
-    matchlen=strlen(name);
-    for( i=0; i < nsdindx; i++ )
+    if( matchid < 0 )
     {
-        char *dfname=sdindx[i]->name;
-        int offset=strlen(dfname)-matchlen;
-        if( offset > 0 )
+        matchlen=strlen(name);
+        for( i=0; i < nsdindx; i++ )
         {
-            if( _stricmp( dfname+offset, name ) == 0 &&
-                (dfname[offset-1]=='/' || dfname[offset-1]=='\\'))
+            char *dfname=sdindx[i]->name;
+            int offset=strlen(dfname)-matchlen;
+            if( offset > 0 )
             {
-                if( imatch < 0 ) imatch=i;
-                else
+                if( _stricmp( dfname+offset, name ) == 0 &&
+                    (dfname[offset-1]=='/' || dfname[offset-1]=='\\'))
                 {
-                    /* Ambiguous filename match */
-                    imatch=-1;
-                    break;
+                    if( matchid < 0 ) matchid=i;
+                    else
+                    {
+                        /* Ambiguous filename match */
+                        matchid=-1;
+                        break;
+                    }
                 }
             }
-        }
 
+        }
     }
 
-    return imatch;
+    if( buffer ) check_free( buffer );
+
+    return matchid;
 }
 
 int survey_data_file_count( void )

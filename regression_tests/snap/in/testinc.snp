@@ -4,7 +4,7 @@ coordinate_file testgx1.crd
 data_file data/test1.dat
 include inc/testinc.inc
 
-mode 3d data_check
+mode 3d adjustment
 
 list command_file
 list file_summary

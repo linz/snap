@@ -230,7 +230,7 @@ int snapplot_load( int argc, char *argv[] )
 
     set_snap_command_file( firstfile );
 
-    if( use_command_file )
+    if( use_binary_file )
     {
         sts = reload_binary_data();
         binary_data = sts == OK;
@@ -343,11 +343,13 @@ void snapplot_unload()
     uninstall_crdsys_lists();
 }
 
+/*
 static void print_header( void )
 {
     print_log("\n\n                              SNAPPLOT version %s\n", VERSION);
     print_log("                     Copyright: Land Information New Zealand\n");
 }
+*/
 
 static void print_help( void )
 {

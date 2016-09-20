@@ -256,6 +256,11 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
     initcount = cfg->errcount;
 
+    if( cfg->read_options & CFG_SET_PATH )
+    {
+        push_project_dir( get_config_directory(cfg) );
+    }
+
     /* Do we want to initiallize */
 
     if( cfg->read_options & CFG_INIT_ITEMS )
@@ -387,6 +392,11 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
     if( !cfg->abort && (cfg->read_options & CFG_CHECK_MISSING) )
     {
         report_missing_config_items( cfg, item );
+    }
+
+    if( cfg->read_options & CFG_SET_PATH )
+    {
+        pop_project_dir();
     }
 
     return cfg->errcount - initcount;

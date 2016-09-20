@@ -95,6 +95,7 @@ char *build_config_filespec( char *spec, int nspec,
     int nch = 0;
     int dirlen = 0;
     char *end;
+    char *mp;
     if( dir ) 
     {
         dirlen=pathonly ? path_len(dir,0) : strlen(dir);
@@ -126,6 +127,53 @@ char *build_config_filespec( char *spec, int nspec,
     if( name ) { strcpy(end,name); }
     if( dflt_ext ) strcat(end,dflt_ext);
 
+    /* Normalize path - very crude */
+
+    for( char *c=spec; *c; c++ )
+    {
+        if( *c == PATH_SEPARATOR || *c == PATH_SEPARATOR2 )
+        {
+            char backtrack=0;
+            end=c+1;
+            if( *end != '.' ) continue;
+            if( *(end+1) == '.' ){ end++; backtrack=1; }
+            end++;
+            if( *end != PATH_SEPARATOR && *end != PATH_SEPARATOR2 ) continue;
+            end++;
+            if( backtrack )
+            {
+                if( c == spec ) continue;
+                while( c > spec )
+                {
+                    c--;
+                    if( *c == PATH_SEPARATOR || *c == PATH_SEPARATOR2 ) 
+                    {
+                        c++;
+                        break;
+                    }
+                }
+            }
+            else
+            {
+                c++;
+            }
+            for( mp=c; *end; mp++, end++ ) { *mp=*end; }
+            *mp=0;
+        }
+    }
+
+    end=spec;
+    while( *end == '.' && (*(end+1) == PATH_SEPARATOR || *(end+1) == PATH_SEPARATOR2))
+    {
+        end+=2;
+    } 
+
+    if( end > spec )
+    {
+        for( mp=spec; *end; mp++, end++ ) { *mp=*end; }
+        *mp=0;
+    }
+
     return spec;
 }
 
@@ -134,6 +182,7 @@ char *build_filespec( char *spec, int nspec,
 {
     return build_config_filespec(spec,nspec,dir,0,0,name,dflt_ext);
 }
+
 
 
 

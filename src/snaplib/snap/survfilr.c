@@ -56,15 +56,13 @@ long read_data_files( FILE *lst )
     char *fname;
     stn_recode_data recodedata;
 
+    nfile = survey_data_file_count();
     if( nfile <= 0 ) return 0;
 
     recodedata.global_map=stnrecode;
     recodedata.net=net;
 
     total_errors = 0;
-
-    nfile = survey_data_file_count();
-
     fname = NULL;
     nch = 0;
 
@@ -72,7 +70,6 @@ long read_data_files( FILE *lst )
     {
         sd = survey_data_file_ptr(i);
         c = strlen( sd->name )+1;
-        if( sd->refpath ) c += strlen(sd->refpath) + 1;
         if( c > nch ) nch = c;
     }
     fname = (char *) check_malloc( nch );
@@ -88,11 +85,6 @@ long read_data_files( FILE *lst )
         push_project_dir( sd->refpath );
 
         filename = sd->name;
-        if( sd->refpath )
-        {
-            build_filespec( fname, nch, sd->refpath, filename, NULL );
-            if( file_exists( fname )) filename = fname;
-        }
 
         if( d ) 
         {

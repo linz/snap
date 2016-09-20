@@ -2921,7 +2921,7 @@ static void load_command_file( char *cmd_file, int recalconly, int included )
             set_project_dir( pdir );
             check_free(pdir);
         }
-        set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_IGNORE_BAD );
+        set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_IGNORE_BAD | CFG_SET_PATH );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
     }

@@ -223,7 +223,7 @@ int read_command_file( const char *command_file )
 
     if(cfg)
     {
-        set_config_read_options( cfg, CFG_CHECK_MISSING );
+        set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_SET_PATH );
         set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
@@ -248,7 +248,7 @@ int read_command_file_constraints( const char *command_file )
     cfg = open_config_file( command_file, COMMENT_CHAR );
     if(cfg)
     {
-        set_config_read_options( cfg, CFG_IGNORE_BAD );
+        set_config_read_options( cfg, CFG_IGNORE_BAD | CFG_SET_PATH );
         set_config_command_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
@@ -273,7 +273,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg )
     {
-        set_config_read_options( cfg, 0 );
+        set_config_read_options( cfg,  CFG_SET_PATH );
         if( cfg_only ) set_config_command_flag( cfg, CONFIG_CMD );
         else set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
@@ -823,7 +823,7 @@ static int read_classification( CFG_FILE *cfg, char *string, void *value, int le
     }
     else if( class_id == -2 )
     {
-        name_id = survey_data_file_id( st );
+        name_id = survey_data_file_id( st, get_config_directory(cfg) );
         if( name_id < 0 )
         {
             if( missing_error != OK )

@@ -141,9 +141,10 @@ static int read_command_file( const char *file_name, int main_file  )
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg && snapplot_commands )
     {
-        int options = CFG_IGNORE_BAD;
+        int options = CFG_IGNORE_BAD | CFG_SET_PATH;
         if( main_file ) options |= CFG_CHECK_MISSING;
         set_config_read_options( cfg, options );
+
         sts = read_config_file( cfg, snapplot_commands );
         close_config_file( cfg );
         sts = sts ? INVALID_DATA : OK;
@@ -191,6 +192,7 @@ int read_plot_configuration_file( const char *cfg_file )
     {
         old_cfg = current_cfg;
         current_cfg = cfg;
+        set_config_read_options( cfg, CFG_SET_PATH );
         sts = read_config_file( cfg, snapplot_cfg_commands );
         close_config_file( cfg );
         current_cfg = old_cfg;
@@ -207,8 +209,6 @@ void abort_snapplot_config_file( void )
 {
     if( current_cfg ) abort_config_file( current_cfg );
 }
-
-static char spec[MAX_FILENAME_LEN];
 
 /* Add a configuration file to a list of files to process */
 
