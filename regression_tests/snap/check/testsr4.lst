@@ -1988,21 +1988,12 @@ Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
 Station  Adj  Row  Name
 
 1        F     -  Node one
+2        F     -  Node two
+3        F     -  Node three
 4        F     -  Node four
 5        F     -  Node five
 2A       F     -  Node two
 3B       F     -  Node three
-
-
-
-The following stations have been rejected.  Those denoted with '*'
-have been rejected automatically because there is insufficient data
-to locate them.
-
-Station  Name
-
-*2       Node two
-*3       Node three
 
 
 
@@ -2053,11 +2044,11 @@ Rejected stations are flagged #
        173 19 15.600000 E      -         -
              150.0000          -         -
 
-#2      41 00 25.200000 S      -         -          Node two
+ 2      41 00 25.200000 S      -         -          Node two
        173 19 40.800000 E      -         -
              250.0000          -         -
 
-#3      41 00 28.800000 S      -         -          Node three
+ 3      41 00 28.800000 S      -         -          Node three
        173 19 58.800000 E      -         -
               70.0000          -         -
 

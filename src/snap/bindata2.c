@@ -1717,6 +1717,15 @@ void write_obsdata_csv( output_csv *csv, survdata *sd, obsdata *o, double semult
     if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
     write_csv_double( csv,sres, 3 );
     skip_csv_fields( csv, nskip1 );
+    if( o->error > 0 && ! t->unused )
+    {
+        write_csv_double( csv, o->reserr/o->error, 3 );
+    }
+    else
+    {
+        skip_csv_fields( csv, 1 );
+    }
+    skip_csv_fields( csv, nskip1 );
     write_observation_csv_common_end( csv, sd, t );
 }
 
@@ -1748,6 +1757,15 @@ void write_pntdata_csv( output_csv *csv, survdata *sd, pntdata *p, double semult
     sres = p->sres;
     if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
     write_csv_double( csv,sres, 3 );
+    skip_csv_fields( csv, nskip1 );
+    if( p->error > 0 && ! t->unused )
+    {
+        write_csv_double( csv, p->reserr/p->error, 3 );
+    }
+    else
+    {
+        skip_csv_fields( csv, 1 );
+    }
     skip_csv_fields( csv, nskip1 );
     write_observation_csv_common_end( csv, sd, t );
 }
@@ -1796,6 +1814,14 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
             sres = res[dim] / sres;
             if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
             write_csv_double( csv,sres, 3 );
+            if( veccvr[cvridx[dim]] > 0 && ! t->unused )
+            {
+                write_csv_double( csv, rescvr[cvridx[dim]]/veccvr[cvridx[dim]], 3 );
+            }
+            else
+            {
+                skip_csv_fields( csv, 1 );
+            }
             write_observation_csv_common_end( csv, sd, t );
         }
     }
@@ -1814,6 +1840,7 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
         sres = vd->vsres;
         if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
         write_csv_double( csv,sres, 3 );
+        skip_csv_fields( csv, 1 );
         write_observation_csv_common_end( csv, sd, t );
     }
 }
@@ -1889,7 +1916,18 @@ void write_vecdata_csv_inline( output_csv *csv, survdata *sd, int iobs, double s
         if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
         write_csv_double( csv,sres, 3 );
     }
-
+    if( output_csv_vecsum ) skip_csv_fields(csv,1);
+    for( dim = 0; dim < 3; dim++ )
+    {
+        if( veccvr[cvridx[dim]] > 0 && ! t->unused )
+        {
+            write_csv_double( csv, rescvr[cvridx[dim]]/veccvr[cvridx[dim]], 3 );
+        }
+        else
+        {
+            skip_csv_fields( csv, 1 );
+        }
+    }
     write_observation_csv_common_end( csv, sd, t );
 
 
@@ -1962,6 +2000,10 @@ void write_observation_csv()
         write_csv_header(csv,"stdres1");
         write_csv_header(csv,"stdres2");
         write_csv_header(csv,"stdres3");
+        if( output_csv_vecsum ) write_csv_header( csv,"redundancy");
+        write_csv_header(csv,"redundancy1");
+        write_csv_header(csv,"redundancy2");
+        write_csv_header(csv,"redundancy3");
     }
     else
     {
@@ -1970,6 +2012,7 @@ void write_observation_csv()
         write_csv_header( csv,"residual");
         write_csv_header( csv,"reserror");
         write_csv_header( csv,"stdres");
+        write_csv_header( csv,"redundancy");
     }
     /* write_csv_header(csv,"flags"); */
 

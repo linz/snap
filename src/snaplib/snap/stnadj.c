@@ -55,6 +55,8 @@ static void create_stn_adjustment( station *st )
     sa->flag.rejected = 0;
     sa->flag.autoreject = 0;
     sa->flag.noreorder = 0;
+    sa->flag.auto_h = 0;
+    sa->flag.auto_v = 0;
     st->hook=(void *) sa;
 }
 
@@ -166,6 +168,8 @@ static void dump_stnadj_flags( stn_adjustment *st, FILE *f )
     if( st->flag.rejected )   flag += 64;
     if( st->flag.autoreject ) flag += 128;
     if( st->flag.noreorder  ) flag += 256;
+    if( st->flag.auto_h  ) flag += 512;
+    if( st->flag.auto_v  ) flag += 1024;
     fwrite( &flag, sizeof(flag), 1, f );
 }
 
@@ -182,6 +186,8 @@ static void reload_stnadj_flags( stn_adjustment *st, FILE *f )
     st->flag.rejected    = flag & 64 ? 1 : 0;
     st->flag.autoreject  = flag & 128 ? 1 : 0;
     st->flag.noreorder   = flag & 256 ? 1 : 0;
+    st->flag.auto_h      = flag & 512 ? 1 : 0;
+    st->flag.auto_v      = flag & 1024 ? 1 : 0;
 }
 
 

@@ -19,7 +19,7 @@ The command file testinc.snp contains:
      data_file data/test1.dat
      include inc/testinc.inc
      
-     mode 3d data_check
+     mode 3d adjustment
      
      list command_file
      list file_summary
@@ -41,7 +41,7 @@ Program options read from testinc.snp
 Job: Regression test - testing file inclusion with directories
 
 
-Solution type: 3d data checking
+Solution type: 3d coordinate adjustment
 
 
 Coordinates file testgx1.crd
@@ -51,9 +51,28 @@ Data file 1: data/test1.dat
     Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
        2 GPS point coords
 
-Data file 2: ../data/test2.dat
+Data file 2: data/test2.dat
     Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
        2 GPS point coords
+
+Data file 3: data\test3.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       2 GPS point coords
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 0.0400 metres at station 1
+             2 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0000 metres at station 2
+             0 station adjustments exceed convergence criteria
 
 
 
@@ -64,19 +83,21 @@ Regression test - testing file inclusion with directories
 
 ================================================================================
 
-Solution type: 3d data checking
+Solution type: 3d coordinate adjustment
 
 
-Number of observations:              12
-Number of parameters:                 0
+Number of observations:              18
+Number of parameters:                 6
 
 Degrees of freedom:                  12
-Sum of squared residuals:             4.12515
-Standard error of unit weight:        0.58631
+Sum of squared residuals:            68.85000
+Standard error of unit weight:        2.39531
 
-The probability of an SSR this low is 1.893% (from Chi squared (12))
+The probability of an SSR this high is 0.000% (from Chi squared (12))
 
-You may have over-estimated the errors of the data.
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
 
 
 
@@ -100,13 +121,13 @@ Rejected stations are flagged #
             Longitude       (metres)  Ellipse
             Height                    Hgt err
 
- 1      41 00 46.800000 S      -         -          Node one
-       173 19 15.600000 E      -         -
-             150.0000          -         -
+ 1      41 00 46.799155 S     0.0261    0.0115   0  Node one
+       173 19 15.600199 E     0.0047    0.0058  90
+             150.0300         0.0300    0.0173
 
- 2      41 00 25.200000 S      -         -          Node two
-       173 19 40.800000 E      -         -
-             250.0000          -         -
+ 2      41 00 25.200049 S    -0.0015    0.0115 180  Node two
+       173 19 40.800851 E     0.0199    0.0058  90
+             249.9982        -0.0018    0.0173
 
 #3      41 00 28.800000 S      -         -          Node three
        173 19 58.800000 E      -         -
@@ -167,27 +188,39 @@ From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.
 
 File data/test1.dat: line 8
 
-1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00     
-              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00     
-            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00     
-             6369333.9627           6369333.9627          0.0000           0.00     
+1     GX    -4787264.5200  0.0260  -4787264.5600  0.0150 -0.0047  0.0082   0.57     
+              560595.5704  0.0104    560595.5704  0.0060 -0.0261  0.0163   1.60     
+            -4163681.8023  0.0248  -4163681.8023  0.0143 -0.0300  0.0245   1.22     
+             6369333.9627           6369333.9928          0.0400           1.21     
 
-2     GX    -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0100   0.00     
-              560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0200   0.00     
-            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0300   0.00     
-             6369436.1867           6369436.1867          0.0000           0.00     
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0150 -0.0199  0.0082   2.43  ?  
+              560070.2623  0.0104    560070.2423  0.0060  0.0015  0.0163   0.09     
+            -4163244.5856  0.0248  -4163244.5856  0.0143  0.0018  0.0245   0.07     
+             6369436.1867           6369436.1849          0.0200           1.41     
 
-File ../data/test2.dat: line 8
+File data/test2.dat: line 8
 
-1     GX    -4787264.5300  0.0260  -4787264.5200  0.0000  0.0012  0.0100   0.12     
-              560595.5704  0.0104    560595.5704  0.0000  0.0065  0.0200   0.33     
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0075  0.0300   0.25     
-             6369333.9702           6369333.9627          0.0100           0.25     
+1     GX    -4787264.5300  0.0260  -4787264.5600  0.0150 -0.0035  0.0082   0.43     
+              560595.5704  0.0104    560595.5704  0.0060 -0.0196  0.0163   1.20     
+            -4163681.8023  0.0248  -4163681.8023  0.0143 -0.0225  0.0245   0.92     
+             6369333.9702           6369333.9928          0.0300           0.91     
 
-2     GX    -4787842.2236  0.0260  -4787842.2236  0.0000 -0.0198  0.0100   1.98  ?  
-              560070.2823  0.0104    560070.2623  0.0000  0.0015  0.0200   0.08     
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0017  0.0300   0.06     
-             6369436.1884           6369436.1867          0.0200           1.15     
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0150 -0.0397  0.0082   4.87  ???
+              560070.2823  0.0104    560070.2423  0.0060  0.0030  0.0163   0.19     
+            -4163244.5856  0.0248  -4163244.5856  0.0143  0.0035  0.0245   0.14     
+             6369436.1884           6369436.1849          0.0400           2.81  ???
+
+File data\test3.dat: line 8
+
+1     GX    -4787264.6300  0.0260  -4787264.5600  0.0150  0.0081  0.0082   1.00     
+              560595.5704  0.0104    560595.5704  0.0060  0.0456  0.0163   2.79  ???
+            -4163681.8023  0.0248  -4163681.8023  0.0143  0.0525  0.0245   2.14  ?  
+             6369334.0454           6369333.9928          0.0700           2.11  ???
+
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0150  0.0596  0.0082   7.30  ???
+              560070.1823  0.0104    560070.2423  0.0060 -0.0046  0.0163   0.28     
+            -4163244.5856  0.0248  -4163244.5856  0.0143 -0.0053  0.0245   0.21     
+             6369436.1797           6369436.1849          0.0600           4.22  ???
 
 
 
@@ -206,10 +239,10 @@ Classification                               Used        Unused       Total
 
 
 
-GPS point coord                             0.59   12     -      -    0.59   12
-        East component                      0.99    4     -      -    0.99    4
-        North component                     0.17    4     -      -    0.17    4
-        Up component                        0.13    4     -      -    0.13    4
+GPS point coord                             2.40   18     -      -    2.40   18
+        East component                      3.75    6     -      -    3.75    6
+        North component                     1.41    6     -      -    1.41    6
+        Up component                        1.08    6     -      -    1.08    6
 
 
 Summary of residuals classified by input file
@@ -219,9 +252,11 @@ Classification                               Used        Unused       Total
 
 
 
-data/test1.dat                              0.00    6     -      -    0.00    6
+data/test1.dat                              1.31    6     -      -    1.31    6
 
-../data/test2.dat                           0.83    6     -      -    0.83    6
+data/test2.dat                              2.09    6     -      -    2.09    6
+
+data\test3.dat                              3.34    6     -      -    3.34    6
 
 
 
@@ -233,23 +268,27 @@ Regression test - testing file inclusion with directories
 ================================================================================
 
 
-The 4 residuals from this data are classified as follows:
+The 6 residuals from this data are classified as follows:
 
-Under 95.00%  significant    Used:   4    Unused:   0
+Under 95.00%  significant    Used:   3    Unused:   0
 Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   3    Unused:   0
 
 Note: Only the overall residual for vector data is counted
 
 
-The following table lists the 4 worst residuals of used data
+The following table lists the 6 worst residuals of used data
 
 From   To     Type     S.R.  Sig (%)       Line  File
 
-2              GX     1.146   73.232         13  ../data/test2.dat
+2              GX     4.219  100.000 ???     13  data\test3.dat
 
-1              GX     0.246    1.957          8  ../data/test2.dat
+2              GX     2.813   99.997 ???     13  data/test2.dat
 
-2              GX     0.002     -            13  data/test1.dat
+1              GX     2.112   99.613 ???      8  data\test3.dat
 
-1              GX     0.001     -             8  data/test1.dat
+2              GX     1.406   88.508         13  data/test1.dat
+
+1              GX     1.207   77.590          8  data/test1.dat
+
+1              GX     0.905   51.718          8  data/test2.dat

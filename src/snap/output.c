@@ -674,22 +674,30 @@ void print_iteration_update( int iteration, double maxadj,
 void print_problem_summary( FILE *lst )
 {
     char havefloat;
+    char haveauto;
     char reject;
     station *st;
     char adj;
     int row;
+    int i;
 
     print_section_heading( lst, "DEFINITION OF PROBLEM" );
 
     print_solution_type( lst );
 
     havefloat = 0;
+    haveauto = 0;
     reject = 0;
     for( reset_station_list(net,(int)output_sorted_stations);
             NULL != (st = next_station(net)); )
     {
-        if( stnadj(st)->flag.float_h || stnadj(st)->flag.float_v ) { havefloat = 1; }
-        if( stnadj(st)->flag.rejected ) { reject = 1; }
+        stn_adjustment *sa=stnadj(st);
+
+        if( sa->flag.float_h || sa->flag.float_v ) { havefloat = 1; }
+        if( sa->flag.rejected ) { reject = 1; }
+        if( sa->flag.auto_h && sa->flag.auto_v ) { haveauto |= 4; }
+        else if( sa->flag.auto_h ) { haveauto |= 2; }
+        else if( sa->flag.auto_v ) { haveauto |= 1; }
     }
 
     fputs("\n\nThe following table lists the stations included in the adjustment.\n",lst);
@@ -796,6 +804,42 @@ void print_problem_summary( FILE *lst )
         if( !stnadj(st)->flag.rejected ) continue;
         fprintf(lst,"%c%-*s   %s\n",stnadj(st)->flag.autoreject ? '*' : ' ',
                 stn_name_width,st->Code, st->Name );
+    }
+
+    /* Print out auto constrained stations */
+    for( i=4; i >= 1; i >>= 1 )
+    {
+        int auto_h=1;
+        int auto_v=1;
+        if( ! (haveauto & i) ) continue;
+        switch( i )
+        {
+            case 4:
+                break;
+            case 2:
+                auto_v=0;
+                break;
+            case 1:
+                auto_h=0;
+                break;
+        }
+        
+        fprintf(lst,"\n\nThe following stations have been automatically fixed %s\n",
+                i==4 ? "in 3 dimensions" : i==2 ? "horizontally" : "vertically");
+
+        row=0;
+        for( reset_station_list(net,(int)output_sorted_stations);
+                NULL != (st = next_station(net)); )
+        {
+            if( stnadj(st)->flag.rejected ) continue;
+            stn_adjustment *sa=stnadj(st);
+            if( sa->flag.auto_h==auto_h && sa->flag.auto_v==auto_v )
+            {
+                if( row >= 80 ) { fputs("\n",lst); row=0; }
+                fprintf(lst," %-*s", stn_name_width,st->Code );
+                row += stn_name_width+1;
+            }
+        }
     }
 
     list_calculated_parameters( lst );

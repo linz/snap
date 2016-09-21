@@ -260,8 +260,6 @@ int read_command_file_constraints( const char *command_file )
     {
         sts = FILE_OPEN_ERROR;
     }
-    /* In case it has been initiallized */
-    free_station_autofix_data();
     return sts;
 }
 
@@ -444,7 +442,7 @@ static void set_station_mode( station *st, void *modep )
     int mode = spm->mode;
     int fixhor = spm->option & MODE_HOR;
     int fixver = spm->option & MODE_VRT;
-    int fixauto = spm->option & MODE_AUTO;
+    int fixauto = spm->option & MODE_AUTO ? 1 : 0;
 
     if( mode == SPEC_TEST )
     {
@@ -475,15 +473,45 @@ static void set_station_mode( station *st, void *modep )
 
     case NOREORDER_STATIONS:  sa->flag.noreorder = 1; break;
 
-    case FIX_STATIONS:    if(fixhor) sa->flag.adj_h = 0;
-        if(fixver) sa->flag.adj_v = 0;
+    case FIX_STATIONS:    
+        if(fixhor) 
+        { 
+            if( sa->flag.adj_h ) sa->flag.auto_h=fixauto; 
+            sa->flag.adj_h = 0; 
+            sa->flag.float_h=0; 
+        }
+        if(fixver) 
+        { 
+            if( sa->flag.adj_v ) sa->flag.auto_v=fixauto; 
+            sa->flag.adj_v = 0; 
+            sa->flag.float_v=0; 
+        }
         break;
 
-    case FREE_STATIONS:  if(fixhor) sa->flag.adj_h = 1;
-        if(fixver) sa->flag.adj_v = 1;
+    case FREE_STATIONS:  
+        if(fixhor) { sa->flag.adj_h = 1; sa->flag.float_h = 0; sa->flag.auto_h=0; }
+        if(fixver) { sa->flag.adj_v = 1; sa->flag.float_h = 0; sa->flag.auto_v=0; }
         break;
-    case FLOAT_STATIONS:  set_station_float( st, fixhor, dflt_herr,
-                fixver, dflt_verr );
+
+    case FLOAT_STATIONS:  
+        if(fixhor) 
+        { 
+            if( fixauto && ! sa->flag.float_h || ! fixauto )
+            {
+                sa->flag.auto_h=fixauto;
+                sa->flag.float_h=1;
+                sa->herror=(float) dflt_herr;
+            }
+        }
+        if(fixver) 
+        { 
+            if( fixauto && ! sa->flag.float_v || ! fixauto )
+            {
+                sa->flag.auto_v=fixauto;
+                sa->flag.float_v=1;
+                sa->verror=(float) dflt_verr;
+            }
+        }
         break;
     }
 }

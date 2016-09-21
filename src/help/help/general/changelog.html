@@ -28,6 +28,12 @@ even if focus is restored.
 -->
 <h2>Release: 16 September 2016</h2>
 <h3>Snap</h3>
+<p>Enhancement: Added functionality to automatically fix or float stations horizontally or vertically.
+See the <a href="../files/cmdcfg/cmd_fix.html">fix frame</a> command documentation. Also the algorithm used
+to automatically reject stations is more rigorous than it used to be (based on types of observations at each
+station, not just on the number of observations).  This may result in more stations being automatically 
+rejected than was previously the case.
+</p>
 <p>Enhancement: Tidied up handling of included snap files to better handle including files in subdirectories.</p>
 <p>Bug fix: Corrected handling of geoid function when input coordinate file defines ellipsoidal heights.</p>
 <h3>Snapspec</h3>

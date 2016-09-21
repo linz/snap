@@ -612,16 +612,7 @@ Station  Adj  Row  Name
 
 1        F     -  Node one
 2        F     -  Node two
-
-
-
-The following stations have been rejected.  Those denoted with '*'
-have been rejected automatically because there is insufficient data
-to locate them.
-
-Station  Name
-
-*3       Node three
+3        F     -  Node three
 
 
 
@@ -1325,7 +1316,7 @@ Rejected stations are flagged #
        173 19 40.800000 E      -         -
              250.0000          -         -
 
-#3      41 00 28.800000 S      -         -          Node three
+ 3      41 00 28.800000 S      -         -          Node three
        173 19 58.800000 E      -         -
               70.0000          -         -
 

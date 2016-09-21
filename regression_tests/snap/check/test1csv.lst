@@ -5752,9 +5752,9 @@ From   To     Type     S.R.  Sig (%)       Line  File
 
 1      2       AZ     0.072    5.774         60  testobs.csv
 
-1      2       DR     0.023    1.817         22  testobs.csv
-
 1      3       DR     0.023    1.817         23  testobs.csv
+
+1      2       DR     0.023    1.817         22  testobs.csv
 
 1      3       SD     0.021    1.676         13  testobs.csv
 

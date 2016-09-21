@@ -93,6 +93,9 @@
     <ClCompile Include="..\..\..\src\snap\versioninfo.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snap\autofix.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snap\adjparam.h">

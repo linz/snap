@@ -33,6 +33,7 @@
 #include "util/leastsqu.h"
 #include "util/probfunc.h"
 #include "snapdata/survdata.h" /* For UNDEFINED_DATE */
+#include "autofix.h"
 #include "output.h"
 #include "stnobseq.h"
 #include "adjparam.h"
@@ -74,9 +75,9 @@ void count_stn_obs( int type, int stn, char unused )
 
 int init_station_rowno( void )
 {
-    stn_adjustment *st;
+    station *st;
+    stn_adjustment *sa;
     int i;
-    long nobs;
     char consistency_check;
     char data_check;
     int nextprm;
@@ -88,49 +89,47 @@ int init_station_rowno( void )
 
     for( i = 0; i++ < number_of_stations(net); )
     {
-        st = stnadj( stnptr(i) );
-
+        st = stnptr(i);
+        sa = stnadj( st );
 
         /* Reject stations for which there are insufficient observations,
            unless they are being floated or fixed */
 
-        nobs = st->obscount;
+        if( dimension == 1 ) { sa->flag.adj_h=0; sa->flag.float_h=0; sa->flag.auto_h=0; }
+        if( dimension == 2 ) { sa->flag.adj_v=0; sa->flag.float_v=0; sa->flag.auto_v=0; }
 
         if( data_check )
         {
-            st->flag.adj_h = st->flag.adj_v = 0;
-            if( nobs > 0 ) nobs += dimension;
+            sa->flag.adj_h = sa->flag.adj_v = 0;
+            sa->flag.float_h = sa->flag.float_v = 0;
+            sa->flag.auto_h = sa->flag.auto_v = 0;
         }
         else if( consistency_check )
         {
-            st->flag.adj_h = st->flag.adj_v = 1;
-            st->flag.float_h = st->flag.float_v = 0;
-            if( nobs > 0 ) nobs += dimension;
+            sa->flag.adj_h = sa->flag.adj_v = 1;
+            sa->flag.float_h = sa->flag.float_v = 0;
+            sa->flag.auto_h = sa->flag.auto_v = 0;
         }
-        else
+
+        if( (sa->flag.adj_h || sa->flag.adj_v) && ! sa->flag.rejected && station_autofix_reject(i) )
         {
-            if( dimension != 1 && (!st->flag.adj_h || st->flag.float_h )) nobs += 2;
-            if( dimension != 2 && (!st->flag.adj_v || st->flag.float_v )) nobs += 1;
+            sa->flag.rejected = 1; sa->flag.autoreject = 1;
         }
 
-        if( nobs < dimension ) { st->flag.rejected = 1; st->flag.autoreject = 1; }
-
-        if( st->flag.rejected || !st->flag.observed )
+        if( sa->flag.rejected || !sa->flag.observed )
         {
-            st->flag.adj_h = 0;
-            st->flag.adj_v = 0;
+            sa->flag.adj_h = 0;
+            sa->flag.adj_v = 0;
         }
-        if( dimension == 1 ) st->flag.adj_h = 0;
-        if( dimension == 2 ) st->flag.adj_v = 0;
 
-        if( st->flag.adj_h == 0 ) st->flag.float_h = 0;
-        if( st->flag.adj_v == 0 ) st->flag.float_v = 0;
+        if( sa->flag.adj_h == 0 ) sa->flag.float_h = 0;
+        if( sa->flag.adj_v == 0 ) sa->flag.float_v = 0;
+        if( sa->flag.float_h || sa->flag.float_v ) floating_stations = 1;
 
-        st->hrowno = st->flag.adj_h ? 2 : 0;
-        st->vrowno = st->flag.adj_v ? 1 : 0;
-        nextprm += st->hrowno + st->vrowno;
+        sa->hrowno = sa->flag.adj_h ? 2 : 0;
+        sa->vrowno = sa->flag.adj_v ? 1 : 0;
+        nextprm += sa->hrowno + sa->vrowno;
 
-        if( st->flag.float_h || st->flag.float_v ) floating_stations = 1;
     }
 
     return nextprm;
@@ -165,29 +164,6 @@ int find_station_row( int row, char *param, int plen )
     }
     return 0;
 }
-
-
-void set_station_float( station *st, int float_h, double herr,
-                        int float_v, double verr )
-{
-
-    stn_adjustment *sa;
-
-    sa = stnadj(st);
-
-    if( float_h )
-    {
-        sa->herror = (float) herr;
-        sa->flag.float_h = 1;
-    }
-
-    if( float_v )
-    {
-        sa->verror = (float) verr;
-        sa->flag.float_v = 1;
-    }
-}
-
 
 void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double date )
 {
@@ -652,21 +628,20 @@ void write_station_csv()
     int geoid;
     int ellipsoidal;
     int adjusted;
+    int autofix;
 
     geoid = net->options & NW_GEOID_HEIGHTS;
     defl = net->options & NW_DEFLECTIONS;
     ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
     adjusted = 0;
+    autofix = 0;
     for( reset_station_list(net,(int)output_sorted_stations);
             NULL != (st = next_station(net)); )
     {
 
         sa = stnadj(st);
-        if( sa->hrowno || sa->vrowno )
-        {
-            adjusted = 1;
-            break;
-        }
+        if( sa->hrowno || sa->vrowno ) adjusted = 1;
+        if( sa->flag.auto_h || sa->flag.auto_v ) autofix=1;
     }
 
     geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
@@ -704,6 +679,10 @@ void write_station_csv()
     }
     if( geoid ) write_csv_header( csv, "geoidhgt" );
     if( defl ) { write_csv_header( csv, "xi"); write_csv_header( csv, "eta" ); }
+    if( autofix )
+    {
+        write_csv_header( csv, "autofix" );
+    }
     if( adjusted )
     {
         write_csv_header( csv, "mode" );
@@ -807,6 +786,13 @@ void write_station_csv()
             write_csv_double( csv, st->GEta * RTOS, 2 );
         }
 
+        if( autofix )
+        {
+            char mode[3] = { '-', '-', 0 };
+            if( sa->flag.auto_h) mode[0]='H';
+            if( sa->flag.auto_v) mode[1]='V'; 
+            write_csv_string(csv,mode);
+        }
         if( adjusted )
         {
             if( sa->flag.autoreject ) write_csv_string(csv,"*");

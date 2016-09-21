@@ -112,6 +112,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\snap\adjparam.c" />
+    <ClCompile Include="..\..\..\src\snap\autofix.c" />
     <ClCompile Include="..\..\..\src\snap\bindata2.c" />
     <ClCompile Include="..\..\..\src\snap\coefs.c" />
     <ClCompile Include="..\..\..\src\snap\control.c" />

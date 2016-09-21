@@ -55,6 +55,8 @@ typedef struct
         unsigned rejected:1;
         unsigned autoreject:1;
         unsigned noreorder:1;
+        unsigned auto_h:1;
+        unsigned auto_v:1;
     } flag;         /* Flags defining what is to be adjusted */
 } stn_adjustment;
 

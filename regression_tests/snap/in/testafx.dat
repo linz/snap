@@ -1,0 +1,105 @@
+Test 1 - basic obs type tests
+
+#date unknown
+
+#data HA error no_heights
+
+1
+2 141 28 15.8 20.0
+3 161 11 26.3 20.0
+
+2
+1   1 27 59.3 20.0
+3 244 47 28.1 20.0
+
+2
+1 121 27 59.3 20.0
+3   4 47 28.1 20.0
+
+#data SD error no_heights
+1 2 894.9014 0.0022
+
+#data PB error no_heights
+#projection WELLTM1949
+1 2  40 30 56.8 4.0
+
+! Heights control for following stations
+#data LV error no_heights
+1 2 100.00 0.01
+1 3 -80.00 0.03
+1 4 100.00 0.01
+! 5 2 100.00 0.01
+! 6 2 100.00 0.01    
+! 7 2 100.00 0.01
+! 8 2 100.00 0.01
+! 9 2 100.00 0.01
+10 2 100.00 0.01
+11 2 100.00 0.01
+12 2 100.00 0.01
+
+! One bearing only
+#data AZ error no_heights
+#date 1 Jan 2008
+1 4  61 11 26.3 4.0
+
+! Bearings to two stations
+#data PB error no_heights
+#projection WELLTM1949
+5 2  40 30 56.8 4.0
+5 3  60 14 07.3 4.0
+
+! Two bearings to same stations
+#data PB error no_heights
+#projection WELLTM1949
+6 2  40 30 56.8 4.0
+6 2  40 30 56.8 6.0
+
+! Distances to two stations
+#data ED error no_heights
+7 2 889.2966 0.0044
+7 2 889.2866 0.0044
+7 3 1152.1698 0.0046
+
+! Two distances to same station
+#data SD error no_heights
+8 2 894.8014 0.0022
+8 2 894.9014 0.0022
+
+! Distance and bearing to station
+#data ED error PB error no_heights
+9 2 889.2687 0.0103 40 30 56.8 4.0
+
+! Latitude/longitude 
+! 10 lon only
+! 11 lat only
+! 12 both
+
+#data LN error no_heights
+
+10 173 19 15.600 E 0.2
+12 173 19 40.800 E 0.3
+
+#data LT error no_heights
+
+11 41 00 46.800 S 0.2
+12 41 00 25.200 S 0.3
+
+! Levelling only
+#data LV error no_heights
+13 2 100.00 0.01
+13 3 -80.00 0.03
+
+! Zenith dist only (not auto rejected)
+#data ZD error no_heights
+!14 2 83 35 17.3 5
+!14 3 93 58 37.5 5
+
+
+#gx_enu_error 40 60 120 mm 20 30 50 mmr 10 25 100 ppmr
+#data GX value no_heights
+15     -4787264.5200  560595.5704 -4163681.8023 
+
+#gps_enu_error 20 30 50 mm 10 25 100 ppm
+#data GPS id value no_heights
+16 2 1000 -577.7036 -525.3081 437.2167 
+

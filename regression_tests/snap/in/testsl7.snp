@@ -1,0 +1,22 @@
+title Regression tests - station lists
+coordinate_file testsl.crd
+data_file testsl.dat
+mode 3d adjustment
+
+list problem_definition
+list no_iteration_summary
+list no_solution_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list no_residuals
+list no_error_summary
+list no_worst_residuals
+
+fix all
+free all horizontal
+free vertical all
+fix ignore_missing horizontal B00 ODD2 PIND-TUBBY GRBG1
+fix vertical warn_missing 10-100 GRBG2
+fix 3d C_10-C_100 
+

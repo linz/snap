@@ -59,6 +59,7 @@
 #include "snapmain.h"
 
 #include "adjparam.h"
+#include "autofix.h"
 #include "bindata2.h"
 #include "control.h"
 #include "coordsys/coordsys.h"
@@ -338,6 +339,7 @@ int snap_main( int argc, char *argv[] )
 
     init_rftrans_prms_list();
     nprm = setup_parameters( lst );
+    free_station_autofix_data();  /* No longer needed... */
 
     if( deformation && init_deformation( deformation ) != OK )
     {

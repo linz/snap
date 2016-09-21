@@ -1,5 +1,7 @@
 .svn/
 *.swp
+*.o
+*.obj
 /boost/
 /documents/
 /help/

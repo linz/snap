@@ -13,10 +13,16 @@
 
 <h1><a name="cmd_fix"></a>The fix command</h1>
 
-<p class="Commanddefinition">fix   [type]  [all]  [station_list]</p>
+<p class="Commanddefinition">fix  [automatically] [type]  [all]  [station_list]</p>
 
-<p>Defines which stations are to be held fixed in the adjustment.  This command cannot precede the coordinate_file command.  By default all stations are adjusted if there are adequate observations to them.  The parameters are:</p>
+<p>Defines which stations are to be constrained to be fixed in the adjustment.  
+That is their coordinates are not calculated but are treated as being exactly correct.  
+By default all stations are adjusted if there are observations to them.  
+The parameters are:</p>
 
+<p class="Commanddefinition">automatically</p>
+<p class="Commanddescription">if present specifies that the constraint is only applied it appears to be necessary. See below for more details.
+</p>
 <p class="Commanddefinition">type</p><p class="Commanddescription">specifies which coordinates are to be fixed.  It can be one of "horizontal",  "vertical", or "3d".  If the <code>type</code> is omitted then all the station coordinates are held fixed.</p>
 
 <p class="Commanddefinition">all</p><p class="Commanddescription">may be included if you want to fix all stations.  You can then use the free command to select a few stations that are to be adjusted.  (This is useful if you only want to adjust a few stations).</p>
@@ -25,11 +31,35 @@
 
 <p>Here are some examples of the fix command</p>
 
-<p class="Commanddefinition">fix all
+<p class="Commanddefinition">
+fix all<br>
+fix automatically all<br>
 fix 1  5  23<br>
 fix horizontal 1A BM3 50-55 <br>
 fix vertical 3 4 5A<br>
 fix 3d order=1 order=2 order=3
+</p>
+
+<p>Automatically constraining stations is not guaranteed to be sufficient for a solution.  
+The constraints are applied based upon the types of observations to the station. Snap tests for observations which
+provide bearing, distance, height difference from another station, 3d positions, latitude, longitude, and heights.
+It will only constrain a station if there are no observations to the station that are influenced by the constraint.
+This is not completely rigorous, in that all horizontal distance types and bearing types are 
+treated as independent of height, so a height will not be calculated if there are only these types of observations 
+to a station.  If this is a concern then only automatically fix station vertically 
+(use &quot;fix automatically vertical all&quot;).  This may result in
+an ill conditioned adjustment if there no height observations to marks with just these horizontal observation
+types.
+</p>
+
+<p>Note that &quot;fix automatically 3d&quot; will fix vertically or horizontally as necessary.  It will
+never fix a station both ways - stations for which neither horizontal or vertical coordinates can be 
+calculated will be rejectd.
+</p>
+
+<p>
+Use the command <a href="cmd_list.html">list problem_definition</a> command to see a list of stations automatically
+fixed.
 </p>
 
 <div class="SeeAlso">

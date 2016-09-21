@@ -1,0 +1,9 @@
+title Testing autofixing
+
+coordinate_file testafx.crd
+mode 3d adjustment
+data_file testafx.dat
+fix 1 
+fix automatically all
+list problem_definition
+output_csv stations

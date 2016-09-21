@@ -31,8 +31,6 @@ void count_stn_obs( int type, int stn, char unused );
 int init_station_rowno( void );
 int find_station_row( int row, char *param, int plen );
 void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double date );
-void set_station_float( station *st, int float_h, double herr,
-                        int float_v, double verr );
 void init_rf_scale_error( double value, int adjust );
 double rf_scale_error( double dist, void *hA, int irow );
 void max_station_adjustment( double tol, int *pmaxadjstn,

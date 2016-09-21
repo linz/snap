@@ -791,10 +791,12 @@ Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
 Station      Adj  Row  Name
 
 11           F     -  4 BOLT
+1            F     -  2 PIN
 B            F     -  1 SPIK
 PINTOFALE    F     -  4 BOLT
 QQ           F     -  3 PIN
 C_100        F     -  3 BOLT
+PEGGY        F     -  4 -
 2            F     -  2 PEG
 100          F     -  2 PIN
 3            F     -  4 BOLT
@@ -804,6 +806,7 @@ C_10         F     -  4 PIN
 B00          F     -  10 BOLT
 PIND         F     -  3 SPIK
 A            F     -  - BOLT
+TUBBY        F     -  2 -
 BXXXXX       F     -  0 BOLT
 10           F     -  6 SPIK
 C_11         F     -  - BOLT
@@ -818,25 +821,10 @@ QE2          F     -  3 PIN
 QE3          F     -  3 PIN
 
 
-
-The following stations have been rejected.  Those denoted with '*'
-have been rejected automatically because there is insufficient data
-to locate them.
-
-Station      Name
-
-*1           2 PIN
-*PEGGY       4 -
-*TUBBY       2 -
-
-
 The following deformation has been applied
 Applying coordinate system deformation model
 LINZ deformation model
     NZGD2000 deformation model
-    Deformation model: NZGD2000 deformation model
-    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
-    Version: 20150101
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.

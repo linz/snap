@@ -7,14 +7,18 @@ IF "%1" == "-v" (
   )
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\Release
+IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\Releasex86
 IF "%1" == "-r" SHIFT
+IF "%1" == "-d6" SET SNAPDIR=..\..\..\ms\built\Debugx64
+IF "%1" == "-d6" SHIFT
+IF "%1" == "-r6" SET SNAPDIR=..\..\..\ms\built\Releasex64
+IF "%1" == "-r6" SHIFT
 
 SET t=%1
 IF "%t%" == "" SET t=test*
 
 CD /d %~d0%~p0in
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\..\ms\built\Debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\..\ms\built\Debugx86
 
 FOR %%F IN (%t%.snp) DO (
   echo Running %%F
@@ -35,4 +39,4 @@ FOR %%F IN (%t%.snp) DO (
 
 cd ..
 
-diff -b -B -r -q out check
+IF "%t%" == "test*" diff -b -B -r -q out check
