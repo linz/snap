@@ -1,6 +1,7 @@
 title Regression test 1 - data types and observation equations
 
-coordinate_file test1.crd
+coordinate_file test1.crd ! Comment to be ignored
+! Another comment
 data_file test1.dat
 data_file test1a.dat
 

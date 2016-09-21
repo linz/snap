@@ -80,7 +80,6 @@ typedef struct
 #define CFG_ONEONLY     2   /* Duplicate definitions are invalid */
 #define CFG_PRESENT     4   /* Set by the readcfg routine if the item is present */
 #define CFG_END         8   /* The item will terminate the read_config_file function */
-#define CFG_SET_PATH   16   /* The item will terminate the read_config_file function */
 #define CFG_USERFLAG1   (1*256)
 #define CFG_USERFLAG2   (2*256) 
 #define CFG_USERFLAG3   (4*256)
@@ -91,6 +90,7 @@ typedef struct
 #define CFG_IGNORE_BAD    4
 #define CFG_IGNORE_COMMENT 8
 #define CFG_POSITIONAL_COMMENT 16
+#define CFG_SET_PATH   32
 
 #define CFG_DFLT_BUFFER_SIZE 1024
 
