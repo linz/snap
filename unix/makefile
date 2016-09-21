@@ -5,7 +5,7 @@
 # build type either debug or release
 type=release
 
-WXDIR=../src/wxwidgets-2.8/build_gtk
+WXDIR=../wxwidgets-2.8/build_gtk
 WXCONFIG=$(WXDIR)/wx-config
 WXFLAGS=`$(WXCONFIG) --cxxflags`
 WXLINK=`$(WXCONFIG) --libs`
