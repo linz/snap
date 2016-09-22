@@ -22,11 +22,19 @@ typedef struct
     int horstn2;
 } autofix_data;
 
-#define HAS_DIST 1
-#define HAS_BEAR 2
-#define HAS_HEIGHT 4
-#define HAS_LAT 8
-#define HAS_LON 16
+/* PDOBS = horizontal position dependent observations */
+/* HDOBS = height dependent observations */
+
+#define HAS_PDOBS 1
+#define HAS_HDOBS 2
+
+/* HAS_xxx mean provides the data type */
+
+#define HAS_DIST (4 | HAS_PDOBS)
+#define HAS_BEAR (8 | HAS_PDOBS)
+#define HAS_LAT (16 | HAS_PDOBS)
+#define HAS_LON (32 | HAS_PDOBS)
+#define HAS_HEIGHT (64 | HAS_HDOBS)
 #define HAS_3D (HAS_LAT | HAS_LON | HAS_HEIGHT)
 #define IS_HOR (HAS_DIST | HAS_BEAR)
 #define NO_STN -1
@@ -41,21 +49,21 @@ static void init_obsflags()
     for( i=0; i < NOBSTYPE; i++ ) obsflags[i]=0;
     obsflags[GB] = HAS_3D;
     obsflags[GX] = HAS_3D;
-    obsflags[SD] = HAS_DIST | HAS_HEIGHT;
-    obsflags[HD] = HAS_DIST;
+    obsflags[SD] = HAS_DIST | HAS_HDOBS;
+    obsflags[HD] = HAS_DIST | HAS_HDOBS;
     obsflags[ED] = HAS_DIST;
-    obsflags[MD] = HAS_DIST;
-    obsflags[DR] = HAS_DIST | HAS_HEIGHT;
+    obsflags[MD] = HAS_DIST | HAS_HDOBS;
+    obsflags[DR] = HAS_DIST | HAS_HDOBS;
     obsflags[HA] = HAS_BEAR;
     obsflags[AZ] = HAS_BEAR;
     obsflags[PB] = HAS_BEAR;
-    obsflags[ZD] = HAS_HEIGHT | HAS_DIST;
+    obsflags[ZD] = HAS_HEIGHT | HAS_PDOBS;
     obsflags[LV] = HAS_HEIGHT;
     obsflags[OH] = HAS_HEIGHT;
     obsflags[EH] = HAS_HEIGHT;
     obsflags[LT] = HAS_LAT;
     obsflags[LN] = HAS_LON;
-    obsflags[EP] = HAS_LAT | HAS_LON;
+    obsflags[EP] = HAS_3D;
     for( i=0; i < NOBSTYPE; i++ )
     {
         if( obsflags[i] == 0 )
@@ -161,12 +169,12 @@ int station_autofix_constraints( int istn )
         autofix_data *afx=&(station_autodata[istn]);
         int flags = afx->flags;
         /* Horizontal fixes */
-        if( !(flags & (HAS_LAT | HAS_LON | HAS_DIST | HAS_BEAR )) )
+        if( !(flags & HAS_PDOBS) )
         {
             fixflags = AUTOFIX_HOR;
         }
 
-        if( ! (flags & HAS_HEIGHT ) )
+        if( ! (flags & HAS_HDOBS) )
         {
             fixflags = AUTOFIX_VRT;
         }
@@ -194,7 +202,7 @@ int station_autofix_reject( int istn )
             reject=1;
         }
 
-        if( sa->flag.adj_v && ! sa->flag.float_v && ! (flags & HAS_HEIGHT ) )
+        if( sa->flag.adj_v && ! sa->flag.float_v && ((flags & HAS_HEIGHT) != HAS_HEIGHT) )
         {
             reject=1;
         }

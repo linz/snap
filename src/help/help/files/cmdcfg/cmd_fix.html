@@ -41,20 +41,19 @@ fix 3d order=1 order=2 order=3
 </p>
 
 <p>Automatically constraining stations is not guaranteed to be sufficient for a solution.  
-The constraints are applied based upon the types of observations to the station. Snap tests for observations which
-provide bearing, distance, height difference from another station, 3d positions, latitude, longitude, and heights.
-It will only constrain a station if there are no observations to the station that are influenced by the constraint.
-This is not completely rigorous, in that all horizontal distance types and bearing types are 
-treated as independent of height, so a height will not be calculated if there are only these types of observations 
-to a station.  If this is a concern then only automatically fix station vertically 
-(use &quot;fix automatically vertical all&quot;).  This may result in
-an ill conditioned adjustment if there no height observations to marks with just these horizontal observation
+The constraints are applied based upon the types of observations to the station. 
+Snap tests for observations which depend on horizontal position (such as bearing, ellipsoidal distance)
+or on height (such as levelling, slope distances).
+It will only constrain a station if there are no observations to the station that are influenced by the constraint (this also means that there are no observations providing the levelling or slope distance). 
+Note that this is only based on observations that are being used.  The constraints added may mean that 
+residuals of rejected observations are misleading, as they are based on constrained rather than 
+calculated coordinates.
 types.
 </p>
 
 <p>Note that &quot;fix automatically 3d&quot; will fix vertically or horizontally as necessary.  It will
 never fix a station both ways - stations for which neither horizontal or vertical coordinates can be 
-calculated will be rejectd.
+calculated will be rejected.
 </p>
 
 <p>
