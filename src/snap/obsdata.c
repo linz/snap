@@ -286,9 +286,10 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
             if( obsstatus != OK )
             {
                 char buf[256];
-                sprintf(buf,"Unable to calculate %s projection bearing from %s to %s - obs not used",
+                sprintf(buf,"Unable to calculate %s projection bearin from %s to %s - obs not used",
                         bproj_name(o->reffrm),st1->Code,st2->Code );
                 handle_error( WARNING_ERROR, buf, NO_MESSAGE );
+                status = INVALID_DATA;
                 continue;
             }
             value = t->value - value;
