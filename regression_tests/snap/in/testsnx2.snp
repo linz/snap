@@ -1,0 +1,9 @@
+title Testing SINEX file reading
+
+mode 3d data_check
+coordinate_file testsnx1.crd
+data_file testsnx2.in.snx SINEX 
+
+ignore_missing_stations yes
+
+list input_data

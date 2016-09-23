@@ -41,7 +41,8 @@ public:
     void loadObservations( RecordInputBase &dfi );
 private:
     double readSinexDate( const std::string datestr );
-    void findSection(RecordInputBase &dfi, const std::string section );
+    bool findSection(RecordInputBase &dfi, const std::string section, bool raiseError=true );
+    int findSection(RecordInputBase &dfi, const std::vector<std::string> &sections, bool raiseError=true );
     std::string ref_frame;
     bool use_point_code;
     double obsdate;
@@ -184,7 +185,16 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
 
         if( cvr )
         {
-            findSection( dfi, "SOLUTION/MATRIX_ESTIMATE L COVA");
+            std::vector<std::string> cova_sections;
+            cova_sections.push_back( "SOLUTION/MATRIX_ESTIMATE L COVA" );
+            cova_sections.push_back( "SOLUTION/MATRIX_ESTIMATE U COVA" );
+            int section=findSection( dfi, cova_sections, false );
+            if( section < 0 )
+            {
+                dfi.raiseError(std::string("Cannot find SINEX file SOLUTION/MATRIX_ESTIMATE (U|L) COVA block"));
+            }
+            bool lcova = section == 0;
+
             while( dfi.getNextLine( input ) )
             {
                 if( input[0]=='-') break;
@@ -196,7 +206,8 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
                 int prm2=atoi(input.substr(7,5).c_str());
                 if( prm2 < 1 ) continue;
                 int col=13;
-                for( ; prm2 <= prm1 && col < 78; prm2++, col += 22 )
+                int prm2end=lcova ? prm1 : nprm;
+                for( ; prm2 <= prm2end && col < 78; prm2++, col += 22 )
                 {
                     int jcvr=prmMap[prm2];
                     if( jcvr < 0 ) continue;
@@ -224,17 +235,27 @@ void SinexDataReader::loadObservations( RecordInputBase &dfi )
     }
 }
 
-void SinexDataReader::findSection(RecordInputBase &dfi, const std::string section )
+bool SinexDataReader::findSection(RecordInputBase &dfi, const std::string section, bool raiseError )
+{
+    std::vector<std::string> sections;
+    sections.push_back(section);
+    return findSection(dfi,sections,raiseError) >= 0;
+}
+
+int SinexDataReader::findSection(RecordInputBase &dfi, const std::vector<std::string> &sections, bool raiseError )
 {
     std::string input;
-    bool found=false;
-    int len=section.size();
     while( dfi.getNextLine(input))
     {
         if( input[0] != '+' ) continue;
-        if( input.substr(1,len) == section ){ found=true; break; }
+        for( int i=0; i < sections.size(); i++ )
+        {
+            int len=sections[i].size();
+            if( sections[i] == input.substr(1,len) ) return i;
+        }
     }
-    if( ! found ) dfi.raiseError(std::string("Cannot find SINEX file ")+section+" block");
+    if( raiseError ) dfi.raiseError(std::string("Cannot find SINEX file ")+sections[0]+" block");
+    return -1;
 }
 
 double SinexDataReader::readSinexDate( const std::string datestr )
