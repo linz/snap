@@ -1,0 +1,16 @@
+title Regression test 1g - calculation of geoid in snap
+
+coordinate_file test1g1.crd
+data_file test1g0.dat
+
+geoid nzgeoid09 overwrite warn_errors
+
+mode 3d adjustment
+fix all
+free 4
+
+list command_file
+list station_coordinates
+
+output_csv stations 
+

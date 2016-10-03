@@ -31,6 +31,7 @@ char *station_fileoptions = 0;
 
 char *geoid_file = 0;
 char overwrite_geoid = 0;
+int geoid_error_level = WARNING_ERROR;
 
 static void delete_stn_adjustment( station *st )
 {

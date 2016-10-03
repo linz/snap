@@ -70,6 +70,7 @@ extern int station_filetype;
 extern char *station_fileoptions;
 extern char *geoid_file;
 extern char overwrite_geoid;
+extern int geoid_error_level;
 
 #define stnptr(istn) (station_ptr(net,(istn)))
 #define stnadj(st) ((stn_adjustment *)(st->hook))

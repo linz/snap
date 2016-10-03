@@ -1,0 +1,269 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+The command file test1g6.snp contains:
+     title Regression test 1g - calculation of geoid in snap
+     
+     coordinate_file test1g1.crd
+     data_file test1g0.dat
+     
+     geoid nzgeoid09 overwrite ignore_errors
+     
+     mode 3d adjustment
+     fix all
+     free 4
+     
+     list command_file
+     list station_coordinates
+     
+     output_csv stations 
+     
+
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from test1g6.snp
+
+Job: Regression test 1g - calculation of geoid in snap
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file test1g1.crd
+       6 stations read
+
+Data file 1: test1g0.dat
+       4 observations do not have a date
+       4 GPS baselines
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                               ITERATION_SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 1.0000 metres at station 4
+             1 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0000 metres at station 4
+             0 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:               9
+Number of parameters:                 3
+
+Degrees of freedom:                   6
+Sum of squared residuals:             0.00000
+Standard error of unit weight:        0.00044
+
+The probability of an SSR this low is 0.000% (from Chi squared (6))
+
+You may have over-estimated the errors of the data.
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          Node one
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      41 00 25.200000 S      -         -          Node two
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3      41 00 28.800000 S      -         -          Node three
+       173 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 46.775541 S     0.7545    0.0374   0  Node four
+       173 19 15.599999 E    -0.0000    0.0219  90
+             149.3438        -0.6562    0.1025
+
+ 5      41 00 25.200000 S      -         -          Node five
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 6      41 00 25.200000 N      -         -          NZ
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+
+From  To          Id Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
+                              X,Y,Z                 X,Y,Z              E,N,U                     
+
+File test1g0.dat: line 8
+
+1     2         1000 GB       -577.7036  0.0806     -577.7036  0.0000  0.0000  0.0219   0.00     
+                              -525.3081  0.0237     -525.3081  0.0000  0.0000  0.0374   0.00     
+                               437.2167  0.0730      437.2167  0.0000 -0.0000  0.1025   0.00     
+                               894.9014              894.9014          0.0000           0.00     
+
+1     2         1001 GB       -577.7036  0.6833     -577.7036  0.0000  0.0000  0.3000   0.00     
+                              -525.3081  0.3085     -525.3081  0.0000  0.0000  0.5000   0.00     
+                               437.2167  0.6465      437.2167  0.0000 -0.0000  0.8000   0.00     
+                               894.9014              894.9014          0.0000           0.00     
+
+1     3         1002 GB*      -419.2668  0.0982     -419.2668  0.0000  0.0000  0.0231   0.00 *   
+                              -967.3587  0.0257     -967.3587  0.0000 -0.0000  0.0416   0.00 *   
+                               471.5165  0.0884      471.5165  0.0000 -0.0000  0.1259   0.00 *   
+                              1154.9439             1154.9438          0.0001           0.00 *   
+
+4     2         1000 GB       -577.7036  0.0806     -577.7036  0.0806 -0.0000  0.0000    -   @   
+                              -525.3081  0.0237     -525.3081  0.0237 -0.0000  0.0000    -   @   
+                               436.2167  0.0729      436.2167  0.0729 -0.0000  0.0000    -   @   
+                               894.4132              894.4132          0.0000            -       
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.00    6    0.00    3    0.00    9
+        East component                      0.00    2    0.00    1    0.00    3
+        North component                     0.00    2    0.00    1    0.00    3
+        Up component                        0.00    2    0.00    1    0.00    3
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 3 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   2    Unused:   1
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   0    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 1 worst residuals of rejected data
+
+From   To         Id  Type     S.R.  Sig (%)       Line  File
+
+1      3        1002   GB*    0.001     -            12  test1g0.dat
+
+
+The following table lists the 2 worst residuals of used data
+
+From   To         Id  Type     S.R.  Sig (%)       Line  File
+
+1      2        1000   GB     0.001     -             8  test1g0.dat
+
+1      2        1001   GB     0.000     -            10  test1g0.dat

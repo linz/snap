@@ -13,7 +13,7 @@
 
 <h1><a name="cmd_geoid"></a>The geoid command</h1>
 
-<p class="Commanddefinition">geoid  <i>model</i> [overwrite]</p>
+<p class="Commanddefinition">geoid  <i>model</i> [overwrite] [ignore_errors|warn_errors]</p>
 
 <p>Defines a <a href="../../coordsys/geoid.html">geoid model</a> used to calculate geoid heights and deflection of the vertical for stations in SNAP.  If the <a href="../crd/index.html">coordinate file</a> already had geoid heights defined then they are not altered unless the &quot;overwrite&quot; option is specified.
 </p>
@@ -23,6 +23,12 @@
 SNAP will look for this file in the same directory as the command file, and in the SNAP program directory. </p>
 
 <p class="Commanddefinition">overwrite</p><p class="Commanddescription">If present specifies that SNAP will overwrite existing geoid information in the coordinate file.</p>
+
+<p class="Commanddefinition">warn_errors</p><p class="Commanddescription">If present specifies that SNAP will warn about errors where the geoid
+cannot be calculated for specific stations (when the coordinates are out of the range within which the geoid is defined) but will still run.</p>
+
+<p class="Commanddefinition">ignore_errors</p><p class="Commanddescription">If present specifies that SNAP will ignore errors where the geoid
+cannot be calculated for specific stations (when the coordinates are out of the range within which the geoid is defined).</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

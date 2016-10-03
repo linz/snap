@@ -4,7 +4,7 @@
 #include "network/network.h"
 #include "util/errdef.h"
 
-int set_network_geoid( network *nw, const char *geoid )
+int set_network_geoid( network *nw, const char *geoid, int errlevel )
 {
     geoid_def *gd = create_geoid_grid( geoid );
     if( !gd )
@@ -12,16 +12,18 @@ int set_network_geoid( network *nw, const char *geoid )
         printf("Unable to load geoid model\n");
         return INVALID_DATA;
     }
-    int sts = set_network_geoid_def( nw, gd );
+    int sts = set_network_geoid_def( nw, gd, errlevel );
     delete_geoid_grid( gd );
     return sts;
 }
 
-int set_network_geoid_def( network *nw, geoid_def *gd )
+int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel )
 {
 
     int ellipsoidal_heights;
     ellipsoidal_heights = (nw->options & NW_ELLIPSOIDAL_HEIGHTS) ? 1 : 0;
+
+    if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
 
     /* Load the definition of the geoid */
 
@@ -84,12 +86,12 @@ int set_network_geoid_def( network *nw, geoid_def *gd )
 
     nw->options |= NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
 
-    if( ninvalid )
+    if( ninvalid && errlevel != OK )
     {
         char buffer[80];
         sprintf( buffer, "Error calculating geoid for network: %d stations outside range of  grid",ninvalid);
-        handle_error( INCONSISTENT_DATA, buffer, NO_MESSAGE );
-        return INCONSISTENT_DATA;
+        handle_error( errlevel, buffer, NO_MESSAGE );
+        return errlevel;
     }
     return OK;
 }

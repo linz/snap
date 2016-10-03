@@ -39,6 +39,7 @@ int main( int argc, char *argv[] )
     char output_ellipsoidal = 0;
     char geoid_msg[120];
     char *geoid = NULL;
+    int errlevel=WARNING_ERROR;
     geoid_def *gd = NULL;
 
     set_error_file( stdout );
@@ -72,6 +73,11 @@ int main( int argc, char *argv[] )
         case 'c':
         case 'C':
             calc_geoid = 1;
+            break;
+
+        case 'i':
+        case 'I':
+            errlevel=INFO_ERROR;
             break;
 
         case 'g':
@@ -119,6 +125,7 @@ int main( int argc, char *argv[] )
         printf(" -x             excludes geoid information from the output coordinate file\n");
         printf(" -e             sets the output heights to be ellipsoidal\n");
         printf(" -o             sets the output heights to be orthometric\n");
+        printf(" -i             ignore errors calculating geoid height\n");
         printf(" -q             miminimes output comments\n");
         return 1;
     }
@@ -159,6 +166,7 @@ int main( int argc, char *argv[] )
 
     if( calc_geoid )
     {
+        if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
         gd = create_geoid_grid( geoid );
         if( !gd )
         {
@@ -173,8 +181,8 @@ int main( int argc, char *argv[] )
         }
 
         sprintf(geoid_msg,"Geoid undulations from %.80s",get_geoid_model( gd ));
-        int sts = set_network_geoid_def( &net, gd );
-        if( sts != OK ) return 2;
+        int sts = set_network_geoid_def( &net, gd, errlevel );
+        if( sts != OK && sts != INFO_ERROR ) return 2;
     }
 
     if( remove_geoid ) net.options &= ~( NW_GEOID_HEIGHTS | NW_DEFLECTIONS);

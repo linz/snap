@@ -412,14 +412,30 @@ static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len,
         geoid_file = 0;
     }
     overwrite_geoid = 0;
+    geoid_error_level = WARNING_ERROR;
 
     if( _stricmp(opt,"none") != 0 )
     {
         geoid_file = copy_string( opt );
         opt = strtok( NULL, " " );
-        if( opt && _stricmp(opt,"overwrite") == 0 )
+        while( opt )
         {
-            overwrite_geoid = 1;
+            if( _stricmp(opt,"overwrite") == 0 )
+            {
+                overwrite_geoid = 1;
+            }
+            else if( _stricmp(opt,"warn_errors") == 0 )
+            {
+                geoid_error_level = INFO_ERROR;
+            }
+            else if( _stricmp(opt,"ignore_errors") == 0 )
+            {
+                geoid_error_level = OK;
+            }
+            else
+            {
+                break;
+            }
             opt = strtok( NULL, " " );
         }
     }

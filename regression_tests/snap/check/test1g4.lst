@@ -1,0 +1,64 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+The command file test1g4.snp contains:
+     title Regression test 1g - calculation of geoid in snap
+     
+     coordinate_file test1g1.crd
+     data_file test1g0.dat
+     
+     geoid nzgeoid09 overwrite
+     
+     mode 3d adjustment
+     fix all
+     free 4
+     
+     list command_file
+     list station_coordinates
+     
+     output_csv stations 
+     
+
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from test1g4.snp
+
+Job: Regression test 1g - calculation of geoid in snap
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file test1g1.crd
+       6 stations read
+
+
+
+================================================================================
+Regression test 1g - calculation of geoid in snap           
+
+                                     ERRORS
+
+================================================================================
+
+Note: 1 errors reported in test1g4.err

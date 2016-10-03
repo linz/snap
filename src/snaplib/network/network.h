@@ -342,8 +342,12 @@ station * duplicate_network_station(  network *nw,
 void    modify_network_station_coords( network *nw, station *st, double Lat,
                                        double Lon, double Hgt );
 
-int set_network_geoid( network *nw, const char *geoid );
-int set_network_geoid_def( network *nw, geoid_def *gd );
+/* set_network_geoid errlevel can be OK, no error, INFO_ERROR, or WARNING_DATA */
+/* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
+/* Returns INVALID_DATA if geoid not defined or invalid coordinate system */
+
+int set_network_geoid( network *nw, const char *geoid, int errlevel );
+int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel );
 
 int read_network_station_offsets( network *nw, const char *filename );
 

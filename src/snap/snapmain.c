@@ -260,7 +260,8 @@ int snap_main( int argc, char *argv[] )
     {
         if( !(net->options & NW_GEOID_HEIGHTS) || overwrite_geoid )
         {
-            sts = set_network_geoid( net, geoid_file );
+            sts = set_network_geoid( net, geoid_file, geoid_error_level );
+            if( sts == INFO_ERROR ) sts=OK;
             if( sts != OK ) 
             {
                 close_output_files(0,0);
