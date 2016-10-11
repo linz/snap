@@ -1121,23 +1121,6 @@ static void set_date_field( survdata *sd )
                     (int)dy, (int)mn, (int)yr);
         }
     }
-
-}
-
-
-static char *get_obs_classification_name( trgtdata *t, survdata *sd, int class_id )
-{
-    int ic;
-    for( ic = 0; ic < t->nclass; ic++ )
-    {
-        classdata *cd;
-        cd = sd->clsf + ic + t->iclass;
-        if( cd->class_id == class_id )
-        {
-            return class_value_name( &obs_classes, class_id, cd->name_id );
-        }
-    }
-    return NULL;
 }
 
 void set_residual_field_value( int id, int ndp, double value )
@@ -1196,7 +1179,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
         {
             int class_id;
             class_id = listing_format->col[i].column & ~CLASSIFICATION_FIELD;
-            listing_format->col[i].data = get_obs_classification_name( t, sd, class_id );
+            listing_format->col[i].data = get_obs_classification_name( sd, t, class_id );
         }
     }
 }
@@ -1590,6 +1573,7 @@ void print_residuals( FILE *out )
 void list_file_location( FILE *out, int file, int lineno )
 {
     static int nwait;
+    if( ! output_file_locations ) return;
     if( file_location_frequency <= 0 ) return;
     if( file != last_file_loc )
     {
@@ -1635,7 +1619,7 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
 
     for( i = 0; i < classification_count(&obs_classes); i++ )
     {
-        write_csv_string(csv,get_obs_classification_name(tgt,sd,i+1));
+        write_csv_string(csv,get_obs_classification_name(sd,tgt,i+1));
     }
     write_csv_string(csv,survey_data_file_name(sd->file));
     write_csv_int(csv,tgt->lineno);

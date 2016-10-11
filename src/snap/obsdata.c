@@ -534,7 +534,7 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
 
         }
 
-        if( distratios )
+        if( distratios && output_distance_ratio_scales )
         {
             double se;
             se = o->schvar;

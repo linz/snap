@@ -13,6 +13,7 @@
 
 #include "network/networkb.h"
 #include "snap/stnadj.h"
+#include "snap/snapglob.h"
 #include "snap/snapcsvstn.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
@@ -68,7 +69,11 @@ void set_stnadj_init_network( void )
 
 static void clear_stnadj_globals( void )
 {
+    void *obsmod;
     if( net ) delete_network( net );
+    obsmod=snap_obs_modifications( false );
+
+    if( obsmod ) set_obs_modifications_network( obsmod, NULL );
     if( stnrecode ) delete_stn_recode_map( stnrecode );
     if( station_filename ) check_free( station_filename );
     if( station_filespec ) check_free( station_filespec );
@@ -112,6 +117,8 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
 
     if( sts == OK )
     {
+        void *obsmod=snap_obs_modifications( false );
+        if( obsmod ) set_obs_modifications_network( obsmod, net );
         station_filename = copy_string( fname );
     }
     else

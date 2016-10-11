@@ -345,22 +345,6 @@ void print_table_row( FILE *out )
     fputc('\n',out);
 }
 
-
-static char *get_obs_classification_name( trgtdata *t, survdata *sd, int class_id )
-{
-    int ic;
-    for( ic = 0; ic < t->nclass; ic++ )
-    {
-        classdata *cd;
-        cd = sd->clsf + ic + t->iclass;
-        if( cd->class_id == class_id )
-        {
-            return class_value_name( &obs_classes, class_id, cd->name_id );
-        }
-    }
-    return NULL;
-}
-
 void list_vecdata_residuals( FILE *out, survdata  *v )
 {
     vecdata *t;
@@ -471,7 +455,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
             classvalue[i] = blankvalue;
             if( idclass > 0 )
             {
-                classvalue[i] = get_obs_classification_name( &(t->tgt), v, idclass );
+                classvalue[i] = get_obs_classification_name( v,  &(t->tgt), idclass );
             }
         }
 

@@ -154,6 +154,7 @@
     <ClCompile Include="..\..\..\src\snaplib\network\network.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\networkb.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\networkd.c" />
+    <ClCompile Include="..\..\..\src\snaplib\network\networkl.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\networkm.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\networkr.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\networks.c" />
@@ -161,6 +162,7 @@
     <ClCompile Include="..\..\..\src\snaplib\network\networkw.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.c" />
     <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\obsmod.c" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\sinexdata.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\snapcsvbase.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\snapdata\datatype.c" />

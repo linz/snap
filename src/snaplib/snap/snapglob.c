@@ -25,6 +25,8 @@
 #define _SNAPGLOB_C
 #include "util/binfile.h"
 #include "snap/snapglob.h"
+#include "snap/survfile.h"
+#include "snap/stnadj.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fileutil.h"
@@ -69,6 +71,7 @@ void init_snap_globals()
         obs_precision[i] = datatype[i].dfltndp;
     }
     init_classifications( &obs_classes );
+    obs_modifications=0;
 }
 
 
@@ -107,6 +110,15 @@ void set_snap_config_file( char *cfg_file )
     config_file = cfg_file;
 }
 
+void *snap_obs_modifications( bool create )
+{
+    if( (! obs_modifications) && create)
+    {
+        obs_modifications=new_obs_modifications( net, &obs_classes );
+        set_obs_modifications_file_func( obs_modifications, survey_data_file_id );
+    }
+    return obs_modifications;
+}
 
 void dump_snap_globals( BINARY_FILE *b )
 {

@@ -1100,7 +1100,7 @@ static int read_date_command( snapfile_def *sd, int id, const char *cmd )
     if( date == 0.0 )
     {
         char errmsg[100];
-        sprintf(errmsg,"Invalid date definition, use \"%c%s unknown\" or eg %c%s 5 MAY 1993",
+        sprintf(errmsg,"Invalid date definition, use \"%c%s unknown\" or eg %c%s 1993-05-13",
                 COMMAND_PREFIX,cmd,COMMAND_PREFIX,cmd );
         df_data_file_error( d, INVALID_DATA, errmsg );
     }

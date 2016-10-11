@@ -80,6 +80,7 @@
 #include "snap/stnadj.h"
 #include "snap/survfilr.h"
 #include "snapdata/survdata.h"
+#include "snapdata/obsmod.h"
 #include "sortobs.h"
 #include "stnobseq.h"
 #include "testspec.h"
@@ -95,7 +96,6 @@ static BINARY_FILE *open_dump_file( void );
 static void dump_binary_data( BINARY_FILE *b );
 static void dump_choleski_decomposition( BINARY_FILE *b );
 static void dump_covariance_matrix( BINARY_FILE *b );
-static void summarize_data_modifications( FILE *lst );
 static void write_metadata_csv();
 
 int snap_main( int argc, char *argv[] )
@@ -296,7 +296,7 @@ int snap_main( int argc, char *argv[] )
        observations that will have error factors applied, or are being
        rejected or ignored */
 
-    summarize_data_modifications( lst );
+    summarize_obs_modifications( snap_obs_modifications(false), lst, "" );
     if( output_input_data ) print_input_data( lst );
 
     if( read_errors )
@@ -966,80 +966,3 @@ void dump_binary_data( BINARY_FILE *b )
     dump_parameters( b );
 }
 
-
-void summarize_data_modifications( FILE *lst )
-{
-    int first, id, class_id;
-    first = 1;
-
-    for( id = 0; id<NOBSTYPE; id++ )
-    {
-        if( obs_usage[id] || obs_errfct[id] != 1.0 )
-        {
-            if( first )
-            {
-                fprintf(lst,"\n\nModifications for different data types:\n");
-                first = 0;
-            }
-            fprintf(lst,"   Observations of %s data",datatype[id].name);
-
-            if( obs_usage[id] & IGNORE_OBS_BIT )
-            {
-                fprintf(lst," are ignored");
-            }
-            else
-            {
-                if( obs_usage[id] & REJECT_OBS_BIT )
-                {
-                    fprintf(lst," are rejected");
-                }
-                if( obs_errfct[id] != 1.0 )
-                {
-                    fprintf(lst,", errors scaled by %.2lf",obs_errfct[id]);
-                }
-            }
-            fprintf(lst,"\n");
-        }
-    }
-
-    for( class_id = 0; class_id++ < classification_count( &obs_classes);  )
-    {
-        first = 1;
-        for( id = 0; id<class_value_count( &obs_classes, class_id ); id++)
-        {
-            double errfct;
-            unsigned char usage;
-
-            errfct = get_class_errfct( &obs_classes, class_id, id );
-            usage = get_class_usage( &obs_classes, class_id, id );
-            if( usage || errfct != 1.0 )
-            {
-                if( first )
-                {
-                    fprintf(lst,"\n\nModifications based on %s classification\n",
-                            classification_name( &obs_classes, class_id ) );
-                    first = 0;
-                }
-                fprintf(lst,"   Observations classified as %s",
-                        class_value_name( &obs_classes, class_id, id ) );
-
-                if( usage & IGNORE_OBS_BIT )
-                {
-                    fprintf(lst," are ignored");
-                }
-                else
-                {
-                    if( usage & REJECT_OBS_BIT )
-                    {
-                        fprintf(lst," are rejected");
-                    }
-                    if( errfct != 1.0 )
-                    {
-                        fprintf(lst,", errors scaled by %.2lf",errfct);
-                    }
-                }
-                fprintf(lst,"\n");
-            }
-        }
-    }
-}

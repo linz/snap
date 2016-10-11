@@ -107,6 +107,6 @@ int select_display_options( void );
 int background_option( int layer_id );
 
 int read_key_definition( char *def );
-void print_key( FILE *out, char *prefix );
+void print_key( FILE *out, const char *prefix );
 
 #endif

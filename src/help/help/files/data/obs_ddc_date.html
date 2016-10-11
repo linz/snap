@@ -15,7 +15,36 @@
 
 <p><b>#date  <i>date</i></b></p>
 
-<p>Specifies the observation date of the following data.  <i>date</i> should either be a date formatted as day number, first three letters of month, year (e.g. 12 Jun 1992), or the word unknown.</p>
+<p>Specifies the observation date of the following data in the data file.  
+Note that this does not apply if the date is explicitly defined using the 
+<a href="obs_ddc_data.html">#data</a> command.</p>
+
+<p>
+A variety of date formats are acceptable
+to snap, examples being:
+</p>
+<ul>
+    <li>13 Jan 2008</li>
+    <li>13-Jan-2008</li>
+    <li>13-01-2008</li>
+    <li>2008-01-13</li>
+    <li>20080113</li>
+    <li>13-Jan-2008 12:50</li>
+    <li>2008-01-13T12:50:25</li>
+    <li>unknown</i>
+</ul>
+
+<p>The default observation date is &quot;unknown&quot; if it is not specified in the data file.
+</p>
+<p>
+The observation date is used to calculate the effect of <a href="../cmdcfg/cmd_deformation.html">deformation</a> on observations.
+Observations without a specific date (ie the date is &quot;unknown&quot;) cannot be used in adjustments that include a deformation model.  
+Observation dates may be used to 
+<a href="../cmdcfg/cmd_reweight_observation.html">reweight</a>, 
+<a href="../cmdcfg/cmd_reject_observation.html">reject</a>, or
+<a href="../cmdcfg/cmd_ignore_observation.html">ignoring</a> observations
+and for <a href="../cmdcfg/cmd_recode.html">recoding stations</a> used in the observation.
+</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
@@ -27,6 +56,14 @@
 <p><a href="obs_file_format.html">Observation file format</a></p>
 
 <p><a href="obs_ddc_data.html">The #data command</a></p>
+
+<p><a href="../cmdcfg/cmd_recode.html">The recode command</a></p>
+
+<p><a href="../cmdcfg/cmd_reweight_observation.html">The reweight_observation command</a></p>
+
+<p><a href="../cmdcfg/cmd_reject_observation.html">The reject_observation command</a></p>
+
+<p><a href="../cmdcfg/cmd_ignore_observation.html">The ignore_observation command</a></p>
 
 </div>
 </body>

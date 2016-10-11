@@ -15,6 +15,7 @@
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "snap/survfile.h"
+#include "snapdata/obsmod.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
@@ -26,7 +27,7 @@ static int maxsdindx = 0;
 #define SDINDX_INC 10
 
 
-static int add_data_file_nocopy( char *name, int format, char *subtype, double errfct, char *recode, char *refpath )
+static int add_data_file_nocopy( char *name, int format, char *subtype, char *recode, char *refpath )
 {
     survey_data_file *sd;
     int i;
@@ -44,7 +45,6 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     sd->name = name;
     sd->format = format;
     sd->subtype = subtype;
-    sd->errfct = errfct;
     sd->recodefile=recode;
     sd->refpath=refpath;
     sd->mindate=UNDEFINED_DATE;
@@ -53,10 +53,11 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, double e
     for( i=0; i < NOBSTYPE; i++ ) sd->obscount[i]=0;
     sd->usage = 0;
     sd->recode=0;
-    return OK;
+    return nsdindx-1;
+
 }
 
-int add_data_file( char *name, int format, char *subtype, double errfct, char *recode, char *refpath )
+int add_data_file( char *name, int format, char *subtype, char *recode, char *refpath )
 {
     char *buffer=0;
 
@@ -76,7 +77,7 @@ int add_data_file( char *name, int format, char *subtype, double errfct, char *r
     recode = copy_string( recode );
     refpath = copy_string( refpath );
     if( buffer ) check_free( buffer );
-    return add_data_file_nocopy( name, format, subtype, errfct, recode, refpath );
+    return add_data_file_nocopy( name, format, subtype, recode, refpath );
 }
 
 void delete_survey_data_file_recodes()
@@ -209,12 +210,6 @@ void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate )
     if( nnodate ) *nnodate=nnd;
 }
 
-double survey_data_file_errfct( int ifile )
-{
-    return sdindx[ifile]->errfct;
-}
-
-
 void dump_filenames( BINARY_FILE *b )
 {
     int i;
@@ -223,7 +218,6 @@ void dump_filenames( BINARY_FILE *b )
     for( i=0; i<nsdindx; i++ )
     {
         fwrite( &sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f );
-        fwrite( &sdindx[i]->errfct, sizeof(sdindx[i]->errfct), 1, b->f );
         dump_string( sdindx[i]->name, b->f );
         dump_string( sdindx[i]->subtype, b->f );
         dump_string( sdindx[i]->recodefile, b->f );
@@ -236,7 +230,6 @@ void dump_filenames( BINARY_FILE *b )
 int reload_filenames( BINARY_FILE *b )
 {
     int i, fmt;
-    double errfct;
     char *name;
     char *subtype;
     char *recodefile;
@@ -247,13 +240,12 @@ int reload_filenames( BINARY_FILE *b )
     while( i-- > 0 )
     {
         fread( &fmt, sizeof(fmt), 1, b->f );
-        fread( &errfct, sizeof(errfct), 1, b->f );
         name = reload_string( b->f );
         subtype = reload_string( b->f );
         recodefile = reload_string( b->f );
         refpath = reload_string( b->f );
 
-        add_data_file_nocopy( name, fmt, subtype, errfct, recodefile, refpath );
+        add_data_file_nocopy( name, fmt, subtype, recodefile, refpath );
     }
     return check_end_section( b );
 }

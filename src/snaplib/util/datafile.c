@@ -494,7 +494,7 @@ int df_data_file_error( DATAFILE *d, int sts, const char *errmsg )
     char fmsg[MAX_FILENAME_LEN+40];
     sprintf(fmsg,"Line: %ld  File: %.*s", d->reclineno, MAX_FILENAME_LEN, d->fname );
     handle_error(sts,errmsg,fmsg );
-    if( sts > WARNING_ERROR ) d->errcount++;
+    if( sts >= WARNING_ERROR ) d->errcount++;
     return sts;
 }
 

@@ -86,7 +86,6 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
 static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_classification( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -175,7 +174,10 @@ static config_item snap_commands[] =
     {"define_residual_columns",NULL,ABSOLUTE,0,read_residual_format,CONFIG_CMD,DEFINE_RESIDUAL_COLUMNS},
     {"add_residual_column",NULL,ABSOLUTE,0,read_residual_format,CONFIG_CMD,ADD_RESIDUAL_COLUMNS},
     {"output_precision",NULL,ABSOLUTE,0,read_output_precision,CONFIG_CMD,0},
-    {"classification",NULL,ABSOLUTE,0,read_classification,0,0},
+    {"classification",NULL,ABSOLUTE,0,read_classification_command,0,0},
+    {"reweight_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
+    {"reject_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
+    {"ignore_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
     {"sort_observations",NULL,ABSOLUTE,0,read_sort_option,CONFIG_CMD,0},
     {"summarize_errors_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
     {"summarise_errors_by",NULL,ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
@@ -538,7 +540,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
     char *field;
     char *strend;
     station_process_mode spm;
-    int setall;
+    char *allptr=0;
 
     if( ! stations_read )
     {
@@ -552,7 +554,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
     spm.mode = mode;
     spm.option = MODE_HOR | MODE_VRT;
 
-    setall = 0;
+    allptr = 0;
 
     field = strtok( string, " " );
 
@@ -575,7 +577,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
 
     if( field && _stricmp( field, "all" ) == 0 )
     {
-        setall = 1;
+        allptr = field;
         field = strtok(NULL, " ");
     }
 
@@ -611,7 +613,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
         }
     }
 
-    if( setall )
+    if( allptr && ! field )
     {
         int istn;
         for( istn = number_of_stations(net); istn; istn-- )
@@ -625,6 +627,15 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
         /* Remove nulls introduced by strtok from rest of string */
         char *s;
         int nerr;
+
+        if( allptr )
+        {
+            for( s=allptr+3; s<field; s++ )
+            {
+                *s = ' ';
+            }
+            field=allptr;
+        }
 
         for( s = field; s < strend; s++ )
         {
@@ -801,163 +812,6 @@ static int obstype_from_code( char *code )
 {
     datatypedef *dt = datatypedef_from_code( code );
     return dt ? dt->id : -1;
-}
-
-
-static int read_classification( CFG_FILE *cfg, char *string, void *value, int len, int code )
-{
-    double errfct;
-    int class_id;
-    int name_id;
-    int reject;
-    int ignore;
-    int missing_error;
-    char *st;
-
-    missing_error=INVALID_DATA;
-    st = strtok( string, " " );
-    if( !st )
-    {
-        send_config_error( cfg, MISSING_DATA, "Name of the classification is missing");
-        return OK;
-    }
-
-    if( _stricmp( st, "data_type" ) == 0 )
-    {
-        class_id = -1;
-    }
-    else if( _stricmp( st, "data_file" ) == 0 )
-    {
-        class_id = -2;
-    }
-    else
-    {
-        class_id = classification_id( &obs_classes, st, 1 );
-    }
-
-    errfct = -1.0;
-    reject = ignore = 0;
-
-    st = strtok( NULL, " " );
-    if( st )
-    {
-        if( _stricmp( st, "reject" ) == 0 )
-        {
-            reject = 1;
-        }
-        else if( _stricmp( st, "ignore" ) == 0 )
-        {
-            ignore = 1;
-        }
-        if( reject || ignore ) st = strtok( NULL, " " );
-    }
-
-    if( st && class_id == -2 && _stricmp(st,"ignore_missing") == 0 ) 
-    {
-        missing_error=OK;
-        st = strtok( NULL, " " );
-    }
-    else if( st && class_id == -2 && _stricmp(st,"warn_missing") == 0 ) 
-    {
-        missing_error=INFO_ERROR;
-        st = strtok( NULL, " " );
-    }
-    else if( st && class_id == -2 && _stricmp(st,"fail_missing") == 0 ) 
-    {
-        st = strtok( NULL, " " );
-    }
-
-    if( !st )
-    {
-        send_config_error( cfg, MISSING_DATA, "Value of classification is missing");
-        return OK;
-    }
-
-    if( class_id == -1 )
-    {
-        name_id = obstype_from_code( st );
-        if( name_id < 0 )
-        {
-            char errmess[100];
-            sprintf(errmess,"Invalid observation data_type %.40s in classification command",st);
-            send_config_error( cfg, INVALID_DATA, errmess );
-            return OK;
-        }
-    }
-    else if( class_id == -2 )
-    {
-        name_id = survey_data_file_id( st, get_config_directory(cfg) );
-        if( name_id < 0 )
-        {
-            if( missing_error != OK )
-            { 
-                char errmess[120];
-                sprintf(errmess,"Invalid data_file %.60s in classification command",st);
-                send_config_error( cfg, missing_error, errmess );
-            }
-            return OK;
-        }
-    }
-    else
-    {
-        name_id = class_value_id( &obs_classes, class_id, st, 1 );
-    }
-
-    st = strtok( NULL, " " );
-
-    if( !reject && !ignore )
-    {
-        if( !st )
-        {
-            send_config_error( cfg, MISSING_DATA,"Classification commands needs ignore, reject, or error_factor specified");
-            return OK;
-        }
-
-        if( _stricmp( st, "reject" ) == 0 )
-        {
-            reject = 1;
-        }
-        else if( _stricmp( st, "ignore" ) == 0 )
-        {
-            ignore = 1;
-        }
-        if( reject || ignore ) st = strtok( NULL, " " );
-    }
-
-    if( st )
-    {
-        if( _stricmp(st,"error_factor") != 0 || (st=strtok(NULL," ")) == NULL ||
-                sscanf(st, "%lf", &errfct ) != 1 || errfct <= 0.0 ||
-                strtok(NULL," ") != NULL )
-        {
-
-            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in classification command");
-            return OK;
-        }
-    }
-
-    if( class_id == -1 )
-    {
-        if( ignore ) obs_usage[name_id] |= IGNORE_OBS_BIT;
-        if( reject ) obs_usage[name_id] |= REJECT_OBS_BIT;
-        if( errfct > 0.0 ) obs_errfct[name_id] = errfct;
-    }
-    else if( class_id == -2 )
-    {
-        survey_data_file *s;
-        s = survey_data_file_ptr( name_id );
-        if( ignore ) s->usage |= IGNORE_OBS_BIT;
-        if( reject ) s->usage |= REJECT_OBS_BIT;
-        if( errfct > 0.0 ) s->errfct = errfct;
-    }
-    else
-    {
-        if( ignore ) set_class_flag( &obs_classes, class_id, name_id, IGNORE_OBS_BIT );
-        if( reject ) set_class_flag( &obs_classes, class_id, name_id, REJECT_OBS_BIT );
-        if( errfct > 0.0 ) set_class_error_factor( &obs_classes, class_id, name_id, errfct );
-    }
-
-    return OK;
 }
 
 

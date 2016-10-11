@@ -26,16 +26,30 @@ even if focus is restored.
 -->
 <!-- 
 -->
-<h2>Release: 16 September 2016</h2>
+<h2>Release: 10 October 2016</h2>
 <h3>Snap</h3>
+<p>Enhancement: New commands 
+<a href="../files/cmdcfg/cmd_reweight_observations.html">reweight_observations</a>,
+<a href="../files/cmdcfg/cmd_reject_observations.html">reject_observations</a>, and
+<a href="../files/cmdcfg/cmd_ignore_observations.html">ignore_observations</a> replacing the 
+classification command.  These improve the readability of the command file and provide 
+additional functionality for selecting observations based on multiple criteria including
+observation date and stations used.</a>
+<p>Enhancement: <a href="../files/cmdcfg/cmd_stn_list.html">Station lists</a> are more sophisticated 
+and can select stations based on multiple criteria, for example selecting order 0 or 1 stations 
+outside a geographical area.
+</p>
 <p>Enhancement: Added functionality to automatically fix or float stations horizontally or vertically.
 See the <a href="../files/cmdcfg/cmd_fix.html">fix frame</a> command documentation. Also the algorithm used
 to automatically reject stations is more rigorous than it used to be (based on types of observations at each
 station, not just on the number of observations).  This may result in more stations being automatically 
 rejected than was previously the case.
 </p>
-<p>Enhancement: Tidied up handling of included snap files to better handle including files in subdirectories.</p>
+<p>Enhancement: The <a href="../files/cmdcfg/cmd_geoid.html">geoid</a> command can accept stations outside 
+the extent of the geoid file.  The geoid information from these stations is unchanged.
+</p>
 <p>Enhancement: SNAP is now able to read SINEX data with either upper or lower triangular format covariance data.</p>
+<p>Enhancement: Tidied up handling of included snap files to better handle including files in subdirectories.</p>
 <p>Bug fix: Corrected handling of geoid function when input coordinate file defines ellipsoidal heights.</p>
 <h3>Snapspec</h3>
 <p>Bug fix: corrected the order 2 vertical specification in the configuration file</p>

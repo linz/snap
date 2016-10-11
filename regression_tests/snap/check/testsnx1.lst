@@ -29,9 +29,11 @@ Data file 1: testsnx1.in.snx
       12 GPS point coords
 
 Data file 2: testsnx1.in.snx
-        Errors multiplied by 2.00
     Observations between 2001-11-29 11:59:45 and 2001-11-29 11:59:45
        5 GPS point coords
+
+Errors of the following observations are scaled by 2.000
+  Observations which are from file testsnx1.in.snx
 
 
 

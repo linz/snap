@@ -15,5 +15,5 @@ list no_worst_residuals
 
 fix all
 free mark_type=bolt mark_type=-
-free vertical order=1 order=2
+free vertical order=1/2
 

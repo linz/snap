@@ -154,5 +154,7 @@ typedef struct           /* Data relating to an observation or set of obs */
 
 snap_data_type *snap_data_type_from_id( int idtype );
 
+int get_obs_classification_id( survdata *sd, trgtdata *t, int class_id );
+
 #endif
 

@@ -51,8 +51,8 @@ long read_data_files( FILE *lst )
 {
     DATAFILE *d=0;
     survey_data_file *sd;
-    int i, c, nfile, nch;
-    long file_errors, total_errors;
+    int i, c, nfile, nch, sts;
+    long file_errors, total_errors, misc_errors;
     char *fname;
     stn_recode_data recodedata;
 
@@ -62,9 +62,9 @@ long read_data_files( FILE *lst )
     recodedata.global_map=stnrecode;
     recodedata.net=net;
 
-    total_errors = 0;
     fname = NULL;
     nch = 0;
+    total_errors=0;
 
     for (i = 0; i < nfile; i++ )
     {
@@ -78,6 +78,8 @@ long read_data_files( FILE *lst )
     for( i = 0; i < nfile; i++ )
     {
         char *filename;
+
+        if( obsmod_ignore_datafile( obs_modifications, i )) continue;
 
         sd = survey_data_file_ptr(i);
 
@@ -96,13 +98,11 @@ long read_data_files( FILE *lst )
         if( !d )
         {
             xprintf("\n   Unable to open data file %s\n",sd->name);
-            total_errors++;
             continue;
         }
 
         if( sd->recodefile && ! sd->recode )
         {
-            int sts;
             sd->recode=create_stn_recode_map( net );
             sts = read_station_recode_file( sd->recode, sd->recodefile, filename );
             if( sts != OK )
@@ -131,10 +131,10 @@ long read_data_files( FILE *lst )
         if( lst )
         {
             fprintf(lst,"\nData file %d: %s\n",(int) (i+1),sd->name);
-            if( sd->errfct != 1.0 )
-                fprintf(lst,"        Errors multiplied by %.2lf\n",sd->errfct);
         }
 
+        misc_errors=get_error_count();
+        ldt_init_obs_modifications( obs_modifications );
         ldt_file( i );
         init_file_display( d->f );
         switch( sd->format )
@@ -189,9 +189,11 @@ long read_data_files( FILE *lst )
         }
 
         file_errors = df_data_file_errcount( d );
+        misc_errors=get_error_count()-misc_errors;
+        if( misc_errors < 0 ) misc_errors=0;
+        total_errors += file_errors = misc_errors;
         if( file_errors )
         {
-            total_errors += file_errors;
             xprintf("   *** %ld error%s reading the file\n",file_errors,
                     PLURAL(file_errors) );
 
@@ -214,6 +216,16 @@ long read_data_files( FILE *lst )
     set_stn_recode_func( 0, 0 );
     if( d ) df_close_data_file( d );
     if( fname ) check_free( fname );
+    
+    sts=check_obsmod_station_criteria_codes( obs_modifications, net );
+    if( sts >= WARNING_ERROR )
+    {
+        total_errors++;
+        if( lst )
+        {
+            fprintf(lst,"\nErrors found in station lists in reweight/reject/ignore observations\n");
+        }
+    }
     return total_errors;
 }
 

@@ -450,9 +450,9 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 
 2      3           0   HA     0.000    0.000         13  testafx.dat
 
-2      3           0   HA     0.000    0.000         17  testafx.dat
-
 2      1           0   HA     0.000    0.000         12  testafx.dat
+
+2      3           0   HA     0.000    0.000         17  testafx.dat
 
 2      1           0   HA     0.000    0.000         16  testafx.dat
 

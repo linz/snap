@@ -424,6 +424,12 @@
     <ClCompile Include="..\..\..\src\snaplib\util\datafileinput.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\obsmod.c">
+      <Filter>Source Files\snapdata</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\network\networkl.c">
+      <Filter>Source Files\network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">

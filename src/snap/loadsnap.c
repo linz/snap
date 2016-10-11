@@ -284,105 +284,6 @@ static void record_parameter_usage( survdata *sd )
     }
 }
 
-
-/* Apply error factors and rejection by file, classification, and data type */
-/* On input the unused flag implies rejection if it is non-zero */
-/* On exit it may have the REJECT_OBS_BIT or the IGNORE_OBS_BIT set */
-/* Function returns the number of obs that are to be ignored */
-
-static int set_usage_flag( survdata *sd )
-{
-    int i, ic;
-    trgtdata *t;
-    int nignore;
-
-    nignore = 0;
-    for( i=0; i<sd->nobs; i++ )
-    {
-        t = get_trgtdata( sd, i );
-        t->unused |= obs_usage[t->type] | survey_data_file_ptr( sd->file )->usage;
-        for( ic = 0; ic < t->nclass; ic++ )
-        {
-            classdata *cd;
-            cd = sd->clsf + ic + t->iclass;
-            t->unused |= get_class_usage( &obs_classes, cd->class_id, cd->name_id );
-        }
-        if( t->unused & IGNORE_OBS_BIT ) nignore++;
-    }
-    return nignore;
-}
-
-static double get_errfct( survdata *sd, trgtdata *t )
-{
-    double errfct;
-    int ic;
-
-    errfct = survey_data_file_errfct( sd->file );
-    errfct *= obs_errfct[ t->type ];
-    for( ic = 0; ic < t->nclass; ic++ )
-    {
-        classdata *cd;
-        cd = sd->clsf + ic + t->iclass;
-        errfct *= get_class_errfct( &obs_classes, cd->class_id, cd->name_id );
-    }
-
-    return errfct;
-}
-
-
-static void apply_error_factors( survdata *sd )
-{
-    int i;
-
-    switch (sd->format)
-    {
-
-    case SD_OBSDATA:
-    {
-        obsdata *od;
-        for( i = 0, od=sd->obs.odata; i<sd->nobs; i++, od++ )
-        {
-            od->error  *= get_errfct( sd, &od->tgt );
-        }
-    }
-    break;
-
-    case SD_VECDATA:
-    {
-        int row, col;
-        double errfct;
-
-        /* Note: with the covariance, cannot apply error factors
-           selectively to individual observations */
-
-        errfct = get_errfct( sd, &sd->obs.vdata->tgt );
-        errfct *= errfct;
-        for( row = 0; row < sd->ncvr; row++ ) for( col = 0; col <= row; col++ )
-            {
-                Lij( sd->cvr, row, col ) *= errfct;
-            }
-    }
-    break;
-
-    case SD_PNTDATA:
-    {
-        pntdata *pd;
-        double errfct;
-        int nerr, j;
-
-        for( i = 0, pd=sd->obs.pdata; i<sd->nobs; i++, pd++ )
-        {
-            errfct = get_errfct( sd, &pd->tgt );
-            nerr = datatype[pd->tgt.type].isvector ? 6 : 1;
-            for( j = 0; j < nerr; j++ ) pd->error *= errfct;
-        }
-    }
-    break;
-
-    }
-}
-
-
 /* Check whether we need to split up the observations to
    apply Schreibers method (ie if we have both distance ratio and
    horizontal angle data */
@@ -454,10 +355,9 @@ static void save_whole_survdata( survdata *sd )
 //case ID_REFCOEF:    id = refcoef_prm( code ); break;
 //case ID_DISTSF:     id = distsf_prm( code ); break;
 //case ID_BRNGREF:    id = brngref_prm( code ); break;
+//
 static void load_snap( survdata *sd )
 {
-    int nignore;
-
     /* Fail if need observation date and is not provided */
 
     if( need_obs_date && sd->date == UNDEFINED_DATE )
@@ -482,15 +382,6 @@ static void load_snap( survdata *sd )
         return;
     }
 
-    /* Determine which observations are being ignored, and reject them */
-
-    nignore = set_usage_flag( sd );
-    if( nignore == sd->nobs ) return;
-
-    /* Apply error factors to the data */
-
-    apply_error_factors( sd );
-
     /* Convert distance ratios to distances if required */
 
     if( convert_distance_ratios ) convert_ratios_to_distances( sd );
@@ -503,8 +394,7 @@ static void load_snap( survdata *sd )
 
     /* Decide whether to split the observations or not */
 
-    if( nignore > 0 ||
-            ( sd->format == SD_OBSDATA &&
+    if( ( sd->format == SD_OBSDATA &&
               ( sort_obs || split_obsdata_for_schreiber(sd) ) ) )
     {
 

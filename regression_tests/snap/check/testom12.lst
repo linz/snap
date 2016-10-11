@@ -1,0 +1,433 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+The command file testom12.snp contains:
+     title Regression test om1 - obs modifications - station based modifications
+     
+     coordinate_file test1.crd ! Comment to be ignored
+     data_file test1.dat
+     data_file test1a.dat
+     
+     mode 3d data_check
+     
+     list command_file
+     list file_summary
+     list residuals
+     list no_solution_summary
+     list no_station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list no_worst_residuals
+     list no_notes
+     list no_file_locations
+     list no_distance_ratio_scales
+     list no_error_summary
+     
+     error_type apriori
+     
+     refraction_coefficient DEFAULT 0.0
+     
+     define_residual_format all  from to type date file:10 line_no:4 Id:4 S c=class:6 S c=equpt:12 S obs_err
+     
+     ignore_observations using_stations 3
+
+
+
+
+================================================================================
+Regression test om1 - obs modifications - station based modifications   
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testom12.snp
+
+Job: Regression test om1 - obs modifications - station based modifications
+
+
+Solution type: 3d data checking
+
+
+Coordinates file test1.crd
+       5 stations read
+
+Data file 1: test1.dat
+    Observations between 2008-01-01 00:00:00 and 2009-12-23 00:00:00
+       3 observations do not have a date
+      11 GPS baselines
+      21 GPS point coords
+       3 slope distances
+       1 horizontal distance
+       2 ellipsoidal distances
+       3 mean sea level distances
+       1 distance ratio
+       9 horizontal angles
+       3 azimuths
+       3 projection bearings
+       2 zenith distances
+       2 height differences
+       2 orthometric heights
+       2 ellipsoidal heights
+       6 latitudes
+       6 longitudes
+
+Data file 2: test1a.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       3 observations do not have a date
+       1 slope distance
+       1 horizontal distance
+       1 ellipsoidal distance
+       3 mean sea level distances
+       1 distance ratio
+       3 horizontal angles
+       2 azimuths
+       1 projection bearing
+       5 zenith distances
+       1 height difference
+       2 latitudes
+       2 longitudes
+
+The following observations are ignored:
+  Observations which use stations 3
+
+
+
+================================================================================
+Regression test om1 - obs modifications - station based modifications   
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+   SD  slope distances
+   HD  horizontal distances
+   ED  ellipsoidal distances
+   MD  mean sea level distances
+   DR  distance ratios
+   HA  horizontal angles
+   AZ  azimuths
+   PB  projection bearings
+   ZD  zenith distances
+   LV  height differences
+   OH  orthometric heights
+   EH  ellipsoidal heights
+   LT  latitudes
+   LN  longitudes
+
+From  To    Type    Date    File       Lin    Id class  equpt         +/-   
+
+1     2     HA              test1.dat     8    0                        20.0
+
+2     1     HA              test1.dat    12    0                        20.0
+
+2     1     HA              test1.dat    16    0                        20.0
+
+1     2     AZ    1/01/2008 test1.dat    21    0                         4.0
+
+1     2     PB    1/01/2008 test1.dat    27    0                         4.0
+
+1     2     SD    1/01/2008 test1.dat    32    0                      0.0022
+
+1     2     ED    1/01/2008 test1.dat    37    0                      0.0103
+
+1     2     MD    1/01/2008 test1.dat    42    0                      0.0103
+
+4     5     MD    1/01/2008 test1.dat    44    0                      0.0103
+
+1     5     MD    1/01/2008 test1.dat    45    0                      0.0103
+
+1     2     HD    1/01/2008 test1.dat    49    0                      0.0044
+
+1     2     DR    1/01/2008 test1.dat    55    0                      0.0022
+
+1     2     ZD    1/01/2008 test1.dat    61    0                         5.0
+
+1     2     LV    1/01/2008 test1.dat    66    0                      0.0100
+
+1           LN    1/01/2008 test1.dat    71    0                        0.20
+
+2           LN    1/01/2008 test1.dat    72    0                        0.30
+
+1           LT    1/01/2008 test1.dat    76    0                        0.20
+
+2           LT    1/01/2008 test1.dat    77    0                        0.30
+
+1     2     HA*  23/12/2009 test1.dat   109    0 A1                     20.0
+
+2     1     HA   23/12/2009 test1.dat   113    0 A1                     20.0
+
+2     1     HA   23/12/2009 test1.dat   117    0 D                      20.0
+
+1     2     AZ   23/12/2009 test1.dat   122    0 X                       4.0
+
+1     2     SD   23/12/2009 test1.dat   128    0                      0.0022
+
+1     2     PB*  23/12/2009 test1.dat   128    0                         4.0
+
+1     2     ED   23/12/2009 test1.dat   135 8001 A      EDM           0.0103
+
+1     2     ZD   23/12/2009 test1.dat   140 9998                         5.0
+
+1     2     LV   23/12/2009 test1.dat   145    0                      0.0100
+
+1           LN   23/12/2009 test1.dat   150    0 C      Theodolite      0.20
+
+2           LN*  23/12/2009 test1.dat   151    0 E      Compass         0.30
+
+1           LT   23/12/2009 test1.dat   155    0 C      Theodolite      0.20
+
+2           LT*  23/12/2009 test1.dat   156    0 E      Astrolabe       0.30
+
+1     2     HA*  23/12/2009 test1.dat   165    0 A1                     18.0
+
+2     1     HA   23/12/2009 test1.dat   169    0 A1                     18.0
+
+2     1     HA   23/12/2009 test1.dat   173    0 D                      18.0
+
+1     2     AZ   23/12/2009 test1.dat   178    0 X                       0.4
+
+1     2     SD   23/12/2009 test1.dat   184    0                      0.0022
+
+1     2     PB*  23/12/2009 test1.dat   184    0                         3.6
+
+1           LN   23/12/2009 test1.dat   189    0 C      Theodolite      0.72
+
+2           LN*  23/12/2009 test1.dat   190    0 E      Compass         1.08
+
+1           LT   23/12/2009 test1.dat   194    0 C      Theodolite      0.72
+
+2           LT*  23/12/2009 test1.dat   195    0 E      Astrolabe       1.08
+
+1           OH   23/12/2009 test1.dat   199    0                      2.0000
+
+1           OH   23/12/2009 test1.dat   205    0                      0.2000
+
+1           EH   23/12/2009 test1.dat   210    0                      2.0000
+
+1           EH   23/12/2009 test1.dat   216    0                      0.2000
+
+1     2     GB   23/12/2009 test1.dat   223 1000                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   236    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   255 1000                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   266    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   282 1000                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   290    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   300 1000                      0.0200
+                                                                      0.0259
+                                                                      0.0181
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   308    0                      0.0200
+                                                                      0.0259
+                                                                      0.0181
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   315 1000                      0.0806
+                                                                      0.0237
+                                                                      0.0730
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   317 1000                      0.6833
+                                                                      0.3085
+                                                                      0.6465
+                                                                            
+
+1     2     GB   23/12/2009 test1.dat   323    0                      0.0806
+                                                                      0.0237
+                                                                      0.0730
+                                                                            
+
+1           GX   23/12/2009 test1.dat   332    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+2           GX   23/12/2009 test1.dat   337    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1           GX   23/12/2009 test1.dat   344    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+2           GX*             test1.dat   345    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1           GX   23/12/2009 test1.dat   360    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+2           GX*  23/12/2009 test1.dat   364    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1           GX   23/12/2009 test1.dat   370    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+2           GX*             test1.dat   371    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1           GX   23/12/2009 test1.dat   384    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+2           GX*  23/12/2009 test1.dat   387    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1           GX   23/12/2009 test1.dat   391    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+2           GX*             test1.dat   393    0                      0.0260
+                                                                      0.0104
+                                                                      0.0248
+                                                                            
+
+1           GX   23/12/2009 test1.dat   400    0                      0.0200
+                                                                      0.0259
+                                                                      0.0181
+                                                                            
+
+2           GX*  23/12/2009 test1.dat   403    0                      0.0200
+                                                                      0.0259
+                                                                      0.0181
+                                                                            
+
+1           GX   23/12/2009 test1.dat   407    0                      0.0200
+                                                                      0.0259
+                                                                      0.0181
+                                                                            
+
+2           GX*             test1.dat   409    0                      0.0200
+                                                                      0.0259
+                                                                      0.0181
+                                                                            
+
+1           GX   23/12/2009 test1.dat   417    0                      0.0982
+                                                                      0.0414
+                                                                      0.0908
+                                                                            
+
+1           GX   23/12/2009 test1.dat   419    0                      0.6833
+                                                                      0.3085
+                                                                      0.6465
+                                                                            
+
+2           GX*  23/12/2009 test1.dat   421    0                      0.0982
+                                                                      0.0414
+                                                                      0.0908
+                                                                            
+
+1           GX   23/12/2009 test1.dat   424    0                      0.0982
+                                                                      0.0414
+                                                                      0.0908
+                                                                            
+
+2           GX*             test1.dat   425    0                      0.0982
+                                                                      0.0414
+                                                                      0.0908
+                                                                            
+
+1     2     HA              test1a.dat    9    0                        40.0
+
+2     1     HA              test1a.dat   13    0                        40.0
+
+2     1     HA              test1a.dat   22    0                       709.8
+
+1     2     AZ    1/01/2008 test1a.dat   31    0                        20.0
+
+1     2     AZ    1/01/2008 test1a.dat   36    0                       949.1
+
+1     2     PB    1/01/2008 test1a.dat   42    0                       949.1
+
+1     2     SD    1/01/2008 test1a.dat   48    0                      0.0219
+
+1     2     ED    1/01/2008 test1a.dat   54    0                      0.0200
+
+1     2     MD    1/01/2008 test1a.dat   60    0                      0.0889
+
+4     5     MD    1/01/2008 test1a.dat   62    0                      0.0889
+
+1     5     MD    1/01/2008 test1a.dat   63    0                      0.0889
+
+1     2     HD    1/01/2008 test1a.dat   68    0                      0.0219
+
+1     2     DR    1/01/2008 test1a.dat   75    0                      0.0219
+
+1     2     ZD    1/01/2008 test1a.dat   81    0                        20.0
+
+1     2     LV    1/01/2008 test1a.dat   87    0                      0.0200
+
+1           LN    1/01/2008 test1a.dat   93    0                        1.20
+
+2           LN    1/01/2008 test1a.dat   94    0                        1.20
+
+1           LT    1/01/2008 test1a.dat   99    0                        1.50
+
+2           LT    1/01/2008 test1a.dat  100    0                        1.50
+
+1     2     ZD    1/01/2008 test1a.dat  106    0                         5.0
+
+1     2     ZD    1/01/2008 test1a.dat  110    0                        25.7
+
+1     2     ZD    1/01/2008 test1a.dat  114    0                        22.9
+
+1     2     ZD    1/01/2008 test1a.dat  118    0                        34.8

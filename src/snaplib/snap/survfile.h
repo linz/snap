@@ -25,7 +25,6 @@ typedef struct
     char *name;
     int format;
     char *subtype;
-    double errfct;
     char *refpath;
     char *recodefile;
     double mindate;
@@ -36,13 +35,12 @@ typedef struct
     stn_recode_map *recode;
 } survey_data_file;
 
-int  add_data_file( char *name, int format, char *subtype, double errfct, char *recode, char *refpath );
+int  add_data_file( char *name, int format, char *subtype, char *recode, char *refpath );
 survey_data_file *survey_data_file_ptr( int ifile );
 char *survey_data_file_name( int ifile );
 int survey_data_file_id( char *name, char *refpath );
 int survey_data_file_count( void );
 void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate );
-double survey_data_file_errfct( int ifile );
 
 void delete_survey_file_recodes();
 void delete_survey_file_list();

@@ -1,0 +1,89 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="reject_observations">
+<title>The reject_observations command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_reject_observations"></a>The reject_observations command</h1>
+
+<p class="Commanddefinition">reject_observations <i>selection_criteria</i></p>
+
+<p>The reject_observations command is used to identify observations that will be rejected from the adjustment.
+Observations can be selected based upon observation type, observation date, stations used, and <a href="../data/obs_classifications.html">observation classifications</a>.</p> 
+
+<p>Observations can also be <a href="cmd_reweight_observations.html">reweighted</a> or <a href="cmd_ignore_observations.html">ignored</a> based on selection criteria.  
+Rejected observations are not used to calculate coordinates but do still 
+have residuals calculated, whereas ignored observations are not included in the adjustment at all.
+</p>
+
+<p>
+The selection criteria can include:
+</p>
+
+<p class="Commanddefinition">classification=value</p><p class="Commanddescription">
+Specifies observations based on a classification.  The classification can be one of
+&quot;<a href="../data/obs_data_types.html">data_type</a>&quot;, 
+&quot;data_file&quot;, or a <a href="../data/obs_classifications.html">user defined classification</a> such as &quot;EQUIPMENT&quot;.  
+For classifications other than data_file multiple values can be entered on separated by &quot;/&quot; characters
+(eg data_type=HA/AZ/PB).  Data file selections can be preceded by ignore_missing, warn_missing, or 
+fail_missing to specify the error handling if the specified data file is not in the adjustment 
+
+<p class="Commanddefinition">date_before <i>date</i></p>
+<p class="Commanddescription">Selects observations dated before the specified date.  The date can be 
+formatted using the <a href="../data/obs_ddc_date.html">formats</a> used in data files, except that the
+date cannot include spaces, and unknown is not valid.</p>
+
+<p class="Commanddefinition">date_after <i>date</i></p>
+<p class="Commanddescription">Selects observations dated after the specified date.</p>
+
+<p class="Commanddefinition">date_unknown</p>
+<p class="Commanddescription">Selects observations for which the date is not specified.</p>
+
+<p class="Commanddefinition">using_stations <i>station_list</i> [end_stations]</p>
+<p class="Commanddescription">Selects observations which connect to a station 
+in the <a href="cmd_stn_list.html">station list</a>. The &quot;end_stations&quot; is only required
+if the list is followed by additional selection criteria.</p>
+
+<p class="Commanddefinition">between_stations <i>station_list</i> [end_stations]</p>
+<p class="Commanddescription">Selects observations between stations 
+in the <a href="cmd_stn_list.html">station list</a>. This also includes point observations at
+stations in the list. The &quot;end_stations&quot; is only required
+if the list is followed by additional selection criteria.</p>
+
+<p>If more than one selection criterion is specified then only observations matching all criteria will
+be selected.
+</p>
+
+<p>Examples of rejecting observations are:</p>
+
+<p class="Commandexample">reject_observations equipment=DI20/TAPE</p>
+
+<p class="Commandexample">reject_observations date_before 2000-01-01 using_stations inside affected_area.wkt</p>
+
+<p class="Commandexample">reject_observations ignore_missing data_file=post_eq_levelling.dat</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_ignore_observations.html">The ignore_observations command</a></p>
+
+<p><a href="cmd_reweight_observations.html">The reweight_observations command</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+</div>
+</body>
+</html>

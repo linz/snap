@@ -1,0 +1,42 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+================================================================================
+                          Run at 
+
+
+
+
+================================================================================
+                                                            
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Invalid specification using in observation selection criteria
+       Line 28: File testom20.snp
+
+Error: Invalid specification stations in observation selection criteria
+       Line 28: File testom20.snp
+
+Error: Invalid specification 3 in observation selection criteria
+       Line 28: File testom20.snp
+
+Error: Invalid data type code QQ in observation criteria
+       Line 29: File testom20.snp
+
+Warning: Invalid data_file garbage2.dat in classification command
+       Line 31: File testom20.snp
+
+Error: Invalid data_file garbage3.dat in classification command
+       Line 32: File testom20.snp
+
+Error: The command file is not correct

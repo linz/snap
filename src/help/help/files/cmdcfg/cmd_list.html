@@ -75,7 +75,14 @@ command file.  This can be modified with the geocentric_ref_frame, topocentric_r
 
 <p>The list and print command are also used to modify the presentation of  some sections of the output.  The following items can be included as list options.  Again the options are turned off by prefixing them with no_.</p>
 
+<p class="Commanddefinition">file_locations</p><p class="Commanddescription">Specifies that the data file name
+and line number will be printed periodically in the otuput listing (see also 
+<a href="cmd_file_location_frequency.html">file_location_frequency</a>).</p>
+
 <p class="Commanddefinition">notes</p><p class="Commanddescription">Specifies that notes associated with observations (using #note in the data file) will be copied to the list of residuals.</p>
+
+<p class="Commanddefinition">distance_ratio_scales</p><p class="Commanddescription">Specifies that 
+the scale factor calculated for distance ratio observations will be included in the list of residuals.</p>
 
 <p class="Commanddefinition">rejected_stations</p><p class="Commanddescription">Specifies that rejected stations will be included in the output.  If rejection stations are excluded (using list no_rejected_stations) then rejected stations and observations to them are omitted from the output.  This causes rejected stations to be treated the same way as ignored stations.</p>
 

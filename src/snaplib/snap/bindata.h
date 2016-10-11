@@ -52,6 +52,8 @@ void delete_bindata( bindata *b );
 long save_survdata( survdata *sd );
 long save_survdata_subset( survdata *sd, int iobs, int type );
 
+char *get_obs_classification_name( survdata *sd, trgtdata *t, int class_id );
+
 #ifdef BINDATA_C
 #define SCOPE
 #else

@@ -18,6 +18,9 @@
 #ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
 #endif
+#ifndef _OBSMOD_H
+#include "snapdata/obsmod.h"
+#endif
 
 /* Init load data takes the addresses of three callback functions which
    act as translators between names (of stations, refraction coeffs,
@@ -113,6 +116,8 @@ const char *ldt_get_code( int type, int group_id, long id );
 double ldt_calc_value( int calc_type, long id1, long id2 );
 
 /* Set state - can happen at any time */
+
+void ldt_init_obs_modifications( void *obsmod );
 
 void ldt_file( int file );
 

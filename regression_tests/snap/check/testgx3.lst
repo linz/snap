@@ -2697,7 +2697,7 @@ BEGIN_JSON obs_equation_2
     "values": [ 8.21849801e-01,  1.68651426e-03,  1.19699686e-04, -8.22991793e-01]
    },
    {
-    "value":  1.62728870e-04,
+    "value":  1.62728869e-04,
     "useobs": true,
     "ncolumns": 4,
     "columns": [14, 11, 12, 13],

@@ -1,0 +1,29 @@
+title Regression test om1 - obs modifications - combined reject
+
+coordinate_file test1.crd ! Comment to be ignored
+data_file test1.dat
+data_file test1a.dat
+
+mode 3d data_check
+
+list command_file
+list file_summary
+list residuals
+list no_solution_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list no_worst_residuals
+list no_notes
+list no_file_locations
+list no_distance_ratio_scales
+list no_error_summary
+
+error_type apriori
+
+refraction_coefficient DEFAULT 0.0
+
+define_residual_format all  from to type date file:10 line_no:4 Id:4 S c=class:6 S c=equpt:12 S obs_err
+
+reject_observations data_file=test1a.dat data_type=HA/ED
+

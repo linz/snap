@@ -1,28 +1,12 @@
-
-/*
-   $Log: network.h,v $
-   Revision 1.3  2000/04/02 22:19:45  ccrook
-   Added missing function declaration for get_network_coordinate
-
-   Revision 1.2  1998/06/03 22:01:48  ccrook
-   Modified to add geodetic coordinate system and coord conversions to network definition
-
-   Revision 1.1  1995/12/22 17:32:37  CHRIS
-   Initial revision
-
-*/
-
-#ifndef NETWORK_H_RCSID
-#define NETWORK_H_RCSID "$Id: network.h,v 1`.3 2000/04/02 22:19:45 ccrook Exp $"
-#endif
-/* Definition and manipulation of a file of geodetic stations.
-
-   The file defines both a coordinate system and a list of stations.
-
-*/
-
 #ifndef _NETWORK_H
 #define _NETWORK_H
+
+/* Definition and manipulation of a network of geodetic stations.
+
+   The network defines both a coordinate system and a list of stations.
+
+*/
+
 
 /* Need definitions of a coordinate system and of basic geodetic functions */
 
@@ -367,17 +351,6 @@ void    reset_station_list( network *nw, int sorted );
 station *next_station( network *nw );
 
 void    process_stations( network *nw, void *data, void (*function)( station *st, void *data) );
-/* process_selected_stations - applies a function to a set of stations selected according to
-   criteria in a select string.  Possible criteria are:
-     code               station with specified code
-     code1-code2        stations with codes in the specified range
-     class=value        stations matching a specified classification
-     @file              read selection criteria from each line in file (the file will be sought
-	                    relative to base file and in the current directory)
-
-*/
-void    process_selected_stations( network *nw, const char *select, const char *basefile,
-                                   void *data, void (*function)( station *st, void *data) );
 
 int   number_of_stations( network *nw );
 
@@ -403,6 +376,60 @@ int network_station_order( network *nw, station *stn );
 
 void dump_network( network *nw, FILE *bin );
 network *reload_network( FILE *bin );
+
+/* Initiallize an object to hold station selection criteria */
+/* If maxstn is greater than zero then the criteria have a selection cache installed 
+ * so each station only needs be tested once.  Not useful if only processing each
+ * station once in any case!
+ */
+
+void *new_station_criteria();
+
+/* Delete the selection criteria object */
+
+void delete_station_criteria( void *psc );
+
+/* Add a cache to existing station criteria */
+/* No-op if cache already installed */
+
+void setup_station_criteria_cache( void *psc, int maxstn );
+
+/* Compile selection criteria into the station_criteria object
+ * Possible criteria are:
+ *   code               station with specified code
+ *   code*              station codes starting with code...
+ *   code1-code2        stations with codes in the specified range
+ *   inside coordsys wktfile   stations inside polygon defined in WKT file
+ *   outside coordsys wktfile  stations outside polygon defined in WKT file
+ *   class=value        stations matching a specified classification
+ *   @file              read selection criteria from each line in file (the file will be sought
+ *                      relative to base file and in the current directory)
+ *    except ...        don't match following stations/criteria on the line
+ */
+
+int  compile_station_criteria( void *psc, network *nw, const char *select, char *basefile );
+
+/* Check if a station matches the criteria */
+
+bool station_criteria_match( void *psc, station *stn );
+
+/* Check station criteria codes are valid.  Tests each station not already
+ * tested against network, and returns stations based on selection criteria 
+ * specifications for handling of missing station codes 
+ */
+
+int check_station_criteria_codes( void *psc, network *nw );
+
+/* Apply station criteria to a network - processes each matching station with a function */
+
+void apply_station_criteria_to_network( void *psc, network *nw, 
+    void *data, void (*function)( station *stn, void *data ));
+
+/* Process selected stations - compiles and applies station criteria in
+ * a single function */
+
+int process_selected_stations( network *nw, const char *select, char *basefile,
+    void *data, void (*function)( station *st, void *data ));
 
 #endif /* NETWORK_H not defined */
 

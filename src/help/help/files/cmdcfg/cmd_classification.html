@@ -13,6 +13,15 @@
 
 <h1><a name="cmd_classification"></a>The classification command</h1>
 
+<p><b>Note: This command is deprecated.</b>  It is recommended that the 
+<a href="cmd_reweight_observations.html">reweight_observations</a>,
+<a href="cmd_reject_observations.html">reject_observations</a>, and
+<a href="cmd_ignore_observations.html">ignore_observations</a> commands are used instead, 
+as they are both more meaningful to read, and more functional, as they can select
+observations based on multiple classifications, as well as date and stations used.
+</p>
+
+
 <p class="Commanddefinition">classification <i>type</i> [ignore] [reject] <i>name </i>[error_factor <i>value</i>]</p>
 
 <p>The classification command is used to modify input data based upon its <a href="../data/obs_classifications.html">classifications</a>. The actions that can be done are to ignore or reject the data, or to apply a scale factor to its error.  The parameters are</p>

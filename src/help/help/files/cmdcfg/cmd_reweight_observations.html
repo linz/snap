@@ -1,0 +1,54 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="reweight_observations">
+<title>The reweight_observations command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_reweight_observations"></a>The reweight_observations command</h1>
+
+<p class="Commanddefinition">reweight_observations <i>factor</i> <i>selection_criteria</i></p>
+
+<p>The reweight_observations command is used to reweight observations in the adjustment.
+Observations can be selected based upon observation type, observation date, stations used, and <a href="../data/obs_classifications.html">observation classifications</a>.</p> 
+
+<p>The <i>factor</i> parameter is a scale factor by which the error of the selected observations is multiplied.</p>
+
+<p>The format of <i>selection_criteria</i> is described for the <a href="cmd_reject_observations.html">reject_observations</a> command.
+</p>
+
+<p>Examples of reweighting observations are:</p>
+
+<p class="Commandexample">reweight_observations 1.5 data_type=HA/AZ</p>
+
+<p class="Commandexample">reweight_observations 2.0 before 2000-01-01 stations inside affected_area.wkt</p>
+
+<p>Observations can also be <a href="cmd_reject_observations.html">rejected</a> or <a href="cmd_ignore_observations.html">ignored</a> based on selection criteria.  
+Rejected observations are not used to calculate coordinates but do still 
+have residuals calculated, whereas ignored observations are not included in the adjustment at all.
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_reject_observations.html">The reject_observations command</a></p>
+
+<p><a href="cmd_ignore_observations.html">The ignore_observations command</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+</div>
+</body>
+</html>

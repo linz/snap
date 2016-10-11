@@ -16,7 +16,8 @@ list no_worst_residuals
 fix all
 free all horizontal
 free vertical all
-fix horizontal B00 PIND-TUBBY
+fix horizontal B00 
+fix horizontal PIND-TUBBY
 fix vertical 10-100
 fix 3d C_10-C_100 
 

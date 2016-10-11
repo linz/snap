@@ -705,7 +705,7 @@ int read_key_definition( char *def )
     return OK;
 }
 
-void print_key( FILE *out, char *prefix )
+void print_key( FILE *out, const char *prefix )
 {
     int i;
     for( i = 0; i < symbology->LayerCount(); i++ )

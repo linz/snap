@@ -504,3 +504,18 @@ static void reset_survdata_pointers( survdata *sd )
         sd->cvr = sd->calccvr = sd->rescvr = (ltmat) 0;
     }
 }
+
+char *get_obs_classification_name( survdata *sd, trgtdata *t, int class_id )
+{
+    int ic;
+    for( ic = 0; ic < t->nclass; ic++ )
+    {
+        classdata *cd;
+        cd = sd->clsf + ic + t->iclass;
+        if( cd->class_id == class_id )
+        {
+            return class_value_name( &obs_classes, class_id, cd->name_id );
+        }
+    }
+    return NULL;
+}

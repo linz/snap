@@ -70,6 +70,8 @@ SCOPE char output_station_adjustments;
 SCOPE char output_iteration_summary;
 SCOPE char output_ls_summary;
 SCOPE char output_residuals;
+SCOPE char output_file_locations;
+SCOPE char output_distance_ratio_scales;
 SCOPE char output_error_summary;
 SCOPE char output_worst_residuals;
 SCOPE char output_station_coordinates;

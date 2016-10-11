@@ -285,7 +285,7 @@ int snapplot_load( int argc, char *argv[] )
         }
         for( i = 0; i < nfiles; i++ )
         {
-            add_data_file( filelist[i], SNAP_FORMAT, 0, 1.0, 0, 0 );
+            add_data_file( filelist[i], SNAP_FORMAT, 0, 0, 0 );
         }
     }
 

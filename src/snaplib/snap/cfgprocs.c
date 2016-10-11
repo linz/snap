@@ -20,7 +20,9 @@
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "snap/cfgprocs.h"
+#include "snapdata/obsmod.h"
 #include "util/xprintf.h"
+#include "util/dstring.h"
 
 int stations_read = 0;
 
@@ -128,6 +130,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
     char *recode = 0;
     char *specs;
     int ftype;
+    int fileid;
     double factor;
 
     fname = strtok( string, " " );
@@ -230,9 +233,141 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
         }
     }
 
-    add_data_file( fname, ftype, options, factor, recode, get_config_directory(cfg) );
+    fileid=add_data_file( fname, ftype, options, recode, get_config_directory(cfg) );
+
+    if( factor != 1.0 )
+    {
+        void *obs_modifications=snap_obs_modifications( true );
+        add_obs_modifications_datafile_factor(cfg,obs_modifications,fileid,survey_data_file_name(fileid),factor);
+    }
 
     return OK;
 }
 
 
+int read_obs_modification_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    int sts=OK;
+    double err_factor=1.0;
+    void *obs_modifications;
+    if( code == OBS_MOD_REWEIGHT )
+    {
+        char *field=next_field(&string);
+        if( ! field || sscanf(field,"%lf", &err_factor) != 1 || err_factor <= 0 )
+        {
+
+            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in classification command");
+            return OK;
+        }
+    }
+    obs_modifications=snap_obs_modifications( true );
+    sts=add_obs_modifications( cfg, obs_modifications, string, code, err_factor );
+    return OK;
+}
+
+
+int read_classification_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    double errfct;
+    char *classification;
+    char *classvalue;
+    int isdatafile;
+    int action;
+    int missing_error;
+    char *st;
+    void *obs_modifications;
+
+    missing_error=INVALID_DATA;
+    st = strtok( string, " " );
+    if( !st )
+    {
+        send_config_error( cfg, MISSING_DATA, "Name of the classification is missing");
+        return OK;
+    }
+
+    classification=st;
+    isdatafile=_stricmp(classification,"data_file")==0;
+
+    errfct = -1.0;
+    action=0;
+
+    st = strtok( NULL, " " );
+    if( st )
+    {
+        if( _stricmp( st, "reject" ) == 0 )
+        {
+            action |= OBS_MOD_REJECT;
+        }
+        else if( _stricmp( st, "ignore" ) == 0 )
+        {
+            action |= OBS_MOD_IGNORE;
+        }
+        if( action ) st = strtok( NULL, " " );
+    }
+
+    if( isdatafile && st && _stricmp(st,"ignore_missing") == 0 ) 
+    {
+        missing_error=OK;
+        st = strtok( NULL, " " );
+    }
+    else if( isdatafile && st && _stricmp(st,"warn_missing") == 0 ) 
+    {
+        missing_error=INFO_ERROR;
+        st = strtok( NULL, " " );
+    }
+    else if( isdatafile && st && _stricmp(st,"fail_missing") == 0 ) 
+    {
+        st = strtok( NULL, " " );
+    }
+
+    if( !st )
+    {
+        send_config_error( cfg, MISSING_DATA, "Value of classification is missing");
+        return OK;
+    }
+
+    classvalue=st;
+
+    st = strtok( NULL, " " );
+
+    if( ! action )
+    {
+        if( !st )
+        {
+            send_config_error( cfg, MISSING_DATA,"Classification commands needs ignore, reject, or error_factor specified");
+            return OK;
+        }
+
+        if( _stricmp( st, "reject" ) == 0 )
+        {
+            action |= OBS_MOD_REJECT;
+        }
+        else if( _stricmp( st, "ignore" ) == 0 )
+        {
+            action |= OBS_MOD_IGNORE;
+        }
+        if( action ) st = strtok( NULL, " " );
+    }
+
+    if( st )
+    {
+        if( _stricmp(st,"error_factor") != 0 || (st=strtok(NULL," ")) == NULL ||
+                sscanf(st, "%lf", &errfct ) != 1 || errfct <= 0.0 ||
+                strtok(NULL," ") != NULL )
+        {
+
+            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in classification command");
+            return OK;
+        }
+        if( errfct != 1.0 ) action |= OBS_MOD_REWEIGHT;
+    }
+
+    if( ! action ) return OK;
+
+    obs_modifications=snap_obs_modifications( true );
+
+    add_obs_modifications_classification(cfg,obs_modifications,classification,classvalue,
+            action,errfct,missing_error);
+
+    return OK;
+}

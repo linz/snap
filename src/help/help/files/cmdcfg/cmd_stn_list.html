@@ -13,7 +13,49 @@
 
 <h1><a name="cmd_stn_list"></a>Station lists</h1>
 
-<p>Several commands (for example reject,  ignore, fix) use a list of station codes to identify the stations that are affected.  This list can include:</p>
+<p>Several commands (for example reject,  ignore, fix) use a list of station codes to identify the stations that are affected.  
+
+<p>The simplest form of station list is simply a list of station codes and often this is all that is required. For example:<p> 
+
+<p class="Commandexample">fix ABCD 1234 BM1</p>
+
+<p>which specifies that the three stations ABCD, 1234, and BM1 will be fixed.</p>
+
+<p>Note that the commands <i>or</i>, <i>and</i>, <i>except</i>, <i>inside</i>, <i>ignore_missing</i>, <i>warn_missing</i>, and
+<i>reject_missing</i> are treated specially in station lists.  To specify these as station codes they must be prefixed with 
+a backslash character &quot;\&quot;. For example to fix a station called INSIDE the following command would be used:
+</p>
+
+<p class="Commandexample">fix ABCD 1234 \INSIDE</p>
+
+<h3>Station list files</h3>
+
+<p>When a group of stations will be referenced in several adjustments or long lists of stations it may be convenient to 
+Sometimes it may be more convenient to put the list into a station list file.  This could be useful for a long list of stations, or where
+the same list is going to be used in several adjustments.
+</p>
+<p>
+For example if you wanted to be able to easily exclude all benchmarks from an adjustment  you could create a file called benchmrk.stl.  
+Each line in the file would be the code of a benchmark.  Then in the command file you would include  the command</p>
+
+<p class="Commanddefinition">reject @benchmrk</p>
+
+<p>to reject them. </p>
+
+<p>A station list file may contain any number of station codes and station code ranges and polygon definitions.  
+The file can include comments as lines starting with the character !.</p>
+
+
+<h3>Advanced station lists</h3>
+
+<p>For more complex scenarios such as large adjustments created by automatically by scripts it may be useful to identify the 
+stations by criteria such as location or coordinate order rather than explicitly listing the stations.  To allow this the station 
+station list can include multiple criteria.  Each item in the list (items are separated by whitespace) defines a criteria.  By default
+the criteria are treated as alternatives - a station matching any one of criteria is treated selected.  However this behaviour can 
+be modified by including <i>and</i> or <i>except</i> operators in the list.  This is detailed below.
+<p>
+
+<p>The station list can include any of the following items:</p>
 
 <p class="BulletList">individual station codes</p>
 
@@ -23,9 +65,9 @@ range will be treated as an individual station code.</p>
 
 <p class="BulletList">a station name finishing with a &quot;*&quot; wildcard, for example BO*, will match any station starting with the characters before the wildcard</p>
 
-<p class="BulletList">stations specified by order - entered as order=<i>order</i> (eg order=3).  This can be used if the coordinate file specifies station orders.</p>
+<p class="BulletList">stations specified by order - entered as order=<i>order</i> (eg order=3).  This can be used if the coordinate file specifies station orders.  More than one order can be selected by separating orders with a &quot;/&quot; (eg order=1/2/3).</p>
 
-<p class="BulletList">stations specified by other classifications defined in the coordinate file - entered as <i>class_name</i>=<i>order</i> (eg mark_type=pin).</p>
+<p class="BulletList">stations specified by other classifications defined in the coordinate file - entered as <i>class_name</i>=<i>value</i> (eg mark_type=pin).  More than one value can be specified by separating values with a &quot;/&quot;  (eg mark_type=pin/spike).</p>
 
 <p class="BulletList">stations defined in a station list file - entered as @<i>filename</i>. The default extension for a station list file is &quot;.stl&quot;.</p>
 
@@ -34,30 +76,77 @@ Here <i>crdsys</i> is the coordinate system in which the polygon is defined
 and <i>wktfile</i> is the name of a file containing the coordinates of a polygon extent
 in WKT (well known text) format.  The default extension for the file is &quot;.wkt&quot;.</p>
 
+<p class="BulletList">the command <i>or</i> between items.  This is implicit between items in a list, for example if the list is &quot;ABCD&nbsp;1234&quot;, then this is interpreted as &quot;a station with code ABCD or 1234&quot;.  If it is useful for clarity then the &quot;or&quot; can 
+be written in the list.
+</p>
+
+<p class="BulletList">the command <i>and</i> followed by a list of conditions at least one of which must be met which act as a filter on the 
+selected stations.
+</p>
+
+<p class="BulletList">the command <i>except</i> which identifies stations not to be included in the selection.  The list can only include 
+one <i>except</i> command.  The rest of list defines stations which are not selected.</p>
+
 <p class="BulletList">the commands <i>ignore_missing</i>, <i>warn_missing</i>, or <i>fail_missing</i>. These control the handling of 
 station codes following in the list which are not in the command file. By default missing stations are treated as an error.  Alternatively
 they can be ignored, or generate a warning but not a failure.
 </p>
 
-<p>When a group of stations will be referenced in several adjustments it may be convenient to put the list into a a station list file.  
-For example if you wanted to be able to easily exclude all benchmarks from an adjustment  you could create a file called benchmrk.stl.  In this you would specify all benchmarks.  Then in the command file you would include  the command</p>
 
-<p class="Commanddefinition">reject @benchmrk</p>
+<p>
+The commands <i>and</i> and <i>except</i> are not very intuitive and deserve further explanation.  The station list is divided into items
+by blank characters, and each item may be one of those listed above.  
+By default items are treated as alternative conditions (that is separated by
+<i>or</i> commands). The <i>and</i> command starts a new set of items.  Only the stations included in both sets of items are included.  For
+example the list
+</p>
+<p class="Commandexample">
+ABCD order=1 order=2 and @marktype=PEG @marktype=TUBE and inside NZMG aoi.wkt
+</p>
+<p>would include station ABCD and stations with order 1 or order 2, but only if they had classification marktype PEG or TUBE and if they 
+were inside the polygon defined in the aoi.wkt file.
+</p>
 
-<p>to reject them. </p>
+<p>The <i>except</i> condition starts a list of stations not included in the selection.  There can only be one <i>except</i> in the command,
+and everything following it defines stations that are not selected. This can include items separated by <i>and</i> and <i>or</i>. For
+example
+</p>
+<p class="Commandexample">
+free all except order=0 and @purpose=CORS
+</p>
+<p>
+would free all stations except those that are both order 0 and CORS stations.  By contrast the command
+</p>
+<p class="Commandexample">
+free all except order=0 @purpose=CORS
+</p>
+<p>
+would free all stations except those that are either order 0 or CORS stations.
+</p>
 
-<p>The well known text format used to define polygons is a common format for GIS systems. 
+<p>Station lists cannot begin with <i>and</i>, <i>or</i>, or <i>except</i>.</p>
+
+<p>Note that in a station list file each line is treated as a separate station list.  A station matching any line in the file is selected.
+Each line can include <i>and</i> and <i>except</i> commands, and these are treated independently for each line.</p>
+
+<p>The well known text format used to define polygons for the <i>inside</i> and <i>outside</i> commands
+is a common format for GIS systems. 
 Many polygons can be defined in the file.  However a very simplistic algorithm is used
 to parse the file, so it may give incorrect results if the file contains other data.
 The critical part of the file are one or more sequences of:
 </p>
 <p class="Commanddefinition">(x1 y1, x2, y2, ... , xn yn )</p>
 <p>
-where x and y are the longitude and latitude or easting and northing coordinates. The final 
-coordinates in the list must be the same as the initial coordinates.  Note that if the file contains overlapping polygons then a point that inside an even number of them will be considerered outside the total extent.
+where x and y are the longitude and latitude or easting and northing coordinates. 
+Any such list is treated as defining a polygon edge (either outside edge or edge of a hole
+in the polygon).  The routine does not do any more complex testing for a valid WKT definition.
+The final 
+coordinates in each such list must be the same as the initial coordinates.  
+Note that if the file contains overlapping polygons then a point that 
+inside an even number of them will be considerered outside the total extent.
 Similarly a point that is inside an odd number of them is considered inside the total extent.
+This algorithm handles polygons definitions which include holes.
 </p>
-<p>A station list file may contain any number of station codes and station code ranges and polygon definitions.  It cannot include references to other list files.  The codes can be spread over several lines.  They should be separated by blank characters.  The file can include comments as lines starting with the character !.</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

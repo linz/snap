@@ -110,6 +110,8 @@ static output_option output[] =
     {"iteration_summary",&output_iteration_summary,1,{ PREANALYSIS, 0},0},
     {"solution_summary",&output_ls_summary,1,{ 0 },0},
     {"residuals",&output_residuals,1,{ PREANALYSIS, 0},0},
+    {"file_locations",&output_file_locations,1,{ PREANALYSIS, 0},0},
+    {"distance_ratio_scales",&output_distance_ratio_scales,1,{ PREANALYSIS, 0},0},
     {"worst_residuals",&output_worst_residuals,1,{0},0},
     {"error_summary",&output_error_summary,1,{0},0},
     {"grouped_data_by_type",&output_sort_by_type,1,{0},0},

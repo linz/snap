@@ -49,6 +49,10 @@
 #include "snap/filenames.h"
 #endif
 
+#ifndef _OBSMOD_H
+#include "snapdata/obsmod.h"
+#endif
+
 #ifdef _SNAPGLOB_C
 #define SCOPE
 #else
@@ -94,6 +98,7 @@ SCOPE unsigned char use_distance_ratios;
 SCOPE int ignore_deformation; /* Ignore the coordinate system deformation */
 SCOPE deformation_model *deformation;
 SCOPE classifications obs_classes;
+SCOPE void *obs_modifications;
 
 /* General output options */
 
@@ -119,6 +124,7 @@ SCOPE double redundancy_flag_level;
 void init_snap_globals();
 void set_snap_command_file( char *cmd_file );
 void set_snap_config_file( char *cfg_file );
+void *snap_obs_modifications( bool create );
 
 #ifdef _BINFILE_H
 void dump_snap_globals( BINARY_FILE *b );

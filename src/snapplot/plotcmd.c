@@ -68,6 +68,10 @@ static config_item snapplot_general_commands[] =
     {"title",job_title,ABSOLUTE,JOBTITLELEN,STORE_AS_STRING,CFG_ONEONLY,0},
     {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED+CFG_ONEONLY, 0},
     {"data_file",NULL,ABSOLUTE,0,load_data_file,0,0},
+    {"classification",NULL,ABSOLUTE,0,read_classification_command,0,0},
+    {"reweight_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
+    {"reject_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
+    {"ignore_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
     {"recode",NULL,ABSOLUTE,0,read_recode,0,0},
     {"plot",NULL,ABSOLUTE,0,load_plot_data,0,0},
     {"include",NULL,ABSOLUTE,0,read_include_command,0,0},
@@ -117,7 +121,7 @@ static config_item snapplot_cfg_commands[] =
 
 static config_item *snapplot_commands = NULL;
 static void *cfg_list = NULL;
-static char *whitespace = " \t\r\n";
+static const char *whitespace = " \t\r\n";
 
 static void add_config_menu_item( const char *filename, char *text );
 
@@ -603,13 +607,12 @@ static int read_observation_options( CFG_FILE *cfg, char *string, void *value, i
         else
         {
             char errmess[80];
-            sprintf(errmess,"Invalid option %.20s in observation_options command");
+            sprintf(errmess,"Invalid option %.20s in observation_options command",s);
             send_config_error( cfg, INVALID_DATA, errmess );
         }
     }
     return OK;
 }
-
 
 static int read_observation_spacing_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -629,9 +632,6 @@ static int read_observation_spacing_command( CFG_FILE *cfg, char *string, void *
     autospacing = autoscl;
     return OK;
 }
-
-
-
 
 static int read_obs_listing_fields_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

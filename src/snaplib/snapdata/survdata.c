@@ -2,6 +2,7 @@
 
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
+#include "util/classify.h"
 
 snap_data_type snap_type[] =
 {
@@ -48,6 +49,20 @@ snap_data_type *snap_data_type_from_id( int idtype )
             snaptypebyid[sd->type] = sd;
         }
     }
-
     return snaptypebyid[idtype];
+}
+
+int get_obs_classification_id( survdata *sd, trgtdata *t, int class_id )
+{
+    int ic;
+    for( ic = 0; ic < t->nclass; ic++ )
+    {
+        classdata *cd;
+        cd = sd->clsf + ic + t->iclass;
+        if( cd->class_id == class_id )
+        {
+            return cd->name_id;
+        }
+    }
+    return CLASS_VALUE_NOT_DEFINED;
 }

@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="ignore_observations">
+<title>The ignore_observations command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_ignore_observations"></a>The ignore_observations command</h1>
+
+<p class="Commanddefinition">ignore_observations <i>selection_criteria</i></p>
+
+<p>The ignore_observations command is used to identify observations that will be ignored.  These observations
+are not read from the data file and take no part in the adjustment.
+Observations can be selected based upon observation type, observation date, stations used, and <a href="../data/obs_classifications.html">observation classifications</a>.</p> 
+
+<p>The format of <i>selection_criteria</i> is described for the <a href="cmd_reject_observations.html">reject_observations</a> command.
+</p>
+
+<p>Observations can also be <a href="cmd_reject_observations.html">rejected</a> or <a href="cmd_reweight_observations.html">reweighted</a> based on selection criteria.  
+Rejected observations are not used to calculate coordinates but do still 
+have residuals calculated, whereas ignored observations are not included in the adjustment at all.
+</p>
+
+<p>Examples of ignoring observations are:</p>
+
+<p class="Commandexample">ignore_observations equipment=TAPE</p>
+
+<p class="Commandexample">ignore_observations date_unknown</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_reject_observations.html">The reject_observations command</a></p>
+
+<p><a href="cmd_reweight_observations.html">The reweight_observations command</a></p>
+
+<p><a href="cmd_stn_list.html">Station lists</a></p>
+
+</div>
+</body>
+</html>

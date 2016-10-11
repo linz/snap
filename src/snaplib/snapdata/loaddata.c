@@ -123,9 +123,14 @@ void (*usedata_func)( survdata *sd );
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-long (*id_func)( int type, int group_id, const char *code );
-const char * (*code_func)( int type, int group_id, long id );
-double (*calc_func)( int type, long id1, long id2 );
+static long (*id_func)( int type, int group_id, const char *code );
+static const char * (*code_func)( int type, int group_id, long id );
+static double (*calc_func)( int type, long id1, long id2 );
+
+/* Specifications for reweighting, rejecting, and ignoring observations */
+
+static double err_factor=1.0;
+static void *pobsmod=0;
 
 /* A function for recoding station codes read from data files */
 
@@ -339,6 +344,8 @@ void init_load_data( void (*usedata)( survdata *sd ),
     id_func = idfunc;
     code_func = codefunc;
     calc_func = calcfunc;
+    pobsmod = 0;
+    err_factor=1.0;
 
     data.nobs = 0;
     noteloc = 0;
@@ -741,6 +748,11 @@ double ldt_calc_value( int calc_type, long id1, long id2 )
         }
     }
     return (*calc_func)( calc_type, id1, id2 );
+}
+
+void ldt_init_obs_modifications( void *obsmod )
+{
+    pobsmod=obsmod;
 }
 
 void ldt_file( int fileno  )
@@ -1196,7 +1208,6 @@ void ldt_end_data( void )
     }
     if( data.nobs > ndata_cancelled && !inst_cancelled )
     {
-        if( ndata_cancelled ) remove_ignored_obs();
 
         if( data.reffrm == ID_UNDEFINED )
         {
@@ -1213,7 +1224,13 @@ void ldt_end_data( void )
             }
         }
 
-        if( usedata_func ) (*usedata_func)( &data );
+        ndata_cancelled += apply_obs_modifications( pobsmod, &data );
+
+        if( data.nobs > ndata_cancelled )
+        {
+            if( ndata_cancelled ) remove_ignored_obs();
+            if( usedata_func ) (*usedata_func)( &data );
+        }
     }
 
     data.nobs = 0;
