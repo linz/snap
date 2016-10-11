@@ -21,9 +21,10 @@
 #define OBS_CRIT_DATAFILE        2
 #define OBS_CRIT_CLASSIFICATION  3
 #define OBS_CRIT_MCLASSIFICATION 4
-#define OBS_CRIT_DATE            5
-#define OBS_CRIT_STATION_USES    6
-#define OBS_CRIT_STATION_BETWEEN 7
+#define OBS_CRIT_ID              5
+#define OBS_CRIT_DATE            6
+#define OBS_CRIT_STATION_USES    7
+#define OBS_CRIT_STATION_BETWEEN 8
 
 #define OBS_CRIT_DATE_UNKNOWN 1
 #define OBS_CRIT_DATE_BEFORE  2
@@ -49,6 +50,13 @@ typedef struct
     int class_id;
     int value_id;
 } obs_classification_criterion;
+
+typedef struct 
+{
+    int nobs_ids;
+    int obs_id;
+    int *obs_ids;
+} obs_id_criterion;
 
 typedef struct 
 {
@@ -80,6 +88,7 @@ typedef struct obs_criterion_s
         obs_datafile_criterion datafile;
         obs_classification_criterion classification;
         mult_obs_classification_criterion mult_classification;
+        obs_id_criterion id;
         obs_date_criterion date;
         obs_stations_criterion stations;
     } c;
@@ -302,6 +311,77 @@ static void describe_obs_mult_classification_criterion( FILE *lst, obs_criterion
     }
 }
 
+
+static obs_criterion *new_obs_id_criterion( CFG_FILE *cfg, char *idstr )
+{
+    int obs_id=0;
+    int *obs_ids=&obs_id;
+    char *pval;
+    char *pend;
+    int nval=1;
+    obs_criterion *oc;
+    for( pval=idstr; *pval; pval++ ){ if( *pval=='/' ) nval++; }
+    if( nval > 1 ) obs_ids=(int *) check_malloc( nval*sizeof(int) );
+    pval=idstr;
+    nval=0;
+    while( 1 )
+    {
+        char savechr;
+        char chk[2];
+        int ival;
+        for( pend=pval; *pend; pend++ ){ if( *pend=='/' ) break; }
+        savechr=*pend;
+        *pend=0;
+        chk[0]=0;
+        if( sscanf( pval, "%d%1s", &ival , chk ) < 1 || chk[0] ) 
+        {
+            char errmsg[100];
+            sprintf( errmsg,"Invalid observation id \"%.50s\" in observation criteria",pval);
+            send_config_error( cfg, INVALID_DATA, errmsg );
+            if( nval > 1 ) check_free( obs_ids );
+            return nullptr;
+        }
+        obs_ids[nval]=ival;
+        nval++;
+        if( ! savechr ) break;
+        *pend=savechr;
+        pval=pend+1;
+    }
+    oc=new_obs_criterion();
+    oc->crit_type=OBS_CRIT_ID;
+    oc->c.id.obs_id=obs_id;
+    oc->c.id.obs_ids=nval == 1 ? &(oc->c.id.obs_id) : obs_ids;
+    oc->c.id.nobs_ids=nval;
+    return oc;
+}
+
+static void delete_obs_id_criterion( obs_criterion *oc )
+{
+    if( oc->c.id.nobs_ids > 1 ){check_free( oc->c.id.obs_ids ); oc->c.id.obs_ids=0; }
+}
+
+static bool obs_id_match( obs_criterion *oc, survdata *sd, trgtdata *tgt )
+{
+    for( int i=0; i < oc->c.id.nobs_ids; i++ ){ if( oc->c.id.obs_ids[i] == tgt->id ) return true; }
+    return false;
+}
+
+static void describe_obs_id_criterion( FILE *lst, obs_criterion *oc, const char *prefix )
+{
+    if( oc->c.id.nobs_ids == 1 )
+    {
+        fprintf(lst,"where the observation id is %d\n",oc->c.id.obs_id);
+    }
+    else
+    {
+        fprintf(lst,"where the observation id is one of:\n");
+        for( int i=0; i < oc->c.id.nobs_ids; i++ )
+        {
+            fprintf(lst,"%s    - %d\n", prefix, oc->c.id.obs_ids[i]);
+        }
+    }
+}
+
 static obs_criterion *new_obs_date_criterion( CFG_FILE *cfg, unsigned char date_crit_type, char *datestr  )
 {
     obs_criterion *oc;
@@ -447,6 +527,7 @@ static bool obs_criterion_match( obs_criterion *oc, network *nw, survdata *sd, t
         case OBS_CRIT_DATAFILE: return  obs_datafile_match( oc, sd, tgt );
         case OBS_CRIT_CLASSIFICATION: return  obs_classification_match( oc, sd, tgt );
         case OBS_CRIT_MCLASSIFICATION: return  obs_mult_classification_match( oc, sd, tgt );
+        case OBS_CRIT_ID: return  obs_id_match( oc, sd, tgt );
         case OBS_CRIT_DATE: return  obs_date_match( oc, sd, tgt );
         case OBS_CRIT_STATION_USES: return  obs_stations_match( oc, nw, sd, tgt );
         case OBS_CRIT_STATION_BETWEEN: return  obs_stations_match( oc, nw, sd, tgt );
@@ -462,6 +543,7 @@ static void delete_obs_criterion( obs_criterion *oc )
         case OBS_CRIT_STATION_USES: 
         case OBS_CRIT_STATION_BETWEEN: delete_obs_stations_criterion( oc ); break;
         case OBS_CRIT_MCLASSIFICATION: delete_mult_obs_classification( oc ); break;
+        case OBS_CRIT_ID: delete_obs_id_criterion( oc ); break;
     }
     check_free( oc );
 }
@@ -565,6 +647,9 @@ static void summarize_obs_criteria( FILE *lst, const char *prefix, obs_criteria 
                 break;
             case OBS_CRIT_MCLASSIFICATION: 
                 describe_obs_mult_classification_criterion( lst, oc, prefix, classes );
+                break;
+            case OBS_CRIT_ID: 
+                describe_obs_id_criterion( lst, oc, prefix );
                 break;
             case OBS_CRIT_DATE: 
                 describe_obs_date_criterion( lst, oc, prefix );
@@ -673,6 +758,10 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
                 int file_id=get_file_id( obsmod, cfg, fptr+1, missing_error );
                 if( file_id >= 0 ) oc=new_obs_datafile_criterion(file_id,fptr+1 );
             }
+            else if( _stricmp(field,"id") == 0 )
+            {
+                oc=new_obs_id_criterion(cfg,fptr+1 );
+            }
             else
             {
                 oc=new_obs_classification_criterion(cfg, obsmod->classes, field, fptr+1 );
@@ -776,6 +865,10 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     {
         int file_id=get_file_id( obsmod, cfg, value, missing_error );
         if( file_id >= 0 ) oc=new_obs_datafile_criterion( file_id,value );
+    }
+    else if( _stricmp(classification,"id") == 0 )
+    {
+        oc=new_obs_id_criterion(cfg,value);
     }
     else
     {
