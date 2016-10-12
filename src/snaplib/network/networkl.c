@@ -900,7 +900,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
             curop=CRIT_OP_DEFAULT;
         }
     }
-    if( curop != CRIT_OP_DEFAULT )
+    if( ! errmess[0] && curop != CRIT_OP_DEFAULT )
     {
          sprintf(errmess,"Station list cannot end with and, or, or except in %.100s",src);
     }
