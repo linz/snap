@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 #define VERSIONINFO
 #define PROGRAM "snapconv"
-#define VERSION "2.5.56"
+#define VERSION "2.5.57"
 
 #include "util/versioninfo.h"

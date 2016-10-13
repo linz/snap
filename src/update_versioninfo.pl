@@ -11,8 +11,6 @@ my $update = $opts{i} || $opts{I};
 my $major = $opts{I};
 my $dolog = $opts{l};
 
-my $nzmapconv = $ARGV[0] eq 'nzmapconv';
-
 my @files;
 my $root = $FindBin::Bin;
 find( sub { push(@files,$File::Find::name) if /^versioninfo.c(?:pp)?$/i }, $root);
@@ -31,8 +29,6 @@ if( $dolog )
 foreach my $file (@files)
 {
     my $localname=substr($file,length($root));
-    next if $nzmapconv && $file !~ /\/nzmapconv\//i;
-    next if ! $nzmapconv && $file =~ /\/nzmapconv\//i;
 
     my $fh = new FileHandle("<$file");
     my $data = join('',$fh->getlines);
@@ -62,3 +58,7 @@ foreach my $file (@files)
 }
 $log->close if $log;
 
+if( ! $update )
+{
+    print "Used -i for minor update or -I for major update. -l to write to version.log"
+}
