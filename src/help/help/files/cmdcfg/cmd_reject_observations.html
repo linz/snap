@@ -35,12 +35,12 @@ For classifications other than data_file multiple values can be entered on separ
 (eg data_type=HA/AZ/PB).  Data file selections can be preceded by ignore_missing, warn_missing, or 
 fail_missing to specify the error handling if the specified data file is not in the adjustment 
 
-<p class="Commanddefinition">date_before <i>date</i></p>
+<p class="Commanddefinition">before <i>date</i></p>
 <p class="Commanddescription">Selects observations dated before the specified date.  The date can be 
 formatted using the <a href="../data/obs_ddc_date.html">formats</a> used in data files, except that the
 date cannot include spaces, and unknown is not valid.</p>
 
-<p class="Commanddefinition">date_after <i>date</i></p>
+<p class="Commanddefinition">after <i>date</i></p>
 <p class="Commanddescription">Selects observations dated after the specified date.</p>
 
 <p class="Commanddefinition">date_unknown</p>
@@ -65,7 +65,7 @@ be selected.
 
 <p class="Commandexample">reject_observations equipment=DI20/TAPE</p>
 
-<p class="Commandexample">reject_observations date_before 2000-01-01 using_stations inside affected_area.wkt</p>
+<p class="Commandexample">reject_observations before 2000-01-01 using_stations inside affected_area.wkt</p>
 
 <p class="Commandexample">reject_observations ignore_missing data_file=post_eq_levelling.dat</p>
 

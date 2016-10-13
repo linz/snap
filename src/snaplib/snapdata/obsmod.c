@@ -768,12 +768,12 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
             }
             *fptr='=';
         }
-        else if( _stricmp(field,"date_before") == 0 )
+        else if( _stricmp(field,"before") == 0 )
         {
             field=next_field(&strptr);
             if( ! field )
             {
-                send_config_error(cfg,INVALID_DATA,"Missing date in date_before observation selection criteria");
+                send_config_error(cfg,INVALID_DATA,"Missing date in before observation selection criteria");
                 sts=INVALID_DATA;
             }
             else
@@ -781,12 +781,12 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
                 oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_BEFORE, field );
             }
         }
-        else if( _stricmp(field,"date_after") == 0 )
+        else if( _stricmp(field,"after") == 0 )
         {
             field=next_field(&strptr);
             if( ! field )
             {
-                send_config_error(cfg,INVALID_DATA,"Missing date in date_after observation selection criteria");
+                send_config_error(cfg,INVALID_DATA,"Missing date in after observation selection criteria");
                 sts=INVALID_DATA;
             }
             else

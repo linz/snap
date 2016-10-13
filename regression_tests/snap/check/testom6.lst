@@ -40,7 +40,7 @@ The command file testom6.snp contains:
      
      define_residual_format all  from to type date file:10 line_no:4 Id:4 S c=class:6 S c=equpt:12 S obs_err
      
-     reject_observations date_before 2009-09-12
+     reject_observations before 2009-09-12
 
 
 
