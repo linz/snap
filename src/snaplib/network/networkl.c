@@ -749,7 +749,12 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
              * except stack level */
             sts=compile_station_list_file_criteria( sc, nw,file,basefile,stacklevel+1);
             sc->cur_source=save_src;
-            if( sts != OK ) break;
+            if( sts != OK ) 
+            {
+                sprintf(errmess,"Error processing station list file %.100s",file);
+                break;
+            }
+            curop=CRIT_OP_DEFAULT;
             continue;
         }
 
