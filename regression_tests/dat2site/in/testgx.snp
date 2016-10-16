@@ -1,7 +1,0 @@
-title Regression test 1 - data types and observation equations
-
-coordinate_file testgx.crd
-data_file testgx.dat
-
-mode 3d adjustment
-

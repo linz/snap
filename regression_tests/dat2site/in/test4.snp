@@ -1,0 +1,5 @@
+
+title test1: azimuth, distance, zenith distance
+
+coordinate_file test1.crd
+data_file test4.dat

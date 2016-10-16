@@ -1,0 +1,11 @@
+Test 3 - using levelling
+
+#data AZ error no_heights
+#date 1 Jan 2008
+1 3  61 11 26.3 4.0
+
+#data SD error no_heights
+1 3 1154.9438 0.0023
+
+#data LV error no_heights
+1 3 -80.00 0.03

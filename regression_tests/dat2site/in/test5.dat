@@ -1,0 +1,11 @@
+Test 1 - basic obs type tests
+
+#date unknown
+#gps_error_type full 
+#data GPS id value error no_heights
+
+1 3 1001 -419.2468 -967.3587 471.5165 &
+         0.000676807 &
+        -0.000067484     0.000107895 &
+         0.000245903    -0.000028769     0.000615297
+

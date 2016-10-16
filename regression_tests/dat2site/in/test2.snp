@@ -1,0 +1,4 @@
+title test1: horizontal angle, distance, zenith distance
+
+coordinate_file test1.crd
+data_file test2.dat

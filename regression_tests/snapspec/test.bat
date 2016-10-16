@@ -3,9 +3,9 @@ SETLOCAL
 
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Releasex86
 IF "%1" == "-r" SHIFT
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debugx86
 
 del /q in\*.bin >null 2>&1
 del /q in\*.lst >null 2>&1

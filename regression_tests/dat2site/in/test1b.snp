@@ -1,0 +1,5 @@
+title test1: azimuth, distance, zenith distance
+
+coordinate_file test1.crd
+data_file test1.dat
+reweight_observations 2.0 using_stations 3
