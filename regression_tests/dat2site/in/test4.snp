@@ -1,5 +1,4 @@
-
-title test1: azimuth, distance, zenith distance
+title test1: longitude, latitude, height diff
 
 coordinate_file test1.crd
 data_file test4.dat
