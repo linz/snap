@@ -5,6 +5,11 @@ Old instructions .. these require updating.
 
 Note that it is intended to implement cmake for these build tasks.
 
+Note that although source files include both .c and .cpp extensions they 
+are all compiled as C++, which provides some better error checking etc.
+Note also that the code currently generates a scary number of compiler 
+warnings!
+
 Build instructions Windows
 ==========================
 
@@ -37,7 +42,19 @@ Build instructions:
 Build instructions for Linux
 ============================
 
-These instructions have been tested against a Ubunutu 14.04 amd64 platform.  
-They may require adapting for other operating systems.
+These instructions are not complete.  In as much as they are, they have 
+been tested against a Ubunutu 14.04 amd64 platform.  
+They may require adapting for other operating systems.  
 
-TBC
+The prerequisites for building include at least g++ and some components of boost.
+
+The build steps include:
+
+1) Build wxWidgets 2.8 compoents. cd to wxwidgets-2.8, ./run_configure.sh, and then make
+
+2) Build snap components (cd unix, make)
+
+3) Copy unix/release/install to a suitable system directory, or add this directory
+   to the PATH environment variable.
+
+

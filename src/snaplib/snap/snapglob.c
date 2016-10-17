@@ -31,6 +31,7 @@
 #include "util/dstring.h"
 #include "util/fileutil.h"
 
+static bool initiallized=false;
 
 void init_snap_globals()
 {
@@ -72,11 +73,13 @@ void init_snap_globals()
     }
     init_classifications( &obs_classes );
     obs_modifications=0;
+    initiallized=true;
 }
 
 
 void set_snap_command_file( char *cmd_file )
 {
+    if( ! initiallized ) init_snap_globals();
     if( file_exists( cmd_file ) )
     {
         command_file = copy_string( cmd_file );
@@ -107,11 +110,13 @@ void set_snap_command_file( char *cmd_file )
 
 void set_snap_config_file( char *cfg_file )
 {
+    if( ! initiallized ) init_snap_globals();
     config_file = cfg_file;
 }
 
 void *snap_obs_modifications( bool create )
 {
+    if( ! initiallized ) init_snap_globals();
     if( (! obs_modifications) && create)
     {
         obs_modifications=new_obs_modifications( net, &obs_classes );
@@ -122,7 +127,7 @@ void *snap_obs_modifications( bool create )
 
 void dump_snap_globals( BINARY_FILE *b )
 {
-
+    if( ! initiallized ) init_snap_globals();
     create_section( b, "SNAP_GLOBALS" );
 
     fwrite( job_title, JOBTITLELEN+1, 1, b->f );
@@ -154,6 +159,7 @@ void dump_snap_globals( BINARY_FILE *b )
 
 int reload_snap_globals( BINARY_FILE *b )
 {
+    if( ! initiallized ) init_snap_globals();
 
     if( find_section( b, "SNAP_GLOBALS" ) != OK ) return MISSING_DATA;
 
