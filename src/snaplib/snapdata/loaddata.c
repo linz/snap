@@ -1224,7 +1224,10 @@ void ldt_end_data( void )
             }
         }
 
-        ndata_cancelled += apply_obs_modifications( pobsmod, &data );
+        if( pobsmod )
+        {
+            ndata_cancelled += apply_obs_modifications( pobsmod, &data );
+        }
 
         if( data.nobs > ndata_cancelled )
         {

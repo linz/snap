@@ -957,7 +957,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 factor=apply_obs_modification_action( obsmod, sd, tgt );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
-            if( factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
+            if( sd->cvr && factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
                 int i3=i*3;
                 double factor2=factor*factor;
