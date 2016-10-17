@@ -1,11 +1,9 @@
 #!/bin/sh
 
 scriptfile=`readlink -f "$0"`
-echo "S0: $0"
-echo "Script file: $scriptfile"
 scriptdir=`dirname $scriptfile`
 
-if [ "$1" == "-r" ]; then
+if [ "$1" = "-r" ]; then
     export SNAPDIR=${scriptdir}/../unix/release/install
 fi
 
