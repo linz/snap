@@ -1,10 +1,8 @@
-Coordinate system: New Zealand Geodetic Datum 2000 XYZ
-Reference frame: New Zealand Geodetic Datum 2000 (version 20150101)
+
+Coordinate system: New Zealand Geodetic Datum 2000 XYZ (version 20160701)
+Reference frame: New Zealand Geodetic Datum 2000 (version 20160701)
 LINZ deformation model
     NZGD2000 deformation model
-    Deformation model: NZGD2000 deformation model
-    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
-    Version: 20150101
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.

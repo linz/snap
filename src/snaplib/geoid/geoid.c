@@ -162,6 +162,13 @@ void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix
     }
 }
 
+
+const char *geoid_title( geoid_def *gd, int titleno )
+{
+    if( gd->grd ) return grd_title( gd->grd, titleno );
+    return 0;
+}
+
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid )
 {
     if( !gd->grd )

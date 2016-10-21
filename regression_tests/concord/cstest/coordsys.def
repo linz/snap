@@ -163,7 +163,7 @@ BAD4 "Invalid cyclic reference frame 2" REF_FRAME BAD4 GEODETIC
 ! Note: Height references currently not used by SNAP and Concord.
 !
 
-[height_references]
+[height_reference_surfaces]
 
 ! Height references are defined by
 !
@@ -173,14 +173,14 @@ BAD4 "Invalid cyclic reference frame 2" REF_FRAME BAD4 GEODETIC
 ! 
 ! GEOID + Geoid file name - a geoid grid for generating orthometric heights
 
-NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID NZGtest09
+NZVD09 "New Zealand Geoid 2009" NZGD2000 GEOID nzgtest09
 
-[height_coordinate_systems]
 !
 ! Orthometric height datums 
 !
-BLUFHT1955 "Bluff 1955" NZVD09 0.36
-STISHT1977 "Stewart Island 1977" NZVD09 0.39
+OFFSET1 "Offset 1" NZVD09 0.35
+OFFSET2 "Offset 2" NZVD09 OFFSET 0.50
+GRIDOFFSET "Test grid offset" NZVD09 GRID geoid
 
 [coordinate_system_notes]
 

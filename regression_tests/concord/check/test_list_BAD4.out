@@ -1,12 +1,8 @@
 
-
-Warning: Reference frame BAD2 has a cyclic base reference frame dependency
+Reference frame BAD2 has a cyclic base reference frame dependency
 Line: 11  File: cstest/coordsys.def
-
-Warning: Cannot load reference frame BAD4
+Cannot load reference frame BAD4
 Line: 11  File: cstest/coordsys.def
-
-Coordinate system BAD4 is not defined
 These are bad coordinate systems - they are not properly defined...
 Various problems, non-existent, cyclic, no base ref frame
 etc ...

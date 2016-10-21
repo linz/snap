@@ -148,6 +148,18 @@ int describe_projection( output_string_def *os, projection *prj )
     return OK;
 }
 
+int describe_height_ref( output_string_def *os, height_ref *hrs )
+{
+    if( !hrs ) return OK;
+    if( hrs->name )
+    {
+        write_output_string( os, "Heights: " );
+        write_output_string( os, hrs->name);
+        write_output_string( os, "\n" );
+    }
+    return OK;
+}
+
 int  describe_coordsys(  output_string_def *os, coordsys *cs )
 {
     write_output_string( os, "Coordinate system: " );
@@ -162,6 +174,7 @@ int  describe_coordsys(  output_string_def *os, coordsys *cs )
         write_output_string(os,buf);
     }
     describe_projection( os, cs->prj );
+    describe_height_ref( os, cs->hrs );
     return OK;
 }
 

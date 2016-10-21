@@ -38,6 +38,7 @@ typedef struct
 static crdsys_list rflist = { NULL, NULL, 0 };
 static crdsys_list ellist = { NULL, NULL, 0 };
 static crdsys_list cslist = { NULL, NULL, 0 };
+static crdsys_list hrslist = { NULL, NULL, 0 };
 
 
 static crdsys_source_def *cur_source;
@@ -71,11 +72,18 @@ static void term_build_list( crdsys_list *cl )
 {
     int i;
     cl->count = list_count( cl->list );
-    cl->indx = (crdsys_list_item **) check_malloc( cl->count * sizeof( crdsys_list_item * ) );
-    reset_list_pointer( cl->list );
-    for( i=0; i<cl->count; i++ )
+    if( cl->count == 0 )
     {
-        cl->indx[i] = (crdsys_list_item *) next_list_item( cl->list );
+        cl->indx=nullptr;
+    }
+    else
+    {
+        cl->indx = (crdsys_list_item **) check_malloc( cl->count * sizeof( crdsys_list_item * ) );
+        reset_list_pointer( cl->list );
+        for( i=0; i<cl->count; i++ )
+        {
+            cl->indx[i] = (crdsys_list_item *) next_list_item( cl->list );
+        }
     }
 }
 
@@ -98,6 +106,7 @@ static int delete_crdsys_lists( void *dummy )
     delete_crdsys_list( &rflist );
     delete_crdsys_list( &ellist );
     delete_crdsys_list( &cslist );
+    delete_crdsys_list( &hrslist );
     registered = 0;
     return 0;
 }
@@ -111,6 +120,7 @@ static void register_lists( void )
     csd.getel = NULL;
     csd.getrf = NULL;
     csd.getcs = NULL;
+    csd.gethrs = NULL;
     csd.getnotes = NULL;
     csd.getcodes = NULL;
     csd.delsource = delete_crdsys_lists;
@@ -127,6 +137,7 @@ static void add_crdsys_item( int type, long id, const char *code, const char *de
     case CS_REF_FRAME: list = rflist.list; break;
     case CS_ELLIPSOID: list = ellist.list; break;
     case CS_COORDSYS: list = cslist.list; break;
+    case CS_HEIGHT_REF: list = hrslist.list; break;
     default: return;
     }
 
@@ -158,6 +169,7 @@ static void make_crdsys_lists( void )
     init_build_list( &rflist );
     init_build_list( &ellist );
     init_build_list( &cslist );
+    init_build_list( &hrslist );
 
     for( cur_source = crdsys_sources();
             cur_source;
@@ -169,6 +181,7 @@ static void make_crdsys_lists( void )
     term_build_list( &rflist );
     term_build_list( &ellist );
     term_build_list( &cslist );
+    term_build_list( &hrslist );
 
     register_lists();
 
@@ -288,6 +301,38 @@ coordsys * coordsys_from_list( int item )
     else
     {
         (*cli->source->getcs)( cli->source->data, cli->id, cli->code, &cs );
+    }
+    return cs;
+}
+
+int height_ref_list_count( void )
+{
+    make_crdsys_lists();
+    return hrslist.count;
+}
+
+const char *height_ref_list_code( int item )
+{
+    return crdsys_item_code( &hrslist, item );
+}
+
+const char *height_ref_list_desc( int item )
+{
+    return crdsys_item_desc( &hrslist, item );
+}
+
+height_ref * height_ref_from_list( int item )
+{
+    crdsys_list_item *cli;
+    height_ref *cs;
+    cli = crdsys_item_at( &hrslist, item );
+    if( cli == NULL )
+    {
+        cs = NULL;
+    }
+    else
+    {
+        (*cli->source->gethrs)( cli->source->data, cli->id, cli->code, &cs );
     }
     return cs;
 }

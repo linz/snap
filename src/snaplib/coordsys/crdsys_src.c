@@ -74,6 +74,12 @@ ref_frame * load_ref_frame( const char *code )
             sts = (*csd->getrf)( csd->data, CS_ID_UNAVAILABLE, code, &rf );
         }
 
+    if( sts == MISSING_DATA )
+    {
+        char errmsg[80];
+        sprintf(errmsg,"Reference frame %.20s is not defined",code);
+        handle_error(INVALID_DATA,errmsg,nullptr);
+    }
     return rf;
 }
 
@@ -91,6 +97,12 @@ ellipsoid * load_ellipsoid( const char *code )
 
             sts = (*csd->getel)( csd->data, CS_ID_UNAVAILABLE, code, &el );
         }
+    if( sts == MISSING_DATA )
+    {
+        char errmsg[80];
+        sprintf(errmsg,"Ellipsoid %.20s is not defined",code);
+        handle_error(INVALID_DATA,errmsg,nullptr);
+    }
 
     return el;
 }
@@ -109,21 +121,62 @@ int parse_crdsys_epoch( const char *epochstr, double *epoch )
 coordsys * load_coordsys( const char *code )
 {
     crdsys_source_def *csd;
+    height_ref *hrs=nullptr;
     char cscode[CRDSYS_CODE_LEN+1];
-    int nch;
+    char hrscode[CRDSYS_CODE_LEN+1];
     double epoch = 0;
     int sts;
+    const char *epochptr;
+    const char *hrsptr;
+    int nch;
+
     coordsys *cs= NULL;
 
-    /* Look for an @ character, defining an deformation model reference epoch */
-    for( nch = 0; code[nch] != 0 && code[nch] != '@'; nch++ ) {}
-    if( code[nch] && ! parse_crdsys_epoch( code+nch+1, &epoch ) )
+    /* Code format is  CSCODE/HRSCODE@epoch */
+    epochptr=strchr(code,'@');
+    hrsptr=strchr(code,'/');
+    if( epochptr && hrsptr && hrsptr > epochptr ){ hrsptr=nullptr; }
+
+    /* Check epoch */
+    if( epochptr && ! parse_crdsys_epoch( epochptr+1, &epoch ) )
     {
+        char errmsg[100];
+        sprintf(errmsg,"Invalid coordinate system epoch in %.40s",code);
+        handle_error(INVALID_DATA,errmsg,nullptr);
         return NULL;
     }
-    if( nch > CRDSYS_CODE_LEN ) return NULL;
+
+    /* Check length of coordinate system code */
+    nch=hrsptr ? hrsptr-code : epochptr ? epochptr-code : strlen(code);
+    if( nch < 1 || nch > CRDSYS_CODE_LEN ) 
+    {
+        char errmsg[100];
+        sprintf(errmsg,"Invalid coordinate system code n %.40s",code);
+        handle_error(INVALID_DATA,errmsg,nullptr);
+        return NULL;
+    }
     strncpy(cscode,code,nch);
-    cscode[nch] = 0;
+    cscode[nch]=0;
+
+    /* Check height reference surface */
+    if( hrsptr )
+    {
+        nch=(epochptr ? epochptr-hrsptr : strlen(hrsptr))-1;
+        if( nch > CRDSYS_CODE_LEN )
+        {
+            char errmsg[100];
+            sprintf(errmsg,"Invalid height system code in %.40s",code);
+            handle_error(INVALID_DATA,errmsg,nullptr);
+            return NULL;
+        }
+        else if( nch > 0 )
+        {
+            strncpy(hrscode,hrsptr+1,nch);
+            hrscode[nch]=0;
+            hrs=load_height_ref( hrscode );
+            if( ! hrs ) return NULL;
+        }
+    }
 
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
@@ -133,8 +186,60 @@ coordsys * load_coordsys( const char *code )
             sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscode, &cs );
         }
 
-    if( cs ) define_deformation_model_epoch(cs,epoch);
+    if( sts == MISSING_DATA )
+    {
+        char errmsg[80];
+        sprintf(errmsg,"Coordinate system %.20s is not defined",cscode);
+        handle_error(INVALID_DATA,errmsg,nullptr);
+    }
+
+
+    if( cs ) 
+    {
+        if( hrs )
+        {
+            if( ! coordsys_height_ref_compatible( cs, hrs ) )
+            {
+                char errmsg[80];
+                sprintf(errmsg,"Height system %.20s not compatible with coordinate system %.20s",
+                        hrs->code, cs->code );
+                handle_error( INVALID_DATA, errmsg, nullptr );
+                delete_coordsys( cs );
+                delete_height_ref( hrs );
+                return NULL;
+            }
+            set_coordsys_height_ref( cs, hrs );
+        }
+        define_deformation_model_epoch(cs,epoch);
+    }
+    else
+    {
+        if( hrs ) delete_height_ref( hrs );
+    }
     return cs;
+}
+
+height_ref * load_height_ref( const char *code )
+{
+    crdsys_source_def *csd;
+    int sts;
+    height_ref *hrs= NULL;
+
+    for( sts = MISSING_DATA, csd = sources;
+            sts == MISSING_DATA && csd;
+            csd = csd->next ) if( csd->getel )
+        {
+
+            sts = (*csd->gethrs)( csd->data, CS_ID_UNAVAILABLE, code, &hrs );
+        }
+
+    if( sts == MISSING_DATA )
+    {
+        char errmsg[80];
+        sprintf(errmsg,"Height reference %.20s is not defined",code);
+        handle_error(INVALID_DATA,errmsg,nullptr);
+    }
+    return hrs;
 }
 
 

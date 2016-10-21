@@ -1,5 +1,5 @@
 #include "snapconfig.h"
-/* NOTE: Haven't done enything with units here yet!! */
+/* NOTE: Haven't done anything with units here yet!! */
 
 /*
    $Log: crdsysc2.c,v $
@@ -15,6 +15,7 @@
 #include <string.h>
 #include <math.h>
 #include "coordsys/coordsys.h"
+#include "coordsys/crdsys_hrs_func.h"
 #include "util/chkalloc.h"
 #include "util/errdef.h"
 #include "util/pi.h"
@@ -43,6 +44,8 @@ int define_coord_conversion_epoch( coord_conversion *conv,
     conv->from = from;
     conv->to = to;
     conv->ncrf = 0;
+    conv->nhrf_from=0;
+    conv->nhrf_to=0;
     conv->epochconv = convepoch;
     conv->needsepoch = 0;
     conv->errmsg[0] = 0;
@@ -204,6 +207,62 @@ int define_coord_conversion_epoch( coord_conversion *conv,
     conv->from_geoc = is_geocentric(from);
     conv->to_geoc = is_geocentric(to);
 
+    /* Handle height references */
+
+    if( from->hrs || to->hrs )
+    {
+        int nhrf_from=0;
+        int nhrf_to=0;
+        height_ref *fhrs;
+        height_ref *thrs;
+        for( fhrs=from->hrs; fhrs; fhrs=fhrs->basehrs ) nhrf_from++;
+        for( thrs=to->hrs; thrs; thrs=thrs->basehrs ) nhrf_to++;
+
+        /* If have height ref conversion on from and to, and identical
+         * reference frames, then see if we can reduce the number of 
+         * steps */
+
+        if(  nhrf_from && nhrf_to && ! conv_el )
+        {
+            int nmin=nhrf_from > nhrf_to ? nhrf_to : nhrf_from;
+            int nhrff=nhrf_from;
+            int nhrft=nhrf_to;
+            fhrs=from->hrs;
+            thrs=to->hrs;
+            while( nhrff > nmin ){ nhrff--; fhrs=fhrs->basehrs; }
+            while( nhrft > nmin ){ nhrft--; thrs=thrs->basehrs; }
+            while( nhrff > 0 )
+            {
+                nhrff--;
+                if( ! identical_height_ref_func( fhrs->func, thrs->func ) ) nmin=nhrff;
+                fhrs=fhrs->basehrs;
+                thrs=thrs->basehrs;
+            }
+            nhrf_from -= nmin;
+            nhrf_to -= nmin;
+        }
+
+        if( nhrf_from+nhrf_to > CONVMAXRF  )
+        {
+            conv->valid=0;
+            sprintf(conv->errmsg,
+                    "Conversion between height reference surfaces %.20s and %.20s is too complex (> %d steps)",
+                    from->hrs ? from->hrs->code : "ellipsoid", 
+                    to->hrs ? to->hrs->code : "ellipsoid", 
+                    CONVMAXRF );
+        }
+        else
+        {
+            int nlast=nhrf_from+nhrf_to-1;
+            fhrs=from->hrs;
+            thrs=to->hrs;
+            for( int i=0; i<nhrf_from; i++ ){ conv->hrf[i]=fhrs->func; fhrs=fhrs->basehrs; }
+            for( int i=0; i<nhrf_to; i++ ){ conv->hrf[nlast-i]=thrs->func; thrs=thrs->basehrs; }
+            conv->nhrf_from=nhrf_from;
+            conv->nhrf_to=nhrf_to;
+        }
+    }
+
     if( ! conv->valid ) return INVALID_DATA;
     return OK;
 }
@@ -265,6 +324,23 @@ int convert_coords( coord_conversion *conv,
         gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
         gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
         gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
+    }
+
+    if( sts == OK && conv->nhrf_from )
+    {
+        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
+        for( int i=0; sts==OK && i<conv->nhrf_from; i++ )
+        {
+            double offset;
+            sts=calc_height_ref_func( conv->hrf[i], xyz, &offset, 0 );
+            xyz[CRD_HGT] += offset;
+        }
+        if( sts != OK )
+        {
+            sprintf(conv->errmsg,
+                 "Cannot calculate %s height",
+                                    conv->from->hrs->code);
+        }
     }
 
     if( conv->need_xyz && ! isgeoc )
@@ -360,6 +436,24 @@ int convert_coords( coord_conversion *conv,
                 llh_to_xyz( rf->el, xyz, xyz, 0, 0 );
                 isgeoc=1;
             }
+        }
+    }
+
+    if( sts == OK && conv->nhrf_to )
+    {
+        int stshrf=OK;
+        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
+        for( int i=0; sts==OK && i<conv->nhrf_to; i++ )
+        {
+            double offset;
+            sts=calc_height_ref_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, 0 );
+            xyz[CRD_HGT] -= offset;
+        }
+        if( sts != OK )
+        {
+            sprintf(conv->errmsg,
+                 "Cannot calculate %s height",
+                                    conv->to->hrs->code);
         }
     }
 

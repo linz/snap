@@ -135,8 +135,6 @@ static char output_latlong;
 static int  output_prec;        /* precision of output units */
 static int  output_vprec;
 
-static geoid_def *geoiddef = NULL; /* Geoid model */
-
 /* Angle formats used for input_dms and output_dms */
 
 #define AF_DEG 0
@@ -145,12 +143,8 @@ static geoid_def *geoiddef = NULL; /* Geoid model */
 
 static char transform_heights;
 
-static coordsys *geoid_cs;
-
 static double conv_epoch = 0;
 static coord_conversion cnv;
-static coord_conversion ingcnv;
-static coord_conversion outgcnv;
 
 /* Latitude and longitude hemisphere indicators */
 
@@ -338,8 +332,6 @@ static int read_string( FILE *input, char separator, char *string, int nch )
     return i;
 }
 
-
-
 /*-------------------------------------------------------------------*/
 /*                                                                   */
 /*   copy_to_newline - copies input to output until a newline        */
@@ -462,6 +454,7 @@ static void help( void )
     puts("           -k       Ask for coordinates at the keyboard");
     puts("           -l       List the coord system codes used by the program");
     puts("           -i XXXX  Define input coord system, and order - e.g.NZMG:EN");
+    puts("           -r       List the height reference systems used by the program");
     puts("           -o XXXX  Define output coord system, and order");
     puts("           -n#      Specifies coordinates preceded by up to n character id");
     puts("           -p #     Define the precision of output coordinates");
@@ -475,12 +468,18 @@ static void help( void )
     puts("");
     pause_output();
     puts("The -i and -o switches are required to specify the input and output");
-    puts("coordinate systems.  These specify the coordinate system code. Use");
-    puts("concord -l for a list of valid codes\n");
+    puts("coordinate systems.  Coordinate systems specify both the geodetic");
+    puts("system and an optional reference surface (geoid) for height coordinates");
+    puts("separated by a / character.  For example NZGD2000/NZVD2016. Both must be");
+    puts("defined in terms of the same coordinate system");
+    puts("Use concord -l for a list of valid coordinate systems, and concord -lh");
+    puts("for a list of height reference surfaces.\n");
     puts("For non-geocentric coordinate systems the code may be followed by a");
     puts("colon and the order of the coordinates (one of EN, NE, ENH, NEH, ENO,");
     puts("NEO.  Here E and N are the east and north coordinates, H is ellipsoidal");
-    puts("heights or O for orthometric heights.\n");
+    puts("heights or O for orthometric heights. If a height reference surface is");
+    puts("defined then heights are orthometric.  Otherwise orthometric heights are");
+    puts("require a geoid file to be defined\n");
     puts("For lat/long systems this can be followed by \",H\", \",M\", or \",D\" for");
     puts("for degrees minutes and seconds, degrees and minutes or");
     puts("decimal degrees respectively\n");
@@ -488,7 +487,7 @@ static void help( void )
     puts("coordinate systems with a deformation model, and transformations between");
     puts("datums with a time dependent terms (eg between different ITRS realisations).");
     puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
-    puts("the current date.");
+    puts("the current date.\n");
     puts("The -n switch specifies there is an id or code before each coordinate. By");
     puts("default this is up to 10 characters long.  Use -n### to specify a longer id.");
 }
@@ -553,6 +552,11 @@ static void decode_proj_string( char *code, coordsys **proj,
             error_exit(errmsg,"");
         }
     }
+    if( coordsys_heights_orthometric( *proj ))
+    {
+        *gothgt = TRUE;
+        *ortho = TRUE;
+    }
 
     if( *dms )
     {
@@ -606,29 +610,71 @@ static void list_coordsys_with_pause( void )
     printf("\n");
 }
 
+static void list_height_ref_with_pause( void )
+{
+    int maxi;
+    int i;
+    int nl;
+    printf("\n%s: Valid height systems are:\n",PROGNAME);
+    maxi = height_ref_list_count();
+    nl = 0;
+    for( i = 0; i < maxi; i++ )
+    {
+        if( nl == 20 )
+        {
+            if( pause_output()) nl = 0; else break;
+        }
+        nl++;
+        printf("  %-10s %s\n",height_ref_list_code(i), height_ref_list_desc(i));
+    }
+    printf("\n");
+}
+
 static void list_coordsys_and_exit( int argc, char *argv[] )
 {
     int ncs = 0;
     if( argc )
     {
         int i;
+        int maxhrs=height_ref_list_count();
         coordsys *cs;
         for( i = 0; i < argc; i++ )
         {
             int sts;
+            if( i && ! pause_output()) break;
             ncs++;
             cs = load_coordsys( argv[i] );
             if( cs )
             {
+                int firsthrs=1;
                 describe_coordsys( &printf_writer, cs );
                 printf("\n");
                 sts=get_crdsys_notes( cs, &printf_writer );
                 if( sts == OK ) printf("\n");
+                if( ! coordsys_heights_orthometric(cs))
+                {
+                    for( int ihrs=0; ihrs < maxhrs; ihrs++ )
+                    {
+                        height_ref *hrs=height_ref_from_list(ihrs);
+                        if( ! hrs ) continue;
+                        if( coordsys_height_ref_compatible( cs, hrs ))
+                        {
+                            if( firsthrs )
+                            {
+                                printf("Compatible geoids:\n");
+                                firsthrs=0;
+                            }
+                            printf( "  %-20s %s\n", height_ref_list_code(ihrs),
+                                    height_ref_list_desc(ihrs));
+
+                        }
+                        delete_height_ref( hrs );
+                    }
+                }
                 delete_coordsys( cs );
             }
             else
             {
-                printf("\nCoordinate system %s is not defined\n",argv[i]);
                 sts = get_notes( CS_COORDSYS_NOTE, argv[i], &printf_writer );
             }
         }
@@ -655,7 +701,7 @@ static void list_program_details_and_exit( void )
 
 static const char *param_args="CGIONPSYH";
 static char *param_value[9]={0,0,0,0,0,0,0,0,0};
-static const char *switch_args="AELKH?ZVN";
+static const char *switch_args="AELRKH?ZVN";
 static int switch_value[9]={0,0,0,0,0,0,0,0,0};
 static char **unused_args;
 static int nunused_args;
@@ -737,6 +783,11 @@ static void process_command_line_options()
     if( switch_option('L') )
     {
         list_coordsys_and_exit( nunused_args, unused_args );
+    }
+    if( switch_option('R') )
+    {
+        list_height_ref_with_pause();
+        exit(1);
     }
     if( switch_option('Z') ) { list_program_details_and_exit(); }
 
@@ -881,6 +932,12 @@ static void prompt_for_proj(coordsys **proj,
             if(strcmp(instring,"ENO")==0) {*ne = FALSE; *gothgt = TRUE; *orthohgt = TRUE; break;}
             printf("    **** Invalid definition of coordinate order ****\n");
         }
+
+    if( coordsys_heights_orthometric( *proj ) )
+    {
+        *gothgt=TRUE;
+        *orthohgt=TRUE;
+    }
 
     /* Enter unit code if DMS */
 
@@ -1195,6 +1252,38 @@ static void setup_transformation( void )
         error_exit("Input and output coordinate systems must be specified","");
     }
 
+    if( input_ortho || output_ortho )
+    {
+        int need_ingeoid=input_ortho && ! coordsys_heights_orthometric(input_cs);
+        int need_outgeoid=output_ortho && ! coordsys_heights_orthometric(output_cs);
+
+        if( need_ingeoid || need_outgeoid )
+        {
+            const char *gfile = geoid_file;
+            if( ! gfile || ! file_exists(gfile) )
+            {
+                gfile = create_geoid_filename(geoid_file);
+            }
+            if( ! gfile || ! file_exists(gfile) )
+            {
+                printf("Cannot find geoid file %s\n",geoid_file ? geoid_file : "");
+                exit(1);
+            }
+            else
+            {
+                geoid_def *geoiddef = create_geoid_grid( gfile );
+                if( ! geoiddef )
+                {
+                    printf("Cannot read geoid file %s\n",gfile ? gfile : "");
+                    exit(1);
+                }
+                delete_geoid_grid( geoiddef );
+                if( need_ingeoid ) set_coordsys_geoid( input_cs, gfile );
+                if( need_outgeoid ) set_coordsys_geoid( output_cs, gfile );
+            }
+        }
+    }
+
     if( define_coord_conversion_epoch( &cnv, input_cs, output_cs, conv_epoch ) != OK )
     {
         if( strlen(cnv.errmsg) > 0 )
@@ -1338,40 +1427,6 @@ static void setup_transformation( void )
     ncrderr = 0;
 }
 
-static void setup_geoid_calculations( void )
-{
-
-    /* Set up the conversion */
-
-    geoid_cs = get_geoid_coordsys( geoiddef );
-
-    if( !geoid_cs )
-    {
-        char errmess[120];
-        sprintf(errmess,"Geoid reference frame %s not defined in COORDSYS.DEF file",
-                geoid_cs->code );
-        error_exit(errmess,"");
-    }
-
-    if( input_ortho && define_coord_conversion_epoch( &ingcnv, input_cs, geoid_cs, DEFAULT_CRDSYS_EPOCH ) != OK )
-    {
-        char errmsg[256];
-        sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
-                input_cs->code, geoid_cs->code );
-        get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code, geoid_cs->code, &printf_writer);
-        error_exit(errmsg,"");
-    }
-
-    if( output_ortho && define_coord_conversion_epoch( &outgcnv, output_cs, geoid_cs, DEFAULT_CRDSYS_EPOCH ) != OK )
-    {
-        char errmsg[256];
-        sprintf(errmsg,"Cannot convert between %.20s and geoid coordinate system %.20s",
-                output_cs->code, geoid_cs->code );
-        get_conv_code_notes( CS_COORDSYS_NOTE, output_cs->code, geoid_cs->code, &printf_writer);
-        error_exit(errmsg,"");
-    }
-}
-
 /*-------------------------------------------------------------------*/
 /*                                                                   */
 /*  Open input and output files, checking that they have not         */
@@ -1442,7 +1497,6 @@ static void head_output( FILE * out )
     os.sink=out;
     os.write= (output_string_func) fputs;
     get_conv_notes( &cnv, &os );
-    if( transform_heights ) fprintf(out,"\nGeoid heights from %s\n",get_geoid_model( geoiddef ));
 }
 
 
@@ -1810,20 +1864,6 @@ static void report_conv_error( int sts )
         fprintf(crdout,"**** %s%s%s **** ",em,s1,s2);
 }
 
-static void report_geoid_error( void )
-{
-    const char *s1, *s2;
-    const char *fp = " for point ";
-    const char *bl = "";
-
-    if (point_ids) { s1 = fp; s2 = id; }
-    else s1 = s2 = bl;
-    if (ask_coords) printf("%*s**** Cannot calculate geoid height ****",
-                               prompt_length,"");
-    if (!ask_coords || crdout_fname != NULL)
-        fprintf(crdout,"**** Cannot calculate geoid height%s%s **** ",s1,s2);
-}
-
 /*-------------------------------------------------------------------*/
 /*                                                                   */
 /* Main coordinate processing loop ... processes coordinates until   */
@@ -1832,25 +1872,12 @@ static void report_geoid_error( void )
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
-static int calc_geoid_height( coord_conversion *gcnv, double xyz[3], double *h )
-{
-    double gxyz[3];
-    int sts;
-    *h = 0.0;
-    sts = convert_coords(gcnv,xyz,NULL,gxyz,NULL );
-    if( sts != OK ) return sts;
-    sts = calculate_geoid_undulation( geoiddef, gxyz[CRD_LAT], gxyz[CRD_LON], h );
-    if( sts != OK ) *h = 0.0; else *h += xyz[2] - gxyz[2];
-    return sts;
-}
-
 
 static void process_coordinates( void )
 {
     long start_loc;
     double inhgt;
     int sts;
-    double gh;
     char sep[2];
     char *prtsep;
     sep[0] = separator ? separator : ' ';
@@ -1870,25 +1897,11 @@ static void process_coordinates( void )
         inhgt = inxyz[2];
         if( sts == OK )
         {
-            if( transform_heights && input_ortho )
-            {
-                sts = calc_geoid_height( &ingcnv, inxyz, &gh );
-                if( sts != OK && ! skip_errors) report_geoid_error();
-                inxyz[2] += gh;
-            }
             if( sts == OK )
             {
                 sts = convert_coords(&cnv,inxyz,NULL,outxyz,NULL );
                 if( sts != OK && ! skip_errors ) report_conv_error(sts);
             }
-            if( sts == OK && transform_heights && output_ortho )
-            {
-                sts = calc_geoid_height( &outgcnv, outxyz, &gh );
-                if( sts != OK && ! skip_errors ) report_geoid_error();
-                outxyz[2] -= gh;
-            }
-
-            if( input_ortho && output_ortho ) outxyz[2] = inhgt;
             if( sts != OK && !skip_errors ) ncrderr++;
         }
         if( sts == OK )
@@ -1927,6 +1940,7 @@ int main( int argc, char *argv[] )
 {
     int sts;
 
+    set_error_prefix(0);
     concord_init();
     parse_command_line( argc, argv );
     if( ! coordsys_file )
@@ -1948,34 +1962,6 @@ int main( int argc, char *argv[] )
     if(ask_params) prompt_for_parameters();
     tidy_up_parameters();
     setup_transformation();
-    if( transform_heights )
-    {
-        const char *gfile = geoid_file;
-        const char *title = NULL;
-
-        if( ! gfile || ! file_exists(gfile) )
-        {
-            gfile = create_geoid_filename(geoid_file);
-        }
-        if( ! gfile || ! file_exists(gfile) )
-        {
-            printf("Cannot find geoid file %s\n",geoid_file ? geoid_file : "");
-            return 0;
-        }
-        else
-        {
-            geoiddef = create_geoid_grid( gfile );
-            if( ! geoiddef )
-            {
-                printf("Cannot read geoid file %s\n",gfile ? gfile : "");
-                return 0;
-            }
-        }
-        title = get_geoid_model( geoiddef );
-        printf("Using geoid: %s\n", title ? title : "Unnamed");
-
-        setup_geoid_calculations();
-    }
     open_files();
     if(verbose) { head_output(crdout); head_columns(crdout); }
     if( ask_coords ) show_example_input();

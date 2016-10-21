@@ -71,9 +71,20 @@ typedef int (*errhandler_type)( int sts, const char *msg1, const char *msg2 );
 
 int handle_error( int sts, const char *mess1, const char *mess2 );
 int default_error_handler( int sts, const char *mess1, const char *mess2 );
-void set_error_file( FILE *errfile );
 errhandler_type set_error_handler( errhandler_type errhndler );
 int get_error_count( void );
+
+/* Settings for default error handler - output file, prefix (true or false),
+ * and reporting level (INFO_ERROR, WARNING_ERROR, FATAL_ERROR ), and location
+ * used for second line of error message if not null in call.
+ *
+ * Each returns old value, apart from location.
+ */
+
+FILE * set_error_file( FILE *errfile );
+int  set_error_level( int level );
+int set_error_prefix( int prefix );
+
 void set_error_location( const char *loc );
 
 

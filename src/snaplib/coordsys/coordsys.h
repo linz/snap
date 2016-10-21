@@ -42,7 +42,7 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYS_NAME_LEN 128
 
 enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
-enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_COORDSYS_COUNT, CS_INVALID };
+enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_NOTE, CS_HEIGHT_REF, CS_COORDSYS_COUNT, CS_INVALID };
 
 /* Default epoch for low accuracy coordinate conversions between coordinate systems.
    Use this to allow conversions where an epoch is required but is not available.
@@ -140,6 +140,22 @@ typedef struct
     void *data;
 } projection;
 
+/* Height reference surface definition */
+
+typedef struct height_ref_s height_ref;
+typedef struct height_ref_func_s height_ref_func;
+
+struct height_ref_s
+{
+    char *code;           /* Code for the height reference surface */
+    char *name;           /* Name of the surface                   */
+    char *source;      /* Where the coordsys was loaded from */
+    height_ref *basehrs;   /* Base reference surface pointer     */ 
+    ref_frame *rf;        /* The underlying reference frame     */
+    height_ref_func *func; /* Function surface height relative base surface, 
+                              or to ellipsoidal if basehrscode is null */
+};
+
 /* Definition of a coordinate system */
 
 typedef struct
@@ -149,8 +165,10 @@ typedef struct
     char *source;      /* Where the coordsys was loaded from */
     ref_frame *rf;     /* The reference frame                */
     projection *prj;   /* The projection - if any            */
+    height_ref *hrs;   /* Height reference surface, if any   */
     char crdtype;      /* As per CSTP_ enum above            */
     char gotrange;     /* Defines whether a valid range has  */
+    char ownsrf;       /* If true then CS owns rf            */
     double emin, nmin; /* Easting northing limits - if defined */
     double emax, nmax;
     double ltmin, lnmin;  /* Latitude/longitude range */
@@ -192,6 +210,9 @@ typedef struct
     char     errmsg[CONVERRSIZE]; /* Last error message */;
     coord_conversion_rf crf[CONVMAXRF]; /* Conversion rf steps */
     int      ncrf;      /* Number of steps used */
+    height_ref_func *hrf[CONVMAXRF]; /* Height reference functions */
+    int      nhrf_from;  /* Number of height reference functions from source */
+    int      nhrf_to;   /* Number of height reference functions to target */
 
 } coord_conversion;
 
@@ -262,6 +283,18 @@ coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );
 void delete_coordsys( coordsys *cs );
 
+/* Set the height reference surface for the coordinate system.  The 
+ * coordinate system takes ownership of the height reference surface
+ *
+ * If they are not compatible (based on same datum), then 
+ * set_coordsys_height_ref will delete it.
+ */
+
+bool coordsys_height_ref_compatible( coordsys *cs, height_ref *hrs );
+void set_coordsys_height_ref( coordsys *cs, height_ref *hrs );
+void set_coordsys_geoid( coordsys *cs, const char *geoidfile );
+bool coordsys_heights_orthometric( coordsys *cs );
+
 /* Define the reference epoch for the coordinate system deformation model */
 
 void define_deformation_model_epoch( coordsys *cs, double epoch );
@@ -288,6 +321,25 @@ void define_coordsys_units( coordsys *cs,
 
 int check_coordsys_range( coordsys *cs, double xyz[3] );
 
+/* Routines relating to height reference systems */
+
+height_ref *create_height_ref( const char *code, const char *name, 
+                           height_ref *basehrs, ref_frame *rf,
+                           height_ref_func *hrf );
+height_ref *geoid_height_ref( const char *geoidfile, ref_frame *rf );
+height_ref *copy_height_ref( height_ref *hrs );
+int identical_height_ref( height_ref *hrs1, height_ref *hrs2 );
+void delete_height_ref( height_ref *hrs );
+int calc_height_ref_offset( height_ref *hrs, double llh[3], double *height, double *exu );
+
+/* Calculate geoid information from coordinate info.  If exu is not null
+ * it is assumed to be a double[3] and receives the coordinates and
+ * deflection of the vertical */ 
+
+int coordsys_geoid_height( coordsys *cs, double llh[3], double *exu );
+
+height_ref *base_height_ref( height_ref *hrs );
+ref_frame *height_ref_ref_frame( height_ref *hrs );
 
 /*=====================================================================*/
 /* Creating coordinate system components from definitions in a char    */
@@ -309,6 +361,10 @@ coordsys   *parse_coordsys_def  ( input_string_def *is,
                                   ref_frame *(*getrf)(const char *code, int loadref ));
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch );
+
+height_ref *parse_height_ref_def ( input_string_def *is, 
+                                  ref_frame *(*getrf)(const char *code, int loadref ),
+                                  height_ref *(*gethrs)(const char *code, int loadref ));
 
 /*=====================================================================*/
 /* Getting information about components of coordinate systems.         */
@@ -416,6 +472,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf );
 int  describe_deformation_model( output_string_def *os, ref_frame *rf );
 int  describe_ellipsoid( output_string_def *os, ellipsoid *el );
 int  describe_projection( output_string_def *os, projection *prj );
+int  describe_height_ref( output_string_def *os, coordsys *cs );
 int  describe_coordsys( output_string_def *os, coordsys *cs );
 
 /*=======================================================================*/
@@ -454,12 +511,17 @@ const char *ellipsoid_list_desc( int item );
 ellipsoid * ellipsoid_from_list( int item );
 ellipsoid * load_ellipsoid( const char *code );
 
-
 int coordsys_list_count( void);
 const char *coordsys_list_code( int item );
 const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
 coordsys * load_coordsys( const char *code );
+
+int height_ref_list_count( void);
+const char *height_ref_list_code( int item );
+const char *height_ref_list_desc( int item );
+height_ref * height_ref_from_list( int item );
+height_ref * load_height_ref( const char *code );
 
 int get_notes( int type, const char *code, output_string_def *os );
 int get_crdsys_notes( coordsys *cs, output_string_def *os );
