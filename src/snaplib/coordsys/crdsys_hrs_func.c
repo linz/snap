@@ -58,12 +58,12 @@ static void *copy_offset_height_ref_func_data( void *data )
 
 static int calc_offset_height_ref_func( height_ref_func *hrf, double llh[3], double *height, double *exu )
 {
-    if( height) *height = *(double *)(hrf->data);
+    if( height) *height = -(*(double *)(hrf->data));
     if( exu )
     {
         exu[CRD_LON]=0.0;
         exu[CRD_LAT]=0.0;
-        exu[CRD_HGT]=*(double *)(hrf->data);
+        exu[CRD_HGT]=-(*(double *)(hrf->data));
     }
     return OK;
 }
@@ -84,7 +84,7 @@ height_ref_func *create_offset_height_ref_func( double offset )
 }
 
 /*========================================================================================*/
-/* Geoid height reference function routine                                                */
+/* Grid based height reference function routine                                           */
 
 typedef struct 
 {
@@ -94,9 +94,10 @@ typedef struct
     coord_conversion *rfconv;
     coord_conversion *irfconv;
     int loadsts;
+    int isoffset;  /* Offset is offset to height coord, so negative of offset to surface */
 } grid_height_ref_func_data;
 
-static grid_height_ref_func_data *create_grid_height_ref_func_data( char *filename )
+static grid_height_ref_func_data *create_grid_height_ref_func_data( const char *filename, int isoffset )
 {
     grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *)
         check_malloc(sizeof(grid_height_ref_func_data)+strlen(filename)+1);
@@ -108,6 +109,7 @@ static grid_height_ref_func_data *create_grid_height_ref_func_data( char *filena
     ghrfd->rfconv=nullptr;
     ghrfd->irfconv=nullptr;
     ghrfd->loadsts=OK;
+    ghrfd->isoffset=isoffset;
     return ghrfd;
 }
 
@@ -196,7 +198,7 @@ static int identical_grid_height_ref_func( void *data1, void *data2 )
 static void *copy_grid_height_ref_func_data( void *data )
 {
     grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *) data;
-    return create_grid_height_ref_func_data(ghrfd->filename);
+    return create_grid_height_ref_func_data(ghrfd->filename,ghrfd->isoffset);
 }
 
 static int calc_grid_height_ref_func( height_ref_func *hrf, double llh[3], double *height, double *exu )
@@ -235,6 +237,11 @@ static int calc_grid_height_ref_func( height_ref_func *hrf, double llh[3], doubl
            if( exu ){ exu[CRD_LON]=exu1[CRD_LON]; exu[CRD_LAT]=exu1[CRD_LAT]; exu[CRD_HGT]=exu1[CRD_HGT]; }
         }
     }
+    if( ghrfd->isoffset )
+    {
+        if( height ) { *height=-*height; }
+        if( exu ) { exu[0]=-exu[0]; exu[1]=-exu[1]; exu[2]=-exu[2]; }
+    }
     return sts;
 }
 
@@ -245,7 +252,7 @@ height_ref_func *create_grid_height_ref_func( const char *grid_file, int isgeoid
             isgeoid ? "Geoid" : "Grid offset",
             grid_file+path_len(grid_file,0) );
     height_ref_func *hrf=create_height_ref_func( isgeoid ? "GEOID" : "GRID", description );
-    hrf->data=create_grid_height_ref_func_data( grid_file );
+    hrf->data=create_grid_height_ref_func_data( grid_file, ! isgeoid );
     hrf->delete_func=delete_grid_height_ref_func_data;
     hrf->describe_func=describe_grid_height_ref_func;
     hrf->copy_func=copy_grid_height_ref_func_data;

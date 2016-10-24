@@ -176,6 +176,15 @@ for c in `cat crdsyslist2.txt`; do
    ${concord} -IITRF96,NEH,H -o${c} -Y2000.5 -N6 -P6 in/test1.in out/test_${c}.out >> out/crdsys.txt 2>&1
 done
 
+
+echo "Testing height reference surfaces"
+for c in `cat hgtreflist.txt`; do
+   echo "=======================" >> out/hgtref.txt
+   echo "Testing ${c}" >> out/hgtref.txt
+   ${concord} -L NZGD2000/${c} > out/hgtref_list_${c}.txt 2>&1
+   ${concord} -INZGD2000/${c},ENH,D -oNZGD2000,ENH,D -P4:3 in/nzpoints.in out/testhrs_${c}.out >> out/hgtref.txt 2>&1
+done
+
 echo "Testing ITRF systems"
 for c in `cat itrf_csys.txt`; do
    echo "========== ${c} ============" >> out/itrf.txt

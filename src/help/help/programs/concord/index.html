@@ -27,19 +27,30 @@ orthometric heights (the accuracy of this is limited by the geoid model used -
 errors of up to 1 metre are typical).</p>
 
 <p>Coordinate systems used by concord are
-defined in a file called coordsys.def in the same directory as the 
-concord program. For each coordinate system this
+defined in a file called coordsys.def in the configuration directory used by 
+concord (the config/coordsys subdirectory of the program directory). 
+For each coordinate system this
 specifies the reference frame, ellipsoid, and projection that is used. This
 is a simple text file and can be readily edited to include additional coordinate
 systems.</p>
 
+<p>The coordinate system file also defines height reference surfaces that may 
+be used to define height coordinates.  These are either geoid surfaces, or local
+vertical datum surfaces defined as offsets from the geoid surface.</p>
+
 <p>Conversions between ellipsoidal and
-orthometric height are done using a <a href="../../coordsys/geoid.html">geoid model</a> 
+orthometric height are done by defining the height reference surface to use 
+with the coordinate system, for example NZGD2000/NZVD2016.
+</p>
+
+<p>Alternatively orthometric heights may be defined by directly defining a 
+geoid file and specifying a height type of orthometric heights. The geoid is 
+selected using a <a href="../../coordsys/geoid.html">geoid model</a> 
 specified with the -g parameter.  For converting New Zealand points the
-NZGeoid09 model is recommended (-g NZGeoid09).  If overseas points are being 
+nzgeoid2016 model is recommended (-g nzgeoid2016).  If overseas points are being 
 converted then the global 
 model EGM96 from NASA and NIMA (http://cddis.gsfc.gov/926/egm96/egm96.html)
-will need to be used (-g EGM96).
+will need to be used (-g egm96).
 </p>
 
 <h2>Command syntax</h2>
@@ -58,6 +69,10 @@ will need to be used (-g EGM96).
 <p class="Commanddefinition">concord -l <i>coordsys_code ...</i>
 
 <p>to list the available coordinate systems (if no code is supplied) or to describe one or more coordinates systems.</p>
+
+<p class="Commanddefinition">concord -r 
+
+<p>to list the available height reference surfaces.</p>
 
 <p>The two parameters that can be specified
 are:</p>
@@ -266,11 +281,18 @@ specified by a code which consists of up to three items separated by commas or c
 
 <p>The first item is the code for the
 coordinate system. This must match an entry in the 
-<a href="../../coordsys/index.html">coordinate system definition file</a>. 
+<a href="../../coordsys/index.html">coordinate system definition file</a>, which
+can be listed using &quot;concord -l&quot;. 
 For coordinate systems that include a deformation model, the code can include a 
 date, for example NZGD2000@20120512, to specify that the coordinates are in terms of
 the deformation applying at that date, rather than in terms of the reference coordinates
 for the deformation model.
+</p>
+
+<p>The code can also define the reference surface for heights by appending the height reference surface
+code to the coordinate system definition after a &quot;/&quot; character.  For example
+NZGD2000/NZVD2016 specifies New Zealand Geodetic Datum 2000 coordinates with heights in terms of New Zealand
+Vertical Datum 2016.  Use &quot;concord -r&quot; to list the available height reference surfaces.
 </p>
 
 <p>The second item defines the order of the
@@ -279,8 +301,10 @@ string in which each character defines one of the coordinates in the file. The
 first two must be characters must be EN (easting/longitude followed by
 northing/latitude) or NE (northing/latitude followed by easting/longitude).
 The third character specifies the height and can be H for ellipsoidal height or
-O for orthometric height. If the third character is omitted then input file is
-assumed to contain no height data. (i.e. heights are 0).</p>
+O for orthometric height. If a height reference surface has been specified then
+orthometric heights are assumed.  Otherwise if orthometric heights are specified then
+a geoid must be defined with the -g option.  If no heights are specified then the
+height is equivalent to an ellipsoidal height of 0.</p>
 
 <p>For latitude/longitude coordinates the
 definition can include a third character which specifies how the angles are

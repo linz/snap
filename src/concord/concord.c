@@ -489,7 +489,12 @@ static void help( void )
     puts("The epoch can be entered as a decimal year, as YYYYMMDD, or \"now\" to use");
     puts("the current date.\n");
     puts("The -n switch specifies there is an id or code before each coordinate. By");
-    puts("default this is up to 10 characters long.  Use -n### to specify a longer id.");
+    puts("default this is up to 10 characters long.  Use -n### to specify a longer id.\n");
+    puts("The -p switch specifies the number of decimal places used to represent");
+    puts("the output horizontal coordinates. The precision of heights is based on the");
+    puts("geometric precision of the horizontal coordinates.  Height precision can be");
+    puts("specified explicitly using the format -p h:v, where h is the horizontal");
+    puts("precision and v is the vertical precision.");
 }
 
 /*-------------------------------------------------------------------*/
