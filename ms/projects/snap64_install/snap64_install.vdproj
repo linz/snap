@@ -27,6 +27,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_01890C2215D34DC4A7BFDAC39589AB6A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_022D23B7400D4AA8A881275B7D0F2CE6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -69,12 +75,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_0D4219B354DA4320925CB2509A459A00"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_0E335835FB7343439CA6497E28529DD8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -87,19 +87,13 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_116141FDA053470A806334CDBDEA873A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1224B0F9DD934BE191DE83670C6CA296"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_1791C2915C8D42118D003A94B6BC2D20"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_17AD5408B12C46EA91001391DD65AE00"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -135,12 +129,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_27127362FFBE49B8A844EF88613B60D2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_279CDB41D43A461BB7B40FAEB28A7E45"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -165,31 +153,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_3C12AC64F23F46E79CD2E052D1EDD06C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_3C847E0D875A4769B0577E37D3503122"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_3D11800E86484EEA9EF12A482F6975D3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_423B4956E84146808F62026B29B3E7D2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_43D08E91E5004AF3868711D8756CB0B6"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_448E7A5D693E47D2AAD3CD5276A03569"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -202,12 +178,6 @@
         "Entry"
         {
         "MsmKey" = "8:_48D1489B0B6541B794033536E20348D2"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_48D8E895796F44BCB5D8D51EAD62CC93"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -243,6 +213,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4E413A099DFB401CBAFE7E942EE0EC10"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -273,6 +249,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_59DD01066A90409785AB4B73911BD46C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5E2EF913C0A84EB5A4AC28518AAF1875"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_60D889F491D946B2B3A4A9D0AB6D59FC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -285,7 +273,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_65C76AE30B094465B41B6464F5B2FA30"
+        "MsmKey" = "8:_6520C51F93E9459E971039ACE2F6C89F"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -321,6 +309,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_71C4DA6438074D56A2739A7A2D141131"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_75BD86B8EFFB4A49B1B87103D94E84E8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -328,6 +322,12 @@
         "Entry"
         {
         "MsmKey" = "8:_776FF26EE7A84386BFBB12115A38AE3A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_78DE80D6CB374F809DAE53D77CFD3AB9"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -351,12 +351,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_84777F03A468419EA7E6C415CD6FFEDC"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -375,25 +369,19 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_8BAF37011B014F838143B6C51293A1ED"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_90D52F616DA046A6953DB01613B0F1E6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_91B339448E2949A5ABA5C2471BCA4303"
+        "MsmKey" = "8:_9656A9296382449F8E63975887248B84"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_9656A9296382449F8E63975887248B84"
+        "MsmKey" = "8:_97931DDA05BF45429B19A7B2D355EDBC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -453,12 +441,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_AE029470AFDE4DA095E7EAA2153462D7"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_AFE11795F1D445E7A4B2ED64337E88FA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -472,6 +454,12 @@
         "Entry"
         {
         "MsmKey" = "8:_B7A27EA39508448297AA20142F7B712C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_B8101BE3F4F94D4386300049F7CFC2FE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -549,7 +537,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_CEAEF2CBD3D147FFADCDA232E61C8725"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_D34A84F424CF40438027EED87BCED3A5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D3AA7374BCAA4FA59C541220EAC35DD8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -809,6 +809,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_01890C2215D34DC4A7BFDAC39589AB6A"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\blufht1955_nzvd2016_offset.bin"
+            "TargetName" = "8:blufht1955_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_02EAF562F5A8466F9BD79ABF2480C4A6"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\tools.inc"
@@ -909,26 +929,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0D4219B354DA4320925CB2509A459A00"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\taraht1970_nzvd2016.grd"
-            "TargetName" = "8:taraht1970_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_0E335835FB7343439CA6497E28529DD8"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\format\\dhgt1.dtf"
@@ -949,50 +949,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_116141FDA053470A806334CDBDEA873A"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\lyttht1937_nzvd2016_offset.bin"
+            "TargetName" = "8:lyttht1937_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1224B0F9DD934BE191DE83670C6CA296"
             {
             "SourcePath" = "8:..\\..\\..\\src\\coordsys\\def492kt.grd"
             "TargetName" = "8:def492kt.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1791C2915C8D42118D003A94B6BC2D20"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\stisht1977_nzvd2016.grd"
-            "TargetName" = "8:stisht1977_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_17AD5408B12C46EA91001391DD65AE00"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\lyttht1937_nzvd2016.grd"
-            "TargetName" = "8:lyttht1937_nzvd2016.grd"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
@@ -1109,26 +1089,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_27127362FFBE49B8A844EF88613B60D2"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nelsht1955_nzvd2016.grd"
-            "TargetName" = "8:nelsht1955_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_279CDB41D43A461BB7B40FAEB28A7E45"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZTopo50MapRef.pm"
@@ -1209,26 +1169,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3C12AC64F23F46E79CD2E052D1EDD06C"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\ontpht1964_nzvd2016.grd"
-            "TargetName" = "8:ontpht1964_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3C847E0D875A4769B0577E37D3503122"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\format\\mdfc1.dtf"
@@ -1249,50 +1189,30 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3D11800E86484EEA9EF12A482F6975D3"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nelsht1955_nzvd2016_offset.bin"
+            "TargetName" = "8:nelsht1955_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_423B4956E84146808F62026B29B3E7D2"
             {
             "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nzgeoid05.grd"
             "TargetName" = "8:nzgeoid05.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43D08E91E5004AF3868711D8756CB0B6"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\napiht1962_nzvd2016.grd"
-            "TargetName" = "8:napiht1962_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_448E7A5D693E47D2AAD3CD5276A03569"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\gisbht1926_nzvd2016.grd"
-            "TargetName" = "8:gisbht1926_nzvd2016.grd"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
@@ -1335,26 +1255,6 @@
             "TargetName" = "8:datafile.inc"
             "Tag" = "8:"
             "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_48D8E895796F44BCB5D8D51EAD62CC93"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\auckht1946_nzvd2016.grd"
-            "TargetName" = "8:auckht1946_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1469,6 +1369,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E413A099DFB401CBAFE7E942EE0EC10"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\motuht1953_nzvd2016_offset.bin"
+            "TargetName" = "8:motuht1953_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5284630A49CE414888875138D86F31D0"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\TMProjection.pm"
@@ -1549,6 +1469,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59DD01066A90409785AB4B73911BD46C"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\auckht1946_nzvd2016_offset.bin"
+            "TargetName" = "8:auckht1946_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5E2EF913C0A84EB5A4AC28518AAF1875"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\ontpht1964_nzvd2016_offset.bin"
+            "TargetName" = "8:ontpht1964_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_60D889F491D946B2B3A4A9D0AB6D59FC"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snaplist\\config\\snaplist\\stations.tbf"
@@ -1589,10 +1549,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_65C76AE30B094465B41B6464F5B2FA30"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6520C51F93E9459E971039ACE2F6C89F"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\motuht1953_nzvd2016.grd"
-            "TargetName" = "8:motuht1953_nzvd2016.grd"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\dublht1960_nzvd2016_offset.bin"
+            "TargetName" = "8:dublht1960_nzvd2016_offset.bin"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
@@ -1709,6 +1669,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_71C4DA6438074D56A2739A7A2D141131"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\stisht1977_nzvd2016_offset.bin"
+            "TargetName" = "8:stisht1977_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_75BD86B8EFFB4A49B1B87103D94E84E8"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\maketrig.pl"
@@ -1735,6 +1715,26 @@
             "TargetName" = "8:SkiFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_4ECB21E0F0C74BA4AB7BE2FFA201B5CB"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_78DE80D6CB374F809DAE53D77CFD3AB9"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\napiht1962_nzvd2016_offset.bin"
+            "TargetName" = "8:napiht1962_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1789,52 +1789,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_84777F03A468419EA7E6C415CD6FFEDC"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\blufht1955_nzvd2016.grd"
-            "TargetName" = "8:blufht1955_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_865849C7756E4D8389864E8AE9814334"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\recodecrd.bat"
             "TargetName" = "8:recodecrd.bat"
             "Tag" = "8:"
             "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8BAF37011B014F838143B6C51293A1ED"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\duneht1958_nzvd2016.grd"
-            "TargetName" = "8:duneht1958_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1869,12 +1829,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_91B339448E2949A5ABA5C2471BCA4303"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9656A9296382449F8E63975887248B84"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\wellht1953_nzvd2016.grd"
-            "TargetName" = "8:wellht1953_nzvd2016.grd"
+            "SourcePath" = "8:..\\..\\..\\src\\snaplist\\config\\snaplist\\snaplist.tbf"
+            "TargetName" = "8:snaplist.tbf"
             "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Folder" = "8:_E17C382697E24C029D816041BFB450A5"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1889,12 +1849,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9656A9296382449F8E63975887248B84"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_97931DDA05BF45429B19A7B2D355EDBC"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\snaplist\\config\\snaplist\\snaplist.tbf"
-            "TargetName" = "8:snaplist.tbf"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\wellht1953_nzvd2016_offset.bin"
+            "TargetName" = "8:wellht1953_nzvd2016_offset.bin"
             "Tag" = "8:"
-            "Folder" = "8:_E17C382697E24C029D816041BFB450A5"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2069,26 +2029,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AE029470AFDE4DA095E7EAA2153462D7"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\dublht1960_nzvd2016.grd"
-            "TargetName" = "8:dublht1960_nzvd2016.grd"
-            "Tag" = "8:"
-            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFE11795F1D445E7A4B2ED64337E88FA"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\BursaWolfVelocity.pm"
@@ -2135,6 +2075,26 @@
             "TargetName" = "8:NZMS1MapRef.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B8101BE3F4F94D4386300049F7CFC2FE"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\gisbht1926_nzvd2016_offset.bin"
+            "TargetName" = "8:gisbht1926_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2349,12 +2309,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CEAEF2CBD3D147FFADCDA232E61C8725"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\duneht1958_nzvd2016_offset.bin"
+            "TargetName" = "8:duneht1958_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D34A84F424CF40438027EED87BCED3A5"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GeodeticCrd.pm"
             "TargetName" = "8:GeodeticCrd.pm"
             "Tag" = "8:"
             "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D3AA7374BCAA4FA59C541220EAC35DD8"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\taraht1970_nzvd2016_offset.bin"
+            "TargetName" = "8:taraht1970_nzvd2016_offset.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2993,15 +2993,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP64"
-        "ProductCode" = "8:{774084E8-3BE2-4F5B-89A3-3C6EEED9D724}"
-        "PackageCode" = "8:{10FCA4B1-9F42-451F-BAE5-18CF49485D46}"
+        "ProductCode" = "8:{ADF3502F-4236-496E-8DFC-0F3ED08163BF}"
+        "PackageCode" = "8:{788DAF30-9B59-4653-AC81-AF5C3D79840D}"
         "UpgradeCode" = "8:{F4B4B49E-2F89-4E88-A4C0-1ABC4DE0F465}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:1.3.30"
+        "ProductVersion" = "8:2.6.0"
         "Manufacturer" = "8:Land Information New Zealand"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.linz.govt.nz"
@@ -3581,7 +3581,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_022D23B7400D4AA8A881275B7D0F2CE6"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\dat2site.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\dat2site.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3609,7 +3609,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0BFF881D74D848DA8D4D388B9DD09CFB"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snapspec.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapspec.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3637,7 +3637,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_113522599DC74AD18F8C7ABFC406B2D3"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\concord.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\concord.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3665,7 +3665,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4EF1C99612D44A799AEFCB5656402AB7"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snapgeoid.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapgeoid.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3693,7 +3693,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snaplist.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snaplist.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3721,7 +3721,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_848D279AE87F4FF984BFDAF0E0CF24D4"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snapmerge.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapmerge.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3749,7 +3749,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_898F8D9FCE44427E83FD6D8BBC410700"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snapplot.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapplot.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3777,7 +3777,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA39279D2D5C47D9960AF0B4734A442A"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snapadjust.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapadjust.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3805,7 +3805,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BA5442E434F7454DA342C6C7CB2F4E4D"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snap_manager.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snap_manager.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3833,7 +3833,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD0DCF4E68D4445E9B01D4080F9BF85F"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snap.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snap.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3861,7 +3861,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_ED8B227EC3554205A6EF4092A654E66F"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\site2gps.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\site2gps.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3889,7 +3889,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F342A8E716484DC29C69D6823B517437"
             {
-            "SourcePath" = "8:..\\..\\built\\Debugx86\\snapconv.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapconv.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"

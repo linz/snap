@@ -6,8 +6,9 @@ use Getopt::Std;
 use POSIX;
 
 my %opts;
-getopts("iIl",\%opts);
+getopts("iIlR",\%opts);
 my $update = $opts{i} || $opts{I};
+my $release = $opts{R};
 my $major = $opts{I};
 my $dolog = $opts{l};
 
@@ -41,7 +42,9 @@ foreach my $file (@files)
     {
         $version =~ /(\d+)\.(\d+)\.(\d+)/;
         my ($v1, $v2, $v3) = ($1, $2, $3);
-        if( $major ) { $v2++; $v3=0; } else { $v3++; }
+        if( $release ){ $v1++; $v2=0; $v3=0; }
+        elsif( $major ) { $v2++; $v3=0; } 
+        else { $v3++; }
         $version="$v1.$v2.$v3";
         print "Updating to $version\n";
         $data =~ s/^(\s*\#define\s+VERSION\s+\")(\d+\.\d+\.\d+)(")/$1.$version.$3/em;
@@ -60,5 +63,5 @@ $log->close if $log;
 
 if( ! $update )
 {
-    print "Used -i for minor update or -I for major update. -l to write to version.log"
+    print "Used -i for minor update or -I for major update, -R for release.\n -l to write to version.log\n"
 }

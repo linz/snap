@@ -430,6 +430,15 @@
     <ClCompile Include="..\..\..\src\snaplib\network\networkl.c">
       <Filter>Source Files\network</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs.c">
+      <Filter>Source Files\coordsys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_func.c">
+      <Filter>Source Files\coordsys</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_parse.c">
+      <Filter>Source Files\coordsys</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">

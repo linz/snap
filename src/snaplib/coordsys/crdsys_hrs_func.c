@@ -279,6 +279,7 @@ height_ref_func *copy_height_ref_func( height_ref_func *hrf )
     newhrf->identical=hrf->identical;
     newhrf->calc_height=hrf->calc_height;
     if( newhrf->copy_func ) newhrf->data=hrf->copy_func( hrf->data );
+    return newhrf;
 }
 
 int identical_height_ref_func( height_ref_func *hrf1, height_ref_func *hrf2 )

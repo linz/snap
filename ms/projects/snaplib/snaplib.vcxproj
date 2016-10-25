@@ -95,6 +95,9 @@
     </ClCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_func.c" />
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_parse.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_binsrc.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_blob.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_date.c" />

@@ -50,7 +50,7 @@ height_ref *parse_height_ref_def ( input_string_def *is,
     char basecode[CRDSYS_CODE_LEN+1];
     char stdcode[CRDSYS_CODE_LEN+1];
     char geoidname[MAX_FILENAME_LEN+1];
-    char *geoidfile;
+    const char *geoidfile;
     double offset;
     const char *bad;
     int isgeoid;

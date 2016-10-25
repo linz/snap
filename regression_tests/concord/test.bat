@@ -3,9 +3,9 @@ SETLOCAL
 
 IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\SNAP
 IF "%1" == "-i" SHIFT
-IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Release
+IF "%1" == "-r" SET SNAPDIR=..\..\ms\built\Releasex86
 IF "%1" == "-r" SHIFT
-IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debug
+IF "%SNAPDIR%" == "" SET SNAPDIR=..\..\ms\built\Debugx86
 
 SET concord="%SNAPDIR%\concord"
 SET coordsysdef=cstest\coordsys.def
@@ -51,7 +51,7 @@ echo PS projection
 %concord% -iWGS84_D,NEH,H -oANT_PS,NEH -N6 in\test1.in out\test7.out > out\test7.txt  2>&1
 
 echo Geoid calculation
-%concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest\NZgTest09 -N6 in\test1.in out\test8.out > out\test8.txt 2>&1
+%concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gcstest\nzgtest09 -N6 in\test1.in out\test8.out > out\test8.txt 2>&1
 
 echo Default geoid - egm96 in this case
 rem (Test no longer valid - just loadng file directly)
@@ -59,6 +59,36 @@ rem (Test no longer valid - just loadng file directly)
 
 echo Geoid calculation - invalid geoid
 %concord% -iNZGD2000,NEH,H -oNZGD2000,NEO,H -gNoSuchGeoid -N6 in\test1.in out\test8b.out > out\test8b.txt 2>&1
+
+echo Height reference surface
+%concord% -iNZGD2000,NEH,H -oNZGD2000/NZVD09,NEO,H -N6 in\test1.in out\test8c.out > out\test8c.txt 2>&1
+
+echo Height reference surface - ok with O or H
+%concord% -iNZGD2000,NEH,H -oNZGD2000/NZVD09,NEH,H -N6 in\test1.in out\test8d.out > out\test8d.txt 2>&1
+
+echo Height reference surface - reverse transformation
+%concord% -iNZGD2000/NZVD09,NEH,H -oNZGD2000,NEH,H -N6 in\test1.in out\test8e.out > out\test8e.txt 2>&1
+
+echo Height reference surface with offset
+%concord% -iNZGD2000,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 in\test1.in out\test8f.out > out\test8f.txt 2>&1
+
+echo Height reference surface with offset 2
+%concord% -iNZGD2000,NEH,H -oNZGD2000/OFFSET2,NEH,H -N6 in\test1.in out\test8g.out > out\test8g.txt 2>&1
+
+echo Height reference surface with grid offset 
+%concord% -iNZGD2000,NEH,H -oNZGD2000/GRIDOFFSET,NEH,H -N6 in\test1.in out\test8h.out > out\test8h.txt 2>&1
+
+echo Conversion between height systems 1 
+%concord% -iNZGD2000/NZVD09,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 in\test1.in out\test8i.out > out\test8i.txt 2>&1
+
+echo Conversion between height systems 2 
+%concord% -iNZGD2000/OFFSET1,NEH,H -oNZGD2000/NZVD09,NEH,H -N6 in\test1.in out\test8j.out > out\test8j.txt 2>&1
+
+echo Conversion between height systems 3 
+%concord% -iNZGD2000/OFFSET1,NEH,H -oNZGD2000/OFFSET2,NEH,H -N6 in\test1.in out\test8k.out > out\test8k.txt 2>&1
+
+echo Conversion between height systems 4 
+%concord% -iNZGD2000/OFFSET1,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 in\test1.in out\test8l.out > out\test8l.txt 2>&1
 
 
 echo Different output options
@@ -69,7 +99,7 @@ echo Different output options
 
 %concord% -iNZGD2000,NEH,H -oNZGD2000,ENH -N6 in\test1.in out\test11.out > out\test11.txt  2>&1
 
-%concord% -INZGD2000,ENH,D -oNZGD2000,ENO,H -gcstest\NZgTest09 -p5 in\test.lln out\test12.out > out\test12.txt 2>&1
+%concord% -INZGD2000,ENH,D -oNZGD2000,ENO,H -gcstest\nzgtest09 -p5 in\test.lln out\test12.out > out\test12.txt 2>&1
 
 echo Reference frame conversions
 
@@ -145,6 +175,14 @@ for /F %%c in ( crdsyslist2.txt ) do (
    %concord% -IITRF96,NEH,H -o%%c -Y2000.5 -N6 -P6 in\test1.in out\test_%%c.out >> out\crdsys.txt 2>&1
    )
 
+
+echo Testing height reference surfaces
+for /F %%c in ( hgtreflist.txt ) do (
+   echo ======================= >> out\hgtref.txt
+   echo Testing %%c >> out\hgtref.txt
+   %concord% -L NZGD2000/%%c > out\hgtref_list_%%c.txt 2>&1
+   %concord% -INZGD2000/%%c,ENH,D -oNZGD2000,ENH,D -P4:3 in\nzpoints.in out\testhrs_%%c.out >> out\hgtref.txt 2>&1
+   )
 
 echo Testing ITRF systems
 for /f %%c in ( itrf_csys.txt) do (

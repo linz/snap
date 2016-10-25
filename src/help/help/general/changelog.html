@@ -37,7 +37,7 @@ additional functionality for selecting observations based on multiple criteria i
 observation date and stations used.</a>
 <p>Enhancement: <a href="../files/cmdcfg/cmd_stn_list.html">Station lists</a> are more sophisticated 
 and can select stations based on multiple criteria, for example selecting order 0 or 1 stations 
-outside a geographical area.
+outsidels a geographical area.
 </p>
 <p>Enhancement: Added functionality to automatically fix or float stations horizontally or vertically.
 See the <a href="../files/cmdcfg/cmd_fix.html">fix frame</a> command documentation. Also the algorithm used
@@ -51,6 +51,9 @@ the extent of the geoid file.  The geoid information from these stations is unch
 <p>Enhancement: SNAP is now able to read SINEX data with either upper or lower triangular format covariance data.</p>
 <p>Enhancement: Tidied up handling of included snap files to better handle including files in subdirectories.</p>
 <p>Bug fix: Corrected handling of geoid function when input coordinate file defines ellipsoidal heights.</p>
+<h3>concord</h3>
+<p>Enhancement: Added support for height reference surfaces and converting coordinates between them (eg 
+between local vertical datums and geoid datums).</p>
 <h3>Snapspec</h3>
 <p>Bug fix: corrected the order 2 vertical specification in the configuration file</p>
 
