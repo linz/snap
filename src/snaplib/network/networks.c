@@ -198,7 +198,6 @@ station * duplicate_network_station( network *nw,
 void modify_network_station_coords( network *nw, station *st, double Lat,
                                     double Lon, double Hgt )
 {
-
     modify_station_coords( st, Lat, Lon, Hgt, nw->crdsys->rf->el );
 }
 

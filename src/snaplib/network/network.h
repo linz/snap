@@ -128,6 +128,7 @@ typedef struct
 #define NW_GEOID_HEIGHTS       1
 #define NW_DEFLECTIONS         2
 #define NW_ELLIPSOIDAL_HEIGHTS 4
+#define NW_IMPLICIT_GEOID      8
 #define NW_GEOID_INFO          (NW_GEOID_HEIGHTS | NW_DEFLECTIONS)
 #define NW_DEC_DEGREES        16
 

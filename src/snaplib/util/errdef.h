@@ -60,6 +60,9 @@
       the error condition)
    3) A qualifier (e.g. file location) (if NULL nothing is printed)
 
+   The null error handler does not generate output for warning and 
+   info errors.
+
    The handler writes a message to STDERR, and for fatal errors,
    terminates the process.
 
@@ -71,6 +74,7 @@ typedef int (*errhandler_type)( int sts, const char *msg1, const char *msg2 );
 
 int handle_error( int sts, const char *mess1, const char *mess2 );
 int default_error_handler( int sts, const char *mess1, const char *mess2 );
+int null_error_handler( int sts, const char *mess1, const char *mess2 );
 errhandler_type set_error_handler( errhandler_type errhndler );
 int get_error_count( void );
 
