@@ -14,7 +14,7 @@ XLINK=-lX11
 CC = g++
 AR = ar
 CP = cp
-MD = -mkdir -p
+MD = mkdir -p
 RM = rm -f
 LAPG = ../tools/lapg/lapg
 
@@ -24,13 +24,15 @@ LDFLAGS = -lm -lboost_regex -lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
-endif
 
-ifeq ($(type), release)
+else ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -s
 LDWXFLAGS = -lm -lboost_regex -s
 CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
+
+else
+MD=
 endif
 
 SRCDIR = ../src
