@@ -125,7 +125,7 @@ static void delete_grid_height_ref_func_data( void *data )
 
 static int load_grid_height_ref_func( height_ref_func *hrf, grid_height_ref_func_data *ghrfd )
 {
-    if( ghrfd->loadsts != OK )
+    if( ghrfd->gd || ghrfd->loadsts != OK ) 
     {
         return ghrfd->loadsts;
     }
