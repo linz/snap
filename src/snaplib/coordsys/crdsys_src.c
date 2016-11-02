@@ -26,6 +26,7 @@
 
 static crdsys_source_def *sources = NULL;
 static int update_id = 0;
+static char csfullcode[CRDCNV_CODE_LEN+1];
 
 crdsys_source_def *crdsys_sources()
 {
@@ -217,6 +218,20 @@ coordsys * load_coordsys( const char *code )
         if( hrs ) delete_height_ref( hrs );
     }
     return cs;
+}
+
+const char *coordsys_load_code( coordsys *cs )
+{
+    strncpy( csfullcode, cs->code, CRDCNV_CODE_LEN );
+    if( cs->hrs 
+            && cs->hrs->code 
+            && strlen(cs->hrs->code)+strlen(csfullcode)+1 < CRDCNV_CODE_LEN
+      )
+    {
+        strcat(csfullcode,"/");
+        strcat(csfullcode,cs->hrs->code);
+    }
+    return csfullcode;
 }
 
 height_ref * load_height_ref( const char *code )

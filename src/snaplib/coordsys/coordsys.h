@@ -446,7 +446,6 @@ void proj_to_geog( projection *prj, double easting, double northing,
 /* If the input or output coordinate systems are geocentric, then the  */
 /* gravitational components are ignored.                               */
 
-
 int define_coord_conversion( coord_conversion *conv,
                              coordsys *from, coordsys *to );
 
@@ -485,7 +484,7 @@ void install_crdsys_wgs84( void );
 void install_crdsys_nzmg( void );
 void install_crdsys_nz_metre_circuits( void );
 
-/* Get definitions from a file file  */
+/* Get definitions from a file */
 
 int install_crdsys_file( const char *file_name );
 const char* get_default_crdsys_file();
@@ -511,11 +510,17 @@ const char *ellipsoid_list_desc( int item );
 ellipsoid * ellipsoid_from_list( int item );
 ellipsoid * load_ellipsoid( const char *code );
 
+/* Note - load_coordsys handles height reference surface also as cscode/hrscode */
+
 int coordsys_list_count( void);
 const char *coordsys_list_code( int item );
 const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
 coordsys * load_coordsys( const char *code );
+/* coordsys_load_code returns the code a coordinate system including potential hrs
+ * can be loaded as.  Returns a pointer to a static buffer, so must be used or 
+ * copied immediately! */
+const char* coordsys_load_code( coordsys *cs );
 
 int height_ref_list_count( void);
 const char *height_ref_list_code( int item );
