@@ -31,9 +31,14 @@ The selection criteria can include:
 Specifies observations based on a classification.  The classification can be one of
 &quot;<a href="../data/obs_data_types.html">data_type</a>&quot;, 
 &quot;data_file&quot;, or a <a href="../data/obs_classifications.html">user defined classification</a> such as &quot;EQUIPMENT&quot;.  
-For classifications other than data_file multiple values can be entered on separated by &quot;/&quot; characters
-(eg data_type=HA/AZ/PB).  Data file selections can be preceded by ignore_missing, warn_missing, or 
+For classifications other than data_file multiple values can be entered separated by &quot;/&quot; characters
+(eg data_type=HA/AZ/PB). To specify values that include the &quot;/&quot; character the entire classification
+value can be included in either single or double quotes, (eg equipment=&quot;Kern/DKM2&quot;).
+</p>
+<p class="Commanddescription">
+Data file selections can be preceded by ignore_missing, warn_missing, or 
 fail_missing to specify the error handling if the specified data file is not in the adjustment 
+</p>
 
 <p class="Commanddefinition">before <i>date</i></p>
 <p class="Commanddescription">Selects observations dated before the specified date.  The date can be 

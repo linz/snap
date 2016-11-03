@@ -224,7 +224,8 @@ static void describe_obs_datafile_criterion( FILE *lst, obs_criterion *oc, const
     fprintf(lst,"are from file %s\n",oc->c.datafile.filename);
 }
 
-static obs_criterion *new_obs_classification_criterion( CFG_FILE *cfg, classifications *classes, char *classification, char *values )
+static obs_criterion *new_obs_classification_criterion( CFG_FILE *cfg, classifications *classes, 
+        char *classification, char *values, bool singlevalue )
 {
     int class_id;
     obs_criterion *oc;
@@ -233,7 +234,7 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *cfg, classific
     class_id=classification_id( classes, classification, 1 );
     /* If values string contains / then this is a list of multiple classes */
     oc=new_obs_criterion();
-    if( strchr(values,'/') )
+    if( ! singlevalue && strchr(values,'/') )
     {
         char *pval;
         char *pend;
@@ -740,7 +741,9 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
         if( (fptr = strchr(field,'=')) )
         {
             *fptr=0;
-            if( fptr == field || ! *(fptr+1) )
+            char quote=0;
+            char *vptr=fptr+1;
+            if( fptr == field || ! *vptr )
             {
                 char errmess[100];
                 *fptr='=';
@@ -749,22 +752,48 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
                 sts=INVALID_DATA;
                 continue;
             }
-            else if( _stricmp(field,"data_type") == 0 )
+            if( *vptr == '"' || *vptr == '\'')
             {
-                oc=new_obs_datatype_criterion(cfg,fptr+1);
+                char *vend=vptr+1;
+                quote=*vptr;
+                vptr=vend;
+                while( vend < strptr )
+                {
+                    if( ! *vend ) *vend=' ';
+                    vend++;
+                }
+                vend=vptr;
+                while( *vend && *vend != quote ) vend++;
+                if( ! *vend  || !(*(vend+1) == 0 || isspace(*(vend+1))) )
+                {
+                    char errmess[100];
+                    strptr=vend;
+                    if( *strptr ) strptr++;
+                    *fptr='=';
+                    sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",field);
+                    send_config_error(cfg,INVALID_DATA,errmess);
+                    sts=INVALID_DATA;
+                    continue;
+                }
+                *vend=0;
+                strptr=vend+1;
+            }
+            if( _stricmp(field,"data_type") == 0 )
+            {
+                oc=new_obs_datatype_criterion(cfg,vptr);
             }
             else if( _stricmp(field,"data_file") == 0 )
             {
-                int file_id=get_file_id( obsmod, cfg, fptr+1, missing_error );
-                if( file_id >= 0 ) oc=new_obs_datafile_criterion(file_id,fptr+1 );
+                int file_id=get_file_id( obsmod, cfg, vptr, missing_error );
+                if( file_id >= 0 ) oc=new_obs_datafile_criterion(file_id,vptr );
             }
             else if( _stricmp(field,"id") == 0 )
             {
-                oc=new_obs_id_criterion(cfg,fptr+1 );
+                oc=new_obs_id_criterion(cfg,vptr );
             }
             else
             {
-                oc=new_obs_classification_criterion(cfg, obsmod->classes, field, fptr+1 );
+                oc=new_obs_classification_criterion(cfg, obsmod->classes, field, vptr, quote != 0 );
             }
             *fptr='=';
         }
@@ -872,7 +901,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     }
     else
     {
-        oc=new_obs_classification_criterion(cfg, obsmod->classes, classification, value );
+        oc=new_obs_classification_criterion(cfg, obsmod->classes, classification, value, true );
     }
     if( ! oc )
     {
