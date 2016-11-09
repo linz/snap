@@ -20,7 +20,8 @@ The SNAP package includes the following main components:
 * snap_manager: a graphical user interface for running the various programs in the package
 * html help files defining the file formats used, the configuration of the software, 
   and options for running the programs.
-
+  
+The documentation is viewable from the [source help files](http://htmlpreview.github.io/?https://raw.githubusercontent.com/linz/snap/master/src/help/help/index.html)
 
 Developer notes
 ---------------
