@@ -275,29 +275,32 @@ int related_coordinate_systems( coordsys *cs1, coordsys *cs2 )
     return 1;
 }
 
-int coordsys_geoid_height( coordsys *cs, double llh[3], double *height, double *exu )
+int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu )
 {
     double llh1[3];
     if( ! cs->hrs )
     {
-        *height=0.0;
+        if( height ) *height=0.0;
         if( exu ){ exu[0]=exu[1]=exu[2]=0.0; }
         return OK;
     }
-    if( cs->crdtype == CSTP_PROJECTION )
+    if( height || exu )
     {
-        proj_to_geog( cs->prj, llh[CRD_EAST], llh[CRD_NORTH], &(llh1[CRD_LON]), &(llh1[CRD_LAT]));
-        llh1[CRD_HGT]=llh[CRD_HGT];
-    }
-    else if( cs->crdtype == CSTP_CARTESIAN )
-    {
-        xyz_to_llh( cs->rf->el, llh, llh1 );
-    }
-    else
-    {
-        llh1[CRD_LON]=llh[CRD_LON];
-        llh1[CRD_LAT]=llh[CRD_LAT];
-        llh1[CRD_HGT]=llh[CRD_HGT];
+        if( cs->crdtype == CSTP_PROJECTION )
+        {
+            proj_to_geog( cs->prj, llh[CRD_EAST], llh[CRD_NORTH], &(llh1[CRD_LON]), &(llh1[CRD_LAT]));
+            llh1[CRD_HGT]=llh[CRD_HGT];
+        }
+        else if( cs->crdtype == CSTP_CARTESIAN )
+        {
+            xyz_to_llh( cs->rf->el, llh, llh1 );
+        }
+        else
+        {
+            llh1[CRD_LON]=llh[CRD_LON];
+            llh1[CRD_LAT]=llh[CRD_LAT];
+            llh1[CRD_HGT]=llh[CRD_HGT];
+        }
     }
     return calc_height_ref_offset( cs->hrs, llh1, height, exu );
 }

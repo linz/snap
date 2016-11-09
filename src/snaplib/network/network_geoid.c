@@ -1,8 +1,105 @@
 #include "snapconfig.h"
 
+#include "coordsys/coordsys.h"
 #include "geoid/geoid.h"
 #include "network/network.h"
 #include "util/errdef.h"
+
+// #define NW_HGTFIXEDOPT_DEFAULT 0
+// #define NW_HGTFIXEDOPT_ELLIPSOIDAL 1
+// #define NW_HGTFIXEDOPT_ORTHOMETRIC 2
+
+int recalculate_network_geoid_info( network *nw, int errlevel )
+{
+    if( ! coordsys_heights_orthometric(nw->cs) ) return OK;
+    return calc_station_geoid_info_from_coordsys( nw, nw->cs, NW_HGTFIXEDOPT_DEFAULT, errlevel );
+}
+
+int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel )
+{
+    int ellipsoidal_heights;
+
+    ellipsoidal_heights = (nw->options & NW_ELLIPSOIDAL_HEIGHTS) ? 1 : 0;
+    if( fixed_height_type == NZ_HGTFIXEDOPT_ELLISPOIDAL )
+    {
+        ellipsoidal_heights=1;
+    }
+    else
+    {
+        ellipsoidal_heights=0;
+    }
+
+    if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
+
+    /* Check that the height ref conversion is possible */
+
+    int sts = coordsys_geoid_exu( cs, llh, NULL, NULL );
+    if( sts != OK ) return sts;
+
+    /* Conversion to and from height ref coordsys */
+
+    coord_conversion to_geoid;
+    coord_conversion from_geoid;
+
+    if( define_coord_conversion_epoch( &to_geoid, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK ||
+            define_coord_conversion_epoch( &from_geoid, cs, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
+    {
+        handle_error( INVALID_DATA,
+                      "Cannot relate height reference and network coordinate systems",NO_MESSAGE );
+        return INVALID_DATA;
+    }
+    /* Add the undulations - ignore individual errors */
+
+    int maxstn = number_of_stations( nw  );
+    int ninvalid = 0;
+    int ncalc = 0;
+    errhandler_type saved_error_handler=set_error_handler(  null_error_handler );
+
+    for( int istn = 0; istn++ < maxstn; )
+    {
+        double llh[3], exu[3];
+        double inputUndulation;
+        station *st = station_ptr(nw,istn);
+        if( !st ) continue;
+        llh[CRD_LON] = st->ELon;
+        llh[CRD_LAT] = st->ELat;
+        llh[CRD_HGT] = 0.0;
+        exu[CRD_LON] = 0.0;
+        exu[CRD_LAT] = 0.0;
+        exu[CRD_HGT] = 0.0;
+
+        ninvalid++;
+
+        if( convert_coords( &to_geoid, llh, NULL, llh, NULL ) != OK ) continue;
+        if( coordsys_geoid_exu( cs, llh, NULL, exu ) != OK ) continue;
+        if( convert_coords( &from_geoid, llh, exu, llh, exu ) != OK ) continue;
+
+        inputUndulation = st->GUnd;
+        st->GUnd = exu[CRD_HGT];
+        st->GXi = exu[CRD_LAT];
+        st->GEta = exu[CRD_LON];
+        // If network is based on ellipsoidal heights, then changing the geoid
+        // shouldn't change the ellipsoidal height...
+        if( ellipsoidal_heights ) st->OHgt += (inputUndulation - st->GUnd);
+        ninvalid--;
+        ncalc++;
+    }
+
+    set_error_handler(  saved_error_handler );
+
+    /* Set up the network height flags */
+
+    nw->options |= NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
+
+    if( ninvalid && errlevel != OK )
+    {
+        char buffer[80];
+        sprintf( buffer, "Error calculating geoid for %d network stations",ninvalid);
+        handle_error( errlevel, buffer, NO_MESSAGE );
+        return errlevel;
+    }
+    return OK;
+}
 
 int set_network_geoid( network *nw, const char *geoid, int errlevel )
 {
@@ -89,7 +186,7 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel )
     if( ninvalid && errlevel != OK )
     {
         char buffer[80];
-        sprintf( buffer, "Error calculating geoid for network: %d stations outside range of  grid",ninvalid);
+        sprintf( buffer, "Error calculating geoid for %d network stations",ninvalid);
         handle_error( errlevel, buffer, NO_MESSAGE );
         return errlevel;
     }

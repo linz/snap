@@ -122,7 +122,7 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg,
     define_coord_conversion( &nw->ccnet, nw->geosys, nw->crdsys );
 
     if( nw->crdsysdef ) check_free(nw->crdsysdef);
-    nw->crdsysdef = copy_string( cs->code );
+    nw->crdsysdef = copy_string( coordsys_load_code(cs) );
 
     return OK;
 }

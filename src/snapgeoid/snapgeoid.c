@@ -17,6 +17,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "geoid/geoid.h"
 #include "util/chkalloc.h"
@@ -31,6 +32,7 @@ int main( int argc, char *argv[] )
     int gbformat;
     int nch;
     network net;
+    char list_only=0;
     char remove_geoid = 0;
     char calc_geoid = 0;
     char syntax_error = 0;
@@ -38,6 +40,7 @@ int main( int argc, char *argv[] )
     char change_height_type = 0;
     char output_ellipsoidal = 0;
     char geoid_msg[120];
+    char *hrscode = NULL;
     char *geoid = NULL;
     int errlevel=WARNING_ERROR;
     geoid_def *gd = NULL;
@@ -49,6 +52,11 @@ int main( int argc, char *argv[] )
     {
         switch( argv[1][1] )
         {
+        case 'l':
+        case 'L':
+            list_only = 1;
+            break;
+
         case 'e':
         case 'E':
             if( change_height_type ) syntax_error = 1;
@@ -94,6 +102,20 @@ int main( int argc, char *argv[] )
             }
             break;
 
+        case 'h':
+        case 'H':
+            if( argc > 2  && ! hrscode )
+            {
+                hrscode = argv[2];
+                argv++;
+                argc--;
+            }
+            else
+            {
+                syntax_error = 1;
+            }
+            break;
+
         case 'q':
         case 'Q': quiet = 1;
             break;
@@ -115,22 +137,42 @@ int main( int argc, char *argv[] )
     {
         printf("Error in snapgeoid command\n\n");
     }
-    if( argc < 2 || syntax_error )
+    if( hrscode && geoid )
+    {
+        printf("Error - cannot use both -h and -g\n\n");
+        syntax_error=1;
+    }
+    if( (argc < 2 && ! list_only) || syntax_error )
     {
         printf("Syntax:  snapgeoid  [options] station_file_name [new_station_file_name]\n\n");
         printf("Options can include:\n");
-        printf(" -g geoid_name  selects the geoid to use\n");
+        printf(" -h hrs_code    selects the height reference surface (geoid) to use\n");
+        printf(" -g geoid_file  selects the geoid file to use\n");
+        printf(" -x             excludes geoid information from the output coordinate file\n");
+        printf(" -e             preserves ellipsoidal heights when the geoid height is calculated\n");
+        printf(" -o             preserves orthometric heights when the geoid height is calculated\n");
+        printf(" -k             retains the original height coordinate type even if -e or -o is used\n");
         printf(" -c             calculates geoid heights even if the station file already\n");
         printf("                includes geoid information\n");
-        printf(" -x             excludes geoid information from the output coordinate file\n");
-        printf(" -e             sets the output heights to be ellipsoidal\n");
-        printf(" -o             sets the output heights to be orthometric\n");
-        printf(" -i             ignore errors calculating geoid height\n");
+        printf(" -i             ignore errors calculating geoid heights for specific stations\n");
         printf(" -q             miminimes output comments\n");
+        printf(" -l             list the available height reference surfaces and exit\n");
         return 1;
     }
 
     install_default_crdsys_file();
+    if( list_only )
+    {
+        int i;
+        int nhrf=height_ref_list_count();
+        for( i=0; i < nhrf; i++)
+        {
+            const char *code=height_ref_list_code(i);
+            const char *name=height_ref_list_desc(i);
+            printf("  %-*s %s\n",CRDSYS_CODE_LEN,code,name);
+        }
+        exit(0);
+    }
     /* Load the station file */
 
     init_network( &net );

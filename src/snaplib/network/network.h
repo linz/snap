@@ -137,6 +137,20 @@ typedef struct
 #define NW_MERGEOPT_OVERWRITE 1
 #define NW_MERGEOPT_MERGECLASSES 2
 
+#define NW_HGTFIXEDOPT_DEFAULT 0
+#define NW_HGTFIXEDOPT_ELLIPSOIDAL 1
+#define NW_HGTFIXEDOPT_ORTHOMETRIC 2
+
+/* Options for reading data.  
+ *  NW_READOPT_CALCHGTREF for recalculation geoid info if coordsys defines a 
+ *                        height reference surface
+ *  NW_READOPT_GBFORMAT   for reading data using the very historic "geodetic
+ *                        branch" format
+ */
+
+#define NW_READOPT_CALCHGTREF      1 
+#define NW_READOPT_GBFORMAT       16
+
 /*------------------------------------------------------------------------
 
 List of station/network functions supplied by the library
@@ -299,7 +313,7 @@ void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc un
 void clear_network( network *nw );
 void delete_network( network *nw );
 
-int read_network( network *nw, const char *filename, int gbformat );
+int read_network( network *nw, const char *filename, int options );
 int write_network( network *nw, const char *filename, const char *comment,
                    int coord_precision, int (*select)(station *st) );
 
@@ -326,6 +340,14 @@ station * duplicate_network_station(  network *nw,
 
 void    modify_network_station_coords( network *nw, station *st, double Lat,
                                        double Lon, double Hgt );
+
+/* Calculate geoid info from a coordinate system height reference surface 
+ * for all stations.  Assumes that the coordinate system is based on the 
+ * geocentric coordinate system matching the station coordinates. */
+/* For library use only, fixed_height_type one of the NW_HGTFIXOPT... defines */
+
+
+int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel )
 
 /* set_network_geoid errlevel can be OK, no error, INFO_ERROR, or WARNING_DATA */
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */

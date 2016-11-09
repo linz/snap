@@ -336,7 +336,7 @@ int calc_height_ref_offset( height_ref *hrs, double llh[3], double *height, doub
  * it is assumed to be a double[3] and receives the coordinates and
  * deflection of the vertical */ 
 
-int coordsys_geoid_height( coordsys *cs, double llh[3], double *exu );
+int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu )
 
 height_ref *base_height_ref( height_ref *hrs );
 ref_frame *height_ref_ref_frame( height_ref *hrs );

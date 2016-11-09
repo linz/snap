@@ -102,7 +102,7 @@ int identical_height_ref( height_ref *hrs1, height_ref *hrs2 )
 int calc_height_ref_offset( height_ref *hrs, double llh[3], double *height, double *exu )
 {
     int sts;
-    *height=0.0;
+    if( height ) *height=0.0;
     if( exu ){ exu[0]=exu[1]=exu[2]=0.0; }
     if( ! hrs || ! hrs->func ) return INVALID_DATA;
     sts=calc_height_ref_func( hrs->func, llh, height, exu );
@@ -115,7 +115,7 @@ int calc_height_ref_offset( height_ref *hrs, double llh[3], double *height, doub
         if( ! hrs->func ) return INVALID_DATA;
         sts=calc_height_ref_func( hrs->func, llh, &dh, pexu );
         if( sts != OK ) return sts;
-        *height += dh;
+        if( height ) *height += dh;
         if( exu ){ exu[0] += dexu[0]; exu[1] += dexu[1]; exu[2] += dexu[2]; }
     }
     return INVALID_DATA;

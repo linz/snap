@@ -13,23 +13,71 @@
 
 <h1><a name="stn_crd_file"></a>Station coordinate file</h1>
 
-<p>A station coordinate file is a data file containing a list of all the survey stations to be used in an adjustment. Each station is denoted by a code, and has a position.  A station may also have a short text description, a station coordinate order, and a geoid height and deflection of the vertical, and other mark classifications (such as mark type). The file also defines the coordinate system to which the station positions are referenced. </p>
+<p>A station coordinate file is a data file containing a list of all the survey stations to be used in an adjustment. Each station is denoted by a code, and has a position.  A station may also have a short text description (usually the name of the stations), a station coordinate order, geoid information, and other user defined mark classifications (attributes) such as mark type. 
+</p>
+<p>
+The coordinate file also defines the coordinate system to which the station positions are referenced. 
+The coordinate system is defined by a coordinate system code such as &quot;NZGD2000&quot;.  The codes and coordinate systems they represent are define in the <a href="../../coordsys/index.html">coordinate system definition file</a>
+</p>
 
-<p>SNAP can use two basic formats for coordinate files - either the <a href="stn_file_format.html">SNAP</a> format, or a generic <a href="csv_stn_files.html">CSV delimited text</a> format.  The CSV format requires a <a href="../cmdcfg/csv_format_definition.html">format definition</a> file to specify how the station information is organised in the CSV file. </p>
+<p>
+The coordinate system may be a projection coordinate system, with positions defined in terms of easting, 
+northing, and height, a geodetic (or geographic) system with positions defined in terms of longitude, latitude, and height, or a
+geocentric system with positions defined in terms of X, Y, and Z coordinates relative to the centre of mass of the earth.
+</p>
+
+<p>The geoid information for each station can include both geoid height (undulation) and east and north 
+deflection of the vertical.  It can be specified explicitly for each station, or implicitly by defining a 
+geoid, or height reference surface, used to calculate these values for each station.
+</p>
+
+<p>A height reference surface is selected as part of the coordinate system code.
+The coordinate system definition file defines a list of height reference surfaces,
+such as NZVD2016.  The height reference code is appended to the coordinate system code to define
+the station coordinate system.  For example the station file coordinate system could be NZGD2000/NZVD2016, 
+meaning the coordinates are in terms of NZGD2000 using geoid information (geoid height and deflection of
+the vertical) from the NZVD2016 reference surface.
+</p>
+
+<p>The height coordinate in the station coordinate file is assumed to be an ellipsoidal height if no 
+height reference surface or geoid information is specified, or an orthometric height if there is a height reference 
+surface.  However this can be overridden by options in the station coordinate file.
+</p>
+
+<p>
+Note that if the coordinate system defines a height reference surface and also explicit geoid information
+for each station, then the geoid information will
+be recalculated for each station when the station file is read by any of the snap programs. 
+The geoid information
+will be left unchanged for stations at which the height reference surface cannot be calculated (typically 
+where the station is outside the range of geoid grids, or for deflections very near the edge of the grid).
+When the geoid height is recalculated then either the ellipsoidal or orthometric height must be changed.
+The height supplied in the coordinate file will be unaltered (that is, if the coordinate file contains ellipsoidal
+heights then the orthometric height will be changed, and vice versa.
+</p>
+
+<p>For network adjustments using <a href="../../programs/snap/index.html">snap</a> the station positions 
+need only be approximate except for the fixed stations in the adjustment,
+as snap will calculate improved coordinates using the survey observations.
+One of the outputs of snap is a revised coordinate file containing the adjusted coordinates.
+</p>
+
+<p>Approximate station coordinates can be generated from observation data 
+using the program <a href="../../programs/dat2site/index.html">dat2site</a>.
+</p>
+
+<p>The station coordinate data may be modified by <a href="../../programs/snapconv/index.html">snapconv</a> 
+(which changes the coordinate system) and <a href="../../programs/snapgeoid/index.html">snapgeoid</a> 
+(which adds or removes geoid information) as well as by snap itself.
+</p>
+
+<p>The SNAP programs can use two basic formats for coordinate files - either the <a href="stn_file_format.html">SNAP</a> format, or a generic <a href="csv_stn_files.html">CSV delimited text</a> format.  The CSV format requires a <a href="../cmdcfg/csv_format_definition.html">format definition</a> file to specify how the station information is organised in the CSV file. 
+</p>
 
 <p>
 Currently several of the SNAP utility programs only support SNAP format coordinate files.
-Also at the moment new coordinate files generated by SNAP are always in the 
-SNAP format, regardless of the format of the input station file.
+In particular updated coordinate files generated by the programs are always in SNAP format.
 </p>
-
-<p>For network adjustments using <a href="../../programs/snap/index.html">SNAP</a> the station positions need only be approximate except for the fixed stations in the adjustment,
-as snap will calculate improved coordinates using the survey observations.
-One of the outputs of snap is a revised coordinate file containing the adjusted coordinates.   </p>
-
-<p>Approximate station coordinate files can be generated from observation data using the program <a href="../../programs/dat2site/index.html">dat2site</a>.</p>
-
-<p>The station coordinate data may be modified by <a href="../../programs/snapconv/index.html">snapconv</a> (which changes the coordinate system) and <a href="../../programs/snapgeoid/index.html">snapgeoid</a> (which adds or removes geoid information) as well as by SNAP itself..</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

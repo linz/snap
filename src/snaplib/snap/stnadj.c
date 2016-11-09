@@ -104,7 +104,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         sts = read_network( net, station_filespec, 0 );
         break;
     case STN_FORMAT_GB:
-        sts = read_network( net, station_filespec, 1 );
+        sts = read_network( net, station_filespec, NW_READOPT_GBFORMAT );
         break;
     case STN_FORMAT_CSV:
         sts = load_snap_csv_stations( station_filespec, station_fileoptions );

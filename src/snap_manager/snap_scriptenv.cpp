@@ -33,6 +33,7 @@ SnapMgrScriptEnv::SnapMgrScriptEnv( wxFrame *frameWindow )
 {
     job = 0;
 	coordsyslist="";
+	heightreflist="";
     script = new Script( *this );
     SetupConfiguration();
     frameWindow->PushEventHandler(this);
@@ -85,6 +86,21 @@ wxString &SnapMgrScriptEnv::GetCoordSysList()
         coordsyslist.append(_T(coordsys_list_desc(i)));
     }
 	return coordsyslist;
+}
+
+wxString &SnapMgrScriptEnv::GetHeightRefList()
+{
+	reset_config_dirs();
+    install_default_crdsys_file();
+    heightreflist.Empty();
+    for( int i = 0; i < height_ref_list_count(); i++ )
+    {
+        heightreflist.append(_T("\n"));
+        heightreflist.append(_T(height_ref_list_code(i)));
+        heightreflist.append(_T("\n"));
+        heightreflist.append(_T(height_ref_list_desc(i)));
+    }
+	return heightreflist;
 }
 
 bool SnapMgrScriptEnv::LoadJob( const wxString &jobFile )
@@ -415,6 +431,7 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxString() ));
     DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxString() ));
     DEFINE_VARIABLE("$coordsys_list", GetCoordSysList() );
+    DEFINE_VARIABLE("$heightref_list", GetHeightRefList() );
     DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    

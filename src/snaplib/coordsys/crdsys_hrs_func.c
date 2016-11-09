@@ -205,9 +205,10 @@ static int calc_grid_height_ref_func( height_ref_func *hrf, double llh[3], doubl
 {
     grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *) hrf->data;
     int sts=load_grid_height_ref_func( hrf, ghrfd );
+    if( ! height && ! exu ) return;
     if( sts != OK )
     {
-        *height=0.0;
+        if( height ) *height=0.0;
         if( exu ){ exu[0]=exu[1]=exu[2]=0.0; }
         return sts;
     }

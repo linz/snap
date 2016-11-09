@@ -18,7 +18,7 @@
 
 <h2>Overview</h2>
 
-<p>SNAP coordinate files can optionally
+<p>SNAP <a href="../../files/crd/index.html">coordinate files</a> can optionally
 contain information about the gravity field that SNAP can use in an
 adjustment. This information can include
 the geoid height (also called the separation or undulation) and the deflection
@@ -36,33 +36,50 @@ coordinate file can be one of </p>
 
 <p class="BulletList"> ellipsoidal height and geoid information</p>
 
-<p>snapgeoid is a program to convert between
-these options. It calculates geoid
-heights and deflections of the vertical 
-from a gridded model stored in a binary file.</p>
-
-<p>Note that in transforming and adding geoid information, the type of
-height is coordinate file specifies what is considered as the "principal"
-height, which will be preserved in the transformation.</p>
-
-<p>The geoid data file is called geoid.grd and
-is stored in the same directory as the snapgeoid program. 
-An alternative file can be specified using the -g command line option.
+<p>The geoid information may defined explicitly for each station, or by specifying 
+a geoid (or height reference surface) in terms of which orthometric heights are calculated.
+Orthometric heights are calculated by subtracting the geoid height from the ellipsoidal 
+height. Strictly this is not an orthometric height however practically it is a useful 
+approximation to orthometric heights.
 </p>
 
-<p>Two geoid files are supplied with SNAP.  
-If the data points are in New Zealand then the New Zealand Geoid 2009 (NZGeoid09) is recommended (-g NZGeoid09). 
-This is applicable in the vicinity of New Zealand and has an accuracy of 
-about 10cm.  
-Alternatively the EGM96 model can be used, which is a global gravity model (-g EGM96).  
-The error of this model is probably of the order of 1 metre.</p>
+<p>
+snapgeoid is a program to convert between these geoid options. It calculates geoid
+heights and deflections of the vertical from a gridded model stored in a binary file.</p>
+
+<p>Note that when snapgeoid is changing geoid information in a coordinate file it will
+recalculate the geoid height for each station, which means recalculating the relationship
+between the orthometric and ellipsoidal heights.  Generally when snapgeoid does this it keeps
+the ellipsoidal height unaltered and updates the orthometric height.  The exceptions to this
+are: 
+</p>
+<ul>
+    <li>if the station coordinate file has no geoid information and specifies that the heights are orthometric</li>
+    <li>if snapgeoid is run with the -o option to preserve orthometric heights.</li>
+</ul>
+<p>
+The reason for retaining the ellipsoidal height is that generally converting between orthometric height 
+systems the expectation is that the orthometric height will be changed (for example converting 
+between NZVD2009 and NZVD2016).
+</p>
+
+<p>The SNAP <a href="../../coordsys/index.html">coordinate system definition file</a> defines a list of 
+height reference surfaces that can be used by snapgeoid.  Each is reference by a code, for example &quot;NZVD2016&quot;.
+The list of height reference surfaces can be defined with the -l option.
+</p>
+
+<p>
+Alternatively the snpgeoid -g option can be used to calculate geoid information from a gridded geoid height model in a
+<a href="../../coordsys/geoid.html">geoid file</a>.
+</p>
 
 <h2>Running snapgeoid</h2>
 
 <p>snapgeoid is a command line
 utility run from a DOS prompt. The syntax for the command is</p>
 
-<p class="Commanddefinition">snapgeoid [-g geoid] [-c] [-x] [-e] [-o] station_file [new_file]</p>
+<p class="Commanddefinition">snapgeoid -l</p>
+<p class="Commanddefinition">snapgeoid [-c|-x] [-h <i>hrs_code</i>|-g <i>geoid</i>] [-e|-o] [<i>options</i>] station_file [new_file]</p>
 
 <p>In this command:</p>
 
@@ -83,39 +100,78 @@ the input file, but with extension ".new".</p>
 
 <table class="CommandOptions">
 <tr><td>
+<p class="Commanddefinition">-l</p></td><td><p> 
+If specified then snapgeoid will list the available reference surface codes and exit
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-h <i>hrs_code</i></p></td><td>
+<p> Specifies the height reference surface to use to calculate geoid undulations.
+Use the -l option to output a list of valid codes.
+</p>
+</td></tr>
+
+<tr><td>
 <p class="Commanddefinition">-g <i>geoid</i></p></td><td>
-<p> Specifies the geoid to use to calculate geoid undulations.
-Currently <i>geoid</i> may be "nzgeoid09" or "egm96".
+<p> Specifies the geoid file to use to calculate geoid undulations.
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-x</p></td><td><p> Causes
+snapgeoid to remove the geoid information from the output coordinate file.  
 </p>
 </td></tr>
 
 <tr><td>
 <p class="Commanddefinition">-c</p></td><td><p> Causes
 snapgeoid to calculate new geoid heights even if the coordinate
-file already contains geoid heights.
+file already contains geoid heights.  By default the snapgeoid only
+adds geoid information if it is not already defined.
 </p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-x</p></td><td><p> Causes
-snapgeoid to exclude the geoid information from the output coordinate file.  
+<p class="Commanddefinition">-e</p></td><td><p> forces
+snapgeoid to preserve ellipsoidal heights if the geoid height is changed
+and write ellipsoidal heights to the output file</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-o</p></td><td><p> forces
+snapgeoid to preserve orthometric heights if the geoid height is changed
+and write orthometric heights to the output file.</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-k</p></td><td><p> forces 
+snapgeoid to keep the height type in the coordinate file 
+unaltered even if the -e or -o option are used to specify
+which type to preserve.
 </p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-e</p></td><td><p> Causes
-snapgeoid to output ellipsoidal heights in the coordinate file.</p>
-</td></tr>
+<p class="Commanddefinition">-i</p></td><td><p> forces 
+ignore errors calculating the geoid height for specific 
+stations.  For these stations the geoid information is unaltered.
+</p>
 
 <tr><td>
-<p class="Commanddefinition">-o</p></td><td><p> Causes
-snapgeoid to output orthometric heights in the coordinate file.</p>
+<p class="Commanddefinition">-q</p></td><td><p> reduces the 
+amount of output generated by snapgeoid.
+</p>
+
 </td></tr>
+
 </table>
 
-<p>Note that you cannot specify both the -e and -o options.  If neither
-are specified then the output coordinate file will retain the same
+<p>Note that cannot specify both the -h and -g options or both the -e and -o options.  
+If neither are specified then the output coordinate file will use the same
 height type as the input file.
+If neither the -h or -g option are specified then the -e and -o options will set the
+height type in the coordinate file, converting heights according to the geoid information
+in the file.
 </p>
 <div class="SeeAlso">
 <h3>See also:</h3>
