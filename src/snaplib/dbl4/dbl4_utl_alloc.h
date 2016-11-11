@@ -16,7 +16,7 @@
 static char dbl4_utl_alloc_h_sccsid[] = "%W%";
 
 
-void * utlAlloc( int size);
+void * utlAlloc( size_t size);
 
 void utlFree( void * block);
 

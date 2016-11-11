@@ -70,7 +70,9 @@ void *check_malloc( size_t size )
     mem = malloc( size );
     if( mem == NULL )
     {
-        handle_error( MEM_ALLOC_ERROR, NULL, NULL );
+        char errmess[80];
+        sprintf(errmess,"Memory allocation error: required %ld bytes",(long) size);
+        handle_error( MEM_ALLOC_ERROR, errmess, NULL );
     }
 
     OFFSET_PTR( mem );

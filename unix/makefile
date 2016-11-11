@@ -19,8 +19,8 @@ RM = rm -f
 LAPG = ../tools/lapg/lapg
 
 ifeq ($(type),debug)
-#LDFLAGS = -lm -lboost_regex
-LDFLAGS = -lm -lboost_regex -lefence
+LDFLAGS = -lm -lboost_regex
+#LDFLAGS = -lm -lboost_regex -lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
