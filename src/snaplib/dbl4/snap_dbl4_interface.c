@@ -20,7 +20,7 @@ static int lastpercent = 0;
 static char laststate[MAX_MSG_LEN+1] = {0};
 static int tracing = -1;
 
-void * utlAlloc( int size)
+void * utlAlloc( size_t size)
 {
     return check_malloc( size );
 }

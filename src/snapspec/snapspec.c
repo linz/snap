@@ -289,9 +289,14 @@ static int calc_inverse_matrix( stn_relacc_array *ra )
 
     if( ! blt || ! bltdec ) return 0;
 
-    if( ra->loglevel & SDC_LOG_CALCS )
+    if( ra->loglevel & SDC_LOG_STEPS )
     {
+        long nrow=blt_nrows( blt );
+        long nelement=blt_requested_size( blt );
+        double pcntfull=100.0*((double) nelement)/((((double) nrow) * ((double) nrow)+1)/2.0);
         fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
+        fprintf(ra->logfile,"   Matrix size %d rows %ld elements %.2lf%% full\n",
+                nrow, nelement, pcntfull );
     }
     copy_bltmatrix( bltdec, blt );
     blt_chol_inv( blt );

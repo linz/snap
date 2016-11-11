@@ -81,16 +81,18 @@ void blt_set_sparse_rows( bltmatrix *blt, int nsparse );
 void init_bltmatrix( bltmatrix *blt );
 void expand_bltmatrix_to_full( bltmatrix *blt );
 void expand_bltmatrix_to_requested( bltmatrix *blt );
+int blt_nrows( bltmatrix *blt );
+long blt_requested_size( bltmatrix *blt );
 int blt_chol_dec( bltmatrix *blt, int fill );
 void blt_chol_slv( bltmatrix *blt, double *b, double *r );
 void blt_chol_inv( bltmatrix *blt );
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
 double blt_get_small( int absolute );
 void blt_set_small( int absolute, double value );
 double *blt_get_row_data( bltmatrix * blt, int irow );
 /* Only returns rows fully populated to diagonal */
 void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
+void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
 
 #endif

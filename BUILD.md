@@ -3,7 +3,8 @@ BUILD INSTRUCTIONS
 
 Old instructions .. these require updating.  
 
-Note that it is intended to implement cmake for these build tasks.
+Note that it is intended to implement cmake for these build tasks.  
+Also boost and wxwidgets components need well defined installation processes.
 
 Note that although source files include both .c and .cpp extensions they 
 are all compiled as C++, which provides some better error checking etc.
@@ -17,9 +18,9 @@ In order to build SNAP the following tools must be installed on the build comput
 
 1) Microsoft Visual Studio 2014
 
-2) ActiveState perl
+2) perl (this has been built with the Activestate perl distribution, however other distributions should work)
 
-3) hhc - HTML help compiler - assumed to be in a directory in the PATH variable.
+3) hhc - the Microsoft HTML help compiler - assumed to be in a directory in the PATH variable.
 
 
 Build instructions:
@@ -46,7 +47,7 @@ These instructions are not complete.  In as much as they are, they have
 been tested against a Ubunutu 14.04 amd64 platform.  
 They may require adapting for other operating systems.  
 
-The prerequisites for building include at least g++ and some components of boost.
+The prerequisites for building include at least g++ and some components of boost (regular expressions).
 
 The build steps include:
 

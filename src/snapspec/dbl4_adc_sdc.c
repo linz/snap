@@ -845,8 +845,8 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     hSDCTest sdc = sdci->sdc;
     hSDCStation stns = sdci->stns;
     int nrow;
-    int nelt;
     int i;
+    size_t nelt;
 
     StatusType sts = STS_OK;
 
@@ -865,7 +865,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     /*> Allocate the tables for vector information, status information,
         and reverse lookup of row numbers */
 
-    nelt =  (nrow*(nrow-1))/2;
+    nelt =  (((size_t)nrow)*(((size_t)nrow)-1))/2;
 
     sdci->lookup = (int *) utlAlloc( sizeof(int) * nrow );
     sdci->relstatus = (char *) utlAlloc( nelt);
@@ -1148,7 +1148,7 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
     int nreltest = sdci->nreltest;
     int nrelrow = stns[istn].nrelrow;
     int i;
-    int ij;
+    size_t ij;
 
     /*> Set the station status */
 
@@ -1157,7 +1157,7 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
     /*> Set a pointer to the beginning of the test array for
         the row corresponding to the passed station */
 
-    ij = (nrelrow*(nrelrow-1))/2;
+    ij = (((size_t)nrelrow)*(((size_t)nrelrow)-1))/2;
 
     /*> For each other station for which a relative test is defined .. */
 

@@ -229,6 +229,26 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
     blt->status = BLT_READY;
 }
 
+int blt_nrows( bltmatrix *blt )
+{
+    return blt->nrow;
+}
+
+long blt_requested_size( bltmatrix *blt )
+{
+    int i;
+    long nelement;
+    nelement = 0;
+    for( i=0; i<blt->nrow; i++ )
+    {
+            bltrow *r = &(blt->row[i]);
+            if( r->col < r->req ) r->req = r->col;
+            if( i >= blt->nsparse ) r->req = 0;
+            nelement += i + 1 - r->req;
+    }
+    return nelement;
+}
+
 void blt_nonzero_element( bltmatrix *blt, int row, int col )
 {
     int i;
