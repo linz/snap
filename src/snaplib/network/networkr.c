@@ -187,6 +187,11 @@ int read_network( network *nw, const char *fname, int options )
                     }
                     break;
                 }
+                if( options & NW_GEOID_INFO ) 
+                {
+                    options |= NW_EXPLICIT_GEOID;
+                    recalc_geoid=0;
+                }
             }
 
             df_read_data_file( stf );
@@ -342,7 +347,7 @@ int read_network( network *nw, const char *fname, int options )
     /* If recalculating geoid info then do so without raising errors */
     if( recalc_geoid & coordsys_heights_orthometric(cs) )
     {
-        calc_station_geoid_info_from_coordsys( nw, cs, NW_HGTFIXEDOPT_DEFAULT, OK );
+        calculate_network_coordsys_geoid( network nw, OK );
     }
 
     return dfsts;

@@ -117,6 +117,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
 
     if( sts == OK )
     {
+        calculate_network_coordsys_geoid( net, INFO_ERROR ); 
         void *obsmod=snap_obs_modifications( false );
         if( obsmod ) set_obs_modifications_network( obsmod, net );
         station_filename = copy_string( fname );

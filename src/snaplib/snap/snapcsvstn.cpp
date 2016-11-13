@@ -304,7 +304,7 @@ void SnapCsvStn::loadRecord()
     double crdlat = 0.0;
     double crdlon = 0.0;
     double crdhgt = 0.0;
-    double crdund = 0.0;
+    Ydouble crdund = 0.0;
     double crdxi = 0.0;
     double crdeta = 0.0;
 
@@ -402,8 +402,8 @@ void SnapCsvStn::terminateLoadData()
     if( _dataError ) { return; }
     _net->options = 0;
     if( _ellipsoidalHeights ) _net->options += NW_ELLIPSOIDAL_HEIGHTS;
-    if( _geoidDefined ) _net->options += NW_GEOID_HEIGHTS;
-    if( _deflectionDefined ) _net->options += NW_DEFLECTIONS;
+    if( _geoidDefined ) _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
+    if( _deflectionDefined ) _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
     _net->options += NW_DEC_DEGREES;
 }
 

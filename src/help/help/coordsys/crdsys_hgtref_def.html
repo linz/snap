@@ -14,13 +14,24 @@
 <h1><a name="crdsys_hgtref_def"></a>Height reference surface definition format</h1>
 
 <p>Height reference surfaces are surfaces from which &quot;orthometric&quot; heights are measured.  These heights are not strictly
-orthometric heights, but are approximations to them.  The basic definition of a surface is a gridded geoid definition.  Additionally surfaces
-may be defined by offsets to other surfaces.  Offsets are used to define local vertical datums used in New Zealand.  These are generally
+orthometric heights, but are approximations to them.  
+</p>
+<p>
+In the snap programs the height reference surface may be used to convert between ellipsoidal and
+orthometric height, and to calculate the geoid undulation and deflection of the vertical at each station.  The undulation and deflection are used for calculating gravimetric observations such as levelling and zenith distance observations.
+</p>
+<p>
+The base definition of a height reference surface is a gridded geoid definition.  
+</p>
+<p>
+Additional surfaces may be defined by offsets to geoid surfaces.  
+Offsets are used to define local vertical datums used in New Zealand.  These are generally
 based on tide gauges, but may also incorporate spatially correlated systematic errors between the local 
-datum and the geoid surface which are represented as offset grids.</p>
-<p>Note that the offsets are defined in terms of the offset of local vertical datum heights relative to geoid based orthometric heights.  
-That is they are in the opposite sense to the geoid height.  To obtain the equivalent of a local vertical datum geoid, the offset
-is subtracted from the geoid.</p>
+datum and the geoid surface which are represented as offset grids.
+Note that the offsets are defined in terms of the difference in height coordinates in terms of 
+the surface relative to coordinates in terms of the geoid.  
+They are in the opposite sense to the geoid height.  The height reference surface is 
+defined by subtracting the offset from the geoid.</p>
 
 <p>The format of a height reference surface definitions is:</p>
 
@@ -46,13 +57,20 @@ it is the distance of the height reference surface below the base surface</p>
 <p><i>offset_grid_file_name</i> is the name of a <a href="gridfile_c.html">grid file</a> defining the offset of heights in terms of the 
 reference surface relative to heights in terms of the base reference surface.</p>
 
-<p>An example of a height reference surface definition would is:</p>
+<p>An example of a height reference surface definitions is:</p>
 <pre><code>[height_reference_surfaces]
 NZVD09 "New Zealand Vertical Datum 2009" NZGD2000 GEOID nzgeoid09
 NZVD2016 "New Zealand Vertical Datum 2016" NZGD2000 GEOID nzgeoid2016
 AUCKHT1946 "Auckland 1946 (NZVD2016)" NZVD2016 GRID auckht1946_nzvd2016_offset.bin
 BLUFHT1955_NZVD09 "Bluff 1955 (NZVD09)" NZVD09 OFFSET 0.36
 </code></pre>
+
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+<p><a href="geoid.html">Geoid grid files</a></p>
+<p><a href="whatiscoordsys.html">What is a coordinate system</a></p>
 
 </body>
 </html>

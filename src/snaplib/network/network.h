@@ -128,7 +128,7 @@ typedef struct
 #define NW_GEOID_HEIGHTS       1
 #define NW_DEFLECTIONS         2
 #define NW_ELLIPSOIDAL_HEIGHTS 4
-#define NW_IMPLICIT_GEOID      8
+#define NW_EXPLICIT_GEOID      8
 #define NW_GEOID_INFO          (NW_GEOID_HEIGHTS | NW_DEFLECTIONS)
 #define NW_DEC_DEGREES        16
 
@@ -346,7 +346,7 @@ void    modify_network_station_coords( network *nw, station *st, double Lat,
  * geocentric coordinate system matching the station coordinates. */
 /* For library use only, fixed_height_type one of the NW_HGTFIXOPT... defines */
 
-
+int calculate_network_coordsys_geoid( network *nw, int errlevel );
 int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel )
 
 /* set_network_geoid errlevel can be OK, no error, INFO_ERROR, or WARNING_DATA */

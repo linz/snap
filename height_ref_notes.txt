@@ -66,20 +66,21 @@ snapconv/snapgeoid options relating to heights
 -l  list coordinate systems
 -r  list height reference surfaces
 
--g  set geoid info from height ref surface if defined or geoid file
-    if not geoid (makes geoid info explicit)
--G  set geoid info from geoid file
--x  drop explicit geoid information
--u  update geoid information from coordsys height reference
--a  add explicit geoid information from coordinate system (-g overrides)
--s  set coordinate height reference system. 
--c  overrides explicit geoid info with calculated
+-h hrs      set geoid info from height ref surface
+-g geoid    set geoid info from geoid file
+-c          set geoid info from coordinate sys 
+-z          remove (zero) explicit geoid info
+-k          keep existing explicit geoid info - only calculate if not already defined
+
+-a hrs      add height ref surface to coordinate system
+-d          drop height ref surface from coordinate system
+
 -e  set height type ellipsoidal
 -o  set height type orthometric
--O  set height type orthometric and keep orthometric heights fixed in conversions
 
--i  ignore errors calculating geoid heights. Leave unchanged if explicit 
-    else set to 0.
+-p  set height type orthometric and keep orthometric heights fixed in conversions
+        
+-i  ignore errors calculating specific geoid heights. Geoid info not changed
 
 -y  conversion epoch
 -q  quiet mode

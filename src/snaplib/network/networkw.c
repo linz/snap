@@ -35,6 +35,7 @@ int write_network( network *nw, const char *fname, const char *comment,
     int nclass;
     int ellipsoidal_heights;
     char degrees = 0;
+    char explicit_geoid=nw->options & NW_EXPLICIT_GEOID;
 
     if( !nw || !nw->stnlist || !nw->crdsys ) return MISSING_DATA;
 
@@ -70,7 +71,7 @@ int write_network( network *nw, const char *fname, const char *comment,
         }
     }
 
-    if( nw->options & NW_DEFLECTIONS )
+    if( explicit_geoid && nw->options & NW_DEFLECTIONS )
     {
         fputs(" deflections", stf);
     }
@@ -79,7 +80,7 @@ int write_network( network *nw, const char *fname, const char *comment,
         fputs(" no_deflections", stf);
     }
 
-    if( nw->options & NW_GEOID_HEIGHTS )
+    if( explicit_geoid && nw->options & NW_GEOID_HEIGHTS )
     {
         fputs(" geoid_heights", stf );
     }
@@ -140,8 +141,11 @@ int write_network( network *nw, const char *fname, const char *comment,
         }
         fprintf( stf," %10s", ellipsoidal_heights ? "Ell.Hgt" : "Orth.Hgt" );
     }
-    if( nw->options & NW_DEFLECTIONS ) fprintf(stf," %5s %5s","Xi","Eta" );
-    if( nw->options & NW_GEOID_HEIGHTS ) fprintf(stf," %7s","G.Hgt" );
+    if( explicit_geoid )
+    {
+        if( nw->options & NW_DEFLECTIONS ) fprintf(stf," %5s %5s","Xi","Eta" );
+        if( nw->options & NW_GEOID_HEIGHTS ) fprintf(stf," %7s","G.Hgt" );
+    }
     if( nclass )
     {
         int i;
@@ -206,14 +210,17 @@ int write_network( network *nw, const char *fname, const char *comment,
         }
 
 
-        if( nw->options & NW_DEFLECTIONS )
+        if( explicit_geoid )
         {
-            fprintf(stf," %5.1lf %5.1lf",st->GXi*3600.0/DTOR,
-                    st->GEta*3600.0/DTOR );
-        }
-        if( nw->options & NW_GEOID_HEIGHTS )
-        {
-            fprintf(stf," %7.*lf",cp,st->GUnd );
+            if( nw->options & NW_DEFLECTIONS )
+            {
+                fprintf(stf," %5.1lf %5.1lf",st->GXi*3600.0/DTOR,
+                        st->GEta*3600.0/DTOR );
+            }
+            if( nw->options & NW_GEOID_HEIGHTS )
+            {
+                fprintf(stf," %7.*lf",cp,st->GUnd );
+            }
         }
 
         if( nclass )

@@ -9,9 +9,10 @@
 // #define NW_HGTFIXEDOPT_ELLIPSOIDAL 1
 // #define NW_HGTFIXEDOPT_ORTHOMETRIC 2
 
-int recalculate_network_geoid_info( network *nw, int errlevel )
+int calculate_network_coordsys_geoid( network *nw, int errlevel )
 {
     if( ! coordsys_heights_orthometric(nw->cs) ) return OK;
+    if( nw->options & NW_EXPLICIT_GEOID ) return OK;
     return calc_station_geoid_info_from_coordsys( nw, nw->cs, NW_HGTFIXEDOPT_DEFAULT, errlevel );
 }
 
@@ -20,7 +21,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     int ellipsoidal_heights;
 
     ellipsoidal_heights = (nw->options & NW_ELLIPSOIDAL_HEIGHTS) ? 1 : 0;
-    if( fixed_height_type == NZ_HGTFIXEDOPT_ELLISPOIDAL )
+    if( fixed_height_type == NZ_HGTFIXEDOPT_ELLIPSOIDAL )
     {
         ellipsoidal_heights=1;
     }
@@ -181,7 +182,7 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel )
 
     /* Set up the network height flags */
 
-    nw->options |= NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
+    nw->options |= NW_GEOID_HEIGHTS | NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
 
     if( ninvalid && errlevel != OK )
     {
