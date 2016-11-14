@@ -159,3 +159,40 @@ int network_station_order( network *nw, station *stn )
     return nw->orderclsid ? get_station_class( stn, nw->orderclsid ) : 0;
 }
 
+int network_has_explicit_geoid_info( network *nw )
+{
+    return (nw->options & (NW_GEOID_HEIGHTS | NW_DEFLECTIONS))
+            && (nw->options & NW_EXPLICIT_GEOID);
+}
+
+int network_has_geoid_info( network *nw )
+{
+    return coordsys_heights_orthometric( nw->cs ) 
+        || network_has_explicit_geoid_info( nw );
+}
+
+void set_network_explicit_geoid_info( network *nw, char geoid_opts )
+{
+    if( ! geoid_opts ) geoid_opts = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
+    nw->options |= geoid_opts | NW_EXPLICITY_GEOID;
+}
+
+void clear_network_explicit_geoid_info( network *nw )
+{
+    nw->options &= ~NW_EXPLICIT_GEOID;
+}
+
+int network_height_coord_is_ellipsoidal( network *nw )
+{
+    return nw->options & NW_ELLIPSOIDAL_HEIGHTS ? 1 : 0;
+}
+
+void set_network_height_coord_ellipsoidal( network *nw )
+{
+    nw->options |= NW_ELLIPSOIDAL_HEIGHTS;
+}
+
+void set_network_height_coord_orthometric( network *nw )
+{
+    nw->options &= ~ NW_ELLIPSOIDAL_HEIGHTS;
+}

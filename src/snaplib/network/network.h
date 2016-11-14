@@ -353,8 +353,30 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
 /* Returns INVALID_DATA if geoid not defined or invalid coordinate system */
 
-int set_network_geoid( network *nw, const char *geoid, int errlevel );
-int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel );
+int set_network_geoid( network *nw, const char *geoid, int fixed_height_type, int errlevel );
+int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, int errlevel );
+
+/* Network has explicit geoid information? */
+
+int network_has_explicit_geoid_info( network *nw );
+int network_has_geoid_info( network *nw );
+
+/* Note: set/clear explicit geoid info do not change station geoid
+ * info, they just change the flags on the network, which will affect
+ * what information is written to a coordinate file.
+ */
+
+void set_network_explicit_geoid_info( network *nw, char geoid_opts );
+void clear_network_explicit_geoid_info( network *nw );
+
+
+/* Set the network input output height type */
+
+void network_height_coord_is_ellipsoidal( network *nw );
+void set_network_height_coord_ellipsoidal( network *nw );
+void set_network_height_coord_orthometric( network *nw );
+
+/* Read station offset definition file */
 
 int read_network_station_offsets( network *nw, const char *filename );
 

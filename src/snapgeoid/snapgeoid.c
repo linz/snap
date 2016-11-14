@@ -26,22 +26,41 @@
 #include "util/versioninfo.h"
 #include "snap/filenames.h"
 
+enum
+{
+    CALC_NONE=0,
+    CALC_CRDSYS,
+    CALC_HGTREF,
+    CALC_GEOID,
+    CALC_REMOVE
+};
+
+enum
+{
+    SET_HGTTYPE_DEFAULT=0,
+    SET_HGTTYPE_ELLIPSOIDAL,
+    SET_HGTTYPE_ORTHOMETRIC,
+}
+
 int main( int argc, char *argv[] )
 {
     char *oldfn, *newfn;
-    int gbformat;
+    int readopt;
     int nch;
     network net;
     char list_only=0;
-    char remove_geoid = 0;
-    char calc_geoid = 0;
+    char keep_existing = 0;
     char syntax_error = 0;
     char quiet = 0;
-    char change_height_type = 0;
-    char output_ellipsoidal = 0;
+    char set_height_type = SET_HGTTYPE_DEFAULT;
+    char calc_geoid_opt = CALC_NONE;
+    char orthometric_fixed=0;
     char geoid_msg[120];
+    char remove_csyshrs = 0;
+    char *csyshrs = NULL;
     char *hrscode = NULL;
     char *geoid = NULL;
+    char **argptr=NULL;
     int errlevel=WARNING_ERROR;
     geoid_def *gd = NULL;
 
@@ -50,37 +69,29 @@ int main( int argc, char *argv[] )
 
     while( argc > 1 && argv[1][0] == '-' )
     {
+        argptr=0;
         switch( argv[1][1] )
         {
-        case 'l':
-        case 'L':
+        case 'r':
+        case 'R':
             list_only = 1;
             break;
 
         case 'e':
         case 'E':
-            if( change_height_type ) syntax_error = 1;
-            change_height_type = 1;
-            output_ellipsoidal = 1;
+            if( set_height_type != SET_HGTTYPE_DEFAULT ) syntax_error = 1;
+            set_height_type = SET_HGTTYPE_ELLIPSOIDAL;
             break;
 
         case 'o':
         case 'O':
-            if( change_height_type ) syntax_error = 1;
-            change_height_type = 1;
-            output_ellipsoidal = 0;
+            if( set_height_type != SET_HGTTYPE_DEFAULT ) syntax_error = 1;
+            set_height_type = SET_HGTTYPE_ORTHOMETRIC;
             break;
 
-        case 'x':
-        case 'X':
-        case 'r':
-        case 'R':
-            remove_geoid = 1;
-            break;
-
-        case 'c':
-        case 'C':
-            calc_geoid = 1;
+        case 'p':
+        case 'P':
+            orthometric_fixed=1;
             break;
 
         case 'i':
@@ -88,43 +99,72 @@ int main( int argc, char *argv[] )
             errlevel=INFO_ERROR;
             break;
 
+        case 'z':
+        case 'Z':
+            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            calc_geoid_opt = CALC_REMOVE;
+            break;
+
+        case 'c':
+        case 'C':
+            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            calc_geoid_opt = CALC_CRDSYS;
+            break;
+
         case 'g':
         case 'G':
-            if( argc > 2  && ! geoid )
-            {
-                geoid = argv[2];
-                argv++;
-                argc--;
-            }
-            else
-            {
-                syntax_error = 1;
-            }
+            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            calc_geoid_opt = CALC_GEOID;
+            argptr=&geoid;
             break;
 
         case 'h':
         case 'H':
-            if( argc > 2  && ! hrscode )
-            {
-                hrscode = argv[2];
-                argv++;
-                argc--;
-            }
-            else
-            {
-                syntax_error = 1;
-            }
+            if( calc_geoid_opt != CALC_NONE ) syntax_error = 1;
+            calc_geoid_opt = CALC_HGTREF;
+            argptr=&hrscode;
+            break;
+
+        case 'k':
+        case 'K':
+            keep_existing=1;
+            break;
+
+        case 'a':
+        case 'A':
+            if( remove_csyshrs ) syntax_error=1;
+            argptr=&csyshrs;
+            break;
+
+        case 'd':
+        case 'D'
+            if( csyshrs ) syntax_error=1;
+            remove_csyshrs=1;
             break;
 
         case 'q':
         case 'Q': quiet = 1;
             break;
+
         default:
             syntax_error = 1;
             break;
         }
         argv++;
         argc--;
+        if( argptr )
+        {
+            if( argc > 1  && ! *argptr )
+            {
+                (*argptr) = argv[2];
+                argv++;
+                argc--;
+            }
+            else
+            {
+                syntax_error = 1;
+            }
+        }
     }
 
     if( ! quiet )
@@ -137,26 +177,26 @@ int main( int argc, char *argv[] )
     {
         printf("Error in snapgeoid command\n\n");
     }
-    if( hrscode && geoid )
-    {
-        printf("Error - cannot use both -h and -g\n\n");
-        syntax_error=1;
-    }
+
     if( (argc < 2 && ! list_only) || syntax_error )
     {
         printf("Syntax:  snapgeoid  [options] station_file_name [new_station_file_name]\n\n");
         printf("Options can include:\n");
-        printf(" -h hrs_code    selects the height reference surface (geoid) to use\n");
-        printf(" -g geoid_file  selects the geoid file to use\n");
-        printf(" -x             excludes geoid information from the output coordinate file\n");
-        printf(" -e             preserves ellipsoidal heights when the geoid height is calculated\n");
-        printf(" -o             preserves orthometric heights when the geoid height is calculated\n");
-        printf(" -k             retains the original height coordinate type even if -e or -o is used\n");
-        printf(" -c             calculates geoid heights even if the station file already\n");
-        printf("                includes geoid information\n");
+        printf(" -h hrs_code    calculate geoid from height reference surface (-r to list)\n");
+        printf(" -g geoid_file  calculate geoid height from gridded geoid model file\n");
+        printf(" -c             calculate geoid height from coordinate system height reference\n");
+        printf(" -z             remove explicit geoid information from coordinate file\n");
+        printf(" -k             keep existing geoid information - only add if not already in file\n");
+        printf(" -p             preserves orthometric heights when the geoid height is changed\n");
         printf(" -i             ignore errors calculating geoid heights for specific stations\n");
+        printf(" -a hrs_code    add height reference surface to coordinate system\n");
+        printf(" -d             remove height reference surface from coordinate system\n");
+        printf(" -e             set the height coordinate type to ellipsoidal\n");
+        printf(" -o             set the height coordinate type to orthometric\n");
+        printf(" -r             list the available height reference surfaces and exit\n");
         printf(" -q             miminimes output comments\n");
-        printf(" -l             list the available height reference surfaces and exit\n");
+        printf("\nOnly one of -h, -g, -c -z can be selected.\n");
+        printf("\nOnly one of -e and -o can be selected.\n");
         return 1;
     }
 
@@ -176,14 +216,14 @@ int main( int argc, char *argv[] )
     /* Load the station file */
 
     init_network( &net );
-    gbformat = 0;
+    readopt = NW_READOPT_CALCHGTREF;
     oldfn = argv[1];
 
     if( argc > 2 && _stricmp(argv[2],"gb")==0 )
     {
         argc--;
         argv++;
-        gbformat = 1;
+        readopt |= NW_READOPT_GBFORMAT;
     }
 
     if( argc > 2 )
@@ -198,15 +238,28 @@ int main( int argc, char *argv[] )
         strcpy( newfn+nch, ".new");
     }
 
-    if( read_network( &net, oldfn, gbformat ) != OK )
+    if( read_network( &net, oldfn, readopt ) != OK )
     {
         printf("Unable to load station file %s\n",oldfn);
         return 2;
     }
 
-    if( ! (net.options & NW_GEOID_HEIGHTS) ) calc_geoid = 1;
+    if( keep_existing && network_has_explicit_geoid_info(&net) && calc_geoid_opt != CALC_REMOVE )
+    {
+        calc_geoid_opt=CALC_NONE;
+    }
 
-    if( calc_geoid )
+    if( ! network_has_geoid_info(&net) && 
+        ( set_height_type == SET_HGTTYPE_ORTHOMETRIC ||
+          ( set_height_type == SET_HGTTYPE_DEFAULT && ! network_height_coord_is_ellipsoidal( &net ) )
+        )
+      )
+    {
+        orthometric_fixed = 1;
+    }
+
+
+    if( calc_geoid_opt == CALC_GEOID )
     {
         if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
         gd = create_geoid_grid( geoid );
@@ -227,17 +280,25 @@ int main( int argc, char *argv[] )
         if( sts != OK && sts != INFO_ERROR ) return 2;
     }
 
-    if( remove_geoid ) net.options &= ~( NW_GEOID_HEIGHTS | NW_DEFLECTIONS);
-
-    if( change_height_type )
+    if( calc_geoid_opt == CALC_REMOVE ) 
     {
-        if( output_ellipsoidal )
+        clear_network_explicit_geoid_info( &net );
+    }
+    else if ( calc_geoid_opt != CALC_NONE )
+    {
+        set_network_explicit_geoid_info( &net, 0 );
+    }
+
+
+    if( set_height_type != SET_HGTYTPE_DEFAULT )
+    {
+        if( set_height_type == SET_HGTTYPE_ORTHOMETRIC )
         {
-            net.options |= NW_ELLIPSOIDAL_HEIGHTS;
+            set_network_height_coord_orthometric( &net );
         }
         else
         {
-            net.options &= ~ NW_ELLIPSOIDAL_HEIGHTS;
+            set_network_height_coord_ellipsoidal( &net );
         }
     }
 

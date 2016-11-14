@@ -19,16 +19,28 @@ int calculate_network_coordsys_geoid( network *nw, int errlevel )
 int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel )
 {
     int ellipsoidal_heights;
-
-    ellipsoidal_heights = (nw->options & NW_ELLIPSOIDAL_HEIGHTS) ? 1 : 0;
+    
     if( fixed_height_type == NZ_HGTFIXEDOPT_ELLIPSOIDAL )
     {
         ellipsoidal_heights=1;
     }
-    else
+    else if( fixed_height_type == NZ_HGTFIXEDOPT_ORTHOMETRIC )
     {
         ellipsoidal_heights=0;
     }
+    else if( network_height_coord_is_ellipsoidal( nw ) )
+    {
+        ellipsoidal_heights=1;
+    }
+    else if( network_has_geoid_info( nw ) )
+    {
+        ellipsoidal_heights=0;
+    }
+    else
+    {
+        ellipsoidal_heights=1;
+    }
+
 
     if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
 
@@ -102,7 +114,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     return OK;
 }
 
-int set_network_geoid( network *nw, const char *geoid, int errlevel )
+int set_network_geoid( network *nw, const char *geoid, int fixed_height_type, int errlevel )
 {
     geoid_def *gd = create_geoid_grid( geoid );
     if( !gd )
@@ -110,21 +122,40 @@ int set_network_geoid( network *nw, const char *geoid, int errlevel )
         printf("Unable to load geoid model\n");
         return INVALID_DATA;
     }
-    int sts = set_network_geoid_def( nw, gd, errlevel );
+    int sts = set_network_geoid_def( nw, gd, fixed_height_type, errlevel );
     delete_geoid_grid( gd );
     return sts;
 }
 
-int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel )
+int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, int errlevel )
 {
 
     int ellipsoidal_heights;
-    ellipsoidal_heights = (nw->options & NW_ELLIPSOIDAL_HEIGHTS) ? 1 : 0;
+    
+    if( fixed_height_type == NZ_HGTFIXEDOPT_ELLIPSOIDAL )
+    {
+        ellipsoidal_heights=1;
+    }
+    else if( fixed_height_type == NZ_HGTFIXEDOPT_ORTHOMETRIC )
+    {
+        ellipsoidal_heights=0;
+    }
+    else if( network_height_coord_is_ellipsoidal( nw ) )
+    {
+        ellipsoidal_heights=1;
+    }
+    else if( network_has_geoid_info( nw ) )
+    {
+        ellipsoidal_heights=0;
+    }
+    else
+    {
+        ellipsoidal_heights=1;
+    }
 
     if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
 
     /* Load the definition of the geoid */
-
 
     coordsys *geoid_crdsys = get_geoid_coordsys( gd );
 
