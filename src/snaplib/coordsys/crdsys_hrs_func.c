@@ -292,7 +292,7 @@ int identical_height_ref_func( height_ref_func *hrf1, height_ref_func *hrf2 )
 
 int calc_height_ref_func( height_ref_func *hrf, double llh[3], double *height, double *exu )
 {
-    *height=0;
+    if( height ) *height=0;
     if( ! hrf || ! hrf->calc_height ) return INVALID_DATA;
     return hrf->calc_height( hrf, llh, height, exu );
 }

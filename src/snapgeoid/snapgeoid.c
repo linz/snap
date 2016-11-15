@@ -40,7 +40,7 @@ enum
     SET_HGTTYPE_DEFAULT=0,
     SET_HGTTYPE_ELLIPSOIDAL,
     SET_HGTTYPE_ORTHOMETRIC,
-}
+};
 
 int main( int argc, char *argv[] )
 {
@@ -54,7 +54,8 @@ int main( int argc, char *argv[] )
     char quiet = 0;
     char set_height_type = SET_HGTTYPE_DEFAULT;
     char calc_geoid_opt = CALC_NONE;
-    char orthometric_fixed=0;
+    char calc_crdsys_geoid = 0;
+    char orthometric_fixed=NW_HGTFIXEDOPT_ELLIPSOIDAL;
     char geoid_msg[120];
     char remove_csyshrs = 0;
     char *csyshrs = NULL;
@@ -91,7 +92,7 @@ int main( int argc, char *argv[] )
 
         case 'p':
         case 'P':
-            orthometric_fixed=1;
+            orthometric_fixed=NW_HGTFIXEDOPT_ORTHOMETRIC;
             break;
 
         case 'i':
@@ -137,7 +138,7 @@ int main( int argc, char *argv[] )
             break;
 
         case 'd':
-        case 'D'
+        case 'D':
             if( csyshrs ) syntax_error=1;
             remove_csyshrs=1;
             break;
@@ -156,7 +157,7 @@ int main( int argc, char *argv[] )
         {
             if( argc > 1  && ! *argptr )
             {
-                (*argptr) = argv[2];
+                (*argptr) = argv[1];
                 argv++;
                 argc--;
             }
@@ -169,7 +170,7 @@ int main( int argc, char *argv[] )
 
     if( ! quiet )
     {
-        printf("\n%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n",
+        printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n",
                ProgramVersion.program, ProgramVersion.version);
     }
 
@@ -251,15 +252,83 @@ int main( int argc, char *argv[] )
 
     if( ! network_has_geoid_info(&net) && 
         ( set_height_type == SET_HGTTYPE_ORTHOMETRIC ||
-          ( set_height_type == SET_HGTTYPE_DEFAULT && ! network_height_coord_is_ellipsoidal( &net ) )
+            ( set_height_type == SET_HGTTYPE_DEFAULT && 
+                ! network_height_coord_is_ellipsoidal( &net ) )
         )
       )
     {
-        orthometric_fixed = 1;
+        orthometric_fixed = NW_HGTFIXEDOPT_ORTHOMETRIC;
     }
 
+    if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
 
-    if( calc_geoid_opt == CALC_GEOID )
+    if( csyshrs )
+    {
+        height_ref *hrs=load_height_ref( csyshrs );
+        if( ! hrs )
+        {
+            printf("Unable to load height reference surface %s\n",csyshrs);
+            return 2;
+        }
+        int sts=set_coordsys_height_ref( net.crdsys, hrs );
+        if( sts != OK )
+        {
+            return 2;
+        }
+        if( ! network_has_explicit_geoid_info(&net) )
+        {
+            calc_crdsys_geoid = 1;
+        }
+    }
+
+    if( calc_crdsys_geoid || calc_geoid_opt == CALC_CRDSYS )
+    {
+        int sts=calc_station_geoid_info_from_coordsys( &net, net.crdsys,
+                orthometric_fixed, errlevel );
+        if( sts != OK && sts != INFO_ERROR ) return 2;
+        height_ref *hrs = coordsys_height_ref( net.crdsys );
+        if( hrs )
+        {
+            sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
+        }
+    }
+
+    if( calc_geoid_opt == CALC_HGTREF )
+    {
+        height_ref *hrs=load_height_ref( hrscode );
+        if( ! hrs )
+        {
+            printf("Unable to load height reference surface %s\n",hrscode);
+            return 2;
+        }
+        ref_frame *rf=height_ref_ref_frame(hrs);
+        if( ! rf )
+        {
+            printf("Unable to load reference frame for height ref surface %s\n",
+                    hrscode);
+            return 2;
+        }
+        coordsys *cs=create_coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
+        if( ! cs )
+        {
+            printf("Unable to create reference coordinate system for height ref surface %s\n",
+                    hrscode);
+            return 2;
+        }
+        int sts=set_coordsys_height_ref( cs, hrs );
+        if( sts != OK )
+        {
+            printf("Unable to assign height ref surface %s to base coordinate system",
+                    hrscode);
+            return 2;
+        }
+        sts=calc_station_geoid_info_from_coordsys( &net, cs,
+                orthometric_fixed, errlevel );
+        if( sts != OK && sts != INFO_ERROR ) return 2;
+        sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
+    }
+
+    else if( calc_geoid_opt == CALC_GEOID )
     {
         if( errlevel == INFO_ERROR && quiet ) errlevel=OK;
         gd = create_geoid_grid( geoid );
@@ -276,7 +345,7 @@ int main( int argc, char *argv[] )
         }
 
         sprintf(geoid_msg,"Geoid undulations from %.80s",get_geoid_model( gd ));
-        int sts = set_network_geoid_def( &net, gd, errlevel );
+        int sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) return 2;
     }
 
@@ -290,22 +359,19 @@ int main( int argc, char *argv[] )
     }
 
 
-    if( set_height_type != SET_HGTYTPE_DEFAULT )
+    if( set_height_type == SET_HGTTYPE_ELLIPSOIDAL )
     {
-        if( set_height_type == SET_HGTTYPE_ORTHOMETRIC )
-        {
-            set_network_height_coord_orthometric( &net );
-        }
-        else
-        {
-            set_network_height_coord_ellipsoidal( &net );
-        }
+        set_network_height_coord_ellipsoidal( &net );
+    }
+    else if( set_height_type == SET_HGTTYPE_ORTHOMETRIC )
+    {
+        set_network_height_coord_orthometric( &net );
     }
 
     /* And write the file out again */
 
     if( write_network( &net, newfn,
-                       calc_geoid ? geoid_msg : NULL,
+                       geoid_msg[0] ? geoid_msg : NULL,
                        3,NULL) != OK )
     {
         return 2;
@@ -313,7 +379,7 @@ int main( int argc, char *argv[] )
 
     if( ! quiet )
     {
-        printf("\nThe revised station file is %s\n",newfn);
+        printf("\nThe updated station file is %s\n",newfn);
     }
 
 
