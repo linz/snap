@@ -99,10 +99,16 @@ bool coordsys_height_ref_compatible( coordsys *cs, height_ref *hrs )
     return identical_datum( height_ref_ref_frame(hrs), cs->rf );
 }
 
-void set_coordsys_height_ref( coordsys *cs, height_ref *hrs )
+height_ref *coordsys_height_ref( coordsys *cs )
 {
+    return cs->hrs;
+}
+
+int set_coordsys_height_ref( coordsys *cs, height_ref *hrs )
+{
+    int sts=OK;
     if( cs->hrs ) { delete_height_ref( cs->hrs ); cs->hrs=nullptr; }
-    if( ! hrs ) return;
+    if( ! hrs ) return sts;
 
     /* Check that height reference datum matches coordinate datum,
      * If not then just delete it. */
@@ -118,7 +124,9 @@ void set_coordsys_height_ref( coordsys *cs, height_ref *hrs )
                 hrs->code,cs->code);
         handle_error( INVALID_DATA, errmsg, nullptr );
         delete_height_ref( hrs );
+        sts=INVALID_DATA;
     }
+    return sts;
 }
 
 void set_coordsys_geoid( coordsys *cs, const char *geoidfile )

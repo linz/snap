@@ -304,7 +304,7 @@ void SnapCsvStn::loadRecord()
     double crdlat = 0.0;
     double crdlon = 0.0;
     double crdhgt = 0.0;
-    Ydouble crdund = 0.0;
+    double crdund = 0.0;
     double crdxi = 0.0;
     double crdeta = 0.0;
 

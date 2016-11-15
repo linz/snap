@@ -1,5 +1,7 @@
 #include "snapconfig.h"
 
+#include <stdio.h>
+
 #include "coordsys/coordsys.h"
 #include "geoid/geoid.h"
 #include "network/network.h"
@@ -11,20 +13,21 @@
 
 int calculate_network_coordsys_geoid( network *nw, int errlevel )
 {
-    if( ! coordsys_heights_orthometric(nw->cs) ) return OK;
+    if( ! coordsys_heights_orthometric(nw->crdsys) ) return OK;
     if( nw->options & NW_EXPLICIT_GEOID ) return OK;
-    return calc_station_geoid_info_from_coordsys( nw, nw->cs, NW_HGTFIXEDOPT_DEFAULT, errlevel );
+    return calc_station_geoid_info_from_coordsys( nw, nw->crdsys, NW_HGTFIXEDOPT_DEFAULT, errlevel );
 }
 
 int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel )
 {
     int ellipsoidal_heights;
+    double llh[3];
     
-    if( fixed_height_type == NZ_HGTFIXEDOPT_ELLIPSOIDAL )
+    if( fixed_height_type == NW_HGTFIXEDOPT_ELLIPSOIDAL )
     {
         ellipsoidal_heights=1;
     }
-    else if( fixed_height_type == NZ_HGTFIXEDOPT_ORTHOMETRIC )
+    else if( fixed_height_type == NW_HGTFIXEDOPT_ORTHOMETRIC )
     {
         ellipsoidal_heights=0;
     }
@@ -45,6 +48,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
 
     /* Check that the height ref conversion is possible */
+    /* Mainly checking grid file can be opened */
 
     int sts = coordsys_geoid_exu( cs, llh, NULL, NULL );
     if( sts != OK ) return sts;
@@ -54,8 +58,8 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     coord_conversion to_geoid;
     coord_conversion from_geoid;
 
-    if( define_coord_conversion_epoch( &to_geoid, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK ||
-            define_coord_conversion_epoch( &from_geoid, cs, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
+    if( define_ellipsoidal_coord_conversion_epoch( &to_geoid, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK ||
+            define_ellipsoidal_coord_conversion_epoch( &from_geoid, cs, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
     {
         handle_error( INVALID_DATA,
                       "Cannot relate height reference and network coordinate systems",NO_MESSAGE );
@@ -70,7 +74,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 
     for( int istn = 0; istn++ < maxstn; )
     {
-        double llh[3], exu[3];
+        double exu[3];
         double inputUndulation;
         station *st = station_ptr(nw,istn);
         if( !st ) continue;
@@ -132,11 +136,11 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
 
     int ellipsoidal_heights;
     
-    if( fixed_height_type == NZ_HGTFIXEDOPT_ELLIPSOIDAL )
+    if( fixed_height_type == NW_HGTFIXEDOPT_ELLIPSOIDAL )
     {
         ellipsoidal_heights=1;
     }
-    else if( fixed_height_type == NZ_HGTFIXEDOPT_ORTHOMETRIC )
+    else if( fixed_height_type == NW_HGTFIXEDOPT_ORTHOMETRIC )
     {
         ellipsoidal_heights=0;
     }
@@ -169,8 +173,8 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
     coord_conversion to_geoid;
     coord_conversion from_geoid;
 
-    if( define_coord_conversion_epoch( &to_geoid, nw->geosys, geoid_crdsys, DEFAULT_CRDSYS_EPOCH ) != OK ||
-            define_coord_conversion_epoch( &from_geoid, geoid_crdsys, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
+    if( define_ellipsoidal_coord_conversion_epoch( &to_geoid, nw->geosys, geoid_crdsys, DEFAULT_CRDSYS_EPOCH ) != OK ||
+            define_ellipsoidal_coord_conversion_epoch( &from_geoid, geoid_crdsys, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
     {
         handle_error( INVALID_DATA,
                       "Cannot relate geoid and network coordinate systems",NO_MESSAGE );

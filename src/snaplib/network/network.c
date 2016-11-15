@@ -167,14 +167,14 @@ int network_has_explicit_geoid_info( network *nw )
 
 int network_has_geoid_info( network *nw )
 {
-    return coordsys_heights_orthometric( nw->cs ) 
+    return coordsys_heights_orthometric( nw->crdsys ) 
         || network_has_explicit_geoid_info( nw );
 }
 
 void set_network_explicit_geoid_info( network *nw, char geoid_opts )
 {
     if( ! geoid_opts ) geoid_opts = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
-    nw->options |= geoid_opts | NW_EXPLICITY_GEOID;
+    nw->options |= geoid_opts | NW_EXPLICIT_GEOID;
 }
 
 void clear_network_explicit_geoid_info( network *nw )

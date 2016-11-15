@@ -291,7 +291,8 @@ void delete_coordsys( coordsys *cs );
  */
 
 bool coordsys_height_ref_compatible( coordsys *cs, height_ref *hrs );
-void set_coordsys_height_ref( coordsys *cs, height_ref *hrs );
+height_ref *coordsys_height_ref( coordsys *cs );
+int set_coordsys_height_ref( coordsys *cs, height_ref *hrs );
 void set_coordsys_geoid( coordsys *cs, const char *geoidfile );
 bool coordsys_heights_orthometric( coordsys *cs );
 
@@ -336,7 +337,7 @@ int calc_height_ref_offset( height_ref *hrs, double llh[3], double *height, doub
  * it is assumed to be a double[3] and receives the coordinates and
  * deflection of the vertical */ 
 
-int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu )
+int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu );
 
 height_ref *base_height_ref( height_ref *hrs );
 ref_frame *height_ref_ref_frame( height_ref *hrs );
@@ -456,6 +457,11 @@ int define_coord_conversion( coord_conversion *conv,
 /* to convert where deformation models have different conversion epochs */
 
 int define_coord_conversion_epoch( coord_conversion *conv,
+                                   coordsys *from, coordsys *to, double convepoch );
+
+/* Version converts ellipsoidal coordinates - ignores height reference */
+
+int define_ellipsoidal_coord_conversion_epoch( coord_conversion *conv,
                                    coordsys *from, coordsys *to, double convepoch );
 
 int convert_coords( coord_conversion *conv,

@@ -347,7 +347,7 @@ void    modify_network_station_coords( network *nw, station *st, double Lat,
 /* For library use only, fixed_height_type one of the NW_HGTFIXOPT... defines */
 
 int calculate_network_coordsys_geoid( network *nw, int errlevel );
-int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel )
+int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel );
 
 /* set_network_geoid errlevel can be OK, no error, INFO_ERROR, or WARNING_DATA */
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
@@ -372,7 +372,7 @@ void clear_network_explicit_geoid_info( network *nw );
 
 /* Set the network input output height type */
 
-void network_height_coord_is_ellipsoidal( network *nw );
+int network_height_coord_is_ellipsoidal( network *nw );
 void set_network_height_coord_ellipsoidal( network *nw );
 void set_network_height_coord_orthometric( network *nw );
 

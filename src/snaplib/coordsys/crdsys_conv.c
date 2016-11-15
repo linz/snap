@@ -29,15 +29,8 @@
 /* may be NULL.  Input are treated as 0,0,0 - output are ignored.      */
 
 
-int define_coord_conversion( coord_conversion *conv,
-                             coordsys *from, coordsys *to )
-{
-    return define_coord_conversion_epoch( conv, from, to, 0.0 );
-}
-
-
-int define_coord_conversion_epoch( coord_conversion *conv,
-                                   coordsys *from, coordsys *to, double convepoch )
+static int define_coord_conversion_base( coord_conversion *conv,
+    coordsys *from, coordsys *to, double convepoch, int ellipsoidal )
 {
 
     char conv_el;
@@ -209,7 +202,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
 
     /* Handle height references */
 
-    if( from->hrs || to->hrs )
+    if( ! ellipsoidal && (from->hrs || to->hrs) )
     {
         int nhrf_from=0;
         int nhrf_to=0;
@@ -267,6 +260,24 @@ int define_coord_conversion_epoch( coord_conversion *conv,
     return OK;
 }
 
+int define_coord_conversion( coord_conversion *conv,
+                             coordsys *from, coordsys *to )
+{
+    return define_coord_conversion_base( conv, from, to, 0.0, 0 );
+}
+
+int define_coord_conversion_epoch( coord_conversion *conv,
+    coordsys *from, coordsys *to, double convepoch )
+{
+    return define_coord_conversion_base( conv, from, to, convepoch, 0 );
+}
+
+int define_ellipsoidal_coord_conversion_epoch( coord_conversion *conv,
+    coordsys *from, coordsys *to, double convepoch )
+{
+    return define_coord_conversion_base( conv, from, to, convepoch, 1 );
+}
+
 static int check_crdsys_range( coordsys *cs, double llh[3] )
 {
     if( llh[CRD_LAT] < cs->ltmin || llh[CRD_LAT] > cs->ltmax ) return 0;
@@ -315,17 +326,6 @@ int convert_coords( coord_conversion *conv,
                                            xyz[CRD_EAST], xyz[CRD_NORTH], xyz+CRD_LON, xyz+CRD_LAT );
     isgeoc = conv->from_geoc;
 
-    /* Convert the undulation to orthometric height, and convert the
-     deflections to astronomical lats, longs */
-
-    if( geoid )
-    {
-        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
-        gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
-        gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
-        gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
-    }
-
     if( sts == OK && conv->nhrf_from )
     {
         if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
@@ -341,6 +341,17 @@ int convert_coords( coord_conversion *conv,
                  "Cannot calculate %s height",
                                     conv->from->hrs->code);
         }
+    }
+
+    /* Convert the undulation to orthometric height, and convert the
+     deflections to astronomical lats, longs */
+
+    if( geoid )
+    {
+        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
+        gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
+        gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
+        gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
     }
 
     if( conv->need_xyz && ! isgeoc )
@@ -439,9 +450,22 @@ int convert_coords( coord_conversion *conv,
         }
     }
 
+    /* Recompute the deflections etc */
+    if( sts == OK && geoid )
+    {
+        if( geoid )
+        {
+            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
+            gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
+            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
+            gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
+        }
+    }
+
+    /* If output coordinates are on orthometric surface */
+
     if( sts == OK && conv->nhrf_to )
     {
-        int stshrf=OK;
         if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
         for( int i=0; sts==OK && i<conv->nhrf_to; i++ )
         {
@@ -457,21 +481,11 @@ int convert_coords( coord_conversion *conv,
         }
     }
 
+    /* Check that the points lie within a valid range for the coordinate
+       system */
+
     if( sts == OK )
     {
-        /* Recompute the deflections etc */
-
-        if( geoid )
-        {
-            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
-            gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
-            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
-            gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
-        }
-
-        /* Check that the points lie within a valid range for the coordinate
-         system */
-
         if( to->gotrange && to->rf->el )
         {
             if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
