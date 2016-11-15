@@ -266,7 +266,7 @@ void SnapCsvStn::loadRecord()
         }
         else
         {
-            set_network_coordsys( _net, _cs, 0.0, 0, 0 );
+            set_network_coordsys( _net, _cs, 0.0, 0, 0, 0 );
             _projection = (bool) is_projection( _net->crdsys );
             _geocentric = (bool) is_geocentric( _net->crdsys );
         }

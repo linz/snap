@@ -321,10 +321,11 @@ int merge_network( network *base, network *data, int mergeopts,
                    int (*select)(station *code) );
 
 /* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
+ * hgtfixopt is one of the NW_HGTFIXEDOPT_ values.
  * If errmsg is not null will copy up to nsmg chars of error message to it
  */
 
-int   set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg, int nmsg );
+int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg );
 void    set_network_name( network *nw, const char *name );
 
 station * new_network_station( network *nw,
