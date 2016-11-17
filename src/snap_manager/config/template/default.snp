@@ -39,8 +39,13 @@ mode 3d adjustment
 !
 ! Use reject, ignore, and accept commands to remove stations from
 ! the adjustment 
+!
+! These commands all use "station lists".  Most simply this 
+! is a list of stations such as "BDE1 APRX ...", but it can also 
+! identify station by classification, geographic location, etc.
+! See the help for details of what can be used in station lists.  
 
-fix
+fix 
 
 ! Deformation model should be included for NZGD2000 adjustments.  
 ! Set to "deformation none" for adjustments extending beyond NZ land area
@@ -59,9 +64,19 @@ deformation datum
 
 ! ignore_missing_stations
 
-! Selection and reweighting of observations with the classification command
+! Selection and reweighting of observations 
 !
-! classification <classname> [ignore|reject] <classvalue> [error_factor <value>]
+! reweight_observations <selection_criteria>
+! reject_observations <selection_criteria>
+! ignore_observations <selection_criteria>
+!
+! Selection criteria can include 
+!     <classification>=<value>
+!     before <date>
+!     after <date>
+!     date_unknown
+!     using_stations ...
+!     between_staions ....
 
 ! Additional adjustment parameters
 !
