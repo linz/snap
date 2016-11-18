@@ -3,14 +3,14 @@
 # Module:             BursaWolfVelocity.pm
 #
 # Description:       Defines packages:
-#                      Geodetic::BursaWolfVelocity
+#                      LINZ::Geodetic::BursaWolfVelocity
 #                    This implements BursaWolf transformations using 7 parameter
 #                    velocities. An BursaWolfVelocity object should be used in
 #                    conjunction with parent 7 parameter BursaWolf
 #                    transformation.
 #
 # Dependencies:      Uses the following modules:
-#                      Geodetic::BursaWolf
+#                      LINZ::Geodetic::BursaWolf
 #
 #  $Id$
 #
@@ -23,10 +23,10 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::BursaWolfVelocity
+#   Class:       LINZ::Geodetic::BursaWolfVelocity
 #
 #   Description: Defines the following methods:
-#                  $bwv = new Geodetic::BursaWolfVelocity(
+#                  $bwv = new LINZ::Geodetic::BursaWolfVelocity(
 #                    $ref_epoch, $vtx, $vty, $vtz, $vrx, $vry, $vrz, $vppm
 #                    );
 #                  $crd2 = $bwv->ApplyTo($crd, $epoch)
@@ -34,7 +34,7 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::BursaWolfVelocity;
+package LINZ::Geodetic::BursaWolfVelocity;
 
 sub REF_EPOCH    () { 0 }
 sub TRANSFORM    () { 8 }
@@ -44,7 +44,7 @@ sub TRANS_PERIOD () { 9 }
 #
 #   Method:       new
 #
-#   Description:  $bwv = Geodetic::BursaWolfVelocity->new(
+#   Description:  $bwv = LINZ::Geodetic::BursaWolfVelocity->new(
 #                   $ref_epoch, $vtx, $vty, $vtz, $vrx, $vry, $vrz, $vppm
 #                   );
 #
@@ -62,7 +62,7 @@ sub TRANS_PERIOD () { 9 }
 
 sub new {
   my( $class, $ref_epoch, $vtx, $vty, $vtz, $vrx, $vry, $vrz, $vppm ) = @_;
-  require Geodetic::BursaWolf;
+  require LINZ::Geodetic::BursaWolf;
   my $self
     = [$ref_epoch, $vtx, $vty, $vtz, $vrx, $vry, $vrz, $vppm, undef, undef];
   return bless $self, $class;
@@ -83,7 +83,7 @@ sub new {
 sub SetupTrans {
   my $self   = shift;
   my $period = shift;
-  $self->[TRANSFORM] = Geodetic::BursaWolf->new(
+  $self->[TRANSFORM] = LINZ::Geodetic::BursaWolf->new(
     $period * $self->[1],
     $period * $self->[2],
     $period * $self->[3],

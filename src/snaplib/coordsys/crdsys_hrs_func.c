@@ -1,5 +1,5 @@
 #include "snapconfig.h"
-/* crdsyshrs.c:  Routines to manage height reference surfaces */
+/* crdsyshrs.c:  Routines to manage vertical datums */
 
 #include <stdio.h>
 #include <string.h>
@@ -15,13 +15,13 @@
 #include "util/pi.h"
 
 /*========================================================================================*/
-/* Generic height reference function routine                                              */
+/* Generic vertical datum function routine                                              */
 
-static height_ref_func *create_height_ref_func( const char *type, const char *description )
+static vdatum_func *create_vdatum_func( const char *type, const char *description )
 {
-    int hrfsize=sizeof(height_ref_func_s)+strlen(type)+strlen(description)+2;
-    height_ref_func *hrf = (height_ref_func * ) check_malloc( hrfsize ); 
-    char *ptr=((char *)(void *) hrf) + sizeof(height_ref_func);
+    int hrfsize=sizeof(vdatum_func_s)+strlen(type)+strlen(description)+2;
+    vdatum_func *hrf = (vdatum_func * ) check_malloc( hrfsize ); 
+    char *ptr=((char *)(void *) hrf) + sizeof(vdatum_func);
     hrf->type=ptr;
     strcpy(ptr,type);
     ptr += strlen(type)+1;
@@ -37,26 +37,26 @@ static height_ref_func *create_height_ref_func( const char *type, const char *de
 }
 
 /*========================================================================================*/
-/* Offset height reference function routine                                               */
+/* Offset vertical datum function routine                                               */
 
-static void describe_offset_height_ref_func( height_ref_func *hrf, output_string_def *os )
+static void describe_offset_vdatum_func( vdatum_func *hrf, output_string_def *os )
 {
     return;
 }
 
-static int identical_offset_height_ref_func( void *data1, void *data2 )
+static int identical_offset_vdatum_func( void *data1, void *data2 )
 {
     return (*(double *)data1) == (*(double *)data2);
 }
 
-static void *copy_offset_height_ref_func_data( void *data )
+static void *copy_offset_vdatum_func_data( void *data )
 {
     void *copy=check_malloc( sizeof(double));
     memcpy(copy,data,sizeof(double));
     return copy;
 }
 
-static int calc_offset_height_ref_func( height_ref_func *hrf, double llh[3], double *height, double *exu )
+static int calc_offset_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
 {
     if( height) *height = -(*(double *)(hrf->data));
     if( exu )
@@ -68,23 +68,23 @@ static int calc_offset_height_ref_func( height_ref_func *hrf, double llh[3], dou
     return OK;
 }
 
-height_ref_func *create_offset_height_ref_func( double offset )
+vdatum_func *create_offset_vdatum_func( double offset )
 {
     char description[80];
     sprintf(description,"Offset of %.3lf metres", offset );
-    height_ref_func *hrf=create_height_ref_func( "OFFSET", description );
+    vdatum_func *hrf=create_vdatum_func( "OFFSET", description );
     hrf->data=check_malloc(sizeof(double));
     *(double *)(hrf->data)=offset;
     hrf->delete_func=check_free;
-    hrf->describe_func=describe_offset_height_ref_func;
-    hrf->copy_func=copy_offset_height_ref_func_data;
-    hrf->identical=identical_offset_height_ref_func;
-    hrf->calc_height=calc_offset_height_ref_func;
+    hrf->describe_func=describe_offset_vdatum_func;
+    hrf->copy_func=copy_offset_vdatum_func_data;
+    hrf->identical=identical_offset_vdatum_func;
+    hrf->calc_height=calc_offset_vdatum_func;
     return hrf;
 }
 
 /*========================================================================================*/
-/* Grid based height reference function routine                                           */
+/* Grid based vertical datum function routine                                           */
 
 typedef struct 
 {
@@ -95,13 +95,13 @@ typedef struct
     coord_conversion *irfconv;
     int loadsts;
     int isoffset;  /* Offset is offset to height coord, so negative of offset to surface */
-} grid_height_ref_func_data;
+} grid_vdatum_func_data;
 
-static grid_height_ref_func_data *create_grid_height_ref_func_data( const char *filename, int isoffset )
+static grid_vdatum_func_data *create_grid_vdatum_func_data( const char *filename, int isoffset )
 {
-    grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *)
-        check_malloc(sizeof(grid_height_ref_func_data)+strlen(filename)+1);
-    char *gfilename=((char *)(void *)ghrfd)+sizeof(grid_height_ref_func_data);
+    grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *)
+        check_malloc(sizeof(grid_vdatum_func_data)+strlen(filename)+1);
+    char *gfilename=((char *)(void *)ghrfd)+sizeof(grid_vdatum_func_data);
     ghrfd->filename=gfilename;
     strcpy(gfilename,filename);
     ghrfd->gd=nullptr;
@@ -113,17 +113,17 @@ static grid_height_ref_func_data *create_grid_height_ref_func_data( const char *
     return ghrfd;
 }
 
-static void delete_grid_height_ref_func_data( void *data )
+static void delete_grid_vdatum_func_data( void *data )
 {
     if( ! data ) return;
-    grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *) data;
+    grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) data;
     if( ghrfd->gd ) { delete_geoid_grid( ghrfd->gd ); ghrfd->gd=nullptr; }
     if( ghrfd->rfcs ) { delete_coordsys( ghrfd->rfcs ); ghrfd->rfcs=nullptr; }
     if( ghrfd->rfconv ) { check_free( ghrfd->rfconv ); }
     check_free( data );
 }
 
-static int load_grid_height_ref_func( height_ref_func *hrf, grid_height_ref_func_data *ghrfd )
+static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd )
 {
     if( ghrfd->gd || ghrfd->loadsts != OK ) 
     {
@@ -131,13 +131,13 @@ static int load_grid_height_ref_func( height_ref_func *hrf, grid_height_ref_func
     }
     if( ! hrf->hrs )
     {
-        handle_error(INTERNAL_ERROR,"load_grid_height_ref_func called before hrs set",nullptr);
+        handle_error(INTERNAL_ERROR,"load_grid_vdatum_func called before hrs set",nullptr);
         return INTERNAL_ERROR;
     }
-    ref_frame *rf=height_ref_ref_frame( hrf->hrs );
+    ref_frame *rf=vdatum_ref_frame( hrf->hrs );
     if( ! rf )
     {
-        handle_error(INTERNAL_ERROR,"load_grid_height_ref_func called before hrs set",nullptr);
+        handle_error(INTERNAL_ERROR,"load_grid_vdatum_func called before hrs set",nullptr);
         return INTERNAL_ERROR;
     }
     /* Load the geoid */
@@ -168,10 +168,10 @@ static int load_grid_height_ref_func( height_ref_func *hrf, grid_height_ref_func
     return ghrfd->loadsts;
 }
 
-static void describe_grid_height_ref_func( height_ref_func *hrf, output_string_def *os )
+static void describe_grid_vdatum_func( vdatum_func *hrf, output_string_def *os )
 {
-    grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *) hrf->data;
-    int sts=load_grid_height_ref_func( hrf, ghrfd );
+    grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) hrf->data;
+    int sts=load_grid_vdatum_func( hrf, ghrfd );
     if( sts == OK )
     {
         for( int i=1; i < 4; i++ )
@@ -187,24 +187,24 @@ static void describe_grid_height_ref_func( height_ref_func *hrf, output_string_d
     return;
 }
 
-static int identical_grid_height_ref_func( void *data1, void *data2 )
+static int identical_grid_vdatum_func( void *data1, void *data2 )
 {
     return strcmp(
-            ((grid_height_ref_func_data *)data1)->filename,
-            ((grid_height_ref_func_data *)data2)->filename
+            ((grid_vdatum_func_data *)data1)->filename,
+            ((grid_vdatum_func_data *)data2)->filename
             ) == 0;
 }
 
-static void *copy_grid_height_ref_func_data( void *data )
+static void *copy_grid_vdatum_func_data( void *data )
 {
-    grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *) data;
-    return create_grid_height_ref_func_data(ghrfd->filename,ghrfd->isoffset);
+    grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) data;
+    return create_grid_vdatum_func_data(ghrfd->filename,ghrfd->isoffset);
 }
 
-static int calc_grid_height_ref_func( height_ref_func *hrf, double llh[3], double *height, double *exu )
+static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
 {
-    grid_height_ref_func_data *ghrfd=(grid_height_ref_func_data *) hrf->data;
-    int sts=load_grid_height_ref_func( hrf, ghrfd );
+    grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) hrf->data;
+    int sts=load_grid_vdatum_func( hrf, ghrfd );
     if( ! height && ! exu ) return sts;
     if( sts != OK )
     {
@@ -246,35 +246,35 @@ static int calc_grid_height_ref_func( height_ref_func *hrf, double llh[3], doubl
     return sts;
 }
 
-height_ref_func *create_grid_height_ref_func( const char *grid_file, int isgeoid )
+vdatum_func *create_grid_vdatum_func( const char *grid_file, int isgeoid )
 {
     char description[256];
     sprintf(description,"%s defined in %.150s", 
             isgeoid ? "Geoid" : "Grid offset",
             grid_file+path_len(grid_file,0) );
-    height_ref_func *hrf=create_height_ref_func( isgeoid ? "GEOID" : "GRID", description );
-    hrf->data=create_grid_height_ref_func_data( grid_file, ! isgeoid );
-    hrf->delete_func=delete_grid_height_ref_func_data;
-    hrf->describe_func=describe_grid_height_ref_func;
-    hrf->copy_func=copy_grid_height_ref_func_data;
-    hrf->identical=identical_grid_height_ref_func;
-    hrf->calc_height=calc_grid_height_ref_func;
+    vdatum_func *hrf=create_vdatum_func( isgeoid ? "GEOID" : "GRID", description );
+    hrf->data=create_grid_vdatum_func_data( grid_file, ! isgeoid );
+    hrf->delete_func=delete_grid_vdatum_func_data;
+    hrf->describe_func=describe_grid_vdatum_func;
+    hrf->copy_func=copy_grid_vdatum_func_data;
+    hrf->identical=identical_grid_vdatum_func;
+    hrf->calc_height=calc_grid_vdatum_func;
     return hrf;
 }
 
 /*========================================================================================*/
-/* Generic height reference function routines                                             */
+/* Generic vertical datum function routines                                             */
 
-void delete_height_ref_func( height_ref_func *hrf )
+void delete_vdatum_func( vdatum_func *hrf )
 {
     if( hrf->data && hrf->delete_func ) hrf->delete_func( hrf->data );
     hrf->data=0;
     check_free( hrf );
 }
 
-height_ref_func *copy_height_ref_func( height_ref_func *hrf )
+vdatum_func *copy_vdatum_func( vdatum_func *hrf )
 {
-    height_ref_func *newhrf=create_height_ref_func( hrf->type, hrf->description );
+    vdatum_func *newhrf=create_vdatum_func( hrf->type, hrf->description );
     newhrf->delete_func=hrf->delete_func;
     newhrf->copy_func=hrf->copy_func;
     newhrf->identical=hrf->identical;
@@ -283,14 +283,14 @@ height_ref_func *copy_height_ref_func( height_ref_func *hrf )
     return newhrf;
 }
 
-int identical_height_ref_func( height_ref_func *hrf1, height_ref_func *hrf2 )
+int identical_vdatum_func( vdatum_func *hrf1, vdatum_func *hrf2 )
 {
     if( strcmp(hrf1->type,hrf2->type) != 0 ) return 0;
     if( hrf1->identical && ! hrf1->identical(hrf1->data,hrf2->data)) return 0;
     return 1;
 }
 
-int calc_height_ref_func( height_ref_func *hrf, double llh[3], double *height, double *exu )
+int calc_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
 {
     if( height ) *height=0;
     if( ! hrf || ! hrf->calc_height ) return INVALID_DATA;

@@ -26,10 +26,10 @@ of the vertical.
 </p>
 
 <p>
-The geoid information is defined in the <a href="../../files/crd/index.htm">station coordinate file</a>.  It can be defined explicitly for each station, or implicitly in terms of a height reference
-surface associated with the coordinate system of the station coordinate file.
+The geoid information is defined in the <a href="../../files/crd/index.htm">station coordinate file</a>.  It can be defined explicitly for each station, or implicitly in terms of a 
+vertical datum associated with the coordinate system of the station coordinate file.
 If the geoid information is defined explicitly for each station then the coordinate system 
-height reference surface is ignored.
+vertical datum is ignored.
 </p>
 <p>
 The height coordinates of stations in the geoid file are ellipsoidal heights by default.
@@ -43,9 +43,9 @@ then orthometric and ellipsoidal heights are treated as being the same.
 <p>
 snapgeoid is a program to manage the geoid and height information in a station file.  
 It can add or remove explicit geoid information for the stations, or add or remove 
-a height reference surface from the coordinate system.  It can also convert the 
+a vertical datum from the coordinate system.  It can also convert the 
 station coordinate height type between ellipsoidal and orthometric heights.
-Explicit geoid information can be calculated using a height reference surface
+Explicit geoid information can be calculated using a vertical datum
 defined in the <a href="../../coordsys/index.html">coordinate system definition file</a>.
 It can also be calculated from a binary format gridded <a href="../../coordsys/geoid.html">geoid model</a>.
 </p>
@@ -67,8 +67,8 @@ between NZVD2009 and NZVD2016).
 </p>
 
 <p>The SNAP <a href="../../coordsys/index.html">coordinate system definition file</a> defines 
-the height reference surfaces that can be used by snapgeoid.  Each is reference by a code, for example &quot;NZVD2016&quot;.
-The list of height reference surfaces can be defined with the -r option.
+the vertical datums that can be used by snapgeoid.  Each is reference by a code, for example &quot;NZVD2016&quot;.
+The list of vertical datums can be defined with the -v option.
 </p>
 
 <h2>Running snapgeoid</h2>
@@ -76,8 +76,8 @@ The list of height reference surfaces can be defined with the -r option.
 <p>snapgeoid is a command line
 utility run from a DOS prompt. The syntax for the command is</p>
 
-<p class="Commanddefinition">snapgeoid -r</p>
-<p class="Commanddefinition">snapgeoid [-h <i>hrs_code</i>|-g <i>geoid</i>|-c|-z] [<i>options</i>] station_file [new_file]</p>
+<p class="Commanddefinition">snapgeoid -v</p>
+<p class="Commanddefinition">snapgeoid [-h <i>vd_code</i>|-g <i>geoid</i>|-c|-z] [<i>options</i>] station_file [new_file]</p>
 
 <p>In this command:</p>
 
@@ -98,14 +98,14 @@ the input file, but with extension ".new".</p>
 
 <table class="CommandOptions">
 <tr><td>
-<p class="Commanddefinition">-r</p></td><td><p> 
-If specified then snapgeoid will list the available reference surface codes and exit
+<p class="Commanddefinition">-v</p></td><td><p> 
+If specified then snapgeoid will list the available vertical datum codes and exit
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-h <i>hrs_code</i></p></td><td>
-<p> Specifies a height reference surface to use to calculate geoid undulations.
-Use the -r option to output a list of valid codes.
+<p class="Commanddefinition">-h <i>vd_code</i></p></td><td>
+<p> Specifies a vertical datum to use to calculate geoid undulations.
+Use the -v option to output a list of valid codes.
 </p>
 </td></tr>
 
@@ -119,20 +119,20 @@ Use the -r option to output a list of valid codes.
 <p class="Commanddefinition">-c</i></p></td><td>
 <p> Instruct snapgeoid to calculate geoid information from the coordinate system
 defined in the coordinate file.  This is only applicable if the coordinate system
-defines a height reference surface, for example &quot;NZGD2000/NZVD2016&quot;.
+defines a vertical datum, for example &quot;NZGD2000/NZVD2016&quot;.
 </p>
 </td></tr>
 
 <tr><td>
 <p class="Commanddefinition">-z</p></td><td><p> Causes
 snapgeoid to remove (zero) the geoid information from the output coordinate file.  
-If the coordinate system defines a height reference surface this will still apply.
+If the coordinate system defines a vertical datum this will still apply.
 </p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-a <i>hrs_code</i></p></td><td><p> Associates
-a height reference surface with the coordinate system.  The height 
+<p class="Commanddefinition">-a <i>vd_code</i></p></td><td><p> Associates
+a vertical datum with the coordinate system.  The height 
 reference surface must be compatible with the coordinate system.
 If the coordinate file includes explicit geoid information then this surface 
 will not be used by other programs.  However it can be used to update the 
@@ -142,8 +142,8 @@ geoid information with the -c option.
 
 <tr><td>
 <p class="Commanddefinition">-d</p></td><td><p> Removes the 
-height reference surface associated with the coordinate system, if any.
-The height reference surface can be used to update explicit geoid information
+vertical datum associated with the coordinate system, if any.
+The vertical datum can be used to update explicit geoid information
 using the -c option before it is removed.
 </p>
 </td></tr>
@@ -181,7 +181,7 @@ options if the file already had explicit geoid information.
 ignore errors calculating the geoid height for specific 
 stations.  For these stations the geoid information is unaltered.
 Errors which apply to all stations, such as none existing geoid files or
-invalid height reference surface code, are still reported.
+invalid vertical datum code, are still reported.
 </p>
 
 <tr><td>
@@ -199,7 +199,7 @@ Similarly onl one of -e, -o, and -p is permitted.
 <div class="SeeAlso">
 <h3>See also:</h3>
 <p><a href="../../files/crd/index.html">Coordinate files</a></p>
-<p><a href="../../coordsys/crdsys_hgtref_def.html">Height reference surface definitions</a></p>
+<p><a href="../../coordsys/crdsys_hgtref_def.html">Vertical datum definitions</a></p>
 <p><a href="../../coordsys/geoid.html">Geoid files</a></p>
 
 

@@ -3,11 +3,11 @@
 #
 # Description:       Implements the lambert conformal conic projection
 #                    Defines packages: 
-#                      Geodetic::LCCProjection
+#                      LINZ::Geodetic::LCCProjection
 #
 # Dependencies:      Uses the following modules: 
-#                      Geodetic::GeodeticCrd
-#                      Geodetic::ProjectionCrd  
+#                      LINZ::Geodetic::GeodeticCrd
+#                      LINZ::Geodetic::ProjectionCrd  
 #
 #  $Id: $
 #
@@ -19,10 +19,10 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::LCCProjection
+#   Class:       LINZ::Geodetic::LCCProjection
 #
 #   Description: Defines the following routines:
-#                  $tmprj = new Geodetic::LCCProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
+#                  $tmprj = new LINZ::Geodetic::LCCProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
 #                  $tmprj->type
 #                  $tmprj->geog($crd)
 #                  $tmprj->proj($crd)
@@ -33,10 +33,10 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::LCCProjection;
+package LINZ::Geodetic::LCCProjection;
 
-require Geodetic::ProjectionCrd;
-require Geodetic::GeodeticCrd;
+require LINZ::Geodetic::ProjectionCrd;
+require LINZ::Geodetic::GeodeticCrd;
 
 my $pi = atan2(1,1)*4;
 my $twopi = $pi * 2;
@@ -50,7 +50,7 @@ my $tolerance  = 1.0e-9;
 #
 #   Method:       new
 #
-#   Description:  $tmprj = new Geodetic::LCCProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
+#   Description:  $tmprj = new LINZ::Geodetic::LCCProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
 #
 #   Parameters:   $ellipse    The ellipsoid reference
 #                 $cm         The central meridian (degrees)
@@ -119,7 +119,7 @@ sub new
 #   Method:       parameters
 #
 #   Description:  $params = $proj->parameters;
-#                 $params = parameters Geodetic::LCCProjection;
+#                 $params = parameters LINZ::Geodetic::LCCProjection;
 #
 #   Parameters:   none
 #
@@ -139,7 +139,7 @@ sub parameters {
           { code=>'FE', name=>'False easting', type=>'D', np=>'e0' },
           { code=>'FN', name=>'False northing', type=>'D', np=>'n0' },
           ];
-    if( ref($lp) eq 'Geodetic::LCCProjection' ) {
+    if( ref($lp) eq 'LINZ::Geodetic::LCCProjection' ) {
           foreach (@$parameters) {
                $_->{value} = $lp->{$_->{np}};
                if( $_->{type} eq 'LT' || $_->{type} eq 'LN' ) {
@@ -238,7 +238,7 @@ sub geog
     $ln -= $twopi while $ln > $pi;
     $ln += $twopi while $ln < -$pi;
 
-    return new Geodetic::GeodeticCrd(
+    return new LINZ::Geodetic::GeodeticCrd(
                $lt1*$rad2deg*$lp->{rev},
                $ln*$rad2deg,
                $crd->[2]);
@@ -272,7 +272,7 @@ sub proj
     $th *= $lp->{n};
     my $ce = $r * sin($th) + $lp->{e0};
     my $cn = $lp->{rev}*($lp->{r0} - $r * cos($th)) + $lp->{n0};
-    return new Geodetic::ProjectionCrd($cn, $ce, $crd->[2]);
+    return new LINZ::Geodetic::ProjectionCrd($cn, $ce, $crd->[2]);
 }
 
 #===============================================================================

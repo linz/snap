@@ -4,7 +4,7 @@
 
 use strict;
 use FileHandle;
-use Geodetic::CoordSysList;
+use LINZ::Geodetic::CoordSysList;
 use vars qw/$ENV/;
 
 package SNAP::Station;
@@ -32,7 +32,7 @@ our $cslist;
 
 sub setcoordsyslist {
    my( $class, $pcslist ) = @_;
-   $pcslist = $class if ref($class) eq 'Geodetic::CoordSysList';
+   $pcslist = $class if ref($class) eq 'LINZ::Geodetic::CoordSysList';
    $cslist = $pcslist;
    }
 
@@ -46,7 +46,7 @@ sub _coordsyslist {
    $csfile = $ENV{'COORDSYSDEF'};
    $csfile = _basepath().'coordsys.def' if $csfile eq '';
    return undef if ! -r $csfile;
-   $cslist = newFromCoordSysDef Geodetic::CoordSysList( $csfile );
+   $cslist = newFromCoordSysDef LINZ::Geodetic::CoordSysList( $csfile );
    return $cslist; 
    }
 
@@ -120,8 +120,8 @@ sub open {
        $dataline = $fh->getline;
        }
 
-   my $isproj = $cs->type eq &Geodetic::PROJECTION;
-   my $isgeod = $cs->type eq &Geodetic::GEODETIC;
+   my $isproj = $cs->type eq &LINZ::Geodetic::PROJECTION;
+   my $isgeod = $cs->type eq &LINZ::Geodetic::GEODETIC;
 
    my @stations;
    my $re = '^\\s*(\\S+)';
@@ -288,9 +288,9 @@ folder as the calling program.
 Alternatively the coordinate system list can be set with the setcoordsyslist function.
 That is:
 
-  use Geodetic::CoordSysList;
+  use LINZ::Geodetic::CoordSysList;
 
-  my $list = Geodetic::CoordSysList::newFromCoordSysDef('mycoordsys.def');
+  my $list = LINZ::Geodetic::CoordSysList::newFromCoordSysDef('mycoordsys.def');
   SNAP::CrdFile->setcoordsyslist($list);
 
   my $crds = SNAP::Crdfile->open($cslist);

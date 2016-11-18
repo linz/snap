@@ -163,7 +163,7 @@ BAD4 "Invalid cyclic reference frame 2" REF_FRAME BAD4 GEODETIC
 ! Note: Height references currently not used by SNAP and Concord.
 !
 
-[height_reference_surfaces]
+[vertical_datums]
 
 ! Height references are defined by
 !

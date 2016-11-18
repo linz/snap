@@ -1,5 +1,5 @@
 #===============================================================================
-# Module:             Geodetic.pm
+# Module:             LINZ::Geodetic
 #
 # Description:       Defines packages: 
 #                      Geodetic
@@ -22,78 +22,45 @@ use strict;
    
 #===============================================================================
 #
-#   Package:     Geodetic
+#   Package:     LINZ::Geodetic
 #
 #   Description: Defines the following routines:
 #
 #===============================================================================
 
-package Geodetic;
+package LINZ::Geodetic;
+require Exporter;
+our @ISA=qw(Exporter);
+our @EXPORT_OK=qw(CARTESIAN GEODETIC PROJECTION);
 
-# Coordinate types
+our $VERSION=2.0;
 
+use constant
+{
+    CARTESIAN=>0,
+    GEODETIC=>1,
+    PROJECTION=>2,
+};
 
-#===============================================================================
-#
-#   Subroutine:   CARTESIAN
-#
-#   Description:  
-#
-#   Parameters:   
-#
-#   Returns:      
-#
-#   Globals:
-#
-#===============================================================================
-
-sub CARTESIAN { return 0; }
-
-#===============================================================================
-#
-#   Subroutine:   GEODETIC
-#
-#   Description:  
-#
-#   Parameters:   
-#
-#   Returns:      
-#
-#   Globals:
-#
-#===============================================================================
-
-sub GEODETIC { return 1; }
-
-#===============================================================================
-#
-#   Subroutine:   PROJECTION
-#
-#   Description:  
-#
-#   Parameters:   
-#
-#   Returns:      
-#
-#   Globals:
-#
-#===============================================================================
-
-sub PROJECTION { return 2; }
 
 1;
 
 =head1 NAME
 
-Geodetic - modules for geodetic calculations
+LINZ::Geodetic - modules for geodetic calculations
 
 =head1 SYNOPSIS
 
-    use Geodetic::CoordSysList
+    use LINZ::Geodetic::CoordSysList
 
-
-    my $cslist = Geodetic::CoordSysList->newFromCoordSysDef( $coordsysdeffile );
+    # If $coordsysdeffile is not used, then will use $ENV{COORDSYSDEF}
+    my $cslist = LINZ::Geodetic::CoordSysList->newFromCoordSysDef( $coordsysdeffile );
     my $cs = $cslist->coordsys('NZGD2000');
+
+    # or..
+    use LINZ::Geodetic::CoordSysList qw/GetCoordSys/;
+    my $cs=GetCoordSys('NZGD2000');
+
     print $cslist->coordsysname('NZMG');
     my $crd = $cs->coord( $lat, $lon, $hgt );
     my $crdtm = $cstm->coord( $northing, $easting, $hgt );
@@ -111,7 +78,7 @@ Geodetic - modules for geodetic calculations
 
     # Ellipsoid functions
 
-    my $elp = new Geodetic::Ellipsoid($a,$rf,$name,$code);
+    my $elp = new LINZ::Geodetic::Ellipsoid($a,$rf,$name,$code);
     print $elp->a,"\n";
     print $elp->b,"\n";
     print $elp->rf,"\n";
@@ -122,9 +89,13 @@ Geodetic - modules for geodetic calculations
     my $llh = $elp->geodetic([$x,$y,$z]);
     my $llh = $elp->geog([$x,$y,$z]);
 
+    # GRS80 is specifically supported ...
+    use LINZ::Geodetic::Ellipsoid qw/GRS80/;
+    GRS80->geodetic([$x,$y,$z]);
+
     # Datum functions
 
-    my $dtm = new Geodetic::Datum($name,$ellipsoid,$baseref,$transfunc,$code);
+    my $dtm = new LINZ::Geodetic::Datum($name,$ellipsoid,$baseref,$transfunc,$code);
     print $dtm->name,"\n";
     print $dtm->code,"\n";
     print $dtm->ellipsoid,"\n";
@@ -133,8 +104,8 @@ Geodetic - modules for geodetic calculations
 
     # Projection functions
     
-    use Geodetic::Projection;
-    my $prj = new Geodetic::Projection($def,$ellipsoid);
+    use LINZ::Geodetic::Projection;
+    my $prj = new LINZ::Geodetic::Projection($def,$ellipsoid);
     # $def is a string definition of a projection - details below
     print $prj->type,"\n"; # eg Transverse Mercator
     my $llh = $prj->geog([$e, $n, $h]);
@@ -143,18 +114,18 @@ Geodetic - modules for geodetic calculations
     my $enh = $prj->projection([$lt, $ln, $h]);
     my ($scalefactor,$convergence) = $prj->sf_conv;
 
-    use Geodetic::TMProjection;
-    my $tm = new Geodetic::TMProjection($ellipse,$cm,$lto,$sf,$fe,$fn,$utom);
+    use LINZ::Geodetic::TMProjection;
+    my $tm = new LINZ::Geodetic::TMProjection($ellipse,$cm,$lto,$sf,$fe,$fn,$utom);
     # $utom is optional units to metres conversion
-    use Geodetic::NZMGProjection;
-    my $nzmg = new Geodetic::NZMGProjection;
-    use Geodetic::LCCProjection;
-    my $lcc = new Geodetic::LCCProjection($ellipse,$sp1,$sp2,$lt0,$ln0,$e0,$n0);
+    use LINZ::Geodetic::NZMGProjection;
+    my $nzmg = new LINZ::Geodetic::NZMGProjection;
+    use LINZ::Geodetic::LCCProjection;
+    my $lcc = new LINZ::Geodetic::LCCProjection($ellipse,$sp1,$sp2,$lt0,$ln0,$e0,$n0);
 
     # Coordinate system functions
 
-    my $cs = new Geodetic::CoordSys($type,$name,$datum,$projection,$code);
-    # Type is one of Geodetic::GEODETIC, Geodetic::CARTESIAN, Geodetic::PROJECTION
+    my $cs = new LINZ::Geodetic::CoordSys($type,$name,$datum,$projection,$code);
+    # Type is one of LINZ::Geodetic::GEODETIC, LINZ::Geodetic::CARTESIAN, LINZ::Geodetic::PROJECTION
     print $cs->name,"\n";
     print $cs->code,"\n";
     
@@ -170,6 +141,9 @@ Geodetic - modules for geodetic calculations
 
     my $coord = $cs->coord($ord1,$ord2,$ord3);
     my $conv = $cs->conversionto($newcs);
+    # For conversions requiring an epoch (eg ITRF to NZGD2000)
+    # Epoch is defined in decimal years
+    my $conv = $cs->conversionto($newcs,$epoch);
     my $cs = $conv->from;
     my $newcs = $conv->to;
     my $crd = $conv->convert([$ord1,$ord2,$ord3]); # I think!
@@ -179,11 +153,13 @@ Geodetic - modules for geodetic calculations
     $coord->setcs($cs); # Define the coordinate system of existing coords
     my $crdcs = $coord->coordsys(); # Retrieve coordinate system
     my $crdtm = $coord->as($newcs); # Transform to different coord system
-
+    my $crdtm = $coord->as($newcs,$epoch); # Transformation at specified epoch
+    $crd->setepoch($epoch);   # Set the coordinate epoch in decimal years
+    $crd->epoch;
 
     # For lat/lon coords
 
-    use Geodetic::GeodeticCrd;
+    use LINZ::Geodetic::GeodeticCrd;
     my $coord = new GeodeticCrd($lat,$lon,$hgt);
     my $string = $coord->asstring($ndpsec,$ndphgt); # Decimal places of seconds/hgts
     
@@ -192,7 +168,7 @@ Geodetic - modules for geodetic calculations
 
     # For projection coords
     
-    use Geodetic::ProjectionCrd;
+    use LINZ::Geodetic::ProjectionCrd;
     my $coord = new ProjectionCrd($north,$east,$hgt);
     my $string = $coord->asstring($ndp,$sep,$ndpv);
     # ndp = no decimal places, $sep = thousands separator, $ndpv = hgt ndp
@@ -200,11 +176,21 @@ Geodetic - modules for geodetic calculations
 
     # For cartesian coords
 
-    use Geodetic::CartesianCrd;
+    use LINZ::Geodetic::CartesianCrd;
     my $coord = new CartesianCrd($x, $y, $z);
     my $string = $coord->asstring($ndp); # ndp = no decimal places
     my($x,$y,$z) = ($coord->X, $coord->Y, $coord->Z );
 
+    # Vertical datums define transformation from ellipsoidal heights
+    # to orthometric heights in a reference coordinate system.  
+    # Note: the use of "orthometric" here is not technically correct!  
+    # These are ellipsoidal heights calculated relative to a 
+    # gridded reference surface.
+    
+    my $vd=$cslist->vdatum($vdatumcode);
+    my $vdname=$cslist->vdatumname($vdatumcode);
+    my $ohgt=$vd->get_orthometric_height($crd);
+    my $crd2=$vd->set_ellipsoidal_height($crd,$ohgt);
+    $vd->convert_orthometric_height($vdnew,$crd,$ohgt);
 
-    # Also undocumented stuff about heights!
 

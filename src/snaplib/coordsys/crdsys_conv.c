@@ -200,18 +200,18 @@ static int define_coord_conversion_base( coord_conversion *conv,
     conv->from_geoc = is_geocentric(from);
     conv->to_geoc = is_geocentric(to);
 
-    /* Handle height references */
+    /* Handle vertical datums */
 
     if( ! ellipsoidal && (from->hrs || to->hrs) )
     {
         int nhrf_from=0;
         int nhrf_to=0;
-        height_ref *fhrs;
-        height_ref *thrs;
+        vdatum *fhrs;
+        vdatum *thrs;
         for( fhrs=from->hrs; fhrs; fhrs=fhrs->basehrs ) nhrf_from++;
         for( thrs=to->hrs; thrs; thrs=thrs->basehrs ) nhrf_to++;
 
-        /* If have height ref conversion on from and to, and identical
+        /* If have vertical datum conversion on from and to, and identical
          * reference frames, then see if we can reduce the number of 
          * steps */
 
@@ -227,7 +227,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
             while( nhrff > 0 )
             {
                 nhrff--;
-                if( ! identical_height_ref_func( fhrs->func, thrs->func ) ) nmin=nhrff;
+                if( ! identical_vdatum_func( fhrs->func, thrs->func ) ) nmin=nhrff;
                 fhrs=fhrs->basehrs;
                 thrs=thrs->basehrs;
             }
@@ -239,7 +239,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
         {
             conv->valid=0;
             sprintf(conv->errmsg,
-                    "Conversion between height reference surfaces %.20s and %.20s is too complex (> %d steps)",
+                    "Conversion between vertical datums %.20s and %.20s is too complex (> %d steps)",
                     from->hrs ? from->hrs->code : "ellipsoid", 
                     to->hrs ? to->hrs->code : "ellipsoid", 
                     CONVMAXRF );
@@ -332,7 +332,7 @@ int convert_coords( coord_conversion *conv,
         for( int i=0; sts==OK && i<conv->nhrf_from; i++ )
         {
             double offset;
-            sts=calc_height_ref_func( conv->hrf[i], xyz, &offset, 0 );
+            sts=calc_vdatum_func( conv->hrf[i], xyz, &offset, 0 );
             xyz[CRD_HGT] += offset;
         }
         if( sts != OK )
@@ -470,7 +470,7 @@ int convert_coords( coord_conversion *conv,
         for( int i=0; sts==OK && i<conv->nhrf_to; i++ )
         {
             double offset;
-            sts=calc_height_ref_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, 0 );
+            sts=calc_vdatum_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, 0 );
             xyz[CRD_HGT] -= offset;
         }
         if( sts != OK )

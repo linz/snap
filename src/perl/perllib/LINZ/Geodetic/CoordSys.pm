@@ -2,13 +2,13 @@
 # Module:             CoordSys.pm
 #
 # Description:       Defines packages:
-#                      Geodetic::CoordSys
+#                      LINZ::Geodetic::CoordSys
 #
 # Dependencies:      Uses the following modules:
-#                      Geodetic::CoordConversion
-#                      Geodetic::CartesianCrd
-#                      Geodetic::GeodeticCrd
-#                      Geodetic::ProjectionCrd
+#                      LINZ::Geodetic::CoordConversion
+#                      LINZ::Geodetic::CartesianCrd
+#                      LINZ::Geodetic::GeodeticCrd
+#                      LINZ::Geodetic::ProjectionCrd
 #
 #  $Id: CoordSys.pm,v 1.3 2000/11/14 03:20:26 gdb Exp $
 #
@@ -31,11 +31,11 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::CoordSys
+#   Class:       LINZ::Geodetic::CoordSys
 #
 #   Description: Defines the following routines:
 #                Constructor
-#                  $cs = new Geodetic::CoordSys($type, $name, $datum, $projection)
+#                  $cs = new LINZ::Geodetic::CoordSys($type, $name, $datum, $projection)
 #
 #                Access functions for components of the coordinate system
 #                  $name = $cs->name
@@ -59,8 +59,8 @@ use strict;
 #                 csid        A uniquely defined identifier for the coordinate
 #                             system used as a hash key for conversion functions
 #                 name        The name of the system
-#                 type        The type, one of &Geodetic::CARTESIAN,
-#                             &Geodetic::GEODETIC, &Geodetic::PROJECTION
+#                 type        The type, one of &LINZ::Geodetic::CARTESIAN,
+#                             &LINZ::Geodetic::GEODETIC, &LINZ::Geodetic::PROJECTION
 #                 datum    The datum object used by the
 #                             coordinate system.
 #                 projection  The projection used by the projection
@@ -75,12 +75,12 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::CoordSys;
+package LINZ::Geodetic::CoordSys;
 
-require Geodetic::CoordConversion;
-require Geodetic::GeodeticCrd;
-require Geodetic::CartesianCrd;
-require Geodetic::ProjectionCrd;
+require LINZ::Geodetic::CoordConversion;
+require LINZ::Geodetic::GeodeticCrd;
+require LINZ::Geodetic::CartesianCrd;
+require LINZ::Geodetic::ProjectionCrd;
 
 my $csid = 0;
 
@@ -88,11 +88,11 @@ my $csid = 0;
 #
 #   Method:       new
 #
-#   Description:  $cs = new Geodetic::CoordSys($type, $name, $datum, $projection)
+#   Description:  $cs = new LINZ::Geodetic::CoordSys($type, $name, $datum, $projection)
 #
 #   Parameters:   $type       The type of the coordinate system - one of
-#                             &Geodetic::GEODETIC, &Geodetic::CARTESIAN,
-#                             or &Geodetic::PROJECTION
+#                             &LINZ::Geodetic::GEODETIC, &LINZ::Geodetic::CARTESIAN,
+#                             or &LINZ::Geodetic::PROJECTION
 #                 $name       The name of the coordinate system
 #                 $datum      The datum object
 #                 $projection The projection object (for projection c/s)
@@ -113,8 +113,8 @@ sub new
     # Fix up the name if with the supplied name if it is not blank.
 
     my $self;
-    $self = $datum->{_cscart} if $type == &Geodetic::CARTESIAN;
-    $self = $datum->{_csgeod} if $type == &Geodetic::GEODETIC;
+    $self = $datum->{_cscart} if $type == &LINZ::Geodetic::CARTESIAN;
+    $self = $datum->{_csgeod} if $type == &LINZ::Geodetic::GEODETIC;
 
     if ($self)
     {
@@ -124,7 +124,7 @@ sub new
 
     # Projection isn't required if not a projection coordinate system
 
-    if ( $type == &Geodetic::PROJECTION )
+    if ( $type == &LINZ::Geodetic::PROJECTION )
     {
         die "Missing projection definition\n" if !$projection;
     }
@@ -137,8 +137,8 @@ sub new
 
     if ( !$name )
     {
-        $name = $datum->name            if $type == &Geodetic::GEODETIC;
-        $name = $datum->name . " (XYZ)" if $type == &Geodetic::CARTESIAN;
+        $name = $datum->name            if $type == &LINZ::Geodetic::GEODETIC;
+        $name = $datum->name . " (XYZ)" if $type == &LINZ::Geodetic::CARTESIAN;
     }
 
     # Now need to create the projection
@@ -155,8 +155,8 @@ sub new
 
     # If it is geodetic or geocentric then store in the datum...
 
-    $datum->{_cscart} = $self if $type == &Geodetic::CARTESIAN;
-    $datum->{_csgeod} = $self if $type == &Geodetic::GEODETIC;
+    $datum->{_cscart} = $self if $type == &LINZ::Geodetic::CARTESIAN;
+    $datum->{_csgeod} = $self if $type == &LINZ::Geodetic::GEODETIC;
 
     return $self;
 }
@@ -195,11 +195,11 @@ sub type       { return $_[0]->{type} }
 #
 #===============================================================================
 
-sub asgeog { return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum ); }
+sub asgeog { return $_[0]->new( &LINZ::Geodetic::GEODETIC, undef, $_[0]->datum ); }
 
 sub asgeodetic
 {
-    return $_[0]->new( &Geodetic::GEODETIC, undef, $_[0]->datum );
+    return $_[0]->new( &LINZ::Geodetic::GEODETIC, undef, $_[0]->datum );
 }
 
 #===============================================================================
@@ -219,11 +219,11 @@ sub asgeodetic
 #
 #===============================================================================
 
-sub asxyz { return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum ); }
+sub asxyz { return $_[0]->new( &LINZ::Geodetic::CARTESIAN, undef, $_[0]->datum ); }
 
 sub ascartesian
 {
-    return $_[0]->new( &Geodetic::CARTESIAN, undef, $_[0]->datum );
+    return $_[0]->new( &LINZ::Geodetic::CARTESIAN, undef, $_[0]->datum );
 }
 
 #===============================================================================
@@ -235,7 +235,7 @@ sub ascartesian
 #
 #   Parameters:    Either a reference to an array, or a list of ordinates
 #
-#   Returns:       The blessed Geodetic::Coordinate
+#   Returns:       The blessed LINZ::Geodetic::Coordinate
 #
 #===============================================================================
 
@@ -245,17 +245,17 @@ sub coord
     my $crd  = $_[0];
     $crd = [ $crd, $_[1], $_[2] ] if !ref($crd);
     my $type = $self->{type};
-    if ( $type == &Geodetic::GEODETIC )
+    if ( $type == &LINZ::Geodetic::GEODETIC )
     {
-        $crd = new Geodetic::GeodeticCrd($crd);
+        $crd = new LINZ::Geodetic::GeodeticCrd($crd);
     }
-    elsif ( $type == &Geodetic::CARTESIAN )
+    elsif ( $type == &LINZ::Geodetic::CARTESIAN )
     {
-        $crd = new Geodetic::CartesianCrd($crd);
+        $crd = new LINZ::Geodetic::CartesianCrd($crd);
     }
     else
     {
-        $crd = new Geodetic::ProjectionCrd($crd);
+        $crd = new LINZ::Geodetic::ProjectionCrd($crd);
     }
     $crd->setcs($self);
     return $crd;
@@ -284,10 +284,11 @@ sub conversionto
 {
     my ( $self, $target, $conversion_epoch ) = @_;
     my $result = $self->{_conv}->{ $target->{csid} };
-    return $result if $result && $result->conversion_epoch == $conversion_epoch;
+    return $result if $result && (! $result->needepoch || $result->conversion_epoch == $conversion_epoch);
 
     my $src_datum = $self->datum;
     my $tar_datum = $target->datum;
+    my $needepoch = 0;
 
     # Find a conversion from the source datum to the target datum
     # Each datum has a baseref which is either another datum or a string defining a base
@@ -344,11 +345,12 @@ sub conversionto
     die "Cannot convert " . $self->name . " to " . $target->name . "\n"
       if ! $matched;
 
-    my $def = 'sub {';
+    my $def = 'sub { my ($conv,$crd,$tgtepoch)=@_; ';
     $def .=
-      'my $crd = ref($_[0]) !~ /Geodetic/ ?  bless [@{$_[0]}], ref($_[0]) : $self->coord(@_);';
+       '$crd = ref($crd) =~ /LINZ::Geodetic/ ?  bless [@$crd], ref($crd) : $conv->from->coord($crd);';
 
-    $def .= '$crd->setepoch($conversion_epoch) if ! $crd->epoch; ';
+    $def .= '$crd->setepoch($tgtepoch) if ! $crd->epoch; ';
+    $def .= '$crd->setepoch($conv->conversion_epoch) if ! $crd->epoch; ';
 
     my $type = $self->{type};
     
@@ -359,31 +361,35 @@ sub conversionto
     }
     else
     {
-        if ( $type == &Geodetic::PROJECTION )
+        if ( $type == &LINZ::Geodetic::PROJECTION )
         {
             $def .= '$crd = $self->projection->geog($crd);';
-            $type = &Geodetic::GEODETIC;
+            $type = &LINZ::Geodetic::GEODETIC;
         }
 
         if ( @$dtmtrans )
         {
-            if ( $type == &Geodetic::GEODETIC )
+            if ( $type == &LINZ::Geodetic::GEODETIC )
             {
                 $def .= '$crd = $self->ellipsoid->xyz($crd);';
-                $type = &Geodetic::CARTESIAN;
+                $type = &LINZ::Geodetic::CARTESIAN;
             }
                 if ( $src_defmodel && $ndtmfwd > 0 )
                 {
+                    $needepoch=1;
                     $def .= '$crd = $src_defmodel->ApplyTo($crd);';
                 }
             for my $ndtm (0..$#$dtmtrans)
             {
                 my $func=$ndtm < $ndtmfwd ? 'ApplyTo' : 'ApplyInverseTo';
+                my $transfunc=$dtmtrans->[$ndtm]->transfunc;
+                $needepoch ||= $transfunc->needepoch;
                 $def .= "\$crd = \$dtmtrans->[$ndtm]->transfunc->$func(\$crd);";
             }
 
                 if ( $tar_defmodel && $ndtmfwd < scalar(@$dtmtrans))
                 {
+                    $needepoch=1;
                     $def .= '$crd = $tar_defmodel->ApplyInverseTo($crd);';
                 }
             }
@@ -391,7 +397,7 @@ sub conversionto
 
         if ( $type != $target->{type} )
         {
-            if ( $target->{type} == &Geodetic::CARTESIAN )
+            if ( $target->{type} == &LINZ::Geodetic::CARTESIAN )
             {
 
                 # If got here then didn't change datums, and
@@ -403,12 +409,12 @@ sub conversionto
 
                 # If type is geocentric then we must want geodetic or
                 # projection, so convert to geodetic
-                if ( $type == &Geodetic::CARTESIAN )
+                if ( $type == &LINZ::Geodetic::CARTESIAN )
                 {
                     $def .= '$crd = $target->ellipsoid->geog($crd);';
-                    $type = &Geodetic::GEODETIC;
+                    $type = &LINZ::Geodetic::GEODETIC;
                 }
-                if ( $target->{type} == &Geodetic::PROJECTION )
+                if ( $target->{type} == &LINZ::Geodetic::PROJECTION )
                 {
                     $def .= '$crd = $target->projection->proj($crd);';
                 }
@@ -427,7 +433,7 @@ sub conversionto
     #    print $tmpf $def;
     #    close($tmpf);
 
-    $result = new Geodetic::CoordConversion( $self, $target, eval $def, $conversion_epoch );
+    $result = new LINZ::Geodetic::CoordConversion( $self, $target, eval $def, $conversion_epoch, $needepoch );
 
     # Store the result indexed by the target coordinate system id to
     # avoid having to recalculate when requested again.

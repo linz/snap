@@ -93,12 +93,12 @@ wxString &SnapMgrScriptEnv::GetHeightRefList()
 	reset_config_dirs();
     install_default_crdsys_file();
     heightreflist.Empty();
-    for( int i = 0; i < height_ref_list_count(); i++ )
+    for( int i = 0; i < vdatum_list_count(); i++ )
     {
         heightreflist.append(_T("\n"));
-        heightreflist.append(_T(height_ref_list_code(i)));
+        heightreflist.append(_T(vdatum_list_code(i)));
         heightreflist.append(_T("\n"));
-        heightreflist.append(_T(height_ref_list_desc(i)));
+        heightreflist.append(_T(vdatum_list_desc(i)));
     }
 	return heightreflist;
 }

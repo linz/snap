@@ -43,16 +43,16 @@
 
 <p>The location and orientation of the reference frame are used by the concord and snapconv programs to convert coordinates between different systems.</p>
 
-<p>The coordinate system may also define the geoid or height reference surface which 
+<p>The coordinate system may also define the geoid or vertical datum which 
 defines the relationship between orthometric heights and ellipsoidal heights. This surface
 is also used to calculate deflection of the vertical at survey marks.<p>
 
 <p>Coordinate systems are identified in snap and concord by a code.  For example &quot;NZGD2000&quot; specifies the New Zealand Geodetic Datum 2000 coordinate system.  
-A height reference surface is associated with the coordinate system by appending its code to
-the coordinate system.  For example to associate the New Zealand Vertical Datum 2016 height reference with
+A vertical datum is associated with the coordinate system by appending its code to
+the coordinate system.  For example to associate the New Zealand Vertical Datum 2016 with
 the NZGD2000 coordinate system the code becomes &quot;NZGD2000/NZVD2016&quot;.  
-Height reference surfaces are defined in terms of a datum and can only be associated with
-coordinate systems in terms of the same datum.
+Vertical datums are defined in terms of a reference frame and can only be associated with
+coordinate systems in terms of the same reference frame.
 </p>
 
 <div class="SeeAlso">
@@ -62,7 +62,7 @@ coordinate systems in terms of the same datum.
 
 <p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
 
-<p><a href="crdsys_hgtref_def.html">Height reference surface definition</a></p>
+<p><a href="crdsys_hgtref_def.html">Vertical datum definition</a></p>
 
 </div>
 </body>

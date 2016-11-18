@@ -3,14 +3,14 @@
 # Module:             DefModelTransform.pm
 #
 # Description:       Defines packages:
-#                      Geodetic::DefModelTransform
+#                      LINZ::Geodetic::DefModelTransform
 #                    This implements a deformation model transformation.
 #
 # Dependencies:      Uses the following modules:
-#                      LINZDeformationModel
-#                      Geodetic::CartesianCrd
-#                      Vector3
-#                      RotMat3
+#                      LINZ::Geodetic::LINZDeformationModel
+#                      LINZ::Geodetic::CartesianCrd
+#                      LINZ::Geodetic::Util::Vector3
+#                      LINZ::Geodetic::Util::RotMat3
 #
 #  $Id$
 #
@@ -23,10 +23,10 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::DefModelTransform
+#   Class:       LINZ::Geodetic::DefModelTransform
 #
 #   Description: Defines the following methods:
-#                  $modelxform = Geodetic::DefModelTransform->new($file)
+#                  $modelxform = LINZ::Geodetic::DefModelTransform->new($file)
 #                  $epoch = $modelxform->RefEpoch
 #                  $crd2  = $modelxform->ApplyTo($crd)
 #                  $crd2  = $modelxform->ApplyInverseTo($crd)
@@ -34,13 +34,15 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::DefModelTransform;
+package LINZ::Geodetic::DefModelTransform;
+
+our $AUTOLOAD;
 
 #===============================================================================
 #
 #   Method:       new
 #
-#   Description:  $modelxform = Geodetic::DefModelTransform->new(
+#   Description:  $modelxform = LINZ::Geodetic::DefModelTransform->new(
 #                        $file, $modeltype, $ref_epoch, $ellipsoid
 #                    );
 #
@@ -68,6 +70,15 @@ sub new {
   return bless $self, $class;
   }
 
+sub AUTOLOAD
+{
+    my($self)=@_;
+    my $function=$AUTOLOAD;
+    $function=~ s/.*:://;
+    $self->InstallModel() if ! $self->{model};
+    return eval "\$self->{model}->$function(\@_)";
+}
+
 
 #===============================================================================
 #
@@ -84,11 +95,11 @@ sub new {
 sub InstallModel {
   my ($self) = @_;
   my $file = $self->{file};
-  require RotMat3;
-  require Vector3;
-  require Geodetic::CartesianCrd;
-  require LINZDeformationModel;
-  my $model = LINZDeformationModel->new($file);
+  require LINZ::Geodetic::Util::RotMat3;
+  require LINZ::Geodetic::Util::Vector3;
+  require LINZ::Geodetic::CartesianCrd;
+  require LINZ::Geodetic::LINZDeformationModel;
+  my $model = LINZ::Geodetic::LINZDeformationModel->new($file);
   $self->{model} = $model;
   return $model;
   }
@@ -181,7 +192,7 @@ sub RefEpoch {
 #   Parameters:   $crd    The coordinate to calc deformation for.
 #                 $epoch  The target epoch to calculate the deformation to.
 #
-#   Returns:              A Vector3 object which contains the geocentric
+#   Returns:              A LINZ::Geodetic::Util::Vector3 object which contains the geocentric
 #                         deformation.
 #
 #===============================================================================
@@ -200,7 +211,7 @@ sub CalcDef {
   if( $src_epoch )
   {
     my ($e, $n, $u) = $model->Calc($src_epoch, $lon, $lat);
-    printf "DefModel %.2f %.5f %.5f: %.4f %.4f %.4f\n",$src_epoch,$lon,$lat,$e,$n,$u;
+    # printf "DefModel %.2f %.5f %.5f: %.4f %.4f %.4f\n",$src_epoch,$lon,$lat,$e,$n,$u;
     $denu->[0] -= $e;
     $denu->[1] -= $n;
     $denu->[2] -= $u;
@@ -208,13 +219,13 @@ sub CalcDef {
   if( $tgt_epoch )
   {
     my ($e, $n, $u) = $model->Calc($tgt_epoch, $lon, $lat);
-    printf "DefModel %.2f %.5f %.5f: %.4f %.4f %.4f\n",$tgt_epoch,$lon,$lat,$e,$n,$u;
+    # printf "DefModel %.2f %.5f %.5f: %.4f %.4f %.4f\n",$tgt_epoch,$lon,$lat,$e,$n,$u;
     $denu->[0] += $e;
     $denu->[1] += $n;
     $denu->[2] += $u;
   }
-  my $denu = Vector3->new( @$denu );
-  my $rtopo = RotMat3->new($lon, $lat);
+  $denu = LINZ::Geodetic::Util::Vector3->new( @$denu );
+  my $rtopo = LINZ::Geodetic::Util::RotMat3->new($lon, $lat);
   $denu=$rtopo->ApplyInverseTo($denu);
   return $denu;
   }

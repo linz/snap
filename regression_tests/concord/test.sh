@@ -20,6 +20,7 @@ echo "Running ${concord}"
 
 ${concord} -Z > out/test_version.out
 ${concord} -L > out/test_crdsys.out
+${concord} -V > out/test_vdatum.out
 
 # Example descriptive outputs 
 
@@ -147,10 +148,10 @@ echo "IERS version of ref frame transformation" >> out/test17.txt
 ${concord} -INZGD2000,NEH,H -oIERSBWE_XYZ -P4 -N6 in/test1.in out/test17b >> out/test17.txt 2>&1
 
 echo "Testing notes..."
-${concord} -iWGS84,NEH,H -oNZGD2000,NEH -V -N6 in/test1.in out/test20.out > out/test20.txt  2>&1
-${concord} -iNZGD2000,NEH,H -oWGS84,NEH -V -N6 in/test1.in out/test21.out > out/test21.txt  2>&1
-${concord} -iNZGD2000,NEH,H -oNZMG,NE -V -P8 -N6 in/test1.in  out/test22.out > out/test22.txt 2>&1
-${concord} -iNZGD1949,NEH,H -oNZGD2000,NE -V -P8 -N6 in/test1.in  out/test23.out > out/test23.txt 2>&1
+${concord} -iWGS84,NEH,H -oNZGD2000,NEH -F -N6 in/test1.in out/test20.out > out/test20.txt  2>&1
+${concord} -iNZGD2000,NEH,H -oWGS84,NEH -F -N6 in/test1.in out/test21.out > out/test21.txt  2>&1
+${concord} -iNZGD2000,NEH,H -oNZMG,NE -F -P8 -N6 in/test1.in  out/test22.out > out/test22.txt 2>&1
+${concord} -iNZGD1949,NEH,H -oNZGD2000,NE -F -P8 -N6 in/test1.in  out/test23.out > out/test23.txt 2>&1
 
 echo Testing separator"
 "

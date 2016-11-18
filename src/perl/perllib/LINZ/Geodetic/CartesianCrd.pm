@@ -2,11 +2,11 @@
 # Module:             CartesianCrd.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::CartesianCrd
+#                      LINZ::Geodetic::CartesianCrd
 #
 # Dependencies:      Uses the following modules: 
 #                      Geodetic
-#                      Geodetic::Coordinate  
+#                      LINZ::Geodetic::Coordinate  
 #
 #  $Id: CartesianCrd.pm,v 1.3 2006/10/11 23:36:21 gdb Exp $
 #
@@ -28,13 +28,13 @@ use strict;
    
 #===============================================================================
 #
-#   Package:     Geodetic::CartesianCrd
+#   Package:     LINZ::Geodetic::CartesianCrd
 #
-#   Description: Derived from Geodetic::Coordinate, from which the constructor
+#   Description: Derived from LINZ::Geodetic::Coordinate, from which the constructor
 #                and coordinate conversion functions are derived.
 #
-#                $xyz = new Geodetic::CartesianCrd( $x, $y, $z, $cs, $epoch );
-#                $xyz = new Geodetic::CartesianCrd( [$x, $y, $z, $cs, $epoch] );
+#                $xyz = new LINZ::Geodetic::CartesianCrd( $x, $y, $z, $cs, $epoch );
+#                $xyz = new LINZ::Geodetic::CartesianCrd( [$x, $y, $z, $cs, $epoch] );
 #
 #                $x = $xyz->X
 #                $y = $xyz->Y
@@ -46,13 +46,13 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::CartesianCrd;
+package LINZ::Geodetic::CartesianCrd;
 
-require Geodetic;
-require Geodetic::Coordinate;
+require LINZ::Geodetic;
+require LINZ::Geodetic::Coordinate;
 
 use vars qw/@ISA/;
-@ISA=('Geodetic::Coordinate');
+@ISA=('LINZ::Geodetic::Coordinate');
 
 
 sub X { $_[0]->[0]; }
@@ -66,7 +66,7 @@ sub Z { $_[0]->[2]; }
 #   Subroutine:   type
 #
 #   Description:   Returns the type of the coordinate - alway
-#                  Geodetic::CARTESIAN
+#                  LINZ::Geodetic::CARTESIAN
 #                    $type = $xyz->type
 #
 #   Parameters:    None
@@ -75,7 +75,7 @@ sub Z { $_[0]->[2]; }
 #
 #===============================================================================
 
-sub type { return &Geodetic::CARTESIAN; }
+sub type { return &LINZ::Geodetic::CARTESIAN; }
 
 
 #===============================================================================

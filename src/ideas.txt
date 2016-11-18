@@ -13,7 +13,7 @@ Additional data types in dat2site - lat/lon/height
 Consider allowing arbitrary sets of correlated observations (too big change?).
 Tool to calculate covariance matrix of arbitrary set of coordinates?
 
-Add orthometric_height_reference for height offset
+Add orthometric_vdatumerence for height offset
 
 Add integer observation id to list of valid fields in observation data
 

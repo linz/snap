@@ -2,15 +2,15 @@
 # Module:             CoordSysList.pm
 #
 # Description:       Defines packages:
-#                      Geodetic::CoordSysList
+#                      LINZ::Geodetic::CoordSysList
 #
 # Dependencies:      Uses the following modules:
 #                      Geodetic
-#                      Geodetic::BursaWolf
-#                      Geodetic::CoordSys
-#                      Geodetic::Ellipsoid
-#                      Geodetic::Projection
-#                      Geodetic::Datum
+#                      LINZ::Geodetic::BursaWolf
+#                      LINZ::Geodetic::CoordSys
+#                      LINZ::Geodetic::Ellipsoid
+#                      LINZ::Geodetic::Projection
+#                      LINZ::Geodetic::Datum
 #
 #  $Id: CoordSysList.pm,v 1.6 2005/11/27 19:39:29 gdb Exp $
 #
@@ -41,7 +41,7 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::CoordSysList
+#   Class:       LINZ::Geodetic::CoordSysList
 #
 #   Description:  This routine manages a list of coordinates systems (as
 #                 defined in a "coordsys.def" file.  The routine loads the
@@ -54,7 +54,7 @@ use strict;
 #                   ellipsoids   Hash storing ellipsoid definitions
 #                   datums       Hash storing datum definitions
 #                   crdsystems   Hash storing crdsystem definitions
-#                   heightref    Hash storing height reference system definitions
+#                   vdatums      Hash storing vertical datum definitions
 #                   heightcoord  Hash storing height coordinate systems definitions
 #                 The definitions are stored in hashes indexed by the
 #                 the codes for the objects.  Each hash value is itself
@@ -65,37 +65,70 @@ use strict;
 #
 #                 Defines the following routines:
 #                 Constructor
-#                  $cslist = new Geodetic::CoordSysList($filename)
+#                  $cslist = new LINZ::Geodetic::CoordSysList($filename)
 #
 #                 Functions to retrieve objects from the list
 #                  $ellipsoid = $cslist->ellipsoid($elpcode)
 #                  $datum = $cslist->datum($dtmcode)
 #                  $cs = $cslist->coordsys($cscode)
 #                  $csname =$cslist->coordsysname($cscode)
-#                  $heightref=$cslist->heightref($hrcode);
-#                  $heightcoord=$cslist->heightcoord($hrcode);
+#                  $vdatums =$cslist->vdatums($vdcode);
+#                  $heightcoord=$cslist->heightcoord($vdcode);
 #
 #===============================================================================
 
-package Geodetic::CoordSysList;
+package LINZ::Geodetic::CoordSysList;
+require Exporter;
+our @ISA=qw(Exporter);
+our @EXPORT_OK=qw(GetCoordSys);
 
 use Time::JulianDay;
-require Geodetic;
+require LINZ::Geodetic;
 
 # Note: requires for other components are in subs below to delay loading
 # until actually require.
 
 my %cstype = (
-    GEODETIC   => &Geodetic::GEODETIC,
-    CARTESIAN  => &Geodetic::CARTESIAN,
-    PROJECTION => &Geodetic::PROJECTION
+    GEODETIC   => &LINZ::Geodetic::GEODETIC,
+    CARTESIAN  => &LINZ::Geodetic::CARTESIAN,
+    GEOCENTRIC  => &LINZ::Geodetic::CARTESIAN,
+    PROJECTION => &LINZ::Geodetic::PROJECTION
 );
+
+our $DefaultCoordSysFile=undef;
+our $DefaultCoordSysEnv='COORDSYSDEF';
+our @PossibleCoordSysDef=(
+    '/usr/share/linz/coordsys/coordsys.def',
+    # Insert other operating system possible locations.
+    );
+
+our $_cslist=undef;
+
+sub coalesce
+{
+    my( $value, $default ) = @_;
+    return defined($value) ? $value : $default;
+}
+
+#===============================================================================
+#  Function:    GetCoordSys
+#
+#  Function to get a coordinate system definition from a code using the default
+#  coordinate system definitions
+#===============================================================================
+
+sub GetCoordSys
+{
+    my($cscode)=@_;
+    $_cslist ||= LINZ::Geodetic::CoordSysList->newFromCoordSysDef();
+    return $_cslist->coordsys($cscode);
+}
 
 #===============================================================================
 #
 #   Method:       new
 #
-#   Description:  $cslist= new Geodetic::CoordSysList($elldefs,$dtmdefs,$csdefs)
+#   Description:  $cslist= new LINZ::Geodetic::CoordSysList($elldefs,$dtmdefs,$csdefs)
 #
 #   Parameters:   $elldefs   Hash reference to lookup ellipoid definitions
 #                 $dtmdefs   Hash reference to lookup datum definitions
@@ -107,12 +140,11 @@ my %cstype = (
 
 sub new
 {
-    my ( $class, $elldefs, $dtmdefs, $csdefs, $hrfdefs, $hcsdefs ) = @_;
+    my ( $class, $elldefs, $dtmdefs, $csdefs, $vddefs ) = @_;
     my $ellipsoids = {};
     my $datums     = {};
     my $crdsystems = {};
-    my $hgtrefs    = {};
-    my $hgtcrdsys  = {};
+    my $vdatums    = {};
 
     if ($elldefs)
     {
@@ -135,18 +167,11 @@ sub new
             $crdsystems->{$_} = { code => $_, def => $csdefs->{$_} };
         }
     }
-    if ($hrfdefs)
+    if ($vddefs)
     {
-        foreach ( keys %$hrfdefs )
+        foreach ( keys %$vddefs )
         {
-            $hgtrefs->{$_} = { code => $_, def => $hrfdefs->{$_} };
-        }
-    }
-    if ($hcsdefs)
-    {
-        foreach ( keys %$hcsdefs )
-        {
-            $hgtcrdsys->{$_} = { code => $_, def => $hcsdefs->{$_} };
+            $vdatums->{$_} = { code => $_, def => $vddefs->{$_} };
         }
     }
 
@@ -154,8 +179,7 @@ sub new
         ellipsoids => $ellipsoids,
         datums     => $datums,
         crdsystems => $crdsystems,
-        hgtrefs    => $hgtrefs,
-        hgtcrdsys  => $hgtcrdsys
+        vdatums    => $vdatums,
     };
     return bless $self, $class;
 }
@@ -164,7 +188,7 @@ sub new
 #
 #   Method:       newFromCoordSysDef
 #
-#   Description:  $cslist = new Geodetic::CoordSysList($filename)
+#   Description:  $cslist = new LINZ::Geodetic::CoordSysList($filename)
 #
 #   Parameters:   $filename  The name of the coordinate system definition file
 #
@@ -175,14 +199,35 @@ sub new
 sub newFromCoordSysDef
 {
     my ( $class, $filename ) = @_;
+    # Default file name
+    if( ! $filename )
+    {
+        $filename = $LINZ::Geodetic::CoordSysList::DefaultCoordSysFile
+               ||= $ENV{$LINZ::Geodetic::CoordSysList::DefaultCoordSysEnv};
+        if( ! $filename || ! -f $filename )
+        {
+            foreach my $f (@LINZ::Geodetic::CoordSysList::PossibleCoordSysDef)
+            {
+                if( -f $f )
+                {
+                    $filename=$f;
+                    last;
+                }
+            }
+        }
+        if( ! $filename || ! -f $filename )
+        {
+            die "Cannot find default coordsys.def file.\n";
+        }
+    }
     local (*CSFILE);
     open( CSFILE, $filename )
       || die "Cannot open coordinate system file $filename.\n";
     my $ellipsoids = {};
     my $datums     = {};
     my $crdsystems = {};
-    my $hgtrefs    = {};
-    my $hgtcrdsys  = {};
+    my $vdatums    = {};
+    my $vdatums2   = {};
     my $list;
 
     while (<CSFILE>)
@@ -208,29 +253,42 @@ sub newFromCoordSysDef
                 {
                     $list = $crdsystems;
                 }
-                elsif ( $section eq 'HEIGHT_REFERENCES' )
+                elsif ( $section eq 'VERTICAL_DATUMS' )
                 {
-                    $list = $hgtrefs;
+                    $list = $vdatums;
+                }
+                # Handling of deprecated height surfaces reference 
+                elsif ( $section eq 'HEIGHT_REFERENCE_SURFACES' || $section eq 'HEIGHT_REFERENCES' )
+                {
+                    $list = $vdatums;
                 }
                 elsif ( $section eq 'HEIGHT_COORDINATE_SYSTEMS' )
                 {
-                    $list = $hgtcrdsys;
+                    $list = $vdatums2;
                 }
             }
             next;
         }
         next if !$list;
+        # Handle continuation lines
         while (/(\&|\\)$/)
         {
             $_ = $` . <CSFILE>;
             s/\s*$//;
         }
-        $list->{ uc($1) } = $' if /^\s*(\S+)\s*/;
+        next if ! /^\s*(\S+)\s+(\S.*?)\s*$/;
+        $list->{uc($1)} = $2;
     }
     close(CSFILE);
 
+    # Handling of deprecated height surfaces reference 
+    foreach my $k (keys %$vdatums2)
+    {
+        $vdatums->{$k} = $vdatums2->{$k} if ! exists $vdatums->{$k};
+    }
+
     my $self =
-      new( $class, $ellipsoids, $datums, $crdsystems, $hgtrefs, $hgtcrdsys );
+      new( $class, $ellipsoids, $datums, $crdsystems, $vdatums );
 
     $self->{filename} = $filename;
 
@@ -241,19 +299,19 @@ sub newFromCoordSysDef
 #
 #   Method:       definitions
 #
-#   Description:  ($elldef,$dtmdef,$csdef) = $cslist->definitions;
+#   Description:  ($elldef,$dtmdef,$csdef,$hrdef) = $cslist->definitions;
 #
 #   Parameters:   None
 #
-#   Returns:      Returns three hash references containing the coordinate
-#                 system definition strings.
+#   Returns:      Returns five hash references containing the coordinate
+#                 system definition strings
 #
 #===============================================================================
 
 sub definitions
 {
     my ($self) = @_;
-    my ( %elldef, %dtmdef, %csdef, %hrdef, %hcsdef );
+    my ( %elldef, %dtmdef, %csdef, %hrdef );
     foreach ( values %{ $self->{ellipsoids} } )
     {
         $elldef{ $_->{code} } = $_->{def};
@@ -264,13 +322,10 @@ sub definitions
     foreach ( values %{ $self->{crdsystems} } ) {
         $csdef{ $_->{code} } = $_->{def};
     }
-    foreach ( values %{ $self->{hgtrefs} } ) {
+    foreach ( values %{ $self->{vdatums} } ) {
         $hrdef{ $_->{code} } = $_->{def};
     }
-    foreach ( values %{ $self->{hgtcrdsys} } ) {
-        $hcsdef{ $_->{code} } = $_->{def};
-    }
-    return ( \%elldef, \%dtmdef, \%csdef, \%hrdef, \%hcsdef );
+    return ( \%elldef, \%dtmdef, \%csdef, \%hrdef );
 }
 
 #===============================================================================
@@ -297,9 +352,9 @@ sub ellipsoid
     {
         die "Invalid definition of ellipsoid $elpcode.\n"
           if $elpdef->{def} !~ /^\"([^\"]+)\"\s+(\d+\.?\d*)\s+(\d+\.?\d*)\s*$/;
-        require Geodetic::Ellipsoid;
+        require LINZ::Geodetic::Ellipsoid;
         $elpdef->{object} = $elp =
-          new Geodetic::Ellipsoid( $2, $3, $1, $elpcode );
+          new LINZ::Geodetic::Ellipsoid( $2, $3, $1, $elpcode );
     }
     return $elp;
 }
@@ -353,7 +408,7 @@ sub datum
                          (?:
                          \s+
                          (?:rates
-                            \s+(\d{4}(?:\.\d*)?)\s+
+                         \s+(\d{4}(?:\.\d*)?)\s+
                          )?
                          ([+-]?\d+\.?\d*)\s+
                          ([+-]?\d+\.?\d*)\s+
@@ -391,28 +446,43 @@ sub datum
                          \s*$/xi;
 
     my (
-        $name,     $ellcode,     $baserf,     $iers,        $tx,
-        $ty,       $tz,          $rx,         $ry,          $rz,
-        $sf,       $refy,        $dtx,        $dty,         $dtz,
-        $drx,      $dry,         $drz,        $dsf,         $gridtype,
-        $gridfile, $griddesc,    $velgrid,    $velgridfile, $velgriddesc,
-        $linzdef,  $linzdeffile, $bw14,       $bw14epoch,   $bw14dtx,
-        $bw14dty,  $bw14dtz,     $bw14drx,    $bw14dry,     $bw14drz,
-        $bw14dsf,  $euler,       $eulerepoch, $eulerplon,   $eulerplat,
-        $eulerrate
+        $name,     $ellcode,     $baserf,     $iers,        
+        $tx,       $ty,          $tz,          
+        $rx,       $ry,          $rz,
+        $sf,       $refy,        
+        $dtx,        $dty,         $dtz,
+        $drx,      $dry,         $drz,        
+        $dsf,         
+        $gridtype, $gridfile, $griddesc,    
+        $velgrid,    $velgridfile, $velgriddesc,
+        $linzdef,  $linzdeffile, 
+        $bw14,       $bw14epoch,   
+        $bw14dtx, $bw14dty,  $bw14dtz,     
+        $bw14drx,    $bw14dry,     $bw14drz,
+        $bw14dsf,  
+        $euler,   $eulerepoch, $eulerplon,   $eulerplat, $eulerrate
       )
       = (
-        $1,        $2,        uc($3),    uc($4),    $5 + 0.0,  $6 + 0.0,
-        $7 + 0.0,  $8 + 0.0,  $9 + 0.0,  $10 + 0.0, $11 + 0.0, $12,
-        $13 + 0.0, $14 + 0.0, $15 + 0.0, $16 + 0.0, $17 + 0.0, $18 + 0.0,
-        $19 + 0.0, uc($20),   $21,       $22,       uc($23),   $24,
-        $25,       uc($26),   $27,       uc($28),   $29,       $30,
-        $31,       $32,       $33,       $34,       $35,       $36,
-        uc($37),   $38,       $39,       $40,       $41
+        $1,        $2,        uc(coalesce($3,'')),    uc(coalesce($4,'')),    
+        coalesce($5,0.0)  + 0.0,  coalesce($6,0.0) + 0.0, coalesce($7,0.0) + 0.0,  
+        coalesce($8,0.0) + 0.0,  coalesce($9,0.0) + 0.0,  coalesce($10,0.0) + 0.0, 
+        coalesce($11,0.0) + 0.0, 
+        coalesce($12,''),
+        coalesce($13,0.0) + 0.0, coalesce($14,0.0) + 0.0, coalesce($15,0.0) + 0.0, 
+        coalesce($16,0.0) + 0.0, coalesce($17,0.0) + 0.0, coalesce($18,0.0) + 0.0,
+        coalesce($19,0.0) + 0.0, 
+        uc(coalesce($20,'')),   coalesce($21,''),       coalesce($22,''),       
+        uc(coalesce($23,'')),   coalesce($24,''),       coalesce($25,''),       
+        uc(coalesce($26,'')),   coalesce($27,''),       
+        uc(coalesce($28,'')),   coalesce($29,''),       
+        coalesce($30,0.0) + 0.0,        coalesce($31,0.0) + 0.0,       coalesce($32,0.0) + 0.0,       
+        coalesce($33,0.0) + 0.0,       coalesce($34,0.0) + 0.0,       coalesce($35,0.0) + 0.0,       
+        coalesce($36,0.0) + 0.0,
+        uc(coalesce($37,'')),   coalesce($38,''), coalesce($39,0.0) + 0.0, coalesce($40,0.0) + 0.0, coalesce($41,0.0) + 0.0
       );
 
-    require Geodetic::Datum;
-    require Geodetic::BursaWolf;
+    require LINZ::Geodetic::Datum;
+    require LINZ::Geodetic::BursaWolf;
     my $ellipsoid = $self->ellipsoid($ellcode);
     if( $iers =~ /tsr/i)
     {
@@ -421,7 +491,7 @@ sub datum
     }
     $refy=$1 if $iers =~ /\s(\d{4}(?:\.\d*))?/;
     my $transfunc =
-      new Geodetic::BursaWolf( $tx, $ty, $tz, $rx, $ry, $rz, $sf, $refy, $dtx,
+      new LINZ::Geodetic::BursaWolf( $tx, $ty, $tz, $rx, $ry, $rz, $sf, $refy, $dtx,
         $dty, $dtz, $drx, $dry, $drz, $dsf, $iers ne '' );
 
     my $defmodel;
@@ -435,9 +505,9 @@ sub datum
     {
         $gridfile = $filepath . $gridfile
           if $filepath && -r $filepath . $gridfile;
-        require Geodetic::GridTransform;
+        require LINZ::Geodetic::GridTransform;
         $transfunc =
-          new Geodetic::GridTransform( $gridfile, $gridtype, $ellipsoid,
+          new LINZ::Geodetic::GridTransform( $gridfile, $gridtype, $ellipsoid,
             $transfunc );
     }
     if ( $velgrid || $euler )
@@ -447,9 +517,9 @@ sub datum
     }
     elsif ($bw14)
     {
-        require Geodetic::BursaWolfVelocity;
+        require LINZ::Geodetic::BursaWolfVelocity;
         $bw14epoch = $refepoch if $refepoch;
-        $defmodel = Geodetic::BursaWolfVelocity->new(
+        $defmodel = LINZ::Geodetic::BursaWolfVelocity->new(
             $bw14epoch, $bw14dtx, $bw14dty, $bw14dtz,
             $bw14drx,   $bw14dry, $bw14drz, $bw14dsf
         );
@@ -459,9 +529,9 @@ sub datum
         $linzdeffile = $filepath . $linzdeffile
           if $filepath && -r $filepath . $linzdeffile;
 
-        require Geodetic::DefModelTransform;
+        require LINZ::Geodetic::DefModelTransform;
         $defmodel =
-          Geodetic::DefModelTransform->new( $linzdeffile, $linzdef, $refepoch,
+          LINZ::Geodetic::DefModelTransform->new( $linzdeffile, $linzdef, $refepoch,
             $ellipsoid );
     }
 
@@ -479,7 +549,7 @@ sub datum
     }
 
     $objectkey = 'object' if !$defmodel;
-    $dtmdef->{$objectkey} = $dtm = new Geodetic::Datum(
+    $dtmdef->{$objectkey} = $dtm = new LINZ::Geodetic::Datum(
         $name,    $ellipsoid, $baserf, $transfunc,
         $dtmcode, $defmodel,  $refepoch
     );
@@ -546,19 +616,19 @@ sub coordsys
                         /xi;
 
         my ( $name, $dtmcode, $type, $projdef ) =
-          ( $1, uc($2), $cstype{ uc($3) }, $4 );
+          ( $1, uc(coalesce($2,'')), $cstype{ uc(coalesce($3,'')) }, $4 );
         my $dtm = $self->datum( $dtmcode, $refepoch );
         my $proj;
         if ( $projdef ne '' )
         {
-            $type = &Geodetic::PROJECTION if $projdef ne '';
-            require Geodetic::Projection;
-            $proj = new Geodetic::Projection( $projdef, $dtm->ellipsoid );
+            $type = &LINZ::Geodetic::PROJECTION if $projdef ne '';
+            require LINZ::Geodetic::Projection;
+            $proj = new LINZ::Geodetic::Projection( $projdef, $dtm->ellipsoid );
         }
 
-        require Geodetic::CoordSys;
+        require LINZ::Geodetic::CoordSys;
         $csdef->{object} = $cs =
-          new Geodetic::CoordSys( $type, $name, $dtm, $proj, $cscode );
+          new LINZ::Geodetic::CoordSys( $type, $name, $dtm, $proj, $cscode );
     }
     return $cs;
 }
@@ -602,122 +672,122 @@ sub coordsysname
 
 #===============================================================================
 #
-#   Method:       hgtref
+#   Method:       vdatum
 #
-#   Description:  $hgtref = $cslist->hgtref($hrfcode)
+#   Description:  $vdatum = $cslist->vdatum($vdcode)
 #
-#   Parameters:   $hrfcode    The code of the height reference required
+#   Parameters:   $vdcode    The code of the vertical datum required
 #
-#   Returns:      Returns a HgtRef object
+#   Returns:      Returns a VerticalDatum object
 #
+#   Additional parameters for use only within this module
+#      $nameonly   if true then find the name and exit
+#      $used       codes already used in defining the surface, manages 
+#                  circular references
 #===============================================================================
 
-sub hgtref
+sub vdatum
 {
-    my ( $self, $hrfcode ) = @_;
-    $hrfcode = uc($hrfcode);
-    my $hrfdef = $self->{hgtrefs}->{$hrfcode};
-    die "Invalid height reference code $hrfcode.\n" if !defined $hrfdef;
-    my $hrf = $hrfdef->{object};
-    if ( !$hrf )
+    my ( $self, $vdcode, $nameonly, $used ) = @_;
+    $vdcode = uc($vdcode);
+    my $vddef = $self->{vdatums}->{$vdcode};
+    if( ! defined($vddef) )
     {
-        die "Invalid definition of height reference $hrfcode.\n"
-          if $hrfdef->{def} !~ /^\"([^\"]+)\"\s+(\S+)\s+geoid\s+(\S+)\s*$/i;
-        my ( $name, $refcscode, $geoidfile ) = ( $1, $2, $3 );
+        my $usedmsg=$used ? " in definition of ".$used->[-1] : "";
+        die "Invalid vertical datum code $vdcode$usedmsg.\n"
+    }
+    my $vd = $vddef->{object};
+    if( $vd && $nameonly )
+    {
+        return $vd->name;
+    }
+    if ( !$vd )
+    {
+        die "Invalid definition of vertical datum $vdcode.\n"
+          if $vddef->{def} !~ 
+            /^
+            \"([^\"]+)\"\s+
+            (\S+)\s+
+            (?:
+            (geoid|grid)\s+(\S+)|
+            ((?:offset\s+)?[+-]?\d+(?:\.\d+)?)
+            )
+            \s*$
+            /ix;
+        my ( $name, $refcscode, $gridtype, $geoidfile, $offset ) = 
+           ( $1, uc($2), coalesce($3,''), coalesce($4,''), coalesce($5,0.0)+0.0 );
+        return $name if $nameonly;
+        my $hrefbase;
         my $refcrdsys;
         eval { $refcrdsys = $self->coordsys($refcscode); };
-        die "Invalid coordinate system code in height reference $hrfcode.\n"
+        undef $refcrdsys if defined($refcrdsys) && $refcrdsys->type != &LINZ::Geodetic::GEODETIC;
+        if( ! defined($refcrdsys))
+        {
+            $used ||= [];
+            push(@$used,$vdcode);
+            foreach my $usedrf (@$used)
+            {
+                die "Circular reference in definition of vertical datum $refcscode\n"
+                    if $usedrf eq $refcscode;
+            }
+            $hrefbase=$self->vdatum( $refcscode, 0, $used );
+            $refcrdsys=$hrefbase->refcrdsys();
+        }
+        die "Invalid coordinate system code in vertical datum $vdcode.\n"
           if !$refcrdsys;
-        if ( $self->{filename} )
-        {
-            my ($filepath) = $self->{filename} =~ /^(.*[\\\/])/;
-            $geoidfile = $filepath . $geoidfile if -r $filepath . $geoidfile;
-            $geoidfile = $filepath . $geoidfile . '.grd'
-              if -r $filepath . $geoidfile . '.grd';
-        }
-        require Geodetic::GeoidGrid;
         my $gridfunc;
-        eval { $gridfunc = new Geodetic::GeoidGrid($geoidfile); };
-        die "Invalid geoid grid specified for height reference $hrfcode.\n"
-          if !$gridfunc;
-
-        require Geodetic::HgtRef;
-        $hrfdef->{object} = $hrf =
-          new Geodetic::HgtRef( $name, $refcrdsys, $gridfunc, $hrfcode );
-    }
-    return $hrf;
-}
-
-#===============================================================================
-#
-#   Method:       hgtcrdsys
-#
-#   Description:  $hgtcrdsys = $cslist->hgtcrdsys($hcscode)
-#
-#   Parameters:   $hcscode    The code of the height reference required
-#
-#   Returns:      Returns a HgtCrdSys object
-#
-#===============================================================================
-
-sub hgtcrdsys
-{
-    my ( $self, $hcscode ) = @_;
-    $hcscode = uc($hcscode);
-    my $hcsdef = $self->{hgtcrdsys}->{$hcscode};
-    die "Invalid height coordinate system code $hcscode.\n" if !defined $hcsdef;
-    my $hcs = $hcsdef->{object};
-    if ( !$hcs )
-    {
-        die "Invalid definition of height reference $hcscode.\n"
-          if $hcsdef->{def} !~ /^\"([^\"]+)\"\s+(\S+)\s+([+-]?\d+\.?\d*)\s*$/;
-        my ( $name, $hrfcode, $offset ) = ( $1, $2, $3 );
-        my $hrf;
-        eval { $hrf = $self->hgtref($hrfcode); };
-        if ($@)
+        if( $geoidfile )
         {
-            die $@
-              . "Invalid height reference $hrfcode specified for height coordinate system $hcscode.\n";
+            if ( $self->{filename} )
+            {
+                my ($filepath) = $self->{filename} =~ /^(.*[\\\/])/;
+                $geoidfile = $filepath . $geoidfile if -r $filepath . $geoidfile;
+                $geoidfile = $filepath . $geoidfile . '.grd'
+                  if -r $filepath . $geoidfile . '.grd';
+            }
+            require LINZ::Geodetic::GeoidGrid;
+            my $factor=uc($gridtype) eq 'GEOID' ? 1.0 : -1.0;
+            eval { $gridfunc = new LINZ::Geodetic::GeoidGrid($geoidfile,$factor); };
+            die "Invalid grid specified for vertical datum $vdcode.\n"
+              if !$gridfunc;
         }
-        require Geodetic::HgtCrdSys;
-        $hcsdef->{object} = $hcs =
-          new Geodetic::HgtCrdSys( $name, $hrf, $offset, $hcscode );
+        else
+        {
+            require LINZ::Geodetic::VerticalDatum;
+            $gridfunc=LINZ::Geodetic::VerticalDatum::Offset->new($offset);
+        }
+
+        require LINZ::Geodetic::VerticalDatum;
+        $vddef->{object} = $vd =
+          new LINZ::Geodetic::VerticalDatum( $name, $hrefbase, $refcrdsys, $gridfunc, $vdcode );
     }
-    return $hcs;
+    return $vd;
 }
+
+# Deprecated function
+sub hgtref { return vdatum(@_); }
 
 #===============================================================================
 #
-#   Method:       hgtcrdsysname
+#   Method:       vdatumname
 #
-#   Description:  Routine provides a cheap look up of the height coordinate
+#   Description:  Routine provides a cheap look up of the vertical datum name
 #                 system name - avoiding loading the coordinate system
-#                  $hcsname = $cslist->hgtcrdsysname($hcscode)
+#                  $vdname = $cslist->vdatumname($vdcode)
 #
-#   Parameters:   $hcscode     The code of the coordinate system required
+#   Parameters:   $vdcode     The code of the coordinate system required
 #
-#   Returns:      $hcsname     The name of the coordinate system
+#   Returns:      $vdname     The name of the coordinate system
 #
 #===============================================================================
 
-sub hgtcrdsysname
+sub vdatumname
 {
-    my ( $self, $hcscode ) = @_;
-    $hcscode = uc($hcscode);
-    my $hcsdef = $self->{hgtcrdsys}->{$hcscode};
-    die "Invalid height coordinate system code $hcscode.\n" if !$hcsdef;
-    my $hcs = $hcsdef->{object};
-    return $hcs->{name} if $hcs;
-    die "Invalid definition of coordinate system $hcscode.\n"
-      if $hcsdef->{def} !~ /^
-                         \"([^\"]+)\"\s+
-                         (\S+)\s+
-                         ([+-]?\d+(?:\.\d+)?)
-                         \s*$
-                        /xi;
-
-    my $name = $1;
-    return $name;
+    my ( $self, $vdcode ) = @_;
+    return $self->vdatum($vdcode,1);
 }
+
+# Deprecated function
+sub hgtrefname { return vdatumname(@_); }
 
 1;

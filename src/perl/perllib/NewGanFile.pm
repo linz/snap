@@ -1,9 +1,9 @@
 use strict;
 use FileHandle;
-use Geodetic::CoordSys;
-use Geodetic::Datum;
-use Geodetic::Ellipsoid;
-use Geodetic::TMProjection;
+use LINZ::Geodetic::CoordSys;
+use LINZ::Geodetic::Datum;
+use LINZ::Geodetic::Ellipsoid;
+use LINZ::Geodetic::TMProjection;
 use Carp;
 
 my $warning = <<EOD;
@@ -426,15 +426,15 @@ use vars qw/@ISA/;
 
 
 my $newgan_ellipsoid = {
-      0 => new Geodetic::Ellipsoid ( 6378137.0, 298.257223563, 'WGS84', 'WGS84' ),
-      1 => new Geodetic::Ellipsoid ( 6378206.4, 294.9786982, 'Clarke 1866', 'WGS84' ),
-      2 => new Geodetic::Ellipsoid ( 6378388.0, 297.0, 'International', 'INTERNATIONAL' ),
-      6 => new Geodetic::Ellipsoid ( 6378249.145, 293.465, 'Clarke 1880', 'CLARKE1880' ),
-      7 => new Geodetic::Ellipsoid ( 6378160.0, 298.25, 'Australian National', 'ANS' ),
-      13 => new Geodetic::Ellipsoid ( 6378135.0, 298.26, 'WGS72', 'WGS72' ),
-      18 => new Geodetic::Ellipsoid ( 6378137.0, 298.257223563, 'WGS84', 'WGS84' ),
-      19 => new Geodetic::Ellipsoid ( 6378137.0, 298.257222101, 'GRS80', 'GRS80' ),
-      20 => new Geodetic::Ellipsoid ( 6378160.0, 298.25, 'Australian National', 'ANS' ),
+      0 => new LINZ::Geodetic::Ellipsoid ( 6378137.0, 298.257223563, 'WGS84', 'WGS84' ),
+      1 => new LINZ::Geodetic::Ellipsoid ( 6378206.4, 294.9786982, 'Clarke 1866', 'WGS84' ),
+      2 => new LINZ::Geodetic::Ellipsoid ( 6378388.0, 297.0, 'International', 'INTERNATIONAL' ),
+      6 => new LINZ::Geodetic::Ellipsoid ( 6378249.145, 293.465, 'Clarke 1880', 'CLARKE1880' ),
+      7 => new LINZ::Geodetic::Ellipsoid ( 6378160.0, 298.25, 'Australian National', 'ANS' ),
+      13 => new LINZ::Geodetic::Ellipsoid ( 6378135.0, 298.26, 'WGS72', 'WGS72' ),
+      18 => new LINZ::Geodetic::Ellipsoid ( 6378137.0, 298.257223563, 'WGS84', 'WGS84' ),
+      19 => new LINZ::Geodetic::Ellipsoid ( 6378137.0, 298.257222101, 'GRS80', 'GRS80' ),
+      20 => new LINZ::Geodetic::Ellipsoid ( 6378160.0, 298.25, 'Australian National', 'ANS' ),
       };
       
 # Don't know about C=>SGC, D=>AGC coordinates. Have ignored Cyprus.
@@ -994,7 +994,7 @@ sub BuildEllipsoid {
    else {
       my $code = sprintf("USER%02d",++$self->next_ellipsoid_id);
       eval {
-         $ellipsoid = new Geodetic::Ellipsoid( $elldef->ellipsoid_a,
+         $ellipsoid = new LINZ::Geodetic::Ellipsoid( $elldef->ellipsoid_a,
               $elldef->ellipsoid_rf, $code, $code );
          };
       if( $@ ) {
@@ -1011,13 +1011,13 @@ sub Setup {
 
    my $name = $ellipsoid->name;
    my $code = $ellipsoid->code;
-   my $datum = new Geodetic::Datum(
+   my $datum = new LINZ::Geodetic::Datum(
                   $name, 
                   $ellipsoid, $code,
                   undef,
                   $code
                   );
-   $self->{crdsys} = new Geodetic::CoordSys( Geodetic::GEODETIC,
+   $self->{crdsys} = new LINZ::Geodetic::CoordSys( LINZ::Geodetic::GEODETIC,
                   $name, $datum, undef, 
                   $code );
    $self->crdsyslist->{$code} = $self->crdsys;
@@ -1128,9 +1128,9 @@ sub GetCoordsys {
        if( $code =~ /^$basecode\_(AMG|UTM)(\d\d)([NS])/ ) {
            my $cm = $2*6-183;
            my $fn = ($3 eq 'N') ?  0 : 10000000.0;
-           my $proj = new Geodetic::TMProjection($basecrdsys->ellipsoid,
+           my $proj = new LINZ::Geodetic::TMProjection($basecrdsys->ellipsoid,
               $cm, 0.0, 0.9996, 500000.0, $fn, 1.0);
-           $pcrdsys = new Geodetic::CoordSys( &Geodetic::PROJECTION,
+           $pcrdsys = new LINZ::Geodetic::CoordSys( &LINZ::Geodetic::PROJECTION,
               $code, $basecrdsys->datum, $proj, $code );
            }
        else {

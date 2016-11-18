@@ -102,7 +102,7 @@ function ChangeCoordinateSystem()
        label "Coordinate file: $relname"
        spacer
        dropdown_selector $coordsys "Select the new coordinate system" $coordsys_list
-       dropdown_selector $vrtsys "Select the orthometric height reference surface" $hgtrefs
+       dropdown_selector $vrtsys "Select the orthometric vertical datum" $hgtrefs
        spacer 
        textbox $convdate "Conversion epoch (if required, YYYY-MM-DD)" '10:1:~0123456789:/-~^((19|20)\d\d([-/:])[01]\d\3[0123]\d)?$~Date must be formatted as YYYY-MM-DD'
        spacer 
@@ -151,7 +151,7 @@ function AddGeoidHeights()
           "~calcgeoid~Calculate geoid from gridded geoid model". 
           "~calcgfile~Calculate geoid from geoid model file". 
           "~zero~Remove geoid and deflections from coordinate file"
-       dropdown_selector $hrs "Height reference surface" "~none~".$hgtopts
+       dropdown_selector $hrs "Vertical datum" "~none~".$hgtopts
        dropdown_selector $geoid "Gridded geoid model" "~none~".$_geoids
        open_file_selector $gfile "Gridded geoid model file" "Grid files (*.grd)|*.grd|All files (*.*)|*.*"
        checkbox $keeporth "Keep orthometric heights unchanged"

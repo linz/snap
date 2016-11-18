@@ -143,7 +143,7 @@ typedef struct
 
 /* Options for reading data.  
  *  NW_READOPT_CALCHGTREF for recalculation geoid info if coordsys defines a 
- *                        height reference surface
+ *                        vertical datum
  *  NW_READOPT_GBFORMAT   for reading data using the very historic "geodetic
  *                        branch" format
  */
@@ -342,7 +342,7 @@ station * duplicate_network_station(  network *nw,
 void    modify_network_station_coords( network *nw, station *st, double Lat,
                                        double Lon, double Hgt );
 
-/* Calculate geoid info from a coordinate system height reference surface 
+/* Calculate geoid info from a coordinate system vertical datum 
  * for all stations.  Assumes that the coordinate system is based on the 
  * geocentric coordinate system matching the station coordinates. */
 /* For library use only, fixed_height_type one of the NW_HGTFIXOPT... defines */

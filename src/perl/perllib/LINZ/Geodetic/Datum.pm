@@ -17,7 +17,7 @@
 #                                  datum
 #                       
 #                    Defines packages: 
-#                      Geodetic::Datum
+#                      LINZ::Geodetic::Datum
 #
 # Dependencies:      Uses the following modules:   
 #
@@ -42,10 +42,10 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::Datum
+#   Class:       LINZ::Geodetic::Datum
 #
 #   Description: Defines the following routines:
-#                  $datum = new Geodetic::Datum(
+#                  $datum = new LINZ::Geodetic::Datum(
 #                    $name, $ellipsoid, $baseref, $transfunc, $code, $defmodel
 #                    );
 #
@@ -54,7 +54,7 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::Datum;
+package LINZ::Geodetic::Datum;
 
 my $id;
 
@@ -62,7 +62,7 @@ my $id;
 #
 #   Method:       new
 #
-#   Description:  $datum = new Geodetic::Datum(
+#   Description:  $datum = new LINZ::Geodetic::Datum(
 #                    $name, $ellipsoid, $baseref, $transfunc
 #                 )
 #
@@ -109,5 +109,6 @@ sub baseref { return $_[0]->{baseref}}
 sub transfunc { return $_[0]->{transfunc}}
 sub defmodel { return $_[0]->{defmodel} }
 sub refepoch { return $_[0]->{refepoch} }
+sub needepoch { return defined($_[0]->{defmodel}) }
 
 1;

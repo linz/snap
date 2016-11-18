@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
-<meta name="keywords" content="COORDSYS.DEF, height reference surface">
-<title>Height reference surface definition format</title>
+<meta name="keywords" content="COORDSYS.DEF, vertical datum">
+<title>Vertical datum definition format</title>
 <link rel="stylesheet" type="text/css" href="../snaphelp.css">
 </head>
 
@@ -11,54 +11,54 @@
 
 
 
-<h1><a name="crdsys_hgtref_def"></a>Height reference surface definition format</h1>
+<h1><a name="crdsys_hgtref_def"></a>Vertical datum definition format</h1>
 
-<p>Height reference surfaces are surfaces from which &quot;orthometric&quot; heights are measured.  These heights are not strictly
+<p>Vertical datums are surfaces from which &quot;orthometric&quot; heights are measured.  These heights are not strictly
 orthometric heights, but are approximations to them.  
 </p>
 <p>
-In the snap programs the height reference surface may be used to convert between ellipsoidal and
+In the snap programs the vertical datum may be used to convert between ellipsoidal and
 orthometric height, and to calculate the geoid undulation and deflection of the vertical at each station.  The undulation and deflection are used for calculating gravimetric observations such as levelling and zenith distance observations.
 </p>
 <p>
-The base definition of a height reference surface is a gridded geoid definition.  
+The base definition of a vertical datum is a gridded geoid definition.  
 </p>
 <p>
-Additional surfaces may be defined by offsets to geoid surfaces.  
+Additional datums may be defined by offsets to geoid surfaces.  
 Offsets are used to define local vertical datums used in New Zealand.  These are generally
 based on tide gauges, but may also incorporate spatially correlated systematic errors between the local 
 datum and the geoid surface which are represented as offset grids.
 Note that the offsets are defined in terms of the difference in height coordinates in terms of 
 the surface relative to coordinates in terms of the geoid.  
-They are in the opposite sense to the geoid height.  The height reference surface is 
+They are in the opposite sense to the geoid height.  The vertical datum is 
 defined by subtracting the offset from the geoid.</p>
 
-<p>The format of a height reference surface definitions is:</p>
+<p>The format of a vertical datum definitions is:</p>
 
 <pre><code>code description REF_FRAME ref_frame_code GEOID geoid_file_name</code></pre>
-<pre><code>code description REF_FRAME base_ref_surface_code OFFSET offset</code></pre>
-<pre><code>code description REF_FRAME base_ref_surface_code GRID offset_grid_file_name</code></pre>
+<pre><code>code description REF_FRAME base_vd_datum_code OFFSET offset</code></pre>
+<pre><code>code description REF_FRAME base_vd_code GRID offset_grid_file_name</code></pre>
 
 <p>The components of the definition are:</p>
 
-<p><i>code</i> is an identifier for the height reference surface.  This may contain letters, numbers, and the underscore character.  It cannot contain blanks.</p>
+<p><i>code</i> is an identifier for the vertical datum.  This may contain letters, numbers, and the underscore character.  It cannot contain blanks.</p>
 
 <p><i>description</i> is a quoted text description of the reference frame</p>
 
 <p><i>ref_frame_code</i> is the code for the geometric datum to which the geoid is referenced. This code must have been defined in an earlier [reference_frames] section of the file</p>
 
-<p><i>base_ref_surface_code</i> is the code of a base height reference surface relative to which an offset is defined.  This must be defined in the [height_reference_surfaces] section of the file</p>
+<p><i>base_vd_code</i> is the code of a base vertical datum relative to which an offset is defined.  This must be defined in the [vertical_datums] section of the file</p>
 
 <p><i>geoid_file_name</i> is the name of a <a href="gridfile_c.html">grid file</a> defining the geoid height.</p>
 
-<p><i>offset</i> is the offset in metres of the heights in terms of the height reference surface from those in terms of the base surface.  Equivalently
-it is the distance of the height reference surface below the base surface</p>
+<p><i>offset</i> is the offset in metres of the heights in terms of the vertical datum from those in terms of the base surface.  Equivalently
+it is the distance of the vertical datum below the base surface</p>
 
 <p><i>offset_grid_file_name</i> is the name of a <a href="gridfile_c.html">grid file</a> defining the offset of heights in terms of the 
-reference surface relative to heights in terms of the base reference surface.</p>
+vertical datum to heights in terms of the base vertical datum.</p>
 
-<p>An example of a height reference surface definitions is:</p>
-<pre><code>[height_reference_surfaces]
+<p>An example of vertical datum definitions is:</p>
+<pre><code>[vertical_datums]
 NZVD09 "New Zealand Vertical Datum 2009" NZGD2000 GEOID nzgeoid09
 NZVD2016 "New Zealand Vertical Datum 2016" NZGD2000 GEOID nzgeoid2016
 AUCKHT1946 "Auckland 1946 (NZVD2016)" NZVD2016 GRID auckht1946_nzvd2016_offset.bin

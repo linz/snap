@@ -47,13 +47,13 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
 
     if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
 
-    /* Check that the height ref conversion is possible */
+    /* Check that the vertical datum conversion is possible */
     /* Mainly checking grid file can be opened */
 
     int sts = coordsys_geoid_exu( cs, llh, NULL, NULL );
     if( sts != OK ) return sts;
 
-    /* Conversion to and from height ref coordsys */
+    /* Conversion to and from vertical datum coordsys */
 
     coord_conversion to_geoid;
     coord_conversion from_geoid;
@@ -62,7 +62,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
             define_ellipsoidal_coord_conversion_epoch( &from_geoid, cs, nw->geosys, DEFAULT_CRDSYS_EPOCH ) != OK )
     {
         handle_error( INVALID_DATA,
-                      "Cannot relate height reference and network coordinate systems",NO_MESSAGE );
+                      "Cannot relate vertical datum and network coordinate systems",NO_MESSAGE );
         return INVALID_DATA;
     }
     /* Add the undulations - ignore individual errors */

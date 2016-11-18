@@ -2,7 +2,7 @@
 # Module:             Coordinate.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::Coordinate
+#                      LINZ::Geodetic::Coordinate
 #
 # Dependencies:      Uses the following modules:   
 #
@@ -20,7 +20,7 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::Coordinate
+#   Class:       LINZ::Geodetic::Coordinate
 #
 #   Description: A base class for coordinates.  Provides service functions
 #                and coordinate conversion functions.  The coordinate is 
@@ -29,8 +29,8 @@ use strict;
 #                a epoch
 #
 #                Defines the following routines:
-#                  $crd = new Geodetic::Coordinate($crd)
-#                  $crd = new Geodetic::Coordinate($ord1, $ord2, $ord3, $cs, $epoch)
+#                  $crd = new LINZ::Geodetic::Coordinate($crd)
+#                  $crd = new LINZ::Geodetic::Coordinate($ord1, $ord2, $ord3, $cs, $epoch)
 #
 #                  $crd->setcs($cs)
 #                  $cs = $crd->coordsys
@@ -39,14 +39,14 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::Coordinate;
+package LINZ::Geodetic::Coordinate;
 
 
 #===============================================================================
 #
 #   Method:       new
 #
-#   Description:  $crd = new Geodetic::Coordinate($crd)
+#   Description:  $crd = new LINZ::Geodetic::Coordinate($crd)
 #
 #   Parameters:   $crd    Either an existing ordinate or array reference,
 #                         or a list of ordinates

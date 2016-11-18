@@ -122,7 +122,7 @@ int parse_crdsys_epoch( const char *epochstr, double *epoch )
 coordsys * load_coordsys( const char *code )
 {
     crdsys_source_def *csd;
-    height_ref *hrs=nullptr;
+    vdatum *hrs=nullptr;
     char cscode[CRDSYS_CODE_LEN+1];
     char hrscode[CRDSYS_CODE_LEN+1];
     double epoch = 0;
@@ -159,7 +159,7 @@ coordsys * load_coordsys( const char *code )
     strncpy(cscode,code,nch);
     cscode[nch]=0;
 
-    /* Check height reference surface */
+    /* Check vertical datum */
     if( hrsptr )
     {
         nch=(epochptr ? epochptr-hrsptr : strlen(hrsptr))-1;
@@ -174,7 +174,7 @@ coordsys * load_coordsys( const char *code )
         {
             strncpy(hrscode,hrsptr+1,nch);
             hrscode[nch]=0;
-            hrs=load_height_ref( hrscode );
+            hrs=load_vdatum( hrscode );
             if( ! hrs ) return NULL;
         }
     }
@@ -199,23 +199,23 @@ coordsys * load_coordsys( const char *code )
     {
         if( hrs )
         {
-            if( ! coordsys_height_ref_compatible( cs, hrs ) )
+            if( ! coordsys_vdatum_compatible( cs, hrs ) )
             {
                 char errmsg[80];
-                sprintf(errmsg,"Height system %.20s not compatible with coordinate system %.20s",
+                sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
                         hrs->code, cs->code );
                 handle_error( INVALID_DATA, errmsg, nullptr );
                 delete_coordsys( cs );
-                delete_height_ref( hrs );
+                delete_vdatum( hrs );
                 return NULL;
             }
-            set_coordsys_height_ref( cs, hrs );
+            set_coordsys_vdatum( cs, hrs );
         }
         define_deformation_model_epoch(cs,epoch);
     }
     else
     {
-        if( hrs ) delete_height_ref( hrs );
+        if( hrs ) delete_vdatum( hrs );
     }
     return cs;
 }
@@ -234,11 +234,11 @@ const char *coordsys_load_code( coordsys *cs )
     return csfullcode;
 }
 
-height_ref * load_height_ref( const char *code )
+vdatum * load_vdatum( const char *code )
 {
     crdsys_source_def *csd;
     int sts;
-    height_ref *hrs= NULL;
+    vdatum *hrs= NULL;
 
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
@@ -251,7 +251,7 @@ height_ref * load_height_ref( const char *code )
     if( sts == MISSING_DATA )
     {
         char errmsg[80];
-        sprintf(errmsg,"Height reference %.20s is not defined",code);
+        sprintf(errmsg,"Vertical datum %.20s is not defined",code);
         handle_error(INVALID_DATA,errmsg,nullptr);
     }
     return hrs;

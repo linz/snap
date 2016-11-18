@@ -2,7 +2,7 @@
 # Module:             DMS.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::DMS
+#                      LINZ::Geodetic::DMS
 #
 # Dependencies:      Uses the following modules:   
 #
@@ -29,25 +29,25 @@ use strict;
    
 #===============================================================================
 #
-#   Package:     Geodetic::DMS
+#   Package:     LINZ::Geodetic::DMS
 #
 #   Description: Package defines a function for converting an angle to a 
 #                string in degrees, minutes, seconds format.
 #
 #                Defines the following routines:
-#                  $result = &Geodetic::DMS::FormatDMS($value, $ndp, $hem)
-#                  $result = &Geodetic::DMS::ReadDMS($string, $hem)
+#                  $result = &LINZ::Geodetic::DMS::FormatDMS($value, $ndp, $hem)
+#                  $result = &LINZ::Geodetic::DMS::ReadDMS($string, $hem)
 #
 #===============================================================================
 
-package Geodetic::DMS;
+package LINZ::Geodetic::DMS;
 
 
 #===============================================================================
 #
 #   Subroutine:   FormatDMS
 #
-#   Description:  $result = &Geodetic::DMS::FormatDMS($value, $ndp, $hem)
+#   Description:  $result = &LINZ::Geodetic::DMS::FormatDMS($value, $ndp, $hem)
 #
 #   Parameters:   $value      The value to format (in degrees)
 #                 $ndp        The number of decimal places of seconds to show
@@ -85,7 +85,7 @@ sub FormatDMS {
 #                 can have just degrees, degrees and minutes, or degrees,
 #                 minutes, and seconds.
 #
-#                 $result = &Geodetic::DMS::ReadDMS($string, $hem)
+#                 $result = &LINZ::Geodetic::DMS::ReadDMS($string, $hem)
 #
 #   Parameters:   $string     The angle expressed as a string
 #                 $hem        The hemisphere indicators characters. A two 
@@ -121,7 +121,7 @@ sub ReadDMS {
 #
 #   Subroutine:   FormatDM
 #
-#   Description:  $result = &Geodetic::DMS::FormatDM($value, $ndp, $hem)
+#   Description:  $result = &LINZ::Geodetic::DMS::FormatDM($value, $ndp, $hem)
 #
 #   Parameters:   $value      The value to format (in degrees)
 #                 $ndp        The number of decimal places of minutes to show
@@ -155,7 +155,7 @@ sub FormatDM {
 #                 can have just degrees, degrees and minutes, or degrees,
 #                 minutes, and seconds.
 #
-#                 $result = &Geodetic::DMS::ReadDM($string, $hem)
+#                 $result = &LINZ::Geodetic::DMS::ReadDM($string, $hem)
 #
 #   Parameters:   $string     The angle expressed as a string
 #                 $hem        The hemisphere indicators characters. A two 

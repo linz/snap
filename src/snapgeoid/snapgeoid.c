@@ -73,8 +73,8 @@ int main( int argc, char *argv[] )
         argptr=0;
         switch( argv[1][1] )
         {
-        case 'r':
-        case 'R':
+        case 'v':
+        case 'V':
             list_only = 1;
             break;
 
@@ -183,18 +183,18 @@ int main( int argc, char *argv[] )
     {
         printf("Syntax:  snapgeoid  [options] station_file_name [new_station_file_name]\n\n");
         printf("Options can include:\n");
-        printf(" -h hrs_code    calculate geoid from height reference surface (-r to list)\n");
+        printf(" -h vd_code     calculate geoid from vertical datum (-v to list)\n");
         printf(" -g geoid_file  calculate geoid height from gridded geoid model file\n");
-        printf(" -c             calculate geoid height from coordinate system height reference\n");
+        printf(" -c             calculate geoid height from coordinate system vertical datum\n");
         printf(" -z             remove explicit geoid information from coordinate file\n");
         printf(" -k             keep existing geoid information - only add if not already in file\n");
         printf(" -p             preserves orthometric heights when the geoid height is changed\n");
         printf(" -i             ignore errors calculating geoid heights for specific stations\n");
-        printf(" -a hrs_code    add height reference surface to coordinate system\n");
-        printf(" -d             remove height reference surface from coordinate system\n");
+        printf(" -a vd_code     add a vertical datum to coordinate system\n");
+        printf(" -d             remove vertical datum from coordinate system\n");
         printf(" -e             set the height coordinate type to ellipsoidal\n");
         printf(" -o             set the height coordinate type to orthometric\n");
-        printf(" -r             list the available height reference surfaces and exit\n");
+        printf(" -v             list the available vertical datums and exit\n");
         printf(" -q             miminimes output comments\n");
         printf("\nOnly one of -h, -g, -c -z can be selected.\n");
         printf("\nOnly one of -e and -o can be selected.\n");
@@ -205,11 +205,11 @@ int main( int argc, char *argv[] )
     if( list_only )
     {
         int i;
-        int nhrf=height_ref_list_count();
+        int nhrf=vdatum_list_count();
         for( i=0; i < nhrf; i++)
         {
-            const char *code=height_ref_list_code(i);
-            const char *name=height_ref_list_desc(i);
+            const char *code=vdatum_list_code(i);
+            const char *name=vdatum_list_desc(i);
             printf("  %-*s %s\n",CRDSYS_CODE_LEN,code,name);
         }
         exit(0);
@@ -264,13 +264,13 @@ int main( int argc, char *argv[] )
 
     if( csyshrs )
     {
-        height_ref *hrs=load_height_ref( csyshrs );
+        vdatum *hrs=load_vdatum( csyshrs );
         if( ! hrs )
         {
-            printf("Unable to load height reference surface %s\n",csyshrs);
+            printf("Unable to load vertical datum %s\n",csyshrs);
             return 2;
         }
-        int sts=set_coordsys_height_ref( net.crdsys, hrs );
+        int sts=set_coordsys_vdatum( net.crdsys, hrs );
         if( sts != OK )
         {
             return 2;
@@ -286,7 +286,7 @@ int main( int argc, char *argv[] )
         int sts=calc_station_geoid_info_from_coordsys( &net, net.crdsys,
                 orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) return 2;
-        height_ref *hrs = coordsys_height_ref( net.crdsys );
+        vdatum *hrs = coordsys_vdatum( net.crdsys );
         if( hrs )
         {
             sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
@@ -295,30 +295,30 @@ int main( int argc, char *argv[] )
 
     if( calc_geoid_opt == CALC_HGTREF )
     {
-        height_ref *hrs=load_height_ref( hrscode );
+        vdatum *hrs=load_vdatum( hrscode );
         if( ! hrs )
         {
-            printf("Unable to load height reference surface %s\n",hrscode);
+            printf("Unable to load vertical datum %s\n",hrscode);
             return 2;
         }
-        ref_frame *rf=height_ref_ref_frame(hrs);
+        ref_frame *rf=vdatum_ref_frame(hrs);
         if( ! rf )
         {
-            printf("Unable to load reference frame for height ref surface %s\n",
+            printf("Unable to load reference frame for vertical datum %s\n",
                     hrscode);
             return 2;
         }
         coordsys *cs=create_coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
         if( ! cs )
         {
-            printf("Unable to create reference coordinate system for height ref surface %s\n",
+            printf("Unable to create reference coordinate system for vertical datum %s\n",
                     hrscode);
             return 2;
         }
-        int sts=set_coordsys_height_ref( cs, hrs );
+        int sts=set_coordsys_vdatum( cs, hrs );
         if( sts != OK )
         {
-            printf("Unable to assign height ref surface %s to base coordinate system",
+            printf("Unable to assign vertical datum %s to base coordinate system",
                     hrscode);
             return 2;
         }

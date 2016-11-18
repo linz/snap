@@ -947,32 +947,32 @@ YORK_L "Mount York Circuit 1949 (links)" REF_FRAME NZGD1949 &
 
 
 !================================================================
-! Note: Height reference surfaces currently not used by SNAP and Concord.
-!
 
-[height_reference_surfaces]
+[vertical_datums]
 
-! Height reference surfaces are defined by
+! Vertical datums are defined by
 !
 ! Code - used to reference it.  This cannot be the same as the name
 !        of an ellipsoidal coordinate system (all ellipsoidal coordinate
-!        systems are defined as height reference surfaces)
+!        systems are treated as ellipsoidal vertical datums)
 ! Name - name of the reference system
-! baseref - code of surface in terms of which the reference surface
+! baseref - code of vertical datum in terms of which the reference surface
 !          is defined, either an ellipsoidal coordinate system 
-!          for ellipsoidal heights or another reference surface.
+!          for ellipsoidal heights or another vertical datum.
 !
-! This is followed by a definition of the reference surface relative to the 
-! base reference surface as one of: 
+! This is followed by a definition of the vertical datum relative to the 
+! base vertical datum as one of: 
 !
 ! GEOID + Geoid file name - a geoid grid for generating orthometric heights
-! GRID + Grid file name - a grid defining height offsets
-! offset - a numeric constant offset
+!                from an ellipsoidal datum
+! GRID + Grid file name - a grid defining height offsets relative to another
+!                vertical datum
+! OFFSET + value - a numeric constant height offset offset relative to another
+!                vertical datum
 !
-! The only difference between GEOID and GRID is the sense in which they are 
-! applied, GEOID defines the height of the reference surface relative to
-! the base reference surface, whereas GRID defines the height of 
-! the base reference surface relative to the reference surface.
+! Note that GRID and OFFSET definitions are in the opposite sense to geoid,
+! in that they define the difference in heights between the datums rather 
+! than the height of the datum surface.
 
 NZVD09 "New Zealand Vertical Datum 2009" NZGD2000 GEOID nzgeoid09
 NZVD2016 "New Zealand Vertical Datum 2016" NZGD2000 GEOID nzgeoid2016

@@ -2,12 +2,12 @@
 # Module:             BursaWolf.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::BursaWolf
+#                      LINZ::Geodetic::BursaWolf
 #                    This implements the Bursa Wolf 7 parameter transformation 
 #                    to convert between different datums.
 #
 # Dependencies:      Uses the following modules: 
-#                      Geodetic::CartesianCrd  
+#                      LINZ::Geodetic::CartesianCrd  
 #
 #  $Id: BursaWolf.pm,v 1.1 1999/09/09 21:09:36 ccrook Exp $
 #
@@ -23,18 +23,18 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::BursaWolf
+#   Class:       LINZ::Geodetic::BursaWolf
 #
 #   Description: Defines the following methods:
-#                  $bw = new Geodetic::BursaWolf($tx,$ty,$tz,$rx,$ry,$rz,$ppm)
+#                  $bw = new LINZ::Geodetic::BursaWolf($tx,$ty,$tz,$rx,$ry,$rz,$ppm)
 #                  $crd2 = $bw->ApplyTo($crd)
 #                  $crd2 = $bw->ApplyInverseTo($crd)
 #
 #===============================================================================
 
-package Geodetic::BursaWolf;
+package LINZ::Geodetic::BursaWolf;
 
-require Geodetic::CartesianCrd;
+require LINZ::Geodetic::CartesianCrd;
 
 my $sec2rad = atan2(1,1)/(45.0*3600.0);
 
@@ -43,7 +43,7 @@ my $sec2rad = atan2(1,1)/(45.0*3600.0);
 #
 #   Method:       new
 #
-#   Description:  $bw = new Geodetic::BursaWolf($tx, $ty, $tz, $rx, $ry, $rz, $ppm,
+#   Description:  $bw = new LINZ::Geodetic::BursaWolf($tx, $ty, $tz, $rx, $ry, $rz, $ppm,
 #                                             $refy,$dtx,$dty,$dtz,$drx,$dry,$drz,
 #                                             $dppm,$iers)
 #
@@ -103,6 +103,22 @@ sub new {
   return bless $self, $class;
   }
 
+#===============================================================================
+#
+#   Method:       needepoch
+#
+#   Description:  $bw->needepoch()
+#                 Returns true if the conversion needs an epoch
+#
+#   Returns:      true if an epoch is needed
+#
+#===============================================================================
+
+sub needepoch
+{
+    my($self)=@_;
+    return $self->{needepoch};
+}
 
 #===============================================================================
 #
@@ -188,7 +204,7 @@ sub ApplyTo {
     }
   my $xlat = $self->{xlat};
 
-  return new Geodetic::CartesianCrd ( $xlat->[0] + $sf * $x,
+  return new LINZ::Geodetic::CartesianCrd ( $xlat->[0] + $sf * $x,
                                        $xlat->[1] + $sf * $y,
                                        $xlat->[2] + $sf * $z,
                                        undef, $crd->[4] );
@@ -232,7 +248,7 @@ sub ApplyInverseTo {
                       $R->[0]->[2]*$x + $R->[1]->[2]*$y + $R->[2]->[2]*$z );
     }
 
-  return new Geodetic::CartesianCrd ( $x, $y, $z, undef, $crd->[4] );
+  return new LINZ::Geodetic::CartesianCrd ( $x, $y, $z, undef, $crd->[4] );
   }
 
 1;

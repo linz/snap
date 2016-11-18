@@ -40,9 +40,9 @@
          }
 
 
-height_ref *parse_height_ref_def ( input_string_def *is, 
+vdatum *parse_vdatum_def ( input_string_def *is, 
                                   ref_frame *(*getrf)(const char *code, int loadref ),
-                                  height_ref *(*gethrs)(const char *code, int loadref )
+                                  vdatum *(*gethrs)(const char *code, int loadref )
                                   )
 {
     char hrscode[CRDSYS_CODE_LEN+1];
@@ -55,10 +55,10 @@ height_ref *parse_height_ref_def ( input_string_def *is,
     const char *bad;
     int isgeoid;
     int isgrid;
-    height_ref *hrs = 0;
+    vdatum *hrs = 0;
     ref_frame *baserf = 0;
-    height_ref *basehrs = 0;
-    height_ref_func *hrf = 0;
+    vdatum *basehrs = 0;
+    vdatum_func *hrf = 0;
 
     char *stdfrm = 0;
     double sf, txyz[3], rxyz[3];
@@ -104,19 +104,19 @@ height_ref *parse_height_ref_def ( input_string_def *is,
         if( ! geoidfile )
         {
             char errmess[255];
-            sprintf(errmess,"Cannot locate geoid file %.120s for height reference surface %.20s",
+            sprintf(errmess,"Cannot locate geoid file %.120s for vertical datum %.20s",
                     geoidname,hrscode);
             report_string_error( is, INVALID_DATA, errmess );
             sts = INVALID_DATA;
         }
         else
         {
-            hrf=create_grid_height_ref_func( geoidfile, isgeoid );
+            hrf=create_grid_vdatum_func( geoidfile, isgeoid );
         }
     }
     else
     {
-        hrf=create_offset_height_ref_func( offset );
+        hrf=create_offset_vdatum_func( offset );
     }
 
     if( sts == OK )
@@ -127,7 +127,7 @@ height_ref *parse_height_ref_def ( input_string_def *is,
             if( ! baserf )
             {
                 char errmess[255];
-                sprintf(errmess,"Cannot load reference datum %.20s for height reference surface %.20s",
+                sprintf(errmess,"Cannot load reference datum %.20s for vertical datum %.20s",
                         basecode,hrscode);
                 report_string_error( is, INVALID_DATA, errmess );
                 sts = INVALID_DATA;
@@ -139,20 +139,20 @@ height_ref *parse_height_ref_def ( input_string_def *is,
             if( ! basehrs )
             {
                 char errmess[255];
-                sprintf(errmess,"Cannot load underlying height reference surface %.20s for %.20s",
+                sprintf(errmess,"Cannot load underlying vertical datum %.20s for %.20s",
                         basecode,hrscode);
                 report_string_error( is, INVALID_DATA, errmess );
                 sts = INVALID_DATA;
             }
             else
             {
-                height_ref *base=basehrs;
+                vdatum *base=basehrs;
                 while( base )
                 {
                     if( _stricmp(base->code,hrscode) == 0 )
                     {
                         char errmess[80+CRDSYS_CODE_LEN];
-                        strcpy( errmess, "Height reference surface ");
+                        strcpy( errmess, "Vertical datum ");
                         strcat( errmess, hrscode );
                         strcat( errmess, " has a cyclic dependency");
                         report_string_error( is, INVALID_DATA, errmess );
@@ -167,11 +167,11 @@ height_ref *parse_height_ref_def ( input_string_def *is,
 
     if( sts == OK )
     {
-        hrs=create_height_ref( hrscode, hrsname, basehrs, baserf, hrf );
+        hrs=create_vdatum( hrscode, hrsname, basehrs, baserf, hrf );
         if( ! hrs )
         {
             char errmess[80+CRDSYS_CODE_LEN];
-            strcpy( errmess, "Cannot create height reference surface ");
+            strcpy( errmess, "Cannot create vertical datum ");
             strcat( errmess, hrscode );
             report_string_error( is, INVALID_DATA, errmess );
             sts=INVALID_DATA;
@@ -180,9 +180,9 @@ height_ref *parse_height_ref_def ( input_string_def *is,
 
     if( ! hrs )
     {
-        if( basehrs ) delete_height_ref( basehrs );
+        if( basehrs ) delete_vdatum( basehrs );
         if( baserf ) delete_ref_frame( baserf );
-        if( hrf ) delete_height_ref_func( hrf );
+        if( hrf ) delete_vdatum_func( hrf );
     }
 
     return hrs;

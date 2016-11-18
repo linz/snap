@@ -16,10 +16,10 @@
 #
 
 use strict;
-use Geodetic::TMProjection;
-use Geodetic::Ellipsoid;
+use LINZ::Geodetic::TMProjection;
+use LINZ::Geodetic::Ellipsoid;
 
-package Geodetic::NZMS1MapRef;
+package LINZ::Geodetic::NZMS1MapRef;
 
 my $ellipsoid;
 
@@ -423,8 +423,8 @@ sub proj {
     my( $series ) = @_;
     my $proj = $series->{proj};
     return $proj if $proj;
-    $ellipsoid = new Geodetic::Ellipsoid(6378388.0,297.0) if ! $ellipsoid;
-    $proj = new Geodetic::TMProjection($ellipsoid,@{$series->{projprm}});
+    $ellipsoid = new LINZ::Geodetic::Ellipsoid(6378388.0,297.0) if ! $ellipsoid;
+    $proj = new LINZ::Geodetic::TMProjection($ellipsoid,@{$series->{projprm}});
     $series->{proj} = $proj;
     return $proj;
     }

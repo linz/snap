@@ -2,12 +2,12 @@
 # Module:             GeodeticCrd.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::GeodeticCrd
+#                      LINZ::Geodetic::GeodeticCrd
 #
 # Dependencies:      Uses the following modules: 
 #                      Geodetic
-#                      Geodetic::Coordinate
-#                      Geodetic::DMS  
+#                      LINZ::Geodetic::Coordinate
+#                      LINZ::Geodetic::DMS  
 #
 #  $Id: GeodeticCrd.pm,v 1.2 2000/08/29 00:35:20 gdb Exp $
 #
@@ -27,11 +27,11 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::GeodeticCrd
+#   Class:       LINZ::Geodetic::GeodeticCrd
 #
 #   Description: Defines the following routines:
-#                  $llh = new Geodetic::GeodeticCrd( $lat, $lon, $hgt, $cs, $epoch );
-#                  $llh = new Geodetic::GeodeticCrd( [$lat, $lon, $hgt, $cs, $epoch] );
+#                  $llh = new LINZ::Geodetic::GeodeticCrd( $lat, $lon, $hgt, $cs, $epoch );
+#                  $llh = new LINZ::Geodetic::GeodeticCrd( [$lat, $lon, $hgt, $cs, $epoch] );
 #
 #                  $lat = $llh->lat
 #                  $lon = $llh->lon
@@ -43,13 +43,13 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::GeodeticCrd;
+package LINZ::Geodetic::GeodeticCrd;
 
-require Geodetic;
-require Geodetic::Coordinate;
+require LINZ::Geodetic;
+require LINZ::Geodetic::Coordinate;
 
 use vars qw/@ISA/;
-@ISA=('Geodetic::Coordinate');
+@ISA=('LINZ::Geodetic::Coordinate');
 
 
 sub lat { $_[0]->[0]; }
@@ -65,7 +65,7 @@ sub hgt { $_[0]->[2]; }
 #   Subroutine:   type
 #
 #   Description:  Returns the type id of the coordinate, always
-#                 &Geodetic::GEODETIC
+#                 &LINZ::Geodetic::GEODETIC
 #                   $type = $llh->type
 #
 #   Parameters:   None
@@ -74,7 +74,7 @@ sub hgt { $_[0]->[2]; }
 #
 #===============================================================================
 
-sub type { return &Geodetic::GEODETIC; }
+sub type { return &LINZ::Geodetic::GEODETIC; }
 
 
 #===============================================================================
@@ -106,9 +106,9 @@ sub asstring {
    $ndpv = 9 if $ndpv > 9;
    my ($lat, $lon, $hgt);
    if( $self->[0] ne '' && $self->[1] ne '' ) {
-      require Geodetic::DMS;
-      $lat = &Geodetic::DMS::FormatDMS( $self->[0], $ndp, 'SN' );
-      $lon = &Geodetic::DMS::FormatDMS( $self->[1], $ndp, 'WE' );
+      require LINZ::Geodetic::DMS;
+      $lat = &LINZ::Geodetic::DMS::FormatDMS( $self->[0], $ndp, 'SN' );
+      $lon = &LINZ::Geodetic::DMS::FormatDMS( $self->[1], $ndp, 'WE' );
       }
    if( $self->[2] ne '' ) {
       $hgt = sprintf("%.$ndpv"."f",$self->[2]);

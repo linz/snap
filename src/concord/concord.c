@@ -454,7 +454,7 @@ static void help( void )
     puts("           -k       Ask for coordinates at the keyboard");
     puts("           -l       List the coord system codes used by the program");
     puts("           -i XXXX  Define input coord system, and order - e.g.NZMG:EN");
-    puts("           -r       List the height reference systems used by the program");
+    puts("           -v       List the vertical datums available");
     puts("           -o XXXX  Define output coord system, and order");
     puts("           -n#      Specifies coordinates preceded by up to n character id");
     puts("           -p #     Define the precision of output coordinates");
@@ -463,21 +463,22 @@ static void help( void )
     puts("           -c file  Specify the coordinate system definition file");
     puts("           -g file  Specify the geoid file");
     puts("           -y yyyy  Specify the conversion epoch for conversions");
+    puts("           -f       Include input coordinates in output");
     puts("           -h       List this help information");
     puts("           -z       List the program version");
     puts("");
     pause_output();
     puts("The -i and -o switches are required to specify the input and output");
     puts("coordinate systems.  Coordinate systems specify both the geodetic");
-    puts("system and an optional reference surface (geoid) for height coordinates");
+    puts("system and an optional vertical datum (geoid) for height coordinates");
     puts("separated by a / character.  For example NZGD2000/NZVD2016. Both must be");
     puts("defined in terms of the same coordinate system");
     puts("Use concord -l for a list of valid coordinate systems, and concord -lh");
-    puts("for a list of height reference surfaces.\n");
+    puts("for a list of vertical datums.\n");
     puts("For non-geocentric coordinate systems the code may be followed by a");
     puts("colon and the order of the coordinates (one of EN, NE, ENH, NEH, ENO,");
     puts("NEO.  Here E and N are the east and north coordinates, H is ellipsoidal");
-    puts("heights or O for orthometric heights. If a height reference surface is");
+    puts("heights or O for orthometric heights. If a vertical datum is");
     puts("defined then heights are orthometric.  Otherwise orthometric heights are");
     puts("require a geoid file to be defined\n");
     puts("For lat/long systems this can be followed by \",H\", \",M\", or \",D\" for");
@@ -615,13 +616,13 @@ static void list_coordsys_with_pause( void )
     printf("\n");
 }
 
-static void list_height_ref_with_pause( void )
+static void list_vertical_datum_with_pause( void )
 {
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Valid height systems are:\n",PROGNAME);
-    maxi = height_ref_list_count();
+    printf("\n%s: Vertical datum codes are:\n",PROGNAME);
+    maxi = vdatum_list_count();
     nl = 0;
     for( i = 0; i < maxi; i++ )
     {
@@ -630,7 +631,7 @@ static void list_height_ref_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",height_ref_list_code(i), height_ref_list_desc(i));
+        printf("  %-10s %s\n",vdatum_list_code(i), vdatum_list_desc(i));
     }
     printf("\n");
 }
@@ -641,7 +642,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
     if( argc )
     {
         int i;
-        int maxhrs=height_ref_list_count();
+        int maxhrs=vdatum_list_count();
         coordsys *cs;
         for( i = 0; i < argc; i++ )
         {
@@ -660,20 +661,20 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
                 {
                     for( int ihrs=0; ihrs < maxhrs; ihrs++ )
                     {
-                        height_ref *hrs=height_ref_from_list(ihrs);
+                        vdatum *hrs=vdatum_from_list(ihrs);
                         if( ! hrs ) continue;
-                        if( coordsys_height_ref_compatible( cs, hrs ))
+                        if( coordsys_vdatum_compatible( cs, hrs ))
                         {
                             if( firsthrs )
                             {
-                                printf("Compatible geoids:\n");
+                                printf("Compatible vertical datums:\n");
                                 firsthrs=0;
                             }
-                            printf( "  %-20s %s\n", height_ref_list_code(ihrs),
-                                    height_ref_list_desc(ihrs));
+                            printf( "  %-20s %s\n", vdatum_list_code(ihrs),
+                                    vdatum_list_desc(ihrs));
 
                         }
-                        delete_height_ref( hrs );
+                        delete_vdatum( hrs );
                     }
                 }
                 delete_coordsys( cs );
@@ -706,7 +707,7 @@ static void list_program_details_and_exit( void )
 
 static const char *param_args="CGIONPSYH";
 static char *param_value[9]={0,0,0,0,0,0,0,0,0};
-static const char *switch_args="AELRKH?ZVN";
+static const char *switch_args="AELVKH?ZFN";
 static int switch_value[10]={0,0,0,0,0,0,0,0,0,0};
 static char **unused_args;
 static int nunused_args;
@@ -789,9 +790,9 @@ static void process_command_line_options()
     {
         list_coordsys_and_exit( nunused_args, unused_args );
     }
-    if( switch_option('R') )
+    if( switch_option('V') )
     {
-        list_height_ref_with_pause();
+        list_vertical_datum_with_pause();
         exit(1);
     }
     if( switch_option('Z') ) { list_program_details_and_exit(); }
@@ -800,7 +801,7 @@ static void process_command_line_options()
     ask_coords=switch_option('K');
     skip_errors=switch_option('E');
     point_ids=switch_option('N');
-    verbose=switch_option('V');
+    verbose=switch_option('F');
 
     pval=command_line_option('I');
     if( pval ) decode_proj_string(pval,&input_cs,&input_dms,

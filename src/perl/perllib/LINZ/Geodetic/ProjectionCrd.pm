@@ -2,11 +2,11 @@
 # Module:             ProjectionCrd.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::ProjectionCrd
+#                      LINZ::Geodetic::ProjectionCrd
 #
 # Dependencies:      Uses the following modules: 
 #                      Geodetic
-#                      Geodetic::Coordinate  
+#                      LINZ::Geodetic::Coordinate  
 #
 #  $Id: ProjectionCrd.pm,v 1.2 2000/09/27 11:39:45 gdb Exp $
 #
@@ -25,11 +25,11 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::ProjectionCrd
+#   Class:       LINZ::Geodetic::ProjectionCrd
 #
 #   Description: Defines the following routines:
-#                  $prj = new Geodetic::ProjectionCrd( $north, $east, $hgt, $cs, $epoch );
-#                  $prj = new Geodetic::ProjectionCrd( [$north, $east, $hgt, $cs, $epoch] );
+#                  $prj = new LINZ::Geodetic::ProjectionCrd( $north, $east, $hgt, $cs, $epoch );
+#                  $prj = new LINZ::Geodetic::ProjectionCrd( [$north, $east, $hgt, $cs, $epoch] );
 #
 #                  $northing = $prj->northing
 #                  $easting = $prj->easting
@@ -43,13 +43,13 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::ProjectionCrd;
+package LINZ::Geodetic::ProjectionCrd;
 
-require Geodetic;
-require Geodetic::Coordinate;
+require LINZ::Geodetic;
+require LINZ::Geodetic::Coordinate;
 
 use vars qw/@ISA/;
-@ISA=('Geodetic::Coordinate');
+@ISA=('LINZ::Geodetic::Coordinate');
 
 
 sub northing { return $_[0]->[0]; }
@@ -58,7 +58,7 @@ sub easting { return $_[0]->[1]; }
 
 sub hgt { return $_[0]->[2]; }
 
-sub type { return &Geodetic::PROJECTION; }
+sub type { return &LINZ::Geodetic::PROJECTION; }
 
 #===============================================================================
 #

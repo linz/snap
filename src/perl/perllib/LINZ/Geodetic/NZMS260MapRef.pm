@@ -20,7 +20,7 @@
 
 use strict;
 
-package Geodetic::NZMS260MapRef;
+package LINZ::Geodetic::NZMS260MapRef;
 
 sub sheet {
    my( $n, $e ) = @_;

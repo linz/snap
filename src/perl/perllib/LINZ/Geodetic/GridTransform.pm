@@ -3,7 +3,7 @@
 # Module:             GridTransform.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::GridTransform
+#                      LINZ::Geodetic::GridTransform
 #                    This implements a grid based transformation to convert
 #                    between different datums.  Assumes that the two and
 #                    from coordinates are very similar, so that the inverse
@@ -14,8 +14,8 @@
 #                    coordinates.
 #
 # Dependencies:      Uses the following modules: 
-#                      GridFile
-#                      Geodetic::GeodeticCrd  
+#                      LINZ::Geodetic::Util::GridFile
+#                      LINZ::Geodetic::GeodeticCrd  
 #
 #  $Id: GridTransform.pm,v 1.2 2000/10/15 18:55:14 ccrook Exp $
 #
@@ -36,18 +36,18 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::GridTransform
+#   Class:       LINZ::Geodetic::GridTransform
 #
 #   Description: Defines the following methods:
-#                  $bw = new Geodetic::GridTransform($gridfile)
+#                  $bw = new LINZ::Geodetic::GridTransform($gridfile)
 #                  $crd2 = $bw->ApplyTo($crd)
 #                  $crd2 = $bw->ApplyInverseTo($crd)
 #
 #===============================================================================
 
-package Geodetic::GridTransform;
+package LINZ::Geodetic::GridTransform;
 
-require Geodetic::GeodeticCrd;
+require LINZ::Geodetic::GeodeticCrd;
 
 my $sec2rad = atan2(1,1)/(45.0*3600.0);
 
@@ -56,7 +56,7 @@ my $sec2rad = atan2(1,1)/(45.0*3600.0);
 #
 #   Method:       new
 #
-#   Description:  $bw = new Geodetic::GridTransform($gridfile)
+#   Description:  $grdtfm = new LINZ::Geodetic::GridTransform($gridfile)
 #
 #   Parameters:   $gridfile  The name of the grid file defining the
 #                            transformation
@@ -78,6 +78,23 @@ sub new {
   return bless $self, $class;
   }
 
+#===============================================================================
+#
+#   Method:       needepoch
+#
+#   Description:  $grdtfm->needepoch()
+#                 Returns true if the conversion needs an epoch
+#
+#   Returns:      true if an epoch is needed
+#
+#===============================================================================
+
+sub needepoch
+{
+    my($self)=@_;
+    return $self->{bwtfm}->needepoch();
+}
+
 
 #===============================================================================
 #
@@ -94,8 +111,8 @@ sub new {
 sub InstallGrid {
   my ($self) = @_;
   my $gridfile = $self->{gridfile};
-  require GridFile;
-  my $grid = new GridFile $gridfile;
+  require LINZ::Geodetic::Util::GridFile;
+  my $grid = new LINZ::Geodetic::Util::GridFile $gridfile;
   die "Cannot open grid transformation file $gridfile\n" if ! $grid;
   die "Invalid grid transformation file $gridfile\n" 
       if $grid->Dimension < 2;
@@ -109,7 +126,7 @@ sub InstallGrid {
 #
 #   Method:       ApplyTo
 #
-#   Description:  $crd2 = $bw->ApplyTo($crd)
+#   Description:  $crd2 = $grdtfm->ApplyTo($crd)
 #                 Applies the grid transformation to lat/lon coordinates
 #                 coordinates.
 #
@@ -140,7 +157,7 @@ sub ApplyTo {
 #
 #   Method:       ApplyInverseTo
 #
-#   Description:  $bw->ApplyInverseTo($crd)
+#   Description:  $grdtfm->ApplyInverseTo($crd)
 #                 Applies the inverse of the Grid transformation
 #                 to a lat/lon coordinate.
 #

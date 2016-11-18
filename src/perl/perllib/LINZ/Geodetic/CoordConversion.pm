@@ -2,7 +2,7 @@
 # Module:            CoordConversion.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::CoordConversion
+#                      LINZ::Geodetic::CoordConversion
 #                    This is basically a service class for the CoordSys class
 #                    an encapsulates conversions between different coordinate
 #                    systems.
@@ -23,7 +23,7 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::CoordConversion
+#   Class:       LINZ::Geodetic::CoordConversion
 #
 #   Description: Encapsulates a coordinate conversion function in an array
 #                reference with three elements - the source coordinate 
@@ -31,21 +31,21 @@ use strict;
 #                the conversion function.
 #
 #                Defines the following routines:
-#                  $conv = new Geodetic::CoordConversion($from, $to, $funcref)
+#                  $conv = new LINZ::Geodetic::CoordConversion($from, $to, $funcref)
 #                  $crd2 = $conv->convert($crd);
 #                  $csfrom = $conv->from
 #                  $csto = $conv->to
 #
 #===============================================================================
 
-package Geodetic::CoordConversion;
+package LINZ::Geodetic::CoordConversion;
 
 
 #===============================================================================
 #
 #   Method:       new
 #
-#   Description:  $conv = Geodetic::CoordConversion->new(
+#   Description:  $conv = LINZ::Geodetic::CoordConversion->new(
 #                            $from, $to, $funcref, $target_epoch, $trans_epoch
 #                         );
 #
@@ -61,8 +61,8 @@ package Geodetic::CoordConversion;
 #===============================================================================
 
 sub new {
-  my( $class, $from, $to, $funcref, $conversion_epoch ) = @_;
-  my $self = [$from, $to, $funcref, $conversion_epoch];
+  my( $class, $from, $to, $funcref, $conversion_epoch, $needepoch ) = @_;
+  my $self = [$from, $to, $funcref, $conversion_epoch, $needepoch];
   return bless $self, $class;
   }
 
@@ -87,7 +87,7 @@ sub convert {
   my $self=shift;
   my $in_crd=shift;
   my $target_epoch=shift;
-  my $out_crd = $self->[2]->($in_crd, $target_epoch);
+  my $out_crd = $self->[2]->($self, $in_crd, $target_epoch);
   $out_crd->setepoch($target_epoch) if $target_epoch;
   return $out_crd->setcs($self->[1]) if $out_crd;
   }
@@ -130,7 +130,7 @@ sub to {
 
 #===============================================================================
 #
-#   Subroutine:   to
+#   Subroutine:   conversion_epoch
 #
 #   Description:   $epoch = $conv->conversion_epoch
 #                  Returns the epoch for transformations between reference
@@ -144,6 +144,22 @@ sub to {
 
 sub conversion_epoch {
   return $_[0]->[3];
+  }
+
+#===============================================================================
+#
+#   Method:       needepoch
+#
+#   Description:  $epoch = $conv->needepoch
+#
+#                 Returns true if the conversion requires a coordinate epoch for
+#                 conversion.
+#
+#===============================================================================
+
+sub needepoch {
+  my( $self )=@_;
+  return $self->[4];
   }
 
 1;

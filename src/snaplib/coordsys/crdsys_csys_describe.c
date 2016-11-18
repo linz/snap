@@ -148,7 +148,7 @@ int describe_projection( output_string_def *os, projection *prj )
     return OK;
 }
 
-int describe_height_ref( output_string_def *os, height_ref *hrs )
+int describe_vdatum( output_string_def *os, vdatum *hrs )
 {
     if( !hrs ) return OK;
     if( hrs->name )
@@ -174,7 +174,7 @@ int  describe_coordsys(  output_string_def *os, coordsys *cs )
         write_output_string(os,buf);
     }
     describe_projection( os, cs->prj );
-    describe_height_ref( os, cs->hrs );
+    describe_vdatum( os, cs->hrs );
     return OK;
 }
 

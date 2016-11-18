@@ -52,7 +52,7 @@ coordsys *copy_coordsys( coordsys *cs )
     copy = create_coordsys( cs->code, cs->name,cs->crdtype,
                             copy_ref_frame(cs->rf), copy_projection( cs->prj ) );
     if( !copy ) return copy;
-    copy->hrs = copy_height_ref( cs->hrs );
+    copy->hrs = copy_vdatum( cs->hrs );
     copy->source = copy_string( cs->source );
     if( copy->prj && copy->rf->el )
         set_projection_ellipsoid( copy->prj, copy->rf->el );
@@ -93,37 +93,37 @@ coordsys *related_coordsys( coordsys *cs, int type )
     return copy;
 }
 
-bool coordsys_height_ref_compatible( coordsys *cs, height_ref *hrs )
+bool coordsys_vdatum_compatible( coordsys *cs, vdatum *hrs )
 {
     if( is_geocentric( cs ) ) return false;
-    return identical_datum( height_ref_ref_frame(hrs), cs->rf );
+    return identical_datum( vdatum_ref_frame(hrs), cs->rf );
 }
 
-height_ref *coordsys_height_ref( coordsys *cs )
+vdatum *coordsys_vdatum( coordsys *cs )
 {
     return cs->hrs;
 }
 
-int set_coordsys_height_ref( coordsys *cs, height_ref *hrs )
+int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )
 {
     int sts=OK;
-    if( cs->hrs ) { delete_height_ref( cs->hrs ); cs->hrs=nullptr; }
+    if( cs->hrs ) { delete_vdatum( cs->hrs ); cs->hrs=nullptr; }
     if( ! hrs ) return sts;
 
-    /* Check that height reference datum matches coordinate datum,
+    /* Check that vertical datum datum matches coordinate datum,
      * If not then just delete it. */
 
-    if( coordsys_height_ref_compatible( cs, hrs ) )
+    if( coordsys_vdatum_compatible( cs, hrs ) )
     {
         cs->hrs=hrs;
     }
     else
     {
         char errmsg[100];
-        sprintf( errmsg, "Height reference %.20s not compatible with coordinate system %.20s",
+        sprintf( errmsg, "Vertical datum %.20s not compatible with coordinate system %.20s",
                 hrs->code,cs->code);
         handle_error( INVALID_DATA, errmsg, nullptr );
-        delete_height_ref( hrs );
+        delete_vdatum( hrs );
         sts=INVALID_DATA;
     }
     return sts;
@@ -131,7 +131,7 @@ int set_coordsys_height_ref( coordsys *cs, height_ref *hrs )
 
 void set_coordsys_geoid( coordsys *cs, const char *geoidfile )
 {
-    set_coordsys_height_ref( cs, geoid_height_ref( geoidfile, cs->rf ) );
+    set_coordsys_vdatum( cs, geoid_vdatum( geoidfile, cs->rf ) );
 }
 
 bool coordsys_heights_orthometric( coordsys *cs )
@@ -310,5 +310,5 @@ int coordsys_geoid_exu( coordsys *cs, double llh[3], double *height, double *exu
             llh1[CRD_HGT]=llh[CRD_HGT];
         }
     }
-    return calc_height_ref_offset( cs->hrs, llh1, height, exu );
+    return calc_vdatum_offset( cs->hrs, llh1, height, exu );
 }

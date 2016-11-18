@@ -2,11 +2,11 @@
 # Module:             Ellipsoid.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::Ellipsoid
+#                      LINZ::Geodetic::Ellipsoid
 #
 # Dependencies:      Uses the following modules: 
-#                      Geodetic::CartesianCrd
-#                      Geodetic::GeodeticCrd  
+#                      LINZ::Geodetic::CartesianCrd
+#                      LINZ::Geodetic::GeodeticCrd  
 #
 #  $Id: Ellipsoid.pm,v 1.1 1999/09/09 21:09:36 ccrook Exp $
 #
@@ -22,7 +22,7 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::Ellipsoid
+#   Class:       LINZ::Geodetic::Ellipsoid
 #
 #   Description: The ellipsoid is defined as an array reference with elements
 #                the semi-major axis, the reciprocal flattening, the semi-minor
@@ -30,7 +30,7 @@ use strict;
 #
 #                Defines the following routines:
 #                Constructor function
-#                  $ellipsoid = new Geodetic::Ellipsoid($a, $rf, $name)
+#                  $ellipsoid = new LINZ::Geodetic::Ellipsoid($a, $rf, $name)
 #                  $name = $ellipsoid->name
 #
 #                Access functions
@@ -44,7 +44,10 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::Ellipsoid;
+package LINZ::Geodetic::Ellipsoid;
+require Exporter;
+our @ISA=qw(Exporter);
+our @EXPORT_OK=qw(GRS80);
 
 use constant
 {
@@ -53,8 +56,8 @@ use constant
     GRS80_rf=>298.257222101
 };
 
-require Geodetic::CartesianCrd;
-require Geodetic::GeodeticCrd;
+require LINZ::Geodetic::CartesianCrd;
+require LINZ::Geodetic::GeodeticCrd;
 
 my $rad2deg = 45/atan2(1,1);
 my $convergence = 1.0e-10;
@@ -64,7 +67,7 @@ my $convergence = 1.0e-10;
 #
 #   Method:       new
 #
-#   Description:  $object = new Geodetic::Ellipsoid($a, $rf, $name)
+#   Description:  $object = new LINZ::Geodetic::Ellipsoid($a, $rf, $name)
 #
 #   Parameters:   $a          The semi major axis
 #                 $rf         The reciprocal of the flattening
@@ -109,7 +112,7 @@ sub code { return $_[0]->[7]; }
 #                             containing lat/lon/height)
 #
 #   Returns:      $xyz        The returned X,Y,Z coordinates as an array
-#                             reference (actually a Geodetic::CartesianCrd)
+#                             reference (actually a LINZ::Geodetic::CartesianCrd)
 #
 #===============================================================================
 
@@ -128,7 +131,7 @@ sub xyz {
    my ($t1,$t2) = ($b*$slt, $a*$clt);
    my $bsac = sqrt($t1*$t1+$t2*$t2);
    my $p = $a2*$clt/$bsac + $h*$clt;
-   return new Geodetic::CartesianCrd( 
+   return new LINZ::Geodetic::CartesianCrd( 
              $p*$cln, 
              $p*$sln, 
              $b2*$slt/$bsac + $h*$slt, 
@@ -146,7 +149,7 @@ sub xyz {
 #   Parameters:   $xyz        The input coordinates as an array reference.
 #
 #   Returns:      $geog       The lat/lon/height as an array reference, blessed
-#                             as a Geodetic::GeodeticCrd.
+#                             as a LINZ::Geodetic::GeodeticCrd.
 #
 #===============================================================================
 
@@ -172,7 +175,7 @@ sub geog {
       last if $lt-$lt0 < $convergence && $lt0-$lt < $convergence;
       }
    my $h = $p*$clt + $z*$slt - $bsac;
-   return new Geodetic::GeodeticCrd(
+   return new LINZ::Geodetic::GeodeticCrd(
              $lt*$rad2deg, 
              $ln*$rad2deg, 
              $h, 
@@ -182,7 +185,7 @@ sub geog {
 
 sub GRS80
 {
-    return new Geodetic::Ellipsoid(GRS80_a,GRS80_rf,GRS80_name);
+    return new LINZ::Geodetic::Ellipsoid(GRS80_a,GRS80_rf,GRS80_name);
 }
 
 1;

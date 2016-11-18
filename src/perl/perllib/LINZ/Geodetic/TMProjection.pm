@@ -3,11 +3,11 @@
 #
 # Description:       Implements the transverse mercator projection
 #                    Defines packages: 
-#                      Geodetic::TMProjection
+#                      LINZ::Geodetic::TMProjection
 #
 # Dependencies:      Uses the following modules: 
-#                      Geodetic::GeodeticCrd
-#                      Geodetic::ProjectionCrd  
+#                      LINZ::Geodetic::GeodeticCrd
+#                      LINZ::Geodetic::ProjectionCrd  
 #
 #  $Id: TMProjection.pm,v 1.5 2001/10/16 22:14:40 ccrook Exp $
 #
@@ -31,10 +31,10 @@ use strict;
 
 #===============================================================================
 #
-#   Class:       Geodetic::TMProjection
+#   Class:       LINZ::Geodetic::TMProjection
 #
 #   Description: Defines the following routines:
-#                  $tmprj = new Geodetic::TMProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
+#                  $tmprj = new LINZ::Geodetic::TMProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
 #                  $tmprj->type
 #                  $tmprj->geog($crd)
 #                  $tmprj->proj($crd)
@@ -45,10 +45,10 @@ use strict;
 #
 #===============================================================================
 
-package Geodetic::TMProjection;
+package LINZ::Geodetic::TMProjection;
 
-require Geodetic::ProjectionCrd;
-require Geodetic::GeodeticCrd;
+require LINZ::Geodetic::ProjectionCrd;
+require LINZ::Geodetic::GeodeticCrd;
 
 my $pi = atan2(1,1)*4;
 my $twopi = $pi * 2;
@@ -59,7 +59,7 @@ my $rad2deg = 180/$pi;
 #
 #   Method:       new
 #
-#   Description:  $tmprj = new Geodetic::TMProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
+#   Description:  $tmprj = new LINZ::Geodetic::TMProjection($ellipse, $cm, $lto, $sf, $fe, $fn, $utom)
 #
 #   Parameters:   $ellipse    The ellipsoid reference
 #                 $cm         The central meridian (degrees)
@@ -94,7 +94,7 @@ sub new {
 #   Method:       parameters
 #
 #   Description:  $params = $proj->parameters;
-#                 $params = parameters Geodetic::TMProjection;
+#                 $params = parameters LINZ::Geodetic::TMProjection;
 #
 #   Parameters:   none
 #
@@ -114,7 +114,7 @@ sub parameters {
           { code=>'FN', name=>'False northing', type=>'D', np=>9 },
           { code=>'UTOM', name=>'Units to metres conversion', type=>'D', np=>10 },
           ];
-    if( ref($self) eq 'Geodetic::TMProjection' ) {
+    if( ref($self) eq 'LINZ::Geodetic::TMProjection' ) {
           foreach (@$parameters) {
                $_->{value} = $self->[$_->{np}];
                if( $_->{type} eq 'LT' || $_->{type} eq 'LN' ) {
@@ -271,7 +271,7 @@ sub geog {
 
    my $ln = $cm - ($x/$clt)*((($trm4*$x2-$trm3)*$x2+$trm2)*$x2-$trm1);
 
-   return new Geodetic::GeodeticCrd(
+   return new LINZ::Geodetic::GeodeticCrd(
                $lt*$rad2deg,
                $ln*$rad2deg,
                $crd->[2],
@@ -354,7 +354,7 @@ sub proj {
    my $cn = ($eta*$t)*(((($trm4*$wc2+$trm3)*$wc2+$trm2)*$wc2+$trm1)*$wc2);
    $cn = ($cn+$m-$om)*$sf/$utom+$fn;
 
-   return new Geodetic::ProjectionCrd($cn, $ce, $crd->[2], undef, $crd->[4]);
+   return new LINZ::Geodetic::ProjectionCrd($cn, $ce, $crd->[2], undef, $crd->[4]);
    }
 
 

@@ -20,7 +20,7 @@
 
 use strict;
 
-package Geodetic::NZTopo50MapRef;
+package LINZ::Geodetic::NZTopo50MapRef;
 
 use vars qw/$ncodes $cisheets $cutsheets $sheetname/;
 

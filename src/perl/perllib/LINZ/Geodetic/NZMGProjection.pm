@@ -4,12 +4,12 @@
 # Description:       Defines packages: 
 #                      Complex
 #                      Complex::Polynomial
-#                      Geodetic::NZMGProjection
+#                      LINZ::Geodetic::NZMGProjection
 #                      Polynomial
 #
 # Dependencies:      Uses the following modules: 
-#                      Geodetic::GeodeticCrd
-#                      Geodetic::ProjectionCrd  
+#                      LINZ::Geodetic::GeodeticCrd
+#                      LINZ::Geodetic::ProjectionCrd  
 #
 #  $Id: NZMGProjection.pm,v 1.2 2000/11/09 23:03:43 gdb Exp $
 #
@@ -197,10 +197,10 @@ sub evaluate {
    
 #===============================================================================
 #
-#   Class:       Geodetic::NZMGProjection
+#   Class:       LINZ::Geodetic::NZMGProjection
 #
 #   Description: Defines the following routines:
-#                  $nzproj = new Geodetic::NZMGProjection;
+#                  $nzproj = new LINZ::Geodetic::NZMGProjection;
 #                  $type = $nzproj->type
 #
 #                  $geog = $nzproj->geog($crd)
@@ -208,10 +208,10 @@ sub evaluate {
 #
 #===============================================================================
 
-package Geodetic::NZMGProjection;
+package LINZ::Geodetic::NZMGProjection;
 
-require Geodetic::ProjectionCrd;
-require Geodetic::GeodeticCrd;
+require LINZ::Geodetic::ProjectionCrd;
+require LINZ::Geodetic::GeodeticCrd;
 
 use vars qw/
   $a
@@ -294,7 +294,7 @@ unshift(@$cfb1n, [0,0] );
 #   Subroutine:   new
 #
 #   Description:   Create the NZMG projection object ... nothing much to this!
-#                   $nzmgproj = new Geodetic::NZMGProjection
+#                   $nzmgproj = new LINZ::Geodetic::NZMGProjection
 #
 #   Parameters:    None
 #
@@ -340,7 +340,7 @@ sub parameters {
 #                            array reference
 #
 #   Returns:      $geog      The returned coordinates as a
-#                            Geodetic::GeodeticCrd blessed reference
+#                            LINZ::Geodetic::GeodeticCrd blessed reference
 #
 #===============================================================================
 
@@ -359,7 +359,7 @@ sub geog {
       }
    my $ln = $ln0 + $z1->imag * $rad2deg;
    my $lt = $lt0 + $cfl->evaluate($z1->real) * $z1->real / 0.036;
-   return new Geodetic::GeodeticCrd( $lt, $ln, $crd->[2], undef, $crd->[4] );
+   return new LINZ::Geodetic::GeodeticCrd( $lt, $ln, $crd->[2], undef, $crd->[4] );
    }
 
 
@@ -372,7 +372,7 @@ sub geog {
 #   Parameters:   $geog    The lat/lon/height coordinate as an array reference
 #
 #   Returns:      $crd     The return easting, northing, height as a
-#                          Geodetic::ProjectionCrd blessed array reference.
+#                          LINZ::Geodetic::ProjectionCrd blessed array reference.
 #
 #===============================================================================
 
@@ -386,7 +386,7 @@ sub proj {
    $ln -= 360 while $ln > 180;
    my $z1 = new Complex($lt,$ln/$rad2deg);
    my $z0 = Complex::multiply( $cfb1->evaluate($z1), $z1 );
-   return new Geodetic::ProjectionCrd(
+   return new LINZ::Geodetic::ProjectionCrd(
              $n0 + $z0->real * $a,
              $e0 + $z0->imag * $a, 
              $crd->[2],

@@ -64,7 +64,7 @@ validator
           
    return true
 dropdown_selector $coordsys "Coordinate system" $coordsys_list
-dropdown_selector $hgtref "Orthometric height system and geoid" $hgtopts
+dropdown_selector $hgtref "Vertical datum (geoid)" $hgtopts
 radio_selector $_hgtcrdtype "Height coordinate type" "~ellipsoidal_heights~ellipsoidal~orthometric_heights~orthometric"
 end_dialog
 

@@ -16,7 +16,7 @@ use strict;
 package LINZ::GNSS::SinexFile;
 
 use LINZ::GNSS::Time qw/yearday_seconds/;
-use Geodetic::Ellipsoid;
+use LINZ::Geodetic::Ellipsoid;
 use Carp;
 
 

@@ -2,7 +2,7 @@
 # Module:             GeoidGrid.pm
 #
 # Description:       Defines packages: 
-#                      Geodetic::GeoidGrid
+#                      LINZ::Geodetic::GeoidGrid
 #                    This implements a grid based geoid height conversion
 #
 # Dependencies:      Uses the following modules: 
@@ -21,36 +21,37 @@ use strict;
    
 #===============================================================================
 #
-#   Class:       Geodetic::GeoidGrid
+#   Class:       LINZ::Geodetic::GeoidGrid
 #
 #   Description: Defines the following methods:
-#                  $gg = new Geodetic::GeoidGrid($tx,$ty,$tz,$rx,$ry,$rz,$ppm)
+#                  $gg = new LINZ::Geodetic::GeoidGrid($tx,$ty,$tz,$rx,$ry,$rz,$ppm)
 #                  $ghgt = $gg->GeoidHeight($crd)
 #                  $ohgt = $gg->OrthometricHeight($crd,$ehgt)
 #                  $ehgt = $gg->EllToOrth($crd,$oght)
 #
 #===============================================================================
 
-package Geodetic::GeoidGrid;
+package LINZ::Geodetic::GeoidGrid;
 
-use GridFile;
+use LINZ::Geodetic::Util::GridFile;
 
 
 #===============================================================================
 #
 #   Method:       new
 #
-#   Description:  $gg = new Geodetic::GeoidGrid($gridname)
+#   Description:  $gg = new LINZ::Geodetic::GeoidGrid($gridname,$factor)
 #
 #   Parameters:   $gridname    The name of the geoid grid file
+#                 $factor      Scale factor applied to grid values
 #
 #   Returns:      
 #
 #===============================================================================
 
 sub new {
-  my( $class, $name ) = @_;
-  my $grid = new GridFile $name;
+  my( $class, $name, $factor ) = @_;
+  my $grid = new LINZ::Geodetic::Util::GridFile $name;
   die "Invalid geoid grid $name - wrong data dimension\n" if $grid->Dimension != 1;
   my $cscode = $grid->CrdSysCode;
   my @titles = $grid->Title;
@@ -59,6 +60,7 @@ sub new {
         titles=>\@titles,
         required_cscode=>$cscode,
         grid=>$grid,
+        factor=>$factor,
         };
   return bless $self, $class;
   }
@@ -96,7 +98,7 @@ sub GeoidHeight {
   if( $@ ) {
      die "Coordinates out of range for calculating geoid height\n";
      }
-  return $ghgt;
+  return $ghgt * $self->{factor};
   }
    
 
