@@ -137,7 +137,7 @@ static void add_crdsys_item( int type, long id, const char *code, const char *de
     case CS_REF_FRAME: list = rflist.list; break;
     case CS_ELLIPSOID: list = ellist.list; break;
     case CS_COORDSYS: list = cslist.list; break;
-    case CS_HEIGHT_REF: list = hrslist.list; break;
+    case CS_VDATUM: list = hrslist.list; break;
     default: return;
     }
 
@@ -305,26 +305,26 @@ coordsys * coordsys_from_list( int item )
     return cs;
 }
 
-int height_ref_list_count( void )
+int vdatum_list_count( void )
 {
     make_crdsys_lists();
     return hrslist.count;
 }
 
-const char *height_ref_list_code( int item )
+const char *vdatum_list_code( int item )
 {
     return crdsys_item_code( &hrslist, item );
 }
 
-const char *height_ref_list_desc( int item )
+const char *vdatum_list_desc( int item )
 {
     return crdsys_item_desc( &hrslist, item );
 }
 
-height_ref * height_ref_from_list( int item )
+vdatum * vdatum_from_list( int item )
 {
     crdsys_list_item *cli;
-    height_ref *cs;
+    vdatum *cs;
     cli = crdsys_item_at( &hrslist, item );
     if( cli == NULL )
     {

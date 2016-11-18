@@ -15,12 +15,6 @@
     {
         "Entry"
         {
-        "MsmKey" = "8:_00C3662859AD44CD9A43F5B0A59034C9"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_010FC8BDF3864747A6FF2B32A9E4A99D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -39,7 +33,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_03D240B0158549E89207C7477767B861"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_041E6C6B756143DE8749C780C00F0281"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_04B476B48D6D4C5EB70208320E701C4D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_05A70B5888F54599B605F9444597E7E4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -87,6 +99,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_12258CA37C00464B8A69E44A1194DFBB"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_16038B1BDC674AA28073BD56DCC43A50"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_1A114AA4E8BF4272893F5E7435D0C7DE"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -99,7 +123,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_20BBCDD8191946F7B71A398AB33275C9"
+        "MsmKey" = "8:_1DADEAFE95C346C8930DFF143C7CD96C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -111,13 +135,31 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_2107BDBBAE0F407F85C811F6B4D832C5"
+        "MsmKey" = "8:_218AB3D188A34595B35630DBECACB5DA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_279CDB41D43A461BB7B40FAEB28A7E45"
+        "MsmKey" = "8:_21A5926E44F64842A5048F6F5BA4656A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2215BF7984664752A97BE2F2C8F894AA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_23CC8833C9264C8580F5346FDFFD3B69"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_250B5DE4B5B04A3C92857E496C30A110"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -129,19 +171,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_34E52D974044409485CC0B821B1E7B0F"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_36F4C4D4C4F849FE921B3BD0AAD2F6E0"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_3B8D920EBC244F3EAD89EA629D22447C"
+        "MsmKey" = "8:_3A122D84B15F4ABCA9CFD8810271A423"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -177,12 +213,6 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_4B04DDFC2F88442DABB028B20FCA5055"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_4C390D9C881E41829D80B905CFA25AE2"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -201,19 +231,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_4E1E73CE65D14356AC01E63A9DB35F9B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_4EF1C99612D44A799AEFCB5656402AB7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_5284630A49CE414888875138D86F31D0"
+        "MsmKey" = "8:_4F2D90F324AF4BDFAD2E9945CB2F06A6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_528A8EAF02FF4CF89AFFAF0917F74C92"
+        "MsmKey" = "8:_5461F8614BA94347BCE8C8E26ED2DA6E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -231,7 +267,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_59C4095BBB144E1782DE26576A757678"
+        "MsmKey" = "8:_59C19C6162DF46B4B0AB2AF585331D3D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6020A891B8074B3EB213C2B092DBE7D6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -244,12 +286,6 @@
         "Entry"
         {
         "MsmKey" = "8:_62B27B5345F24B4C99722002E9E95089"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_665CB8A6DFFD4A0AB4EE7AD1AACF2F89"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -273,6 +309,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_69CD337A3D8A4EF39AC8071E95FD174E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_6B3490616FE3476693B098FEB1C82C9E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -280,12 +322,6 @@
         "Entry"
         {
         "MsmKey" = "8:_703217B3BE6E44A7AAAD5F01DDE0A8CD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_70C4F55F4A0542078B61B798F4B41C60"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -327,6 +363,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_828713EE3ED84678BD83E09F600D718C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_848D279AE87F4FF984BFDAF0E0CF24D4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -345,7 +387,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_8C8ED99B090A415992E02158161BAEE3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_90355EEBBCDA49258A25E7BDB6188D95"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_90D52F616DA046A6953DB01613B0F1E6"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_945CFFAB6171420EA3AE1B3FAA31AF61"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -363,25 +423,25 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_989E9C787BD24AB59E7CECE704D6EA9D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_9A6448516A37401F8047DB515F65EC7D"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_9A7BB315642941AEBCB320F08C5E880B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
+        "MsmKey" = "8:_A13189AEFA4E4EC6B831FD0DEE2D8F9A"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_A29AD8D57E304A299A5EE66E3B02FC4C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A332F55666DD40BC85CA5DE47E636D53"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -417,19 +477,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_AC92E80E3AA0490C8AF0F8555C85B940"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_AFE11795F1D445E7A4B2ED64337E88FA"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B476991AFC074BA1AF2AFEA5E8C64079"
+        "MsmKey" = "8:_B39EB5533DCB49C9B7611B71231DFC3A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -442,18 +490,6 @@
         "Entry"
         {
         "MsmKey" = "8:_B5BD7A9C29C34CDF88C1E1A21DBCFDDD"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B7A27EA39508448297AA20142F7B712C"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_B827E9A3400F4FF0BD6553F8EE66FF80"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -472,6 +508,12 @@
         "Entry"
         {
         "MsmKey" = "8:_BC0F905B430944EE8C517DDD2800BCB1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BCCA083DB2D4405D9B9CC5A931F2FFCC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -513,6 +555,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C76F79FDD99243C0832D451F8C5C87A8"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C922DC61725548BD8ACB1F8F88C0D99E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -520,12 +568,6 @@
         "Entry"
         {
         "MsmKey" = "8:_CAA676E50EA24D6D832A87F5D1822E46"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_CC7C3C9252924D9E88E27B17E83314F5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -543,7 +585,13 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_D34A84F424CF40438027EED87BCED3A5"
+        "MsmKey" = "8:_D151F4B51C104BEA9AB5AD77AC4A0E01"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D401DDEEA44642BBB16BEF4EBFBF4D09"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -556,6 +604,12 @@
         "Entry"
         {
         "MsmKey" = "8:_D48F506FB9A5436CAAF1B585AA81BAA5"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_D7DBACAFF6AD49C398089B81398B8B5A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -591,7 +645,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EA21E843CCE145C895B082EBDA5BAC08"
+        "MsmKey" = "8:_EA2B374D3BBA49FD870C0EBADFF5E357"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -621,25 +675,7 @@
         }
         "Entry"
         {
-        "MsmKey" = "8:_EE4949CF6AF44C118B9FCCCA366DB533"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
         "MsmKey" = "8:_EFCC5E39ACE1488F9563E357FC1F2129"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F0EE785905E149BF85616B114E40E05A"
-        "OwnerKey" = "8:_UNDEFINED"
-        "MsmSig" = "8:_UNDEFINED"
-        }
-        "Entry"
-        {
-        "MsmKey" = "8:_F2905B10D5CE4ED38490FA50C5BF73C8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -675,7 +711,25 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_F7FB991F66A8491B91B0B2F3AD176E01"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_F8466D5B968A4B54BF7D97515B0EDFDC"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F86EC9A85F7242989BC6A8023C6692AF"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_FB20A242A99D424BB490EB8E78A2F8CB"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -769,26 +823,6 @@
         }
         "File"
         {
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_00C3662859AD44CD9A43F5B0A59034C9"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZMS260MapRef.pm"
-            "TargetName" = "8:NZMS260MapRef.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_010FC8BDF3864747A6FF2B32A9E4A99D"
             {
             "SourcePath" = "8:..\\..\\..\\src\\resources\\station.jpg"
@@ -829,12 +863,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_03D240B0158549E89207C7477767B861"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Isometric.pm"
+            "TargetName" = "8:Isometric.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_041E6C6B756143DE8749C780C00F0281"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\NZMS1MapRef.pm"
+            "TargetName" = "8:NZMS1MapRef.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_04B476B48D6D4C5EB70208320E701C4D"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\format\\vecc1.dtf"
             "TargetName" = "8:vecc1.dtf"
             "Tag" = "8:"
             "Folder" = "8:_7B4F578758734B36A9035CE134167568"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_05A70B5888F54599B605F9444597E7E4"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\GeoidGrid.pm"
+            "TargetName" = "8:GeoidGrid.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -949,6 +1043,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_12258CA37C00464B8A69E44A1194DFBB"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Util\\Packer.pm"
+            "TargetName" = "8:Packer.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_FCA466BA30154A6F9F797CFBCF4123EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_16038B1BDC674AA28073BD56DCC43A50"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\CoordSysList.pm"
+            "TargetName" = "8:CoordSysList.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1A114AA4E8BF4272893F5E7435D0C7DE"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\recodestn.bat"
@@ -989,12 +1123,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_20BBCDD8191946F7B71A398AB33275C9"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1DADEAFE95C346C8930DFF143C7CD96C"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GeoidGrid.pm"
-            "TargetName" = "8:GeoidGrid.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\BursaWolf.pm"
+            "TargetName" = "8:BursaWolf.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1029,12 +1163,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2107BDBBAE0F407F85C811F6B4D832C5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_218AB3D188A34595B35630DBECACB5DA"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZMGProjection.pm"
-            "TargetName" = "8:NZMGProjection.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\NZMeridionalCircuits.pm"
+            "TargetName" = "8:NZMeridionalCircuits.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1049,12 +1183,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_279CDB41D43A461BB7B40FAEB28A7E45"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_21A5926E44F64842A5048F6F5BA4656A"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZTopo50MapRef.pm"
-            "TargetName" = "8:NZTopo50MapRef.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\PSProjection.pm"
+            "TargetName" = "8:PSProjection.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2215BF7984664752A97BE2F2C8F894AA"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\GridTransform.pm"
+            "TargetName" = "8:GridTransform.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_23CC8833C9264C8580F5346FDFFD3B69"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Ellipsoid.pm"
+            "TargetName" = "8:Ellipsoid.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_250B5DE4B5B04A3C92857E496C30A110"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic.pm"
+            "TargetName" = "8:Geodetic.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_B816DBB9AD5E4A628C930C6B83DFCD3E"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1089,26 +1283,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_34E52D974044409485CC0B821B1E7B0F"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Projection.pm"
-            "TargetName" = "8:Projection.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_36F4C4D4C4F849FE921B3BD0AAD2F6E0"
             {
             "SourcePath" = "8:..\\..\\..\\src\\coordsys\\duneht1958_nzvd2016_offset.bin"
@@ -1129,12 +1303,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3B8D920EBC244F3EAD89EA629D22447C"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3A122D84B15F4ABCA9CFD8810271A423"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CoordConversion.pm"
-            "TargetName" = "8:CoordConversion.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\DMS.pm"
+            "TargetName" = "8:DMS.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1249,26 +1423,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4B04DDFC2F88442DABB028B20FCA5055"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GridTransform.pm"
-            "TargetName" = "8:GridTransform.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4C390D9C881E41829D80B905CFA25AE2"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap\\config\\snap\\trvtest.cfg"
@@ -1329,12 +1483,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5284630A49CE414888875138D86F31D0"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4E1E73CE65D14356AC01E63A9DB35F9B"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\TMProjection.pm"
-            "TargetName" = "8:TMProjection.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Coordinate.pm"
+            "TargetName" = "8:Coordinate.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1349,12 +1503,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_528A8EAF02FF4CF89AFFAF0917F74C92"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4F2D90F324AF4BDFAD2E9945CB2F06A6"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\ProjectionCrd.pm"
-            "TargetName" = "8:ProjectionCrd.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\GeodeticCrd.pm"
+            "TargetName" = "8:GeodeticCrd.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_5461F8614BA94347BCE8C8E26ED2DA6E"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\NZMGProjection.pm"
+            "TargetName" = "8:NZMGProjection.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1409,12 +1583,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59C4095BBB144E1782DE26576A757678"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_59C19C6162DF46B4B0AB2AF585331D3D"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\HgtRef.pm"
-            "TargetName" = "8:HgtRef.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Datum.pm"
+            "TargetName" = "8:Datum.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6020A891B8074B3EB213C2B092DBE7D6"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Util\\RotMat3.pm"
+            "TargetName" = "8:RotMat3.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_FCA466BA30154A6F9F797CFBCF4123EF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1455,26 +1649,6 @@
             "TargetName" = "8:Vector3.pm"
             "Tag" = "8:"
             "Folder" = "8:_9F2472EF31FC4A059CEC5AD8E1D43E3B"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_665CB8A6DFFD4A0AB4EE7AD1AACF2F89"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CoordSys.pm"
-            "TargetName" = "8:CoordSys.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1549,6 +1723,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_69CD337A3D8A4EF39AC8071E95FD174E"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Util\\GridFile.pm"
+            "TargetName" = "8:GridFile.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_FCA466BA30154A6F9F797CFBCF4123EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6B3490616FE3476693B098FEB1C82C9E"
             {
             "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nzgd2000_def_20130801l.bin"
@@ -1575,26 +1769,6 @@
             "TargetName" = "8:stisht1977_nzvd2016_offset.bin"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_70C4F55F4A0542078B61B798F4B41C60"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\BursaWolf.pm"
-            "TargetName" = "8:BursaWolf.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1709,6 +1883,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_828713EE3ED84678BD83E09F600D718C"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\CoordConversion.pm"
+            "TargetName" = "8:CoordConversion.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_865849C7756E4D8389864E8AE9814334"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\recodecrd.bat"
@@ -1729,12 +1923,72 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8C8ED99B090A415992E02158161BAEE3"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\NZMS260MapRef.pm"
+            "TargetName" = "8:NZMS260MapRef.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90355EEBBCDA49258A25E7BDB6188D95"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Util\\Unpacker.pm"
+            "TargetName" = "8:Unpacker.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_FCA466BA30154A6F9F797CFBCF4123EF"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_90D52F616DA046A6953DB01613B0F1E6"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\template\\default.crd"
             "TargetName" = "8:default.crd"
             "Tag" = "8:"
             "Folder" = "8:_AA85EB7C0F7344D28E798F9C31800EB2"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_945CFFAB6171420EA3AE1B3FAA31AF61"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\VerticalDatum.pm"
+            "TargetName" = "8:VerticalDatum.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1789,46 +2043,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_989E9C787BD24AB59E7CECE704D6EA9D"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Ellipsoid.pm"
-            "TargetName" = "8:Ellipsoid.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A6448516A37401F8047DB515F65EC7D"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\HgtCrdSys.pm"
-            "TargetName" = "8:HgtCrdSys.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A7BB315642941AEBCB320F08C5E880B"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\makelinzdefmodel.pl"
@@ -1849,12 +2063,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A13189AEFA4E4EC6B831FD0DEE2D8F9A"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\BursaWolfVelocity.pm"
+            "TargetName" = "8:BursaWolfVelocity.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A29AD8D57E304A299A5EE66E3B02FC4C"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\dumpgrid.pl"
             "TargetName" = "8:dumpgrid.pl"
             "Tag" = "8:"
             "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A332F55666DD40BC85CA5DE47E636D53"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Util\\Vector3.pm"
+            "TargetName" = "8:Vector3.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_FCA466BA30154A6F9F797CFBCF4123EF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1949,52 +2203,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AC92E80E3AA0490C8AF0F8555C85B940"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B39EB5533DCB49C9B7611B71231DFC3A"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\DMS.pm"
-            "TargetName" = "8:DMS.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\NZTopo50MapRef.pm"
+            "TargetName" = "8:NZTopo50MapRef.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFE11795F1D445E7A4B2ED64337E88FA"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\BursaWolfVelocity.pm"
-            "TargetName" = "8:BursaWolfVelocity.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B476991AFC074BA1AF2AFEA5E8C64079"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Coordinate.pm"
-            "TargetName" = "8:Coordinate.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2049,46 +2263,6 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B7A27EA39508448297AA20142F7B712C"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\NZMS1MapRef.pm"
-            "TargetName" = "8:NZMS1MapRef.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_B827E9A3400F4FF0BD6553F8EE66FF80"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CoordSysList.pm"
-            "TargetName" = "8:CoordSysList.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BB62F789CA974F9AAE1B1351A2D0F613"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Unpacker.pm"
@@ -2115,6 +2289,26 @@
             "TargetName" = "8:gisbht1926_nzvd2016_offset.bin"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BCCA083DB2D4405D9B9CC5A931F2FFCC"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\LINZDeformationModel.pm"
+            "TargetName" = "8:LINZDeformationModel.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2229,6 +2423,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C76F79FDD99243C0832D451F8C5C87A8"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\LCCProjection.pm"
+            "TargetName" = "8:LCCProjection.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C922DC61725548BD8ACB1F8F88C0D99E"
             {
             "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Time\\JulianDay.pm"
@@ -2255,26 +2469,6 @@
             "TargetName" = "8:recode.bat"
             "Tag" = "8:"
             "Folder" = "8:_23E9E3413F094B1C81C6019961B0BAED"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_CC7C3C9252924D9E88E27B17E83314F5"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\DefModelTransform.pm"
-            "TargetName" = "8:DefModelTransform.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2329,12 +2523,32 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D34A84F424CF40438027EED87BCED3A5"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D151F4B51C104BEA9AB5AD77AC4A0E01"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\GeodeticCrd.pm"
-            "TargetName" = "8:GeodeticCrd.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Projection.pm"
+            "TargetName" = "8:Projection.pm"
             "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D401DDEEA44642BBB16BEF4EBFBF4D09"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\DefModelTransform.pm"
+            "TargetName" = "8:DefModelTransform.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2375,6 +2589,26 @@
             "TargetName" = "8:GridFile.pm"
             "Tag" = "8:"
             "Folder" = "8:_9F2472EF31FC4A059CEC5AD8E1D43E3B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_D7DBACAFF6AD49C398089B81398B8B5A"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\CartesianCrd.pm"
+            "TargetName" = "8:CartesianCrd.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2489,12 +2723,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA21E843CCE145C895B082EBDA5BAC08"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EA2B374D3BBA49FD870C0EBADFF5E357"
             {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic.pm"
-            "TargetName" = "8:Geodetic.pm"
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\Util\\TrigFile.pm"
+            "TargetName" = "8:TrigFile.pm"
             "Tag" = "8:"
-            "Folder" = "8:_9F2472EF31FC4A059CEC5AD8E1D43E3B"
+            "Folder" = "8:_FCA466BA30154A6F9F797CFBCF4123EF"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2569,72 +2803,12 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EE4949CF6AF44C118B9FCCCA366DB533"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\Datum.pm"
-            "TargetName" = "8:Datum.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EFCC5E39ACE1488F9563E357FC1F2129"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snap_manager\\config\\snapscript\\crdfile.inc"
             "TargetName" = "8:crdfile.inc"
             "Tag" = "8:"
             "Folder" = "8:_C622BBEA8FAE4172BC1348CE78E249FC"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F0EE785905E149BF85616B114E40E05A"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\CartesianCrd.pm"
-            "TargetName" = "8:CartesianCrd.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-            "Condition" = "8:"
-            "Transitive" = "11:FALSE"
-            "Vital" = "11:TRUE"
-            "ReadOnly" = "11:FALSE"
-            "Hidden" = "11:FALSE"
-            "System" = "11:FALSE"
-            "Permanent" = "11:FALSE"
-            "SharedLegacy" = "11:FALSE"
-            "PackageAs" = "3:1"
-            "Register" = "3:1"
-            "Exclude" = "11:FALSE"
-            "IsDependency" = "11:FALSE"
-            "IsolateTo" = "8:"
-            }
-            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F2905B10D5CE4ED38490FA50C5BF73C8"
-            {
-            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\Geodetic\\LCCProjection.pm"
-            "TargetName" = "8:LCCProjection.pm"
-            "Tag" = "8:"
-            "Folder" = "8:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2729,6 +2903,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F7FB991F66A8491B91B0B2F3AD176E01"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\ProjectionCrd.pm"
+            "TargetName" = "8:ProjectionCrd.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F8466D5B968A4B54BF7D97515B0EDFDC"
             {
             "SourcePath" = "8:..\\..\\..\\src\\resources\\install.jpg"
@@ -2746,6 +2940,46 @@
             "PackageAs" = "3:1"
             "Register" = "3:1"
             "Exclude" = "11:TRUE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F86EC9A85F7242989BC6A8023C6692AF"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\TMProjection.pm"
+            "TargetName" = "8:TMProjection.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_FB20A242A99D424BB490EB8E78A2F8CB"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\perl\\perllib\\LINZ\\Geodetic\\CoordSys.pm"
+            "TargetName" = "8:CoordSys.pm"
+            "Tag" = "8:"
+            "Folder" = "8:_CBAA5D95D4AF412FAA57A844B19987A9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
@@ -2859,17 +3093,6 @@
                                     "Property" = "8:_E2FA9CACDF184AC49003C2FBE2F61B24"
                                         "Folders"
                                         {
-                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_1EF15FC4500E4AE9BCA4303E1E2FECA7"
-                                            {
-                                            "Name" = "8:Geodetic"
-                                            "AlwaysCreate" = "11:FALSE"
-                                            "Condition" = "8:"
-                                            "Transitive" = "11:FALSE"
-                                            "Property" = "8:_C2CB45658E694E23BCBE09EEE29D2BD3"
-                                                "Folders"
-                                                {
-                                                }
-                                            }
                                             "{9EF0B969-E518-4E46-987F-47570745A589}:_4ECB21E0F0C74BA4AB7BE2FFA201B5CB"
                                             {
                                             "Name" = "8:GPS"
@@ -2890,6 +3113,39 @@
                                             "Property" = "8:_8D347A503F0741E5881B5605F109BC9A"
                                                 "Folders"
                                                 {
+                                                }
+                                            }
+                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_B816DBB9AD5E4A628C930C6B83DFCD3E"
+                                            {
+                                            "Name" = "8:LINZ"
+                                            "AlwaysCreate" = "11:FALSE"
+                                            "Condition" = "8:"
+                                            "Transitive" = "11:FALSE"
+                                            "Property" = "8:_0CD81AA5BC494A339EEE3C282087A650"
+                                                "Folders"
+                                                {
+                                                    "{9EF0B969-E518-4E46-987F-47570745A589}:_CBAA5D95D4AF412FAA57A844B19987A9"
+                                                    {
+                                                    "Name" = "8:Geodetic"
+                                                    "AlwaysCreate" = "11:FALSE"
+                                                    "Condition" = "8:"
+                                                    "Transitive" = "11:FALSE"
+                                                    "Property" = "8:_31B056C4AED2414981012BE570C2EA7F"
+                                                        "Folders"
+                                                        {
+                                                            "{9EF0B969-E518-4E46-987F-47570745A589}:_FCA466BA30154A6F9F797CFBCF4123EF"
+                                                            {
+                                                            "Name" = "8:Util"
+                                                            "AlwaysCreate" = "11:FALSE"
+                                                            "Condition" = "8:"
+                                                            "Transitive" = "11:FALSE"
+                                                            "Property" = "8:_3EC3167E34D442B295EB639C88691FB3"
+                                                                "Folders"
+                                                                {
+                                                                }
+                                                            }
+                                                        }
+                                                    }
                                                 }
                                             }
                                         }
@@ -2993,15 +3249,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP"
-        "ProductCode" = "8:{F228D206-DF07-435F-9722-E3951096DBC8}"
-        "PackageCode" = "8:{416441D3-54D9-45DE-9DD9-F9923448E521}"
+        "ProductCode" = "8:{8CFDE281-529F-460C-9302-4DAFBB7107BC}"
+        "PackageCode" = "8:{5D2581B6-AFAA-4C8C-A6ED-F622E6F765AD}"
         "UpgradeCode" = "8:{3219AF83-83AE-414A-AE78-E25619B3120B}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.6.2"
+        "ProductVersion" = "8:2.7.1"
         "Manufacturer" = "8:Land Information New Zealand"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.linz.govt.nz"
@@ -3581,7 +3837,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_022D23B7400D4AA8A881275B7D0F2CE6"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\dat2site.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\dat2site.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3609,7 +3865,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0BFF881D74D848DA8D4D388B9DD09CFB"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapspec.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapspec.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3637,7 +3893,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_113522599DC74AD18F8C7ABFC406B2D3"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\concord.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\concord.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3665,7 +3921,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4EF1C99612D44A799AEFCB5656402AB7"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapgeoid.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapgeoid.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3693,7 +3949,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snaplist.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snaplist.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3721,7 +3977,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_848D279AE87F4FF984BFDAF0E0CF24D4"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapmerge.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapmerge.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3749,7 +4005,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_898F8D9FCE44427E83FD6D8BBC410700"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapplot.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapplot.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3777,7 +4033,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA39279D2D5C47D9960AF0B4734A442A"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapadjust.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapadjust.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3805,7 +4061,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BA5442E434F7454DA342C6C7CB2F4E4D"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snap_manager.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snap_manager.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3833,7 +4089,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD0DCF4E68D4445E9B01D4080F9BF85F"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snap.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snap.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3861,7 +4117,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_ED8B227EC3554205A6EF4092A654E66F"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\site2gps.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\site2gps.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3889,7 +4145,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F342A8E716484DC29C69D6823B517437"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapconv.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapconv.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"

@@ -17,9 +17,9 @@
 
 <p>SNAP and concord uses three types of coordinate systems.  These are 
 
-	<p class="BulletList">geocentric systems: the position is defined in a Cartesian system as X, Y, and Z coordinates.  The origin is approximately  the centre of the earth.  The X axis extends from centre to the equator on the Greenwich meridian (0 degrees longitude).  The Y axis extends from the centre to the equator at longitude 90 degrees East.  The Z axis extends from the centre through the North Pole.  Geocentric systems are not well supported by SNAP - in listing files they are always converted latitude and longitude.<br><br></p>
+	<p class="BulletList">geocentric systems: the position is defined in a Cartesian system as X, Y, and Z coordinates.  The origin is approximately  the centre of the earth.  The X axis extends from centre to the equator on the Greenwich meridian (0 degrees longitude).  The Y axis extends from the centre to the equator at longitude 90 degrees East.  The Z axis extends from the centre through the North Pole.  Geocentric systems are not well supported by SNAP - in listing files they are always converted latitude and longitude.</p>
 
-	<p class="BulletList">geodetic systems: the position is defined in terms of an ellipsoid by a latitude, longitude, and height above the ellipsoid.  The ellipsoid is centred on the origin of the underlying geocentric coordinate system.<br><br></p>
+	<p class="BulletList">geodetic systems: the position is defined in terms of an ellipsoid by a latitude, longitude, and height above the ellipsoid.  The ellipsoid is centred on the origin of the underlying geocentric coordinate system.</p>
 
 	<p class="BulletList">projection systems: the position is defined by a projection northing and easting, and a height.  The easting and northing are obtained by applying projection formulae to the latitude and longitude of the underlying geodetic system.</p>
 
@@ -27,21 +27,33 @@
 
 <p>To make the reference system useful we define a reference frame, which is a realization of a reference system.  A reference frame adds the assigned coordinates of a set of measurable points to the reference system.  We can make observations relative to these points to obtain the coordinates of other points in terms of the reference frame.</p>
 
-<p>For example, the WGS84 (World Geodetic System 1984) reference frame is implemented in terms of the coordinates of  a number of  GPS tracking stations. These are used to calculate the orbits of the GPS satellites, which in turn are used to reduce GPS survey data of other points.</p>
+<p>For example, ITRF2008 (International Terrrestrial Reference Frame 2008) is implemented in terms of the coordinates and velocities of a number of GPS tracking stations. These are used to calculate the orbits of the GPS satellites, which in turn are used to reduce GPS survey data of other points.</p>
 
 <p>In New Zealand the NZGD49 (horizontal) reference frame is defined by the coordinates of the first order stations used in the 1949 adjustment.   The vertical reference is defined by levelling from a number of tide gauges around the coast.</p>
 
 <p>In both cases more stations are used to define the reference frame than are mathematically required.  The coordinates are not perfectly consistent.  That is, you could not construct a physical reference frame to exactly match the coordinates all the stations. Differences arise because of the errors in measuring the station coordinates and because the physical positions of the stations may have changed due to earth deformation since they were observed.  This is particularly significant for the NZGD49 datum because&nbsp;
 
-	<p class="BulletList">the observations are relatively inaccurate compared to GPS and modern EDM)<br><br></p>
+	<p class="BulletList">the observations are relatively inaccurate compared to GPS and modern EDM)</p>
 
-	<p class="BulletList">the original calculation of the coordinates could not properly account for the gravity field<br><br></p>
+	<p class="BulletList">the original calculation of the coordinates could not properly account for the gravity field</p>
 
 	<p class="BulletList">there has been significant deformation since  the observations were made.</p>
 
-<p>SNAP itself requires only the ellipsoid and projection information from the coordinate system in order to do adjustments.  The location and orientation of the coordinate axes are irrelevant to its adjustments as all its calculations are done in a single system.  </p>
+<p>SNAP itself requires only the ellipsoid and projection information from the coordinate system in order to do adjustments.  The location and orientation of the coordinate axes are irrelevant to its adjustments as all its calculations are done terms of in a single coordinate system.  </p>
 
-<p>The location and orientation of the reference frame are used by concord and snapconv in order to convert coordinates between different systems and by snapgeoid to convert geoid undulations from the system they are defined in (WGS84) to the system of the coordinate file.</p>
+<p>The location and orientation of the reference frame are used by the concord and snapconv programs to convert coordinates between different systems.</p>
+
+<p>The coordinate system may also define the geoid or vertical datum which 
+defines the relationship between orthometric heights and ellipsoidal heights. This surface
+is also used to calculate deflection of the vertical at survey marks.<p>
+
+<p>Coordinate systems are identified in snap and concord by a code.  For example &quot;NZGD2000&quot; specifies the New Zealand Geodetic Datum 2000 coordinate system.  
+A vertical datum is associated with the coordinate system by appending its code to
+the coordinate system.  For example to associate the New Zealand Vertical Datum 2016 with
+the NZGD2000 coordinate system the code becomes &quot;NZGD2000/NZVD2016&quot;.  
+Vertical datums are defined in terms of a reference frame and can only be associated with
+coordinate systems in terms of the same reference frame.
+</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
@@ -49,6 +61,8 @@
 <p><a href="index.html">Coordinate systems in SNAP and concord</a></p>
 
 <p><a href="crdsys_file_format.html">Coordinate system file format</a></p>
+
+<p><a href="crdsys_hgtref_def.html">Vertical datum definition</a></p>
 
 </div>
 </body>

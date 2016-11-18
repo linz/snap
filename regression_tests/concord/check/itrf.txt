@@ -138,7 +138,7 @@ Reference frame: World Geodetic System 1984 (G1674)
 Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
   a = 6378137.000  1/f = 298.257224
 
-Compatible geoids:
+Compatible vertical datums:
   EGM96                Earth Gravitational Model 1996
 ITRF96 to WGS84_G1674
 
@@ -165,7 +165,7 @@ Reference frame: World Geodetic System 1984 (G1762)
 Ellipsoid: World Geodetic System 1984 Ellipsoid (WGS84)
   a = 6378137.000  1/f = 298.257224
 
-Compatible geoids:
+Compatible vertical datums:
   EGM96                Earth Gravitational Model 1996
 ITRF96 to WGS84_G1762
 

@@ -128,6 +128,7 @@ typedef struct
 #define NW_GEOID_HEIGHTS       1
 #define NW_DEFLECTIONS         2
 #define NW_ELLIPSOIDAL_HEIGHTS 4
+#define NW_EXPLICIT_GEOID      8
 #define NW_GEOID_INFO          (NW_GEOID_HEIGHTS | NW_DEFLECTIONS)
 #define NW_DEC_DEGREES        16
 
@@ -135,6 +136,20 @@ typedef struct
 
 #define NW_MERGEOPT_OVERWRITE 1
 #define NW_MERGEOPT_MERGECLASSES 2
+
+#define NW_HGTFIXEDOPT_DEFAULT 0
+#define NW_HGTFIXEDOPT_ELLIPSOIDAL 1
+#define NW_HGTFIXEDOPT_ORTHOMETRIC 2
+
+/* Options for reading data.  
+ *  NW_READOPT_CALCHGTREF for recalculation geoid info if coordsys defines a 
+ *                        vertical datum
+ *  NW_READOPT_GBFORMAT   for reading data using the very historic "geodetic
+ *                        branch" format
+ */
+
+#define NW_READOPT_CALCHGTREF      1 
+#define NW_READOPT_GBFORMAT       16
 
 /*------------------------------------------------------------------------
 
@@ -298,7 +313,7 @@ void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc un
 void clear_network( network *nw );
 void delete_network( network *nw );
 
-int read_network( network *nw, const char *filename, int gbformat );
+int read_network( network *nw, const char *filename, int options );
 int write_network( network *nw, const char *filename, const char *comment,
                    int coord_precision, int (*select)(station *st) );
 
@@ -306,10 +321,11 @@ int merge_network( network *base, network *data, int mergeopts,
                    int (*select)(station *code) );
 
 /* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
+ * hgtfixopt is one of the NW_HGTFIXEDOPT_ values.
  * If errmsg is not null will copy up to nsmg chars of error message to it
  */
 
-int   set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg, int nmsg );
+int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg );
 void    set_network_name( network *nw, const char *name );
 
 station * new_network_station( network *nw,
@@ -326,12 +342,42 @@ station * duplicate_network_station(  network *nw,
 void    modify_network_station_coords( network *nw, station *st, double Lat,
                                        double Lon, double Hgt );
 
+/* Calculate geoid info from a coordinate system vertical datum 
+ * for all stations.  Assumes that the coordinate system is based on the 
+ * geocentric coordinate system matching the station coordinates. */
+/* For library use only, fixed_height_type one of the NW_HGTFIXOPT... defines */
+
+int calculate_network_coordsys_geoid( network *nw, int errlevel );
+int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_height_type, int errlevel );
+
 /* set_network_geoid errlevel can be OK, no error, INFO_ERROR, or WARNING_DATA */
 /* Returns OK, INFO_ERROR, or INCONSISTENT data if some stations cannot be calculated */
 /* Returns INVALID_DATA if geoid not defined or invalid coordinate system */
 
-int set_network_geoid( network *nw, const char *geoid, int errlevel );
-int set_network_geoid_def( network *nw, geoid_def *gd, int errlevel );
+int set_network_geoid( network *nw, const char *geoid, int fixed_height_type, int errlevel );
+int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, int errlevel );
+
+/* Network has explicit geoid information? */
+
+int network_has_explicit_geoid_info( network *nw );
+int network_has_geoid_info( network *nw );
+
+/* Note: set/clear explicit geoid info do not change station geoid
+ * info, they just change the flags on the network, which will affect
+ * what information is written to a coordinate file.
+ */
+
+void set_network_explicit_geoid_info( network *nw, char geoid_opts );
+void clear_network_explicit_geoid_info( network *nw );
+
+
+/* Set the network input output height type */
+
+int network_height_coord_is_ellipsoidal( network *nw );
+void set_network_height_coord_ellipsoidal( network *nw );
+void set_network_height_coord_orthometric( network *nw );
+
+/* Read station offset definition file */
 
 int read_network_station_offsets( network *nw, const char *filename );
 

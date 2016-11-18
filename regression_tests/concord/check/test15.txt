@@ -9,7 +9,7 @@ Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 Calculated at epoch 2010.0
 
-Compatible geoids:
+Compatible vertical datums:
   NZVD09               New Zealand Geoid 2009
   OFFSET1              Offset 1
   OFFSET2              Offset 2

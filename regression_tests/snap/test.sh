@@ -1,13 +1,13 @@
 #!/bin/sh
 
 if [ -z $SNAPDIR ]; then
-SNAPDIR='/home/ccrook/projects/snap/unix/debug/install'
+SNAPDIR='../../../unix/debug/install'
 fi
 
 if [ "$1" = "-r" ]; then 
     echo "Testing release version"
     shift
-    SNAPDIR='/home/ccrook/projects/snap/unix/release/install'
+    SNAPDIR='../../../unix/release/install'
 fi
 
 # SET t=%1

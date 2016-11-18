@@ -18,51 +18,66 @@
 
 <h2>Overview</h2>
 
-<p>SNAP coordinate files can optionally
+<p>SNAP <a href="../../files/crd/index.html">coordinate files</a> can optionally
 contain information about the gravity field that SNAP can use in an
 adjustment. This information can include
 the geoid height (also called the separation or undulation) and the deflection
 of the vertical. 
 </p>
 
-<p>The height information for a station in a
-coordinate file can be one of </p>
-
-<p class="BulletList"> orthometric height</p>
-
-<p class="BulletList"> ellipsoidal height</p>
-
-<p class="BulletList"> orthometric height and geoid information</p>
-
-<p class="BulletList"> ellipsoidal height and geoid information</p>
-
-<p>snapgeoid is a program to convert between
-these options. It calculates geoid
-heights and deflections of the vertical 
-from a gridded model stored in a binary file.</p>
-
-<p>Note that in transforming and adding geoid information, the type of
-height is coordinate file specifies what is considered as the "principal"
-height, which will be preserved in the transformation.</p>
-
-<p>The geoid data file is called geoid.grd and
-is stored in the same directory as the snapgeoid program. 
-An alternative file can be specified using the -g command line option.
+<p>
+The geoid information is defined in the <a href="../../files/crd/index.htm">station coordinate file</a>.  It can be defined explicitly for each station, or implicitly in terms of a 
+vertical datum associated with the coordinate system of the station coordinate file.
+If the geoid information is defined explicitly for each station then the coordinate system 
+vertical datum is ignored.
+</p>
+<p>
+The height coordinates of stations in the geoid file are ellipsoidal heights by default.
+However they may also specified as orthometric heights.
+The orthometric heights for stations are calculated by subtracting 
+the geoid height from the ellipsoidal height. 
+If there is no geoid information, either explicit or implicit, in the station file 
+then orthometric and ellipsoidal heights are treated as being the same.
 </p>
 
-<p>Two geoid files are supplied with SNAP.  
-If the data points are in New Zealand then the New Zealand Geoid 2009 (NZGeoid09) is recommended (-g NZGeoid09). 
-This is applicable in the vicinity of New Zealand and has an accuracy of 
-about 10cm.  
-Alternatively the EGM96 model can be used, which is a global gravity model (-g EGM96).  
-The error of this model is probably of the order of 1 metre.</p>
+<p>
+snapgeoid is a program to manage the geoid and height information in a station file.  
+It can add or remove explicit geoid information for the stations, or add or remove 
+a vertical datum from the coordinate system.  It can also convert the 
+station coordinate height type between ellipsoidal and orthometric heights.
+Explicit geoid information can be calculated using a vertical datum
+defined in the <a href="../../coordsys/index.html">coordinate system definition file</a>.
+It can also be calculated from a binary format gridded <a href="../../coordsys/geoid.html">geoid model</a>.
+</p>
+
+<p>Note that when snapgeoid is changing geoid information in a coordinate file it will
+recalculate the geoid height for each station, which means recalculating the relationship
+between the orthometric and ellipsoidal heights.  Generally when snapgeoid does this it keeps
+the ellipsoidal height unaltered and updates the orthometric height.  The exceptions to this
+are: 
+</p>
+<ul>
+    <li>if the original station coordinate file has no geoid information and specifies that the heights are orthometric</li>
+    <li>if snapgeoid is run with the -p option to preserve orthometric heights.</li>
+</ul>
+<p>
+The reason for retaining the ellipsoidal height is that generally converting between orthometric height 
+systems the expectation is that the orthometric height will be changed (for example converting 
+between NZVD2009 and NZVD2016).
+</p>
+
+<p>The SNAP <a href="../../coordsys/index.html">coordinate system definition file</a> defines 
+the vertical datums that can be used by snapgeoid.  Each is reference by a code, for example &quot;NZVD2016&quot;.
+The list of vertical datums can be defined with the -v option.
+</p>
 
 <h2>Running snapgeoid</h2>
 
 <p>snapgeoid is a command line
 utility run from a DOS prompt. The syntax for the command is</p>
 
-<p class="Commanddefinition">snapgeoid [-g geoid] [-c] [-x] [-e] [-o] station_file [new_file]</p>
+<p class="Commanddefinition">snapgeoid -v</p>
+<p class="Commanddefinition">snapgeoid [-h <i>vd_code</i>|-g <i>geoid</i>|-c|-z] [<i>options</i>] station_file [new_file]</p>
 
 <p>In this command:</p>
 
@@ -83,43 +98,108 @@ the input file, but with extension ".new".</p>
 
 <table class="CommandOptions">
 <tr><td>
+<p class="Commanddefinition">-v</p></td><td><p> 
+If specified then snapgeoid will list the available vertical datum codes and exit
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-h <i>vd_code</i></p></td><td>
+<p> Specifies a vertical datum to use to calculate geoid undulations.
+Use the -v option to output a list of valid codes.
+</p>
+</td></tr>
+
+<tr><td>
 <p class="Commanddefinition">-g <i>geoid</i></p></td><td>
-<p> Specifies the geoid to use to calculate geoid undulations.
-Currently <i>geoid</i> may be "nzgeoid09" or "egm96".
+<p> Specifies a geoid file to use to calculate geoid undulations.
 </p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-c</p></td><td><p> Causes
-snapgeoid to calculate new geoid heights even if the coordinate
-file already contains geoid heights.
+<p class="Commanddefinition">-c</i></p></td><td>
+<p> Instruct snapgeoid to calculate geoid information from the coordinate system
+defined in the coordinate file.  This is only applicable if the coordinate system
+defines a vertical datum, for example &quot;NZGD2000/NZVD2016&quot;.
 </p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-x</p></td><td><p> Causes
-snapgeoid to exclude the geoid information from the output coordinate file.  
+<p class="Commanddefinition">-z</p></td><td><p> Causes
+snapgeoid to remove (zero) the geoid information from the output coordinate file.  
+If the coordinate system defines a vertical datum this will still apply.
 </p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-e</p></td><td><p> Causes
-snapgeoid to output ellipsoidal heights in the coordinate file.</p>
+<p class="Commanddefinition">-a <i>vd_code</i></p></td><td><p> Associates
+a vertical datum with the coordinate system.  The height 
+reference surface must be compatible with the coordinate system.
+If the coordinate file includes explicit geoid information then this surface 
+will not be used by other programs.  However it can be used to update the 
+geoid information with the -c option.
+</p>
 </td></tr>
 
 <tr><td>
-<p class="Commanddefinition">-o</p></td><td><p> Causes
-snapgeoid to output orthometric heights in the coordinate file.</p>
+<p class="Commanddefinition">-d</p></td><td><p> Removes the 
+vertical datum associated with the coordinate system, if any.
+The vertical datum can be used to update explicit geoid information
+using the -c option before it is removed.
+</p>
 </td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-e</p></td><td><p> sets the 
+height coordinate type to ellipsoidal heights.
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-o</p></td><td><p> 
+sets the height type to orthometric heights.
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-p</p></td><td><p> 
+sets the height type to orthometric heights and preserves orthometric heights
+when the geoid height is changed. Otherwise the ellipsoidal height is preserved, 
+except when the coordinate file does not any geoid information and the height type
+is orthometric.
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-k</p></td><td><p> instructs 
+snapgeoid to retain explicit geoid information, overriding the -h, -g, and -c
+options if the file already had explicit geoid information.
+</p>
+</td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-i</p></td><td><p> forces 
+ignore errors calculating the geoid height for specific 
+stations.  For these stations the geoid information is unaltered.
+Errors which apply to all stations, such as none existing geoid files or
+invalid vertical datum code, are still reported.
+</p>
+
+<tr><td>
+<p class="Commanddefinition">-q</p></td><td><p> reduces the 
+amount of output generated by snapgeoid.
+</p>
+
+</td></tr>
+
 </table>
 
-<p>Note that you cannot specify both the -e and -o options.  If neither
-are specified then the output coordinate file will retain the same
-height type as the input file.
+<p>Note that only one of the  -h, -g, -c, and -z options can be used.
+Similarly onl one of -e, -o, and -p is permitted.
 </p>
 <div class="SeeAlso">
 <h3>See also:</h3>
 <p><a href="../../files/crd/index.html">Coordinate files</a></p>
+<p><a href="../../coordsys/crdsys_hgtref_def.html">Vertical datum definitions</a></p>
 <p><a href="../../coordsys/geoid.html">Geoid files</a></p>
 
 

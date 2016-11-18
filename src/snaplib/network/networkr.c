@@ -33,7 +33,7 @@
 /* Reads a SNAP format file, or the very similar geodetic      */
 /* database format file.                                       */
 
-int read_network( network *nw, const char *fname, int gbformat )
+int read_network( network *nw, const char *fname, int options )
 {
     DATAFILE *stf;
     char stcode[STNCODELEN+1];
@@ -45,11 +45,14 @@ int read_network( network *nw, const char *fname, int gbformat )
     int sts, dfsts;
     char projection_coords;
     char geocentric_coords;
-    char options;
+    char file_options;
+    char height_type_set;
     char degrees;
     int nclass;
     int *clsids;
     int i;
+    int gbformat=options & NW_READOPT_GBFORMAT;
+    int recalc_geoid=options & NW_READOPT_CALCHGTREF;
     coordsys *cs;
 
     dfsts = OK;
@@ -82,17 +85,19 @@ int read_network( network *nw, const char *fname, int gbformat )
         return INVALID_DATA;
     }
 
-    set_network_coordsys( nw, cs, 0.0, 0, 0 );
+    set_network_coordsys( nw, cs, 0.0, 0, 0, 0 );
     delete_coordsys( cs );
     nw->crdsysdef = copy_string( inrec );
     projection_coords = is_projection( nw->crdsys );
     geocentric_coords = is_geocentric( nw->crdsys );
 
+    file_options = 0;
+    height_type_set = 0;
+
     /* If geodetic branch format then skip over comments section */
 
     if( gbformat )
     {
-        options = 0;
         df_skip_to_blank_line( stf );
         df_read_data_file( stf );
     }
@@ -109,12 +114,12 @@ int read_network( network *nw, const char *fname, int gbformat )
         if( _stricmp(inrec,"options") == 0 || _stricmp(inrec,"no_geoid") == 0 ) options_record = 1;
         if( _stricmp(inrec,"options") == 0 )
         {
-            options = 0;
+            file_options = 0;
         }
         else
         {
             /* Previous version used default options of NW_GEOID_HEIGHTS and NW_UNDULATIONS */
-            options = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
+            file_options = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
             df_reread_field( stf );
         }
 
@@ -124,39 +129,41 @@ int read_network( network *nw, const char *fname, int gbformat )
             {
                 if( _stricmp(inrec,"no_geoid") == 0 )
                 {
-                    options &=  ~NW_GEOID_INFO;
+                    file_options &=  ~NW_GEOID_INFO;
                 }
                 else if( _stricmp(inrec,"geoid") == 0 )
                 {
-                    options |= NW_GEOID_INFO;
+                    file_options |= NW_GEOID_INFO;
                 }
                 else if( _stricmp(inrec,"geoid_heights") == 0 )
                 {
-                    options |= NW_GEOID_HEIGHTS;
+                    file_options |= NW_GEOID_HEIGHTS;
                 }
                 else if( _stricmp(inrec,"no_geoid_heights") == 0 )
                 {
-                    options &= ~NW_GEOID_HEIGHTS;
+                    file_options &= ~NW_GEOID_HEIGHTS;
                 }
                 else if( _stricmp(inrec,"deflections") == 0 )
                 {
-                    options |= NW_DEFLECTIONS;
+                    file_options |= NW_DEFLECTIONS;
                 }
                 else if( _stricmp(inrec,"no_deflections") == 0 )
                 {
-                    options &= ~ NW_DEFLECTIONS;
+                    file_options &= ~ NW_DEFLECTIONS;
                 }
                 else if (_stricmp(inrec,"ellipsoidal_heights") == 0 )
                 {
-                    options |= NW_ELLIPSOIDAL_HEIGHTS;
+                    height_type_set=1;
+                    file_options |= NW_ELLIPSOIDAL_HEIGHTS;
                 }
                 else if (_stricmp(inrec,"orthometric_heights") == 0 )
                 {
-                    options &= ~NW_ELLIPSOIDAL_HEIGHTS;
+                    height_type_set=1;
+                    file_options &= ~NW_ELLIPSOIDAL_HEIGHTS;
                 }
                 else if( _stricmp( inrec, "degrees" ) == 0 )
                 {
-                    options |= NW_DEC_DEGREES;
+                    file_options |= NW_DEC_DEGREES;
                 }
                 else if( strlen(inrec) > 2 && _strnicmp( inrec, "c=", 2) == 0 )
                 {
@@ -180,19 +187,39 @@ int read_network( network *nw, const char *fname, int gbformat )
                     }
                     break;
                 }
+                if( file_options & NW_GEOID_INFO ) 
+                {
+                    file_options |= NW_EXPLICIT_GEOID;
+                    recalc_geoid=0;
+                }
             }
 
             df_read_data_file( stf );
         }
     }
 
+    /* If height type not explicitly defined then orthometric if have geoid info else
+     * depends on height type of the coordinate system */
+
+    if( ! height_type_set && ! file_options & NW_GEOID_HEIGHTS )
+    {
+        if( coordsys_heights_orthometric(nw->crdsys) ) 
+        {
+            file_options &= ~NW_ELLIPSOIDAL_HEIGHTS;
+        }
+        else
+        {
+            file_options |= NW_ELLIPSOIDAL_HEIGHTS;
+        }
+    }
+
     /* Geocentric coordinates always have ellipsoidal heights */
 
-    if( geocentric_coords ) options |= NW_ELLIPSOIDAL_HEIGHTS;
-    nw->options = options;
+    if( geocentric_coords ) file_options |= NW_ELLIPSOIDAL_HEIGHTS;
 
     /* Now on to the station coordinates themselves */
 
+    nw->options = file_options;
     nw->stnlist = new_station_list();
     xi = 0.0;
     eta = 0.0;
@@ -202,7 +229,7 @@ int read_network( network *nw, const char *fname, int gbformat )
     hgt = 0.0;
     easting = 0.0;
     northing = 0.0;
-    degrees = options & NW_DEC_DEGREES;
+    degrees = file_options & NW_DEC_DEGREES;
     nclass = network_classification_count(nw);
     clsids = 0;
     if( nclass ) clsids = (int *) check_malloc( (nclass+1) * sizeof(int));
@@ -258,17 +285,17 @@ int read_network( network *nw, const char *fname, int gbformat )
             }
         }
 
-        if( sts && options & NW_DEFLECTIONS )
+        if( sts && file_options & NW_DEFLECTIONS )
         {
             sts = df_read_double( stf, &xi ) && df_read_double( stf, &eta );
             xi = xi*DTOR/3600.0;
             eta = eta*DTOR/3600.0;
         }
 
-        if( sts && options & NW_GEOID_HEIGHTS )
+        if( sts && file_options & NW_GEOID_HEIGHTS )
         {
             sts = df_read_double( stf, &und );
-            if( options & NW_ELLIPSOIDAL_HEIGHTS ) hgt -= und;
+            if( file_options & NW_ELLIPSOIDAL_HEIGHTS ) hgt -= und;
         }
 
         if( sts && nclass > 0 )
@@ -316,6 +343,12 @@ int read_network( network *nw, const char *fname, int gbformat )
     if( clsids ) check_free( clsids );
 
     df_close_data_file( stf );
+
+    /* If recalculating geoid info then do so without raising errors */
+    if( recalc_geoid & coordsys_heights_orthometric(nw->crdsys) )
+    {
+        calculate_network_coordsys_geoid( nw, OK );
+    }
 
     return dfsts;
 }

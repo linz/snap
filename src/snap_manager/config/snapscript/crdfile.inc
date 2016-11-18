@@ -53,11 +53,13 @@ function CoordFileCoordSys()
     $x=ReadFile($coordinate_file,'\S',5)
     $c=Match($x,'\n\s*(\S+)',1)
     $d=Match($x,'(?i)\n\s*options\s+(?:.*\s)?(degrees)(?:\s|$)',1)
-    if $d == '' then $d='dms' endif
-    return $c,$d
+    $e=Match($x,'(?i)\n\s*options\s+(?:.*\s)?(ellipsoidal_heights)(?:\s|$)',1)
+    if $d == '' then $d='dms' else $d='degrees' endif
+    if $e == '' then $e='orthometric' else $e='ellipsoidal' endif
+    return $c,$d,$e
 end_function
 
-function SetCoordFileCoordSys( $coordsys, $convdate, $degformat )
+function SetCoordFileCoordSys( $coordsys, $convdate, $degformat, $hgttype, $porth )
     $backupfile = BackupCoordinateFile($coordinate_file)
     $relname = Filename($coordinate_file,"relative",$job_path)
     if not $backupfile then 
@@ -66,7 +68,11 @@ function SetCoordFileCoordSys( $coordsys, $convdate, $degformat )
     if $convdate != "" then $convdate="-y $convdate" endif
     $degopt='-h'
     if $degformat == 'degrees' then $degopt='-d' endif
-    $output = debuglogrun("\"$snap_path/snapconv\" $convdate $degopt \"$backupfile\" $coordsys \"$coordinate_file\"")
+    $hgtopt='-e'
+    if $hgttype == 'orthometric' then $hgtopt='-o' endif
+    $porthopt=''
+    if $porth then $porthopt='-p' endif
+    $output = debuglogrun("\"$snap_path/snapconv\" $convdate $porthopt $hgtopt $degopt \"$backupfile\" $coordsys \"$coordinate_file\"")
     $output = "$output"
     $result=false
     if $output == "true" then $output = ""  $result=true endif
@@ -82,10 +88,13 @@ end_function
 
 function ChangeCoordinateSystem()
     if not CheckCoordinateFile(true) then exit endif
-    $coordsys,$degformat=CoordFileCoordSys()
+    $coordsyscode,$degformat,$hgttype=CoordFileCoordSys()
+    $coordsys,$vrtsys=MatchGroups($coordsyscode,'^(\w+)(?:\/(\w+))?$')
 
     $relname = Filename($coordinate_file,"relative",$job_path)
     
+    $hgtrefs="\n\nNone".$heightref_list
+    $porth=false
     # Would be much nicer if knew what it is in coordinate file
     $convdate=""
     dialog "Change coordinate system"
@@ -93,18 +102,26 @@ function ChangeCoordinateSystem()
        label "Coordinate file: $relname"
        spacer
        dropdown_selector $coordsys "Select the new coordinate system" $coordsys_list
+       dropdown_selector $vrtsys "Select the orthometric vertical datum" $hgtrefs
        spacer 
        textbox $convdate "Conversion epoch (if required, YYYY-MM-DD)" '10:1:~0123456789:/-~^((19|20)\d\d([-/:])[01]\d\3[0123]\d)?$~Date must be formatted as YYYY-MM-DD'
        spacer 
+       new_row
+       radio_selector $hgttype "Height coordinate type: " "~ellipsoidal~Ellipsoidal~orthometric~Orthometric"
+       new_column
        radio_selector $degformat "Angle format: " "~degrees~Decimal degrees~dms~Deg/Min/Sec"
+       new_row
+       checkbox $porth "Keep orthometric heights unchanged"
        validator
-           $result,$message=SetCoordFileCoordSys($coordsys,$convdate,$degformat)
-	   if $result then 
-	   	Log($message)
-	   else
-	   	Message($message,"Error")
-	   endif
-	   return $result
+           $coordsyscode=$coordsys
+           if $vrtsys then $coordsyscode="$coordsys/$vrtsys" endif
+           $result,$message=SetCoordFileCoordSys($coordsyscode,$convdate,$degformat,$hgttype,$porth)
+           if $result then 
+           	Log($message)
+           else
+           	Message($message,"Error")
+           endif
+           return $result
     end_dialog
 end_function
 
@@ -118,25 +135,64 @@ function AddGeoidHeights()
     $geoidlist=$geoidlist.'~none~Remove geoid heights'
     
     # Would be much nicer if knew what it is in coordinate file
-    $geoid = "nzgeoid2016"
+    $hrs="none"
+    $geoid="none"
+    $gfile=""
+    $keeporth=false
+    $hgtopts=Replace($heightref_list,'\n','~')
     dialog "Add geoid heights and deflections"
-       label "Add geoid heights and deflections to the station file"
+       label "Calculate and add geoid heights and deflections to the station file"
+       label "The geoid can also set with the coordinate system, or in the snap command file"
+       spacer
        label "Coordinate file: $relname"
        spacer
-       radio_selector $geoid "Select the geoid to use" $geoidlist
+       radio_selector $geoidopt "Geoid calculation option" 
+          "~calchrs~Calculate geoid from reference surface".
+          "~calcgeoid~Calculate geoid from gridded geoid model". 
+          "~calcgfile~Calculate geoid from geoid model file". 
+          "~zero~Remove geoid and deflections from coordinate file"
+       dropdown_selector $hrs "Vertical datum" "~none~".$hgtopts
+       dropdown_selector $geoid "Gridded geoid model" "~none~".$_geoids
+       open_file_selector $gfile "Gridded geoid model file" "Grid files (*.grd)|*.grd|All files (*.*)|*.*"
+       checkbox $keeporth "Keep orthometric heights unchanged"
+       validator
+       if $geoidopt == "calchrs" and $hrs == "none" then
+           Message("You must select a reference surface to use","Error")
+       elseif $geoidopt == "calcgeoid" and $geoid == "none" then
+           Message("You must select a geoid model","Error")
+       elseif $geoidopt == "calcgfile" and $gfile == "none" then
+           Message("You must select a geoid model file","Error")
+       else
+           return true
+       endif
+       return false
     end_dialog
     $backupfile = BackupCoordinateFile($coordinate_file)
     if not $backupfile then 
        message("Could not create backup file of $relname","Error")
        exit
     endif
-   $geoidopt="-c -g $geoid"
-   if $geoid == "none" then $geoidopt="-x" endif
-   $output = debuglogrun("\"$snap_path/snapgeoid\" $geoidopt \"$backupfile\" \"$coordinate_file\"")
-   if $geoid == "none" then
-   	log("\nGeoid heights removed from $relname")
+   $options=""
+   $source=""
+   if $geoidopt == "calchrs" then
+      $options="-h $hrs"
+      $source=Replace($hgtopts,'.*\~'.$hrs.'\~([^\~]*).*','\1')
+   elseif $geoidopt == "calcgeoid" then
+      $options="-g $geoid"
+      $source=$geoid
+   elseif $geoidopt == "calcgfile" then
+      $options="-g $gfile"
+      $source=$gfile
+   elseif $geoidopt == "zero" then
+      $options="-z"
+   endif
+   $orthopt=""
+   if $keeporth then $orthopt="-p" endif
+   $output = debuglogrun("\"$snap_path/snapgeoid\" $options $orthopt \"$backupfile\" \"$coordinate_file\"")
+   if $geoidopt == "zero" then
+           log("\nGeoid heights removed from $relname")
    else
-   	log("\nGeoid heights from $geoid added to $relname")
+           log("\nGeoid heights from $source added to $relname")
    endif
 end_function
 

@@ -16,7 +16,7 @@ Projection: Transverse Mercator
   False northing             800000.000
   Unit to metres conversion  1.000000
 
-Compatible geoids:
+Compatible vertical datums:
   NZVD09               New Zealand Vertical Datum 2009
   NZVD2016             New Zealand Vertical Datum 2016
   AUCKHT1946           Auckland 1946 (NZVD2016)

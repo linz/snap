@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapgeoid\sngeoid.c">
+    <ClCompile Include="..\..\..\src\snapgeoid\snapgeoid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snapgeoid\versioninfo.c">

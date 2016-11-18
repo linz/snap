@@ -18,25 +18,29 @@
 
 <h1>snapconv - changing coordinate systems</h1>
 
-<p>snapconv converts SNAP coordinate files from one coordinate
+<p>snapconv converts <a href="../../files/crd/index.html">SNAP coordinate files</a> from one coordinate
 system to another. The syntax for snapconv is:</p>
 
-<p class="Commanddefinition">snapconv [options] input_file new_code output_file</p>
+<p class="Commanddefinition">snapconv [options] <i>input_file</i> <i>new_code</i> <i>output_file</i></p>
 
 <p>where</p>
 
 <table class="CommandOptions">
 <tr><td>
-<p class="Commanddefinition">input_file</p></td><td><p> is
+        <p class="Commanddefinition"><i>input_file</i></p></td><td><p> is
 the name of the coordinate file to be converted</p>
 </td></tr><tr><td>
 
-<p class="Commanddefinition">new_code</p></td><td><p> is the
+        <p class="Commanddefinition"><i>new_code</i></p></td><td><p> is the
 code for the coordinate system of the output file. This is one of the codes defined in the
-coordinate system definition file (see the SNAP users
-manual for more information)</p>
+<a href="../../coordsys/index.html">coordinate system definition file</a>.
+This can include the code for a vertical datum defining the geoid height
+and deflections of the vertical (for example NZGD2000/NZVD2016).  Note that if the 
+coordinate file includes explicit geoid information then the coordinate system
+vertical datum has no effect.
+</p>
 </td></tr><tr><td>
-<p class="Commanddefinition">output_file</p></td><td><p> is the
+        <p class="Commanddefinition"><i>output_file</i></p></td><td><p> is the
 name of the output file to be created</p>
 </td></tr>
 </table>
@@ -50,15 +54,30 @@ name of the output file to be created</p>
 </td></tr><tr><td>
 <p class="Commanddefinition">-h</p></td><td><p> output latitude and longitude as degrees, minutes, and seconds</p>
 </td></tr><tr><td>
+<p class="Commanddefinition">-e</p></td><td><p> set the height coordinate type to ellipsoidal</p>
+</td></tr><tr><td>
+<p class="Commanddefinition">-o</p></td><td><p> set the height coordinate tyep to orthometric</p>
+</td></tr><tr><td>
+<p class="Commanddefinition">-p</p></td><td><p> keeps the orthometric height unchanged when the geoid height is 
+changed.  The default is to keep the 3 dimensional ellipsoidal location unchanged except when the coordinate file
+does not include geoid information (either from the coordinate system or explicitly) and the coordinate
+type is orthometric.</p>
+</td></tr><tr><td>
 <p class="Commanddefinition">-q</p></td><td><p> quiet mode - even less output</p>
 </td></tr>
 </table>
 <p>snapconv will convert the coordinates and
-also the geoid information in the file (deflections and geoid height). Orthometric heights
-are not changed by snapconv.</p>
+also the geoid information in the file (deflections and geoid height). 
+The geoid information may also be changed by including or removing a height 
+reference surface in the new coordinate system.  Note that the 
+<a href="../snapgeoid/index.html">snapgeoid</a> program can be used for 
+managing height information in the coordinate file.
+</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
+<p><a href="../../files/crd/index.html">SNAP station coordinate files</a></p>
+<p><a href="../snapgeoid/index.html">The snapgeoid program</a></p>
 <p><a href="../../coordsys/index.html">Coordinate systems in SNAP</a></p>
 </div>
 </body>

@@ -99,7 +99,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapgeoid\sngeoid.c" />
+    <ClCompile Include="..\..\..\src\snapgeoid\snapgeoid.c" />
     <ClCompile Include="..\..\..\src\snapgeoid\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>

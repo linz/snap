@@ -58,6 +58,12 @@ int default_error_handler( int sts, const char *mess1, const char *mess2 )
     return sts;
 }
 
+int null_error_handler( int sts, const char *mess1, const char *mess2 )
+{
+    if( ! FATAL_ERROR_CONDITION( sts ) ) return sts;
+    return default_error_handler( sts, mess1, mess2 );
+}
+
 int handle_error( int sts, const char *mess1, const char *mess2 )
 {
     if (! REPORTABLE_ERROR(sts) ) return sts;

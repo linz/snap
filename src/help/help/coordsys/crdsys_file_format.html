@@ -14,16 +14,16 @@
 <h1><a name="crdsys_file_format"></a>Coordinate system file format</h1>
 
 <p>The coordinate system definition file (coordsys.def) consists of 
-three sections defining
+four sections defining
 
 <ul>
-	<li><a href="crdsys_ellipsoid_def.html">ellipsoids</a><br><br></li>
+	<li><a href="crdsys_ellipsoid_def.html">ellipsoids</a></li>
 
-	<li><a href="crdsys_refframe_def.html">reference frames</a><br><br></li>
+	<li><a href="crdsys_refframe_def.html">reference frames</a></li>
 
 	<li><a href="crdsys_crdsys_def.html">coordinate systems</a></li>
 
-	<li><a href="crdsys_hgtref_def.html">height reference surfaces</a></li>
+	<li><a href="crdsys_hgtref_def.html">vertical_datums</a></li>
 </ul>
 
 <p>Each section is starts with the name of the section enclosed in square brackets, e.g. [reference_frames].  Within each section are a number of definitions, one per line.  For coordinate systems the definitions can be quite long.  They may be extended over more than one line by ending each incomplete line with an ampersand (&amp;).</p>
@@ -41,8 +41,8 @@ three sections defining
 [coordinate_systems]
 <i>coordinate system definitions</i>
 
-[height_reference_surfaces]
-<i>height reference surface definitions</i>
+[vertical_datums]
+<i>vertical datum definitions</i>
 </code></pre>
 
 <p>
@@ -73,7 +73,7 @@ This is defined in sections
 
 <p><a href="crdsys_crdsys_def.html">Coordinate system definition format</a></p>
 
-<p><a href="crdsys_hgtref_def.html">Height reference surface definition format</a></p>
+<p><a href="crdsys_hgtref_def.html">Vertical datum definition format</a></p>
 
 <p><a href="crdsys_file_notes.html">Coordinate system notes format</a></p>
 

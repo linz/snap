@@ -266,7 +266,7 @@ void SnapCsvStn::loadRecord()
         }
         else
         {
-            set_network_coordsys( _net, _cs, 0.0, 0, 0 );
+            set_network_coordsys( _net, _cs, 0.0, 0, 0, 0 );
             _projection = (bool) is_projection( _net->crdsys );
             _geocentric = (bool) is_geocentric( _net->crdsys );
         }
@@ -402,8 +402,8 @@ void SnapCsvStn::terminateLoadData()
     if( _dataError ) { return; }
     _net->options = 0;
     if( _ellipsoidalHeights ) _net->options += NW_ELLIPSOIDAL_HEIGHTS;
-    if( _geoidDefined ) _net->options += NW_GEOID_HEIGHTS;
-    if( _deflectionDefined ) _net->options += NW_DEFLECTIONS;
+    if( _geoidDefined ) _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
+    if( _deflectionDefined ) _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
     _net->options += NW_DEC_DEGREES;
 }
 

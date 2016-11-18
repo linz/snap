@@ -29,15 +29,8 @@
 /* may be NULL.  Input are treated as 0,0,0 - output are ignored.      */
 
 
-int define_coord_conversion( coord_conversion *conv,
-                             coordsys *from, coordsys *to )
-{
-    return define_coord_conversion_epoch( conv, from, to, 0.0 );
-}
-
-
-int define_coord_conversion_epoch( coord_conversion *conv,
-                                   coordsys *from, coordsys *to, double convepoch )
+static int define_coord_conversion_base( coord_conversion *conv,
+    coordsys *from, coordsys *to, double convepoch, int ellipsoidal )
 {
 
     char conv_el;
@@ -207,18 +200,18 @@ int define_coord_conversion_epoch( coord_conversion *conv,
     conv->from_geoc = is_geocentric(from);
     conv->to_geoc = is_geocentric(to);
 
-    /* Handle height references */
+    /* Handle vertical datums */
 
-    if( from->hrs || to->hrs )
+    if( ! ellipsoidal && (from->hrs || to->hrs) )
     {
         int nhrf_from=0;
         int nhrf_to=0;
-        height_ref *fhrs;
-        height_ref *thrs;
+        vdatum *fhrs;
+        vdatum *thrs;
         for( fhrs=from->hrs; fhrs; fhrs=fhrs->basehrs ) nhrf_from++;
         for( thrs=to->hrs; thrs; thrs=thrs->basehrs ) nhrf_to++;
 
-        /* If have height ref conversion on from and to, and identical
+        /* If have vertical datum conversion on from and to, and identical
          * reference frames, then see if we can reduce the number of 
          * steps */
 
@@ -234,7 +227,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
             while( nhrff > 0 )
             {
                 nhrff--;
-                if( ! identical_height_ref_func( fhrs->func, thrs->func ) ) nmin=nhrff;
+                if( ! identical_vdatum_func( fhrs->func, thrs->func ) ) nmin=nhrff;
                 fhrs=fhrs->basehrs;
                 thrs=thrs->basehrs;
             }
@@ -246,7 +239,7 @@ int define_coord_conversion_epoch( coord_conversion *conv,
         {
             conv->valid=0;
             sprintf(conv->errmsg,
-                    "Conversion between height reference surfaces %.20s and %.20s is too complex (> %d steps)",
+                    "Conversion between vertical datums %.20s and %.20s is too complex (> %d steps)",
                     from->hrs ? from->hrs->code : "ellipsoid", 
                     to->hrs ? to->hrs->code : "ellipsoid", 
                     CONVMAXRF );
@@ -265,6 +258,24 @@ int define_coord_conversion_epoch( coord_conversion *conv,
 
     if( ! conv->valid ) return INVALID_DATA;
     return OK;
+}
+
+int define_coord_conversion( coord_conversion *conv,
+                             coordsys *from, coordsys *to )
+{
+    return define_coord_conversion_base( conv, from, to, 0.0, 0 );
+}
+
+int define_coord_conversion_epoch( coord_conversion *conv,
+    coordsys *from, coordsys *to, double convepoch )
+{
+    return define_coord_conversion_base( conv, from, to, convepoch, 0 );
+}
+
+int define_ellipsoidal_coord_conversion_epoch( coord_conversion *conv,
+    coordsys *from, coordsys *to, double convepoch )
+{
+    return define_coord_conversion_base( conv, from, to, convepoch, 1 );
 }
 
 static int check_crdsys_range( coordsys *cs, double llh[3] )
@@ -315,6 +326,23 @@ int convert_coords( coord_conversion *conv,
                                            xyz[CRD_EAST], xyz[CRD_NORTH], xyz+CRD_LON, xyz+CRD_LAT );
     isgeoc = conv->from_geoc;
 
+    if( sts == OK && conv->nhrf_from )
+    {
+        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
+        for( int i=0; sts==OK && i<conv->nhrf_from; i++ )
+        {
+            double offset;
+            sts=calc_vdatum_func( conv->hrf[i], xyz, &offset, 0 );
+            xyz[CRD_HGT] += offset;
+        }
+        if( sts != OK )
+        {
+            sprintf(conv->errmsg,
+                 "Cannot calculate %s height",
+                                    conv->from->hrs->code);
+        }
+    }
+
     /* Convert the undulation to orthometric height, and convert the
      deflections to astronomical lats, longs */
 
@@ -324,23 +352,6 @@ int convert_coords( coord_conversion *conv,
         gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
         gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
         gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
-    }
-
-    if( sts == OK && conv->nhrf_from )
-    {
-        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
-        for( int i=0; sts==OK && i<conv->nhrf_from; i++ )
-        {
-            double offset;
-            sts=calc_height_ref_func( conv->hrf[i], xyz, &offset, 0 );
-            xyz[CRD_HGT] += offset;
-        }
-        if( sts != OK )
-        {
-            sprintf(conv->errmsg,
-                 "Cannot calculate %s height",
-                                    conv->from->hrs->code);
-        }
     }
 
     if( conv->need_xyz && ! isgeoc )
@@ -439,14 +450,27 @@ int convert_coords( coord_conversion *conv,
         }
     }
 
+    /* Recompute the deflections etc */
+    if( sts == OK && geoid )
+    {
+        if( geoid )
+        {
+            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
+            gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
+            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
+            gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
+        }
+    }
+
+    /* If output coordinates are on orthometric surface */
+
     if( sts == OK && conv->nhrf_to )
     {
-        int stshrf=OK;
         if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
         for( int i=0; sts==OK && i<conv->nhrf_to; i++ )
         {
             double offset;
-            sts=calc_height_ref_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, 0 );
+            sts=calc_vdatum_func( conv->hrf[conv->nhrf_from+i], xyz, &offset, 0 );
             xyz[CRD_HGT] -= offset;
         }
         if( sts != OK )
@@ -457,21 +481,11 @@ int convert_coords( coord_conversion *conv,
         }
     }
 
+    /* Check that the points lie within a valid range for the coordinate
+       system */
+
     if( sts == OK )
     {
-        /* Recompute the deflections etc */
-
-        if( geoid )
-        {
-            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
-            gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
-            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
-            gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
-        }
-
-        /* Check that the points lie within a valid range for the coordinate
-         system */
-
         if( to->gotrange && to->rf->el )
         {
             if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }

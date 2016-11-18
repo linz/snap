@@ -160,6 +160,8 @@ if FileExists($errorfile) then
    if Ask("There were errors in the job\r\nDo you want to see the error file?","Errors") then
       Start($_editor,$errorfile)
    endif
+elseif not FileExists($resultfile) then
+   Message("Something went wrong!")
 else
    Message("The job completed successfully")
 endif

@@ -44,6 +44,7 @@ private:
     void AddSnapDirToPath();
     bool RemoveDirectory( const wxString &dirpath );
     wxString &GetCoordSysList();
+    wxString &GetHeightRefList();
     // GetMenuItem - creates parents if parent is not null
     wxMenuItem *GetMenuItem( const wxString &name, wxMenu **parent=0, bool createParents=false );
     wxMenuItem *GetMenuItemByLabel( wxMenu *menu, const wxString &label, bool wantSubMenu );
@@ -53,6 +54,7 @@ private:
     Scripter::Script *script;
     SnapJob *job;
     wxString coordsyslist;
+    wxString heightreflist;
     wxString scriptPath;
     wxString userScriptPath;
     wxArrayString tmpFiles;

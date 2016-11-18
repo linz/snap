@@ -34,12 +34,12 @@ specifies the reference frame, ellipsoid, and projection that is used. This
 is a simple text file and can be readily edited to include additional coordinate
 systems.</p>
 
-<p>The coordinate system file also defines height reference surfaces that may 
+<p>The coordinate system file also defines vertical datums that may 
 be used to define height coordinates.  These are either geoid surfaces, or local
 vertical datum surfaces defined as offsets from the geoid surface.</p>
 
 <p>Conversions between ellipsoidal and
-orthometric height are done by defining the height reference surface to use 
+orthometric height are done by defining the vertical datum to use 
 with the coordinate system, for example NZGD2000/NZVD2016.
 </p>
 
@@ -70,9 +70,9 @@ will need to be used (-g egm96).
 
 <p>to list the available coordinate systems (if no code is supplied) or to describe one or more coordinates systems.</p>
 
-<p class="Commanddefinition">concord -r 
+<p class="Commanddefinition">concord -v 
 
-<p>to list the available height reference surfaces.</p>
+<p>to list the available vertical datums.</p>
 
 <p>The two parameters that can be specified
 are:</p>
@@ -289,10 +289,10 @@ the deformation applying at that date, rather than in terms of the reference coo
 for the deformation model.
 </p>
 
-<p>The code can also define the reference surface for heights by appending the height reference surface
+<p>The code can also define the reference surface for heights by appending the vertical datum
 code to the coordinate system definition after a &quot;/&quot; character.  For example
 NZGD2000/NZVD2016 specifies New Zealand Geodetic Datum 2000 coordinates with heights in terms of New Zealand
-Vertical Datum 2016.  Use &quot;concord -r&quot; to list the available height reference surfaces.
+Vertical Datum 2016.  Use &quot;concord -v&quot; to list the available vertical datums.
 </p>
 
 <p>The second item defines the order of the
@@ -301,7 +301,7 @@ string in which each character defines one of the coordinates in the file. The
 first two must be characters must be EN (easting/longitude followed by
 northing/latitude) or NE (northing/latitude followed by easting/longitude).
 The third character specifies the height and can be H for ellipsoidal height or
-O for orthometric height. If a height reference surface has been specified then
+O for orthometric height. If a vertical datum has been specified then
 orthometric heights are assumed.  Otherwise if orthometric heights are specified then
 a geoid must be defined with the -g option.  If no heights are specified then the
 height is equivalent to an ellipsoidal height of 0.</p>

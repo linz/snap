@@ -1,0 +1,11 @@
+Karori coordinates updated 7 March 2007
+NZGD2000
+options ellipsoidal_heights deflections geoid_heights station_orders
+! Geoid undulations from New Zealand Geoid 2009 (NZGeoid09)
+
+!Code       Latitude          Longitude        Ell.Hgt    Xi   Eta   G.Hgt Order Name
+BB3L   45 17 15.937966 N 168 43 26.475812 E    153.661   0.0   0.0   0.000 3     SS 7K 22 SO 30955
+BDQ7   41 16 40.896358 N 174 43 41.184258 E    290.159   0.0   0.0   0.000 4     RM IV DP 67708
+BDQ8   38 17 02.387195 N 178 44 25.000975 E    181.487   0.0   0.0   0.000 4     SS 6K18 SO 32647
+BDQ9   38 17 27.761635 S 171 44 53.391243 E    257.596  -6.8  -2.7  23.805 4     SS 3J26 SO 32645
+TEST   40 00 00.000000 S 170 00 00.000000 E      0.000  -7.1   1.2  19.161 4     Test

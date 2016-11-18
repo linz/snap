@@ -28,7 +28,7 @@
 
 #define COMMENT_CHAR '!'
 
-static int convert_stn_coords( coord_conversion *ccv, station *st, int testonly )
+static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt, int testonly )
 {
     double llh[3], xeu[3];
     int sts;
@@ -51,20 +51,30 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int testonly 
     st->GEta = xeu[CRD_LON];
     st->GUnd = xeu[CRD_HGT];
 
+    if( hgtfixopt == NW_HGTFIXEDOPT_ORTHOMETRIC )
+    {
+        llh[CRD_HGT]=st->OHgt;
+    }
+    else
+    {
+        llh[CRD_HGT] -= st->GUnd;
+    }
+
     /* Update the station components that are defined in terms of the
        ellipsoid */
 
-    modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], st->OHgt, ccv->to->rf->el );
+    modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT], ccv->to->rf->el );
     return OK;
 
 }
 
 
-int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg, int nmsg )
+int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg )
 {
     coordsys *geosys, *csold;
     coord_conversion cconv;
     station *st;
+    int explicit_geoid=network_has_explicit_geoid_info(nw);
 
     /* If we already have a coordinate system and some stations defined,
        then we need to transform the stations from the input system to
@@ -81,6 +91,17 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg,
         if( nw->stnlist )
         {
             int sts;
+            if( hgtfixopt == NW_HGTFIXEDOPT_DEFAULT )
+            {
+                if( network_height_coord_is_ellipsoidal(nw))
+                {
+                    hgtfixopt=NW_HGTFIXEDOPT_ELLIPSOIDAL;
+                }
+                else
+                {
+                    hgtfixopt=NW_HGTFIXEDOPT_ORTHOMETRIC;
+                }
+            }
             sts=define_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch );
 
             /* Trial conversion to check coordinates can be converted */
@@ -88,7 +109,7 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg,
             reset_station_list( nw, 0 );
             while( sts == OK && NULL != (st = next_station(nw)) )
             {
-                sts=convert_stn_coords( &cconv, st, 1 );
+                sts=convert_stn_coords( &cconv, st, hgtfixopt, 1 );
                 if( sts != OK ) break;
             }
 
@@ -105,10 +126,20 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg,
 
             /* If all OK, then actually convert coordinates */
 
+            if( ! explicit_geoid && coordsys_heights_orthometric( csold ) )
+            {
+                calculate_network_coordsys_geoid( nw, OK );
+            }
+
             reset_station_list( nw, 0 );
             while( NULL != (st = next_station(nw)) )
             {
-                sts=convert_stn_coords( &cconv, st, 0 );
+                sts=convert_stn_coords( &cconv, st, hgtfixopt, 0 );
+            }
+
+            if( ! explicit_geoid && coordsys_heights_orthometric(cs) )
+            {
+                calc_station_geoid_info_from_coordsys( nw, cs, hgtfixopt, OK );
             }
         }
 
@@ -122,7 +153,7 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, char *errmsg,
     define_coord_conversion( &nw->ccnet, nw->geosys, nw->crdsys );
 
     if( nw->crdsysdef ) check_free(nw->crdsysdef);
-    nw->crdsysdef = copy_string( cs->code );
+    nw->crdsysdef = copy_string( coordsys_load_code(cs) );
 
     return OK;
 }
@@ -198,7 +229,6 @@ station * duplicate_network_station( network *nw,
 void modify_network_station_coords( network *nw, station *st, double Lat,
                                     double Lon, double Hgt )
 {
-
     modify_station_coords( st, Lat, Lon, Hgt, nw->crdsys->rf->el );
 }
 

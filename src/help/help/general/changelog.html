@@ -26,7 +26,21 @@ even if focus is restored.
 -->
 <!-- 
 -->
-<h2>Release: 10 October 2016</h2>
+<h2>Release: 15 November 2016: 2.7.0</h2>
+<h3>Coordinate systems</h3>
+<p>Enhancement: The <a href="../coordsys/crdsys_file_format.html">coordsys.def file</a> can now include
+definitions of vertical datums (in principle geoids, but can also include the 2016 local vertical
+datums.  These can be used to define geoid undulations and deflections of the vertical rather than using
+a geoid file.  This also means that concord can be used to convert between different vertical datums (eg
+between NZVD2009 and NZVD2016, or between NZVD2016 and the local vertical datums based on it).  This 
+affects in particular 
+<a href="../programs/concord/index.html">concord</a>, 
+<a href="../programs/snapconv/index.html">snapconv</a>,
+<a href="../programs/snapgeoid/index.html">snapgeoid</a>,
+as well as 
+<a href="../programs/snap/index.html">snap</a> itself.
+</p>
+
 <h3>Snap</h3>
 <p>Enhancement: New commands 
 <a href="../files/cmdcfg/cmd_reweight_observations.html">reweight_observations</a>,
@@ -52,7 +66,7 @@ the extent of the geoid file.  The geoid information from these stations is unch
 <p>Enhancement: Tidied up handling of included snap files to better handle including files in subdirectories.</p>
 <p>Bug fix: Corrected handling of geoid function when input coordinate file defines ellipsoidal heights.</p>
 <h3>concord</h3>
-<p>Enhancement: Added support for height reference surfaces and converting coordinates between them (eg 
+<p>Enhancement: Added support for vertical datums and converting coordinates between them (eg 
 between local vertical datums and geoid datums).</p>
 <h3>Snapspec</h3>
 <p>Bug fix: corrected the order 2 vertical specification in the configuration file</p>

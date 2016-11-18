@@ -1,6 +1,6 @@
-================  
+== 1 ==============
 
-snapconv version
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
@@ -9,10 +9,10 @@ Geoid model definition
    Geoid values computed on a 1" by 1" grid
    Computed by Land Information New Zealand
 
-The revised station file is out/test1.crd
-================  
+The updated station file is out/test1.crd
+== 2 ==============
 
-snapconv version
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
@@ -21,10 +21,10 @@ Geoid model definition
    Geoid values computed on a 1" by 1" grid
    Computed by Land Information New Zealand
 
-The revised station file is out/test2.crd
-================  
+The updated station file is out/test2.crd
+== 3 ==============
 
-snapconv version
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
@@ -33,44 +33,18 @@ Geoid model definition
    Reference: http://www.nima.mil/GandG/wgs-84/egm96.html
    Evaluated on WGS84 ellipsoid
 
-The revised station file is out/test3.crd
-================  
-================  
+The updated station file is out/test3.crd
+== 4 ==============
+== 5 ==============
 
-snapconv version
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
-The revised station file is out/test5.crd
-================  
+The updated station file is out/test5.crd
+== 6 ==============
 
-snapconv version
-Calculates geoid undulations on a SNAP coordinate file
-
-
-Geoid model definition
-   New Zealand Geoid 2009 (NZGeoid09)
-   Geoid values computed on a 1" by 1" grid
-   Computed by Land Information New Zealand
-
-The revised station file is out/test6.crd
-================  
-
-snapconv version
-Calculates geoid undulations on a SNAP coordinate file
-
-
-The revised station file is out/test7.crd
-================  
-
-snapconv version
-Calculates geoid undulations on a SNAP coordinate file
-
-
-The revised station file is out/test8.crd
-================  
-
-snapconv version
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
@@ -79,17 +53,24 @@ Geoid model definition
    Geoid values computed on a 1" by 1" grid
    Computed by Land Information New Zealand
 
-The revised station file is out/test8a.crd
-================  
+The updated station file is out/test6.crd
+== 7 ==============
 
-snapconv version
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
-The revised station file is out/test9.crd
-================  
+The updated station file is out/test7.crd
+== 8 ==============
 
-snapconv version
+snapgeoid version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The updated station file is out/test8.crd
+== 8a ==============
+
+snapgeoid version
 Calculates geoid undulations on a SNAP coordinate file
 
 
@@ -98,5 +79,56 @@ Geoid model definition
    Geoid values computed on a 1" by 1" grid
    Computed by Land Information New Zealand
 
-The revised station file is out/test10.crd
-================  
+The updated station file is out/test8a.crd
+== 8b ==============
+
+snapgeoid version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The updated station file is out/test8b.crd
+== 8c ==============
+
+snapgeoid version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The updated station file is out/test8c.crd
+== 9 ==============
+
+snapgeoid version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   New Zealand Geoid 2009 (NZGeoid09)
+   Geoid values computed on a 1" by 1" grid
+   Computed by Land Information New Zealand
+
+The updated station file is out/test9.crd
+== 11 ==============
+== 11a ==============
+== 12 ==============
+
+snapgeoid version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The updated station file is out/test12.crd
+== 13 ==============
+
+snapgeoid version
+Calculates geoid undulations on a SNAP coordinate file
+
+
+The updated station file is out/test13.crd

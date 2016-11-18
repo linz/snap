@@ -22,7 +22,11 @@ function CreateNewSnapJob()
 if not UnloadJob() then return false endif
 
 $_title="Untitled job"
-$_coordsys = "NZGD2000"
+$coordsys = "NZGD2000"
+$_hgtcrdtype = "ellipsoidal_heights"
+$hgtopts="~none~".Replace($heightref_list,"\n","~")
+$hgtref="none"
+$coordinatefile=""
 
 #===================================================================
 # Get title, command file, coordinate file, coordinate system
@@ -35,13 +39,11 @@ validator
       message("You must enter a command file name","Input error")
       return false
    elseif fileexists($commandfile) then
-      if ask("The command file already exists .. do you want to overwrite it","Overwrite?") then
-         return true
-      else
+      if not ask("The command file already exists .. do you want to overwrite it","Overwrite?") then
          return false
       endif
-  endif
-  return true
+   endif
+   return true
 save_file_selector $coordinatefile "Coordinate file" "Snap coordinate files (*.crd)|*.crd|All files (*.*)|*.*"
 radio_selector $crdfileoption "Coordinate file option" "~use~Use the selected file~copy~Copy the selected file to the same name as the command file~new~Create a new empty file with the same name as the command file"
 validator
@@ -61,9 +63,13 @@ validator
    endif
           
    return true
-dropdown_selector $_coordsys "Coordinate system" $coordsys_list
+dropdown_selector $coordsys "Coordinate system" $coordsys_list
+dropdown_selector $hgtref "Vertical datum (geoid)" $hgtopts
+radio_selector $_hgtcrdtype "Height coordinate type" "~ellipsoidal_heights~ellipsoidal~orthometric_heights~orthometric"
 end_dialog
 
+$_coordsys=$coordsys
+if $hgtref != "none" then $_coordsys=$_coordsys."/".$hgtref endif
 
 #=============================================================
 # Set up the filename for the various files

@@ -1,0 +1,88 @@
+* Coordinate file can contain geoid info
+* Coordinate system can include height reference surface
+* Explicit geoid info overrides height reference surface
+  (snap warning if both present)
+  (? option in snap to recalculate on load, or warn if different?)
+* CSV coordinate file, needs to identify explicit geoid info and also
+  default height type for network (less critical as not output from
+  CSV?)
+
+* snapconv can change coordinate system to coordinate system with
+  height reference.  What will this do to geoid info?
+
+* snapgeoid can
+  * add explicit geoid info from height ref sys or geoid file
+  * remove explicit geoid information
+  * update geoid information from coordinate system if it defines geoid
+  * add/remove height reference system to coordinate system
+
+* snapconv and snapgeoid will both update orthometric heights if 
+  converting between coordinate systems with height reference
+  surfaces there is no geoid information.  
+
+* snapconv and snapgeoid will maintain ellipsoidal heights when 
+  adding or removing either type of height.  Height type will revert
+  to ellipsoidal.  
+
+* Can force retention of orthometric heights in either program.
+  Will set height type to orthometric
+
+* If adding geoid info to coordinate file without it, then will retain
+  coordinates according to type defined in coordinate file. Default
+  is ellipsoidal.
+
+============================================================
+
+Network has two flags to support this
+
+NW_EXPLICIT_GEOID, meaning the geoid info is set for each station and 
+   independent of the coordinate system
+
+NW_ELLIPSOIDAL_HEIGHTS, meaning input/output heights are ellipsoidal
+
+============================================================
+
+Functions
+
+network_has_explicit_geoid
+network_set_explicit_geoid 1/0
+network_set_station_geoid_info 
+    option to preserve orthometric height
+    specific station, sets explicit geoid
+network_update_geoid_info_from_height_ref 
+    flag which height type to preserve
+    flag to remove explicit geoid info, which also 
+    sets info to zero where cannot be calculated
+
+network_set_height_type_ellipsoidal
+network_set_height_type_orthometric
+
+network_update
+
+=============================================================
+
+snapconv/snapgeoid options relating to heights
+
+-l  list coordinate systems
+-r  list height reference surfaces
+
+-h hrs      set geoid info from height ref surface
+-g geoid    set geoid info from geoid file
+-c          set geoid info from coordinate sys 
+-z          remove (zero) explicit geoid info
+-k          keep existing explicit geoid info - only calculate if not already defined
+
+-a hrs      add height ref surface to coordinate system
+-d          drop height ref surface from coordinate system
+
+-e  set height type ellipsoidal
+-o  set height type orthometric
+
+-p  set height type orthometric and keep orthometric heights fixed in conversions
+        
+-i  ignore errors calculating specific geoid heights. Geoid info not changed
+
+-y  conversion epoch
+-q  quiet mode
+
+

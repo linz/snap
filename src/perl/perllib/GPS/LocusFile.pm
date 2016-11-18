@@ -1,7 +1,7 @@
 
 package GPS::LocusFile;
 
-use Geodetic::Ellipsoid;
+use LINZ::Geodetic::Ellipsoid;
 
 use strict;
 use FileHandle;
@@ -43,7 +43,7 @@ sub new {
     die "Invalid ellipsoid definition in $filename\n" 
        if $ellipsoiddef !~ /^w.*g.*s.*84$/i;
     die "Invalid units in $filename\n" if $units !~ /^meters$/i;
-    my $ellipsoid = new Geodetic::Ellipsoid( 6378137.0, 298.257223563, "WGS 1984", "WGS84" );
+    my $ellipsoid = new LINZ::Geodetic::Ellipsoid( 6378137.0, 298.257223563, "WGS 1984", "WGS84" );
     my $project = "GPS data from $filename";
     my $self = { file=>$filename, 
                  project=>$project, 

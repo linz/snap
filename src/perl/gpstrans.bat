@@ -23,7 +23,7 @@ goto endofperl
 # Dependencies:      Uses the following modules directly:
 #                      GPS::GPSurveyFile
 #                      GPS::SkiFile
-#                      Geodetic::GeodeticCrd
+#                      LINZ::Geodetic::GeodeticCrd
 #                      Getopt::Std
 #                      FileHandle
 #
@@ -57,7 +57,7 @@ use vars qw/ %ClassAccuracy %GeneratedCode %CRSClass $NextCode $scriptfile/;
 eval {
    require GPS::GPSurveyFile;
    require GPS::SkiFile;
-   require Geodetic::GeodeticCrd;
+   require LINZ::Geodetic::GeodeticCrd;
   };
 if( $@ ) {
   print "Unable to locate required perl libraries\n";
@@ -378,7 +378,7 @@ sub WriteStations {
    foreach( @codes ) {
       my $stn = $self->{stnlist}->{$_};
       push( @fixstn, $_ ) if $stn->{fixed};
-      my $crd = new Geodetic::GeodeticCrd($stn->{crd});
+      my $crd = new LINZ::Geodetic::GeodeticCrd($stn->{crd});
       my $dmscrd = $crd->asstring( 6, 3 );
       print $crdfh "$stn->{code} $dmscrd->[0] $dmscrd->[1] ",
                    "$dmscrd->[2] $stn->{name}\n";
