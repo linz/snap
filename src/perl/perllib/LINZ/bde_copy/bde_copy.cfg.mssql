@@ -1,9 +1,0 @@
-# Configuration for MS sql - applies minimum year constraint to avoid invalid
-# dates
-#
-# $Id$
-
-minimum_year 1800 
-invalid_datetime_string 1800-01-01 00:00:00
-invalid_date_string 01/01/1800
-
