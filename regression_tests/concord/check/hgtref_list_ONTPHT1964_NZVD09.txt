@@ -1,0 +1,12 @@
+
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20160701)
+Reference frame: New Zealand Geodetic Datum 2000 (version 20160701)
+LINZ deformation model
+    NZGD2000 deformation model
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+Heights: One Tree Point 1964 (NZVD09)
+

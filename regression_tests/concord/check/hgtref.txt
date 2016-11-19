@@ -1,0 +1,168 @@
+=======================
+Testing NZVD2016
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing AUCKHT1946
+
+
+10 coordinates converted
+43 errors occurred reading or converting coordinates
+=======================
+Testing BLUFHT1955
+
+
+7 coordinates converted
+46 errors occurred reading or converting coordinates
+=======================
+Testing DUBLHT1960
+
+
+12 coordinates converted
+41 errors occurred reading or converting coordinates
+=======================
+Testing DUNEHT1958
+
+
+16 coordinates converted
+37 errors occurred reading or converting coordinates
+=======================
+Testing GISBHT1926
+
+
+10 coordinates converted
+43 errors occurred reading or converting coordinates
+=======================
+Testing LYTTHT1937
+
+
+23 coordinates converted
+30 errors occurred reading or converting coordinates
+=======================
+Testing MOTUHT1953
+
+
+22 coordinates converted
+31 errors occurred reading or converting coordinates
+=======================
+Testing NAPIHT1962
+
+
+14 coordinates converted
+39 errors occurred reading or converting coordinates
+=======================
+Testing NELSHT1955
+
+
+13 coordinates converted
+40 errors occurred reading or converting coordinates
+=======================
+Testing ONTPHT1964
+
+
+6 coordinates converted
+47 errors occurred reading or converting coordinates
+=======================
+Testing STISHT1977
+
+
+5 coordinates converted
+48 errors occurred reading or converting coordinates
+=======================
+Testing TARAHT1970
+
+
+20 coordinates converted
+33 errors occurred reading or converting coordinates
+=======================
+Testing WELLHT1953
+
+
+12 coordinates converted
+41 errors occurred reading or converting coordinates
+=======================
+Testing NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing AUCKHT1946_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing BLUFHT1955_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing DUBLHT1960_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing DUNEHT1958_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing GISBHT1926_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing LYTTHT1937_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing MOTUHT1953_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing NAPIHT1962_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing NELSHT1955_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing ONTPHT1964_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing STISHT1977_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing TARAHT1970_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
+=======================
+Testing WELLHT1953_NZVD09
+
+
+53 coordinates converted
+0 errors occurred reading or converting coordinates
