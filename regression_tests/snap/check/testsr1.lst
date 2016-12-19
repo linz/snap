@@ -762,14 +762,14 @@ Regression tests - station recoding options
 
 The following stations are being recoded as they are read from data files
 
-     PEGGY      => PEGS     
-     TUBBY      ignored
      1          => 1WHEN     between 2005-02-01 00:00:00 and 2006-05-01 00:00:00
                 => 1AD       after   2010-01-01 09:30:34
                 => 1BC       before  2000-01-01 09:30:34
                 => OTHER1   
      2          => 2_RC      after   2001-01-01 00:00:00
      3          => 3_RC      after   2001-01-01 00:00:00
+     PEGGY      => PEGS     
+     TUBBY      ignored
 
 
 
