@@ -35,7 +35,6 @@ goto endofperl
 use strict;
 use FindBin;
 use FileHandle;
-use Win32::Clipboard;
 use IO::String;
 
 # CRS2 column name fixes
@@ -78,8 +77,9 @@ my $flst;
 
 if( lc($lst) eq '-c' )
 {
+  require Win32::Clipboard;
   $lst = "the clipboard";
-  my $clip = Win32::Clipboard;
+  my $clip = Win32::Clipboard();
   my $txt = $clip->GetText() || die "Error: Cannot read from the clipboard\n";
   $flst = new IO::String($txt);
   
@@ -381,6 +381,8 @@ $mode = 'free_net_adjustment' if lc($prm->{FNAD}) eq 'yes';
 my $maxit = $prm->{MXIT} || 10;
 my $maxch = $prm->{MXCH} || 1000;
 my $conv = $prm->{CNVG} || 0.001;
+my $defm = $prm->{DEFM};
+
 my $dim = $software eq 'LNZG' ? '3d' : '2d';
 
 print $sfile <<"EOD";
@@ -405,6 +407,16 @@ if( $float > 0 )
 {
     print $sfile "\nhorizontal_float_error $float\n";
     $consmap->{FREE} = "float horizontal";
+}
+
+if( $defm eq '' )
+{
+    print $sfile "\ndeformation none\n";
+}
+else
+{
+    print $sfile "\n! Deformation from Landonline: $defm\n";
+    print $sfile "deformation datum\n";
 }
 
 foreach my $cons (sort keys %$constraint)
