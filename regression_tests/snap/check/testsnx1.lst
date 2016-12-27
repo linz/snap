@@ -521,7 +521,7 @@ Degrees of freedom:                  51
 Sum of squared residuals:             0.36287
 Standard error of unit weight:        0.08435
 
-The probability of an SSR this low is -0.000% (from Chi squared (51))
+The probability of an SSR this low is 0.000% (from Chi squared (51))
 
 You may have over-estimated the errors of the data.
 
@@ -846,7 +846,7 @@ HOB2             GX     0.023    0.002        184  testsnx1.in.snx
 
 MAC1             GX     0.021    0.001        193  testsnx1.in.snx
 
-HOKI             GX     0.015    0.000        187  testsnx1.in.snx
+HOKI             GX     0.015    0.001        187  testsnx1.in.snx
 
 
 

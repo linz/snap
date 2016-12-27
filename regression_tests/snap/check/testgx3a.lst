@@ -1398,7 +1398,7 @@ From   To     Type     S.R.  Sig (%)       Line  File
 
 1      3       GB     2.723   99.994 ???     83  testgx3.dat
 
-1      3       GB     2.307   99.884 ???    160  testgx3.dat
+1      3       GB     2.307   99.885 ???    160  testgx3.dat
 
 1      3       GB     1.741   97.189 ?       68  testgx3.dat
 
@@ -1412,6 +1412,6 @@ From   To     Type     S.R.  Sig (%)       Line  File
 
 1      2       GB     0.271    2.588         67  testgx3.dat
 
-1      3       GB     0.001     -            99  testgx3.dat
+1      3       GB     0.001    0.000         99  testgx3.dat
 
-1      3       GB     0.001     -            22  testgx3.dat
+1      3       GB     0.001    0.000         22  testgx3.dat

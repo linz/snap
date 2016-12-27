@@ -1,142 +1,58 @@
 #include "snapconfig.h"
-/* Cumulative probability functions and inverse functions based on
-   formulae in Abramowitz and Stegun */
-
-/*
-   $Log: probfunc.c,v $
-   Revision 1.3  2004/04/22 02:35:26  ccrook
-   Setting up to support linux compilation (x86 architecture)
-
-   Revision 1.2  1998/06/15 02:23:02  ccrook
-   Modified to handle "long" parameters.  However should really do this again to use more efficient approximations when the parameters are large.
-
-   Revision 1.1  1995/12/22 19:54:07  CHRIS
-   Initial revision
-
+/* Cumulative probability functions and inverse functions using boost
 */
 
 #include <stdio.h>
 #include <math.h>
+#include <boost/math/distributions/chi_squared.hpp>
+#include <boost/math/distributions/normal.hpp>
+#include <boost/math/distributions/students_t.hpp>
+#include <boost/math/distributions/fisher_f.hpp>
 #include "util/probfunc.h"
 
-#ifdef __BORLANDC__
-// #pragma warn -par
-#endif
-
-#ifdef __TSC__
-// #pragma warn(wpnu=>off)
-#endif
-
-static double inverse_distribution( double prob,
-                                    double (*distfunc)( double value, long prm1, long prm2 ),
-                                    long prm1, long prm2 );
-
+using boost::math::chi_squared;
+using boost::math::normal;
+using boost::math::students_t;
+using boost::math::fisher_f;
 
 double normal_distn( double value )
 {
-    int i;
-    char negative;
-    double d[] = {1.0,0.0498673470,0.0211410061,0.0032776263,0.0000380036,
-                  0.0000488906,0.0000053830
-                 };
-    double prob;
-
-    negative = value < 0.0;
-    if (negative) value = -value;
-
-    prob = d[6];
-    for( i=6; i--; ) prob = prob*value+d[i];
-
-    prob = 0.5*pow(prob,-16.0);
-    if( negative ) prob = 1.0-prob;
-
-    return prob;
-}
-
-// #pragma warning (disable : 4100)
-
-static double ndf2( double value, long dum1, long dum2 )
-{
-    return normal_distn( value );
+    normal n;
+    return 1.0-cdf(n,value);
 }
 
 double inv_normal_distn( double prob )
 {
-    char negative;
-    double value;
-    negative = prob > 0.5;
-    if( negative ) prob = 1.0 - prob;
-    value = inverse_distribution( prob, ndf2, 0, 0 );
-    if( negative ) value = -value;
-    return value;
+    normal n;
+    return quantile(n,1.0-prob);
 }
-
-
-
-/* Chi squared is based upon equations 26.4.4 and 26.4.5 */
 
 double chi2_distn( double value, long dof )
 {
-    long odd;
-    double prob;
-    double t, x;
-    long i;
-
-    /* Invalid conditions */
-
     if( dof < 0 ) return 0.0;
     if( value < 0.0 ) return 0.0;
-
-    odd = dof % 2;
-
-    t = exp( -value/2.0 );
-    x = sqrt( value );
-    prob = 0;
-
-    if( odd ) t *= x * 0.797884561;
-
-    for( i=odd; i<dof; i+=2 ) { prob += t; t *= value/(i+2); }
-
-    if( odd ) prob += 2.0 * normal_distn( x );
-
-    return prob;
-}
-
-
-static double cdf2( double value, long dof, long dum )
-{
-    return chi2_distn( value, dof );
+    chi_squared chi2(dof);
+    return 1.0-cdf(chi2,value);
 }
 
 double inv_chi2_distn( double prob, long dof )
 {
-    return inverse_distribution( prob, cdf2, dof, 0 );
+    chi_squared chi2(dof);
+    return quantile( chi2, 1.0-prob );
 }
 
 
 double students_t_distn( double value, long dof )
 {
-    double prob;
-
-    prob = f_distn( value*value, 1, dof )/2.0;
-    if( value < 0.0 ) prob = 1.0-prob;
-
-    return prob;
+    students_t st(dof);
+    return 1.0-cdf(st,value);
 }
 
 
 double inv_students_t_distn( double prob, long dof )
 {
-    char negative;
-    double value;
-
-    negative = prob > 0.5;
-    if( negative ) prob = 1.0 - prob;
-    prob += prob;
-    value = inverse_distribution( prob, f_distn, 1, dof );
-    if( value > 0.0 ) value = sqrt(value);
-    if( negative ) value = -value;
-    return value;
+    students_t st(dof);
+    return quantile(st,1.0-prob);
 }
 
 
@@ -145,84 +61,18 @@ double inv_students_t_distn( double prob, long dof )
 
 double f_distn( double value, long dofn, long dofd )
 {
-
-    double prob;
-    double twobypi = 0.636619772;
-    long nodd,dodd,swap,i;
-    double ta, cs, sn, term, fact, x, t, num, den;
-
-    prob = 0.0;
-
     if( dofn <= 0 || dofd < 0 ) return 0.0;
     if( dofd == 0 )  return chi2_distn( value*dofn, dofn );
     if( value<=0.0) return 0.0;
-
-    /* Different algorithms are used depending on which of dofn and dofd
-       are even.  If one is odd, then if it is not the first the swap
-       values */
-
-    nodd = dofn % 2;
-    dodd = dofd % 2;
-
-    if( nodd && dodd )
-    {
-        ta = sqrt( dofn * value / dofd );
-        cs = 1.0 / sqrt( 1.0 + ta*ta );
-        sn = ta * cs;
-        prob = 1.0 - twobypi * atan( ta );
-        term = sn * cs * twobypi;
-        fact = 1.0;
-
-        for( i = 1; i <= dofd-2; i+= 2 )
-        {
-            prob -= term;
-            term *= (i+1)*cs*cs/(i+2);
-            fact *= (double) (i+1) / (double) i;
-        }
-
-        term = twobypi * fact * sn * pow(cs,(double) dofd);
-        for( i=1; i<=dofn-2; i+=2 )
-        {
-            prob += term;
-            term *= (dofd+i)*sn*sn/(i+2);
-        }
-    }
-
-
-    /* If one is even then ensure that the numerator is even.  If both are
-       even, put the smallest in the numerator */
-
-    else
-    {
-
-        value = dofd/(dofd + dofn * value );
-        swap = nodd || (!dodd && dofd < dofn);
-        if( swap ) { i = dofd; dofd = dofn; dofn = i; value = 1.0-value; }
-
-        x = 1.0-value;
-        num = dofd;
-        den = 2.0;
-        t = 1.0;
-        for( i = 0; i <= dofn-2; i+= 2 )
-        {
-            prob += t;
-            t *= num*x/den;
-            num += 2;
-            den += 2;
-        }
-        prob *= sqrt( pow(value,(double)dofd) );
-        if( swap ) prob = 1.0 - prob;
-    }
-
-    return prob;
-
+    fisher_f f(dofn,dofd); 
+    return 1.0-cdf(f,value);
 }
-
 
 double inv_f_distn( double prob, long dofn, long dofd )
 {
     if( dofn <= 0 || dofd < 0 ) return 0.0;
-    return inverse_distribution( prob, f_distn, dofn, dofd );
+    fisher_f f(dofn,dofd); 
+    return quantile(f,1.0-prob);
 }
 
 
@@ -256,82 +106,32 @@ double inv_tau_distn( double prob, long dof )
 }
 
 
-
-/* Routine to locate the inverse of a statistical distribution function
-   This is a very crude inversion routine, but it works for nice
-   monotonically decreasing 1 - cumulative distribution functions.
-   It will only search VALUE>0.
-*/
-
-// #pragma warning ( disable: 4127 )
-static double inverse_distribution( double prob,
-                                    double (*distfunc)( double value, long prm1, long prm2),
-                                    long prm1, long prm2 )
-{
-    double tol = 0.0001;  /* Tolerance accepted in log of value */
-    double lvmin = -11.5; /* Minimum value of log */
-    double lvmax = 20.0;  /* Maximum value of log */
-
-    double lv0, lv1, lv2, pr;
-
-    /* First set A1 and A2 so that log(VALUE) lies between them */
-
-    pr = (*distfunc)( 1.0, prm1, prm2 );
-
-    if( pr < prob )
-    {
-        lv2 = 0.0;
-        lv0 = -1.0;
-
-        for(;;)
-        {
-            pr = (*distfunc)(exp(lv0),prm1,prm2);
-            if( pr > prob ) break;
-            lv0 += lv0;
-            if( lv0 < lvmin) return 0.0;
-        }
-    }
-
-    else
-    {
-        lv0 = 0.0;
-        lv2 = 1.0;
-
-        for(;;)
-        {
-            pr = (*distfunc)(exp(lv2),prm1,prm2);
-            if( pr < prob ) break;
-            lv2 += lv2 ;
-            if( lv2 > lvmax ) return exp(lvmax);
-        }
-    }
-
-    do
-    {
-        lv1 = (lv0+lv2)/2.0;
-        pr = (*distfunc)(exp(lv1),prm1,prm2);
-        if( pr > prob ) lv0 = lv1; else lv2 = lv1;
-    }
-    while( lv2-lv0 > tol );
-
-
-    return exp(lv1);
-}
-
-
 #ifdef TESTPROB
 
-int main( )
+int main( int argc, char *argv[] )
 {
     char line[80], opt[3], *o;
     double value;
     long dof1, dof2;
     char inverse;
     char doinv = 0;
+    int istty=1;
+    FILE *infile=stdin;
 
-    printf("Enter [I](N|F|C|S|T) value [dof1] [dof2]\n");
+    if( argc > 1 )
+    {
+        infile=fopen(argv[1],"r");
+        istty=0;
+        if( ! infile )
+        {
+            printf("Cannot open %s\n",argv[1]);
+            return 0;
+        }
+    }
 
-    while( printf("> "), gets(line))
+    if( istty ) printf("Enter [I](N|F|C|S|T) value [dof1] [dof2]\n");
+
+    while( (! istty || printf("> ")), fgets(line,79,infile))
     {
         if( line[0] == 0 )
         {
@@ -341,7 +141,7 @@ int main( )
         }
         else
         {
-            sscanf(line,"%2s%lf%d%d",opt,&value,&dof1,&dof2);
+            sscanf(line,"%2s%lf%ld%ld",opt,&value,&dof1,&dof2);
             o = opt;
             inverse = ( *o == 'i' || *o == 'I' );
             if( inverse ) o++;
@@ -384,7 +184,7 @@ int main( )
             doinv = 0;
             continue;
         }
-        printf(" = %.4lf\n",value);
+        printf(" = %.8lf\n",value);
     }
 }
 

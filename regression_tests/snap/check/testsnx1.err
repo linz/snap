@@ -21,6 +21,8 @@
 
 ================================================================================
 
+Error: Station 5503_A     is not in the coordinate file.  Used 1 times
+
 Error: Station ALIC_A     is not in the coordinate file.  Used 1 times
 
 Error: Station AUCK_A     is not in the coordinate file.  Used 1 times
@@ -64,5 +66,3 @@ Error: Station TOW2_A     is not in the coordinate file.  Used 1 times
 Error: Station WGTN_A     is not in the coordinate file.  Used 1 times
 
 Error: Station YAR1_A     is not in the coordinate file.  Used 1 times
-
-Error: Station 5503_A     is not in the coordinate file.  Used 1 times
