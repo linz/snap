@@ -26,7 +26,12 @@ even if focus is restored.
 -->
 <!-- 
 -->
-<h2>Release: 15 November 2016: 2.7.0</h2>
+<h2>Release: 28 December 2016: 2.7.2</h2>
+<h3>Snap</h3>
+<p>Bug fix: Some of the probability distribution functions were giving incorrect results for high degrees of freedom (eg chi-squared distribution for dof > approx 1800).  Thanks to Denny Fiedler
+for identifying this issue.</p>
+<p>Bug fix: Fixed the handling of numerical codes in station lists so that, for example, R10-R100 includes R20, rather than being treated as purely alphabetic.</p>
+<h2>Release:
 <h3>Coordinate systems</h3>
 <p>Enhancement: The <a href="../coordsys/crdsys_file_format.html">coordsys.def file</a> can now include
 definitions of vertical datums (in principle geoids, but can also include the 2016 local vertical
