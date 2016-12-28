@@ -71,6 +71,7 @@ double f_distn( double value, long dofn, long dofd )
 double inv_f_distn( double prob, long dofn, long dofd )
 {
     if( dofn <= 0 || dofd < 0 ) return 0.0;
+    if( dofd == 0 )  return inv_chi2_distn( prob, dofn )/dofn;
     fisher_f f(dofn,dofd); 
     return quantile(f,1.0-prob);
 }
