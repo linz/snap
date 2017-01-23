@@ -14,11 +14,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 #ifdef _MSC_VER
 #include <io.h>
 #endif
 #ifdef UNIX
-#include <sys/types.h>
+#define _stat stat
 #include <unistd.h>
 #endif
 
@@ -88,6 +90,17 @@ int file_exists( const char *file )
     return _access( file, 04 ) == 0 ? 1 : 0;
 }
 
+int is_dir(const char *path)
+{
+    struct _stat info;
+    if(_stat( path, &info ) != 0)
+        return 0;
+    else if(info.st_mode & S_IFDIR)
+        return 1;
+    else
+        return 0;
+}
+
 char *build_config_filespec( char *spec, int nspec,
                              const char *dir, int pathonly, const char *config,
                              const char *name, const char *dflt_ext )
@@ -151,6 +164,11 @@ char *build_config_filespec( char *spec, int nspec,
                         c++;
                         break;
                     }
+                }
+                if( *c == '.' ) 
+                {
+                    c=end;
+                    continue;
                 }
             }
             else
@@ -427,12 +445,17 @@ const char *find_config_file( const char *config, const char *name, const char *
 const char *find_relative_file( const char *base, const char *name, const char *dflt_ext )
 {
     const char *spec;
-    spec=build_config_filespec( 0, 0, base, 1, 0, name, dflt_ext);
+    int pathonly=0;
+    if( file_exists(base) && ! is_dir(base))
+    {
+        pathonly=1;
+    }
+    spec=build_config_filespec( 0, 0, base, pathonly, 0, name, dflt_ext);
     if( file_exists(spec) ) return spec;
 
     if( dflt_ext )
     {
-        spec=build_config_filespec( 0, 0, base, 1, 0, name, 0);
+        spec=build_config_filespec( 0, 0, base, pathonly, 0, name, 0);
         if( file_exists(spec) ) return spec;
     }
 
