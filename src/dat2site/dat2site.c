@@ -3207,7 +3207,7 @@ int main( int argc, char *argv[] )
         if( i < 75 ) strcpy(crdfname+i,".new");
     }
 
-    write_network( net, crdfname, NULL, 3, check_fixed_stn );
+    write_network( net, crdfname, NULL, 0, check_fixed_stn );
 
     printf("\nUpdated coordinates written to %s\n", crdfname );
 

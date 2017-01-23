@@ -372,7 +372,7 @@ int main( int argc, char *argv[] )
 
     if( write_network( &net, newfn,
                        geoid_msg[0] ? geoid_msg : NULL,
-                       3,NULL) != OK )
+                       0,NULL) != OK )
     {
         return 2;
     }
