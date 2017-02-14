@@ -45,14 +45,15 @@ sub _coordsyslist {
    if( $cslist ) { return $cslist };
    $csfile = $ENV{'COORDSYSDEF'};
    $csfile = _basepath().'coordsys.def' if $csfile eq '';
+   $csfile = 'coordsys.def' if ! -r $csfile;
    return undef if ! -r $csfile;
    $cslist = newFromCoordSysDef LINZ::Geodetic::CoordSysList( $csfile );
    return $cslist; 
    }
 
 sub open {
-   my($class,$file) = @_;
-   my $fh = new FileHandle( $file );
+   my($class,$file,$fh) = @_;
+   $fh= new FileHandle( $file ) if ! $fh;
    die "Cannot open SNAP coordinate file $file\n" if ! $fh;
    return undef if ! $fh;
    my $title = $fh->getline;
