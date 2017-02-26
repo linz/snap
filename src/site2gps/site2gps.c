@@ -132,7 +132,7 @@ int main( int argc, char *argv[] )
     if( syntax_error  || argc != (autolist ? 3 : 4) )
     {
         printf("Syntax: site2gps [options] crd_file_name line_list_file output_file\n");
-        printf("\nIn the line_list_file, each line is a list of stations to be connectd\n\n");
+        printf("\nIn the line_list_file, each line is a list of stations to be connected\n\n");
         printf("Valid input files are:\n");
         printf("  -a    Automatically connect every station to every other station,\n");
         printf("        The line_list_file should be omitted\n");
@@ -213,7 +213,7 @@ int main( int argc, char *argv[] )
 
             if( !fgets(inrec,512,in) ) break;
             if( inrec[0] == '!' || inrec[0] == '#' ) { fputs(inrec,out); continue; }
-            for( code = strtok(inrec," \n"); code; code = strtok(NULL," \n") )
+            for( code = strtok(inrec," \t\r\n"); code; code = strtok(NULL," \t\r\n") )
             {
                 int id;
                 int i;
