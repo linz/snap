@@ -25,7 +25,7 @@ Coordinates file testmdfc.csv
       10 stations read
 
 Data file 1: testvecc.csv
-    Observations between 2010-09-07 00:14:59 and 2010-10-07 20:12:00
+    Observations between 2010-09-06 00:14:59 and 2010-10-06 20:12:00
        9 GPS baselines
 
 Data file 2: testdist.csv

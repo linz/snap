@@ -196,6 +196,7 @@ double snap_datetime_parse( const char *definition, const char *format )
     {
         if( ymdhmse[6] > 366 ) return 0.0;
         ymdhmse[1] = ymdhmse[2] = 1;
+        ymdhmse[6] -= 1;
     }
     for( i = 0; i < 5; i++ )
     {
