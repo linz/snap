@@ -110,9 +110,9 @@ WGS84_G1762 "World Geodetic System 1984 (G1762)" ELLIPSOID WGS84 &
 
 ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 NONE
 
-ITRF2014 "International terrestrial reference frame 2015" ELLIPSOID GRS80 NONE &
-  ITRF96 IERS_ETSR 2000.0  3.2   0.19 -21.07  1.72901 -0.16508 0.26897 0.11984 &
-                          0.79  -0.6   -1.24 -0.13201 -0.01347 0.01514 0.01973
+ITRF2014 "International terrestrial reference frame 2014" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   6.4    3.99 -14.27  1.08901 -0.16508  0.26897  0.11984 &
+                            0.79  -0.6   -1.44 -0.07201 -0.01347  0.01514  0.01973
 
 ITRF2008 "International Terrestrial Reference Frame 2008" ELLIPSOID GRS80 &
   ITRF96 IERS_ETSR 2000.0   4.8    2.09 -17.67  1.40901 -0.16508  0.26897  0.11984 &
