@@ -38,7 +38,7 @@ This includes managing reference frames, ellipsoids, and projections.
 #define CRDSYSENV "COORDSYSDEF"
 
 #define CRDSYS_CODE_LEN 20
-#define CRDCNV_CODE_LEN (CRDSYS_CODE_LEN+CRDSYS_CODE_LEN+1)
+#define CRDCNV_CODE_LEN (CRDSYS_CODE_LEN+CRDSYS_CODE_LEN+CRDSYS_CODE_LEN+5)
 #define CRDSYS_NAME_LEN 128
 
 enum { CSTP_CARTESIAN, CSTP_GEODETIC, CSTP_PROJECTION };
@@ -169,6 +169,7 @@ typedef struct
     char crdtype;      /* As per CSTP_ enum above            */
     char gotrange;     /* Defines whether a valid range has  */
     char ownsrf;       /* If true then CS owns rf            */
+    char setrf;        /* If true then orginal rf is overridden */
     double emin, nmin; /* Easting northing limits - if defined */
     double emax, nmax;
     double ltmin, lnmin;  /* Latitude/longitude range */
@@ -282,6 +283,7 @@ coordsys *create_coordsys( const char *code, const char *name, int type,
 coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );
 void delete_coordsys( coordsys *cs );
+int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf );
 
 /* Set the vertical datum for the coordinate system.  The 
  * coordinate system takes ownership of the vertical datum

@@ -122,24 +122,68 @@ int parse_crdsys_epoch( const char *epochstr, double *epoch )
 coordsys * load_coordsys( const char *code )
 {
     crdsys_source_def *csd;
-    vdatum *hrs=nullptr;
     char cscode[CRDSYS_CODE_LEN+1];
+    char dtmcode[CRDSYS_CODE_LEN+1];
     char hrscode[CRDSYS_CODE_LEN+1];
     double epoch = 0;
     int sts;
-    const char *epochptr;
-    const char *hrsptr;
+    const char *endcodeptr=0;
+    const char *dtmptr=0;
+    const char *enddtmptr=0;
+    const char *epochptr=0;
+    const char *endepochptr=0;
+    const char *hrsptr=0;
+    const char *endhrsptr=0;
+    const char *cptr;
     int nch;
 
-    coordsys *cs= NULL;
+    vdatum *hrs=nullptr;
+    coordsys *cs= nullptr;
+    ref_frame *rf=nullptr;
 
-    /* Code format is  CSCODE/HRSCODE@epoch */
-    epochptr=strchr(code,'@');
-    hrsptr=strchr(code,'/');
-    if( epochptr && hrsptr && hrsptr > epochptr ){ hrsptr=nullptr; }
+    /* Code format is  CSCODE(DATUMCODE)/HRSCODE@epoch */
+    
+    cptr=code;
+    while( *cptr )
+    {
+        if( *cptr == '(' || *cptr == '/' || *cptr == '@' ) break;
+        cptr++;
+    }
+    endcodeptr=cptr;
+    if( *cptr == '(' )
+    {
+        cptr++;
+        dtmptr=cptr;
+        while( *cptr && *cptr != ')' ) cptr++;
+        enddtmptr=cptr;
+        if( *cptr == ')' ) cptr++; else cptr=dtmptr-1;
+    }
+    if( *cptr == '/' )
+    {
+        cptr++;
+        hrsptr=cptr;
+        while( *cptr && *cptr != '@' ) cptr++;
+        endhrsptr=cptr;
+    }
+    if( *cptr == '@' )
+    {
+        cptr++;
+        epochptr=cptr;
+        while( *cptr ) cptr++;
+        endepochptr=cptr;
+    }
+
+    /* Invalid coordinate system definition */
+    if( *cptr )
+    {
+        char errmsg[150];
+        sprintf(errmsg,"Invalid coordinate definition (%.40s) in %.40s",cptr,code);
+        handle_error(INVALID_DATA,errmsg,nullptr);
+        return NULL;
+    }
 
     /* Check epoch */
-    if( epochptr && ! parse_crdsys_epoch( epochptr+1, &epoch ) )
+    if( epochptr && ! parse_crdsys_epoch( epochptr, &epoch ) )
     {
         char errmsg[100];
         sprintf(errmsg,"Invalid coordinate system epoch in %.40s",code);
@@ -148,7 +192,7 @@ coordsys * load_coordsys( const char *code )
     }
 
     /* Check length of coordinate system code */
-    nch=hrsptr ? hrsptr-code : epochptr ? epochptr-code : strlen(code);
+    nch=endcodeptr-code;
     if( nch < 1 || nch > CRDSYS_CODE_LEN ) 
     {
         char errmsg[100];
@@ -159,10 +203,30 @@ coordsys * load_coordsys( const char *code )
     strncpy(cscode,code,nch);
     cscode[nch]=0;
 
+    /* Check alternative reference frame */
+    if( dtmptr )
+    {
+        nch=enddtmptr-dtmptr;
+        if( nch > CRDSYS_CODE_LEN )
+        {
+            char errmsg[100];
+            sprintf(errmsg,"Invalid alternative ref frame code in %.40s",code);
+            handle_error(INVALID_DATA,errmsg,nullptr);
+            return NULL;
+        }
+        else if( nch > 0 )
+        {
+            strncpy(dtmcode,dtmptr,nch);
+            dtmcode[nch]=0;
+            rf=load_ref_frame( dtmcode );
+            if( ! rf ) return NULL;
+        }
+    }
+
     /* Check vertical datum */
     if( hrsptr )
     {
-        nch=(epochptr ? epochptr-hrsptr : strlen(hrsptr))-1;
+        nch=endhrsptr-hrsptr;
         if( nch > CRDSYS_CODE_LEN )
         {
             char errmsg[100];
@@ -172,10 +236,14 @@ coordsys * load_coordsys( const char *code )
         }
         else if( nch > 0 )
         {
-            strncpy(hrscode,hrsptr+1,nch);
+            strncpy(hrscode,hrsptr,nch);
             hrscode[nch]=0;
             hrs=load_vdatum( hrscode );
-            if( ! hrs ) return NULL;
+            if( ! hrs ) 
+            {
+                delete_ref_frame( rf );
+                return NULL;
+            }
         }
     }
 
@@ -197,6 +265,11 @@ coordsys * load_coordsys( const char *code )
 
     if( cs ) 
     {
+        if( rf )
+        {
+            set_coordsys_ref_frame( cs, rf );
+        }
+
         if( hrs )
         {
             if( ! coordsys_vdatum_compatible( cs, hrs ) )
@@ -205,6 +278,7 @@ coordsys * load_coordsys( const char *code )
                 sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
                         hrs->code, cs->code );
                 handle_error( INVALID_DATA, errmsg, nullptr );
+                delete_ref_frame( rf );
                 delete_coordsys( cs );
                 delete_vdatum( hrs );
                 return NULL;
@@ -215,7 +289,8 @@ coordsys * load_coordsys( const char *code )
     }
     else
     {
-        if( hrs ) delete_vdatum( hrs );
+        delete_vdatum( hrs );
+        delete_ref_frame( rf );
     }
     return cs;
 }
@@ -223,6 +298,14 @@ coordsys * load_coordsys( const char *code )
 const char *coordsys_load_code( coordsys *cs )
 {
     strncpy( csfullcode, cs->code, CRDCNV_CODE_LEN );
+    if( cs->setrf && cs->rf && cs->rf->code && 
+            strlen(cs->rf->code)+strlen(csfullcode)+2 < CRDCNV_CODE_LEN )
+    {
+        strcat(csfullcode,"(");
+        strcat(csfullcode,cs->rf->code);
+        strcat(csfullcode,")");
+        
+    }
     if( cs->hrs 
             && cs->hrs->code 
             && strlen(cs->hrs->code)+strlen(csfullcode)+1 < CRDCNV_CODE_LEN

@@ -34,6 +34,7 @@ coordsys *create_coordsys( const char *code, const char *name, int type,
     cs->crdtype = (char) type;
     cs->rf = rf;
     cs->ownsrf = 1;
+    cs->setrf = 0;
     cs->prj = prj;
     cs->hrs = nullptr;
     if( prj && rf->el ) set_projection_ellipsoid( prj, rf->el );
@@ -70,6 +71,7 @@ coordsys *copy_coordsys( coordsys *cs )
         }
     }
     define_coordsys_units( copy, cs->hunits, cs->hmult, cs->vunits, cs->vmult );
+    copy->setrf=cs->setrf;
     return copy;
 }
 
@@ -102,6 +104,16 @@ bool coordsys_vdatum_compatible( coordsys *cs, vdatum *hrs )
 vdatum *coordsys_vdatum( coordsys *cs )
 {
     return cs->hrs;
+}
+
+int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf )
+{
+    int sts=OK;
+    if( cs->ownsrf ) delete_ref_frame( cs->rf );
+    cs->ownsrf=1;
+    cs->setrf=1;
+    cs->rf=rf;
+    return sts;
 }
 
 int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )

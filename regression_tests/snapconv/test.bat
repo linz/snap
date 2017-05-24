@@ -58,6 +58,7 @@ echo Conversions involving height reference surface
 "%SNAPDIR%\snapconv" -p in\test3.crd NZGD2000/NZVD09 out\test3p.crd > out\test3p.log
 "%SNAPDIR%\snapconv" -p in\test4.crd NZGD2000/NZVD09 out\test4p.crd > out\test4p.log
 "%SNAPDIR%\snapconv" -o in\test3.crd NZGD2000/NZVD09 out\test3q.crd > out\test3q.log
+"%SNAPDIR%\snapconv" in\test6.crd NZGD2000 out\test6o.crd > out\test6o.log
 
 echo Setting output height type
 "%SNAPDIR%\snapconv" -o in\test1.crd NZGD2000 out\test1r.crd > out\test1r.log
@@ -65,6 +66,15 @@ echo Setting output height type
 "%SNAPDIR%\snapconv" -e in\test5.crd NZGD2000 out\test5r.crd > out\test5r.log
 "%SNAPDIR%\snapconv" -o in\test5.crd NZGD2000 out\test5s.crd > out\test5s.log
 
+echo "Testing with alternative reference frames"
+"%SNAPDIR%\snapconv" -y 20140913 in\test7.crd NZGD2000_20000101 out\test7t.crd > out\test7t.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test7.crd 'NZGD2000(NZGD2000_20000101)' out\test7u.crd > out\test7u.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test7.crd 'NZGD2000(NZGD2000_20000101)\NZVD09' out\test7v.crd > out\test7v.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test7.crd NZGD2000_20140201 out\test7w.crd > out\test7w.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test8.crd NZGD2000_20000101 out\test8t.crd > out\test8t.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test8.crd 'NZGD2000(NZGD2000_20000101)' out\test8u.crd > out\test8u.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test8.crd 'NZGD2000(NZGD2000_20000101)\NZVD09' out\test8v.crd > out\test8v.log
+"%SNAPDIR%\snapconv" -y 20140913 in\test8.crd NZGD2000_20140201 out\test8w.crd > out\test8w.log
 
 for %%f in (out\*.log) do perl -pi.bak -e s/snapconv[\s\d\.]*\:/snapconv:/ %%f 
 del /q out\*.bak

@@ -31,7 +31,7 @@ deflection of the vertical.  It can be specified explicitly for each station, or
 geoid, or vertical datum, used to calculate these values for each station.
 </p>
 
-<p>A vertical datum is selected as part of the coordinate system code.
+<p>A vertical datum can be selected as part of the coordinate system code.
 The coordinate system definition file defines a list of vertical datums,
 such as NZVD2016.  The vertical datum code is appended to the coordinate system code to define
 the station coordinate system.  For example the station file coordinate system could be NZGD2000/NZVD2016, 
@@ -54,6 +54,12 @@ where the station is outside the range of geoid grids, or for deflections very n
 When the geoid height is recalculated then either the ellipsoidal or orthometric height must be changed.
 The height supplied in the coordinate file will be unaltered (that is, if the coordinate file contains ellipsoidal
 heights then the orthometric height will be changed, and vice versa.
+</p>
+
+<p>The coordinate system code can also select an alternative reference frame for a 
+projection coordinate system by appending the reference frame code in brackets.  For example
+&quot;EDENTM2000(NZGD2000_20140201)&quot; uses the EDENTM2000 tranverse mercator projection 
+on version 20140201 of NZGD2000.
 </p>
 
 <p>For network adjustments using <a href="../../programs/snap/index.html">snap</a> the station positions 

@@ -1,7 +1,7 @@
 Test 1 - NZGD2000
 NZGD2000
 options ellipsoidal_heights no_deflections geoid_heights c=Order c=Mark_Type
-! Converted from NZGD2000
+! Converted from NZGD2000/NZVD09
 
 !Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
 1      41 00 46.800000 S 173 19 15.600000 E   150.0000  0.0000 2     PIN   Node one

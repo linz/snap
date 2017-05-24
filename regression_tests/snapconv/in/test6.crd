@@ -1,0 +1,11 @@
+Test 1 - NZGD2000
+NZGD2000/NZVD09
+options ellipsoidal_heights no_deflections geoid_heights c=Order c=Mark_Type
+! Converted from NZGD2000
+
+!Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
+1      41 00 46.800000 S 173 19 15.600000 E   134.3149  0.0000 2     PIN   Node one
+2      41 00 25.200000 S 173 19 40.800000 E   234.3434  0.0000 2     PEG   Node two
+3      41 00 28.800000 S 173 19 58.800000 E    54.3650  0.0000 3     BOLT  Node three
+4      41 00 46.800000 S 173 19 15.600000 E   134.3149 30.0000 2     PIN   Node four
+5      41 00 25.200000 S 173 19 40.800000 E   234.3434 30.0000 2     PEG   Node five

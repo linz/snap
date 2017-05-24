@@ -453,7 +453,8 @@ static void help( void )
     puts("Switches:  -a       Ask for program parameters");
     puts("           -k       Ask for coordinates at the keyboard");
     puts("           -l       List the coord system codes used by the program");
-    puts("           -i XXXX  Define input coord system, and order - e.g.NZMG:EN");
+    puts("           -i XXXX  Define input coord system, and order - e.g.NZTM:EN");
+    puts("           -r       List the reference frames available");
     puts("           -v       List the vertical datums available");
     puts("           -o XXXX  Define output coord system, and order");
     puts("           -n#      Specifies coordinates preceded by up to n character id");
@@ -472,9 +473,12 @@ static void help( void )
     puts("coordinate systems.  Coordinate systems specify both the geodetic");
     puts("system and an optional vertical datum (geoid) for height coordinates");
     puts("separated by a / character.  For example NZGD2000/NZVD2016. Both must be");
-    puts("defined in terms of the same coordinate system");
-    puts("Use concord -l for a list of valid coordinate systems, and concord -lh");
-    puts("for a list of vertical datums.\n");
+    puts("defined in terms of the same coordinate system.  The geodetic system");
+    puts("can specify an alternative reference frame code in brackets after the code.");
+    puts("For example NZTM(NZGD2000_20130801).");
+    puts("Use concord -l for a list of valid coordinate systems, concord -r for");
+    puts("for a list of alternative reference frames, and concord -v  for a list of");
+    puts("vertical datums.\n");
     puts("For non-geocentric coordinate systems the code may be followed by a");
     puts("colon and the order of the coordinates (one of EN, NE, ENH, NEH, ENO,");
     puts("NEO.  Here E and N are the east and north coordinates, H is ellipsoidal");
@@ -636,6 +640,26 @@ static void list_vertical_datum_with_pause( void )
     printf("\n");
 }
 
+static void list_ref_frame_with_pause( void )
+{
+    int maxi;
+    int i;
+    int nl;
+    printf("\n%s: Reference frame codes are:\n",PROGNAME);
+    maxi = ref_frame_list_count();
+    nl = 0;
+    for( i = 0; i < maxi; i++ )
+    {
+        if( nl == 20 )
+        {
+            if( pause_output()) nl = 0; else break;
+        }
+        nl++;
+        printf("  %-10s %s\n",ref_frame_list_code(i), ref_frame_list_desc(i));
+    }
+    printf("\n");
+}
+
 static void list_coordsys_and_exit( int argc, char *argv[] )
 {
     int ncs = 0;
@@ -707,7 +731,7 @@ static void list_program_details_and_exit( void )
 
 static const char *param_args="CGIONPSYH";
 static char *param_value[9]={0,0,0,0,0,0,0,0,0};
-static const char *switch_args="AELVKH?ZFN";
+static const char *switch_args="AELVRKH?ZFN";
 static int switch_value[10]={0,0,0,0,0,0,0,0,0,0};
 static char **unused_args;
 static int nunused_args;
@@ -793,6 +817,11 @@ static void process_command_line_options()
     if( switch_option('V') )
     {
         list_vertical_datum_with_pause();
+        exit(1);
+    }
+    if( switch_option('R') )
+    {
+        list_ref_frame_with_pause();
         exit(1);
     }
     if( switch_option('Z') ) { list_program_details_and_exit(); }

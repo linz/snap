@@ -48,11 +48,18 @@ defines the relationship between orthometric heights and ellipsoidal heights. Th
 is also used to calculate deflection of the vertical at survey marks.<p>
 
 <p>Coordinate systems are identified in snap and concord by a code.  For example &quot;NZGD2000&quot; specifies the New Zealand Geodetic Datum 2000 coordinate system.  
-A vertical datum is associated with the coordinate system by appending its code to
+A vertical datum can be associated with the coordinate system by appending its code to
 the coordinate system.  For example to associate the New Zealand Vertical Datum 2016 with
 the NZGD2000 coordinate system the code becomes &quot;NZGD2000/NZVD2016&quot;.  
 Vertical datums are defined in terms of a reference frame and can only be associated with
 coordinate systems in terms of the same reference frame.
+</p>
+
+<p>The coordinate system code can also choose an alternative reference frame for a 
+projection coordinate system.  For example EDENTM2000 is in terms of NZGD2000, which is the 
+most recent version of the the NZGD2000 datum.  However a specific version can be selected
+by appending it to the code in brackets.  For example EDENTM2000(NZGD2000_20140201) will
+select the 20140201 version of NZGD2000 as the reference frame.
 </p>
 
 <div class="SeeAlso">
