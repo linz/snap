@@ -399,6 +399,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_91A4447CA6884B5CB1C2A56D1D68980D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9656A9296382449F8E63975887248B84"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1963,6 +1969,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_91A4447CA6884B5CB1C2A56D1D68980D"
+            {
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nzgd2000_def_20170601l.bin"
+            "TargetName" = "8:nzgd2000_def_20170601l.bin"
+            "Tag" = "8:"
+            "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9656A9296382449F8E63975887248B84"
             {
             "SourcePath" = "8:..\\..\\..\\src\\snaplist\\config\\snaplist\\snaplist.tbf"
@@ -3249,15 +3275,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SNAP64"
-        "ProductCode" = "8:{DDF29949-CA4D-4DD7-AE44-4D38FDC0CD99}"
-        "PackageCode" = "8:{4DB360FC-60C3-4CF7-8E1C-512726880E41}"
+        "ProductCode" = "8:{37548367-FD93-458B-8F7B-EAD26572490A}"
+        "PackageCode" = "8:{2548D97C-6356-4E50-B342-0EDF82BAEF83}"
         "UpgradeCode" = "8:{F4B4B49E-2F89-4E88-A4C0-1ABC4DE0F465}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:TRUE"
         "InstallAllUsers" = "11:FALSE"
-        "ProductVersion" = "8:2.7.4"
+        "ProductVersion" = "8:2.7.5"
         "Manufacturer" = "8:Land Information New Zealand"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:http://www.linz.govt.nz"
@@ -3837,7 +3863,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_022D23B7400D4AA8A881275B7D0F2CE6"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\dat2site.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\dat2site.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3865,7 +3891,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_0BFF881D74D848DA8D4D388B9DD09CFB"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapspec.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapspec.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3893,7 +3919,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_113522599DC74AD18F8C7ABFC406B2D3"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\concord.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\concord.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3921,7 +3947,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_4EF1C99612D44A799AEFCB5656402AB7"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapgeoid.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapgeoid.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3949,7 +3975,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_80170AC1FD3F4DDCABED0BDA62BD7CBB"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snaplist.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snaplist.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -3977,7 +4003,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_848D279AE87F4FF984BFDAF0E0CF24D4"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapmerge.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapmerge.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -4005,7 +4031,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_898F8D9FCE44427E83FD6D8BBC410700"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapplot.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapplot.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -4033,7 +4059,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_AA39279D2D5C47D9960AF0B4734A442A"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapadjust.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapadjust.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -4061,7 +4087,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BA5442E434F7454DA342C6C7CB2F4E4D"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snap_manager.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snap_manager.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -4089,7 +4115,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_BD0DCF4E68D4445E9B01D4080F9BF85F"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snap.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snap.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -4117,7 +4143,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_ED8B227EC3554205A6EF4092A654E66F"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\site2gps.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\site2gps.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
@@ -4145,7 +4171,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_F342A8E716484DC29C69D6823B517437"
             {
-            "SourcePath" = "8:..\\..\\built\\Releasex86\\snapconv.exe"
+            "SourcePath" = "8:..\\..\\built\\Releasex64\\snapconv.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_FC29688196B146DCB8EA9958CD3775F2"
