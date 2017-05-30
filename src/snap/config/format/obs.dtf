@@ -22,6 +22,8 @@ END_OBSERVATION
 
 LOOKUP rejcode
 rej Y
+reject Y
+* Y
 default N
 END_LOOKUP
 
