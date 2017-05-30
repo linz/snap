@@ -32,7 +32,7 @@ SNAP &quot;normalises&quot; the names of the columns in the data file by replaci
 </p>
 
 <p>The format definition file is itself formatted as a series of definition commands, one per line.  Blank lines, and lines in which the first non-blank character is &quot;!&quot; are ignored.  The first word on the line is a command, and this is followed by text definition the corresponding value.  For example the &quot;FORMAT&quot; command could be entered as:
-<p>
+</p>
 <p class="Commanddefinition">FORMAT DELMITER=| HEADER=Y</p>
 
 <p>The commands are case insensitive, as are references to column names in the CSV file</p>
@@ -41,7 +41,7 @@ SNAP &quot;normalises&quot; the names of the columns in the data file by replaci
 specific to stations or observations, <a href="#station">station</a> commands, which only apply 
 to station file format definitions, and <a href="#observation">observation</a> commands, which only apply to observation file format definitions.  
 </p>
-<p>Most of the station and observation commands specify how values for components of the station or observation definition are derived from the columns in the data file.  Usually this will be simply the name of the column containing the information, but it may be a more complex value concatenating several columns, or using constant values or options specified in the SNAP <a href="cmd_coordinate_file.html"/>coordinate_file</a> or <a href="cmd_data_file.html">data_file</a> commands.  The specification of these values is described <a href="#values">below</a>.</p>
+<p>Most of the station and observation commands specify how values for components of the station or observation definition are derived from the columns in the data file.  Usually this will be simply the name of the column containing the information, but it may be a more complex value concatenating several columns, or using constant values or options specified in the SNAP <a href="cmd_coordinate_file.html">coordinate_file</a> or <a href="cmd_data_file.html">data_file</a> commands.  The specification of these values is described <a href="#values">below</a>.</p>
 
 <p>It may be useful to look at the example <a href="../crd/csv_stn_files.html">station</a> and 
 <a href="../data/csv_obs_files.html">observation</a> format definition files.</p>
@@ -268,7 +268,7 @@ defined as:</p>
 		<tr><td>diagonal</td><td><i>Sx Sy Sz</i></td></tr>
 		<tr><td>correlation</td><td><i>Sx Sy Sz Rxy Rxz Ryz</i></td></tr>
 		<tr><td>full</td><td><i>Cxx Cxy Cyy Cxz Cyz Czz</i></td></tr>
-		<tr><td>calculated</td><td><i><i>SCe SCn SCu</i> mm <i>SPe SPn SPu</i> ppm</td></tr>
+		<tr><td>calculated</td><td><i>SCe SCn SCu</i> mm <i>SPe SPn SPu</i> ppm</td></tr>
 	</table>
 
 	<p class="Commanddescription">
@@ -301,7 +301,7 @@ defined as:</p>
 				where <i>SCd</i> is the constant component of the standard error in seconds and <i>SPd</i> is the component due to plumbing errors in mm which is converted to an angle error based on the length of the line.  The root sum of squares of these components is the total angle error.
 Note that SNAP calculates this based on the coordinates when the observations are loaded - they do not get
 updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
-coordinates to recalculate the errors.</p>
+coordinates to recalculate the errors.
 		</td></tr>
 	</table>
 	<p class="Commanddefinition">
@@ -318,7 +318,7 @@ coordinates to recalculate the errors.</p>
                         where <i>SCd</i> is the constant component of the standard error in seconds, <i>SPh</i> is the component due to plumbing errors in mm, and <i>SPv</i> is the component due to instrument heighting errors in mm.  The root sum of squares of these components is the total angle error.
 Note that SNAP calculates the total error using the distance between the endpoint station coordinates when the observations are loaded - they do not get
 updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
-coordinates to recalculate the errors.</p>
+coordinates to recalculate the errors.
 		</td></tr>
 	</table>
 
@@ -338,7 +338,6 @@ coordinates to recalculate the errors.</p>
                         in millimetres per root kilometres, and <i>rlen</i> is
                         the length of the levelling run in metres (this will usually be derived from a column, eg @RUNLEN.
                         The root sum of squares of these components is the total height difference error.
-                        </p>
 		</td></tr>
 	</table>
 
@@ -409,7 +408,7 @@ ERROR @ERR_EAST &quot; &quot; @ERR_NORTH &quot; &quot; @ERR_UP
 <p class="Commanddescexample">
 <i>value</i> default <i>value</i>
 </p>
-</p>For example a coordinate system may be defined as
+<p>For example a coordinate system may be defined as
 </p>
 <p class="Commanddescexample">
 COORDINATE_SYSTEM @CRDSYS default $CRDSYS default &quot;NZGD2000&quot;
