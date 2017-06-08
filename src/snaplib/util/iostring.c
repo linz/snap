@@ -123,6 +123,24 @@ int skip_string_field( input_string_def *is )
     return read_next_field( is, &start, &length );
 }
 
+int replace_next_field( input_string_def *is, const char *replacement )
+{
+    char *s, *e, *c;
+    char *start;
+    int length;
+    int sts;
+    int len=strlen(replacement);
+    s = is->ptr;
+    sts=read_next_field( is, &start, &length );
+    if( sts != OK ) return NO_MORE_DATA;
+    e = is->ptr;
+    if( e-s < len ) return TOO_MUCH_DATA;
+    strncpy(s,replacement,len);
+    for( c=s+len; c < e; c++ ) *c=' ';
+    is->ptr = s;
+    return OK;
+}
+
 
 static int parse_number( input_string_def *is, const char *fmt, void *value )
 {

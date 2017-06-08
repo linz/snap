@@ -48,6 +48,9 @@ void set_input_string_def( input_string_def *s, char *string );
 int next_string_field( input_string_def *is, char *buf, int nbuf );
 int test_next_string_field( input_string_def *is, const char *test );
 int skip_string_field( input_string_def *is );
+
+/* Replace next field will fail if the replacement is longer than the next field */
+int replace_next_field( input_string_def *is, const char *replacement );
 int double_from_string( input_string_def *is, void *value );
 int float_from_string( input_string_def *is, void *value );
 int long_from_string( input_string_def *is, void *value );

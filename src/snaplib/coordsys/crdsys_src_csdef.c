@@ -54,6 +54,7 @@ typedef struct code_loc_s
     struct code_loc_s *next;
     char *code;
     datafile_loc loc;
+    char hidden;
 } code_loc;
 
 /* Structure defining a coordinate system definition file */
@@ -66,7 +67,7 @@ typedef struct
 
 /* Add a new code */
 
-static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, datafile_loc *loc )
+static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, int clen, char hidden, datafile_loc *loc )
 {
     code_loc **next;
     code_loc *newloc;
@@ -77,13 +78,48 @@ static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, 
     }
     next = &(csf->codes[type]);
     while( *next ) next=&((*next)->next);
-    newloc = (code_loc *) check_malloc( sizeof(code_loc) + strlen(code) + 1 );
+    newloc = (code_loc *) check_malloc( sizeof(code_loc) + clen + 1 );
     newcode = ((char *) newloc)+sizeof(code_loc);
-    strcpy(newcode,code);
+    strncpy(newcode,code,clen);
     newloc->next=0;
     newloc->code=newcode;
+    newloc->hidden=hidden;
     memcpy(&(newloc->loc),loc,sizeof(datafile_loc));
     (*next)=newloc;
+    return newloc;
+}
+
+static code_loc *add_codes( crdsys_file_source *csf, int type, const char *code, datafile_loc *loc )
+{
+    const char *cptr, *eptr;
+    int clen;
+    char hidden;
+    code_loc *newloc=0;
+
+    eptr=code;
+    while( *eptr )
+    {
+        cptr=eptr;
+        /* Allow for codes with aliases as NZGD2000=NZGD2000_2010601 */
+        /* Allow for hidden codes with (20170601) */
+        while( *eptr && *eptr != '=' ) eptr++;
+        if( eptr > cptr )
+        {
+            clen=eptr-cptr;
+            hidden=0;
+            if( *cptr == '(' && clen >= 3 && cptr[clen-1] == ')' )
+            {
+                cptr++;
+                clen -= 2;
+                hidden=1;
+            }
+            if( clen > 0 && clen <= CRDSYS_CODE_LEN )
+            {
+                newloc=add_code( csf, type, cptr, clen, hidden, loc );
+            }
+        }
+        if( *eptr ) eptr++;
+    }
     return newloc;
 }
 
@@ -121,10 +157,10 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
     {
         input_string_def *is;
         datafile_loc loc;
-        char code[CRDCNV_CODE_LEN+1];
+        char code[255];
         df_save_data_file_loc( cfs->df, &loc );
         is =  df_input_string( cfs->df );
-        if( next_string_field( is ,code, CRDCNV_CODE_LEN+1 ) != OK ) continue;
+        if( next_string_field( is ,code, 255 ) != OK ) continue;
         if( code[0] == '[' )
         {
             if( _stricmp(code,ELLIPSOID_TAG) == 0 ) type = CS_ELLIPSOID;
@@ -138,13 +174,13 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
         }
         else if( type != CS_INVALID )
         {
-            add_code( cfs, type, code, &loc );
+            add_codes( cfs, type, code, &loc );
             if( type == CS_COORDSYS_NOTE || type == CS_REF_FRAME_NOTE )
             {
                 /* Notes can refer to multiple codes - get a complete list */
                 while( next_string_field( is ,code, CRDSYS_CODE_LEN+1 ) == OK )
                 {
-                    add_code( cfs, type, code, &loc );
+                    add_codes( cfs, type, code, &loc );
                 }
                 /* Notes continue to a line ending end_note ... */
                 while( df_read_data_file( cfs->df ) == OK )
@@ -177,14 +213,17 @@ static int get_codes( void *pcfs,
         id = 0;
         for( cl=cfs->codes[type]; cl; cl=cl->next )
         {
-            df_reset_data_file_loc( cfs->df, &cl->loc );
-            instr = df_input_string( cfs->df );
-            skip_string_field( instr );
-            if( next_string_field( instr, name, CRDSYS_NAME_LEN ) != OK)
+            if( ! cl->hidden )
             {
-                strcpy(name,"(unnamed)");
+                df_reset_data_file_loc( cfs->df, &cl->loc );
+                instr = df_input_string( cfs->df );
+                skip_string_field( instr );
+                if( next_string_field( instr, name, CRDSYS_NAME_LEN ) != OK)
+                {
+                    strcpy(name,"(unnamed)");
+                }
+                (*addfunc)((int) type, id, cl->code, name );
             }
-            (*addfunc)((int) type, id, cl->code, name );
             id++;
         }
     }
@@ -217,6 +256,7 @@ static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, int typ
     if( !cl ) return NULL;
     df_reset_data_file_loc( cfs->df, &cl->loc );
     instr = df_input_string( cfs->df );
+    replace_next_field(instr,cl->code);
     return instr;
 }
 
