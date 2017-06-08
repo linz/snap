@@ -52,25 +52,23 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 !    IERS_ETSR refdate Tx Ty Tz scale Rx Ry Rz dTx dTy dTz dscale dRx dRy dRz
 
 [reference_frames]
-NZGD2000 "New Zealand Geodetic Datum 2000 (version 20170601)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+
+NZGD2000=NZGD2000_20170601=(20170601) "New Zealand Geodetic Datum 2000 (version 20170601)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20170601l.bin
 
-NZGD2000_20170601 "New Zealand Geodetic Datum 2000 (version 20170601)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION LINZDEF nzgd2000_def_20170601l.bin
-
-NZGD2000_20160701 "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000_20160701=(20160701) "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20160701l.bin
 
-NZGD2000_20150101 "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000_20150101=(20150101) "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20150101l.bin
 
-NZGD2000_20140201 "New Zealand Geodetic Datum 2000 (version 20140201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000_20140201=(20140201) "New Zealand Geodetic Datum 2000 (version 20140201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20140201l.bin
 
-NZGD2000_20130801 "New Zealand Geodetic Datum 2000 (version 20130801)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000_20130801=(20130801) "New Zealand Geodetic Datum 2000 (version 20130801)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20130801l.bin
 
-NZGD2000_20000101 "New Zealand Geodetic Datum 2000 (version 20000101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+NZGD2000_20000101=(20000101) "New Zealand Geodetic Datum 2000 (version 20000101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION VELGRID igns98b 2000.0
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
@@ -106,7 +104,7 @@ WGS84_G1674 "World Geodetic System 1984 (G1674)" ELLIPSOID WGS84 &
   ITRF2008 IERS_ETSR 2005.0   0      0      0     0        0        0        0       &
                               0      0      0     0        0        0        0      
    
-WGS84_G1762 "World Geodetic System 1984 (G1762)" ELLIPSOID WGS84 &
+WGS84_G1762=(WGS84) "World Geodetic System 1984 (G1762)" ELLIPSOID WGS84 &
   ITRF2008 IERS_ETSR 2005.0   0      0      0     0        0        0        0       &
                               0      0      0     0        0        0        0      
 
