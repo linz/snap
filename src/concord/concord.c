@@ -732,7 +732,7 @@ static void list_program_details_and_exit( void )
 static const char *param_args="CGIONPSYH";
 static char *param_value[9]={0,0,0,0,0,0,0,0,0};
 static const char *switch_args="AELVRKH?ZFN";
-static int switch_value[10]={0,0,0,0,0,0,0,0,0,0};
+static int switch_value[11]={0,0,0,0,0,0,0,0,0,0,0};
 static char **unused_args;
 static int nunused_args;
 

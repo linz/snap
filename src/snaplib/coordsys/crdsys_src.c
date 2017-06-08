@@ -156,7 +156,7 @@ coordsys * load_coordsys( const char *code )
         dtmptr=cptr;
         while( *cptr && *cptr != ')' ) cptr++;
         enddtmptr=cptr;
-        if( *cptr == ')' ) cptr++; else cptr=dtmptr-1;
+        if( *cptr == ')' ) cptr++; else { cptr=dtmptr-1; dtmptr=0; }
     }
     if( *cptr == '/' )
     {
@@ -268,6 +268,7 @@ coordsys * load_coordsys( const char *code )
         if( rf )
         {
             set_coordsys_ref_frame( cs, rf );
+            rf=0;
         }
 
         if( hrs )
@@ -278,7 +279,6 @@ coordsys * load_coordsys( const char *code )
                 sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
                         hrs->code, cs->code );
                 handle_error( INVALID_DATA, errmsg, nullptr );
-                delete_ref_frame( rf );
                 delete_coordsys( cs );
                 delete_vdatum( hrs );
                 return NULL;
