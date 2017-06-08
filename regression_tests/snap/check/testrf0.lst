@@ -146,14 +146,14 @@ Regression test 1 - data types and observation equations
                               STATION COORDINATES
 
 ================================================================================
-Coordinate system: New Zealand Geodetic Datum 2000 XYZ (version 20160701)
+Coordinate system: New Zealand Geodetic Datum 2000 XYZ (version 20170601)
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
 Station heights are ellipsoidal heights.
 Geoid heights not defined - orthometric and ellipsoidal heights are the same.
 
-Note: the deformation model associated with New Zealand Geodetic Datum 2000 XYZ (version 20160701) has not been used
+Note: the deformation model associated with New Zealand Geodetic Datum 2000 XYZ (version 20170601) has not been used
 
 The error ellipse and height error are the apriori errors
 

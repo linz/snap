@@ -4,8 +4,8 @@ options ellipsoidal_heights no_deflections geoid_heights degrees c=Order c=Mark_
 ! Converted from NZGD2000 at epoch 2005-01-02
 
 !Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
-1        -41.01299807720    173.32099953812   149.9845 -0.0155 2     PIN   Node one
-2        -41.00699807851    173.32799953989   249.9846 -0.0154 2     PEG   Node two
-3        -41.00799807893    173.33299953845    69.9846 -0.0154 3     BOLT  Node three
-4        -41.01299807720    173.32099953812   149.9845 29.9845 2     PIN   Node four
-5        -41.00699807851    173.32799953989   249.9846 29.9846 2     PEG   Node five
+1        -41.01299807664    173.32099953735   150.0121  0.0121 2     PIN   Node one
+2        -41.00699807791    173.32799953912   250.0126  0.0126 2     PEG   Node two
+3        -41.00799807834    173.33299953767    70.0129  0.0129 3     BOLT  Node three
+4        -41.01299807664    173.32099953735   150.0121 30.0121 2     PIN   Node four
+5        -41.00699807791    173.32799953912   250.0126 30.0126 2     PEG   Node five

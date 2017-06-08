@@ -61,7 +61,7 @@ Number of parameters:                 0
 Number of implicit parameters:        1
 
 Degrees of freedom:                  46
-Sum of squared residuals:         1878478573.67267
+Sum of squared residuals:         1878478573.67307
 Standard error of unit weight:     6390.34355
 
 The probability of an SSR this high is 0.000% (from Chi squared (46))
@@ -78,14 +78,14 @@ Testing CSV input
                               STATION COORDINATES
 
 ================================================================================
-Coordinate system: New Zealand Geodetic Datum 2000 (version 20160701)
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20170601)
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
 Station heights are ellipsoidal heights.
 Geoid heights not defined - orthometric and ellipsoidal heights are the same.
 
-Note: the deformation model associated with New Zealand Geodetic Datum 2000 (version 20160701) has not been used
+Note: the deformation model associated with New Zealand Geodetic Datum 2000 (version 20170601) has not been used
 
 The error ellipse and height error are the apriori errors
 

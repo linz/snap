@@ -315,7 +315,7 @@ File testafx.dat: line 38
 
 7     2            0 ED      889.2866 0.0044    889.2916 0.0031 -0.0050 0.0031   1.61     
 
-7     3            0 ED     1152.1698 0.0046   1152.1698 0.0046  0.0000 0.0000    -   @   
+7     3            0 ED     1152.1698 0.0046   1152.1698 0.0046 -0.0000 0.0000    -   @   
 
 8     2            0 SD#     894.8014 0.0022    894.9014 0.0022 -0.1000 0.0031  32.14 #???
 
@@ -444,17 +444,17 @@ The following table lists the 10 worst residuals of used data
 
 From   To         Id  Type     S.R.  Sig (%)       Line  File
 
-7      2           0   ED     1.607   89.196         59  testafx.dat
-
 7      2           0   ED     1.607   89.196         60  testafx.dat
 
-2      3           0   HA     0.000    0.000         13  testafx.dat
+7      2           0   ED     1.607   89.196         59  testafx.dat
 
 2      1           0   HA     0.000    0.000         12  testafx.dat
 
-2      3           0   HA     0.000    0.000         17  testafx.dat
+2      3           0   HA     0.000    0.000         13  testafx.dat
 
 2      1           0   HA     0.000    0.000         16  testafx.dat
+
+2      3           0   HA     0.000    0.000         17  testafx.dat
 
 1      2           0   LV     0.000     -            28  testafx.dat
 

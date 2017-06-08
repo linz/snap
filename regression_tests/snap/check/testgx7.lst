@@ -532,21 +532,21 @@ BEGIN_JSON obs_equation_2
     "values": []
    },
    {
-    "value": -3.78086232e-03,
+    "value": -3.78086325e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [4, 5, 6],
     "values": [-1.16095660e-01, -6.51714889e-01, -7.49526185e-01]
    },
    {
-    "value":  5.30653633e-05,
+    "value":  5.30654797e-05,
     "useobs": true,
     "ncolumns": 3,
     "columns": [4, 5, 6],
     "values": [-9.93238037e-01,  7.61763717e-02,  8.76091466e-02]
    },
    {
-    "value":  2.02583475e-03,
+    "value":  2.02583428e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [4, 5, 6],
@@ -732,21 +732,21 @@ BEGIN_JSON obs_equation_2
     "values": []
    },
    {
-    "value": -3.78086232e-03,
+    "value": -3.78086325e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [4, 5, 6],
     "values": [-1.16095660e-01, -6.51714889e-01, -7.49526185e-01]
    },
    {
-    "value":  5.30653633e-05,
+    "value":  5.30654797e-05,
     "useobs": true,
     "ncolumns": 3,
     "columns": [4, 5, 6],
     "values": [-9.93238037e-01,  7.61763717e-02,  8.76091466e-02]
    },
    {
-    "value":  2.02583475e-03,
+    "value":  2.02583428e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [4, 5, 6],
@@ -791,7 +791,7 @@ BEGIN_JSON normal_equations_2
   ],
 "normal_equations": {
   "nparam": 6,
-  "b": [-8.41103576e-02,-5.02513208e-01,-2.09827602e-02, 3.30509500e-01, 1.92650668e+00, 1.23423405e-01    ],
+  "b": [-8.41103551e-02,-5.02513249e-01,-2.09827871e-02, 3.30509490e-01, 1.92650683e+00, 1.23423551e-01    ],
   "N": {
     "nrows": 6,
     "nsparse": 0,
@@ -811,7 +811,7 @@ END_JSON normal_equations_2
 BEGIN_JSON solution_vector_2
 {
 "nparam": 6,
-"b": [-5.86875887e-11, 7.35201922e-09, 7.48459557e-07, 2.47332416e-04, 3.23172418e-03, 8.58315950e-04  ]
+"b": [-5.86875887e-11, 7.35201922e-09, 7.48459557e-07, 2.47332408e-04, 3.23172445e-03, 8.58316964e-04  ]
 }
 END_JSON solution_vector_2
 
