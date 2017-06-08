@@ -277,7 +277,17 @@ sub newFromCoordSysDef
             s/\s*$//;
         }
         next if ! /^\s*(\S+)\s+(\S.*?)\s*$/;
-        $list->{uc($1)} = $2;
+        my $codestr=$1;
+        my $codedef=$2;
+        my @codes=($codestr);
+        if( $codestr =~ /^((?:^|=)(?:\([^\)]+\)|[^\(\)\=]+))+$/ )
+        {
+            @codes = $codestr=~ /[^\(\)\=]+/g;
+        }
+        foreach my $c (@codes)
+        {
+            $list->{uc($c)} = $codedef;
+        }
     }
     close(CSFILE);
 
