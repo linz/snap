@@ -6,6 +6,11 @@ use File::Copy;
 my $zipexe = "c:\\bin\\zip.exe";
 die "Cannot find zip program\n" if ! -e $zipexe;
 mkdir 'distribution' if ! -d 'distribution';
+mkdir 'distribution/old' if ! -d 'distribution/old';
+foreach my $of (glob('distribution/*.zip'))
+{
+    move($of,'distribution/old');
+}
 my ($y,$m,$d) = (localtime)[5,4,3];
 $y += 1900;
 $m++;
@@ -19,7 +24,7 @@ system($zipexe,
    );
 print "Built $zip\n";
 
-my $zip = "distribution/snap64_$version.zip";
+$zip = "distribution/snap64_$version.zip";
 unlink $zip;
 system($zipexe,
    "-j",
