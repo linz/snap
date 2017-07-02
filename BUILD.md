@@ -49,9 +49,13 @@ They may require adapting for other operating systems.
 
 The prerequisites for building include at least g++ and some components of boost (regular expressions).
 
+These are provided by:
+* libgtk2.0-dev
+* libboost-dev-all
+
 The build steps include:
 
-1) Build wxWidgets 2.8 compoents. cd to wxwidgets-2.8, ./run_configure.sh, and then make
+1) Build wxWidgets 2.8 compoents. cd to wxwidgets-2.8/build_gtk, ./run_configure.sh, and then make
 
 2) Build snap components (cd unix, make)
 

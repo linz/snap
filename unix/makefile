@@ -17,6 +17,7 @@ CP = cp
 MD = mkdir -p
 RM = rm -f
 LAPG = ../tools/lapg/lapg
+LAPGSRCDIR=../tools/lapg/src
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
@@ -76,7 +77,7 @@ snap_cmd: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SI
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) $(SITE2GPSEXE) \
 	$(SNAPLIB) support_files
 
-./makefile.inc:
+./makefile.inc: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 	@python build_makefile_inc.py > makefile.inc
 
 $(OBJ)/%.o: $(SRCDIR)/%.cpp
@@ -127,6 +128,9 @@ $(SNAPADJUSTEXE): makedirs $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB)
 
 $(SNAPPLOTEXE): makedirs $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB)
 	$(CC) $(CCFLAGS) $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPPLOTEXE)
+
+$(LAPG): 
+	cd $(LAPGSRCDIR) && make
 
 $(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_parse.syntax
 	$(LAPG) $(SRCDIR)/snap_manager/scriptimp_parse.syntax $(SRCDIR)/snap_manager/scriptimp_parse.cpp
