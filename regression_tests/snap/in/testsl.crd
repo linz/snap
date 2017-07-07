@@ -1,5 +1,5 @@
 Test 1 - basic obs type tests
-NZGD2000
+NZGD2000(20160701)
 options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=Mark_Type
 ! Converted from NZGD1949
 

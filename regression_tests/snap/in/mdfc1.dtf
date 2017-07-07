@@ -4,7 +4,7 @@ required_columns code ordv1 ordv2 ordv3
 
 code @CODE
 name @ALTN
-coordinate_system $crdsys default "NZGD2000"
+coordinate_system $crdsys default "NZGD2000(20160701)"
 height_type "ellipsoidal"
 longitude @ORDV2
 latitude @ORDV1
