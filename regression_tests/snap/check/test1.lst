@@ -3451,7 +3451,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -6.45370997e-08,
+    "value": -6.45368954e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -3476,7 +3476,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.24516730e-08,
+    "value": -8.24510904e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -3501,7 +3501,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.24516730e-08,
+    "value": -8.24510895e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -3534,7 +3534,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.61380358e-08,
+    "value": -1.61378317e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -3598,7 +3598,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -4.83205986e-05,
+    "value": -4.83206491e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -3630,7 +3630,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value":  3.76519890e-05,
+    "value":  3.76518678e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -3662,7 +3662,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value":  3.76519890e-05,
+    "value":  3.76518678e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -3726,7 +3726,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.94401812e-05,
+    "value": -1.94403021e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -3783,7 +3783,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -3903,7 +3903,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -6.53683325e-08,
+    "value": -6.53681282e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -3928,7 +3928,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.32577749e-08,
+    "value": -8.32571914e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -3953,7 +3953,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.29584224e-08,
+    "value": -8.29578388e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -3986,7 +3986,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.57561657e-08,
+    "value": -1.57559612e-08,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4032,7 +4032,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -4.83205986e-05,
+    "value": -4.83206491e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4064,7 +4064,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value":  3.76519890e-05,
+    "value":  3.76518678e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -4096,7 +4096,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -4216,7 +4216,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -6.53683334e-08,
+    "value": -6.53681291e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -4241,7 +4241,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.12797349e-08,
+    "value": -8.12791514e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -4266,7 +4266,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -5.96873662e-08,
+    "value": -5.96867826e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -4299,7 +4299,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.57561655e-08,
+    "value": -1.57559610e-08,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4345,7 +4345,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -4.83205986e-05,
+    "value": -4.83206491e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4521,21 +4521,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  2.00489628e-02,
+    "value":  2.00489637e-02,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4574,21 +4574,21 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4641,21 +4641,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4694,21 +4694,21 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4761,21 +4761,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4814,21 +4814,21 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4881,21 +4881,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -4934,21 +4934,21 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -5033,21 +5033,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -5086,21 +5086,21 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value":  4.89627540e-05,
+    "value":  4.89636853e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.36261176e-05,
+    "value": -3.36262340e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.13194840e-06,
+    "value": -3.13148274e-06,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -5761,7 +5761,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -6.45370997e-08,
+    "value": -6.45368954e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -5786,7 +5786,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.24516730e-08,
+    "value": -8.24510904e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -5811,7 +5811,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.24516730e-08,
+    "value": -8.24510895e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -5844,7 +5844,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.61380358e-08,
+    "value": -1.61378317e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -5876,7 +5876,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.61380358e-08,
+    "value": -1.61378317e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -5940,7 +5940,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -4.83205986e-05,
+    "value": -4.83206491e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -5972,7 +5972,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value":  3.76519890e-05,
+    "value":  3.76518678e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6004,7 +6004,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value":  3.76519890e-05,
+    "value":  3.76518678e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6068,7 +6068,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.94401812e-05,
+    "value": -1.94403021e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6125,7 +6125,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6253,7 +6253,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6285,7 +6285,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6317,7 +6317,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -6349,7 +6349,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 1,
   "obs": [
    {
-    "value": -1.48529715e-08,
+    "value": -1.48520884e-08,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],

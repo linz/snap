@@ -55,7 +55,7 @@ Data file 2: data/test2.dat
     Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
        2 GPS point coords
 
-Data file 3: data/test3.dat
+Data file 3: data\test3.dat
     Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
        2 GPS point coords
 
@@ -210,7 +210,7 @@ File data/test2.dat: line 8
             -4163244.5856  0.0248  -4163244.5856  0.0143  0.0035  0.0245   0.14     
              6369436.1884           6369436.1849          0.0400           2.81  ???
 
-File data/test3.dat: line 8
+File data\test3.dat: line 8
 
 1     GX    -4787264.6300  0.0260  -4787264.5600  0.0150  0.0081  0.0082   1.00     
               560595.5704  0.0104    560595.5704  0.0060  0.0456  0.0163   2.79  ???
@@ -256,7 +256,7 @@ data/test1.dat                              1.31    6     -      -    1.31    6
 
 data/test2.dat                              2.09    6     -      -    2.09    6
 
-data/test3.dat                              3.34    6     -      -    3.34    6
+data\test3.dat                              3.34    6     -      -    3.34    6
 
 
 
@@ -281,11 +281,11 @@ The following table lists the 6 worst residuals of used data
 
 From   To     Type     S.R.  Sig (%)       Line  File
 
-2              GX     4.219  100.000 ???     13  data/test3.dat
+2              GX     4.219  100.000 ???     13  data\test3.dat
 
 2              GX     2.813   99.997 ???     13  data/test2.dat
 
-1              GX     2.112   99.613 ???      8  data/test3.dat
+1              GX     2.112   99.613 ???      8  data\test3.dat
 
 2              GX     1.406   88.508         13  data/test1.dat
 
