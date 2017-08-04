@@ -343,7 +343,7 @@ function ImportLINZGDB()
     DeleteFile($newcrdfile)
     $options=""
     if $addmarktypes then $options="-m" endif
-    $command = "perl -S linz_gdb_stations.bat $options \"$inputfile\" \"$newcrdfile\""
+    $command = "\"$perl\" -S linz_gdb_stations.bat $options \"$inputfile\" \"$newcrdfile\""
     $gdbresult = debuglogrun( $command )
     DeleteFile($inputfile)
 
