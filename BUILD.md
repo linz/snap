@@ -22,6 +22,8 @@ In order to build SNAP the following tools must be installed on the build comput
 
 3) hhc - the Microsoft HTML help compiler - assumed to be in a directory in the PATH variable.
 
+4) boost libraries installed into a /boost subdirectory
+
 
 Build instructions:
 
