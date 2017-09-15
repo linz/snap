@@ -584,7 +584,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
         _T("Select configuration filename for save"),
         cmdDir,
         _T("*" SNAPPLOT_CONFIG_EXT),
-        _T("Snapplot config files (" SNAPPLOT_CONFIG_EXT ")|" SNAPPLOT_CONFIG_EXT "|All files (*.*)|*.*"),
+        _T("Snapplot config files (*" SNAPPLOT_CONFIG_EXT ")|*" SNAPPLOT_CONFIG_EXT "|All files (*.*)|*.*"),
         wxSAVE | wxOVERWRITE_PROMPT
     );
 
@@ -610,7 +610,7 @@ void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
                               cmdDir,
                               _T("*" SNAPPLOT_CONFIG_EXT),
                               _T(SNAPPLOT_CONFIG_EXT),
-                              _T("Snapplot config files (" SNAPPLOT_CONFIG_EXT ")|" SNAPPLOT_CONFIG_EXT "|All files (*.*)|*.*" ),
+                              _T("Snapplot config files (*" SNAPPLOT_CONFIG_EXT ")|*" SNAPPLOT_CONFIG_EXT "|All files (*.*)|*.*" ),
                               wxOPEN | wxFILE_MUST_EXIST,
                               this
                           );
