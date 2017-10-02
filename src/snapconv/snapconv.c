@@ -168,16 +168,6 @@ int main( int argc, char *argv[] )
         return 2;
     }
 
-    if( ! network_has_geoid_info(net) && 
-        ( hgttype == SET_HGTTYPE_ORTHOMETRIC ||
-            ( hgttype == SET_HGTTYPE_DEFAULT && 
-                ! network_height_coord_is_ellipsoidal( net ) )
-        )
-      )
-    {
-        hgtfixopt = NW_HGTFIXEDOPT_ORTHOMETRIC;
-    }
-
     netcrdsys=copy_string(net->crdsysdef);
 
     msg[0]=0;

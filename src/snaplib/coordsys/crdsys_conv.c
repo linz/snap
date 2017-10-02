@@ -278,6 +278,17 @@ int define_ellipsoidal_coord_conversion_epoch( coord_conversion *conv,
     return define_coord_conversion_base( conv, from, to, convepoch, 1 );
 }
 
+
+coordsys *conversion_from_coordsys( coord_conversion *conv )
+{
+    return conv->from;
+}
+
+coordsys *conversion_to_coordsys( coord_conversion *conv )
+{
+    return conv->to;
+}
+
 static int check_crdsys_range( coordsys *cs, double llh[3] )
 {
     if( llh[CRD_LAT] < cs->ltmin || llh[CRD_LAT] > cs->ltmax ) return 0;
@@ -326,6 +337,17 @@ int convert_coords( coord_conversion *conv,
                                            xyz[CRD_EAST], xyz[CRD_NORTH], xyz+CRD_LON, xyz+CRD_LAT );
     isgeoc = conv->from_geoc;
 
+    /* Convert the undulation to orthometric height, and convert the
+     deflections to astronomical lats, longs */
+
+    if( geoid )
+    {
+        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
+        gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
+        gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
+        gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
+    }
+
     if( sts == OK && conv->nhrf_from )
     {
         if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
@@ -341,17 +363,6 @@ int convert_coords( coord_conversion *conv,
                  "Cannot calculate %s height",
                                     conv->from->hrs->code);
         }
-    }
-
-    /* Convert the undulation to orthometric height, and convert the
-     deflections to astronomical lats, longs */
-
-    if( geoid )
-    {
-        if( isgeoc ) { xyz_to_llh( from->rf->el, xyz, xyz ); isgeoc=0; }
-        gllh[CRD_LAT] = xyz[CRD_LAT] + gllh[CRD_LAT];
-        gllh[CRD_LON] = xyz[CRD_LON] + gllh[CRD_LON]/cos(xyz[CRD_LAT]);
-        gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
     }
 
     if( conv->need_xyz && ! isgeoc )
@@ -450,18 +461,6 @@ int convert_coords( coord_conversion *conv,
         }
     }
 
-    /* Recompute the deflections etc */
-    if( sts == OK && geoid )
-    {
-        if( geoid )
-        {
-            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
-            gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
-            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
-            gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
-        }
-    }
-
     /* If output coordinates are on orthometric surface */
 
     if( sts == OK && conv->nhrf_to )
@@ -478,6 +477,18 @@ int convert_coords( coord_conversion *conv,
             sprintf(conv->errmsg,
                  "Cannot calculate %s height",
                                     conv->to->hrs->code);
+        }
+    }
+
+    /* Recompute the deflections etc */
+    if( sts == OK && geoid )
+    {
+        if( geoid )
+        {
+            if( isgeoc ) { xyz_to_llh( to->rf->el, xyz, xyz ); isgeoc=0; }
+            gllh[CRD_LAT] = gllh[CRD_LAT] - xyz[CRD_LAT];
+            gllh[CRD_LON] = (gllh[CRD_LON] - xyz[CRD_LON]) * cos(xyz[CRD_LAT]);
+            gllh[CRD_HGT] = xyz[CRD_HGT] - gllh[CRD_HGT];
         }
     }
 

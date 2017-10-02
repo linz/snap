@@ -24,7 +24,7 @@ int merge_network( network *base, network *data, int mergeopts,
 {
 
     coord_conversion cconv;
-    double llh[3], xeu[3];
+    double llh[3], exu[3];
     int istn;
     int convertcoords;
     station *st, *stnew;
@@ -92,17 +92,18 @@ int merge_network( network *base, network *data, int mergeopts,
         llh[CRD_LAT] = st->ELat;
         llh[CRD_LON] = st->ELon;
         llh[CRD_HGT] = st->OHgt + st->GUnd;
-        xeu[CRD_LAT] = st->GXi;
-        xeu[CRD_LON] = st->GEta;
-        xeu[CRD_HGT] = st->GUnd;
+        exu[CRD_LAT] = st->GXi;
+        exu[CRD_LON] = st->GEta;
+        exu[CRD_HGT] = st->GUnd;
 
-        if( convertcoords ) convert_coords( &cconv, llh, xeu, llh, xeu );
+        if( convertcoords ) convert_coords( &cconv, llh, exu, llh, exu );
 
         if( stdellist[idata] ) remove_station( base, stdellist[idata]);
 
+        llh[CRD_HGT] -= exu[CRD_HGT];
         stnew = new_network_station( base, st->Code, st->Name,
-                                     llh[CRD_LAT], llh[CRD_LON], st->OHgt,
-                                     xeu[CRD_LAT], xeu[CRD_LON], xeu[CRD_HGT] );
+                                     llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT],
+                                     exu[CRD_LAT], exu[CRD_LON], exu[CRD_HGT] );
 
         for( i = 1; i <= nclass; i++ )
         {

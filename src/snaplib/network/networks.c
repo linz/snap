@@ -28,9 +28,10 @@
 
 #define COMMENT_CHAR '!'
 
-static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt, int testonly )
+static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt, 
+        int testonly )
 {
-    double llh[3], xeu[3];
+    double llh[3], exu[3];
     int sts;
 
     /* Convert the coordinates from the input system to the output
@@ -38,18 +39,18 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt
 
     llh[CRD_LAT] = st->ELat;
     llh[CRD_LON] = st->ELon;
-    llh[CRD_HGT] = st->OHgt + st->GUnd;
-    xeu[CRD_LAT] = st->GXi;
-    xeu[CRD_LON] = st->GEta;
-    xeu[CRD_HGT] = st->GUnd;
+    llh[CRD_HGT] = st->OHgt+st->GUnd;
+    exu[CRD_LAT] = st->GXi;
+    exu[CRD_LON] = st->GEta;
+    exu[CRD_HGT] = st->GUnd;
 
-    sts=convert_coords( ccv, llh, xeu, llh, xeu );
+    sts=convert_coords( ccv, llh, exu, llh, exu );
 
-    if( testonly ) return sts; 
+    if( testonly || sts != OK ) return sts; 
 
-    st->GXi  = xeu[CRD_LAT];
-    st->GEta = xeu[CRD_LON];
-    st->GUnd = xeu[CRD_HGT];
+    st->GXi  = exu[CRD_LAT];
+    st->GEta = exu[CRD_LON];
+    st->GUnd = exu[CRD_HGT];
 
     if( hgtfixopt == NW_HGTFIXEDOPT_ORTHOMETRIC )
     {
@@ -64,7 +65,7 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt
        ellipsoid */
 
     modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT], ccv->to->rf->el );
-    return OK;
+    return sts;
 
 }
 
@@ -102,7 +103,8 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
                     hgtfixopt=NW_HGTFIXEDOPT_ORTHOMETRIC;
                 }
             }
-            sts=define_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch );
+
+            sts=define_ellipsoidal_coord_conversion_epoch( &cconv, nw->geosys, geosys, epoch );
 
             /* Trial conversion to check coordinates can be converted */
 
@@ -126,18 +128,13 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
 
             /* If all OK, then actually convert coordinates */
 
-            if( ! explicit_geoid && coordsys_heights_orthometric( csold ) )
-            {
-                calculate_network_coordsys_geoid( nw, OK );
-            }
-
             reset_station_list( nw, 0 );
             while( NULL != (st = next_station(nw)) )
             {
                 sts=convert_stn_coords( &cconv, st, hgtfixopt, 0 );
             }
 
-            if( ! explicit_geoid && coordsys_heights_orthometric(cs) )
+            if( coordsys_heights_orthometric(cs) )
             {
                 calc_station_geoid_info_from_coordsys( nw, cs, hgtfixopt, OK );
             }

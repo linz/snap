@@ -470,6 +470,9 @@ int convert_coords( coord_conversion *conv,
                     double *fenh, double *fexu,
                     double *tenh, double *texu );
 
+coordsys *conversion_from_coordsys( coord_conversion *conv );
+coordsys *conversion_to_coordsys( coord_conversion *conv );
+
 /*=======================================================================*/
 /* Write a description of the item                                       */
 /* Will probably write versions that goes directly to a string at some   */

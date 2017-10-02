@@ -14,7 +14,7 @@
 int calculate_network_coordsys_geoid( network *nw, int errlevel )
 {
     if( ! coordsys_heights_orthometric(nw->crdsys) ) return OK;
-    if( nw->options & NW_EXPLICIT_GEOID ) return OK;
+    // if( nw->options & NW_EXPLICIT_GEOID ) return OK;
     return calc_station_geoid_info_from_coordsys( nw, nw->crdsys, NW_HGTFIXEDOPT_DEFAULT, errlevel );
 }
 

@@ -111,6 +111,7 @@ static int rf_linzdef_calc( ref_frame *rf, double lon, double lat, double epoch,
 static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
 {
     char *title;
+    char buffer[128];
     int i;
     int sts;
     ref_deformation *def = rf->def;
@@ -127,14 +128,34 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
     }
     else
     {
-        /* Output name and title, but not version string */
-        for( i = 1; i < 3; i++ )
+        /* Name and version */
+        buffer[0]=0;
+        sts = utlLinzDefTitle( model->linzdef, 1, &title );
+        if( sts == STS_OK && title )
         {
-            sts = utlLinzDefTitle( model->linzdef, i, &title );
-            if( sts == STS_OK && title && title[0])
+            sprintf(buffer,"%.80s",title);
+        }
+        sts = utlLinzDefTitle( model->linzdef, 3, &title );
+        if( sts == STS_OK && title && title[0] )
+        {
+            if( buffer[0] )
             {
-                write_output_string2(os,title,OSW_TRIMR | OSW_SKIPBLANK,"    ");
+                if( ! strstr(buffer,title) )
+                {
+                    sprintf(buffer+strlen(buffer)," (%.20s)",title);
+                }
             }
+            else
+            {
+                sprintf(buffer,"Version %.20s",title);
+            }
+        }
+        write_output_string2(os,buffer,OSW_TRIMR | OSW_SKIPBLANK,"    ");
+        /* Description */
+        sts = utlLinzDefTitle( model->linzdef, 2, &title );
+        if( sts == STS_OK && title && title[0])
+        {
+            write_output_string2(os,title,OSW_TRIMR | OSW_SKIPBLANK,"    ");
         }
     }
     return OK;

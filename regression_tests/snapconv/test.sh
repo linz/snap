@@ -49,11 +49,15 @@ echo "Conversions involving height reference surface"
 "${SNAPDIR}/snapconv" in/test1.crd NZGD2000/NZVD09 out/test1o.crd > out/test1o.log
 "${SNAPDIR}/snapconv" in/test3.crd NZGD2000/NZVD09 out/test3o.crd > out/test3o.log
 "${SNAPDIR}/snapconv" in/test4.crd NZGD2000/NZVD09 out/test4o.crd > out/test4o.log
+"${SNAPDIR}/snapconv" in/test5.crd NZGD2000/NZVD09 out/test5o.crd > out/test5o.log
+"${SNAPDIR}/snapconv" in/test6.crd NZGD2000 out/test6o.crd > out/test6o.log
 "${SNAPDIR}/snapconv" -p in/test1.crd NZGD2000/NZVD09 out/test1p.crd > out/test1p.log
 "${SNAPDIR}/snapconv" -p in/test3.crd NZGD2000/NZVD09 out/test3p.crd > out/test3p.log
 "${SNAPDIR}/snapconv" -p in/test4.crd NZGD2000/NZVD09 out/test4p.crd > out/test4p.log
+"${SNAPDIR}/snapconv" -p in/test5.crd NZGD2000/NZVD09 out/test5p.crd > out/test5p.log
+"${SNAPDIR}/snapconv" -p in/test6.crd NZGD2000 out/test6p.crd > out/test6p.log
+"${SNAPDIR}/snapconv" -p in/test1.crd NZGD2000/NZVD09 out/test1p.crd > out/test1p.log
 "${SNAPDIR}/snapconv" -o in/test3.crd NZGD2000/NZVD09 out/test3q.crd > out/test3q.log
-"${SNAPDIR}/snapconv" in/test6.crd NZGD2000 out/test6o.crd > out/test6o.log
 
 echo "Setting output height type"
 "${SNAPDIR}/snapconv" -o in/test1.crd NZGD2000 out/test1r.crd > out/test1r.log
