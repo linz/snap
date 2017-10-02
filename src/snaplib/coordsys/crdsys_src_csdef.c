@@ -81,6 +81,7 @@ static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, 
     newloc = (code_loc *) check_malloc( sizeof(code_loc) + clen + 1 );
     newcode = ((char *) newloc)+sizeof(code_loc);
     strncpy(newcode,code,clen);
+    newcode[clen] = 0;
     newloc->next=0;
     newloc->code=newcode;
     newloc->hidden=hidden;
