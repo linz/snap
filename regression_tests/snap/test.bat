@@ -9,6 +9,8 @@ IF "%1" == "-i" SET SNAPDIR=C:\Program Files (x86)\Land Information New Zealand\
 IF "%1" == "-i" SHIFT
 IF "%1" == "-r" SET SNAPDIR=..\..\..\ms\built\Releasex86
 IF "%1" == "-r" SHIFT
+IF "%1" == "-i6" SET SNAPDIR=C:\Program Files\Land Information New Zealand\SNAP64
+IF "%1" == "-i6" SHIFT
 IF "%1" == "-d6" SET SNAPDIR=..\..\..\ms\built\Debugx64
 IF "%1" == "-d6" SHIFT
 IF "%1" == "-r6" SET SNAPDIR=..\..\..\ms\built\Releasex64
@@ -28,9 +30,9 @@ FOR %%F IN (%t%.snp) DO (
   perl ..\clean_snap_listing.pl %%~nF.lst > ..\out\%%~nF.lst
   IF EXIST %%~nF.err perl ..\clean_snap_listing.pl %%~nF.err > ..\out\%%~nF.err
   IF EXIST %%~nF-metadata.csv perl ..\clean_snap_listing.pl %%~nF-metadata.csv > ..\out\%%~nF-metadata.csv
+  IF EXIST %%~nF-obs.csv perl ..\clean_snap_listing.pl %%~nF-obs.csv > ..\out\%%~nF-obs.csv
+  IF EXIST %%~nF-stn.csv perl ..\clean_snap_listing.pl %%~nF-stn.csv > ..\out\%%~nF-stn.csv
   IF EXIST %%~nF.snx perl ..\clean_snap_listing.pl %%~nF.snx > ..\out\%%~nF.snx
-  move %%~nF-stn.csv ..\out > nul 2>&1
-  move %%~nF-obs.csv ..\out > nul 2>&1
   move %%~nF.cvr.json ..\out > nul 2>&1
   move %%~nF.soln.json ..\out > nul 2>&1
   move %%~nF.cvr ..\out > nul 2>&1

@@ -8,8 +8,9 @@
                               Author: Chris Crook
                        Version date:
 
+
 ================================================================================
-                          Run at 
+                          Run at  
 
 
 The command file testrf0.snp contains:
@@ -60,7 +61,7 @@ The command file testrf0.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                              SUMMARY OF INPUT FILES
 
@@ -85,7 +86,7 @@ Data file 1: testrf0.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                              DEFINITION OF PROBLEM
 
@@ -107,7 +108,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                                ITERATION_SUMMARY
 
@@ -116,7 +117,7 @@ Regression test 1 - data types and observation equations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                                 SOLUTION SUMMARY
 
@@ -141,19 +142,19 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                               STATION COORDINATES
 
 ================================================================================
-Coordinate system: New Zealand Geodetic Datum 2000 XYZ (version 20170601)
+Coordinate system: New Zealand Geodetic Datum 2000 XYZ (version 20160701)
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
 Station heights are ellipsoidal heights.
 Geoid heights not defined - orthometric and ellipsoidal heights are the same.
 
-Note: the deformation model associated with New Zealand Geodetic Datum 2000 XYZ (version 20170601) has not been used
+Note: the deformation model associated with New Zealand Geodetic Datum 2000 XYZ (version 20160701) has not been used
 
 The error ellipse and height error are the apriori errors
 
@@ -178,7 +179,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                            REFERENCE FRAME PARAMETERS
 
@@ -488,7 +489,7 @@ Reference frame: TESTRZN
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                              OBSERVATION RESIDUALS
 
@@ -921,7 +922,7 @@ File testrf0.dat: line 118
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations     
 
                                  ERROR SUMMARY
 

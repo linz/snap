@@ -1,19 +1,22 @@
 #!/bin/perl -p
 
-BEGIN { undef $/ };
+BEGIN { our $runtime };
 
-s/Version\s.*$/Version/m;
-s/Version\sdate\:\s.*$/Version date:/m;
-s/^\"RUNTIME\"\,[^\,]*/"RUNTIME",/m;
-s/^\"SNAPVER\"\,[^\,]*/"SNAPVER",/m;
-s/(\d{7}e[+-])0(\d\d)/$1$2/g;
+s/(PROGRAM\s+SNAP\s+Version)\s.*\S/$1/;
+s/Version\sdate\:\s.*$/Version date:\n/;
+s/^\"RUNTIME\"\,[^\,]*/"RUNTIME",/;
+s/^\"SNAPVER\"\,[^\,]*/"SNAPVER",/;
 # For SINEX
 s/SNP\s\d\d\:\d\d\d\:\d\d\d\d\d\sSNP/SNP 00:001:00000 SNP/;
-s/SNAP\s+version\s+\d+\.\d\.\d+\s+date\s+.*$/SNAP/m,;
+s/SNAP\s+version\s+\d+\.\d\.\d+\s+date\s+.*\S/SNAP/;
+# Numeric formats .. exponent digits
+s/(\d{7}e[+-])0(\d\d)/$1$2/g;
+# -0.0000
+s/\-(0\.0+)\b/ $1/g;
+s/(\s|\[)(\-?\d+\.\d+)e\-(\d\d)/$3 > 12 ? $1."0.00" : $1.sprintf("%.*f",($3 > 5 ? 2 : 7-$3),$2).'e-'.$3/eg if /^\s*\"values?\"\:\s/;
+s/(\s|\[)(\-?0\.0+)e(\+|\-)(\d\d)/$1."0.00"/eg if /^\s*\"values?\"\:\s/;
 
-my $runtime = $1 if /Run\sat\s(.*)$/m;
-$runtime = quotemeta($runtime);
-
-s/$runtime$//gm;
+$runtime = quotemeta($1) if /^\s*Run\s+at\s+(.*?)\s*$/;
+s/$runtime$//g if $runtime;
 
 

@@ -8,8 +8,9 @@
                               Author: Chris Crook
                        Version date:
 
+
 ================================================================================
-                          Run at 
+                          Run at  
 
 
 
@@ -47,7 +48,7 @@ Data file 5: testlv.csv
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                                 SOLUTION SUMMARY
 
@@ -73,19 +74,19 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                               STATION COORDINATES
 
 ================================================================================
-Coordinate system: New Zealand Geodetic Datum 2000 (version 20170601)
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20160701)
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
 Station heights are ellipsoidal heights.
 Geoid heights not defined - orthometric and ellipsoidal heights are the same.
 
-Note: the deformation model associated with New Zealand Geodetic Datum 2000 (version 20170601) has not been used
+Note: the deformation model associated with New Zealand Geodetic Datum 2000 (version 20160701) has not been used
 
 The error ellipse and height error are the apriori errors
 
@@ -138,7 +139,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                            REFERENCE FRAME PARAMETERS
 
@@ -162,7 +163,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                                 OTHER PARAMETERS
 
@@ -177,7 +178,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                              OBSERVATION RESIDUALS
 
@@ -323,7 +324,7 @@ BU34  BUZZ  LV      100.1000 0.0035    100.0000 0.0000  0.1000 0.0035  28.86  ??
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                                  ERROR SUMMARY
 
@@ -371,7 +372,7 @@ testlv.csv                                 65.45    6     -      -   65.45    6
 
 
 ================================================================================
-Testing CSV input                                           
+Testing CSV input                                            
 
                            MOST SIGNIFICANT RESIDUALS
 

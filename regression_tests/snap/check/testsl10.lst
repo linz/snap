@@ -1,13 +1,16 @@
 ================================================================================
 
                           PROGRAM SNAP  Version
+
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
                        Version date:
+
+
 ================================================================================
-                          Run at 
+                          Run at  
 
 
 
@@ -31,7 +34,7 @@ Data file 1: testsl.dat
 
 
 ================================================================================
-Regression tests - station lists                            
+Regression tests - station lists                             
 
                              DEFINITION OF PROBLEM
 
@@ -71,7 +74,7 @@ C_11         3    37  - BOLT
 The following deformation has been applied
 Applying coordinate system deformation model
 LINZ deformation model
-    NZGD2000 deformation model
+    NZGD2000 deformation model (20160701)
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.

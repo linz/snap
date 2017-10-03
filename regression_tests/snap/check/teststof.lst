@@ -8,8 +8,9 @@
                               Author: Chris Crook
                        Version date:
 
+
 ================================================================================
-                          Run at 
+                          Run at  
 
 
 The command file teststof.snp contains:
@@ -29,7 +30,7 @@ The command file teststof.snp contains:
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                              SUMMARY OF INPUT FILES
 
@@ -54,7 +55,7 @@ Data file 1: teststof.dat
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                                 SOLUTION SUMMARY
 
@@ -79,12 +80,12 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                               STATION COORDINATES
 
 ================================================================================
-Coordinate system: New Zealand Geodetic Datum 2000 (version 20170601)
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20160701)
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
@@ -94,7 +95,7 @@ Geoid heights not defined - orthometric and ellipsoidal heights are the same.
 The following deformation model has been applied
 Applying coordinate system deformation model
 LINZ deformation model
-    NZGD2000 deformation model
+    NZGD2000 deformation model (20160701)
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.
@@ -154,7 +155,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                                 STATION OFFSETS
 
@@ -200,7 +201,7 @@ X011 offset
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                            REFERENCE FRAME PARAMETERS
 
@@ -226,7 +227,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                              OBSERVATION RESIDUALS
 
@@ -399,7 +400,7 @@ X011  GX    -5116779.9365  0.0269  -5116779.9599  0.0000 -0.9436  0.0200  47.18 
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                                  ERROR SUMMARY
 
@@ -421,7 +422,7 @@ GPS point coord                            22.35   84     -      -   22.35   84
 
 
 ================================================================================
-Regression test stof - Station offsets                      
+Regression test stof - Station offsets                       
 
                            MOST SIGNIFICANT RESIDUALS
 
