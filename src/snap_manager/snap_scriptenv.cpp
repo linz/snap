@@ -691,6 +691,9 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     }
     RETURN( result )
 
+    DEFINE_FUNCTION("BrowseFile",1)
+    RETURN( wxLaunchDefaultBrowser( STRPRM(0), 0 ))
+
     //
 
     DEFINE_FUNCTION2("RunScript",1,2)
