@@ -207,7 +207,7 @@ void test_specifications( void )
     if( ! ntestid ) return;
     if( ! stn_testids ) return;
 
-    print_section_heading( lst, "ACCURACY SPECIFICATION TESTS" );
+    print_section_header( lst, "ACCURACY SPECIFICATION TESTS" );
 
     /* Ensure rejected/ignored stations are not tested ... */
 
@@ -277,6 +277,7 @@ void test_specifications( void )
             test_relative_accuracy_specs( spec, spec_apriori, stn_testids, listopts );
         }
     }
+    print_section_footer( lst );
 
 }
 

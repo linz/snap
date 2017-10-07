@@ -225,7 +225,7 @@ void print_input_data( FILE *out )
     survdata *sd;
     int first;
     int type;
-    print_section_heading( out, "INPUT DATA" );
+    print_section_header( out, "INPUT DATA" );
     print_json_start(out,"observations_types");
     fprintf(out,"{");
     first=1;
@@ -381,6 +381,7 @@ void print_input_data( FILE *out )
     fprintf(out,"\n]\n");
     delete_bindata(b);
     print_json_end(out,"observations");
+    print_section_footer( out );
 }
 
 
@@ -389,11 +390,12 @@ void print_station_recoding( FILE *out )
     if( output_stn_recode && stnrecode && recodes_used(stnrecode) )
     {
         /* Note: for the moment print all recoding.  Ultimately may only want those used. */
-        print_section_heading( out, "RECODED STATIONS" );
+        print_section_header( out, "RECODED STATIONS" );
         fprintf(out,"\nThe following stations are being recoded as they are read from data files\n\n");
         print_stn_recode_list( out, stnrecode, 1, stn_name_width,"     ");
+        fprintf(out,"\n");
+        print_section_footer( out );
     }
-    fprintf(out,"\n");
 }
 
 
@@ -498,7 +500,7 @@ int sum_bindata( int iteration )
     if( output_observation_equations )
     {
         sprintf(header,"obs_equation_%d",iteration);
-        print_section_heading(lst, "OBSERVATION EQUATIONS");
+        print_section_header(lst, "OBSERVATION EQUATIONS");
         print_json_start(lst,header);
         fprintf(lst,"{\n");
         print_json_params(lst,2);
@@ -567,6 +569,7 @@ int sum_bindata( int iteration )
     {
         fprintf(lst,"\n]}\n");
         print_json_end(lst,header);
+        print_section_footer( lst );
     }
     return sts;
 }
@@ -1366,7 +1369,7 @@ void print_residuals( FILE *out )
 
     b = create_bindata();
 
-    print_section_heading(out,"OBSERVATION RESIDUALS");
+    print_section_header(out,"OBSERVATION RESIDUALS");
 
 
     if( WANT(OF_OBSERR) || WANT(OF_RESERR) || WANT(OF_CALCERR) )
@@ -1567,6 +1570,8 @@ void print_residuals( FILE *out )
     end_progress_meter();
 
     delete_bindata( b );
+
+    print_section_footer(out);
 }
 
 

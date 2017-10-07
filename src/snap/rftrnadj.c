@@ -631,7 +631,7 @@ void print_rftrans_list( FILE *out )
         }
     }
 
-    print_section_heading( out, "REFERENCE FRAME PARAMETERS");
+    print_section_header( out, "REFERENCE FRAME PARAMETERS");
 
     fprintf(lst,"\nThe errors listed for calculated parameters are %s errors\n",
             apriori ? "apriori" : "aposteriori" );
@@ -664,6 +664,8 @@ void print_rftrans_list( FILE *out )
         }
         print_rftrans( rftrans_from_id(nrf), semult, out, ot );
     }
+
+    print_section_footer( out );
 }
 
 

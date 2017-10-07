@@ -103,7 +103,7 @@ void print_adjusted_parameters( FILE *out )
         {
             first = 0;
 
-            print_section_heading( out, "OTHER PARAMETERS");
+            print_section_header( out, "OTHER PARAMETERS");
 
             fprintf(lst,"\nThe errors listed for calculated parameters are %s errors\n",
                     apriori ? "apriori" : "aposteriori" );
@@ -128,6 +128,8 @@ void print_adjusted_parameters( FILE *out )
         }
         fprintf(out,"\n");
     }
+
+    if( ! first ) print_section_footer( out );
 
 }
 

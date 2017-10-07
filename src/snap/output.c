@@ -392,7 +392,7 @@ int open_output_files( )
         return 0;
     }
 
-    if( ! output_noruntime ) print_header( lst );
+    if( ! output_noruntime ) print_report_header( lst );
 
     err_name = (char *) check_malloc( rlen + strlen( ERRORFILE_EXT ) + 1);
     strcpy( err_name, root_name );
@@ -405,8 +405,8 @@ int open_output_files( )
         return 0;
     }
 
-    if( ! output_noruntime ) print_header( err );
-    print_section_heading( err, "ERROR SUMMARY" );
+    if( ! output_noruntime ) print_report_header( err );
+    print_section_header( err, "ERROR SUMMARY" );
     errcount = 0;
     set_error_handler( print_err );
     return 1;
@@ -419,9 +419,11 @@ static void close_listing_file( void )
     if( errcount > 0 )
     {
         int ierrname=path_len(err_name,0);
-        print_section_heading( lst, "ERRORS" );
+        print_section_header( lst, "ERRORS" );
         fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,err_name+ierrname);
+        print_section_footer( lst );
     }
+    if( ! output_noruntime ) print_report_footer(lst);
     if( lst ) fclose( lst );
     lst = 0;
     xprintf("\n\n****************************************************\n\n");
@@ -432,7 +434,13 @@ static void close_listing_file( void )
 static void close_error_file( const char *mess1, const char *mess2 )
 {
     set_error_handler( DEFAULT_ERROR_HANDLER );
-    if( err ) fclose( err );
+    
+    if( err ) 
+    {
+        print_section_footer(err);
+        if( ! output_noruntime ) print_report_footer( err );
+        fclose( err );
+    }
     err = 0;
     if( errcount <= 0 )
     {
@@ -559,7 +567,7 @@ void print_solution_type( FILE *lst )
 }
 
 
-void print_header( FILE *out )
+void print_report_header( FILE *out )
 {
     char heading[100];
 
@@ -581,6 +589,9 @@ void print_header( FILE *out )
     skip_line( out );
 }
 
+void print_report_footer( FILE *out )
+{
+}
 
 void print_control_options( FILE *lst )
 {
@@ -590,8 +601,7 @@ void print_control_options( FILE *lst )
 }
 
 
-
-void print_section_heading( FILE *out, const char *heading )
+void print_section_header( FILE *out, const char *heading )
 {
     int rtl;
 
@@ -609,6 +619,10 @@ void print_section_heading( FILE *out, const char *heading )
     print_line( out );
 }
 
+void print_section_footer( FILE *out )
+{
+}
+
 
 void handle_singularity( int sts )
 {
@@ -623,7 +637,7 @@ void handle_singularity( int sts )
         sprintf(paramname,"Parameter %d", (int) sts );
     }
 
-    print_section_heading( lst, "SINGULARITY REPORT" );
+    print_section_header( lst, "SINGULARITY REPORT" );
     fprintf( lst, "The least squares equations cannot be solved\n");
     sprintf(errmess,"A singularity was detected at %s",paramname);
     if(stno)
@@ -634,6 +648,7 @@ void handle_singularity( int sts )
     fprintf( lst, "%s\n\n", errmess);
 
     handle_error(INVALID_DATA,"Normal equations are singular",errmess);
+    print_section_footer( lst );
 }
 
 
@@ -644,11 +659,11 @@ void print_iteration_header( int iteration )
     if( output_observation_equations || output_station_adjustments )
     {
         sprintf(heading,"ITERATION NUMBER %d",(int) iteration);
-        print_section_heading( lst, heading );
+        print_section_header( lst, heading );
     }
     else if( iteration == 1 && output_iteration_summary )
     {
-        print_section_heading( lst, "ITERATION_SUMMARY" );
+        print_section_header( lst, "ITERATION_SUMMARY" );
     }
 }
 
@@ -671,6 +686,11 @@ void print_iteration_update( int iteration, double maxadj,
     }
 }
 
+void print_iteration_footer()
+{
+    print_section_footer( lst );
+}
+
 
 
 void print_problem_summary( FILE *lst )
@@ -683,7 +703,7 @@ void print_problem_summary( FILE *lst )
     int row;
     int i;
 
-    print_section_heading( lst, "DEFINITION OF PROBLEM" );
+    print_section_header( lst, "DEFINITION OF PROBLEM" );
 
     print_solution_type( lst );
 
@@ -852,7 +872,7 @@ void print_problem_summary( FILE *lst )
         print_deformation_model( deformation, lst,"");
     }
 
-
+    print_section_footer( lst );
 }
 
 
@@ -878,7 +898,7 @@ void print_solution_summary( FILE *lst )
 
     double c2sig;
 
-    print_section_heading( lst, "SOLUTION SUMMARY" );
+    print_section_header( lst, "SOLUTION SUMMARY" );
 
     print_solution_type( lst );
 
@@ -915,6 +935,7 @@ void print_solution_summary( FILE *lst )
         }
     }
     print_bandwidth_reduction( lst );
+    print_section_footer( lst );
 }
 
 

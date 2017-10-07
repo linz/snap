@@ -613,7 +613,7 @@ void print_error_summary( FILE *lst )
 {
     summary_def *sdf;
 
-    print_section_heading( lst, "ERROR SUMMARY" );
+    print_section_header( lst, "ERROR SUMMARY" );
     if( !first_def )
     {
         define_error_summary( DATA_TYPE_STR );
@@ -623,4 +623,5 @@ void print_error_summary( FILE *lst )
     {
         print_summary( lst, sdf, apriori ? 1.0 : seu );
     }
+    print_section_footer( lst );
 }

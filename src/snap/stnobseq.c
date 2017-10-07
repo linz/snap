@@ -414,7 +414,7 @@ void print_adjusted_coordinates( FILE *lst )
     output_string_def os;
     coordsys *cs;
 
-    print_section_heading(lst,"STATION COORDINATES");
+    print_section_header(lst,"STATION COORDINATES");
 
     output_string_to_file( &os, lst );
     cs = net->crdsys;
@@ -608,6 +608,7 @@ void print_adjusted_coordinates( FILE *lst )
         if( stnadj(st)->flag.adj_v ) fprintf(lst,"%8.4lf\n",OHgt*hgtmult);
         else fprintf(lst,"   -\n");
     }
+    print_section_footer(lst);
 
 }
 
@@ -874,7 +875,7 @@ void print_floated_stations( FILE *out )
 
     if( !floating_stations ) return;
 
-    print_section_heading(lst,"FLOATED STATIONS");
+    print_section_header(lst,"FLOATED STATIONS");
 
     fprintf(lst,"\nThis list shows %s errors\n",
             apriori ? "apriori" : "aposteriori" );
@@ -955,6 +956,7 @@ void print_floated_stations( FILE *out )
         }
 
     }
+    print_section_footer(lst);
 }
 
 void print_station_offsets( FILE *out )
@@ -970,7 +972,7 @@ void print_station_offsets( FILE *out )
         {
             first=0;
 
-            print_section_heading(lst,"STATION OFFSETS");
+            print_section_header(lst,"STATION OFFSETS");
 
             fprintf(lst,"\nThe following coordinate offsets apply to stations in the network.\n");
             fprintf(lst,"Each offset is applied for determining station coordinates based on the date\n"
@@ -980,6 +982,7 @@ void print_station_offsets( FILE *out )
         fprintf(lst,"\n");
         print_station_offset(lst,st);
     }
+    if( ! first ) print_section_footer(lst);
 }
 
 void max_station_adjustment( double tol, int *pmaxadjstn,

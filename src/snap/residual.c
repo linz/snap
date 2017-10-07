@@ -225,7 +225,7 @@ void print_worst_residuals( FILE *out )
 
     if( totalcount <= 0 ) return;
 
-    print_section_heading( out, "MOST SIGNIFICANT RESIDUALS" );
+    print_section_header( out, "MOST SIGNIFICANT RESIDUALS" );
 
     fprintf(out,"\n\nThe %ld residuals from this data are classified as follows:\n\n",totalcount);
 
@@ -339,4 +339,5 @@ void print_worst_residuals( FILE *out )
             }
         }
     }
+    print_section_footer( out );
 }

@@ -663,7 +663,7 @@ int setup_parameters( FILE *lst )
 
         if( output_debug_reordering ) 
         {
-            print_section_heading( lst, "Station row reordering" );
+            print_section_header( lst, "Station row reordering" );
             dump_connection_list( lst );
         }
         create_order_arrays();
@@ -674,6 +674,7 @@ int setup_parameters( FILE *lst )
         if( output_debug_reordering ) 
         {
             dump_ordering( lst );
+            print_section_footer( lst );
         }
     }
 

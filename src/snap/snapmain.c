@@ -198,7 +198,7 @@ int snap_main( int argc, char *argv[] )
     if( output_command_file )
     {
         print_command_file();
-        if( output_file_summary ) print_section_heading( lst, "SUMMARY OF INPUT FILES" );
+        if( output_file_summary ) print_section_header( lst, "SUMMARY OF INPUT FILES" );
     }
 
     /* If the coordinate system has a deformation model, install it now */
@@ -284,6 +284,7 @@ int snap_main( int argc, char *argv[] )
     sts = term_load_snap();
     end_bindata();
     if( dump ) end_section( dump );
+    if( output_file_summary ) print_section_footer( lst );
 
     /* Add elements requested for covariance output */
     add_requested_covariance_connections();
@@ -298,6 +299,7 @@ int snap_main( int argc, char *argv[] )
 
     summarize_obs_modifications( snap_obs_modifications(false), lst, "" );
     if( output_input_data ) print_input_data( lst );
+    if( output_file_summary ) print_section_footer( lst );
 
     if( read_errors )
     {
@@ -378,6 +380,7 @@ int snap_main( int argc, char *argv[] )
         if( show_iterations )
         {
             xprintf("\nIteration %d\n",(int)iterations);
+            if( iterations > 1 ) print_iteration_footer();
             print_iteration_header( iterations );
         }
 
@@ -403,7 +406,7 @@ int snap_main( int argc, char *argv[] )
         {
             char header[30];
             sprintf(header,"normal_equations_%d",iterations);
-            print_section_heading( lst, "NORMAL EQUATIONS" );
+            print_section_header( lst, "NORMAL EQUATIONS" );
             print_json_start(lst,header);
             fprintf(lst,"{\n");
             print_json_params(lst,2);
@@ -411,6 +414,7 @@ int snap_main( int argc, char *argv[] )
             lsq_print_normal_equations_json( lst, 2 );
             fprintf(lst,"\n}");
             print_json_end(lst,header);
+            print_section_footer( lst );
         }
 
         xprintf("   Solving the equations\n");
@@ -488,6 +492,11 @@ int snap_main( int argc, char *argv[] )
             handle_error( WARNING_ERROR, errmess, NO_MESSAGE );
             break;
         }
+    }
+    
+    if( show_iterations )
+    {
+        print_iteration_footer();
     }
 
     /* Grab the least squares statistics */

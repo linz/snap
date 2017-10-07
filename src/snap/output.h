@@ -144,13 +144,16 @@ int open_output_files( );
 void close_output_files( const char *mess1, const char *mess2 );
 void init_output_options( void );
 void eliminate_inconsistent_outputs( void );
-void print_header( FILE *out );
+void print_report_header( FILE *out );
+void print_section_header( FILE *out, const char *heading );
+void print_section_footer( FILE *out );
+void print_report_footer( FILE *out );
 void print_control_options( FILE *out );
-void print_section_heading( FILE *out, const char *heading );
 void handle_singularity( int sts );
 void print_iteration_header( int iteration );
 void print_iteration_update( int iteration, double maxadj,
                              int maxstn, int nstnadj );
+void print_iteration_footer();
 void print_problem_summary( FILE *out );
 void print_ls_summary( FILE *out );
 void xprint_ls_summary();
