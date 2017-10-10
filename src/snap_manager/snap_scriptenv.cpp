@@ -438,7 +438,7 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
     DEFINE_VARIABLE("$version",PROGRAM_VERSION);    
     DEFINE_VARIABLE("$version_date",PROGRAM_DATE);    
-    DEFINE_VARIABLE("$user_id",wxGetUserId());    
+    DEFINE_VARIABLE("$user_id",SnapJob::SnapUser());    
     DEFINE_VARIABLE("$is_windows",iswindows ? wxString("1") : wxString(""));    
     DEFINE_VARIABLE("$is_linux",islinux ? wxString("1") : wxString(""));    
     return false;

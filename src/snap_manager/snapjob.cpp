@@ -111,6 +111,15 @@ SnapJob::~SnapJob()
     DeleteJobFiles();
 }
 
+wxString SnapJob::SnapUser()
+{
+    wxString result;
+    wxGetEnv("SNAPUSER",&result);
+    if( result.IsEmpty() ) wxGetEnv("USERNAME",&result);
+    if( result.IsEmpty() ) wxGetEnv("USER",&result);
+    return result;
+}
+
 void SnapJob::DeleteJobFiles()
 {
     SnapJobFile *jf;

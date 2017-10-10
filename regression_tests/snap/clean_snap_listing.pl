@@ -16,7 +16,12 @@ s/\-(0\.0+)\b/ $1/g;
 s/(\s|\[)(\-?\d+\.\d+)e\-(\d\d)/$3 > 12 ? $1."0.00" : $1.sprintf("%.*f",($3 > 5 ? 2 : 7-$3),$2).'e-'.$3/eg if /^\s*\"values?\"\:\s/;
 s/(\s|\[)(\-?0\.0+)e(\+|\-)(\d\d)/$1."0.00"/eg if /^\s*\"values?\"\:\s/;
 
-$runtime = quotemeta($1) if /^\s*Run\s+at\s+(.*?)\s*$/;
+if(/^\s*Run\s+at\s+(.*?)(?:\s+by\s+(.*)?)?\s*$/)
+{
+    $runtime = quotemeta($1);
+    $user = quotemeta($2);
+    s/\s+by\s+.*//;
+}
 s/$runtime$//g if $runtime;
 
 

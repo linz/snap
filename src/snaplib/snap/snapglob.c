@@ -40,6 +40,9 @@ void init_snap_globals()
     config_file = NULL;
     root_name = NULL;
     cmd_dir = NULL;
+    snap_user = getenv("SNAPUSER");
+    if( ! snap_user ) snap_user = getenv("USERNAME");
+    if( ! snap_user ) snap_user = getenv("USER");
 
     job_title[0] = 0;
     dimension = 2;

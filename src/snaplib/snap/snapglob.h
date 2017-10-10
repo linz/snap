@@ -65,6 +65,7 @@ SCOPE char *command_file;
 SCOPE char *config_file;
 SCOPE char *root_name;
 SCOPE char *cmd_dir;   /* drive/directory of the command file */
+SCOPE char *snap_user;  /* User id running SNAP */
 
 /* Program modes */
 

@@ -46,6 +46,7 @@ private:
 class SnapJob : public SnapJobFile
 {
 public:
+    static wxString SnapUser();
     SnapJob( wxString fileName );
     ~SnapJob();
 
