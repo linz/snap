@@ -414,27 +414,21 @@ bool SnapCsvObs::CsvObservation::loadObservation()
                 else if( boost::iequals(component,"mmrkm")) 
                 { 
                     istr >> component >> runlen;
-                    if( istr.fail()) 
-                    {
-                        dataError(string("Incomplete height difference distance error mmrkm component"));
-                        // ok = false;
-                        break;
-                    }
-                    if( boost::iequals(component,"sqrt"))
+                    if( ! istr.fail() && boost::iequals(component,"sqrt"))
                     {
                         runlen=sqrt(fabs(runlen)/1000.0);
                         errcomp *= 0.001*runlen; pcomp = &ppmerr; 
                     }
                     else
                     {
-                        dataError(string("Invalid height difference distance error mmrkm component"));
+                        dataError(string("Invalid height difference distance error mmrkm component in \"")+_error.value() + string("\""));
                         // ok = false;
                         break;
                     }
                 }
                 else
                 {
-                    dataError(string("Invalid zenith distance error component ") + component);
+                    dataError(string("Invalid height difference error component ") + component);
                     // ok = false;
                     break;
                 }
@@ -442,7 +436,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             }
             if( component == "" )
             {
-                    dataError(string("Missing height difference error") + component);
+                    dataError(string("Missing height difference error"));
                     // ok = false;
             }
             error[0] = ppmerr + mmerr;
@@ -572,7 +566,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
 
                 if( istr.eof() ) break;
             }
-            if( ok  && (istr.fail() || ! istr.eof())) dataError("Invalid observation error");
+            if( ok  && (istr.fail() || ! istr.eof())) dataError(string("Invalid observation error ")+_error.value());
         }
     }
 

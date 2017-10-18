@@ -134,7 +134,7 @@ int set_error_prefix( int prefix )
 errhandler_type set_error_handler( errhandler_type errhndler )
 {
     errhandler_type olderrhndler;
-    olderrhndler = errhndler;
+    olderrhndler = user_error_handler;
     user_error_handler = errhndler;
     return olderrhndler;
 }
