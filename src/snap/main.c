@@ -6,7 +6,7 @@
 
 int main( int argc, char *argv[] )
 {
-    get_date( run_time );
+    init_snap_globals();
     print_report_header( stdout );
     return snap_main( argc, argv );
 }

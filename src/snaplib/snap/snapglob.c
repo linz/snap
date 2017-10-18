@@ -30,12 +30,14 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fileutil.h"
+#include "util/get_date.h"
 
 static bool initiallized=false;
 
 void init_snap_globals()
 {
     int i;
+    if( initiallized ) return;
     command_file = NULL;
     config_file = NULL;
     root_name = NULL;
@@ -43,6 +45,7 @@ void init_snap_globals()
     snap_user = getenv("SNAPUSER");
     if( ! snap_user ) snap_user = getenv("USERNAME");
     if( ! snap_user ) snap_user = getenv("USER");
+    get_date( run_time );
 
     job_title[0] = 0;
     dimension = 2;
