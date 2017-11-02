@@ -18,8 +18,27 @@ goto endofperl
 use FindBin;
 use lib $FindBin::Bin.'/perllib';
 use LINZ::GNSS::SinexFile;
+use Getopt::Std;
 
-@ARGV==2 || die "Syntax: snx2snap.pl sinex_file snap_data_file\n";
+my $syntax=<<EOD;
+
+Syntax: snx2snap.pl [-t tolerance] sinex_file snap_data_file
+
+Convert a SINEX file to a SNAP format file. 
+
+Options:
+
+   -t tol   The maximum variation of observation epoch time
+            tolerated in the SINEX file in hours (default 1)
+
+EOD
+
+my %opts;
+getopts('t:',\%opts);
+my $tolerance=$opts{t} || 1;
+$tolerance *= 3600.0;
+
+@ARGV==2 || die $syntax;
 
 my( $snxfile, $datfile) = @ARGV;
 
@@ -54,12 +73,12 @@ if( %dupcodes )
         "Multiple solutions for $codes\n";
 }
 
-if( $maxepoch - $minepoch > 3600 )
+if( $maxepoch - $minepoch > $tolerance )
 {
     my ($dmin,$tmin)=date_time($minepoch);
     my ($dmax,$tmax)=date_time($maxepoch);
     die "Cannot handle solutions at different epochs in the SINEX file\n".
-        "Solutions fromo $dmin $tmin to $dmax $tmax\n";
+        "Solutions from $dmin $tmin to $dmax $tmax\n";
 }
 
 my $sfn=$snxfile;

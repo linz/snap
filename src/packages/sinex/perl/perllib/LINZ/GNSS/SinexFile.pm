@@ -879,7 +879,7 @@ Solution information for a site.  Returned by SinexFile::Site->mark($markid)
 
 package LINZ::GNSS::SinexFile::Mark;
 
-use LINZ::GNSS::Time qw/seconds_decimal_year/;
+use LINZ::GNSS::Time qw/seconds_decimal_yr/;
 use Carp;
 
 sub new
@@ -980,7 +980,7 @@ sub xyz
     my($self,$date,$extrapolate)=@_;
     my $solution=$self->solution($date,$extrapolate);
     croak("No solution available for requested date\n") if ! $solution;
-    my $yeardiff=seconds_decimal_year($date)-seconds_decimal_year($solution->{ref_epoch});
+    my $yeardiff=seconds_decimal_yr($date)-seconds_decimal_yr($solution->{ref_epoch});
     my $xyz=[0.0,0.0,0.0];
     foreach my $i (0..2)
     {
