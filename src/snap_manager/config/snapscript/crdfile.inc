@@ -3,9 +3,6 @@
 ######################################################################
 # Function to process the coordinate file and coordinates
 
-$_crdfile_is_snap = true
-$_tested_job_file = ''
-
 function BackupCoordinateFile()
   $backup_file = false
   if $coordinate_file then
@@ -40,13 +37,13 @@ function EditCoordinateFile()
 end_function
 
 function CoordinateFileIsSnap()
-   if $coordinate_file and $job_file != $_tested_job_file then
+   $crdfile_is_snap=false
+   if $coordinate_file then
       $csvcrdfile = ReadFile($job_file,'(?i)^\s*coordinate_file\s+\S+\s+csv(?:\s|$)',1)
-      $_tested_job_file = $job_file
-      $_crdfile_is_snap = true
-      if $csvcrdfile then $_crdfile_is_snap = false endif
+      $crdfile_is_snap = true
+      if $csvcrdfile then $crdfile_is_snap = false endif
    endif
-   return $_crdfile_is_snap
+   return $crdfile_is_snap
 end_function
 
 function CoordFileCoordSys()
