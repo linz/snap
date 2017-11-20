@@ -268,6 +268,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
     double sres[3], redundancy[3];
     double obslength = 0.0, serlim;
     double mde[3];
+    int resopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
     // char isvecdif;
 
 
@@ -317,11 +318,11 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
             calc_vecdata_vector( v, VD_REF_STN, iobs, VD_CALCVEC | VD_STDERR,
                                  calc, calcse );
             calc_vecdata_vector( v, VD_REF_STN, iobs,
-                                 VD_RESVEC | VD_STDERR | VD_TOPOCENTRIC,
+                                 VD_RESVEC | VD_STDERR | resopt,
                                  res, resse );
 
             calc_vecdata_vector( v, VD_REF_STN, iobs,
-                                 VD_OBSVEC | VD_STDERR | VD_TOPOCENTRIC,
+                                 VD_OBSVEC | VD_STDERR | resopt,
                                  NULL, redundancy );
 
 

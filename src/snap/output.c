@@ -142,6 +142,7 @@ static output_option output[] =
     {"all_relative_covariances",&output_all_covariances,0,{0},0},
     {"full_covariance_matrix",&output_full_covariance,0,{0},0},
     {"sort_stations",&output_sorted_stations,0,{0},0},
+    {"xyz_vector_residuals",&output_xyz_vector_residuals,0,{0},0},
     {"notes",&output_notes,1,{0},0},
     {"covariance_matrix_file",&output_covariance,0,{0},0},
     {"covariance_json",&output_covariance_json,0,{0},0},

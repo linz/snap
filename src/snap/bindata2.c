@@ -103,6 +103,7 @@ static char mde[20];
 static char obsdate[20];
 static char obsid[20];
 static char significance[20];
+static char vecrescmp[6];
 
 #define LEFT_JUST 1
 #define RIGHT_JUST 2
@@ -123,7 +124,7 @@ static listing_field_def fields[] =
     { OF_OBSERR,     "obs_err",      "+/- ",     NULL,    NULL, obserr,    0, 0, 0, 0},
     { OF_CALC,       "calc_val",     "Calc",     "X,Y,Z", NULL, calc,      0, 0, 1, 0},
     { OF_CALCERR,    "calc_err",     "+/- ",     NULL,    NULL, calcerr,   0, 0, 0, 0},
-    { OF_RES,        "res_val",      "Res",      "E,N,U", NULL, res,       0, 0, 1, 0},
+    { OF_RES,        "res_val",      "Res",      vecrescmp, NULL, res,       0, 0, 1, 0},
     { OF_RESERR,     "res_err",      "+/- ",     NULL,    NULL, reserr,    0, 0, 0, 0},
     { OF_ALTRES,     "alt_res",      "Res*",     NULL,    NULL, altres,    0, 0, 0, 0},
     { OF_SRES,       "std_res",      "S.R.",     NULL,    NULL, stdres,    6, 0, 0, 0},
@@ -1282,6 +1283,15 @@ static void setup_default_format( int type )
     int *cols;
     listing_def *format = &data_format[type];
 
+    if( output_xyz_vector_residuals )
+    {
+        strcpy(vecrescmp,"X,Y,Z");
+    }
+    else
+    {
+        strcpy(vecrescmp,"E,N,U");
+    }
+
     if( format->ncolumn ) return;
     if( datatype[type].ispoint )
     {
@@ -1309,6 +1319,7 @@ static void setup_format_definitions( void )
     int i;
     int error;
     int itype;
+
 
     error = 0;
     if( sizeof(fields)/sizeof(fields[0]) != OF_COUNT ) error = 1;
@@ -1446,7 +1457,7 @@ void print_residuals( FILE *out )
     }
 
 
-    if( got_vector_data() )
+    if( got_vector_data() && ! output_xyz_vector_residuals )
     {
         if( gps_vertical_fixed() )
         {

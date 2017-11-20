@@ -361,6 +361,7 @@ static void sum_observation( summary_def *sdf, survdata *sd )
 
         case SD_VECDATA:
         {
+            int vdopt=output_xyz_vector_residuals ? 0 : VD_TOPOCENTRIC;
             vecdata *vd;
             vd = &sd->obs.vdata[iobs];
             total[index].ssr += vd->vsres*vd->vsres*vd->rank;
@@ -371,7 +372,7 @@ static void sum_observation( summary_def *sdf, survdata *sd )
                 int iaxis;
                 double sres[3], serr[3];
                 calc_vecdata_vector( sd, VD_REF_STN, iobs,
-                                     VD_RESVEC | VD_STDERR | VD_TOPOCENTRIC,
+                                     VD_RESVEC | VD_STDERR | vdopt,
                                      sres, serr );
                 for( iaxis = 0; iaxis<3; iaxis++)
                 {
@@ -523,11 +524,23 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                     case BY_DATA_TYPE:
                         if( iaxis ) 
                         {
-                            switch( iaxis )
+                            if( output_xyz_vector_residuals )
                             {
-                            case 1: title = "East component"; break;
-                            case 2: title = "North component"; break;
-                            case 3: title = "Up component"; break;
+                                switch( iaxis )
+                                {
+                                case 1: title = "X component"; break;
+                                case 2: title = "Y component"; break;
+                                case 3: title = "Z component"; break;
+                                }
+                            }
+                            else
+                            {
+                                switch( iaxis )
+                                {
+                                case 1: title = "East component"; break;
+                                case 2: title = "North component"; break;
+                                case 3: title = "Up component"; break;
+                                }
                             }
                             if( ! lastlevel )
                             {

@@ -92,6 +92,7 @@ SCOPE char output_decomposition;
 SCOPE char output_relative_covariances;
 SCOPE char output_all_covariances;
 SCOPE char output_sorted_stations;
+SCOPE char output_xyz_vector_residuals;
 SCOPE char output_notes;
 SCOPE char output_covariance;
 SCOPE char output_covariance_json;
