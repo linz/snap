@@ -253,10 +253,18 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *value, int
     if( code == OBS_MOD_REWEIGHT )
     {
         char *field=next_field(&string);
+        if( _stricmp(field,"by_set") == 0 )
+        {
+            code=OBS_MOD_REWEIGHT_SET;
+            field=next_field(&string);
+        }
+        if( _stricmp(field,"by") == 0 )
+        {
+            field=next_field(&string);
+        }
         if( ! field || sscanf(field,"%lf", &err_factor) != 1 || err_factor <= 0 )
         {
-
-            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in classification command");
+            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in reweight observations command");
             return OK;
         }
     }

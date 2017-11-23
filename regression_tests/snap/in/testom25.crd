@@ -1,0 +1,11 @@
+Test 1 - basic obs type tests
+NZGD2000_XYZ
+options no_deflections geoid_heights c=Order c=Mark_Type
+! Converted from NZGD1949
+
+!Code         X           Y            Z       G.Hgt Order Mark_Type Name
+1     -4787185.5859  560571.4708 -4163474.5066 14.4265 2     PIN   Node one
+2     -4787763.2856  560046.1603 -4163037.2916 14.4460 2     PEG   Node two
+3     -4787604.8448  559604.1132 -4163002.9955 14.4434 3     BOLT  Node three
+4     -4787185.5859  560571.4708 -4163474.5066 44.4265 2     PIN   Node four
+5     -4787763.2856  560046.1603 -4163037.2916 44.4460 2     PEG   Node five

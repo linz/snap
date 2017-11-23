@@ -16,6 +16,7 @@
 #define OBS_MOD_IGNORE   1
 #define OBS_MOD_REJECT   2
 #define OBS_MOD_REWEIGHT 4
+#define OBS_MOD_REWEIGHT_SET 8
 
 /* Note: network and classifications are not held by the obs_modifications object
  * so must remain valid for as long as the obs_modifications are used.

@@ -13,11 +13,13 @@
 
 <h1><a name="cmd_reweight_observations"></a>The reweight_observations command</h1>
 
-<p class="Commanddefinition">reweight_observations <i>factor</i> <i>selection_criteria</i></p>
+<p class="Commanddefinition">reweight_observations [<i>by_set</i>] <i>factor</i> <i>selection_criteria</i></p>
 
 <p>The reweight_observations command is used to reweight observations in the adjustment.
 Observations can be selected based upon observation type, observation date, stations used, and <a href="../data/obs_classifications.html">observation classifications</a>.</p> 
 
+<p>If &quot;by_set&quot; is specified then the scale factor will apply to the whole 
+set of observations if any of the observations in the set match the critieria.</p>
 <p>The <i>factor</i> parameter is a scale factor by which the error of the selected observations is multiplied.</p>
 
 <p>The format of <i>selection_criteria</i> is described for the <a href="cmd_reject_observations.html">reject_observations</a> command.

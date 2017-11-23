@@ -1,0 +1,31 @@
+title Regression test om1 - obs modifications - reweight by data type
+
+coordinate_file test1.crd ! Comment to be ignored
+data_file testom25.dat
+
+mode 3d data_check
+
+list command_file
+list file_summary
+list observation_equations
+list no_residuals
+list no_solution_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list no_worst_residuals
+list no_notes
+list no_file_locations
+list no_distance_ratio_scales
+list no_error_summary
+
+error_type apriori
+
+refraction_coefficient DEFAULT 0.0
+
+define_residual_format all  from to type date file:10 line_no:4 Id:4 S c=class:6 S c=equpt:12 S obs_err
+
+reweight_observations by_set 2.0 data_type=HA using_stations 2 4
+reweight_observations by_set 3.0 data_type=GX using_stations 2 4
+
+

@@ -100,6 +100,7 @@ typedef struct obs_criteria_s
     obs_criterion *first;
     obs_criterion *last;
     int action;
+    int triggered;
     double factor;
     struct obs_criteria_s *next;
 } obs_criteria;
@@ -610,6 +611,7 @@ static void apply_obs_criteria_action( obs_criteria *ocr, network *nw, survdata 
         {
             action |= ocr->action;
             if( ocr->action & OBS_MOD_REWEIGHT ) *factor *= ocr->factor;
+            if( ocr->action & OBS_MOD_REWEIGHT_SET ) ocr->triggered=1;
         }
     }
     *paction=action;
@@ -631,7 +633,14 @@ static void summarize_obs_criteria( FILE *lst, const char *prefix, obs_criteria 
 {
     bool just1=ocr->first->next == nullptr;
 
-    fprintf(lst,"%s  Observations which%s", prefix, just1 ? " " : ":\n");
+    if( ocr->action == OBS_MOD_REWEIGHT_SET )
+    {
+        fprintf(lst,"%s  Observations in sets including an observation which%s", prefix, just1 ? " " : ":\n");
+    }
+    else
+    {
+        fprintf(lst,"%s  Observations which%s", prefix, just1 ? " " : ":\n");
+    }
     for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
     {
         if( ! just1 ) fprintf(lst,"%s    - ",prefix);
@@ -923,16 +932,38 @@ int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *pobsmod, int fil
     return OK;
 }
 
-static double apply_obs_modification_action( obs_modifications *obsmod, survdata *sd, trgtdata *tgt )
+
+static void clear_criteria( obs_modifications *obsmod )
+{
+    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
+    {
+        ocr->triggered=0;
+    }
+}
+
+static double criteria_set_factor( obs_modifications *obsmod )
+{
+    double set_factor=1.0;
+    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
+    {
+        if( ocr->action == OBS_MOD_REWEIGHT_SET && ocr->triggered )
+        {
+            set_factor *= ocr->factor;
+        }
+    }
+    return set_factor;
+}
+
+static void apply_obs_modification_action( obs_modifications *obsmod, survdata *sd, trgtdata *tgt, double *factor )
 {
     int action=0;
-    double factor=1.0;
+    *factor=1.0;
 
-    if( tgt->unused & IGNORE_OBS_BIT ) return factor;
+    if( tgt->unused & IGNORE_OBS_BIT ) return;
     
     for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
     {
-        apply_obs_criteria_action(ocr,obsmod->nw,sd,tgt,&action,&factor);
+        apply_obs_criteria_action(ocr,obsmod->nw,sd,tgt,&action,factor );
     }
 
     if( action & OBS_MOD_IGNORE ) 
@@ -943,15 +974,18 @@ static double apply_obs_modification_action( obs_modifications *obsmod, survdata
     {
         tgt->unused |= REJECT_OBS_BIT;
     }
-    return factor;
+    return;
 }
 
 int apply_obs_modifications( void *pobsmod, survdata *sd )
 {
+    double sfprod=1.0;
     double factor=1.0;
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     int nignored=0;
     int i;
+
+    clear_criteria( obsmod );
 
     switch (sd->format)
     {
@@ -964,10 +998,18 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             trgtdata *tgt=&(od->tgt);
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                factor=apply_obs_modification_action( obsmod, sd, tgt );
+                apply_obs_modification_action( obsmod, sd, tgt,&factor);
                 if( tgt->unused & IGNORE_OBS_BIT ) nignored++;
             }
             od->error  *= factor;
+        }
+        sfprod=criteria_set_factor( obsmod );
+        if( sfprod != 1.0 )
+        {
+            for( i = 0, od=sd->obs.odata; i<sd->nobs; i++, od++ )
+            {
+                od->error *= sfprod;
+            }
         }
     }
     break;
@@ -983,7 +1025,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             factor=1.0;
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                factor=apply_obs_modification_action( obsmod, sd, tgt );
+                apply_obs_modification_action( obsmod, sd, tgt, &factor );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
             if( sd->cvr && factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
@@ -1004,6 +1046,16 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 }
             }
         }
+        sfprod=criteria_set_factor( obsmod );
+        if( sd->cvr && sfprod != 1.0 )
+        {
+            int i3=sd->nobs*3;
+            double factor2=sfprod*sfprod;
+            for( int row=0; row<i3; row++ )
+            {
+                for( int col=0; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
+            }
+        }
     }
     break;
 
@@ -1016,10 +1068,18 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             trgtdata *tgt=&(pd->tgt);
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                factor=apply_obs_modification_action( obsmod, sd, tgt );
+                apply_obs_modification_action( obsmod, sd, tgt, &factor );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
             pd->error  *= factor;
+        }
+        sfprod=criteria_set_factor( obsmod );
+        if( sfprod != 1.0 )
+        {
+            for( i = 0, pd=sd->obs.pdata; i<sd->nobs; i++, pd++ )
+            {
+                pd->error *= sfprod;
+            }
         }
     }
     break;
@@ -1074,7 +1134,8 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
     for( int modtype=0; modtype < 3; modtype++ )
     {
         int action= modtype==0 ? OBS_MOD_IGNORE : 
-                    modtype==1 ? OBS_MOD_REJECT : OBS_MOD_REWEIGHT;
+                    modtype==1 ? OBS_MOD_REJECT :
+                    ( OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET );
 
         bool firsterr=true;
         double minerrfct=0.0;
@@ -1091,7 +1152,7 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
             {
                 if( ocr->action & action )
                 {
-                    if( action == OBS_MOD_REWEIGHT ) 
+                    if( action == (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) ) 
                     {
                         if( (firsterr || ocr->factor < minerrfct) && ocr->factor > errfct )
                         {
@@ -1116,7 +1177,7 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
             {
                 fprintf(lst,"\n%sThe following observations are rejected\n",prefix);
             }
-            else
+            else if( action == (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) )
             {
                 fprintf(lst,"\n%sErrors of the following observations are scaled by %.3lf\n",
                         prefix,errfct);
@@ -1132,17 +1193,18 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
                 {
                     if( match->action & action )
                     {
-                        if( action != OBS_MOD_REWEIGHT || match->factor == errfct ) break;
+                        if( action != (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) ) break;
+                        if(  match->factor == errfct ) break;
                     }
                     match=match->next;
                 }
             }
-            if( action != OBS_MOD_REWEIGHT ) break;
+            if( action != (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) ) break;
             /* Break out just in case reweighting matching doesn't work */
             if( ncriteria >= maxcriteria ) break;
         }
 
-        if( action == OBS_MOD_REWEIGHT && ncriteria > 1 )
+        if( action == (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET)  && ncriteria > 1 )
         {
             fprintf(lst,"\n%sNote: error factors are multiplied for observations meeting several critera\n",prefix);
         }
