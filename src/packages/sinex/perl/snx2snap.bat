@@ -22,7 +22,7 @@ use Getopt::Std;
 
 my $syntax=<<EOD;
 
-Syntax: snx2snap.pl [-t tolerance] sinex_file snap_data_file
+Syntax: snx2snap.pl [-t tolerance] sinex_file snap_data_file [code .. code ..]
 
 Convert a SINEX file to a SNAP format file. 
 
@@ -40,7 +40,7 @@ $tolerance *= 3600.0;
 
 @ARGV==2 || die $syntax;
 
-my( $snxfile, $datfile) = @ARGV;
+my( $snxfile, $datfile, @codes) = @ARGV;
 
 die "Cannot open input SINEX file $snxfile\n" if ! -r $snxfile;
 
@@ -91,20 +91,39 @@ print $df "#date $date\n#time $time\n\n";
 print $df "#gps_error_type full\n";
 print $df "#data GX error no_heights grouped\n\n";
 
+my %codes=();
+foreach my $code (@codes)
+{
+    $codes{uc($code)}=1;
+}
+my %irow=();
+my $is=-1;
+
 foreach my $stn (@stations)
 {
     my $code = $stn->{code};
+    $is++;
+    next if %codes && ! exists $codes{uc($code)};
+    $irow{$is*3}=1;
+    $irow{$is*3+1}=1;
+    $irow{$is*3+2}=1;
     my ($x,$y,$z) = @{$stn->{xyz}};
     print $df "$code $x $y $z\n";
 }
 print $df "#end_set\n";
 my $covar=$sf->covar();
 
+my $ir=-1;
 foreach my $row (@{$covar})
 {
+    $ir++;
+    next if ! exists $irow{$ir};
+    my $np=-1;
     foreach my $i (0..$#$row)
     {
-        print $df "\n" if  $i%3 == 0; 
+        next if ! exists $irow{$i};
+        $np++;
+        print $df "\n" if  $np%3 == 0; 
         printf $df " %-14s",$row->[$i];
     }
     print $df "\n";

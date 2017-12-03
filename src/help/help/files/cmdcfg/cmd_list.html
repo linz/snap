@@ -84,6 +84,10 @@ and line number will be printed periodically in the otuput listing (see also
 <p class="Commanddefinition">distance_ratio_scales</p><p class="Commanddescription">Specifies that 
 the scale factor calculated for distance ratio observations will be included in the list of residuals.</p>
 
+<p class="Commanddefinition">xyz_vector_residuals</p><p class="Commanddescription">Specifies that 
+residuals for vector data types are listed in terms of X, Y, and Z components.  The default is to
+use E, N, U residuals.</p>
+
 <p class="Commanddefinition">rejected_stations</p><p class="Commanddescription">Specifies that rejected stations will be included in the output.  If rejection stations are excluded (using list no_rejected_stations) then rejected stations and observations to them are omitted from the output.  This causes rejected stations to be treated the same way as ignored stations.</p>
 
 <p class="Commanddefinition">grouped_data_by_type</p><p class="Commanddescription">By default observations are listed in the same order as they occur in the input.  If this option is selected then grouped data involving more than one data type are listed showing each type separately.  This is often a lot clearer.  For example if the input contained grouped data with a horizontal angle and a slope distance on each line. then the output would contain all the distances for the each set followed by all the angles.</p>

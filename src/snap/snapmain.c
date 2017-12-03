@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <ctype.h>
 
 #include "util/binfile.h"
 #include "util/chkalloc.h"
@@ -752,7 +753,12 @@ static void print_command_file( void )
     if( !cmd ) return;
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nThe command file %s contains:\n", command_file+path_len(command_file,0));
-    while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);
+    while( fgets(inrec,256,cmd)) 
+    {
+        char *p=inrec+strlen(inrec)-1;
+        while( isspace(*p) && p >= inrec ) *p--=0;
+        fprintf(lst,"     %s\n",inrec);
+    }
     fprintf(lst,"\n");
     fclose( cmd );
 
