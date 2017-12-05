@@ -85,7 +85,7 @@ Regression test stof - Station offsets
                               STATION COORDINATES
 
 ================================================================================
-Coordinate system: New Zealand Geodetic Datum 2000 (version 20160701)
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20171201)
 Ellipsoid: Geodetic Reference System 1980 (GRS80)
   a = 6378137.000  1/f = 298.257222
 
