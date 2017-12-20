@@ -183,6 +183,27 @@ sub geog {
              $crd->[4] );
    }
 
+sub metres_per_degree 
+{
+   my($self,@crd) = @_;
+   my $crd=ref $crd[0] ? $crd[0] : \@crd;
+   my $lt = $crd->[0];
+   my $ln = $crd->[1];
+   my $h = $crd->[2] || 0.0;
+   my($a,$rf,$b,$a2,$b2,$a2b2) = @$self;
+   my ($clt, $slt, $cln, $sln ) =  (
+      cos($lt/$rad2deg),
+      sin($lt/$rad2deg),
+      cos($ln/$rad2deg),
+      sin($ln/$rad2deg));
+   my ($t1,$t2) = ($b*$slt, $a*$clt);
+   my $bsac = sqrt($t1*$t1+$t2*$t2);
+   my $p = $a2*$clt/$bsac + $h*$clt;
+   my $dedln=$p/$rad2deg;
+   my $dndlt=($a2*$b2/($bsac*$bsac*$bsac)+$h)/$rad2deg;
+   return $dndlt,$dedln;
+}
+
 sub GRS80
 {
     return new LINZ::Geodetic::Ellipsoid(GRS80_a,GRS80_rf,GRS80_name);

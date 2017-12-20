@@ -374,25 +374,20 @@ sub conversionto
                 $def .= '$crd = $self->ellipsoid->xyz($crd);';
                 $type = &LINZ::Geodetic::CARTESIAN;
             }
-                if ( $src_defmodel && $ndtmfwd > 0 )
-                {
-                    $needepoch=1;
-                    $def .= '$crd = $src_defmodel->ApplyTo($crd);';
-                }
             for my $ndtm (0..$#$dtmtrans)
             {
-                my $func=$ndtm < $ndtmfwd ? 'ApplyTo' : 'ApplyInverseTo';
+                my $reverse=$ndtm < $ndtmfwd;
+                my $func=$reverse ? 'ApplyTo' : 'ApplyInverseTo';
+                my $havedef=$dtmtrans->[$ndtm]->defmodel;
                 my $transfunc=$dtmtrans->[$ndtm]->transfunc;
-                $needepoch ||= $transfunc->needepoch;
+                $needepoch ||= ($transfunc->needepoch || $havedef);
+                $def .= "\$crd = \$dtmtrans->[$ndtm]->defmodel->$func(\$crd);"
+                   if $reverse && $havedef;
                 $def .= "\$crd = \$dtmtrans->[$ndtm]->transfunc->$func(\$crd);";
+                $def .= "\$crd = \$dtmtrans->[$ndtm]->defmodel->$func(\$crd);"
+                   if ! $reverse && $havedef;
             }
 
-                if ( $tar_defmodel && $ndtmfwd < scalar(@$dtmtrans))
-                {
-                    $needepoch=1;
-                    $def .= '$crd = $tar_defmodel->ApplyInverseTo($crd);';
-                }
-            }
         }
 
         if ( $type != $target->{type} )
@@ -421,6 +416,7 @@ sub conversionto
             }
             $def .= 'return $crd;';
         }
+    }
 
     $def .= '}';
 

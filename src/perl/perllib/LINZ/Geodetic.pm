@@ -85,9 +85,10 @@ LINZ::Geodetic - modules for geodetic calculations
     print $elp->name,"\n";
     print $elp->code,"\n";
     my $xyz = $elp->cartesian([$lat,$lon,$hgt]);
-    my $xyz = $elp->geog([$lat,$lon,$hgt]);
+    my $xyz = $elp->xyz([$lat,$lon,$hgt]);
     my $llh = $elp->geodetic([$x,$y,$z]);
     my $llh = $elp->geog([$x,$y,$z]);
+    my ($dndlt,$dedln) = $elp->metres_per_degree($lat,$lon);
 
     # GRS80 is specifically supported ...
     use LINZ::Geodetic::Ellipsoid qw/GRS80/;
