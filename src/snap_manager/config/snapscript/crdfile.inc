@@ -186,7 +186,10 @@ function AddGeoidHeights()
    $orthopt=""
    if $keeporth then $orthopt="-p" endif
    $output = debuglogrun("\"$snap_path/snapgeoid\" $options $orthopt \"$backupfile\" \"$coordinate_file\"")
-   if $geoidopt == "zero" then
+   $error=Match($output,'(?ni)^\s*(?:Warning|Error)\:\s+(.*?)\s*$',1)
+   if $error then
+   	   log("\n$error")
+   elseif $geoidopt == "zero" then
            log("\nGeoid heights removed from $relname")
    else
            log("\nGeoid heights from $source added to $relname")
