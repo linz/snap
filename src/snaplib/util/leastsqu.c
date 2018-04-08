@@ -70,6 +70,7 @@ where
 #include "util/errdef.h"
 #include "util/leastsqu.h"
 #include "util/bltmatrx.h"
+#include "util/bltmatrx_mt.h"
 #include "util/symmatrx.h"
 #include "util/chkalloc.h"
 
@@ -599,7 +600,7 @@ static void set_lsq_status( int required_status, const char *routine )
     if( lsq_status == LSQ_UNINIT ) { sequence_error( routine ); return; }
     if( required_status == LSQ_INVERTED )
     {
-        if( nprm ) blt_chol_inv( N );
+        if( nprm ) blt_chol_inv_mt( N );
         lsq_status = LSQ_INVERTED;
     }
 }

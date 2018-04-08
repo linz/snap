@@ -439,6 +439,9 @@
     <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_parse.c">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx_mt.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">

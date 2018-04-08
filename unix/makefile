@@ -21,13 +21,13 @@ LAPGSRCDIR=../tools/lapg/src
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
-LDFLAGS = -lm -lboost_regex -lefence
+LDFLAGS = -lm -lboost_regex -lpthread -lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 
 else ifeq ($(type), release)
-LDFLAGS = -lm -lboost_regex -s
+LDFLAGS = -lm -lboost_regex -lpthread -s
 LDWXFLAGS = -lm -lboost_regex -s
 CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 

@@ -30,6 +30,7 @@
 #include "util/fileutil.h"
 #include "util/linklist.h"
 #include "util/bltmatrx.h"
+#include "util/bltmatrx_mt.h"
 
 #include "util/binfile.h"
 #include "snapdata/survdata.h"
@@ -45,6 +46,7 @@
 #include "util/get_date.h"
 #include "util/dms.h"
 #include "util/pi.h"
+#include "util/bltmatrx_mt.h"
 #include "util/versioninfo.h"
 
 #include "dbl4_adc_sdc.h"
@@ -299,7 +301,7 @@ static int calc_inverse_matrix( stn_relacc_array *ra )
                 nrow, nelement, pcntfull );
     }
     copy_bltmatrix( bltdec, blt );
-    blt_chol_inv( blt );
+    blt_chol_inv_mt( blt );
     ra->bltvalid = 1;
 
     return 1;
@@ -1871,6 +1873,18 @@ int main( int argc, char *argv[] )
             narg = 1;
             break;
 
+        case 't':
+        case 'T': {
+            int nthread;
+            if( sscanf(argv[2],"%d",&nthread) != 0 )
+            {
+                printf("snapspec: Invalid value %s for number of threads",argv[2]);
+                return 0;
+            }
+            blt_set_number_of_threads(nthread);
+            }
+            break;
+
         default:
             printf("snapspec: Invalid option %s\n",argv[1]);
             return 0;
@@ -1903,13 +1917,14 @@ int main( int argc, char *argv[] )
 
     if( argc != 3 && argc != 4 )
     {
-        printf("Syntax: snapspec [options]] binary_file_name [config_file_name] listing_file_name\n");
+        printf("\nSyntax: snapspec [options]] binary_file_name [config_file_name] listing_file_name\n");
         printf("\nOptions are:\n");
         printf("   -o order      Specifies the highest order to test\n");
         printf("   -a            Base the highest order on the control station orders\n");
         printf("   -m mode       The mode for testing, 3d, horizontal, vertical, or auto (default)\n");
         printf("   -u crdfile    Updates the orders in the named coordinate file\n");
-        printf("   -f filename   Specifies the base name for generated coordinate files (no extension)\n\n");
+        printf("   -f filename   Specifies the base name for generated coordinate files (no extension)\n");
+        printf("   -t #          Specifies the number of threads to use\n\n");
         return 0;
     }
 

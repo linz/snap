@@ -194,6 +194,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\avltree.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\binfile.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx_mt.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\calcdltfile.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\chkallcx.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\chkalloc.c" />

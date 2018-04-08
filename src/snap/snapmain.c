@@ -87,6 +87,7 @@
 #include "testspec.h"
 #include "util/classify.h"
 #include "util/leastsqu.h"
+#include "util/bltmatrx_mt.h"
 #include "version.h"
 
 static void print_help( void );
@@ -693,6 +694,22 @@ static int read_parameters( int argc, char *argv[] )
                 }
                 break;
 
+
+            case 't':
+            case 'T': {
+                int nthread;
+                if( ! argc || sscanf(argv[1],"%d",&nthread) != 0 )
+                {
+                    xprintf("\nInvalid value %s for number of threads (-t switch)",argv[1]);
+                    sts=INVALID_DATA;
+                }
+                else
+                {
+                    blt_set_number_of_threads(nthread);
+                }
+                }
+                break;
+
                 /* Option for testing so that output doesn't contain run time specific info */
             case 'q':
             case 'Q':
@@ -741,8 +758,13 @@ static int read_parameters( int argc, char *argv[] )
 
 static void print_help( void )
 {
-    xprintf("\n\nTo run %s you must specify a command file to use\n",PROGRAM);
-    xprintf("e.g\n          %s  myjob[.cmd]\n\n",PROGRAM);
+    xprintf("\nSyntax: %s [options] snap_job_name\n\n",PROGRAM);
+    xprintf("snap_job_name is the name of the snap command file. snap will look for\n");
+    xprintf("files with extension .cmd, .snp, and .snap\n\n");
+    xprintf("Options can include:\n");
+    xprintf("   -c config_file  Use the specified configuration file\n");
+    xprintf("   -t #            Specify the number of threads to use\n");
+    xprintf("   -q              Don't putput runtime\n\n");
 }
 
 static void print_command_file( void )
