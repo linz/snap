@@ -36,9 +36,13 @@ echo "Using ${SNAPDIR}"
 
 for f in ${t}.snp; do
     base=`basename $f .snp`
-    echo "Running ${base}"
+    param=""
+    if [ $base = "testmt" ]; then
+        param="-t 4"
+    fi
+    echo "Running ${base} ${param}"
     rm -f ../out/${base}.* ../out/${base}-*
-    ${g}${SNAPDIR}/snap $base > ${o}
+    ${g}${SNAPDIR}/snap $param $base > ${o}
     #> /dev/null
     for of in ${base}.lst ${base}.err ${base}-*.csv ${base}*.json ${base}.snx *.cvr; do
         if [ -e ${of} ]; then

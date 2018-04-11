@@ -29,7 +29,8 @@ MACROS = UNIX CHECKBLT
 else ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -lpthread -s
 LDWXFLAGS = -lm -lboost_regex -s
-CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
+#CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
+CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 
 else
@@ -73,9 +74,12 @@ all: snap_all
 snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
 
 # Command line programs only
-snap_cmd: makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
+snap_cmd: version makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) $(SITE2GPSEXE) \
 	$(SNAPLIB) support_files
+
+version:
+	touch ../src/*/versioninfo.c*
 
 ./makefile.inc: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 	@python build_makefile_inc.py > makefile.inc

@@ -85,10 +85,9 @@ static void blt_load_col_cache_mt( bltmatrix *blt, double **tmpcol, double **sum
     }
 }
 
-static void blt_chol_inv_mt_sumcol( bltmatrix *blt, int *dosum, double **sumcol, double **tmpcol, int i0, int i1, int c )
+static void blt_chol_inv_mt_sumcol( bltmatrix *blt, int *dosum, double *sumcol, double *tmpcol, int i1, int c )
 {
     int nrow = blt->nrow;
-    // Check: Just wondering if this should be i=i0+c,for(j=1+1...
     for (int j=i1+1; j < nrow; j++ )
     {
         int col0 = blt->row[j].col;
@@ -100,19 +99,21 @@ static void blt_chol_inv_mt_sumcol( bltmatrix *blt, int *dosum, double **sumcol,
             col0 = i1+1;
         }
 
+        double sj=0;
         for( ; col0 <= j; col0++, row++ )
         {
             /* Sum effect of (j,col0) element, value at *row */
                 if( c >= dosum[col0] && c >= dosum[j] )
                 {
-                    sumcol[c][col0] -= *row * tmpcol[c][j];
+                    sumcol[col0] -= *row * tmpcol[j];
                     if( j != col0 )
                     {
-                        sumcol[c][j] -= *row * tmpcol[c][col0];
+                        sj -= *row * tmpcol[col0];
                     }
                 }
-            }
         }
+        sumcol[j] += sj;
+    }
 }
 
 void blt_chol_inv_mt( bltmatrix *blt )
@@ -169,7 +170,7 @@ void blt_chol_inv_mt( bltmatrix *blt )
         for( c = 0; c < nsave; c++ )
         {
             threads.emplace_back(std::thread( blt_chol_inv_mt_sumcol, 
-                        blt, dosum, sumcol, tmpcol, i0, i1, c ));
+                        blt, dosum, sumcol[c], tmpcol[c], i1, c ));
         }
         
         for (auto &t : threads){ t.join(); }

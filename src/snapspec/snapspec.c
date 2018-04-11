@@ -1838,6 +1838,10 @@ int main( int argc, char *argv[] )
 
     get_date( spec_run_time );
 
+    /* Default is not to use multithreaded matrix ops */
+
+    blt_set_number_of_threads(1);
+
     printf( "snapspec %s: Tests adjustments against relative accuracy specifications\n"
             "            and calculates orders of coordinates\n",PROGRAM_VERSION);
 

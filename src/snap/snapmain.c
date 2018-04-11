@@ -122,6 +122,10 @@ int snap_main( int argc, char *argv[] )
 
     init_snap_globals();
 
+    /* Default is not to use multithreaded matrix ops */
+
+    blt_set_number_of_threads(1);
+
     if( read_parameters( argc, argv ) != OK )
     {
         print_help();
@@ -698,9 +702,11 @@ static int read_parameters( int argc, char *argv[] )
             case 't':
             case 'T': {
                 int nthread;
-                if( ! argc || sscanf(argv[1],"%d",&nthread) != 0 )
+                char *topt=arg+2;
+                if( ! *topt && argc > 1 ){ argc--; argv++; topt=argv[0]; }
+                if( sscanf(topt,"%d",&nthread) != 1 )
                 {
-                    xprintf("\nInvalid value %s for number of threads (-t switch)",argv[1]);
+                    xprintf("\nInvalid value %s for number of threads (-t switch)",topt);
                     sts=INVALID_DATA;
                 }
                 else
@@ -764,7 +770,8 @@ static void print_help( void )
     xprintf("Options can include:\n");
     xprintf("   -c config_file  Use the specified configuration file\n");
     xprintf("   -t #            Specify the number of threads to use\n");
-    xprintf("   -q              Don't putput runtime\n\n");
+    // xprintf("   -q              Don't include runtime in output\n");
+    xprintf("\n");
 }
 
 static void print_command_file( void )
