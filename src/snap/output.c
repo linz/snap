@@ -668,7 +668,7 @@ void print_iteration_header( int iteration )
     }
     else if( iteration == 1 && output_iteration_summary )
     {
-        print_section_header( lst, "ITERATION_SUMMARY" );
+        print_section_header( lst, "ITERATION SUMMARY" );
     }
 }
 
