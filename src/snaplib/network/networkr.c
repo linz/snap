@@ -27,6 +27,16 @@
 
 #define INRECLEN 256
 
+/* Worker function used to delete duplicate stations */
+
+static void delete_duplicate_station( station *st, void *data )
+{
+    DATAFILE *stf=(DATAFILE *)data;
+    char errmsg [30+STNCODELEN];
+    sprintf(errmsg,"Duplicate station code %s",st->Code);
+    df_data_file_error(stf, INVALID_DATA,errmsg);
+    delete_station(st);
+}
 
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
@@ -240,14 +250,6 @@ int read_network( network *nw, const char *fname, int options )
         sts =  df_read_code( stf, stcode, STNCODELEN+1 );
         if( ! sts ) continue;
 
-        if( sl_find_station( nw->stnlist, stcode ) > 0 )
-        {
-            char errmsg [30+STNCODELEN];
-            sprintf(errmsg,"Duplicate station code %s",stcode);
-            df_data_file_error(stf, INVALID_DATA,errmsg);
-            dfsts = INVALID_DATA;
-            continue;
-        }
 
         if( sts )
         {
@@ -341,6 +343,20 @@ int read_network( network *nw, const char *fname, int options )
     */
 
     if( clsids ) check_free( clsids );
+    /*
+        if( sl_find_station( nw->stnlist, stcode ) > 0 )
+        {
+            char errmsg [30+STNCODELEN];
+            sprintf(errmsg,"Duplicate station code %s",stcode);
+            df_data_file_error(stf, INVALID_DATA,errmsg);
+            dfsts = INVALID_DATA;
+            continue;
+        }
+    */
+
+    
+    sts=remove_duplicate_network_stations( nw, 1, (void *) stf, delete_duplicate_station );
+    if( dfsts == OK ) dfsts = sts;
 
     df_close_data_file( stf );
 

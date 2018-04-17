@@ -151,6 +151,12 @@ typedef struct
 #define NW_READOPT_CALCHGTREF      1 
 #define NW_READOPT_GBFORMAT       16
 
+/*----------------------------------------------------------------------
+ * Function to process staions
+ */
+
+typedef void (*stnfunc)(station *st, void *data);
+
 /*------------------------------------------------------------------------
 
 List of station/network functions supplied by the library
@@ -265,7 +271,18 @@ station_list *new_station_list( void );
 void    delete_station_list( station_list *sl );
 
 void    sl_add_station( station_list *sl, station *st );
+void    sl_add_station_at_id( station_list *sl, station *st );
 void    sl_remove_station( station_list *sl, station *st );
+
+/* Reindex stations packs list after removing stations.  Station ids will change.
+ * Returns number of spaces removed. */
+/* Remove duplicate stations based on code from the list .
+ * if reindex is non-zero then station list will be reindexed after removal. 
+ * Returns number of stations removed */
+
+int    sl_reindex_stations( station_list *sl );
+int    sl_remove_duplicate_stations( station_list *sl, int reindex, 
+           void *data, stnfunc function );
 
 int   sl_find_station( station_list *sl, const char *code );
 int   sl_station_id( station_list *sl, station *st );
@@ -283,7 +300,7 @@ station *sl_next_station( station_list *sl );
 
 /* Process stations in sorted order */
 
-void    sl_process_stations( station_list *sl, void *data, void (*function)( station *st, void *data) );
+void    sl_process_stations( station_list *sl, void *data, stnfunc function );
 
 int   sl_number_of_stations( station_list *sl );
 
@@ -342,6 +359,13 @@ station * duplicate_network_station(  network *nw,
 void    modify_network_station_coords( network *nw, station *st, double Lat,
                                        double Lon, double Hgt );
 
+/* Remove duplicate stations based on station code. 
+ * Calls function for removed stations (which are not deleted, * just removed from list).  
+ * If reindex is non-zero then reindex list after removal, 
+ * which changes station ids. Returns INCONSISTENT_DATA if stations are removed. */
+
+int remove_duplicate_network_stations( network *nw, int reindex, void *data, stnfunc function );
+
 /* Calculate geoid info from a coordinate system vertical datum 
  * for all stations.  Assumes that the coordinate system is based on the 
  * geocentric coordinate system matching the station coordinates. */
@@ -396,7 +420,7 @@ station *station_sorted_ptr( network *nw, int sortedid );
 void    reset_station_list( network *nw, int sorted );
 station *next_station( network *nw );
 
-void    process_stations( network *nw, void *data, void (*function)( station *st, void *data) );
+void    process_stations( network *nw, void *data, stnfunc function );
 
 int   number_of_stations( network *nw );
 
@@ -469,13 +493,13 @@ int check_station_criteria_codes( void *psc, network *nw );
 /* Apply station criteria to a network - processes each matching station with a function */
 
 void apply_station_criteria_to_network( void *psc, network *nw, 
-    void *data, void (*function)( station *stn, void *data ));
+    void *data, stnfunc function);
 
 /* Process selected stations - compiles and applies station criteria in
  * a single function */
 
-int process_selected_stations( network *nw, const char *select, char *basefile,
-    void *data, void (*function)( station *st, void *data ));
+int process_selected_stations( network *nw, const char *select, char *basefile, 
+        void *data, stnfunc function);
 
 #endif /* NETWORK_H not defined */
 

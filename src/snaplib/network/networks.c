@@ -253,6 +253,12 @@ void remove_station( network *nw, station *st )
     if( nw->stnlist ) sl_remove_station( nw->stnlist, st );
 }
 
+int remove_duplicate_network_stations( network *nw, int reindex, void *data, stnfunc function )
+{
+    int nremove=0;
+    if( nw->stnlist ) nremove=sl_remove_duplicate_stations( nw->stnlist, reindex, data, function );
+    return nremove ? INCONSISTENT_DATA : OK;
+}
 
 int find_station( network *nw, const char *code )
 {

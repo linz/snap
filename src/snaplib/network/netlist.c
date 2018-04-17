@@ -76,7 +76,18 @@ void sl_add_station( station_list *sl, station *st )
         sl->index=(station **) check_realloc((void *)(sl->index), sizeof(station *) * sl->indexsize );
     }
     sl->index[sl->lastid]=st;
-    st->id=sl->lastid;
+    if( st ) st->id=sl->lastid;
+}
+
+/* Function used by reload_station_list to ensure station ids are preserved */
+/* Assumes stations are being added in order of id */
+
+void sl_add_station_at_id( station_list *sl, station *st )
+{
+    int id=st->id;
+    if( id <= sl->lastid ) return;
+    while( sl->lastid < id-1 ) sl_add_station(sl,0);
+    sl_add_station(sl,st);
 }
 
 void sl_remove_station( station_list *sl, station *st )
@@ -168,6 +179,62 @@ static int sl_lookup_codeindex( station_list *sl, const char *code )
         id--;
     }
     return match ? match - sl->codeindex : 0;
+}
+
+int sl_reindex_stations( station_list *sl )
+{
+    /* Pack station array removing deleted stations.  Also resets station ids */
+
+    int nremove=0;
+    for( int i=1; i <= sl->lastid; i++ )
+    {
+        station *st=sl->index[i];
+        if( st == 0 )
+        {
+            nremove++;
+        }
+        else if( nremove > 0 )
+        {
+            sl->index[i-nremove]=st;
+            st->id=i-nremove;
+        }
+    }
+    if( nremove )
+    {
+        sl->lastid -= nremove;
+        assert(sl->lastid == sl->count);
+        sl->count=sl->lastid;
+        sl->nsorted=0;
+        sl->maxsortid=0;
+    }
+    return nremove;
+}
+
+int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stnfunc function )
+{
+    const char *code=0;
+    int nremove=0;
+
+    index_stations(sl);
+    for( int i=1; i <= sl->count; i++ )
+    {
+        station *st=sl->codeindex[i];
+        if( code == 0 || stncodecmp(st->Code,code) != 0 )
+        {
+            code=st->Code;
+        }
+        else
+        {
+            sl_remove_station(sl, st);
+            nremove++;
+            if( function ) (*function)(st,data);
+        }
+    }
+    if( nremove && reindex )
+    {
+        sl_reindex_stations( sl );
+    }
+    return nremove;
 }
 
 int sl_find_station( station_list *sl, const char *code )
