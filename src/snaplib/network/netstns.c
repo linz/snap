@@ -43,20 +43,23 @@ void delete_station( station *st )
 
 void init_station_classes( station *st, int nclass )
 {
-    if( st->classval )
-    {
-        check_free( st->classval );
-        st->classval = NULL;
-    }
+    int oldnclass=st->nclass;
+    int *oldval=st->classval;
     st->nclass = 0;
+    st->classval=0;
     if( nclass > 0 )
     {
         int i;
         st->classval = (int *) check_malloc( sizeof(int) * nclass );
-        for( i = 0; i < nclass; i++ ) st->classval[i] = 0;
+        for( i = 0; i < nclass; i++ ) 
+        {
+            st->classval[i] = i < oldnclass ? oldval[i] : 0;
+        }
         st->nclass = nclass;
     }
+    if( oldval ) check_free(oldval);
 }
+
 void set_station_class( station *s, int class_id, int value )
 {
     if( class_id > 0 && class_id <= s->nclass )
@@ -119,4 +122,11 @@ void modify_station_xyz( station *st, double xyz[3], ellipsoid *el )
     double llh[3];
     xyz_to_llh(el, xyz, llh );
     modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT]-st->GUnd, el );
+}
+
+void stnmultifunc( station *st, void *data )
+{
+    stnmultifunc_data *smd=(stnmultifunc_data *) data;
+    if( smd->func1 ) (*(smd->func1))(st,smd->data1);
+    if( smd->func2 ) (*(smd->func1))(st,smd->data2);
 }

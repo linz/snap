@@ -251,12 +251,21 @@ void set_network_coordinates( network *nw, station *st, double crd[3] )
 void remove_station( network *nw, station *st )
 {
     if( nw->stnlist ) sl_remove_station( nw->stnlist, st );
+    if( nw->uninitstation ) nw->uninitstation( st );
+}
+
+static void do_uninitstation( station *st, void *data )
+{
+    network *nw = (network *) data;
+    if( nw->uninitstation ) nw->uninitstation( st );
 }
 
 int remove_duplicate_network_stations( network *nw, int reindex, void *data, stnfunc function )
 {
     int nremove=0;
-    if( nw->stnlist ) nremove=sl_remove_duplicate_stations( nw->stnlist, reindex, data, function );
+    stnmultifunc_data smd = { nw, do_uninitstation, data, function };
+
+    if( nw->stnlist ) nremove=sl_remove_duplicate_stations( nw->stnlist, reindex, (void *) &smd, stnmultifunc );
     return nremove ? INCONSISTENT_DATA : OK;
 }
 

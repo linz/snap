@@ -152,10 +152,11 @@ typedef struct
 #define NW_READOPT_GBFORMAT       16
 
 /*----------------------------------------------------------------------
- * Function to process staions
+ * Function to process stations
  */
 
 typedef void (*stnfunc)(station *st, void *data);
+typedef struct { void *data1; stnfunc func1; void *data2; stnfunc func2; } stnmultifunc_data;
 
 /*------------------------------------------------------------------------
 
@@ -185,6 +186,8 @@ void    modify_station_xyz( station *st, double xyz[3], ellipsoid *el );
 void init_station_classes( station *s, int nclass );
 void set_station_class( station *s, int class_id, int value );
 int get_station_class( station *s, int class_id );
+
+void    stnmultifunc( station *st, void *data );
 
 void    dump_station( station *s, FILE *bin );
 station *reload_station( FILE *bin );
