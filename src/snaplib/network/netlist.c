@@ -120,7 +120,12 @@ static  int stncodecmps( const void *code, const void *st )
 
 static int stncmp( const void *st1, const void *st2 )
 {
-    return stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
+    int cmp=stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
+    if( cmp == 0 )
+    {
+        cmp=(*(station **)st2)->id-(*(station **)st1)->id;
+    }
+    return cmp;
 }
 
 static void index_stations( station_list *sl )
@@ -155,6 +160,13 @@ static int sl_lookup_codeindex( station_list *sl, const char *code )
     station **match;
     if( sl->nsorted < 1 ) return 0;
     match = (station **) bsearch( code, sl->codeindex+1, sl->nsorted, sizeof(station *), stncodecmps );
+    if( ! match ) return 0;
+    int id=match-sl->codeindex;
+    while( id > 1 )
+    {
+        if( stncodecmp(sl->codeindex[id-1]->Code, code) != 0 ) break;
+        id--;
+    }
     return match ? match - sl->codeindex : 0;
 }
 
