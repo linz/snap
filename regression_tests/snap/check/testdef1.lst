@@ -32,7 +32,7 @@ Data file 1: testdef1.dat
 ================================================================================
 Test data set testdef1 - velocity deformation model         
 
-                               ITERATION_SUMMARY
+                               ITERATION SUMMARY
 
 ================================================================================
 Deformation at N1   , 2000.00 ( 0.0000, 0.0000, 0.0000)  Node N1
