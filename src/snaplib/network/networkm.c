@@ -30,13 +30,21 @@ int merge_network( network *base, network *data, int mergeopts,
     station *st, *stnew;
     station **stnewlist = 0;
     station **stdellist = 0;
+    ellipsoid *el=base->crdsys->rf->el;
     int nnew = 0;
     int *classmap=NULL;
     int nclass=0;
 
     int overwrite = mergeopts & NW_MERGEOPT_OVERWRITE;
-    int createclass = mergeopts & NW_MERGEOPT_MERGECLASSES;
+    int addnew = mergeopts & NW_MERGEOPT_ADDNEW;
+    int addclasses = mergeopts & NW_MERGEOPT_ADDCLASSES;
+    int updateexu = ! overwrite && (mergeopts & NW_MERGEOPT_EXU);
+    int updatecrd = ! overwrite && (mergeopts & (NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU));
+    int updatecls = ! overwrite && (mergeopts & NW_MERGEOPT_CLASSES);
+    int updatestn = updatecrd || updatecls || overwrite;
     int ndata;
+    int nbaseclass;
+    int nclassnew;
     int idata;
     int i;
 
@@ -62,7 +70,8 @@ int merge_network( network *base, network *data, int mergeopts,
         st = station_ptr( data, idata );
         if( select && !(*select)(st)) continue;
         istn = find_station( base, st->Code );
-        if( istn && ! overwrite ) continue;
+        if( istn && ! updatestn ) continue;
+        if( ! istn && ! addnew ) continue;
         stnewlist[nnew] = st;
         stdellist[nnew] = istn ? station_ptr(base,istn) : 0;
         nnew++;
@@ -71,47 +80,87 @@ int merge_network( network *base, network *data, int mergeopts,
     if( nnew == 0 ) { check_free(stnewlist); return OK; }
 
     nclass = network_classification_count(data);
+    nbaseclass=network_classification_count(base);
     if( nclass > 0 )
     {
         int i;
         classmap = (int *) check_malloc( (nclass+1) * sizeof(int));
         for( i = 1; i <= nclass; i++ )
         {
-            classmap[i] = network_class_id( base, network_class_name(data,i), createclass);
+            classmap[i] = network_class_id( base, network_class_name(data,i), addclasses);
         }
     }
+    nclassnew=network_classification_count(base);
+    if( nclassnew == nbaseclass ) nclassnew=0;
+     
 
     for( idata = 0; idata < nnew; idata++ )
     {
+        int loadclass=0;
+        station *st0 = stdellist[idata];
         st = stnewlist[idata];
 
+
         /* Convert the coordinates from the input system to the output
-          system */
+          system if required */
 
+        if( ! st0 || overwrite || (st0 && updatecrd ) )
+        {
+            llh[CRD_LAT] = st->ELat;
+            llh[CRD_LON] = st->ELon;
+            llh[CRD_HGT] = st->OHgt + st->GUnd;
+            exu[CRD_LAT] = st->GXi;
+            exu[CRD_LON] = st->GEta;
+            exu[CRD_HGT] = st->GUnd;
+            if( convertcoords ) convert_coords( &cconv, llh, exu, llh, exu );
+            llh[CRD_HGT] -= exu[CRD_HGT];
+        }
 
-        llh[CRD_LAT] = st->ELat;
-        llh[CRD_LON] = st->ELon;
-        llh[CRD_HGT] = st->OHgt + st->GUnd;
-        exu[CRD_LAT] = st->GXi;
-        exu[CRD_LON] = st->GEta;
-        exu[CRD_HGT] = st->GUnd;
+        stnew=0;
+        if( st0 )
+        {
+            if( overwrite )
+            {
+                remove_station( base, st0 );
+            }
+            else
+            {
 
-        if( convertcoords ) convert_coords( &cconv, llh, exu, llh, exu );
+                stnew=st0;
+                if( updateexu ) 
+                {
+                    modify_station_coords_xeu( st0, 
+                        llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], 
+                        exu[CRD_LAT],exu[CRD_LON],exu[CRD_HGT], 
+                        el );
+                }
+                else if( updatecrd )
+                {
+                    modify_station_coords( st0, 
+                        llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], el );
+                }
+                loadclass=updatecls;
+                if( nclassnew ) init_station_classes( st0, nclassnew );
+            }
+        }
 
-        if( stdellist[idata] ) remove_station( base, stdellist[idata]);
-
-        llh[CRD_HGT] -= exu[CRD_HGT];
-        stnew = new_network_station( base, st->Code, st->Name,
+        if( ! stnew )
+        {
+            stnew = new_network_station( base, st->Code, st->Name,
                                      llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT],
                                      exu[CRD_LAT], exu[CRD_LON], exu[CRD_HGT] );
-
-        for( i = 1; i <= nclass; i++ )
+            loadclass=1;
+        }
+        if( loadclass )
         {
-            if( classmap[i] > 0 )
+            for( i = 1; i <= nclass; i++ )
             {
-                const char *classval = network_class_value( data, i, get_station_class(st,i));
-                int tgtval = network_class_value_id(base,classmap[i],classval,1);
-                set_station_class( stnew, classmap[i],tgtval );
+                if( classmap[i] > 0 )
+                {
+                    const char *classval = network_class_value( data, i, get_station_class(st,i));
+                    int tgtval = network_class_value_id(base,classmap[i],classval,1);
+                    set_station_class( stnew, classmap[i],tgtval );
+                }
             }
         }
     }

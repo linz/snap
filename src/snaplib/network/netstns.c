@@ -75,7 +75,7 @@ void set_station_class( station *s, int class_id, int value )
 int get_station_class( station *s, int class_id )
 {
     if( class_id > 0 && class_id <= s->nclass ) return s->classval[class_id-1];
-    handle_error( INCONSISTENT_DATA, "Invalid class id in get_station_class",NO_MESSAGE);
+    // handle_error( INCONSISTENT_DATA, "Invalid class id in get_station_class",NO_MESSAGE);
     return 0;
 }
 
@@ -114,6 +114,20 @@ void modify_station_coords( station *st,
     st->ELat = Lat;
     st->ELon = Lon;
     st->OHgt = Hgt;
+    setup_station_data( st, el );
+}
+
+void modify_station_coords_xeu( station *st,
+                            double Lat, double Lon, double Hgt,
+                            double Xi, double Eta, double Und,
+                            ellipsoid *el )
+{
+    st->ELat = Lat;
+    st->ELon = Lon;
+    st->OHgt = Hgt;
+    st->GXi = Xi;
+    st->GEta = Eta;
+    st->GUnd = Und;
     setup_station_data( st, el );
 }
 

@@ -18,12 +18,10 @@
 
 strarray codes;
 network *base = 0;
-char updateonly = 0;
 char listonly = 0;
 
 int select_station( station *st )
 {
-    if( updateonly && ! find_station( base, st->Code ) ) return 0;
     if( listonly && strarray_find( &codes, st->Code ) == STRARRAY_NOT_FOUND ) return 0;
     return 1;
 }
@@ -39,6 +37,10 @@ int main( int argc, char *argv[] )
     int overwrite = 0;
     int syntaxerror = 0;
     int mergeopt = 0;
+    int updatecls = 0;
+    int updatecrd = 0;
+    int addstn = 1;
+    int addclass = 1;
     int clearbaseorders = 0;
     int cleardataorders = 0;
 
@@ -50,10 +52,42 @@ int main( int argc, char *argv[] )
         case 'Q': quiet = 1; break;
 
         case 'o':
-        case 'O': overwrite = 1; break;
+        case 'O': 
+            switch (argv[1][2])
+            {
+            case 0:
+                overwrite=1; 
+                break;
+            case 'c':
+            case 'C': 
+                updatecrd= 1;
+                break;
+            case 'a':
+            case 'A': 
+                updatecls= 1;
+                break;
+            default:
+                syntaxerror=1;
+                break;
+            };
+            break;
 
         case 'u':
-        case 'U': updateonly = 1; overwrite = 1; break;
+        case 'U': 
+            switch (argv[1][2])
+            {
+            case 0:
+                addstn = 0; 
+                break;
+            case 'a':
+            case 'A': 
+                addclass = 0;
+                break;
+            default:
+                syntaxerror=1;
+                break;
+            };
+            break;
 
         case 'c':
         case 'C':
@@ -71,7 +105,6 @@ int main( int argc, char *argv[] )
                 break;
             };
             break;
-
 
         case 'l':
         case 'L':
@@ -112,8 +145,11 @@ int main( int argc, char *argv[] )
         printf("  newfile     is the name of the output coordinate file\n");
         printf("              (defaults to the same as basefile)\n");
         printf("and options are:\n");
-        printf("  -o          overwrite existing stations with new versions\n");
+        printf("  -o          replace existing stations with new versions\n");
+        printf("  -oc         overwrite coordinates of stations\n");
+        printf("  -oa         overwrite classification attributes of stations\n");
         printf("  -u          update only .. don't add any new stations\n");
+        printf("  -ua         update classes only .. don't add new classes\n");
         printf("  -c or -cb   Remove coordinate orders from basefile\n");
         printf("  -cd         Remove coordinate orders from datafile\n");
         printf("  -l listfile defines a file with a list of station codes to include\n");
@@ -184,8 +220,13 @@ int main( int argc, char *argv[] )
         listonly = 1;
     }
 
-    mergeopt = NW_MERGEOPT_MERGECLASSES;
+    if( ! addstn && ! (updatecrd | updatecls) ) overwrite=1;
+    mergeopt = 0;
+    if( addstn) mergeopt |= NW_MERGEOPT_ADDNEW;
+    if( addclass ) mergeopt |= NW_MERGEOPT_ADDCLASSES;
     if( overwrite ) mergeopt |= NW_MERGEOPT_OVERWRITE;
+    if( updatecrd ) mergeopt |= NW_MERGEOPT_COORDS;
+    if( updatecls ) mergeopt |= NW_MERGEOPT_CLASSES;
     merge_network( base, data, mergeopt, &select_station );
     strarray_delete( &codes );
 

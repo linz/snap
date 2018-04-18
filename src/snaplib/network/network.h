@@ -134,8 +134,20 @@ typedef struct
 
 #define STATION_ORDER_CLASS_NAME "Order"
 
+// Replace stations
 #define NW_MERGEOPT_OVERWRITE 1
-#define NW_MERGEOPT_MERGECLASSES 2
+// Add new stations
+#define NW_MERGEOPT_ADDNEW 2
+// Add new classes
+#define NW_MERGEOPT_ADDCLASSES 8
+// Update class information for existing marks (if not overwrite)
+#define NW_MERGEOPT_CLASSES 16
+// Update coordinates for existing marks (if not overwrite)
+#define NW_MERGEOPT_COORDS  32
+// Update geoid info as well as crd info for existing marks (if not overwrite)
+#define NW_MERGEOPT_EXU  64
+// Update all info
+#define NW_MERGEOPT_UPDATE (NW_MERGEOPT_CLASSES | NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU)
 
 #define NW_HGTFIXEDOPT_DEFAULT 0
 #define NW_HGTFIXEDOPT_ELLIPSOIDAL 1
@@ -180,6 +192,11 @@ void    init_station( station *st,
 void    modify_station_coords( station *st,
                                double Lat, double Lon, double Hgt,
                                ellipsoid *el );
+
+void modify_station_coords_xeu( station *st,
+                            double Lat, double Lon, double Hgt,
+                            double Xi, double Eta, double Und,
+                            ellipsoid *el );
 
 void    modify_station_xyz( station *st, double xyz[3], ellipsoid *el );
 
