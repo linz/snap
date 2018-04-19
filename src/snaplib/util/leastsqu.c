@@ -107,6 +107,9 @@ static long  ntmp = 0;
 static int   *cols;  /* A scratch area for integer column numbers */
 static int   ncols = 0;
 
+static int zero_inverse=0;  /* If true then set the inverse to zero 
+                               - gets residuls etc without stats */
+
 /*------------------------------------------------------------*/
 /*  Routine to allocate memory for observations. The memory   */
 /*  allocation is only increased, never decreased.  For most  */
@@ -182,6 +185,11 @@ void lsq_init( void )
     nobs=0;
     nschp=0;
     lsq_status = LSQ_SUMMING;
+}
+
+void lsq_set_use_zero_inverse( int use_zero )
+{
+    zero_inverse=use_zero;
 }
 
 
@@ -600,7 +608,17 @@ static void set_lsq_status( int required_status, const char *routine )
     if( lsq_status == LSQ_UNINIT ) { sequence_error( routine ); return; }
     if( required_status == LSQ_INVERTED )
     {
-        if( nprm ) blt_chol_inv_mt( N );
+        if( nprm ) 
+        {
+            if( zero_inverse )
+            {
+                init_bltmatrix(N);
+            }
+            else
+            {
+                blt_chol_inv_mt( N );
+            }
+        }
         lsq_status = LSQ_INVERTED;
     }
 }

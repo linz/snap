@@ -1880,7 +1880,11 @@ int main( int argc, char *argv[] )
         case 't':
         case 'T': {
             int nthread;
-            if( sscanf(argv[2],"%d",&nthread) != 0 )
+            if( _stricmp(argv[2],"auto") == 0 )
+            {
+                nthread=BLT_DEFAULT_NTHREAD;
+            }
+            else if( sscanf(argv[2],"%d",&nthread) != 0 )
             {
                 printf("snapspec: Invalid value %s for number of threads",argv[2]);
                 return 0;
@@ -1928,7 +1932,7 @@ int main( int argc, char *argv[] )
         printf("   -m mode       The mode for testing, 3d, horizontal, vertical, or auto (default)\n");
         printf("   -u crdfile    Updates the orders in the named coordinate file\n");
         printf("   -f filename   Specifies the base name for generated coordinate files (no extension)\n");
-        printf("   -t #          Specifies the number of threads to use\n\n");
+        printf("   -t #|auto     Specifies the number of threads to use\n\n");
         return 0;
     }
 

@@ -40,6 +40,12 @@ enum { LSQ_UNINIT, LSQ_READY, LSQ_SUMMING, LSQ_SOLVED, LSQ_INVERTED };
 void lsq_alloc( int nprm );
 void lsq_init( void );
 
+/* Zero inverse is used to skip calculating the inverse    */
+/* normal equations and instead just set it to zero.  For  */
+/* fast pre-checking of adjustments with incomplete stats  */
+
+void lsq_set_use_zero_inverse( int use_zero );
+
 /* Sum the observation equations into the normal equations */
 /* Returns a non-zero value if an error occurs summing     */
 /* the Schreiber equation component.                       */

@@ -26,6 +26,9 @@ FOR %%F IN (%t%.snp) DO (
   echo Running %%F
   del /q /f ..\out\%%~nF.* > nul 2>&1
   echo Running "%SNAPDIR%\snap %%F
+  SET param=""
+  IF "%%F" == "testmt.snp" SET param="-t 4"
+  IF "%%F" == "test1z.snp" SET param="-z"
   "%SNAPDIR%\snap" %%F > nul
   perl ..\clean_snap_listing.pl %%~nF.lst > ..\out\%%~nF.lst
   IF EXIST %%~nF.err perl ..\clean_snap_listing.pl %%~nF.err > ..\out\%%~nF.err

@@ -49,8 +49,8 @@
 #define MEM_ALLOC_ERROR  65
 #define INTERNAL_ERROR   66
 
-#define REPORTABLE_ERROR(sts)        (sts & (INFO_ERROR | WARNING_ERROR | FATAL_ERROR))
-#define INFO_ERROR_CONDITION(sts)    (sts & INFO_ERROR && !((sts) & (FATAL_ERROR | WARNING_ERROR)))
+#define REPORTABLE_ERROR(sts)        ((sts) & (INFO_ERROR | WARNING_ERROR | FATAL_ERROR))
+#define INFO_ERROR_CONDITION(sts)    (((sts) & INFO_ERROR) && !((sts) & (FATAL_ERROR | WARNING_ERROR)))
 #define FATAL_ERROR_CONDITION(sts)    ((sts) & FATAL_ERROR)
 #define WARNING_ERROR_CONDITION(sts)  ((sts) & WARNING_ERROR)
 

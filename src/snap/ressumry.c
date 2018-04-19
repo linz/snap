@@ -627,6 +627,7 @@ void print_error_summary( FILE *lst )
     summary_def *sdf;
 
     print_section_header( lst, "ERROR SUMMARY" );
+    print_zero_inverse_warning( lst );
     if( !first_def )
     {
         define_error_summary( DATA_TYPE_STR );

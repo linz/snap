@@ -54,6 +54,7 @@ void init_snap_globals()
     max_iterations = 5;
     max_adjustment = 1000.0;
     convergence_tol = 0.0001;
+    use_zero_inverse = 0;
     maxworst = 10;
     apriori = 1;
     errconflim = 0;

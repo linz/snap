@@ -87,6 +87,7 @@ SCOPE long nobs, nschp, ncon, dof;
 SCOPE int nprm;
 SCOPE double ssr, seu;
 SCOPE int iterations, converged;
+SCOPE int use_zero_inverse;
 
 /* Other miscellaneous data */
 

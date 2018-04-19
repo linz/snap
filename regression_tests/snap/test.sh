@@ -10,6 +10,14 @@ if [ "$1" = "-r" ]; then
     SNAPDIR='../../../unix/release/install'
 fi
 
+typedir=`dirname $SNAPDIR`
+typedir=`basename $typedir`
+
+if [ -n $typedir ]; then
+    echo "Checking snap build"
+    (cd ../../unix && make type=$typedir snap_cmd)
+fi
+
 # SET t=%1
 # IF "%t%" == "" SET t=test*
 t='*'
@@ -39,6 +47,9 @@ for f in ${t}.snp; do
     param=""
     if [ $base = "testmt" ]; then
         param="-t 4"
+    fi
+    if [ $base = "test1z" ]; then
+        param="-z"
     fi
     echo "Running ${base} ${param}"
     rm -f ../out/${base}.* ../out/${base}-*

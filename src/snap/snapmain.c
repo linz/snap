@@ -365,6 +365,15 @@ int snap_main( int argc, char *argv[] )
     iterations = 0;
     show_iterations = program_mode == ADJUST || program_mode == DATA_CONSISTENCY;
 
+    if( use_zero_inverse )
+    {
+        lsq_set_use_zero_inverse( 1 );
+        handle_error( INFO_ERROR,
+           "The inverse of the normal equations is not being calculated",
+           "Calculated error values set to zero and statistics incomplete"
+           );
+    }
+
     for(;;)
     {
 
@@ -525,19 +534,20 @@ int snap_main( int argc, char *argv[] )
 
     /* Expand the matrix to a full matrix if required */
 
-    if( do_accuracy_tests || 
+    if( ! use_zero_inverse && (do_accuracy_tests || 
             output_covariance ||
             output_covariance_json ||
             output_sinex ||
             output_all_covariances || 
-            (dump && output_full_covariance) )
+            (dump && output_full_covariance) 
+            ))
     {
         expand_bltmatrix_to_full(lsq_normal_matrix());
     }
 
     /* Dump the covariance matrix if required */
 
-    if( dump && output_full_covariance )
+    if( ! use_zero_inverse && dump && output_full_covariance )
     {
         dump_covariance_matrix( dump );
     }
@@ -647,10 +657,13 @@ int snap_main( int argc, char *argv[] )
 
     /* Output covariance products if required */
 
-    if( output_covariance ) print_coord_covariance();
-    if( output_covariance_json ) print_coord_covariance_json();
-    if( output_solution_json ) print_solution_json_file();
-    if( output_sinex ) print_coord_sinex();
+    if( ! use_zero_inverse )
+    {
+        if( output_covariance ) print_coord_covariance();
+        if( output_covariance_json ) print_coord_covariance_json();
+        if( output_solution_json ) print_solution_json_file();
+        if( output_sinex ) print_coord_sinex();
+    }
 
     /* If using debug version of memory allocator then list outstanding
        allocations */
@@ -704,7 +717,11 @@ static int read_parameters( int argc, char *argv[] )
                 int nthread;
                 char *topt=arg+2;
                 if( ! *topt && argc > 1 ){ argc--; argv++; topt=argv[0]; }
-                if( sscanf(topt,"%d",&nthread) != 1 )
+                if( _stricmp(topt,"auto") == 0 )
+                {
+                    blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
+                }
+                else if( sscanf(topt,"%d",&nthread) != 1 )
                 {
                     xprintf("\nInvalid value %s for number of threads (-t switch)",topt);
                     sts=INVALID_DATA;
@@ -717,9 +734,15 @@ static int read_parameters( int argc, char *argv[] )
                 break;
 
                 /* Option for testing so that output doesn't contain run time specific info */
+
             case 'q':
             case 'Q':
                 output_noruntime = 1;
+                break;
+
+            case 'z':
+            case 'Z':
+                use_zero_inverse = 1;
                 break;
 
             default: xprintf("\nInvalid switch %c on command line\n",arg[1]);
@@ -770,6 +793,7 @@ static void print_help( void )
     xprintf("Options can include:\n");
     xprintf("   -c config_file  Use the specified configuration file\n");
     xprintf("   -t #            Specify the number of threads to use\n");
+    xprintf("   -z              Don't calculate the inverse - incomplete stats\n");
     // xprintf("   -q              Don't include runtime in output\n");
     xprintf("\n");
 }

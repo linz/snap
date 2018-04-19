@@ -4,6 +4,8 @@
 
 # build type either debug or release
 type=release
+# Force recompile of all version dates
+versiondate=yes
 
 WXDIR=../wx/wxWidgets-2.8.12/build/gtk
 WXCONFIG=$(WXDIR)/wx-config
@@ -34,7 +36,7 @@ CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 
 else
-MD=
+MD=echo
 endif
 
 SRCDIR = ../src
@@ -79,7 +81,11 @@ snap_cmd: version makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) 
 	$(SNAPLIB) support_files
 
 version:
+ifeq ($(versiondate), no)
+	echo "Version date info not updated"
+else
 	touch ../src/*/versioninfo.c*
+endif
 
 ./makefile.inc: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 	@python build_makefile_inc.py > makefile.inc

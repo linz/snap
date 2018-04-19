@@ -64,6 +64,23 @@ file.
 Defines the user directory in which SNAP will look for default or user specified configuration files</p>
 </td>
 </tr>
+<tr>
+<td><p class="Commanddefinition">-t number_of_threads</p></td>
+<td><p>
+Enables the use of multi-threading in matrix routines.  <i>number_of_threads</i> can be either 
+0 (single threaded routines), a number of threads to use, or "auto" to allow snap to choose the
+number of threads</p>
+</td>
+</tr>
+<tr>
+<td><p class="Commanddefinition">-z</p></td>
+<td><p>
+Disables calculation of the inverse normal equations and sets the inverse to zero.  This 
+allows much more rapid solution of large adjustments for calculating coordinates and testing
+for gross residuals, but means that statistics are not correct
+</p>
+</td>
+</tr>
 </table>
 
 <div class="SeeAlso">
