@@ -146,7 +146,7 @@ int main( int argc, char *argv[] )
 
     install_default_crdsys_file();
 
-    if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0 ) != OK )
+    if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0, 0 ) != OK )
     {
         printf("Cannot open coordinate file %s\n",argv[1]);
         return 0;

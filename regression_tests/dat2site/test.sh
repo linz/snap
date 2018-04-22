@@ -21,6 +21,10 @@ if [ "$1" = "-g" ] ; then
     g='gdb --args '
     o='/dev/stdout'
 fi
+if [ "$1" = "-v" ] ; then
+    shift
+    o='/dev/stdout'
+fi
 
 docheck=1
 if [ "$1" != "" ]; then

@@ -385,7 +385,7 @@ void SnapCsvStn::loadRecord()
         if( value != "" )
         {
             int idclass = cc->classId();
-            int idvalue = network_class_value_id( net, idclass, value.c_str(), 1 );
+            int idvalue = network_class_value_id( _net, idclass, value.c_str(), 1 );
             set_station_class( st, idclass, idvalue );
         }
     }
@@ -414,7 +414,7 @@ void SnapCsvStn::terminateLoadData()
 
 #include "snap/stnadj.h"
 
-int load_snap_csv_stations( const char *filename, const char *options )
+int load_snap_csv_stations( network *net, const char *filename, const char *options )
 {
     int sts = OK;
     try

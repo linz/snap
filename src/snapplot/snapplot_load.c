@@ -273,7 +273,7 @@ int snapplot_load( int argc, char *argv[] )
          * Possibly not necessary?
          */
         set_stnadj_init_network();
-        sts = read_station_file( firstfile, cmd_dir, STN_FORMAT_SNAP, 0 );
+        sts = read_station_file( firstfile, cmd_dir, STN_FORMAT_SNAP, 0, 0 );
         if( sts == OK )
         {
             print_log("    %d stations read\n",number_of_stations(net));

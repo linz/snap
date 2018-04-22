@@ -93,7 +93,7 @@
 static void print_help( void );
 static void print_command_file( void );
 static int read_parameters( int argc, char *argv[] );
-static void update_station_file( void );
+static void update_station_file( char *filename );
 static BINARY_FILE *open_dump_file( void );
 static void dump_binary_data( BINARY_FILE *b );
 static void dump_choleski_decomposition( BINARY_FILE *b );
@@ -643,7 +643,7 @@ int snap_main( int argc, char *argv[] )
 
     /* Update the station file */
 
-    if( output_coordinate_file ) update_station_file();
+    if( output_coordinate_file ) update_station_file( output_station_filespec );
 
     if( dump )
     {
@@ -935,28 +935,19 @@ static void write_metadata_csv()
     close_output_csv( csv );
 }
 
-static void update_station_file()
+static void update_station_file( char *filename)
 {
-    int nch;
-    char *nsfname;
-
-    nch = path_len( station_filespec, 1 );
-    nsfname = (char *) check_malloc( nch + strlen( NEWSTNFILE_EXT ) + 1);
-    memcpy( nsfname, station_filespec, nch );
-    strcpy( nsfname+nch, NEWSTNFILE_EXT );
-
-    if( write_station_file( nsfname, PROGRAM, version_number(), run_time,
+    if( ! filename ) return;
+    if( write_station_file( filename, PROGRAM, version_number(), run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
-        xprintf("\nNew station coordinates have been written to %s\n",nsfname);
+        xprintf("\nNew station coordinates have been written to %s\n",filename);
     }
     else
     {
         handle_error( FILE_OPEN_ERROR, "Unable to create updated station coordinate file",
-                      nsfname);
+                      filename);
     }
-
-    check_free( nsfname );
 }
 
 

@@ -3,6 +3,6 @@ NZGD1949
 options ellipsoidal_heights no_deflections geoid_heights c=Order c=Mark_Type
 
 !Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
-1      41 00 46.800000 S 173 19 15.600000 E    150.000   0.000 2     PIN   Node one
-2      41 00 25.200000 S 173 19 40.800000 E    250.000   0.000 2     PEG   Node two
-3      41 00 28.800209 S 173 19 58.799740 E     70.000   0.000 -     -     3
+1      41 00 46.800000 S 173 19 15.600000 E   150.0000  0.0000 2     PIN   Node one
+2      41 00 25.200000 S 173 19 40.800000 E   250.0000  0.0000 2     PEG   Node two
+3      41 00 28.800209 S 173 19 58.799740 E    70.0000  0.0000 -     -     3

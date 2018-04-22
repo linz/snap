@@ -262,8 +262,11 @@ bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
                 {
                     if( crdfile )
                     {
-                        errors.Add(wxString::Format( _T("More than one coordinate file specified: line %d file %s"),
-                                                     i, cmdfile.c_str()));
+                        // Only the first coordinate file is used for the moment.
+                        // Extra files just add stations but are not the principle 
+                        // coordinate file.
+                        //
+                        // This will need better handling
                     }
                     else if( ! tok.HasMoreTokens() )
                     {

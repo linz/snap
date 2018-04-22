@@ -13,16 +13,18 @@
 #include <string.h>
 #include <ctype.h>
 
+#include "network/network.h"
+#include "snap/cfgprocs.h"
 #include "snap/snapglob.h"
-#include "util/readcfg.h"
-#include "util/fileutil.h"
-#include "util/errdef.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
-#include "snap/cfgprocs.h"
 #include "snapdata/obsmod.h"
-#include "util/xprintf.h"
+#include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/errdef.h"
+#include "util/fileutil.h"
+#include "util/readcfg.h"
+#include "util/xprintf.h"
 
 int stations_read = 0;
 
@@ -76,7 +78,7 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
     if( sts == OK )
     {
         xprintf("\nReading coordinates from file %s\n",fname);
-        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata );
+        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata, code );
         if( sts == OK )
         {
             stations_read = 1;
@@ -92,6 +94,79 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
     if( sts != OK ) abort_config_file( cfg );
 
     return sts == OK ? OK : NO_MORE_DATA;
+}
+
+int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    /* Parse merge options, then call load_coordinate file */
+    int mergeopts=0;
+    char *opt;
+    char *str;
+
+    str=string;
+    while( str && NULL != (opt = strtok(str," ")) )
+    {
+        str = strtok(NULL,"");
+        if( _stricmp(opt,"coordinates") == 0 )
+        {
+            mergeopts |= NW_MERGEOPT_COORDS;
+        }
+        else if( _stricmp(opt,"geoid") == 0 )
+        {
+            mergeopts |= NW_MERGEOPT_EXU;
+        }
+        else if( _stricmp(opt,"classes") == 0 )
+        {
+            mergeopts |= NW_MERGEOPT_CLASSES | NW_MERGEOPT_ADDCLASSES;
+        }
+        else if( _stricmp(opt,"existing_classes") == 0 )
+        {
+            mergeopts |= NW_MERGEOPT_CLASSES;
+        }
+        else if( _stricmp(opt,"stations") == 0 )
+        {
+            mergeopts |= NW_MERGEOPT_ADDNEW;
+        }
+        else if( _stricmp(opt,"replace") == 0 )
+        {
+            mergeopts |= NW_MERGEOPT_OVERWRITE;
+        }
+        else if( _stricmp(opt,"from") == 0 )
+        {
+            break;
+        }
+        else
+        {
+            char errmsg[80];
+            sprintf(errmsg,"Invalid add_coordinate_file option %.20s",opt);
+            send_config_error( cfg, INVALID_DATA, errmsg );
+            return INVALID_DATA;
+        }
+    }
+    if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
+    return load_coordinate_file( cfg, str, value, len, mergeopts );
+}
+
+int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    char *fname;
+    char *base_dir=get_config_directory(cfg);
+    int nch=strlen(string);
+    if( string[0] == '.' )
+    {
+        fname=(char *) check_malloc( strlen(root_name)+nch+1);
+        strcpy(fname,root_name);
+        strcat(fname,string);
+    }
+    else
+    {
+        nch += (base_dir ? strlen(base_dir) : 0 ) + 1;
+        fname=(char *) check_malloc( nch );
+        build_filespec( fname, nch, base_dir, string, NULL );
+    }
+    set_output_station_file( fname );
+    check_free(fname);
+    return OK;
 }
 
 int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int code )

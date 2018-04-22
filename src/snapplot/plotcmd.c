@@ -66,7 +66,8 @@ static int read_config_menu_command( CFG_FILE *cfg, char *string, void *value, i
 static config_item snapplot_general_commands[] =
 {
     {"title",job_title,ABSOLUTE,JOBTITLELEN,STORE_AS_STRING,CFG_ONEONLY,0},
-    {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED+CFG_ONEONLY, 0},
+    {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
+    {"add_coordinate_file",NULL,ABSOLUTE,0,add_coordinate_file, 0, 0 },
     {"data_file",NULL,ABSOLUTE,0,load_data_file,0,0},
     {"classification",NULL,ABSOLUTE,0,read_classification_command,0,0},
     {"reweight_observations",NULL,ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},

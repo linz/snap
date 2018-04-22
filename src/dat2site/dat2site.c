@@ -2785,6 +2785,7 @@ static void load_interactively( void )
     printf("\nDAT2SITE requires a SNAP coordinate file and one or more SNAP data files\n\n");
     printf("\n=============================================================\n");
 
+    net = new_network();
     for(;;)
     {
         printf("\nEnter input coordinate file name: ");
@@ -2851,6 +2852,7 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
     if( !f  ) f = coord_file;
     crdfname=copy_string(f);
 
+    net = new_network();
     if( read_network(net,crdfname,0) != OK )
     {
         printf("Error reading coordinate file %s\n",crdfname);
@@ -2888,7 +2890,9 @@ static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len,
 
 static config_item snap_commands[] =
 {
-    {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED+CFG_ONEONLY, 0},
+    {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
+    {"add_coordinate_file",NULL,ABSOLUTE,0,add_coordinate_file, 0, 0 },
+    {"output_coordinate_file",NULL,ABSOLUTE,0,set_output_coordinate_file,CFG_ONEONLY, 0},
     {"data_file",NULL,ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
     {"recode",NULL,ABSOLUTE,0,read_recode,0,1},
     {"include",NULL,ABSOLUTE,0,read_include_file,0,0},
@@ -3065,10 +3069,7 @@ int main( int argc, char *argv[] )
 
     /* Load the coordinate file */
 
-    net = new_network();
-    if( !net ) { printf("Cannot create a network - memory problem?\n"); return 0;}
-
-    init_load_data( load_data, get_id, get_name, get_value );
+        init_load_data( load_data, get_id, get_name, get_value );
 
     if( interactive )
     {

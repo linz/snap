@@ -27,6 +27,7 @@ network *net = NULL;
 stn_recode_map *stnrecode = NULL;
 char *station_filename = NULL;
 char *station_filespec = NULL;
+char *output_station_filespec = NULL;
 int station_filetype = STN_FORMAT_SNAP;
 char *station_fileoptions = 0;
 
@@ -85,47 +86,79 @@ static void clear_stnadj_globals( void )
     station_fileoptions = NULL;
 }
 
-int read_station_file( const char *fname, const char *base_dir, int format, const char *options )
+void set_output_station_file( const char *fname )
+{
+    if( output_station_filespec ) check_free( output_station_filespec );
+    output_station_filespec=copy_string(fname);
+}
+
+
+
+int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts )
 {
     int nch, sts;
+    network *stndata;
+    char *stnfile=0;
 
-    clear_stnadj_globals();
+    if( ! net ) clear_stnadj_globals();
 
     nch = strlen( fname ) + (base_dir ? strlen(base_dir) : 0) + 1;
-    station_filespec = (char *) check_malloc( nch );
-    build_filespec( station_filespec, nch, base_dir, fname, NULL );
-    if( !file_exists(station_filespec ) ) strcpy( station_filespec, fname );
+    stnfile = (char *) check_malloc( nch );
+    build_filespec( stnfile, nch, base_dir, fname, NULL );
+    if( !file_exists(stnfile ) ) strcpy( stnfile, fname );
     if( options ) station_fileoptions = copy_string( options );
 
-    net = new_network();
+    stndata = new_network();
     switch( format )
     {
     case STN_FORMAT_SNAP:
-        sts = read_network( net, station_filespec, 0 );
+        sts = read_network( stndata, stnfile, 0 );
         break;
     case STN_FORMAT_GB:
-        sts = read_network( net, station_filespec, NW_READOPT_GBFORMAT );
+        sts = read_network( stndata, stnfile, NW_READOPT_GBFORMAT );
         break;
     case STN_FORMAT_CSV:
-        sts = load_snap_csv_stations( station_filespec, station_fileoptions );
+        sts = load_snap_csv_stations( stndata, stnfile, station_fileoptions );
         break;
     default:
         handle_error( INVALID_DATA, "Invalid station file format specified", NO_MESSAGE );
-        return INVALID_DATA;
+        sts=INVALID_DATA;
+        break;
     }
 
 
     if( sts == OK )
     {
-        calculate_network_coordsys_geoid( net, INFO_ERROR ); 
-        void *obsmod=snap_obs_modifications( false );
-        if( obsmod ) set_obs_modifications_network( obsmod, net );
-        station_filename = copy_string( fname );
+        calculate_network_coordsys_geoid( stndata, INFO_ERROR ); 
+        if( ! net )
+        {
+            void *obsmod=snap_obs_modifications( false );
+            if( obsmod ) set_obs_modifications_network( obsmod, net );
+            station_filename = copy_string( fname );
+            station_filespec = copy_string( stnfile );
+            if( ! output_station_filespec )
+            {
+                nch=path_len(station_filespec,1);
+                output_station_filespec = (char *) check_malloc(nch+strlen(NEWSTNFILE_EXT)+1);
+                memcpy(output_station_filespec,station_filespec,nch);
+                strcpy(output_station_filespec+nch,NEWSTNFILE_EXT);
+            }
+            net=stndata;
+        }
+        else
+        {
+            if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
+            merge_network( net, stndata, mergeopts, 0 );
+            delete_network(stndata);
+        }
     }
     else
     {
+        delete_network(stndata);
         clear_stnadj_globals();
     }
+
+    check_free( stnfile );
 
     return sts;
 }
@@ -270,4 +303,6 @@ int reload_stations( BINARY_FILE *b )
 void unload_stations( void )
 {
     clear_stnadj_globals();
+    if( output_station_filespec ) check_free( output_station_filespec );
+    output_station_filespec = NULL;
 }
