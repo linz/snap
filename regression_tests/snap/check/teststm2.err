@@ -1,0 +1,28 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+
+================================================================================
+                     Run at 
+
+
+
+
+================================================================================
+                                                            
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Cannot use add_coordinate_file before coordinate_file is loaded
+       Line 2: File teststm2.snp
+
+Error: The command file is not correct

@@ -1,0 +1,21 @@
+title Regression tests - multiple coordinate files
+add_coordinate_file from teststm2.crd
+coordinate_file teststm1.crd
+output_coordinate_file .newcrd
+
+data_file teststm.dat
+mode 3d adjustment
+
+list command_file
+list problem_definition
+list no_iteration_summary
+list no_solution_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list no_residuals
+list no_error_summary
+list no_worst_residuals
+
+fix all
+ignore_missing_stations

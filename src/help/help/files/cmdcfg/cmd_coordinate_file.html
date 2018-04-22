@@ -15,11 +15,31 @@
 
 <p class="Commanddefinition">coordinate_file  <i>coord_file_name</i></p>
 <p class="Commanddefinition">coordinate_file  <i>coord_file_name</i> csv <i>csv_options</i></p>
+<p class="Commanddefinition">add_coordinate_file <i>add_options</i> from <i>coord_file_name</i></p>
+<p class="Commanddefinition">add_coordinate_file <i>add_options</i> from <i>coord_file_name</i> csv <i>csv_options</i></p>
 
-<p>Defines the name of the station coordinate file.  The station file may be either a SNAP format file, or a CSV delimited text file.  For CSV format files the coordinate_file command can also include one or more CSV options entered as 
+<p>The coordinate_file command defines the name of the station coordinate file.  At least one coordinate file must be specified.  The first coordinate file is the primary coordinate file.  It defines the
+coordinate system used in the adjustment.  Also it defines name of the output coordinate file unless the <a href="cmd_output_coordinate_file">output_coordinate_file</a> command is used.  
+</p>
+<p>
+The add_coordinate_file command adds additonal information from a coordinate file. This can be used
+to update coordinates and station classifications read from the station , or to add new stations to the adjustment.
+</p>
+<p>The station file may be either a SNAP format file, or a CSV delimited text file.  For CSV format files the coordinate_file command can also include one or more CSV options entered as 
 </p>
 <p class="Commanddefinition"><i>option</i>=<i>value</i></p>
-<p>The &quot;format=<i>dtf_file</i>&quot; CSV option defines the <a href="csv_format_definition.html">format definition</a> file that defines the layout of coordinate information in the CSV file.  The default format is &quot;stn&quot;. Any other CSV options are specific to the selected format definition.</a>
+<p>The &quot;format=<i>dtf_file</i>&quot; CSV option defines the <a href="csv_format_definition.html">format definition</a> file that defines the layout of coordinate information in the CSV file.  The default format is &quot;stn&quot;. Any other CSV options are specific to the selected format definition.
+</p>
+<p>In the add_coordinate_file command <i>add_options</i> can include
+</p>
+<p class="Commanddefinition">coordinates</p>
+<p class="Commanddescription">Updates the coordinate of marks.</p>
+<p class="Commanddefinition">classes</p>
+<p class="Commanddescription">Updates station classifications (including coordinate order) which may include adding new classifications </p>
+<p class="Commanddefinition">existing_classes</p>
+<p class="Commanddescription">Updates station classifications (including coordinate order) but does ot add new classifications </p>
+<p class="Commanddefinition">stations</p>
+<p class="Commanddescription">Adds stations not already in the adjustment.  This is equivalent to an additional coordinate_file command</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

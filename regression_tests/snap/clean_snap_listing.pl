@@ -6,6 +6,7 @@ s/(PROGRAM\s+SNAP\s+Version)\s.*\S/$1/;
 s/Version\sdate\:\s.*$/Version date:\n/;
 s/^\"RUNTIME\"\,[^\,]*/"RUNTIME",/;
 s/^\"SNAPVER\"\,[^\,]*/"SNAPVER",/;
+s/^(! Updated by SNAP).*/$1 .../;
 # For SINEX
 s/SNP\s\d\d\:\d\d\d\:\d\d\d\d\d\sSNP/SNP 00:001:00000 SNP/;
 s/SNAP\s+version\s+\d+\.\d\.\d+\s+date\s+.*\S/SNAP/;

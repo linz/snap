@@ -136,9 +136,9 @@ typedef struct
 
 // Replace stations
 #define NW_MERGEOPT_OVERWRITE 1
-// Add new stations
+// Add new stations from merged network
 #define NW_MERGEOPT_ADDNEW 2
-// Add new classes
+// Add new classes from merged network
 #define NW_MERGEOPT_ADDCLASSES 8
 // Update class information for existing marks (if not overwrite)
 #define NW_MERGEOPT_CLASSES 16

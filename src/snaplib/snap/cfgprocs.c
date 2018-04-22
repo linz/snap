@@ -103,6 +103,13 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
     char *opt;
     char *str;
 
+    if( ! stations_read )
+    {
+        send_config_error(cfg,INVALID_DATA,
+            "Cannot use add_coordinate_file before coordinate_file is loaded");
+        return OK;
+    }
+
     str=string;
     while( str && NULL != (opt = strtok(str," ")) )
     {
@@ -126,10 +133,6 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
         else if( _stricmp(opt,"stations") == 0 )
         {
             mergeopts |= NW_MERGEOPT_ADDNEW;
-        }
-        else if( _stricmp(opt,"replace") == 0 )
-        {
-            mergeopts |= NW_MERGEOPT_OVERWRITE;
         }
         else if( _stricmp(opt,"from") == 0 )
         {

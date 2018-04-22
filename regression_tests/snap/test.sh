@@ -10,19 +10,12 @@ if [ "$1" = "-r" ]; then
     SNAPDIR='../../../unix/release/install'
 fi
 
-typedir=`dirname $SNAPDIR`
-typedir=`basename $typedir`
-
-if [ -n $typedir ]; then
-    echo "Checking snap build"
-    (cd ../../unix && make type=$typedir snap_cmd)
-fi
-
 # SET t=%1
 # IF "%t%" == "" SET t=test*
 t='*'
-g=''
 o='/dev/null'
+
+g=''
 if [ "$1" = "-g" ] ; then
     echo "Debugging"
     shift
@@ -30,10 +23,24 @@ if [ "$1" = "-g" ] ; then
     o='/dev/stdout'
 fi
 
+domake=1
+if [ "$1" = "-f" ] ; then
+    shift
+    domake=0
+fi
+
 docheck=1
 if [ "$1" != "" ]; then
     t=test${1}
     docheck=0
+fi
+
+typedir=`dirname $SNAPDIR`
+typedir=`basename $typedir`
+
+if [ -n $typedir -a $domake = 1 ]; then
+    echo "Checking snap build"
+    (cd ../../unix && make type=$typedir snap_cmd)
 fi
 
 mkdir -p out
@@ -55,7 +62,7 @@ for f in ${t}.snp; do
     rm -f ../out/${base}.* ../out/${base}-*
     ${g}${SNAPDIR}/snap $param $base > ${o}
     #> /dev/null
-    for of in ${base}.lst ${base}.err ${base}-*.csv ${base}*.json ${base}.snx *.cvr; do
+    for of in ${base}.lst ${base}.err ${base}-*.csv ${base}*.json ${base}.snx *.cvr ${base}.newcrd; do
         if [ -e ${of} ]; then
             perl ../clean_snap_listing.pl ${of} > ../out/${of}
             rm $of
