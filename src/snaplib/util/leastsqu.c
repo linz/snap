@@ -192,6 +192,11 @@ void lsq_set_use_zero_inverse( int use_zero )
     zero_inverse=use_zero;
 }
 
+int lsq_using_zero_inverse( void )
+{
+    return zero_inverse;
+}
+
 
 bltmatrix *lsq_normal_matrix( void )
 {

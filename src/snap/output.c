@@ -658,7 +658,7 @@ void handle_singularity( int sts )
 
 void print_zero_inverse_warning( FILE *out )
 {
-    if( nprm > 0 && use_zero_inverse )
+    if( nprm > 0 && lsq_using_zero_inverse() )
     {
         fprintf( out, "\nNOTE: Inverse normal equations not calculated\n" );
         fprintf( out, "Calculated errors are set to zero and statistics are inaccurate.\n\n" );

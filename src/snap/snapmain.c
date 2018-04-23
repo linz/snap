@@ -100,6 +100,8 @@ static void dump_choleski_decomposition( BINARY_FILE *b );
 static void dump_covariance_matrix( BINARY_FILE *b );
 static void write_metadata_csv();
 
+static int force_zero_inverse=0;
+
 int snap_main( int argc, char *argv[] )
 {
 
@@ -365,9 +367,9 @@ int snap_main( int argc, char *argv[] )
     iterations = 0;
     show_iterations = program_mode == ADJUST || program_mode == DATA_CONSISTENCY;
 
-    if( use_zero_inverse )
+    if( force_zero_inverse || lsq_using_zero_inverse() )
     {
-        lsq_set_use_zero_inverse( 1 );
+        lsq_set_use_zero_inverse(1);
         handle_error( INFO_ERROR,
            "The inverse of the normal equations is not being calculated",
            "Calculated error values set to zero and statistics incomplete"
@@ -534,7 +536,7 @@ int snap_main( int argc, char *argv[] )
 
     /* Expand the matrix to a full matrix if required */
 
-    if( ! use_zero_inverse && (do_accuracy_tests || 
+    if( ! lsq_using_zero_inverse() && (do_accuracy_tests || 
             output_covariance ||
             output_covariance_json ||
             output_sinex ||
@@ -547,7 +549,7 @@ int snap_main( int argc, char *argv[] )
 
     /* Dump the covariance matrix if required */
 
-    if( ! use_zero_inverse && dump && output_full_covariance )
+    if( ! lsq_using_zero_inverse() && dump && output_full_covariance )
     {
         dump_covariance_matrix( dump );
     }
@@ -657,7 +659,7 @@ int snap_main( int argc, char *argv[] )
 
     /* Output covariance products if required */
 
-    if( ! use_zero_inverse )
+    if( ! lsq_using_zero_inverse() )
     {
         if( output_covariance ) print_coord_covariance();
         if( output_covariance_json ) print_coord_covariance_json();
@@ -742,7 +744,7 @@ static int read_parameters( int argc, char *argv[] )
 
             case 'z':
             case 'Z':
-                use_zero_inverse = 1;
+                force_zero_inverse=1;
                 break;
 
             default: xprintf("\nInvalid switch %c on command line\n",arg[1]);

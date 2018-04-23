@@ -48,6 +48,7 @@
 #include "snapdata/datatype.h"
 #include "snapdata/gpscvr.h"
 #include "util/bltmatrx.h"
+#include "util/leastsqu.h"
 #include "util/chkalloc.h"
 #include "util/classify.h"
 #include "util/datafile.h"
@@ -85,6 +86,7 @@ static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len,
 static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -161,6 +163,7 @@ static config_item snap_commands[] =
     {"convergence_tolerance",&convergence_tol,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"coordinate_precision",&coord_precision,ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"reorder_stations",NULL,ABSOLUTE,0,read_station_ordering,CONFIG_CMD,0},
+    {"use_zero_inverse",NULL,ABSOLUTE,0,read_use_zero_inverse,CONFIG_CMD,0},
     {"refraction_coefficient",NULL,ABSOLUTE,0,read_coef,CONFIG_CMD,PRM_REFCOEF},
     {"distance_scale_error",NULL,ABSOLUTE,0,read_coef,CONFIG_CMD,PRM_DISTSF},
     {"bearing_orientation_error",NULL,ABSOLUTE,0,read_coef,CONFIG_CMD,PRM_BRNGREF},
@@ -689,6 +692,24 @@ static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *valu
         sts = readcfg_boolean( cfg, string, &option, 1, 0 );
     }
     if( sts == OK ) set_ignore_missing_stations( option );
+    return sts;
+}
+
+static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    unsigned char option;
+    int sts;
+    option = 0;
+    if( !string[0] )
+    {
+        option = 1;
+        sts = OK;
+    }
+    else
+    {
+        sts = readcfg_boolean( cfg, string, &option, 1, 0 );
+    }
+    if( sts == OK ) lsq_set_use_zero_inverse( option );
     return sts;
 }
 

@@ -1,0 +1,26 @@
+================================================================================
+
+                          PROGRAM SNAP  Version
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date:
+
+
+================================================================================
+                     Run at 
+
+
+
+
+================================================================================
+                                                            
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Warning: The inverse of the normal equations is not being calculated
+       Calculated error values set to zero and statistics incomplete

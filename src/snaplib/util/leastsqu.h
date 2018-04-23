@@ -45,6 +45,7 @@ void lsq_init( void );
 /* fast pre-checking of adjustments with incomplete stats  */
 
 void lsq_set_use_zero_inverse( int use_zero );
+int lsq_using_zero_inverse( void );
 
 /* Sum the observation equations into the normal equations */
 /* Returns a non-zero value if an error occurs summing     */
