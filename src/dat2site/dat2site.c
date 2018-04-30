@@ -1461,9 +1461,9 @@ static int confirm_fix( char *msg )
 
 static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fixtype )
 {
-    static coord_conversion towgs84;
+    static coord_conversion toitrf;
     static coord_conversion tonet;
-    static coordsys *wgs84;
+    static coordsys *itrf;
     static coordsys *netcs;
     static int got_conversion = 0;
     static vector3 (*calc_xyz);
@@ -1488,18 +1488,18 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fi
     {
         coordsys *temp;
         netcs = related_coordsys( net->crdsys, CSTP_GEODETIC );
-        temp = load_coordsys( "WGS84" );
-        if( !temp|| define_coord_conversion(&towgs84,netcs,temp) != OK )
+        temp = load_coordsys( "ITRF2008" );
+        if( !temp|| define_coord_conversion(&toitrf,netcs,temp) != OK )
         {
-            wgs84 = related_coordsys( net->crdsys, CSTP_CARTESIAN );
+            itrf = related_coordsys( net->crdsys, CSTP_CARTESIAN );
         }
         else
         {
-            wgs84 = related_coordsys( temp, CSTP_CARTESIAN );
+            itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
         if( temp ) delete_coordsys( temp );
-        define_coord_conversion( &towgs84, netcs, wgs84 );
-        define_coord_conversion( &tonet, wgs84, netcs );
+        define_coord_conversion( &toitrf, netcs, itrf );
+        define_coord_conversion( &tonet, itrf, netcs );
         got_conversion = 1;
     }
 
@@ -1527,7 +1527,7 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fi
         xyz[CRD_LAT] = cn->to->st->ELat;
         xyz[CRD_LON] = cn->to->st->ELon;
         xyz[CRD_HGT] = cn->to->st->OHgt;
-        if( convert_coords( &towgs84, xyz, NULL, xyz, NULL ) != OK ) continue;
+        if( convert_coords( &toitrf, xyz, NULL, xyz, NULL ) != OK ) continue;
         if( cn->to->fixed & ST_FIXV )
         {
             index = nhor++;
@@ -1577,7 +1577,7 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fi
 static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, int *fixtype )
 {
     static coord_conversion tonet;
-    static coordsys *wgs84;
+    static coordsys *itrf;
     static coordsys *netcs;
     static int got_conversion = 0;
 
@@ -1595,17 +1595,17 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
     {
         coordsys *temp;
         netcs = related_coordsys( net->crdsys, CSTP_GEODETIC );
-        temp = load_coordsys( "WGS84" );
+        temp = load_coordsys( "ITRF2008" );
         if( !temp|| define_coord_conversion( &tonet, temp, netcs ) != OK )
         {
-            wgs84 = related_coordsys( net->crdsys, CSTP_CARTESIAN );
+            itrf = related_coordsys( net->crdsys, CSTP_CARTESIAN );
         }
         else
         {
-            wgs84 = related_coordsys( temp, CSTP_CARTESIAN );
+            itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
         if( temp ) delete_coordsys( temp );
-        define_coord_conversion( &tonet, wgs84, netcs );
+        define_coord_conversion( &tonet, itrf, netcs );
         got_conversion = 1;
     }
 
