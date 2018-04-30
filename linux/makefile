@@ -157,7 +157,8 @@ $(WXUTILSLIB): makedirs $(WXUTILSOBJS)
 support_files: makedirs helpfile wxhelpdir
 	@echo Copying support files.
 	mkdir -p $(INSTALL)/config
-	$(CP) -r -p $(SRCDIR)/coordsys $(INSTALL)/config
+	rm -rf $(INSTALL)/config/coordsys
+	ln -s -T -f /usr/share/linz/coordsys $(INSTALL)/config/coordsys
 	$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config

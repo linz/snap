@@ -1,12 +1,12 @@
 #!/bin/sh
 
 if [ "$1" = "-r" ]; then
-   snapdir="../../unix/release/install"
+   snapdir="../../linux/release/install"
    shift
 fi
 
 if [ "${snapdir}" = "" ]; then
-   snapdir="../../unix/debug/install"
+   snapdir="../../linux/debug/install"
 fi
 
 echo "Testing dat2site in $snapdir"

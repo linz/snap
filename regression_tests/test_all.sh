@@ -4,11 +4,11 @@ scriptfile=`readlink -f "$0"`
 scriptdir=`dirname $scriptfile`
 
 if [ "$1" = "-r" ]; then
-    export SNAPDIR=${scriptdir}/../unix/release/install
+    export SNAPDIR=${scriptdir}/../linux/release/install
 fi
 
 if [  -z "$SNAPDIR" ]; then
-    export SNAPDIR=${scriptdir}/../unix/debug/install
+    export SNAPDIR=${scriptdir}/../linux/debug/install
 fi
 
 for f in `ls -d ${scriptdir}/*/check`; do
@@ -19,8 +19,8 @@ for f in `ls -d ${scriptdir}/*/check`; do
         if [ -x ${testdir}/test.sh ]; then
             (cd $testdir && ./test.sh) >> /dev/null 2>&1
             checkdir=$f
-            if [ -d ${testdir}/check_unix ]; then
-                checkdir=${testdir}/check_unix
+            if [ -d ${testdir}/check_linux ]; then
+                checkdir=${testdir}/check_linux
             fi
             diff -r -b -B -q $checkdir ${testdir}/out
         else

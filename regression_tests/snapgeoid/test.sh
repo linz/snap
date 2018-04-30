@@ -1,13 +1,13 @@
 #!/bin/sh
 
 if [ -z $SNAPDIR ]; then
-SNAPDIR='../../unix/debug/install'
+SNAPDIR='../../linux/debug/install'
 fi
 
 if [ "$1" = "-r" ]; then 
     echo ""Testing release version""
     shift
-    SNAPDIR='../../unix/release/install'
+    SNAPDIR='../../linux/release/install'
 fi
 
 rm -f out/*

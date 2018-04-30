@@ -1,13 +1,13 @@
 #!/bin/sh
 
 if [ -z $SNAPDIR ]; then
-SNAPDIR='../../../unix/debug/install'
+SNAPDIR='../../../linux/debug/install'
 fi
 
 if [ "$1" = "-r" ]; then 
     echo "Testing release version"
     shift
-    SNAPDIR='../../../unix/release/install'
+    SNAPDIR='../../../linux/release/install'
 fi
 
 # SET t=%1
@@ -40,7 +40,7 @@ typedir=`basename $typedir`
 
 if [ -n $typedir -a $domake = 1 ]; then
     echo "Checking snap build"
-    (cd ../../unix && make type=$typedir snap_cmd)
+    (cd ../../linux && make type=$typedir snap_cmd)
 fi
 
 mkdir -p out
@@ -77,5 +77,5 @@ done
 
 if [ ${docheck} -gt 0 ]; then
     cd ..
-    diff -q -r -B -b out check_unix
+    diff -q -r -B -b out check_linux
 fi
