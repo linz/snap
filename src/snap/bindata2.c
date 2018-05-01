@@ -1382,6 +1382,7 @@ void print_residuals( FILE *out )
     b = create_bindata();
 
     print_section_header(out,"OBSERVATION RESIDUALS");
+    print_zero_inverse_warning(out);
 
 
     if( WANT(OF_OBSERR) || WANT(OF_RESERR) || WANT(OF_CALCERR) )
