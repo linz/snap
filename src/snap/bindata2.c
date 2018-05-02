@@ -502,7 +502,6 @@ int sum_bindata( int iteration )
     {
         sprintf(header,"obs_equation_%d",iteration);
         print_section_header(lst, "OBSERVATION EQUATIONS");
-        print_zero_inverse_warning( lst );
         print_json_start(lst,header);
         fprintf(lst,"{\n");
         print_json_params(lst,2);
@@ -1383,7 +1382,7 @@ void print_residuals( FILE *out )
 
     print_section_header(out,"OBSERVATION RESIDUALS");
     print_zero_inverse_warning(out);
-
+    print_convergence_warning(out);
 
     if( WANT(OF_OBSERR) || WANT(OF_RESERR) || WANT(OF_CALCERR) )
     {

@@ -661,8 +661,15 @@ void print_zero_inverse_warning( FILE *out )
     if( nprm > 0 && lsq_using_zero_inverse() )
     {
         fprintf( out, "\nNOTE: Inverse normal equations not calculated\n" );
-        fprintf( out, "Calculated errors are set to zero and statistics are inaccurate.\n\n" );
+        fprintf( out, "Calculated errors are set to zero and statistics are inaccurate.\n" );
     }
+}
+
+void print_convergence_warning( FILE *out )
+{
+    if( converged ) return;
+    fprintf( out, "\nNOTE: Adjustment has not converged - results may be misleading\n" );
+    fprintf( out, "Final iteration maximum adjustment is %.4lf.\n",last_iteration_max_adjustment );
 }
 
 
@@ -912,6 +919,7 @@ void print_solution_summary( FILE *lst )
     double c2sig;
 
     print_section_header( lst, "SOLUTION SUMMARY" );
+    print_convergence_warning( lst );
 
     print_solution_type( lst );
 

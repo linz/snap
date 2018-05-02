@@ -416,6 +416,7 @@ void print_adjusted_coordinates( FILE *lst )
 
     print_section_header(lst,"STATION COORDINATES");
     print_zero_inverse_warning( lst );
+    print_convergence_warning( lst );
 
     output_string_to_file( &os, lst );
     cs = net->crdsys;
@@ -878,6 +879,7 @@ void print_floated_stations( FILE *out )
 
     print_section_header(lst,"FLOATED STATIONS");
     print_zero_inverse_warning( lst );
+    print_convergence_warning( lst );
 
     fprintf(lst,"\nThis list shows %s errors\n",
             apriori ? "apriori" : "aposteriori" );

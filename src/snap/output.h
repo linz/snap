@@ -152,6 +152,7 @@ void print_report_footer( FILE *out );
 void print_control_options( FILE *out );
 void handle_singularity( int sts );
 void print_zero_inverse_warning( FILE *out );
+void print_convergence_warning( FILE *out );
 void print_iteration_header( int iteration );
 void print_iteration_update( int iteration, double maxadj,
                              int maxstn, int nstnadj );

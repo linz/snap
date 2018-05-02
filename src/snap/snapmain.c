@@ -376,6 +376,7 @@ int snap_main( int argc, char *argv[] )
            );
     }
 
+    converged=0;
     for(;;)
     {
 
@@ -492,7 +493,11 @@ int snap_main( int argc, char *argv[] )
 
         /* Check whether we have converged or run out of iterations */
 
-        if( iterations >= min_iterations && maxadj < convergence_tol ) break;
+        if( iterations >= min_iterations && maxadj < convergence_tol ) 
+        {
+            converged=1;
+            break;
+        }
 
         if( iterations >= max_iterations  )
         {
@@ -672,6 +677,11 @@ int snap_main( int argc, char *argv[] )
     list_memory_allocations( lst );
 
     close_output_files( 0, 0 );
+    if( ! converged )
+    {
+        xprintf( "\nWARNING: Adjustment has not converged - results may be misleading\n" );
+        xprintf( "Final iteration maximum adjustment is %.4lf.\n",last_iteration_max_adjustment );
+    }
     return DEFAULT_RETURN_STATUS;
 }
 
@@ -907,6 +917,11 @@ static void write_metadata_csv()
     write_csv_string(csv,"CONVERGED");
     write_csv_string(csv,converged ? "Y" : "N");
     write_csv_string(csv,"Adjustment met convergence criteria");
+    end_output_csv_record(csv);
+
+    write_csv_string(csv,"ZERO_INVERSE");
+    write_csv_string(csv,lsq_using_zero_inverse() ? "Y" : "N");
+    write_csv_string(csv,"Inverse set to zero - calc errors not correct");
     end_output_csv_record(csv);
 
     write_csv_string(csv,"ERRTYPE");

@@ -79,6 +79,8 @@ void init_snap_globals()
     }
     init_classifications( &obs_classes );
     obs_modifications=0;
+    converged=1;
+    last_iteration_max_adjustment=0.0;
     initiallized=true;
 }
 

@@ -227,6 +227,7 @@ void print_worst_residuals( FILE *out )
 
     print_section_header( out, "MOST SIGNIFICANT RESIDUALS" );
     print_zero_inverse_warning( out );
+    print_convergence_warning( out );
 
     fprintf(out,"\n\nThe %ld residuals from this data are classified as follows:\n\n",totalcount);
 
