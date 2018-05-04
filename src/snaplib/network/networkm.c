@@ -46,6 +46,7 @@ int merge_network( network *base, network *data, int mergeopts,
     int nbaseclass;
     int nclassnew;
     int idata;
+    int preserve_ellipsoidal;
     int i;
 
     convertcoords = ! identical_coordinate_systems( data->geosys, base->geosys );
@@ -92,7 +93,28 @@ int merge_network( network *base, network *data, int mergeopts,
     }
     nclassnew=network_classification_count(base);
     if( nclassnew == nbaseclass ) nclassnew=0;
-     
+
+    preserve_ellipsoidal=0;
+    if( mergeopts & NW_HGTFIXEDOPT_ELLIPSOIDAL )
+    {
+        preserve_ellipsoidal=1;
+    }
+    else if( ! (mergeopts & NW_HGTFIXEDOPT_ORTHOMETRIC ))
+    {
+        if( ! network_has_geoid_info(data) && 
+            network_height_coord_is_ellipsoidal(data) &&
+            network_has_geoid_info(base) )
+        {
+            preserve_ellipsoidal=1;
+        }
+        else 
+        if( network_has_geoid_info(data) && 
+            network_height_coord_is_ellipsoidal(base) &&
+            ! network_has_geoid_info(base) )
+        {
+            preserve_ellipsoidal=1;
+        }
+    }
 
     for( idata = 0; idata < nnew; idata++ )
     {
@@ -125,7 +147,6 @@ int merge_network( network *base, network *data, int mergeopts,
             }
             else
             {
-
                 stnew=st0;
                 if( updateexu ) 
                 {
@@ -136,6 +157,11 @@ int merge_network( network *base, network *data, int mergeopts,
                 }
                 else if( updatecrd )
                 {
+                    if( preserve_ellipsoidal )
+                    {
+                        llh[CRD_HGT] += exu[CRD_HGT];
+                        llh[CRD_HGT] -= st0->GUnd;
+                    }
                     modify_station_coords( st0, 
                         llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], el );
                 }
