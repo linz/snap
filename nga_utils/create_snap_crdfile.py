@@ -59,32 +59,7 @@ with open(crditrf,'w') as crdf:
 
 print("ITRF2008 coordinates in {0}".format(crditrf))
 subprocess.call(['snapconv','-y',calc_date,'-e','-d',crditrf,'NZGD2000',crdfile])
+subprocess.call(['snapgeoid','-h','NZVD2016',crdfile,crdfile])
+
+
 print("NZGD2000 coordinates in {0}".format(crdfile))
-
-
-
-
-
-        
-#
-#
-#
-#
-#
-#
-#with open('pnz_check_20121201_post_earthquake_itrf2008.crd','wb') as out:
-#    with open('pnz_check_20121201_post_earthquake.csv', 'rb')as inputfile1:
-#        out.write("PNZ coordinates\nITRF2008\noptions no_geoid ellipsoidal_heights degrees station_orders\n\n")
-#        in1=csv.reader(inputfile1)
-#        prefix="! "
-#        for line in in1:
-#            code=line[0]
-#            lat=line[8]
-#            lon=line[7]
-#            hgt=line[9]
-#            order="0"
-#            line_string="%s%s     %s    %s   %s %s     %s\n" % (prefix,code,lat,lon,hgt,order,code)
-#            out.write(line_string)
-#            prefix=""
-#        
-#    
