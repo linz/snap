@@ -377,7 +377,7 @@ int add_requested_covariance_connections()
 
 int open_output_files( )
 {
-    char errmess[80];
+    char errmess[40+MAX_FILENAME_LEN];
     int rlen;
 
     rlen = strlen( root_name );
@@ -388,7 +388,7 @@ int open_output_files( )
     lst = fopen( lst_name, "w" );
     if( !lst )
     {
-        sprintf(errmess,"Unable to open listing file %.40s",lst_name);
+        sprintf(errmess,"Unable to open listing file %.*s",MAX_FILENAME_LEN,lst_name);
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }
@@ -401,7 +401,7 @@ int open_output_files( )
     err = fopen( err_name, "w" );
     if( !err )
     {
-        sprintf(errmess,"Unable to open error file %.40s",err_name);
+        sprintf(errmess,"Unable to open error file %.*",MAX_FILENAME_LEN,err_name);
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }

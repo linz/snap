@@ -2396,7 +2396,7 @@ typedef struct
 
 static double *connAz = NULL;
 static int *connId = NULL;
-static char buf[256];
+static char buf[256+MAX_FILENAME_LEN];
 
 static void *angle_format( void )
 {
@@ -2552,7 +2552,8 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 }
                 nch = strlen(buf);
             }
-            sprintf(buf+nch,"   Line %2d: %.40s", connection->line,
+            sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
+                    MAX_FILENAME_LEN,
                     survey_data_file_name( connection->file ));
             (*f)( dest, &jump, buf );
         }
@@ -2746,7 +2747,8 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             nch=strlen(buf);
         }
         nch=strlen(buf);
-        sprintf(buf+nch,"   Line %2d: %.40s", connection->line,
+        sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
+                MAX_FILENAME_LEN,
                 survey_data_file_name( connection->file ));
         (*f)( dest, &jump, buf );
     }

@@ -1818,7 +1818,7 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
 {
     const char *cfgfile;
     char *ptr;
-    char errmsg[100];
+    char errmsg[60+MAX_FILENAME_LEN];
     char cfg_only;
     char constraint;
 
@@ -1838,7 +1838,7 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
             {
                 if( read_command_file_constraints( cfgfile ) != OK )
                 {
-                    sprintf(errmsg,"Invalid data in configuration file %.40s",string);
+                    sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);
                     send_config_error(cfg,INVALID_DATA,errmsg);
                 }
             }
@@ -1846,14 +1846,14 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value,
             {
                 if( process_configuration_file( cfgfile, cfg_only ) != OK )
                 {
-                    sprintf(errmsg,"Invalid data in configuration file %.40s",string);
+                    sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);
                     send_config_error(cfg,INVALID_DATA,errmsg);
                 }
             }
         }
         else
         {
-            sprintf(errmsg,"Cannot find configuration file %.40s",string);
+            sprintf(errmsg,"Cannot find configuration file %.*s",MAX_FILENAME_LEN,string);
             send_config_error( cfg, INVALID_DATA, errmsg );
         }
     }

@@ -18,6 +18,7 @@
 #include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
+#include "util/fileutil.h"
 #include "util/linklist.h"
 #include "util/symmatrx.h"
 #include "util/progress.h"
@@ -230,7 +231,7 @@ static void apply_recode_suffix( station *st, void *psrd )
 
 int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile )
 {
-    char msg[100];
+    char msg[60+MAX_FILENAME_LEN];
     char *field;
     char *codefrom=0;
     char *codeto=0;
@@ -268,7 +269,7 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
             sts=read_station_recode_file( stt, filename, basefile );
             if( sts != OK )
             {
-                sprintf(msg,"Error reading station recode file %.40s",filename);
+                sprintf(msg,"Error reading station recode file %.*s",MAX_FILENAME_LEN,filename);
                 ok=0;
             }
         }

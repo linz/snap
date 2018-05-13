@@ -307,7 +307,7 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *value, int l
 {
     const char *cmdfile;
     char *ptr;
-    char errmsg[100];
+    char errmsg[60+MAX_FILENAME_LEN];
 
     ptr = string;
     while( ptr && NULL != (cmdfile=strtok(ptr,whitespace)))
@@ -319,13 +319,13 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *value, int l
 
             if( read_command_file( cmdfile, 0 ) != OK )
             {
-                sprintf(errmsg,"Invalid data in command file %.40s",string);
+                sprintf(errmsg,"Invalid data in command file %.*s",MAX_FILENAME_LEN,string);
                 send_config_error(cfg,INVALID_DATA,errmsg);
             }
         }
         else
         {
-            sprintf(errmsg,"Cannot find command file %.40s",string);
+            sprintf(errmsg,"Cannot find command file %.*s",MAX_FILENAME_LEN,string);
             send_config_error( cfg, INVALID_DATA, errmsg );
         }
     }
@@ -360,8 +360,8 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
         if( !cfg ) return MISSING_DATA;
         if( ! cfgfile || add_configuration_file( cfgfile ) != OK )
         {
-            char errmess[80];
-            sprintf(errmess, "Cannot find configuration file %.40s",plot_data);
+            char errmess[40+MAX_FILENAME_LEN];
+            sprintf(errmess, "Cannot find configuration file %.*s",MAX_FILENAME_LEN,plot_data);
             send_config_error( cfg, INVALID_DATA, errmess );
         }
         return OK;
@@ -390,8 +390,8 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
         fspec = find_file( fname, ".dat", cfg->name, FF_TRYALL, SNAPPLOT_CONFIG_SECTION );
         if( !fspec )
         {
-            char errmess[80];
-            sprintf(errmess,"Cannot open background file %.40s",fname);
+            char errmess[40+MAX_FILENAME_LEN];
+            sprintf(errmess,"Cannot open background file %.*s",MAX_FILENAME_LEN,fname);
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -765,8 +765,8 @@ static void process_station_list_file( CFG_FILE *cfg, char *name,
 
     if( !list_file )
     {
-        char errmess[80];
-        sprintf(errmess,"Cannot open station list file %.40s\n",name);
+        char errmess[40+MAX_FILENAME_LEN];
+        sprintf(errmess,"Cannot open station list file %.*s\n",MAX_FILENAME_LEN,name);
         send_config_error( cfg, INVALID_DATA, errmess );
         return;
     }
@@ -798,8 +798,8 @@ static void process_station_list_file( CFG_FILE *cfg, char *name,
             }
             else
             {
-                char errmess[100];
-                sprintf( errmess,"Invalid station %.10s in list %.40s \n",stn_code,name);
+                char errmess[60+MAX_FILENAME_LEN];
+                sprintf( errmess,"Invalid station %.10s in list %.*s \n",stn_code,MAX_FILENAME_LEN,name);
                 send_config_error( cfg, INVALID_DATA, errmess );
             }
         }

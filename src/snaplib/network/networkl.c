@@ -643,8 +643,8 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
 
     if( !list_file )
     {
-        char errmess[80];
-        sprintf(errmess,"Cannot open station list file %.40s\n",file);
+        char errmess[40+MAX_FILENAME_LEN];
+        sprintf(errmess,"Cannot open station list file %.*s\n",MAX_FILENAME_LEN,file);
         handle_error( INVALID_DATA, errmess, NULL  );
         return INVALID_DATA;
     }
