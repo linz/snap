@@ -30,7 +30,7 @@ int stations_read = 0;
 
 // #pragma warning (disable : 4100)
 
-int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int mergeopts )
 {
     int sts;
     char *fname;
@@ -77,12 +77,40 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
 
     if( sts == OK )
     {
-        xprintf("\nReading coordinates from file %s\n",fname);
-        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata, code );
+        int adding=net ? 1 : 0;
+        int n0=adding ? number_of_stations(net) : 0;
+        const char *action=(! adding) ? "Reading" 
+                         :  mergeopts & NW_MERGEOPT_ADDNEW ? "Reading additional" 
+                         : "Updating";
+        xprintf("\n%s coordinates from file %s\n",action,fname);
+        if( adding && mergeopts & (NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU | NW_MERGEOPT_CLASSES ))
+        {
+            const char *comma=", ";
+            const char *sep="";
+            xprintf("Updating ");
+            if( mergeopts & NW_MERGEOPT_COORDS )
+            {
+                xprintf("coordinates");
+                sep=comma;
+            }
+            if( mergeopts & NW_MERGEOPT_EXU )
+            {
+                xprintf("%sgeoid/deflections",sep);
+                sep=comma;
+            }
+            if( mergeopts & NW_MERGEOPT_CLASSES )
+            {
+                xprintf("%sclassifications",sep);
+                sep=comma;
+            }
+            xprintf("\n");
+        }
+        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata, mergeopts );
         if( sts == OK )
         {
             stations_read = 1;
-            xprintf("    %d stations read\n",(int) number_of_stations(net));
+            xprintf("    %d %sstations read\n",(int) number_of_stations(net)-n0,
+                    adding ? "additional " : "" );
         }
         else
         {
