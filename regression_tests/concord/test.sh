@@ -5,9 +5,17 @@ SNAPDIR='/home/ccrook/projects_git/snap/linux/debug/install'
 fi
 
 if [ "$1" = "-r" ]; then 
-    echo ""Testing release version""
+    echo "Testing release version"
     shift
     SNAPDIR='/home/ccrook/projects_git/snap/linux/release/install'
+fi
+
+testcrdsys=""
+if [ "$1" = "-c" ]; then 
+    testcrdsys="$2"
+    shift
+    shift
+    echo "Testing with coordsys.def $testcrdsys"
 fi
 
 mkdir -p out
@@ -161,6 +169,10 @@ ${concord} -INZGD2000,NE,D -oNZGD2000,NE,H -E -N8 -S, -P8 in/testsep.in out/test
 echo Test each coordinate system with official COORDSYSDEF file
 
 unset COORDSYSDEF
+if [ -n "$testcrdsys" ]; then
+    echo "Using test coordsys.def in $testcrdsys"
+    export COORDSYSDEF=$testcrdsys
+fi
 
 for c in `cat crdsyslist.txt`; do
    echo "=======================" >> out/crdsys.txt

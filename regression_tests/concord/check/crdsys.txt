@@ -462,3 +462,321 @@ Testing WGS84_G1674_XYZ
 
 7 coordinates converted
 3 errors occurred reading or converting coordinates
+Testing NZGD2000 version 20000101
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+Testing NZGD2000 version 20130801
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+Testing NZGD2000 version 20140201
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+Testing NZGD2000 version 20150101
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+Testing NZGD2000 version 20160701
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+Testing NZGD2000 version 20171201
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
+
+
+4 coordinates converted
+0 errors occurred reading or converting coordinates
