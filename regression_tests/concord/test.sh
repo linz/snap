@@ -1,13 +1,13 @@
 #!/bin/sh
 
 if [ -z $SNAPDIR ]; then
-SNAPDIR='/home/ccrook/projects/snap/linux/debug/install'
+SNAPDIR='/home/ccrook/projects_git/snap/linux/debug/install'
 fi
 
 if [ "$1" = "-r" ]; then 
     echo ""Testing release version""
     shift
-    SNAPDIR='/home/ccrook/projects/snap/linux/release/install'
+    SNAPDIR='/home/ccrook/projects_git/snap/linux/release/install'
 fi
 
 mkdir -p out
@@ -177,6 +177,14 @@ for c in `cat crdsyslist2.txt`; do
    ${concord} -IITRF96,NEH,H -o${c} -Y2000.5 -N6 -P6 in/test1.in out/test_${c}.out >> out/crdsys.txt 2>&1
 done
 
+echo "Testing NZGD2000 versions"
+for v in `cat in/test_nzgd2000.version`; do
+    echo "Testing version $v"
+    echo "Testing NZGD2000 version $v" >> out/crdsys.txt 2>&1
+    for y in `cat in/test_nzgd2000.year`; do
+        ${concord} -iITRF96:ENH:D -oNZGD2000_$v:ENH:D -Y$y -P9 in/test_nzgd2000.in out/testnzgd2000_${v}_${y}.out >> out/crdsys.txt 2>&1
+    done
+done
 
 echo "Testing height reference surfaces"
 for c in `cat hgtreflist.txt`; do
