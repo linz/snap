@@ -23,7 +23,16 @@ sequences and components of which it comprises (as described in the
 <a href="linzdefmodel.html">LINZ deformation model</a>). Each
 component is in turn represented by either a <a href=
 "gridfile_s.html">gridded data file</a> or <a href=
-"trigfile.html">triangulated data file</a>.</p>
+"trigfile.html">triangulated data file</a>.  Currently LINZ deformation 
+models have only used the grid file format - it is likely the 
+triangulated file format will be deprecated.</p>
+<p>
+There have been three versions of the deformation file format.  The 
+first version provided basic grids and a simple time model. Version 
+2 added support for nested grid formats and more complex time models,
+including piecewise linear time models.  Version 3 add support for
+multiple versions of the deformation model in one file.
+</p>
 <p>The index file is structured with a header section followed by
 one or more deformation sequences. Each sequence has one or more
 deformation components. Each record comprised a code defining the
@@ -67,13 +76,21 @@ time such as &ldquo;12:30&rdquo;</p>
 possible values are</p>
 <table>
 <tr>
+<td>LINZDEF3B</td>
+<td>Big endian binary format - version 3</td>
+</tr>
+<tr>
+<td>LINDEF2L</td>
+<td>Little endian binary format - version 3 (the preferred format for
+SNAP)</td>
+</tr>
+<tr>
 <td>LINZDEF2B</td>
 <td>Big endian binary format - version 2</td>
 </tr>
 <tr>
 <td>LINDEF2L</td>
-<td>Little endian binary format - version 2 (the preferred format for
-SNAP)</td>
+<td>Little endian binary format - version 2</td>
 </tr>
 <tr>
 <td>LINZDEF1B</td>
@@ -84,28 +101,6 @@ SNAP)</td>
 <td>Little endian binary format version 1</td>
 </tr>
 </table>
-</td>
-</tr>
-<tr>
-<td>
-<p>VERSION_NUMBER</p>
-</td>
-<td>
-<p>string</p>
-</td>
-<td>
-<p>The version of the deformation model</p>
-</td>
-</tr>
-<tr>
-<td>
-<p>VERSION_DATE</p>
-</td>
-<td>
-<p>date</p>
-</td>
-<td>
-<p>The date on which the version was authoritative</p>
 </td>
 </tr>
 <tr>
@@ -142,6 +137,33 @@ after this are invalid</p>
 <td>
 <p>A code for the coordinate system in which the deformation is
 defined &ndash; eg NZGD2000.</p>
+</td>
+</tr>
+</table>
+<p>This is followed by the deformation model version number.  This section may be repeated multiple
+times in the version 3 format.</p>
+<table class="NormalTable">
+<tr>
+<td>
+<p>VERSION_NUMBER</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>The version of the deformation model.  This should be formatted YYYYMMDD for the 
+NZGD2000 deformation model, though any string up to 8 characters is valid.</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>VERSION_DATE</p>
+</td>
+<td>
+<p>date</p>
+</td>
+<td>
+<p>The date on which the version was authoritative</p>
 </td>
 </tr>
 <tr>
@@ -258,8 +280,34 @@ calculated outside the extents.</p>
 <p>string</p>
 </td>
 <td>
-<p> (Version 2 only) Either "yes" or "no".  If yes then only the first component of 
+<p> (Version 2+ only) Either "yes" or "no".  If yes then only the first component of 
 the sequence which spatially includes a point will be used to evaluate the sequence.
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>VERSION_START</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p> (Version 3+ only) The version number of the first version of the deformation model
+in which this sequence is valid.
+</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>VERSION_END</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p> (Version 3+ only) The version of the deformation model in which this sequence
+is revoked.  Set to 0 if the sequence has not been revoked.
 </p>
 </td>
 </tr>
@@ -409,7 +457,7 @@ option.</p>
 <p>string</p>
 </td>
 <td>
-<p>(Version 2 only) 
+<p>(Version 2+ only) 
 A string defining the time model.  The time model evaluates a factor by which the 
 deformation component is multiplied at a given date.  Options are:
 </p>

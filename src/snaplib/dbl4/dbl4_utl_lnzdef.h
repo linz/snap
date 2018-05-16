@@ -30,6 +30,8 @@ StatusType utlCreateLinzDef( hBinSrc blob, hLinzDefModel *def );
 
 StatusType utlReleaseLinzDef( hLinzDefModel def );
 
+StatusType utlSetLinzDefVersion( hLinzDefModel def, const char *version );
+
 StatusType utlLinzDefCoordSysDef( hLinzDefModel def, char ** crdsys );
 
 /* nTitle = 1 for name, 2 for description, 3 for version */

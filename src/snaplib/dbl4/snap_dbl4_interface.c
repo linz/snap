@@ -73,7 +73,7 @@ void utlAbort( char *message )
 
 // #pragma warning (disable : 4100)
 
-void start_trace( char *c, long l )
+void start_trace( const char *c, long l )
 {
     if( tracing < 0 )
     {
@@ -86,7 +86,7 @@ void start_trace( char *c, long l )
     return;
 }
 
-void add_trace( char *fmt, ... )
+void add_trace( const char *fmt, ... )
 {
     if( tracing )
     {

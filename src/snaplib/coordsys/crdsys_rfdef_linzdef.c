@@ -18,9 +18,12 @@
 #include "dbl4_utl_lnzdef.h"
 #include "dbl4_utl_error.h"
 
+#define VERSIONLEN 8
+
 typedef struct
 {
     char *ldeffile;
+    char version[VERSIONLEN+1];
     int loaded;
     int loadsts;
     hBlob blob;
@@ -45,11 +48,17 @@ static void rf_linzdef_delete( void *data )
     return;
 }
 
-static void *rf_linzdef_create( const char *ldeffile )
+static void *rf_linzdef_create( const char *ldeffile, const char *version )
 {
     LinzDefModel *model;
     model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));
     model->ldeffile = copy_string(ldeffile);
+    model->version[0]=0;
+    if( version )
+    {
+        strncpy(model->version,version,VERSIONLEN);
+        model->version[VERSIONLEN]=0;
+    }
     model->blob = NULL;
     model->binsrc = NULL;
     model->linzdef = NULL;
@@ -66,6 +75,10 @@ static int rf_linzdef_load( LinzDefModel *model )
         sts = utlCreateReadonlyFileBlob( model->ldeffile, &(model->blob) );
         if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
         if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
+        if( sts == STS_OK && model->version[0] )
+        {
+            sts=utlSetLinzDefVersion(model->linzdef,model->version);
+        }
         model->loaded = 1;
         model->loadsts = sts == STS_OK ? OK : INVALID_DATA;
     }
@@ -75,7 +88,8 @@ static int rf_linzdef_load( LinzDefModel *model )
 static void *rf_linzdef_copy( void *src )
 {
     if( ! src ) return 0;
-    return rf_linzdef_create( ((LinzDefModel *)src)->ldeffile );
+    LinzDefModel *model=(LinzDefModel *) src;
+    return rf_linzdef_create( model->ldeffile, model->version );
 }
 
 
@@ -165,6 +179,7 @@ int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
 {
     const char *ldeffile;
     char filename[MAX_FILENAME_LEN];
+    char version[VERSIONLEN+1];
     int sts;
 
     sts = next_string_field( is, filename, MAX_FILENAME_LEN );
@@ -173,6 +188,9 @@ int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
         report_string_error( is, sts, "Missing filename for LINZDEF deformation");
         return sts;
     }
+
+    sts = next_string_field( is, version, VERSIONLEN+1 );
+    if( sts != OK ) { version[0]=0; sts=OK; }
 
     ldeffile = find_relative_file( is->sourcename, filename, ".grd" );
     if( ! ldeffile )
@@ -184,7 +202,7 @@ int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
-    def->data = rf_linzdef_create( ldeffile );
+    def->data = rf_linzdef_create( ldeffile, version );
     def->delete_func = rf_linzdef_delete;
     def->copy_func = rf_linzdef_copy;
     def->identical = rf_linzdef_identical;

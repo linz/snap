@@ -54,22 +54,25 @@ WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
 [reference_frames]
 
 NZGD2000=NZGD2000_20171201=(20171201) "New Zealand Geodetic Datum 2000 (version 20171201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION LINZDEF nzgd2000_def_20171201l.bin
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20171201
 
 NZGD2000_20160701=(20160701) "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION LINZDEF nzgd2000_def_20160701l.bin
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20160701
 
 NZGD2000_20150101=(20150101) "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION LINZDEF nzgd2000_def_20150101l.bin
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20150101
 
 NZGD2000_20140201=(20140201) "New Zealand Geodetic Datum 2000 (version 20140201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION LINZDEF nzgd2000_def_20140201l.bin
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20140201
 
+! NOTE: using nzgd2000_def_20130801l.bin to remain consistent with previously published
+! model.  This version used an slightly incorrect implementation of the ITRF parameters model
+! (Recalculating NDM rotation with fixed ITRF params)
 NZGD2000_20130801=(20130801) "New Zealand Geodetic Datum 2000 (version 20130801)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
    DEFORMATION LINZDEF nzgd2000_def_20130801l.bin
 
 NZGD2000_20000101=(20000101) "New Zealand Geodetic Datum 2000 (version 20000101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
-   DEFORMATION VELGRID igns98b 2000.0
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20000101
 
 RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
 

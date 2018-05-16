@@ -59,8 +59,8 @@ typedef struct
 #define mi_open(x,y,z) 0
 
 
-void start_trace( char *c, long l );
-void add_trace( char *fmt, ... );
+void start_trace( const char *c, long l );
+void add_trace( const char *fmt, ... );
 void end_trace( void );
 
 #define DPRINTF(c,l,a) { \

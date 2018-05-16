@@ -194,7 +194,7 @@ for v in `cat in/test_nzgd2000.version`; do
     echo "Testing version $v"
     echo "Testing NZGD2000 version $v" >> out/crdsys.txt 2>&1
     for y in `cat in/test_nzgd2000.year`; do
-        ${concord} -iITRF96:ENH:D -oNZGD2000_$v:ENH:D -Y$y -P9 in/test_nzgd2000.in out/testnzgd2000_${v}_${y}.out >> out/crdsys.txt 2>&1
+        ${concord} -iITRF96:ENH:D -oNZGD2000_$v:ENH:D -N3 -Y$y -P9 in/test_nzgd2000.in out/testnzgd2000_${v}_${y}.out >> out/crdsys.txt 2>&1
     done
 done
 
