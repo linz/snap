@@ -59,9 +59,9 @@ The build steps include:
 
 1) Build wxWidgets 2.8 compoents. cd to wxwidgets-2.8/build_gtk, ./run_configure.sh, and then make
 
-2) Build snap components (cd unix, make)
+2) Build snap components (cd linux, make)
 
-3) Copy unix/release/install to a suitable system directory, or add this directory
+3) Copy linux/release/install to a suitable system directory, or add this directory
    to the PATH environment variable.
 
 
