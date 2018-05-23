@@ -27,8 +27,6 @@
 *************************************************************************
 */
 
-static char sccsid[] = "%W%";
-
 #include "dbl4_common.h"
 
 #include <stdlib.h>
@@ -248,7 +246,6 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     int version;
     INT4 indexloc;
     INT2 ival;
-    INT4 datasize;
     int i;
     StatusType sts;
     TRACE_GRID(("Loading grid definition"));
@@ -261,7 +258,6 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
     def = (grid_def_crs *) utlAlloc( sizeof( grid_def_crs ) );
     if( ! def ) RETURN_STATUS(STS_ALLOC_FAILED);
     def->indexloc = indexloc;
-    datasize = indexloc - strlen(GRID_FILE_HEADER_1) - 4;
     def->rows = 0;
     def->desc1 = 0;
     def->desc2 = 0;
@@ -318,10 +314,6 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
 
     if( sts == STS_OK && ( def->ngrdx < 2 || def->ngrdy < 2 )) SET_STATUS(sts,STS_INVALID_DATA);
 
-    /* This integrity check doesn't work with version 2 grids!
-    if( sts == STS_OK && (def->ngrdx*def->ngrdy*def->ngrdval*2 != datasize) )
-       SET_STATUS(sts,STS_INVALID_DATA);
-      */
 
     if( sts == STS_OK )
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->desc1) );
@@ -712,7 +704,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
 {
     cache_row *cr;
     file_row *fr;
-    StatusType sts;
+    StatusType sts=STS_OK;
     INT4 fileloc;
     fr = &def->rows[lat];
     cr = fr->cacheloc;
@@ -773,7 +765,7 @@ static StatusType get_row( grid_def_crs *def, short lat, INT4** row)
         def->cache_mru = cr;
     }
     *row = cr->data;
-    return STS_OK;
+    return sts;
 }
 
 
@@ -942,18 +934,22 @@ static StatusType calc_grid_linear( grid_def_crs *def, double x, double y,
     {
         value[v] = 0;
     }
+    if( y < def->miny || y > def->maxy ) RETURN_STATUS(STS_CRD_RANGE_ERR);
     y = (y-def->miny)/def->yres;
     ny = (short) y;
-    if( ny < 0 || ny+1 >= def->ngrdy ) RETURN_STATUS(STS_CRD_RANGE_ERR);
+    if( ny < 0 ) ny=0;
+    if( ny >= def->ngrdy-1 ) ny=def->ngrdy-2;
     x = (x-def->minx);
     if( def->latlon )
     {
         while( x > 360.0 ) x -= 360.0;
         while( x < 0.0 ) x += 360.0;
     }
+    if( ! def->global && x > (def->maxx-def->minx)) RETURN_STATUS(STS_CRD_RANGE_ERR);
     x = x/def->xres;
     nx = (short) x;
-    if( !def->global && (nx < 0 || nx+1 >= def->ngrdx )) RETURN_STATUS(STS_CRD_RANGE_ERR);
+    if( nx < 0 ) nx=0;
+    if( nx >= def->ngrdx-1 ) nx=def->ngrdx-2;
     calc_linear_factors( y-ny, yfactor );
     calc_linear_factors( x-nx, xfactor );
 

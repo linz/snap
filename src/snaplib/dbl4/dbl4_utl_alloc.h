@@ -13,7 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_alloc_h_sccsid[] = "%W%";
 
 
 void * utlAlloc( size_t size);

@@ -9,10 +9,6 @@ modules = {}
 
 for fbase, dirs, files in os.walk(base):
     fbase = fbase[len(base):]
-    if not fbase:
-        for p in ('nzmapconv','libspatialite','calclinzdef'):
-            if p in dirs:
-                dirs.remove(p)
     if '.svn' in dirs:
         dirs.remove('.svn')
     objects = None

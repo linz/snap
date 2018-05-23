@@ -20,8 +20,6 @@
 *************************************************************************
 */
 
-static char sccsid[] = "%W%";
-
 #include "dbl4_common.h"
 
 #include <stdlib.h>
@@ -176,13 +174,13 @@ StatusType utlCreateBinSrc( hBlob blob, hBinSrc * binsrc)
     (*binsrc) = NULL;
 
     /* Was coded with ASSERT(), but this crashed CC optimizer?! */
-#ifndef NDEBUG
+    #ifndef NDEBUG
     if( sizeof(INT4) != 4 || sizeof(INT2) != 2 || sizeof(INT1) != 1 )
     {
         THROW_EXCEPTION("Binary data compilation error: sizeof INT4, INT2, INT1 not correct");
         RETURN_STATUS(STS_INVALID_DATA);
     }
-#endif
+    #endif
 
     bs = (hBinSrc) utlAlloc( sizeof( BinSrc ) );
     if( ! bs )
@@ -504,3 +502,44 @@ StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, char **data )
     return STS_OK;
 }
 
+/*************************************************************************
+** Function name: utlBinSrcLoadString4
+**//**
+**    Function to load a string from the blob.  The string is stored as a
+**    4 byte length followed by the data.  The string should be stored with
+**    a trailing null byte included - although this routine will add a null
+**    byte for safety.
+**
+**    This routine use ::utlAlloc to allocate the string that will be returned.
+**
+**  \param binsrc              The binary source object
+**  \param offset              The offset to start reading
+**  \param data                Returns a pointer to the created string
+**
+**  \return                    Returns a pointer to the string bufer
+**
+**************************************************************************
+*/
+
+StatusType utlBinSrcLoadString4( hBinSrc binsrc, long offset, char **data )
+{
+    INT4 len;
+    char *s;
+    StatusType sts;
+    *data = NULL;
+    sts = utlBinSrcLoad4( binsrc, offset, 1, (void *) (&len) );
+    if( sts != STS_OK ) RETURN_STATUS(sts);
+    if( len < 0 || len > BINSRC_MAX_STRING_LEN ) RETURN_STATUS(STS_INVALID_DATA);
+
+    s = (char *) utlAlloc( len+1 );
+    if( ! s ) RETURN_STATUS(STS_ALLOC_FAILED);
+    if( len > 0 ) sts = utlBinSrcLoad1( binsrc, BINSRC_CONTINUE, len, s );
+    if( sts != STS_OK )
+    {
+        utlFree(s);
+        RETURN_STATUS(sts);
+    }
+    s[len] = 0;
+    *data = s;
+    return STS_OK;
+}

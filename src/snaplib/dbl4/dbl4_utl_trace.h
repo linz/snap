@@ -13,9 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_trace_h_sccsid[] = "%W%";
-
-
 #include <mi.h>
 
 /* XADPRINTF adds "XFormAdjust" to the class name  */

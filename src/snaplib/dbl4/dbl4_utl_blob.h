@@ -13,9 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_blob_h_sccsid[] = "%W%";
-
-
 /* Require data types */
 
 #include "dbl4_types.h"

@@ -19,8 +19,6 @@
 #include "dbl4_types.h"
 #endif
 
-static char dbl4_utl_progress_h_sccsid[] = "%W%";
-
 #define PROG_TEMP_MSG -1
 #define PROG_NO_BAR   -2
 

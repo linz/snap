@@ -36,8 +36,6 @@
 *************************************************************************
 */
 
-static char sccsid[] = "%W%";
-
 #include "dbl4_common.h"
 
 #include <stdlib.h>

@@ -13,8 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_binsrc_h_sccsid[] = "%W%";
-
 #ifndef DBL4_TYPES_H
 #include "dbl4_types.h"
 #endif
@@ -51,5 +49,6 @@ StatusType utlBinSrcLoad2( hBinSrc binsrc, long offset, int nval, void *data );
 StatusType utlBinSrcLoad4( hBinSrc binsrc, long offset, int nval, void *data );
 StatusType utlBinSrcLoad8( hBinSrc binsrc, long offset, int nval, void *data );
 StatusType utlBinSrcLoadString( hBinSrc binsrc, long offset, char **data );
+StatusType utlBinSrcLoadString4( hBinSrc binsrc, long offset, char **data );
 
 #endif /* DBL4_UTL_BINSRC_H not defined */

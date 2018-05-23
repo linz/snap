@@ -13,9 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_yield_h_sccsid[] = "%W%";
-
-
 #ifndef DBL4_TYPES_H
 #include "dbl4_types.h"
 #endif

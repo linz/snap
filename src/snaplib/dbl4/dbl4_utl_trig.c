@@ -39,8 +39,6 @@
 *************************************************************************
 */
 
-static char sccsid[] = "%W%";
-
 #include "dbl4_common.h"
 
 #include <stdio.h>
@@ -268,7 +266,7 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
 {
     double x, y, xp, yp, x2, y2, x3, y3, dp2, dp3;
     short ptid,pt1id,pt2id,pt3id,plast;
-    int sts, finished;
+    int finished;
     int nnode,i;
     int maxiterations;
     hPointDef pp1, pp2, pp3;
@@ -298,7 +296,6 @@ static int find_triangle( hTrigDef trig, double xt, double yt, hTriangleDef tria
 
     finished = 0;
     maxiterations = trig->npts;
-    sts = STS_OK;
     if (xt==pp1->xy[0] && yt==pp1->xy[1] )
     {
         ptid = pp1->nodeid[0];

@@ -13,8 +13,6 @@
 **************************************************************************
 */
 
-static char dbl4_utl_error_h_sccsid[] = "%W%";
-
 #include <stdio.h>
 
 /* Require data types */
@@ -58,6 +56,7 @@ static char dbl4_utl_error_h_sccsid[] = "%W%";
 #define STS_ADJ_SINGULAR   211
 #define STS_ADJ_DIVERGED   212
 #define STS_ADJ_FAILEDTEST 213
+#define STS_XFM_INVERTED   214
 
 #define STS_PROGRAM_ERROR 400
 
