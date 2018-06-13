@@ -27,7 +27,6 @@ use strict;
 
 use FindBin;
 use lib $FindBin::RealBin.'/perllib';
-use Time::JulianDay;
 
 use Getopt::Std;
 use Packer;
@@ -232,14 +231,14 @@ sub LoadDefinition {
       my ($rectype, $value ) = split(' ',$_,2);
       $rectype = uc($rectype);
       
-      if( $rectype =~ /^(DEFORMATION_(MODEL|SEQUENCE|COMPONENT)|VERSION_NUMBER)$/ ) {
+      if( $rectype =~ /^(DEFORMATION_(MODEL|SEQUENCE|COMPONENT)|VERSION)$/ ) {
          if( $rectype eq 'DEFORMATION_MODEL' ) {
             die "Only one DEFORMATION_MODEL can be defined\n" if $curmod;
             $curmod = { type=>$rectype, name=>$value, params=>\%model_param,
                         sequences=>[] };
             $curobj = $curmod;
             }
-         elsif( defined $ver_param && $rectype eq 'VERSION_NUMBER' ) {
+         elsif( defined $ver_param && $rectype eq 'VERSION' ) {
             die "Must define DEFORMATION MODEL before $rectype\n" if ! $curmod;
             die "Invalid version number $value\n" if $value !~ /^20\d\d[01]\d[0123]\d$/;
             $curobj = { version=>$value, params=>$ver_param, model=>$curmod };
@@ -515,6 +514,25 @@ sub ParseDate {
    return [$3+0,$month->{lc($2)},$1+0,$4+0,$5+0,$6+0];
    }
 
+# Extracted from Time::JulianDay (as not available on all systems)
+# calculate the julian day, given $year, $month and $day
+sub julian_day
+{
+    my($year, $month, $day) = @_;
+    my($tmp);
+
+    use Carp;
+#    confess() unless defined $day;
+
+    $tmp = $day - 32075
+      + 1461 * ( $year + 4800 - ( 14 - $month ) / 12 )/4
+      + 367 * ( $month - 2 + ( ( 14 - $month ) / 12 ) * 12 ) / 12
+      - 3 * ( ( $year + 4900 - ( 14 - $month ) / 12 ) / 100 ) / 4
+      ;
+
+    return($tmp);
+
+}
 sub DateToYear {
    my ($date)=@_;
    my $dateparts=ParseDate($date);
@@ -796,8 +814,16 @@ START_DATE 1-Jan-1850
 END_DATE 1-Jan-2100
 COORDSYS NZGD2000
 
-# Version info - may be repeated for multiple version in version 3 format.
+# Version 1/2 format version info
 VERSION_NUMBER 20171201
+VERSION_DATE  12-Mar-2004
+DESCRIPTION
+This is the description of the model
+This is a first try
+END_DESCRIPTION
+
+# Version 3 format version info - may be repeated
+VERSION 20171201
 VERSION_DATE  12-Mar-2004
 DESCRIPTION
 This is the description of the model
