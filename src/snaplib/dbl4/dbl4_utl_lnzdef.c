@@ -1553,7 +1553,11 @@ StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, char ** title )
         (*title) = ((hDefMod) def)->currver->description;
         break;
     case 3:
-        (*title) = ((hDefMod) def)->currver->version;
+        {
+        char *version=((hDefMod) def)->currver->version;
+        if( version && strcmp(version,"00000000") == 0 ){ version += 8; }
+        (*title) = version;
+        }
         break;
     }
     return STS_OK;
