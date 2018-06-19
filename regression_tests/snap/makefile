@@ -1,3 +1,3 @@
 
 tests:
-	./test.sh
+	perl runtests.pl -v

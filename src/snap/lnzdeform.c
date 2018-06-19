@@ -221,9 +221,10 @@ static int print_linzdef( void *deformation, FILE *out, const char *prefix )
     for( i = 1; i <= 3; i++ )
     {
         sts = utlLinzDefTitle( model->linzdef, i, &title );
-        if( sts == STS_OK && title )
+        if( sts == STS_OK && title && title[0])
         {
             fputs(prefix,out);
+            if( i == 3 ) fputs("Version: ",out);
             fputs(title,out);
             fputs("\n",out);
         }

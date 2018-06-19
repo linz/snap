@@ -1,16 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
-
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                     Run at 
+                     Run at 18-JUN-2018 09:34:47 by ccrook
 
 
 The command file testom26.snp contains:
@@ -50,7 +49,7 @@ The command file testom26.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - reweight by data type   
+Regression test om1 - obs modifications - reweight by data type   18-JUN-2018 09:34:47
 
                              SUMMARY OF INPUT FILES
 
@@ -88,7 +87,7 @@ Note: error factors are multiplied for observations meeting several critera
 
 
 ================================================================================
-Regression test om1 - obs modifications - reweight by data type   
+Regression test om1 - obs modifications - reweight by data type   18-JUN-2018 09:34:47
 
                              OBSERVATION EQUATIONS
 
@@ -103,7 +102,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 2,
   "obs": [
    {
-    "value":  0.00,
+    "value":  0.00000000e+00,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -111,7 +110,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -6.45e-08,
+    "value": -6.45370997e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -128,7 +127,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 2,
   "obs": [
    {
-    "value":  0.00,
+    "value":  0.00000000e+00,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -136,7 +135,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.25e-08,
+    "value": -8.24516730e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -153,7 +152,7 @@ BEGIN_JSON obs_equation_1
   "nobs": 2,
   "obs": [
    {
-    "value":  0.00,
+    "value":  0.00000000e+00,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,
@@ -161,7 +160,7 @@ BEGIN_JSON obs_equation_1
     "values": []
    },
    {
-    "value": -8.25e-08,
+    "value": -8.24516730e-08,
     "schreiber":  1.00000000e+00,
     "useobs": true,
     "ncolumns": 0,

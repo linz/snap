@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 The command file testgx1.snp contains:
@@ -32,7 +32,7 @@ The command file testgx1.snp contains:
      list parameters
      list residuals
      list error_summary
-     list worst_residuals
+     list no_worst_residuals
      
      refraction_coefficient DEFAULT 0.0
      
@@ -42,7 +42,7 @@ The command file testgx1.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              SUMMARY OF INPUT FILES
 
@@ -67,7 +67,7 @@ Data file 1: testgx1.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                    INPUT DATA
 
@@ -595,7 +595,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              DEFINITION OF PROBLEM
 
@@ -617,7 +617,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              OBSERVATION EQUATIONS
 
@@ -632,21 +632,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -664,21 +664,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -696,42 +696,42 @@ BEGIN_JSON obs_equation_1
   "nobs": 6,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -752,21 +752,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -784,21 +784,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -816,42 +816,42 @@ BEGIN_JSON obs_equation_1
   "nobs": 6,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -872,21 +872,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -904,21 +904,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -936,42 +936,42 @@ BEGIN_JSON obs_equation_1
   "nobs": 6,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -992,21 +992,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -1024,21 +1024,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -1056,42 +1056,42 @@ BEGIN_JSON obs_equation_1
   "nobs": 6,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -1112,21 +1112,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -1144,21 +1144,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
@@ -1176,21 +1176,21 @@ BEGIN_JSON obs_equation_1
   "nobs": 3,
   "obs": [
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -1208,42 +1208,42 @@ BEGIN_JSON obs_equation_1
   "nobs": 6,
   "obs": [
    {
-    "value":  6.03e-06,
+    "value":  6.03403896e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.04e-05,
+    "value": -1.03753991e-05,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -1.96e-06,
+    "value": -1.95764005e-06,
     "useobs": true,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  1.39e-05,
+    "value":  1.38757750e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value": -3.24e-05,
+    "value": -3.23612476e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
     "values": []
    },
    {
-    "value":  2.78e-05,
+    "value":  2.77985819e-05,
     "useobs": false,
     "ncolumns": 0,
     "columns": [],
@@ -1266,7 +1266,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                 SOLUTION SUMMARY
 
@@ -1289,7 +1289,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                               STATION COORDINATES
 
@@ -1323,7 +1323,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                            REFERENCE FRAME PARAMETERS
 
@@ -1349,7 +1349,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                 OTHER PARAMETERS
 
@@ -1364,7 +1364,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              OBSERVATION RESIDUALS
 
@@ -1391,116 +1391,116 @@ From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.  
 File testgx1.dat: line 8
 
 1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00                  
-              560595.5704  0.0104    560595.5704  0.0000  0.0000  0.0200   0.00                  
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0000  0.0300   0.00                  
+              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00                  
+            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX    -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0100   0.00                  
               560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0200   0.00                  
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0000  0.0300   0.00                  
+            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0300   0.00                  
              6369436.1867           6369436.1867          0.0000           0.00                  
 
 1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00                  
-              560595.5704  0.0104    560595.5704  0.0000  0.0000  0.0200   0.00                  
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0000  0.0300   0.00                  
+              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00                  
+            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0100   0.00 *                
               560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0200   0.00 *                
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0000  0.0300   0.00 *                
+            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0300   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00                  
-              560595.5704  0.0104    560595.5704  0.0000  0.0000  0.0200   0.00                  
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0000  0.0300   0.00                  
+              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00                  
+            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0100   0.00 *                
               560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0200   0.00 *                
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0000  0.0300   0.00 *                
+            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0300   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0100   0.00                  
-              560595.5704  0.0104    560595.5704  0.0000  0.0000  0.0200   0.00                  
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0000  0.0300   0.00                  
+              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0200   0.00                  
+            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0300   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0100   0.00 *                
               560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0200   0.00 *                
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0000  0.0300   0.00 *                
+            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0300   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0108   0.00                  
-              560595.5704  0.0104    560595.5704  0.0000  0.0000  0.0253   0.00                  
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0000  0.0254   0.00                  
+              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0253   0.00                  
+            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0254   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0108   0.00 *                
               560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0253   0.00 *                
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0000  0.0254   0.00 *                
+            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0254   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0108   0.00                  
-              560595.5704  0.0104    560595.5704  0.0000  0.0000  0.0253   0.00                  
-            -4163681.8023  0.0248  -4163681.8023  0.0000  0.0000  0.0254   0.00                  
+              560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0253   0.00                  
+            -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0254   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0260  -4787842.2236  0.0000  0.0000  0.0108   0.00 *                
               560070.2623  0.0104    560070.2623  0.0000  0.0000  0.0253   0.00 *                
-            -4163244.5856  0.0248  -4163244.5856  0.0000  0.0000  0.0254   0.00 *                
+            -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0254   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0200  -4787264.5200  0.0000  0.0000  0.0260   0.00                  
-              560595.5704  0.0259    560595.5704  0.0000  0.0000  0.0104   0.00                  
-            -4163681.8023  0.0181  -4163681.8023  0.0000  0.0000  0.0248   0.00                  
+              560595.5704  0.0259    560595.5704  0.0000 -0.0000  0.0104   0.00                  
+            -4163681.8023  0.0181  -4163681.8023  0.0000 -0.0000  0.0248   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 File testgx1.dat: line 79
 
 2     GX*   -4787842.2236  0.0200  -4787842.2236  0.0000  0.0000  0.0260   0.00 *                
               560070.2623  0.0259    560070.2623  0.0000  0.0000  0.0104   0.00 *                
-            -4163244.5856  0.0181  -4163244.5856  0.0000  0.0000  0.0248   0.00 *                
+            -4163244.5856  0.0181  -4163244.5856  0.0000 -0.0000  0.0248   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0200  -4787264.5200  0.0000  0.0000  0.0260   0.00                  
-              560595.5704  0.0259    560595.5704  0.0000  0.0000  0.0104   0.00                  
-            -4163681.8023  0.0181  -4163681.8023  0.0000  0.0000  0.0248   0.00                  
+              560595.5704  0.0259    560595.5704  0.0000 -0.0000  0.0104   0.00                  
+            -4163681.8023  0.0181  -4163681.8023  0.0000 -0.0000  0.0248   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0200  -4787842.2236  0.0000  0.0000  0.0260   0.00 *                
               560070.2623  0.0259    560070.2623  0.0000  0.0000  0.0104   0.00 *                
-            -4163244.5856  0.0181  -4163244.5856  0.0000  0.0000  0.0248   0.00 *                
+            -4163244.5856  0.0181  -4163244.5856  0.0000 -0.0000  0.0248   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0982  -4787264.5200  0.0000  0.0000  0.0400   0.00                  
-              560595.5704  0.0414    560595.5704  0.0000  0.0000  0.0600   0.00                  
-            -4163681.8023  0.0908  -4163681.8023  0.0000  0.0000  0.1200   0.00                  
+              560595.5704  0.0414    560595.5704  0.0000 -0.0000  0.0600   0.00                  
+            -4163681.8023  0.0908  -4163681.8023  0.0000 -0.0000  0.1200   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 1     GX    -4787264.5200  0.6833  -4787264.5200  0.0000  0.0000  0.3000   0.00                  
-              560595.5704  0.3085    560595.5704  0.0000  0.0000  0.5000   0.00                  
-            -4163681.8023  0.6465  -4163681.8023  0.0000  0.0000  0.8000   0.00                  
+              560595.5704  0.3085    560595.5704  0.0000 -0.0000  0.5000   0.00                  
+            -4163681.8023  0.6465  -4163681.8023  0.0000 -0.0000  0.8000   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0982  -4787842.2236  0.0000  0.0000  0.0400   0.00 *                
               560070.2623  0.0414    560070.2623  0.0000  0.0000  0.0600   0.00 *                
-            -4163244.5856  0.0908  -4163244.5856  0.0000  0.0000  0.1200   0.00 *                
+            -4163244.5856  0.0908  -4163244.5856  0.0000 -0.0000  0.1200   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 1     GX    -4787264.5200  0.0982  -4787264.5200  0.0000  0.0000  0.0400   0.00                  
-              560595.5704  0.0414    560595.5704  0.0000  0.0000  0.0600   0.00                  
-            -4163681.8023  0.0908  -4163681.8023  0.0000  0.0000  0.1200   0.00                  
+              560595.5704  0.0414    560595.5704  0.0000 -0.0000  0.0600   0.00                  
+            -4163681.8023  0.0908  -4163681.8023  0.0000 -0.0000  0.1200   0.00                  
              6369333.9627           6369333.9627          0.0000           0.00                  
 
 2     GX*   -4787842.2236  0.0982  -4787842.2236  0.0000  0.0000  0.0400   0.00 *                
               560070.2623  0.0414    560070.2623  0.0000  0.0000  0.0600   0.00 *                
-            -4163244.5856  0.0908  -4163244.5856  0.0000  0.0000  0.1200   0.00 *                
+            -4163244.5856  0.0908  -4163244.5856  0.0000 -0.0000  0.1200   0.00 *                
              6369436.1867           6369436.1867          0.0000           0.00 *                
 
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                  ERROR SUMMARY
 
@@ -1519,68 +1519,3 @@ GPS point coord                             0.00   36    0.00   27    0.00   63
         North component                     0.00   12    0.00    9    0.00   21
         Up component                        0.00   12    0.00    9    0.00   21
 
-
-
-================================================================================
-Regression test 1 - data types and observation equations    
-
-                           MOST SIGNIFICANT RESIDUALS
-
-================================================================================
-
-
-The 21 residuals from this data are classified as follows:
-
-Under 95.00%  significant    Used:  12    Unused:   9
-Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   0    Unused:   0
-
-Note: Only the overall residual for vector data is counted
-
-
-The following table lists the 9 worst residuals of rejected data
-
-From   To     Type     S.R.  Sig (%)       Line  File
-
-2              GX*    0.002    0.000         63  testgx1.dat
-
-2              GX*    0.002    0.000         69  testgx1.dat
-
-2              GX*    0.002    0.000         40  testgx1.dat
-
-2              GX*    0.002    0.000         21  testgx1.dat
-
-2              GX*    0.002    0.000         47  testgx1.dat
-
-2              GX*    0.001    0.000         79  testgx1.dat
-
-2              GX*    0.001    0.000         85  testgx1.dat
-
-2              GX*    0.000    0.000         97  testgx1.dat
-
-2              GX*    0.000    0.000        101  testgx1.dat
-
-
-The following table lists the 10 worst residuals of used data
-
-From   To     Type     S.R.  Sig (%)       Line  File
-
-2              GX     0.002    0.000         13  testgx1.dat
-
-1              GX     0.001    0.000         60  testgx1.dat
-
-1              GX     0.001    0.000         67  testgx1.dat
-
-1              GX     0.001    0.000         36  testgx1.dat
-
-1              GX     0.001    0.000          8  testgx1.dat
-
-1              GX     0.001    0.000         46  testgx1.dat
-
-1              GX     0.001    0.000         20  testgx1.dat
-
-1              GX     0.000    0.000         76  testgx1.dat
-
-1              GX     0.000    0.000         83  testgx1.dat
-
-1              GX     0.000    0.000         93  testgx1.dat

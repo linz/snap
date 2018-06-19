@@ -20,7 +20,7 @@ list station_coordinates
 list parameters
 list residuals
 ! list error_summary
-! list worst_residuals
+list no_worst_residuals
 
 refraction_coefficient DEFAULT 0.075
 refraction_coefficient TEST 0.0 ?

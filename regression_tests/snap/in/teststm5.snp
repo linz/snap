@@ -1,4 +1,5 @@
 title Regression tests - multiple coordinate files
+!file: teststm2.crd
 coordinate_file teststm1.crd
 add_coordinate_file existing_classes from teststm2.crd
 output_coordinate_file .newcrd

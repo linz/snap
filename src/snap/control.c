@@ -40,6 +40,7 @@
 #include <ctype.h>
 
 #include "control.h"
+#include "snap/bearing.h"
 #include "snap/cfgprocs.h"
 #include "snap/deform.h"
 #include "snap/rftrans.h"
@@ -90,6 +91,7 @@ static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int 
 static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -171,6 +173,7 @@ static config_item snap_commands[] =
     {"default_refraction_coefficient",&dflt_rc,ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"reference_frame",NULL,ABSOLUTE,0,read_rftrans,CONFIG_CMD,0},
     {"reference_frame_scale_error",NULL,ABSOLUTE,0,read_rfscale,CFG_ONEONLY,0},
+    {"proj_bearing_use_datum_trans",NULL,ABSOLUTE,0,read_pb_use_datum_trans,CONFIG_CMD,0},
     {"output",NULL,ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
     {"print",NULL,ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
     {"list",NULL,ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
@@ -1337,6 +1340,24 @@ static int read_sort_option( CFG_FILE *cfg, char *string, void *value, int len, 
     return OK;
 }
 
+
+static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    unsigned char option;
+    int sts;
+    option = 0;
+    if( !string[0] )
+    {
+        option = 1;
+        sts = OK;
+    }
+    else
+    {
+        sts = readcfg_boolean( cfg, string, &option, 1, 0 );
+    }
+    if( sts == OK ) set_bproj_use_datum_transformation( option );
+    return sts;
+}
 
 static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {

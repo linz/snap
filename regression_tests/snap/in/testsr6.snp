@@ -1,4 +1,5 @@
 title Regression tests - Missing recode file
+!file: testsr3_recode.csv
 coordinate_file testsl.crd
 data_file testsr1.dat
 data_file testsr2.dat recode no_such_file.csv

@@ -1,20 +1,20 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
-
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                     Run at 
+                     Run at 18-JUN-2018 09:34:48 by ccrook
 
 
 The command file teststm5.snp contains:
      title Regression tests - multiple coordinate files
+     !file: teststm2.crd
      coordinate_file teststm1.crd
      add_coordinate_file existing_classes from teststm2.crd
      output_coordinate_file .newcrd
@@ -40,7 +40,7 @@ The command file teststm5.snp contains:
 
 
 ================================================================================
-Regression tests - multiple coordinate files                
+Regression tests - multiple coordinate files                18-JUN-2018 09:34:48
 
                              SUMMARY OF INPUT FILES
 
@@ -63,7 +63,7 @@ Data file 1: teststm.dat
 
 
 ================================================================================
-Regression tests - multiple coordinate files                
+Regression tests - multiple coordinate files                18-JUN-2018 09:34:48
 
                              DEFINITION OF PROBLEM
 
@@ -98,6 +98,9 @@ The following deformation has been applied
 Applying coordinate system deformation model
 LINZ deformation model
     NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.
@@ -105,7 +108,7 @@ LINZ deformation model
 
 
 ================================================================================
-Regression tests - multiple coordinate files                
+Regression tests - multiple coordinate files                18-JUN-2018 09:34:48
 
                                      ERRORS
 

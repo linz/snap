@@ -4,6 +4,7 @@ data_file testopt.dat
 mode 3d adjustment
 fix 1
 reorder_stations on
+list no_worst_residuals
 output binary_file
 output relative_covariances between 4 6
 output debug_reordering

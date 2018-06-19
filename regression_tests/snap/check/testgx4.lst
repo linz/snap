@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 The command file testgx4.snp contains:
@@ -31,7 +31,7 @@ The command file testgx4.snp contains:
      list parameters
      list residuals
      list error_summary
-     list worst_residuals
+     list no_worst_residuals
      
      refraction_coefficient DEFAULT 0.0
      
@@ -43,7 +43,7 @@ The command file testgx4.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              SUMMARY OF INPUT FILES
 
@@ -68,7 +68,7 @@ Data file 1: testgx2.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              DEFINITION OF PROBLEM
 
@@ -99,7 +99,7 @@ Station  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                ITERATION NUMBER 1
 
@@ -108,7 +108,7 @@ Regression test 1 - data types and observation equations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              OBSERVATION EQUATIONS
 
@@ -132,21 +132,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -164,21 +164,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -196,21 +196,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.31781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -228,21 +228,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.154492e-01,
+    "value":  2.15449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -260,21 +260,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -292,21 +292,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.29781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -324,21 +324,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.154492e-01,
+    "value":  2.15449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -356,21 +356,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -388,21 +388,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.404492e-01,
+    "value":  2.40449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -420,21 +420,21 @@ BEGIN_JSON obs_equation_1
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517770e-01, -7.494394e-01]
+    "values": [-1.16306713e-01, -6.51777005e-01, -7.49439446e-01]
    },
    {
-    "value":  2.354492e-01,
+    "value":  2.35449222e-01,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77604e-02]
+    "values": [-9.93213345e-01,  7.63240261e-02,  8.77604386e-02]
    },
    {
     "value":  2.32781775e+00,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545604e-01, -6.562306e-01]
+    "values": [ 0.00000000e+00,  7.54560388e-01, -6.56230616e-01]
    }
   ],
   "cvr": [
@@ -453,7 +453,7 @@ Iteration 1: Maximum change is 3.0774 metres at station 1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                ITERATION NUMBER 2
 
@@ -462,7 +462,7 @@ Regression test 1 - data types and observation equations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              OBSERVATION EQUATIONS
 
@@ -482,25 +482,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.0412e-03,
+    "value": -1.04117207e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -514,25 +514,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.10412e-02,
+    "value": -1.10411728e-02,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -546,25 +546,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.0412e-03,
+    "value": -1.04117207e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value": -1.3071e-03,
+    "value": -1.30713498e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -578,25 +578,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.0412e-03,
+    "value": -1.04117207e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value": -1.55866e-02,
+    "value": -1.55865533e-02,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -610,25 +610,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.10412e-02,
+    "value": -1.10411728e-02,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -642,25 +642,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.0412e-03,
+    "value": -1.04117207e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value": -2.13071e-02,
+    "value": -2.13071350e-02,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -674,25 +674,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.0412e-03,
+    "value": -1.04117207e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value": -1.55866e-02,
+    "value": -1.55865533e-02,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -706,25 +706,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -6.0412e-03,
+    "value": -6.04117289e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -738,25 +738,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value": -1.0412e-03,
+    "value": -1.04117207e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  9.4134e-03,
+    "value":  9.41344677e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -770,25 +770,25 @@ BEGIN_JSON obs_equation_2
   "nobs": 3,
   "obs": [
    {
-    "value":  3.9588e-03,
+    "value":  3.95882782e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-1.163067e-01, -6.517766e-01, -7.494398e-01]
+    "values": [-1.16306712e-01, -6.51776643e-01, -7.49439762e-01]
    },
    {
-    "value":  4.4134e-03,
+    "value":  4.41344676e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [-9.932133e-01,  7.63240e-02,  8.77605e-02]
+    "values": [-9.93213345e-01,  7.63239830e-02,  8.77604748e-02]
    },
    {
-    "value":  8.6929e-03,
+    "value":  8.69286479e-03,
     "useobs": true,
     "ncolumns": 3,
     "columns": [1, 2, 3],
-    "values": [ 0.00,  7.545607e-01, -6.562303e-01]
+    "values": [ 0.00000000e+00,  7.54560705e-01, -6.56230251e-01]
    }
   ],
   "cvr": [
@@ -807,7 +807,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                 SOLUTION SUMMARY
 
@@ -830,7 +830,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                               STATION COORDINATES
 
@@ -860,7 +860,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                            REFERENCE FRAME PARAMETERS
 
@@ -886,7 +886,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                 OTHER PARAMETERS
 
@@ -901,7 +901,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              OBSERVATION RESIDUALS
 
@@ -980,7 +980,7 @@ File testgx2.dat: line 20
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                  ERROR SUMMARY
 
@@ -998,46 +998,3 @@ GPS point coord                             0.56   30     -      -    0.56   30
         East component                      0.60   10     -      -    0.60   10
         North component                     0.68   10     -      -    0.68   10
         Up component                        0.26   10     -      -    0.26   10
-
-
-
-================================================================================
-Regression test 1 - data types and observation equations    
-
-                           MOST SIGNIFICANT RESIDUALS
-
-================================================================================
-
-
-The 10 residuals from this data are classified as follows:
-
-Under 95.00%  significant    Used:  10    Unused:   0
-Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   0    Unused:   0
-
-Note: Only the overall residual for vector data is counted
-
-
-The following table lists the 10 worst residuals of used data
-
-From   To     Type     S.R.  Sig (%)       Line  File
-
-1              GX     1.084   68.239         76  testgx2.dat
-
-1              GX     0.982   59.162         60  testgx2.dat
-
-1              GX     0.560   18.430         83  testgx2.dat
-
-1              GX     0.472   11.950         36  testgx2.dat
-
-1              GX     0.425    9.055         67  testgx2.dat
-
-1              GX     0.368    6.118         20  testgx2.dat
-
-1              GX     0.276    2.724         46  testgx2.dat
-
-1              GX     0.118    0.222         93  testgx2.dat
-
-1              GX     0.091    0.104        100  testgx2.dat
-
-1              GX     0.020    0.001         95  testgx2.dat

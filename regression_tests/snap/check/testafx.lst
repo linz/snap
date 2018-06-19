@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 
@@ -41,7 +41,7 @@ Data file 1: testafx.dat
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                              DEFINITION OF PROBLEM
 
@@ -91,7 +91,7 @@ The following stations have been automatically fixed vertically
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                                ITERATION SUMMARY
 
@@ -106,7 +106,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 7
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                                 SOLUTION SUMMARY
 
@@ -128,7 +128,7 @@ The probability of an SSR this high is 46.054% (from Chi squared (3))
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                               STATION COORDINATES
 
@@ -150,11 +150,11 @@ Rejected stations are flagged #
        173 19 15.600000 E      -         -
              150.0000          -         -
 
- 2      41 00 25.200001 S     0.0000    0.0172 131  Node two
+ 2      41 00 25.200001 S    -0.0000    0.0172 131  Node two
        173 19 40.800003 E     0.0001    0.0025  41
              250.0000         0.0000    0.0097
 
- 3      41 00 28.800000 S     0.0000    0.2339 103  Node three
+ 3      41 00 28.800000 S    -0.0000    0.2339 103  Node three
        173 19 58.800001 E     0.0000    0.0447  13
               70.0000         0.0000    0.0222
 
@@ -202,18 +202,18 @@ Rejected stations are flagged #
        173 19 15.600000 E      -         -
              150.0000          -         -
 
- 15     41 00 46.800000 S     0.0000    0.0600 180  Node fifteen
+ 15     41 00 46.800000 S    -0.0000    0.0600 180  Node fifteen
        173 19 15.600000 E     0.0000    0.0400  90
-             150.0000         0.0000    0.1200
+             150.0000        -0.0000    0.1200
 
- 16     41 00 46.800001 S     0.0000    0.0395 171  Node sixteen
+ 16     41 00 46.800001 S    -0.0000    0.0395 171  Node sixteen
        173 19 15.600002 E     0.0001    0.0250  81
              150.0000         0.0000    0.1030
 
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                            REFERENCE FRAME PARAMETERS
 
@@ -239,7 +239,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                              OBSERVATION RESIDUALS
 
@@ -274,16 +274,16 @@ From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    
 
 File testafx.dat: line 8
 
-1     2            0 HA   141 28 15.8   20.0 141 28 15.8   20.0     0.0    0.0    -   @   
+1     2            0 HA   141 28 15.8   20.0 141 28 15.8   20.0    -0.0    0.0    -   @   
       3            0 HA   161 11 26.3   20.0 161 11 26.3   20.0     0.0    0.0    -   @   
 
-2     1            0 HA     1 27 59.3   20.0   1 27 59.3   17.3     0.0   10.0   0.00     
+2     1            0 HA     1 27 59.3   20.0   1 27 59.3   17.3    -0.0   10.0   0.00     
       3            0 HA   244 47 28.1   20.0 244 47 28.1   17.3     0.0   10.0   0.00     
 
-2     1            0 HA   121 27 59.3   20.0 121 27 59.3   17.3     0.0   10.0   0.00     
+2     1            0 HA   121 27 59.3   20.0 121 27 59.3   17.3    -0.0   10.0   0.00     
       3            0 HA     4 47 28.1   20.0   4 47 28.1   17.3     0.0   10.0   0.00     
 
-1     2            0 SD      894.9014 0.0022    894.9014 0.0022  0.0000 0.0000    -   @   
+1     2            0 SD      894.9014 0.0022    894.9014 0.0022 -0.0000 0.0000    -   @   
 
 1     2            0 PB    40 30 56.8    4.0  40 30 56.8    4.0     0.0    0.0    -   @   
 
@@ -315,13 +315,13 @@ File testafx.dat: line 38
 
 7     2            0 ED      889.2866 0.0044    889.2916 0.0031 -0.0050 0.0031   1.61     
 
-7     3            0 ED     1152.1698 0.0046   1152.1698 0.0046  0.0000 0.0000    -   @   
+7     3            0 ED     1152.1698 0.0046   1152.1698 0.0046 -0.0000 0.0000    -   @   
 
 8     2            0 SD#     894.8014 0.0022    894.9014 0.0022 -0.1000 0.0031  32.14 #???
 
 File testafx.dat: line 66
 
-8     2            0 SD#     894.9014 0.0022    894.9014 0.0022  0.0000 0.0031   0.00 #   
+8     2            0 SD#     894.9014 0.0022    894.9014 0.0022 -0.0000 0.0031   0.00 #   
 
 9     2            0 ED      889.2687 0.0103    889.2687 0.0103  0.0000 0.0000    -   @   
 
@@ -347,7 +347,7 @@ From        Id Type     Value       +/-         Calc       +/-      Res    +/-  
                         X,Y,Z                  X,Y,Z               E,N,U                     
 
 15           0 GX    -4787264.5200  0.0982  -4787264.5200  0.0982  0.0000  0.0000    -   @   
-                       560595.5704  0.0414    560595.5704  0.0414  0.0000  0.0000    -   @   
+                       560595.5704  0.0414    560595.5704  0.0414 -0.0000  0.0000    -   @   
                      -4163681.8023  0.0908  -4163681.8023  0.0908  0.0000  0.0000    -   @   
                       6369333.9627           6369333.9627          0.0000            -       
 
@@ -355,14 +355,14 @@ From  To          Id Type     Value      +/-        Calc       +/-      Res    +
                               X,Y,Z                 X,Y,Z              E,N,U                     
 
 16    2         1000 GB       -577.7036  0.0806     -577.7036  0.0806  0.0000  0.0000    -   @   
-                              -525.3081  0.0237     -525.3081  0.0237  0.0000  0.0000    -   @   
-                               437.2167  0.0730      437.2167  0.0730  0.0000  0.0000    -   @   
+                              -525.3081  0.0237     -525.3081  0.0237 -0.0000  0.0000    -   @   
+                               437.2167  0.0730      437.2167  0.0730 -0.0000  0.0000    -   @   
                                894.9014              894.9014          0.0000            -       
 
 
 
 ================================================================================
-Testing autofixing                                          
+Testing autofixing                                          18-JUN-2018 09:34:46
 
                                  ERROR SUMMARY
 
@@ -398,68 +398,3 @@ longitude                                    -      -    0.00    1    0.00    1
 
 
 
-================================================================================
-Testing autofixing                                          
-
-                           MOST SIGNIFICANT RESIDUALS
-
-================================================================================
-
-
-The 20 residuals from this data are classified as follows:
-
-Under 95.00%  significant    Used:  10    Unused:   8
-Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   0    Unused:   2
-
-Note: Only the overall residual for vector data is counted
-
-
-The following table lists the 10 worst residuals of rejected data
-
-From   To         Id  Type     S.R.  Sig (%)       Line  File
-
-1      4           0   AZ#  17747.627  100.000 ???     43  testafx.dat
-
-8      2           0   SD#   32.141  100.000 ???     65  testafx.dat
-
-8      2           0   SD#    0.000    0.000         66  testafx.dat
-
-6      2           0   PB#    0.000    0.000         54  testafx.dat
-
-6      2           0   PB#    0.000    0.000         55  testafx.dat
-
-1      4           0   LV#    0.000     -            30  testafx.dat
-
-10     2           0   LV#    0.000     -            36  testafx.dat
-
-11     2           0   LV#    0.000     -            37  testafx.dat
-
-10                 0   LN#    0.000     -            79  testafx.dat
-
-11                 0   LT#    0.000     -            84  testafx.dat
-
-
-The following table lists the 10 worst residuals of used data
-
-From   To         Id  Type     S.R.  Sig (%)       Line  File
-
-7      2           0   ED     1.607   89.196         59  testafx.dat
-
-7      2           0   ED     1.607   89.196         60  testafx.dat
-
-2      3           0   HA     0.000    0.000         13  testafx.dat
-
-2      3           0   HA     0.000    0.000         17  testafx.dat
-
-2      1           0   HA     0.000    0.000         12  testafx.dat
-
-2      1           0   HA     0.000    0.000         16  testafx.dat
-
-1      2           0   LV     0.000     -            28  testafx.dat
-
-1      3           0   LV     0.000     -            29  testafx.dat
-
-13     2           0   LV     0.000     -            89  testafx.dat
-
-13     3           0   LV     0.000     -            90  testafx.dat

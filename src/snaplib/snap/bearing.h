@@ -25,8 +25,9 @@
 
 typedef struct
 {
-    char *name;           /* The name of the reference frame     */
-    coordsys *prjsys;     /* The coordinate system for the projection */
+    char *name;             /* The name of the reference frame     */
+    int dtmtrans;           /* Apply datum transformation as well as projection */
+    coordsys *prjsys;       /* The coordinate system for the projection */
     coord_conversion prjconv;  /* The conversion from the network geodetic
                              coordinate system to the bearing projection system */
 } brngProjection;
@@ -39,9 +40,10 @@ brngProjection *bproj_from_id( int id );
 const char *bproj_name( int id );
 void clear_bproj_list( void );
 
-
 int calc_prj_azimuth2( int bproj_id,
                        station *st1, double hgt1, station *st2, double hgt2,
                        double *angle, vector3 dst1, vector3 dst2 );
+
+void set_bproj_use_datum_transformation( int usedatum );
 
 #endif

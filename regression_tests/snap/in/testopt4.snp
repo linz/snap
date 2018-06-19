@@ -5,6 +5,7 @@ mode 3d adjustment
 fix 1
 reorder_stations on
 output binary_file
+list no_worst_residuals
 output relative_covariances between 4 6
 output relative_covariances between 1 6
 output debug_reordering

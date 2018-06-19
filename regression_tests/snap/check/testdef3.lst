@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 
@@ -36,7 +36,7 @@ Data file 2: testdef3xyz.dat
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                                ITERATION SUMMARY
 
@@ -175,7 +175,7 @@ Deformation at N4   , 2025.00 (-0.2498, 0.6585, 0.0000)  Node N4
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                                 SOLUTION SUMMARY
 
@@ -188,7 +188,7 @@ Number of observations:              65
 Number of parameters:                 0
 
 Degrees of freedom:                  65
-Sum of squared residuals:         178785.31005
+Sum of squared residuals:         178785.31006
 Standard error of unit weight:       52.44562
 
 The probability of an SSR this high is 0.000% (from Chi squared (65))
@@ -200,7 +200,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                               STATION COORDINATES
 
@@ -216,7 +216,6 @@ The following deformation model has been applied
 NZGD1949 deformation model
 This is the description of the model
 This is a first try
-
 
 
 The error ellipse and height error are the apriori errors
@@ -246,7 +245,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                            REFERENCE FRAME PARAMETERS
 
@@ -272,7 +271,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                              OBSERVATION RESIDUALS
 
@@ -361,7 +360,7 @@ N1    GX    -4883314.8610  0.0830  -4883316.4876  0.0000  0.8701  0.0500  17.40 
 
 N4    GX    -4877996.3810  0.0829  -4877998.0056  0.0000  0.9988  0.0500  19.98  ???  1/01/2100
               325706.4560  0.0502    325707.5655  0.0000 -2.6336  0.0500  52.67  ???           
-            -4082900.2180  0.0749  -4082898.2023  0.0000  0.0000  0.1000   0.00                
+            -4082900.2180  0.0749  -4082898.2023  0.0000 -0.0000  0.1000   0.00                
              6369537.4698           6369537.4785          2.8166          32.52  ???           
 
 N1    GX    -4883314.8610  0.0830  -4883314.8609  0.0000  0.0005  0.0500   0.01       1/01/2121
@@ -376,7 +375,7 @@ N1    GX    -4883314.8610  0.0830  -4883312.9497  0.0000  1.6238  0.0500  32.48 
 
 N4    GX    -4877996.3810  0.0829  -4877996.3808  0.0000 -0.0004  0.0500   0.01       1/01/2128
               325706.4560  0.0502    325706.4556  0.0000  0.0003  0.0500   0.01                
-            -4082900.2180  0.0749  -4082900.2183  0.0000  0.0000  0.1000   0.00                
+            -4082900.2180  0.0749  -4082900.2183  0.0000 -0.0000  0.1000   0.00                
              6369537.4698           6369537.4698          0.0005           0.01                
 
 N1    GX    -4883314.8610  0.0830  -4883312.9497  0.0000  1.6238  0.0500  32.48  ???  1/01/2141
@@ -418,13 +417,13 @@ N1    GX    -4883314.8610  0.0830  -4883313.3564  0.0000  1.8412  0.0500  36.82 
 
 N4    GX    -4877996.3810  0.0829  -4877996.7870  0.0000  0.2494  0.0500   4.99  ???  1/01/2025
               325706.4560  0.0502    325706.7331  0.0000 -0.6581  0.0500  13.16  ???           
-            -4082900.2180  0.0749  -4082899.7143  0.0000  0.0000  0.1000   0.00                
+            -4082900.2180  0.0749  -4082899.7143  0.0000 -0.0000  0.1000   0.00                
              6369537.4698           6369537.4720          0.7038           8.13  ???           
 
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                                  ERROR SUMMARY
 
@@ -462,7 +461,7 @@ testdef3xyz.dat                            67.63   39     -      -   67.63   39
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      
+Test data set testdef3 - LINZ deformation model format      18-JUN-2018 09:34:46
 
                            MOST SIGNIFICANT RESIDUALS
 

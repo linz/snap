@@ -16,6 +16,6 @@ list reference_frames
 list parameters
 list residuals
 list error_summary
-list worst_residuals
+list no_worst_residuals
 
 reject 2

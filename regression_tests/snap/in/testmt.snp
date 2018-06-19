@@ -1,9 +1,11 @@
 title Testing multithread (use with -t 4 to test multithread solution)
+!parameters -t 4
 coordinate_file testopt.crd
 data_file testopt.dat
 mode 3d adjustment
 fix 1
 reorder_stations on
+list no_worst_residuals
 output debug_reordering
 output covariance_json
 output no_coordinate_file

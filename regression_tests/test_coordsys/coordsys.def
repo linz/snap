@@ -1,0 +1,1071 @@
+!  $Id: coordsys.def,v 1.28 2005/11/27 19:38:49 gdb Exp $
+!
+!
+
+! Definition of coordinate systems used by SNAP and related programs..
+!
+! Items that may be defined are:
+!   ellipsoids
+!   reference frames (containing an ellipsoid)
+!   coordinate systems (containing a ref frame and optional projection)
+!
+! These are defined in the following sections
+!
+
+!===========================================================================
+! ELLIPSOIDS:
+! Format:
+!  code "name" a rf
+! where a is the semi-major axis in metres, and rf is the reciprocal of the
+! flattening
+
+[ellipsoids]
+
+ANS "Australian National Spheroid (ANS)" 6378160 298.25
+GRS80 "Geodetic Reference System 1980 (GRS80)" 6378137 298.257222101
+INTERNATIONAL "International Ellipsoid" 6378388 297
+WGS72 "World Geodetic System 1972 Ellipsoid(WGS72)" 6378135 298.26
+WGS84 "World Geodetic System 1984 Ellipsoid (WGS84)" 6378137 298.257223563
+
+!===========================================================================
+! REFERENCE FRAMES:
+! Format:
+!   code name ELLIPSOID ellipsoid_code refcode Tx Ty Tz Rx Ry Rz scale
+!
+! Here the translations and rotations must be defined in terms of a
+! common system for each refcode.  Transformation parameters are
+! from the reference frame being defined to the underlying 
+! reference frame.  Transformations are only available
+! between reference systems with common reference codes.  Translations
+! are in metres, rotations in seconds, and scale in ppm.
+!
+! The transformation parameters may be followed by "RATES", a reference date,
+! and the rates of change of each of the parameters.
+!
+! The transformation parameters may be preceded by "IERS_TSR" or "IERS_ETSR"
+! to denote using IERS units of mm, mas, ppb, rather than m, arcsec, ppm.  
+! These also use the opposite sign convention for the rotations and change the 
+! order of the parameters to Tx Ty Tz scale Rx Ry Rx, and for IERS_ETSR, include
+! the reference date (epoch) before the parameters.  ie the are one of:
+!
+!    IERS_TSR Tx Ty Tz scale Rx Ry Rz
+!    IERS_ETSR refdate Tx Ty Tz scale Rx Ry Rz dTx dTy dTz dscale dRx dRy dRz
+
+[reference_frames]
+
+NZGD2000=NZGD2000_20171201=(20171201) "New Zealand Geodetic Datum 2000 (version 20171201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20171201
+
+NZGD2000_20160701=(20160701) "New Zealand Geodetic Datum 2000 (version 20160701)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20160701
+
+NZGD2000_20150101=(20150101) "New Zealand Geodetic Datum 2000 (version 20150101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20150101
+
+NZGD2000_20140201=(20140201) "New Zealand Geodetic Datum 2000 (version 20140201)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20140201
+
+! NOTE: using nzgd2000_def_20130801l.bin to remain consistent with previously published
+! model.  This version used an slightly incorrect implementation of the ITRF parameters model
+! (Recalculating NDM rotation with fixed ITRF params)
+NZGD2000_20130801=(20130801) "New Zealand Geodetic Datum 2000 (version 20130801)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20130801l.bin
+
+NZGD2000_20000101=(20000101) "New Zealand Geodetic Datum 2000 (version 20000101)" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0 &
+   DEFORMATION LINZDEF nzgd2000_def_20171201al.bin 20000101
+
+RSRGD2000 "Ross Sea Region Geodetic Datum 2000" ELLIPSOID GRS80 ITRF96 0 0 0 0 0 0 0
+
+! The reference frame commonly described as "WGS84" has been realised several 
+! times since the original realisation based on the TRANSIT Doppler system. Each
+! of these subsequent realisations is identified by the GPS week during which it was
+! implemented (which is not the same as the reference epoch). Strictly speaking, 
+! it is only the initial realisation that should be identified as "WGS84". The vast
+! majority of WGS84 users actually use one of the later GPS realisations, so to
+! avoid inadvertent transformations using the original Doppler realisation, it is 
+! identified here by the code "WGS84_D".
+
+WGS72 "World Geodetic System 1972 (WGS72)" ELLIPSOID WGS72 WGS84_D 0 0 4.5 0 0 -0.554 0.219
+
+! As published with ITRF at ftp://itrf.ensg.ign.fr/pub/itrf/WGS84.TXT
+WGS84_D "World Geodetic System 1984 (Doppler)" ELLIPSOID WGS84 &
+  ITRF90 IERS_TSR -60    517    223    11       -18.3      0.3     -7      
+   
+WGS84_G730 "World Geodetic System 1984 (G730)" ELLIPSOID WGS84 &
+  ITRF91 IERS_ETSR 1994.0   0      0      0     0        0        0        0       &
+                            0      0      0     0        0        0        0      
+   
+WGS84_G873 "World Geodetic System 1984 (G873)" ELLIPSOID WGS84 &
+  ITRF94 IERS_ETSR 1997.0   0      0      0     0        0        0        0       &
+                            0      0      0     0        0        0        0      
+   
+WGS84_G1150 "World Geodetic System 1984 (G1150)" ELLIPSOID WGS84 &
+  ITRF2000 IERS_ETSR 2001.0   0      0      0     0        0        0        0       &
+                              0      0      0     0        0        0        0      
+   
+WGS84_G1674 "World Geodetic System 1984 (G1674)" ELLIPSOID WGS84 &
+  ITRF2008 IERS_ETSR 2005.0   0      0      0     0        0        0        0       &
+                              0      0      0     0        0        0        0      
+   
+WGS84_G1762=(WGS84) "World Geodetic System 1984 (G1762)" ELLIPSOID WGS84 &
+  ITRF2008 IERS_ETSR 2005.0   0      0      0     0        0        0        0       &
+                              0      0      0     0        0        0        0      
+
+ITRF96 "International Terrestrial Reference Frame 1996" ELLIPSOID GRS80 NONE
+
+ITRF2014 "International terrestrial reference frame 2014" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   6.4    3.99 -14.27  1.08901 -0.16508  0.26897  0.11984 &
+                            0.79  -0.6   -1.44 -0.07201 -0.01347  0.01514  0.01973
+
+ITRF2008 "International Terrestrial Reference Frame 2008" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   4.8    2.09 -17.67  1.40901 -0.16508  0.26897  0.11984 &
+                            0.79  -0.6   -1.34 -0.10201 -0.01347  0.01514  0.01973
+   
+ITRF2005 "International Terrestrial Reference Frame 2005" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   6.8    2.99 -12.97  0.46901 -0.16508  0.26897  0.11984 &
+                            0.49  -0.6   -1.34 -0.10201 -0.01347  0.01514  0.01973
+
+ITRF2000 "International Terrestrial Reference Frame 2000" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   6.7    3.79  -7.17  0.06901 -0.16508  0.26897  0.11984 &
+                            0.69  -0.7    0.46 -0.18201 -0.01347  0.01514  0.01973
+
+ITRF97 "International Terrestrial Reference Frame 1997" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   0     -0.51  15.53 -1.51099 -0.16508  0.26897  0.05984 &
+                            0.69  -0.1    1.86 -0.19201 -0.01347  0.01514 -0.00027
+   
+ITRF94 "International Terrestrial Reference Frame 1994" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0   0      0      0     0        0        0        0       &
+                            0      0      0     0        0        0        0      
+   
+ITRF93 "International Terrestrial Reference Frame 1993" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0  28.8    0.2    5.4  -0.49     1.71     1.48     0.36    &
+                            2.9   -0.4   -0.8   0        0.11     0.19    -0.05   
+   
+ITRF92 "International Terrestrial Reference Frame 1992" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0  -8     -2      8     0.71     0        0        0       &
+                            0      0      0     0        0        0        0      
+   
+ITRF91 "International Terrestrial Reference Frame 1991" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0 -20    -16     14    -0.69     0        0        0       &
+                            0      0      0     0        0        0        0      
+
+ITRF90 "International Terrestrial Reference Frame 1990" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0 -18    -12     30    -0.99     0        0        0       &
+                            0      0      0     0        0        0        0      
+
+ITRF89 "International Terrestrial Reference Frame 1989" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0 -23    -36     68    -4.39     0        0        0       &
+                            0      0      0     0        0        0        0      
+   
+ITRF88 "International Terrestrial Reference Frame 1988" ELLIPSOID GRS80 &
+  ITRF96 IERS_ETSR 2000.0 -18      0     92    -7.49    -0.1      0        0       &
+                            0      0      0     0        0        0        0      
+   
+! Geocentric Datum of Australia transformation parameters
+
+GDA94 "Geocentric Datum of Australia" ELLIPSOID GRS80 NONE
+
+! Note - ITRF to GDA94 transformations below use the IERS convention for the sign
+! of the rotations. Often in Australia, the opposite convention is used. Parameters
+! sourced from Dawson and Woods (2010) "ITRF to GDA94 coordinate transformations"
+! Table 2 published in "Journal of Applied Geodesy"
+
+ITRF2008_DW "International Terrestrial Reference Frame 2008 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+  GDA94 IERS_ETSR 1994.0 -84.68 -19.42  32.01  9.710    0.4254  -2.2578  -2.4015  &
+                           1.42   1.34   0.90  0.109   -1.5461  -1.1820  -1.1551 
+
+ITRF2005_DW "International Terrestrial Reference Frame 2005 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+  GDA94 IERS_ETSR 1994.0 -79.73  -6.86  38.03  6.636    0.0351  -2.1211  -2.1411  &
+                           2.25  -0.62  -0.56  0.294   -1.4707  -1.1443  -1.1701 
+
+ITRF2000_DW "International Terrestrial Reference Frame 2000 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+  GDA94 IERS_ETSR 1994.0 -45.91 -29.85 -20.37  7.070    1.6705  -0.4594  -1.9356  &
+                          -4.66   3.55  11.24  0.249   -1.7454  -1.4868  -1.2240 
+
+ITRF97_DW "International Terrestrial Reference Frame 1997 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+  GDA94 IERS_ETSR 1994.0 -14.63 -27.62 -25.32  6.695    1.7893   0.6047  -0.9962  &
+                          -8.60   0.36  11.25  0.007   -1.6394  -1.5198  -1.3801 
+
+ITRF96_DW "International Terrestrial Reference Frame 1996 (Dawson and Woods parameters)" ELLIPSOID GRS80 &   
+  GDA94 IERS_ETSR 1994.0  24.54 -36.43 -68.12  6.901    2.7359   2.0431  -0.3731  &
+                         -21.80   4.71  26.27  0.388   -2.0203  -2.1735  -1.6290 
+
+! Note - the following transformations use the usual Australian sign convention for
+! rotations, not the IERS convention. Parameters sourced from GDA Technical Manual 
+! v2.3(1) Table 7.1
+
+AGD84 "Australian Geodetic Datum 1984" ELLIPSOID ANS &
+GDA94 -117.763 -51.510 139.061 -0.292 -0.443 -0.277 -0.191
+
+AGD66 "Australian Geodetic Datum 1966" ELLIPSOID ANS &
+GDA94 -117.808 -51.536 137.784 -0.303 -0.446 -0.234 -0.290
+
+CHAT1979 "Chatham 1979" ELLIPSOID INTERNATIONAL ITRF96 174.05 -25.49 112.57 0 0 -0.554 0.2263
+
+FIJI "Fiji datum" ELLIPSOID WGS72 FIJI 0 0 0 0 0 0 0
+
+NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
+   NZGD2000 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
+   SNAP2D def492kt.grd "LINZ NZGD49-NZGD2000 conversion grid"
+
+NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID INTERNATIONAL NZGD2000 84 -22 209 0 0 0 0
+
+! Camp area datum - no established relationship with another datum (reference datum=CAMPAREA)
+
+CAMPAREA "Camp area datum (International ellipsoid)" ELLIPSOID INTERNATIONAL NONE
+
+!===========================================================================
+! COORDINATE SYSTEMS:
+!
+! code name REF_FRAME ref_frame_code
+!    GEODETIC|GEOCENTRIC|PROJECTION [projection_definition]
+!    [RANGE emin nmin emax nmax]
+!
+! For projection coordinate systems, the projection definition can be one of
+!
+! New Zealand Map Grid
+!   "NZMG"
+!
+! Transverse mercator projection
+!   "TM" (the projection type)
+!   central meridian longitude (in decimal degrees)
+!   origin of latitude (in decimal degrees)
+!   central meridian scale factor
+!   false easting (projection metres)
+!   false northing (projection metres)
+!   unit to metres conversion factor
+!
+! Equatorial mercator projection
+!   "EM"
+!   central meridian longitude
+!   standard parallel
+!
+! Lambert conformal conic projection
+!   "LCC"
+!   First standard parallel
+!   Second standard parallel
+!   Origin of latitude
+!   Origin of longitude
+!   False easting
+!   False northing
+!
+! Polar Stereographic projection
+!   "PS"
+!   "North" or "South"
+!   Central meridian
+!   Scale factor
+!   False easting
+!   False northing
+!
+! Gnomic projection
+!   Origin of latitude
+!   Central meridian
+!   False easting
+!   False northing
+!
+!
+! The coordinate system definition may optionally be followed by a range
+! defining the minimum and maximum latitudes and longitudes of the
+! coordinates in decimal degrees, or for projections the minimum and maximum
+! values of the easting and northing.  The format is
+!    RANGE min_long min_lat max_long max_lat
+! or
+!    RANGE min_easting min_northing max_easting max_northing
+!
+
+[coordinate_systems]
+
+
+! Global systems
+
+! GRS80 "Geodetic Reference System 1980" REF_FRAME GRS80 GEODETIC
+
+WGS72 "World Geodetic System 1972" REF_FRAME WGS72 GEODETIC
+WGS72_XYZ "World Geodetic System 1972" REF_FRAME WGS72 GEOCENTRIC
+
+WGS84_D "World Geodetic System 1984 (Doppler)" REF_FRAME WGS84_D GEODETIC
+WGS84_D_XYZ "World Geodetic System 1984 (Doppler) XYZ" REF_FRAME WGS84_D GEOCENTRIC
+
+WGS84_G730 "World Geodetic System 1984 (G730)" REF_FRAME WGS84_G730 GEODETIC
+WGS84_G730_XYZ "World Geodetic System 1984 (G730) XYZ" REF_FRAME WGS84_G730 GEOCENTRIC
+
+WGS84_G873 "World Geodetic System 1984 (G873)" REF_FRAME WGS84_G873 GEODETIC
+WGS84_G873_XYZ "World Geodetic System 1984 (G873) XYZ" REF_FRAME WGS84_G873 GEOCENTRIC
+
+WGS84_G1150 "World Geodetic System 1984 (G1150)" REF_FRAME WGS84_G1150 GEODETIC
+WGS84_G1150_XYZ "World Geodetic System 1984 (G1150) XYZ" REF_FRAME WGS84_G1150 GEOCENTRIC
+
+WGS84_G1674 "World Geodetic System 1984 (G1674)" REF_FRAME WGS84_G1674 GEODETIC
+WGS84_G1674_XYZ "World Geodetic System 1984 (G1674) XYZ" REF_FRAME WGS84_G1674 GEOCENTRIC
+
+WGS84_G1762 "World Geodetic System 1984 (G1762)" REF_FRAME WGS84_G1762 GEODETIC
+WGS84_G1762_XYZ "World Geodetic System 1984 (G1762) XYZ" REF_FRAME WGS84_G1762 GEOCENTRIC
+
+! For ITRF systems use GRS80 ellipsoid....
+! More consistent with ITRF to have ITRFxxxx as the XYZ system and another, for example
+! ITRFxxx_GRS80 for the ellispoidal system.  But use codes below to be more consistent
+! with the rest of SNAP/concord coordinate systems.
+
+ITRF88_XYZ "International Terrestrial Reference Frame 1988 XYZ (LINZ transformation)" REF_FRAME ITRF88 GEOCENTRIC
+ITRF88 "International Terrestrial Reference Frame 1988 (LINZ transformation)" REF_FRAME ITRF88 GEODETIC
+
+ITRF89_XYZ "International Terrestrial Reference Frame 1989 XYZ (LINZ transformation)" REF_FRAME ITRF89 GEOCENTRIC
+ITRF89 "International Terrestrial Reference Frame 1989 (LINZ transformation)" REF_FRAME ITRF89 GEODETIC
+
+ITRF90_XYZ "International Terrestrial Reference Frame 1990 XYZ (LINZ transformation)" REF_FRAME ITRF90 GEOCENTRIC
+ITRF90 "International Terrestrial Reference Frame 1990 (LINZ transformation)" REF_FRAME ITRF90 GEODETIC
+
+ITRF91_XYZ "International Terrestrial Reference Frame 1991 XYZ (LINZ transformation)" REF_FRAME ITRF91 GEOCENTRIC
+ITRF91 "International Terrestrial Reference Frame 1991 (LINZ transformation)" REF_FRAME ITRF91 GEODETIC
+
+ITRF92_XYZ "International Terrestrial Reference Frame 1992 XYZ (LINZ transformation)" REF_FRAME ITRF92 GEOCENTRIC
+ITRF92 "International Terrestrial Reference Frame 1992 (LINZ transformation)" REF_FRAME ITRF92 GEODETIC
+
+ITRF93_XYZ "International Terrestrial Reference Frame 1993 XYZ (LINZ transformation)" REF_FRAME ITRF93 GEOCENTRIC
+ITRF93 "International Terrestrial Reference Frame 1993 (LINZ transformation)" REF_FRAME ITRF93 GEODETIC
+
+ITRF94_XYZ "International Terrestrial Reference Frame 1994 XYZ (LINZ transformation)" REF_FRAME ITRF94 GEOCENTRIC
+ITRF94 "International Terrestrial Reference Frame 1994 (LINZ transformation)" REF_FRAME ITRF94 GEODETIC
+
+ITRF96_XYZ "International Terrestrial Reference Frame 1996 XYZ (LINZ transformation)" REF_FRAME ITRF96 GEOCENTRIC
+ITRF96 "International Terrestrial Reference Frame 1996 (LINZ transformation)" REF_FRAME ITRF96 GEODETIC
+
+ITRF97_XYZ "International Terrestrial Reference Frame 1997 XYZ (LINZ transformation)" REF_FRAME ITRF97 GEOCENTRIC
+ITRF97 "International Terrestrial Reference Frame 1997 (LINZ transformation)" REF_FRAME ITRF97 GEODETIC
+
+ITRF2000_XYZ "International Terrestrial Reference Frame 2000 XYZ (LINZ transformation)" REF_FRAME ITRF2000 GEOCENTRIC
+ITRF2000 "International Terrestrial Reference Frame 2000 (LINZ transformation)" REF_FRAME ITRF2000 GEODETIC
+
+ITRF2005_XYZ "International Terrestrial Reference Frame 2005 XYZ (LINZ transformation)" REF_FRAME ITRF2005 GEOCENTRIC
+ITRF2005 "International Terrestrial Reference Frame 2005 (LINZ transformation)" REF_FRAME ITRF2005 GEODETIC
+
+ITRF2008_XYZ "International Terrestrial Reference Frame 2008 XYZ (LINZ transformation)" REF_FRAME ITRF2008 GEOCENTRIC
+ITRF2008 "International Terrestrial Reference Frame 2008 (LINZ transformation)" REF_FRAME ITRF2008 GEODETIC
+
+ITRF2014_XYZ "International Terrestrial Reference Frame 2014 XYZ (LINZ transformation)" REF_FRAME ITRF2014 GEOCENTRIC
+ITRF2014 "International Terrestrial Reference Frame 2014 (LINZ transformation)" REF_FRAME ITRF2014 GEODETIC
+
+! NZGD2000 geodetic systems
+
+NZGD2000_XYZ "New Zealand Geodetic Datum 2000 XYZ (version 20171201)" REF_FRAME NZGD2000 GEOCENTRIC
+NZGD2000 "New Zealand Geodetic Datum 2000 (version 20171201)" REF_FRAME NZGD2000 GEODETIC
+
+! Old versions of deformation model
+NZGD2000_20171201 "New Zealand Geodetic Datum 2000 (version 20171201)" REF_FRAME NZGD2000_20171201 GEODETIC
+NZGD2000_20160701 "New Zealand Geodetic Datum 2000 (version 20160701)" REF_FRAME NZGD2000_20160701 GEODETIC
+NZGD2000_20150101 "New Zealand Geodetic Datum 2000 (version 20150101)" REF_FRAME NZGD2000_20150101 GEODETIC
+NZGD2000_20140201 "New Zealand Geodetic Datum 2000 (version 20140201)" REF_FRAME NZGD2000_20140201 GEODETIC
+NZGD2000_20130801 "New Zealand Geodetic Datum 2000 (version 20130801)" REF_FRAME NZGD2000_20130801 GEODETIC
+NZGD2000_20000101 "New Zealand Geodetic Datum 2000 (version 20000101)" REF_FRAME NZGD2000_20000101 GEODETIC
+
+
+
+! Several versions of NZGD49.  
+! Note: NZGD1949 is the Landonline code for this coordinate system
+
+! NZGD49 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
+NZGD1949 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
+! NZGD49_DMA "New Zealand Geodetic Datum 1949 (Dma)" REF_FRAME NZGD1949_DMA GEODETIC
+! NZGD1949_XYZ "New Zealand Geodetic Datum 1949 - Cartesian XYZ" REF_FRAME NZGD1949 GEOCENTRIC
+
+
+! NZ Mapping projections
+
+NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
+          PROJECTION NZMG &
+          RANGE 1600000 4800000 3600000 7200000
+
+NZTM "New Zealand Transverse Mercator Projection" REF_FRAME NZGD2000 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 500000 3500000 3500000 7500000
+
+! Old versions of deformation model
+
+NZTM_20171201 "New Zealand Transverse Mercator Projection (20171201)" REF_FRAME NZGD2000_20171201 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20160701 "New Zealand Transverse Mercator Projection (20160701)" REF_FRAME NZGD2000_20160701 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20150101 "New Zealand Transverse Mercator Projection (20150101)" REF_FRAME NZGD2000_20150101 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20140201 "New Zealand Transverse Mercator Projection (20140201)" REF_FRAME NZGD2000_20140201 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20130801 "New Zealand Transverse Mercator Projection (20130801)" REF_FRAME NZGD2000_20130801 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+NZTM_20000101 "New Zealand Transverse Mercator Projection (20000101)" REF_FRAME NZGD2000_20000101 &
+          PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
+          RANGE 1000000 4650000 2300000 6350000
+
+[coordinate_systems]
+! Datum 2000 circuits
+
+AMURTM2000 "Amuri Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 173.0100000000 -42.6888888889 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+BLUFTM2000 "Bluff Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 168.3427777778 -46.6000000000 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+BULLTM2000 "Buller Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 171.5811111111 -41.8105555556 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+COLLTM2000 "Collingwood Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 172.6719444444 -40.7147222222 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+EDENTM2000 "Mount Eden Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 174.7641666667 -36.8797222222 0.9999 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+GAWLTM2000 "Gawler Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 171.3605555556 -43.7486111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+GREYTM2000 "Grey Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 171.5497222222 -42.3336111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+HAWKTM2000 "Hawkes Bay Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 176.6736111111 -39.6508333333 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+HOKITM2000 "Hokitika Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 170.9797222222 -42.8861111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+JACKTM2000 "Jacksons Bay Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 168.6061111111 -43.9777777778 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+KARATM2000 "Karamea Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 172.1088888889 -41.2897222222 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+LINDTM2000 "Lindis Peak Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 169.4675000000 -44.7350000000 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+MARLTM2000 "Marlborough Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 173.8019444444 -41.5444444444 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+NELSTM2000 "Nelson Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 173.2991666667 -41.2744444444 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+NICHTM2000 "Mount Nicholas Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 168.3986111111 -45.1327777778 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+TAIETM2000 "North Taieri Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 170.2825000000 -45.8613888889 0.99996 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+OBSETM2000 "Observation Point Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 170.6283333333 -45.8161111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+OKARTM2000 "Okarito Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 170.2608333333 -43.1100000000 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+PLEATM2000 "Mount Pleasant Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 172.7269444444 -43.5905555556 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+PLENTM2000 "Bay of Plenty Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 176.4661111111 -37.7611111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+POVETM2000 "Poverty Bay Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 177.8855555556 -38.6244444444 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+TARATM2000 "Taranaki Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 174.2277777778 -39.1355555556 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+TIMATM2000 "Timaru Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 171.0572222222 -44.4019444444 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+TUHITM2000 "Tuhirangi Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 175.6400000000 -39.5122222222 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+WAIRTM2000 "Wairarapa Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 175.6472222222 -40.9252777778 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+WANGTM2000 "Wanganui Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 175.4880555556 -40.2419444444 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+WELLTM2000 "Wellington Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 174.7763888889 -41.3011111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+YORKTM2000 "Mount York Circuit 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM 167.7386111111 -45.5636111111 1.0 400000 800000 1.0 &
+          RANGE 100000 400000 800000 1100000
+
+[coordinate_systems]
+!
+!  NZ cadastral systems on NZGD49
+
+AMURTM1949 "Amuri Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.01013339 -42.68911658 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+BLUFTM1949 "Bluff Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.3428720 -46.60000961 1.00000 300002.66 699999.58 0.999998261 &
+          RANGE 0 300000 700000 1000000
+BULLTM1949 "Buller Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.58126006 -41.81080286 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+COLLTM1949 "Collingwood Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.6720465 -40.71475906 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+EDENTM1949 "Mount Eden Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.76433936 -36.87986528 0.99990 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+GAWLTM1949 "Gawler Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.36074847 -43.74871156 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+GREYTM1949 "Grey Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.54977131 -42.33369428 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+HAWKTM1949 "Hawkes Bay Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 176.67368053 -39.65092931 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+HOKITM1949 "Hokitika Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.9799935 -42.88632236 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+JACKTM1949 "Jacksons Bay Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.6062670 -43.97780289 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+KARATM1949 "Karamea Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.10902819 -41.28991153 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+LINDTM1949 "Lindis Peak Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 169.46775508 -44.73526797 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+MARLTM1949 "Marlborough Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.80207411 -41.54448667 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+NELSTM1949 "Nelson Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.29931681 -41.27454472 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+NICHTM1949 "Mount Nicholas Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.39864119 -45.13290258 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+OBSETM1949 "Observation Pt Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.62859517 -45.81619661 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+OKARTM1949 "Okarito Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.26092583 -43.11012814 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+PLEATM1949 "Mount Pleasant Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.72719358 -43.59063758 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+PLENTM1949 "Bay Of Plenty Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 176.46619725 -37.76124981 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+POVETM1949 "Poverty Bay Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 177.88563628 -38.62470278 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TAIETM1949 "North Taieri Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.28258911 -45.86151336 0.99996 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TARATM1949 "Taranaki Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.22801175 -39.13575831 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TIMATM1949 "Timaru Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.05725083 -44.40222036 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TUHITM1949 "Tuhirangi Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.64003681 -39.51247039 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+WAIRTM1949 "Wairarapa Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.64734967 -40.92553264 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+WANGTM1949 "Wanganui Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.48809961 -40.24194714 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+WELLTM1949 "Wellington Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.77662311 -41.30131964 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+YORKTM1949 "Mount York Circuit 1949" REF_FRAME NZGD1949 &
+          PROJECTION TM 167.73886178 -45.56372617 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+
+! Offshore Island NZGD2000 projections
+
+AITM2000 "Antipodes Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
+          PROJECTION TM 179.0 0.0 1.0 3500000.0 10000000.0 1.0
+
+AKTM2000 "Auckland Islands Transverse Mercator 2000" REF_FRAME ITRF96 &
+          PROJECTION TM 166.0 0.0 1.0 3500000.0 10000000.0 1.0          
+
+CATM2000 "Campbell Island Transverse Mercator 2000" REF_FRAME ITRF96 &
+          PROJECTION TM 169.0 0.0 1.0 3500000.0 10000000.0 1.0
+          
+CITM2000 "Chatham Islands Transverse Mercator 2000" REF_FRAME NZGD2000 &
+          PROJECTION TM -176.5 0.0 1.0 3500000.0 10000000.0 1.0
+
+RITM2000 "Raoul Island Transverse Mercator 2000" REF_FRAME ITRF96 &
+          PROJECTION TM -178.0 0.0 1.0 3500000.0 10000000.0 1.0
+
+! Continental Shelf Projection
+
+NZCS2000 "New Zealand Continental Shelf Lambert Conformal 2000" REF_FRAME NZGD2000 &
+          PROJECTION LCC -37.5 -44.5 -41 173.0 3000000 7000000 &
+          RANGE 1646000 4660000 4766000 8794000
+
+[coordinate_systems]
+
+! NZ National grids
+
+NNAT "North Island National Grid (yards)" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.5 -39 1.00000 300000.0 400000.0 0.91439841 &
+          RANGE 0 0 600000 1000000
+NNAT_L "North Island National Grid (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.5 -39 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2500000 -2500000 1500000 3000000
+SNAT "South Island National Grid (yards)" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.5 -44 1.00000 500000.0 500000.0 0.91439841 &
+          RANGE 0 0 800000 1000000
+SNAT_L "South Island National Grid (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.5 -44 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2500000 -2500000 1500000 3000000
+
+[coordinate_systems]
+
+UTM58 "UTM zone 58 (south)" REF_FRAME ITRF96 &
+          PROJECTION TM 165 0 0.9996 500000 10000000 1
+UTM59 "UTM zone 59 (south)" REF_FRAME ITRF96 &
+          PROJECTION TM 171 0 0.9996 500000 10000000 1
+UTM60 "UTM zone 60 (south)" REF_FRAME ITRF96 &
+          PROJECTION TM 177 0 0.9996 500000 10000000 1
+UTM01 "UTM zone 01 (south)" REF_FRAME ITRF96 &
+          PROJECTION TM -177 0 0.9996 500000 10000000 1
+UTM02 "UTM zone 02 (south)" REF_FRAME ITRF96 &
+          PROJECTION TM -171 0 0.9996 500000 10000000 1
+UTM03 "UTM zone 03 (south)" REF_FRAME ITRF96 &
+          PROJECTION TM -165 0 0.9996 500000 10000000 1
+
+[not_coordinate_systems]
+
+UTM58_NZGD49 "UTM zone 58 (S) on NZGD49" REF_FRAME NZGD1949 &
+          PROJECTION TM 165 0 0.9996 500000 10000000 1
+UTM59_NZGD49 "UTM zone 59 (S) on NZGD49" REF_FRAME NZGD1949 &
+          PROJECTION TM 171 0 0.9996 500000 10000000 1
+UTM60_NZGD49 "UTM zone 60 (S) on NZGD49" REF_FRAME NZGD1949 &
+          PROJECTION TM 177 0 0.9996 500000 10000000 1
+
+[coordinate_systems]
+
+! Chatham island systems
+
+! CHAT "Chatham Island 1979" REF_FRAME CHAT1979 GEODETIC
+CHAT1979_XYZ "Chatham Island 1979 XYZ" REF_FRAME CHAT1979 GEOCENTRIC
+CHAT1979 "Chatham Island 1979" REF_FRAME CHAT1979 GEODETIC
+! CHATTM1979 "Chatham Island Transverse Mercator 1979" REF_FRAME CHAT1979 &
+!           PROJECTION TM -176.5 -44 1 350000 650000 1.
+CITM1979 "Chatham Island Transverse Mercator 1979" REF_FRAME CHAT1979 &
+          PROJECTION TM -176.5 -44 1 350000 650000 1.
+! CHATTM2000 "Chatham Island Circuit 2000" REF_FRAME NZGD2000 &
+!           PROJECTION TM -176.5 -44 1 400000 800000 1. &
+!           RANGE 0 500000 600000 1200000
+
+! Antarctic systems
+
+RSRGD2000_XYZ "Ross Sea Region Geodetic Datum 2000 XYZ" REF_FRAME RSRGD2000 GEOCENTRIC
+RSRGD2000 "Ross Sea Region Geodetic Datum 2000" REF_FRAME RSRGD2000 GEODETIC
+
+ANT_PS "Antarctic Polar Stereographic / WGS 84 (G1762)" REF_FRAME WGS84_G1762 &
+          PROJECTION PS "South" 0 0.97276901289 0 0
+ 
+ST57-60_LCC "SCAR IMW ST57-60 Lambert Conformal Conic / WGS 84 (G1762)" REF_FRAME WGS84_G1762 &
+          PROJECTION LCC -76.6666666667 -79.3333333333 -89.999999 168 0.0 0.0
+
+CAMPAREA "Camp area datum" REF_FRAME CAMPAREA GEODETIC
+
+CAMP_LCC "Camp Area Lambert Conformal Conic" REF_FRAME CAMPAREA &
+          PROJECTION LCC -76.6666666667 -79.3333333333 -78.02117 162.5 500000 300000
+ 
+DGLC2000 "Darwin Glacier Lambert Conformal 2000" REF_FRAME RSRGD2000 &
+          PROJECTION LCC -76.6666666667 -79.3333333333 -90.000000 157.0 500000 0 &
+          RANGE 177960 970000 822032 1582844
+
+! Antarctic projections from LINZ standard LINZS25008 (MSLC2000, BCLC2000, PCLC2000, RSPS2000)
+BCLC2000 "Borchgrevink Coast Lambert Conformal 2000" REF_FRAME RSRGD2000 &
+          PROJECTION LCC -73.6666666667 -75.3333333333 -74.500000 165.0 5000000 3000000 
+
+MSLC2000 "McMurdo Sound Lambert Conformal 2000" REF_FRAME RSRGD2000 &
+          PROJECTION LCC -76.6666666667 -79.3333333333 -78.000000 163.0 7000000 5000000 
+
+PCLC2000 "Pennell Coast Lambert Conformal 2000" REF_FRAME RSRGD2000 &
+          PROJECTION LCC -70.6666666667 -72.3333333333 -71.500000 166.0 3000000 1000000 
+
+RSPS2000 "Ross Sea Polar Stereographic 2000" REF_FRAME RSRGD2000 &
+          PROJECTION PS South 180.0 0.994 5000000 1000000
+
+[coordinate_systems]
+
+FMG "Fiji Map Grid" REF_FRAME FIJI &
+          PROJECTION TM 178.75 -17 0.99985 2000000.0 4000000.0 1
+
+[coordinate_systems]
+
+! Australian datums
+
+GDA94 "Geocentric Datum of Australia (GDA94)" REF_FRAME GDA94 GEODETIC
+AGD66 "Australian Geodetic Datum 1966"  REF_FRAME AGD66 GEODETIC
+AGD84 "Australian Geodetic Datum 1984"  REF_FRAME AGD84 GEODETIC
+
+! Australian "versions" of ITRF. Required to apply the Dawson and Woods parameters for
+! ITRF to GDA94 transformations.
+
+ITRF96_XYZ_DW "International Terrestrial Reference Frame 1996 XYZ (Australia D&W transformation)" REF_FRAME ITRF96_DW GEOCENTRIC
+ITRF96_DW "International Terrestrial Reference Frame 1996 (Australia D&W transformation)" REF_FRAME ITRF96_DW GEODETIC
+
+ITRF97_XYZ_DW "International Terrestrial Reference Frame 1997 XYZ (Australia D&W transformation)" REF_FRAME ITRF97_DW GEOCENTRIC
+ITRF97_DW "International Terrestrial Reference Frame 1997 (Australia D&W transformation)" REF_FRAME ITRF97_DW GEODETIC
+
+ITRF2000_XYZ_DW "International Terrestrial Reference Frame 2000 XYZ (Australia D&W transformation)" REF_FRAME ITRF2000_DW GEOCENTRIC
+ITRF2000_DW "International Terrestrial Reference Frame 2000 (Australia D&W transformation)" REF_FRAME ITRF2000_DW GEODETIC
+
+ITRF2005_XYZ_DW "International Terrestrial Reference Frame 2005 XYZ (Australia D&W transformation)" REF_FRAME ITRF2005_DW GEOCENTRIC
+ITRF2005_DW "International Terrestrial Reference Frame 2005 (Australia D&W transformation)" REF_FRAME ITRF2005_DW GEODETIC
+
+ITRF2008_XYZ_DW "International Terrestrial Reference Frame 2008 XYZ (Australia D&W transformation)" REF_FRAME ITRF2008_DW GEOCENTRIC
+ITRF2008_DW "International Terrestrial Reference Frame 2008 (Australia D&W transformation)" REF_FRAME ITRF2008_DW GEODETIC
+
+
+! Map Grid of Australia 1994
+
+MGA94-48 "MGA94 zone 48" REF_FRAME GDA94 &
+          PROJECTION TM 105 0 0.9996 500000 10000000 1
+MGA94-49 "MGA94 zone 49" REF_FRAME GDA94 &
+          PROJECTION TM 111 0 0.9996 500000 10000000 1
+MGA94-50 "MGA94 zone 50" REF_FRAME GDA94 &
+          PROJECTION TM 117 0 0.9996 500000 10000000 1
+MGA94-51 "MGA94 zone 51" REF_FRAME GDA94 &
+          PROJECTION TM 123 0 0.9996 500000 10000000 1
+MGA94-52 "MGA94 zone 52" REF_FRAME GDA94 &
+          PROJECTION TM 129 0 0.9996 500000 10000000 1
+MGA94-53 "MGA94 zone 53" REF_FRAME GDA94 &
+          PROJECTION TM 135 0 0.9996 500000 10000000 1
+MGA94-54 "MGA94 zone 54" REF_FRAME GDA94 &
+          PROJECTION TM 141 0 0.9996 500000 10000000 1
+MGA94-55 "MGA94 zone 55" REF_FRAME GDA94 &
+          PROJECTION TM 147 0 0.9996 500000 10000000 1
+MGA94-56 "MGA94 zone 56" REF_FRAME GDA94 &
+          PROJECTION TM 153 0 0.9996 500000 10000000 1
+MGA94-57 "MGA94 zone 57" REF_FRAME GDA94 &
+          PROJECTION TM 159 0 0.9996 500000 10000000 1
+MGA94-58 "MGA94 zone 58" REF_FRAME GDA94 &
+          PROJECTION TM 165 0 0.9996 500000 10000000 1
+
+!===============================================================================
+!
+!  Deprecated codes for NZ cadastral projections, and cadastral links coordinate systems
+!
+
+[coordinate_systems]
+AMUR "Amuri Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.01013339 -42.68911658 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+AMUR_L "Amuri Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.01013339 -42.68911658 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+BLUF "Bluff Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.3428720 -46.60000961 1.00000 300002.66 699999.58 0.999998261 &
+          RANGE 0 300000 700000 1000000
+BLUF_L "Bluff Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.3428720 -46.60000961 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+BULL "Buller Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.58126006 -41.81080286 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+BULL_L "Buller Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.58126006 -41.81080286 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+COLL "Collingwood Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.6720465 -40.71475906 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+COLL_L "Collingwood Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.6720465 -40.71475906 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+EDEN "Mount Eden Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.76433936 -36.87986528 0.99990 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+EDEN_L "Mount Eden Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.76433936 -36.87986528 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+GAWL "Gawler Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.36074847 -43.74871156 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+GAWL_L "Gawler Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.36074847 -43.74871156 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+GREY "Grey Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.54977131 -42.33369428 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+GREY_L "Grey Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.54977131 -42.33369428 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+HAWK "Hawkes Bay Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 176.67368053 -39.65092931 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+HAWK_L "Hawkes Bay Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 176.67368053 -39.65092931 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+HOKI "Hokitika Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.9799935 -42.88632236 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+HOKI_L "Hokitika Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.9799935 -42.88632236 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+JACK "Jacksons Bay Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.6062670 -43.97780289 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+JACK_L "Jacksons Bay Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.6062670 -43.97780289 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+KARA "Karamea Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.10902819 -41.28991153 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+KARA_L "Karamea Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.10902819 -41.28991153 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+LIND "Lindis Peak Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 169.46775508 -44.73526797 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+LIND_L "Lindis Peak Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 169.46775508 -44.73526797 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+MARL "Marlborough Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.80207411 -41.54448667 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+MARL_L "Marlborough Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.80207411 -41.54448667 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+NELS "Nelson Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.29931681 -41.27454472 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+NELS_L "Nelson Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 173.29931681 -41.27454472 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+NICH "Mount Nicholas Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.39864119 -45.13290258 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+NICH_L "Mount Nicholas Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 168.39864119 -45.13290258 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+OBSE "Observation Pt Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.62859517 -45.81619661 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+OBSE_L "Observation Pt Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.62859517 -45.81619661 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+OKAR "Okarito Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.26092583 -43.11012814 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+OKAR_L "Okarito Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.26092583 -43.11012814 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+PLEA "Mount Pleasant Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.72719358 -43.59063758 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+PLEA_L "Mount Pleasant Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 172.72719358 -43.59063758 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+PLEN "Bay Of Plenty Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 176.46619725 -37.76124981 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+PLEN_L "Bay Of Plenty Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 176.46619725 -37.76124981 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+POVE "Poverty Bay Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 177.88563628 -38.62470278 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+POVE_L "Poverty Bay Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 177.88563628 -38.62470278 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+TAIE "North Taieri Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.28258911 -45.86151336 0.99996 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TAIE_L "North Taieri Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 170.28258911 -45.86151336 0.99996 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+TARA "Taranaki Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.22801175 -39.13575831 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TARA_L "Taranaki Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.22801175 -39.13575831 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+TIMA "Timaru Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.05725083 -44.40222036 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TIMA_L "Timaru Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 171.05725083 -44.40222036 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+TUHI "Tuhirangi Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.64003681 -39.51247039 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+TUHI_L "Tuhirangi Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.64003681 -39.51247039 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+WAIR "Wairarapa Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.64734967 -40.92553264 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+WAIR_L "Wairarapa Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.64734967 -40.92553264 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+WANG "Wanganui Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.48809961 -40.24194714 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+WANG_L "Wanganui Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 175.48809961 -40.24194714 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+WELL "Wellington Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.77662311 -41.30131964 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+WELL_L "Wellington Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 174.77662311 -41.30131964 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+YORK "Mount York Circuit" REF_FRAME NZGD1949 &
+          PROJECTION TM 167.73886178 -45.56372617 1.00000 300000.0 700000.0 0.999998261 &
+          RANGE 0 300000 700000 1000000
+YORK_L "Mount York Circuit 1949 (links)" REF_FRAME NZGD1949 &
+          PROJECTION TM 167.73886178 -45.56372617 1.00000 0.0 0.0 0.20116765 &
+          RANGE -2000000 -2000000 2000000 2000000
+
+
+!================================================================
+
+[vertical_datums]
+
+! Vertical datums are defined by
+!
+! Code - used to reference it.  This cannot be the same as the name
+!        of an ellipsoidal coordinate system (all ellipsoidal coordinate
+!        systems are treated as ellipsoidal vertical datums)
+! Name - name of the reference system
+! baseref - code of vertical datum in terms of which the reference surface
+!          is defined, either an ellipsoidal coordinate system 
+!          for ellipsoidal heights or another vertical datum.
+!
+! This is followed by a definition of the vertical datum relative to the 
+! base vertical datum as one of: 
+!
+! GEOID + Geoid file name - a geoid grid for generating orthometric heights
+!                from an ellipsoidal datum
+! GRID + Grid file name - a grid defining height offsets relative to another
+!                vertical datum
+! OFFSET + value - a numeric constant height offset offset relative to another
+!                vertical datum
+!
+! Note that GRID and OFFSET definitions are in the opposite sense to geoid,
+! in that they define the difference in heights between the datums rather 
+! than the height of the datum surface.
+
+NZVD09 "New Zealand Vertical Datum 2009" NZGD2000 GEOID nzgeoid09
+NZVD2016 "New Zealand Vertical Datum 2016" NZGD2000 GEOID nzgeoid2016
+EGM96 "Earth Gravitational Model 1996" WGS84_G1762 GEOID egm96
+
+!
+! "Orthometric" height datums 
+!
+
+AUCKHT1946 "Auckland 1946 (NZVD2016)"       NZVD2016 GRID auckht1946_nzvd2016_offset.bin
+BLUFHT1955 "Bluff 1955 (NZVD2016)"          NZVD2016 GRID blufht1955_nzvd2016_offset.bin
+DUBLHT1960 "Dunedin-Bluff 1960 (NZVD2016)"  NZVD2016 GRID dublht1960_nzvd2016_offset.bin
+DUNEHT1958 "Dunedin 1958 (NZVD2016)"        NZVD2016 GRID duneht1958_nzvd2016_offset.bin
+GISBHT1926 "Gisborne 1926 (NZVD2016)"       NZVD2016 GRID gisbht1926_nzvd2016_offset.bin
+LYTTHT1937 "Lyttelton 1937 (NZVD2016)"      NZVD2016 GRID lyttht1937_nzvd2016_offset.bin
+MOTUHT1953 "Moturiki 1953 (NZVD2016)"       NZVD2016 GRID motuht1953_nzvd2016_offset.bin
+NAPIHT1962 "Napier 1962 (NZVD2016)"         NZVD2016 GRID napiht1962_nzvd2016_offset.bin
+NELSHT1955 "Nelson 1955 (NZVD2016)"         NZVD2016 GRID nelsht1955_nzvd2016_offset.bin
+ONTPHT1964 "One Tree Point 1964 (NZVD2016)" NZVD2016 GRID ontpht1964_nzvd2016_offset.bin
+STISHT1977 "Stewart Island 1977 (NZVD2016)" NZVD2016 GRID stisht1977_nzvd2016_offset.bin
+TARAHT1970 "Taranaki 1970 (NZVD2016)"       NZVD2016 GRID taraht1970_nzvd2016_offset.bin
+WELLHT1953 "Wellington 1953 (NZVD2016)"     NZVD2016 GRID wellht1953_nzvd2016_offset.bin
+
+AUCKHT1946_NZVD09 "Auckland 1946 (NZVD09)"       NZVD09 OFFSET 0.34
+BLUFHT1955_NZVD09 "Bluff 1955 (NZVD09)"          NZVD09 OFFSET 0.36
+DUBLHT1960_NZVD09 "Dunedin-Bluff 1960 (NZVD09)"  NZVD09 OFFSET 0.38
+DUNEHT1958_NZVD09 "Dunedin 1958 (NZVD09)"        NZVD09 OFFSET 0.49
+GISBHT1926_NZVD09 "Gisborne 1926 (NZVD09)"       NZVD09 OFFSET 0.34
+LYTTHT1937_NZVD09 "Lyttelton 1937 (NZVD09)"      NZVD09 OFFSET 0.47
+MOTUHT1953_NZVD09 "Moturiki 1953 (NZVD09)"       NZVD09 OFFSET 0.24
+NAPIHT1962_NZVD09 "Napier 1962 (NZVD09)"         NZVD09 OFFSET 0.20
+NELSHT1955_NZVD09 "Nelson 1955 (NZVD09)"         NZVD09 OFFSET 0.29
+ONTPHT1964_NZVD09 "One Tree Point 1964 (NZVD09)" NZVD09 OFFSET 0.06
+STISHT1977_NZVD09 "Stewart Island 1977 (NZVD09)" NZVD09 OFFSET 0.39
+TARAHT1970_NZVD09 "Taranaki 1970 (NZVD09)"       NZVD09 OFFSET 0.32
+WELLHT1953_NZVD09 "Wellington 1953 (NZVD09)"     NZVD09 OFFSET 0.44
+
+!================================================================================
+! Notes can be provided for a coordinate system or datum, or 
+! for a conversion between coordinate systems and datums.  This
+! can include coordinates systems and datums not defined, or 
+! conversions not permitted.  
+!
+! Each note starts with a line containing a code or space separated
+! list of codes.  Codes can be structured code1:code2 to define a note
+! for a conversion between code1 and code2
+! 
+! The text of the note follows, possibly spanning multiple lines. 
+! The note ends with a line containing just "end_note"
+
+[coordinate_system_notes]
+
+WGS84 
+There are several WGS84 reference frames. Please select one of &
+WGS84_D, WGS84_G730, WGS84_G873, WGS84_G1150, WGS84_G1674, WGS84_G1762
+end_note
+
+ITRF2008:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF2008_DW
+end_note
+
+ITRF2005:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF2005_DW
+end_note
+
+ITRF2000:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF2000_DW
+end_note
+
+ITRF97:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF97_DW
+end_note
+
+ITRF96:GDA94
+This transformation requires parameters developed by Dawson and Woods &
+(Journal of Applied Geodesy, 2010), rather than the IERS parameters. &
+Use ITRF96_DW
+end_note
+
+[reference_frame_notes]

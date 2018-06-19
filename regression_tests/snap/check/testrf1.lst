@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:47 by ccrook
 
 
 The command file testrf1.snp contains:
@@ -40,12 +40,12 @@ The command file testrf1.snp contains:
      add_residual_column c=ref_frame_code  date
      summarise_residuals_by ref_frame_code
      
-     reference_frame GPS_T epoch 2008 translation 1.2 -0.3 15.8 
-     reference_frame GPS_S epoch 2008 scale 2.5 
+     reference_frame GPS_T epoch 2008 translation 1.2 -0.3 15.8
+     reference_frame GPS_S epoch 2008 scale 2.5
      reference_frame GPS_R epoch 2008 rotation 30 -5 65
      
-     reference_frame GPS_Trate epoch 2008 translation_rate 0.12 -0.03 1.58 
-     reference_frame GPS_Srate epoch 2008 scale_rate 0.25 
+     reference_frame GPS_Trate epoch 2008 translation_rate 0.12 -0.03 1.58
+     reference_frame GPS_Srate epoch 2008 scale_rate 0.25
      reference_frame GPS_Rrate epoch 2008 rotation_rate 3 -0.5 6.5
      
      reference_frame GPS_TS translation 1.2 -0.3 15.8 scale 2.5
@@ -58,7 +58,7 @@ The command file testrf1.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                              SUMMARY OF INPUT FILES
 
@@ -83,7 +83,7 @@ Data file 1: testrf1.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                              DEFINITION OF PROBLEM
 
@@ -106,7 +106,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                                ITERATION SUMMARY
 
@@ -121,7 +121,7 @@ Iteration 2: Maximum change is 0.0001 metres at station 4
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                                 SOLUTION SUMMARY
 
@@ -144,7 +144,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                               STATION COORDINATES
 
@@ -182,7 +182,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                            REFERENCE FRAME PARAMETERS
 
@@ -360,7 +360,7 @@ Reference frame: DUMMY
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                              OBSERVATION RESIDUALS
 
@@ -387,8 +387,8 @@ From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.  
 File testrf1.dat: line 14
 
 1     GX    -4787263.3200  0.0982  -4787263.3200  0.0000  0.0000  0.0400   0.00     GPS_T           1/01/2018
-              560595.2704  0.0414    560595.2704  0.0000  0.0000  0.0600   0.00     GPS_T                    
-            -4163666.0023  0.0908  -4163666.0023  0.0000  0.0000  0.1200   0.00     GPS_T                    
+              560595.2704  0.0414    560595.2704  0.0000 -0.0000  0.0600   0.00     GPS_T                    
+            -4163666.0023  0.0908  -4163666.0023  0.0000 -0.0000  0.1200   0.00     GPS_T                    
              6369322.7058           6369322.7058          0.0000           0.00     GPS_T                    
 
 1     GX    -4787276.4882  0.0982  -4787276.4882  0.0000  0.0000  0.0400   0.00     GPS_S           1/01/2018
@@ -396,7 +396,7 @@ File testrf1.dat: line 14
             -4163692.2115  0.0908  -4163692.2115  0.0000  0.0000  0.1200   0.00     GPS_S                    
              6369349.8861           6369349.8861          0.0000           0.00     GPS_S                    
 
-1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000  0.0000  0.0400   0.00     GPS_R           1/01/2018
+1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000 -0.0000  0.0400   0.00     GPS_R           1/01/2018
               561498.5759  0.0414    561498.5759  0.0000  0.0002  0.0600   0.00     GPS_R                    
             -4163647.4692  0.0908  -4163647.4695  0.0000 -0.0002  0.1200   0.00     GPS_R                    
              6369333.9625           6369333.9627          0.0003           0.00     GPS_R                    
@@ -407,8 +407,8 @@ File testrf1.dat: line 14
              6371958.9356           6371958.9355          0.0004           0.00     GPS_R                    
 
 1     GX    -4787263.3200  0.0982  -4787263.3200  0.0000  0.0000  0.0400   0.00     GPS_Trate       1/01/2018
-              560595.2704  0.0414    560595.2704  0.0000  0.0000  0.0600   0.00     GPS_Trate                
-            -4163666.0023  0.0908  -4163666.0023  0.0000  0.0000  0.1200   0.00     GPS_Trate                
+              560595.2704  0.0414    560595.2704  0.0000 -0.0000  0.0600   0.00     GPS_Trate                
+            -4163666.0023  0.0908  -4163666.0023  0.0000 -0.0000  0.1200   0.00     GPS_Trate                
              6369322.7058           6369322.7058          0.0000           0.00     GPS_Trate                
 
 1     GX    -4787276.4882  0.0982  -4787276.4882  0.0000  0.0000  0.0400   0.00     GPS_Srate       1/01/2018
@@ -416,7 +416,7 @@ File testrf1.dat: line 14
             -4163692.2115  0.0908  -4163692.2115  0.0000  0.0000  0.1200   0.00     GPS_Srate                
              6369349.8861           6369349.8861          0.0000           0.00     GPS_Srate                
 
-1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000  0.0000  0.0400   0.00     GPS_Rrate       1/01/2018
+1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000 -0.0000  0.0400   0.00     GPS_Rrate       1/01/2018
               561498.5759  0.0414    561498.5759  0.0000  0.0002  0.0600   0.00     GPS_Rrate                
             -4163647.4692  0.0908  -4163647.4695  0.0000 -0.0002  0.1200   0.00     GPS_Rrate                
              6369333.9625           6369333.9627          0.0003           0.00     GPS_Rrate                
@@ -427,23 +427,23 @@ File testrf1.dat: line 14
              6371958.9356           6371958.9355          0.0004           0.00     GPS_Rrate                
 
 1     GX    -4787275.2882  0.0982  -4787275.2882  0.0000  0.0000  0.0400   0.00     GPS_TS          1/01/2008
-              560596.6719  0.0414    560596.6719  0.0000  0.0000  0.0600   0.00     GPS_TS                   
+              560596.6719  0.0414    560596.6719  0.0000 -0.0000  0.0600   0.00     GPS_TS                   
             -4163676.4115  0.0908  -4163676.4115  0.0000  0.0001  0.1200   0.00     GPS_TS                   
              6369338.6292           6369338.6291          0.0001           0.00     GPS_TS                   
 
 2     GX    -5257426.6756  0.1044  -5257426.6756  0.0000  0.0000  0.0400   0.00     GPS_TS          1/01/2008
-              615000.9619  0.0416    615000.9619  0.0000  0.0000  0.0600   0.00     GPS_TS                   
-            -3547277.4309  0.0835  -3547277.4309  0.0000  0.0000  0.1200   0.00     GPS_TS                   
+              615000.9619  0.0416    615000.9619  0.0000 -0.0000  0.0600   0.00     GPS_TS                   
+            -3547277.4309  0.0835  -3547277.4309  0.0000 -0.0000  0.1200   0.00     GPS_TS                   
              6371965.0505           6371965.0505          0.0001           0.00     GPS_TS                   
 
 File testrf1.dat: line 43
 
-3     GX    -4617780.0375  0.0953  -4617780.0375  0.0000  0.0000  0.0400   0.00     GPS_TS          1/01/2008
-             1382501.9228  0.0476   1382501.9228  0.0000  0.0000  0.0600   0.00     GPS_TS                   
-            -4163204.8938  0.0908  -4163204.8938  0.0000  0.0000  0.1200   0.00     GPS_TS                   
+3     GX    -4617780.0375  0.0953  -4617780.0375  0.0000 -0.0000  0.0400   0.00     GPS_TS          1/01/2008
+             1382501.9228  0.0476   1382501.9228  0.0000 -0.0000  0.0600   0.00     GPS_TS                   
+            -4163204.8938  0.0908  -4163204.8938  0.0000 -0.0000  0.1200   0.00     GPS_TS                   
              6369260.4774           6369260.4774          0.0001           0.00     GPS_TS                   
 
-1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000  0.0000  0.0400   0.00     GPS_R           1/01/2008
+1     GX    -4787188.5515  0.0982  -4787188.5515  0.0000 -0.0000  0.0400   0.00     GPS_R           1/01/2008
               561498.5759  0.0414    561498.5759  0.0000  0.0002  0.0600   0.00     GPS_R                    
             -4163647.4692  0.0908  -4163647.4695  0.0000 -0.0002  0.1200   0.00     GPS_R                    
              6369333.9625           6369333.9627          0.0003           0.00     GPS_R                    
@@ -459,18 +459,18 @@ File testrf1.dat: line 43
              6369255.8171           6369255.8170          0.0005           0.01     GPS_R                    
 
 1     GX    -4787275.2882  0.0982  -4787275.2882  0.0000  0.0000  0.0400   0.00     GPS_rate        1/01/2008
-              560596.6719  0.0414    560596.6719  0.0000  0.0000  0.0600   0.00     GPS_rate                 
+              560596.6719  0.0414    560596.6719  0.0000 -0.0000  0.0600   0.00     GPS_rate                 
             -4163676.4115  0.0908  -4163676.4115  0.0000  0.0001  0.1200   0.00     GPS_rate                 
              6369338.6292           6369338.6291          0.0001           0.00     GPS_rate                 
 
 2     GX    -5257426.6756  0.1044  -5257426.6756  0.0000  0.0000  0.0400   0.00     GPS_rate        1/01/2008
-              615000.9619  0.0416    615000.9619  0.0000  0.0000  0.0600   0.00     GPS_rate                 
-            -3547277.4309  0.0835  -3547277.4309  0.0000  0.0000  0.1200   0.00     GPS_rate                 
+              615000.9619  0.0416    615000.9619  0.0000 -0.0000  0.0600   0.00     GPS_rate                 
+            -3547277.4309  0.0835  -3547277.4309  0.0000 -0.0000  0.1200   0.00     GPS_rate                 
              6371965.0505           6371965.0505          0.0001           0.00     GPS_rate                 
 
-3     GX    -4617780.0375  0.0953  -4617780.0375  0.0000  0.0000  0.0400   0.00     GPS_rate        1/01/2008
-             1382501.9228  0.0476   1382501.9228  0.0000  0.0000  0.0600   0.00     GPS_rate                 
-            -4163204.8938  0.0908  -4163204.8938  0.0000  0.0000  0.1200   0.00     GPS_rate                 
+3     GX    -4617780.0375  0.0953  -4617780.0375  0.0000 -0.0000  0.0400   0.00     GPS_rate        1/01/2008
+             1382501.9228  0.0476   1382501.9228  0.0000 -0.0000  0.0600   0.00     GPS_rate                 
+            -4163204.8938  0.0908  -4163204.8938  0.0000 -0.0000  0.1200   0.00     GPS_rate                 
              6369260.4774           6369260.4774          0.0001           0.00     GPS_rate                 
 
 1     GX    -4787188.5515  0.0982  -4787188.5513  0.0000  0.0022  0.0400   0.06     GPS_rate        1/01/2018
@@ -490,7 +490,7 @@ File testrf1.dat: line 43
 
 File testrf1.dat: line 70
 
-4     GX    -4617769.6930  0.0953  -4617769.6930  0.0953  0.0000  0.0000    -   @   DUMMY           1/01/2018
+4     GX    -4617769.6930  0.0953  -4617769.6930  0.0953 -0.0000  0.0000    -   @   DUMMY           1/01/2018
              1382498.7670  0.0476   1382498.7670  0.0476  0.0000  0.0000    -   @   DUMMY                    
             -4163210.2860  0.0908  -4163210.2860  0.0908  0.0000  0.0000    -   @   DUMMY                    
              6369255.8171           6369255.8171          0.0000            -       DUMMY                    
@@ -498,7 +498,7 @@ File testrf1.dat: line 70
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:47
 
                                  ERROR SUMMARY
 

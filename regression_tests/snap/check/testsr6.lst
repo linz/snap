@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:48 by ccrook
 
 
 
@@ -39,7 +39,7 @@ Data file 3: testsr3.dat
 
 
 ================================================================================
-Regression tests - Missing recode file                      
+Regression tests - Missing recode file                      18-JUN-2018 09:34:48
 
                                    INPUT DATA
 
@@ -650,7 +650,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression tests - Missing recode file                      
+Regression tests - Missing recode file                      18-JUN-2018 09:34:48
 
                                      ERRORS
 

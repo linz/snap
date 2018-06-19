@@ -13,4 +13,5 @@ output covariance_matrix_file
 output covariance_json
 output solution_json
 output sinex
-
+output no_worst_residuals
+output no_iteration_summary

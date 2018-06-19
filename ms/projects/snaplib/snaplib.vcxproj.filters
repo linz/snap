@@ -76,9 +76,6 @@
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_lnzdef.c">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_shiftmodel.c">
-      <Filter>Source Files\dbl4</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trig.c">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>

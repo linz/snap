@@ -1,19 +1,20 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 The command file testinc.snp contains:
      title Regression test - testing file inclusion with directories
+     !file: data/test2.dat data/test3.inc data/test3.dat
      
      coordinate_file testgx1.crd
      data_file data/test1.dat
@@ -24,12 +25,13 @@ The command file testinc.snp contains:
      list command_file
      list file_summary
      list solution_summary
+     list no_iteration_summary
 
 
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   18-JUN-2018 09:34:46
 
                              SUMMARY OF INPUT FILES
 
@@ -55,29 +57,14 @@ Data file 2: data/test2.dat
     Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
        2 GPS point coords
 
-Data file 3: data\test3.dat
+Data file 3: data/test3.dat
     Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
        2 GPS point coords
 
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
-
-                               ITERATION SUMMARY
-
-================================================================================
-
-Iteration 1: Maximum change is 0.0400 metres at station 1
-             2 station adjustments exceed convergence criteria
-
-Iteration 2: Maximum change is 0.0000 metres at station 2
-             0 station adjustments exceed convergence criteria
-
-
-
-================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   19-JUN-2018 08:10:46
 
                                 SOLUTION SUMMARY
 
@@ -102,7 +89,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   18-JUN-2018 09:34:46
 
                               STATION COORDINATES
 
@@ -136,7 +123,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   18-JUN-2018 09:34:46
 
                            REFERENCE FRAME PARAMETERS
 
@@ -162,7 +149,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   18-JUN-2018 09:34:46
 
                              OBSERVATION RESIDUALS
 
@@ -210,7 +197,7 @@ File data/test2.dat: line 8
             -4163244.5856  0.0248  -4163244.5856  0.0143  0.0035  0.0245   0.14     
              6369436.1884           6369436.1849          0.0400           2.81  ???
 
-File data\test3.dat: line 8
+File data/test3.dat: line 8
 
 1     GX    -4787264.6300  0.0260  -4787264.5600  0.0150  0.0081  0.0082   1.00     
               560595.5704  0.0104    560595.5704  0.0060  0.0456  0.0163   2.79  ???
@@ -225,7 +212,7 @@ File data\test3.dat: line 8
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   18-JUN-2018 09:34:46
 
                                  ERROR SUMMARY
 
@@ -256,12 +243,12 @@ data/test1.dat                              1.31    6     -      -    1.31    6
 
 data/test2.dat                              2.09    6     -      -    2.09    6
 
-data\test3.dat                              3.34    6     -      -    3.34    6
+data/test3.dat                              3.34    6     -      -    3.34    6
 
 
 
 ================================================================================
-Regression test - testing file inclusion with directories   
+Regression test - testing file inclusion with directories   18-JUN-2018 09:34:46
 
                            MOST SIGNIFICANT RESIDUALS
 
@@ -281,11 +268,11 @@ The following table lists the 6 worst residuals of used data
 
 From   To     Type     S.R.  Sig (%)       Line  File
 
-2              GX     4.219  100.000 ???     13  data\test3.dat
+2              GX     4.219  100.000 ???     13  data/test3.dat
 
 2              GX     2.813   99.997 ???     13  data/test2.dat
 
-1              GX     2.112   99.613 ???      8  data\test3.dat
+1              GX     2.112   99.613 ???      8  data/test3.dat
 
 2              GX     1.406   88.508         13  data/test1.dat
 

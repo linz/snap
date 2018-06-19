@@ -1,15 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 The command file testgx8.snp contains:
@@ -28,13 +28,15 @@ The command file testgx8.snp contains:
      output covariance_json
      output solution_json
      output sinex
+     output no_worst_residuals
      
+     output no_iteration_summary
 
 
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              SUMMARY OF INPUT FILES
 
@@ -59,25 +61,7 @@ Data file 1: testgx8.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
-
-                               ITERATION SUMMARY
-
-================================================================================
-
-Iteration 1: Maximum change is 230.2439 metres at station 2
-             2 station adjustments exceed convergence criteria
-
-Iteration 2: Maximum change is 0.0031 metres at station 1
-             2 station adjustments exceed convergence criteria
-
-Iteration 3: Maximum change is 0.0000 metres at station 1
-             0 station adjustments exceed convergence criteria
-
-
-
-================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    19-JUN-2018 14:18:14
 
                                 SOLUTION SUMMARY
 
@@ -102,7 +86,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                               STATION COORDINATES
 
@@ -136,7 +120,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                            REFERENCE FRAME PARAMETERS
 
@@ -162,7 +146,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                              OBSERVATION RESIDUALS
 
@@ -211,7 +195,7 @@ File testgx8.dat: line 7
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    
+Regression test 1 - data types and observation equations    18-JUN-2018 09:34:46
 
                                  ERROR SUMMARY
 
@@ -229,34 +213,3 @@ GPS point coord                             5.04   12     -      -    5.04   12
         East component                      0.00    4     -      -    0.00    4
         North component                     7.55    4     -      -    7.55    4
         Up component                        4.37    4     -      -    4.37    4
-
-
-
-================================================================================
-Regression test 1 - data types and observation equations    
-
-                           MOST SIGNIFICANT RESIDUALS
-
-================================================================================
-
-
-The 4 residuals from this data are classified as follows:
-
-Under 95.00%  significant    Used:   2    Unused:   0
-Under 99.00%  significant    Used:   0    Unused:   0
-Over  99.00%  significant    Used:   2    Unused:   0
-
-Note: Only the overall residual for vector data is counted
-
-
-The following table lists the 4 worst residuals of used data
-
-From   To     Type     S.R.  Sig (%)       Line  File
-
-1              GX     7.122  100.000 ???      7  testgx8.dat
-
-1              GX     7.122  100.000 ???     20  testgx8.dat
-
-2              GX     0.000     -             8  testgx8.dat
-
-2              GX     0.000     -            21  testgx8.dat

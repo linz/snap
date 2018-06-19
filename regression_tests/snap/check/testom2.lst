@@ -1,14 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
+
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:47 by ccrook
 
 
 The command file testom2.snp contains:
@@ -46,7 +47,7 @@ The command file testom2.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - reject by data type   
+Regression test om1 - obs modifications - reject by data type   18-JUN-2018 09:34:47
 
                              SUMMARY OF INPUT FILES
 
@@ -109,7 +110,7 @@ The following observations are rejected
 
 
 ================================================================================
-Regression test om1 - obs modifications - reject by data type   
+Regression test om1 - obs modifications - reject by data type   18-JUN-2018 09:34:47
 
                              OBSERVATION RESIDUALS
 

@@ -6,4 +6,6 @@ data_file testafx.dat
 fix 1 
 fix automatically all
 list problem_definition
+list no_worst_residuals
 output_csv stations
+

@@ -434,9 +434,9 @@ double *xyz_to_llh( ellipsoid *el, double xyz[3], double llh[3] );
 
 /* Conversion from latitude/longitude <=> projection coordinates */
 
-void geog_to_proj( projection *prj, double lon, double lat,
+int geog_to_proj( projection *prj, double lon, double lat,
                    double *easting, double *northing );
-void proj_to_geog( projection *prj, double easting, double northing,
+int proj_to_geog( projection *prj, double easting, double northing,
                    double *lon, double *lat );
 
 /* Conversion of coordinates from one coordinate system to another     */

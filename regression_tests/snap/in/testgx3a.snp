@@ -19,7 +19,7 @@ list geocentric_ref_frame topocentric_ref_frame
 list parameters
 list residuals
 list error_summary
-list worst_residuals
+list no_worst_residuals
 
 add_residual_column c=ref_frame_code
 

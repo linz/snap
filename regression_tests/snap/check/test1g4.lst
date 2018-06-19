@@ -1,14 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
+
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at 
+                     Run at 18-JUN-2018 09:34:46 by ccrook
 
 
 The command file test1g4.snp contains:
@@ -26,14 +27,14 @@ The command file test1g4.snp contains:
      list command_file
      list station_coordinates
      
-     output_csv stations 
+     output_csv stations
      
 
 
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           
+Regression test 1g - calculation of geoid in snap           18-JUN-2018 09:34:46
 
                              SUMMARY OF INPUT FILES
 
@@ -54,7 +55,7 @@ Coordinates file test1g1.crd
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           
+Regression test 1g - calculation of geoid in snap           18-JUN-2018 09:34:46
 
                                      ERRORS
 

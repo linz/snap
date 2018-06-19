@@ -1,4 +1,5 @@
 title Regression tests - station lists
+!file: testsl5.wkt
 coordinate_file testsl.crd
 data_file testsl.dat
 mode 3d adjustment

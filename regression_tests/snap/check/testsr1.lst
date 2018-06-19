@@ -1,16 +1,15 @@
 ================================================================================
 
-                          PROGRAM SNAP  Version
+                          PROGRAM SNAP  Version 2.7.10
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date:
-
+                       Version date: Jun 18 2018 09:20:21
 
 ================================================================================
-                          Run at  
+                     Run at 18-JUN-2018 09:34:48 by ccrook
 
 
 
@@ -49,7 +48,7 @@ Data file 3: testsr3.dat
 
 
 ================================================================================
-Regression tests - station recoding options                  
+Regression tests - station recoding options                 18-JUN-2018 09:34:48
 
                                    INPUT DATA
 
@@ -755,7 +754,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression tests - station recoding options                  
+Regression tests - station recoding options                 18-JUN-2018 09:34:48
 
                                 RECODED STATIONS
 
@@ -776,7 +775,7 @@ The following stations are being recoded as they are read from data files
 
 
 ================================================================================
-Regression tests - station recoding options                  
+Regression tests - station recoding options                 18-JUN-2018 09:34:48
 
                              DEFINITION OF PROBLEM
 
@@ -826,6 +825,9 @@ The following deformation has been applied
 Applying coordinate system deformation model
 LINZ deformation model
     NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
     New Zealand Deformation Model.
     Defines the secular model (National Deformation Model)
     and patches for significant deformation events since 2000.

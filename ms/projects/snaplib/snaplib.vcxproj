@@ -105,7 +105,6 @@
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_date.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_grid.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_lnzdef.c" />
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_shiftmodel.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trig.c" />
     <ClCompile Include="..\..\..\src\snaplib\dbl4\snap_dbl4_interface.c" />
     <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_conv.c" />

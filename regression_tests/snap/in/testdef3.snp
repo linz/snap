@@ -1,4 +1,5 @@
 title Test data set testdef3 - LINZ deformation model format
+!file: cmn_test_linzdef.ldm
 
 
 coordinate_file testdef3.crd

@@ -46,6 +46,8 @@ static int nbplist = 0;
 static int nbproj = 0;
 static const char *null_bpname = "null";
 
+static int use_datum_trans=1;
+
 static int find_bproj( const char *name )
 {
     int nbp;
@@ -110,7 +112,8 @@ static int create_bproj( const char *name )
     if( ! prjsys ) return 0;
 
     if( ! is_projection( prjsys ) ||
-            define_coord_conversion( &cc, net->geosys, prjsys ) != OK )
+            (use_datum_trans &&
+             define_coord_conversion( &cc, net->geosys, prjsys ) != OK) )
     {
         delete_coordsys( prjsys );
         return 0;
@@ -120,6 +123,7 @@ static int create_bproj( const char *name )
 
     bp->name = copy_string( name );
     _strupr( bp->name );
+    bp->dtmtrans=use_datum_trans;
     bp->prjsys = prjsys;
     define_coord_conversion( &(bp->prjconv), net->geosys, prjsys );
 
@@ -178,18 +182,28 @@ int calc_prj_azimuth2( int bproj_id,
     llh[CRD_LON] = st1->ELon;
     llh[CRD_HGT] = 0.0;
 
-    if( convert_coords( &(bproj->prjconv), llh, NULL, enh, NULL ) != OK )
-        return INVALID_DATA;
-    e1 = enh[CRD_EAST];
-    n1 = enh[CRD_NORTH];
+    if( bproj->dtmtrans )
+    {
+        if( convert_coords( &(bproj->prjconv), llh, NULL, enh, NULL ) != OK )
+            return INVALID_DATA;
+        e1 = enh[CRD_EAST];
+        n1 = enh[CRD_NORTH];
 
-    llh[CRD_LAT] = st2->ELat;
-    llh[CRD_LON] = st2->ELon;
+        llh[CRD_LAT] = st2->ELat;
+        llh[CRD_LON] = st2->ELon;
 
-    if( convert_coords( &(bproj->prjconv), llh, NULL, enh, NULL ) != OK )
-        return INVALID_DATA;
-    e2 = enh[CRD_EAST];
-    n2 = enh[CRD_NORTH];
+        if( convert_coords( &(bproj->prjconv), llh, NULL, enh, NULL ) != OK )
+            return INVALID_DATA;
+        e2 = enh[CRD_EAST];
+        n2 = enh[CRD_NORTH];
+    }
+    else
+    {
+        projection *prj = bproj->prjsys->prj;
+        if( geog_to_proj(prj,st1->ELon,st1->ELat,&e1,&n1) != OK ) return INVALID_DATA;
+        if( geog_to_proj(prj,st2->ELon,st2->ELat,&e2,&n2) != OK ) return INVALID_DATA;
+    }
+
 
     de = e2-e1;
     dn = n2-n1;
@@ -203,5 +217,10 @@ int calc_prj_azimuth2( int bproj_id,
     }
 
     return OK;
+}
+
+void set_bproj_use_datum_transformation( int usedatum )
+{
+    use_datum_trans=usedatum;
 }
 

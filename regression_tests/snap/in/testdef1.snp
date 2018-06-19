@@ -1,4 +1,5 @@
 title Test data set testdef1 - velocity deformation model
+!file: cmn_test_velgrid.grd
 
 coordinate_file testdef1.crd
 data_file testdef1.dat
