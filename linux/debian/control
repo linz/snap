@@ -1,0 +1,18 @@
+Source: linz-snap
+Section: science
+Priority: optional
+Maintainer: Chris Crook <ccrook@linz.govt.nz>
+Build-Depends: debhelper (>= 8.0.0)
+Standards-Version: 3.9.2
+Homepage:
+#Vcs-Git: git://git.debian.org/collab-maint/linz-snap.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/linz-snap.git;a=summary
+
+Package: linz-snap
+Architecture: all
+Depends: ${shlibs:Depends}, ${misc:Depends},
+    perl,
+    linz-coordsys
+Description: Install LINZ snap software
+ Install LINZ snap survey network adjustment software suite.
+ Includes snap (run with command runsnap), snap_manager, concord, etc.

@@ -87,16 +87,6 @@ install: all
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(BINDIR)
 	cp -r $(INSTALL)/* $(INSTALLDIR)
-	ln -s $(INSTALLDIR)/snap $(BINDIR)/linzsnap
-	ln -s $(INSTALLDIR)/snap_manager $(BINDIR)/snap_manager
-	ln -s $(INSTALLDIR)/concord $(BINDIR)/concord
-	ln -s $(INSTALLDIR)/dat2site $(BINDIR)/dat2site
-	ln -s $(INSTALLDIR)/site2gps $(BINDIR)/site2gps
-	ln -s $(INSTALLDIR)/snapgeoid $(BINDIR)/snapgeoid
-	ln -s $(INSTALLDIR)/snaplist $(BINDIR)/snaplist
-	ln -s $(INSTALLDIR)/snapmerge $(BINDIR)/snapmerge
-	ln -s $(INSTALLDIR)/snapplot $(BINDIR)/snapplot
-	ln -s $(INSTALLDIR)/snapspec $(BINDIR)/snapspec
 else
 install: 
 	echo "Can only build installation for release version"
