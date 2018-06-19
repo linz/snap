@@ -1,0 +1,16 @@
+title Regression test 1 - data types and observation equations
+
+coordinate_file test1.crd
+data_file testpb1.dat
+
+mode 3d adjustment
+convergence_tolerance 0.001
+
+fix all
+
+list command_file
+list file_summary
+list observation_equations
+list station_coordinates
+list residuals
+
