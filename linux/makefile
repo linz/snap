@@ -5,7 +5,16 @@
 # build type either debug or release
 type=release
 # Force recompile of all version dates
+ifeq ($(type),release)
 versiondate=yes
+else
+versiondate=no
+endif
+
+COORDSYSDIR=/usr/share/linz/coordsys
+INSTALLDIR=${DESTDIR}/usr/share/linz/snap
+BINDIR=${DESTDIR}/usr/bin
+SNAPVER=`cat ../src/VERSION`
 
 WXDIR=../wx/wxWidgets-2.8.12/build/gtk
 WXCONFIG=$(WXDIR)/wx-config
@@ -71,6 +80,32 @@ include ./makefile.inc
 .PHONY: clean dirs
 
 all: snap_all
+
+ifeq ($(type), release)
+install: all
+	@if ! git diff -s HEAD; then echo "**************************"; echo "ABORTED: Current files not commited"; exit 1; fi
+	mkdir -p $(INSTALLDIR)
+	mkdir -p $(BINDIR)
+	cp -r $(INSTALL)/* $(INSTALLDIR)
+	ln -s $(INSTALLDIR)/snap $(BINDIR)/linzsnap
+	ln -s $(INSTALLDIR)/snap_manager $(BINDIR)/snap_manager
+	ln -s $(INSTALLDIR)/concord $(BINDIR)/concord
+	ln -s $(INSTALLDIR)/dat2site $(BINDIR)/dat2site
+	ln -s $(INSTALLDIR)/site2gps $(BINDIR)/site2gps
+	ln -s $(INSTALLDIR)/snapgeoid $(BINDIR)/snapgeoid
+	ln -s $(INSTALLDIR)/snaplist $(BINDIR)/snaplist
+	ln -s $(INSTALLDIR)/snapmerge $(BINDIR)/snapmerge
+	ln -s $(INSTALLDIR)/snapplot $(BINDIR)/snapplot
+	ln -s $(INSTALLDIR)/snapspec $(BINDIR)/snapspec
+else
+install: 
+	echo "Can only build installation for release version"
+endif
+
+package: 
+	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
+	@echo "Building debian package"
+	debuild -uc -us -b
 
 # All programs including wxWidgets components
 snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
@@ -158,12 +193,14 @@ support_files: makedirs helpfile wxhelpdir
 	@echo Copying support files.
 	mkdir -p $(INSTALL)/config
 	rm -rf $(INSTALL)/config/coordsys
-	ln -s -T -f /usr/share/linz/coordsys $(INSTALL)/config/coordsys
+	ln -s -T -f $(COORDSYSDIR) $(INSTALL)/config/coordsys
 	$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
+	$(CP) $(SRCDIR)/VERSION $(INSTALL)/
+	git rev-parse HEAD > $(INSTALL)/COMMIT
 
 helpfile:
 	(cd $(SRCDIR)/help && ./build_snaphelp.sh)
