@@ -88,7 +88,7 @@
 #include "util/classify.h"
 #include "util/leastsqu.h"
 #include "util/bltmatrx_mt.h"
-#include "version.h"
+#include "util/getversion.h"
 
 static void print_help( void );
 static void print_command_file( void );
@@ -852,7 +852,7 @@ static void write_metadata_csv()
     end_output_csv_record(csv);
 
     write_csv_string(csv,"SNAPVER");
-    write_csv_string(csv,version_number());
+    write_csv_string(csv,PROGRAM_VERSION);
     write_csv_string(csv,"SNAP version");
     end_output_csv_record(csv);
 
@@ -955,7 +955,7 @@ static void write_metadata_csv()
 static void update_station_file( char *filename)
 {
     if( ! filename ) return;
-    if( write_station_file( filename, PROGRAM, version_number(), run_time,
+    if( write_station_file( filename, PROGRAM, PROGRAM_VERSION, run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
         xprintf("\nNew station coordinates have been written to %s\n",filename);

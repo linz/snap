@@ -7,23 +7,6 @@
 
 */
 
-
-/*
-   $Log: snapplot.c,v $
-   Revision 1.4  1999/05/20 10:59:01  ccrook
-   Changed DOSLI to LINZ
-
-   Revision 1.3  1998/06/15 02:14:24  ccrook
-   Updated version number to 2.13
-
-   Revision 1.2  1996/07/12 20:34:33  CHRIS
-   Modified to support hidden stations.
-
-   Revision 1.1  1996/01/03 22:31:17  CHRIS
-   Initial revision
-
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -37,7 +20,7 @@
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "util/fileutil.h"
-#include "util/versioninfo.h"
+#include "util/getversion.h"
 #include "plotbin.h"
 #include "loadplot.h"
 #include "plotscal.h"
@@ -50,7 +33,6 @@
 #include "snapplot_load.h"
 #include "snapplot_util.h"
 
-#define VERSION ProgramVersion.version
 
 /* static void print_header( void ); */
 
@@ -346,7 +328,7 @@ void snapplot_unload()
 /*
 static void print_header( void )
 {
-    print_log("\n\n                              SNAPPLOT version %s\n", VERSION);
+    print_log("\n\n                              SNAPPLOT version %s\n", PROGRAM_VERSION);
     print_log("                     Copyright: Land Information New Zealand\n");
 }
 */

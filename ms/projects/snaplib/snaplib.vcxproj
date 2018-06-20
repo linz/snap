@@ -222,6 +222,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\recordstream.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\strarray.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\versioninfo.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c" />
   </ItemGroup>
   <ItemGroup>
@@ -319,6 +320,7 @@
     <ClInclude Include="..\..\..\src\snaplib\util\strarray.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\stringutil.hpp" />
     <ClInclude Include="..\..\..\src\snaplib\util\symmatrx.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\versioninfo.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\xprintf.h" />
   </ItemGroup>
   <ItemGroup>

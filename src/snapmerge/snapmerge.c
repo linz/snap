@@ -12,7 +12,7 @@
 #include "network/network.h"
 #include "util/fileutil.h"
 #include "util/dstring.h"
-#include "util/versioninfo.h"
+#include "util/getversion.h"
 #include "snap/filenames.h"
 
 
@@ -133,7 +133,7 @@ int main( int argc, char *argv[] )
     if( ! quiet )
     {
         printf("\n%s %s: Merges two SNAP coordinate files\n\n",
-               ProgramVersion.program, ProgramVersion.version);
+               PROGRAM_NAME, PROGRAM_VERSION );
     }
 
     if( syntaxerror )

@@ -12,8 +12,8 @@
 #include "snap/stnadj.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
-#include "util/versioninfo.h"
 #include "snap/filenames.h"
+#include "util/getversion.h"
 
 void print_gps_baselines( FILE *out, int *stn, int nstns )
 {
@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
     int block_id;
 
     printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n",
-           ProgramVersion.program, ProgramVersion.version);
+           PROGRAM_NAME, PROGRAM_VERSION);
 
     while ( argc > 1 && argv[1][0] == '-' )
     {

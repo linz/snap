@@ -23,8 +23,8 @@
 #include "util/chkalloc.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
-#include "util/versioninfo.h"
 #include "snap/filenames.h"
+#include "util/getversion.h"
 
 enum
 {
@@ -171,7 +171,7 @@ int main( int argc, char *argv[] )
     if( ! quiet )
     {
         printf("%s version %s\n\nCalculates geoid undulations on a SNAP coordinate file\n\n",
-               ProgramVersion.program, ProgramVersion.version);
+               PROGRAM_NAME, PROGRAM_VERSION);
     }
 
     if( syntax_error )

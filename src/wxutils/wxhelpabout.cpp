@@ -3,7 +3,6 @@
 #include "wxsimpledialog.hpp"
 #include "wxhelpabout.hpp"
 #include "wxsplashimage.hpp"
-#include "util/versioninfo.h"
 
 #ifdef __WXGTK__
 #include "resources/splashscreen_bmp.xpm"
@@ -12,8 +11,8 @@
 class wxHelpAbout : public wxSimpleDialog
 {
 public:
-    wxHelpAbout() :
-        wxSimpleDialog( ProgramVersion.program, wxOK )
+    wxHelpAbout(const char *progname, const char *progver, const char *progdate) :
+        wxSimpleDialog( progname, wxOK )
     {
         wxBitmap bitmap( wxBITMAP(IDB_SPLASHSCREEN) );
         wxBoxSizer *sizer = new wxBoxSizer( wxHORIZONTAL );
@@ -21,11 +20,11 @@ public:
         sizer->AddSpacer( GetCharWidth() );
         wxFlexGridSizer *sizer2 = new wxFlexGridSizer(2,0,GetCharWidth());
         sizer2->Add( Label("Program:"));
-        sizer2->Add(Label( ProgramVersion.program ));
+        sizer2->Add(Label( progname ));
         sizer2->Add(Label("Version:"));
-        sizer2->Add(Label( ProgramVersion.version ));
+        sizer2->Add(Label( progver ));
         sizer2->Add(Label("Build date:"));
-        sizer2->Add(Label( ProgramVersion.builddate ));
+        sizer2->Add(Label( progdate ));
         sizer2->Add(Label("Copyright:"));
         sizer2->Add(Label( "Land Information New Zealand" ));
         sizer->Add( sizer2 );
@@ -44,8 +43,8 @@ public:
     }
 };
 
-void ShowHelpAbout()
+void ShowHelpAbout(const char *progname, const char *progver, const char *progdate)
 {
-    wxHelpAbout helpAbout;
+    wxHelpAbout helpAbout(progname,progver,progdate);
     helpAbout.RunDialog();
 }

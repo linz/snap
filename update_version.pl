@@ -17,7 +17,6 @@ To update files use one of:
    -R for new release.
 
 Optionally also:
-   -l to write to version.log
    -g to commit and tag in git
 
 EOD
@@ -114,12 +113,11 @@ sub update_ms_vdproj
 }
 
 my %opts;
-getopts("kRIilG",\%opts);
+getopts("kRIiG",\%opts);
 my $keep= $opts{k};
 my $release = $opts{R};
 my $major = $opts{I};
 my $minor = $opts{i};
-my $dolog = $opts{l};
 my $git = $opts{G} ? 0 : 1;
 my $update = $keep || $release || $major || $minor;
 $git=0 if ! $update;
@@ -127,7 +125,8 @@ $git=0 if ! $update;
 die "Cannot update version - files not committed\n" 
    if $git && system('git diff --quiet HEAD');
 
-my $versionfile='VERSION';
+my $versionfile='src/VERSION';
+my $snapversionfile='src/snaplib/snapversion.h';
 my $vf=new FileHandle("<$versionfile") || die "Cannot open version file $versionfile\n";
 my $version=join('',$vf->getlines);
 $vf->close;
@@ -140,85 +139,38 @@ my $v1=$1 || 1;
 my $v2=$2 || 0;
 my $v3=$3 || 0;
 
-my $newversion='';
-if( $keep )
+my $newversion=$version;
+if ( $update )
 {
-    $newversion=$version;
-}
-elsif ( $update )
-{
-    my ($v1, $v2, $v3) = ($1, $2, $3);
-    if( $release ){ $v1++; $v2=0; $v3=0; }
-    elsif( $major ) { $v2++; $v3=0; } 
-    else { $v3++; }
-    $newversion="$v1.$v2.$v3";
+    if( ! $keep ) 
+    { 
+        if( $release ){ $v1++; $v2=0; $v3=0; }
+        elsif( $major ) { $v2++; $v3=0; } 
+        else { $v3++; }
+        $newversion="$v1.$v2.$v3";
+    }
     print "Updating version to $newversion\n";
     my $vf=new FileHandle(">$versionfile");
     $vf->print($newversion);
     $vf->close;
+    $vf=new FileHandle(">$snapversionfile");
+    $vf->print("#define SNAPVERSION \"$newversion\"\n");
+    $vf->close;
 }
 
-my @files;
 my @pjfiles;
-my $root = $FindBin::Bin;
-find( sub { push(@files,$File::Find::name) if /^versioninfo.c(?:pp)?$/i }, $root);
-my $pjroot=$root . '/../ms/projects';
-find( sub { push(@pjfiles,$File::Find::name) if /\.vdproj$/i }, $pjroot);
-
-my $buildtime = strftime("%Y-%m-%d %H:%M",localtime);
-
-
-my $log;
-
-if( $dolog )
-{
-    $log = new FileHandle("$FindBin::Bin/versions.log","a");
-    $log->print("\nBuild: $buildtime\n") if $dolog;
-}
-
-
-
-foreach my $file (@files)
-{
-    my $localname=substr($file,length($root));
-
-    my $fh = new FileHandle("<$file");
-    my $data = join('',$fh->getlines);
-    $fh->close;
-    $data =~ /^\s*\#define\s+VERSION\s+\"(\d+\.\d+\.\d+)\"/m;
-    my $fversion = $1;
-
-    if( $update )
-    {
-        print "Updating $localname to $newversion\n";
-        $data =~ s/^(\s*\#define\s+VERSION\s+\")(\d+\.\d+\.\d+)(")/$1.$newversion.$3/em;
-        $fh = new FileHandle(">$file");
-        $fh->print($data);
-        $fh->close;
-    }
-    elsif( $fversion ne $version )
-    {
-        print "File $localname version $fversion out of sync with $version\n";
-    }
-
-    if( $dolog )
-    {
-        my $program = $1 if $file =~ /\/([^\/]*)\/[^\/]*$/;
-        $log->print("  $program: $version\n");
-    }
-}
+find( sub { push(@pjfiles,$File::Find::name) if /\.vdproj$/i }, 'ms/projects');
 
 foreach my $pjfile (@pjfiles)
 {
-    update_ms_vdproj($pjfile,$version,$update);
+    update_ms_vdproj($pjfile,$newversion,$update);
 }
-
-$log->close if $log;
 
 if( $git )
 {
-    system("git commit -a -m \"Updating version to $version\"");
-    system("git tag -a $version -m \"Version $version\"");
+    system("git commit -a -m \"Updating version to $version\"")
+        if system('git diff --quiet HEAD');
+    system("git tag -a -f $version -m \"Version $version\"");
 }
 
 print $syntax if ! $update;

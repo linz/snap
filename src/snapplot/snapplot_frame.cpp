@@ -42,6 +42,7 @@
 //{
 #include "util/errdef.h"
 #include "util/classify.h"
+#include "util/getversion.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "plotscal.h"
@@ -951,7 +952,7 @@ void SnapplotFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 
 void SnapplotFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )
 {
-    ShowHelpAbout();
+    ShowHelpAbout(PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
 }
 
 void SnapplotFrame::FunctionNotImplemented( wxCommandEvent & WXUNUSED(event) )

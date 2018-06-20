@@ -49,6 +49,7 @@
 #include "util/dstring.h"
 #include "util/dms.h"
 #include "util/pi.h"
+#include "util/getversion.h"
 
 static coord_conversion to_xyz;
 static coord_conversion from_xyz;

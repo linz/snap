@@ -56,6 +56,7 @@
 #include "snap/cfgprocs.h"
 #include "snap/survfile.h"
 #include "snap/survfilr.h"
+#include "util/getversion.h"
 
 
 #define COMMENT_CHAR '!'

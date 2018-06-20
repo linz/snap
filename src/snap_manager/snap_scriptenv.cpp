@@ -3,7 +3,7 @@
 #include "util/fileutil.h"
 #include "coordsys/coordsys.h"
 #include "snap/filenames.h"
-#include "util/versioninfo.h"
+#include "util/getversion.h"
 #include "wx_includes.hpp"
 #include "snap_scriptenv.hpp"
 #include "fstream"

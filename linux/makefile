@@ -87,6 +87,7 @@ install: all
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(BINDIR)
 	cp -r $(INSTALL)/* $(INSTALLDIR)
+	git rev-parse
 else
 install: 
 	echo "Can only build installation for release version"
@@ -109,7 +110,7 @@ version:
 ifeq ($(versiondate), no)
 	echo "Version date info not updated"
 else
-	touch ../src/*/versioninfo.c*
+	touch ../src/*/version.c
 endif
 
 ./makefile.inc: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
@@ -155,14 +156,14 @@ $(SNAPMERGEEXE): makedirs $(SNAPMERGEOBJS) $(SNAPLIB)
 $(SITE2GPSEXE): makedirs $(SITE2GPSOBJS) $(SNAPLIB)
 	$(CC) $(CCFLAGS) $(SITE2GPSOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SITE2GPSEXE)
 
-$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB)
-	$(CC) $(CCFLAGS) $(SNAP_MANAGEROBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAP_MANAGEREXE)
+$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(WXUTILSLIB) $(SNAPLIB)
+	$(CC) $(CCFLAGS) $(SNAP_MANAGEROBJS) $(WXUTILSLIB) $(SNAPLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAP_MANAGEREXE)
 
-$(SNAPADJUSTEXE): makedirs $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB)
-	$(CC) $(CCFLAGS) $(SNAPADJUSTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPADJUSTEXE)
+$(SNAPADJUSTEXE): makedirs $(SNAPADJUSTOBJS) $(WXUTILSLIB) $(SNAPLIB)
+	$(CC) $(CCFLAGS) $(SNAPADJUSTOBJS) $(WXUTILSLIB) $(SNAPLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPADJUSTEXE)
 
-$(SNAPPLOTEXE): makedirs $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB)
-	$(CC) $(CCFLAGS) $(SNAPPLOTOBJS) $(SNAPLIB) $(WXUTILSLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPPLOTEXE)
+$(SNAPPLOTEXE): makedirs $(SNAPPLOTOBJS) $(WXUTILSLIB) $(SNAPLIB)
+	$(CC) $(CCFLAGS) $(SNAPPLOTOBJS) $(WXUTILSLIB) $(SNAPLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPPLOTEXE)
 
 $(LAPG): 
 	cd $(LAPGSRCDIR) && make
@@ -190,7 +191,7 @@ support_files: makedirs helpfile wxhelpdir
 	$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
 	$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
 	$(CP) $(SRCDIR)/VERSION $(INSTALL)/
-	git rev-parse HEAD > $(INSTALL)/COMMIT
+	git rev-parse --short HEAD > $(INSTALL)/VERSIONID
 
 helpfile:
 	(cd $(SRCDIR)/help && ./build_snaphelp.sh)

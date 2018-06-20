@@ -1,2 +1,2 @@
 #!/bin/sh
-git rev-parse HEAD > src/COMMIT
+git rev-parse --short HEAD > src/VERSIONID

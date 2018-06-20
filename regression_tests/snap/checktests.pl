@@ -381,7 +381,7 @@ exit($status);
 __DATA__
 
 # Snap listing files
-FIX ~^(\s*PROGRAM\s+SNAP\s+Version)(?:\s+\S+\s*)?$    ~$1 0.0.0      ~\.(lst|err)$
+FIX ~^(\s*PROGRAM\s+SNAP\s+Version)(?:\s+\S+\s*(?:\-\w+)?)?$    ~$1 0.0.0      ~\.(lst|err)$
 FIX ~^\s*(Version\sdate\:).*?$                        ~$1 1 Jan 2000 ~\.(lst|err)$
 FIX ~^\s*(Run\s+at)(?:\s+{datetime}(?:\s+by\s+\S+)?)?\s*$  ~$1 00:00:00 by user ~\.(lst|err)$
 FIX ~^(.*?)\s+{datetime}\s*$                               ~$1 1 Jan 2000      ~\.(lst|err)$
@@ -390,7 +390,7 @@ FIX ~\\                                                    ~\/         ~\.(lst|e
 
 # Snap CSV files
 FIX ~^(\"RUNTIME\"\,).*                       ~$1,00:00:00   ~metadata\.csv$
-FIX ~^(\"SNAPVER\"\,).*                       ~$1,00:00:00   ~metadata\.csv$
+FIX ~^(\"SNAPVER\"\,).*                       ~$1,0.0.0      ~metadata\.csv$
 
 # Snap coordinate files
 FIX ~^(! Updated by SNAP).*                   ~$1 ...        ~\.(newcrd|crd)$

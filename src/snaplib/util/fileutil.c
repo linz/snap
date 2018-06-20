@@ -34,6 +34,7 @@ static char *usercfg=NULL;
 static char *syscfg=NULL;
 static char *imgpath=NULL;
 static char *imgdir=NULL;
+static char *imgname=NULL;
 static const char *projdir=NULL;
 static char *filename=NULL;
 static int filenamelen=0;
@@ -283,6 +284,18 @@ const char *user_config_dir()
 }
 
 #endif
+
+const char *image_name()
+{
+    if( imgname ) return imgname;
+    const char *path=image_path();
+    int np=path_len(path,0);
+    int np2=path_len(path+np,1);
+    imgname= (char *) check_malloc(np2+1);
+    strncpy(imgname,path+np,np2);
+    imgname[np2]=0;
+    return imgname;
+}
 
 const char *image_dir()
 {

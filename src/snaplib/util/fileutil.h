@@ -58,6 +58,7 @@ char *build_config_filespec( char *spec, int nspec,
 
 const char *image_path();
 const char *image_dir();
+const char *image_name();
 const char *system_config_dir();
 const char *user_config_dir();
 const char *project_dir();

@@ -31,8 +31,8 @@
 #include "util/fileutil.h"
 #include "util/dstring.h"
 #include "util/chkalloc.h"
-#include "util/versioninfo.h"
 #include "snap/filenames.h"
+#include "util/getversion.h"
 
 enum
 {
@@ -125,7 +125,7 @@ int main( int argc, char *argv[] )
     if( ! quiet )
     {
         printf("\n%s %s: Converts a SNAP coord file to a different coordinate system\n\n",
-               ProgramVersion.program, ProgramVersion.version);
+               PROGRAM_NAME, PROGRAM_VERSION);
     }
 
     if( syntax_error )

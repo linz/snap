@@ -47,7 +47,7 @@
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/bltmatrx_mt.h"
-#include "util/versioninfo.h"
+#include "util/getversion.h"
 
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_error.h"

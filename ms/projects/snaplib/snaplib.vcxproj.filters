@@ -370,6 +370,9 @@
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\versioninfo.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
@@ -691,6 +694,9 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\symmatrx.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\snaplib\util\versioninfo.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\xprintf.h">

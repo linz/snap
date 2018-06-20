@@ -57,7 +57,7 @@
 #include "util/pi.h"
 #include "util/probfunc.h"
 #include "util/xprintf.h"
-#include "version.h"
+#include "util/getversion.h"
 
 #define MAX_SUBCOMMANDS 10
 
@@ -574,14 +574,14 @@ void print_report_header( FILE *out )
 
     print_line( out );
     skip_line( out );
-    sprintf(heading,"PROGRAM %.20s  Version %.20s",PROGRAM,version_number());
+    sprintf(heading,"PROGRAM %.20s  Version %.20s",PROGRAM,PROGRAM_VERSION);
     print_centred( out, heading );
     skip_line( out );
     print_centred( out, "Survey Network Adjustment Program" );
     skip_line( out );
     print_centred( out, "Copyright: Land Information New Zealand" );
     print_centred( out, "Author: Chris Crook" );
-    sprintf(heading,"Version date: %.20s",version_date() );
+    sprintf(heading,"Version date: %.20s",PROGRAM_DATE);
     print_centred( out, heading );
     skip_line( out );
     print_line( out );

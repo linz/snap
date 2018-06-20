@@ -23,7 +23,6 @@
 #include "cvrfile.h"
 #include "snapmain.h"
 #include "output.h"
-#include "version.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
 #include "util/leastsqu.h"
@@ -33,6 +32,7 @@
 #include "util/dms.h"
 #include "util/xprintf.h"
 #include "util/pi.h"
+#include "util/getversion.h"
 
 typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
@@ -409,7 +409,8 @@ void print_coord_sinex( void )
         fprintf(f,"+FILE/REFERENCE\n");
         fprintf(f," %-18s %s\n","OUTPUT","Coordinate calculation results");
         fprintf(f," %-18s %s\n","SOFTWARE","SNAP survey network adjustment pacakge");
-        fprintf(f," %-18s SNAP version %s date %s\n","SOFTWARE",version_number(),version_date());
+        fprintf(f," %-18s SNAP version %s date %s\n","SOFTWARE",
+                PROGRAM_VERSION, PROGRAM_DATE );
         fprintf(f,"-FILE/REFERENCE\n");
 
         if( badcvr || maxcodlen > 4 )

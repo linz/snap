@@ -2,10 +2,6 @@
 /* Program concord - front end to coordinate conversion routines */
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 
-#define PROGNAME "concord"
-#define VERSION  "3.5"
-#define PROGDATE __DATE__
-
 /* Revision history:
    1.1) Changes code for latitude and longitude from GEOD to GEOG
         19/3/90
@@ -90,9 +86,11 @@
 #include "coordsys/coordsys.h"
 #include "geoid/geoid.h"
 #include "util/fileutil.h"
+#include "util/dstring.h"
 #include "util/license.h"
 #include "util/errdef.h"
 #include "util/pi.h"
+#include "util/getversion.h"
 
 #define TRUE 1
 #define FALSE 0
@@ -446,9 +444,9 @@ static void help( void )
 {
     puts("");
     printf("%s - Converts coordinates between different coordinate systems\n",
-           PROGNAME);
+           PROGRAM_NAME);
     puts("");
-    printf("Syntax:  %s [switches] [input_file] [output_file]\n",PROGNAME);
+    printf("Syntax:  %s [switches] [input_file] [output_file]\n",PROGRAM_NAME);
     puts("");
     puts("Switches:  -a       Ask for program parameters");
     puts("           -k       Ask for coordinates at the keyboard");
@@ -510,8 +508,8 @@ static void help( void )
 
 static void error_exit( const char *errmsg1, const char * errmsg2 )
 {
-    printf("%s: %s%s\n\n",PROGNAME,errmsg1,errmsg2);
-    printf("Enter %s -H for a list of command line parameters\n", PROGNAME);
+    printf("%s: %s%s\n\n",PROGRAM_NAME,errmsg1,errmsg2);
+    printf("Enter %s -H for a list of command line parameters\n", PROGRAM_NAME);
     exit(1);
 }
 
@@ -625,7 +623,7 @@ static void list_vertical_datum_with_pause( void )
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Vertical datum codes are:\n",PROGNAME);
+    printf("\n%s: Vertical datum codes are:\n",PROGRAM_NAME);
     maxi = vdatum_list_count();
     nl = 0;
     for( i = 0; i < maxi; i++ )
@@ -645,7 +643,7 @@ static void list_ref_frame_with_pause( void )
     int maxi;
     int i;
     int nl;
-    printf("\n%s: Reference frame codes are:\n",PROGNAME);
+    printf("\n%s: Reference frame codes are:\n",PROGRAM_NAME);
     maxi = ref_frame_list_count();
     nl = 0;
     for( i = 0; i < maxi; i++ )
@@ -711,7 +709,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
     }
     if( ncs == 0 )
     {
-        printf("\n%s: Valid coordinate systems are:\n",PROGNAME);
+        printf("\n%s: Valid coordinate systems are:\n",PROGRAM_NAME);
         list_coordsys_with_pause();
     }
     exit(1);
@@ -719,7 +717,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
 
 static void list_program_details_and_exit( void )
 {
-    printf("\nProgram %s version %s, dated %s\n",PROGNAME,VERSION,PROGDATE);
+    printf("\nProgram %s version %s, dated %s\n",PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
     printf("Copyright: Land Information New Zealand\n");
     printf("Author: Chris Crook\n");
     printf("Coordsys file: %s\n",coordsys_file);
@@ -1087,7 +1085,7 @@ static void prompt_for_parameters( void )
     static char output_file[81];
     char ans[2];
 
-    printf("\n%s:  Coordinate conversion program\n",PROGNAME);
+    printf("\n%s:  Coordinate conversion program\n",PROGRAM_NAME);
     printf("\nInput coordinates:\n");
     prompt_for_proj(&input_cs,&input_dms,&input_ne,&input_h,&input_ortho,"input");
     printf("\nOutput coordinates:\n");
@@ -1515,7 +1513,7 @@ static void head_output( FILE * out )
 {
     output_string_def os;
     fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
-            PROGNAME,VERSION,PROGDATE);
+            PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
     fprintf(out,"\nInput coordinates:  %s", input_cs->name);
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     fprintf(out,"\n");
@@ -1986,6 +1984,8 @@ int main( int argc, char *argv[] )
     {
         printf("Cannot find coordsys.def file\n");
     }
+    // coordsys_file may be overwritten if from get_default_crdsys_file
+    coordsys_file=copy_string(coordsys_file);
     install_default_projections();
     sts = install_crdsys_file( coordsys_file );
     if( sts != OK )

@@ -3,6 +3,7 @@
 #include "wxhelpabout.hpp"
 #include "snapjob.hpp"
 #include "snap_scriptenv.hpp"
+#include "util/getversion.h"
 
 #ifdef __WXGTK__
 #include "resources/snap16_icon.xpm"
@@ -282,7 +283,7 @@ void SnapMgrFrame::OnClearLog( wxCommandEvent & WXUNUSED(event) )
 
 void SnapMgrFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )
 {
-    ShowHelpAbout();
+    ShowHelpAbout(PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
 }
 
 void SnapMgrFrame::OnActivate( wxActivateEvent & WXUNUSED(event) )
