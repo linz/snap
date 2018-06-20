@@ -83,7 +83,7 @@ all: snap_all
 
 ifeq ($(type), release)
 install: all
-	@if ! git diff -s HEAD; then echo "**************************"; echo "ABORTED: Current files not commited"; exit 1; fi
+	@if ! git diff --quiet HEAD; then echo "**************************"; echo "ABORTED: Current files not commited"; exit 1; fi
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(BINDIR)
 	cp -r $(INSTALL)/* $(INSTALLDIR)
