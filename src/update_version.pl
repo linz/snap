@@ -217,8 +217,9 @@ $log->close if $log;
 
 if( $git )
 {
-    system("git commit -a -m \"Updating version to $version\"");
-    system("git tag -a $version -m \"Version $version\"");
+    system("git commit -a -m \"Updating version to $version\"")
+        if system('git diff --quiet HEAD');
+    system("git tag -a -f $version -m \"Version $version\"");
 }
 
 print $syntax if ! $update;
