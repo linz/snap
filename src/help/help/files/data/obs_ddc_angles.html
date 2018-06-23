@@ -21,10 +21,14 @@
 angles will be entered as decimal degrees (DDD.ddddd).  By default the <i>#dms_angles</i> format is used.</p>
 
 <p>
-The error of angle observations is entered in seconds of arc unless the <i>#deg_angles</i> option is specified, in which case the error is specified in degrees.
+If the error of angle observations is entered explicitly for each observation then this option 
+also applies to the units of the angle error.  If <i>#deg_angles</i> is specified the errors are 
+in degrees.  If <i>#dms_angles</i> is specified the errors are in seconds.
 </p>
-<div class="SeeAlso">
-
+<p>
+This option does not affect angle observation errors specified with error commands such as 
+<i>#ha_error</i>, <i>#zd_error</i>.
+</p>
 <h3>See also:</h3>
 
 <p><a href="obs_ddc_by_func.html">Data definition commands by function</a></p>
