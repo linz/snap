@@ -15,9 +15,13 @@
 
 <p class="Commanddefinition">default_refraction_coefficient <i>value</i></p>
 
-<p>This command defines a value that will be used for refraction coefficients codes that occur in the data file and are not specified by a refraction_coefficient command.  The command is equivalent to refraction_coefficient * value</p>
+<p>This command defines a value that will be used for <a href="../data/obs_ref_coeff.html">refraction coefficient</a>
+codes that occur in the data file and are not specified by a <a href="cmd_additional_parameters.html">refraction coefficient</a>
+command.<p>
+<p>This command affects all refraction coefficient codes except the special code &quot;zero&quot;,
+which always takes the default value of 0.0.</p> 
 
-<p class="Commanddefinition">value</p><p class="Commanddescription">Specifies the value that will be used for subsequently defined refraction coefficients.  The default value is 0.075.</p>
+<p class="Commanddefinition">value</p><p class="Commanddescription">Specifies the value that will be used for subsequently defined refraction coefficients. If this is not specified the value 0.075 will be used.</p>
 
 
 

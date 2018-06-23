@@ -17,6 +17,16 @@
 
 <p>Each zenith distance observation has an associated refraction coefficient code, which defines the refraction coefficient to be applied.  The default code is DEFAULT.  You can use as many other codes as you wish.  For example you may want to use codes DAY and NIGHT to apply different coefficients for daytime and nighttime observations.   The refraction coefficient for each code can be specified in the command file, or it can be calculated by SNAP.</p>
 
+<p>The default value for each refraction coefficient is defined by the
+<a href="../cmdcfg/cmd_default_refraction_coefficient.html">default_refraction_coefficient</a> command
+in the command file, or 0.075 if this is not specified.  The values for each code can be changed 
+individually in the snap command file using the 
+<a href="../cmdcfg/cmd_additional_parameter_commands.html">refraction_coefficient</a> command.
+</p>
+
+<p>The special code ZERO has a default value of 0.0.  This can be used if the 
+survey equipment has already applied a refraction coefficient correction.
+</p>
 <p>Reference: G.Bomford (1971), Geodesy,  Third Edition. Oxford University Press.  Section 3.20, page 264</p>
 
 <div class="SeeAlso">

@@ -20,6 +20,14 @@ Test 1 - basic obs type tests
 12 11 96 24 43.1 5
 13 11 86 01 23.1 5
 
+#refraction_coefficient zero
+
+11 12 83 35 17.7 5
+11 13 93 58 38.1 5
+
+12 11 96 24 43.1 5
+13 11 86 01 23.1 5
+
 ! Distance scale factor tests
 
 #classification equipment	

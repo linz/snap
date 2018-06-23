@@ -76,7 +76,12 @@ static int coef_prm( int type, const char *name )
     prm = find_param( prmname );
     if( !prm )
     {
-        prm = define_param( prmname, type == PRM_REFCOEF ? default_refcoef : 0.0, 0 );
+        double value=0.0;
+        if( type == PRM_REFCOEF && _stricmp(name,"zero") != 0 )
+        {
+            value=default_refcoef;
+        }
+        prm = define_param( prmname, value, 0 );
     }
 
     return prm;
