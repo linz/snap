@@ -9,7 +9,7 @@ Homepage:
 #Vcs-Browser: http://git.debian.org/?p=collab-maint/linz-snap.git;a=summary
 
 Package: linz-snap
-Architecture: all
+Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends},
     perl,
     linz-coordsys

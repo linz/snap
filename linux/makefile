@@ -31,7 +31,7 @@ LDWXFLAGS = -lm -lboost_regex
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 TESTFLAGS = 
-UPDATE_VERSION =
+UPDATEVERSION =
 
 else ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -lpthread -s
@@ -40,7 +40,7 @@ LDWXFLAGS = -lm -lboost_regex -s
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 TESTFLAGS = -r
-UPDATE_VERSION = update_version
+UPDATEVERSION = update_version
 
 else
 MD=echo
@@ -83,15 +83,17 @@ help:
 	@echo "install/package require all changes to be committed"
 	@echo "package requires changelog to match version (src/VERSION)"
 
-ifeq ($(type), release)
-install: all
+installable: 
 	@if ! git diff --quiet HEAD; then echo "**************************"; echo "ABORTED: Current files not commited"; exit 1; fi
+	
+ifeq ($(type), release)
+install: installable all
 	mkdir -p $(INSTALLDIR)
 	mkdir -p $(BINDIR)
 	cp -r $(INSTALL)/* $(INSTALLDIR)
 	git rev-parse
 
-package: install
+package: installable
 	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
 	@echo "Building debian package"
 	debuild -uc -us -b
