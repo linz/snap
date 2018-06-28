@@ -1,5 +1,6 @@
 title Regression tests - station recoding options
-!file: testsr2_recode.csv testsr3_recode.csv
+!file: testsr2_recode.csv 
+!file: testsr3_recode.csv
 coordinate_file testsl.crd
 data_file testsr1.dat
 data_file testsr2.dat recode testsr2_recode.csv

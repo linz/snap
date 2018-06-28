@@ -1,0 +1,13 @@
+Test 1 - basic obs type tests
+NZGD1949
+options ellipsoidal_heights no_deflections geoid_heights c=Order c=Mark_Type
+! Updated by SNAP version 2.7.10-a339290 at 26-JUN-2018 10:27:11
+
+!Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
+1      41 00 46.800000 S 173 19 15.600000 E   150.0000  0.0000 2     PIN   Node one
+2      41 00 25.200000 S 173 19 40.800000 E   250.0000  0.0000 2     PEG   Node two
+3      41 00 28.800000 S 173 19 58.800000 E    70.0000  0.0000 3     BOLT  Node three
+4      41 00 46.800000 S 173 19 15.600000 E   150.0000 30.0000 2     PIN   Node four
+5      41 00 25.200000 S 173 19 40.800000 E   250.0000 30.0000 2     PEG   Node five
+2a     41 00 25.200000 S 173 19 40.800000 E   250.0000  0.0000 2     PEG   Node two
+3a     41 00 28.800000 S 173 19 58.800000 E    70.0000  0.0000 3     BOLT  Node three

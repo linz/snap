@@ -1,0 +1,5 @@
+parameters:  -l test.lst test.crd testll.crd {test}.crd
+
+file: test.lst
+file: test.crd
+file: testll.crd

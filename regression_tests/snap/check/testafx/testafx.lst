@@ -1,0 +1,397 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:11 by ccrook
+
+
+
+Program options read from testafx.snp
+
+Job: Testing autofixing
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testafx.crd
+      16 stations read
+
+Data file 1: testafx.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+      14 observations do not have a date
+       1 GPS baseline
+       1 GPS point coord
+       3 slope distances
+       4 ellipsoidal distances
+       6 horizontal angles
+       1 azimuth
+       6 projection bearings
+       8 height differences
+       2 latitudes
+       2 longitudes
+
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  Node one
+2        3     1  Node two
+3        3     4  Node three
+5        H     7  Node five
+7        H     9  Node seven
+9        H    11  Node nine
+12       3    13  Node twelve
+13       V    16  Node thirteen
+15       3    17  Node fifteen
+16       3    20  Node sixteen
+
+
+
+The following stations have been rejected.  Those denoted with '*'
+have been rejected automatically because there is insufficient data
+to locate them.
+
+Station  Name
+
+*4       Node four
+*6       Node six
+*8       Node eight
+*10      Node ten
+*11      Node eleven
+*14      Node fourteen
+
+
+The following stations have been automatically fixed horizontally
+ 13   
+
+The following stations have been automatically fixed vertically
+ 5     7     9    
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                               ITERATION SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 889.2722 metres at station 12
+             3 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0000 metres at station 7
+             0 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              28
+Number of parameters:                22
+Number of implicit parameters:        3
+
+Degrees of freedom:                   3
+Sum of squared residuals:             2.58264
+Standard error of unit weight:        0.92784
+
+The probability of an SSR this high is 46.054% (from Chi squared (3))
+
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          Node one
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      41 00 25.200001 S    -0.0000    0.0172 131  Node two
+       173 19 40.800003 E     0.0001    0.0025  41
+             250.0000         0.0000    0.0097
+
+ 3      41 00 28.800000 S    -0.0000    0.2339 103  Node three
+       173 19 58.800001 E     0.0000    0.0447  13
+              70.0000         0.0000    0.0222
+
+#4      41 00 25.200000 S      -         -          Node four
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 5      41 00 46.799982 S     0.0005    0.4757  42  Node five
+       173 19 15.600021 E     0.0005    0.0244 132
+             150.0000          -         -
+
+#6      41 00 46.800000 S      -         -          Node six
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 7      41 00 46.800664 S    -0.0205    0.5242 131  Node seven
+       173 19 15.599514 E    -0.0114    0.0040  41
+             150.0000          -         -
+
+#8      41 00 46.800000 S      -         -          Node eight
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 9      41 00 46.799999 S     0.0000    0.0244 131  Node nine
+       173 19 15.600001 E     0.0000    0.0106  41
+             150.0000          -         -
+
+#10     41 00 46.800000 S      -         -          Node ten
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+#11     41 00 46.800000 S      -         -          Node eleven
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 12     41 00 25.200000 S   666.3594    9.2550   0  Node twelve
+       173 19 40.800000 E   588.9246    7.0110  90
+             150.0000         0.0000    0.0140
+
+ 13     41 00 46.800000 S      -         -          Node thirteen
+       173 19 15.600000 E      -         -
+             150.0000         0.0000    0.0134
+
+#14     41 00 46.800000 S      -         -          Node fourteen
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 15     41 00 46.800000 S    -0.0000    0.0600 180  Node fifteen
+       173 19 15.600000 E     0.0000    0.0400  90
+             150.0000        -0.0000    0.1200
+
+ 16     41 00 46.800001 S    -0.0000    0.0395 171  Node sixteen
+       173 19 15.600002 E     0.0001    0.0250  81
+             150.0000         0.0000    0.1030
+
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+   SD  slope distances
+   ED  ellipsoidal distances
+   HA  horizontal angles
+   AZ  azimuths
+   PB  projection bearings
+   LV  height differences
+   LT  latitudes
+   LN  longitudes
+Note: Calculated values for slope distances include equipment heights
+
+From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+File testafx.dat: line 8
+
+1     2            0 HA   141 28 15.8   20.0 141 28 15.8   20.0    -0.0    0.0    -   @   
+      3            0 HA   161 11 26.3   20.0 161 11 26.3   20.0     0.0    0.0    -   @   
+
+2     1            0 HA     1 27 59.3   20.0   1 27 59.3   17.3    -0.0   10.0   0.00     
+      3            0 HA   244 47 28.1   20.0 244 47 28.1   17.3     0.0   10.0   0.00     
+
+2     1            0 HA   121 27 59.3   20.0 121 27 59.3   17.3    -0.0   10.0   0.00     
+      3            0 HA     4 47 28.1   20.0   4 47 28.1   17.3     0.0   10.0   0.00     
+
+1     2            0 SD      894.9014 0.0022    894.9014 0.0022 -0.0000 0.0000    -   @   
+
+1     2            0 PB    40 30 56.8    4.0  40 30 56.8    4.0     0.0    0.0    -   @   
+
+1     2            0 LV      100.0000 0.0100    100.0000 0.0097  0.0000 0.0022   0.00     
+
+1     3            0 LV      -80.0000 0.0300    -80.0000 0.0222  0.0000 0.0201   0.00     
+
+1     4            0 LV#     100.0000 0.0100    100.0000 0.0000  0.0000 0.0100   0.00 #   
+
+10    2            0 LV#     100.0000 0.0100    100.0000 0.0097  0.0000 0.0140   0.00 #   
+
+11    2            0 LV#     100.0000 0.0100    100.0000 0.0097  0.0000 0.0140   0.00 #   
+
+File testafx.dat: line 38
+
+12    2            0 LV      100.0000 0.0100    100.0000 0.0100  0.0000 0.0000    -   @   
+
+1     4            0 AZ#   61 11 26.3    4.0  41 28 15.8    0.0 70990.5    4.0 17747.63 #???
+
+5     2            0 PB    40 30 56.8    4.0  40 30 56.8    4.0     0.0    0.0    -   @   
+
+5     3            0 PB    60 14 07.3    4.0  60 14 07.3    4.0     0.0    0.0    -   @   
+
+6     2            0 PB#   40 30 56.8    4.0  40 30 56.8    4.0     0.0    5.7   0.00 #   
+
+6     2            0 PB#   40 30 56.8    6.0  40 30 56.8    4.0     0.0    7.2   0.00 #   
+
+7     2            0 ED      889.2966 0.0044    889.2916 0.0031  0.0050 0.0031   1.61     
+
+7     2            0 ED      889.2866 0.0044    889.2916 0.0031 -0.0050 0.0031   1.61     
+
+7     3            0 ED     1152.1698 0.0046   1152.1698 0.0046 -0.0000 0.0000    -   @   
+
+8     2            0 SD#     894.8014 0.0022    894.9014 0.0022 -0.1000 0.0031  32.14 #???
+
+File testafx.dat: line 66
+
+8     2            0 SD#     894.9014 0.0022    894.9014 0.0022 -0.0000 0.0031   0.00 #   
+
+9     2            0 ED      889.2687 0.0103    889.2687 0.0103  0.0000 0.0000    -   @   
+
+9     2            0 PB    40 30 56.8    4.0  40 30 56.8    4.0     0.0    0.0    -   @   
+
+From        Id Type     Value      +/-        Calc      +/-     Res   +/-    S.R.      
+
+10           0 LN#  173 19 15.60 E  0.20 173 19 15.60 E  0.00    0.00  0.20   0.00 #   
+
+12           0 LN   173 19 40.80 E  0.30 173 19 40.80 E  0.30    0.00  0.00    -   @   
+
+11           0 LT#   41 00 46.80 S  0.20  41 00 46.80 S  0.00    0.00  0.20   0.00 #   
+
+12           0 LT    41 00 25.20 S  0.30  41 00 25.20 S  0.30    0.00  0.00    -   @   
+
+From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
+
+13    2            0 LV      100.0000 0.0100    100.0000 0.0097  0.0000 0.0022   0.00     
+
+13    3            0 LV      -80.0000 0.0300    -80.0000 0.0222  0.0000 0.0201   0.00     
+
+From        Id Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      
+                        X,Y,Z                  X,Y,Z               E,N,U                     
+
+15           0 GX    -4787264.5200  0.0982  -4787264.5200  0.0982  0.0000  0.0000    -   @   
+                       560595.5704  0.0414    560595.5704  0.0414 -0.0000  0.0000    -   @   
+                     -4163681.8023  0.0908  -4163681.8023  0.0908  0.0000  0.0000    -   @   
+                      6369333.9627           6369333.9627          0.0000            -       
+
+From  To          Id Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
+                              X,Y,Z                 X,Y,Z              E,N,U                     
+
+16    2         1000 GB       -577.7036  0.0806     -577.7036  0.0806  0.0000  0.0000    -   @   
+                              -525.3081  0.0237     -525.3081  0.0237 -0.0000  0.0000    -   @   
+                               437.2167  0.0730      437.2167  0.0730 -0.0000  0.0000    -   @   
+                               894.9014              894.9014          0.0000            -       
+
+
+
+================================================================================
+Testing autofixing                                          26-JUN-2018 10:27:11
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                 -      -     -      -     -      -
+
+GPS point coord                              -      -     -      -     -      -
+
+slope distance                               -      -   22.73    2   22.73    2
+
+ellipsoidal distance                        1.61    2     -      -    1.61    2
+
+horizontal angle                            0.00    4     -      -    0.00    4
+
+azimuth                                      -      - 17747.63    1 17747.63    1
+
+projection bearing                           -      -    0.00    2    0.00    2
+
+height difference                           0.00    4    0.00    3    0.00    7
+
+latitude                                     -      -    0.00    1    0.00    1
+
+longitude                                    -      -    0.00    1    0.00    1

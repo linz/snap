@@ -1,0 +1,22 @@
+
+concord - coordinate conversion program (version 2.7.10-a339290 dated Jun 24 2018 08:40:45)
+
+Input coordinates:  New Zealand Geodetic Datum 1949
+
+Output coordinates: New Zealand Geodetic Datum 2000
+NZGD1949-NZGD2000 is even stranger than the other way around
+
+ID                   Latitude             Longitude        Height               Latitude             Longitude 
+BB3L      45 17 15.93796600 S  168 43 26.47581200 E   153.6610000    45 17 10.09136766 S  168 43 26.74154194 E SS 7K 22 SO 30955
+BDQ7      41 16 40.89635800 S  174 43 41.18425800 E   290.1590000    41 16 34.68557463 S  174 43 41.86989541 E RM IV DP 67708
+BDQ8      38 17 02.38719500 S  181 15 34.99902500 W   181.4870000    38 16 56.03772064 S  178 44 25.76712704 E SS 6K18 SO 32647
+BDQ8A     38 17 02.38719500 S  178 44 25.00097500 E   181.4870000    38 16 56.03772064 S  178 44 25.76712704 E 4    SS 6K18 SO 32647
+BDQ9      38 17 27.76163500 S  171 44 53.39124300 E   257.5960000    38 17 21.57801707 S  171 44 54.15147795 E SS 3J26 SO 32645
+**** Cannot convert from NZGD1949 to WGS84 for point NOTNZ ****  NOTNZ  20 17 27.761635 S 130 44 53.391243 E   257.5960 SS 3J26 SO 32645
+TEST      40 00 00.00000000 S  170 00 00.00000000 E     0.0000000    39 59 53.55083064 S  170 00 00.38657020 E Test
+**** Error reading data for point TEST2 ****  TEST2  40 80 00.000000 S 170 00 00.000000 E     0.0000 Test
+**** Error reading data for point TEST2 ****  TEST2  40 00.000000 S 170 00 00.000000 E     0.0000 Test
+**** Error reading data for point TEST ****  TEST   40 00 00.000000 S 170 00 00.000000 E     Test
+
+6 coordinates converted
+4 errors occurred reading or converting coordinates

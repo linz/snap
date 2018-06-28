@@ -1,0 +1,3 @@
+name: Conversion to projections
+parameters: test1.crd NZTM test1b.crd
+file: test1.crd

@@ -1,0 +1,7 @@
+Reference frame BAD1 cannot have a non-null transformation to itself
+Line: 36  File: /home/ccrook/projects_git/snap/regression_tests/concord/cstest/coordsys.def
+Cannot load reference frame BAD1
+Line: 36  File: /home/ccrook/projects_git/snap/regression_tests/concord/cstest/coordsys.def
+These are bad coordinate systems - they are not properly defined...
+Various problems, non-existent, cyclic, no base ref frame
+etc ...

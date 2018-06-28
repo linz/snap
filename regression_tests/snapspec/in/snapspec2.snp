@@ -25,3 +25,4 @@ output no_relative_covariances
 fix vertical all
 fix F0
 ! fix F4
+output no_coordinate_file

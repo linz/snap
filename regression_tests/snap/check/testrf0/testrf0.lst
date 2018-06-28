@@ -1,0 +1,962 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:12 by ccrook
+
+
+The command file testrf0.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testrf0.crd
+     data_file testrf0.dat
+     
+     mode 3d adjustment
+     
+     list command_file
+     list file_summary
+     list problem_definition
+     list no_observation_equations
+     list solution_summary
+     list station_coordinates
+     list floated_stations
+     list reference_frames
+     list no_topocentric_ref_frame
+     list parameters
+     list residuals
+     list error_summary
+     list no_worst_residuals
+     
+     fix all
+     deformation none
+     
+     add_residual_column c=ref_frame_code  date
+     summarise_residuals_by ref_frame_code
+     
+     reference_frame TESTTX IERS_ETSR 2008 10000 0 0 0 0 0 0   1000 0 0 0 0 0 0
+     reference_frame TESTTY IERS_ETSR 2008 0 20000 0 0 0 0 0   0 2000 0 0 0 0 0
+     reference_frame TESTTZ IERS_ETSR 2008 0 0 30000 0 0 0 0   0 0 3000 0 0 0 0
+     reference_frame TESTS IERS_ETSR 2008 0 0 0 1000 0 0 0    0 0 0 100 0 0 0
+     reference_frame TESTRX IERS_ETSR 2008 0 0 0 0 1000 0 0    0 0 0 0 100 0 0
+     reference_frame TESTRY IERS_ETSR 2008 0 0 0 0 0 2000 0     0 0 0 0 0 200 0
+     reference_frame TESTRZ IERS_ETSR 2008 0 0 0 0 0 0 3000    0 0 0 0 0 0 300
+     
+     reference_frame TESTALL IERS_ETSR 2008 10000 20000 30000 1000 1000 2000 3000 1000 2000 3000 100 100 200 300
+     
+     reference_frame TESTTN epoch 2008 translation 10 0 0 translation_rate 1 0 0
+     reference_frame TESTSN epoch 2008 scale 1 scale_rate 0.1
+     reference_frame TESTRXN epoch 2008 rotation -1 0 0 rotation_rate -0.1 0 0
+     reference_frame TESTRYN epoch 2008 rotation 0 -2 0 rotation_rate 0 -0.2 0
+     reference_frame TESTRZN epoch 2008 rotation 0 0 -3 rotation_rate 0 0 -0.3
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testrf0.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testrf0.crd
+       3 stations read
+
+Data file 1: testrf0.dat
+    Observations between 2008-01-01 00:00:00 and 2018-01-01 00:00:00
+      78 GPS point coords
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  1
+2        F     -  2
+3        F     -  3
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                               ITERATION SUMMARY
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:             234
+Number of parameters:                 0
+
+Degrees of freedom:                 234
+Sum of squared residuals:          1156.87537
+Standard error of unit weight:        2.22349
+
+The probability of an SSR this high is 0.000% (from Chi squared (234))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 2000 XYZ (version 20171201)
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+
+Note: the deformation model associated with New Zealand Geodetic Datum 2000 XYZ (version 20171201) has not been used
+
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1       0 00 00.000000 N      -         -          1
+         0 00 00.000000 E      -         -
+         3621863.0000          -         -
+
+ 2       0 00 00.000000 N      -         -          2
+        90 00 00.000000 E      -         -
+         3621863.0000          -         -
+
+ 3      90 00 00.000000 N      -         -          3
+         0 00 00.000000 E      -         -
+         3643247.6859          -         -
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: TESTTX
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)              10000.0000          -        
+      Y translation (mm)                  0.0000          -        
+      Z translation (mm)                  0.0000          -        
+      Scale factor (ppb)                  0.0000000       -        
+      X rotation (mas)                    0.0000000       -        
+      Y rotation (mas)                    0.0000000       -        
+      Z rotation (mas)                    0.0000000       -        
+      X translation rate (mm/year)     1000.00000         -        
+      Y translation rate (mm/year)        0.00000         -        
+      Z translation rate (mm/year)        0.00000         -        
+      Scale factor rate (ppb/year)        0.00000000      -        
+      X rotation rate (mas/year)          0.00000000      -        
+      Y rotation rate (mas/year)          0.00000000      -        
+      Z rotation rate (mas/year)          0.00000000      -        
+
+Reference frame: TESTTY
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)                  0.0000          -        
+      Y translation (mm)              20000.0000          -        
+      Z translation (mm)                  0.0000          -        
+      Scale factor (ppb)                  0.0000000       -        
+      X rotation (mas)                    0.0000000       -        
+      Y rotation (mas)                    0.0000000       -        
+      Z rotation (mas)                    0.0000000       -        
+      X translation rate (mm/year)        0.00000         -        
+      Y translation rate (mm/year)     2000.00000         -        
+      Z translation rate (mm/year)        0.00000         -        
+      Scale factor rate (ppb/year)        0.00000000      -        
+      X rotation rate (mas/year)          0.00000000      -        
+      Y rotation rate (mas/year)          0.00000000      -        
+      Z rotation rate (mas/year)          0.00000000      -        
+
+Reference frame: TESTTZ
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)                  0.0000          -        
+      Y translation (mm)                  0.0000          -        
+      Z translation (mm)              30000.0000          -        
+      Scale factor (ppb)                  0.0000000       -        
+      X rotation (mas)                    0.0000000       -        
+      Y rotation (mas)                    0.0000000       -        
+      Z rotation (mas)                    0.0000000       -        
+      X translation rate (mm/year)        0.00000         -        
+      Y translation rate (mm/year)        0.00000         -        
+      Z translation rate (mm/year)     3000.00000         -        
+      Scale factor rate (ppb/year)        0.00000000      -        
+      X rotation rate (mas/year)          0.00000000      -        
+      Y rotation rate (mas/year)          0.00000000      -        
+      Z rotation rate (mas/year)          0.00000000      -        
+
+Reference frame: TESTS
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)                  0.0000          -        
+      Y translation (mm)                  0.0000          -        
+      Z translation (mm)                  0.0000          -        
+      Scale factor (ppb)               1000.0000000       -        
+      X rotation (mas)                    0.0000000       -        
+      Y rotation (mas)                    0.0000000       -        
+      Z rotation (mas)                    0.0000000       -        
+      X translation rate (mm/year)        0.00000         -        
+      Y translation rate (mm/year)        0.00000         -        
+      Z translation rate (mm/year)        0.00000         -        
+      Scale factor rate (ppb/year)      100.00000000      -        
+      X rotation rate (mas/year)          0.00000000      -        
+      Y rotation rate (mas/year)          0.00000000      -        
+      Z rotation rate (mas/year)          0.00000000      -        
+
+Reference frame: TESTRX
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)                  0.0000          -        
+      Y translation (mm)                  0.0000          -        
+      Z translation (mm)                  0.0000          -        
+      Scale factor (ppb)                  0.0000000       -        
+      X rotation (mas)                 1000.0000000       -        
+      Y rotation (mas)                    0.0000000       -        
+      Z rotation (mas)                    0.0000000       -        
+      X translation rate (mm/year)        0.00000         -        
+      Y translation rate (mm/year)        0.00000         -        
+      Z translation rate (mm/year)        0.00000         -        
+      Scale factor rate (ppb/year)        0.00000000      -        
+      X rotation rate (mas/year)        100.00000000      -        
+      Y rotation rate (mas/year)          0.00000000      -        
+      Z rotation rate (mas/year)          0.00000000      -        
+
+Reference frame: TESTRY
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)                  0.0000          -        
+      Y translation (mm)                  0.0000          -        
+      Z translation (mm)                  0.0000          -        
+      Scale factor (ppb)                  0.0000000       -        
+      X rotation (mas)                    0.0000000       -        
+      Y rotation (mas)                 2000.0000000       -        
+      Z rotation (mas)                    0.0000000       -        
+      X translation rate (mm/year)        0.00000         -        
+      Y translation rate (mm/year)        0.00000         -        
+      Z translation rate (mm/year)        0.00000         -        
+      Scale factor rate (ppb/year)        0.00000000      -        
+      X rotation rate (mas/year)          0.00000000      -        
+      Y rotation rate (mas/year)        200.00000000      -        
+      Z rotation rate (mas/year)          0.00000000      -        
+
+Reference frame: TESTRZ
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)                  0.0000          -        
+      Y translation (mm)                  0.0000          -        
+      Z translation (mm)                  0.0000          -        
+      Scale factor (ppb)                  0.0000000       -        
+      X rotation (mas)                    0.0000000       -        
+      Y rotation (mas)                    0.0000000       -        
+      Z rotation (mas)                 3000.0000000       -        
+      X translation rate (mm/year)        0.00000         -        
+      Y translation rate (mm/year)        0.00000         -        
+      Z translation rate (mm/year)        0.00000         -        
+      Scale factor rate (ppb/year)        0.00000000      -        
+      X rotation rate (mas/year)          0.00000000      -        
+      Y rotation rate (mas/year)          0.00000000      -        
+      Z rotation rate (mas/year)        300.00000000      -        
+
+Reference frame: TESTALL
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   IERS definition
+
+      Parameter                             Value            Error    
+      X translation (mm)              10000.0000          -        
+      Y translation (mm)              20000.0000          -        
+      Z translation (mm)              30000.0000          -        
+      Scale factor (ppb)               1000.0000000       -        
+      X rotation (mas)                 1000.0000000       -        
+      Y rotation (mas)                 2000.0000000       -        
+      Z rotation (mas)                 3000.0000000       -        
+      X translation rate (mm/year)     1000.00000         -        
+      Y translation rate (mm/year)     2000.00000         -        
+      Z translation rate (mm/year)     3000.00000         -        
+      Scale factor rate (ppb/year)      100.00000000      -        
+      X rotation rate (mas/year)        100.00000000      -        
+      Y rotation rate (mas/year)        200.00000000      -        
+      Z rotation rate (mas/year)        300.00000000      -        
+
+Reference frame: TESTTN
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                  10.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         1.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.00000000      -        
+      X rotation rate (arc sec/year)      0.00000000      -        
+      Y rotation rate (arc sec/year)      0.00000000      -        
+      Z rotation rate (arc sec/year)      0.00000000      -        
+
+Reference frame: TESTSN
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  1.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         0.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.10000000      -        
+      X rotation rate (arc sec/year)      0.00000000      -        
+      Y rotation rate (arc sec/year)      0.00000000      -        
+      Z rotation rate (arc sec/year)      0.00000000      -        
+
+Reference frame: TESTRXN
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               -1.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         0.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.00000000      -        
+      X rotation rate (arc sec/year)     -0.10000000      -        
+      Y rotation rate (arc sec/year)      0.00000000      -        
+      Z rotation rate (arc sec/year)      0.00000000      -        
+
+Reference frame: TESTRYN
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)               -2.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+      X translation rate (m/year)         0.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.00000000      -        
+      X rotation rate (arc sec/year)      0.00000000      -        
+      Y rotation rate (arc sec/year)     -0.20000000      -        
+      Z rotation rate (arc sec/year)      0.00000000      -        
+
+Reference frame: TESTRZN
+
+   Defined as a geocentric reference frame
+   Reference epoch of frame 01-01-2008
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)               -3.0000000       -        
+      X translation rate (m/year)         0.00000         -        
+      Y translation rate (m/year)         0.00000         -        
+      Z translation rate (m/year)         0.00000         -        
+      Scale factor rate (ppm/year)        0.00000000      -        
+      X rotation rate (arc sec/year)      0.00000000      -        
+      Y rotation rate (arc sec/year)      0.00000000      -        
+      Z rotation rate (arc sec/year)     -0.30000000      -        
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code    Date   
+               X,Y,Z                  X,Y,Z               E,N,U                                              
+
+File testrf0.dat: line 12
+
+1     GX    10000000.0000 30.0000  10000010.0000  0.0000  0.0000 30.0000   0.00     TESTTX          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTX                   
+                   0.0000 30.0000         0.0000  0.0000 -10.0000 30.0000   0.33     TESTTX                   
+            10000000.0000          10000010.0000         10.0000           0.19     TESTTX                   
+
+2     GX           0.0000 30.0000        10.0000  0.0000 10.0000 30.0000   0.33     TESTTX          1/01/2008
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTTX                   
+                   0.0000 30.0000         0.0000  0.0000 -0.0000 30.0000   0.00     TESTTX                   
+            10000000.0000          10000000.0000         10.0000           0.19     TESTTX                   
+
+3     GX           0.0000 30.0000        10.0000  0.0000  0.0000 30.0000   0.00     TESTTX          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 10.0000 30.0000   0.33     TESTTX                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTTX                   
+            10000000.0000          10000000.0000         10.0000           0.19     TESTTX                   
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000 -20.0000 30.0000   0.67     TESTTY          1/01/2008
+                   0.0000 30.0000        20.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+            10000000.0000          10000000.0000         20.0000           0.38     TESTTY                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTY          1/01/2008
+            10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTTY                   
+            10000000.0000          10000020.0000         20.0000           0.38     TESTTY                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTTY          1/01/2008
+                   0.0000 30.0000        20.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTTY                   
+            10000000.0000          10000000.0000         20.0000           0.38     TESTTY                   
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTTZ          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 -30.0000 30.0000   1.00     TESTTZ                   
+                   0.0000 30.0000        30.0000  0.0000  0.0000 30.0000   0.00     TESTTZ                   
+            10000000.0000          10000000.0000         30.0000           0.58     TESTTZ                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTZ          1/01/2008
+            10000000.0000 30.0000  10000000.0000  0.0000 -30.0000 30.0000   1.00     TESTTZ                   
+                   0.0000 30.0000        30.0000  0.0000 -0.0000 30.0000   0.00     TESTTZ                   
+            10000000.0000          10000000.0000         30.0000           0.58     TESTTZ                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTZ          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTZ                   
+            10000000.0000 30.0000  10000030.0000  0.0000 -30.0000 30.0000   1.00     TESTTZ                   
+            10000000.0000          10000030.0000         30.0000           0.58     TESTTZ                   
+
+1     GX    10000000.0000 30.0000  10000010.0000  0.0000  0.0000 30.0000   0.00     TESTS           1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS                    
+                   0.0000 30.0000         0.0000  0.0000 -10.0000 30.0000   0.33     TESTS                    
+            10000000.0000          10000010.0000         10.0000           0.19     TESTS                    
+
+File testrf0.dat: line 25
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS           1/01/2008
+            10000000.0000 30.0000  10000010.0000  0.0000  0.0000 30.0000   0.00     TESTS                    
+                   0.0000 30.0000         0.0000  0.0000 -10.0000 30.0000   0.33     TESTS                    
+            10000000.0000          10000010.0000         10.0000           0.19     TESTS                    
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS           1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS                    
+            10000000.0000 30.0000  10000010.0000  0.0000 -10.0000 30.0000   0.33     TESTS                    
+            10000000.0000          10000010.0000         10.0000           0.19     TESTS                    
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRX          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRX                   
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRX                   
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRX                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRX          1/01/2008
+            10000000.0000 30.0000   9999999.9999  0.0000 -48.4814 30.0000   1.62     TESTRX                   
+                   0.0000 30.0000        48.4814  0.0000 -0.0001 30.0000   0.00     TESTRX                   
+            10000000.0000          10000000.0000         48.4814           0.93     TESTRX                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000 48.4814 30.0000   1.62     TESTRX          1/01/2008
+                   0.0000 30.0000       -48.4814  0.0000  0.0000 30.0000   0.00     TESTRX                   
+            10000000.0000 30.0000   9999999.9999  0.0000 -0.0001 30.0000   0.00     TESTRX                   
+            10000000.0000          10000000.0000         48.4814           0.93     TESTRX                   
+
+1     GX    10000000.0000 30.0000   9999999.9995  0.0000  0.0000 30.0000   0.00     TESTRY          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 96.9627 30.0000   3.23  ???TESTRY                   
+                   0.0000 30.0000       -96.9627  0.0000 -0.0005 30.0000   0.00     TESTRY                   
+            10000000.0000          10000000.0000         96.9627           1.87  ?  TESTRY                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRY          1/01/2008
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRY                   
+                   0.0000 30.0000        -0.0000  0.0000 -0.0000 30.0000   0.00     TESTRY                   
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRY                   
+
+3     GX           0.0000 30.0000        96.9627  0.0000  0.0000 30.0000   0.00     TESTRY          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 96.9627 30.0000   3.23  ???TESTRY                   
+            10000000.0000 30.0000   9999999.9995  0.0000 -0.0005 30.0000   0.00     TESTRY                   
+            10000000.0000          10000000.0000         96.9627           1.87  ?  TESTRY                   
+
+1     GX    10000000.0000 30.0000   9999999.9989  0.0000 -145.4441 30.0000   4.85  ???TESTRZ          1/01/2008
+                   0.0000 30.0000       145.4441  0.0000  0.0000 30.0000   0.00     TESTRZ                   
+                   0.0000 30.0000         0.0000  0.0000 -0.0011 30.0000   0.00     TESTRZ                   
+            10000000.0000          10000000.0000         145.4441           2.80  ???TESTRZ                   
+
+2     GX           0.0000 30.0000      -145.4441  0.0000 -145.4441 30.0000   4.85  ???TESTRZ          1/01/2008
+            10000000.0000 30.0000   9999999.9989  0.0000  0.0000 30.0000   0.00     TESTRZ                   
+                   0.0000 30.0000         0.0000  0.0000 -0.0011 30.0000   0.00     TESTRZ                   
+            10000000.0000          10000000.0000         145.4441           2.80  ???TESTRZ                   
+
+File testrf0.dat: line 38
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRZ          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRZ                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTRZ                   
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRZ                   
+
+1     GX    10000000.0000 30.0000  10000019.9985  0.0000 -165.4440 30.0000   5.51  ???TESTALL         1/01/2008
+                   0.0000 30.0000       165.4447  0.0000 66.9626 30.0000   2.23  ?  TESTALL                  
+                   0.0000 30.0000       -66.9621  0.0000 -20.0015 30.0000   0.67     TESTALL                  
+            10000000.0000          10000020.0001         179.5989           3.46  ???TESTALL                  
+
+2     GX           0.0000 30.0000      -135.4442  0.0000 -135.4444 30.0000   4.51  ???TESTALL         1/01/2008
+            10000000.0000 30.0000  10000029.9988  0.0000 -78.4813 30.0000   2.62  ???TESTALL                  
+                   0.0000 30.0000        78.4829  0.0000 -30.0012 30.0000   1.00     TESTALL                  
+            10000000.0000          10000030.0001         159.3881           3.07  ???TESTALL                  
+
+3     GX           0.0000 30.0000       106.9628  0.0000 28.4827 30.0000   0.95     TESTALL         1/01/2008
+                   0.0000 30.0000       -28.4814  0.0000 106.9619 30.0000   3.57  ???TESTALL                  
+            10000000.0000 30.0000  10000039.9994  0.0000 -40.0006 30.0000   1.33     TESTALL                  
+            10000000.0000          10000040.0001         117.6952           2.27  ???TESTALL                  
+
+1     GX    10000000.0000 30.0000  10000010.0000  0.0000  0.0000 30.0000   0.00     TESTTN          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTN                   
+                   0.0000 30.0000         0.0000  0.0000 -10.0000 30.0000   0.33     TESTTN                   
+            10000000.0000          10000010.0000         10.0000           0.19     TESTTN                   
+
+2     GX           0.0000 30.0000        10.0000  0.0000 10.0000 30.0000   0.33     TESTTN          1/01/2008
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTTN                   
+                   0.0000 30.0000         0.0000  0.0000 -0.0000 30.0000   0.00     TESTTN                   
+            10000000.0000          10000000.0000         10.0000           0.19     TESTTN                   
+
+3     GX           0.0000 30.0000        10.0000  0.0000  0.0000 30.0000   0.00     TESTTN          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 10.0000 30.0000   0.33     TESTTN                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTTN                   
+            10000000.0000          10000000.0000         10.0000           0.19     TESTTN                   
+
+1     GX    10000000.0000 30.0000  10000010.0000  0.0000  0.0000 30.0000   0.00     TESTSN          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN                   
+                   0.0000 30.0000         0.0000  0.0000 -10.0000 30.0000   0.33     TESTSN                   
+            10000000.0000          10000010.0000         10.0000           0.19     TESTSN                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN          1/01/2008
+            10000000.0000 30.0000  10000010.0000  0.0000  0.0000 30.0000   0.00     TESTSN                   
+                   0.0000 30.0000         0.0000  0.0000 -10.0000 30.0000   0.33     TESTSN                   
+            10000000.0000          10000010.0000         10.0000           0.19     TESTSN                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN          1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN                   
+            10000000.0000 30.0000  10000010.0000  0.0000 -10.0000 30.0000   0.33     TESTSN                   
+            10000000.0000          10000010.0000         10.0000           0.19     TESTSN                   
+
+File testrf0.dat: line 57
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRXN         1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRXN                  
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRXN                  
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRXN                  
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRXN         1/01/2008
+            10000000.0000 30.0000   9999999.9999  0.0000 -48.4814 30.0000   1.62     TESTRXN                  
+                   0.0000 30.0000        48.4814  0.0000 -0.0001 30.0000   0.00     TESTRXN                  
+            10000000.0000          10000000.0000         48.4814           0.93     TESTRXN                  
+
+3     GX           0.0000 30.0000         0.0000  0.0000 48.4814 30.0000   1.62     TESTRXN         1/01/2008
+                   0.0000 30.0000       -48.4814  0.0000  0.0000 30.0000   0.00     TESTRXN                  
+            10000000.0000 30.0000   9999999.9999  0.0000 -0.0001 30.0000   0.00     TESTRXN                  
+            10000000.0000          10000000.0000         48.4814           0.93     TESTRXN                  
+
+1     GX    10000000.0000 30.0000   9999999.9995  0.0000  0.0000 30.0000   0.00     TESTRYN         1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 96.9627 30.0000   3.23  ???TESTRYN                  
+                   0.0000 30.0000       -96.9627  0.0000 -0.0005 30.0000   0.00     TESTRYN                  
+            10000000.0000          10000000.0000         96.9627           1.87  ?  TESTRYN                  
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRYN         1/01/2008
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRYN                  
+                   0.0000 30.0000        -0.0000  0.0000 -0.0000 30.0000   0.00     TESTRYN                  
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRYN                  
+
+3     GX           0.0000 30.0000        96.9627  0.0000  0.0000 30.0000   0.00     TESTRYN         1/01/2008
+                   0.0000 30.0000         0.0000  0.0000 96.9627 30.0000   3.23  ???TESTRYN                  
+            10000000.0000 30.0000   9999999.9995  0.0000 -0.0005 30.0000   0.00     TESTRYN                  
+            10000000.0000          10000000.0000         96.9627           1.87  ?  TESTRYN                  
+
+1     GX    10000000.0000 30.0000   9999999.9989  0.0000 -145.4441 30.0000   4.85  ???TESTRZN         1/01/2008
+                   0.0000 30.0000       145.4441  0.0000  0.0000 30.0000   0.00     TESTRZN                  
+                   0.0000 30.0000         0.0000  0.0000 -0.0011 30.0000   0.00     TESTRZN                  
+            10000000.0000          10000000.0000         145.4441           2.80  ???TESTRZN                  
+
+2     GX           0.0000 30.0000      -145.4441  0.0000 -145.4441 30.0000   4.85  ???TESTRZN         1/01/2008
+            10000000.0000 30.0000   9999999.9989  0.0000  0.0000 30.0000   0.00     TESTRZN                  
+                   0.0000 30.0000         0.0000  0.0000 -0.0011 30.0000   0.00     TESTRZN                  
+            10000000.0000          10000000.0000         145.4441           2.80  ???TESTRZN                  
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRZN         1/01/2008
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRZN                  
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTRZN                  
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRZN                  
+
+1     GX    10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTTX          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTX                   
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTTX                   
+            10000000.0000          10000020.0000         20.0000           0.38     TESTTX                   
+
+File testrf0.dat: line 74
+
+2     GX           0.0000 30.0000        20.0000  0.0000 20.0000 30.0000   0.67     TESTTX          1/01/2018
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTTX                   
+                   0.0000 30.0000         0.0000  0.0000 -0.0000 30.0000   0.00     TESTTX                   
+            10000000.0000          10000000.0000         20.0000           0.38     TESTTX                   
+
+3     GX           0.0000 30.0000        20.0000  0.0000  0.0000 30.0000   0.00     TESTTX          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 20.0000 30.0000   0.67     TESTTX                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTTX                   
+            10000000.0000          10000000.0000         20.0000           0.38     TESTTX                   
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000 -40.0000 30.0000   1.33     TESTTY          1/01/2018
+                   0.0000 30.0000        40.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+            10000000.0000          10000000.0001         40.0000           0.77     TESTTY                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTY          1/01/2018
+            10000000.0000 30.0000  10000040.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+                   0.0000 30.0000         0.0000  0.0000 -40.0000 30.0000   1.33     TESTTY                   
+            10000000.0000          10000040.0000         40.0000           0.77     TESTTY                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000 -40.0000 30.0000   1.33     TESTTY          1/01/2018
+                   0.0000 30.0000        40.0000  0.0000  0.0000 30.0000   0.00     TESTTY                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTTY                   
+            10000000.0000          10000000.0001         40.0000           0.77     TESTTY                   
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTTZ          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 -60.0000 30.0000   2.00  ?  TESTTZ                   
+                   0.0000 30.0000        60.0000  0.0000  0.0000 30.0000   0.00     TESTTZ                   
+            10000000.0000          10000000.0002         60.0000           1.15     TESTTZ                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTZ          1/01/2018
+            10000000.0000 30.0000  10000000.0000  0.0000 -60.0000 30.0000   2.00  ?  TESTTZ                   
+                   0.0000 30.0000        60.0000  0.0000 -0.0000 30.0000   0.00     TESTTZ                   
+            10000000.0000          10000000.0002         60.0000           1.15     TESTTZ                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTZ          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTZ                   
+            10000000.0000 30.0000  10000060.0000  0.0000 -60.0000 30.0000   2.00  ?  TESTTZ                   
+            10000000.0000          10000060.0000         60.0000           1.15     TESTTZ                   
+
+1     GX    10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTS           1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS                    
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTS                    
+            10000000.0000          10000020.0000         20.0000           0.38     TESTS                    
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS           1/01/2018
+            10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTS                    
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTS                    
+            10000000.0000          10000020.0000         20.0000           0.38     TESTS                    
+
+File testrf0.dat: line 87
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS           1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTS                    
+            10000000.0000 30.0000  10000020.0000  0.0000 -20.0000 30.0000   0.67     TESTS                    
+            10000000.0000          10000020.0000         20.0000           0.38     TESTS                    
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRX          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRX                   
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRX                   
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRX                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRX          1/01/2018
+            10000000.0000 30.0000   9999999.9993  0.0000 -96.9627 30.0000   3.23  ???TESTRX                   
+                   0.0000 30.0000        96.9627  0.0000  0.0002 30.0000   0.00     TESTRX                   
+            10000000.0000           9999999.9998         96.9627           1.87  ?  TESTRX                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000 96.9627 30.0000   3.23  ???TESTRX          1/01/2018
+                   0.0000 30.0000       -96.9627  0.0000  0.0000 30.0000   0.00     TESTRX                   
+            10000000.0000 30.0000   9999999.9993  0.0000  0.0002 30.0000   0.00     TESTRX                   
+            10000000.0000           9999999.9998         96.9627           1.87  ?  TESTRX                   
+
+1     GX    10000000.0000 30.0000   9999999.9972  0.0000  0.0000 30.0000   0.00     TESTRY          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 193.9255 30.0000   6.46  ???TESTRY                   
+                   0.0000 30.0000      -193.9255  0.0000  0.0009 30.0000   0.00     TESTRY                   
+            10000000.0000           9999999.9991         193.9255           3.73  ???TESTRY                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRY          1/01/2018
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRY                   
+                   0.0000 30.0000        -0.0000  0.0000 -0.0000 30.0000   0.00     TESTRY                   
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRY                   
+
+3     GX           0.0000 30.0000       193.9255  0.0000  0.0000 30.0000   0.00     TESTRY          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 193.9255 30.0000   6.46  ???TESTRY                   
+            10000000.0000 30.0000   9999999.9972  0.0000  0.0009 30.0000   0.00     TESTRY                   
+            10000000.0000           9999999.9991         193.9255           3.73  ???TESTRY                   
+
+1     GX    10000000.0000 30.0000   9999999.9937  0.0000 -290.8882 30.0000   9.70  ???TESTRZ          1/01/2018
+                   0.0000 30.0000       290.8882  0.0000  0.0000 30.0000   0.00     TESTRZ                   
+                   0.0000 30.0000         0.0000  0.0000  0.0021 30.0000   0.00     TESTRZ                   
+            10000000.0000           9999999.9979         290.8882           5.60  ???TESTRZ                   
+
+2     GX           0.0000 30.0000      -290.8882  0.0000 -290.8882 30.0000   9.70  ???TESTRZ          1/01/2018
+            10000000.0000 30.0000   9999999.9937  0.0000  0.0000 30.0000   0.00     TESTRZ                   
+                   0.0000 30.0000         0.0000  0.0000  0.0021 30.0000   0.00     TESTRZ                   
+            10000000.0000           9999999.9979         290.8882           5.60  ???TESTRZ                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000 -0.0000 30.0000   0.00     TESTRZ          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRZ                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTRZ                   
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRZ                   
+
+File testrf0.dat: line 102
+
+1     GX    10000000.0000 30.0000  10000039.9909  0.0000 -330.8899 30.0000  11.03  ???TESTALL         1/01/2018
+                   0.0000 30.0000       330.8915  0.0000 133.9235 30.0000   4.46  ???TESTALL                  
+                   0.0000 30.0000      -133.9224  0.0000 -39.9970 30.0000   1.33     TESTALL                  
+            10000000.0000          10000039.9973         359.1983           6.91  ???TESTALL                  
+
+2     GX           0.0000 30.0000      -270.8886  0.0000 -270.8889 30.0000   9.03  ???TESTALL         1/01/2018
+            10000000.0000 30.0000  10000059.9930  0.0000 -156.9671 30.0000   5.23  ???TESTALL                  
+                   0.0000 30.0000       156.9702  0.0000 -59.9977 30.0000   2.00  ?  TESTALL                  
+            10000000.0000          10000059.9979         318.7777           6.13  ???TESTALL                  
+
+3     GX           0.0000 30.0000       213.9268  0.0000 56.9642 30.0000   1.90     TESTALL         1/01/2018
+                   0.0000 30.0000       -56.9615  0.0000 213.9250 30.0000   7.13  ???TESTALL                  
+            10000000.0000 30.0000  10000079.9966  0.0000 -79.9989 30.0000   2.67  ???TESTALL                  
+            10000000.0000          10000079.9991         235.3904           4.53  ???TESTALL                  
+
+1     GX    10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTTN          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTTN                   
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTTN                   
+            10000000.0000          10000020.0000         20.0000           0.38     TESTTN                   
+
+2     GX           0.0000 30.0000        20.0000  0.0000 20.0000 30.0000   0.67     TESTTN          1/01/2018
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTTN                   
+                   0.0000 30.0000         0.0000  0.0000 -0.0000 30.0000   0.00     TESTTN                   
+            10000000.0000          10000000.0000         20.0000           0.38     TESTTN                   
+
+3     GX           0.0000 30.0000        20.0000  0.0000  0.0000 30.0000   0.00     TESTTN          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 20.0000 30.0000   0.67     TESTTN                   
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTTN                   
+            10000000.0000          10000000.0000         20.0000           0.38     TESTTN                   
+
+1     GX    10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTSN          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN                   
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTSN                   
+            10000000.0000          10000020.0000         20.0000           0.38     TESTSN                   
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN          1/01/2018
+            10000000.0000 30.0000  10000020.0000  0.0000  0.0000 30.0000   0.00     TESTSN                   
+                   0.0000 30.0000         0.0000  0.0000 -20.0000 30.0000   0.67     TESTSN                   
+            10000000.0000          10000020.0000         20.0000           0.38     TESTSN                   
+
+3     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN          1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTSN                   
+            10000000.0000 30.0000  10000020.0000  0.0000 -20.0000 30.0000   0.67     TESTSN                   
+            10000000.0000          10000020.0000         20.0000           0.38     TESTSN                   
+
+1     GX    10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRXN         1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRXN                  
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRXN                  
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRXN                  
+
+File testrf0.dat: line 118
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRXN         1/01/2018
+            10000000.0000 30.0000   9999999.9993  0.0000 -96.9627 30.0000   3.23  ???TESTRXN                  
+                   0.0000 30.0000        96.9627  0.0000  0.0002 30.0000   0.00     TESTRXN                  
+            10000000.0000           9999999.9998         96.9627           1.87  ?  TESTRXN                  
+
+3     GX           0.0000 30.0000         0.0000  0.0000 96.9627 30.0000   3.23  ???TESTRXN         1/01/2018
+                   0.0000 30.0000       -96.9627  0.0000  0.0000 30.0000   0.00     TESTRXN                  
+            10000000.0000 30.0000   9999999.9993  0.0000  0.0002 30.0000   0.00     TESTRXN                  
+            10000000.0000           9999999.9998         96.9627           1.87  ?  TESTRXN                  
+
+1     GX    10000000.0000 30.0000   9999999.9972  0.0000  0.0000 30.0000   0.00     TESTRYN         1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 193.9255 30.0000   6.46  ???TESTRYN                  
+                   0.0000 30.0000      -193.9255  0.0000  0.0009 30.0000   0.00     TESTRYN                  
+            10000000.0000           9999999.9991         193.9255           3.73  ???TESTRYN                  
+
+2     GX           0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRYN         1/01/2018
+            10000000.0000 30.0000  10000000.0000  0.0000  0.0000 30.0000   0.00     TESTRYN                  
+                   0.0000 30.0000        -0.0000  0.0000 -0.0000 30.0000   0.00     TESTRYN                  
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRYN                  
+
+3     GX           0.0000 30.0000       193.9255  0.0000  0.0000 30.0000   0.00     TESTRYN         1/01/2018
+                   0.0000 30.0000         0.0000  0.0000 193.9255 30.0000   6.46  ???TESTRYN                  
+            10000000.0000 30.0000   9999999.9972  0.0000  0.0009 30.0000   0.00     TESTRYN                  
+            10000000.0000           9999999.9991         193.9255           3.73  ???TESTRYN                  
+
+1     GX    10000000.0000 30.0000   9999999.9937  0.0000 -290.8882 30.0000   9.70  ???TESTRZN         1/01/2018
+                   0.0000 30.0000       290.8882  0.0000  0.0000 30.0000   0.00     TESTRZN                  
+                   0.0000 30.0000         0.0000  0.0000  0.0021 30.0000   0.00     TESTRZN                  
+            10000000.0000           9999999.9979         290.8882           5.60  ???TESTRZN                  
+
+2     GX           0.0000 30.0000      -290.8882  0.0000 -290.8882 30.0000   9.70  ???TESTRZN         1/01/2018
+            10000000.0000 30.0000   9999999.9937  0.0000  0.0000 30.0000   0.00     TESTRZN                  
+                   0.0000 30.0000         0.0000  0.0000  0.0021 30.0000   0.00     TESTRZN                  
+            10000000.0000           9999999.9979         290.8882           5.60  ???TESTRZN                  
+
+3     GX           0.0000 30.0000         0.0000  0.0000 -0.0000 30.0000   0.00     TESTRZN         1/01/2018
+                   0.0000 30.0000         0.0000  0.0000  0.0000 30.0000   0.00     TESTRZN                  
+            10000000.0000 30.0000  10000000.0000  0.0000 -0.0000 30.0000   0.00     TESTRZN                  
+            10000000.0000          10000000.0000          0.0000           0.00     TESTRZN                  
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by ref_frame_code
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+TESTTX                                      0.30   18     -      -    0.30   18
+
+TESTTY                                      0.61   18     -      -    0.61   18
+
+TESTTZ                                      0.91   18     -      -    0.91   18
+
+TESTS                                       0.30   18     -      -    0.30   18
+
+TESTRX                                      1.20   18     -      -    1.20   18
+
+TESTRY                                      2.41   18     -      -    2.41   18
+
+TESTRZ                                      3.61   18     -      -    3.61   18
+
+TESTALL                                     4.70   18     -      -    4.70   18
+
+TESTTN                                      0.30   18     -      -    0.30   18
+
+TESTSN                                      0.30   18     -      -    0.30   18
+
+TESTRXN                                     1.20   18     -      -    1.20   18
+
+TESTRYN                                     2.41   18     -      -    2.41   18
+
+TESTRZN                                     3.61   18     -      -    3.61   18

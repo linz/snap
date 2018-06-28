@@ -1,0 +1,3 @@
+name: Conversion to XYZ
+parameters: test2.crd NZGD2000_XYZ test2c.crd
+file: test2.crd

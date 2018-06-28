@@ -1,0 +1,2 @@
+parameters: -iWGS84_D,NEH,H -oANT_PS,NEH -N6 test1.in {test}.out
+file: test1.in

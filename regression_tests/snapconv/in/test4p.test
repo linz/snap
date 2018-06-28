@@ -1,0 +1,3 @@
+name: Conversions involving height reference surface
+parameters: -p test4.crd NZGD2000/NZVD09 test4p.crd
+file: test4.crd

@@ -1,0 +1,2 @@
+parameters: -INZGD2000,ENH,D -oNZGD2000,ENO,H -g{configdir}/cstest/nzgtest09 -p5 test.lln {test}.out
+file: test.lln

@@ -1,0 +1,3 @@
+name: Conversion NZGD1949 datum
+parameters: test1.crd NZGD1949 test1d.crd
+file: test1.crd

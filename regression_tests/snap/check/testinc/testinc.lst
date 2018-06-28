@@ -1,0 +1,283 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:11 by ccrook
+
+
+The command file testinc.snp contains:
+     title Regression test - testing file inclusion with directories
+     !file: data/test2.dat
+     !file: data/test3.inc
+     !file: data/test3.dat
+     
+     coordinate_file testgx1.crd
+     data_file data/test1.dat
+     include inc/testinc.inc
+     
+     mode 3d adjustment
+     
+     list command_file
+     list file_summary
+     list solution_summary
+     list no_iteration_summary
+
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testinc.snp
+
+Job: Regression test - testing file inclusion with directories
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testgx1.crd
+       3 stations read
+
+Data file 1: data/test1.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       2 GPS point coords
+
+Data file 2: data/test2.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       2 GPS point coords
+
+Data file 3: data/test3.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       2 GPS point coords
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              18
+Number of parameters:                 6
+
+Degrees of freedom:                  12
+Sum of squared residuals:            68.85000
+Standard error of unit weight:        2.39531
+
+The probability of an SSR this high is 0.000% (from Chi squared (12))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.799155 S     0.0261    0.0115   0  Node one
+       173 19 15.600199 E     0.0047    0.0058  90
+             150.0300         0.0300    0.0173
+
+ 2      41 00 25.200049 S    -0.0015    0.0115 180  Node two
+       173 19 40.800851 E     0.0199    0.0058  90
+             249.9982        -0.0018    0.0173
+
+#3      41 00 28.800000 S      -         -          Node three
+       173 19 58.800000 E      -         -
+              70.0000          -         -
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      
+               X,Y,Z                  X,Y,Z               E,N,U                     
+
+File data/test1.dat: line 8
+
+1     GX    -4787264.5200  0.0260  -4787264.5600  0.0150 -0.0047  0.0082   0.57     
+              560595.5704  0.0104    560595.5704  0.0060 -0.0261  0.0163   1.60     
+            -4163681.8023  0.0248  -4163681.8023  0.0143 -0.0300  0.0245   1.22     
+             6369333.9627           6369333.9928          0.0400           1.21     
+
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0150 -0.0199  0.0082   2.43  ?  
+              560070.2623  0.0104    560070.2423  0.0060  0.0015  0.0163   0.09     
+            -4163244.5856  0.0248  -4163244.5856  0.0143  0.0018  0.0245   0.07     
+             6369436.1867           6369436.1849          0.0200           1.41     
+
+File data/test2.dat: line 8
+
+1     GX    -4787264.5300  0.0260  -4787264.5600  0.0150 -0.0035  0.0082   0.43     
+              560595.5704  0.0104    560595.5704  0.0060 -0.0196  0.0163   1.20     
+            -4163681.8023  0.0248  -4163681.8023  0.0143 -0.0225  0.0245   0.92     
+             6369333.9702           6369333.9928          0.0300           0.91     
+
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0150 -0.0397  0.0082   4.87  ???
+              560070.2823  0.0104    560070.2423  0.0060  0.0030  0.0163   0.19     
+            -4163244.5856  0.0248  -4163244.5856  0.0143  0.0035  0.0245   0.14     
+             6369436.1884           6369436.1849          0.0400           2.81  ???
+
+File data/test3.dat: line 8
+
+1     GX    -4787264.6300  0.0260  -4787264.5600  0.0150  0.0081  0.0082   1.00     
+              560595.5704  0.0104    560595.5704  0.0060  0.0456  0.0163   2.79  ???
+            -4163681.8023  0.0248  -4163681.8023  0.0143  0.0525  0.0245   2.14  ?  
+             6369334.0454           6369333.9928          0.0700           2.11  ???
+
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0150  0.0596  0.0082   7.30  ???
+              560070.1823  0.0104    560070.2423  0.0060 -0.0046  0.0163   0.28     
+            -4163244.5856  0.0248  -4163244.5856  0.0143 -0.0053  0.0245   0.21     
+             6369436.1797           6369436.1849          0.0600           4.22  ???
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS point coord                             2.40   18     -      -    2.40   18
+        East component                      3.75    6     -      -    3.75    6
+        North component                     1.41    6     -      -    1.41    6
+        Up component                        1.08    6     -      -    1.08    6
+
+
+Summary of residuals classified by input file
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+data/test1.dat                              1.31    6     -      -    1.31    6
+
+data/test2.dat                              2.09    6     -      -    2.09    6
+
+data/test3.dat                              3.34    6     -      -    3.34    6
+
+
+
+================================================================================
+Regression test - testing file inclusion with directories   26-JUN-2018 10:27:11
+
+                           MOST SIGNIFICANT RESIDUALS
+
+================================================================================
+
+
+The 6 residuals from this data are classified as follows:
+
+Under 95.00%  significant    Used:   3    Unused:   0
+Under 99.00%  significant    Used:   0    Unused:   0
+Over  99.00%  significant    Used:   3    Unused:   0
+
+Note: Only the overall residual for vector data is counted
+
+
+The following table lists the 6 worst residuals of used data
+
+From   To     Type     S.R.  Sig (%)       Line  File
+
+2              GX     4.219  100.000 ???     13  data/test3.dat
+
+2              GX     2.813   99.997 ???     13  data/test2.dat
+
+1              GX     2.112   99.613 ???      8  data/test3.dat
+
+2              GX     1.406   88.508         13  data/test1.dat
+
+1              GX     1.207   77.590          8  data/test1.dat
+
+1              GX     0.905   51.718          8  data/test2.dat

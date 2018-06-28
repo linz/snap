@@ -1,4 +1,0 @@
-
-
-7 coordinates converted
-3 errors occurred reading or converting coordinates

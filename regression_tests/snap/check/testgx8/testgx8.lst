@@ -1,0 +1,214 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:11 by ccrook
+
+
+The command file testgx8.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testgx8.crd
+     data_file testgx8.dat
+     
+     mode 3d adjustment
+     
+     list command_file
+     list solution_summary
+     list station_coordinates
+     
+     output covariance_matrix_file
+     output covariance_json
+     output solution_json
+     output sinex
+     output no_worst_residuals
+     output no_iteration_summary
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testgx8.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testgx8.crd
+       3 stations read
+
+Data file 1: testgx8.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+       4 GPS point coords
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              12
+Number of parameters:                 6
+
+Degrees of freedom:                   6
+Sum of squared residuals:           207.41757
+Standard error of unit weight:        5.87959
+
+The probability of an SSR this high is 0.000% (from Chi squared (6))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: International Terrestrial Reference Frame 2008 (LINZ transformation)
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 43.863447 S    90.5930    0.0141   0  Node one
+       173 19 15.600000 E     0.0000    0.0071  90
+             361.5979       211.5979    0.0212
+
+ 2      41 00 22.268469 S    90.4394    0.0141 180  Node two
+       173 19 40.800001 E     0.0000    0.0071  90
+             461.7386       211.7386    0.0212
+
+#3      41 00 28.800000 S      -         -          Node three
+       173 19 58.800000 E      -         -
+              70.0000          -         -
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      
+               X,Y,Z                  X,Y,Z               E,N,U                     
+
+File testgx8.dat: line 7
+
+1     GX    -4787264.5200  0.0260  -4787264.5200  0.0184  0.0000  0.0071   0.00     
+              560595.5704  0.0104    560595.5704  0.0073 -0.1509  0.0141  10.67  ???
+            -4163681.8023  0.0248  -4163681.6023  0.0175  0.1312  0.0212   6.19  ???
+             6369333.9627           6369333.8320          0.2000           7.12  ???
+
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0184  0.0000  0.0071   0.00     
+              560070.2623  0.0104    560070.2623  0.0073  0.0000  0.0141   0.00     
+            -4163244.5856  0.0248  -4163244.5856  0.0175  0.0000  0.0212   0.00     
+             6369436.1867           6369436.1867          0.0000           0.00     
+
+1     GX    -4787264.5200  0.0260  -4787264.5200  0.0184  0.0000  0.0071   0.00     
+              560595.5704  0.0104    560595.5704  0.0073  0.1509  0.0141  10.67  ???
+            -4163681.4023  0.0248  -4163681.6023  0.0175 -0.1312  0.0212   6.19  ???
+             6369333.7012           6369333.8320          0.2000           7.12  ???
+
+2     GX    -4787842.2236  0.0260  -4787842.2236  0.0184  0.0000  0.0071   0.00     
+              560070.2623  0.0104    560070.2623  0.0073  0.0000  0.0141   0.00     
+            -4163244.5856  0.0248  -4163244.5856  0.0175  0.0000  0.0212   0.00     
+             6369436.1867           6369436.1867          0.0000           0.00     
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS point coord                             5.04   12     -      -    5.04   12
+        East component                      0.00    4     -      -    0.00    4
+        North component                     7.55    4     -      -    7.55    4
+        Up component                        4.37    4     -      -    4.37    4

@@ -1,0 +1,2 @@
+parameters: -iNZGD1949,NEH,H -oNZGD2000,NE -F -P8 -N6 test1.in  {test}.out
+file: test1.in

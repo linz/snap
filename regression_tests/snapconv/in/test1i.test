@@ -1,0 +1,3 @@
+name: Testing date formats
+parameters: -y 20050102 -d test1.crd ITRF2008 test1i.crd
+file: test1.crd

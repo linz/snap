@@ -4,12 +4,6 @@
 
 # build type either debug or release
 type=release
-# Force recompile of all version dates
-ifeq ($(type),release)
-versiondate=yes
-else
-versiondate=no
-endif
 
 COORDSYSDIR=/usr/share/linz/coordsys
 INSTALLDIR=${DESTDIR}/usr/share/linz/snap
@@ -36,6 +30,8 @@ LDFLAGS = -lm -lboost_regex -lpthread -lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
+TESTFLAGS = 
+UPDATE_VERSION =
 
 else ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -lpthread -s
@@ -43,13 +39,14 @@ LDWXFLAGS = -lm -lboost_regex -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
+TESTFLAGS = -r
+UPDATE_VERSION = update_version
 
 else
 MD=echo
 endif
 
 SRCDIR = ../src
-DISTDIR = $(type)/distrib
 INSTALL = $(type)/install
 OBJ = $(type)/obj
 SNAPLIB = $(OBJ)/snaplib.a
@@ -69,8 +66,6 @@ SNAPPLOTEXE = $(INSTALL)/snapplot
 
 INCPATH = $(SRCDIR)/snaplib $(SRCDIR)/snaplib/util $(SRCDIR)/wxutils $(SRCDIR)/snapspec $(SRCDIR)/snap $(SRCDIR) $(SRCDIR)/snaplib/dbl4 $(SRCDIR)
 
-
-
 CCFLAGS := $(CCPARAM) \
 	   $(foreach INC,$(INCPATH),-I$(INC)) \
            $(foreach MACRO,$(MACROS),-D$(MACRO))
@@ -81,6 +76,13 @@ include ./makefile.inc
 
 all: snap_all
 
+help:
+	@echo "make type=(release|install) (all|snap_cmd|test|install|package)"
+	@echo ""
+	@echo "release builds optimised version for install/packaging"
+	@echo "install/package require all changes to be committed"
+	@echo "package requires changelog to match version (src/VERSION)"
+
 ifeq ($(type), release)
 install: all
 	@if ! git diff --quiet HEAD; then echo "**************************"; echo "ABORTED: Current files not commited"; exit 1; fi
@@ -88,81 +90,93 @@ install: all
 	mkdir -p $(BINDIR)
 	cp -r $(INSTALL)/* $(INSTALLDIR)
 	git rev-parse
-else
-install: 
-	echo "Can only build installation for release version"
-endif
 
-package: 
+package: install
 	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
 	@echo "Building debian package"
 	debuild -uc -us -b
+else
+install: 
+	@echo "Can only build installation for release version"
+
+package: 
+	@echo "Can only build package for release version"
+endif
 
 # All programs including wxWidgets components
-snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE)
+snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE) help_files
 
 # Command line programs only
-snap_cmd: version makefile.inc makedirs $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
+snap_cmd: $(UPDATEVERSION) makefile.inc $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
 	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) $(SITE2GPSEXE) \
 	$(SNAPLIB) support_files
 
-version:
-ifeq ($(versiondate), no)
-	echo "Version date info not updated"
-else
+# Test (command line programs only)
+test: snap_cmd
+	../regression_tests/testall.pl $(TESTFLAGS)
+
+update_version:
 	touch ../src/*/version.c
-endif
 
 ./makefile.inc: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 	@python build_makefile_inc.py > makefile.inc
 
 $(OBJ)/%.o: $(SRCDIR)/%.cpp
+	@mkdir -p `dirname $@` 
 	@echo Compiling $<...
 	$(CC) $(CCFLAGS) -c $< -o $@
 
 $(OBJ)/%.o: $(SRCDIR)/%.c
+	@mkdir -p `dirname $@` 
 	@echo Compiling $<...
 	$(CC) $(CCFLAGS) -c $< -o $@
 
-$(sort $(OBJDIRS)):
-	$(MD) $@
-
-makedirs: $(sort $(OBJDIRS))
-
-$(SNAPEXE): makedirs $(SNAPLIB) $(SNAPOBJS)
+$(SNAPEXE): $(SNAPLIB) $(SNAPOBJS)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPEXE)
 
-$(CONCORDEXE): makedirs $(SNAPLIB) $(CONCORDOBJS)
+$(CONCORDEXE): $(SNAPLIB) $(CONCORDOBJS)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(CONCORDOBJS) $(SNAPLIB) $(LDFLAGS) -o $(CONCORDEXE)
 
-$(SNAPSPECEXE): makedirs $(SNAPSPECOBJS) $(SNAPLIB)
+$(SNAPSPECEXE): $(SNAPSPECOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPSPECOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPSPECEXE)
 
-$(DAT2SITEEXE): makedirs $(DAT2SITEOBJS) $(SNAPLIB)
+$(DAT2SITEEXE): $(DAT2SITEOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(DAT2SITEOBJS) $(SNAPLIB) $(LDFLAGS) -o $(DAT2SITEEXE)
 
-$(SNAPLISTEXE): makedirs $(SNAPLISTOBJS) $(SNAPLIB)
+$(SNAPLISTEXE): $(SNAPLISTOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPLISTOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPLISTEXE)
 
-$(SNAPCONVEXE): makedirs $(SNAPCONVOBJS) $(SNAPLIB)
+$(SNAPCONVEXE): $(SNAPCONVOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPCONVOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPCONVEXE)
 
-$(SNAPGEOIDEXE): makedirs $(SNAPGEOIDOBJS) $(SNAPLIB)
+$(SNAPGEOIDEXE): $(SNAPGEOIDOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPGEOIDOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPGEOIDEXE)
 
-$(SNAPMERGEEXE): makedirs $(SNAPMERGEOBJS) $(SNAPLIB)
+$(SNAPMERGEEXE): $(SNAPMERGEOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPMERGEOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SNAPMERGEEXE)
 
-$(SITE2GPSEXE): makedirs $(SITE2GPSOBJS) $(SNAPLIB)
+$(SITE2GPSEXE): $(SITE2GPSOBJS) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SITE2GPSOBJS) $(SNAPLIB) $(LDFLAGS) -o $(SITE2GPSEXE)
 
-$(SNAP_MANAGEREXE): makedirs $(SNAP_MANAGEROBJS) $(WXUTILSLIB) $(SNAPLIB)
+$(SNAP_MANAGEREXE): $(SNAP_MANAGEROBJS) $(WXUTILSLIB) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAP_MANAGEROBJS) $(WXUTILSLIB) $(SNAPLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAP_MANAGEREXE)
 
-$(SNAPADJUSTEXE): makedirs $(SNAPADJUSTOBJS) $(WXUTILSLIB) $(SNAPLIB)
+$(SNAPADJUSTEXE): $(SNAPADJUSTOBJS) $(WXUTILSLIB) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPADJUSTOBJS) $(WXUTILSLIB) $(SNAPLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPADJUSTEXE)
 
-$(SNAPPLOTEXE): makedirs $(SNAPPLOTOBJS) $(WXUTILSLIB) $(SNAPLIB)
+$(SNAPPLOTEXE): $(SNAPPLOTOBJS) $(WXUTILSLIB) $(SNAPLIB)
+	@mkdir -p `dirname $@` 
 	$(CC) $(CCFLAGS) $(SNAPPLOTOBJS) $(WXUTILSLIB) $(SNAPLIB) $(WXLINK) $(XLINK) $(LDWXFLAGS) -o $(SNAPPLOTEXE)
 
 $(LAPG): 
@@ -171,27 +185,29 @@ $(LAPG):
 $(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_parse.syntax
 	$(LAPG) $(SRCDIR)/snap_manager/scriptimp_parse.syntax $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 
-$(SNAPLIB): makedirs $(SNAPLIBOBJS)
+$(SNAPLIB): $(SNAPLIBOBJS)
 	@echo Building snaplib
 	$(RM) $(SNAPLIB)
 	$(AR) r $(SNAPLIB) $(SNAPLIBOBJS)
 
-$(WXUTILSLIB): makedirs $(WXUTILSOBJS)
+$(WXUTILSLIB): $(WXUTILSOBJS)
 	@echo Building wxutils
 	$(AR) r $(WXUTILSLIB) $(WXUTILSOBJS)
 
-support_files: makedirs helpfile wxhelpdir
-	@echo Copying support files.
-	mkdir -p $(INSTALL)/config
-	rm -rf $(INSTALL)/config/coordsys
-	ln -s -T -f $(COORDSYSDIR) $(INSTALL)/config/coordsys
-	$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
-	$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
-	$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config
-	$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
-	$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
-	$(CP) $(SRCDIR)/VERSION $(INSTALL)/
-	git rev-parse --short HEAD > $(INSTALL)/VERSIONID
+support_files: 
+	@echo Updating support files.
+	@mkdir -p $(INSTALL)/config
+	@rm -rf $(INSTALL)/config/coordsys
+	@ln -s -T -f $(COORDSYSDIR) $(INSTALL)/config/coordsys
+	@$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
+	@$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
+	@$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config
+	@$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
+	@$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
+	@$(CP) $(SRCDIR)/VERSION $(INSTALL)/
+	@git rev-parse --short HEAD > $(INSTALL)/VERSIONID
+
+help_files: helpfile wxhelpdir
 
 helpfile:
 	(cd $(SRCDIR)/help && ./build_snaphelp.sh)
@@ -202,15 +218,6 @@ wxhelpdir:
 	mkdir -p $(INSTALL)/snaphelp
 	$(CP) -r $(SRCDIR)/help/help/* $(INSTALL)/snaphelp/
 	$(CP) -r $(SRCDIR)/help/wxhelp.map $(INSTALL)/snaphelp/
-
-$(sort $(DISTDIR)):
-	$(MD) $@
-
-dist: snap_all $(sort $(DISTDIR))
-	@echo Making distribution.
-	$(CP) $(DISTFILES) $(DISTDIR)
-	@( cd $(DISTDIR); \
-	tar czf ../../snap-bin-$(type).tar.gz *; )
 
 clean:
 	@echo Deleting object tree $(OBJ)...

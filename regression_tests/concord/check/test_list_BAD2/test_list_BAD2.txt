@@ -1,0 +1,5 @@
+Reference frame BAD2 has a cyclic base reference frame dependency
+Line: 11  File: /home/ccrook/projects_git/snap/regression_tests/concord/cstest/coordsys.def
+Cannot load reference frame BAD2
+Line: 11  File: /home/ccrook/projects_git/snap/regression_tests/concord/cstest/coordsys.def
+This is bad coordinate system 2

@@ -1,0 +1,2 @@
+parameters: -iNZGD2000D@2000,NE,D -oNZTM_D@2010,EN -P4 -N6 test15.in {test}.out
+file: test15.in

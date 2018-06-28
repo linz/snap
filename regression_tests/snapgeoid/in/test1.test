@@ -1,0 +1,2 @@
+parameters:  -g nzgeoid09 test.crd {test}_out.crd
+file: test.crd

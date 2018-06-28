@@ -1,0 +1,2 @@
+parameters: -INZGD2000,NE,D -oNZGD2000,NE,H -N8 -S, -P8 testsep.in {test}.out
+file: testsep.in

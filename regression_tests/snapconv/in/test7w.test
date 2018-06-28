@@ -1,0 +1,3 @@
+name: Testing with alternative reference frames
+parameters: -y 20140913 test7.crd NZGD2000_20140201 test7w.crd
+file: test7.crd

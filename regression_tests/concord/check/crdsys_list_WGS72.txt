@@ -1,9 +1,0 @@
-Coordinate system: World Geodetic System 1972
-Reference frame: World Geodetic System 1972 (WGS72)
-  Relative to WGS84_D
-    Translation         (m)     0.00000    0.00000    4.50000
-    Rotation          (sec)     0.00000    0.00000   -0.55400
-    Scale             (ppm)     0.21900
-Ellipsoid: World Geodetic System 1972 Ellipsoid(WGS72)
-  a = 6378135.000  1/f = 298.260000
-

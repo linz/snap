@@ -1,0 +1,9 @@
+Test data set testdef1
+NZGD1949
+options ellipsoidal_heights no_deflections no_geoid_heights
+! Updated by SNAP version 2.7.10-a339290 at 26-JUN-2018 10:27:11
+
+!Code       Latitude          Longitude        Ell.Hgt Name
+N1     40 00 00.000000 S 177 00 00.000000 E     0.0000 Node N1
+N2     39 00 00.000000 S 179 24 00.000000 E     0.0000 Node N2
+N3     39 30 00.000000 S 175 30 00.000000 E     0.0000 Node N3

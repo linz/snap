@@ -1,0 +1,11 @@
+snapgeoid version 2.7.10-a339290
+
+Calculates geoid undulations on a SNAP coordinate file
+
+
+Geoid model definition
+   EGM96 gravity model evaluated on 0.25x0.25 degree grid
+   Reference: http://www.nima.mil/GandG/wgs-84/egm96.html
+   Evaluated on WGS84 ellipsoid
+
+The updated station file is test3_out.crd

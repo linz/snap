@@ -1,0 +1,4449 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:11 by ccrook
+
+
+The command file testgx3.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testgx3.crd
+     data_file testgx3.dat
+     
+     mode 3d adjustment
+     
+     list command_file
+     list file_summary
+     list problem_definition
+     list observation_equations
+     list solution_summary
+     list station_coordinates
+     list floated_stations
+     list reference_frames
+     list geocentric_ref_frame topocentric_ref_frame
+     list parameters
+     list residuals
+     list error_summary
+     list no_worst_residuals
+     
+     add_residual_column c=ref_frame_code
+     
+     reference_frame GPS_T translation 0 ? 0 ? 0 ?
+     reference_frame GPS_S scale 0 ?
+     reference_frame GPS_TS translation 0 ? 0 ? 0 ? scale 0 ?
+     reference_frame GPS_R rotation 0 ? 0 ? 0 ?
+     reference_frame GPS_TRS calculate scale rotation translation
+     
+     reference_frame TGPS_T topocentric translation 0 ? 0 ? 0 ?
+     reference_frame TGPS_S topocentric scale 0 ?
+     reference_frame TGPS_TS topocentric translation 0 ? 0 ? 0 ? scale 0 ?
+     reference_frame TGPS_R topocentric rotation 0 ? 0 ? 0 ?
+     reference_frame TGPS_TRS topocentric calculate scale rotation translation
+     
+     
+     fix all
+     
+     ! To force a second iteration
+     !ignore 4
+     free 4
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testgx3.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testgx3.crd
+       4 stations read
+
+Data file 1: testgx3.dat
+    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+      20 GPS baselines
+      31 GPS point coords
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  1
+2        F     -  2
+3        F     -  3
+4        3     1  4
+
+
+The following parameters are also being calculated
+
+GPS_R rotn X (sec)
+GPS_R rotn Y (sec)
+GPS_R rotn Z (sec)
+GPS_S scale (ppm)
+GPS_T X shift (m)
+GPS_T Y shift (m)
+GPS_T Z shift (m)
+GPS_TRS rotn X (sec)
+GPS_TRS rotn Y (sec)
+GPS_TRS rotn Z (sec)
+GPS_TRS scale (ppm)
+GPS_TRS X shift (m)
+GPS_TRS Y shift (m)
+GPS_TRS Z shift (m)
+GPS_TS scale (ppm)
+GPS_TS X shift (m)
+GPS_TS Y shift (m)
+GPS_TS Z shift (m)
+TGPS_R rotn E (sec)
+TGPS_R rotn N (sec)
+TGPS_R rotn U (sec)
+TGPS_S scale (ppm)
+TGPS_T E shift (m)
+TGPS_T N shift (m)
+TGPS_T U shift (m)
+TGPS_TRS E shift (m)
+TGPS_TRS N shift (m)
+TGPS_TRS rotn E (sec)
+TGPS_TRS rotn N (sec)
+TGPS_TRS rotn U (sec)
+TGPS_TRS scale (ppm)
+TGPS_TRS U shift (m)
+TGPS_TS E shift (m)
+TGPS_TS N shift (m)
+TGPS_TS scale (ppm)
+TGPS_TS U shift (m)
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                               ITERATION NUMBER 1
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             OBSERVATION EQUATIONS
+
+================================================================================
+
+BEGIN_JSON obs_equation_1
+{
+  "nparam":39,
+  "parameters": [
+    "4: north coordinate",
+    "4: east coordinate",
+    "4: height coordinate",
+    "GPS_R rotn X (sec)",
+    "GPS_R rotn Y (sec)",
+    "GPS_R rotn Z (sec)",
+    "GPS_S scale (ppm)",
+    "GPS_T X shift (m)",
+    "GPS_T Y shift (m)",
+    "GPS_T Z shift (m)",
+    "GPS_TRS rotn X (sec)",
+    "GPS_TRS rotn Y (sec)",
+    "GPS_TRS rotn Z (sec)",
+    "GPS_TRS scale (ppm)",
+    "GPS_TRS X shift (m)",
+    "GPS_TRS Y shift (m)",
+    "GPS_TRS Z shift (m)",
+    "GPS_TS scale (ppm)",
+    "GPS_TS X shift (m)",
+    "GPS_TS Y shift (m)",
+    "GPS_TS Z shift (m)",
+    "TGPS_R rotn E (sec)",
+    "TGPS_R rotn N (sec)",
+    "TGPS_R rotn U (sec)",
+    "TGPS_S scale (ppm)",
+    "TGPS_T E shift (m)",
+    "TGPS_T N shift (m)",
+    "TGPS_T U shift (m)",
+    "TGPS_TRS E shift (m)",
+    "TGPS_TRS N shift (m)",
+    "TGPS_TRS rotn E (sec)",
+    "TGPS_TRS rotn N (sec)",
+    "TGPS_TRS rotn U (sec)",
+    "TGPS_TRS scale (ppm)",
+    "TGPS_TRS U shift (m)",
+    "TGPS_TS E shift (m)",
+    "TGPS_TS N shift (m)",
+    "TGPS_TS scale (ppm)",
+    "TGPS_TS U shift (m)"
+  ],
+  "obs_equations": [
+{
+  "source": {"file": "testgx3.dat","lineno": 14, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.20000603e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -3.00010375e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  1.57999980e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 15, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.19999260e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -3.00041752e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  1.58000101e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 16, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.20002530e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -2.99962732e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  1.57999949e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.34360744e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13770506e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  1.20330369e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.92646403e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  4.76436689e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13194840e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 29, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.19681940e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.78726452e+00]
+   },
+   {
+    "value":  1.40148962e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 5.60595570e-01]
+   },
+   {
+    "value": -1.04092020e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.16368180e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 30, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.31435074e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-5.25741473e+00]
+   },
+   {
+    "value":  1.53745825e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 6.14999724e-01]
+   },
+   {
+    "value": -8.86818992e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-3.54728436e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 31, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.15443747e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.61776969e+00]
+   },
+   {
+    "value":  3.45623727e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 1.38249877e+00]
+   },
+   {
+    "value": -1.04080051e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.16321029e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value":  1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  4.23819265e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value":  2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.19686805e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 44, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.07681940e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 5.05021178e-02,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  1.10148962e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-4.28131082e-01,  0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  5.39079804e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-1.39669839e-01,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 45, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.19435074e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-4.19648094e-01,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  1.23745825e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-3.73726928e-01,  0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  6.93181008e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 4.76727601e-01,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 46, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.03443747e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 2.19996945e-01,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  3.15623727e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 3.93772114e-01,  0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  5.39199491e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-1.39198322e-01,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value":  1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  4.23819265e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value":  2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.19686805e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 60, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  7.59685060e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00,  2.01860990e+01,  2.71784402e+00]
+   },
+   {
+    "value":  9.03005490e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.01860990e+01,  0.00000000e+00,  2.32093133e+01]
+   },
+   {
+    "value":  3.43330980e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.71784402e+00, -2.32093133e+01,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 61, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.08078293e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00,  1.71977199e+01,  2.98160280e+00]
+   },
+   {
+    "value":  1.14081306e+03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-1.71977199e+01,  0.00000000e+00,  2.54886659e+01]
+   },
+   {
+    "value":  3.77878101e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.98160280e+00, -2.54886659e+01,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 62, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.34977025e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00,  2.01838130e+01,  6.70254316e+00]
+   },
+   {
+    "value":  8.49611637e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.01838130e+01,  0.00000000e+00,  2.23875792e+01]
+   },
+   {
+    "value": -8.93155051e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-6.70254316e+00, -2.23875792e+01,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.21097866e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00, -2.98837912e+00,  2.63758782e-01]
+   },
+   {
+    "value":  2.37807569e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 2.98837912e+00,  0.00000000e+00,  2.27935255e+00]
+   },
+   {
+    "value":  3.45471203e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.63758782e-01, -2.27935255e+00,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.59008519e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00, -2.28597652e-03,  3.98469914e+00]
+   },
+   {
+    "value": -5.33938524e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 2.28597652e-03,  0.00000000e+00, -8.21734109e-01]
+   },
+   {
+    "value": -1.23648603e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-3.98469914e+00,  8.21734109e-01,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 75, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.52005060e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 5.05021178e-02,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  6.77138487e-01, -2.07563806e+00]
+   },
+   {
+    "value":  9.04109190e+02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-4.28131082e-01,  0.00000000e+00,  1.00000000e+00,  0.00000000e+00, -6.77138487e-01,  0.00000000e+00, -2.44841176e-01]
+   },
+   {
+    "value":  3.97239980e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-1.39669839e-01,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00,  2.07563806e+00,  2.44841176e-01,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 76, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  9.61349926e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-4.19648094e-01,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00, -2.31124063e+00, -1.81187928e+00]
+   },
+   {
+    "value":  1.14205346e+03,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-3.73726928e-01,  0.00000000e+00,  1.00000000e+00,  0.00000000e+00,  2.31124063e+00,  0.00000000e+00,  2.03451137e+00]
+   },
+   {
+    "value":  4.47197101e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 4.76727601e-01,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00,  1.81187928e+00, -2.03451137e+00,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 77, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.24633425e+02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 2.19996945e-01,  1.00000000e+00,  0.00000000e+00,  0.00000000e+00,  0.00000000e+00,  6.74852511e-01,  1.90906108e+00]
+   },
+   {
+    "value":  8.52770037e+02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 3.93772114e-01,  0.00000000e+00,  1.00000000e+00,  0.00000000e+00, -6.74852511e-01,  0.00000000e+00, -1.06657529e+00]
+   },
+   {
+    "value": -8.39238051e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-1.39198322e-01,  0.00000000e+00,  0.00000000e+00,  1.00000000e+00, -1.90906108e+00,  1.06657529e+00,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.09344866e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [-4.70150212e-01,  0.00000000e+00, -2.98837912e+00,  2.63758782e-01]
+   },
+   {
+    "value":  2.37944269e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 5.44041540e-02,  2.98837912e+00,  0.00000000e+00,  2.27935255e+00]
+   },
+   {
+    "value":  4.99571203e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 6.16397440e-01, -2.63758782e-01, -2.27935255e+00,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.59432919e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 1.69494827e-01,  0.00000000e+00, -2.28597652e-03,  3.98469914e+00]
+   },
+   {
+    "value": -5.13391524e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 8.21903196e-01,  2.28597652e-03,  0.00000000e+00, -8.21734109e-01]
+   },
+   {
+    "value": -1.23647803e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 4.71516503e-04, -3.98469914e+00,  8.21734109e-01,  0.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 91, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.20000603e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value": -3.00010375e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  1.57999980e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 92, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.19999260e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value": -3.00041752e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  1.58000101e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 93, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.20002530e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value": -2.99962732e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  1.57999949e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.34360744e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13770652e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  1.20330369e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.92646694e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  4.76437854e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13195983e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 106, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.19681940e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.78726452e+00]
+   },
+   {
+    "value":  1.40148962e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 5.60595570e-01]
+   },
+   {
+    "value": -1.04092020e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.16368180e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 107, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.31435074e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-5.25741473e+00]
+   },
+   {
+    "value":  1.53745825e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 6.14999724e-01]
+   },
+   {
+    "value": -8.86818992e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-3.54728436e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 108, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.15443747e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.61776969e+00]
+   },
+   {
+    "value":  3.45623727e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 1.38249877e+00]
+   },
+   {
+    "value": -1.04080051e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.16321029e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value":  1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  4.23819265e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value":  2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.19686804e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 121, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.07681940e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 5.05021178e-02, -2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value":  1.10148962e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-4.28131082e-01, -9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  5.39079804e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-1.39669839e-01, -1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 122, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.19435074e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-4.19648094e-01, -2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value":  1.23745825e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-3.73726928e-01, -9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  6.93181008e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 4.76727601e-01, -1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 123, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.03443747e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 2.19996945e-01, -2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value":  3.15623727e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 3.93772114e-01, -9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  5.39199491e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-1.39198322e-01, -1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.17531344e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value":  1.35968623e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  1.54101203e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  4.23819265e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value":  2.05474764e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.19686804e-03,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 137, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  7.59685060e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-1.97772777e+01,  4.66496622e+00,  1.40094446e+00]
+   },
+   {
+    "value":  9.03005490e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 4.04201423e+00,  3.04875403e+01,  5.68178132e-01]
+   },
+   {
+    "value":  3.43330980e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.32834784e+01, -1.25880109e+00, -1.53426075e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 138, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.08078293e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-1.68494211e+01,  4.48932469e+00,  7.71036468e-01]
+   },
+   {
+    "value":  1.14081306e+03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 3.44362863e+00,  3.03925739e+01, -3.14110399e+00]
+   },
+   {
+    "value":  3.77878101e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.55694825e+01, -1.38438781e+00, -1.68732923e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 139, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.34977025e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-1.97750381e+01,  7.74521896e+00, -1.12687485e+00]
+   },
+   {
+    "value":  8.49611637e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 4.04155649e+00,  2.98508428e+01,  1.08766657e+00]
+   },
+   {
+    "value": -8.93155051e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.32762728e+01,  1.32184434e+00,  1.61109955e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.21097866e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.92785663e+00, -1.75641522e-01, -6.29907988e-01]
+   },
+   {
+    "value":  2.37807569e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-5.98385597e-01, -9.49664382e-02, -3.70928212e+00]
+   },
+   {
+    "value":  3.45471203e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.28600410e+00, -1.25586716e-01, -1.53068479e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.59008519e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.23967951e-03,  3.08025275e+00, -2.52781931e+00]
+   },
+   {
+    "value": -5.33938524e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-4.57738249e-04, -6.36697515e-01,  5.19488437e-01]
+   },
+   {
+    "value": -1.23648603e+02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-7.20560571e-03,  2.58064543e+00,  3.14536030e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 152, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.52005060e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 5.05021178e-02, -2.00237511e-01, -6.21446580e-01, -7.57435864e-01, -6.63424662e-01, -1.51865848e+00,  1.42138454e+00]
+   },
+   {
+    "value":  9.04109190e+02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-4.28131082e-01, -9.79747385e-01,  1.27009185e-01,  1.54802222e-01,  1.35588526e-01,  2.31520393e-01,  6.68189937e-01]
+   },
+   {
+    "value":  3.97239980e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-1.39669839e-01, -1.35967263e-17,  7.73093019e-01, -6.34292665e-01, -6.55503102e-01, -1.25880109e+00, -1.53426075e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 153, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  9.61349926e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-4.19648094e-01, -2.00237511e-01, -6.21446580e-01, -7.57435864e-01,  2.26443196e+00, -1.69430001e+00,  7.91476548e-01]
+   },
+   {
+    "value":  1.14205346e+03,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-3.73726928e-01, -9.79747385e-01,  1.27009185e-01,  1.54802222e-01, -4.62797072e-01,  1.36553954e-01, -3.04109218e+00]
+   },
+   {
+    "value":  4.47197101e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 4.76727601e-01, -1.35967263e-17,  7.73093019e-01, -6.34292665e-01,  1.63050100e+00, -1.38438781e+00, -1.68732923e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 154, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.24633425e+02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 2.19996945e-01, -2.00237511e-01, -6.21446580e-01, -7.57435864e-01, -6.61184983e-01,  1.56159426e+00, -1.10643477e+00]
+   },
+   {
+    "value":  8.52770037e+02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 3.93772114e-01, -9.79747385e-01,  1.27009185e-01,  1.54802222e-01,  1.35130787e-01, -4.05177123e-01,  1.18767837e+00]
+   },
+   {
+    "value": -8.39238051e+01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-1.39198322e-01, -1.35967263e-17,  7.73093019e-01, -6.34292665e-01, -6.62708707e-01,  1.32184434e+00,  1.61109955e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.09344866e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [-4.70150212e-01,  2.92785663e+00, -1.75641522e-01, -6.29907988e-01]
+   },
+   {
+    "value":  2.37944269e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 5.44041540e-02, -5.98385597e-01, -9.49664382e-02, -3.70928212e+00]
+   },
+   {
+    "value":  4.99571203e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 6.16397440e-01,  2.28600410e+00, -1.25586716e-01, -1.53068479e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.59432919e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 1.69494827e-01,  2.23967951e-03,  3.08025275e+00, -2.52781931e+00]
+   },
+   {
+    "value": -5.13391524e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 8.21903196e-01, -4.57738249e-04, -6.36697515e-01,  5.19488437e-01]
+   },
+   {
+    "value": -1.23647803e+02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 4.71516503e-04, -7.20560571e-03,  2.58064543e+00,  3.14536030e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 172, "station": "4", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.93919054e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [-2.86808806e-01, -6.28601023e-01, -7.22911794e-01]
+   },
+   {
+    "value":  5.80615308e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [-9.57987844e-01,  1.88194777e-01,  2.16430167e-01]
+   },
+   {
+    "value":  2.32794019e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [ 0.00000000e+00,  7.54614789e-01, -6.56168058e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.07957721e-03,-2.23928584e-03, 5.12299759e-03],
+    [-2.23928584e-03, 2.27041237e-03,-1.53375727e-03],
+    [ 5.12299759e-03,-1.53375727e-03, 8.25001043e-03]
+  ]
+}
+]}
+
+END_JSON obs_equation_1
+
+Iteration 1: Maximum change is 30.8494 metres at station 4
+             1 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                               ITERATION NUMBER 2
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             OBSERVATION EQUATIONS
+
+================================================================================
+
+BEGIN_JSON obs_equation_2
+{
+  "nparam":39,
+  "parameters": [
+    "4: north coordinate",
+    "4: east coordinate",
+    "4: height coordinate",
+    "GPS_R rotn X (sec)",
+    "GPS_R rotn Y (sec)",
+    "GPS_R rotn Z (sec)",
+    "GPS_S scale (ppm)",
+    "GPS_T X shift (m)",
+    "GPS_T Y shift (m)",
+    "GPS_T Z shift (m)",
+    "GPS_TRS rotn X (sec)",
+    "GPS_TRS rotn Y (sec)",
+    "GPS_TRS rotn Z (sec)",
+    "GPS_TRS scale (ppm)",
+    "GPS_TRS X shift (m)",
+    "GPS_TRS Y shift (m)",
+    "GPS_TRS Z shift (m)",
+    "GPS_TS scale (ppm)",
+    "GPS_TS X shift (m)",
+    "GPS_TS Y shift (m)",
+    "GPS_TS Z shift (m)",
+    "TGPS_R rotn E (sec)",
+    "TGPS_R rotn N (sec)",
+    "TGPS_R rotn U (sec)",
+    "TGPS_S scale (ppm)",
+    "TGPS_T E shift (m)",
+    "TGPS_T N shift (m)",
+    "TGPS_T U shift (m)",
+    "TGPS_TRS E shift (m)",
+    "TGPS_TRS N shift (m)",
+    "TGPS_TRS rotn E (sec)",
+    "TGPS_TRS rotn N (sec)",
+    "TGPS_TRS rotn U (sec)",
+    "TGPS_TRS scale (ppm)",
+    "TGPS_TRS U shift (m)",
+    "TGPS_TS E shift (m)",
+    "TGPS_TS N shift (m)",
+    "TGPS_TS scale (ppm)",
+    "TGPS_TS U shift (m)"
+  ],
+  "obs_equations": [
+{
+  "source": {"file": "testgx3.dat","lineno": 14, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.62702054e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -3.17068771e-06,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -1.20257027e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 15, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.97063962e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -3.45477602e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  6.98491931e-09,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 16, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.99513340e-06,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  4.44729812e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  1.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -1.51577406e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [8, 9, 10],
+    "values": [ 0.00000000e+00,  0.00000000e+00,  1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.34360744e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13770506e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  1.20330369e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.92646403e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  4.76436689e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13194840e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 29, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -4.98052686e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.78727649e+00]
+   },
+   {
+    "value":  2.70560849e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 5.60596972e-01]
+   },
+   {
+    "value": -1.23586506e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.16369221e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 30, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.06059015e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-5.25742788e+00]
+   },
+   {
+    "value": -3.88617627e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 6.15001262e-01]
+   },
+   {
+    "value":  8.28271732e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-3.54729323e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 31, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.29986215e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.61778124e+00]
+   },
+   {
+    "value": -4.69852239e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 1.38250222e+00]
+   },
+   {
+    "value":  5.72018325e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.16322069e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.04109373e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": -4.15673567e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  2.06407858e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  8.28042685e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value": -7.40424730e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.80784818e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 44, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.41082162e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 5.04913497e-02,  1.00000250e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value":  1.22430502e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-4.28129980e-01,  0.00000000e+00,  1.00000250e+00,  0.00000000e+00]
+   },
+   {
+    "value": -2.77459621e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-1.39664448e-01,  0.00000000e+00,  0.00000000e+00,  1.00000250e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 45, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.99518758e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-4.19660038e-01,  1.00000250e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -2.97464430e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-3.73725690e-01,  0.00000000e+00,  1.00000250e+00,  0.00000000e+00]
+   },
+   {
+    "value": -1.18883327e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 4.76734533e-01,  0.00000000e+00,  0.00000000e+00,  1.00000250e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 46, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  5.73815778e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 2.19986600e-01,  1.00000250e+00,  0.00000000e+00,  0.00000000e+00]
+   },
+   {
+    "value": -1.53877772e-06,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [ 3.93775271e-01,  0.00000000e+00,  1.00000250e+00,  0.00000000e+00]
+   },
+   {
+    "value": -9.67131928e-06,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [18, 19, 20, 21],
+    "values": [-1.39192930e-01,  0.00000000e+00,  0.00000000e+00,  1.00000250e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.40592189e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": -4.19895223e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  1.58577459e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  8.14890373e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value": -1.37820607e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.80748229e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [18],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 60, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.92487929e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00,  2.01855375e+01,  2.72515790e+00]
+   },
+   {
+    "value":  2.71161578e-02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.01859337e+01, -3.37586065e-03,  2.32084555e+01]
+   },
+   {
+    "value":  2.25299759e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.72222178e+00, -2.32089439e+01, -3.44172475e-03]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 61, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.64443303e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00,  1.71971032e+01,  2.98963497e+00]
+   },
+   {
+    "value":  1.83455645e-02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-1.71975379e+01, -3.70738161e-03,  2.54877247e+01]
+   },
+   {
+    "value":  2.46768771e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.98713353e+00, -2.54881408e+01, -3.77965525e-03]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 62, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.95606831e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00,  2.01832714e+01,  6.70959789e+00]
+   },
+   {
+    "value":  2.81694608e-02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.01842471e+01, -3.25615253e-03,  2.23854657e+01]
+   },
+   {
+    "value":  2.26176796e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-6.70666206e+00, -2.23859540e+01, -3.41842008e-03]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.80446263e-02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00, -2.98843426e+00,  2.64477068e-01]
+   },
+   {
+    "value": -8.77059343e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 2.98839576e+00, -3.31520964e-04,  2.27926929e+00]
+   },
+   {
+    "value":  2.14690116e-02,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-2.64911748e-01, -2.27919699e+00, -3.37930498e-04]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.11890073e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 0.00000000e+00, -2.26606429e-03,  3.98443999e+00]
+   },
+   {
+    "value":  1.05330301e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [ 1.68650692e-03,  1.19708117e-04, -8.22989784e-01]
+   },
+   {
+    "value":  8.77036403e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [4, 5, 6],
+    "values": [-3.98444027e+00,  8.22989825e-01,  2.33046670e-05]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 75, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.91916091e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 5.05676102e-02,  1.00000239e+00,  3.15133318e-04,  2.42424417e-05,  0.00000000e+00,  6.77247788e-01, -2.07115653e+00]
+   },
+   {
+    "value":  4.01489026e-02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-4.27227013e-01, -3.15136840e-04,  1.00000238e+00,  1.45444915e-04, -6.76946543e-01,  3.56569980e-05, -2.45175101e-01]
+   },
+   {
+    "value":  1.32566052e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-1.39630247e-01, -2.41966058e-05, -1.45452547e-04,  1.00000243e+00,  2.07125501e+00,  2.45158690e-01,  8.58691540e-05]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 76, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.19744598e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-4.19551640e-01,  1.00000239e+00,  3.15133318e-04,  2.42424417e-05,  0.00000000e+00, -2.31119388e+00, -1.80667881e+00]
+   },
+   {
+    "value":  4.12445072e-02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-3.72584915e-01, -3.15136840e-04,  1.00000238e+00,  1.45444915e-04,  2.31145663e+00, -2.95840596e-04,  2.03409976e+00]
+   },
+   {
+    "value":  1.66130735e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 4.76772154e-01, -2.41966058e-05, -1.45452547e-04,  1.00000243e+00,  1.80634264e+00, -2.03404373e+00, -2.52050547e-04]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 77, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.85165988e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 2.20321863e-01,  1.00000239e+00,  3.15133318e-04,  2.42424417e-05,  0.00000000e+00,  6.74981757e-01,  1.91329320e+00]
+   },
+   {
+    "value":  8.78467271e-02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [ 3.94624797e-01, -3.15136840e-04,  1.00000238e+00,  1.45444915e-04, -6.75260028e-01,  1.55356684e-04, -1.06816689e+00]
+   },
+   {
+    "value":  1.32728781e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [14, 15, 16, 17, 11, 12, 13],
+    "values": [-1.39282379e-01, -2.41966058e-05, -1.45452547e-04,  1.00000243e+00, -1.91319500e+00,  1.06815052e+00,  1.08976279e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.78285070e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [-4.70118101e-01,  0.00000000e+00, -2.98844167e+00,  2.64477713e-01]
+   },
+   {
+    "value":  1.09560461e-03,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 5.46419637e-02,  2.98840317e+00, -3.31497594e-04,  2.27927486e+00]
+   },
+   {
+    "value":  3.35646824e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 6.16400896e-01, -2.64912363e-01, -2.27920242e+00, -3.37919701e-04]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.75010341e-03,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 1.69753838e-01,  0.00000000e+00, -2.26603082e-03,  3.98444972e+00]
+   },
+   {
+    "value":  4.76978245e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 8.21849801e-01,  1.68651426e-03,  1.19699686e-04, -8.22991793e-01]
+   },
+   {
+    "value":  1.62728970e-04,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [14, 11, 12, 13],
+    "values": [ 3.47867687e-04, -3.98445001e+00,  8.22991834e-01,  2.31071248e-05]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 91, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.62702054e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value": -3.17068771e-06,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value": -1.20257027e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 92, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.97063962e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value": -3.45477602e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value":  6.98491931e-09,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 93, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.99513340e-06,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-2.00237511e-01, -6.21446580e-01, -7.57435864e-01]
+   },
+   {
+    "value":  4.44729812e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-9.79747385e-01,  1.27009185e-01,  1.54802222e-01]
+   },
+   {
+    "value": -1.51577406e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [26, 27, 28],
+    "values": [-1.35967263e-17,  7.73093019e-01, -6.34292665e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.34360744e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13770652e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  1.20330369e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.92646694e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value":  4.76437854e-05,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   },
+   {
+    "value": -3.13195983e-06,
+    "useobs": true,
+    "ncolumns": 0,
+    "columns": [],
+    "values": []
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 106, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -4.98034060e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.78727649e+00]
+   },
+   {
+    "value":  2.70549208e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 5.60596972e-01]
+   },
+   {
+    "value": -1.23577192e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.16369221e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 107, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.06068328e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-5.25742788e+00]
+   },
+   {
+    "value": -3.88618791e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 6.15001262e-01]
+   },
+   {
+    "value":  8.28364864e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-3.54729323e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 108, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.30004841e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.61778124e+00]
+   },
+   {
+    "value": -4.69875522e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 1.38250222e+00]
+   },
+   {
+    "value":  5.72111458e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.16322069e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.04110537e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": -4.15673785e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  2.06406694e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  8.28042685e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value": -7.40424730e-06,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.80784703e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [25],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 121, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.41082162e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 5.04913497e-02, -2.00238012e-01, -6.21448133e-01, -7.57437757e-01]
+   },
+   {
+    "value":  1.22431666e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-4.28129980e-01, -9.79749835e-01,  1.27009502e-01,  1.54802609e-01]
+   },
+   {
+    "value": -2.77459621e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-1.39664448e-01, -1.35967603e-17,  7.73094951e-01, -6.34294251e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 122, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  3.99518758e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-4.19660038e-01, -2.00238012e-01, -6.21448133e-01, -7.57437757e-01]
+   },
+   {
+    "value": -2.97464430e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-3.73725690e-01, -9.79749835e-01,  1.27009502e-01,  1.54802609e-01]
+   },
+   {
+    "value": -1.18883327e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 4.76734533e-01, -1.35967603e-17,  7.73094951e-01, -6.34294251e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 123, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  5.73815778e-05,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 2.19986600e-01, -2.00238012e-01, -6.21448133e-01, -7.57437757e-01]
+   },
+   {
+    "value": -1.53877772e-06,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [ 3.93775271e-01, -9.79749835e-01,  1.27009502e-01,  1.54802609e-01]
+   },
+   {
+    "value": -9.67131928e-06,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [38, 36, 37, 39],
+    "values": [-1.39192930e-01, -1.35967603e-17,  7.73094951e-01, -6.34294251e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  6.40593353e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [-4.70150212e-01]
+   },
+   {
+    "value": -4.19895441e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 5.44041540e-02]
+   },
+   {
+    "value":  1.58575131e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 6.16397440e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  8.14890082e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 1.69494827e-01]
+   },
+   {
+    "value": -1.37820607e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 8.21903196e-01]
+   },
+   {
+    "value":  1.80748114e-05,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [38],
+    "values": [ 4.71516503e-04]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 137, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -9.04291868e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-1.97771147e+01,  4.66833719e+00,  1.40108625e+00]
+   },
+   {
+    "value": -5.40897355e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 4.04198090e+00,  3.04871552e+01,  5.67513459e-01]
+   },
+   {
+    "value":  6.38625585e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.32839942e+01, -1.25604197e+00, -1.53437727e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 138, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.03534386e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-1.68492416e+01,  4.49358145e+00,  7.70005667e-01]
+   },
+   {
+    "value": -7.76407984e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 3.44359195e+00,  3.03920379e+01, -3.14159219e+00]
+   },
+   {
+    "value":  4.98308800e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.55700766e+01, -1.38089325e+00, -1.68689098e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 139, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.92341039e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-1.97754623e+01,  7.74845225e+00, -1.12649298e+00]
+   },
+   {
+    "value": -4.58286423e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 4.04164320e+00,  2.98498623e+01,  1.08825595e+00]
+   },
+   {
+    "value":  1.59268547e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.32755064e+01,  1.32461913e+00,  1.61096860e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -1.31051173e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.92787304e+00, -1.74755742e-01, -6.31080579e-01]
+   },
+   {
+    "value": -2.35510621e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-5.98388952e-01, -9.51173046e-02, -3.70910565e+00]
+   },
+   {
+    "value": -5.88794705e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 2.28608244e+00, -1.24851281e-01, -1.52513709e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.01911866e-03,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [ 1.65235038e-03,  3.08011506e+00, -2.52757923e+00]
+   },
+   {
+    "value":  8.26109434e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-3.37701874e-04, -6.37292941e-01,  5.20742490e-01]
+   },
+   {
+    "value":  9.54060095e-04,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [22, 23, 24],
+    "values": [-8.48772708e-03,  2.58066110e+00,  3.14534587e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 152, "station": "1", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.86099756e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 5.05676044e-02, -2.00546740e-01, -6.21389265e-01, -7.57404299e-01, -6.63236635e-01, -1.51528673e+00,  1.41868240e+00]
+   },
+   {
+    "value":  3.87712138e-02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-4.27227011e-01, -9.79686618e-01,  1.27317762e-01,  1.54949037e-01,  1.35550097e-01,  2.31159270e-01,  6.68224351e-01]
+   },
+   {
+    "value":  1.38887777e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-1.39630254e-01,  1.47351830e-04,  7.73091492e-01, -6.34298360e-01, -6.54936507e-01, -1.25604516e+00, -1.53078660e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 153, "station": "2", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -3.42103527e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-4.19551617e-01, -2.00546740e-01, -6.21389265e-01, -7.57404299e-01,  2.26464367e+00, -1.69004291e+00,  7.87600277e-01]
+   },
+   {
+    "value":  4.62855434e-02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-3.72584921e-01, -9.79686618e-01,  1.27317762e-01,  1.54949037e-01, -4.62840339e-01,  1.36041735e-01, -3.04089036e+00]
+   },
+   {
+    "value":  1.50394684e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 4.76772170e-01,  1.47351830e-04,  7.73091492e-01, -6.34298360e-01,  1.63115138e+00, -1.38089674e+00, -1.68330069e+00]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 154, "station": "3", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.78244197e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 2.20321856e-01, -2.00546740e-01, -6.21389265e-01, -7.57404299e-01, -6.61584277e-01,  1.56483598e+00, -1.10890285e+00]
+   },
+   {
+    "value":  8.62406732e-02,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [ 3.94624798e-01, -9.79686618e-01,  1.27317762e-01,  1.54949037e-01,  1.35212394e-01, -4.06135254e-01,  1.18896808e+00]
+   },
+   {
+    "value":  1.39127530e-01,
+    "useobs": true,
+    "ncolumns": 7,
+    "columns": [34, 29, 30, 35, 31, 32, 33],
+    "values": [-1.39282385e-01,  1.47351830e-04,  7.73091492e-01, -6.34298360e-01, -6.63424254e-01,  1.32462209e+00,  1.61456707e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -5.60037710e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [-4.70118073e-01,  2.92788030e+00, -1.74756178e-01, -6.31082127e-01]
+   },
+   {
+    "value":  7.51432955e-03,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 5.46419573e-02, -5.98390436e-01, -9.51175352e-02, -3.70911471e+00]
+   },
+   {
+    "value":  1.15069065e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 6.16400918e-01,  2.28608788e+00, -1.24851581e-01, -1.52514091e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.02769489e-02,-1.01552066e-03, 5.18112330e-03],
+    [-1.01552066e-03, 1.71885309e-03,-6.06381091e-04],
+    [ 5.18112330e-03,-6.06381091e-04, 7.60419798e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "type": "GB","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  7.85555877e-03,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 1.69753837e-01,  1.65235757e-03,  3.08012271e+00, -2.52758526e+00]
+   },
+   {
+    "value":  4.74694592e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 8.21849802e-01, -3.37703344e-04, -6.37294525e-01,  5.20743728e-01]
+   },
+   {
+    "value":  2.39752586e-04,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [34, 31, 32, 33],
+    "values": [ 3.47867610e-04, -8.48774667e-03,  2.58066725e+00,  3.14535368e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.39662700e-03,-1.61079952e-03, 5.23984737e-03],
+    [-1.61079952e-03, 1.93279456e-03,-1.08256348e-03],
+    [ 5.23984737e-03,-1.08256348e-03, 8.27057843e-03]
+  ]
+},
+{
+  "source": {"file": "testgx3.dat","lineno": 172, "station": "4", "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -5.45307994e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [-2.86808806e-01, -6.28597519e-01, -7.22914842e-01]
+   },
+   {
+    "value":  1.63242221e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [-9.57987844e-01,  1.88193728e-01,  2.16431079e-01]
+   },
+   {
+    "value": -4.85042110e-05,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [1, 2, 3],
+    "values": [ 0.00000000e+00,  7.54617970e-01, -6.56164400e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.07957721e-03,-2.23928584e-03, 5.12299759e-03],
+    [-2.23928584e-03, 2.27041237e-03,-1.53375727e-03],
+    [ 5.12299759e-03,-1.53375727e-03, 8.25001043e-03]
+  ]
+}
+]}
+
+END_JSON obs_equation_2
+
+Iteration 2: Maximum change is 0.0001 metres at station 4
+             0 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:             153
+Number of parameters:                39
+
+Degrees of freedom:                 114
+Sum of squared residuals:             0.00145
+Standard error of unit weight:        0.00357
+
+The probability of an SSR this low is 0.000% (from Chi squared (114))
+
+You may have over-estimated the errors of the data.
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          1
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      34 00 25.200000 S      -         -          2
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3      41 00 28.800000 S      -         -          3
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 28.800005 S    30.8494    0.0600   0  4
+       163 19 58.799981 E    -0.0005    0.0400  90
+              70.0001         0.0001    0.1200
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Topocentric axes are east, north, up directions at
+    39 22 03.15284S    168 26 56.94579E
+
+Reference frame: GPS_T
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   1.2000          0.0563    
+      Y translation (m)                  -0.3000          0.0248    
+      Z translation (m)                  15.8000          0.0505    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+               -0.3303    1.0000
+                0.5771   -0.2299    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0536          0.0232    
+      N translation (m)                  11.4310          0.0346    
+      U translation (m)                 -10.9772          0.0678    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+                0.0157    1.0000
+                0.0559    0.0066    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: GPS_S
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.01050 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: GPS_TS
+
+   Calculated as a geocentric reference frame
+   Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                 -10.8944          0.0565    
+      Y translation (m)                   2.1718          0.0254    
+      Z translation (m)                   5.7400          0.0510    
+      Scale factor (ppm)                  2.5000042       0.0314225 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+               -0.3408    1.0000
+                0.5817   -0.2498    1.0000
+               -0.0919    0.2094   -0.1285    1.0000
+
+   Translation at origin (1.2000, -0.3000, 15.8000) metres
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0537          0.0236    
+      N translation (m)                  11.4836          0.0346    
+      U translation (m)                   4.9472          0.0684    
+      Scale factor (ppm)                  2.5000042       0.0314225 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+                0.0213    1.0000
+                0.0315    0.0022    1.0000
+               -0.1770   -0.0334    0.1302    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.03142 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: GPS_R
+
+   Calculated as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               29.9999925       0.0051675 
+      Y rotation (arc sec)               -4.9999947       0.0014202 
+      Z rotation (arc sec)               64.9999987       0.0041897 
+
+      Correlation matrix:
+                1.0000
+               -0.5991    1.0000
+                0.9731   -0.6126    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                 -1.1083921       0.0011321 
+      W-E tilt (arc sec)                 30.9726072       0.0007563 
+      Vertical rotation (arc sec)       -64.7261029       0.0066649 
+
+      Correlation matrix:
+                1.0000
+                0.0075    1.0000
+                0.1362    0.1334    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00113 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: GPS_TRS
+
+   Calculated as a geocentric reference frame
+   Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                 203.0827          0.0578    
+      Y translation (m)                 941.4477          0.0257    
+      Z translation (m)                 -20.8375          0.0521    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      X rotation (arc sec)               30.0000544       0.0165271 
+      Y rotation (arc sec)               -4.9999309       0.0243108 
+      Z rotation (arc sec)               64.9999702       0.0187590 
+
+      Correlation matrix:
+                1.0000
+               -0.3562    1.0000
+                0.5922   -0.2537    1.0000
+               -0.0895    0.1991   -0.1340    1.0000
+               -0.1124    0.0052   -0.1651    0.0356    1.0000
+                0.0750   -0.0733    0.0637   -0.0121    0.3586    1.0000
+                0.1782   -0.0897    0.1621   -0.0010   -0.8297   -0.1598    1.0000
+
+   Translation at origin (1.1998, -0.3003, 15.8027) metres
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                -963.0457          0.0237    
+      N translation (m)                 -22.7419          0.0350    
+      U translation (m)                   5.1332          0.0702    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      N-S tilt (arc sec)                 -1.1084670       0.0251952 
+      W-E tilt (arc sec)                 30.9725549       0.0231399 
+      Vertical rotation (arc sec)       -64.7261218       0.0067680 
+
+      Correlation matrix:
+                1.0000
+                0.0071    1.0000
+                0.0271    0.0001    1.0000
+               -0.1680   -0.0437    0.1302    1.0000
+               -0.0455    0.0197    0.0570    0.0068    1.0000
+               -0.0112    0.0287   -0.1972   -0.0181    0.2393    1.0000
+               -0.0830    0.1395    0.0195   -0.0709   -0.1392   -0.0875    1.0000
+
+   Minimum error of horizontal tilt is 0.02519 arc sec
+   Maximum error of horizontal tilt is 0.03151 arc sec
+   Rotation axis of maximum tilt error has azimuth 89 degrees
+
+Reference frame: TGPS_T
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   1.2000          0.0563    
+      Y translation (m)                  -0.3000          0.0248    
+      Z translation (m)                  15.8000          0.0505    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+               -0.3303    1.0000
+                0.5771   -0.2299    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0536          0.0232    
+      N translation (m)                  11.4310          0.0346    
+      U translation (m)                 -10.9772          0.0678    
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+                0.0157    1.0000
+                0.0559    0.0066    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: TGPS_S
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  2.4999964       0.0105047 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.01050 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: TGPS_TS
+
+   Calculated as a topocentric reference frame
+   Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                 -10.8944          0.0565    
+      Y translation (m)                   2.1718          0.0254    
+      Z translation (m)                   5.7400          0.0510    
+      Scale factor (ppm)                  2.5000042       0.0314225 
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+               -0.3408    1.0000
+                0.5817   -0.2498    1.0000
+               -0.0919    0.2094   -0.1285    1.0000
+
+   Translation at origin (1.2000, -0.3000, 15.8000) metres
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0537          0.0236    
+      N translation (m)                  11.4836          0.0346    
+      U translation (m)                   4.9472          0.0684    
+      Scale factor (ppm)                  2.5000042       0.0314225 
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+      Correlation matrix:
+                1.0000
+                0.0213    1.0000
+                0.0315    0.0022    1.0000
+               -0.1770   -0.0334    0.1302    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.03142 arc sec
+   Rotation axis of maximum tilt error has azimuth 90 degrees
+
+Reference frame: TGPS_R
+
+   Calculated as a topocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)               30.0019257       0.0051678 
+      Y rotation (arc sec)               -4.9905417       0.0014192 
+      Z rotation (arc sec)               65.0002801       0.0041898 
+
+      Correlation matrix:
+                1.0000
+               -0.5984    1.0000
+                0.9731   -0.6120    1.0000
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                 -1.1180407       0.0011323 
+      W-E tilt (arc sec)                 30.9728240       0.0007563 
+      Vertical rotation (arc sec)       -64.7262823       0.0066649 
+
+      Correlation matrix:
+                1.0000
+                0.0077    1.0000
+                0.1376    0.1333    1.0000
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00113 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+Reference frame: TGPS_TRS
+
+   Calculated as a topocentric reference frame
+   Reference point for rotation and scale (-4837766.638   988726.652 -4024011.963)
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                 203.0827          0.0578    
+      Y translation (m)                 941.4477          0.0257    
+      Z translation (m)                 -20.8375          0.0521    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      X rotation (arc sec)               30.0019876       0.0165266 
+      Y rotation (arc sec)               -4.9904780       0.0243102 
+      Z rotation (arc sec)               65.0002516       0.0187597 
+
+      Correlation matrix:
+                1.0000
+               -0.3562    1.0000
+                0.5922   -0.2537    1.0000
+               -0.0895    0.1991   -0.1340    1.0000
+               -0.1124    0.0052   -0.1651    0.0356    1.0000
+                0.0750   -0.0733    0.0637   -0.0121    0.3585    1.0000
+                0.1782   -0.0896    0.1621   -0.0010   -0.8297   -0.1599    1.0000
+
+   Translation at origin (1.1998, -0.3003, 15.8027) metres
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                -963.0457          0.0237    
+      N translation (m)                 -22.7419          0.0350    
+      U translation (m)                   5.1332          0.0702    
+      Scale factor (ppm)                  2.5002506       0.0315119 
+      N-S tilt (arc sec)                 -1.1181156       0.0251943 
+      W-E tilt (arc sec)                 30.9727716       0.0231403 
+      Vertical rotation (arc sec)       -64.7263012       0.0067684 
+
+      Correlation matrix:
+                1.0000
+                0.0071    1.0000
+                0.0271    0.0001    1.0000
+               -0.1680   -0.0437    0.1302    1.0000
+               -0.0455    0.0197    0.0570    0.0068    1.0000
+               -0.0112    0.0287   -0.1972   -0.0181    0.2393    1.0000
+               -0.0830    0.1395    0.0195   -0.0709   -0.1395   -0.0876    1.0000
+
+   Minimum error of horizontal tilt is 0.02519 arc sec
+   Maximum error of horizontal tilt is 0.03151 arc sec
+   Rotation axis of maximum tilt error has azimuth 89 degrees
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+   Topocentric definition
+
+      Parameter                             Value            Error    
+      E translation (m)                   0.0000          -        
+      N translation (m)                   0.0000          -        
+      U translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      N-S tilt (arc sec)                  0.0000000       -        
+      W-E tilt (arc sec)                  0.0000000       -        
+      Vertical rotation (arc sec)         0.0000000       -        
+
+   Minimum error of horizontal tilt is 0.00000 arc sec
+   Maximum error of horizontal tilt is 0.00000 arc sec
+   Rotation axis of maximum tilt error has azimuth 0 degrees
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx3.dat: line 14
+
+1     GX    -4787263.3200  0.0982  -4787263.3200  0.0563  0.0000  0.0325   0.00     GPS_T         
+              560595.2704  0.0414    560595.2704  0.0248  0.0000  0.0490   0.00     GPS_T         
+            -4163666.0023  0.0908  -4163666.0023  0.0505  0.0000  0.0990   0.00     GPS_T         
+             6369322.7058           6369322.7058          0.0000           0.00     GPS_T         
+
+2     GX    -5257413.5321  0.1044  -5257413.5321  0.0563  0.0000  0.0325   0.00     GPS_T         
+              614999.4244  0.0416    614999.4244  0.0248  0.0000  0.0487   0.00     GPS_T         
+            -3547268.5627  0.0835  -3547268.5627  0.0505  0.0000  0.0991   0.00     GPS_T         
+             6371949.1206           6371949.1206          0.0000           0.00     GPS_T         
+
+3     GX    -4617768.4931  0.0953  -4617768.4931  0.0563 -0.0000  0.0320   0.00     GPS_T         
+             1382498.4666  0.0476   1382498.4666  0.0248 -0.0000  0.0490   0.00     GPS_T         
+            -4163194.4858  0.0908  -4163194.4858  0.0505  0.0000  0.0992   0.00     GPS_T         
+             6369244.5543           6369244.5543          0.0000           0.00     GPS_T         
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470150.2121  0.1014  -470150.2121  0.0000  0.0000  0.0400   0.00     GPS_T         
+                    54404.1540  0.0415    54404.1540  0.0000  0.0000  0.0600   0.00     GPS_T         
+                   616397.4396  0.0872   616397.4396  0.0000  0.0000  0.1200   0.00     GPS_T         
+                   777140.1659           777140.1659          0.0000           0.00     GPS_T         
+
+1     3     GB     169494.8269  0.0969   169494.8269  0.0000 -0.0001  0.0400   0.00     GPS_T         
+                   821903.1962  0.0440   821903.1962  0.0000 -0.0000  0.0600   0.00     GPS_T         
+                      471.5165  0.0909      471.5165  0.0000 -0.0000  0.1200   0.00     GPS_T         
+                   839198.1784           839198.1783          0.0001           0.00     GPS_T         
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+1     GX    -4787276.4882  0.0982  -4787276.4882  0.0503  0.0000  0.0400   0.00     GPS_S         
+              560596.9719  0.0414    560596.9719  0.0059  0.0000  0.0600   0.00     GPS_S         
+            -4163692.2115  0.0908  -4163692.2115  0.0437  0.0000  0.0996   0.00     GPS_S         
+             6369349.8861           6369349.8860          0.0001           0.00     GPS_S         
+
+2     GX    -5257427.8756  0.1044  -5257427.8756  0.0552  0.0000  0.0400   0.00     GPS_S         
+              615001.2619  0.0416    615001.2619  0.0065 -0.0000  0.0600   0.00     GPS_S         
+            -3547293.2309  0.0835  -3547293.2309  0.0373 -0.0000  0.0996   0.00     GPS_S         
+             6371974.8654           6371974.8654          0.0000           0.00     GPS_S         
+
+3     GX    -4617781.2375  0.0953  -4617781.2375  0.0485 -0.0000  0.0400   0.00     GPS_S         
+             1382502.2228  0.0476   1382502.2228  0.0145 -0.0000  0.0600   0.00     GPS_S         
+            -4163220.6938  0.0908  -4163220.6938  0.0437 -0.0000  0.0996   0.00     GPS_S         
+             6369271.7401           6369271.7401          0.0000           0.00     GPS_S         
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0049  0.0000  0.0400   0.00     GPS_S         
+                    54404.2900  0.0415    54404.2900  0.0006 -0.0000  0.0594   0.00     GPS_S         
+                   616398.9806  0.0872   616398.9806  0.0065 -0.0001  0.1200   0.00     GPS_S         
+                   777142.1087           777142.1087          0.0001           0.00     GPS_S         
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0018 -0.0000  0.0390   0.00     GPS_S         
+                   821905.2509  0.0440   821905.2509  0.0086 -0.0000  0.0600   0.00     GPS_S         
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     GPS_S         
+                   839200.2763           839200.2763          0.0001           0.00     GPS_S         
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx3.dat: line 44
+
+1     GX    -4787275.2882  0.0982  -4787275.2881  0.0564 -0.0000  0.0314   0.00     GPS_TS        
+              560596.6719  0.0414    560596.6719  0.0261  0.0000  0.0485   0.00     GPS_TS        
+            -4163676.4115  0.0908  -4163676.4115  0.0517  0.0000  0.0986   0.00     GPS_TS        
+             6369338.6292           6369338.6291          0.0001           0.00     GPS_TS        
+
+2     GX    -5257426.6756  0.1044  -5257426.6756  0.0592  0.0000  0.0313   0.00     GPS_TS        
+              615000.9619  0.0416    615000.9619  0.0257 -0.0000  0.0457   0.00     GPS_TS        
+            -3547277.4309  0.0835  -3547277.4309  0.0512 -0.0000  0.0987   0.00     GPS_TS        
+             6371965.0505           6371965.0505          0.0000           0.00     GPS_TS        
+
+3     GX    -4617780.0375  0.0953  -4617780.0375  0.0563 -0.0000  0.0269   0.00     GPS_TS        
+             1382501.9228  0.0476   1382501.9228  0.0305 -0.0000  0.0486   0.00     GPS_TS        
+            -4163204.8938  0.0908  -4163204.8938  0.0517 -0.0000  0.0987   0.00     GPS_TS        
+             6369260.4774           6369260.4774          0.0000           0.00     GPS_TS        
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0148  0.0000  0.0400   0.00     GPS_TS        
+                    54404.2900  0.0415    54404.2900  0.0017 -0.0000  0.0548   0.00     GPS_TS        
+                   616398.9806  0.0872   616398.9806  0.0194 -0.0001  0.1200   0.00     GPS_TS        
+                   777142.1087           777142.1087          0.0001           0.00     GPS_TS        
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0053 -0.0000  0.0301   0.00     GPS_TS        
+                   821905.2509  0.0440   821905.2509  0.0258 -0.0000  0.0600   0.00     GPS_TS        
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     GPS_TS        
+                   839200.2763           839200.2763          0.0001           0.00     GPS_TS        
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+1     GX    -4787188.5515  0.0982  -4787188.5514  0.0235  0.0001  0.0316   0.00     GPS_R         
+              561498.5759  0.0414    561498.5760  0.0244  0.0003  0.0482   0.01     GPS_R         
+            -4163647.4692  0.0908  -4163647.4696  0.0270 -0.0002  0.1200   0.00     GPS_R         
+             6369333.9625           6369333.9627          0.0004           0.00     GPS_R         
+
+2     GX    -5257306.6538  0.1044  -5257306.6538  0.0195  0.0002  0.0280   0.01     GPS_R         
+              616140.5375  0.0416    616140.5377  0.0289 -0.0002  0.0482   0.00     GPS_R         
+            -3547246.5749  0.0835  -3547246.5747  0.0296  0.0001  0.1200   0.00     GPS_R         
+             6371958.9356           6371958.9355          0.0003           0.00     GPS_R         
+
+3     GX    -4617434.7161  0.0953  -4617434.7162  0.0250 -0.0003  0.0317   0.01     GPS_R         
+             1383348.3782  0.0476   1383348.3779  0.0252 -0.0000  0.0452   0.00     GPS_R         
+            -4163299.6013  0.0908  -4163299.6012  0.0299  0.0001  0.1200   0.00     GPS_R         
+             6369255.8171           6369255.8170          0.0003           0.01     GPS_R         
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470118.1023  0.1014  -470118.1024  0.0050  0.0001  0.0311   0.00     GPS_R         
+                    54641.9616  0.0415    54641.9617  0.0248 -0.0006  0.0600   0.01     GPS_R         
+                   616400.8943  0.0872   616400.8949  0.0027  0.0003  0.1199   0.00     GPS_R         
+                   777140.1653           777140.1659          0.0006           0.01     GPS_R         
+
+1     3     GB     169753.8354  0.0969   169753.8353  0.0167 -0.0004  0.0400   0.01     GPS_R         
+                   821849.8023  0.0440   821849.8019  0.0034 -0.0004  0.0535   0.01     GPS_R         
+                      347.8679  0.0909      347.8684  0.0213  0.0003  0.1200   0.00     GPS_R         
+                   839198.1787           839198.1783          0.0006           0.01     GPS_R         
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx3.dat: line 75
+
+1     GX    -4787199.3195  0.0982  -4787199.3193  0.0682  0.0001  0.0300   0.00     GPS_TRS       
+              561499.6796  0.0414    561499.6796  0.0282  0.0004  0.0477   0.01     GPS_TRS       
+            -4163642.0783  0.0908  -4163642.0786  0.0599 -0.0000  0.0859   0.00     GPS_TRS       
+             6369338.6290           6369338.6290          0.0004           0.00     GPS_TRS       
+
+2     GX    -5257318.5971  0.1044  -5257318.5973  0.0784  0.0001  0.0268   0.00     GPS_TRS       
+              616141.7779  0.0416    616141.7780  0.0313 -0.0004  0.0445   0.01     GPS_TRS       
+            -3547239.6430  0.0835  -3547239.6427  0.0650 -0.0000  0.0746   0.00     GPS_TRS       
+             6371965.0507           6371965.0507          0.0004           0.01     GPS_TRS       
+
+3     GX    -4617445.0597  0.0953  -4617445.0597  0.0746 -0.0002  0.0261   0.01     GPS_TRS       
+             1383351.5366  0.0476   1383351.5364  0.0343  0.0000  0.0442   0.00     GPS_TRS       
+            -4163294.2096  0.0908  -4163294.2096  0.0679  0.0001  0.0749   0.00     GPS_TRS       
+             6369260.4774           6369260.4773          0.0002           0.00     GPS_TRS       
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470119.2776  0.1014  -470119.2780  0.0749  0.0001  0.0309   0.00     GPS_TRS       
+                    54642.0983  0.0415    54642.0984  0.0278 -0.0007  0.0548   0.01     GPS_TRS       
+                   616402.4353  0.0872   616402.4359  0.0605  0.0000  0.0748   0.00     GPS_TRS       
+                   777142.1082           777142.1089          0.0007           0.01     GPS_TRS       
+
+1     3     GB     169754.2598  0.0969   169754.2596  0.0749 -0.0003  0.0300   0.01     GPS_TRS       
+                   821851.8570  0.0440   821851.8568  0.0302 -0.0004  0.0531   0.01     GPS_TRS       
+                      347.8687  0.0909      347.8691  0.0616  0.0001  0.0746   0.00     GPS_TRS       
+                   839200.2768           839200.2765          0.0005           0.01     GPS_TRS       
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+1     GX    -4787263.3200  0.0982  -4787263.3200  0.0563  0.0000  0.0325   0.00     TGPS_T        
+              560595.2704  0.0414    560595.2704  0.0248  0.0000  0.0490   0.00     TGPS_T        
+            -4163666.0023  0.0908  -4163666.0023  0.0505  0.0000  0.0990   0.00     TGPS_T        
+             6369322.7058           6369322.7058          0.0000           0.00     TGPS_T        
+
+2     GX    -5257413.5321  0.1044  -5257413.5321  0.0563  0.0000  0.0325   0.00     TGPS_T        
+              614999.4244  0.0416    614999.4244  0.0248  0.0000  0.0487   0.00     TGPS_T        
+            -3547268.5627  0.0835  -3547268.5627  0.0505  0.0000  0.0991   0.00     TGPS_T        
+             6371949.1206           6371949.1206          0.0000           0.00     TGPS_T        
+
+3     GX    -4617768.4931  0.0953  -4617768.4931  0.0563 -0.0000  0.0320   0.00     TGPS_T        
+             1382498.4666  0.0476   1382498.4666  0.0248 -0.0000  0.0490   0.00     TGPS_T        
+            -4163194.4858  0.0908  -4163194.4858  0.0505  0.0000  0.0992   0.00     TGPS_T        
+             6369244.5543           6369244.5543          0.0000           0.00     TGPS_T        
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470150.2121  0.1014  -470150.2121  0.0000  0.0000  0.0400   0.00     TGPS_T        
+                    54404.1540  0.0415    54404.1540  0.0000  0.0000  0.0600   0.00     TGPS_T        
+                   616397.4396  0.0872   616397.4396  0.0000  0.0000  0.1200   0.00     TGPS_T        
+                   777140.1659           777140.1659          0.0000           0.00     TGPS_T        
+
+1     3     GB     169494.8269  0.0969   169494.8269  0.0000 -0.0001  0.0400   0.00     TGPS_T        
+                   821903.1962  0.0440   821903.1962  0.0000 -0.0000  0.0600   0.00     TGPS_T        
+                      471.5165  0.0909      471.5165  0.0000 -0.0000  0.1200   0.00     TGPS_T        
+                   839198.1784           839198.1783          0.0001           0.00     TGPS_T        
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx3.dat: line 106
+
+1     GX    -4787276.4882  0.0982  -4787276.4882  0.0503  0.0000  0.0400   0.00     TGPS_S        
+              560596.9719  0.0414    560596.9719  0.0059  0.0000  0.0600   0.00     TGPS_S        
+            -4163692.2115  0.0908  -4163692.2115  0.0437  0.0000  0.0996   0.00     TGPS_S        
+             6369349.8861           6369349.8860          0.0001           0.00     TGPS_S        
+
+2     GX    -5257427.8756  0.1044  -5257427.8756  0.0552  0.0000  0.0400   0.00     TGPS_S        
+              615001.2619  0.0416    615001.2619  0.0065 -0.0000  0.0600   0.00     TGPS_S        
+            -3547293.2309  0.0835  -3547293.2309  0.0373 -0.0000  0.0996   0.00     TGPS_S        
+             6371974.8654           6371974.8654          0.0000           0.00     TGPS_S        
+
+3     GX    -4617781.2375  0.0953  -4617781.2375  0.0485 -0.0000  0.0400   0.00     TGPS_S        
+             1382502.2228  0.0476   1382502.2228  0.0145 -0.0000  0.0600   0.00     TGPS_S        
+            -4163220.6938  0.0908  -4163220.6938  0.0437 -0.0000  0.0996   0.00     TGPS_S        
+             6369271.7401           6369271.7401          0.0000           0.00     TGPS_S        
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0049  0.0000  0.0400   0.00     TGPS_S        
+                    54404.2900  0.0415    54404.2900  0.0006 -0.0000  0.0594   0.00     TGPS_S        
+                   616398.9806  0.0872   616398.9806  0.0065 -0.0001  0.1200   0.00     TGPS_S        
+                   777142.1087           777142.1087          0.0001           0.00     TGPS_S        
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0018 -0.0000  0.0390   0.00     TGPS_S        
+                   821905.2509  0.0440   821905.2509  0.0086 -0.0000  0.0600   0.00     TGPS_S        
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     TGPS_S        
+                   839200.2763           839200.2763          0.0001           0.00     TGPS_S        
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+1     GX    -4787275.2882  0.0982  -4787275.2881  0.0564 -0.0000  0.0314   0.00     TGPS_TS       
+              560596.6719  0.0414    560596.6719  0.0261  0.0000  0.0485   0.00     TGPS_TS       
+            -4163676.4115  0.0908  -4163676.4115  0.0517  0.0000  0.0986   0.00     TGPS_TS       
+             6369338.6292           6369338.6291          0.0001           0.00     TGPS_TS       
+
+2     GX    -5257426.6756  0.1044  -5257426.6756  0.0592  0.0000  0.0313   0.00     TGPS_TS       
+              615000.9619  0.0416    615000.9619  0.0257 -0.0000  0.0457   0.00     TGPS_TS       
+            -3547277.4309  0.0835  -3547277.4309  0.0512 -0.0000  0.0987   0.00     TGPS_TS       
+             6371965.0505           6371965.0505          0.0000           0.00     TGPS_TS       
+
+3     GX    -4617780.0375  0.0953  -4617780.0375  0.0563 -0.0000  0.0269   0.00     TGPS_TS       
+             1382501.9228  0.0476   1382501.9228  0.0305 -0.0000  0.0486   0.00     TGPS_TS       
+            -4163204.8938  0.0908  -4163204.8938  0.0517 -0.0000  0.0987   0.00     TGPS_TS       
+             6369260.4774           6369260.4774          0.0000           0.00     TGPS_TS       
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470151.3874  0.1014  -470151.3875  0.0148  0.0000  0.0400   0.00     TGPS_TS       
+                    54404.2900  0.0415    54404.2900  0.0017 -0.0000  0.0548   0.00     TGPS_TS       
+                   616398.9806  0.0872   616398.9806  0.0194 -0.0001  0.1200   0.00     TGPS_TS       
+                   777142.1087           777142.1087          0.0001           0.00     TGPS_TS       
+
+1     3     GB     169495.2507  0.0969   169495.2506  0.0053 -0.0000  0.0301   0.00     TGPS_TS       
+                   821905.2509  0.0440   821905.2509  0.0258 -0.0000  0.0600   0.00     TGPS_TS       
+                      471.5177  0.0909      471.5177  0.0000 -0.0001  0.1200   0.00     TGPS_TS       
+                   839200.2763           839200.2763          0.0001           0.00     TGPS_TS       
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx3.dat: line 137
+
+1     GX    -4787188.5515  0.0982  -4787188.5514  0.0235  0.0001  0.0316   0.00     TGPS_R        
+              561498.5759  0.0414    561498.5760  0.0244  0.0003  0.0482   0.01     TGPS_R        
+            -4163647.4692  0.0908  -4163647.4696  0.0270 -0.0002  0.1200   0.00     TGPS_R        
+             6369333.9625           6369333.9627          0.0004           0.00     TGPS_R        
+
+2     GX    -5257306.6538  0.1044  -5257306.6538  0.0195  0.0002  0.0280   0.01     TGPS_R        
+              616140.5375  0.0416    616140.5377  0.0289 -0.0002  0.0482   0.00     TGPS_R        
+            -3547246.5749  0.0835  -3547246.5747  0.0296  0.0001  0.1200   0.00     TGPS_R        
+             6371958.9356           6371958.9355          0.0003           0.00     TGPS_R        
+
+3     GX    -4617434.7161  0.0953  -4617434.7162  0.0250 -0.0003  0.0317   0.01     TGPS_R        
+             1383348.3782  0.0476   1383348.3779  0.0252 -0.0000  0.0452   0.00     TGPS_R        
+            -4163299.6013  0.0908  -4163299.6012  0.0299  0.0001  0.1200   0.00     TGPS_R        
+             6369255.8171           6369255.8170          0.0003           0.01     TGPS_R        
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470118.1023  0.1014  -470118.1024  0.0050  0.0001  0.0311   0.00     TGPS_R        
+                    54641.9616  0.0415    54641.9617  0.0248 -0.0006  0.0600   0.01     TGPS_R        
+                   616400.8943  0.0872   616400.8949  0.0027  0.0003  0.1199   0.00     TGPS_R        
+                   777140.1653           777140.1659          0.0006           0.01     TGPS_R        
+
+1     3     GB     169753.8354  0.0969   169753.8353  0.0167 -0.0004  0.0400   0.01     TGPS_R        
+                   821849.8023  0.0440   821849.8019  0.0034 -0.0004  0.0535   0.01     TGPS_R        
+                      347.8679  0.0909      347.8684  0.0213  0.0003  0.1200   0.00     TGPS_R        
+                   839198.1787           839198.1783          0.0006           0.01     TGPS_R        
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+1     GX    -4787199.3195  0.0982  -4787199.3193  0.0682  0.0001  0.0300   0.00     TGPS_TRS      
+              561499.6796  0.0414    561499.6796  0.0282  0.0004  0.0477   0.01     TGPS_TRS      
+            -4163642.0783  0.0908  -4163642.0786  0.0599 -0.0000  0.0859   0.00     TGPS_TRS      
+             6369338.6290           6369338.6290          0.0004           0.00     TGPS_TRS      
+
+2     GX    -5257318.5971  0.1044  -5257318.5973  0.0784  0.0001  0.0268   0.00     TGPS_TRS      
+              616141.7779  0.0416    616141.7780  0.0313 -0.0004  0.0445   0.01     TGPS_TRS      
+            -3547239.6430  0.0835  -3547239.6427  0.0650 -0.0000  0.0746   0.00     TGPS_TRS      
+             6371965.0507           6371965.0507          0.0004           0.01     TGPS_TRS      
+
+3     GX    -4617445.0597  0.0953  -4617445.0597  0.0746 -0.0002  0.0261   0.01     TGPS_TRS      
+             1383351.5366  0.0476   1383351.5364  0.0343  0.0000  0.0442   0.00     TGPS_TRS      
+            -4163294.2096  0.0908  -4163294.2096  0.0679  0.0001  0.0749   0.00     TGPS_TRS      
+             6369260.4774           6369260.4773          0.0002           0.00     TGPS_TRS      
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      ref_frame_code
+                     X,Y,Z                 X,Y,Z              E,N,U                                   
+
+1     2     GB    -470119.2776  0.1014  -470119.2780  0.0749  0.0001  0.0309   0.00     TGPS_TRS      
+                    54642.0983  0.0415    54642.0984  0.0278 -0.0007  0.0548   0.01     TGPS_TRS      
+                   616402.4353  0.0872   616402.4359  0.0605  0.0000  0.0748   0.00     TGPS_TRS      
+                   777142.1082           777142.1089          0.0007           0.01     TGPS_TRS      
+
+1     3     GB     169754.2598  0.0969   169754.2596  0.0749 -0.0003  0.0300   0.01     TGPS_TRS      
+                   821851.8570  0.0440   821851.8568  0.0302 -0.0004  0.0531   0.01     TGPS_TRS      
+                      347.8687  0.0909      347.8691  0.0616  0.0001  0.0746   0.00     TGPS_TRS      
+                   839200.2768           839200.2765          0.0005           0.01     TGPS_TRS      
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx3.dat: line 172
+
+4     GX    -4617769.6930  0.0953  -4617769.6930  0.0953 -0.0000  0.0000    -   @   GPS           
+             1382498.7670  0.0476   1382498.7670  0.0476  0.0000  0.0000    -   @   GPS           
+            -4163210.2860  0.0908  -4163210.2860  0.0908  0.0000  0.0000    -   @   GPS           
+             6369255.8171           6369255.8171          0.0000            -       GPS           
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    26-JUN-2018 10:27:11
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+
+Summary of residuals classified by data type
+
+Classification                               Used        Unused       Total
+                                            RMS  Count   RMS  Count   RMS  Count
+
+
+
+GPS baseline                                0.00   60     -      -    0.00   60
+        East component                      0.00   20     -      -    0.00   20
+        North component                     0.01   20     -      -    0.01   20
+        Up component                        0.00   20     -      -    0.00   20
+
+GPS point coord                             0.00   90     -      -    0.00   90
+        East component                      0.00   30     -      -    0.00   30
+        North component                     0.00   30     -      -    0.00   30
+        Up component                        0.00   30     -      -    0.00   30

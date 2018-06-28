@@ -1,0 +1,93 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:12 by ccrook
+
+
+
+Program options read from testsl7.snp
+
+Job: Regression tests - station lists
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testsl.crd
+      20 stations read
+
+Data file 1: testsl.dat
+    Observations between 2000-05-01 00:00:00 and 2000-05-01 00:00:00
+      19 height differences
+      20 latitudes
+      20 longitudes
+
+
+
+================================================================================
+Regression tests - station lists                            26-JUN-2018 10:27:12
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station      Adj  Row  Name
+
+11           H     1  4 BOLT
+1            3     3  2 PIN
+B            3     6  1 SPIK
+PINTOFALE    F     -  4 BOLT
+QQ           F     -  3 PIN
+C_100        F     -  3 BOLT
+PEGGY        3     9  4 -
+2            3    12  2 PEG
+100          H    15  2 PIN
+3            3    17  4 BOLT
+D            3    20  6 SPIK
+C_101        3    23  3 SPIK
+C_10         F     -  4 PIN
+B00          F     -  10 BOLT
+PIND         F     -  3 SPIK
+A            3    26  - BOLT
+TUBBY        F     -  2 -
+BXXXXX       3    29  0 BOLT
+10           H    32  6 SPIK
+C_11         F     -  - BOLT
+
+
+The following deformation has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+
+
+
+================================================================================
+Regression tests - station lists                            26-JUN-2018 10:27:12
+
+                                     ERRORS
+
+================================================================================
+
+Note: 1 errors reported in testsl7.err

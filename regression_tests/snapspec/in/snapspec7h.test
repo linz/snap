@@ -1,0 +1,5 @@
+file: snapspec7h.crd
+file: snapspec7h.dat
+file: snapspec7h.snp snapspec7h.snp
+file: snapspec7.cfg  snapspec7h.cfg
+parameters: -a

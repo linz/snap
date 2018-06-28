@@ -1,0 +1,4 @@
+parameters:  -ua -oa test.crd testupd1.crd {test}.crd
+
+file: test.crd
+file: testupd1.crd

@@ -28,3 +28,4 @@ fix F4
 
 reject F11
 ignore F12
+output no_coordinate_file

@@ -1,0 +1,24 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:11 by ccrook
+
+
+
+
+================================================================================
+Regression test om1 - obs modifications - invalid specification should cause er   26-JUN-2018 10:27:11
+
+                                     ERRORS
+
+================================================================================
+
+Note: 7 errors reported in testom20.err

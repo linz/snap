@@ -1,0 +1,4 @@
+parameters:  test2class.crd test.crd {test}.crd
+
+file: test2class.crd
+file: test.crd

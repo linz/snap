@@ -1,0 +1,3 @@
+name: Setting output height type
+parameters: -o test1.crd NZGD2000 test1r.crd
+file: test1.crd

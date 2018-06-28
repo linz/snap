@@ -1,2 +1,2 @@
 @echo off
-perl runtests.pl -v %*
+perl runtests.pl %*

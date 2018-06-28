@@ -1,3 +1,0 @@
-
-1 coordinates converted
-9 errors occurred reading or converting coordinates

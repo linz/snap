@@ -1,0 +1,5 @@
+
+Program concord version 2.7.10-a339290, dated Jun 24 2018 08:40:45
+Copyright: Land Information New Zealand
+Author: Chris Crook
+Coordsys file: /home/ccrook/projects_git/snap/regression_tests/concord/cstest/coordsys.def

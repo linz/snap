@@ -1,0 +1,12 @@
+Test rc - Refraction coefficient tests
+NZGD1949
+options ellipsoidal_heights no_deflections no_geoid_heights
+! Updated by SNAP version 2.7.10-a339290 at 26-JUN-2018 10:27:12
+
+!Code       Latitude          Longitude        Ell.Hgt Name
+1      41 00 46.800000 S 173 19 15.600000 E   150.0000 Node one
+2      41 00 25.200000 S 173 19 40.800000 E   249.9370 Node two
+3      41 00 28.800000 S 173 19 58.800000 E    69.8955 Node three
+11     41 00 46.800000 S 173 19 15.600000 E   150.0000 Node one
+12     41 00 25.200000 S 173 19 40.800000 E   249.9370 Node two
+13     41 00 28.800000 S 173 19 58.800000 E    69.8955 Node three

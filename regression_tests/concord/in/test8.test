@@ -1,0 +1,2 @@
+parameters: -iNZGD2000,NEH,H -oNZGD2000,NEO,H -g{configdir}/cstest/nzgtest09 -N6 test1.in {test}.out
+file: test1.in

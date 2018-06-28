@@ -1,0 +1,42 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:12 by ccrook
+
+
+
+Program options read from testsl11.snp
+
+Job: Regression tests - station lists
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testsl.crd
+      20 stations read
+
+Data file 1: testsl.dat
+    Observations between 2000-05-01 00:00:00 and 2000-05-01 00:00:00
+      19 height differences
+      20 latitudes
+      20 longitudes
+
+
+
+================================================================================
+Regression tests - station lists                            26-JUN-2018 10:27:12
+
+                                     ERRORS
+
+================================================================================
+
+Note: 2 errors reported in testsl11.err

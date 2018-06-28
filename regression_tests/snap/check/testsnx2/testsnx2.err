@@ -1,0 +1,38 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-a339290
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jun 24 2018 08:40:44
+
+================================================================================
+                     Run at 26-JUN-2018 10:27:12 by ccrook
+
+
+
+
+================================================================================
+                                                            26-JUN-2018 10:27:12
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Station CEDU       is not in the coordinate file.  Used 1 times
+
+Error: Station DARW       is not in the coordinate file.  Used 1 times
+
+Error: Station MCM4       is not in the coordinate file.  Used 1 times
+
+Error: Station MQZG       is not in the coordinate file.  Used 1 times
+
+Error: Station MTJO       is not in the coordinate file.  Used 1 times
+
+Error: Station OUSD       is not in the coordinate file.  Used 1 times
+
+Error: Station PERT       is not in the coordinate file.  Used 1 times
+
+Error: Station THTI       is not in the coordinate file.  Used 1 times

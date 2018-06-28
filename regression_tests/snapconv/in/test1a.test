@@ -1,0 +1,3 @@
+name: Null conversion
+parameters: test1.crd NZGD2000 test1a.crd
+file: test1.crd

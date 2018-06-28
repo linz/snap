@@ -1,0 +1,4 @@
+parameters:  testllg.crd testll.crd {test}.crd
+
+file: testllg.crd
+file: testll.crd

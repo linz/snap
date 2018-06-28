@@ -1,0 +1,2 @@
+parameters: -iNZGD2000/NZVD09,NEH,H -oNZGD2000/OFFSET1,NEH,H -N6 test1.in {test}.out
+file: test1.in

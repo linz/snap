@@ -1,0 +1,3 @@
+name: Conversions involving deformation model
+parameters: -y 2015-01-02 -d test1.crd ITRF2008 test1f.crd
+file: test1.crd
