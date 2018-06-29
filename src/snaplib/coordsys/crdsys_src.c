@@ -382,6 +382,19 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os  )
     return sts;
 }
 
+const char *get_crdsys_file( const char *filename, const char *extension )
+{
+    const char *found=0;
+    for( crdsys_source_def *csd = sources; csd; csd = csd->next )
+        if( csd->getcsfile )
+        {
+
+            found = (*csd->getcsfile)( csd->data, filename, extension );
+            if( found ) break;
+        }
+    return found;
+}
+
 static int gcc_notes( int type, const char *code1, const char *code2, output_string_def *os )
 {
     char convcode[CRDCNV_CODE_LEN+1];

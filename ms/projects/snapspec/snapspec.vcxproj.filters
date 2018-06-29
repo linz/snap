@@ -21,9 +21,6 @@
     <ClCompile Include="..\..\..\src\snapspec\snapspec.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapspec\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snapspec\dbl4_adc_sdc.h">

@@ -370,9 +370,6 @@
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\versioninfo.c">
-      <Filter>Source Files\util</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
@@ -440,6 +437,9 @@
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx_mt.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\getversion.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
   </ItemGroup>

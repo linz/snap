@@ -122,7 +122,6 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\src\snapspec\dbl4_adc_sdc.c" />
     <ClCompile Include="..\..\..\src\snapspec\snapspec.c" />
-    <ClCompile Include="..\..\..\src\snapspec\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snapspec\dbl4_adc_sdc.h" />

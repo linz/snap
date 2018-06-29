@@ -37,6 +37,7 @@
 #include <math.h>
 
 #define MAIN
+#define GETVERSION_SET_PROGRAM_DATE
 #include "util/datafile.h"
 #include "util/linklist.h"
 #include "util/fileutil.h"

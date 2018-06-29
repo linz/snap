@@ -1,3 +1,4 @@
+#define GETVERSION_SET_PROGRAM_DATE
 #include "snapconfig.h"
 #include "wx_includes.hpp"
 #include "wxhelpabout.hpp"

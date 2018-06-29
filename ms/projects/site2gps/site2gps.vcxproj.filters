@@ -18,8 +18,5 @@
     <ClCompile Include="..\..\..\src\site2gps\site2gps.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\site2gps\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

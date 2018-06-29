@@ -18,9 +18,6 @@
     <ClCompile Include="..\..\..\src\snaplist\snaplist.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplist\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\snaplist\snaplist.tbf" />

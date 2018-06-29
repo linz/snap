@@ -18,8 +18,5 @@
     <ClCompile Include="..\..\..\src\snapmerge\snapmerge.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapmerge\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

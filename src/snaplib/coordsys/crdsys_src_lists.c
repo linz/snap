@@ -117,6 +117,7 @@ static void register_lists( void )
     crdsys_source_def csd;
     if( registered ) return;
     csd.data = NULL;
+    csd.getcsfile = NULL;
     csd.getel = NULL;
     csd.getrf = NULL;
     csd.getcs = NULL;

@@ -18,8 +18,5 @@
     <ClCompile Include="..\..\..\src\dat2site\dat2site.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\dat2site\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

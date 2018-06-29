@@ -118,7 +118,7 @@ my $tstdir=$config->{test_dir};
 my $outdir=$config->{out_dir};
 my $chkdir=$config->{check_dir};
 my $wrkbase="runtest_tmp";
-my $wrkdir=$wrkbase.$$;
+my $wrkdir=$wrkbase.($keepdir ? '0000' : $$);
 die "Invalid test directory $tstdir\n" if ! -d $tstdir;
 die "Invalid check directory $chkdir\n" if ! -d $chkdir;
 die "Configuration does not define program\n" if ! @{$config->{program}};
@@ -319,7 +319,8 @@ foreach my $test (sort keys %tests)
     chdir($wrkdir);
     foreach my $c (@{$config->{command}})
     {
-        my $commandline=$c." >$out 2>$err";
+        my $commandline=$c;
+        $commandline .= " >$out 2>$err" if ! $debug;
         $commandline = $repfunc->($commandline);
         # Run program
         print "Running: ",$commandline,"\n" if $verbose;

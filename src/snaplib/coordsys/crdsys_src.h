@@ -34,6 +34,7 @@ typedef struct csd_s
 {
     struct csd_s *next;
     void *data;
+    const char *(*getcsfile)( void *data, const char *filename, const char *extension );
     int (*getrf)( void *data, long id, const char *code, ref_frame **rf );
     int (*getel)( void *data, long id, const char *code, ellipsoid **el );
     int (*getcs)( void *data, long id, const char *code, coordsys  **cs );

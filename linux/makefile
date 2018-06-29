@@ -118,9 +118,9 @@ test: snap_cmd
 	../regression_tests/testall.pl $(TESTFLAGS)
 
 update_version:
-	touch ../src/*/version.c
+	touch `grep -rl GETVERSION_SET_PROGRAM_DATE ../src`
 
-./makefile.inc: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
+rebuild_makefile: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 	@python build_makefile_inc.py > makefile.inc
 
 $(OBJ)/%.o: $(SRCDIR)/%.cpp

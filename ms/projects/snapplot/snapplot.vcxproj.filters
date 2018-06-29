@@ -111,9 +111,6 @@
     <ClCompile Include="..\..\..\src\snapplot\trimmer.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\versioninfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snapplot\backgrnd.h">

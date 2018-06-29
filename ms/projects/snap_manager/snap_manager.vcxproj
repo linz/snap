@@ -145,7 +145,6 @@ copy /y $(SolutionDir)..\..\src\perl\*  $(OutDir)
     <ClCompile Include="..\..\..\src\snap_manager\snap_manager.cpp" />
     <ClCompile Include="..\..\..\src\snap_manager\snap_scriptenv.cpp" />
     <ClCompile Include="..\..\..\src\snap_manager\snapjob.cpp" />
-    <ClCompile Include="..\..\..\src\snap_manager\versioninfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <LAPG_compile_grammer Include="..\..\..\src\snap_manager\scriptimp_parse.syntax" />

@@ -111,7 +111,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\concord\concord.c" />
-    <ClCompile Include="..\..\..\src\concord\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">

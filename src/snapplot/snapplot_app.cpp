@@ -6,12 +6,12 @@
 
 #include <stdio.h>
 
-//extern "C" {
+#define GETVERSION_SET_PROGRAM_DATE
+#include "util/getversion.h"
 #include "util/progress.h"
 #include "util/xprintf.h"
 #include "snapplot_util.h"
 #include "snapplot_load.h"
-//}
 
 
 IMPLEMENT_APP(SnapplotApp)

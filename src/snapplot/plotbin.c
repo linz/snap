@@ -29,6 +29,7 @@
 #include "snap/stnadj.h"
 #include "snap/rftrndmp.h"
 #include "snap/snapglob.h"
+#include "snap/snapglob_bin.h"
 #include "util/classify.h"
 #include "snap/survfile.h"
 #include "plotconn.h"

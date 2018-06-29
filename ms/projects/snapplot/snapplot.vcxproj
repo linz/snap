@@ -154,7 +154,6 @@
     <ClCompile Include="..\..\..\src\snapplot\snapplot_stationlist.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_util.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\trimmer.c" />
-    <ClCompile Include="..\..\..\src\snapplot\versioninfo.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snapplot\backgrnd.h" />

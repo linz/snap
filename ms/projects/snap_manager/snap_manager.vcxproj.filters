@@ -36,9 +36,6 @@
     <ClCompile Include="..\..\..\src\snap_manager\snapjob.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snap_manager\versioninfo.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <LAPG_compile_grammer Include="..\..\..\src\snap_manager\scriptimp_parse.syntax">

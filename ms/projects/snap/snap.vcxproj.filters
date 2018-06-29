@@ -87,12 +87,6 @@
     <ClCompile Include="..\..\..\src\snap\vecdata.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snap\version.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\src\snap\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\src\snap\autofix.c">
       <Filter>Source Files</Filter>
     </ClCompile>

@@ -544,4 +544,12 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os );
 int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os );
 int get_conv_notes( coord_conversion *conv, output_string_def *os );
 
+/*  get_crdsys_file looks for a file relative to installed file sources.
+ *  find_coordsys_data_file looks for a file that could be local, project,
+ *  or coordinate system based.  It will look in the coordsys config section
+ *  if it is not found elsewhere
+ */
+const char *get_crdsys_file( const char *filename, const char *extension );
+const char *find_coordsys_data_file( const char *filename,const char *extension );
+
 #endif /* COORDSYS_H defined */

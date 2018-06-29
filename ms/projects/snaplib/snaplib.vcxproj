@@ -207,6 +207,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\errdef.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\fileutil.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\geodetic.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\getversion.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\get_date.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\iostring.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\leastsqu.c" />
@@ -222,7 +223,6 @@
     <ClCompile Include="..\..\..\src\snaplib\util\recordstream.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\strarray.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c" />
-    <ClCompile Include="..\..\..\src\snaplib\util\versioninfo.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c" />
   </ItemGroup>
   <ItemGroup>

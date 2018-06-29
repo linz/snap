@@ -48,7 +48,7 @@ static int init_grid_deformation(  char *pmodel, double pepoch )
     const char *grdfile;
     epoch = pepoch;
     model = copy_string( pmodel );
-    grdfile = find_file( model, ".grd", 0, FF_TRYPROJECT, COORDSYS_CONFIG_SECTION );
+    grdfile = find_coordsys_data_file( model, ".grd" );
     if( !grdfile ) return INVALID_DATA;
     modelfile = copy_string( grdfile );
     if(  grd_open_grid_file( modelfile, 2, &velgrid ) == OK )

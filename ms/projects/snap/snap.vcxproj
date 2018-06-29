@@ -137,8 +137,6 @@
     <ClCompile Include="..\..\..\src\snap\stnobseq.c" />
     <ClCompile Include="..\..\..\src\snap\testspec.c" />
     <ClCompile Include="..\..\..\src\snap\vecdata.c" />
-    <ClCompile Include="..\..\..\src\snap\version.c" />
-    <ClCompile Include="..\..\..\src\snap\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snap\adjparam.h" />

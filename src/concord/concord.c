@@ -83,6 +83,8 @@
 #include <unistd.h>
 #endif
 
+#define GETVERSION_SET_PROGRAM_DATE
+
 #include "coordsys/coordsys.h"
 #include "geoid/geoid.h"
 #include "util/fileutil.h"

@@ -388,6 +388,13 @@ static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, 
     return OK;
 }
 
+static const char *get_csfile( void *pcfs, const char *filename, const char *extension )
+{
+    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
+    const char *sourcepath = df_file_name( cfs->df );
+    return find_relative_file( sourcepath, filename, extension );
+}
+
 static int delete_crdsys_file_source( void *pcfs )
 {
     int type;
@@ -415,6 +422,7 @@ static int create_crdsys_file_source( const char *filename )
     for( type=0; type<CS_COORDSYS_COUNT; type++ ) cfs->codes[type]=0;
     scan_coordsys_defs( cfs );
     csd.data = cfs;
+    csd.getcsfile = get_csfile;
     csd.getel = get_ellipsoid;
     csd.getrf = get_ref_frame_cs;
     csd.getcs = get_coordsys;

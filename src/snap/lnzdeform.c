@@ -60,7 +60,7 @@ static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
 
     model = NULL;
 
-    deffile = find_file( pmodel, ".ldm", 0, FF_TRYPROJECT, COORDSYS_CONFIG_SECTION );
+    deffile = find_coordsys_data_file( pmodel, ".ldm" );
     if( !deffile ) return NULL;
 
     model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));

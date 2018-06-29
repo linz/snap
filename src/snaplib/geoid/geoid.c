@@ -42,7 +42,7 @@ static const char *get_geoid_filename( const char *geoidname )
     if( geoidname )
     {
         geoid = geoidname;
-        filename = find_file( geoid, GEOID_GRID_EXTENSION, 0, FF_TRYALL, COORDSYS_CONFIG_SECTION );
+        filename = find_coordsys_data_file( geoid, GEOID_GRID_EXTENSION );
     }
     /* Else if a specific geoid file is defined */
     else if( getenv("GEOIDBIN") )
@@ -54,7 +54,7 @@ static const char *get_geoid_filename( const char *geoidname )
     else
     {
         if( getenv("GEOID") ) geoid = getenv("GEOID");
-        filename = find_file( geoid, GEOID_GRID_EXTENSION, 0, FF_TRYALL, COORDSYS_CONFIG_SECTION );
+        filename = find_coordsys_data_file( geoid, GEOID_GRID_EXTENSION );
     }
 
     /* Return just the geoid name if a file isn't found */

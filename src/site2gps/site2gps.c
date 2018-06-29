@@ -5,6 +5,7 @@
 
 */
 
+#define GETVERSION_SET_PROGRAM_DATE
 #include "snapconfig.h"
 #include <stdio.h>
 #include <string.h>

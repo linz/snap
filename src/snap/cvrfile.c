@@ -21,9 +21,9 @@
 #include <math.h>
 
 #include "cvrfile.h"
-#include "snapmain.h"
 #include "output.h"
 #include "snap/stnadj.h"
+#include "snap/snapglob.h"
 #include "snap/survfile.h"
 #include "util/leastsqu.h"
 #include "util/chkalloc.h"

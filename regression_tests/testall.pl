@@ -10,7 +10,7 @@ my $param=join(' ',@ARGV);
 my $fail=0;
 foreach my $f (glob('*/test.config'))
 {
-    my $rc=system("./runtests.pl -c $f $param");
+    my $rc=system("perl ./runtests.pl -c $f $param");
     $fail=1 if $rc;
 }
 exit($fail);

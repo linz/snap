@@ -18,8 +18,5 @@
     <ClCompile Include="..\..\..\src\snapconv\snapconv.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapconv\versioninfo.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

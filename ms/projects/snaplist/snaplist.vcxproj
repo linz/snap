@@ -107,7 +107,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\snaplist\snaplist.c" />
-    <ClCompile Include="..\..\..\src\snaplist\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\snaplist\mdfc1.tbf" />

@@ -106,7 +106,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\src\snapconv\snapconv.c" />
-    <ClCompile Include="..\..\..\src\snapconv\versioninfo.c" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">

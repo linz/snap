@@ -47,48 +47,51 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "util/binfile.h"
-#include "util/chkalloc.h"
-#include "util/progress.h"
-#include "util/fileutil.h"
-#include "util/errdef.h"
-#include "util/get_date.h"
-#include "util/dstring.h"
-#include "util/xprintf.h"
-
 #define _SNAPMAIN_C
-#include "snapmain.h"
+#define GETVERSION_SET_PROGRAM_DATE
 
+#include "snapmain.h"
 #include "adjparam.h"
 #include "autofix.h"
 #include "bindata2.h"
 #include "control.h"
-#include "coordsys/coordsys.h"
 #include "csdeform.h"
 #include "cvrfile.h"
 #include "loadsnap.h"
-#include "network/network.h"
 #include "output.h"
 #include "relerror.h"
 #include "reorder.h"
 #include "residual.h"
 #include "ressumry.h"
 #include "rftrnadj.h"
+#include "sortobs.h"
+#include "stnobseq.h"
+#include "testspec.h"
+#include "coordsys/coordsys.h"
+#include "network/network.h"
 #include "snap/bindata.h"
 #include "snap/deform.h"
 #include "snap/rftrans.h"
 #include "snap/rftrndmp.h"
 #include "snap/stnadj.h"
 #include "snap/survfilr.h"
-#include "snapdata/survdata.h"
+#include "snap/snapglob.h"
+#include "snap/snapglob_bin.h"
 #include "snapdata/obsmod.h"
-#include "sortobs.h"
-#include "stnobseq.h"
-#include "testspec.h"
-#include "util/classify.h"
-#include "util/leastsqu.h"
+#include "snapdata/survdata.h"
+#include "util/binfile.h"
+#include "util/bltmatrx.h"
 #include "util/bltmatrx_mt.h"
+#include "util/chkalloc.h"
+#include "util/classify.h"
+#include "util/dstring.h"
+#include "util/errdef.h"
+#include "util/fileutil.h"
+#include "util/get_date.h"
 #include "util/getversion.h"
+#include "util/leastsqu.h"
+#include "util/progress.h"
+#include "util/xprintf.h"
 
 static void print_help( void );
 static void print_command_file( void );
@@ -820,8 +823,9 @@ static void print_command_file( void )
     fprintf(lst,"\nThe command file %s contains:\n", command_file+path_len(command_file,0));
     while( fgets(inrec,256,cmd)) 
     {
+        if (strlen(inrec) == 0) continue;
         char *p=inrec+strlen(inrec)-1;
-        while( isspace(*p) && p >= inrec ) *p--=0;
+        while( p >= inrec && isspace(*p) ) *p--=0;
         fprintf(lst,"     %s\n",inrec);
     }
     fprintf(lst,"\n");

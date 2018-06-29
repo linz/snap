@@ -9,7 +9,7 @@ const char *getProgramVersion(const char *version);
  * This should be recompiled every time the program is built
  */
 
-#ifdef DEFINE_PROGRAM_DATE
+#ifdef GETVERSION_SET_PROGRAM_DATE
 const char *programDate=__DATE__ " " __TIME__;
 #else
 extern const char *programDate;

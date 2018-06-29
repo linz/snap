@@ -38,6 +38,7 @@
 #include "snap/bindata.h"
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
+#include "snap/snapglob_bin.h"
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "util/readcfg.h"

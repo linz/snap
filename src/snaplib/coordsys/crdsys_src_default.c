@@ -32,8 +32,6 @@ The coordinate system file is located in one of the following places.
 #include "util/chkalloc.h"
 #include "util/fileutil.h"
 
-
-
 const char *get_default_crdsys_file()
 {
     const char *filename;
@@ -50,13 +48,21 @@ const char *get_default_crdsys_file()
     return filename;
 }
 
-
 int install_default_crdsys_file()
 {
     const char *filename=get_default_crdsys_file();
     if( ! filename )  return FILE_OPEN_ERROR;
     install_default_projections();
     return install_crdsys_file( filename );
+}
+
+const char *find_coordsys_data_file( const char *filename,const char *extension )
+{
+    const char *found;
+    found = find_file(filename,extension,0,FF_TRYALL,0);
+    if( ! found ) found=get_crdsys_file(filename,extension);
+    if( ! found ) found = find_file(filename,extension,0,0,COORDSYS_CONFIG_SECTION);
+    return found;
 }
 
 

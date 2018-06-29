@@ -86,12 +86,6 @@
 
 #define DEFAULT_RETURN_STATUS 1
 
-
-
-#ifndef _SNAPGLOB_H
-#include "snap/snapglob.h"
-#endif
-
 int snap_main( int argc, char *argv[] );
 
 #endif

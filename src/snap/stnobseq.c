@@ -27,21 +27,21 @@
 #include <string.h>
 #include <math.h>
 
-#include "snapmain.h"
-#include "util/dateutil.h"
-#include "util/lsobseq.h"
-#include "util/leastsqu.h"
-#include "util/probfunc.h"
-#include "snapdata/survdata.h" /* For UNDEFINED_DATE */
-#include "autofix.h"
-#include "output.h"
 #include "stnobseq.h"
 #include "adjparam.h"
-#include "util/binfile.h"
+#include "autofix.h"
+#include "output.h"
 #include "residual.h"
 #include "snap/deform.h"
+#include "snap/snapglob.h"
+#include "snapdata/survdata.h" /* For UNDEFINED_DATE */
+#include "util/binfile.h"
+#include "util/dateutil.h"
 #include "util/dms.h"
+#include "util/leastsqu.h"
+#include "util/lsobseq.h"
 #include "util/pi.h"
+#include "util/probfunc.h"
 
 int scale_error = 0;
 char  floating_stations;

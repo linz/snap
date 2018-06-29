@@ -128,13 +128,6 @@ void set_snap_command_file( char *cmd_file );
 void set_snap_config_file( char *cfg_file );
 void *snap_obs_modifications( bool create );
 
-#ifdef _BINFILE_H
-void dump_snap_globals( BINARY_FILE *b );
-int reload_snap_globals( BINARY_FILE *b );
-void dump_obs_classes( BINARY_FILE *b );
-int reload_obs_classes( BINARY_FILE *b );
-#endif
-
 #undef SCOPE
 
 #endif
