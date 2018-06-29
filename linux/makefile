@@ -40,7 +40,7 @@ LDWXFLAGS = -lm -lboost_regex -s
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 TESTFLAGS = -r
-UPDATEVERSION = update_version
+UPDATEVERSION = update_version_date
 
 else
 MD=echo
@@ -117,7 +117,7 @@ snap_cmd: $(UPDATEVERSION) makefile.inc $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) 
 test: snap_cmd
 	../regression_tests/testall.pl $(TESTFLAGS)
 
-update_version:
+update_version_date:
 	touch `grep -rl GETVERSION_SET_PROGRAM_DATE ../src`
 
 rebuild_makefile: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
