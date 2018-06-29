@@ -11,10 +11,6 @@
 
 */
 
-#ifndef DATAFILE_H_RCSID
-#define DATAFILE_H_RCSID "$Id: datafile.h,v 1.2 2004/04/22 02:35:24 ccrook Exp $"
-#endif
-
 #include <stdio.h>
 
 #ifndef IOSTRING_H

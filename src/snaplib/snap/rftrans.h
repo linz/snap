@@ -8,10 +8,6 @@
 
 */
 
-#ifndef RFTRANS_H_RCSID
-#define RFTRANS_H_RCSID "$Id: rftrans.h,v 1.1 1995/12/22 17:47:10 CHRIS Exp $"
-#endif
-
 typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
 /* Parameters of a reference frame transformation */

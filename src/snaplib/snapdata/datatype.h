@@ -6,9 +6,6 @@
 
 */
 
-#ifndef DATATYPE_H_RCSID
-#define DATATYPE_H_RCSID "$Id: datatype.h,v 1.1 1995/12/22 18:44:20 CHRIS Exp $"
-#endif
 /* Definition of valid data types - datatype array is implemented in module
    datatype.c */
 

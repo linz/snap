@@ -20,10 +20,6 @@
 
 */
 
-#ifndef OUTPUT_H_RCSID
-#define OUTPUT_H_RCSID "$Id: output.h,v 1.4 2003/11/23 23:05:18 ccrook Exp $"
-#endif
-
 /* Output options - each options is defined as a character variable
    which defines whether the corresponding item is to be output.  A
    structure defines a name for each options (used in the control

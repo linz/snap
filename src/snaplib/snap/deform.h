@@ -9,10 +9,6 @@
 
 */
 
-#ifndef DEFORM_H_RCSID
-#define DEFORM_H_RCSID "$Id: deform.h,v 1.1 1998/06/04 02:24:53 ccrook Exp $"
-#endif
-
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif

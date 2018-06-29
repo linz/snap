@@ -8,10 +8,6 @@
 
 */
 
-#ifndef CFGPROCS_H_RCSID
-#define CFGPROCS_H_RCSID "$Id: cfgprocs.h,v 1.1 1995/12/22 17:40:25 CHRIS Exp $"
-#endif
-
 #include "util/readcfg.h"
 
 int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code );

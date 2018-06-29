@@ -11,10 +11,6 @@
 
 */
 
-#ifndef PROGRESS_H_RCSID
-#define PROGRESS_H_RCSID "$Id: progress.h,v 1.2 2004/04/22 02:35:27 ccrook Exp $"
-#endif
-
 void init_progress_meter( long total_size );
 void update_progress_meter( long progress );
 void end_progress_meter( void );

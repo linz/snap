@@ -10,9 +10,6 @@
 
 */
 
-#ifndef PNTDATA_H_RCSID
-#define PNTDATA_H_RCSID "$Id: pntdata.h,v 1.2 2003/11/25 01:29:59 ccrook Exp $"
-#endif
 /* pntdata.h: routines for handling point related data, lat, long,
    doppler, etc... */
 

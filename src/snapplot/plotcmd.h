@@ -8,10 +8,6 @@
 
 */
 
-#ifndef PLOTCMD_H_RCSID
-#define PLOTCMD_H_RCSID "$Id: plotcmd.h,v 1.1 1996/01/03 22:24:25 CHRIS Exp $"
-#endif
-
 int read_plot_command_file( char *command_file, int got_data );
 
 /* Done before configuration file read */

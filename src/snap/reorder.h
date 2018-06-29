@@ -8,10 +8,6 @@
 
 */
 
-#ifndef REORDER_H_RCSID
-#define REORDER_H_RCSID "$Id: reorder.h,v 1.1 1996/01/03 22:06:11 CHRIS Exp $"
-#endif
-
 #define SKIP_REORDERING    0
 #define FORCE_REORDERING   1
 #define DEFAULT_REORDERING 2

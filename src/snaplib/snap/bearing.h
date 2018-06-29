@@ -11,10 +11,6 @@
 
 */
 
-#ifndef BEARING_H_RCSID
-#define BEARING_H_RCSID "$Id: bearing.h,v 1.1 2004/04/20 00:58:37 ccrook Exp $"
-#endif
-
 #ifndef _COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif

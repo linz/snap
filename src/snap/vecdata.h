@@ -12,10 +12,6 @@
 
 */
 
-#ifndef VECDATA_H_RCSID
-#define VECDATA_H_RCSID "$Id: vecdata.h,v 1.2 2003/11/25 01:30:00 ccrook Exp $"
-#endif
-
 #ifndef _LOADDATA_H
 #include "snapdata/loaddata.h"
 #endif

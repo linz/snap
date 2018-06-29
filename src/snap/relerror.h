@@ -18,10 +18,6 @@
 
 */
 
-#ifndef RELERROR_H_RCSID
-#define RELERROR_H_RCSID "$Id: relerror.h,v 1.4 2003/05/16 01:20:41 ccrook Exp $"
-#endif
-
 #ifndef _BINFILE_H
 #include "util/binfile.h"
 #endif

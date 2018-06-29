@@ -8,10 +8,6 @@
 
 */
 
-#ifndef CVRFILE_H_RCSID
-#define CVRFILE_H_RCSID "$Id: cvrfile.h,v 1.1 1996/01/03 21:58:47 CHRIS Exp $"
-#endif
-
 void print_coord_covariance( void );
 void print_coord_covariance_json( void );
 void print_coord_sinex( void );

@@ -11,9 +11,6 @@
 
 */
 
-#ifndef DATEUTIL_H_RCSID
-#define DATEUTIL_H_RCSID "$Id: dateutil.h,v 1.2 2004/04/22 02:35:26 ccrook Exp $"
-#endif
 /* Header file for dateutil.c - SNAP date functions */
 
 #define DAYS_PER_YEAR 365.25

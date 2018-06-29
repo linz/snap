@@ -8,10 +8,6 @@
 
 */
 
-#ifndef GNPROJ_H_RCSID
-#define GNPROJ_H_RCSID "$Id: gnproj.h,v 1.1 1995/12/22 16:53:09 CHRIS Exp $"
-#endif
-
 typedef struct
 {
     double orglat, orglon;  /* Origin of coords */

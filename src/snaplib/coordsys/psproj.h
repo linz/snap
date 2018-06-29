@@ -8,10 +8,6 @@
 
 */
 
-#ifndef PSPROJ_H_RCSID
-#define PSPROJ_H_RCSID "$Id: psproj.h,v 1.1 1995/12/22 17:00:02 CHRIS Exp $"
-#endif
-
 /* Header file for the Polar Stereographic projection */
 
 typedef struct

@@ -14,10 +14,6 @@
 
 */
 
-#ifndef PLOTBIN_H_RCSID
-#define PLOTBIN_H_RCSID "$Id: plotbin.h,v 1.3 1997/04/28 10:59:57 CHRIS Exp $"
-#endif
-
 #ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
 #endif

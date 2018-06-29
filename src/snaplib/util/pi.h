@@ -9,9 +9,6 @@
 
 */
 
-#ifndef PI_H_RCSID
-#define PI_H_RCSID "$Id: pi.h,v 1.2 2004/04/22 02:35:26 ccrook Exp $"
-#endif
 /* Simply defines PI (from Abramowitz and Stegun Table 1.1) */
 
 #ifndef PI

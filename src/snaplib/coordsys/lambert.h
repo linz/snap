@@ -8,10 +8,6 @@
 
 */
 
-#ifndef LAMBERT_H_RCSID
-#define LAMBERT_H_RCSID "$Id: lambert.h,v 1.1 1995/12/22 16:55:39 CHRIS Exp $"
-#endif
-
 /* Header file for Lambert Conformal Conic projection code */
 
 typedef struct

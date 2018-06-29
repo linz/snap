@@ -12,9 +12,6 @@
 
 */
 
-#ifndef GRIDDATA_H_RCSID
-#define GRIDDATA_H_RCSID "$Id: griddata.h,v 1.3 1999/05/18 14:36:16 ccrook Exp $"
-#endif
 /* Header file for geoid grid calculations */
 
 

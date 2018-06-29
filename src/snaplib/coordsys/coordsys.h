@@ -13,9 +13,6 @@
 
 */
 
-#ifndef COORDSYS_H_RCSID
-#define COORDSYS_H_RCSID "$Id: coordsys.h,v 1.3 2004/04/22 02:34:21 ccrook Exp $"
-#endif
 /*
 
 coordsys.h - header file for routines managing coordinate systems.

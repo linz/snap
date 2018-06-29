@@ -9,9 +9,6 @@
 
 */
 
-#ifndef AVLTREE_H_RCSID
-#define AVLTREE_H_RCSID "$Id: avltree.h,v 1.2 2004/04/22 02:35:23 ccrook Exp $"
-#endif
 /* Header file for AVL tree routines */
 
 #ifndef _AVLTREE_H

@@ -8,10 +8,6 @@
 
 */
 
-#ifndef SURVDATA_H_RCSID
-#define SURVDATA_H_RCSID "$Id: survdata.h,v 1.1 1995/12/22 18:49:01 CHRIS Exp $"
-#endif
-
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif

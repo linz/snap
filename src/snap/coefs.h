@@ -8,10 +8,6 @@
 
 */
 
-#ifndef COEFS_H_RCSID
-#define COEFS_H_RCSID "$Id: coefs.h,v 1.1 1996/01/03 21:57:56 CHRIS Exp $"
-#endif
-
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif

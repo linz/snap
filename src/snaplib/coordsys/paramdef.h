@@ -8,10 +8,6 @@
 
 */
 
-#ifndef PARAMDEF_H_RCSID
-#define PARAMDEF_H_RCSID "$Id: paramdef.h,v 1.1 1995/12/22 16:59:09 CHRIS Exp $"
-#endif
-
 #ifndef IOSTRING_H
 #include "util/iostring.h"
 #endif

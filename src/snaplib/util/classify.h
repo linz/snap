@@ -8,10 +8,6 @@
 
 */
 
-#ifndef CLASSIFY_H_RCSID
-#define CLASSIFY_H_RCSID "$Id: classify.h,v 1.1 1995/12/22 17:41:14 CHRIS Exp $"
-#endif
-
 #define CLASS_TYPE_CHAR 0
 #define CLASS_TYPE_INT  1
 #define CLASS_VALUE_NOT_DEFINED -1

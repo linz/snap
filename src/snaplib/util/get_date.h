@@ -11,10 +11,6 @@
 
 */
 
-#ifndef GET_DATE_H_RCSID
-#define GET_DATE_H_RCSID "$Id: get_date.h,v 1.2 2004/04/22 02:35:25 ccrook Exp $"
-#endif
-
 /* get_date returns a string defining the current date and time.  If a
    string variable is supplied, the date is written to that, otherwise
    it is written to a static area.  */

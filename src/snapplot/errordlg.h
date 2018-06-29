@@ -8,10 +8,6 @@
 
 */
 
-#ifndef ERRORDLG_H_RCSID
-#define ERRORDLG_H_RCSID "$Id: errordlg.h,v 1.1 1996/01/03 22:16:50 CHRIS Exp $"
-#endif
-
 typedef struct
 {
     char aPost;

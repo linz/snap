@@ -15,10 +15,6 @@
 
 */
 
-#ifndef BINFILE_H_RCSID
-#define BINFILE_H_RCSID "$Id: binfile.h,v 1.3 2004/04/22 02:35:23 ccrook Exp $"
-#endif
-
 /* Define a binary file containing a list of binary sections */
 
 #include <stdint.h>

@@ -8,10 +8,6 @@
 
 */
 
-#ifndef STNSZDLG_H_RCSID
-#define STNSZDLG_H_RCSID "$Id: stnszdlg.h,v 1.1 1996/01/03 22:32:25 CHRIS Exp $"
-#endif
-
 typedef struct
 {
     double symSize;

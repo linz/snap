@@ -11,10 +11,6 @@
 
 */
 
-#ifndef SURVFILR_H_RCSID
-#define SURVFILR_H_RCSID "$Id: survfilr.h,v 1.2 1998/06/15 02:26:14 ccrook Exp $"
-#endif
-
 #ifndef _SURVFILE_H
 #include "snap/survfile.h"
 #endif

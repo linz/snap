@@ -11,10 +11,6 @@
 
 */
 
-#ifndef CHKALLOC_H_RCSID
-#define CHKALLOC_H_RCSID "$Id: chkalloc.h,v 1.2 2004/04/22 02:35:24 ccrook Exp $"
-#endif
-
 void *check_malloc( size_t size );
 void *check_realloc( void *ptr, size_t size );
 void check_free( void *ptr );

@@ -6,9 +6,6 @@
 
 */
 
-#ifndef SORTOBS_H_RCSID
-#define SORTOBS_H_RCSID "$Id: sortobs.h,v 1.1 1996/01/03 22:11:34 CHRIS Exp $"
-#endif
 /* sortobs.h - header file for routines which manage sorting of observations */
 #ifndef _SORTOBS_H
 #define _SORTOBS_H

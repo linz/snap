@@ -11,10 +11,6 @@
 
 */
 
-#ifndef PLOTCONN_H_RCSID
-#define PLOTCONN_H_RCSID "$Id: plotconn.h,v 1.2 1997/04/28 11:01:15 CHRIS Exp $"
-#endif
-
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
 #endif

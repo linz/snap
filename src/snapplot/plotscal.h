@@ -8,10 +8,6 @@
 
 */
 
-#ifndef PLOTSCAL_H_RCSID
-#define PLOTSCAL_H_RCSID "$Id: plotscal.h,v 1.1 1996/01/03 22:28:54 CHRIS Exp $"
-#endif
-
 void set_plot_range( double emin, double nmin, double emax, double nmax );
 void set_stn_name_size( double size, int autoscl );
 void get_stn_name_size( double *size, int *autoscl );

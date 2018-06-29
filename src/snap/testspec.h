@@ -14,10 +14,6 @@
 */
 
 
-#ifndef TESTSPEC_H_RCSID
-#define TESTSPEC_H_RCSID "$Id: testspec.h,v 1.2 2003/10/23 01:29:05 ccrook Exp $"
-#endif
-
 typedef struct SpecDef_s
 {
     struct SpecDef_s * next;

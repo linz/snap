@@ -15,10 +15,6 @@
 
 */
 
-#ifndef STNOBSEQ_H_RCSID
-#define STNOBSEQ_H_RCSID "$Id: stnobseq.h,v 1.3 2003/11/23 23:05:19 ccrook Exp $"
-#endif
-
 #ifndef _STNADJ_H
 #include "snap/stnadj.h"
 #endif

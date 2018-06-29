@@ -8,10 +8,6 @@
 
 */
 
-#ifndef ADJPARAM_H_RCSID
-#define ADJPARAM_H_RCSID "$Id: adjparam.h,v 1.1 1996/01/03 21:55:55 CHRIS Exp $"
-#endif
-
 #ifndef _GENPARAM_H
 #include "snap/genparam.h"
 #endif

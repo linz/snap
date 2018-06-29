@@ -20,10 +20,6 @@
 
 */
 
-#ifndef SNAPMAIN_H_RCSID
-#define SNAPMAIN_H_RCSID "$Id: snapmain.h,v 1.6 2003/11/27 00:15:16 ccrook Exp $"
-#endif
-
 #define PROGRAM "SNAP"
 
 /* Version history:

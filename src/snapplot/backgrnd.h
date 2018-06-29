@@ -8,10 +8,6 @@
 
 */
 
-#ifndef BACKGRND_H_RCSID
-#define BACKGRND_H_RCSID "$Id: backgrnd.h,v 1.1 1996/01/03 22:15:32 CHRIS Exp $"
-#endif
-
 #ifndef _PLOTFUNC_H
 #include "plotfunc.h"
 #endif

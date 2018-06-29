@@ -11,10 +11,6 @@
 
 */
 
-#ifndef LOADSNAP_H_RCSID
-#define LOADSNAP_H_RCSID "$Id: loadsnap.h,v 1.2 1998/05/21 04:02:02 ccrook Exp $"
-#endif
-
 void set_convert_ratios_to_distance( int option );
 void set_ignore_missing_stations( int option );
 void set_require_obs_date( int option );

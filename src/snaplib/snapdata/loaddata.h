@@ -8,10 +8,6 @@
 
 */
 
-#ifndef LOADDATA_H_RCSID
-#define LOADDATA_H_RCSID "$Id: loaddata.h,v 1.1 1995/12/22 18:48:04 CHRIS Exp $"
-#endif
-
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
 #endif

@@ -8,10 +8,6 @@
 
 */
 
-#ifndef GPSCVR_H_RCSID
-#define GPSCVR_H_RCSID "$Id: gpscvr.h,v 1.1 1995/12/22 18:46:18 CHRIS Exp $"
-#endif
-
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif

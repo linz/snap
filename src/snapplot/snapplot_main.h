@@ -8,10 +8,6 @@
 
 */
 
-#ifndef SNAPPLOT_H_RCSID
-#define SNAPPLOT_H_RCSID "$Id: snapplot.h,v 1.1 1996/01/03 22:31:26 CHRIS Exp $"
-#endif
-
 #include <stdio.h>    /* For definition of FILE */
 #include "snapdata/datatype.h"  /* For definition of NOBSTYPE */
 

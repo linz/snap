@@ -8,10 +8,6 @@
 
 */
 
-#ifndef LSOBSEQ_H_RCSID
-#define LSOBSEQ_H_RCSID "$Id: lsobseq.h,v 1.1 1996/01/03 22:00:39 CHRIS Exp $"
-#endif
-
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif

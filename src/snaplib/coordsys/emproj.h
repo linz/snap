@@ -8,10 +8,6 @@
 
 */
 
-#ifndef EMPROJ_H_RCSID
-#define EMPROJ_H_RCSID "$Id: emproj.h,v 1.1 1995/12/22 16:51:22 CHRIS Exp $"
-#endif
-
 typedef struct
 {
     double cm;

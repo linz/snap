@@ -8,10 +8,6 @@
 
 */
 
-#ifndef TRIMMER_H_RCSID
-#define TRIMMER_H_RCSID "$Id: trimmer.h,v 1.1 1996/01/03 22:33:11 CHRIS Exp $"
-#endif
-
 /* Object for trimming lines to a rectangular boundary */
 
 typedef struct

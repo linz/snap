@@ -17,10 +17,6 @@
 
 */
 
-#ifndef GEOID_H_RCSID
-#define GEOID_H_RCSID "$Id: geoid.h,v 1.4 1998/05/21 03:56:12 ccrook Exp $"
-#endif
-
 /* Header file for geoid grid calculations */
 
 /* Note: set_find_file_directories should be called before create_geoid_filename */

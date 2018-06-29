@@ -12,10 +12,6 @@
 
 */
 
-#ifndef OBSDATA_H_RCSID
-#define OBSDATA_H_RCSID "$Id: obsdata.h,v 1.2 2003/11/25 01:29:58 ccrook Exp $"
-#endif
-
 #ifndef _LOADDATA_H
 #include "snapdata/loaddata.h"  /* For definitions of data structures */
 #endif

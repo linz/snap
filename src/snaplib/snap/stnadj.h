@@ -9,9 +9,6 @@
 
 */
 
-#ifndef STNADJ_H_RCSID
-#define STNADJ_H_RCSID "$Id: stnadj.h,v 1.2 1998/06/15 02:27:28 ccrook Exp $"
-#endif
 /* Definition and manipulation of geodetic stations */
 
 #ifndef _STNADJ_H

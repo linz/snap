@@ -8,10 +8,6 @@
 
 */
 
-#ifndef RFTRNADJ_H_RCSID
-#define RFTRNADJ_H_RCSID "$Id: rftrnadj.h,v 1.1 1996/01/03 22:08:51 CHRIS Exp $"
-#endif
-
 void init_rftrans_prms_list( void );
 
 void update_rftrans_prms_list( int get_covariance );

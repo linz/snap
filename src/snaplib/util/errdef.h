@@ -11,11 +11,6 @@
 
 */
 
-#ifndef ERRDEF_H_RCSID
-#define ERRDEF_H_RCSID "$Id: errdef.h,v 1.2 2004/04/22 02:35:24 ccrook Exp $"
-#endif
-
-
 /* Error codes for C routines:
    The conventions used are
 

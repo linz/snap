@@ -6,9 +6,6 @@
 
 */
 
-#ifndef CRDSYSDF_H_RCSID
-#define CRDSYSDF_H_RCSID "$Id: crdsysdf.h,v 1.1 1995/12/22 16:30:33 CHRIS Exp $"
-#endif
 /* crdsysdf.h: Header file defining structures and procedures for loading
    coordinate system definitions.  Routines getrf, getel, getcs should
    return OK if the code is found and loaded, MISSING_DATA if it the code

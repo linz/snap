@@ -9,9 +9,6 @@
 
 */
 
-#ifndef GEODETIC_H_RCSID
-#define GEODETIC_H_RCSID "$Id: geodetic.h,v 1.2 2004/04/22 02:35:25 ccrook Exp $"
-#endif
 /* Basic data types used in geodetic routines                */
 /* A 3d vector/coordinate                                    */
 

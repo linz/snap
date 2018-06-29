@@ -23,10 +23,6 @@
 
 */
 
-#ifndef SNAPGLOB_H_RCSID
-#define SNAPGLOB_H_RCSID "$Id: snapglob.h,v 1.5 2003/11/24 01:34:14 ccrook Exp $"
-#endif
-
 /* Snap global data - mainly for programs which use the SNAP binary file */
 
 #ifndef _GET_DATA_H

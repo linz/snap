@@ -11,9 +11,6 @@
 
 */
 
-#ifndef FILEUTIL_H_RCSID
-#define FILEUTIL_H_RCSID "$Id: fileutil.h,v 1.2 2004/04/22 02:35:25 ccrook Exp $"
-#endif
 /* fileutil.h: routines to assist file management */
 
 #ifndef UNIX

@@ -8,11 +8,6 @@
 
 */
 
-#ifndef PLOTPENS_H_RCSID
-#define PLOTPENS_H_RCSID "$Id: plotpens.h,v 1.1 1996/01/03 22:28:01 CHRIS Exp $"
-#endif
-
-
 enum { OTHER_PEN = 0,
        FREE_STN_PEN,
        FIXED_STN_PEN,

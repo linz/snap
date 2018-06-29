@@ -9,10 +9,6 @@
 
 */
 
-#ifndef SYMMATRX_H_RCSID
-#define SYMMATRX_H_RCSID "$Id: symmatrx.h,v 1.2 2004/04/22 02:35:27 ccrook Exp $"
-#endif
-
 #ifndef _SYMMATRX_H
 #define _SYMMATRX_H
 

@@ -8,10 +8,6 @@
 
 */
 
-#ifndef BINDATA_H_RCSID
-#define BINDATA_H_RCSID "$Id: bindata.h,v 1.1 1995/12/22 17:39:32 CHRIS Exp $"
-#endif
-
 /* The following structure holds indexes data types */
 
 #include <stdint.h>

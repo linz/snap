@@ -8,10 +8,6 @@
 
 */
 
-#ifndef RFTRNDMP_H_RCSID
-#define RFTRNDMP_H_RCSID "$Id: rftrndmp.h,v 1.1 1995/12/22 17:47:38 CHRIS Exp $"
-#endif
-
 #ifndef _BINFILE_H
 #include "util/binfile.h"
 #endif

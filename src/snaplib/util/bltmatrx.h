@@ -17,9 +17,6 @@
 
 */
 
-#ifndef BLTMATRX_H_RCSID
-#define BLTMATRX_H_RCSID "$Id: bltmatrx.h,v 1.4 2004/04/22 02:35:43 ccrook Exp $"
-#endif
 /* Definitions of banded lower triangular matrices */
 
 #ifndef _BLTMATRIX_H

@@ -14,10 +14,6 @@
 
 */
 
-#ifndef LEASTSQU_H_RCSID
-#define LEASTSQU_H_RCSID "$Id: leastsqu.h,v 1.3 1998/06/15 02:26:46 ccrook Exp $"
-#endif
-
 #ifndef _BLTMATRX_H
 #include "bltmatrx.h"
 #endif

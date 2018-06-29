@@ -14,10 +14,6 @@
 
 */
 
-#ifndef PROBFUNC_H_RCSID
-#define PROBFUNC_H_RCSID "$Id: probfunc.h,v 1.3 2004/04/22 02:35:26 ccrook Exp $"
-#endif
-
 /* Cumulative probability distribution functions and their inverses */
 /* These functions deal with the probability of obtaining a value of
    x greater than that specified */

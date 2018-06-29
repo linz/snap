@@ -5,10 +5,6 @@
 
 */
 
-#ifndef STRARRAY_H_RCSID
-#define STRARRAY_H_RCSID "$Id:$"
-#endif
-
 typedef struct
 {
     char **strings;

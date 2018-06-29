@@ -8,10 +8,6 @@
 
 */
 
-#ifndef CRDSYSPJ_H_RCSID
-#define CRDSYSPJ_H_RCSID "$Id: crdsys_prj.h,v 1.1 1995/12/22 16:46:32 CHRIS Exp $"
-#endif
-
 #ifndef COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif

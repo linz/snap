@@ -8,10 +8,6 @@
 
 */
 
-#ifndef NETWORKB_H_RCSID
-#define NETWORKB_H_RCSID "$Id: networkb.h,v 1.1 1995/12/22 17:35:39 CHRIS Exp $"
-#endif
-
 #include "network/network.h"
 #include "util/binfile.h"
 

@@ -14,10 +14,6 @@
 
 */
 
-#ifndef BINDATA2_H_RCSID
-#define BINDATA2_H_RCSID "$Id: bindata2.h,v 1.3 1996/07/12 20:29:23 CHRIS Exp $"
-#endif
-
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"   /* For definition of ltmat */
 #endif

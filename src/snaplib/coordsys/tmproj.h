@@ -8,10 +8,6 @@
 
 */
 
-#ifndef TMPROJ_H_RCSID
-#define TMPROJ_H_RCSID "$Id: tmproj.h,v 1.1 1995/12/22 17:01:41 CHRIS Exp $"
-#endif
-
 typedef struct
 {
     double meridian;          /* Central meridian */

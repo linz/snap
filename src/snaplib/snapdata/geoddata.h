@@ -8,10 +8,6 @@
 
 */
 
-#ifndef GEODDATA_H_RCSID
-#define GEODDATA_H_RCSID "$Id: geoddata.h,v 1.1 1995/12/22 18:45:09 CHRIS Exp $"
-#endif
-
 #ifndef _DATAFILE_H
 #include "util/datafile.h"
 #endif

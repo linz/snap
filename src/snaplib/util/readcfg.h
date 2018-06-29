@@ -11,10 +11,6 @@
 
 */
 
-#ifndef READCFG_H_RCSID
-#define READCFG_H_RCSID "$Id: readcfg.h,v 1.2 2004/04/22 02:35:27 ccrook Exp $"
-#endif
-
 #ifndef _ERRDEF_H
 #include "util/errdef.h"
 #endif

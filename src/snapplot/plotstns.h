@@ -11,10 +11,6 @@
 
 */
 
-#ifndef PLOTSTNS_H_RCSID
-#define PLOTSTNS_H_RCSID "$Id: plotstns.h,v 1.2 1996/07/12 20:33:35 CHRIS Exp $"
-#endif
-
 #ifndef COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif

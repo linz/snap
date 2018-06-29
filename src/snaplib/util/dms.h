@@ -11,10 +11,6 @@
 
 */
 
-#ifndef DMS_H_RCSID
-#define DMS_H_RCSID "$Id: dms.h,v 1.2 2004/04/22 02:35:24 ccrook Exp $"
-#endif
-
 /* dms.h - header file for dms.c, degrees, minutes, seconds conversion
    routines */
 

@@ -8,10 +8,6 @@
 
 */
 
-#ifndef GENPARAM_H_RCSID
-#define GENPARAM_H_RCSID "$Id: genparam.h,v 1.1 1995/12/22 17:44:34 CHRIS Exp $"
-#endif
-
 #ifndef _BINFILE_H
 #include "util/binfile.h"
 #endif
