@@ -15,8 +15,19 @@ package LINZ::GNSS::Time;
 
 =head1 LINZ::GNSS::Time
 
-LINZ::GNSS::Time - provides miscellaneous time functions
-and constants
+LINZ::GNSS::Time - provides miscellaneous time functions and constants
+
+The functions and constants can be exported with
+
+    use LINZ::GNSS::Time qw/time_elements .../;
+
+The following components can also  be exported
+
+    $SECS_PER_DAY
+    $SECS_PER_HOUR
+    $SECS_PER_WEEK
+    $GNSSTIME0
+    $TIMERE
 
 =cut
 
@@ -34,17 +45,23 @@ our @EXPORT = qw(
     datetime_seconds
     seconds_datetime
     ymdhms_seconds
+    seconds_ymdhms
     start_time_utc_day
     start_time_gnss_week
-    seconds_decimal_yr
-    decimal_yr_seconds
+    seconds_decimal_year
+    decimal_year_seconds
     localdaytime_seconds
     gnssweek_seconds
     year_seconds
     yearday_seconds
+    seconds_yearday
     get_week_start
     is_leap_year
     seconds_julianday
+    julianday_seconds
+    parse_gnss_date
+    seconds_decimal_yr
+    decimal_yr_seconds
 );
 
 our @EXPORT_OK = qw(
@@ -112,7 +129,7 @@ sub hour2alpha {
     return $alpha_hours[$hour];
 }
 
-=head2 LINZ::GNSS::Time::datetime_seconds
+=head2 $seconds=datetime_seconds($date_string)
 
 Converts a date string to timestamp.  The string can be formatted as 
 
@@ -142,7 +159,7 @@ sub datetime_seconds {
     my $offset=0;
     if( defined($doy) )
     {
-        $mon=0; $day=1; $offset=$doy*$SECS_PER_DAY;
+        $mon=0; $day=1; $offset=($doy-1)*$SECS_PER_DAY;
     }
     my $seconds;
     if ($local) {
@@ -200,6 +217,31 @@ sub ymdhms_seconds {
     return $seconds;
 }
 
+=head2 ($year,$month,$day,$hour,$min,$sec)=seconds_ymdhms($seconds,$local)
+
+Returns a timestamp split into component parts.  The year includes the century
+and the months are numbered 1 to 12.  Uses gmtime unless $local evaluates to true.
+
+=cut
+
+sub seconds_ymdhms
+{
+    my($seconds,$local)=@_;
+    my ($sec, $min, $hr, $day, $mon, $year);
+    if( $local )
+    {
+        ($sec, $min, $hr, $day, $mon, $year) = localtime($seconds);
+    }
+    else
+    {
+        ($sec, $min, $hr, $day, $mon, $year) = gmtime($seconds);
+    }
+    $mon++;
+    $year+=1900;
+    return ($year,$mon,$day,$hr,$min,$sec);
+}
+
+
 
 sub year_seconds {
     my $year = shift;
@@ -237,7 +279,25 @@ sub seconds_julianday
     return $jday;
 }
 
-sub seconds_decimal_yr {
+=head2 $seconds=julianday_seconds($jday)
+
+Returns the timestamp corresponding to a julian day
+
+=cut
+
+sub julianday_seconds
+{
+    my ($jday)=@_;
+    return ($jday-40587)*(60*60*24);
+}
+
+=head2 $dyear=seconds_decimal_year($seconds)
+
+Returns the date in decimal years corresponding to a timestamp
+
+=cut
+
+sub seconds_decimal_year {
     my $time = shift;
     my ($sec, $min, $hr, $day, $mon, $year) = gmtime($time);
     my $yr_start1 = $START_YR_TIMES{$year}
@@ -248,7 +308,15 @@ sub seconds_decimal_yr {
     return $year + 1900 + $decimal_days;
 }
 
-sub decimal_yr_seconds {
+sub seconds_decimal_yr { return seconds_decimal_year(@_); }
+
+=head2 $seconds=decimal_year_seconds($dyear)
+
+Returns the timestamp corresponding to a date in decimal years.
+
+=cut
+
+sub decimal_year_seconds {
     my $decimal_yr = shift;
     my $year = int($decimal_yr);
     my $dec_part = $decimal_yr - $year;
@@ -259,6 +327,7 @@ sub decimal_yr_seconds {
         || ($START_YR_TIMES{$year+1} = timegm(0, 0, 0, 1, 0, $year+1));
     return $yr_start1 + ($yr_start2  - $yr_start1) * $dec_part;
 }
+sub decimal_yr_seconds { return decimal_year_seconds(@_); }
 
 sub start_time_utc_day {
     my $time = shift;
@@ -273,6 +342,12 @@ sub start_time_gnss_week {
     my $gnss_week = int( ( $time - $GNSSTIME0 ) / $SECS_PER_WEEK );
     my $start_time = $GNSSTIME0 + $gnss_week * $SECS_PER_WEEK;
 }
+
+=head2 $secs=gnss_week($weekno)
+
+Converts a GNSS week to the timestamp for the start of the week
+
+=cut 
 
 sub gnssweek_seconds {
     my $gnss_week = shift;
@@ -311,10 +386,29 @@ sub is_leap_year {
    return 1;
 }
 
+=head2 my $seconds=yearday_seconds($year,$dayno)
+
+Determines the timestamp for the start of the day specified by year and day number.
+
+=cut 
+
 sub yearday_seconds
 {
     my($year,$day) = @_;
     return year_seconds($year)+($day-1)*$SECS_PER_DAY;
+}
+
+=head2 my ($year,$dayno)=seconds_yearday($seconds)
+
+Converts a timestamp to a year and day number
+
+=cut 
+
+sub seconds_yearday
+{
+    my( $seconds ) = @_;
+    my($year,$dayno) = (time_elements($seconds))[0,2];
+    return ($year,$dayno);
 }
 
 =head2 my $start, $end = LINZ::GNSS::Time::session_startend($year,$session)
@@ -353,6 +447,97 @@ sub session_startend
     my $end = $start + $length*$SECS_PER_HOUR;
     return ($start,$end);
 }
+
+=head2 $seconds=parse_gnss_date($datestr,$local)
+
+Parses a date in one of the following formats:
+
+   yyyy-mm-dd    Year, month, day
+   dd-mm-yyyy    Day, month, year
+   yyyymmdd      Year, nonth, day
+   yyyy-ddd      Year, day number
+   wwww-d        GPS week, day
+   ssssssssss    Unix time stamp
+   jjjjj         Julian day
+   now           Right now
+   now-ddd       ddd days before now
+   today         Start of current UTC day
+   today-ddd     ddd days before today
+   yyyy.yyyy     decimal years
+
+If the date cannot be interpreted then croaks.
+
+=cut
+
+sub parse_gnss_date
+{
+    my($datestr)=@_;
+    my $seconds;
+    eval {
+        # yyyy mm dd
+        if( $datestr=~ /^((?:19|20)\d\d)\W+([01]?\d)\W+([0123]?\d)$/ )
+        {
+            $seconds=ymdhms_seconds($1,$2,$3,0,0,0);
+        }
+        # dd mm yyyy
+        elsif( $datestr=~ /^([0123]?\d)\W+([01]?\d)\W+((?:19|20)\d\d)$/ )
+        {
+            $seconds=ymdhms_seconds($3,$2,$1,0,0,0);
+        }
+        # yyyymmdd
+        elsif( $datestr=~ /^((?:19|20)\d\d)([01]\d)([0123]\d)$/ )
+        {
+            $seconds=ymdhms_seconds($1,$2,$3,0,0,0);
+        }
+        # wwww d  (week day)
+        elsif( $datestr=~/^(\d\d\d\d)(?:w\s*|\W+)([0-6])$/i )
+        {
+            $seconds=gnssweek_seconds($1)+$2*$SECS_PER_DAY;
+        }
+        # yyyy ddd
+        elsif( $datestr=~/^((?:19|20)\d\d)\W+(\d{1,3})$/ )
+        {
+            $seconds=yearday_seconds($1,$2);
+        }
+        # ssssssssss
+        elsif( $datestr =~ /^\d{10}$/ )
+        {
+            $seconds=$datestr+0;
+        }
+        # ddddd
+        elsif( $datestr =~ /^\d{5}$/ )
+        {
+            $seconds=julianday_seconds($datestr);
+        }
+        # yyyy.yyy
+        elsif( $datestr =~ /^[12]\d\d\d\.\d+$/ )
+        {
+            $seconds=decimal_year_seconds($datestr);
+        }
+        # now-#
+        elsif( lc($datestr) =~ /^now(?:\-(\d+))?$/ )
+        {
+            $seconds=time()-($1 // 0)*$SECS_PER_DAY;
+        }
+        # today-#
+        elsif( lc($datestr) =~ /^today(?:\-(\d+))?$/ )
+        {
+            my($sec,$min,$hour)=gmtime();
+            my $daysecs=$sec+$min*60+$hour*3600;
+            $seconds=time()-$daysecs-($1 // 0)*$SECS_PER_DAY;
+        }
+        else
+        {
+            $seconds=datetime_seconds($datestr);
+        }
+    };
+    if( $@ )
+    {
+        croak("Invalid date specified: $datestr");
+    }
+    return $seconds;
+}
+    
 
 
 

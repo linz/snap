@@ -42,6 +42,12 @@ $tolerance *= 3600.0;
 
 my( $snxfile, $datfile, @codes) = @ARGV;
 
+my %codes=();
+foreach my $code (@codes)
+{
+    $codes{uc($code)}=1;
+}
+
 die "Cannot open input SINEX file $snxfile\n" if ! -r $snxfile;
 
 my $sf = new LINZ::GNSS::SinexFile($snxfile,full_covariance=>1);
@@ -53,15 +59,16 @@ my @stations=$sf->stations;
 
 my $minepoch=0;
 my $maxepoch=0;
-my %codes=();
+my %usecodes=();
 my %dupcodes=();
 
 foreach my $stn (@stations)
 {
     my $code=uc($stn->{code});
-    my $epoch=$stn->{epoch};
-    $dupcodes{$code}=1 if exists $codes{$code};
-    $codes{$code}=1;
+    next if %codes && ! exists $codes{code};
+    $dupcodes{$code}=1 if exists $usecodes{$code};
+    $usecodes{$code}=1;
+    my $epoch=$stn->{ref_epoch};
     $minepoch = $epoch if $minepoch == 0 || $epoch < $minepoch;
     $maxepoch = $epoch if $epoch > $maxepoch;
 }
@@ -90,12 +97,6 @@ print $df "Data from SINEX File $sfn\n\n";
 print $df "#date $date\n#time $time\n\n";
 print $df "#gps_error_type full\n";
 print $df "#data GX error no_heights grouped\n\n";
-
-my %codes=();
-foreach my $code (@codes)
-{
-    $codes{uc($code)}=1;
-}
 my %irow=();
 my $is=-1;
 

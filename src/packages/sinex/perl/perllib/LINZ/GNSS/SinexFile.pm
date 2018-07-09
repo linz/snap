@@ -4,19 +4,27 @@
 
   This is currently not written as a general purpose SINEX file reader/writer.
 
-  The current purpose is simply to read station coordinate/covariance information.
-  All sorts of assumptions are made - essentially hope this works with Bernese generated
-  SINEX files from ADDNEQ...
+  The initial current purpose is simply to read station coordinate/covariance information.
+  Be aware of simplifications made.
+
+  Initial implementation was for reading only returned stations using the stations() function.
+  This has been enhanced to handle sites with multiple marks and solutions, and to calculate
+  coordinates at a specific epoch, as well as limited output of SINEX file.  The initial stations()
+  function is deprecated in favour of sitecodes() and site().
 
 =cut
 
-use strict;
+# Although the stations() function is deprecated this module has not yet been updated to reflect
+# the more correctly structured use of site and mark.
 
+use strict;
 
 package LINZ::GNSS::SinexFile;
 
 use LINZ::GNSS::Time qw/yearday_seconds/;
 use LINZ::Geodetic::Ellipsoid;
+use File::Which;
+use PerlIO::gzip;
 use Carp;
 
 
@@ -32,6 +40,15 @@ Options can include
 
 Obtain the full coordinate covariance matrix.
 
+=item need_covariance
+
+Set to 0 if covariance information is not required, but will
+be loaded if it is present.
+
+=item skip_covariance
+
+Set to 1 to ignore convariance information.
+
 =back
 
 =cut 
@@ -46,7 +63,9 @@ sub new
 
 =head2 $stns=$sf->stations()
 
-Returns a list of stations in the SINEX file.  May be called in a scalar or array context.
+Note: this is deprecated in favour of sitecodes() and site().
+
+Returns a list of station solutions in the SINEX file.  May be called in a scalar or array context.
 Note this only returns stations for which coordinates have been calculated in the solution.
 It does not return the full coordinate covariance matrix - just the covariance for the 
 each station X,Y,Z coordinates.
@@ -63,9 +82,29 @@ The four character code of the station (the SINEX site code)
 
 The solution id for the site - each site can have multiple soutions
 
+=item name
+
+The monument id from the site/id section
+
+=item description
+
+The description of the station from the site/id section
+
 =item epoch 
 
 The mean epoch of the solution
+
+=item start_epoch 
+
+The start epoch of the solution
+
+=item end_epoch 
+
+The end epoch of the solution
+
+=item ref_epoch 
+
+The reference epoch of the solution coordinate
 
 =item prmoffset
 
@@ -75,22 +114,68 @@ The offset of the X parameter in the full coordinate covariance matrix
 
 An array hash with the xyz coordinate
 
+=item vxyz
+
+An array hash with the xyz coordinate
+
 =item covar
 
 An array hash of array hashes defining the 3x3 covariance matrix
 
 =back
 
+Note: currently the covariance information does not include velocity covariances.
+
 =cut 
 
 sub stations
 {
     my($self)=@_;
-    my @codes=sort {$a->{code} cmp $b->{code}} values %{$self->{stations}};
-    my @stations  = map {sort {$a->{solnid} cmp $b->{solnid}} values %$_} @codes;
-    @stations = sort {_cmpstn($a) cmp _cmpstn($b)} @stations;
-    return wantarray ? @stations : \@stations;
+    my $stations=$self->{solnstns};
+    return wantarray ? @$stations : $stations;
 }
+
+
+=head2 @codes=$sf->sitecodes()
+
+Return a list of sitecode of sites in the file.  Each site can be obtained with the 
+site() function, which provides a marks() function, which provides a solutions() 
+function.
+
+=cut
+
+
+sub sitecodes()
+{
+    my($self)=@_;
+    my @codes = sort(keys(%{$self->{stations}}));
+    return wantarray ? @codes : \@codes;
+}
+
+=head2 $site=$sf->site($code,$mark)
+
+Return data for a site.  The mark (point) at the site
+may also be specified, otherwise all marks are return.  
+The object returned is a LINZ::GNSS::SinexFile::Site object.
+
+=cut
+
+sub site
+{
+    my($self,$code,$mark)=@_;
+    $mark .= ':' if $mark ne '';
+    my $stndata=$self->{stations}->{$code};
+    croak("Code $code not in SINEX file\n") if ! $stndata;
+    my @solutions=();
+    foreach my $solnid (keys %$stndata)
+    {
+        next if $mark ne '' && substr($solnid,0,length($mark)) ne $mark;
+        push(@solutions,$stndata->{$solnid});
+    }
+    croak("No information found for $code $mark\n") if ! @solutions;
+    return LINZ::GNSS::SinexFile::Site->new($code,\@solutions);
+}
+
 
 =head2 $stn=$sf->station($code,$solnid)
 
@@ -156,6 +241,8 @@ The standard error of unit weight
 
 =back
 
+This will be empty if the SINEX file does not contain a SOLUTION/STATISTICS block.
+
 =cut
 
 sub stats
@@ -164,39 +251,107 @@ sub stats
     return $self->{stats};
 }
 
+=head2 $startdate,$enddate=$sf->obsDates()
 
-sub _scan
+Returns the start and end date of observations in the SinexFile (as timestamps)
+
+=cut
+
+sub obsDates
 {
-    my($self,%options) = @_;
+    my($self)=@_;
+    return $self->{obs_start_date},$self->{obs_end_date};
+}
+
+sub _open
+{
+    my ($self)=@_;
     my $filename=$self->{filename};
     return if ! $filename;
 
     my $stats={};
     my $station={};
 
-    open( my $sf, "<$filename" ) || croak("Cannot open SINEX file $filename\n");
-    binmode($sf);
+    my $sf;
+    if( $filename =~ /\.Z$/ )
+    {
+        my $compress=which('compress');
+        croak("Cannot find compress program to open SINEX file\n") if ! $compress;
+        my $cmd="$compress -c -d \"$filename\" |";
+        open( $sf, $cmd ) || croak("Cannot open SINEX file $filename\n");
+    }
+    else
+    {
+        my $mode="<";
+        if( $filename =~ /\.gz$/ )
+        {
+            $mode="<:gzip";
+        }
+        open( $sf, $mode, $filename ) || croak("Cannot open SINEX file $filename\n");
+    }
+    return $sf;
+}
+
+sub _scan
+{
+    my($self,%options) = @_;
+    my $sf=$self->_open();
+    return if ! $sf;
+    
+    $self->{stats}={};
+    $self->{solnprms}={};
+    $self->{stations}={};
+
     my $header=<$sf>;
-    croak("$filename is not a valid SINEX file\n") if $header !~ /^\%\=SNX\s(\d\.\d\d)\s+/;
+    croak($self->{filename}." is not a valid SINEX file\n") if $header !~ /^\%\=SNX\s(\d\.\d\d)\s+/;
     my $version=$1;
-    $self->_scanStats($sf);
-    $self->_scanStationXYZ($sf,$options{full_covariance});
+    $self->{obs_start_date}=$self->_sinexDateToTimestamp(substr($header,32,12));
+    $self->{obs_end_date}=$self->_sinexDateToTimestamp(substr($header,45,12));
+
+    my $cvropt=exists $options{need_covariance} && ! $options{need_covariance};
+    $cvropt=1 if $options{skip_covariance};
+
+    my $blocks={
+        'SITE/ID'=>0, 
+        'SOLUTION/STATISTICS'=>1, # Statistics are treated as optional
+        'SOLUTION/EPOCHS'=>0,
+        'SOLUTION/ESTIMATE'=>0,
+        'SOLUTION/MATRIX_ESTIMATE L COVA'=>$cvropt,
+    };
+    while( my $block=$self->_findNextBlock($sf) )
+    {
+        $blocks->{$block}=1 if
+            ($block eq 'SITE/ID' && $self->_scanSiteId($sf)) ||
+            ($block eq 'SOLUTION/STATISTICS' && $self->_scanStats($sf)) ||
+            ($block eq 'SOLUTION/EPOCHS' && $self->_scanEpochs($sf)) ||
+            ($block eq 'SOLUTION/ESTIMATE' && $self->_scanSolutionEstimate($sf)) ||
+            ($block eq 'SOLUTION/MATRIX_ESTIMATE L COVA' &&
+                ($options{skip_covariance} || $self->_scanCovar($sf,$options{full_covariance})));
+    }
+
+    foreach my $block (sort keys %$blocks)
+    {
+        if( ! $blocks->{$block} )
+        {
+            croak($self->{filename}." does not contain a $block block\n");
+        }
+    }
+
     close($sf);
 }
 
-sub _findBlock
+sub _findNextBlock
 {
-    my($self,$sf,$block,$die) = @_;
-    seek($sf,0,0);
+    my($self,$sf)=@_;
+    my $block;
     while( my $line=<$sf> )
     {
         next if $line !~ /^\+/;
-        my $fblock=substr($line,1);
-        $fblock=~ s/\s+$//;
-        return 1 if $fblock eq $block;
+        my $block=substr($line,1);
+        $block=~ s/\s+$//;
+        return $block;
     }
-    croak("Cannot find block $block in SINEX file ".$self->{filename}."\n") if $die;
-    return 0;
+    return '';
 }
 
 sub _trim
@@ -208,13 +363,48 @@ sub _trim
     return $value;
 }
 
+sub _scanSiteId
+{
+    my ($self,$sf)=@_;
+    my $siteids={};
+    $self->{siteids}=$siteids;
+    my $prms=$self->{solnprms};
+    while( my $line=<$sf> )
+    {
+        my $ctl=substr($line,0,1);
+        last if $ctl eq '-';
+        next if $ctl eq '*';
+        if( $ctl eq '+' )
+        {
+            carp("Invalid SINEX file - SITE/ID not terminated\n");
+            last;
+        }
+        croak("Invalid SITE/ID line $line in ".$self->{filename}."\n")
+        if $line !~ /^
+             \s([\s\w]{4})  # point id
+             \s([\s\w]{2})  # point code
+             \s([\s\w]{9})  # monument id
+             \s\w           # Observation techniques
+             \s(.{22})      # description
+             \s([\s\-\d]{3}[\-\s\d]{3}[\-\s\d\.]{5}) # longitude DMS
+             \s([\s\-\d]{3}[\-\s\d]{3}[\-\s\d\.]{5}) # latitude DMS
+             \s([\s\d\.\-]{7})                       # height
+             \s*$/ix;
+
+        my ($mcode,$ptid,$name,$description)=
+           (_trim($1),_trim($2),_trim($3),_trim($4));
+
+        $siteids->{$mcode}->{$ptid}={name=>$name,description=>$description};
+    }
+    return 1;
+}
+
 sub _scanStats
 {
     my( $self, $sf ) = @_;
     my $stats={ nobs=>0, nprm=>0, dof=>0, seu=>1.0 };
     $self->{stats} = $stats;
 
-    $self->_findBlock($sf,'SOLUTION/STATISTICS',1);
     while( my $line=<$sf> )
     {
         my $ctl=substr($line,0,1);
@@ -241,16 +431,81 @@ sub _cmpstn
     return $_[0]->{code}.' '.$_[0]->{solnid} 
 };
 
-sub _scanStationXYZ
+sub _getStation
 {
-    my( $self, $sf, $fullcovar ) = @_;
-    my $stations={};
+    my($self,$mcode,$solnid) = @_;
+    my $stations=$self->{stations};
+    if( ! exists($stations->{$mcode}) || ! exists($stations->{$mcode}->{$solnid}) )
+    {
+        my $newstn= {
+            code=>$mcode,
+            solnid=>$solnid,
+            epoch=>0,
+            start_epoch=>0,
+            end_epoch=>0,
+            ref_epoch=>0,
+            prmoffset=>0,
+            estimated=>0,
+            xyz=>[0.0,0.0,0.0],
+            vxyz=>[0.0,0.0,0.0],
+            covar=>[[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
+            };
+        $stations->{$mcode}->{$solnid} = $newstn;
+    }
+    return $stations->{$mcode}->{$solnid};
+}
+
+sub _compileStationList
+{
+    my($self)=@_;
+    my $stations=$self->{stations};
+    # Copy across information from site ids
+    my $siteids=$self->{siteids};
+    foreach my $stn (values %$stations)
+    {
+        foreach my $stn (values %$stn)
+        {
+            my $code=$stn->{code};
+            my $solnid=$stn->{solnid};
+            $solnid =~ s/\:.*//;
+            my $siteid=$siteids->{$code}->{$solnid};
+            if( $siteid )
+            {
+                while(my ($k,$v)=each %$siteid){ $stn->{$k}=$v; }
+            }
+        }
+    }
+
+    # Form a list of stations with estimated coordinates
+    my @solnstns;
+    foreach my $k (%$stations)
+    {
+        push(@solnstns,grep {$_->{estimated}} values %{$stations->{$k}});
+    }
+
+    # Form parameter numbers for solution coordinates in covariance matrix
+    # and copy back to stations
+
+    $stations={};
+    my $prmoffset=0;
+    @solnstns=sort {_cmpstn($a) cmp _cmpstn($b)} @solnstns;
+    foreach my $sstn (@solnstns)
+    {
+        $sstn->{prmoffset}=$prmoffset;
+        $prmoffset += 3;
+        $stations->{$sstn->{code}}->{$sstn->{solnid}}=$sstn;
+    }
     $self->{stations}=$stations;
+    $self->{solnstns}=\@solnstns;
+    $self->{nparam}=$prmoffset;
+}
 
-    $self->_findBlock($sf,'SOLUTION/ESTIMATE',1);
 
-    my $prms={};
-    my @solnstns=();
+sub _scanSolutionEstimate
+{
+    my ($self,$sf)=@_;
+    my $stations=$self->{stations};
+    my $prms=$self->{solnprms};
     while( my $line=<$sf> )
     {
         my $ctl=substr($line,0,1);
@@ -265,58 +520,57 @@ sub _scanStationXYZ
         if $line !~ /^
              \s([\s\d]{5})  # param id
              \s([\s\w]{6})  # param type
-             \s([\s\w]{4})  # point id
-             \s([\s\w]{2})  # point code
-             \s([\s\w]{4})  # solution id
+             \s([\s\w]{4}|[\s\-]{4})  # point id
+             \s([\s\w]{2}|[\s\-]{2})  # point code
+             \s([\s\w]{4}|[\s\-]{4})  # solution id
              \s(\d\d\:\d\d\d\:\d\d\d\d\d) #parameter epoch
-             \s([\s\w]{4})  # param units
+             \s([\s\w\/]{4})  # param units
              \s([\s\w]{1})  # param cnstraints
              \s([\s\dE\+\-\.]{21})  # param value
              \s([\s\dE\+\-\.]{11})  # param stddev
-             \s*$/x;
+             \s*$/ix;
 
         my ($id,$ptype,$mcode,$solnid,$epoch,$value)=
            (_trim($1)+0,_trim($2),_trim($3),_trim($4).':'._trim($5),_trim($6),_trim($9)+0);
 
-        next if $ptype !~ /^STA([XYZ])$/;
-        if( ! exists($stations->{$mcode}) || ! exists($stations->{$mcode}->{$solnid}) )
+        next if $ptype !~ /^(STA|VEL)([XYZ])$/;
+        my $isxyz = $1 eq 'STA';
+        my $pno=index('XYZ',$2);
+
+        my $stn=$self->_getStation($mcode,$solnid);
+        if( $isxyz )
         {
-            my $newstn= {
-                code=>$mcode,
-                solnid=>$solnid,
-                epoch=>0,
-                prmoffset=>0,
-                xyz=>[0.0,0.0,0.0],
-                covar=>[[0.0,0.0,0.0],[0.0,0.0,0.0],[0.0,0.0,0.0]]
-                };
-            $stations->{$mcode}->{$solnid} = $newstn;
-            push(@solnstns,$newstn);
+            $stn->{xyz}->[$pno]=$value;
+            $stn->{estimated}=1;
+            $stn->{ref_epoch}=$self->_sinexDateToTimestamp($epoch);
+            $prms->{$id}={stn=>$stn,pno=>$pno};
         }
-
-        my $stn=$stations->{$mcode}->{$solnid};
-        my $pno=index('XYZ',$1);
-
-        $stn->{xyz}->[$pno]=$value;
-        $prms->{$id}={stn=>$stn,pno=>$pno};
+        else
+        {
+            $stn->{vxyz}->[$pno]=$value;
+        }
     }
+    $self->_compileStationList();
+    return 1;
+}
 
+sub _scanCovar
+{
+    my ($self,$sf,$fullcovar) = @_;
     my $fcvr=[[]];
+    my $prms=$self->{solnprms};
+    my $solnstns=$self->{solnstns};
+    my $nparam=$self->{nparam};
+
     $self->{xyzcovar}=$fcvr;
     if( $fullcovar )
     {
-        my $prmoffset=0;
-        foreach my $sstn (sort {_cmpstn($a) cmp _cmpstn($b)} @solnstns)
-        {
-            $sstn->{prmoffset}=$prmoffset;
-            $prmoffset += 3;
-        }
-        foreach my $iprm (0..$prmoffset-1)
+        foreach my $iprm (0..$nparam-1)
         {
             $fcvr->[$iprm]=[(0)x($iprm+1)]
         }
     }
 
-    $self->_findBlock($sf,'SOLUTION/MATRIX_ESTIMATE L COVA',1);
     while( my $line=<$sf> )
     {
         my $ctl=substr($line,0,1);
@@ -334,7 +588,7 @@ sub _scanStationXYZ
             \s([\s\dE\+\-\.]{21})
             (?:\s([\s\dE\+\-\.]{21}))?
             (?:\s([\s\dE\+\-\.]{21}))?
-            /x;
+            /ix;
         my ($p0,$p1,$cvc)=($1+0,$2+0,[_trim($3),_trim($4),_trim($5)]);
         next if ! exists $prms->{$p0};
         my $prm=$prms->{$p0};
@@ -362,8 +616,21 @@ sub _scanStationXYZ
             $covar->[$pno1]->[$pno]=$cvc->[$ip]+0;
         }
     }
+    return 1;
+}
 
-    $self->_findBlock($sf,'SOLUTION/EPOCHS',1);
+sub _sinexDateToTimestamp
+{
+    my($self,$datestr)=@_;
+    my($y,$doy,$sec)=split(/\:/,$datestr);
+    $y += 1900;
+    $y += 100 if $y < 1980;
+    return yearday_seconds($y,$doy)+$sec;
+}
+
+sub _scanEpochs
+{
+    my ($self,$sf)=@_;
     while( my $line=<$sf> )
     {
         my $ctl=substr($line,0,1);
@@ -378,23 +645,147 @@ sub _scanStationXYZ
         if $line !~ /^
             \s([\s\w]{4})  # point id
             \s([\s\w]{2})  # point code
-            \s([\s\w]{4})  # solution id
+            \s([\s\w\-]{4})  # solution id
             \s(\w)           # to be determined!
             \s(\d\d\:\d\d\d\:\d\d\d\d\d) # start epoch
             \s(\d\d\:\d\d\d\:\d\d\d\d\d) # end epoch
             \s(\d\d\:\d\d\d\:\d\d\d\d\d) # mean epoch
             /x;
-        my ($code,$solnid,$meanepoch)=(_trim($1),_trim($2).':'._trim($3),$7);
-        my ($y,$doy,$sec)=split(/\:/,$meanepoch);
-        $y += 1900;
-        $y += 100 if $y < 1980;
-        my $epoch=yearday_seconds($y,$doy)+$sec;
-        $stations->{$code}->{$solnid}->{epoch}=$epoch
-           if exists $stations->{$code} && exists $stations->{$code}->{$solnid};
+        my ($code,$solnid,$startepoch,$endepoch,$meanepoch)=(_trim($1),_trim($2).':'._trim($3),$5,$6,$7);
+        my $stn=$self->_getStation($code,$solnid);
+        $stn->{epoch}=$self->_sinexDateToTimestamp($meanepoch);
+        $stn->{start_epoch}=$self->_sinexDateToTimestamp($startepoch);
+        $stn->{end_epoch}=$self->_sinexDateToTimestamp($endepoch);
+    }
+    return 1;
+}
+
+
+=head2 $sf->filterStationsOnly($filteredsnx)
+
+Creates a new version of the SINEX file containing only the station 
+coordinate data.
+
+=cut
+
+sub filterStationsOnly
+{
+    my( $self, $filteredsnx ) = @_;
+    my $source=$self->{filename};
+
+    open( my $tgt, ">$filteredsnx" ) || croak("Cannot open output SINEX $filteredsnx\n");
+    my $src=$self->_open();
+
+    my $solnstns=$self->{solnstns};
+    my $prms=$self->{solnprms};
+    my $prmmap={};
+    foreach my $k (keys %$prms)
+    {
+        my $prm=$prms->{$k};
+        my $id=$prm->{stn}->{prmoffset}+$prm->{pno};
+        $prmmap->{$k}=$id+1;
     }
 
+    my $nprm=scalar(@$solnstns)*3;
 
-<<<<<<< HEAD
+    my $section='';
+    while( my $line=<$src> )
+    {
+        if( $line =~ /^\%\=SNX/ )
+        {
+            substr($line,60,5)=sprintf("%05d",$nprm);
+            substr($line,68)="S           \n";
+        }
+        elsif( $line =~ /^\+(.*?)\s*$/ )
+        {
+            $section=$1;
+        }
+        elsif( $line =~ /^\-/ )
+        {
+            $section='';
+        }
+        elsif( $line =~ /^\*/ )
+        {
+        }
+        elsif( $section =~ /SOLUTION\/(ESTIMATE|APRIORI)/ )
+        {
+            $line =~ /^
+               \s([\s\d]{5})  # param id
+               /x;
+            my $id=_trim($1)+0;
+            next if ! exists $prmmap->{$id};
+            substr($line,1,5)=sprintf("%5d",$prmmap->{$id});
+        }
+        elsif( $section =~ /SOLUTION\/MATRIX_(ESTIMATE|APRIORI)\s+L\s+COVA/ )
+        {
+            my $zero=sprintf("%21.14E",0.0);
+            my $vcv=[];
+            foreach my $i (0..$nprm-1)
+            {
+                $vcv->[$i]=[];
+                foreach my $j (0..$i)
+                {
+                    $vcv->[$i]->[$j]=$zero;
+                }
+            }
+
+            for( ; $line && $line !~ /^\-/; $line=<$src> )
+            {
+                if( $line =~ /^\*/ )
+                {
+                    next;
+                }
+                $line =~ /^
+                    \s([\s\d]{5})
+                    \s([\s\d]{5})
+                    \s([\s\dE\+\-\.]{21})
+                    (?:\s([\s\dE\+\-\.]{21}))?
+                    (?:\s([\s\dE\+\-\.]{21}))?
+                    /x;
+                my ($p0,$p1,$cvc)=($1+0,$2+0,[$3,$4,$5]);
+                next if ! exists $prmmap->{$p0};
+
+                my $rc0=$prmmap->{$p0}-1;
+                foreach my $ip (0,1,2)
+                {
+                    my $p1i=$p1+$ip;
+                    next if $cvc->[$ip] eq '';
+                    next if ! exists $prmmap->{$p1i};
+                    my $rc1=$prmmap->{$p1i}-1;
+                    if( $rc1 < $rc0 ){ $vcv->[$rc0]->[$rc1]=$cvc->[$ip]; }
+                    else { $vcv->[$rc1]->[$rc0]=$cvc->[$ip]; }
+                }
+            }
+
+            foreach my $i (1 .. $nprm)
+            {
+                my $ic=$i-1;
+                for(my $j0=1; $j0 <= $i; $j0+=3 )
+                {
+                    printf $tgt " %5d %5d",$i,$j0;
+                    foreach my $k (0 .. 2)
+                    {
+                        my $j=$j0+$k;
+                        last if $j > $i;
+                        print $tgt " ".$vcv->[$ic]->[$j-1];
+                    }
+                    print $tgt "\n";
+                }
+            }
+            $section='';
+        }
+        print $tgt $line;
+    }
+    close($src);
+    close($tgt);
+}
+
+=head1 LINZ::GNSS::SinexFile::Site
+
+  Solution information for a site.  Returned by SinexFile->site($code)
+
+=cut
+
 # Note: currently only solution and coordinate information for a site
 # has been implemented.
 #
@@ -488,7 +879,7 @@ Solution information for a site.  Returned by SinexFile::Site->mark($markid)
 
 package LINZ::GNSS::SinexFile::Mark;
 
-use LINZ::GNSS::Time qw/seconds_decimal_yr/;
+use LINZ::GNSS::Time qw/seconds_decimal_year/;
 use Carp;
 
 sub new
@@ -589,7 +980,7 @@ sub xyz
     my($self,$date,$extrapolate)=@_;
     my $solution=$self->solution($date,$extrapolate);
     croak("No solution available for requested date\n") if ! $solution;
-    my $yeardiff=seconds_decimal_yr($date)-seconds_decimal_yr($solution->{ref_epoch});
+    my $yeardiff=seconds_decimal_year($date)-seconds_decimal_year($solution->{ref_epoch});
     my $xyz=[0.0,0.0,0.0];
     foreach my $i (0..2)
     {
@@ -597,9 +988,5 @@ sub xyz
     }
     return $xyz;
 }
-=======
-    return 1;
- }
->>>>>>> hor_refinement
 
 1;
