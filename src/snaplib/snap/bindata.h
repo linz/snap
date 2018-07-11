@@ -50,6 +50,9 @@ long save_survdata_subset( survdata *sd, int iobs, int type );
 
 char *get_obs_classification_name( survdata *sd, trgtdata *t, int class_id );
 
+void print_json_observation_types( FILE *out );
+void print_json_observations( FILE *out );
+
 #ifdef BINDATA_C
 #define SCOPE
 #else

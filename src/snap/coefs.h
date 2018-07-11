@@ -10,23 +10,9 @@
 
 #ifndef _NETWORK_H
 #include "network/network.h"
+#include "snap/genparam.h"
 #endif
 
-#define COEFLEN 20
-#define DEFAULT_REFCOEF 0.075
-
-/* Note: the numbers defined for PRM_ correspond to indexes in the
-   coefprefix and coefpfxlen arrays in coefs.c */
-
-#define PRM_REFCOEF 0
-#define PRM_DISTSF  1
-#define PRM_BRNGREF 2
-#define PRM_SYSERR  3
-
-void define_coef( int type, const char *refcoef, double value, int adjust );
-void define_coef_match( int type, const char *coef1, const char *coef2 );
-
-void set_default_refcoef( double rc );
 int refcoef_prm( const char *refcoef );
 const char *refcoef_name( int rc );
 double zd_ref_correction( int rc, station *st1, station *st2, void *hA, int irow );

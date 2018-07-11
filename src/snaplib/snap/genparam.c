@@ -90,6 +90,35 @@ static param** prmlist = NULL;
 static int* srtlist = NULL;
 static void *action_list = NULL;
 
+static const char *coefprefix[] =
+{
+    "Refr coef ",
+    "Scale error ",
+    "Bearing error ",
+    "Systematic: "
+};
+
+static int prefixlen[] =
+{
+    10,
+    12,
+    14,
+    12
+};
+#define MAXPFXLEN 14
+#define COEFLEN 20
+#define MAXCOEFLEN MAXPFXLEN+COEFLEN
+
+static double default_refcoef = DEFAULT_REFCOEF;
+
+void set_default_refcoef( double value )
+{
+    default_refcoef = value;
+}
+
+/*==============================================================*/
+/* Refraction coefficient specific bits.                        */
+
 int param_count( void )
 {
     return nparam;
@@ -524,3 +553,81 @@ int reload_parameters( BINARY_FILE *b )
 }
 
 
+#define MAXCOEFLEN MAXPFXLEN+COEFLEN
+
+static void make_prmname( char *prmname, int type, const char *name )
+{
+    char *coefname;
+    strcpy( prmname, coefprefix[type]);
+    coefname = prmname+prefixlen[type];
+    strncpy( coefname,name,COEFLEN);
+    coefname[COEFLEN-1] = 0;
+    _strupr( coefname );
+}
+
+int get_param( int type, const char *name, int create )
+{
+    int prm;
+    char  prmname[MAXCOEFLEN];
+
+    make_prmname( prmname, type, name );
+
+    prm = find_param( prmname );
+    if( create && !prm )
+    {
+        double dflt = type == PRM_REFCOEF && _stricmp(name,"zero") ? default_refcoef : 0;
+        prm = define_param( prmname, dflt, 0 );
+    }
+
+    return prm;
+}
+
+const char *param_type_name( int type, int pid )
+{
+    return param_name(pid)+prefixlen[type];
+}
+
+void configure_param( int type, const char *name, double value, int adjust )
+{
+    int prm;
+    int len;
+
+    len = strlen(name);
+    if( !len ) return;
+
+    if( name[len-1] == '*' )
+    {
+        char wildcard[MAXCOEFLEN];
+        make_prmname( wildcard, type, name );
+        wildcard[strlen(wildcard)-1] = 0;
+        wildcard_param_value( wildcard, value, adjust );
+    }
+    else
+    {
+        prm = get_param( type, name, 1 );
+        define_param_value( prm, value, adjust );
+    }
+}
+
+void configure_param_match( int type, const char *coef1, const char *coef2 )
+{
+    int p1, p2, len;
+
+    p2 = get_param( type, coef2, 1 );
+
+    len = strlen(coef1);
+    if( !len ) return;
+
+    if( coef1[len-1] == '*' )
+    {
+        char wildcard[MAXCOEFLEN];
+        make_prmname( wildcard, type, coef1);
+        wildcard[strlen(wildcard)-1] = 0;
+        wildcard_param_match( wildcard, p2 );
+    }
+    else
+    {
+        p1 = get_param( type, coef1, 1 );
+        define_param_match( p1, p2 );
+    }
+}

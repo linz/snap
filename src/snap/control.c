@@ -43,6 +43,7 @@
 #include "snap/bearing.h"
 #include "snap/cfgprocs.h"
 #include "snap/deform.h"
+#include "snap/genparam.h"
 #include "snap/rftrans.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
@@ -809,7 +810,7 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
         st = strtok( NULL, " " );
         if( st )
         {
-            define_coef_match( code, rcname, st );
+            configure_param_match( code, rcname, st );
         }
         else
         {
@@ -824,7 +825,7 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
             st = strtok( NULL, " ");
             if( st && strcmp(st,"?") == 0 ) calculate = 1;
         }
-        if( sts == OK ) define_coef( code, rcname, rc, calculate );
+        if( sts == OK ) configure_param( code, rcname, rc, calculate );
     }
     else
     {

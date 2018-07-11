@@ -27,6 +27,18 @@ typedef struct param_s
 #define PRM_USED   0x02  /* Flags that data have been used... */
 #define PRM_LISTED 0x04  /* Flags that parameters have already been listed */
 
+/* Note: the numbers defined for PRM_ correspond to indexes in the
+   coefprefix and coefpfxlen arrays in genparam.c */
+
+#define PRM_REFCOEF 0
+#define PRM_DISTSF  1
+#define PRM_BRNGREF 2
+#define PRM_SYSERR  3
+
+#define DEFAULT_REFCOEF 0.075
+
+void set_default_refcoef( double value );
+
 int define_param( const char *name, double value, int adjust );
 int find_param( const char *name );
 void   flag_param_used( int p);
@@ -51,5 +63,10 @@ int find_param_row( int row, char *name, int nlen );
 void clear_param_list( void );
 void dump_parameters( BINARY_FILE *b );
 int reload_parameters( BINARY_FILE *b );
+
+int get_param( int type, const char *name, int create );
+const char *param_type_name( int type, int pid );
+void configure_param( int type, const char *refcoef, double value, int adjust );
+void configure_param_match( int type, const char *coef1, const char *coef2 );
 
 #endif
