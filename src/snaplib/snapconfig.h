@@ -10,7 +10,7 @@
 
 #if defined(UNIX)
 // unix version of functions
-#include <ctype.h>
+#include "util/snapctype.h"
 #include <unistd.h>
 #define _fileno fileno
 #define _unlink unlink
@@ -21,8 +21,8 @@
 #define _isatty isatty
 #define _hypot hypot
 #define _tempnam tempnam
-#define _strupr(x) {char *c=(x);while(*c){ *c=(char) toupper((int)*c); c++; }}
-#define _strlwr(x) {char *c=(x);while(*c){ *c=(char) tolower((int)*c); c++; }}
+#define _strupr(x) {char *c=(x);while(*c){ *c=(char) TOUPPER((int)*c); c++; }}
+#define _strlwr(x) {char *c=(x);while(*c){ *c=(char) TOLOWER((int)*c); c++; }}
 #define _set_output_format(x)
 #define _TWO_DIGIT_EXPONENT
 #define _strdup strdup

@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #define _SNAPMAIN_C
 #define GETVERSION_SET_PROGRAM_DATE
@@ -825,7 +825,7 @@ static void print_command_file( void )
     {
         if (strlen(inrec) == 0) continue;
         char *p=inrec+strlen(inrec)-1;
-        while( p >= inrec && isspace(*p) ) *p--=0;
+        while( p >= inrec && ISSPACE(*p) ) *p--=0;
         fprintf(lst,"     %s\n",inrec);
     }
     fprintf(lst,"\n");

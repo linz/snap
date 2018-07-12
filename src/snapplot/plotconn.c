@@ -29,7 +29,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #ifdef _WIN32
 #include <crtdbg.h>
@@ -162,11 +162,7 @@ static double highlight_threshhold;
 
 static double hlt_offset = 0.0;   /* Used to show individual connections */
 
-#ifdef __BORLANDC__
-static char use_conn_file = 1;
-#else
 static char use_conn_file = 0;
-#endif
 
 /* Code to set up all the information for the connections between observations.
 
@@ -2715,7 +2711,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
                   connection->flags & CONN_OBS_REVERSE;
 
         sprintf(buf,"%s %5s",datatype[obstype].name, reverse ? "(rvs)" : "");
-        buf[0] = toupper(buf[0]);
+        buf[0] = TOUPPER(buf[0]);
         for( nch = strlen(buf); nch < 26; nch++ ) { buf[nch] = ' ';}
         buf[nch] = 0;
 

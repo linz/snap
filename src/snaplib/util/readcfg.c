@@ -51,7 +51,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "util/chkalloc.h"
 #include "util/readcfg.h"
@@ -165,10 +165,10 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun )
         { 
             if( nch > 0 )
             {
-                *l++ = isspace(c) ? ' ' : c; 
+                *l++ = ISSPACE(c) ? ' ' : c; 
                 nch--; 
             }
-            else if( ! iscmt && (overrun || ! isspace(c)) )
+            else if( ! iscmt && (overrun || ! ISSPACE(c)) )
             {
                 overrun++;
             }
@@ -411,17 +411,6 @@ void clear_config_abort( CFG_FILE *cfg )
 {
     if( cfg ) cfg->abort = 0;
 }
-
-#ifdef __BORLANDC__
-// #pragma warn -par
-#endif
-
-#ifdef __TSC__
-// #pragma warn(wpnu=>off)
-#endif
-
-
-// #pragma warning( disable: 4100 )
 
 int readcfg_int( CFG_FILE *cfg, char *str, void *value, int length, int code )
 {

@@ -1,3 +1,3 @@
 
 tests:
-	perl runtests.pl -v
+	perl ../runtests.pl -v

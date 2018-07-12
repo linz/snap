@@ -11,7 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 #include <assert.h>
 
 #include "network/network.h"
@@ -106,12 +106,12 @@ void sl_remove_station( station_list *sl, station *st )
 int stncodecmp( const char *s1, const char *s2 )
 {
     long l1, l2;
-    while( *s1 && *s2 && tolower(*s1) == tolower(*s2) && ! isdigit(*s1) )
+    while( *s1 && *s2 && TOLOWER(*s1) == TOLOWER(*s2) && ! ISDIGIT(*s1) )
     {
         s1++;
         s2++;
     }
-    if( isdigit(*s1 ) && isdigit(*s2) )
+    if( ISDIGIT(*s1 ) && ISDIGIT(*s2) )
     {
         l1 = atol( s1 );
         l2 = atol( s2 );

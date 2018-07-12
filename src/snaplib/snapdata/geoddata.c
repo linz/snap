@@ -10,7 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "snapdata/geoddata.h"
 #include "snapdata/datatype.h"

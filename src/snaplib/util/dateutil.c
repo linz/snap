@@ -21,7 +21,7 @@
 #include <math.h>
 #include <string.h>
 #include <time.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 #include "util/dateutil.h"
 
 static long julian_day (int day, int month,int year)
@@ -142,7 +142,7 @@ double snap_datetime_parse( const char *definition, const char *format )
         int ibuf;
         int nbuf;
         int isname;
-        if( isspace(*fp)) continue;
+        if( ISSPACE(*fp)) continue;
         pfc = strchr(formatchars, *fp);
         if( ! pfc ) return 0.0;
         idx = pfc - formatchars;
@@ -151,15 +151,15 @@ double snap_datetime_parse( const char *definition, const char *format )
 
         while( *dp )
         {
-            if( isdigit(*dp)) break;
-            if( idx == 1 && isalnum(*dp)) break;
+            if( ISDIGIT(*dp)) break;
+            if( idx == 1 && ISALNUM(*dp)) break;
             dp++;
         }
         ibuf = 0;
 
         nbuf = maxchars[idx];
         isname = 0;
-        if( *dp && !isdigit(*dp))
+        if( *dp && !ISDIGIT(*dp))
         {
             buffer[0] = ' ';
             ibuf = 1;
@@ -167,10 +167,10 @@ double snap_datetime_parse( const char *definition, const char *format )
             isname = 1;
         }
 
-        while( *dp && isalnum(*dp) && ibuf < nbuf )
+        while( *dp && ISALNUM(*dp) && ibuf < nbuf )
         {
-            if( ! isdigit(*dp) && ! isname) break;
-            if( isdigit(*dp) && isname) break;
+            if( ! ISDIGIT(*dp) && ! isname) break;
+            if( ISDIGIT(*dp) && isname) break;
             buffer[ibuf++] = *dp++;
         }
         buffer[ibuf] = 0;

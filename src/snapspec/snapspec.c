@@ -23,7 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "util/errdef.h"
 #include "util/chkalloc.h"

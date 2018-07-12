@@ -25,7 +25,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #ifndef SEEK_SET
 #define SEEK_SET 0
@@ -43,7 +43,7 @@
 
 static int default_reclen = 256;
 
-#define ISSPACE(x) ((x)==' ' || (x)=='\r' || (x)=='\n' || (x)=='\t' || (x)=='\x1A')
+#define ISSPACEZ(x) (ISSPACE(x) || (x)=='\x1A')
 
 static const char *utf8_bom = "\xEF\xBB\xBF";
 static const char *utf16_bom = "\xFF\xFE\x46";
@@ -172,7 +172,7 @@ int df_skip_to_blank_line( DATAFILE *d )
             if( blank ) return OK;
             blank = 1;
         }
-        else if( ! ISSPACE(c) )
+        else if( ! ISSPACEZ(c) )
         {
             blank = 0;
         }
@@ -227,10 +227,10 @@ int df_read_data_file( DATAFILE *d )
             }
             // Trim whitespace
             int nch = strlen(line);
-            while( nch-- && isspace(line[nch])) { line[nch] = 0; }
+            while( nch-- && ISSPACEZ(line[nch])) { line[nch] = 0; }
             offset = lineoffset + nch;
             // Check for line continuation
-            if( nch >= 1 && line[nch] == d->continuation_char && isspace(line[nch-1]))
+            if( nch >= 1 && line[nch] == d->continuation_char && ISSPACEZ(line[nch-1]))
             {
                 line[offset] = 0;
             }
@@ -241,7 +241,7 @@ int df_read_data_file( DATAFILE *d )
         }
         // Retrim in case continuation only adds blanks
         line = d->inrec;
-        while( offset > 0 && isspace(line[offset])) { line[offset--] = 0; }
+        while( offset > 0 && ISSPACEZ(line[offset])) { line[offset--] = 0; }
     }
 
     d->inrecptr = d->lastrecptr = d->inrec;
@@ -282,7 +282,7 @@ int df_read_field( DATAFILE *d, char *field, int nfld )
     char *s, *e;
 
     s = d->inrecptr;
-    while( ISSPACE(*s) ) s++;
+    while( ISSPACEZ(*s) ) s++;
 
     d->lastrecptr = s;
 
@@ -305,7 +305,7 @@ int df_read_field( DATAFILE *d, char *field, int nfld )
     else
     {
         e = s;
-        while( *e && ! ISSPACE(*e) ) e++;
+        while( *e && ! ISSPACEZ(*e) ) e++;
         d->inrecptr = e;
     }
 
@@ -416,24 +416,24 @@ int df_read_hpangle( DATAFILE *d, double *v )
 
     for( f = field; *f != '.'; f++ )
     {
-        if( !isdigit(*f) ) return 0;
+        if( !ISDIGIT(*f) ) return 0;
         deg = deg*10 + (*f - '0');
     }
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     min = (*f - '0')*10;
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     min += (*f - '0' );
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     sec = (*f - '0')*10;
     f++;
-    if( !isdigit( *f )) return 0;
+    if( !ISDIGIT( *f )) return 0;
     sec += (*f - '0' );
     f++;
     den = 0.1;
-    while( isdigit(*f) )
+    while( ISDIGIT(*f) )
     {
         sec += (*f - '0')*den;
         den *= 0.1;
@@ -450,7 +450,7 @@ int df_read_rest( DATAFILE *d, char *line, int nlin )
     char *s;
     d->lastrecptr = d->inrecptr;
     s = d->inrecptr;
-    while ( ISSPACE(*s) ) s++;
+    while ( ISSPACEZ(*s) ) s++;
     if( !*s ) { *line = 0; d->inrecptr = s; return 0; }
     nlin--;
     for( ; nlin > 0 && *s ; s++ )
@@ -483,7 +483,7 @@ int df_end_of_line( DATAFILE *d )
 {
     char *s;
     s = d->inrecptr;
-    while( ISSPACE(*s) ) s++;
+    while( ISSPACEZ(*s) ) s++;
     d->inrecptr = s;
     return *s ? 0 : 1;
 }

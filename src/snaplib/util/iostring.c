@@ -16,7 +16,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "util/pi.h"
 #include "util/errdef.h"
@@ -33,7 +33,7 @@ void set_input_string_def( input_string_def *is, char *string )
 
 static int find_next_field( input_string_def *is )
 {
-    if( is->ptr ) while( isspace(*is->ptr)) is->ptr++;
+    if( is->ptr ) while( ISSPACE(*is->ptr)) is->ptr++;
     return is->ptr && *is->ptr ? OK : NO_MORE_DATA;
 }
 
@@ -76,7 +76,7 @@ static int read_next_field( input_string_def *is, char **start, int *length )
     else
     {
         *start = s;
-        while( s[nxt] && !isspace(s[nxt]) ) nxt++;
+        while( s[nxt] && !ISSPACE(s[nxt]) ) nxt++;
         *length = nxt;
         is->ptr = s+nxt;
         sts = OK;
@@ -259,7 +259,7 @@ int write_output_string2( output_string_def *os, const char *s, int options, con
         int nch;
         ptre=ptrs;
         start=ptrs;
-        if( triml ) while( *start && *start != '\n' && isspace(*start)) start++;
+        if( triml ) while( *start && *start != '\n' && ISSPACE(*start)) start++;
         if( ! *start ) break;
         if( *start == '\n' )
         {
@@ -272,7 +272,7 @@ int write_output_string2( output_string_def *os, const char *s, int options, con
             ptre=start;
             while( *ptre && *ptre != '\n' )
             {
-                if( ! isspace(*ptre) ) nch=ptre-start+1;
+                if( ! ISSPACE(*ptre) ) nch=ptre-start+1;
                 ptre++;
             }
             if( ! trimr ) nch=ptre-start;

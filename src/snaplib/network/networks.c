@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "network/network.h"
 #include "util/chkalloc.h"

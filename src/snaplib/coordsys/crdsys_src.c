@@ -15,7 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"

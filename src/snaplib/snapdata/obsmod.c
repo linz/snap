@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <ctype.h>
 
 #include "snapdata/obsmod.h"
 #include "snapdata/datatype.h"
@@ -15,6 +14,7 @@
 #include "util/errdef.h"
 #include "util/dateutil.h"
 #include "util/dstring.h"
+#include "util/snapctype.h"
 
 #define OBS_CRIT_NONE            0
 #define OBS_CRIT_DATATYPE        1
@@ -773,7 +773,7 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
                 }
                 vend=vptr;
                 while( *vend && *vend != quote ) vend++;
-                if( ! *vend  || !(*(vend+1) == 0 || isspace(*(vend+1))) )
+                if( ! *vend  || !(*(vend+1) == 0 || ISSPACE(*(vend+1))) )
                 {
                     char errmess[100];
                     strptr=vend;

@@ -29,7 +29,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "util/binfile.h"
 #include "util/chkalloc.h"
@@ -112,7 +112,7 @@ static void clean_name( char *name )
 {
     for( ; *name; name++ )
     {
-        if( isspace(*name)) *name = '_';
+        if( ISSPACE(*name)) *name = '_';
     }
 }
 

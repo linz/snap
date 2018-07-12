@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <fstream>
-#include "ctype.h"
+#include "util/snapctype.h"
 #include "scriptimp.hpp"
 
 using namespace Scripter;
@@ -1118,7 +1118,7 @@ Token *ScriptImp::InterpolateString(const wxString &dtext )
             char c = i < last ? text.at(i) : 0;
             if( invariable )
             {
-                if( isalnum(c) || c == '_' )
+                if( ISALNUM(c) || c == '_' )
                 {
                     name.append(c);
                     continue;

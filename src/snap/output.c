@@ -34,7 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #define OUTPUT_C
 
@@ -1058,7 +1058,7 @@ void write_csv_header( output_csv *csv, const char *fieldname )
     for( c=header; *fieldname; fieldname++ )
     {
         char ch = *fieldname;
-        if( ! isalnum(ch) ) ch = '_';
+        if( ! ISALNUM(ch) ) ch = '_';
         *c++ = ch;
         if( c - header >= 32 ) break;
     }

@@ -37,7 +37,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "control.h"
 #include "snap/bearing.h"
@@ -1297,7 +1297,7 @@ static int read_output_precision( CFG_FILE *cfg, char *string, void *value, int 
             sprintf(errmess,"Invalid type code %.20s in output_precision command",st);
             send_config_error( cfg, INVALID_DATA, errmess );
         }
-        else if( strlen(ndp_str) != 1 || !isdigit(ndp_str[0]) )
+        else if( strlen(ndp_str) != 1 || !ISDIGIT(ndp_str[0]) )
         {
             char errmess[80];
             sprintf(errmess,"Invalid precision %.20s in output_precision command",ndp_str);

@@ -2,7 +2,7 @@
 #include "snapplot_layers.hpp"
 #include "wxsymbology.hpp"
 
-#include <ctype.h>
+#include "util/snapctype.h"
 
 // Provides a crude interface to existing C code by replacing functions
 // defined in plotpens.h
@@ -238,7 +238,7 @@ static void delete_layers( layer_s **pl )
 static void init_layer( layer_s *l, const char *name, char *colour, bool title )
 {
     l->name = copy_string(name);
-    l->name[0] = toupper(l->name[0]);
+    l->name[0] = TOUPPER(l->name[0]);
     l->pen_id = title ? UNUSED_PEN_ID : OTHER_PEN;
     l->opt_id = title ? UNUSED_OPT_ID : OTHER_OPT;
     l->dfltColour = colour;

@@ -11,7 +11,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "network/network.h"
 #include "snap/cfgprocs.h"
@@ -302,7 +302,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
             int inopts;
             /* Options are following fields containing '=' */
 
-            while( isspace(*specs) ) specs++;
+            while( ISSPACE(*specs) ) specs++;
             options=specs;
 
             inopts=0;
@@ -310,7 +310,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
             endopts=0;
             for( char *c=specs; *c; c++ )
             {
-                if( ! isspace(*c))
+                if( ! ISSPACE(*c))
                 {
                     if( *c == '=' )
                     {

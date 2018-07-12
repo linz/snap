@@ -13,7 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "util/dstring.h"
 #include "util/chkalloc.h"
@@ -80,11 +80,11 @@ char *next_field( char **start )
 {
     char *result=0;
     char *s=*start;
-    while( isspace(*s) ) s++;
+    while( ISSPACE(*s) ) s++;
     (*start)=s;
     if( ! *s ) return 0;
     result = s;
-    while( *s && ! isspace(*s) ) s++;
+    while( *s && ! ISSPACE(*s) ) s++;
     if( *s ) {*s=0; s++; }
     (*start)=s;
     return result;

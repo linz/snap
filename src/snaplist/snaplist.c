@@ -27,7 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "util/errdef.h"
 #include "util/chkalloc.h"
@@ -705,12 +705,12 @@ static char *interpret_escaped_string( char *source, char *target, int maxtgt )
             case 'T': case 't': *t = '\t'; break;
             case 'N': case 'n': *t = '\n'; break;
             case 'X': case 'x':
-                if( isxdigit(s[1]) && isxdigit(s[2]))
+                if( ISXDIGIT(s[1]) && ISXDIGIT(s[2]))
                 {
                     unsigned char c;
-                    c = isdigit(s[1]) ? (s[1] - '0') : (10 + toupper(s[1]) - 'A');
+                    c = ISDIGIT(s[1]) ? (s[1] - '0') : (10 + TOUPPER(s[1]) - 'A');
                     c *= 16;
-                    c += isdigit(s[2]) ? (s[2] - '0') : (10 + toupper(s[2]) - 'A');
+                    c += ISDIGIT(s[2]) ? (s[2] - '0') : (10 + TOUPPER(s[2]) - 'A');
                     s += 2;
                     *t = c;
                 }
@@ -744,7 +744,7 @@ static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len,
 {
     char *sdeg, *smin, *ssec;
     char angle_delim[2];
-    while( *string && isspace(*string) ) string++;
+    while( *string && ISSPACE(*string) ) string++;
     angle_delim[0] = *string;
     angle_delim[1] = 0;
 

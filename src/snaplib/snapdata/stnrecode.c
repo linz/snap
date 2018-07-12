@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "snapdata/stnrecode.h"
 #include "snapdata/stnrecodefile.h"

@@ -71,12 +71,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
-#if defined( __BORLANDC__ )
-#include <conio.h>
-#include <io.h>
-#elif defined( _MSC_VER )
+#if defined( _MSC_VER )
 #include <conio.h>
 #include <io.h>
 #else
@@ -206,11 +203,7 @@ output_string_def printf_writer = {0,printf_func};
 
 static void clear_screen(void)
 {
-#ifdef __BORLANDC__
-    clrscr();
-#else
     printf("\n\n=====================================================================\n");
-#endif
 }
 
 
@@ -434,7 +427,7 @@ static int pause_output( void )
     do
     {
         c = getchar();
-        if( ! isspace(c) ) domore = 0;
+        if( ! ISSPACE(c) ) domore = 0;
     }
     while( c != '\n' && c != EOF );
     return domore;
@@ -762,7 +755,7 @@ static void parse_command_line( int argc, char **argv )
         if( ! arg[1] ) break;
         /* If -- then signals end of options */
         if( arg[1] == '-' && ! arg[2] ) { argc--; argv++; break; }
-        argchar=toupper(arg[1]);
+        argchar=TOUPPER(arg[1]);
         prm=strchr(switch_args,argchar);
         if( prm )
         {
@@ -1658,8 +1651,8 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
     if(strlen(string)==1 && hem )
     {
         c = string[0];
-        dms->neg = toupper(c)==hem[1];
-        if (dms->neg || toupper(c)==hem[0])
+        dms->neg = TOUPPER(c)==hem[1];
+        if (dms->neg || TOUPPER(c)==hem[0])
         {
             hemdef=1;
             if(read_string(input,separator,string,20)<=0) return 3;
@@ -1687,7 +1680,7 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
 
         /* Is the hemisphere indicator at the end of the seconds */
 
-        c = toupper( (int) string[nc-1]);
+        c = TOUPPER( (int) string[nc-1]);
         dms->neg = c==hem[1];
         if ( dms->neg || c==hem[0] )
         {
@@ -1700,8 +1693,8 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
         else
         {
             while( (c=getc(input)) == ' ' || c == '\t' );
-            dms->neg = toupper(c)==hem[1];
-            if (dms->neg || toupper(c)==hem[0]) hemdef=1;
+            dms->neg = TOUPPER(c)==hem[1];
+            if (dms->neg || TOUPPER(c)==hem[0]) hemdef=1;
             else { ungetc(c,input); }
         }
     }

@@ -59,7 +59,7 @@ static unsigned char license_text[MAX_LICENSE_TEXT + LICENSE_HEADER_LEN + 1];
 static unsigned char *license = license_text + LICENSE_HEADER_LEN;
 
 #include <stdio.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 #include <string.h>
 #include <stdlib.h>
 
@@ -132,7 +132,7 @@ int main( int argc, char *argv[] )
                 printf("\"\n                                  \"");
                 nc = 0;
             }
-            if( isprint(c) && ! isspace(c) && (!inhex || !isxdigit(c)))
+            if( ISPRINT(c) && ! ISSPACE(c) && (!inhex || !ISXDIGIT(c)))
             {
                 if( c == '\"' || c == '\\' ) { putchar('\\'); nc++; }
                 putchar((int)(c));

@@ -15,7 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
+#include "util/snapctype.h"
 
 #include "network/network.h"
 #include "util/chkalloc.h"
@@ -655,7 +655,7 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
     while( sts==OK && fgets(buf,2048,list_file) )
     {
         char *b = buf;
-        while( *b && isspace(*b) ) b++;
+        while( *b && ISSPACE(*b) ) b++;
         if( ! *b || *b == COMMENT_CHAR ) continue;
         sts=compile_station_criteria1(sc, nw,b,file,stacklevel);
     }
