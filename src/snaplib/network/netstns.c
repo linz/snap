@@ -142,5 +142,5 @@ void stnmultifunc( station *st, void *data )
 {
     stnmultifunc_data *smd=(stnmultifunc_data *) data;
     if( smd->func1 ) (*(smd->func1))(st,smd->data1);
-    if( smd->func2 ) (*(smd->func1))(st,smd->data2);
+    if( smd->func2 ) (*(smd->func2))(st,smd->data2);
 }
