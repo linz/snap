@@ -57,6 +57,7 @@
 #include "snap/cfgprocs.h"
 #include "snap/survfile.h"
 #include "snap/survfilr.h"
+#include "snap/snapglob.h"
 #include "util/getversion.h"
 
 
@@ -249,6 +250,7 @@ static long nvecdata = 0;
 static int max_ro_id = 0;
 
 static int listonly = 0;
+static int userejected = 0;
 
 static FILE *errlog;
 static int errcount;
@@ -631,6 +633,7 @@ static void load_data( survdata *sd )
         for( i = 0, o = sd->obs.odata; i < sd->nobs; i++, o++ )
         {
             trgtdata *tgt = &(o->tgt);
+            if( tgt->unused && ! userejected ) continue;
             to = station_from_id( tgt->to );
             if( !to ) continue;
             if( tgt->type == HA ) { got_ha = 1; continue; }
@@ -682,6 +685,7 @@ static void load_data( survdata *sd )
         for( i = 0, v = sd->obs.vdata; i < sd->nobs; i++, v++ )
         {
             trgtdata *tgt = &(v->tgt);
+            if( tgt->unused && ! userejected ) continue;
             to = station_from_id( tgt->to );
             if( !to ) continue;
             add_vecdata( from, to, v->vector, tgt->type );
@@ -2902,16 +2906,18 @@ static config_item snap_commands[] =
 };
 
 
-static void load_command_file( char *cmd_file, int recalconly, int included )
+static void load_command_file( const char *cmd_file, int recalconly, int included )
 {
     CFG_FILE *cfg;
     const char *f;
     char *cfgfile;
-
+    int tryopt=FF_TRYLOCAL;
     int sts;
 
-    f = find_file( cmd_file, DFLTCOMMAND_EXT2, 0, FF_TRYLOCAL, 0 );
-    if( !f ) f = find_file( cmd_file, DFLTCOMMAND_EXT, 0, FF_TRYLOCAL, 0 );
+    if( included ) tryopt |= FF_TRYPROJECT;
+
+    f = find_file( cmd_file, DFLTCOMMAND_EXT2, 0, tryopt, 0 );
+    if( !f ) f = find_file( cmd_file, DFLTCOMMAND_EXT, 0, tryopt, 0 );
     if( !f ) f = cmd_file;
     cfgfile=copy_string(f);
 
@@ -2920,14 +2926,16 @@ static void load_command_file( char *cmd_file, int recalconly, int included )
 
     if(cfg)
     {
-        int pl=path_len(f,0);
-        char *pdir=pl ? copy_string_nch(f,pl) : 0;
-        if( pdir )
-        {
-            set_project_dir( pdir );
-            check_free(pdir);
-        }
-        set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_IGNORE_BAD | CFG_SET_PATH );
+        // int pl=path_len(f,0);
+        // char *pdir=pl ? copy_string_nch(f,pl) : 0;
+        // if( pdir )
+        // {
+        //     set_project_dir( pdir );
+        //     check_free(pdir);
+        // }
+        int options=included ? 0 : CFG_CHECK_MISSING; 
+        options |= (CFG_IGNORE_BAD | CFG_SET_PATH);
+        set_config_read_options( cfg, options );
         sts = read_config_file( cfg, snap_commands );
         close_config_file( cfg );
     }
@@ -2990,6 +2998,7 @@ int main( int argc, char *argv[] )
     char **recalclist;
     char *outputfile = NULL;
 
+
     errcount = 0;
     errlog = stdout;
 
@@ -3020,6 +3029,7 @@ int main( int argc, char *argv[] )
             case 'r': case 'R': recalc = 1; break;
             case 'l': case 'L': listonly = 1; break;
             case 'm': case 'M': listonly = 2; break;
+            case 'u': case 'U': userejected = 1; break;
             case 'o': case 'O': i++;
                 if( i > argc ) { syntax_error = 1; }
                 else { outputfile = argv[i]; }
@@ -3061,12 +3071,14 @@ int main( int argc, char *argv[] )
         printf("    -r   is followed by a list of stations to recalculate - others are unchanged\n");
         printf("    -l   just lists all the stations without doing calculations\n");
         printf("    -m   just list missing stations without doing calculations\n");
+        printf("    -u   use rejected or ignored stations\n");
         printf("    -o filename  specifies a filename for station lists\n");
         return 0;
     }
 
     stnlist = create_list( sizeof(stn) );
 
+    init_snap_globals();
     install_default_crdsys_file();
 
     /* Load the coordinate file */
@@ -3080,6 +3092,7 @@ int main( int argc, char *argv[] )
 
     else if( command_file )
     {
+        set_snap_command_file( filelist[0] );
         load_command_file( filelist[0], recalc, 0 );
     }
     else

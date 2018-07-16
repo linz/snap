@@ -26,7 +26,8 @@ LAPGSRCDIR=../tools/lapg/src
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
-LDFLAGS = -lm -lboost_regex -lpthread -lefence
+LDFLAGS = -lm -lboost_regex -lpthread 
+#-lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
@@ -88,10 +89,9 @@ installable:
 	
 ifeq ($(type), release)
 install: installable all
-	mkdir -p $(INSTALLDIR)
-	mkdir -p $(BINDIR)
-	cp -r $(INSTALL)/* $(INSTALLDIR)
-	git rev-parse
+	sudo mkdir -p $(INSTALLDIR)
+	sudo mkdir -p $(BINDIR)
+	sudo cp -r $(INSTALL)/* $(INSTALLDIR)
 
 package: installable
 	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
