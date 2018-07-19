@@ -78,7 +78,7 @@ extern int geoid_error_level;
 
 int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts );
 void set_output_station_file( const char *fname );
-int write_station_file( const char *fname, const char *prog, const char *ver, const char *rtime,
+int write_station_file( const char *prog, const char *fname, const char *ver, const char *rtime,
                         int coord_precision, char rejected );
 void set_stnadj_init_network( void );
 void reset_stnadj_initial_coords( void );

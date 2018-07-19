@@ -959,7 +959,7 @@ static void write_metadata_csv()
 static void update_station_file( char *filename)
 {
     if( ! filename ) return;
-    if( write_station_file( filename, PROGRAM, PROGRAM_VERSION, run_time,
+    if( write_station_file( PROGRAM, filename, PROGRAM_VERSION, run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
         xprintf("\nNew station coordinates have been written to %s\n",filename);

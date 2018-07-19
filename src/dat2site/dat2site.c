@@ -47,6 +47,7 @@
 #include "util/readcfg.h"
 #include "util/dms.h"
 #include "util/pi.h"
+#include "util/progress.h"
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "snapdata/datatype.h"
@@ -294,16 +295,9 @@ static void close_station_list( void )
     next_stn = -1;
 }
 
-static stn * get_station( const char *code )
+static stn *new_stn( const char *code )
 {
-    stn *st;
-    int i;
-    FOR_ALL_STATIONS(st)
-    {
-        if( _stricmp( st->code, code ) == 0 ) return st;
-    }
-    if( next_stn < 0 ) return 0;
-    st = (stn * ) add_to_list( stnlist, NEW_ITEM );
+    stn *st = (stn * ) add_to_list( stnlist, NEW_ITEM );
     st->code = copy_string( code );
     st->st = NULL;
     st->id = next_stn++;
@@ -311,7 +305,7 @@ static stn * get_station( const char *code )
     st->connlist = NULL;
     st->bestfix = 0.0;
     st->besttype = 0;
-    for( i = 0; i < NO_FIX_TYPES; i++ )
+    for( int i = 0; i < NO_FIX_TYPES; i++ )
     {
         st->can_fix[i] = 0;
         st->fix_quality[i] = 0.0;
@@ -319,6 +313,70 @@ static stn * get_station( const char *code )
 
     st->flag = 0;
     return st;
+}
+
+static stn *find_stn( const char *code )
+{
+    stn *st;
+    FOR_ALL_STATIONS(st)
+    {
+        if( _stricmp( st->code, code ) == 0 ) return st;
+    }
+    return 0;
+}
+
+static station *find_network_station( const char *code )
+{
+    return station_ptr(net,find_station(net,code));
+}
+
+static void link_station( station *s, stn *st )
+{
+    s->hook=st;
+    st->st=s;
+}
+
+static stn *get_station( const char *code )
+{
+    stn *st=0;
+    if( net )
+    {
+        station *s=find_network_station(code);
+        if( s ) st=(stn *)(s->hook);
+    }
+    if( ! st )
+    {
+        st=find_stn(code);
+    }
+    if( st  ) return st;
+    if( next_stn < 0 ) return 0;
+    return new_stn( code );
+}
+
+void add_network_stations()
+{
+    if ( ! net ) return;
+    int nstns=number_of_stations(net);
+    for( int i=0; i++ < nstns; )
+    {
+        station *s=stnptr(i);
+        if( ! s->hook )
+        {
+            stn *st=find_stn(s->Code);
+            if( st ) link_station(s, st);
+        }
+    }
+    for( int i=0; i++ < nstns; )
+    {
+        station *s=stnptr(i);
+        stn *st=(stn *)(s->hook);
+        if( ! st )
+        {
+            st=new_stn(s->Code);
+            link_station(s,st);
+        }
+        st->fixed = ST_FIXHV;
+    }
 }
 
 static int get_station_id( const char *code )
@@ -329,12 +387,15 @@ static int get_station_id( const char *code )
 
 static stn *station_from_id( int id )
 {
-    stn *st;
+    stn *st=0;
+    station *s=stnptr(id);
+    if( s ) st=(stn *)(s->hook);
+    if( st && st->id == id ) return st;
     FOR_ALL_STATIONS(st)
     {
         if( st->id == id ) return st;
     }
-    return NULL;
+    return 0;
 }
 
 
@@ -1325,9 +1386,9 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
     {
         if( !(flag & ST_FIXH) ) lat = lon = 0.0;
         if( !(flag & ST_FIXV) ) hgt = 0.0;
-        st->st = new_network_station( net, st->code, st->code, lat, lon, hgt,
+        station *s = new_network_station( net, st->code, st->code, lat, lon, hgt,
                                       0.0, 0.0, 0.0 );
-        st->st->hook = st;
+        link_station(s,st);
     }
     else
     {
@@ -1393,41 +1454,37 @@ static void fix_known_stations( char **recalclist, int nrecalc )
 {
     int i, j, maxstn;
     maxstn = number_of_stations( net );
-    for( i = 0; i++ < maxstn; )
+    for( j = 0; j < nrecalc; j++ )
     {
-        station *s;
-        stn *st;
-        s = station_ptr( net, i );
-        st = get_station( s->Code );
-        if( !st ) continue;
-        s->hook = st;
-        st->st = s;
-        st->fixed = ST_FIXHV;
-        for( j = 0; j < nrecalc; j++ )
+        station *s=find_network_station(recalclist[j]);
+        if( s && s->hook )
         {
-            if( _stricmp( s->Code, recalclist[j] ) == 0 ) { st->fixed = 0; break; }
+            stn *st=(stn *)(s->hook);
+            st->fixed=0;
         }
     }
+    printf("\nFixing known stations\n");
+    init_progress_meter(maxstn);
     for( i = 0; i++ < maxstn; )
     {
         station *s;
         stn *st;
+        update_progress_meter(i);
         s = station_ptr( net, i );
         if( ! s->hook ) continue;
-        st = (stn *) s->hook;
+        st = (stn *)(s->hook);
         if( !st->fixed ) continue;
         st->fixed = 0;
         fix_station( st, s->ELat, s->ELon, s->OHgt, ST_FIXHV | ST_HIDEFIX );
     }
+    end_progress_meter();
 
 }
 
 static int add_known_station( station *s )
 {
-    stn *st;
-    st = get_station( s->Code );
+    stn *st = get_station( s->Code );
     if( !st ) return 0;
-    s->hook = st;
     st->st = s;
     fix_station( st, s->ELat, s->ELon, s->OHgt, ST_FIXHV );
     return 1;
@@ -2814,6 +2871,7 @@ static void load_interactively( void )
             printf("Error reading coordinate file %s\n",crdfname);
         }
     }
+    add_network_stations();
 
     /* Load the data ... */
 
@@ -2864,6 +2922,7 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
         printf("Error reading coordinate file %s\n",crdfname);
         exit(0);
     }
+    add_network_stations();
 
     if( recalconly ) set_recalc_list();
 
@@ -2956,6 +3015,7 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
             printf("\n\nCoordinate or data file not found in configuration file\n");
             exit(0);
         }
+        add_network_stations();
         if( recalconly ) set_recalc_list();
         read_data_files( stdout );
         crdfname=copy_string( station_filename );
@@ -3223,7 +3283,7 @@ int main( int argc, char *argv[] )
         if( i < 75 ) strcpy(crdfname+i,".new");
     }
 
-    write_network( net, crdfname, NULL, 0, check_fixed_stn );
+    write_station_file( "dat2site", 0, 0, 0, 0, check_fixed_stn );
 
     printf("\nUpdated coordinates written to %s\n", crdfname );
 

@@ -19,7 +19,9 @@
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "util/fileutil.h"
+#include "util/get_date.h"
 #include "util/errdef.h"
+#include "util/getversion.h"
 
 /* Global variables holding the definition of the network */
 
@@ -175,7 +177,7 @@ static int check_rejected( station *st )
     return 1;
 }
 
-int write_station_file( const char *fname, const char *prog, const char *ver, const char *rtime,
+int write_station_file( const char *prog, const char *fname, const char *ver, const char *rtime,
                         int coord_precision, char rejected )
 {
     char comment[256];
@@ -186,9 +188,26 @@ int write_station_file( const char *fname, const char *prog, const char *ver, co
         return INVALID_DATA;
     }
 
+    if( ! fname ) fname=output_station_filespec;
+    if( ! ver ) ver=PROGRAM_VERSION;
+    if( ! rtime ) rtime=get_date(0);
+
+    if( ! fname )
+    {
+        handle_error( INVALID_DATA, "Coordinate file not written as no filename defined", NO_MESSAGE );
+        return INVALID_DATA;
+    }
+
     skip_rejected = !rejected;
 
-    sprintf(comment,"Updated by %s version %s at %s",prog,ver,rtime);
+    if( prog )
+    {
+        sprintf(comment,"Updated by %s version %s at %s",prog,ver,rtime);
+    }
+    else
+    {
+        sprintf(comment,"Updated at %s",rtime);
+    }
 
     return write_network( net, fname, comment, coord_precision,
                           check_rejected );
