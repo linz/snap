@@ -89,9 +89,9 @@ installable:
 	
 ifeq ($(type), release)
 install: installable all
-	sudo mkdir -p $(INSTALLDIR)
-	sudo mkdir -p $(BINDIR)
-	sudo cp -r $(INSTALL)/* $(INSTALLDIR)
+	mkdir -p $(INSTALLDIR)
+	mkdir -p $(BINDIR)
+	cp -r $(INSTALL)/* $(INSTALLDIR)
 
 package: installable
 	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
