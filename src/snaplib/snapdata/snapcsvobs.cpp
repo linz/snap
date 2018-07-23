@@ -6,6 +6,7 @@
 #include <vector>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
+#include <cmath>
 
 #include "snapdata/snapcsvobs.hpp"
 #include "snapdata/snapcsvobs.h"
