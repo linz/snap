@@ -184,7 +184,7 @@ $(SNAPPLOTEXE): $(SNAPPLOTOBJS) $(WXUTILSLIB) $(SNAPLIB)
 $(LAPG): 
 	cd $(LAPGSRCDIR) && make
 
-$(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_parse.syntax
+$(SRCDIR)/snap_manager/scriptimp_parse.cpp: $(SRCDIR)/snap_manager/scriptimp_parse.syntax $(LAPG)
 	$(LAPG) $(SRCDIR)/snap_manager/scriptimp_parse.syntax $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 
 $(SNAPLIB): $(SNAPLIBOBJS)
