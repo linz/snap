@@ -135,7 +135,6 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         if( ! net )
         {
             void *obsmod=snap_obs_modifications( false );
-            if( obsmod ) set_obs_modifications_network( obsmod, net );
             station_filename = copy_string( fname );
             station_filespec = copy_string( stnfile );
             if( ! output_station_filespec )
@@ -146,6 +145,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
                 strcpy(output_station_filespec+nch,NEWSTNFILE_EXT);
             }
             net=stndata;
+            if( obsmod ) set_obs_modifications_network( obsmod, net );
         }
         else
         {
