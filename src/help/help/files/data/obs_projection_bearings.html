@@ -17,6 +17,12 @@
 
 <p>The data file must specify the coordinate system in which the projection is defined using the <a href="obs_ddc_projection.html">#projection command</a>.  This specifies one of codes in the <u>coordinate system definition</u> file. </p>
 
+<p>By default SNAP can only calculate projection bearings if the projection coordinate system uses
+the same datum as the network coordinate system.  However this can be relaxed using the 
+<a href="../cmdcfg/cmd_proj_bearing_use_datum.html">proj_bearing_use_datum</a> configuration
+command in the SNAP command file.
+</p>
+
 <p>Projection bearings may be subject to an associated bearing orientation error.  This is a constant angular offset (measured in seconds) which may be applied to, or calculated for, a group of azimuth observations.  For example if several survey plans are being processed each may have an associated bearing orientation error.</p>
 
 <p>The projection bearings are formatted in input files either as degrees, minutes, and seconds, in the HP format, or as decimal degrees as define by the <a href="obs_ddc_angles.html">#hp_angles, #deg_angles, and #dms_angles</a> data definition commands. The error is in seconds, or in degrees if the #deg_angles option is used.</p>
@@ -48,6 +54,8 @@
 <p><a href="obs_ddc_bearing_orientation_error.html">The #bearing_orientation_error command</a></p>
 
 <p><a href="obs_ddc_angles.html">The #hp_angles, #deg_angles, and #dms_angles commands</a></p>
+
+<p><a href="../cmdcfg/cmd_proj_bearing_use_datum.html">The proj_bearing_use_datum command</a></p>
 
 </body>
 </html>

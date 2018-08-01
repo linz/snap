@@ -44,7 +44,7 @@ ErrorOptionsDialog::ErrorOptionsDialog( wxHelpController *help )
                 CheckBox( "A&utoscale", vrtAutoScale ),
                 0);
     AddButtonsAndSize();
-    if( help ) SetupHelp( help, _T( HELPBASE "dlg_error_options.html" ) );
+    if( help ) SetupHelp( help,  HELPBASE "dlg_error_options.html"  );
 }
 
 void ErrorOptionsDialog::ReadData()

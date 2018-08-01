@@ -242,8 +242,8 @@ public:
 private:
     Token *label;
     Token *controls;
-    Token *options;
     VariableToken *variable;
+    Token *options;
 };
 
 enum DialogControlTokenType
@@ -286,8 +286,8 @@ public:
     Token *Actions() { return (type == ctButton || type == ctValidator) ? info : 0; }
 private:
     DialogControlTokenType type;
-    VariableToken *variable;
     Token *label;
+    VariableToken *variable;
     Token *selector;
     Token *info;
 };
@@ -300,8 +300,8 @@ class MenuItem : public Token
         Functions() : refcount(1), actions(0), requirements(0){}
         ~Functions();
         int refcount;
-        Token *requirements;
         Token *actions;
+        Token *requirements;
     };
 
 public:
@@ -352,7 +352,7 @@ class StackFrame
 {
 public:
     StackFrame( const wxString &name) :  name(name), variables(), next(0) {}
-    StackFrame( ) :  name(_T("")), variables(), next(0) {}
+    StackFrame( ) :  name(""), variables(), next(0) {}
     wxString name;
     VariableList variables;
     StackFrame *next;
@@ -407,7 +407,7 @@ public:
     void Print( ostream &os );
 
 private:
-    bool PushStack( const wxString &name = _T("") );
+    bool PushStack( const wxString &name = "" );
     void PopStack();
     void PostRunActions();
     void RemoveMenuItem( const wxString &name );

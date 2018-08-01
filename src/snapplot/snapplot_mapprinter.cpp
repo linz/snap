@@ -58,8 +58,8 @@ bool SnapplotMapPrinter::OnPrintPage(int WXUNUSED(page) )
 
     wxRect plotRect = sourceScale->GetWindowExtents();
 
-    dc->GetTextExtent( _T(job_title), &w, &h );
-    dc->DrawText( _T(job_title), (printRect.GetWidth() - w)/2, 0 );
+    dc->GetTextExtent( job_title, &w, &h );
+    dc->DrawText( job_title, (printRect.GetWidth() - w)/2, 0 );
 
     int topMargin = dc->GetCharHeight() * 2;
     printRect.SetHeight( printRect.GetHeight() - topMargin );

@@ -30,7 +30,7 @@ wxMapDrawer::wxMapDrawer( wxDC &dc, wxMapScale &scale, Symbology &symbology ) :
     maxPoints = 50;
     points = new wxPoint[maxPoints];
     //
-    currentColour =wxColour(_T("BLACK"));
+    currentColour =wxColour("BLACK");
     currentSymbol = 0;
 
     // TextStyle calculates the size based upon 10pt = refsize

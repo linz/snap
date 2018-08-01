@@ -11,7 +11,7 @@ using namespace std;
 #define DEBUG_SCRIPTIMP 0
 
 #if DEBUG_SCRIPTIMP
-#define LOG(x) printf x ;
+#define LOG(x) wxPrintf x ;
 #else
 #define LOG(x)
 #endif
@@ -88,7 +88,7 @@ Value BooleanToken::evaluate()
 {
     Value v;
     v = Value(value);
-    LOG(("Evaluated %s as %s\n","BooleanToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","BooleanToken",v.AsString()));
     return v;
 }
 
@@ -101,7 +101,7 @@ void BooleanToken::print( const wxString &prefix, ostream &str )
 Value StringToken::evaluate()
 {
     Value v(text);
-    LOG(("Evaluated %s as %s\n","StringToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","StringToken",v.AsString()));
     return v;
 }
 
@@ -116,7 +116,7 @@ Value IdToken::evaluate()
 {
     Value v;
     v = Value(id);
-    LOG(("Evaluated %s as %s\n","IdToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","IdToken",v.AsString()));
     return v;
 }
 
@@ -132,9 +132,9 @@ Value VariableToken::evaluate()
     bool result = Owner()->GetValue( name, v );
     if( ! result )
     {
-        Owner()->error("No value defined for variable \"%s\"", name.c_str());
+        Owner()->error("No value defined for variable \"%s\"", (const char *)(name.mb_str()));
     }
-    LOG(("Evaluated %s as %s\n","VariableToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","VariableToken",v.AsString()));
     return v;
 }
 
@@ -177,7 +177,7 @@ Value FunctionToken::evaluate()
 
     Owner()->EvaluateFunction( name, params ? &pv : 0, v );
 
-    LOG(("Evaluated %s as %s\n","FunctionToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","FunctionToken",v.AsString()));
     return v;
 }
 
@@ -202,7 +202,7 @@ Value ConditionalBranch::evaluate()
     // Evaluated by ConditionalStatement token for conditional statement ...
 
     long maxIterations = 100;
-    if( Owner()->GetValue( _T("$max_while_loop_iterations"), vMaxIt ))
+    if( Owner()->GetValue( "$max_while_loop_iterations", vMaxIt ))
     {
         vMaxIt.AsString().ToLong( &maxIterations );
     }
@@ -216,7 +216,7 @@ Value ConditionalBranch::evaluate()
         }
     }
 
-    LOG(("Evaluated %s as %s\n","ConditionalBranch",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","ConditionalBranch",v.AsString()));
     return v;
 }
 
@@ -247,7 +247,7 @@ Value ConditionalStatement::evaluate()
             break;
         }
     }
-    LOG(("Evaluated %s as %s\n","ConditionalStatement",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","ConditionalStatement",v.AsString()));
     return v;
 }
 
@@ -272,7 +272,7 @@ Value ForeachToken::evaluate()
     Value v;
     VariableToken *var = static_cast<VariableToken *>( variable );
 
-    wxString del(_T("\n"));
+    wxString del("\n");
     wxRegEx re;
 
     // Use a regular expression if the delimiter is explicitely defined, or if there is just
@@ -282,7 +282,7 @@ Value ForeachToken::evaluate()
     if( delimiter ) del = delimiter->GetValue().AsString();
     if( usere && ! re.Compile(del,wxRE_ADVANCED) )
     {
-        Owner()->error("Invalid regular expression %s specified",(char *) del.c_str() );
+        Owner()->error("Invalid regular expression %s specified",(const char *)(del.mb_str()) );
         return v;
     }
 
@@ -349,7 +349,7 @@ Value ForeachToken::evaluate()
         }
     }
 
-    LOG(("Evaluated %s as %s\n","ForeachToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","ForeachToken",v.AsString()));
     return v;
 }
 
@@ -413,7 +413,7 @@ Value ExitToken::evaluate()
 
     Owner()->SetExitLevel(level,v);
 
-    LOG(("Evaluated %s as %s\n","ExitToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","ExitToken",v.AsString()));
     return v;
 }
 
@@ -477,7 +477,7 @@ Value MenuItem::evaluate()
     Owner()->AddMenuItem( new MenuItem(*this) );
 
     v = Value(true);
-    LOG(("Evaluated %s as %s\n","MenuItem",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","MenuItem",v.AsString()));
     return v;
 }
 
@@ -523,7 +523,7 @@ Value FunctionDef::evaluate()
     // (Note: SetExitLevel does nothing if the exit level is not increased)
     Owner()->SetExitLevel( elReturn, v );
     inuse = wasinuse;
-    LOG(("Evaluated %s as %s\n","FunctionDef",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","FunctionDef",v.AsString()));
     return Owner()->ExitValue();
 }
 
@@ -549,7 +549,7 @@ Value StatementBlockToken::evaluate()
     {
         v = s->GetValue();
     }
-    LOG(("Evaluated %s as %s\n","StatementBlockToken",v.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","StatementBlockToken",v.AsString()));
     return v;
 }
 
@@ -572,7 +572,7 @@ static int compValue( const Value &value1, const Value &value2 )
     wxString s2=value2.AsString();
     double v1=0.0;
     double v2=0.0;
-    wxRegEx reNumber(wxT("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)"));
+    wxRegEx reNumber("^(\\-?[0-9]+(\\.[0-9]+)?)(\\.*)");
     if( reNumber.Matches(s1) )
     {
         double v;
@@ -678,7 +678,7 @@ Value Operator::evaluate()
             break;
         }
     }
-    LOG(("Evaluated %s as %s\n","Operator",result.AsString().c_str()));
+    LOG(("Evaluated %s as %s\n","Operator",result.AsString()));
 
     return result;
 }
@@ -735,6 +735,26 @@ void Operator::print( const wxString &prefix, ostream &str )
 
     case opDivide:
         str << "divide";
+        binary = true;
+        break;
+
+    case opLt:
+        str << "lt";
+        binary = true;
+        break;
+
+    case opLe:
+        str << "le";
+        binary = true;
+        break;
+
+    case opGt:
+        str << "gt";
+        binary = true;
+        break;
+
+    case opGe:
+        str << "ge";
         binary = true;
         break;
     }
@@ -936,7 +956,7 @@ void ScriptImp::error( const char *format, ... )
     if( sourceFile != "" ) errorMessage = errorMessage + "\nFile: " + sourceFile;
     for( StackFrame *f = frame; f; f=f->next )
     {
-        if( f->name != _T("") )
+        if( f->name != "" )
         {
             errorMessage = errorMessage + "\nIn function: " + f->name;
             break;
@@ -978,11 +998,11 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
 {
     wxString itemname=name;
     wxString match=name;
-    wxString delimiter(_T("|"));
+    wxString delimiter("|");
     wxArrayString eraseMenus;
     vector<MenuItem *> eraseItems;
 
-    if( ! match.EndsWith(delimiter.c_str())) 
+    if( ! match.EndsWith(delimiter)) 
     {
         eraseMenus.Add(match);
         match.Append(delimiter);
@@ -995,14 +1015,14 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
         wxString rest;
         MenuItem *mi = (*it);
         bool matched = mi->MenuName() == itemname;
-        if( ! matched && mi->MenuName().StartsWith(match.c_str(),&rest) )
+        if( ! matched && mi->MenuName().StartsWith(match,&rest) )
         {
             matched=true;
             while( rest.Contains(delimiter) )
             {
                 rest=rest.BeforeLast(delimiter[0]);
                 wxString menuname=match+rest;
-                if( eraseMenus.Index(menuname.c_str()) == wxNOT_FOUND )
+                if( eraseMenus.Index(menuname) == wxNOT_FOUND )
                 {
                     eraseMenus.Add(menuname);
                 }
@@ -1038,7 +1058,7 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
     eraseMenus.Sort(true);
     for( int i=0; i < eraseMenus.Count(); i++ )
     {
-        environment.RemoveMenuItem( eraseMenus[i] + _T("|") );
+        environment.RemoveMenuItem( eraseMenus[i] + "|" );
     }
 }
 
@@ -1205,7 +1225,7 @@ void ScriptImp::SetValue( const wxString &name, const Value &value )
     Value test;
     if( environment.GetValue(name,test))
     {
-        error("Cannot assign a value to system variable %s",name.c_str());
+        error("Cannot assign a value to system variable %s",(const char *)(name.mb_str()));
     }
     else if( name.substr(0,2) == wxString("$_" ) )
     {
@@ -1309,11 +1329,11 @@ void ScriptImp::EvaluateFunction( const wxString &funcname, const Value *params,
     {
         if( status == fsBadFunction )
         {
-            error( "Error: Unknown function %s used in script", name.c_str() );
+            error( "Error: Unknown function %s used in script", (const char *)(name.mb_str()) );
         }
         else if ( status == fsBadParameters )
         {
-            error( "Error: Bad parameters passed to function %s in script",name.c_str() );
+            error( "Error: Bad parameters passed to function %s in script",(const char *)(name.mb_str()) );
         }
         else if( status == fsTerminateScript || status == fsReportedError )
         {

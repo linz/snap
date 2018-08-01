@@ -1,5 +1,5 @@
 /* XPM */
-static char *IDB_SPLASHSCREEN_xpm[] = {
+static const char *IDB_SPLASHSCREEN_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "250 125 256 2 ",
 "   c #0000B1",

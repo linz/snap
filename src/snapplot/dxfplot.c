@@ -43,8 +43,8 @@ static long entid = 0;
 
 static char **layer_name = NULL;
 static int nlayer = 0;
-static char *cur_layer;
-static char *default_layer = "0";
+static const char *cur_layer;
+static const char *default_layer = "0";
 static int text_layer = 0;
 
 static Trimmer tr;
@@ -344,7 +344,7 @@ static int setup_dxf_layers( void )
     nused = 1;
     for( i=1; i<=npen; i++)
     {
-        char *name = pen_name(i-1);
+        const char *name = pen_name(i-1);
         layer_name[i] = 0;
         if( !name || ! name[0] || ! pen_has_colour(i-1) ) continue;
         nused++;
@@ -548,7 +548,7 @@ static int write_dxf_point( double x, double y, int pen )
 
 
 static long write_dxf_text( double x, double y, int pen, double size,
-                            double angle, char *text )
+                            double angle, const char *text )
 {
     long id;
     if( !dxf ) return 0;
@@ -578,7 +578,7 @@ static long write_dxf_circle( double x, double y, double rad, int pen )
     return id;
 }
 
-static long write_dxf_blockref( double x, double y, char *blkname, double blocksize, int pen )
+static long write_dxf_blockref( double x, double y, const char *blkname, double blocksize, int pen )
 {
     long id;
     if( !dxf ) return 0;
@@ -596,7 +596,7 @@ static long write_dxf_blockref( double x, double y, char *blkname, double blocks
 }
 
 
-static long start_block( char *blockname )
+static long start_block( const char *blockname )
 {
     long id;
     fprintf(dxf,"  0\nBLOCK\n");
@@ -615,13 +615,13 @@ static void end_block( long edge_id )
     fprintf(dxf,"  0\nENDBLK\n");
 }
 
-static char *symbol_block_name( int symbol )
+static const char *symbol_block_name( int symbol )
 {
-    static char *free_station = "free_station";
-    static char *fixed_station = "fixed_station";
-    static char *hor_fixed_station = "hor_fixed_station";
-    static char *vrt_fixed_station = "vrt_fixed_station";
-    static char *rejected_station = "rejected_station";
+    static const char *free_station = "free_station";
+    static const char *fixed_station = "fixed_station";
+    static const char *hor_fixed_station = "hor_fixed_station";
+    static const char *vrt_fixed_station = "vrt_fixed_station";
+    static const char *rejected_station = "rejected_station";
 
     switch (symbol)
     {
@@ -640,7 +640,7 @@ static void write_symbol_blocks()
 
     for( int symbol = 0; symbol < N_STN_SYM; symbol++ )
     {
-        char *blockname = symbol_block_name( symbol );
+        const char *blockname = symbol_block_name( symbol );
         int npt = get_symbol_points( symbol, points, maxpts );
         if( npt < 0 ) { npt = 0; points[0].x = 1.0; }
 
@@ -689,7 +689,7 @@ static void dxf_line( void *dummy, double x, double y, int pen, int dashed )
     }
 }
 
-static void dxf_text( void *dummy, double x, double y, double size, int pen, char *text )
+static void dxf_text( void *dummy, double x, double y, double size, int pen, const char *text )
 {
     write_dxf_text( x, y, pen+1, size, 0.0, text );
 }
@@ -752,7 +752,7 @@ static void dxf_ellipse( void *dummy, double x, double y, double a, double b, do
 
 static void dxf_symbol( void *dummy, double px, double py, int pen, int symbol )
 {
-    char *blockname = symbol_block_name( symbol );
+    const char *blockname = symbol_block_name( symbol );
     write_dxf_blockref( px, py, blockname, stn_symbol_size, pen );
 }
 

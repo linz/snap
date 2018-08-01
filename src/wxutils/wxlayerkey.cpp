@@ -170,8 +170,8 @@ wxLayerKey::wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos, cons
     style &= ! wxHSCROLL;
     SetWindowStyleFlag( style );
     CreateGrid( 0, 3, wxGrid::wxGridSelectRows);
-    SetCellBackgroundColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
-    SetCellTextColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );
+    SetDefaultCellBackgroundColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
+    SetDefaultCellTextColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );
     SetGridLineColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );
     SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
     SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );

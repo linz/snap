@@ -661,9 +661,9 @@ static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int c
 
 static config_item main_commands[] =
 {
-    {"angle_format",NULL,ABSOLUTE,0,read_angle_format,0,0},
-    {"text",NULL,ABSOLUTE,0,read_text,0,0},
-    {"table",NULL,ABSOLUTE,0,read_table,0,0},
+    {"angle_format",NULL,CFG_ABSOLUTE,0,read_angle_format,0,0},
+    {"text",NULL,CFG_ABSOLUTE,0,read_text,0,0},
+    {"table",NULL,CFG_ABSOLUTE,0,read_table,0,0},
     {NULL}
 };
 
@@ -671,13 +671,13 @@ enum { CHAR_DELIM, CHAR_QUOTE, CHAR_ESCAPE };
 
 static config_item table_commands[] =
 {
-    {"data",NULL,ABSOLUTE,0,read_data,CFG_ONEONLY | CFG_REQUIRED,0},
-    {"delimiter",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY | CFG_REQUIRED,CHAR_DELIM},
-    {"quote",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_QUOTE},
-    {"escape",NULL,ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_ESCAPE},
-    {"column",NULL,ABSOLUTE,0,read_column,CFG_REQUIRED,0},
-    {"angle_format",NULL,ABSOLUTE,0,read_angle_format,0,0},
-    {"end_table",NULL,ABSOLUTE,0,STORE_AS_STRING,CFG_END,0},
+    {"data",NULL,CFG_ABSOLUTE,0,read_data,CFG_ONEONLY | CFG_REQUIRED,0},
+    {"delimiter",NULL,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY | CFG_REQUIRED,CHAR_DELIM},
+    {"quote",NULL,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_QUOTE},
+    {"escape",NULL,CFG_ABSOLUTE,0,read_delimiter,CFG_ONEONLY,CHAR_ESCAPE},
+    {"column",NULL,CFG_ABSOLUTE,0,read_column,CFG_REQUIRED,0},
+    {"angle_format",NULL,CFG_ABSOLUTE,0,read_angle_format,0,0},
+    {"end_table",NULL,CFG_ABSOLUTE,0,STORE_AS_STRING,CFG_END,0},
     {NULL}
 };
 

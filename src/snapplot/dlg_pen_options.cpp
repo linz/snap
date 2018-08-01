@@ -47,11 +47,11 @@ PenOptionsDialog::PenOptionsDialog( bool isStdRes, wxHelpController *help )
     {
         if( isStdRes )
         {
-            SetupHelp( help, _T(HELPBASE "dlg_stdres_pens.html") );
+            SetupHelp( help, HELPBASE "dlg_stdres_pens.html" );
         }
         else
         {
-            SetupHelp( help, _T(HELPBASE "dlg_redundancy_pens.html") );
+            SetupHelp( help, HELPBASE "dlg_redundancy_pens.html" );
         }
     }
 }

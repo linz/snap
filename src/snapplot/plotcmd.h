@@ -8,7 +8,7 @@
 
 */
 
-int read_plot_command_file( char *command_file, int got_data );
+int read_plot_command_file( const char *command_file, int got_data );
 
 /* Done before configuration file read */
 void add_default_configuration_files( void );
@@ -18,7 +18,7 @@ int add_configuration_file( const char *fname );
 int process_configuration_file_list( void );
 
 /* Done in interactive section of program */
-int process_configuration_file( char *fname );
+int process_configuration_file( const char *fname );
 
 void abort_snapplot_config_file( void );
 
@@ -30,7 +30,7 @@ char *config_menu_filename( int i );
 
 /* Function to write configuration information to a file */
 
-int save_configuration( char *cfgname );
+int save_configuration( const char *cfgname );
 int write_config_file( FILE *out, int key_only );
 
 

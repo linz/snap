@@ -33,7 +33,7 @@ private:
 
     void OnPaint( wxPaintEvent &event );
     void OnMouseEvent( wxMouseEvent &event );
-    void OnMouseCaptureLostEvent( wxMouseCaptureLostEvent &event );
+    void OnKeyDownEvent( wxKeyEvent &event );
 
     int nrow;
     int ncol;

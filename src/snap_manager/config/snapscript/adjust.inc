@@ -9,7 +9,7 @@ function RunAdjustment()
    DeleteFile(FindJobFile("lst"))
    DeleteFile(FindJobFile("err"))
    
-   debugrun("\"$snap_path/snapadjust\" \"$job_file\"")
+   debugrun("$snap_path/snapadjust",$job_file)
    $error_file = FindJobFile("err")
    if $error_file then
       if Ask("SNAP has reported errors with this job\r\nView the error file","SNAP errors") then

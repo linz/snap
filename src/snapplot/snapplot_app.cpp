@@ -3,6 +3,7 @@
 #include "snapplot_frame.hpp"
 #include "snapplot_loadlog.hpp"
 #include "snapplot_util.hpp"
+#include "wx/fs_zip.h"
 
 #include <stdio.h>
 
@@ -18,6 +19,9 @@ IMPLEMENT_APP(SnapplotApp)
 
 bool SnapplotApp::OnInit()
 {
+    // Needed for zipped help file
+    wxFileSystem::AddHandler(new wxZipFSHandler);
+    
     // Need this so that "%n" outputs work!?
     _set_printf_count_output(1);
 
@@ -28,7 +32,7 @@ bool SnapplotApp::OnInit()
     set_printf_target( print_log_args );
 
     // Get rid of timestamps on the log file ..
-    wxLog::SetTimestamp(0);
+    wxLog::SetTimestamp("");
 
     // Trap errors and other output from SNAP library code ..
     ImplementErrorHandler();
@@ -54,7 +58,7 @@ bool SnapplotApp::OnInit()
     }
     else
     {
-        ::wxMessageBox( _T("Failed to load data"), _T("Snapplot load errors"), wxOK | wxICON_HAND, loadlog );
+        ::wxMessageBox( "Failed to load data", "Snapplot load errors", wxOK | wxICON_HAND, loadlog );
         SetTopWindow( loadlog );
     }
 

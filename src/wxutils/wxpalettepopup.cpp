@@ -3,7 +3,7 @@
 #include "wxpalettepopup.hpp"
 
 wxPalettePopup::wxPalettePopup( ColourPalette *thisPalette, wxWindow *parent, wxWindowID id ) :
-    wxDialog( parent, id, _T(""), wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )
+    wxDialog( parent, id, "", wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )
 {
     SetExtraStyle( wxWS_EX_BLOCK_EVENTS );
     bitmapsize = 1;
@@ -19,7 +19,7 @@ wxPalettePopup::~wxPalettePopup()
 BEGIN_EVENT_TABLE( wxPalettePopup, wxWindow )
     EVT_PAINT( wxPalettePopup::OnPaint )
     EVT_MOUSE_EVENTS( wxPalettePopup::OnMouseEvent )
-    EVT_MOUSE_CAPTURE_LOST( wxPalettePopup::OnMouseCaptureLostEvent )
+    EVT_KEY_DOWN( wxPalettePopup::OnKeyDownEvent )
 END_EVENT_TABLE()
 
 void wxPalettePopup::SetPalette(ColourPalette *newPalette)
@@ -165,8 +165,11 @@ void wxPalettePopup::OnPaint( wxPaintEvent & WXUNUSED(event) )
 
 void wxPalettePopup::OnMouseEvent( wxMouseEvent &event )
 {
-    int newColourId = ColourIdFromPosition( event.GetPosition() );
-    if( newColourId >= 0 ) { SetSelectedColour( newColourId ); }
+    if( event.LeftDown() || event.LeftUp() )
+    {
+        int newColourId = ColourIdFromPosition( event.GetPosition() );
+        if( newColourId >= 0 ) { SetSelectedColour( newColourId ); }
+    }
 
     if( event.ButtonDown() || event.ButtonUp() )
     {
@@ -174,21 +177,19 @@ void wxPalettePopup::OnMouseEvent( wxMouseEvent &event )
     }
 }
 
-void wxPalettePopup::OnMouseCaptureLostEvent(wxMouseCaptureLostEvent & WXUNUSED(event))
+void wxPalettePopup::OnKeyDownEvent( wxKeyEvent &event )
 {
-    // Set selected colour to -1 so that colour isn't changed
-    SetSelectedColour(-1);
-    EndModal(0);
+    if( event.GetKeyCode() == WXK_ESCAPE )
+    {
+        EndModal(0);
+    }
 }
 
 bool wxPalettePopup::SelectColour( int &colourId )
 {
     selectedColour = colourId;
     PositionWindow();
-    // Not sure if this is necessary or even useful...
-    CaptureMouse();
     ShowModal();
-    ReleaseMouse();
     if( selectedColour < 0 ) selectedColour = colourId;
     bool colourChanged = selectedColour != colourId;
     colourId = selectedColour;

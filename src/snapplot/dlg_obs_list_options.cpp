@@ -80,14 +80,14 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
 
     for( int i = 0; fieldListOptions[i].name != 0; i++ )
     {
-        options.Add(_T(fieldListOptions[i].name));
+        options.Add(fieldListOptions[i].name);
         fieldLookupCode[nField++] = fieldListOptions[i].value;
     }
 
     // Note: classications are 1 based, not 0 based
     for( int i = 0; i++ < nClassification; )
     {
-        options.Add(wxString(_T(classification_name( &obs_classes,i))));
+        options.Add(wxString(classification_name( &obs_classes,i)));
         fieldLookupCode[nField++] = i;
     }
     sizer2->Add( Label("Fields to list"),flags );
@@ -106,7 +106,7 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
 
     AddButtonsAndSize();
 
-    if( help ) SetupHelp( help, _T(HELPBASE "dlg_obs_listing_options.html" ) );
+    if( help ) SetupHelp( help, HELPBASE "dlg_obs_listing_options.html"  );
 }
 
 ObsListOptionsDialog::~ObsListOptionsDialog()

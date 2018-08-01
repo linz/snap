@@ -21,7 +21,7 @@
 
 // Null terminated list of default palette colours ..
 
-static char *defaultPalette[] =
+static const char *defaultPalette[] =
 {
     "BLACK",
     "GREY",
@@ -46,10 +46,10 @@ static char *defaultPalette[] =
 
 struct layer_s
 {
-    char *name;
+    const char *name;
     int  pen_id;
     int  opt_id;
-    char *dfltColour;
+    const char *dfltColour;
     bool dfltOption;
     bool need_hor;
     bool need_vrt;
@@ -109,12 +109,12 @@ static layer_s *background_layers = 0;
 
 struct symbol_s
 {
-    char *name;
+    const char *name;
     int id;
     int nNodes;
     double size;
-    char *borderColour;
-    char *fillColour;
+    const char *borderColour;
+    const char *fillColour;
 };
 
 static symbol_s default_symbols[] =
@@ -133,12 +133,12 @@ static int symbol_lookup[N_STN_SYM];
 // TODO: May be better to calculate a range of colours using RGB, or
 // at least define a better set as RGB values..
 
-static char *range_colours[] =
+static const char *range_colours[] =
 { "RED", "ORANGE", "PURPLE", "BLUE", "GREY", 0 };
 
-static char *dflt_stn_colour = "RED";
-static char *dflt_data_colour = "BLUE";
-static char *dflt_background_colour = "LIGHT GREY";
+static const char *dflt_stn_colour = "RED";
+static const char *dflt_data_colour = "BLUE";
+static const char *dflt_background_colour = "LIGHT GREY";
 
 // Symbology ...
 
@@ -150,10 +150,21 @@ static int basepenid[N_BASE_PENS];   /* Lookup basic pens to layer id */
 static int baseoptid[N_BASE_OPTS];   /* Lookup basic options to layer id */
 
 static wxColour symbolBorderColour = wxNullColour;
-static wxFont stationFont = wxFont( 10, wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
 static wxString stationFontDesc;
 static int stationTextStyleId = 0;
+static const char *stnfontdesc=0;
 
+static wxFont stationFont()
+{
+    if( ! stationFontDesc.IsEmpty() )
+    {
+        wxFont stfont;
+        stfont.SetNativeFontInfoUserDesc( stationFontDesc );
+        if( stfont.IsOk() ) return stfont;
+        stationFontDesc.Clear();
+    }
+    return wxFont( 10, wxFONTFAMILY_SWISS,wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+}
 
 
 Symbology *CreateSymbology()
@@ -162,13 +173,13 @@ Symbology *CreateSymbology()
 
     ColourPalette p;
 
-    for( char **c = defaultPalette; *c; c++ )
+    for( const char **c = defaultPalette; *c; c++ )
     {
-        p.AddColour( wxColour( _T(*c) ));
+        p.AddColour( wxColour( *c ));
     }
 
     s->InitiallizePalette( p );
-    stationTextStyleId = s->AddTextStyle( new TextStyle("text", stationFont) );
+    stationTextStyleId = s->AddTextStyle( new TextStyle("text", stationFont()) );
 
     return s;
 }
@@ -201,22 +212,17 @@ static void build_station_symbols();
 
 const char *get_station_font()
 {
-    stationFontDesc = stationFont.GetNativeFontInfoUserDesc();
-    return (const char *) stationFontDesc.c_str();
+
+    wxString fontdesc = stationFont().GetNativeFontInfoUserDesc();
+    if( stnfontdesc ) check_free( (void *)(stnfontdesc) );
+    stnfontdesc=copy_string(fontdesc.mb_str());
+    return stnfontdesc;
 }
 
 void set_station_font( const char *fontdef )
 {
-    wxFont newFont;
-    newFont.SetNativeFontInfoUserDesc( fontdef );
-    if( newFont.IsOk() )
-    {
-        stationFont = newFont;
-        if( symbology )
-        {
-            symbology->GetTextStyle(stationTextStyleId)->SetFont( stationFont );
-        }
-    }
+    stationFontDesc=wxString(fontdef);
+    symbology->GetTextStyle(stationTextStyleId)->SetFont( stationFont() );
 }
 
 int get_station_font_id()
@@ -229,16 +235,17 @@ static void delete_layers( layer_s **pl )
     if( ! *pl ) return;
     for( layer_s *l = *pl; l->name; l++ )
     {
-        check_free( l->name );
+        check_free( (void *)(l->name) );
     }
     check_free(*pl);
     (*pl) = 0;
 }
 
-static void init_layer( layer_s *l, const char *name, char *colour, bool title )
+static void init_layer( layer_s *l, const char *name, const char *colour, bool title )
 {
-    l->name = copy_string(name);
-    l->name[0] = TOUPPER(l->name[0]);
+    char *lname=copy_string(name);
+    lname[0]=TOUPPER(lname[0]);
+    l->name = lname;
     l->pen_id = title ? UNUSED_PEN_ID : OTHER_PEN;
     l->opt_id = title ? UNUSED_OPT_ID : OTHER_OPT;
     l->dfltColour = colour;
@@ -368,10 +375,10 @@ static void add_layer_to_symbology( Symbology *symbology, layer_s *l, Symbology 
     if( l->pen_id != UNUSED_PEN_ID ) type |= LayerSymbology::hasColour;
     if( l->opt_id != UNUSED_OPT_ID ) type |= LayerSymbology::hasStatus;
 
-    wxColour colour = wxColour( _T(l->dfltColour) );
+    wxColour colour = wxColour( l->dfltColour );
     bool display = true;
 
-    l->lyr_id = symbology->AddLayer( _T(l->name), type, colour, display );
+    l->lyr_id = symbology->AddLayer( l->name, type, colour, display );
     if( oldSymbology && oldid >= 0 ) copy_layer( symbology, l->lyr_id, oldSymbology, oldid );
 
     if( l->pen_id >= 0 ) basepenid[l->pen_id] = l->lyr_id;
@@ -511,9 +518,9 @@ static void build_station_symbols()
         }
         else if( sym->borderColour != NULL )
         {
-            borderColour = wxColour(_T(sym->borderColour));
+            borderColour = wxColour(sym->borderColour);
         }
-        if( sym->fillColour ) fillColour = wxColour(_T(sym->fillColour));
+        if( sym->fillColour ) fillColour = wxColour(sym->fillColour);
         PointSymbology *ptsym = new PointSymbology( sym->name, sym->nNodes, sym->size, 0.0, borderColour, fillColour );
         int idSym = symbology->AddPointSymbol( ptsym );
         symbol_lookup[sym->id] = idSym;
@@ -577,12 +584,12 @@ int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts )
 
 void set_pen_colour_range( )
 {
-    char **colour = range_colours; \
+    const char **colour = range_colours; \
     if( ! data_user_layers ) return;
     for( layer_s *l = data_user_layers; l->name; l++  )
     {
         LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
-        int colourid = symbology->GetPalette()->AddColour( wxColour(_T(*colour)) );
+        int colourid = symbology->GetPalette()->AddColour( wxColour(*colour) );
         ls.SetColourId( colourid );
         colour++;
         if( ! *colour ) colour--;
@@ -594,11 +601,9 @@ int pen_count( void )
     return symbology->LayerCount();
 }
 
-char *pen_name( int ipen )
+const char *pen_name( int ipen )
 {
-    // TODO: This conversion is dependent upon the wxWidgets build (ie ANSI), and
-    // should be handled differently for other builds...
-    return (char *) symbology->GetLayer(ipen).Name().c_str();
+    return symbology->GetLayer(ipen).NamePtr();
 }
 
 bool pen_has_colour( int ipen )
@@ -714,7 +719,7 @@ void print_key( FILE *out, const char *prefix )
         int type = ls.Type();
         if( type & LayerSymbology::hasColourAndStatus )
         {
-            fprintf(out,"%s \"%s\"",prefix,ls.Identifier().c_str());
+            fprintf(out,"%s \"%s\"",prefix,(const char *)(ls.Identifier().mb_str()));
             if( type & LayerSymbology::hasStatus )
             {
                 fputs( ls.Status() ? " on" : " off", out );
@@ -724,8 +729,8 @@ void print_key( FILE *out, const char *prefix )
                 wxColour colour = symbology->GetPalette()->Colour( ls.ColourId());
                 wxString colname = wxTheColourDatabase->FindName( colour );
                 if( colname.IsEmpty() ) colname = colour.GetAsString(wxC2S_CSS_SYNTAX);
-                colname.Replace(_T(" "),_T("_"));
-                fprintf(out," %s",colname.c_str());
+                colname.Replace(" ","_");
+                fprintf(out," %s",(const char *)(colname.mb_str()));
             }
             fputs("\n",out);
         }

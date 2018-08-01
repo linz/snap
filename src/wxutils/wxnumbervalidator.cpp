@@ -24,18 +24,18 @@ wxNumberValidator::wxNumberValidator( double *value, int nDecPlaces, bool positi
 void wxNumberValidator::Setup()
 {
     wxArrayString chars;
-    chars.Add(_T("0"));
-    chars.Add(_T("1"));
-    chars.Add(_T("2"));
-    chars.Add(_T("3"));
-    chars.Add(_T("4"));
-    chars.Add(_T("5"));
-    chars.Add(_T("6"));
-    chars.Add(_T("7"));
-    chars.Add(_T("8"));
-    chars.Add(_T("9"));
-    if( ! isInteger ) chars.Add(_T("."));
-    if( ! isPositive ) chars.Add(_T("-"));
+    chars.Add("0");
+    chars.Add("1");
+    chars.Add("2");
+    chars.Add("3");
+    chars.Add("4");
+    chars.Add("5");
+    chars.Add("6");
+    chars.Add("7");
+    chars.Add("8");
+    chars.Add("9");
+    if( ! isInteger ) chars.Add(".");
+    if( ! isPositive ) chars.Add("-");
     SetIncludes(chars);
 }
 
@@ -95,8 +95,8 @@ bool wxNumberValidator::Validate( wxWindow * WXUNUSED(parent) )
     if( ! result )
     {
         wxMessageBox(
-            _T("A number is not formatted correctly - please re-enter"),
-            _T("Invalid number"),
+            "A number is not formatted correctly - please re-enter",
+            "Invalid number",
             wxOK | wxICON_HAND
         );
     }

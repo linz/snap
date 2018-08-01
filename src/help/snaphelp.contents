@@ -97,6 +97,7 @@
   3	output_precision	help/files/cmdcfg/cmd_output_precision.html
   3	plot	help/files/cmdcfg/cmd_plot.html
   3	print	help/files/cmdcfg/cmd_list.html
+  3	proj_bearing_use_datum	help/files/cmdcfg/cmd_proj_bearing_use_datum.html 
   3	recode	help/files/cmdcfg/cmd_recode.html
   3	redundancy_flag_level	help/files/cmdcfg/cmd_redundancy_flag_level.html
   3	reference_frame	help/files/cmdcfg/cmd_reference_frame.html

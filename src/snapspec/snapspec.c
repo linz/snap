@@ -1654,16 +1654,16 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, 
 
 static config_item cfg_commands[] =
 {
-    {"configuration",NULL,ABSOLUTE,0,read_configuration_command,0,1},
-    {"test",NULL,ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
+    {"configuration",NULL,CFG_ABSOLUTE,0,read_configuration_command,0,1},
+    {"test",NULL,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
     {"log_level",NULL,OFFSETOF(SDCTest,loglevel),0,readcfg_int,CFG_ONEONLY,1},
     {"options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
     {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
-    {"confidence",NULL,ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
-    {"vertical_error_factor",&vrtHorRatio,ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
-    {"error_type",NULL,ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
-    {"default_order",dfltOrder,ABSOLUTE,SYSCODE_LEN+1,STORE_AS_STRING,CFG_ONEONLY,0},
-    {"limit_order",NULL,ABSOLUTE,0,read_limit_order_command,0,2},
+    {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
+    {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
+    {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
+    {"default_order",dfltOrder,CFG_ABSOLUTE,SYSCODE_LEN+1,STORE_AS_STRING,CFG_ONEONLY,0},
+    {"limit_order",NULL,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
     {NULL}
 };
 

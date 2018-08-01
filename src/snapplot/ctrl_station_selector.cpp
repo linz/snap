@@ -31,9 +31,9 @@ void wxStationSelectorTable::Setup()
 
     // TODO: Sort out these colours
     selectedAttr = new wxGridCellAttr();
-    selectedAttr->SetBackgroundColour( wxColour(_T("LIGHT BLUE")) );
+    selectedAttr->SetBackgroundColour( wxColour("LIGHT BLUE") );
     unselectedAttr = new wxGridCellAttr();
-    unselectedAttr->SetBackgroundColour( wxColour(_T("WHITE")) );
+    unselectedAttr->SetBackgroundColour( wxColour("WHITE") );
 }
 
 void wxStationSelectorTable::CleanUp()
@@ -51,11 +51,11 @@ wxString wxStationSelectorTable::GetColLabelValue( int col )
     wxString label;
     if( col == 0 )
     {
-        label = wxString(_T("Code"));
+        label = wxString("Code");
     }
     else
     {
-        label = wxString(_T("Name"));
+        label = wxString("Name");
     }
     return label;
 }

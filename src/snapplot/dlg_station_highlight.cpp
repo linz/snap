@@ -17,7 +17,7 @@
 
 typedef struct
 {
-    char *label;
+    const char *label;
     unsigned char mask;
     unsigned char incompatible;
 } SelectionData;
@@ -43,17 +43,17 @@ const SelectionData stationSelectionOption[nStationSelectionOptions] =
 
 enum { scAll, scStatus, scHorAdj, scHorErr, scVrtAdj, scVrtErr, scOrder };
 
-static char horErrOpt[128];
-static char vrtErrOpt[128];
+static char horErrOpt[128]={0};
+static char vrtErrOpt[128]={0};
 
 static wxRadioBoxOption stnCriteria[] =
 {
     {"All stations", scAll},
     {"By status (select on right ->)", scStatus},
     {"Horizontal adjustment > threshold", scHorAdj},
-    {horErrOpt, scHorErr},
+    {const_cast<const char *>(horErrOpt), scHorErr},
     {"Vertical adjustment > threshold", scVrtAdj},
-    {vrtErrOpt, scVrtErr},
+    {const_cast<const char *>(vrtErrOpt), scVrtErr},
     {"Station order = threshold", scOrder },
     {0,0}
 };
@@ -205,11 +205,11 @@ StationHighlightDialog::StationHighlightDialog( bool hideShow, wxHelpController 
         box4->Add( new wxButton(this, wxID_HELP ));
         if( hideShow )
         {
-            SetupHelp( help, _T(HELPBASE "dlg_hideshow_stations.html"));
+            SetupHelp( help, HELPBASE "dlg_hideshow_stations.html");
         }
         else
         {
-            SetupHelp( help, _T(HELPBASE "dlg_highlight_stations.html"));
+            SetupHelp( help, HELPBASE "dlg_highlight_stations.html");
         }
     }
     box4->AddSpacer(buttonSpace);
@@ -316,7 +316,7 @@ void StationHighlightDialog::SelectStations( bool select )
     else if( stnSelOpt == scOrder )
     {
         wxString strOrder = txtSelValue->GetValue().Trim().Trim(false);
-        iorder = network_order_id( net, (char *) (strOrder.c_str()), 0 );
+        iorder = network_order_id( net, strOrder.mb_str(), 0 );
         if( iorder <= 0 ) return;
     }
     else

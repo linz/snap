@@ -10,8 +10,8 @@ INSTALLDIR=${DESTDIR}/usr/share/linz/snap
 BINDIR=${DESTDIR}/usr/bin
 SNAPVER=`cat ../src/VERSION`
 
-WXDIR=../wx/wxWidgets-2.8.12/build/gtk
-WXCONFIG=$(WXDIR)/wx-config
+#WXDIR=../wx/wxWidgets-2.8.12/build/gtk
+WXCONFIG=wx-config
 WXFLAGS=`$(WXCONFIG) --cxxflags`
 WXLINK=`$(WXCONFIG) --libs`
 XLINK=-lX11
@@ -33,6 +33,7 @@ CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 TESTFLAGS = 
 UPDATEVERSION =
+SNAPPACKAGES = devel_package
 
 else ifeq ($(type), release)
 LDFLAGS = -lm -lboost_regex -lpthread -s
@@ -42,6 +43,7 @@ CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
 TESTFLAGS = -r
 UPDATEVERSION = update_version_date
+SNAPPACKAGES = 
 
 else
 MD=echo
@@ -106,7 +108,7 @@ package:
 endif
 
 # All programs including wxWidgets components
-snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE) help_files
+snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE) help_files $(SNAPPACKAGES)
 
 # Command line programs only
 snap_cmd: $(UPDATEVERSION) makefile.inc $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
@@ -209,12 +211,17 @@ support_files:
 	@$(CP) $(SRCDIR)/VERSION $(INSTALL)/
 	@git rev-parse --short HEAD > $(INSTALL)/VERSIONID
 
-help_files: helpfile wxhelpdir
+help_files: helpfile 
 
 helpfile:
 	(cd $(SRCDIR)/help && ./build_snaphelp.sh)
 	$(CP) -r $(SRCDIR)/help/snaphelp.zip $(INSTALL)
 
+devel_package: 
+	mkdir -p $(INSTALL)/config/package
+	cp -r $(SRCDIR)/packages/devel $(INSTALL)/config/package/
+
+# Previous attempt at help...
 wxhelpdir:
 	(cd $(SRCDIR)/help && ./build_wxhelp_map.pl)
 	mkdir -p $(INSTALL)/snaphelp

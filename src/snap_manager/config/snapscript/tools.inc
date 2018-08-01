@@ -37,8 +37,7 @@ function InstallSnapPackage()
          $installdir="$user_config_path/package"
          if $allusers then $installdir="$system_config_path/package" endif
          log("Installing $package\n")
-         $command = "\"$perl\" -S install_snap_package.bat  \"$package\" \"$installdir\""
-         $result = debuglogrun($command)
+         $result = debuglogrun($perl,'-S','install_snap_package.bat',$package,$installdir)
          log($result)
          $pkgdir="$installdir/$package"
          if DirectoryExists($pkgdir) then

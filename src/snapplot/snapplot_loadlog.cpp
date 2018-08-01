@@ -12,8 +12,7 @@ class SnapplotLoadLogger : public wxLog
 {
 public:
     SnapplotLoadLogger( SnapplotLoadLog *logWindow );
-    virtual void DoLog(wxLogLevel level, const wxChar *szString, time_t t);
-    void DoLogString(const wxChar *szString, time_t WXUNUSED(t));
+    void DoLogText(const wxString &msg);
 private:
     SnapplotLoadLog *logWindow;
 
@@ -24,12 +23,7 @@ SnapplotLoadLogger::SnapplotLoadLogger( SnapplotLoadLog *logWindow ) :
 {
 }
 
-void SnapplotLoadLogger::DoLog(wxLogLevel level, const wxChar *szString, time_t t)
-{
-    wxLog::DoLog(level, szString, t);
-}
-
-void SnapplotLoadLogger::DoLogString(const wxChar *szString, time_t WXUNUSED(t))
+void SnapplotLoadLogger::DoLogText(const wxString &msg)
 {
     // put the text into our window
     wxTextCtrl *pText = logWindow->logText;
@@ -40,11 +34,8 @@ void SnapplotLoadLogger::DoLogString(const wxChar *szString, time_t WXUNUSED(t))
     pText->SetSelection(nLen, nLen);
 #endif // Windows
 
-    wxString msg;
-    // TimeStamp(&msg);
-    msg << szString << wxT('\n');
-
     pText->AppendText(msg);
+    pText->AppendText("\n");
 
     // TODO ensure that the line can be seen
     logWindow->Update();

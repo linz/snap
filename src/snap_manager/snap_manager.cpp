@@ -1,6 +1,7 @@
 #define GETVERSION_SET_PROGRAM_DATE
 #include "snapconfig.h"
 #include "wx_includes.hpp"
+#include "wx/fs_zip.h"
 #include "wxhelpabout.hpp"
 #include "snapjob.hpp"
 #include "snap_scriptenv.hpp"
@@ -79,7 +80,7 @@ BEGIN_EVENT_TABLE( SnapMgrFrame, wxFrame )
 END_EVENT_TABLE()
 
 SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
-    wxFrame(NULL, wxID_ANY, _T("SNAP"))
+    wxFrame(NULL, wxID_ANY, "SNAP")
 {
     nScriptMenuItems = 0;
     logger = 0;
@@ -97,13 +98,13 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     // and set it as the global configuration (accessible with Get)
     // and cleared with 
 
-    config = new wxConfig(_T("SnapMgr"),_T("LINZ"));
+    config = new wxConfig("SnapMgr","LINZ");
     wxConfigBase::Set(config);
 
     // Restore the previous working directory
 
     wxString curDir;
-    if( config->Read( _T("WorkingDirectory"), &curDir ) )
+    if( config->Read( "WorkingDirectory", &curDir ) )
     {
         wxSetWorkingDirectory( curDir );
     }
@@ -119,12 +120,21 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     config->SetPath( "/History" );
     fileHistory.Load( *config );
 
+    for( int i=fileHistory.GetCount(); i--; )
+    {
+        wxString filename=fileHistory.GetHistoryFile(i);
+        if( ! wxFileName(filename).FileExists() )
+        {
+            fileHistory.RemoveFileFromHistory(i);
+        }
+    }
+
     // Set up the help file
 
     help = new wxHelpController( this );
 
     wxFileName helpFile(wxStandardPaths::Get().GetExecutablePath());
-    helpFile.SetName(_T("snaphelp"));
+    helpFile.SetName("snaphelp");
     help->Initialize( helpFile.GetFullPath() );
 
     // Load the scripting environment
@@ -144,7 +154,7 @@ SnapMgrFrame::~SnapMgrFrame()
     config->SetPath( "/History" );
     fileHistory.Save( *config );
     config->SetPath( "/" );
-    config->Write(_T("WorkingDirectory"),wxGetCwd());
+    config->Write("WorkingDirectory",wxGetCwd());
 
     delete scriptenv;
 }
@@ -165,30 +175,30 @@ void SnapMgrFrame::SetupMenu()
     wxMenuBar *menuBar = new wxMenuBar;
 
     wxMenu *fileMenu = new wxMenu;
-    menuBar->Append( fileMenu, _T("&File") );
+    menuBar->Append( fileMenu, "&File" );
 
     // Add items at the end of the file menu, add the help menu, and install the menu
     // bar...
 
     fileMenu->AppendSeparator();
     fileMenu->Append(CMD_FILE_CLOSE,
-                     _T("&Close\tAlt-F4"),
-                     _T("Quit SNAP"));
+                     "&Close\tAlt-F4",
+                     "Quit SNAP");
 
     fileHistory.UseMenu( fileMenu );
 
 
     wxMenu *helpMenu = new wxMenu;
     helpMenu->Append( CMD_HELP_HELP,
-                      _T("&Help\tF1"),
-                      _T("Get help about snapplot"));
+                      "&Help\tF1",
+                      "Get help about snapplot");
 
     helpMenu->AppendSeparator();
     helpMenu->Append( CMD_HELP_ABOUT,
-                      _T("&About"),
-                      _T("Information about this version snaplot program"));
+                      "&About",
+                      "Information about this version snaplot program");
 
-    menuBar->Append( helpMenu, _T("&Help") );
+    menuBar->Append( helpMenu, "&Help" );
 
     SetMenuBar(menuBar);
 }
@@ -196,7 +206,7 @@ void SnapMgrFrame::SetupMenu()
 
 void SnapMgrFrame::SetupWindows()
 {
-    SetBackgroundColour( wxColour(_T("WHITE")));
+    SetBackgroundColour( wxColour("WHITE"));
     logCtrl = new wxTextCtrl( this, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize,
                               wxTE_MULTILINE | wxHSCROLL | wxTE_RICH | wxTE_READONLY );
     SetClientSize( wxSize( GetCharWidth()*120, GetCharHeight()*40));
@@ -237,32 +247,32 @@ void SnapMgrFrame::OnJobUpdated( wxCommandEvent &event )
     {
         wxString jobfile= job->GetFullFilename();
         fileHistory.AddFileToHistory( jobfile );
-        wxString label(_T("SNAP - "));
+        wxString label("SNAP - ");
         label.Append( scriptenv->Job()->GetFilename() );
         SetLabel( label );
 
         if( event.GetInt() & SNAP_JOBUPDATED_NEWJOB )
         {
             ClearLog();
-            wxLogMessage( "Job location: %s", job->GetPath().c_str());
-            wxLogMessage( "Command file: %s", job->GetFilename().c_str());
+            wxLogMessage( "Job location: %s", job->GetPath());
+            wxLogMessage( "Command file: %s", job->GetFilename());
             if( job->IsOk())
             {
-                wxLogMessage( "Job title:    %s", job->Title().c_str());
-                wxLogMessage( "Coordinate file: %s", job->CoordinateFilename().c_str());
+                wxLogMessage( "Job title:    %s", job->Title());
+                wxLogMessage( "Coordinate file: %s", job->CoordinateFilename());
             }
             else
             {
                 for( size_t i = 0; i < job->Errors().Count(); i++ )
                 {
-                    wxLogMessage( "%s\n", job->Errors()[i].c_str() );
+                    wxLogMessage( "%s\n", job->Errors()[i] );
                 }
             }
         }
     }
     else
     {
-        SetLabel(_T("SNAP"));
+        SetLabel("SNAP");
     }
 
 }
@@ -316,8 +326,10 @@ IMPLEMENT_APP( SnapMgrApp );
 
 bool SnapMgrApp::OnInit()
 {
+    // For help system
+    wxFileSystem::AddHandler(new wxZipFSHandler);
     wxString jobfile;
-    if( argc > 1 ) jobfile = _T(argv[1]);
+    if( argc > 1 ) jobfile = argv[1];
 
     SnapMgrFrame *topWindow = new SnapMgrFrame( jobfile );
 

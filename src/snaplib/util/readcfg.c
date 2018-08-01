@@ -16,7 +16,7 @@
 	1) The address of the option name.  The name should be
 		entirely in lower case.
 	2) The address into which the value is to be stored
-	3) The address offset.  If this has value ABSOLUTE (-1) then
+	3) The address offset.  If this has value CFG_ABSOLUTE (-1) then
 		the address is used directly.  Otherwise it is taken
 		as a pointer to an address from which an offset is
 		calculated (mainly used for putting values in structures).
@@ -356,7 +356,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* Get the address in which the value is to be stored */
 
-        if( it->offset == ABSOLUTE )
+        if( it->offset == CFG_ABSOLUTE )
         {
             address = (char *) (it->value);
         }

@@ -219,7 +219,7 @@ static int station_flag_status_id( stn_adjustment *sa )
 
 static const char *station_flag_status( stn_adjustment *sa )
 {
-    static char *statusnames[] =
+    const char *statusnames[] =
     {
         "",
         "Rejected",
@@ -265,12 +265,14 @@ static int cmp_sortobj_reverse_fvalue( const void *sp1, const void *sp2 )
     return cmp_sortobj_fvalue( sp2, sp1 );
 }
 
+/*
 static int cmp_sortobj_cptr( const void *sp1, const void *sp2 )
 {
     int s1 = (*(int *) sp1 );
     int s2 =  (*(int *) sp2 );
     return _stricmp(sortValues[s1].cPtr,sortValues[s2].cPtr);
 }
+*/
 
 static int cmp_sortobj_code( const void *sp1, const void *sp2 )
 {
@@ -285,7 +287,7 @@ static void build_sort_index( void )
     int classid;
     int valueid;
     station *stn;
-    static char *dash = "-";
+    const char *dash = "-";
     double emax, emin, b1, dxyz[3], hgterr;
 
     if( ! no_good_stations || ! sortIndex || ! sortValues ) return;

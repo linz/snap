@@ -40,7 +40,7 @@ private:
     // utility programs and load the configuration script ..
     void OnCmdConfigMenuItem( wxCommandEvent &event );
     void SetupConfiguration();
-    void InsertPath( const wxString &path, const wxString &envvar=_T("PATH") );
+    void InsertPath( const wxString &path, const wxString &envvar="PATH" );
     void AddSnapDirToPath();
     bool RemoveDirectory( const wxString &dirpath );
     wxString &GetCoordSysList();

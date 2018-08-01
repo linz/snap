@@ -67,7 +67,7 @@ typedef struct
       */
 
 #define STORE_AS_STRING ( (config_store_func) 0 )
-#define ABSOLUTE (-1)
+#define CFG_ABSOLUTE (-1)
 
 
 /* Definition of flags for configuration items */

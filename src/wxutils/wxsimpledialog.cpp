@@ -55,7 +55,7 @@ bool wxRadioBoxOptionValidator::Validate( wxWindow * WXUNUSED(parent) )
 //===========================================================================
 
 wxSimpleListBoxValidator::wxSimpleListBoxValidator( char delimiter, wxString *value ) :
-    delimiter(delimiter), value(value)
+    value(value), delimiter(delimiter)
 {
 }
 
@@ -136,7 +136,7 @@ bool wxFilePickerValidator::Validate( wxWindow * WXUNUSED(parent) )
     wxFilePickerCtrl *fp = static_cast<wxFilePickerCtrl *>( GetWindow() );
     if( ! message.IsEmpty() && fp->GetPath().IsEmpty() )
     {
-        ::wxMessageBox( message,_T("Missing filename"),wxICON_EXCLAMATION | wxOK );
+        ::wxMessageBox( message,"Missing filename",wxICON_EXCLAMATION | wxOK );
         return false;
     }
     return true;
@@ -152,11 +152,11 @@ BEGIN_EVENT_TABLE( wxSimpleDialog, wxDialog)
     EVT_IDLE( wxSimpleDialog::OnIdle )
 END_EVENT_TABLE()
 
-wxSimpleDialog::wxSimpleDialog( const char *title, long buttonFlags )
+wxSimpleDialog::wxSimpleDialog( wxString title, long buttonFlags )
     : wxDialog(
         wxTheApp->GetTopWindow(),
         wxID_ANY,
-        _T(title),
+        title,
         wxDefaultPosition,
         wxDefaultSize
     )
@@ -178,24 +178,21 @@ wxSimpleDialog::~wxSimpleDialog()
 {
 }
 
-wxStaticText *wxSimpleDialog::Label( const char *text, wxWindow *window )
+wxStaticText *wxSimpleDialog::Label( wxString text, wxWindow *window )
 {
-    wxStaticText *stLabel = new wxStaticText( this, wxID_ANY, _T(text) );
+    wxStaticText *stLabel = new wxStaticText( this, wxID_ANY, text );
     if( window ) stLabel->MoveBeforeInTabOrder( window );
     return stLabel;
 }
 
-wxTextCtrl *wxSimpleDialog::TextBox( wxString &string, int nch, int nlines, const char *validChar )
+wxTextCtrl *wxSimpleDialog::TextBox( wxString &string, int nch, int nlines, wxString validChar )
 {
-    wxString rules = wxEmptyString;
-    if( validChar ) rules = wxString(_T(validChar));
-
     long style = wxTE_LEFT;
 
-    if( rules.IsSameAs(_T("readonly"), false ) )
+    if( validChar.IsSameAs("readonly", false ) )
     {
         style |= wxTE_READONLY;
-        rules = wxEmptyString;
+        validChar = wxEmptyString;
     }
 
     if( nlines > 1 )
@@ -207,7 +204,7 @@ wxTextCtrl *wxSimpleDialog::TextBox( wxString &string, int nch, int nlines, cons
         nlines = 1;
     }
 
-    wxRegexpStringValidator v( &string, rules );
+    wxRegexpStringValidator v( &string, validChar );
 
     wxTextCtrl *ctrl = new wxTextCtrl(
         this,
@@ -250,10 +247,9 @@ wxTextCtrl *wxSimpleDialog::NumberBox( double &value, bool positive, int ndp, in
 }
 
 
-wxListBox *wxSimpleDialog::ListBox( wxString &value, const char *options, int type, int width, int height )
+wxListBox *wxSimpleDialog::ListBox( wxString &value, wxString options, int type, int width, int height )
 {
     wxArrayString arrLabels;
-    wxSize lbSize = wxDefaultSize;
 
     wxListBox *ctrl = new wxListBox( this,
                                      wxID_ANY,
@@ -267,11 +263,11 @@ wxListBox *wxSimpleDialog::ListBox( wxString &value, const char *options, int ty
     return ctrl;
 }
 
-wxRadioBox *wxSimpleDialog::RadioBox( int &value, const char *options, const char *label, bool horizontal )
+wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxString options, wxString label, bool horizontal )
 {
     wxArrayString arrLabels;
-    wxString strLabels( _T(options+1) );
-    wxString delim( options[0] );
+    wxString delim=options[0];
+    wxString strLabels=options.Mid(1);
     wxStringTokenizer tok( strLabels, delim );
 
     while( tok.HasMoreTokens() )
@@ -280,11 +276,9 @@ wxRadioBox *wxSimpleDialog::RadioBox( int &value, const char *options, const cha
     }
 
 
-    wxString strLabel( label ? _T(label) : _T(""));
-
     wxRadioBox *ctrl = new wxRadioBox(this,
                                       wxID_ANY,
-                                      strLabel,
+                                      label,
                                       wxDefaultPosition,
                                       wxDefaultSize,
                                       arrLabels,
@@ -296,19 +290,17 @@ wxRadioBox *wxSimpleDialog::RadioBox( int &value, const char *options, const cha
     return ctrl;
 }
 
-wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxRadioBoxOption *options, const char *label, bool horizontal )
+wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxRadioBoxOption *options, wxString label, bool horizontal )
 {
     wxArrayString arrLabels;
     for( int i = 0; options[i].name; i++ )
     {
-        arrLabels.Add( wxString(_T(options[i].name)));
+        arrLabels.Add( wxString(options[i].name));
     }
-
-    wxString strLabel( label ? _T(label) : _T(""));
 
     wxRadioBox *ctrl = new wxRadioBox(this,
                                       wxID_ANY,
-                                      strLabel,
+                                      label,
                                       wxDefaultPosition,
                                       wxDefaultSize,
                                       arrLabels,
@@ -320,7 +312,7 @@ wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxRadioBoxOption *options, con
     return ctrl;
 }
 
-wxChoice *wxSimpleDialog::DropDownBox( int &value, const char *options )
+wxChoice *wxSimpleDialog::DropDownBox( int &value, wxString options )
 {
     wxArrayString arrLabels;
 
@@ -354,12 +346,12 @@ wxChoice *wxSimpleDialog::DropDownBox( int &value, wxRadioBoxOption *options )
 
 
 
-wxCheckBox *wxSimpleDialog::CheckBox( const char *label, bool &value )
+wxCheckBox *wxSimpleDialog::CheckBox( wxString label, bool &value )
 {
     return new wxCheckBox(
                this,
                wxID_ANY,
-               _T(label),
+               label,
                wxDefaultPosition,
                wxDefaultSize,
                0,
@@ -367,14 +359,14 @@ wxCheckBox *wxSimpleDialog::CheckBox( const char *label, bool &value )
            );
 }
 
-wxFilePickerCtrl *wxSimpleDialog::OpenFileBox( wxString &filename, const char *label, const char *wildcard, const char *message )
+wxFilePickerCtrl *wxSimpleDialog::OpenFileBox( wxString &filename, wxString label, wxString wildcard, wxString message )
 {
     wxFilePickerCtrl *fp = new wxFilePickerCtrl(
         this,
         wxID_ANY,
         wxEmptyString,
-        _T(label),
-        _T(wildcard),
+        label,
+        wildcard,
         wxDefaultPosition,
         wxDefaultSize,
         wxFLP_USE_TEXTCTRL | wxFLP_OPEN,
@@ -384,14 +376,14 @@ wxFilePickerCtrl *wxSimpleDialog::OpenFileBox( wxString &filename, const char *l
     return fp;
 }
 
-wxFilePickerCtrl *wxSimpleDialog::SaveFileBox( wxString &filename, const char *label, const char *wildcard, const char *message )
+wxFilePickerCtrl *wxSimpleDialog::SaveFileBox( wxString &filename, wxString label, wxString wildcard, wxString message )
 {
     wxFilePickerCtrl *fp =  new wxFilePickerCtrl(
         this,
         wxID_ANY,
         wxEmptyString,
-        _T(label),
-        _T(wildcard),
+        label,
+        wildcard,
         wxDefaultPosition,
         wxDefaultSize,
         wxFLP_USE_TEXTCTRL | wxFLP_SAVE,
@@ -402,13 +394,13 @@ wxFilePickerCtrl *wxSimpleDialog::SaveFileBox( wxString &filename, const char *l
 
 }
 
-wxButton *wxSimpleDialog::Button( const char *label, wxObjectEventFunction function )
+wxButton *wxSimpleDialog::Button( wxString label, wxObjectEventFunction function )
 {
     int id = nextId++;
     wxButton *button = new wxButton(
         this,
         id,
-        _T(label)
+        label
     );
     Connect( id, wxEVT_COMMAND_BUTTON_CLICKED, function );
     return button;
@@ -419,84 +411,84 @@ void wxSimpleDialog::AddSpacer()
     sizer->AddSpacer( GetCharHeight());
 }
 
-wxStaticText *wxSimpleDialog::AddLabel(const char *label, wxWindow *window )
+wxStaticText *wxSimpleDialog::AddLabel(wxString label, wxWindow *window )
 {
     wxStaticText *lb = Label(label, window);
-    AddControl( 0, lb );
+    AddControl( wxEmptyString, lb );
     return lb;
 }
 
-wxTextCtrl *wxSimpleDialog::AddTextBox(const char *label, wxString &string, int nch, int nlines, const char *validChar )
+wxTextCtrl *wxSimpleDialog::AddTextBox(wxString label, wxString &string, int nch, int nlines, wxString validChar )
 {
     wxTextCtrl *txtctrl = TextBox( string, nch, nlines, validChar );
     AddControl( label, txtctrl );
     return txtctrl;
 }
 
-wxTextCtrl *wxSimpleDialog::AddNumberBox(const char *label, int &value, bool positive, int nch )
+wxTextCtrl *wxSimpleDialog::AddNumberBox(wxString label, int &value, bool positive, int nch )
 {
     wxTextCtrl *txtctrl = NumberBox( value, positive, nch );
     AddControl( label, txtctrl );
     return txtctrl;;
 }
 
-wxTextCtrl *wxSimpleDialog::AddNumberBox(const char *label, double &value, bool positive, int ndp, int nch )
+wxTextCtrl *wxSimpleDialog::AddNumberBox(wxString label, double &value, bool positive, int ndp, int nch )
 {
     wxTextCtrl *txtctrl =  NumberBox( value, positive, ndp, nch );
     AddControl( label, txtctrl );
     return txtctrl;
 }
 
-wxListBox *wxSimpleDialog::AddListBox(const char *label, wxString &string, const char *options, int type, int width, int height )
+wxListBox *wxSimpleDialog::AddListBox(wxString label, wxString &string, wxString options, int type, int width, int height )
 {
     wxListBox *listbox = ListBox( string, options, type, width, height );
     AddControl( label, listbox );
     return listbox;
 }
 
-wxRadioBox *wxSimpleDialog::AddRadioBox(const char *label, int &value, const char *options, bool horizontal )
+wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, wxString options, bool horizontal )
 {
     wxRadioBox *rb = RadioBox( value, options, label, horizontal );
-    AddControl( 0, rb );
+    AddControl( wxEmptyString, rb );
     return rb;
 }
 
-wxRadioBox *wxSimpleDialog::AddRadioBox(const char *label, int &value, wxRadioBoxOption *options, bool horizontal )
+wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, wxRadioBoxOption *options, bool horizontal )
 {
     wxRadioBox *rb = RadioBox( value, options, label, horizontal );
-    AddControl( 0, rb );
+    AddControl( wxEmptyString, rb );
     return rb;
 }
 
-wxChoice *wxSimpleDialog::AddDropDownBox(const char *label, int &value, const char *options )
+wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, wxString options )
 {
     wxChoice *ddb = DropDownBox( value, options );
     AddControl( label, ddb );
     return ddb;
 }
 
-wxChoice *wxSimpleDialog::AddDropDownBox(const char *label, int &value, wxRadioBoxOption *options )
+wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, wxRadioBoxOption *options )
 {
     wxChoice *ddb = DropDownBox( value, options );
     AddControl( label, ddb );
     return ddb;
 }
 
-wxCheckBox *wxSimpleDialog::AddCheckBox(const char *label, bool &value )
+wxCheckBox *wxSimpleDialog::AddCheckBox(wxString label, bool &value )
 {
     wxCheckBox *cb = CheckBox( label, value );
-    AddControl( 0, cb );
+    AddControl( wxEmptyString, cb );
     return cb;
 }
 
-wxFilePickerCtrl *wxSimpleDialog::AddOpenFileBox( const char *label, wxString &string, const char *wildcard, const char *message )
+wxFilePickerCtrl *wxSimpleDialog::AddOpenFileBox( wxString label, wxString &string, wxString wildcard, wxString message )
 {
     wxFilePickerCtrl *fp = OpenFileBox( string, label, wildcard, message );
     AddControl( label, fp );
     return fp;
 }
 
-wxFilePickerCtrl *wxSimpleDialog::AddSaveFileBox( const char *label, wxString &string, const char *wildcard, const char *message )
+wxFilePickerCtrl *wxSimpleDialog::AddSaveFileBox( wxString label, wxString &string, wxString wildcard, wxString message )
 {
     wxFilePickerCtrl *fp = SaveFileBox( string, label, wildcard, message );
     AddControl( label, fp );
@@ -504,16 +496,16 @@ wxFilePickerCtrl *wxSimpleDialog::AddSaveFileBox( const char *label, wxString &s
 }
 
 
-wxButton *wxSimpleDialog::AddButton( const char *label, wxObjectEventFunction function )
+wxButton *wxSimpleDialog::AddButton( wxString label, wxObjectEventFunction function )
 {
     wxButton *button = Button(label,function);
-    AddControl( 0, button );
+    AddControl( wxEmptyString, button );
     return button;
 }
 
-void wxSimpleDialog::AddControl(const char *label, wxWindow *window )
+void wxSimpleDialog::AddControl(wxString label, wxWindow *window )
 {
-    if( label && label[0])
+    if( ! label.IsEmpty() )
     {
         AddControls( 2, Label(label,window), window, 0 );
     }
@@ -663,10 +655,10 @@ bool wxSimpleDialog::RunDialog()
 }
 
 
-void wxSimpleDialog::SetListBoxOptions( wxListBox *lb, wxString &string, const char *options )
+void wxSimpleDialog::SetListBoxOptions( wxListBox *lb, wxString &string, wxString options )
 {
-    wxString strLabels( _T(options+1) );
-    wxString delim( options[0] );
+    wxString delim=options[0];
+    wxString strLabels=options.Mid(1);
     wxStringTokenizer tok( strLabels, delim );
 
     lb->Clear();
@@ -678,10 +670,10 @@ void wxSimpleDialog::SetListBoxOptions( wxListBox *lb, wxString &string, const c
     lb->SetValidator( wxSimpleListBoxValidator( options[0], &string ));
 }
 
-void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, const char *options )
+void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, wxString options )
 {
-    wxString strLabels( _T(options+1) );
-    wxString delim( options[0] );
+    wxString delim=options[0];
+    wxString strLabels=options.Mid(1);
     wxStringTokenizer tok( strLabels, delim );
 
     ctrl->Clear();
@@ -698,7 +690,7 @@ void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &
     ctrl->Clear();
     for( int i = 0; options[i].name; i++ )
     {
-        ctrl->Append( wxString(_T(options[i].name)));
+        ctrl->Append( wxString(options[i].name));
     }
 
     ctrl->SetValidator(wxRadioBoxOptionValidator( options, &value ));

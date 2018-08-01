@@ -84,7 +84,7 @@ private:
     void AddColourByClassifications();
     void AddStationColourOptions();
     void AddConfigMenuItems();
-    void ReadConfiguration( char *filename );
+    void ReadConfiguration( const char *filename );
     void ShowObsList();
     void ShowStationList();
     void SetErrorTypeStatus();

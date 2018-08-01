@@ -54,7 +54,7 @@ private:
 };
 
 ScriptDialog::ScriptDialog( wxString label, Token *controllist, long buttons )
-    : wxSimpleDialog( label.c_str(), buttons )
+    : wxSimpleDialog( label, buttons )
 {
     controls = 0;
     nControls = controllist->Count();
@@ -123,31 +123,24 @@ void ScriptDialog::AddControls()
 
         wxString selectorString;
 
-        char *cpSelector = 0;
-        char *cpLabel = 0;
-        char *cpInfo = 0;
-
         selector.Clear();
         info.Clear();
         label.Clear();
 
         if( ctk.Label() )
         {
-            label = wxString( _T( ctk.Label()->GetValue().AsString()) );
+            label = wxString(  ctk.Label()->GetValue().AsString() );
         }
-        cpLabel = (char *) label.c_str();
 
         if( ctk.Selector() )
         {
             control.selector = ctk.Selector()->GetValue().AsString();
             selector = control.selector;
-            cpSelector = (char *) selector.c_str();
         }
 
         if( ctk.Info() )
         {
-            info = wxString( _T( ctk.Info()->GetValue().AsString() ) );
-            cpInfo = (char *) info.c_str();
+            info = wxString(  ctk.Info()->GetValue().AsString()  );
         }
 
         Value v( false );
@@ -167,9 +160,9 @@ void ScriptDialog::AddControls()
             int nch = 32;
             int nline = 1;
             long number;
-            if( cpInfo )
+            if( ! info.IsEmpty() )
             {
-                wxString numbers(_T("0123456789"));
+                wxString numbers("0123456789");
                 wxString delim('~');
                 for( size_t i = 0; i < info.Len(); i++ )
                 {
@@ -184,7 +177,7 @@ void ScriptDialog::AddControls()
                 if( tok.GetNextToken().ToLong( &number ) && number > 0 ) nline = number;
                 info = tok.GetString();
             }
-            wxctrl = TextBox( control.stringVal, nch, nline, info.c_str() );
+            wxctrl = TextBox( control.stringVal, nch, nline, info );
         }
         break;
 
@@ -205,38 +198,38 @@ void ScriptDialog::AddControls()
                 width = (long) (width*GetCharWidth());
                 height = (long) (1.1*height*GetCharHeight());
             }
-            wxctrl = ListBox( control.stringVal, cpSelector, type, (int) width, (int) height );
+            wxctrl = ListBox( control.stringVal, selector, type, (int) width, (int) height );
         }
         break;
 
         case ctCheckBox:
-            wxctrl = CheckBox( cpLabel, control.boolVal );
-            cpLabel = 0;
+            wxctrl = CheckBox( label, control.boolVal );
+            label.Clear();
             break;
 
         case ctRadioSelector:
             selectorString = GetSelectorString( selector );
-            wxctrl = RadioBox( control.intVal, (const char *) selectorString.c_str(), label );
-            cpLabel = 0;
+            wxctrl = RadioBox( control.intVal, selectorString, label );
+            label.Clear();
             break;
 
         case ctDropDownSelector:
             selectorString = GetSelectorString( selector );
-            wxctrl = DropDownBox( control.intVal, (const char *) selectorString.c_str() );
+            wxctrl = DropDownBox( control.intVal, selectorString );
             break;
 
         case ctOpenFileSelector:
-            wxctrl = OpenFileBox( control.stringVal, label, cpSelector, cpInfo  );
+            wxctrl = OpenFileBox( control.stringVal, label, selector, info  );
             break;
 
         case ctSaveFileSelector:
-            wxctrl = SaveFileBox( control.stringVal, label, cpSelector, cpInfo );
+            wxctrl = SaveFileBox( control.stringVal, label, selector, info );
             break;
 
         case ctButton:
             wxctrl = Button( label, (wxObjectEventFunction) &ScriptDialog::HandleButton );
             control.intVal = wxctrl->GetId();
-            cpLabel = 0;
+            label.Clear();
             break;
 
         case ctSpacer:
@@ -256,8 +249,11 @@ void ScriptDialog::AddControls()
             columns->AddSpacer( GetCharWidth()*2 );
             columns->Add( sizer );
             break;
+
+        case ctValidator:
+            continue;
         }
-        if( cpLabel && cpLabel[0] ) { sizer->Add( Label( cpLabel ), sizerFlags ); }
+        if( ! label.IsEmpty() ) { sizer->Add( Label( label ), sizerFlags ); }
         if( wxctrl ) { sizer->Add( wxctrl, sizerFlags ); control.control = wxctrl;  }
     }
     AddSizer( rows );
@@ -331,7 +327,6 @@ void ScriptDialog::ReadData()
 
         switch( ctk.Type() )
         {
-
         case ctTextBox:
         case ctListBox:
         case ctOpenFileSelector:
@@ -349,6 +344,9 @@ void ScriptDialog::ReadData()
         case ctDropDownSelector:
             ctk.Variable()->GetValue( v );
             control.intVal = GetSelectedIndex( control.selector, v.AsString() );
+            break;
+
+        default:
             break;
         }
 
@@ -388,7 +386,6 @@ void ScriptDialog::Apply()
 
         switch( ctk.Type() )
         {
-
         case ctTextBox:
         case ctListBox:
         case ctOpenFileSelector:
@@ -402,11 +399,15 @@ void ScriptDialog::Apply()
 
         case ctRadioSelector:
         case ctDropDownSelector:
+            {
             wxString selectorValue = GetSelectedValue( control.selector, control.intVal );
             ctk.Variable()->SetOwnerValue( Value(selectorValue) );
+            }
+            break;
+
+        default:
             break;
         }
-
     }
 }
 
@@ -527,16 +528,17 @@ Value DialogControlToken::evaluate() { return Value(true); }
 
 void DialogControlToken::print( const wxString &prefix, ostream &str )
 {
-    char *typeString = "unknown";
+    const char *typeString = "unknown";
     switch( type )
     {
-    case ctLabel: typeString = "label"; break;
-    case ctTextBox: typeString = "text_box"; break;
-    case ctCheckBox: typeString = "check_box"; break;
-    case ctRadioSelector: typeString = "radio_selector"; break;
-    case ctDropDownSelector: typeString = "dropdown_selector"; break;
-    case ctOpenFileSelector: typeString = "open_file_selector"; break;
-    case ctSaveFileSelector: typeString = "save_file_selector"; break;
+        case ctLabel: typeString = "label"; break;
+        case ctTextBox: typeString = "text_box"; break;
+        case ctCheckBox: typeString = "check_box"; break;
+        case ctRadioSelector: typeString = "radio_selector"; break;
+        case ctDropDownSelector: typeString = "dropdown_selector"; break;
+        case ctOpenFileSelector: typeString = "open_file_selector"; break;
+        case ctSaveFileSelector: typeString = "save_file_selector"; break;
+        default: break;
     }
     str << prefix << "DialogControlToken: " << typeString << endl;
     PrintSubtoken( variable, prefix, str );

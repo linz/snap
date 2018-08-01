@@ -40,7 +40,7 @@ wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, boo
     wxSizerFlags flags;
     flags.Expand().Border();
 
-    logText = new wxTextCtrl( this, wxID_ANY, _T(""),
+    logText = new wxTextCtrl( this, wxID_ANY, "",
                               wxDefaultPosition,
                               wxSize(GetCharWidth()*85, GetCharHeight()*25),
                               wxTE_MULTILINE  |
@@ -64,7 +64,7 @@ wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, boo
     {
         sizer->AddSpacer( GetCharHeight() );
 
-        progressText = 	new wxStaticText( this, wxID_ANY, _T(""), wxDefaultPosition, wxDefaultSize );
+        progressText = 	new wxStaticText( this, wxID_ANY, "", wxDefaultPosition, wxDefaultSize );
         sizer->Add( progressText, flags );
 
         progressGauge = new wxGauge( this, wxID_ANY, 100, wxDefaultPosition, wxDefaultSize, wxGA_HORIZONTAL | wxGA_SMOOTH );
@@ -146,7 +146,7 @@ void wxMainProgWindow::RunMainProg( int (*mainfunc)( int argc, char *argv[] ))
 
 void wxMainProgWindow::AppendMessage( char *message )
 {
-    AppendString( wxString(_T(message)));
+    AppendString( wxString(message));
 }
 
 void wxMainProgWindow::AppendString( const wxString &text )
@@ -164,7 +164,7 @@ void wxMainProgWindow::AppendString( const wxString &text )
     lastUpdate = clock();
 
     // Keep track of the last non-blank line as the header for the progress meter
-    wxStringTokenizer tokens(text,_T("\n"));
+    wxStringTokenizer tokens(text,"\n");
     while( tokens.HasMoreTokens())
     {
         wxString line = tokens.GetNextToken();
@@ -255,7 +255,7 @@ void wxMainProgWindow::DoEndMeter()
 {
     if( hasProgress )
     {
-        progressText->SetLabel(_T(""));
+        progressText->SetLabel("");
         progressGauge->SetValue(0);
         if( reportTimes )
         {

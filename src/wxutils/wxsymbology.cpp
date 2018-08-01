@@ -2,6 +2,8 @@
 // Classes for managing the symbology in the SNAPPLOT application.
 
 #include "wxsymbology.hpp"
+#include "util/dstring.h"
+#include "util/chkalloc.h"
 
 // ColourPalette::Item: A class holding a colour definition and a corresponding
 // bitmap for a ColourPalette.
@@ -130,7 +132,7 @@ int ColourPalette::PaletteBitmapSize() const
 
 // SymbologyBase ... nothing really in it!
 
-SymbologyBase::SymbologyBase(const wxString &np)
+SymbologyBase::SymbologyBase(wxString np)
 {
     int i = np.Find('|');
     if( i == wxNOT_FOUND )
@@ -144,10 +146,12 @@ SymbologyBase::SymbologyBase(const wxString &np)
         name = np.Mid(i+1);
     }
     id.Replace(" ","_");
+    cname=copy_string(name.mb_str());
 }
 
 SymbologyBase::~SymbologyBase()
 {
+    if( cname ) check_free(cname);
 }
 
 // SymbologyList ... an expandable array of symbologies.
@@ -199,12 +203,12 @@ SymbologyBase *SymbologyList::GetSymbology( int i ) const
     return 0;
 }
 
-SymbologyBase *SymbologyList::GetSymbology( const wxString &name ) const
+SymbologyBase *SymbologyList::GetSymbology( wxString name ) const
 {
     return GetSymbology( GetSymbologyId( name ));
 }
 
-int SymbologyList::GetSymbologyId( const wxString &name ) const
+int SymbologyList::GetSymbologyId( wxString name ) const
 {
     for( int i = 0; i < size; i++ )
     {
@@ -213,7 +217,7 @@ int SymbologyList::GetSymbologyId( const wxString &name ) const
     return -1;
 }
 
-int SymbologyList::GetSymbologyByIdentifier( const wxString &uid ) const
+int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
 {
     for( int i = 0; i < size; i++ )
     {
@@ -225,7 +229,7 @@ int SymbologyList::GetSymbologyByIdentifier( const wxString &uid ) const
 
 // LayerSymbology. Simple class defining a symbology.
 
-LayerSymbology::LayerSymbology(const wxString &name, int type, int colourId, bool show) :
+LayerSymbology::LayerSymbology(wxString name, int type, int colourId, bool show) :
     SymbologyBase(name),
     type(type),
     colourId(colourId),
@@ -317,7 +321,7 @@ void TextAlign::SetAlignment( float alignX, float alignY )
     textY = (textY - 1)/2;
 }
 
-void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, const wxString &string ) const
+void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, wxString string ) const
 {
     int twidth;
     int theight;
@@ -332,7 +336,7 @@ void TextAlign::DrawText(wxDC &dc, int refSize, wxPoint refPoint, const wxString
 
 // TextStyle : Used to plot text
 
-TextStyle::TextStyle(const wxString &name, const wxFont &font, const wxColour &colour ) :
+TextStyle::TextStyle(wxString name, const wxFont &font, const wxColour &colour ) :
     SymbologyBase(name)
 {
     SetFont( font, colour );
@@ -350,7 +354,7 @@ void TextStyle::SetFont( const wxFont &font, const wxColour &colour )
     this->colour = colour;
 }
 
-void TextStyle::Render(wxDC &dc, wxPoint &pt, const wxString &string, const TextAlign &alignment, int refSize, const wxColour &defaultColour)
+void TextStyle::Render(wxDC &dc, wxPoint &pt, wxString string, const TextAlign &alignment, int refSize, const wxColour &defaultColour)
 {
     if( refSize != fontRefSize )
     {
@@ -374,7 +378,7 @@ void TextStyle::Render(wxDC &dc, wxPoint &pt, const wxString &string, const Text
 
 // TODO: Use symmetry to avoid rounding errors making unsymmetric symbols
 
-PointSymbology::PointSymbology( const wxString &name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
+PointSymbology::PointSymbology( wxString name, int nNodes, double size, double indent, const wxColour &clrBorder, const wxColour &clrFill ) :
     SymbologyBase( name )
 {
     pointOffsets = 0;
@@ -437,7 +441,7 @@ void PointSymbology::SetSymbol( int nNodes, double size, double indent, const wx
 
 void PointSymbology::AddSymbol(int nNodes, double size, double indent, const wxColour &colourBorder, const wxColour &colourFill)
 {
-    next = new PointSymbology(_T(""), nNodes, size, indent, colourBorder, colourFill );
+    next = new PointSymbology("", nNodes, size, indent, colourBorder, colourFill );
 }
 
 void PointSymbology::CalcOffsets( int refSize )
@@ -532,7 +536,7 @@ void Symbology::InitiallizePalette( const ColourPalette &basepalette )
     }
 }
 
-int Symbology::AddLayer(const wxString &name, int type, const wxColour &colour, bool display )
+int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool display )
 {
     int colourId = 0;
     if( colour.IsOk() ) colourId= palette.AddColour( colour );
@@ -540,14 +544,14 @@ int Symbology::AddLayer(const wxString &name, int type, const wxColour &colour, 
     return layers.AddSymbology( s );
 }
 
-void Symbology::AddTitle( const wxString &name )
+void Symbology::AddTitle( wxString name )
 {
     AddLayer( name, LayerSymbology::label, wxColour(0,0,0), true );
 }
 
 void Symbology::AddSpacer()
 {
-    AddTitle( _T("") );
+    AddTitle( "" );
 }
 
 int Symbology::LayerCount() const
@@ -555,12 +559,12 @@ int Symbology::LayerCount() const
     return layers.Size();
 }
 
-int Symbology::GetLayerByName( const wxString &name ) const
+int Symbology::GetLayerByName( wxString name ) const
 {
     return layers.GetSymbologyId( name );
 }
 
-int Symbology::GetLayerByIdentifier( const wxString &uid ) const
+int Symbology::GetLayerByIdentifier( wxString uid ) const
 {
     return layers.GetSymbologyByIdentifier( uid );
 }
@@ -597,7 +601,7 @@ int Symbology::AddPointSymbol( PointSymbology *ptsym )
     return pointSymbols.AddSymbology( ptsym );
 }
 
-int Symbology::GetPointSymbolId( const wxString &name ) const
+int Symbology::GetPointSymbolId( wxString name ) const
 {
     return pointSymbols.GetSymbologyId( name );
 }
@@ -612,7 +616,7 @@ int Symbology::AddTextStyle( TextStyle *txtsym )
     return textStyles.AddSymbology( txtsym );
 }
 
-int Symbology::GetTextStyleId( const wxString &name ) const
+int Symbology::GetTextStyleId( wxString name ) const
 {
     return textStyles.GetSymbologyId( name );
 }

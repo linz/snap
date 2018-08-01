@@ -28,14 +28,14 @@ static void mapdrawer_line_func( void *plotobj, double px, double py, int pen, i
     }
 }
 
-static void mapdrawer_text_func( void *plotobj, double px, double py, double WXUNUSED(size), int pen, char *text )
+static void mapdrawer_text_func( void *plotobj, double px, double py, double WXUNUSED(size), int pen, const char *text )
 {
     wxMapDrawer *drawer = static_cast<wxMapDrawer *>( plotobj );
     TextAlign alignment(1,-1);
     drawer->SetLayer( pen );
     drawer->SetTextStyle( get_station_font_id() );
     // TODO: Sort out text size and alignment properly..
-    drawer->PlotText( MapPoint(px,py),alignment,_T(text));
+    drawer->PlotText( MapPoint(px,py),alignment,text);
 }
 
 static void mapdrawer_ellipse_func( void *plotobj, double px, double py, double a, double b, double az, int pen )

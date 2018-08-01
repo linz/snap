@@ -14,7 +14,7 @@ public:
     wxHelpAbout(const char *progname, const char *progver, const char *progdate) :
         wxSimpleDialog( progname, wxOK )
     {
-        wxBitmap bitmap( wxBITMAP(IDB_SPLASHSCREEN) );
+        wxBitmap bitmap = wxBITMAP(IDB_SPLASHSCREEN);
         wxBoxSizer *sizer = new wxBoxSizer( wxHORIZONTAL );
         sizer->Add(new wxSplashImage( this, bitmap ));
         sizer->AddSpacer( GetCharWidth() );

@@ -9,7 +9,7 @@ SnapJobFile::SnapJobFile( const wxString &fileName, JobFileType type, SnapJobFil
     type(type),
     next(0)
 {
-    filename.MakeAbsolute( sourceFile ? sourceFile->GetPath() : _T(""));
+    filename.MakeAbsolute( sourceFile ? sourceFile->GetPath() : "");
     if( filename.FileExists() )
     {
         lastModified = filename.GetModificationTime();
@@ -92,11 +92,8 @@ wxString SnapJobFile::GetPath()
 SnapJob::SnapJob( wxString fileName ) :
     SnapJobFile( fileName, JFCommandFile )
 {
-    // wxLogMessage("SnapJob::SnapJob %s",fileName.c_str());
-
-    // Just for testing ...
+    // For testing...
     // saved = false;
-
     saved = true;
     jobFiles = this;
     lastFile = this;
@@ -176,17 +173,17 @@ wxString SnapJob::FileWithExtension( wxString ext )
 
 wxString SnapJob::ListingFilename()
 {
-    return FileWithExtension(_T("lst"));
+    return FileWithExtension("lst");
 }
 
 wxString SnapJob::ErrorFilename()
 {
-    return FileWithExtension(_T("err"));
+    return FileWithExtension("err");
 }
 
 wxString SnapJob::BinFilename()
 {
-    return FileWithExtension(_T("bin"));
+    return FileWithExtension("bin");
 }
 
 wxString SnapJob::DataFiles()
@@ -195,7 +192,7 @@ wxString SnapJob::DataFiles()
     for( SnapJobFile *f = jobFiles; f; f=f->Next() )
     {
         if( f->Type() != JFDataFile ) continue;
-        if( datafiles.Len() > 0 ) datafiles.Append(_T("\n"));
+        if( datafiles.Len() > 0 ) datafiles.Append("\n");
         datafiles.Append( RelativeFilename( f->GetFullFilename()));
     }
     return datafiles;
@@ -206,7 +203,7 @@ wxString SnapJob::LoadErrors()
     wxString errorString;
     for( size_t i = 0; i < errors.Count(); i++ )
     {
-        if( i > 0 ) errorString.Append(_T("\n"));
+        if( i > 0 ) errorString.Append("\n");
         errorString.Append( errors.Item(i) );
     }
     return errorString;
@@ -254,11 +251,11 @@ bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
             if( tok.HasMoreTokens() )
             {
                 wxString cmd = tok.GetNextToken();
-                if( cmd.IsSameAs(_T("title"),false) )
+                if( cmd.IsSameAs("title",false) )
                 {
                     title = tok.GetString().Trim();
                 }
-                else if( cmd.IsSameAs(_T("coordinate_file"),false) )
+                else if( cmd.IsSameAs("coordinate_file",false) )
                 {
                     if( crdfile )
                     {
@@ -270,8 +267,8 @@ bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
                     }
                     else if( ! tok.HasMoreTokens() )
                     {
-                        errors.Add(wxString::Format( _T("Coordinate file name missing: line %d file %s"),
-                                                     i, cmdfile.c_str()));
+                        errors.Add(wxString::Format( "Coordinate file name missing: line %d file %s",
+                                                     i, cmdfile));
                     }
                     else
                     {
@@ -279,24 +276,24 @@ bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
                         AddJobFile( crdfile );
                     }
                 }
-                else if( cmd.IsSameAs(_T("data_file"),false) )
+                else if( cmd.IsSameAs("data_file",false) )
                 {
                     if( ! tok.HasMoreTokens() )
                     {
-                        errors.Add(wxString::Format( _T("Data file name missing: line %d file %s"),
-                                                     i, cmdfile.c_str()));
+                        errors.Add(wxString::Format( "Data file name missing: line %d file %s",
+                                                     i, cmdfile));
                     }
                     else
                     {
                         AddJobFile( new SnapJobFile( tok.GetNextToken(), JFDataFile, sourceFile ) );
                     }
                 }
-                else if( cmd.IsSameAs(_T("include"),false) )
+                else if( cmd.IsSameAs("include",false) )
                 {
                     if( ! tok.HasMoreTokens() )
                     {
-                        errors.Add(wxString::Format( _T("Included command file name missing: line %d file %s"),
-                                                     i, cmdfile.c_str()));
+                        errors.Add(wxString::Format( "Included command file name missing: line %d file %s",
+                                                     i, cmdfile));
                     }
                     else
                     {
@@ -312,7 +309,7 @@ bool SnapJob::LoadCommands( SnapJobFile *sourceFile, wxArrayString &errors )
     }
     else
     {
-        errors.Add( wxString::Format( _T("Cannot open command file: %s"),cmdfile.c_str()));
+        errors.Add( wxString::Format( "Cannot open command file: %s",cmdfile));
     }
 
     return errors.GetCount() == errcount;

@@ -2955,12 +2955,12 @@ static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len,
 
 static config_item snap_commands[] =
 {
-    {"coordinate_file",NULL,ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
-    {"add_coordinate_file",NULL,ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"output_coordinate_file",NULL,ABSOLUTE,0,set_output_coordinate_file,CFG_ONEONLY, 0},
-    {"data_file",NULL,ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
-    {"recode",NULL,ABSOLUTE,0,read_recode,0,1},
-    {"include",NULL,ABSOLUTE,0,read_include_file,0,0},
+    {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
+    {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
+    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,CFG_ONEONLY, 0},
+    {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
+    {"recode",NULL,CFG_ABSOLUTE,0,read_recode,0,1},
+    {"include",NULL,CFG_ABSOLUTE,0,read_include_file,0,0},
     {NULL}
 };
 
@@ -3283,7 +3283,7 @@ int main( int argc, char *argv[] )
         if( i < 75 ) strcpy(crdfname+i,".new");
     }
 
-    write_station_file( "dat2site", 0, 0, 0, 0, check_fixed_stn );
+    write_station_file( "dat2site", 0, 0, 0, 0, 1 );
 
     printf("\nUpdated coordinates written to %s\n", crdfname );
 

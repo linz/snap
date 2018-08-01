@@ -57,7 +57,7 @@ static void *bkg_list = NULL;
 static void *bkg_layers = NULL;
 static int npens = 0;
 static long npts = 0;
-static char *whitespace = " \r\n\t";
+static const char *whitespace = " \r\n\t";
 
 void add_background_file( const char *fname, char *crdsysdef, char *layer )
 {

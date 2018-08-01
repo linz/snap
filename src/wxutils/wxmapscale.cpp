@@ -388,7 +388,7 @@ void wxMapScale::NotifyWindow()
         if( window != 0 )
         {
             wxSimpleEvent evt( WX_MAPWINDOW_SCALE_CHANGED );
-            window->AddPendingEvent( evt );
+            window->GetEventHandler()->AddPendingEvent( evt );
         }
 
     }

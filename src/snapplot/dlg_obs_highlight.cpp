@@ -42,11 +42,11 @@ ObsHighlightDialog::ObsHighlightDialog( wxHelpController *help ) :
     wxSimpleDialog("Highlight observations")
 {
 
-    AddRadioBox( 0, highlightOpt, obsHighlightOptions );
+    AddRadioBox( "", highlightOpt, obsHighlightOptions );
     AddSpacer();
     AddNumberBox( "T&hreshold value", threshold, true, 2 );
     AddButtonsAndSize();
-    if( help ) SetupHelp( help, _T( HELPBASE "dlg_highlight_observations.html" ) );
+    if( help ) SetupHelp( help,  HELPBASE "dlg_highlight_observations.html"  );
 }
 
 void ObsHighlightDialog::ReadData()

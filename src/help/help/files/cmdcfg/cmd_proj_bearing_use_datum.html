@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="proj_bearing_use_datum">
+<title>The proj_bearing_use_datum command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_proj_bearing_use_datum"></a>The proj_bearing_use_datum command</h1>
+
+<p class="Commanddefinition">proj_bearing_use_datum  <i>option</i></p>
+
+<p>This command specifies how projection bearing coordinate systems are applied.  The projection 
+bearing coordinate system must be a coordinate system defined in the <a href="../../help/coordsys/index.html">snap coordinate system definition</a> file.  This defines the parameters used to calculate
+projection coordinates, and hence projection bearings, from the station coordinates.  By default
+SNAP checks that the datum of the projection coordinate system is the same as that of the
+network station coordinates and fails with an error if these do not match.  However SNAP can 
+ignore the datum difference, and just use the projection parameters for this calculation.  This 
+is typically done to ignore differences in the version of the datum, for example using a projection
+coordinate system of EDENTM2000 with a network coordinate system of NZGD2000_20160701.
+</p>
+
+<p>The parameter of the command is:</p>
+
+<p class="Commanddefinition">option</p><p class="Commanddescription">can be "yes" or "no".  If it is yes (the default) then projection bearings are calculated strictly, 
+if it is no then differences between the projection bearing coordinate system datum and the 
+network coordinate system datum are ignored.
+</p>
+<div class="SeeAlso">
+
+<h3>See also:</h3>
+
+<p><a href="../data/obs_projection_bearings.html">Projection bearings</a></p>
+
+<p><a href="../data/obs_bearing_error.html">Bearing orientation errors</a></p>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+</div>
+</body>
+</html>

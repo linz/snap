@@ -31,7 +31,7 @@ FindStationDialog::FindStationDialog( wxHelpController *help )
     AddSpacer();
     AddCheckBox("Zoom map to station", zoomMap );
     AddButtonsAndSize();
-    if( help ) SetupHelp( help, _T( HELPBASE "dlg_find_station.html" ) );
+    if( help ) SetupHelp( help,  HELPBASE "dlg_find_station.html"  );
 }
 
 bool FindStationDialog::Validate()
@@ -43,12 +43,11 @@ bool FindStationDialog::Validate()
         return false;
     }
 
-    char *code = (char *)(stationCode.c_str());
-    stationId = find_station( net, code );
+    stationId = find_station( net, stationCode.mb_str() );
     if( stationId <= 0 )
     {
-        wxMessageBox(wxString::Format("Station %s is not defined in this network",code),"Error",
-                     wxOK | wxICON_EXCLAMATION );
+        wxMessageBox(wxString::Format("Station %s is not defined in this network",
+                    stationCode),"Error", wxOK | wxICON_EXCLAMATION );
         return false;
     }
     return true;

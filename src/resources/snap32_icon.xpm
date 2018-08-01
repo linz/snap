@@ -1,5 +1,5 @@
 /* XPM */
-static char *ICO_SNAP32_xpm[] = {
+static const char *ICO_SNAP32_xpm[] = {
 /* columns rows colors chars-per-pixel */
 "32 32 29 1 ",
 "  c black",

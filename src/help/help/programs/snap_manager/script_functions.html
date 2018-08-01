@@ -380,7 +380,12 @@ The script should be in the scripts subdirectory of the SNAP
 program directory.</p>
 <p class="Commanddefinition"><a name="func_Run"></a>Run(<i>program</i>,<i>parameter</i>,...)</p>
 <p class="Commanddescription">Runs a program with the specified
-parameters. Waits for the program to finish.</p>
+parameters. Waits for the program to finish.  If only the program name is defined and it starts 
+with a quote mark (&quote;), then it is assumed to be a quoted command line, rather than
+the name of a program.  For example:</p>
+<p class="Commandexample">
+Run("\"$_perlexe\" -q $options \"progdir/long program name.pl\"")
+</p>
 <p class="Commanddefinition"><a name="func_LogRun"></a>LogRun(<i>program</i>,<i>parameter</i>,...)</p>
 <p class="Commanddescription">Similer to the run() function, except
 that output from the program is collected and returned by the
@@ -431,6 +436,8 @@ in the
 the string. If the optional global parameter is true, then returns values
 for each match of the expression in the string, otherwise only returns values 
 from the first match of the expression with the string. For example:<br />
+</p>
+<p class="Commandexample">
 $hour,$mins=MatchGroups($time,'^(\d+)\:(\d+)$'))
 </p>
 <p class="Commanddefinition"><a name="func_Replace"></a>Replace(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)</p>

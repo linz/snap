@@ -36,7 +36,7 @@ PutTextInfoWriter::PutTextInfoWriter( const wxString &string )
 {
     int itype, ifrom, ito, iobs_id;
     type = ptfNone;
-    if( sscanf( string.c_str(),"PTI:%d:%d:%d:%d",&itype,&ifrom,&ito,&iobs_id ) != EOF )
+    if( sscanf( string.mb_str(),"PTI:%d:%d:%d:%d",&itype,&ifrom,&ito,&iobs_id ) != EOF )
     {
         type = itype;
         from = ifrom;
@@ -74,29 +74,29 @@ SnapplotDetailsView::~SnapplotDetailsView()
 void SnapplotDetailsView::ClearText()
 {
     newText.Empty();
-    newText.Append(_T("<html><body><pre>"));
+    newText.Append("<html><body><pre>");
 }
 
 void SnapplotDetailsView::AddString( const char *text, bool newLine )
 {
-    newText.Append(_T(text) );
+    newText.Append(text );
     if( newLine ) AddNewLine();
 }
 
 void SnapplotDetailsView::AddInfoText( PutTextInfo *jump, const char *text, bool addNewLine )
 {
-    wxString s(_T(text));
-    s.Replace(_T("&"),_T("&amp;"));
-    s.Replace(_T("<"),_T("&lt;"));
-    s.Replace(_T(">"),_T("&gt;"));
+    wxString s(text);
+    s.Replace("&","&amp;");
+    s.Replace("<","&lt;");
+    s.Replace(">","&gt;");
     if( jump && jump->type != ptfNone )
     {
         PutTextInfoWriter pti(*jump);
-        newText.Append(_T("<a href=\""));
+        newText.Append("<a href=\"");
         newText.Append(pti.ToString());
-        newText.Append(_T("\">"));
+        newText.Append("\">");
         newText.Append(s);
-        newText.Append(_T("</a>"));
+        newText.Append("</a>");
     }
     else
     {
@@ -107,13 +107,13 @@ void SnapplotDetailsView::AddInfoText( PutTextInfo *jump, const char *text, bool
 
 void SnapplotDetailsView::AddNewLine()
 {
-    newText.Append(_T("\n"));
+    newText.Append("\n");
 }
 
 
 void SnapplotDetailsView::DisplayText()
 {
-    newText.Append(_T("</pre></body></html>"));
+    newText.Append("</pre></body></html>");
     SetPage( newText );
     newText.Empty();
 }

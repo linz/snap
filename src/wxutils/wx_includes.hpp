@@ -13,6 +13,7 @@
 #include <wx/dc.h>
 #include <wx/display.h>
 #include <wx/dcclient.h>
+#include <wx/dcgraph.h>
 #include <wx/dcscreen.h>
 #include <wx/dcmemory.h>
 #include <wx/image.h>

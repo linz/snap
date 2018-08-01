@@ -23,7 +23,7 @@ typedef struct
 {
     void *plotobj;
     void (*line_func)( void *plotter, double px, double py, int pen, int dashed );
-    void (*text_func)( void *plotter, double px, double py, double size, int pen, char *text );
+    void (*text_func)( void *plotter, double px, double py, double size, int pen, const char *text );
     void (*ellipse_func)( void *plotter, double px, double py, double a, double b, double az, int pen );
     void (*symbol_func)( void *plotter, double px, double py, int pen, int symbol );
     double (*symbol_size_func)( void *plotter, int symbol );

@@ -208,8 +208,7 @@ function CalculateMissingStations()
     endif
     $newfile = SetExtension($coordinate_file,"new")
     DeleteFile($newfile)
-    $command = "\"$snap_path/dat2site\" \"$job_file\""
-    $output = debuglogrun($command)
+    $output = debuglogrun("$snap_path/dat2site",$job_file)
     log("\n")
     log($output)
     if FileExists($newfile) then

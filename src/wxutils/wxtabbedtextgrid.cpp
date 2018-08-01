@@ -11,7 +11,7 @@
 wxString wxTabbedTextSource::GetText()
 {
     int nrow = GetRowCount();
-    wxString text(_T(GetHeader()));
+    wxString text(GetHeader());
 
     // Guestimate an allocation amount
     int nchar = (int) ((text.Len()+1) * (nrow+1) * 1.1);
@@ -19,7 +19,7 @@ wxString wxTabbedTextSource::GetText()
     text.Trim( true );
     text.Trim( false );
 
-    wxRegEx re( _T(" *\t *"));
+    wxRegEx re( " *\t *");
     re.ReplaceAll( &text, "\t" );
 
     text.Append('\n');
@@ -73,16 +73,16 @@ bool wxTabbedTextTable::GetColRightJustify( int col )
 
 wxString wxTabbedTextTable::GetColLabelValue( int col )
 {
-    if( colName == 0 ) return _T("");
-    return _T(colName[ col ]);
+    if( colName == 0 ) return "";
+    return colName[ col ];
 }
 
 wxString wxTabbedTextTable::GetValue( int row, int col )
 {
-    if( ttsource == 0 ) return _T("");
+    if( ttsource == 0 ) return "";
     if( row != currow ) GetRow( row );
-    wxString value(_T(rowData[col]));
-    if( rightJustify[col] ) value.Append(_T("  "));
+    wxString value(rowData[col]);
+    if( rightJustify[col] ) value.Append("  ");
     return value;
 }
 
@@ -184,7 +184,7 @@ void wxTabbedTextTable::SetSource( wxTabbedTextSource *source )
             *e1 = 0;
 
             colWidth[i] = collen;
-            colName[i] = _T(s);
+            colName[i] = s;
         }
     }
 }

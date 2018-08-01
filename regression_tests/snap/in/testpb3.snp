@@ -5,7 +5,7 @@ data_file testpb1.dat
 
 mode 3d adjustment
 convergence_tolerance 0.001
-proj_bearing_use_datum_trans no
+proj_bearing_use_datum no
 
 fix all
 

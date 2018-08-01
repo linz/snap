@@ -21,7 +21,7 @@ public:
     ~Value();
     Value & operator= (const Value &value );
     Value & operator= (const wxString &value ) { SetValue(value); return *this; }
-    Value & operator= (const char *value ) { SetValue( wxString(_T(value))); return *this; }
+    Value & operator= (const char *value ) { SetValue( wxString(value)); return *this; }
     Value & operator= (bool value) { SetValue(value); return *this; }
     Value & operator= (double value) { SetValue(value); return *this; }
     void SetValue( const wxString &value );

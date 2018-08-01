@@ -30,7 +30,7 @@ SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
 {
     // Set up the crosshair cursor with a white outline..
 
-    SetCursor( wxCursor(_T("CUR_CROSSHAIR2")));
+    SetCursor( wxCursor("CUR_CROSSHAIR2"));
 
     // TODO: Work out a better pick tolerance ... maybe need to
     // base on symbol size...
@@ -122,11 +122,11 @@ void SnapplotMapView::ZoomToLine( int from, int to )
     x2 = xm = x1; y2 = ym = y1;
     while( nconnect-- )
     {
-        int to = get_connected_station( from, nconnect, 0 );
-        if( !to ) continue;
+        int cto = get_connected_station( from, nconnect, 0 );
+        if( !cto ) continue;
         if( ! connection_observation_count( from, nconnect ) ) continue;
         double x, y;
-        get_station_coordinates( to, &x, &y );
+        get_station_coordinates( cto, &x, &y );
         if( x < x1 ) x1 = x; else if( x > x2 ) x2 = x;
         if( y < y1 ) y1 = y; else if( y > y2 ) y2 = y;
     }
@@ -169,8 +169,8 @@ int SnapplotMapView::FindStation( const MapPoint &pt )
 
 void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
 {
-    wxMapScale &scale = GetScale();
-    if( ! scale.IsValid() ) return;
+    wxMapScale &mscale = GetScale();
+    if( ! mscale.IsValid() ) return;
 
 
     int istn = FindStation( pt );
@@ -211,7 +211,7 @@ void SnapplotMapView::ShowInfo( const MapPoint &pt, bool zoom )
     else if( weakLock || ! locatorLocked )
     {
         int from ,to;
-        double tolerance = pickTolerance * scale.GetScale();
+        double tolerance = pickTolerance * mscale.GetScale();
         if( nearest_connection( pt.x, pt.y, tolerance, &from, &to ) )
         {
             SetLocatorLocked( false );
@@ -306,7 +306,7 @@ void SnapplotMapView::ClearLocator()
 void SnapplotMapView::PaintLocator( wxDC &dc )
 {
     if( locatorFrom == 0 ) return;
-    int logFunction = dc.GetLogicalFunction();
+    wxRasterOperationMode logFunction = dc.GetLogicalFunction();
     dc.SetLogicalFunction( wxXOR );
 
     wxColour locatorCol = GetSymbology()->LayerColour( get_pen( SELECTED_PEN ) );
@@ -386,8 +386,8 @@ void SnapplotMapView::OnIdle( wxIdleEvent & WXUNUSED(event)  )
 
     // If we get some idle time, then update the coordinates display
 
-    wxMapScale &scale = GetScale();
-    if( ! scale.IsValid() ) return;
+    wxMapScale &mscale = GetScale();
+    if( ! mscale.IsValid() ) return;
     if( ! positionChanged ) return;
     positionChanged = false;
 
@@ -396,18 +396,18 @@ void SnapplotMapView::OnIdle( wxIdleEvent & WXUNUSED(event)  )
     format_plot_coords( pt.x, pt.y, buf );
 
     coordString.Empty();
-    coordString.Append(_T(buf));
+    coordString.Append(buf);
 
-    double tolerance = pickTolerance * scale.GetScale();
+    double tolerance = pickTolerance * mscale.GetScale();
     int istn = nearest_station( pt.x, pt.y, tolerance );
 
     if( istn )
     {
-        coordString.Append(_T("\r\n"));
-        coordString.Append(_T(stnptr(istn)->Code));
-        coordString.Append(_T("\r\n"));
-        coordString.Append(_T(stnptr(istn)->Name));
-        coordString.Replace(_T("\t"),_T(" "));
+        coordString.Append("\r\n");
+        coordString.Append(stnptr(istn)->Code);
+        coordString.Append("\r\n");
+        coordString.Append(stnptr(istn)->Name);
+        coordString.Replace("\t"," ");
     }
 
     wxCommandEvent crdevent( WX_MAPVIEW_DISPLAY_COORDS, GetId() );

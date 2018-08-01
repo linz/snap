@@ -84,7 +84,7 @@ void set_pen_colour_range();
 int pen_colour( int pen );
 int pen_count( void );
 int pen_selected( int pen );
-char *pen_name( int pen );
+const char *pen_name( int pen );
 bool pen_has_colour( int pen );
 void get_pen_colour( int ipen, unsigned char &red, unsigned char &green, unsigned char &blue );
 
