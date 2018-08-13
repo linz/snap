@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:13 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file testsr5.snp contains:
@@ -35,7 +35,7 @@ The command file testsr5.snp contains:
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -54,7 +54,7 @@ Coordinates file test1.crd
        5 stations read
 
 Data file 1: testsr4.dat
-    Observations between 2005-01-01 00:00:00 and 2005-01-01 00:00:00
+    Observations between 2005-01-01 and 2005-01-01
       10 GPS baselines
       11 GPS point coords
        2 slope distances
@@ -67,15 +67,13 @@ Data file 1: testsr4.dat
        2 projection bearings
        1 zenith distance
        1 height difference
-       2 orthometric heights
-       2 ellipsoidal heights
        2 latitudes
        2 longitudes
 
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                                    INPUT DATA
 
@@ -83,6 +81,7 @@ Regression test - station recoding rejecting with multiple types   26-JUN-2018 1
 
 BEGIN_JSON observations_types
 {
+
   "GB": "GPS baseline",
   "GX": "GPS point coord",
   "SD": "slope distance",
@@ -95,8 +94,6 @@ BEGIN_JSON observations_types
   "PB": "projection bearing",
   "ZD": "zenith distance",
   "LV": "height difference",
-  "OH": "orthometric height",
-  "EH": "ellipsoidal height",
   "LT": "latitude",
   "LN": "longitude"
 }
@@ -347,7 +344,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
@@ -366,7 +363,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
@@ -422,7 +419,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
@@ -445,7 +442,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
@@ -458,82 +455,6 @@ BEGIN_JSON observations
         "useobs":true,
         "file":"testsr4.dat",
         "file_line-no":96
-      }
-    ]
-  },
-  {
-  "obs":
-    [
-      {
-        "id":0,
-        "from":"1",
-        "from_hgt":0.0000,
-        "to":"(null)",
-        "to_hgt":0.0000,
-        "date":"2005-01-01 00:00:00",
-        "type":"OH",
-        "value": [150.000000],
-        "error": [2.00000000],
-        "useobs":true,
-        "file":"testsr4.dat",
-        "file_line-no":101
-      }
-    ]
-  },
-  {
-  "obs":
-    [
-      {
-        "id":0,
-        "from":"1",
-        "from_hgt":2.0000,
-        "to":"(null)",
-        "to_hgt":0.0000,
-        "date":"2005-01-01 00:00:00",
-        "type":"OH",
-        "value": [152.000000],
-        "error": [0.20000000],
-        "useobs":true,
-        "file":"testsr4.dat",
-        "file_line-no":107
-      }
-    ]
-  },
-  {
-  "obs":
-    [
-      {
-        "id":0,
-        "from":"1",
-        "from_hgt":0.0000,
-        "to":"(null)",
-        "to_hgt":0.0000,
-        "date":"2005-01-01 00:00:00",
-        "type":"EH",
-        "value": [150.000000],
-        "error": [2.00000000],
-        "useobs":true,
-        "file":"testsr4.dat",
-        "file_line-no":112
-      }
-    ]
-  },
-  {
-  "obs":
-    [
-      {
-        "id":0,
-        "from":"1",
-        "from_hgt":2.0000,
-        "to":"(null)",
-        "to_hgt":0.0000,
-        "date":"2005-01-01 00:00:00",
-        "type":"EH",
-        "value": [152.000000],
-        "error": [0.20000000],
-        "useobs":true,
-        "file":"testsr4.dat",
-        "file_line-no":118
       }
     ]
   },
@@ -555,7 +476,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":130
+        "file_line-no":133
       }
     ],
   "covariance": [
@@ -583,7 +504,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":139
+        "file_line-no":142
       }
     ],
   "covariance": [
@@ -611,7 +532,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":161
+        "file_line-no":164
       }
     ],
   "covariance": [
@@ -639,7 +560,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":169
+        "file_line-no":172
       }
     ],
   "covariance": [
@@ -667,7 +588,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":187
+        "file_line-no":190
       }
     ],
   "covariance": [
@@ -695,7 +616,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":193
+        "file_line-no":196
       }
     ],
   "covariance": [
@@ -723,7 +644,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":205
+        "file_line-no":208
       }
     ],
   "covariance": [
@@ -751,7 +672,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":211
+        "file_line-no":214
       }
     ],
   "covariance": [
@@ -779,7 +700,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":221
+        "file_line-no":224
       }
     ],
   "covariance": [
@@ -807,7 +728,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":226
+        "file_line-no":229
       }
     ],
   "covariance": [
@@ -833,7 +754,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":234
+        "file_line-no":237
       }
     ],
   "covariance": [
@@ -859,7 +780,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":246
+        "file_line-no":249
       }
     ],
   "covariance": [
@@ -885,7 +806,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":262
+        "file_line-no":265
       }
     ],
   "covariance": [
@@ -911,7 +832,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":272
+        "file_line-no":275
       }
     ],
   "covariance": [
@@ -937,7 +858,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":286
+        "file_line-no":289
       }
     ],
   "covariance": [
@@ -963,7 +884,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":293
+        "file_line-no":296
       }
     ],
   "covariance": [
@@ -989,7 +910,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":302
+        "file_line-no":305
       }
     ],
   "covariance": [
@@ -1015,7 +936,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":309
+        "file_line-no":312
       }
     ],
   "covariance": [
@@ -1041,7 +962,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":319
+        "file_line-no":322
       }
     ],
   "covariance": [
@@ -1067,7 +988,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":321
+        "file_line-no":324
       }
     ],
   "covariance": [
@@ -1093,7 +1014,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":326
+        "file_line-no":329
       }
     ],
   "covariance": [
@@ -1110,7 +1031,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                              DEFINITION OF PROBLEM
 
@@ -1135,7 +1056,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -1144,22 +1065,22 @@ Regression test - station recoding rejecting with multiple types   26-JUN-2018 1
 Solution type: 3d data checking
 
 
-Number of observations:              85
+Number of observations:              81
 Number of parameters:                 0
 Number of implicit parameters:        2
 
-Degrees of freedom:                  83
+Degrees of freedom:                  79
 Sum of squared residuals:             1.25001
-Standard error of unit weight:        0.12272
+Standard error of unit weight:        0.12579
 
-The probability of an SSR this low is 0.000% (from Chi squared (83))
+The probability of an SSR this low is 0.000% (from Chi squared (79))
 
 You may have over-estimated the errors of the data.
 
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -1204,7 +1125,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -1230,7 +1151,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                                 OTHER PARAMETERS
 
@@ -1245,7 +1166,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -1276,8 +1197,6 @@ The following codes are used to identify data types
    PB  projection bearings
    ZD  zenith distances
    LV  height differences
-   OH  orthometric heights
-   EH  ellipsoidal heights
    LT  latitudes
    LN  longitudes
 Note: Calculated values for slope distances include equipment heights
@@ -1315,11 +1234,11 @@ File testsr4.dat: line 62
 
 1     3B           0 LV      -80.0000 0.0300    -80.0000 0.0000  0.0000 0.0300   0.00     
 
-From        Id Type     Value       +/-        Calc       +/-     Res    +/-    S.R.      
+From        Id Type     Value      +/-        Calc      +/-     Res   +/-    S.R.      
 
-1            0 LN   173 19 15.60 E   0.20 173 19 15.60 E   0.00    0.00   0.20   0.00     
+1            0 LN   173 19 15.60 E  0.20 173 19 15.60 E  0.00    0.00  0.20   0.00     
 
-1            0 LT    41 00 46.80 S   0.20  41 00 46.80 S   0.00    0.00   0.20   0.00     
+1            0 LT    41 00 46.80 S  0.20  41 00 46.80 S  0.00    0.00  0.20   0.00     
 
 From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    S.R.      
 
@@ -1327,19 +1246,11 @@ From  To          Id Type    Value     +/-      Calc      +/-     Res    +/-    
 
 1     3B           0 PB    60 14 07.3    3.6  60 14 07.3    0.0     0.0    3.6   0.00     
 
-From        Id Type     Value       +/-        Calc       +/-     Res    +/-    S.R.      
+From        Id Type     Value      +/-        Calc      +/-     Res   +/-    S.R.      
 
-1            0 LN   173 19 15.60 E   0.72 173 19 15.60 E   0.00    0.00   0.72   0.00     
+1            0 LN   173 19 15.60 E  0.72 173 19 15.60 E  0.00    0.00  0.72   0.00     
 
-1            0 LT    41 00 46.80 S   0.72  41 00 46.80 S   0.00    0.00   0.72   0.00     
-
-1            0 OH         150.0000 2.0000       150.0000 0.0000  0.0000 2.0000   0.00     
-
-1            0 OH         152.0000 0.2000       152.0000 0.0000  0.0000 0.2000   0.00     
-
-1            0 EH         150.0000 2.0000       150.0000 0.0000  0.0000 2.0000   0.00     
-
-1            0 EH         152.0000 0.2000       152.0000 0.0000  0.0000 0.2000   0.00     
+1            0 LT    41 00 46.80 S  0.72  41 00 46.80 S  0.00    0.00  0.72   0.00     
 
 From  To          Id Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
                               X,Y,Z                 X,Y,Z              E,N,U                     
@@ -1374,7 +1285,7 @@ From  To          Id Type     Value      +/-        Calc       +/-      Res    +
                                471.5165  0.0248      471.5165  0.0000 -0.0000  0.0254   0.00     
                               1154.9439             1154.9438          0.0001           0.00     
 
-File testsr4.dat: line 205
+File testsr4.dat: line 208
 
 1     3B        1001 GB       -419.2668  0.0200     -419.2668  0.0000  0.0000  0.0260   0.00     
                               -967.3587  0.0259     -967.3587  0.0000 -0.0000  0.0104   0.00     
@@ -1429,7 +1340,7 @@ From        Id Type     Value       +/-         Calc       +/-      Res    +/-  
                      -4163681.8023  0.0248  -4163681.8023  0.0000 -0.0000  0.0254   0.00     
                       6369333.9627           6369333.9627          0.0000           0.00     
 
-File testsr4.dat: line 302
+File testsr4.dat: line 305
 
 1            0 GX    -4787264.5200  0.0200  -4787264.5200  0.0000  0.0000  0.0260   0.00     
                        560595.5704  0.0259    560595.5704  0.0000 -0.0000  0.0104   0.00     
@@ -1459,7 +1370,7 @@ File testsr4.dat: line 302
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -1503,10 +1414,6 @@ zenith distance                             0.56    1     -      -    0.56    1
 
 height difference                           0.00    1     -      -    0.00    1
 
-orthometric height                          0.00    2     -      -    0.00    2
-
-ellipsoidal height                          0.00    2     -      -    0.00    2
-
 latitude                                    0.00    2     -      -    0.00    2
 
 longitude                                   0.00    2     -      -    0.00    2
@@ -1514,16 +1421,16 @@ longitude                                   0.00    2     -      -    0.00    2
 
 
 ================================================================================
-Regression test - station recoding rejecting with multiple types   26-JUN-2018 10:27:13
+Regression test - station recoding rejecting with multiple types   13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 
 ================================================================================
 
 
-The 41 residuals from this data are classified as follows:
+The 37 residuals from this data are classified as follows:
 
-Under 95.00%  significant    Used:  41    Unused:   0
+Under 95.00%  significant    Used:  37    Unused:   0
 Under 99.00%  significant    Used:   0    Unused:   0
 Over  99.00%  significant    Used:   0    Unused:   0
 
@@ -1540,7 +1447,7 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 
 1      5           0   MD     0.203   16.118         45  testsr4.dat
 
-1      3B       1001   GB     0.494   13.407        130  testsr4.dat
+1      3B       1001   GB     0.494   13.407        133  testsr4.dat
 
 1      3B          0   SD     0.021    1.676         33  testsr4.dat
 

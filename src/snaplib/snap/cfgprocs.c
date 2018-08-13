@@ -485,3 +485,21 @@ int read_classification_command( CFG_FILE *cfg, char *string, void *value, int l
 
     return OK;
 }
+
+int read_recode_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+
+    if( ! stations_read )
+    {
+        send_config_error(cfg,INVALID_DATA,
+                          "Stations cannot be recoded before the station file is loaded");
+        return OK;
+    }
+    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
+    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
+    {
+        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
+    }
+    return OK;
+}
+

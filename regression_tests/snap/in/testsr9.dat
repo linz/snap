@@ -1,0 +1,13 @@
+Test station lists
+
+#lt_error 0.001 sec
+#ln_error 0.001 sec
+#eh_error 30 mm
+#deg_angles
+
+#data date LT LN EH no_heights
+1 19991201   -41.0020 173.3264 165.100
+2 19991201   -41.0020 173.3364 260.00
+
+1 20001201   -41.0030 173.3284 166.100
+2 20001201   -41.0020 173.3364 260.00

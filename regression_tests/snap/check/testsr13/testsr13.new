@@ -1,0 +1,15 @@
+Test 1 - basic obs type tests
+NZGD2000(20160701)
+options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=Mark_Type
+! Updated by SNAP version 2.7.10-bf63ac3 at 13-AUG-2018 13:42:14
+
+!Code       Latitude          Longitude        Ell.Hgt Order Mark_Type Name
+1        -41.00199995034    173.32640006169   165.0993 2     PIN   1 PIN
+2        -41.00200030743    173.33640011831   259.9993 2     PEG   2 PEG
+3        -41.00179567767    173.33622287141   264.4575 2     PEG   3 PEG
+4        -41.00179567767    173.33622287141   264.4575 2     PEG   4 PEG
+5        -41.00179567767    173.33622287141   264.4575 2     PEG   5 PEG
+6        -41.00179567767    173.33622287141   264.4575 2     PEG   6 PEG
+7        -41.00179567767    173.33622287141   264.4575 2     PEG   7 PEG
+1_2      -41.00300031173    173.32840011881   166.0993 2     PIN   1 PIN
+1_3      -41.00300066184    173.32840017464   166.0993 2     PIN   1 PIN

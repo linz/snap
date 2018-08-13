@@ -1,0 +1,98 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 13 2018 13:11:29
+
+================================================================================
+                     Run at 13-AUG-2018 13:42:14 by ccrook
+
+
+The command file testsr14.snp contains:
+     
+     title Regression tests - calc recode with errors - multiple recoding 1
+     coordinate_file testsr7.crd
+     output_coordinate_file .new
+     data_file testsr13.dat
+     mode 3d adjustment
+     
+     list command_file
+     list problem_definition
+     list no_input_data
+     list station_recoding
+     list no_iteration_summary
+     list no_solution_summary
+     list station_coordinates
+     list floated_stations
+     list no_reference_frames
+     list no_parameters
+     list residuals
+     list no_error_summary
+     list no_worst_residuals
+     
+     output_csv stations
+     
+     add_residual_column date
+     
+     recode 1 to 1_1 after 2000-01-01
+     recode 1 to 1_2 hv_error 0.2 0.5 m after 2000-02-01
+     recode 1 to 1_2 hv_error 0.3 0.3 m after 2001-02-01
+
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testsr14.snp
+
+Job: Regression tests - calc recode with errors - multiple recoding 1
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testsr7.crd
+       7 stations read
+
+Data file 1: testsr13.dat
+    Observations between 1999-12-01 and 2001-12-01
+       6 ellipsoidal heights
+       6 latitudes
+       6 longitudes
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                                RECODED STATIONS
+
+================================================================================
+
+The following stations are being recoded as they are read from data files
+
+     1     to 1_1   after 2000-01-01
+           to 1_2   after 2000-02-01 co-location error 0.200 0.500 m
+           to 1_2   after 2001-02-01 co-location error 0.300 0.300 m
+
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                                     ERRORS
+
+================================================================================
+
+Note: 2 errors reported in testsr14.err

@@ -34,6 +34,7 @@ void max_station_adjustment( double tol, int *pmaxadjstn,
 void update_station_coords( void );
 void print_coordinate_changes( FILE *out );
 void print_adjusted_coordinates( FILE *out );
+int add_station_colocation_constraints();
 void write_station_csv();
 void sum_floating_stations( int iteration );
 void calc_error_ellipse( double cvr[], double *emax, double *emin, double *azemax );

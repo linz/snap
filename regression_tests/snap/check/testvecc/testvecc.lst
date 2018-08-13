@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:13 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 
@@ -29,25 +29,25 @@ Data file 1: testvecc.csv
        9 GPS baselines
 
 Data file 2: testdist.csv
-    Observations between 2010-03-05 00:00:00 and 2010-12-25 00:00:00
+    Observations between 2010-03-05 and 2010-12-25
        3 slope distances
 
 Data file 3: testha.csv
-    Observations between 2010-03-05 00:00:00 and 2010-03-05 00:00:00
+    Observations between 2010-03-05 and 2010-03-05
        3 horizontal angles
 
 Data file 4: testzd.csv
-    Observations between 2010-03-05 00:00:00 and 2010-03-05 00:00:00
+    Observations between 2010-03-05 and 2010-03-05
        8 zenith distances
 
 Data file 5: testlv.csv
-    Observations between 2010-03-05 00:00:00 and 2010-03-05 00:00:00
+    Observations between 2010-03-05 and 2010-03-05
        6 height differences
 
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -73,7 +73,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -138,7 +138,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -162,7 +162,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                                 OTHER PARAMETERS
 
@@ -177,7 +177,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -323,7 +323,7 @@ BU34  BUZZ  LV      100.1000 0.0035    100.0000 0.0000  0.1000 0.0035  28.86  ??
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -371,7 +371,7 @@ testlv.csv                                 65.45    6     -      -   65.45    6
 
 
 ================================================================================
-Testing CSV input                                           26-JUN-2018 10:27:13
+Testing CSV input                                           13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 

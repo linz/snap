@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:13 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file teststof.snp contains:
@@ -30,7 +30,7 @@ The command file teststof.snp contains:
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -49,13 +49,13 @@ Coordinates file teststof.crd
       11 stations read
 
 Data file 1: teststof.dat
-    Observations between 2004-12-25 00:00:00 and 2006-11-07 00:00:00
+    Observations between 2004-12-25 and 2006-11-07
       28 GPS point coords
 
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -80,7 +80,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -158,7 +158,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                                 STATION OFFSETS
 
@@ -204,7 +204,7 @@ X011 offset
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -230,7 +230,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -403,7 +403,7 @@ X011  GX    -5116779.9365  0.0269  -5116779.9599  0.0000 -0.9436  0.0200  47.18 
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -425,7 +425,7 @@ GPS point coord                            22.35   84     -      -   22.35   84
 
 
 ================================================================================
-Regression test stof - Station offsets                      26-JUN-2018 10:27:13
+Regression test stof - Station offsets                      13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 

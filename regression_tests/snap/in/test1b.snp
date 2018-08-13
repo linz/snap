@@ -26,6 +26,8 @@ list residuals
 list error_summary
 list worst_residuals
 
+output_csv stations
+
 ! error_type aposteriori
 
 refraction_coefficient DEFAULT 0.0

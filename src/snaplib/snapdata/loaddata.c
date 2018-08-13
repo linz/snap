@@ -41,8 +41,9 @@
 #define ID_UNDEFINED -1
 
 static survdata data;
+static int inst_id=0;
 static trgtdata *tgt = NULL;
-static int tgt_id;
+static int tgt_id=0;
 static double tgt_hgt;
 static long file_lineno;
 static long noteloc;
@@ -88,11 +89,15 @@ static ltmat rescvr = NULL;
 static int cvrdim = 0;
 
 /* Station recoding very messy as currently structured because
- *  1) station ids are defined before observations is started with ldt_inst_stn
+ *  1) station ids are defined before observations is started with ldt_inststn
  *  2) station ids are defined before the date is necessarily known
  *  3) calculated values (distance etc) may be requested which need to get to the network station.
  *     (need to assume these are not requested before the date is defined).
- * All this means complex caching of codes, temporary ids */
+ * All this means complex caching of codes, assigning each code
+ * a temporary id and storing the corresponding string in saved codes 
+ * until recode is called. The cache is reset at the beginning of each
+ * observation group (but the memory used is retained until the end of the
+ * data set. */
 
 typedef struct
 {
@@ -106,6 +111,7 @@ static recoded_id *saved_ids=NULL;
 static int max_saved_id=0;
 static int saved_id_offset=1;
 static int next_saved_id=0;
+static int preserve_saved_codes=0;  /* Used to handle exception with point data */
 
 static char *saved_codes=NULL;
 static int saved_codes_len=0;
@@ -799,6 +805,7 @@ void ldt_inststn( int stn_id, double ihgt )
        Note: data.file persists, everything else is reset */
 
     data.from = stn_id;
+    inst_id=stn_id;
     data.fromhgt = ihgt;
     data.date = UNDEFINED_DATE;
     data.reffrm = ID_UNDEFINED;
@@ -832,7 +839,13 @@ void ldt_nextdata( int type )
 {
     DEBUG_PRINT(("LDT: ldt_nextdata %d", (int) type ));
 
-    if( data.format == SD_PNTDATA && data.nobs ) ldt_end_data();
+    if( data.format == SD_PNTDATA && data.nobs ) 
+    {
+        preserve_saved_codes=1;
+        ldt_end_data();
+        preserve_saved_codes=0;
+        data.from=inst_id;
+    }
 
     next_data(type);
     if( trgt_cancelled ) ldt_cancel_data();
@@ -1191,7 +1204,7 @@ static void recode_stations()
             tgt->unused |= IGNORE_OBS_BIT;
         }
     }
-    if( lastid > 0 ) reset_saved_codes( lastid );
+    if( lastid > 0 && ! preserve_saved_codes ) reset_saved_codes( lastid );
 }
 
 void ldt_end_data( void )

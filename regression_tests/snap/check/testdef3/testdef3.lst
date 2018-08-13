@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:11 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 
@@ -25,18 +25,18 @@ Coordinates file testdef3.crd
        4 stations read
 
 Data file 1: testdef3.dat
-    Observations between 2025-01-01 00:00:00 and 2158-01-01 00:00:00
+    Observations between 2025-01-01 and 2158-01-01
       13 latitudes
       13 longitudes
 
 Data file 2: testdef3xyz.dat
-    Observations between 2025-01-01 00:00:00 and 2158-01-01 00:00:00
+    Observations between 2025-01-01 and 2158-01-01
       13 GPS point coords
 
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                                ITERATION SUMMARY
 
@@ -175,7 +175,7 @@ Deformation at N4   , 2025.00 (-0.2498, 0.6585, 0.0000)  Node N4
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -200,7 +200,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -245,7 +245,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -271,7 +271,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -423,7 +423,7 @@ N4    GX    -4877996.3810  0.0829  -4877996.7870  0.0000  0.2494  0.0500   4.99 
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -461,7 +461,7 @@ testdef3xyz.dat                            67.63   39     -      -   67.63   39
 
 
 ================================================================================
-Test data set testdef3 - LINZ deformation model format      26-JUN-2018 10:27:11
+Test data set testdef3 - LINZ deformation model format      13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 

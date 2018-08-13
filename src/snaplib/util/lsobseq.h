@@ -84,11 +84,13 @@ void init_oe( void *A, int nrow, int ncol, char options );
    macros for efficiency */
 
 #define oe_value( A, irow, v ) \
-		  ((obseqn *)A)->obs[irow-1]->obsv = v
+		  ((obseqn *)A)->obs[(irow)-1]->obsv = v
 
 #define oe_add_value( A, irow, v ) \
-		  ((obseqn *)A)->obs[irow-1]->obsv += v
+		  ((obseqn *)A)->obs[(irow)-1]->obsv += v
 
+#define oe_get_value( A, irow ) \
+		  (((obseqn *)A)->obs[(irow)-1]->obsv+0.0)
 
 
 #define oe_param( A, irow, icol, v ) \

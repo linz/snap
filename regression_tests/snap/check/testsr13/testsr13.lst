@@ -1,0 +1,294 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 13 2018 13:11:29
+
+================================================================================
+                     Run at 13-AUG-2018 13:42:14 by ccrook
+
+
+The command file testsr13.snp contains:
+     
+     title Regression tests - calc recode with errors - multiple recoding 1
+     coordinate_file testsr7.crd
+     output_coordinate_file .new
+     data_file testsr13.dat
+     mode 3d adjustment
+     
+     list command_file
+     list problem_definition
+     list no_input_data
+     list station_recoding
+     list no_iteration_summary
+     list no_solution_summary
+     list station_coordinates
+     list floated_stations
+     list no_reference_frames
+     list no_parameters
+     list residuals
+     list no_error_summary
+     list no_worst_residuals
+     
+     output_csv stations
+     
+     add_residual_column date
+     
+     recode 1 to 1_1 after 2000-01-01
+     recode 1 to 1_2 hv_error 0.2 0.5 m after 2000-02-01
+     recode 1 to 1_3 hv_error 0.3 0.3 m after 2001-02-01
+
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testsr13.snp
+
+Job: Regression tests - calc recode with errors - multiple recoding 1
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testsr7.crd
+       7 stations read
+
+Data file 1: testsr13.dat
+    Observations between 1999-12-01 and 2001-12-01
+       6 ellipsoidal heights
+       6 latitudes
+       6 longitudes
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                                RECODED STATIONS
+
+================================================================================
+
+The following stations are being recoded as they are read from data files
+
+     1     to 1_1   after 2000-01-01
+           to 1_2   after 2000-02-01 co-location error 0.200 0.500 m
+           to 1_3   after 2001-02-01 co-location error 0.300 0.300 m
+
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+Where errors are specified the adjustment is constrained by giving the
+initial station coordinates or relative station coordinates the
+specified apriori expected error
+
+
+Station  Adj      Error       Rel    Row  Name
+                Hor     Ver
+
+1        3     -       -             1  1 PIN
+2        3     -       -             4  2 PEG
+1_2      3     -       -             7  1 PIN
+1_3      3    0.300   0.300 1_2     10  1 PIN
+
+
+
+The following stations have been rejected.  Those denoted with '*'
+have been rejected automatically because there is insufficient data
+to locate them.
+
+Station  Name
+
+*3       3 PEG
+*4       4 PEG
+*5       5 PEG
+*6       6 PEG
+*7       7 PEG
+
+
+The following deformation has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20171201)
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+
+The following deformation model has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 07.199821 S   -13.8560    0.0308   0  1 PIN
+       173 19 35.040222 E   -19.9852    0.0234  90
+             165.0993         0.6414    0.0300
+
+ 2      41 00 07.201107 S   -22.7259    0.0178   0  2 PEG
+       173 20 11.040426 E    14.9129    0.0135  90
+             259.9993        -4.4582    0.0173
+
+#3      41 00 06.464440 S      -         -          3 PEG
+       173 20 10.402337 E      -         -
+             264.4575          -         -
+
+#4      41 00 06.464440 S      -         -          4 PEG
+       173 20 10.402337 E      -         -
+             264.4575          -         -
+
+#5      41 00 06.464440 S      -         -          5 PEG
+       173 20 10.402337 E      -         -
+             264.4575          -         -
+
+#6      41 00 06.464440 S      -         -          6 PEG
+       173 20 10.402337 E      -         -
+             264.4575          -         -
+
+#7      41 00 06.464440 S      -         -          7 PEG
+       173 20 10.402337 E      -         -
+             264.4575          -         -
+
+ 1_2    41 00 10.801122 S  -124.9530    0.0307   0  1 PIN
+       173 19 42.240428 E   148.2870    0.0233  90
+             166.0993         1.6414    0.0299
+
+ 1_3    41 00 10.802383 S  -124.9919    0.0307   0  1 PIN
+       173 19 42.240629 E   148.2917    0.0233  90
+             166.0993         1.6414    0.0299
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                                FLOATED STATIONS
+
+================================================================================
+
+This list shows apriori errors
+
+Adjustments outside the 95.000% confidence limit are flagged ?
+Adjustments outside the 99.000% confidence limit are flagged ???
+The rel column lists the reference station for co-location constraints
+Significance is based on the Normal distribution function
+
+Code  rel    coord      error      calc.err    residual    adj.err    std.res
+
+1_3   1_2     East       0.3000      0.0329      0.0047      0.2982     0.02 
+              North      0.3000      0.0432     -0.0389      0.2969     0.13 
+              Up         0.3000      0.0420      0.0000      0.2970     0.00 
+
+
+
+================================================================================
+Regression tests - calc recode with errors - multiple recoding 1   13-AUG-2018 13:42:14
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   EH  ellipsoidal heights
+   LT  latitudes
+   LN  longitudes
+
+From  Type     Value       +/-        Calc       +/-     Res    +/-    S.R.          Date   
+
+1     LT    41 00 07.20 S   0.00  41 00 07.20 S   0.00    0.00   0.00    -   @     1/12/1999
+
+1     LN   173 19 35.04 E   0.00 173 19 35.04 E   0.00    0.00   0.00    -   @     1/12/1999
+
+1     EH         165.1000 0.0300       165.1000 0.0300  0.0000 0.0000    -   @     1/12/1999
+
+2     LT    41 00 07.20 S   0.00  41 00 07.20 S   0.00    0.00   0.00   1.58       1/12/1999
+
+2     LN   173 20 11.04 E   0.00 173 20 11.04 E   0.00   -0.00   0.00   0.25       1/12/1999
+
+2     EH         260.0000 0.0300       260.0000 0.0173 -0.0000 0.0245   0.00       1/12/1999
+
+1_2   LT    41 00 10.80 S   0.00  41 00 10.80 S   0.00    0.00   0.00   0.13       1/12/2000
+
+1_2   LN   173 19 42.24 E   0.00 173 19 42.24 E   0.00   -0.00   0.00   0.02 @     1/12/2000
+
+1_2   EH         166.1000 0.0300       166.1000 0.0299 -0.0000 0.0030   0.00 @     1/12/2000
+
+2     LT    41 00 07.20 S   0.00  41 00 07.20 S   0.00   -0.00   0.00   0.00       1/12/2000
+
+2     LN   173 20 11.04 E   0.00 173 20 11.04 E   0.00    0.00   0.00   0.00       1/12/2000
+
+2     EH         260.0000 0.0300       260.0000 0.0173 -0.0000 0.0245   0.00       1/12/2000
+
+1_3   LT    41 00 10.80 S   0.00  41 00 10.80 S   0.00   -0.00   0.00   0.13       1/12/2001
+
+1_3   LN   173 19 42.24 E   0.00 173 19 42.24 E   0.00    0.00   0.00   0.02 @     1/12/2001
+
+1_3   EH         166.1000 0.0300       166.1000 0.0299  0.0000 0.0030   0.00 @     1/12/2001
+
+2     LT    41 00 07.20 S   0.00  41 00 07.20 S   0.00   -0.00   0.00   1.58       1/12/2001
+
+2     LN   173 20 11.04 E   0.00 173 20 11.04 E   0.00    0.00   0.00   0.25       1/12/2001
+
+2     EH         260.0000 0.0300       260.0000 0.0173 -0.0000 0.0245   0.00       1/12/2001

@@ -401,7 +401,7 @@ int open_output_files( )
     err = fopen( err_name, "w" );
     if( !err )
     {
-        sprintf(errmess,"Unable to open error file %.*",MAX_FILENAME_LEN,err_name);
+        sprintf(errmess,"Unable to open error file %.*s",MAX_FILENAME_LEN,err_name);
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }
@@ -717,6 +717,7 @@ void print_problem_summary( FILE *lst )
 {
     char havefloat;
     char haveauto;
+    char floatrel;
     char reject;
     station *st;
     char adj;
@@ -728,6 +729,7 @@ void print_problem_summary( FILE *lst )
     print_solution_type( lst );
 
     havefloat = 0;
+    floatrel = 0;
     haveauto = 0;
     reject = 0;
     for( reset_station_list(net,(int)output_sorted_stations);
@@ -735,7 +737,11 @@ void print_problem_summary( FILE *lst )
     {
         stn_adjustment *sa=stnadj(st);
 
-        if( sa->flag.float_h || sa->flag.float_v ) { havefloat = 1; }
+        if( sa->flag.float_h || sa->flag.float_v ) 
+        { 
+            havefloat = 1; 
+            if( sa->idcol ) floatrel=1;
+        }
         if( sa->flag.rejected ) { reject = 1; }
         if( sa->flag.auto_h && sa->flag.auto_v ) { haveauto |= 4; }
         else if( sa->flag.auto_h ) { haveauto |= 2; }
@@ -755,7 +761,15 @@ void print_problem_summary( FILE *lst )
     if( havefloat )
     {
         fputs("Where errors are specified the adjustment is constrained by giving the\n",lst);
-        fputs("initial station coordinates the specified apriori expected error\n",lst);
+        if( floatrel )
+        {
+            fputs("initial station coordinates or relative station coordinates the\n",lst);
+            fputs("specified apriori expected error\n",lst);
+        }
+        else
+        {
+            fputs("initial station coordinates the specified apriori expected error\n",lst);
+        }
     }
 
     fprintf(lst,"\n\n%-*s  Adj",stn_name_width+2,"Station");
@@ -769,6 +783,10 @@ void print_problem_summary( FILE *lst )
         {
             fputs("      Error     ",lst);
         }
+    }
+    if( floatrel )
+    {
+        fprintf(lst,"  %-*s",stn_name_width,"Rel");
     }
     fputs("  Row",lst);
     fputs("  Name\n",lst);
@@ -821,6 +839,18 @@ void print_problem_summary( FILE *lst )
                 else
                 {
                     fputs("    -   ",lst);
+                }
+            }
+            if( floatrel )
+            {
+                if( stnadj(st)->idcol )
+                {
+                    station *stcol=stnptr(stnadj(st)->idcol);
+                    fprintf(lst," %-*s",stn_name_width,stcol->Code);
+                }
+                else
+                {
+                    fprintf(lst," %-*s",stn_name_width," ");
                 }
             }
         }

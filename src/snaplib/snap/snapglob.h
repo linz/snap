@@ -83,7 +83,7 @@ SCOPE long nobs, nschp, ncon, dof;
 SCOPE int nprm;
 SCOPE double ssr, seu;
 SCOPE int iterations, converged;
-SCOPE int last_iteration_max_adjustment;
+SCOPE double last_iteration_max_adjustment;
 
 /* Other miscellaneous data */
 

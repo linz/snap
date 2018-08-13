@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:13 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file teststm3.snp contains:
@@ -40,7 +40,7 @@ The command file teststm3.snp contains:
 
 
 ================================================================================
-Regression tests - multiple coordinate files                26-JUN-2018 10:27:13
+Regression tests - multiple coordinate files                13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -63,7 +63,7 @@ Data file 1: teststm.dat
 
 
 ================================================================================
-Regression tests - multiple coordinate files                26-JUN-2018 10:27:13
+Regression tests - multiple coordinate files                13-AUG-2018 13:42:14
 
                              DEFINITION OF PROBLEM
 
@@ -108,7 +108,7 @@ LINZ deformation model
 
 
 ================================================================================
-Regression tests - multiple coordinate files                26-JUN-2018 10:27:13
+Regression tests - multiple coordinate files                13-AUG-2018 13:42:14
 
                                      ERRORS
 

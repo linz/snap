@@ -17,6 +17,7 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int cod
 int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code );
 int read_classification_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
 int read_obs_modification_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
+int read_recode_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 
 extern int stations_read;

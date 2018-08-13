@@ -567,13 +567,22 @@ void print_json_observations( FILE *out )
             if( iobs ) fprintf(out,",");
             fprintf( out, "\n      {\n");
             fprintf( out, "        \"id\":%d,\n",tgt->id);
+            /* sd->from is 0 for point vector data */
+            /* Could be more rigorous here! */
             if( sd->from )
             {
                 fprintf( out, "        \"from\":\"%s\",\n",station_code(sd->from));
                 fprintf( out, "        \"from_hgt\":%.4lf,\n",sd->fromhgt);
                 totype=tostr;
             }
-            fprintf( out, "        \"%s\":\"%s\",\n",totype,station_code(tgt->to));
+            if( tgt->to )
+            {
+                fprintf( out, "        \"%s\":\"%s\",\n",totype,station_code(tgt->to));
+            }
+            else
+            {
+                fprintf( out, "        \"%s\":null,\n",totype);
+            }
             fprintf( out, "        \"%s_hgt\":%.4lf,\n",totype,tgt->tohgt);
             if( sd->date == UNDEFINED_DATE )
             {

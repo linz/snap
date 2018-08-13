@@ -80,9 +80,9 @@ static void init_obsflags()
 void init_station_autodata( int maxstn )
 {
     free_station_autofix_data();
-    station_autodata=(autofix_data *) check_malloc( maxstn * sizeof(autofix_data));
+    station_autodata=(autofix_data *) check_malloc( (maxstn+1) * sizeof(autofix_data));
     max_station_autodata=maxstn;
-    for( int i=0; i<maxstn; i++ )
+    for( int i=0; i<=maxstn; i++ )
     {
         autofix_data *afx=&(station_autodata[i]);
         afx->flags=0;
@@ -94,7 +94,7 @@ void init_station_autodata( int maxstn )
 static void add_autofix( int from, int to, int flags )
 {
     autofix_data *afx;
-    if( from < 0 || from >= max_station_autodata ) return;
+    if( from <= 0 || from > max_station_autodata ) return;
     afx=&(station_autodata[from]);
     afx->flags |= flags;
     if( flags & IS_HOR && to != NO_STN )
@@ -140,14 +140,37 @@ static void add_survdata_fixdata( survdata *sd )
     }
 }
 
+static void merge_autofix_data( autofix_data *afxref, autofix_data *afx )
+{
+   afxref->flags |= afx->flags;
+   if( afxref->horstn1 == NO_STN )
+   {
+       afxref->horstn1=afx->horstn1;
+       afxref->horstn2=afx->horstn2;
+   }
+   else if( afxref->horstn2 == NO_STN )
+   {
+       if( afx->horstn1 != afxref->horstn1 )
+       {
+           afxref->horstn2=afx->horstn1;
+       }
+       else
+       {
+           afxref->horstn1=afx->horstn2;
+       }
+   }
+}
+
 void compile_station_autofix_data()
 {
     int maxstn;
     bindata *bd;
-    maxstn=number_of_stations( net ) + 1;
-    if( maxstn == max_station_autodata ) return;
+    maxstn=number_of_stations( net );
     init_obsflags();
     init_station_autodata( maxstn );
+
+    /* Assess observations at each node */
+
     bd=create_bindata();
     init_get_bindata( 0L );
     while( get_bindata( bd ) == OK )
@@ -158,13 +181,52 @@ void compile_station_autofix_data()
         }
     }
     delete_bindata( bd );
+
+    /* Now account for co-located stations.  The observations for these are
+     * merged as they are equivalent for the purpose of locating stations.
+     * Observations are merged onto the primary station and then back
+     * on to the offset station if it has observations.  Offset stations 
+     * without observations are not calculated. */
+
+    int floatrel=0;
+
+    for( int i=1; i <= maxstn; i++ )
+    {
+        station *st=stnptr(i);
+        stn_adjustment *sa=stnadj(st);
+        if( sa->idcol )
+        {
+            floatrel=1;
+            autofix_data *afx=&(station_autodata[i]);
+            autofix_data *afxref=&(station_autodata[sa->idcol]);
+            merge_autofix_data(afxref,afx);
+        }
+    }
+
+    if( floatrel )
+    {
+        for( int i=1; i <= maxstn; i++ )
+        {
+            station *st=stnptr(i);
+            stn_adjustment *sa=stnadj(st);
+            if( sa->idcol )
+            {
+                autofix_data *afx=&(station_autodata[i]);
+                autofix_data *afxref=&(station_autodata[sa->idcol]);
+                /* Only merge offset station if it has observations */
+                if( afx->flags )
+                {
+                    merge_autofix_data(afx,afxref);
+                }
+            }
+        }
+    }
 }
 
 int station_autofix_constraints( int istn )
 {
     int fixflags=0;
-    compile_station_autofix_data();
-    if( istn >= 0 || istn < max_station_autodata ) 
+    if( istn > 0 || istn < max_station_autodata ) 
     {
         autofix_data *afx=&(station_autodata[istn]);
         int flags = afx->flags;
@@ -179,6 +241,12 @@ int station_autofix_constraints( int istn )
             fixflags = AUTOFIX_VRT;
         }
     }
+    else 
+    {
+        char errmsg[80];
+        sprintf(errmsg,"Invalid station id %d in station_autofix_constraints",istn);
+        handle_error(WARNING_ERROR,errmsg,NULL);
+    }
     return fixflags;
 }
 
@@ -186,8 +254,7 @@ int station_autofix_reject( int istn )
 {
     int reject=0;
 
-    compile_station_autofix_data();
-    if( istn >= 0 || istn < max_station_autodata ) 
+    if( istn > 0 || istn < max_station_autodata ) 
     {
         station *st=stnptr(istn);
         stn_adjustment *sa=stnadj(st);
@@ -206,6 +273,12 @@ int station_autofix_reject( int istn )
         {
             reject=1;
         }
+    }
+    else 
+    {
+        char errmsg[80];
+        sprintf(errmsg,"Invalid station id %d in station_autofix_constraints",istn);
+        handle_error(WARNING_ERROR,errmsg,NULL);
     }
     return reject;
 }

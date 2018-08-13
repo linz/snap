@@ -1,0 +1,239 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 13 2018 13:11:29
+
+================================================================================
+                     Run at 13-AUG-2018 13:42:14 by ccrook
+
+
+The command file testsr7.snp contains:
+     
+     title Regression tests - station handling of multiple recoding
+     coordinate_file testsr7.crd
+     data_file testsr7.dat
+     mode 3d data_check
+     
+     list command_file
+     list problem_definition
+     list no_input_data
+     list station_recoding
+     list no_iteration_summary
+     list no_solution_summary
+     list no_station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list residuals
+     list no_error_summary
+     list no_worst_residuals
+     
+     define_residual_format from date obs_val
+     
+     recode 1 to 1_1 before 2000-02-01
+     recode 1 to 1_0 before 2000-01-01
+     recode 1 to 1_2 between 2001-01-02 and 2001-02-03
+     recode 1 to 1_2a between 2001-03-02 and 2001-04-03
+     recode 1 to 1_4 after 2005-02-01
+     recode 1 to 1_5 after 2005-03-01
+     recode 1 to 1_3 after 2005-01-01
+     recode 1 to 1_9
+     
+     ! Testing overwriting
+     
+     recode 2 to 2_1 before 2000-02-01
+     recode 2 to 2_0 before 2000-01-01
+     recode 2 to 2_3 before 2000-01-01
+     recode 2 to 2_4
+     recode 2 to 2_5
+     
+     ! Testing using error
+     
+     recode 3 to 3_1 hv_error 0.5 m before 2000-01-01
+     recode 3 to 3_2 hv_error 0.5 0.6 m before 2000-02-01
+     recode 4 to 4_4 hv_error 0.5 0.6 m before 2000-04-01
+     recode suffix _4 hv_error 0.7 0.4 m before 2000-04-01 for 4 5 6
+     recode 5 to 5_4 hv_error 0.8 0.5 m before 2000-04-01
+     recode 6 to 6_4 disconnected before 2000-04-01
+     
+
+
+
+
+================================================================================
+Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testsr7.snp
+
+Job: Regression tests - station handling of multiple recoding
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testsr7.crd
+       7 stations read
+
+Data file 1: testsr7.dat
+    Observations between 1999-01-01 and 2005-03-15
+      23 latitudes
+
+
+
+================================================================================
+Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+
+                                RECODED STATIONS
+
+================================================================================
+
+The following stations are being recoded as they are read from data files
+
+     1     to 1_0   before 2000-01-01
+           to 1_1   before 2000-02-01
+           to 1_2   between 2001-01-02 and 2001-02-03
+           to 1_2a  between 2001-03-02 and 2001-04-03
+           to 1_3   after 2005-01-01
+           to 1_4   after 2005-02-01
+           to 1_5   after 2005-03-01
+           to 1_9  
+     2     to 2_3   before 2000-01-01
+           to 2_1   before 2000-02-01
+           to 2_5  
+     3     to 3_1   before 2000-01-01 co-location error 0.500 0.500 m
+           to 3_2   before 2000-02-01 co-location error 0.500 0.600 m
+     4     to 4_4   before 2000-04-01 co-location error 0.700 0.600 m
+     5     to 5_4   before 2000-04-01 co-location error 0.800 0.500 m
+     6     to 6_4   before 2000-04-01
+
+
+
+
+================================================================================
+Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d data checking
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  1 PIN
+2        F     -  2 PEG
+3        F     -  3 PEG
+4        F     -  4 PEG
+5        F     -  5 PEG
+6        F     -  6 PEG
+7        F     -  7 PEG
+1_0      F     -  1 PIN
+1_1      F     -  1 PIN
+1_9      F     -  1 PIN
+1_2      F     -  1 PIN
+1_2a     F     -  1 PIN
+1_3      F     -  1 PIN
+1_4      F     -  1 PIN
+1_5      F     -  1 PIN
+2_3      F     -  2 PEG
+2_1      F     -  2 PEG
+2_5      F     -  2 PEG
+3_1      F     -  3 PEG
+3_2      F     -  3 PEG
+4_4      F     -  4 PEG
+5_4      F     -  5 PEG
+6_4      F     -  6 PEG
+
+
+The following deformation has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+
+
+
+================================================================================
+Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+From     Date        Value     
+
+1_0    1/01/1999  41 00 06.84 S
+
+1_1   15/01/2000  41 00 06.84 S
+
+1_9   15/02/2000  41 00 06.84 S
+
+1_2   15/01/2001  41 00 06.84 S
+
+1_9   15/02/2001  41 00 06.84 S
+
+1_2a  15/03/2001  41 00 06.84 S
+
+1_9   15/04/2001  41 00 06.84 S
+
+1_3   15/01/2005  41 00 06.84 S
+
+1_4   15/02/2005  41 00 06.84 S
+
+1_5   15/03/2005  41 00 06.84 S
+
+2_3    1/01/1999  41 00 06.48 S
+
+2_1   15/01/2000  41 00 06.48 S
+
+2_5   15/02/2000  41 00 06.48 S
+
+3_1    1/12/1999  41 00 06.48 S
+
+3_2   15/01/2000  41 00 06.48 S
+
+3     15/02/2000  41 00 06.48 S
+
+3     15/03/2000  41 00 06.48 S
+
+4_4    1/12/1999  41 00 06.48 S
+
+5_4    1/12/1999  41 00 06.48 S
+
+6_4    1/12/1999  41 00 06.48 S
+
+4     15/04/2000  41 00 06.48 S
+
+5     15/04/2000  41 00 06.48 S
+
+6     15/04/2000  41 00 06.48 S
+
+
+
+================================================================================
+Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+
+                                     ERRORS
+
+================================================================================
+
+Note: 2 errors reported in testsr7.err

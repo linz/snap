@@ -1,7 +1,7 @@
 201011501 North Auckland
 NZGD2000(20160701)
 options ellipsoidal_heights no_deflections no_geoid_heights
-! Updated by SNAP version 2.7.10-a339290 at 26-JUN-2018 10:27:13
+! Updated by SNAP version 2.7.10-bf63ac3 at 13-AUG-2018 13:42:14
 
 !Code       Latitude          Longitude        Ell.Hgt Name
 X001   36 24 47.915280 S 174 40 11.472170 E   115.5960 X001

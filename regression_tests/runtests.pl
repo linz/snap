@@ -20,6 +20,7 @@ Runs regression tests.  Options are:
    -i      Test installed version
    -3      Test 32 bit version instead of 64 bit (windows only)
    -g      Run with debug options (linux only)
+   -o      See command output/error
    -k      Keep working directory of last test
    -v      More verbose output
    -e      More verbose check output
@@ -27,9 +28,10 @@ Runs regression tests.  Options are:
 EOD
 
 my %opts;
-getopts('vegk3irhjc:',\%opts);
+getopts('vegok3irhjc:',\%opts);
 die $syntax if $opts{h};
 my $debug=$opts{g};
+my $showoutput=$opts{o};
 my $keepdir=$opts{k};
 my $verbose=$opts{v};
 my $check_verbose=$opts{e};
@@ -171,8 +173,25 @@ if( @ARGV )
     my %usetests=();
     foreach my $t (@ARGV)
     {
-        die "Invalid test $t requested\n" if ! exists($tests{$t});
-        $usetests{$t}=$tests{$t};
+        my $found=0;
+        if( $t =~ /(.*)\*$/ )
+        {
+            my $re = '^'.quotemeta($1);
+            foreach my $t1 (keys %tests)
+            {
+                if( $t1 =~ /$re/ )
+                {
+                    $usetests{$t1}=$tests{$t1};
+                    $found=1;
+                }
+            }
+        }
+        elsif( exists($tests{$t}) )
+        {
+            $usetests{$t}=$tests{$t};
+            $found=1;
+        }
+        die "Invalid test $t requested\n" if ! $found;
     }
     %tests=%usetests;
 }
@@ -320,7 +339,7 @@ foreach my $test (sort keys %tests)
     foreach my $c (@{$config->{command}})
     {
         my $commandline=$c;
-        $commandline .= " >$out 2>$err" if ! $debug;
+        $commandline .= " >$out 2>$err" if ! $debug && ! $showoutput;
         $commandline = $repfunc->($commandline);
         # Run program
         print "Running: ",$commandline,"\n" if $verbose;

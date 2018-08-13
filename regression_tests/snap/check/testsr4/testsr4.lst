@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:12 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file testsr4.snp contains:
@@ -35,7 +35,7 @@ The command file testsr4.snp contains:
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -54,7 +54,7 @@ Coordinates file test1.crd
        5 stations read
 
 Data file 1: testsr4.dat
-    Observations between 2005-01-01 00:00:00 and 2005-01-01 00:00:00
+    Observations between 2005-01-01 and 2005-01-01
       21 GPS baselines
       21 GPS point coords
        4 slope distances
@@ -68,14 +68,14 @@ Data file 1: testsr4.dat
        2 zenith distances
        2 height differences
        2 orthometric heights
-       2 ellipsoidal heights
-       4 latitudes
-       4 longitudes
+       3 ellipsoidal heights
+       5 latitudes
+       5 longitudes
 
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                                    INPUT DATA
 
@@ -83,6 +83,7 @@ Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
 
 BEGIN_JSON observations_types
 {
+
   "GB": "GPS baseline",
   "GX": "GPS point coord",
   "SD": "slope distance",
@@ -600,7 +601,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
@@ -619,7 +620,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
@@ -638,7 +639,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
@@ -657,7 +658,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
@@ -750,7 +751,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
@@ -773,7 +774,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LN",
@@ -796,7 +797,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
@@ -819,7 +820,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"LT",
@@ -840,17 +841,17 @@ BEGIN_JSON observations
     [
       {
         "id":0,
-        "from":"1",
+        "from":"2A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
-        "type":"OH",
-        "value": [150.000000],
-        "error": [2.00000000],
+        "type":"LN",
+        "value": [173.32800000],
+        "error": [0.0020000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":101
+        "file_line-no":100
       }
     ]
   },
@@ -859,17 +860,17 @@ BEGIN_JSON observations
     [
       {
         "id":0,
-        "from":"1",
-        "from_hgt":2.0000,
-        "to":"(null)",
+        "from":"2A",
+        "from_hgt":0.0000,
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
-        "type":"OH",
-        "value": [152.000000],
-        "error": [0.20000000],
+        "type":"LT",
+        "value": [-41.00700000],
+        "error": [0.0020000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":107
+        "file_line-no":100
       }
     ]
   },
@@ -878,17 +879,17 @@ BEGIN_JSON observations
     [
       {
         "id":0,
-        "from":"1",
+        "from":"2A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
         "type":"EH",
-        "value": [150.000000],
-        "error": [2.00000000],
+        "value": [250.020000],
+        "error": [0.01000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":112
+        "file_line-no":100
       }
     ]
   },
@@ -897,17 +898,74 @@ BEGIN_JSON observations
     [
       {
         "id":0,
-        "from":"1",
-        "from_hgt":2.0000,
-        "to":"(null)",
+        "from":"2A",
+        "from_hgt":0.0000,
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-01-01 00:00:00",
-        "type":"EH",
-        "value": [152.000000],
+        "type":"OH",
+        "value": [250.000000],
+        "error": [2.00000000],
+        "useobs":true,
+        "file":"testsr4.dat",
+        "file_line-no":104
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"2A",
+        "from_hgt":2.0000,
+        "to":null,
+        "to_hgt":0.0000,
+        "date":"2005-01-01 00:00:00",
+        "type":"OH",
+        "value": [252.000000],
         "error": [0.20000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":118
+        "file_line-no":110
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"2A",
+        "from_hgt":0.0000,
+        "to":null,
+        "to_hgt":0.0000,
+        "date":"2005-01-01 00:00:00",
+        "type":"EH",
+        "value": [250.000000],
+        "error": [2.00000000],
+        "useobs":true,
+        "file":"testsr4.dat",
+        "file_line-no":115
+      }
+    ]
+  },
+  {
+  "obs":
+    [
+      {
+        "id":0,
+        "from":"2A",
+        "from_hgt":2.0000,
+        "to":null,
+        "to_hgt":0.0000,
+        "date":"2005-01-01 00:00:00",
+        "type":"EH",
+        "value": [252.000000],
+        "error": [0.20000000],
+        "useobs":true,
+        "file":"testsr4.dat",
+        "file_line-no":121
       }
     ]
   },
@@ -929,7 +987,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":125
+        "file_line-no":128
       }
     ],
   "covariance": [
@@ -957,7 +1015,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":130
+        "file_line-no":133
       }
     ],
   "covariance": [
@@ -985,7 +1043,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":138
+        "file_line-no":141
       },
       {
         "id":0,
@@ -1002,7 +1060,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":139
+        "file_line-no":142
       }
     ],
   "covariance": [
@@ -1033,7 +1091,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":157
+        "file_line-no":160
       }
     ],
   "covariance": [
@@ -1061,7 +1119,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":161
+        "file_line-no":164
       }
     ],
   "covariance": [
@@ -1089,7 +1147,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":168
+        "file_line-no":171
       },
       {
         "id":0,
@@ -1106,7 +1164,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":169
+        "file_line-no":172
       }
     ],
   "covariance": [
@@ -1137,7 +1195,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":184
+        "file_line-no":187
       }
     ],
   "covariance": [
@@ -1165,7 +1223,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":187
+        "file_line-no":190
       }
     ],
   "covariance": [
@@ -1193,7 +1251,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":192
+        "file_line-no":195
       },
       {
         "id":0,
@@ -1210,7 +1268,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":193
+        "file_line-no":196
       }
     ],
   "covariance": [
@@ -1241,7 +1299,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":202
+        "file_line-no":205
       }
     ],
   "covariance": [
@@ -1269,7 +1327,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":205
+        "file_line-no":208
       }
     ],
   "covariance": [
@@ -1297,7 +1355,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":210
+        "file_line-no":213
       },
       {
         "id":0,
@@ -1314,7 +1372,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":211
+        "file_line-no":214
       }
     ],
   "covariance": [
@@ -1345,7 +1403,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":217
+        "file_line-no":220
       }
     ],
   "covariance": [
@@ -1373,7 +1431,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":219
+        "file_line-no":222
       }
     ],
   "covariance": [
@@ -1401,7 +1459,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":221
+        "file_line-no":224
       }
     ],
   "covariance": [
@@ -1429,7 +1487,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":225
+        "file_line-no":228
       },
       {
         "id":0,
@@ -1446,7 +1504,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":226
+        "file_line-no":229
       }
     ],
   "covariance": [
@@ -1475,7 +1533,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":234
+        "file_line-no":237
       }
     ],
   "covariance": [
@@ -1501,7 +1559,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":239
+        "file_line-no":242
       }
     ],
   "covariance": [
@@ -1527,7 +1585,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":246
+        "file_line-no":249
       },
       {
         "id":0,
@@ -1542,7 +1600,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":247
+        "file_line-no":250
       }
     ],
   "covariance": [
@@ -1571,7 +1629,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":262
+        "file_line-no":265
       }
     ],
   "covariance": [
@@ -1597,7 +1655,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":266
+        "file_line-no":269
       }
     ],
   "covariance": [
@@ -1623,7 +1681,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":272
+        "file_line-no":275
       },
       {
         "id":0,
@@ -1638,7 +1696,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":273
+        "file_line-no":276
       }
     ],
   "covariance": [
@@ -1667,7 +1725,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":286
+        "file_line-no":289
       }
     ],
   "covariance": [
@@ -1693,7 +1751,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":289
+        "file_line-no":292
       }
     ],
   "covariance": [
@@ -1719,7 +1777,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":293
+        "file_line-no":296
       },
       {
         "id":0,
@@ -1734,7 +1792,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":295
+        "file_line-no":298
       }
     ],
   "covariance": [
@@ -1763,7 +1821,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":302
+        "file_line-no":305
       }
     ],
   "covariance": [
@@ -1789,7 +1847,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":305
+        "file_line-no":308
       }
     ],
   "covariance": [
@@ -1815,7 +1873,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":309
+        "file_line-no":312
       },
       {
         "id":0,
@@ -1830,7 +1888,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":311
+        "file_line-no":314
       }
     ],
   "covariance": [
@@ -1859,7 +1917,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":319
+        "file_line-no":322
       }
     ],
   "covariance": [
@@ -1885,7 +1943,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":321
+        "file_line-no":324
       }
     ],
   "covariance": [
@@ -1911,7 +1969,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":323
+        "file_line-no":326
       }
     ],
   "covariance": [
@@ -1937,7 +1995,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":326
+        "file_line-no":329
       },
       {
         "id":0,
@@ -1952,7 +2010,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":327
+        "file_line-no":330
       }
     ],
   "covariance": [
@@ -1972,7 +2030,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                              DEFINITION OF PROBLEM
 
@@ -1998,7 +2056,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -2007,22 +2065,22 @@ Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
 Solution type: 3d data checking
 
 
-Number of observations:             168
+Number of observations:             171
 Number of parameters:                 0
 Number of implicit parameters:        4
 
-Degrees of freedom:                 164
-Sum of squared residuals:             1.63525
-Standard error of unit weight:        0.09986
+Degrees of freedom:                 167
+Sum of squared residuals:             5.63525
+Standard error of unit weight:        0.18370
 
-The probability of an SSR this low is 0.000% (from Chi squared (164))
+The probability of an SSR this low is 0.000% (from Chi squared (167))
 
 You may have over-estimated the errors of the data.
 
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -2071,7 +2129,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -2097,7 +2155,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                                 OTHER PARAMETERS
 
@@ -2112,7 +2170,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -2238,13 +2296,19 @@ From        Id Type     Value       +/-        Calc       +/-     Res    +/-    
 
 2A           0 LT    41 00 25.20 S   1.08  41 00 25.20 S   0.00    0.00   1.08   0.00     
 
-1            0 OH         150.0000 2.0000       150.0000 0.0000  0.0000 2.0000   0.00     
+2A           0 LN   173 19 40.80 E   7.20 173 19 40.80 E   0.00   -0.00   7.20   0.00     
 
-1            0 OH         152.0000 0.2000       152.0000 0.0000  0.0000 0.2000   0.00     
+2A           0 LT    41 00 25.20 S   7.20  41 00 25.20 S   0.00    0.00   7.20   0.00     
 
-1            0 EH         150.0000 2.0000       150.0000 0.0000  0.0000 2.0000   0.00     
+2A           0 EH         250.0200 0.0100       250.0000 0.0000  0.0200 0.0100   2.00  ?  
 
-1            0 EH         152.0000 0.2000       152.0000 0.0000  0.0000 0.2000   0.00     
+2A           0 OH         250.0000 2.0000       250.0000 0.0000  0.0000 2.0000   0.00     
+
+2A           0 OH         252.0000 0.2000       252.0000 0.0000  0.0000 0.2000   0.00     
+
+2A           0 EH         250.0000 2.0000       250.0000 0.0000  0.0000 2.0000   0.00     
+
+2A           0 EH         252.0000 0.2000       252.0000 0.0000  0.0000 0.2000   0.00     
 
 From  To          Id Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
                               X,Y,Z                 X,Y,Z              E,N,U                     
@@ -2274,7 +2338,7 @@ From  To          Id Type     Value      +/-        Calc       +/-      Res    +
                                437.2167  0.0248      437.2167  0.0000 -0.0000  0.0300   0.00     
                                894.9014              894.9014          0.0000           0.00     
 
-File testsr4.dat: line 161
+File testsr4.dat: line 164
 
 1     3B        1001 GB       -419.2668  0.0260     -419.2668  0.0000  0.0000  0.0100   0.00     
                               -967.3587  0.0104     -967.3587  0.0000 -0.0000  0.0200   0.00     
@@ -2341,7 +2405,7 @@ File testsr4.dat: line 161
                                437.2167  0.6465      437.2167  0.0000 -0.0000  0.8000   0.00     
                                894.9014              894.9014          0.0000           0.00     
 
-File testsr4.dat: line 221
+File testsr4.dat: line 224
 
 1     3B        1001 GB       -419.2668  0.0982     -419.2668  0.0000  0.0000  0.0231   0.00     
                               -967.3587  0.0257     -967.3587  0.0000 -0.0000  0.0416   0.00     
@@ -2411,7 +2475,7 @@ From        Id Type     Value       +/-         Calc       +/-      Res    +/-  
                      -4163244.5856  0.0248  -4163244.5856  0.0000 -0.0000  0.0254   0.00     
                       6369436.1867           6369436.1867          0.0000           0.00     
 
-File testsr4.dat: line 293
+File testsr4.dat: line 296
 
 1            0 GX    -4787264.5200  0.0260  -4787264.5200  0.0000  0.0000  0.0108   0.00     
                        560595.5704  0.0104    560595.5704  0.0000 -0.0000  0.0253   0.00     
@@ -2471,7 +2535,7 @@ File testsr4.dat: line 293
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -2517,26 +2581,26 @@ height difference                           0.00    2     -      -    0.00    2
 
 orthometric height                          0.00    2     -      -    0.00    2
 
-ellipsoidal height                          0.00    2     -      -    0.00    2
+ellipsoidal height                          1.15    3     -      -    1.15    3
 
-latitude                                    0.00    4     -      -    0.00    4
+latitude                                    0.00    5     -      -    0.00    5
 
-longitude                                   0.00    4     -      -    0.00    4
+longitude                                   0.00    5     -      -    0.00    5
 
 
 
 ================================================================================
-Regression test - Station recoding with multiple types      26-JUN-2018 10:27:12
+Regression test - Station recoding with multiple types      13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 
 ================================================================================
 
 
-The 84 residuals from this data are classified as follows:
+The 87 residuals from this data are classified as follows:
 
-Under 95.00%  significant    Used:  84    Unused:   0
-Under 99.00%  significant    Used:   0    Unused:   0
+Under 95.00%  significant    Used:  86    Unused:   0
+Under 99.00%  significant    Used:   1    Unused:   0
 Over  99.00%  significant    Used:   0    Unused:   0
 
 Note: Only the overall residual for vector data is counted
@@ -2546,6 +2610,8 @@ The following table lists the 10 worst residuals of used data
 
 From   To         Id  Type     S.R.  Sig (%)       Line  File
 
+2A                 0   EH     2.000   95.450 ?      100  testsr4.dat
+
 1      3B          0   ZD     0.558   42.312         62  testsr4.dat
 
 1      2A          0   ZD     0.439   33.946         61  testsr4.dat
@@ -2554,14 +2620,12 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 
 1      5           0   MD     0.203   16.118         45  testsr4.dat
 
-1      3B       1001   GB     0.494   13.407        130  testsr4.dat
+1      3B       1001   GB     0.494   13.407        133  testsr4.dat
 
-1      2A       1000   GB     0.252    2.100        125  testsr4.dat
+1      2A       1000   GB     0.252    2.100        128  testsr4.dat
 
 1      3B          0   DR     0.023    1.817         56  testsr4.dat
 
 1      2A          0   DR     0.023    1.817         55  testsr4.dat
 
 1      3B          0   SD     0.021    1.676         33  testsr4.dat
-
-1      3B          0   SD     0.021    1.676         85  testsr4.dat

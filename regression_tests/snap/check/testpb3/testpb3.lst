@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:12 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file testpb3.snp contains:
@@ -35,7 +35,7 @@ The command file testpb3.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -54,13 +54,13 @@ Coordinates file testpb2.crd
        5 stations read
 
 Data file 1: testpb1.dat
-    Observations between 1889-01-02 00:00:00 and 1889-01-02 00:00:00
+    Observations between 1889-01-02 and 1889-01-02
        4 projection bearings
 
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                                ITERATION NUMBER 1
 
@@ -69,7 +69,7 @@ Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                              OBSERVATION EQUATIONS
 
@@ -150,7 +150,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -173,7 +173,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -214,7 +214,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -248,7 +248,7 @@ File testpb1.dat: line 8
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -267,7 +267,7 @@ projection bearing                          0.01    2    0.04    2    0.03    4
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 

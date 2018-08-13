@@ -14,9 +14,9 @@
 <h1><a name="cmd_recode"></a>The recode command</h1>
 
 <p class="Commanddefinition">
-recode  <i>code</i> to  <i>newcode</i></i><br />
-recode  <i>code</i> to <i>newcode</i></i> <i>date_range</i><br />
-recode  suffix <i>suffix</i> <i>date_range</i> for <i>station_list</i><br />
+recode  <i>code</i> to  <i>newcode</i><br />
+recode  <i>code</i> to <i>newcode</i> <i>uncertainty</i> <i>date_range</i><br />
+recode  suffix <i>suffix</i> <i>uncertainty</i> <i>date_range</i> for <i>station_list</i><br />
 recode  file <i>station_recode_file</i>
 </p>
 
@@ -44,8 +44,37 @@ Dates are entered using the format &quot;YYYY-MM-DD&quot; or &quot;YYYY-MM-DDThh
 stations specified in the <a href="cmd_stn_list.html">station list</a> will be recoded by appending the suffix
 to the code.  This is only applied with a date range.  
 </p>
+<p>
+The recode command can also include an <i>uncertainty</i>.  If this is defined then it adds a pseudo observation to
+the adjustment which defines that the recoded and original stations are co-located.  The uncertainty specifies
+a horizontal and vertical positional error in millimetres. This option is primarily intended to represent the 
+uncertainty of a deformation model for a specific tectonic event, and provides a crude stochastic model of it. 
+The format is one of:
+</p>
+<p class="Commanddefinition">
+hv_error <i>hv_error</i> m<br />
+hv_error <i>h_error</i> <i>v_error</i> m<br />
+disconnected<br />
+</p>
+<p>The recode error is only valid with a date specification as either <i>before</i> or <i>after</i> a specific date.
+Where there are multiple recodings for the same suffix and date the largest one will be taken.  The disconnected 
+option can be used to override any error specifications - however a specification without an error has the same effect.
+</p>
+<p>
+Where multiple recodings with errors apply to a mark then these will be compiled into date order and each step will 
+be used to define the relationship between the first and last errors.  For example if station ABCD is recoded to ABCD_0
+with uncertainty 4mm on before 2011-09-22 and ABCD_1 with uncertainty 3mm before 2012-12-24 then the relationship between ABCD 
+(the location after 2012-12-24) and ABCD_0 (the location before 2011-09-22) will have an uncertainty of 5mm, which is 
+root mean square of the errors at each intermediate step. 
+</p>
+
 <p>The <i>recode file</i> option can specify a <a href="../crd/stn_recode_file.html">station recode file</a>
 containing a list of station recode specifications.
+</p>
+<p class="Commanddefinition">
+between <i>date_from</i> and <i>date_to</i><br />
+before <i>date_to</i><br />
+after <i>date_from</i>
 </p>
 
 <p>Some examples of recode commands:</p>
@@ -69,6 +98,16 @@ Recodes all marks inside the extents defined by the polygon defined using NZTM c
 in the well known text file landslip.wkt for observations after 1 May 2005.  So for example
 ABCD will be recoded to ABCD_A.  Note that stations that already have a suffix _A will not
 be affected.
+</p>
+
+<p class=Commanddefinition>recode suffix _A hv_error 0.3 0.5 m before 2016-11-14 for inside NZG2000 eqzone.wkt</p>
+<p class=Commanddescription>
+Recodes stations in the affected area before 2016-11-14 and adds co-location observervations 
+with error 0.3m horizontally and 0.5m vertically.  This assumes that a deformation model
+is used which is expected to account for the movement.  The before and after locations are 
+expected to be the same after accounting for the deformation model, but the model adds uncertainty
+to their relative position.  To account for this uncertainty the before position is recoded with 
+a suffix _A to allow a different value.
 </p>
 
 <div class="SeeAlso">

@@ -2941,16 +2941,6 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
     }
 }
 
-static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code )
-{
-    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
-    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
-    {
-        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
-    }
-    return OK;
-}
-
 static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static config_item snap_commands[] =
@@ -2959,7 +2949,7 @@ static config_item snap_commands[] =
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
     {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,CFG_ONEONLY, 0},
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
-    {"recode",NULL,CFG_ABSOLUTE,0,read_recode,0,1},
+    {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,1},
     {"include",NULL,CFG_ABSOLUTE,0,read_include_file,0,0},
     {NULL}
 };

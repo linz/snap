@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:12 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file testrf1.snp contains:
@@ -58,7 +58,7 @@ The command file testrf1.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -77,13 +77,13 @@ Coordinates file testrf1.crd
        4 stations read
 
 Data file 1: testrf1.dat
-    Observations between 2008-01-01 00:00:00 and 2018-01-01 00:00:00
+    Observations between 2008-01-01 and 2018-01-01
       21 GPS point coords
 
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                              DEFINITION OF PROBLEM
 
@@ -106,7 +106,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                                ITERATION SUMMARY
 
@@ -121,7 +121,7 @@ Iteration 2: Maximum change is 0.0001 metres at station 4
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -144,7 +144,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -182,7 +182,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -360,7 +360,7 @@ Reference frame: DUMMY
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -498,7 +498,7 @@ File testrf1.dat: line 70
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    26-JUN-2018 10:27:12
+Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 

@@ -2110,7 +2110,7 @@ char *sres_list_header()
     return sres_buf;
 }
 
-static char *date_as_string( double date, char *buffer )
+static char *pdate_as_string( double date, char *buffer )
 {
     if( date == UNDEFINED_DATE )
     {
@@ -2118,9 +2118,7 @@ static char *date_as_string( double date, char *buffer )
     }
     else
     {
-        int dy, mn, yr, hr, mt, sc;
-        date_as_ymdhms( connection->date, &yr, &mn, &dy, &hr, &mt, &sc );
-        sprintf(buffer,"%2d/%02d/%-4d %02d:%02d:%02d",dy,mn,yr,hr,mt,sc);
+        date_as_string(date,"DT?",buffer);
     }
     return buffer;
 }
@@ -2173,7 +2171,7 @@ char *sres_item_description( long id )
             data = number;
             break;
         case SRF_DATE:
-            date_as_string( connection->date,number);
+            pdate_as_string( connection->date,number);
             data=number;
             break;
         case SRF_LENGTH:  if( sto )
@@ -2738,7 +2736,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
         }
         {
             char dbuff[32];
-            date_as_string( connection->date, dbuff );
+            pdate_as_string( connection->date, dbuff );
             sprintf( buf+nch, "%21s", dbuff );
             nch=strlen(buf);
         }
@@ -2796,7 +2794,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, long binloc, int ind
     if( sd->date != UNDEFINED_DATE )
     {
         char dbuff[32];
-        date_as_string( sd->date, dbuff );
+        pdate_as_string( sd->date, dbuff );
         sprintf(buf,"Date/time:  %s",dbuff);
         (*f)( dest, &jmp, buf );
     }
@@ -3082,7 +3080,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     if( sd->date != UNDEFINED_DATE )
     {
         char dbuff[32];
-        date_as_string( sd->date, dbuff );
+        pdate_as_string( sd->date, dbuff );
         sprintf(buf,"Date/time:  %s",dbuff);
         (*f)( dest, &jmp, buf );
     }
@@ -3302,7 +3300,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     if( sd->date != UNDEFINED_DATE )
     {
         char dbuff[32];
-        date_as_string( sd->date, dbuff );
+        pdate_as_string( sd->date, dbuff );
         sprintf(buf,"Date/time:  %s",dbuff);
         (*f)( dest, &jmp, buf );
     }

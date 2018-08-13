@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:11 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 
@@ -25,13 +25,13 @@ Coordinates file testdef1.crd
        3 stations read
 
 Data file 1: testdef1.dat
-    Observations between 2000-01-01 00:00:00 and 3000-01-01 00:00:00
+    Observations between 2000-01-01 and 3000-01-01
        4 slope distances
 
 
 
 ================================================================================
-Test data set testdef1 - velocity deformation model         26-JUN-2018 10:27:11
+Test data set testdef1 - velocity deformation model         13-AUG-2018 13:42:14
 
                                ITERATION SUMMARY
 
@@ -56,7 +56,7 @@ Deformation at N3   , 3000.00 (-2.4680,36.5805, 0.0000)  Node N3
 
 
 ================================================================================
-Test data set testdef1 - velocity deformation model         26-JUN-2018 10:27:11
+Test data set testdef1 - velocity deformation model         13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -79,7 +79,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Test data set testdef1 - velocity deformation model         26-JUN-2018 10:27:11
+Test data set testdef1 - velocity deformation model         13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -122,7 +122,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Test data set testdef1 - velocity deformation model         26-JUN-2018 10:27:11
+Test data set testdef1 - velocity deformation model         13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -157,7 +157,7 @@ N1    N3    SD   140031.3127 0.1400 140031.3118 0.0000  0.0009 0.1400   0.01    
 
 
 ================================================================================
-Test data set testdef1 - velocity deformation model         26-JUN-2018 10:27:11
+Test data set testdef1 - velocity deformation model         13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -176,7 +176,7 @@ slope distance                              0.00    4     -      -    0.00    4
 
 
 ================================================================================
-Test data set testdef1 - velocity deformation model         26-JUN-2018 10:27:11
+Test data set testdef1 - velocity deformation model         13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 

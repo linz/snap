@@ -328,15 +328,30 @@ int snap_main( int argc, char *argv[] )
         return DEFAULT_RETURN_STATUS;
     }
 
-    /* Mark the end of the binary data */
-
-
     /* Echo the input data if required */
 
     if( output_stn_recode ) print_station_recoding( lst );
 
     if( sort_obs ) sort_observation_list();
 
+    /* Check for station co-location constraints */
+    /* Assumes have a count of observations for each station */
+
+    if( add_station_colocation_constraints() != OK )
+    {
+        xprintf("\nErrors defining colocation constraints\n");
+        handle_error(INVALID_DATA, "Errors defining colocation constraints",NO_MESSAGE);
+        close_output_files(0,0);
+        return DEFAULT_RETURN_STATUS;
+    }
+
+    /* Now compile data for autofixing stations.  This may be either simply
+     * rejecting stations that have no observations, or fixing horizontally
+     * or vertically depending on observation types */
+
+    compile_station_autofix_data();
+
+    /* Now add the constraints from the command file */
 
     xprintf("\nReading the station constraint commands %s\n", command_file );
     if( read_command_file_constraints( command_file ) != OK )
@@ -353,7 +368,7 @@ int snap_main( int argc, char *argv[] )
 
     init_rftrans_prms_list();
     nprm = setup_parameters( lst );
-    free_station_autofix_data();  /* No longer needed... */
+    free_station_autofix_data();  
 
     if( deformation && init_deformation( deformation ) != OK )
     {
@@ -472,6 +487,7 @@ int snap_main( int argc, char *argv[] )
         /* Find the maximum adjustment and document the iterations */
 
         max_station_adjustment( convergence_tol, &maxstn, &maxadj, &nstnadj );
+        last_iteration_max_adjustment=maxadj;
         if( maxstn && show_iterations )
         {
 

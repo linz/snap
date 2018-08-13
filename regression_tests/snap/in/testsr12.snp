@@ -1,0 +1,27 @@
+
+title Regression tests - calc recode with errors - multiple recoding 1
+coordinate_file testsr7.crd
+output_coordinate_file .new
+data_file testsr9.dat
+mode 3d adjustment
+
+list command_file
+list problem_definition
+list no_input_data
+list station_recoding
+list no_iteration_summary
+list no_solution_summary
+list station_coordinates
+list floated_stations
+list no_reference_frames
+list no_parameters
+list residuals
+list no_error_summary
+list no_worst_residuals
+
+output_csv stations
+
+add_residual_column date 
+
+recode 1 to 1_1 hv_error 0.1 0.3 m after 2000-01-01
+recode 1 to 1_2 hv_error 0.2 0.5 m after 2000-02-01

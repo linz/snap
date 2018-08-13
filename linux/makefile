@@ -27,7 +27,7 @@ LAPGSRCDIR=../tools/lapg/src
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
 LDFLAGS = -lm -lboost_regex -lpthread 
-#-lefence
+#LDFLAGS = -lm -lboost_regex -lpthread  -lefence
 LDWXFLAGS = -lm -lboost_regex 
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT

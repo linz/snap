@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:12 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 
@@ -25,7 +25,7 @@ Coordinates file testsl.crd
       20 stations read
 
 Data file 1: testsl.dat
-    Observations between 2000-05-01 00:00:00 and 2000-05-01 00:00:00
+    Observations between 2000-05-01 and 2000-05-01
       19 height differences
       20 latitudes
       20 longitudes
@@ -33,7 +33,7 @@ Data file 1: testsl.dat
 
 
 ================================================================================
-Regression tests - station lists                            26-JUN-2018 10:27:12
+Regression tests - station lists                            13-AUG-2018 13:42:14
 
                              DEFINITION OF PROBLEM
 
@@ -84,7 +84,7 @@ LINZ deformation model
 
 
 ================================================================================
-Regression tests - station lists                            26-JUN-2018 10:27:12
+Regression tests - station lists                            13-AUG-2018 13:42:14
 
                                      ERRORS
 

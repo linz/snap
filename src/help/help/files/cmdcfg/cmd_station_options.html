@@ -23,6 +23,16 @@
 
 <p>Note that floating station coordinates are treated as observations and do affect the statistics coming from the adjustment.  For example if you give the floating stations a very large tolerance then the residuals on the station coordinates will tend to be small, and will result in a smaller standard error of unit weight.</p>
 
+<p>The recode command also provides a way of floating stations where a station might have been 
+disturbed on a given date.  In this case date either before or after the date can be recoded to a 
+different code.  If that code doesn't already exist then a new station is created which is the same
+as the original station apart from using the new code.  The recoded station can then be given a
+co-location error.  This is like a float error, except that it is an error of the new location 
+relative to the old location.  This is designed to support uncertainty in deformation model patches.
+The position of a station observed before event after correcting for the deformation model
+may be different to its actual position after the event because of the unknown error in the deformation model.
+</p>
+
 <p><b>Accepted, rejected and ignored stations</b></p>
 
 <p>You can also choose to reject stations or ignore stations.  </p>
@@ -43,6 +53,8 @@
 <p><a href="cmd_float.html">The float command</a></p>
 
 <p><a href="cmd_reject.html">The reject, accept, and ignore commands</a></p>
+
+<p><a href="cmd_recode.html">The recode commands</a></p>
 
 <p><a href="cmd_stn_list.html">Station lists</a></p>
 

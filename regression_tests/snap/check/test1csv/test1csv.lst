@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:10 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file test1csv.snp contains:
@@ -46,7 +46,7 @@ The command file test1csv.snp contains:
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -87,7 +87,7 @@ Data file 1: testobs.csv
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                                    INPUT DATA
 
@@ -95,6 +95,7 @@ Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
 
 BEGIN_JSON observations_types
 {
+
   "GB": "GPS baseline",
   "GX": "GPS point coord",
   "SD": "slope distance",
@@ -614,7 +615,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LN",
@@ -633,7 +634,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LN",
@@ -652,7 +653,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LT",
@@ -671,7 +672,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2008-01-01 12:00:00",
         "type":"LT",
@@ -1055,7 +1056,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
@@ -1078,7 +1079,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
@@ -1101,7 +1102,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
@@ -1124,7 +1125,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
@@ -1384,7 +1385,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
@@ -1407,7 +1408,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LN",
@@ -1430,7 +1431,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
@@ -1453,7 +1454,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"LT",
@@ -1476,7 +1477,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"OH",
@@ -1495,7 +1496,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":2.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"OH",
@@ -1514,7 +1515,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"EH",
@@ -1533,7 +1534,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1",
         "from_hgt":2.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2009-12-23 12:00:00",
         "type":"EH",
@@ -2686,7 +2687,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                              DEFINITION OF PROBLEM
 
@@ -2710,7 +2711,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                              OBSERVATION EQUATIONS
 
@@ -5117,7 +5118,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -5141,7 +5142,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -5182,7 +5183,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -5208,7 +5209,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                                 OTHER PARAMETERS
 
@@ -5223,7 +5224,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -5646,7 +5647,7 @@ File testobs.csv: line 108
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -5701,7 +5702,7 @@ longitude                                   0.00    4    0.00    2    0.00    6
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               26-JUN-2018 10:27:10
+Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 

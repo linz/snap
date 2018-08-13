@@ -24,6 +24,8 @@
 #include "util/snapctype.h"
 #include "util/dateutil.h"
 
+#define SAME_DATE_TOLERANCE 1.0e-7
+
 static long julian_day (int day, int month,int year)
 {
     long jdn;
@@ -205,20 +207,35 @@ double snap_datetime_parse( const char *definition, const char *format )
     return snap_datetime(ymdhmse[0],ymdhmse[1],ymdhmse[2],ymdhmse[3],ymdhmse[4],ymdhmse[5])+ymdhmse[6];
 }
 
-const char *date_as_string( double snapdate, char *format, char *buffer )
+const char *date_as_string( double snapdate, const char *format, char *buffer )
 {
     static char datebuffer[MAX_DATE_LEN];
     if( ! buffer ) buffer=datebuffer;
-    /* Current ignoring format */
     if( snapdate == UNDEFINED_DATE )
     {
         strcpy(buffer,"undefined");
     }
     else
     {
-        int y,m,d,hh,mm,ss;
+        int y,m,d,hh,mm,ss,nch,ptime;
         date_as_ymdhms(snapdate,&y,&m,&d,&hh,&mm,&ss);
-        sprintf(buffer,"%04d-%02d-%02d %02d:%02d:%02d",y,m,d,hh,mm,ss);
+        sprintf(buffer,"%04d-%02d-%02d%n",y,m,d,&nch); 
+        ptime=1;
+        if( format )
+        {
+            if( _stricmp(format,"D") == 0 )
+            {
+                ptime=0;
+            }
+            else if (_stricmp(format,"DT?") == 0 && hh==0 && mm==0 && ss==0 )
+            {
+                ptime=0;
+            }
+        }
+        if( ptime )
+        {
+            sprintf(buffer+nch," %02d:%02d:%02d",hh,mm,ss);
+        }
     }
     return buffer;
 }
@@ -253,6 +270,11 @@ double year_as_snapdate( double years )
     d0=snap_date(y0,1,1);
     d1=snap_date(y0+1,1,1);
     return d0+(d1-d0)*(years-y0);
+}
+
+int same_date( double date0, double date1 )
+{
+    return fabs(date0-date1) < SAME_DATE_TOLERANCE;
 }
 
 void date_as_ymd( double snapdate, int *year, int *month, int *day )

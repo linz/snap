@@ -86,7 +86,6 @@
 static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -159,7 +158,7 @@ static config_item snap_commands[] =
     {"horizontal_float_error",&dflt_herr,CFG_ABSOLUTE,0,readcfg_double,CONFIG_CMD | CONSTRAINT_CMD,0},
     {"vertical_float_error",&dflt_verr,CFG_ABSOLUTE,0,readcfg_double,CONFIG_CMD | CONSTRAINT_CMD,0},
     {"ignore_missing_stations",NULL,CFG_ABSOLUTE,0,read_ignore_missing_stations,CONFIG_CMD,0},
-    {"recode",NULL,CFG_ABSOLUTE,0,read_recode,0,0},
+    {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,0},
     {"max_iterations",&max_iterations,CFG_ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"min_iterations",&min_iterations,CFG_ABSOLUTE,0,readcfg_int,CONFIG_CMD,0},
     {"max_adjustment",&max_adjustment,CFG_ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
@@ -521,22 +520,32 @@ static void set_station_mode( station *st, void *modep )
         break;
 
     case FLOAT_STATIONS:  
-        if(fixhor) 
-        { 
-            if( fixauto && ! sa->flag.float_h || ! fixauto )
-            {
-                sa->flag.auto_h=fixauto;
-                sa->flag.float_h=1;
-                sa->herror=(float) dflt_herr;
-            }
+        if( sa->idcol )
+        {
+            char errmsg[80+STNCODELEN*2];
+            sprintf(errmsg,"Cannot float station %s - already co-located with %s",
+                    st->Code,stnptr(sa->idcol)->Code);
+            handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
         }
-        if(fixver) 
-        { 
-            if( fixauto && ! sa->flag.float_v || ! fixauto )
-            {
-                sa->flag.auto_v=fixauto;
-                sa->flag.float_v=1;
-                sa->verror=(float) dflt_verr;
+        else
+        {
+            if(fixhor) 
+            { 
+                if( (fixauto && ! sa->flag.float_h) || ! fixauto )
+                {
+                    sa->flag.auto_h=fixauto;
+                    sa->flag.float_h=1;
+                    sa->herror=(float) dflt_herr;
+                }
+            }
+            if(fixver) 
+            { 
+                if( (fixauto && ! sa->flag.float_v) || ! fixauto )
+                {
+                    sa->flag.auto_v=fixauto;
+                    sa->flag.float_v=1;
+                    sa->verror=(float) dflt_verr;
+                }
             }
         }
         break;
@@ -660,23 +669,6 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
         cfg->errcount += (get_error_count()-nerr);
     }
 
-    return OK;
-}
-
-static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code )
-{
-
-    if( ! stations_read )
-    {
-        send_config_error(cfg,INVALID_DATA,
-                          "Stations cannot be recoded before the station file is loaded");
-        return OK;
-    }
-    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
-    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
-    {
-        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
-    }
     return OK;
 }
 
@@ -832,13 +824,6 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
         sts = MISSING_DATA;
     }
     return sts;
-}
-
-
-static int obstype_from_code( char *code )
-{
-    datatypedef *dt = datatypedef_from_code( code );
-    return dt ? dt->id : -1;
 }
 
 

@@ -96,26 +96,29 @@ Test 1 - basic obs type tests
 1 -41.01300 0.0002 Theodolite C	
 2 -41.00700 0.0003 Astrolabe E
 
+#data LN error LT error EH error no_heights
+2 173.3280 0.002 -41.00700 0.002 250.02 0.01
+
 #data OH error  no_heights
 
-1 150.0 2.0
+2 250.0 2.0
 
 #oh_error 200 mm
 
 #data OH 
 
-1 2.0 152.0 
+2 2.0 252.0 
 
 
 #data EH error  no_heights
 
-1 150.0 2.0
+2 250.0 2.0
 
 #eh_error 200 mm
 
 #data EH 
 
-1 2.0 152.0 
+2 2.0 252.0 
 
 !============================================================================
 

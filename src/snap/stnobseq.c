@@ -31,9 +31,13 @@
 #include "adjparam.h"
 #include "autofix.h"
 #include "output.h"
+#include "reorder.h"
 #include "residual.h"
+#include "errdef.h"
 #include "snap/deform.h"
 #include "snap/snapglob.h"
+#include "snap/stnadj.h"
+#include "snapdata/stnrecode.h"
 #include "snapdata/survdata.h" /* For UNDEFINED_DATE */
 #include "util/binfile.h"
 #include "util/dateutil.h"
@@ -44,7 +48,8 @@
 #include "util/probfunc.h"
 
 int scale_error = 0;
-char  floating_stations;
+char  floating_stations=0;
+char  relative_floating=0;
 
 static void *latfmt = NULL;
 static void *lonfmt = NULL;
@@ -66,6 +71,181 @@ void count_stn_obs( int type, int stn, char unused )
     sa->obscount++;
 }
 
+static int add_colocation_constraint( station *stcol, station *st0, double herror, double verror )
+{
+
+    stn_adjustment *sa=stnadj(stcol);
+    if( sa->idcol )
+    {
+        char errmsg[80+STNCODELEN*2];
+        sprintf(errmsg,"Cannot colocate %.*s with %.*s - already colocated with %.*s",
+                STNCODELEN,stcol->Code,STNCODELEN,st0->Code,
+                STNCODELEN,stnptr(sa->idcol)->Code );
+        handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
+        return INCONSISTENT_DATA;
+    }
+    sa->idcol=st0->id;
+    sa->herror=herror;
+    sa->verror=verror;
+    sa->flag.float_h=1;
+    sa->flag.float_v=1;
+    add_connection( stcol->id, st0->id );
+    return OK;
+}
+
+int add_station_colocation_constraints()
+{
+    int sts=OK;
+    if( ! stnrecode ) return sts;
+    for( int i = 0; i++ < number_of_stations(net); )
+    {
+        station *st = stnptr(i);
+        stn_recode *recode0 = get_station_recodes( stnrecode,  st->Code );
+        if( ! recode0 ) continue;
+        /* Check for duplicate recodings */
+        int sts0=OK;
+        for( stn_recode *recode=recode0; recode->next ; recode=recode->next )
+        {
+            if( recode->datefrom != UNDEFINED_DATE && recode->dateto != UNDEFINED_DATE ) continue;
+            if( recode->datefrom == UNDEFINED_DATE && recode->dateto == UNDEFINED_DATE ) continue;
+            for( stn_recode *rec2=recode->next; rec2; rec2=rec2->next )
+            {
+                if( rec2->datefrom != UNDEFINED_DATE && rec2->dateto != UNDEFINED_DATE ) continue;
+                if( rec2->datefrom == UNDEFINED_DATE && rec2->dateto == UNDEFINED_DATE ) continue;
+                if( stncodecmp(recode->codeto,rec2->codeto) == 0 )
+                {
+                    char errmsg[100+STNCODELEN*3+MAX_DATE_LEN*2];
+                    sprintf(errmsg,"Recode of %.*s to %.*s %s %s inconsistent with %.*s %s %s",
+                            STNCODELEN,st->Code,
+                            STNCODELEN,recode->codeto,
+                            recode->datefrom == UNDEFINED_DATE ? "before" : "after",
+                            recode->datefrom == UNDEFINED_DATE ? 
+                                 date_as_string(recode->dateto,"DT?",0) : 
+                                 date_as_string(recode->datefrom,"DT?",0),
+                            STNCODELEN,rec2->codeto,
+                            rec2->datefrom == UNDEFINED_DATE ? "before" : "after",
+                            rec2->datefrom == UNDEFINED_DATE ? 
+                                 date_as_string(rec2->dateto,"DT?",0) : 
+                                 date_as_string(rec2->datefrom,"DT?",0));
+                    handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
+                    sts0=INCONSISTENT_DATA;
+                }
+            }
+        }
+        if( sts0 != OK )
+        {
+            sts=sts0;
+            continue;
+        }
+
+        /* Process before ### updates */
+        station*st0=0;
+        double herror2=0.0;
+        double verror2=0.0;
+        for( stn_recode *recode=recode0; recode; recode=recode->next )
+        {
+            if( recode->datefrom != UNDEFINED_DATE || recode->dateto == UNDEFINED_DATE )
+            {
+                continue;
+            }
+            int idto=find_station( net, recode->codeto );
+            station *stto=stnptr(idto);
+            bool usestn=false;
+            if( stto )
+            {
+                stn_adjustment *sato=stnadj(stto);
+                if( sato && sato->obscount > 0 ) usestn=true;
+            }
+            if( ! usestn )
+            {
+                /* Update errors */
+                if( recode->herror > 0.0 && recode->verror >= 0.0  && st0 )
+                {
+                    herror2 += recode->herror*recode->herror;
+                    verror2 += recode->verror*recode->verror;
+                }
+                /* If disconnected then breaks link with previous versions */
+                else
+                {
+                    st0=0;
+                    herror2=0.0;
+                    verror2=0.0;
+                }
+                continue;
+            }
+            if( st0 )
+            {
+                if( stto )
+                {
+                    sts0=add_colocation_constraint( st0, stto, sqrt(herror2), sqrt(verror2) );
+                    if( sts0 != OK ) sts=sts0;
+                }
+                st0=0;
+                herror2=0.0;
+                verror2=0.0;
+            }
+            if( recode->herror > 0.0 && recode->verror >= 0.0 )
+            {
+                st0=stto;
+                herror2 += recode->herror*recode->herror;
+                verror2 += recode->verror*recode->verror;
+            }
+        }
+        if( st0 )
+        {
+                sts0=add_colocation_constraint( st0, st, sqrt(herror2), sqrt(verror2) );
+                if( sts0 != OK ) sts=sts0;
+        }
+        /* Process after ### updates */
+        st0=st;
+        herror2=0.0;
+        verror2=0.0;
+        for( stn_recode *recode=recode0; recode; recode=recode->next )
+        {
+            if( recode->datefrom == UNDEFINED_DATE || recode->dateto != UNDEFINED_DATE )
+            {
+                continue;
+            }
+            int idto=find_station( net, recode->codeto );
+            station *stto=stnptr(idto);
+            bool usestn=false;
+            if( stto )
+            {
+                stn_adjustment *sato=stnadj(stto);
+                if( sato && sato->obscount > 0 ) usestn=true;
+            }
+            if( ! usestn )
+            {
+                /* Update errors */
+                if( recode->herror > 0.0 && recode->verror >= 0.0 )
+                {
+                    herror2 += recode->herror*recode->herror;
+                    verror2 += recode->verror*recode->verror;
+                }
+                /* If disconnected then breaks link with previous versions */
+                else
+                {
+                    st0=stto;
+                    herror2=0.0;
+                    verror2=0.0;
+                }
+                continue;
+            }
+            if( recode->herror > 0.0 && recode->verror >= 0.0 && stto && st0 )
+            {
+                herror2 += recode->herror*recode->herror;
+                verror2 += recode->verror*recode->verror;
+                sts0=add_colocation_constraint( stto, st0, sqrt(herror2), sqrt(verror2) );
+                if( sts0 != OK ) sts=sts0;
+            }
+            st0=stto;
+            herror2=0.0;
+            verror2=0.0;
+        }
+    }
+    return sts;
+}
+
 /* This routine ensures that the various flags associated with each
    station are consistent, and then sets st->rowno to the number of
    parameters to calculate for the station.  It returns the total
@@ -84,6 +264,7 @@ int init_station_rowno( void )
 
     nextprm = 0;
     floating_stations = 0;
+    relative_floating = 0;
     consistency_check = program_mode == DATA_CONSISTENCY;
     data_check = program_mode == DATA_CHECK;
 
@@ -116,7 +297,7 @@ int init_station_rowno( void )
             sa->flag.rejected = 1; sa->flag.autoreject = 1;
         }
 
-        if( sa->flag.rejected || !sa->flag.observed )
+        if( sa->flag.rejected )
         {
             sa->flag.adj_h = 0;
             sa->flag.adj_v = 0;
@@ -124,7 +305,11 @@ int init_station_rowno( void )
 
         if( sa->flag.adj_h == 0 ) sa->flag.float_h = 0;
         if( sa->flag.adj_v == 0 ) sa->flag.float_v = 0;
-        if( sa->flag.float_h || sa->flag.float_v ) floating_stations = 1;
+        if( sa->flag.float_h || sa->flag.float_v ) 
+        {
+            floating_stations = 1;
+            if( sa->idcol ) relative_floating=1;
+        }
 
         sa->hrowno = sa->flag.adj_h ? 2 : 0;
         sa->vrowno = sa->flag.adj_v ? 1 : 0;
@@ -192,13 +377,76 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
     if( sa->vrowno ) oe_param( hA, irow, sa->vrowno, dst[2] );
 }
 
+static int float_station_obseq( station *st, void *hA )
+{
+    stn_adjustment *sa = stnadj( st );
+    int nrow=(sa->flag.float_h ? 2 : 0) + (sa->flag.float_v ? 1 : 0);
+    if( nrow == 0 ) return nrow;
+
+    int hprm0=sa->hrowno;
+    int vprm0=sa->vrowno;
+    int hprm1=0;
+    int vprm1=0;
+    int ncol=1;
+    double de=st->ELon;
+    double dn=st->ELat;
+    double dh=st->OHgt;
+    if( sa->idcol )
+    {
+        station *stcol=stnptr(sa->idcol);
+        stn_adjustment *sacol=stnadj(stcol);
+        hprm1=sacol->hrowno;
+        vprm1=sacol->vrowno;
+        ncol=2;
+        de=stcol->ELon-de;
+        dn=stcol->ELat-dn;
+        dh=stcol->OHgt-dh;
+    }
+    else
+    {
+        de=sa->initELon-de;
+        dn=sa->initELat-dn;
+        dh=sa->initOHgt-dh;
+    }
+    if( ! (hprm0 || hprm1 || vprm0 || vprm1) ) return 0;
+    de *= st->dEdLn;
+    dn *= st->dNdLt;
+    init_oe(hA,nrow,ncol,OE_DIAGONAL_CVR);
+    int vrow=1;
+    if( sa->flag.float_h )
+    {
+        double var=sa->herror*sa->herror;
+        oe_value( hA, 1, de );
+        if( hprm0 ) oe_param( hA, 1, hprm0, 1.0 );
+        if( hprm1 ) oe_param( hA, 1, hprm1, -1.0 );
+        oe_covar( hA, 1, 1, var );
+
+        oe_value( hA, 2, dn );
+        if( hprm0 ) oe_param( hA, 2, hprm0+1, 1.0 );
+        if( hprm1 ) oe_param( hA, 2, hprm1+1, -1.0 );
+        oe_covar( hA, 2, 2, (double) sa->herror * sa->herror );
+
+        vrow=3;
+    }
+    if( sa->flag.float_v )
+    {
+        double var=sa->verror*sa->verror;
+        oe_value( hA, vrow, dh );
+        if( vprm0 ) oe_param( hA, vrow, vprm0, 1.0 );
+        if( vprm1 ) oe_param( hA, vrow, vprm1, -1.0 );
+        oe_covar( hA, vrow, vrow, var );
+    }
+    return nrow;
+}
+
 
 void sum_floating_stations( int iteration )
 {
+    /*  ... need to update to include co-location constraint
+     */
     char header[20];
     int istn, maxstn;
     station *st;
-    stn_adjustment *sa;
     void *hA;
     int nfloat=0;
 
@@ -217,44 +465,16 @@ void sum_floating_stations( int iteration )
     for( istn = 0; istn++ < maxstn; )
     {
         st = stnptr( istn );
-        sa = stnadj( st );
-        if( !sa->flag.float_h && !sa->flag.float_v ) continue;
-
-        if( sa->flag.float_h && sa->hrowno )
+        int nfprm=float_station_obseq(st,hA);
+        if( ! nfprm ) continue;
+        lsq_sum_obseqn( hA );
+        if( output_observation_equations )
         {
-            init_oe(hA,2,1,OE_DIAGONAL_CVR );
-            oe_value( hA, 1, (sa->initELon - st->ELon)*st->dEdLn );
-            oe_param( hA, 1, sa->hrowno, 1.0 );
-            oe_covar( hA, 1, 1, (double) sa->herror * sa->herror );
-            oe_value( hA, 2, (sa->initELat - st->ELat)*st->dNdLt );
-            oe_param( hA, 2, sa->hrowno+1, 1.0 );
-            oe_covar( hA, 2, 2, (double) sa->herror * sa->herror );
-            if( output_observation_equations )
-            {
-                char source[100];
-                sprintf(source,"{\"station\":\"%.20s\",\"float\":\"horizontal\"}",st->Code);
-                if( nfloat ) fprintf(lst,",\n");
-                nfloat++;
-                print_obseqn_json( lst, hA, source, 2 );
-            }
-            lsq_sum_obseqn( hA );
-        }
-
-        if( sa->flag.float_v && sa->vrowno )
-        {
-            init_oe(hA,1,1,OE_DIAGONAL_CVR );
-            oe_value( hA, 1, (sa->initOHgt - st->OHgt ) );
-            oe_param( hA, 1, sa->vrowno, 1.0 );
-            oe_covar( hA, 1, 1, (double) sa->verror * sa->verror );
-            if( output_observation_equations )
-            {
-                char source[100];
-                sprintf(source,"{\"station\":\"%.20s\",\"float\":\"vertical\"}",st->Code);
-                if( nfloat ) fprintf(lst,",\n");
-                nfloat++;
-                print_obseqn_json( lst, hA, source, 2 );
-            }
-            lsq_sum_obseqn( hA );
+            char source[100];
+            sprintf(source,"{\"station\":\"%.20s\"}",st->Code);
+            if( nfloat ) fprintf(lst,",\n");
+            nfloat++;
+            print_obseqn_json( lst, hA, source, 2 );
         }
     }
 
@@ -266,8 +486,6 @@ void sum_floating_stations( int iteration )
 
     delete_oe( hA );
 }
-
-
 
 
 void update_station_coords( void )
@@ -313,9 +531,6 @@ void update_station_coords( void )
     }
 
 }
-
-
-
 
 void print_coordinate_changes( FILE *out )
 {
@@ -632,6 +847,7 @@ void write_station_csv()
     int ellipsoidal;
     int adjusted;
     int autofix;
+    void *hA;
 
     geoid = net->options & NW_GEOID_HEIGHTS;
     defl = net->options & NW_DEFLECTIONS;
@@ -708,6 +924,25 @@ void write_station_csv()
             write_csv_header( csv,"latitude_init");
         }
         write_csv_header( csv, ellipsoidal ? "ellheight_init" : "height_init" );
+
+        if( floating_stations )
+        {
+            if( relative_floating )
+            {
+                write_csv_header(csv,"rel_station");
+            }
+            write_csv_header(csv,"float_hor_err");
+            write_csv_header(csv,"float_vrt_err");
+            write_csv_header(csv,"float_de");
+            write_csv_header(csv,"float_dn");
+            write_csv_header(csv,"float_errell_max");
+            write_csv_header(csv,"float_errell_min");
+            write_csv_header(csv,"float_errell_bmax");
+            write_csv_header(csv,"float_hor_stdres");
+            write_csv_header(csv,"float_dh");
+            write_csv_header(csv,"float_errhgt");
+            write_csv_header(csv,"float_vrt_stdres");
+        }
     }
 
     for( i = 0; i < network_classification_count(net); i++ )
@@ -721,6 +956,8 @@ void write_station_csv()
     write_csv_header(csv,"name");
     if( output_csv_shape ) write_csv_header(csv,"shape");
     end_output_csv_record(csv);
+
+    hA=create_oe(nprm);
 
     for( reset_station_list(net,(int)output_sorted_stations);
             NULL != (st = next_station(net)); )
@@ -831,6 +1068,113 @@ void write_station_csv()
             }
 
             write_csv_double( csv, height-dh, coord_precision );
+
+            if( floating_stations )
+            {
+                if( relative_floating )
+                {
+                    station *stcol=0;
+                    if( sa->idcol )
+                    {
+                        stcol=stnptr(sa->idcol);
+                    }
+                    if( stcol )
+                    {
+                        write_csv_string(csv,stcol->Code);
+                    }
+                    else
+                    {
+                        write_csv_null_field(csv);
+                    }
+                }
+                if( sa->flag.float_h ) 
+                {
+                    write_csv_double(csv,sa->herror,coord_precision);
+                }
+                else
+                {
+                    write_csv_null_field(csv);
+                }
+                if( sa->flag.float_v ) 
+                {
+                    write_csv_double(csv,sa->verror,coord_precision);
+                }
+                else
+                {
+                    write_csv_null_field(csv);
+                }
+                
+                int nfprm=float_station_obseq( st, hA );
+                double calc[3];
+                double calccvr[6];
+                double res[3]={0.0,0.0,0.0};
+                if( nfprm )
+                {
+                    lsq_calc_obs( hA, calc, res, 0, 0, 0, calccvr, cvr );
+                }
+                    
+                int vrow=0;
+                if( nfprm == 2 || nfprm == 3 )
+                {
+                    vrow=2;
+                    calc_error_ellipse( cvr, &emax, &emin, &brng );
+                    double cs=cos(brng);
+                    double sn=sin(brng);
+                    brng *= RTOD;
+                    while(brng < 0) brng += 180;
+                    while(brng > 180) brng -= 180;
+                    write_csv_double(csv,-res[0],coord_precision);
+                    write_csv_double(csv,-res[1],coord_precision);
+                    write_csv_double(csv,emax,coord_precision);
+                    write_csv_double(csv,emin,coord_precision);
+                    write_csv_double(csv,brng,1);
+                    if( emax > 1.0e-5 )
+                    {
+                        double dmax=cs*res[0]+sn*res[1];
+                        dmax=(dmax*dmax)/(emax*emax);
+                        if( emin > 1.0e-5 )
+                        {
+                            double dmin=sn*res[0]-cs*res[1];
+                            dmax += (dmin*dmin)/(emin*emin);
+                        }
+                        dmax=sqrt(dmax);
+                        write_csv_double(csv,dmax,3);
+                    }
+                    else
+                    {
+                        write_csv_null_field( csv );
+                    }
+                }
+                else
+                {
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                }
+                if( nfprm == 1 || nfprm == 3 )
+                {
+                    write_csv_double(csv,-res[vrow],coord_precision);
+                    double verr=sqrt(fabs(Lij(cvr,vrow,vrow)));
+                    write_csv_double(csv,verr,coord_precision);
+                    if( verr < 1.0e-5 )
+                    {
+                        write_csv_null_field( csv );
+                    }
+                    else
+                    {
+                        write_csv_double( csv, fabs(res[vrow])/verr, 3 );
+                    }
+                }
+                else
+                {
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                    write_csv_null_field( csv );
+                }
+            }
         }
 
         for( i = 0; i < network_classification_count(net); i++ )
@@ -857,23 +1201,22 @@ void write_station_csv()
         }
         end_output_csv_record( csv );
     }
+    delete_oe(hA);
     close_output_csv( csv );
 }
-
 
 void print_floated_stations( FILE *out )
 {
     station *st;
     stn_adjustment *sa;
     const char *coordname[3] = { "East", "North", "Up" };
-    double cvr[6];
-    double obserr[3];
-    double calcerr[3];
-    double offset[3];
-    char floated[3];
+    double calccvr[6];
+    double rescvr[6];
+    double calc[3];
+    double res[3];
     int axis;
     double semult;
-    char first;
+    int rowno;
 
     if( !floating_stations ) return;
 
@@ -887,6 +1230,10 @@ void print_floated_stations( FILE *out )
             flag_level[0], taumax[0] ? "for the maximum ":"", FLAG1 );
     fprintf(out,"Adjustments outside the %6.3lf%% confidence limit %sare flagged %s\n",
             flag_level[1], taumax[1] ? "for the maximum ":"", FLAG2 );
+    if( relative_floating )
+    {
+        fprintf(out,"The rel column lists the reference station for co-location constraints\n");
+    }
 
     if( apriori )
     {
@@ -904,62 +1251,59 @@ void print_floated_stations( FILE *out )
 
     semult = apriori ? 1 : seu;
 
-    fprintf(out,"\n%-*s   coord      error      calc.err  adjustment    adj.err    std.res\n",
-            stn_name_width, "Code" );
+    fprintf(out,"\n%-*s %-*s  coord      error      calc.err    residual    adj.err    std.res\n",
+            stn_name_width, "Code",
+            relative_floating ? stn_name_width : 0, 
+            relative_floating ? "rel" : "" );
+
+
+    void *hA = create_oe( nprm );
 
     for( reset_station_list(net,(int)output_sorted_stations);
             NULL != (st = next_station(net)); )
     {
+        int nfprm=float_station_obseq(st,hA);
+        if( ! nfprm ) continue;
+    
+        int axis0=nfprm==1 ? 2 : 0;
+        int axis1=nfprm==2 ? 2 : 3;
 
-        sa = stnadj( st );
-        if( !sa->flag.float_h && !sa->flag.float_v ) continue;
-        get_station_covariance( st, cvr );
-
-        floated[0] = floated[1] = floated[2] = 0;
-
-        if( sa->flag.float_h && sa->hrowno )
+        lsq_calc_obs( hA, calc, res, 0, 0, 0, calccvr, rescvr );
+        sa=stnadj(st);
+        station *stcol=0;
+        if( relative_floating && sa->idcol ) 
         {
-            floated[0] = floated[1] = 1;
-            obserr[0] = obserr[1] = sa->herror;
-            offset[0] = ( st->ELon - sa->initELon ) * st->dEdLn;
-            offset[1] = ( st->ELat - sa->initELat ) * st->dNdLt;
-            calcerr[0] = (cvr[0] > 0.0) ? sqrt(cvr[0]) : 0.0;
-            calcerr[1] = (cvr[2] > 0.0) ? sqrt(cvr[2]) : 0.0;
+            stcol=stnptr(sa->idcol);
         }
 
-        if( sa->flag.float_v && sa->vrowno )
+        rowno=0;
+        for( axis = axis0; axis < axis1; axis++ )
         {
-            floated[2] = 1;
-            obserr[2] = sa->verror;
-            offset[2] = st->OHgt - sa->initOHgt;
-            calcerr[2] = (cvr[5] > 0.0) ? sqrt(cvr[5]) : 0.0;
-        }
-
-        first = 1;
-        for( axis = 0; axis < 3; axis++ )
-        {
-            double ser, stres;
-            if( !floated[axis] ) continue;
-            ser = obserr[axis]*obserr[axis] - calcerr[axis]*calcerr[axis];
-            if( ser > 0.0 ) ser = semult*sqrt(ser);
-
-            if( first ) fprintf( out, "\n");
-            fprintf( out, "%-*s   %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
-                     stn_name_width, (first ? st->Code : ""), coordname[axis],
-                     obserr[axis]*semult, calcerr[axis]*semult, offset[axis], ser );
+            if( rowno==0 ) fprintf( out, "\n");
+            double resval=res[rowno];
+            double ser=sqrt(Lij(rescvr,rowno,rowno))*semult;
+            fprintf( out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
+                     stn_name_width, (rowno==0 ? st->Code : ""), 
+                     relative_floating ? stn_name_width+1 : 0,
+                     stcol ? stcol->Code : "",
+                     coordname[axis],
+                     (axis < 2 ? sa->herror : sa->verror)*semult,
+                     sqrt(Lij(calccvr,rowno,rowno))*semult,
+                     -resval, ser);
             if( ser > 1.0e-5 )
             {
-                stres = fabs(offset[axis]) / ser;
-                fprintf( out, "%10.4lf %s\n", stres, residual_flag( 0, 1, stres ));
+                double stres = fabs(resval)/ ser;
+                fprintf( out, "%8.2lf %s\n", stres, residual_flag( 0, 1, stres ));
             }
             else
             {
                 fprintf( out, "     -\n");
             }
-            first = 0;
+            rowno++;
+            stcol=0;
         }
-
     }
+    delete_oe( hA );
     print_section_footer(lst);
 }
 

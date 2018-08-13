@@ -1,0 +1,26 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 13 2018 13:11:29
+
+================================================================================
+                     Run at 13-AUG-2018 13:42:14 by ccrook
+
+
+
+
+================================================================================
+                                                            13-AUG-2018 13:42:14
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Recode of 1 to 1_2 after 2000-02-01 inconsistent with 1_2 after 2000-02-01
+
+Error: Errors defining colocation constraints

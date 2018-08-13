@@ -27,6 +27,9 @@ typedef struct stn_recode_s
     double dateto;
     int usemark;  /* 0 if station is to be rejected, 1 otherwise */
     int used;
+    int seqid;
+    double herror; /* if errors > 0.0 then used as obs */
+    double verror; 
     struct stn_recode_s *next;
 } stn_recode;
 
@@ -86,6 +89,8 @@ void add_stn_recode_to_map( stn_recode_map *stt,
 int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile );
 
 void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int stn_name_width, const char *prefix );
+
+stn_recode *get_station_recodes( stn_recode_map *stt, const char *code );
 
 const char *get_stn_recode( stn_recode_map *stt, const char *code, double date, int *reject );
 

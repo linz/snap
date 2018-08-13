@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:11 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file testom1.snp contains:
@@ -44,7 +44,7 @@ The command file testom1.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - reference output   26-JUN-2018 10:27:11
+Regression test om1 - obs modifications - reference output   13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -63,7 +63,7 @@ Coordinates file test1.crd
        5 stations read
 
 Data file 1: test1.dat
-    Observations between 2008-01-01 00:00:00 and 2009-12-23 00:00:00
+    Observations between 2008-01-01 and 2009-12-23
        6 observations do not have a date
       21 GPS baselines
       21 GPS point coords
@@ -83,7 +83,7 @@ Data file 1: test1.dat
        6 longitudes
 
 Data file 2: test1a.dat
-    Observations between 2008-01-01 00:00:00 and 2008-01-01 00:00:00
+    Observations between 2008-01-01 and 2008-01-01
        6 observations do not have a date
        2 slope distances
        2 horizontal distances
@@ -101,7 +101,7 @@ Data file 2: test1a.dat
 
 
 ================================================================================
-Regression test om1 - obs modifications - reference output   26-JUN-2018 10:27:11
+Regression test om1 - obs modifications - reference output   13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 

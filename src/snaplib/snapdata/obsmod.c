@@ -441,7 +441,7 @@ static void describe_obs_date_criterion( FILE *lst, obs_criterion *oc, const cha
         fprintf(lst,"are observed %s %s\n",
             oc->c.date.date_criterion_type == OBS_CRIT_DATE_BEFORE ? 
             "before" : "after",
-            date_as_string(oc->c.date.date,0,0) );
+            date_as_string(oc->c.date.date,"DT?",0) );
     }
 }
 

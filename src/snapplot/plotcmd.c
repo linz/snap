@@ -43,7 +43,6 @@
 
 static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_include_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static int read_station_size_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_type_command( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -73,7 +72,7 @@ static config_item snapplot_general_commands[] =
     {"reweight_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
     {"reject_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
     {"ignore_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
-    {"recode",NULL,CFG_ABSOLUTE,0,read_recode,0,0},
+    {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,0},
     {"plot",NULL,CFG_ABSOLUTE,0,load_plot_data,0,0},
     {"include",NULL,CFG_ABSOLUTE,0,read_include_command,0,0},
     {NULL}
@@ -328,16 +327,6 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *value, int l
             sprintf(errmsg,"Cannot find command file %.*s",MAX_FILENAME_LEN,string);
             send_config_error( cfg, INVALID_DATA, errmsg );
         }
-    }
-    return OK;
-}
-
-static int read_recode( CFG_FILE *cfg, char *string, void *value, int len, int code )
-{
-    if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
-    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
-    {
-        send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
     }
     return OK;
 }

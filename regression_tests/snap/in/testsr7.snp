@@ -1,0 +1,47 @@
+
+title Regression tests - station handling of multiple recoding
+coordinate_file testsr7.crd
+data_file testsr7.dat
+mode 3d data_check
+
+list command_file
+list problem_definition
+list no_input_data
+list station_recoding
+list no_iteration_summary
+list no_solution_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list residuals
+list no_error_summary
+list no_worst_residuals
+
+define_residual_format from date obs_val
+
+recode 1 to 1_1 before 2000-02-01
+recode 1 to 1_0 before 2000-01-01
+recode 1 to 1_2 between 2001-01-02 and 2001-02-03
+recode 1 to 1_2a between 2001-03-02 and 2001-04-03
+recode 1 to 1_4 after 2005-02-01
+recode 1 to 1_5 after 2005-03-01
+recode 1 to 1_3 after 2005-01-01
+recode 1 to 1_9 
+
+! Testing overwriting 
+
+recode 2 to 2_1 before 2000-02-01
+recode 2 to 2_0 before 2000-01-01
+recode 2 to 2_3 before 2000-01-01
+recode 2 to 2_4
+recode 2 to 2_5
+
+! Testing using error
+
+recode 3 to 3_1 hv_error 0.5 m before 2000-01-01
+recode 3 to 3_2 hv_error 0.5 0.6 m before 2000-02-01
+recode 4 to 4_4 hv_error 0.5 0.6 m before 2000-04-01
+recode suffix _4 hv_error 0.7 0.4 m before 2000-04-01 for 4 5 6
+recode 5 to 5_4 hv_error 0.8 0.5 m before 2000-04-01
+recode 6 to 6_4 disconnected before 2000-04-01
+

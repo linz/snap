@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:11 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 The command file test1g5.snp contains:
@@ -34,7 +34,7 @@ The command file test1g5.snp contains:
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                              SUMMARY OF INPUT FILES
 
@@ -59,7 +59,7 @@ Data file 1: test1g0.dat
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                                ITERATION SUMMARY
 
@@ -74,7 +74,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 4
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -97,7 +97,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -142,7 +142,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -166,7 +166,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -215,7 +215,7 @@ File test1g0.dat: line 8
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -237,7 +237,7 @@ GPS baseline                                0.00    6    0.00    3    0.00    9
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 
@@ -271,7 +271,7 @@ From   To         Id  Type     S.R.  Sig (%)       Line  File
 
 
 ================================================================================
-Regression test 1g - calculation of geoid in snap           26-JUN-2018 10:27:11
+Regression test 1g - calculation of geoid in snap           13-AUG-2018 13:42:14
 
                                      ERRORS
 

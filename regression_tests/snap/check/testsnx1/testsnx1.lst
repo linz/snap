@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:12 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 
@@ -38,7 +38,7 @@ Errors of the following observations are scaled by 2.000
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                                    INPUT DATA
 
@@ -46,6 +46,7 @@ Testing SINEX file reading                                  26-JUN-2018 10:27:12
 
 BEGIN_JSON observations_types
 {
+
   "GX": "GPS point coord"
 }
 
@@ -505,7 +506,7 @@ END_JSON observations
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                                 SOLUTION SUMMARY
 
@@ -528,7 +529,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                               STATION COORDINATES
 
@@ -617,7 +618,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                            REFERENCE FRAME PARAMETERS
 
@@ -658,7 +659,7 @@ Reference frame: QRF
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                              OBSERVATION RESIDUALS
 
@@ -774,7 +775,7 @@ KARR_A GX    -2713832.3708  0.0119  -2713832.3709  0.0000  0.0000  0.0097   0.00
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                                  ERROR SUMMARY
 
@@ -808,7 +809,7 @@ testsnx1.in.snx                             0.01   15     -      -    0.01   15
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                            MOST SIGNIFICANT RESIDUALS
 
@@ -851,7 +852,7 @@ HOKI             GX     0.015    0.001        187  testsnx1.in.snx
 
 
 ================================================================================
-Testing SINEX file reading                                  26-JUN-2018 10:27:12
+Testing SINEX file reading                                  13-AUG-2018 13:42:14
 
                                      ERRORS
 

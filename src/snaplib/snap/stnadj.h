@@ -39,6 +39,7 @@ typedef struct
     int   hrowno;    /* The first row number in the obs equations */
     int   vrowno;    /* The row number for verical coord */
     long    obscount;  /* Count of observations referencing the station */
+    int     idcol;     /* Relative station for float error (co-location constraint) */
     float   herror;    /* The horizontal error if the station is floated */
     float   verror;    /* The vertical error if the station is floated */
     struct

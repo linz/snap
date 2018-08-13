@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-a339290
+                      PROGRAM SNAP  Version 2.7.10-bf63ac3
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jun 24 2018 08:40:44
+                       Version date: Aug 13 2018 13:11:29
 
 ================================================================================
-                     Run at 26-JUN-2018 10:27:13 by ccrook
+                     Run at 13-AUG-2018 13:42:14 by ccrook
 
 
 
@@ -25,21 +25,21 @@ Coordinates file testsl.crd
       20 stations read
 
 Data file 1: testsr1.dat
-    Observations between 1998-05-01 00:00:00 and 2010-05-01 00:00:00
+    Observations between 1998-05-01 and 2010-05-01
       29 latitudes
 
 Data file 3: testsr3.dat
-    Observations between 2000-05-01 00:00:00 and 2000-05-01 00:00:00
+    Observations between 2000-05-01 and 2000-05-01
        2 latitudes
     Recoding stations:
-    D          => D        
-    QQ         => QQ        before  2005-01-01 00:00:00
-    Ignoring other stations
+    D         to D        
+    QQ        to QQ        before 2005-01-01
+    Other stations to ignored
 
 
 
 ================================================================================
-Regression tests - Missing recode file                      26-JUN-2018 10:27:13
+Regression tests - Missing recode file                      13-AUG-2018 13:42:14
 
                                    INPUT DATA
 
@@ -47,6 +47,7 @@ Regression tests - Missing recode file                      26-JUN-2018 10:27:13
 
 BEGIN_JSON observations_types
 {
+
   "LT": "latitude"
 }
 
@@ -61,7 +62,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"11",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -80,7 +81,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"OTHER1",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -99,7 +100,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"B",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -118,7 +119,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"PINTOFALE",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -137,7 +138,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"QQ",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -156,7 +157,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"C_100",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -175,7 +176,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"PEGS",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -194,7 +195,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -213,7 +214,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"100",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -232,7 +233,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"3",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -251,7 +252,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"D",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -270,7 +271,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"C_101",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -289,7 +290,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"C_10",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -308,7 +309,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"B00",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -327,7 +328,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"PIND",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -346,7 +347,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"A",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -365,7 +366,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"BXXXXX",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -384,7 +385,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"10",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -403,7 +404,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"C_11",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -422,7 +423,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"11",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"1998-05-01 00:00:00",
         "type":"LT",
@@ -441,7 +442,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1BC",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"1998-05-01 00:00:00",
         "type":"LT",
@@ -460,7 +461,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"11",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-05-01 00:00:00",
         "type":"LT",
@@ -479,7 +480,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1WHEN",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2005-05-01 00:00:00",
         "type":"LT",
@@ -498,7 +499,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"11",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2010-05-01 00:00:00",
         "type":"LT",
@@ -517,7 +518,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"1AD",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2010-05-01 00:00:00",
         "type":"LT",
@@ -536,7 +537,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"2_RC",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
@@ -555,7 +556,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"100",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
@@ -574,7 +575,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"3_RC",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
@@ -593,7 +594,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"D",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
@@ -612,7 +613,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"QQ",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -631,7 +632,7 @@ BEGIN_JSON observations
         "id":0,
         "from":"D",
         "from_hgt":0.0000,
-        "to":"(null)",
+        "to":null,
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
@@ -650,7 +651,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression tests - Missing recode file                      26-JUN-2018 10:27:13
+Regression tests - Missing recode file                      13-AUG-2018 13:42:14
 
                                      ERRORS
 

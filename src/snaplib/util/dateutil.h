@@ -27,13 +27,19 @@ double snap_datetime( int year, int month, int day, int hour, int min, int sec )
 double snap_yds( int year, int dayno, int secs );
 double snap_datetime_now();
 double snap_datetime_parse( const char *definition, const char *format );
+int same_date( double date0, double date1 );
 
 /* Conversion to other date formats */
-const char *date_as_string( double snapdate, char *format, char *buffer );
 double date_as_year( double snapdate );
 double year_as_snapdate( double years );
 void date_as_ymd( double snapdate, int *year, int *month, int *day );
 void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour, int *min, int *sec );
 void date_as_yds( double snapdate, int *year, int *dayno, int *secs );
+
+/* Conversion to string.  Format only minimally used.  
+ * Current optionare are "D", date only, 
+ * and "DT?" to omit time string if 00:00:00 
+ */
+const char *date_as_string( double snapdate, const char *format, char *buffer );
 
 #endif
