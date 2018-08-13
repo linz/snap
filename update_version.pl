@@ -16,9 +16,6 @@ To update files use one of:
    -I for major update,
    -R for new release.
 
-Optionally also:
-   -g to commit and tag in git
-
 EOD
 
 sub guid
@@ -118,12 +115,10 @@ my $keep= $opts{k};
 my $release = $opts{R};
 my $major = $opts{I};
 my $minor = $opts{i};
-my $git = $opts{G} ? 0 : 1;
 my $update = $keep || $release || $major || $minor;
-$git=0 if ! $update;
 
 die "Cannot update version - files not committed\n" 
-   if $git && system('git diff --quiet HEAD');
+   if $update && system('git diff --quiet HEAD');
 
 my $versionfile='src/VERSION';
 my $snapversionfile='src/snaplib/snapversion.h';
@@ -132,7 +127,7 @@ my $version=join('',$vf->getlines);
 $vf->close;
 $version=~s/\s*$//;
 
-$version =~ /^\d+\.\d+\.\d+$/
+$version =~ /^(\d+)\.(\d+)\.(\d+)$/
    || die "Invalid version $version in $versionfile\n";
 print "Current version is $version\n";
 my $v1=$1 || 1;
@@ -148,6 +143,17 @@ if ( $update )
         elsif( $major ) { $v2++; $v3=0; } 
         else { $v3++; }
         $newversion="$v1.$v2.$v3";
+    }
+    if( ! $keep )
+    {
+        if( open(my $gtf,"git tag |"))
+        {
+            while (my $tag=<$gtf>)
+            {
+                $tag=~s/\s//g;
+                die "Git tag $tag already defined\n" if $tag eq $newversion;
+            }
+        }
     }
     print "Updating version to $newversion\n";
     my $vf=new FileHandle(">$versionfile");
@@ -166,11 +172,11 @@ foreach my $pjfile (@pjfiles)
     update_ms_vdproj($pjfile,$newversion,$update);
 }
 
-if( $git )
+if( $update )
 {
-    system("git commit -a -m \"Updating version to $version\"")
+    system("git commit -a -m \"Updating version to $newversion\"")
         if system('git diff --quiet HEAD');
-    system("git tag -a -f $version -m \"Version $version\"");
+    system("git tag -a -f $newversion -m \"Version $newversion\"");
 }
 
 print $syntax if ! $update;
