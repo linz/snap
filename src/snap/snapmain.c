@@ -45,6 +45,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
+#include <sys/stat.h>
+#include <unistd.h>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -667,12 +670,6 @@ int snap_main( int argc, char *argv[] )
         write_observation_csv();
     }
 
-    if( output_csv_filelist || output_csv_allfiles )
-    {
-        xprintf("   Writing file list csv file\n");
-        write_filelist_csv();
-    }
-
     if( output_csv_metadata || output_csv_allfiles )
     {
         xprintf("   Writing metadata csv file\n");
@@ -689,10 +686,6 @@ int snap_main( int argc, char *argv[] )
         close_binary_file( dump );
     }
 
-    /* Drop allocated bits */
-
-    if( deformation ) delete_deformation( deformation );
-
     /* Output covariance products if required */
 
     if( ! lsq_using_zero_inverse() )
@@ -703,15 +696,27 @@ int snap_main( int argc, char *argv[] )
         if( output_sinex ) print_coord_sinex();
     }
 
-    /* Dispose of recorded filenames */
+    close_output_files( 0, 0 );
+
+
+    /* CSV flelist (after all other files) */
+
+    if( output_csv_filelist || output_csv_allfiles )
+    {
+        write_filelist_csv();
+    }
+
+    /* Delete allocated objects */
+
+    if( deformation ) delete_deformation( deformation );
 
     delete_recorded_filenames();
 
     /* If using debug version of memory allocator then list outstanding
        allocations */
+
     list_memory_allocations( lst );
 
-    close_output_files( 0, 0 );
     if( ! converged )
     {
         xprintf( "\nWARNING: Adjustment has not converged - results may be misleading\n" );
@@ -883,14 +888,33 @@ static void write_filelist_csv()
     write_csv_header(csv,"id");
     write_csv_header(csv,"filename");
     write_csv_header(csv,"filetype");
+    write_csv_header(csv,"filedate");
+    write_csv_header(csv,"filesize");
     end_output_csv_record(csv);
     for( int i=0; i<recorded_filename_count(); i++ )
     {
         const char *filetype;
         const char *filename=recorded_filename(i,&filetype);
+        struct stat statbuf;
         write_csv_int(csv,i);
         write_csv_string(csv,filename);
         write_csv_string(csv,filetype);
+        int ok=stat(filename,&statbuf);
+        if( ok == 0 )
+        {
+            char dbuf[30];
+            struct tm *ltime=localtime(&(statbuf.st_mtime));
+            sprintf(dbuf,"%04d-%02d-%02d %02d:%02d:%02d",
+                    ltime->tm_year+1900,ltime->tm_mon+1,ltime->tm_mday,
+                    ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
+            write_csv_string(csv,dbuf);
+            write_csv_int(csv,statbuf.st_size);
+        }
+        else
+        {
+            write_csv_null_field(csv);
+            write_csv_null_field(csv);
+        }
         end_output_csv_record(csv);
     }
     close_output_csv( csv );

@@ -1,0 +1,13 @@
+"id","filename","filetype","filedate","filesize"
+0,"/home/ccrook/projects_git/snap/regression_tests/snap/../test_coordsys/coordsys.def","coordinate systems definition","2018-06-28 09:02:46",55561
+1,"test1.lst","listing","2018-08-15 08:44:09",199925
+2,"test1.snp","command","2018-08-15 08:44:09",959
+3,"test1.crd","station coordinate file","2018-08-15 08:44:09",625
+4,"test1.bin","snap_binary_file","2018-08-15 08:44:09",52658
+5,"test1.dat","survey data file","2018-08-15 08:44:09",9485
+6,"test1a.dat","survey data file","2018-08-15 08:44:09",1489
+7,"test1-stn.csv","stn_output_csv","2018-08-15 08:44:09",776
+8,"test1-obs.csv","obs_output_csv","2018-08-15 08:44:09",40516
+9,"test1-metadata.csv","metadata_output_csv","2018-08-15 08:44:09",827
+10,"test1.new","output_station_coordinate_file","2018-08-15 08:44:09",690
+11,"test1-filelist.csv","filelist_output_csv","2018-08-15 08:44:09",0

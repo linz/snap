@@ -256,7 +256,6 @@ int read_command_file( const char *command_file )
 int read_command_file_constraints( const char *command_file )
 {
     CFG_FILE *cfg;
-    int recording=set_record_filenames(0);
     int sts;
 
     cfg = open_config_file( command_file, COMMENT_CHAR );
@@ -272,8 +271,6 @@ int read_command_file_constraints( const char *command_file )
     {
         sts = FILE_OPEN_ERROR;
     }
-
-    set_record_filenames(recording);
 
     return sts;
 }

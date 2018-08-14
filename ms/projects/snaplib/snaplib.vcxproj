@@ -205,6 +205,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\dms.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\dstring.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\errdef.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\filelist.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\fileutil.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\geodetic.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\getversion.c" />
@@ -303,6 +304,7 @@
     <ClInclude Include="..\..\..\src\snaplib\util\dms.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\dstring.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\errdef.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\filelist.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\fileutil.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\geodetic.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\get_date.h" />

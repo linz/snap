@@ -1,5 +1,6 @@
 #include "snapconfig.h"
 #include <stdio.h>
+#include <string.h>
 #include "util/chkalloc.h"
 #include "util/filelist.h"
 #include "util/dstring.h"
@@ -37,6 +38,13 @@ int record_filename( const char *filename, const char *filetype )
 {
     if( ! recording ) return NO_FILENAME_ID;
     if( ! filename || ! filetype ) return NO_FILENAME_ID;
+    for( int i=0; i<nfilenames; i++ )
+    {
+        if( strcmp(filename,filenames[i].filename) == 0 )
+        {
+            return i;
+        }
+    }
     int ftypeid=strarray_find(&filetypes,filetype);
     if( ftypeid == STRARRAY_NOT_FOUND ) ftypeid=strarray_add(&filetypes,filetype);
     filetype=strarray_get(&filetypes,ftypeid);

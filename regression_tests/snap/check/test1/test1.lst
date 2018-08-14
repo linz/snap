@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.11-d9d53f6
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Aug 15 2018 08:42:14
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at 15-AUG-2018 08:44:09 by ccrook
 
 
 The command file test1.snp contains:
@@ -36,7 +36,7 @@ The command file test1.snp contains:
      list error_summary
      list worst_residuals
      
-     output_csv metadata stations observations wkt_shape vector_components correlations
+     output_csv metadata stations observations wkt_shape vector_components correlations filelist
      
      ! error_type aposteriori
      
@@ -56,7 +56,7 @@ The command file test1.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                              SUMMARY OF INPUT FILES
 
@@ -113,7 +113,7 @@ Data file 2: test1a.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                                    INPUT DATA
 
@@ -3405,7 +3405,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                              DEFINITION OF PROBLEM
 
@@ -3429,7 +3429,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                              OBSERVATION EQUATIONS
 
@@ -6368,7 +6368,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                                 SOLUTION SUMMARY
 
@@ -6392,7 +6392,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                               STATION COORDINATES
 
@@ -6433,7 +6433,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                            REFERENCE FRAME PARAMETERS
 
@@ -6459,7 +6459,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                                 OTHER PARAMETERS
 
@@ -6474,7 +6474,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                              OBSERVATION RESIDUALS
 
@@ -6987,7 +6987,7 @@ File test1a.dat: line 118
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                                  ERROR SUMMARY
 
@@ -7448,7 +7448,7 @@ longitude                                   0.00    6    0.00    2    0.00    8
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    15-AUG-2018 08:44:09
 
                            MOST SIGNIFICANT RESIDUALS
 

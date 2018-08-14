@@ -331,6 +331,9 @@
     <ClCompile Include="..\..\..\src\snaplib\util\errdef.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\filelist.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\fileutil.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
@@ -652,6 +655,9 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\errdef.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\snaplib\util\filelist.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\fileutil.h">
