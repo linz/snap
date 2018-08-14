@@ -29,6 +29,7 @@
 #include "util/chkalloc.h"
 #include "util/progress.h"
 #include "util/dateutil.h"
+#include "util/filelist.h"
 #include "util/dms.h"
 #include "util/xprintf.h"
 #include "util/pi.h"
@@ -66,6 +67,7 @@ void print_coord_covariance( void )
     else
     {
         xprintf("\nCreating the coordinate covariance file %s\n",bfn);
+        record_filename(bfn,"coord_covariance");
     }
     check_free( bfn );
     if( !f ) return;
@@ -171,6 +173,7 @@ void print_coord_covariance_json( void )
     else
     {
         xprintf("\nCreating the JSON coordinate covariance file %s\n",bfn);
+        record_filename(bfn,"coord_covariance_json");
     }
     check_free( bfn );
     if( !f ) return;
@@ -354,6 +357,7 @@ void print_coord_sinex( void )
     else
     {
         xprintf("\nCreating the SINEX file %s\n",bfn);
+        record_filename(bfn,"solution_sinex");
     }
     check_free( bfn );
     if( !f ) return;

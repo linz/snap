@@ -76,6 +76,7 @@ void SnapCsvBase::loadDefinition()
             loadDefinition( rs );
             terminateLoadDefinition();
             _definitionLoaded = true;
+            _definitionFilename=rs.filename();
         }
         catch(...)
         {
@@ -226,6 +227,7 @@ bool SnapCsvBase::load( RecordInputBase &input )
             loadRecord();
         }
         terminateLoadData();
+        _loadedFilename=input.name();
 
         attachReader(0);
     }

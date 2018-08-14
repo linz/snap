@@ -21,7 +21,7 @@ list residuals
 list error_summary
 list worst_residuals
 
-output_csv metadata stations observations wkt_shape vector_components correlations
+output_csv metadata stations observations wkt_shape vector_components correlations filelist
 
 ! error_type aposteriori
 

@@ -21,6 +21,7 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/errdef.h"
 #include "util/polygon.h"
 #include "util/pi.h"
@@ -648,6 +649,7 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
         handle_error( INVALID_DATA, errmess, NULL  );
         return INVALID_DATA;
     }
+    record_filename( spec, "station_list_file" );
 
     skip_utf8_bom(list_file);
 
@@ -824,6 +826,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
                 if( cs ) delete_coordsys( cs );
                 break;
             }
+            record_filename(spec,"wkt_polygon_definition");
             c=new_polygon_criterion( pgn, cs, conv, isgeo, inside );
         }
 

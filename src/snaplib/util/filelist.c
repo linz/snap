@@ -22,7 +22,7 @@ static int maxfilenames=0;
 int set_record_filenames( int record )
 {
     int wasrecording=recording;
-    if( record && filenames )
+    if( record && ! filenames )
     {
         strarray_init(&filetypes);
         filenames= (recfilename *) check_malloc(sizeof(recfilename)*INIT_FILENAME_COUNT);
@@ -37,9 +37,9 @@ int record_filename( const char *filename, const char *filetype )
 {
     if( ! recording ) return NO_FILENAME_ID;
     if( ! filename || ! filetype ) return NO_FILENAME_ID;
-    int typeid=strarray_find(&filetypes,filetype);
-    if( typeid == STRARRAY_NOT_FOUND ) typeid=strarray_add(&filetypes,filetype);
-    filetype=strarray_get(&filetypes,typeid);
+    int ftypeid=strarray_find(&filetypes,filetype);
+    if( ftypeid == STRARRAY_NOT_FOUND ) ftypeid=strarray_add(&filetypes,filetype);
+    filetype=strarray_get(&filetypes,ftypeid);
     filename=copy_string(filename);
     while( nfilenames >= maxfilenames )
     {

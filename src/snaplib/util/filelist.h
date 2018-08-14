@@ -9,6 +9,6 @@ int record_filename( const char *filename, const char *filetype );
 int recorded_filename_count();    
 /* Note: filenames are 0 based */
 const char *recorded_filename( int i, const char **pfiletype );
-void discard_recorded_filenames();
+void delete_recorded_filenames();
 
 #endif

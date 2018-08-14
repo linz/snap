@@ -19,6 +19,7 @@
 #include "util/dstring.h"
 #include "util/binfile.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/get_date.h"
 #include "util/errdef.h"
 #include "util/getversion.h"
@@ -212,8 +213,13 @@ int write_station_file( const char *prog, const char *fname, const char *ver, co
         sprintf(comment,"Updated at %s",rtime);
     }
 
-    return write_network( net, fname, comment, coord_precision,
+    int sts=write_network( net, fname, comment, coord_precision,
                           check_rejected );
+    if( sts == OK )
+    {
+        record_filename( fname, "output_station_coordinate_file" );
+    }
+    return sts;
 }
 
 

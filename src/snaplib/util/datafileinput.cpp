@@ -20,6 +20,8 @@ DatafileInput::DatafileInput( const std::string &filename, const std::string &de
         throw RecordError(std::string("Cannot open ") + description + " " + filename );
     }
     _owner = true;
+
+    setName( df_file_name( _df ) );
     df_set_data_file_comment( _df, 0 );
     df_set_data_file_quote( _df, 0 );
     df_set_data_file_continuation( _df, 0 );
@@ -32,6 +34,7 @@ DatafileInput::DatafileInput( DATAFILE *df, int (*check_progress)( DATAFILE *df 
     _aborted(false)
 {
     _owner = false;
+    setName( df_file_name( _df ) );
     df_set_data_file_comment( df, 0 );
     df_set_data_file_quote( df, 0 );
     df_set_data_file_continuation( df, 0 );
