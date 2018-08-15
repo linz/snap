@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.11-2620383
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Aug 15 2018 13:11:52
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at 15-AUG-2018 13:21:21 by ccrook
 
 
 The command file test1csv.snp contains:
@@ -34,7 +34,7 @@ The command file test1csv.snp contains:
      list error_summary
      list worst_residuals
      
-     output_csv metadata stations observations wkt_shape vector_components correlations
+     output_csv filelist metadata stations observations wkt_shape vector_components correlations
      
      ! error_type aposteriori
      
@@ -46,7 +46,7 @@ The command file test1csv.snp contains:
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                              SUMMARY OF INPUT FILES
 
@@ -87,7 +87,7 @@ Data file 1: testobs.csv
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                                    INPUT DATA
 
@@ -2687,7 +2687,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                              DEFINITION OF PROBLEM
 
@@ -2711,7 +2711,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                              OBSERVATION EQUATIONS
 
@@ -5118,7 +5118,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                                 SOLUTION SUMMARY
 
@@ -5142,7 +5142,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                               STATION COORDINATES
 
@@ -5183,7 +5183,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                            REFERENCE FRAME PARAMETERS
 
@@ -5209,7 +5209,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                                 OTHER PARAMETERS
 
@@ -5224,7 +5224,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                              OBSERVATION RESIDUALS
 
@@ -5647,7 +5647,7 @@ File testobs.csv: line 108
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                                  ERROR SUMMARY
 
@@ -5702,7 +5702,7 @@ longitude                                   0.00    4    0.00    2    0.00    6
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               13-AUG-2018 13:42:14
+Regression test 1csv - CSV format data/coords               15-AUG-2018 13:21:21
 
                            MOST SIGNIFICANT RESIDUALS
 

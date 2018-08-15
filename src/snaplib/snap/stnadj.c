@@ -217,7 +217,7 @@ int write_station_file( const char *prog, const char *fname, const char *ver, co
                           check_rejected );
     if( sts == OK )
     {
-        record_filename( fname, "output_station_coordinate_file" );
+        record_filename( fname, "output_station_coordinate" );
     }
     return sts;
 }

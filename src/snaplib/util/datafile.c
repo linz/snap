@@ -80,7 +80,9 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     strncpy(msg,description,79);
     msg[79]=0;
     for( char *c=msg; *c; c++ ){ if( *c == ' ' ) *c='_'; }
-    record_filename(fname,description);
+    int typelen=strlen(msg);
+    if( typelen > 5 && strcmp(msg+typelen-5,"_file") == 0 ) msg[typelen-5]=0;
+    record_filename(fname,msg);
 
     nch = fread(msg,1,80,f);
     unicode = 0;

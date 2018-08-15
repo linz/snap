@@ -434,7 +434,7 @@ int load_snap_csv_stations( network *net, const char *filename, const char *opti
         string netname = string("Read from ") + filename;
         set_network_name( net, netname.c_str());
         SnapCsvStn csvstn( net, formatfile, config );
-        DatafileInput dfi( filename,"csv station coordinate file" );
+        DatafileInput dfi( filename,"station coordinate file" );
         csvstn.load( dfi );
         std::string deffile=csvstn.definitionFilename();
         if( deffile != "" )

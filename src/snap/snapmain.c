@@ -1052,7 +1052,7 @@ BINARY_FILE *open_dump_file( void )
     strcpy( bfn, root_name );
     strcat( bfn, BINFILE_EXT );
 
-    record_filename( bfn, "snap_binary_file" );
+    record_filename( bfn, "snap_binary" );
 
     b = create_binary_file( bfn, BINFILE_SIGNATURE );
     if( !b )
