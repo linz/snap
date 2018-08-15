@@ -11,9 +11,10 @@
 /temp/
 /testdata/
 /unit_tests/
-/unix/
 /images/
 /wxWidgets/
 /backup/
 src/snap_manager/scriptimp_parse.cpp
 src/VERSIONID
+/example_jobs/
+*.orig
