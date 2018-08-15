@@ -109,6 +109,8 @@ int main( int argc, char *argv[] )
     int nextstn;
     int block_id;
 
+    CONFIGURE_RUNTIME();
+
     printf("\n%s %s: Creates a dummy GPS data file from a site file and list of lines\n\n",
            PROGRAM_NAME, PROGRAM_VERSION);
 

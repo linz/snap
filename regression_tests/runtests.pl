@@ -7,7 +7,7 @@ use Cwd qw(cwd abs_path);
 use File::Find;
 use File::Path qw(make_path remove_tree);
 use File::Basename;
-use File::Copy;
+use File::Copy "cp";
 
 my $syntax=<<EOD;
 
@@ -304,7 +304,7 @@ foreach my $test (sort keys %tests)
         }
         my $odir=dirname($tgt);
         make_path($odir) if ! -d $odir;
-        copy($src,$tgt);
+        cp($src,$tgt);
         $inputfiles{$tgt}=1 if $save eq '';
     }
     die "Cannot run test - files missing\n" if $missing > 0;
@@ -364,7 +364,7 @@ foreach my $test (sort keys %tests)
             my $ofile="$tstout/$fn";
             my $odir=dirname($ofile);
             make_path($odir) if ! -d $odir;
-            copy($_,$ofile);
+            cp($_,$ofile);
             print "Saving output file $ofile\n" if $verbose;
         },
         no_chdir=>1},

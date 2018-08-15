@@ -1087,6 +1087,8 @@ int main( int argc, char *argv[] )
     const char *cfn;
     const char *basecfn, *ofn;
 
+    CONFIGURE_RUNTIME();
+
     printf( "snaplist:  Tabulates observations and stations in a SNAP binary file\n");
 
     if( argc != 3 && argc != 4 )

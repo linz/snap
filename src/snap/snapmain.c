@@ -46,8 +46,6 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
-#include <sys/stat.h>
-#include <unistd.h>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -122,11 +120,7 @@ int snap_main( int argc, char *argv[] )
     char errmess[256];
     BINARY_FILE *dump;
 
-    /* MS VC compatibility - pre VS 2015 */
-     
-    #ifdef _TWO_DIGIT_EXPONENT
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-    #endif
+    CONFIGURE_RUNTIME();
 
     get_date( run_time );
 
@@ -895,20 +889,19 @@ static void write_filelist_csv()
     {
         const char *filetype;
         const char *filename=recorded_filename(i,&filetype);
-        struct stat statbuf;
         write_csv_int(csv,i);
         write_csv_string(csv,filename);
         write_csv_string(csv,filetype);
-        int ok=stat(filename,&statbuf);
-        if( ok == 0 )
+        time_t modtime=file_modtime(filename);
+        if( modtime != 0 )
         {
             char dbuf[30];
-            struct tm *ltime=localtime(&(statbuf.st_mtime));
+            struct tm *ltime=localtime(&(modtime));
             sprintf(dbuf,"%04d-%02d-%02d %02d:%02d:%02d",
                     ltime->tm_year+1900,ltime->tm_mon+1,ltime->tm_mday,
                     ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
             write_csv_string(csv,dbuf);
-            write_csv_int(csv,statbuf.st_size);
+            write_csv_int(csv,file_size(filename));
         }
         else
         {

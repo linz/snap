@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.11-50bef96
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Aug 15 2018 12:45:50
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at 15-AUG-2018 12:48:19 by ccrook
 
 
 The command file testsr8.snp contains:
@@ -44,7 +44,7 @@ The command file testsr8.snp contains:
 
 
 ================================================================================
-Regression tests - calc recode with errors                  13-AUG-2018 13:42:14
+Regression tests - calc recode with errors                  15-AUG-2018 12:48:19
 
                              SUMMARY OF INPUT FILES
 
@@ -71,7 +71,7 @@ Data file 1: testsr8.dat
 
 
 ================================================================================
-Regression tests - calc recode with errors                  13-AUG-2018 13:42:14
+Regression tests - calc recode with errors                  15-AUG-2018 12:48:19
 
                                 RECODED STATIONS
 
@@ -85,7 +85,7 @@ The following stations are being recoded as they are read from data files
 
 
 ================================================================================
-Regression tests - calc recode with errors                  13-AUG-2018 13:42:14
+Regression tests - calc recode with errors                  15-AUG-2018 12:48:19
 
                              DEFINITION OF PROBLEM
 
@@ -137,7 +137,7 @@ LINZ deformation model
 
 
 ================================================================================
-Regression tests - calc recode with errors                  13-AUG-2018 13:42:14
+Regression tests - calc recode with errors                  15-AUG-2018 12:48:19
 
                               STATION COORDINATES
 
@@ -203,7 +203,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression tests - calc recode with errors                  13-AUG-2018 13:42:14
+Regression tests - calc recode with errors                  15-AUG-2018 12:48:19
 
                                 FLOATED STATIONS
 
@@ -218,14 +218,14 @@ Significance is based on the Normal distribution function
 
 Code  rel    coord      error      calc.err    residual    adj.err    std.res
 
-1_1   1       East       0.1000      0.1000     -0.0000        -nan      -
+1_1   1       East       0.1000      0.1000     -0.0000      0.0000      -
               North      0.1000      0.1000     -0.0000      0.0000      -
-              Up         0.3000      0.3000     -0.0000        -nan      -
+              Up         0.3000      0.3000     -0.0000      0.0000      -
 
 
 
 ================================================================================
-Regression tests - calc recode with errors                  13-AUG-2018 13:42:14
+Regression tests - calc recode with errors                  15-AUG-2018 12:48:19
 
                              OBSERVATION RESIDUALS
 

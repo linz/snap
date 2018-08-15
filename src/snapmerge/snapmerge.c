@@ -44,6 +44,8 @@ int main( int argc, char *argv[] )
     int clearbaseorders = 0;
     int cleardataorders = 0;
 
+    CONFIGURE_RUNTIME();
+
     while( ! syntaxerror && argc > 1 && argv[1][0] == '-' )
     {
         switch ( argv[1][1] )

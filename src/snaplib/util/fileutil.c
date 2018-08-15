@@ -102,6 +102,22 @@ int is_dir(const char *path)
         return 0;
 }
 
+time_t  file_modtime(const char *path)
+{
+    struct _stat info;
+    if(_stat( path, &info ) != 0)
+        return 0;
+    return info.st_mtime;
+}
+
+int  file_size(const char *path)
+{
+    struct _stat info;
+    if(_stat( path, &info ) != 0)
+        return 0;
+    return info.st_size;
+}
+
 char *build_config_filespec( char *spec, int nspec,
                              const char *dir, int pathonly, const char *config,
                              const char *name, const char *dflt_ext )

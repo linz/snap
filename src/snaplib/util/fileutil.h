@@ -13,6 +13,8 @@
 
 /* fileutil.h: routines to assist file management */
 
+#include <time.h>
+
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
 #define PATH_SEPARATOR2 '/'
@@ -38,6 +40,9 @@
 
 int path_len( const char *base, int want_name );
 int file_exists( const char *file );
+int is_dir( const char *path );
+int file_size( const char *path );
+time_t file_modtime( const char *path );
 
 /* Compile a filename.  If spec is null then it will return a static variable which
    may be modified by other calls to these routines.
@@ -107,5 +112,7 @@ FILE *snaptmpfile();
 /* Returns 1 if file pointer is not set to the beginning of the file */
 
 int skip_utf8_bom(FILE *f);
+
+time_t file_modtime(const char *filename);
 
 #endif
