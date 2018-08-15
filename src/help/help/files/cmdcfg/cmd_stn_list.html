@@ -57,13 +57,18 @@ be modified by including <i>and</i> or <i>except</i> operators in the list.  Thi
 
 <p>The station list can include any of the following items:</p>
 
-<p class="BulletList">individual station codes</p>
+<p class="BulletList">individual station codes.  Where a station code would be confused with
+a station list keyword such as <i>and</a></i> then it is specified by prepending with a \, for 
+example &quot;\AND&quot;.
+</p>
 
 <p class="BulletList">ranges of stations codes - entered as two station codes separated by a hyphen (eg 5-15).
-Station ranges are interpreted by ordering the codes numerically using the leading digits in the code, and then alphabetically using any remaining characters in the code.  Using this scheme the range 5-15 would include 10 and 10A, but not 100.  If there is a station with a code the same as the range in the station list, then the
-range will be treated as an individual station code.</p>
+Station ranges are interpreted by ordering the codes numerically using the leading digits in the code, and then alphabetically using any remaining characters in the code.  Using this scheme the range 5-15 would include 10 and 10A, but not 100.</p>
 
-<p class="BulletList">a station name finishing with a &quot;*&quot; wildcard, for example BO*, will match any station starting with the characters before the wildcard</p>
+<p class="BulletList">a station name containing wildcard characters &quot;?&quot; or &quot;*&quot;.
+The &quot;?&quot; wildcard matches any single character, and the &quot;*&quot; character matches
+any number of characters (including none).
+</p>
 
 <p class="BulletList">stations specified by order - entered as order=<i>order</i> (eg order=3).  This can be used if the coordinate file specifies station orders.  More than one order can be selected by separating orders with a &quot;/&quot; (eg order=1/2/3).</p>
 

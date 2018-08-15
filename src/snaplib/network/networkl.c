@@ -74,7 +74,6 @@ typedef struct criteria_cache_s
 typedef struct code_match_criterion_s
 {
     char *code;
-    int matchlen;
 } code_match_criterion;
 
 typedef struct code_range_criterion_s
@@ -249,13 +248,37 @@ static criterion *new_code_match_criterion( char *code )
     criterion *c=(criterion *) new_criterion();
     c->type=CRIT_MATCH;
     c->c.code_match.code=copy_string(code);
-    c->c.code_match.matchlen=strlen(code);
     return c;
+}
+
+static bool is_code_match( const char *m, const char *c )
+{
+    while( *m && *c && 
+            *m != '*' && 
+            ((*m == '?' && *c) || _strnicmp(m,c,1) == 0 )
+            )
+    {
+        m++;
+        c++;
+    }
+    if( ! *m && ! *c ) return true;
+    if( *m == '*' ) 
+    {
+        while( *m == '*' ) m++;
+        if( ! *m ) return true;
+        while( *c )
+        {
+            if( is_code_match(m,c) ) return true;
+            c++;
+        }
+        return false;
+    }
+    return false;
 }
 
 static bool code_match_criterion_match( criterion *c, station *stn )
 {
-    return _strnicmp( stn->Code, c->c.code_match.code, c->c.code_match.matchlen) == 0 ? true : false;
+    return is_code_match( c->c.code_match.code, stn->Code );
 }
 
 static void delete_code_match_criterion( criterion *c )
@@ -877,26 +900,17 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
             c=new_code_range_criterion( field, delim+1 );
             *delim='-';
         }
+        else if( field[0] != '\\' && (strchr(field,'*') || strchr(field,'?'))  )
+        {
+            c=new_code_match_criterion(field);
+        }
         else
         {
             /* Allow \ escape on station names matching keywords */
 
             if( field[0] == '\\' ) field++;
             if( ! field[0] ) continue;
-
-            /* Does it end with a wildcard */
-
-            else if( strlen(field) > 0 && strlen(field) < STNCODELEN-1 && field[strlen(field)-1]=='*' )
-            {
-                delim=field+strlen(field)-1;
-                *delim=0;
-                c=new_code_match_criterion(field);
-                *delim='*';
-            }
-            else
-            {
-                c=new_code_criterion(field, missing_error);
-            }
+            c=new_code_criterion(field, missing_error);
         }
 
         if( c )

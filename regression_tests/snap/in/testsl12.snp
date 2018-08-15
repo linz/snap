@@ -1,0 +1,27 @@
+title Regression tests - station list wildcards
+coordinate_file testsl.crd
+data_file testsl.dat
+mode 3d adjustment
+
+list problem_definition
+list no_iteration_summary
+list no_solution_summary
+list no_station_coordinates
+list no_floated_stations
+list no_reference_frames
+list no_parameters
+list no_residuals
+list no_error_summary
+list no_worst_residuals
+output no_coordinate_file
+
+free all
+horizontal_float_error 1
+float *fale
+horizontal_float_error 2
+float ???
+horizontal_float_error 3
+float p*d
+horizontal_float_error 4
+float *_*
+
