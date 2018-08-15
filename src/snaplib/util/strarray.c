@@ -38,7 +38,7 @@ int strarray_count( strarray *stra )
     return stra->nstrings;
 }
 
-int strarray_find( strarray *stra, char *string )
+int strarray_find( strarray *stra, const char *string )
 {
     int i;
     if( ! stra ) return -1;
@@ -50,7 +50,7 @@ int strarray_find( strarray *stra, char *string )
     return STRARRAY_NOT_FOUND;
 }
 
-static int strarray_add_ptr( strarray *stra, char *string )
+static int strarray_add_ptr( strarray *stra, const char *string )
 {
     if( stra->nstrings >= stra->maxstrings )
     {
@@ -73,12 +73,12 @@ static int strarray_add_ptr( strarray *stra, char *string )
     return stra->nstrings - 1;
 }
 
-int strarray_add( strarray *stra, char *string )
+int strarray_add( strarray *stra, const char *string )
 {
     return strarray_add_ptr( stra, copy_string( string ) );
 }
 
-char *strarray_get( strarray *stra, int i )
+const char *strarray_get( strarray *stra, int i )
 {
     if( stra && i >= 0 && i < stra->nstrings )
     {

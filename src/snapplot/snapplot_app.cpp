@@ -19,12 +19,12 @@ IMPLEMENT_APP(SnapplotApp)
 
 bool SnapplotApp::OnInit()
 {
+
+    CONFIGURE_RUNTIME();
+
     // Needed for zipped help file
     wxFileSystem::AddHandler(new wxZipFSHandler);
     
-    // Need this so that "%n" outputs work!?
-    _set_printf_count_output(1);
-
     // Turn of progress meter as default meter writes to standard output stream
     uninstall_progress_meter();
 

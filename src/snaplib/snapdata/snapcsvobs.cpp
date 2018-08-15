@@ -16,6 +16,7 @@
 
 #include "util/dateutil.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/datafile.h"
 #include "util/pi.h"
 #include "util/calcdltfile.hpp"
@@ -1047,6 +1048,11 @@ int load_snap_csv_obs( const char *options, DATAFILE *df, int (*check_progress)(
         SnapCsvObs csvobs( formatfile, config );
         DatafileInput dfi( df, check_progress );
         csvobs.load( dfi );
+        std::string deffile=csvobs.definitionFilename();
+        if( deffile != "" )
+        {
+            record_filename(deffile.c_str(),"csv_obs_format");
+        }
         if( dfi.aborted() ) return OPERATION_ABORTED;
     }
     catch( RecordError &error )

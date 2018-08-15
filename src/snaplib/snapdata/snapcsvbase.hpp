@@ -52,6 +52,8 @@ public:
     void disableColumnCheck( bool check = false ) { _checkColumnEnabled = check; }
     bool load( const std::string &filename );
     bool load( RecordInputBase &input );
+    const std::string &loadedFilename() const { return _loadedFilename; }
+    const std::string &definitionFilename() const { return _definitionFilename; }
 protected:
     // Implementation functions
     virtual void initiallizeLoadDefinition();
@@ -92,6 +94,8 @@ private:
     // CSV format options
     std::string _name;
     std::string _description;
+    std::string _definitionFilename;
+    std::string _loadedFilename;
     std::unique_ptr<Format> _format;
     Options _options;
     std::vector<std::string> _columns;

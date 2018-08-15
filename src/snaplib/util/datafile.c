@@ -33,6 +33,7 @@
 
 #include "util/chkalloc.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/datafile.h"
 #include "util/pi.h"
 #include "util/errdef.h"
@@ -75,6 +76,13 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
         }
         return NULL;
     }
+
+    strncpy(msg,description,79);
+    msg[79]=0;
+    for( char *c=msg; *c; c++ ){ if( *c == ' ' ) *c='_'; }
+    int typelen=strlen(msg);
+    if( typelen > 5 && strcmp(msg+typelen-5,"_file") == 0 ) msg[typelen-5]=0;
+    record_filename(fname,msg);
 
     nch = fread(msg,1,80,f);
     unicode = 0;

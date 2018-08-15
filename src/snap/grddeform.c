@@ -14,7 +14,6 @@
 
 #include "grddeform.h"
 
-/* Watcom doesn't provide M_PI :-( */
 #ifndef M_PI
 #include "util/pi.h"
 #define M_PI PI

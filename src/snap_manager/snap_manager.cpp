@@ -326,6 +326,7 @@ IMPLEMENT_APP( SnapMgrApp );
 
 bool SnapMgrApp::OnInit()
 {
+    CONFIGURE_RUNTIME();
     // For help system
     wxFileSystem::AddHandler(new wxZipFSHandler);
     wxString jobfile;

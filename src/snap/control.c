@@ -59,6 +59,7 @@
 #include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/pi.h"
 #include "util/readcfg.h"
 #include "autofix.h"
@@ -235,6 +236,7 @@ int read_command_file( const char *command_file )
 
     if(cfg)
     {
+        record_filename(get_config_filename(cfg),"command");
         set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_SET_PATH );
         set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
@@ -254,7 +256,6 @@ int read_command_file( const char *command_file )
 int read_command_file_constraints( const char *command_file )
 {
     CFG_FILE *cfg;
-
     int sts;
 
     cfg = open_config_file( command_file, COMMENT_CHAR );
@@ -270,6 +271,7 @@ int read_command_file_constraints( const char *command_file )
     {
         sts = FILE_OPEN_ERROR;
     }
+
     return sts;
 }
 
@@ -285,6 +287,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg )
     {
+        record_filename(get_config_filename(cfg),"configuration");
         set_config_read_options( cfg,  CFG_SET_PATH );
         if( cfg_only ) set_config_command_flag( cfg, CONFIG_CMD );
         else set_config_ignore_flag( cfg, CONSTRAINT_CMD );

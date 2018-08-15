@@ -1,6 +1,6 @@
 "code","value","comment"
-"SNAPVER","2.7.10-bf63ac3","SNAP version"
-"RUNTIME","13-AUG-2018 13:42:14","Run time"
+"SNAPVER","2.7.11-2620383","SNAP version"
+"RUNTIME","15-AUG-2018 13:21:21","Run time"
 "TITLE","Regression test 1 - data types and observation equations","Job title"
 "CRDSYS","NZGD1949","New Zealand Geodetic Datum 1949"
 "NOBS",167,"Number of observations"

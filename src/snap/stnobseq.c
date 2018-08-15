@@ -33,7 +33,6 @@
 #include "output.h"
 #include "reorder.h"
 #include "residual.h"
-#include "errdef.h"
 #include "snap/deform.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
@@ -42,6 +41,7 @@
 #include "util/binfile.h"
 #include "util/dateutil.h"
 #include "util/dms.h"
+#include "util/errdef.h"
 #include "util/leastsqu.h"
 #include "util/lsobseq.h"
 #include "util/pi.h"
@@ -1281,14 +1281,14 @@ void print_floated_stations( FILE *out )
         {
             if( rowno==0 ) fprintf( out, "\n");
             double resval=res[rowno];
-            double ser=sqrt(Lij(rescvr,rowno,rowno))*semult;
+            double ser=sqrt(fabs(Lij(rescvr,rowno,rowno)))*semult;
             fprintf( out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
                      stn_name_width, (rowno==0 ? st->Code : ""), 
                      relative_floating ? stn_name_width+1 : 0,
                      stcol ? stcol->Code : "",
                      coordname[axis],
                      (axis < 2 ? sa->herror : sa->verror)*semult,
-                     sqrt(Lij(calccvr,rowno,rowno))*semult,
+                     sqrt(fabs(Lij(calccvr,rowno,rowno)))*semult,
                      -resval, ser);
             if( ser > 1.0e-5 )
             {

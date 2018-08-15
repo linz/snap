@@ -21,6 +21,7 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/datafile.h"
+#include "util/filelist.h"
 #include "util/dms.h"
 #include "util/errdef.h"
 #include "util/pi.h"

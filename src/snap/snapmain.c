@@ -45,6 +45,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <time.h>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -87,6 +88,7 @@
 #include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/get_date.h"
 #include "util/getversion.h"
 #include "util/leastsqu.h"
@@ -102,6 +104,7 @@ static void dump_binary_data( BINARY_FILE *b );
 static void dump_choleski_decomposition( BINARY_FILE *b );
 static void dump_covariance_matrix( BINARY_FILE *b );
 static void write_metadata_csv();
+static void write_filelist_csv();
 
 static int force_zero_inverse=0;
 
@@ -117,11 +120,7 @@ int snap_main( int argc, char *argv[] )
     char errmess[256];
     BINARY_FILE *dump;
 
-    /* MS VC compatibility - pre VS 2015 */
-     
-    #ifdef _TWO_DIGIT_EXPONENT
-    _set_output_format(_TWO_DIGIT_EXPONENT);
-    #endif
+    CONFIGURE_RUNTIME();
 
     get_date( run_time );
 
@@ -136,6 +135,10 @@ int snap_main( int argc, char *argv[] )
         print_help();
         return DEFAULT_RETURN_STATUS;
     }
+
+    /* Record names of files used */
+
+    set_record_filenames( 1 );
 
     /* Load the coordinate system definition file */
 
@@ -677,10 +680,6 @@ int snap_main( int argc, char *argv[] )
         close_binary_file( dump );
     }
 
-    /* Drop allocated bits */
-
-    if( deformation ) delete_deformation( deformation );
-
     /* Output covariance products if required */
 
     if( ! lsq_using_zero_inverse() )
@@ -691,11 +690,27 @@ int snap_main( int argc, char *argv[] )
         if( output_sinex ) print_coord_sinex();
     }
 
+    close_output_files( 0, 0 );
+
+
+    /* CSV flelist (after all other files) */
+
+    if( output_csv_filelist || output_csv_allfiles )
+    {
+        write_filelist_csv();
+    }
+
+    /* Delete allocated objects */
+
+    if( deformation ) delete_deformation( deformation );
+
+    delete_recorded_filenames();
+
     /* If using debug version of memory allocator then list outstanding
        allocations */
+
     list_memory_allocations( lst );
 
-    close_output_files( 0, 0 );
     if( ! converged )
     {
         xprintf( "\nWARNING: Adjustment has not converged - results may be misleading\n" );
@@ -860,6 +875,43 @@ static void print_command_file( void )
 
 }
 
+static void write_filelist_csv()
+{
+    output_csv *csv = open_output_csv("filelist");
+    if( ! csv ) return;
+    write_csv_header(csv,"id");
+    write_csv_header(csv,"filename");
+    write_csv_header(csv,"filetype");
+    write_csv_header(csv,"filedate");
+    write_csv_header(csv,"filesize");
+    end_output_csv_record(csv);
+    for( int i=0; i<recorded_filename_count(); i++ )
+    {
+        const char *filetype;
+        const char *filename=recorded_filename(i,&filetype);
+        write_csv_int(csv,i);
+        write_csv_string(csv,filename);
+        write_csv_string(csv,filetype);
+        time_t modtime=file_modtime(filename);
+        if( modtime != 0 )
+        {
+            char dbuf[30];
+            struct tm *ltime=localtime(&(modtime));
+            sprintf(dbuf,"%04d-%02d-%02d %02d:%02d:%02d",
+                    ltime->tm_year+1900,ltime->tm_mon+1,ltime->tm_mday,
+                    ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
+            write_csv_string(csv,dbuf);
+            write_csv_int(csv,file_size(filename));
+        }
+        else
+        {
+            write_csv_null_field(csv);
+            write_csv_null_field(csv);
+        }
+        end_output_csv_record(csv);
+    }
+    close_output_csv( csv );
+}
 
 static void write_metadata_csv()
 {
@@ -999,6 +1051,8 @@ BINARY_FILE *open_dump_file( void )
     bfn = (char *) check_malloc( nch );
     strcpy( bfn, root_name );
     strcat( bfn, BINFILE_EXT );
+
+    record_filename( bfn, "snap_binary" );
 
     b = create_binary_file( bfn, BINFILE_SIGNATURE );
     if( !b )

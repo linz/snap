@@ -3048,6 +3048,7 @@ int main( int argc, char *argv[] )
     char **recalclist;
     char *outputfile = NULL;
 
+    CONFIGURE_RUNTIME();
 
     errcount = 0;
     errlog = stdout;

@@ -65,6 +65,8 @@ int main( int argc, char *argv[] )
     int errlevel=WARNING_ERROR;
     geoid_def *gd = NULL;
 
+    CONFIGURE_RUNTIME();
+
     set_error_file( stdout );
     geoid_msg[0] = 0;
 

@@ -106,6 +106,7 @@ SCOPE char output_csv_vecinline;
 SCOPE char output_csv_vecenu;
 SCOPE char output_csv_correlations;
 SCOPE char output_csv_stations;
+SCOPE char output_csv_filelist;
 SCOPE char output_csv_metadata;
 SCOPE char output_csv_allfiles;
 SCOPE char output_csv_obs;

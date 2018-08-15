@@ -62,6 +62,8 @@ int main( int argc, char *argv[] )
     int degopt = SET_DEGOPT_DEFAULT;
     int hgttype=SET_HGTTYPE_DEFAULT;
 
+    CONFIGURE_RUNTIME();
+
     /* Crude fix to allow suppression of output */
 
     while( argc > 1 && argv[1][0] == '-' )

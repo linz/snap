@@ -52,6 +52,7 @@
 #include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
+#include "util/filelist.h"
 #include "util/leastsqu.h"
 #include "util/license.h"
 #include "util/pi.h"
@@ -162,6 +163,7 @@ static output_option csvopt[] =
     {"correlations",&output_csv_correlations,0,{0},0},
     {"stations",&output_csv_stations,0,{0},0},
     {"observations",&output_csv_obs,0,{0},0},
+    {"filelist",&output_csv_filelist,0,{0},0},
     {"metadata",&output_csv_metadata,0,{0},0},
     {"all",&output_csv_allfiles,0,{0},0},
     {"tab_delimited",&output_csv_tab,0,{0},0},
@@ -392,6 +394,7 @@ int open_output_files( )
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }
+    record_filename( lst_name, "listing" );
 
     if( ! output_noruntime ) print_report_header( lst );
 
@@ -406,6 +409,7 @@ int open_output_files( )
         return 0;
     }
 
+    record_filename( lst_name, "error_listing" );
     if( ! output_noruntime ) print_report_header( err );
     print_section_header( err, "ERROR SUMMARY" );
     errcount = 0;
@@ -1040,6 +1044,9 @@ output_csv *open_output_csv(const char *type)
         check_free(filename);
         return 0;
     }
+    char ftype[40];
+    sprintf(ftype,"%.20s_output_csv",type);
+    record_filename(filename,ftype);
 
     csv = (output_csv *) check_malloc( sizeof(output_csv));
     csv->filename = filename;
@@ -1188,6 +1195,7 @@ void print_solution_json_file()
     }
     else
     {
+        record_filename(bfn,"solution_json");
         xprintf("\nCreating the JSON solution file %s\n",bfn);
     }
     check_free( bfn );
