@@ -137,6 +137,7 @@ static int  output_vprec;
 #define AF_DEG 0
 #define AF_DM  1
 #define AF_DMS 2
+#define AF_RAD 3
 
 static char transform_heights;
 
@@ -567,6 +568,7 @@ static void decode_proj_string( char *code, coordsys **proj,
         if (s==NULL || *s=='h' || *s=='H' || *s == 's' || *s == 'S' ) return;
         if( *s=='m' || *s=='M') { *dms = AF_DM; return;}
         if( *s=='d' || *s=='D') { *dms = AF_DEG; return;}
+        if( *s=='r' || *s=='R') { *dms = AF_RAD; return;}
         sprintf(errmsg,"Invalid angle type  %s for %s coordinates",s,iostring);
         error_exit(errmsg,"");
     }
@@ -984,6 +986,10 @@ static void prompt_for_proj(coordsys **proj,
             {
                 *dms = AF_DM; break;
             }
+            else if( instring[0] == 'r' || instring[0] == 'R' )
+            {
+                *dms = AF_RAD; break;
+            }
             else if( instring[0] == 'h' || instring[0] == 'H' ||
                      instring[0] == 's' || instring[0] == 'S' )
             {
@@ -1136,8 +1142,22 @@ static void head_output( FILE *out );
 
 static void show_example_input( void  )
 {
-    static const char *east[] = {"315378.28","2571312.90","171.14238","171 30.21 E","171 41 53.55 E"};
-    static const char *north[] = {"728910.43","6025519.64","-41.25531","41 22.05 S","41 22 03.26 S"};
+    static const char *east[] = {
+        "315378.28",
+        "2571312.90",
+        "171.14238",
+        "171 30.21 E",
+        "171 41 53.55 E",
+        "2.98699802"
+        };
+    static const char *north[] = {
+        "728910.43",
+        "6025519.64",
+        "-41.25531",
+        "41 22.05 S",
+        "41 22 03.26 S",
+        "-0.72004099"
+        };
     const char *c1, *c2;
     int ncd;
 
@@ -1155,6 +1175,7 @@ static void show_example_input( void  )
         case AF_DEG: ncd = 2; break;
         case AF_DM:  ncd = 3; break;
         case AF_DMS: ncd = 4; break;
+        case AF_RAD: ncd = 5; break;
         }
     }
     if( input_ne )
@@ -1207,6 +1228,7 @@ static void tidy_up_parameters( void )
         {
             switch(output_dms)
             {
+                case AF_RAD:  output_prec += 7; break;
                 case AF_DEG:  output_prec += 5; break;
                 case AF_DM:   output_prec += 3; break;
                 case AF_DMS:  output_prec += 1; break;
@@ -1219,6 +1241,7 @@ static void tidy_up_parameters( void )
     {
         switch(output_dms)
         {
+        case AF_RAD:  input_prec -= 6; break;
         case AF_DEG:  input_prec -= 5; break;
         case AF_DM:   input_prec -= 3; break;
         case AF_DMS:  input_prec -= 1; break;
@@ -1728,7 +1751,7 @@ static int read_coordinates( void )
     DMS dms;
     int sts;
     char hemdef;
-    if (input_dms)
+    if (input_dms == AF_DM || input_dms == AF_DMS )
     {
         dms.no_seconds = (input_dms == AF_DM);
         sts = read_dms( crdin, &dms, indms1 );
@@ -1748,7 +1771,7 @@ static int read_coordinates( void )
         if (sts != 0) return sts;
     }
     if( input_h ) sts = read_number( crdin, in3 );
-    if( input_latlong ) { *in1 *= DTOR; *in2 *= DTOR; }
+    if( input_latlong && input_dms != AF_RAD ) { *in1 *= DTOR; *in2 *= DTOR; }
     return sts;
 }
 
@@ -1810,8 +1833,8 @@ static void write_coords( FILE *out, double *c1, double *c2, double *c3,
     if( !sep ) sep = ' ';
     if( separator ) len = vlen = 0;
     mult = 1.0;
-    if( radians ) mult = RTOD;
-    if (dms)
+    if( radians && dms != AF_RAD ) mult = RTOD;
+    if (dms == AF_DMS || dms == AF_DM )
     {
         write_dms(out,*c1*mult,prec,dms==AF_DM,h1);
         fprintf(out,"%c",sep);

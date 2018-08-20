@@ -1,0 +1,2 @@
+parameters: -oNZGD2000,NEH,H -iNZGD2000,NEH,R -N6 test9ar.in {test}.out
+file: test9ar.in
