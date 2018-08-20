@@ -20,7 +20,7 @@
 /* Routine to merge two networks.                              */
 
 int merge_network( network *base, network *data, int mergeopts,
-                   int (*select)(station *st) )
+        double mergedate, int (*select)(station *st) )
 {
 
     coord_conversion cconv;
@@ -50,7 +50,7 @@ int merge_network( network *base, network *data, int mergeopts,
     int i;
 
     convertcoords = ! identical_coordinate_systems( data->geosys, base->geosys );
-    if( convertcoords && (define_coord_conversion( &cconv, data->geosys, base->geosys ) != OK) )
+    if( convertcoords && (define_coord_conversion_epoch( &cconv, data->geosys, base->geosys, mergedate ) != OK) )
     {
         handle_error( INCONSISTENT_DATA, "Networks to merge have incompatible coordinate systems", NULL );
         return INCONSISTENT_DATA;
@@ -135,7 +135,20 @@ int merge_network( network *base, network *data, int mergeopts,
             exu[CRD_LON] = st->GEta;
             exu[CRD_HGT] = st->GUnd;
             if( convertcoords ) convert_coords( &cconv, llh, exu, llh, exu );
-            llh[CRD_HGT] -= exu[CRD_HGT];
+            if( ! network_has_geoid_info(data) )
+            {
+                exu[CRD_LAT]=0.0;
+                exu[CRD_LON]=0.0;
+                exu[CRD_HGT]=0.0;
+                if( ! network_height_coord_is_ellipsoidal(data) )
+                {
+                    llh[CRD_HGT] = st->OHgt;
+                }
+            }
+            else
+            {
+                llh[CRD_HGT] -= exu[CRD_HGT];
+            }
         }
 
         stnew=0;

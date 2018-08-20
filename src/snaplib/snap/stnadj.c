@@ -100,7 +100,7 @@ void set_output_station_file( const char *fname )
 
 
 
-int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts )
+int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts, double mergedate )
 {
     int nch, sts;
     network *stndata;
@@ -154,7 +154,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         else
         {
             if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
-            merge_network( net, stndata, mergeopts, 0 );
+            sts=merge_network( net, stndata, mergeopts, mergedate, 0 );
             delete_network(stndata);
         }
     }

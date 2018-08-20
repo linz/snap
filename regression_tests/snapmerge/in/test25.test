@@ -1,0 +1,4 @@
+parameters:  -oc test.crd testitrfupd.crd {test}.crd
+
+file: test.crd
+file: testitrfupd.crd

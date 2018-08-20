@@ -19,6 +19,7 @@
 #include "coordsys/coordsys.h"
 #include "snap/stnadj.h"
 #include "snap/survfile.h"
+#include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/getversion.h"
 #include "plotbin.h"
@@ -255,7 +256,7 @@ int snapplot_load( int argc, char *argv[] )
          * Possibly not necessary?
          */
         set_stnadj_init_network();
-        sts = read_station_file( firstfile, cmd_dir, STN_FORMAT_SNAP, 0, 0 );
+        sts = read_station_file( firstfile, cmd_dir, STN_FORMAT_SNAP, 0, 0, UNDEFINED_DATE );
         if( sts == OK )
         {
             print_log("    %d stations read\n",number_of_stations(net));

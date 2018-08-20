@@ -20,6 +20,10 @@
 
 #define UNDEFINED_DATE     0.0
 
+/* Undefined date format - default format tries a number of options */
+
+#define DEFAULT_DATE_FORMAT 0
+
 /* Snap uses dates as double day number */
 
 double snap_date( int year, int month, int day );

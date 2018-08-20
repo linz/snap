@@ -77,7 +77,7 @@ extern int geoid_error_level;
 #define ignored_station(istn)  (istn && stnadj(stnptr(istn))->flag.ignored)
 #define station_code(istn) (station_ptr(net,(istn))->Code)
 
-int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts );
+int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts, double mergedate );
 void set_output_station_file( const char *fname );
 int write_station_file( const char *prog, const char *fname, const char *ver, const char *rtime,
                         int coord_precision, char rejected );

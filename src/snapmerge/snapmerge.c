@@ -11,6 +11,7 @@
 #include "util/strarray.h"
 #include "network/network.h"
 #include "util/fileutil.h"
+#include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/getversion.h"
 #include "snap/filenames.h"
@@ -37,12 +38,14 @@ int main( int argc, char *argv[] )
     int overwrite = 0;
     int syntaxerror = 0;
     int mergeopt = 0;
+    double mergedate = UNDEFINED_DATE;
     int updatecls = 0;
     int updatecrd = 0;
     int addstn = 1;
     int addclass = 1;
     int clearbaseorders = 0;
     int cleardataorders = 0;
+    int sts;
 
     CONFIGURE_RUNTIME();
 
@@ -122,6 +125,23 @@ int main( int argc, char *argv[] )
             }
             break;
 
+        case 'y':
+        case 'Y':
+            if( argc > 2 )
+            {
+                if( ! parse_crdsys_epoch(argv[2],&mergedate) )
+                {
+                    syntaxerror=1;
+                }
+                argc--;
+                argv++;
+            }
+            else
+            {
+                syntaxerror = 1;
+            }
+            break;
+
         default:
             syntaxerror = 1;
             break;
@@ -154,6 +174,7 @@ int main( int argc, char *argv[] )
         printf("  -ua         update classes only .. don't add new classes\n");
         printf("  -c or -cb   Remove coordinate orders from basefile\n");
         printf("  -cd         Remove coordinate orders from datafile\n");
+        printf("  -y yyyymmdd Date for coordinate conversion\n");
         printf("  -l listfile defines a file with a list of station codes to include\n");
         printf("              from data file - only these codes will be added\n");
         printf("  -q          quiet mode - minimal output\n");
@@ -229,10 +250,9 @@ int main( int argc, char *argv[] )
     if( overwrite ) mergeopt |= NW_MERGEOPT_OVERWRITE;
     if( updatecrd ) mergeopt |= NW_MERGEOPT_COORDS;
     if( updatecls ) mergeopt |= NW_MERGEOPT_CLASSES;
-    merge_network( base, data, mergeopt, &select_station );
+    sts=merge_network( base, data, mergeopt, mergedate, &select_station );
     strarray_delete( &codes );
-
-    if( write_network( base, newfile, 0, 0, 0 ) != OK )
+    if( sts != OK || write_network( base, newfile, 0, 0, 0 ) != OK )
     {
         return 2;
     }

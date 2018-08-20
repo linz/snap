@@ -355,7 +355,7 @@ int write_network( network *nw, const char *filename, const char *comment,
                    int coord_precision, int (*select)(station *st) );
 
 int merge_network( network *base, network *data, int mergeopts,
-                   int (*select)(station *code) );
+                   double mergedate, int (*select)(station *code) );
 
 /* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
  * hgtfixopt is one of the NW_HGTFIXEDOPT_ values.

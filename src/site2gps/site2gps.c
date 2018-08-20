@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include "snap/stnadj.h"
 #include "util/errdef.h"
+#include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "snap/filenames.h"
 #include "util/getversion.h"
@@ -149,7 +150,7 @@ int main( int argc, char *argv[] )
 
     install_default_crdsys_file();
 
-    if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0, 0 ) != OK )
+    if( read_station_file( argv[1], NULL, STN_FORMAT_SNAP, 0, 0, UNDEFINED_DATE ) != OK )
     {
         printf("Cannot open coordinate file %s\n",argv[1]);
         return 0;

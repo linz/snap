@@ -376,7 +376,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         else
         {
             errstat = (*it->store)( cfg, val, (void *) address, it->vallen, it->code );
-            if( errstat == NO_MORE_DATA ) break;
+            if( errstat == ABORT_CONFIG_FILE ) break;
             if( errstat != OK )
             {
                 sprintf(errmess,"Invalid value %.32s defined for %.32s in configuration file",

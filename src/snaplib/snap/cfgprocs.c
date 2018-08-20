@@ -13,6 +13,7 @@
 #include <string.h>
 #include "util/snapctype.h"
 
+#include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "snap/cfgprocs.h"
 #include "snap/snapglob.h"
@@ -21,6 +22,7 @@
 #include "snapdata/obsmod.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/readcfg.h"
@@ -30,7 +32,7 @@ int stations_read = 0;
 
 // #pragma warning (disable : 4100)
 
-int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int mergeopts )
+static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int mergeopts, double mergedate )
 {
     int sts;
     char *fname;
@@ -105,7 +107,7 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
             }
             xprintf("\n");
         }
-        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata, mergeopts );
+        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata, mergeopts, mergedate );
         if( sts == OK )
         {
             stations_read = 1;
@@ -121,21 +123,29 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
 
     if( sts != OK ) abort_config_file( cfg );
 
-    return sts == OK ? OK : NO_MORE_DATA;
+    /* Return NO_MORE_DATA to terminate reading config file */
+    return sts == OK ? OK : ABORT_CONFIG_FILE;
+}
+
+int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int mergeopts )
+{
+    return load_merge_coordinate_file( cfg, string, value, len, mergeopts, UNDEFINED_DATE );
 }
 
 int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
     /* Parse merge options, then call load_coordinate file */
     int mergeopts=0;
+    double mergedate=UNDEFINED_DATE;
     char *opt;
     char *str;
+    int sts=OK;
 
     if( ! stations_read )
     {
         send_config_error(cfg,INVALID_DATA,
             "Cannot use add_coordinate_file before coordinate_file is loaded");
-        return OK;
+        return ABORT_CONFIG_FILE;
     }
 
     str=string;
@@ -162,6 +172,25 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
         {
             mergeopts |= NW_MERGEOPT_ADDNEW;
         }
+        else if( _stricmp(opt,"epoch") == 0 )
+        {
+            if( ! str )
+            {
+                send_config_error( cfg,INVALID_DATA,
+                        "Date missing in add_coordinate_file epoch option");
+                sts=INVALID_DATA;
+            }
+            char *epochstr=strtok(str," ");
+            str=strtok(NULL,"");
+            if( ! parse_crdsys_epoch(epochstr,&mergedate) )
+            {
+                char errmsg[100];
+                sprintf(errmsg,"Invalid date %.20s in add_coordinate_file epoch",
+                        epochstr);
+                send_config_error( cfg,INVALID_DATA,errmsg);
+                sts=INVALID_DATA;
+            }
+        }
         else if( _stricmp(opt,"from") == 0 )
         {
             break;
@@ -171,11 +200,12 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
             char errmsg[80];
             sprintf(errmsg,"Invalid add_coordinate_file option %.20s",opt);
             send_config_error( cfg, INVALID_DATA, errmsg );
-            return INVALID_DATA;
+            return ABORT_CONFIG_FILE;
         }
     }
     if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
-    return load_coordinate_file( cfg, str, value, len, mergeopts );
+    if( sts != OK ) return ABORT_CONFIG_FILE;
+    return load_merge_coordinate_file( cfg, str, value, len, mergeopts, mergedate );
 }
 
 int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )

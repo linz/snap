@@ -20,6 +20,7 @@
 /* A configuration file */
 
 #define CFG_FILE_NAME_LEN 256
+#define ABORT_CONFIG_FILE NO_MORE_DATA
 
 typedef struct
 {

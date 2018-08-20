@@ -15,10 +15,15 @@
 
 
 ================================================================================
-Regression tests - multiple coordinate files                20-AUG-2018 14:37:42
+                                                            20-AUG-2018 14:37:42
 
-                                     ERRORS
+                                 ERROR SUMMARY
 
 ================================================================================
 
-Note: 4 errors reported in teststm2.err
+Error: Networks to merge have incompatible coordinate systems
+
+Error: Errors encountered reading coordinate file
+       Line 4: File teststm7.snp
+
+Error: The command file is not correct

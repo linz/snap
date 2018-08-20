@@ -1,0 +1,34 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.11-d166992
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 20 2018 20:09:54
+
+================================================================================
+                     Run at 20-AUG-2018 20:13:45 by ccrook
+
+
+
+
+================================================================================
+                                                            20-AUG-2018 20:13:45
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Station 1          is not in the coordinate file.  Used 2 times
+
+Error: Station 11         is not in the coordinate file.  Used 20 times
+
+Error: Station B          is not in the coordinate file.  Used 2 times
+
+Error: Station C_100      is not in the coordinate file.  Used 2 times
+
+Error: Station PINTOFALE  is not in the coordinate file.  Used 2 times
+
+Error: Station QQ         is not in the coordinate file.  Used 2 times
