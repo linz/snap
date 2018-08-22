@@ -1,0 +1,7 @@
+test: Test for space delimited station config file
+file: snapspec11.crd
+file: snapspec11.dat
+file: snapspec11.snp {test}.snp
+file:  snapspec11f.cfg
+file:  snapspec11f.csv
+

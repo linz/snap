@@ -1,7 +1,7 @@
 title Test data set snapspec4
 
 
-coordinate_file snapspec4.crd
+coordinate_file snapspec1.crd
 data_file snapspec4.dat
 
 mode 3d adjustment

@@ -91,8 +91,8 @@ typedef struct
     hSDCTest hsdc;
     unsigned char outputlog;
     int nstn;
-    int *sortedstn;
     int *order;
+    int *priority;
     double *horvar;
     double *vrtvar;
     char *alloc;
@@ -104,6 +104,7 @@ typedef struct
     char testhor;
     char testvrt;
     int loglevel;
+    int autominorder;
 } stn_relacc_array;
 
 typedef struct cfg_stack_s
@@ -134,45 +135,36 @@ static double calc_error_ellipse_semimajor2( double cvr[] )
 
 static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn );
 
-static int cmpstn( const void *p1, const void *p2 )
-{
-    station *st1 = stnptr( * (int *) p1 );
-    station *st2 = stnptr( * (int *) p2 );
-    return _stricmp( st1->Code, st2->Code );
-}
-
 static stn_relacc_array *create_relacc( int nstns )
 {
     stn_relacc_array *ra;
     int *order;
-    int *sortedstn;
+    int *priority;
     double *horvar;
     double *vrtvar;
     int i;
 
     ra = (stn_relacc_array *) check_malloc( sizeof(stn_relacc_array) );
     order = (int *) check_malloc( nstns * sizeof(int));
+    priority = (int *) check_malloc( nstns * sizeof(int));
     horvar = (double *) check_malloc( nstns * sizeof(double));
     vrtvar = (double *) check_malloc( nstns * sizeof(double));
-    sortedstn = (int *) check_malloc( nstns * sizeof(int));
     for( i = 0; i < nstns; i++ )
     {
-        order[i] = -1;
+        order[i] = 0;
+        priority[i] = SDC_NO_PRIORITY;
         horvar[i] = 0.0;
         vrtvar[i] = 0.0;
-        sortedstn[i] = i+1;
     }
-
-    qsort( sortedstn, nstns, sizeof(int), cmpstn );
 
     ra->nstn = nstns;
     ra->hsdc = NULL;
     ra->alloc = NULL;
     ra->cols = NULL;
     ra->order = order;
+    ra->priority = priority;
     ra->horvar = horvar;
     ra->vrtvar = vrtvar;
-    ra->sortedstn = sortedstn;
     ra->logfile = NULL;
     ra->loglevel = 0;
     ra->status = SRA_STATUS_UNKNOWN;
@@ -180,6 +172,7 @@ static stn_relacc_array *create_relacc( int nstns )
     ra->bltdec = NULL;
     ra->blt = NULL;
     ra->outputlog = 0;
+    ra->autominorder = 0;
     return ra;
 }
 
@@ -189,6 +182,8 @@ static void delete_relacc( stn_relacc_array *ra )
     ra->nstn = 0;
     check_free( ra->order );
     ra->order = NULL;
+    check_free( ra->priority );
+    ra->priority = NULL;
     check_free( ra->horvar );
     ra->horvar = NULL;
     check_free( ra->vrtvar );
@@ -294,10 +289,10 @@ static int calc_inverse_matrix( stn_relacc_array *ra )
 
     if( ra->loglevel & SDC_LOG_STEPS )
     {
-        long nrow=blt_nrows( blt );
-        long nelement=blt_requested_size( blt );
-        double pcntfull=100.0*((double) nelement)/((((double) nrow) * ((double) nrow)+1)/2.0);
         fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
+        // long nrow=blt_nrows( blt );
+        // long nelement=blt_requested_size( blt );
+        // double pcntfull=100.0*((double) nelement)/((((double) nrow) * ((double) nrow)+1)/2.0);
         // fprintf(ra->logfile,"   Matrix size %d rows %ld elements %.2lf%% full\n",
         //         nrow, nelement, pcntfull );
     }
@@ -828,22 +823,32 @@ static int f_station_role ( void *env, int stn )
     int role;
     int istn = f_station_id( env, stn );
     stn_relacc_array *ra = (stn_relacc_array *) env;
+    role = ra->order[stn];
+    if( role == SDC_IGNORE_MARK || role == SDC_CONTROL_MARK ) return role;
 
     st = stnptr(istn);
     sa = stnadj( st );
 
-    role = -2;
-    if( ignored_station(istn) || rejected_station(istn) ) role = -1;
-    if( (sa->hrowno && ra->testhor) || (sa->vrowno && ra->testvrt) )
+    if( ignored_station(istn) || rejected_station(istn) ) 
+    {
+        role = SDC_IGNORE_MARK; 
+    }
+    else if( (sa->hrowno && ra->testhor) || (sa->vrowno && ra->testvrt) )
     {
         role = ra->order[stn];
-        if( role < min_order ) role = min_order;
     }
     else
     {
-        ra->order[stn] = role;
+        role = SDC_CONTROL_MARK;
     }
+    ra->order[stn]=role;
     return role;
+}
+
+static int f_station_priority ( void *env, int stn )
+{
+    stn_relacc_array *ra = (stn_relacc_array *) env;
+    return ra->priority[stn];
 }
 
 static double f_distance2( void *env, int stn1, int stn2 )
@@ -930,6 +935,7 @@ static hSDCTest create_test( int maxorder )
     hsdc = sdcCreateSDCTest( maxorder );
     hsdc->pfStationId = f_station_id;
     hsdc->pfStationRole = f_station_role;
+    hsdc->pfStationPriority = f_station_priority;
     hsdc->pfDistance2 = f_distance2;
     hsdc->pfSetPhase = f_setphase;
     hsdc->pfError2 = f_error2;
@@ -947,7 +953,7 @@ static void delete_test( hSDCTest hsdc )
 
 static int run_tests( hSDCTest hsdc )
 {
-    return sdcCalcSDCOrders( hsdc );
+    return sdcCalcSDCOrders2( hsdc, min_order );
 }
 
 static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
@@ -981,9 +987,8 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
         {
             sprintf(header,"Stations achieving order %s",hsdc->tests[order-1].scOrder);
         }
-        for( i = 0; i < nstns; i++ )
+        for( int istn = 1; istn <= nstns; istn++ )
         {
-            int istn = ra->sortedstn[i];
             if( ra->order[istn-1] != order ) continue;
             if( ! headed )
             {
@@ -999,16 +1004,16 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
 static void write_station_index( hSDCTest hsdc, stn_relacc_array *ra )
 {
     FILE *out = ra->logfile;
-    int *sortedstn = ra->sortedstn;
     int i;
 
     fprintf(out, "\nStation lookup for SDC test module\n");
+    fprintf(out,"    id %-*s role prty\n",stn_name_width,"code");
     for( i = 0; i < ra->nstn; i++ )
     {
         int ist0 = i+1;
-        int ist1 = sortedstn[i];
-        fprintf(out,"  %4d %-10s      %4d %-10s\n",ist0,stnptr(ist0)->Code,
-                ist1,stnptr(ist1)->Code);
+        fprintf(out,"  %4d %-*s %4d %4d\n",
+                ist0,stn_name_width,stnptr(ist0)->Code,
+                f_station_role(ra,i), f_station_priority(ra,i));
     }
     fprintf(out,"\n");
 }
@@ -1159,7 +1164,6 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
             }
         }
     }
-
 
     nbadorder = 0;
 
@@ -1570,8 +1574,15 @@ typedef struct
 static void set_max_order( station *st, void *data )
 {
     limit_order_params *p = (limit_order_params *)data;
-    int istn = find_station(net,st->Code);
-    p->ra->order[istn-1] = p->order;
+    int istn = st->id;
+    if( istn > 0 ) p->ra->order[istn-1] = p->order;
+}
+
+static void set_priority( station *st, void *data )
+{
+    limit_order_params *p = (limit_order_params *)data;
+    int istn = st->id;
+    if( istn > 0 ) p->ra->priority[istn-1] = p->order;
 }
 
 static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
@@ -1585,7 +1596,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
     data = strtok(NULL,"\n");
     if( ! name || ! data )
     {
-        send_config_error( cfg, INVALID_DATA, "Missing data in specification command" );
+        send_config_error( cfg, INVALID_DATA, "Missing order or station list in limit_order command" );
         return OK;
     }
 
@@ -1614,6 +1625,61 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
     return OK;
 }
 
+static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    limit_order_params p;
+    int nerr;
+
+    p.ra = * (stn_relacc_array **) value;
+    p.order = SDC_IGNORE_MARK;
+
+    set_error_location( get_config_location(cfg));
+    nerr = get_error_count();
+
+    process_selected_stations( net,string,cfg->name,&p,set_max_order);
+
+    set_error_location(NULL);
+    cfg->errcount += (get_error_count()-nerr);
+
+    return OK;
+}
+
+static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    limit_order_params p;
+    char *prioritystr;
+    char *data;
+    char check;
+    int priority;
+    int nerr;
+
+    prioritystr = strtok(string," ");
+    data = strtok(NULL,"\n");
+    if( ! prioritystr || ! data )
+    {
+        send_config_error( cfg, INVALID_DATA, "Missing priority or station_list in set_priority command" );
+        return OK;
+    }
+
+    if( sscanf(prioritystr,"%d%c",&priority,&check) != 1 || priority < 0 )
+    {
+        send_config_error( cfg, INVALID_DATA, "Invalid priority in set_priority command - must be a positive number");
+        return OK;
+    }
+
+    p.ra = * (stn_relacc_array **) value;
+    p.order = priority;
+
+    set_error_location( get_config_location(cfg));
+    nerr = get_error_count();
+
+    process_selected_stations( net,data,cfg->name,&p,set_priority);
+
+    set_error_location(NULL);
+    cfg->errcount += (get_error_count()-nerr);
+
+    return OK;
+}
 
 static int read_confidence(CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -1624,6 +1690,7 @@ static int read_confidence(CFG_FILE *cfg, char *string, void *value, int len, in
     }
     return OK;
 }
+
 
 static int read_error_type(CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
@@ -1650,20 +1717,176 @@ static int read_error_type(CFG_FILE *cfg, char *string, void *value, int len, in
 
 // #pragma warning ( disable : 4305 )
 
+#define STN_CONFIG_BUFSIZE 127
+
+static int read_station_config_file( const char *filename, stn_relacc_array *ra, int csv )
+{
+    char record[STN_CONFIG_BUFSIZE+1];
+    char *field[3];
+    int codefield=-1;
+    int orderfield=-1;
+    int priorityfield=-1;
+    int sts=OK;
+    int nbadstn=0;
+    char *eol;
+    limit_order_params p;
+    FILE *f = fopen(filename,"r");
+    if( ! f ) return FILE_OPEN_ERROR;
+    p.ra=ra;
+
+    int first=1;
+    int nrec=0;
+    while( ! feof(f) )
+    {
+        if( ! fgets(record,STN_CONFIG_BUFSIZE,f) ) break;
+        nrec++;
+        /* Split into fields */
+        eol=strchr(record,'\n');
+        field[0]=field[1]=field[2]=0;
+        int nfield=0;
+        if( csv )
+        {
+            for( char *c=record; *c; c++ ){ if( *c == '"' ) *c=' '; }
+            field[0]=record;
+            nfield=1;
+            for( char *c=record; nfield<3 && *c; c++ )
+            {
+                if( *c == ',' ){ field[nfield++]=c+1; *c=0; }
+            }
+            for( int ifld=0; ifld < nfield; ifld++ )
+            {
+                char *c=field[ifld];
+                while(isspace(*c)) c++;
+                field[ifld]=c;
+                while(*c && ! isspace(*c)) c++;
+                *c=0;
+            }
+        }
+        else
+        {
+            field[0]=strtok(record," \n\t");
+            if( field[0] ) { field[1]=strtok(NULL," \n\t"); }
+            if( field[1] ) { field[2]=strtok(NULL," \n\t"); }
+            if( field[2] ) nfield=3;
+            else if( field[1] ) nfield=2;
+            else if( field[0] ) nfield=1;
+        }
+        if( first )
+        {
+            first=0;
+            for( int ifld=0; ifld < nfield; ifld++ )
+            {
+                char *fld=field[ifld];
+                if( _stricmp(fld,"code") == 0 ) codefield=ifld;
+                else if( _stricmp(fld,"order") == 0 ) orderfield=ifld;
+                else if( _stricmp(fld,"priority") == 0 ) priorityfield=ifld;
+            }
+            if( codefield < 0 )
+            {
+                sts=MISSING_DATA;
+                handle_error(sts,"Station configuration file does not include a \"code\" field",
+                        filename);
+                break;
+            }
+            if( orderfield < 0 && priorityfield < 0 )
+            {
+                handle_error(sts,"Station configuration file does not include a \"order\" or \"priority\" field\n",
+                        filename);
+            }
+        }
+        else
+        {
+            char *code=field[codefield];
+            int istn = find_station(net,code);
+            if( istn <= 0 ) nbadstn++;
+            if( istn > 0 && orderfield > 0 && field[orderfield] && *(field[orderfield])) 
+            {
+                if( strcmp(field[orderfield],"-") != 0 && strcmp(field[orderfield],"") != 0 )
+                {
+                    int order=SDC_IGNORE_MARK;
+                    if( strcmp(field[orderfield],"*") != 0 )
+                    {
+                        order = find_order(p.ra->hsdc,field[orderfield]);
+                        if( order >= 0 )
+                        {
+                            ra->order[istn-1]=order;
+                        }
+                        else
+                        {
+                            char errmsg1[80];
+                            char errmsg2[MAX_FILENAME_LEN+80];
+                            sprintf(errmsg1,"Invalid order %.10s in station configuration file",
+                                    field[orderfield]);
+                            sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename);
+                            handle_error(INVALID_DATA,errmsg1,errmsg2);
+                            sts=INVALID_DATA;
+                        }
+                    }
+                    ra->order[istn-1]=order;
+                }
+            }
+            if( istn > 0 && priorityfield > 0 && field[priorityfield] && *(field[priorityfield])) 
+            {
+                if( strcmp(field[priorityfield],"-") != 0 && strcmp(field[priorityfield],"") != 0 )
+                {
+                    int priority;
+                    char check;
+                    if( strcmp(field[priorityfield],"*") == 0 )
+                    {
+                        ra->order[istn-1]=SDC_IGNORE_MARK;
+                    }
+                    else if( sscanf(field[priorityfield],"%d%c",&priority,&check) == 1 )
+                    {
+                        ra->priority[istn-1]=priority;
+                    }
+                    else
+                    {
+                        char errmsg1[80];
+                        char errmsg2[MAX_FILENAME_LEN+80];
+                        sprintf(errmsg1,"Invalid priority %.10s in station configuration file",
+                                field[priorityfield]);
+                        sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename);
+                        handle_error(INVALID_DATA,errmsg1,errmsg2);
+                        sts=INVALID_DATA;
+                    }
+                }
+            }
+        }
+        if( ! eol ){ while( 1 ) { int c=fgetc(f); if( c == '\n' || c == EOF ) break; } }
+    }
+    fclose(f);
+    if( nbadstn > 0 )
+    {
+        char errmsg1[80];
+        char errmsg2[MAX_FILENAME_LEN+80];
+        sprintf(errmsg1,"%d unrecognized stations in station configuration file",
+                nbadstn);
+        sprintf(errmsg2,"File %*s",MAX_FILENAME_LEN,filename);
+        handle_error(INFO_ERROR,errmsg1,errmsg2);
+    }
+    return sts;
+}
+
+static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static config_item cfg_commands[] =
 {
     {"configuration",NULL,CFG_ABSOLUTE,0,read_configuration_command,0,1},
     {"test",NULL,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
     {"log_level",NULL,OFFSETOF(SDCTest,loglevel),0,readcfg_int,CFG_ONEONLY,1},
-    {"options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
+    {"test_config_options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
     {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
     {"default_order",dfltOrder,CFG_ABSOLUTE,SYSCODE_LEN+1,STORE_AS_STRING,CFG_ONEONLY,0},
     {"limit_order",NULL,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
+    {"ignore",NULL,CFG_ABSOLUTE,0,read_ignore_command,0,2},
+    {"station_configuration_file",NULL,CFG_ABSOLUTE,0,read_station_config_command,0,2},
+    {"set_priority",NULL,CFG_ABSOLUTE,0,read_set_priority_command,0,2},
+    {"options",NULL,CFG_ABSOLUTE,0,read_options_command,0,2},
     {NULL}
 };
 
@@ -1737,6 +1960,98 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, 
     return OK;
 }
 
+static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    char *stcfgfn;
+    char *format;
+    char *remainder;
+    const char *cfn;
+    int csv=0;
+
+    stcfgfn = strtok(string," \t\n");
+    if( ! stcfgfn )
+    {
+        send_config_error( cfg, INVALID_DATA, "Station configuration file name missing");
+        return OK;
+    }
+
+    format=strtok(NULL," \t\n");
+    remainder=strtok(NULL," \t\n");
+    if( format )
+    {
+        if( _stricmp(format,"csv") == 0 )
+        {
+            csv=1;
+        }
+        else
+        {
+            remainder=format;
+        }
+    }
+    if( remainder )
+    {
+        char buf[120];
+        sprintf(buf,"Error - invalid format %.60s in station_configuration_file command",
+                remainder);
+        send_config_error(cfg, INVALID_DATA, buf );
+        return OK;
+    }
+
+    cfn = find_file( stcfgfn, csv ? ".csv" : ".dat", cfg->name, FF_TRYALL, 0 );
+
+    if( cfn )
+    {
+        int sts=read_station_config_file( cfn, * (stn_relacc_array **) value, csv );
+        if( sts  != OK )
+        {
+            char buf[100+MAX_FILENAME_LEN];
+            sprintf(buf,"Errors encountered reading station configuration file %.*s",
+                    MAX_FILENAME_LEN,cfn);
+            send_config_error( cfg, INVALID_DATA, buf);
+        }
+    }
+    else
+    {
+        char buf[100+MAX_FILENAME_LEN];
+        sprintf(buf,"Cannot open station configuration file %.*s",MAX_FILENAME_LEN,stcfgfn);
+        send_config_error( cfg, INVALID_DATA, buf);
+    }
+    return OK;
+}
+
+static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    char *option;
+    stn_relacc_array *ra = * (stn_relacc_array **) value;
+    for( option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
+    {
+        if( _stricmp(option,"only_test_orders_worse_than_control") == 0 
+                || _stricmp(option,"auto_min_order") == 0 )
+        {
+            ra->autominorder=1;
+        }
+        else if( _stricmp(option,"fail_if_no_tests") == 0 )
+        {
+            ra->hsdc->options |= SDC_OPT_FAIL_NORELACC;
+        }
+        else if( _stricmp(option,"no_rel_acc_by_abs_optimisation") == 0 )
+        {
+            ra->hsdc->options |= SDC_OPT_NO_SHORTCIRCUIT_CVR;
+        }
+        else if( _stricmp(option,"strict_rel_acc_by_abs_optimisation") == 0 )
+        {
+            ra->hsdc->options |= SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
+        }
+        else
+        {
+            char errmsg[100];
+            sprintf(errmsg,"Invalid value %.40s in option command",
+                    option);
+            send_config_error(cfg, INVALID_DATA, errmsg );
+        }
+    }
+    return OK;
+}
 
 static void set_sdctest_pointer( hSDCTest *phsdc )
 {
@@ -1956,6 +2271,7 @@ int main( int argc, char *argv[] )
         printf("Cannot open output file %s\n",ofn );
         return 0;
     }
+    set_error_file( out );
 
     init_snap_globals();
     install_default_projections();
@@ -2059,7 +2375,7 @@ int main( int argc, char *argv[] )
         }
     }
 
-    if( autominorder )
+    if( autominorder || ra->autominorder )
     {
         int max_control_order = get_max_control_order( hsdc, ra, &max_control_str );
         if( max_control_order < -1 )

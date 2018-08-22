@@ -1,0 +1,21 @@
+Test data set snapspec11
+
+#date 1 Dec 1998
+
+#data no_heights ED PB LV 
+#deg_angles
+#lv_error 10 mm
+#az_error 400 sec
+#ds_error 200 mm
+#projection TAIETM1949
+
+F0 F1 100.0 0.0 20.0
+F0 F2 100.0 20.0 20.0
+F0 F3 100.0 40.0 20.0
+F0 F4 100.0 60.0 20.0
+F0 F5 100.0 80.0 20.0
+F0 F6 100.0 100.0 20.0
+F0 F7 100.0 120.0 20.0
+F0 F8 100.0 140.0 20.0
+F0 F9 100.0 160.0 20.0
+F0 F10 100.0 180.0 20.0

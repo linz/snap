@@ -87,6 +87,11 @@ p.Commanddescription
 	margin-left: 5em;
 }
 
+ul.Commanddescription
+{
+	margin-left: 6em;
+}
+
 
 p.alert 
 {

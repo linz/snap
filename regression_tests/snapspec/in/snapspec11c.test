@@ -1,0 +1,6 @@
+test: Stations selection with limited orders
+file: snapspec11.crd
+file: snapspec11.dat
+file: snapspec11.snp {test}.snp
+file:  snapspec11c.cfg
+

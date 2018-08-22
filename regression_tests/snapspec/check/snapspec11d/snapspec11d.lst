@@ -1,0 +1,131 @@
+snapspec version 2.7.11-c4e7658: Calculation of station orders
+Run at 22-AUG-2018 18:41:53
+SNAP binary file: snapspec11d.bin
+Spec configuration file: snapspec11d.cfg
+SNAP run time: 22-AUG-2018 18:41:53
+Lowest order of control stations: 4
+Best order permitted: 5
+Running apriori tests
+
+
+Station lookup for SDC test module
+    id code  role prty
+     1 F0      -2   -1
+     2 F10      0   -1
+     3 F9       0   -1
+     4 F8       0   -1
+     5 F7       0   -1
+     6 F6       0   -1
+     7 F5      -1   -1
+     8 F4      -1   -1
+     9 F3      -1   -1
+    10 F2       0   -1
+    11 F1       0   -1
+
+Initiallizing SDC tests
+Loading marks for SDC tests
+    Station 1 is a control mark
+    Station 2 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station 3 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station 4 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station 5 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station 6 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station 7 is ignored
+    Station 8 is ignored
+    Station 9 is ignored
+    Station 10 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station 11 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+Finding nearest control for each mark
+    Station 2 is 10400.03 m2 from control
+    Station 3 is 10400.03 m2 from control
+    Station 4 is 10400.03 m2 from control
+    Station 5 is 10400.03 m2 from control
+    Station 6 is 10400.03 m2 from control
+    Station 10 is 10400.03 m2 from control
+    Station 11 is 10400.03 m2 from control
+==============================================================
+Running test for order 5
+   Absolute accuracy maximum = 1000.000 m
+   Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
+   Relative accuracy by abs accuracy = 0.000 m
+   Maximum range for relative accuracy test = 0.0 m
+   Relative accuracy maximum = 0.600 m +/- 0.2000 m/100m
+Applying absolute accuracy test
+Setting up array for relative accuracy tests
+Applying relative accuracy test
+  Relative hor accuracy assumed achieved for lines longer than 172.71 m
+  Calculating status for each vector
+    Vector 2 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 3 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 3 to 2 fails rel accuracy (0.07985570 > 0.06089073)
+    Vector 4 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 4 to 2 fails rel accuracy (0.07944022 > 0.06320935)
+    Vector 4 to 3 fails rel accuracy (0.07985570 > 0.06089073)
+    Vector 5 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 5 to 2 fails rel accuracy (0.07880365 > 0.06676168)
+    Vector 5 to 3 fails rel accuracy (0.07944022 > 0.06320935)
+    Vector 5 to 4 fails rel accuracy (0.07985570 > 0.06089073)
+    Vector 6 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 6 to 2 fails rel accuracy (0.07802278 > 0.07111927)
+    Vector 6 to 3 fails rel accuracy (0.07880365 > 0.06676168)
+    Vector 6 to 4 fails rel accuracy (0.07944022 > 0.06320935)
+    Vector 6 to 5 fails rel accuracy (0.07985570 > 0.06089072)
+    Vector 10 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 10 to 2 passes rel accuracy (0.00000000 < 0.08598505)
+    Vector 10 to 3 passes rel accuracy (0.00000000 < 0.08366643)
+    Vector 10 to 4 passes rel accuracy (0.00000000 < 0.08011409)
+    Vector 10 to 5 fails rel accuracy (0.07802282 > 0.07575651)
+    Vector 10 to 6 fails rel accuracy (0.07802281 > 0.07111927)
+    Vector 11 to 1 passes rel accuracy (0.04000000 < 0.06702871)
+    Vector 11 to 2 passes rel accuracy (0.00000000 < 0.08679030)
+    Vector 11 to 3 passes rel accuracy (0.00000000 < 0.08598505)
+    Vector 11 to 4 passes rel accuracy (0.00000000 < 0.08366643)
+    Vector 11 to 5 passes rel accuracy (0.00000000 < 0.08011409)
+    Vector 11 to 6 fails rel accuracy (0.07802281 > 0.07575651)
+    Vector 11 to 10 fails rel accuracy (0.07985571 > 0.06089073)
+  Status of marks
+    Station 2: 7 tests: 4 bad
+    Station 3: 7 tests: 4 bad
+    Station 4: 7 tests: 4 bad
+    Station 5: 7 tests: 5 bad
+    Station 6: 7 tests: 6 bad
+    Station 10: 7 tests: 3 bad
+    Station 11: 7 tests: 2 bad
+  Station 6 selected to fail rel acc tests (0.857,0.04000000)
+  Station 5 selected to fail rel acc tests (0.667,0.04000000)
+  Station 2 selected to fail rel acc tests (0.400,0.04000000)
+  Station 3 selected to fail rel acc tests (0.250,0.04000000)
+  Station 4 passes rel accuracy tests (3)
+  Station 10 selected to fail rel acc tests (0.333,0.04000000)
+  Station 11 passes rel accuracy tests (2)
+Setting node orders
+  Setting order of node 4 to 5
+  Setting order of node 11 to 5
+==============================================================
+Applying default order to remaining nodes
+  Setting order of node 2 to default 
+  Setting order of node 3 to default 
+  Setting order of node 5 to default 
+  Setting order of node 6 to default 
+  Setting order of node 10 to default 
+==============================================================
+Results of order calculations
+
+Control stations
+F0
+
+Rejected stations
+F5
+F4
+F3
+
+Stations assigned order 8
+F10
+F9
+F7
+F6
+F2
+
+Stations achieving order 5
+F8
+F1

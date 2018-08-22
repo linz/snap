@@ -1,3 +1,4 @@
+test: Fails missing control order if orders unsorted
 file: snapspec7.crd
 file: snapspec7.dat
 file: snapspec7.snp snapspec7g.snp

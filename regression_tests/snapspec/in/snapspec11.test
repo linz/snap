@@ -1,0 +1,6 @@
+test: base test for priority tests
+file: snapspec11.crd
+file: snapspec11.dat
+file: snapspec11.snp
+file:  snapspec11.cfg
+

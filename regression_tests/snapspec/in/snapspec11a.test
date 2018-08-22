@@ -1,0 +1,6 @@
+test: Stations with priority
+file: snapspec11.crd
+file: snapspec11.dat
+file: snapspec11.snp snapspec11a.snp
+file:  snapspec11a.cfg
+

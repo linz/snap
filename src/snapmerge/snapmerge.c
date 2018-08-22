@@ -141,7 +141,6 @@ int main( int argc, char *argv[] )
                 syntaxerror = 1;
             }
             break;
-
         default:
             syntaxerror = 1;
             break;
@@ -252,6 +251,7 @@ int main( int argc, char *argv[] )
     if( updatecls ) mergeopt |= NW_MERGEOPT_CLASSES;
     sts=merge_network( base, data, mergeopt, mergedate, &select_station );
     strarray_delete( &codes );
+
     if( sts != OK || write_network( base, newfile, 0, 0, 0 ) != OK )
     {
         return 2;

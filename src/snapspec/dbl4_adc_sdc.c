@@ -153,6 +153,7 @@ hSDCTest sdcCreateSDCTest( int maxorder )
 
     sdc->pfStationId = NULL;
     sdc->pfStationRole = NULL;
+    sdc->pfStationPriority = NULL;
     sdc->pfDistance2 = NULL;
     sdc->pfError2 = NULL;
     sdc->pfVrtError2 = NULL;
@@ -206,7 +207,12 @@ void sdcDropSDCTest( hSDCTest sdc )
 **************************************************************************
 */
 
-StatusType sdcCalcSDCOrders( hSDCTest sdc)
+StatusType sdcCalcSDCOrders( hSDCTest sdc )
+{
+    return sdcCalcSDCOrders2( sdc, 0 );
+}
+
+StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 {
     SDCTestImp sdci;
     int order;
@@ -245,7 +251,7 @@ StatusType sdcCalcSDCOrders( hSDCTest sdc)
 
     /*> For each order in turn... */
 
-    for( order = 0; sts == STS_OK && order < sdc->norder; order++ )
+    for( order = minorder; sts == STS_OK && order < sdc->norder; order++ )
     {
         int nunknown;
         hSDCOrderTest test = &(sdc->tests[order]);
@@ -575,7 +581,8 @@ static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nlef
     {
         hSDCStation s = & (stns[i]);
         if( i % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
-        if( s->status == SDC_STS_SKIP && s->role == ntest )
+        if( s->role == SDC_IGNORE_MARK || s->role == SDC_CONTROL_MARK ) continue;
+        if( s->status == SDC_STS_SKIP && s->role <= ntest )
         {
             s->status = SDC_STS_UNKNOWN;
         }
@@ -1051,8 +1058,8 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
 **//**
 **    Seeks a candidate node to fail when there is no automatic choice.
 **    Seaches for the unassigned (ie unknown status) station with the
-**    highest percentage of failed vectors.  If more than one match,
-**    then pick the node with the highest absolute error.
+**    lowest priortity, or worst test order, or highest percentage of failed vectors.  
+**    If more than one match, then pick the node with the highest absolute error.
 **
 **  \param sdci                The test implementation
 **  \param test                The order being tested
@@ -1065,9 +1072,14 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
 
 static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int *pfailed )
 {
+    hSDCTest sdc = sdci->sdc;
     hSDCStation stns = sdci->stns;
     int nmark = sdci->sdc->nmark;
     int istnfail = -1;
+    int priority = 0;
+    int testorder = 0;
+    int maxorder = 0;
+    int maxpriority = 0;
     float maxfailratio = 0.0;
     float maxfailerror = 0.0;
     float failratio;
@@ -1089,17 +1101,31 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
         if( stni->status != SDC_STS_UNKNOWN ) continue;
         if( stni->nreltest == 0 ) continue;
 
+        if( sdc->pfStationPriority ) priority = (sdc->pfStationPriority)( sdc->env, istn );
+        if( sdc->pfStationRole ) testorder = (sdc->pfStationRole)( sdc->env, istn );
+
+        if( priority != SDC_NO_PRIORITY )
+        {
+            if( maxpriority == SDC_NO_PRIORITY ) continue;
+            if( priority < maxpriority ) continue;
+        }
+        if( priority != maxpriority ) maxorder=testorder;
+        else if( testorder < maxorder ) continue;
+
         failratio = ((float)(stni->nrelbad))/stni->nreltest;
         if( failratio < maxfailratio ) continue;
 
         failerror = stni->error2 * herrmult;
         verror = stni->verror2 * verrmult;
-        if( verror > failerror ) failerror = verror;
 
-        if( failratio > maxfailratio
-                ||  (failratio == maxfailratio && failerror > maxfailerror) )
+        if( priority != maxpriority ||
+            testorder != maxorder ||
+            failratio > maxfailratio ||  
+            (failratio == maxfailratio && failerror > maxfailerror) )
         {
             istnfail = istn;
+            maxpriority = priority;
+            maxorder = testorder;
             maxfailratio = failratio;
             maxfailerror = failerror;
         }

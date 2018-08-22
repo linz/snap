@@ -255,6 +255,8 @@ foreach my $test (sort keys %tests)
                 my $fn=$1;
                 my $tfn=$2;
                 my $save=$3;
+                $fn =~ s/\{test\}/$testname/g;
+                $tfn =~ s/\{test\}/$testname/g;
                 $fn=$fn.$ext if -f "$tstdir/$fn$ext" && ! -f "$tstdir/$fn";
                 $tfn ||= $fn;
                 push(@tstfiles,[$fn,$tfn,$save]);

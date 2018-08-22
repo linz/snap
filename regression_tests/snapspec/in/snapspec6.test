@@ -1,4 +1,5 @@
-file: snapspec6.crd
-file: snapspec6.dat
+test: Spec on 1d adjustment
+file: snapspec1.crd
+file: snapspec4.dat
 file: snapspec6.snp snapspec6.snp
 file:  snapspec6.cfg

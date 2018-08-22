@@ -51,10 +51,29 @@ components.
 </table>
 <p>The relative accuracy requirement can be restricted to only apply to stations within a specified distance of each other.  This distance can be specified or it can be calculated as a multiple of the largest distance between an adjusted mark and a control mark.  This builds on the assumption that control marks tend to fix coordinates around them, so relative accuracy beyond a control mark is irrelevant.
 </p>
+<p>
+The relative accuracy test includes an optimisation where it can use the absolute coordinate errors of the two 
+marks in the relative accuracy test to put an upper bound on their relative error (as the relative error cannot 
+be greater than the sum of the two absolute accuracies).  By default the algorithm assumes that the coordinates 
+errors of the two endpoints are positively correlated and uses the root mean square of the two errors for this
+optimisation.  There are two options controlling this optimisation in the configuration file.  Use 
+"options no_rel_acc_by_abs_optimisation" to disable it, and use "options strict_rel_acc_by_abs_optimisation"
+to not assume positive correlation.
+</p>
 <p>There are equivalent vertical vertical accuracy specification (v_abs_max, v_rel_to_control, v_rel, v_rel_main_abs).  Snapspec can test horizontal and/or vertical accuracies.  If both are being tested then both must be passed for a coordinate to achieve an order. </p>
 <p>The horizontal error, or relative error, is defined in terms of the length of the semi-major axis of the coordinate error ellipse (or relative error ellipse).  The vertical accuracy is the error of the height ordinate, or for relative errors the error of the difference in height between two marks. 
 The errors may be assessed using a priori or a posteriori errors at a chosen
 level of confidence.
+</p>
+
+<p>
+Initially each station can be assigned a best potential order and a priority.  
+The best potential order is the highest order against which the station coordinates will be tested. 
+The priority can be used to help decide which coordinate to assign an order when there is 
+a choice of potential stations.  Because each order requires a relative accuracy constraint
+assigning one coordinate to an order may invalidate other nearby candidates for which the
+relative accuracy standard is not met. Stations with lower priority (higher numeric value), 
+or with no assigned priority are discarded by preference.
 </p>
 
 <p>In assigning orders snapspec processes each order in turn starting with the 
@@ -62,23 +81,27 @@ highest order.  Each coordinate is passed or failed against the tests for that o
 </p>
 
 <p>
-The absolute errors of each station are tested first.  Those which fail (against either the absolute error or absolute error relative to control) are failed.  Those which pass and also pass the "relative accuracy by absolute accuracy optimisation" test are passed.  The remaining stations are tested against the relative accuracy specifications. 
+Initially each control station coordinate and those passed already passed for this order or a higher order are assigned a status of &quot;pass&quot;. The stations for which the order is better than their potential order are assigned a status &quot;fail&quot;. The remaining adjusted coordinates are assigned status of &quot;unknown&quot;.  The following steps are used iteratively to assign &quot;pass&quot; or &quot;fail&quot; status to each of the unknown coordinates.  
 </p>
+
 <p>
-Initially each control station coordinate and those passed already passed for this order or a higher order are assigned a status of "pass", and the remaining adjusted coordinates a status of "unknown".  The following steps are used iteratively to assign "pass" or "fail" status to each of the unknown coordinates.  
+The absolute errors of each station are tested first.  Those which fail (against either the absolute error or absolute error relative to control) are failed.  Those which pass and also pass the &quot;relative accuracy by absolute accuracy optimisation&quot; test are passed.  The remaining stations are tested against the relative accuracy specifications. 
 </p>
 
 <ol>
-<li>For each unknown coordinate, test relative accuracies between this coordinate and the passed coordinates within the maximum range for relative accuracy tests.  If any fail, set the status of the coordinate to "fail".
+<li>For each unknown coordinate, test relative accuracies between this coordinate and the passed coordinates within the maximum range for relative accuracy tests.  If any fail, set the status of the coordinate to &quot;fail&quot;.
 </li>
 <li>
 For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate within the maximum distance specified for relative accuracy tests.
 </li>
 
-<li>	<strong>Note: this step has been removed by default - a station is considered valid if there are no relative accuracy failures.</strong> Set the status to "fail" for any coordinates with status unknown for which there are no test lines are left (all other coordinates are beyond the test range). (This step canbe enabled by including "options 8" in the configuration file)</li>
-<li>	Set the status to "pass" for each coordinate for which all test lines pass.</li>
-<li>	If any coordinates still have status unknown, then select and fail that 
- with the highest ratio of test failures against test lines. If two or more coordinates have exactly the same ratio, select the one with the highest absolute error.  If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be muliplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.
+<li>	<i>Note: this step is disabled by default</i>. Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are no test lines left (all unfailed coordinates are beyond the test range). To enable this step include &quot;options fail_if_no_tests&quot; in the configuration file.</li>
+<li>	Set the status to &quot;pass&quot; for each coordinate for which all test lines pass (or which have no remaining test lines).</li>
+<li>	If any coordinates still have status unknown, then select and fail one. The set of candidates are filtered to keep only the stations with lowest priority and of those the stations with the lowest potential order.  Of these the
+    station with the highest ratio of test failures against test lines is selected. 
+    If this is still ambiguous the coordinate with the highest absolute error is selected.  And if this is still ambiguous, 
+    the first station in the list is used.
+    If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be muliplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.
 </li>
 <li>	Return to step 1 if there are still any unknown coordinates.
 </li>
@@ -88,6 +111,7 @@ For each unknown coordinate test the relative accuracy against every other unkno
 <div class="SeeAlso">
 <h3>See also:</h3>
 <p><a href="index.html">snapspec</a></p>
+<p><a href="configuration.html">snapspec configuration file</a></p>
 
 </div>
 </body>

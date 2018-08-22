@@ -101,10 +101,42 @@ Specifies the best (most accuracte) order that specific stations will be conside
 The <a href="../../files/cmdcfg/cmd_stn_list.html">station list</a> can include specific
 stations, or groups of stations identified by classification.
 </p>
+<p class="CommandDefinition">set_priority <i>priority station_list</i></p>
+<p class="CommandDescription">
+Sets the priority of the selected stations to <i>priority</i> - an integer value. The higher the
+value the lower the priority.  Higher priority stations are preferred for each order.
+</p>
+<p class="CommandDefinition">ignore <i>station_list</i></p>
+<p class="CommandDescription">
+The specified stations will be ignored in the order calculation.
+</p>
 <p class="CommandDefinition">configuration <i>configuration_file_name</i></p>
 <p class="CommandDescription">
 Reads additional configuration information from a separate configuration file.
 </p>
+<p class="CommandDefinition">station_configuration_file <i>station_config_file</i> <i>csv</i></p>
+<p class="CommandDescription">
+The station configuration file assigns best potential order and/or priority to stations.  
+The format is space delimited by default, but can this can be a CSV file if the <i>csv</i> option
+is specified.  The first line defines the fields in the file, which must be
+&quot;code&quot; and then &quot;order&quot; and/or &quot;priority&quot;.  Additional fields in
+the file are ignored.  Orders can be any order defined in the configuration, and priorities are positive integer numbers.  
+Either the priority or order fields can contain &quot;*&quot; which will cause the station to be 
+ignored.
+Empty fields and fields containing just &quot;-&quot; are ignored.
+</p>
+<p class="CommandDefinition">options <i>option ...</i></p>
+<p class="CommandDescription">
+Specifies options controlling the tests.  The following options can be used:
+</p>
+<ul class="CommandDescription">
+<li>only_test_orders_worse_than_control: limits the order tests to orders worse than the lowest ordered control station.  
+    This is equivalent to the snapspec -a command line option.</li>
+<li>no_rel_acc_by_abs_optimisation: This disables the optimisation to avoid calculating relative accuracies for tests where
+the absolute accuracy information is sufficient</li> 
+<li>strict_rel_acc_by_abs_optimisation: This makes the optimisation rigorous by not assuming positive correlation
+    between mark coordinates. This makes the optimisation less efficient. </li> 
+</ul>
 <p class="CommandDefinition">log_level <i>level</i></p>
 <p class="CommandDescription">
 Defines the amount of information recorded in the log file.  This may be useful for analysing the assignment of
@@ -125,7 +157,7 @@ options
 <p class="CommandDescription">
 Replicates the output log on the screen while snapspec runs.
 </p>
-<p class="CommandDefinition">options <i>option_code</i></p>
+<p class="CommandDefinition">test_config_options <i>option_code</i></p>
 <p class="CommandDescription">
 Defines some controls on how the analysis is performed.  The option_code is formed by adding the following values:
 </p>

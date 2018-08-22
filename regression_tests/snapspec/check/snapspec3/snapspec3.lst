@@ -1,18 +1,19 @@
-snapspec version 2.7.10-1d24eaa: Calculation of station orders
-Run at 27-JUN-2018 11:31:21
+snapspec version 2.7.11-8067015: Calculation of station orders
+Run at 21-AUG-2018 13:55:53
 SNAP binary file: snapspec3.bin
 Spec configuration file: snapspec3.cfg
-SNAP run time: 27-JUN-2018 11:31:21
+SNAP run time: 21-AUG-2018 13:55:53
 Running apriori tests
 
 
 Station lookup for SDC test module
-     1 F0                 1 F0        
-     2 F1                 2 F1        
-     3 F2                 3 F2        
-     4 F3                 4 F3        
-     5 F4                 5 F4        
-     6 F5                 6 F5        
+    id code  role prty
+     1 F0      -2   -1
+     2 F1       0   -1
+     3 F2       0   -1
+     4 F3       0   -1
+     5 F4       0   -1
+     6 F5       0   -1
 
 Initiallizing SDC tests
 Loading marks for SDC tests

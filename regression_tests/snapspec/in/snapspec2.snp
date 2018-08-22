@@ -1,8 +1,8 @@
 title Test data set snapspec2
 
 
-coordinate_file snapspec2.crd
-data_file snapspec2.dat
+coordinate_file snapspec1.crd
+data_file snapspec1.dat
 
 mode 2d adjustment
 convergence_tolerance 0.0001

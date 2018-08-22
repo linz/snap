@@ -81,6 +81,8 @@ typedef struct
 
 #define SDC_DEFAULT  -1  /* Passed to SDCTest.pfSetOrder for the default order */
 
+#define SDC_NO_PRIORITY -1 /* Lowest ranking station priority */
+
 /* Codes passed to *pfError2 stn1 to set the mode for two pass calculation */
 
 #define SDC_PHASE_CALCULATE      -1 /* first pass of calculating covariance */
@@ -109,8 +111,13 @@ typedef struct
         int  stn );
 
     int (*pfStationRole) ( /* Function to get the role of the station in the  tests */
-        void *env,         /* Returns one of the above status, or the number */
-        int  stn );        /**< of the lowest test to apply */
+        void *env,         /* Returns one of the above status, or the lowest number */
+        int  stn );        /* test to apply */
+
+    int (*pfStationPriority) ( /* Function to get the priority of the station in the  tests */
+        void *env,         /* Returns an integer value used to choose potential */
+        int  stn );        /* stations to discard when all have failing tests */
+                           /* Choose SDC_NO_PRIORITY or a highest numeric priority */
 
     double (*pfDistance2) ( /* Function to get square of the distance between two marks */
         void *env,
@@ -144,6 +151,8 @@ typedef struct
 hSDCTest sdcCreateSDCTest( int maxorder );
 
 StatusType sdcCalcSDCOrders( hSDCTest sdc );
+
+StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder );
 
 void sdcDropSDCTest( hSDCTest sdc );
 

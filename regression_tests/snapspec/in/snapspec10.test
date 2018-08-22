@@ -1,3 +1,4 @@
+test: Fail on recursive configuration file
 file: snapspec1.crd
 file: snapspec1.dat
 file: snapspec1.snp snapspec10.snp

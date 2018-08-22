@@ -1,0 +1,7 @@
+code order priority
+F1 4  4
+F2 5  4
+F3 5  6
+F4 *  6
+F5 -  *
+F6 4  -
