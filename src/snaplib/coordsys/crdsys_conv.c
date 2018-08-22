@@ -17,6 +17,7 @@
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
 #include "util/chkalloc.h"
+#include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 
@@ -45,6 +46,25 @@ static int define_coord_conversion_base( coord_conversion *conv,
     conv->need_xyz = 0;
 
     conv->valid = 0;
+
+    /* Can we define a conversion epoch from the coordinate system definitions */
+
+    if( convepoch == UNDEFINED_DATE )
+    {
+        if( from->rf->defepoch == UNDEFINED_DATE )
+        {
+            convepoch=to->rf->defepoch;
+        }
+        else if( to->rf->defepoch == UNDEFINED_DATE )
+        {
+            convepoch=from->rf->defepoch;
+        }
+        else if( from->rf->defepoch == to->rf->defepoch )
+        {
+            convepoch=from->rf->defepoch;
+        }
+    }
+    conv->epochconv = convepoch;
 
     /* If not using the same the must have common base reference frame codes,
      */

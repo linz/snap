@@ -1,0 +1,117 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.11-54055cc
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 22 2018 13:56:33
+
+================================================================================
+                     Run at 23-AUG-2018 09:17:12 by ccrook
+
+
+The command file teststm9.snp contains:
+     title Regression tests - multiple coordinate files
+     !file: teststm9.crd
+     coordinate_file teststm1.crd
+     add_coordinate_file coordinates from teststm9.crd
+     output_coordinate_file .newcrd
+     
+     data_file teststm.dat
+     mode 3d adjustment
+     
+     list command_file
+     list problem_definition
+     list no_iteration_summary
+     list no_solution_summary
+     list no_station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list no_residuals
+     list no_error_summary
+     list no_worst_residuals
+     
+     fix all
+     ignore_missing_stations
+
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                23-AUG-2018 09:17:12
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from teststm9.snp
+
+Job: Regression tests - multiple coordinate files
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file teststm1.crd
+      14 stations read
+
+Data file 1: teststm.dat
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                23-AUG-2018 09:17:12
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station   Adj  Row  Name
+
+PEGGY     F     -  4 -
+2         F     -  2 PEG
+100       F     -  2 PIN
+3         F     -  4 BOLT
+D         F     -  6 SPIK
+C_101     F     -  3 SPIK
+C_10      F     -  4 PIN
+B00       F     -  10 BOLT
+PIND      F     -  3 SPIK
+A         F     -  - BOLT
+TUBBY     F     -  2 -
+BXXXXX    F     -  0 BOLT
+10        F     -  6 SPIK
+C_11      F     -  - BOLT
+
+
+The following deformation has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model (20160701)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20160701
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                23-AUG-2018 09:17:12
+
+                                     ERRORS
+
+================================================================================
+
+Note: 6 errors reported in teststm9.err
