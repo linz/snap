@@ -1,6 +1,6 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.11-54055cc
+                      PROGRAM SNAP  Version 2.7.11-69b80b7
 
                        Survey Network Adjustment Program
 
@@ -9,7 +9,7 @@
                        Version date: Aug 22 2018 13:56:33
 
 ================================================================================
-                     Run at 23-AUG-2018 09:17:12 by ccrook
+                     Run at 23-AUG-2018 20:23:59 by ccrook
 
 
 The command file teststm9.snp contains:
@@ -40,7 +40,7 @@ The command file teststm9.snp contains:
 
 
 ================================================================================
-Regression tests - multiple coordinate files                23-AUG-2018 09:17:12
+Regression tests - multiple coordinate files                23-AUG-2018 20:23:59
 
                              SUMMARY OF INPUT FILES
 
@@ -59,11 +59,14 @@ Coordinates file teststm1.crd
       14 stations read
 
 Data file 1: teststm.dat
+    Observations between 2000-05-01 and 2000-05-01
+      14 latitudes
+      14 longitudes
 
 
 
 ================================================================================
-Regression tests - multiple coordinate files                23-AUG-2018 09:17:12
+Regression tests - multiple coordinate files                23-AUG-2018 20:23:59
 
                              DEFINITION OF PROBLEM
 
@@ -108,7 +111,7 @@ LINZ deformation model
 
 
 ================================================================================
-Regression tests - multiple coordinate files                23-AUG-2018 09:17:12
+Regression tests - multiple coordinate files                23-AUG-2018 20:23:59
 
                                      ERRORS
 

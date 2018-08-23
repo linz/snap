@@ -1,0 +1,114 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.11-69b80b7
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 22 2018 13:56:33
+
+================================================================================
+                     Run at 24-AUG-2018 06:39:21 by ccrook
+
+
+
+
+================================================================================
+                                                            24-AUG-2018 06:39:21
+
+                                 ERROR SUMMARY
+
+================================================================================
+
+Error: Invalid instrument station code "11"
+       Line: 11  File: testim1.dat
+
+Error: Invalid target station code "1"
+       Line: 12  File: testim1.dat
+
+Error: Invalid target station code "B"
+       Line: 13  File: testim1.dat
+
+Error: Invalid target station code "PINTOFALE"
+       Line: 14  File: testim1.dat
+
+Error: Invalid target station code "QQ"
+       Line: 15  File: testim1.dat
+
+Error: Invalid target station code "C_100"
+       Line: 16  File: testim1.dat
+
+Error: Invalid instrument station code "11"
+       Line: 35  File: testim1.dat
+
+Error: Invalid target station code "1"
+       Line: 35  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 36  File: testim1.dat
+
+Error: Invalid target station code "B"
+       Line: 36  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 37  File: testim1.dat
+
+Error: Invalid target station code "PINTOFALE"
+       Line: 37  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 38  File: testim1.dat
+
+Error: Invalid target station code "QQ"
+       Line: 38  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 39  File: testim1.dat
+
+Error: Invalid target station code "C_100"
+       Line: 39  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 40  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 41  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 42  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 43  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 44  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 45  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 46  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 47  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 48  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 49  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 50  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 51  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 52  File: testim1.dat
+
+Error: Invalid target station code "11"
+       Line: 53  File: testim1.dat
+
+Error: 30 errors reported reading the data files

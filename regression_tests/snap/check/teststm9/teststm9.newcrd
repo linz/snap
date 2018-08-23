@@ -1,7 +1,7 @@
 Test 1 - basic obs type tests
 NZGD2000(20160701)
 options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=Mark_Type
-! Updated by SNAP version 2.7.11-54055cc at 23-AUG-2018 09:17:12
+! Updated by SNAP version 2.7.11-69b80b7 at 23-AUG-2018 20:23:59
 
 !Code       Latitude          Longitude        Ell.Hgt Order Mark_Type Name
 PEGGY    -41.00866308924    173.34033724223    84.4412 4     PIG   4 -

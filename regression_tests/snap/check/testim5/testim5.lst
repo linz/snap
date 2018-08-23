@@ -1,0 +1,143 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.11-69b80b7
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 22 2018 13:56:33
+
+================================================================================
+                     Run at 24-AUG-2018 06:47:02 by ccrook
+
+
+The command file testim5.snp contains:
+     title Regression tests - multiple coordinate files
+     coordinate_file testim1.crd
+     
+     data_file testim1.dat
+     mode 3d data_check
+     
+     list command_file
+     list no_problem_definition
+     list no_iteration_summary
+     list no_solution_summary
+     list no_station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list residuals
+     list no_error_summary
+     list no_worst_residuals
+     output no_coordinate_file
+     
+     ignore_missing_stations
+     ignore_missing_stations 11 pintofale report_none
+
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                24-AUG-2018 06:47:02
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testim5.snp
+
+Job: Regression tests - multiple coordinate files
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testim1.crd
+      14 stations read
+
+Data file 1: testim1.dat
+    Observations between 2000-05-01 and 2000-05-01
+      14 latitudes
+      14 longitudes
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                24-AUG-2018 06:47:02
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+The following codes are used to identify data types
+   LT  latitudes
+   LN  longitudes
+
+From   Type     Value      +/-        Calc      +/-     Res   +/-    S.R.      
+
+PEGGY  LT    41 00 31.17 S  1.00  41 00 31.19 S  0.00    0.01  1.00   0.01     
+
+PEGGY  LN   173 20 24.58 E  1.00 173 20 25.21 E  0.00   -0.63  1.00   0.63     
+
+2      LT    41 00 12.74 S  1.00  41 00 06.46 S  0.00   -6.28  1.00   6.28  ???
+
+2      LN   173 20 09.77 E  1.00 173 20 03.20 E  0.00    6.57  1.00   6.57  ???
+
+100    LT    41 00 34.10 S  1.00  41 00 30.51 S  0.00   -3.58  1.00   3.58  ???
+
+100    LN   173 19 46.74 E  1.00 173 19 47.37 E  0.00   -0.63  1.00   0.63     
+
+3      LT    41 00 25.32 S  1.00  41 00 19.05 S  0.00   -6.28  1.00   6.28  ???
+
+3      LN   173 19 27.16 E  1.00 173 19 27.79 E  0.00   -0.63  1.00   0.63     
+
+D      LT    41 00 47.89 S  1.00  41 00 41.62 S  0.00   -6.28  1.00   6.28  ???
+
+D      LN   173 19 31.23 E  1.00 173 19 31.86 E  0.00   -0.63  1.00   0.63     
+
+C_101  LT    41 00 24.48 S  1.00  41 00 18.20 S  0.00   -6.28  1.00   6.28  ???
+
+C_101  LN   173 20 01.05 E  1.00 173 20 01.68 E  0.00   -0.63  1.00   0.63     
+
+C_10   LT    41 00 43.50 S  1.00  41 00 37.22 S  0.00   -6.28  1.00   6.28  ???
+
+C_10   LN   173 20 00.90 E  1.00 173 20 01.53 E  0.00   -0.63  1.00   0.63     
+
+B00    LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+B00    LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     
+
+PIND   LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+PIND   LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     
+
+A      LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+A      LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     
+
+TUBBY  LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+TUBBY  LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     
+
+BXXXXX LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+BXXXXX LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     
+
+10     LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+10     LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     
+
+C_11   LT    41 00 28.80 S  1.00  41 00 22.52 S  0.00   -6.28  1.00   6.28  ???
+
+C_11   LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63     

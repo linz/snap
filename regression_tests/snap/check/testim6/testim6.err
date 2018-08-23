@@ -9,13 +9,13 @@
                        Version date: Aug 22 2018 13:56:33
 
 ================================================================================
-                     Run at 23-AUG-2018 20:23:59 by ccrook
+                     Run at 24-AUG-2018 06:47:02 by ccrook
 
 
 
 
 ================================================================================
-                                                            23-AUG-2018 20:23:59
+                                                            24-AUG-2018 06:47:02
 
                                  ERROR SUMMARY
 
@@ -29,6 +29,6 @@ Error: Station B          is not in the coordinate file.  Used 2 times
 
 Error: Station C_100      is not in the coordinate file.  Used 2 times
 
-Error: Station PINTOFALE  is not in the coordinate file.  Used 2 times
+Error: Station pintofale  is not in the coordinate file.  Used 2 times
 
 Error: Station QQ         is not in the coordinate file.  Used 2 times

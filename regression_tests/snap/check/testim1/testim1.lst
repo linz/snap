@@ -1,0 +1,71 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.11-69b80b7
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Aug 22 2018 13:56:33
+
+================================================================================
+                     Run at 24-AUG-2018 06:39:21 by ccrook
+
+
+The command file testim1.snp contains:
+     title Regression tests - multiple coordinate files
+     coordinate_file testim1.crd
+     
+     data_file testim1.dat
+     mode 3d data_check
+     
+     list command_file
+     list no_problem_definition
+     list no_iteration_summary
+     list no_solution_summary
+     list no_station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list no_residuals
+     list no_error_summary
+     list no_worst_residuals
+     output no_coordinate_file
+
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                24-AUG-2018 06:39:21
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testim1.snp
+
+Job: Regression tests - multiple coordinate files
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testim1.crd
+      14 stations read
+
+Data file 1: testim1.dat
+    Observations between 2000-05-01 and 2000-05-01
+      14 latitudes
+      20 longitudes
+   *** 30 errors reading the file
+
+
+
+================================================================================
+Regression tests - multiple coordinate files                24-AUG-2018 06:39:21
+
+                                     ERRORS
+
+================================================================================
+
+Note: 31 errors reported in testim1.err

@@ -13,11 +13,31 @@
 
 <h1><a name="cmd_ignore_missing_stations"></a>The ignore_missing_stations command</h1>
 
-<p class="Commanddefinition">ignore_missing_stations [yes|no]</p>
+<p class="Commanddefinition">ignore_missing_stations [yes|no] [report_all|report_none|report_unspecified] [code code ...]</p>
 
-<p>This command instructs SNAP to ignore station codes in the data file which are not listed in the coordinate file.  The missing stations will be listed in the error file.  If this command is not used then SNAP will report all missing stations in the data files and stop the adjustment.</p>
+<p>This command defines how SNAP handles missing station codes - codes used in the data files that are not included in the coordinate file.
+</p>
 
+<p>By default if the data files include stations not in the coordinate file then
+snap will report on each use of missing codes in the data files and stop with an error when they have all been read.</p>
 
+<p>The ignore_missing_stations command can be used to change this behaviour 
+so that snap will ignore the observations to missing stations and 
+continue to run the adjustment.
+</p>
+
+<p>The <a href="../../programs/dat2site/index.html">dat2site</a> program can be used to calculate trial coordinates for missing stations.</p>
+
+<p>The ignore_missing_stations command can include the following options:</p>
+
+<ul>
+    <li>&quot;yes&quot; or &quot;no&quot; to enable or disable ignoring all missing codes</li>
+    <li>&quot;code ... &quot; to list explicit codes that will be ignored.</li>
+
+    <li>&quot;report_none&quot;, &quot;report_unlisted&quot; or &quot;report_all&quot; to choose what is reported in the error listing.  
+        The &quot;report_unlisted&quot; option causes does no report listed codes, but does list ignored codes.  This is the default.  If &quot;report_all&quot;option reports all ignored codes.  The &quot;report_none&quot; option does not report ignored codes.
+    </li>
+</ul>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

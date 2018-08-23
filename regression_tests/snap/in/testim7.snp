@@ -1,0 +1,20 @@
+title Regression tests - multiple coordinate files
+coordinate_file testim1.crd
+
+data_file testim1.dat
+mode 3d data_check
+
+list command_file
+list no_problem_definition
+list no_iteration_summary
+list no_solution_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list residuals
+list no_error_summary
+list no_worst_residuals
+output no_coordinate_file
+
+ignore_missing_stations 
+ignore_missing_stations 11 pintofale report_unlisted

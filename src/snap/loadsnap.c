@@ -98,6 +98,7 @@ typedef struct missing_stn_s
     struct missing_stn_s *next;
     char *code;
     int refcount;
+    int quiet;
     int id;
 } missing_stn;
 
@@ -106,6 +107,7 @@ static missing_stn *missing = NULL;
 static int missing_id = IGNORE_ID;
 
 static int ignore_missing_stations = 0;
+static int report_missing_stations = REPORT_MISSING_UNLISTED;
 
 static int need_obs_date = 0;
 
@@ -116,31 +118,56 @@ void set_ignore_missing_stations( int option )
     ignore_missing_stations = option;
 }
 
+void set_report_missing_stations( int option )
+{
+    report_missing_stations = option;
+}
+
 void set_require_obs_date( int option )
 {
     need_obs_date = option;
 }
 
-static int missing_station_id( const char *code )
+static missing_stn *get_missing_station( const char *code, int create )
 {
     missing_stn *ms, *prev, *newst;
     if( !code ) return 0;
-    if( !ignore_missing_stations ) return 0;
     for( ms = missing, prev = NULL; ms; prev = ms, ms = ms->next )
     {
         int cmp;
         cmp = stncodecmp( ms->code, code );
-        if( cmp == 0 ) { ms->refcount++; return ms->id;}
+        if( cmp == 0 ) return ms;
         if( cmp > 0 ) break;
     }
+    if( ! create ) return 0;
     newst = (missing_stn *) check_malloc( sizeof(missing_stn) + strlen(code) + 1 );
     newst->next = ms;
     if( prev ) prev->next = newst; else missing = newst;
     newst->id = --missing_id;
-    newst->refcount = 1;
+    newst->refcount = 0;
+    newst->quiet = 0;
     newst->code = ((char *)(void *)newst)+sizeof(missing_stn);
     strcpy( newst->code, code );
-    return newst->id;
+    return newst;
+}
+
+void set_accept_missing_station( const char *code )
+{
+    missing_stn *ms=get_missing_station(code,1);
+    if( ms ) ms->quiet=1;
+}
+
+static int missing_station_id( const char *code )
+{
+    missing_stn *ms;
+    if( !code ) return 0;
+    ms = get_missing_station( code, ignore_missing_stations );
+    if( ms )
+    {
+        ms->refcount++;
+        return ms->id;
+    }
+    return 0;
 }
 
 static char *missing_station_name( int id )
@@ -169,8 +196,11 @@ static void list_missing_stations( void )
 {
     missing_stn *ms;
     char buf[80];
+    if( ! report_missing_stations ) return;
+    int reportall=report_missing_stations == REPORT_MISSING_ALL;
     for( ms = missing; ms; ms = ms->next )
     {
+        if( ! reportall && ms->quiet ) continue;
         sprintf(buf,"Station %-10s is not in the coordinate file.  Used %d times",
                 ms->code,ms->refcount );
         handle_error(WARNING_ERROR, buf, NO_MESSAGE );

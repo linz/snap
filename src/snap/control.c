@@ -678,20 +678,43 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
 
 static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    unsigned char option;
-    int sts;
-    option = 0;
-    if( !string[0] )
+    int first=1;
+    for( char *opt = strtok( string, " " ); opt; opt = strtok( NULL, " " ) )
     {
-        option = 1;
-        sts = OK;
+        if( first )
+        {
+            unsigned char ignoremissing=0;
+            first=0;
+            int sts=readcfg_boolean(cfg,opt,&ignoremissing,1,0);
+            if( sts == OK ) 
+            {
+                set_ignore_missing_stations( ignoremissing );
+                continue;
+            }
+        } 
+        if( _stricmp(opt,"report_all") == 0 )
+        {
+            set_report_missing_stations(REPORT_MISSING_ALL);
+            continue;
+        }
+        if( _stricmp(opt,"report_none") == 0 )
+        {
+            set_report_missing_stations(REPORT_MISSING_NONE);
+            continue;
+        }
+        if( _stricmp(opt,"report_unlisted") == 0 )
+        {
+            set_report_missing_stations(REPORT_MISSING_UNLISTED);
+            continue;
+        }
+        set_accept_missing_station( opt );
     }
-    else
+    if( first )
     {
-        sts = readcfg_boolean( cfg, string, &option, 1, 0 );
+        set_ignore_missing_stations( 1 );
     }
-    if( sts == OK ) set_ignore_missing_stations( option );
-    return sts;
+
+    return OK;
 }
 
 static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int len, int code )
