@@ -844,7 +844,11 @@ void ldt_nextdata( int type )
         preserve_saved_codes=1;
         ldt_end_data();
         preserve_saved_codes=0;
+
         data.from=inst_id;
+        trgt_cancelled=0;
+        data_cancelled=0;
+        inst_cancelled = inst_id < 0 ? 1 : 0;
     }
 
     next_data(type);
