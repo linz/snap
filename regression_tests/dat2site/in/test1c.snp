@@ -1,0 +1,3 @@
+!set: fileparams -f test1.crd test1.dat
+!file: test1.crd
+!file: test1.dat

@@ -46,11 +46,13 @@ my $config={
     check_dir=>'check',
     testre=>qr/(\w+).test/,
     configre=>'',
+    var=>{},
     env=>{},
     filere=>[],
     program=>[],
     command=>[],
     discard=>[],
+    input=>'',
     debug=>'',
     output=>'',
     error_output=>''
@@ -96,6 +98,12 @@ foreach my $cfgl (<$cfgf>)
             my ($e,$v)=split(' ',$value,2);
             print "Setting env $e to $v\n" if $verbose;
             $ENV{$e}=$v;
+        }
+        elsif( $item eq 'set' )
+        {
+            my ($e,$v)=split(' ',$value,2);
+            print "Setting env $e to $v\n" if $verbose;
+            $config->{var}->{$e}=$v;
         }
         else
         {
@@ -225,8 +233,10 @@ if( $verbose )
 }
 
 my $null = $windows ? 'nul' : '/dev/null';
+my $in=$config->{input} || $null;
 my $out=$config->{output} || $null;
 my $err=$config->{error_output} || $null;
+
 $out=$null if $out eq 'null';
 $err='&1' if $err eq 'output';
 $err=$null if $err eq 'null';
@@ -241,7 +251,7 @@ foreach my $test (sort keys %tests)
 
     my @tstfiles=([$testfile,$testfile]);
     my %discard=();
-    my %var=();
+    my %var=%{$config->{var}};
     my $param='';
     my $testcfg="$tstdir/$testfile";
     open(my $cfgf, $testcfg) || die "Cannot open $testcfg\n";
@@ -341,7 +351,7 @@ foreach my $test (sort keys %tests)
     foreach my $c (@{$config->{command}})
     {
         my $commandline=$c;
-        $commandline .= " >$out 2>$err" if ! $debug && ! $showoutput;
+        $commandline .= " <$in >$out 2>$err" if ! $debug && ! $showoutput;
         $commandline = $repfunc->($commandline);
         # Run program
         print "Running: ",$commandline,"\n" if $verbose;
@@ -356,6 +366,7 @@ foreach my $test (sort keys %tests)
     $wre=qr/$wre/;
     my $tstout=$outdir;
     $tstout .= "/$testname" unless $junksubdir;
+    make_path($tstout) if ! -d $tstout;
     find( { wanted=>sub {
             next if $inputfiles{$_};
             # Can't check non-ASCII files

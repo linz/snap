@@ -3145,6 +3145,7 @@ int main( int argc, char *argv[] )
     {
         set_snap_command_file( filelist[0] );
         load_command_file( filelist[0], recalc, 0 );
+        newcrdfile=1;
     }
     else
     {
@@ -3272,6 +3273,7 @@ int main( int argc, char *argv[] )
     {
         i = path_len( crdfname, 1 );
         if( i < 75 ) strcpy(crdfname+i,".new");
+        set_output_station_file( crdfname );
     }
 
     write_station_file( "dat2site", 0, 0, 0, 0, 1 );
