@@ -1,3 +1,17 @@
+linz-snap (2.7.12-1) xenial; urgency=medium
+
+  * Added output_csv filelist to create catalogue of files used in snap
+    adjustment
+  * Enhanced handling of wildcards in snap station lists
+  * Enhanced add_coordinate_file command to allow adding coordinate files
+    which need an epoch for coordinate conversion
+  * Enhanced ignore missing stations to allow ignoring explicit stations to
+    provide more targeted error reporting
+  * Added station priority option to snapspec to provide better control over
+    which stations get higher orders
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Mon, 24 Aug 2018 07:30:00 +1200
+
 linz-snap (2.7.11-1) xenial; urgency=medium
 
   * Adding support for recode with relocation error

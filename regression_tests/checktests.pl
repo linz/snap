@@ -19,11 +19,12 @@ Syntax: check_tests -b -e [-v|-q] output_dir check_dir [filename ..]
   -f          Print configuration in output
   -v          More output
   -q          No output
+  -d file     Apply regex fixes to file and write to output (for debugging only)
 
 EOD
 
 my %opts=@_;
-getopts('hqvbfec:',\%opts);
+getopts('hqvbfec:d:',\%opts);
 die $syntax if $opts{h};
 
 sub filelist
@@ -69,10 +70,10 @@ sub load_fixes
         $re =~ s/\{datetime\}/[0-3]?\\d\\-(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\\-2\\d\\d\\d\\s+[0-2]?\\d\\:\\d\\d\\:\\d\\d/g;
         $replace=~ s/\s*$//;
         $filere=~ s/\s*$//;
-        $re=qr/$re/;
-        $filere=qr/$filere/ if $filere;
+        $re=qr($re);
+        $filere=qr($filere) if $filere;
         push(@replacements,[$filere,$re,$replace]);
-        $re=qr/$re/;
+        $re=qr($re);
     }
     return \@replacements;
 }
@@ -202,6 +203,20 @@ sub compare
     return "";
 }
 
+sub debugfile
+{
+    my($f,$cfg)=@_;
+    open(my $of,"$f") || die "Cannot open $f\n";
+    my @olines=<$of>;
+    close($of);
+    foreach my $o (@olines)
+    {
+        $o =~ s/\s*$//;
+        $o = apply_fixes($f,$o,$cfg->{fixes});
+        print "$o\n";
+    }
+}
+
 
 my $quiet=$opts{q};
 my $verbose=$opts{v} && ! $quiet;
@@ -209,6 +224,7 @@ my $ignoreblanks=$opts{b};
 my $ignoreextra=$opts{e};
 my $cfgfile=$opts{c};
 my $printcfg=$opts{f};
+my $debugfile=$opts{d};
 #@ARGV >= 2 || die $syntax;
 
 my $outdir=(shift @ARGV) || 'out';
@@ -313,6 +329,12 @@ foreach my $fn (@ARGV)
     push(@patterns,qr/$fn/i)
 }
 push(@patterns,qr/./) if ! @patterns;
+
+if( $debugfile )
+{
+    debugfile($debugfile,$cfg);
+    exit();
+}
 
 my $outfiles=filelist($outdir,\@patterns);
 my $chkfiles=filelist($chkdir,\@patterns);
