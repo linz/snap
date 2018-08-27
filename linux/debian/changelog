@@ -1,3 +1,13 @@
+linz-snap (2.7.13-1) xenial; urgency=medium
+
+  * Refactoring two pass calculation to only calculate inverse once
+  * Adding option to cache inverse results for multiple snapspec runs
+  * Adding CSV format output file for easier process integration
+  * Tidying command line options
+  * Fixing dat2site bug creating output file with -f option
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Mon, 27 Aug 2018 15:30:00 +1200
+
 linz-snap (2.7.12-1) xenial; urgency=medium
 
   * Added output_csv filelist to create catalogue of files used in snap
@@ -10,7 +20,7 @@ linz-snap (2.7.12-1) xenial; urgency=medium
   * Added station priority option to snapspec to provide better control over
     which stations get higher orders
 
- -- Chris Crook <ccrook@linz.govt.nz>  Mon, 24 Aug 2018 07:30:00 +1200
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri, 24 Aug 2018 07:30:00 +1200
 
 linz-snap (2.7.11-1) xenial; urgency=medium
 
