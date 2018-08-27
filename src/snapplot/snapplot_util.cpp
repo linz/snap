@@ -21,7 +21,7 @@ public:
     void ClearMessages() { logString.Empty(); }
 
 protected:
-    virtual void DoLog(wxLogLevel level, const wxChar *szString, time_t t);
+    virtual void DoLogText( const wxString &msg );
 
 private:
     wxString logString;
@@ -34,9 +34,9 @@ wxStringLog::wxStringLog()
     logString.Alloc(2048);
 }
 
-void wxStringLog::DoLog(wxLogLevel WXUNUSED(level), const wxChar *szString, time_t WXUNUSED(t) )
+void wxStringLog::DoLogText( const wxString &msg )
 {
-    logString.Append( szString );
+    logString.Append( msg );
 }
 
 int print_log(const char *format, ... )

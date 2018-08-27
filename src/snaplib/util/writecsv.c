@@ -5,6 +5,7 @@
 #include "util/dstring.h"
 #include "util/dateutil.h"
 #include "util/fileutil.h"
+#include "util/snapctype.h"
 #include "util/writecsv.h"
 
 

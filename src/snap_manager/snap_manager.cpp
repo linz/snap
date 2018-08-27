@@ -24,11 +24,10 @@ class wxLogPlainTextCtrl : public wxLog
 public:
     wxLogPlainTextCtrl( wxTextCtrl *ctrl ) : txtctl( ctrl ) {}
 protected:
-    virtual void DoLog(wxLogLevel WXUNUSED(level), const wxChar *szmsg, time_t WXUNUSED(timestamp) )
+    virtual void DoLogText( const wxString &msg )
     {
-        wxString msg;
-        msg << szmsg << "\n";
         txtctl->AppendText( msg );
+        txtctl->AppendText( "\n" );
     }
 private:
     wxTextCtrl *txtctl;
@@ -329,6 +328,7 @@ bool SnapMgrApp::OnInit()
     CONFIGURE_RUNTIME();
     // For help system
     wxFileSystem::AddHandler(new wxZipFSHandler);
+    wxLog::SetTimestamp("");
     wxString jobfile;
     if( argc > 1 ) jobfile = argv[1];
 

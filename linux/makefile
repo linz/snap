@@ -10,7 +10,6 @@ INSTALLDIR=${DESTDIR}/usr/share/linz/snap
 BINDIR=${DESTDIR}/usr/bin
 SNAPVER=`cat ../src/VERSION`
 
-#WXDIR=../wx/wxWidgets-2.8.12/build/gtk
 WXCONFIG=wx-config
 WXFLAGS=`$(WXCONFIG) --cxxflags`
 WXLINK=`$(WXCONFIG) --libs`
