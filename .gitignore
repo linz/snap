@@ -2,6 +2,7 @@
 *.swp
 *.o
 *.obj
+makefile.inc
 /boost/
 /documents/
 /help/

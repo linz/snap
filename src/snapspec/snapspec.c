@@ -49,6 +49,7 @@
 #include "util/pi.h"
 #include "util/bltmatrx_mt.h"
 #include "util/getversion.h"
+#include "util/writecsv.h"
 
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_error.h"
@@ -72,12 +73,6 @@ typedef struct
     /*   float verr2; */
 } stn_relacc;
 
-#define SRA_STATUS_UNKNOWN 0 /*  */
-#define SRA_STATUS_USECOVAR 1 /* First pass - use existing covariance */
-#define SRA_STATUS_RECORD   2 /* Second pass of relative accuracy - recording required cvr */
-#define SRA_STATUS_CALC     3 /* Second pass of relative accuracy - use calculated cvr */
-#define SRA_STATUS_CALC_FAILED  4 /* Calculation of cvr failed */
-
 #define SRA_LOGLEVEL_OUTPUT 2048 /* Output log to stdout as well as file */
 
 #define SRA_HVMODE_AUTO 0
@@ -91,16 +86,17 @@ typedef struct
     hSDCTest hsdc;
     unsigned char outputlog;
     int nstn;
-    int *order;
-    int *priority;
+    short *role;
+    short *order;
+    short *priority;
     double *horvar;
     double *vrtvar;
     char *alloc;
     stn_relacc **cols;
     bltmatrix *bltdec;  /* Choleski decomposition of normal equns */
-    bltmatrix *blt;
-    char status;
-    char bltvalid;
+    bltmatrix *bltreq;  /* Requested non-zero rows */
+    bltmatrix *blt;     /* Calculated covariance */
+    int bltupdated;     /* True if covar has been calc'd (used for caching) */
     char testhor;
     char testvrt;
     int loglevel;
@@ -115,6 +111,12 @@ typedef struct cfg_stack_s
 
 cfg_stack *cfgs = NULL;
 
+#define CACHE_COVARIANCE_EXT ".scc"
+#define CACHE_COVARIANCE_SIG "SNAPSPEC_CACHED_COVARIANCE"
+#define CACHE_COVARIANCE_SECTION "SNAPSPEC_CACHED_COVARIANCE"
+
+#define SNAPSPEC_CSV_EXT "-snapspec.csv"
+#define SNAPSPEC_CRD_EXT "-snapspec.crd"
 
 /*============================================================*/
 
@@ -138,19 +140,22 @@ static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn );
 static stn_relacc_array *create_relacc( int nstns )
 {
     stn_relacc_array *ra;
-    int *order;
-    int *priority;
+    short *role;
+    short *order;
+    short *priority;
     double *horvar;
     double *vrtvar;
     int i;
 
     ra = (stn_relacc_array *) check_malloc( sizeof(stn_relacc_array) );
-    order = (int *) check_malloc( nstns * sizeof(int));
-    priority = (int *) check_malloc( nstns * sizeof(int));
+    role = (short *) check_malloc( nstns * sizeof(int));
+    order = (short *) check_malloc( nstns * sizeof(int));
+    priority = (short *) check_malloc( nstns * sizeof(int));
     horvar = (double *) check_malloc( nstns * sizeof(double));
     vrtvar = (double *) check_malloc( nstns * sizeof(double));
     for( i = 0; i < nstns; i++ )
     {
+        role[i] = 0;
         order[i] = 0;
         priority[i] = SDC_NO_PRIORITY;
         horvar[i] = 0.0;
@@ -161,16 +166,17 @@ static stn_relacc_array *create_relacc( int nstns )
     ra->hsdc = NULL;
     ra->alloc = NULL;
     ra->cols = NULL;
+    ra->role = role;
     ra->order = order;
     ra->priority = priority;
     ra->horvar = horvar;
     ra->vrtvar = vrtvar;
     ra->logfile = NULL;
     ra->loglevel = 0;
-    ra->status = SRA_STATUS_UNKNOWN;
-    ra->bltvalid = 0;
     ra->bltdec = NULL;
+    ra->bltreq = NULL;
     ra->blt = NULL;
+    ra->bltupdated = 0;
     ra->outputlog = 0;
     ra->autominorder = 0;
     return ra;
@@ -180,6 +186,8 @@ static void delete_relacc( stn_relacc_array *ra )
 {
     int i;
     ra->nstn = 0;
+    check_free( ra->role );
+    ra->role = NULL;
     check_free( ra->order );
     ra->order = NULL;
     check_free( ra->priority );
@@ -201,6 +209,8 @@ static void delete_relacc( stn_relacc_array *ra )
     }
     if( ra->bltdec ) delete_bltmatrix( ra->bltdec );
     ra->bltdec = NULL;
+    if( ra->bltreq ) delete_bltmatrix( ra->bltreq );
+    ra->bltreq = NULL;
     if( ra->blt ) delete_bltmatrix( ra->blt );
     ra->blt = NULL;
     check_free( ra );
@@ -273,19 +283,30 @@ static void add_relacc( stn_relacc_array *ra, int istn, int jstn, double emax2, 
     }
 }
 
-static void relacc_delete_covar( stn_relacc_array *ra )
+static int relacc_create_blt_req( stn_relacc_array *ra )
 {
-    if( ra->blt ) delete_bltmatrix(ra->blt);
-    ra->blt = NULL;
-    ra->bltvalid = 0;
+    if( ! ra->bltreq )
+    {
+        ra->bltreq = create_bltmatrix( ra->bltdec->nrow ); 
+        if( ra->blt )
+        {
+            copy_bltmatrix_bandwidth( ra->blt, ra->bltreq );
+        }
+    }
+    return 1;
 }
 
-static int calc_inverse_matrix( stn_relacc_array *ra )
+static int relacc_calc_requested_covar( stn_relacc_array *ra )
 {
     bltmatrix *bltdec = ra->bltdec;
-    bltmatrix *blt = ra->blt;
-
+    bltmatrix *blt = ra->bltreq;
     if( ! blt || ! bltdec ) return 0;
+
+    if( ra->blt ) 
+    {
+        delete_bltmatrix( ra->blt ); 
+        ra->blt=NULL;
+    }
 
     if( ra->loglevel & SDC_LOG_STEPS )
     {
@@ -298,37 +319,15 @@ static int calc_inverse_matrix( stn_relacc_array *ra )
     }
     copy_bltmatrix( bltdec, blt );
     blt_chol_inv_mt( blt );
-    ra->bltvalid = 1;
+
+    ra->blt=blt;
+    ra->bltupdated=1;
+    ra->bltreq=NULL;
 
     return 1;
 }
 
-static void relacc_set_status( stn_relacc_array *ra, char sts )
-{
-    if( sts == SRA_STATUS_USECOVAR )
-    {
-        ra->status = sts;
-    }
-    else if( sts == SRA_STATUS_RECORD )
-    {
-        if( ra->blt ) { relacc_delete_covar(ra); }
-        ra->status = sts;
-    }
-    else if( ra->status == SRA_STATUS_RECORD && sts == SRA_STATUS_CALC )
-    {
-        if( calc_inverse_matrix( ra ) )
-        {
-            ra->status = SRA_STATUS_CALC;
-        }
-        else
-        {
-            relacc_delete_covar(ra);
-            ra->status = SRA_STATUS_CALC_FAILED;
-        }
-    }
-}
-
-static double relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jstn )
+static void relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jstn )
 {
     stn_adjustment *isa;
     stn_adjustment *jsa;
@@ -336,25 +335,21 @@ static double relacc_record_missing_covar( stn_relacc_array *ra, int istn, int j
     isa = stnadj(stnptr(istn));
     jsa = stnadj(stnptr(jstn));
 
-    /* If the matrix for inversion is not created yet, then create it */
+    /* If the matrix for requests is not created yet, then create it */
 
-    if( ra->bltdec )
-    {
-        int irow = isa->hrowno-1;
-        int jrow = jsa->hrowno-1;
-        int minrow = irow < jrow ? irow : jrow;
-        if( ! ra->blt )
-        {
-            ra->blt = create_bltmatrix( ra->bltdec->nrow );
-        }
-        /* Record the elements required in the covariance matrix */
+    if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
 
-        blt_nonzero_element( ra->blt, irow, minrow );
-        blt_nonzero_element( ra->blt, irow+1, minrow );
-        blt_nonzero_element( ra->blt, jrow, minrow );
-        blt_nonzero_element( ra->blt, jrow+1, minrow );
-    }
-    return SDC_COVAR_UNAVAILABLE;
+    int irow = isa->hrowno-1;
+    int jrow = jsa->hrowno-1;
+    int minrow = irow < jrow ? irow : jrow;
+    if( irow < 0 || jrow < 0 ) return;
+
+    /* Record the elements required in the covariance matrix */
+
+    blt_nonzero_element( ra->bltreq, irow, minrow );
+    blt_nonzero_element( ra->bltreq, irow+1, minrow );
+    blt_nonzero_element( ra->bltreq, jrow, minrow );
+    blt_nonzero_element( ra->bltreq, jrow+1, minrow );
 }
 
 static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jstn )
@@ -371,9 +366,7 @@ static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jst
     jsa = stnadj(stnptr(jstn));
 
     /* Note: assume that we only get here if both stations are having
-       horizontal coordinates calculated - any other option is already
-       filtered out by relacc_record_missing_covar.  if .. clause
-       should never be triggered. */
+       horizontal coordinates calculated */
 
     if( ! isa->hrowno || ! jsa->hrowno )
     {
@@ -419,11 +412,7 @@ static double relacc_try_calc_missing_covar( stn_relacc_array *ra, int istn, int
 static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn )
 {
 
-    if( ra->status == SRA_STATUS_RECORD )
-    {
-        return relacc_record_missing_covar( ra, istn, jstn );
-    }
-    else if( istn == jstn )
+    if( istn == jstn )
     {
         return ra->horvar[istn-1];
     }
@@ -439,47 +428,38 @@ static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn )
 
         else
         {
-            /* If in second pass, then covariance should be available */
+            stn_adjustment *isa = stnadj(stnptr(istn));
+            stn_adjustment *jsa = stnadj(stnptr(jstn));
 
-            if( ra->status == SRA_STATUS_CALC )
+            /* If one or other station is not adjusted horizontally, then just need to use
+               the variance of the other  */
+
+            if( ! isa->hrowno  )
             {
-                emax2 = relacc_calc_missing_covar( ra, istn, jstn );
+                emax2 = ra->horvar[jstn-1];
+            }
+            else if( ! jsa->hrowno )
+            {
+                emax2 = ra->horvar[istn-1];
+            }
+
+            /* Else if we've already calculated a covariance matrix,
+               then try using it */
+
+            else if( ra->blt )
+            {
+                emax2 = relacc_try_calc_missing_covar( ra, istn, jstn );
             }
             else
             {
-                stn_adjustment *isa = stnadj(stnptr(istn));
-                stn_adjustment *jsa = stnadj(stnptr(jstn));
-
-                /* If one or other station is not adjusted horizontally, then just need to use
-                   the variance of the other  */
-
-                if( ! isa->hrowno  )
-                {
-                    emax2 = ra->horvar[jstn-1];
-                }
-                else if( ! jsa->hrowno )
-                {
-                    emax2 = ra->horvar[istn-1];
-                }
-
-                /* Else if we've already calculated a covariance matrix,
-                   then try using it */
-
-                else if( ra->bltvalid )
-                {
-                    emax2 = relacc_try_calc_missing_covar( ra, istn, jstn );
-                }
-                else
-                {
-                    emax2 = SDC_COVAR_UNAVAILABLE;
-                }
+                emax2 = SDC_COVAR_UNAVAILABLE;
             }
         }
         return emax2;
     }
 }
 
-static double relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn )
+static void relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn )
 {
     stn_adjustment *isa;
     stn_adjustment *jsa;
@@ -487,22 +467,15 @@ static double relacc_record_missing_verr( stn_relacc_array *ra, int istn, int js
     isa = stnadj(stnptr(istn));
     jsa = stnadj(stnptr(jstn));
 
-    /* If the matrix for inversion is not created yet, then create it */
+    int irow = isa->vrowno-1;
+    int jrow = jsa->vrowno-1;
+    if( irow < 0 || jrow < 0 ) return;
 
-    if( ra->bltdec )
-    {
-        int irow = isa->vrowno-1;
-        int jrow = jsa->vrowno-1;
+    /* If the matrix for requests is not created yet, then create it */
 
-        if( ! ra->blt )
-        {
-            ra->blt = create_bltmatrix( ra->bltdec->nrow );
-        }
-        /* Record the elements required in the covariance matrix */
+    if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
 
-        blt_nonzero_element( ra->blt, irow, jrow );
-    }
-    return SDC_COVAR_UNAVAILABLE;
+    blt_nonzero_element( ra->bltreq, irow, jrow );
 }
 
 static double relacc_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn )
@@ -517,9 +490,7 @@ static double relacc_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn
     jsa = stnadj(stnptr(jstn));
 
     /* Note: assume that we only get here if both stations are having
-       horizontal coordinates calculated - any other option is already
-       filtered out by relacc_record_missing_covar.  if .. clause
-       should never be triggered. */
+       vertical coordinates calculated */
 
     if( ! isa->vrowno || ! jsa->vrowno )
     {
@@ -553,11 +524,7 @@ static double relacc_try_calc_missing_verr( stn_relacc_array *ra, int istn, int 
 static double relacc_get_verr( stn_relacc_array *ra, int istn, int jstn )
 {
 
-    if( ra->status == SRA_STATUS_RECORD )
-    {
-        return relacc_record_missing_verr( ra, istn, jstn );
-    }
-    else if( istn == jstn )
+    if( istn == jstn )
     {
         return ra->vrtvar[istn-1];
     }
@@ -574,38 +541,31 @@ static double relacc_get_verr( stn_relacc_array *ra, int istn, int jstn )
         {
             /* If in second pass, then covariance should be available */
 
-            if( ra->status == SRA_STATUS_CALC )
+            stn_adjustment *isa = stnadj(stnptr(istn));
+            stn_adjustment *jsa = stnadj(stnptr(jstn));
+
+            /* If one or other station is not adjusted horizontally, then just need to use
+               the variance of the other  */
+
+            if( ! isa->vrowno  )
             {
-                verr = relacc_calc_missing_verr( ra, istn, jstn );
+                verr = ra->vrtvar[jstn-1];
+            }
+            else if( ! jsa->vrowno )
+            {
+                verr = ra->vrtvar[istn-1];
+            }
+
+            /* Else if we've already calculated a covariance matrix,
+               then try using it */
+
+            else if( ra->blt )
+            {
+                verr = relacc_try_calc_missing_verr( ra, istn, jstn );
             }
             else
             {
-                stn_adjustment *isa = stnadj(stnptr(istn));
-                stn_adjustment *jsa = stnadj(stnptr(jstn));
-
-                /* If one or other station is not adjusted horizontally, then just need to use
-                   the variance of the other  */
-
-                if( ! isa->vrowno  )
-                {
-                    verr = ra->vrtvar[jstn-1];
-                }
-                else if( ! jsa->vrowno )
-                {
-                    verr = ra->vrtvar[istn-1];
-                }
-
-                /* Else if we've already calculated a covariance matrix,
-                   then try using it */
-
-                else if( ra->bltvalid )
-                {
-                    verr = relacc_try_calc_missing_verr( ra, istn, jstn );
-                }
-                else
-                {
-                    verr = SDC_COVAR_UNAVAILABLE;
-                }
+                verr = SDC_COVAR_UNAVAILABLE;
             }
         }
         return verr;
@@ -805,6 +765,64 @@ static int reload_choleski_decomposition( BINARY_FILE *b, stn_relacc_array *ra )
     return OK;
 }
 
+static char *cache_covariance_filename( char *bfn )
+{
+    int flen=path_len(bfn,1);
+    char *cfn=(char *) check_malloc(flen+strlen(CACHE_COVARIANCE_EXT)+1);
+    strncpy(cfn,bfn,flen);
+    strcpy(cfn+flen,CACHE_COVARIANCE_EXT);
+    return cfn;
+}
+
+static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
+{
+    BINARY_FILE *c;
+    char cruntime[GETDATELEN];
+    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG);
+    if( ! c ) return 0;
+    if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
+    {
+        close_binary_file(c);
+        return 0;
+    }
+    fread( cruntime, GETDATELEN, 1, c->f );
+    if( _strnicmp(cruntime,run_time,GETDATELEN) != 0 )
+    {
+        printf("Covariance cache file out of date - deleting %s\n",cfn);
+        close_binary_file(c);
+        _unlink(cfn);
+        return 0;
+    }
+
+    if( ra->blt )
+    {
+        delete_bltmatrix(ra->blt);
+        ra->blt=0;
+    }
+    if( reload_bltmatrix( &(ra->blt), c->f ) !=  OK )
+    {
+        return 0;
+    }
+    close_binary_file(c);
+    ra->bltupdated=0;
+    printf("Using covariance from cache file %s\n",cfn);
+    return 1;
+}
+
+static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
+{
+    if( ! ra->blt ) return;
+    if( ! ra->bltupdated ) return;
+    BINARY_FILE *c;
+    c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
+    if( ! c ) return;
+    create_section(c,CACHE_COVARIANCE_SECTION);
+    fwrite(run_time,GETDATELEN,1,c->f);
+    dump_bltmatrix(ra->blt,c->f);
+    end_section(c);
+    close_binary_file(c);
+    printf("Created covariance cache file %s\n",cfn);
+}
 
 /*======================================================================*/
 /* Functions used by SDC module                                         */
@@ -823,7 +841,7 @@ static int f_station_role ( void *env, int stn )
     int role;
     int istn = f_station_id( env, stn );
     stn_relacc_array *ra = (stn_relacc_array *) env;
-    role = ra->order[stn];
+    role = ra->role[stn];
     if( role == SDC_IGNORE_MARK || role == SDC_CONTROL_MARK ) return role;
 
     st = stnptr(istn);
@@ -835,13 +853,13 @@ static int f_station_role ( void *env, int stn )
     }
     else if( (sa->hrowno && ra->testhor) || (sa->vrowno && ra->testvrt) )
     {
-        role = ra->order[stn];
+        role = ra->role[stn];
     }
     else
     {
         role = SDC_CONTROL_MARK;
     }
-    ra->order[stn]=role;
+    ra->role[stn]=role;
     return role;
 }
 
@@ -878,17 +896,6 @@ static double f_distance2( void *env, int stn1, int stn2 )
     return dist2;
 }
 
-static void f_setphase( void *env, int phase )
-{
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    switch( phase )
-    {
-    case SDC_PHASE_CALCULATE: relacc_set_status( ra, SRA_STATUS_USECOVAR ); break;
-    case SDC_PHASE_RECORD_MISSING: relacc_set_status( ra, SRA_STATUS_RECORD ); break;
-    case SDC_PHASE_CALC_MISSING: relacc_set_status( ra, SRA_STATUS_CALC ); break;
-    }
-}
-
 static double f_error2( void *env, int stn1, int stn2 )
 {
     int istn1, istn2;
@@ -915,10 +922,26 @@ static double f_vrterror2( void *env, int stn1, int stn2 )
     return verr;
 }
 
+static void f_request_covar( void *env, int stn1, int stn2 )
+{
+    int istn1, istn2;
+    stn_relacc_array *ra = (stn_relacc_array *) env;
+    istn1 = f_station_id( env, stn1 );
+    istn2 = f_station_id( env, stn2 );
+    relacc_record_missing_covar( ra, istn1, istn2 );
+    relacc_record_missing_verr( ra, istn1, istn2 );
+}
+
+static int f_calc_requested( void *env )
+{
+    stn_relacc_array *ra = (stn_relacc_array *) env;
+    return relacc_calc_requested_covar( ra );
+}
+
 static void f_set_order( void *env, int stn, int order )
 {
     stn_relacc_array *ra = (stn_relacc_array *) env;
-    ra->order[stn] = order+1;
+    ra->order[stn] = (short) (order+1);
 }
 
 static void f_write_log( void *env, const char *text )
@@ -937,7 +960,8 @@ static hSDCTest create_test( int maxorder )
     hsdc->pfStationRole = f_station_role;
     hsdc->pfStationPriority = f_station_priority;
     hsdc->pfDistance2 = f_distance2;
-    hsdc->pfSetPhase = f_setphase;
+    hsdc->pfRequestCovar = f_request_covar;
+    hsdc->pfCalcRequested = f_calc_requested;
     hsdc->pfError2 = f_error2;
     hsdc->pfVrtError2 = f_vrterror2;
     hsdc->pfSetOrder = f_set_order;
@@ -962,7 +986,6 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
     int nstns = ra->nstn;
     int order;
     char header[80];
-    int i;
 
     if( ! out ) return;
 
@@ -1019,6 +1042,187 @@ static void write_station_index( hSDCTest hsdc, stn_relacc_array *ra )
 }
 
 
+static const char *relacc_order_string( stn_relacc_array *ra, short order )
+{
+    const char *control="C";
+    const char *ignored="I";
+
+    if( order == SDC_CONTROL_MARK ) return control;
+    if( order == SDC_IGNORE_MARK ) return ignored;
+    if( order == 0 ) return dfltOrder;
+    return ra->hsdc->tests[order-1].scOrder;
+}
+
+static char *output_filename( const char *filename, const char *basename, const char *ext )
+{
+    if( filename && _stricmp(filename,"-") != 0 )
+    {
+        return copy_string(filename);
+    }
+    int flen=path_len(basename,1);
+    char *ofilename=(char *) check_malloc(flen+strlen(ext)+1);
+    strncpy(ofilename,basename,flen);
+    strcpy(ofilename+flen,ext);
+    return ofilename;
+}
+
+static void write_output_csv( char *csvname, stn_relacc_array *ra )
+{
+    output_csv *csv=open_output_csv(csvname,0);
+    if( ! csv )
+    {
+        printf("\nCannot open results csv file %s\n",csvname);
+        return;
+    } 
+
+    int haveorders = network_order_count(net) > 0;
+    int geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
+    int projection_coords = is_projection( net->crdsys ) ? 1 : 0;
+    int ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
+    projection *prj = net->crdsys->prj;
+    ellipsoid *elp = net->crdsys->rf->el;
+
+    write_csv_header( csv, "code" );
+    write_csv_header( csv, "crdsys" );
+    if( geocentric_coords )
+    {
+        /* Set ellipsoidal as true so that ellipsoidal height is calced */
+        ellipsoidal=1;
+        write_csv_header( csv,"X");
+        write_csv_header( csv,"Y");
+        write_csv_header( csv,"Z");
+    }
+    else
+    {
+        if( projection_coords )
+        {
+            write_csv_header( csv,"easting");
+            write_csv_header( csv,"northing");
+        }
+        else
+        {
+            write_csv_header( csv,"longitude");
+            write_csv_header( csv,"latitude");
+        }
+        write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
+        write_csv_header( csv, "height_type" );
+    }
+    if( haveorders ) write_csv_header(csv,"src_order");
+    write_csv_header(csv,"mode");
+    write_csv_header( csv, "adj_e" );
+    write_csv_header( csv, "adj_n" );
+    write_csv_header( csv, "adj_h" );
+    write_csv_header( csv, "errhor" );
+    write_csv_header( csv, "errhgt" );
+    write_csv_header( csv, "status" );
+    write_csv_header( csv, "calc_order" );
+    end_output_csv_record(csv);
+
+    station *st;
+    for( reset_station_list(net,0); NULL != (st = next_station(net)); )
+    {
+        int idra=st->id-1;
+        stn_adjustment *sa = stnadj(st);
+        if( sa->flag.ignored ) continue;
+        double height = st->OHgt;
+        if( ellipsoidal ) height += st->GUnd;
+
+        int adjusted = sa->hrowno || sa->vrowno;
+
+        write_csv_string( csv, st->Code );
+        write_csv_string(csv,net->crdsys->code);
+
+        if( geocentric_coords )
+        {
+            double llh[3], xyz[3];
+            llh[CRD_LON]=st->ELon;
+            llh[CRD_LAT]=st->ELat;
+            llh[CRD_HGT]=height;
+            llh_to_xyz( elp, llh, xyz, 0, 0);
+            write_csv_double( csv, xyz[CRD_X], coord_precision );
+            write_csv_double( csv, xyz[CRD_Y], coord_precision );
+            write_csv_double( csv, xyz[CRD_Z], coord_precision );
+        }
+        else
+        {
+            if( projection_coords )
+            {
+                double easting, northing;
+                geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
+                write_csv_double( csv, easting, coord_precision );
+                write_csv_double( csv, northing, coord_precision );
+            }
+            else
+            {
+                write_csv_double( csv, st->ELon*RTOD, coord_precision+5 );
+                write_csv_double( csv, st->ELat*RTOD, coord_precision+5 );
+            }
+
+            write_csv_double( csv, height, coord_precision );
+        }
+
+        if( haveorders )
+        {
+            int orderid = network_station_order(net,st);
+            write_csv_string( csv, network_order(net,orderid) );
+        }
+
+        if( adjusted )
+        {
+            double de, dn, dh;
+            char mode[3] = { '-', '-', 0 };
+            if( sa->flag.float_h ) mode[0] = 'h';
+            else if( sa->flag.adj_h ) mode[0] = 'H';
+            if( sa->flag.float_v ) mode[1] = 'v';
+            else if( sa->flag.adj_v ) mode[1] = 'V';
+
+            dn = ( st->ELat - sa->initELat ) * st->dNdLt;
+            de = ( st->ELon - sa->initELon ) * st->dEdLn;
+            dh = st->OHgt - sa->initOHgt;
+
+            write_csv_string(csv,mode);
+            write_csv_double( csv, de, coord_precision );
+            write_csv_double( csv, dn, coord_precision );
+            write_csv_double( csv, dh, coord_precision );
+
+            if( ra->horvar[idra] >= 0.0 )
+            {
+                write_csv_double( csv, sqrt(ra->horvar[idra]), coord_precision );
+            }
+            else
+            {
+                write_csv_null_field( csv );
+            }
+
+            if( ra->vrtvar[idra] >= 0.0 )
+            {
+                write_csv_double( csv, sqrt(ra->vrtvar[idra]), coord_precision );
+            }
+            else
+            {
+                write_csv_null_field( csv );
+            }
+
+        }
+        else
+        {
+            write_csv_null_field( csv );
+            write_csv_null_field( csv );
+            write_csv_null_field( csv );
+            write_csv_null_field( csv );
+            write_csv_null_field( csv );
+            write_csv_null_field( csv );
+        }
+        
+        write_csv_string( csv, relacc_order_string( ra, ra->role[st->id-1]) );
+        write_csv_string( csv, relacc_order_string( ra, ra->order[st->id-1]) );
+
+        end_output_csv_record(csv);
+    }
+    close_output_csv( csv );
+}
+
+
 static int station_order;
 
 static int stations_of_order( station *st )
@@ -1065,6 +1269,17 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, char *fname 
     }
 
     check_free(crdfilebuf);
+}
+
+static void copy_unused_roles_to_orders( stn_relacc_array *ra )
+{
+    for( int istn = 0; istn < number_of_stations(net); istn++ )
+    {
+        if( ra->role[istn] == SDC_CONTROL_MARK || ra->role[istn] == SDC_IGNORE_MARK )
+        {
+            ra->order[istn]=ra->role[istn];
+        }
+    }
 }
 
 static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
@@ -1567,7 +1782,7 @@ static int find_order( hSDCTest hsdc, char *order )
 
 typedef struct
 {
-    int order;
+    short order;
     stn_relacc_array *ra;
 } limit_order_params;
 
@@ -1575,7 +1790,7 @@ static void set_max_order( station *st, void *data )
 {
     limit_order_params *p = (limit_order_params *)data;
     int istn = st->id;
-    if( istn > 0 ) p->ra->order[istn-1] = p->order;
+    if( istn > 0 ) p->ra->role[istn-1] = p->order;
 }
 
 static void set_priority( station *st, void *data )
@@ -1809,7 +2024,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                         order = find_order(p.ra->hsdc,field[orderfield]);
                         if( order >= 0 )
                         {
-                            ra->order[istn-1]=order;
+                            ra->role[istn-1]=order;
                         }
                         else
                         {
@@ -1822,7 +2037,10 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                             sts=INVALID_DATA;
                         }
                     }
-                    ra->order[istn-1]=order;
+                    else
+                    {
+                        ra->role[istn-1]=order;
+                    }
                 }
             }
             if( istn > 0 && priorityfield > 0 && field[priorityfield] && *(field[priorityfield])) 
@@ -1833,7 +2051,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                     char check;
                     if( strcmp(field[priorityfield],"*") == 0 )
                     {
-                        ra->order[istn-1]=SDC_IGNORE_MARK;
+                        ra->role[istn-1]=SDC_IGNORE_MARK;
                     }
                     else if( sscanf(field[priorityfield],"%d%c",&priority,&check) == 1 )
                     {
@@ -1869,13 +2087,14 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
 
 static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code ); 
+static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static config_item cfg_commands[] =
 {
     {"configuration",NULL,CFG_ABSOLUTE,0,read_configuration_command,0,1},
     {"test",NULL,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
-    {"log_level",NULL,OFFSETOF(SDCTest,loglevel),0,readcfg_int,CFG_ONEONLY,1},
+    {"log_level",NULL,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
     {"test_config_options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
     {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
@@ -2025,12 +2244,12 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int le
     stn_relacc_array *ra = * (stn_relacc_array **) value;
     for( option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
     {
-        if( _stricmp(option,"only_test_orders_worse_than_control") == 0 
+        if( _stricmp(option,"limit_orders_by_control") == 0 
                 || _stricmp(option,"auto_min_order") == 0 )
         {
             ra->autominorder=1;
         }
-        else if( _stricmp(option,"fail_if_no_tests") == 0 )
+        else if( _stricmp(option,"fail_if_no_relacc_tests") == 0 )
         {
             ra->hsdc->options |= SDC_OPT_FAIL_NORELACC;
         }
@@ -2048,6 +2267,61 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int le
             sprintf(errmsg,"Invalid value %.40s in option command",
                     option);
             send_config_error(cfg, INVALID_DATA, errmsg );
+        }
+    }
+    return OK;
+}
+
+static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    hSDCTest sdc=*(hSDCTest *) value;
+    int level;
+    if( readcfg_int(cfg,string,&level,sizeof(int),0) == OK )
+    {
+        sdc->loglevel |= level;
+    }
+    else
+    {
+        for( char *option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
+        {
+            level=0;
+            if( _stricmp(option,"steps") == 0 )
+            {
+                level=SDC_LOG_STEPS;
+            }
+            else if( _stricmp(option,"test_details") == 0 )
+            {
+                level=SDC_LOG_TESTS;
+            }
+            else if( _stricmp(option,"accuracy_calcs") == 0 )
+            {
+                level=SDC_LOG_CALCS;
+            }
+            else if( _stricmp(option,"distance_calcs") == 0 )
+            {
+                level=SDC_LOG_DISTS;
+            }
+            else if( _stricmp(option,"rel_acc_calcs") == 0 )
+            {
+                level=SDC_LOG_CALCS2;
+            }
+            else if( _stricmp(option,"debug") == 0 )
+            {
+                level=SDC_LOG_DEBUG;
+            }
+            else if( _stricmp(option,"timing") == 0 )
+            {
+                level=SDC_LOG_TIMESTAMP;
+            }
+            else
+            {
+                char errmsg[100];
+                sprintf(errmsg,"Invalid value %.40s in option command",
+                        option);
+                send_config_error(cfg, INVALID_DATA, errmsg );
+                continue;
+            }
+            sdc->loglevel |= level;
         }
     }
     return OK;
@@ -2146,8 +2420,11 @@ int main( int argc, char *argv[] )
     char *min_order_str = NULL;
     char *modestr = NULL;
     const char *max_control_str = NULL;
-    char *newcrdfile = NULL;
+    char *outputcsvname = NULL;
     char *updatecrdfile = NULL;
+    char *splitcrdfile = NULL;
+    int use_cache = 0;
+    char *cvrcachefile = 0;
     int autominorder = 0;
     int hvmode = SRA_HVMODE_AUTO;
     int sts;
@@ -2164,49 +2441,74 @@ int main( int argc, char *argv[] )
 
     while( argc >= 3 && argv[1][0] == '-' )
     {
-        int narg = 2;
+        int narg = 1;
+        int narg2 = 2;
+        char *arg2=argv[2];
+        if( argv[1][2] )
+        {
+            narg2 = 1;
+            arg2 = argv[1]+2;
+        }
+
         switch( argv[1][1] )
         {
         case 'o':
         case 'O':
-            min_order_str = argv[2];
+            min_order_str = arg2;
+            narg=narg2;
             break;
 
-        case 'f':
+        case 'f': /* For backwards compatibility */
         case 'F':
-            newcrdfile = argv[2];
+        case 's':
+        case 'S':
+            splitcrdfile = arg2;
+            narg=narg2;
             break;
 
-        case 'm':
-        case 'M':
-            modestr = argv[2];
+        case 'c':
+        case 'C':
+            outputcsvname=arg2;
+            narg=narg2;
             break;
 
         case 'u':
         case 'U':
-            updatecrdfile = argv[2];
+            updatecrdfile = arg2;
+            narg=narg2;
+            break;
+
+        case 'm':
+        case 'M':
+            modestr = arg2;
+            narg=narg2;
             break;
 
         case 'a':
         case 'A':
             autominorder = 1;
-            narg = 1;
+            break;
+
+        case 'v':
+        case 'V':
+            use_cache=1;
             break;
 
         case 't':
         case 'T': {
             int nthread;
-            if( _stricmp(argv[2],"auto") == 0 )
+            if( _stricmp(arg2,"auto") == 0 )
             {
                 nthread=BLT_DEFAULT_NTHREAD;
             }
-            else if( sscanf(argv[2],"%d",&nthread) != 0 )
+            else if( sscanf(arg2,"%d",&nthread) != 1 || nthread <= 0 )
             {
-                printf("snapspec: Invalid value %s for number of threads",argv[2]);
+                printf("snapspec: Invalid value %s for number of threads",arg2);
                 return 0;
             }
             blt_set_number_of_threads(nthread);
             }
+            narg=narg2;
             break;
 
         default:
@@ -2246,9 +2548,12 @@ int main( int argc, char *argv[] )
         printf("   -o order      Specifies the highest order to test\n");
         printf("   -a            Base the highest order on the control station orders\n");
         printf("   -m mode       The mode for testing, 3d, horizontal, vertical, or auto (default)\n");
-        printf("   -u crdfile    Updates the orders in the named coordinate file\n");
-        printf("   -f filename   Specifies the base name for generated coordinate files (no extension)\n");
+        printf("   -u filename   Updates the orders in the named coordinate file\n");
+        printf("   -s filename   Base name for seperate coordinate files for each order (no extension)\n");
+        printf("   -c filename   Output results in a csv file\n");
+        printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
         printf("   -t #|auto     Specifies the number of threads to use\n\n");
+        printf("Use filename \"-\" to use default filenames for outputs\n\n");
         return 0;
     }
 
@@ -2276,7 +2581,7 @@ int main( int argc, char *argv[] )
     init_snap_globals();
     install_default_projections();
     install_default_crdsys_file();
-    cfn = find_file( basecfn, ".cfg", bfn, FF_TRYALL, "snapspec" );
+    cfn = copy_string(find_file( basecfn, ".cfg", bfn, FF_TRYALL, "snapspec" ));
 
     fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
     fprintf(out,"Run at %s\n",spec_run_time);
@@ -2346,6 +2651,10 @@ int main( int argc, char *argv[] )
                 "   output decomposition\n", bfn);
         return 0;
     }
+
+    cvrcachefile=cache_covariance_filename( bfn );
+    try_reload_cached_covariance( ra, cvrcachefile );
+    close_binary_file(b);
 
     if( ra->bltdec )
     {
@@ -2426,13 +2735,42 @@ int main( int argc, char *argv[] )
     if( hsdc->loglevel > 1 ) write_station_index( hsdc, ra );
 
     sts = run_tests( hsdc );
+
+    copy_unused_roles_to_orders( ra );
+
     if( sts == STS_OK )
     {
         update_station_orders(hsdc,ra);
-        write_results( hsdc, ra );
-        if( newcrdfile ) write_coord_files( hsdc, ra, newcrdfile );
+        if( outputcsvname )
+        {
+            char *csvfile=output_filename(outputcsvname,bfn,SNAPSPEC_CSV_EXT);
+            write_output_csv( csvfile, ra );
+            fprintf(out,"\nResults written to CSV file %s\n",csvfile);
+            printf("Results written to CSV file %s\n",csvfile);
+            check_free(csvfile);
+        }
+        else
+        {
+            write_results( hsdc, ra );
+        }
 
-        if( updatecrdfile ) update_crdfile( updatecrdfile );
+        if( updatecrdfile )
+        {
+            char *crdfile=output_filename(updatecrdfile,bfn,SNAPSPEC_CRD_EXT);
+            update_crdfile( crdfile );
+            fprintf(out,"\nUpdated coordinate file written to %s\n",crdfile);
+            printf("Updated coordinate file written to %s\n",crdfile);
+            check_free(crdfile);
+        }
+
+        if( splitcrdfile ) 
+        {
+            char *crdfile=output_filename(updatecrdfile,bfn,"");
+            write_coord_files( hsdc, ra, crdfile );
+            fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile);
+            printf("Split coordinate files written to %s...\n",crdfile);
+        }
+
     }
     else
     {
@@ -2442,6 +2780,8 @@ int main( int argc, char *argv[] )
 
     ra->logfile = NULL;
     fclose(out);
+
+    if( use_cache && ra->bltupdated ) cache_covariance_matrix( ra, cvrcachefile );
 
     delete_test(hsdc);
     delete_relacc( ra );

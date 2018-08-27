@@ -29,9 +29,15 @@ which the first word is the command name, and the following text define the
 command options. The file can include the following commands.
 </p>
 
-<p class="CommandDefinition">test <i>test definition</i></p>
-<p class="CommandDescription">Each order is defined by a test command, which specifies the accuracy requirements a 
-station must achieve to be assigned to that order.  The accuracy requirement comprises a number
+<p class="CommandDefinition">test <i>order accuracy_specification</i></p>
+<p class="CommandDescription">
+Each order is defined by a test command, which specifies the accuracy requirements a 
+station must achieve to be assigned to that order.  
+The order test commands must be ordered from the highest (most accurate) 
+to lowest (least accurate) order.
+</p>
+<p class="CommandDescription">
+The accuracy specification comprises a number
 of components as defined by the <a href="algorithm.html">snapspec algorithm</a>.  These are:</p>
 <table class="CommandDescription">
 <tr>
@@ -129,27 +135,28 @@ Empty fields and fields containing just &quot;-&quot; are ignored.
 <p class="CommandDescription">
 Specifies options controlling the tests.  The following options can be used:
 </p>
-<ul class="CommandDescription">
-<li>only_test_orders_worse_than_control: limits the order tests to orders worse than the lowest ordered control station.  
-    This is equivalent to the snapspec -a command line option.</li>
-<li>no_rel_acc_by_abs_optimisation: This disables the optimisation to avoid calculating relative accuracies for tests where
-the absolute accuracy information is sufficient</li> 
-<li>strict_rel_acc_by_abs_optimisation: This makes the optimisation rigorous by not assuming positive correlation
-    between mark coordinates. This makes the optimisation less efficient. </li> 
-</ul>
-<p class="CommandDefinition">log_level <i>level</i></p>
+<table class="CommandDescription">
+    <tr><td>limit_orders_by_control</td><td>limits the order tests to orders worse than the lowest ordered control station.  
+    This is equivalent to the snapspec -a command line option.</td></tr>
+    <tr><td>fail_if_no_relacc_tests</td><td>Controls the behaviour when there are no relative accuracy tests available for a station (all other stations out of range or already rejected for the order).  By default these stations are accespted for the order - this option makes them rejected.</td></tr>
+    <tr><td>no_rel_acc_by_abs_optimisation</td><td>This disables the optimisation to avoid calculating relative accuracies for tests where
+the absolute accuracy information is sufficient</td></tr> 
+    <tr><td>strict_rel_acc_by_abs_optimisation</td><td>This makes the optimisation rigorous by not assuming positive correlation
+    between mark coordinates. This makes the optimisation less efficient. </td></tr> 
+</table>
+<p class="CommandDefinition">log_level <i>level ...</i></p>
 <p class="CommandDescription">
 Defines the amount of information recorded in the log file.  This may be useful for analysing the assignment of
-station orders when the results are unexpected.  This is a numeric value calculated by adding the following 
-options
+station orders when the results are unexpected.  This is can include any of the following options:
 </p>
 <table class="CommandDescription">
-<tr><td>1</td><td>list the steps used in assigning orders</td></tr>
-<tr><td>2</td><td>lists details of specific tests</td></tr>
-<tr><td>4</td><td>lists details of accuracy calculations</td></tr>
-<tr><td>8</td><td>lists calculated distances</td></tr>
-<tr><td>16</td><td>lists additional information about relative accuracy calcs</td></tr>
-<tr><td>32&nbsp;&nbsp;</td><td>lists timings of accuracy tests</td></tr>
+<tr><td>steps</td><td>list the steps used in assigning orders</td></tr>
+<tr><td>test_details</td><td>lists details of specific tests</td></tr>
+<tr><td>accuracy_calcs</td><td>lists details of accuracy calculations</td></tr>
+<tr><td>distance_calcs</td><td>lists calculated distances</td></tr>
+<tr><td>rel_accuracy_calcs</td><td>lists additional information about relative accuracy calcs</td></tr>
+<tr><td>timing</td><td>lists timings of accuracy tests</td></tr>
+<tr><td>debug</td><td>lists all log output except timing</td></tr>
 </table>
 
 <!--
@@ -204,7 +211,7 @@ limit_order 6 marktype=peg
 
 ! Output option
 
-log_level 0
+log_level steps test_details
 </pre>
 
 

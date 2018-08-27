@@ -1,0 +1,6 @@
+test: Updated coord output
+file: snapspec8.crd
+file: snapspec8.dat
+file: snapspec8.snp {test}.snp
+file:  snapspec8.cfg {test}.cfg
+parameters: -u ss8.new

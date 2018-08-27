@@ -1,0 +1,87 @@
+snapspec version 2.7.12-68f13b4: Calculation of station orders
+Run at 27-AUG-2018 13:42:10
+SNAP binary file: snapspec8b.bin
+Spec configuration file: snapspec8b.cfg
+SNAP run time: 27-AUG-2018 13:42:10
+Running apriori tests
+
+
+Station lookup for SDC test module
+    id code  role prty
+     1 F0      -2   -1
+     2 F1       1   -1
+     3 F2       0   -1
+     4 F3       0   -1
+     5 F4      -2   -1
+     6 F5       2   -1
+     7 F6       2   -1
+     8 F7       1   -1
+     9 F8       1   -1
+    10 F9       0   -1
+    11 F10      0   -1
+    12 F11     -1   -1
+    13 F12     -1   -1
+    14 F13     -1   -1
+
+Initiallizing SDC tests
+Loading marks for SDC tests
+Finding nearest control for each mark
+==============================================================
+Running test for order 4
+   Absolute accuracy maximum = 1000.000 m
+   Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
+   Relative accuracy by abs accuracy = 0.000 m
+   Maximum range for relative accuracy test = 0.0 m
+   Relative accuracy maximum = 4.000 m +/- 0.0000 m/100m
+Applying absolute accuracy test
+Setting up array for relative accuracy tests
+Applying relative accuracy test
+  Station 3 passes rel accuracy tests (5)
+  Station 4 passes rel accuracy tests (5)
+  Station 10 passes rel accuracy tests (5)
+  Station 11 passes rel accuracy tests (5)
+Setting node orders
+  Setting order of node 3 to 4
+  Setting order of node 4 to 4
+  Setting order of node 10 to 4
+  Setting order of node 11 to 4
+==============================================================
+Running test for order 5
+   Absolute accuracy maximum = 1000.000 m
+   Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
+   Relative accuracy by abs accuracy = 0.000 m
+   Maximum range for relative accuracy test = 0.0 m
+   Relative accuracy maximum = 5.000 m +/- 0.0000 m/100m
+Applying absolute accuracy test
+Applying relative accuracy test
+  Station 2 passes rel accuracy tests (8)
+  Station 8 passes rel accuracy tests (8)
+  Station 9 passes rel accuracy tests (8)
+Setting node orders
+  Setting order of node 2 to 5
+  Setting order of node 8 to 5
+  Setting order of node 9 to 5
+==============================================================
+Running test for order 6
+   Absolute accuracy maximum = 1000.000 m
+   Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
+   Relative accuracy by abs accuracy = 0.000 m
+   Maximum range for relative accuracy test = 0.0 m
+   Relative accuracy maximum = 6.000 m +/- 0.0000 m/100m
+Applying absolute accuracy test
+Applying relative accuracy test
+  Station 6 passes rel accuracy tests (10)
+  Station 7 passes rel accuracy tests (10)
+Setting node orders
+  Setting order of node 6 to 6
+  Setting order of node 7 to 6
+==============================================================
+Running test for order 7
+   Absolute accuracy maximum = 1000.000 m
+   Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
+   Relative accuracy by abs accuracy = 0.000 m
+   Maximum range for relative accuracy test = 0.0 m
+   Relative accuracy maximum = 7.000 m +/- 0.0000 m/100m
+==============================================================
+
+Results written to CSV file snapspec8b-snapspec.csv

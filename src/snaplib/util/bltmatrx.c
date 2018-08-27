@@ -343,9 +343,9 @@ void expand_bltmatrix_to_requested( bltmatrix *blt )
     if( expand ) alloc_bltrow_arrays( blt );
 }
 
-/* Copy bltmatrix */
+/* Copy bltmatrix bandwidth */
 
-int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
+int copy_bltmatrix_bandwidth( bltmatrix *bltsrc, bltmatrix *bltcopy )
 {
     int i;
     int nrow;
@@ -362,12 +362,27 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
         blt_nonzero_element(bltcopy,i,bltsrc->row[i].col);
     }
     blt_set_sparse_rows(bltcopy,nrow);
+    return OK;
+}
+
+/* Copy bltmatrix */
+
+int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
+{
+    int i;
+    int nrow;
+    int sts;
+    
+    sts = copy_bltmatrix_bandwidth( bltsrc, bltcopy );
+    if( sts != OK ) return sts;
 
     expand_bltmatrix_to_requested( bltcopy );
     if( bltcopy->status != BLT_READY ) alloc_bltrow_arrays( bltcopy );
 
     /* Copy the data row by row */
 
+    nrow = bltsrc->nrow;
+    nrow = bltsrc->nrow;
     for( i = 0; i < nrow; i++ )
     {
         bltrow *rs = &(bltsrc->row[i]);

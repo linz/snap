@@ -1019,136 +1019,6 @@ void print_json_end( FILE *out, const char *name )
     fprintf( out, "\nEND_JSON %s\n",name);
 }
 
-output_csv *open_output_csv(const char *type)
-{
-    int rlen;
-    output_csv *csv;
-    char *filename;
-    FILE *f;
-
-    rlen = strlen( root_name );
-
-    filename = (char *) check_malloc( rlen + strlen(type) + 6);
-    strcpy(filename,root_name);
-    strcpy(filename+rlen,"-");
-    strcpy(filename+rlen+1,type);
-    if( output_csv_tab ) { strcat(filename,".txt"); }
-    else { strcat(filename,".csv"); }
-
-    f = fopen(filename,"w");
-    if( !f )
-    {
-        char errmess[120];
-        sprintf(errmess,"Unable to open listing file %.80s",filename);
-        handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
-        check_free(filename);
-        return 0;
-    }
-    char ftype[40];
-    sprintf(ftype,"%.20s_output_csv",type);
-    record_filename(filename,ftype);
-
-    csv = (output_csv *) check_malloc( sizeof(output_csv));
-    csv->filename = filename;
-    csv->f = f;
-    csv->delim = output_csv_tab ? '\t' : ',';
-    csv->delimrep = strcpy( csv->charbuf, output_csv_tab ? " " : "," );
-    csv->tab = output_csv_tab;
-    csv->quote = output_csv_tab ? 0 : '"';
-    csv->quoterep = strcpy(csv->charbuf+3,output_csv_tab ? "\"" : "\"\"");
-    csv->newlinerep = strcpy(csv->charbuf+6, output_csv_tab ? " " : "\n");
-    csv->first = 1;
-    return csv;
-}
-
-void close_output_csv( output_csv *csv )
-{
-    if( ! csv ) return;
-    fclose( csv->f );
-    check_free( csv->filename );
-    check_free( csv );
-}
-
-void end_output_csv_record( output_csv *csv )
-{
-    fputs("\n",csv->f);
-    csv->first = 1;
-}
-
-static void start_field( output_csv *csv )
-{
-    if( csv->first )
-    {
-        csv->first = 0;
-    }
-    else
-    {
-        fputc(csv->delim,csv->f);
-    }
-}
-
-void write_csv_header( output_csv *csv, const char *fieldname )
-{
-    char header[33];
-    char *c;
-
-    for( c=header; *fieldname; fieldname++ )
-    {
-        char ch = *fieldname;
-        if( ! ISALNUM(ch) ) ch = '_';
-        *c++ = ch;
-        if( c - header >= 32 ) break;
-    }
-    *c = 0;
-    write_csv_string( csv, header );
-}
-
-void write_csv_string( output_csv *csv, const char *value )
-{
-    const char *c;
-    start_field( csv );
-    if( ! value ) return;
-    if( csv->quote ) { fputc(csv->quote,csv->f); }
-    for( c = value; *c; c++ )
-    {
-        if( *c == csv->quote ) { fputs( csv->quoterep, csv->f ); }
-        else if( *c == csv->delim ) { fputs( csv->delimrep, csv->f ); }
-        else if( *c == '\n' ) { fputs( csv->newlinerep, csv->f ); }
-        else fputc( (int) *c, csv->f );
-    }
-    if( csv->quote ) { fputc(csv->quote,csv->f); }
-}
-
-void write_csv_int( output_csv *csv, long value )
-{
-    start_field( csv );
-    fprintf( csv->f, "%ld", value );
-}
-
-void write_csv_double( output_csv *csv, double value, int ndp )
-{
-    start_field( csv );
-    if( ndp  >= 0 )
-    {
-        fprintf( csv->f, "%.*lf", ndp,value );
-    }
-    else
-    {
-        fprintf( csv->f, "%lf", value );
-    }
-}
-
-void write_csv_null_field( output_csv *csv )
-{
-    start_field( csv );
-}
-
-void write_csv_date( output_csv *csv, double date )
-{
-    if( date == UNDEFINED_DATE ) { write_csv_null_field( csv ); return; }
-    write_csv_string( csv, date_as_string(date,0,0) );
-}
-
 void print_json_params( FILE *lst, int nprefix )
 {
     fprintf(lst,"%*s\"nparam\":%d",nprefix,"",nprm);
@@ -1215,4 +1085,35 @@ void print_solution_json_file()
     print_bltmatrix_json( invnorm, f, 4, BLT_JSON_FULL | BLT_JSON_MATRIX_ONLY, "%.8le");
     fprintf(f,"\n}\n");
     fclose(f);
+}
+
+output_csv *open_snap_output_csv( const char *type )
+{
+    int rlen;
+    output_csv *csv;
+    char *filename;
+    const char *ext = output_csv_tab ? WRITECSV_TAB_EXT : WRITECSV_CSV_EXT;
+    rlen = strlen( root_name );
+    filename = (char *) check_malloc( rlen + strlen(type) + strlen(ext)+2);
+    strcpy(filename,root_name);
+    strcpy(filename+rlen,"-");
+    strcpy(filename+rlen+1,type);
+    strcat(filename,ext);
+    csv=open_output_csv( filename, output_csv_tab );
+    if( csv )
+    {
+        char ftype[40];
+        sprintf(ftype,"%.20s_output_csv",type);
+        record_filename(filename,ftype);
+    }
+    else
+    {
+        char errmess[120];
+        sprintf(errmess,"Unable to open CSV file %.80s",filename);
+        handle_error( FILE_OPEN_ERROR, errmess, NO_MESSAGE);
+        check_free(filename);
+        return 0;
+    }
+    check_free( filename );
+    return csv;
 }

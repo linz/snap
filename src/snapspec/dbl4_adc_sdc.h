@@ -54,6 +54,7 @@ typedef struct
 #define SDC_LOG_CALCS 4
 #define SDC_LOG_DISTS 8
 #define SDC_LOG_CALCS2 16
+#define SDC_LOG_DEBUG (SDC_LOG_STEPS | SDC_LOG_TESTS | SDC_LOG_CALCS | SDC_LOG_DISTS | SDC_LOG_CALCS2)
 #define SDC_LOG_TIMESTAMP 32
 
 /* Convariance determination run in two passes if not all available at first pass */
@@ -82,12 +83,6 @@ typedef struct
 #define SDC_DEFAULT  -1  /* Passed to SDCTest.pfSetOrder for the default order */
 
 #define SDC_NO_PRIORITY -1 /* Lowest ranking station priority */
-
-/* Codes passed to *pfError2 stn1 to set the mode for two pass calculation */
-
-#define SDC_PHASE_CALCULATE      -1 /* first pass of calculating covariance */
-#define SDC_PHASE_RECORD_MISSING -2 /* pass recording missing covariance info */
-#define SDC_PHASE_CALC_MISSING   -3 /* pass calculating missing covariance info */
 
 /* Return value for covariance unavailable */
 
@@ -134,9 +129,13 @@ typedef struct
         int stn1,
         int stn2 );
 
-    void (*pfSetPhase) (   /* Set the calculation phase for multipass covar calculation */
-        void *env,
-        int phase );
+    void (*pfRequestCovar) (   /* Requests covariance information between */
+        void *env,               /* stations */
+        int stn1,
+        int stn2 );
+
+    int  (*pfCalcRequested) (   /* Calculates the requested covariances */
+        void *env );
 
     void (*pfSetOrder) (   /* Sets the order for a mark */
         void *env,

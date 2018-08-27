@@ -80,10 +80,18 @@ typedef struct
     int testhor;       /**< True if testing horizontal errors */
     int testvrt;       /**< True if testing vertical errors */
     int loglevel;      /**< The log level to use */
+    int phase;         /**< The current phase of adjustment for a two phase implementation */
+    int phase1;        /**< The first phase to run */
+    int phase2;        /**< The last phase to run */
+    int twopass;       /**< Non zero if using two pass calculation */
+    int needphase2;    /**< Set to true if not all required data found in phase1*/
     char logbuffer[1024]; /**< Buffer used for writing log messages */
     clock_t reftime;   /**< Reference time for timestamps */
     clock_t lasttime;  /**< Time of last timestamp */
 } SDCTestImp, *hSDCTestImp;
+
+#define SDCI_PHASE_TRIAL 1
+#define SDCI_PHASE_CALC  2
 
 /* Relative accuracy information is stored in a lower triangle format for
    all marks for which it is required.  The leading diagonal is omitted.
@@ -157,7 +165,8 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     sdc->pfDistance2 = NULL;
     sdc->pfError2 = NULL;
     sdc->pfVrtError2 = NULL;
-    sdc->pfSetPhase = NULL;
+    sdc->pfRequestCovar = NULL;
+    sdc->pfCalcRequested = NULL;
     sdc->pfSetOrder = NULL;
     sdc->pfWriteLog = NULL;
 
@@ -249,9 +258,34 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
         sdcTimeStamp(&sdci,"Identified nearest control marks");
     }
 
+    int phaseminorder=minorder;
+    for( sdci.phase=sdci.phase1; sts == STS_OK && sdci.phase <= sdci.phase2; sdci.phase++ )
+    {
+
+    if( sdci.twopass )
+    {
+        if( sdci.phase==SDCI_PHASE_TRIAL )
+        {
+            sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 1: Using existing covariance information\n");
+        }
+        else if( sdci.phase==SDCI_PHASE_CALC )
+        {
+            sdcTimeStamp(&sdci,"Calculating missing covariances");
+            if( ! sdc->pfCalcRequested( sdc->env ) ) sts=STS_INVALID_DATA;
+            sdcTimeStamp(&sdci,"Calculation of missing covariances complete");
+            if( sts != STS_OK )
+            {
+                sdcWriteLog( &sdci, SDC_LOG_STEPS, "Calculation of missing covariances failed" );
+            }
+            sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 2: Calculating with extra covariance information\n");
+        }
+    }
+
     /*> For each order in turn... */
 
-    for( order = minorder; sts == STS_OK && order < sdc->norder; order++ )
+    sdci.needphase2=0;
+
+    for( order = phaseminorder; sts == STS_OK && order < sdc->norder; order++ )
     {
         int nunknown;
         hSDCOrderTest test = &(sdc->tests[order]);
@@ -348,20 +382,33 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
             sdcWriteLog( &sdci, SDC_LOG_STEPS, "Applying relative accuracy test\n");
             sts = utlShowProgress( "Applying relative accuracy tests",PROG_TEMP_MSG);
             sts = sdcApplyRelTest( &sdci, test );
+            if( sts == STS_MISSING_DATA && sdci.phase == SDCI_PHASE_TRIAL ) 
+            {
+                sdci.needphase2 = 1;
+                sts = STS_OK;
+            }
             sdcTimeStamp(&sdci,"Relative accuracy tests completed");
             if( sts != STS_OK ) break;
         }
 
         /*>> Apply the order to passed nodes */
 
-        sdcWriteLog( &sdci, SDC_LOG_STEPS, "Setting node orders\n");
-        sts = sdcUpdateOrders( &sdci, order );
-        sdcTimeStamp(&sdci,"Orders updated");
-        if( sts != STS_OK ) break;
+        if( ! sdci.needphase2 )
+        {
+            phaseminorder=order+1;
+            sdcWriteLog( &sdci, SDC_LOG_STEPS, "Setting node orders\n");
+            sts = sdcUpdateOrders( &sdci, order );
+            sdcTimeStamp(&sdci,"Orders updated");
+            if( sts != STS_OK ) break;
+        }
 
         /*>> Yield to the system and check for user abort */
 
         sts = utlCheckAbort();
+    }
+
+    /*>> If don't need another pass then exit */
+    if( ! sdci.needphase2 ) break;
     }
 
     sdcWriteLog( &sdci, SDC_LOG_STEPS,
@@ -421,6 +468,18 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
     sdci->maxverror2 = 0.0;
     sdci->loglevel = sdc->loglevel;
     if( ! sdc->pfWriteLog ) sdci->loglevel = 0;
+    if( sdc->options & SDC_OPT_TWOPASS_CVR && sdc->pfRequestCovar && sdc->pfCalcRequested )
+    {
+        sdci->twopass=1;
+        sdci->phase1=SDCI_PHASE_TRIAL;
+    }
+    else
+    {
+        sdci->twopass=0;
+        sdci->phase1=SDCI_PHASE_CALC;
+    }
+    sdci->phase2=SDCI_PHASE_CALC;
+    sdci->needphase2=0;
 
     sdci->testhor = 0;
     sdci->testvrt = 0;
@@ -1282,7 +1341,6 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     int j;
     char shortcircuit = ! (options & SDC_OPT_NO_SHORTCIRCUIT_CVR);
     char strictcovar = options & SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
-    char twopass = sdc->options & SDC_OPT_TWOPASS_CVR && sdc->pfSetPhase;
     char needcovariances = 0;
     char usemaxdistance = 0;
     char usemaxdistancev = 0;
@@ -1358,15 +1416,6 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         stations with status unknown or passed ... */
 
     sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Calculating status for each vector\n");
-
-    if( twopass )
-    {
-        (sdc->pfSetPhase)(sdc->env,SDC_PHASE_CALCULATE);
-        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 1: Using existing covariance information\n");
-    }
-
-    /* -----------------------------------------------------------------------------------*/
-    /* Pass 1 - use existing covariance information                                       */
 
     relstatusi = sdci->relstatus;
 
@@ -1479,7 +1528,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 }
 
                 /*>> If the covariance could not be found, then if this is not a twopass test
-                     then tests cannot be applied, so abort with status STS_MISSING_DATA.
+                     trial phase then tests cannot be applied, so abort with status STS_MISSING_DATA.
                      Otherwise record the fact that more covariance information will be
                      required in a second pass */
 
@@ -1491,7 +1540,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                                                     sdcStationId(sdci,istni),
                                                     sdcStationId(sdci,istnj));
 
-                    if( ! twopass )
+                    if( sdci->phase != SDCI_PHASE_TRIAL )
                     {
                         sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %ld to %ld",
                                      sdcStationId(sdci,istni),
@@ -1607,7 +1656,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                                                     sdcStationId(sdci,istni),
                                                     sdcStationId(sdci,istnj));
 
-                    if( ! twopass )
+                    if( sdci->phase != SDCI_PHASE_TRIAL )
                     {
                         sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing vertical covariance information %ld to %ld",
                                      sdcStationId(sdci,istni),
@@ -1664,24 +1713,17 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         and have a second pass to to calculate each missing item */
 
 
-    if( twopass && needcovariances )
+    if( sdci->phase == SDCI_PHASE_TRIAL && needcovariances )
     {
-
 
         /*>> Record each as yet undetermined covariance, send the missing ids to the
              covariance calculation function.  */
 
-
         /* Notify error function that we are listing missing covariances */
 
-        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 2: Recording missing covariance information\n");
-
-        (sdc->pfSetPhase)(sdc->env,SDC_PHASE_RECORD_MISSING);
+        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Recording missing covariance information\n");
 
         /* Record each missing value */
-
-        /* -----------------------------------------------------------------------------------*/
-        /* Pass 2 - request extra covariance information                                      */
 
         relstatusi = sdci->relstatus;
 
@@ -1714,29 +1756,18 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
                 if( ! ((*relstatus) & (SDC_STS_NEED_HOR | SDC_STS_NEED_VRT) ) ) continue;
 
-                if( *relstatus & SDC_STS_NEED_HOR )
-                {
+                (sdc->pfRequestCovar)(sdc->env,istni,istnj);
 
-                    (sdc->pfError2)(sdc->env,istni,istnj);
-
-                    if( logcalcs2 ) sdcWriteLog( sdci, SDC_LOG_CALCS2,
-                                                     "    Requesting covariance %ld to %ld\n",
-                                                     sdcStationId(sdci,istni),
-                                                     sdcStationId(sdci,istnj));
-                }
-
-                if( *relstatus & SDC_STS_NEED_VRT )
-                {
-
-                    (sdc->pfVrtError2)(sdc->env,istni,istnj);
-
-                    if( logcalcs2 ) sdcWriteLog( sdci, SDC_LOG_CALCS2,
-                                                     "    Requesting vrt covariance %ld to %ld\n",
-                                                     sdcStationId(sdci,istni),
-                                                     sdcStationId(sdci,istnj));
-                }
+                if( logcalcs2 ) sdcWriteLog( sdci, SDC_LOG_CALCS2,
+                                                 "    Requesting covariance %ld to %ld\n",
+                                                 sdcStationId(sdci,istni),
+                                                 sdcStationId(sdci,istnj));
             }
         }
+
+        /*>> Record the requirement for a second phase */
+
+        sdci->needphase2 = 1;
 
         sdcTimeStamp(sdci,"Completed second pass requesting missing covariances");
 
@@ -1744,185 +1775,25 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
         /* Notify error function that we are calculating covariances */
 
-        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 3: Calculating missing covariance information\n");
-
-        (sdc->pfSetPhase)(sdc->env,SDC_PHASE_CALC_MISSING);
-
-        /* -----------------------------------------------------------------------------------*/
-        /* Pass 3 - use new covariance information for missed tests                           */
-
-        relstatusi = sdci->relstatus;
-
-        for( i = 1; i < sdci->nreltest; relstatusi += i, i++ )
-        {
-            char *relstatus = relstatusi;
-
-            int istni = sdci->lookup[i];
-            hSDCStation stni = &(stns[istni]);
-            char stsi = stni->status;
-            char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
-
-            if( i % ABORT_FREQUENCY == 0 )
-            {
-                sts = utlCheckAbort();
-                if( sts != STS_OK ) return sts;
-            }
-
-
-            if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
-
-            for( j = 0; j < i; relstatus++, j++ )
-            {
-                int istnj = sdci->lookup[j];
-                hSDCStation stnj = &(stns[istnj]);
-                char stsj = stnj->status;
-                char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
-                char stsij = SDC_STS_UNKNOWN;
-                double error;
-                double tolij;
-                double dist;
-
-                if( j % ABORT_FREQUENCY == 0 )
-                {
-                    sts = utlCheckAbort();
-                    if( sts != STS_OK ) return sts;
-                }
-
-                if( ! ((*relstatus) & (SDC_STS_NEED_HOR | SDC_STS_NEED_VRT) ) ) continue;
-
-                dist = (sdc->pfDistance2)(sdc->env, istni, istnj );
-
-                if( *relstatus & SDC_STS_NEED_HOR )
-                {
-
-                    error = (sdc->pfError2)(sdc->env,istni,istnj);
-
-                    /* If the error is still not available, then fail this routine */
-
-                    if( error == SDC_COVAR_UNAVAILABLE )
-                    {
-                        sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %ld to %ld",
-                                     sdcStationId(sdci,istni),
-                                     sdcStationId(sdci,istnj));
-                        return STS_MISSING_DATA;
-                    }
-
-                    tolij = ftol + dtol * dist;
-                    stsij = (error < tolij) ? SDC_STS_PASS : SDC_STS_FAIL;
-                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
-
-                    /*>> If the vector has failed then if one or other node is already passed
-                         we can fail the other.   */
-
-                    if (passi && stsij == SDC_STS_FAIL)
-                    {
-                        stnj->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_TESTS,
-                                     "    Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcStationId(sdci,istnj),
-                                     sdcStationId(sdci,istni),
-                                     error,
-                                     tolij);
-                    }
-                    else if(passj && stsij == SDC_STS_FAIL)
-                    {
-                        stni->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                     "    Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcStationId(sdci,istni),
-                                     sdcStationId(sdci,istnj),
-                                     error,
-                                     tolij);
-                        /* Station i has failed so don't need to look at this any more */
-                        break;
-                    }
-                    else
-                    {
-                        if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                                        "    Vector %ld to %ld %s rel accuracy (%.8lf %s %.8lf)\n",
-                                                        sdcStationId(sdci,istni),
-                                                        sdcStationId(sdci,istnj),
-                                                        (stsij == SDC_STS_PASS ? "passes" : "fails"),
-                                                        error,
-                                                        (stsij == SDC_STS_PASS ? "<" : ">"),
-                                                        tolij);
-                    }
-
-                }
-
-
-                if( (*relstatus & SDC_STS_NEED_VRT) && stsij != SDC_STS_FAIL )
-                {
-
-                    error = (sdc->pfVrtError2)(sdc->env,istni,istnj);
-
-                    /* If the error is still not available, then fail this routine */
-
-                    if( error == SDC_COVAR_UNAVAILABLE )
-                    {
-                        sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing vrt covariance information %ld to %ld",
-                                     sdcStationId(sdci,istni),
-                                     sdcStationId(sdci,istnj));
-                        return STS_MISSING_DATA;
-                    }
-
-                    tolij = ftolv + dtolv * dist;
-                    *relstatus = stsij = (error < tolij) ? SDC_STS_PASS : SDC_STS_FAIL;
-                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative vrt accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
-
-                    /*>> If the vector has failed then if one or other node is already passed
-                         we can fail the other.   */
-
-                    if (stsij == SDC_STS_FAIL && passi )
-                    {
-                        stnj->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_TESTS,
-                                     "    Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcStationId(sdci,istnj),
-                                     sdcStationId(sdci,istni),
-                                     error,
-                                     tolij);
-                    }
-                    else if(stsij == SDC_STS_FAIL && passj )
-                    {
-                        stni->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                     "    Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcStationId(sdci,istni),
-                                     sdcStationId(sdci,istnj),
-                                     error,
-                                     tolij);
-                        /* Station i has failed so don't need to look at this any more */
-                        break;
-                    }
-                    else
-                    {
-                        if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                                        "    Vector %ld to %ld %s rel vrt accuracy (%.8lf %s %.8lf)\n",
-                                                        sdcStationId(sdci,istni),
-                                                        sdcStationId(sdci,istnj),
-                                                        (stsij == SDC_STS_PASS ? "passes" : "fails"),
-                                                        error,
-                                                        (stsij == SDC_STS_PASS ? "<" : ">"),
-                                                        tolij);
-                    }
-
-                }
-
-                *relstatus = stsij;
-
-            }
-        }
-
-        sdcTimeStamp(sdci,"Completed third pass using missing covariances");
-
     }
 
+    /* If need phase2 (either from this order or a previous order, then don't process further */
+
+    if( sdci->needphase2 ) 
+    {
+        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Relative accuracy test postponed pending covariance calcs\n");
+        return STS_MISSING_DATA;
+    }
 
     /* -----------------------------------------------------------------------------------*/
-    /* Pass 4 - count the number of tests and failed tests for each station               */
+    /* Count the number of tests and failed tests for each station               */
 
     /*> Finally count the number of tests and failed tests for each station */
+
+    if( sdci->twopass )
+    {
+        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Summarizing relative accuracy data\n");
+    }
 
     relstatusi = sdci->relstatus;
     for( i = 1; i < sdci->nreltest; relstatusi += i, i++ )

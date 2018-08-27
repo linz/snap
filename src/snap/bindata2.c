@@ -1799,7 +1799,7 @@ void write_observation_csv()
 
     b = create_bindata();
 
-    csv = open_output_csv( "obs" );
+    csv = open_snap_output_csv( "obs" );
     if( ! csv ) return;
 
     if( have_obs_ids ) write_csv_header(csv,"id");

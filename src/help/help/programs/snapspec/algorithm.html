@@ -95,7 +95,7 @@ The absolute errors of each station are tested first.  Those which fail (against
 For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate within the maximum distance specified for relative accuracy tests.
 </li>
 
-<li>	<i>Note: this step is disabled by default</i>. Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are no test lines left (all unfailed coordinates are beyond the test range). To enable this step include &quot;options fail_if_no_tests&quot; in the configuration file.</li>
+<li>	<i>Note: this step is disabled by default</i>. Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are no test lines left (all unfailed coordinates are beyond the test range). To enable this step include &quot;options fail_if_no_relacc_tests&quot; in the configuration file.</li>
 <li>	Set the status to &quot;pass&quot; for each coordinate for which all test lines pass (or which have no remaining test lines).</li>
 <li>	If any coordinates still have status unknown, then select and fail one. The set of candidates are filtered to keep only the stations with lowest priority and of those the stations with the lowest potential order.  Of these the
     station with the highest ratio of test failures against test lines is selected. 

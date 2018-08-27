@@ -71,6 +71,7 @@ typedef struct
 
 bltmatrix *create_bltmatrix( int nrow );
 void delete_bltmatrix( bltmatrix *blt );
+int copy_bltmatrix_bandwidth( bltmatrix *bltsrc, bltmatrix *bltcopy );
 int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy );
 void blt_nonzero_element( bltmatrix *blt, int row, int col );
 int blt_is_nonzero_element( bltmatrix *blt, int row, int col );

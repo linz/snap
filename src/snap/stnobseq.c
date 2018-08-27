@@ -868,7 +868,7 @@ void write_station_csv()
     prj = net->crdsys->prj;
     elp = net->crdsys->rf->el;
 
-    csv = open_output_csv("stn");
+    csv = open_snap_output_csv("stn");
     if( ! csv ) return;
 
     write_csv_header( csv, "code" );

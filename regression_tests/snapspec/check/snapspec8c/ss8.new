@@ -1,0 +1,20 @@
+Test data set snapspec8
+TAIETM1949
+options orthometric_heights no_deflections no_geoid_heights c=Order c=type
+! Coordinate orders updated by snapspec
+
+!Code      Easting     Northing   Orth.Hgt Order type  Name
+F0     350000.0000  679999.9997     0.0000 4     PIN   F0
+F1     350019.9998  679999.9997     0.0000 5     PEG   F1
+F2     350039.9997  679999.9997     0.0000 4     PIN   F2
+F3     350060.0001  679999.9997     0.0000 4     PIN   F3
+F4     350080.0000  679999.9997     0.0000 5     SPIKE F4
+F5     350099.9998  679999.9997     0.0000 6     SPIKE F5
+F6     350099.9998  679999.9997     0.0000 6     SPIKE F6
+F7     350099.9998  679999.9997     0.0000 5     PEG   F7
+F8     350099.9998  679999.9997     0.0000 5     PEG   F8
+F9     350099.9998  679999.9997     0.0000 4     -     F9
+F10    350099.9998  679999.9997     0.0000 4     PIN   F10
+F11    350100.0000  679999.9997     0.0000 -     PIN   F11
+F12    350100.0000  679999.9997     0.0000 -     PIN   F12
+F13    350100.0000  679999.9997     0.0000 -     PIN   F13

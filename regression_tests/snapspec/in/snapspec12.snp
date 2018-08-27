@@ -1,0 +1,7 @@
+title snapspec12
+coordinate_file snapspec12.crd
+data_file snapspec12.dat
+fix F00
+output decomposition
+output no_coordinate_file
+reorder_stations on

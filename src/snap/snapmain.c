@@ -877,7 +877,7 @@ static void print_command_file( void )
 
 static void write_filelist_csv()
 {
-    output_csv *csv = open_output_csv("filelist");
+    output_csv *csv = open_snap_output_csv("filelist");
     if( ! csv ) return;
     write_csv_header(csv,"id");
     write_csv_header(csv,"filename");
@@ -916,7 +916,7 @@ static void write_filelist_csv()
 static void write_metadata_csv()
 {
     char buffer[128];
-    output_csv *csv = open_output_csv("metadata");
+    output_csv *csv = open_snap_output_csv("metadata");
     if( ! csv ) return;
     write_csv_header(csv,"code");
     write_csv_header(csv,"value");

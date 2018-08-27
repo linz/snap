@@ -1,0 +1,5 @@
+test: Two pass calculation using decomposition
+file: snapspec12.crd
+file: snapspec12.dat
+file: snapspec12.snp
+file: snapspec12.cfg

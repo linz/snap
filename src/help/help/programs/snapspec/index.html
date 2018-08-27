@@ -99,6 +99,14 @@ the adjustment and chooses the mode based on which coordinates (horizontal and/o
 vertical) are calculated, and what tests are defined in the configuration file.
 </p>
 </td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-c&nbsp;filename</p>
+</td><td>
+<p>Specifies the name of an output CSV file containing the snapspec results. 
+</p>
+</td></tr>
+
 <tr><td>
 <p class="Commanddefinition">-u&nbsp;filename</p>
 </td><td>
@@ -106,6 +114,7 @@ vertical) are calculated, and what tests are defined in the configuration file.
 coordinates and updated orders.  
 </p>
 </td></tr>
+
 <tr><td>
 <p class="Commanddefinition">-f&nbsp;filename</p>
 </td><td>
@@ -116,7 +125,26 @@ program will append the order and extension to this name for each file
 generated.
 </p>
 </td></tr>
+
+<tr><td>
+<p class="Commanddefinition">-v</p>
+</td><td>
+<p>Causes snapspec to create a cache file containing calculated covariance
+information.  This will only happen if snapspec is using the normal equation
+decomposition matrix and if it uses this to calculate the inverse.  In this case
+with the -c option it will save the calculated inverse in a file with the same 
+name as the binary file but extension &quot;.scc&quot;. When snapspec runs it
+always checks for a cache file. The cache uses the adjustment run time to confirm
+that the cache file is still current.
+</p>
+</td></tr>
 </table>
+
+<p>
+For the -c, -u, and -f options the filename can be entered as &quot;-&quot;, in 
+which case a default filename will be used based on the name of the snap binary 
+file.
+</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
