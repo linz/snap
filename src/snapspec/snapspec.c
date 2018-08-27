@@ -2307,7 +2307,7 @@ static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int 
             }
             else if( _stricmp(option,"debug") == 0 )
             {
-                level=SDC_LOG_DEBUG;
+                level=SDC_LOG_ALL;
             }
             else if( _stricmp(option,"timing") == 0 )
             {

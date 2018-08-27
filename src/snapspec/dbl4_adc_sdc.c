@@ -225,6 +225,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 {
     SDCTestImp sdci;
     int order;
+    int phaseminorder;
     StatusType sts;
 
     sts = STS_OK;
@@ -258,7 +259,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
         sdcTimeStamp(&sdci,"Identified nearest control marks");
     }
 
-    int phaseminorder=minorder;
+    phaseminorder=minorder;
     for( sdci.phase=sdci.phase1; sts == STS_OK && sdci.phase <= sdci.phase2; sdci.phase++ )
     {
 
