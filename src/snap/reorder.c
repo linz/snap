@@ -184,6 +184,7 @@ void add_connection( int stn1, int stn2 )
 int get_connection_count( int stn )
 {
     if( connlst == NULL ) return -1;
+    if( stn > nconnlst ) return 0;
     return connlst[stn].count;
 }
 
@@ -191,6 +192,7 @@ int get_connection( int stn, int nconn )
 {
     connections *conn;
     if( connlst == NULL ) return -1;
+    if( stn > nconnlst ) return -1;
     conn = connlst+stn;
     if( nconn < 0 || nconn >= conn->count ) return -1;
     return conn->list[nconn];
