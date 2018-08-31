@@ -537,7 +537,7 @@ static void setup_target( int datatype )
 {
     tgt->to = tgt_id;
     tgt->tohgt = tgt_hgt;
-    tgt->snapid = next_id++;
+    tgt->obsid = next_id++;
     tgt->id = 0;
     tgt->type = datatype;
     tgt->lineno = file_lineno;

@@ -48,18 +48,18 @@ typedef struct
 typedef struct
 {
     int  to;        /* The index of the target station */
-    double tohgt;     /* The instrument height at the target station */
+    double tohgt;   /* The instrument height at the target station */
     int  type;      /* The type of data */
-    int  snapid;    /* Id of observation for snap */
+    int  obsid;     /* Id of observation for snap */
     int  id;        /* An optional id for the observation */
     int  lineno;    /* The line number in the data file - used to pinpoint problems */
     int  nclass;    /* Number of classifications for the obs */
     int  iclass;    /* Index of first class in array of classes */
     int  nsyserr;   /* Number of systematic errors */
     int  isyserr;   /* Index of first systematic error in array of syserrs */
-    char   unused;    /* Flags whether the observation has been rejected */
-    long   noteloc;   /* Identifies a note associated with the obs */
-    double errfct;    /* Error factor applied to the obs by obs modifications */
+    char   unused;  /* Flags whether the observation has been rejected */
+    long   noteloc; /* Identifies a note associated with the obs */
+    double errfct;  /* Error factor applied to the obs by obs modifications */
 } trgtdata;
 
 /* NOTE: each variant structure used within typedef survdata, defined

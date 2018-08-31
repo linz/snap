@@ -1459,7 +1459,7 @@ static void write_observation_csv_common_start( output_csv *csv, survdata *sd, t
 
     strcpy( type, datatype[tgt->type].code);
     if(component && strlen(type)+strlen(component)+2 < 16) { strcat(type,"-"); strcat(type,component); }
-    write_csv_int( csv, tgt->snapid );
+    write_csv_int( csv, tgt->obsid );
     if( have_obs_ids ) write_csv_int( csv, tgt->id );
     write_csv_string(csv,from->Code);
     write_csv_string(csv,to ? to->Code : 0);
@@ -1804,7 +1804,7 @@ void write_observation_csv()
     csv = open_snap_output_csv( "obs" );
     if( ! csv ) return;
 
-    write_csv_header(csv,"snapid");
+    write_csv_header(csv,"obsid");
     if( have_obs_ids ) write_csv_header(csv,"srcid");
     write_csv_header(csv,"fromstn");
     write_csv_header(csv,"tostn");

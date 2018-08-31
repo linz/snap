@@ -8,4 +8,4 @@ data_file testsnx1.in.snx SINEX ref_frame=QRF code=POINT date=1MAY2013 error_fac
 ignore_missing_stations yes
 
 list input_data
-output_csv filelist
+output_csv filelist observations

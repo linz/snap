@@ -1,9 +1,10 @@
 "id","filename","filetype","filedate","filesize"
 0,"/home/ccrook/projects_git/snap/regression_tests/snap/../test_coordsys/coordsys.def","coordinate_systems_definition","2018-06-28 09:02:46",55561
-1,"testsnx1.lst","listing","2018-08-31 17:32:52",46043
-2,"testsnx1.snp","command","2018-08-31 17:32:52",269
-3,"testsnx1.crd","station_coordinate","2018-08-31 17:32:52",1544
-4,"testsnx1.bin","snap_binary","2018-08-31 17:32:52",100126
-5,"testsnx1.in.snx","survey_data","2018-08-31 17:32:52",73386
-6,"testsnx1.new","output_station_coordinate","2018-08-31 17:32:52",1609
-7,"testsnx1-filelist.csv","filelist_output_csv","2018-08-31 17:32:52",0
+1,"testsnx1.lst","listing","2018-09-01 06:38:15",46043
+2,"testsnx1.snp","command","2018-09-01 06:38:15",282
+3,"testsnx1.crd","station_coordinate","2018-09-01 06:38:15",1544
+4,"testsnx1.bin","snap_binary","2018-09-01 06:38:15",100126
+5,"testsnx1.in.snx","survey_data","2018-09-01 06:38:15",73386
+6,"testsnx1-obs.csv","obs_output_csv","2018-09-01 06:38:15",5252
+7,"testsnx1.new","output_station_coordinate","2018-09-01 06:38:15",1609
+8,"testsnx1-filelist.csv","filelist_output_csv","2018-09-01 06:38:15",0

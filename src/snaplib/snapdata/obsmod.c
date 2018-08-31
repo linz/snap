@@ -1046,6 +1046,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 {
                     for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
                 }
+                tgt->errfct *= factor;
             }
         }
         sfprod=criteria_set_factor( obsmod );
