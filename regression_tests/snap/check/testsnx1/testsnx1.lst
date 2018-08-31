@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.11-2620383
+                      PROGRAM SNAP  Version 2.7.13-e3de2b8
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 15 2018 13:11:52
+                       Version date: Aug 31 2018 17:32:07
 
 ================================================================================
-                     Run at 15-AUG-2018 13:21:22 by ccrook
+                     Run at 31-AUG-2018 17:32:52 by ccrook
 
 
 
@@ -38,7 +38,7 @@ Errors of the following observations are scaled by 2.000
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                                    INPUT DATA
 
@@ -58,7 +58,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":1,
+        "srcid":0,
         "from":"5503",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -73,7 +74,8 @@ BEGIN_JSON observations
         "file_line-no":166
       },
       {
-        "id":0,
+        "snapid":2,
+        "srcid":0,
         "from":"ALIC",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -88,7 +90,8 @@ BEGIN_JSON observations
         "file_line-no":169
       },
       {
-        "id":0,
+        "snapid":3,
+        "srcid":0,
         "from":"AUCK",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -103,7 +106,8 @@ BEGIN_JSON observations
         "file_line-no":172
       },
       {
-        "id":0,
+        "snapid":5,
+        "srcid":0,
         "from":"CHAT",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -118,7 +122,8 @@ BEGIN_JSON observations
         "file_line-no":178
       },
       {
-        "id":0,
+        "snapid":7,
+        "srcid":0,
         "from":"HOB2",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -133,7 +138,8 @@ BEGIN_JSON observations
         "file_line-no":184
       },
       {
-        "id":0,
+        "snapid":8,
+        "srcid":0,
         "from":"HOKI",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -148,7 +154,8 @@ BEGIN_JSON observations
         "file_line-no":187
       },
       {
-        "id":0,
+        "snapid":9,
+        "srcid":0,
         "from":"KARR",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -163,7 +170,8 @@ BEGIN_JSON observations
         "file_line-no":190
       },
       {
-        "id":0,
+        "snapid":10,
+        "srcid":0,
         "from":"MAC1",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -178,7 +186,8 @@ BEGIN_JSON observations
         "file_line-no":193
       },
       {
-        "id":0,
+        "snapid":17,
+        "srcid":0,
         "from":"TIDB",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -193,7 +202,8 @@ BEGIN_JSON observations
         "file_line-no":214
       },
       {
-        "id":0,
+        "snapid":18,
+        "srcid":0,
         "from":"TOW2",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -208,7 +218,8 @@ BEGIN_JSON observations
         "file_line-no":217
       },
       {
-        "id":0,
+        "snapid":19,
+        "srcid":0,
         "from":"WGTN",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -223,7 +234,8 @@ BEGIN_JSON observations
         "file_line-no":220
       },
       {
-        "id":0,
+        "snapid":20,
+        "srcid":0,
         "from":"YAR1",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -390,7 +402,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":24,
+        "srcid":0,
         "from":"CEDU_A",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -405,7 +418,8 @@ BEGIN_JSON observations
         "file_line-no":175
       },
       {
-        "id":0,
+        "snapid":25,
+        "srcid":0,
         "from":"CHAT_A",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -420,7 +434,8 @@ BEGIN_JSON observations
         "file_line-no":178
       },
       {
-        "id":0,
+        "snapid":27,
+        "srcid":0,
         "from":"HOB2_A",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -435,7 +450,8 @@ BEGIN_JSON observations
         "file_line-no":184
       },
       {
-        "id":0,
+        "snapid":28,
+        "srcid":0,
         "from":"HOKI_A",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -450,7 +466,8 @@ BEGIN_JSON observations
         "file_line-no":187
       },
       {
-        "id":0,
+        "snapid":29,
+        "srcid":0,
         "from":"KARR_A",
         "from_hgt":0.0000,
         "date":"2001-11-29 11:59:45",
@@ -506,7 +523,7 @@ END_JSON observations
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                                 SOLUTION SUMMARY
 
@@ -529,7 +546,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                               STATION COORDINATES
 
@@ -618,7 +635,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                            REFERENCE FRAME PARAMETERS
 
@@ -659,7 +676,7 @@ Reference frame: QRF
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                              OBSERVATION RESIDUALS
 
@@ -775,7 +792,7 @@ KARR_A GX    -2713832.3708  0.0119  -2713832.3709  0.0000  0.0000  0.0097   0.00
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                                  ERROR SUMMARY
 
@@ -809,7 +826,7 @@ testsnx1.in.snx                             0.01   15     -      -    0.01   15
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                            MOST SIGNIFICANT RESIDUALS
 
@@ -852,7 +869,7 @@ HOKI             GX     0.015    0.001        187  testsnx1.in.snx
 
 
 ================================================================================
-Testing SINEX file reading                                  15-AUG-2018 13:21:22
+Testing SINEX file reading                                  31-AUG-2018 17:32:52
 
                                      ERRORS
 

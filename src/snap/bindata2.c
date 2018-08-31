@@ -1459,6 +1459,7 @@ static void write_observation_csv_common_start( output_csv *csv, survdata *sd, t
 
     strcpy( type, datatype[tgt->type].code);
     if(component && strlen(type)+strlen(component)+2 < 16) { strcat(type,"-"); strcat(type,component); }
+    write_csv_int( csv, tgt->snapid );
     if( have_obs_ids ) write_csv_int( csv, tgt->id );
     write_csv_string(csv,from->Code);
     write_csv_string(csv,to ? to->Code : 0);
@@ -1470,6 +1471,7 @@ static void write_observation_csv_common_start( output_csv *csv, survdata *sd, t
     if( to ) write_csv_double(csv,calc_distance( from, 0.0, to, 0.0, NULL, NULL ),3);
     else write_csv_null_field(csv);
     write_csv_string(csv,tgt->unused ? "rej" : "use" );
+    write_csv_double(csv,tgt->errfct,3);
 }
 
 static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trgtdata *tgt )
@@ -1802,7 +1804,8 @@ void write_observation_csv()
     csv = open_snap_output_csv( "obs" );
     if( ! csv ) return;
 
-    if( have_obs_ids ) write_csv_header(csv,"id");
+    write_csv_header(csv,"snapid");
+    if( have_obs_ids ) write_csv_header(csv,"srcid");
     write_csv_header(csv,"fromstn");
     write_csv_header(csv,"tostn");
     write_csv_header(csv,"date");
@@ -1812,6 +1815,7 @@ void write_observation_csv()
     write_csv_header(csv,"obsset");
     write_csv_header(csv,"length");
     write_csv_header(csv,"status");
+    write_csv_header(csv,"errfct");
     if( output_csv_vecinline )
     {
         if( output_csv_vecsum ) write_csv_header( csv,"value");

@@ -1002,6 +1002,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 if( tgt->unused & IGNORE_OBS_BIT ) nignored++;
             }
             od->error  *= factor;
+            tgt->errfct  *= factor;
         }
         sfprod=criteria_set_factor( obsmod );
         if( sfprod != 1.0 )
@@ -1009,6 +1010,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             for( i = 0, od=sd->obs.odata; i<sd->nobs; i++, od++ )
             {
                 od->error *= sfprod;
+                od->tgt.errfct *= sfprod;
             }
         }
     }
@@ -1055,6 +1057,10 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             {
                 for( int col=0; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
             }
+            for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
+            {
+                vd->tgt.errfct *= sfprod;
+            }
         }
     }
     break;
@@ -1072,6 +1078,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
             pd->error  *= factor;
+            tgt->errfct *= factor;
         }
         sfprod=criteria_set_factor( obsmod );
         if( sfprod != 1.0 )
@@ -1079,6 +1086,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             for( i = 0, pd=sd->obs.pdata; i<sd->nobs; i++, pd++ )
             {
                 pd->error *= sfprod;
+                pd->tgt.errfct *= sfprod;
             }
         }
     }

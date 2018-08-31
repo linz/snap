@@ -41,6 +41,7 @@
 #define ID_UNDEFINED -1
 
 static survdata data;
+static int next_id=1;
 static int inst_id=0;
 static trgtdata *tgt = NULL;
 static int tgt_id=0;
@@ -536,6 +537,7 @@ static void setup_target( int datatype )
 {
     tgt->to = tgt_id;
     tgt->tohgt = tgt_hgt;
+    tgt->snapid = next_id++;
     tgt->id = 0;
     tgt->type = datatype;
     tgt->lineno = file_lineno;
@@ -543,6 +545,7 @@ static void setup_target( int datatype )
     tgt->nsyserr = 0;
     tgt->unused = 0;
     tgt->noteloc = noteloc;
+    tgt->errfct = 1.0;
     noteloc = 0;
 }
 

@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.13-e3de2b8
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Aug 31 2018 17:32:07
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at 31-AUG-2018 17:38:36 by ccrook
 
 
 The command file testgx1.snp contains:
@@ -42,7 +42,7 @@ The command file testgx1.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                              SUMMARY OF INPUT FILES
 
@@ -67,7 +67,7 @@ Data file 1: testgx1.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                                    INPUT DATA
 
@@ -87,7 +87,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":1,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -113,7 +114,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":2,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -139,7 +141,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":3,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -154,7 +157,8 @@ BEGIN_JSON observations
         "file_line-no":20
       },
       {
-        "id":0,
+        "snapid":4,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -183,7 +187,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":5,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -209,7 +214,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":6,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -235,7 +241,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":7,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -250,7 +257,8 @@ BEGIN_JSON observations
         "file_line-no":46
       },
       {
-        "id":0,
+        "snapid":8,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -279,7 +287,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":9,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -305,7 +314,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":10,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -331,7 +341,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":11,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -346,7 +357,8 @@ BEGIN_JSON observations
         "file_line-no":67
       },
       {
-        "id":0,
+        "snapid":12,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -375,7 +387,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":13,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -401,7 +414,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":14,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -427,7 +441,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":15,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -442,7 +457,8 @@ BEGIN_JSON observations
         "file_line-no":83
       },
       {
-        "id":0,
+        "snapid":16,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -471,7 +487,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":17,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -497,7 +514,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":18,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -523,7 +541,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":19,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -549,7 +568,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":20,
+        "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -564,7 +584,8 @@ BEGIN_JSON observations
         "file_line-no":100
       },
       {
-        "id":0,
+        "snapid":21,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "date":"2008-01-01 00:00:00",
@@ -596,7 +617,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                              DEFINITION OF PROBLEM
 
@@ -618,7 +639,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                              OBSERVATION EQUATIONS
 
@@ -1267,7 +1288,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                                 SOLUTION SUMMARY
 
@@ -1290,7 +1311,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                               STATION COORDINATES
 
@@ -1324,7 +1345,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                            REFERENCE FRAME PARAMETERS
 
@@ -1350,7 +1371,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                                 OTHER PARAMETERS
 
@@ -1365,7 +1386,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                              OBSERVATION RESIDUALS
 
@@ -1501,7 +1522,7 @@ File testgx1.dat: line 79
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations    31-AUG-2018 17:38:36
 
                                  ERROR SUMMARY
 

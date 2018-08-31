@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.13-e3de2b8
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Aug 31 2018 17:32:07
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at 31-AUG-2018 17:32:52 by ccrook
 
 
 
@@ -48,7 +48,7 @@ Data file 3: testsr3.dat
 
 
 ================================================================================
-Regression tests - station recoding options                 13-AUG-2018 13:42:14
+Regression tests - station recoding options                 31-AUG-2018 17:32:52
 
                                    INPUT DATA
 
@@ -68,7 +68,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":1,
+        "srcid":0,
         "from":"11",
         "from_hgt":0.0000,
         "to":null,
@@ -87,7 +88,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":2,
+        "srcid":0,
         "from":"OTHER1",
         "from_hgt":0.0000,
         "to":null,
@@ -106,7 +108,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":3,
+        "srcid":0,
         "from":"B",
         "from_hgt":0.0000,
         "to":null,
@@ -125,7 +128,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":4,
+        "srcid":0,
         "from":"PINTOFALE",
         "from_hgt":0.0000,
         "to":null,
@@ -144,7 +148,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":5,
+        "srcid":0,
         "from":"QQ",
         "from_hgt":0.0000,
         "to":null,
@@ -163,7 +168,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":6,
+        "srcid":0,
         "from":"C_100",
         "from_hgt":0.0000,
         "to":null,
@@ -182,7 +188,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":7,
+        "srcid":0,
         "from":"PEGS",
         "from_hgt":0.0000,
         "to":null,
@@ -201,7 +208,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":8,
+        "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
         "to":null,
@@ -220,7 +228,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":9,
+        "srcid":0,
         "from":"100",
         "from_hgt":0.0000,
         "to":null,
@@ -239,7 +248,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":10,
+        "srcid":0,
         "from":"3",
         "from_hgt":0.0000,
         "to":null,
@@ -258,7 +268,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":11,
+        "srcid":0,
         "from":"D",
         "from_hgt":0.0000,
         "to":null,
@@ -277,7 +288,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":12,
+        "srcid":0,
         "from":"C_101",
         "from_hgt":0.0000,
         "to":null,
@@ -296,7 +308,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":13,
+        "srcid":0,
         "from":"C_10",
         "from_hgt":0.0000,
         "to":null,
@@ -315,7 +328,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":14,
+        "srcid":0,
         "from":"B00",
         "from_hgt":0.0000,
         "to":null,
@@ -334,7 +348,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":15,
+        "srcid":0,
         "from":"PIND",
         "from_hgt":0.0000,
         "to":null,
@@ -353,7 +368,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":16,
+        "srcid":0,
         "from":"A",
         "from_hgt":0.0000,
         "to":null,
@@ -372,7 +388,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":18,
+        "srcid":0,
         "from":"BXXXXX",
         "from_hgt":0.0000,
         "to":null,
@@ -391,7 +408,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":19,
+        "srcid":0,
         "from":"10",
         "from_hgt":0.0000,
         "to":null,
@@ -410,7 +428,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":20,
+        "srcid":0,
         "from":"C_11",
         "from_hgt":0.0000,
         "to":null,
@@ -429,7 +448,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":21,
+        "srcid":0,
         "from":"11",
         "from_hgt":0.0000,
         "to":null,
@@ -448,7 +468,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":22,
+        "srcid":0,
         "from":"1BC",
         "from_hgt":0.0000,
         "to":null,
@@ -467,7 +488,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":23,
+        "srcid":0,
         "from":"11",
         "from_hgt":0.0000,
         "to":null,
@@ -486,7 +508,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":24,
+        "srcid":0,
         "from":"1WHEN",
         "from_hgt":0.0000,
         "to":null,
@@ -505,7 +528,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":25,
+        "srcid":0,
         "from":"11",
         "from_hgt":0.0000,
         "to":null,
@@ -524,7 +548,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":26,
+        "srcid":0,
         "from":"1AD",
         "from_hgt":0.0000,
         "to":null,
@@ -543,7 +568,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":27,
+        "srcid":0,
         "from":"2_RC",
         "from_hgt":0.0000,
         "to":null,
@@ -562,7 +588,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":28,
+        "srcid":0,
         "from":"100",
         "from_hgt":0.0000,
         "to":null,
@@ -581,7 +608,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":29,
+        "srcid":0,
         "from":"3_RC",
         "from_hgt":0.0000,
         "to":null,
@@ -600,7 +628,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":30,
+        "srcid":0,
         "from":"D",
         "from_hgt":0.0000,
         "to":null,
@@ -619,7 +648,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":31,
+        "srcid":0,
         "from":"PINTOFALE",
         "from_hgt":0.0000,
         "to":null,
@@ -638,7 +668,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":32,
+        "srcid":0,
         "from":"PEGS",
         "from_hgt":0.0000,
         "to":null,
@@ -657,7 +688,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":33,
+        "srcid":0,
         "from":"QE2",
         "from_hgt":0.0000,
         "to":null,
@@ -676,7 +708,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":35,
+        "srcid":0,
         "from":"D",
         "from_hgt":0.0000,
         "to":null,
@@ -695,7 +728,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":36,
+        "srcid":0,
         "from":"QE3",
         "from_hgt":0.0000,
         "to":null,
@@ -714,7 +748,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":39,
+        "srcid":0,
         "from":"QQ",
         "from_hgt":0.0000,
         "to":null,
@@ -733,7 +768,8 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "id":0,
+        "snapid":41,
+        "srcid":0,
         "from":"D",
         "from_hgt":0.0000,
         "to":null,
@@ -755,7 +791,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression tests - station recoding options                 13-AUG-2018 13:42:14
+Regression tests - station recoding options                 31-AUG-2018 17:32:52
 
                                 RECODED STATIONS
 
@@ -776,7 +812,7 @@ The following stations are being recoded as they are read from data files
 
 
 ================================================================================
-Regression tests - station recoding options                 13-AUG-2018 13:42:14
+Regression tests - station recoding options                 31-AUG-2018 17:32:52
 
                              DEFINITION OF PROBLEM
 
