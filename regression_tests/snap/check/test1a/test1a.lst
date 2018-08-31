@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-1b836ed
+                      PROGRAM SNAP  Version 2.7.13-c6da8ba
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  1 2018 06:27:53
+                       Version date: Sep  1 2018 06:51:23
 
 ================================================================================
-                     Run at  1-SEP-2018 06:38:14 by ccrook
+                     Run at  1-SEP-2018 06:52:07 by ccrook
 
 
 The command file test1a.snp contains:
@@ -49,7 +49,7 @@ The command file test1a.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                              SUMMARY OF INPUT FILES
 
@@ -90,7 +90,7 @@ Data file 1: test1.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                                    INPUT DATA
 
@@ -125,7 +125,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":1,
+        "obsid":1,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -140,7 +140,7 @@ BEGIN_JSON observations
         "file_line-no":8
       },
       {
-        "snapid":2,
+        "obsid":2,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -160,7 +160,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":3,
+        "obsid":3,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -175,7 +175,7 @@ BEGIN_JSON observations
         "file_line-no":12
       },
       {
-        "snapid":4,
+        "obsid":4,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -195,7 +195,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":5,
+        "obsid":5,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -210,7 +210,7 @@ BEGIN_JSON observations
         "file_line-no":16
       },
       {
-        "snapid":6,
+        "obsid":6,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -230,7 +230,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":7,
+        "obsid":7,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -250,7 +250,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":8,
+        "obsid":8,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -270,7 +270,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":9,
+        "obsid":9,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -294,7 +294,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":10,
+        "obsid":10,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -318,7 +318,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":11,
+        "obsid":11,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -338,7 +338,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":12,
+        "obsid":12,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -358,7 +358,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":13,
+        "obsid":13,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -378,7 +378,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":14,
+        "obsid":14,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -398,7 +398,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":15,
+        "obsid":15,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -418,7 +418,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":16,
+        "obsid":16,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -438,7 +438,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":17,
+        "obsid":17,
         "srcid":0,
         "from":"4",
         "from_hgt":0.0000,
@@ -458,7 +458,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":18,
+        "obsid":18,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -478,7 +478,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":19,
+        "obsid":19,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -498,7 +498,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":20,
+        "obsid":20,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -518,7 +518,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":21,
+        "obsid":21,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -533,7 +533,7 @@ BEGIN_JSON observations
         "file_line-no":55
       },
       {
-        "snapid":22,
+        "obsid":22,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -553,7 +553,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":23,
+        "obsid":23,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -576,7 +576,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":24,
+        "obsid":24,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -599,7 +599,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":25,
+        "obsid":25,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -619,7 +619,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":26,
+        "obsid":26,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -639,7 +639,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":27,
+        "obsid":27,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -659,7 +659,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":28,
+        "obsid":28,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -679,7 +679,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":29,
+        "obsid":29,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -699,7 +699,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":30,
+        "obsid":30,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -719,7 +719,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":31,
+        "obsid":31,
         "srcid":0,
         "from":"1",
         "from_hgt":2.3000,
@@ -737,7 +737,7 @@ BEGIN_JSON observations
         "file_line-no":109
       },
       {
-        "snapid":32,
+        "obsid":32,
         "srcid":0,
         "from":"1",
         "from_hgt":2.3000,
@@ -760,7 +760,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":33,
+        "obsid":33,
         "srcid":0,
         "from":"2",
         "from_hgt":1.2000,
@@ -778,7 +778,7 @@ BEGIN_JSON observations
         "file_line-no":113
       },
       {
-        "snapid":34,
+        "obsid":34,
         "srcid":0,
         "from":"2",
         "from_hgt":1.2000,
@@ -801,7 +801,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":35,
+        "obsid":35,
         "srcid":0,
         "from":"2",
         "from_hgt":1.3000,
@@ -819,7 +819,7 @@ BEGIN_JSON observations
         "file_line-no":117
       },
       {
-        "snapid":36,
+        "obsid":36,
         "srcid":0,
         "from":"2",
         "from_hgt":1.3000,
@@ -842,7 +842,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":37,
+        "obsid":37,
         "srcid":0,
         "from":"1",
         "from_hgt":1.5000,
@@ -865,7 +865,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":38,
+        "obsid":38,
         "srcid":0,
         "from":"1",
         "from_hgt":2.5000,
@@ -888,7 +888,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":39,
+        "obsid":39,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -907,7 +907,7 @@ BEGIN_JSON observations
         "file_line-no":128
       },
       {
-        "snapid":40,
+        "obsid":40,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -927,7 +927,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":41,
+        "obsid":41,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -946,7 +946,7 @@ BEGIN_JSON observations
         "file_line-no":129
       },
       {
-        "snapid":42,
+        "obsid":42,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -966,7 +966,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":43,
+        "obsid":43,
         "srcid":8001,
         "from":"1",
         "from_hgt":0.0000,
@@ -990,7 +990,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":44,
+        "obsid":44,
         "srcid":8002,
         "from":"1",
         "from_hgt":0.0000,
@@ -1014,7 +1014,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":45,
+        "obsid":45,
         "srcid":9998,
         "from":"1",
         "from_hgt":0.0000,
@@ -1037,7 +1037,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":46,
+        "obsid":46,
         "srcid":9999,
         "from":"1",
         "from_hgt":0.0000,
@@ -1060,7 +1060,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":47,
+        "obsid":47,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1080,7 +1080,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":48,
+        "obsid":48,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1100,7 +1100,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":49,
+        "obsid":49,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1124,7 +1124,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":50,
+        "obsid":50,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -1148,7 +1148,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":51,
+        "obsid":51,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1172,7 +1172,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":52,
+        "obsid":52,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -1196,7 +1196,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":53,
+        "obsid":53,
         "srcid":0,
         "from":"1",
         "from_hgt":2.3000,
@@ -1214,7 +1214,7 @@ BEGIN_JSON observations
         "file_line-no":165
       },
       {
-        "snapid":54,
+        "obsid":54,
         "srcid":0,
         "from":"1",
         "from_hgt":2.3000,
@@ -1237,7 +1237,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":55,
+        "obsid":55,
         "srcid":0,
         "from":"2",
         "from_hgt":1.2000,
@@ -1255,7 +1255,7 @@ BEGIN_JSON observations
         "file_line-no":169
       },
       {
-        "snapid":56,
+        "obsid":56,
         "srcid":0,
         "from":"2",
         "from_hgt":1.2000,
@@ -1278,7 +1278,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":57,
+        "obsid":57,
         "srcid":0,
         "from":"2",
         "from_hgt":1.3000,
@@ -1296,7 +1296,7 @@ BEGIN_JSON observations
         "file_line-no":173
       },
       {
-        "snapid":58,
+        "obsid":58,
         "srcid":0,
         "from":"2",
         "from_hgt":1.3000,
@@ -1319,7 +1319,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":59,
+        "obsid":59,
         "srcid":0,
         "from":"1",
         "from_hgt":1.5000,
@@ -1342,7 +1342,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":60,
+        "obsid":60,
         "srcid":0,
         "from":"1",
         "from_hgt":2.5000,
@@ -1365,7 +1365,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":61,
+        "obsid":61,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1384,7 +1384,7 @@ BEGIN_JSON observations
         "file_line-no":184
       },
       {
-        "snapid":62,
+        "obsid":62,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1404,7 +1404,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":63,
+        "obsid":63,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1423,7 +1423,7 @@ BEGIN_JSON observations
         "file_line-no":185
       },
       {
-        "snapid":64,
+        "obsid":64,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1443,7 +1443,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":65,
+        "obsid":65,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1467,7 +1467,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":66,
+        "obsid":66,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -1491,7 +1491,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":67,
+        "obsid":67,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1515,7 +1515,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":68,
+        "obsid":68,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -1539,7 +1539,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":69,
+        "obsid":69,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1559,7 +1559,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":70,
+        "obsid":70,
         "srcid":0,
         "from":"1",
         "from_hgt":2.0000,
@@ -1579,7 +1579,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":71,
+        "obsid":71,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1599,7 +1599,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":72,
+        "obsid":72,
         "srcid":0,
         "from":"1",
         "from_hgt":2.0000,
@@ -1619,7 +1619,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":73,
+        "obsid":73,
         "srcid":1000,
         "from":"1",
         "from_hgt":0.0000,
@@ -1648,7 +1648,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":74,
+        "obsid":74,
         "srcid":1001,
         "from":"1",
         "from_hgt":0.0000,
@@ -1677,7 +1677,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":75,
+        "obsid":75,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1695,7 +1695,7 @@ BEGIN_JSON observations
         "file_line-no":236
       },
       {
-        "snapid":76,
+        "obsid":76,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1727,7 +1727,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":77,
+        "obsid":77,
         "srcid":1000,
         "from":"1",
         "from_hgt":0.0000,
@@ -1756,7 +1756,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":78,
+        "obsid":78,
         "srcid":1001,
         "from":"1",
         "from_hgt":0.0000,
@@ -1785,7 +1785,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":79,
+        "obsid":79,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1803,7 +1803,7 @@ BEGIN_JSON observations
         "file_line-no":266
       },
       {
-        "snapid":80,
+        "obsid":80,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1835,7 +1835,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":81,
+        "obsid":81,
         "srcid":1000,
         "from":"1",
         "from_hgt":0.0000,
@@ -1864,7 +1864,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":82,
+        "obsid":82,
         "srcid":1001,
         "from":"1",
         "from_hgt":0.0000,
@@ -1893,7 +1893,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":83,
+        "obsid":83,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1911,7 +1911,7 @@ BEGIN_JSON observations
         "file_line-no":290
       },
       {
-        "snapid":84,
+        "obsid":84,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -1943,7 +1943,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":85,
+        "obsid":85,
         "srcid":1000,
         "from":"1",
         "from_hgt":0.0000,
@@ -1972,7 +1972,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":86,
+        "obsid":86,
         "srcid":1001,
         "from":"1",
         "from_hgt":0.0000,
@@ -2001,7 +2001,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":87,
+        "obsid":87,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2019,7 +2019,7 @@ BEGIN_JSON observations
         "file_line-no":308
       },
       {
-        "snapid":88,
+        "obsid":88,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2051,7 +2051,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":89,
+        "obsid":89,
         "srcid":1000,
         "from":"1",
         "from_hgt":0.0000,
@@ -2080,7 +2080,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":90,
+        "obsid":90,
         "srcid":1000,
         "from":"1",
         "from_hgt":0.0000,
@@ -2109,7 +2109,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":91,
+        "obsid":91,
         "srcid":1001,
         "from":"1",
         "from_hgt":0.0000,
@@ -2138,7 +2138,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":92,
+        "obsid":92,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2156,7 +2156,7 @@ BEGIN_JSON observations
         "file_line-no":323
       },
       {
-        "snapid":93,
+        "obsid":93,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2188,7 +2188,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":94,
+        "obsid":94,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2215,7 +2215,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":95,
+        "obsid":95,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2242,7 +2242,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":96,
+        "obsid":96,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2258,7 +2258,7 @@ BEGIN_JSON observations
         "file_line-no":344
       },
       {
-        "snapid":97,
+        "obsid":97,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2288,7 +2288,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":98,
+        "obsid":98,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2315,7 +2315,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":99,
+        "obsid":99,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2342,7 +2342,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":100,
+        "obsid":100,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2358,7 +2358,7 @@ BEGIN_JSON observations
         "file_line-no":370
       },
       {
-        "snapid":101,
+        "obsid":101,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2388,7 +2388,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":102,
+        "obsid":102,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2415,7 +2415,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":103,
+        "obsid":103,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2442,7 +2442,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":104,
+        "obsid":104,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2458,7 +2458,7 @@ BEGIN_JSON observations
         "file_line-no":391
       },
       {
-        "snapid":105,
+        "obsid":105,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2488,7 +2488,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":106,
+        "obsid":106,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2515,7 +2515,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":107,
+        "obsid":107,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2542,7 +2542,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":108,
+        "obsid":108,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2558,7 +2558,7 @@ BEGIN_JSON observations
         "file_line-no":407
       },
       {
-        "snapid":109,
+        "obsid":109,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2588,7 +2588,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":110,
+        "obsid":110,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2615,7 +2615,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":111,
+        "obsid":111,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2642,7 +2642,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":112,
+        "obsid":112,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2669,7 +2669,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":113,
+        "obsid":113,
         "srcid":0,
         "from":"1",
         "from_hgt":0.0000,
@@ -2685,7 +2685,7 @@ BEGIN_JSON observations
         "file_line-no":424
       },
       {
-        "snapid":114,
+        "obsid":114,
         "srcid":0,
         "from":"2",
         "from_hgt":0.0000,
@@ -2718,7 +2718,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                              DEFINITION OF PROBLEM
 
@@ -2751,7 +2751,7 @@ Station  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                                ITERATION NUMBER 1
 
@@ -2760,7 +2760,7 @@ Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                              OBSERVATION EQUATIONS
 
@@ -5098,7 +5098,7 @@ Iteration 1: Maximum change is 0.0003 metres at station 2
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                                 SOLUTION SUMMARY
 
@@ -5122,7 +5122,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                               STATION COORDINATES
 
@@ -5163,7 +5163,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                            REFERENCE FRAME PARAMETERS
 
@@ -5189,7 +5189,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                                 OTHER PARAMETERS
 
@@ -5204,7 +5204,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                              OBSERVATION RESIDUALS
 
@@ -5625,7 +5625,7 @@ File test1.dat: line 391
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                                  ERROR SUMMARY
 
@@ -5680,7 +5680,7 @@ longitude                                   0.00    4    0.00    2    0.00    6
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     1-SEP-2018 06:38:14
+Regression test 1 - data types and observation equations     1-SEP-2018 06:52:07
 
                            MOST SIGNIFICANT RESIDUALS
 

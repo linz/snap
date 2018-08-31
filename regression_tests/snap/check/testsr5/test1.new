@@ -1,7 +1,7 @@
 Test 1 - basic obs type tests
 NZGD1949
 options ellipsoidal_heights no_deflections geoid_heights c=Order c=Mark_Type
-! Updated by SNAP version 2.7.13-e3de2b8 at 31-AUG-2018 17:32:52
+! Updated by SNAP version 2.7.13-c6da8ba at  1-SEP-2018 06:52:09
 
 !Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
 1      41 00 46.800000 S 173 19 15.600000 E   150.0000  0.0000 2     PIN   Node one

@@ -566,7 +566,7 @@ void print_json_observations( FILE *out )
 
             if( iobs ) fprintf(out,",");
             fprintf( out, "\n      {\n");
-            fprintf( out, "        \"snapid\":%d,\n",tgt->snapid);
+            fprintf( out, "        \"obsid\":%d,\n",tgt->obsid);
             fprintf( out, "        \"srcid\":%d,\n",tgt->id);
             /* sd->from is 0 for point vector data */
             /* Could be more rigorous here! */

@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-e3de2b8
+                      PROGRAM SNAP  Version 2.7.13-c6da8ba
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 31 2018 17:32:07
+                       Version date: Sep  1 2018 06:51:23
 
 ================================================================================
-                     Run at 31-AUG-2018 17:32:52 by ccrook
+                     Run at  1-SEP-2018 06:52:09 by ccrook
 
 
 
@@ -31,7 +31,7 @@ Data file 1: testsnx2.in.snx
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                                    INPUT DATA
 
@@ -51,7 +51,7 @@ BEGIN_JSON observations
   "obs":
     [
       {
-        "snapid":1,
+        "obsid":1,
         "srcid":0,
         "from":"5503",
         "from_hgt":0.0000,
@@ -67,7 +67,7 @@ BEGIN_JSON observations
         "file_line-no":166
       },
       {
-        "snapid":2,
+        "obsid":2,
         "srcid":0,
         "from":"ALIC",
         "from_hgt":0.0000,
@@ -83,7 +83,7 @@ BEGIN_JSON observations
         "file_line-no":169
       },
       {
-        "snapid":3,
+        "obsid":3,
         "srcid":0,
         "from":"AUCK",
         "from_hgt":0.0000,
@@ -99,7 +99,7 @@ BEGIN_JSON observations
         "file_line-no":172
       },
       {
-        "snapid":5,
+        "obsid":5,
         "srcid":0,
         "from":"CHAT",
         "from_hgt":0.0000,
@@ -115,7 +115,7 @@ BEGIN_JSON observations
         "file_line-no":178
       },
       {
-        "snapid":7,
+        "obsid":7,
         "srcid":0,
         "from":"HOB2",
         "from_hgt":0.0000,
@@ -131,7 +131,7 @@ BEGIN_JSON observations
         "file_line-no":184
       },
       {
-        "snapid":8,
+        "obsid":8,
         "srcid":0,
         "from":"HOKI",
         "from_hgt":0.0000,
@@ -147,7 +147,7 @@ BEGIN_JSON observations
         "file_line-no":187
       },
       {
-        "snapid":9,
+        "obsid":9,
         "srcid":0,
         "from":"KARR",
         "from_hgt":0.0000,
@@ -163,7 +163,7 @@ BEGIN_JSON observations
         "file_line-no":190
       },
       {
-        "snapid":10,
+        "obsid":10,
         "srcid":0,
         "from":"MAC1",
         "from_hgt":0.0000,
@@ -179,7 +179,7 @@ BEGIN_JSON observations
         "file_line-no":193
       },
       {
-        "snapid":17,
+        "obsid":17,
         "srcid":0,
         "from":"TIDB",
         "from_hgt":0.0000,
@@ -195,7 +195,7 @@ BEGIN_JSON observations
         "file_line-no":214
       },
       {
-        "snapid":18,
+        "obsid":18,
         "srcid":0,
         "from":"TOW2",
         "from_hgt":0.0000,
@@ -211,7 +211,7 @@ BEGIN_JSON observations
         "file_line-no":217
       },
       {
-        "snapid":19,
+        "obsid":19,
         "srcid":0,
         "from":"WGTN",
         "from_hgt":0.0000,
@@ -227,7 +227,7 @@ BEGIN_JSON observations
         "file_line-no":220
       },
       {
-        "snapid":20,
+        "obsid":20,
         "srcid":0,
         "from":"YAR1",
         "from_hgt":0.0000,
@@ -398,7 +398,7 @@ END_JSON observations
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                                 SOLUTION SUMMARY
 
@@ -421,7 +421,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                               STATION COORDINATES
 
@@ -510,7 +510,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                            REFERENCE FRAME PARAMETERS
 
@@ -536,7 +536,7 @@ Reference frame: GNSS
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                              OBSERVATION RESIDUALS
 
@@ -625,7 +625,7 @@ YAR1   GX    -2389025.6565  0.0061  -2389025.6567  0.0000  0.0000  0.0050   0.00
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                                  ERROR SUMMARY
 
@@ -647,7 +647,7 @@ GPS point coord                             0.03   36     -      -    0.03   36
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                            MOST SIGNIFICANT RESIDUALS
 
@@ -690,7 +690,7 @@ HOKI             GX     0.015    0.001        187  testsnx2.in.snx
 
 
 ================================================================================
-Testing SINEX file reading                                  31-AUG-2018 17:32:52
+Testing SINEX file reading                                   1-SEP-2018 06:52:09
 
                                      ERRORS
 
