@@ -111,7 +111,7 @@ int test_next_string_field( input_string_def *is, const char *test )
     loc = get_string_loc(is);
     sts = read_next_field( is, &start, &length );
     if( sts != OK ) return 0;
-    if( strlen(test) == length && _strnicmp(test,start,length)==0 ) return 1;
+    if( (int) strlen(test) == length && _strnicmp(test,start,length)==0 ) return 1;
     set_string_loc(is,loc);
     return 0;
 }

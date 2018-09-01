@@ -1144,11 +1144,11 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
     float maxfailerror = 0.0;
     float failratio;
     float failerror;
-    float verror;
+    /* float verror; */
     int istn;
     StatusType sts = STS_OK;
     float herrmult = test->blnTestHor ? 1.0 : 0.0;
-    float verrmult = test->blnTestVrt ? test->dblVertHorRatio*test->dblVertHorRatio : 0.0;
+    /* float verrmult = test->blnTestVrt ? test->dblVertHorRatio*test->dblVertHorRatio : 0.0; */
 
     /*> Seek the station with the maximum percentage of failed tests,
         (resolve tiebreakers using the absolute error of the station */
@@ -1176,7 +1176,7 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
         if( failratio < maxfailratio ) continue;
 
         failerror = stni->error2 * herrmult;
-        verror = stni->verror2 * verrmult;
+        /* verror = stni->verror2 * verrmult; */
 
         if( priority != maxpriority ||
             testorder != maxorder ||

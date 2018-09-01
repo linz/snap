@@ -314,7 +314,7 @@ static void set_datatype_layer_colourflag( bool on )
     }
 }
 
-void setup_data_pens_layers( int ndatapens, char **datapennames, char *header )
+void setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
 {
     set_datatype_layer_colourflag( true );
     if( data_user_layers ) delete_layers( &data_user_layers );
@@ -486,7 +486,7 @@ static void setup_snapplot_symbology()
 }
 
 //extern "C" 
-void setup_data_layers( int ndatapens, char **datapennames, char *header, int sorted )
+void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted )
 {
     setup_data_pens_layers( ndatapens, datapennames, header );
     sort_data_user_layers = (sorted != 0);

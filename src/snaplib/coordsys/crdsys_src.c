@@ -131,7 +131,6 @@ coordsys * load_coordsys( const char *code )
     const char *dtmptr=0;
     const char *enddtmptr=0;
     const char *epochptr=0;
-    const char *endepochptr=0;
     const char *hrsptr=0;
     const char *endhrsptr=0;
     const char *cptr;
@@ -170,7 +169,6 @@ coordsys * load_coordsys( const char *code )
         cptr++;
         epochptr=cptr;
         while( *cptr ) cptr++;
-        endepochptr=cptr;
     }
 
     /* Invalid coordinate system definition */

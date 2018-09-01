@@ -32,7 +32,7 @@ int stations_read = 0;
 
 // #pragma warning (disable : 4100)
 
-static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int mergeopts, double mergedate )
+static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int mergeopts, double mergedate )
 {
     int sts;
     char *fname;
@@ -132,7 +132,7 @@ int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int
     return load_merge_coordinate_file( cfg, string, value, len, mergeopts, UNDEFINED_DATE );
 }
 
-int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int )
 {
     /* Parse merge options, then call load_coordinate file */
     int mergeopts=0;
@@ -208,7 +208,7 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
     return load_merge_coordinate_file( cfg, str, value, len, mergeopts, mergedate );
 }
 
-int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *fname;
     char *base_dir=get_config_directory(cfg);
@@ -230,7 +230,7 @@ int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *value, int le
     return OK;
 }
 
-int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
     const char *filename;
     const char *filespec;
@@ -259,7 +259,7 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *value, int len, int cod
 }
 
 
-int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *fname, *format, errmess[80];
     char *options = 0;
@@ -381,9 +381,8 @@ int load_data_file( CFG_FILE *cfg, char *string, void *value, int len, int code 
 }
 
 
-int read_obs_modification_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int code )
 {
-    int sts=OK;
     double err_factor=1.0;
     void *obs_modifications;
     if( code == OBS_MOD_REWEIGHT )
@@ -405,12 +404,12 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *value, int
         }
     }
     obs_modifications=snap_obs_modifications( true );
-    sts=add_obs_modifications( cfg, obs_modifications, string, code, err_factor );
+    add_obs_modifications( cfg, obs_modifications, string, code, err_factor );
     return OK;
 }
 
 
-int read_classification_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int read_classification_command( CFG_FILE *cfg, char *string, void *, int, int )
 {
     double errfct;
     char *classification;
@@ -516,7 +515,7 @@ int read_classification_command( CFG_FILE *cfg, char *string, void *value, int l
     return OK;
 }
 
-int read_recode_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int read_recode_command( CFG_FILE *cfg, char *string, void *, int, int )
 {
 
     if( ! stations_read )

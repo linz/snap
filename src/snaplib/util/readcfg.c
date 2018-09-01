@@ -293,7 +293,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         _strlwr(opt);
         for ( it = item; it->option; it++ )
         {
-            if( !cfg->command_flag | (cfg->command_flag & it->flags) )
+            if( ( !cfg->command_flag ) | (cfg->command_flag & it->flags) )
             {
                 if( strcmp( it->option, opt ) == 0 ) break;
             }
@@ -412,7 +412,7 @@ void clear_config_abort( CFG_FILE *cfg )
     if( cfg ) cfg->abort = 0;
 }
 
-int readcfg_int( CFG_FILE *cfg, char *str, void *value, int length, int code )
+int readcfg_int( CFG_FILE *, char *str, void *value, int, int )
 {
 
     int val;
@@ -430,7 +430,7 @@ int readcfg_int( CFG_FILE *cfg, char *str, void *value, int length, int code )
 }
 
 
-int readcfg_short( CFG_FILE *cfg, char *str, void *value, int length, int code )
+int readcfg_short( CFG_FILE *, char *str, void *value, int, int )
 {
 
     short ival;
@@ -448,7 +448,7 @@ int readcfg_short( CFG_FILE *cfg, char *str, void *value, int length, int code )
 }
 
 
-int readcfg_long( CFG_FILE *cfg, char *str, void *value, int length, int code )
+int readcfg_long( CFG_FILE *, char *str, void *value, int, int )
 {
 
     long val;
@@ -467,7 +467,7 @@ int readcfg_long( CFG_FILE *cfg, char *str, void *value, int length, int code )
 
 
 
-int readcfg_float( CFG_FILE *cfg, char *str, void *value, int length, int code )
+int readcfg_float( CFG_FILE *, char *str, void *value, int, int )
 {
     float val;
     char check[2];
@@ -485,7 +485,7 @@ int readcfg_float( CFG_FILE *cfg, char *str, void *value, int length, int code )
 
 
 
-int readcfg_double( CFG_FILE *cfg, char *str, void *value, int length, int code )
+int readcfg_double( CFG_FILE *, char *str, void *value, int, int )
 {
     double val;
     char check[2];
@@ -501,7 +501,7 @@ int readcfg_double( CFG_FILE *cfg, char *str, void *value, int length, int code 
     }
 }
 
-int readcfg_boolean( CFG_FILE *cfg, char *str, void *value, int length, int code )
+int readcfg_boolean( CFG_FILE *, char *str, void *value, int length, int )
 {
     unsigned char flag;
     flag = length;

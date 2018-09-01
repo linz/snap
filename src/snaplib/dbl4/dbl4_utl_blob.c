@@ -60,7 +60,7 @@
 **************************************************************************
 */
 
-StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob, Boolean blnOutput)
+StatusType utlCreateBlobHandle( DBHandle, hBlob * blob, Boolean blnOutput)
 {
     (*blob) = (BlobType *) utlAlloc( sizeof( BlobType ));
     if( ! *blob ) THROW_EXCEPTION("utlCreateBlobHandle: Memory allocation failure");

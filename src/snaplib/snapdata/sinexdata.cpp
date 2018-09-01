@@ -248,7 +248,7 @@ int SinexDataReader::findSection(RecordInputBase &dfi, const std::vector<std::st
     while( dfi.getNextLine(input))
     {
         if( input[0] != '+' ) continue;
-        for( int i=0; i < sections.size(); i++ )
+        for( int i=0; i < (int) sections.size(); i++ )
         {
             int len=sections[i].size();
             if( sections[i] == input.substr(1,len) ) return i;

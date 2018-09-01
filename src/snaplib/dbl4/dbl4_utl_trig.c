@@ -742,7 +742,7 @@ static hTrigDef trig_def_from_handle( void *handle)
     hTrigDef def;
     if( ! handle ) return 0;
     def = (hTrigDef) handle;
-    if( def->magic != MAGIC_NUMBER ) return 0;
+    if( def->magic != (INT4) MAGIC_NUMBER ) return 0;
     return def;
 }
 
@@ -768,6 +768,7 @@ StatusType utlCreateTrig( hBinSrc binsrc, hTrig *trig)
     hTrigDef def;
     StatusType sts;
 
+    def=0;
     *trig = 0;
     sts = create_trig_def( &def, binsrc );
     if( sts == STS_OK ) *trig =  (void *) def;
@@ -921,10 +922,11 @@ StatusType utlCalcTrig( hTrig trig, double x, double y, double *value)
 }
 
 
+/*
 
 #define PRINT(x) (*printfunc)(obj,x)
 
-StatusType utlDumpTrig( hTrig trig, void *obj, void (*printfunc)( void *obj, char *s ) )
+StatusType utlDumpTrig( hTrig trig, void *obj, void (*printfunc)( void *obj, const char *s ) )
 {
     hTrigDef def;
     char buf[256];
@@ -977,3 +979,4 @@ StatusType utlDumpTrig( hTrig trig, void *obj, void (*printfunc)( void *obj, cha
     }
     return STS_OK;
 }
+*/

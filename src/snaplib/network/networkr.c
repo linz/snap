@@ -63,7 +63,6 @@ int read_network( network *nw, const char *fname, int options )
     int *clsids;
     int i;
     int gbformat=options & NW_READOPT_GBFORMAT;
-    int recalc_geoid=options & NW_READOPT_CALCHGTREF;
     coordsys *cs;
 
     dfsts = OK;
@@ -202,7 +201,6 @@ int read_network( network *nw, const char *fname, int options )
             if( file_options & NW_GEOID_INFO ) 
             {
                 file_options |= NW_EXPLICIT_GEOID;
-                recalc_geoid=0;
             }
 
             df_read_data_file( stf );

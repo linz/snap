@@ -758,7 +758,7 @@ static void load_data( survdata *sd )
 
 // #pragma warning (disable : 4100)
 
-static long get_id( int type, int group_id, const char *code )
+static long get_id( int type, int, const char *code )
 {
     if( type == ID_STATION )
     {
@@ -774,7 +774,7 @@ static long get_id( int type, int group_id, const char *code )
     }
 }
 
-static const  char * get_name( int type, int group_id, long id )
+static const  char * get_name( int type, int, long id )
 {
     if( type == ID_STATION )
     {
@@ -786,7 +786,7 @@ static const  char * get_name( int type, int group_id, long id )
     }
 }
 
-static double get_value( int type, long id1, long id2 )
+static double get_value( int type, long, long )
 {
     switch( type )
     {
@@ -1522,7 +1522,7 @@ static int confirm_fix( char *msg )
 
 /**********************************************************/
 
-static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fixtype )
+static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
 {
     static coord_conversion toitrf;
     static coord_conversion tonet;
@@ -1637,7 +1637,7 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int *fi
 }
 
 
-static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, int *fixtype )
+static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, int * )
 {
     static coord_conversion tonet;
     static coordsys *itrf;
@@ -2631,6 +2631,7 @@ static int print_unfixed_stations( FILE *out, char status, char mask, const char
 }
 
 
+/*
 static int check_fixed_stn( station *st )
 {
     stn *s;
@@ -2638,6 +2639,7 @@ static int check_fixed_stn( station *st )
     s = (stn *) (st->hook);
     return (s->fixed & ST_FIXH) ? 1 : 0;
 }
+*/
 
 /*=====================================================================*/
 /* Get the location of the network                                     */
@@ -3014,7 +3016,7 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
     check_free(cfgfile);
 }
 
-static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_include_file( CFG_FILE *, char *string, void *, int, int )
 {
     char *s;
     s = strtok(string," \t\n");

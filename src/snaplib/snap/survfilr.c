@@ -40,7 +40,7 @@
 
 // #pragma warning ( disable : 4100 )
 
-static int datafile_progress( DATAFILE *df )
+static int datafile_progress( DATAFILE * )
 {
     update_file_display();
     return 1;
@@ -231,7 +231,7 @@ long read_data_files( FILE *lst )
 
 // #pragma warning(disable: 4100)
 
-void count_obs( int type, int ifile, double date, char unused )
+void count_obs( int type, int ifile, double date, char )
 {
     survey_data_file *sd=survey_data_file_ptr(ifile);
     sd->obscount[type]++;

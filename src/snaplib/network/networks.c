@@ -75,7 +75,6 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
     coordsys *geosys, *csold;
     coord_conversion cconv;
     station *st;
-    int explicit_geoid=network_has_explicit_geoid_info(nw);
 
     /* If we already have a coordinate system and some stations defined,
        then we need to transform the stations from the input system to

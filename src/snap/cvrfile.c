@@ -380,7 +380,7 @@ void print_coord_sinex( void )
             st = stnptr( istn );
             sa = stnadj( st );
             if( ! sa->obscount ) continue;
-            if( strlen(st->Code) > maxcodlen ) maxcodlen=strlen(st->Code);
+            if( (int) strlen(st->Code) > maxcodlen ) maxcodlen=strlen(st->Code);
             if( sa->hrowno ||  sa->vrowno ) 
             {
                 nsnxprm += 3;

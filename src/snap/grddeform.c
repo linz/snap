@@ -72,7 +72,7 @@ static int init_grid_deformation(  char *pmodel, double pepoch )
    preparation  - for a velocity model we use this to calculate and cache
    the velocities of all stations.. */
 
-static int init_griddef( void *deformation )
+static int init_griddef( void * )
 {
     const char *vcsdef;
     coordsys *vcs;
@@ -136,7 +136,7 @@ static int init_griddef( void *deformation )
 /* Called for each observation to determine the east, north, and vertical
    offset that the model predicts for a specific time */
 
-static int calc_griddef( void *deformation, station *st, double date, double denu[3] )
+static int calc_griddef( void *, station *st, double date, double denu[3] )
 {
     int stnid;
     double year;
@@ -151,7 +151,7 @@ static int calc_griddef( void *deformation, station *st, double date, double den
 
 /* Describe the deformation model in an output file */
 
-static int print_griddef_model( void *deformation, FILE *out, const char *prefix )
+static int print_griddef_model( void *, FILE *out, const char *prefix )
 {
     fprintf(out,"%sModel type: velocity\n",prefix );
     fprintf(out,"%sModel name: %s\n", prefix,model );
@@ -162,7 +162,7 @@ static int print_griddef_model( void *deformation, FILE *out, const char *prefix
     return OK;
 }
 
-static int delete_griddef( void *deformation )
+static int delete_griddef( void * )
 {
     return OK;
 }

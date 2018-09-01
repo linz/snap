@@ -333,7 +333,7 @@ static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
 
 static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs );
 
-static vdatum *vdatum_from_code( const char *code, int loadref )
+static vdatum *vdatum_from_code( const char *code, int )
 {
     vdatum *hrf;
     int sts;

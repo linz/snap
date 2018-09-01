@@ -208,9 +208,9 @@ void Reader::setup( const Format &parser )
 
 void Reader::setColumnNames( const std::vector<std::string> &columnNames )
 {
-    for( int i = 0; i < columnNames.size(); i++ )
+    for( int i = 0; i < (int) columnNames.size(); i++ )
     {
-        if( i >= _columns.size())
+        if( i >= (int) _columns.size())
         {
             _columns.push_back( new Column(*this,columnNames[i],i));
         }
@@ -273,11 +273,11 @@ std::string &Reader::getNextValue()
 {
     int index = _colno;
     _colno++;
-    if( index > _columns.size())
+    if( index > (int) _columns.size())
     {
         runtimeError("Invalid call to getValue from parser");
     }
-    else if( index == _columns.size())
+    else if( index == (int) _columns.size())
     {
         if( ! _columnsSet || _options._addExtraColumns )
         {
@@ -312,7 +312,7 @@ bool Reader::readRecord()
     if( ! _parser->parseRecord()) return false;
     _recordno++;
     _columnsSet = true;
-    if( _colno < _columns.size() && ! _options._fillMissingColumns)
+    if( _colno < (int) _columns.size() && ! _options._fillMissingColumns)
     {
         runtimeError("Missing columns");
     }
@@ -342,7 +342,7 @@ bool Reader::namesMatch( const std::string &name1, const std::string &name2 ) co
 
 Column *Reader::findColumn( const std::string &name ) const
 {
-    for( int i = 0; i < _columns.size(); i++ )
+    for( int i = 0; i < (int) _columns.size(); i++ )
     {
         if( namesMatch( name, _columns[i]->name() ) ) return _columns[i];
     }

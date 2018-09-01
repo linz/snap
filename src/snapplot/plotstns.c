@@ -287,7 +287,6 @@ static void build_sort_index( void )
     int classid;
     int valueid;
     station *stn;
-    const char *dash = "-";
     double emax, emin, b1, dxyz[3], hgterr;
 
     if( ! no_good_stations || ! sortIndex || ! sortValues ) return;

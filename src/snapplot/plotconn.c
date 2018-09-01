@@ -383,6 +383,7 @@ static void expand_data_space( conn_location *l, int oldsize, int newsize )
     }
 }
 
+/*
 static void free_conn_data( conn_ptr *cp )
 {
     if( ! use_conn_file )
@@ -393,6 +394,7 @@ static void free_conn_data( conn_ptr *cp )
         cp->l.mloc = 0;
     }
 }
+*/
 
 
 static void create_conn_data( conn_ptr *cp )
@@ -800,7 +802,7 @@ void add_survdata_connections( survdata *sd, long bloc )
 static int data_pen_type;
 
 static char *range_name_alloc = NULL;
-static char **range_names = NULL;
+static const char **range_names = NULL;
 static double *range_values = NULL;
 static int nranges = 0;
 static int reverse_range = 0;
@@ -820,7 +822,7 @@ static void free_range_pens()
     range_values = NULL;
 }
 
-static void setup_ranges( double maxval, int ninterval, int reverse, char *name, char *prefix )
+static void setup_ranges( double maxval, int ninterval, int reverse, const char *name, const char *prefix )
 {
     char *data;
     int i;
@@ -834,7 +836,7 @@ static void setup_ranges( double maxval, int ninterval, int reverse, char *name,
     range_name_alloc = data;
     range_values = (double *) data;
     data += ninterval * sizeof(double);
-    range_names = (char **) data;
+    range_names = (const char **) data;
     data += ninterval * sizeof(char *);
     reverse_range = reverse;
     nranges = reverse_range ? ninterval-1 : 0;
@@ -881,22 +883,22 @@ static void setup_datatype_pens( void )
     setup_data_layers( 0, NULL, NULL, 0 );
 }
 
-static char *nmApostStdRes = "Aposteriori std residuals";
-static char *nmStdRes = "Apriori std residuals";
-static char *cdStdRes = "SRS_";
-static char *nmRedundancy = "Redundancy";
-static char *cdRedundancy = "RDC_";
-static char *classPrefix = "OC_";
+static const char *nmApostStdRes = "Aposteriori std residuals";
+static const char *nmStdRes = "Apriori std residuals";
+static const char *cdStdRes = "SRS_";
+static const char *nmRedundancy = "Redundancy";
+static const char *cdRedundancy = "RDC_";
+static const char *classPrefix = "OC_";
 
 #define CLASS_LABEL_SIZE 64
 
 static void setup_classification_pens( int class_type )
 {
     int i, npens, namewidth;
-    char *header;
+    const char *header;
     char *names, *nm;
-    char **class_pen_names;
-    static char *obsfileheader = "Data file";
+    const char **class_pen_names;
+    static const char *obsfileheader = "Data file";
 
     if( class_type > 0 )
     {
@@ -912,7 +914,7 @@ static void setup_classification_pens( int class_type )
 
     namewidth = strlen(classPrefix)+2*CLASS_LABEL_SIZE+2;
     names = (char *) check_malloc( npens * namewidth );
-    class_pen_names = (char **) check_malloc( npens * sizeof( char * ) );
+    class_pen_names = (const char **) check_malloc( npens * sizeof( char * ) );
 
     nm = names;
     for( i = 0; i < npens; i++ )
@@ -970,7 +972,7 @@ void setup_data_pens( int type )
         data_pen_type = DPEN_BY_RFAC;
     }
 
-    else if( type > 0 && type <= nclass || type == DPEN_BY_FILE)
+    else if( type > 0 && (type <= nclass || type == DPEN_BY_FILE) )
     {
         setup_classification_pens( type );
         data_pen_type = type;
@@ -1527,7 +1529,7 @@ static int nDisplayFields = 8;
 
 struct
 {
-    char *name;
+    const char *name;
     int code;
     int width;
 } displayFieldDefs[] =
@@ -1575,7 +1577,7 @@ int get_display_field_code( const char *field )
 
 const char *get_display_field_name( int fieldCode )
 {
-    char *fieldName = NULL;
+    const char *fieldName = NULL;
     int j;
     for( j = 0; displayFieldDefs[j].name; j++ )
     {
@@ -1613,7 +1615,7 @@ int read_display_fields_definition( char *def )
 
 void write_display_fields_definition( char *def, int nchar )
 {
-    char nch = 0;
+    int nch = 0;
     int i;
     for( i = 0; i < nDisplayFields; i++ )
     {
@@ -2073,7 +2075,7 @@ char *sres_list_header()
     nch = 0;
     for( i = 0; i < nDisplayFields; i++ )
     {
-        char *data;
+        const char *data;
         int datalen;
         int number = 0;
         switch( displayFields[i] )

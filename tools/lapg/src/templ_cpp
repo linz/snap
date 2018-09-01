@@ -116,7 +116,7 @@ $#error    int lapg_symbols_ok = 4;
 $#pos		lapg_n.pos = lapg_current;
 		for( lapg_size = 0, lapg_i = group; lapg_i >= 0; ) {
 			if( lapg_size < @maxtoken-1 ) token[lapg_size++] = chr;
-			lapg_i = lapg_lexem[lapg_i][lapg_char2no[chr]];
+			lapg_i = lapg_lexem[lapg_i][(int)lapg_char2no[chr]];
 			if( lapg_i >= -1 && chr ) { 
 $#pos1				if( chr == '\n' ) lapg_current.line++;
 $#pos2				lapg_current.column++;

@@ -12,6 +12,8 @@
 #include "util/iostring.h"
 #endif
 
+#include "stddef.h"
+
 /* Definition of parameters of an object.  Used to create lists of parameters which
    can be used for input or output of a system definition */
 
@@ -19,7 +21,7 @@ typedef struct
 {
     const char *name;     /* Name of parameter - used for descriptive output */
     const char *code;     /* Code - not used at present */
-    long offset;     /* Offset into the objects data structure */
+    size_t offset;     /* Offset into the objects data structure */
 
     /* Read, write, and print functions.  print is a nicely formatted
        version of write.  Read and write are inverse operations.
@@ -52,9 +54,8 @@ int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base
 
 /* Macro for determining offset of member in a structure */
 
-#ifndef OFFSET_OF
-#define OFFSET_OF(member,type) \
-    ( (long) &((type *)0)->member )
+#ifndef OFFSET_OF 
+#define OFFSET_OF(m,t) offsetof(t,m)
 #endif
 
 /* Macro to obtain the address of an offset into a structure */

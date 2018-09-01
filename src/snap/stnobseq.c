@@ -1307,7 +1307,7 @@ void print_floated_stations( FILE *out )
     print_section_footer(lst);
 }
 
-void print_station_offsets( FILE *out )
+void print_station_offsets( FILE * )
 {
     station *st;
     char first=1;

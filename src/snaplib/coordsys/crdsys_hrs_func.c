@@ -39,7 +39,7 @@ static vdatum_func *create_vdatum_func( const char *type, const char *descriptio
 /*========================================================================================*/
 /* Offset vertical datum function routine                                               */
 
-static void describe_offset_vdatum_func( vdatum_func *hrf, output_string_def *os )
+static void describe_offset_vdatum_func( vdatum_func *, output_string_def * )
 {
     return;
 }
@@ -56,7 +56,7 @@ static void *copy_offset_vdatum_func_data( void *data )
     return copy;
 }
 
-static int calc_offset_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
+static int calc_offset_vdatum_func( vdatum_func *hrf, double[3], double *height, double *exu )
 {
     if( height) *height = -(*(double *)(hrf->data));
     if( exu )

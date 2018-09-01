@@ -43,7 +43,7 @@ static int default_describe_func(ref_frame *rf, output_string_def *os )
     return OK;
 }
 
-static int default_calc_func( ref_frame *rf, double lon, double lat, double epoch, double denu[3])
+static int default_calc_func( ref_frame *, double, double, double, double denu[3])
 {
     denu[0] = denu[1] = denu[2] = 0.0;
     return INVALID_DATA;

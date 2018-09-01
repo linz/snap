@@ -610,7 +610,7 @@ static long start_block( const char *blockname )
     return id;
 }
 
-static void end_block( long edge_id )
+static void end_block( long )
 {
     fprintf(dxf,"  0\nENDBLK\n");
 }
@@ -670,7 +670,7 @@ static void write_symbol_blocks()
 
 // #pragma warning (disable: 4100)
 
-static void dxf_line( void *dummy, double x, double y, int pen, int dashed )
+static void dxf_line( void *, double x, double y, int pen, int )
 {
     int ntrpt;
     static int lastPen;
@@ -689,7 +689,7 @@ static void dxf_line( void *dummy, double x, double y, int pen, int dashed )
     }
 }
 
-static void dxf_text( void *dummy, double x, double y, double size, int pen, const char *text )
+static void dxf_text( void *, double x, double y, double size, int pen, const char *text )
 {
     write_dxf_text( x, y, pen+1, size, 0.0, text );
 }
@@ -698,7 +698,7 @@ static void dxf_text( void *dummy, double x, double y, double size, int pen, con
 #define MININC 0.1
 
 
-static void dxf_ellipse( void *dummy, double x, double y, double a, double b, double az, int pen )
+static void dxf_ellipse( void *, double x, double y, double a, double b, double az, int pen )
 {
 
     int i,ncd;
@@ -750,7 +750,7 @@ static void dxf_ellipse( void *dummy, double x, double y, double a, double b, do
 
 }
 
-static void dxf_symbol( void *dummy, double px, double py, int pen, int symbol )
+static void dxf_symbol( void *, double px, double py, int pen, int symbol )
 {
     const char *blockname = symbol_block_name( symbol );
     write_dxf_blockref( px, py, blockname, stn_symbol_size, pen );
@@ -775,7 +775,7 @@ int close_dxf_file()
 
 #define NOTE(txt)  dxf_text(NULL, xt,yt,size,pen,txt); yt += spacing
 
-void write_dxf_title_block( map_plotter *plotter )
+void write_dxf_title_block( map_plotter * )
 {
     int nch, pen;
     double spacing, size, xt, yt, xs;

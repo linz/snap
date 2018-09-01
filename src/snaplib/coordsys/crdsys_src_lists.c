@@ -101,7 +101,7 @@ static void delete_crdsys_list( crdsys_list *cl )
 
 // #pragma warning( disable : 4100)
 
-static int delete_crdsys_lists( void *dummy )
+static int delete_crdsys_lists( void * )
 {
     delete_crdsys_list( &rflist );
     delete_crdsys_list( &ellist );

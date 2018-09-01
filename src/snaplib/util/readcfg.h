@@ -15,6 +15,8 @@
 #include "util/errdef.h"
 #endif
 
+#include <stddef.h>
+
 /* Header file for readcfg.c  - code to read a configuration file */
 
 /* A configuration file */
@@ -100,7 +102,7 @@ typedef struct
 /* Macro to define the offset of a member m of structure referenced by
    typedef t (can be called as offsetof( struct s, m) */
 
-#define OFFSETOF(t,m) ((int)(&((t*)0)->m))
+#define OFFSETOF offsetof
 
 #define FIELD_DELIMS " \t\n="
 

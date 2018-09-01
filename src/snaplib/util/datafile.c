@@ -87,8 +87,8 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     nch = fread(msg,1,80,f);
     unicode = 0;
     binary = 0;
-    if( nch >= strlen(utf8_bom) && memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
-    if( nch >= strlen(utf16_bom) && memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
+    if( (nch >= (int) strlen(utf8_bom)) && memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
+    if( (nch >= (int) strlen(utf16_bom)) && memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
     if( ! unicode )
     {
         for( i = 0; i < nch; i++ )

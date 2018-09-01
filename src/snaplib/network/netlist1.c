@@ -53,7 +53,6 @@ station_list *reload_station_list( FILE *f )
     sl = new_station_list();
     while( istn-- )
     {
-        int id;
         st = reload_station( f );
         sl_add_station_at_id( sl, st );
 

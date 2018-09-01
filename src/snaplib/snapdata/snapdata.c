@@ -40,7 +40,9 @@
 #include "util/snapctype.h"
 
 #ifndef DEBUG
+#ifndef NDEBUG
 #define NDEBUG
+#endif
 #endif
 #include <assert.h>
 
@@ -671,7 +673,7 @@ static void load_data_syserrs( snapfile_def *sd )
 
 // #pragma warning(disable: 4100)
 
-static int read_proj_command( snapfile_def *sd, int id, const char *cmd )
+static int read_proj_command( snapfile_def *sd, int, const char *cmd )
 {
     char name[NAMELEN];
 
@@ -1062,7 +1064,7 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
 // #pragma warning(disable: 4100)
 
-static int read_angle_type_command( snapfile_def *sd, int id, const char *cmd )
+static int read_angle_type_command( snapfile_def *sd, int id, const char * )
 {
     sd->dmsformat = id;
     return OK;
@@ -1070,7 +1072,7 @@ static int read_angle_type_command( snapfile_def *sd, int id, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_date_command( snapfile_def *sd, int id, const char *cmd )
+static int read_date_command( snapfile_def *sd, int, const char *cmd )
 {
     char datestr[32];
     int ok;
@@ -1142,7 +1144,7 @@ static int read_date( DATAFILE *d, double *obsdate )
 
 // #pragma warning(disable: 4100)
 
-static int read_time_command( snapfile_def *sd, int id, const char *cmd )
+static int read_time_command( snapfile_def *sd, int, const char *cmd )
 {
     double obstime;
     if( read_time( sd->df, &obstime ) )
@@ -1162,7 +1164,7 @@ static int read_time_command( snapfile_def *sd, int id, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_data_time( snapfile_def *sd, data_field *fld )
+static int read_data_time( snapfile_def *sd, data_field * )
 {
     double obstime;
     if( read_time( sd->df, &obstime ) )
@@ -1177,7 +1179,7 @@ static int read_data_time( snapfile_def *sd, data_field *fld )
     return OK; /* Since errors are already handled */
 }
 
-static int read_data_date( snapfile_def *sd, data_field *fld )
+static int read_data_date( snapfile_def *sd, data_field * )
 {
     double obsdate;
     if( read_date( sd->df, &obsdate ) )
@@ -1209,7 +1211,7 @@ static void calc_nveccvr( snapfile_def *sd )
 
 // #pragma warning(disable: 4100)
 
-static int read_gps_errtype_command( snapfile_def *sd, int id, const char *cmd )
+static int read_gps_errtype_command( snapfile_def *sd, int, const char * )
 {
     char option[20];
     int ok;
@@ -1242,7 +1244,7 @@ static int read_gps_errtype_command( snapfile_def *sd, int id, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_syserr_command( snapfile_def *sd, int id, const char *cmd )
+static int read_syserr_command( snapfile_def *sd, int, const char *cmd )
 {
     char name[NAMELEN];
     char classname[NAMELEN];
@@ -1273,7 +1275,7 @@ static int read_syserr_command( snapfile_def *sd, int id, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_classification( snapfile_def *sd, int id, const char *cmd )
+static int read_classification( snapfile_def *sd, int, const char *cmd )
 {
     char name[NAMELEN];
     if( !df_read_field( sd->df, name, NAMELEN ) )
@@ -1291,7 +1293,7 @@ static int read_classification( snapfile_def *sd, int id, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_classify_command( snapfile_def *sd, int id, const char *cmd )
+static int read_classify_command( snapfile_def *sd, int, const char *cmd )
 {
     char fields[3][NAMELEN];
     char *types, *clsf, *value;
@@ -1363,14 +1365,14 @@ static int read_classify_command( snapfile_def *sd, int id, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_endset_command( snapfile_def *sd, int id, const char *cmd )
+static int read_endset_command( snapfile_def *, int, const char * )
 {
     return OK; /* Nothing to do - just marks end of the group */
 }
 
 // #pragma warning(disable: 4100)
 
-static int read_note_command( snapfile_def *sd, int id, const char *cmd )
+static int read_note_command( snapfile_def *sd, int, const char * )
 {
     char note[NOTELEN];
     if( sd->definition_err ) return OK;
@@ -1831,7 +1833,7 @@ static void validate_vector_error( snapfile_def *sd )
 
 
 
-static int read_data_error( snapfile_def *sd, data_field *fld )
+static int read_data_error( snapfile_def *sd, data_field * )
 {
     snap_data_type *st;
     double error;

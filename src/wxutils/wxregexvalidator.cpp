@@ -4,7 +4,7 @@
 #include <stdarg.h>
 
 BEGIN_EVENT_TABLE(wxRegexpStringValidator,wxTextValidator)
-    EVT_CHAR(OnChar)
+    EVT_CHAR(wxRegexpStringValidator::OnChar)
 END_EVENT_TABLE()
 
 wxRegexpStringValidator::wxRegexpStringValidator( wxString *value, const wxString &rules  )

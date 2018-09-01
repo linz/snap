@@ -383,7 +383,7 @@ static bool classification_criterion_match( criterion *c, station *stn )
     return get_station_class( stn, c->c.classification.class_id ) == c->c.classification.value_id;
 }
 
-static void delete_classification_criterion( criterion *c )
+static void delete_classification_criterion( criterion * )
 {
 }
 

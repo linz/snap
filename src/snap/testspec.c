@@ -122,7 +122,7 @@ int get_spec_testid( char *name, int *testid )
 
     if( ! spec->testid )
     {
-        if( ntestid >= sizeof(int) ) return TOO_MUCH_DATA;
+        if( ntestid >= (int) sizeof(int) ) return TOO_MUCH_DATA;
         spec->testid = 1 << ntestid;
         ntestid++;
     }

@@ -169,7 +169,7 @@ static obs_criterion *new_obs_datatype_criterion( CFG_FILE *cfg, char *datatypes
     return oc;
 }
 
-static bool obs_datatype_match( obs_criterion *oc, survdata *sd, trgtdata *tgt )
+static bool obs_datatype_match( obs_criterion *oc, survdata *, trgtdata *tgt )
 {
     return oc->c.datatype.select[tgt->type];
 }
@@ -209,7 +209,7 @@ static obs_criterion *new_obs_datafile_criterion( int file_id, char *filename )
     return oc;
 }
 
-static bool obs_datafile_match( obs_criterion *oc, survdata *sd, trgtdata *tgt )
+static bool obs_datafile_match( obs_criterion *oc, survdata *sd, trgtdata * )
 {
     return sd->file == oc->c.datafile.file_id;
 }
@@ -220,12 +220,12 @@ static void delete_obs_datafile_criterion( obs_criterion *oc )
     oc->c.datafile.filename=nullptr;
 }
 
-static void describe_obs_datafile_criterion( FILE *lst, obs_criterion *oc, const char *prefix )
+static void describe_obs_datafile_criterion( FILE *lst, obs_criterion *oc, const char * )
 {
     fprintf(lst,"are from file %s\n",oc->c.datafile.filename);
 }
 
-static obs_criterion *new_obs_classification_criterion( CFG_FILE *cfg, classifications *classes, 
+static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classifications *classes, 
         char *classification, char *values, bool singlevalue )
 {
     int class_id;
@@ -293,7 +293,7 @@ static bool obs_mult_classification_match( obs_criterion *oc, survdata *sd, trgt
     return false;
 }
 
-static void describe_obs_classification_criterion( FILE *lst, obs_criterion *oc, const char *prefix, classifications *classes )
+static void describe_obs_classification_criterion( FILE *lst, obs_criterion *oc, const char *, classifications *classes )
 {
     fprintf(lst,"where %s classification is \"%s\"\n",
             classification_name( classes, oc->c.classification.class_id),
@@ -362,7 +362,7 @@ static void delete_obs_id_criterion( obs_criterion *oc )
     if( oc->c.id.nobs_ids > 1 ){check_free( oc->c.id.obs_ids ); oc->c.id.obs_ids=0; }
 }
 
-static bool obs_id_match( obs_criterion *oc, survdata *sd, trgtdata *tgt )
+static bool obs_id_match( obs_criterion *oc, survdata *, trgtdata *tgt )
 {
     for( int i=0; i < oc->c.id.nobs_ids; i++ ){ if( oc->c.id.obs_ids[i] == tgt->id ) return true; }
     return false;
@@ -411,7 +411,7 @@ static obs_criterion *new_obs_date_criterion( CFG_FILE *cfg, unsigned char date_
     return oc;
 }
 
-static bool obs_date_match( obs_criterion *oc, survdata *sd, trgtdata *tgt )
+static bool obs_date_match( obs_criterion *oc, survdata *sd, trgtdata * )
 {
     bool result=false;
 
@@ -430,7 +430,7 @@ static bool obs_date_match( obs_criterion *oc, survdata *sd, trgtdata *tgt )
     return result;
 }
 
-static void describe_obs_date_criterion( FILE *lst, obs_criterion *oc, const char *prefix )
+static void describe_obs_date_criterion( FILE *lst, obs_criterion *oc, const char * )
 {
     if( oc->c.date.date_criterion_type == OBS_CRIT_DATE_UNKNOWN )
     {
@@ -514,7 +514,7 @@ static bool obs_stations_match( obs_criterion *oc, network *nw, survdata *sd, tr
     return false;
 }
 
-static void describe_obs_stations_criterion( FILE *lst, obs_criterion *oc, const char *prefix )
+static void describe_obs_stations_criterion( FILE *lst, obs_criterion *oc, const char * )
 {
     fprintf(lst,"%s stations %s\n",
             oc->crit_type == OBS_CRIT_STATION_USES ? "use" : "are between",
@@ -922,7 +922,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     return OK;
 }
 
-int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *pobsmod, int fileid, char *filename, double err_factor )
+int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid, char *filename, double err_factor )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criterion *oc = new_obs_datafile_criterion( fileid, filename );

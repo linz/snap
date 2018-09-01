@@ -740,7 +740,7 @@ static char *interpret_escaped_string( char *source, char *target, int maxtgt )
 
 // #pragma warning(disable: 4100)
 
-static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_angle_format( CFG_FILE *, char *string, void *, int, int )
 {
     char *sdeg, *smin, *ssec;
     char angle_delim[2];
@@ -767,7 +767,7 @@ static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len,
 
 // #pragma warning(disable: 4100)
 
-static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_text( CFG_FILE *cfg, char *, void *, int, int )
 {
     int finished, read_opts, overrun;
     static char buf[1024];
@@ -802,7 +802,7 @@ static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int cod
 
 // #pragma warning(disable: 4100)
 
-static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_table( CFG_FILE *cfg, char *, void *, int, int )
 {
     int read_opts;
     int sts;
@@ -819,7 +819,7 @@ static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int co
 
 // #pragma warning(disable: 4100)
 
-static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_data( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *s;
     column_def *coltype = 0;
@@ -848,7 +848,7 @@ static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int cod
 
 // #pragma warning(disable: 4100)
 
-static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_delimiter( CFG_FILE *, char *string, void *, int, int code )
 {
     char *s, *t;
     switch( code )
@@ -890,7 +890,7 @@ static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, in
 
 #define MAX_PREFIX 30
 
-static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_column( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *data;
     char *opt;

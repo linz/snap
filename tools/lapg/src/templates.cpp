@@ -389,7 +389,7 @@ const char *templ_cpp =
 	"$#pos\t\tlapg_n.pos = lapg_current;\n"
 	"\t\tfor( lapg_size = 0, lapg_i = group; lapg_i >= 0; ) {\n"
 	"\t\t\tif( lapg_size < @maxtoken-1 ) token[lapg_size++] = chr;\n"
-	"\t\t\tlapg_i = lapg_lexem[lapg_i][lapg_char2no[chr]];\n"
+	"\t\t\tlapg_i = lapg_lexem[lapg_i][(int)lapg_char2no[chr]];\n"
 	"\t\t\tif( lapg_i >= -1 && chr ) { \n"
 	"$#pos1\t\t\t\tif( chr == '\\n' ) lapg_current.line++;\n"
 	"$#pos2\t\t\t\tlapg_current.column++;\n"

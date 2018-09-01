@@ -302,7 +302,7 @@ int process_configuration_file( const char *fname )
 
 // #pragma warning ( disable : 4100 )
 
-static int read_include_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_include_command( CFG_FILE *cfg, char *string, void *, int, int )
 {
     const char *cmdfile;
     char *ptr;
@@ -430,7 +430,7 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
 }
 
 
-static int read_station_size_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_station_size_command( CFG_FILE *, char *string, void *, int, int )
 {
     char *fld;
     char text = 1;
@@ -457,7 +457,7 @@ static int read_station_size_command( CFG_FILE *cfg, char *string, void *value, 
     return OK;
 }
 
-static int read_error_type_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_error_type_command( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *fld;
     double conf=1.0;
@@ -521,7 +521,7 @@ static int read_error_type_command( CFG_FILE *cfg, char *string, void *value, in
     return OK;
 }
 
-static int read_error_scale_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_error_scale_command( CFG_FILE *, char *string, void *, int, int )
 {
     char *fld;
     char horizontal = 1;
@@ -548,12 +548,12 @@ static int read_error_scale_command( CFG_FILE *cfg, char *string, void *value, i
     return OK;
 }
 
-static int read_observation_colour_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_observation_colour_command( CFG_FILE *, char *string, void *, int, int )
 {
     return set_datapen_definition( string );
 }
 
-static int read_station_colour_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_station_colour_command( CFG_FILE *, char *string, void *, int, int )
 {
     int class_id = 0;
     if( _stricmp(string,"usage") != 0 ) class_id = network_class_id( net, string, 0 );
@@ -561,7 +561,7 @@ static int read_station_colour_command( CFG_FILE *cfg, char *string, void *value
     return OK;
 }
 
-static int read_observation_options( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_observation_options( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *s;
     for( s = strtok( string, whitespace ); s; s = strtok(NULL,whitespace))
@@ -604,7 +604,7 @@ static int read_observation_options( CFG_FILE *cfg, char *string, void *value, i
     return OK;
 }
 
-static int read_observation_spacing_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_observation_spacing_command( CFG_FILE *, char *string, void *, int, int )
 {
     char *fld;
     int autoscl = 0;
@@ -623,14 +623,14 @@ static int read_observation_spacing_command( CFG_FILE *cfg, char *string, void *
     return OK;
 }
 
-static int read_obs_listing_fields_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_obs_listing_fields_command( CFG_FILE *, char *string, void *, int, int )
 {
     read_display_fields_definition( string );
     return OK;
 }
 
 
-static int read_obs_listing_order_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_obs_listing_order_command( CFG_FILE *, char *string, void *, int, int )
 {
     char *fld;
     int order;
@@ -641,7 +641,7 @@ static int read_obs_listing_order_command( CFG_FILE *cfg, char *string, void *va
 }
 
 
-static int read_key_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_key_command( CFG_FILE *, char *string, void *, int, int )
 {
     int sts;
     sts = read_key_definition( string );
@@ -651,7 +651,7 @@ static int read_key_command( CFG_FILE *cfg, char *string, void *value, int len, 
 
 
 
-static int read_highlight_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_highlight_command( CFG_FILE *, char *string, void *, int, int )
 {
     char *s1, *s2;
     char need_value = 0;
@@ -709,7 +709,7 @@ static int read_highlight_command( CFG_FILE *cfg, char *string, void *value, int
     return OK;
 }
 
-static int read_text_rows( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_text_rows( CFG_FILE *cfg, char *string, void *, int len, int code )
 {
     int nlines;
     int sts;
@@ -797,7 +797,7 @@ static void process_station_list_file( CFG_FILE *cfg, char *name,
 }
 
 
-static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int mode )
+static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int mode )
 {
     char *field;
     int setall, istn, ist1, ist2;
@@ -900,13 +900,13 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
     return OK;
 }
 
-static int read_station_font( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_station_font( CFG_FILE *, char *string, void *, int, int )
 {
     set_station_font( string );
     return OK;
 }
 
-static int read_station_offset( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_station_offset( CFG_FILE *cfg, char *string, void *, int len, int code )
 {
     int istn;
     char *s1, *s2, *s3;
@@ -934,7 +934,7 @@ static int read_station_offset( CFG_FILE *cfg, char *string, void *value, int le
     return OK;
 }
 
-static int read_ignore_offsets( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_ignore_offsets( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char ignore;
     int sts;
@@ -944,7 +944,7 @@ static int read_ignore_offsets( CFG_FILE *cfg, char *string, void *value, int le
 }
 
 
-static int read_config_menu_command( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_config_menu_command( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *s1, *s2;
     const char *fspec;

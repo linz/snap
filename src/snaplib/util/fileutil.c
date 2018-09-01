@@ -52,6 +52,8 @@ static int config_dirs_set=0;
 static const char *projstack[MAXPROJSTACK];
 static int nprojstack=0;
 
+#define SNAPTMP_TEMPLATE "SNAP_TMP_XXXXXX"
+
 static char *filenameptr( int reqlen )
 {
     if( ! filename || reqlen > filenamelen )
@@ -516,62 +518,6 @@ const char *find_file( const char *name, const char *dflt_ext, const char *relat
         spec = find_config_file( config, name, dflt_ext );
     }
     return spec;
-}
-
-typedef struct s_tmpfile_def
-{
-    char *name;
-    FILE *handle;
-    struct s_tmpfile_def *next;
-} tmpfile_def;
-
-static tmpfile_def *tmpfile_list = 0;
-
-static void delete_temp_files( void )
-{
-    tmpfile_def *del = tmpfile_list;
-    while( tmpfile_list )
-    {
-        del = tmpfile_list;
-        tmpfile_list = tmpfile_list->next;
-        if( _unlink( del->name ) != 0 )
-        {
-            fclose(del->handle);
-            _unlink(del->name);
-        }
-        check_free(del->name);
-        check_free(del);
-    }
-}
-
-FILE *snaptmpfile()
-{
-    FILE *f;
-    char *name;
-    tmpfile_def *def;
-
-    name = _strdup(_tempnam("/tmp","snaptmp.") );
-    if( ! name ) return NULL;
-    f = fopen(name,"w+b");
-    if( ! f )
-    {
-        check_free(name);
-        return NULL;
-    }
-    def = (tmpfile_def *) check_malloc( sizeof(tmpfile_def) );
-    if( ! def )
-    {
-        fclose(f);
-        check_free(name);
-        return NULL;
-    }
-    if( ! tmpfile_list ) atexit( delete_temp_files );
-    def->handle = f;
-    def->name = name;
-    def->next = tmpfile_list;
-    tmpfile_list = def;
-
-    return f;
 }
 
 int skip_utf8_bom( FILE *f )

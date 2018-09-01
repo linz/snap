@@ -77,7 +77,7 @@ Value Token::GetValueList()
     return v;
 }
 
-void Token::SetOwnerValue( const Value &value )
+void Token::SetOwnerValue( const Value & )
 {
     Owner()->error("Cannot set variable for token without variable name");
 }
@@ -1056,7 +1056,7 @@ void ScriptImp::RemoveMenuItem( const wxString &name )
     }
 
     eraseMenus.Sort(true);
-    for( int i=0; i < eraseMenus.Count(); i++ )
+    for( int i=0; i < (int) eraseMenus.Count(); i++ )
     {
         environment.RemoveMenuItem( eraseMenus[i] + "|" );
     }

@@ -9,7 +9,7 @@ namespace DelimitedTextFile
 ///////////////////////////////////////////////////////////////
 // CalcValue
 
-void CalcValue::bind( const BindSource *binder )
+void CalcValue::bind( const BindSource * )
 {
 }
 

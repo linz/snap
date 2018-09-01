@@ -22,7 +22,7 @@
 #define PROG_TEMP_MSG -1
 #define PROG_NO_BAR   -2
 
-StatusType utlShowProgress( char *state, int percent );
+StatusType utlShowProgress( const char *state, int percent );
 
 #endif
 

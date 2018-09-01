@@ -57,6 +57,7 @@ static const char *geoPrmNames[] =
     " rotn Z rate (sec/yr)"
 };
 
+/*
 static const char *IERSPrmNames[] =
 {
     " X shift (mm)",
@@ -74,6 +75,7 @@ static const char *IERSPrmNames[] =
     " rotn Y rate (mas/yr)",
     " rotn Z rate (mas/yr)"
 };
+*/
 
 static const char *topoPrmNames[] =
 {

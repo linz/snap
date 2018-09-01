@@ -210,7 +210,7 @@ static void clear_screen(void)
 
 // #pragma warning (disable : 4100)
 
-static int printf_func( const char *s, void *dummy )
+static int printf_func( const char *s, void * )
 {
     printf("%s",s);
     return 0;
@@ -1927,7 +1927,6 @@ static void report_conv_error( int sts )
 static void process_coordinates( void )
 {
     long start_loc;
-    double inhgt;
     int sts;
     char sep[2];
     char *prtsep;
@@ -1945,7 +1944,6 @@ static void process_coordinates( void )
         {
             if(!skip_errors) {report_read_error(); ncrderr++;}
         }
-        inhgt = inxyz[2];
         if( sts == OK )
         {
             if( sts == OK )

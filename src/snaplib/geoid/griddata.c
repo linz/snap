@@ -182,7 +182,7 @@ static int load_row1( grid_def *def, long *data )
 
     /* Format 1 rows - simply held as an array of shorts */
 
-    if ( fread( data, sizeof(short), def->rowsize, def->bin ) != def->rowsize ) return INVALID_DATA;
+    if ( fread( data, sizeof(short), def->rowsize, def->bin ) != (size_t) def->rowsize ) return INVALID_DATA;
     sdata = (short *) data;
     for( i = def->rowsize; i-- > 0; )
     {
@@ -307,7 +307,7 @@ static short load_row2_dim( grid_def *def, long *data )
         /* Read the values from the file */
 
         i = imax+1-imin;
-        if( fread(def->loadbuffer,bytes,i,def->bin) != i) return INVALID_DATA;
+        if( fread(def->loadbuffer,bytes,i,def->bin) != (size_t) i) return INVALID_DATA;
         if( bytes == 1 )
         {
             pc = (signed char *) def->loadbuffer;

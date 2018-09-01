@@ -126,7 +126,6 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
 {
     char *title;
     char buffer[128];
-    int i;
     int sts;
     ref_deformation *def = rf->def;
     LinzDefModel *model = (LinzDefModel *) (def->data);

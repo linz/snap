@@ -105,7 +105,7 @@ const char *find_file( const char *name, const char *dflt_ext, const char *base,
 
 /* Create a temporary file, and set up a handler to delete it when the program terminates */
 
-FILE *snaptmpfile();
+#define snaptmpfile tmpfile
 
 /* Skip unicode BOM (byte order marker).  Assumes file pointer is set to beginning of file */
 /* Returns 1 if successful (UTF8 or no BOM), 0 if UTF16 BOM at start of file */

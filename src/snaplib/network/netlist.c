@@ -266,7 +266,7 @@ int sl_find_station_sorted_id( station_list *sl, const char *code )
     return sl_lookup_codeindex( sl, code );
 }
 
-int sl_station_id( station_list *sl, station *st )
+int sl_station_id( station_list *, station *st )
 {
     return st->id;
 }

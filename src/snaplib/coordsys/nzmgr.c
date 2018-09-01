@@ -18,13 +18,13 @@ static projection_type *nzmg_type = NULL;
 
 // #pragma warning (disable : 4100)
 
-static int nzmg_proj_to_geog( void *data, double e, double n, double *ln, double *lt )
+static int nzmg_proj_to_geog( void *, double e, double n, double *ln, double *lt )
 {
     nzmg_geod( e, n, ln, lt );
     return OK;
 }
 
-static int nzmg_geog_to_proj( void *data, double ln, double lt, double *e, double *n )
+static int nzmg_geog_to_proj( void *, double ln, double lt, double *e, double *n )
 {
     geod_nzmg( ln, lt, e, n );
     return OK;

@@ -36,7 +36,7 @@ StatusType utlCheckAbort( )
     return STS_OK;
 }
 
-StatusType utlShowProgress( char *state, int percent )
+StatusType utlShowProgress( const char *state, int percent )
 {
     /*
         if( strcmp(state,laststate) != 0 || percent != lastpercent ) {

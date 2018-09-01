@@ -26,7 +26,7 @@ void RecordError::_setLocation()
 // RecordInputBase code
 
 RecordInputBase::~RecordInputBase() {}
-bool RecordInputBase::handleError( const RecordError &error ) { return false; }
+bool RecordInputBase::handleError( const RecordError & ) { return false; }
 int  RecordInputBase::lineNumber(){ return -1; }
 int  RecordInputBase::recordNumber(){ return -1; }
 void RecordInputBase::raiseError( const std::string message )

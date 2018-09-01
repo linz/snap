@@ -343,7 +343,7 @@ int process_default_configuration( void )
 
 // #pragma warning( disable : 4100 )
 
-static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_program_mode( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char modeset, dimset, sts, *opt;
     dimset = 0;
@@ -408,7 +408,7 @@ static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len,
     return OK;
 }
 
-static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_geoid_option( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *opt;
 
@@ -556,7 +556,7 @@ static void set_station_mode( station *st, void *modep )
 }
 
 
-static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int mode )
+static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int mode )
 {
     char *field;
     char *strend;
@@ -676,7 +676,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *value, int l
 }
 
 
-static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *, int, int )
 {
     int first=1;
     for( char *opt = strtok( string, " " ); opt; opt = strtok( NULL, " " ) )
@@ -717,7 +717,7 @@ static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *valu
     return OK;
 }
 
-static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *, int, int )
 {
     unsigned char option;
     int sts;
@@ -735,7 +735,7 @@ static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int 
     return sts;
 }
 
-static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int len, int )
 {
     char *opt;
     char *st;
@@ -776,7 +776,7 @@ static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int 
 }
 
 
-static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_coef( CFG_FILE *, char *string, void *, int, int code )
 {
     char *st, *rcname;
     int sts, use, calculate;
@@ -853,7 +853,7 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
 }
 
 
-static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_rfscale( CFG_FILE *, char *string, void *, int, int )
 {
     double scale = 0.0;
     int calculate = 0;
@@ -876,7 +876,7 @@ static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int 
 }
 
 
-static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *rfname, *prmname, *valuetype;
     int rfid;
@@ -1162,7 +1162,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int 
     return OK;
 }
 
-static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_residual_format( CFG_FILE *cfg, char *string, void *, int, int code )
 {
     char *types;
     char *column;
@@ -1285,7 +1285,7 @@ static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int l
 }
 
 
-static int read_output_precision( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_output_precision( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *st;
     for( st = strtok(string," "); st; st=strtok(NULL," "))
@@ -1322,7 +1322,7 @@ static int read_output_precision( CFG_FILE *cfg, char *string, void *value, int 
     return OK;
 }
 
-static int read_sort_option( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_sort_option( CFG_FILE *, char *string, void *, int, int )
 {
     char *s;
 
@@ -1353,7 +1353,7 @@ static int read_sort_option( CFG_FILE *cfg, char *string, void *value, int len, 
 }
 
 
-static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *, int, int )
 {
     unsigned char option;
     int sts;
@@ -1371,7 +1371,7 @@ static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *value, in
     return sts;
 }
 
-static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_flag_levels( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *s;
     int nf;
@@ -1402,7 +1402,7 @@ static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, 
     return OK;
 }
 
-static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_error_type( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *fld;
     double conf=1.0;
@@ -1465,7 +1465,7 @@ static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, i
     return OK;
 }
 
-static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_error_summary( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *str;
     int sts;
@@ -1482,7 +1482,7 @@ static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len
     return OK;
 }
 
-static int read_topocentre( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_topocentre( CFG_FILE *cfg, char *string, void *, int, int )
 {
     double lt, ln;
 
@@ -1503,7 +1503,7 @@ static int read_topocentre( CFG_FILE *cfg, char *string, void *value, int len, i
     return INVALID_DATA;
 }
 
-static int read_gps_vertical( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_gps_vertical( CFG_FILE *, char *string, void *, int, int )
 {
 
     if( _stricmp(string,"individual") == 0 || _stricmp(string,"midpoint")==0 )
@@ -1521,12 +1521,12 @@ static int read_gps_vertical( CFG_FILE *cfg, char *string, void *value, int len,
     return INVALID_DATA;
 }
 
-static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int load_plot_data( CFG_FILE *, char *, void *, int, int )
 {
     return OK;
 }
 
-static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int len, int code )
+static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *params;
     double epoch;
@@ -1639,7 +1639,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *pvalue, int
 }
 
 
-static int read_specification_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_specification_command(CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *name;
     char *data;
@@ -1792,7 +1792,7 @@ static int read_specification_command(CFG_FILE *cfg, char *string, void *value, 
 }
 
 
-static int read_spec_test_options(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_spec_test_options(CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *option;
     for( option = strtok(string," "); option; option = strtok(NULL," "))
@@ -1826,7 +1826,7 @@ static int read_spec_test_options(CFG_FILE *cfg, char *string, void *value, int 
 }
 
 
-static int set_magic_number( CFG_FILE *cfg, char *string ,void *value, int len, int code )
+static int set_magic_number( CFG_FILE *, char *string ,void *, int, int )
 {
     int id;
     double val;
@@ -1847,7 +1847,7 @@ static int set_magic_number( CFG_FILE *cfg, char *string ,void *value, int len, 
     return OK;
 }
 
-static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value, int len, int code )
+static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int, int code )
 {
     const char *cfgfile;
     char *ptr;

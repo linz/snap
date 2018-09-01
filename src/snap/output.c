@@ -176,7 +176,7 @@ static int page_width = 80;
 static char *divider = NULL;
 static relcvr_opt *relcvr_opts = NULL;
 
-int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code )
+int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
 {
     output_option *output_set;
     output_option *o=0;
@@ -246,7 +246,7 @@ int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int 
     return OK;
 }
 
-static int read_cvr_connections( CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_cvr_connections( CFG_FILE *cfg, char *string, void *, int, int code )
 {
     char errmess[80];
     char *st;
@@ -598,7 +598,7 @@ void print_report_header( FILE *out )
     skip_line( out );
 }
 
-void print_report_footer( FILE *out )
+void print_report_footer( FILE * )
 {
 }
 
@@ -628,7 +628,7 @@ void print_section_header( FILE *out, const char *heading )
     print_line( out );
 }
 
-void print_section_footer( FILE *out )
+void print_section_footer( FILE * )
 {
 }
 

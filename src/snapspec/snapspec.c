@@ -829,7 +829,7 @@ static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
 
 // #pragma warning ( disable : 4100 )
 
-static long f_station_id( void *env, int stn )
+static long f_station_id( void *, int stn )
 {
     return stn+1;
 }
@@ -1024,7 +1024,7 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
 }
 
 
-static void write_station_index( hSDCTest hsdc, stn_relacc_array *ra )
+static void write_station_index( hSDCTest, stn_relacc_array *ra )
 {
     FILE *out = ra->logfile;
     int i;
@@ -1560,7 +1560,7 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
 
 
 
-static int read_test_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     char *name;
     char *data;
@@ -1800,7 +1800,7 @@ static void set_priority( station *st, void *data )
     if( istn > 0 ) p->ra->priority[istn-1] = p->order;
 }
 
-static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     limit_order_params p;
     char *name;
@@ -1840,7 +1840,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
     return OK;
 }
 
-static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     limit_order_params p;
     int nerr;
@@ -1859,7 +1859,7 @@ static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int len
     return OK;
 }
 
-static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     limit_order_params p;
     char *prioritystr;
@@ -1896,7 +1896,7 @@ static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, i
     return OK;
 }
 
-static int read_confidence(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_confidence(CFG_FILE *cfg, char *string, void *, int, int )
 {
     if( sscanf(string,"%lf%%",&test_confidence) < 1 ||
             test_confidence <= 0 || test_confidence >= 100 )
@@ -1907,7 +1907,7 @@ static int read_confidence(CFG_FILE *cfg, char *string, void *value, int len, in
 }
 
 
-static int read_error_type(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_error_type(CFG_FILE *cfg, char *string, void *, int, int )
 {
     char error_type[32];
     sscanf(string,"%31s",error_type);
@@ -2111,7 +2111,7 @@ static config_item cfg_commands[] =
 
 // #pragma warning ( default : 4305 )
 
-static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *basecfn;
     const char *cfn;
@@ -2179,7 +2179,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, 
     return OK;
 }
 
-static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     char *stcfgfn;
     char *format;
@@ -2238,7 +2238,7 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
     return OK;
 }
 
-static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     char *option;
     stn_relacc_array *ra = * (stn_relacc_array **) value;
@@ -2272,7 +2272,7 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int le
     return OK;
 }
 
-static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     hSDCTest sdc=*(hSDCTest *) value;
     int level;
@@ -2376,7 +2376,7 @@ static void set_test_confidence( hSDCTest hsdc )
 {
     double prob;
     double htolfactor;
-    double vtolfactor;
+    // double vtolfactor;
 
     prob = 1-test_confidence/100.0;
 
@@ -2385,12 +2385,12 @@ static void set_test_confidence( hSDCTest hsdc )
 
     if( test_apriori )
     {
-        vtolfactor = sqrt(fabs(inv_chi2_distn( prob, 1 )));
+        // vtolfactor = sqrt(fabs(inv_chi2_distn( prob, 1 )));
         htolfactor = sqrt(fabs(inv_chi2_distn( prob, 2 )));
     }
     else
     {
-        vtolfactor = sqrt(fabs(inv_f_distn( prob, 1, dof )));
+        // vtolfactor = sqrt(fabs(inv_f_distn( prob, 1, dof )));
         htolfactor = sqrt(fabs(inv_f_distn( prob, 2, dof )*2));
     }
 

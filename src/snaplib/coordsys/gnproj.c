@@ -18,7 +18,7 @@
 
 // #pragma warning (disable : 4100)
 
-void define_gnomic_projection( GnomicProjection *gp, double a, double rf,
+void define_gnomic_projection( GnomicProjection *gp, double a, double,
                                double orglat, double orglon, double fe, double fn )
 {
     gp->orglat = orglat;

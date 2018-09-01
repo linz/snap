@@ -29,13 +29,11 @@
 
 #define READ_STRING( name, str, len ) \
 	 if( sts == OK ) { \
-        bad = name; \
         sts = next_string_field( is, str, len ); \
         }
 
 #define READ_DOUBLE( name, pdouble ) \
      if( sts == OK ) { \
-         bad = name; \
          sts = double_from_string( is, pdouble ); \
          }
 
@@ -48,11 +46,9 @@ vdatum *parse_vdatum_def ( input_string_def *is,
     char hrscode[CRDSYS_CODE_LEN+1];
     char hrsname[CRDSYS_NAME_LEN+1];
     char basecode[CRDSYS_CODE_LEN+1];
-    char stdcode[CRDSYS_CODE_LEN+1];
     char geoidname[MAX_FILENAME_LEN+1];
     const char *geoidfile;
     double offset;
-    const char *bad;
     int isgeoid;
     int isgrid;
     vdatum *hrs = 0;
@@ -60,18 +56,9 @@ vdatum *parse_vdatum_def ( input_string_def *is,
     vdatum *basehrs = 0;
     vdatum_func *hrf = 0;
 
-    char *stdfrm = 0;
-    double sf, txyz[3], rxyz[3];
-    double dsf, dtxyz[3], drxyz[3];
-    double refdate=0.0;
-    int iersunits=0;
     int sts;
-    long loc;
-    int reported;
 
-    bad = NULL;
     sts = OK;
-    reported = 0;
     isgeoid = 0;
     isgrid = 0;
 

@@ -61,7 +61,7 @@ enum
 
 typedef struct
 {
-    char *name;
+    const char *name;
     int  *pen;
     int  *opt;
     int  datapen;
@@ -73,7 +73,7 @@ typedef struct
     double y;
 } symbolpoint;
 
-void setup_data_layers( int ndatapens, char **datapennames, char *header, int sorted  );
+void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
 void setup_station_layers( int class_id );
 void rebuild_station_symbols();
 int get_pen( int item_code );

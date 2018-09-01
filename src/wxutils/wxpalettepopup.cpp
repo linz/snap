@@ -114,8 +114,6 @@ void wxPalettePopup::PositionWindow()
 
     wxRect topWindowRect = wxTheApp->GetTopWindow()->GetScreenRect();
 
-    wxSize screenSize = wxGetDisplaySize();
-
     int x = windowPosition.x + mousePosition.x - bitmapPosition.x;
     int y = windowPosition.y + mousePosition.y - bitmapPosition.y;
 

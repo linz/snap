@@ -11,7 +11,6 @@
 #define MAXNAME  20
 
 static char progversion[MAXVER+MAXID+2]={0};
-static char progname[MAXNAME+1]={0};
 
 const char *getProgramName()
 {
