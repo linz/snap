@@ -100,7 +100,7 @@ typedef struct obs_criteria_s
     obs_criterion *first;
     obs_criterion *last;
     int action;
-    int triggered;
+    long setid;
     double factor;
     struct obs_criteria_s *next;
 } obs_criteria;
@@ -112,8 +112,16 @@ typedef struct
     network *nw;
     classifications *classes;
     fileid_func get_fileid;
-
+    long setid;
 } obs_modifications;
+
+typedef struct
+{
+    obs_modifications *obsmod;
+    int action;
+    double factor;
+    double setfactor;
+} obs_action;
 
 
 /*===============================================================================*/
@@ -553,11 +561,13 @@ static void delete_obs_criterion( obs_criterion *oc )
 static obs_criteria *new_obs_criteria( int action, double factor )
 {
     obs_criteria *ocr=(obs_criteria *) check_malloc( sizeof( obs_criteria ) );
+    if( action & OBS_MOD_REWEIGHT_SET ){ action &= ~ (int) OBS_MOD_REWEIGHT; }
     ocr->action=action;
     ocr->factor=factor;
     ocr->first=nullptr;
     ocr->last=nullptr;
     ocr->next=nullptr;
+    ocr->setid=0;
     return ocr;
 }
 
@@ -588,9 +598,9 @@ static void add_obs_criterion_to_criteria( obs_criteria *ocr, obs_criterion *oc 
 
 /* Cumulate action and reweight factor for list of criteria */
 
-static void apply_obs_criteria_action( obs_criteria *ocr, network *nw, survdata *sd, trgtdata *tgt, int *paction, double *factor )
+static void apply_obs_criteria_action( obs_criteria *ocr, network *nw, survdata *sd, trgtdata *tgt, obs_action *oac )
 {
-    int action=*paction;
+    int action=oac->action;
     if( ! (action & OBS_MOD_IGNORE ) )
     {
 
@@ -605,16 +615,19 @@ static void apply_obs_criteria_action( obs_criteria *ocr, network *nw, survdata 
         if( ocr->action & OBS_MOD_IGNORE )
         {
             action = OBS_MOD_IGNORE;
-            *factor = 1.0;
         }
         else
         {
             action |= ocr->action;
-            if( ocr->action & OBS_MOD_REWEIGHT ) *factor *= ocr->factor;
-            if( ocr->action & OBS_MOD_REWEIGHT_SET ) ocr->triggered=1;
+            if( ocr->action & OBS_MOD_REWEIGHT ) oac->factor *= ocr->factor;
+            if( ocr->action & OBS_MOD_REWEIGHT_SET && ocr->setid != oac->obsmod->setid ) 
+            {
+                ocr->setid=oac->obsmod->setid;
+                oac->setfactor *= ocr->factor;
+            }
         }
     }
-    *paction=action;
+    oac->action=action;
 }
 
 static bool obs_criteria_ignore_datafile( obs_criteria *ocr, int file_id )
@@ -680,6 +693,7 @@ void *new_obs_modifications( network *nw, classifications *obs_classes )
     obsmod->nw=nw;
     obsmod->classes=obs_classes;
     obsmod->get_fileid=nullptr;
+    obsmod->setid=0;
     return (void *) obsmod;
 }
 
@@ -932,45 +946,22 @@ int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid
     return OK;
 }
 
-
-static void clear_criteria( obs_modifications *obsmod )
+static void apply_obs_modification_action( obs_modifications *obsmod, survdata *sd, trgtdata *tgt, obs_action *oac )
 {
-    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
-    {
-        ocr->triggered=0;
-    }
-}
-
-static double criteria_set_factor( obs_modifications *obsmod )
-{
-    double set_factor=1.0;
-    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
-    {
-        if( ocr->action == OBS_MOD_REWEIGHT_SET && ocr->triggered )
-        {
-            set_factor *= ocr->factor;
-        }
-    }
-    return set_factor;
-}
-
-static void apply_obs_modification_action( obs_modifications *obsmod, survdata *sd, trgtdata *tgt, double *factor )
-{
-    int action=0;
-    *factor=1.0;
-
     if( tgt->unused & IGNORE_OBS_BIT ) return;
     
     for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
     {
-        apply_obs_criteria_action(ocr,obsmod->nw,sd,tgt,&action,factor );
+        apply_obs_criteria_action(ocr,obsmod->nw,sd,tgt,oac);
+        if( oac->action & OBS_MOD_IGNORE ) 
+        {
+            tgt->unused |= IGNORE_OBS_BIT;
+            oac->factor=1.0;
+            return;
+        }
     }
 
-    if( action & OBS_MOD_IGNORE ) 
-    {
-        tgt->unused |= IGNORE_OBS_BIT;
-    }
-    else if( action & OBS_MOD_REJECT )
+    if( oac->action & OBS_MOD_REJECT )
     {
         tgt->unused |= REJECT_OBS_BIT;
     }
@@ -979,13 +970,14 @@ static void apply_obs_modification_action( obs_modifications *obsmod, survdata *
 
 int apply_obs_modifications( void *pobsmod, survdata *sd )
 {
-    double sfprod=1.0;
-    double factor=1.0;
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     int nignored=0;
     int i;
+    obs_action oac;
 
-    clear_criteria( obsmod );
+    oac.obsmod=obsmod;
+    oac.setfactor=1.0;
+    obsmod->setid++;  /* Id used to identify when setfactor has been applied */
 
     switch (sd->format)
     {
@@ -996,21 +988,22 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         for( i = 0, od=sd->obs.odata; i<sd->nobs; i++, od++ )
         {
             trgtdata *tgt=&(od->tgt);
+            oac.factor=1.0;
+            oac.action=0;
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                apply_obs_modification_action( obsmod, sd, tgt,&factor);
+                apply_obs_modification_action( obsmod, sd, tgt,&oac);
                 if( tgt->unused & IGNORE_OBS_BIT ) nignored++;
             }
-            od->error  *= factor;
-            tgt->errfct  *= factor;
+            od->error  *= oac.factor;
+            tgt->errfct  *= oac.factor;
         }
-        sfprod=criteria_set_factor( obsmod );
-        if( sfprod != 1.0 )
+        if( oac.setfactor != 1.0 )
         {
             for( i = 0, od=sd->obs.odata; i<sd->nobs; i++, od++ )
             {
-                od->error *= sfprod;
-                od->tgt.errfct *= sfprod;
+                od->error *= oac.setfactor;
+                od->tgt.errfct *= oac.setfactor;
             }
         }
     }
@@ -1024,19 +1017,20 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
         {
             trgtdata *tgt=&(vd->tgt);
-            factor=1.0;
+            oac.factor=1.0;
+            oac.action=0;
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                apply_obs_modification_action( obsmod, sd, tgt, &factor );
+                apply_obs_modification_action( obsmod, sd, tgt, &oac );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
-            if( sd->cvr && factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
+            if( sd->cvr && oac.factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
                 int i3=i*3;
-                double factor2=factor*factor;
+                double factor2=oac.factor*oac.factor;
                 for( int row=0; row<i3; row++ )
                 {
-                    for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
+                    for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= oac.factor;
                 }
                 for( int row=i3; row<i3+3; row++ )
                 {
@@ -1044,23 +1038,22 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 }
                 for( int row=i3+3; row<ncvr; row++ )
                 {
-                    for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
+                    for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= oac.factor;
                 }
-                tgt->errfct *= factor;
+                tgt->errfct *= oac.factor;
             }
         }
-        sfprod=criteria_set_factor( obsmod );
-        if( sd->cvr && sfprod != 1.0 )
+        if( sd->cvr && oac.setfactor != 1.0 )
         {
             int i3=sd->nobs*3;
-            double factor2=sfprod*sfprod;
+            double factor2=oac.setfactor*oac.setfactor;
             for( int row=0; row<i3; row++ )
             {
                 for( int col=0; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
             }
             for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
             {
-                vd->tgt.errfct *= sfprod;
+                vd->tgt.errfct *= oac.setfactor;
             }
         }
     }
@@ -1073,21 +1066,22 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         for( i = 0, pd=sd->obs.pdata; i<sd->nobs; i++, pd++ )
         {
             trgtdata *tgt=&(pd->tgt);
+            oac.factor=1.0;
+            oac.action=0;
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                apply_obs_modification_action( obsmod, sd, tgt, &factor );
+                apply_obs_modification_action( obsmod, sd, tgt, &oac );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
-            pd->error  *= factor;
-            tgt->errfct *= factor;
+            pd->error  *= oac.factor;
+            tgt->errfct *= oac.factor;
         }
-        sfprod=criteria_set_factor( obsmod );
-        if( sfprod != 1.0 )
+        if( oac.setfactor != 1.0 )
         {
             for( i = 0, pd=sd->obs.pdata; i<sd->nobs; i++, pd++ )
             {
-                pd->error *= sfprod;
-                pd->tgt.errfct *= sfprod;
+                pd->error *= oac.setfactor;
+                pd->tgt.errfct *= oac.setfactor;
             }
         }
     }
