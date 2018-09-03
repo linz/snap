@@ -267,7 +267,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     {
         if( sdci.phase==SDCI_PHASE_TRIAL )
         {
-            sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 1: Using existing covariance information\n");
+            sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "\nPass 1: Using existing covariance information\n");
         }
         else if( sdci.phase==SDCI_PHASE_CALC )
         {
@@ -278,7 +278,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
             {
                 sdcWriteLog( &sdci, SDC_LOG_STEPS, "Calculation of missing covariances failed" );
             }
-            sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Pass 2: Calculating with extra covariance information\n");
+            sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "\nPass 2: Calculating with extra covariance information\n");
         }
     }
 

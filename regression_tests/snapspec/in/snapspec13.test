@@ -1,0 +1,8 @@
+test: Two pass calculation using decomposition and cached file
+file: snapspec12.crd
+file: snapspec12.dat
+file: snapspec12.snp snapspec13.snp
+file: snapspec12.cfg snapspec13.cfg
+set: extra_program {snapspec_first_run}
+set: parameters1 -v
+parameters: -v

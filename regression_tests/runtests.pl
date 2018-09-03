@@ -102,7 +102,7 @@ foreach my $cfgl (<$cfgf>)
         elsif( $item eq 'set' )
         {
             my ($e,$v)=split(' ',$value,2);
-            print "Setting env $e to $v\n" if $verbose;
+            print "Setting var $e to $v\n" if $verbose;
             $config->{var}->{$e}=$v;
         }
         else
@@ -280,6 +280,7 @@ foreach my $test (sort keys %tests)
             if( $item eq 'parameters' )
             {
                 $param=$param.' '.$value;
+                print "Setting parameters to $param\n" if $verbose;
             }
             elsif( $item eq 'discard' )
             {
@@ -288,6 +289,7 @@ foreach my $test (sort keys %tests)
             elsif( $item eq 'set' )
             {
                 my($vi,$vv)=split(' ',$value,2);
+                print "Setting var $vi to $vv\n" if $verbose;
                 $var{$vi}=$vv;
             }
         }
@@ -330,7 +332,7 @@ foreach my $test (sort keys %tests)
     );
     my $repfunc=sub {
         my($v)=@_;
-        my $maxiter=5;
+        my $maxiter=10;
         $v =~ s/\{(\w+(?:\:\w+)?)\}/$var{$1} || $replace{$1} || $programs{$1}/eg
            while $v =~ /\{\w+\}/ && --$maxiter > 0;
         return $v;
@@ -350,9 +352,11 @@ foreach my $test (sort keys %tests)
     chdir($wrkdir);
     foreach my $c (@{$config->{command}})
     {
-        my $commandline=$c;
-        $commandline .= " <$in >$out 2>$err" if ! $debug && ! $showoutput;
-        $commandline = $repfunc->($commandline);
+        my $commandline=$repfunc->($c);
+        my $commandline=$repfunc->($c);
+        next if ! $commandline;
+        $commandline .= $repfunc->(" <$in >$out 2>$err") 
+            if ! $debug && ! $showoutput;
         # Run program
         print "Running: ",$commandline,"\n" if $verbose;
         my $rc=system($commandline);
