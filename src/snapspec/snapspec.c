@@ -86,6 +86,8 @@ typedef struct
     hSDCTest hsdc;
     unsigned char outputlog;
     int nstn;
+    int have_srcorders;
+    short *src_orderid;
     short *role;
     short *order;
     short *priority;
@@ -137,9 +139,10 @@ static double calc_error_ellipse_semimajor2( double cvr[] )
 
 static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn );
 
-static stn_relacc_array *create_relacc( int nstns )
+static stn_relacc_array *create_relacc()
 {
     stn_relacc_array *ra;
+    short *src_orderid;
     short *role;
     short *order;
     short *priority;
@@ -147,14 +150,23 @@ static stn_relacc_array *create_relacc( int nstns )
     double *vrtvar;
     int i;
 
+    int haveorders = network_order_count(net) > 0;
+    int nstns = number_of_stations( net );
     ra = (stn_relacc_array *) check_malloc( sizeof(stn_relacc_array) );
-    role = (short *) check_malloc( nstns * sizeof(int));
-    order = (short *) check_malloc( nstns * sizeof(int));
-    priority = (short *) check_malloc( nstns * sizeof(int));
+    src_orderid = (short *) check_malloc( nstns * sizeof(short));
+    role = (short *) check_malloc( nstns * sizeof(short));
+    order = (short *) check_malloc( nstns * sizeof(short));
+    priority = (short *) check_malloc( nstns * sizeof(short));
     horvar = (double *) check_malloc( nstns * sizeof(double));
     vrtvar = (double *) check_malloc( nstns * sizeof(double));
     for( i = 0; i < nstns; i++ )
     {
+        src_orderid[i] = 0;
+        if( haveorders )
+        {
+            station *st=stnptr(i+1);
+            src_orderid[i] = (short) network_station_order(net,st);
+        }
         role[i] = 0;
         order[i] = 0;
         priority[i] = SDC_NO_PRIORITY;
@@ -166,6 +178,8 @@ static stn_relacc_array *create_relacc( int nstns )
     ra->hsdc = NULL;
     ra->alloc = NULL;
     ra->cols = NULL;
+    ra->have_srcorders = haveorders;
+    ra->src_orderid = src_orderid;
     ra->role = role;
     ra->order = order;
     ra->priority = priority;
@@ -1075,7 +1089,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
         return;
     } 
 
-    int haveorders = network_order_count(net) > 0;
+    int haveorders = ra->have_srcorders;
     int geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
     int projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     int ellipsoidal = net->options & NW_ELLIPSOIDAL_HEIGHTS;
@@ -1105,7 +1119,6 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
             write_csv_header( csv,"latitude");
         }
         write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
-        write_csv_header( csv, "height_type" );
     }
     if( haveorders ) write_csv_header(csv,"src_order");
     write_csv_header(csv,"mode");
@@ -1163,8 +1176,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
 
         if( haveorders )
         {
-            int orderid = network_station_order(net,st);
-            write_csv_string( csv, network_order(net,orderid) );
+            write_csv_string( csv, network_order(net,ra->src_orderid[idra]) );
         }
 
         if( adjusted )
@@ -2411,7 +2423,6 @@ int main( int argc, char *argv[] )
     CFG_FILE *cfg = 0;
     const char *cfn;
     const char *basecfn, *ofn;
-    int nstns;
     int nerr;
     hSDCTest hsdc;
     BINARY_FILE *b;
@@ -2608,11 +2619,10 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    nstns = number_of_stations( net );
-    ra = create_relacc( nstns );
+    ra = create_relacc();
 
     hsdc = create_test( MAX_ORDER );
-    hsdc->nmark = nstns;
+    hsdc->nmark = ra->nstn;
     hsdc->options = 0;
     hsdc->env = ra;
     ra->hsdc = hsdc;
