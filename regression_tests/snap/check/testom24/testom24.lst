@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.13-5fc0f90
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  3 2018 16:16:16
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  3-SEP-2018 16:16:33 by ccrook
 
 
 The command file testom24.snp contains:
@@ -52,7 +52,7 @@ The command file testom24.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - quoted observation classification cri   13-AUG-2018 13:42:14
+Regression test om1 - obs modifications - quoted observation classification cri    3-SEP-2018 16:16:33
 
                              SUMMARY OF INPUT FILES
 
@@ -107,36 +107,36 @@ Data file 2: test1a.dat
        2 longitudes
 
 Errors of the following observations are scaled by 3.000
-  Observations which where class classification is "C"
+  Observations where class classification is "C"
 
 Errors of the following observations are scaled by 2.000
-  Observations which where class classification is "A1/B"
+  Observations where class classification is "A1/B"
 
 Errors of the following observations are scaled by 0.900
-  Observations which:
-    - where equpt classification is "quote"
-    - are of types:
+  Observations:
+    - where equpt classification is "quote", and
+    - which are of types:
         - SD (slope distance)
         - HA (horizontal angle)
 
 Errors of the following observations are scaled by 0.800
-  Observations which where equpt classification is "quote/quoted2"
+  Observations where equpt classification is "quote/quoted2"
 
 Errors of the following observations are scaled by 0.700
-  Observations which where equpt classification is "_quote"_"
+  Observations where equpt classification is "_quote"_"
 
 Errors of the following observations are scaled by 0.600
-  Observations which where equpt classification is "quote"
+  Observations where equpt classification is "quote"
 
 Errors of the following observations are scaled by 0.500
-  Observations which where equpt classification is "_quote_"
+  Observations where equpt classification is "_quote_"
 
 Note: error factors are multiplied for observations meeting several critera
 
 
 
 ================================================================================
-Regression test om1 - obs modifications - quoted observation classification cri   13-AUG-2018 13:42:14
+Regression test om1 - obs modifications - quoted observation classification cri    3-SEP-2018 16:16:33
 
                              OBSERVATION RESIDUALS
 

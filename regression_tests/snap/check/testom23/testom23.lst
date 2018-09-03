@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.13-5fc0f90
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  3 2018 16:16:16
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  3-SEP-2018 16:16:33 by ccrook
 
 
 The command file testom23.snp contains:
@@ -49,7 +49,7 @@ The command file testom23.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - using classification command   13-AUG-2018 13:42:14
+Regression test om1 - obs modifications - using classification command    3-SEP-2018 16:16:33
 
                              SUMMARY OF INPUT FILES
 
@@ -104,23 +104,23 @@ Data file 2: test1a.dat
        2 longitudes
 
 Errors of the following observations are scaled by 5.000
-  Observations which where equpt classification is "tape"
+  Observations where equpt classification is "tape"
 
 Errors of the following observations are scaled by 3.000
-  Observations which where class classification is "C"
+  Observations where class classification is "C"
 
 Errors of the following observations are scaled by 2.000
-  Observations which where class classification is "A1/B"
+  Observations where class classification is "A1/B"
 
 Errors of the following observations are scaled by 0.500
-  Observations which where equpt classification is "edm"
+  Observations where equpt classification is "edm"
 
 Note: error factors are multiplied for observations meeting several critera
 
 
 
 ================================================================================
-Regression test om1 - obs modifications - using classification command   13-AUG-2018 13:42:14
+Regression test om1 - obs modifications - using classification command    3-SEP-2018 16:16:33
 
                              OBSERVATION RESIDUALS
 

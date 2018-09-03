@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.13-5fc0f90
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  3 2018 16:16:16
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  3-SEP-2018 16:34:32 by ccrook
 
 
 The command file testom26.snp contains:
@@ -49,7 +49,7 @@ The command file testom26.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - reweight by data type   13-AUG-2018 13:42:14
+Regression test om1 - obs modifications - reweight by data type    3-SEP-2018 16:34:32
 
                              SUMMARY OF INPUT FILES
 
@@ -73,21 +73,21 @@ Data file 1: testom25.dat
        6 horizontal angles
 
 Errors of the following observations are scaled by 3.000
-  Observations in sets including an observation which:
-    - are of type GX (GPS point coord)
-    - use stations 2 4
+  Observations in sets including one or more observations:
+    - which are of type GX (GPS point coord), and
+    - which use stations 2 4
 
 Errors of the following observations are scaled by 2.000
-  Observations in sets including an observation which:
-    - are of type HA (horizontal angle)
-    - use stations 2 4
+  Observations in sets including one or more observations:
+    - which are of type HA (horizontal angle), and
+    - which use stations 2 4
 
 Note: error factors are multiplied for observations meeting several critera
 
 
 
 ================================================================================
-Regression test om1 - obs modifications - reweight by data type   13-AUG-2018 13:42:14
+Regression test om1 - obs modifications - reweight by data type    3-SEP-2018 16:34:32
 
                              OBSERVATION EQUATIONS
 

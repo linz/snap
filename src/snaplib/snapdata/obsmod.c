@@ -192,17 +192,17 @@ static void describe_obs_datatype_criterion( FILE *lst, obs_criterion *oc, const
     if( ntype == 1 )
     {
         datatypedef *dtype=datatypedef_from_id(itype);
-        fprintf(lst,"are of type %s (%s)\n",dtype->code,dtype->name);
+        fprintf(lst,"which are of type %s (%s)",dtype->code,dtype->name);
     }
     else
     {
-        fprintf(lst,"are of types:\n");
+        fprintf(lst,"which are of types:");
         for( int i=0; i<NOBSTYPE; i++ )
         {
             if( oc->c.datatype.select[i])
             {
                 datatypedef *dtype=datatypedef_from_id(i);
-                fprintf(lst,"%s        - %s (%s)\n",prefix, dtype->code, dtype->name);
+                fprintf(lst,"\n%s        - %s (%s)",prefix, dtype->code, dtype->name);
             }
         }
     }
@@ -230,7 +230,7 @@ static void delete_obs_datafile_criterion( obs_criterion *oc )
 
 static void describe_obs_datafile_criterion( FILE *lst, obs_criterion *oc, const char * )
 {
-    fprintf(lst,"are from file %s\n",oc->c.datafile.filename);
+    fprintf(lst,"which are from file %s",oc->c.datafile.filename);
 }
 
 static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classifications *classes, 
@@ -303,7 +303,7 @@ static bool obs_mult_classification_match( obs_criterion *oc, survdata *sd, trgt
 
 static void describe_obs_classification_criterion( FILE *lst, obs_criterion *oc, const char *, classifications *classes )
 {
-    fprintf(lst,"where %s classification is \"%s\"\n",
+    fprintf(lst,"where %s classification is \"%s\"",
             classification_name( classes, oc->c.classification.class_id),
             class_value_name( classes, oc->c.classification.class_id, oc->c.classification.value_id));
 }
@@ -312,11 +312,11 @@ static void describe_obs_mult_classification_criterion( FILE *lst, obs_criterion
 {
     int class_id=oc->c.mult_classification.class_id;
 
-    fprintf(lst,"where %s classification is one of:\n",
+    fprintf(lst,"where %s classification is one of:",
             classification_name( classes, class_id ));
     for( int i=0; i < oc->c.mult_classification.nvalues; i++ )
     {
-        fprintf(lst,"%s    - \"%s\"\n",prefix,
+        fprintf(lst,"\n%s    - \"%s\"",prefix,
             class_value_name( classes, class_id, oc->c.mult_classification.value_ids[i]));
     }
 }
@@ -380,14 +380,14 @@ static void describe_obs_id_criterion( FILE *lst, obs_criterion *oc, const char 
 {
     if( oc->c.id.nobs_ids == 1 )
     {
-        fprintf(lst,"where the observation id is %d\n",oc->c.id.obs_id);
+        fprintf(lst,"where the observation id is %d",oc->c.id.obs_id);
     }
     else
     {
-        fprintf(lst,"where the observation id is one of:\n");
+        fprintf(lst,"where the observation id is one of:");
         for( int i=0; i < oc->c.id.nobs_ids; i++ )
         {
-            fprintf(lst,"%s    - %d\n", prefix, oc->c.id.obs_ids[i]);
+            fprintf(lst,"\n%s    - %d", prefix, oc->c.id.obs_ids[i]);
         }
     }
 }
@@ -442,11 +442,11 @@ static void describe_obs_date_criterion( FILE *lst, obs_criterion *oc, const cha
 {
     if( oc->c.date.date_criterion_type == OBS_CRIT_DATE_UNKNOWN )
     {
-        fprintf(lst,"have no observation date\n");
+        fprintf(lst,"which have no observation date");
     }
     else
     {
-        fprintf(lst,"are observed %s %s\n",
+        fprintf(lst,"which are observed %s %s",
             oc->c.date.date_criterion_type == OBS_CRIT_DATE_BEFORE ? 
             "before" : "after",
             date_as_string(oc->c.date.date,"DT?",0) );
@@ -524,7 +524,7 @@ static bool obs_stations_match( obs_criterion *oc, network *nw, survdata *sd, tr
 
 static void describe_obs_stations_criterion( FILE *lst, obs_criterion *oc, const char * )
 {
-    fprintf(lst,"%s stations %s\n",
+    fprintf(lst,"which %s stations %s",
             oc->crit_type == OBS_CRIT_STATION_USES ? "use" : "are between",
             oc->c.stations.station_list );
 }
@@ -648,15 +648,18 @@ static void summarize_obs_criteria( FILE *lst, const char *prefix, obs_criteria 
 
     if( ocr->action == OBS_MOD_REWEIGHT_SET )
     {
-        fprintf(lst,"%s  Observations in sets including an observation which%s", prefix, just1 ? " " : ":\n");
+        fprintf(lst,"%s  Observations in sets including one or more observations%s", prefix, just1 ? " " : ":");
     }
     else
     {
-        fprintf(lst,"%s  Observations which%s", prefix, just1 ? " " : ":\n");
+        fprintf(lst,"%s  Observations%s", prefix, just1 ? " " : ":");
     }
+    int ncrit=0;
     for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
     {
-        if( ! just1 ) fprintf(lst,"%s    - ",prefix);
+        ncrit++;
+        if( ncrit > 1 ) fprintf(lst,", and");
+        if( ! just1 ) fprintf(lst,"\n%s    - ",prefix);
         switch( oc->crit_type )
         {
             case OBS_CRIT_DATATYPE: 
@@ -683,6 +686,7 @@ static void summarize_obs_criteria( FILE *lst, const char *prefix, obs_criteria 
                 break;
         }
     }
+    fprintf(lst,"\n");
 }
 
 void *new_obs_modifications( network *nw, classifications *obs_classes )
