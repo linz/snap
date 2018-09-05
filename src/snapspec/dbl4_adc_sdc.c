@@ -34,9 +34,7 @@
 #define SDC_STS_PASS    3     /* Mark has passed at current order */
 #define SDC_STS_PASSED  4     /* Marks has passed at lower order */
 #define SDC_STS_SKIP    5     /* Mark is to be skipped in current test */
-#define SDC_STS_UNTESTABLE 6  /* Mark cannot be tested as no connections to passed marks */
-#define SDC_STS_NEED_HOR   8  /* Status pending passing horizontal accuracy */
-#define SDC_STS_NEED_VRT  16  /* Status pending passing vertical accuracy */
+#define SDC_STS_NEED_CVR   6  /* Status pending passing horizontal accuracy */
 
 /* Objects defined to implement the SDC test */
 
@@ -47,10 +45,11 @@ typedef struct
 {
     char role;       /**< Role of the station in the test */
     char status;     /**< Status of the station (one of SDC_STS macro values) */
-    int nrelrow;   /**< Row number used for relative accuracy testing */
-    int nreltest;  /**< Number of relative accuracy tests applying */
-    int nrelbad;   /**< Number of relative accuracy tests failed */
-    int nrelfail;  /**< Number of rel.acc. tests to passed nodes that failed */
+    int nrelrow;     /**< Row number used for relative accuracy testing */
+    int nreltest;    /**< Number of relative accuracy tests applying */
+    int nrelbad;     /**< Number of relative accuracy tests failed */
+    int nrelfail;    /**< Number of rel.acc. tests to passed nodes that failed */
+    int passtest;    /**< The test in which then station passed, used to reset for twopass */
     float error2;    /**< Square of semi-major axis of error ellipse */
     float verror2;   /**< Square of the vertical error */
     float ctldist2;  /**< Square of distance to nearest control (fixed stn) */
@@ -95,15 +94,15 @@ typedef struct
 
 /* Relative accuracy information is stored in a lower triangle format for
    all marks for which it is required.  The leading diagonal is omitted.
-   Status information for the tests is SDC_STS_PASS, SDC_STS_FAIL, or
-   SDC_STS_SKIP.  Mapping between rows in relative accuracy array and
+   Status information for the tests is SDC_STS_PASS, SDC_STS_FAIL,
+   SDC_STS_SKIP, or STS_NEED_CVR.  Mapping between rows in relative accuracy array and
    input station ids is defined by SDCStation.nrelrow and SDCTestImp.lookup.
    */
 
 /* ABORT_FREQUENCY controls the granularity of yields to the system */
 /* The frequency is actually inversely proportional to this number */
 
-#define ABORT_FREQUENCY 100
+#define ABORT_FREQUENCY 1000
 
 
 static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc );
@@ -120,7 +119,7 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass );
 static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail );
 static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int *pfailed );
 static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status );
-static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest );
+static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply );
 static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci );
 static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... );
 static long sdcStationId( hSDCTestImp sdci, int istn );
@@ -280,12 +279,29 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
             }
             sdcWriteLog( &sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "\nPass 2: Calculating with extra covariance information\n");
         }
+
+        /* Reset status for stations which passed in tests which are being redone */
+        {
+            hSDCStation stns = sdci.stns;
+            for( int i = 0; sts == STS_OK && i < sdc->nmark; i++ )
+            {
+                hSDCStation s = & (stns[i]);
+                if( s->status == SDC_STS_PASSED && s->passtest >= phaseminorder )
+                {
+                    s->status = SDC_STS_SKIP;
+                    s->passtest = -1;
+                }
+                else if ( s->status == SDC_STS_UNKNOWN )
+                {
+                    s->status = SDC_STS_SKIP;
+                }
+            }
+        }
     }
 
     /*> For each order in turn... */
 
     sdci.needphase2=0;
-
     for( order = phaseminorder; sts == STS_OK && order < sdc->norder; order++ )
     {
         int nunknown;
@@ -394,14 +410,14 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 
         /*>> Apply the order to passed nodes */
 
-        if( ! sdci.needphase2 )
+        if( ! sdci.needphase2 ) 
         {
             phaseminorder=order+1;
             sdcWriteLog( &sdci, SDC_LOG_STEPS, "Setting node orders\n");
-            sts = sdcUpdateOrders( &sdci, order );
-            sdcTimeStamp(&sdci,"Orders updated");
-            if( sts != STS_OK ) break;
         }
+        sts = sdcUpdateOrders( &sdci, order, ! sdci.needphase2 );
+        sdcTimeStamp(&sdci,"Orders updated");
+        if( sts != STS_OK ) break;
 
         /*>> Yield to the system and check for user abort */
 
@@ -599,6 +615,7 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
         s->nreltest = 0;
         s->nrelbad = 0;
         s->nrelfail = 0;
+        s->passtest = -1;
 
         /*> Yield and check for user abort */
 
@@ -1102,7 +1119,7 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
             {
                 sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails with no tests left\n",
                              sdcStationId(sdci,istn) );
-                sdcSetRelTestStatus( sdci, istn, SDC_STS_UNTESTABLE );
+                sdcSetRelTestStatus( sdci, istn, SDC_STS_FAIL );
                 nfail++;
             }
         }
@@ -1496,8 +1513,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
                     /* See if we can pass or fail based on the endpoint coordinate accuracies.
                        Note: adding errors like this is not strictly correct - assumes that they
-                       are positively or 0 correlated.  Should add on 2*sqrt(stni->error2*stnj->error2)
-                       if we think errors could be negatively correlated. */
+                       are positively or 0 correlated.  Using strictcovar means this works even 
+                       if errors could be negatively correlated. */
 
                     if( shortcircuit )
                     {
@@ -1528,27 +1545,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                     }
                 }
 
-                /*>> If the covariance could not be found, then if this is not a twopass test
-                     trial phase then tests cannot be applied, so abort with status STS_MISSING_DATA.
-                     Otherwise record the fact that more covariance information will be
-                     required in a second pass */
+                /*>> If the covariance could not be found, then record the missing covariance info.
+                     It may turn out to be unnecessary, if we can fail one of the nodes in subsequent
+                     tests.  */
 
                 if( stsij == SDC_STS_UNKNOWN )
                 {
-                    needcovariances = 1;
-                    if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                                    "    Vector %ld to %ld rel accuracy unavailable\n",
-                                                    sdcStationId(sdci,istni),
-                                                    sdcStationId(sdci,istnj));
-
-                    if( sdci->phase != SDCI_PHASE_TRIAL )
-                    {
-                        sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %ld to %ld",
-                                     sdcStationId(sdci,istni),
-                                     sdcStationId(sdci,istnj));
-                        return STS_MISSING_DATA;
-                    }
-                    stsij = SDC_STS_NEED_HOR;
+                    stsij = SDC_STS_NEED_CVR;
+                    needcovariances=1;
                 }
                 /*>> If the vector has failed then if one or other node is already passed
                      we can fail the other.   */
@@ -1595,7 +1599,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             {
                 double tolij = ftolv + dtolv * dist;
                 double error = 0.0;
-                char stsijh = stsij & SDC_STS_NEED_HOR;
+                char needcvr = stsij == SDC_STS_NEED_CVR;
 
                 stsij = SDC_STS_UNKNOWN;
 
@@ -1644,27 +1648,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                     }
                 }
 
-                /*   If the covariance could not be found, then if this is not a twopass test
-                     then tests cannot be applied, so abort with status STS_MISSING_DATA.
-                     Otherwise record the fact that more covariance information will be
-                     required in a second pass */
+                /*   If the covariance could not be found, then record this and continue.
+                     It may turn out to be unnecessary if one or other node is subsequently
+                     failed. */
 
                 if( stsij == SDC_STS_UNKNOWN )
                 {
-                    needcovariances = 1;
-                    if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                                    "    Vector %ld to %ld rel vrt accuracy unavailable\n",
-                                                    sdcStationId(sdci,istni),
-                                                    sdcStationId(sdci,istnj));
-
-                    if( sdci->phase != SDCI_PHASE_TRIAL )
-                    {
-                        sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing vertical covariance information %ld to %ld",
-                                     sdcStationId(sdci,istni),
-                                     sdcStationId(sdci,istnj));
-                        return STS_MISSING_DATA;
-                    }
-                    stsij = SDC_STS_NEED_VRT;
+                    stsij = SDC_STS_NEED_CVR;
+                    needcovariances=1;
                 }
                 /*   If the vector has failed then if one or other node is already passed
                      we can fail the other.   */
@@ -1702,27 +1693,21 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                                                     tolij);
                 }
 
-                stsij |= stsijh;
+                if( needcvr ) stsij = SDC_STS_NEED_CVR;
             }
+
             *relstatus = stsij;
         }
     }
 
     sdcTimeStamp(sdci,"Completed first pass using known covariances");
 
-    /*> If we are applying a two pass test, then note the missing covariance information,
-        and have a second pass to to calculate each missing item */
+    /*> Now check for missing covariance information */
 
 
-    if( sdci->phase == SDCI_PHASE_TRIAL && needcovariances )
+    if( needcovariances )
     {
-
-        /*>> Record each as yet undetermined covariance, send the missing ids to the
-             covariance calculation function.  */
-
-        /* Notify error function that we are listing missing covariances */
-
-        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Recording missing covariance information\n");
+        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Checking missing covariance information\n");
 
         /* Record each missing value */
 
@@ -1748,6 +1733,9 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             for( j = 0; j < i; relstatus++, j++ )
             {
                 int istnj = sdci->lookup[j];
+                hSDCStation stnj = &(stns[istnj]);
+                char stsj = stnj->status;
+                char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
                 if( j % ABORT_FREQUENCY == 0 )
                 {
@@ -1755,30 +1743,34 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                     if( sts != STS_OK ) return sts;
                 }
 
-                if( ! ((*relstatus) & (SDC_STS_NEED_HOR | SDC_STS_NEED_VRT) ) ) continue;
+                if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
+                if( *relstatus != SDC_STS_NEED_CVR ) continue;
 
-                (sdc->pfRequestCovar)(sdc->env,istni,istnj);
+                /*>> If trial phase of two pass calculation then record missing covariance,
+                     else abort relative accuracy test */
+
+                if( sdci->phase != SDCI_PHASE_TRIAL )
+                {
+                    sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %ld to %ld",
+                                 sdcStationId(sdci,istni),
+                                 sdcStationId(sdci,istnj));
+                    return STS_MISSING_DATA;
+                }
 
                 if( logcalcs2 ) sdcWriteLog( sdci, SDC_LOG_CALCS2,
                                                  "    Requesting covariance %ld to %ld\n",
                                                  sdcStationId(sdci,istni),
                                                  sdcStationId(sdci,istnj));
+
+                sdci->needphase2 = 1;
+                (sdc->pfRequestCovar)(sdc->env,istni,istnj);
             }
         }
 
-        /*>> Record the requirement for a second phase */
-
-        sdci->needphase2 = 1;
-
-        sdcTimeStamp(sdci,"Completed second pass requesting missing covariances");
-
-        /*>> Calculation the missing covariance components. */
-
-        /* Notify error function that we are calculating covariances */
-
+        sdcTimeStamp(sdci,"Completed check for missing covariances");
     }
 
-    /* If need phase2 (either from this order or a previous order, then don't process further */
+    /*> If need phase2 (either from this order or a previous order, then don't process further */
 
     if( sdci->needphase2 ) 
     {
@@ -1877,13 +1869,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 **  \param sdci                The test implementation
 **  \param itest               The number of the order being
 **                             tested.
+**  \param apply               If false then updates are not applied
 **
 **  \return                    The abort status
 **
 **************************************************************************
 */
 
-static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest)
+static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply )
 {
     hSDCTest sdc = sdci->sdc;
     hSDCStation stns = sdci->stns;
@@ -1904,9 +1897,13 @@ static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest)
         if( stni->status == SDC_STS_PASS )
         {
             stni->status = SDC_STS_PASSED;
-            (sdc->pfSetOrder)( sdc->env, istn, itest );
-            sdcWriteLog(sdci,SDC_LOG_TESTS,"  Setting order of node %ld to %s\n",
-                        sdcStationId(sdci,istn), sdc->tests[itest].scOrder );
+            stni->passtest = itest;
+            if( apply )
+            {
+                (sdc->pfSetOrder)( sdc->env, istn, itest );
+                sdcWriteLog(sdci,SDC_LOG_TESTS,"  Setting order of node %ld to %s\n",
+                            sdcStationId(sdci,istn), sdc->tests[itest].scOrder );
+            }
         }
 
         /*>> If it has failed then set the status back to SDC_STS_UNKNOWN

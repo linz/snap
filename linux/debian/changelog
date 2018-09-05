@@ -1,3 +1,13 @@
+linz-snap (2.7.14-1) xenial; urgency=medium
+
+  * Fixing snapspec twopass errors resulting from optimisation
+  * Fixing incorrect values for source order in snapspec csv output file
+  * Performance improvements in snap data loading
+  * Fixing vector data errfct column in obs.csv file
+  * Fixing segfault dumping covariances
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Mon, 27 Aug 2018 15:30:00 +1200
+  
 linz-snap (2.7.13-1) xenial; urgency=medium
 
   * Refactoring two pass calculation to only calculate inverse once

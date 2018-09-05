@@ -1470,7 +1470,7 @@ StatusType utlSetLinzDefVersion( hLinzDefModel pdef, const char *version )
     hDefVer ver;
     hDefSeq seq;
     if( ! def ) RETURN_STATUS( STS_INVALID_DATA );
-    if( ! version ) RETURN_STATUS( STS_OK );
+    if( ! version ) return STS_OK;
     TRACE_LNZDEF(("Setting deformation model to version %s",version));
 
     ver=def->firstver;
@@ -1482,7 +1482,7 @@ StatusType utlSetLinzDefVersion( hLinzDefModel pdef, const char *version )
     if( ! ver ) 
     {
         TRACE_LNZDEF(("Cannot set model to version %s - not a valid version",
-                    version))
+                    version));
         RETURN_STATUS( STS_INVALID_DATA );
     }
     def->currver=ver;

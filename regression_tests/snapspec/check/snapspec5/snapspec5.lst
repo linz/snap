@@ -1,9 +1,9 @@
-snapspec version 2.7.12-e3efb6d: Calculation of station orders
-Run at 26-AUG-2018 07:46:10
+snapspec version 2.7.13-24fa774: Calculation of station orders
+Run at  5-SEP-2018 12:03:30
 SNAP binary file: snapspec5.bin
 Spec configuration file: snapspec5.cfg
 Vertical tests will not be applied as no stations are adjusted vertically
-SNAP run time: 26-AUG-2018 07:46:10
+SNAP run time:  5-SEP-2018 12:03:30
 Running apriori tests
 
 
@@ -33,7 +33,8 @@ Finding nearest control for each mark
     Station 5 is 6400.00 m2 from control
     Station 6 is 10000.00 m2 from control
    .. Identified nearest control marks took 0.00 seconds (total 0.00 seconds)
-  Pass 1: Using existing covariance information
+
+Pass 1: Using existing covariance information
    .. Commencing tests for order 5 took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Running test for order 5
@@ -51,20 +52,21 @@ Applying relative accuracy test
   Calculating status for each vector
    Relative accuracy pass by absolute    Vector 2 to 1 passes rel accuracy (0.01000000 < 0.01502137)
    Relative accuracy pass by absolute    Vector 3 to 1 passes rel accuracy (0.01010000 < 0.01502137)
-    Vector 3 to 2 rel accuracy unavailable
    Relative accuracy fail by absolute    Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502137)
    Relative accuracy fail by absolute    Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    Relative accuracy fail by absolute    Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
-  Recording missing covariance information
+  Checking missing covariance information
     Requesting covariance 3 to 2
-   .. Completed second pass requesting missing covariances took 0.00 seconds (total 0.00 seconds)
+   .. Completed check for missing covariances took 0.00 seconds (total 0.00 seconds)
   Relative accuracy test postponed pending covariance calcs
    .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
+   .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
-  Pass 2: Calculating with extra covariance information
+
+Pass 2: Calculating with extra covariance information
    .. Commencing tests for order 5 took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Running test for order 5
@@ -81,6 +83,9 @@ Applying relative accuracy test
    Relative accuracy pass by absolute    Vector 2 to 1 passes rel accuracy (0.01000000 < 0.01502137)
    Relative accuracy pass by absolute    Vector 3 to 1 passes rel accuracy (0.01010000 < 0.01502137)
    True relative accuracy test pass    Vector 3 to 2 passes rel accuracy (0.00010000 < 0.01502137)
+   Relative accuracy fail by absolute    Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502137)
+   Relative accuracy fail by absolute    Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
+   Relative accuracy fail by absolute    Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
   Summarizing relative accuracy data
    .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
