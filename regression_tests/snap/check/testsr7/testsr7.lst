@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  7-SEP-2018 09:39:24 by ccrook
 
 
 The command file testsr7.snp contains:
@@ -65,7 +65,7 @@ The command file testsr7.snp contains:
 
 
 ================================================================================
-Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+Regression tests - station handling of multiple recoding     7-SEP-2018 09:39:24
 
                              SUMMARY OF INPUT FILES
 
@@ -90,7 +90,7 @@ Data file 1: testsr7.dat
 
 
 ================================================================================
-Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+Regression tests - station handling of multiple recoding     7-SEP-2018 09:39:24
 
                                 RECODED STATIONS
 
@@ -119,7 +119,7 @@ The following stations are being recoded as they are read from data files
 
 
 ================================================================================
-Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+Regression tests - station handling of multiple recoding     7-SEP-2018 09:39:24
 
                              DEFINITION OF PROBLEM
 
@@ -173,7 +173,7 @@ LINZ deformation model
 
 
 ================================================================================
-Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+Regression tests - station handling of multiple recoding     7-SEP-2018 09:39:24
 
                              OBSERVATION RESIDUALS
 
@@ -230,7 +230,7 @@ From     Date        Value
 
 
 ================================================================================
-Regression tests - station handling of multiple recoding    13-AUG-2018 13:42:14
+Regression tests - station handling of multiple recoding     7-SEP-2018 09:39:24
 
                                      ERRORS
 

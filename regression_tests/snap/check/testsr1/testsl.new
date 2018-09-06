@@ -1,7 +1,7 @@
 Test 1 - basic obs type tests
 NZGD2000(20160701)
 options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=Mark_Type
-! Updated by SNAP version 2.7.13-c6da8ba at  1-SEP-2018 06:52:09
+! Updated by SNAP version 2.7.14-3f3f047 at  7-SEP-2018 09:39:24
 
 !Code       Latitude          Longitude        Ell.Hgt Order Mark_Type Name
 11       -41.00288798564    173.31812185878    84.4551 4     BOLT  4 BOLT

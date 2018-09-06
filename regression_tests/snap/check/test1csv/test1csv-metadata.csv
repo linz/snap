@@ -1,6 +1,6 @@
 "code","value","comment"
-"SNAPVER","2.7.13-c6da8ba","SNAP version"
-"RUNTIME"," 1-SEP-2018 06:52:07","Run time"
+"SNAPVER","2.7.14-3f3f047","SNAP version"
+"RUNTIME"," 7-SEP-2018 09:39:23","Run time"
 "TITLE","Regression test 1csv - CSV format data/coords","Job title"
 "CRDSYS","NZGD1949","New Zealand Geodetic Datum 1949"
 "NOBS",127,"Number of observations"

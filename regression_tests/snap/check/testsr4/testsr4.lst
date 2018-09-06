@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-c6da8ba
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  1 2018 06:51:23
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at  1-SEP-2018 06:52:09 by ccrook
+                     Run at  7-SEP-2018 09:39:24 by ccrook
 
 
 The command file testsr4.snp contains:
@@ -35,7 +35,7 @@ The command file testsr4.snp contains:
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                              SUMMARY OF INPUT FILES
 
@@ -75,7 +75,7 @@ Data file 1: testsr4.dat
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                                    INPUT DATA
 
@@ -122,7 +122,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":8
+        "file_line_no":8
       },
       {
         "obsid":2,
@@ -137,7 +137,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":9
+        "file_line_no":9
       }
     ]
   },
@@ -157,7 +157,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":12
+        "file_line_no":12
       },
       {
         "obsid":4,
@@ -172,7 +172,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":13
+        "file_line_no":13
       }
     ]
   },
@@ -192,7 +192,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":16
+        "file_line_no":16
       },
       {
         "obsid":6,
@@ -207,7 +207,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":17
+        "file_line_no":17
       }
     ]
   },
@@ -227,7 +227,7 @@ BEGIN_JSON observations
         "error": [0.001111111],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":21
+        "file_line_no":21
       }
     ]
   },
@@ -247,7 +247,7 @@ BEGIN_JSON observations
         "error": [0.001111111],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":22
+        "file_line_no":22
       }
     ]
   },
@@ -271,7 +271,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":27
+        "file_line_no":27
       }
     ]
   },
@@ -295,7 +295,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":28
+        "file_line_no":28
       }
     ]
   },
@@ -315,7 +315,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":32
+        "file_line_no":32
       }
     ]
   },
@@ -335,7 +335,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":33
+        "file_line_no":33
       }
     ]
   },
@@ -355,7 +355,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":37
+        "file_line_no":37
       }
     ]
   },
@@ -375,7 +375,7 @@ BEGIN_JSON observations
         "error": [0.01060000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":38
+        "file_line_no":38
       }
     ]
   },
@@ -395,7 +395,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":42
+        "file_line_no":42
       }
     ]
   },
@@ -415,7 +415,7 @@ BEGIN_JSON observations
         "error": [0.01060000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":43
+        "file_line_no":43
       }
     ]
   },
@@ -435,7 +435,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":44
+        "file_line_no":44
       }
     ]
   },
@@ -455,7 +455,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":45
+        "file_line_no":45
       }
     ]
   },
@@ -475,7 +475,7 @@ BEGIN_JSON observations
         "error": [0.00440000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":49
+        "file_line_no":49
       }
     ]
   },
@@ -495,7 +495,7 @@ BEGIN_JSON observations
         "error": [0.00460000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":50
+        "file_line_no":50
       }
     ]
   },
@@ -515,7 +515,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":55
+        "file_line_no":55
       },
       {
         "obsid":22,
@@ -530,7 +530,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":56
+        "file_line_no":56
       }
     ]
   },
@@ -553,7 +553,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":61
+        "file_line_no":61
       }
     ]
   },
@@ -576,7 +576,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":62
+        "file_line_no":62
       }
     ]
   },
@@ -596,7 +596,7 @@ BEGIN_JSON observations
         "error": [0.01000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":66
+        "file_line_no":66
       }
     ]
   },
@@ -616,7 +616,7 @@ BEGIN_JSON observations
         "error": [0.03000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":67
+        "file_line_no":67
       }
     ]
   },
@@ -636,7 +636,7 @@ BEGIN_JSON observations
         "error": [0.0000555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":71
+        "file_line_no":71
       }
     ]
   },
@@ -656,7 +656,7 @@ BEGIN_JSON observations
         "error": [0.0000833333],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":72
+        "file_line_no":72
       }
     ]
   },
@@ -676,7 +676,7 @@ BEGIN_JSON observations
         "error": [0.0000555556],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":76
+        "file_line_no":76
       }
     ]
   },
@@ -696,7 +696,7 @@ BEGIN_JSON observations
         "error": [0.0000833333],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":77
+        "file_line_no":77
       }
     ]
   },
@@ -720,7 +720,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":84
+        "file_line_no":84
       },
       {
         "obsid":32,
@@ -735,7 +735,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":84
+        "file_line_no":84
       }
     ]
   },
@@ -759,7 +759,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":85
+        "file_line_no":85
       },
       {
         "obsid":34,
@@ -774,7 +774,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":85
+        "file_line_no":85
       }
     ]
   },
@@ -798,7 +798,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":91
+        "file_line_no":91
       }
     ]
   },
@@ -822,7 +822,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":92
+        "file_line_no":92
       }
     ]
   },
@@ -846,7 +846,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":96
+        "file_line_no":96
       }
     ]
   },
@@ -870,7 +870,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":97
+        "file_line_no":97
       }
     ]
   },
@@ -890,7 +890,7 @@ BEGIN_JSON observations
         "error": [0.0020000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":100
+        "file_line_no":100
       }
     ]
   },
@@ -910,7 +910,7 @@ BEGIN_JSON observations
         "error": [0.0020000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":100
+        "file_line_no":100
       }
     ]
   },
@@ -930,7 +930,7 @@ BEGIN_JSON observations
         "error": [0.01000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":100
+        "file_line_no":100
       }
     ]
   },
@@ -950,7 +950,7 @@ BEGIN_JSON observations
         "error": [2.00000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":104
+        "file_line_no":104
       }
     ]
   },
@@ -970,7 +970,7 @@ BEGIN_JSON observations
         "error": [0.20000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":110
+        "file_line_no":110
       }
     ]
   },
@@ -990,7 +990,7 @@ BEGIN_JSON observations
         "error": [2.00000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":115
+        "file_line_no":115
       }
     ]
   },
@@ -1010,7 +1010,7 @@ BEGIN_JSON observations
         "error": [0.20000000],
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":121
+        "file_line_no":121
       }
     ]
   },
@@ -1033,7 +1033,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":128
+        "file_line_no":128
       }
     ],
   "covariance": [
@@ -1062,7 +1062,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":133
+        "file_line_no":133
       }
     ],
   "covariance": [
@@ -1091,7 +1091,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":141
+        "file_line_no":141
       },
       {
         "obsid":49,
@@ -1109,7 +1109,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":142
+        "file_line_no":142
       }
     ],
   "covariance": [
@@ -1141,7 +1141,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":160
+        "file_line_no":160
       }
     ],
   "covariance": [
@@ -1170,7 +1170,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":164
+        "file_line_no":164
       }
     ],
   "covariance": [
@@ -1199,7 +1199,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":171
+        "file_line_no":171
       },
       {
         "obsid":53,
@@ -1217,7 +1217,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":172
+        "file_line_no":172
       }
     ],
   "covariance": [
@@ -1249,7 +1249,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":187
+        "file_line_no":187
       }
     ],
   "covariance": [
@@ -1278,7 +1278,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":190
+        "file_line_no":190
       }
     ],
   "covariance": [
@@ -1307,7 +1307,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":195
+        "file_line_no":195
       },
       {
         "obsid":57,
@@ -1325,7 +1325,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":196
+        "file_line_no":196
       }
     ],
   "covariance": [
@@ -1357,7 +1357,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":205
+        "file_line_no":205
       }
     ],
   "covariance": [
@@ -1386,7 +1386,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":208
+        "file_line_no":208
       }
     ],
   "covariance": [
@@ -1415,7 +1415,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":213
+        "file_line_no":213
       },
       {
         "obsid":61,
@@ -1433,7 +1433,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":214
+        "file_line_no":214
       }
     ],
   "covariance": [
@@ -1465,7 +1465,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":220
+        "file_line_no":220
       }
     ],
   "covariance": [
@@ -1494,7 +1494,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":222
+        "file_line_no":222
       }
     ],
   "covariance": [
@@ -1523,7 +1523,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":224
+        "file_line_no":224
       }
     ],
   "covariance": [
@@ -1552,7 +1552,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":228
+        "file_line_no":228
       },
       {
         "obsid":66,
@@ -1570,7 +1570,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":229
+        "file_line_no":229
       }
     ],
   "covariance": [
@@ -1600,7 +1600,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":237
+        "file_line_no":237
       }
     ],
   "covariance": [
@@ -1627,7 +1627,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":242
+        "file_line_no":242
       }
     ],
   "covariance": [
@@ -1654,7 +1654,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":249
+        "file_line_no":249
       },
       {
         "obsid":70,
@@ -1670,7 +1670,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":250
+        "file_line_no":250
       }
     ],
   "covariance": [
@@ -1700,7 +1700,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":265
+        "file_line_no":265
       }
     ],
   "covariance": [
@@ -1727,7 +1727,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":269
+        "file_line_no":269
       }
     ],
   "covariance": [
@@ -1754,7 +1754,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":275
+        "file_line_no":275
       },
       {
         "obsid":74,
@@ -1770,7 +1770,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":276
+        "file_line_no":276
       }
     ],
   "covariance": [
@@ -1800,7 +1800,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":289
+        "file_line_no":289
       }
     ],
   "covariance": [
@@ -1827,7 +1827,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":292
+        "file_line_no":292
       }
     ],
   "covariance": [
@@ -1854,7 +1854,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":296
+        "file_line_no":296
       },
       {
         "obsid":78,
@@ -1870,7 +1870,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":298
+        "file_line_no":298
       }
     ],
   "covariance": [
@@ -1900,7 +1900,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":305
+        "file_line_no":305
       }
     ],
   "covariance": [
@@ -1927,7 +1927,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":308
+        "file_line_no":308
       }
     ],
   "covariance": [
@@ -1954,7 +1954,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":312
+        "file_line_no":312
       },
       {
         "obsid":82,
@@ -1970,7 +1970,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":314
+        "file_line_no":314
       }
     ],
   "covariance": [
@@ -2000,7 +2000,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":322
+        "file_line_no":322
       }
     ],
   "covariance": [
@@ -2027,7 +2027,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":324
+        "file_line_no":324
       }
     ],
   "covariance": [
@@ -2054,7 +2054,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":326
+        "file_line_no":326
       }
     ],
   "covariance": [
@@ -2081,7 +2081,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":329
+        "file_line_no":329
       },
       {
         "obsid":87,
@@ -2097,7 +2097,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsr4.dat",
-        "file_line-no":330
+        "file_line_no":330
       }
     ],
   "covariance": [
@@ -2117,7 +2117,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                              DEFINITION OF PROBLEM
 
@@ -2143,7 +2143,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                                 SOLUTION SUMMARY
 
@@ -2167,7 +2167,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                               STATION COORDINATES
 
@@ -2216,7 +2216,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                            REFERENCE FRAME PARAMETERS
 
@@ -2242,7 +2242,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                                 OTHER PARAMETERS
 
@@ -2257,7 +2257,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                              OBSERVATION RESIDUALS
 
@@ -2622,7 +2622,7 @@ File testsr4.dat: line 296
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                                  ERROR SUMMARY
 
@@ -2677,7 +2677,7 @@ longitude                                   0.00    5     -      -    0.00    5
 
 
 ================================================================================
-Regression test - Station recoding with multiple types       1-SEP-2018 06:52:09
+Regression test - Station recoding with multiple types       7-SEP-2018 09:39:24
 
                            MOST SIGNIFICANT RESIDUALS
 

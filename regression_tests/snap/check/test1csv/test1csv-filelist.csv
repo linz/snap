@@ -1,14 +1,14 @@
 "id","filename","filetype","filedate","filesize"
 0,"/home/ccrook/projects_git/snap/regression_tests/snap/../test_coordsys/coordsys.def","coordinate_systems_definition","2018-06-28 09:02:46",55561
-1,"test1csv.lst","listing","2018-09-01 06:52:07",141412
-2,"test1csv.snp","command","2018-09-01 06:52:07",620
-3,"teststn.csv","station_coordinate","2018-09-01 06:52:07",782
+1,"test1csv.lst","listing","2018-09-07 09:39:23",141412
+2,"test1csv.snp","command","2018-09-07 09:39:23",620
+3,"teststn.csv","station_coordinate","2018-09-07 09:39:23",782
 4,"/home/ccrook/projects_git/snap/linux/debug/install/config/format/stn.dtf","csv_station_format","2016-11-18 05:33:30",542
-5,"test1csv.bin","snap_binary","2018-09-01 06:52:07",43424
-6,"testobs.csv","survey_data","2018-09-01 06:52:07",29404
-7,"obs.dtf","csv_obs_format","2018-09-01 06:52:07",621
-8,"test1csv-stn.csv","stn_output_csv","2018-09-01 06:52:07",776
-9,"test1csv-obs.csv","obs_output_csv","2018-09-01 06:52:07",32376
-10,"test1csv-metadata.csv","metadata_output_csv","2018-09-01 06:52:07",816
-11,"teststn.new","output_station_coordinate","2018-09-01 06:52:07",690
-12,"test1csv-filelist.csv","filelist_output_csv","2018-09-01 06:52:07",0
+5,"test1csv.bin","snap_binary","2018-09-07 09:39:23",43424
+6,"testobs.csv","survey_data","2018-09-07 09:39:23",29404
+7,"obs.dtf","csv_obs_format","2018-09-07 09:39:23",621
+8,"test1csv-stn.csv","stn_output_csv","2018-09-07 09:39:23",776
+9,"test1csv-obs.csv","obs_output_csv","2018-09-07 09:39:23",32393
+10,"test1csv-metadata.csv","metadata_output_csv","2018-09-07 09:39:23",816
+11,"teststn.new","output_station_coordinate","2018-09-07 09:39:23",690
+12,"test1csv-filelist.csv","filelist_output_csv","2018-09-07 09:39:23",0

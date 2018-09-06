@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-c6da8ba
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  1 2018 06:51:23
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at  1-SEP-2018 06:52:09 by ccrook
+                     Run at  7-SEP-2018 09:39:24 by ccrook
 
 
 
@@ -38,7 +38,7 @@ Errors of the following observations are scaled by 2.000
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                                    INPUT DATA
 
@@ -71,7 +71,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":166
+        "file_line_no":166
       },
       {
         "obsid":2,
@@ -87,7 +87,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":169
+        "file_line_no":169
       },
       {
         "obsid":3,
@@ -103,7 +103,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":172
+        "file_line_no":172
       },
       {
         "obsid":5,
@@ -119,7 +119,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":178
+        "file_line_no":178
       },
       {
         "obsid":7,
@@ -135,7 +135,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":184
+        "file_line_no":184
       },
       {
         "obsid":8,
@@ -151,7 +151,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":187
+        "file_line_no":187
       },
       {
         "obsid":9,
@@ -167,7 +167,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":190
+        "file_line_no":190
       },
       {
         "obsid":10,
@@ -183,7 +183,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":193
+        "file_line_no":193
       },
       {
         "obsid":17,
@@ -199,7 +199,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":214
+        "file_line_no":214
       },
       {
         "obsid":18,
@@ -215,7 +215,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":217
+        "file_line_no":217
       },
       {
         "obsid":19,
@@ -231,7 +231,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":220
+        "file_line_no":220
       },
       {
         "obsid":20,
@@ -247,7 +247,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":223
+        "file_line_no":223
       }
     ],
   "covariance": [
@@ -415,7 +415,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":175
+        "file_line_no":175
       },
       {
         "obsid":25,
@@ -431,7 +431,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":178
+        "file_line_no":178
       },
       {
         "obsid":27,
@@ -447,7 +447,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":184
+        "file_line_no":184
       },
       {
         "obsid":28,
@@ -463,7 +463,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":187
+        "file_line_no":187
       },
       {
         "obsid":29,
@@ -479,7 +479,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testsnx1.in.snx",
-        "file_line-no":190
+        "file_line_no":190
       }
     ],
   "covariance": [
@@ -523,7 +523,7 @@ END_JSON observations
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                                 SOLUTION SUMMARY
 
@@ -546,7 +546,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                               STATION COORDINATES
 
@@ -635,7 +635,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                            REFERENCE FRAME PARAMETERS
 
@@ -676,7 +676,7 @@ Reference frame: QRF
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                              OBSERVATION RESIDUALS
 
@@ -792,7 +792,7 @@ KARR_A GX    -2713832.3708  0.0119  -2713832.3709  0.0000  0.0000  0.0097   0.00
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                                  ERROR SUMMARY
 
@@ -826,7 +826,7 @@ testsnx1.in.snx                             0.01   15     -      -    0.01   15
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                            MOST SIGNIFICANT RESIDUALS
 
@@ -869,7 +869,7 @@ HOKI             GX     0.015    0.001        187  testsnx1.in.snx
 
 
 ================================================================================
-Testing SINEX file reading                                   1-SEP-2018 06:52:09
+Testing SINEX file reading                                   7-SEP-2018 09:39:24
 
                                      ERRORS
 

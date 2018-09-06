@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-c6da8ba
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  1 2018 06:51:23
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at  1-SEP-2018 06:52:09 by ccrook
+                     Run at  7-SEP-2018 09:39:24 by ccrook
 
 
 
@@ -39,7 +39,7 @@ Data file 3: testsr3.dat
 
 
 ================================================================================
-Regression tests - Missing recode file                       1-SEP-2018 06:52:09
+Regression tests - Missing recode file                       7-SEP-2018 09:39:24
 
                                    INPUT DATA
 
@@ -71,7 +71,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":10
+        "file_line_no":10
       }
     ]
   },
@@ -91,7 +91,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":11
+        "file_line_no":11
       }
     ]
   },
@@ -111,7 +111,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":12
+        "file_line_no":12
       }
     ]
   },
@@ -131,7 +131,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":13
+        "file_line_no":13
       }
     ]
   },
@@ -151,7 +151,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":14
+        "file_line_no":14
       }
     ]
   },
@@ -171,7 +171,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":15
+        "file_line_no":15
       }
     ]
   },
@@ -191,7 +191,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":16
+        "file_line_no":16
       }
     ]
   },
@@ -211,7 +211,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":17
+        "file_line_no":17
       }
     ]
   },
@@ -231,7 +231,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":18
+        "file_line_no":18
       }
     ]
   },
@@ -251,7 +251,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":19
+        "file_line_no":19
       }
     ]
   },
@@ -271,7 +271,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":20
+        "file_line_no":20
       }
     ]
   },
@@ -291,7 +291,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":21
+        "file_line_no":21
       }
     ]
   },
@@ -311,7 +311,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":22
+        "file_line_no":22
       }
     ]
   },
@@ -331,7 +331,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":23
+        "file_line_no":23
       }
     ]
   },
@@ -351,7 +351,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":24
+        "file_line_no":24
       }
     ]
   },
@@ -371,7 +371,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":25
+        "file_line_no":25
       }
     ]
   },
@@ -391,7 +391,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":27
+        "file_line_no":27
       }
     ]
   },
@@ -411,7 +411,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":28
+        "file_line_no":28
       }
     ]
   },
@@ -431,7 +431,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":29
+        "file_line_no":29
       }
     ]
   },
@@ -451,7 +451,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":33
+        "file_line_no":33
       }
     ]
   },
@@ -471,7 +471,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":34
+        "file_line_no":34
       }
     ]
   },
@@ -491,7 +491,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":38
+        "file_line_no":38
       }
     ]
   },
@@ -511,7 +511,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":39
+        "file_line_no":39
       }
     ]
   },
@@ -531,7 +531,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":43
+        "file_line_no":43
       }
     ]
   },
@@ -551,7 +551,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":44
+        "file_line_no":44
       }
     ]
   },
@@ -571,7 +571,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":48
+        "file_line_no":48
       }
     ]
   },
@@ -591,7 +591,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":49
+        "file_line_no":49
       }
     ]
   },
@@ -611,7 +611,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":50
+        "file_line_no":50
       }
     ]
   },
@@ -631,7 +631,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr1.dat",
-        "file_line-no":51
+        "file_line_no":51
       }
     ]
   },
@@ -651,7 +651,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr3.dat",
-        "file_line-no":12
+        "file_line_no":12
       }
     ]
   },
@@ -671,7 +671,7 @@ BEGIN_JSON observations
         "error": [0.0002777778],
         "useobs":true,
         "file":"testsr3.dat",
-        "file_line-no":14
+        "file_line_no":14
       }
     ]
   }
@@ -682,7 +682,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression tests - Missing recode file                       1-SEP-2018 06:52:09
+Regression tests - Missing recode file                       7-SEP-2018 09:39:24
 
                                      ERRORS
 

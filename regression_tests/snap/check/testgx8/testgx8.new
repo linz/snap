@@ -1,7 +1,7 @@
 Test 1 - basic obs type tests
 ITRF2008
 options ellipsoidal_heights no_deflections no_geoid_heights c=Order c=Mark_Type
-! Updated by SNAP version 2.7.10-bf63ac3 at 13-AUG-2018 13:42:14
+! Updated by SNAP version 2.7.14-3f3f047 at  7-SEP-2018 09:39:23
 
 !Code       Latitude          Longitude        Ell.Hgt Order Mark_Type Name
 1      41 00 43.863447 S 173 19 15.600000 E   361.5979 2     PIN   Node one

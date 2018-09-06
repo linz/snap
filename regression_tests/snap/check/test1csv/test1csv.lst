@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-c6da8ba
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  1 2018 06:51:23
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at  1-SEP-2018 06:52:07 by ccrook
+                     Run at  7-SEP-2018 09:39:23 by ccrook
 
 
 The command file test1csv.snp contains:
@@ -46,7 +46,7 @@ The command file test1csv.snp contains:
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                              SUMMARY OF INPUT FILES
 
@@ -87,7 +87,7 @@ Data file 1: testobs.csv
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                                    INPUT DATA
 
@@ -134,7 +134,7 @@ BEGIN_JSON observations
         "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":2
+        "file_line_no":2
       },
       {
         "obsid":2,
@@ -149,7 +149,7 @@ BEGIN_JSON observations
         "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":3
+        "file_line_no":3
       }
     ]
   },
@@ -169,7 +169,7 @@ BEGIN_JSON observations
         "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":4
+        "file_line_no":4
       },
       {
         "obsid":4,
@@ -184,7 +184,7 @@ BEGIN_JSON observations
         "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":5
+        "file_line_no":5
       }
     ]
   },
@@ -204,7 +204,7 @@ BEGIN_JSON observations
         "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":6
+        "file_line_no":6
       },
       {
         "obsid":6,
@@ -219,7 +219,7 @@ BEGIN_JSON observations
         "error": [0.005560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":7
+        "file_line_no":7
       }
     ]
   },
@@ -239,7 +239,7 @@ BEGIN_JSON observations
         "error": [0.001110000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":8
+        "file_line_no":8
       }
     ]
   },
@@ -259,7 +259,7 @@ BEGIN_JSON observations
         "error": [0.001110000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":9
+        "file_line_no":9
       }
     ]
   },
@@ -284,7 +284,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":10
+        "file_line_no":10
       }
     ]
   },
@@ -309,7 +309,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":11
+        "file_line_no":11
       }
     ]
   },
@@ -329,7 +329,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":12
+        "file_line_no":12
       }
     ]
   },
@@ -349,7 +349,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":13
+        "file_line_no":13
       }
     ]
   },
@@ -369,7 +369,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":14
+        "file_line_no":14
       }
     ]
   },
@@ -389,7 +389,7 @@ BEGIN_JSON observations
         "error": [0.01060000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":15
+        "file_line_no":15
       }
     ]
   },
@@ -409,7 +409,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":16
+        "file_line_no":16
       }
     ]
   },
@@ -429,7 +429,7 @@ BEGIN_JSON observations
         "error": [0.01060000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":17
+        "file_line_no":17
       }
     ]
   },
@@ -449,7 +449,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":18
+        "file_line_no":18
       }
     ]
   },
@@ -469,7 +469,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":19
+        "file_line_no":19
       }
     ]
   },
@@ -489,7 +489,7 @@ BEGIN_JSON observations
         "error": [0.00440000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":20
+        "file_line_no":20
       }
     ]
   },
@@ -509,7 +509,7 @@ BEGIN_JSON observations
         "error": [0.00460000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":21
+        "file_line_no":21
       }
     ]
   },
@@ -529,7 +529,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":22
+        "file_line_no":22
       },
       {
         "obsid":22,
@@ -544,7 +544,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":23
+        "file_line_no":23
       }
     ]
   },
@@ -567,7 +567,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":24
+        "file_line_no":24
       }
     ]
   },
@@ -590,7 +590,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":25
+        "file_line_no":25
       }
     ]
   },
@@ -610,7 +610,7 @@ BEGIN_JSON observations
         "error": [0.01000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":26
+        "file_line_no":26
       }
     ]
   },
@@ -630,7 +630,7 @@ BEGIN_JSON observations
         "error": [0.03000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":27
+        "file_line_no":27
       }
     ]
   },
@@ -650,7 +650,7 @@ BEGIN_JSON observations
         "error": [0.0000560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":28
+        "file_line_no":28
       }
     ]
   },
@@ -670,7 +670,7 @@ BEGIN_JSON observations
         "error": [0.0000830000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":29
+        "file_line_no":29
       }
     ]
   },
@@ -690,7 +690,7 @@ BEGIN_JSON observations
         "error": [0.0000560000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":30
+        "file_line_no":30
       }
     ]
   },
@@ -710,7 +710,7 @@ BEGIN_JSON observations
         "error": [0.0000830000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":31
+        "file_line_no":31
       }
     ]
   },
@@ -733,7 +733,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":32
+        "file_line_no":32
       },
       {
         "obsid":32,
@@ -751,7 +751,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":33
+        "file_line_no":33
       }
     ]
   },
@@ -774,7 +774,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":34
+        "file_line_no":34
       },
       {
         "obsid":34,
@@ -792,7 +792,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":35
+        "file_line_no":35
       }
     ]
   },
@@ -815,7 +815,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":36
+        "file_line_no":36
       },
       {
         "obsid":36,
@@ -833,7 +833,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":37
+        "file_line_no":37
       }
     ]
   },
@@ -856,7 +856,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":38
+        "file_line_no":38
       }
     ]
   },
@@ -879,7 +879,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":39
+        "file_line_no":39
       }
     ]
   },
@@ -904,7 +904,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":40
+        "file_line_no":40
       },
       {
         "obsid":40,
@@ -919,7 +919,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":41
+        "file_line_no":41
       }
     ]
   },
@@ -944,7 +944,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":42
+        "file_line_no":42
       },
       {
         "obsid":42,
@@ -959,7 +959,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":43
+        "file_line_no":43
       }
     ]
   },
@@ -983,7 +983,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":44
+        "file_line_no":44
       }
     ]
   },
@@ -1007,7 +1007,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":45
+        "file_line_no":45
       }
     ]
   },
@@ -1030,7 +1030,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":46
+        "file_line_no":46
       }
     ]
   },
@@ -1053,7 +1053,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":47
+        "file_line_no":47
       }
     ]
   },
@@ -1073,7 +1073,7 @@ BEGIN_JSON observations
         "error": [0.01000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":48
+        "file_line_no":48
       }
     ]
   },
@@ -1093,7 +1093,7 @@ BEGIN_JSON observations
         "error": [0.03000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":49
+        "file_line_no":49
       }
     ]
   },
@@ -1117,7 +1117,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":50
+        "file_line_no":50
       }
     ]
   },
@@ -1141,7 +1141,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":51
+        "file_line_no":51
       }
     ]
   },
@@ -1165,7 +1165,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":52
+        "file_line_no":52
       }
     ]
   },
@@ -1189,7 +1189,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":53
+        "file_line_no":53
       }
     ]
   },
@@ -1212,7 +1212,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":54
+        "file_line_no":54
       },
       {
         "obsid":54,
@@ -1230,7 +1230,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":55
+        "file_line_no":55
       }
     ]
   },
@@ -1253,7 +1253,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":56
+        "file_line_no":56
       },
       {
         "obsid":56,
@@ -1271,7 +1271,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":57
+        "file_line_no":57
       }
     ]
   },
@@ -1294,7 +1294,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":58
+        "file_line_no":58
       },
       {
         "obsid":58,
@@ -1312,7 +1312,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":59
+        "file_line_no":59
       }
     ]
   },
@@ -1335,7 +1335,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":60
+        "file_line_no":60
       }
     ]
   },
@@ -1358,7 +1358,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":61
+        "file_line_no":61
       }
     ]
   },
@@ -1383,7 +1383,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":62
+        "file_line_no":62
       },
       {
         "obsid":62,
@@ -1398,7 +1398,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":63
+        "file_line_no":63
       }
     ]
   },
@@ -1423,7 +1423,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":64
+        "file_line_no":64
       },
       {
         "obsid":64,
@@ -1438,7 +1438,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":65
+        "file_line_no":65
       }
     ]
   },
@@ -1462,7 +1462,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":66
+        "file_line_no":66
       }
     ]
   },
@@ -1486,7 +1486,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":67
+        "file_line_no":67
       }
     ]
   },
@@ -1510,7 +1510,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":68
+        "file_line_no":68
       }
     ]
   },
@@ -1534,7 +1534,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":69
+        "file_line_no":69
       }
     ]
   },
@@ -1554,7 +1554,7 @@ BEGIN_JSON observations
         "error": [2.00000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":70
+        "file_line_no":70
       }
     ]
   },
@@ -1574,7 +1574,7 @@ BEGIN_JSON observations
         "error": [0.20000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":71
+        "file_line_no":71
       }
     ]
   },
@@ -1594,7 +1594,7 @@ BEGIN_JSON observations
         "error": [2.00000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":72
+        "file_line_no":72
       }
     ]
   },
@@ -1614,7 +1614,7 @@ BEGIN_JSON observations
         "error": [0.20000000],
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":73
+        "file_line_no":73
       }
     ]
   },
@@ -1637,7 +1637,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":74
+        "file_line_no":74
       }
     ],
   "covariance": [
@@ -1666,7 +1666,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":75
+        "file_line_no":75
       }
     ],
   "covariance": [
@@ -1695,7 +1695,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":76
+        "file_line_no":76
       }
     ],
   "covariance": [
@@ -1724,7 +1724,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":77
+        "file_line_no":77
       }
     ],
   "covariance": [
@@ -1753,7 +1753,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":78
+        "file_line_no":78
       }
     ],
   "covariance": [
@@ -1782,7 +1782,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":79
+        "file_line_no":79
       }
     ],
   "covariance": [
@@ -1811,7 +1811,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":80
+        "file_line_no":80
       }
     ],
   "covariance": [
@@ -1840,7 +1840,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":81
+        "file_line_no":81
       }
     ],
   "covariance": [
@@ -1869,7 +1869,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":82
+        "file_line_no":82
       }
     ],
   "covariance": [
@@ -1898,7 +1898,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":83
+        "file_line_no":83
       }
     ],
   "covariance": [
@@ -1927,7 +1927,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":84
+        "file_line_no":84
       }
     ],
   "covariance": [
@@ -1956,7 +1956,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":85
+        "file_line_no":85
       }
     ],
   "covariance": [
@@ -1985,7 +1985,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":86
+        "file_line_no":86
       }
     ],
   "covariance": [
@@ -2014,7 +2014,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":87
+        "file_line_no":87
       }
     ],
   "covariance": [
@@ -2043,7 +2043,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":88
+        "file_line_no":88
       }
     ],
   "covariance": [
@@ -2072,7 +2072,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":89
+        "file_line_no":89
       }
     ],
   "covariance": [
@@ -2101,7 +2101,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":90
+        "file_line_no":90
       }
     ],
   "covariance": [
@@ -2130,7 +2130,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":91
+        "file_line_no":91
       }
     ],
   "covariance": [
@@ -2159,7 +2159,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":92
+        "file_line_no":92
       }
     ],
   "covariance": [
@@ -2188,7 +2188,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":93
+        "file_line_no":93
       }
     ],
   "covariance": [
@@ -2217,7 +2217,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":94
+        "file_line_no":94
       }
     ],
   "covariance": [
@@ -2244,7 +2244,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":95
+        "file_line_no":95
       }
     ],
   "covariance": [
@@ -2271,7 +2271,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":96
+        "file_line_no":96
       }
     ],
   "covariance": [
@@ -2298,7 +2298,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":97
+        "file_line_no":97
       }
     ],
   "covariance": [
@@ -2325,7 +2325,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":98
+        "file_line_no":98
       }
     ],
   "covariance": [
@@ -2352,7 +2352,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":99
+        "file_line_no":99
       }
     ],
   "covariance": [
@@ -2379,7 +2379,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":100
+        "file_line_no":100
       }
     ],
   "covariance": [
@@ -2406,7 +2406,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":101
+        "file_line_no":101
       }
     ],
   "covariance": [
@@ -2433,7 +2433,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":102
+        "file_line_no":102
       }
     ],
   "covariance": [
@@ -2460,7 +2460,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":103
+        "file_line_no":103
       }
     ],
   "covariance": [
@@ -2487,7 +2487,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":104
+        "file_line_no":104
       }
     ],
   "covariance": [
@@ -2514,7 +2514,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":105
+        "file_line_no":105
       }
     ],
   "covariance": [
@@ -2541,7 +2541,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":106
+        "file_line_no":106
       }
     ],
   "covariance": [
@@ -2568,7 +2568,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":107
+        "file_line_no":107
       }
     ],
   "covariance": [
@@ -2595,7 +2595,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":108
+        "file_line_no":108
       }
     ],
   "covariance": [
@@ -2622,7 +2622,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":109
+        "file_line_no":109
       }
     ],
   "covariance": [
@@ -2649,7 +2649,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":110
+        "file_line_no":110
       }
     ],
   "covariance": [
@@ -2676,7 +2676,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":111
+        "file_line_no":111
       }
     ],
   "covariance": [
@@ -2703,7 +2703,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":112
+        "file_line_no":112
       }
     ],
   "covariance": [
@@ -2730,7 +2730,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":113
+        "file_line_no":113
       }
     ],
   "covariance": [
@@ -2757,7 +2757,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"testobs.csv",
-        "file_line-no":114
+        "file_line_no":114
       }
     ],
   "covariance": [
@@ -2784,7 +2784,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"testobs.csv",
-        "file_line-no":115
+        "file_line_no":115
       }
     ],
   "covariance": [
@@ -2801,7 +2801,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                              DEFINITION OF PROBLEM
 
@@ -2825,7 +2825,7 @@ Station  Adj  Row  Name
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                              OBSERVATION EQUATIONS
 
@@ -5232,7 +5232,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                                 SOLUTION SUMMARY
 
@@ -5256,7 +5256,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                               STATION COORDINATES
 
@@ -5297,7 +5297,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                            REFERENCE FRAME PARAMETERS
 
@@ -5323,7 +5323,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                                 OTHER PARAMETERS
 
@@ -5338,7 +5338,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                              OBSERVATION RESIDUALS
 
@@ -5761,7 +5761,7 @@ File testobs.csv: line 108
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                                  ERROR SUMMARY
 
@@ -5816,7 +5816,7 @@ longitude                                   0.00    4    0.00    2    0.00    6
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords                1-SEP-2018 06:52:07
+Regression test 1csv - CSV format data/coords                7-SEP-2018 09:39:23
 
                            MOST SIGNIFICANT RESIDUALS
 

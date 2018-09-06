@@ -1,7 +1,7 @@
 Test rf0 - reference frame transformations
 NZGD2000_XYZ(20160701)
 options no_deflections no_geoid_heights
-! Updated by SNAP version 2.7.10-bf63ac3 at 13-AUG-2018 13:42:14
+! Updated by SNAP version 2.7.14-3f3f047 at  7-SEP-2018 09:39:24
 
 !Code         X           Y            Z     Name
 1     10000000.0000       0.0000       0.0000 1

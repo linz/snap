@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.13-c6da8ba
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  1 2018 06:51:23
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at  1-SEP-2018 06:52:07 by ccrook
+                     Run at  7-SEP-2018 09:39:23 by ccrook
 
 
 The command file test1b.snp contains:
@@ -53,7 +53,7 @@ The command file test1b.snp contains:
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                              SUMMARY OF INPUT FILES
 
@@ -94,7 +94,7 @@ Data file 1: test1.dat
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                    INPUT DATA
 
@@ -141,7 +141,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":8
+        "file_line_no":8
       },
       {
         "obsid":2,
@@ -156,7 +156,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":9
+        "file_line_no":9
       }
     ]
   },
@@ -176,7 +176,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":12
+        "file_line_no":12
       },
       {
         "obsid":4,
@@ -191,7 +191,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":13
+        "file_line_no":13
       }
     ]
   },
@@ -211,7 +211,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":16
+        "file_line_no":16
       },
       {
         "obsid":6,
@@ -226,7 +226,7 @@ BEGIN_JSON observations
         "error": [0.005555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":17
+        "file_line_no":17
       }
     ]
   },
@@ -246,7 +246,7 @@ BEGIN_JSON observations
         "error": [0.001111111],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":21
+        "file_line_no":21
       }
     ]
   },
@@ -266,7 +266,7 @@ BEGIN_JSON observations
         "error": [0.001111111],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":22
+        "file_line_no":22
       }
     ]
   },
@@ -290,7 +290,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":27
+        "file_line_no":27
       }
     ]
   },
@@ -314,7 +314,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":28
+        "file_line_no":28
       }
     ]
   },
@@ -334,7 +334,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":32
+        "file_line_no":32
       }
     ]
   },
@@ -354,7 +354,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":33
+        "file_line_no":33
       }
     ]
   },
@@ -374,7 +374,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":37
+        "file_line_no":37
       }
     ]
   },
@@ -394,7 +394,7 @@ BEGIN_JSON observations
         "error": [0.01060000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":38
+        "file_line_no":38
       }
     ]
   },
@@ -414,7 +414,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":42
+        "file_line_no":42
       }
     ]
   },
@@ -434,7 +434,7 @@ BEGIN_JSON observations
         "error": [0.01060000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":43
+        "file_line_no":43
       }
     ]
   },
@@ -454,7 +454,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":44
+        "file_line_no":44
       }
     ]
   },
@@ -474,7 +474,7 @@ BEGIN_JSON observations
         "error": [0.01030000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":45
+        "file_line_no":45
       }
     ]
   },
@@ -494,7 +494,7 @@ BEGIN_JSON observations
         "error": [0.00440000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":49
+        "file_line_no":49
       }
     ]
   },
@@ -514,7 +514,7 @@ BEGIN_JSON observations
         "error": [0.00460000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":50
+        "file_line_no":50
       }
     ]
   },
@@ -534,7 +534,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":55
+        "file_line_no":55
       },
       {
         "obsid":22,
@@ -549,7 +549,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":56
+        "file_line_no":56
       }
     ]
   },
@@ -572,7 +572,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":61
+        "file_line_no":61
       }
     ]
   },
@@ -595,7 +595,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":62
+        "file_line_no":62
       }
     ]
   },
@@ -615,7 +615,7 @@ BEGIN_JSON observations
         "error": [0.01000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":66
+        "file_line_no":66
       }
     ]
   },
@@ -635,7 +635,7 @@ BEGIN_JSON observations
         "error": [0.03000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":67
+        "file_line_no":67
       }
     ]
   },
@@ -655,7 +655,7 @@ BEGIN_JSON observations
         "error": [0.0000555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":71
+        "file_line_no":71
       }
     ]
   },
@@ -675,7 +675,7 @@ BEGIN_JSON observations
         "error": [0.0000833333],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":72
+        "file_line_no":72
       }
     ]
   },
@@ -695,7 +695,7 @@ BEGIN_JSON observations
         "error": [0.0000555556],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":76
+        "file_line_no":76
       }
     ]
   },
@@ -715,7 +715,7 @@ BEGIN_JSON observations
         "error": [0.0000833333],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":77
+        "file_line_no":77
       }
     ]
   },
@@ -738,7 +738,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":109
+        "file_line_no":109
       },
       {
         "obsid":32,
@@ -756,7 +756,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":110
+        "file_line_no":110
       }
     ]
   },
@@ -779,7 +779,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":113
+        "file_line_no":113
       },
       {
         "obsid":34,
@@ -797,7 +797,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":114
+        "file_line_no":114
       }
     ]
   },
@@ -820,7 +820,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":117
+        "file_line_no":117
       },
       {
         "obsid":36,
@@ -838,7 +838,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":118
+        "file_line_no":118
       }
     ]
   },
@@ -861,7 +861,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":122
+        "file_line_no":122
       }
     ]
   },
@@ -884,7 +884,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":123
+        "file_line_no":123
       }
     ]
   },
@@ -908,7 +908,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":128
+        "file_line_no":128
       },
       {
         "obsid":40,
@@ -923,7 +923,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":128
+        "file_line_no":128
       }
     ]
   },
@@ -947,7 +947,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":129
+        "file_line_no":129
       },
       {
         "obsid":42,
@@ -962,7 +962,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":129
+        "file_line_no":129
       }
     ]
   },
@@ -986,7 +986,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":135
+        "file_line_no":135
       }
     ]
   },
@@ -1010,7 +1010,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":136
+        "file_line_no":136
       }
     ]
   },
@@ -1033,7 +1033,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":140
+        "file_line_no":140
       }
     ]
   },
@@ -1056,7 +1056,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":141
+        "file_line_no":141
       }
     ]
   },
@@ -1076,7 +1076,7 @@ BEGIN_JSON observations
         "error": [0.01000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":145
+        "file_line_no":145
       }
     ]
   },
@@ -1096,7 +1096,7 @@ BEGIN_JSON observations
         "error": [0.03000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":146
+        "file_line_no":146
       }
     ]
   },
@@ -1120,7 +1120,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":150
+        "file_line_no":150
       }
     ]
   },
@@ -1144,7 +1144,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":151
+        "file_line_no":151
       }
     ]
   },
@@ -1168,7 +1168,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":155
+        "file_line_no":155
       }
     ]
   },
@@ -1192,7 +1192,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":156
+        "file_line_no":156
       }
     ]
   },
@@ -1215,7 +1215,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":165
+        "file_line_no":165
       },
       {
         "obsid":54,
@@ -1233,7 +1233,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":166
+        "file_line_no":166
       }
     ]
   },
@@ -1256,7 +1256,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":169
+        "file_line_no":169
       },
       {
         "obsid":56,
@@ -1274,7 +1274,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":170
+        "file_line_no":170
       }
     ]
   },
@@ -1297,7 +1297,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":173
+        "file_line_no":173
       },
       {
         "obsid":58,
@@ -1315,7 +1315,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":174
+        "file_line_no":174
       }
     ]
   },
@@ -1338,7 +1338,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":178
+        "file_line_no":178
       }
     ]
   },
@@ -1361,7 +1361,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":179
+        "file_line_no":179
       }
     ]
   },
@@ -1385,7 +1385,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":184
+        "file_line_no":184
       },
       {
         "obsid":62,
@@ -1400,7 +1400,7 @@ BEGIN_JSON observations
         "error": [0.00220000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":184
+        "file_line_no":184
       }
     ]
   },
@@ -1424,7 +1424,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":185
+        "file_line_no":185
       },
       {
         "obsid":64,
@@ -1439,7 +1439,7 @@ BEGIN_JSON observations
         "error": [0.00230000],
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":185
+        "file_line_no":185
       }
     ]
   },
@@ -1463,7 +1463,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":189
+        "file_line_no":189
       }
     ]
   },
@@ -1487,7 +1487,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":190
+        "file_line_no":190
       }
     ]
   },
@@ -1511,7 +1511,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":194
+        "file_line_no":194
       }
     ]
   },
@@ -1535,7 +1535,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":195
+        "file_line_no":195
       }
     ]
   },
@@ -1555,7 +1555,7 @@ BEGIN_JSON observations
         "error": [2.00000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":199
+        "file_line_no":199
       }
     ]
   },
@@ -1575,7 +1575,7 @@ BEGIN_JSON observations
         "error": [0.20000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":205
+        "file_line_no":205
       }
     ]
   },
@@ -1595,7 +1595,7 @@ BEGIN_JSON observations
         "error": [2.00000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":210
+        "file_line_no":210
       }
     ]
   },
@@ -1615,7 +1615,7 @@ BEGIN_JSON observations
         "error": [0.20000000],
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":216
+        "file_line_no":216
       }
     ]
   },
@@ -1638,7 +1638,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":223
+        "file_line_no":223
       }
     ],
   "covariance": [
@@ -1667,7 +1667,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":228
+        "file_line_no":228
       }
     ],
   "covariance": [
@@ -1696,7 +1696,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":236
+        "file_line_no":236
       },
       {
         "obsid":76,
@@ -1714,7 +1714,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":237
+        "file_line_no":237
       }
     ],
   "covariance": [
@@ -1746,7 +1746,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":255
+        "file_line_no":255
       }
     ],
   "covariance": [
@@ -1775,7 +1775,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":259
+        "file_line_no":259
       }
     ],
   "covariance": [
@@ -1804,7 +1804,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":266
+        "file_line_no":266
       },
       {
         "obsid":80,
@@ -1822,7 +1822,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":267
+        "file_line_no":267
       }
     ],
   "covariance": [
@@ -1854,7 +1854,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":282
+        "file_line_no":282
       }
     ],
   "covariance": [
@@ -1883,7 +1883,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":285
+        "file_line_no":285
       }
     ],
   "covariance": [
@@ -1912,7 +1912,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":290
+        "file_line_no":290
       },
       {
         "obsid":84,
@@ -1930,7 +1930,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":291
+        "file_line_no":291
       }
     ],
   "covariance": [
@@ -1962,7 +1962,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":300
+        "file_line_no":300
       }
     ],
   "covariance": [
@@ -1991,7 +1991,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":303
+        "file_line_no":303
       }
     ],
   "covariance": [
@@ -2020,7 +2020,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":308
+        "file_line_no":308
       },
       {
         "obsid":88,
@@ -2038,7 +2038,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":309
+        "file_line_no":309
       }
     ],
   "covariance": [
@@ -2070,7 +2070,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":315
+        "file_line_no":315
       }
     ],
   "covariance": [
@@ -2099,7 +2099,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":317
+        "file_line_no":317
       }
     ],
   "covariance": [
@@ -2128,7 +2128,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":319
+        "file_line_no":319
       }
     ],
   "covariance": [
@@ -2157,7 +2157,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":323
+        "file_line_no":323
       },
       {
         "obsid":93,
@@ -2175,7 +2175,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":324
+        "file_line_no":324
       }
     ],
   "covariance": [
@@ -2205,7 +2205,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":332
+        "file_line_no":332
       }
     ],
   "covariance": [
@@ -2232,7 +2232,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":337
+        "file_line_no":337
       }
     ],
   "covariance": [
@@ -2259,7 +2259,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":344
+        "file_line_no":344
       },
       {
         "obsid":97,
@@ -2275,7 +2275,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":345
+        "file_line_no":345
       }
     ],
   "covariance": [
@@ -2305,7 +2305,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":360
+        "file_line_no":360
       }
     ],
   "covariance": [
@@ -2332,7 +2332,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":364
+        "file_line_no":364
       }
     ],
   "covariance": [
@@ -2359,7 +2359,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":370
+        "file_line_no":370
       },
       {
         "obsid":101,
@@ -2375,7 +2375,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":371
+        "file_line_no":371
       }
     ],
   "covariance": [
@@ -2405,7 +2405,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":384
+        "file_line_no":384
       }
     ],
   "covariance": [
@@ -2432,7 +2432,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":387
+        "file_line_no":387
       }
     ],
   "covariance": [
@@ -2459,7 +2459,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":391
+        "file_line_no":391
       },
       {
         "obsid":105,
@@ -2475,7 +2475,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":393
+        "file_line_no":393
       }
     ],
   "covariance": [
@@ -2505,7 +2505,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":400
+        "file_line_no":400
       }
     ],
   "covariance": [
@@ -2532,7 +2532,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":403
+        "file_line_no":403
       }
     ],
   "covariance": [
@@ -2559,7 +2559,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":407
+        "file_line_no":407
       },
       {
         "obsid":109,
@@ -2575,7 +2575,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":409
+        "file_line_no":409
       }
     ],
   "covariance": [
@@ -2605,7 +2605,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":417
+        "file_line_no":417
       }
     ],
   "covariance": [
@@ -2632,7 +2632,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":419
+        "file_line_no":419
       }
     ],
   "covariance": [
@@ -2659,7 +2659,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":421
+        "file_line_no":421
       }
     ],
   "covariance": [
@@ -2686,7 +2686,7 @@ BEGIN_JSON observations
           },
         "useobs":true,
         "file":"test1.dat",
-        "file_line-no":424
+        "file_line_no":424
       },
       {
         "obsid":114,
@@ -2702,7 +2702,7 @@ BEGIN_JSON observations
           },
         "useobs":false,
         "file":"test1.dat",
-        "file_line-no":425
+        "file_line_no":425
       }
     ],
   "covariance": [
@@ -2722,7 +2722,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                              DEFINITION OF PROBLEM
 
@@ -2758,7 +2758,7 @@ Station  Name
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                ITERATION NUMBER 1
 
@@ -2767,7 +2767,7 @@ Regression test 1b - float stations                          1-SEP-2018 06:52:07
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                              OBSERVATION EQUATIONS
 
@@ -5200,7 +5200,7 @@ Iteration 1: Maximum change is 0.0021 metres at station 5
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                ITERATION NUMBER 2
 
@@ -5209,7 +5209,7 @@ Regression test 1b - float stations                          1-SEP-2018 06:52:07
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                              OBSERVATION EQUATIONS
 
@@ -7642,7 +7642,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 5
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                 SOLUTION SUMMARY
 
@@ -7666,7 +7666,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                               STATION COORDINATES
 
@@ -7707,7 +7707,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                 FLOATED STATIONS
 
@@ -7735,7 +7735,7 @@ Code    coord      error      calc.err    residual    adj.err    std.res
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                            REFERENCE FRAME PARAMETERS
 
@@ -7761,7 +7761,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                 OTHER PARAMETERS
 
@@ -7776,7 +7776,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                              OBSERVATION RESIDUALS
 
@@ -8197,7 +8197,7 @@ File test1.dat: line 391
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                                  ERROR SUMMARY
 
@@ -8252,7 +8252,7 @@ longitude                                   0.00    4    0.00    2    0.00    6
 
 
 ================================================================================
-Regression test 1b - float stations                          1-SEP-2018 06:52:07
+Regression test 1b - float stations                          7-SEP-2018 09:39:23
 
                            MOST SIGNIFICANT RESIDUALS
 

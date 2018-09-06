@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  7-SEP-2018 09:39:23 by ccrook
 
 
 The command file testgx4.snp contains:
@@ -43,7 +43,7 @@ The command file testgx4.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                              SUMMARY OF INPUT FILES
 
@@ -68,7 +68,7 @@ Data file 1: testgx2.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                              DEFINITION OF PROBLEM
 
@@ -99,7 +99,7 @@ Station  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                                ITERATION NUMBER 1
 
@@ -108,7 +108,7 @@ Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                              OBSERVATION EQUATIONS
 
@@ -453,7 +453,7 @@ Iteration 1: Maximum change is 3.0774 metres at station 1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                                ITERATION NUMBER 2
 
@@ -462,7 +462,7 @@ Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                              OBSERVATION EQUATIONS
 
@@ -807,7 +807,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                                 SOLUTION SUMMARY
 
@@ -830,7 +830,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                               STATION COORDINATES
 
@@ -860,7 +860,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                            REFERENCE FRAME PARAMETERS
 
@@ -886,7 +886,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                                 OTHER PARAMETERS
 
@@ -901,7 +901,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                              OBSERVATION RESIDUALS
 
@@ -980,7 +980,7 @@ File testgx2.dat: line 20
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    13-AUG-2018 13:42:14
+Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
                                  ERROR SUMMARY
 

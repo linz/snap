@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  7-SEP-2018 09:39:24 by ccrook
 
 
 
@@ -33,7 +33,7 @@ Data file 1: testopt.dat
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                              Station row reordering
 
@@ -58,7 +58,7 @@ Final order...
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                                ITERATION SUMMARY
 
@@ -73,7 +73,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 6
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                                 SOLUTION SUMMARY
 
@@ -98,7 +98,7 @@ Station reordering has reduced the matrix size by 22.5%
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                               STATION COORDINATES
 
@@ -143,7 +143,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                                 OTHER PARAMETERS
 
@@ -158,7 +158,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                              OBSERVATION RESIDUALS
 
@@ -226,7 +226,7 @@ File testopt.dat: line 11
 
 
 ================================================================================
-Testing matrix optimisation                                 13-AUG-2018 13:42:14
+Testing matrix optimisation                                  7-SEP-2018 09:39:24
 
                                  ERROR SUMMARY
 

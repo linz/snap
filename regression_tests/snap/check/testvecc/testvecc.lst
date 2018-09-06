@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.10-bf63ac3
+                      PROGRAM SNAP  Version 2.7.14-3f3f047
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Aug 13 2018 13:11:29
+                       Version date: Sep  5 2018 13:25:47
 
 ================================================================================
-                     Run at 13-AUG-2018 13:42:14 by ccrook
+                     Run at  7-SEP-2018 09:39:24 by ccrook
 
 
 
@@ -47,7 +47,7 @@ Data file 5: testlv.csv
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                                 SOLUTION SUMMARY
 
@@ -73,7 +73,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                               STATION COORDINATES
 
@@ -138,7 +138,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                            REFERENCE FRAME PARAMETERS
 
@@ -162,7 +162,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                                 OTHER PARAMETERS
 
@@ -177,7 +177,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                              OBSERVATION RESIDUALS
 
@@ -323,7 +323,7 @@ BU34  BUZZ  LV      100.1000 0.0035    100.0000 0.0000  0.1000 0.0035  28.86  ??
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                                  ERROR SUMMARY
 
@@ -371,7 +371,7 @@ testlv.csv                                 65.45    6     -      -   65.45    6
 
 
 ================================================================================
-Testing CSV input                                           13-AUG-2018 13:42:14
+Testing CSV input                                            7-SEP-2018 09:39:24
 
                            MOST SIGNIFICANT RESIDUALS
 

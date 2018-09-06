@@ -1448,7 +1448,7 @@ void list_file_location( FILE *out, int file, int lineno )
 }
 
 
-static int obsset = 0;
+static int obsset = -1;
 
 static void write_observation_csv_common_start( output_csv *csv, survdata *sd, trgtdata *tgt, const char *component )
 {
@@ -1456,7 +1456,7 @@ static void write_observation_csv_common_start( output_csv *csv, survdata *sd, t
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
     if( ! from ) { from = to; to = 0; }
-
+    if( obsset < 0 ) obsset=tgt->obsid;
     strcpy( type, datatype[tgt->type].code);
     if(component && strlen(type)+strlen(component)+2 < 16) { strcat(type,"-"); strcat(type,component); }
     write_csv_int( csv, tgt->obsid );
@@ -1904,7 +1904,7 @@ void write_observation_csv()
         }
 
         sd = (survdata *) b->data;
-        obsset++;
+        obsset = -1;
         for( iobs = 0; iobs < sd->nobs; iobs++ )
         {
             switch( sd->format )
