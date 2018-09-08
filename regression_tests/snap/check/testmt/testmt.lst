@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:23 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 
@@ -33,7 +33,7 @@ Data file 1: testopt.dat
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                              Station row reordering
 
@@ -58,7 +58,7 @@ Final order...
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                                ITERATION SUMMARY
 
@@ -73,7 +73,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 6
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                                 SOLUTION SUMMARY
 
@@ -96,7 +96,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                               STATION COORDINATES
 
@@ -141,7 +141,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                                 OTHER PARAMETERS
 
@@ -156,7 +156,7 @@ Refr coef DEFAULT                    0.07500       -
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -224,7 +224,7 @@ File testopt.dat: line 11
 
 
 ================================================================================
-Testing multithread (use with -t 4 to test multithread solution)    7-SEP-2018 09:39:23
+Testing multithread (use with -t 4 to test multithread solution)    8-SEP-2018 09:03:50
 
                                  ERROR SUMMARY
 

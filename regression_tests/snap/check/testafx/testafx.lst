@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:23 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 
@@ -41,7 +41,7 @@ Data file 1: testafx.dat
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                              DEFINITION OF PROBLEM
 
@@ -91,7 +91,7 @@ The following stations have been automatically fixed vertically
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                                ITERATION SUMMARY
 
@@ -106,7 +106,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 7
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                                 SOLUTION SUMMARY
 
@@ -128,7 +128,7 @@ The probability of an SSR this high is 46.054% (from Chi squared (3))
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                               STATION COORDINATES
 
@@ -213,7 +213,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                            REFERENCE FRAME PARAMETERS
 
@@ -239,7 +239,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -362,7 +362,7 @@ From  To          Id Type     Value      +/-        Calc       +/-      Res    +
 
 
 ================================================================================
-Testing autofixing                                           7-SEP-2018 09:39:23
+Testing autofixing                                           8-SEP-2018 09:03:50
 
                                  ERROR SUMMARY
 

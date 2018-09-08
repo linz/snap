@@ -1,7 +1,7 @@
 Testing SINEX file reading
 ITRF96
 options orthometric_heights deflections geoid_heights
-! Updated by SNAP version 2.7.14-3f3f047 at  7-SEP-2018 09:39:24
+! Updated by SNAP version 2.7.14-f90eaf0 at  8-SEP-2018 09:03:50
 
 !Code       Latitude          Longitude       Orth.Hgt    Xi   Eta   G.Hgt Name
 5503   43 57 22.583212 S 176 33 57.088068 W    59.0830   0.0   0.0  0.0000 5503

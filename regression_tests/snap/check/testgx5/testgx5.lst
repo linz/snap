@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:23 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 The command file testgx5.snp contains:
@@ -39,7 +39,7 @@ The command file testgx5.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              SUMMARY OF INPUT FILES
 
@@ -64,7 +64,7 @@ Data file 1: testgx5.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              DEFINITION OF PROBLEM
 
@@ -95,7 +95,7 @@ Station  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 1
 
@@ -104,7 +104,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -123,7 +123,7 @@ BEGIN_JSON obs_equation_1
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx5.dat","lineno": 9, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx5.dat","lineno": 9, "station": "1", "obsid": 1, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -179,7 +179,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 25, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx5.dat","lineno": 25, "station": "1", "obsid": 4, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -211,7 +211,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 37, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx5.dat","lineno": 37, "station": "1", "obsid": 6, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -243,7 +243,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 53, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx5.dat","lineno": 53, "station": "1", "obsid": 8, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -305,7 +305,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 NORMAL EQUATIONS
 
@@ -354,7 +354,7 @@ Iteration 1: Maximum change is 223.2822 metres at station 3
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 2
 
@@ -363,7 +363,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -382,7 +382,7 @@ BEGIN_JSON obs_equation_2
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx5.dat","lineno": 9, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx5.dat","lineno": 9, "station": "1", "obsid": 1, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -438,7 +438,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 25, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx5.dat","lineno": 25, "station": "1", "obsid": 4, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -470,7 +470,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 37, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx5.dat","lineno": 37, "station": "1", "obsid": 6, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -502,7 +502,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 53, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx5.dat","lineno": 53, "station": "1", "obsid": 8, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -564,7 +564,7 @@ END_JSON obs_equation_2
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 NORMAL EQUATIONS
 
@@ -613,7 +613,7 @@ Iteration 2: Maximum change is 0.0034 metres at station 3
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 3
 
@@ -622,7 +622,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -641,7 +641,7 @@ BEGIN_JSON obs_equation_3
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx5.dat","lineno": 9, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx5.dat","lineno": 9, "station": "1", "obsid": 1, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -697,7 +697,7 @@ BEGIN_JSON obs_equation_3
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 25, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx5.dat","lineno": 25, "station": "1", "obsid": 4, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -729,7 +729,7 @@ BEGIN_JSON obs_equation_3
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 37, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx5.dat","lineno": 37, "station": "1", "obsid": 6, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -761,7 +761,7 @@ BEGIN_JSON obs_equation_3
   ]
 },
 {
-  "source": {"file": "testgx5.dat","lineno": 53, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx5.dat","lineno": 53, "station": "1", "obsid": 8, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -823,7 +823,7 @@ END_JSON obs_equation_3
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 NORMAL EQUATIONS
 
@@ -872,7 +872,7 @@ Iteration 3: Maximum change is 0.0000 metres at station 3
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 SOLUTION SUMMARY
 
@@ -895,7 +895,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                               STATION COORDINATES
 
@@ -925,7 +925,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                            REFERENCE FRAME PARAMETERS
 
@@ -951,7 +951,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -1010,7 +1010,7 @@ File testgx5.dat: line 9
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                  ERROR SUMMARY
 

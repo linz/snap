@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:23 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 The command file testim6.snp contains:
@@ -38,7 +38,7 @@ The command file testim6.snp contains:
 
 
 ================================================================================
-Regression tests - multiple coordinate files                 7-SEP-2018 09:39:23
+Regression tests - multiple coordinate files                 8-SEP-2018 09:03:50
 
                              SUMMARY OF INPUT FILES
 
@@ -64,7 +64,7 @@ Data file 1: testim1.dat
 
 
 ================================================================================
-Regression tests - multiple coordinate files                 7-SEP-2018 09:39:23
+Regression tests - multiple coordinate files                 8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -145,7 +145,7 @@ C_11   LN   173 19 58.80 E  1.00 173 19 59.43 E  0.00   -0.63  1.00   0.63
 
 
 ================================================================================
-Regression tests - multiple coordinate files                 7-SEP-2018 09:39:23
+Regression tests - multiple coordinate files                 8-SEP-2018 09:03:50
 
                                      ERRORS
 

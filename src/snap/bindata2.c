@@ -376,12 +376,13 @@ int sum_bindata( int iteration )
                 char source[200];
                 survdata *sd = (survdata *) b->data;
                 trgtdata *tgt=get_trgtdata(sd,0);
-                sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"type\": \"%s\",\"nobs\": %d}",
+                sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"obsid\": %d, \"type\": \"%s\",\"nobs\": %d}",
                     survey_data_file_name(sd->file),
                     (int)(tgt->lineno),
                     sd->from ? stnptr(sd->from)->Code : "",
                     sd->from && tgt->to ? " - " : "",
                     tgt->to ? stnptr(tgt->to)->Code : "",
+                    tgt->obsid,
                     datatype[tgt->type].code,
                     sd->nobs
                     );
@@ -1904,6 +1905,7 @@ void write_observation_csv()
         }
 
         sd = (survdata *) b->data;
+        /* Set obsset to -1 so that it gets reset on first call to write_csv_common_start */
         obsset = -1;
         for( iobs = 0; iobs < sd->nobs; iobs++ )
         {

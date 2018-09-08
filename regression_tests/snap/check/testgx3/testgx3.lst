@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:23 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 The command file testgx3.snp contains:
@@ -59,7 +59,7 @@ The command file testgx3.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              SUMMARY OF INPUT FILES
 
@@ -85,7 +85,7 @@ Data file 1: testgx3.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              DEFINITION OF PROBLEM
 
@@ -148,7 +148,7 @@ TGPS_TS U shift (m)
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 1
 
@@ -157,7 +157,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -209,7 +209,7 @@ BEGIN_JSON obs_equation_1
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx3.dat","lineno": 14, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 14, "station": "1", "obsid": 1, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -241,7 +241,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 15, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 15, "station": "2", "obsid": 2, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -273,7 +273,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 16, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 16, "station": "3", "obsid": 3, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -305,7 +305,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "obsid": 4, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -337,7 +337,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "obsid": 5, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -369,7 +369,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 29, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 29, "station": "1", "obsid": 6, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -401,7 +401,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 30, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 30, "station": "2", "obsid": 7, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -433,7 +433,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 31, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 31, "station": "3", "obsid": 8, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -465,7 +465,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "obsid": 9, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -497,7 +497,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "obsid": 10, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -529,7 +529,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 44, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 44, "station": "1", "obsid": 11, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -561,7 +561,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 45, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 45, "station": "2", "obsid": 12, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -593,7 +593,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 46, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 46, "station": "3", "obsid": 13, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -625,7 +625,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "obsid": 14, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -657,7 +657,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "obsid": 15, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -689,7 +689,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 60, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 60, "station": "1", "obsid": 16, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -721,7 +721,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 61, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 61, "station": "2", "obsid": 17, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -753,7 +753,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 62, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 62, "station": "3", "obsid": 18, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -785,7 +785,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "obsid": 19, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -817,7 +817,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "obsid": 20, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -849,7 +849,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 75, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 75, "station": "1", "obsid": 21, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -881,7 +881,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 76, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 76, "station": "2", "obsid": 22, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -913,7 +913,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 77, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 77, "station": "3", "obsid": 23, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -945,7 +945,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "obsid": 24, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -977,7 +977,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "obsid": 25, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1009,7 +1009,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 91, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 91, "station": "1", "obsid": 26, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1041,7 +1041,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 92, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 92, "station": "2", "obsid": 27, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1073,7 +1073,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 93, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 93, "station": "3", "obsid": 28, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1105,7 +1105,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "obsid": 29, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1137,7 +1137,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "obsid": 30, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1169,7 +1169,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 106, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 106, "station": "1", "obsid": 31, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1201,7 +1201,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 107, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 107, "station": "2", "obsid": 32, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1233,7 +1233,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 108, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 108, "station": "3", "obsid": 33, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1265,7 +1265,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "obsid": 34, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1297,7 +1297,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "obsid": 35, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1329,7 +1329,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 121, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 121, "station": "1", "obsid": 36, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1361,7 +1361,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 122, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 122, "station": "2", "obsid": 37, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1393,7 +1393,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 123, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 123, "station": "3", "obsid": 38, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1425,7 +1425,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "obsid": 39, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1457,7 +1457,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "obsid": 40, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1489,7 +1489,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 137, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 137, "station": "1", "obsid": 41, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1521,7 +1521,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 138, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 138, "station": "2", "obsid": 42, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1553,7 +1553,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 139, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 139, "station": "3", "obsid": 43, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1585,7 +1585,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "obsid": 44, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1617,7 +1617,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "obsid": 45, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1649,7 +1649,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 152, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 152, "station": "1", "obsid": 46, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1681,7 +1681,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 153, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 153, "station": "2", "obsid": 47, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1713,7 +1713,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 154, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 154, "station": "3", "obsid": 48, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1745,7 +1745,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "obsid": 49, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1777,7 +1777,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "obsid": 50, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1809,7 +1809,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 172, "station": "4", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 172, "station": "4", "obsid": 51, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1850,7 +1850,7 @@ Iteration 1: Maximum change is 30.8494 metres at station 4
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 2
 
@@ -1859,7 +1859,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -1911,7 +1911,7 @@ BEGIN_JSON obs_equation_2
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx3.dat","lineno": 14, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 14, "station": "1", "obsid": 1, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1943,7 +1943,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 15, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 15, "station": "2", "obsid": 2, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1975,7 +1975,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 16, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 16, "station": "3", "obsid": 3, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2007,7 +2007,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 21, "station": "1 - 2", "obsid": 4, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2039,7 +2039,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 22, "station": "1 - 3", "obsid": 5, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2071,7 +2071,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 29, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 29, "station": "1", "obsid": 6, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2103,7 +2103,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 30, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 30, "station": "2", "obsid": 7, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2135,7 +2135,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 31, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 31, "station": "3", "obsid": 8, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2167,7 +2167,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 36, "station": "1 - 2", "obsid": 9, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2199,7 +2199,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 37, "station": "1 - 3", "obsid": 10, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2231,7 +2231,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 44, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 44, "station": "1", "obsid": 11, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2263,7 +2263,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 45, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 45, "station": "2", "obsid": 12, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2295,7 +2295,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 46, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 46, "station": "3", "obsid": 13, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2327,7 +2327,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 51, "station": "1 - 2", "obsid": 14, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2359,7 +2359,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 52, "station": "1 - 3", "obsid": 15, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2391,7 +2391,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 60, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 60, "station": "1", "obsid": 16, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2423,7 +2423,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 61, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 61, "station": "2", "obsid": 17, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2455,7 +2455,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 62, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 62, "station": "3", "obsid": 18, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2487,7 +2487,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 67, "station": "1 - 2", "obsid": 19, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2519,7 +2519,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 68, "station": "1 - 3", "obsid": 20, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2551,7 +2551,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 75, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 75, "station": "1", "obsid": 21, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2583,7 +2583,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 76, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 76, "station": "2", "obsid": 22, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2615,7 +2615,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 77, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 77, "station": "3", "obsid": 23, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2647,7 +2647,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 82, "station": "1 - 2", "obsid": 24, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2679,7 +2679,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 83, "station": "1 - 3", "obsid": 25, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2711,7 +2711,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 91, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 91, "station": "1", "obsid": 26, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2743,7 +2743,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 92, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 92, "station": "2", "obsid": 27, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2775,7 +2775,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 93, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 93, "station": "3", "obsid": 28, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2807,7 +2807,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 98, "station": "1 - 2", "obsid": 29, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2839,7 +2839,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 99, "station": "1 - 3", "obsid": 30, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2871,7 +2871,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 106, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 106, "station": "1", "obsid": 31, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2903,7 +2903,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 107, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 107, "station": "2", "obsid": 32, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2935,7 +2935,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 108, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 108, "station": "3", "obsid": 33, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2967,7 +2967,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 113, "station": "1 - 2", "obsid": 34, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -2999,7 +2999,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 114, "station": "1 - 3", "obsid": 35, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3031,7 +3031,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 121, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 121, "station": "1", "obsid": 36, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3063,7 +3063,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 122, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 122, "station": "2", "obsid": 37, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3095,7 +3095,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 123, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 123, "station": "3", "obsid": 38, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3127,7 +3127,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 128, "station": "1 - 2", "obsid": 39, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3159,7 +3159,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 129, "station": "1 - 3", "obsid": 40, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3191,7 +3191,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 137, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 137, "station": "1", "obsid": 41, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3223,7 +3223,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 138, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 138, "station": "2", "obsid": 42, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3255,7 +3255,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 139, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 139, "station": "3", "obsid": 43, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3287,7 +3287,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 144, "station": "1 - 2", "obsid": 44, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3319,7 +3319,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 145, "station": "1 - 3", "obsid": 45, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3351,7 +3351,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 152, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 152, "station": "1", "obsid": 46, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3383,7 +3383,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 153, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 153, "station": "2", "obsid": 47, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3415,7 +3415,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 154, "station": "3", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 154, "station": "3", "obsid": 48, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3447,7 +3447,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 159, "station": "1 - 2", "obsid": 49, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3479,7 +3479,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "type": "GB","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 160, "station": "1 - 3", "obsid": 50, "type": "GB","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3511,7 +3511,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx3.dat","lineno": 172, "station": "4", "type": "GX","nobs": 1},
+  "source": {"file": "testgx3.dat","lineno": 172, "station": "4", "obsid": 51, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -3552,7 +3552,7 @@ Iteration 2: Maximum change is 0.0001 metres at station 4
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 SOLUTION SUMMARY
 
@@ -3575,7 +3575,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                               STATION COORDINATES
 
@@ -3613,7 +3613,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                            REFERENCE FRAME PARAMETERS
 
@@ -4069,7 +4069,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -4424,7 +4424,7 @@ File testgx3.dat: line 172
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                  ERROR SUMMARY
 

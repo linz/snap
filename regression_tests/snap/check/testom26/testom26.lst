@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:24 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 The command file testom26.snp contains:
@@ -49,7 +49,7 @@ The command file testom26.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - reweight by data type    7-SEP-2018 09:39:24
+Regression test om1 - obs modifications - reweight by data type    8-SEP-2018 09:03:50
 
                              SUMMARY OF INPUT FILES
 
@@ -87,7 +87,7 @@ Note: error factors are multiplied for observations meeting several critera
 
 
 ================================================================================
-Regression test om1 - obs modifications - reweight by data type    7-SEP-2018 09:39:24
+Regression test om1 - obs modifications - reweight by data type    8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -98,7 +98,7 @@ BEGIN_JSON obs_equation_1
   "nparam":0,
   "obs_equations": [
 {
-  "source": {"file": "testom25.dat","lineno": 9, "station": "1 - 2", "type": "HA","nobs": 2},
+  "source": {"file": "testom25.dat","lineno": 9, "station": "1 - 2", "obsid": 1, "type": "HA","nobs": 2},
   "nobs": 2,
   "obs": [
    {
@@ -123,7 +123,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testom25.dat","lineno": 13, "station": "2 - 1", "type": "HA","nobs": 2},
+  "source": {"file": "testom25.dat","lineno": 13, "station": "2 - 1", "obsid": 3, "type": "HA","nobs": 2},
   "nobs": 2,
   "obs": [
    {
@@ -148,7 +148,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testom25.dat","lineno": 17, "station": "2 - 1", "type": "HA","nobs": 2},
+  "source": {"file": "testom25.dat","lineno": 17, "station": "2 - 1", "obsid": 5, "type": "HA","nobs": 2},
   "nobs": 2,
   "obs": [
    {
@@ -173,7 +173,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testom25.dat","lineno": 23, "station": "1", "type": "GX","nobs": 5},
+  "source": {"file": "testom25.dat","lineno": 23, "station": "1", "obsid": 7, "type": "GX","nobs": 5},
   "nobs": 15,
   "obs": [
    {
@@ -316,7 +316,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testom25.dat","lineno": 30, "station": "1", "type": "GX","nobs": 4},
+  "source": {"file": "testom25.dat","lineno": 30, "station": "1", "obsid": 12, "type": "GX","nobs": 4},
   "nobs": 12,
   "obs": [
    {
@@ -432,7 +432,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testom25.dat","lineno": 37, "station": "1", "type": "GX","nobs": 4},
+  "source": {"file": "testom25.dat","lineno": 37, "station": "1", "obsid": 16, "type": "GX","nobs": 4},
   "nobs": 12,
   "obs": [
    {

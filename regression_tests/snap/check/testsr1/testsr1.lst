@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:24 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 
@@ -48,7 +48,7 @@ Data file 3: testsr3.dat
 
 
 ================================================================================
-Regression tests - station recoding options                  7-SEP-2018 09:39:24
+Regression tests - station recoding options                  8-SEP-2018 09:03:50
 
                                    INPUT DATA
 
@@ -76,6 +76,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00463129],
         "error": [0.0002777778],
         "useobs":true,
@@ -96,6 +97,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00361844],
         "error": [0.0002777778],
         "useobs":true,
@@ -116,6 +118,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01006842],
         "error": [0.0002777778],
         "useobs":true,
@@ -136,6 +139,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01547663],
         "error": [0.0002777778],
         "useobs":true,
@@ -156,6 +160,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01482282],
         "error": [0.0002777778],
         "useobs":true,
@@ -176,6 +181,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01417023],
         "error": [0.0002777778],
         "useobs":true,
@@ -196,6 +202,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00865945],
         "error": [0.0002777778],
         "useobs":true,
@@ -216,6 +223,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00353884],
         "error": [0.0002777778],
         "useobs":true,
@@ -236,6 +244,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00947093],
         "error": [0.0002777778],
         "useobs":true,
@@ -256,6 +265,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00703440],
         "error": [0.0002777778],
         "useobs":true,
@@ -276,6 +286,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01330386],
         "error": [0.0002777778],
         "useobs":true,
@@ -296,6 +307,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00679932],
         "error": [0.0002777778],
         "useobs":true,
@@ -316,6 +328,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01208304],
         "error": [0.0002777778],
         "useobs":true,
@@ -336,6 +349,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00800000],
         "error": [0.0002777778],
         "useobs":true,
@@ -356,6 +370,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00800000],
         "error": [0.0002777778],
         "useobs":true,
@@ -376,6 +391,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00800000],
         "error": [0.0002777778],
         "useobs":true,
@@ -396,6 +412,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00800000],
         "error": [0.0002777778],
         "useobs":true,
@@ -416,6 +433,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00800000],
         "error": [0.0002777778],
         "useobs":true,
@@ -436,6 +454,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00800000],
         "error": [0.0002777778],
         "useobs":true,
@@ -456,6 +475,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"1998-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00463129],
         "error": [0.0002777778],
         "useobs":true,
@@ -476,6 +496,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"1998-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00361844],
         "error": [0.0002777778],
         "useobs":true,
@@ -496,6 +517,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00463129],
         "error": [0.0002777778],
         "useobs":true,
@@ -516,6 +538,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2005-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00361844],
         "error": [0.0002777778],
         "useobs":true,
@@ -536,6 +559,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2010-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00463129],
         "error": [0.0002777778],
         "useobs":true,
@@ -556,6 +580,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2010-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00361844],
         "error": [0.0002777778],
         "useobs":true,
@@ -576,6 +601,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00353884],
         "error": [0.0002777778],
         "useobs":true,
@@ -596,6 +622,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00947093],
         "error": [0.0002777778],
         "useobs":true,
@@ -616,6 +643,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00703440],
         "error": [0.0002777778],
         "useobs":true,
@@ -636,6 +664,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2002-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01330386],
         "error": [0.0002777778],
         "useobs":true,
@@ -656,6 +685,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01547663],
         "error": [0.0002777778],
         "useobs":true,
@@ -676,6 +706,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.00865945],
         "error": [0.0002777778],
         "useobs":false,
@@ -696,6 +727,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01482282],
         "error": [0.0002777778],
         "useobs":true,
@@ -716,6 +748,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01330386],
         "error": [0.0002777778],
         "useobs":true,
@@ -736,6 +769,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2006-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01482282],
         "error": [0.0002777778],
         "useobs":true,
@@ -756,6 +790,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01482282],
         "error": [0.0002777778],
         "useobs":true,
@@ -776,6 +811,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":"2000-05-01 00:00:00",
         "type":"LT",
+        "errfct":1.0000,
         "value": [-41.01330386],
         "error": [0.0002777778],
         "useobs":true,
@@ -791,7 +827,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression tests - station recoding options                  7-SEP-2018 09:39:24
+Regression tests - station recoding options                  8-SEP-2018 09:03:50
 
                                 RECODED STATIONS
 
@@ -812,7 +848,7 @@ The following stations are being recoded as they are read from data files
 
 
 ================================================================================
-Regression tests - station recoding options                  7-SEP-2018 09:39:24
+Regression tests - station recoding options                  8-SEP-2018 09:03:50
 
                              DEFINITION OF PROBLEM
 

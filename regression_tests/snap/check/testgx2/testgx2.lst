@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:23 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 The command file testgx2.snp contains:
@@ -42,7 +42,7 @@ The command file testgx2.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              SUMMARY OF INPUT FILES
 
@@ -67,7 +67,7 @@ Data file 1: testgx2.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              DEFINITION OF PROBLEM
 
@@ -98,7 +98,7 @@ Station  Name
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 1
 
@@ -107,7 +107,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -126,7 +126,7 @@ BEGIN_JSON obs_equation_1
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx2.dat","lineno": 20, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 20, "station": "1", "obsid": 1, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -182,7 +182,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 36, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 36, "station": "1", "obsid": 3, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -214,7 +214,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 40, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 40, "station": "2", "obsid": 4, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -246,7 +246,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 46, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 46, "station": "1", "obsid": 5, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -302,7 +302,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 60, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 60, "station": "1", "obsid": 7, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -334,7 +334,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 63, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 63, "station": "2", "obsid": 8, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -366,7 +366,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 67, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 67, "station": "1", "obsid": 9, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -422,7 +422,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 76, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 76, "station": "1", "obsid": 11, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -454,7 +454,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 79, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 79, "station": "2", "obsid": 12, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -486,7 +486,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 83, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 83, "station": "1", "obsid": 13, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -542,7 +542,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 93, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 93, "station": "1", "obsid": 15, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -574,7 +574,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 95, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 95, "station": "1", "obsid": 16, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -606,7 +606,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 97, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 97, "station": "2", "obsid": 17, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -638,7 +638,7 @@ BEGIN_JSON obs_equation_1
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 100, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 100, "station": "1", "obsid": 18, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -700,7 +700,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 NORMAL EQUATIONS
 
@@ -749,7 +749,7 @@ Iteration 1: Maximum change is 3.0774 metres at station 1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION NUMBER 2
 
@@ -758,7 +758,7 @@ Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION EQUATIONS
 
@@ -777,7 +777,7 @@ BEGIN_JSON obs_equation_2
   ],
   "obs_equations": [
 {
-  "source": {"file": "testgx2.dat","lineno": 20, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 20, "station": "1", "obsid": 1, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -833,7 +833,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 36, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 36, "station": "1", "obsid": 3, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -865,7 +865,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 40, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 40, "station": "2", "obsid": 4, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -897,7 +897,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 46, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 46, "station": "1", "obsid": 5, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -953,7 +953,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 60, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 60, "station": "1", "obsid": 7, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -985,7 +985,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 63, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 63, "station": "2", "obsid": 8, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1017,7 +1017,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 67, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 67, "station": "1", "obsid": 9, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -1073,7 +1073,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 76, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 76, "station": "1", "obsid": 11, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1105,7 +1105,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 79, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 79, "station": "2", "obsid": 12, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1137,7 +1137,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 83, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 83, "station": "1", "obsid": 13, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -1193,7 +1193,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 93, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 93, "station": "1", "obsid": 15, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1225,7 +1225,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 95, "station": "1", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 95, "station": "1", "obsid": 16, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1257,7 +1257,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 97, "station": "2", "type": "GX","nobs": 1},
+  "source": {"file": "testgx2.dat","lineno": 97, "station": "2", "obsid": 17, "type": "GX","nobs": 1},
   "nobs": 3,
   "obs": [
    {
@@ -1289,7 +1289,7 @@ BEGIN_JSON obs_equation_2
   ]
 },
 {
-  "source": {"file": "testgx2.dat","lineno": 100, "station": "1", "type": "GX","nobs": 2},
+  "source": {"file": "testgx2.dat","lineno": 100, "station": "1", "obsid": 18, "type": "GX","nobs": 2},
   "nobs": 6,
   "obs": [
    {
@@ -1351,7 +1351,7 @@ END_JSON obs_equation_2
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 NORMAL EQUATIONS
 
@@ -1400,7 +1400,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 SOLUTION SUMMARY
 
@@ -1423,7 +1423,7 @@ You may have over-estimated the errors of the data.
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                               STATION COORDINATES
 
@@ -1457,7 +1457,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                            REFERENCE FRAME PARAMETERS
 
@@ -1483,7 +1483,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 OTHER PARAMETERS
 
@@ -1498,7 +1498,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -1624,7 +1624,7 @@ File testgx2.dat: line 93
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:23
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                  ERROR SUMMARY
 

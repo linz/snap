@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-3f3f047
+                      PROGRAM SNAP  Version 2.7.14-f90eaf0
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  5 2018 13:25:47
+                       Version date: Sep  8 2018 08:54:01
 
 ================================================================================
-                     Run at  7-SEP-2018 09:39:24 by ccrook
+                     Run at  8-SEP-2018 09:03:50 by ccrook
 
 
 
@@ -33,7 +33,7 @@ Data file 1: testrc.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                    INPUT DATA
 
@@ -63,6 +63,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [83.5881389],
         "error": [0.001388889],
         "classifications": {
@@ -86,6 +87,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [93.9770833],
         "error": [0.001388889],
         "classifications": {
@@ -109,6 +111,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [96.4118611],
         "error": [0.001388889],
         "classifications": {
@@ -132,6 +135,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [86.0229167],
         "error": [0.001388889],
         "classifications": {
@@ -155,6 +159,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [83.5882500],
         "error": [0.001388889],
         "classifications": {
@@ -178,6 +183,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [93.9772500],
         "error": [0.001388889],
         "classifications": {
@@ -201,6 +207,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [96.4119722],
         "error": [0.001388889],
         "classifications": {
@@ -224,6 +231,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [86.0230833],
         "error": [0.001388889],
         "classifications": {
@@ -247,6 +255,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [83.5882500],
         "error": [0.001388889],
         "classifications": {
@@ -270,6 +279,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [93.9772500],
         "error": [0.001388889],
         "classifications": {
@@ -293,6 +303,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [96.4119722],
         "error": [0.001388889],
         "classifications": {
@@ -316,6 +327,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ZD",
+        "errfct":1.0000,
         "value": [86.0230833],
         "error": [0.001388889],
         "classifications": {
@@ -339,6 +351,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ED",
+        "errfct":1.0000,
         "value": [889.260000],
         "error": [0.50000000],
         "classifications": {
@@ -362,6 +375,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ED",
+        "errfct":1.0000,
         "value": [889.270000],
         "error": [0.50000000],
         "classifications": {
@@ -385,6 +399,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ED",
+        "errfct":1.0000,
         "value": [889.280000],
         "error": [0.50000000],
         "classifications": {
@@ -408,6 +423,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ED",
+        "errfct":1.0000,
         "value": [889.290000],
         "error": [0.50000000],
         "classifications": {
@@ -431,6 +447,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"ED",
+        "errfct":1.0000,
         "value": [889.280000],
         "error": [0.50000000],
         "classifications": {
@@ -454,6 +471,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
+        "errfct":1.0000,
         "value": [40.5100000],
         "error": [0.002777778],
         "projection": "WELLTM1949",
@@ -479,6 +497,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
+        "errfct":1.0000,
         "value": [40.5120000],
         "error": [0.002777778],
         "projection": "WELLTM1949",
@@ -504,6 +523,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
+        "errfct":1.0000,
         "value": [40.5150000],
         "error": [0.002777778],
         "projection": "WELLTM1949",
@@ -529,6 +549,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
+        "errfct":1.0000,
         "value": [40.5100000],
         "error": [0.002777778],
         "projection": "WELLTM1949",
@@ -554,6 +575,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
+        "errfct":1.0000,
         "value": [40.5120000],
         "error": [0.002777778],
         "projection": "WELLTM1949",
@@ -579,6 +601,7 @@ BEGIN_JSON observations
         "to_hgt":0.0000,
         "date":null,
         "type":"PB",
+        "errfct":1.0000,
         "value": [40.5500000],
         "error": [0.002777778],
         "projection": "WELLTM1949",
@@ -599,7 +622,7 @@ END_JSON observations
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              DEFINITION OF PROBLEM
 
@@ -635,7 +658,7 @@ Scale error EDM_K1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                ITERATION SUMMARY
 
@@ -650,7 +673,7 @@ Iteration 2: Maximum change is 0.0000 metres at station 3
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 SOLUTION SUMMARY
 
@@ -675,7 +698,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                               STATION COORDINATES
 
@@ -721,7 +744,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                 OTHER PARAMETERS
 
@@ -760,7 +783,7 @@ Scale error TEST_EDM                 5.00000       -
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                              OBSERVATION RESIDUALS
 
@@ -839,7 +862,7 @@ File testrc.dat: line 54
 
 
 ================================================================================
-Regression test 1 - data types and observation equations     7-SEP-2018 09:39:24
+Regression test 1 - data types and observation equations     8-SEP-2018 09:03:50
 
                                  ERROR SUMMARY
 
