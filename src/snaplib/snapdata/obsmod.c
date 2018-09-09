@@ -82,6 +82,7 @@ typedef struct
 typedef struct obs_criterion_s
 {
     unsigned char crit_type;
+    bool groupmatch;
     union
     {
         obs_datatype_criterion datatype;
@@ -104,14 +105,34 @@ typedef struct obs_criteria_s
     long setid;
     double factor;
     struct obs_criteria_s *next;
-    struct obs_criteria_s *skipnext;
+    struct obs_criteria_s *pnext; /* Next criteria to process */
 } obs_criteria;
+
+
+typedef struct crit_group_s /* Structure used to prepare classification groupings */
+{
+    obs_criteria *criteria;
+    int groupid;
+    int valueid;
+} crit_group_id;
+
+typedef struct obs_criteria_group_s
+{
+    int class_id;
+    int min_value_id;
+    int max_value_id;
+    int ncriteria; /* Used to assess how much discrimination provided by group */
+    obs_criteria **criteria;
+    struct obs_criteria_group_s *next;
+} obs_criteria_group;
 
 typedef struct
 {
     obs_criteria *first;
     obs_criteria *last;
-    bool criteria_sorted;
+    obs_criteria_group *criteria_groups;
+    obs_criteria *ungrouped_criteria;
+    bool criteria_prepared;
     network *nw;
     classifications *classes;
     fileid_func get_fileid;
@@ -121,11 +142,11 @@ typedef struct
 typedef struct
 {
     obs_modifications *obsmod;
-    network *nw;
-    int action;
-    int class_id;
+    survdata *sd; 
+    trgtdata *tgt;
+    int class_id; /* Cached class value */
     int value_id;
-    int skipnext;
+    int action;   /* Action to apply */
     double factor;
     double setfactor;
 } obsmod_context;
@@ -137,6 +158,7 @@ static obs_criterion *new_obs_criterion()
 {
     obs_criterion *oc=(obs_criterion *) check_malloc( sizeof(obs_criterion) );
     oc->crit_type=OBS_CRIT_NONE;
+    oc->groupmatch=false;
     oc->next=nullptr;
     return oc;
 }
@@ -184,9 +206,9 @@ static obs_criterion *new_obs_datatype_criterion( CFG_FILE *cfg, char *datatypes
     return oc;
 }
 
-static bool obs_datatype_match( obs_criterion *oc, obsmod_context *oac, survdata *, trgtdata *tgt )
+static bool obs_datatype_match( obs_criterion *oc, obsmod_context *oac )
 {
-    return oc->c.datatype.select[tgt->type];
+    return oc->c.datatype.select[oac->tgt->type];
 }
 
 static void describe_obs_datatype_criterion( FILE *lst, obs_criterion *oc, const char *prefix )
@@ -224,9 +246,9 @@ static obs_criterion *new_obs_datafile_criterion( int file_id, char *filename )
     return oc;
 }
 
-static bool obs_datafile_match( obs_criterion *oc, obsmod_context *oac, survdata *sd, trgtdata * )
+static bool obs_datafile_match( obs_criterion *oc, obsmod_context *oac )
 {
-    return sd->file == oc->c.datafile.file_id;
+    return oac->sd->file == oc->c.datafile.file_id;
 }
 
 static void delete_obs_datafile_criterion( obs_criterion *oc )
@@ -292,29 +314,28 @@ static void delete_mult_obs_classification( obs_criterion *oc )
     oc->c.mult_classification.value_ids = nullptr;
 }
 
-static bool obs_classification_match( obs_criterion *oc, obsmod_context *oac, survdata *sd, trgtdata *tgt )
+static int get_context_obs_classification( obsmod_context *oac, int class_id )
+{
+    if( class_id != oac->class_id ) 
+    {
+        oac->class_id=class_id;
+        oac->value_id=get_obs_classification_id( oac->sd, oac->tgt, class_id );
+    }
+    return oac->value_id;
+}
+
+static bool obs_classification_match( obs_criterion *oc, obsmod_context *oac )
 {
     int cclass_id=oc->c.classification.class_id;
     int cvalue_id=oc->c.classification.value_id;
-    int value_id;
-    if( cclass_id == oac->class_id )
-    {
-        value_id=oac->value_id;
-    }
-    else
-    {
-        value_id=get_obs_classification_id( sd, tgt, cclass_id );
-        oac->class_id=cclass_id;
-        oac->value_id=value_id;
-    }
-    if( value_id <= cvalue_id ) oac->skipnext=1;
+    int value_id = get_context_obs_classification( oac, cclass_id );
     if( cvalue_id == value_id ) return 1;
     return 0;
 }
 
-static bool obs_mult_classification_match( obs_criterion *oc, obsmod_context *oac, survdata *sd, trgtdata *tgt )
+static bool obs_mult_classification_match( obs_criterion *oc, obsmod_context *oac )
 {
-    int value_id=get_obs_classification_id( sd, tgt, oc->c.mult_classification.class_id );
+    int value_id=get_context_obs_classification( oac, oc->c.mult_classification.class_id );
     for( int i=0; i < oc->c.mult_classification.nvalues; i++ )
     {
         if( oc->c.mult_classification.value_ids[i] == value_id ) return true;
@@ -391,9 +412,9 @@ static void delete_obs_id_criterion( obs_criterion *oc )
     if( oc->c.id.nobs_ids > 1 ){check_free( oc->c.id.obs_ids ); oc->c.id.obs_ids=0; }
 }
 
-static bool obs_id_match( obs_criterion *oc, obsmod_context *oac, survdata *, trgtdata *tgt )
+static bool obs_id_match( obs_criterion *oc, obsmod_context *oac )
 {
-    for( int i=0; i < oc->c.id.nobs_ids; i++ ){ if( oc->c.id.obs_ids[i] == tgt->id ) return true; }
+    for( int i=0; i < oc->c.id.nobs_ids; i++ ){ if( oc->c.id.obs_ids[i] == oac->tgt->id ) return true; }
     return false;
 }
 
@@ -440,20 +461,21 @@ static obs_criterion *new_obs_date_criterion( CFG_FILE *cfg, unsigned char date_
     return oc;
 }
 
-static bool obs_date_match( obs_criterion *oc, obsmod_context *oac, survdata *sd, trgtdata * )
+static bool obs_date_match( obs_criterion *oc, obsmod_context *oac )
 {
     bool result=false;
+    double date=oac->sd->date;
 
     switch( oc->c.date.date_criterion_type )
     {
         case OBS_CRIT_DATE_BEFORE: 
-            result=sd->date != UNDEFINED_DATE && sd->date < oc->c.date.date; 
+            result=date != UNDEFINED_DATE && date < oc->c.date.date; 
             break;
         case OBS_CRIT_DATE_AFTER: 
-            result=sd->date != UNDEFINED_DATE && sd->date > oc->c.date.date; 
+            result=date != UNDEFINED_DATE && date > oc->c.date.date; 
             break;
         default: 
-            result=sd->date == UNDEFINED_DATE; 
+            result=date == UNDEFINED_DATE; 
             break;
     }
     return result;
@@ -516,17 +538,20 @@ static void delete_obs_stations_criterion( obs_criterion *oc )
     oc->c.stations.criteria=nullptr;
 }
     
-static bool obs_stations_match( obs_criterion *oc, obsmod_context *oac, survdata *sd, trgtdata *tgt )
+static bool obs_stations_match( obs_criterion *oc, obsmod_context *oac )
 {
-    network *nw=oac->nw;
+    network *nw=oac->obsmod->nw;
     if( ! oc->c.stations.criteria )
     {
         init_obs_stations_criterion( oc, nw  );
     }
 
-    if( sd->from > 0 )
+    int fromstn=oac->sd->from;
+    int tostn = oac->tgt->to;
+
+    if( fromstn > 0 )
     {
-        bool match=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, sd->from ));
+        bool match=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, fromstn ));
         if( oc->crit_type == OBS_CRIT_STATION_USES )
         {
             if( match ) return true;
@@ -536,9 +561,9 @@ static bool obs_stations_match( obs_criterion *oc, obsmod_context *oac, survdata
             if( ! match ) return false;
         }
     }
-    if( tgt->to )
+    if( tostn )
     {
-        return station_criteria_match( oc->c.stations.criteria, station_ptr( nw, tgt->to ));
+        return station_criteria_match( oc->c.stations.criteria, station_ptr( nw, tostn ));
     }
     return false;
 }
@@ -550,18 +575,19 @@ static void describe_obs_stations_criterion( FILE *lst, obs_criterion *oc, const
             oc->c.stations.station_list );
 }
 
-static bool obs_criterion_match( obs_criterion *oc, obsmod_context *oac, survdata *sd, trgtdata *tgt )
+static bool obs_criterion_match( obs_criterion *oc, obsmod_context *oac )
 {
+    if( oc->groupmatch ) return true;
     switch( oc->crit_type )
     {
-        case OBS_CRIT_DATATYPE: return  obs_datatype_match( oc, oac, sd, tgt );
-        case OBS_CRIT_DATAFILE: return  obs_datafile_match( oc, oac, sd, tgt );
-        case OBS_CRIT_CLASSIFICATION: return  obs_classification_match( oc, oac, sd, tgt );
-        case OBS_CRIT_MCLASSIFICATION: return  obs_mult_classification_match( oc, oac, sd, tgt );
-        case OBS_CRIT_ID: return  obs_id_match( oc, oac, sd, tgt );
-        case OBS_CRIT_DATE: return  obs_date_match( oc, oac, sd, tgt );
-        case OBS_CRIT_STATION_USES: return  obs_stations_match( oc, oac, sd, tgt );
-        case OBS_CRIT_STATION_BETWEEN: return  obs_stations_match( oc, oac, sd, tgt );
+        case OBS_CRIT_DATATYPE: return  obs_datatype_match( oc, oac );
+        case OBS_CRIT_DATAFILE: return  obs_datafile_match( oc, oac );
+        case OBS_CRIT_CLASSIFICATION: return  obs_classification_match( oc, oac );
+        case OBS_CRIT_MCLASSIFICATION: return  obs_mult_classification_match( oc, oac );
+        case OBS_CRIT_ID: return  obs_id_match( oc, oac );
+        case OBS_CRIT_DATE: return  obs_date_match( oc, oac );
+        case OBS_CRIT_STATION_USES: return  obs_stations_match( oc, oac );
+        case OBS_CRIT_STATION_BETWEEN: return  obs_stations_match( oc, oac );
     }
     return false;
 }
@@ -588,7 +614,7 @@ static obs_criteria *new_obs_criteria( int action, double factor )
     ocr->first=nullptr;
     ocr->last=nullptr;
     ocr->next=nullptr;
-    ocr->skipnext=nullptr;
+    ocr->pnext=nullptr;
     ocr->setid=0;
     return ocr;
 }
@@ -620,7 +646,7 @@ static void add_obs_criterion_to_criteria( obs_criteria *ocr, obs_criterion *oc 
 
 /* Cumulate action and reweight factor for list of criteria */
 
-static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac, survdata *sd, trgtdata *tgt )
+static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
 {
     int action=oac->action;
     if( ! (action & OBS_MOD_IGNORE ) )
@@ -628,7 +654,7 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac, s
 
         for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
         {
-            if( ! obs_criterion_match( oc, oac, sd, tgt ) )
+            if( ! obs_criterion_match( oc, oac ) )
             {
                 return;
             }
@@ -716,7 +742,9 @@ void *new_obs_modifications( network *nw, classifications *obs_classes )
     obs_modifications *obsmod = (obs_modifications *) check_malloc( sizeof( obs_modifications ) );
     obsmod->first=nullptr;
     obsmod->last=nullptr;
-    obsmod->criteria_sorted=false;
+    obsmod->criteria_groups=nullptr;
+    obsmod->ungrouped_criteria=nullptr;
+    obsmod->criteria_prepared=false;
     obsmod->nw=nw;
     obsmod->classes=obs_classes;
     obsmod->get_fileid=nullptr;
@@ -747,7 +775,7 @@ static void add_obs_criteria_to_modifications( obs_modifications *obsmod, obs_cr
     {
         obsmod->first=obsmod->last=ocr;
     }
-    obsmod->criteria_sorted=false;
+    obsmod->criteria_prepared=false;
 }
 
 
@@ -974,17 +1002,37 @@ int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid
     return OK;
 }
 
-static void apply_obs_modification_action( obs_modifications *obsmod, obsmod_context *oac, survdata *sd, trgtdata *tgt )
+static obs_criteria *criteria_group_match( obs_criteria_group *ocg, obsmod_context *oac )
 {
-    if( tgt->unused & IGNORE_OBS_BIT ) return;
-    
-    for( obs_criteria *ocr=obsmod->first; ocr; ocr = oac->skipnext ? ocr->skipnext : ocr->next )
+    int cclass_id=ocg->class_id;
+    int value_id;
+    if( cclass_id > 0 )
     {
-        oac->skipnext=0;
-        apply_obs_criteria_action(ocr,oac,sd,tgt);
+        value_id=get_context_obs_classification( oac, cclass_id );
+    }
+    else
+    {
+        value_id=oac->sd->file;
+    }
+    if( value_id >= ocg->min_value_id && value_id <= ocg->max_value_id )
+    {
+        return ocg->criteria[value_id-ocg->min_value_id];
+    }
+    return nullptr;
+}
+
+
+/* Apply action for a group of criteria linked by pnext.  Return 0 if ignoring */
+
+static void apply_obs_group_action( obs_criteria *ocr, obsmod_context *oac )
+{
+    if( ! ocr ) return;
+    for( ; ocr; ocr = ocr->pnext )
+    {
+        apply_obs_criteria_action(ocr,oac);
         if( oac->action & OBS_MOD_IGNORE ) 
         {
-            tgt->unused |= IGNORE_OBS_BIT;
+            oac->tgt->unused |= IGNORE_OBS_BIT;
             oac->factor=1.0;
             return;
         }
@@ -992,119 +1040,243 @@ static void apply_obs_modification_action( obs_modifications *obsmod, obsmod_con
 
     if( oac->action & OBS_MOD_REJECT )
     {
-        tgt->unused |= REJECT_OBS_BIT;
+        oac->tgt->unused |= REJECT_OBS_BIT;
     }
-    return;
 }
 
-/* Code to sort obs criteria to improve efficience of classification criteria.
- * Currently only works for criteria involving just one obs classification.
- * Allows caching the classification value in the obsmod_context
- * And skipping tests for which the criteria is guaranteed to be fail.
- */
-static void obs_criteria_sort_ids( const obs_criteria *ocr, int *idc, int *idv )
+static void apply_obs_modification_action( obs_modifications *obsmod, obsmod_context *oac )
 {
-    obs_criterion *cls_oc=nullptr;
-    *idc=-1;
-    *idv=-1;
-    for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
+    if( oac->tgt->unused & IGNORE_OBS_BIT ) return;
+
+    obs_criteria *ocr=nullptr;
+
+    for( obs_criteria_group *ocg=obsmod->criteria_groups; ocg; ocg=ocg->next )
     {
-        if( oc->crit_type == OBS_CRIT_MCLASSIFICATION ) return;
-        if( oc->crit_type == OBS_CRIT_CLASSIFICATION )
+        obs_criteria *ocr=criteria_group_match( ocg, oac );
+        if( ocr ) 
         {
-            if( cls_oc ) return;
-            cls_oc=oc;
+            /* Return if observation is being ignored */
+            apply_obs_group_action( ocr, oac );
+            if( oac->action & OBS_MOD_IGNORE ) return;
         }
     }
-    if( cls_oc )
-    {
-        *idc=cls_oc->c.classification.class_id;
-        *idv=cls_oc->c.classification.value_id;
-    }
+    if( obsmod->ungrouped_criteria ) apply_obs_group_action( obsmod->ungrouped_criteria, oac );
     return;
 }
 
-static int cmp_obs_criteria( const void *pocr1, const void *pocr2 )
+/* Sort the criteria into groups based on classification tests and file id
+ * tests. Then only need to go through these groups to find matching critera,
+ * which avoids testing every different value of each one.
+ * To get best efficiency choose group in which critieria goes based on
+ * which classifications are most used.
+ */
+
+static obs_criteria_group *create_obs_criteria_group(int groupid,int minval,int maxval)
 {
-    const obs_criteria *oc1=*(obs_criteria **)(pocr1);
-    const obs_criteria *oc2=*(obs_criteria **)(pocr2);
-    if( oc1->id == oc2->id ) return 0;
-    int idc1,  idv1, idc2, idv2;
-    obs_criteria_sort_ids( oc1, &idc1, &idv1 );
-    obs_criteria_sort_ids( oc2, &idc2, &idv2 );
-    if( idc1 != idc2 ) return idc1 > idc2 ? 1 : -1;
-    if( idv1 != idv2 ) return idv1 > idv2 ? 1 : -1;
-    return oc1->id > oc2->id ? 1 : -1;
+    obs_criteria_group *ocg=(obs_criteria_group *) check_malloc( sizeof(obs_criteria_group) );
+    ocg->class_id=groupid;
+    ocg->min_value_id=minval;
+    ocg->max_value_id=maxval;
+    int ncrit=maxval-minval+1;
+    ocg->ncriteria=0;
+    ocg->criteria=(obs_criteria **) check_malloc( ncrit * sizeof(obs_criteria *) );
+    for( int i = 0; i < ncrit; i++ ) ocg->criteria[i]=nullptr;
+    return ocg;
 }
 
-static void sort_obs_modifications( obs_modifications *obsmod )
+static void add_criteria_to_group( obs_criteria_group *ocg, obs_criteria *ocr, int valueid )
 {
-    if( obsmod->criteria_sorted ) return;
-    obsmod->criteria_sorted=true;
+    if( valueid < ocg->min_value_id || valueid > ocg->max_value_id ) return;
+    valueid -= ocg->min_value_id;
+    if( ! ocg->criteria[valueid] ) ocg->ncriteria++;
+    ocr->pnext=ocg->criteria[valueid];
+    ocg->criteria[valueid]=ocr;
+}
+
+static void delete_criteria_groups( obs_modifications *obsmod )
+{
+    obs_criteria_group *ocg=obsmod->criteria_groups;
+    obsmod->criteria_groups=nullptr;
+    while( ocg )
+    {
+        obs_criteria_group *next_group=ocg->next;
+        check_free(ocg->criteria);
+        check_free(ocg);
+        ocg=next_group;
+    }
+}
+
+static void prepare_obs_modifications( obs_modifications *obsmod )
+{
+    if( obsmod->criteria_prepared ) return;
+    delete_criteria_groups( obsmod );
+    obsmod->ungrouped_criteria=nullptr;
+    obsmod->criteria_prepared=true;
+    if( ! obsmod->first ) return;
+
+    /* Count class usage to select preferred class for grouping criteria */
+    /* Note: classification ids are 1 based.  Use 0 for file_id */
+
+    int nclass=classification_count(obsmod->classes)+1;
+    int *class_count=(int *) check_malloc(nclass*sizeof(int));
+    for( int i = 0; i < nclass; i++ ) class_count[i]=0;
     int ncriteria=0;
     for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
     {
-        ocr->skipnext=nullptr;
-        ocr->id=ncriteria;
         ncriteria++;
-    }
-    if( ncriteria == 0 ) return;
-    obs_criteria **critlist=(obs_criteria **) check_malloc(ncriteria*sizeof(obs_criteria *));
-    int ncrit=0;
-    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
-    {
-        critlist[ncrit++]=ocr;
-    }
-    qsort(critlist,ncriteria,sizeof(obs_criteria *),cmp_obs_criteria);
-    obsmod->first=critlist[0];
-    obsmod->last=critlist[ncriteria-1];
-    obsmod->last->next=nullptr;
-    for( int i=0; i<ncriteria-1;i++)
-    {
-        critlist[i]->next=critlist[i+1];
-    }
-    /* class values are sorted by id, so if greater than the last one then can skip remaining
-     * criteria using that class 
-     */
-    int idc, idv;
-    obs_criteria_sort_ids(obsmod->last,&idc,&idv);
-    obs_criteria *skip=0;
-    for( int iptr=ncriteria-2; iptr >= 0 && idv > 0; iptr-- )
-    {
-        int idc1=idc;
-        int idv1=idv;
-        obs_criteria_sort_ids(critlist[iptr],&idc,&idv);
-        if( idv < 0 ) break;
-        if( idv != idv1 )
+        for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
         {
-            skip=critlist[iptr+1];
-        }
-        else if( idc != idc1 )
-        {
-            critlist[iptr]->skipnext=skip;
+            if( oc->crit_type == OBS_CRIT_CLASSIFICATION )
+            {
+                class_count[oc->c.classification.class_id]++;
+            }
+            else if( oc->crit_type == OBS_CRIT_DATAFILE )
+            {
+                class_count[0]++;
+            }
         }
     }
-    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
+
+    /* Identify the group and id for each criteria */
+
+    crit_group_id *grpid = (crit_group_id *) check_malloc( ncriteria *sizeof(crit_group_id) );
+    ncriteria=0;
+    for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next, ncriteria++ )
     {
-        if( ! ocr->skipnext ) ocr->skipnext=ocr->next;
+        int maxcount=0;
+        int groupid=-1;
+        int valueid=0;
+        obs_criterion *groupoc=nullptr;
+        ocr->pnext=nullptr; 
+        for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
+        {
+            int clsid;
+            int clsval;
+            oc->groupmatch=false;
+            if( oc->crit_type == OBS_CRIT_CLASSIFICATION )
+            {
+                clsid=oc->c.classification.class_id;
+                clsval=oc->c.classification.value_id;
+            }
+            else if( oc->crit_type == OBS_CRIT_DATAFILE )
+            {
+                clsid=0;
+                clsval=oc->c.datafile.file_id;
+            }
+            else
+            {
+                continue;
+            }
+            if( class_count[clsid] > maxcount )
+            {
+                maxcount=class_count[clsid];
+                groupid=clsid;
+                valueid=clsval;
+                groupoc=oc;
+            }
+        }
+        grpid[ncriteria].criteria=ocr;
+        grpid[ncriteria].groupid=groupid;
+        grpid[ncriteria].valueid=valueid;
+        if( groupoc ) groupoc->groupmatch=true;
     }
-    check_free(critlist);
+
+    check_free(class_count);
+
+    /* Create the group for each classid */
+
+    obs_criteria_group **group = (obs_criteria_group **) check_malloc(sizeof(obs_criteria_group *)*nclass);
+    for( int i=0; i<nclass; i++ ) group[i]=nullptr;
+
+    obs_criteria *nogroup=nullptr;
+
+    /* Assign criteria to groups, creating when needed */
+
+    for( int i=0; i<ncriteria; i++ )
+    {
+        crit_group_id *grpi=&(grpid[i]);
+        int groupid=grpi->groupid;
+        obs_criteria *ocr=grpi->criteria;
+        if( groupid < 0 ) 
+        {
+            ocr->pnext=nogroup;
+            nogroup=ocr;
+            continue;
+        }
+        if( ! group[groupid] )
+        {
+            int minval=grpid[i].valueid;
+            int maxval=minval;
+            for( int j = i+1; j<ncriteria; j++ )
+            {
+                crit_group_id *grpj=&(grpid[j]);
+                if( grpj->groupid == groupid )
+                {
+                    int valj=grpj->valueid;
+                    if( valj < minval ) { minval=valj; }
+                    else if (valj > maxval ) { maxval=valj; }
+                }
+            }
+            group[groupid]=create_obs_criteria_group(groupid,minval,maxval);
+        }
+        if( group[groupid] )
+        {
+            add_criteria_to_group( group[groupid], ocr, grpi->valueid );
+        }
+        else
+        {
+            ocr->pnext=nogroup;
+            nogroup=ocr;
+        }
+    }
+
+    check_free(grpid);
+
+    /* Sort criteria groups by reverse count of criteria  and add to obsmod */
+
+    for( int i = 0; i < nclass; i++ )
+    {
+        obs_criteria_group *grpi=group[i];
+        if( ! grpi ) continue;
+        obs_criteria_group **grp = &(obsmod->criteria_groups);
+        while( *grp && (*grp)->ncriteria > grpi->ncriteria ) grp=&((*grp)->next);
+        grpi->next=*grp;
+        *grp=grpi;
+    }
+
+    check_free(group);
+
+    obsmod->ungrouped_criteria=nogroup;
+}
+
+static void init_obsmod_context_set( obsmod_context *oac, obs_modifications *obsmod, survdata *sd )
+{
+    oac->obsmod=obsmod;
+    oac->setfactor=1.0;
+    oac->sd=sd;
+}
+
+static void init_obsmod_context_target( obsmod_context *oac, trgtdata *tgt )
+{
+    oac->tgt=tgt;
+    oac->factor=1.0;
+    oac->action=0;
+    oac->class_id=-1;
+    oac->value_id=-1;
 }
 
 int apply_obs_modifications( void *pobsmod, survdata *sd )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    if( ! obsmod->criteria_sorted )
+    if( ! obsmod->criteria_prepared )
     {
-        sort_obs_modifications( obsmod );
+        prepare_obs_modifications( obsmod );
     }
     int nignored=0;
     int i;
     obsmod_context oac;
+    init_obsmod_context_set( &oac, obsmod, sd );
 
-    oac.obsmod=obsmod;
-    oac.nw=obsmod->nw;
-    oac.setfactor=1.0;
     obsmod->setid++;  /* Id used to identify when setfactor has been applied */
 
     switch (sd->format)
@@ -1116,13 +1288,10 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         for( i = 0, od=sd->obs.odata; i<sd->nobs; i++, od++ )
         {
             trgtdata *tgt=&(od->tgt);
-            oac.factor=1.0;
-            oac.action=0;
-            oac.class_id=-1;
-            oac.value_id=-1;
+            init_obsmod_context_target( &oac, tgt );
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                apply_obs_modification_action( obsmod, &oac, sd, tgt );
+                apply_obs_modification_action( obsmod, &oac );
                 if( tgt->unused & IGNORE_OBS_BIT ) nignored++;
             }
             od->error  *= oac.factor;
@@ -1147,13 +1316,10 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
         {
             trgtdata *tgt=&(vd->tgt);
-            oac.factor=1.0;
-            oac.action=0;
-            oac.class_id=-1;
-            oac.value_id=-1;
+            init_obsmod_context_target( &oac, tgt );
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                apply_obs_modification_action( obsmod, &oac, sd, tgt );
+                apply_obs_modification_action( obsmod, &oac );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
             if( sd->cvr && oac.factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
@@ -1198,13 +1364,10 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
         for( i = 0, pd=sd->obs.pdata; i<sd->nobs; i++, pd++ )
         {
             trgtdata *tgt=&(pd->tgt);
-            oac.factor=1.0;
-            oac.action=0;
-            oac.class_id=-1;
-            oac.value_id=-1;
+            init_obsmod_context_target( &oac, tgt );
             if( obsmod && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                apply_obs_modification_action( obsmod, &oac, sd, tgt );
+                apply_obs_modification_action( obsmod, &oac );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
             pd->error  *= oac.factor;
