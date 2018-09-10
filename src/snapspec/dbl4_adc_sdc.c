@@ -116,7 +116,8 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci );
 static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest test );
 static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test );
 static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass );
-static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail );
+static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, 
+        int *pnfailacc, int *pnfailcount );
 static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int *pfailed );
 static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status );
 static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply );
@@ -175,6 +176,20 @@ hSDCTest sdcCreateSDCTest( int maxorder )
         test->blnAutoRange = BLN_FALSE;
         test->blnTestHor = BLN_TRUE;
         test->blnTestVrt = BLN_FALSE;
+        test->dblRange = 0.0;
+        test->iMinRelAcc = 0;
+        test->dblAbsTestAbsMax = 1000.0;
+        test->dblAbsTestDDMax  = 1000.0;
+        test->dblAbsTestDFMax  = 1000.0;
+        test->dblRelTestAbsMin = 0.0;
+        test->dblRelTestDFMax  = 1000.0;
+        test->dblRelTestDDMax  = 0.0;
+        test->dblAbsTestAbsMaxV = 1000.0;
+        test->dblAbsTestDDMaxV  = 1000.0;
+        test->dblAbsTestDFMaxV  = 1000.0;
+        test->dblRelTestAbsMinV = 0.0;
+        test->dblRelTestDFMaxV  = 1000.0;
+        test->dblRelTestDDMaxV  = 0.0;
     }
 
     return sdc;
@@ -786,6 +801,11 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
     double dtolv=0.0;
     char testhor = 0;
     char testvrt = 0;
+    int nhfail = 0;
+    int nhdfail = 0;
+    int nvfail = 0;
+    int nvdfail = 0;
+    int npass = 0;
     StatusType sts = STS_OK;
 
     if( test->blnTestHor )
@@ -847,14 +867,18 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
         if( i % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
         if( s->status == SDC_STS_UNKNOWN )
         {
+            int hpass=1;
+            int vpass=1;
             if( testhor )
             {
+                hpass=0;
                 if( s->error2 > tolfail )
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld fails abs accuracy (%.8lf > %.8lf)\n",
                                  sdcStationId(sdci,i), s->error2, tolfail );
                     s->status = SDC_STS_FAIL;
+                    nhfail++;
                 }
                 else if ( s->error2 > ftol+dtol*s->ctldist2 )
                 {
@@ -862,18 +886,20 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                                  "  Station %ld fails dist dependent abs accuracy (%.8lf > %.8lf)\n",
                                  sdcStationId(sdci,i), s->error2, ftol+dtol*s->ctldist2 );
                     s->status = SDC_STS_FAIL;
+                    nhdfail++;
                 }
                 else if ( s->error2 < tolpass )
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld passes rel acc from abs accuracy (%.8lf < %.8lf)\n",
                                  sdcStationId(sdci,i), s->error2, tolpass );
-                    s->status = SDC_STS_PASS;
+                    hpass=1;
                 }
             }
 
             if( testvrt && s->status != SDC_STS_FAIL )
             {
+                vpass=0;
                 if( s->verror2 > tolfailv )
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
@@ -893,8 +919,14 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld passes vrt rel acc from abs accuracy (%.8lf < %.8lf)\n",
                                  sdcStationId(sdci,i), s->verror2, tolpassv );
-                    s->status = SDC_STS_PASS;
+                    vpass=1;
                 }
+            }
+
+            if( hpass && vpass )
+            {
+                    s->status = SDC_STS_PASS;
+                    npass++;
             }
 
             if( s->status == SDC_STS_UNKNOWN )
@@ -903,6 +935,43 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
             }
         }
     }
+
+    if( nhfail )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed on absolute hor accuracy\n", nhfail );
+    }
+
+    if( nhdfail )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed on relative hor accuracy to control\n", nhdfail );
+    }
+
+    if( nvfail )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed on absolute vrt accuracy control\n", nvfail );
+    }
+
+    if( nvdfail )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed on relative vrt accuracy to control\n", nvdfail );
+    }
+
+    if( npass )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations passed relative accuracy by absolute accuracy\n", npass );
+    }
+
+    if( nunknown )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations unassigned\n", nunknown );
+    }
+
 
     *nleft = nunknown;
     return sts;
@@ -991,8 +1060,13 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
 static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
 {
     int npass;
-    int nfail;
+    int nfailacc;
+    int nfailcnt;
     int found;
+    int ntotalpass = 0;
+    int ntotalfailacc = 0;
+    int ntotalfailcnt = 0;
+    int ntotalfailsel = 0;
     StatusType sts = STS_OK;
 
     /*> Set up the relative accuracy status matrix */
@@ -1005,15 +1079,44 @@ static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
     {
 
         /*>> Apply the test for failed nodes */
-        sts = sdcApplyRelTestFail( sdci, &nfail );
+        sts = sdcApplyRelTestFail( sdci, test, &nfailacc, &nfailcnt );
+        ntotalfailacc += nfailacc;
+        ntotalfailcnt += nfailcnt;
 
         /*>> Then the test for passed nodes */
         if( sts==STS_OK ) sts = sdcApplyRelTestPass( sdci, &npass );
+        ntotalpass += npass;
 
         /*>> Then seek another node to fail, and exit if none is found .. */
         if( sts == STS_OK ) sts = sdcSeekRelTestFail( sdci, test, &found );
         if( ! found ) break;
+        ntotalfailsel++;
     }
+
+    if( ntotalpass )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations passed relative accuracy tests\n", ntotalpass );
+    }
+    if( ntotalfailacc )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed on relative accuracy\n", ntotalfailacc );
+    }
+
+    if( ntotalfailcnt )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed with too few relative tests remaining\n", ntotalfailcnt );
+    }
+
+    if( ntotalfailsel )
+    {
+        sdcWriteLog( sdci, SDC_LOG_STEPS, 
+                "  %d stations failed by selecting a station to fail\n", 
+                ntotalfailsel );
+    }
+
 
     return sts;
 }
@@ -1076,18 +1179,22 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
 **    or more vectors from them to an already passed node fails.
 **
 **  \param sdci                The test implementation
-**  \param pnfail              Returns the number of nodes failed
+**  \param test                The current test being applied
+**  \param pnfailacc           Returns the number of nodes failed
+**  \param pnfailcount         Returns the number of nodes failed
 **
 **  \return                    Returns the abort status
 **
 **************************************************************************
 */
 
-static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
+static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, 
+        int *pnfailacc, int *pnfailcount )
 {
     hSDCStation stns = sdci->stns;
     int nmark = sdci->sdc->nmark;
-    int nfail = 0;
+    int nfailacc = 0;
+    int nfailcnt = 0;
     int istn;
     StatusType sts = STS_OK;
 
@@ -1103,29 +1210,30 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, int *pnfail )
             sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails rel accuracy tests (%d/%d)\n",
                          sdcStationId(sdci,istn), stni->nrelfail, stni->nreltest );
             sdcSetRelTestStatus( sdci, istn, SDC_STS_FAIL );
-            nfail++;
+            nfailacc++;
         }
     }
 
-    /*> Reject any stations for which no test vectors remain */
+    /*> Reject any stations for too few relative vectors remain */
 
-    if( sdci->sdc->options & SDC_OPT_FAIL_NORELACC )
+    if( test->iMinRelAcc > 0 )
     {
         for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
         {
             hSDCStation stni = &(stns[istn]);
             if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
-            if( stni->status == SDC_STS_UNKNOWN && stni->nreltest == 0 )
+            if( stni->status == SDC_STS_UNKNOWN && stni->nreltest < test->iMinRelAcc )
             {
-                sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails with no tests left\n",
+                sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails with too few relative accuracy tests\n",
                              sdcStationId(sdci,istn) );
                 sdcSetRelTestStatus( sdci, istn, SDC_STS_FAIL );
-                nfail++;
+                nfailcnt++;
             }
         }
     }
 
-    *pnfail = nfail;
+    if( pnfailacc) *pnfailacc = nfailacc;
+    if( pnfailcount) *pnfailcount = nfailcnt;
     return sts;
 }
 

@@ -1,8 +1,8 @@
-snapspec version 2.7.11-8067015: Calculation of station orders
-Run at 21-AUG-2018 13:55:53
+snapspec version 2.7.14-c831c2e: Calculation of station orders
+Run at 11-SEP-2018 11:54:19
 SNAP binary file: snapspec9.bin
 Spec configuration file: snapspec9.cfg
-SNAP run time: 21-AUG-2018 13:55:53
+SNAP run time: 11-SEP-2018 11:54:19
 Running apriori tests
 
 
@@ -34,12 +34,14 @@ Running test for order 4
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 4.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
+  4 stations unassigned
 Setting up array for relative accuracy tests
 Applying relative accuracy test
   Station 3 passes rel accuracy tests (5)
   Station 4 passes rel accuracy tests (5)
   Station 10 passes rel accuracy tests (5)
   Station 11 passes rel accuracy tests (5)
+  4 stations passed relative accuracy tests
 Setting node orders
   Setting order of node 3 to 4
   Setting order of node 4 to 4
@@ -53,10 +55,12 @@ Running test for order 5
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 5.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
+  3 stations unassigned
 Applying relative accuracy test
   Station 2 passes rel accuracy tests (8)
   Station 8 passes rel accuracy tests (8)
   Station 9 passes rel accuracy tests (8)
+  3 stations passed relative accuracy tests
 Setting node orders
   Setting order of node 2 to 5
   Setting order of node 8 to 5
@@ -69,9 +73,11 @@ Running test for order 6
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 6.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
+  2 stations unassigned
 Applying relative accuracy test
   Station 6 passes rel accuracy tests (10)
   Station 7 passes rel accuracy tests (10)
+  2 stations passed relative accuracy tests
 Setting node orders
   Setting order of node 6 to 6
   Setting order of node 7 to 6

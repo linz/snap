@@ -26,6 +26,7 @@ typedef struct
 
     Boolean blnTestHor;    /**< Test horizontal accuracy */
     double  dblRange;      /**< Range used in rel accuracy test - <=0 for no limit */
+    int     iMinRelAcc;    /**< Minimum number of relative accuracy tests */
     double  dblAbsTestAbsMax;  /**< Absolute test fail limit */
     double  dblAbsTestDDMax;   /**< Relative to control dist dep m/100m */
     double  dblAbsTestDFMax;   /**< Relative to control fixed component */
@@ -76,10 +77,6 @@ typedef struct
 
 #define SDC_OPT_NO_SHORTCIRCUIT_CVR     2
 #define SDC_OPT_STRICT_SHORTCIRCUIT_CVR 4
-
-/* Option to reject mark if no relative accuracy tests available */
-
-#define SDC_OPT_FAIL_NORELACC           8
 
 #define SDC_DEFAULT  -1  /* Passed to SDCTest.pfSetOrder for the default order */
 

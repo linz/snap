@@ -77,6 +77,10 @@ of components as defined by the <a href="algorithm.html">snapspec algorithm</a>.
  <td>The maximum length of line for which relative accuracy tests are applied</td>
 </tr>
 <tr>
+    <td class="nobr">min_rel_acc <i>#</i></td>
+ <td>The minimum number of relative accuracy tests required to pass a coordinate.</td>
+</tr>
+<tr>
 <td class="nobr">autorange</td>
  <td>If present then the maximum length for relative accuracy tests will be based upon the distance to the nearest control mark.</td>
 </tr>
@@ -130,6 +134,12 @@ the file are ignored.  Orders can be any order defined in the configuration, and
 Either the priority or order fields can contain &quot;*&quot; which will cause the station to be 
 ignored.
 Empty fields and fields containing just &quot;-&quot; are ignored.
+</p>
+<p class="CommandDefinition">min_relative_accuracy_tests <i>ntests</i></p>
+<p class="CommandDescription">
+Specifies a default minimum number of relative accuracy tests required to pass a coordinate.  If specified
+the minimum for each test will be set to at least this number (though a higher value may be specified for
+individual tests).
 </p>
 <p class="CommandDefinition">options <i>option ...</i></p>
 <p class="CommandDescription">

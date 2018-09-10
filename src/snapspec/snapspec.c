@@ -103,6 +103,7 @@ typedef struct
     char testvrt;
     int loglevel;
     int autominorder;
+    int dfltminrelacc;
 } stn_relacc_array;
 
 typedef struct cfg_stack_s
@@ -193,6 +194,7 @@ static stn_relacc_array *create_relacc()
     ra->bltupdated = 0;
     ra->outputlog = 0;
     ra->autominorder = 0;
+    ra->dfltminrelacc = 0;
     return ra;
 }
 
@@ -1623,6 +1625,7 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
 
     test->blnAutoRange = BLN_FALSE;
     test->dblRange = 0.0;
+    test->iMinRelAcc = 0;
     test->blnTestHor = BLN_FALSE;
     test->dblAbsTestAbsMax = 1000.0;
     test->dblAbsTestDDMax  = 1000.0;
@@ -1672,6 +1675,19 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             }
             data += nchr;
             test->dblRange = err;
+            continue;
+        }
+        if( _stricmp(type,"min_rel_acc") == 0 )
+        {
+            int minrel;
+            nfld = sscanf(data,"%d%n",&minrel,&nchr);
+            if( nfld != 1 )
+            {
+                send_config_error(cfg,INVALID_DATA, "Invalid minimum number of relative accuracy tests in specification");
+                return OK;
+            }
+            data += nchr;
+            test->iMinRelAcc = minrel;
             continue;
         }
 
@@ -2118,6 +2134,7 @@ static config_item cfg_commands[] =
     {"log_level",NULL,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
     {"test_config_options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
     {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
+    {"min_relative_accuracy_tests",NULL,OFFSETOF(stn_relacc_array,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
@@ -2270,10 +2287,6 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
         {
             ra->autominorder=1;
         }
-        else if( _stricmp(option,"fail_if_no_relacc_tests") == 0 )
-        {
-            ra->hsdc->options |= SDC_OPT_FAIL_NORELACC;
-        }
         else if( _stricmp(option,"no_rel_acc_by_abs_optimisation") == 0 )
         {
             ra->hsdc->options |= SDC_OPT_NO_SHORTCIRCUIT_CVR;
@@ -2366,7 +2379,7 @@ static void set_relacc_pointer( stn_relacc_array **ra )
     }
 }
 
-static int read_configuration( CFG_FILE *cfg, hSDCTest hsdc )
+static int read_configuration( CFG_FILE *cfg, hSDCTest hsdc, int skip_rel_acc )
 {
     int nerr;
     int i;
@@ -2389,6 +2402,22 @@ static int read_configuration( CFG_FILE *cfg, hSDCTest hsdc )
         test->dblVertHorRatio = vrtHorRatio;
         if( test->blnTestHor ) ra->testhor = 1;
         if( test->blnTestVrt ) ra->testvrt = 1;
+        if( test->iMinRelAcc < ra->dfltminrelacc )
+        {
+            test->iMinRelAcc = ra->dfltminrelacc;
+        }
+        if( skip_rel_acc )
+        {
+            /* Crudely reset test values to disable relative accuracy tests */
+            test->iMinRelAcc = 0;
+            test->dblRange = 1.0;
+            test->dblRelTestAbsMin = 0.0;
+            test->dblRelTestDFMax  = 1000.0;
+            test->dblRelTestDDMax  = 0.0;
+            test->dblRelTestAbsMinV = 0.0;
+            test->dblRelTestDFMaxV  = 1000.0;
+            test->dblRelTestDDMaxV  = 0.0;
+        }
     }
     return nerr;
 }
@@ -2447,6 +2476,7 @@ int main( int argc, char *argv[] )
     char *cvrcachefile = 0;
     int autominorder = 0;
     int hvmode = SRA_HVMODE_AUTO;
+    int skip_rel_acc = 0;
     int sts;
 
     get_date( spec_run_time );
@@ -2514,6 +2544,11 @@ int main( int argc, char *argv[] )
             use_cache=1;
             break;
 
+        case 'x':
+        case 'X':
+            skip_rel_acc=1;
+            break;
+
         case 't':
         case 'T': {
             int nthread;
@@ -2572,7 +2607,8 @@ int main( int argc, char *argv[] )
         printf("   -s filename   Base name for seperate coordinate files for each order (no extension)\n");
         printf("   -c filename   Output results in a csv file\n");
         printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
-        printf("   -t #|auto     Specifies the number of threads to use\n\n");
+        printf("   -t #|auto     Specifies the number of threads to use\n");
+        /* printf("   -x            Disable relative accuracy tests\n\n"); - hidden option */
         printf("Use filename \"-\" to use default filenames for outputs\n\n");
         return 0;
     }
@@ -2603,6 +2639,10 @@ int main( int argc, char *argv[] )
     install_default_crdsys_file();
     cfn = copy_string(find_file( basecfn, ".cfg", bfn, FF_TRYALL, "snapspec" ));
 
+    if( skip_rel_acc )
+    {
+        fprintf(out,"NOTE: Relative accuracy tests have not been run\n");
+    }
     fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
     fprintf(out,"Run at %s\n",spec_run_time);
     fprintf(out,"SNAP binary file: %s\n",bfn);
@@ -2637,9 +2677,13 @@ int main( int argc, char *argv[] )
     ra->hsdc = hsdc;
 
     ra->logfile = out;
+    if( skip_rel_acc )
+    {
+        printf("NOTE: snapspec is not applying relative accuracy tests\n");
+    }
     printf("\nUsing configuration file %s\n",cfn);
 
-    nerr = read_configuration( cfg, hsdc );
+    nerr = read_configuration( cfg, hsdc, skip_rel_acc );
     close_config_file( cfg );
 
     if( nerr > 0 )

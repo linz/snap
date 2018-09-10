@@ -1,9 +1,9 @@
-snapspec version 2.7.13-24fa774: Calculation of station orders
-Run at  5-SEP-2018 12:03:30
+snapspec version 2.7.14-c831c2e: Calculation of station orders
+Run at 11-SEP-2018 11:54:19
 SNAP binary file: snapspec5.bin
 Spec configuration file: snapspec5.cfg
 Vertical tests will not be applied as no stations are adjusted vertically
-SNAP run time:  5-SEP-2018 12:03:30
+SNAP run time: 11-SEP-2018 11:54:19
 Running apriori tests
 
 
@@ -44,6 +44,7 @@ Running test for order 5
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 0.300 m +/- 0.0000 m/100m
 Applying absolute accuracy test
+  5 stations unassigned
    .. Absolute accuracy test complete took 0.00 seconds (total 0.00 seconds)
 Setting up array for relative accuracy tests
    .. Relative accuracy tests initiated took 0.00 seconds (total 0.00 seconds)
@@ -76,6 +77,7 @@ Running test for order 5
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 0.300 m +/- 0.0000 m/100m
 Applying absolute accuracy test
+  5 stations unassigned
    .. Absolute accuracy test complete took 0.00 seconds (total 0.00 seconds)
 Applying relative accuracy test
    .. Setting up relative accuracy status took 0.00 seconds (total 0.00 seconds)
@@ -94,6 +96,7 @@ Applying relative accuracy test
     Station 3: 2 tests: 0 bad
   Station 2 passes rel accuracy tests (2)
   Station 3 passes rel accuracy tests (2)
+  2 stations passed relative accuracy tests
    .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
 Setting node orders
   Setting order of node 2 to 5

@@ -1,8 +1,8 @@
-snapspec version 2.7.11-c4e7658: Calculation of station orders
-Run at 22-AUG-2018 13:19:56
+snapspec version 2.7.14-c831c2e: Calculation of station orders
+Run at 11-SEP-2018 11:54:19
 SNAP binary file: snapspec11.bin
 Spec configuration file: snapspec11.cfg
-SNAP run time: 22-AUG-2018 13:19:56
+SNAP run time: 11-SEP-2018 11:54:19
 Lowest order of control stations: 4
 Best order permitted: 5
 Running apriori tests
@@ -54,6 +54,7 @@ Running test for order 5
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 0.600 m +/- 0.2000 m/100m
 Applying absolute accuracy test
+  10 stations unassigned
 Setting up array for relative accuracy tests
 Applying relative accuracy test
   Relative hor accuracy assumed achieved for lines longer than 172.71 m
@@ -134,6 +135,8 @@ Applying relative accuracy test
   Station 3 passes rel accuracy tests (3)
   Station 10 selected to fail rel acc tests (0.333,0.04000000)
   Station 11 passes rel accuracy tests (2)
+  2 stations passed relative accuracy tests
+  8 stations failed by selecting a station to fail
 Setting node orders
   Setting order of node 3 to 5
   Setting order of node 11 to 5
