@@ -1,3 +1,11 @@
+linz-snap (2.7.15-1) xenial; urgency=medium
+
+  * Fixes to snapspec CSV output
+  * Fixes to snap debug JSON output
+  * Performance improvements loading large jobs
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Tue, 11 Sep 2018 12:30:00 +1200
+
 linz-snap (2.7.14-1) xenial; urgency=medium
 
   * Fixing snapspec twopass errors resulting from optimisation
@@ -6,7 +14,7 @@ linz-snap (2.7.14-1) xenial; urgency=medium
   * Fixing vector data errfct column in obs.csv file
   * Fixing segfault dumping covariances
 
- -- Chris Crook <ccrook@linz.govt.nz>  Mon, 27 Aug 2018 15:30:00 +1200
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 5 Sep 2018 15:30:00 +1200
   
 linz-snap (2.7.13-1) xenial; urgency=medium
 
