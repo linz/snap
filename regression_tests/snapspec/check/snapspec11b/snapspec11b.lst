@@ -1,8 +1,8 @@
-snapspec version 2.7.11-c4e7658: Calculation of station orders
-Run at 22-AUG-2018 13:30:13
+snapspec version 2.7.14-79f0cc3: Calculation of station orders
+Run at 11-SEP-2018 06:20:44
 SNAP binary file: snapspec11b.bin
 Spec configuration file: snapspec11b.cfg
-SNAP run time: 22-AUG-2018 13:30:13
+SNAP run time: 11-SEP-2018 06:20:44
 Lowest order of control stations: 4
 Best order permitted: 5
 Running apriori tests
@@ -148,21 +148,5 @@ Applying default order to remaining nodes
   Setting order of node 10 to default 
   Setting order of node 11 to default 
 ==============================================================
-Results of order calculations
 
-Control stations
-F0
-
-Stations assigned order 8
-F10
-F9
-F8
-F7
-F6
-F5
-F3
-F2
-F1
-
-Stations achieving order 5
-F4
+Results written to CSV file snapspec11b.csv

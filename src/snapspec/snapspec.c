@@ -1127,7 +1127,8 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
     write_csv_header( csv, "adj_h" );
     write_csv_header( csv, "errhor" );
     write_csv_header( csv, "errhgt" );
-    write_csv_header( csv, "status" );
+    write_csv_header( csv, "limit_order" );
+    write_csv_header( csv, "priority" );
     write_csv_header( csv, "calc_order" );
     end_output_csv_record(csv);
 
@@ -1227,6 +1228,14 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
         }
         
         write_csv_string( csv, relacc_order_string( ra, ra->role[st->id-1]) );
+        if( ra->priority[st->id-1] == SDC_NO_PRIORITY )
+        {
+            write_csv_null_field(csv);
+        }
+        else
+        {
+            write_csv_int(csv,(int) ra->priority[st->id-1]);
+        }
         write_csv_string( csv, relacc_order_string( ra, ra->order[st->id-1]) );
 
         end_output_csv_record(csv);
