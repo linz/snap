@@ -2031,6 +2031,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                 char *fld=field[ifld];
                 if( _stricmp(fld,"code") == 0 ) codefield=ifld;
                 else if( _stricmp(fld,"order") == 0 ) orderfield=ifld;
+                else if( _stricmp(fld,"limit_order") == 0 ) orderfield=ifld;
                 else if( _stricmp(fld,"priority") == 0 ) priorityfield=ifld;
             }
             if( codefield < 0 )
@@ -2838,6 +2839,8 @@ int main( int argc, char *argv[] )
     else
     {
         fprintf(out,"\nsnapspec aborted with errors\n");
+        printf("\nsnapspec aborted with errors\n");
+        printf("\nSee %s for details\n",ofn);
     }
 
 
