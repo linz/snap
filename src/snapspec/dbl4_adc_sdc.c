@@ -125,7 +125,7 @@ static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply );
 static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci );
 static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... );
 static void sdcWriteCompactLogHeader( hSDCTestImp sdci );
-static void sdcWriteCompactLog( hSDCTestImp sdci, int stn1, int stn2, 
+static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2, 
         const char *test, const char *status, double v1, double v2, const char *comment );
 static long sdcStationId( hSDCTestImp sdci, int istn );
 static void sdcTimeStamp( hSDCTestImp sdci, const char *status );
@@ -520,6 +520,7 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
     }
     sdci->phase2=SDCI_PHASE_CALC;
     sdci->phase=0;
+    sdci->order=0;
     sdci->needphase2=0;
 
     sdci->testhor = 0;
@@ -772,7 +773,7 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
         }
         if( sdci->loglevel & SDC_LOG_COMPACT )
         {
-            sdcWriteCompactLog( sdci, sdcStationId(sdci,istn),-1,"DCTL","",-1.0,-1.0,"" );
+            sdcWriteCompactLog( sdci,sdcStationId(sdci,istn),-1,"DCTL","",stn->ctldist2,-1.0,"" );
         }
     }
 
@@ -1081,7 +1082,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
 
 static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
 {
-    int npass;
+    int npass=0;
     int nfailacc;
     int nfailcnt;
     int found;
@@ -2151,7 +2152,8 @@ static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... )
 static void sdcWriteCompactLogHeader( hSDCTestImp sdci )
 {
     if( ! (sdci->sdc->pfWriteCompact ) ) return;
-    (sdci->sdc->pfWriteLog)( sdci->sdc->env, "phase,order,stn1,stn2,test,status,v1,v2,comment\n");
+    if( ! (sdci->loglevel & SDC_LOG_COMPACT) ) return;
+    (sdci->sdc->pfWriteCompact)( sdci->sdc->env, "phase,order,stn1,stn2,test,status,v1,v2,comment\n");
 }
 
 /*************************************************************************
@@ -2173,7 +2175,7 @@ static void sdcWriteCompactLogHeader( hSDCTestImp sdci )
 **************************************************************************
 */
 
-static void sdcWriteCompactLog( hSDCTestImp sdci, int stn1, int stn2, 
+static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2, 
         const char *test, const char *status, double v1, double v2, const char *comment )
 {
     char cstn1[20],cstn2[20],cv1[40],cv2[40];
@@ -2181,12 +2183,13 @@ static void sdcWriteCompactLog( hSDCTestImp sdci, int stn1, int stn2,
     /*> Check that writing  log level is appropriate */
 
     if( ! (sdci->sdc->pfWriteCompact ) ) return;
+    if( ! (sdci->loglevel & SDC_LOG_COMPACT) ) return;
 
     /*> Format the string using the supplied parameters using vsprintf */
 
     cstn1[0]=cstn2[0]=cv1[0]=cv2[0]=0;
-    if( stn1 >= 0 ) sprintf(cstn1,"%d",stn1);
-    if( stn2 >= 0 ) sprintf(cstn2,"%d",stn2);
+    if( stn1 >= 0 ) sprintf(cstn1,"%ld",stn1);
+    if( stn2 >= 0 ) sprintf(cstn2,"%ld",stn2);
     if( v1 >= 0 ) sprintf(cv1,"%.8lf",v1);
     if( v2 >= 0 ) sprintf(cv2,"%.8lf",v2);
 
@@ -2195,7 +2198,7 @@ static void sdcWriteCompactLog( hSDCTestImp sdci, int stn1, int stn2,
 
     /*> Use the function pointer in the sdc object to write the log */
 
-    (sdci->sdc->pfWriteLog)( sdci->sdc->env, sdci->logbuffer );
+    (sdci->sdc->pfWriteCompact)( sdci->sdc->env, sdci->logbuffer );
 }
 
 

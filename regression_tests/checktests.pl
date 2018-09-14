@@ -392,7 +392,7 @@ if( $verbose )
         print "Not in output directory:\n";
         for my $f (@outmissing)
         {
-            print "    $f\n";
+            print "    $chkdir/$f\n";
         }
     }
     if( @chkmissing )
@@ -400,7 +400,7 @@ if( $verbose )
         print "Not in check directory:\n";
         for my $f (@chkmissing)
         {
-            print "    $f\n";
+            print "    $outdir/$f\n";
         }
     }
     if( @unmatched )
@@ -409,7 +409,7 @@ if( $verbose )
         for my $diff (@unmatched)
         {
             my ($f,$msg)=@$diff;
-            print "    $f: $msg\n";
+            print "    $outdir/$f: $msg\n";
         }
     }
 }

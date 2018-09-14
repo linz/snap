@@ -3,3 +3,4 @@ file: snapspec1.crd
 file: snapspec4.dat
 file: snapspec5.snp snapspec5.snp
 file:  snapspec5.cfg
+parameters: -d {test}-debug.csv
