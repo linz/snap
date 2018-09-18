@@ -29,7 +29,8 @@ typedef struct
 enum { SURVDATA,       /* Survey data */
        NOTEDATA,       /* Note to be copied to output file */
        ENDDATA,        /* Marks the end of data in the file */
-       NOBINDATATYPES
+       NOBINDATATYPES,
+       ANYDATATYPE=NOBINDATATYPES
      };
 
 
@@ -39,7 +40,7 @@ int64_t write_bindata_header( long size, int type );
 int read_bindata_header( long *size, int *type );
 
 void init_get_bindata(int64_t loc );
-int get_bindata( bindata *b );
+int get_bindata( int datatype, bindata *b );
 void update_bindata( bindata *b );
 
 bindata *create_bindata( void );

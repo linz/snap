@@ -61,6 +61,7 @@ The procedure requires the following sequence of calls
 #include "util/linklist.h"
 #include "util/binfile.h"
 #include "util/errdef.h"
+#include "util/wildcard.h"
 
 typedef struct
 {
@@ -317,7 +318,6 @@ static void do_prm_actions( void )
     prm_action apa;
     param *p;
     int np;
-    int matchlen;
 
     if( !action_list ) return;
 
@@ -328,11 +328,10 @@ static void do_prm_actions( void )
         {
             memcpy( &apa, pa, sizeof( prm_action ) );
             apa.action &= ~PA_WILDCARD;
-            matchlen = strlen( pa->prm.n );
             for( np=0; np < nparam; np++ )
             {
                 p = prmlist[np];
-                if( _strnicmp( pa->prm.n, p->name, matchlen ) != 0 ) continue;
+                if( ! wildcard_match(pa->prm.n,p->name ) ) continue;
                 apa.prm.p = p;
                 do_action( &apa );
             }
@@ -595,11 +594,10 @@ void configure_param( int type, const char *name, double value, int adjust )
     len = strlen(name);
     if( !len ) return;
 
-    if( name[len-1] == '*' )
+    if( has_wildcard(name))
     {
         char wildcard[MAXCOEFLEN];
         make_prmname( wildcard, type, name );
-        wildcard[strlen(wildcard)-1] = 0;
         wildcard_param_value( wildcard, value, adjust );
     }
     else
@@ -622,7 +620,6 @@ void configure_param_match( int type, const char *coef1, const char *coef2 )
     {
         char wildcard[MAXCOEFLEN];
         make_prmname( wildcard, type, coef1);
-        wildcard[strlen(wildcard)-1] = 0;
         wildcard_param_match( wildcard, p2 );
     }
     else

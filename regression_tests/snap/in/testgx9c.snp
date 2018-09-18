@@ -1,0 +1,28 @@
+title Regression test 1 - data types and observation equations
+
+coordinate_file testgx3.crd
+data_file testgx9.dat
+
+mode 3d adjustment
+min_iterations 2
+
+list command_file
+list file_summary
+list problem_definition
+list observation_equations
+list solution_summary
+list station_coordinates
+list reference_frames
+list parameters
+list residuals
+list no_error_summary
+list no_worst_residuals
+
+add_residual_column c=ref_frame_code
+
+!reference_frame GPS_T translation 0 ? 0 ? 0 ?
+
+set_observation_option calculate_gx_translation using_stations 1 3 end_stations
+
+fix all
+float 1 2

@@ -20,8 +20,9 @@
 #include "bindata2.h"  /* For definition of lsdata */
 #endif
 
-void list_obsdata( FILE *out, survdata *o ) ;
-int obsdata_obseq( survdata *o, void *hA, int nextra ) ;
+void apply_obsdata_options( survdata *o );
+void list_obsdata( FILE *out, survdata *o );
+int obsdata_obseq( survdata *o, void *hA, int nextra );
 void calc_obsdata_residuals( survdata *o, lsdata *l );
 void list_obsdata_residuals( FILE *out, survdata *o, double semult);
 

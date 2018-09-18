@@ -1,0 +1,879 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.15-e000bc8
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Sep 18 2018 14:32:45
+
+================================================================================
+                     Run at 19-SEP-2018 06:45:06 by ccrook
+
+
+The command file testgx9c.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testgx3.crd
+     data_file testgx9.dat
+     
+     mode 3d adjustment
+     min_iterations 2
+     
+     list command_file
+     list file_summary
+     list problem_definition
+     list observation_equations
+     list solution_summary
+     list station_coordinates
+     list reference_frames
+     list parameters
+     list residuals
+     list no_error_summary
+     list no_worst_residuals
+     
+     add_residual_column c=ref_frame_code
+     
+     !reference_frame GPS_T translation 0 ? 0 ? 0 ?
+     
+     set_observation_option calculate_gx_translation using_stations 1 3 end_stations
+     
+     fix all
+     float 1 2
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testgx9c.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testgx3.crd
+       4 stations read
+
+Data file 1: testgx9.dat
+    Observations between 2008-01-01 and 2008-01-01
+       6 GPS point coords
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+Where errors are specified the adjustment is constrained by giving the
+initial station coordinates the specified apriori expected error
+
+
+Station  Adj      Error       Row  Name
+                Hor     Ver
+
+1        3    1.000   1.000    1  1
+2        3    1.000   1.000   10  2
+3        F     -       -       -  3
+4        F     -       -       -  4
+
+
+The following parameters are also being calculated
+
+Obs set 1 X translation
+Obs set 1 Y translation
+Obs set 1 Z translation
+Obs set 3 X translation
+Obs set 3 Y translation
+Obs set 3 Z translation
+Obs set 4 X translation
+Obs set 4 Y translation
+Obs set 4 Z translation
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                               ITERATION NUMBER 1
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                             OBSERVATION EQUATIONS
+
+================================================================================
+
+BEGIN_JSON obs_equation_1
+{
+  "nparam":15,
+  "parameters": [
+    "1: north coordinate",
+    "1: east coordinate",
+    "1: height coordinate",
+    "Obs set 1 X translation",
+    "Obs set 1 Y translation",
+    "Obs set 1 Z translation",
+    "Obs set 4 X translation",
+    "Obs set 4 Y translation",
+    "Obs set 4 Z translation",
+    "2: north coordinate",
+    "2: east coordinate",
+    "2: height coordinate",
+    "Obs set 3 X translation",
+    "Obs set 3 Y translation",
+    "Obs set 3 Z translation"
+  ],
+  "obs_equations": [
+{
+  "source": {"file": "testgx9.dat","lineno": 14, "station": "1", "obsid": 1, "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.20000603e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [4, 1, 2, 3],
+    "values": [ 1.00000000e+00, -1.16306713e-01, -6.51776642e-01, -7.49439762e-01]
+   },
+   {
+    "value": -3.00010375e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [5, 1, 2, 3],
+    "values": [ 1.00000000e+00, -9.93213345e-01,  7.63239835e-02,  8.77604756e-02]
+   },
+   {
+    "value":  1.57999980e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [6, 1, 2, 3],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  7.54560706e-01, -6.56230250e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx9.dat","lineno": 15, "station": "2", "obsid": 2, "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  1.19999260e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-1.16185368e-01, -5.55506392e-01, -8.23355093e-01]
+   },
+   {
+    "value": -3.00041752e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-9.93227547e-01,  6.49818010e-02,  9.63140975e-02]
+   },
+   {
+    "value":  1.58000101e+01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [ 0.00000000e+00,  8.28969248e-01, -5.59294185e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx9.dat","lineno": 16, "station": "3", "obsid": 3, "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  2.00025299e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value": -1.29996273e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [14],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value":  1.57999949e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [15],
+    "values": [ 1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx9.dat","lineno": 19, "station": "1", "obsid": 4, "type": "GX","nobs": 3},
+  "nobs": 9,
+  "obs": [
+   {
+    "value":  1.20000603e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [7, 1, 2, 3],
+    "values": [ 1.00000000e+00, -1.16306713e-01, -6.51776642e-01, -7.49439762e-01]
+   },
+   {
+    "value": -3.00010375e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 1, 2, 3],
+    "values": [ 1.00000000e+00, -9.93213345e-01,  7.63239835e-02,  8.77604756e-02]
+   },
+   {
+    "value":  1.57999980e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [9, 1, 2, 3],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  7.54560706e-01, -6.56230250e-01]
+   },
+   {
+    "value":  1.19999260e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [7, 10, 11, 12],
+    "values": [ 1.00000000e+00, -1.16185368e-01, -5.55506392e-01, -8.23355093e-01]
+   },
+   {
+    "value": -3.00041752e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 10, 11, 12],
+    "values": [ 1.00000000e+00, -9.93227547e-01,  6.49818010e-02,  9.63140975e-02]
+   },
+   {
+    "value":  1.58000101e+01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [9, 10, 11, 12],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  8.28969248e-01, -5.59294185e-01]
+   },
+   {
+    "value":  2.00025299e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value": -1.29996273e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [8],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value":  1.57999949e+01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [ 1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03, 1.97791225e-03,-1.84580379e-04, 7.36796345e-04, 1.69503974e-03,-3.87717658e-04, 7.58961573e-04],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04,-1.84580379e-04, 4.21591769e-04,-8.61886635e-05,-3.87717658e-04, 5.16077505e-04,-2.27222990e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03, 7.36796345e-04,-8.61886635e-05, 1.40049598e-03, 7.58961573e-04,-2.27222990e-04, 1.58888275e-03],
+    [ 1.97791225e-03,-1.84580379e-04, 7.36796345e-04, 1.08944689e-02,-1.08724461e-03, 4.97337533e-03, 1.69503974e-03,-3.87717658e-04, 7.58961573e-04],
+    [-1.84580379e-04, 4.21591769e-04,-8.61886635e-05,-1.08724461e-03, 1.72718326e-03,-5.81773479e-04,-3.87717658e-04, 5.16077505e-04,-2.27222990e-04],
+    [ 7.36796345e-04,-8.61886635e-05, 1.40049598e-03, 4.97337533e-03,-5.81773479e-04, 6.97834785e-03, 7.58961573e-04,-2.27222990e-04, 1.58888275e-03],
+    [ 1.69503974e-03,-3.87717658e-04, 7.58961573e-04, 1.69503974e-03,-3.87717658e-04, 7.58961573e-04, 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-3.87717658e-04, 5.16077505e-04,-2.27222990e-04,-3.87717658e-04, 5.16077505e-04,-2.27222990e-04,-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 7.58961573e-04,-2.27222990e-04, 1.58888275e-03, 7.58961573e-04,-2.27222990e-04, 1.58888275e-03, 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+}
+]}
+
+END_JSON obs_equation_1
+
+BEGIN_JSON float_stations_1
+
+{ "float_stations": [
+{
+    "source": {"station":"1"},
+    "nobs": 3,
+    "obs": [
+     {
+      "value":  0.00000000e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [1],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value":  0.00000000e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [2],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value":  0.00000000e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [3],
+      "values": [ 1.00000000e+00]
+     }
+    ],
+    "cvrdiag": [
+   1.00000000e+00, 1.00000000e+00, 1.00000000e+00
+    ]
+  },
+{
+    "source": {"station":"2"},
+    "nobs": 3,
+    "obs": [
+     {
+      "value":  0.00000000e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [10],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value":  0.00000000e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [11],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value":  0.00000000e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [12],
+      "values": [ 1.00000000e+00]
+     }
+    ],
+    "cvrdiag": [
+   1.00000000e+00, 1.00000000e+00, 1.00000000e+00
+    ]
+  }]}
+
+END_JSON float_stations_1
+
+Iteration 1: Maximum change is 10.1161 metres at station 2
+             2 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                               ITERATION NUMBER 2
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                             OBSERVATION EQUATIONS
+
+================================================================================
+
+BEGIN_JSON obs_equation_2
+{
+  "nparam":15,
+  "parameters": [
+    "1: north coordinate",
+    "1: east coordinate",
+    "1: height coordinate",
+    "Obs set 1 X translation",
+    "Obs set 1 Y translation",
+    "Obs set 1 Z translation",
+    "Obs set 4 X translation",
+    "Obs set 4 Y translation",
+    "Obs set 4 Z translation",
+    "2: north coordinate",
+    "2: east coordinate",
+    "2: height coordinate",
+    "Obs set 3 X translation",
+    "Obs set 3 Y translation",
+    "Obs set 3 Z translation"
+  ],
+  "obs_equations": [
+{
+  "source": {"file": "testgx9.dat","lineno": 14, "station": "1", "obsid": 1, "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -2.07126141e-06,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [4, 1, 2, 3],
+    "values": [ 1.00000000e+00, -1.16306820e-01, -6.51776278e-01, -7.49440062e-01]
+   },
+   {
+    "value":  4.30154614e-07,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [5, 1, 2, 3],
+    "values": [ 1.00000000e+00, -9.93213332e-01,  7.63240121e-02,  8.77605925e-02]
+   },
+   {
+    "value":  1.30012631e-06,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [6, 1, 2, 3],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  7.54561017e-01, -6.56229892e-01]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03]
+  ]
+},
+{
+  "source": {"file": "testgx9.dat","lineno": 15, "station": "2", "obsid": 2, "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value": -4.30453833e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-1.16185411e-01, -5.55505434e-01, -8.23355733e-01]
+   },
+   {
+    "value": -3.39486200e-01,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [-9.93227542e-01,  6.49817133e-02,  9.63142085e-02]
+   },
+   {
+    "value":  5.81627769e+00,
+    "useobs": true,
+    "ncolumns": 3,
+    "columns": [10, 11, 12],
+    "values": [ 0.00000000e+00,  8.28969897e-01, -5.59293224e-01]
+   }
+  ],
+  "cvr": [
+    [ 1.08944689e-02,-1.08724461e-03, 4.97337533e-03],
+    [-1.08724461e-03, 1.72718326e-03,-5.81773479e-04],
+    [ 4.97337533e-03,-5.81773479e-04, 6.97834785e-03]
+  ]
+},
+{
+  "source": {"file": "testgx9.dat","lineno": 16, "station": "3", "obsid": 3, "type": "GX","nobs": 1},
+  "nobs": 3,
+  "obs": [
+   {
+    "value":  0.00000000e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [13],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value":  0.00000000e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [14],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value":  0.00000000e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [15],
+    "values": [ 1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+},
+{
+  "source": {"file": "testgx9.dat","lineno": 19, "station": "1", "obsid": 4, "type": "GX","nobs": 3},
+  "nobs": 9,
+  "obs": [
+   {
+    "value":  2.82413901e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [7, 1, 2, 3],
+    "values": [ 1.00000000e+00, -1.16306820e-01, -6.51776278e-01, -7.49440062e-01]
+   },
+   {
+    "value": -6.71126032e-02,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 1, 2, 3],
+    "values": [ 1.00000000e+00, -9.93213332e-01,  7.63240121e-02,  8.77605925e-02]
+   },
+   {
+    "value":  2.92545467e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [9, 1, 2, 3],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  7.54561017e-01, -6.56229892e-01]
+   },
+   {
+    "value":  4.39002987e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [7, 10, 11, 12],
+    "values": [ 1.00000000e+00, -1.16185411e-01, -5.55505434e-01, -8.23355733e-01]
+   },
+   {
+    "value":  2.06604545e-01,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [8, 10, 11, 12],
+    "values": [ 1.00000000e+00, -9.93227542e-01,  6.49817133e-02,  9.63142085e-02]
+   },
+   {
+    "value": -4.17809131e+00,
+    "useobs": true,
+    "ncolumns": 4,
+    "columns": [9, 10, 11, 12],
+    "values": [ 1.00000000e+00,  0.00000000e+00,  8.28969897e-01, -5.59293224e-01]
+   },
+   {
+    "value":  1.06948212e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [7],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value": -7.53871988e-01,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [8],
+    "values": [ 1.00000000e+00]
+   },
+   {
+    "value":  5.80562591e+00,
+    "useobs": true,
+    "ncolumns": 1,
+    "columns": [9],
+    "values": [ 1.00000000e+00]
+   }
+  ],
+  "cvr": [
+    [ 9.63887304e-03,-9.41363611e-04, 5.31149446e-03, 1.97791225e-03,-1.84580379e-04, 7.36796345e-04, 1.69503974e-03,-3.87717658e-04, 7.58961573e-04],
+    [-9.41363611e-04, 1.71023503e-03,-6.21983652e-04,-1.84580379e-04, 4.21591769e-04,-8.61886635e-05,-3.87717658e-04, 5.16077505e-04,-2.27222990e-04],
+    [ 5.31149446e-03,-6.21983652e-04, 8.25089193e-03, 7.36796345e-04,-8.61886635e-05, 1.40049598e-03, 7.58961573e-04,-2.27222990e-04, 1.58888275e-03],
+    [ 1.97791225e-03,-1.84580379e-04, 7.36796345e-04, 1.08944689e-02,-1.08724461e-03, 4.97337533e-03, 1.69503974e-03,-3.87717658e-04, 7.58961573e-04],
+    [-1.84580379e-04, 4.21591769e-04,-8.61886635e-05,-1.08724461e-03, 1.72718326e-03,-5.81773479e-04,-3.87717658e-04, 5.16077505e-04,-2.27222990e-04],
+    [ 7.36796345e-04,-8.61886635e-05, 1.40049598e-03, 4.97337533e-03,-5.81773479e-04, 6.97834785e-03, 7.58961573e-04,-2.27222990e-04, 1.58888275e-03],
+    [ 1.69503974e-03,-3.87717658e-04, 7.58961573e-04, 1.69503974e-03,-3.87717658e-04, 7.58961573e-04, 9.07962480e-03,-2.23930008e-03, 5.12299062e-03],
+    [-3.87717658e-04, 5.16077505e-04,-2.27222990e-04,-3.87717658e-04, 5.16077505e-04,-2.27222990e-04,-2.23930008e-03, 2.27041663e-03,-1.53375519e-03],
+    [ 7.58961573e-04,-2.27222990e-04, 1.58888275e-03, 7.58961573e-04,-2.27222990e-04, 1.58888275e-03, 5.12299062e-03,-1.53375519e-03, 8.24995857e-03]
+  ]
+}
+]}
+
+END_JSON obs_equation_2
+
+BEGIN_JSON float_stations_2
+
+{ "float_stations": [
+{
+    "source": {"station":"1"},
+    "nobs": 3,
+    "obs": [
+     {
+      "value":  5.18913229e-01,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [1],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value": -3.01910362e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [2],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value":  4.92965106e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [3],
+      "values": [ 1.00000000e+00]
+     }
+    ],
+    "cvrdiag": [
+   1.00000000e+00, 1.00000000e+00, 1.00000000e+00
+    ]
+  },
+{
+    "source": {"station":"2"},
+    "nobs": 3,
+    "obs": [
+     {
+      "value":  2.28611331e-01,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [10],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value": -7.37304685e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [11],
+      "values": [ 1.00000000e+00]
+     },
+     {
+      "value":  6.92247651e+00,
+      "useobs": true,
+      "ncolumns": 1,
+      "columns": [12],
+      "values": [ 1.00000000e+00]
+     }
+    ],
+    "cvrdiag": [
+   1.00000000e+00, 1.00000000e+00, 1.00000000e+00
+    ]
+  }]}
+
+END_JSON float_stations_2
+
+Iteration 2: Maximum change is 0.0000 metres at station 2
+             0 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              24
+Number of parameters:                15
+
+Degrees of freedom:                   9
+Sum of squared residuals:         20226.29773
+Standard error of unit weight:       47.40640
+
+The probability of an SSR this high is 0.000% (from Chi squared (9))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.702136 S     3.0191    0.0676 179  1
+       173 19 15.577794 E    -0.5189    0.0458  89
+             145.0703        -4.9297    0.1393
+
+ 2      34 00 24.960722 S     7.3731    0.0466   0  2
+       173 19 40.791092 E    -0.2286    0.0313  90
+             243.0775        -6.9225    0.0937
+
+ 3      41 00 28.800000 S      -         -          3
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 29.800000 S      -         -          4
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                                FLOATED STATIONS
+
+================================================================================
+
+This list shows apriori errors
+
+Adjustments outside the 95.000% confidence limit are flagged ?
+Adjustments outside the 99.000% confidence limit are flagged ???
+Significance is based on the Normal distribution function
+
+Code    coord      error      calc.err    residual    adj.err    std.res
+
+1       East       1.0000      0.0458     -0.5189      0.9990     0.52 
+        North      1.0000      0.0676      3.0191      0.9977     3.03 ???
+        Up         1.0000      0.1393     -4.9297      0.9902     4.98 ???
+
+2       East       1.0000      0.0313     -0.2286      0.9995     0.23 
+        North      1.0000      0.0466      7.3731      0.9989     7.38 ???
+        Up         1.0000      0.0937     -6.9225      0.9956     6.95 ???
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS_T
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                                OTHER PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Parameter                          value         +/-
+Obs set 1 X translation             -0.58704      0.00000
+Obs set 1 Y translation             -0.61320      0.00000
+Obs set 1 Z translation             10.28691      0.00000
+Obs set 3 X translation              0.20003      0.00000
+Obs set 3 Y translation             -1.29996      0.00000
+Obs set 3 Z translation             15.79999      0.00000
+Obs set 4 X translation             -0.86946      0.00000
+Obs set 4 Y translation             -0.54609      0.00000
+Obs set 4 Z translation              9.99437      0.00000
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    19-SEP-2018 06:45:06
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx9.dat: line 14
+
+1     GX    -4787263.3200  0.0982  -4787263.3200  0.0982 -0.0000  0.0000    -   @   GPS_T         
+              560595.2704  0.0414    560595.2704  0.0414  0.0000  0.0000    -   @   GPS_T         
+            -4163666.0023  0.0908  -4163666.0023  0.0908  0.0000  0.0000    -   @   GPS_T         
+             6369322.7058           6369322.7058          0.0000            -       GPS_T         
+
+2     GX    -5257413.5321  0.1044  -5257413.1017  0.0804  0.3872  0.0249  15.53  ???GPS_T         
+              614999.4244  0.0416    614999.7639  0.0329  5.0386  0.0378 133.16  ???GPS_T         
+            -3547268.5627  0.0835  -3547274.3790  0.0661 -2.9313  0.0750  39.09  ???GPS_T         
+             6371949.1206           6371952.0361          5.8421          82.10  ???GPS_T         
+
+3     GX    -4617769.4931  0.0953  -4617769.4931  0.0953  0.0000  0.0000    -   @   GPS_T         
+             1382497.4666  0.0476   1382497.4666  0.0476  0.0000  0.0000    -   @   GPS_T         
+            -4163194.4858  0.0908  -4163194.4858  0.0908  0.0000  0.0000    -   @   GPS_T         
+             6369245.0623           6369245.0623          0.0000            -       GPS_T         
+
+1     GX    -4787263.3200  0.0982  -4787263.6024  0.0977  0.0338  0.0020  17.30 @???GPS_T         
+              560595.2704  0.0414    560595.3375  0.0413  0.0315  0.0031  10.29 @???GPS_T         
+            -4163666.0023  0.0908  -4163666.2948  0.0904 -0.4095  0.0128  31.95  ???GPS_T         
+             6369322.7058           6369323.1152          0.4121          22.12  ???GPS_T         
+
+2     GX    -5257413.5321  0.1044  -5257413.9711  0.0879 -0.2562  0.0182  14.06  ???GPS_T         
+              614999.4244  0.0416    614999.2178  0.0376 -3.6940  0.0282 130.96  ???GPS_T         
+            -3547268.5627  0.0835  -3547264.3846  0.0735  1.9952  0.0627  31.81  ???GPS_T         
+             6371949.1206           6371947.1369          4.2062          81.60  ???GPS_T         
+
+3     GX    -4617769.4931  0.0953  -4617770.5626  0.0827  0.4155  0.0186  22.38  ???GPS_T         
+             1382497.4666  0.0476   1382498.2205  0.0400  3.5669  0.0285 124.96  ???GPS_T         
+            -4163194.4858  0.0908  -4163200.2914  0.0762 -4.7458  0.0649  73.15  ???GPS_T         
+             6369245.0623           6369249.7961          5.9513          81.11  ???GPS_T         

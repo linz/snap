@@ -93,6 +93,8 @@ static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int cod
 static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_set_obs_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_use_distance_ratios( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -175,6 +177,7 @@ static config_item snap_commands[] =
     {"reference_frame",NULL,CFG_ABSOLUTE,0,read_rftrans,CONFIG_CMD,0},
     {"reference_frame_scale_error",NULL,CFG_ABSOLUTE,0,read_rfscale,CFG_ONEONLY,0},
     {"proj_bearing_use_datum",NULL,CFG_ABSOLUTE,0,read_pb_use_datum_trans,CONFIG_CMD,0},
+    {"set_observation_option",NULL,CFG_ABSOLUTE,0,read_set_obs_option,0,0},
     {"output",NULL,CFG_ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
     {"print",NULL,CFG_ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
     {"list",NULL,CFG_ABSOLUTE,0,read_output_options,CONFIG_CMD,LIST_OPTIONS},
@@ -200,7 +203,7 @@ static config_item snap_commands[] =
     {"redundancy_flag_level",&redundancy_flag_level,CFG_ABSOLUTE,0,readcfg_double,CONFIG_CMD,0},
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CONFIG_CMD,0},
     {"gps_vertical",NULL,CFG_ABSOLUTE,0,read_gps_vertical,CONFIG_CMD,0},
-    {"use_distance_ratios",&use_distance_ratios,CFG_ABSOLUTE,0,readcfg_boolean,CONFIG_CMD,0},
+    {"use_distance_ratios",NULL,CFG_ABSOLUTE,0,read_use_distance_ratios,CONFIG_CMD,0},
     {"deformation",NULL,CFG_ABSOLUTE,0,read_deformation_model,0,CFG_ONEONLY},
     {"plot",NULL,CFG_ABSOLUTE,0,load_plot_data,0,0},
     {"magic_number",NULL,CFG_ABSOLUTE,0,set_magic_number,CONFIG_CMD,0},
@@ -1370,6 +1373,83 @@ static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *, int, in
         sts = readcfg_boolean( cfg, string, &option, 1, 0 );
     }
     if( sts == OK ) set_bproj_use_datum_transformation( option );
+    return sts;
+}
+
+static int read_set_obs_option( CFG_FILE *cfg, char *string, void *, int, int )
+{
+    int option;
+    char *optionstr;
+    const char *selection_prefix=0;
+    char *criteria;
+    char *selection=0;
+    int result;
+    int nch;
+    int set;
+    void *obsmod=0;
+
+    optionstr=strtok(string," ");
+    criteria=strtok(NULL,"");
+    
+    if( ! optionstr )
+    {
+        send_config_error( cfg, INVALID_DATA, "Observation option not specified");
+        return OK;
+    }
+
+    set=1;
+    if( _strnicmp( "no_", optionstr, 3 ) == 0 )
+    {
+        set=0;
+        optionstr += 3;
+    }
+
+    if( _stricmp(optionstr,"calculate_gx_translation") == 0 )
+    {
+        option=OBS_OPT_CALC_GX_TRANSLATION;
+        selection_prefix="data_type=GX";
+    }
+    else if( _stricmp(optionstr,"use_distance_ratios_as_distances") == 0 )
+    {
+        option=OBS_OPT_CALC_DISTRATIO_AS_DIST;
+        selection_prefix="data_type=DR";
+    }
+    else
+    {
+        char errmess[80];
+        sprintf(errmess,"Invalid observation option %.20s specified",optionstr);
+        send_config_error( cfg, INVALID_DATA, "Observation option not specified");
+        return OK;
+    }
+
+    if( ! selection_prefix && ! criteria ) selection_prefix="all_observations";
+    nch = selection_prefix ? strlen(selection_prefix)+1 : 0;
+    nch += criteria ? strlen(criteria)+1 : 0;
+    selection=(char *) check_malloc(nch);
+    selection[0]=0;
+    if( selection_prefix )
+    {
+        strcpy(selection,selection_prefix);
+        if( criteria ) strcat(selection," ");
+    }
+    if( criteria ) strcat(selection,criteria);
+    obsmod=snap_obs_modifications(true);
+    result=add_obs_option_modification(cfg,obsmod,selection,set,option);
+    check_free(selection);
+    return result;
+}
+
+static int read_use_distance_ratios( CFG_FILE *cfg, char *string, void *, int, int )
+{
+    unsigned char set=0;
+    int sts=readcfg_boolean(cfg,string,&set,1,0);
+    if( sts == OK )
+    {
+        char selection[20];
+        strcpy(selection,"data_type=DR");
+        void *obsmod=snap_obs_modifications(true);
+        add_obs_option_modification(cfg,obsmod,selection,set,OBS_OPT_CALC_DISTRATIO_AS_DIST);
+    }
     return sts;
 }
 

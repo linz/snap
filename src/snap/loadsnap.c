@@ -33,9 +33,7 @@ into SNAP
 6) Record usage of various types of parameters
    (stations, refcoef, syserrs and specific params, ref-frames)
 
-7) Convert distance ratios to distances if required
-
-8) Check for two data types using Schreiber's equations.
+7) Check for two data types using Schreiber's equations.
 
 */
 
@@ -58,31 +56,36 @@ into SNAP
 #include <string.h>
 #include <stdlib.h>
 
-#include "snap/snapglob.h"
+#include "adjparam.h"
+#include "coefs.h"
 #include "loadsnap.h"
-#include "snapdata/datatype.h"
-#include "snapdata/survdata.h"
-#include "snapdata/loaddata.h"
-#include "snap/survfilr.h"
-#include "snap/bindata.h"
+#include "notedata.h"
+#include "obsdata.h"
+#include "pntdata.h"
 #include "reorder.h"
 #include "sortobs.h"
-#include "snap/stnadj.h"
 #include "stnobseq.h"
-#include "snapdata/survdata.h"
-#include "adjparam.h"
-#include "util/classify.h"
-#include "snap/rftrans.h"
+#include "vecdata.h"
 #include "snap/bearing.h"
-#include "util/classify.h"
-#include "util/symmatrx.h"
-#include "notedata.h"
-#include "snapdata/gpscvr.h"
+#include "snap/bindata.h"
 #include "snap/gpscvr2.h"
-#include "coefs.h"
-#include "util/dateutil.h"
+#include "snap/rftrans.h"
+#include "snap/genparam.h"
+#include "snap/obsparam.h"
+#include "snap/snapglob.h"
+#include "snap/stnadj.h"
+#include "snap/survfilr.h"
+#include "snapdata/datatype.h"
+#include "snapdata/gpscvr.h"
+#include "snapdata/loaddata.h"
+#include "snapdata/survdata.h"
+#include "snapdata/survdata.h"
 #include "util/chkalloc.h"
+#include "util/classify.h"
+#include "util/classify.h"
+#include "util/dateutil.h"
 #include "util/errdef.h"
+#include "util/symmatrx.h"
 
 
 /*********************************************************************/
@@ -209,26 +212,6 @@ static void list_missing_stations( void )
 
 /***********************************************************************/
 
-static int convert_distance_ratios = 0;
-
-void set_convert_ratios_to_distance( int option )
-{
-    convert_distance_ratios = option;
-}
-
-static void convert_ratios_to_distances( survdata *sd )
-{
-    int i;
-    trgtdata *t;
-
-    for( i=0; i<sd->nobs; i++ )
-    {
-        t = get_trgtdata( sd, i );
-        if( t->type == DR ) t->type = SD;
-    }
-}
-
-
 static void record_connections( survdata *sd )
 {
     int i, i2, from;
@@ -284,6 +267,8 @@ static void record_parameter_usage( survdata *sd )
             {
                 flag_param_used(sd->syserr[is+t->isyserr].prm_id);
             }
+
+            flag_obsparam_used( sd );
 
             switch( sd->format )
             {
@@ -412,9 +397,17 @@ static void load_snap( survdata *sd )
         return;
     }
 
-    /* Convert distance ratios to distances if required */
+    /* Apply observation options */
 
-    if( convert_distance_ratios ) convert_ratios_to_distances( sd );
+    if( sd->options )
+    {
+        switch( sd->format )
+        {
+            case SD_OBSDATA: apply_obsdata_options( sd ); break;
+            case SD_VECDATA: apply_vecdata_options( sd ); break;
+            case SD_PNTDATA: apply_pntdata_options( sd ); break;
+        }
+    }
 
     /* Record the usage (for identifying which parameters can be calculated),
        and the connections (for minimizing bandwidth) */

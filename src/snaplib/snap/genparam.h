@@ -26,6 +26,7 @@ typedef struct param_s
 #define PRM_ADJUST 0x01  /* Flags that parameter is to be adjusted */
 #define PRM_USED   0x02  /* Flags that data have been used... */
 #define PRM_LISTED 0x04  /* Flags that parameters have already been listed */
+#define PRM_ROWSET 0x04  /* Flags that the parameter rownumber is set by other code */
 
 /* Note: the numbers defined for PRM_ correspond to indexes in the
    coefprefix and coefpfxlen arrays in genparam.c */

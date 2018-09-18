@@ -817,6 +817,9 @@ void ldt_inststn( int stn_id, double ihgt )
     data.ncvr = 0;
     data.nclass = 0;
     data.nsyserr = 0;
+    data.options = 0;
+    data.nprms = 0;
+    data.prmid = 0;
 
     tgt = NULL;
     tgt_id = 0;

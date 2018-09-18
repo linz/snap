@@ -477,9 +477,8 @@ static int list_observations( FILE *out, BINARY_FILE *bf )
     b = create_bindata();
     init_get_bindata( 0L );
 
-    while( get_bindata( b ) == OK )
+    while( get_bindata( SURVDATA, b ) == OK )
     {
-        if( b->bintype != SURVDATA ) continue;
         sd = (survdata *) b->data;
         if( sd->format != SD_VECDATA ) continue;
         list_vecdata_residuals( out, sd );

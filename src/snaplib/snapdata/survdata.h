@@ -51,7 +51,7 @@ typedef struct
     double tohgt;   /* The instrument height at the target station */
     int  type;      /* The type of data */
     int  obsid;     /* Id of observation for snap */
-    int  id;        /* An optional id for the observation */
+    int  id;        /* An optional external id for the observation */
     int  lineno;    /* The line number in the data file - used to pinpoint problems */
     int  nclass;    /* Number of classifications for the obs */
     int  iclass;    /* Index of first class in array of classes */
@@ -119,6 +119,9 @@ typedef struct           /* Data relating to an observation or set of obs */
     int  ncvr;        /* The size of the covariance matrix */
     int  nclass;      /* The number of classifications stored */
     int  nsyserr;     /* The number of systematic errors stored */
+    int  options;     /* Observation adjustment options */
+    int  nprms;       /* Number of parameters specific to this observation set */
+    int  prmid;       /* Index of first parameter in array of parameters */
 
     /* The following information is not stored in the binary file */
     /* Though the pointed-to objects are... */
@@ -144,6 +147,11 @@ typedef struct           /* Data relating to an observation or set of obs */
 #define REJECT_OBS_BIT   0x01
 #define IGNORE_OBS_BIT   0x02
 #define UNUSED_OBS_BIT   0x04   /* Unused for another reason...*/
+
+/* Observation adjustment options */
+
+#define OBS_OPT_CALC_GX_TRANSLATION 0x01
+#define OBS_OPT_CALC_DISTRATIO_AS_DIST 0x02
 
 /* Get the i'th target for an observations */
 

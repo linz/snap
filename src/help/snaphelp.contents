@@ -105,6 +105,7 @@
   3	refraction_coefficient	help/files/cmdcfg/cmd_additional_parameter_commands.html
   3	reject	help/files/cmdcfg/cmd_reject.html
   3	reorder_stations	help/files/cmdcfg/cmd_reorder_stations.html
+  3     set_observation_option  help/files/cmdcfg/cmd_set_observation_option.html
   3	sort_observations	help/files/cmdcfg/cmd_sort_observations.html
   3	spec_test_options	help/files/cmdcfg/cmd_spec_test_options.html
   3	specification	help/files/cmdcfg/cmd_specification.html

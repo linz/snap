@@ -51,6 +51,9 @@ static void create_stn_adjustment( station *st )
     sa->initELat = st->ELat;
     sa->initELon = st->ELon;
     sa->initOHgt = st->OHgt;
+    sa->hrowno = 0;
+    sa->vrowno = 0;
+    sa->nobsprm = 0;
     sa->idcol = 0;
     sa->herror = 0.0;
     sa->verror = 0.0;

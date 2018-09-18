@@ -173,12 +173,9 @@ void compile_station_autofix_data()
 
     bd=create_bindata();
     init_get_bindata( 0L );
-    while( get_bindata( bd ) == OK )
+    while( get_bindata( SURVDATA, bd ) == OK )
     {
-        if( bd->bintype == SURVDATA )
-        {
-            add_survdata_fixdata( (survdata *) bd->data );
-        }
+        add_survdata_fixdata( (survdata *) bd->data );
     }
     delete_bindata( bd );
 

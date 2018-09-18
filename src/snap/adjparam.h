@@ -8,10 +8,6 @@
 
 */
 
-#ifndef _GENPARAM_H
-#include "snap/genparam.h"
-#endif
-
 void set_param_obseq( int p, void *hA, int irow, double v );
 void update_params( int get_covariance );
 

@@ -72,6 +72,7 @@
 #include "network/network.h"
 #include "snap/bindata.h"
 #include "snap/deform.h"
+#include "snap/genparam.h"
 #include "snap/rftrans.h"
 #include "snap/rftrndmp.h"
 #include "snap/stnadj.h"

@@ -11,6 +11,8 @@
 
 */
 
+#include <stdio.h>
+
 /* Definitions of an input and output string structure */
 
 typedef int (*input_string_errfunc)( void *source, int status, const char *message );

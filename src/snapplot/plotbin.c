@@ -96,12 +96,9 @@ void load_observations_from_binary( void )
     if( ! bd ) bd = create_bindata();
     init_get_bindata( 0L );
 
-    while( get_bindata( bd ) == OK )
+    while( get_bindata( SURVDATA, bd ) == OK )
     {
-        if( bd->bintype == SURVDATA )
-        {
-            add_survdata_connections( (survdata *) bd->data, bd->loc );
-        }
+        add_survdata_connections( (survdata *) bd->data, bd->loc );
     }
 }
 
@@ -169,7 +166,7 @@ survdata *get_survdata_from_binary( long loc )
 {
     if( !bd ) bd = create_bindata();
     init_get_bindata( loc );
-    if( get_bindata(bd) != OK )  return NULL;
+    if( get_bindata(ANYDATATYPE,bd) != OK )  return NULL;
     if( bd->bintype != SURVDATA ) return NULL;
     return (survdata *) (bd->data);
 }

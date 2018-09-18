@@ -23,6 +23,7 @@
 /* Define whether midpoint used to define gps vertical, or topocentre used */
 
 void list_vecdata( FILE *out, survdata  *v ) ;
+void apply_vecdata_options( survdata *v );
 int vecdata_obseq( survdata  *v, void *hA, int nextra ) ;
 void calc_vecdata_residuals( survdata  *v, lsdata *l );
 void list_vecdata_residuals( FILE *out, survdata  *v, double semult);

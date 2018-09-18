@@ -67,7 +67,7 @@ int64_t write_bindata_header( long size, int type )
     fwrite( &size, sizeof(size), 1, bindata_file );
     fwrite( &type, sizeof(type), 1, bindata_file );
     if( size > maxsize ) maxsize = size;
-    nbindata++;
+    if( type == SURVDATA ) nbindata++;
     return loc;
 }
 
@@ -87,31 +87,35 @@ int read_bindata_header( long *size, int *type )
 
 static void reset_survdata_pointers( survdata *sd );
 
-int get_bindata( bindata *b )
+int get_bindata( int bintype, bindata *b )
 {
     long loc;
     int sts;
 
-    loc = ftell64( bindata_file );
 
     /* Read the size and type of the next data item */
 
-    sts = fread( &b->size, sizeof(b->size), 1, bindata_file );
-    if( sts ) sts = fread( &b->bintype, sizeof(b->bintype), 1, bindata_file );
-    if( !sts || b->bintype == ENDDATA ) return NO_MORE_DATA;
-
-    if( b->bintype < 0 || b->bintype > NOBINDATATYPES )
+    while( 1 )
     {
-        handle_error( INTERNAL_ERROR,
-                      "Program error - invalid binary data type",
-                      "Error occurred in get_bindata");
+        loc = ftell64( bindata_file );
+        sts = fread( &b->size, sizeof(b->size), 1, bindata_file );
+        if( sts ) sts = fread( &b->bintype, sizeof(b->bintype), 1, bindata_file );
+        if( !sts || b->bintype == ENDDATA ) 
+        {
+            fseek64( bindata_file, loc, SEEK_SET );
+            return NO_MORE_DATA;
+        }
+        if( b->bintype < 0 || b->bintype > NOBINDATATYPES )
+        {
+            handle_error( INTERNAL_ERROR,
+                          "Program error - invalid binary data type",
+                          "Error occurred in get_bindata");
 
-        return INVALID_DATA;
+            return INVALID_DATA;
+        }
+        if( b->bintype == bintype || bintype == ANYDATATYPE ) break;
+        fseek64(bindata_file, b->size, SEEK_CUR);
     }
-
-    /* Check that the binary data was successfully read */
-
-    if( sts != 1 ) return NO_MORE_DATA;
 
     /* Check that we have enough room for the data, and if not allocate more */
 
@@ -545,12 +549,10 @@ void print_json_observations( FILE *out )
     init_get_bindata( 0L );
     fprintf(out,"[");
     int first=1;
-    while( get_bindata( b ) == OK )
+    while( get_bindata( SURVDATA, b ) == OK )
     {
         int iobs;
         int ncvrrow=0;
-
-        if( b->bintype != SURVDATA ) continue;
         survdata *sd = (survdata *) b->data;
         if( first ) { first=0; } else { fprintf(out,","); }
         fprintf( out, "\n  {\n  \"obs\":\n    [" );
