@@ -1,0 +1,21 @@
+Testing Vector formats
+
+#date 1 Jan 2008
+
+#gps_error_type full 
+#gx_enu_error 40 60 120 mm 20 30 50 mmr 
+#gps_enu_error 40 60 120 mm 
+#data GX value no_heights
+
+! Testing translation
+! offset 1.2000	-0.3000	15.8000
+#reference_frame GPS_T
+
+1	-4787263.3200	560595.2704	-4163666.0023
+2	-5257413.5321	614999.4244	-3547268.5627
+3	-4617769.4931	1382497.4666	-4163194.4858
+
+#data GX value no_heights grouped
+1	-4787263.3200	560595.2704	-4163666.0023
+2	-5257413.5321	614999.4244	-3547268.5627
+3	-4617769.4931	1382497.4666	-4163194.4858

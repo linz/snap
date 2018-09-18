@@ -53,6 +53,11 @@
 static void *latobsfmt = NULL;
 static void *lonobsfmt = NULL;
 
+void apply_pntdata_options( survdata *p )
+{
+    /* None defined yet */
+}
+
 int pntdata_obseq( survdata *p, void *hA, int nextra )
 {
     station *st;

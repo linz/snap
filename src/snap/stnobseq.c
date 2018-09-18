@@ -34,6 +34,7 @@
 #include "reorder.h"
 #include "residual.h"
 #include "snap/deform.h"
+#include "snap/genparam.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "snapdata/stnrecode.h"
@@ -313,7 +314,7 @@ int init_station_rowno( void )
 
         sa->hrowno = sa->flag.adj_h ? 2 : 0;
         sa->vrowno = sa->flag.adj_v ? 1 : 0;
-        nextprm += sa->hrowno + sa->vrowno;
+        nextprm += sa->hrowno + sa->vrowno + sa->nobsprm;
 
     }
 

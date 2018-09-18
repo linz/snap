@@ -17,6 +17,8 @@
 #define OBS_MOD_REJECT   2
 #define OBS_MOD_REWEIGHT 4
 #define OBS_MOD_REWEIGHT_SET 8
+#define OBS_MOD_SET_OPTION  16 
+#define OBS_MOD_UNSET_OPTION  32 
 
 /* Note: network and classifications are not held by the obs_modifications object
  * so must remain valid for as long as the obs_modifications are used.
@@ -34,6 +36,9 @@ void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc );
 
 /* Add modifications based on a string specifying multiple criteria */
 int add_obs_modifications( CFG_FILE *cfg, void *obsmod, char *modifications, int action, double err_factor );
+
+/* Set or unset observation modifications */
+int add_obs_option_modification( CFG_FILE *cfg, void *obsmod, char *criteria, int set, int option );
 
 /* Add modifications criteria based on a classification name and list of values */
 int add_obs_modifications_classification( CFG_FILE *cfg, void *obsmod, char *classification, char *value, int action, double err_factor, int missing_error );

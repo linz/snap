@@ -159,6 +159,17 @@ void list_obsdata( FILE *out, survdata *o )
     }
 }
 
+void apply_obsdata_options( survdata *o )
+{
+    if( (o->options & OBS_OPT_CALC_DISTRATIO_AS_DIST) )
+    {
+        for( int i=0; i<o->nobs; i++ )
+        {
+            trgtdata *t = get_trgtdata( o, i );
+            if( t->type == DR ) t->type = SD;
+        }
+    }
+}
 
 int obsdata_obseq( survdata *o, void *hA, int nextra )
 {

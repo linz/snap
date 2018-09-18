@@ -29,24 +29,41 @@
 #include <math.h>
 #include <string.h>
 
-#include "vecdata.h"
 #include "bindata2.h"
-#include "output.h"
-#include "snap/snapglob.h"
-#include "snap/rftrans.h"
-#include "rftrnadj.h"
-#include "stnobseq.h"
-#include "util/lsobseq.h"
-#include "snap/survfile.h"
-#include "util/geodetic.h"
-#include "util/errdef.h"
-#include "util/symmatrx.h"
-#include "notedata.h"
-#include "residual.h"
-#include "util/classify.h"
 #include "coefs.h"
-#include "snapdata/gpscvr.h"
+#include "notedata.h"
+#include "output.h"
+#include "residual.h"
+#include "rftrnadj.h"
 #include "snap/datastat.h"
+#include "snap/obsparam.h"
+#include "snap/rftrans.h"
+#include "snap/snapglob.h"
+#include "snap/survfile.h"
+#include "snapdata/gpscvr.h"
+#include "stnobseq.h"
+#include "util/classify.h"
+#include "util/errdef.h"
+#include "util/geodetic.h"
+#include "util/lsobseq.h"
+#include "util/symmatrx.h"
+#include "vecdata.h"
+
+const char *gx_trans_params[]={
+    "X translation",
+    "Y translation",
+    "Z translation"
+    };
+
+
+void apply_vecdata_options( survdata *v )
+{
+    trgtdata *trgt=get_trgtdata(v,0);
+    if( trgt->type == GX && v->options & OBS_OPT_CALC_GX_TRANSLATION )
+    {
+        add_survdata_observation_parameters( v, 3, gx_trans_params );
+    }
+}
 
 int vecdata_obseq( survdata  *v, void *hA, int nextra )
 {
@@ -59,16 +76,33 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
     ltmat oecvr, veccvr;
     char unused;
     char isvecdif;
+    char addtrans;
+    int gxprmrow[3];
+    double gxprmval[3];
 
     /* Initiallize the observation equations for two station plus up to 7
-       parameters plus a possible reference frame scale error */
+       ref_frame parameters plus a possible reference frame scale error 
+       plus 3 gx translation params */
 
-    init_oe( hA, v->nobs*3, 2*dimension + 8 + nextra, OE_LOWERTRI_CVR );
+    init_oe( hA, v->nobs*3, 2*dimension + 11 + nextra, OE_LOWERTRI_CVR );
 
     isvecdif = v->obs.vdata->tgt.type == GB;
 
     st1 = isvecdif ? stnptr( v->from ) : NULL;
     hgt1 = v->fromhgt;
+
+    if( v-> options )
+    {
+        trgtdata *trgt=get_trgtdata(v,0);
+        if( trgt->type == GX && v->options & OBS_OPT_CALC_GX_TRANSLATION )
+        {
+            addtrans=1;
+            for( int iprm=0; iprm < 3; iprm++ )
+            {
+                gxprmrow[iprm]=get_survdata_obs_param_rowno(v,iprm,&(gxprmval[iprm]));
+            }
+        }
+    }
 
     /* Process each observation (vector) in turn */
 
@@ -77,9 +111,32 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
 
         st2 = stnptr( t->tgt.to );
         hgt2 = t->tgt.tohgt;
+        addtrans = 0;
 
         switch ( t->tgt.type )
         {
+
+        case GX: /* Calculate the point vector .. */
+
+
+            calc_xyz( st2, hgt2, dif, dst2 );
+
+            /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
+
+            vd_rftrans_corr_point( v->reffrm, dif, v->date, dst2, hA, irow );
+
+            /* See if an additional translation parameter is required */
+
+            addtrans=v->options & OBS_OPT_CALC_GX_TRANSLATION && v->prmid > 0;
+
+            /* Apply the global reference frame scale error */
+            /* This is not properly valid for an XYZ position?
+
+            for( axis = 0; axis < 3; axis++ ) {
+               dif[axis] += rf_scale_error( dif[axis], hA, irow+axis );
+               }
+              */
+            break;
 
         case GB:  /* Calculate the vector difference in the local frame */
 
@@ -95,25 +152,17 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
             {
                 dif[axis] += rf_scale_error( dif[axis], hA, irow+axis );
             }
+            if( addtrans )
+            {
+                handle_error(FATAL_ERROR,"Mixed vecdata types",NO_MESSAGE);
+                return FATAL_ERROR;
+            }
             break;
 
-        case GX: /* Calculate the point vector .. */
-
-
-            calc_xyz( st2, hgt2, dif, dst2 );
-
-            /* Convert to the GPS frame (and save parameters in obs.vdata eqns ) */
-
-            vd_rftrans_corr_point( v->reffrm, dif, v->date, dst2, hA, irow );
-
-            /* Apply the global reference frame scale error */
-            /* This is not properly valid for an XYZ position?
-
-            for( axis = 0; axis < 3; axis++ ) {
-               dif[axis] += rf_scale_error( dif[axis], hA, irow+axis );
-               }
-              */
-            break;
+        default:
+           handle_error(FATAL_ERROR,"Unhandled vecdata type",NO_MESSAGE);
+           return FATAL_ERROR;
+        
         }
 
         /* Copy the data to the observation equations */
@@ -124,6 +173,11 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
 
         for( axis = 0; axis < 3; axis++ )
         {
+            if( addtrans ) 
+            {
+                dif[axis] += gxprmval[axis];
+                if( gxprmrow[axis] ) oe_param( hA, irow+axis, gxprmrow[axis], 1.0 );
+            }
             oe_value( hA, irow+axis, t->vector[axis] - dif[axis] );
             /* set station obseq also applies any station deformation to the
                the observed value */

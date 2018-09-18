@@ -359,53 +359,50 @@ int sum_bindata( int iteration )
     init_get_bindata( 0L );
     init_progress_meter( nbindata );
     nbin = 0;
-    while( get_bindata( b ) == OK )
+    while( get_bindata( SURVDATA, b ) == OK )
     {
         nbin++;
         update_progress_meter( nbin );
-        if ( b->bintype != NOTEDATA )
+        int stsobs=bindata_obseq( b, hA );
+        if( stsobs != OK ) 
         {
-            int stsobs=bindata_obseq( b, hA );
-            if( stsobs != OK ) 
-            {
-                sts=stsobs;
-                continue;
-            }
-            if( output_observation_equations )
-            {
-                char source[200];
-                survdata *sd = (survdata *) b->data;
-                trgtdata *tgt=get_trgtdata(sd,0);
-                sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"obsid\": %d, \"type\": \"%s\",\"nobs\": %d}",
-                    survey_data_file_name(sd->file),
-                    (int)(tgt->lineno),
-                    sd->from ? stnptr(sd->from)->Code : "",
-                    sd->from && tgt->to ? " - " : "",
-                    tgt->to ? stnptr(tgt->to)->Code : "",
-                    tgt->obsid,
-                    datatype[tgt->type].code,
-                    sd->nobs
-                    );
-                if( nbin > 1 )  fprintf(lst,",\n");
-                print_obseqn_json( lst, hA, source, 0 );
-            }
-            stsobs=lsq_sum_obseqn( hA );
-            if( stsobs != OK )
-            {
-                char location[200];
-                survdata *sd = (survdata *) b->data;
-                trgtdata *tgt=get_trgtdata(sd,0);
-                sprintf(location,"Cannot sum observation from %.80s line %d\n",
-                        survey_data_file_name(sd->file),
-                        (int)(tgt->lineno)
-                       );
-                handle_error(INVALID_DATA,"Observation error",location);
-                sts=stsobs;
-            }
-            nrow = obseqn_rows( hA );
-            if( nrow > maxrow ) maxrow = nrow;
-            if( !obseqn_cvr_diagonal(hA) && nrow > maxlt ) maxlt = nrow;
+            sts=stsobs;
+            continue;
         }
+        if( output_observation_equations )
+        {
+            char source[200];
+            survdata *sd = (survdata *) b->data;
+            trgtdata *tgt=get_trgtdata(sd,0);
+            sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"obsid\": %d, \"type\": \"%s\",\"nobs\": %d}",
+                survey_data_file_name(sd->file),
+                (int)(tgt->lineno),
+                sd->from ? stnptr(sd->from)->Code : "",
+                sd->from && tgt->to ? " - " : "",
+                tgt->to ? stnptr(tgt->to)->Code : "",
+                tgt->obsid,
+                datatype[tgt->type].code,
+                sd->nobs
+                );
+            if( nbin > 1 )  fprintf(lst,",\n");
+            print_obseqn_json( lst, hA, source, 0 );
+        }
+        stsobs=lsq_sum_obseqn( hA );
+        if( stsobs != OK )
+        {
+            char location[200];
+            survdata *sd = (survdata *) b->data;
+            trgtdata *tgt=get_trgtdata(sd,0);
+            sprintf(location,"Cannot sum observation from %.80s line %d\n",
+                    survey_data_file_name(sd->file),
+                    (int)(tgt->lineno)
+                   );
+            handle_error(INVALID_DATA,"Observation error",location);
+            sts=stsobs;
+        }
+        nrow = obseqn_rows( hA );
+        if( nrow > maxrow ) maxrow = nrow;
+        if( !obseqn_cvr_diagonal(hA) && nrow > maxlt ) maxlt = nrow;
     }
     end_progress_meter();
 
@@ -461,14 +458,7 @@ void calc_residuals( void )
         nbin++;
         update_progress_meter( nbin );
 
-        if( get_bindata( b ) != OK ) break;
-
-        if ( b->bintype == NOTEDATA ) continue;
-        if ( b->bintype != SURVDATA )
-        {
-            program_error("Invalid binary data format","calc_residuals");
-            continue;
-        }
+        if( get_bindata( SURVDATA, b ) != OK ) break;
 
         if( bindata_obseq( b, hA ) != OK ) continue;
         l.diagonal = obseqn_cvr_diagonal( hA );
@@ -1403,14 +1393,7 @@ void print_residuals( FILE *out )
         nbin++;
         update_progress_meter( nbin );
 
-        if( get_bindata( b ) != OK ) break;
-
-        if ( b->bintype == NOTEDATA ) continue;
-        if ( b->bintype != SURVDATA )
-        {
-            program_error("Invalid binary data type","print_residuals");
-            continue;
-        }
+        if( get_bindata( SURVDATA, b ) != OK ) break;
 
         sd = (survdata *) b->data;
         switch( sd->format )
@@ -1895,14 +1878,7 @@ void write_observation_csv()
         nbin++;
         update_progress_meter( nbin );
 
-        if( get_bindata( b ) != OK ) break;
-
-        if ( b->bintype == NOTEDATA ) continue;
-        if ( b->bintype != SURVDATA )
-        {
-            program_error("Invalid binary data type","write_observation_csv");
-            continue;
-        }
+        if( get_bindata( SURVDATA, b ) != OK ) break;
 
         sd = (survdata *) b->data;
         /* Set obsset to -1 so that it gets reset on first call to write_csv_common_start */

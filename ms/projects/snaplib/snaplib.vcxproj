@@ -184,6 +184,7 @@
     <ClCompile Include="..\..\..\src\snaplib\snap\deform.c" />
     <ClCompile Include="..\..\..\src\snaplib\snap\genparam.c" />
     <ClCompile Include="..\..\..\src\snaplib\snap\gpscvr2.c" />
+    <ClCompile Include="..\..\..\src\snaplib\snap\obsparam.c" />
     <ClCompile Include="..\..\..\src\snaplib\snap\rftrans.c" />
     <ClCompile Include="..\..\..\src\snaplib\snap\rftrndmp.c" />
     <ClCompile Include="..\..\..\src\snaplib\snap\snapglob.c" />
@@ -224,6 +225,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\recordstream.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\strarray.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c" />
+    <ClCompile Include="..\..\..\src\snaplib\util\wildcard.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\writecsv.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c" />
   </ItemGroup>
@@ -281,6 +283,7 @@
     <ClInclude Include="..\..\..\src\snaplib\snap\deform.h" />
     <ClInclude Include="..\..\..\src\snaplib\snap\genparam.h" />
     <ClInclude Include="..\..\..\src\snaplib\snap\gpscvr2.h" />
+    <ClInclude Include="..\..\..\src\snaplib\snap\obsparam.h" />
     <ClInclude Include="..\..\..\src\snaplib\snap\rftrans.h" />
     <ClInclude Include="..\..\..\src\snaplib\snap\rftrndmp.h" />
     <ClInclude Include="..\..\..\src\snaplib\snap\snapglob.h" />
@@ -324,6 +327,7 @@
     <ClInclude Include="..\..\..\src\snaplib\util\stringutil.hpp" />
     <ClInclude Include="..\..\..\src\snaplib\util\symmatrx.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\versioninfo.h" />
+    <ClCompile Include="..\..\..\src\snaplib\util\wildcard.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\writecsv.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\xprintf.h" />
   </ItemGroup>

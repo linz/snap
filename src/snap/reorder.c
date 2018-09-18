@@ -22,7 +22,9 @@
 #ifndef TEST
 
 #include "snap/snapglob.h"
-#include "snap/stnadj.h"
+#include "snap/obsparam.h"
+#include "snap/genparam.h"
+#include "snapdata/survdata.h"
 #include "stnobseq.h"
 #include "output.h"
 #include "util/geodetic.h"
@@ -571,17 +573,10 @@ static void set_row_numbers( int nprm )
         /* Set the row number */
 
         lowest = nrow;
-        nrow += sa->hrowno + sa->vrowno;
         connlst[istn].level = lowest;
-        if( sa->hrowno>0 )
-        {
-            sa->hrowno = lowest;
-            if( sa->vrowno>0 ) sa->vrowno = lowest+2;
-        }
-        else
-        {
-            sa->vrowno = lowest;
-        }
+        if( sa->hrowno > 0 ) { sa->hrowno=nrow; nrow += 2; }
+        if( sa->vrowno > 0 ) { sa->vrowno=nrow; nrow ++; }
+        nrow += sa->nobsprm;
 
         /* Check through the connections to find a connection to a lower
         numbered station. */
@@ -615,8 +610,6 @@ void exclude_stations( void )
     }
 }
 
-
-
 /* This routine initiallizes the least squares adjustment.  It allocates
    memory for the least squares, determines parameters numbers for all
    parameters involved, and if required reorders the stations to give an
@@ -625,15 +618,22 @@ void exclude_stations( void )
 
 int setup_parameters( FILE *lst )
 {
-    int nrowst, nprm, nrow, istn, maxstn;
+    int nrowst, nprm, nrow, istn, maxstn, nobsprm, nstnobs, endobsprm;
 
     /* Count the coordinate parameters and set sa->hrowno and sa->vrowno
        to indicate which stations are being adjusted (and how many parameters
        each has */
 
+    /* If have observation set based parameters then assign observation
+     * parameters to stations, and count the number assigned (only assign
+     * to a station if the station is being adjusted
+     */
+
     nrowst = init_station_rowno( );
-    nprm = init_param_rowno( nrowst+1 );
-    nprm--;
+    nobsprm=assign_obs_param_to_stations( &nstnobs );
+    endobsprm = nrowst+nobsprm;
+    nrowst += nstnobs;
+    nprm = init_param_rowno( endobsprm+1 ) - 1;
 
     /* Allocate space for the least squares equations - readies them
        for taking bandwidth information */
@@ -656,7 +656,12 @@ int setup_parameters( FILE *lst )
     }
 
     /* If we have saved connections then use them to generate an optimal
-       ordering of the stations */
+       ordering of the stations 
+
+       Add observation set parameters to row counts, an set nobsprm
+       to the next observation set parameter id.
+       
+       */
 
     if( reorder_stations != SKIP_REORDERING )
     {
@@ -692,8 +697,11 @@ int setup_parameters( FILE *lst )
             sa = stnadj(stnptr(istn));
             if( sa->hrowno ) {sa->hrowno = nrow; nrow += 2;}
             if( sa->vrowno ) {sa->vrowno = nrow; nrow ++;}
+            nrow += sa->nobsprm;
         }
     }
+
+    set_obs_prm_row_number( nrowst+1, endobsprm );
     return nprm;
 }
 

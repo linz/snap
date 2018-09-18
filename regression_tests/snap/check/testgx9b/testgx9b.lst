@@ -1,0 +1,293 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.15-5124b35
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Sep 18 2018 08:29:35
+
+================================================================================
+                     Run at 18-SEP-2018 11:47:35 by ccrook
+
+
+The command file testgx9b.snp contains:
+     title Regression test 1 - data types and observation equations
+     
+     coordinate_file testgx3.crd
+     data_file testgx9.dat
+     
+     mode 3d adjustment
+     min_iterations 2
+     
+     list command_file
+     list file_summary
+     list problem_definition
+     ! list observation_equations
+     list solution_summary
+     list station_coordinates
+     list reference_frames
+     list parameters
+     list residuals
+     list no_error_summary
+     list no_worst_residuals
+     
+     output no_binary_file
+     output no_coordinate_file
+     
+     add_residual_column c=ref_frame_code
+     
+     !reference_frame GPS_T translation 0 ? 0 ? 0 ?
+     
+     set_observation_option calculate_gx_translation
+     reject_observations using_stations 2
+     
+     fix all
+
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testgx9b.snp
+
+Job: Regression test 1 - data types and observation equations
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testgx3.crd
+       4 stations read
+
+Data file 1: testgx9.dat
+    Observations between 2008-01-01 and 2008-01-01
+       6 GPS point coords
+
+The following observations are rejected
+  Observations which use stations 2
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                             DEFINITION OF PROBLEM
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+The following table lists the stations included in the adjustment.
+Adjustment is signified by F (fixed), H (horizontal), V (vertical) or 3 (3d).
+
+
+Station  Adj  Row  Name
+
+1        F     -  1
+2        F     -  2
+3        F     -  3
+4        F     -  4
+
+
+The following parameters are also being calculated
+
+Obs set 1 X translation
+Obs set 1 Y translation
+Obs set 1 Z translation
+Obs set 3 X translation
+Obs set 3 Y translation
+Obs set 3 Z translation
+Obs set 4 X translation
+Obs set 4 Y translation
+Obs set 4 Z translation
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                               ITERATION SUMMARY
+
+================================================================================
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:              12
+Number of parameters:                 9
+
+Degrees of freedom:                   3
+Sum of squared residuals:           610.29217
+Standard error of unit weight:       14.26291
+
+The probability of an SSR this high is 0.000% (from Chi squared (3))
+
+You may have under-estimated the errors of the data,
+or there may be gross errors in the data
+or the fixed stations may be incorrectly positioned
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 46.800000 S      -         -          1
+       173 19 15.600000 E      -         -
+             150.0000          -         -
+
+ 2      34 00 25.200000 S      -         -          2
+       173 19 40.800000 E      -         -
+             250.0000          -         -
+
+ 3      41 00 28.800000 S      -         -          3
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+ 4      41 00 29.800000 S      -         -          4
+       163 19 58.800000 E      -         -
+              70.0000          -         -
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS_T
+
+   Defined as a geocentric reference frame
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      X translation (m)                   0.0000          -        
+      Y translation (m)                   0.0000          -        
+      Z translation (m)                   0.0000          -        
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                                OTHER PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Parameter                          value         +/-
+Obs set 1 X translation              1.20001      0.00000
+Obs set 1 Y translation             -0.30001      0.00000
+Obs set 1 Z translation             15.80000      0.00000
+Obs set 2 X translation              0.00000       -
+Obs set 2 Y translation              0.00000       -
+Obs set 2 Z translation              0.00000       -
+Obs set 3 X translation              0.20003      0.00000
+Obs set 3 Y translation             -1.29996      0.00000
+Obs set 3 Z translation             15.79999      0.00000
+Obs set 4 X translation              0.37074      0.00000
+Obs set 4 Y translation             -0.75896      0.00000
+Obs set 4 Z translation             15.58212      0.00000
+
+
+
+================================================================================
+Regression test 1 - data types and observation equations    18-SEP-2018 11:47:35
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      ref_frame_code
+               X,Y,Z                  X,Y,Z               E,N,U                                   
+
+File testgx9.dat: line 14
+
+1     GX    -4787263.3200  0.0982  -4787263.3200  0.0982  0.0000  0.0000    -   @   GPS_T         
+              560595.2704  0.0414    560595.2704  0.0414  0.0000  0.0000    -   @   GPS_T         
+            -4163666.0023  0.0908  -4163666.0023  0.0908  0.0000  0.0000    -   @   GPS_T         
+             6369322.7058           6369322.7058          0.0000            -       GPS_T         
+
+2     GX*   -5257413.5321  0.1044  -5257414.7321  0.0000  0.1586  0.0400   3.96 *???GPS_T         
+              614999.4244  0.0416    614999.7244  0.0000 12.4116  0.0600 206.86 *???GPS_T         
+            -3547268.5627  0.0835  -3547284.3627  0.0000 -9.8538  0.1200  82.11 *???GPS_T         
+             6371949.1206           6371958.9355         15.8484         128.52 *???GPS_T         
+
+3     GX    -4617769.4931  0.0953  -4617769.4931  0.0953  0.0000  0.0000    -   @   GPS_T         
+             1382497.4666  0.0476   1382497.4666  0.0476  0.0000  0.0000    -   @   GPS_T         
+            -4163194.4858  0.0908  -4163194.4858  0.0908  0.0000  0.0000    -   @   GPS_T         
+             6369245.0623           6369245.0623          0.0000            -       GPS_T         
+
+1     GX    -4787263.3200  0.0982  -4787264.1493  0.0730 -0.5523  0.0235  23.52  ???GPS_T         
+              560595.2704  0.0414    560594.8115  0.0348 -0.3411  0.0369   9.23  ???GPS_T         
+            -4163666.0023  0.0908  -4163666.2202  0.0695 -0.7242  0.0794   9.12  ???GPS_T         
+             6369322.7058           6369323.4311          0.9725          14.26  ???GPS_T         
+
+2     GX*   -5257413.5321  0.1044  -5257414.3613  0.0730 -0.5522  0.0428  12.91 *???GPS_T         
+              614999.4244  0.0416    614998.9655  0.0348 -0.2502  0.0642   3.90 *???GPS_T         
+            -3547268.5627  0.0835  -3547268.7806  0.0695 -0.7604  0.1329   5.72 *???GPS_T         
+             6371949.1206           6371949.8818          0.9725           8.66 *???GPS_T         
+
+3     GX    -4617769.4931  0.0953  -4617769.3224  0.0730  0.5672  0.0239  23.73  ???GPS_T         
+             1382497.4666  0.0476   1382498.0076  0.0348  0.1699  0.0369   4.61  ???GPS_T         
+            -4163194.4858  0.0908  -4163194.7037  0.0695 -0.1366  0.0793   1.72     GPS_T         
+             6369245.0623           6369245.1983          0.6077          14.26  ???GPS_T         

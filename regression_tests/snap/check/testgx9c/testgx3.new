@@ -1,0 +1,10 @@
+Test 1 - basic obs type tests
+NZGD1949
+options ellipsoidal_heights no_deflections no_geoid_heights
+! Updated by SNAP version 2.7.15-e000bc8 at 19-SEP-2018 06:45:06
+
+!Code       Latitude          Longitude        Ell.Hgt Name
+1      41 00 46.702136 S 173 19 15.577794 E   145.0703 1
+2      34 00 24.960722 S 173 19 40.791092 E   243.0775 2
+3      41 00 28.800000 S 163 19 58.800000 E    70.0000 3
+4      41 00 29.800000 S 163 19 58.800000 E    70.0000 4

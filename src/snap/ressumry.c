@@ -421,14 +421,11 @@ static void sum_summary( summary_def *sdf )
     init_get_bindata( 0L );
     init_progress_meter( nbindata );
     nbin = 0;
-    while( get_bindata( b ) == OK )
+    while( get_bindata( SURVDATA, b ) == OK )
     {
         nbin++;
         update_progress_meter( nbin );
-        if( b->bintype == SURVDATA )
-        {
-            sum_observation( sdf, (survdata *) b->data );
-        }
+        sum_observation( sdf, (survdata *) b->data );
     }
     end_progress_meter();
     delete_bindata(b);

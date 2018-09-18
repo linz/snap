@@ -25,6 +25,7 @@
 #include "util/errdef.h"
 #include "util/polygon.h"
 #include "util/pi.h"
+#include "util/wildcard.h"
 
 
 #define COMMENT_CHAR '!'
@@ -253,27 +254,7 @@ static criterion *new_code_match_criterion( char *code )
 
 static bool is_code_match( const char *m, const char *c )
 {
-    while( *m && *c && 
-            *m != '*' && 
-            ((*m == '?' && *c) || _strnicmp(m,c,1) == 0 )
-            )
-    {
-        m++;
-        c++;
-    }
-    if( ! *m && ! *c ) return true;
-    if( *m == '*' ) 
-    {
-        while( *m == '*' ) m++;
-        if( ! *m ) return true;
-        while( *c )
-        {
-            if( is_code_match(m,c) ) return true;
-            c++;
-        }
-        return false;
-    }
-    return false;
+    return wildcard_match(m,c);
 }
 
 static bool code_match_criterion_match( criterion *c, station *stn )
@@ -900,7 +881,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
             c=new_code_range_criterion( field, delim+1 );
             *delim='-';
         }
-        else if( field[0] != '\\' && (strchr(field,'*') || strchr(field,'?'))  )
+        else if( field[0] != '\\' && has_wildcard(field) )
         {
             c=new_code_match_criterion(field);
         }

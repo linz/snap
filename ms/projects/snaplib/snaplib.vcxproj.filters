@@ -280,6 +280,9 @@
     <ClCompile Include="..\..\..\src\snaplib\snap\gpscvr2.c">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\snap\obsparam.c">
+      <Filter>Source Files\snap</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\snap\rftrans.c">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
@@ -371,6 +374,9 @@
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\wildcard.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\writecsv.c">
@@ -594,6 +600,9 @@
     <ClInclude Include="..\..\..\src\snaplib\snap\gpscvr2.h">
       <Filter>Header Files\snap</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\src\snaplib\snap\obsparam.h">
+      <Filter>Header Files\snap</Filter>
+    </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\snap\rftrans.h">
       <Filter>Header Files\snap</Filter>
     </ClInclude>
@@ -706,6 +715,9 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\versioninfo.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\snaplib\util\wildcard.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\writecsv.h">

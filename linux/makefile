@@ -107,12 +107,35 @@ package:
 endif
 
 # All programs including wxWidgets components
-snap_all: snap_cmd $(SNAP_MANAGEREXE) $(SNAPADJUSTEXE) $(SNAPPLOTEXE) help_files $(SNAPPACKAGES)
+snap_all: snap_cmd snap_manager snapadjust snapplot $(SNAPPACKAGES)
 
 # Command line programs only
-snap_cmd: $(UPDATEVERSION) makefile.inc $(SNAPEXE) $(CONCORDEXE) $(SNAPSPECEXE) $(DAT2SITEEXE) \
-	$(SNAPLISTEXE) $(SNAPCONVEXE) $(SNAPGEOIDEXE) $(SNAPMERGEEXE) $(SITE2GPSEXE) \
-	$(SNAPLIB) support_files
+snap_cmd: $(UPDATEVERSION) makefile.inc snap concord snapspec dat2site snaplist snapconv snapgeoid snapmerge site2gps
+	
+snap: $(SNAPEXE) support_files
+
+concord: $(CONCORDEXE) coordsys
+
+snapspec: $(SNAPSPECEXE) support_files
+
+dat2site: $(DAT2SITEEXE) support_files
+
+snaplist: $(SNAPLISTEXE) support_files
+
+snapconv: $(SNAPCONVEXE) support_files
+
+snapgeoid: $(SNAPGEOIDEXE) support_files
+
+snapmerge: $(SNAPMERGEEXE) support_files
+
+site2gps: $(SITE2GPSEXE) support_files
+
+snap_manager: $(SNAP_MANAGEREXE) support_files help_files
+
+snapplot: $(SNAPPLOTEXE) support_files help_files
+
+snapadjust: $(SNAPADJUSTEXE) support_files
+
 
 # Test (command line programs only)
 test: snap_cmd
@@ -197,11 +220,15 @@ $(WXUTILSLIB): $(WXUTILSOBJS)
 	@echo Building wxutils
 	$(AR) r $(WXUTILSLIB) $(WXUTILSOBJS)
 
-support_files: 
-	@echo Updating support files.
+coordsys:
+	@echo Installing coordinate system link
 	@mkdir -p $(INSTALL)/config
 	@rm -rf $(INSTALL)/config/coordsys
 	@ln -s -T -f $(COORDSYSDIR) $(INSTALL)/config/coordsys
+
+support_files: coordsys
+	@echo Updating support files.
+	@mkdir -p $(INSTALL)/config
 	@$(CP) -r -p $(SRCDIR)/perl $(INSTALL)/config
 	@$(CP) -r -p $(SRCDIR)/snap/config/* $(INSTALL)/config
 	@$(CP) -r -p $(SRCDIR)/snapspec/config/* $(INSTALL)/config

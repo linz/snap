@@ -65,7 +65,6 @@ void init_snap_globals()
     taumax[0] = taumax[1] = 0;
     file_location_frequency = 10;
     stn_name_width = 5;
-    use_distance_ratios = 1;
     coord_precision = 4;
     ignore_deformation = 0;
     deformation = NULL;

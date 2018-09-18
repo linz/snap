@@ -44,7 +44,9 @@
 
 <p class="Commanddefinition">calculate</p><p class="Commanddescription">If present, specifies that the value of the named refraction coefficient is to be calculated in the adjustment</p>
 
-<p class="Commanddefinition">code</p><p class="Commanddescription">Is the code of the additional parameter.  If the code ends with an asterisk * then any code matching the beginning of the code will be affected.  For example, if a refraction coefficient code is specified as DAY* then the command will apply for any refraction coefficient starting DAY.  Codes such as DAY, DAY_ONE, and DAYTIME would be affected.</p>
+<p class="Commanddefinition">code</p><p class="Commanddescription">Is the code of the additional parameter.  
+The code can include * and ? wildcard characters.  ? matches any single character, and * matches any number of characters (including none).  
+For example, if a refraction coefficient code is specified as DAY* then the command will apply for any refraction coefficient starting DAY.  Codes such as DAY, DAY_ONE, and DAYTIME would be affected.</p>
 
 <p class="Commanddefinition">value</p><p class="Commanddescription">Is the initial value used for the coefficient.  If it is followed with "?" then the value will be calculated (equivalent to the "calculate" keyword).  If the parameter is being calculated then the value specified is used as an initial trial value.</p>
 
@@ -61,7 +63,7 @@ reference_frame_scale_error calculate
 
 <p>Note that the = must have a space on either side.</p>
 
-<p class="Commanddefinition">code1</p><p class="Commanddescription">The code of  parameters that are to be modified.  This can end with a *, in which case any parameter matching the start of code1 is affected.</p>
+<p class="Commanddefinition">code1</p><p class="Commanddescription">The code of  parameters that are to be modified.  This can include wildcard characters * and ?.  ? matches any single character.  * matches any number of characters (include no characters).</p>
 
 <p class="Commanddefinition">code2</p><p class="Commanddescription">The parameter that the <code>code1</code> parameter is being matched with.</p>
 

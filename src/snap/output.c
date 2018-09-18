@@ -43,6 +43,8 @@
 #include "reorder.h"
 #include "snapmain.h"
 #include "snap/deform.h"
+#include "snap/genparam.h"
+#include "snap/obsparam.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "stnobseq.h"
@@ -641,6 +643,7 @@ void handle_singularity( int sts )
 
     stno = 0;
     if( !find_param_row( sts, paramname, 40 ) &&
+        !find_obsparam_row( sts, paramname, 40 ) &&
             ((stno = find_station_row( sts, paramname, 40 )) == 0) )
     {
         sprintf(paramname,"Parameter %d", (int) sts );
@@ -1030,6 +1033,7 @@ void print_json_params( FILE *lst, int nprefix )
             int stno=0;
             char paramname[40];
             if( ! find_param_row(i,paramname,40) && 
+                ! find_obsparam_row(i,paramname,40) && 
                     !(stno=find_station_row(i,paramname,40)))
             {
                 sprintf(paramname,"Parameter %d",i);

@@ -1,0 +1,50 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="set_observation_option">
+<title>The set_observation_option command</title>
+<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="cmd_set_observation_option"></a>The set_observation_option command</h1>
+
+<p class="Commanddefinition">set_observation_option <i>option</i> <i>selection_criteria</i></p>
+
+<p>The set_observation_option command is used to set options for observations that can modify how they are used
+in the adjustment. By default the option applies for all observations in the adjustment, but it can be restricted to 
+a selection of observations by specifying selection criteria.  The selection can be based on observation type, data file,
+observation date, and on station classifications.  These critera are defined in the same way as in the
+<a href="cmd_reject_observations.html">reject_observations</a> command.
+</p>
+
+<p>Currently just one option is supported which is:<p>
+<p class="Commanddefinition">calculate_gx_translation</p>
+<p class="Commanddescription">
+This affects the calculation of sets of GX <a href="../data/obs_gx_data.html">(GNSS correlated point coordinate sets)</a> observations.  
+If this option is specified then a translation will be calculated and applied to the observed coordinates to best fit them into
+the adjustment. This option has no effect on other data types. 
+</p>
+
+<p>An example of setting observation options is:</p>
+
+<p class="Commandexample">set_observation_option calculate_gx_translation ref_frame=ITRF2000</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+<p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+<p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+<p><a href="cmd_reject_observations.html">The reject_observations command</a></p>
+
+</div>
+</body>
+</html>

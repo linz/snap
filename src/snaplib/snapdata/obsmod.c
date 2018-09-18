@@ -101,8 +101,9 @@ typedef struct obs_criteria_s
     obs_criterion *first;
     obs_criterion *last;
     int id;
-    int action;
     long setid;
+    int action;
+    int option;
     double factor;
     struct obs_criteria_s *next;
     struct obs_criteria_s *pnext; /* Next criteria to process */
@@ -605,12 +606,13 @@ static void delete_obs_criterion( obs_criterion *oc )
     check_free( oc );
 }
 
-static obs_criteria *new_obs_criteria( int action, double factor )
+static obs_criteria *new_obs_criteria( int action, double factor, int option )
 {
     obs_criteria *ocr=(obs_criteria *) check_malloc( sizeof( obs_criteria ) );
     if( action & OBS_MOD_REWEIGHT_SET ){ action &= ~ (int) OBS_MOD_REWEIGHT; }
     ocr->action=action;
     ocr->factor=factor;
+    ocr->option=option;
     ocr->first=nullptr;
     ocr->last=nullptr;
     ocr->next=nullptr;
@@ -674,6 +676,14 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
                 oac->setfactor *= ocr->factor;
             }
         }
+        if( ocr->action & OBS_MOD_SET_OPTION )
+        {
+            oac->sd->options |= ocr->option;
+        }
+        else if( ocr->action & OBS_MOD_UNSET_OPTION )
+        {
+            oac->sd->options &= ~(ocr->option);
+        }
     }
     oac->action=action;
 }
@@ -692,6 +702,12 @@ static bool obs_criteria_ignore_datafile( obs_criteria *ocr, int file_id )
 
 static void summarize_obs_criteria( FILE *lst, const char *prefix, obs_criteria *ocr, classifications *classes )
 {
+    if( ! ocr->first )
+    {
+        fprintf(lst,"%s  All observations\n", prefix);
+        return;
+    }
+
     bool just1=ocr->first->next == nullptr;
 
     if( ocr->action == OBS_MOD_REWEIGHT_SET )
@@ -799,10 +815,10 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
     return file_id;
 }
 
-int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, double err_factor )
+static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, int option, double err_factor )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    obs_criteria *ocr=new_obs_criteria( action, err_factor );
+    obs_criteria *ocr=new_obs_criteria( action, err_factor, option );
     char *strptr=criteria;
     char *field;
     char *fptr;
@@ -816,6 +832,7 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
         if( _stricmp(field,"ignore_missing") == 0 ){ missing_error=OK; continue; }
         if( _stricmp(field,"warn_missing") == 0 ){ missing_error=INFO_ERROR; continue; }
         if( _stricmp(field,"fail_missing") == 0 ){ missing_error=INVALID_DATA; continue; }
+        if( _stricmp(field,"all_observations") == 0 ){ have_criterion=true; continue; }
 
         if( (fptr = strchr(field,'=')) )
         {
@@ -960,6 +977,17 @@ int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int act
     return OK;
 }
 
+int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, double err_factor )
+{
+    return add_obs_modifications_imp( cfg, pobsmod, criteria,action,0,err_factor);
+}
+
+int add_obs_option_modification( CFG_FILE *cfg, void *pobsmod, char *criteria, int set, int option )
+{
+    int action=set ? OBS_MOD_SET_OPTION : OBS_MOD_UNSET_OPTION;
+    return add_obs_modifications_imp( cfg, pobsmod, criteria,action,option,1.0);
+}
+
 int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *classification, char *value, int action, double err_factor, int missing_error )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
@@ -986,7 +1014,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     {
         return INVALID_DATA;
     }
-    obs_criteria *ocr=new_obs_criteria( action, err_factor );
+    obs_criteria *ocr=new_obs_criteria( action, err_factor, 0 );
     add_obs_criterion_to_criteria( ocr, oc );
     add_obs_criteria_to_modifications( obsmod, ocr );
     return OK;
@@ -996,7 +1024,7 @@ int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criterion *oc = new_obs_datafile_criterion( fileid, filename );
-    obs_criteria *ocr=new_obs_criteria( OBS_MOD_REWEIGHT, err_factor );
+    obs_criteria *ocr=new_obs_criteria( OBS_MOD_REWEIGHT, err_factor, 0 );
     add_obs_criterion_to_criteria( ocr, oc );
     add_obs_criteria_to_modifications( obsmod, ocr );
     return OK;
@@ -1047,8 +1075,6 @@ static void apply_obs_group_action( obs_criteria *ocr, obsmod_context *oac )
 static void apply_obs_modification_action( obs_modifications *obsmod, obsmod_context *oac )
 {
     if( oac->tgt->unused & IGNORE_OBS_BIT ) return;
-
-    obs_criteria *ocr=nullptr;
 
     for( obs_criteria_group *ocg=obsmod->criteria_groups; ocg; ocg=ocg->next )
     {
@@ -1138,6 +1164,7 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
     }
 
     /* Identify the group and id for each criteria */
+    /* Don't add option criteria to groups as need to be processed on order */
 
     crit_group_id *grpid = (crit_group_id *) check_malloc( ncriteria *sizeof(crit_group_id) );
     ncriteria=0;
@@ -1146,6 +1173,10 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
         int maxcount=0;
         int groupid=-1;
         int valueid=0;
+        grpid[ncriteria].criteria=ocr;
+        grpid[ncriteria].groupid=groupid;
+        grpid[ncriteria].valueid=valueid;
+        if( ocr->action & (OBS_MOD_SET_OPTION | OBS_MOD_UNSET_OPTION)) continue;
         obs_criterion *groupoc=nullptr;
         ocr->pnext=nullptr; 
         for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
@@ -1175,7 +1206,6 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
                 groupoc=oc;
             }
         }
-        grpid[ncriteria].criteria=ocr;
         grpid[ncriteria].groupid=groupid;
         grpid[ncriteria].valueid=valueid;
         if( groupoc ) groupoc->groupmatch=true;
@@ -1231,6 +1261,23 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
     }
 
     check_free(grpid);
+
+    /* Ungrouped set is reversed. Undo this for set criteria so they
+     * are applied in the correct order 
+     */
+
+    if( nogroup )
+    {
+        obs_criteria *last=0;
+        while( nogroup )
+        {
+            obs_criteria *ocr=nogroup;
+            nogroup=ocr->pnext;
+            ocr->pnext=last;
+            last=ocr;
+        }
+        nogroup=last;
+    }
 
     /* Sort criteria groups by reverse count of criteria  and add to obsmod */
 
