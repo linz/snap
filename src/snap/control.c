@@ -537,6 +537,7 @@ static void set_station_mode( station *st, void *modep )
                 if( (fixauto && ! sa->flag.float_h) || ! fixauto )
                 {
                     sa->flag.auto_h=fixauto;
+                    sa->flag.adj_h=1;
                     sa->flag.float_h=1;
                     sa->herror=(float) dflt_herr;
                 }
@@ -546,6 +547,7 @@ static void set_station_mode( station *st, void *modep )
                 if( (fixauto && ! sa->flag.float_v) || ! fixauto )
                 {
                     sa->flag.auto_v=fixauto;
+                    sa->flag.adj_v=1;
                     sa->flag.float_v=1;
                     sa->verror=(float) dflt_verr;
                 }
