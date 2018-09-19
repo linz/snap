@@ -1,9 +1,9 @@
-snapspec version 2.7.15-ba021ca: Calculation of station orders
-Run at 14-SEP-2018 12:43:27
+snapspec version 2.7.15-8d1a653: Calculation of station orders
+Run at 19-SEP-2018 12:59:56
 SNAP binary file: snapspec5.bin
 Spec configuration file: snapspec5.cfg
 Vertical tests will not be applied as no stations are adjusted vertically
-SNAP run time: 14-SEP-2018 12:43:27
+SNAP run time: 19-SEP-2018 12:59:56
 Running apriori tests
 
 
