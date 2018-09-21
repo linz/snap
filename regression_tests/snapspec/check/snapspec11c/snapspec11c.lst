@@ -1,8 +1,8 @@
-snapspec version 2.7.14-c831c2e: Calculation of station orders
-Run at 11-SEP-2018 11:54:19
+snapspec version 2.7.16-9663751: Calculation of station orders
+Run at 22-SEP-2018 08:22:38
 SNAP binary file: snapspec11c.bin
 Spec configuration file: snapspec11c.cfg
-SNAP run time: 11-SEP-2018 11:54:19
+SNAP run time: 22-SEP-2018 08:22:38
 Lowest order of control stations: 4
 Best order permitted: 5
 Running apriori tests
@@ -59,61 +59,6 @@ Setting up array for relative accuracy tests
 Applying relative accuracy test
   Relative hor accuracy assumed achieved for lines longer than 172.71 m
   Calculating status for each vector
-    Vector 2 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 3 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 3 to 2 fails rel accuracy (0.07985570 > 0.06089073)
-    Vector 4 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 4 to 2 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 4 to 3 fails rel accuracy (0.07985570 > 0.06089073)
-    Vector 5 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 5 to 2 fails rel accuracy (0.07880365 > 0.06676168)
-    Vector 5 to 3 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 5 to 4 fails rel accuracy (0.07985570 > 0.06089073)
-    Vector 6 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 6 to 2 fails rel accuracy (0.07802278 > 0.07111927)
-    Vector 6 to 3 fails rel accuracy (0.07880365 > 0.06676168)
-    Vector 6 to 4 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 6 to 5 fails rel accuracy (0.07985570 > 0.06089072)
-    Vector 7 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 7 to 2 fails rel accuracy (0.07802278 > 0.07575651)
-    Vector 7 to 3 fails rel accuracy (0.07802279 > 0.07111927)
-    Vector 7 to 4 fails rel accuracy (0.07880366 > 0.06676168)
-    Vector 7 to 5 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 7 to 6 fails rel accuracy (0.07985570 > 0.06089072)
-    Vector 8 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 8 to 2 passes rel accuracy (0.00000000 < 0.08011409)
-    Vector 8 to 3 fails rel accuracy (0.07802279 > 0.07575651)
-    Vector 8 to 4 fails rel accuracy (0.07802282 > 0.07111926)
-    Vector 8 to 5 fails rel accuracy (0.07880366 > 0.06676168)
-    Vector 8 to 6 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 8 to 7 fails rel accuracy (0.07985570 > 0.06089072)
-    Vector 9 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 9 to 2 passes rel accuracy (0.00000000 < 0.08366643)
-    Vector 9 to 3 passes rel accuracy (0.00000000 < 0.08011409)
-    Vector 9 to 4 fails rel accuracy (0.07802283 > 0.07575651)
-    Vector 9 to 5 fails rel accuracy (0.07802282 > 0.07111926)
-    Vector 9 to 6 fails rel accuracy (0.07880366 > 0.06676168)
-    Vector 9 to 7 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 9 to 8 fails rel accuracy (0.07985570 > 0.06089073)
-    Vector 10 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 10 to 2 passes rel accuracy (0.00000000 < 0.08598505)
-    Vector 10 to 3 passes rel accuracy (0.00000000 < 0.08366643)
-    Vector 10 to 4 passes rel accuracy (0.00000000 < 0.08011409)
-    Vector 10 to 5 fails rel accuracy (0.07802282 > 0.07575651)
-    Vector 10 to 6 fails rel accuracy (0.07802281 > 0.07111927)
-    Vector 10 to 7 fails rel accuracy (0.07880367 > 0.06676168)
-    Vector 10 to 8 fails rel accuracy (0.07944022 > 0.06320935)
-    Vector 10 to 9 fails rel accuracy (0.07985571 > 0.06089073)
-    Vector 11 to 1 passes rel accuracy (0.04000000 < 0.06702871)
-    Vector 11 to 2 passes rel accuracy (0.00000000 < 0.08679030)
-    Vector 11 to 3 passes rel accuracy (0.00000000 < 0.08598505)
-    Vector 11 to 4 passes rel accuracy (0.00000000 < 0.08366643)
-    Vector 11 to 5 passes rel accuracy (0.00000000 < 0.08011409)
-    Vector 11 to 6 fails rel accuracy (0.07802281 > 0.07575651)
-    Vector 11 to 7 fails rel accuracy (0.07802281 > 0.07111927)
-    Vector 11 to 8 fails rel accuracy (0.07880367 > 0.06676168)
-    Vector 11 to 9 fails rel accuracy (0.07944023 > 0.06320935)
-    Vector 11 to 10 fails rel accuracy (0.07985571 > 0.06089073)
   Status of marks
     Station 2: 10 tests: 5 bad
     Station 3: 10 tests: 6 bad

@@ -1681,7 +1681,9 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 if( usemaxdistance && dist > maxtestdist )
                 {
                     stsij = SDC_STS_PASS;
-                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative accuracy pass by max distance test");
+                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld relative accuracy pass by max distance test\n",
+                            sdcstni,sdcstnj);
                     if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAD,"P",-1,-1,"");
                 }
 
@@ -1701,14 +1703,18 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         if( error < tolij )
                         {
                             stsij = SDC_STS_PASS;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative accuracy pass by absolute");
+                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                                    "   Vector %ld to %ld relative accuracy pass by absolute (%.8lf < %.8lf)\n",
+                                    sdcstni,sdcstnj,error,tolij);
                             if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"P",error,tolij,"");
                         }
                         else if(
                             (error=(stni->error2 + stnj->error2 - 2*sqrt(stni->error2*stnj->error2))) > tolij )
                         {
                             stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative accuracy fail by absolute");
+                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                                    "   Vector %ld to %ld relative accuracy fail by absolute (%.8lf > %.8lf)\n",
+                                    sdcstni,sdcstnj,error,tolij);
                             if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"F",error,tolij,"");
                         }
                     }
@@ -1719,7 +1725,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         {
                             if( error < tolij ) stsij = SDC_STS_PASS;
                             else stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
+                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                                    "   Vector %ld to %ld true relative accuracy %s (%.8lf %s %.8lf)\n",
+                                    sdcstni,sdcstnj, stsij==SDC_STS_PASS ? "pass" : "fail", 
+                                    error, stsij==SDC_STS_PASS ? "<" : ">", tolij);
                             if( logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_HRAC,
                                     (stsij==SDC_STS_PASS ? "P" :"F"),error,tolij,"");
                         }
@@ -1738,34 +1747,31 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 /*>> If the vector has failed then if one or other node is already passed
                      we can fail the other.   */
 
-                else if (passi && stsij == SDC_STS_FAIL )
+                /* If sdci->needphase2 is set then a previous order has incomplete tests so
+                 * can't be sure which stations would have passed or failed in those tests.
+                 * So in that case we can't fail anything.
+                 */
+
+                else if ( ! sdci->needphase2 )
                 {
-                    stnj->status = SDC_STS_FAIL;
-                    sdcWriteLog( sdci, SDC_LOG_TESTS,
-                                 "    Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcstnj, sdcstni, error, tolij);
-                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_HRAP,"F",error,tolij,"");
-                }
-                else if(passj && stsij == SDC_STS_FAIL)
-                {
-                    stni->status = SDC_STS_FAIL;
-                    sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                 "    Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcstni,sdcstnj, error, tolij);
-                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAP,"F",error,tolij,"");
-                    /* Station i has failed so don't need to look at this any more */
-                    break;
-                }
-                else
-                {
-                    if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                                    "    Vector %ld to %ld %s rel accuracy (%.8lf %s %.8lf)\n",
-                                                    sdcStationId(sdci,istni),
-                                                    sdcStationId(sdci,istnj),
-                                                    (stsij == SDC_STS_PASS ? "passes" : "fails"),
-                                                    error,
-                                                    (stsij == SDC_STS_PASS ? "<" : ">"),
-                                                    tolij);
+                    if (passi && stsij == SDC_STS_FAIL && ! sdci->needphase2)
+                    {
+                        stnj->status = SDC_STS_FAIL;
+                        sdcWriteLog( sdci, SDC_LOG_TESTS,
+                                     "   Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                                     sdcstnj, sdcstni, error, tolij);
+                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_HRAP,"F",error,tolij,"");
+                    }
+                    else if(passj && stsij == SDC_STS_FAIL)
+                    {
+                        stni->status = SDC_STS_FAIL;
+                        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                                     "   Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                                     sdcstni,sdcstnj, error, tolij);
+                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAP,"F",error,tolij,"");
+                        /* Station i has failed so don't need to look at this any more */
+                        break;
+                    }
                 }
             }
 
@@ -1785,7 +1791,9 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 if( usemaxdistancev && dist > maxtestdistv )
                 {
                     stsij = SDC_STS_PASS;
-                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative vrt accuracy pass by max distance test");
+                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld vrt accuracy pass by max distance test\n",
+                            sdcstni,sdcstnj);
                     if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAD,"P",-1,-1,"");
                 }
 
@@ -1805,14 +1813,18 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         if( error < tolij )
                         {
                             stsij = SDC_STS_PASS;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative vrt accuracy pass by absolute");
+                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                                    "   Vector %ld to %ld relative vrt accuracy pass by absolute (%.8lf < %.8lf)\n",
+                                    sdcstni,sdcstnj,error,tolij);
                             if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"P",error,tolij,"");
                         }
                         else if(
                             (error=(stni->verror2 + stnj->verror2 - 2*sqrt(stni->verror2*stnj->verror2))) > tolij )
                         {
                             stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative vrt accuracy fail by absolute");
+                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                                    "   Vector %ld to %ld relative vrt accuracy fail by absolute (%.8lf > %.8lf)\n",
+                                    sdcstni,sdcstnj,error,tolij);
                             if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"F",error,tolij,"");
                         }
                     }
@@ -1823,7 +1835,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         {
                             if( error < tolij ) stsij = SDC_STS_PASS;
                             else stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative vrt accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
+                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                                    "   Vector %ld to %ld true vrt relative accuracy %s (%.8lf %s %.8lf)\n",
+                                    sdcstni,sdcstnj, stsij==SDC_STS_PASS ? "pass" : "fail", 
+                                    error, stsij==SDC_STS_PASS ? "<" : ">", tolij);
                             if( logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_VRAC,
                                     stsij==SDC_STS_PASS ? "P" :"F",error,tolij,"");
                         }
@@ -1841,34 +1856,26 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 }
                 /*   If the vector has failed then if one or other node is already passed
                      we can fail the other.   */
-                else if (passi && stsij == SDC_STS_FAIL)
+                else if ( ! sdci->needphase2 )
                 {
-                    stnj->status = SDC_STS_FAIL;
-                    sdcWriteLog( sdci, SDC_LOG_TESTS,
-                                 "    Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcstnj, sdcstni, error, tolij);
-                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_VRAP,"F",error,tolij,"");
-                }
-                else if(passj && stsij == SDC_STS_FAIL)
-                {
-                    stni->status = SDC_STS_FAIL;
-                    sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                 "    Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcstni, sdcstnj, error, tolij);
-                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAP,"F",error,tolij,"");
-                    /* Station i has failed so don't need to look at this any more */
-                    break;
-                }
-                else
-                {
-                    if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                                    "    Vector %ld to %ld %s rel vrt accuracy (%.8lf %s %.8lf)\n",
-                                                    sdcStationId(sdci,istni),
-                                                    sdcStationId(sdci,istnj),
-                                                    (stsij == SDC_STS_PASS ? "passes" : "fails"),
-                                                    error,
-                                                    (stsij == SDC_STS_PASS ? "<" : ">"),
-                                                    tolij);
+                    if (passi && stsij == SDC_STS_FAIL)
+                    {
+                        stnj->status = SDC_STS_FAIL;
+                        sdcWriteLog( sdci, SDC_LOG_TESTS,
+                                     "   Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                                     sdcstnj, sdcstni, error, tolij);
+                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_VRAP,"F",error,tolij,"");
+                    }
+                    else if(passj && stsij == SDC_STS_FAIL)
+                    {
+                        stni->status = SDC_STS_FAIL;
+                        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                                     "   Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                                     sdcstni, sdcstnj, error, tolij);
+                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAP,"F",error,tolij,"");
+                        /* Station i has failed so don't need to look at this any more */
+                        break;
+                    }
                 }
 
                 if( needcvr ) stsij = SDC_STS_NEED_CVR;
