@@ -1,1 +1,1 @@
-@msiexec /uninstall "{5B9704A7-F27B-4DA9-A60B-1CBC4DBAE717}
+@msiexec /uninstall "{5BA45274-11F1-4AEB-B765-E12916FA43F6}

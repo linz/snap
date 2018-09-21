@@ -1,3 +1,13 @@
+linz-snap (2.7.16-1) xenial; urgency=medium
+
+  * Added set_observation_option command and option for 
+    calculating GX data set translation
+  * Improved handling of wildcards in parameter commands
+  * Fixed float command when applied to fixed station
+  * Snapspec performance enhancements
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri, 21 Sep 2018 14:30:00 +1200
+
 linz-snap (2.7.15-1) xenial; urgency=medium
 
   * Fixes to snapspec CSV output
