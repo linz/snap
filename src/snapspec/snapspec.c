@@ -83,6 +83,7 @@ typedef struct
 typedef struct
 {
     FILE *logfile;
+    FILE *dbgfile;
     hSDCTest hsdc;
     unsigned char outputlog;
     int nstn;
@@ -187,6 +188,7 @@ static stn_relacc_array *create_relacc()
     ra->horvar = horvar;
     ra->vrtvar = vrtvar;
     ra->logfile = NULL;
+    ra->dbgfile = NULL;
     ra->loglevel = 0;
     ra->bltdec = NULL;
     ra->bltreq = NULL;
@@ -967,6 +969,12 @@ static void f_write_log( void *env, const char *text )
     if( ra->outputlog ) { puts( text ); }
 }
 
+static void f_write_debug( void *env, const char *text )
+{
+    stn_relacc_array *ra = (stn_relacc_array *) env;
+    if( ra->dbgfile ) { fputs( text, ra->dbgfile ); }
+}
+
 static hSDCTest create_test( int maxorder )
 {
     hSDCTest hsdc;
@@ -982,6 +990,7 @@ static hSDCTest create_test( int maxorder )
     hsdc->pfVrtError2 = f_vrterror2;
     hsdc->pfSetOrder = f_set_order;
     hsdc->pfWriteLog = f_write_log;
+    hsdc->pfWriteCompact = f_write_debug;
 
     return hsdc;
 }
@@ -2031,6 +2040,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                 char *fld=field[ifld];
                 if( _stricmp(fld,"code") == 0 ) codefield=ifld;
                 else if( _stricmp(fld,"order") == 0 ) orderfield=ifld;
+                else if( _stricmp(fld,"limit_order") == 0 ) orderfield=ifld;
                 else if( _stricmp(fld,"priority") == 0 ) priorityfield=ifld;
             }
             if( codefield < 0 )
@@ -2464,12 +2474,14 @@ int main( int argc, char *argv[] )
     int nerr;
     hSDCTest hsdc;
     BINARY_FILE *b;
+    FILE *debugfile;
     FILE *out;
     stn_relacc_array *ra;
     char *min_order_str = NULL;
     char *modestr = NULL;
     const char *max_control_str = NULL;
     char *outputcsvname = NULL;
+    char *debugcsvname = NULL;
     char *updatecrdfile = NULL;
     char *splitcrdfile = NULL;
     int use_cache = 0;
@@ -2519,6 +2531,12 @@ int main( int argc, char *argv[] )
         case 'c':
         case 'C':
             outputcsvname=arg2;
+            narg=narg2;
+            break;
+
+        case 'd':
+        case 'D':
+            debugcsvname=arg2;
             narg=narg2;
             break;
 
@@ -2606,6 +2624,7 @@ int main( int argc, char *argv[] )
         printf("   -u filename   Updates the orders in the named coordinate file\n");
         printf("   -s filename   Base name for seperate coordinate files for each order (no extension)\n");
         printf("   -c filename   Output results in a csv file\n");
+        /* printf("   -d filename   Output calculation debug csv file\n"); - hidden option */
         printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
         printf("   -t #|auto     Specifies the number of threads to use\n");
         /* printf("   -x            Disable relative accuracy tests\n\n"); - hidden option */
@@ -2690,7 +2709,7 @@ int main( int argc, char *argv[] )
     {
         printf("\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn);
         fprintf(out,"\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn);
-        exit(1);
+        return 1;
     }
 
     if( setup_hv_mode( hvmode, hsdc, ra ) != OK )
@@ -2712,7 +2731,7 @@ int main( int argc, char *argv[] )
                 "Make sure the SNAP command file includes\n"
                 "   output all_relative_covariances or\n"
                 "   output decomposition\n", bfn);
-        return 0;
+        return 1;
     }
 
     cvrcachefile=cache_covariance_filename( bfn );
@@ -2754,7 +2773,7 @@ int main( int argc, char *argv[] )
         {
             printf("snapspec: Unable to determine order of control stations\n");
             fprintf(out, "Unable to determine order of control stations\n");
-            return 0;
+            return 1;
         }
 
         if( max_control_order >= min_order )
@@ -2795,9 +2814,30 @@ int main( int argc, char *argv[] )
     }
     fprintf(out,"\n");
 
+    debugfile=0;
+    if( debugcsvname )
+    {
+        char *csvfile=output_filename(debugcsvname,bfn,SNAPSPEC_CSV_EXT);
+        debugfile=fopen(csvfile,"w");
+        if( ! debugfile )
+        {
+            printf("Cannot create debug output file %s\n",csvfile);
+            return 1;
+        }
+        check_free(csvfile);
+        ra->dbgfile=debugfile;
+        hsdc->loglevel |= SDC_LOG_COMPACT;
+    }
+
     if( hsdc->loglevel > 1 ) write_station_index( hsdc, ra );
 
     sts = run_tests( hsdc );
+
+    if( debugfile )
+    {
+        ra->dbgfile=0;
+        fclose(debugfile);
+    }
 
     copy_unused_roles_to_orders( ra );
 
@@ -2838,6 +2878,8 @@ int main( int argc, char *argv[] )
     else
     {
         fprintf(out,"\nsnapspec aborted with errors\n");
+        printf("\nsnapspec aborted with errors\n");
+        printf("\nSee %s for details\n",ofn);
     }
 
 

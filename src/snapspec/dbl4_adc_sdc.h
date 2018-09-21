@@ -57,6 +57,7 @@ typedef struct
 #define SDC_LOG_CALCS2 16
 #define SDC_LOG_TIMESTAMP 32
 #define SDC_LOG_SUMMARY 64
+#define SDC_LOG_COMPACT 256 
 #define SDC_LOG_ALL (SDC_LOG_SUMMARY | SDC_LOG_STEPS | SDC_LOG_TESTS | SDC_LOG_CALCS | SDC_LOG_DISTS | SDC_LOG_CALCS2)
 
 /* Convariance determination run in two passes if not all available at first pass */
@@ -141,6 +142,10 @@ typedef struct
         int order );
 
     void (*pfWriteLog) (   /* Writes log information */
+        void *env,
+        const char *text );
+
+    void (*pfWriteCompact) (   /* Writes compact log information */
         void *env,
         const char *text );
 } SDCTest, *hSDCTest;

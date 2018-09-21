@@ -29,11 +29,11 @@
 #include "dbl4_utl_error.h"
 #include "dbl4_utl_alloc.h"
 
-#define SDC_STS_UNKNOWN 1     /* Mark to be assigned at current order */
-#define SDC_STS_FAIL    2     /* Mark has failed at current order */
-#define SDC_STS_PASS    3     /* Mark has passed at current order */
-#define SDC_STS_PASSED  4     /* Marks has passed at lower order */
-#define SDC_STS_SKIP    5     /* Mark is to be skipped in current test */
+#define SDC_STS_UNKNOWN    1  /* Mark to be assigned at current order */
+#define SDC_STS_FAIL       2  /* Mark has failed at current order */
+#define SDC_STS_PASS       3  /* Mark has passed at current order */
+#define SDC_STS_PASSED     4  /* Marks has passed at lower order */
+#define SDC_STS_SKIP       5  /* Mark is to be skipped in current test */
 #define SDC_STS_NEED_CVR   6  /* Status pending passing horizontal accuracy */
 
 /* Objects defined to implement the SDC test */
@@ -79,6 +79,7 @@ typedef struct
     int testhor;       /**< True if testing horizontal errors */
     int testvrt;       /**< True if testing vertical errors */
     int loglevel;      /**< The log level to use */
+    int order;         /**< The current order being run */
     int phase;         /**< The current phase of adjustment for a two phase implementation */
     int phase1;        /**< The first phase to run */
     int phase2;        /**< The last phase to run */
@@ -104,6 +105,27 @@ typedef struct
 
 #define ABORT_FREQUENCY 1000
 
+#define SDC_TEST_DCTL "DCTL" /*     Distance to control */
+#define SDC_TEST_HAA  "HAA"  /*     Horizontal absolute accuracy (F) */
+#define SDC_TEST_HDAA "HDAA" /*     Horizontal distance dependent accuracy (F) */
+#define SDC_TEST_HRAA "HRAA" /*     Horizontal rel acc from absolute (P - may need vertical pass also) */
+#define SDC_TEST_HRAC "HRAC" /*     Horizontal relative accuracy pass/fail by calculated value (P/F) */
+#define SDC_TEST_HRAD "HRAD" /*     Horizontal relative accuracy between stations passed by max distance test (P) */
+#define SDC_TEST_HRAS "HRAS" /*     Horizontal relative accuracy pass/fail by approx calcs using abs accuracy (P/F) */
+#define SDC_TEST_HRAP "HRAP" /*     Horizontal relative accuracy failed to passed station (F) */
+#define SDC_TEST_RA   "RA"   /*     Actual relative accuracy tests (P/F v1=no RA tests, v2=no RA fails) */
+#define SDC_TEST_RAA  "RAA"  /*     Relative accuracy passed by absolute (P) */
+#define SDC_TEST_RAC  "RAC"  /*     Too few RA tests (F) */
+#define SDC_TEST_RAIS "RAIS" /*     Relative accuracy test initial status (s2=status) */
+#define SDC_TEST_RAS  "RAS"  /*     Selected to fail RA tests (F, v1=maxfailratio,v2=maxfailerror) */
+#define SDC_TEST_REQC "REQC" /*     Relative covariance requested */
+#define SDC_TEST_VAA  "VAA"  /*     Vertical absolute accuracy (F) */
+#define SDC_TEST_VDAA "VDAA" /*     Vertical distance dependent absolute accuracy (F) */
+#define SDC_TEST_VRAA "VRAA" /*     Vertical rel acc from absolute (P - may need horizontal pass also) */
+#define SDC_TEST_VRAC "VRAC" /*     Vertical relative accuracy pass/fail by calculated value (P/F) */
+#define SDC_TEST_VRAD "VRAD" /*     Vertical relative accuracy between stations passed by max distance test (P) */
+#define SDC_TEST_VRAS "VRAS" /*     Vertical relative accuracy pass/fail by approx calcs using abs accuracy (P/F) */
+#define SDC_TEST_VRAP "VRAP" /*     Vertical relative accuracy failed to passed station (F) */
 
 static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc );
 static void sdcReleaseTestImp( hSDCTestImp sdci );
@@ -123,6 +145,9 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status );
 static StatusType sdcUpdateOrders( hSDCTestImp sdci, int itest, int apply );
 static StatusType sdcApplyDefaultOrder( hSDCTestImp sdci );
 static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... );
+static void sdcWriteCompactLogHeader( hSDCTestImp sdci );
+static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2, 
+        const char *test, const char *status, double v1, double v2, const char *comment );
 static long sdcStationId( hSDCTestImp sdci, int istn );
 static void sdcTimeStamp( hSDCTestImp sdci, const char *status );
 
@@ -169,6 +194,7 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     sdc->pfCalcRequested = NULL;
     sdc->pfSetOrder = NULL;
     sdc->pfWriteLog = NULL;
+    sdc->pfWriteCompact = NULL;
 
     for( i = 0; i < maxorder; i++ )
     {
@@ -257,6 +283,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 
     sdcWriteLog( &sdci, SDC_LOG_STEPS, "Initiallizing SDC tests\n" );
     sdcTimeStamp(&sdci,"Initiallizing SDC tests");
+    sdcWriteCompactLogHeader( &sdci );
 
     /*> Initiallize the list of sdc stations */
 
@@ -321,6 +348,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     {
         int nunknown;
         hSDCOrderTest test = &(sdc->tests[order]);
+        sdci.order=order;
 
         {
             char buf[80];
@@ -499,7 +527,8 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
     sdci->maxerror2 = 0.0;
     sdci->maxverror2 = 0.0;
     sdci->loglevel = sdc->loglevel;
-    if( ! sdc->pfWriteLog ) sdci->loglevel = 0;
+    if( ! sdc->pfWriteLog ) sdci->loglevel &= SDC_LOG_COMPACT;
+    if( ! sdc->pfWriteCompact ) sdci->loglevel &= ~SDC_LOG_COMPACT;
     if( sdc->options & SDC_OPT_TWOPASS_CVR && sdc->pfRequestCovar && sdc->pfCalcRequested )
     {
         sdci->twopass=1;
@@ -511,6 +540,8 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
         sdci->phase1=SDCI_PHASE_CALC;
     }
     sdci->phase2=SDCI_PHASE_CALC;
+    sdci->phase=0;
+    sdci->order=0;
     sdci->needphase2=0;
 
     sdci->testhor = 0;
@@ -761,6 +792,10 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
                          "    Station %ld is %.2lf m2 from control\n",
                          sdcStationId(sdci,istn), (double)(stn->ctldist2) );
         }
+        if( sdci->loglevel & SDC_LOG_COMPACT )
+        {
+            sdcWriteCompactLog( sdci,sdcStationId(sdci,istn),-1,SDC_TEST_DCTL,"",stn->ctldist2,-1,"" );
+        }
     }
 
     return sts;
@@ -864,6 +899,7 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
     for( i = 0; sts == STS_OK && i < sdc->nmark; i++ )
     {
         hSDCStation s = & stns[i];
+        long sdcstni=sdcStationId(sdci,i);
         if( i % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
         if( s->status == SDC_STS_UNKNOWN )
         {
@@ -876,7 +912,8 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld fails abs accuracy (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,i), s->error2, tolfail );
+                                 sdcstni, s->error2, tolfail );
+                    sdcWriteCompactLog( sdci, sdcstni,-1,SDC_TEST_HAA,"F",s->error2,tolfail,"");
                     s->status = SDC_STS_FAIL;
                     nhfail++;
                 }
@@ -884,7 +921,8 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld fails dist dependent abs accuracy (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,i), s->error2, ftol+dtol*s->ctldist2 );
+                                 sdcstni, s->error2, ftol+dtol*s->ctldist2 );
+                    sdcWriteCompactLog( sdci, sdcstni,-1,SDC_TEST_HDAA,"F", s->error2,ftol+dtol*s->ctldist2,"");
                     s->status = SDC_STS_FAIL;
                     nhdfail++;
                 }
@@ -892,7 +930,8 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld passes rel acc from abs accuracy (%.8lf < %.8lf)\n",
-                                 sdcStationId(sdci,i), s->error2, tolpass );
+                                 sdcstni,s->error2, tolpass );
+                    sdcWriteCompactLog( sdci, sdcstni, -1,SDC_TEST_HRAA,"P",s->error2,tolpass,"");
                     hpass=1;
                 }
             }
@@ -904,29 +943,34 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld fails vrt abs accuracy (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,i), s->verror2, tolfailv );
+                                 sdcstni, s->verror2, tolfailv );
+                    sdcWriteCompactLog( sdci, sdcstni,-1,SDC_TEST_VAA,"F",s->verror2,tolfailv,"");
                     s->status = SDC_STS_FAIL;
                 }
                 else if ( s->verror2 > ftolv+dtolv*s->ctldist2 )
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld fails vrt dist dependent abs accuracy (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,i), s->verror2, ftolv+dtolv*s->ctldist2 );
+                                 sdcstni, s->verror2, ftolv+dtolv*s->ctldist2 );
+                    sdcWriteCompactLog( sdci, sdcstni,1,SDC_TEST_VDAA,"F",
+                            s->verror2,ftolv+dtolv*s->ctldist2,"");
                     s->status = SDC_STS_FAIL;
                 }
                 else if ( s->verror2 < tolpassv )
                 {
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "  Station %ld passes vrt rel acc from abs accuracy (%.8lf < %.8lf)\n",
-                                 sdcStationId(sdci,i), s->verror2, tolpassv );
+                                 sdcstni, s->verror2, tolpassv );
+                    sdcWriteCompactLog( sdci, sdcstni, -1,SDC_TEST_VRAA,"P",s->verror2,tolpassv,"");
                     vpass=1;
                 }
             }
 
             if( hpass && vpass )
             {
-                    s->status = SDC_STS_PASS;
-                    npass++;
+                sdcWriteCompactLog( sdci, sdcstni, -1,SDC_TEST_RAA,"P",-1,-1,"");
+                s->status = SDC_STS_PASS;
+                npass++;
             }
 
             if( s->status == SDC_STS_UNKNOWN )
@@ -1059,7 +1103,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
 
 static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
 {
-    int npass;
+    int npass=0;
     int nfailacc;
     int nfailcnt;
     int found;
@@ -1068,6 +1112,20 @@ static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test)
     int ntotalfailcnt = 0;
     int ntotalfailsel = 0;
     StatusType sts = STS_OK;
+
+    /* Log the initial state of the stations prior to the relative accuracy tests */
+
+    if( sdci->loglevel & SDC_LOG_COMPACT ) 
+    {
+        hSDCStation stns = sdci->stns;
+        for( int i = 1; i < sdci->nreltest; i++ )
+        {
+            int istni = sdci->lookup[i];
+            long sdcstni=sdcStationId(sdci,istni);
+            hSDCStation stni = &(stns[istni]);
+            sdcWriteCompactLog( sdci, sdcstni,stni->status,SDC_TEST_RAIS,"",-1,-1,"");
+        }
+    }
 
     /*> Set up the relative accuracy status matrix */
 
@@ -1151,6 +1209,7 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
         hSDCStation stni = &(stns[istn]);
+        long sdcstni = sdcStationId(sdci,istn);
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
 
         /*>> If the status is unknown, and all tests pass, then
@@ -1161,8 +1220,9 @@ static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass)
                 stni->nrelbad <= 0 )
         {
             sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld passes rel accuracy tests (%d)\n",
-                         sdcStationId(sdci,istn), stni->nreltest );
+                         sdcstni, stni->nreltest );
             sdcSetRelTestStatus( sdci, istn, SDC_STS_PASS );
+            sdcWriteCompactLog( sdci, sdcstni,-1,SDC_TEST_RA,"P",stni->nreltest,-1,"");
             npass++;
         }
     }
@@ -1204,12 +1264,14 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test,
     for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
     {
         hSDCStation stni = &(stns[istn]);
+        long sdcstni = sdcStationId( sdci, istn );
         if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
         if( stni->status == SDC_STS_UNKNOWN && stni->nrelfail )
         {
             sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails rel accuracy tests (%d/%d)\n",
-                         sdcStationId(sdci,istn), stni->nrelfail, stni->nreltest );
+                         sdcstni, stni->nrelfail, stni->nreltest );
             sdcSetRelTestStatus( sdci, istn, SDC_STS_FAIL );
+            sdcWriteCompactLog( sdci, sdcstni,-1,SDC_TEST_RA,"F", stni->nreltest, stni->nrelfail,"");
             nfailacc++;
         }
     }
@@ -1221,11 +1283,13 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test,
         for( istn = 0; sts == STS_OK && istn < nmark; istn++ )
         {
             hSDCStation stni = &(stns[istn]);
+            long sdcstni = sdcStationId( sdci, istn );
             if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
             if( stni->status == SDC_STS_UNKNOWN && stni->nreltest < test->iMinRelAcc )
             {
                 sdcWriteLog( sdci, SDC_LOG_TESTS, "  Station %ld fails with too few relative accuracy tests\n",
-                             sdcStationId(sdci,istn) );
+                             sdcstni );
+                sdcWriteCompactLog( sdci,sdcstni,-1,SDC_TEST_RAC,"F",-1,-1,"");
                 sdcSetRelTestStatus( sdci, istn, SDC_STS_FAIL );
                 nfailcnt++;
             }
@@ -1324,6 +1388,7 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
                      "  Station %ld selected to fail rel acc tests (%.3lf,%.8lf)\n",
                      sdcStationId(sdci,istnfail),
                      (double) maxfailratio, (double) maxfailerror );
+        sdcWriteCompactLog( sdci, sdcStationId(sdci,istnfail),-1,SDC_TEST_RAS,"F",maxfailratio,maxfailerror,"");
         sdcSetRelTestStatus( sdci, istnfail, SDC_STS_FAIL );
     }
 
@@ -1472,6 +1537,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     char usemaxdistancev = 0;
     char logcalcs = (sdci->loglevel & (SDC_LOG_CALCS | SDC_LOG_CALCS2)) ? 1 : 0;
     char logcalcs2 = (sdci->loglevel & SDC_LOG_CALCS2) ? 1 : 0;
+    char logcompact = (sdci->loglevel & SDC_LOG_COMPACT) ? 1 : 0;
     char testhor = test->blnTestHor;
     char testvrt = test->blnTestVrt;
 
@@ -1550,6 +1616,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         char *relstatus = relstatusi;
 
         int istni = sdci->lookup[i];
+        long sdcstni=sdcStationId(sdci,istni);
         hSDCStation stni = &(stns[istni]);
         char stsi = stni->status;
         char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
@@ -1566,6 +1633,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         for( j = 0; j < i; relstatus++, j++ )
         {
             int istnj = sdci->lookup[j];
+            long sdcstnj=sdcStationId(sdci,istnj);
             hSDCStation stnj = &(stns[istnj]);
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
@@ -1614,6 +1682,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 {
                     stsij = SDC_STS_PASS;
                     if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative accuracy pass by max distance test");
+                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAD,"P",-1,-1,"");
                 }
 
                 else
@@ -1633,12 +1702,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         {
                             stsij = SDC_STS_PASS;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative accuracy pass by absolute");
+                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"P",error,tolij,"");
                         }
                         else if(
                             (error=(stni->error2 + stnj->error2 - 2*sqrt(stni->error2*stnj->error2))) > tolij )
                         {
                             stsij = SDC_STS_FAIL;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative accuracy fail by absolute");
+                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"F",error,tolij,"");
                         }
                     }
                     if( stsij == SDC_STS_UNKNOWN )
@@ -1649,6 +1720,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                             if( error < tolij ) stsij = SDC_STS_PASS;
                             else stsij = SDC_STS_FAIL;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
+                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_HRAC,
+                                    (stsij==SDC_STS_PASS ? "P" :"F"),error,tolij,"");
                         }
                     }
                 }
@@ -1670,20 +1743,16 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                     stnj->status = SDC_STS_FAIL;
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "    Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,istnj),
-                                 sdcStationId(sdci,istni),
-                                 error,
-                                 tolij);
+                                 sdcstnj, sdcstni, error, tolij);
+                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_HRAP,"F",error,tolij,"");
                 }
                 else if(passj && stsij == SDC_STS_FAIL)
                 {
                     stni->status = SDC_STS_FAIL;
                     sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
                                  "    Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,istni),
-                                 sdcStationId(sdci,istnj),
-                                 error,
-                                 tolij);
+                                 sdcstni,sdcstnj, error, tolij);
+                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAP,"F",error,tolij,"");
                     /* Station i has failed so don't need to look at this any more */
                     break;
                 }
@@ -1717,6 +1786,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 {
                     stsij = SDC_STS_PASS;
                     if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative vrt accuracy pass by max distance test");
+                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAD,"P",-1,-1,"");
                 }
 
                 else
@@ -1736,12 +1806,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                         {
                             stsij = SDC_STS_PASS;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative vrt accuracy pass by absolute");
+                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"P",error,tolij,"");
                         }
                         else if(
                             (error=(stni->verror2 + stnj->verror2 - 2*sqrt(stni->verror2*stnj->verror2))) > tolij )
                         {
                             stsij = SDC_STS_FAIL;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   Relative vrt accuracy fail by absolute");
+                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"F",error,tolij,"");
                         }
                     }
                     if( stsij == SDC_STS_UNKNOWN )
@@ -1752,6 +1824,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                             if( error < tolij ) stsij = SDC_STS_PASS;
                             else stsij = SDC_STS_FAIL;
                             if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,"   True relative vrt accuracy test %s", stsij==SDC_STS_PASS ? "pass" : "fail");
+                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_VRAC,
+                                    stsij==SDC_STS_PASS ? "P" :"F",error,tolij,"");
                         }
                     }
                 }
@@ -1772,20 +1846,16 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                     stnj->status = SDC_STS_FAIL;
                     sdcWriteLog( sdci, SDC_LOG_TESTS,
                                  "    Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,istnj),
-                                 sdcStationId(sdci,istni),
-                                 error,
-                                 tolij);
+                                 sdcstnj, sdcstni, error, tolij);
+                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_VRAP,"F",error,tolij,"");
                 }
                 else if(passj && stsij == SDC_STS_FAIL)
                 {
                     stni->status = SDC_STS_FAIL;
                     sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
                                  "    Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                 sdcStationId(sdci,istni),
-                                 sdcStationId(sdci,istnj),
-                                 error,
-                                 tolij);
+                                 sdcstni, sdcstnj, error, tolij);
+                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAP,"F",error,tolij,"");
                     /* Station i has failed so don't need to look at this any more */
                     break;
                 }
@@ -1811,7 +1881,9 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     sdcTimeStamp(sdci,"Completed first pass using known covariances");
 
     /*> Now check for missing covariance information */
-
+    /* This is done after all covariances have been tested as covariances that were
+     * not found will not be needed if both stations have failed or passed 
+     */
 
     if( needcovariances )
     {
@@ -1826,6 +1898,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             char *relstatus = relstatusi;
 
             int istni = sdci->lookup[i];
+            long sdcstni=sdcStationId(sdci,istni);
             hSDCStation stni = &(stns[istni]);
             char stsi = stni->status;
             char passi = (stsi == SDC_STS_PASS || stsi == SDC_STS_PASSED);
@@ -1836,11 +1909,13 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 if( sts != STS_OK ) return sts;
             }
 
+            /* If not passed or potential to pass then not interested */
             if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
             for( j = 0; j < i; relstatus++, j++ )
             {
                 int istnj = sdci->lookup[j];
+                long sdcstnj=sdcStationId(sdci,istnj);
                 hSDCStation stnj = &(stns[istnj]);
                 char stsj = stnj->status;
                 char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
@@ -1851,6 +1926,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                     if( sts != STS_OK ) return sts;
                 }
 
+                /* If not passed or potential to pass then not interested */
                 if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
                 if( *relstatus != SDC_STS_NEED_CVR ) continue;
 
@@ -1859,16 +1935,15 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
                 if( sdci->phase != SDCI_PHASE_TRIAL )
                 {
-                    sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %ld to %ld",
-                                 sdcStationId(sdci,istni),
-                                 sdcStationId(sdci,istnj));
+                    sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %ld (%d) to %ld (%d)",
+                                 sdcstni,(int) stsi,sdcstnj,(int) stsj);
                     return STS_MISSING_DATA;
                 }
 
                 if( logcalcs2 ) sdcWriteLog( sdci, SDC_LOG_CALCS2,
                                                  "    Requesting covariance %ld to %ld\n",
-                                                 sdcStationId(sdci,istni),
-                                                 sdcStationId(sdci,istnj));
+                                                 sdcstni, sdcstnj);
+                if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_REQC,"",-1,-1,"");
 
                 sdci->needphase2 = 1;
                 (sdc->pfRequestCovar)(sdc->env,istni,istnj);
@@ -2100,6 +2175,70 @@ static void sdcWriteLog( hSDCTestImp sdci, int level, const char *fmt, ... )
     /*> Use the function pointer in the sdc object to write the log */
 
     (sdci->sdc->pfWriteLog)( sdci->sdc->env, sdci->logbuffer );
+}
+
+/*************************************************************************
+** Function name: sdcWriteCompactLogHeader
+**//**
+**    Writes the compact log format header
+**
+**  \param sdci                The test implementation
+**
+**  \return
+**
+**************************************************************************
+*/
+
+static void sdcWriteCompactLogHeader( hSDCTestImp sdci )
+{
+    if( ! (sdci->sdc->pfWriteCompact ) ) return;
+    if( ! (sdci->loglevel & SDC_LOG_COMPACT) ) return;
+    (sdci->sdc->pfWriteCompact)( sdci->sdc->env, "phase,order,stn1,stn2,test,status,v1,v2,comment\n");
+}
+
+/*************************************************************************
+** Function name: sdcWriteCompactLog
+**//**
+**    Writes log information to the log file in a compact format for analysis
+**
+**  \param sdci                The test implementation
+**  \param stn1                Id of first station or -1
+**  \param stn2                Id of second station or -1
+**  \param test                Id of test/information being output
+**  \param status              Pass/fail status
+**  \param v1                  Test value 1
+**  \param v2                  Test value 2
+**                             The format parameters
+**
+**  \return
+**
+**************************************************************************
+*/
+
+static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2, 
+        const char *test, const char *status, double v1, double v2, const char *comment )
+{
+    char cstn1[20],cstn2[20],cv1[40],cv2[40];
+
+    /*> Check that writing  log level is appropriate */
+
+    if( ! (sdci->sdc->pfWriteCompact ) ) return;
+    if( ! (sdci->loglevel & SDC_LOG_COMPACT) ) return;
+
+    /*> Format the string using the supplied parameters using vsprintf */
+
+    cstn1[0]=cstn2[0]=cv1[0]=cv2[0]=0;
+    if( stn1 >= 0 ) sprintf(cstn1,"%ld",stn1);
+    if( stn2 >= 0 ) sprintf(cstn2,"%ld",stn2);
+    if( v1 >= 0 ) sprintf(cv1,"%.8lf",v1);
+    if( v2 >= 0 ) sprintf(cv2,"%.8lf",v2);
+
+    sprintf(sdci->logbuffer,"%d,%d,%s,%s,%s,%s,%s,%s,%s\n",
+            sdci->phase,sdci->order,cstn1,cstn2,test,status,cv1,cv2,comment);
+
+    /*> Use the function pointer in the sdc object to write the log */
+
+    (sdci->sdc->pfWriteCompact)( sdci->sdc->env, sdci->logbuffer );
 }
 
 
