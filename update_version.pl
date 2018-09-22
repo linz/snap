@@ -15,6 +15,10 @@ To update files use one of:
    -i for minor update, 
    -I for major update,
    -R for new release.
+   -a include uncommitted files in git index in version update
+
+Requires all changed files to be added to git index.  If -a not specified
+then all changes must be committed.
 
 EOD
 
@@ -110,15 +114,23 @@ sub update_ms_vdproj
 }
 
 my %opts;
-getopts("kRIiG",\%opts);
+getopts("kRIiaG",\%opts);
 my $keep= $opts{k};
 my $release = $opts{R};
 my $major = $opts{I};
 my $minor = $opts{i};
+my $add_index = $opts{a};
 my $update = $keep || $release || $major || $minor;
 
-die "Cannot update version - files not committed\n" 
-   if $update && system('git diff --quiet HEAD');
+if( $update && system('git diff --quiet HEAD') )
+{
+    if( system('git diff --quiet') )
+    {
+        die "Cannot update version - unchanged files not added or committed in repository\n";
+    }
+    die "Cannot update version - unchanged files not committed (use -a option or git commit)\n"
+        if ! $add_index;
+}
 
 my $versionfile='src/VERSION';
 my $snapversionfile='src/snaplib/snapversion.h';

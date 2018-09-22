@@ -1,3 +1,10 @@
+linz-snap (2.7.17-1) xenial; urgency=medium
+
+  * Fixed snapspec bug when using decomposition causing snapspec to fail
+    to complete
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Sun, 23 Sep 2018 06:30:00 +1200
+
 linz-snap (2.7.16-1) xenial; urgency=medium
 
   * Added set_observation_option command and option for 
