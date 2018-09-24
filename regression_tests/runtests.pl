@@ -233,12 +233,13 @@ if( $verbose )
 }
 
 my $null = $windows ? 'nul' : '/dev/null';
+my $tmp_error_output='error_output.tmp';
 my $in=$config->{input} || $null;
 my $out=$config->{output} || $null;
 my $err=$config->{error_output} || $null;
 
 $out=$null if $out eq 'null';
-$err='&1' if $err eq 'output';
+$err=$tmp_error_output if $err eq 'output';
 $err=$null if $err eq 'null';
 $err='&1' if $err eq 'output' || $err eq $out;
 
@@ -361,6 +362,22 @@ foreach my $test (sort keys %tests)
         print "Running: ",$commandline,"\n" if $verbose;
         my $rc=system($commandline);
         print "Returns $rc\n" if $rc && $verbose;
+        if($err eq $tmp_error_output)
+        {
+            if( $out ne $null )
+            {
+                open(my $fout,">>",$repfunc->($out));
+                open(my $ferr,"<",$err);
+                if( $fout && $ferr )
+                {
+                    my @lines=<$ferr>;
+                    print $fout @lines;
+                }
+                close($fout) if $fout;
+                close($ferr) if $ferr;
+            }
+            unlink($tmp_error_output);
+        }
     }
     chdir($curdir);
 

@@ -103,7 +103,7 @@ sub update_ms_vdproj
             $fh=new FileHandle($uninst,"w");
             die "Cannot write to $uninst\n" if ! $fh;
             binmode($fh);
-            $fh->print("\@msiexec /uninstall \"{$pduid}\r\n");
+            $fh->print("\@msiexec /uninstall \"{$pduid}\"\r\n");
             print "Updated uninstall_snap.bat\n";
         }
     }
