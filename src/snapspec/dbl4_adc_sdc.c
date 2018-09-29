@@ -66,11 +66,23 @@ typedef struct
 
 /* SDCTestImp carries all the information for the relative accuracy test */
 
+typedef struct RABlock_s
+{
+    int size;             /**< Size of block */
+    int alloc;            /**< Allocated from block */
+    unsigned char *data;  /**< Block memory */
+    struct RABlock_s *next;
+} RABlock, *hRABlock;
+
 typedef struct
 {
     hSDCTest sdc;      /**< The definition of the tests to apply */
     hSDCStation stns;  /**< The list of stations to apply the tests to */
-    char *relstatus;   /**< An array of rel accuracy status information */
+    unsigned char **relstatus; /**< Array of arrays of status (forming lower triangle array) */
+    int *relcol0;              /**< Array of first used column of status array */
+    RABlock *relalloc;        /**< An linked list of relative accuracy array allocations */
+    RABlock *curalloc;        /**< Current being used relative accuracy array allocation */
+    int allocsize;             /**< Size used for each new block allocation */
     int *lookup;       /**< Lookup from relative accuracy order to station order */
     float maxctldist2; /**< The maximum distance to nearest control squared */
     float maxerror2;   /**< The maximum squared semi-major axis of the error ellipse */
@@ -104,6 +116,7 @@ typedef struct
 /* The frequency is actually inversely proportional to this number */
 
 #define ABORT_FREQUENCY 1000
+#define DEFAULT_RAMEM_SIZE (1024*1024*8)
 
 #define SDC_TEST_DCTL "DCTL" /*     Distance to control */
 #define SDC_TEST_HAA  "HAA"  /*     Horizontal absolute accuracy (F) */
@@ -135,6 +148,8 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci );
 static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                                        int *nleft );
 static StatusType sdcCreateRelTest( hSDCTestImp sdci );
+static void sdcRAInitAllocRow( hSDCTestImp sdci );
+static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 );
 static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest test );
 static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test );
 static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass );
@@ -522,6 +537,9 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
     sdci->sdc = sdc;
     sdci->stns = NULL;
     sdci->relstatus = NULL;
+    sdci->relcol0 = NULL;
+    sdci->relalloc = NULL;
+    sdci->allocsize = DEFAULT_RAMEM_SIZE;
     sdci->lookup = NULL;
     sdci->maxctldist2 = 0.0;
     sdci->maxerror2 = 0.0;
@@ -587,11 +605,116 @@ static void sdcReleaseTestImp( hSDCTestImp sdci)
         utlFree( sdci->relstatus );
         sdci->relstatus = NULL;
     }
+    if( sdci->relcol0 )
+    {
+        utlFree( sdci->relcol0 );
+        sdci->relstatus = NULL;
+    }
+    while( sdci->relalloc )
+    {
+        hRABlock alloc=sdci->relalloc;
+        sdci->relalloc=alloc->next;
+        utlFree(alloc->data);
+        utlFree(alloc);
+    }
+    sdci->curalloc=0;
     if( sdci->lookup )
     {
         utlFree( sdci->lookup );
         sdci->lookup = NULL;
     }
+}
+
+/*************************************************************************
+** Function name: sdcRAInitAllocRow
+**//**
+**    Releases the resources assigned to the SDCTestImp object.
+**
+**  \param sdci                The object from which to release
+**                             resources.
+**
+**  \return
+**
+**************************************************************************
+*/
+
+static void sdcRAInitAllocRow( hSDCTestImp sdci )
+{
+    int nrow=sdci->nreltest;
+    if( nrow < 2 ) return;
+    if( ! sdci->relstatus )
+    {
+        sdci->relstatus=(unsigned char **) utlAlloc(nrow*sizeof(unsigned char *));
+    }
+    if( ! sdci->relcol0 )
+    {
+        sdci->relcol0=(int *) utlAlloc(nrow*sizeof(int));
+    }
+    for( int i=0; i<nrow; i++ )
+    {
+        sdci->relstatus[i]=0;
+        sdci->relcol0[i]=0;
+    }
+    if( sdci->relalloc )
+    {
+        for( hRABlock alloc=sdci->relalloc; alloc; alloc=alloc->next )
+        {
+            alloc->alloc=0;
+        }
+    }
+    sdci->curalloc=sdci->relalloc;
+}
+
+/*************************************************************************
+** Function name: sdcRAAllocRow
+**//**
+**    Releases the resources assigned to the SDCTestImp object.
+**
+**  \param sdci                The SDCI object
+**  \param row                 The row to allocate
+**  \param col0                The first column to allocate for the row
+**
+**  \return                    Pointer to the status column for the row, or
+**                             null if error encountered
+**
+**************************************************************************
+*/
+
+static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 )
+{
+    unsigned char *rowstatus;
+    int nalloc;
+    hRABlock alloc;
+    hRABlock newalloc;
+
+    if( sdci->relstatus[row] ) return 0;
+    nalloc=row-col0+1;
+
+    alloc=sdci->curalloc;
+    while( 1 )
+    {
+        if( alloc )
+        {
+            if( alloc->alloc+nalloc <= alloc->size ) break;
+            if( alloc->next ) { alloc=alloc->next; continue; }
+        }
+        if( nalloc*64 > sdci->allocsize ) sdci->allocsize=nalloc*64;
+        newalloc=(hRABlock) utlAlloc( sizeof(RABlock) );
+        newalloc->data=(unsigned char *) utlAlloc(sdci->allocsize);
+        newalloc->size=sdci->allocsize;
+        newalloc->alloc=0;
+        newalloc->next=0;
+        if( alloc ) { alloc->next=newalloc; }
+        else { sdci->relalloc=newalloc; }
+        alloc=newalloc;
+        break;
+    }
+    sdci->curalloc=alloc;
+    rowstatus=alloc->data+alloc->alloc;
+    alloc->alloc += nalloc;
+    sdci->relstatus[row]=rowstatus;
+    sdci->relcol0[row]=col0;
+    return rowstatus;
 }
 
 
@@ -1043,7 +1166,6 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     hSDCStation stns = sdci->stns;
     int nrow;
     int i;
-    size_t nelt;
 
     StatusType sts = STS_OK;
 
@@ -1062,10 +1184,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     /*> Allocate the tables for vector information, status information,
         and reverse lookup of row numbers */
 
-    nelt =  (((size_t)nrow)*(((size_t)nrow)-1))/2;
-
     sdci->lookup = (int *) utlAlloc( sizeof(int) * nrow );
-    sdci->relstatus = (char *) utlAlloc( nelt);
     sdci->nreltest = nrow;
 
     /*> Initiallize the reverse lookup from rel test code to station code */
@@ -1080,6 +1199,8 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     {
         sts = utlShowProgress("Preparing relative accuracy test", 100);
     }
+
+    sdcRAInitAllocRow( sdci );
 
     return sts;
 }
@@ -1420,30 +1541,36 @@ static StatusType sdcSeekRelTestFail( hSDCTestImp sdci, hSDCOrderTest test, int 
 static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 {
     hSDCStation stns = sdci->stns;
-    char *relstatus = sdci->relstatus;
+    unsigned char *relstatus;
     int nreltest = sdci->nreltest;
+    int col0;
     int nrelrow = stns[istn].nrelrow;
     int i;
-    size_t ij;
 
     /*> Set the station status */
 
     stns[istn].status = status;
 
-    /*> Set a pointer to the beginning of the test array for
-        the row corresponding to the passed station */
-
-    ij = (((size_t)nrelrow)*(((size_t)nrelrow)-1))/2;
-
     /*> For each other station for which a relative test is defined .. */
 
-    for( i = 0; i < nreltest; i++ )
+    relstatus=sdci->relstatus[nrelrow];
+    col0=sdci->relcol0[nrelrow];
+
+    for( i = col0; i < nreltest; i++ )
     {
         hSDCStation stn;
-        if( i == nrelrow )
+        unsigned char stsij=SDC_STS_SKIP;
+
+        if( i <= nrelrow )
         {
-            ij += i;
-            continue;
+            stsij=relstatus[i-col0];
+        }
+        else
+        {
+            relstatus=sdci->relstatus[i];
+            col0=sdci->relcol0[i];
+            if( ! relstatus || col0 > nrelrow ) continue;
+            stsij=relstatus[nrelrow-col0];
         }
 
         /*>> If the station has passed then .. */
@@ -1456,7 +1583,7 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
             /*>>> If the test fails, then increment the count of failed
                  tests for the corresponding node */
 
-            if( relstatus[ij] == SDC_STS_FAIL)
+            if( stsij == SDC_STS_FAIL)
             {
                 stn->nrelfail++;
             }
@@ -1470,27 +1597,17 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
             /*>>> Remove the test from the any attached node */
             /*>>> If the test passed then decrement the pass count of the node */
 
-            if( relstatus[ij] == SDC_STS_PASS )
+            if( stsij == SDC_STS_PASS )
             {
                 stn->nreltest--;
             }
-            else if( relstatus[ij] == SDC_STS_FAIL)
+            else if( stsij == SDC_STS_FAIL)
             {
                 stn->nreltest--;
                 stn->nrelbad--;
             }
         }
 
-        /*>> Set the pointer to point to the next row. */
-
-        if( i < nrelrow )
-        {
-            ij++;
-        }
-        else
-        {
-            ij += i;
-        }
     }
 }
 
@@ -1517,7 +1634,6 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 {
     hSDCTest sdc = sdci->sdc;
     hSDCStation stns = sdci->stns;
-    char *relstatusi;
     double range2;
     char userange;
     double ftol;
@@ -1554,6 +1670,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         s->nrelbad  = 0;
         s->nrelfail = 0;
     }
+
+    /*> Initiallized the memory allocator for the relative
+     * accuracy calcs */
+
+    sdcRAInitAllocRow( sdci );
 
     /*> Set up the array of tests status information - basically we are
         interested in codes with status of unknown, and their connections
@@ -1609,11 +1730,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
     sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Calculating status for each vector\n");
 
-    relstatusi = sdci->relstatus;
 
-    for( i = 1; i < sdci->nreltest; relstatusi += i, i++ )
+    for( i = 1; i < sdci->nreltest; i++ )
     {
-        char *relstatus = relstatusi;
+        unsigned char *relstatus = 0;
 
         int istni = sdci->lookup[i];
         long sdcstni=sdcStationId(sdci,istni);
@@ -1630,7 +1750,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
         if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
-        for( j = 0; j < i; relstatus++, j++ )
+        for( j = 0; j < i; j++ )
         {
             int istnj = sdci->lookup[j];
             long sdcstnj=sdcStationId(sdci,istnj);
@@ -1638,9 +1758,13 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
             double dist;
-            char stsij = SDC_STS_UNKNOWN;
+            unsigned char stsij = SDC_STS_UNKNOWN;
 
-            *relstatus = SDC_STS_SKIP;
+            if( relstatus ) 
+            {
+                relstatus++;
+                *relstatus = SDC_STS_SKIP;
+            }
 
             if( j % ABORT_FREQUENCY == 0 )
             {
@@ -1881,7 +2005,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 if( needcvr ) stsij = SDC_STS_NEED_CVR;
             }
 
-            *relstatus = stsij;
+            if( stsij != SDC_STS_SKIP )
+            {
+                if( ! relstatus )
+                {
+                    relstatus=sdcRAAllocRow( sdci, i, j );
+                }
+                *relstatus = stsij;
+            }
         }
     }
 
@@ -1898,12 +2029,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
         /* Record each missing value */
 
-        relstatusi = sdci->relstatus;
-
-        for( i = 1; i < sdci->nreltest; relstatusi += i, i++ )
+        for( i = 1; i < sdci->nreltest; i++ )
         {
-            char *relstatus = relstatusi;
-
+            unsigned char *relstatus = sdci->relstatus[i];
+            int col0=sdci->relcol0[i];
             int istni = sdci->lookup[i];
             long sdcstni=sdcStationId(sdci,istni);
             hSDCStation stni = &(stns[istni]);
@@ -1917,9 +2046,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             }
 
             /* If not passed or potential to pass then not interested */
+            if( ! relstatus ) continue;
             if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
-            for( j = 0; j < i; relstatus++, j++ )
+            for( j = col0; j < i; j++, relstatus++ )
             {
                 int istnj = sdci->lookup[j];
                 long sdcstnj=sdcStationId(sdci,istnj);
@@ -1978,10 +2108,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Summarizing relative accuracy data\n");
     }
 
-    relstatusi = sdci->relstatus;
-    for( i = 1; i < sdci->nreltest; relstatusi += i, i++ )
+    for( i = 1; i < sdci->nreltest; i++ )
     {
-        char *relstatus = relstatusi;
+        unsigned char *relstatus = sdci->relstatus[i];
+        int col0=sdci->relcol0[i];
 
         int istni = sdci->lookup[i];
         hSDCStation stni = &(stns[istni]);
@@ -1994,9 +2124,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             if( sts != STS_OK ) return sts;
         }
 
+        if( ! relstatus ) continue;
         if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
-        for( j = 0; j < i; relstatus++, j++ )
+        for( j = col0; j < i; relstatus++, j++ )
         {
             int istnj = sdci->lookup[j];
             hSDCStation stnj = &(stns[istnj]);
