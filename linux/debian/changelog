@@ -1,3 +1,9 @@
+linz-snap (2.7.18-1) xenial; urgency=medium
+
+  * Improved snapspec memory allocation for very large adjustments
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Mon, 1 Oct 2018 07:30:00 +1200
+
 linz-snap (2.7.17-1) xenial; urgency=medium
 
   * Fixed snapspec bug when using decomposition causing snapspec to fail
