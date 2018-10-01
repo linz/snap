@@ -1,3 +1,11 @@
+linz-snap (2.7.19-1) xenial; urgency=medium
+
+  * Add snapspec configuration options for output CSV and coord files
+  * Add snapspec configuration options for horizontal/vertical only testing
+  * Add snapspec test configuration option no_test
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Tue, 2 Oct 2018 09:30:00 +1200
+
 linz-snap (2.7.18-1) xenial; urgency=medium
 
   * Improved snapspec memory allocation for very large adjustments
