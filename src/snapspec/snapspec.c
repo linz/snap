@@ -62,6 +62,7 @@ static double varmult = 1.0;
 static int min_order=0;
 static SysCodeType dfltOrder;
 static double vrtHorRatio = 1.0;
+static const char *default_output_filename="-";
 
 #define RELACC_BLOCK_SIZE 4196
 #define MAX_ORDER 20
@@ -85,9 +86,13 @@ typedef struct
     FILE *logfile;
     FILE *dbgfile;
     hSDCTest hsdc;
+    char *csvoutput;
+    char *crdoutput;
     unsigned char outputlog;
     int nstn;
     int have_srcorders;
+    int hvmode;
+    int splitcrdfile;
     short *src_orderid;
     short *role;
     short *order;
@@ -177,6 +182,10 @@ static stn_relacc_array *create_relacc()
     }
 
     ra->nstn = nstns;
+    ra->csvoutput=0;
+    ra->crdoutput=0;
+    ra->splitcrdfile=0;
+    ra->hvmode=SRA_HVMODE_AUTO;
     ra->hsdc = NULL;
     ra->alloc = NULL;
     ra->cols = NULL;
@@ -1080,7 +1089,12 @@ static const char *relacc_order_string( stn_relacc_array *ra, short order )
 
 static char *output_filename( const char *filename, const char *basename, const char *ext )
 {
-    if( filename && _stricmp(filename,"-") != 0 )
+    if( filename[0] == '+' )
+    {
+        ext=filename+1;
+        filename=0;
+    }
+    if( filename && _stricmp(filename,default_output_filename) != 0 )
     {
         return copy_string(filename);
     }
@@ -1489,6 +1503,8 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
     int nstns;
     FILE *out = ra->logfile;
 
+    if( hvmode == SRA_HVMODE_AUTO ) hvmode=ra->hvmode;
+
     adjhor = adjvrt = adj3d = 0;
     nstns = number_of_stations(net);
     for( i = 1; i <= nstns; i++ )
@@ -1600,6 +1616,7 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
     char errtype[5];
     int nfld;
     int nchr;
+    int notest;
     double err;
     int errdirflg;
     int errdirflgv;
@@ -1652,6 +1669,7 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
 
     errdirflg = 0;
     errdirflgv = 0;
+    notest=0;
 
     for(;;)
     {
@@ -1668,6 +1686,12 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             return OK;
         }
         data += nchr;
+
+        if( _stricmp(type,"no_test") == 0 )
+        {
+            notest=1;
+            continue;
+        }
 
         if( _stricmp(type,"autorange") == 0 )
         {
@@ -1801,8 +1825,13 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
 
     if( errdirflg ) test->blnTestHor = BLN_TRUE;
     if( errdirflgv ) test->blnTestVrt = BLN_TRUE;
+    if( notest && (test->blnTestHor || test->blnTestVrt) )
+    {
+        send_config_error( cfg, INVALID_DATA, "Test includes tolerances and \"no_test\"");
+        return OK;
+    }
 
-    if( ! errdirflg && ! errdirflgv )
+    if( ! notest && ! errdirflg && ! errdirflgv )
     {
         send_config_error( cfg, INVALID_DATA, "Specification doesn't include any tolerances");
         return OK;
@@ -2136,6 +2165,7 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code ); 
 static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_output_file_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 static config_item cfg_commands[] =
 {
@@ -2144,6 +2174,8 @@ static config_item cfg_commands[] =
     {"log_level",NULL,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
     {"test_config_options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
     {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
+    {"output_csv",NULL,OFFSETOF(stn_relacc_array,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
+    {"output_crd",NULL,OFFSETOF(stn_relacc_array,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
     {"min_relative_accuracy_tests",NULL,OFFSETOF(stn_relacc_array,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
@@ -2305,6 +2337,22 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
         {
             ra->hsdc->options |= SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
         }
+        else if( _stricmp(option,"test_horizontal") == 0 )
+        {
+            ra->hvmode=SRA_HVMODE_HOR;
+        }
+        else if( _stricmp(option,"test_vertical") == 0 )
+        {
+            ra->hvmode=SRA_HVMODE_VRT;
+        }
+        else if( _stricmp(option,"test_3d") == 0 )
+        {
+            ra->hvmode=SRA_HVMODE_3D;
+        }
+        else if( _stricmp(option,"split_output_crd_by_order") == 0 )
+        {
+            ra->splitcrdfile=1;
+        }
         else
         {
             char errmsg[100];
@@ -2315,6 +2363,18 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
     }
     return OK;
 }
+
+static int read_output_file_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+{
+    const char *option=strtok(string," \t\n"); 
+    if( ! option || strlen(option) == 0 )
+    {
+        option=default_output_filename;
+    }
+    *(char **) value=copy_string(option);
+    return OK;
+}
+
 
 static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
@@ -2483,7 +2543,7 @@ int main( int argc, char *argv[] )
     char *outputcsvname = NULL;
     char *debugcsvname = NULL;
     char *updatecrdfile = NULL;
-    char *splitcrdfile = NULL;
+    int splitcrdfile = 0;
     int use_cache = 0;
     char *cvrcachefile = 0;
     int autominorder = 0;
@@ -2524,7 +2584,8 @@ int main( int argc, char *argv[] )
         case 'F':
         case 's':
         case 'S':
-            splitcrdfile = arg2;
+            splitcrdfile = 1;
+            updatecrdfile=arg2;
             narg=narg2;
             break;
 
@@ -2844,6 +2905,7 @@ int main( int argc, char *argv[] )
     if( sts == STS_OK )
     {
         update_station_orders(hsdc,ra);
+        if( ! outputcsvname ) outputcsvname=ra->csvoutput;
         if( outputcsvname )
         {
             char *csvfile=output_filename(outputcsvname,bfn,SNAPSPEC_CSV_EXT);
@@ -2857,22 +2919,26 @@ int main( int argc, char *argv[] )
             write_results( hsdc, ra );
         }
 
+        if( ! updatecrdfile ) updatecrdfile=ra->crdoutput;
         if( updatecrdfile )
         {
-            char *crdfile=output_filename(updatecrdfile,bfn,SNAPSPEC_CRD_EXT);
-            update_crdfile( crdfile );
-            fprintf(out,"\nUpdated coordinate file written to %s\n",crdfile);
-            printf("Updated coordinate file written to %s\n",crdfile);
-            check_free(crdfile);
+            if( splitcrdfile || ra->splitcrdfile ) 
+            {
+                char *crdfile=output_filename(updatecrdfile,bfn,"");
+                write_coord_files( hsdc, ra, crdfile );
+                fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile);
+                printf("Split coordinate files written to %s...\n",crdfile);
+            }
+            else
+            {
+                char *crdfile=output_filename(updatecrdfile,bfn,SNAPSPEC_CRD_EXT);
+                update_crdfile( crdfile );
+                fprintf(out,"\nUpdated coordinate file written to %s\n",crdfile);
+                printf("Updated coordinate file written to %s\n",crdfile);
+                check_free(crdfile);
+            }
         }
 
-        if( splitcrdfile ) 
-        {
-            char *crdfile=output_filename(updatecrdfile,bfn,"");
-            write_coord_files( hsdc, ra, crdfile );
-            fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile);
-            printf("Split coordinate files written to %s...\n",crdfile);
-        }
 
     }
     else

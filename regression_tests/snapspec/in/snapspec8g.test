@@ -1,0 +1,5 @@
+test: CSV output (configuration file)
+file: snapspec8.crd
+file: snapspec8.dat
+file: snapspec8.snp {test}.snp
+file: {test}.cfg

@@ -1,8 +1,8 @@
 snapspec version 2.7.18-c961a25: Calculation of station orders
-Run at  2-OCT-2018 06:25:39
-SNAP binary file: snapspec8f.bin
-Spec configuration file: snapspec8f.cfg
-SNAP run time:  2-OCT-2018 06:25:39
+Run at  2-OCT-2018 08:28:58
+SNAP binary file: snapspec8j.bin
+Spec configuration file: snapspec8j.cfg
+SNAP run time:  2-OCT-2018 08:28:58
 Running apriori tests
 
 
@@ -115,4 +115,4 @@ Stations achieving order 6
 F5
 F6
 
-Split coordinate files written to ss_split...
+Split coordinate files written to snapspec8j-upd...

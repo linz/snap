@@ -84,6 +84,13 @@ of components as defined by the <a href="algorithm.html">snapspec algorithm</a>.
 <td class="nobr">autorange</td>
  <td>If present then the maximum length for relative accuracy tests will be based upon the distance to the nearest control mark.</td>
 </tr>
+<tr>
+<td class="nobr">no_test</td>
+ <td>Specifies that no tests will be applied for this order.  It allows the order to 
+     be defined so that it can be used in station configuration files or in coordinate
+     files but will not be assigned snapspec as a result of accuracy testing. 
+ </td>
+</tr>
 
 </table>
 <p class="CommandDefinition">confidence <i>percentage</i></p>
@@ -153,6 +160,10 @@ Specifies options controlling the tests.  The following options can be used:
 the absolute accuracy information is sufficient</td></tr> 
     <tr><td>strict_rel_acc_by_abs_optimisation</td><td>This makes the optimisation rigorous by not assuming positive correlation
     between mark coordinates. This makes the optimisation less efficient. </td></tr> 
+    <tr><td>test_3d</td><td>Apply both horizonal and vertical tests regardless of the adjustment</td></tr>
+    <tr><td>test_horizontal</td><td>Apply only horizonal accuracy tests</td></tr>
+    <tr><td>test_vertical</td><td>Apply only vertical accuracy tests</td></tr>
+    <tr><td>split_output_crd_by_order</td><td>If creating an output coordinate file then split it into multiple files for each order</td>
 </table>
 <p class="CommandDefinition">log_level <i>level ...</i></p>
 <p class="CommandDescription">
@@ -169,6 +180,21 @@ station orders when the results are unexpected.  This is can include any of the 
 <tr><td>debug</td><td>lists all log output except timing</td></tr>
 </table>
 
+<p class="CommandDefinition">output_csv filename</p>
+<p class="CommandDescription">Create a CSV formatted output file providing information on each
+station used in the analysis (including the output orders).  This replaces the lists of stations
+and orders in the listing file and is more useful for subsequent analysis and processing.
+If no filename is supplied the output file name will be based on the name of the snap binary file.
+If the name starts with &quot;+&quot; then the rest of the filename will be appended to the
+name of the snap binary file.
+</p>
+<p class="CommandDefinition">output_crd filename</p>
+<p class="CommandDescription">Generate an output coordinate file of the stations and their calculated orders.  This is equivalent
+to the -u or -f command line options.  Use the split_output_crd_by_order to generate separate output files for each order.
+If no filename is supplied the coordinate file name will be based on the name of the snap binary file.
+If the name starts with &quot;+&quot; then the rest of the filename will be appended to the
+name of the snap binary file.
+</p>
 <!--
 <p class="CommandDefinition">output_log <i>on</i>|<i>off</i></p>
 <p class="CommandDescription">

@@ -1,0 +1,23 @@
+title Test data set snapspec14
+
+
+coordinate_file snapspec14.crd
+data_file snapspec14.dat
+
+mode 2d adjustment
+convergence_tolerance 0.0001
+max_iterations 5
+reorder_stations on
+
+! output all_relative_covariances
+output decomposition
+output no_relative_covariances
+
+! Constraints
+fix vertical all
+fix F0
+fix F4
+
+reject F11
+ignore F12
+output no_coordinate_file

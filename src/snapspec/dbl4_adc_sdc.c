@@ -363,6 +363,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     {
         int nunknown;
         hSDCOrderTest test = &(sdc->tests[order]);
+        if( ! test->blnTestHor && ! test->blnTestVrt ) continue;
         sdci.order=order;
 
         {

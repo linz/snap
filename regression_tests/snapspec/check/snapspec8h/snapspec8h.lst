@@ -1,8 +1,8 @@
 snapspec version 2.7.18-c961a25: Calculation of station orders
-Run at  2-OCT-2018 06:25:39
-SNAP binary file: snapspec8f.bin
-Spec configuration file: snapspec8f.cfg
-SNAP run time:  2-OCT-2018 06:25:39
+Run at  2-OCT-2018 08:23:10
+SNAP binary file: snapspec8h.bin
+Spec configuration file: snapspec8h.cfg
+SNAP run time:  2-OCT-2018 08:23:10
 Running apriori tests
 
 
@@ -89,30 +89,5 @@ Running test for order 7
    Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 7.000 m +/- 0.0000 m/100m
 ==============================================================
-Results of order calculations
 
-Control stations
-F0
-F4
-
-Rejected stations
-F11
-F12
-F13
-
-Stations achieving order 4
-F2
-F3
-F9
-F10
-
-Stations achieving order 5
-F1
-F7
-F8
-
-Stations achieving order 6
-F5
-F6
-
-Split coordinate files written to ss_split...
+Results written to CSV file snapspec8h-snapspec.csv

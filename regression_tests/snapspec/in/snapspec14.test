@@ -1,0 +1,5 @@
+test: Testing the no_test option
+file: snapspec14.crd
+file: snapspec14.dat
+file: snapspec14.snp
+file:  snapspec14.cfg
