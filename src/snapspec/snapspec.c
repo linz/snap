@@ -88,11 +88,13 @@ typedef struct
     hSDCTest hsdc;
     char *csvoutput;
     char *crdoutput;
+    char *cvrcachefile;
     unsigned char outputlog;
     int nstn;
     int have_srcorders;
     int hvmode;
     int splitcrdfile;
+    int usecache;
     short *src_orderid;
     short *role;
     short *order;
@@ -184,6 +186,8 @@ static stn_relacc_array *create_relacc()
     ra->nstn = nstns;
     ra->csvoutput=0;
     ra->crdoutput=0;
+    ra->cvrcachefile=0;
+    ra->usecache=0;
     ra->splitcrdfile=0;
     ra->hvmode=SRA_HVMODE_AUTO;
     ra->hsdc = NULL;
@@ -323,6 +327,21 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
     return 1;
 }
 
+static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
+{
+    if( ! ra->blt ) return;
+    if( ! ra->bltupdated ) return;
+    BINARY_FILE *c;
+    c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
+    if( ! c ) return;
+    create_section(c,CACHE_COVARIANCE_SECTION);
+    fwrite(run_time,GETDATELEN,1,c->f);
+    dump_bltmatrix(ra->blt,c->f);
+    end_section(c);
+    close_binary_file(c);
+    printf("Created covariance cache file %s\n",cfn);
+}
+
 static int relacc_calc_requested_covar( stn_relacc_array *ra )
 {
     bltmatrix *bltdec = ra->bltdec;
@@ -350,6 +369,8 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
     ra->blt=blt;
     ra->bltupdated=1;
     ra->bltreq=NULL;
+
+    if( ra->cvrcachefile ) cache_covariance_matrix( ra, ra->cvrcachefile );
 
     return 1;
 }
@@ -834,21 +855,6 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
     ra->bltupdated=0;
     printf("Using covariance from cache file %s\n",cfn);
     return 1;
-}
-
-static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
-{
-    if( ! ra->blt ) return;
-    if( ! ra->bltupdated ) return;
-    BINARY_FILE *c;
-    c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
-    if( ! c ) return;
-    create_section(c,CACHE_COVARIANCE_SECTION);
-    fwrite(run_time,GETDATELEN,1,c->f);
-    dump_bltmatrix(ra->blt,c->f);
-    end_section(c);
-    close_binary_file(c);
-    printf("Created covariance cache file %s\n",cfn);
 }
 
 /*======================================================================*/
@@ -2353,6 +2359,10 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
         {
             ra->splitcrdfile=1;
         }
+        else if( _stricmp(option,"use_covariance_cache") == 0 )
+        {
+            ra->usecache=1;
+        }
         else
         {
             char errmsg[100];
@@ -2795,9 +2805,14 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    cvrcachefile=cache_covariance_filename( bfn );
-    try_reload_cached_covariance( ra, cvrcachefile );
-    close_binary_file(b);
+    if( use_cache || ra->usecache )
+    {
+        cvrcachefile=cache_covariance_filename( bfn );
+        try_reload_cached_covariance( ra, cvrcachefile );
+        close_binary_file(b);
+        ra->cvrcachefile=cvrcachefile;
+    }
+
 
     if( ra->bltdec )
     {
@@ -2938,8 +2953,6 @@ int main( int argc, char *argv[] )
                 check_free(crdfile);
             }
         }
-
-
     }
     else
     {
@@ -2948,11 +2961,8 @@ int main( int argc, char *argv[] )
         printf("\nSee %s for details\n",ofn);
     }
 
-
     ra->logfile = NULL;
     fclose(out);
-
-    if( use_cache && ra->bltupdated ) cache_covariance_matrix( ra, cvrcachefile );
 
     delete_test(hsdc);
     delete_relacc( ra );
