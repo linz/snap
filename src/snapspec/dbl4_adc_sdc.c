@@ -1556,6 +1556,7 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 
     relstatus=sdci->relstatus[nrelrow];
     col0=sdci->relcol0[nrelrow];
+    if( ! relstatus ) col0=nrelrow+1;
 
     for( i = col0; i < nreltest; i++ )
     {
