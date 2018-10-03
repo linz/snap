@@ -85,7 +85,7 @@ the snap command itself you can install this directory into the path, for
 example in the .bashrc file 
 
 ```
-export PATH=:/usr/share/linz/snap:${PATH}:/home/ccrook/bin
+export PATH=:/usr/share/linz/snap:${PATH}
 ```
 
 
