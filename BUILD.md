@@ -78,14 +78,14 @@ make package
 ```
 
 The package will be created in the root directory and can be installed using 
-dpkg -i linz-snap-version.deb.  Note that this installs snap into the 
+dpkg -i linz-snap-<i>version</i>.deb.  Note that this installs snap into the 
 default path /usr/bin as runsnap.  This is to avoid conflict with the system snap
 command.  The snap components are installed into /usr/share/linz/snap.  To use
 the snap command itself you can install this directory into the path, for 
 example in the .bashrc file 
 
 ```
-export PATH=:/usr/share/linz/snap:${PATH}
+export PATH=/usr/share/linz/snap:${PATH}
 ```
 
 

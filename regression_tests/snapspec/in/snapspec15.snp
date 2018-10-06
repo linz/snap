@@ -1,0 +1,30 @@
+title Test data set snapspec4
+
+
+coordinate_file snapspec1.crd
+data_file snapspec15.dat
+
+mode 3d adjustment
+convergence_tolerance 0.0001
+max_iterations 5
+reorder_stations on
+
+! output all_relative_covariances
+output decomposition
+output no_relative_covariances
+
+! Adjustment parameters
+! CNVG="0.0001" ! Convergence criteria
+! MXIT="5" ! Maximum iterations
+! DBUG="" ! Debugging options
+! LIST="summary" ! Listing options
+! SDCO="LOG_LEVEL 7 ERROR_FACTOR 3 DEFAULT_ORDER 8" ! SDC options 1
+! SDCO="ORDER 4a 30 2 2 0.5 0 0.05 0.0" ! SDC options 2
+
+! Constraints
+! fix vertical all
+fix F0
+fix vertical F2
+fix horizontal F3
+! fix F4
+output no_coordinate_file

@@ -112,6 +112,7 @@ typedef struct
     int loglevel;
     int autominorder;
     int dfltminrelacc;
+    int ignoreconstrained;
 } stn_relacc_array;
 
 typedef struct cfg_stack_s
@@ -209,6 +210,7 @@ static stn_relacc_array *create_relacc()
     ra->bltupdated = 0;
     ra->outputlog = 0;
     ra->autominorder = 0;
+    ra->ignoreconstrained = 0;
     ra->dfltminrelacc = 0;
     return ra;
 }
@@ -879,18 +881,48 @@ static int f_station_role ( void *env, int stn )
 
     st = stnptr(istn);
     sa = stnadj( st );
+    
+    // Identify ignored stations (for testing) and control stations
 
     if( ignored_station(istn) || rejected_station(istn) ) 
     {
         role = SDC_IGNORE_MARK; 
     }
-    else if( (sa->hrowno && ra->testhor) || (sa->vrowno && ra->testvrt) )
+    // If testing 3d
+    else if( ra->testhor && ra->testvrt )
     {
         role = ra->role[stn];
+        // If not calculated (and not ignored) then it is a control mark
+        if( ! (sa->hrowno || sa->vrowno) ) 
+        {
+            role=SDC_CONTROL_MARK;
+        }
+        // If only one ordindate calced, then ignore if ignore constrained
+        // option is selected
+        else if( ra->ignoreconstrained && ! (sa->hrowno && sa->vrowno ) )
+        {
+            role=SDC_IGNORE_MARK;
+        }
     }
-    else
+    // If only testing horizontally
+    else if( ra->testhor )
     {
-        role = SDC_CONTROL_MARK;
+        if( ! sa->hrowno )
+        {
+            // Assume if in 3d adjustment (vertical calculated) 
+            // then not calculated because of lack of data, not because 
+            // it is a control mark.
+            role = sa->vrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
+        }
+    }
+    // If only testing vertically
+    else if( ra->testvrt )
+    {
+        if( ! sa->vrowno )
+        {
+            // As per above but for vertical
+            role = sa->hrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
+        }
     }
     ra->role[stn]=role;
     return role;
@@ -1594,6 +1626,9 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
             return INCONSISTENT_DATA;
         }
     }
+
+    ra->testhor=testhor;
+    ra->testvrt=testvrt;
 
     for( i = 0; i < hsdc->norder; i++ )
     {
@@ -2342,6 +2377,10 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
         else if( _stricmp(option,"strict_rel_acc_by_abs_optimisation") == 0 )
         {
             ra->hsdc->options |= SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
+        }
+        else if( _stricmp(option,"ignore_constrained_stations") == 0 )
+        {
+            ra->ignoreconstrained=1;
         }
         else if( _stricmp(option,"test_horizontal") == 0 )
         {

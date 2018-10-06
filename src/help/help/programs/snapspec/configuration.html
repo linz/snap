@@ -160,6 +160,9 @@ Specifies options controlling the tests.  The following options can be used:
 the absolute accuracy information is sufficient</td></tr> 
     <tr><td>strict_rel_acc_by_abs_optimisation</td><td>This makes the optimisation rigorous by not assuming positive correlation
     between mark coordinates. This makes the optimisation less efficient. </td></tr> 
+    <tr><td>ignore_constrained_stations</td><td>In 3d tests this treats causes stations which are fixed in one ordinate
+            (horizontal or vertical) but not in the other to be ignored.  By default these stations are tested with the fixed ordinate treated as 
+            being perfect</td></tr>
     <tr><td>test_3d</td><td>Apply both horizonal and vertical tests regardless of the adjustment</td></tr>
     <tr><td>test_horizontal</td><td>Apply only horizonal accuracy tests</td></tr>
     <tr><td>test_vertical</td><td>Apply only vertical accuracy tests</td></tr>

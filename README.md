@@ -41,7 +41,7 @@ building capability from.  The main intent in releasing as open source code is t
 for compiling the package to work in otherwise unsupported operating systems.  
 
 Currently LINZ provides Microsoft Windows binaries for the package. The code base can also be 
-compiled into linux components.  Currently this has been tested in Ubuntu 14.04. See [BUILD.md](BUILD.md)
+compiled into linux components.  Currently this has been tested in Ubuntu 18.04. See [BUILD.md](BUILD.md)
 for more information on building the software.
 
 Disclaimer

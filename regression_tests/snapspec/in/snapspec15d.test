@@ -1,0 +1,5 @@
+test: Spec on 3d adjustment
+file: snapspec1.crd
+file: snapspec15.dat
+file: snapspec15.snp {test}.snp
+file:  {test}.cfg

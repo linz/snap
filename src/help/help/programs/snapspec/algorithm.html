@@ -49,6 +49,7 @@ components.
     of relative accuracy testing required.
     </td></tr>
 </table>
+</p>
 <p>The relative accuracy requirement can be restricted to only apply to stations within a specified distance of each other.  This distance can be specified or it can be calculated as a multiple of the largest distance between an adjusted mark and a control mark.  This builds on the assumption that control marks tend to fix coordinates around them, so relative accuracy beyond a control mark is irrelevant.
 </p>
 <p>Each order can also specify a minimum number of relative accuracy tests required for a mark.  This will only apply if the mark.  
@@ -68,7 +69,27 @@ level of confidence.
 </p>
 
 <p>
-Initially each station can be assigned a best potential order and a priority.  
+In order to apply this algorithm snapspec first identifies the stations as either control stations, test stations, or ignored
+stations.  By default stations which have been observed and which are fixed in the adjustment are treated as control stations, 
+and stations which do not have data are ignored marks.  The remainder are tested.  However there are some subtleties in a
+3d adjustment where the horizontal or vertical ordinates may be fixed but the other ordinates not fixed.  
+</p>
+
+<p>
+If only horizontal tests are applied on a 3d adjustment then stations which are adjusted vertically but fixed horizontally
+are ignored.  Conversely if only vertical tests are applied then stations which are adjusted horizontally but fixed vertically are ignored.  The assumption here is that the constraint is applied due to lack of data, not because we believe the ordinate is
+correct.  This assumes that the reason the ordinate is fixed is because of missing data, not because it is believed to be correct.
+</p>
+
+<p>
+If horizontal and vertical tests are being applied then the default behaviour is to use a station at which only a horizontal 
+or vertical coordinate is calculated.  The uncalculated coordinate is treated as perfect (zero error) in the tests.  
+This behaviour can be changed using the &quot;ignore_constrained_stations&quot; option, in which case stations that are 
+fixed either horizontally or vertically in a 3d test are ignored.
+</p>
+
+<p>
+Initially each tested station can be assigned a best potential order and a priority.  
 The best potential order is the highest order against which the station coordinates will be tested. 
 The priority can be used to help decide which coordinate to assign an order when there is 
 a choice of potential stations.  Because each order requires a relative accuracy constraint
