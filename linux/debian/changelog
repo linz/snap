@@ -1,3 +1,9 @@
+linz-snap (2.7.20-1) xenial; urgency=medium
+
+  * Improve snapspec handling of constrained stations
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Sat, 20 Oct 2018 19:30:00 +1200
+
 linz-snap (2.7.19-1) xenial; urgency=medium
 
   * Add snapspec configuration options for output CSV and coord files
