@@ -1125,6 +1125,17 @@ static const char *relacc_order_string( stn_relacc_array *ra, short order )
     return ra->hsdc->tests[order-1].scOrder;
 }
 
+static const char *relacc_role_string( stn_relacc_array *ra, short role )
+{
+    const char *control="C";
+    const char *ignored="I";
+
+    if( role == SDC_CONTROL_MARK ) return control;
+    if( role == SDC_IGNORE_MARK ) return ignored;
+    if( role >= 0 && role < ra->hsdc->norder ) return ra->hsdc->tests[role].scOrder;
+    return "";
+}
+
 static char *output_filename( const char *filename, const char *basename, const char *ext )
 {
     if( filename[0] == '+' )
@@ -1290,7 +1301,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
             write_csv_null_field( csv );
         }
         
-        write_csv_string( csv, relacc_order_string( ra, ra->role[st->id-1]) );
+        write_csv_string( csv, relacc_role_string( ra, ra->role[st->id-1]) );
         if( ra->priority[st->id-1] == SDC_NO_PRIORITY )
         {
             write_csv_null_field(csv);

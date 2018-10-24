@@ -1,8 +1,8 @@
-snapspec version 2.7.16-9663751: Calculation of station orders
-Run at 22-SEP-2018 08:22:38
+snapspec version 2.7.20-18a0b47: Calculation of station orders
+Run at 25-OCT-2018 12:35:43
 SNAP binary file: snapspec11b.bin
 Spec configuration file: snapspec11b.cfg
-SNAP run time: 22-SEP-2018 08:22:38
+SNAP run time: 25-OCT-2018 12:35:43
 Lowest order of control stations: 4
 Best order permitted: 5
 Running apriori tests
