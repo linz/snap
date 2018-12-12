@@ -682,7 +682,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Basic file system functions
 
     DEFINE_FUNCTION("DeleteFile",1)
-    ::wxRemoveFile( STRPRM(0));
+    if( ::wxFileExists(STRPRM(0)) )::wxRemoveFile( STRPRM(0));
     bool result =  ! ::wxFileExists(STRPRM(0));
     if( result && tmpFiles.Index( STRPRM(0) ) != wxNOT_FOUND ) tmpFiles.Remove( STRPRM(0));
     RETURN( result );
