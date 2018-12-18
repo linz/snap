@@ -10,7 +10,7 @@
 //}
 
 
-static wxRadioBoxOption obsListOptions[] =
+static ListControlOption obsListOptions[] =
 {
     { "All observations", SRL_ALL },
     { "Used observations", SRL_USED },
@@ -20,7 +20,7 @@ static wxRadioBoxOption obsListOptions[] =
 };
 
 // Note: The order here should match the order initiallized for displayFields in plotconn.c
-static wxRadioBoxOption fieldListOptions[] =
+static ListControlOption fieldListOptions[] =
 {
 	{ "Obs id", SRF_OBSID },   	
 	{ "Date", SRF_DATE }, 

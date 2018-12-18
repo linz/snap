@@ -46,7 +46,7 @@ enum { scAll, scStatus, scHorAdj, scHorErr, scVrtAdj, scVrtErr, scOrder };
 static char horErrOpt[128]={0};
 static char vrtErrOpt[128]={0};
 
-static wxRadioBoxOption stnCriteria[] =
+static ListControlOption stnCriteria[] =
 {
     {"All stations", scAll},
     {"By status (select on right ->)", scStatus},
@@ -58,7 +58,7 @@ static wxRadioBoxOption stnCriteria[] =
     {0,0}
 };
 
-static wxRadioBoxOption obsHighlightOptions[] =
+static ListControlOption obsHighlightOptions[] =
 {
     {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE },
     {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH },

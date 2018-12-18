@@ -9,7 +9,7 @@
 //}
 
 
-static wxRadioBoxOption obsHighlightOptions[] =
+static ListControlOption obsHighlightOptions[] =
 {
     {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE },
     {"Apriori &standardised residuals greater than threshold", PCONN_HIGHLIGHT_SRES },

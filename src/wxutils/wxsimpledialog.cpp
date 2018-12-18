@@ -7,49 +7,116 @@
 #include <stdarg.h>
 
 
-wxRadioBoxOptionValidator::wxRadioBoxOptionValidator( wxRadioBoxOption *options, int *value ) :
+wxOptionValidatorBase::wxOptionValidatorBase( ListControlOption *options, int *value ) :
     wxValidator(),
     value(value),
-    options(options)
+    nOptions(0),
+    optValues(0)
 {
+    for( int i=0; options[i].name; i++ )
+    {
+        nOptions++;
+    }
+    optValues = new int[nOptions];
+    for( int i=0; i < nOptions; i++ )
+    {
+        optValues[i]=options[i].value;
+    }
 }
 
-wxRadioBoxOptionValidator::wxRadioBoxOptionValidator( const wxRadioBoxOptionValidator &validator ) :
+wxOptionValidatorBase::wxOptionValidatorBase( const wxOptionValidatorBase &validator ) :
     wxValidator(),
     value(validator.value),
-    options( validator.options )
+    nOptions( validator.nOptions ),
+    optValues( 0 )
 {
+    optValues = new int[nOptions];
+    for( int i=0; i < nOptions; i++ )
+    {
+        optValues[i]=validator.optValues[i];
+    }
 }
 
-bool wxRadioBoxOptionValidator::TransferToWindow()
+wxOptionValidatorBase::~wxOptionValidatorBase()
 {
-    wxControlWithItems *rb = static_cast<wxControlWithItems *>( GetWindow() );
-    int optVal = value ? *value : options[0].value;
-    rb->SetSelection(0);
-    for( int i = 0; options[i].name; i++ )
+    delete [] optValues;
+}
+
+bool wxOptionValidatorBase::TransferToWindow()
+{
+    int optVal = value ? *value : optValues[0];
+    SetSelectedIndex(0);
+    for( int i = 0; i < nOptions; i++ )
     {
-        if( options[i].value == optVal )
+        if( optValues[i] == optVal )
         {
-            rb->SetSelection(i);
+            SetSelectedIndex(i);
             break;
         }
     }
     return true;
 }
 
-bool wxRadioBoxOptionValidator::TransferFromWindow()
+bool wxOptionValidatorBase::TransferFromWindow()
 {
-    wxControlWithItems *rb = static_cast<wxControlWithItems *>( GetWindow() );
     if( value )
     {
-        *value = options[rb->GetSelection()].value;
+        int optval=GetSelectedIndex();
+        if( optval >= 0 && optval < nOptions )
+        {
+            *value = optValues[optval];
+        }
+        else
+        {
+            *value = 0;
+        }
     }
     return true;
 }
 
-bool wxRadioBoxOptionValidator::Validate( wxWindow * WXUNUSED(parent) )
+bool wxOptionValidatorBase::Validate( wxWindow * WXUNUSED(parent) )
 {
     return true;
+}
+
+//===========================================================================
+
+int wxRadioBoxOptionValidator::GetSelectedIndex()
+{
+    wxRadioBox *rb = static_cast<wxRadioBox *>( GetWindow() );
+    return rb->GetSelection();
+}
+
+void wxRadioBoxOptionValidator::SetSelectedIndex( int i )
+{
+    wxRadioBox *rb = static_cast<wxRadioBox *>( GetWindow() );
+    rb->SetSelection(i);
+}
+
+//===========================================================================
+
+class wxControlWithItemsValidator : public wxOptionValidatorBase
+{
+public:
+    wxControlWithItemsValidator( wxControlWithItems *ctrl, ListControlOption *options, int *value = NULL):
+        wxOptionValidatorBase(options,value), ctrl(ctrl) {};
+    wxControlWithItemsValidator( const wxControlWithItemsValidator &validator ) : wxOptionValidatorBase(validator), ctrl(validator.ctrl) {};
+    virtual wxValidator *Clone() const { return new wxControlWithItemsValidator( *this ); }
+protected:
+    virtual int GetSelectedIndex();
+    virtual void SetSelectedIndex( int i );
+private:
+    wxControlWithItems *ctrl;
+};
+
+int wxControlWithItemsValidator::GetSelectedIndex()
+{
+    return ctrl->GetSelection();
+}
+
+void wxControlWithItemsValidator::SetSelectedIndex( int i )
+{
+    ctrl->SetSelection(i);
 }
 
 //===========================================================================
@@ -290,14 +357,13 @@ wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxString options, wxString lab
     return ctrl;
 }
 
-wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxRadioBoxOption *options, wxString label, bool horizontal )
+wxRadioBox *wxSimpleDialog::RadioBox( int &value, ListControlOption *options, wxString label, bool horizontal )
 {
     wxArrayString arrLabels;
     for( int i = 0; options[i].name; i++ )
     {
         arrLabels.Add( wxString(options[i].name));
     }
-
     wxRadioBox *ctrl = new wxRadioBox(this,
                                       wxID_ANY,
                                       label,
@@ -328,7 +394,7 @@ wxChoice *wxSimpleDialog::DropDownBox( int &value, wxString options )
     return ctrl;
 }
 
-wxChoice *wxSimpleDialog::DropDownBox( int &value, wxRadioBoxOption *options )
+wxChoice *wxSimpleDialog::DropDownBox( int &value, ListControlOption *options )
 {
     wxArrayString arrLabels;
 
@@ -453,7 +519,7 @@ wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, wxString opt
     return rb;
 }
 
-wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, wxRadioBoxOption *options, bool horizontal )
+wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, ListControlOption *options, bool horizontal )
 {
     wxRadioBox *rb = RadioBox( value, options, label, horizontal );
     AddControl( wxEmptyString, rb );
@@ -467,7 +533,7 @@ wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, wxString op
     return ddb;
 }
 
-wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, wxRadioBoxOption *options )
+wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, ListControlOption *options )
 {
     wxChoice *ddb = DropDownBox( value, options );
     AddControl( label, ddb );
@@ -685,7 +751,7 @@ void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &
     ctrl->SetValidator( wxGenericValidator( &value ) );
 }
 
-void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, wxRadioBoxOption *options )
+void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, ListControlOption *options )
 {
     ctrl->Clear();
     for( int i = 0; options[i].name; i++ )
@@ -693,5 +759,5 @@ void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &
         ctrl->Append( wxString(options[i].name));
     }
 
-    ctrl->SetValidator(wxRadioBoxOptionValidator( options, &value ));
+    ctrl->SetValidator(wxControlWithItemsValidator( ctrl, options, &value ));
 }
