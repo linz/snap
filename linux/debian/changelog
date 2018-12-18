@@ -1,3 +1,11 @@
+linz-snap (2.7.21-1) xenial; urgency=medium
+
+  * Fixes #81 - error message deleting non-existant files
+  * Fixes #82 - snapplot crashing
+  * Fixes #81 - error message deleting non-existant files
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 19 Dec 2018 12:00:00 +1300
+
 linz-snap (2.7.20-1) xenial; urgency=medium
 
   * Improve snapspec handling of constrained stations
