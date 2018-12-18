@@ -972,7 +972,7 @@ void setup_data_pens( int type )
         data_pen_type = DPEN_BY_RFAC;
     }
 
-    else if( type > 0 && (type <= nclass || type == DPEN_BY_FILE) )
+    else if( (type > 0 && type <= nclass) || type == DPEN_BY_FILE) 
     {
         setup_classification_pens( type );
         data_pen_type = type;
