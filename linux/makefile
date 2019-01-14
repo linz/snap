@@ -8,6 +8,7 @@ type=release
 COORDSYSDIR=/usr/share/linz/coordsys
 INSTALLDIR=${DESTDIR}/usr/share/linz/snap
 BINDIR=${DESTDIR}/usr/bin
+INCFILE=makefile.inc
 SNAPVER=`cat ../src/VERSION`
 
 WXCONFIG=wx-config
@@ -72,7 +73,7 @@ CCFLAGS := $(CCPARAM) \
 	   $(foreach INC,$(INCPATH),-I$(INC)) \
            $(foreach MACRO,$(MACROS),-D$(MACRO))
 
-include ./makefile.inc
+-include $(INCFILE)
 
 .PHONY: clean dirs
 
@@ -110,7 +111,7 @@ endif
 snap_all: snap_cmd snap_manager snapadjust snapplot $(SNAPPACKAGES)
 
 # Command line programs only
-snap_cmd: $(UPDATEVERSION) makefile.inc snap concord snapspec dat2site snaplist snapconv snapgeoid snapmerge site2gps
+snap_cmd: $(UPDATEVERSION) $(INCFILE) snap concord snapspec dat2site snaplist snapconv snapgeoid snapmerge site2gps
 	
 snap: $(SNAPEXE) support_files
 
@@ -145,7 +146,10 @@ update_version_date:
 	touch `grep -rl GETVERSION_SET_PROGRAM_DATE ../src`
 
 rebuild_makefile: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
-	@python build_makefile_inc.py > makefile.inc
+	@python build_makefile_inc.py > $(INCFILE)
+
+$(INCFILE): $(SRCDIR)/snap_manager/scriptimp_parse.cpp
+	@python build_makefile_inc.py > $(INCFILE)
 
 $(OBJ)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p `dirname $@` 
