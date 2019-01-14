@@ -14,13 +14,35 @@
 <h1><a name="cmd_reweight_observations"></a>The reweight_observations command</h1>
 
 <p class="Commanddefinition">reweight_observations [<i>by_set</i>] <i>factor</i> <i>selection_criteria</i></p>
+<p class="Commanddefinition">reweight_observations plumbing_error <i>uncertainty</i><i>selection_criteria</i></p>
 
 <p>The reweight_observations command is used to reweight observations in the adjustment.
 Observations can be selected based upon observation type, observation date, stations used, and <a href="../data/obs_classifications.html">observation classifications</a>.</p> 
 
+<p>Reweighting can either specify a scale factor by which standard errors are multiplied, or a plumbing error that specifies an error in the location of the equipment relative to the reference point of the mark.  The plumbing error may also be used to represent undertainties in the deformation model when 
+combining observations from different epochs.`</p>
+
+<p>The <i>factor</i> parameter is a scale factor by which the error of the selected observations is multiplied  This is the factor applied to observation uncertainties - the square of this is 
+applied to covariances.  If multiple scale factors apply to an observation then they are 
+multiplied together.
+</p>
+
 <p>If &quot;by_set&quot; is specified then the scale factor will apply to the whole 
 set of observations if any of the observations in the set match the critieria.</p>
-<p>The <i>factor</i> parameter is a scale factor by which the error of the selected observations is multiplied.</p>
+
+<p>The plumbing error can be specified with horizontal and vertical error components.  Plumbing errors are added to the observation error by adding variances (ie root sum of squares).  Plumbing errors are applied after observation reweighting. 
+<p>
+
+<p>Plumbing errors are specified using one of the following formats:<p>
+
+<p class="Commanddefinition">
+plumbing_error <i>hv_error</i> m<br />
+plumbing_error <i>h_error</i> <i>v_error</i> m<br />
+</p>
+
+<p>Currently plumbing errors are applied independently to each observation in sets of observations 
+except for GX and GB observations for which the correlation between observations sharing the same
+plumbing error is properly accounted for.</p>
 
 <p>The format of <i>selection_criteria</i> is described for the <a href="cmd_reject_observations.html">reject_observations</a> command.
 </p>
@@ -30,6 +52,8 @@ set of observations if any of the observations in the set match the critieria.</
 <p class="Commandexample">reweight_observations 1.5 data_type=HA/AZ</p>
 
 <p class="Commandexample">reweight_observations 2.0 before 2000-01-01 using_stations inside NZGD2000 affected_area.wkt</p>
+
+<p class="Commandexample">reweight_observations plumbing_error 0.01 m data_type=GX</p>
 
 <p>Observations can also be <a href="cmd_reject_observations.html">rejected</a> or <a href="cmd_ignore_observations.html">ignored</a> based on selection criteria.  
 Rejected observations are not used to calculate coordinates but do still 
