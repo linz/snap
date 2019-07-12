@@ -9,6 +9,7 @@
 #include "snapdata/obsmod.h"
 #include "snapdata/datatype.h"
 #include "snapdata/survdata.h"
+#include "snapdata/gpscvr.h"
 #include "network/network.h"
 #include "util/chkalloc.h"
 #include "util/errdef.h"
@@ -105,6 +106,7 @@ typedef struct obs_criteria_s
     int action;
     int option;
     double factor;
+    double factor2;
     struct obs_criteria_s *next;
     struct obs_criteria_s *pnext; /* Next criteria to process */
 } obs_criteria;
@@ -148,8 +150,12 @@ typedef struct
     int class_id; /* Cached class value */
     int value_id;
     int action;   /* Action to apply */
-    double factor;
-    double setfactor;
+    double factor;    /* Obs scale factor */
+    double setfactor; /* Obs set scale factor */
+    double offsethv;   /* Horizontal station offset variance */
+    double offsetvv;   /* Vertical station offset variance */
+    double centroidhv; /* Horizontal station centroid variance */
+    double centroidvv; /* Vertical station centroid variance */
 } obsmod_context;
 
 
@@ -606,12 +612,13 @@ static void delete_obs_criterion( obs_criterion *oc )
     check_free( oc );
 }
 
-static obs_criteria *new_obs_criteria( int action, double factor, int option )
+static obs_criteria *new_obs_criteria( int action, double factor, double factor2, int option )
 {
     obs_criteria *ocr=(obs_criteria *) check_malloc( sizeof( obs_criteria ) );
     if( action & OBS_MOD_REWEIGHT_SET ){ action &= ~ (int) OBS_MOD_REWEIGHT; }
     ocr->action=action;
     ocr->factor=factor;
+    ocr->factor2=factor2;
     ocr->option=option;
     ocr->first=nullptr;
     ocr->last=nullptr;
@@ -670,10 +677,27 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
         {
             action |= ocr->action;
             if( ocr->action & OBS_MOD_REWEIGHT ) oac->factor *= ocr->factor;
-            if( ocr->action & OBS_MOD_REWEIGHT_SET && ocr->setid != oac->obsmod->setid ) 
+            else if( ocr->action & OBS_MOD_OFFSET_ERROR ) 
             {
-                ocr->setid=oac->obsmod->setid;
-                oac->setfactor *= ocr->factor;
+                oac->offsethv += ocr->factor*ocr->factor;
+                oac->offsetvv += ocr->factor2*ocr->factor2;
+            }
+            else if( ocr->action & OBS_MOD_REWEIGHT_SET )
+            {
+                if( ocr->setid != oac->obsmod->setid ) 
+                {
+                    ocr->setid=oac->obsmod->setid;
+                    oac->setfactor *= ocr->factor;
+                }
+            }
+            else if( ocr->action & OBS_MOD_CENTROID_ERROR )
+            {
+                if( ocr->setid != oac->obsmod->setid ) 
+                {
+                    ocr->setid=oac->obsmod->setid;
+                    oac->centroidhv += (ocr->factor*ocr->factor);
+                    oac->centroidvv += (ocr->factor2*ocr->factor2);
+                }
             }
         }
         if( ocr->action & OBS_MOD_SET_OPTION )
@@ -815,10 +839,10 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
     return file_id;
 }
 
-static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, int option, double err_factor )
+static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, int option, double errval1, double errval2 )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    obs_criteria *ocr=new_obs_criteria( action, err_factor, option );
+    obs_criteria *ocr=new_obs_criteria( action, errval1, errval2, option );
     char *strptr=criteria;
     char *field;
     char *fptr;
@@ -977,15 +1001,15 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
     return OK;
 }
 
-int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, double err_factor )
+int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, double errval1, double errval2 )
 {
-    return add_obs_modifications_imp( cfg, pobsmod, criteria,action,0,err_factor);
+    return add_obs_modifications_imp( cfg, pobsmod, criteria, action, 0, errval1, errval2);
 }
 
 int add_obs_option_modification( CFG_FILE *cfg, void *pobsmod, char *criteria, int set, int option )
 {
     int action=set ? OBS_MOD_SET_OPTION : OBS_MOD_UNSET_OPTION;
-    return add_obs_modifications_imp( cfg, pobsmod, criteria,action,option,1.0);
+    return add_obs_modifications_imp( cfg, pobsmod, criteria,action,option,1.0,0.0);
 }
 
 int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *classification, char *value, int action, double err_factor, int missing_error )
@@ -1014,7 +1038,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     {
         return INVALID_DATA;
     }
-    obs_criteria *ocr=new_obs_criteria( action, err_factor, 0 );
+    obs_criteria *ocr=new_obs_criteria( action, err_factor, 0.0, 0 );
     add_obs_criterion_to_criteria( ocr, oc );
     add_obs_criteria_to_modifications( obsmod, ocr );
     return OK;
@@ -1024,7 +1048,7 @@ int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criterion *oc = new_obs_datafile_criterion( fileid, filename );
-    obs_criteria *ocr=new_obs_criteria( OBS_MOD_REWEIGHT, err_factor, 0 );
+    obs_criteria *ocr=new_obs_criteria( OBS_MOD_REWEIGHT, err_factor, 0.0, 0 );
     add_obs_criterion_to_criteria( ocr, oc );
     add_obs_criteria_to_modifications( obsmod, ocr );
     return OK;
@@ -1300,6 +1324,8 @@ static void init_obsmod_context_set( obsmod_context *oac, obs_modifications *obs
 {
     oac->obsmod=obsmod;
     oac->setfactor=1.0;
+    oac->centroidhv=0.0;
+    oac->centroidvv=0.0;
     oac->sd=sd;
 }
 
@@ -1307,6 +1333,8 @@ static void init_obsmod_context_target( obsmod_context *oac, trgtdata *tgt )
 {
     oac->tgt=tgt;
     oac->factor=1.0;
+    oac->offsethv=0.0;
+    oac->offsetvv=0.0;
     oac->action=0;
     oac->class_id=-1;
     oac->value_id=-1;
@@ -1358,7 +1386,7 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
     case SD_VECDATA:
     {
         vecdata *vd;
-        int ncvr=sd->nobs*3;
+        int offsets=0;
 
         for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
         {
@@ -1369,37 +1397,36 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 apply_obs_modification_action( obsmod, &oac );
                 if( tgt->unused & IGNORE_OBS_BIT ) { nignored++; }
             }
-            if( sd->cvr && oac.factor != 1.0 && ! (tgt->unused & IGNORE_OBS_BIT) )
+            if( sd->cvr && ! (tgt->unused & IGNORE_OBS_BIT) )
             {
-                int i3=i*3;
-                double factor2=oac.factor*oac.factor;
-                for( int row=0; row<i3; row++ )
+                if( oac.factor != 1.0 )
                 {
-                    for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= oac.factor;
+                    gps_covar_apply_obs_error_factor( sd, i, oac.factor );
                 }
-                for( int row=i3; row<i3+3; row++ )
-                {
-                    for( int col=i3; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
-                }
-                for( int row=i3+3; row<ncvr; row++ )
-                {
-                    for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= oac.factor;
-                }
-                tgt->errfct *= oac.factor;
+                if( oac.offsethv > 0.0 || oac.offsetvv > 0.0 ) offsets=1;
             }
         }
         if( sd->cvr && oac.setfactor != 1.0 )
         {
-            int i3=sd->nobs*3;
-            double factor2=oac.setfactor*oac.setfactor;
-            for( int row=0; row<i3; row++ )
-            {
-                for( int col=0; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
-            }
+            gps_covar_apply_set_error_factor( sd, oac.setfactor );
+        }
+        /* Apply offsets after all scaling has been done... */
+        if( offsets )
+        {
             for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
             {
-                vd->tgt.errfct *= oac.setfactor;
+                trgtdata *tgt=&(vd->tgt);
+                init_obsmod_context_target( &oac, tgt );
+                if( ! (tgt->unused & IGNORE_OBS_BIT) &&
+                     (oac.offsethv > 0.0 || oac.offsetvv > 0.0) )
+                {
+                    gps_covar_apply_obs_offset_error( sd, i, oac.offsethv, oac.offsetvv );
+                }
             }
+        }
+        if( oac.centroidhv > 0.0 || oac.centroidvv > 0.0 )
+        {
+            gps_covar_apply_centroid_error( sd, oac.centroidhv, oac.centroidvv );
         }
     }
     break;
@@ -1478,14 +1505,18 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     if( ! obsmod ) return;
 
-    for( int modtype=0; modtype < 3; modtype++ )
+    for( int modtype=0; modtype < 6; modtype++ )
     {
         int action= modtype==0 ? OBS_MOD_IGNORE : 
                     modtype==1 ? OBS_MOD_REJECT :
-                    ( OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET );
-
+                    modtype==2 ? OBS_MOD_REWEIGHT :
+                    modtype==3 ? OBS_MOD_REWEIGHT_SET :
+                    modtype==4 ? OBS_MOD_OFFSET_ERROR :
+                    OBS_MOD_CENTROID_ERROR;
+        int ordered=modtype > 1;
         bool firsterr=true;
         double minerrfct=0.0;
+        double minerrfct2=0.0;
         obs_criteria *ocr;
         int ncriteria=0;
         int maxcriteria=0;
@@ -1495,15 +1526,25 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
         {
             obs_criteria* match=nullptr;
             double errfct=0.0;
+            double errfct2=0.0;
             for( ocr=obsmod->first; ocr; ocr=ocr->next )
             {
                 if( ocr->action & action )
                 {
-                    if( action == (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) ) 
+                    if( ordered )
                     {
-                        if( (firsterr || ocr->factor < minerrfct) && ocr->factor > errfct )
+                        if( (firsterr 
+                             || ocr->factor < minerrfct 
+                             || (ocr->factor == minerrfct && ocr->factor < minerrfct2 ) )
+                            &&
+                            (
+                            ocr->factor > errfct ||
+                            (ocr->factor == errfct && ocr->factor2 > errfct2)
+                            )
+                          )
                         {
                             errfct=ocr->factor;
+                            errfct2=ocr->factor2;
                             match=ocr;
                         }
                     }
@@ -1524,12 +1565,25 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
             {
                 fprintf(lst,"\n%sThe following observations are rejected\n",prefix);
             }
-            else if( action == (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) )
+            else if( action == OBS_MOD_REWEIGHT )
             {
                 fprintf(lst,"\n%sErrors of the following observations are scaled by %.3lf\n",
-                        prefix,errfct);
-                minerrfct=errfct;
-                firsterr=false;
+                        prefix, errfct);
+            }
+            else if( action == OBS_MOD_REWEIGHT_SET )
+            {
+                fprintf(lst,"\n%sErrors of the following observations are scaled by set by %.3lf\n",
+                        prefix, errfct);
+            }
+            else if( action == OBS_MOD_OFFSET_ERROR )
+            {
+                fprintf(lst,"\n%sOffset error %0.3lf %0.3lf m applied to the following observations\n",
+                        prefix, match->factor, match->factor2 );
+            }
+            else if( action == OBS_MOD_CENTROID_ERROR )
+            {
+                fprintf(lst,"\n%sCentroid error %0.3lf %0.3lf m applied to the following observations\n",
+                        prefix, match->factor, match->factor2 );
             }
             while( match )
             {
@@ -1540,18 +1594,21 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
                 {
                     if( match->action & action )
                     {
-                        if( action != (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) ) break;
-                        if(  match->factor == errfct ) break;
+                        if( ! ordered ) break; 
+                        if(  match->factor == errfct && match->factor2 == errfct2 ) break;
                     }
                     match=match->next;
                 }
             }
-            if( action != (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET) ) break;
+            if( ! ordered) break;
             /* Break out just in case reweighting matching doesn't work */
             if( ncriteria >= maxcriteria ) break;
+            firsterr=false;
+            minerrfct=errfct;
+            minerrfct2=errfct2;
         }
 
-        if( action == (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET)  && ncriteria > 1 )
+        if( action & (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET)  && ncriteria > 1 )
         {
             fprintf(lst,"\n%sNote: error factors are multiplied for observations meeting several critera\n",prefix);
         }

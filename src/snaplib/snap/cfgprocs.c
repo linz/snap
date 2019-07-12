@@ -22,6 +22,7 @@
 #include "snapdata/obsmod.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/iostring.h"
 #include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
@@ -383,28 +384,66 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
 
 int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int code )
 {
-    double err_factor=1.0;
+    double errval1=0.0;
+    double errval2=0.0;
     void *obs_modifications;
     if( code == OBS_MOD_REWEIGHT )
     {
-        char *field=next_field(&string);
-        if( _stricmp(field,"by_set") == 0 )
+        long loc;
+        int ok;
+        input_string_def is;
+        set_input_string_def(&is,string);
+        if( test_next_string_field(&is,"offset_error") ) code=OBS_MOD_OFFSET_ERROR;
+        else if( test_next_string_field(&is,"centroid_error") ) code=OBS_MOD_CENTROID_ERROR;
+        if( code != OBS_MOD_REWEIGHT )
         {
-            code=OBS_MOD_REWEIGHT_SET;
-            field=next_field(&string);
+            ok=double_from_string(&is,&errval1);
+            if( ok != OK )
+            {
+                if( errval1 < 0.0 ) ok=INVALID_DATA;
+            }
+            loc=get_string_loc(&is);
+            if( ok == OK && double_from_string(&is,&errval2) == OK )
+            {
+                if( errval2 < 0.0 ) ok=INVALID_DATA;
+            }
+            else
+            {
+                errval2=errval1;
+                set_string_loc(&is,loc);
+            }
+            if( ok == OK )
+            {
+                if( test_next_string_field(&is,"mm") )
+                {
+                    errval1 /= 1000.0;
+                    errval2 /= 1000.0;
+                }
+                else if( ! test_next_string_field(&is,"m") )
+                {
+                    ok=INVALID_DATA;
+                }
+            }
         }
-        if( _stricmp(field,"by") == 0 )
+        else
         {
-            field=next_field(&string);
+            if( test_next_string_field(&is,"by_set") )
+            {
+                code=OBS_MOD_REWEIGHT_SET;
+            }
+            test_next_string_field(&is,"by");
+            ok=double_from_string(&is,&errval1);
+            if( errval1 <= 0.0 ) ok=INVALID_DATA;
         }
-        if( ! field || sscanf(field,"%lf", &err_factor) != 1 || err_factor <= 0 )
+        if( ok != OK )
         {
             send_config_error(cfg, INVALID_DATA, "Invalid or missing data in reweight observations command");
             return OK;
         }
+        string=unread_string(&is);
     }
     obs_modifications=snap_obs_modifications( true );
-    add_obs_modifications( cfg, obs_modifications, string, code, err_factor );
+    add_obs_modifications( cfg, obs_modifications, string, code, errval1, errval2 );
     return OK;
 }
 
