@@ -90,14 +90,27 @@ static void rmat_from_vertical( double rmat[3][3] )
 static void midpoint_rmat( int st1, int st2, double rmat[3][3] )
 {
     double *vecu, tmp[3];
-
-    vecu = rmat[2];
-
     assert(vertfunc != NULL);
+    vecu = rmat[2];
     vecu[0] = vecu[1] = vecu[2] = 0.0;
     if( st1 ) (*vertfunc)( st1, vecu );
     if( st2 ) { (*vertfunc)( st2, tmp ); vecadd(vecu,tmp,vecu); }
 
+    rmat_from_vertical( rmat );
+}
+
+static void set_midpoint_rmat( survdata *sd, double rmat[3][3] )
+{
+    double *vecu, tmp[3];
+    assert(vertfunc != NULL);
+    vecu = rmat[2];
+    vecu[0] = vecu[1] = vecu[2] = 0.0;
+    if( sd->from ) (*vertfunc)( sd->from, vecu );
+    for( int iobs=0; iobs < sd->nobs; iobs++ )
+    {
+        int to=sd->obs.vdata[iobs].tgt.to;
+        if( to) {(*vertfunc)( to, tmp ); vecadd(vecu,tmp,vecu); }
+    }
     rmat_from_vertical( rmat );
 }
 
@@ -125,15 +138,23 @@ static void get_enu_rmat( int st1, int st2, double rmat[3][3] )
     midpoint_rmat( st1, st2, rmat );
 }
 
+static void get_set_enu_rmat( survdata *sd, double rmat[3][3] )
+{
+    if( fixed_gps_vertical )
+    {
+        if( !fixed_rmat_calculated )  set_gps_vertical();
+        memcpy( rmat, fixed_rmat, sizeof(fixed_rmat) );
+        return;
+    }
+    set_midpoint_rmat( sd, rmat );
+}
+
 
 #define SWAPD(a,b)  {double tmp; tmp = a; a=b; b=tmp;}
 
-static void get_enu_rf_xform( int st1, int st2, int rfid,
-                              double xform[3][3] )
+static void apply_rf_to_enu_xform( int rfid, double xform[3][3] )
 {
     double *tmat;
-
-    get_enu_rmat( st1, st2, xform );
 
     /* Transpose the matrix gives enu->xyz rotation matrix */
 
@@ -156,6 +177,19 @@ static void get_enu_rf_xform( int st1, int st2, int rfid,
 }
 
 #undef SWAPD
+
+static void get_enu_rf_xform( int st1, int st2, int rfid,
+                              double xform[3][3] )
+{
+    get_enu_rmat( st1, st2, xform );
+    apply_rf_to_enu_xform( rfid, xform );
+}
+
+static void get_set_enu_rf_xform( survdata *sd, double xform[3][3] )
+{
+    get_set_enu_rmat( sd, xform );
+    apply_rf_to_enu_xform( sd->reffrm, xform );
+}
 
 
 static void get_rf_enu_xform( int st1, int st2, int rf,
@@ -301,7 +335,7 @@ static void build_default_baseline_cvr( survdata *vd, double *mmerr )
         for( jobs = 0; jobs < vd->nobs; jobs ++ )
         {
             if( jobs == iobs ) continue;
-            jobs3 = jobs*3;
+            int jobs3 = jobs*3;
 
             Lij(cvr, iobs3,  jobs3  ) += tcvr[0]/2;
             Lij(cvr, iobs3,  jobs3+1) += tcvr[1]/2;
@@ -930,5 +964,109 @@ int calc_vecdata_point( survdata *vd, int to, int type,
     }
 
     return OK;
+}
+
+void gps_covar_apply_obs_error_factor( survdata *sd, int iobs, double factor )
+{
+    vecdata *vd=sd->obs.vdata+iobs;
+    trgtdata *tgt=&(vd->tgt);
+    int ncvr=sd->nobs*3;
+    int i3=iobs*3;
+    double factor2=factor*factor;
+    if( ! sd->cvr ) return;
+    for( int row=0; row<i3; row++ )
+    {
+        for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
+    }
+    for( int row=i3; row<i3+3; row++ )
+    {
+        for( int col=i3; col <= row; col++ ) Lij(sd->cvr,row,col) *= factor2;
+    }
+    for( int row=i3+3; row<ncvr; row++ )
+    {
+        for( int col=i3; col < i3+3; col++ ) Lij(sd->cvr,row,col) *= factor;
+    }
+    tgt->errfct *= factor;
+}
+
+void gps_covar_apply_obs_offset_error( survdata *sd, int iobs, double varhor, double varvrt )
+{
+    double xform[3][3];
+    int iobs3 = iobs*3;
+    double ocvr[6];
+    vecdata *vd=sd->obs.vdata+iobs;
+    ltmat cvr=sd->cvr;
+    if( ! cvr ) return;
+    get_enu_rf_xform( sd->from, vd->tgt.to, sd->reffrm, xform );
+    ocvr[0]=varhor;
+    ocvr[1]=0.0;
+    ocvr[2]=varhor;
+    ocvr[3]=0.0;
+    ocvr[4]=0.0;
+    ocvr[5]=varvrt;
+    transform_cvr( xform, ocvr );
+    Lij( cvr, iobs3  , iobs3   ) += ocvr[0];
+    Lij( cvr, iobs3  , iobs3+1 ) += ocvr[1];
+    Lij( cvr, iobs3+1, iobs3+1 ) += ocvr[2];
+    Lij( cvr, iobs3  , iobs3+2 ) += ocvr[3];
+    Lij( cvr, iobs3+1, iobs3+2 ) += ocvr[4];
+    Lij( cvr, iobs3+2, iobs3+2 ) += ocvr[5];
+}
+
+void gps_covar_apply_set_error_factor( survdata *sd, double factor )
+{
+    int i3=sd->nobs*3;
+    double factor2=factor*factor;
+    int i;
+    vecdata *vd;
+    ltmat cvr=sd->cvr;
+    if( ! cvr ) return;
+    for( int row=0; row<i3; row++ )
+    {
+        for( int col=0; col <= row; col++ ) Lij(cvr,row,col) *= factor2;
+    }
+    for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
+    {
+        vd->tgt.errfct *= factor;
+    }
+}
+
+void gps_covar_apply_centroid_error( survdata *sd, double varhor, double varvrt )
+{
+    double xform[3][3];
+    double ocvr[6];
+    ltmat cvr=sd->cvr;
+    if( ! cvr ) return;
+    get_set_enu_rf_xform( sd, xform );
+    ocvr[0]=varhor;
+    ocvr[1]=0.0;
+    ocvr[2]=varhor;
+    ocvr[3]=0.0;
+    ocvr[4]=0.0;
+    ocvr[5]=varvrt;
+    transform_cvr( xform, ocvr );
+    for( int jobs=0; jobs < sd->nobs; jobs++ )
+    {
+        int jobs3=jobs*3;
+        for( int iobs=0; iobs<jobs; iobs++ )
+        {
+            int iobs3=iobs*3;
+            Lij( cvr, iobs3  , jobs3   ) += ocvr[0];
+            Lij( cvr, iobs3  , jobs3+1 ) += ocvr[1];
+            Lij( cvr, iobs3  , jobs3+2 ) += ocvr[3];
+            Lij( cvr, iobs3+1, jobs3   ) += ocvr[1];
+            Lij( cvr, iobs3+1, jobs3+1 ) += ocvr[2];
+            Lij( cvr, iobs3+1, jobs3+2 ) += ocvr[4];
+            Lij( cvr, iobs3+2, jobs3   ) += ocvr[3];
+            Lij( cvr, iobs3+2, jobs3+1 ) += ocvr[4];
+            Lij( cvr, iobs3+2, jobs3+2 ) += ocvr[5];
+        }
+        Lij( cvr, jobs3  , jobs3   ) += ocvr[0];
+        Lij( cvr, jobs3  , jobs3+1 ) += ocvr[1];
+        Lij( cvr, jobs3+1, jobs3+1 ) += ocvr[2];
+        Lij( cvr, jobs3  , jobs3+2 ) += ocvr[3];
+        Lij( cvr, jobs3+1, jobs3+2 ) += ocvr[4];
+        Lij( cvr, jobs3+2, jobs3+2 ) += ocvr[5];
+    }
 }
 

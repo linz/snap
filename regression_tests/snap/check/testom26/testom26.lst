@@ -72,12 +72,12 @@ Data file 1: testom25.dat
       13 GPS point coords
        6 horizontal angles
 
-Errors of the following observations are scaled by 3.000
+Errors of the following observations are scaled by set by 3.000
   Observations in sets including one or more observations:
     - which are of type GX (GPS point coord), and
     - which use stations 2 4
 
-Errors of the following observations are scaled by 2.000
+Errors of the following observations are scaled by set by 2.000
   Observations in sets including one or more observations:
     - which are of type HA (horizontal angle), and
     - which use stations 2 4

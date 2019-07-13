@@ -19,6 +19,8 @@
 #define OBS_MOD_REWEIGHT_SET 8
 #define OBS_MOD_SET_OPTION  16 
 #define OBS_MOD_UNSET_OPTION  32 
+#define OBS_MOD_OFFSET_ERROR 64
+#define OBS_MOD_CENTROID_ERROR 128
 
 /* Note: network and classifications are not held by the obs_modifications object
  * so must remain valid for as long as the obs_modifications are used.
@@ -35,7 +37,7 @@ typedef int (*fileid_func)(char *filename, char *refpath);
 void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc );
 
 /* Add modifications based on a string specifying multiple criteria */
-int add_obs_modifications( CFG_FILE *cfg, void *obsmod, char *modifications, int action, double err_factor );
+int add_obs_modifications( CFG_FILE *cfg, void *obsmod, char *modifications, int action, double errval1, double errval2 );
 
 /* Set or unset observation modifications */
 int add_obs_option_modification( CFG_FILE *cfg, void *obsmod, char *criteria, int set, int option );

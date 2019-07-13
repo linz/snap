@@ -56,5 +56,11 @@ int calc_vecdata_vector( survdata *vd, int from, int to, int type,
 int calc_vecdata_point( survdata *vd, int to, int type,
                         double *vec, double *cvr );
 
+
+void gps_covar_apply_obs_error_factor( survdata *sd, int iobs, double factor );
+void gps_covar_apply_obs_offset_error( survdata *sd, int iobs, double varhor, double varvrt );
+void gps_covar_apply_set_error_factor( survdata *sd, double factor );
+void gps_covar_apply_centroid_error( survdata *vd, double varhor, double varvrt );
+
 #endif
 
