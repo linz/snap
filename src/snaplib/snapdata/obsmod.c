@@ -129,6 +129,15 @@ typedef struct obs_criteria_group_s
     struct obs_criteria_group_s *next;
 } obs_criteria_group;
 
+#define DFLT_MAX_OFFSETS 256
+
+typedef struct obs_offset_error_s
+{
+    int iobs;
+    double offsethv;
+    double offsetvv;
+} obs_offset_error;
+
 typedef struct
 {
     obs_criteria *first;
@@ -140,6 +149,9 @@ typedef struct
     classifications *classes;
     fileid_func get_fileid;
     long setid;
+    obs_offset_error *offsets;
+    int noffsets;
+    int maxoffsets;
 } obs_modifications;
 
 typedef struct
@@ -158,6 +170,7 @@ typedef struct
     double centroidvv; /* Vertical station centroid variance */
 } obsmod_context;
 
+static void delete_criteria_groups( obs_modifications *obsmod );
 
 /*===============================================================================*/
 
@@ -789,7 +802,31 @@ void *new_obs_modifications( network *nw, classifications *obs_classes )
     obsmod->classes=obs_classes;
     obsmod->get_fileid=nullptr;
     obsmod->setid=0;
+    obsmod->offsets=nullptr;
+    obsmod->noffsets=0;
+    obsmod->maxoffsets=0;
     return (void *) obsmod;
+}
+
+void delete_obs_modifications( void *pobsmod )
+{
+    obs_modifications *obsmod=(obs_modifications *)pobsmod;
+    obs_criteria *ocr=obsmod->first;
+    while( ocr )
+    {
+        obs_criteria *next=ocr->next;
+        delete_obs_criteria( ocr );
+        ocr=next;
+    }
+    obsmod->first=nullptr;
+    obsmod->last=nullptr;
+    delete_criteria_groups( obsmod );
+    if( obsmod->offsets )
+    {
+        check_free(obsmod->offsets);
+    }
+    obsmod->maxoffsets=0;
+    obsmod->maxoffsets=0;
 }
 
 void set_obs_modifications_network( void *pobsmod, network *nw )
@@ -1147,6 +1184,7 @@ static void delete_criteria_groups( obs_modifications *obsmod )
 {
     obs_criteria_group *ocg=obsmod->criteria_groups;
     obsmod->criteria_groups=nullptr;
+    obsmod->ungrouped_criteria=nullptr;
     while( ocg )
     {
         obs_criteria_group *next_group=ocg->next;
@@ -1160,7 +1198,6 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
 {
     if( obsmod->criteria_prepared ) return;
     delete_criteria_groups( obsmod );
-    obsmod->ungrouped_criteria=nullptr;
     obsmod->criteria_prepared=true;
     if( ! obsmod->first ) return;
 
@@ -1329,6 +1366,26 @@ static void init_obsmod_context_set( obsmod_context *oac, obs_modifications *obs
     oac->sd=sd;
 }
 
+static void obsmod_add_offset( obs_modifications *obsmod, int iobs, double offsethv, double offsetvv )
+{
+    obs_offset_error *ooe;
+    if( obsmod->maxoffsets == 0 )
+    {
+        obsmod->maxoffsets=DFLT_MAX_OFFSETS;
+        obsmod->offsets=(obs_offset_error *) check_malloc( sizeof(obs_offset_error)*DFLT_MAX_OFFSETS );
+    }
+    else if( obsmod->noffsets >= obsmod->maxoffsets )
+    {
+        obsmod->maxoffsets *= 2;
+        obsmod->offsets=(obs_offset_error *) check_realloc( obsmod->offsets, sizeof(obs_offset_error)*obsmod->maxoffsets );
+    }
+    ooe=obsmod->offsets+obsmod->noffsets;
+    obsmod->noffsets++;
+    ooe->iobs=iobs;
+    ooe->offsethv=offsethv;
+    ooe->offsetvv=offsetvv;
+}
+
 static void init_obsmod_context_target( obsmod_context *oac, trgtdata *tgt )
 {
     oac->tgt=tgt;
@@ -1386,7 +1443,8 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
     case SD_VECDATA:
     {
         vecdata *vd;
-        int offsets=0;
+        obsmod->noffsets=0;
+        int obstype=sd->obs.vdata[0].tgt.type;
 
         for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
         {
@@ -1403,7 +1461,10 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
                 {
                     gps_covar_apply_obs_error_factor( sd, i, oac.factor );
                 }
-                if( oac.offsethv > 0.0 || oac.offsetvv > 0.0 ) offsets=1;
+                if( oac.offsethv > 0.0 || oac.offsetvv > 0.0 ) 
+                {
+                    obsmod_add_offset(obsmod,i,oac.offsethv,oac.offsetvv);
+                }
             }
         }
         if( sd->cvr && oac.setfactor != 1.0 )
@@ -1411,20 +1472,15 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             gps_covar_apply_set_error_factor( sd, oac.setfactor );
         }
         /* Apply offsets after all scaling has been done... */
-        if( offsets )
+        if( obstype==GX && obsmod->noffsets )
         {
-            for( i = 0, vd=sd->obs.vdata; i<sd->nobs; i++, vd++ )
+            obs_offset_error *offset=obsmod->offsets;
+            for( i = 0; i<obsmod->noffsets; i++, offset++ )
             {
-                trgtdata *tgt=&(vd->tgt);
-                init_obsmod_context_target( &oac, tgt );
-                if( ! (tgt->unused & IGNORE_OBS_BIT) &&
-                     (oac.offsethv > 0.0 || oac.offsetvv > 0.0) )
-                {
-                    gps_covar_apply_obs_offset_error( sd, i, oac.offsethv, oac.offsetvv );
-                }
+                gps_covar_apply_obs_offset_error( sd, offset->iobs, offset->offsethv, offset->offsetvv );
             }
         }
-        if( oac.centroidhv > 0.0 || oac.centroidvv > 0.0 )
+        if( obstype==GX && (oac.centroidhv > 0.0 || oac.centroidvv > 0.0 ))
         {
             gps_covar_apply_centroid_error( sd, oac.centroidhv, oac.centroidvv );
         }

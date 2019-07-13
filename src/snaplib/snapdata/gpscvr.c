@@ -1051,15 +1051,15 @@ void gps_covar_apply_centroid_error( survdata *sd, double varhor, double varvrt 
         for( int iobs=0; iobs<jobs; iobs++ )
         {
             int iobs3=iobs*3;
-            Lij( cvr, iobs3  , jobs3   ) -= ocvr[0];
-            Lij( cvr, iobs3  , jobs3+1 ) -= ocvr[1];
-            Lij( cvr, iobs3  , jobs3+2 ) -= ocvr[3];
-            Lij( cvr, iobs3+1, jobs3   ) -= ocvr[1];
-            Lij( cvr, iobs3+1, jobs3+1 ) -= ocvr[2];
-            Lij( cvr, iobs3+1, jobs3+2 ) -= ocvr[4];
-            Lij( cvr, iobs3+2, jobs3   ) -= ocvr[3];
-            Lij( cvr, iobs3+2, jobs3+1 ) -= ocvr[4];
-            Lij( cvr, iobs3+2, jobs3+2 ) -= ocvr[5];
+            Lij( cvr, iobs3  , jobs3   ) += ocvr[0];
+            Lij( cvr, iobs3  , jobs3+1 ) += ocvr[1];
+            Lij( cvr, iobs3  , jobs3+2 ) += ocvr[3];
+            Lij( cvr, iobs3+1, jobs3   ) += ocvr[1];
+            Lij( cvr, iobs3+1, jobs3+1 ) += ocvr[2];
+            Lij( cvr, iobs3+1, jobs3+2 ) += ocvr[4];
+            Lij( cvr, iobs3+2, jobs3   ) += ocvr[3];
+            Lij( cvr, iobs3+2, jobs3+1 ) += ocvr[4];
+            Lij( cvr, iobs3+2, jobs3+2 ) += ocvr[5];
         }
         Lij( cvr, jobs3  , jobs3   ) += ocvr[0];
         Lij( cvr, jobs3  , jobs3+1 ) += ocvr[1];

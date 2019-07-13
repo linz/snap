@@ -1,0 +1,27 @@
+title Regression test om30 - obs modifications - GX offset reweighting
+
+coordinate_file testom30.crd ! Comment to be ignored
+data_file testom30.dat
+
+mode 3d adjustment
+
+list command_file
+list file_summary
+list observation_equations
+list residuals
+list no_solution_summary
+list station_coordinates
+list no_reference_frames
+list no_parameters
+list no_worst_residuals
+list no_notes
+list no_file_locations
+list no_distance_ratio_scales
+list no_error_summary
+output no_coordinate_file
+
+error_type apriori
+
+reweight_observations centroid_error 3 5 m data_type=GX using_stations 2 4
+
+
