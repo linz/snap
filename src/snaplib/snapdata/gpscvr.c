@@ -997,7 +997,7 @@ void gps_covar_apply_obs_offset_error( survdata *sd, int iobs, double varhor, do
     vecdata *vd=sd->obs.vdata+iobs;
     ltmat cvr=sd->cvr;
     if( ! cvr ) return;
-    get_enu_rf_xform( sd->from, vd->tgt.to, sd->reffrm, xform );
+    get_enu_rf_xform( 0, vd->tgt.to, sd->reffrm, xform );
     ocvr[0]=varhor;
     ocvr[1]=0.0;
     ocvr[2]=varhor;
@@ -1070,3 +1070,43 @@ void gps_covar_apply_centroid_error( survdata *sd, double varhor, double varvrt 
     }
 }
 
+void gps_covar_apply_basestation_offset_error( survdata *vd, double varhor, double varvrt )
+{
+    double xform[3][3];
+    int iobs3 = iobs*3;
+    double ocvr[6];
+    vecdata *vd=sd->obs.vdata+iobs;
+    ltmat cvr=sd->cvr;
+    if( ! cvr ) return;
+    get_enu_rf_xform( 0, sd->from, sd->reffrm, xform );
+    ocvr[0]=varhor;
+    ocvr[1]=0.0;
+    ocvr[2]=varhor;
+    ocvr[3]=0.0;
+    ocvr[4]=0.0;
+    ocvr[5]=varvrt;
+    transform_cvr( xform, ocvr );
+    for( int jobs=0; jobs < sd->nobs; jobs++ )
+    {
+        int jobs3=jobs*3;
+        for( int iobs=0; iobs<jobs; iobs++ )
+        {
+            int iobs3=iobs*3;
+            Lij( cvr, iobs3  , jobs3   ) += ocvr[0];
+            Lij( cvr, iobs3  , jobs3+1 ) += ocvr[1];
+            Lij( cvr, iobs3  , jobs3+2 ) += ocvr[3];
+            Lij( cvr, iobs3+1, jobs3   ) += ocvr[1];
+            Lij( cvr, iobs3+1, jobs3+1 ) += ocvr[2];
+            Lij( cvr, iobs3+1, jobs3+2 ) += ocvr[4];
+            Lij( cvr, iobs3+2, jobs3   ) += ocvr[3];
+            Lij( cvr, iobs3+2, jobs3+1 ) += ocvr[4];
+            Lij( cvr, iobs3+2, jobs3+2 ) += ocvr[5];
+        }
+        Lij( cvr, jobs3  , jobs3   ) += ocvr[0];
+        Lij( cvr, jobs3  , jobs3+1 ) += ocvr[1];
+        Lij( cvr, jobs3+1, jobs3+1 ) += ocvr[2];
+        Lij( cvr, jobs3  , jobs3+2 ) += ocvr[3];
+        Lij( cvr, jobs3+1, jobs3+2 ) += ocvr[4];
+        Lij( cvr, jobs3+2, jobs3+2 ) += ocvr[5];
+    }
+}

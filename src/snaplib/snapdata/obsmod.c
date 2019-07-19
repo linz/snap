@@ -164,10 +164,12 @@ typedef struct
     int action;   /* Action to apply */
     double factor;    /* Obs scale factor */
     double setfactor; /* Obs set scale factor */
+    int matchfrom;    /* From station matches criteria */
+    int matchto;      /* To station matches criteria */
     double offsethv;   /* Horizontal station offset variance */
     double offsetvv;   /* Vertical station offset variance */
-    double centroidhv; /* Horizontal station centroid variance */
-    double centroidvv; /* Vertical station centroid variance */
+    double centroidhv; /* Horizontal station centroid/basestation variance */
+    double centroidvv; /* Vertical station centroid/basestation variance */
 } obsmod_context;
 
 static void delete_criteria_groups( obs_modifications *obsmod );
@@ -569,23 +571,27 @@ static bool obs_stations_match( obs_criterion *oc, obsmod_context *oac )
     int fromstn=oac->sd->from;
     int tostn = oac->tgt->to;
 
-    if( fromstn > 0 )
+    bool matchedto=true;
+    bool match=false;
+    bool matchedfrom=true;
+    if( from > 0 )
     {
-        bool match=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, fromstn ));
-        if( oc->crit_type == OBS_CRIT_STATION_USES )
-        {
-            if( match ) return true;
-        }
-        else
-        {
-            if( ! match ) return false;
-        }
+        matchfrom=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, fromstn ));
     }
-    if( tostn )
+    bool matchto=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, tostn ));
+    if( ! matchfrom )
     {
-        return station_criteria_match( oc->c.stations.criteria, station_ptr( nw, tostn ));
+        aoc->matchfrom=false;
     }
-    return false;
+    if( ! matchto )
+    {
+        aoc->matchto=false;
+    }
+    if( oc->crit_type == OBS_CRIT_STATION_USES )
+    {
+        return matchfrom || matchto;
+    }
+    return matchfrom && matchto;
 }
 
 static void describe_obs_stations_criterion( FILE *lst, obs_criterion *oc, const char * )
@@ -673,7 +679,8 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
     int action=oac->action;
     if( ! (action & OBS_MOD_IGNORE ) )
     {
-
+        oac->matchfrom=true;
+        oac->matchto=true;
         for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
         {
             if( ! obs_criterion_match( oc, oac ) )
@@ -692,8 +699,17 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
             if( ocr->action & OBS_MOD_REWEIGHT ) oac->factor *= ocr->factor;
             else if( ocr->action & OBS_MOD_OFFSET_ERROR ) 
             {
-                oac->offsethv += ocr->factor*ocr->factor;
-                oac->offsetvv += ocr->factor2*ocr->factor2;
+                if( oac->matchto )
+                {
+                    oac->offsethv += ocr->factor*ocr->factor;
+                    oac->offsetvv += ocr->factor2*ocr->factor2;
+                }
+                if( oac->tgt->type==GB && oac->matchfrom &&  ocr->setid != oac->obsmod->setid ) 
+                {
+                    ocr->setid=oac->obsmod->setid;
+                    oac->centroidhv += (ocr->factor*ocr->factor);
+                    oac->centroidvv += (ocr->factor2*ocr->factor2);
+                }
             }
             else if( ocr->action & OBS_MOD_REWEIGHT_SET )
             {
@@ -1472,17 +1488,27 @@ int apply_obs_modifications( void *pobsmod, survdata *sd )
             gps_covar_apply_set_error_factor( sd, oac.setfactor );
         }
         /* Apply offsets after all scaling has been done... */
-        if( obstype==GX && obsmod->noffsets )
+        if( obstype==GX || obstype==GB )
         {
-            obs_offset_error *offset=obsmod->offsets;
-            for( i = 0; i<obsmod->noffsets; i++, offset++ )
+            if( obsmod->noffsets )
             {
-                gps_covar_apply_obs_offset_error( sd, offset->iobs, offset->offsethv, offset->offsetvv );
+                obs_offset_error *offset=obsmod->offsets;
+                for( i = 0; i<obsmod->noffsets; i++, offset++ )
+                {
+                    gps_covar_apply_obs_offset_error( sd, offset->iobs, offset->offsethv, offset->offsetvv );
+                }
             }
-        }
-        if( obstype==GX && (oac.centroidhv > 0.0 || oac.centroidvv > 0.0 ))
-        {
-            gps_covar_apply_centroid_error( sd, oac.centroidhv, oac.centroidvv );
+            if( oac.centroidhv > 0.0 || oac.centroidvv > 0.0 )
+            {
+                if( obstype==GX )
+                {
+                    gps_covar_apply_centroid_error( sd, oac.centroidhv, oac.centroidvv );
+                }
+                else
+                {
+                    gps_covar_apply_basestation_offset_error( sd, oac.centroidhv, oac.centroidvv );
+                }
+            }
         }
     }
     break;
