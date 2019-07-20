@@ -184,7 +184,7 @@ void print_adjusted_parameters( FILE *out )
             fprintf(out,"%-30.30s   %11.5lf  ",name,value);
             if( get_obs_param_rowno(np,0) ) 
             {
-                double covar=sqrt(get_obs_param_value(covar))*semult;
+                double covar=sqrt(get_obs_param_covar(np))*semult;
                 fprintf(out,"%11.5lf\n",covar);
             }
             else
