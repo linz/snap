@@ -1070,12 +1070,10 @@ void gps_covar_apply_centroid_error( survdata *sd, double varhor, double varvrt 
     }
 }
 
-void gps_covar_apply_basestation_offset_error( survdata *vd, double varhor, double varvrt )
+void gps_covar_apply_basestation_offset_error( survdata *sd, double varhor, double varvrt )
 {
     double xform[3][3];
-    int iobs3 = iobs*3;
     double ocvr[6];
-    vecdata *vd=sd->obs.vdata+iobs;
     ltmat cvr=sd->cvr;
     if( ! cvr ) return;
     get_enu_rf_xform( 0, sd->from, sd->reffrm, xform );

@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-f90eaf0
+                      PROGRAM SNAP  Version 2.7.22-8ee0189
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  8 2018 08:54:01
+                       Version date: Jul 20 2019 08:24:47
 
 ================================================================================
-                     Run at  8-SEP-2018 09:03:50 by ccrook
+                     Run at 20-JUL-2019 18:04:37 by ccrook
 
 
 The command file testom18.snp contains:
@@ -46,7 +46,7 @@ The command file testom18.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - station based modifications with inva    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - station based modifications with inva   20-JUL-2019 18:04:37
 
                              SUMMARY OF INPUT FILES
 
@@ -81,8 +81,8 @@ Data file 1: test1.dat
        4 height differences
        2 orthometric heights
        2 ellipsoidal heights
-       6 latitudes
-       6 longitudes
+       3 latitudes
+       3 longitudes
 
 Data file 2: test1a.dat
     Observations between 2008-01-01 and 2008-01-01
@@ -97,8 +97,8 @@ Data file 2: test1a.dat
        2 projection bearings
       10 zenith distances
        2 height differences
-       2 latitudes
-       2 longitudes
+       1 latitude
+       1 longitude
 
 The following observations are ignored:
   Observations which are between stations warn_missing 2 3 garbage
@@ -106,7 +106,7 @@ The following observations are ignored:
 
 
 ================================================================================
-Regression test om1 - obs modifications - station based modifications with inva    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - station based modifications with inva   20-JUL-2019 18:04:37
 
                              OBSERVATION RESIDUALS
 
@@ -184,11 +184,7 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1           LN    1/01/2008 test1.dat    71    0                        0.20
 
-2           LN    1/01/2008 test1.dat    72    0                        0.30
-
 1           LT    1/01/2008 test1.dat    76    0                        0.20
-
-2           LT    1/01/2008 test1.dat    77    0                        0.30
 
 1     2     HA*  23/12/2009 test1.dat   109    0 A1                     20.0
       3     HA              test1.dat   110    0 B                      20.0
@@ -223,11 +219,7 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1           LN   23/12/2009 test1.dat   150    0 C      Theodolite      0.20
 
-2           LN*  23/12/2009 test1.dat   151    0 E      Compass         0.30
-
 1           LT   23/12/2009 test1.dat   155    0 C      Theodolite      0.20
-
-2           LT*  23/12/2009 test1.dat   156    0 E      Astrolabe       0.30
 
 1     2     HA*  23/12/2009 test1.dat   165    0 A1                     18.0
       3     HA              test1.dat   166    0 B                      18.0
@@ -250,11 +242,7 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1           LN   23/12/2009 test1.dat   189    0 C      Theodolite      0.72
 
-2           LN*  23/12/2009 test1.dat   190    0 E      Compass         1.08
-
 1           LT   23/12/2009 test1.dat   194    0 C      Theodolite      0.72
-
-2           LT*  23/12/2009 test1.dat   195    0 E      Astrolabe       1.08
 
 1           OH   23/12/2009 test1.dat   199    0                      2.0000
 
@@ -476,11 +464,7 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1           LN    1/01/2008 test1a.dat   93    0                        1.20
 
-2           LN    1/01/2008 test1a.dat   94    0                        1.20
-
 1           LT    1/01/2008 test1a.dat   99    0                        1.50
-
-2           LT    1/01/2008 test1a.dat  100    0                        1.50
 
 1     2     ZD    1/01/2008 test1a.dat  106    0                         5.0
 
@@ -501,7 +485,7 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 
 ================================================================================
-Regression test om1 - obs modifications - station based modifications with inva    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - station based modifications with inva   20-JUL-2019 18:04:37
 
                                      ERRORS
 

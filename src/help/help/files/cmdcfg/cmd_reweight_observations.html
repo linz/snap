@@ -46,8 +46,9 @@ Observations can be selected based upon observation type, observation date, stat
 
 <p>The offset error and centroid are experimental features which attempt to remedy 
 deficiencies in the covariance information resulting from GNSS processing software 
-and are only supported for GX type observations.  
-For other data types they are ignored.
+and are only supported for data types GX (coordinate observations) 
+and GB (baseline basline observations).  Centroid errors do not apply to GB observations.
+For other data types the offset errors are silently ignored.
 They can each be specified with horizontal and vertical error components and
 are applied after scale factors have been applied.  They are specified with one of the following formats:
 </p>

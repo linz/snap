@@ -571,25 +571,30 @@ static bool obs_stations_match( obs_criterion *oc, obsmod_context *oac )
     int fromstn=oac->sd->from;
     int tostn = oac->tgt->to;
 
-    bool matchedto=true;
-    bool match=false;
-    bool matchedfrom=true;
-    if( from > 0 )
+    bool matchfrom=true;
+    bool matchuse=false;
+    if( fromstn > 0 )
     {
         matchfrom=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, fromstn ));
+        matchuse=matchfrom;
     }
-    bool matchto=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, tostn ));
+    bool matchto=true;
+    if( tostn > 0 )
+    {
+        matchto=station_criteria_match( oc->c.stations.criteria, station_ptr( nw, tostn ));
+        matchuse=matchuse || matchto;
+    }
     if( ! matchfrom )
     {
-        aoc->matchfrom=false;
+        oac->matchfrom=false;
     }
     if( ! matchto )
     {
-        aoc->matchto=false;
+        oac->matchto=false;
     }
     if( oc->crit_type == OBS_CRIT_STATION_USES )
     {
-        return matchfrom || matchto;
+        return matchuse;
     }
     return matchfrom && matchto;
 }

@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-f90eaf0
+                      PROGRAM SNAP  Version 2.7.22-8ee0189
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  8 2018 08:54:01
+                       Version date: Jul 20 2019 08:24:47
 
 ================================================================================
-                     Run at  8-SEP-2018 09:03:50 by ccrook
+                     Run at 20-JUL-2019 18:04:37 by ccrook
 
 
 The command file testom16.snp contains:
@@ -46,7 +46,7 @@ The command file testom16.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - station based modifications with inva    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - station based modifications with inva   20-JUL-2019 18:04:37
 
                              SUMMARY OF INPUT FILES
 
@@ -81,8 +81,8 @@ Data file 1: test1.dat
        4 height differences
        2 orthometric heights
        2 ellipsoidal heights
-       6 latitudes
-       6 longitudes
+       3 latitudes
+       3 longitudes
 
 Data file 2: test1a.dat
     Observations between 2008-01-01 and 2008-01-01
@@ -97,8 +97,8 @@ Data file 2: test1a.dat
        2 projection bearings
       10 zenith distances
        2 height differences
-       2 latitudes
-       2 longitudes
+       1 latitude
+       1 longitude
 
 Errors found in station lists in reweight/reject/ignore observations
 
@@ -108,7 +108,7 @@ The following observations are ignored:
 
 
 ================================================================================
-Regression test om1 - obs modifications - station based modifications with inva    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - station based modifications with inva   20-JUL-2019 18:04:37
 
                                      ERRORS
 
