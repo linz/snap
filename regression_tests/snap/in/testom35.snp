@@ -1,0 +1,29 @@
+title Regression test om35 - obs modifications - GB offset reweighting
+
+coordinate_file testom35.crd ! Comment to be ignored
+data_file testom35.dat
+
+mode 3d adjustment
+
+list command_file
+list file_summary
+list no_observation_equations
+list residuals
+list no_solution_summary
+list station_coordinates
+list no_reference_frames
+list no_parameters
+list no_worst_residuals
+list no_notes
+list no_file_locations
+list no_distance_ratio_scales
+list no_error_summary
+output no_coordinate_file
+output no_binary_file
+
+fix 1 1A 2B
+
+error_type apriori
+
+reweight_observations offset_error 3 5 m using_stations 2 1A 1B
+reweight_observations offset_error 0.3 0.5 m using_stations 3 2A 3B

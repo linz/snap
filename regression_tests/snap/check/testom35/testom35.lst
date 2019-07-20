@@ -1,0 +1,213 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.7.22-8ee0189
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Jul 20 2019 08:24:47
+
+================================================================================
+                     Run at 21-JUL-2019 08:09:25 by ccrook
+
+
+The command file testom35.snp contains:
+     title Regression test om35 - obs modifications - GB offset reweighting
+     
+     coordinate_file testom35.crd ! Comment to be ignored
+     data_file testom35.dat
+     
+     mode 3d adjustment
+     
+     list command_file
+     list file_summary
+     list no_observation_equations
+     list residuals
+     list no_solution_summary
+     list station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list no_worst_residuals
+     list no_notes
+     list no_file_locations
+     list no_distance_ratio_scales
+     list no_error_summary
+     output no_coordinate_file
+     output no_binary_file
+     
+     fix 1 1A 2B
+     
+     error_type apriori
+     
+     reweight_observations offset_error 3 5 m using_stations 2 1A 1B
+     reweight_observations offset_error 0.3 0.5 m using_stations 3 2A 3B
+
+
+
+
+================================================================================
+Regression test om35 - obs modifications - GB offset reweighting   21-JUL-2019 08:09:25
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testom35.snp
+
+Job: Regression test om35 - obs modifications - GB offset reweighting
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testom35.crd
+      11 stations read
+
+Data file 1: testom35.dat
+       6 observations do not have a date
+       6 GPS baselines
+
+Offset error 3.000 5.000 m applied to the following observations
+  Observations which use stations 2 1A 1B
+
+Offset error 3.000 5.000 m applied to the following observations
+  Observations which use stations 2 1A 1B
+
+
+
+================================================================================
+Regression test om35 - obs modifications - GB offset reweighting   21-JUL-2019 08:09:25
+
+                               ITERATION SUMMARY
+
+================================================================================
+
+Iteration 1: Maximum change is 0.0001 metres at station 3B
+             3 station adjustments exceed convergence criteria
+
+Iteration 2: Maximum change is 0.0000 metres at station 3
+             0 station adjustments exceed convergence criteria
+
+
+
+================================================================================
+Regression test om35 - obs modifications - GB offset reweighting   21-JUL-2019 08:09:25
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 1949
+Ellipsoid: International Ellipsoid
+  a = 6378388.000  1/f = 297.000000
+
+Station heights are ellipsoidal heights.
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+ 1      41 00 43.456933 S      -         -          Node one
+       173 19 16.231453 E      -         -
+             -47.3042          -         -
+
+ 2      41 00 21.856405 S    -0.0000    3.0000 180  Node two
+       173 19 41.431893 E    -0.0000    3.0000  90
+              52.7058        -0.0001    5.0000
+
+ 3      41 00 25.456564 S    -0.0001    0.3001 180  Node three
+       173 19 59.432056 E     0.0000    0.3000  90
+            -127.2951         0.0001    0.5001
+
+ 1A     41 00 43.456933 S      -         -          Node one
+       173 19 16.231453 E      -         -
+             -47.3042          -         -
+
+ 2A     41 00 21.856405 S    -0.0000    3.0150   0  Node two
+       173 19 41.431893 E    -0.0000    3.0150  90
+              52.7058        -0.0001    5.0250
+
+ 3A     41 00 25.456564 S    -0.0001    3.0000   1  Node three
+       173 19 59.432056 E     0.0000    3.0000  91
+            -127.2951         0.0001    5.0000
+
+ 1B     41 00 43.456932 S     0.0000    3.0000   0  Node one
+       173 19 16.231454 E     0.0000    3.0000  90
+             -47.3041         0.0001    5.0000
+
+ 2B     41 00 21.856404 S      -         -          Node two
+       173 19 41.431894 E      -         -
+              52.7059          -         -
+
+ 3B     41 00 25.456563 S    -0.0000    0.3001 180  Node three
+       173 19 59.432057 E     0.0000    0.3000  90
+            -127.2951         0.0001    0.5001
+
+#4      41 00 43.456933 S      -         -          Node four
+       173 19 16.231453 E      -         -
+             -47.3042          -         -
+
+#5      41 00 21.856404 S      -         -          Node five
+       173 19 41.431894 E      -         -
+              52.7059          -         -
+
+
+
+================================================================================
+Regression test om35 - obs modifications - GB offset reweighting   21-JUL-2019 08:09:25
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
+                     X,Y,Z                 X,Y,Z              E,N,U                     
+
+1     2     GB       -577.6996  4.2413     -577.6996  4.2413 -0.0000  0.0000    -   @   
+                     -525.3105  3.0204     -525.3105  3.0204 -0.0000  0.0000    -   @   
+                      437.2150  3.9860      437.2150  3.9860  0.0000  0.0000    -   @   
+                      894.8994              894.8994          0.0000            -       
+
+      3     GB       -419.2589  0.4242     -419.2589  0.4242 -0.0000  0.0000    -   @   
+                     -967.3576  0.3021     -967.3576  0.3021  0.0000  0.0000    -   @   
+                      471.5110  0.3987      471.5110  0.3987 -0.0000  0.0000    -   @   
+                     1154.9378             1154.9378          0.0000            -       
+
+1A    2A    GB       -577.6996  4.2623     -577.6996  4.2623 -0.0000  0.0000    -   @   
+                     -525.3105  3.0355     -525.3105  3.0355 -0.0000  0.0000    -   @   
+                      437.2150  4.0061      437.2150  4.0061  0.0000  0.0000    -   @   
+                      894.8994              894.8994          0.0000            -       
+
+      3A    GB       -419.2589  4.2411     -419.2589  4.2411 -0.0000  0.0000    -   @   
+                     -967.3576  3.0205     -967.3576  3.0205  0.0000  0.0000    -   @   
+                      471.5110  3.9862      471.5110  3.9862 -0.0000  0.0000    -   @   
+                     1154.9378             1154.9378          0.0000            -       
+
+1B    2B    GB       -577.6996  4.2411     -577.6996  4.2411 -0.0000  0.0000    -   @   
+                     -525.3105  3.0205     -525.3105  3.0205 -0.0000  0.0000    -   @   
+                      437.2150  3.9862      437.2150  3.9862  0.0000  0.0000    -   @   
+                      894.8994              894.8994          0.0000            -       
+
+      3B    GB       -419.2589  4.2623     -419.2589  4.2623  0.0000  0.0000    -   @   
+                     -967.3576  3.0355     -967.3576  3.0355  0.0000  0.0000    -   @   
+                      471.5110  4.0061      471.5110  4.0061  0.0000  0.0000    -   @   
+                     1154.9378             1154.9378          0.0000            -       

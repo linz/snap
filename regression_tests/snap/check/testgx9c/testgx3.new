@@ -1,7 +1,7 @@
 Test 1 - basic obs type tests
 NZGD1949
 options ellipsoidal_heights no_deflections no_geoid_heights
-! Updated by SNAP version 2.7.15-e000bc8 at 19-SEP-2018 06:45:06
+! Updated by SNAP version 2.7.22-9002375 at 21-JUL-2019 08:48:18
 
 !Code       Latitude          Longitude        Ell.Hgt Name
 1      41 00 46.702136 S 173 19 15.577794 E   145.0703 1

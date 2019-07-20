@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.15-eae8a0e
+                      PROGRAM SNAP  Version 2.7.22-9002375
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep 18 2018 08:29:35
+                       Version date: Jul 20 2019 08:24:47
 
 ================================================================================
-                     Run at 18-SEP-2018 10:48:11 by ccrook
+                     Run at 21-JUL-2019 08:48:18 by ccrook
 
 
 The command file testgx9.snp contains:
@@ -45,7 +45,7 @@ The command file testgx9.snp contains:
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                              SUMMARY OF INPUT FILES
 
@@ -70,7 +70,7 @@ Data file 1: testgx9.dat
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                              DEFINITION OF PROBLEM
 
@@ -106,7 +106,7 @@ Obs set 4 Z translation
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                                ITERATION NUMBER 1
 
@@ -115,7 +115,7 @@ Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                              OBSERVATION EQUATIONS
 
@@ -319,7 +319,7 @@ END_JSON obs_equation_1
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                                ITERATION NUMBER 2
 
@@ -328,7 +328,7 @@ Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                              OBSERVATION EQUATIONS
 
@@ -532,7 +532,7 @@ END_JSON obs_equation_2
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                                 SOLUTION SUMMARY
 
@@ -557,7 +557,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                               STATION COORDINATES
 
@@ -595,7 +595,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                            REFERENCE FRAME PARAMETERS
 
@@ -621,7 +621,7 @@ Reference frame: GPS_T
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                                 OTHER PARAMETERS
 
@@ -630,20 +630,20 @@ Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
 The errors listed for calculated parameters are apriori errors
 
 Parameter                          value         +/-
+Obs set 1 X translation              1.20001      0.09818
+Obs set 1 Y translation             -0.30001      0.04135
+Obs set 1 Z translation             15.80000      0.09083
+Obs set 3 X translation              0.20003      0.09529
+Obs set 3 Y translation             -1.29996      0.04765
+Obs set 3 Z translation             15.79999      0.09083
+Obs set 4 X translation              0.47820      0.06537
+Obs set 4 Y translation             -0.58979      0.03045
+Obs set 4 Z translation             15.57114      0.05944
 
-Obs set 1 X translation              1.20001      0.00000
-Obs set 1 Y translation             -0.30001      0.00000
-Obs set 1 Z translation             15.80000      0.00000
-Obs set 3 X translation              0.20003      0.00000
-Obs set 3 Y translation             -1.29996      0.00000
-Obs set 3 Z translation             15.79999      0.00000
-Obs set 4 X translation              0.47820      0.00000
-Obs set 4 Y translation             -0.58979      0.00000
-Obs set 4 Z translation             15.57114      0.00000
 
 
 ================================================================================
-Regression test 1 - data types and observation equations    18-SEP-2018 10:48:11
+Regression test 1 - data types and observation equations    21-JUL-2019 08:48:18
 
                              OBSERVATION RESIDUALS
 
