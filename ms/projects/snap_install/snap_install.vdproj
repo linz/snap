@@ -1319,7 +1319,7 @@
             }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_4B90AE5552734A02BAA3306C2E94A7DD"
             {
-            "SourcePath" = "8:Z:\\snap\\src\\coordsys\\nzgd2000_def_20180701al.bin"
+            "SourcePath" = "8:..\\..\\..\\src\\coordsys\\nzgd2000_def_20180701al.bin"
             "TargetName" = "8:nzgd2000_def_20180701al.bin"
             "Tag" = "8:"
             "Folder" = "8:_173F3B9B4A2B4C38840C14D1CDF7C75A"
