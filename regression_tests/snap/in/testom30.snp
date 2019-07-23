@@ -10,6 +10,7 @@ list file_summary
 list observation_equations
 list residuals
 list no_solution_summary
+list no_iteration_summary
 list station_coordinates
 list no_reference_frames
 list no_parameters

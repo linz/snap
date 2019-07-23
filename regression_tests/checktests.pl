@@ -111,6 +111,13 @@ sub compareline
     return '' if $oline eq $cline;
     my ($otext,@ovalues)=split_floats($oline);
     my ($ctext,@cvalues)=split_floats($cline);
+    # Special case for 180 degree offsets in calculating
+    # error ellipses...
+    if( $otext ne $ctext )
+    {
+        $otext =~ s/\b180\b/0/;
+        $ctext =~ s/\b180\b/0/;
+    }
     if( $otext eq $ctext && scalar(@ovalues) eq scalar(@cvalues))
     {
         my $rtol=$cfg->{reltol};
@@ -130,6 +137,8 @@ sub compareline
             my $diff=abs($o-$c);
             next if $diff <= $atol;
             next if $diff <= abs($c)*$rtol;
+            # Special case for 180 degree offsets
+            next if abs($o) < 370 && abs($c) < 370 && abs($diff-180) < 0.00001;
             # Check for difference of 1 in last decimal place
             my $oa=$o;
             $oa=~s/^\-?\d+\.(\d*)\d/"0."+("0" x length($1))/e;

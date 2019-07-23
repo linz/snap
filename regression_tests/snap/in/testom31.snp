@@ -9,6 +9,7 @@ list command_file
 list file_summary
 list observation_equations
 list residuals
+list no_iteration_summary
 list no_solution_summary
 list station_coordinates
 list no_reference_frames
