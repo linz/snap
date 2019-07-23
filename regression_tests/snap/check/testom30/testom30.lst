@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.21-a65d98e
+                      PROGRAM SNAP  Version 2.7.22-9002375
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Jul 12 2019 14:55:03
+                       Version date: Jul 20 2019 08:24:47
 
 ================================================================================
-                     Run at 13-JUL-2019 06:55:07 by ccrook
+                     Run at 24-JUL-2019 06:36:47 by ccrook
 
 
 The command file testom30.snp contains:
@@ -25,6 +25,7 @@ The command file testom30.snp contains:
      list observation_equations
      list residuals
      list no_solution_summary
+     list no_iteration_summary
      list station_coordinates
      list no_reference_frames
      list no_parameters
@@ -45,7 +46,7 @@ The command file testom30.snp contains:
 
 
 ================================================================================
-Regression test om30 - obs modifications - GX offset reweighting   13-JUL-2019 06:55:07
+Regression test om30 - obs modifications - GX offset reweighting   24-JUL-2019 06:36:47
 
                              SUMMARY OF INPUT FILES
 
@@ -76,7 +77,7 @@ Offset error 3.000 5.000 m applied to the following observations
 
 
 ================================================================================
-Regression test om30 - obs modifications - GX offset reweighting   13-JUL-2019 06:55:07
+Regression test om30 - obs modifications - GX offset reweighting   24-JUL-2019 06:36:47
 
                                ITERATION NUMBER 1
 
@@ -85,7 +86,7 @@ Regression test om30 - obs modifications - GX offset reweighting   13-JUL-2019 0
 
 
 ================================================================================
-Regression test om30 - obs modifications - GX offset reweighting   13-JUL-2019 06:55:07
+Regression test om30 - obs modifications - GX offset reweighting   24-JUL-2019 06:36:47
 
                              OBSERVATION EQUATIONS
 
@@ -291,13 +292,10 @@ BEGIN_JSON obs_equation_1
 
 END_JSON obs_equation_1
 
-Iteration 1: Maximum change is 0.0000 metres at station 5
-             0 station adjustments exceed convergence criteria
-
 
 
 ================================================================================
-Regression test om30 - obs modifications - GX offset reweighting   13-JUL-2019 06:55:07
+Regression test om30 - obs modifications - GX offset reweighting   24-JUL-2019 06:36:47
 
                               STATION COORDINATES
 
@@ -338,7 +336,7 @@ Rejected stations are flagged #
 
 
 ================================================================================
-Regression test om30 - obs modifications - GX offset reweighting   13-JUL-2019 06:55:07
+Regression test om30 - obs modifications - GX offset reweighting   24-JUL-2019 06:36:47
 
                              OBSERVATION RESIDUALS
 
