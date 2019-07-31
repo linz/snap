@@ -630,8 +630,11 @@ void print_section_header( FILE *out, const char *heading )
     print_line( out );
 }
 
-void print_section_footer( FILE * )
+void print_section_footer( FILE * out )
 {
+    /* Flush the output so that it is available 
+     * for viewing if SNAP is still running */
+    fflush(out);
 }
 
 
