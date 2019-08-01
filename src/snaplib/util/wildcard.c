@@ -11,12 +11,14 @@ bool has_wildcard( const char *pattern )
     return false;
 }
 
-bool wildcard_match( const char *pattern, const char *s )
+static bool wildcard_match_imp( const char *pattern, const char *s, const char *notwild )
 {    
     while( *pattern && *s && 
             *pattern != '*' && 
-            ((*pattern == '?' && *s) || _strnicmp(pattern,s,1) == 0 )
+            (  _strnicmp(pattern,s,1) == 0 ||
+               (*pattern == '?' && ( ! notwild || ! strchr(notwild,*s)))
             )
+         )
     {
         pattern++;
         s++;
@@ -24,14 +26,41 @@ bool wildcard_match( const char *pattern, const char *s )
     if( ! *pattern && ! *s ) return true;
     if( *pattern == '*' ) 
     {
-        while( *pattern == '*' ) pattern++;
-        if( ! *pattern ) return true;
+        const char *nw = notwild;
+        while(1)
+        {
+            pattern++;
+            if( *pattern != '*' ) break;
+            nw = nullptr;
+        }
         while( *s )
         {
-            if( wildcard_match(pattern,s) ) return true;
+            if( *pattern && wildcard_match_imp(pattern,s,nw) ) return true;
+            if( nw && strchr(nw,*s) ) return false;
             s++;
         }
-        return false;
+        return *pattern ? false : true;
+    }
+    return false;
+}
+
+bool wildcard_match( const char *pattern, const char *s )
+{
+    return wildcard_match_imp( pattern, s, nullptr );
+}
+
+bool filename_wildcard_match( const char *pattern, const char *filename )
+{
+    const char *s = filename;
+    static const char *pathdelim="/\\";
+    while( *s )
+    {
+        if( wildcard_match_imp(pattern,s,pathdelim) ) return true;
+        while( *s )
+        {
+            if( strchr(pathdelim,*s) ){ s++; break; }
+            s++;
+        }
     }
     return false;
 }

@@ -1,4 +1,4 @@
-title Regression test om1 - obs modifications - quoted observation classification criteria
+title Regression test om1 - obs modifications - data file
 
 coordinate_file test1.crd ! Comment to be ignored
 data_file test1.dat
@@ -25,11 +25,4 @@ refraction_coefficient DEFAULT 0.0
 
 define_residual_format all  from to type date file:10 line_no:4 Id:4 S c=class:6 S c=equpt:12 S obs_err
 
-reweight_observations 2.0 class="A1/B"
-reweight_observations 3.0 class='C'
-reweight_observations 5.0 equpt=t*e
-reweight_observations 0.5 equpt=' quote '
-reweight_observations 0.7 equpt=' quote" '
-reweight_observations 0.6 equpt='quote'
-reweight_observations 0.8 equpt='quote/quoted2'
-reweight_observations 0.9 equpt='quote' data_type=HA/SD
+ignore_observations data_file=t??t1.dat

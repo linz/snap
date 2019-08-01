@@ -127,7 +127,7 @@ void *snap_obs_modifications( bool create )
     if( (! obs_modifications) && create)
     {
         obs_modifications=new_obs_modifications( net, &obs_classes );
-        set_obs_modifications_file_func( obs_modifications, survey_data_file_id );
+        set_obs_modifications_file_func( obs_modifications, survey_data_file_id, survey_data_file_name );
     }
     return obs_modifications;
 }

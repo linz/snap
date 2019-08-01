@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-f90eaf0
+                      PROGRAM SNAP  Version 2.7.23-bde7b38
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  8 2018 08:54:01
+                       Version date: Aug  1 2019 19:02:33
 
 ================================================================================
-                     Run at  8-SEP-2018 09:03:50 by ccrook
+                     Run at  2-AUG-2019 11:42:33 by ccrook
 
 
 The command file testom24.snp contains:
@@ -42,6 +42,7 @@ The command file testom24.snp contains:
      
      reweight_observations 2.0 class="A1/B"
      reweight_observations 3.0 class='C'
+     reweight_observations 5.0 equpt=t*e
      reweight_observations 0.5 equpt=' quote '
      reweight_observations 0.7 equpt=' quote" '
      reweight_observations 0.6 equpt='quote'
@@ -52,7 +53,7 @@ The command file testom24.snp contains:
 
 
 ================================================================================
-Regression test om1 - obs modifications - quoted observation classification cri    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - quoted observation classification cri    2-AUG-2019 11:42:33
 
                              SUMMARY OF INPUT FILES
 
@@ -106,6 +107,9 @@ Data file 2: test1a.dat
        2 latitudes
        2 longitudes
 
+Errors of the following observations are scaled by 5.000
+  Observations where equpt classification matches "t*e"
+
 Errors of the following observations are scaled by 3.000
   Observations where class classification is "C"
 
@@ -136,7 +140,7 @@ Note: error factors are multiplied for observations meeting several critera
 
 
 ================================================================================
-Regression test om1 - obs modifications - quoted observation classification cri    8-SEP-2018 09:03:50
+Regression test om1 - obs modifications - quoted observation classification cri    2-AUG-2019 11:42:33
 
                              OBSERVATION RESIDUALS
 
@@ -245,7 +249,7 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1     2     ED   23/12/2009 test1.dat   135 8001 A      EDM           0.0103
 
-1     3     ED   23/12/2009 test1.dat   136 8002 B      Tape          0.0106
+1     3     ED   23/12/2009 test1.dat   136 8002 B      Tape          0.0530
 
 1     2     ZD   23/12/2009 test1.dat   140 9998                         5.0
 
@@ -255,11 +259,11 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1     3     LV   23/12/2009 test1.dat   146    0                      0.0300
 
-1           LN   23/12/2009 test1.dat   150    0 C      Theodolite      0.60
+1           LN   23/12/2009 test1.dat   150    0 C      Theodolite      3.00
 
 2           LN*  23/12/2009 test1.dat   151    0 E      Compass         0.30
 
-1           LT   23/12/2009 test1.dat   155    0 C      Theodolite      0.60
+1           LT   23/12/2009 test1.dat   155    0 C      Theodolite      3.00
 
 2           LT*  23/12/2009 test1.dat   156    0 E      Astrolabe       0.30
 
@@ -284,11 +288,11 @@ From  To    Type    Date    File       Lin    Id class  equpt         +/-
 
 1     3     PB*  23/12/2009 test1.dat   185    0                         3.6
 
-1           LN   23/12/2009 test1.dat   189    0 C      Theodolite      2.16
+1           LN   23/12/2009 test1.dat   189    0 C      Theodolite     10.80
 
 2           LN*  23/12/2009 test1.dat   190    0 E      Compass         1.08
 
-1           LT   23/12/2009 test1.dat   194    0 C      Theodolite      2.16
+1           LT   23/12/2009 test1.dat   194    0 C      Theodolite     10.80
 
 2           LT*  23/12/2009 test1.dat   195    0 E      Astrolabe       1.08
 

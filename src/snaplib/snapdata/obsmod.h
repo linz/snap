@@ -34,7 +34,8 @@ void set_obs_modifications_network( void *obsmod, network *nw );
  * For C++ rewrite! */
 
 typedef int (*fileid_func)(char *filename, char *refpath);
-void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc );
+typedef char *(*filename_func)(int ifile);
+void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc, filename_func namefunc );
 
 /* Add modifications based on a string specifying multiple criteria */
 int add_obs_modifications( CFG_FILE *cfg, void *obsmod, char *modifications, int action, double errval1, double errval2 );

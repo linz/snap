@@ -16,24 +16,31 @@
 #include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/snapctype.h"
+#include "util/wildcard.h"
 
 #define OBS_CRIT_NONE            0
 #define OBS_CRIT_DATATYPE        1
 #define OBS_CRIT_DATAFILE        2
 #define OBS_CRIT_CLASSIFICATION  3
 #define OBS_CRIT_MCLASSIFICATION 4
-#define OBS_CRIT_ID              5
-#define OBS_CRIT_DATE            6
-#define OBS_CRIT_STATION_USES    7
-#define OBS_CRIT_STATION_BETWEEN 8
+#define OBS_CRIT_WCLASSIFICATION 5
+#define OBS_CRIT_ID              6
+#define OBS_CRIT_DATE            7
+#define OBS_CRIT_STATION_USES    8
+#define OBS_CRIT_STATION_BETWEEN 9
 
 #define OBS_CRIT_DATE_UNKNOWN 1
 #define OBS_CRIT_DATE_BEFORE  2
 #define OBS_CRIT_DATE_AFTER   3
 
+#define OBS_CRIT_WILDCLASS_UNINIT -1
+#define OBS_CRIT_WILDCARD_FILEID -1
+
 #define FILE_IGNORE_ERROR OK
 #define FILE_WARN_ERROR   INFO_ERROR
 #define FILE_FAIL_ERROR   INVALID_DATA
+
+#define OBS_CRIT_WILDCLASS_BUFFER 64
 
 typedef struct 
 {
@@ -43,7 +50,10 @@ typedef struct
 typedef struct 
 {
     int file_id;
+    bool wildcard;
     char *filename;
+    int last_file_id;
+    bool last_match;
 } obs_datafile_criterion;
 
 typedef struct 
@@ -65,6 +75,16 @@ typedef struct
     int nvalues;
     int *value_ids;
 } mult_obs_classification_criterion;
+
+typedef struct 
+{
+    int class_id;
+    char *wildclass;
+    int ntested;
+    int nalloc;
+    int nvalues;
+    int *value_ids;
+} wildcard_obs_classification_criterion;
 
 typedef struct 
 {
@@ -90,6 +110,7 @@ typedef struct obs_criterion_s
         obs_datafile_criterion datafile;
         obs_classification_criterion classification;
         mult_obs_classification_criterion mult_classification;
+        wildcard_obs_classification_criterion wildcard_classification;
         obs_id_criterion id;
         obs_date_criterion date;
         obs_stations_criterion stations;
@@ -148,6 +169,7 @@ typedef struct
     network *nw;
     classifications *classes;
     fileid_func get_fileid;
+    filename_func get_filename;
     long setid;
     obs_offset_error *offsets;
     int noffsets;
@@ -265,12 +287,30 @@ static obs_criterion *new_obs_datafile_criterion( int file_id, char *filename )
     oc->crit_type=OBS_CRIT_DATAFILE;
     oc->c.datafile.file_id=file_id;
     oc->c.datafile.filename=copy_string(filename);
+    oc->c.datafile.last_file_id=-1;
+    oc->c.datafile.last_match=false;
     return oc;
+}
+
+static bool obs_datafile_match_fileid( obs_modifications *obsmod, obs_criterion *oc, int file_id )
+{
+    if( oc->c.datafile.file_id == OBS_CRIT_WILDCARD_FILEID )
+    {
+        int last_file_id = oc->c.datafile.last_file_id;
+        if( file_id == last_file_id ) return oc->c.datafile.last_match;
+        char *filename = obsmod->get_filename( file_id );
+        oc->c.datafile.last_match = filename_wildcard_match(oc->c.datafile.filename,filename);
+        return oc->c.datafile.last_match;
+    }
+    else
+    {
+        return file_id == oc->c.datafile.file_id;
+    }
 }
 
 static bool obs_datafile_match( obs_criterion *oc, obsmod_context *oac )
 {
-    return oac->sd->file == oc->c.datafile.file_id;
+    return obs_datafile_match_fileid( oac->obsmod, oc, oac->sd->file );
 }
 
 static void delete_obs_datafile_criterion( obs_criterion *oc )
@@ -281,7 +321,14 @@ static void delete_obs_datafile_criterion( obs_criterion *oc )
 
 static void describe_obs_datafile_criterion( FILE *lst, obs_criterion *oc, const char * )
 {
-    fprintf(lst,"which are from file %s",oc->c.datafile.filename);
+    if( oc->c.datafile.file_id == OBS_CRIT_WILDCARD_FILEID )
+    {
+        fprintf(lst,"which are from files matching %s",oc->c.datafile.filename);
+    }
+    else
+    {
+        fprintf(lst,"which are from file %s",oc->c.datafile.filename);
+    }
 }
 
 static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classifications *classes, 
@@ -320,6 +367,16 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
             pval=pend+1;
         }
     }
+    else if ( ! singlevalue && has_wildcard(values) )
+    {
+        oc->crit_type=OBS_CRIT_WCLASSIFICATION;
+        oc->c.wildcard_classification.class_id=class_id;
+        oc->c.wildcard_classification.wildclass=copy_string(values);
+        oc->c.wildcard_classification.nvalues=0;
+        oc->c.wildcard_classification.nalloc=0;
+        oc->c.wildcard_classification.ntested=0;
+        oc->c.wildcard_classification.value_ids=nullptr;
+    }
     /* Otherwise a single class */
     else
     {
@@ -333,7 +390,17 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
 static void delete_mult_obs_classification( obs_criterion *oc )
 {
     check_free( oc->c.mult_classification.value_ids );
+    oc->c.mult_classification.nvalues = 0;
     oc->c.mult_classification.value_ids = nullptr;
+}
+
+static void delete_wildcard_obs_classification( obs_criterion *oc )
+{
+    check_free( oc->c.wildcard_classification.wildclass );
+    oc->c.wildcard_classification.wildclass = nullptr;
+    check_free( oc->c.wildcard_classification.value_ids );
+    oc->c.wildcard_classification.nvalues = 0;
+    oc->c.wildcard_classification.value_ids = nullptr;
 }
 
 static int get_context_obs_classification( obsmod_context *oac, int class_id )
@@ -365,6 +432,61 @@ static bool obs_mult_classification_match( obs_criterion *oc, obsmod_context *oa
     return false;
 }
 
+static bool obs_wildcard_classification_match( obs_criterion *oc, obsmod_context *oac )
+{
+    int cclass_id=oc->c.wildcard_classification.class_id;
+    obs_modifications *obsmod = oac->obsmod;
+    classifications *csf = obsmod->classes;
+    if( ! csf ) return false;
+    int class_count=class_value_count(csf,cclass_id);
+    int ntested = oc->c.wildcard_classification.ntested;
+
+    if( class_count > ntested )
+    {
+        const char *pattern = oc->c.wildcard_classification.wildclass;
+        int class_count=class_value_count(csf,cclass_id);
+        int nmatch=0;
+        for( int iv = ntested; iv < class_count; iv++ )
+        {
+            if( wildcard_match(pattern,class_value_name(csf,cclass_id,iv)) )
+            {
+                nmatch++;
+            }
+        }
+        if( nmatch > 0 )
+        {
+            int nvalues = oc->c.wildcard_classification.nvalues;
+            int nreq = nvalues + nmatch;
+            int *value_ids=oc->c.wildcard_classification.value_ids;
+
+            if( nreq > oc->c.wildcard_classification.nalloc )
+            {
+                nreq += OBS_CRIT_WILDCLASS_BUFFER;
+                value_ids=(int *) check_realloc( (void *) value_ids, nreq*sizeof(int) );
+                oc->c.wildcard_classification.value_ids=value_ids;
+                oc->c.wildcard_classification.nalloc=nreq;
+            }
+            for( int iv = ntested; iv < class_count; iv++ )
+            {
+                if( wildcard_match(pattern,class_value_name(csf,cclass_id,iv)) )
+                {
+                    value_ids[nvalues]=iv;
+                    nvalues++;
+                }
+            }
+            oc->c.wildcard_classification.nvalues = nvalues;
+        }
+        oc->c.wildcard_classification.ntested = class_count;
+    }
+
+    int value_id=get_context_obs_classification( oac, cclass_id );
+    for( int i=0; i < oc->c.wildcard_classification.nvalues; i++ )
+    {
+        if( oc->c.wildcard_classification.value_ids[i] == value_id ) return true;
+    }
+    return false;
+}
+
 static void describe_obs_classification_criterion( FILE *lst, obs_criterion *oc, const char *, classifications *classes )
 {
     fprintf(lst,"where %s classification is \"%s\"",
@@ -383,6 +505,13 @@ static void describe_obs_mult_classification_criterion( FILE *lst, obs_criterion
         fprintf(lst,"\n%s    - \"%s\"",prefix,
             class_value_name( classes, class_id, oc->c.mult_classification.value_ids[i]));
     }
+}
+
+static void describe_obs_wildcard_classification_criterion( FILE *lst, obs_criterion *oc, const char *, classifications *classes )
+{
+    fprintf(lst,"where %s classification matches \"%s\"",
+            classification_name( classes, oc->c.wildcard_classification.class_id), 
+            oc->c.wildcard_classification.wildclass );
 }
 
 
@@ -615,6 +744,7 @@ static bool obs_criterion_match( obs_criterion *oc, obsmod_context *oac )
         case OBS_CRIT_DATAFILE: return  obs_datafile_match( oc, oac );
         case OBS_CRIT_CLASSIFICATION: return  obs_classification_match( oc, oac );
         case OBS_CRIT_MCLASSIFICATION: return  obs_mult_classification_match( oc, oac );
+        case OBS_CRIT_WCLASSIFICATION: return  obs_wildcard_classification_match( oc, oac );
         case OBS_CRIT_ID: return  obs_id_match( oc, oac );
         case OBS_CRIT_DATE: return  obs_date_match( oc, oac );
         case OBS_CRIT_STATION_USES: return  obs_stations_match( oc, oac );
@@ -631,6 +761,7 @@ static void delete_obs_criterion( obs_criterion *oc )
         case OBS_CRIT_STATION_USES: 
         case OBS_CRIT_STATION_BETWEEN: delete_obs_stations_criterion( oc ); break;
         case OBS_CRIT_MCLASSIFICATION: delete_mult_obs_classification( oc ); break;
+        case OBS_CRIT_WCLASSIFICATION: delete_wildcard_obs_classification( oc ); break;
         case OBS_CRIT_ID: delete_obs_id_criterion( oc ); break;
     }
     check_free( oc );
@@ -746,14 +877,17 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
     oac->action=action;
 }
 
-static bool obs_criteria_ignore_datafile( obs_criteria *ocr, int file_id )
+static bool obs_criteria_ignore_datafile( obs_modifications *obsmod, obs_criteria *ocr, int file_id )
 {
     if( ! (ocr->action & OBS_MOD_IGNORE ) ) return false;
     bool matched=false;
     for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
     {
         if( oc->crit_type != OBS_CRIT_DATAFILE ) return false;
-        if( oc->c.datafile.file_id == file_id ) matched=true;
+        if( obs_datafile_match_fileid( obsmod, oc, file_id ))
+        { 
+            matched=true;
+        }
     }
     return matched;
 }
@@ -796,6 +930,9 @@ static void summarize_obs_criteria( FILE *lst, const char *prefix, obs_criteria 
             case OBS_CRIT_MCLASSIFICATION: 
                 describe_obs_mult_classification_criterion( lst, oc, prefix, classes );
                 break;
+            case OBS_CRIT_WCLASSIFICATION: 
+                describe_obs_wildcard_classification_criterion( lst, oc, prefix, classes );
+                break;
             case OBS_CRIT_ID: 
                 describe_obs_id_criterion( lst, oc, prefix );
                 break;
@@ -822,6 +959,7 @@ void *new_obs_modifications( network *nw, classifications *obs_classes )
     obsmod->nw=nw;
     obsmod->classes=obs_classes;
     obsmod->get_fileid=nullptr;
+    obsmod->get_filename=nullptr;
     obsmod->setid=0;
     obsmod->offsets=nullptr;
     obsmod->noffsets=0;
@@ -856,10 +994,11 @@ void set_obs_modifications_network( void *pobsmod, network *nw )
     obsmod->nw=nw;
 }
 
-void set_obs_modifications_file_func( void *pobsmod, fileid_func idfunc )
+void set_obs_modifications_file_func( void *pobsmod, fileid_func idfunc, filename_func namefunc )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obsmod->get_fileid=idfunc;
+    obsmod->get_filename=namefunc;
 }
 
 static void add_obs_criteria_to_modifications( obs_modifications *obsmod, obs_criteria *ocr )
@@ -962,8 +1101,14 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
             }
             else if( _stricmp(field,"data_file") == 0 )
             {
-                int file_id=get_file_id( obsmod, cfg, vptr, missing_error );
-                if( file_id >= 0 ) oc=new_obs_datafile_criterion(file_id,vptr );
+                int file_id=OBS_CRIT_WILDCARD_FILEID;
+                int ok = 1;
+                if( quote || ! has_wildcard(vptr))
+                {
+                    file_id=get_file_id( obsmod, cfg, vptr, missing_error );
+                    if( file_id < 0 ) ok=0;
+                }
+                if( ok ) oc=new_obs_datafile_criterion(file_id,vptr);
             }
             else if( _stricmp(field,"id") == 0 )
             {
@@ -1082,7 +1227,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     else if( _stricmp(classification,"data_file") == 0 )
     {
         int file_id=get_file_id( obsmod, cfg, value, missing_error );
-        if( file_id >= 0 ) oc=new_obs_datafile_criterion( file_id,value );
+        if( file_id >= 0 ) oc=new_obs_datafile_criterion( file_id,value);
     }
     else if( _stricmp(classification,"id") == 0 )
     {
@@ -1105,7 +1250,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
 int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid, char *filename, double err_factor )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    obs_criterion *oc = new_obs_datafile_criterion( fileid, filename );
+    obs_criterion *oc = new_obs_datafile_criterion( fileid, filename);
     obs_criteria *ocr=new_obs_criteria( OBS_MOD_REWEIGHT, err_factor, 0.0, 0 );
     add_obs_criterion_to_criteria( ocr, oc );
     add_obs_criteria_to_modifications( obsmod, ocr );
@@ -1555,7 +1700,7 @@ bool obsmod_ignore_datafile( void *pobsmod, int file_id )
     if( ! obsmod ) return false;
     for( obs_criteria *ocr=obsmod->first; ocr; ocr=ocr->next )
     {
-        if( obs_criteria_ignore_datafile( ocr, file_id ) ) return true;
+        if( obs_criteria_ignore_datafile( obsmod, ocr, file_id ) ) return true;
     }
     return false;
 }
