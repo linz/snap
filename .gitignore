@@ -2,6 +2,7 @@
 *.swp
 *.o
 *.obj
+*.aps
 makefile.inc
 /boost/
 /documents/
@@ -19,3 +20,9 @@ src/snap_manager/scriptimp_parse.cpp
 src/VERSIONID
 /example_jobs/
 *.orig
+/srcdocs/
+/wxwidgets/
+/ms/projects/wxtest/
+/notes/
+/linux/debug/
+/linux/release/
