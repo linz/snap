@@ -19,7 +19,7 @@ goto endofperl
 
 use strict;
 
-my $lookup_coords_url = 'http://apps.linz.govt.nz/gdb/update-snap-file.aspx';
+my $lookup_coords_url = 'https://www.geodesy.linz.govt.nz/update-snap-file/';
 
 use Getopt::Std;
 
@@ -87,6 +87,7 @@ use HTTP::Request::Common;
 
 my $ua = LWP::UserAgent->new;
 $ua->env_proxy;
+push @{ $ua->requests_redirectable }, 'POST';
 
 my $crddata='';
 my $crdheader='';
