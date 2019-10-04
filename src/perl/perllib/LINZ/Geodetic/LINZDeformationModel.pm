@@ -31,7 +31,8 @@ package LINZ::Geodetic::LINZDeformationModel;
 use vars qw/$debug/;
 use vars qw/$AUTOLOAD/;
 
-$debug = 0;
+$debug = $ENV{DEBUG_LINZDEF} || 0;
+
 
 # Each possible triangle file format has a specified header record.  Valid records
 # are listed here.  The %formats hash converts these to a format definition
@@ -42,6 +43,8 @@ my $sigdef1l = "LINZ deformation model v1.0L\r\n\x1A";
 my $sigdef1b = "LINZ deformation model v1.0B\r\n\x1A";
 my $sigdef2l = "LINZ deformation model v2.0L\r\n\x1A";
 my $sigdef2b = "LINZ deformation model v2.0B\r\n\x1A";
+my $sigdef3l = "LINZ deformation model v3.0L\r\n\x1A";
+my $sigdef3b = "LINZ deformation model v3.0B\r\n\x1A";
 
 my $siglen = length($sigdef1l);
 
@@ -50,6 +53,8 @@ my %formats = (
     $sigdef1b => 'DEF1B',
     $sigdef2l => 'DEF2L',
     $sigdef2b => 'DEF2B',
+    $sigdef3l => 'DEF3L',
+    $sigdef3b => 'DEF3B',
 );
 
 sub new {
@@ -122,29 +127,64 @@ sub Setup {
    
    seek($fh,$loc,0);
    
-   my $name = $unpacker->read_string;
-   my $version = $unpacker->read_string;
-   my $crdsyscode = $unpacker->read_string;
-   my $description = $unpacker->read_string;
-   my $versiondate = &ReadDate($unpacker);
-   my $startdate = &ReadDate($unpacker);
-   my $enddate = &ReadDate($unpacker);
-   my $range = LINZ::Geodetic::LINZDeformationModel::Range->read($unpacker);
-   my $isgeog = $unpacker->read_short;
+   my ($name,$crdsyscode,$startdate,$enddate,$range,$isgeog,$versions);
+   if( $format_version < 3 )
+   {
+       $name = $unpacker->read_string;
+       my $version = $unpacker->read_string;
+       $crdsyscode = $unpacker->read_string;
+       my $description = $unpacker->read_string;
+       my $versiondate = &ReadDate($unpacker);
+       $startdate = &ReadDate($unpacker);
+       $enddate = &ReadDate($unpacker);
+       $range = LINZ::Geodetic::LINZDeformationModel::Range->read($unpacker);
+       $isgeog = $unpacker->read_short;
+       # Fix for 20130801 model
+       $version='00000000' if $version eq '';
+       $versions=[{
+               version=>$version,
+               versiondate=>$versiondate,
+               description=>$description
+            }];
+   }
+   else
+   {
+       $name = $unpacker->read_string;
+       $crdsyscode = $unpacker->read_string;
+       $startdate = &ReadDate($unpacker);
+       $enddate = &ReadDate($unpacker);
+       $range = LINZ::Geodetic::LINZDeformationModel::Range->read($unpacker);
+       $isgeog = $unpacker->read_short;
+       $versions=[];
+       my $nver = $unpacker->read_short;
+       for my $iver (1..$nver)
+       {
+           my $version = $unpacker->read_string;
+           my $versiondate = &ReadDate($unpacker);
+           my $description = $unpacker->read_string;
+           push(@$versions,{
+                   version=>$version,
+                   versiondate=>$versiondate,
+                   description=>$description
+               });
+       }
+   }
    my $nseq = $unpacker->read_short;
+   sort { $b->{version} cmp $a->{version} } @$versions;
+   my $version=$versions->[0];
 
    if( $debug )
    {
         print "Loading LINZ deformation model\n";
         print "    name=$name\n";
-        print "    version=$version\n";
         print "    crdsyscode=$crdsyscode\n";
-        print "    description=$description\n";
-        print "    versiondate=$versiondate->{years}\n";
         print "    startdate=$startdate->{years}\n";
         print "    enddate=$enddate->{years}\n";
         printf "    range=%s\n",$range->tostring;
         print "    isgeog=$isgeog\n";
+        print "    version=$version->{version}\n";
+        print "    versiondate=$version->{versiondate}->{years}\n";
+        print "    description=$version->{description}\n";
    }
    
    my @sequences = ();
@@ -155,15 +195,33 @@ sub Setup {
       }
 
    $self->{name} = $name;
-   $self->{version} = $version;
    $self->{crdsyscode} = $crdsyscode;
-   $self->{description} = $description;
-   $self->{versiondate} = $versiondate;
    $self->{startdate} = $startdate;
    $self->{enddate} = $enddate;
    $self->{range} = $range;
    $self->{isgeog} = $isgeog;
+   $self->{versions} = $versions;
    $self->{sequences} = \@sequences;
+   $self->SetVersion($version->{version});
+   }
+
+sub SetVersion {
+   my ($self, $version)=@_;
+   my $vdef;
+   foreach my $v (@{$self->{versions}})
+   {
+       if( $v->{version} eq $version )
+       {
+           $vdef=$v;
+           last;
+       }
+   }
+   die "Deformation model version $version\n" if ! $vdef;
+   $self->{version}=$vdef->{version};
+   foreach my $seq (@{$self->{sequences}} )
+   {
+       $seq->{enabled}=$version ge $seq->{startversion} && $version lt $seq->{endversion};
+   }
    }
 
 sub Calc {
@@ -272,9 +330,12 @@ sub read {
    my $enddate = &LINZ::Geodetic::LINZDeformationModel::ReadDate($unpacker);
    my $range = LINZ::Geodetic::LINZDeformationModel::Range->read($unpacker);
    my ($isvelocity,$isnested)=(0,0);
+   my ($startver,$endver)=('00000000','99999999');
    $isvelocity=$unpacker->read_short if $format_version == 1;
    my ($dimension,$zerobeyond) = $unpacker->read_short(2);
    $isnested=$unpacker->read_short if $format_version > 1;
+   $startver=$unpacker->read_string if $format_version > 2;
+   $endver=$unpacker->read_string if $format_version > 2;
    my $ncomponents = $unpacker->read_short;
   
    my @components = ();
@@ -289,6 +350,9 @@ sub read {
       isvelocity => $isvelocity,
       isnested => $isnested,
       zerobeyond => $zerobeyond,
+      startversion => $startver,
+      endversion => $endver,
+      enabled => $endver eq '99999999' ? 1 : 0,
       components => \@components,
       }, $class;
 
@@ -306,6 +370,8 @@ sub read {
         print "    dimension=$dimension\n";
         print "    isvelocity=$isvelocity\n";
         print "    isnested=$isnested\n";
+        print "    startversion=>$startver\n";
+        print "    endversion=>$startver\n";
         print "    zerobeyond=$zerobeyond\n";
    };
 
@@ -368,6 +434,13 @@ sub read {
 
 sub CalcComponents {
    my( $self, $date, $x, $y ) = @_;
+   if( ! $self->{enabled} )
+   {
+      if( $LinzDeformationModel::debug ) {
+         print "Sequence ",$self->{seqid}," not enabled\n";
+         }
+      return () ;
+   }
    if($date < $self->{startdate}->{years} || 
                 $date > $self->{enddate}->{years}) {
       if( $LinzDeformationModel::debug ) {

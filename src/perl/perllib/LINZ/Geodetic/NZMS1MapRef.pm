@@ -1,19 +1,7 @@
-# Working version of NZMS1MapRef
+# LINZ::Geodetic::NZMS1MapRef
 #
-# This version is for immediate convenience pending a better implementation
-# of coordinate representation.  This provides the functions for converting
+# This provides the functions for converting
 # between NZMS1 map references and NZGD49 latitude/longitude
-#
-# $Id: NZMS1MapRef.pm,v 1.2 2006/04/17 21:34:02 gdb Exp $
-#
-# $Log: NZMS1MapRef.pm,v $
-# Revision 1.2  2006/04/17 21:34:02  gdb
-# Implementation of 6 digit map references rather than non-standard 8 digit references
-#
-# Revision 1.1  2001/05/22 21:09:03  gdb
-# Added functions for calculating map references
-#
-#
 
 use strict;
 use LINZ::Geodetic::TMProjection;

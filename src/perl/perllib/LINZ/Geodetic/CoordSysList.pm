@@ -436,7 +436,7 @@ sub datum
                              \s+deformation\s+
                              (?:
                                 (?:(velgrid)\s+(\S+)\s+(\d{4}(?:\.\d*)?)) |
-                                (?:(linzdef)\s+(\S+)) |
+                                (?:(linzdef)\s+(\S+(?:\s+\S+)?)) |
                                 (?:(bw14)\s+(\d{4}(?:\.\d*)?)\s+
                                      ([+-]?\d+\.?\d*)\s+
                                      ([+-]?\d+\.?\d*)\s+
@@ -536,13 +536,14 @@ sub datum
     }
     elsif ($linzdef)
     {
-        $linzdeffile = $filepath . $linzdeffile
-          if $filepath && -r $filepath . $linzdeffile;
+        my($deffile,$version)=split(' ',$linzdeffile);
+        $deffile = $filepath . $deffile
+          if $filepath && -r $filepath . $deffile;
 
         require LINZ::Geodetic::DefModelTransform;
         $defmodel =
-          LINZ::Geodetic::DefModelTransform->new( $linzdeffile, $linzdef, $refepoch,
-            $ellipsoid );
+          LINZ::Geodetic::DefModelTransform->new( $deffile, $linzdef, $refepoch,
+            $ellipsoid,$version );
     }
 
     # Check if the baserf is a datum code, and if so then replace it with

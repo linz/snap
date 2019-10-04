@@ -211,6 +211,9 @@ NZGD1949 "New Zealand Geodetic Datum 1949 (NZGD49)" ELLIPSOID INTERNATIONAL &
    NZGD2000 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 GRID &
    SNAP2D def492kt.grd "LINZ NZGD49-NZGD2000 conversion grid"
 
+NZGD1949_7PRM "New Zealand Geodetic Datum 1949 (7 parameter transformation) " ELLIPSOID INTERNATIONAL &
+   NZGD2000 59.47 -5.04 187.44 -0.47 0.1 -1.024 -4.5993 
+
 NZGD49_DMA "New Zealand Geodetic Datum 1949 (DMA 3 parameter model)" ELLIPSOID INTERNATIONAL NZGD2000 84 -22 209 0 0 0 0
 
 ! Camp area datum - no established relationship with another datum (reference datum=CAMPAREA)

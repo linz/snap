@@ -43,7 +43,7 @@ our $AUTOLOAD;
 #   Method:       new
 #
 #   Description:  $modelxform = LINZ::Geodetic::DefModelTransform->new(
-#                        $file, $modeltype, $ref_epoch, $ellipsoid
+#                        $file, $modeltype, $ref_epoch, $ellipsoid, $version
 #                    );
 #
 #   Parameters:   $file       The name of definition model file
@@ -51,12 +51,14 @@ our $AUTOLOAD;
 #                             transformation
 #                 $ref_epoch  The definition epoch for deformation model.
 #                 $ellipsoid  Parent reference frame ellipsoid object.
+#                 $version    The version of deformation model in 
+#                             model file to use (default if empty)
 #   Returns:
 #
 #===============================================================================
 
 sub new {
-  my( $class, $file, $modeltype, $ref_epoch, $ellipsoid ) = @_;
+  my( $class, $file, $modeltype, $ref_epoch, $ellipsoid, $version ) = @_;
   die "Cannot open grid transformation file $file\n" if ! -r $file;
   die "Invalid deformation model type $modeltype specified\n"
     if uc($modeltype) ne 'LINZDEF';
@@ -65,7 +67,8 @@ sub new {
     modeltype => $modeltype,
     ellipsoid => $ellipsoid,
     model     => undef,
-    ref_epoch => $ref_epoch
+    ref_epoch => $ref_epoch,
+    version   => $version
     };
   return bless $self, $class;
   }
@@ -95,11 +98,13 @@ sub AUTOLOAD
 sub InstallModel {
   my ($self) = @_;
   my $file = $self->{file};
+  my $version = $self->{version};
   require LINZ::Geodetic::Util::RotMat3;
   require LINZ::Geodetic::Util::Vector3;
   require LINZ::Geodetic::CartesianCrd;
   require LINZ::Geodetic::LINZDeformationModel;
   my $model = LINZ::Geodetic::LINZDeformationModel->new($file);
+  $model->SetVersion($version) if $version ne '';
   $self->{model} = $model;
   return $model;
   }

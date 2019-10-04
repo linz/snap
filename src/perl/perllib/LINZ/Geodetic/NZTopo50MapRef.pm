@@ -1,22 +1,7 @@
-# Working version of NZMS260MapRef
+# LINZ::Geodetic::Topo50MapRef
 #
-# This version is for immediate convenience pending a better implementation
-# of coordinate representation.  This provides the functions for converting
-# between NZMS260 map references and NZMG coordinates.
-#
-# $Id: NZMS260MapRef.pm,v 1.4 2006/04/17 21:34:02 gdb Exp $
-#
-# $Log: NZMS260MapRef.pm,v $
-# Revision 1.4  2006/04/17 21:34:02  gdb
-# Implementation of 6 digit map references rather than non-standard 8 digit references
-#
-# Revision 1.3  2005/11/27 19:39:30  gdb
-# *** empty log message ***
-#
-# Revision 1.1  2001/05/22 21:09:03  gdb
-# Added functions for calculating map references
-#
-#
+# This provides the functions for converting
+# between Topo50 map references and NZTM coordinates
 
 use strict;
 
