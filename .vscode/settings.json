@@ -1,10 +1,12 @@
 {
     "files.watcherExclude": {
-        "debian/linz-snap": true,
-        "linux/debug/**": true,
-        "linux/release/**": true,
-        "ms/build/**": true,
-        "ms/install/**": true,
-        "wxwidgets/**": true
+        "**/debian/linz-snap": true,
+        "**/linux/debug/**": true,
+        "**/linux/release/**": true,
+        "**/ms/build/**": true,
+        "**/ms/install/**": true,
+        "**/wxwidgets/**": true,
+        "**/boost/**": true,
+        "**/.git/objects/**"
     }
 }
