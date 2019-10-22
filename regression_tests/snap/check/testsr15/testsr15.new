@@ -1,0 +1,7 @@
+SNAP file extracted from geodetic database on 24-Jan-2019
+NZGD2000
+options ellipsoidal_heights no_deflections no_geoid_heights station_orders
+! Updated by SNAP version 2.7.24-5c783e01 at 23-OCT-2019 12:50:44
+
+!Code       Latitude          Longitude        Ell.Hgt Order Name
+GSCT   42 48 41.191663 S 173 16 26.629504 E    80.9390 12    Cheviot Hall

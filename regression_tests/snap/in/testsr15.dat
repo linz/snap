@@ -1,0 +1,5 @@
+Test recode bug
+#date 1 may 2000
+#gps_enu_error 3 3 6 mm 0.1 0.1 0.2 ppm
+#data GB no_heights
+1273 A33D -51894.315 249806.824 86132.165

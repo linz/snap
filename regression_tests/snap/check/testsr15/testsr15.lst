@@ -1,0 +1,135 @@
+================================================================================
+
+                     PROGRAM SNAP  Version 2.7.24-5c783e01
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Oct 22 2019 13:44:01
+
+================================================================================
+                     Run at 23-OCT-2019 12:50:44 by ccrook
+
+
+
+Program options read from testsr15.snp
+
+Job: 
+
+
+Solution type: 3d coordinate adjustment
+
+
+Coordinates file testsr15.crd
+       1 stations read
+
+Data file 1: testsr15.dat
+
+
+
+================================================================================
+                                                            23-OCT-2019 12:50:44
+
+                               ITERATION SUMMARY
+
+================================================================================
+
+
+
+================================================================================
+                                                            23-OCT-2019 12:50:44
+
+                                SOLUTION SUMMARY
+
+================================================================================
+
+Solution type: 3d coordinate adjustment
+
+
+Number of observations:               0
+Number of parameters:                 0
+
+Degrees of freedom:                   0
+Sum of squared residuals:             0.00000
+Standard error of unit weight:        1.00000
+
+
+
+================================================================================
+                                                            23-OCT-2019 12:50:44
+
+                              STATION COORDINATES
+
+================================================================================
+Coordinate system: New Zealand Geodetic Datum 2000 (version 20171201)
+Ellipsoid: Geodetic Reference System 1980 (GRS80)
+  a = 6378137.000  1/f = 298.257222
+
+Station heights are ellipsoidal heights.
+Geoid heights not defined - orthometric and ellipsoidal heights are the same.
+
+The following deformation model has been applied
+Applying coordinate system deformation model
+LINZ deformation model
+    NZGD2000 deformation model (20171201)
+    Deformation model: NZGD2000 deformation model
+    Datum: New Zealand Geodetic Datum 2000 (reference epoch 2000-01-01)
+    Version: 20171201
+    New Zealand Deformation Model.
+    Defines the secular model (National Deformation Model)
+    and patches for significant deformation events since 2000.
+
+The error ellipse and height error are the apriori errors
+
+Rejected stations are flagged #
+
+ Code       Latitude       Adjustment  Error  Brng  Name
+            Longitude       (metres)  Ellipse
+            Height                    Hgt err
+
+#GSCT   42 48 41.191663 S      -         -          Cheviot Hall
+       173 16 26.629504 E      -         -
+              80.9390          -         -
+
+
+
+================================================================================
+                                                            23-OCT-2019 12:50:44
+
+                           REFERENCE FRAME PARAMETERS
+
+================================================================================
+
+The errors listed for calculated parameters are apriori errors
+
+Reference frame: GPS
+
+   Defined as a geocentric reference frame
+   Reference frame translations are not used in this adjustment
+
+   Geocentric definition
+
+      Parameter                             Value            Error    
+      Scale factor (ppm)                  0.0000000       -        
+      X rotation (arc sec)                0.0000000       -        
+      Y rotation (arc sec)                0.0000000       -        
+      Z rotation (arc sec)                0.0000000       -        
+
+
+
+================================================================================
+                                                            23-OCT-2019 12:50:44
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+
+
+================================================================================
+                                                            23-OCT-2019 12:50:44
+
+                                 ERROR SUMMARY
+
+================================================================================

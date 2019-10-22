@@ -1200,7 +1200,7 @@ static void recode_stations()
     {
         lastid=data.from;
         data.from=get_recoded_id( data.from, 0 );
-        if( data.from < 0 ) inst_cancelled=1;
+        if( data.from <= 0 ) inst_cancelled=1;
     }
     for( i=0; i < data.nobs; i++ )
     {
@@ -1208,7 +1208,7 @@ static void recode_stations()
         if( tgt->to > lastid ) lastid=tgt->to;
         if( ! tgt->to ) continue;
         tgt->to=get_recoded_id( tgt->to, 0 );
-        if( tgt->to < 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
+        if( tgt->to <= 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
         {
             ndata_cancelled++;
             tgt->unused |= IGNORE_OBS_BIT;

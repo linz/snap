@@ -1,6 +1,12 @@
+linz-snap (2.7.25-1) xenial; urgency=medium
+
+  * Fix for #91 - core dump when recoding and missing stations
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 23 Oct 2019 12:00:00 +1300
+
 linz-snap (2.7.24-1) xenial; urgency=medium
 
-  * Adding offset and centroid error options for GX/GB data
+  * Fix for #90 - import stations from LINZ GDB no longer working
 
  -- Chris Crook <ccrook@linz.govt.nz>  Fri, 4 Oct 2019 12:00:00 +1300
 

@@ -1,0 +1,6 @@
+title 
+coordinate_file testsr15.crd
+data_file testsr15.dat
+recode GSCA to SYCM 
+mode 3d adjustment
+!ignore_missing_stations
