@@ -3,6 +3,7 @@
 
 #define DFLTCOMMAND_EXT ".cmd"
 #define DFLTCOMMAND_EXT2 ".snp"
+#define DFLTCOMMAND_EXT3 ".snap"
 #define DFLTCONFIG_EXT  ".cfg"
 #define LISTINGFILE_EXT ".lst"
 #define ERRORFILE_EXT   ".err"

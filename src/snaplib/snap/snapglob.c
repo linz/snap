@@ -95,8 +95,15 @@ void set_snap_command_file( char *cmd_file )
     {
         char *cf;
         int nchmax;
-        nchmax = strlen(DFLTCOMMAND_EXT) > strlen(DFLTCOMMAND_EXT2) ?
-                 strlen(DFLTCOMMAND_EXT) : strlen(DFLTCOMMAND_EXT2);
+        nchmax = strlen(DFLTCOMMAND_EXT);
+        if( strlen(DFLTCOMMAND_EXT2) > nchmax )
+        {
+            nchmax=strlen(DFLTCOMMAND_EXT2);
+        }
+        if( strlen(DFLTCOMMAND_EXT3) > nchmax )
+        {
+            nchmax=strlen(DFLTCOMMAND_EXT3);
+        }
         nchmax += strlen(cmd_file) + 1;
         cf = (char *) check_malloc(nchmax);
         strcpy(cf,cmd_file);
@@ -105,6 +112,15 @@ void set_snap_command_file( char *cmd_file )
         {
             strcpy(cf,cmd_file);
             strcat(cf,DFLTCOMMAND_EXT2);
+        }
+        if( ! file_exists(cf))
+        {
+            strcpy(cf,cmd_file);
+            strcat(cf,DFLTCOMMAND_EXT3);            
+        }
+        if( ! file_exists(cf))
+        {
+            strcpy(cf,cmd_file);
         }
         command_file = cf;
     }
