@@ -63,11 +63,11 @@ offset_error <i>h_error</i> <i>v_error</i> m<br />
 
 <p>Examples of reweighting observations are:</p>
 
-<p class="Commandexample">reweight_observations 1.5 data_type=HA/AZ</p>
+<p class="Commandexample">reweight_observations 1.5 @data_type=HA/AZ</p>
 
 <p class="Commandexample">reweight_observations 2.0 before 2000-01-01 using_stations inside NZGD2000 affected_area.wkt</p>
 
-<p class="Commandexample">reweight_observations offset_error 0.01 m data_type=GX</p>
+<p class="Commandexample">reweight_observations offset_error 0.01 m @data_type=GX</p>
 
 <p>Observations can also be <a href="cmd_reject_observations.html">rejected</a> or <a href="cmd_ignore_observations.html">ignored</a> based on selection criteria.  
 Rejected observations are not used to calculate coordinates but do still 

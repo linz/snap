@@ -27,7 +27,7 @@ have residuals calculated, whereas ignored observations are not included in the 
 The selection criteria can include:
 </p>
 
-<p class="Commanddefinition">classification=value</p><p class="Commanddescription">
+<p class="Commanddefinition">@classification=value</p><p class="Commanddescription">
 Specifies observations based on a classification.  The classification can be one of
 &quot;<a href="../data/obs_data_types.html">data_type</a>&quot;, 
 &quot;data_file&quot;, or a <a href="../data/obs_classifications.html">user defined classification</a> such as &quot;EQUIPMENT&quot;.  
@@ -74,11 +74,11 @@ be selected.
 
 <p>Examples of rejecting observations are:</p>
 
-<p class="Commandexample">reject_observations equipment=DI20/TAPE</p>
+<p class="Commandexample">reject_observations @equipment=DI20/TAPE</p>
 
 <p class="Commandexample">reject_observations before 2000-01-01 using_stations inside NZGD2000 affected_area.wkt</p>
 
-<p class="Commandexample">reject_observations ignore_missing data_file=post_eq_levelling.dat</p>
+<p class="Commandexample">reject_observations ignore_missing @data_file=post_eq_*.dat</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>
