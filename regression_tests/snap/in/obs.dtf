@@ -13,6 +13,7 @@ TARGET_STATION @tostn
 TARGET_HEIGHT @tohgt
 DATETIME @date
 DATETIME_FORMAT YMDhms
+ANGLE_FORMAT $ANGLE_FORMAT default "degrees"
 VALUE @value1 " " @value2 " " @value3 DEFAULT @value
 ERROR @error default @error1 " " @error2 " " @error3 " " @corr12 " " @corr13 " " @corr23 
 VECTOR_ERROR_TYPE enu_correlation
