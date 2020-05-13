@@ -1126,7 +1126,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setAngleErrorType(format);
+                obs.setAngleErrorType(unquoteString(format));
             }
             else
             {
@@ -1138,7 +1138,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setZenDistErrorType(format);
+                obs.setZenDistErrorType(unquoteString(format));
             }
             else
             {
@@ -1150,7 +1150,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setHgtDiffErrorType(format);
+                obs.setHgtDiffErrorType(unquoteString(format));
             }
             else
             {
@@ -1170,7 +1170,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setDateTimeFormat(format);
+                obs.setDateTimeFormat(unquoteString(format));
             }
             else
             {

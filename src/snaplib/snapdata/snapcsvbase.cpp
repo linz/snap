@@ -318,16 +318,16 @@ void SnapCsvBase::loadValueDefinition(const std::string &valuestr, CsvValue &val
     cvalue->clear();
     RGX::regex re(
         "\\s*(?:"
-        "(default)|"                           // Start of default (1)
-        "(\\-?\\d+\\.?\\d*)|"                  // A number (2)
-        "\\\"((?:[^\\\"]|\\\"\\\")*)\\\"|"     // Literal string (3)
-        "(?:\\$(\\w+))|"                       // Config item (4)
-        "(?:\\@(\\w+)|([a-z_]\\w*))|"          // Column name (5)(6)
-        "([a-z_]\\w*)\\(\\s*"                  // Start of lookup (7)
-        "(?:\\$(\\w+)|\\@(\\w+)|([a-z_]\\w*))" // Lookup config/column (8)(9)(10)
-        "\\s*\\)|"                             // End of lookup
-        "(\\S+)"                               // Other random string (11)
-        ")(?:\\s|$)",                          // Terminating space or end
+        "(default)|"                       // Start of default (1)
+        "(\\-?\\d+\\.?\\d*)|"              // A number (2)
+        "\\\"((?:[^\\\"]|\\\"\\\")*)\\\"|" // Literal string (3)
+        "(?:\\$(\\w+))|"                   // Config item (4)
+        "(?:\\@(\\w+))|"                   // Column name (5)
+        "([a-z_]\\w*)\\(\\s*"              // Start of lookup (6)
+        "(?:\\$(\\w+)|\\@(\\w+))"          // Lookup config/column (7)(9)
+        "\\s*\\)|"                         // End of lookup
+        "(\\S+)"                           // Other random string (9)
+        ")(?:\\s|$)",                      // Terminating space or end
         RGX::regex_constants::icase);
     RGX::sregex_iterator imatch(valuestr.begin(), valuestr.end(), re);
     RGX::sregex_iterator end;
@@ -360,21 +360,21 @@ void SnapCsvBase::loadValueDefinition(const std::string &valuestr, CsvValue &val
         }
 
         // Column based value.
-        else if (match[5].length() > 0 || match[6].length() > 0)
+        else if (match[5].length() > 0)
         {
-            std::string colname = match[5].str() + match[6].str();
+            std::string colname = match[5].str();
             recordUsedColumn(colname);
             NamedValue col(colname, "");
             cvalue->add(col);
         }
         // Lookup value ..
-        else if (match[7].length() > 0)
+        else if (match[6].length() > 0)
         {
-            std::string lookupname = match[7].str();
+            std::string lookupname = match[6].str();
             LookupMap &map = lookup(lookupname);
-            if (match[8].length() > 0)
+            if (match[7].length() > 0)
             {
-                std::string key = match[8].str();
+                std::string key = match[7].str();
                 const string *kval = map.lookup(_config.valueOf(key));
                 if (!kval)
                 {
@@ -389,21 +389,18 @@ void SnapCsvBase::loadValueDefinition(const std::string &valuestr, CsvValue &val
             {
                 LookupValue *lv = new LookupValue();
                 lv->setMap(map);
-                std::string colname = match[9].str() + match[10].str();
+                std::string colname = match[8].str();
                 recordUsedColumn(colname);
                 lv->setSource(new NamedValue(colname, ""));
                 cvalue->add(lv);
             }
         }
-        // Any other value is treated as literal text (in contrast to previously it
+        // Any other value is treated as literal text (previously it
         // was considered invalid.  Change for forward compatibility of non data value
-        // definitions but allowing configuration.)
-        else if (match[11].length() > 0)
+        // definitions
+        else if (match[9].length() > 0)
         {
-            cvalue->add(match[11]);
-            // string bad(match[11].first, valuestr.end());
-            // definitionError(string("Invalid value for ") + value.name() + ": " + bad);
-            // break;
+            cvalue->add(StringValue(match[9]));
         }
     }
     if (!value.cvalue().hasValue())
@@ -424,16 +421,16 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
     string value("");
     RGX::regex re(
         "\\s*(?:"
-        "(default)|"                           // Start of default (1)
-        "(\\-?\\d+\\.?\\d*)|"                  // A number (2)
-        "\\\"((?:[^\\\"]|\\\"\\\")*)\\\"|"     // Literal string (3)
-        "(?:\\$(\\w+))|"                       // Config item (4)
-        "(?:\\@(\\w+)|([a-z_]\\w*))|"          // Column name (5)(6)
-        "([a-z_]\\w*)\\(\\s*"                  // Start of lookup (7)
-        "(?:\\$(\\w+)|\\@(\\w+)|([a-z_]\\w*))" // Lookup config/column (8)(9)(10)
-        "\\s*\\)|"                             // End of lookup
-        "(\\S+)"                               // Other random string (11)
-        ")(?:\\s|$)",                          // Terminating space or end
+        "(default)|"                       // Start of default (1)
+        "(\\-?\\d+\\.?\\d*)|"              // A number (2)
+        "\\\"((?:[^\\\"]|\\\"\\\")*)\\\"|" // Literal string (3)
+        "(?:\\$(\\w+))|"                   // Config item (4)
+        "(?:\\@(\\w+))|"                   // Column name (5)
+        "([a-z_]\\w*)\\(\\s*"              // Start of lookup (6)
+        "(?:\\$(\\w+)|\\@(\\w+))"          // Lookup config/column (7)(8)
+        "\\s*\\)|"                         // End of lookup
+        "(\\S+)"                           // Other random string (9)
+        ")(?:\\s|$)",                      // Terminating space or end
         RGX::regex_constants::icase);
     RGX::sregex_iterator imatch(valuestr.begin(), valuestr.end(), re);
     RGX::sregex_iterator end;
@@ -464,20 +461,20 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
         }
 
         // Column based value.
-        else if (match[5].length() > 0 || match[6].length() > 0)
+        else if (match[5].length() > 0)
         {
-            string colname = match[5].str() + match[6].str();
+            string colname = match[5].str();
             definitionError(string("Column value ") + colname + " is not valid in definition of " + colname);
             break;
         }
         // Lookup value ..
-        else if (match[7].length() > 0)
+        else if (match[6].length() > 0)
         {
-            std::string lookupname = match[7].str();
+            std::string lookupname = match[6].str();
             LookupMap &map = lookup(lookupname);
-            if (match[8].length() > 0)
+            if (match[7].length() > 0)
             {
-                std::string key = _config.valueOf(match[8].str());
+                std::string key = _config.valueOf(match[7].str());
                 std::string *keyval = map.lookup(key);
                 if (keyval)
                 {
@@ -490,16 +487,14 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
             }
             else
             {
-                string colname = match[9].str() + match[10].str();
+                string colname = match[8].str();
                 definitionError(string("Column value ") + colname + " is not valid in definition of " + name);
             }
         }
-        // Any other value is treated as literal text (in contrast to previously it
-        // was considered invalid.  Change for forward compatibility of non data value
-        // definitions but allowing configuration.)
-        else if (match[11].length() > 0)
+        // Any other value is treated as literal text
+        else if (match[9].length() > 0)
         {
-            nextpart = match[11];
+            nextpart = match[9];
         }
         if (nextpart.length() > 0)
         {
