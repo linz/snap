@@ -29,8 +29,8 @@ using namespace LINZ;
 using namespace DelimitedTextFile;
 using namespace SNAP;
 
-static const char *dms_regex = "^\\s*((?:3[0-5]|[0-2]?\\d?)\\d)\\s+([0-5]?\\d)\\s+([0-5]\\d(?:\\.\\d*)?)\\s*$";
-static const char *hp_regex = "^\\s*((?:3[0-5]|[0-2]?\\d?)\\d)\\.([0-5]\\d)([0-5]\\d)(\\d*)\\s*$";
+static const char *dms_regex = "^\\s*([-nsNSewEW]?)\\s*((?:3[0-5]|[0-2]?\\d?)\\d)\\s+([0-5]?\\d)\\s+([0-5]?\\d)(?:\\.(\\d*))?)\\s*([nsNSewEW]?)\\s*$";
+static const char *hp_regex = "^\\s*(\\-?)((?:3[0-5]|[0-2]?\\d?)\\d)\\.([0-5]\\d)([0-5]\\d)(\\d*)()\\s*$";
 
 /////////////////////////////////////////////////////////////////
 // CsvClassification
@@ -267,7 +267,7 @@ void SnapCsvObs::CsvObservation::dataError(const std::string &message)
     runtimeError(message);
 }
 
-double SnapCsvObs::CsvObservation::parseDmsAngle(const string &value)
+double SnapCsvObs::CsvObservation::parseDmsAngle(const string &value, const string &sign)
 {
     double angle = 0.0;
     RGX::smatch match;
@@ -277,19 +277,32 @@ double SnapCsvObs::CsvObservation::parseDmsAngle(const string &value)
     }
     else
     {
-        int deg = atoi(match[1].str().c_str());
-        int min = atoi(match[2].str().c_str());
-        double sec;
-        if (_angleformat == AF_HPFORMAT)
-        {
-            sec = atof((match[3].str() + "." + match[4].str()).c_str());
-        }
-        else
-        {
-            sec = atof(match[3].str().c_str());
-            /* code */
-        }
+        int deg = atoi(match[2].str().c_str());
+        int min = atoi(match[3].str().c_str());
+        double sec = atof((match[4].str() + "." + match[5].str()).c_str());
         angle = deg + min / 60.0 + sec / 3600.0;
+        string hem = match[1].str() + match[6].str();
+        if (hem.length() > 0)
+        {
+            bool ok = false;
+            if (sign.length() == 2 && hem.length() == 1)
+            {
+                ok = true;
+                boost::to_upper(hem);
+                if (hem[0] == '-' || hem[0] == sign[1])
+                {
+                    angle = -angle;
+                }
+                else if (hem[0] != sign[0])
+                {
+                    ok = false;
+                }
+            }
+            if (!ok)
+            {
+                dataError(string("Badly formatted angle: " + value));
+            }
+        }
     }
     return angle;
 }
@@ -378,7 +391,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
         if (type->isangle && _angleformat != AF_DEGREES)
         {
-            value[0] = parseDmsAngle(_value.value());
+            string sign;
+            if (type->id == LT)
+                sign = "NS";
+            if (type->id == LN)
+                sign = "EW";
+            value[0] = parseDmsAngle(_value.value(), sign);
         }
         else
         {

@@ -7,160 +7,160 @@
 #include "util/snapregex.hpp"
 namespace LINZ
 {
-namespace SNAP
-{
-
-using namespace LINZ;
-using namespace DelimitedTextFile;
-class SnapCsvObs : public SnapCsvBase
-{
-    class CsvClassification : public CsvValue
+    namespace SNAP
     {
-    public:
-        CsvClassification(const std::string &name);
-        int classId() { return _classId; }
-        int classValue();
 
-    private:
-        int _classId;
-    };
-
-    class CsvClassColumn
-    {
-    public:
-        CsvClassColumn(const std::string &classname, const Column *column);
-        int classId() { return _classId; }
-        const std::string &value() { return _column->value(); }
-
-    private:
-        int _classId;
-        const Column *_column;
-    };
-
-    enum AngleFormat
-    {
-        AF_DEGREES,
-        AF_DMS,
-        AF_HPFORMAT
-    };
-
-    //CsvObs
-    class CsvObservation
-    {
-    public:
-        CsvObservation(SnapCsvObs *owner);
-        CsvValue &type() { return _type; }
-        CsvValue &fromStn() { return _fromstn; }
-        CsvValue &toStn() { return _tostn; }
-        CsvValue &fromHgt() { return _fromhgt; }
-        CsvValue &toHgt() { return _tohgt; }
-        CsvValue &value() { return _value; }
-        CsvValue &error() { return _error; }
-        CsvValue &time() { return _time; }
-        CsvValue &errorFactor() { return _errorfactor; }
-        CsvValue &obsId() { return _obsid; }
-        CsvValue &projection() { return _projection; }
-        CsvValue &note() { return _note; }
-        CsvValue &setId() { return _setid; }
-        CsvValue &rejected() { return _rejected; }
-        bool setVectorErrorType(const string &format);
-        bool setDistanceErrorType(const string &format);
-        bool setAngleFormat(const string &format);
-        bool setAngleErrorType(const string &format);
-        bool setZenDistErrorType(const string &format);
-        bool setHgtDiffErrorType(const string &format);
-        bool setDateTimeFormat(const string &format);
-        bool setIgnoreMissingObs()
+        using namespace LINZ;
+        using namespace DelimitedTextFile;
+        class SnapCsvObs : public SnapCsvBase
         {
-            _ignoremissingobs = true;
-            return true;
-        }
-        CsvClassification *classification(const string &classname);
-        CsvClassification *addClassification(const string &classname);
-        void addColumnClassification(const std::string &colname);
+            class CsvClassification : public CsvValue
+            {
+            public:
+                CsvClassification(const std::string &name);
+                int classId() { return _classId; }
+                int classValue();
 
-        void attach(CalcReader *reader);
+            private:
+                int _classId;
+            };
 
-        string missing();
-        bool loadObservation();
+            class CsvClassColumn
+            {
+            public:
+                CsvClassColumn(const std::string &classname, const Column *column);
+                int classId() { return _classId; }
+                const std::string &value() { return _column->value(); }
 
-    private:
-        datatypedef *getDataType();
-        void findClassColumns(CalcReader *reader, const std::string &colName);
-        void definitionError(const string &message);
-        void runtimeError(const string &message);
-        void dataError(const string &message);
-        double parseDmsAngle(const string &value);
-        bool calcVecError(double value[3], double error[6]);
-        CsvValue _type;
-        CsvValue _fromstn;
-        CsvValue _fromhgt;
-        CsvValue _tostn;
-        CsvValue _tohgt;
-        CsvValue _value;
-        CsvValue _error;
-        CsvValue _time;
-        CsvValue _errorfactor;
-        CsvValue _obsid;
-        CsvValue _projection;
-        CsvValue _note;
-        CsvValue _setid;
-        CsvValue _rejected;
-        long _stnidfrom;
-        long _stnidto;
-        std::vector<CsvValue *> _parts;
-        std::vector<std::unique_ptr<CsvClassification>> _classifications;
-        RGX::regex _anglere;
+            private:
+                int _classId;
+                const Column *_column;
+            };
 
-        // Columns used for classifications
-        std::vector<std::string> _classColNames;
-        std::vector<CsvClassColumn> _classCols;
+            enum AngleFormat
+            {
+                AF_DEGREES,
+                AF_DMS,
+                AF_HPFORMAT
+            };
 
-        bool _ignoremissingobs;
-        bool _disterrorcalced;
-        bool _angleerrorcalced;
-        bool _zderrorcalced;
-        bool _hderrorcalced;
-        int _angleformat;
-        int _vecerrorformat;
-        int _nvecerror;
-        SnapCsvObs *_owner;
-        std::string _dateformat;
-    };
+            //CsvObs
+            class CsvObservation
+            {
+            public:
+                CsvObservation(SnapCsvObs *owner);
+                CsvValue &type() { return _type; }
+                CsvValue &fromStn() { return _fromstn; }
+                CsvValue &toStn() { return _tostn; }
+                CsvValue &fromHgt() { return _fromhgt; }
+                CsvValue &toHgt() { return _tohgt; }
+                CsvValue &value() { return _value; }
+                CsvValue &error() { return _error; }
+                CsvValue &time() { return _time; }
+                CsvValue &errorFactor() { return _errorfactor; }
+                CsvValue &obsId() { return _obsid; }
+                CsvValue &projection() { return _projection; }
+                CsvValue &note() { return _note; }
+                CsvValue &setId() { return _setid; }
+                CsvValue &rejected() { return _rejected; }
+                bool setVectorErrorType(const string &format);
+                bool setDistanceErrorType(const string &format);
+                bool setAngleFormat(const string &format);
+                bool setAngleErrorType(const string &format);
+                bool setZenDistErrorType(const string &format);
+                bool setHgtDiffErrorType(const string &format);
+                bool setDateTimeFormat(const string &format);
+                bool setIgnoreMissingObs()
+                {
+                    _ignoremissingobs = true;
+                    return true;
+                }
+                CsvClassification *classification(const string &classname);
+                CsvClassification *addClassification(const string &classname);
+                void addColumnClassification(const std::string &colname);
 
-    friend class CsvObservation;
+                void attach(CalcReader *reader);
 
-public:
-    SnapCsvObs(const std::string &name, const OptionString &config = OptionString(""));
-    virtual ~SnapCsvObs();
+                string missing();
+                bool loadObservation();
 
-protected:
-    virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs);
-    virtual void readerAttached();
-    virtual void initiallizeLoadData();
-    virtual void loadRecord();
-    virtual void terminateLoadData();
+            private:
+                datatypedef *getDataType();
+                void findClassColumns(CalcReader *reader, const std::string &colName);
+                void definitionError(const string &message);
+                void runtimeError(const string &message);
+                void dataError(const string &message);
+                double parseDmsAngle(const string &value, const string &sign);
+                bool calcVecError(double value[3], double error[6]);
+                CsvValue _type;
+                CsvValue _fromstn;
+                CsvValue _fromhgt;
+                CsvValue _tostn;
+                CsvValue _tohgt;
+                CsvValue _value;
+                CsvValue _error;
+                CsvValue _time;
+                CsvValue _errorfactor;
+                CsvValue _obsid;
+                CsvValue _projection;
+                CsvValue _note;
+                CsvValue _setid;
+                CsvValue _rejected;
+                long _stnidfrom;
+                long _stnidto;
+                std::vector<CsvValue *> _parts;
+                std::vector<std::unique_ptr<CsvClassification>> _classifications;
+                RGX::regex _anglere;
 
-private:
-    void loadObservationDefinition(RecordStream &rs, CsvObservation &obs);
-    void loadCoefDefinition(RecordStream &rs, CsvObservation &obs, int coef);
+                // Columns used for classifications
+                std::vector<std::string> _classColNames;
+                std::vector<CsvClassColumn> _classCols;
 
-    // Information relating to observations sets
+                bool _ignoremissingobs;
+                bool _disterrorcalced;
+                bool _angleerrorcalced;
+                bool _zderrorcalced;
+                bool _hderrorcalced;
+                int _angleformat;
+                int _vecerrorformat;
+                int _nvecerror;
+                SnapCsvObs *_owner;
+                std::string _dateformat;
+            };
 
-    bool InSet() { return _inset; }
-    bool ContinueSet(const std::string &setid, const std::string &fromcode);
-    void EndSet();
+            friend class CsvObservation;
 
-    // Observations
-    std::vector<std::unique_ptr<CsvObservation>> _observations;
+        public:
+            SnapCsvObs(const std::string &name, const OptionString &config = OptionString(""));
+            virtual ~SnapCsvObs();
 
-    // Set information
-    bool _inset;
-    std::string _setId;
-    std::string _setFromCode;
-};
+        protected:
+            virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs);
+            virtual void readerAttached();
+            virtual void initiallizeLoadData();
+            virtual void loadRecord();
+            virtual void terminateLoadData();
 
-} // End of namespace SNAP
+        private:
+            void loadObservationDefinition(RecordStream &rs, CsvObservation &obs);
+            void loadCoefDefinition(RecordStream &rs, CsvObservation &obs, int coef);
+
+            // Information relating to observations sets
+
+            bool InSet() { return _inset; }
+            bool ContinueSet(const std::string &setid, const std::string &fromcode);
+            void EndSet();
+
+            // Observations
+            std::vector<std::unique_ptr<CsvObservation>> _observations;
+
+            // Set information
+            bool _inset;
+            std::string _setId;
+            std::string _setFromCode;
+        };
+
+    } // End of namespace SNAP
 } // End of namespace LINZ
 
 #endif
