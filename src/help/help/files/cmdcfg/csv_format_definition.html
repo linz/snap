@@ -1,356 +1,473 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
-<meta name="keywords" content="station coordinate file, format, data file, observation file">
-<title>CSV format definition files</title>
-<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
+	<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+	<meta name="keywords" content="station coordinate file, format, data file, observation file">
+	<title>CSV format definition files</title>
+	<link rel="stylesheet" type="text/css" href="../../snaphelp.css">
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 
 
 
-<h1><a name="csv_format_definition"></a>CSV format definition files</h1>
+	<h1><a name="csv_format_definition"></a>CSV format definition files</h1>
 
-<p>CSV format definition files define the organisation of information in delimited text files used
-to define <a href="../crd/csv_stn_files.html">station coordinates</a> and <a href="../data/csv_obs_files.html">observations</a> used by SNAP.
-</p>
-<p>Although they are termed CSV (comma separated value) files, in fact the format is generic, in that other separators can be used.  SNAP accepts two basic delimited text files formats:</p>
-<ul>
-	<li>whitespace delimited: fields are simply separated by one or more space or tab characters.  No data field can contain a whitespace character, and each line forms a single record</li>
-	<li>character delimited: fields are defined by a delimiter character, a quote character, and an escape character.  Fields starting with a quote continue until a closing quote, and may include new lines.  Otherwise the field ends at the next delimiter character.  If the escape character is the same as the quote character, then within quoted fields a pair of quote characters represents a single quote in the field, and does not terminate the field.  If the escape character is different to the quote character, then any character immediately after it is treated as a non-special character, even if it is a quote, delimiter, escape or new line character.
-</ul>
-<p>Usually the first line of the data file contains the names of each data field (column) in the file.  
-However this is not necessary, the format definition can specify the column names.  
-If neither define the names then the fields are named &quot;col1&quot;, &quot;col2&quot;, ... 
-</p>
-<p>
-SNAP &quot;normalises&quot; the names of the columns in the data file by replacing any characters that are not letters, numbers with an underscore character. Consecutive non alphanumeric characters are replaced with a single underscore. SNAP also ignores the case of characters.  So the column names &quot;FROM&quot;, &quot;  From  &quot;, and &quot;from&quot; are all equivalent, as are &quot;!!!! from*&quot; and &quot;_from_&quot;.
-</p>
-<p>The CSV format definition file specifies the structure of the CSV file - the delimiters, column names and so on, and also the organisation of station or coordinate information in the file - that is which fields represent station codes, coordinates, and so on, and what values to use where this information is not defined in the data file.
-</p>
+	<p>CSV format definition files define the organisation of information in delimited text files used
+		to define <a href="../crd/csv_stn_files.html">station coordinates</a> and <a
+			href="../data/csv_obs_files.html">observations</a> used by SNAP.
+	</p>
+	<p>Although they are termed CSV (comma separated value) files, in fact the format is generic, in that other
+		separators can be used. SNAP accepts two basic delimited text files formats:</p>
+	<ul>
+		<li>whitespace delimited: fields are simply separated by one or more space or tab characters. No data field can
+			contain a whitespace character, and each line forms a single record</li>
+		<li>character delimited: fields are defined by a delimiter character, a quote character, and an escape
+			character. Fields starting with a quote continue until a closing quote, and may include new lines. Otherwise
+			the field ends at the next delimiter character. If the escape character is the same as the quote character,
+			then within quoted fields a pair of quote characters represents a single quote in the field, and does not
+			terminate the field. If the escape character is different to the quote character, then any character
+			immediately after it is treated as a non-special character, even if it is a quote, delimiter, escape or new
+			line character.
+	</ul>
+	<p>Usually the first line of the data file contains the names of each data field (column) in the file.
+		However this is not necessary, the format definition can specify the column names.
+		If neither define the names then the fields are named &quot;col1&quot;, &quot;col2&quot;, ...
+	</p>
+	<p>
+		SNAP &quot;normalises&quot; the names of the columns in the data file by replacing any characters that are not
+		letters, numbers with an underscore character. Consecutive non alphanumeric characters are replaced with a
+		single underscore. SNAP also ignores the case of characters. So the column names &quot;FROM&quot;, &quot; From
+		&quot;, and &quot;from&quot; are all equivalent, as are &quot;!!!! from*&quot; and &quot;_from_&quot;.
+	</p>
+	<p>The CSV format definition file specifies the structure of the CSV file - the delimiters, column names and so on,
+		and also the organisation of station or coordinate information in the file - that is which fields represent
+		station codes, coordinates, and so on, and what values to use where this information is not defined in the data
+		file.
+	</p>
 
-<p>The format definition file is itself formatted as a series of definition commands, one per line.  Blank lines, and lines in which the first non-blank character is &quot;!&quot; are ignored.  The first word on the line is a command, and this is followed by text definition the corresponding value.  For example the &quot;FORMAT&quot; command could be entered as:
-</p>
-<p class="Commanddefinition">FORMAT DELMITER=| HEADER=Y</p>
+	<p>The format definition file is itself formatted as a series of definition commands, one per line. Blank lines, and
+		lines in which the first non-blank character is &quot;!&quot; are ignored. The first word on the line is a
+		command, and this is followed by text definition the corresponding value. For example the &quot;FORMAT&quot;
+		command could be entered as:
+	</p>
+	<p class="Commanddefinition">FORMAT DELMITER=| HEADER=Y</p>
 
-<p>The commands are case insensitive, as are references to column names in the CSV file</p>
+	<p>The commands are case insensitive, as are references to column names in the CSV file</p>
 
-<p>There are three categories of commands - <a href="#generic">generic commands</a> that are not 
-specific to stations or observations, <a href="#station">station</a> commands, which only apply 
-to station file format definitions, and <a href="#observation">observation</a> commands, which only apply to observation file format definitions.  
-</p>
-<p>Most of the station and observation commands specify how values for components of the station or observation definition are derived from the columns in the data file.  Usually this will be simply the name of the column containing the information, but it may be a more complex value concatenating several columns, or using constant values or options specified in the SNAP <a href="cmd_coordinate_file.html">coordinate_file</a> or <a href="cmd_data_file.html">data_file</a> commands.  The specification of these values is described <a href="#values">below</a>.</p>
+	<p>There are three categories of commands - <a href="#generic">generic commands</a> that are not
+		specific to stations or observations, <a href="#station">station</a> commands, which only apply
+		to station file format definitions, and <a href="#observation">observation</a> commands, which only apply to
+		observation file format definitions.
+	</p>
+	<p>Most of the station and observation commands specify how values for components of the station or observation
+		definition are derived from the columns in the data file. Usually this will be simply the name of the column
+		containing the information, but it may be a more complex value concatenating several columns, or using constant
+		values or options specified in the SNAP <a href="cmd_coordinate_file.html">coordinate_file</a> or <a
+			href="cmd_data_file.html">data_file</a> commands. The specification of these values is described <a
+			href="#values">below</a>.</p>
 
-<p>It may be useful to look at the example <a href="../crd/csv_stn_files.html">station</a> and 
-<a href="../data/csv_obs_files.html">observation</a> format definition files.</p>
+	<p>It may be useful to look at the example <a href="../crd/csv_stn_files.html">station</a> and
+		<a href="../data/csv_obs_files.html">observation</a> format definition files.</p>
 
-<h2><a name="generic"></a>Generic commands</h2>
+	<h2><a name="generic"></a>Generic commands</h2>
 
 	<p class="Commanddefinition">
-	FORMAT_NAME <i>description</i>
+		FORMAT_NAME <i>description</i>
 	</p>
 	<p class="Commanddescription">
-	A brief descriptive name for the format
-	</p>
-
-	<p class="Commanddefinition">
-	FORMAT CSV [HEADER=Y|N]<br />
-	FORMAT WHITESPACE [HEADER=Y|N]<br />
-	FORMAT DELIMITER=<i>d</i> QUOTE=<i>q</i> ESCAPE=<i>e</i> [HEADER=Y|N]
-	</p>
-	<p class="Commanddescription">
-	Defines how the file is delimited, either by whitespace, or by a delimiter, quote,
-	and escape character.  The default for the delimiter is a comma.  The defaults for 
-	the quote and escape character are nothing.  Use "tab" to represent the tab character, 
-	and "space" to represent a blank.  The CSV format is equivalent to
-	<code>DELIMITER=, QUOTE=&quot; ESCAPE=&quot;</code>.  If HEADER=Y (or the HEADER option
-	is not specified) then column names
-	are read from the first line in the data file, otherwise the default column names are
-	&quot;col1&quot;, &quot;col2&quot;, and so on...
-	</p>
-
-	<p class="Commanddefinition">
-	COLUMNS <i>name1 name2 name3 ... </i>
-	</p>
-	<p class="Commanddescription">
-	Specifies names for the columns in the data file.  These names will override
-	names read from the data file if HEADER=Y.
-	</p>
-
-	<p class="Commanddefinition">
-	REQUIRED_COLUMNS <i>name1 name2 name3 ... </i>
-	</p>
-	<p class="Commanddescription">
-	Specifies names of columns that must be in the data file for it to be loaded.  If
-	this is not specified then every column name used to define values in the format
-	definition is assumed to be required.
-	</p>
-
-
-	<p class="Commanddefinition">
-	REQUIRED_CONFIGURATION <i>name1 name2 name3 ... </i>
-	</p>
-	<p class="Commanddescription">
-	Specifies configuration items required in the SNAP <a href="cmd_coordinate_file.html">coordinate_file</a> or <a href="cmd_data_file.html">data_file</a> command.
+		A brief descriptive name for the format
 	</p>
 
 	<p class="Commanddefinition">
-	SKIP_LINES <i>nlines</i>
+		FORMAT CSV [HEADER=Y|N]<br />
+		FORMAT WHITESPACE [HEADER=Y|N]<br />
+		FORMAT DELIMITER=<i>d</i> QUOTE=<i>q</i> ESCAPE=<i>e</i> [HEADER=Y|N]
 	</p>
 	<p class="Commanddescription">
-	Specifies a number of lines that will be ignored at the head of the data file before
-	the header line or data lines are read.
-	</p>
-
-	<a name="lookup"></a><p class="Commanddefinition">
-	LOOKUP <i>lookup_name</i><br />
-	<i>name value</i><br />
-	<i>name value</i><br />
-	<i>name value</i><br />
-	<i>...</i><br />
-	default <i>value</i><br />
-	END_LOOKUP
-	</p>
-	<p class="Commanddescription">
-	Defines a lookup table that may be used to translate values read from the data file.
-	Each lookup table has a <i>lookup_name</i>.  This is used in the specification 
-	of <a href="#values">data values</a>.
-	</p>
-
-
-
-<h2><a name="station"></a>Station commands</h2>
-
-
-	<p class="Commanddefinition">
-	COORDINATE_SYSTEM <i>value</i><br />
-	CODE <i>value</i><br />
-	NAME <i>value</i><br />
-	(LONGITUDE|EASTING|X) <i>value</i><br />
-	(LATITUDE|NORTHING|Y) <i>value</i><br />
-	(HEIGHT|Z) <i>value</i><br />
-	GEOID_UNDULATION <i>value</i><br />
-	DEFLECTION_EAST <i>value</i><br />
-	DEFLECTION_NORTH <i>value</i><br />
-	HEIGHT_TYPE <i>value</i>
-	</p>
-	<p class="Commanddescription">
-	The values used to define the station.  
-	The COORDINATE_SYSTEM value should match one of the codes defined 
-	in the 
-	<a href="../../coordsys/index.html">coordinate system definition file</a>.
-	It must be the same for every mark in the data file.
-	The ordinates 
-	LONGITUDE and EASTING are equivalent, as are LATITUDE and NORTHING.
-	Either can be used.  The HEIGHT_TYPE must be one of &quot;ellipsoidal&quot;
-	or &quot;orthometric&quot;.  The default is &quot;orthometric&quot;.
-	The <i>value</i>s are calculated as describe <a href="#value">below</a>.
+		Defines how the file is delimited, either by whitespace, or by a delimiter, quote,
+		and escape character. The default for the delimiter is a comma. The defaults for
+		the quote and escape character are nothing. Use "tab" to represent the tab character,
+		and "space" to represent a blank. The CSV format is equivalent to
+		<code>DELIMITER=, QUOTE=&quot; ESCAPE=&quot;</code>. If HEADER=Y (or the HEADER option
+		is not specified) then column names
+		are read from the first line in the data file, otherwise the default column names are
+		&quot;col1&quot;, &quot;col2&quot;, and so on...
 	</p>
 
 	<p class="Commanddefinition">
-	CLASSIFICATION <i>name value</i>
+		COLUMNS <i>name1 name2 name3 ... </i>
 	</p>
 	<p class="Commanddescription">
-	Specifies a classification that will be assigned to the station.
-	The <i>value</i> is calculated as describe <a href="#value">below</a>.
+		Specifies names for the columns in the data file. These names will override
+		names read from the data file if HEADER=Y.
 	</p>
 
 	<p class="Commanddefinition">
-	CLASSIFICATION_COLUMNS <i>col1 col2 ...</i>
+		REQUIRED_COLUMNS <i>name1 name2 name3 ... </i>
 	</p>
 	<p class="Commanddescription">
-	Specifies columns that will be used as classifications for each station.
-	Each column becomes a classification with the same name as the 
-	column.  This command supports simple wild cards - <i>prefix</i>*
-	will match any column with a name starting <i>prefix</i>, 
-	and <i>prefix</i>** will match the same columns, but not include
-	the prefix as part of the name of the classification.
+		Specifies names of columns that must be in the data file for it to be loaded. If
+		this is not specified then every column name used to define values in the format
+		definition is assumed to be required.
 	</p>
 
-<h2><a name="observation"></a>Observation commands</h2>
 
-<p>Each record can contain one or more observation.  Each observation is
-defined as:</p>
 	<p class="Commanddefinition">
-	OBSERVATION<br />
-	<i>observation commands</i><br />
-	<i>observation commands</i><br />
-	<i>...</i><br />
-	END_OBSERVATION
+		REQUIRED_CONFIGURATION <i>name1 name2 name3 ... </i>
+	</p>
+	<p class="Commanddescription">
+		Specifies configuration items required in the SNAP <a href="cmd_coordinate_file.html">coordinate_file</a> or <a
+			href="cmd_data_file.html">data_file</a> command.
+	</p>
+
+	<p class="Commanddefinition">
+		SKIP_LINES <i>nlines</i>
+	</p>
+	<p class="Commanddescription">
+		Specifies a number of lines that will be ignored at the head of the data file before
+		the header line or data lines are read.
+	</p>
+
+	<a name="lookup"></a>
+	<p class="Commanddefinition">
+		LOOKUP <i>lookup_name</i><br />
+		<i>name value</i><br />
+		<i>name value</i><br />
+		<i>name value</i><br />
+		<i>...</i><br />
+		default <i>value</i><br />
+		END_LOOKUP
+	</p>
+	<p class="Commanddescription">
+		Defines a lookup table that may be used to translate values read from the data file.
+		Each lookup table has a <i>lookup_name</i>. This is used in the specification
+		of <a href="#values">data values</a>.
+	</p>
+
+
+
+	<h2><a name="station"></a>Station commands</h2>
+
+
+	<p class="Commanddefinition">
+		COORDINATE_SYSTEM <i>value</i><br />
+		CODE <i>value</i><br />
+		NAME <i>value</i><br />
+		(LONGITUDE|EASTING|X) <i>value</i><br />
+		(LATITUDE|NORTHING|Y) <i>value</i><br />
+		(HEIGHT|Z) <i>value</i><br />
+		GEOID_UNDULATION <i>value</i><br />
+		DEFLECTION_EAST <i>value</i><br />
+		DEFLECTION_NORTH <i>value</i><br />
+		HEIGHT_TYPE <i>value</i>
+	</p>
+	<p class="Commanddescription">
+		The values used to define the station.
+		The COORDINATE_SYSTEM value should match one of the codes defined
+		in the
+		<a href="../../coordsys/index.html">coordinate system definition file</a>.
+		It must be the same for every mark in the data file.
+		The ordinates
+		LONGITUDE and EASTING are equivalent, as are LATITUDE and NORTHING.
+		Either can be used. The HEIGHT_TYPE must be one of &quot;ellipsoidal&quot;
+		or &quot;orthometric&quot;. The default is &quot;orthometric&quot;.
+		The <i>value</i>s are calculated as describe <a href="#value">below</a>.
+	</p>
+
+	<p class="Commanddefinition">
+		CLASSIFICATION <i>name value</i>
+	</p>
+	<p class="Commanddescription">
+		Specifies a classification that will be assigned to the station.
+		The <i>value</i> is calculated as describe <a href="#value">below</a>.
+	</p>
+
+	<p class="Commanddefinition">
+		CLASSIFICATION_COLUMNS <i>col1 col2 ...</i>
+	</p>
+	<p class="Commanddescription">
+		Specifies columns that will be used as classifications for each station.
+		Each column becomes a classification with the same name as the
+		column. This command supports simple wild cards - <i>prefix</i>*
+		will match any column with a name starting <i>prefix</i>,
+		and <i>prefix</i>** will match the same columns, but not include
+		the prefix as part of the name of the classification.
+	</p>
+
+	<h2><a name="observation"></a>Observation commands</h2>
+
+	<p>Each record can contain one or more observation. Each observation is
+		defined as:</p>
+	<p class="Commanddefinition">
+		OBSERVATION<br />
+		<i>observation commands</i><br />
+		<i>observation commands</i><br />
+		<i>...</i><br />
+		END_OBSERVATION
 	</p>
 
 	<p>The observation commands within each observation block are:</p>
 
 	<p class="Commanddefinition">
-        TYPE <i>value</i><br />
-        SET_ID <i>value</i><br />
-        INSTRUMENT_STATION <i>value</i><br />
-        INSTRUMENT_HEIGHT <i>value</i><br />
-        TARGET_STATION <i>value</i><br />
-        TARGET_HEIGHT <i>value</i><br />
-        VALUE <i>value</i><br />
-        ERROR <i>value</i><br />
-        ERROR_FACTOR <i>value</i><br />
-        DATETIME <i>value</i><br />
-        PROJECTION <i>value</i><br />
-        ID <i>value</i><br />
-        NOTE <i>value</i><br />
-        REJECTED <i>value</i><br />
+		TYPE <i>value</i><br />
+		SET_ID <i>value</i><br />
+		INSTRUMENT_STATION <i>value</i><br />
+		INSTRUMENT_HEIGHT <i>value</i><br />
+		TARGET_STATION <i>value</i><br />
+		TARGET_HEIGHT <i>value</i><br />
+		VALUE <i>value</i><br />
+		ERROR <i>value</i><br />
+		ERROR_FACTOR <i>value</i><br />
+		DATETIME <i>value</i><br />
+		PROJECTION <i>value</i><br />
+		ID <i>value</i><br />
+		NOTE <i>value</i><br />
+		REJECTED <i>value</i><br />
 	</p>
 	<p class="Commanddescription">
-	Specifies the attributes of the observation. 
+		Specifies the attributes of the observation.
 	</p>
 	<p class="Commanddescription">
-	The TYPE value should be one of the <a href="../data/obs_data_types.html">SNAP observation data types</a>.
+		The TYPE value should be one of the <a href="../data/obs_data_types.html">SNAP observation data types</a>.
 	</p>
 	<p class="Commanddescription">
-	The SET_ID is used to group observations into sets (eg rounds of horizontal angles).  Consecutive observations with the same non-blank set id and the same instrument station form a set of observations.
+		The SET_ID is used to group observations into sets (eg rounds of horizontal angles). Consecutive observations
+		with the same non-blank set id and the same instrument station form a set of observations.
 	</p>
 	<p class="Commanddescription">
-	The observation is rejected in SNAP if the REJECTED value is &quot;Y&quot;.
+		The observation is rejected in SNAP if the REJECTED value is &quot;Y&quot;.
 	</p>
 	<p class="Commanddescription">
-	The observation VALUE and ERROR are in metres for distances and degrees for angles (except for &quot;calculated&quot; distance and vector errors - see comments below).  For vector observations the VALUE and ERROR should include all components of the observation separated by whitespace (Note that the <i>value</i> may be compiled from several columns in the data file - see <a href="#value">below</a>).  
+		The observation VALUE and ERROR are in metres for distances and degrees for angles (except for
+		&quot;calculated&quot; distance and vector errors - see comments below). For vector observations the VALUE and
+		ERROR should include all components of the observation separated by whitespace (Note that the <i>value</i> may
+		be compiled from several columns in the data file - see <a href="#value">below</a>).
 	</p>
 	<p class="Commanddescription">
-	The ERROR_FACTOR is a factor by which the errors of the observation are
-	multiplied. The default is 1.
+		The ERROR_FACTOR is a factor by which the errors of the observation are
+		multiplied. The default is 1.
 	</p>
 	<p class="Commanddescription">
-	The format of DATETIME value is described in below under the DATETIME_FORMAT command. 
+		The format of DATETIME value is described in below under the DATETIME_FORMAT command.
 	</p>
 	<p class="Commanddescription">
-	The ID is an integer id associated with the observation.  It is not used
-	by SNAP.
+		The ID is an integer id associated with the observation. It is not used
+		by SNAP.
 	</p>
 
 	<p class="Commanddefinition">
-        REFERENCE_FRAME <i>value</i><br />
-        REFRACTION_COEFFICIENT <i>value</i><br />
-        BEARING_ORIENTATION_ERROR <i>value</i><br />
-        DISTANCE_SCALE_FACTOR <i>value</i><br />
+		REFERENCE_FRAME <i>value</i><br />
+		REFRACTION_COEFFICIENT <i>value</i><br />
+		BEARING_ORIENTATION_ERROR <i>value</i><br />
+		DISTANCE_SCALE_FACTOR <i>value</i><br />
 	</p>
 	<p class="Commanddescription">
-	These fields are the equivalent of classifications named &quot;ref_frame_code&quot;, &quot;refraction_coef_code&quot;, &quot;bearing_error_code&quot;, and &quot;distance_scale_code&quot; respectively.  
+		These fields are the equivalent of classifications named &quot;ref_frame_code&quot;,
+		&quot;refraction_coef_code&quot;, &quot;bearing_error_code&quot;, and &quot;distance_scale_code&quot;
+		respectively.
 	</p>
 	<p class="Commanddefinition">
-	CLASSIFICATION <i>name value</i>
+		CLASSIFICATION <i>name value</i>
 	</p>
 	<p class="Commanddescription">
-	Specifies a <a href="../data/obs_classifications.html">classification</a> that will be assigned to the observation.
-	The <i>value</i> is calculated as describe <a href="#value">below</a>.
+		Specifies a <a href="../data/obs_classifications.html">classification</a> that will be assigned to the
+		observation.
+		The <i>value</i> is calculated as describe <a href="#value">below</a>.
 	</p>
 
 	<p class="Commanddefinition">
-	CLASSIFICATION_COLUMNS <i>col1 col2 ...</i>
+		CLASSIFICATION_COLUMNS <i>col1 col2 ...</i>
 	</p>
 	<p class="Commanddescription">
-	Specifies columns that will be used as <a href="../data/obs_classifications.html">classifications</a> for the observation.
-	Each column becomes a classification with the same name as the 
-	column.  This command supports simple wild cards - <i>prefix</i>*
-	will match any column with a name starting <i>prefix</i>, 
-	and <i>prefix</i>** will match the same columns, but not include
-	the prefix as part of the name of the classification.
+		Specifies columns that will be used as <a href="../data/obs_classifications.html">classifications</a> for the
+		observation.
+		Each column becomes a classification with the same name as the
+		column. This command supports simple wild cards - <i>prefix</i>*
+		will match any column with a name starting <i>prefix</i>,
+		and <i>prefix</i>** will match the same columns, but not include
+		the prefix as part of the name of the classification. Note this command specifies the
+		column names, not the column values, so the column names are not preceded by @.
 	</p>
 
 	<p class="Commanddefinition">
-	VECTOR_ERROR_TYPE <i>error_type</i>
+		VECTOR_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
-	Defines the structure of error information for vector data.  
-	Here <i>error_type</i> can be one of:
+		Defines the structure of error information for vector data.
+		Here <i>error_type</i> can be one of:
 	</p>
 	<table class="Commanddescription">
-		<tr><td>enu</td><td><i>Se Sn Su</i></td></tr>
-		<tr><td>enu_correlation</td><td><i>Se Sn Su Ren Reu Rnu</i></td></tr>
-		<tr><td>diagonal</td><td><i>Sx Sy Sz</i></td></tr>
-		<tr><td>correlation</td><td><i>Sx Sy Sz Rxy Rxz Ryz</i></td></tr>
-		<tr><td>full</td><td><i>Cxx Cxy Cyy Cxz Cyz Czz</i></td></tr>
-		<tr><td>calculated</td><td><i>SCe SCn SCu</i> mm <i>SPe SPn SPu</i> ppm</td></tr>
+		<tr>
+			<td>enu</td>
+			<td><i>Se Sn Su</i></td>
+		</tr>
+		<tr>
+			<td>enu_correlation</td>
+			<td><i>Se Sn Su Ren Reu Rnu</i></td>
+		</tr>
+		<tr>
+			<td>diagonal</td>
+			<td><i>Sx Sy Sz</i></td>
+		</tr>
+		<tr>
+			<td>correlation</td>
+			<td><i>Sx Sy Sz Rxy Rxz Ryz</i></td>
+		</tr>
+		<tr>
+			<td>full</td>
+			<td><i>Cxx Cxy Cyy Cxz Cyz Czz</i></td>
+		</tr>
+		<tr>
+			<td>calculated</td>
+			<td><i>SCe SCn SCu</i> mm <i>SPe SPn SPu</i> ppm</td>
+		</tr>
 	</table>
 
 	<p class="Commanddescription">
-	where x, y, z, e, n, u represent the X, Y, Z, east, north, and up components of the vector, and C, S, R, SC, and CP represent the covariance, standard error, correlation, constant component of standard error and proportional component of standard error respectively.  The calculated option calculates the error based on the length of the vector as the root sum of squares of the constant and proportional components.
+		where x, y, z, e, n, u represent the X, Y, Z, east, north, and up components of the vector, and C, S, R, SC, and
+		CP represent the covariance, standard error, correlation, constant component of standard error and proportional
+		component of standard error respectively. The calculated option calculates the error based on the length of the
+		vector as the root sum of squares of the constant and proportional components.
 	</p>
 	<p class="Commanddefinition">
-	DISTANCE_ERROR_TYPE <i>error_type</i>
+		DISTANCE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
-	Defines how the error for distance observations is derived.  This can be one of:
+		Defines how the error for distance observations is derived. This can be one of:
 	</p>
 	<table class="Commanddescription">
-		<tr><td>error</td><td>The error is a value in metres</td></tr>
-		<tr><td>calculated</td><td>
+		<tr>
+			<td>error</td>
+			<td>The error is a value in metres</td>
+		</tr>
+		<tr>
+			<td>calculated</td>
+			<td>
 				The error is a string formatted as &quot;<i>SCd</i>&nbsp;mm&nbsp;<i>SPd</i>&nbsp;ppm&quot;
-				where <i>SCd</i> is the constant component of the standard error and <i>SPd</i> is the proportional component.  These are used to calculate the error of the line from its length as the root sum of squares of the two components.
-		</td></tr>
+				where <i>SCd</i> is the constant component of the standard error and <i>SPd</i> is the proportional
+				component. These are used to calculate the error of the line from its length as the root sum of squares
+				of the two components.
+			</td>
+		</tr>
 	</table>
 	<p class="Commanddefinition">
-	ANGLE_ERROR_TYPE <i>error_type</i>
+		ANGLE_FORMAT <i>format_type</i>
 	</p>
 	<p class="Commanddescription">
-        Defines how the error for angle observations (horizontal angles, azimuth and bearing 
-        observations) is derived.  This can be one of:
+		Defines how angle values are expressed in the data file. This can be one of &quot;deg&quot;
+		(&quot;degrees&quot;),
+		&quot;dms&quot; (&quot;dms_angles&quot;), or &quot;hp&quot; (&quot;hp_angles&quot;).
+	</p>
+	<p class="Commanddefinition">
+		ANGLE_ERROR_TYPE <i>error_type</i>
+	</p>
+	<p class="Commanddescription">
+		Defines how the error for angle observations (horizontal angles, azimuth and bearing
+		observations) is derived. This can be one of:
 	</p>
 	<table class="Commanddescription">
-		<tr><td>error</td><td>The error is a value in degrees</td></tr>
-		<tr><td>calculated</td><td>
+		<tr>
+			<td>default <i>or</i> error</td>
+			<td>The error is a value in degrees if the angle format is &quot;degrees&quot;, or in seconds
+				if the angle format is &quot;dms&quot; or &quot;hp&quot;.
+			</td>
+		</tr>
+		<tr>
+			<td>degrees</td>
+			<td>The error is a value in degrees.
+			</td>
+		</tr>
+		<tr>
+			<td>seconds</td>
+			<td>The error is a value in seconds.
+			</td>
+		</tr>
+		<tr>
+			<td>calculated</td>
+			<td>
 				The error is a string formatted as &quot;<i>SCd</i>&nbsp;sec&nbsp;<i>SPd</i>&nbsp;mm&quot;
-				where <i>SCd</i> is the constant component of the standard error in seconds and <i>SPd</i> is the component due to plumbing errors in mm which is converted to an angle error based on the length of the line.  The root sum of squares of these components is the total angle error.
-Note that SNAP calculates this based on the coordinates when the observations are loaded - they do not get
-updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
-coordinates to recalculate the errors.
-		</td></tr>
+				where <i>SCd</i> is the constant component of the standard error in seconds and <i>SPd</i> is the
+				component due to plumbing errors in mm which is converted to an angle error based on the length of the
+				line. The root sum of squares of these components is the total angle error.
+				Note that SNAP calculates this based on the coordinates when the observations are loaded - they do not
+				get
+				updated when the coordinates are changed at each iteration. You need to run SNAP again with the new
+				coordinates to recalculate the errors.
+			</td>
+		</tr>
 	</table>
 	<p class="Commanddefinition">
-	ZENITH_DISTANCE_ERROR_TYPE <i>error_type</i>
+		ZENITH_DISTANCE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
-        Defines how the error for zenith distance angle observations is derived.  This can be one of:
+		Defines how the error for zenith distance angle observations is derived. This can be one of:
 	</p>
 	<table class="Commanddescription">
-		<tr><td>error</td><td>The error is a value in degrees</td></tr>
-		<tr><td>calculated</td><td>
-                        The error is a string formatted as &quot;<i>SCd</i>&nbsp;sec&nbsp;<i>SPh</i>&nbsp;mmh&nbsp;<i>SPv</i>mmv&quot;
-                        where <i>SCd</i> is the constant component of the standard error in seconds, <i>SPh</i> is the component due to plumbing errors in mm, and <i>SPv</i> is the component due to instrument heighting errors in mm.  The root sum of squares of these components is the total angle error.
-Note that SNAP calculates the total error using the distance between the endpoint station coordinates when the observations are loaded - they do not get
-updated when the coordinates are changed at each iteration.  You need to run SNAP again with the new
-coordinates to recalculate the errors.
-		</td></tr>
+		<tr>
+			<td>error</td>
+			<td>The error is a value in degrees</td>
+		</tr>
+		<tr>
+			<td>calculated</td>
+			<td>
+				The error is a string formatted as
+				&quot;<i>SCd</i>&nbsp;sec&nbsp;<i>SPh</i>&nbsp;mmh&nbsp;<i>SPv</i>mmv&quot;
+				where <i>SCd</i> is the constant component of the standard error in seconds, <i>SPh</i> is the component
+				due to plumbing errors in mm, and <i>SPv</i> is the component due to instrument heighting errors in mm.
+				The root sum of squares of these components is the total angle error.
+				Note that SNAP calculates the total error using the distance between the endpoint station coordinates
+				when the observations are loaded - they do not get
+				updated when the coordinates are changed at each iteration. You need to run SNAP again with the new
+				coordinates to recalculate the errors.
+			</td>
+		</tr>
 	</table>
 
 	<p class="Commanddefinition">
-	HEIGHT_DIFFERENCE_ERROR_TYPE <i>error_type</i>
+		HEIGHT_DIFFERENCE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
-        Defines how the error for height difference observations (levelling observations)
-        is derived.  This can be one of:
+		Defines how the error for height difference observations (levelling observations)
+		is derived. This can be one of:
 	</p>
 	<table class="Commanddescription">
-		<tr><td>error</td><td>The error is a value in metres</td></tr>
-		<tr><td>calculated</td><td>
-                        The error is a string formatted as &quot;<i>SCd</i>&nbsp;mm&nbsp;<i>SPh</i>&nbsp;mmrkm sqrt&nbsp;<i>rlen</i>&quot;
-                        where <i>SCd</i> is the constant component of the standard error in millimetres, 
-                        <i>SPh</i> is a component proportional to the square root of the levelling run 
-                        in millimetres per root kilometres, and <i>rlen</i> is
-                        the length of the levelling run in metres (this will usually be derived from a column (eg &quot;2.0 mmrkm sqrt &quot; @RUNLEN).
-                        The root sum of squares of these components is the total height difference error.
-		</td></tr>
+		<tr>
+			<td>error</td>
+			<td>The error is a value in metres</td>
+		</tr>
+		<tr>
+			<td>calculated</td>
+			<td>
+				The error is a string formatted as &quot;<i>SCd</i>&nbsp;mm&nbsp;<i>SPh</i>&nbsp;mmrkm
+				sqrt&nbsp;<i>rlen</i>&quot;
+				where <i>SCd</i> is the constant component of the standard error in millimetres,
+				<i>SPh</i> is a component proportional to the square root of the levelling run
+				in millimetres per root kilometres, and <i>rlen</i> is
+				the length of the levelling run in metres (this will usually be derived from a column (eg &quot;2.0
+				mmrkm sqrt &quot; @RUNLEN).
+				The root sum of squares of these components is the total height difference error.
+			</td>
+		</tr>
 	</table>
 
 	<p class="Commanddefinition">
-	DATETIME_FORMAT <i>format_string</i>
+		DATETIME_FORMAT <i>format_string</i>
 	</p>
 	<p class="Commanddescription">
-	Defines the format of date/time values.  Date time values should contain
-	the year, month, day, and optionally hour, minute and second of the date/time.  The month can be either a month name or a number.  The year must be a full 4 digit year.  Each component of the date is separated by one or more non alphanumeric characters.  SNAP accepts a variation in which the month and day are replaced by a day of the year (1 January = 1, etc).  The order of the components in the string is defined by the <i>format_string</i> argument which contains the characters Y, M, D, h, m, s, and N representing year, month, day, hour, minute, second, and day of year.
+		Defines the format of date/time values. Date time values should contain
+		the year, month, day, and optionally hour, minute and second of the date/time. The month can be either a month
+		name or a number. The year must be a full 4 digit year. Each component of the date is separated by one or more
+		non alphanumeric characters. SNAP accepts a variation in which the month and day are replaced by a day of the
+		year (1 January = 1, etc). The order of the components in the string is defined by the <i>format_string</i>
+		argument which contains the characters Y, M, D, h, m, s, and N representing year, month, day, hour, minute,
+		second, and day of year.
 	</p>
 	<p class="Commanddescription">
-	For example, if the format is &quot;DMY hm&quot; then any of the following 
-	date/time values are valid.<br />
-	<code>
+		For example, if the format is &quot;DMY hm&quot; then any of the following
+		date/time values are valid.<br />
+		<code>
 		25 dec 2011 7 15<br />
 		25/12/2011 07:15<br />
 		25 december 2011 7 15<br />
@@ -358,70 +475,87 @@ coordinates to recalculate the errors.
 	</p>
 
 	<p class="Commanddefinition">
-	IGNORE_MISSING_OBSERVATIONS
+		IGNORE_MISSING_OBSERVATIONS
 	</p>
 	<p class="Commanddescription">
-	If this option is specified, SNAP will silently ignore observations for which the value field is blank.
+		If this option is specified, SNAP will silently ignore observations for which the value field is blank.
 	</p>
 
-<h2><a name="values"></a>Specifying data values</h2>
-<p>
-Each of the fields above with a <i>value</i> definition can include a value 
-definition constructed from the values of columns, configuration values (from the SNAP <a href="cmd_coordinate_file.html">coordinate_file</a> or <a href="cmd_data_file.html">data_file</a> command), literal text, and values calculated from a <a href="#lookup">lookup table</a>.
-</p>
-<p>These are entered using the following syntax:</p>
-<table class="Commanddescription">
-	<tr><td>Format</td><td>Description</td><td>Example</td></tr>
-	<tr>
-		<td><i>@colname</i></td>
-		<td>The name of a column from which to take the value. </td>
-		<td>@CODE</td>
-	</tr>
-	<tr>
-		<td>$<i>config</i></td>
-		<td>The name of a configuration setting from which to take the value</td>
-		<td>$coordsys</td>
-	</tr>
-	<tr>
-		<td>&quot;<i>literal text</i>&quot;<br /><i>number</i></td>
-		<td>The name of a configuration setting from which to take the value</td>
-		<td>&quot;DS&quot;<br />0.003</td>
-	</tr>
-	<tr>
-		<td><i>lookupname</i>(@<i>colname</i>)<br />
-		<i>lookupname</i>($<i>config</i>)</td>
-		<td>The result of looking up the column value or configuration value in the named lookup.
-		<td>methoderror(@method)</td>
-	</tr>
-</table>
-<p>
-The value definition can consist of as many of these are required to construct the value.  For example a vector observation error may be formed by combining fields ERR_EAST, ERR_NORTH, and ERR_UP.  This could be defined in the definition file as:
-</p>
-<p class="Commanddescexample">
-VECTOR_ERROR_TYPE ENU<br />
-ERROR @ERR_EAST &quot; &quot; @ERR_NORTH &quot; &quot; @ERR_UP
-</p>
-<p>Note the literal blank strings here are required to separate the components in the resulting value.</p>
-<p>The definition can also specify a default to use when the value evaluates to a blank string.  The default is specified using a syntax:
-</p>
-<p class="Commanddescexample">
-<i>value</i> default <i>value</i>
-</p>
-<p>For example a coordinate system may be defined as
-</p>
-<p class="Commanddescexample">
-COORDINATE_SYSTEM @CRDSYS default $CRDSYS default &quot;NZGD2000&quot;
-</p>
-<p>meaning that the value will be taken from the CRDSYS column in the station file, or if that is blank or not defined, from the CRDSYS configuration item the SNAP command file, and if that is also not defined it will be NZGD2000.
-</p>
+	<h2><a name="values"></a>Specifying data values</h2>
+	<p>
+		Each of the fields above with a <i>value</i> definition can include a value
+		definition constructed from the values of columns, configuration values (from the SNAP <a
+			href="cmd_coordinate_file.html">coordinate_file</a> or <a href="cmd_data_file.html">data_file</a> command),
+		literal text, and values calculated from a <a href="#lookup">lookup table</a>.
+	</p>
+	<p>These are entered using the following syntax:</p>
+	<table class="Commanddescription">
+		<tr>
+			<td>Format</td>
+			<td>Description</td>
+			<td>Example</td>
+		</tr>
+		<tr>
+			<td><i>@colname</i></td>
+			<td>The name of a column from which to take the value. </td>
+			<td>@CODE</td>
+		</tr>
+		<tr>
+			<td>$<i>config</i></td>
+			<td>The name of a configuration setting from which to take the value</td>
+			<td>$coordsys</td>
+		</tr>
+		<tr>
+			<td>&quot;<i>literal text</i>&quot;<br /><i>number</i></td>
+			<td>The name of a configuration setting from which to take the value</td>
+			<td>&quot;DS&quot;<br />0.003</td>
+		</tr>
+		<tr>
+			<td><i>lookupname</i>(@<i>colname</i>)<br />
+				<i>lookupname</i>($<i>config</i>)</td>
+			<td>The result of looking up the column value or configuration value in the named lookup.
+			<td>methoderror(@method)</td>
+		</tr>
+	</table>
+	<p>
+		The value definition can consist of as many of these are required to construct the value. For example a vector
+		observation error may be formed by combining fields ERR_EAST, ERR_NORTH, and ERR_UP. This could be defined in
+		the definition file as:
+	</p>
+	<p class="Commanddescexample">
+		VECTOR_ERROR_TYPE ENU<br />
+		ERROR @ERR_EAST &quot; &quot; @ERR_NORTH &quot; &quot; @ERR_UP
+	</p>
+	<p>Note the literal blank strings here are required to separate the components in the resulting value.</p>
+	<p>The definition can also specify a default to use when the value evaluates to a blank string. The default is
+		specified using a syntax:
+	</p>
+	<p class="Commanddescexample">
+		<i>value</i> default <i>value</i>
+	</p>
+	<p>For example a coordinate system may be defined as
+	</p>
+	<p class="Commanddescexample">
+		COORDINATE_SYSTEM @CRDSYS default $CRDSYS default &quot;NZGD2000&quot;
+	</p>
+	<p>meaning that the value will be taken from the CRDSYS column in the station file, or if that is blank or not
+		defined, from the CRDSYS configuration item the SNAP command file, and if that is also not defined it will be
+		NZGD2000.
+	</p>
+	<p>
+		The <i>format_string</i> and <i>error_type</i> values can be defined in a similar way except that they apply to
+		the entire data file, so they can include literal strings, configuration items, and lookup values but not column
+		data values (<i>@colname</i>).
+	</p>
 
-<div class="SeeAlso">
-<h3>See also:</h3>
+	<div class="SeeAlso">
+		<h3>See also:</h3>
 
-<p><a href="../crd/index.html">Station coordinate files</a></p>
+		<p><a href="../crd/index.html">Station coordinate files</a></p>
 
-<p><a href="../data/index.html">Observation files</a></p>
+		<p><a href="../data/index.html">Observation files</a></p>
 
-</div>
+	</div>
 </body>
+
 </html>

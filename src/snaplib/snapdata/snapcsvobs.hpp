@@ -2,8 +2,9 @@
 #ifndef _SNAP_SNAPCSVOBS_HPP
 #define _SNAP_SNAPCSVOBS_HPP
 
-#include "snapdata/snapcsvbase.hpp"
 #include "snapdata/datatype.h"
+#include "snapdata/snapcsvbase.hpp"
+
 #include "util/snapregex.hpp"
 namespace LINZ
 {
@@ -42,6 +43,14 @@ namespace LINZ
                 AF_DEGREES,
                 AF_DMS,
                 AF_HPFORMAT
+            };
+
+            enum AngleErrorType
+            {
+                AE_DEFAULT,
+                AE_DEGREES,
+                AE_SECONDS,
+                AE_CALCULATED
             };
 
             //CsvObs
@@ -119,9 +128,11 @@ namespace LINZ
                 bool _ignoremissingobs;
                 bool _disterrorcalced;
                 bool _angleerrorcalced;
+                bool _angleerrorseconds;
                 bool _zderrorcalced;
                 bool _hderrorcalced;
-                int _angleformat;
+                AngleErrorType _angleerrortype;
+                AngleFormat _angleformat;
                 int _vecerrorformat;
                 int _nvecerror;
                 SnapCsvObs *_owner;

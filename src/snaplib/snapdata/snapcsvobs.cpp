@@ -1,27 +1,27 @@
 #include "snapconfig.hpp"
 
-#include <iostream>
-#include <sstream>
-#include <memory>
-#include <vector>
 #include <algorithm>
 #include <boost/algorithm/string.hpp>
 #include <cmath>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <vector>
 
-#include "snapdata/snapcsvobs.hpp"
 #include "snapdata/snapcsvobs.h"
+#include "snapdata/snapcsvobs.hpp"
 
 #include "snapdata/datatype.h"
 #include "snapdata/loaddata.h"
 
-#include "util/dateutil.h"
-#include "util/fileutil.h"
-#include "util/filelist.h"
-#include "util/datafile.h"
-#include "util/pi.h"
 #include "util/calcdltfile.hpp"
-#include "util/recordstream.hpp"
+#include "util/datafile.h"
 #include "util/datafileinput.hpp"
+#include "util/dateutil.h"
+#include "util/filelist.h"
+#include "util/fileutil.h"
+#include "util/pi.h"
+#include "util/recordstream.hpp"
 
 #include "util/errdef.h"
 
@@ -29,7 +29,7 @@ using namespace LINZ;
 using namespace DelimitedTextFile;
 using namespace SNAP;
 
-static const char *dms_regex = "^\\s*([-nsNSewEW]?)\\s*((?:3[0-5]|[0-2]?\\d?)\\d)\\s+([0-5]?\\d)\\s+([0-5]?\\d)(?:\\.(\\d*))?)\\s*([nsNSewEW]?)\\s*$";
+static const char *dms_regex = "^\\s*([-nsNSewEW]?)\\s*((?:3[0-5]|[0-2]?\\d?)\\d)\\s+([0-5]?\\d)\\s+([0-5]?\\d)(?:\\.(\\d*))?\\s*([nsNSewEW]?)\\s*$";
 static const char *hp_regex = "^\\s*(\\-?)((?:3[0-5]|[0-2]?\\d?)\\d)\\.([0-5]\\d)([0-5]\\d)(\\d*)()\\s*$";
 
 /////////////////////////////////////////////////////////////////
@@ -74,8 +74,10 @@ SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs *owner) : _type("Data type
                                                                 _ignoremissingobs(false),
                                                                 _disterrorcalced(false),
                                                                 _angleerrorcalced(false),
+                                                                _angleerrorseconds(false),
                                                                 _zderrorcalced(false),
                                                                 _hderrorcalced(false),
+                                                                _angleerrortype(AE_DEFAULT),
                                                                 _angleformat(AF_DEGREES),
                                                                 _vecerrorformat(CVR_TOPOCENTRIC),
                                                                 _owner(owner),
@@ -271,7 +273,13 @@ double SnapCsvObs::CsvObservation::parseDmsAngle(const string &value, const stri
 {
     double angle = 0.0;
     RGX::smatch match;
-    if (!RGX::regex_match(value, match, _anglere))
+    string tvalue = value;
+    if (_angleformat == AF_HPFORMAT)
+    {
+        if (tvalue.find('.') == string::npos) tvalue += '.';
+        tvalue += "0000";
+    }
+    if (!RGX::regex_match(tvalue, match, _anglere))
     {
         dataError(string("Invalid angle degrees/minutes/seconds: ") + value);
     }
@@ -613,6 +621,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         error[0] *= errorfactor;
         if (type->isangle)
         {
+            if (_angleerrorseconds) error[0] /= 3600.0;
             value[0] *= DTOR;
             error[0] *= DTOR;
         }
@@ -837,11 +846,13 @@ bool SnapCsvObs::CsvObservation::setAngleFormat(const string &format)
     {
         _angleformat = AF_DMS;
         _anglere = RGX::regex(dms_regex);
+        if (_angleerrortype == AE_DEFAULT) _angleerrorseconds = true;
     }
     else if (boost::iequals(format, "hp_angles") || boost::iequals(format, "hp"))
     {
         _angleformat = AF_HPFORMAT;
         _anglere = RGX::regex(hp_regex);
+        if (_angleerrortype == AE_DEFAULT) _angleerrorseconds = true;
     }
     else
     {
@@ -854,12 +865,25 @@ bool SnapCsvObs::CsvObservation::setAngleFormat(const string &format)
 bool SnapCsvObs::CsvObservation::setAngleErrorType(const string &format)
 {
     bool ok = true;
-    if (boost::iequals(format, "error"))
+    _angleerrorcalced = false;
+    _angleerrorseconds = false;
+    if (boost::iequals(format, "error") || boost::iequals(format, "default"))
     {
-        _angleerrorcalced = false;
+        _angleerrortype = AE_DEFAULT;
+        _angleerrorseconds = _angleformat != AF_DEGREES;
+    }
+    else if (boost::iequals(format, "degrees"))
+    {
+        _angleerrortype = AE_DEGREES;
+    }
+    else if (boost::iequals(format, "seconds"))
+    {
+        _angleerrortype = AE_SECONDS;
+        _angleerrorseconds = true;
     }
     else if (boost::iequals(format, "calculated"))
     {
+        _angleerrortype = AE_CALCULATED;
         _angleerrorcalced = true;
     }
     else
@@ -1136,7 +1160,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             }
             else
             {
-                definitionError("Angle_error_type value is missing");
+                definitionError("Angle_format value is missing");
             }
         }
         else if (command == "angle_error_type")

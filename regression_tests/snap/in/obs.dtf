@@ -8,9 +8,9 @@ ID @id
 SET_ID @obsset
 REJECTED rejcode(@status)
 INSTRUMENT_STATION @fromstn
-INSTRUMENT_HEIGHT @fromhgt
+INSTRUMENT_HEIGHT @fromhgt default 0.0
 TARGET_STATION @tostn
-TARGET_HEIGHT @tohgt
+TARGET_HEIGHT @tohgt default 0.0
 DATETIME @date
 DATETIME_FORMAT YMDhms
 ANGLE_FORMAT $ANGLE_FORMAT default "degrees"
