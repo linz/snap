@@ -74,10 +74,9 @@ SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs *owner) : _type("Data type
                                                                 _ignoremissingobs(false),
                                                                 _disterrorcalced(false),
                                                                 _angleerrorcalced(false),
-                                                                _angleerrorseconds(false),
                                                                 _zderrorcalced(false),
                                                                 _hderrorcalced(false),
-                                                                _angleerrortype(AE_DEFAULT),
+                                                                _angleerrorunits(AE_DEFAULT),
                                                                 _angleformat(AF_DEGREES),
                                                                 _vecerrorformat(CVR_TOPOCENTRIC),
                                                                 _owner(owner),
@@ -396,9 +395,11 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         _errorfactor >> errorfactor;
     if (!type->isvector)
     {
+        bool errseconds = _angleerrorunits == AE_SECONDS;
         bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
         if (type->isangle && _angleformat != AF_DEGREES)
         {
+            errseconds = _angleerrorunits != AE_DEGREES;
             string sign;
             if (type->id == LT)
                 sign = "NS";
@@ -450,6 +451,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double mmerr = 0.0;
             double secerr = 0.0;
             double *pcomp;
+            errseconds = false;
 
             string component = "";
             // bool ok = true;
@@ -556,6 +558,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             double mmherr = 0.0;
             double secerr = 0.0;
             double *pcomp;
+            errseconds = false;
 
             string component = "";
             // bool ok = true;
@@ -621,7 +624,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         error[0] *= errorfactor;
         if (type->isangle)
         {
-            if (_angleerrorseconds) error[0] /= 3600.0;
+            if (errseconds) error[0] /= 3600.0;
             value[0] *= DTOR;
             error[0] *= DTOR;
         }
@@ -816,7 +819,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     return true;
 }
 
-bool SnapCsvObs::CsvObservation::setDistanceErrorType(const string &format)
+bool SnapCsvObs::CsvObservation::setDistanceErrorMethod(const string &format)
 {
     bool ok = true;
     if (boost::iequals(format, "error"))
@@ -846,13 +849,11 @@ bool SnapCsvObs::CsvObservation::setAngleFormat(const string &format)
     {
         _angleformat = AF_DMS;
         _anglere = RGX::regex(dms_regex);
-        if (_angleerrortype == AE_DEFAULT) _angleerrorseconds = true;
     }
     else if (boost::iequals(format, "hp_angles") || boost::iequals(format, "hp"))
     {
         _angleformat = AF_HPFORMAT;
         _anglere = RGX::regex(hp_regex);
-        if (_angleerrortype == AE_DEFAULT) _angleerrorseconds = true;
     }
     else
     {
@@ -862,77 +863,64 @@ bool SnapCsvObs::CsvObservation::setAngleFormat(const string &format)
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setAngleErrorType(const string &format)
+bool SnapCsvObs::CsvObservation::setAngleErrorUnits(const string &format)
 {
     bool ok = true;
-    _angleerrorcalced = false;
-    _angleerrorseconds = false;
-    if (boost::iequals(format, "error") || boost::iequals(format, "default"))
+    if (boost::iequals(format, "default"))
     {
-        _angleerrortype = AE_DEFAULT;
-        _angleerrorseconds = _angleformat != AF_DEGREES;
+        _angleerrorunits = AE_DEFAULT;
     }
     else if (boost::iequals(format, "degrees"))
     {
-        _angleerrortype = AE_DEGREES;
+        _angleerrorunits = AE_DEGREES;
     }
     else if (boost::iequals(format, "seconds"))
     {
-        _angleerrortype = AE_SECONDS;
-        _angleerrorseconds = true;
-    }
-    else if (boost::iequals(format, "calculated"))
-    {
-        _angleerrortype = AE_CALCULATED;
-        _angleerrorcalced = true;
+        _angleerrorunits = AE_SECONDS;
     }
     else
     {
-        definitionError(string("Invalid angle error type ") + format);
+        definitionError(string("Invalid angle error units ") + format);
         ok = false;
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setZenDistErrorType(const string &format)
+bool SnapCsvObs::CsvObservation::setErrorMethod(const string &method, bool &calced, const string &quantity)
 {
     bool ok = true;
-    if (boost::iequals(format, "error"))
+    if (boost::iequals(method, "value") || boost::iequals(method, "error"))
     {
-        _zderrorcalced = false;
+        calced = false;
     }
-    else if (boost::iequals(format, "calculated"))
+    else if (boost::iequals(method, "calculated"))
     {
-        _zderrorcalced = true;
+        calced = true;
     }
     else
     {
-        definitionError(string("Invalid zenith distance error type ") + format);
+        definitionError(string("Invalid ") + quantity + " error method " + method);
         ok = false;
     }
     return ok;
 }
 
-bool SnapCsvObs::CsvObservation::setHgtDiffErrorType(const string &format)
+bool SnapCsvObs::CsvObservation::setAngleErrorMethod(const string &format)
 {
-    bool ok = true;
-    if (boost::iequals(format, "error"))
-    {
-        _hderrorcalced = false;
-    }
-    else if (boost::iequals(format, "calculated"))
-    {
-        _hderrorcalced = true;
-    }
-    else
-    {
-        definitionError(string("Invalid zenith distance error type ") + format);
-        ok = false;
-    }
-    return ok;
+    return setErrorMethod(format, _angleerrorcalced, "angle");
 }
 
-bool SnapCsvObs::CsvObservation::setVectorErrorType(const string &format)
+bool SnapCsvObs::CsvObservation::setZenDistErrorMethod(const string &format)
+{
+    return setErrorMethod(format, _zderrorcalced, "zenith distance");
+}
+
+bool SnapCsvObs::CsvObservation::setHgtDiffErrorMethod(const string &format)
+{
+    return setErrorMethod(format, _hderrorcalced, "height difference");
+}
+
+bool SnapCsvObs::CsvObservation::setVectorErrorMethod(const string &format)
 {
     bool ok = true;
     if (boost::iequals(format, "full"))
@@ -967,7 +955,7 @@ bool SnapCsvObs::CsvObservation::setVectorErrorType(const string &format)
     }
     else
     {
-        definitionError(string("Invalid vector error type ") + format);
+        definitionError(string("Invalid vector error method ") + format);
         ok = false;
     }
     return ok;
@@ -1127,28 +1115,28 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             {
             }
         }
-        else if (command == "vector_error_type")
+        else if (command == "vector_error_method" || command == "vector_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setVectorErrorType(format);
+                obs.setVectorErrorMethod(format);
             }
             else
             {
-                definitionError("Vector_error_type value missing");
+                definitionError(command + " value missing");
             }
         }
-        else if (command == "distance_error_type")
+        else if (command == "distance_error_method" || command == "distance_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setDistanceErrorType(format);
+                obs.setDistanceErrorMethod(format);
             }
             else
             {
-                definitionError("Distance_error_type value is missing");
+                definitionError(command + " value is missing");
             }
         }
         else if (command == "angle_format")
@@ -1163,40 +1151,52 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
                 definitionError("Angle_format value is missing");
             }
         }
-        else if (command == "angle_error_type")
+        else if (command == "angle_error_units")
         {
-            string format = getConfigValue(command, rs);
-            if (format.length() > 0)
+            string units = getConfigValue(command, rs);
+            if (units.length() > 0)
             {
-                obs.setAngleErrorType(unquoteString(format));
+                obs.setAngleErrorUnits(units);
             }
             else
             {
-                definitionError("Angle_error_type value is missing");
+                definitionError("Angle_error_units value is missing");
             }
         }
-        else if (command == "zenith_distance_error_type")
+        else if (command == "angle_error_method" || command == "angle_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setZenDistErrorType(unquoteString(format));
+                obs.setAngleErrorMethod(unquoteString(format));
             }
             else
             {
-                definitionError("Zenith_distance_error_type value is missing");
+                definitionError(command + " value is missing");
             }
         }
-        else if (command == "height_difference_error_type")
+        else if (command == "zenith_distance_error_method" || command == "zenith_distance_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
             {
-                obs.setHgtDiffErrorType(unquoteString(format));
+                obs.setZenDistErrorMethod(unquoteString(format));
             }
             else
             {
-                definitionError("Height_difference_error_type value is missing");
+                definitionError(command + " value is missing");
+            }
+        }
+        else if (command == "height_difference_error_method" || command == "height_difference_error_type")
+        {
+            string format = getConfigValue(command, rs);
+            if (format.length() > 0)
+            {
+                obs.setHgtDiffErrorMethod(unquoteString(format));
+            }
+            else
+            {
+                definitionError(command + " value is missing");
             }
         }
         else if (command == "classification_columns")

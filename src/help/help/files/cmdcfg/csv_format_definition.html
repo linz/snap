@@ -292,11 +292,11 @@
 	</p>
 
 	<p class="Commanddefinition">
-		VECTOR_ERROR_TYPE <i>error_type</i>
+		VECTOR_ERROR_METHOD <i>error_method</i>
 	</p>
 	<p class="Commanddescription">
 		Defines the structure of error information for vector data.
-		Here <i>error_type</i> can be one of:
+		Here <i>error_method</i> can be one of:
 	</p>
 	<table class="Commanddescription">
 		<tr>
@@ -332,14 +332,14 @@
 		vector as the root sum of squares of the constant and proportional components.
 	</p>
 	<p class="Commanddefinition">
-		DISTANCE_ERROR_TYPE <i>error_type</i>
+		DISTANCE_ERROR_METHOD <i>error_method</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for distance observations is derived. This can be one of:
 	</p>
 	<table class="Commanddescription">
 		<tr>
-			<td>error</td>
+			<td>value</td>
 			<td>The error is a value in metres</td>
 		</tr>
 		<tr>
@@ -361,7 +361,7 @@
 		&quot;dms&quot; (&quot;dms_angles&quot;), or &quot;hp&quot; (&quot;hp_angles&quot;).
 	</p>
 	<p class="Commanddefinition">
-		ANGLE_ERROR_TYPE <i>error_type</i>
+		ANGLE_ERROR_UNITS <i>error_units</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for angle observations (horizontal angles, azimuth and bearing
@@ -369,7 +369,7 @@
 	</p>
 	<table class="Commanddescription">
 		<tr>
-			<td>default <i>or</i> error</td>
+			<td>default</td>
 			<td>The error is a value in degrees if the angle format is &quot;degrees&quot;, or in seconds
 				if the angle format is &quot;dms&quot; or &quot;hp&quot;.
 			</td>
@@ -382,6 +382,20 @@
 		<tr>
 			<td>seconds</td>
 			<td>The error is a value in seconds.
+			</td>
+
+	</table>
+	<p class="Commanddefinition">
+		ANGLE_ERROR_METHOD <i>error_method</i>
+	</p>
+	<p class="Commanddescription">
+		Defines how the error for angle observations (horizontal angles, azimuth and bearing
+		observations) is derived. This can be one of:
+	</p>
+	<table class="Commanddescription">
+		<tr>
+			<td>value</td>
+			<td>The error is a value in degrees or seconds depending on the angle format and angle error type.
 			</td>
 		</tr>
 		<tr>
@@ -398,16 +412,18 @@
 			</td>
 		</tr>
 	</table>
+
 	<p class="Commanddefinition">
-		ZENITH_DISTANCE_ERROR_TYPE <i>error_type</i>
+		ZENITH_DISTANCE_ERROR_METHOD <i>error_method</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for zenith distance angle observations is derived. This can be one of:
 	</p>
 	<table class="Commanddescription">
 		<tr>
-			<td>error</td>
-			<td>The error is a value in degrees</td>
+			<td>value</td>
+			<td>The error is a value in degrees or seconds depending on the angle format and angle error type.
+			</td>
 		</tr>
 		<tr>
 			<td>calculated</td>
@@ -426,7 +442,7 @@
 	</table>
 
 	<p class="Commanddefinition">
-		HEIGHT_DIFFERENCE_ERROR_TYPE <i>error_type</i>
+		HEIGHT_DIFFERENCE_ERROR_METHOD <i>error_method</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for height difference observations (levelling observations)
@@ -434,7 +450,7 @@
 	</p>
 	<table class="Commanddescription">
 		<tr>
-			<td>error</td>
+			<td>value</td>
 			<td>The error is a value in metres</td>
 		</tr>
 		<tr>
@@ -481,6 +497,13 @@
 		If this option is specified, SNAP will silently ignore observations for which the value field is blank.
 	</p>
 
+	<p><b>Note:</b> The commands VECTOR_ERROR_METHOD, DISTANCE_ERROR_METHOD, ANGLE_ERROR_METHOD,
+		ZENITH_DISTANCE_ERROR_METHOD, and HEIGHT_DIFFERENCE_ERROR_METHOD
+		were previously called VECTOR_ERROR_TYPE, DISTANCE_ERROR_TYPE, ANGLE_ERROR_TYPE, ZENITH_DISTANCE_ERROR_TYPE, and
+		HEIGHT_DIFFERENCE_ERROR_TYPE.
+		Also for these commands the option &quot;value&quot; was previously &quot;error&quot;. These commands are
+		still supported but are deprecated.</p>
+
 	<h2><a name="values"></a>Specifying data values</h2>
 	<p>
 		Each of the fields above with a <i>value</i> definition can include a value
@@ -523,7 +546,7 @@
 		the definition file as:
 	</p>
 	<p class="Commanddescexample">
-		VECTOR_ERROR_TYPE ENU<br />
+		VECTOR_ERROR_METHOD ENU<br />
 		ERROR @ERR_EAST &quot; &quot; @ERR_NORTH &quot; &quot; @ERR_UP
 	</p>
 	<p>Note the literal blank strings here are required to separate the components in the resulting value.</p>
@@ -543,7 +566,9 @@
 		NZGD2000.
 	</p>
 	<p>
-		The <i>format_string</i> and <i>error_type</i> values can be defined in a similar way except that they apply to
+		The <i>format_string</i>, <i>error_units</i> and <i>error_method</i> values can be defined in a similar way
+		except that they apply
+		to
 		the entire data file, so they can include literal strings, configuration items, and lookup values but not column
 		data values (<i>@colname</i>).
 	</p>

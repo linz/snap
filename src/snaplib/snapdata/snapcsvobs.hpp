@@ -45,12 +45,11 @@ namespace LINZ
                 AF_HPFORMAT
             };
 
-            enum AngleErrorType
+            enum AngleErrorUnits
             {
                 AE_DEFAULT,
                 AE_DEGREES,
-                AE_SECONDS,
-                AE_CALCULATED
+                AE_SECONDS
             };
 
             //CsvObs
@@ -72,12 +71,13 @@ namespace LINZ
                 CsvValue &note() { return _note; }
                 CsvValue &setId() { return _setid; }
                 CsvValue &rejected() { return _rejected; }
-                bool setVectorErrorType(const string &format);
-                bool setDistanceErrorType(const string &format);
+                bool setVectorErrorMethod(const string &format);
+                bool setDistanceErrorMethod(const string &format);
                 bool setAngleFormat(const string &format);
-                bool setAngleErrorType(const string &format);
-                bool setZenDistErrorType(const string &format);
-                bool setHgtDiffErrorType(const string &format);
+                bool setAngleErrorUnits(const string &format);
+                bool setAngleErrorMethod(const string &format);
+                bool setZenDistErrorMethod(const string &format);
+                bool setHgtDiffErrorMethod(const string &format);
                 bool setDateTimeFormat(const string &format);
                 bool setIgnoreMissingObs()
                 {
@@ -99,6 +99,7 @@ namespace LINZ
                 void definitionError(const string &message);
                 void runtimeError(const string &message);
                 void dataError(const string &message);
+                bool setErrorMethod(const string &method, bool &calced, const string &quantity);
                 double parseDmsAngle(const string &value, const string &sign);
                 bool calcVecError(double value[3], double error[6]);
                 CsvValue _type;
@@ -128,10 +129,9 @@ namespace LINZ
                 bool _ignoremissingobs;
                 bool _disterrorcalced;
                 bool _angleerrorcalced;
-                bool _angleerrorseconds;
                 bool _zderrorcalced;
                 bool _hderrorcalced;
-                AngleErrorType _angleerrortype;
+                AngleErrorUnits _angleerrorunits;
                 AngleFormat _angleformat;
                 int _vecerrorformat;
                 int _nvecerror;
