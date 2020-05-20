@@ -292,11 +292,11 @@
 	</p>
 
 	<p class="Commanddefinition">
-		VECTOR_ERROR_METHOD <i>error_method</i>
+		VECTOR_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
 		Defines the structure of error information for vector data.
-		Here <i>error_method</i> can be one of:
+		Here <i>error_type</i> can be one of:
 	</p>
 	<table class="Commanddescription">
 		<tr>
@@ -332,7 +332,7 @@
 		vector as the root sum of squares of the constant and proportional components.
 	</p>
 	<p class="Commanddefinition">
-		DISTANCE_ERROR_METHOD <i>error_method</i>
+		DISTANCE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for distance observations is derived. This can be one of:
@@ -386,7 +386,7 @@
 
 	</table>
 	<p class="Commanddefinition">
-		ANGLE_ERROR_METHOD <i>error_method</i>
+		ANGLE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for angle observations (horizontal angles, azimuth and bearing
@@ -414,7 +414,7 @@
 	</table>
 
 	<p class="Commanddefinition">
-		ZENITH_DISTANCE_ERROR_METHOD <i>error_method</i>
+		ZENITH_DISTANCE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for zenith distance angle observations is derived. This can be one of:
@@ -442,7 +442,7 @@
 	</table>
 
 	<p class="Commanddefinition">
-		HEIGHT_DIFFERENCE_ERROR_METHOD <i>error_method</i>
+		HEIGHT_DIFFERENCE_ERROR_TYPE <i>error_type</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for height difference observations (levelling observations)
@@ -497,12 +497,8 @@
 		If this option is specified, SNAP will silently ignore observations for which the value field is blank.
 	</p>
 
-	<p><b>Note:</b> The commands VECTOR_ERROR_METHOD, DISTANCE_ERROR_METHOD, ANGLE_ERROR_METHOD,
-		ZENITH_DISTANCE_ERROR_METHOD, and HEIGHT_DIFFERENCE_ERROR_METHOD
-		were previously called VECTOR_ERROR_TYPE, DISTANCE_ERROR_TYPE, ANGLE_ERROR_TYPE, ZENITH_DISTANCE_ERROR_TYPE, and
-		HEIGHT_DIFFERENCE_ERROR_TYPE.
-		Also for these commands the option &quot;value&quot; was previously &quot;error&quot;. These commands are
-		still supported but are deprecated.</p>
+	<p><b>Note:</b> The error_type option &quot;value&quot; was previously &quot;error&quot;. This option is
+		still supported but is deprecated.</p>
 
 	<h2><a name="values"></a>Specifying data values</h2>
 	<p>
@@ -541,12 +537,16 @@
 		</tr>
 	</table>
 	<p>
+		Items not matching any of these formats are treated as literal text. (Note that this is a change
+		to previously when they were used as column names in some commands and literal text in others.)
+	</p>
+	<p>
 		The value definition can consist of as many of these are required to construct the value. For example a vector
 		observation error may be formed by combining fields ERR_EAST, ERR_NORTH, and ERR_UP. This could be defined in
 		the definition file as:
 	</p>
 	<p class="Commanddescexample">
-		VECTOR_ERROR_METHOD ENU<br />
+		VECTOR_ERROR_TYPE ENU<br />
 		ERROR @ERR_EAST &quot; &quot; @ERR_NORTH &quot; &quot; @ERR_UP
 	</p>
 	<p>Note the literal blank strings here are required to separate the components in the resulting value.</p>
@@ -566,7 +566,7 @@
 		NZGD2000.
 	</p>
 	<p>
-		The <i>format_string</i>, <i>error_units</i> and <i>error_method</i> values can be defined in a similar way
+		The <i>format_string</i>, <i>error_units</i> and <i>error_type</i> values can be defined in a similar way
 		except that they apply
 		to
 		the entire data file, so they can include literal strings, configuration items, and lookup values but not column

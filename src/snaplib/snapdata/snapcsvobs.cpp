@@ -1115,7 +1115,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
             {
             }
         }
-        else if (command == "vector_error_method" || command == "vector_error_type")
+        else if (command == "vector_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
@@ -1127,7 +1127,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
                 definitionError(command + " value missing");
             }
         }
-        else if (command == "distance_error_method" || command == "distance_error_type")
+        else if (command == "distance_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
@@ -1163,7 +1163,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
                 definitionError("Angle_error_units value is missing");
             }
         }
-        else if (command == "angle_error_method" || command == "angle_error_type")
+        else if (command == "angle_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
@@ -1175,7 +1175,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
                 definitionError(command + " value is missing");
             }
         }
-        else if (command == "zenith_distance_error_method" || command == "zenith_distance_error_type")
+        else if (command == "zenith_distance_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
@@ -1187,7 +1187,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
                 definitionError(command + " value is missing");
             }
         }
-        else if (command == "height_difference_error_method" || command == "height_difference_error_type")
+        else if (command == "height_difference_error_type")
         {
             string format = getConfigValue(command, rs);
             if (format.length() > 0)
