@@ -1151,7 +1151,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
                 definitionError("Angle_format value is missing");
             }
         }
-        else if (command == "angle_error_units")
+        else if (command == "angle_error_unit")
         {
             string units = getConfigValue(command, rs);
             if (units.length() > 0)

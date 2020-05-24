@@ -4,6 +4,8 @@ coordinate_file teststn.csv csv
 data_file testobs.csv csv format=obs
 data_file testdms.csv csv format=obs angle_format=dms
 data_file testhp.csv csv format=obs angle_format=hp
+data_file testdmsd.csv csv format=obs angle_format=dms angle_error_unit=degrees
+data_file testobss.csv csv format=obs angle_error_unit=seconds
 
 mode 3d data_check
 

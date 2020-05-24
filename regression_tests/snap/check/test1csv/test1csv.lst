@@ -1,15 +1,15 @@
 ================================================================================
 
-                     PROGRAM SNAP  Version 2.7.25-4347e1eb
+                     PROGRAM SNAP  Version 2.7.25-224b3ac2
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: May  9 2020 17:12:17
+                       Version date: May 25 2020 06:46:14
 
 ================================================================================
-                     Run at 18-MAY-2020 07:39:36 by ccrook
+                     Run at 25-MAY-2020 06:54:39 by ccrook
 
 
 The command file test1csv.snp contains:
@@ -19,6 +19,8 @@ The command file test1csv.snp contains:
      data_file testobs.csv csv format=obs
      data_file testdms.csv csv format=obs angle_format=dms
      data_file testhp.csv csv format=obs angle_format=hp
+     data_file testdmsd.csv csv format=obs angle_format=dms angle_error_unit=degrees
+     data_file testobss.csv csv format=obs angle_error_unit=seconds
      
      mode 3d data_check
      
@@ -48,7 +50,7 @@ The command file test1csv.snp contains:
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               18-MAY-2020 07:39:36
+Regression test 1csv - CSV format data/coords               25-MAY-2020 06:54:39
 
                              SUMMARY OF INPUT FILES
 
@@ -110,10 +112,18 @@ Data file 3: testhp.csv
        1 latitude
        2 longitudes
 
+Data file 4: testdmsd.csv
+    Observations between 2008-01-01 and 2008-01-01
+       2 horizontal angles
+
+Data file 5: testobss.csv
+       2 observations do not have a date
+       2 horizontal angles
+
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               18-MAY-2020 07:39:36
+Regression test 1csv - CSV format data/coords               25-MAY-2020 06:54:39
 
                                 OTHER PARAMETERS
 
@@ -127,7 +137,7 @@ Refr coef DEFAULT                    0.00000       -
 
 
 ================================================================================
-Regression test 1csv - CSV format data/coords               18-MAY-2020 07:39:36
+Regression test 1csv - CSV format data/coords               25-MAY-2020 06:54:39
 
                              OBSERVATION RESIDUALS
 
@@ -610,3 +620,13 @@ From  To    Type    Value     +/-      Calc      +/-     Res    +/-    S.R.     
 1     2     MD      889.2687 0.0100    889.2687 0.0000 -0.0000 0.0100   0.00                  
 
 1     2     LV      100.0000 0.0020    100.0000 0.0000  0.0000 0.0020   0.00                  
+
+File testdmsd.csv: line 2
+
+1     2     HA   141 28 15.8    7.2 141 28 15.8    3.2     0.0    6.4   0.00                  
+      3     HA   161 11 26.3    3.6 161 11 26.3    3.2    -0.0    1.6   0.00                  
+
+File testobss.csv: line 2
+
+1     2     HA   141 28 15.8   10.0 141 28 15.8    4.5     0.0    8.9   0.00                  
+      3     HA   161 11 26.3    5.0 161 11 26.3    4.5    -0.0    2.2   0.00                  
