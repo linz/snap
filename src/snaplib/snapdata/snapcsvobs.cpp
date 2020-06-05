@@ -27,10 +27,8 @@
 
 using namespace LINZ;
 using namespace DelimitedTextFile;
+using namespace ParseAngle;
 using namespace SNAP;
-
-static const char *dms_regex = "^\\s*([-nsNSewEW]?)\\s*((?:3[0-5]|[0-2]?\\d?)\\d)\\s+([0-5]?\\d)\\s+([0-5]?\\d)(?:\\.(\\d*))?\\s*([nsNSewEW]?)\\s*$";
-static const char *hp_regex = "^\\s*(\\-?)((?:3[0-5]|[0-2]?\\d?)\\d)\\.([0-5]\\d)([0-5]\\d)(\\d*)()\\s*$";
 
 /////////////////////////////////////////////////////////////////
 // CsvClassification
@@ -268,52 +266,6 @@ void SnapCsvObs::CsvObservation::dataError(const std::string &message)
     runtimeError(message);
 }
 
-double SnapCsvObs::CsvObservation::parseDmsAngle(const string &value, const string &sign)
-{
-    double angle = 0.0;
-    RGX::smatch match;
-    string tvalue = value;
-    if (_angleformat == AF_HPFORMAT)
-    {
-        if (tvalue.find('.') == string::npos) tvalue += '.';
-        tvalue += "0000";
-    }
-    if (!RGX::regex_match(tvalue, match, _anglere))
-    {
-        dataError(string("Invalid angle degrees/minutes/seconds: ") + value);
-    }
-    else
-    {
-        int deg = atoi(match[2].str().c_str());
-        int min = atoi(match[3].str().c_str());
-        double sec = atof((match[4].str() + "." + match[5].str()).c_str());
-        angle = deg + min / 60.0 + sec / 3600.0;
-        string hem = match[1].str() + match[6].str();
-        if (hem.length() > 0)
-        {
-            bool ok = false;
-            if (sign.length() == 2 && hem.length() == 1)
-            {
-                ok = true;
-                boost::to_upper(hem);
-                if (hem[0] == '-' || hem[0] == sign[1])
-                {
-                    angle = -angle;
-                }
-                else if (hem[0] != sign[0])
-                {
-                    ok = false;
-                }
-            }
-            if (!ok)
-            {
-                dataError(string("Badly formatted angle: " + value));
-            }
-        }
-    }
-    return angle;
-}
-
 bool SnapCsvObs::CsvObservation::loadObservation()
 {
     datatypedef *type = getDataType();
@@ -397,15 +349,22 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     {
         bool errseconds = _angleerrorunits == AE_SECONDS;
         bool ishorangle = type->id == HA || type->id == AZ || type->id == PB;
-        if (type->isangle && _angleformat != AF_DEGREES)
+        if (type->isangle)
         {
-            errseconds = _angleerrorunits != AE_DEGREES;
+            if (_angleformat != AF_DEGREES) errseconds = _angleerrorunits != AE_DEGREES;
             string sign;
             if (type->id == LT)
                 sign = "NS";
             if (type->id == LN)
                 sign = "EW";
-            value[0] = parseDmsAngle(_value.value(), sign);
+            try
+            {
+                value[0] = parseAngle(_angleformat, _value.value(), sign);
+            }
+            catch (const ParseAngleException &e)
+            {
+                dataError(string("Badly formatted angle: " + _value.value()));
+            }
         }
         else
         {
@@ -841,24 +800,14 @@ bool SnapCsvObs::CsvObservation::setDistanceErrorMethod(const string &format)
 bool SnapCsvObs::CsvObservation::setAngleFormat(const string &format)
 {
     bool ok = true;
-    if (boost::iequals(format, "deg_angles") || boost::iequals(format, "degrees") || boost::iequals(format, "deg"))
+    try
     {
-        _angleformat = AF_DEGREES;
+        _angleformat = parseAngleFormat(format);
     }
-    else if (boost::iequals(format, "dms_angles") || boost::iequals(format, "dms"))
+    catch (const ParseAngleException &e)
     {
-        _angleformat = AF_DMS;
-        _anglere = RGX::regex(dms_regex);
-    }
-    else if (boost::iequals(format, "hp_angles") || boost::iequals(format, "hp"))
-    {
-        _angleformat = AF_HPFORMAT;
-        _anglere = RGX::regex(hp_regex);
-    }
-    else
-    {
-        definitionError(string("Invalid angle format ") + format);
         ok = false;
+        definitionError(string("Invalid angle format ") + format);
     }
     return ok;
 }

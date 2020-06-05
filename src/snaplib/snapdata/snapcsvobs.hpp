@@ -5,6 +5,7 @@
 #include "snapdata/datatype.h"
 #include "snapdata/snapcsvbase.hpp"
 
+#include "util/parseangle.hpp"
 #include "util/snapregex.hpp"
 namespace LINZ
 {
@@ -13,6 +14,7 @@ namespace LINZ
 
         using namespace LINZ;
         using namespace DelimitedTextFile;
+        using namespace ParseAngle;
         class SnapCsvObs : public SnapCsvBase
         {
             class CsvClassification : public CsvValue
@@ -36,13 +38,6 @@ namespace LINZ
             private:
                 int _classId;
                 const Column *_column;
-            };
-
-            enum AngleFormat
-            {
-                AF_DEGREES,
-                AF_DMS,
-                AF_HPFORMAT
             };
 
             enum AngleErrorUnits
@@ -100,7 +95,6 @@ namespace LINZ
                 void runtimeError(const string &message);
                 void dataError(const string &message);
                 bool setErrorMethod(const string &method, bool &calced, const string &quantity);
-                double parseDmsAngle(const string &value, const string &sign);
                 bool calcVecError(double value[3], double error[6]);
                 CsvValue _type;
                 CsvValue _fromstn;
@@ -120,7 +114,6 @@ namespace LINZ
                 long _stnidto;
                 std::vector<CsvValue *> _parts;
                 std::vector<std::unique_ptr<CsvClassification>> _classifications;
-                RGX::regex _anglere;
 
                 // Columns used for classifications
                 std::vector<std::string> _classColNames;

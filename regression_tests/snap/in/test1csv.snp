@@ -1,6 +1,8 @@
+!file: teststnh.csv
 title Regression test 1csv - CSV format data/coords
 
 coordinate_file teststn.csv csv
+add_coordinate_file coordinates classes from teststnh.csv csv angle_format=dms
 data_file testobs.csv csv format=obs
 data_file testdms.csv csv format=obs angle_format=dms
 data_file testhp.csv csv format=obs angle_format=hp
@@ -15,7 +17,7 @@ list no_input_data
 list no_problem_definition
 list no_observation_equations
 list no_solution_summary
-list no_station_coordinates
+list station_coordinates
 list no_floated_stations
 list no_reference_frames
 list parameters

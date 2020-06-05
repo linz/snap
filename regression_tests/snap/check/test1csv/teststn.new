@@ -1,11 +1,11 @@
 Read from teststn.csv
 NZGD1949
 options ellipsoidal_heights no_deflections geoid_heights degrees c=Order c=Mark_Type
-! Updated by SNAP version 2.7.25-224b3ac2 at 25-MAY-2020 06:54:39
+! Updated by SNAP version 2.7.25-5ab8eedc at  6-JUN-2020 08:45:58
 
 !Code       Latitude          Longitude        Ell.Hgt   G.Hgt Order Mark_Type Name
-1        -41.01300000000    173.32100000000   150.0000  0.0000 2     PIN   Node one
-2        -41.00700000000    173.32800000000   250.0000  0.0000 2     PEG   Node two
+1        -41.01300000000    173.32100000000   150.0000  0.0000 2     POST  Node one
+2        -41.00700000000    173.32800000000   250.0000  0.0000 2     PILLAR Node two
 3        -41.00800000000    173.33300000000    70.0000  0.0000 3     BOLT  Node three
 4        -41.01300000000    173.32100000000   150.0000 30.0000 2     PIN   Node four
 5        -41.00700000000    173.32800000000   250.0000 30.0000 2     PEG   Node five

@@ -14,5 +14,6 @@ geoid_undulation @geoidhgt
 deflection_east @xi
 deflection_north @eta
 classification_columns c_**
+angle_format $angle_format default "degrees"
 
 

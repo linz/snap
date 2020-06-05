@@ -175,7 +175,6 @@
 		or &quot;orthometric&quot;. The default is &quot;orthometric&quot;.
 		The <i>value</i>s are calculated as describe <a href="#value">below</a>.
 	</p>
-
 	<p class="Commanddefinition">
 		CLASSIFICATION <i>name value</i>
 	</p>
@@ -194,6 +193,14 @@
 		will match any column with a name starting <i>prefix</i>,
 		and <i>prefix</i>** will match the same columns, but not include
 		the prefix as part of the name of the classification.
+	</p>
+	<p class="Commanddefinition">
+		ANGLE_FORMAT <i>format_type</i>
+	</p>
+	<p class="Commanddescription">
+		Defines how longitude and latitude coordinate values are expressed. This can be one of &quot;deg&quot;
+		(&quot;degrees&quot;),
+		&quot;dms&quot; (&quot;dms_angles&quot;), or &quot;hp&quot; (&quot;hp_angles&quot;).
 	</p>
 
 	<h2><a name="observation"></a>Observation commands</h2>
@@ -570,7 +577,7 @@
 		except that they apply
 		to
 		the entire data file, so they can include literal strings, configuration items, and lookup values but not column
-		data values (<i>@colname</i>).
+		data values (<i>@colname</i>). The classification columns <i>col1</i> ... can only be literal strings.
 	</p>
 
 	<div class="SeeAlso">

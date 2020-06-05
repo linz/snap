@@ -1,0 +1,3 @@
+"code","crdsys","longitude","latitude","ellheight","height_type","geoidhgt","c_Order","c_Mark_Type","name"
+"1","NZGD1949",173 19 15.6E,41 00 46.8 S,150.0000,"ellipsoidal",0.0000,"2","POST","Node one revisied"
+"2","NZGD1949",E 173 19 40.8,S 41 00 25.2,250.0000,"ellipsoidal",0.0000,"2","PILLAR","Node two revisied"
