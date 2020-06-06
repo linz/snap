@@ -165,8 +165,20 @@ ITRF88 "International Terrestrial Reference Frame 1988" ELLIPSOID GRS80 &
                             0      0      0     0        0        0        0      
    
 ! Geocentric Datum of Australia transformation parameters
+! Taken from the Geocentric Datum of Australia 2020 Technical Manual
+!
+! NOTE: Currently this does not use the distortion grid from
+! https://github.com/icsm-au/transformation_grids/blob/master/GDA94_GDA2020_conformal_and_distortion.gsb
+! This is not currently supported in the LINZ software (gsb format, multiresolution distortion
+! grid)
 
-GDA94 "Geocentric Datum of Australia" ELLIPSOID GRS80 NONE
+GDA94 "Geocentric Datum of Australia 94" ELLIPSOID GRS80 &
+ GDA2020 0.06155 -0.01087 -0.04019 -0.0394924 -0.0327221 -0.0328979 -0.009994
+
+GDA2020 "Geodetic Datum of Australia 2020" ELLIPSOID GRS80 &
+   ITRF2014 0 0 0 0 0 0 0 &
+   RATES 2020 0 0 0 -0.00150379 -0.00118346 -0.00120716 0
+
 
 ! Note - ITRF to GDA94 transformations below use the IERS convention for the sign
 ! of the rotations. Often in Australia, the opposite convention is used. Parameters
@@ -372,6 +384,7 @@ NZGD2000_20000101 "New Zealand Geodetic Datum 2000 (version 20000101)" REF_FRAME
 
 ! NZGD49 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
 NZGD1949 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
+NZGD1949_7PRM "New Zealand Geodetic Datum 1949 (7 parameter transformation)" REF_FRAME NZGD1949_7PRM GEODETIC
 ! NZGD49_DMA "New Zealand Geodetic Datum 1949 (Dma)" REF_FRAME NZGD1949_DMA GEODETIC
 ! NZGD1949_XYZ "New Zealand Geodetic Datum 1949 - Cartesian XYZ" REF_FRAME NZGD1949 GEOCENTRIC
 
@@ -379,6 +392,10 @@ NZGD1949 "New Zealand Geodetic Datum 1949" REF_FRAME NZGD1949 GEODETIC
 ! NZ Mapping projections
 
 NZMG "New Zealand Map Grid" REF_FRAME NZGD1949 &
+          PROJECTION NZMG &
+          RANGE 1600000 4800000 3600000 7200000
+
+NZMG_7PRM "New Zealand Map Grid (7 parameter transformation)" REF_FRAME NZGD1949_7PRM &
           PROJECTION NZMG &
           RANGE 1600000 4800000 3600000 7200000
 
@@ -398,7 +415,7 @@ NZTM_20171201 "New Zealand Transverse Mercator Projection (20171201)" REF_FRAME 
 
 NZTM_20160701 "New Zealand Transverse Mercator Projection (20160701)" REF_FRAME NZGD2000_20160701 &
           PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
-          RANGE 1000000 4650000 2300000 6350000
+          RANGE 1000000 4650000 2600000 6350000
 
 NZTM_20150101 "New Zealand Transverse Mercator Projection (20150101)" REF_FRAME NZGD2000_20150101 &
           PROJECTION TM 173.0 0.0 0.9996 1600000.0 10000000.0 1.0 &
@@ -741,7 +758,10 @@ FMG "Fiji Map Grid" REF_FRAME FIJI &
 
 ! Australian datums
 
+GDA2020 "Geocentric Datum of Australia (GDA2020)" REF_FRAME GDA2020 GEODETIC
+GDA2020_XYZ "Geocentric Datum of Australia (GDA2020) XYZ" REF_FRAME GDA2020 GEOCENTRIC
 GDA94 "Geocentric Datum of Australia (GDA94)" REF_FRAME GDA94 GEODETIC
+GDA94_XYZ "Geocentric Datum of Australia (GDA94) XYZ" REF_FRAME GDA94 GEOCENTRIC
 AGD66 "Australian Geodetic Datum 1966"  REF_FRAME AGD66 GEODETIC
 AGD84 "Australian Geodetic Datum 1984"  REF_FRAME AGD84 GEODETIC
 
@@ -787,6 +807,31 @@ MGA94-56 "MGA94 zone 56" REF_FRAME GDA94 &
 MGA94-57 "MGA94 zone 57" REF_FRAME GDA94 &
           PROJECTION TM 159 0 0.9996 500000 10000000 1
 MGA94-58 "MGA94 zone 58" REF_FRAME GDA94 &
+          PROJECTION TM 165 0 0.9996 500000 10000000 1
+
+! Map Grid of Australia 2020
+
+MGA2020-48 "MGA2020 zone 48" REF_FRAME GDA2020 &
+          PROJECTION TM 105 0 0.9996 500000 10000000 1
+MGA2020-49 "MGA2020 zone 49" REF_FRAME GDA2020 &
+          PROJECTION TM 111 0 0.9996 500000 10000000 1
+MGA2020-50 "MGA2020 zone 50" REF_FRAME GDA2020 &
+          PROJECTION TM 117 0 0.9996 500000 10000000 1
+MGA2020-51 "MGA2020 zone 51" REF_FRAME GDA2020 &
+          PROJECTION TM 123 0 0.9996 500000 10000000 1
+MGA2020-52 "MGA2020 zone 52" REF_FRAME GDA2020 &
+          PROJECTION TM 129 0 0.9996 500000 10000000 1
+MGA2020-53 "MGA2020 zone 53" REF_FRAME GDA2020 &
+          PROJECTION TM 135 0 0.9996 500000 10000000 1
+MGA2020-54 "MGA2020 zone 54" REF_FRAME GDA2020 &
+          PROJECTION TM 141 0 0.9996 500000 10000000 1
+MGA2020-55 "MGA2020 zone 55" REF_FRAME GDA2020 &
+          PROJECTION TM 147 0 0.9996 500000 10000000 1
+MGA2020-56 "MGA2020 zone 56" REF_FRAME GDA2020 &
+          PROJECTION TM 153 0 0.9996 500000 10000000 1
+MGA2020-57 "MGA2020 zone 57" REF_FRAME GDA2020 &
+          PROJECTION TM 159 0 0.9996 500000 10000000 1
+MGA2020-58 "MGA2020 zone 58" REF_FRAME GDA2020 &
           PROJECTION TM 165 0 0.9996 500000 10000000 1
 
 !===============================================================================
@@ -1001,19 +1046,19 @@ EGM96 "Earth Gravitational Model 1996" WGS84_G1762 GEOID egm96
 ! "Orthometric" height datums 
 !
 
-AUCKHT1946 "Auckland 1946 (NZVD2016)"       NZVD2016 GRID auckht1946_nzvd2016_offset.bin
-BLUFHT1955 "Bluff 1955 (NZVD2016)"          NZVD2016 GRID blufht1955_nzvd2016_offset.bin
-DUBLHT1960 "Dunedin-Bluff 1960 (NZVD2016)"  NZVD2016 GRID dublht1960_nzvd2016_offset.bin
-DUNEHT1958 "Dunedin 1958 (NZVD2016)"        NZVD2016 GRID duneht1958_nzvd2016_offset.bin
-GISBHT1926 "Gisborne 1926 (NZVD2016)"       NZVD2016 GRID gisbht1926_nzvd2016_offset.bin
-LYTTHT1937 "Lyttelton 1937 (NZVD2016)"      NZVD2016 GRID lyttht1937_nzvd2016_offset.bin
-MOTUHT1953 "Moturiki 1953 (NZVD2016)"       NZVD2016 GRID motuht1953_nzvd2016_offset.bin
-NAPIHT1962 "Napier 1962 (NZVD2016)"         NZVD2016 GRID napiht1962_nzvd2016_offset.bin
-NELSHT1955 "Nelson 1955 (NZVD2016)"         NZVD2016 GRID nelsht1955_nzvd2016_offset.bin
-ONTPHT1964 "One Tree Point 1964 (NZVD2016)" NZVD2016 GRID ontpht1964_nzvd2016_offset.bin
-STISHT1977 "Stewart Island 1977 (NZVD2016)" NZVD2016 GRID stisht1977_nzvd2016_offset.bin
-TARAHT1970 "Taranaki 1970 (NZVD2016)"       NZVD2016 GRID taraht1970_nzvd2016_offset.bin
-WELLHT1953 "Wellington 1953 (NZVD2016)"     NZVD2016 GRID wellht1953_nzvd2016_offset.bin
+AUCKHT1946 "Auckland 1946 (from NZVD2016)"       NZVD2016 GRID auckht1946_nzvd2016_offset.bin
+BLUFHT1955 "Bluff 1955 (from NZVD2016)"          NZVD2016 GRID blufht1955_nzvd2016_offset.bin
+DUBLHT1960 "Dunedin-Bluff 1960 (from NZVD2016)"  NZVD2016 GRID dublht1960_nzvd2016_offset.bin
+DUNEHT1958 "Dunedin 1958 (from NZVD2016)"        NZVD2016 GRID duneht1958_nzvd2016_offset.bin
+GISBHT1926 "Gisborne 1926 (from NZVD2016)"       NZVD2016 GRID gisbht1926_nzvd2016_offset.bin
+LYTTHT1937 "Lyttelton 1937 (from NZVD2016)"      NZVD2016 GRID lyttht1937_nzvd2016_offset.bin
+MOTUHT1953 "Moturiki 1953 (from NZVD2016)"       NZVD2016 GRID motuht1953_nzvd2016_offset.bin
+NAPIHT1962 "Napier 1962 (from NZVD2016)"         NZVD2016 GRID napiht1962_nzvd2016_offset.bin
+NELSHT1955 "Nelson 1955 (from NZVD2016)"         NZVD2016 GRID nelsht1955_nzvd2016_offset.bin
+ONTPHT1964 "One Tree Point 1964 (from NZVD2016)" NZVD2016 GRID ontpht1964_nzvd2016_offset.bin
+STISHT1977 "Stewart Island 1977 (from NZVD2016)" NZVD2016 GRID stisht1977_nzvd2016_offset.bin
+TARAHT1970 "Taranaki 1970 (from NZVD2016)"       NZVD2016 GRID taraht1970_nzvd2016_offset.bin
+WELLHT1953 "Wellington 1953 (from NZVD2016)"     NZVD2016 GRID wellht1953_nzvd2016_offset.bin
 
 AUCKHT1946_NZVD09 "Auckland 1946 (NZVD09)"       NZVD09 OFFSET 0.34
 BLUFHT1955_NZVD09 "Bluff 1955 (NZVD09)"          NZVD09 OFFSET 0.36
