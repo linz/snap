@@ -217,6 +217,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\linklist.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\lsobseq.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\optionstring.cpp" />
+    <ClCompile Include="..\..\..\src\snaplib\util\parseangle.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\polygon.cpp" />
     <ClCompile Include="..\..\..\src\snaplib\util\probfunc.c" />
     <ClCompile Include="..\..\..\src\snaplib\util\progress.c" />
@@ -317,6 +318,7 @@
     <ClInclude Include="..\..\..\src\snaplib\util\license.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\linklist.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\lsobseq.h" />
+    <ClInclude Include="..\..\..\src\snaplib\util\parseangle.hpp" />
     <ClInclude Include="..\..\..\src\snaplib\util\optionstring.hpp" />
     <ClInclude Include="..\..\..\src\snaplib\util\pi.h" />
     <ClInclude Include="..\..\..\src\snaplib\util\probfunc.h" />

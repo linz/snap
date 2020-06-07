@@ -409,6 +409,9 @@
     <ClCompile Include="..\..\..\src\snaplib\util\optionstring.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\parseangle.cpp">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.c">
       <Filter>Source Files\network</Filter>
     </ClCompile>
@@ -754,6 +757,9 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\optionstring.hpp">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\snaplib\util\parseangle.hpp">
       <Filter>Header Files\util</Filter>
     </ClInclude>
   </ItemGroup>

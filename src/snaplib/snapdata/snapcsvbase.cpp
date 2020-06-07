@@ -493,7 +493,7 @@ const string SnapCsvBase::getConfigValue(const std::string &name, const string &
             if (match[7].length() > 0)
             {
                 std::string key = _config.valueOf(match[7].str());
-                std::string *keyval = map.lookup(key);
+                const std::string *keyval = map.lookup(key);
                 if (keyval)
                 {
                     nextpart = *keyval;
