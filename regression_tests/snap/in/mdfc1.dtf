@@ -3,11 +3,11 @@ format CSV
 required_columns code ordv1 ordv2 ordv3
 
 code @CODE
-name @ALTN
-coordinate_system $crdsys default "NZGD2000(20160701)"
+name @NAME
+coordinate_system $crdsys default "NZGD2000"
 height_type "ellipsoidal"
 longitude @ORDV2
 latitude @ORDV1
 height @ORDV3
 classification Order @CROD
-classification_columns MRKS MRKT EXMK 
+classification_columns MRKS MRKT EXMK DISTRICT ALTN COMM

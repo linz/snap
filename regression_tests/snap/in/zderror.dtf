@@ -5,8 +5,8 @@ instrument_station @from
 target_station @to
 set_id @set
 datetime @date
-datetime_format YMD
+datetime_format "YMD"
 value @angle
 error @SEC "sec " @MMH "mmh " @MMV "mmv"
-zenith_distance_error_type calculated
+zenith_distance_error_type "calculated"
 end_observation

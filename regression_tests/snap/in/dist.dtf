@@ -4,8 +4,8 @@ type "SD"
 instrument_station @from
 target_station @to
 datetime @date
-datetime_format YMD
+datetime_format "YMD"
 value @dist
 error "6mm 20ppm"
-distance_error_type calculated
+distance_error_type "calculated"
 end_observation

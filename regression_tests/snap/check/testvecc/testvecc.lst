@@ -1,15 +1,15 @@
 ================================================================================
 
-                      PROGRAM SNAP  Version 2.7.14-f90eaf0
+                     PROGRAM SNAP  Version 2.7.26-8c3a6841
 
                        Survey Network Adjustment Program
 
                     Copyright: Land Information New Zealand
                               Author: Chris Crook
-                       Version date: Sep  8 2018 08:54:01
+                       Version date: Jun  7 2020 16:59:36
 
 ================================================================================
-                     Run at  8-SEP-2018 09:03:51 by ccrook
+                     Run at  8-JUN-2020 08:02:25 by ccrook
 
 
 
@@ -47,7 +47,7 @@ Data file 5: testlv.csv
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                                 SOLUTION SUMMARY
 
@@ -73,7 +73,7 @@ or the fixed stations may be incorrectly positioned
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                               STATION COORDINATES
 
@@ -95,50 +95,50 @@ Rejected stations are flagged #
             Longitude       (metres)  Ellipse
             Height                    Hgt err
 
- BU34   36 24 47.915280 S      -         -          BU34
+ BU34   36 24 47.915280 S      -         -          SM 6670 SO 62140
        174 40 11.472168 E      -         -
              151.1240          -         -
 
- BUZZ   36 24 47.915280 S      -         -          BUZZ
+ BUZZ   36 24 47.915280 S      -         -          SM 6670 SO 62140
        174 40 04.272168 E      -         -
              251.1240          -         -
 
- C5MH   36 24 40.774680 S      -         -          C5MH
+ C5MH   36 24 40.774680 S      -         -          IT 6669 SO 62140
        174 40 19.766856 E      -         -
              154.5160          -         -
 
- C5MK   36 24 29.198160 S      -         -          C5MK
+ C5MK   36 24 29.198160 S      -         -          SM 6667 SO 62138
        174 40 17.995584 E      -         -
              140.6720          -         -
 
- DLL1   36 05 17.589480 S      -         -          DLL1
+ DLL1   36 05 17.589480 S      -         -          IT V DP 121860
        174 35 06.594864 E      -         -
               53.2220          -         -
 
- DLLL   36 04 57.664056 S      -         -          DLLL
+ DLLL   36 04 57.664056 S      -         -          LP I SO 60868
        174 35 32.351208 E      -         -
               54.1410          -         -
 
- DMJN   36 04 56.388756 S      -         -          DMJN
+ DMJN   36 04 56.388756 S      -         -          LP IV SO 61281
        174 35 21.222492 E      -         -
               47.8680          -         -
 
- EH91   36 24 45.948672 S      -         -          EH91
+ EH91   36 24 45.948672 S      -         -          IT 1 DP 402188
        174 40 00.719184 E      -         -
              149.6620          -         -
 
- EHJJ   36 04 56.492904 S      -         -          EHJJ
+ EHJJ   36 04 56.492904 S      -         -          IT I DP 339335
        174 35 11.062716 E      -         -
              109.7630          -         -
 
- WHNG   35 48 13.577256 S      -         -          WHNG
+ WHNG   35 48 13.577256 S      -         -          Whangarei GPS
        174 18 52.440120 E      -         -
              172.8150          -         -
 
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                            REFERENCE FRAME PARAMETERS
 
@@ -162,7 +162,7 @@ Reference frame: GPS
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                                 OTHER PARAMETERS
 
@@ -171,13 +171,12 @@ Testing CSV input                                            8-SEP-2018 09:03:51
 The errors listed for calculated parameters are apriori errors
 
 Parameter                          value         +/-
-
 Refr coef DEFAULT                    0.07500       -     
 
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                              OBSERVATION RESIDUALS
 
@@ -323,7 +322,7 @@ BU34  BUZZ  LV      100.1000 0.0035    100.0000 0.0000  0.1000 0.0035  28.86  ??
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                                  ERROR SUMMARY
 
@@ -371,7 +370,7 @@ testlv.csv                                 65.45    6     -      -   65.45    6
 
 
 ================================================================================
-Testing CSV input                                            8-SEP-2018 09:03:51
+Testing CSV input                                            8-JUN-2020 08:02:25
 
                            MOST SIGNIFICANT RESIDUALS
 

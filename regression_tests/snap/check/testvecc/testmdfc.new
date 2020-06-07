@@ -1,16 +1,16 @@
 Read from testmdfc.csv
-NZGD2000(20160701)
-options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=MRKS c=MRKT c=EXMK
-! Updated by SNAP version 2.7.14-f90eaf0 at  8-SEP-2018 09:03:51
+NZGD2000
+options ellipsoidal_heights no_deflections no_geoid_heights degrees c=Order c=MRKS c=MRKT c=EXMK c=DISTRICT c=ALTN c=COMM
+! Updated by SNAP version 2.7.26-8c3a6841 at  8-JUN-2020 08:02:25
 
-!Code       Latitude          Longitude        Ell.Hgt Order MRKS  MRKT  EXMK  Name
-BU34     -36.41330980000    174.66985338000   151.1240 2k4   COMM  PIN   Y     BU34
-BUZZ     -36.41330980000    174.66785338000   251.1240 2k4   COMM  PIN   Y     BUZZ
-C5MH     -36.41132630000    174.67215746000   154.5160 2k5   COMM  IT    Y     C5MH
-C5MK     -36.40811060000    174.67166544000   140.6720 2k5   COMM  PIN   Y     C5MK
-DLL1     -36.08821930000    174.58516524000    53.2220 2k5   COMM  IT    Y     DLL1
-DLLL     -36.08268446000    174.59231978000    54.1410 2k5   COMM  LP    Y     DLLL
-DMJN     -36.08233021000    174.58922847000    47.8680 2k5   COMM  LP    Y     DMJN
-EH91     -36.41276352000    174.66686644000   149.6620 2k5   PEND  IT    N     EH91
-EHJJ     -36.08235914000    174.58640631000   109.7630 2k5   PEND  IT    N     EHJJ
-WHNG     -35.80377146000    174.31456670000   172.8150 2k0   COMM  OTHR  Y     WHNG
+!Code       Latitude          Longitude        Ell.Hgt Order MRKS  MRKT  EXMK  DISTRICT ALTN  COMM  Name
+BU34     -36.41330980000    174.66985338000   151.1240 2k4   COMM  PIN   Y     AK    -     -     SM 6670 SO 62140
+BUZZ     -36.41330980000    174.66785338000   251.1240 2k4   COMM  PIN   Y     AK    -     -     SM 6670 SO 62140
+C5MH     -36.41132630000    174.67215746000   154.5160 2k5   COMM  IT    Y     AK    -     -     IT 6669 SO 62140
+C5MK     -36.40811060000    174.67166544000   140.6720 2k5   COMM  PIN   Y     AK    -     -     SM 6667 SO 62138
+DLL1     -36.08821930000    174.58516524000    53.2220 2k5   COMM  IT    Y     AK    -     -     IT V DP 121860
+DLLL     -36.08268446000    174.59231978000    54.1410 2k5   COMM  LP    Y     AK    -     -     LP I SO 60868
+DMJN     -36.08233021000    174.58922847000    47.8680 2k5   COMM  LP    Y     AK    -     -     LP IV SO 61281
+EH91     -36.41276352000    174.66686644000   149.6620 2k5   PEND  IT    N     AK    -     -     IT 1 DP 402188
+EHJJ     -36.08235914000    174.58640631000   109.7630 2k5   PEND  IT    N     AK    -     -     IT I DP 339335
+WHNG     -35.80377146000    174.31456670000   172.8150 2k0   COMM  OTHR  Y     AK    -     -     Whangarei GPS

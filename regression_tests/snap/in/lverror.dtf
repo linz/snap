@@ -4,8 +4,8 @@ type "LV"
 instrument_station @from
 target_station @to
 datetime @date
-datetime_format YMD
+datetime_format "YMD"
 value @hdiff
 error @calcerr
-height_difference_error_type calculated
+height_difference_error_type "calculated"
 end_observation
