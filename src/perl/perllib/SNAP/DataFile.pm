@@ -10,7 +10,7 @@ package SNAP::ObsSet;
 
 sub new {
    my( $class,$from,$fromhgt, $obs, $cvr) = @_;
-   my $self = { from=>$from, fromhgt=>$fromhgt, obs=>$obs, cvr=>($cvr || []) };
+   my $self = { from=>$from, fromhgt=>$fromhgt, obs=>$obs, pnt=>0, cvr=>($cvr || []) };
    return bless $self, $class;
    }
 
@@ -57,8 +57,10 @@ my $datatypes = {
    'AZ' => { nval=>0, nerr=>1, grouped=>0, bearing=>1, distance=>0, projection=>0, errmult=>1.0/3600.0 },
    'PB' => { nval=>0, nerr=>1, grouped=>0, bearing=>1, distance=>0, projection=>1, errmult=>1.0/3600.0 },
    'LV' => { nval=>1, nerr=>1, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0 },
-   'LN' => { nval=>1, nerr=>1, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0/3600.0 },
-   'LT' => { nval=>1, nerr=>1, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0/3600.0 },
+   'LN' => { nval=>1, pnt=>1, nerr=>1, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0/3600.0 },
+   'LT' => { nval=>1, pnt=>1, nerr=>1, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0/3600.0 },
+   'EH' => { nval=>1, pnt=>1, nerr=>1, grouped=>1, bearing=>0, distance=>0, projection=>0, errmult=>1.0 },
+   'OH' => { nval=>1, pnt=>1, nerr=>1, grouped=>1, bearing=>0, distance=>0, projection=>0, errmult=>1.0 },
    'GB' => { nval=>3, nerr=>0, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0 },
    'GPS' => { nval=>3, nerr=>0, grouped=>0, bearing=>0, distance=>0, projection=>0, errmult=>1.0 },
    };
@@ -69,6 +71,8 @@ my $cvr_types = {
    DIAGONAL => [3,3,0],
    ENU => [3,3,0]
    };
+
+my %months = qw/JAN 01 FEB 02 MAR 03 APR 04 MAY 05 JUN 06 JUL 07 AUG 08 SEP 09 OCT 10 NOV 11 DEC 12/;
 
 sub open {
    my($class,$file) = @_;
@@ -93,6 +97,24 @@ sub _error {
    die join('',@_,"\n");
    }
 
+sub parseDate
+{
+   my $srcdate=join(' ',@_);
+   my @date=split(/\W/,$srcdate);
+   my $mon=$date[1];
+   $mon=$months{uc(substr($mon,0,3))} if $mon !~ /\d\d/;
+   $date[1]=$mon;
+   if( $date[2] =~ /\d\d\d\d/ )
+   {
+      my $y=$date[2];
+      $date[2]=$date[0];
+      $date[2]=$y;
+   }
+   my $datestr=$date[0].'-'.$date[1].'-'.$date[2];
+   die "Invalid date $srcdate\n" if $datestr !~ /^(19|20)\d\d\-[01]\d-[0123]\d$/;
+   return $datestr;
+}
+
 sub filename { return $_[0]->{name}; }
 sub title { return $_[0]->{title}; }
 sub close 
@@ -115,6 +137,7 @@ sub next {
    my $obs = [];
    my $cvr = undef;
    my $ncvr = 0;
+   my $pnt = $self->{pnt};
 
    while( 1 ) {
       last if ! ($line = $self->{nextline} || $fh->getline);
@@ -160,6 +183,7 @@ sub next {
                                  };
                     push(@{$self->{data}},$datafield);
                     $grouped = $self->{grouped} = 1 if $datatype->{grouped};
+                    $pnt = $self->{pnt} = $datatype->{pnt};
                     }
                  elsif( $datafield &&
                         ($field =~ /^(value|error|time|distance_scale_error|refraction_coefficient|bearing_orientation_error)$/i ||
@@ -209,7 +233,8 @@ sub next {
               $self->{classification}->{lc($values[0])} = {};
               }
            elsif( $def eq 'date' ) {
-              $self->{date} = @values == 3 ? uc(join(' ',@values)) : undef;
+
+              $self->{date} = parseDate(@values);
               }
            elsif( $def eq 'dms_angles' ) {
               $self->{angleformat} = 3;
@@ -241,7 +266,7 @@ sub next {
       
       my $rejected = ($line =~ s/^\s*\*//);
       my @data = split(' ',$line);
-      my $grouphdr = $grouped && (scalar(@data) <= (1 + $heights));
+      my $grouphdr = $grouped && (scalar(@data) <= (1 + $heights)) && ! $pnt;
       my $colno = 0;
       if( ! $grouped || $grouphdr ) {
          if( @$obs ) {
@@ -253,8 +278,16 @@ sub next {
          next if $grouphdr;
          }
 
-      $tostn = $data[$colno++];
-      $tohgt = $heights ? $data[$colno++] : 0.0;
+      if( ! $pnt )
+      {
+         $tostn = $data[$colno++];
+         $tohgt = $heights ? $data[$colno++] : 0.0;
+      }
+      else
+      {
+         $tostn='';
+         $tohgt=0.0;
+      }
 
       foreach my $dataitem (@{$self->{data}}) {
           my $fields = $dataitem->{fields};
