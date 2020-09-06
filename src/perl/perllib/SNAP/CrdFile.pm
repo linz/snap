@@ -43,11 +43,7 @@ sub _basepath {
 
 sub _coordsyslist {
    if( $cslist ) { return $cslist };
-   $csfile = $ENV{'COORDSYSDEF'};
-   $csfile = _basepath().'coordsys.def' if $csfile eq '';
-   $csfile = 'coordsys.def' if ! -r $csfile;
-   return undef if ! -r $csfile;
-   $cslist = newFromCoordSysDef LINZ::Geodetic::CoordSysList( $csfile );
+   $cslist = newFromCoordSysDef LINZ::Geodetic::CoordSysList();
    return $cslist; 
    }
 
