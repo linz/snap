@@ -1,3 +1,4 @@
 LINZ functions -
+  * Configure environment for python and LINZ geodetic scripts
   * Landonline adjustment DUMPSQL import function
   * Advanced coordinate order calculation options 
