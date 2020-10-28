@@ -273,7 +273,7 @@ coordsys * load_coordsys( const char *code )
         {
             if( ! coordsys_vdatum_compatible( cs, hrs ) )
             {
-                char errmsg[80];
+                char errmsg[100];
                 sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
                         hrs->code, cs->code );
                 handle_error( INVALID_DATA, errmsg, nullptr );

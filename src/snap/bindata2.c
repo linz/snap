@@ -198,8 +198,8 @@ static int maxrow, maxlt, last_file_loc;
 
 static void program_error( const char *msg, const char *routine )
 {
-    char msg1[120];
-    char msg2[80];
+    char msg1[150];
+    char msg2[100];
     sprintf(msg1,"Internal program error: %.100s",msg);
     sprintf(msg2,"Occurred in %.60s",routine);
     handle_error( INTERNAL_ERROR, msg1, msg2 );

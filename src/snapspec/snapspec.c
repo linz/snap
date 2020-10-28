@@ -2341,7 +2341,7 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
     }
     if( remainder )
     {
-        char buf[120];
+        char buf[150];
         sprintf(buf,"Error - invalid format %.60s in station_configuration_file command",
                 remainder);
         send_config_error(cfg, INVALID_DATA, buf );
