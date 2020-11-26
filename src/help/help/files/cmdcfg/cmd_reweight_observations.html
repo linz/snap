@@ -38,8 +38,8 @@ Observations can be selected based upon observation type, observation date, stat
     </li>
     <li>
        an centroid error that specifies an error in the centroid of a set of GNSS 
-       derived coordinates such as a SINEX file.  This error is applied to the covariance of the
-       set to reflect an uncertainty location of the set relative to the reference frame.
+       derived coordinates such as in a SINEX file.  This error is applied to the covariance of the
+       set to reflect an uncertainty in the location of the set as a whole relative to the reference frame.
     </li>
 </ul>
 
@@ -47,7 +47,7 @@ Observations can be selected based upon observation type, observation date, stat
 <p>The offset error and centroid are experimental features which attempt to remedy 
 deficiencies in the covariance information resulting from GNSS processing software 
 and are only supported for data types GX (coordinate observations) 
-and GB (baseline basline observations).  Centroid errors do not apply to GB observations.
+and GB (baseline observations).  Centroid errors do not apply to GB observations.
 For other data types the offset errors are silently ignored.
 They can each be specified with horizontal and vertical error components and
 are applied after scale factors have been applied.  They are specified with one of the following formats:
