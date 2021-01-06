@@ -4,6 +4,11 @@
 
 # build type either debug or release
 type=release
+ifdef SNAP_BUILD_DIR
+builddir=$(SNAP_BUILD_DIR)
+else
+builddir=$(type)
+endif
 
 COORDSYSDIR=/usr/share/linz/coordsys
 INSTALLDIR=${DESTDIR}/usr/share/linz/snap
@@ -50,8 +55,8 @@ MD=echo
 endif
 
 SRCDIR = ../src
-INSTALL = $(type)/install
-OBJ = $(type)/obj
+INSTALL = $(builddir)/install
+OBJ = $(builddir)/obj
 SNAPLIB = $(OBJ)/snaplib.a
 WXUTILSLIB = $(OBJ)/wxutils.a
 SNAPEXE = $(INSTALL)/snap
@@ -80,7 +85,7 @@ CCFLAGS := $(CCPARAM) \
 all: snap_all
 
 help:
-	@echo "make type=(release|install) (all|snap_cmd|test|install|package)"
+	@echo "make type=(release|debug) (all|snap_cmd|test|install|package)"
 	@echo ""
 	@echo "release builds optimised version for install/packaging"
 	@echo "install/package require all changes to be committed"
@@ -98,7 +103,7 @@ install: installable all
 package: installable
 	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
 	@echo "Building debian package"
-	debuild -uc -us -b
+	SNAP_BUILD_DIR=$(builddir) debuild -uc -us -b
 else
 install: 
 	@echo "Can only build installation for release version"

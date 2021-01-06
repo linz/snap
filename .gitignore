@@ -1,8 +1,10 @@
 .svn/
+.vscode/
 *.swp
 *.o
 *.obj
 *.aps
+debs/
 makefile.inc
 /boost/
 /documents/
