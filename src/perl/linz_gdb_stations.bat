@@ -19,9 +19,15 @@ goto endofperl
 
 use strict;
 
+use Getopt::Std;
+use LWP::UserAgent;
+use HTTP::Request::Common;
+
 my $lookup_coords_url = 'https://www.geodesy.linz.govt.nz/update-snap-file/';
 
-use Getopt::Std;
+my $ua = LWP::UserAgent->new;
+$ua->env_proxy;
+push @{ $ua->requests_redirectable }, 'POST';
 
 my %opts;
 getopts("mv",\%opts);
@@ -54,16 +60,41 @@ open(IN,"<$crdfile0") || die "Invalid input file $crdfile0 specified\n";
 my $header=<IN>;
 my $coordsys='';
 my $line='\n';
+my $ismdfc=0;
+my $uploadfile='';
 
-if( $header !~ /^.*\bORDV1\b.*\bORDV2\b.*\bORDV3\b/i )
+my $mdfc=$header =~ /^.*\bORDV1\b.*\bORDV2\b.*\bORDV3\b/i;
+if( $mdfc )
 {
-    while($coordsys eq '')
+    my $in=join("",$header,<IN>);
+    close(IN);
+
+    my $response = $ua->request(
+           POST $lookup_coords_url,
+            { input_file => $in,
+              cbMarkType => $addmarktype,
+              Go => 'Go'
+              }
+           );
+         
+    die $response->message."\n" if ! $response->is_success;
+    my $output=$response->content;
+    if( $output !~ /^.*\bORDV1\b.*\bORDV2\b.*\bORDV3\b/i )
     {
-        $line=<IN>;
-        last if ! $line;
-        next if $line =~ /^\s*(\!|$)/;
-        $coordsys=$line;
+        die "Cannot read coordinates from GDB\n$output" 
     }
+    open(OUT,">$crdfile1") || die "Cannot create coordinate file $crdfile1\n";
+    print OUT $output;
+    close(OUT);
+    exit(0);
+}
+
+while($coordsys eq '')
+{
+    $line=<IN>;
+    last if ! $line;
+    next if $line =~ /^\s*(\!|$)/;
+    $coordsys=$line;
 }
 
 my @codes=();
@@ -81,13 +112,6 @@ die "No geodetic codes found in $crdfile0\n" if ! @codes;
 $|=1 if $verbose;
 
 my $ncodes=scalar(@codes);
-
-use LWP::UserAgent;
-use HTTP::Request::Common;
-
-my $ua = LWP::UserAgent->new;
-$ua->env_proxy;
-push @{ $ua->requests_redirectable }, 'POST';
 
 my $crddata='';
 my $crdheader='';
@@ -117,11 +141,6 @@ for( my $i0=0; $i0 < $ncodes; $i0 += $maxperrequest )
     if( $output =~ /^.*\n(:?NZGD2000|RSRGD2000)\n/ )
     {
         $output =~s/^((.*\n){4})//;
-        $crdheader=$1 if ! $crdheader 
-    }
-    elsif( $output =~ /^.*\bORDV1\b.*\bORDV2\b.*\bORDV3\b/i )
-    {
-        $output=~s/^(.*\n)//;
         $crdheader=$1 if ! $crdheader 
     }
     else
