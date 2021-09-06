@@ -244,7 +244,7 @@ support_files: coordsys
 	@$(CP) -r -p $(SRCDIR)/snaplist/config/* $(INSTALL)/config
 	@$(CP) -r -p $(SRCDIR)/snap_manager/config/* $(INSTALL)/config
 	@$(CP) $(SRCDIR)/VERSION $(INSTALL)/
-	@git rev-parse --short HEAD > $(INSTALL)/VERSIONID
+	@if which git; then git rev-parse --short HEAD > $(INSTALL)/VERSIONID; fi
 
 help_files: helpfile 
 
