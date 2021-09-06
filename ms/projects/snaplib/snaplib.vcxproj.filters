@@ -457,6 +457,9 @@
     <ClCompile Include="..\..\..\src\snaplib\util\getversion.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\wildcard.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snaplib\dbl4\dbl4_tfm_crd.h">
@@ -718,9 +721,6 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\versioninfo.h">
-      <Filter>Header Files\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\src\snaplib\util\wildcard.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\writecsv.h">

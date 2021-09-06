@@ -64,11 +64,11 @@ int main(int argc,char *argv[])
 			debug = 2;
 
 		} else if( check( "-h","--help" ) ) {
-			printf( help_message );
+			puts( help_message );
 			return 0;
 
 		} else if( check( "-v","--version" ) ) {
-			printf( 
+			puts( 
 				"lapg v" VERSION " build " BUILD "\n"
 				"Evgeny Gryaznov, 2002-07, inspirer@inbox.ru\n" );
 			return 0;

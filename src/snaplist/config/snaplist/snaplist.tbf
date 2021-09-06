@@ -12,7 +12,7 @@ end_text
 ! The angle format can be varied throughout the configuration file.  Each
 ! angle column in a table uses the most recent format defined.
 
-angle_format ###\xF8##'##"
+angle_format ###\xC2\xB0##'##"
 
 
 ! Define a table.... between table and end_table

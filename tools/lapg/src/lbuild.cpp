@@ -212,7 +212,7 @@ int LexicalBuilder::lexem( int num, char *regexp, char *name,
 		sym[length] = getnext( l );
 
 		switch( sym[length] ) {
-			case LBR:
+			case (int) LBR:
 				stack[e] = length;
 				if( ++e >= MAX_DEEP ) {
 					err->error( 0, "lex: regular expression is too deep: /%s/\n", regexp );
@@ -220,9 +220,9 @@ int LexicalBuilder::lexem( int num, char *regexp, char *name,
 					return 0;
 				}
 				break;
-			case OR:
+			case (int) OR:
 				if( e == 1 ) addbrackets = 1; break;
-			case RBR:
+			case (int) RBR:
 				if( --e == 0 ) goto error;
 				sym[stack[e]] |= length;
 				/* FALLTHROUGH */
