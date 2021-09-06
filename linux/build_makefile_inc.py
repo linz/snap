@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 import os
 import re
 from os.path import dirname, join, abspath
@@ -30,21 +31,21 @@ if 'snapadjust' in modules:
         if not f.endswith('/main.o'):
             modules['snapadjust'].append(f)
 
-print '''
+print( '''
 OBJDIRS = \\
     $(TYPE) \\
     $(INSTALL) \\
-    $(OBJ) \\'''
+    $(OBJ) \\''')
 
 for dir in sorted(objdirs):
-    print "    $(OBJ)"+dir+ " \\"
+    print( "    $(OBJ)"+dir+ " \\")
 
-print ''
+print('')
 
 for m in sorted(modules.keys()):
     files = modules[m]
     m = m.upper()+'OBJS'
-    print m,' = \\'
+    print(m,' = \\')
     for file in files:
-        print "    $(OBJ)"+file+ " \\"
-    print ''
+        print("    $(OBJ)"+file+ " \\")
+    print('')
