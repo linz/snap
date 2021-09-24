@@ -154,7 +154,7 @@ rebuild_makefile: $(SRCDIR)/snap_manager/scriptimp_parse.cpp
 	@python build_makefile_inc.py > $(INCFILE)
 
 $(INCFILE): $(SRCDIR)/snap_manager/scriptimp_parse.cpp
-	@python build_makefile_inc.py > $(INCFILE)
+	@python3 build_makefile_inc.py > $(INCFILE)
 
 $(OBJ)/%.o: $(SRCDIR)/%.cpp
 	@mkdir -p `dirname $@` 

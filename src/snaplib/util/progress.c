@@ -16,7 +16,9 @@
 */
 
 #include <stdio.h>
+#include <string.h>
 #include <stdint.h>
+#include <stdlib.h>
 
 #include "util/progress.h"
 
@@ -41,6 +43,8 @@ static long lasttick;
 static long meter_max;
 static int meter_drawn;
 static int npts;
+static int newline=0;
+static int showmeter=1;
 static FILE *infile = NULL;
 
 static void default_init_progress_meter( long total_size );
@@ -73,12 +77,19 @@ static long elapsed_time ( long ref_time )
 static void draw_meter( int ntick )
 {
     int nch=0;
-    putchar('\r');
+    if( ! newline ) putchar('\r');
     fputs(HEADER_STRING,stdout);
     for (nch=0; nch < METER_LEN; nch++ ) putchar(nch < ntick ? FILL_CHAR : SPACE_CHAR);
     fputs(TAIL_STRING,stdout);
-    putchar('\r');
-    fputs(HEADER_STRING,stdout);
+    if( newline )
+    {
+        putchar('\n');
+    }
+    else
+    {
+        putchar('\r');
+        fputs(HEADER_STRING,stdout);
+    }
     fflush( stdout );
     npts = METER_LEN;
     meter_drawn = 1;
@@ -117,9 +128,12 @@ static void default_update_progress_meter( long progress )
 static void default_end_progress_meter( void )
 {
     if( !meter_drawn ) return;
-    putchar('\r');
-    for (npts=TOTAL_LEN; npts--;) putchar(' ');
-    putchar('\r');
+    if( ! newline )
+    {
+        putchar('\r');
+        for (npts=TOTAL_LEN; npts--;) putchar(' ');
+        putchar('\r');
+    }
     fflush(stdout);
 }
 
@@ -169,17 +183,23 @@ void reinstall_default_progress_meter( void )
 
 void init_progress_meter( long total_size )
 {
-    if( init_meter ) (*init_meter)( total_size );
+    const char *progressopt=getenv("SNAP_PROGRESS_METER");
+    if( progressopt )
+    {
+        if( _stricmp(progressopt,"newline") == 0 ) newline=1;
+        if( _stricmp(progressopt,"none") ==0 ) showmeter=0;
+    }
+    if( showmeter && init_meter ) (*init_meter)( total_size );
 }
 
 void update_progress_meter( long progress )
 {
-    if( update_meter ) (*update_meter)( progress );
+    if( showmeter && update_meter ) (*update_meter)( progress );
 }
 
 void end_progress_meter( void )
 {
-    if( end_meter ) (*end_meter)();
+    if( showmeter && end_meter ) (*end_meter)();
 }
 
 
