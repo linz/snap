@@ -147,7 +147,7 @@ static config_item snap_commands[] =
     {"mode",&program_mode,CFG_ABSOLUTE,0,read_program_mode,CONFIG_CMD,0},
     {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,CFG_ONEONLY, 0},
+    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0 , 0},
     {"station_offset_file",NULL,CFG_ABSOLUTE,0,load_offset_file,0, 0},
     {"topocentre",NULL,CFG_ABSOLUTE,0,read_topocentre,CFG_ONEONLY,0},
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,0},

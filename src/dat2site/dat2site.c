@@ -2949,7 +2949,7 @@ static config_item snap_commands[] =
 {
     {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,CFG_ONEONLY, 0},
+    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0 , 0},
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
     {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,1},
     {"include",NULL,CFG_ABSOLUTE,0,read_include_file,0,0},
