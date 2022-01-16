@@ -370,7 +370,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
         }
     }
 
-    fileid=add_data_file( fname, ftype, options, recode, get_config_directory(cfg) );
+    fileid=add_data_file( fname, ftype, options, recode, current_file_context() );
 
     if( factor != 1.0 )
     {

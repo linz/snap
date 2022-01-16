@@ -1026,7 +1026,7 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
         return -1;
     }
 
-    int file_id = obsmod->get_fileid( datafile, get_config_directory(cfg) );
+    int file_id = obsmod->get_fileid( datafile, current_file_context() );
     if( file_id < 0 && missing_error != OK )
     { 
         char errmess[120];

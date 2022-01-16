@@ -55,6 +55,7 @@ long read_data_files( FILE *lst )
     long file_errors, total_errors, misc_errors;
     char *fname;
     stn_recode_data recodedata;
+    file_context *saved_context = current_file_context();
 
     nfile = survey_data_file_count();
     if( nfile <= 0 ) return 0;
@@ -74,7 +75,6 @@ long read_data_files( FILE *lst )
     }
     fname = (char *) check_malloc( nch );
 
-    push_project_dir(0);
     for( i = 0; i < nfile; i++ )
     {
         char *filename;
@@ -83,8 +83,7 @@ long read_data_files( FILE *lst )
 
         sd = survey_data_file_ptr(i);
 
-        pop_project_dir();
-        push_project_dir( sd->refpath );
+        set_file_context( sd->context );
 
         filename = sd->name;
 
@@ -211,7 +210,7 @@ long read_data_files( FILE *lst )
         df_close_data_file( d );
         d=0;
     }
-    pop_project_dir();
+    set_file_context( saved_context );
 
     set_stn_recode_func( 0, 0 );
     if( d ) df_close_data_file( d );

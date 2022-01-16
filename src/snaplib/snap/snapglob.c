@@ -127,7 +127,7 @@ void set_snap_command_file( char *cmd_file )
 
     cmd_dir=copy_string_nch( command_file, path_len(command_file,0));
     root_name=copy_string_nch( command_file, path_len(command_file,1));
-    set_project_dir( cmd_dir );
+    push_file_context( cmd_dir );
 }
 
 

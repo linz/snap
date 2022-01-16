@@ -4,6 +4,6 @@ options ellipsoidal_heights no_deflections no_geoid_heights c=Order c=Mark_Type
 ! Updated by SNAP version 2.7.14-f90eaf0 at  8-SEP-2018 09:03:50
 
 !Code       Latitude          Longitude        Ell.Hgt Order Mark_Type Name
-1      41 00 46.799155 S 173 19 15.600199 E   150.0300 2     PIN   Node one
-2      41 00 25.200049 S 173 19 40.800851 E   249.9982 2     PEG   Node two
+1      41 00 46.799521 S 173 19 15.600365 E   150.0171 2     PIN   Node one
+2      41 00 25.199683 S 173 19 40.800686 E   250.0110 2     PEG   Node two
 3      41 00 28.800000 S 173 19 58.800000 E    70.0000 3     BOLT  Node three

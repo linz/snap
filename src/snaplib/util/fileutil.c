@@ -23,6 +23,7 @@
 #define _stat stat
 #include <unistd.h>
 #endif
+#include <boost/filesystem.hpp>
 
 
 #include "util/fileutil.h"
@@ -35,7 +36,6 @@ static char *syscfg=NULL;
 static char *imgpath=NULL;
 static char *imgdir=NULL;
 static char *imgname=NULL;
-static const char *projdir=NULL;
 static char *filename=NULL;
 static int filenamelen=0;
 
@@ -48,9 +48,8 @@ typedef struct config_path_def_s
 static config_path_def *config_dir_list=0;
 static int config_dirs_set=0;
 
-#define MAXPROJSTACK 10
-static const char *projstack[MAXPROJSTACK];
-static int nprojstack=0;
+static file_context *current_context = 0;
+static file_context *context_list = 0;
 
 #define SNAPTMP_TEMPLATE "SNAP_TMP_XXXXXX"
 
@@ -342,11 +341,6 @@ const char *system_config_dir()
     return syscfg;
 }
 
-const char *project_dir()
-{
-    return projdir;
-}
-
 static config_path_def *config_dirs()
 {
     const char *snapenv;
@@ -422,35 +416,158 @@ void set_user_config_dir( const char *cfgdir )
     usercfg = copy_string(cfgdir);
 }
 
-
-void set_project_dir( const char *project_dir )
+void push_file_context( const char *context_dir )
 {
-    if( projdir ) check_free((void *)projdir);
-    projdir=copy_string(project_dir);
+    file_context *context;
+    for( context=context_list; context; context=context->next )
+    {
+        if( context->parent == current_context && strcmp(context->dir, context_dir) == 0 )
+        {
+            current_context=context;
+            return;
+        }
+    }
+    context = (file_context *) check_malloc(sizeof(file_context));
+    context->dir=copy_string(context_dir);
+    context->reldir=0;
+    context->parent=current_context;
+    context->next = context_list;
+    context_list=context;
+    current_context = context;
 }
 
-void push_project_dir( const char *project_dir )
+void pop_file_context()
 {
-    if( nprojstack >= MAXPROJSTACK )
+    // Don't simply delete current context as it may be referenced later, eg in 
+    if( current_context )
     {
-        handle_error(FATAL_ERROR,"push_project_dir failed - stack too deep",0);
-        return;
+        current_context = current_context->parent;
     }
-    projstack[nprojstack]=projdir;
-    nprojstack++;
-    projdir=copy_string(project_dir);
 }
 
-void pop_project_dir()
+file_context *current_file_context()
 {
-    if( nprojstack <= 0 )
+    return current_context;
+}
+
+file_context *set_file_context( file_context *new_context )
+{
+    file_context *saved = current_context;
+    current_context = new_context;
+    return saved;
+}
+
+void free_file_contexts()
+{
+    while( context_list )
     {
-        handle_error(FATAL_ERROR,"pip_project_dir failed - stack empty",0);
-        return;
+        file_context *next = context_list->next;
+        check_free( (void *)(context_list->dir) );
+        if( context_list->reldir ) check_free( (void *)(context_list->reldir));
+        context_list->dir=0;
+        context_list->reldir=0;
+        context_list->next=0;
+        check_free( context_list );
+        context_list = next;
     }
-    if( projdir ) check_free( (void *) projdir );
-    nprojstack--;
-    projdir=projstack[nprojstack];
+}
+
+const char *context_definition(file_context *context)
+{
+    int nch=1;
+    for( file_context *child=context; child->parent; child=child->parent )
+    {
+        if( ! child->reldir )
+        {
+            child->reldir=relative_filename(child->dir,child->parent->dir);
+        }
+        nch += strlen(child->reldir)+2;
+    }
+    char *context_def = (char *) check_malloc(nch);
+    char *endptr=context_def+nch-1;
+    *endptr = 0;
+    for( file_context *child=context; child->parent; child=child->parent )
+    {
+        nch=strlen(child->reldir);
+        endptr -= (nch+2);
+        *endptr=PATH_SEPARATOR;
+        *(endptr+1)=PATH_SEPARATOR;
+        strncpy(endptr+2,child->reldir,nch);
+    }
+    return context_def;
+}
+
+
+file_context *recreate_context(  const char *context_def )
+{
+    file_context *saved_context=current_context;
+    file_context *context=current_context;
+    if( ! context ) 
+    {
+        return 0;
+    }
+    while( context->parent ) context=context->parent;
+    if( ! context_def || ! *context_def ) return context;
+    set_file_context( context );
+    while( *context_def )
+    {
+        const char *start=context_def;
+        const char *end=context_def;
+        while( *end && ! (*end == PATH_SEPARATOR && *(end+1) == PATH_SEPARATOR)) end++;
+        char *reldir;
+        int nch=end-start;
+        reldir=(char *) check_malloc(nch+1);
+        strncpy(reldir,start,nch);
+        reldir[nch]=0;
+        const char *absdir=absolute_filename(reldir,context->dir);
+        push_file_context(absdir);
+        check_free((void *) absdir);
+        context=current_context;
+        if( context->reldir )
+        {
+            check_free(reldir);
+        }
+        else
+        {
+            context->reldir=reldir;
+        }
+        context_def = end;
+        if( *context_def == PATH_SEPARATOR ) context_def += 2;
+    }
+    set_file_context(saved_context);
+    return context;
+}
+
+const char *relative_filename( const char *filepath, const char *basedir )
+{
+    try
+    {
+        boost::filesystem::path fp(filepath);
+        boost::filesystem::path bp(basedir);
+        auto relpath=boost::filesystem::relative( fp, bp );
+        auto relstr=relpath.string();
+        return copy_string( relstr.c_str());
+    }
+    catch (...)
+    {
+        return copy_string(filepath);
+    }
+}
+
+const char *absolute_filename( const char *relname, const char *basedir )
+{
+    try
+    {
+        boost::filesystem::path rp(relname);
+        boost::filesystem::path bp(basedir);
+        auto relpath=boost::filesystem::absolute( rp, bp );
+        auto relstr=relpath.string();
+        return copy_string( relstr.c_str());
+    }
+    catch (...)
+    {
+        return copy_string(relname);
+    }
 }
 
 const char *find_config_file( const char *config, const char *name, const char *dflt_ext )
@@ -496,16 +613,18 @@ const char *find_relative_file( const char *base, const char *name, const char *
 const char *find_file( const char *name, const char *dflt_ext, const char *relative, int tryopt, const char *config )
 {
     const char *spec=0;
-    const char *projdir = project_dir();
     if( relative )
     {
         spec = find_relative_file( relative, name, dflt_ext );
     }
-    if( ! spec && projdir && (tryopt && FF_TRYPROJECT) )
+    if( ! spec && current_context && (tryopt && FF_TRYPROJECT) )
     {
-        spec = build_filespec(0,0,projdir,name,dflt_ext);
-        if( dflt_ext && ! file_exists(spec)) spec = build_filespec(0,0,projdir,name,0);
-        if( ! file_exists(spec)) spec = 0;
+        for( file_context *context = current_context; context && ! spec; context=context->parent )
+        {
+            spec = build_filespec(0,0,context->dir,name,dflt_ext);
+            if( dflt_ext && ! file_exists(spec)) spec = build_filespec(0,0,context->dir,name,0);
+            if( ! file_exists(spec)) spec = 0;
+        }
     }
     if( ! spec && (tryopt && FF_TRYLOCAL) )
     {

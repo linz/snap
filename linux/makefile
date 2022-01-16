@@ -31,9 +31,9 @@ LAPGSRCDIR=../tools/lapg/src
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
-LDFLAGS = -lm -lboost_regex -lpthread 
+LDFLAGS = -lm -lboost_regex -lboost_filesystem -lpthread 
 #LDFLAGS = -lm -lboost_regex -lpthread  -lefence
-LDWXFLAGS = -lm -lboost_regex 
+LDWXFLAGS = -lm -lboost_regex -lboost_filesystem
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 TESTFLAGS = 
@@ -41,8 +41,8 @@ UPDATEVERSION =
 SNAPPACKAGES = devel_package
 
 else ifeq ($(type), release)
-LDFLAGS = -lm -lboost_regex -lpthread -s
-LDWXFLAGS = -lm -lboost_regex -s
+LDFLAGS = -lm -lboost_regex -lboost_filesystem -lpthread -s
+LDWXFLAGS = -lm -lboost_regex -lboost_filesystem -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 

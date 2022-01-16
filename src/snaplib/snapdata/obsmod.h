@@ -5,6 +5,10 @@
 #include "util/readcfg.h"
 #endif
 
+#ifndef _FILEUTIL_H
+#include "util/fileutil.h"
+#endif
+
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif
@@ -33,7 +37,7 @@ void set_obs_modifications_network( void *obsmod, network *nw );
 /* Crude fix to avoid snapdata dependency on snap.  Would be nicer with environment pointer.
  * For C++ rewrite! */
 
-typedef int (*fileid_func)(char *filename, char *refpath);
+typedef int (*fileid_func)(char *filename, file_context *context);
 typedef char *(*filename_func)(int ifile);
 void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc, filename_func namefunc );
 

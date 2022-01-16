@@ -1949,21 +1949,11 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int,
                              cfg_only ? SNAP_CONFIG_SECTION : 0 );
         if( cfgfile )
         {
-            if( constraint )
+            int status = constraint ? read_command_file_constraints( cfgfile ) : process_configuration_file( cfgfile, cfg_only );
+            if( status != OK )
             {
-                if( read_command_file_constraints( cfgfile ) != OK )
-                {
-                    sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);
-                    send_config_error(cfg,INVALID_DATA,errmsg);
-                }
-            }
-            else 
-            {
-                if( process_configuration_file( cfgfile, cfg_only ) != OK )
-                {
-                    sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);
-                    send_config_error(cfg,INVALID_DATA,errmsg);
-                }
+                sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);
+                send_config_error(cfg,INVALID_DATA,errmsg);
             }
         }
         else

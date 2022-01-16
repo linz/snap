@@ -2,6 +2,8 @@ title Regression test - testing file inclusion with directories
 !file: data/test2.dat
 !file: data/test3.inc
 !file: data/test3.dat
+!file: data/testvecc.csv
+!file: inc/veccx.dtf
 
 coordinate_file testgx1.crd
 data_file data/test1.dat

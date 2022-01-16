@@ -27,7 +27,7 @@ static int maxsdindx = 0;
 #define SDINDX_INC 10
 
 
-static int add_data_file_nocopy( char *name, int format, char *subtype, char *recode, char *refpath )
+static int add_data_file_nocopy( char *name, int format, char *subtype, char *recode, file_context *context )
 {
     survey_data_file *sd;
     int i;
@@ -46,7 +46,7 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, char *re
     sd->format = format;
     sd->subtype = subtype;
     sd->recodefile=recode;
-    sd->refpath=refpath;
+    sd->context=context;
     sd->mindate=UNDEFINED_DATE;
     sd->maxdate=UNDEFINED_DATE;
     sd->nnodate=0;
@@ -57,14 +57,15 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, char *re
 
 }
 
-int add_data_file( char *name, int format, char *subtype, char *recode, char *refpath )
+int add_data_file( char *name, int format, char *subtype, char *recode, file_context *context )
 {
     char *buffer=0;
 
-    /* If refpath is not null then try looking for a matching file */
+    /* If context is not null */
 
-    if( refpath )
+    if( context )
     {
+        const char *refpath = context->dir;
         int nch=strlen(name)+strlen(refpath)+2;
         char *filename;
         buffer= (char *) check_malloc( nch );
@@ -75,9 +76,8 @@ int add_data_file( char *name, int format, char *subtype, char *recode, char *re
     name = copy_string( name );
     subtype = copy_string( subtype );
     recode = copy_string( recode );
-    refpath = copy_string( refpath );
     if( buffer ) check_free( buffer );
-    return add_data_file_nocopy( name, format, subtype, recode, refpath );
+    return add_data_file_nocopy( name, format, subtype, recode, context );
 }
 
 void delete_survey_data_file_recodes()
@@ -101,7 +101,6 @@ void delete_survey_file_list()
         if( sd->name ) check_free( sd->name );
         if( sd->subtype ) check_free( sd->subtype );
         if( sd->recodefile ) check_free( sd->recodefile );
-        if( sd->refpath ) check_free( sd->refpath );
         check_free( sd );
         sdindx[i] = 0;
     }
@@ -120,17 +119,18 @@ char *survey_data_file_name( int ifile )
     return sdindx[ifile]->name;
 }
 
-int survey_data_file_id( char *name, char *refpath )
+int survey_data_file_id( char *name, file_context *context )
 {
     int i;
     int matchid=-1;
     int matchlen;
     char *buffer=0;
 
-    /* If refpath is not null then try looking for a matching file */
+    /* If context is not null then try looking for a matching file */
 
-    if( refpath )
+    if( context )
     {
+        const char *refpath = context->dir;
         int nch=strlen(name)+strlen(refpath)+2;
         char *filename;
         buffer=(char *) check_malloc( nch );
@@ -217,11 +217,13 @@ void dump_filenames( BINARY_FILE *b )
     fwrite( &nsdindx, sizeof(nsdindx), 1, b->f );
     for( i=0; i<nsdindx; i++ )
     {
+        const char *context_def=context_definition(sdindx[i]->context);
         fwrite( &sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f );
         dump_string( sdindx[i]->name, b->f );
         dump_string( sdindx[i]->subtype, b->f );
         dump_string( sdindx[i]->recodefile, b->f );
-        dump_string( sdindx[i]->refpath, b->f );
+        dump_string( context_def, b->f );
+        check_free(context_def);
     }
     end_section( b );
 }
@@ -233,7 +235,7 @@ int reload_filenames( BINARY_FILE *b )
     char *name;
     char *subtype;
     char *recodefile;
-    char *refpath;
+    char *context_def;
 
     if( find_section(b,"DATA_FILES") != OK ) return MISSING_DATA;
     fread( &i, sizeof(i), 1, b->f );
@@ -243,9 +245,12 @@ int reload_filenames( BINARY_FILE *b )
         name = reload_string( b->f );
         subtype = reload_string( b->f );
         recodefile = reload_string( b->f );
-        refpath = reload_string( b->f );
-
-        add_data_file_nocopy( name, fmt, subtype, recodefile, refpath );
+        // Note: flawed implementation of restoring context.  
+        // 
+        context_def = reload_string( b->f );
+        file_context *context=recreate_context(context_def);
+        check_free(context_def);
+        add_data_file_nocopy( name, fmt, subtype, recodefile, context );
     }
     return check_end_section( b );
 }

@@ -95,7 +95,8 @@ application installation directory.  Within each of these areas the files are or
 configuration file it will look in the following locations:
 </p>
 <ul>
-	<li>the directory of the snap command file (if applicable)</li>
+	<li>if the configuration file referenced in a snap command, then the directory of the snap command file in which it is defined.  
+        If the command file is included from another command file then the directory of that command file (and so on).</li>
 	<li>the current directory</li>
 	<li>the appropriate configuration subdirectory of any directories specified by the SNAPDIR environment variable</li>
 	<li><i>(within snap manager)</i> the appropriate subdirectory of each user package /config directory </li>

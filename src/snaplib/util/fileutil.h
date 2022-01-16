@@ -38,6 +38,14 @@
 
 #define MAX_FILENAME_LEN 256
 
+typedef struct file_context_s
+{
+   const char *dir;
+   const char *reldir;  // Directory relative to parent - used to persist context with context_definition()
+   struct file_context_s *parent;
+   struct file_context_s *next;  // Used for keeping list of contexts to search/clean.
+} file_context;
+
 int path_len( const char *base, int want_name );
 int file_exists( const char *file );
 int is_dir( const char *path );
@@ -63,7 +71,6 @@ const char *image_dir();
 const char *image_name();
 const char *system_config_dir();
 const char *user_config_dir();
-const char *project_dir();
 
 /* Reset config directories - use if environment variable is redefined */
 void reset_config_dirs();
@@ -74,9 +81,15 @@ void set_user_config_dir( const char *cfgdir );
 /* Set the project dir, that can be included in the find_file search.  Supply the name
    of the project file - the path will be extracted .*/
 
-void set_project_dir( const char *project_dir );
-void push_project_dir( const char *project_dir );
-void pop_project_dir();
+void push_file_context( const char *context_dir );
+void pop_file_context();
+file_context *current_file_context();
+file_context *set_file_context( file_context *new_context );
+void free_file_contexts();
+const char *context_definition(file_context *context);
+file_context *recreate_context( const  char *context_def );
+const char *relative_filename( const char *filepath, const char *basedir );
+const char *absolute_filename( const char *relname, const char *basedir );
 
 /* Note: find..file return a static character string.  The result should be used
    straight away or copied */
@@ -95,7 +108,7 @@ const char *find_relative_file( const char *base, const char *name, const char *
 
 /* General purpose find file ... can include a base file, which will use find_relative_file,
    try_local, which will try then name with and without the extension if true,
-   and a config section to try the user and system configuration directories */
+   and a config section to try the user and system configuration directories.  */
 
 #define FF_TRYLOCAL      1
 #define FF_TRYPROJECT    2

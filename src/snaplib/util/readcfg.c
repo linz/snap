@@ -258,7 +258,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
     if( cfg->read_options & CFG_SET_PATH )
     {
-        push_project_dir( get_config_directory(cfg) );
+        push_file_context( get_config_directory(cfg) );
     }
 
     /* Do we want to initiallize */
@@ -396,7 +396,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
     if( cfg->read_options & CFG_SET_PATH )
     {
-        pop_project_dir();
+        pop_file_context();
     }
 
     return cfg->errcount - initcount;
