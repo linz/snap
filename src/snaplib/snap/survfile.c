@@ -223,7 +223,7 @@ void dump_filenames( BINARY_FILE *b )
         dump_string( sdindx[i]->subtype, b->f );
         dump_string( sdindx[i]->recodefile, b->f );
         dump_string( context_def, b->f );
-        check_free(context_def);
+        check_free((void *) context_def);
     }
     end_section( b );
 }

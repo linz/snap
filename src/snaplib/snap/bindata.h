@@ -66,5 +66,3 @@ SCOPE long nbindata;
 #undef SCOPE
 
 #endif
-
-

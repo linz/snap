@@ -455,10 +455,11 @@ void calc_residuals( void )
     for(;;)
     {
 
+        if( get_bindata( SURVDATA, b ) != OK ) break;
+
         nbin++;
         update_progress_meter( nbin );
 
-        if( get_bindata( SURVDATA, b ) != OK ) break;
 
         if( bindata_obseq( b, hA ) != OK ) continue;
         l.diagonal = obseqn_cvr_diagonal( hA );
@@ -1390,10 +1391,10 @@ void print_residuals( FILE *out )
             init_get_bindata( loc );
         }
 
+        if( get_bindata( SURVDATA, b ) != OK ) break;
+
         nbin++;
         update_progress_meter( nbin );
-
-        if( get_bindata( SURVDATA, b ) != OK ) break;
 
         sd = (survdata *) b->data;
         switch( sd->format )
@@ -1875,10 +1876,10 @@ void write_observation_csv()
     init_get_bindata( 0L );
     for(;;)
     {
+        if( get_bindata( SURVDATA, b ) != OK ) break;
+
         nbin++;
         update_progress_meter( nbin );
-
-        if( get_bindata( SURVDATA, b ) != OK ) break;
 
         sd = (survdata *) b->data;
         /* Set obsset to -1 so that it gets reset on first call to write_csv_common_start */
