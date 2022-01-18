@@ -41,6 +41,10 @@ private:
     void PaintLocator( wxDC &dc );
     void ClearLocator();
 
+    void SaveMapImage();
+    void RestoreMapImage( wxDC &dc );
+    void DropSavedMap();
+
     int FindStation( const MapPoint &pt );
 
     int pickTolerance;
@@ -53,6 +57,7 @@ private:
 
     // Object used to manage dragging on the map
     SnapplotMapDragger mapDragger;
+    wxBitmap *savedMap;
 
     DECLARE_EVENT_TABLE();
 };

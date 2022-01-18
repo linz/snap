@@ -1,6 +1,7 @@
 #include "snapconfig.h"
 #include "snapplot_mapview.hpp"
 #include "snapplot_event.hpp"
+#include <math.h>
 
 //extern "C" {
 #include "plotpens.h"
@@ -21,8 +22,8 @@ END_EVENT_TABLE()
 // TODO: Fix up code here to use real colour and XOR with background colour
 // TODO: Fix up code here to calculate appropriate radius...
 
-static int locatorInnerWidth = 7;
-static int locatorOuterWidth = 10;
+static int locatorWidth = 9;
+static int locatorPenWidth = 3;
 static int locatorLockedWidth = 13;
 
 SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
@@ -41,6 +42,7 @@ SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
     weakLock = true;
     locatorFrom = 0;
     locatorTo = 0;
+    savedMap = 0;
 
     mapDragger.SetMoveOriginOnShift( true );
     mapDragger.SetPickTolerance( pickTolerance );
@@ -51,6 +53,7 @@ SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
 
 SnapplotMapView::~SnapplotMapView()
 {
+    DropSavedMap();
 }
 
 void SnapplotMapView::OnClickEvent( wxMapWindowEvent &event )
@@ -286,6 +289,44 @@ void SnapplotMapView::SetLocatorLocked( bool locked )
     }
 }
 
+void SnapplotMapView::SaveMapImage()
+{
+    wxClientDC dc(this);
+    wxSize size(dc.GetSize());
+    if( this->savedMap && this->savedMap->GetSize() != size)
+    {
+        DropSavedMap();
+    }
+    if( ! this->savedMap )
+    {
+        this->savedMap=new wxBitmap(size);
+    }
+    wxMemoryDC bdc(&dc);
+    bdc.SelectObject(*(this->savedMap));
+    bdc.Blit(0,0,size.GetWidth(),size.GetHeight(),&dc,0,0);
+    bdc.SelectObject(wxNullBitmap);
+}
+
+void SnapplotMapView::RestoreMapImage( wxDC &dc )
+{
+    if( this->savedMap )
+    {
+        wxSize size(dc.GetSize());
+        wxMemoryDC bdc(*(this->savedMap));
+        dc.Blit(0,0,size.GetWidth(),size.GetHeight(),&bdc,0,0);
+    }
+}
+
+void SnapplotMapView::DropSavedMap()
+{
+    if( this->savedMap )
+    {
+        delete this->savedMap;
+        this->savedMap=0;
+    }
+
+}
+
 void SnapplotMapView::PaintLocator()
 {
     wxClientDC dc(this);
@@ -295,8 +336,9 @@ void SnapplotMapView::PaintLocator()
 
 void SnapplotMapView::ClearLocator()
 {
-    // Paint uses XOR pen, so paint again clears...
-    PaintLocator();
+    // Using XOR for clearing locator doesn't work in GTK, so replacing with saving and clearing context
+    wxClientDC dc(this);
+    RestoreMapImage(dc);
 }
 
 // Using macro to shift circles a little as otherwise don't line up properly!
@@ -305,29 +347,23 @@ void SnapplotMapView::ClearLocator()
 
 void SnapplotMapView::PaintLocator( wxDC &dc )
 {
+    RestoreMapImage(dc);
     if( locatorFrom == 0 ) return;
-    wxRasterOperationMode logFunction = dc.GetLogicalFunction();
-    dc.SetLogicalFunction( wxXOR );
-
     wxColour locatorCol = GetSymbology()->LayerColour( get_pen( SELECTED_PEN ) );
     wxColour backCol = GetSymbology()->LayerColour( get_pen( BACKGROUND_PEN ) );
-    locatorCol = wxColour (
-                     locatorCol.Red() ^ backCol.Red(),
-                     locatorCol.Green() ^ backCol.Green(),
-                     locatorCol.Blue() ^ backCol.Blue());
 
     if( ! locatorTo )
     {
         if( station_in_view(locatorFrom) )
         {
-            dc.SetPen( wxPen( locatorCol, 1, wxTRANSPARENT ));
-            dc.SetBrush( wxBrush( locatorCol ));
+            dc.SetPen( wxPen( locatorCol, locatorPenWidth ));
+            dc.SetBrush( wxBrush( backCol, wxBRUSHSTYLE_TRANSPARENT  ));
             double e, n;
             get_station_coordinates( locatorFrom, &e, &n );
             wxPoint ptFrom;
             GetScale().WorldToPlot( MapPoint(e,n),ptFrom );
-            DC_CIRCLE( dc, ptFrom, locatorInnerWidth );
-            DC_CIRCLE( dc, ptFrom, locatorLocked ? locatorLockedWidth : locatorOuterWidth );
+            DC_CIRCLE( dc, ptFrom, locatorWidth );
+            if( locatorLocked ) DC_CIRCLE( dc, ptFrom, locatorLockedWidth );
             dc.SetPen( wxNullPen );
             dc.SetBrush( wxNullBrush );
         }
@@ -336,8 +372,7 @@ void SnapplotMapView::PaintLocator( wxDC &dc )
     {
         if( station_in_view( locatorFrom ) || station_in_view(locatorTo) )
         {
-            wxPen innerPen(locatorCol, locatorInnerWidth*2 );
-            wxPen outerPen(locatorCol, locatorOuterWidth*2 );
+            
             wxMapScale scale = GetScale();
             double e, n;
             wxPoint ptStart;
@@ -348,32 +383,35 @@ void SnapplotMapView::PaintLocator( wxDC &dc )
             bool gotFromPoint = scale.GetPoint( ptStart, start );
             get_station_coordinates( locatorTo, &e, &n );
             scale.AddPoint( MapPoint(e,n), false );
+            dc.SetPen(wxPen(locatorCol, locatorPenWidth) );
+            dc.SetBrush( wxBrush( backCol, wxBRUSHSTYLE_TRANSPARENT  ));
 
             if( ( gotFromPoint || scale.GetPoint( ptStart, start )) && scale.GetPoint( ptEnd, start ) )
             {
-                dc.SetPen( innerPen );
-                dc.DrawLine( ptStart, ptEnd );
-                dc.SetPen( wxNullPen );
-                dc.SetPen( outerPen );
-                dc.DrawLine( ptStart, ptEnd );
-                dc.SetPen( wxNullPen );
+                wxPoint pts[]={ptStart,ptEnd};
+                double xdiff=ptEnd.x-ptStart.x;
+                double ydiff=ptEnd.y-ptStart.y;
+                double len=sqrt(xdiff*xdiff+ydiff*ydiff);
+                int xoffset= -(int)round(locatorWidth*ydiff/len);
+                int yoffset= (int)round(locatorWidth*xdiff/len);
+                wxPoint offset(xoffset,yoffset);
+                dc.DrawLines( 2, pts,xoffset, yoffset);
+                dc.DrawLines( 2, pts, -xoffset, -yoffset);
+                dc.DrawArc(ptStart-offset,ptStart+offset,ptStart);
+                dc.DrawArc(ptEnd+offset,ptEnd-offset,ptEnd);
             }
             // gotFromPoint means that the from point is in the screen
             if( locatorLocked && gotFromPoint )
             {
-                dc.SetPen( wxPen(locatorCol, 1, wxTRANSPARENT) );
-                dc.SetBrush( wxBrush(locatorCol));
-                DC_CIRCLE( dc, ptStart, locatorOuterWidth );
+                DC_CIRCLE( dc, ptStart, locatorWidth );
                 DC_CIRCLE( dc, ptStart, locatorLockedWidth );
-                dc.SetBrush( wxNullBrush );
-                dc.SetPen( wxNullPen );
             }
+            dc.SetBrush( wxNullBrush );
             dc.SetPen( wxNullPen );
         }
     }
 
     dc.SetPen( wxNullPen );
-    dc.SetLogicalFunction( logFunction );
 }
 
 void SnapplotMapView::OnMapWindowPosition( wxMapWindowEvent & WXUNUSED(event) )
@@ -425,6 +463,7 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
     //#endif
     wxPaintDC dc(this);
     PaintMap(dc);
+    SaveMapImage();
     PaintLocator(dc);
 }
 
