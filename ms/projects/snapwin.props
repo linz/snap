@@ -4,16 +4,20 @@
     <_ProjectFileVersion>10.0.40219.1</_ProjectFileVersion>
     <OutDir>$(SolutionDir)..\built\$(Configuration)$(PlatformShortName)\</OutDir>
     <IntDir>$(SolutionDir)..\temp\$(ProjectName)\$(Configuration)$(PlatformShortName)\</IntDir>
+    <LibraryPath>$(SolutionDir)..\..\boost\1.78.0\lib64-msvc-14.2;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup>
     <ClCompile>
       <AdditionalOptions>/wd4244 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src\snaplib;$(SolutionDir)..\..\src\snaplib\dbl4;$(SolutionDir)..\..\boost\1.46.1;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)..\..\src\snaplib;$(SolutionDir)..\..\src\snaplib\dbl4;$(SolutionDir)..\..\boost\1.78.0;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_USE_MATH_DEFINES;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <WarningLevel>Level4</WarningLevel>
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <Link>
+      <LibraryPath>$(SolutionDir)..\..\boost\1.78.0\lib64-msvc-14.2;%(LibraryPath)</LibraryPath>
+    </Link>
     <PostBuildEvent>
       <Command>if exist "$(IntDir)versioninfo.obj" del /q "$(IntDir)versioninfo.obj"</Command>
     </PostBuildEvent>

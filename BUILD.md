@@ -14,15 +14,17 @@ warnings!
 Build instructions Windows
 ==========================
 
+Note: Building 32bit windows versions is no longer maintained.  Only 64 bit Release and Debug configurations are still supported.
+
 In order to build SNAP the following tools must be installed on the build computer:
 
 1) Microsoft Visual Studio 2014
 
 2) perl (this has been built with the Activestate perl distribution, however other distributions should work)
 
-3) hhc - the Microsoft HTML help compiler - assumed to be in a directory in the PATH variable.
+3) hhc - the Microsoft HTML help compiler - assumed to be in a directory in the PATH variable.  This is no longer maintained by MicroSoft.  Looking at alternatives!
 
-4) boost libraries installed into a /boost subdirectory
+4) boost libraries installed into a /boost subdirectory.  The boost libraries are downloaded from https://sourceforge.net/projects/boost/.  Currently installed using the prebuilt binaries and installing to snap directory, which creates boost subdirectory (but also overwrites README.md).  The boost version may need updating in ms/projects/snapwin.props.  
 
 5) wxWidgets built in the /wxwidgets directory (see the README.md file in that directory)
 
