@@ -1,3 +1,11 @@
+linz-snap (2.8.1-1) xenial; urgency=medium
+
+  * Fix - station/obs highlight in ubuntu
+  * Improved search algorithm for configuration files referenced in snap
+    command file
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 19 Jan 2022 12:00:00 +1300
+
 linz-snap (2.7.26-1) xenial; urgency=medium
 
   * Fixes #96 - support for degrees/minutes/seconds in input CSV files
