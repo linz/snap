@@ -12,7 +12,8 @@ Package: linz-snap
 Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends},
     perl,
-    linz-coordsys
+    linz-coordsys,
+    libboost-filesystem1.71.0
 Description: Install LINZ snap software
  Install LINZ snap survey network adjustment software suite.
  Includes snap (run with command runsnap), snap_manager, concord, etc.
