@@ -39,7 +39,6 @@ def main():
                 print(f"Error: Level {level} after {level0}: {l}")
                 continue
             if level == level0+1:
-                levels[level0][-1][3]=[parts]
                 if level not in levels:
                     levels.append(None)
                 levels[level]=levels[level0][-1][3]

@@ -49,7 +49,33 @@ div.contents-level
     margin-left: 1em;
 }
 
+div.contents-level.closed div.contents-level
+{
+    display: none;
+}
+
 div.contents-item
 {
     white-space: nowrap;
+}
+
+.contents-level > .contents-item > .contents-level-toggle
+{
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    background-color: white;
+}
+
+.contents-level.has-contents > .contents-item > .contents-level-toggle
+{
+    background-color: red;
+    content: "-";
+}
+
+
+.contents-level.has-contents.closed > .contents-item > .contents-level-toggle
+{
+    background-color: green;
+    content: "+";
 }
