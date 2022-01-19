@@ -1,3 +1,9 @@
+linz-snap (2.8.1-2) xenial; urgency=medium
+
+  * Fix - adding libboost-filesystem dependency
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 19 Jan 2022 15:00:00 +1300
+
 linz-snap (2.8.1-1) xenial; urgency=medium
 
   * Fix - station/obs highlight in ubuntu
