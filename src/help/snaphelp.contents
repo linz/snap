@@ -160,7 +160,6 @@
   3	Orthometric and ellipsoidal height errors	help/files/data/obs_ddc_oheh_error.html
   3	Data definition commands by function	help/files/data/obs_ddc_by_func.html
   3	Data definition commands alphabetically	help/files/data/obs_ddc_alphabetically.html
- 2	SINEX observation files	help/files/data/sinex_obs_files.html
    4	The #bearing_orientation_error command	help/files/data/obs_ddc_bearing_orientation_error.html
    4	The #classification command	help/files/data/obs_ddc_classification.html
    4	The #classify command	help/files/data/obs_ddc_classify.html
@@ -181,6 +180,7 @@
   3	Troubleshooting data file errors	help/files/data/obs_data_file_errors.html
   3	Example data file	help/files/data/obs_example_file.html
  2	CSV observation file format	help/files/data/csv_obs_files.html
+ 2	SINEX observation files	help/files/data/sinex_obs_files.html
 1	Coordinate systems in SNAP	help/coordsys/index.html
 
  2	What is a coordinate system	help/coordsys/whatiscoordsys.html
