@@ -2,88 +2,258 @@
 
 import argparse
 import re
+from bs4 import BeautifulSoup as bs
+import copy
+import json
+from urllib.parse import urljoin
+
+# Words in more than this amount of pages are ignored for indexing
+INDEX_MAX_PAGE_RATIO = 0.75
+# Combine roots with matched endings
+INDEX_PLURAL_ENDINGS = [
+    ["", "s"],
+    ["y", "ies"],
+]
+
 
 def main():
-    parser=argparse.ArgumentParser(description="Compile dynamic help file")
-    parser.add_argument("contents_file",help="File describe help file contents")
-    parser.add_argument("help_file",help="Generated help file")
-    parser.add_argument("-t","--title",default="SNAP help",help="Title of generated help file")
-    parser.add_argument("-c","--css-stylesheet",action="append",help="Included stylesheets")
-    parser.add_argument("-s","--script-file",action="append",help="Included javascript")
-    args=parser.parse_args()
-    stylesheets=args.css_stylesheet or []
-    scripts=args.script_file or []
+    parser = argparse.ArgumentParser(description="Compile dynamic help file")
+    parser.add_argument("contents_file", help="File describe help file contents")
+    parser.add_argument("help_file", help="Generated help file")
+    parser.add_argument(
+        "-t", "--title", default="SNAP help", help="Title of generated help file"
+    )
+    parser.add_argument(
+        "-c", "--css-stylesheet", action="append", help="Included stylesheets"
+    )
+    parser.add_argument(
+        "-s", "--script-file", action="append", help="Included javascript"
+    )
+    args = parser.parse_args()
+    stylesheets = args.css_stylesheet or []
+    scripts = args.script_file or []
     stylesheets.append("css/help.css")
-    scripts.insert(0,"js/jquery.min.js")
+    scripts.insert(0, "js/jquery.min.js")
     scripts.append("js/help.js")
 
-    levels=[None,[]]
-    level0=1
-    with open(args.contents_file) as cf:
-        for l in cf:
-            l=l.strip()
-            if l == "":
-                continue
-            parts=l.split("\t")
-            if len(parts) == 2:
-                parts.append("")
-            if len(parts) != 3:
-                print(f"Warning: ignoring \"{l}\"")
-                continue
-            if parts[0] not in '1 2 3 4 5 6 7 8'.split():
-                print(f"Error: Invalid help level: {l}")
-                continue
-            level=int(parts[0])
-            parts.append([])
-            if level > level0+1:
-                print(f"Error: Level {level} after {level0}: {l}")
-                continue
-            if level == level0+1:
-                if level not in levels:
-                    levels.append(None)
-                levels[level]=levels[level0][-1][3]
-            levels[level].append(parts)
-            level0=level
+    levels, urls = loadContents(args.contents_file)
+    wordindex = buildIndex(urls)
+    indexfile = re.sub(r"(\.html)$", ",index.js", args.help_file)
+    scripts.append(indexfile)
+    writeHelpPage(args.help_file, levels, stylesheets, scripts, args.title)
+    writeWordIndex(indexfile, wordindex)
 
-    indexpage=levels[1][0]
 
-    with open(args.help_file,"w") as th:
-        th.write(f"""
+def writeHelpPage(help_file, levels, stylesheets, scripts, title):
+
+    indexpage = levels[1][0]
+
+    with open(help_file, "w") as th:
+        th.write(
+            f"""
         <html>
         <head>
-        <title>{args.title}</title>
-        """)
+        <title>{title}</title>
+        """
+        )
         for css in stylesheets:
-            th.write(f"<link rel=\"stylesheet\" href=\"{css}\">\n")
+            th.write(f'<link rel="stylesheet" href="{css}">\n')
         for script in scripts:
-            th.write(f"<script src=\"{script}\"></script>\n")
+            th.write(f'<script src="{script}"></script>\n')
         th.write("</head>\n")
         th.write("</body>\n")
-        th.write("<div class=\"container\">\n")
-        th.write("<div id=\"menu\">\n")
-        th.write("<div id=\"contents\" class=\"contents\">\n")
+        th.write('<div class="container">\n')
+        th.write('<div id="menu">\n')
+        th.write('<div id="contents" class="contents">\n')
         for item in levels[1]:
-            writeContentsItem(th,item)
+            writeContentsItem(th, item)
         th.write("</div>\n")
         th.write("</div>\n")
-        th.write("<div id=\"page-content\" class=\"frame\">\n")
-        th.write(f"<iframe id=\"help-page\" src=\"{indexpage[2]}\" title=\"{indexpage[1]}\"></iframe>\n")
+        th.write('<div id="page-content" class="frame">\n')
+        th.write(
+            f'<iframe id="help-page" src="{indexpage[2]}" title="{indexpage[1]}"></iframe>\n'
+        )
         th.write("</div>\n")
         th.write("</div>\n")
         th.write("</body>\n")
         th.write("</html>\n")
 
-def writeContentsItem(th,item):
-    level,label,href,subitems=item
-    th.write(f"<div class=\"contents-level level-{level}\">\n")
-    if href:
-        th.write(f"<div class=\"contents-item\"><a href=\"{href}\">{label}</a></div>\n")
-    else:
-        th.write(f"<div class=\"contents-item\">{label}</div>\n")
-    for subitem in subitems:
-        writeContentsItem(th,subitem)
-    th.write("</div>\n")
-    
 
-if __name__=="__main__":
+def writeWordIndex(indexfile, wordindex):
+    with open(indexfile, "w") as ixh:
+        ixh.write(f"var wordindex={json.dumps(wordindex)};\n")
+
+
+def loadContents(contentsFile):
+    levels = [None, []]
+    level0 = 1
+    urls = []
+    with open(contentsFile) as cf:
+        for l in cf:
+            l = l.strip()
+            if l == "":
+                continue
+            parts = l.split("\t")
+            if len(parts) == 2:
+                parts.append("")
+            if len(parts) != 3:
+                print(f'Warning: ignoring "{l}"')
+                continue
+            if parts[0] not in "1 2 3 4 5 6 7 8".split():
+                print(f"Error: Invalid help level: {l}")
+                continue
+            if parts[2]:
+                urls.append(parts[2])
+            level = int(parts[0])
+            parts.append([])
+            if level > level0 + 1:
+                print(f"Error: Level {level} after {level0}: {l}")
+                continue
+            if level == level0 + 1:
+                if level not in levels:
+                    levels.append(None)
+                levels[level] = levels[level0][-1][3]
+            levels[level].append(parts)
+            level0 = level
+    return levels, urls
+
+
+def writeContentsItem(th, item):
+    level, label, href, subitems = item
+    th.write(f'<div class="contents-level level-{level}">\n')
+    if href:
+        th.write(f'<div class="contents-item"><a href="{href}">{label}</a></div>\n')
+    else:
+        th.write(f'<div class="contents-item">{label}</div>\n')
+    for subitem in subitems:
+        writeContentsItem(th, subitem)
+    th.write("</div>\n")
+
+
+def buildIndex(urls):
+    allwords = {}
+    pagedata = []
+    todo = list(urls)
+    done=set()
+    while todo:
+        url = todo.pop(0)
+        if url in done:
+            continue
+        done.add(url)
+        title, text, refs = processPage(url)
+        words = indexText(text)
+        npage = len(pagedata)
+        pagedata.append({"url": url, "title": title})
+        for word in words:
+            # Skip things like numbers - this will screw up #commands etc.. To be reviewed
+            if not re.match("^[#a-z]", word):
+                continue
+            if word not in allwords:
+                allwords[word] = [0, 0, []]
+            allwords[word][0] += 1
+            allwords[word][1] += words[word]
+            allwords[word][2].append([npage, words[word]])
+        for ref in refs:
+            if re.match(r'^\w+\:\/',ref):
+                continue
+            ref = re.sub(r'[\#\?].*','',ref)
+            if ref not in done and url not in todo:
+                print(f"Adding non-indexed url {ref}")
+                todo.append(ref)
+
+    wordlist = list(sorted(allwords.keys()))
+    rootword = {}
+    for word in wordlist:
+        for singular, plural in INDEX_PLURAL_ENDINGS:
+            if word.endswith(singular):
+                root = word if singular == "" else word[: -len(singular)]
+                wordplural = root + plural
+                if wordplural in allwords:
+                    if word < wordplural:
+                        rootword[wordplural] = word
+                    else:
+                        rootword[word] = wordplural
+
+    wordindex = {}
+    index = []
+    for word in wordlist:
+        root = rootword.get(word)
+        if root:
+            while root in rootword:
+                root = rootword[root]
+            indexid = wordindex[root]
+            wordindex[word] = indexid
+            rootpagelist = index[indexid][2]
+            pagelist = allwords[word][2]
+            pagecount = index[indexid][0]
+            for npage, nword in pagelist:
+                for entry in rootpagelist:
+                    if entry[0] == npage:
+                        entry[1] += nword
+                        nword = 0
+                        break
+                if nword:
+                    rootpagelist.append([npage, nword])
+                    index[indexid][0] += 1
+            index[indexid][1] += allwords[word][1]
+        else:
+            wordindex[word] = len(index)
+            index.append(allwords[word])
+
+    pagecount = len(pagedata)
+    for indexid, entry in enumerate(index):
+        if entry[0] > pagecount * INDEX_MAX_PAGE_RATIO:
+            index[indexid] = None
+            words = ", ".join(
+                (word for word in wordindex if wordindex[word] == indexid)
+            )
+            print(f"Removing common word ({entry[0]/pagecount:0.3f}): {words}")
+
+    indexdata = {
+        "wordindex": wordindex,
+        "index": index,
+        "pages": pagedata,
+    }
+
+    return indexdata
+
+
+def processPage(url):
+    with open(url) as urlh:
+        page = bs(urlh, "lxml")
+    refs = set()
+    for anchor in page.find_all("a"):
+        if anchor.get("href") is not None:
+            href = anchor["href"]
+            aurl = urljoin(url, href)
+            refs.add(aurl)
+    title = page.head.title.get_text()
+    seealso = page.body.find(
+        lambda e: e.name == "h3" and e.get_text().lower().startswith("see also")
+    )
+    if seealso:
+        extra = list(seealso.next_siblings)
+        for element in extra:
+            element.extract()
+        seealso.extract()
+    text = page.body.get_text()
+    # Repeat H1..H4 elements to give prominence in index
+    for header in page.body.find_all(["h1", "h2", "h3", "h4"]):
+        headertext = " " + header.get_text()
+        text = text + (10 * headertext)
+    return title, text, refs
+
+
+def indexText(text):
+    words = {}
+    for m in re.finditer(r"\#?\w+", text.lower()):
+        word = m.group(0)
+        if word not in words:
+            words[word] = 1
+        else:
+            words[word] += 1
+    return words
+
+
+if __name__ == "__main__":
     main()

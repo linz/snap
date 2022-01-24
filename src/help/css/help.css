@@ -61,21 +61,23 @@ div.contents-item
 
 .contents-level > .contents-item > .contents-level-toggle
 {
-    width: 10px;
-    height: 10px;
+    width: 12px;
+    height: 12px;
     display: inline-block;
     background-color: white;
 }
 
 .contents-level.has-contents > .contents-item > .contents-level-toggle
 {
-    background-color: red;
-    content: "-";
+    background-image: url("open.png");
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
 }
 
 
 .contents-level.has-contents.closed > .contents-item > .contents-level-toggle
 {
-    background-color: green;
-    content: "+";
+    background-image: url("closed.png");
+    background-size: 8px 8px;
+    background-repeat: no-repeat;
 }

@@ -20,26 +20,28 @@ function toggleContentsLevel( item )
     }
 }
 
-function onPageLoad()
-{
-    let helppage=$('#help-page');
-    let target=helppage.attr("src");
-    $(".contents-item").removeClass("selected");
-    $(".contents-item a").each(function(){
-        if( $(this).attr("href") == target )
-        {
-            $(this).closest(".contents-item").addClass("selected");
-            $(this).parents(".contents-level").each(function(){openContentsLevel($(this));});
-        }
-    });
-}
+// function onPageLoad()
+// {
+//     // Doesn't work - haven't found a way to get url of page.
+    
+//     let helppage=$('#help-page');
+//     let target=helppage.attr("src");
+//     $(".contents-item").removeClass("selected");
+//     $(".contents-item a").each(function(){
+//         if( $(this).attr("href") == target )
+//         {
+//             $(this).closest(".contents-item").addClass("selected");
+//             $(this).parents(".contents-level").each(function(){openContentsLevel($(this));});
+//         }
+//     });
+// }
 
 
 
 function installHelp()
 {
     let helppage=$("#help-page");
-    helppage.on("load",onPageLoad);
+    // helppage.on("load",onPageLoad);
     $(".contents-level").each(function(){
         let level=$(this); 
         if( level.find('.contents-level').length){ level.addClass("has-contents")};
