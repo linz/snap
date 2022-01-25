@@ -38,13 +38,13 @@ def main():
 
     levels, urls = loadContents(args.contents_file)
     wordindex = buildIndex(urls)
-    indexfile = re.sub(r"(\.html)$", ",index.js", args.help_file)
-    scripts.append(indexfile)
+    indexfile = re.sub(r"(\.html)$", ".index.js", args.help_file)
+    scripts.append('defer:'+indexfile)
     writeHelpPage(args.help_file, levels, stylesheets, scripts, args.title)
     writeWordIndex(indexfile, wordindex)
 
 
-def writeHelpPage(help_file, levels, stylesheets, scripts, title):
+def writeHelpPage(help_file, levels, stylesheets, scripts, title ):
 
     indexpage = levels[1][0]
 
@@ -59,14 +59,25 @@ def writeHelpPage(help_file, levels, stylesheets, scripts, title):
         for css in stylesheets:
             th.write(f'<link rel="stylesheet" href="{css}">\n')
         for script in scripts:
-            th.write(f'<script src="{script}"></script>\n')
+            defer=""
+            if script.startswith('defer:'):
+                defer='defer'
+                script=script[6:]
+            th.write(f'<script src="{script}" {defer}></script>\n')
         th.write("</head>\n")
         th.write("</body>\n")
         th.write('<div class="container">\n')
         th.write('<div id="menu">\n')
+        th.write('<div class="menu_header">')
+        th.write('<div id="show_contents_button" class="menu_button">Contents</div>')
+        th.write('<div id="show_search_button" class="menu_button">Search</div>')
+        th.write('</div>')
+        th.write('<div class="menu_area">')
         th.write('<div id="contents" class="contents">\n')
         for item in levels[1]:
             writeContentsItem(th, item)
+        th.write("</div>\n")
+        th.write('<div id="search"></div>')
         th.write("</div>\n")
         th.write("</div>\n")
         th.write('<div id="page-content" class="frame">\n')
@@ -81,7 +92,7 @@ def writeHelpPage(help_file, levels, stylesheets, scripts, title):
 
 def writeWordIndex(indexfile, wordindex):
     with open(indexfile, "w") as ixh:
-        ixh.write(f"var wordindex={json.dumps(wordindex)};\n")
+        ixh.write(f"wordindex={json.dumps(wordindex)};\n")
 
 
 def loadContents(contentsFile):

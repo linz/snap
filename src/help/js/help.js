@@ -1,3 +1,5 @@
+var wordindex=null;
+
 function closeContentsLevel( item )
 {
     item.addClass("closed");
@@ -38,7 +40,7 @@ function toggleContentsLevel( item )
 
 
 
-function installHelp()
+function installContents()
 {
     let helppage=$("#help-page");
     // helppage.on("load",onPageLoad);
@@ -75,4 +77,22 @@ function installHelp()
 
 }
 
-$(document).ready(installHelp);
+function setup()
+{
+    $('#show_contents_button').click(function(){ 
+        $('#search').hide(); 
+        $('#show_search_button').removeClass('selected');
+        $('#contents').show(); 
+        $('#show_contents_button').addClass('selected'); 
+    });
+    $('#show_search_button').click(function(){ 
+        $('#contents').hide(); 
+        $('#show_contents_button').removeClass('selected'); 
+        $('#search').show();
+        $('#show_search_button').addClass('selected');
+    });
+    $('#show_contents_button').click();
+    installContents();
+}
+
+$(document).ready(setup);

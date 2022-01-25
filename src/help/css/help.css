@@ -81,3 +81,16 @@ div.contents-item
     background-size: 8px 8px;
     background-repeat: no-repeat;
 }
+
+.menu_button
+{
+    padding: 2px 5px;
+    margin-bottom: 5px;
+    border: 1px solid black;
+    display: inline-block;
+}
+
+.menu_button.selected
+{
+    background-color: lightskyblue;
+}
