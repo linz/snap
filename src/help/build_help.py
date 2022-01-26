@@ -90,11 +90,6 @@ def writeHelpPage(help_file, levels, stylesheets, scripts, title ):
         th.write("</html>\n")
 
 
-def writeWordIndex(indexfile, wordindex):
-    with open(indexfile, "w") as ixh:
-        ixh.write(f"wordindex={json.dumps(wordindex)};\n")
-
-
 def loadContents(contentsFile):
     levels = [None, []]
     level0 = 1
@@ -146,6 +141,11 @@ def buildIndex(urls):
     pagedata = []
     todo = list(urls)
     done=set()
+    # allwords[word] is array
+    # [0] = page count
+    # [1] = total word count
+    # [2] = array [...] of
+    #    [ pageid, pagewordcount ]
     while todo:
         url = todo.pop(0)
         if url in done:
@@ -172,6 +172,8 @@ def buildIndex(urls):
                 print(f"Adding non-indexed url {ref}")
                 todo.append(ref)
 
+    # Form list rootword joining equivalent words (eg singular/plural versions)
+    # rootword redirects from alphabetically highest to lowest word of equivalents 
     wordlist = list(sorted(allwords.keys()))
     rootword = {}
     for word in wordlist:
@@ -185,6 +187,8 @@ def buildIndex(urls):
                     else:
                         rootword[word] = wordplural
 
+    # Merge entries for allword into a common index.  wordindex is a lookup
+    # to the index.
     wordindex = {}
     index = []
     for word in wordlist:
@@ -227,6 +231,19 @@ def buildIndex(urls):
     }
 
     return indexdata
+
+
+def writeWordIndex(indexfile, wordindex):
+    words=[[key,val] for key,val in wordindex['wordindex'].items()]
+    with open(indexfile, "w") as ixh:
+        ixh.write(f'''
+wordindex={{
+    "words": new Map({json.dumps(words)}),
+    "pages": {json.dumps(wordindex["pages"])},
+    "index": {json.dumps(wordindex["index"])}
+}};
+''')
+        ixh.write("installSearch();")
 
 
 def processPage(url):

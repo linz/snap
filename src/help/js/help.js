@@ -77,6 +77,34 @@ function installContents()
 
 }
 
+function searchText()
+{
+    return $('#search_text').val().trim();
+}
+function doSearch()
+{
+    let searchtext=searchText();
+    if( searchtext == "" ) return;
+    let words=searchtext.split(/\s+/);
+
+
+    
+
+}
+
+function installSearch()
+{
+    let searchpanel=$('#search');
+    let searchbar=$("<div>").addClass("search_bar");
+    searchbar.append($("<input>").addClass("search_text").attr("id","search_text"))
+    let searchbutton=$("<div>").addClass("search_button").attr("id","search_button");
+    searchbutton.click(doSearch);
+    searchbar.append(searchbutton);
+    searchpanel.append(searchbar);
+    searchpanel.append($("<div>").addClass("search_preview").attr("id","search_preview"));
+    searchpanel.append($("<div>").addClass("search_results").attr("id","search_results"));
+}
+
 function setup()
 {
     $('#show_contents_button').click(function(){ 

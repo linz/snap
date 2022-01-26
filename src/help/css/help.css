@@ -94,3 +94,16 @@ div.contents-item
 {
     background-color: lightskyblue;
 }
+
+
+#search_button
+{
+    width: 16px;
+    height: 16px;
+    margin: 2px 5px; 
+    display: inline-block;
+    background-image: url("search.png");
+    background-size: 16px 16px;
+    background-repeat: no-repeat; 
+    vertical-align: middle;   
+}
