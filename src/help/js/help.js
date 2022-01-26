@@ -81,15 +81,63 @@ function searchText()
 {
     return $('#search_text').val().trim();
 }
+
+function searchPages(searchtext)
+{
+
+    let words=searchtext.split(/\s+/);
+    let indexids=words.map(w => wordindex.words.get(w));
+    let pageids=undefined;
+    for( let indexid of indexids )
+    {
+        // Word not found in index
+        if( indexid === undefined ) return [];
+        let entry=wordindex.index[indexid];
+        // Word is a common word not indexed
+        if( entry === null ) continue;
+        let npage=entry[0];
+        let wordcount=entry[1];
+        // Crude weighting - up the weight if in few pages or less common word
+        let weightfactor=1.0/Math.sqrt(npage*wordcount);
+        let pages=entry[2];
+        let newpageids=new Map();
+        for( let page of pages )
+        {
+            let pageid=page[0];
+            let pagecount=page[1];
+            let weight = pageids === undefined ? 0.0 : pageids.get(pageid);
+            if( weight !== undefined )
+            {
+                weight += pagecount*weightfactor;
+                newpageids.set(pageid,weight);
+            }
+        }
+        pageids=newpageids
+    }
+    ids=Array.from(pageids.keys());
+    ids.sort(id => -pageids.get(id));
+    return ids.map(id => wordindex.pages[id]);
+}
+
+function searchPageResult( page )
+{
+    let result=$('<div>').addClass('search_item');
+    result.append($('<a>').attr("href",page.url).text(page.title));
+    return result;
+}
+
 function doSearch()
 {
     let searchtext=searchText();
     if( searchtext == "" ) return;
-    let words=searchtext.split(/\s+/);
-
-
-    
-
+    let pages=searchPages(searchtext);
+    let items=pages.map( page => searchPageResult(page));
+    if( searchText() == searchtext )
+    {
+        let results=$('#search_results');
+        results.empty();
+        results.append(items);
+    }
 }
 
 function installSearch()
