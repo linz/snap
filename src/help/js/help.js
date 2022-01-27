@@ -84,14 +84,15 @@ function searchText()
 
 function searchPages(searchtext)
 {
-
     let words=searchtext.split(/\s+/);
-    let indexids=words.map(w => wordindex.words.get(w));
     let pageids=undefined;
-    for( let indexid of indexids )
+    let missing=[];
+    for( let word of words )
     {
         // Word not found in index
-        if( indexid === undefined ) return [];
+        let indexid=wordindex.words.get(word);
+        if( indexid === undefined ) missing.push(word);
+        if( missing.length > 0 ) continue;
         let entry=wordindex.index[indexid];
         // Word is a common word not indexed
         if( entry === null ) continue;
@@ -114,15 +115,29 @@ function searchPages(searchtext)
         }
         pageids=newpageids
     }
-    ids=Array.from(pageids.keys());
-    ids.sort(id => -pageids.get(id));
-    return ids.map(id => wordindex.pages[id]);
+    let result={"status":"",pages: []};
+    if( missing.length > 0 )
+    {
+        result.status="The following words are not in the index: "+missing.join(", ");
+    }
+    else if ( pageids === undefined || pageids.size == 0 )
+    {
+        result.status="No pages matched the search";
+    }
+    else
+    {
+        ids=Array.from(pageids.keys());
+        ids.sort(id => -pageids.get(id));
+        result.pages=ids.map(id => wordindex.pages[id]);
+    }
+    return result;
 }
 
 function searchPageResult( page )
 {
     let result=$('<div>').addClass('search_item');
     result.append($('<a>').attr("href",page.url).text(page.title));
+    result.click(function(){ $('#help-page').attr("src",page.url); return false; });
     return result;
 }
 
@@ -130,13 +145,20 @@ function doSearch()
 {
     let searchtext=searchText();
     if( searchtext == "" ) return;
-    let pages=searchPages(searchtext);
-    let items=pages.map( page => searchPageResult(page));
+    let searchResult=searchPages(searchtext);
+    let items=searchResult.pages.map( page => searchPageResult(page));
     if( searchText() == searchtext )
     {
         let results=$('#search_results');
         results.empty();
-        results.append(items);
+        if( items.length > 0)
+        {
+            results.append(items);
+        }
+        else
+        {
+            results.text(searchResult.status)
+        }
     }
 }
 
@@ -144,10 +166,16 @@ function installSearch()
 {
     let searchpanel=$('#search');
     let searchbar=$("<div>").addClass("search_bar");
-    searchbar.append($("<input>").addClass("search_text").attr("id","search_text"))
+    let searchtext=$("<input>").addClass("search_text").attr("id","search_text");
     let searchbutton=$("<div>").addClass("search_button").attr("id","search_button");
+    searchtext.on("keypress", function(e) {
+        if (e.keyCode == 13) { 
+            doSearch();
+            return false; 
+        }
+    });
     searchbutton.click(doSearch);
-    searchbar.append(searchbutton);
+    searchbar.append(searchtext,searchbutton);
     searchpanel.append(searchbar);
     searchpanel.append($("<div>").addClass("search_preview").attr("id","search_preview"));
     searchpanel.append($("<div>").addClass("search_results").attr("id","search_results"));
@@ -166,6 +194,8 @@ function setup()
         $('#show_contents_button').removeClass('selected'); 
         $('#search').show();
         $('#show_search_button').addClass('selected');
+        $('#search_text').focus();
+        $('#search_text').select();
     });
     $('#show_contents_button').click();
     installContents();
