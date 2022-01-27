@@ -1,214 +1,213 @@
-1	SNAP overview	help/index.html
-1	SNAP programs	help/programs/index.html
- 2	snap_manager - environment for running adjustments	help/programs/snap_manager/index.html
-  3	snap_manager scripting	help/programs/snap_manager/script.html
-  3	snap_manager scripting user interface components	help/programs/snap_manager/script_ui.html
-  3	snap_manager scripting system functions and variables	help/programs/snap_manager/script_functions.html
-  3	Regular expression syntax	help/programs/snap_manager/resyntax.html
- 2	SNAP - network adjustment program	help/programs/snap/index.html
-  3	Basic adjustment procedure	help/programs/snap/snap_proc_basic.html
-  3	Creating input files	help/programs/snap/topic_input_files.html
-  3	Reviewing adjustment results	help/programs/snap/topic_adjustment_outputs.html
-  3	Common problems in SNAP adjustments	help/programs/snap/snap_common_problems.html
-   4	The adjustment does not converge	help/programs/snap/snap_prob_converge.html
-   4	Format errors in the input files	help/programs/snap/snap_prob_format.html
-   4	The adjustment fails with a singularity	help/programs/snap/snap_prob_singularity.html
-   4	There is not enough memory for the program.	help/programs/snap/snap_prob_memory.html
- 2	Snapplot - graphical view of adjustments	help/programs/snapplot/index.html
-  3	Starting snapplot	help/programs/snapplot/starting.html
-  3	Snapplot configuration	help/programs/snapplot/configuration.html
-   4	Snapplot configuration commands	help/programs/snapplot/configcmd.html
-  3	Snapplot commands in the command file	help/programs/snapplot/sp_commandfile.html
-  3	The map window	help/programs/snapplot/map_window.html
-  3	The key	help/programs/snapplot/key_window.html
-  3	The stations list	help/programs/snapplot/station_window.html
-  3	The observations list	help/programs/snapplot/obs_window.html
-  3	The details window	help/programs/snapplot/details_window.html
+1	SNAP overview	snap.html
+1	SNAP programs	programs/index.html
+ 2	snap_manager - environment for running adjustments	programs/snap_manager/index.html
+  3	snap_manager scripting	programs/snap_manager/script.html
+  3	snap_manager scripting user interface components	programs/snap_manager/script_ui.html
+  3	snap_manager scripting system functions and variables	programs/snap_manager/script_functions.html
+  3	Regular expression syntax	programs/snap_manager/resyntax.html
+ 2	SNAP - network adjustment program	programs/snap/index.html
+  3	Basic adjustment procedure	programs/snap/snap_proc_basic.html
+  3	Creating input files	programs/snap/topic_input_files.html
+  3	Reviewing adjustment results	programs/snap/topic_adjustment_outputs.html
+  3	Common problems in SNAP adjustments	programs/snap/snap_common_problems.html
+   4	The adjustment does not converge	programs/snap/snap_prob_converge.html
+   4	Format errors in the input files	programs/snap/snap_prob_format.html
+   4	The adjustment fails with a singularity	programs/snap/snap_prob_singularity.html
+   4	There is not enough memory for the program.	programs/snap/snap_prob_memory.html
+ 2	Snapplot - graphical view of adjustments	programs/snapplot/index.html
+  3	Starting snapplot	programs/snapplot/starting.html
+  3	Snapplot configuration	programs/snapplot/configuration.html
+   4	Snapplot configuration commands	programs/snapplot/configcmd.html
+  3	Snapplot commands in the command file	programs/snapplot/sp_commandfile.html
+  3	The map window	programs/snapplot/map_window.html
+  3	The key	programs/snapplot/key_window.html
+  3	The stations list	programs/snapplot/station_window.html
+  3	The observations list	programs/snapplot/obs_window.html
+  3	The details window	programs/snapplot/details_window.html
   3	Dialog boxes
-   4	The highlight stations dialog	help/programs/snapplot/dlg_highlight_stations.html
-   4	The hide stations dialog	help/programs/snapplot/dlg_hideshow_stations.html
-   4	The find station dialog	help/programs/snapplot/dlg_find_station.html
-   4	The observation display options dialog	help/programs/snapplot/dlg_obs_display_options.html
-   4	The highlight observations dialog	help/programs/snapplot/dlg_highlight_observations.html
-   4	The observation listing options dialog	help/programs/snapplot/dlg_obs_listing_options.html
-   4	The error options dialog	help/programs/snapplot/dlg_error_options.html
-   4	The standardised residuals colours dialog	help/programs/snapplot/dlg_stdres_pens.html
-   4	The redundancy colours dialog	help/programs/snapplot/dlg_redundancy_pens.html
-  3	Background graphics	help/programs/snapplot/background.html
- 2	Dat2site - calculate trial coordinates	help/programs/dat2site/index.html
-  3	Example of dat2site	help/programs/dat2site/example.html
- 2	Snapconv - changing coordinate systems	help/programs/snapconv/index.html
- 2	Snapgeoid - Calculate geoid heights	help/programs/snapgeoid/index.html
- 2	site2gps - calculate dummy GPS data files	help/programs/site2gps/index.html
- 2	Snapmerge - merging coordinate files	help/programs/snapmerge/index.html
- 2	Snapspec - calculate coordinate orders	help/programs/snapspec/index.html
-  3	Snapspec order calculation algorithm	help/programs/snapspec/algorithm.html
-  3	Snapspec configuration file	help/programs/snapspec/configuration.html
- 2	snaplist - list adjustment results	help/programs/snaplist/index.html
- 2	concord - coordinate conversion program	help/programs/concord/index.html
-  3	Concord error messages	help/programs/concord/error.html
-  3	Examples of concord	help/programs/concord/example.html
-1	Command files	help/files/cmdcfg/index.html
- 2	Configuration files	help/files/cmdcfg/cfg_file.html
- 2	CSV format definition files	help/files/cmdcfg/csv_format_definition.html
- 2	Command file syntax	help/files/cmdcfg/cmd_syntax.html
- 2	Adjustment mode	help/files/cmdcfg/cmd_adjustment_mode.html
- 2	Using stations in adjustments	help/files/cmdcfg/cmd_station_options.html
-  3	Station lists	help/files/cmdcfg/cmd_stn_list.html
- 2	Additional adjustment parameters	help/files/cmdcfg/cmd_additional_parameters.html
-  3	Additional parameter commands	help/files/cmdcfg/cmd_additional_parameter_commands.html
- 2	Defining the residual listing format	help/files/cmdcfg/cmd_def_res_format.html
- 2	Summary of commands by function	help/files/cmdcfg/cmd_function_summary.html
- 2	Alphabetical list of commands	help/files/cmdcfg/cmd_alphabetic_summary.html
-  3	accept	help/files/cmdcfg/cmd_reject.html
-  3	add_residual_column	help/files/cmdcfg/cmd_add_residual_column.html
-  3	bearing_orientation_error	help/files/cmdcfg/cmd_additional_parameter_commands.html
-  3	classification	help/files/cmdcfg/cmd_classification.html
-  3	configuration	help/files/cmdcfg/cmd_configuration.html
-  3	convergence_tolerance	help/files/cmdcfg/cmd_convergence_tolerance.html
-  3	coordinate_file	help/files/cmdcfg/cmd_coordinate_file.html
-  3	coordinate_precision	help/files/cmdcfg/cmd_coordinate_precision.html
-  3	data_file	help/files/cmdcfg/cmd_data_file.html
-  3	default_refraction_coefficient	help/files/cmdcfg/cmd_default_refraction_coefficient.html
-  3	define_residual_format	help/files/cmdcfg/cmd_define_residual_format.html
-  3	deformation	help/files/cmdcfg/cmd_deformation.html
-  3	error_type	help/files/cmdcfg/cmd_error_type.html
-  3	file_location_frequency	help/files/cmdcfg/cmd_file_location_frequency.html
-  3	fix	help/files/cmdcfg/cmd_fix.html
-  3	flag_significance	help/files/cmdcfg/cmd_flag_significance.html
-  3	float	help/files/cmdcfg/cmd_float.html
-  3	free	help/files/cmdcfg/cmd_free.html
-  3	geoid	help/files/cmdcfg/cmd_geoid.html
-  3	gps_vertical	help/files/cmdcfg/cmd_gps_vertical.html
-  3	horizontal_float_error	help/files/cmdcfg/cmd_horizontal_float_error.html
-  3	ignore	help/files/cmdcfg/cmd_reject.html
-  3	ignore_missing_stations	help/files/cmdcfg/cmd_ignore_missing_stations.html
-  3	include	help/files/cmdcfg/cmd_include.html
-  3	list	help/files/cmdcfg/cmd_list.html
-  3	magic_number	help/files/cmdcfg/cmd_magic_number.html
-  3	max_adjustment	help/files/cmdcfg/cmd_max_adjustment.html
-  3	max_iterations	help/files/cmdcfg/cmd_max_iterations.html
-  3	mde_power	help/files/cmdcfg/cmd_mde_power.html
-  3	min_iterations	help/files/cmdcfg/cmd_min_iterations.html
-  3	mode	help/files/cmdcfg/cmd_mode.html
-  3	number_of_worst_residuals	help/files/cmdcfg/cmd_number_of_worst_residuals.html
-  3	output	help/files/cmdcfg/cmd_output.html
-  3	output_csv	help/files/cmdcfg/cmd_output_csv.html
-  3	output_precision	help/files/cmdcfg/cmd_output_precision.html
-  3	plot	help/files/cmdcfg/cmd_plot.html
-  3	print	help/files/cmdcfg/cmd_list.html
-  3	proj_bearing_use_datum	help/files/cmdcfg/cmd_proj_bearing_use_datum.html 
-  3	recode	help/files/cmdcfg/cmd_recode.html
-  3	redundancy_flag_level	help/files/cmdcfg/cmd_redundancy_flag_level.html
-  3	reference_frame	help/files/cmdcfg/cmd_reference_frame.html
-  3	reference_frame_scale_error	help/files/cmdcfg/cmd_additional_parameter_commands.html
-  3	refraction_coefficient	help/files/cmdcfg/cmd_additional_parameter_commands.html
-  3	reject	help/files/cmdcfg/cmd_reject.html
-  3	reorder_stations	help/files/cmdcfg/cmd_reorder_stations.html
-  3	set_observation_option	help/files/cmdcfg/cmd_set_observation_option.html
-  3	sort_observations	help/files/cmdcfg/cmd_sort_observations.html
-  3	spec_test_options	help/files/cmdcfg/cmd_spec_test_options.html
-  3	specification	help/files/cmdcfg/cmd_specification.html
-  3	station_code_width	help/files/cmdcfg/cmd_station_code_width.html
-  3	station_offset_file	help/files/cmdcfg/cmd_station_offset_file.html
-  3	summarize_errors_by	help/files/cmdcfg/cmd_summarize_errors_by.html
-  3	systematic_error	help/files/cmdcfg/cmd_additional_parameter_commands.html
-  3	test_specification	help/files/cmdcfg/cmd_test_specification.html
-  3	title	help/files/cmdcfg/cmd_title.html
-  3	topocentre	help/files/cmdcfg/cmd_topocentre.html
-  3	use_distance_ratios	help/files/cmdcfg/cmd_use_distance_ratios.html
-  3	vertical_float_error	help/files/cmdcfg/cmd_vertical_float_error.html
-1	Station coordinate file	help/files/crd/index.html
- 2	Station codes	help/files/crd/stn_code.html
- 2	SNAP Station coordinate file format	help/files/crd/stn_file_format.html
- 2	CSV format station coordinate files	help/files/crd/csv_stn_files.html
- 2	Examples of station coordinate files	help/files/crd/stn_crd_file_example.html
- 2	Station offset file format	help/files/crd/stn_offset_file_format.html
- 2	Station recode file	help/files/crd/stn_recode_file.html
-1	Observation files	help/files/data/index.html
- 2	Data types	help/files/data/obs_data_types.html
-  3	Azimuth observations (AZ)	help/files/data/obs_azimuth_data.html
-  3	Distance ratio observations (DR)	help/files/data/obs_distance_ratios.html
-  3	Distance observations (SD, HD, ED)	help/files/data/obs_distance_data.html
-  3	GPS observations (GB or GPS)	help/files/data/obs_gps_data.html
-  3	Point coordinate observations (GX)	help/files/data/obs_gx_data.html
-  3	Height difference observations (LV)	help/files/data/obs_height_differences.html
-  3	Orthometric and ellipsoidal height observations (OH, EH)	help/files/data/obs_height_data.html
-  3	Horizontal angle observations (HA)	help/files/data/obs_horizontal_angles.html
-  3	Latitude and longitude observations (LT, LN)	help/files/data/obs_latlon_data.html
-  3	Projection bearing observations (PB)	help/files/data/obs_projection_bearings.html
-  3	Refraction coefficients	help/files/data/obs_ref_coeff.html
-  3	Zenith distance observations (ZD)	help/files/data/obs_zenith_distances.html
- 2	Rejecting observations	help/files/data/obs_rejecting_data.html
+   4	The highlight stations dialog	programs/snapplot/dlg_highlight_stations.html
+   4	The hide stations dialog	programs/snapplot/dlg_hideshow_stations.html
+   4	The find station dialog	programs/snapplot/dlg_find_station.html
+   4	The observation display options dialog	programs/snapplot/dlg_obs_display_options.html
+   4	The highlight observations dialog	programs/snapplot/dlg_highlight_observations.html
+   4	The observation listing options dialog	programs/snapplot/dlg_obs_listing_options.html
+   4	The error options dialog	programs/snapplot/dlg_error_options.html
+   4	The standardised residuals colours dialog	programs/snapplot/dlg_stdres_pens.html
+   4	The redundancy colours dialog	programs/snapplot/dlg_redundancy_pens.html
+  3	Background graphics	programs/snapplot/background.html
+ 2	Dat2site - calculate trial coordinates	programs/dat2site/index.html
+  3	Example of dat2site	programs/dat2site/example.html
+ 2	Snapconv - changing coordinate systems	programs/snapconv/index.html
+ 2	Snapgeoid - Calculate geoid heights	programs/snapgeoid/index.html
+ 2	site2gps - calculate dummy GPS data files	programs/site2gps/index.html
+ 2	Snapmerge - merging coordinate files	programs/snapmerge/index.html
+ 2	Snapspec - calculate coordinate orders	programs/snapspec/index.html
+  3	Snapspec order calculation algorithm	programs/snapspec/algorithm.html
+  3	Snapspec configuration file	programs/snapspec/configuration.html
+ 2	snaplist - list adjustment results	programs/snaplist/index.html
+ 2	concord - coordinate conversion program	programs/concord/index.html
+  3	Concord error messages	programs/concord/error.html
+  3	Examples of concord	programs/concord/example.html
+1	Command files	files/cmdcfg/index.html
+ 2	Configuration files	files/cmdcfg/cfg_file.html
+ 2	CSV format definition files	files/cmdcfg/csv_format_definition.html
+ 2	Command file syntax	files/cmdcfg/cmd_syntax.html
+ 2	Adjustment mode	files/cmdcfg/cmd_adjustment_mode.html
+ 2	Using stations in adjustments	files/cmdcfg/cmd_station_options.html
+  3	Station lists	files/cmdcfg/cmd_stn_list.html
+ 2	Additional adjustment parameters	files/cmdcfg/cmd_additional_parameters.html
+  3	Additional parameter commands	files/cmdcfg/cmd_additional_parameter_commands.html
+ 2	Defining the residual listing format	files/cmdcfg/cmd_def_res_format.html
+ 2	Summary of commands by function	files/cmdcfg/cmd_function_summary.html
+ 2	Alphabetical list of commands	files/cmdcfg/cmd_alphabetic_summary.html
+  3	accept	files/cmdcfg/cmd_reject.html
+  3	add_residual_column	files/cmdcfg/cmd_add_residual_column.html
+  3	bearing_orientation_error	files/cmdcfg/cmd_additional_parameter_commands.html
+  3	classification	files/cmdcfg/cmd_classification.html
+  3	configuration	files/cmdcfg/cmd_configuration.html
+  3	convergence_tolerance	files/cmdcfg/cmd_convergence_tolerance.html
+  3	coordinate_file	files/cmdcfg/cmd_coordinate_file.html
+  3	coordinate_precision	files/cmdcfg/cmd_coordinate_precision.html
+  3	data_file	files/cmdcfg/cmd_data_file.html
+  3	default_refraction_coefficient	files/cmdcfg/cmd_default_refraction_coefficient.html
+  3	define_residual_format	files/cmdcfg/cmd_define_residual_format.html
+  3	deformation	files/cmdcfg/cmd_deformation.html
+  3	error_type	files/cmdcfg/cmd_error_type.html
+  3	file_location_frequency	files/cmdcfg/cmd_file_location_frequency.html
+  3	fix	files/cmdcfg/cmd_fix.html
+  3	flag_significance	files/cmdcfg/cmd_flag_significance.html
+  3	float	files/cmdcfg/cmd_float.html
+  3	free	files/cmdcfg/cmd_free.html
+  3	geoid	files/cmdcfg/cmd_geoid.html
+  3	gps_vertical	files/cmdcfg/cmd_gps_vertical.html
+  3	horizontal_float_error	files/cmdcfg/cmd_horizontal_float_error.html
+  3	ignore	files/cmdcfg/cmd_reject.html
+  3	ignore_missing_stations	files/cmdcfg/cmd_ignore_missing_stations.html
+  3	include	files/cmdcfg/cmd_include.html
+  3	list	files/cmdcfg/cmd_list.html
+  3	magic_number	files/cmdcfg/cmd_magic_number.html
+  3	max_adjustment	files/cmdcfg/cmd_max_adjustment.html
+  3	max_iterations	files/cmdcfg/cmd_max_iterations.html
+  3	mde_power	files/cmdcfg/cmd_mde_power.html
+  3	min_iterations	files/cmdcfg/cmd_min_iterations.html
+  3	mode	files/cmdcfg/cmd_mode.html
+  3	number_of_worst_residuals	files/cmdcfg/cmd_number_of_worst_residuals.html
+  3	output	files/cmdcfg/cmd_output.html
+  3	output_csv	files/cmdcfg/cmd_output_csv.html
+  3	output_precision	files/cmdcfg/cmd_output_precision.html
+  3	plot	files/cmdcfg/cmd_plot.html
+  3	print	files/cmdcfg/cmd_list.html
+  3	proj_bearing_use_datum	files/cmdcfg/cmd_proj_bearing_use_datum.html 
+  3	recode	files/cmdcfg/cmd_recode.html
+  3	redundancy_flag_level	files/cmdcfg/cmd_redundancy_flag_level.html
+  3	reference_frame	files/cmdcfg/cmd_reference_frame.html
+  3	reference_frame_scale_error	files/cmdcfg/cmd_additional_parameter_commands.html
+  3	refraction_coefficient	files/cmdcfg/cmd_additional_parameter_commands.html
+  3	reject	files/cmdcfg/cmd_reject.html
+  3	reorder_stations	files/cmdcfg/cmd_reorder_stations.html
+  3	set_observation_option	files/cmdcfg/cmd_set_observation_option.html
+  3	sort_observations	files/cmdcfg/cmd_sort_observations.html
+  3	spec_test_options	files/cmdcfg/cmd_spec_test_options.html
+  3	specification	files/cmdcfg/cmd_specification.html
+  3	station_code_width	files/cmdcfg/cmd_station_code_width.html
+  3	station_offset_file	files/cmdcfg/cmd_station_offset_file.html
+  3	summarize_errors_by	files/cmdcfg/cmd_summarize_errors_by.html
+  3	systematic_error	files/cmdcfg/cmd_additional_parameter_commands.html
+  3	test_specification	files/cmdcfg/cmd_test_specification.html
+  3	title	files/cmdcfg/cmd_title.html
+  3	topocentre	files/cmdcfg/cmd_topocentre.html
+  3	use_distance_ratios	files/cmdcfg/cmd_use_distance_ratios.html
+  3	vertical_float_error	files/cmdcfg/cmd_vertical_float_error.html
+1	Station coordinate file	files/crd/index.html
+ 2	Station codes	files/crd/stn_code.html
+ 2	SNAP Station coordinate file format	files/crd/stn_file_format.html
+ 2	CSV format station coordinate files	files/crd/csv_stn_files.html
+ 2	Examples of station coordinate files	files/crd/stn_crd_file_example.html
+ 2	Station offset file format	files/crd/stn_offset_file_format.html
+ 2	Station recode file	files/crd/stn_recode_file.html
+1	Observation files	files/data/index.html
+ 2	Data types	files/data/obs_data_types.html
+  3	Azimuth observations (AZ)	files/data/obs_azimuth_data.html
+  3	Distance ratio observations (DR)	files/data/obs_distance_ratios.html
+  3	Distance observations (SD, HD, ED)	files/data/obs_distance_data.html
+  3	GPS observations (GB or GPS)	files/data/obs_gps_data.html
+  3	Point coordinate observations (GX)	files/data/obs_gx_data.html
+  3	Height difference observations (LV)	files/data/obs_height_differences.html
+  3	Orthometric and ellipsoidal height observations (OH, EH)	files/data/obs_height_data.html
+  3	Horizontal angle observations (HA)	files/data/obs_horizontal_angles.html
+  3	Latitude and longitude observations (LT, LN)	files/data/obs_latlon_data.html
+  3	Projection bearing observations (PB)	files/data/obs_projection_bearings.html
+  3	Refraction coefficients	files/data/obs_ref_coeff.html
+  3	Zenith distance observations (ZD)	files/data/obs_zenith_distances.html
+ 2	Rejecting observations	files/data/obs_rejecting_data.html
  2	Observation attributes	
-  3	Observation classifications	help/files/data/obs_classifications.html
-   4	Example of data classification	help/files/data/obs_example_classification.html
-  3	Bearing orientation errors	help/files/data/obs_bearing_error.html
-  3	Distance scale errors	help/files/data/obs_dist_scale_errors.html
-  3	GPS reference frames	help/files/data/obs_gps_ref_frames.html
-  3	Reference frame scale error	help/files/data/obs_refframe_scale_error.html
-  3	User defined systematic errors	help/files/data/obs_user_errors.html
- 2	SNAP observation file format	help/files/data/obs_file_format.html
-  3	Line observation format	help/files/data/obs_format_line.html
-  3	Grouped observation format	help/files/data/obs_format_grouped.html
-  3	Grouped observations with covariance format	help/files/data/obs_format_covar.html
-  3	Point observation format	help/files/data/obs_format_point.html
-  3	GPS error formats	help/files/data/obs_gps_err_format.html
-  3	Point coordinate error formats	help/files/data/obs_gx_err_format.html
-  3	Angle observation errors	help/files/data/obs_ddc_hazdaz_error.html
-  3	Latitude and longitude observation errors	help/files/data/obs_ddc_ltln_error.html
-  3	Orthometric and ellipsoidal height errors	help/files/data/obs_ddc_oheh_error.html
-  3	Data definition commands by function	help/files/data/obs_ddc_by_func.html
-  3	Data definition commands alphabetically	help/files/data/obs_ddc_alphabetically.html
-   4	The #bearing_orientation_error command	help/files/data/obs_ddc_bearing_orientation_error.html
-   4	The #classification command	help/files/data/obs_ddc_classification.html
-   4	The #classify command	help/files/data/obs_ddc_classify.html
-   4	The #data command	help/files/data/obs_ddc_data.html
-   4	The #date command	help/files/data/obs_ddc_date.html
-   4	The #distance_scale_error command	help/files/data/obs_ddc_distance_scale_error.html
-   4	The #ds_error command	help/files/data/obs_ddc_ds_error.html
-   4	The #gps_enu_error command	help/files/data/obs_ddc_gps_enu_error.html
-   4	The #gps_error_type command	help/files/data/obs_ddc_gps_error_type.html
-   4	The #gx_enu_error command	help/files/data/obs_ddc_gx_enu_error.html
-   4	The #hp_angles, #deg_angles, and #dms_angles commands	help/files/data/obs_ddc_angles.html
-   4	The #lv_error command	help/files/data/obs_ddc_lv_error.html
-   4	The #note command	help/files/data/obs_ddc_note.html
-   4	The #projection command	help/files/data/obs_ddc_projection.html
-   4	The #refraction_coefficient command	help/files/data/obs_ddc_ref_coeff.html
-   4	The #reference_frame command	help/files/data/obs_ddc_reference_frame.html
-   4	The #time command	help/files/data/obs_ddc_time.html
-  3	Troubleshooting data file errors	help/files/data/obs_data_file_errors.html
-  3	Example data file	help/files/data/obs_example_file.html
- 2	CSV observation file format	help/files/data/csv_obs_files.html
- 2	SINEX observation files	help/files/data/sinex_obs_files.html
-1	Coordinate systems in SNAP	help/coordsys/index.html
-
- 2	What is a coordinate system	help/coordsys/whatiscoordsys.html
- 2	Coordinate system file format	help/coordsys/crdsys_file_format.html
-  3	Ellipsoid definition format	help/coordsys/crdsys_ellipsoid_def.html
-  3	Reference frame definition format	help/coordsys/crdsys_refframe_def.html
-  3	Coordinate system definition format	help/coordsys/crdsys_crdsys_def.html
-   4	Equatorial Mercator projection definition format	help/coordsys/crdsys_em.html
-   4	Gnomic projection definition format	help/coordsys/crdsys_gn.html
-   4	Lambert Conformal Conic projection definition	help/coordsys/crdsys_lcc.html
-   4	New Zealand Map Grid definition format	help/coordsys/crdsys_nzmg.html
-   4	Polar Stereographic projection definition format	help/coordsys/crdsys_ps.html
-   4	Transverse Mercator projection definition format	help/coordsys/crdsys_tm.html
-  3	Coordinate system notes format	help/coordsys/crdsys_file_notes.html
- 2	Standard coordinate systems provided with concord	help/coordsys/crdsys_standard_list.html
- 2	Geoid grid files	help/coordsys/geoid.html
-  3	Grid file format	help/coordsys/gridfile_s.html
- 2	LINZ deformation model	help/coordsys/linzdefmodel.html
-  3	LINZ deformation file format	help/coordsys/linzdeffile.html
-  3	Triangulated data file format	help/coordsys/trigfile.html
-1	Adjustment strategies	help/adjustment/index.html
- 2	Minimum constraints adjustment to find gross errors	help/adjustment/topic_strategy_gross_errors.html
- 2	Improving estimates of observation errors	help/adjustment/topic_strategy_obs_errors.html
- 2	Fitting existing control	help/adjustment/topic_fitting_control.html
- 2	Adjusting GPS surveys	help/adjustment/topic_strategy_gps_surveys.html
- 2	Handling eccentric stations	help/adjustment/topic_strategy_eccentric_stations.html
- 2	Network preanalysis	help/programs/snap/snap_proc_preanalysis.html
- 2	Vertical adjustments	help/programs/snap/snap_proc_vertical.html
- 2	Testing accuracy specifications	help/programs/snap/snap_proc_accspec.html
-1	Files used by SNAP	help/files/index.html
-1	Change log	help/general/changelog.html
+  3	Observation classifications	files/data/obs_classifications.html
+   4	Example of data classification	files/data/obs_example_classification.html
+  3	Bearing orientation errors	files/data/obs_bearing_error.html
+  3	Distance scale errors	files/data/obs_dist_scale_errors.html
+  3	GPS reference frames	files/data/obs_gps_ref_frames.html
+  3	Reference frame scale error	files/data/obs_refframe_scale_error.html
+  3	User defined systematic errors	files/data/obs_user_errors.html
+ 2	SNAP observation file format	files/data/obs_file_format.html
+  3	Line observation format	files/data/obs_format_line.html
+  3	Grouped observation format	files/data/obs_format_grouped.html
+  3	Grouped observations with covariance format	files/data/obs_format_covar.html
+  3	Point observation format	files/data/obs_format_point.html
+  3	GPS error formats	files/data/obs_gps_err_format.html
+  3	Point coordinate error formats	files/data/obs_gx_err_format.html
+  3	Angle observation errors	files/data/obs_ddc_hazdaz_error.html
+  3	Latitude and longitude observation errors	files/data/obs_ddc_ltln_error.html
+  3	Orthometric and ellipsoidal height errors	files/data/obs_ddc_oheh_error.html
+  3	Data definition commands by function	files/data/obs_ddc_by_func.html
+  3	Data definition commands alphabetically	files/data/obs_ddc_alphabetically.html
+   4	The #bearing_orientation_error command	files/data/obs_ddc_bearing_orientation_error.html
+   4	The #classification command	files/data/obs_ddc_classification.html
+   4	The #classify command	files/data/obs_ddc_classify.html
+   4	The #data command	files/data/obs_ddc_data.html
+   4	The #date command	files/data/obs_ddc_date.html
+   4	The #distance_scale_error command	files/data/obs_ddc_distance_scale_error.html
+   4	The #ds_error command	files/data/obs_ddc_ds_error.html
+   4	The #gps_enu_error command	files/data/obs_ddc_gps_enu_error.html
+   4	The #gps_error_type command	files/data/obs_ddc_gps_error_type.html
+   4	The #gx_enu_error command	files/data/obs_ddc_gx_enu_error.html
+   4	The #hp_angles, #deg_angles, and #dms_angles commands	files/data/obs_ddc_angles.html
+   4	The #lv_error command	files/data/obs_ddc_lv_error.html
+   4	The #note command	files/data/obs_ddc_note.html
+   4	The #projection command	files/data/obs_ddc_projection.html
+   4	The #refraction_coefficient command	files/data/obs_ddc_ref_coeff.html
+   4	The #reference_frame command	files/data/obs_ddc_reference_frame.html
+   4	The #time command	files/data/obs_ddc_time.html
+  3	Troubleshooting data file errors	files/data/obs_data_file_errors.html
+  3	Example data file	files/data/obs_example_file.html
+ 2	CSV observation file format	files/data/csv_obs_files.html
+ 2	SINEX observation files	files/data/sinex_obs_files.html
+1	Coordinate systems in SNAP	coordsys/index.html
+ 2	What is a coordinate system	coordsys/whatiscoordsys.html
+ 2	Coordinate system file format	coordsys/crdsys_file_format.html
+  3	Ellipsoid definition format	coordsys/crdsys_ellipsoid_def.html
+  3	Reference frame definition format	coordsys/crdsys_refframe_def.html
+  3	Coordinate system definition format	coordsys/crdsys_crdsys_def.html
+   4	Equatorial Mercator projection definition format	coordsys/crdsys_em.html
+   4	Gnomic projection definition format	coordsys/crdsys_gn.html
+   4	Lambert Conformal Conic projection definition	coordsys/crdsys_lcc.html
+   4	New Zealand Map Grid definition format	coordsys/crdsys_nzmg.html
+   4	Polar Stereographic projection definition format	coordsys/crdsys_ps.html
+   4	Transverse Mercator projection definition format	coordsys/crdsys_tm.html
+  3	Coordinate system notes format	coordsys/crdsys_file_notes.html
+ 2	Standard coordinate systems provided with concord	coordsys/crdsys_standard_list.html
+ 2	Geoid grid files	coordsys/geoid.html
+  3	Grid file format	coordsys/gridfile_s.html
+ 2	LINZ deformation model	coordsys/linzdefmodel.html
+  3	LINZ deformation file format	coordsys/linzdeffile.html
+  3	Triangulated data file format	coordsys/trigfile.html
+1	Adjustment strategies	adjustment/index.html
+ 2	Minimum constraints adjustment to find gross errors	adjustment/topic_strategy_gross_errors.html
+ 2	Improving estimates of observation errors	adjustment/topic_strategy_obs_errors.html
+ 2	Fitting existing control	adjustment/topic_fitting_control.html
+ 2	Adjusting GPS surveys	adjustment/topic_strategy_gps_surveys.html
+ 2	Handling eccentric stations	adjustment/topic_strategy_eccentric_stations.html
+ 2	Network preanalysis	programs/snap/snap_proc_preanalysis.html
+ 2	Vertical adjustments	programs/snap/snap_proc_vertical.html
+ 2	Testing accuracy specifications	programs/snap/snap_proc_accspec.html
+1	Files used by SNAP	files/index.html
+1	Change log	general/changelog.html

@@ -20,6 +20,7 @@ def main():
     parser = argparse.ArgumentParser(description="Compile dynamic help file")
     parser.add_argument("contents_file", help="File describe help file contents")
     parser.add_argument("help_file", help="Generated help file")
+    parser.add_argument("-b","--base-dir",help="Base directory for help files")
     parser.add_argument(
         "-t", "--title", default="SNAP help", help="Title of generated help file"
     )
@@ -29,19 +30,24 @@ def main():
     parser.add_argument(
         "-s", "--script-file", action="append", help="Included javascript"
     )
+    parser.add_argument(
+        "-i", "--index-file", default="js/wordindex.js", help="Output javascript word index"
+    )
     args = parser.parse_args()
     stylesheets = args.css_stylesheet or []
     scripts = args.script_file or []
-    stylesheets.append("css/help.css")
+    stylesheets.append("css/helpapp.css")
     scripts.insert(0, "js/jquery.min.js")
-    scripts.append("js/help.js")
+    scripts.append("js/helpapp.js")
+    basedir=args.base_dir + "/" if args.base_dir else ""
+    helpfile=basedir+args.help_file
+    indexfile = args.index_file
 
     levels, urls = loadContents(args.contents_file)
-    wordindex = buildIndex(urls)
-    indexfile = re.sub(r"(\.html)$", ".index.js", args.help_file)
+    wordindex = buildIndex(basedir,urls)
     scripts.append('defer:'+indexfile)
-    writeHelpPage(args.help_file, levels, stylesheets, scripts, args.title)
-    writeWordIndex(indexfile, wordindex)
+    writeHelpPage(helpfile, levels, stylesheets, scripts, args.title)
+    writeWordIndex(basedir+indexfile, wordindex)
 
 
 def writeHelpPage(help_file, levels, stylesheets, scripts, title ):
@@ -136,7 +142,7 @@ def writeContentsItem(th, item):
     th.write("</div>\n")
 
 
-def buildIndex(urls):
+def buildIndex(basedir,urls):
     allwords = {}
     pagedata = []
     todo = list(urls)
@@ -151,7 +157,7 @@ def buildIndex(urls):
         if url in done:
             continue
         done.add(url)
-        title, text, refs = processPage(url)
+        title, text, refs = processPage(basedir,url)
         words = indexText(text)
         npage = len(pagedata)
         pagedata.append({"url": url, "title": title})
@@ -166,9 +172,10 @@ def buildIndex(urls):
             allwords[word][2].append([npage, words[word]])
         for ref in refs:
             if re.match(r'^\w+\:\/',ref):
+                print(f"Skipping non-relative url {ref}")
                 continue
             ref = re.sub(r'[\#\?].*','',ref)
-            if ref not in done and url not in todo:
+            if ref not in done and ref not in todo:
                 print(f"Adding non-indexed url {ref}")
                 todo.append(ref)
 
@@ -246,8 +253,8 @@ wordindex={{
         ixh.write("installSearch();")
 
 
-def processPage(url):
-    with open(url) as urlh:
+def processPage(basedir,url):
+    with open(basedir+url) as urlh:
         page = bs(urlh, "lxml")
     refs = set()
     for anchor in page.find_all("a"):

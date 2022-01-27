@@ -35,7 +35,7 @@ body
 #page-content
 {
     flex: 1 1 auto;
-    overflow: auto;
+    overflow: hidden;
 }
 
 #help-page
@@ -95,9 +95,21 @@ div.contents-item
     background-color: lightskyblue;
 }
 
+#search_bar
+{
+    display: flex;
+    flex-flow: row;
+    width: 100%;
+}
+
+#search_text
+{
+    flex: 1 0 10em;
+}
 
 #search_button
 {
+    flex: 0 0 16px;
     width: 16px;
     height: 16px;
     margin: 2px 5px; 

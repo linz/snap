@@ -1,0 +1,62 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+<meta name="keywords" content="SNAP, overview, contents">
+<title>SNAP overview</title>
+<link rel="stylesheet" type="text/css" href="css/snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+<h1><a name="snap_package"></a>SNAP overview</h1>
+
+<p>SNAP (Survey Network Adjustment Package) is a <a href="programs/index.html">suite of programs</a> for adjusting the coordinates of stations in a survey network to best fit the observed data.  
+</p>
+<p>Generally these programs are accessed from the <a href="programs/snap_manager/index.html">snap_manager</a> program, though they can equally be run from
+a DOS command prompt.
+</p>
+<p>The main programs in the suite are <a href="programs/snap/index.html">snap</a>, which performs a least squares adjustment of coordinates to fit survey data and generates statistical information about the observations and the derived coordinates, and <a href="programs/snapplot/index.html">snapplot</a>, which is a graphical tool for reviewing the results of an adjustment.
+</p>
+
+<p>Generally in order to use snap you must first create <a href="files/data/index.html">data files</a> detailing the observations used.  You  also need to
+create a <a href="files/crd/index.html">station coordinate file</a> which defines
+the stations in the adjustment.  This should include the coordinates of the 
+reference stations which will be held fixed in the adjustment, and trial 
+coordinates for the other stations.  The <a href="programs/dat2site/index.html">dat2site</a> program may assist with generating trial coordinates.
+Finally you need to create a <a href="files/cmdcfg/index.html">command file</a>
+which defines the station coordinate file, data files, and adjustment options 
+to be used. All these files can be generated in a text editor. 
+</p>
+<p>You can then open the command file in the snap_manager program in 
+order to run and analyse the adjustment.
+</p>
+
+<p>Several of the SNAP utility programs require the perl programming language to be installed on your
+computer.  Perl for windows can be obtained from <a href="http://www.strawberryperl.com">www.strawberryperl.com</a>.
+</p>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+
+<p><a href="programs/index.html">Programs in the snap suite</a></p>
+
+<p><a href="files/cmdcfg/index.html">Command files overview</a></p>
+
+<p><a href="files/cmdcfg/cfg_file.html">Configuration file overview</a></p>
+
+<p><a href="files/crd/index.html">Station coordinate file</a></p>
+
+<p><a href="files/data/index.html">Observation file overview</a></p>
+
+<p><a href="coordsys/index.html">Coordinate systems in SNAP</a></p>
+
+<p><a href="adjustment/index.html">Adjustment strategies</a></p>
+
+<p><a href="files/index.html">Files used by SNAP</a></p>
+
+</div>
+</body>
+</html>

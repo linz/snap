@@ -63,15 +63,8 @@ function installContents()
         $(this).click(function(event){
             event.preventDefault();
             event.stopPropagation();
-            if( helppage.attr("src") == target )
-            {
-                toggleContentsLevel(level);
-            }
-            else
-            {
-                helppage.attr("src",target);
-                openContentsLevel(level);
-            }
+            helppage.attr("src",target);
+            openContentsLevel(level);
         });
     });
 
@@ -79,7 +72,7 @@ function installContents()
 
 function searchText()
 {
-    return $('#search_text').val().trim();
+    return $('#search_text').val().toLowerCase().trim();
 }
 
 function searchPages(searchtext)
@@ -137,7 +130,11 @@ function searchPageResult( page )
 {
     let result=$('<div>').addClass('search_item');
     result.append($('<a>').attr("href",page.url).text(page.title));
-    result.click(function(){ $('#help-page').attr("src",page.url); return false; });
+    result.click(function(event){ 
+        event.preventDefault();
+        event.stopPropagation();
+        $('#help-page').attr("src",page.url); 
+        return false; });
     return result;
 }
 
@@ -149,6 +146,7 @@ function doSearch()
     let items=searchResult.pages.map( page => searchPageResult(page));
     if( searchText() == searchtext )
     {
+        $('#search_words').empty();
         let results=$('#search_results');
         results.empty();
         if( items.length > 0)
@@ -162,10 +160,42 @@ function doSearch()
     }
 }
 
+function lookupWords()
+{
+    let search=$("#search_text");
+    let text=search.val();
+    let index=search.prop("selectionStart");
+    let wordprefix=text.substr(0,index).replace(/^.*\s/,'').toLowerCase();
+    let wordsuffix=text.substr(index).replace(/[^\s]*/,'');
+    let prefixlen=wordprefix.length;
+    if( wordprefix.length > 1 )
+    {
+        $('#search_results').empty();
+        let wordlist=$('#search_words');
+        let words=wordindex.wordlist.filter(w=>w.startsWith(wordprefix)).sort();
+        wordlist.empty();
+        for( let word of words)
+        {
+            let suggestion=$("<div>").addClass("search_word").text(word);
+            suggestion.click(function(){
+                if(search.val()==text)
+                {
+                    search.val(text.substr(0,index-prefixlen)+word+wordsuffix);
+                    search.focus();
+                    search.prop('selectionStart',index+word.length-prefixlen);
+                    wordlist.empty();
+                }
+            })
+            wordlist.append(suggestion);
+        } 
+    }
+}
+
 function installSearch()
 {
+    wordindex.wordlist=Array.from(wordindex.words.keys());
     let searchpanel=$('#search');
-    let searchbar=$("<div>").addClass("search_bar");
+    let searchbar=$("<div>").addClass("search_bar").attr("id","search_bar");
     let searchtext=$("<input>").addClass("search_text").attr("id","search_text");
     let searchbutton=$("<div>").addClass("search_button").attr("id","search_button");
     searchtext.on("keypress", function(e) {
@@ -173,11 +203,24 @@ function installSearch()
             doSearch();
             return false; 
         }
+        // else if (e.keyCode == 9 )
+        // {
+        //     $('#search_words .searchword').first().click();
+        //     e.preventDefault();
+        //     return false;
+        // }
+    });
+    searchtext.on("keyup", function(e){
+        if (e.keyCode != 13 ) // && e.keyCode != 9 )
+        {
+            lookupWords();
+        }
+
     });
     searchbutton.click(doSearch);
     searchbar.append(searchtext,searchbutton);
     searchpanel.append(searchbar);
-    searchpanel.append($("<div>").addClass("search_preview").attr("id","search_preview"));
+    searchpanel.append($("<div>").addClass("search_words").attr("id","search_words"));
     searchpanel.append($("<div>").addClass("search_results").attr("id","search_results"));
 }
 
