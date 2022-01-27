@@ -127,7 +127,7 @@ function searchPages(searchtext)
     else
     {
         ids=Array.from(pageids.keys());
-        ids.sort(id => -pageids.get(id));
+        ids.sort((id1,id2) => pageids.get(id2)-pageids.get(id1));
         result.pages=ids.map(id => wordindex.pages[id]);
     }
     return result;

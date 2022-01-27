@@ -269,12 +269,17 @@ def processPage(url):
     for header in page.body.find_all(["h1", "h2", "h3", "h4"]):
         headertext = " " + header.get_text()
         text = text + (10 * headertext)
+    # Do the same for keywords
+    for meta in page.head.find_all("meta"):
+        if meta.get("name","") == "keywords":
+            content = " "+meta.get("content","")
+            text = text + (10 * content)
     return title, text, refs
 
 
 def indexText(text):
     words = {}
-    for m in re.finditer(r"\#?\w+", text.lower()):
+    for m in re.finditer(r"\w+", text.lower()):
         word = m.group(0)
         if word not in words:
             words[word] = 1
