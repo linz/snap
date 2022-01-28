@@ -146,6 +146,7 @@ def buildIndex(basedir,urls):
     allwords = {}
     pagedata = []
     todo = list(urls)
+    todo.sort()
     done=set()
     # allwords[word] is array
     # [0] = page count

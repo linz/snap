@@ -196,11 +196,12 @@ void SnapplotFrame::SetupIcons()
 
 void SnapplotFrame::SetupHelp()
 {
-    help = new wxHelpController( this );
 
     wxFileName helpFile(wxStandardPaths::Get().GetExecutablePath());
-    helpFile.SetName("snaphelp");
-    help->Initialize( helpFile.GetFullPath() );
+    helpFile.SetName("help/snapplot_help.html");
+    helpUrl=helpFile.GetFullPath();
+    // help = new wxHelpController( this );
+    // help->Initialize( helpFile.GetFullPath() );
 }
 
 void SnapplotFrame::SetupPrinter()
@@ -943,6 +944,7 @@ void SnapplotFrame::OnCmdReadConfig( wxCommandEvent &event )
 void SnapplotFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 {
     if( help ) help->DisplaySection( HELPBASE "index.html");
+    wxLaunchDefaultBrowser(helpUrl);
 }
 
 void SnapplotFrame::OnCmdHelpAbout( wxCommandEvent & WXUNUSED(event) )

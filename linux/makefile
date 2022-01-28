@@ -249,8 +249,8 @@ support_files: coordsys
 help_files: helpfile 
 
 helpfile:
-	(cd $(SRCDIR)/help && ./build_snaphelp.sh)
-	$(CP) -r $(SRCDIR)/help/snaphelp.zip $(INSTALL)
+	(cd $(SRCDIR)/help && ./build_help.sh)
+	$(CP) -r $(SRCDIR)/help/help $(INSTALL)
 
 devel_package: 
 	mkdir -p $(INSTALL)/config/package

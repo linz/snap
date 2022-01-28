@@ -22,28 +22,21 @@ function toggleContentsLevel( item )
     }
 }
 
-// function onPageLoad()
-// {
-//     // Doesn't work - haven't found a way to get url of page.
-    
-//     let helppage=$('#help-page');
-//     let target=helppage.attr("src");
-//     $(".contents-item").removeClass("selected");
-//     $(".contents-item a").each(function(){
-//         if( $(this).attr("href") == target )
-//         {
-//             $(this).closest(".contents-item").addClass("selected");
-//             $(this).parents(".contents-level").each(function(){openContentsLevel($(this));});
-//         }
-//     });
-// }
-
-
+function setPage( url )
+{
+    $('#help-page').attr("src",url); 
+    $(".contents-item").removeClass("selected");
+    $(".contents-item a").each(function(){
+        if( $(this).attr("href") == url )
+        {
+            $(this).closest(".contents-item").addClass("selected");
+            $(this).parents(".contents-level").each(function(){openContentsLevel($(this));});
+        }
+    });
+}
 
 function installContents()
 {
-    let helppage=$("#help-page");
-    // helppage.on("load",onPageLoad);
     $(".contents-level").each(function(){
         let level=$(this); 
         if( level.find('.contents-level').length){ level.addClass("has-contents")};
@@ -63,7 +56,7 @@ function installContents()
         $(this).click(function(event){
             event.preventDefault();
             event.stopPropagation();
-            helppage.attr("src",target);
+            setPage(target);
             openContentsLevel(level);
         });
     });
@@ -133,7 +126,7 @@ function searchPageResult( page )
     result.click(function(event){ 
         event.preventDefault();
         event.stopPropagation();
-        $('#help-page').attr("src",page.url); 
+        setPage(page.url);
         return false; });
     return result;
 }
@@ -165,8 +158,8 @@ function lookupWords()
     let search=$("#search_text");
     let text=search.val();
     let index=search.prop("selectionStart");
-    let wordprefix=text.substr(0,index).replace(/^.*\s/,'').toLowerCase();
-    let wordsuffix=text.substr(index).replace(/[^\s]*/,'');
+    let wordprefix=text.substring(0,index).replace(/^.*\s/,'').toLowerCase();
+    let wordsuffix=text.substring(index).replace(/[^\s]*/,'');
     let prefixlen=wordprefix.length;
     if( wordprefix.length > 1 )
     {
@@ -180,7 +173,7 @@ function lookupWords()
             suggestion.click(function(){
                 if(search.val()==text)
                 {
-                    search.val(text.substr(0,index-prefixlen)+word+wordsuffix);
+                    search.val(text.substring(0,index-prefixlen)+word+wordsuffix);
                     search.focus();
                     search.prop('selectionStart',index+word.length-prefixlen);
                     wordlist.empty();
@@ -242,6 +235,8 @@ function setup()
     });
     $('#show_contents_button').click();
     installContents();
+    let url= window.location.search ? window.location.search.substring(1) : $('.contents-item a').first().attr("href");
+    setPage(url);
 }
 
 $(document).ready(setup);
