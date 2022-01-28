@@ -17,7 +17,6 @@ RUN apt-get install -y \
     '(libwxgtk3.0-dev|libwxgtk3.0-gtk3-dev)' \
     perl \
     python3 \
-    python3-bs4 \
     debhelper \
     dpkg-dev \
     devscripts

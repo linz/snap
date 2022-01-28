@@ -119,3 +119,8 @@ div.contents-item
     background-repeat: no-repeat; 
     vertical-align: middle;   
 }
+
+.content-item_selected, .search_item.selected, .search_word.selected
+{
+    background-color: lightskyblue;
+}

@@ -2,9 +2,9 @@
 
 import argparse
 import re
-from bs4 import BeautifulSoup as bs
-import copy
+import html
 import json
+import io
 from urllib.parse import urljoin
 
 # Words in more than this amount of pages are ignored for indexing
@@ -14,7 +14,35 @@ INDEX_PLURAL_ENDINGS = [
     ["", "s"],
     ["y", "ies"],
 ]
+TEMPLATE="""
+<html>
+<head>
+<title><!--TITLE--></title>
+<link rel="stylesheet" href="css/helpapp.css">
+<style media="print">#menu { display: none }</style>
+<script src="js/jquery.min.js" ></script>
+<!--SCRIPTS-->
+<script src="js/helpapp.js" ></script>
+</head>
+</body>
+<div class="container">
+<div id="menu">
+<div class="menu_header"><div id="show_contents_button" class="menu_button">Contents</div><div id="show_search_button" class="menu_button">Search</div></div><div class="menu_area"><div id="contents" class="contents">
+<!--CONTENTS-->
+</div>
+<div id="search"></div></div>
+</div>
+<div id="page-content" class="frame">
+<iframe id="help-page"></iframe>
+</div>
+</div>
+</body>
+</html>
+"""
 
+TITLE_FACTOR=10
+KEYWORD_FACTOR=10
+HEADER_FACTOR=10
 
 def main():
     parser = argparse.ArgumentParser(description="Compile dynamic help file")
@@ -53,47 +81,33 @@ def main():
 def writeHelpPage(help_file, levels, stylesheets, scripts, title ):
 
     indexpage = levels[1][0]
+    with io.StringIO() as w:
+        for item in levels[1]:
+            writeContentsItem(w, item)
+        contenthtml=w.getvalue()
 
-    with open(help_file, "w") as th:
-        th.write(
-            f"""
-        <html>
-        <head>
-        <title>{title}</title>
-        """
-        )
+    with io.StringIO() as w:
         for css in stylesheets:
-            th.write(f'<link rel="stylesheet" href="{css}">\n')
+            w.write(f'<link rel="stylesheet" href="{css}">\n')
+        stylesheethtml=w.getvalue()
+
+    with io.StringIO() as w:
         for script in scripts:
             defer=""
             if script.startswith('defer:'):
                 defer='defer'
                 script=script[6:]
-            th.write(f'<script src="{script}" {defer}></script>\n')
-        th.write("</head>\n")
-        th.write("</body>\n")
-        th.write('<div class="container">\n')
-        th.write('<div id="menu">\n')
-        th.write('<div class="menu_header">')
-        th.write('<div id="show_contents_button" class="menu_button">Contents</div>')
-        th.write('<div id="show_search_button" class="menu_button">Search</div>')
-        th.write('</div>')
-        th.write('<div class="menu_area">')
-        th.write('<div id="contents" class="contents">\n')
-        for item in levels[1]:
-            writeContentsItem(th, item)
-        th.write("</div>\n")
-        th.write('<div id="search"></div>')
-        th.write("</div>\n")
-        th.write("</div>\n")
-        th.write('<div id="page-content" class="frame">\n')
-        th.write(
-            f'<iframe id="help-page" src="{indexpage[2]}" title="{indexpage[1]}"></iframe>\n'
-        )
-        th.write("</div>\n")
-        th.write("</div>\n")
-        th.write("</body>\n")
-        th.write("</html>\n")
+            w.write(f'<script src="{script}" {defer}></script>\n')
+        scripthtml=w.getvalue()
+
+    pagehtml=TEMPLATE
+    pagehtml=pagehtml.replace('<!--TITLE-->',html.escape(title))
+    pagehtml=pagehtml.replace('<!--CONTENTS-->',contenthtml)
+    pagehtml=pagehtml.replace('<!--STYLESHEETS-->',stylesheethtml)
+    pagehtml=pagehtml.replace('<!--SCRIPTS-->',scripthtml)
+
+    with open(help_file, "w") as th:
+        th.write(pagehtml)
 
 
 def loadContents(contentsFile):
@@ -134,7 +148,7 @@ def writeContentsItem(th, item):
     level, label, href, subitems = item
     th.write(f'<div class="contents-level level-{level}">\n')
     if href:
-        th.write(f'<div class="contents-item"><a href="{href}">{label}</a></div>\n')
+        th.write(f'<div class="contents-item"><a href="{href}">{html.escape(label)}</a></div>\n')
     else:
         th.write(f'<div class="contents-item">{label}</div>\n')
     for subitem in subitems:
@@ -256,33 +270,53 @@ wordindex={{
 
 def processPage(basedir,url):
     with open(basedir+url) as urlh:
-        page = bs(urlh, "lxml")
-    refs = set()
-    for anchor in page.find_all("a"):
-        if anchor.get("href") is not None:
-            href = anchor["href"]
-            aurl = urljoin(url, href)
-            refs.add(aurl)
-    title = page.head.title.get_text()
-    seealso = page.body.find(
-        lambda e: e.name == "h3" and e.get_text().lower().startswith("see also")
-    )
-    if seealso:
-        extra = list(seealso.next_siblings)
-        for element in extra:
-            element.extract()
-        seealso.extract()
-    text = page.body.get_text()
-    # Repeat H1..H4 elements to give prominence in index
-    for header in page.body.find_all(["h1", "h2", "h3", "h4"]):
-        headertext = " " + header.get_text()
-        text = text + (10 * headertext)
-    # Do the same for keywords
-    for meta in page.head.find_all("meta"):
-        if meta.get("name","") == "keywords":
-            content = " "+meta.get("content","")
-            text = text + (10 * content)
-    return title, text, refs
+        page = urlh.read()
+    
+    # Just take refs from page.  Could get clever and get anchor text as 
+    # as high value index words for referenced page.
+
+    page=page.lower()
+    page=re.sub(r'\s+',' ',page,flags=re.S)
+
+    refs=set()
+    for refmatch in re.finditer(r"\<a\b[^\>]*\bhref\=\"([^\"]+)\"",page):
+        href=refmatch.group(1)
+        aurl = urljoin(url, href)
+        refs.add(aurl)
+    refs=list(sorted(refs))
+
+    title=''
+    if tmatch := re.search(r"\<title\>(.*?)\<\/title\>",page):
+        title=' '+tmatch.group(1)
+
+    keywords=''
+    for kmatch in re.finditer(r"\<meta\s+name\=\"keywords\"\s+content=\"([^\"]+)\"",page):
+        keywords = keywords + ' ' + kmatch.group(1)
+
+    # Now just look up to body.  Also discard after <h3>see also</h3> as this as assumed to
+    # be text from another page.
+
+    if bmatch := re.search(r"\<body[^\>]*\>(.*)\<\/body",page):
+        page=bmatch.group(1)
+
+    if smatch := re.match(r'(.*)\<h3>\s*see\s+also',page):
+        page=smatch.group(1)
+
+    # Capture header text
+
+    headers=''
+    for hmatch in re.finditer(r'\<(h[1-4])\>(.*?)\<\/\1',page):
+        header=hmatch.group(2)
+        header=re.sub(r'\<.[^\>]*\>',' ',header)
+        headers=headers+' '+header
+
+    # Remove any more tags in page
+    page=re.sub(r'\<[^\>]*\>',' ',page)
+
+    # Add titles etc multiple times to weight in index
+    page=page+title*TITLE_FACTOR+headers*HEADER_FACTOR+keywords*KEYWORD_FACTOR
+    page=html.unescape(page)
+    return title, page, refs
 
 
 def indexText(text):

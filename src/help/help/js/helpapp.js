@@ -1,4 +1,5 @@
 var wordindex=null;
+var ready=false;
 
 function closeContentsLevel( item )
 {
@@ -145,6 +146,7 @@ function doSearch()
         if( items.length > 0)
         {
             results.append(items);
+            $('#search_results .search_item').first().addClass('selected');
         }
         else
         {
@@ -176,13 +178,32 @@ function lookupWords()
                     search.val(text.substring(0,index-prefixlen)+word+wordsuffix);
                     search.focus();
                     search.prop('selectionStart',index+word.length-prefixlen);
+                    search.prop('selectionEnd',index+word.length-prefixlen);
                     wordlist.empty();
                 }
             })
             wordlist.append(suggestion);
-        } 
+        }
+        wordlist.find('.search_word').first().addClass('selected') 
     }
 }
+
+function moveSelected( selector, offset )
+{
+    let items=$(selector);
+    let selected=items.filter('.selected').first();
+    if( selected.length > 0 )
+    {
+        let index=items.index(selected)+offset;
+        let next=items.get(index);
+        if( index >= 0 && next !== undefined )
+        {
+            selected.removeClass('selected');
+            $(next).addClass('selected')
+        }
+    }
+}
+
 
 function installSearch()
 {
@@ -191,24 +212,52 @@ function installSearch()
     let searchbar=$("<div>").addClass("search_bar").attr("id","search_bar");
     let searchtext=$("<input>").addClass("search_text").attr("id","search_text");
     let searchbutton=$("<div>").addClass("search_button").attr("id","search_button");
-    searchtext.on("keypress", function(e) {
-        if (e.keyCode == 13) { 
-            doSearch();
-            return false; 
+    searchtext.on("keydown", function(e) {
+        switch( e.key) 
+        {
+            case "Enter":
+                // If already showing a result then click it
+                let result=$('#search_results .search_item.selected').first();
+                if( result.length > 0)
+                {
+                    result.click();
+                }
+                else
+                {
+                    $('#search_words .search_word.selected').first().click();
+                    doSearch();
+                }
+                break;
+            case "Up":
+            case "ArrowUp":
+                moveSelected('#search_results .search_item',-1);
+                moveSelected('#search_words .search_word',-1);
+                break;
+            case "Down":
+            case "ArrowDown":
+                moveSelected('#search_results .search_item',1);
+                moveSelected('#search_words .search_word',1);
+                break;
+            default:
+                return
         }
-        // else if (e.keyCode == 9 )
-        // {
-        //     $('#search_words .searchword').first().click();
-        //     e.preventDefault();
-        //     return false;
-        // }
+        e.preventDefault();
+        e.stopPropagation();
+        return false
     });
     searchtext.on("keyup", function(e){
-        if (e.keyCode != 13 ) // && e.keyCode != 9 )
+        switch(e.key)
         {
-            lookupWords();
+            case "Enter":
+            case "Up":
+            case "ArrowUp":
+            case "Down":
+            case "ArrowDown":
+                e.preventDefault();
+                e.stopPropagation();
+                return false                
         }
-
+        lookupWords();
     });
     searchbutton.click(doSearch);
     searchbar.append(searchtext,searchbutton);
@@ -219,6 +268,8 @@ function installSearch()
 
 function setup()
 {
+    if( ready ) return;
+    ready=true;
     $('#show_contents_button').click(function(){ 
         $('#search').hide(); 
         $('#show_search_button').removeClass('selected');
@@ -237,6 +288,7 @@ function setup()
     installContents();
     let url= window.location.search ? window.location.search.substring(1) : $('.contents-item a').first().attr("href");
     setPage(url);
+    $(window).on("keydown",function(e){ console.log(e.key)});
 }
 
 $(document).ready(setup);
