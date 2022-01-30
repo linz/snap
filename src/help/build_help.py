@@ -27,7 +27,7 @@ TEMPLATE="""
 </body>
 <div class="container">
 <div id="menu">
-<div class="menu_header"><div id="show_contents_button" class="menu_button">Contents</div><div id="show_search_button" class="menu_button">Search</div></div><div class="menu_area"><div id="contents" class="contents">
+<div class="menu_header"><div id="show-contents-button" class="menu-button">Contents</div><div id="show-search-button" class="menu-button">Search</div></div><div class="menu_area"><div id="contents" class="contents">
 <!--CONTENTS-->
 </div>
 <div id="search"></div></div>
@@ -275,7 +275,6 @@ def processPage(basedir,url):
     # Just take refs from page.  Could get clever and get anchor text as 
     # as high value index words for referenced page.
 
-    page=page.lower()
     page=re.sub(r'\s+',' ',page,flags=re.S)
 
     refs=set()
@@ -288,6 +287,8 @@ def processPage(basedir,url):
     title=''
     if tmatch := re.search(r"\<title\>(.*?)\<\/title\>",page):
         title=' '+tmatch.group(1)
+
+    page=page.lower()
 
     keywords=''
     for kmatch in re.finditer(r"\<meta\s+name\=\"keywords\"\s+content=\"([^\"]+)\"",page):
@@ -314,7 +315,7 @@ def processPage(basedir,url):
     page=re.sub(r'\<[^\>]*\>',' ',page)
 
     # Add titles etc multiple times to weight in index
-    page=page+title*TITLE_FACTOR+headers*HEADER_FACTOR+keywords*KEYWORD_FACTOR
+    page=page+title.lower()*TITLE_FACTOR+headers*HEADER_FACTOR+keywords*KEYWORD_FACTOR
     page=html.unescape(page)
     return title, page, refs
 

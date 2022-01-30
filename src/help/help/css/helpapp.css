@@ -61,16 +61,15 @@ div.contents-item
 
 .contents-level > .contents-item > .contents-level-toggle
 {
-    width: 12px;
-    height: 12px;
+    width: 14px;
+    height: 14px;
     display: inline-block;
-    background-color: white;
 }
 
 .contents-level.has-contents > .contents-item > .contents-level-toggle
 {
     background-image: url("open.png");
-    background-size: 8px 8px;
+    background-size: 12px 12px;
     background-repeat: no-repeat;
 }
 
@@ -78,11 +77,17 @@ div.contents-item
 .contents-level.has-contents.closed > .contents-item > .contents-level-toggle
 {
     background-image: url("closed.png");
-    background-size: 8px 8px;
+    background-size: 12px 12px;
     background-repeat: no-repeat;
 }
 
-.menu_button
+.contents-item a, .contents-item a:visited
+{
+    color: darkblue;
+    text-decoration: none;
+}
+
+.menu-button
 {
     padding: 2px 5px;
     margin-bottom: 5px;
@@ -90,24 +95,24 @@ div.contents-item
     display: inline-block;
 }
 
-.menu_button.selected
+.menu-button.selected
 {
     background-color: lightskyblue;
 }
 
-#search_bar
+#search-bar
 {
     display: flex;
     flex-flow: row;
     width: 100%;
 }
 
-#search_text
+#search-text
 {
     flex: 1 0 10em;
 }
 
-#search_button
+#search-button
 {
     flex: 0 0 16px;
     width: 16px;
@@ -120,7 +125,7 @@ div.contents-item
     vertical-align: middle;   
 }
 
-.content-item_selected, .search_item.selected, .search_word.selected
+.contents-item.selected, .search-item.selected, .search-word.selected
 {
-    background-color: lightskyblue;
+    background-color: hsl(203, 92%, 90%);
 }
