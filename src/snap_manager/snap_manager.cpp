@@ -59,7 +59,8 @@ private:
     SnapMgrScriptEnv *scriptenv;
     wxConfig *config;
     wxFileHistory fileHistory;
-    wxHelpController *help;
+    // wxHelpController *help;
+    wxString helpUrl;
     wxTextCtrl *logCtrl;
     wxLogPlainTextCtrl *logger;
     int nScriptMenuItems;
@@ -130,11 +131,13 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
 
     // Set up the help file
 
-    help = new wxHelpController( this );
-
     wxFileName helpFile(wxStandardPaths::Get().GetExecutablePath());
-    helpFile.SetName("snaphelp");
-    help->Initialize( helpFile.GetFullPath() );
+    helpFile.AppendDir("help");
+    helpFile.SetName("snap_manager_help");
+    helpFile.SetExt("html");
+    helpUrl=helpFile.GetFullPath();
+    // help = new wxHelpController( this );
+    //help->Initialize( helpFile.GetFullPath() );
 
     // Load the scripting environment
 
@@ -147,9 +150,7 @@ SnapMgrFrame::~SnapMgrFrame()
 {
     wxLog::SetActiveTarget(0);
     delete logger;
-
-    delete help;
-
+    // delete help;
     config->SetPath( "/History" );
     fileHistory.Save( *config );
     config->SetPath( "/" );
@@ -283,7 +284,8 @@ void SnapMgrFrame::OnCmdClose( wxCommandEvent & WXUNUSED(event) )
 
 void SnapMgrFrame::OnCmdHelpHelp( wxCommandEvent & WXUNUSED(event) )
 {
-    help->DisplayContents();
+    // help->DisplayContents();
+    wxLaunchDefaultBrowser(helpUrl);
 }
 
 void SnapMgrFrame::OnClearLog( wxCommandEvent & WXUNUSED(event) )

@@ -1,0 +1,131 @@
+body
+{
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    font-family:Arial, Helvetica, sans-serif;
+}
+
+.container
+{
+    display: flex;
+    flex-flow: row;
+    height: 100%;
+}
+
+#menu
+{
+    flex: 0 1 auto;
+    height: 100%;
+    width: 20em;
+    resize: horizontal;
+    overflow: hidden;
+    min-width: 10em;
+}
+
+#contents
+{
+    height: 100%;
+    width: 100%;
+    padding: 0 5px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+#page-content
+{
+    flex: 1 1 auto;
+    overflow: hidden;
+}
+
+#help-page
+{
+    height: 100%;
+    width: 100%;
+}
+
+div.contents-level
+{
+    margin-left: 1em;
+}
+
+div.contents-level.closed div.contents-level
+{
+    display: none;
+}
+
+div.contents-item
+{
+    white-space: nowrap;
+}
+
+.contents-level > .contents-item > .contents-level-toggle
+{
+    width: 14px;
+    height: 14px;
+    display: inline-block;
+}
+
+.contents-level.has-contents > .contents-item > .contents-level-toggle
+{
+    background-image: url("open.png");
+    background-size: 12px 12px;
+    background-repeat: no-repeat;
+}
+
+
+.contents-level.has-contents.closed > .contents-item > .contents-level-toggle
+{
+    background-image: url("closed.png");
+    background-size: 12px 12px;
+    background-repeat: no-repeat;
+}
+
+.contents-item a, .contents-item a:visited
+{
+    color: darkblue;
+    text-decoration: none;
+}
+
+.menu-button
+{
+    padding: 2px 5px;
+    margin-bottom: 5px;
+    border: 1px solid black;
+    display: inline-block;
+}
+
+.menu-button.selected
+{
+    background-color: lightskyblue;
+}
+
+#search-bar
+{
+    display: flex;
+    flex-flow: row;
+    width: 100%;
+}
+
+#search-text
+{
+    flex: 1 0 10em;
+}
+
+#search-button
+{
+    flex: 0 0 16px;
+    width: 16px;
+    height: 16px;
+    margin: 2px 5px; 
+    display: inline-block;
+    background-image: url("search.png");
+    background-size: 16px 16px;
+    background-repeat: no-repeat; 
+    vertical-align: middle;   
+}
+
+.contents-item.selected, .search-item.selected, .search-word.selected
+{
+    background-color: hsl(203, 92%, 90%);
+}

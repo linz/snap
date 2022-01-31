@@ -14,4 +14,7 @@ xcopy %OPTS% %SRCDIR%\snap\config\* %INSTALL%\%%v\config
 xcopy %OPTS% %SRCDIR%\snapspec\config\* %INSTALL%\%%v\config
 xcopy %OPTS% %SRCDIR%\snaplist\config\* %INSTALL%\%%v\config
 xcopy %OPTS% %SRCDIR%\snap_manager\config\* %INSTALL%\%%v\config
+rmdir /S /Q %INSTALL%\%%v\help
+mkdir %INSTALL%\%%v\help
+xcopy %OPTS% %SRCDIR%\help\help\* %INSTALL%\%%v\help
 )

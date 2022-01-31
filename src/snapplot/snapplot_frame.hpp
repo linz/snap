@@ -122,7 +122,7 @@ private:
     wxMenu *configMenu;
     wxMenuItem *ignoreOffsetsItem;
     wxHelpController *help;
-
+    wxString helpUrl;
     wxPrintData *printData;
     wxPageSetupDialogData *pageData;
 
