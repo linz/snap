@@ -132,7 +132,9 @@ SnapMgrFrame::SnapMgrFrame( const wxString &jobfile ) :
     // Set up the help file
 
     wxFileName helpFile(wxStandardPaths::Get().GetExecutablePath());
-    helpFile.SetName("help/snap_manager_help.html");
+    helpFile.AppendDir("help");
+    helpFile.SetName("snap_manager_help");
+    helpFile.SetExt("html");
     helpUrl=helpFile.GetFullPath();
     // help = new wxHelpController( this );
     //help->Initialize( helpFile.GetFullPath() );
