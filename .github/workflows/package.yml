@@ -1,0 +1,10 @@
+name: Upload SNAP to packagecloud.io
+on: [ push ]
+jobs:
+  package:
+    steps:
+      - uses: actions/checkout@v2.4.0
+      - uses: linz/linz-software-repository@v5
+        with:
+          packagecloud_repository: 'dev'
+          packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}
