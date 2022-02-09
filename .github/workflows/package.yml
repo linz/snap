@@ -2,6 +2,7 @@ name: Upload SNAP to packagecloud.io
 on: [ push ]
 jobs:
   package:
+    runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2.4.0
       - uses: linz/linz-software-repository@v5
