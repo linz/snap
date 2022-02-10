@@ -6,7 +6,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        distro: [bionic, focal]
+        distro: [focal]
     steps:
       - uses: actions/checkout@v2.4.0
       - uses: linz/linz-software-repository@v8
