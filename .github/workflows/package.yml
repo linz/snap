@@ -3,9 +3,14 @@ on: [ push ]
 jobs:
   package:
     runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [bionic, focal]
     steps:
       - uses: actions/checkout@v2.4.0
       - uses: linz/linz-software-repository@v8
         with:
+          release: ${{ matrix.distro }}
           packagecloud_repository: 'dev'
           packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}
