@@ -1,5 +1,8 @@
 name: Upload SNAP to packagecloud.io
-on: [ push ]
+on: 
+  push:
+    tags:
+      - v[0-9]+.[0-9]+.[0-9]+*
 jobs:
   package:
     runs-on: ubuntu-20.04
@@ -7,10 +10,23 @@ jobs:
       fail-fast: false
       matrix:
         distro: [focal]
+    env:
+      PACKAGECLOUD_REPOSITORY: dev
     steps:
+      - name: Configure target repository
+        run: |
+          if [ "${{ github.base_ref }}" = "master" ]; then 
+            echo "PACKAGECLOUD_REPOSITORY=test" >> $GITHUB_ENV; 
+          fi
+      - name: Confirm target
+        run: |
+          echo "Cloud repo: PACKAGECLOUD_REPOSITORY"
+          echo "Base ref (expr): ${{ github.base_ref }}"
+          echo "Base ref: $GITHUB_BASE_REF"
+          echo "Tag: $(git describe --tags --match '[^d]*')"
       - uses: actions/checkout@v2.4.0
-      - uses: linz/linz-software-repository@v8
-        with:
-          release: ${{ matrix.distro }}
-          packagecloud_repository: 'dev'
-          packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}
+      # - uses: linz/linz-software-repository@v8
+      #   with:
+      #     release: ${{ matrix.distro }}
+      #     packagecloud_repository: ${{ env.PACKAGECLOUD_REPOSITORY }}
+      #     packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}

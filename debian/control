@@ -19,10 +19,10 @@ Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends},
     perl,
     linz-coordsys,
-    libwxgtk3.0-gtk3-dev
+    libwxgtk3.0-gtk3-dev,
     libboost-filesystem1.71.0,
     libboost-regex1.71.0,
-    libboost-math1.71.0,
+    libboost-math1.71.0
 Description: Install LINZ snap software
  Install LINZ snap survey network adjustment software suite.
  Includes snap (run with command runsnap), snap_manager, concord, etc.
