@@ -28,12 +28,14 @@ MD = mkdir -p
 RM = rm -f
 LAPG = ../tools/lapg/lapg
 LAPGSRCDIR=../tools/lapg/src
+BOOSTFSLIB=$(shell find /usr/lib -name libboost_filesystem.a)
+BOOSTRELIB=$(shell find /usr/lib -name libboost_regex.a)
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
-LDFLAGS = -lm -lboost_regex -lboost_filesystem -lpthread 
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm -lpthread 
 #LDFLAGS = -lm -lboost_regex -lpthread  -lefence
-LDWXFLAGS = -lm -lboost_regex -lboost_filesystem
+LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 TESTFLAGS = 
@@ -41,8 +43,8 @@ UPDATEVERSION =
 SNAPPACKAGES = devel_package
 
 else ifeq ($(type), release)
-LDFLAGS = -lm -lboost_regex -lboost_filesystem -lpthread -s
-LDWXFLAGS = -lm -lboost_regex -lboost_filesystem -s
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm -lpthread -s
+LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 

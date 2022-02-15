@@ -1,32 +1,30 @@
-name: Upload SNAP to packagecloud.io
+name: Upload snap to packagecloud.io
 on: 
   push:
     tags:
-      - v[0-9]+.[0-9]+.[0-9]+*
+      - '[0-9]+.[0-9]+.[0-9]+-[0-9]+*'
 jobs:
   package:
     runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
-        distro: [focal]
+        distro: [bionic, focal]
     env:
-      PACKAGECLOUD_REPOSITORY: dev
+      PACKAGECLOUD_REPOSITORY: test
     steps:
       - name: Configure target repository
+        # If the ref name includes -test then go to the dev repo, else to test.
         run: |
-          if [ "${{ github.base_ref }}" = "master" ]; then 
-            echo "PACKAGECLOUD_REPOSITORY=test" >> $GITHUB_ENV; 
+          if [[ "$GITHUB_REF_NAME" =~ "-test" ]]; then
+             echo "PACKAGECLOUD_REPOSITORY=dev" >> $GITHUB_ENV; 
           fi
-      - name: Confirm target
-        run: |
-          echo "Cloud repo: PACKAGECLOUD_REPOSITORY"
-          echo "Base ref (expr): ${{ github.base_ref }}"
-          echo "Base ref: $GITHUB_BASE_REF"
-          echo "Tag: $(git describe --tags --match '[^d]*')"
       - uses: actions/checkout@v2.4.0
-      # - uses: linz/linz-software-repository@v8
-      #   with:
-      #     release: ${{ matrix.distro }}
-      #     packagecloud_repository: ${{ env.PACKAGECLOUD_REPOSITORY }}
-      #     packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}
+      - name: Document target repository
+        run: |
+          echo "Cloud repo: $PACKAGECLOUD_REPOSITORY"
+      - uses: linz/linz-software-repository@v8
+        with:
+          release: ${{ matrix.distro }}
+          packagecloud_repository: ${{ env.PACKAGECLOUD_REPOSITORY }}
+          packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}
