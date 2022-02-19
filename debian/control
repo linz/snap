@@ -4,10 +4,11 @@ Priority: optional
 Maintainer: Chris Crook <ccrook@linz.govt.nz>
 Build-Depends: debhelper (>= 8.0.0),
     g++,
+    libboost-dev,
     libboost-math-dev,
     libboost-regex-dev,
     libboost-filesystem-dev,
-    libwxgtk3.0-gtk3-0v5,
+    libwxgtk3.0-gtk3-dev,
     python3
 Standards-Version: 3.9.2
 Homepage:

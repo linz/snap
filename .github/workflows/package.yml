@@ -3,6 +3,7 @@ on:
   push:
     tags:
       - '[0-9]+.[0-9]+.[0-9]+-[0-9]+*'
+
 jobs:
   package:
     runs-on: ubuntu-20.04
