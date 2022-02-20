@@ -1,4 +1,10 @@
-linz-snap (2.8.2-2) xenial; urgency=medium
+linz-snap (2.8.2-2) focal; urgency=medium
+
+  * Fix - using HTML help file in browser
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri, 28 Jan 2022 15:00:00 +1300
+
+linz-snap (2.8.2-1) focal; urgency=medium
 
   * Fix - using HTML help file in browser
 
