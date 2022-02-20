@@ -30,12 +30,13 @@ LAPG = ../tools/lapg/lapg
 LAPGSRCDIR=../tools/lapg/src
 BOOSTFSLIB=$(shell find /usr/lib -name libboost_filesystem.a)
 BOOSTRELIB=$(shell find /usr/lib -name libboost_regex.a)
+BOOSTSYSLIB=$(shell find /usr/lib -name libboost_system.a)
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
-LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm -lpthread 
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread 
 #LDFLAGS = -lm -lboost_regex -lpthread  -lefence
-LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm
+LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
 TESTFLAGS = 
@@ -43,8 +44,8 @@ UPDATEVERSION =
 SNAPPACKAGES = devel_package
 
 else ifeq ($(type), release)
-LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm -lpthread -s
-LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) -lm -s
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread -s
+LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
