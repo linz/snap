@@ -26,6 +26,8 @@ jobs:
         # Remove warnings for missing wx-config.  Need to fix build to only use wx-config for building programs that need it.
       - name: Setup wx-config dummy command
         run: sudo ln -s /usr/bin/true /usr/bin/wx-config
+      - name: Build snap command line utilities for regression tests
+        run: make snap_cmd
       - name: Run regression tests
-        run: make test
+        run: TESTFLAGS=-e make test
 
