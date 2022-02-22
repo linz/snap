@@ -1,5 +1,4 @@
-name: Upload snap to packagecloud.io
-
+name: Run regression tests on push to master
 on:
   pull_request:
     types: [opened, reopened]

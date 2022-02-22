@@ -1,4 +1,4 @@
-name: Upload snap to packagecloud.io
+name: Upload snap to packagecloud.io when commit is tagged with version
 #
 #  Use linz-software-repository to push to packagecloud.
 #  Push based on tags.
