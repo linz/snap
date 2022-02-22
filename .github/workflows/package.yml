@@ -1,4 +1,11 @@
 name: Upload snap to packagecloud.io
+#
+#  Use linz-software-repository to push to packagecloud.
+#  Push based on tags.
+#    tag #.#.#-#-test goes to dev repository
+#    tag #.#.#-#      goes to test repository.  Manual promotion from there to prod repository.
+#
+
 on: 
   push:
     tags:

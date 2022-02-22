@@ -11,6 +11,7 @@
 ================================================================================
                      Run at  8-SEP-2018 09:03:50 by ccrook
 
+Some rubbish put here to make the test fail....
 
 The command file test1.snp contains:
      title Regression test 1 - data types and observation equations

@@ -1,0 +1,29 @@
+name: Upload snap to packagecloud.io
+
+on:
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  package:
+    runs-on: ${{ matrix.distro }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # distro: [bionic, focal]
+        distro: [ '18.04' ]
+    env:
+      PACKAGECLOUD_REPOSITORY: test
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2.4.0
+      - name: Install dependencies
+        run: |
+          apt update &
+          DEBIAN_FRONTEND=noninteractive apt install g++ libboost-dev libboost-math-dev libboost-regex-dev libboost-filesystem-dev python3
+        # Remove warnings for missing wx-config.  Need to fix build to only use wx-config for building programs that need it.
+      - name: Setup wx-config dummy command
+        run: ln -s /usr/bin/true /usr/bin/wx-config
+      - name: Run regression tests
+        run: make test
+
