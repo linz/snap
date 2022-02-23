@@ -13,7 +13,7 @@ jobs:
       fail-fast: false
       matrix:
         # distro: [bionic, focal]
-        distro: [ 'ubuntu-18.04' ]
+        distro: [ 'ubuntu-18.04', 'ubuntu-20.04' ]
     env:
       PACKAGECLOUD_REPOSITORY: test
     steps:
@@ -28,8 +28,12 @@ jobs:
         run: |
            sudo ln -s /usr/bin/true /usr/bin/wx-config
            ls -l /usr/bin/wx-config
+           wx-config
       - name: Build snap command line utilities for regression tests
-        run: make snap_cmd
+        run: |
+            wx-config
+            echo `wx-config`
+            make snap_cmd
       - name: Run regression tests
         run: TESTFLAGS=-e make test
 
