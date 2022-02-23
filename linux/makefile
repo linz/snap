@@ -39,7 +39,7 @@ LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
-TESTFLAGS = 
+RUNTESTFLAGS = $(TESTFLAGS)
 UPDATEVERSION =
 SNAPPACKAGES = devel_package
 
@@ -49,7 +49,7 @@ LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
-TESTFLAGS = -r
+RUNTESTFLAGS = $(TESTFLAGS) -r
 UPDATEVERSION = update_version_date
 SNAPPACKAGES = 
 
@@ -148,7 +148,7 @@ snapadjust: $(SNAPADJUSTEXE) support_files
 
 # Test (command line programs only)
 test: snap_cmd
-	../regression_tests/testall.pl $(TESTFLAGS)
+	../regression_tests/testall.pl $(RUNTESTFLAGS)
 
 update_version_date:
 	touch `grep -rl GETVERSION_SET_PROGRAM_DATE ../src`
