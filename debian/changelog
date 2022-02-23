@@ -1,4 +1,10 @@
-linz-snap (2.8.2-2) xenial; urgency=medium
+linz-snap (2.8.2-2) focal; urgency=medium
+
+  * Fix - fixing build dependencies and bionic compilation
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 23 Feb 2022 10:00:00 +1300
+
+linz-snap (2.8.2-1) focal; urgency=medium
 
   * Fix - using HTML help file in browser
 

@@ -285,7 +285,8 @@ def processPage(basedir,url):
     refs=list(sorted(refs))
 
     title=''
-    if tmatch := re.search(r"\<title\>(.*?)\<\/title\>",page):
+    tmatch = re.search(r"\<title\>(.*?)\<\/title\>",page)
+    if tmatch:
         title=' '+tmatch.group(1)
 
     page=page.lower()
@@ -297,10 +298,12 @@ def processPage(basedir,url):
     # Now just look up to body.  Also discard after <h3>see also</h3> as this as assumed to
     # be text from another page.
 
-    if bmatch := re.search(r"\<body[^\>]*\>(.*)\<\/body",page):
+    bmatch = re.search(r"\<body[^\>]*\>(.*)\<\/body",page)
+    if bmatch:
         page=bmatch.group(1)
 
-    if smatch := re.match(r'(.*)\<h3>\s*see\s+also',page):
+    smatch = re.match(r'(.*)\<h3>\s*see\s+also',page)
+    if smatch:
         page=smatch.group(1)
 
     # Capture header text

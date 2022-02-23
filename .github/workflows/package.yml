@@ -1,0 +1,38 @@
+name: Upload snap to packagecloud.io when commit is tagged with version
+#
+#  Use linz-software-repository to push to packagecloud.
+#  Push based on tags.
+#    tag #.#.#-#-test goes to dev repository
+#    tag #.#.#-#      goes to test repository.  Manual promotion from there to prod repository.
+#
+
+on: 
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+-[0-9]+*'
+
+jobs:
+  package:
+    runs-on: ubuntu-20.04
+    strategy:
+      fail-fast: false
+      matrix:
+        distro: [bionic, focal]
+    env:
+      PACKAGECLOUD_REPOSITORY: test
+    steps:
+      - name: Configure target repository
+        # If the ref name includes -test then go to the dev repo, else to test.
+        run: |
+          if [[ "$GITHUB_REF_NAME" =~ "-test" ]]; then
+             echo "PACKAGECLOUD_REPOSITORY=dev" >> $GITHUB_ENV; 
+          fi
+      - uses: actions/checkout@v2.4.0
+      - name: Document target repository
+        run: |
+          echo "Cloud repo: $PACKAGECLOUD_REPOSITORY"
+      - uses: linz/linz-software-repository@v8
+        with:
+          release: ${{ matrix.distro }}
+          packagecloud_repository: ${{ env.PACKAGECLOUD_REPOSITORY }}
+          packagecloud_token: ${{ secrets.LINZCI_PACKAGECLOUD_TOKEN }}

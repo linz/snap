@@ -1,9 +1,10 @@
 #
 
-help: 
-	@echo "To build a debian package for SNAP use eg:"
-	@echo "> DISTRIBUTION=focal make package"
+all:
+	cd linux && make
 
-package:
-	build/build_docker.sh
-	build/build_package.sh
+test:
+	cd linux && make test
+
+snap_cmd:
+	cd linux && make snap_cmd

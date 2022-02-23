@@ -28,25 +28,28 @@ MD = mkdir -p
 RM = rm -f
 LAPG = ../tools/lapg/lapg
 LAPGSRCDIR=../tools/lapg/src
+BOOSTFSLIB=$(shell find /usr/lib -name libboost_filesystem.a)
+BOOSTRELIB=$(shell find /usr/lib -name libboost_regex.a)
+BOOSTSYSLIB=$(shell find /usr/lib -name libboost_system.a)
 
 ifeq ($(type),debug)
 #LDFLAGS = -lm -lboost_regex
-LDFLAGS = -lm -lboost_regex -lboost_filesystem -lpthread 
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread 
 #LDFLAGS = -lm -lboost_regex -lpthread  -lefence
-LDWXFLAGS = -lm -lboost_regex -lboost_filesystem
+LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT
-TESTFLAGS = 
+RUNTESTFLAGS = $(TESTFLAGS)
 UPDATEVERSION =
 SNAPPACKAGES = devel_package
 
 else ifeq ($(type), release)
-LDFLAGS = -lm -lboost_regex -lboost_filesystem -lpthread -s
-LDWXFLAGS = -lm -lboost_regex -lboost_filesystem -s
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread -s
+LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
 CCPARAM = -Wall -Ofast -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = NDEBUG UNIX 
-TESTFLAGS = -r
+RUNTESTFLAGS = $(TESTFLAGS) -r
 UPDATEVERSION = update_version_date
 SNAPPACKAGES = 
 
@@ -145,7 +148,7 @@ snapadjust: $(SNAPADJUSTEXE) support_files
 
 # Test (command line programs only)
 test: snap_cmd
-	../regression_tests/testall.pl $(TESTFLAGS)
+	../regression_tests/testall.pl $(RUNTESTFLAGS)
 
 update_version_date:
 	touch `grep -rl GETVERSION_SET_PROGRAM_DATE ../src`

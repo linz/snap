@@ -1,0 +1,33 @@
+name: Run regression tests on push to master
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    types: [opened, reopened]
+
+jobs:
+  package:
+    runs-on: ${{ matrix.distro }}
+    strategy:
+      fail-fast: false
+      matrix:
+        # distro: [bionic, focal]
+        distro: [ 'ubuntu-18.04', 'ubuntu-20.04' ]
+    env:
+      PACKAGECLOUD_REPOSITORY: test
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v2.4.0
+      - name: Install dependencies
+        run: |
+          sudo apt-get update &
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install g++ libboost-dev libboost-math-dev libboost-regex-dev libboost-filesystem-dev python3
+        # Remove warnings for missing wx-config.  Need to fix build to only use wx-config for building programs that need it.
+      - name: Setup wx-config dummy command
+        run: sudo ln -s `which true` /usr/bin/wx-config
+      - name: Build snap command line utilities for regression tests
+        run: make snap_cmd
+      - name: Run regression tests
+        run: TESTFLAGS=-e make test
+
