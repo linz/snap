@@ -1,3 +1,9 @@
+linz-snap (2.8.2-3) focal; urgency=medium
+
+  * Fix - missing link debian/linz-snap.link file
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri 25 Feb 2022 14:00:00 +1300
+
 linz-snap (2.8.2-2) focal; urgency=medium
 
   * Fix - fixing build dependencies and bionic compilation
