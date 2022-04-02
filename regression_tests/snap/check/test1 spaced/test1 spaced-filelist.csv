@@ -1,0 +1,14 @@
+"id","filename","filetype","filedate","filesize"
+0,"/home/ccrook/projects/snap/regression_tests/snap/../test_coordsys/coordsys.def","coordinate_systems_definition","2018-06-28 09:02:46",55561
+1,"test1 spaced.lst","listing","2022-04-02 18:36:01",32263
+2,"test1 spaced.snp","command","2022-04-02 18:36:01",719
+3,"space dir/test stations.csv","station_coordinate","2022-04-02 18:36:01",782
+4,"/home/ccrook/projects/snap/linux/debug/install/config/format/stn.dtf","csv_station_format","2020-06-07 17:39:44",609
+5,"test1 spaced.bin","snap_binary","2022-04-02 18:36:01",45093
+6,"space dir/test obs.csv","survey_data","2022-04-02 18:36:01",29404
+7,"space dir/obs.dtf","csv_obs_format","2022-04-02 18:36:01",765
+8,"test1 spaced-stn.csv","stn_output_csv","2022-04-02 18:36:01",776
+9,"test1 spaced-obs.csv","obs_output_csv","2022-04-02 18:36:01",35793
+10,"test1 spaced-metadata.csv","metadata_output_csv","2022-04-02 18:36:01",841
+11,"space dir/test stations.new","output_station_coordinate","2022-04-02 18:36:01",706
+12,"test1 spaced-filelist.csv","filelist_output_csv","2022-04-02 18:36:01",0
