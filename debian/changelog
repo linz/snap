@@ -1,3 +1,10 @@
+linz-snap (2.8.3-1) focal; urgency=medium
+
+  * Feature - Limited support for spaces inf file name.  Currently does not include 
+    format files (.dtf) and not supported in snap_manager.
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Sat 2 Apr 2022 14:00:00 +1300
+
 linz-snap (2.8.2-3) focal; urgency=medium
 
   * Fix - missing link debian/linz-snap.link file

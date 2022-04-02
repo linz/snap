@@ -45,6 +45,7 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/readcfg.h"
+#include "util/strtokq.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/progress.h"
@@ -3019,7 +3020,7 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
 static int read_include_file( CFG_FILE *, char *string, void *, int, int )
 {
     char *s;
-    s = strtok(string," \t\n");
+    s = strtokq(string," \t\n");
     if( !s ) return MISSING_DATA;
     load_command_file( s,  0, 1 );
     return OK;
