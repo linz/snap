@@ -215,7 +215,20 @@ stations and observations in the adjustment.  (see the <a href="cmdcfg/cmd_outpu
 <td>*.cvr</td>
 <td>An optional text format file listing the stations, their coordinates, and the covariances (see the <a href="cmdcfg/cmd_output.html">output</a> command. </td>
 </tr>
-</table><br>
+</table>
 
+
+<h2>Spaces in file names</h2>
+<p>
+For historical reasons the snap and the other programs cannot handle spaces in file and direcotry names.  However there is some limited support for spaces in coordinate file names, data file names, and 
+command and configuration files. To reference filenames with spaces in the snap command file the 
+names must be enclosed in quote marks.  For example:
+</p>
+
+<pre class="Commandexample">data_file &quot;data files/distance obs.dat&quot;
+</pre>
+<p>Note that this support is incomplete. The snap_manager program does not support spaces in file names.  
+Also file names with spaces cannot be referenced in data file classifications (@data_file) used in commands for modifying observations, for example the reweight_observations command.
+</p>
 </body>
 </html>
