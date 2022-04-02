@@ -62,6 +62,7 @@
 #include "util/filelist.h"
 #include "util/pi.h"
 #include "util/readcfg.h"
+#include "util/strtokq.h"
 #include "autofix.h"
 #include "coefs.h"
 #include "grddeform.h"
@@ -1941,9 +1942,9 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int,
     constraint = code == CON_COMMAND;
 
     ptr = string;
-    while( ptr && NULL != (cfgfile=strtok(ptr," \t\n")))
+    while( ptr && NULL != (cfgfile=strtokq(ptr," \t\n")))
     {
-        ptr = strtok(NULL,"\n");
+        ptr = strtokq(NULL,"\n");
         cfgfile = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
                              0, FF_TRYPROJECT,
                              cfg_only ? SNAP_CONFIG_SECTION : 0 );

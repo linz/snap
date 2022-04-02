@@ -1,0 +1,30 @@
+!file: "space dir/obs.dtf"
+!ignore: "obs"
+title Regression test 1 spaced - spaces in file names
+
+coordinate_file "space dir/test stations.csv" csv
+data_file "space dir/test obs.csv" csv format=obs
+
+mode 3d data_check
+
+list command_file
+list file_summary
+list no_input_data
+list no_problem_definition
+list no_observation_equations
+list no_solution_summary
+list station_coordinates
+list no_floated_stations
+list no_reference_frames
+list parameters
+list residuals
+list no_error_summary
+list no_worst_residuals
+
+output_csv filelist metadata stations observations wkt_shape vector_components correlations
+
+! error_type aposteriori
+
+refraction_coefficient DEFAULT 0.0
+
+add_residual_column all  S Id:4 S c=class:4 S c=equpt:3

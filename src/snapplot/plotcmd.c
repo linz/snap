@@ -35,6 +35,7 @@
 #include "util/dstring.h"
 #include "util/chkalloc.h"
 #include "util/linklist.h"
+#include "util/strtokq.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -309,9 +310,9 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *, int, int )
     char errmsg[60+MAX_FILENAME_LEN];
 
     ptr = string;
-    while( ptr && NULL != (cmdfile=strtok(ptr,whitespace)))
+    while( ptr && NULL != (cmdfile=strtokq(ptr,whitespace)))
     {
-        ptr = strtok(NULL,"\n");
+        ptr = strtokq(NULL,"\n");
         cmdfile = find_file( cmdfile, SNAPPLOT_CONFIG_EXT, cfg->name, 0, SNAPPLOT_CONFIG_SECTION );
         if( cmdfile )
         {

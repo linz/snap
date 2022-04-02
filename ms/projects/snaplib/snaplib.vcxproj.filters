@@ -373,6 +373,9 @@
     <ClCompile Include="..\..\..\src\snaplib\util\strarray.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\src\snaplib\util\strtokq.c">
+      <Filter>Source Files\util</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c">
       <Filter>Source Files\util</Filter>
     </ClCompile>
@@ -715,6 +718,9 @@
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\strarray.h">
+      <Filter>Header Files\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\src\snaplib\util\strtokq.h">
       <Filter>Header Files\util</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\src\snaplib\util\symmatrx.h">

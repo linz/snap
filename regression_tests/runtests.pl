@@ -49,6 +49,7 @@ my $config={
     var=>{},
     env=>{},
     filere=>[],
+    ignorere=>[],
     program=>[],
     command=>[],
     discard=>[],
@@ -92,6 +93,11 @@ foreach my $cfgl (<$cfgf>)
             my ($re,$ext)=split(' ',$value,2);
             $re=qr/$re/;
             push(@{$config->{filere}},[$re,$ext]);
+        }
+        elsif( $item eq 'ignorere' )
+        {
+            my $re=qr/$value/;
+            push(@{$config->{ignorere}},$re);
         }
         elsif( $item eq 'env' )
         {
@@ -252,12 +258,20 @@ foreach my $test (sort keys %tests)
 
     my @tstfiles=([$testfile,$testfile]);
     my %discard=();
+    my %ignore=();
     my %var=%{$config->{var}};
     my $param='';
     my $testcfg="$tstdir/$testfile";
     open(my $cfgf, $testcfg) || die "Cannot open $testcfg\n";
     foreach my $l (<$cfgf>)
     {
+        foreach my $ignre (@{$config->{ignorere}})
+        {
+            if( $l =~ /$ignre/ )
+            {
+                $ignore{$1}=1;
+            }
+        }
         foreach my $filedef (@{$config->{filere}})
         {
             my ($re,$ext)=@$filedef;
@@ -267,6 +281,7 @@ foreach my $test (sort keys %tests)
                 my $tfn=$2;
                 my $save=$3;
                 $fn =~ s/\{test\}/$testname/g;
+                next if $ignore{$fn};
                 $tfn =~ s/\{test\}/$testname/g;
                 $fn=$fn.$ext if -f "$tstdir/$fn$ext" && ! -f "$tstdir/$fn";
                 $tfn ||= $fn;

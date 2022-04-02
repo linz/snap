@@ -27,6 +27,7 @@
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/readcfg.h"
+#include "util/strtokq.h"
 #include "util/xprintf.h"
 
 int stations_read = 0;
@@ -45,8 +46,8 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
     format = STN_FORMAT_SNAP;
     csvdata = 0;
 
-    fname = strtok( string, " ");
-    typestr = strtok( NULL, " ");
+    fname = strtokq( string, " ");
+    typestr = strtokq( NULL, " ");
 
     if( !fname )
     {
@@ -68,7 +69,7 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
         else if( _stricmp(typestr,"CSV") == 0 )
         {
             format = STN_FORMAT_CSV;
-            csvdata = strtok( NULL, "" );
+            csvdata = strtokq( NULL, "" );
         }
         else
         {
@@ -270,7 +271,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
     int fileid;
     double factor;
 
-    fname = strtok( string, " " );
+    fname = strtokq( string, " " );
 
     if( !fname )
     {
@@ -281,7 +282,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
     ftype = SNAP_FORMAT;
     factor = 1.0;
 
-    specs = strtok(NULL,"");
+    specs = strtokq(NULL,"");
     while( specs && NULL != (format = strtok(specs," ")) )
     {
         int readoptions=0;
