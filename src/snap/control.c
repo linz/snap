@@ -523,7 +523,7 @@ static void set_station_mode( station *st, void *modep )
 
     case FREE_STATIONS:  
         if(fixhor) { sa->flag.adj_h = 1; sa->flag.float_h = 0; sa->flag.auto_h=0; }
-        if(fixver) { sa->flag.adj_v = 1; sa->flag.float_h = 0; sa->flag.auto_v=0; }
+        if(fixver) { sa->flag.adj_v = 1; sa->flag.float_v = 0; sa->flag.auto_v=0; }
         break;
 
     case FLOAT_STATIONS:  
