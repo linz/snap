@@ -59,7 +59,7 @@ sub open {
    my $cscode = $fh->getline;
    $cscode =~ s/\s//g;
    my $cs = $cslist->coordsys($cscode);
-   die "Invalid coordinate system code $cscode in SNAP coordinate file $csfile\n" if ! $cslist;
+   die "Invalid coordinate system code \"$cscode\" in first line of SNAP coordinate file $csfile\n" if ! $cs;
    my $dataline = $fh->getline;
    my $geoidinfo = 1;
    my $deflinfo = 1;
