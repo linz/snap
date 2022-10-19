@@ -243,8 +243,8 @@ wxTabbedTextGrid::wxTabbedTextGrid(wxWindow* parent, wxWindowID id, const wxPoin
     SetTable( table, false, wxGrid::wxGridSelectRows );
 
     SetGridLineColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
-    SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
-    SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );
+    SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT) );
+    SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT) );
     SetCellHighlightPenWidth(0);
     // EnableGridLines( false );
     EnableEditing( false );

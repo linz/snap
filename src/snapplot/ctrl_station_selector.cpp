@@ -139,8 +139,8 @@ wxStationSelectorGrid::wxStationSelectorGrid(wxWindow* parent, wxWindowID id, co
     SetMinSize( wxSize( GetCharWidth()*40, GetCharHeight()*10) );
 
     SetGridLineColour( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
-    SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
-    SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );
+    SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHT) );
+    SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_HIGHLIGHTTEXT) );
     SetCellHighlightPenWidth(0);
     // EnableGridLines( false );
     EnableEditing( false );
