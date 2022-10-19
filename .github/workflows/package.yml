@@ -6,10 +6,10 @@ name: Upload snap to packagecloud.io when commit is tagged with version
 #    tag #.#.#-#      goes to test repository.  Manual promotion from there to prod repository.
 #
 
-on: 
+on:
   push:
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+-[0-9]+*'
+      - "[0-9]+.[0-9]+.[0-9]+-[0-9]+*"
 
 jobs:
   package:
@@ -31,7 +31,7 @@ jobs:
       - name: Document target repository
         run: |
           echo "Cloud repo: $PACKAGECLOUD_REPOSITORY"
-      - uses: linz/linz-software-repository@v8
+      - uses: linz/linz-software-repository@v14
         with:
           release: ${{ matrix.distro }}
           packagecloud_repository: ${{ env.PACKAGECLOUD_REPOSITORY }}
