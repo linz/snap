@@ -12,20 +12,29 @@
 
     <h1><a name="change_log"></a>Change log</h1>
 
+    <h2>Release: Date 2 Apr 2022: 2.8.4</h2>
+
+    <h3>concord</h3>
+
+    <p>Enhancement: Fixing handling of degrees/minutes/seconds input and output when a field separator is specified</p>
+
     <h2>Release: Date 2 Apr 2022: 2.8.3</h2>
 
     <h3>snap</h3>
 
-    <p>Enhancement: Limited support for spaces inf file name.  Currently does not include 
-    format files (.dtf) and not supported in snap_manager.  Also filenames with spaces 
-    will not work in datafile based classifications, for example in observation modification.
+    <p>Enhancement: Limited support for spaces in file name. Currently does not include
+        format files (.dtf) and not supported in snap_manager. Also filenames with spaces
+        will not work in datafile based classifications, for example in observation modification.
     </p>
 
     <h2>Release: Date 31 Jun 2020: 2.8.2</h2>
 
     <h3>snap</h3>
 
-    <p>Enhancement: Search path used for configuration files used in snap commands (such as CSV format definition files) now includes directories of all snap command files used to define the command.  That is, if the command is in a command file which in turn is included from a "parent" file, then snap will first search the directory of the command file in which the configuration file is referenced, then in the parent directory, and so on.
+    <p>Enhancement: Search path used for configuration files used in snap commands (such as CSV format definition files)
+        now includes directories of all snap command files used to define the command. That is, if the command is in a
+        command file which in turn is included from a "parent" file, then snap will first search the directory of the
+        command file in which the configuration file is referenced, then in the parent directory, and so on.
     </p>
 
     <h3>snapplot</h3>
@@ -34,8 +43,9 @@
 
     <h3>help files</h3>
 
-    <p>Breaking change: the windows help system used for SNAP (windows help compiler) is no longer supported my Microsoft.
-        The help system has been replaced with a set of HTML pages displayed in the user's browser.  
+    <p>Breaking change: the windows help system used for SNAP (windows help compiler) is no longer supported my
+        Microsoft.
+        The help system has been replaced with a set of HTML pages displayed in the user's browser.
     </p>
 
     <h2>Release: Date 8 Jun 2020: 2.7.26</h2>
@@ -293,7 +303,8 @@
         <b>Note:</b> this has required some changes to the <a href="../files/cmdcfg/cmd_reference_frame.html">reference
             frame</a> command which means that some old command files may need
         modification to work as previously. Also added to the reference frame options in the
-        <a href="../files/cmdcfg/cmd_list.html">list</a> command.</p>
+        <a href="../files/cmdcfg/cmd_list.html">list</a> command.
+    </p>
     <p>Enhancement: SNAP can read observations from
         <a href="../files/data/sinex_obs_files.html">SINEX</a> files
     </p>
