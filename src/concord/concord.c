@@ -2,71 +2,6 @@
 /* Program concord - front end to coordinate conversion routines */
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
 
-/* Revision history:
-   1.1) Changes code for latitude and longitude from GEOD to GEOG
-        19/3/90
-
-   1.2) Fixed reading of DMS to permit hemisphere in front of angle.
-
-   1.3) Added user specified delimiter to command line options.
-
-   1.4) Added DXF option
-
-   1.5) Improved ease of use from keyboard - more descriptive of
-        how data are to be entered.  Default if just concord is
-        entered is now to do manual conversion.
-
-   2.0) August 1995: Almost completely different!  Uses SNAP coordsys
-        routines.
-
-   2.1) May 1996: Added support for orthometric height using geoid model
-        and for specifying coordsys and geoid files on the command line.
-        */
-
-/*
-   $Log: concord2.c,v $
-   Revision 1.12  2004/04/22 02:35:49  ccrook
-   Setting up to support linux compilation (x86 architecture)
-
-   Revision 1.11  2003/11/28 02:06:32  ccrook
-   Updated to reflect changes to concord (grid based NZGD2000-NZGD49 transformation)
-
-   Revision 1.10  1999/09/14 07:20:46  ccrook
-   Updated version number
-
-   Revision 1.9  1999/09/14 07:16:37  ccrook
-   Modified default precision of heights, and fixed up missing separator
-   after last ordinate.
-
-   Revision 1.8  1999/05/20 10:59:34  ccrook
-   Changed DOSLI to LINZ
-
-   Revision 1.7  1998/02/16 07:50:43  CHRIS
-   Added support for DDD MM.mmmm angle format
-
-   Revision 1.6  1996/05/28 16:34:33  CHRIS
-   Further minor fixes: last two checkins were too hasty!
-
-   Revision 1.5  1996/05/28 16:06:44  CHRIS
-   further minor fixes
-
-   Revision 1.4  1996/05/28 16:01:29  CHRIS
-   Minor fixes.  Changed to use -H insteak of -? for help (easier in unix)
-   and supported "-" for input and output file names equivalent to stdin
-   and stdout
-
-   Revision 1.3  1996/05/21 20:56:22  CHRIS
-   Fixed up handling of missing parameters and missing coordinate systems.
-
-   Revision 1.2  1996/05/20 17:04:00  CHRIS
-   Added support for orthometric heights, specifying coordsys.def and geoid.bin
-   on the command line, and gcc compilation.
-
-   Revision 1.1  1996/01/03 22:42:55  CHRIS
-   Initial revision
-
-*/
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -273,13 +208,17 @@ static DMS *deg_dms( double deg, DMS *dms, int prec, char no_seconds )
 /*                restored to the input buffer. Returns the number   */
 /*                of characters placed in the string, or -1 if       */
 /*                EOF encountered                                    */
+/*                usespace if set allows terminating string at any   */
+/*                whitespace.  pisspace is a pointer receiving true  */
+/*                if terminated at whitespace rather than specified  */
+/*                separator                                          */
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
 
-static int read_string( FILE *input, char separator, char *string, int nch )
+static int read_string( FILE *input, char separator, int usespace, int *pisspace, char *string, int nch )
 {
-    int i,c;
+    int i,c,isspace;
     char *s0;
 
     /* Skip over leading spaces and tabs, to first character not one
@@ -290,20 +229,41 @@ static int read_string( FILE *input, char separator, char *string, int nch )
     /* Read characters up to next space, storing first nch in string */
 
     i = 0;
+    usespace=usespace || ! separator;
     s0 = string;
+    isspace=0;
     for(;;)
     {
         if( separator )
         {
             if( c==separator ) break;
         }
-        else
+        if( usespace ) 
         {
-            if(c == ' ' || c == '\t' ) break;
+            if(c == ' ' || c == '\t' )
+            {
+                isspace=1;
+                break;
+            } 
         }
         if( c=='\r' || c == '\n' || c == EOF) break;
         if (i<nch) {*string++ = c; i++;}
         c = getc(input);
+    }
+    if( separator && isspace )
+    {
+        while( c == ' ' || c == '\t' )
+        {
+            c=getc(input);
+        }
+        if( c == separator || c == '\r' || c == '\n' || c == EOF)
+        {
+            isspace=0;
+        }
+        else
+        {
+            ungetc(c,input);
+        }
     }
 
     /* terminate string  and remove trailing whitespace */
@@ -322,7 +282,12 @@ static int read_string( FILE *input, char separator, char *string, int nch )
 
     /* Determine the return status */
 
-    if (i==0 && c==EOF) i--;
+    if( pisspace )
+    {
+        /* Record if terminated at space rather than valid separator */
+        *pisspace=isspace && separator;
+    }
+    if( i==0 && c == EOF ) return -1;
     return i;
 }
 
@@ -918,7 +883,7 @@ static void prompt_for_proj(coordsys **proj,
         if( nprj ) delete_coordsys( nprj );
         nprj = NULL;
         printf("    Enter %s coord sys code or ?: ",iostring);
-        nstr = read_string(stdin,DEFAULT_SEPARATOR,instring,20);
+        nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,20);
         copy_to_newline(stdin,NULL, NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
         if (nstr==0) continue;
@@ -949,7 +914,7 @@ static void prompt_for_proj(coordsys **proj,
             printf("    Enter %s coordinate order(default %s%s): ",
                    iostring, *ne ? "NE" : "EN",
                    *gothgt ? (*orthohgt ? "O" : "H") : "");
-            nstr = read_string(stdin,DEFAULT_SEPARATOR,instring,4);
+            nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,4);
             copy_to_newline( stdin, NULL, NULL);
             if(nstr<0) error_exit("Unexpected EOF in input","");
             if(nstr==0) break;
@@ -974,7 +939,7 @@ static void prompt_for_proj(coordsys **proj,
     if( *dms ) for(;;)
         {
             printf("    Enter angle format (D = deg, M = deg mins, H = deg min secs, default H): ");
-            nstr = read_string(stdin,DEFAULT_SEPARATOR,instring,4);
+            nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,4);
             copy_to_newline(stdin,NULL,NULL);
             if (nstr<0) error_exit("Unexpected EOF in input","");
             if (nstr==0) break;
@@ -1008,7 +973,7 @@ static void prompt_for_epoch( const char *prompt, double *value )
     for(;;)
     {
         printf("%s (default \"now\"): ",prompt);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR, instring, 20);
+        nstr = read_string( stdin, DEFAULT_SEPARATOR,0,0,instring, 20);
         copy_to_newline( stdin, NULL,NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
         if (nstr==0) strcpy(instring,"now");
@@ -1039,7 +1004,7 @@ static void prompt_for_number( const char *prompt, int *value, int min, int max)
     for(;;)
     {
         printf("%s (default %d): ",prompt,*value);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR, instring, 20);
+        nstr = read_string( stdin, DEFAULT_SEPARATOR,0,0, instring, 20);
         copy_to_newline( stdin, NULL,NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
         if (nstr==0) break;
@@ -1062,7 +1027,7 @@ static void prompt_for_filename(const char *prompt, FILE **file, const char *mod
     for(;;)
     {
         printf("%s",prompt);
-        nstr = read_string( stdin, DEFAULT_SEPARATOR, name, 80 );
+        nstr = read_string( stdin, DEFAULT_SEPARATOR,0,0, name, 80 );
         copy_to_newline(stdin,NULL,NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
         if (nstr==0) break;
@@ -1111,7 +1076,7 @@ static void prompt_for_parameters( void )
     if( crdin_fname != NULL )
     {
         printf("Enter field separator in input file (default is blank, use t for tab)");
-        read_string(stdin,DEFAULT_SEPARATOR,ans,1);
+        read_string(stdin,DEFAULT_SEPARATOR,0,0,ans,1);
         copy_to_newline(stdin,NULL,NULL);
         if( ans[0] != 0 ) separator = ans[0];
         if( separator == 't' || separator == 'T') separator = '\t';
@@ -1124,7 +1089,7 @@ static void prompt_for_parameters( void )
     {
         printf("\nDo you want the input coordinates copied to the output file?\n");
         printf("Enter yes or no: ");
-        read_string(stdin,DEFAULT_SEPARATOR,ans,1);
+        read_string(stdin,DEFAULT_SEPARATOR,0,0,ans,1);
         copy_to_newline(stdin,NULL,NULL);
         verbose = ans[0]=='y' || ans[0]=='Y';
     }
@@ -1641,7 +1606,7 @@ static int find_next_data_line( void )
 
 static void read_point_id( void )
 {
-    read_string( crdin, separator, id, id_length );
+    read_string( crdin, separator,0,0, id, id_length );
 }
 
 /*-------------------------------------------------------------------*/
@@ -1664,9 +1629,9 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
     char string[21];
     char checkend;
     char hemdef;
-    int nc,c;
+    int nc,c,atspace;
 
-    if (read_string(input,separator,string,20)<=0) return 3;
+    if (read_string(input,separator,1,&atspace,string,20)<=0) return 3;
 
     hemdef=0;
     dms->neg = 0;
@@ -1678,7 +1643,7 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
         if (dms->neg || TOUPPER(c)==hem[0])
         {
             hemdef=1;
-            if(read_string(input,separator,string,20)<=0) return 3;
+            if(read_string(input,separator,1,&atspace,string,20)<=0) return 3;
         }
     }
 
@@ -1688,12 +1653,12 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
 
     if( ! dms->no_seconds )
     {
-        if (read_string(input,separator,string,20)<=0) return 3;
+        if (read_string(input,separator,1,&atspace,string,20)<=0) return 3;
         if (sscanf(string,"%d%c",&dms->minutes,&checkend)!=1) return 2;
         if (dms->minutes<0 || dms->minutes>60) return 2;
     }
 
-    nc=read_string(input,separator,string,20);
+    nc=read_string(input,separator,1,&atspace,string,20);
     if (nc<=0) return 3;
 
     /* No hemisphere indicator required */
@@ -1710,20 +1675,26 @@ static int read_dms( FILE *input, DMS *dms, const char *hem )
             string[nc-1] = '\0';
             hemdef=1;
         }
-
-        /* Otherwise scan input for the hemisphere indicator */
-
-        else
-        {
-            while( (c=getc(input)) == ' ' || c == '\t' );
-            dms->neg = TOUPPER(c)==hem[1];
-            if (dms->neg || TOUPPER(c)==hem[0]) hemdef=1;
-            else { ungetc(c,input); }
-        }
     }
 
     if (sscanf(string,"%lf%c",&dms->seconds,&checkend)!=1) return 2;
     if (dms->seconds<0.0 || dms->seconds>60.0) return 2;
+        /* Otherwise scan input for the hemisphere indicator */
+
+
+    if (hem && !hemdef)
+    {
+        while( (c=getc(input)) == ' ' || c == '\t' );
+        dms->neg = TOUPPER(c)==hem[1];
+        if (dms->neg || TOUPPER(c)==hem[0]) hemdef=1;
+        if( c != EOF )ungetc(c,input);
+        if( hemdef )
+        {
+            nc=read_string(input,separator,1,&atspace,string,20);
+            if( nc > 1 ) return 2;
+        }
+    }
+    if( atspace ) return 2;
     return hemdef ? 0 : 1;
 }
 
@@ -1740,7 +1711,7 @@ static int read_number( FILE *input, double *value )
 {
     char numbstr[33];
     char checkend;
-    if (read_string( input, separator, numbstr, 32 )<=0) return 3;
+    if (read_string( input, separator, 0,0, numbstr, 32 )<=0) return 3;
     if (sscanf( numbstr, "%lf%c", value, &checkend) != 1) return 2;
     return 0;
 }

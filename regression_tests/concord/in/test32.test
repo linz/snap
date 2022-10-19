@@ -1,0 +1,2 @@
+parameters: -INZGD2000,NE,H -oNZGD2000,NE,D -N8 -S, -P8 testsepdms1.in {test}.out
+file: testsepdms1.in
