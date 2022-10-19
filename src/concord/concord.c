@@ -1,6 +1,7 @@
 #include "snapconfig.h"
 /* Program concord - front end to coordinate conversion routines */
 /* Version 2.0: Uses SNAP coordinate conversion routines....     */
+/* Note: this 1980s code due for rewrite                         */
 
 #include <stdio.h>
 #include <string.h>
@@ -106,6 +107,7 @@ static int invfldlen, outvfldlen;
 
 #define DEFAULT_SEPARATOR ( (char) 0 )
 static char separator = DEFAULT_SEPARATOR;
+static int sepdms = 0;
 
 /* Pointer to string allocated for point id */
 
@@ -1774,7 +1776,7 @@ static void write_dms( FILE *out, double deg, int prec, char no_secs, const char
 {
     DMS dms;
     deg_dms( deg, &dms, prec, no_secs );
-    if( separator )
+    if( separator && sepdms )
     {
         fprintf(out,"%d%c",dms.degrees,separator);
         if( ! no_secs ) fprintf(out,"%02d%c",dms.minutes,separator);
@@ -1784,7 +1786,7 @@ static void write_dms( FILE *out, double deg, int prec, char no_secs, const char
     }
     else
     {
-        fprintf(out,"%4d ",dms.degrees);
+        fprintf(out,"%d ",dms.degrees);
         if( ! no_secs ) fprintf(out,"%02d ",dms.minutes);
         fprintf(out,"%0*.*lf %c",prec+3,prec,
                 dms.seconds<0.0 ? 0.0 : dms.seconds, dms.neg ? hem[1] : hem[0]);
