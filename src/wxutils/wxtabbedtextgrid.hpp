@@ -94,7 +94,9 @@ public:
 
 private:
     wxTabbedTextTable * table;
+    void OnCellSelect( wxGridEvent &event );
     void OnRangeSelect( wxGridRangeSelectEvent &event );
+    void SendRowSelectedEvent( int row, long keystate );
 
     DECLARE_DYNAMIC_CLASS( wxTabbedTextGrid );
     DECLARE_EVENT_TABLE();

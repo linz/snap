@@ -2,8 +2,8 @@
 // Classes for managing the symbology in the SNAPPLOT application.
 
 #include "wxsymbology.hpp"
-#include "util/dstring.h"
-#include "util/chkalloc.h"
+#include <string.h>
+#include <stdlib.h>
 
 // ColourPalette::Item: A class holding a colour definition and a corresponding
 // bitmap for a ColourPalette.
@@ -146,12 +146,12 @@ SymbologyBase::SymbologyBase(wxString np)
         name = np.Mid(i+1);
     }
     id.Replace(" ","_");
-    cname=copy_string(name.mb_str());
+    cname=strdup(name.mb_str());
 }
 
 SymbologyBase::~SymbologyBase()
 {
-    if( cname ) check_free(cname);
+    if( cname ) free(cname);
 }
 
 // SymbologyList ... an expandable array of symbologies.

@@ -2,6 +2,7 @@
 #include "wxmapwindow.hpp"
 #include "wxsymbology.hpp"
 #include "wxsimpledialog.hpp"
+#include "wxtabbedtextgrid.hpp"
 #include "testmap.hpp"
 
 class MyDialog : public wxSimpleDialog
@@ -62,6 +63,24 @@ class MyApp: public wxApp
     virtual bool OnInit();
 };
 
+class TestSource : public wxTabbedTextSource
+{
+	const char *header="row\tname\tcount";
+	const char *data[3]={
+		"row1\tvalue1\tFred",
+		"row2\tvalue2\tFrodo Baggins",
+		"row3\tvalue3\tKermit the frog"
+	};
+	int const rowcount=3;
+
+public:
+	TestSource(){};
+	virtual ~TestSource(){};
+	virtual char *GetHeader(){ return (char *) TestSource::header;}
+	virtual int GetRowCount(){ return rowcount; }
+	virtual char *GetRow( int i ){ return (char *) (TestSource::data[i]); }
+};
+
 class MyFrame: public wxFrame
 {
 public:
@@ -72,6 +91,7 @@ public:
     void OnTest(wxCommandEvent& event);
 	void OnTestDialog( wxCommandEvent &event );
     void OnZoomAll(wxCommandEvent& event);
+	void GridRowSelected( wxCommandEvent &event );
 
 	void BringToFront();
 
@@ -86,6 +106,8 @@ private:
 	wxMenuItem *show;
 	wxMenuItem *raise;
 	wxMenuItem *synchronous;
+	wxTabbedTextGrid *grid;
+	TestSource *gridSource;
 
 };
 
@@ -108,6 +130,7 @@ BEGIN_EVENT_TABLE(MyFrame, wxFrame)
     EVT_MENU(ID_Test, MyFrame::OnTest)
     EVT_MENU(ID_TestDialog, MyFrame::OnTestDialog)
 	EVT_MENU(ID_ZoomAll, MyFrame::OnZoomAll )
+    EVT_COMMAND( wxID_ANY, WX_TTGRID_ROW_SELECTED, MyFrame::GridRowSelected )
 END_EVENT_TABLE()
 
 IMPLEMENT_APP(MyApp)
@@ -120,10 +143,11 @@ bool MyApp::OnInit()
     return true;
 }
 
+
 MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
        : wxFrame((wxFrame *)NULL, -1, title, pos, size)
 {
-	logger = new wxLogWindow( this, "logger", true );
+	logger = new wxLogWindow( this, "logger", true, false );
 
     wxMenu *menuFile = new wxMenu;
 
@@ -152,11 +176,22 @@ MyFrame::MyFrame(const wxString& title, const wxPoint& pos, const wxSize& size)
     CreateStatusBar();
     SetStatusText( _T("Welcome to wxWidgets!") );
 
-	main = new wxMapWindow( this, wxID_ANY );
+	wxSplitterWindow *divider=new wxSplitterWindow(this);
+
+	main = new wxMapWindow( divider, wxID_ANY );
 	main->SetMap( &map );
 	map.GetLayer( sym );
 	main->SetSymbology( &sym );
 	// main->SetDragger( &dragger );
+
+	grid=new wxTabbedTextGrid(divider,wxID_ANY);
+	gridSource=new TestSource();
+	grid->SetTabbedTextSource(gridSource);
+
+	divider->SplitHorizontally(main,grid);
+	
+	
+
 
 	wxLogMessage("Construction complete");
 
@@ -220,6 +255,12 @@ void MyFrame::BringToFront( void )
 		wxLogMessage("Raising");
 		Raise();
 	}
+}
+
+void MyFrame::GridRowSelected( wxCommandEvent &event )
+{
+	int row = event.GetInt();
+	wxLogMessage("Rows %d selected",row);
 }
 
 

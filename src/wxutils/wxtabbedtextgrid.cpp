@@ -308,22 +308,34 @@ wxString wxTabbedTextGrid::GetText()
     return text;
 }
 
+void wxTabbedTextGrid::OnCellSelect( wxGridEvent &event )
+{
+    // Code added trying to fix issue with OnRangeSelect not being triggered.
+    // Issue appears to have resolved itself?
+
+}
+
 void wxTabbedTextGrid::OnRangeSelect( wxGridRangeSelectEvent &event )
 {
     if( ! event.Selecting() ) return;
-    if( event.GetBottomRow() != event.GetTopRow() )
+    int row = event.GetBottomRow();
+    if( row != event.GetTopRow() )
     {
         SelectRow( event.GetBottomRow() );
         return;
     }
+    long keystate = 0;
+    if( event.ShiftDown() ) keystate |= WX_TTGRID_SHIFTDOWN;
+    if( event.ControlDown() ) keystate |= WX_TTGRID_CTRLDOWN;
+    if( event.AltDown() ) keystate |= WX_TTGRID_ALTDOWN;
+    SendRowSelectedEvent(row, keystate );
+}
+
+void wxTabbedTextGrid::SendRowSelectedEvent( int row, long keystate )
+{
     wxCommandEvent evt( WX_TTGRID_ROW_SELECTED, GetId() );
     evt.SetEventObject( this );
-    evt.SetInt( event.GetBottomRow() );
-    long keyState = 0;
-    if( event.ShiftDown() ) keyState |= WX_TTGRID_SHIFTDOWN;
-    if( event.ControlDown() ) keyState |= WX_TTGRID_CTRLDOWN;
-    if( event.AltDown() ) keyState |= WX_TTGRID_ALTDOWN;
-    evt.SetExtraLong( keyState );
-
+    evt.SetInt( row );
+    evt.SetExtraLong( keystate );
     AddPendingEvent( evt );
 }
