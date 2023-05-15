@@ -53,7 +53,7 @@ for installation):
 apt-get install -y \
     g++ \
     libboost-all-dev \
-    libwxgtk3.0-dev \
+    libwxgtk3.0-gtk3-dev \
     perl \
     debhelper \
     dpkg-dev \
