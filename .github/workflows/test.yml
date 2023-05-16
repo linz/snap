@@ -2,7 +2,7 @@ name: Run regression tests on push to master
 on:
   push:
     branches:
-      - '*'
+      - "*"
   pull_request:
     types: [opened, reopened]
 
@@ -12,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        # distro: [bionic, focal]
-        distro: [ 'ubuntu-18.04', 'ubuntu-20.04' ]
+        # distro: [focal,jammy]
+        distro: ["ubuntu-20.04", "ubuntu-22.04"]
     env:
       PACKAGECLOUD_REPOSITORY: test
     steps:
@@ -30,4 +30,3 @@ jobs:
         run: make snap_cmd
       - name: Run regression tests
         run: TESTFLAGS=-e make test
-

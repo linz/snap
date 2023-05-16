@@ -13,11 +13,11 @@ on:
 
 jobs:
   package:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       fail-fast: false
       matrix:
-        distro: [bionic, focal]
+        distro: [focal, jammy]
     env:
       PACKAGECLOUD_REPOSITORY: test
     steps:
