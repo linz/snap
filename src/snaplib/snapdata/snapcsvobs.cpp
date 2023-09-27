@@ -597,7 +597,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         if (type->isvector)
             istr >> value[1] >> value[2];
         if (istr.fail() || !istr.eof())
-            dataError("Invalid observation value");
+            dataError(string("Invalid observation value: ")+_value.value());
 
         istr.str(_error.value());
         istr.seekg(0);
@@ -609,6 +609,10 @@ bool SnapCsvObs::CsvObservation::loadObservation()
             {
                 istr >> error[i];
             }
+            if (istr.fail())
+                dataError(string("Missing or invalid data in observation error: ")+_error.value());
+            if (!istr.eof())
+                dataError(string("Extraneous data in observation error: ")+_error.value());
             if (errorfactor != 1.0)
             {
                 switch (_vecerrorformat)
