@@ -1,4 +1,5 @@
 format_name Test calculated distance error file
+optional_columns set
 observation
 type "ZD"
 instrument_station @from
