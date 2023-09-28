@@ -69,7 +69,8 @@
 			href="#values">below</a>.</p>
 
 	<p>It may be useful to look at the example <a href="../crd/csv_stn_files.html">station</a> and
-		<a href="../data/csv_obs_files.html">observation</a> format definition files.</p>
+		<a href="../data/csv_obs_files.html">observation</a> format definition files.
+	</p>
 
 	<h2><a name="generic"></a>Generic commands</h2>
 
@@ -110,9 +111,16 @@
 	<p class="Commanddescription">
 		Specifies names of columns that must be in the data file for it to be loaded. If
 		this is not specified then every column name used to define values in the format
-		definition is assumed to be required.
+		definition is assumed to be required unless it is specified as optional.
 	</p>
 
+	<p class="Commanddefinition">
+		OPTIONAL_COLUMNS <i>name1 name2 name3 ... </i>
+	</p>
+	<p class="Commanddescription">
+		Specifies names of columns that are optional in the data file. Used if REQUIRED_COLUMNS
+		is not specified to identify columns that are not required though they may be used.
+	</p>
 
 	<p class="Commanddefinition">
 		REQUIRED_CONFIGURATION <i>name1 name2 name3 ... </i>
@@ -538,7 +546,8 @@
 		</tr>
 		<tr>
 			<td><i>lookupname</i>(@<i>colname</i>)<br />
-				<i>lookupname</i>($<i>config</i>)</td>
+				<i>lookupname</i>($<i>config</i>)
+			</td>
 			<td>The result of looking up the column value or configuration value in the named lookup.
 			<td>methoderror(@method)</td>
 		</tr>
