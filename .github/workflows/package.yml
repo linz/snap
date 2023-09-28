@@ -27,7 +27,7 @@ jobs:
           if [[ "$GITHUB_REF_NAME" =~ "-test" ]]; then
              echo "PACKAGECLOUD_REPOSITORY=dev" >> $GITHUB_ENV; 
           fi
-      - uses: actions/checkout@v2.4.0
+      - uses: actions/checkout@v3.6.0
       - name: Document target repository
         run: |
           echo "Cloud repo: $PACKAGECLOUD_REPOSITORY"
