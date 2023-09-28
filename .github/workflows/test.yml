@@ -18,7 +18,7 @@ jobs:
       PACKAGECLOUD_REPOSITORY: test
     steps:
       - name: Checkout source
-        uses: actions/checkout@v2.4.0
+        uses: actions/checkout@v3.6.0
       - name: Install dependencies
         run: |
           sudo apt-get update &
