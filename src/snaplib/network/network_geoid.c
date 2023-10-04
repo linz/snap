@@ -14,7 +14,7 @@
 int calculate_network_coordsys_geoid( network *nw, int errlevel )
 {
     if( ! coordsys_heights_orthometric(nw->crdsys) ) return OK;
-    // if( nw->options & NW_EXPLICIT_GEOID ) return OK;
+    if( nw->options & NW_EXPLICIT_GEOID ) return OK;
     return calc_station_geoid_info_from_coordsys( nw, nw->crdsys, NW_HGTFIXEDOPT_DEFAULT, errlevel );
 }
 
@@ -35,13 +35,9 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
     {
         ellipsoidal_heights=1;
     }
-    else if( network_has_geoid_info( nw ) )
-    {
-        ellipsoidal_heights=0;
-    }
     else
     {
-        ellipsoidal_heights=1;
+        ellipsoidal_heights=0;
     }
 
 
@@ -97,7 +93,15 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
         st->GEta = exu[CRD_LON];
         // If network is based on ellipsoidal heights, then changing the geoid
         // shouldn't change the ellipsoidal height...
-        if( ellipsoidal_heights ) st->OHgt += (inputUndulation - st->GUnd);
+        if( ellipsoidal_heights ) 
+        {
+            st->OHgt = st->OHgt + (inputUndulation - st->GUnd);
+        }
+        else
+        {
+            // Changing ellipsoidal height, so ensure cached XYZ is updated 
+            modify_station_coords(st,st->ELat,st->ELon,st->OHgt,nw->crdsys->rf->el);
+        }
         ninvalid--;
         ncalc++;
     }
@@ -148,13 +152,9 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
     {
         ellipsoidal_heights=1;
     }
-    else if( network_has_geoid_info( nw ) )
+    else 
     {
         ellipsoidal_heights=0;
-    }
-    else
-    {
-        ellipsoidal_heights=1;
     }
 
     if( errlevel != OK && errlevel != INFO_ERROR ) errlevel=INCONSISTENT_DATA;
@@ -208,9 +208,17 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
         st->GUnd = exu[CRD_HGT];
         st->GXi = exu[CRD_LAT];
         st->GEta = exu[CRD_LON];
-        // If network is based on ellipsoidal heights, then changing the geoid
-        // shouldn't change the ellipsoidal height...
-        if( ellipsoidal_heights ) st->OHgt += (inputUndulation - st->GUnd);
+        if( ellipsoidal_heights ) 
+        {
+            // If network is based on ellipsoidal heights, then changing the geoid
+            // shouldn't change the ellipsoidal height...
+            st->OHgt += (inputUndulation - st->GUnd);
+        }
+        else
+        {
+            // Changing ellipsoidal height, so ensure cached XYZ is updated 
+            modify_station_coords(st,st->ELat,st->ELon,st->OHgt,nw->crdsys->rf->el);
+        }
         ninvalid--;
         ncalc++;
     }

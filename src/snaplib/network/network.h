@@ -131,6 +131,7 @@ typedef struct
 #define NW_EXPLICIT_GEOID      8
 #define NW_GEOID_INFO          (NW_GEOID_HEIGHTS | NW_DEFLECTIONS)
 #define NW_DEC_DEGREES        16
+#define NW_EXPLICIT_HGT_TYPE  32
 
 #define STATION_ORDER_CLASS_NAME "Order"
 

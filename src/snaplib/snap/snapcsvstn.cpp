@@ -306,9 +306,7 @@ void SnapCsvStn::loadRecord()
     const char **ords;
 
     const std::string &cscode = _crdsys.value();
-    std::string heightType = _hgttype.value();
-    boost::to_lower(heightType);
-    if (heightType == "") heightType = "orthometric";
+
 
     if (cscode == "")
     {
@@ -333,16 +331,21 @@ void SnapCsvStn::loadRecord()
     bool geodetic = !(_projection || _geocentric);
 
     if (!_cs) return;
-    ords = _projection ? prjords : _geocentric ? xyzords : llhords;
-    _crdlon.setName(ords[0]);
-    _crdlat.setName(ords[1]);
-    _crdhgt.setName(ords[2]);
 
     if (cscode != _cscode)
     {
         dataError(string("Coordinate system code not consistent ") + _cscode + " and " + cscode);
         return;
     }
+
+    std::string heightType = _hgttype.value();
+    boost::to_lower(heightType);
+    if (heightType == "") heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
+
+    ords = _projection ? prjords : _geocentric ? xyzords : llhords;
+    _crdlon.setName(ords[0]);
+    _crdlat.setName(ords[1]);
+    _crdhgt.setName(ords[2]);
 
     if (heightType != "ellipsoidal" && heightType != "orthometric")
     {
@@ -488,6 +491,12 @@ void SnapCsvStn::terminateLoadData()
     if (_geoidDefined) _net->options += NW_GEOID_HEIGHTS | NW_EXPLICIT_GEOID;
     if (_deflectionDefined) _net->options += NW_DEFLECTIONS | NW_EXPLICIT_GEOID;
     _net->options += NW_DEC_DEGREES;
+
+    /* If recalculating geoid info then do so without raising errors */
+    if( coordsys_heights_orthometric(_net->crdsys) )
+    {
+        calculate_network_coordsys_geoid( _net, OK );
+    }    
 }
 
 /////////////////////////////////////////////////////////////////////////////

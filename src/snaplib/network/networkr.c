@@ -57,7 +57,6 @@ int read_network( network *nw, const char *fname, int options )
     char projection_coords;
     char geocentric_coords;
     char file_options;
-    char height_type_set;
     char degrees;
     int nclass;
     int *clsids;
@@ -102,7 +101,6 @@ int read_network( network *nw, const char *fname, int options )
     geocentric_coords = is_geocentric( nw->crdsys );
 
     file_options = 0;
-    height_type_set = 0;
 
     /* If geodetic branch format then skip over comments section */
 
@@ -163,13 +161,13 @@ int read_network( network *nw, const char *fname, int options )
                 }
                 else if (_stricmp(inrec,"ellipsoidal_heights") == 0 )
                 {
-                    height_type_set=1;
                     file_options |= NW_ELLIPSOIDAL_HEIGHTS;
+                    file_options |= NW_EXPLICIT_HGT_TYPE;
                 }
                 else if (_stricmp(inrec,"orthometric_heights") == 0 )
                 {
-                    height_type_set=1;
                     file_options &= ~NW_ELLIPSOIDAL_HEIGHTS;
+                    file_options |= NW_EXPLICIT_HGT_TYPE;
                 }
                 else if( _stricmp( inrec, "degrees" ) == 0 )
                 {
@@ -210,7 +208,7 @@ int read_network( network *nw, const char *fname, int options )
     /* If height type not explicitly defined then orthometric if have geoid info else
      * depends on height type of the coordinate system */
 
-    if( ! height_type_set && ! file_options & NW_GEOID_HEIGHTS )
+    if( ! (file_options & NW_EXPLICIT_HGT_TYPE) )
     {
         if( coordsys_heights_orthometric(nw->crdsys) ) 
         {
