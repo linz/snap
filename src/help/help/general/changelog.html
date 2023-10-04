@@ -14,6 +14,34 @@
 
     <h2>Pending release</h2>
 
+    <h3>coordinate files</h3>
+    <p><b>Breaking change</b>: The handling of vertical datums and geoid information in coordinate files has been
+        rationalised.
+        The two changes are:</p>
+    <ul>
+        <li>
+            Explicit geoid information in a coordinate file will override the implicit geoid data associated with a
+            vertical datum
+            in the coordinate system definition. For example, if a coordinate file uses coordinate system
+            NZGD2000/NZVD2016, and also
+            contains geoid heights for each station, then the geoid heights (and deflections of the vertical if
+            specified) will be used.
+            The NZVD2016 geoid will be ignored. In previous versions the implicit geoid information in the coordinate
+            system replaced that
+            explicitly defined
+        </li>
+        <li>
+            If the coordinate file does not specify that the heights are orthometric or ellipsoidal heights, then they
+            will be ellipsoidal
+            unless the coordinate system definition defines a vertical datum (eg NZGD2000/NZVD2016) in which case they
+            will be orthometric.
+            Previously there was a more complex and arbitrary algorithm which also took account of whether geoid heights
+            were defined.
+        </li>
+    </ul>
+    <p>These changes are considered worthwhile, despite potentially breaking existing adjustments, as they are simpler,
+        and more intuitive.
+    </p>
     <h3>snap</h3>
     <p>Bug fix: In a <a href="../files/cmdcfg/csv_format_definition.html">CSV file format definition</a>, if the
         required columns command is not specified then every column that is

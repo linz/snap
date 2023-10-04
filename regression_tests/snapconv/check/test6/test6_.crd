@@ -1,5 +1,5 @@
 Test 1 - NZGD2000
-NZGD2000
+NZGD2000/NZVD09
 options ellipsoidal_heights no_deflections no_geoid_heights c=Order c=Mark_Type
 ! Converted from NZGD2000
 
