@@ -31,7 +31,7 @@ jobs:
       - name: Document target repository
         run: |
           echo "Cloud repo: $PACKAGECLOUD_REPOSITORY"
-      - uses: linz/linz-software-repository@v14
+      - uses: linz/linz-software-repository@v15
         with:
           release: ${{ matrix.distro }}
           packagecloud_repository: ${{ env.PACKAGECLOUD_REPOSITORY }}
