@@ -42,6 +42,8 @@
 
 #define OBS_CRIT_WILDCLASS_BUFFER 64
 
+/* Criterion against which observations are tested.  obs_criterion is a union of these */
+
 typedef struct 
 {
     bool select[NOBSTYPE];
@@ -100,9 +102,11 @@ typedef struct
     void *criteria;
 } obs_stations_criterion;
 
+/* Single observation criterion, which is configured as a linked list. */
+
 typedef struct obs_criterion_s
 {
-    unsigned char crit_type;
+    unsigned char crit_type;   // Identifies the criterion type
     bool groupmatch;
     union
     {
@@ -1322,6 +1326,8 @@ static void apply_obs_modification_action( obs_modifications *obsmod, obsmod_con
  * which avoids testing every different value of each one.
  * To get best efficiency choose group in which critieria goes based on
  * which classifications are most used.
+ * 
+ * 
  */
 
 static obs_criteria_group *create_obs_criteria_group(int groupid,int minval,int maxval)
@@ -1382,16 +1388,16 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
             if( oc->crit_type == OBS_CRIT_CLASSIFICATION )
             {
                 class_count[oc->c.classification.class_id]++;
-            }
-            else if( oc->crit_type == OBS_CRIT_DATAFILE )
+            }   
+            else if( oc->crit_type == OBS_CRIT_DATAFILE  && oc->c.datafile.file_id != OBS_CRIT_WILDCARD_FILEID )
             {
                 class_count[0]++;
             }
-        }
+           }
     }
 
     /* Identify the group and id for each criteria */
-    /* Don't add option criteria to groups as need to be processed on order */
+    /* Don't add option criteria to groups as need to be processed in order */
 
     crit_group_id *grpid = (crit_group_id *) check_malloc( ncriteria *sizeof(crit_group_id) );
     ncriteria=0;
@@ -1416,7 +1422,7 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
                 clsid=oc->c.classification.class_id;
                 clsval=oc->c.classification.value_id;
             }
-            else if( oc->crit_type == OBS_CRIT_DATAFILE )
+            else if( oc->crit_type == OBS_CRIT_DATAFILE && oc->c.datafile.file_id != OBS_CRIT_WILDCARD_FILEID )
             {
                 clsid=0;
                 clsval=oc->c.datafile.file_id;
