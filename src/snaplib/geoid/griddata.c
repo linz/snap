@@ -446,6 +446,24 @@ static long *get_row( grid_def *def, short lat )
     return cr->data;
 }
 
+static int calc_grid_cell_xy( grid_def*def, double x, double y, double *cx, double *cy, short *nx, short *ny )
+{
+    if ( y < def->miny || y > def->maxy ) return INVALID_DATA;
+    *cy = (y-def->miny)/def->yres;
+    *ny = (short) *cy;
+    x = (x-def->minx);
+    if( def->latlon )
+    {
+        int maxfix=5;
+        while( x > 360.0 && maxfix-- > 0 ) x -= 360.0;
+        while( x < 0.0 && maxfix-- > 0 ) x += 360.0;
+    }
+    if( x < 0 || x > (def->maxx-def->minx)) return INVALID_DATA;
+    *cx = x/def->xres;
+    *nx = (short) *cx;
+    return OK;
+}
+
 static void calc_cubic_factors( double x, double f[] )
 {
     double x0, x1, x2, x3;
@@ -465,21 +483,16 @@ static int calc_grid_cubic( grid_def *def, double x, double y, double *value )
     short ny;
     short nx, xrow[4];
     double yfactor[4], xfactor[4];
-    int i, j, v;
+    int i, j, v, sts;
 
     for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
-    y = (y-def->miny)/def->yres;
-    ny = (short) y;
+
+    sts=calc_grid_cell_xy( def, x, y, &x, &y, &nx, &ny );
+    if( sts != OK ) return sts;
+
     if( ny < 1 || ny+2 >= def->ngrdy ) return INVALID_DATA;
-    x = (x-def->minx);
-    if( def->latlon )
-    {
-        while( x > 360.0 ) x -= 360.0;
-        while( x < 0.0 ) x += 360.0;
-    }
-    x = x/def->xres;
-    nx = (short) x;
     if( !def->global && (nx < 1 || nx+2 >= def->ngrdx )) return INVALID_DATA;
+
     calc_cubic_factors( y-ny, yfactor );
     calc_cubic_factors( x-nx, xfactor );
     ny--;
@@ -533,21 +546,17 @@ static int calc_grid_linear( grid_def *def, double x, double y, double *value )
     short ny;
     short nx, xrow[2];
     double yfactor[2], xfactor[2];
-    int i, j, v;
+    int i, j, v, sts;
 
     for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
-    y = (y-def->miny)/def->yres;
-    ny = (short) y;
+
+    
+    sts=calc_grid_cell_xy( def, x, y, &x, &y, &nx, &ny );
+    if( sts != OK ) return sts;
+
     if( ny < 0 || ny+1 >= def->ngrdy ) return INVALID_DATA;
-    x = (x-def->minx);
-    if( def->latlon )
-    {
-        while( x > 360.0 ) x -= 360.0;
-        while( x < 0.0 ) x += 360.0;
-    }
-    x = x/def->xres;
-    nx = (short) x;
     if( !def->global && (nx < 0 || nx+1 >= def->ngrdx )) return INVALID_DATA;
+
     calc_linear_factors( y-ny, yfactor );
     calc_linear_factors( x-nx, xfactor );
 
