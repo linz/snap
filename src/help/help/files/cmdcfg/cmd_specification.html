@@ -21,7 +21,11 @@
 
 <p class="Commanddefinition">name</p><p class="Commanddescription">The name used to refer to the specification.</p>
 
-<p class="Commanddefinition">conf</p><p class="Commanddescription">The percentage confidence to use for the test</p>
+<p class="Commanddefinition">conf</p><p class="Commanddescription">The percentage confidence to use for the test.  Note that the confidence limits in
+specification tests are by default apriori confidence limits.  This may be changed to use aposteriori confidence limits using the 
+<a href="cmd_spec_test_options.html">spec_test_options</a> command.  All specification tests have the same confidence limit type.  The <a href="cmd_error_type.html">error_type</a>  specified for the other adjustment outputs does not affect the confidence limit type used for specification testing.
+
+</p>
 
 <p class="Commanddefinition">habs</p><p class="Commanddescription">The absolute component of the horizontal tolerance in millimetres</p>
 
