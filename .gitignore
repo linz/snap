@@ -1,5 +1,7 @@
 .svn/
 .vscode/
+.vscodex/
+.vs/
 *.swp
 *.o
 *.obj
@@ -28,3 +30,4 @@ src/VERSIONID
 /notes/
 /linux/debug/
 /linux/release/
+/wxtest
