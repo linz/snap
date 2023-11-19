@@ -1,6 +1,23 @@
+linz-snap (2.8.6-1) jammy; urgency=medium
+
+  * Feature: better handling of datafile wild cards in obs modifications
+    commands
+  * Fix: concord hanging on inputs with unexpected longitudes
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Sun 19 Nov 2023 14:00:00 +1300
+
+linz-snap (2.8.5-1) jammy; urgency=medium
+
+  * Feature: rationalisation of handling of vertical datums in coordsys
+  * Feature: improved error messaging for some data file errors
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed 18 Oct 2023 14:00:00 +1300
+
 linz-snap (2.8.4-1) focal; urgency=medium
 
   * Feature - Rationalisation of DMS handling in concord.
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Thu 22 Oct 2022 14:00:00 +1300
 
 linz-snap (2.8.3-1) focal; urgency=medium
 

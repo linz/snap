@@ -1,1 +1,1 @@
-#define SNAPVERSION "2.8.5"
+#define SNAPVERSION "2.8.6"
