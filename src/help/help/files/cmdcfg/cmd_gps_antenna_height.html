@@ -1,0 +1,61 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+    <meta name="keywords" content="reweight_observations">
+    <title>The reweight_observations command</title>
+    <link rel="stylesheet" type="text/css" href="../../css/snaphelp.css">
+</head>
+
+<body bgcolor="#FFFFFF" text="#000000">
+
+
+
+    <h1><a name="cmd_gps_antenna_height"></a>The gps_antenna_height command</h1>
+
+    <p class="Commanddefinition">gps_antenna_height <i>height_offset</i> m <i>selection_criteria</i></p>
+
+    <p>The gps_antenna_height command is used apply an antenna height to GX (GNSS coordinates) or GB (GNSS baseline)
+        observations.
+        Observations can be selected based upon observation type, observation date, stations used, and <a
+            href="../data/obs_classifications.html">observation classifications</a>.</p>
+
+    <p>The antenna height is applied by adding it to the instrument/target height.</p>
+
+    <p>Warning: if more than one gps_antenna_height command could apply to an observation, then the heights will be
+        cumulated into the instrument/target height.</p>
+
+    <p>This command is intended to provide a way of testing antenna height errors. Note that a <a
+            href="cmd_reweight_observations.html">reweight_observations</a>
+        command specifying an uncertainty in the height information for an observation may sometimes be more
+        appropriate.</p>
+
+    <p>The <i>height_offset</i> value is the offset that is applied in metres.</p>
+
+    <p>The <i>selection_criteria</i>i> are the same as defined in the <a
+            href="cmd_reject_observations.html">reject_observations</a> command.</p>
+
+    <p>An example of a gps_antenna_height command is:</p>
+
+    <p class="Commandexample">gps_antenna_height 0.25 data_file=obs220901.snx</p>
+
+    <div class="SeeAlso">
+        <h3>See also:</h3>
+
+        <p><a href="cmd_syntax.html">Command file syntax</a></p>
+
+        <p><a href="cmd_alphabetic_summary.html">Alphabetical list of commands</a></p>
+
+        <p><a href="cmd_function_summary.html">Summary of commands by function</a></p>
+
+        <p><a href="cmd_reject_observations.html">The reject_observations command</a></p>
+
+        <p><a href="cmd_reweight_observations.html">The reweight_observations command</a></p>
+
+        <p><a href="cmd_stn_list.html">Station lists</a></p>
+
+    </div>
+</body>
+
+</html>

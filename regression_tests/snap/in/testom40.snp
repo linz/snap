@@ -1,0 +1,31 @@
+title Regression test om30 - obs modifications - GX offset reweighting
+
+coordinate_file testom30.crd ! Comment to be ignored
+data_file testom30.dat
+
+mode 3d data_check
+error_type apriori
+
+list command_file
+list file_summary
+list no_observation_equations
+list residuals
+list no_solution_summary
+list no_iteration_summary
+list no_station_coordinates
+list no_reference_frames
+list no_parameters
+list no_worst_residuals
+list no_notes
+list no_file_locations
+list no_distance_ratio_scales
+list no_error_summary
+output no_coordinate_file
+
+gps_antenna_height 0.5 m data_type=GX using_stations 2 4
+gps_antenna_height 0.8 m data_type=GX using_stations 3
+gps_antenna_height 0.6 m data_type=GB using_stations 1
+gps_antenna_height 0.3 m data_type=GB using_stations 2
+
+
+

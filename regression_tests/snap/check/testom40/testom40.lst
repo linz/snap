@@ -1,0 +1,154 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 2.8.6-5cc438d6
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Nov 19 2023 17:30:07
+
+================================================================================
+                     Run at 23-NOV-2023 21:23:56 by ccrook
+
+
+The command file testom40.snp contains:
+     title Regression test om30 - obs modifications - GX offset reweighting
+     
+     coordinate_file testom30.crd ! Comment to be ignored
+     data_file testom30.dat
+     
+     mode 3d data_check
+     error_type apriori
+     
+     list command_file
+     list file_summary
+     list no_observation_equations
+     list residuals
+     list no_solution_summary
+     list no_iteration_summary
+     list no_station_coordinates
+     list no_reference_frames
+     list no_parameters
+     list no_worst_residuals
+     list no_notes
+     list no_file_locations
+     list no_distance_ratio_scales
+     list no_error_summary
+     output no_coordinate_file
+     
+     gps_antenna_height 0.5 m data_type=GX using_stations 2 4
+     gps_antenna_height 0.8 m data_type=GX using_stations 3
+     gps_antenna_height 0.6 m data_type=GB using_stations 1
+     gps_antenna_height 0.3 m data_type=GB using_stations 2
+     
+     
+     
+
+
+
+
+================================================================================
+Regression test om30 - obs modifications - GX offset reweighting   23-NOV-2023 21:23:56
+
+                             SUMMARY OF INPUT FILES
+
+================================================================================
+
+
+Program options read from testom40.snp
+
+Job: Regression test om30 - obs modifications - GX offset reweighting
+
+
+Solution type: 3d data checking
+
+
+Coordinates file testom30.crd
+       5 stations read
+
+Data file 1: testom30.dat
+       6 observations do not have a date
+       1 GPS baseline
+       5 GPS point coords
+
+Antenna offset 0.800 m applied to the following GX/GB observations
+  Observations:
+    - which are of type GX (GPS point coord), and
+    - which use stations 3
+
+Antenna offset 0.600 m applied to the following GX/GB observations
+  Observations:
+    - which are of type GB (GPS baseline), and
+    - which use stations 1
+
+Antenna offset 0.500 m applied to the following GX/GB observations
+  Observations:
+    - which are of type GX (GPS point coord), and
+    - which use stations 2 4
+
+Antenna offset 0.300 m applied to the following GX/GB observations
+  Observations:
+    - which are of type GB (GPS baseline), and
+    - which use stations 2
+
+
+
+================================================================================
+Regression test om30 - obs modifications - GX offset reweighting   23-NOV-2023 21:23:56
+
+                             OBSERVATION RESIDUALS
+
+================================================================================
+
+This table lists apriori errors
+Residuals outside the 95.000% confidence limit are flagged ?
+Residuals outside the 99.000% confidence limit are flagged ???
+
+Significance is based on the Normal distribution function
+
+Rejected observations are flagged *
+Observations to or from rejected stations are flagged #
+Observations with redundancy less than 0.10 are flagged @
+
+Vector residual east, north, up directions are calculated at baseline midpoint
+
+The following codes are used to identify data types
+   GB  GPS baselines
+   GX  GPS point coords
+
+From  Type     Value       +/-         Calc       +/-      Res    +/-     S.R.      
+               X,Y,Z                  X,Y,Z               E,N,U                     
+
+1     GX    -4787185.5859  0.0982  -4787185.5859  0.0000  0.0000  0.0400   0.00     
+              560571.4708  0.0414    560571.4708  0.0000 -0.0000  0.0600   0.00     
+            -4163474.5066  0.0908  -4163474.5066  0.0000 -0.0000  0.1200   0.00     
+             6369137.0039           6369137.0039          0.0000           0.00     
+
+2     GX    -4787763.2856  0.0982  -4787763.6604  0.0000  0.0000  0.0400   0.00     
+              560046.1603  0.0414    560046.2041  0.0000  0.0000  0.0600   0.00     
+            -4163037.2916  0.0908  -4163037.6197  0.0000 -0.5000  0.1200   4.17  ???
+             6369239.2381           6369239.7381          0.5000           2.41  ???
+
+3     GX    -4787604.8448  0.0982  -4787605.4444  0.0000  0.0000  0.0400   0.00     
+              559604.1132  0.0414    559604.1833  0.0000  0.0000  0.0600   0.00     
+            -4163002.9955  0.0908  -4163003.5204  0.0000 -0.8000  0.1200   6.67  ???
+             6369058.8672           6369059.6672          0.8000           3.85  ???
+
+4     GX    -4787185.5859  0.0982  -4787185.9606  0.0000  0.0000  0.0400   0.00     
+              560571.4708  0.0414    560571.5147  0.0000 -0.0000  0.0600   0.00     
+            -4163474.5066  0.0908  -4163474.8347  0.0000 -0.5000  0.1200   4.17  ???
+             6369137.0039           6369137.5039          0.5000           2.41  ???
+
+5     GX    -4787763.2856  0.0982  -4787763.2856  0.0000  0.0000  0.0400   0.00     
+              560046.1603  0.0414    560046.1603  0.0000  0.0000  0.0600   0.00     
+            -4163037.2916  0.0908  -4163037.2916  0.0000  0.0000  0.1200   0.00     
+             6369239.2381           6369239.2381          0.0000           0.00     
+
+From  To    Type     Value      +/-        Calc       +/-      Res    +/-     S.R.      
+                     X,Y,Z                 X,Y,Z              E,N,U                     
+
+1     2     GB*      -577.6997  0.0982     -577.4749  0.0000 -0.0000  0.0400   0.00 *   
+                     -525.3105  0.0414     -525.3369  0.0000 -0.0000  0.0600   0.00 *   
+                      437.2150  0.0908      437.4119  0.0000  0.3000  0.1200   2.50 *?  
+                      894.8994              894.8660          0.3000           1.44 *   

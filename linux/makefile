@@ -33,9 +33,8 @@ BOOSTRELIB=$(shell find /usr/lib -name libboost_regex.a)
 BOOSTSYSLIB=$(shell find /usr/lib -name libboost_system.a)
 
 ifeq ($(type),debug)
-#LDFLAGS = -lm -lboost_regex
 LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread 
-#LDFLAGS = -lm -lboost_regex -lpthread  -lefence
+#LDFLAGS = $(LDFLAGS)  -lefence
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
 MACROS = UNIX CHECKBLT

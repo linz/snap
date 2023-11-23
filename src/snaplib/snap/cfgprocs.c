@@ -438,7 +438,18 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int
         }
         if( ok != OK )
         {
-            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in reweight observations command");
+            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in reweight_observations command");
+            return OK;
+        }
+        string=unread_string(&is);
+    }
+    else if( code == OBS_MOD_ANTENNA_OFFSET )
+    {
+        input_string_def is;
+        set_input_string_def(&is,string);
+        if( double_from_string(&is,&errval1) != OK || ! test_next_string_field(&is,"m"))
+        {
+            send_config_error(cfg, INVALID_DATA, "Invalid or missing data in gps_antenna_height command");
             return OK;
         }
         string=unread_string(&is);

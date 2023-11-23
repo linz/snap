@@ -191,6 +191,7 @@ static config_item snap_commands[] =
     {"reweight_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
     {"reject_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
     {"ignore_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
+    {"gps_antenna_height",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_ANTENNA_OFFSET},
     {"sort_observations",NULL,CFG_ABSOLUTE,0,read_sort_option,CONFIG_CMD,0},
     {"summarize_errors_by",NULL,CFG_ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},
     {"summarise_errors_by",NULL,CFG_ABSOLUTE,0,read_error_summary,CONFIG_CMD,0},

@@ -833,6 +833,18 @@ static void apply_obs_criteria_action( obs_criteria *ocr, obsmod_context *oac )
         {
             action = OBS_MOD_IGNORE;
         }
+        else if ( ocr->action & OBS_MOD_ANTENNA_OFFSET )
+        {
+            if( (oac->tgt->type == GB || oac->tgt->type == GX) && oac->matchto )
+            {
+                oac->tgt->tohgt += ocr->factor;
+            }
+            if( oac->tgt->type==GB && oac->matchfrom &&  ocr->setid != oac->obsmod->setid ) 
+            {
+                ocr->setid=oac->obsmod->setid;
+                oac->sd->fromhgt += ocr->factor;
+            }            
+        }
         else
         {
             action |= ocr->action;
@@ -1409,7 +1421,7 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
         grpid[ncriteria].criteria=ocr;
         grpid[ncriteria].groupid=groupid;
         grpid[ncriteria].valueid=valueid;
-        if( ocr->action & (OBS_MOD_SET_OPTION | OBS_MOD_UNSET_OPTION)) continue;
+        if( ocr->action & (OBS_MOD_SET_OPTION | OBS_MOD_UNSET_OPTION | OBS_MOD_ANTENNA_OFFSET )) continue;
         obs_criterion *groupoc=nullptr;
         ocr->pnext=nullptr; 
         for( obs_criterion *oc=ocr->first; oc; oc=oc->next )
@@ -1743,14 +1755,15 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     if( ! obsmod ) return;
 
-    for( int modtype=0; modtype < 6; modtype++ )
+    for( int modtype=0; modtype < 7; modtype++ )
     {
         int action= modtype==0 ? OBS_MOD_IGNORE : 
                     modtype==1 ? OBS_MOD_REJECT :
                     modtype==2 ? OBS_MOD_REWEIGHT :
                     modtype==3 ? OBS_MOD_REWEIGHT_SET :
                     modtype==4 ? OBS_MOD_OFFSET_ERROR :
-                    OBS_MOD_CENTROID_ERROR;
+                    modtype==5 ? OBS_MOD_CENTROID_ERROR :
+                    OBS_MOD_ANTENNA_OFFSET;
         int ordered=modtype > 1;
         bool firsterr=true;
         double minerrfct=0.0;
@@ -1822,6 +1835,12 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
             {
                 fprintf(lst,"\n%sCentroid error %0.3lf %0.3lf m applied to the following observations\n",
                         prefix, match->factor, match->factor2 );
+            }
+            else if( action == OBS_MOD_ANTENNA_OFFSET ) 
+            {
+                fprintf(lst,"\n%sAntenna offset %0.3lf m applied to the following GX/GB observations\n",
+                        prefix, match->factor );
+
             }
             while( match )
             {
