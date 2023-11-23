@@ -73,6 +73,7 @@ static config_item snapplot_general_commands[] =
     {"reweight_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REWEIGHT},
     {"reject_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_REJECT},
     {"ignore_observations",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_IGNORE},
+    {"gps_antenna_height",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_ANTENNA_OFFSET},    
     {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,0},
     {"plot",NULL,CFG_ABSOLUTE,0,load_plot_data,0,0},
     {"include",NULL,CFG_ABSOLUTE,0,read_include_command,0,0},

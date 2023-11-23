@@ -2954,6 +2954,7 @@ static config_item snap_commands[] =
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
     {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,1},
     {"include",NULL,CFG_ABSOLUTE,0,read_include_file,0,0},
+    // {"gps_antenna_height",NULL,CFG_ABSOLUTE,0,read_obs_modification_command,0,OBS_MOD_ANTENNA_OFFSET},
     {NULL}
 };
 

@@ -25,6 +25,7 @@
 #define OBS_MOD_UNSET_OPTION  32 
 #define OBS_MOD_OFFSET_ERROR 64
 #define OBS_MOD_CENTROID_ERROR 128
+#define OBS_MOD_ANTENNA_OFFSET 256
 
 /* Note: network and classifications are not held by the obs_modifications object
  * so must remain valid for as long as the obs_modifications are used.
