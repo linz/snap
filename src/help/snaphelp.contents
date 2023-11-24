@@ -79,6 +79,7 @@
   3	float	files/cmdcfg/cmd_float.html
   3	free	files/cmdcfg/cmd_free.html
   3	geoid	files/cmdcfg/cmd_geoid.html
+  3	gps_antenna_height	files/cmdcfg/cmd_gps_antenna_height.html  
   3	gps_vertical	files/cmdcfg/cmd_gps_vertical.html
   3	horizontal_float_error	files/cmdcfg/cmd_horizontal_float_error.html
   3	ignore	files/cmdcfg/cmd_reject.html
