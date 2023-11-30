@@ -1,8 +1,8 @@
-snapspec version 2.7.16-9663751: Calculation of station orders
-Run at 22-SEP-2018 08:22:38
+snapspec version 2.8.7-85ee5fb4: Calculation of station orders
+Run at 30-NOV-2023 21:10:23
 SNAP binary file: snapspec12.bin
 Spec configuration file: snapspec12.cfg
-SNAP run time: 22-SEP-2018 08:22:38
+SNAP run time: 30-NOV-2023 21:10:23
 Running apriori tests
 
 
@@ -932,6 +932,7 @@ Applying relative accuracy test
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
+   Matrix size 80 rows 3240 elements 100.00% full
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
 
 Pass 2: Calculating with extra covariance information
@@ -1566,7 +1567,7 @@ Applying relative accuracy test
    Vector 35 to 33 true relative accuracy pass (0.04416028 < 0.16690410)
    Vector 35 to 34 true relative accuracy pass (0.04526917 < 0.16690410)
    Vector 36 to 1 true relative accuracy fail (1.02254165 > 0.16690410)
-    Station 36 fails on rel accuracy to passed station 1 (1.02254165 > 0.16690410)
+   Station 36 fails on rel accuracy to passed station 1 (1.02254165 > 0.16690410)
    Vector 37 to 1 true relative accuracy pass (0.02423576 < 0.16690410)
    Vector 37 to 2 true relative accuracy pass (0.02413586 < 0.16690410)
    Vector 37 to 3 true relative accuracy pass (0.03321678 < 0.16690410)

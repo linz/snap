@@ -1,8 +1,8 @@
-snapspec version 2.7.19-6aec944: Calculation of station orders
-Run at  3-OCT-2018 08:30:01
+snapspec version 2.8.7-85ee5fb4: Calculation of station orders
+Run at 30-NOV-2023 21:10:23
 SNAP binary file: snapspec13a.bin
 Spec configuration file: snapspec13a.cfg
-SNAP run time:  3-OCT-2018 08:30:01
+SNAP run time: 30-NOV-2023 21:10:23
 Running apriori tests
 
 
@@ -932,6 +932,7 @@ Applying relative accuracy test
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
+   Matrix size 80 rows 3240 elements 100.00% full
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
 
 Pass 2: Calculating with extra covariance information

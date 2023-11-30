@@ -1,9 +1,9 @@
-snapspec version 2.7.16-9663751: Calculation of station orders
-Run at 22-SEP-2018 08:22:39
+snapspec version 2.8.7-85ee5fb4: Calculation of station orders
+Run at 30-NOV-2023 21:10:23
 SNAP binary file: snapspec5.bin
 Spec configuration file: snapspec5.cfg
 Vertical tests will not be applied as no stations are adjusted vertically
-SNAP run time: 22-SEP-2018 08:22:39
+SNAP run time: 30-NOV-2023 21:10:23
 Running apriori tests
 
 
@@ -54,11 +54,11 @@ Applying relative accuracy test
    Vector 2 to 1 relative accuracy pass by absolute (0.01000000 < 0.01502137)
    Vector 3 to 1 relative accuracy pass by absolute (0.01010000 < 0.01502137)
    Vector 4 to 1 relative accuracy fail by absolute (0.25000000 > 0.01502137)
-    Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502137)
+   Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502137)
    Vector 5 to 1 relative accuracy fail by absolute (0.25999999 > 0.01502137)
-    Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
+   Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    Vector 6 to 1 relative accuracy fail by absolute (0.25999999 > 0.01502137)
-    Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
+   Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
   Checking missing covariance information
     Requesting covariance 3 to 2
@@ -68,6 +68,7 @@ Applying relative accuracy test
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
+   Matrix size 10 rows 55 elements 100.00% full
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
 
 Pass 2: Calculating with extra covariance information
@@ -89,11 +90,11 @@ Applying relative accuracy test
    Vector 3 to 1 relative accuracy pass by absolute (0.01010000 < 0.01502137)
    Vector 3 to 2 true relative accuracy pass (0.00010000 < 0.01502137)
    Vector 4 to 1 relative accuracy fail by absolute (0.25000000 > 0.01502137)
-    Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502137)
+   Station 4 fails on rel accuracy to passed station 1 (0.25000000 > 0.01502137)
    Vector 5 to 1 relative accuracy fail by absolute (0.25999999 > 0.01502137)
-    Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
+   Station 5 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    Vector 6 to 1 relative accuracy fail by absolute (0.25999999 > 0.01502137)
-    Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
+   Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
   Summarizing relative accuracy data
    .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)

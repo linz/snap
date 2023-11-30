@@ -359,11 +359,11 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
     if( ra->loglevel & SDC_LOG_STEPS )
     {
         fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
-        // long nrow=blt_nrows( blt );
-        // long nelement=blt_requested_size( blt );
-        // double pcntfull=100.0*((double) nelement)/((((double) nrow) * ((double) nrow)+1)/2.0);
-        // fprintf(ra->logfile,"   Matrix size %d rows %ld elements %.2lf%% full\n",
-        //         nrow, nelement, pcntfull );
+        long nrow=blt_nrows( blt );
+        long nelement=blt_requested_size( blt );
+        double pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
+        fprintf(ra->logfile,"   Matrix size %ld rows %ld elements %.2lf%% full\n",
+                nrow, nelement, pcntfull );
     }
     copy_bltmatrix( bltdec, blt );
     blt_chol_inv_mt( blt );
