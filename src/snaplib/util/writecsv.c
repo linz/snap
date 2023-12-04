@@ -7,6 +7,7 @@
 #include "util/fileutil.h"
 #include "util/snapctype.h"
 #include "util/writecsv.h"
+#include "util/errdef.h"
 
 
 output_csv *open_output_csv(const char *filename, int tab_delimited )
@@ -24,6 +25,7 @@ output_csv *open_output_csv(const char *filename, int tab_delimited )
     csv->quoterep = strcpy(csv->charbuf+3,tab_delimited ? "\"" : "\"\"");
     csv->newlinerep = strcpy(csv->charbuf+6, tab_delimited ? " " : "\n");
     csv->first = 1;
+    csv->errcount = 0;
     return csv;
 }
 
@@ -31,13 +33,20 @@ void close_output_csv( output_csv *csv )
 {
     if( ! csv ) return;
     fclose( csv->f );
+    if( csv->errcount > 0 )
+    {
+        char errmess[256];
+        sprintf(errmess,"%d errors writing CSV file %.200s",csv->errcount,csv->filename);
+        handle_error(FILE_WRITE_ERROR,errmess,NO_MESSAGE);
+    }
     check_free( csv->filename );
     check_free( csv );
+
 }
 
 void end_output_csv_record( output_csv *csv )
 {
-    fputs("\n",csv->f);
+    if(fputs("\n",csv->f) == EOF) csv->errcount++;
     csv->first = 1;
 }
 
@@ -49,7 +58,7 @@ static void start_field( output_csv *csv )
     }
     else
     {
-        fputc(csv->delim,csv->f);
+        if(fputc(csv->delim,csv->f) == EOF) csv->errcount++;
     }
 }
 
@@ -74,21 +83,31 @@ void write_csv_string( output_csv *csv, const char *value )
     const char *c;
     start_field( csv );
     if( ! value ) return;
-    if( csv->quote ) { fputc(csv->quote,csv->f); }
+    if( csv->quote ) {
+        if(fputc(csv->quote,csv->f) == EOF) csv->errcount++;
+    }
     for( c = value; *c; c++ )
     {
-        if( *c == csv->quote ) { fputs( csv->quoterep, csv->f ); }
-        else if( *c == csv->delim ) { fputs( csv->delimrep, csv->f ); }
-        else if( *c == '\n' ) { fputs( csv->newlinerep, csv->f ); }
-        else fputc( (int) *c, csv->f );
+        if( *c == csv->quote ) {
+            if(fputs( csv->quoterep, csv->f ) == EOF) csv->errcount++;
+        }
+        else if( *c == csv->delim ) {
+            if(fputs( csv->delimrep, csv->f ) == EOF) csv->errcount++;
+        }
+        else if( *c == '\n' ) {
+            if(fputs( csv->newlinerep, csv->f ) == EOF) csv->errcount++;
+        }
+        else if(fputc( (int) *c, csv->f ) == EOF) csv->errcount++;
     }
-    if( csv->quote ) { fputc(csv->quote,csv->f); }
+    if( csv->quote ) {
+        if(fputc(csv->quote,csv->f) == EOF) csv->errcount++;
+    }
 }
 
 void write_csv_int( output_csv *csv, long value )
 {
     start_field( csv );
-    fprintf( csv->f, "%ld", value );
+    if(fprintf( csv->f, "%ld", value ) < 0) csv->errcount++;
 }
 
 void write_csv_double( output_csv *csv, double value, int ndp )
@@ -96,11 +115,11 @@ void write_csv_double( output_csv *csv, double value, int ndp )
     start_field( csv );
     if( ndp  >= 0 )
     {
-        fprintf( csv->f, "%.*lf", ndp,value );
+        if(fprintf( csv->f, "%.*lf", ndp,value ) < 0) csv->errcount++;
     }
     else
     {
-        fprintf( csv->f, "%lf", value );
+        if(fprintf( csv->f, "%lf", value ) < 0) csv->errcount++;
     }
 }
 
@@ -111,7 +130,10 @@ void write_csv_null_field( output_csv *csv )
 
 void write_csv_date( output_csv *csv, double date )
 {
-    if( date == UNDEFINED_DATE ) { write_csv_null_field( csv ); return; }
+    if( date == UNDEFINED_DATE ) {
+        write_csv_null_field( csv );
+        return;
+    }
     write_csv_string( csv, date_as_string(date,0,0) );
 }
 

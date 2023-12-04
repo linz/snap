@@ -13,6 +13,7 @@ typedef struct
     char *quoterep;
     char *newlinerep;
     char charbuf[20];
+    int errcount;
 } output_csv;
 
 
