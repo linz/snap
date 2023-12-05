@@ -141,7 +141,10 @@ static double calc_error_ellipse_semimajor2( double cvr[] )
     v2 = (cvr[2]-cvr[0])/2.0;
     v3 = cvr[1];
     v4 = v2*v2+v3*v3;
-    if( v4 > 0.0 )  { v4 = sqrt(v4); v1 += v4; }
+    if( v4 > 0.0 )  {
+        v4 = sqrt(v4);
+        v1 += v4;
+    }
     return v1;
 }
 
@@ -233,7 +236,9 @@ static void delete_relacc( stn_relacc_array *ra )
     {
         for( i = 0; i < ra->nstn; i++ )
         {
-            if( ra->alloc[i] ) { check_free( ra->cols[i] ); }
+            if( ra->alloc[i] ) {
+                check_free( ra->cols[i] );
+            }
         }
         check_free( ra->cols );
         ra->cols = NULL;
@@ -293,7 +298,11 @@ static void relacc_alloc_cache( stn_relacc_array *ra )
 static stn_relacc *get_relacc( stn_relacc_array *ra, int istn, int jstn )
 {
     if( ra->cols == NULL || istn < 1 || jstn < 1 || istn > ra->nstn || jstn > ra->nstn ) return NULL;
-    if( istn < jstn ) { int itmp = istn; istn = jstn; jstn = itmp; }
+    if( istn < jstn ) {
+        int itmp = istn;
+        istn = jstn;
+        jstn = itmp;
+    }
     return ra->cols[istn-1] + jstn-1;
 }
 
@@ -320,7 +329,7 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
 {
     if( ! ra->bltreq )
     {
-        ra->bltreq = create_bltmatrix( ra->bltdec->nrow ); 
+        ra->bltreq = create_bltmatrix( ra->bltdec->nrow );
         if( ra->blt )
         {
             copy_bltmatrix_bandwidth( ra->blt, ra->bltreq );
@@ -350,9 +359,9 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
     bltmatrix *blt = ra->bltreq;
     if( ! blt || ! bltdec ) return 0;
 
-    if( ra->blt ) 
+    if( ra->blt )
     {
-        delete_bltmatrix( ra->blt ); 
+        delete_bltmatrix( ra->blt );
         ra->blt=NULL;
     }
 
@@ -364,6 +373,7 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
         double pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
         fprintf(ra->logfile,"   Matrix size %ld rows %ld elements %.2lf%% full\n",
                 nrow, nelement, pcntfull );
+        fflush(ra->logfile);
     }
     copy_bltmatrix( bltdec, blt );
     blt_chol_inv_mt( blt );
@@ -387,7 +397,9 @@ static void relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jst
 
     /* If the matrix for requests is not created yet, then create it */
 
-    if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
+    if( ! ra->bltreq ) {
+        relacc_create_blt_req( ra );
+    }
 
     int irow = isa->hrowno-1;
     int jrow = jsa->hrowno-1;
@@ -428,8 +440,14 @@ static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jst
 
     for( i = 0; i < 3; i++ )
     {
-        if( i == 1 ) { iry++; jry++; }
-        else if( i == 2 ) { irx++; jrx++; }
+        if( i == 1 ) {
+            iry++;
+            jry++;
+        }
+        else if( i == 2 ) {
+            irx++;
+            jrx++;
+        }
 
         cvr[i] = BLT(blt,irx,iry) - BLT(blt,irx,jry) - BLT(blt,jrx,iry) + BLT(blt,jrx,jry);
     }
@@ -523,7 +541,9 @@ static void relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn
 
     /* If the matrix for requests is not created yet, then create it */
 
-    if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
+    if( ! ra->bltreq ) {
+        relacc_create_blt_req( ra );
+    }
 
     blt_nonzero_element( ra->bltreq, irow, jrow );
 }
@@ -881,19 +901,19 @@ static int f_station_role ( void *env, int stn )
 
     st = stnptr(istn);
     sa = stnadj( st );
-    
+
     // Identify ignored stations (for testing) and control stations
 
-    if( ignored_station(istn) || rejected_station(istn) ) 
+    if( ignored_station(istn) || rejected_station(istn) )
     {
-        role = SDC_IGNORE_MARK; 
+        role = SDC_IGNORE_MARK;
     }
     // If testing 3d
     else if( ra->testhor && ra->testvrt )
     {
         role = ra->role[stn];
         // If not calculated (and not ignored) then it is a control mark
-        if( ! (sa->hrowno || sa->vrowno) ) 
+        if( ! (sa->hrowno || sa->vrowno) )
         {
             role=SDC_CONTROL_MARK;
         }
@@ -909,8 +929,8 @@ static int f_station_role ( void *env, int stn )
     {
         if( ! sa->hrowno )
         {
-            // Assume if in 3d adjustment (vertical calculated) 
-            // then not calculated because of lack of data, not because 
+            // Assume if in 3d adjustment (vertical calculated)
+            // then not calculated because of lack of data, not because
             // it is a control mark.
             role = sa->vrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
         }
@@ -1012,14 +1032,22 @@ static void f_set_order( void *env, int stn, int order )
 static void f_write_log( void *env, const char *text )
 {
     stn_relacc_array *ra = (stn_relacc_array *) env;
-    if( ra->logfile ) { fputs( text, ra->logfile ); }
-    if( ra->outputlog ) { puts( text ); }
+    if( ra->logfile ) {
+        fputs( text, ra->logfile );
+        fflush(ra->logfile);
+    }
+    if( ra->outputlog ) {
+        puts( text );
+    }
 }
 
 static void f_write_debug( void *env, const char *text )
 {
     stn_relacc_array *ra = (stn_relacc_array *) env;
-    if( ra->dbgfile ) { fputs( text, ra->dbgfile ); }
+    if( ra->dbgfile ) {
+        fputs( text, ra->dbgfile );
+        fflush(ra->dbgfile);
+    }
 }
 
 static hSDCTest create_test( int maxorder )
@@ -1093,6 +1121,7 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
             fprintf(out,"%s\n",stnptr(istn)->Code);
         }
     }
+    fflush(out);
 }
 
 
@@ -1111,6 +1140,7 @@ static void write_station_index( hSDCTest, stn_relacc_array *ra )
                 f_station_role(ra,i), f_station_priority(ra,i));
     }
     fprintf(out,"\n");
+    fflush(out);
 }
 
 
@@ -1161,7 +1191,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
     {
         printf("\nCannot open results csv file %s\n",csvname);
         return;
-    } 
+    }
 
     int haveorders = ra->have_srcorders;
     int geocentric_coords = is_geocentric( net->crdsys ) ? 1 : 0;
@@ -1300,7 +1330,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
             write_csv_null_field( csv );
             write_csv_null_field( csv );
         }
-        
+
         write_csv_string( csv, relacc_role_string( ra, ra->role[st->id-1]) );
         if( ra->priority[st->id-1] == SDC_NO_PRIORITY )
         {
@@ -1441,7 +1471,10 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     for( i = 0; i < hsdc->norder; i++ )
     {
         char *next = (i == hsdc->norder - 1) ? dfltOrder : hsdc->tests[i+1].scOrder;
-        if( stncodecmp(next,hsdc->tests[i].scOrder) <= 0 ) { sorted = 0; break; }
+        if( stncodecmp(next,hsdc->tests[i].scOrder) <= 0 ) {
+            sorted = 0;
+            break;
+        }
     }
 
     /* Set up the order_lookup array which converts from the network station orders
@@ -1466,7 +1499,10 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
         {
             char *testorder = j < hsdc->norder ? hsdc->tests[j].scOrder : dfltOrder;
             int cmp = stncodecmp(testorder,order);
-            if( cmp == 0 ) { order_lookup[i] = j; break; }
+            if( cmp == 0 ) {
+                order_lookup[i] = j;
+                break;
+            }
             if( sorted )
             {
                 if( cmp > 0 ) break;
@@ -1848,19 +1884,43 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             }
             switch( errtyp + errdir + vflag)
             {
-            case 17: test->dblAbsTestAbsMax = err/1000; break;
-            case 18: test->dblAbsTestDFMax = err/1000; break;
-            case 34: test->dblAbsTestDDMax = err/10000; break;
-            case 24: test->dblRelTestAbsMin = err/1000; break;
-            case 20: test->dblRelTestDFMax = err/1000; break;
-            case 36: test->dblRelTestDDMax = err/10000; break;
+            case 17:
+                test->dblAbsTestAbsMax = err/1000;
+                break;
+            case 18:
+                test->dblAbsTestDFMax = err/1000;
+                break;
+            case 34:
+                test->dblAbsTestDDMax = err/10000;
+                break;
+            case 24:
+                test->dblRelTestAbsMin = err/1000;
+                break;
+            case 20:
+                test->dblRelTestDFMax = err/1000;
+                break;
+            case 36:
+                test->dblRelTestDDMax = err/10000;
+                break;
 
-            case 81: test->dblAbsTestAbsMaxV = err/1000; break;
-            case 82: test->dblAbsTestDFMaxV = err/1000; break;
-            case 98: test->dblAbsTestDDMaxV = err/10000; break;
-            case 88: test->dblRelTestAbsMinV = err/1000; break;
-            case 84: test->dblRelTestDFMaxV = err/1000; break;
-            case 100: test->dblRelTestDDMaxV = err/10000; break;
+            case 81:
+                test->dblAbsTestAbsMaxV = err/1000;
+                break;
+            case 82:
+                test->dblAbsTestDFMaxV = err/1000;
+                break;
+            case 98:
+                test->dblAbsTestDDMaxV = err/10000;
+                break;
+            case 88:
+                test->dblRelTestAbsMinV = err/1000;
+                break;
+            case 84:
+                test->dblRelTestDFMaxV = err/1000;
+                break;
+            case 100:
+                test->dblRelTestDDMaxV = err/10000;
+                break;
             }
 
             errtypflg |= errtyp;
@@ -2088,12 +2148,17 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
         int nfield=0;
         if( csv )
         {
-            for( char *c=record; *c; c++ ){ if( *c == '"' ) *c=' '; }
+            for( char *c=record; *c; c++ ) {
+                if( *c == '"' ) *c=' ';
+            }
             field[0]=record;
             nfield=1;
             for( char *c=record; nfield<3 && *c; c++ )
             {
-                if( *c == ',' ){ field[nfield++]=c+1; *c=0; }
+                if( *c == ',' ) {
+                    field[nfield++]=c+1;
+                    *c=0;
+                }
             }
             for( int ifld=0; ifld < nfield; ifld++ )
             {
@@ -2107,8 +2172,12 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
         else
         {
             field[0]=strtok(record," \n\t");
-            if( field[0] ) { field[1]=strtok(NULL," \n\t"); }
-            if( field[1] ) { field[2]=strtok(NULL," \n\t"); }
+            if( field[0] ) {
+                field[1]=strtok(NULL," \n\t");
+            }
+            if( field[1] ) {
+                field[2]=strtok(NULL," \n\t");
+            }
             if( field[2] ) nfield=3;
             else if( field[1] ) nfield=2;
             else if( field[0] ) nfield=1;
@@ -2128,13 +2197,13 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
             {
                 sts=MISSING_DATA;
                 handle_error(sts,"Station configuration file does not include a \"code\" field",
-                        filename);
+                             filename);
                 break;
             }
             if( orderfield < 0 && priorityfield < 0 )
             {
                 handle_error(sts,"Station configuration file does not include a \"order\" or \"priority\" field\n",
-                        filename);
+                             filename);
             }
         }
         else
@@ -2142,7 +2211,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
             char *code=field[codefield];
             int istn = find_station(net,code);
             if( istn <= 0 ) nbadstn++;
-            if( istn > 0 && orderfield > 0 && field[orderfield] && *(field[orderfield])) 
+            if( istn > 0 && orderfield > 0 && field[orderfield] && *(field[orderfield]))
             {
                 if( strcmp(field[orderfield],"-") != 0 && strcmp(field[orderfield],"") != 0 )
                 {
@@ -2171,7 +2240,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                     }
                 }
             }
-            if( istn > 0 && priorityfield > 0 && field[priorityfield] && *(field[priorityfield])) 
+            if( istn > 0 && priorityfield > 0 && field[priorityfield] && *(field[priorityfield]))
             {
                 if( strcmp(field[priorityfield],"-") != 0 && strcmp(field[priorityfield],"") != 0 )
                 {
@@ -2198,7 +2267,12 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                 }
             }
         }
-        if( ! eol ){ while( 1 ) { int c=fgetc(f); if( c == '\n' || c == EOF ) break; } }
+        if( ! eol ) {
+            while( 1 ) {
+                int c=fgetc(f);
+                if( c == '\n' || c == EOF ) break;
+            }
+        }
     }
     fclose(f);
     if( nbadstn > 0 )
@@ -2215,7 +2289,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
 
 static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code ); 
+static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_output_file_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 
@@ -2277,7 +2351,9 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     }
 
     cfg2 = NULL;
-    if( cfn ) { cfg2 = open_config_file( cfn, '!' );}
+    if( cfn ) {
+        cfg2 = open_config_file( cfn, '!' );
+    }
     if( !cfg2 )
     {
         char buf[120];
@@ -2376,7 +2452,7 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
     stn_relacc_array *ra = * (stn_relacc_array **) value;
     for( option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
     {
-        if( _stricmp(option,"limit_orders_by_control") == 0 
+        if( _stricmp(option,"limit_orders_by_control") == 0
                 || _stricmp(option,"auto_min_order") == 0 )
         {
             ra->autominorder=1;
@@ -2426,7 +2502,7 @@ static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, i
 
 static int read_output_file_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
 {
-    const char *option=strtok(string," \t\n"); 
+    const char *option=strtok(string," \t\n");
     if( ! option || strlen(option) == 0 )
     {
         option=default_output_filename;
@@ -2701,9 +2777,9 @@ int main( int argc, char *argv[] )
                 return 0;
             }
             blt_set_number_of_threads(nthread);
-            }
-            narg=narg2;
-            break;
+        }
+        narg=narg2;
+        break;
 
         default:
             printf("snapspec: Invalid option %s\n",argv[1]);
@@ -2719,17 +2795,21 @@ int main( int argc, char *argv[] )
         {
         case 'a':
         case 'A':
-            hvmode = SRA_HVMODE_AUTO; break;
+            hvmode = SRA_HVMODE_AUTO;
+            break;
         case 'h':
         case 'H':
         case '2':
-            hvmode = SRA_HVMODE_HOR; break;
+            hvmode = SRA_HVMODE_HOR;
+            break;
         case 'v':
         case 'V':
         case '1':
-            hvmode = SRA_HVMODE_VRT; break;
+            hvmode = SRA_HVMODE_VRT;
+            break;
         case '3':
-            hvmode = SRA_HVMODE_3D; break;
+            hvmode = SRA_HVMODE_3D;
+            break;
         default:
             printf("snapspec: Invalid mode string %s\n",modestr);
         }
@@ -2788,7 +2868,9 @@ int main( int argc, char *argv[] )
     fprintf(out,"SNAP binary file: %s\n",bfn);
     fprintf(out,"Spec configuration file: %s\n",cfn);
 
-    if( cfn ) { cfg = open_config_file( cfn, '!' );}
+    if( cfn ) {
+        cfg = open_config_file( cfn, '!' );
+    }
     if( !cfn || !cfg )
     {
         fprintf(out,"Cannot open configuration file %s\n",basecfn);
@@ -2987,7 +3069,7 @@ int main( int argc, char *argv[] )
         if( ! updatecrdfile ) updatecrdfile=ra->crdoutput;
         if( updatecrdfile )
         {
-            if( splitcrdfile || ra->splitcrdfile ) 
+            if( splitcrdfile || ra->splitcrdfile )
             {
                 char *crdfile=output_filename(updatecrdfile,bfn,"");
                 write_coord_files( hsdc, ra, crdfile );
