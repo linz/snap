@@ -23,7 +23,7 @@
    etc, and codes.
 
    The functions take an ID type, and for some types of id a group
-   identifier, and return a long id for the code (or a code for the
+   identifier, and return a int id for the code (or a code for the
    long id).  For most data types the long value returned is converted
    to a int.
 
@@ -79,9 +79,9 @@ void set_coef_class( int coeftype, const char *name );
    before and after loading a data file */
 
 void init_load_data( void (*usedata_func)( survdata *sd ),
-                     long (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*namefunc)( int type, int group_id, long id ),
-                     double (*calcfunc)( int type, long id1, long id2 ));
+                     LONG (*idfunc)( int type, LONG group_id, const char *code ),
+                     const char * (*namefunc)( int type, LONG group_id, LONG id ),
+                     double (*calcfunc)( int type, LONG id1, LONG id2 ));
 void term_load_data( void );
 
 
@@ -90,9 +90,9 @@ void term_load_data( void );
 #define RECODE_IGNORE_CHAR '*'
 #define RECODE_IGNORE_CODE "*"
 
-void set_stn_recode_func( 
-        const char *(*recode)( void *recodedata, const char *code, double date ), 
-        void *recodedata);
+void set_stn_recode_func(
+    const char *(*recode)( void *recodedata, const char *code, double date ),
+    void *recodedata);
 
 /* The following routine can be called to enable handling of GPS covariances.
    Otherwise the request for a covariance array (ldt_covariance)
@@ -107,9 +107,9 @@ void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
    data routines assemble these to convert the data to a standard internal
    format */
 
-long ldt_get_id( int type, int group_id, const char *code );
-const char *ldt_get_code( int type, int group_id, long id );
-double ldt_calc_value( int calc_type, long id1, long id2 );
+int ldt_get_id( int type, LONG group_id, const char *code );
+const char *ldt_get_code( int type, LONG group_id, LONG id );
+double ldt_calc_value( int calc_type, LONG id1, LONG id2 );
 
 /* Set state - can happen at any time */
 
@@ -136,7 +136,7 @@ void ldt_error( double *error );
 
 void ldt_unused( void );
 
-void ldt_lineno( long lineno );
+void ldt_lineno( int lineno );
 void ldt_obs_id( int id );
 void ldt_classification( int class_id, int name_id );
 void ldt_syserr( int syserr_id, double influence );

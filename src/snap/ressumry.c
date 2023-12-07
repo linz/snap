@@ -60,7 +60,7 @@ static summary_def *first_def = NULL;
 typedef struct
 {
     double ssr;
-    long  count;
+    int  count;
     int axis;
     int used;
 } error_total;
@@ -74,8 +74,8 @@ static int obstype_from_index[NOBSTYPE*4];
 static int obsenu_from_index[NOBSTYPE*4];
 
 /* Read a summary definition as a string of items separated by "/" characters,
-   e.g. "file/data_type", "equipment/data_type", ... 
-   
+   e.g. "file/data_type", "equipment/data_type", ...
+
    data_type can be followed by :no_enu to suppress calculating summaries for
    east, north, up components. */
 
@@ -116,7 +116,7 @@ int define_error_summary( const char *definition )
                 sdf->level_id[nlevel] = BY_DATA_TYPE;
                 sdf->enu_components = 1;
             }
-            else if( _strnicmp(field,DATA_TYPE_STR,strlen(DATA_TYPE_STR)) == 0 && 
+            else if( _strnicmp(field,DATA_TYPE_STR,strlen(DATA_TYPE_STR)) == 0 &&
                      field[strlen(DATA_TYPE_STR)] == ':' )
             {
                 sdf->level_id[nlevel] = BY_DATA_TYPE;
@@ -279,7 +279,10 @@ static int get_obs_class_val( survdata *sd, trgtdata *t, int class_id )
         cd = sd->clsf+t->iclass;
         for( i=t->nclass; i--; cd++ )
         {
-            if( cd->class_id == class_id ) { name_id = cd->name_id; break; }
+            if( cd->class_id == class_id ) {
+                name_id = cd->name_id;
+                break;
+            }
         }
     }
     return name_id;
@@ -308,9 +311,14 @@ static void sum_observation( summary_def *sdf, survdata *sd )
             class_id = sdf->level_id[ilevel];
             switch( class_id )
             {
-            case BY_DATA_TYPE: class_val = obstype_index[t->type]; break;
-            case BY_FILE:      class_val = sd->file; break;
-            default:           class_val = get_obs_class_val( sd, t, class_id );
+            case BY_DATA_TYPE:
+                class_val = obstype_index[t->type];
+                break;
+            case BY_FILE:
+                class_val = sd->file;
+                break;
+            default:
+                class_val = get_obs_class_val( sd, t, class_id );
                 break;
             }
 
@@ -406,7 +414,9 @@ static void sum_observation( summary_def *sdf, survdata *sd )
         break;
 
 
-        default: assert(0); break;
+        default:
+            assert(0);
+            break;
         }
     }
 
@@ -462,7 +472,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
         {
             error_total sum_total[3];
             int i, j;
-            
+
             if( sdf->level_id[ilevel] == BY_DATA_TYPE )
             {
                 iaxis=obsenu_from_index[ilvl];
@@ -472,7 +482,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
             {
                 iaxis=axis;
             }
-                
+
             for( j=0; j<3; j++ )
             {
                 sum_total[j].ssr   = 0.0;
@@ -512,55 +522,68 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                 indent = ilevel * LEVEL_INDENT;
                 if( iaxis && lastlevel ) indent += AXIS_INDENT;
                 ttlwidth = TITLE_WIDTH - indent;
-                if( indent ) fprintf(lst,"%*s",indent,""); else fprintf(lst,"\n");
+                if( indent ) fprintf(lst,"%*s",indent,"");
+                else fprintf(lst,"\n");
 
                 title = 0;
                 switch( sdf->level_id[ilevel] )
-                    {
+                {
 
-                    case BY_DATA_TYPE:
-                        if( iaxis ) 
+                case BY_DATA_TYPE:
+                    if( iaxis )
+                    {
+                        if( output_xyz_vector_residuals )
                         {
-                            if( output_xyz_vector_residuals )
+                            switch( iaxis )
                             {
-                                switch( iaxis )
-                                {
-                                case 1: title = "X component"; break;
-                                case 2: title = "Y component"; break;
-                                case 3: title = "Z component"; break;
-                                }
-                            }
-                            else
-                            {
-                                switch( iaxis )
-                                {
-                                case 1: title = "East component"; break;
-                                case 2: title = "North component"; break;
-                                case 3: title = "Up component"; break;
-                                }
-                            }
-                            if( ! lastlevel )
-                            {
-                                sprintf(ttlbuf,"%.4s %s",
-                                    datatype[obstype_from_index[ilvl]].code,
-                                    title);
-                                title=ttlbuf;
+                            case 1:
+                                title = "X component";
+                                break;
+                            case 2:
+                                title = "Y component";
+                                break;
+                            case 3:
+                                title = "Z component";
+                                break;
                             }
                         }
                         else
                         {
-                            title = datatype[obstype_from_index[ilvl]].name;
+                            switch( iaxis )
+                            {
+                            case 1:
+                                title = "East component";
+                                break;
+                            case 2:
+                                title = "North component";
+                                break;
+                            case 3:
+                                title = "Up component";
+                                break;
+                            }
                         }
-                        break;
-
-                    case BY_FILE:
-                        title = survey_data_file_name(ilvl);
-                        break;
-
-                    default:
-                        title = class_value_name( &obs_classes, sdf->level_id[ilevel], ilvl );
-                        break;
+                        if( ! lastlevel )
+                        {
+                            sprintf(ttlbuf,"%.4s %s",
+                                    datatype[obstype_from_index[ilvl]].code,
+                                    title);
+                            title=ttlbuf;
+                        }
                     }
+                    else
+                    {
+                        title = datatype[obstype_from_index[ilvl]].name;
+                    }
+                    break;
+
+                case BY_FILE:
+                    title = survey_data_file_name(ilvl);
+                    break;
+
+                default:
+                    title = class_value_name( &obs_classes, sdf->level_id[ilevel], ilvl );
+                    break;
+                }
 
                 if( ttlwidth > 0 )
                     fprintf(lst,"%-*.*s",ttlwidth,ttlwidth,title);
@@ -569,7 +592,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                 {
                     if( sum_total[j].count )
                     {
-                        fprintf(lst," %7.2lf %4ld",
+                        fprintf(lst," %7.2lf %4d",
                                 sqrt(sum_total[j].ssr/sum_total[j].count)/semult,
                                 sum_total[j].count );
                     }
@@ -603,10 +626,15 @@ static void print_summary( FILE *lst, summary_def *sdf, double semult )
         if( ilvl ) fprintf(lst,", ");
         switch( sdf->level_id[ilvl] )
         {
-        case BY_DATA_TYPE: fprintf(lst,"data type"); break;
-        case BY_FILE:      fprintf(lst,"input file"); break;
-        default:           fprintf(lst,"%s",
-                                       classification_name( &obs_classes,sdf->level_id[ilvl]));
+        case BY_DATA_TYPE:
+            fprintf(lst,"data type");
+            break;
+        case BY_FILE:
+            fprintf(lst,"input file");
+            break;
+        default:
+            fprintf(lst,"%s",
+                    classification_name( &obs_classes,sdf->level_id[ilvl]));
             break;
         }
     }

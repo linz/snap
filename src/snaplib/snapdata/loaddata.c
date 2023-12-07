@@ -95,7 +95,7 @@ static int cvrdim = 0;
  *  3) calculated values (distance etc) may be requested which need to get to the network station.
  *     (need to assume these are not requested before the date is defined).
  * All this means complex caching of codes, assigning each code
- * a temporary id and storing the corresponding string in saved codes 
+ * a temporary id and storing the corresponding string in saved codes
  * until recode is called. The cache is reset at the beginning of each
  * observation group (but the memory used is retained until the end of the
  * data set. */
@@ -130,9 +130,9 @@ void (*usedata_func)( survdata *sd );
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-static long (*id_func)( int type, int group_id, const char *code );
-static const char * (*code_func)( int type, int group_id, long id );
-static double (*calc_func)( int type, long id1, long id2 );
+static LONG (*id_func)( int type, LONG group_id, const char *code );
+static const char * (*code_func)( int type, LONG group_id, LONG id );
+static double (*calc_func)( int type, LONG id1, LONG id2 );
 
 /* Specifications for reweighting, rejecting, and ignoring observations */
 
@@ -142,7 +142,7 @@ static void *pobsmod=0;
 /* A function for recoding station codes read from data files */
 
 static const char *(*recode_func)( void *recodedata, const char *code, double date ) = 0;
-static void *recode_data=0; 
+static void *recode_data=0;
 static int recoding=0;
 
 /* The function for computing gps covariances is handled with a function
@@ -263,7 +263,7 @@ static int get_recoded_id( int id, int *reject )
 {
     const char * src;
     const char * tgt;
-    
+
     if( reject ) *reject=0;
     recoded_id *rid;
     if( id == 0 ) return 0;
@@ -277,7 +277,7 @@ static int get_recoded_id( int id, int *reject )
         src=saved_code(rid->codeid);
         tgt=(*recode_func)(recode_data,src,data.date);
         if( ! tgt ) tgt = src;
-        if( _stricmp(tgt,RECODE_IGNORE_CODE) == 0 ) 
+        if( _stricmp(tgt,RECODE_IGNORE_CODE) == 0 )
         {
             rid->id=-1;
         }
@@ -308,8 +308,8 @@ static void reset_saved_codes( int lastid )
     if( ndrop <= 0 ) return;
     if( nkeep <= 0 )
     {
-         reset_saved_code_ids();
-         return;
+        reset_saved_code_ids();
+        return;
     }
     memmove( saved_ids, saved_ids+ndrop, nkeep*sizeof(recoded_id) );
     saved_id_offset += ndrop;
@@ -324,7 +324,7 @@ static void reset_saved_codes( int lastid )
 }
 
 static void clear_saved_codes()
-{ 
+{
     reset_saved_code_ids();
     check_free( saved_codes );
     saved_codes=0;
@@ -388,9 +388,9 @@ void term_load_data( void )
 }
 
 
-void set_stn_recode_func( 
-        const char *(*recode)( void *recodedata, const char *code, double date ), 
-        void *recodedata)
+void set_stn_recode_func(
+    const char *(*recode)( void *recodedata, const char *code, double date ),
+    void *recodedata)
 {
     DEBUG_PRINT(("LDT: set_stn_recode_func"));
     recode_func = recode;
@@ -612,7 +612,8 @@ static void *next_data( int type )
 
     switch( data.format )
     {
-    case SD_OBSDATA: od = (obsdata *) obs;
+    case SD_OBSDATA:
+        od = (obsdata *) obs;
         tgt = &od->tgt;
         aval = &od->value;
         nval = 1;
@@ -623,7 +624,8 @@ static void *next_data( int type )
         od->prm_id = 0;
         break;
 
-    case SD_VECDATA: vd = (vecdata *) obs;
+    case SD_VECDATA:
+        vd = (vecdata *) obs;
         tgt = &vd->tgt;
         aval = vd->vector;
         nval = 3;
@@ -633,7 +635,8 @@ static void *next_data( int type )
         iscovar = 1;
         break;
 
-    case SD_PNTDATA: pd = (pntdata *) obs;
+    case SD_PNTDATA:
+        pd = (pntdata *) obs;
         tgt = &pd->tgt;
         aval = &pd->value;
         nval = 1;
@@ -642,7 +645,8 @@ static void *next_data( int type )
         iscovar = 0;
         break;
 
-    default: report_error("nextdata");
+    default:
+        report_error("nextdata");
     }
 
     setup_target( type );
@@ -749,11 +753,11 @@ double ldt_calc_value( int calc_type, long id1, long id2 )
     {
         switch( calc_type )
         {
-            case CALC_DISTANCE:
-            case CALC_HDIST:
-                id1=get_recoded_id( id1, 0 );
-                id2=get_recoded_id( id2, 0 );
-                break;
+        case CALC_DISTANCE:
+        case CALC_HDIST:
+            id1=get_recoded_id( id1, 0 );
+            id2=get_recoded_id( id2, 0 );
+            break;
         }
     }
     return (*calc_func)( calc_type, id1, id2 );
@@ -845,7 +849,7 @@ void ldt_nextdata( int type )
 {
     DEBUG_PRINT(("LDT: ldt_nextdata %d", (int) type ));
 
-    if( data.format == SD_PNTDATA && data.nobs ) 
+    if( data.format == SD_PNTDATA && data.nobs )
     {
         preserve_saved_codes=1;
         ldt_end_data();
@@ -1167,7 +1171,10 @@ static void remove_ignored_obs()
     {
         trgtdata *tgt=get_trgtdata(&data,i);
         if( tgt->unused & IGNORE_OBS_BIT ) continue;
-        if( i == nused) { nused++; continue; }
+        if( i == nused) {
+            nused++;
+            continue;
+        }
         if( tgt->nclass > 0 )
         {
             int nc=tgt->nclass;
@@ -1208,7 +1215,7 @@ static void recode_stations()
         if( tgt->to > lastid ) lastid=tgt->to;
         if( ! tgt->to ) continue;
         tgt->to=get_recoded_id( tgt->to, 0 );
-        if( tgt->to <= 0 && ! (tgt->unused & IGNORE_OBS_BIT) ) 
+        if( tgt->to <= 0 && ! (tgt->unused & IGNORE_OBS_BIT) )
         {
             ndata_cancelled++;
             tgt->unused |= IGNORE_OBS_BIT;

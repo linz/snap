@@ -174,11 +174,6 @@ int float_string( input_string_def *is, void *value )
     return parse_number( is, "%f%1s", value );
 }
 
-int long_from_string( input_string_def *is, void *value )
-{
-    return parse_number( is, "%ld%1s", value );
-}
-
 int int_from_string( input_string_def *is, void *value )
 {
     int ival;

@@ -169,7 +169,7 @@ void delete_bltmatrix( bltmatrix *blt )
 static void alloc_bltrow_arrays( bltmatrix *blt )
 {
     int i;
-    long nelement;
+    LONG nelement;
     double *lastalloc;
 
     /* Allocate the memory row by row - to make this efficient the
@@ -216,8 +216,12 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
             r->alloc = alloc;
             r->col = r->req;
 
-            for( rw = r0; rw < r1; rw++ ) { *(address++) = 0.0; }
-            for( rw = r1; rw < r2; rw++ ) { *(address++) = *(a1++); }
+            for( rw = r0; rw < r1; rw++ ) {
+                *(address++) = 0.0;
+            }
+            for( rw = r1; rw < r2; rw++ ) {
+                *(address++) = *(a1++);
+            }
             alloc = 0;
             i0++;
         }
@@ -234,17 +238,17 @@ int blt_nrows( bltmatrix *blt )
     return blt->nrow;
 }
 
-long blt_requested_size( bltmatrix *blt )
+LONG blt_requested_size( bltmatrix *blt )
 {
     int i;
-    long nelement;
+    LONG nelement;
     nelement = 0;
     for( i=0; i<blt->nrow; i++ )
     {
-            bltrow *r = &(blt->row[i]);
-            if( r->col < r->req ) r->req = r->col;
-            if( i >= blt->nsparse ) r->req = 0;
-            nelement += i + 1 - r->req;
+        bltrow *r = &(blt->row[i]);
+        if( r->col < r->req ) r->req = r->col;
+        if( i >= blt->nsparse ) r->req = 0;
+        nelement += i + 1 - r->req;
     }
     return nelement;
 }
@@ -334,7 +338,8 @@ void expand_bltmatrix_to_requested( bltmatrix *blt )
         bltrow *r = &(blt->row[i]);
         if( r->req < r->col || (i >= blt->nsparse && r->col > 0) )
         {
-            expand = 1; break;
+            expand = 1;
+            break;
         }
     }
 
@@ -372,7 +377,7 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
     int i;
     int nrow;
     int sts;
-    
+
     sts = copy_bltmatrix_bandwidth( bltsrc, bltcopy );
     if( sts != OK ) return sts;
 
@@ -391,7 +396,10 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
         int cc = rc->col;
         double *as = rs->address;
         double *ac = rc->address;
-        while( cc < cs ) { cc++; *ac++ = 0.0; }
+        while( cc < cs ) {
+            cc++;
+            *ac++ = 0.0;
+        }
         /* while( cc <= i ){ cc++; *ac++ = *as++; } */
         memcpy( ac, as, sizeof(double)*(i+1-cs) );
     }
@@ -408,7 +416,7 @@ int blt_chol_dec( bltmatrix *blt, int fill )
     double sum;
     int i,j,k,jmin,kmin;
     int nfill;
-    long ndone;
+    LONG ndone;
 
     nfill = 0;
     ndone = 0;
@@ -482,7 +490,8 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
                 sum -= r[k]* *(blt->row[k].address + ik);
             }
         }
-        r[i] += sum; r[i] /= BLT(blt,i,i);
+        r[i] += sum;
+        r[i] /= BLT(blt,i,i);
     }
 }
 
@@ -545,7 +554,7 @@ void blt_chol_inv( bltmatrix *blt )
     double *sumcol[BLT_INV_CACHE_SIZE];
     int *dosum;
 
-    long ndone;
+    LONG ndone;
 
     nrow = blt->nrow;
 
@@ -769,7 +778,9 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
     int rows = options & BLT_JSON_FULL;
     int lower = rows == BLT_JSON_LOWER;
 
-    if( matonly && ! rows ){ rows=BLT_JSON_LOWER; }
+    if( matonly && ! rows ) {
+        rows=BLT_JSON_LOWER;
+    }
     if( ! format ) format = "%15.8le";
 
     if( ! matonly )
@@ -799,9 +810,9 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
             double val=0.0;
             if( ic > ir )
             {
-               if( lower ) continue;
-               ic0=ir;
-               ir0=ic;
+                if( lower ) continue;
+                ic0=ir;
+                ir0=ic;
             }
             else
             {
@@ -817,7 +828,7 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
             {
                 val=blt->row[ir0].address[ic0-col0];
             }
-            if( ic ) 
+            if( ic )
             {
                 fprintf(out,",");
                 if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
@@ -914,7 +925,10 @@ int main(int argc, char *argv[] )
     N1 = b1+nprm;
     tmp = b1+nmem;
 
-    for( i = 0; i<nmem; i++ ) { fscanf(in,"%lf",&v); b[i] = b1[i] = v; }
+    for( i = 0; i<nmem; i++ ) {
+        fscanf(in,"%lf",&v);
+        b[i] = b1[i] = v;
+    }
     for( i = 0; i<nprm; i++ ) for( j=0; j<=i; j++ )
         {
             if( Lij(N,i,j) != 0.0 ) blt_nonzero_element( blt, i, j );

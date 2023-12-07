@@ -48,14 +48,14 @@ typedef struct MemHandle_s
     MemFile *file;
     int line;
     size_t size;
-    long id;
+    int id;
 } MemHandle;
 
 static MemFile *filelist = NULL;
 static MemHandle *memlist = NULL;
-static long memId = 0;
-static long chk_nalloc = 0;
-static long chk_nfree = 0;
+static LONG memId = 0;
+static LONG chk_nalloc = 0;
+static LONG chk_nfree = 0;
 
 static void add_mem_handle( MemHandle *mh )
 {
@@ -206,8 +206,8 @@ void list_memory_allocations_x( FILE *out )
         fprintf(out," Id   size   line   file\n");
         for( mh = memlist; mh; mh = mh->next )
         {
-            fprintf(out,"%4ld  %5ld   %4d   %s\n",
-                    mh->id, (long) mh->size, mh->line,
+            fprintf(out,"%4d  %5lld   %4d   %s\n",
+                    mh->id, (long long) mh->size, mh->line,
                     mh->file ? mh->file->fname : "Unknown" );
         }
         fprintf(out,"\n");

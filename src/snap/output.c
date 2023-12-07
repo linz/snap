@@ -121,11 +121,13 @@ static output_option output[] =
     {
         "station_coordinates",&output_station_coordinates,1,
         {DATA_CONSISTENCY, 0}
-    ,0},
+        ,0
+    },
     {
         "floated_stations",&output_floated_stations,1,
         {DATA_CONSISTENCY, DATA_CHECK, 0}
-    ,0},
+        ,0
+    },
     {"station_offsets",&output_station_offsets,1,{0},0},
     {"rejected_stations",&output_rejected_stations,1,{0},0},
     {"rejected_station_coordinates",&output_rejected_coordinates,1,{0},0},
@@ -138,7 +140,8 @@ static output_option output[] =
     {
         "coordinate_file",&output_coordinate_file,1,
         {DATA_CONSISTENCY,DATA_CHECK,PREANALYSIS,0}
-    ,0},
+        ,0
+    },
     {"binary_file",&output_binary_file,1,{0},0},
     {"decomposition",&output_decomposition,0,{0},0},
     {"relative_covariances",&output_relative_covariances,1,{0},&relcvr_subcommands},
@@ -191,7 +194,7 @@ int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
     for( st = strtok(string," "); st; st=strtok(NULL," "))
     {
         // If the last output command has a matched subcommand, then execute its store
-        // function on the remainder of the string and return 
+        // function on the remainder of the string and return
         if( o && o->subcommands )
         {
             output_subcommand *sc;
@@ -332,7 +335,7 @@ int add_requested_covariance_connections()
 
     // Initiallize list of ids
     usenode=(char *)check_malloc(sizeof(char)*(nnode+1));
-    
+
     for( rco=relcvr_opts; rco; rco=rco->next )
     {
         for( int i=0; i <= nnode; i++ )
@@ -441,8 +444,8 @@ static void close_listing_file( void )
 static void close_error_file( const char *mess1, const char *mess2 )
 {
     set_error_handler( DEFAULT_ERROR_HANDLER );
-    
-    if( err ) 
+
+    if( err )
     {
         print_section_footer(err);
         if( ! output_noruntime ) print_report_footer( err );
@@ -511,7 +514,10 @@ void eliminate_inconsistent_outputs( void )
         for( i=0; i<MAX_INCOMPATIBLE_MODES; i++ )
         {
             if( o->incompatible[i] == 0 ) break;
-            if( o->incompatible[i] == program_mode ) { o->status = 0; break; }
+            if( o->incompatible[i] == program_mode ) {
+                o->status = 0;
+                break;
+            }
         }
     }
 
@@ -561,16 +567,30 @@ void print_solution_type( FILE *lst )
     fputs("\nSolution type: ",lst);
     switch (dimension)
     {
-    case 1: fputs("Vertical ",lst); break;
-    case 2: fputs("Horizontal ",lst); break;
-    case 3: fputs("3d ",lst); break;
+    case 1:
+        fputs("Vertical ",lst);
+        break;
+    case 2:
+        fputs("Horizontal ",lst);
+        break;
+    case 3:
+        fputs("3d ",lst);
+        break;
     }
     switch (program_mode)
     {
-    case ADJUST:           fputs("coordinate adjustment\n",lst); break;
-    case PREANALYSIS:      fputs("network preanalysis\n",lst); break;
-    case DATA_CHECK:       fputs("data checking\n",lst); break;
-    case DATA_CONSISTENCY: fputs("data internal consistency check\n",lst); break;
+    case ADJUST:
+        fputs("coordinate adjustment\n",lst);
+        break;
+    case PREANALYSIS:
+        fputs("network preanalysis\n",lst);
+        break;
+    case DATA_CHECK:
+        fputs("data checking\n",lst);
+        break;
+    case DATA_CONSISTENCY:
+        fputs("data internal consistency check\n",lst);
+        break;
     }
 }
 
@@ -633,7 +653,7 @@ void print_section_header( FILE *out, const char *heading )
 
 void print_section_footer( FILE * out )
 {
-    /* Flush the output so that it is available 
+    /* Flush the output so that it is available
      * for viewing if SNAP is still running */
     fflush(out);
 }
@@ -647,7 +667,7 @@ void handle_singularity( int sts )
 
     stno = 0;
     if( !find_param_row( sts, paramname, 40 ) &&
-        !find_obsparam_row( sts, paramname, 40 ) &&
+            !find_obsparam_row( sts, paramname, 40 ) &&
             ((stno = find_station_row( sts, paramname, 40 )) == 0) )
     {
         sprintf(paramname,"Parameter %d", (int) sts );
@@ -748,15 +768,23 @@ void print_problem_summary( FILE *lst )
     {
         stn_adjustment *sa=stnadj(st);
 
-        if( sa->flag.float_h || sa->flag.float_v ) 
-        { 
-            havefloat = 1; 
+        if( sa->flag.float_h || sa->flag.float_v )
+        {
+            havefloat = 1;
             if( sa->idcol ) floatrel=1;
         }
-        if( sa->flag.rejected ) { reject = 1; }
-        if( sa->flag.auto_h && sa->flag.auto_v ) { haveauto |= 4; }
-        else if( sa->flag.auto_h ) { haveauto |= 2; }
-        else if( sa->flag.auto_v ) { haveauto |= 1; }
+        if( sa->flag.rejected ) {
+            reject = 1;
+        }
+        if( sa->flag.auto_h && sa->flag.auto_v ) {
+            haveauto |= 4;
+        }
+        else if( sa->flag.auto_h ) {
+            haveauto |= 2;
+        }
+        else if( sa->flag.auto_v ) {
+            haveauto |= 1;
+        }
     }
 
     fputs("\n\nThe following table lists the stations included in the adjustment.\n",lst);
@@ -868,8 +896,12 @@ void print_problem_summary( FILE *lst )
         row = -1;
         if( stnadj(st)->flag.adj_h ) row = stnadj(st)->hrowno;
         else if( stnadj(st)->flag.adj_v ) row = stnadj(st)->vrowno;
-        if( row < 0 ) { fprintf(lst,"    -");}
-        else { fprintf(lst," %4d",row); }
+        if( row < 0 ) {
+            fprintf(lst,"    -");
+        }
+        else {
+            fprintf(lst," %4d",row);
+        }
         fprintf(lst,"  %s\n",st->Name);
     }
 
@@ -897,16 +929,16 @@ void print_problem_summary( FILE *lst )
         if( ! (haveauto & i) ) continue;
         switch( i )
         {
-            case 4:
-                break;
-            case 2:
-                auto_v=0;
-                break;
-            case 1:
-                auto_h=0;
-                break;
+        case 4:
+            break;
+        case 2:
+            auto_v=0;
+            break;
+        case 1:
+            auto_h=0;
+            break;
         }
-        
+
         fprintf(lst,"\n\nThe following stations have been automatically fixed %s\n",
                 i==4 ? "in 3 dimensions" : i==2 ? "horizontally" : "vertically");
 
@@ -918,7 +950,10 @@ void print_problem_summary( FILE *lst )
             stn_adjustment *sa=stnadj(st);
             if( sa->flag.auto_h==auto_h && sa->flag.auto_v==auto_v )
             {
-                if( row >= 80 ) { fputs("\n",lst); row=0; }
+                if( row >= 80 ) {
+                    fputs("\n",lst);
+                    row=0;
+                }
                 fprintf(lst," %-*s", stn_name_width,st->Code );
                 row += stn_name_width+1;
             }
@@ -942,14 +977,14 @@ void print_problem_summary( FILE *lst )
 
 void print_ls_summary( FILE *lst )
 {
-    fprintf(lst,"\nDegrees of freedom:               %5ld\n",(long) dof);
+    fprintf(lst,"\nDegrees of freedom:               %5d\n",dof);
     fprintf(lst,"Sum of squared residuals:         %11.5lf\n",ssr);
     fprintf(lst,"Standard error of unit weight:    %11.5lf\n",seu);
 }
 
 void xprint_ls_summary()
 {
-    xprintf("\nDegrees of freedom:               %5ld\n",(long) dof);
+    xprintf("\nDegrees of freedom:               %5d\n",dof);
     xprintf("Sum of squared residuals:         %11.5lf\n",ssr);
     xprintf("Standard error of unit weight:    %11.5lf\n",seu);
 }
@@ -964,11 +999,11 @@ void print_solution_summary( FILE *lst )
 
     print_solution_type( lst );
 
-    fprintf(lst,"\n\nNumber of observations:           %5ld",(long)(nobs + nschp));
+    fprintf(lst,"\n\nNumber of observations:           %5d",(nobs + nschp));
 
     fprintf(lst,"\nNumber of parameters:             %5d\n",(int)nprm);
-    if(nschp) fprintf(lst,"Number of implicit parameters:    %5ld\n",(long)nschp);
-    if(ncon) fprintf(lst,"Number of arbitrary constraints:  %5ld\n",(long)ncon);
+    if(nschp) fprintf(lst,"Number of implicit parameters:    %5d\n",nschp);
+    if(ncon) fprintf(lst,"Number of arbitrary constraints:  %5d\n",ncon);
 
     print_ls_summary( lst );
 
@@ -979,15 +1014,15 @@ void print_solution_summary( FILE *lst )
     if( c2sig > 0.5 )
     {
         c2sig = 100.0 * (1.0 - c2sig);
-        fprintf(lst,"\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%ld))\n",
-                c2sig,(long) dof);
+        fprintf(lst,"\nThe probability of an SSR this low is %.3lf%% (from Chi squared (%d))\n",
+                c2sig,dof);
         if( c2sig < 2.5 ) fprintf(lst,"\nYou may have over-estimated the errors of the data.\n");
     }
     else
     {
         c2sig = 100.0 * c2sig;
-        fprintf(lst,"\nThe probability of an SSR this high is %.3lf%% (from Chi squared (%ld))\n",
-                c2sig,(long) dof);
+        fprintf(lst,"\nThe probability of an SSR this high is %.3lf%% (from Chi squared (%d))\n",
+                c2sig,dof);
         if( c2sig < 2.5 )
         {
             fprintf(lst,"\nYou may have under-estimated the errors of the data,\n");
@@ -1036,14 +1071,14 @@ void print_json_params( FILE *lst, int nprefix )
         {
             int stno=0;
             char paramname[40];
-            if( ! find_param_row(i,paramname,40) && 
-                ! find_obsparam_row(i,paramname,40) && 
+            if( ! find_param_row(i,paramname,40) &&
+                    ! find_obsparam_row(i,paramname,40) &&
                     !(stno=find_station_row(i,paramname,40)))
             {
                 sprintf(paramname,"Parameter %d",i);
             }
-            fprintf(lst,"%s\n%*s\"%s%s%s\"", 
-                    i > 1 ? "," : "", 
+            fprintf(lst,"%s\n%*s\"%s%s%s\"",
+                    i > 1 ? "," : "",
                     nprefix+2,"",
                     stno ? station_code(stno) : "",
                     stno ? ": " : "",
@@ -1081,10 +1116,10 @@ void print_solution_json_file()
 
     fprintf(f,"{\n");
     fprintf(f,"  \"nparam\": %d,\n",(int)nprm);
-    fprintf(f,"  \"nimplicit_param\": %ld,\n",(long)(nschp));
-    fprintf(f,"  \"nobs\": %ld,\n",(long)(nobs+nschp));
-    fprintf(f,"  \"nconstraint\": %ld,\n",(long)(ncon));
-    fprintf(f,"  \"dof\": %ld,\n",(long) dof);
+    fprintf(f,"  \"nimplicit_param\": %d,\n",nschp);
+    fprintf(f,"  \"nobs\": %d,\n",nobs+nschp);
+    fprintf(f,"  \"nconstraint\": %d,\n",ncon);
+    fprintf(f,"  \"dof\": %d,\n",dof);
     fprintf(f,"  \"ssr\": %.5lf,\n",ssr);
     fprintf(f,"  \"seu\": %.5lf,\n",seu);
     print_json_params( f, 2 );

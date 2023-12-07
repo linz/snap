@@ -100,7 +100,10 @@ CFG_FILE *open_config_file( const char *name, char comment_char )
 
 void close_config_file( CFG_FILE *cfg )
 {
-    if( cfg->f ) { fclose(cfg->f); cfg->f = NULL; }
+    if( cfg->f ) {
+        fclose(cfg->f);
+        cfg->f = NULL;
+    }
     check_free( cfg );
 }
 
@@ -159,14 +162,17 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun )
 
     while( c != EOF && c != '\n' )
     {
-        if (c == cmnt) { nch = 0; iscmt=1; }
+        if (c == cmnt) {
+            nch = 0;
+            iscmt=1;
+        }
 
-        if ( c != '\r' && c != '\x1A' ) 
-        { 
+        if ( c != '\r' && c != '\x1A' )
+        {
             if( nch > 0 )
             {
-                *l++ = ISSPACE(c) ? ' ' : c; 
-                nch--; 
+                *l++ = ISSPACE(c) ? ' ' : c;
+                nch--;
             }
             else if( ! iscmt && (overrun || ! ISSPACE(c)) )
             {
@@ -182,7 +188,9 @@ char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun )
 
     *l = 0;
     cfg->lineno++;
-    if( noverrun ){ (*noverrun) = overrun; }
+    if( noverrun ) {
+        (*noverrun) = overrun;
+    }
     return line;
 }
 
@@ -250,7 +258,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
     int overrun;
     config_item *it;
     int errstat;
-    char blank[2]={0,0};
+    char blank[2]= {0,0};
 
     /* Get the initial error count */
 
@@ -446,25 +454,6 @@ int readcfg_short( CFG_FILE *, char *str, void *value, int, int )
         return 1;
     }
 }
-
-
-int readcfg_long( CFG_FILE *, char *str, void *value, int, int )
-{
-
-    long val;
-    char check[2];
-    check[0] = 0;
-    if( sscanf(str,"%ld%1s",&val,check) >= 1 && check[0] == 0)
-    {
-        * (long *) value = val;
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
-}
-
 
 
 int readcfg_float( CFG_FILE *, char *str, void *value, int, int )

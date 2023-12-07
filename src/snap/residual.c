@@ -55,17 +55,17 @@ typedef struct
     int line;
     char unused;
     double sres;
-    long note;
+    LONG note;
 } residual;
 
 #define MAXRANK 3
 
 static residual *worstlst[2][MAXRANK];
 static int nworst[2][MAXRANK];
-static long totalcount = 0;
+static int totalcount = 0;
 
 static double flagval[3][2][2];  /* rank, unused, level */
-static long nsigres[2][3];      /* unused, level (including none) */
+static int nsigres[2][3];      /* unused, level (including none) */
 static int flag_values_set = 0;
 
 
@@ -158,7 +158,7 @@ void save_residual( int from, int to, int id, int type,
     rs.from = from;
     rs.to = to;
     rs.id = id,
-       rs.type = type;
+    rs.type = type;
     rs.file = file;
     rs.line = line;
     rs.unused = unused;
@@ -229,13 +229,14 @@ void print_worst_residuals( FILE *out )
     print_zero_inverse_warning( out );
     print_convergence_warning( out );
 
-    fprintf(out,"\n\nThe %ld residuals from this data are classified as follows:\n\n",totalcount);
+    fprintf(out,"\n\nThe %d residuals from this data are classified as follows:\n\n",totalcount);
 
     for( i=0; i<3; i++ )
     {
-        if( i < 2 ) fprintf(out,"Under"); else fprintf(out,"Over ");
+        if( i < 2 ) fprintf(out,"Under");
+        else fprintf(out,"Over ");
         level = i < 2 ? i : 1;
-        fprintf(out,"%6.2lf%%%c significant    Used: %3ld    Unused: %3ld\n",
+        fprintf(out,"%6.2lf%%%c significant    Used: %3d    Unused: %3d\n",
                 flag_level[level], taumax[level] ? 'M':' ',
                 nsigres[1][i], nsigres[0][i] );
     }
@@ -257,7 +258,8 @@ void print_worst_residuals( FILE *out )
     {
         if( useall )
         {
-            imin = 0; imax = 1;
+            imin = 0;
+            imax = 1;
         }
         else
         {
@@ -294,7 +296,8 @@ void print_worst_residuals( FILE *out )
 
             /* Find the largest probability */
 
-            maxi = maxj = -1; maxprob = -2.0;
+            maxi = maxj = -1;
+            maxprob = -2.0;
             for( i=imin; i<=imax; i++ ) for( j=0; j<MAXRANK; j++ )
                 {
                     if( index[i][j] < nworst[i][j] && prob[i][j] > maxprob )
@@ -309,7 +312,10 @@ void print_worst_residuals( FILE *out )
             ws = worstlst[maxi][maxj]+index[maxi][maxj];
             from = ws->from;
             to = ws->to;
-            if( ! from ) { from = to; to = 0; }
+            if( ! from ) {
+                from = to;
+                to = 0;
+            }
 
             list_note( out, ws->note );
 

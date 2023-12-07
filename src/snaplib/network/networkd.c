@@ -104,24 +104,24 @@ int main( int argc, char *argv[] )
 
     bin = snaptmpfile();
 
-    printf("Before creation mem = %ld\n",(long) coreleft() );
+    printf("Before creation mem = %lld\n",(long long) coreleft() );
 
     nw = new_network();
     sts = read_network( nw, argv[1], 0 );
     printf("Read status = %d\n",sts);
     if( sts != OK ) return 0;
 
-    printf("After reading = %ld\n",(long) coreleft() );
+    printf("After reading = %lld\n",(long long) coreleft() );
 
     dump_network( nw, bin );
     delete_network( nw );
 
-    printf("After deleting mem = %ld\n",(long) coreleft() );
+    printf("After deleting mem = %lld\n",(long long) coreleft() );
 
     fseek( bin, 0L, SEEK_SET );
     nw = reload_network( bin );
 
-    printf("After reloading = %ld\n",(long) coreleft() );
+    printf("After reloading = %lld\n",(long long) coreleft() );
 
     if( argc > 2 )
     {
@@ -129,12 +129,12 @@ int main( int argc, char *argv[] )
     }
     delete_network( nw );
 
-    printf("After final deletion = %ld\n",(long) coreleft() );
+    printf("After final deletion = %lld\n",(long long) coreleft() );
 
     fseek( bin, 0L, SEEK_SET );
     nw = reload_network( bin );
 
-    printf("After reloading = %ld\n",(long) coreleft() );
+    printf("After reloading = %lld\n",(long long) coreleft() );
 
 
     if( argc > 2 )
@@ -145,7 +145,7 @@ int main( int argc, char *argv[] )
     }
     delete_network( nw );
 
-    printf("After final deletion = %ld\n",(long) coreleft() );
+    printf("After final deletion = %lld\n",(long long) coreleft() );
     return 0;
 }
 

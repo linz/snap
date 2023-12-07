@@ -52,7 +52,7 @@ long read_data_files( FILE *lst )
     DATAFILE *d=0;
     survey_data_file *sd;
     int i, c, nfile, nch, sts;
-    long file_errors, total_errors, misc_errors;
+    int file_errors, total_errors, misc_errors;
     char *fname;
     stn_recode_data recodedata;
     file_context *saved_context = current_file_context();
@@ -87,7 +87,7 @@ long read_data_files( FILE *lst )
 
         filename = sd->name;
 
-        if( d ) 
+        if( d )
         {
             df_close_data_file( d );
             d = 0;
@@ -166,20 +166,20 @@ long read_data_files( FILE *lst )
             }
             if( sd->nnodate > 0 )
             {
-                fprintf(lst,"    %4ld observations do not have a date\n",sd->nnodate);
+                fprintf(lst,"    %4d observations do not have a date\n",sd->nnodate);
             }
             for( c = 0; c < NOBSTYPE; c++ )
             {
                 if( sd->obscount[c] )
                 {
-                    xprintf("        %4ld %s%s\n",sd->obscount[c],
+                    xprintf("        %4d %s%s\n",sd->obscount[c],
                             datatype[c].name,PLURAL(sd->obscount[c]) );
                     if( lst )
-                        fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
+                        fprintf(lst,"    %4d %s%s\n",sd->obscount[c],
                                 datatype[c].name,PLURAL(sd->obscount[c]) );
                 }
             }
-            
+
             if( sd->recode && recodes_used( sd->recode ) )
             {
                 fprintf(lst,"    Recoding stations:\n");
@@ -193,15 +193,15 @@ long read_data_files( FILE *lst )
         total_errors += file_errors = misc_errors;
         if( file_errors )
         {
-            xprintf("   *** %ld error%s reading the file\n",file_errors,
+            xprintf("   *** %d error%s reading the file\n",file_errors,
                     PLURAL(file_errors) );
 
             if( lst )
-                fprintf(lst,"   *** %ld error%s reading the file\n",file_errors,
+                fprintf(lst,"   *** %d error%s reading the file\n",file_errors,
                         PLURAL(file_errors) );
         }
 
-        if( sd->recode ) 
+        if( sd->recode )
         {
             delete_stn_recode_map( sd->recode );
             sd->recode = 0;
@@ -215,7 +215,7 @@ long read_data_files( FILE *lst )
     set_stn_recode_func( 0, 0 );
     if( d ) df_close_data_file( d );
     if( fname ) check_free( fname );
-    
+
     sts=check_obsmod_station_criteria_codes( obs_modifications, net );
     if( sts >= WARNING_ERROR )
     {

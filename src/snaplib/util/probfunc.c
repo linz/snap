@@ -64,7 +64,7 @@ double f_distn( double value, long dofn, long dofd )
     if( dofn <= 0 || dofd < 0 ) return 0.0;
     if( dofd == 0 )  return chi2_distn( value*dofn, dofn );
     if( value<=0.0) return 0.0;
-    fisher_f f(dofn,dofd); 
+    fisher_f f(dofn,dofd);
     return 1.0-cdf(f,value);
 }
 
@@ -72,7 +72,7 @@ double inv_f_distn( double prob, long dofn, long dofd )
 {
     if( dofn <= 0 || dofd < 0 ) return 0.0;
     if( dofd == 0 )  return inv_chi2_distn( prob, dofn )/dofn;
-    fisher_f f(dofn,dofd); 
+    fisher_f f(dofn,dofd);
     return quantile(f,1.0-prob);
 }
 
@@ -113,7 +113,7 @@ int main( int argc, char *argv[] )
 {
     char line[80], opt[3], *o;
     double value;
-    long dof1, dof2;
+    int dof1, dof2;
     char inverse;
     char doinv = 0;
     int istty=1;
@@ -142,46 +142,54 @@ int main( int argc, char *argv[] )
         }
         else
         {
-            sscanf(line,"%2s%lf%ld%ld",opt,&value,&dof1,&dof2);
+            sscanf(line,"%2s%lf%d%d",opt,&value,&dof1,&dof2);
             o = opt;
             inverse = ( *o == 'i' || *o == 'I' );
             if( inverse ) o++;
             doinv = 1;
         }
-        if( inverse ) { printf("Inverse "); }
+        if( inverse ) {
+            printf("Inverse ");
+        }
         switch (*o)
         {
         case 'n':
-        case 'N': printf("Normal (%.4lf)", value);
+        case 'N':
+            printf("Normal (%.4lf)", value);
             value = inverse ? inv_normal_distn( value ) :
                     normal_distn( value );
             break;
 
         case 'c':
-        case 'C': printf("Chi2 (%.4lf,%ld)",value,dof1);
+        case 'C':
+            printf("Chi2 (%.4lf,%d)",value,dof1);
             value = inverse ? inv_chi2_distn( value, dof1 ) :
                     chi2_distn( value, dof1 );
             break;
 
         case 's':
-        case 'S': printf("Students t (%.4lf,%ld)",value,dof1);
+        case 'S':
+            printf("Students t (%.4lf,%d)",value,dof1);
             value = inverse ? inv_students_t_distn( value, dof1 ) :
                     students_t_distn( value, dof1 );
             break;
 
         case 't':
-        case 'T': printf("Tau (%.4lf,%ld)",value,dof1);
+        case 'T':
+            printf("Tau (%.4lf,%d)",value,dof1);
             value = inverse ? inv_tau_distn( value, dof1 ) :
                     tau_distn( value, dof1 );
             break;
 
         case 'f':
-        case 'F': printf("F (%.4lf,%ld,%ld)",value,dof1,dof2);
+        case 'F':
+            printf("F (%.4lf,%d,%d)",value,dof1,dof2);
             value = inverse ? inv_f_distn( value, dof1, dof2 ) :
                     f_distn( value, dof1, dof2 );
             break;
 
-        default: printf("Invalid command\n");
+        default:
+            printf("Invalid command\n");
             doinv = 0;
             continue;
         }

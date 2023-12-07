@@ -107,7 +107,7 @@ static long  ntmp = 0;
 static int   *cols;  /* A scratch area for integer column numbers */
 static int   ncols = 0;
 
-static int zero_inverse=0;  /* If true then set the inverse to zero 
+static int zero_inverse=0;  /* If true then set the inverse to zero
                                - gets residuls etc without stats */
 
 /*------------------------------------------------------------*/
@@ -508,10 +508,10 @@ int lsq_sum_obseqn( void * hA)
     /* Convert the covariance matrix to a weight matrix */
 
     sts = calc_weight_matrix( A );
-    if( sts ) 
+    if( sts )
     {
         handle_error(INVALID_DATA,"Cannot sum observations as covariance matrix is not positive definite",
-                NO_MESSAGE );
+                     NO_MESSAGE );
         return INVALID_DATA;
     }
 
@@ -610,10 +610,13 @@ static void set_lsq_status( int required_status, const char *routine )
 {
     if( lsq_status == LSQ_INVERTED ) return;
     if( lsq_status == LSQ_SUMMING ) lsq_solve_equations( 0 );
-    if( lsq_status == LSQ_UNINIT ) { sequence_error( routine ); return; }
+    if( lsq_status == LSQ_UNINIT ) {
+        sequence_error( routine );
+        return;
+    }
     if( required_status == LSQ_INVERTED )
     {
-        if( nprm ) 
+        if( nprm )
         {
             if( zero_inverse )
             {
@@ -634,7 +637,10 @@ double *lsq_get_covariance_row( int row )
 {
     int i;
     set_lsq_status( LSQ_SOLVED, "get_covariance_row" );
-    if( lsq_status != LSQ_SOLVED ) {sequence_error("get_covariance_row"); return NULL;}
+    if( lsq_status != LSQ_SOLVED ) {
+        sequence_error("get_covariance_row");
+        return NULL;
+    }
     if( !nprm ) return 0;
     for( i = 0; i < nprm; i++ ) tmp[i] = 0.0;
     tmp[row] = 1.0;
@@ -647,7 +653,10 @@ double *lsq_get_covariance_row( int row )
 bltmatrix *lsq_get_decomposition()
 {
     set_lsq_status( LSQ_SOLVED, "get_decomposition" );
-    if( lsq_status != LSQ_SOLVED ) {sequence_error("get_decomposition"); return NULL;}
+    if( lsq_status != LSQ_SOLVED ) {
+        sequence_error("get_decomposition");
+        return NULL;
+    }
     return N;
 }
 /* Get the covariance matrix decomposition */
@@ -655,7 +664,10 @@ bltmatrix *lsq_get_decomposition()
 bltmatrix *lsq_get_covariance_matrix()
 {
     set_lsq_status( LSQ_INVERTED, "get_decomposition" );
-    if( lsq_status != LSQ_INVERTED ) {sequence_error("get_decomposition"); return NULL;}
+    if( lsq_status != LSQ_INVERTED ) {
+        sequence_error("get_decomposition");
+        return NULL;
+    }
     return N;
 }
 
@@ -699,12 +711,14 @@ static double calc_vtNv( obsrow *o1, bltmatrix *N, obsrow *o2 )
     double *v1, *v2, sum;
     int i1, i2;
 
-    c1 = o1->col; v1=o1->val;
+    c1 = o1->col;
+    v1=o1->val;
     sum = 0.0;
 
     for( i1 = o1->ncol; i1--; c1++, v1++ )
     {
-        c2 = o2->col; v2=o2->val;
+        c2 = o2->col;
+        v2=o2->val;
         for( i2 = o2->ncol; i2--; c2++, v2++ )
         {
             sum += *v1 * *v2 * BLT( N, *c1, *c2 );
@@ -827,7 +841,10 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
         none_used = 1;
         for( irow = 0; irow < A->nrow; irow++ )
         {
-            if( ! (A->obs[irow]->flag & OE_UNUSED ) ) { none_used = 0; break; }
+            if( ! (A->obs[irow]->flag & OE_UNUSED ) ) {
+                none_used = 0;
+                break;
+            }
         }
 
         calc_weight_matrix( A );
@@ -985,7 +1002,10 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
         used = A->obs[0]->flag & OE_UNUSED;
         for( irow = 1; irow < A->nrow; irow++ )
         {
-            if( (A->obs[irow]->flag & OE_UNUSED) != used ) { simple = 0; break; }
+            if( (A->obs[irow]->flag & OE_UNUSED) != used ) {
+                simple = 0;
+                break;
+            }
         }
     }
 
@@ -1162,7 +1182,7 @@ void lsq_print_normal_equations_json( FILE *out, int nprefix )
         fprintf(out,",\n%*s\"b\": [",nprefix,"");
         for( ir=0; ir < nprm; ir++ )
         {
-            if( ir ) 
+            if( ir )
             {
                 fprintf(out,",");
                 if( ir % 20 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
@@ -1170,7 +1190,7 @@ void lsq_print_normal_equations_json( FILE *out, int nprefix )
             fprintf(out,"%15.8le",b[ir]);
         }
         fprintf(out,"%*s  ]",nprefix,"");
-        if( N ) 
+        if( N )
         {
             fprintf(out,",\n%*s\"N\": ",nprefix,"");
             print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, 0 );
@@ -1190,7 +1210,7 @@ void lsq_print_solution_vector_json( FILE *out, int print_cvr, int nprefix )
         fprintf(out,",\n%*s\"b\": [",nprefix,"");
         for( ir=0; ir < nprm; ir++ )
         {
-            if( ir ) 
+            if( ir )
             {
                 fprintf(out,",");
                 if( ir % 20 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
@@ -1198,7 +1218,7 @@ void lsq_print_solution_vector_json( FILE *out, int print_cvr, int nprefix )
             fprintf(out,"%15.8le",b[ir]);
         }
         fprintf(out,"%*s  ]",nprefix,"");
-        if( print_cvr && N ) 
+        if( print_cvr && N )
         {
             fprintf(out,",\n%*s\"N\": ",nprefix,"");
             print_bltmatrix_json( N, out, nprefix+2, BLT_JSON_FULL, 0 );
@@ -1224,10 +1244,13 @@ int read_obseqn( FILE *in, void *hA, char *diag )
     int i, j;
 
     if( fscanf(in, "%d%d%4s",&nrow,&ncol,&opts ) != 3 ) return 0;
-    if( opts[0] == 'L' ) flag = OE_LOWERTRI_CVR; else flag = OE_DIAGONAL_CVR;
+    if( opts[0] == 'L' ) flag = OE_LOWERTRI_CVR;
+    else flag = OE_DIAGONAL_CVR;
     if( opts[1] == 'S' ) flag |= OE_SCHREIBER;
-    if( opts[2] == 'F' ) full = 1; else full = 0;
-    if( opts[3] == 'D' ) *diag = 1; else *diag = 0;
+    if( opts[2] == 'F' ) full = 1;
+    else full = 0;
+    if( opts[3] == 'D' ) *diag = 1;
+    else *diag = 0;
 
     init_oe( hA, nrow, ncol, flag );
 
@@ -1301,7 +1324,10 @@ int main( int argc, char *argv[] )
     char diag;
 
 
-    if( argc < 2 ) { xprintf("Need input file name as parameter\n"); return 0; }
+    if( argc < 2 ) {
+        xprintf("Need input file name as parameter\n");
+        return 0;
+    }
     if( NULL == (in = fopen(argv[1],"r") ) )
     {
         xprintf("Cannot open file %s\n",argv[1]);
@@ -1314,7 +1340,10 @@ int main( int argc, char *argv[] )
     else
     {
         out = fopen(argv[2],"w");
-        if( out == NULL ) { xprintf("Cannot open output file %s\n",argv[2]); return 0;}
+        if( out == NULL ) {
+            xprintf("Cannot open output file %s\n",argv[2]);
+            return 0;
+        }
     }
 
     /* Read in the order of the equations */
@@ -1349,8 +1378,8 @@ int main( int argc, char *argv[] )
     lsq_get_stats( &nobs, &nprm, &nschp, &dof, &ssr, &seu );
 
     fprintf(out,"\nSTATISTICS\n");
-    fprintf(out,"nobs = %ld\nnprm = %d\ndof = %ld\nssr = %.4lf\nseu = %.4lf\n\n",
-            nobs,(int) nprm,dof,ssr,seu);
+    fprintf(out,"nobs = %d\nnprm = %d\ndof = %d\nssr = %.4lf\nseu = %.4lf\n\n",
+            nobs,nprm,dof,ssr,seu);
 
     for( i = 0; i++ < nprm ; )
     {

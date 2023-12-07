@@ -37,9 +37,9 @@ static FILE *dxf = NULL;
 static double save_x1, save_y1;
 static double save_x2, save_y2;
 static int nppt;
-static long poly_id;
+static int poly_id;
 static int precision = 3;
-static long entid = 0;
+static int entid = 0;
 
 static char **layer_name = NULL;
 static int nlayer = 0;
@@ -323,7 +323,9 @@ static void clear_dxf_layers( void )
     int i;
     if( layer_name )
     {
-        for( i = 0; i<=nlayer; i++ ) { if( layer_name[i] ) check_free( layer_name[i] ); }
+        for( i = 0; i<=nlayer; i++ ) {
+            if( layer_name[i] ) check_free( layer_name[i] );
+        }
         check_free( layer_name );
         layer_name = NULL;
         nlayer = 0;
@@ -374,7 +376,10 @@ static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char 
     for( dxfcolour *c = colourtable; c->id > 0; c++ )
     {
         int dist = abs(red - c->R) + abs(green - c->G) + abs(blue - c->B);
-        if( dist < distance ) { colour = c->id; distance = dist; }
+        if( dist < distance ) {
+            colour = c->id;
+            distance = dist;
+        }
     }
     return colour;
 }
@@ -451,7 +456,7 @@ int open_dxf_file( const char *dxfname )
             if( ! layer_name[i] ) continue;
             if( i > 0 )
             {
-                get_pen_colour( i-1, red, green, blue );
+                get_pen_colour( i-1, &red, &green, &blue );
                 colourid = dxf_colour_id( red, green, blue );
             }
             fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
@@ -478,7 +483,7 @@ int open_dxf_file( const char *dxfname )
 static long write_dxf_entity_id()
 {
     entid++;
-    fprintf(dxf,"  5\n%ld\n",entid);
+    fprintf(dxf,"  5\n%d\n",entid);
     return entid;
 }
 
@@ -519,9 +524,14 @@ static void write_poly_vertex( double x, double y )
 
 static int write_dxf_point( double x, double y, int pen )
 {
-    if( !dxf ) { return FILE_OPEN_ERROR; }
+    if( !dxf ) {
+        return FILE_OPEN_ERROR;
+    }
 
-    if( pen != 0 ) { end_line(); set_layer(pen); }
+    if( pen != 0 ) {
+        end_line();
+        set_layer(pen);
+    }
 
     if( poly_id )
     {
@@ -537,11 +547,15 @@ static int write_dxf_point( double x, double y, int pen )
     }
     else if( nppt == 1 )
     {
-        save_x2 = x; save_y2 = y; nppt = 2;
+        save_x2 = x;
+        save_y2 = y;
+        nppt = 2;
     }
     else
     {
-        save_x1 = x; save_y1 = y; nppt = 1;
+        save_x1 = x;
+        save_y1 = y;
+        nppt = 1;
     }
     return OK;
 }
@@ -625,11 +639,16 @@ static const char *symbol_block_name( int symbol )
 
     switch (symbol)
     {
-    case FREE_STN_SYM: return free_station;
-    case FIXED_STN_SYM: return fixed_station;
-    case HOR_FIXED_STN_SYM: return hor_fixed_station;
-    case VRT_FIXED_STN_SYM: return vrt_fixed_station;
-    case REJECTED_STN_SYM: return rejected_station;
+    case FREE_STN_SYM:
+        return free_station;
+    case FIXED_STN_SYM:
+        return fixed_station;
+    case HOR_FIXED_STN_SYM:
+        return hor_fixed_station;
+    case VRT_FIXED_STN_SYM:
+        return vrt_fixed_station;
+    case REJECTED_STN_SYM:
+        return rejected_station;
     }
     return free_station;
 }
@@ -642,7 +661,10 @@ static void write_symbol_blocks()
     {
         const char *blockname = symbol_block_name( symbol );
         int npt = get_symbol_points( symbol, points, maxpts );
-        if( npt < 0 ) { npt = 0; points[0].x = 1.0; }
+        if( npt < 0 ) {
+            npt = 0;
+            points[0].x = 1.0;
+        }
 
         start_block( blockname );
         long edge_id;
@@ -847,9 +869,15 @@ void write_dxf_title_block( map_plotter * )
 
     switch ( dimension )
     {
-    case 1: dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
-    case 2: dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM); break;
-    case 3: dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, FIXED_STN_PEN, FIXED_STN_SYM); break;
+    case 1:
+        dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, VRT_FIXED_STN_PEN, HOR_FIXED_STN_SYM);
+        break;
+    case 2:
+        dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, HOR_FIXED_STN_PEN, HOR_FIXED_STN_SYM);
+        break;
+    case 3:
+        dxf_symbol( NULL, xs, yt+stn_symbol_size/2.0, FIXED_STN_PEN, FIXED_STN_SYM);
+        break;
     }
     NOTE( "Fixed station" );
 

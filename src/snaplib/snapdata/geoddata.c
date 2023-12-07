@@ -44,7 +44,7 @@ gb_types[] =
 };
 
 
-static double gb_date( long ldate, int itime );
+static double gb_date( int ldate, int itime );
 
 
 int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
@@ -63,7 +63,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
     char fromcode[NAMELEN+1], tocode[NAMELEN+1];
     int from, to, oldfrom, oldto, itime;
     double value, error, fromhgt, tohgt, dt;
-    long ldate;
+    int ldate;
     char unused;
     char inobs = 0;
 
@@ -101,7 +101,8 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
     errfct = dms ? PI/(180.0*3600.0) : 1.0;
     fromhgt = tohgt = 0.0;
     inobs = 0;
-    oldfrom = -1; oldto = -1;
+    oldfrom = -1;
+    oldto = -1;
 
     df_skip_to_blank_line( d );   /* Skip over comments section */
 
@@ -141,7 +142,8 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 
         if( dtype == ZD && from < 0 && to < 0 )
         {
-            from  = oldfrom; to = oldto;
+            from  = oldfrom;
+            to = oldto;
             oldfrom = oldto = -1;
         }
         else
@@ -172,7 +174,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
         }
         if( sts )
         {
-            sts = df_read_long( d, &ldate ) && df_read_int( d, &itime );
+            sts = df_read_int( d, &ldate ) && df_read_int( d, &itime );
         }
 
         if( !sts )
@@ -241,7 +243,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 }
 
 
-static double gb_date( long ldate, int itime )
+static double gb_date( int ldate, int itime )
 {
     int dy, mon, yr, hr, min;
     double dt;

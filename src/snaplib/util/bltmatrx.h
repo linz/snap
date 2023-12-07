@@ -40,7 +40,7 @@ typedef struct
     char status;      /* Status of allocation of matrix */
     int nrow;         /* Number of rows/columns */
     int nsparse;      /* The number of sparse rows, used for allocation */
-    long nelement;    /* The total number of elements in the matrix */
+    LONG nelement;    /* The total number of elements in the matrix */
     bltrow *row;      /* Pointer to the array of rows */
 } bltmatrix;
 
@@ -64,7 +64,7 @@ typedef struct
 		     ))
 #endif
 
-#define BLT_JSON_STRUCTURE     0 
+#define BLT_JSON_STRUCTURE     0
 #define BLT_JSON_LOWER         1
 #define BLT_JSON_FULL          3
 #define BLT_JSON_MATRIX_ONLY   4
@@ -80,7 +80,7 @@ void init_bltmatrix( bltmatrix *blt );
 void expand_bltmatrix_to_full( bltmatrix *blt );
 void expand_bltmatrix_to_requested( bltmatrix *blt );
 int blt_nrows( bltmatrix *blt );
-long blt_requested_size( bltmatrix *blt );
+LONG blt_requested_size( bltmatrix *blt );
 int blt_chol_dec( bltmatrix *blt, int fill );
 void blt_chol_slv( bltmatrix *blt, double *b, double *r );
 void blt_chol_inv( bltmatrix *blt );

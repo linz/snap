@@ -298,16 +298,16 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     double vtol;
     double htol;
     int headed;
-    long ntest;
-    long nfailh;
-    long nfailv;
+    int ntest;
+    int nfailh;
+    int nfailv;
     double maxhratio;
     int istnmaxh;
     double maxvratio;
     int istnmaxv;
     int printall = listopts & SPEC_LIST_ALL;
     int printfail = listopts & SPEC_LIST_FAIL;
-    long nstntest;
+    int nstntest;
     double hratio;
     double vratio;
 
@@ -426,8 +426,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     if( gothtol )
     {
         fprintf(lst, "\nHorizontal tolerance:\n");
-        fprintf(lst, "    Stations tested:              %10ld\n",nstntest);
-        fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailh);
+        fprintf(lst, "    Stations tested:              %10d\n",nstntest);
+        fprintf(lst, "    Stations exceeding tolerance: %10d\n",nfailh);
         if( istnmaxh )
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
                     maxhratio, stnptr(istnmaxh)->Code );
@@ -436,8 +436,8 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     if( gotvtol )
     {
         fprintf(lst, "\nVertical tolerance:\n");
-        fprintf(lst, "    Stations tested:              %10ld\n",nstntest);
-        fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailv);
+        fprintf(lst, "    Stations tested:              %10d\n",nstntest);
+        fprintf(lst, "    Stations exceeding tolerance: %10d\n",nfailv);
         if( istnmaxv )
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
                     maxvratio, stnptr(istnmaxv)->Code );

@@ -80,7 +80,7 @@ typedef struct
 #define CFG_PRESENT     4   /* Set by the readcfg routine if the item is present */
 #define CFG_END         8   /* The item will terminate the read_config_file function */
 #define CFG_USERFLAG1   (1*256)
-#define CFG_USERFLAG2   (2*256) 
+#define CFG_USERFLAG2   (2*256)
 #define CFG_USERFLAG3   (4*256)
 #define CFG_USERFLAG4   (8*256)
 
@@ -135,7 +135,6 @@ void cancel_config_abort( CFG_FILE *cfg );
 
 int readcfg_int( CFG_FILE *cfg, char *str, void *value, int length, int code );
 int readcfg_short( CFG_FILE *cfg, char *str, void *value, int length, int code );
-int readcfg_long( CFG_FILE *cfg, char *str, void *value, int length, int code );
 int readcfg_float( CFG_FILE *cfg, char *str, void *value, int length, int code );
 int readcfg_double( CFG_FILE *cfg, char *str, void *value, int length, int code );
 int readcfg_boolean( CFG_FILE *cfg, char *str, void *value, int length, int code );

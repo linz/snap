@@ -313,21 +313,21 @@ void SnapplotDetailsView::ShowTitleInfo()
         AddNewLine();
         AddString("Adjustment statistics");
 
-        sprintf(buf,"Number of observations:           %5ld",(long)(nobs + nschp));
+        sprintf(buf,"Number of observations:           %5d",nobs + nschp);
         AddString(buf);
-        sprintf(buf,"Number of parameters:             %5ld",(long)(nprm));
+        sprintf(buf,"Number of parameters:             %5d",nprm);
         AddString(buf);
         if(nschp)
         {
-            sprintf(buf,"Number of implicit parameters:    %5ld",(long)(nschp));
+            sprintf(buf,"Number of implicit parameters:    %5d",nschp);
             AddString(buf);
         }
         if(ncon)
         {
-            sprintf(buf,"Number of arbitrary constraints:  %5ld",(long)(ncon));
+            sprintf(buf,"Number of arbitrary constraints:  %5d",ncon);
             AddString(buf);
         }
-        sprintf(buf,"Degrees of freedom:               %5ld",(long)(dof));
+        sprintf(buf,"Degrees of freedom:               %5d",dof);
         AddString(buf);
         sprintf(buf,"Sum of squared residuals:         %11.5lf",ssr);
         AddString(buf);

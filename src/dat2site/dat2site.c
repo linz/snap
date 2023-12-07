@@ -247,7 +247,7 @@ static double max_ro_diff;
 static int next_stn = 1;
 static int nostns;
 
-static long nvecdata = 0;
+static int nvecdata = 0;
 
 static int max_ro_id = 0;
 
@@ -546,7 +546,7 @@ static void add_dsdata ( stn *from, stn *to, double dist, char type )
             diff = fabs(cn->ds.ds - dist);
             if( diff > DS_TOL )
             {
-                fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n" ,
+                fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n",
                         from->code, to->code, diff );
             }
             cn->ds.ds = dist;
@@ -698,30 +698,45 @@ static void load_data( survdata *sd )
             if( tgt->unused && ! userejected ) continue;
             to = station_from_id( tgt->to );
             if( !to ) continue;
-            if( tgt->type == HA ) { got_ha = 1; continue; }
+            if( tgt->type == HA ) {
+                got_ha = 1;
+                continue;
+            }
 
             switch( tgt->type )
             {
             case SD:
-            case DR: add_dsdata( from, to, o->value, DS_SLP ); break;
+            case DR:
+                add_dsdata( from, to, o->value, DS_SLP );
+                break;
 
-            case HD: add_dsdata( from, to, o->value, DS_HOR ); break;
+            case HD:
+                add_dsdata( from, to, o->value, DS_HOR );
+                break;
 
             case MD:
-            case ED: add_dsdata( from, to, o->value, DS_ARC ); break;
+            case ED:
+                add_dsdata( from, to, o->value, DS_ARC );
+                break;
 
-            case AZ: newro = 0;
+            case AZ:
+                newro = 0;
                 add_azdata( from, to, o->value, &newro, &hacorr );
                 break;
 
-                /* Treat projection bearings as the same as azimuths */
-            case PB: newro = 0;
+            /* Treat projection bearings as the same as azimuths */
+            case PB:
+                newro = 0;
                 add_azdata( from, to, o->value, &newro, &hacorr );
                 break;
 
-            case ZD: add_zddata( from, to, o->value ); break;
+            case ZD:
+                add_zddata( from, to, o->value );
+                break;
 
-            case LV: add_lvdata( from, to, o->value ); break;
+            case LV:
+                add_lvdata( from, to, o->value );
+                break;
             }
         }
         if( got_ha )
@@ -759,11 +774,11 @@ static void load_data( survdata *sd )
 
 // #pragma warning (disable : 4100)
 
-static long get_id( int type, int, const char *code )
+static LONG get_id( int type, LONG, const char *code )
 {
     if( type == ID_STATION )
     {
-        return (long) get_station_id( code );
+        return get_station_id( code );
     }
     else if ( type == ID_PROJCTN )
     {
@@ -775,7 +790,7 @@ static long get_id( int type, int, const char *code )
     }
 }
 
-static const  char * get_name( int type, int, long id )
+static const  char * get_name( int type, int, LONG id )
 {
     if( type == ID_STATION )
     {
@@ -787,7 +802,7 @@ static const  char * get_name( int type, int, long id )
     }
 }
 
-static double get_value( int type, long, long )
+static double get_value( int type, LONG, LONG )
 {
     switch( type )
     {
@@ -909,7 +924,10 @@ static int get_link_ro( int ro, double *pcorr )
     int start_ro = ro;
     char  s1 = 0;
     char  s2 = 0;
-    if( !ro ) { if( pcorr ) *pcorr = 0.0; return 0; }
+    if( !ro ) {
+        if( pcorr ) *pcorr = 0.0;
+        return 0;
+    }
     while( ro_list[ro].link_ro < ro )
     {
         corr += ro_list[ro].corr;
@@ -962,8 +980,12 @@ static void add_ro_link( int ro1, int ro2, double corr )
     {
         int temp;
         double ctemp;
-        temp = lro2; lro2 = lro1; lro1 = temp;
-        ctemp = lcorr2; lcorr2 = lcorr1; lcorr1 = ctemp;
+        temp = lro2;
+        lro2 = lro1;
+        lro1 = temp;
+        ctemp = lcorr2;
+        lcorr2 = lcorr1;
+        lcorr1 = ctemp;
         corr = -corr;
     }
     ro_list[lro2].link_ro = lro1;
@@ -1103,7 +1125,10 @@ static void update_fix_order( stn *st )
         if( ! st->can_fix[i] ) continue;
 
         fq = fix_value[i] * st->fix_quality[i];
-        if( fq > bestfix ) { bestfix = fq; besttype = i;}
+        if( fq > bestfix ) {
+            bestfix = fq;
+            besttype = i;
+        }
     }
     st->bestfix = bestfix;
     st->besttype = besttype;
@@ -1274,7 +1299,8 @@ static void update_fix_info( stn *from, stn *newfix )
             {
 
                 nsdst = nhdst = 0;
-                if( newcn->ds.type == DS_SLP ) nsdst++; else nhdst++;
+                if( newcn->ds.type == DS_SLP ) nsdst++;
+                else nhdst++;
                 quality = 0.0;
                 FOR_ALL_CONNECTIONS(from,cn)
                 {
@@ -1282,7 +1308,8 @@ static void update_fix_info( stn *from, stn *newfix )
                     double cos;
                     if( cn->to == newfix || !(cn->to->fixed & ST_FIXH)
                             || !(cn->flag & CN_DS) ) continue;
-                    if( cn->ds.type== DS_SLP ) nsdst++; else nhdst++;
+                    if( cn->ds.type== DS_SLP ) nsdst++;
+                    else nhdst++;
                     dst = ds_calc_arc_distance( newfix, cn->to );
                     cos = (newcn->ds.ds*newcn->ds.ds + cn->ds.ds * cn->ds.ds - dst*dst)/
                           (2.0*newcn->ds.ds*cn->ds.ds);
@@ -1388,7 +1415,7 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
         if( !(flag & ST_FIXH) ) lat = lon = 0.0;
         if( !(flag & ST_FIXV) ) hgt = 0.0;
         station *s = new_network_station( net, st->code, st->code, lat, lon, hgt,
-                                      0.0, 0.0, 0.0 );
+                                          0.0, 0.0, 0.0 );
         link_station(s,st);
     }
     else
@@ -1397,8 +1424,13 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
         double offset = 0.0;
         int i;
         for( i = 0; i < 3; i++ ) xyz[i] = st->st->XYZ[i];
-        if( !(flag & ST_FIXH)) { lat = st->st->ELat; lon = st->st->ELon; }
-        if( !(flag & ST_FIXV)) { hgt = st->st->OHgt; }
+        if( !(flag & ST_FIXH)) {
+            lat = st->st->ELat;
+            lon = st->st->ELon;
+        }
+        if( !(flag & ST_FIXV)) {
+            hgt = st->st->OHgt;
+        }
         modify_network_station_coords( net, st->st, lat, lon, hgt );
         for( i = 0; i < 3; i++ )
         {
@@ -1508,13 +1540,17 @@ static int confirm_fix( char *msg )
         case 0:
         case '\n':
         case 'y':
-        case 'Y': return 1;
+        case 'Y':
+            return 1;
 
         case 'n':
-        case 'N': return 0;
+        case 'N':
+            return 0;
 
         case 'q':
-        case 'Q': confirm_status = CONFIRM_QUIT; return 0;
+        case 'Q':
+            confirm_status = CONFIRM_QUIT;
+            return 0;
         }
     }
 }
@@ -1577,7 +1613,10 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
     if( nvec <= 0 ) return 0;
     if( nvec > ncalc_xyz )
     {
-        if( ncalc_xyz > 0 ) { check_free( calc_xyz ); check_free( order ); }
+        if( ncalc_xyz > 0 ) {
+            check_free( calc_xyz );
+            check_free( order );
+        }
         ncalc_xyz = nvec * 2;
         calc_xyz = (vector3 *) check_malloc( ncalc_xyz * sizeof(vector3) );
         order = (int *) check_malloc( ncalc_xyz * sizeof(int) );
@@ -2132,7 +2171,10 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
             }
         }
         if( ro < 0 ) break;
-        if( nro > maxnro ) {maxro = ro; maxnro = nro;}
+        if( nro > maxnro ) {
+            maxro = ro;
+            maxnro = nro;
+        }
     }
     if( maxro <= 0 || maxnro <= 2 ) return 0;
 
@@ -2193,7 +2235,10 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 
         }
 
-    if( c1 < 0 || c2 < 0 ) { check_free(centre); return 0;}
+    if( c1 < 0 || c2 < 0 ) {
+        check_free(centre);
+        return 0;
+    }
 
     /* Work out the two possible positions for the new station given the
        distances from cnd1 and cnd2 */
@@ -2202,7 +2247,10 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
     d2 = centre[c2].r;
 
     daz = (d1*d1+d12*d12-d2*d2)/(2.0*d1*d12);
-    if( daz >= 1.0 || daz <= -1.0 ) { check_free(centre); return 0;}
+    if( daz >= 1.0 || daz <= -1.0 ) {
+        check_free(centre);
+        return 0;
+    }
     daz = atan2( sqrt(1-daz*daz), daz );
 
     az = bearing( centre[c1].xy, centre[c2].xy );
@@ -2452,8 +2500,10 @@ static int fix_by_traverse( void )
     {
         if( st->traverse != -1 ) continue;
         calc_projection_coords( st );
-        ca[0] += st->xy[0]; ca[1] += st->xy[1];
-        ct[0] += st->travxy[0]; ct[1] += st->travxy[1];
+        ca[0] += st->xy[0];
+        ca[1] += st->xy[1];
+        ct[0] += st->travxy[0];
+        ct[1] += st->travxy[1];
     }
     ca[0] /= fixed_stns;
     ca[1] /= fixed_stns;
@@ -2950,7 +3000,7 @@ static config_item snap_commands[] =
 {
     {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0 , 0},
+    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0, 0},
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,1},
     {"recode",NULL,CFG_ABSOLUTE,0,read_recode_command,0,1},
     {"include",NULL,CFG_ABSOLUTE,0,read_include_file,0,0},
@@ -2986,7 +3036,7 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
         //     set_project_dir( pdir );
         //     check_free(pdir);
         // }
-        int options=included ? 0 : CFG_CHECK_MISSING; 
+        int options=included ? 0 : CFG_CHECK_MISSING;
         options |= (CFG_IGNORE_BAD | CFG_SET_PATH);
         set_config_read_options( cfg, options );
         sts = read_config_file( cfg, snap_commands );
@@ -3032,7 +3082,10 @@ static void printlog( const char *fmt, ... )
 {
     va_list argptr;
     va_start(argptr, fmt);
-    if( logfile ) { vfprintf(logfile, fmt, argptr); fflush(logfile); }
+    if( logfile ) {
+        vfprintf(logfile, fmt, argptr);
+        fflush(logfile);
+    }
     va_end(argptr);
     va_start(argptr, fmt);
     vfprintf(stdout, fmt, argptr);
@@ -3065,7 +3118,8 @@ int main( int argc, char *argv[] )
     recalclist = (char **) malloc( sizeof(char*)*argc );
     if( !filelist || !recalclist )
     {
-        printf("Not enough memory for program\n"); return 0;
+        printf("Not enough memory for program\n");
+        return 0;
     }
 
     nfilelist = 0;
@@ -3079,17 +3133,43 @@ int main( int argc, char *argv[] )
         {
             switch ( arg[1] )
             {
-            case 'c': case 'C': confirm_status = CONFIRM_FIXES; break;
-            case 'f': case 'F': command_file = 0; break;
-            case 'r': case 'R': recalc = 1; break;
-            case 'l': case 'L': listonly = 1; break;
-            case 'm': case 'M': listonly = 2; break;
-            case 'u': case 'U': userejected = 1; break;
-            case 'o': case 'O': i++;
-                if( i > argc ) { syntax_error = 1; }
-                else { outputfile = argv[i]; }
+            case 'c':
+            case 'C':
+                confirm_status = CONFIRM_FIXES;
                 break;
-            default: syntax_error = 1; break;
+            case 'f':
+            case 'F':
+                command_file = 0;
+                break;
+            case 'r':
+            case 'R':
+                recalc = 1;
+                break;
+            case 'l':
+            case 'L':
+                listonly = 1;
+                break;
+            case 'm':
+            case 'M':
+                listonly = 2;
+                break;
+            case 'u':
+            case 'U':
+                userejected = 1;
+                break;
+            case 'o':
+            case 'O':
+                i++;
+                if( i > argc ) {
+                    syntax_error = 1;
+                }
+                else {
+                    outputfile = argv[i];
+                }
+                break;
+            default:
+                syntax_error = 1;
+                break;
             }
         }
         else if ( recalc )
@@ -3138,7 +3218,7 @@ int main( int argc, char *argv[] )
 
     /* Load the coordinate file */
 
-        init_load_data( load_data, get_id, get_name, get_value );
+    init_load_data( load_data, get_id, get_name, get_value );
 
     if( interactive )
     {

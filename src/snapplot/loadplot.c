@@ -58,7 +58,8 @@ static int missing_station_id( const char *code )
     }
     newstn = (missing_stn *) check_malloc( sizeof(missing_stn) + strlen(code) + 1 );
     newstn->next = ms;
-    if( prev ) prev->next = newstn; else missing = newstn;
+    if( prev ) prev->next = newstn;
+    else missing = newstn;
     newstn->id = --missing_id;
     newstn->code = ((char *)(void *)newstn)+sizeof(missing_stn);
     strcpy( newstn->code, code );
@@ -96,61 +97,85 @@ static void list_missing_stations( void )
     print_log("but are not listed in the coordinate file\n");
     for( ms = missing; ms; ms = ms->next )
     {
-        if( nline == 6 ) { print_log("\n"); nline = 0; }
+        if( nline == 6 ) {
+            print_log("\n");
+            nline = 0;
+        }
         print_log("  %-10s",ms->code);
         nline++;
     }
     /* TODO: Fix up this ...                       */
     /* print_log("\n\nPress enter to continue: "); */
-    for(;;) { int c = getchar(); if( c== '\n' || c == EOF ) break; }
+    for(;;) {
+        int c = getchar();
+        if( c== '\n' || c == EOF ) break;
+    }
 }
 
 
-static long snap_id( int type, int group_id, const char *code )
+static LONG snap_id( int type, LONG group_id, const char *code )
 {
-    long id;
+    LONG id;
     id = 0;
     switch (type)
     {
-    case ID_STATION:    id = find_station( net, code );
+    case ID_STATION:
+        id = find_station( net, code );
         if( id == 0 ) id = missing_station_id( code );
         break;
-    case ID_CLASSTYPE:  id = classification_id( &obs_classes, code, 1 ); break;
-    case ID_CLASSNAME:  id = class_value_id( &obs_classes, group_id, code, 1 ); break;
-    case ID_PROJCTN:    id = get_bproj( code ); break;
+    case ID_CLASSTYPE:
+        id = classification_id( &obs_classes, code, 1 );
+        break;
+    case ID_CLASSNAME:
+        id = class_value_id( &obs_classes, group_id, code, 1 );
+        break;
+    case ID_PROJCTN:
+        id = get_bproj( code );
+        break;
     case ID_COEF:
     case ID_SYSERR:
-    case ID_NOTE:       id = 0; break;
+    case ID_NOTE:
+        id = 0;
+        break;
     }
     return id;
 }
 
-static const char *snap_name( int type, int group_id, long id )
+static const char *snap_name( int type, LONG group_id, LONG id )
 {
     const char *name;
     name = NULL;
     switch (type)
     {
-    case ID_STATION:    if( id < 0 ) name = missing_station_name( id );
+    case ID_STATION:
+        if( id < 0 ) name = missing_station_name( (int) id );
         else name = station_code( (int) id );
         break;
-    case ID_CLASSTYPE: name = classification_name( &obs_classes, (int) id ); break;
-    case ID_CLASSNAME: name = class_value_name( &obs_classes, group_id, (int) id ); break;
-    case ID_PROJCTN: name = bproj_name( id ); break;
+    case ID_CLASSTYPE:
+        name = classification_name( &obs_classes, (int) id );
+        break;
+    case ID_CLASSNAME:
+        name = class_value_name( &obs_classes, group_id, (int) id );
+        break;
+    case ID_PROJCTN:
+        name = bproj_name( (int) id );
+        break;
     case ID_COEF:
     case ID_SYSERR:
-    case ID_NOTE:      name = NULL; break;
+    case ID_NOTE:
+        name = NULL;
+        break;
     }
     return name;
 }
 
-static double snap_calc_value( int type, long id1, long id2 )
+static double snap_calc_value( int type, LONG id1, LONG id2 )
 {
     if( type == CALC_DISTANCE )
     {
         double dist;
-        station *st1 = stnptr(id1);
-        station *st2 = stnptr(id2);
+        station *st1 = stnptr((int)id1);
+        station *st2 = stnptr((int)id2);
         if( !st1 || ! st2 ) return 0.0;
         dist = calc_distance( st1, 0.0, st2, 0.0, NULL, NULL );
         return dist;
@@ -158,8 +183,8 @@ static double snap_calc_value( int type, long id1, long id2 )
     else if ( type == CALC_HDIST )
     {
         double dist;
-        station *st1 = stnptr(id1);
-        station *st2 = stnptr(id2);
+        station *st1 = stnptr((int)id1);
+        station *st2 = stnptr((int)id2);
         if( !st1 || ! st2 ) return 0.0;
         dist = calc_horizontal_distance( st1, st2, NULL, NULL );
         return dist;

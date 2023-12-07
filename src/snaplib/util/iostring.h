@@ -51,7 +51,6 @@ int skip_string_field( input_string_def *is );
 int replace_next_field( input_string_def *is, const char *replacement );
 int double_from_string( input_string_def *is, void *value );
 int float_from_string( input_string_def *is, void *value );
-int long_from_string( input_string_def *is, void *value );
 int int_from_string( input_string_def *is, void *value );
 int short_from_string( input_string_def *is, void *value );
 int character_from_string( input_string_def *is, void *c );

@@ -968,7 +968,7 @@ StatusType utlDumpTrig( hTrig trig, void *obj, void (*printfunc)( void *obj, con
         short *nd = s+1;
         short *op = nd+s[0];
 
-        sprintf(buf,"Topology: %4d at %5ld, %d nodes: ",i,(long) idx,(int)s[0]);
+        sprintf(buf,"Topology: %4d at %5lld, %d nodes: ",i,(long long) idx,(int)s[0]);
         PRINT(buf);
         for( j = 0; j < s[0]; j++ )
         {

@@ -147,8 +147,8 @@ static void load_background_file( background_file *bf )
     char inrec[256];
     double xyz[3];
     int nlines;
-    long fpts;
-    long flines;
+    int fpts;
+    int flines;
     char input_latlon;
 
     in = fopen( bf->filename, "r" );
@@ -212,7 +212,10 @@ static void load_background_file( background_file *bf )
         {
             char *newcrdsys;
             newcrdsys = strtok( inrec+9, whitespace );
-            if( cs ) { delete_coordsys( cs ); cs = NULL; }
+            if( cs ) {
+                delete_coordsys( cs );
+                cs = NULL;
+            }
             got_conversion = 0;
             bad_coordsys = 1;
             if( newcrdsys )
@@ -229,7 +232,10 @@ static void load_background_file( background_file *bf )
         }
         if( bad_coordsys ) continue;
         if( sscanf(inrec,"%d%lf%lf",&pen,xyz+0,xyz+1) != 3 ) continue;
-        if( input_latlon ) { xyz[0] *= DTOR; xyz[1] *= DTOR; }
+        if( input_latlon ) {
+            xyz[0] *= DTOR;
+            xyz[1] *= DTOR;
+        }
         xyz[2] = 0.0;
         if( need_conversion )
         {
@@ -266,7 +272,7 @@ static void load_background_file( background_file *bf )
         if( pen ) flines++;
     }
     end_file_display();
-    print_log("%ld lines loaded\n",flines);
+    print_log("%d lines loaded\n",flines);
     fclose(in);
     if( cs ) delete_coordsys( cs );
 }

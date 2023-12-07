@@ -19,9 +19,9 @@
 #include "util/dms.h"
 #include "util/pi.h"
 
-#define DO_PRINT(fmt,type) \
+#define DO_PRINT(fmt,type,ptype) \
 	char buf[40];           \
-   sprintf(buf,fmt,*(type*)address); \
+   sprintf(buf,fmt,(ptype)(*(type*)address)); \
    return (*os->write)(buf,os->sink)
 
 void *latfmt = NULL;
@@ -29,32 +29,32 @@ void *lonfmt = NULL;
 
 int print_int( output_string_def *os, void *address )
 {
-    DO_PRINT("%d",int);
+    DO_PRINT("%d",int,int);
 }
 
 int print_short( output_string_def *os, void *address )
 {
-    DO_PRINT("%hd",short);
+    DO_PRINT("%hd",short,short);
 }
 
 int print_long( output_string_def *os, void *address )
 {
-    DO_PRINT("%ld",long);
+    DO_PRINT("%lld",LONG,long long);
 }
 
 int print_double0( output_string_def *os, void *address )
 {
-    DO_PRINT("%.0lf",double);
+    DO_PRINT("%.0lf",double,double);
 }
 
 int print_double3( output_string_def *os, void *address )
 {
-    DO_PRINT("%.3lf",double);
+    DO_PRINT("%.3lf",double,double);
 }
 
 int print_double6( output_string_def *os, void *address )
 {
-    DO_PRINT("%.6lf",double);
+    DO_PRINT("%.6lf",double,double);
 }
 
 int print_radians( output_string_def *os, void *address )

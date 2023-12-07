@@ -94,7 +94,7 @@ into SNAP
 
 /* Id returned for stations that will be ignored                     */
 
-#define IGNORE_ID -1 
+#define IGNORE_ID -1
 
 typedef struct missing_stn_s
 {
@@ -145,7 +145,8 @@ static missing_stn *get_missing_station( const char *code, int create )
     if( ! create ) return 0;
     newst = (missing_stn *) check_malloc( sizeof(missing_stn) + strlen(code) + 1 );
     newst->next = ms;
-    if( prev ) prev->next = newst; else missing = newst;
+    if( prev ) prev->next = newst;
+    else missing = newst;
     newst->id = --missing_id;
     newst->refcount = 0;
     newst->quiet = 0;
@@ -283,8 +284,8 @@ static void record_parameter_usage( survdata *sd )
             break;
 
             case SD_VECDATA:
-                flag_rftrans_used( rftrans_from_id(sd->reffrm), 
-                        dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
+                flag_rftrans_used( rftrans_from_id(sd->reffrm),
+                                   dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
                 break;
 
             case SD_PNTDATA:
@@ -403,9 +404,15 @@ static void load_snap( survdata *sd )
     {
         switch( sd->format )
         {
-            case SD_OBSDATA: apply_obsdata_options( sd ); break;
-            case SD_VECDATA: apply_vecdata_options( sd ); break;
-            case SD_PNTDATA: apply_pntdata_options( sd ); break;
+        case SD_OBSDATA:
+            apply_obsdata_options( sd );
+            break;
+        case SD_VECDATA:
+            apply_vecdata_options( sd );
+            break;
+        case SD_PNTDATA:
+            apply_pntdata_options( sd );
+            break;
         }
     }
 
@@ -418,7 +425,7 @@ static void load_snap( survdata *sd )
     /* Decide whether to split the observations or not */
 
     if( ( sd->format == SD_OBSDATA &&
-              ( sort_obs || split_obsdata_for_schreiber(sd) ) ) )
+            ( sort_obs || split_obsdata_for_schreiber(sd) ) ) )
     {
 
         save_split_survdata( sd );
@@ -433,75 +440,110 @@ static void load_snap( survdata *sd )
 /* Callback function used by loaddata to get id's of various objects */
 
 
-static long snap_id( int type, int group_id, const char *code )
+static LONG snap_id( int type, LONG group_id, const char *code )
 {
-    long id;
+    LONG id;
     id = 0;
     switch (type)
     {
-    case ID_STATION:    
+    case ID_STATION:
         id = find_station( net, code );
         if( id )
         {
             if( ignored_station(id) ) id=IGNORE_ID;
         }
         else
-        { 
+        {
             if( !id ) id = missing_station_id( code );
         }
         break;
     case ID_COEF:
         switch( group_id )
         {
-        case COEF_CLASS_DISTSF:  id = distsf_prm( code ); break;
-        case COEF_CLASS_BRNGREF: id = brngref_prm( code ); break;
-        case COEF_CLASS_REFCOEF: id = refcoef_prm( code ); break;
-        case COEF_CLASS_REFFRM:  id = get_rftrans_id( code, REFFRM_DEFAULT ); break;
+        case COEF_CLASS_DISTSF:
+            id = distsf_prm( code );
+            break;
+        case COEF_CLASS_BRNGREF:
+            id = brngref_prm( code );
+            break;
+        case COEF_CLASS_REFCOEF:
+            id = refcoef_prm( code );
+            break;
+        case COEF_CLASS_REFFRM:
+            id = get_rftrans_id( code, REFFRM_DEFAULT );
+            break;
         }
         break;
-    case ID_PROJCTN:    id = get_bproj( code ); break;
-    case ID_SYSERR:     id = syserr_prm( code ); break;
-    case ID_CLASSTYPE:  id = classification_id( &obs_classes, code, 1 ); break;
-    case ID_CLASSNAME:  id = class_value_id( &obs_classes, group_id, code, 1 ); break;
-    case ID_NOTE:       id = save_note( code, group_id ); break;
+    case ID_PROJCTN:
+        id = get_bproj( code );
+        break;
+    case ID_SYSERR:
+        id = syserr_prm( code );
+        break;
+    case ID_CLASSTYPE:
+        id = classification_id( &obs_classes, code, 1 );
+        break;
+    case ID_CLASSNAME:
+        id = class_value_id( &obs_classes, group_id, code, 1 );
+        break;
+    case ID_NOTE:
+        id = save_note( code, group_id );
+        break;
     }
     return id;
 }
 
-static const char *snap_name( int type, int group_id, long id )
+static const char *snap_name( int type, LONG group_id, LONG id )
 {
     const char *name;
     name = NULL;
     switch (type)
     {
-    case ID_STATION:   if( id < 0 ) name = missing_station_name( (int) id );
+    case ID_STATION:
+        if( id < 0 ) name = missing_station_name( (int) id );
         else name = station_code( (int) id );
         break;
     case ID_COEF:
         switch( group_id )
         {
-        case COEF_CLASS_DISTSF:  name = distsf_name( (int) id ); break;
-        case COEF_CLASS_BRNGREF: name = brngref_name( (int) id ); break;
-        case COEF_CLASS_REFCOEF: name = refcoef_name( (int) id ); break;
-        case COEF_CLASS_REFFRM:  break;
+        case COEF_CLASS_DISTSF:
+            name = distsf_name( (int) id );
+            break;
+        case COEF_CLASS_BRNGREF:
+            name = brngref_name( (int) id );
+            break;
+        case COEF_CLASS_REFCOEF:
+            name = refcoef_name( (int) id );
+            break;
+        case COEF_CLASS_REFFRM:
+            break;
         }
         break;
-    case ID_SYSERR:    name = syserr_name( (int) id ); break;
-    case ID_PROJCTN:   name = bproj_name( (int) id ); break;
-    case ID_CLASSTYPE: name = classification_name( &obs_classes, (int) id ); break;
-    case ID_CLASSNAME: name = class_value_name( &obs_classes, group_id, (int) id ); break;
-    case ID_NOTE:    break;
+    case ID_SYSERR:
+        name = syserr_name( (int) id );
+        break;
+    case ID_PROJCTN:
+        name = bproj_name( (int) id );
+        break;
+    case ID_CLASSTYPE:
+        name = classification_name( &obs_classes, (int) id );
+        break;
+    case ID_CLASSNAME:
+        name = class_value_name( &obs_classes, group_id, (int) id );
+        break;
+    case ID_NOTE:
+        break;
     }
     return name;
 }
 
-static double snap_calc_value( int type, long id1, long id2 )
+static double snap_calc_value( int type, LONG id1, LONG id2 )
 {
     if( type == CALC_DISTANCE )
     {
         double dist;
-        station *st1 = stnptr(id1);
-        station *st2 = stnptr(id2);
+        station *st1 = stnptr((int)id1);
+        station *st2 = stnptr((int)id2);
         if( ! st1 || ! st2 ) return 0.0;
         dist = calc_distance( st1, 0.0, st2, 0.0, NULL, NULL );
         return dist;
@@ -509,8 +551,8 @@ static double snap_calc_value( int type, long id1, long id2 )
     else if ( type == CALC_HDIST )
     {
         double dist;
-        station *st1 = stnptr(id1);
-        station *st2 = stnptr(id2);
+        station *st1 = stnptr((int)id1);
+        station *st2 = stnptr((int)id2);
         if( ! st1 || ! st2 ) return 0.0;
         dist = calc_horizontal_distance( st1, st2, NULL, NULL );
         return dist;

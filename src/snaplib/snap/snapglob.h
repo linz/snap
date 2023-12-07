@@ -79,7 +79,7 @@ SCOPE int max_iterations;
 SCOPE int min_iterations;
 SCOPE double max_adjustment;
 SCOPE double convergence_tol;
-SCOPE long nobs, nschp, ncon, dof;
+SCOPE int nobs, nschp, ncon, dof;
 SCOPE int nprm;
 SCOPE double ssr, seu;
 SCOPE int iterations, converged;

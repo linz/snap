@@ -33,7 +33,10 @@
 
 static void delete_grid_def( grid_def *def )
 {
-    if( def->bin ) { fclose( def->bin ); def->bin = NULL; }
+    if( def->bin ) {
+        fclose( def->bin );
+        def->bin = NULL;
+    }
     if( def->rows ) check_free( def->rows );
     if( def->cache )
     {
@@ -46,11 +49,26 @@ static void delete_grid_def( grid_def *def )
     }
     def->rows = NULL;
     def->cache = NULL;
-    if( def->desc1 ) { check_free( def->desc1 ); def->desc1 = NULL; }
-    if( def->desc2 ) { check_free( def->desc2 ); def->desc2 = NULL; }
-    if( def->desc3 ) { check_free( def->desc3 ); def->desc3 = NULL; }
-    if( def->crdsys ) { check_free( def->crdsys ); def->crdsys = NULL; }
-    if( def->loadbuffer ) { check_free( def->loadbuffer ); def->loadbuffer = 0; }
+    if( def->desc1 ) {
+        check_free( def->desc1 );
+        def->desc1 = NULL;
+    }
+    if( def->desc2 ) {
+        check_free( def->desc2 );
+        def->desc2 = NULL;
+    }
+    if( def->desc3 ) {
+        check_free( def->desc3 );
+        def->desc3 = NULL;
+    }
+    if( def->crdsys ) {
+        check_free( def->crdsys );
+        def->crdsys = NULL;
+    }
+    if( def->loadbuffer ) {
+        check_free( def->loadbuffer );
+        def->loadbuffer = 0;
+    }
     check_free( def );
 }
 
@@ -62,7 +80,10 @@ static char *load_string( FILE *bin )
     if( !fread( &len, sizeof(len), 1, bin ) ) return NULL;
     if( !len ) return NULL;
     s = (char *) check_malloc( len );
-    if( !fread( s, len, 1, bin ) ) { check_free(s); s = NULL; }
+    if( !fread( s, len, 1, bin ) ) {
+        check_free(s);
+        s = NULL;
+    }
     return s;
 }
 
@@ -105,7 +126,10 @@ static int create_grid_def( grid_def **defr, const char *filename, short dimensi
     bin = fopen( filename, "rb" );
     if( !bin ) return FILE_OPEN_ERROR;
     version = check_header(bin,&indexloc);
-    if( ! version ) { fclose(bin); return INVALID_DATA; }
+    if( ! version ) {
+        fclose(bin);
+        return INVALID_DATA;
+    }
     def = (grid_def *) check_malloc( sizeof( grid_def ) );
     def->indexloc = indexloc;
     fseek(bin, indexloc, SEEK_SET);
@@ -115,7 +139,9 @@ static int create_grid_def( grid_def **defr, const char *filename, short dimensi
     def->cache = NULL;
     def->maxcache = MAXCACHE;
     def->cache = (cache_row *) check_malloc( sizeof(cache_row) * (def->maxcache+1) );
-    for( i = 0; i <= def->maxcache; i++ ) { def->cache[i].data = 0; }
+    for( i = 0; i <= def->maxcache; i++ ) {
+        def->cache[i].data = 0;
+    }
     def->ncache = 0;
     def->cache_mru = NULL;
     def->cache_lru = NULL;
@@ -140,8 +166,14 @@ static int create_grid_def( grid_def **defr, const char *filename, short dimensi
         def->latlon = 1;
         def->ngrdval = 1;
     }
-    if( def->ngrdval != dimension ) { delete_grid_def(def); return INCONSISTENT_DATA; }
-    if( def->ngrdy < 4 || def->ngrdx < 4 ) { delete_grid_def(def); return INVALID_DATA;}
+    if( def->ngrdval != dimension ) {
+        delete_grid_def(def);
+        return INCONSISTENT_DATA;
+    }
+    if( def->ngrdy < 4 || def->ngrdx < 4 ) {
+        delete_grid_def(def);
+        return INVALID_DATA;
+    }
     def->desc1 = load_string( bin );
     def->desc2 = load_string( bin );
     def->desc3 = load_string( bin );
@@ -160,7 +192,7 @@ static int create_grid_def( grid_def **defr, const char *filename, short dimensi
         def->rows[i].fileloc = loc;
         def->rows[i].cacheloc = NULL;
 #ifdef DEBUG_GRID
-        printf("%03d %06ld\n",i,def->rows[i].fileloc);
+        printf("%03d %06lld\n",i,(long long)(def->rows[i].fileloc));
 #endif
     }
     def->rowsize = def->ngrdx * def->ngrdval;
@@ -331,9 +363,18 @@ static short load_row2_dim( grid_def *def, long *data )
             data += ndim;
             switch( bytes )
             {
-            case 1: v = *pc; pc++; break;
-            case 2: v = *ps; ps++; break;
-            case 4: v = *pl; pl++; break;
+            case 1:
+                v = *pc;
+                pc++;
+                break;
+            case 2:
+                v = *ps;
+                ps++;
+                break;
+            case 4:
+                v = *pl;
+                pl++;
+                break;
             }
         }
 
@@ -341,9 +382,18 @@ static short load_row2_dim( grid_def *def, long *data )
         {
             switch( bytes )
             {
-            case 1: v = *pc; pc++; break;
-            case 2: v = *ps; ps++; break;
-            case 4: v = *pl; pl++; break;
+            case 1:
+                v = *pc;
+                pc++;
+                break;
+            case 2:
+                v = *ps;
+                ps++;
+                break;
+            case 4:
+                v = *pl;
+                pl++;
+                break;
             }
             if( v == undef2 )
             {
@@ -353,9 +403,17 @@ static short load_row2_dim( grid_def *def, long *data )
             {
                 switch(dif)
                 {
-                case 0: break;
-                case 1: d1 += v; v = d1; break;
-                case 2: d2 += v; d1 += d2; v = d1; break;
+                case 0:
+                    break;
+                case 1:
+                    d1 += v;
+                    v = d1;
+                    break;
+                case 2:
+                    d2 += v;
+                    d1 += d2;
+                    v = d1;
+                    break;
                 }
             }
             (*data) = v;
@@ -364,7 +422,9 @@ static short load_row2_dim( grid_def *def, long *data )
 
     /* Set any values not yet set to undefined */
 
-    for( i = imax+1; i<def->ngrdx; i++, data += ndim ) { (*data) = undef; }
+    for( i = imax+1; i<def->ngrdx; i++, data += ndim ) {
+        (*data) = undef;
+    }
 
     return OK;
 }
@@ -485,7 +545,9 @@ static int calc_grid_cubic( grid_def *def, double x, double y, double *value )
     double yfactor[4], xfactor[4];
     int i, j, v, sts;
 
-    for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
+    for( v = 0; v < def->ngrdval; v++ ) {
+        value[v] = 0;
+    }
 
     sts=calc_grid_cell_xy( def, x, y, &x, &y, &nx, &ny );
     if( sts != OK ) return sts;
@@ -496,7 +558,8 @@ static int calc_grid_cubic( grid_def *def, double x, double y, double *value )
     calc_cubic_factors( y-ny, yfactor );
     calc_cubic_factors( x-nx, xfactor );
     ny--;
-    if( nx ) nx--; else nx = def->ngrdx-1;
+    if( nx ) nx--;
+    else nx = def->ngrdx-1;
     for( i = 0; i < 4; i++ )
     {
         xrow[i] = nx*def->ngrdval;
@@ -548,9 +611,11 @@ static int calc_grid_linear( grid_def *def, double x, double y, double *value )
     double yfactor[2], xfactor[2];
     int i, j, v, sts;
 
-    for( v = 0; v < def->ngrdval; v++ ) { value[v] = 0; }
+    for( v = 0; v < def->ngrdval; v++ ) {
+        value[v] = 0;
+    }
 
-    
+
     sts=calc_grid_cell_xy( def, x, y, &x, &y, &nx, &ny );
     if( sts != OK ) return sts;
 
@@ -631,9 +696,15 @@ const char *grd_title( grid_def *grd, int titleno )
     if( titleno > 3 ) titleno = 3;
     switch (titleno )
     {
-    case 3:  desc = grd->desc3; break;
-    case 2:  desc = grd->desc2; break;
-    default: desc = grd->desc1; break;
+    case 3:
+        desc = grd->desc3;
+        break;
+    case 2:
+        desc = grd->desc2;
+        break;
+    default:
+        desc = grd->desc1;
+        break;
     }
     return desc;
 }
@@ -665,7 +736,7 @@ void grd_print_grid_data( grid_def *grd, FILE *out, char showGrid )
         {
             long *data = get_row( grd, i );
             fprintf( out,"\n");
-            fprintf(out, "Row %d starts at location %ld\n",(int) i,grd->rows[i].fileloc);
+            fprintf(out, "Row %d starts at location %lld\n",(int) i,(long long) (grd->rows[i].fileloc));
             for( j = 0, lon = grd->minx; j < grd->ngrdx; j++, lon += lonInc )
             {
                 fprintf( out,"  %8.4lf  %8.4lf",lat,lon);

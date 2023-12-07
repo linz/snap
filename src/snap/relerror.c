@@ -186,9 +186,9 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     double htol;
     int headed;
     double veclen;
-    long ntest;
-    long nfailh;
-    long nfailv;
+    LONG ntest;
+    LONG nfailh;
+    LONG nfailv;
     double maxhratio;
     int istnmaxh;
     int jstnmaxh;
@@ -197,7 +197,7 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     int jstnmaxv;
     int printall = listopts & SPEC_LIST_ALL;
     int printfail = listopts & SPEC_LIST_FAIL;
-    long nstntest;
+    LONG nstntest;
     double hratio;
     double vratio;
 
@@ -327,9 +327,9 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     if( gothtol )
     {
         fprintf(lst, "\nHorizontal tolerance:\n");
-        fprintf(lst, "    Stations tested:             %10ld\n",nstntest);
-        fprintf(lst, "    Vectors tested:              %10ld\n",ntest);
-        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n",nfailh);
+        fprintf(lst, "    Stations tested:             %10lld\n",(long long) nstntest);
+        fprintf(lst, "    Vectors tested:              %10lld\n",(long long) ntest);
+        fprintf(lst, "    Vectors exceeding tolerance: %10lld\n",(long long) nfailh);
         if( istnmaxh )
             fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n",
                     maxhratio, stnptr(istnmaxh)->Code, stnptr(jstnmaxh)->Code );
@@ -338,9 +338,9 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
     if( gotvtol )
     {
         fprintf(lst, "\nVertical tolerance:\n");
-        fprintf(lst, "    Stations tested:             %10ld\n",nstntest);
-        fprintf(lst, "    Vectors tested:              %10ld\n",ntest);
-        fprintf(lst, "    Vectors exceeding tolerance: %10ld\n",nfailv);
+        fprintf(lst, "    Stations tested:             %10lld\n",(long long) nstntest);
+        fprintf(lst, "    Vectors tested:              %10lld\n",(long long) ntest);
+        fprintf(lst, "    Vectors exceeding tolerance: %10lld\n",(long long) nfailv);
         if( istnmaxv )
             fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n",
                     maxvratio, stnptr(istnmaxv)->Code, stnptr(jstnmaxv)->Code );

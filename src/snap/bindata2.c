@@ -135,8 +135,8 @@ static listing_field_def fields[] =
     { OF_SLPDST,     "slp_dist",     "Slp dst",  NULL,    NULL, slpdst,    0, 0, 0, 0},
     { OF_MDE,        "mde",          "MDE",      NULL,    NULL, mde,       6, 0, 0, 0},
     { OF_SIG,        "significance", "sig(%)",   NULL,    NULL, significance,8, 0, 0, 0},
-    { OF_DATE,       "date",         "Date",     NULL,    NULL, obsdate     ,10, 0, 0, 0},
-    { OF_OBSID,      "id",           "Id",       NULL,    NULL, obsid        ,8, RIGHT_JUST, 0, 0},
+    { OF_DATE,       "date",         "Date",     NULL,    NULL, obsdate,10, 0, 0, 0},
+    { OF_OBSID,      "id",           "Id",       NULL,    NULL, obsid,8, RIGHT_JUST, 0, 0},
 };
 
 #define WANT(fld) (fields[fld].requested)
@@ -296,10 +296,17 @@ static int bindata_obseq( bindata *b, void *hA )
         nsyserr = max_syserr_params( sd );
         switch( sd->format )
         {
-        case SD_OBSDATA: status = obsdata_obseq( sd, hA, nsyserr ); break;
-        case SD_VECDATA: status = vecdata_obseq( sd, hA, nsyserr ); break;
-        case SD_PNTDATA: status = pntdata_obseq( sd, hA, nsyserr ); break;
-        default: program_error("Invalid survdata format","bindata_obseq");
+        case SD_OBSDATA:
+            status = obsdata_obseq( sd, hA, nsyserr );
+            break;
+        case SD_VECDATA:
+            status = vecdata_obseq( sd, hA, nsyserr );
+            break;
+        case SD_PNTDATA:
+            status = pntdata_obseq( sd, hA, nsyserr );
+            break;
+        default:
+            program_error("Invalid survdata format","bindata_obseq");
             break;
         }
         if( nsyserr ) syserr_obseq( sd, hA );
@@ -364,7 +371,7 @@ int sum_bindata( int iteration )
         nbin++;
         update_progress_meter( nbin );
         int stsobs=bindata_obseq( b, hA );
-        if( stsobs != OK ) 
+        if( stsobs != OK )
         {
             sts=stsobs;
             continue;
@@ -375,15 +382,15 @@ int sum_bindata( int iteration )
             survdata *sd = (survdata *) b->data;
             trgtdata *tgt=get_trgtdata(sd,0);
             sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"obsid\": %d, \"type\": \"%s\",\"nobs\": %d}",
-                survey_data_file_name(sd->file),
-                (int)(tgt->lineno),
-                sd->from ? stnptr(sd->from)->Code : "",
-                sd->from && tgt->to ? " - " : "",
-                tgt->to ? stnptr(tgt->to)->Code : "",
-                tgt->obsid,
-                datatype[tgt->type].code,
-                sd->nobs
-                );
+                    survey_data_file_name(sd->file),
+                    (int)(tgt->lineno),
+                    sd->from ? stnptr(sd->from)->Code : "",
+                    sd->from && tgt->to ? " - " : "",
+                    tgt->to ? stnptr(tgt->to)->Code : "",
+                    tgt->obsid,
+                    datatype[tgt->type].code,
+                    sd->nobs
+                   );
             if( nbin > 1 )  fprintf(lst,",\n");
             print_obseqn_json( lst, hA, source, 0 );
         }
@@ -471,13 +478,20 @@ void calc_residuals( void )
 
         switch( sd->format )
         {
-        case SD_OBSDATA: calc_obsdata_residuals( sd, &l ); break;
+        case SD_OBSDATA:
+            calc_obsdata_residuals( sd, &l );
+            break;
 
-        case SD_VECDATA: calc_vecdata_residuals( sd, &l ); break;
+        case SD_VECDATA:
+            calc_vecdata_residuals( sd, &l );
+            break;
 
-        case SD_PNTDATA: calc_pntdata_residuals( sd, &l ); break;
+        case SD_PNTDATA:
+            calc_pntdata_residuals( sd, &l );
+            break;
 
-        default: program_error("Invalid survdata format","calc_residuals");
+        default:
+            program_error("Invalid survdata format","calc_residuals");
         }
 
         update_bindata( b );
@@ -788,7 +802,10 @@ static void merge_residual_titles( void )
                 if( idef->col[icol].title1 != jdef->col[icol].title1 ||
                         idef->col[icol].title2 != jdef->col[icol].title2 ) same = 0;
             }
-            if( same ) { title_id[itype] = jtype; break; }
+            if( same ) {
+                title_id[itype] = jtype;
+                break;
+            }
         }
     }
     /* Second pass, merge column widths */
@@ -1061,14 +1078,20 @@ static void setup_data_field_widths( int itype )
         switch( format->col[icol].column )
         {
         case OF_OBS:
-        case OF_CALC:     width = obswid; break;
+        case OF_CALC:
+            width = obswid;
+            break;
 
         case OF_ALTRES:
-        case OF_RES:      width = reswid; break;
+        case OF_RES:
+            width = reswid;
+            break;
 
         case OF_OBSERR:
         case OF_CALCERR:
-        case OF_RESERR:   width = errwid; break;
+        case OF_RESERR:
+            width = errwid;
+            break;
         }
         if( width > width0 ) format->col[icol].width = width;
     }
@@ -1161,7 +1184,10 @@ static void setup_format_definitions( void )
     error = 0;
     if( sizeof(fields)/sizeof(fields[0]) != OF_COUNT ) error = 1;
 
-    if( !error ) for( i=0; i < OF_COUNT; i++ )  if( fields[i].id != i ) { error = 1; break; }
+    if( !error ) for( i=0; i < OF_COUNT; i++ )  if( fields[i].id != i ) {
+                error = 1;
+                break;
+            }
 
     if( error )
     {
@@ -1260,8 +1286,8 @@ void print_residuals( FILE *out )
         }
         else
         {
-            fprintf(out,"\nSignificance is based on the Tau distribution with %ld degrees of freedom\n",
-                    (long) dof);
+            fprintf(out,"\nSignificance is based on the Tau distribution with %d degrees of freedom\n",
+                    dof);
             fprintf(out,"(the Students t distribution is used for rejected observations)\n");
         }
 
@@ -1325,12 +1351,14 @@ void print_residuals( FILE *out )
         int first = 1;
         if( obstypecount[SD] || obstypecount[DR] )
         {
-            fputs( first ? "Note: " : "      " , out ); first = 0;
+            fputs( first ? "Note: " : "      ", out );
+            first = 0;
             fprintf(out,"Calculated values for slope distances include equipment heights\n");
         }
         if( obstypecount[ZD] )
         {
-            fputs( first ? "Note: " : "      " , out ); first = 0;
+            fputs( first ? "Note: " : "      ", out );
+            first = 0;
             fprintf(out,"Calculated values for zenith distances include equipment heights\n");
         }
     }
@@ -1399,13 +1427,20 @@ void print_residuals( FILE *out )
         sd = (survdata *) b->data;
         switch( sd->format )
         {
-        case SD_OBSDATA: list_obsdata_residuals( out, sd, semult ); break;
+        case SD_OBSDATA:
+            list_obsdata_residuals( out, sd, semult );
+            break;
 
-        case SD_VECDATA: list_vecdata_residuals( out, sd, semult ); break;
+        case SD_VECDATA:
+            list_vecdata_residuals( out, sd, semult );
+            break;
 
-        case SD_PNTDATA: list_pntdata_residuals( out, sd, semult ); break;
+        case SD_PNTDATA:
+            list_pntdata_residuals( out, sd, semult );
+            break;
 
-        default: program_error("Invalid survdata format","print_residuals");
+        default:
+            program_error("Invalid survdata format","print_residuals");
         }
     }
 
@@ -1440,10 +1475,16 @@ static void write_observation_csv_common_start( output_csv *csv, survdata *sd, t
     char type[16];
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
-    if( ! from ) { from = to; to = 0; }
+    if( ! from ) {
+        from = to;
+        to = 0;
+    }
     if( obsset < 0 ) obsset=tgt->obsid;
     strcpy( type, datatype[tgt->type].code);
-    if(component && strlen(type)+strlen(component)+2 < 16) { strcat(type,"-"); strcat(type,component); }
+    if(component && strlen(type)+strlen(component)+2 < 16) {
+        strcat(type,"-");
+        strcat(type,component);
+    }
     write_csv_int( csv, tgt->obsid );
     if( have_obs_ids ) write_csv_int( csv, tgt->id );
     write_csv_string(csv,from->Code);
@@ -1464,7 +1505,10 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
     int i;
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
-    if( ! from ) { from = to; to = 0; }
+    if( ! from ) {
+        from = to;
+        to = 0;
+    }
 
     for( i = 0; i < classification_count(&obs_classes); i++ )
     {
@@ -1518,7 +1562,9 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
 
 static void skip_csv_fields( output_csv *csv, int nskip )
 {
-    while( nskip-- > 0) { write_csv_null_field(csv); }
+    while( nskip-- > 0) {
+        write_csv_null_field(csv);
+    }
 }
 
 void write_obsdata_csv( output_csv *csv, survdata *sd, obsdata *o, double semult )
@@ -1535,7 +1581,10 @@ void write_obsdata_csv( output_csv *csv, survdata *sd, obsdata *o, double semult
         if( output_csv_correlations ) nskip2 = 3;
     }
 
-    if( datatype[t->type].isangle ) { ndp+=4; mult=RTOD; }
+    if( datatype[t->type].isangle ) {
+        ndp+=4;
+        mult=RTOD;
+    }
 
     write_observation_csv_common_start( csv, sd, t, 0 );
     write_csv_double( csv, o->value*mult, ndp );
@@ -1576,7 +1625,10 @@ void write_pntdata_csv( output_csv *csv, survdata *sd, pntdata *p, double semult
         if( output_csv_correlations ) nskip2 = 3;
     }
 
-    if( datatype[t->type].isangle ) { ndp+=4; mult=RTOD; }
+    if( datatype[t->type].isangle ) {
+        ndp+=4;
+        mult=RTOD;
+    }
 
     write_observation_csv_common_start( csv, sd, t, 0 );
     write_csv_double( csv, p->value*mult, ndp );
@@ -1608,9 +1660,18 @@ static void convert_cvr_to_secorr( double cvr[6] )
     cvr[0] = cvr[0] > 0.0 ? sqrt(cvr[0]) : 0.0;
     cvr[2] = cvr[2] > 0.0 ? sqrt(cvr[2]) : 0.0;
     cvr[5] = cvr[5] > 0.0 ? sqrt(cvr[5]) : 0.0;
-    if( cvr[0] > 0 ) { cvr[1] /= cvr[0]; cvr[3] /= cvr[0]; }
-    if( cvr[2] > 0 ) { cvr[1] /= cvr[2]; cvr[4] /= cvr[2]; }
-    if( cvr[5] > 0 ) { cvr[3] /= cvr[5]; cvr[4] /= cvr[5]; }
+    if( cvr[0] > 0 ) {
+        cvr[1] /= cvr[0];
+        cvr[3] /= cvr[0];
+    }
+    if( cvr[2] > 0 ) {
+        cvr[1] /= cvr[2];
+        cvr[4] /= cvr[2];
+    }
+    if( cvr[5] > 0 ) {
+        cvr[3] /= cvr[5];
+        cvr[4] /= cvr[5];
+    }
 }
 
 void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, double semult )
@@ -1888,16 +1949,21 @@ void write_observation_csv()
         {
             switch( sd->format )
             {
-            case SD_OBSDATA: write_obsdata_csv( csv, sd, &sd->obs.odata[iobs], semult ); break;
+            case SD_OBSDATA:
+                write_obsdata_csv( csv, sd, &sd->obs.odata[iobs], semult );
+                break;
 
             case SD_VECDATA:
                 if( output_csv_vecinline ) write_vecdata_csv_inline( csv, sd, iobs, semult );
                 else write_vecdata_csv_components( csv, sd, iobs, semult );
                 break;
 
-            case SD_PNTDATA: write_pntdata_csv( csv, sd, &sd->obs.pdata[iobs], semult ); break;
+            case SD_PNTDATA:
+                write_pntdata_csv( csv, sd, &sd->obs.pdata[iobs], semult );
+                break;
 
-            default: program_error("Invalid survdata format","write_observation_csv");
+            default:
+                program_error("Invalid survdata format","write_observation_csv");
             }
         }
     }

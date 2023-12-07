@@ -26,8 +26,8 @@ typedef struct
     char *recodefile;
     double mindate;
     double maxdate;
-    long nnodate;
-    long obscount[NOBSTYPE];
+    int nnodate;
+    int obscount[NOBSTYPE];
     unsigned char usage;
     stn_recode_map *recode;
 } survey_data_file;

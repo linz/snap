@@ -217,7 +217,7 @@ static int check_header( hBinSrc binsrc, INT4 *indexloc)
     utlBinSrcSetBigEndian( binsrc, big_endian );
 
     if( utlBinSrcLoad4( binsrc, BINSRC_CONTINUE, 1, indexloc ) != STS_OK ) return 0;
-    TRACE_GRID(("Index location: %ld",(long)(*indexloc)));
+    TRACE_GRID(("Index location: %lld",(long long)(*indexloc)));
     if( ! *indexloc ) version = 0;
     return version;
 }
@@ -355,7 +355,7 @@ static StatusType create_grid_def( grid_def_crs** defr, hBinSrc binsrc)
                                       (void *) (&(def->rows[i].fileloc)) );
         def->rows[i].cacheloc = 0;
 
-        TRACE_GRID2(("            %03d %06ld",i,def->rows[i].fileloc));
+        TRACE_GRID2(("            %03d %06lld",i,(long long)(def->rows[i].fileloc)));
     }
 
     def->rowsize = def->ngrdx * def->ngrdval;
@@ -421,7 +421,7 @@ static StatusType load_row1( grid_def_crs *def, long fileloc, INT4 *data )
             INT4 v = sdata[i];
             if( v == 0x7FFF ) v = def->undef;
             data[i] = v;
-            TRACE_GRID3((" Column %d: value %ld",(int) i, (long) v ));
+            TRACE_GRID3((" Column %d: value %d",(int) i, (int) v ));
         }
     }
     return sts;
@@ -473,7 +473,7 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
 
     while(cont)
     {
-        TRACE_GRID2(("Loading format2 row dimension from %ld",(long) fileloc ));
+        TRACE_GRID2(("Loading format2 row dimension from %lld",(long long) fileloc ));
         sts = utlBinSrcLoad2( binsrc, fileloc, 1, &fmt );
         if( sts != STS_OK ) RETURN_STATUS(sts);
         fileloc = BINSRC_CONTINUE;
@@ -602,7 +602,7 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
             }
         }
 
-        TRACE_GRID3(("Starting row: d1 %ld v %ld",(long) d1, (long) v));
+        TRACE_GRID3(("Starting row: d1 %d v %d",(int) d1, (int) v));
         for( i = imin; i <=imax; i++, data += ndim )
         {
             switch( bytes )
@@ -620,7 +620,7 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
                 pl++;
                 break;
             }
-            TRACE_GRID3(("Reading at %d: v %ld",(int) i, (long) v));
+            TRACE_GRID3(("Reading at %d: v %d",(int) i, (lintong) v));
             if( v == undef2 )
             {
                 v = undef;
@@ -643,7 +643,7 @@ static StatusType load_row2_dim( grid_def_crs *def, long fileloc, INT4 *data )
                 }
             }
             (*data) = v;
-            TRACE_GRID3(("Value set to %ld", (long) v));
+            TRACE_GRID3(("Value set to %d", (int) v));
         }
     }
 

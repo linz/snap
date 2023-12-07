@@ -21,10 +21,10 @@ typedef struct
 {
     char *fname;
     FILE *f;
-    long startloc;
-    long startlineno;
-    long reclineno;
-    long lineno;
+    LONG startloc;
+    int startlineno;
+    int reclineno;
+    int lineno;
     int  maxreclen;
     int  errcount;
     char unicode;
@@ -40,8 +40,8 @@ typedef struct
 
 typedef struct
 {
-    long loc;
-    long line;
+    LONG loc;
+    int line;
 } datafile_loc;
 
 int   df_data_file_default_reclen( int newlen );
@@ -55,7 +55,7 @@ int df_skip_to_blank_line( DATAFILE *d );
 int df_read_data_file( DATAFILE *d );
 char *df_rest_of_line( DATAFILE *d );
 input_string_def *df_input_string( DATAFILE *d );
-long  df_line_number( DATAFILE *d ) ;
+int df_line_number( DATAFILE *d ) ;
 int df_data_file_error( DATAFILE *d, int sts, const char *errmsg ) ;
 int df_data_file_errcount( DATAFILE *d );
 void  df_save_data_file_loc( DATAFILE *d, datafile_loc *dl );
@@ -68,7 +68,7 @@ int df_read_field( DATAFILE *d, char *field, int nfld );
 int df_read_code( DATAFILE *d, char *field, int nfld );
 int df_read_int( DATAFILE *d, int *v );
 int df_read_short( DATAFILE *d, short *v );
-int df_read_long( DATAFILE *d, long *v );
+int df_read_long( DATAFILE *d, LONG *v );
 int df_read_double( DATAFILE *d, double *v );
 int df_read_degangle( DATAFILE *d, double *v );
 int df_read_dmsangle( DATAFILE *d, double *v );

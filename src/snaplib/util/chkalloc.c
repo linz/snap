@@ -42,7 +42,7 @@ ptr = (void *)((char *)ptr + MAGIC_SPACE);
 
 #define INCREMENT_COUNT(x) x++
 long chk_nalloc = 0;
-                  long chk_nfree = 0;
+long chk_nfree = 0;
 #else
 #define OFFSET_SIZE( size )
 #define OFFSET_PTR( ptr )
@@ -52,7 +52,7 @@ long chk_nalloc = 0;
 
 #ifdef CHECK_ALLOC
 
-                                   static void check_magic_number( void *ptr )
+static void check_magic_number( void *ptr )
 {
     unsigned check;
     check = *(unsigned *)((char *)ptr - MAGIC_SPACE);
@@ -71,7 +71,7 @@ void *check_malloc( size_t size )
     if( mem == NULL )
     {
         char errmess[80];
-        sprintf(errmess,"Memory allocation error: required %ld bytes",(long) size);
+        sprintf(errmess,"Memory allocation error: required %lld bytes",(long long) size);
         handle_error( MEM_ALLOC_ERROR, errmess, NULL );
     }
 

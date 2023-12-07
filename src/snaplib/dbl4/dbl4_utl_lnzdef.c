@@ -371,7 +371,7 @@ static void delete_def_mod( hDefMod mod )
     {
         hDefVer ver=mod->firstver;
         mod->firstver=ver->nextver;
-        if( ver->description ) 
+        if( ver->description )
         {
             utlFree( ver->description );
             ver->description=0;
@@ -491,11 +491,18 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
 
         if( sts == STS_OK && version == 1 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &usebefore );
         if( usebefore == 1 ) cmp->beforemode = defEvalFixed;
-        if( usebefore == 2 ) { cmp->beforemode = defEvalInterp; iref++; nTimeModel++; }
+        if( usebefore == 2 ) {
+            cmp->beforemode = defEvalInterp;
+            iref++;
+            nTimeModel++;
+        }
 
         if( sts == STS_OK && version == 1 ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &useafter );
         if( useafter == 1 ) cmp->aftermode = defEvalFixed;
-        if( useafter == 2 ) { cmp->aftermode = defEvalInterp; nTimeModel++; }
+        if( useafter == 2 ) {
+            cmp->aftermode = defEvalInterp;
+            nTimeModel++;
+        }
 
         if( isvel )
         {
@@ -508,7 +515,7 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
             cmp->timeModel[2].year=utlDateAsYear(&(seq->enddate));
             cmp->timeModel[2].factor=useafter ? cmp->timeModel[2].year-refyear : 0.0;
         }
-        else 
+        else
         {
             cmp->factor0 = cmp->beforemode == defEvalFixed ? 1.0 : 0.0;
             cmp->nTimeModel=nTimeModel;
@@ -555,10 +562,10 @@ static StatusType load_component( int version, hDefSeq seq, hBinSrc binsrc, hDef
     }
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &istrig );
-    if( istrig ) 
+    if( istrig )
     {
-        /* Current implementation does not support triangulated data in 
-         * nested model, as does not properly check if point lies within a 
+        /* Current implementation does not support triangulated data in
+         * nested model, as does not properly check if point lies within a
          * triangulation in calc_seq_def */
         if( seq->nested ) SET_STATUS( sts, STS_INVALID_DATA );
         cmp->type = defModelTrig;
@@ -839,7 +846,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
                 {
                     double y0=utlDateAsYear(&(cmp->refdate));
                     double y1=utlDateAsYear(&(nextcmp->refdate));
-                    if( y1 > y0 ) 
+                    if( y1 > y0 )
                     {
                         tmi->year=utlDateAsYear(&(seq->startdate));
                         tmi->factor=(tmi->year-y1)/(y0-y1);
@@ -858,7 +865,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
                 {
                     double y0=utlDateAsYear(&(cmp->refdate));
                     double y1=utlDateAsYear(&(lastcmp->refdate));
-                    if( y1 < y0 ) 
+                    if( y1 < y0 )
                     {
                         tmi->year=utlDateAsYear(&(seq->enddate));
                         tmi->factor=(tmi->year-y1)/(y0-y1);
@@ -966,8 +973,8 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
     }
 
     /*> Process the components in turn.  For each test if the evaluation point
-        lies within the range of the component.  If so then determine the 
-        scale factor, and add to the total deformation.  
+        lies within the range of the component.  If so then determine the
+        scale factor, and add to the total deformation.
 
         If this is a nested sequence then stop after the first one within
         range.
@@ -982,7 +989,7 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
         StatusType stscmp;
 
         /*>> First check that the point is within the range defined for the component.
-             If it is not then continue on to the next component. 
+             If it is not then continue on to the next component.
              */
 
         stscmp = check_range( &(cmp->range), x, y );
@@ -1020,7 +1027,7 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
             }
         }
 
-        /*>> If the factor is greater than 0 then calculate the model and add the 
+        /*>> If the factor is greater than 0 then calculate the model and add the
              scaled model deformation to the total.
              */
 
@@ -1042,7 +1049,7 @@ static StatusType calc_seq_def( hDefSeq seq, double date, double x, double y, do
             }
         }
 
-        /*>> If the sequence is nested then do not process any more components.  
+        /*>> If the sequence is nested then do not process any more components.
 
              NOTE: This is not technically correct, as for triangulated components we have only
              tested whether the model is within bounds, not actually within the triangulation.
@@ -1196,7 +1203,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
 
     TRACE_LNZDEF(("create_def_mod"));
     version = check_header(binsrc, &indexloc);
-    TRACE_LNZDEF(("create_def_mod: version %d  indexloc %ld",version,indexloc));
+    TRACE_LNZDEF(("create_def_mod: version %d  indexloc %d",version,(int) indexloc));
     if( ! version )
     {
         RETURN_STATUS(STS_INVALID_DATA);
@@ -1216,10 +1223,13 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
 
     sts = STS_OK;
     ver=0;
-    if( version < 3 ) { sts=create_def_ver( &ver ); def->firstver=ver; }
+    if( version < 3 ) {
+        sts=create_def_ver( &ver );
+        def->firstver=ver;
+    }
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, indexloc, &(def->name) );
-    if( sts == STS_OK && version < 3 ) 
-    { 
+    if( sts == STS_OK && version < 3 )
+    {
         sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
         if( sts == STS_OK )
         {
@@ -1479,10 +1489,10 @@ StatusType utlSetLinzDefVersion( hLinzDefModel pdef, const char *version )
         if( strcmp(version,ver->version) == 0 ) break;
         ver=ver->nextver;
     }
-    if( ! ver ) 
+    if( ! ver )
     {
         TRACE_LNZDEF(("Cannot set model to version %s - not a valid version",
-                    version));
+                      version));
         RETURN_STATUS( STS_INVALID_DATA );
     }
     def->currver=ver;
@@ -1493,7 +1503,7 @@ StatusType utlSetLinzDefVersion( hLinzDefModel pdef, const char *version )
         if( strcmp(ver->version,seq->endver) >= 0 ) ok=0;
         seq->enabled = ok ? BLN_TRUE: BLN_FALSE;
         TRACE_LNZDEF(("%s sequence %d %s",ok ? "Enabling" : "Disabling",
-                    seq->id,seq->name));
+                      seq->id,seq->name));
     }
     return STS_OK;
 }
@@ -1553,12 +1563,14 @@ StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, char ** title )
         (*title) = ((hDefMod) def)->currver->description;
         break;
     case 3:
-        {
+    {
         char *version=((hDefMod) def)->currver->version;
-        if( version && strcmp(version,"00000000") == 0 ){ version += 8; }
-        (*title) = version;
+        if( version && strcmp(version,"00000000") == 0 ) {
+            version += 8;
         }
-        break;
+        (*title) = version;
+    }
+    break;
     }
     return STS_OK;
 }

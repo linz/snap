@@ -120,14 +120,14 @@ int add_station_colocation_constraints()
                             STNCODELEN,st->Code,
                             STNCODELEN,recode->codeto,
                             recode->datefrom == UNDEFINED_DATE ? "before" : "after",
-                            recode->datefrom == UNDEFINED_DATE ? 
-                                 date_as_string(recode->dateto,"DT?",0) : 
-                                 date_as_string(recode->datefrom,"DT?",0),
+                            recode->datefrom == UNDEFINED_DATE ?
+                            date_as_string(recode->dateto,"DT?",0) :
+                            date_as_string(recode->datefrom,"DT?",0),
                             STNCODELEN,rec2->codeto,
                             rec2->datefrom == UNDEFINED_DATE ? "before" : "after",
-                            rec2->datefrom == UNDEFINED_DATE ? 
-                                 date_as_string(rec2->dateto,"DT?",0) : 
-                                 date_as_string(rec2->datefrom,"DT?",0));
+                            rec2->datefrom == UNDEFINED_DATE ?
+                            date_as_string(rec2->dateto,"DT?",0) :
+                            date_as_string(rec2->datefrom,"DT?",0));
                     handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
                     sts0=INCONSISTENT_DATA;
                 }
@@ -194,8 +194,8 @@ int add_station_colocation_constraints()
         }
         if( st0 )
         {
-                sts0=add_colocation_constraint( st0, st, sqrt(herror2), sqrt(verror2) );
-                if( sts0 != OK ) sts=sts0;
+            sts0=add_colocation_constraint( st0, st, sqrt(herror2), sqrt(verror2) );
+            if( sts0 != OK ) sts=sts0;
         }
         /* Process after ### updates */
         st0=st;
@@ -277,8 +277,16 @@ int init_station_rowno( void )
         /* Reject stations for which there are insufficient observations,
            unless they are being floated or fixed */
 
-        if( dimension == 1 ) { sa->flag.adj_h=0; sa->flag.float_h=0; sa->flag.auto_h=0; }
-        if( dimension == 2 ) { sa->flag.adj_v=0; sa->flag.float_v=0; sa->flag.auto_v=0; }
+        if( dimension == 1 ) {
+            sa->flag.adj_h=0;
+            sa->flag.float_h=0;
+            sa->flag.auto_h=0;
+        }
+        if( dimension == 2 ) {
+            sa->flag.adj_v=0;
+            sa->flag.float_v=0;
+            sa->flag.auto_v=0;
+        }
 
         if( data_check )
         {
@@ -295,7 +303,8 @@ int init_station_rowno( void )
 
         if( (sa->flag.adj_h || sa->flag.adj_v) && ! sa->flag.rejected && station_autofix_reject(i) )
         {
-            sa->flag.rejected = 1; sa->flag.autoreject = 1;
+            sa->flag.rejected = 1;
+            sa->flag.autoreject = 1;
         }
 
         if( sa->flag.rejected )
@@ -306,7 +315,7 @@ int init_station_rowno( void )
 
         if( sa->flag.adj_h == 0 ) sa->flag.float_h = 0;
         if( sa->flag.adj_v == 0 ) sa->flag.float_v = 0;
-        if( sa->flag.float_h || sa->flag.float_v ) 
+        if( sa->flag.float_h || sa->flag.float_v )
         {
             floating_stations = 1;
             if( sa->idcol ) relative_floating=1;
@@ -671,17 +680,17 @@ void print_adjusted_coordinates( FILE *lst )
     if( errconflim )
     {
         fprintf(lst,"The error ellipse and height error are the %s %.2f confidence limits\n",
-            apriori ? "apriori" : "aposteriori", errconfval );
+                apriori ? "apriori" : "aposteriori", errconfval );
     }
     else if ( errconfval == 1.0 )
     {
         fprintf(lst,"The error ellipse and height error are the %s errors\n",
-            apriori ? "apriori" : "aposteriori" );
+                apriori ? "apriori" : "aposteriori" );
     }
     else
     {
         fprintf(lst,"The error ellipse and height error are %s %.1f times standard errors\n",
-            apriori ? "apriori" : "aposteriori", errconfval );
+                apriori ? "apriori" : "aposteriori", errconfval );
     }
 
     if( output_rejected_stations )
@@ -741,7 +750,11 @@ void print_adjusted_coordinates( FILE *lst )
 
             dn = ( st->ELat - sa->initELat ) * st->dNdLt;
             de = ( st->ELon - sa->initELon ) * st->dEdLn;
-            if( projection_coords ) { dh = dn; dn = de; de = dh; }
+            if( projection_coords ) {
+                dh = dn;
+                dn = de;
+                de = dh;
+            }
             dh = st->OHgt - sa->initOHgt;
         }
 
@@ -898,7 +911,10 @@ void write_station_csv()
         write_csv_header( csv, "height_type" );
     }
     if( geoid ) write_csv_header( csv, "geoidhgt" );
-    if( defl ) { write_csv_header( csv, "xi"); write_csv_header( csv, "eta" ); }
+    if( defl ) {
+        write_csv_header( csv, "xi");
+        write_csv_header( csv, "eta" );
+    }
     if( autofix )
     {
         write_csv_header( csv, "autofix" );
@@ -1031,7 +1047,7 @@ void write_station_csv()
         {
             char mode[3] = { '-', '-', 0 };
             if( sa->flag.auto_h) mode[0]='H';
-            if( sa->flag.auto_v) mode[1]='V'; 
+            if( sa->flag.auto_v) mode[1]='V';
             write_csv_string(csv,mode);
         }
         if( adjusted )
@@ -1088,7 +1104,7 @@ void write_station_csv()
                         write_csv_null_field(csv);
                     }
                 }
-                if( sa->flag.float_h ) 
+                if( sa->flag.float_h )
                 {
                     write_csv_double(csv,sa->herror,coord_precision);
                 }
@@ -1096,7 +1112,7 @@ void write_station_csv()
                 {
                     write_csv_null_field(csv);
                 }
-                if( sa->flag.float_v ) 
+                if( sa->flag.float_v )
                 {
                     write_csv_double(csv,sa->verror,coord_precision);
                 }
@@ -1104,16 +1120,16 @@ void write_station_csv()
                 {
                     write_csv_null_field(csv);
                 }
-                
+
                 int nfprm=float_station_obseq( st, hA );
                 double calc[3];
                 double calccvr[6];
-                double res[3]={0.0,0.0,0.0};
+                double res[3]= {0.0,0.0,0.0};
                 if( nfprm )
                 {
                     lsq_calc_obs( hA, calc, res, 0, 0, 0, calccvr, cvr );
                 }
-                    
+
                 int vrow=0;
                 if( nfprm == 2 || nfprm == 3 )
                 {
@@ -1246,15 +1262,15 @@ void print_floated_stations( FILE *out )
     }
     else
     {
-        fprintf(out,"Significance is based on the Tau distribution with %ld degrees of freedom\n",
-                (long) dof);
+        fprintf(out,"Significance is based on the Tau distribution with %d degrees of freedom\n",
+                dof);
     }
 
     semult = apriori ? 1 : seu;
 
     fprintf(out,"\n%-*s %-*s  coord      error      calc.err    residual    adj.err    std.res\n",
             stn_name_width, "Code",
-            relative_floating ? stn_name_width : 0, 
+            relative_floating ? stn_name_width : 0,
             relative_floating ? "rel" : "" );
 
 
@@ -1265,14 +1281,14 @@ void print_floated_stations( FILE *out )
     {
         int nfprm=float_station_obseq(st,hA);
         if( ! nfprm ) continue;
-    
+
         int axis0=nfprm==1 ? 2 : 0;
         int axis1=nfprm==2 ? 2 : 3;
 
         lsq_calc_obs( hA, calc, res, 0, 0, 0, calccvr, rescvr );
         sa=stnadj(st);
         station *stcol=0;
-        if( relative_floating && sa->idcol ) 
+        if( relative_floating && sa->idcol )
         {
             stcol=stnptr(sa->idcol);
         }
@@ -1284,7 +1300,7 @@ void print_floated_stations( FILE *out )
             double resval=res[rowno];
             double ser=sqrt(fabs(Lij(rescvr,rowno,rowno)))*semult;
             fprintf( out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
-                     stn_name_width, (rowno==0 ? st->Code : ""), 
+                     stn_name_width, (rowno==0 ? st->Code : ""),
                      relative_floating ? stn_name_width+1 : 0,
                      stcol ? stcol->Code : "",
                      coordname[axis],
@@ -1450,7 +1466,8 @@ void get_station_covariance( station *st, double cvr[] )
     c = cvr;
     if( sa->hrowno )
     {
-        col[np++]=sa->hrowno-1; col[np++]=sa->hrowno;
+        col[np++]=sa->hrowno-1;
+        col[np++]=sa->hrowno;
     }
     else
     {

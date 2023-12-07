@@ -71,7 +71,7 @@ StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob, Boolean blnOutput)
         if( ! (*blob)->buffer )
             THROW_EXCEPTION("utlCreateBlobHandle: Memory allocation failure");
     }
-    TRACE_BLBMGMT(("utlCreateBlobHandle: Blob created with handle %ld",(long) (*blob) ));
+    TRACE_BLBMGMT(("utlCreateBlobHandle: Blob created with handle %lld",(long long) (*blob) ));
     return STS_OK;
 }
 
@@ -91,7 +91,7 @@ StatusType utlCreateBlobHandle( DBHandle conn, hBlob * blob, Boolean blnOutput)
 
 StatusType utlBlobClose( hBlob blob)
 {
-    TRACE_BLBMGMT(("utlBlobClose: Blob closed with handle %ld",(long) (blob) ));
+    TRACE_BLBMGMT(("utlBlobClose: Blob closed with handle %lld",(long long) (blob) ));
     if( blob->pvBlob )
     {
         utlReleaseBlobDB( blob->pvBlob );
@@ -121,8 +121,8 @@ StatusType utlBlobClose( hBlob blob)
 StatusType utlBlobReadAt( hBlob blob, long lngOffset, long lngBufSize,
                           void * pvBuffer)
 {
-    TRACE_BLBREAD(("utlBlobReadAt: Blob read - handle %ld offset %ld bytes %ld",
-                   (long) (blob), lngOffset, lngBufSize ));
+    TRACE_BLBREAD(("utlBlobReadAt: Blob read - handle %lld offset %lld bytes %lld",
+                   (long long) (blob), (long long) lngOffset, (long long) lngBufSize ));
     if( blob->pvBlob )
     {
         utlReadBlobDB( blob->pvBlob, lngOffset, lngBufSize, pvBuffer );
@@ -152,7 +152,7 @@ StatusType utlBlobReadAt( hBlob blob, long lngOffset, long lngBufSize,
 
 StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer)
 {
-    TRACE_BLBREAD(("utlBlobWrite: Blob write - handle %ld",(long) (blob) ));
+    TRACE_BLBREAD(("utlBlobWrite: Blob write - handle %lld",(long long) (blob) ));
     if( blob->pvBlob )
     {
         utlWriteBlobDB( blob->pvBlob, lngBufSize, buffer);
@@ -183,7 +183,7 @@ StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer)
 
 StatusType utlBlobSeek( hBlob blob, long position, int whence)
 {
-    TRACE_BLBREAD(("utlBlobSeek: Blob handle %ld",(long) (blob) ));
+    TRACE_BLBREAD(("utlBlobSeek: Blob handle %lld",(long long) (blob) ));
     if( blob->pvBlob )
     {
         utlSeekBlobDB( blob->pvBlob, position, whence );
@@ -212,7 +212,7 @@ StatusType utlBlobSeek( hBlob blob, long position, int whence)
 
 StatusType utlBlobTell( hBlob blob, long *position)
 {
-    TRACE_BLBREAD(("utlBlobTell: Blob handle %ld",(long) (blob) ));
+    TRACE_BLBREAD(("utlBlobTell: Blob handle %lld",(long long) (blob) ));
     if( blob->pvBlob )
     {
         utlTellBlobDB( blob->pvBlob, position );
@@ -249,7 +249,7 @@ StatusType utlBlobTell( hBlob blob, long *position)
 
 StatusType utlBlobPrintf( hBlob blob, char *format, ... )
 {
-    TRACE_BLBREAD(("utlBlobPrintf: Blob handle %ld",(long) (blob) ));
+    TRACE_BLBREAD(("utlBlobPrintf: Blob handle %lld",(long long) (blob) ));
     if( blob->buffer && blob->pvBlob )
     {
         va_list ap;
