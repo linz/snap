@@ -96,14 +96,14 @@ static bltmatrix *N;
 static double *b;
 static double ssr;
 static int    nprm = -1;
-static long     nschp;
-static long     nobs;
-static long     ndof;
+static int     nschp;
+static int     nobs;
+static int     ndof;
 static double seu;
 static obseqn *Asch = NULL;  /* Observation equations for Schreiber eqns */
 
 static double *tmp;   /* A scratch work area */
-static long  ntmp = 0;
+static int  ntmp = 0;
 static int   *cols;  /* A scratch area for integer column numbers */
 static int   ncols = 0;
 
@@ -132,7 +132,7 @@ static void sequence_error( const char *routine )
     handle_error( INTERNAL_ERROR, "Internal error: Out of sequence call to LSQ routine", routine);
 }
 
-static void alloc_tmp( long nval )
+static void alloc_tmp( LONG nval )
 {
     if( nval <= ntmp ) return;
     if( ntmp ) check_free( tmp );
@@ -163,7 +163,7 @@ void lsq_alloc( int nrow )
     {
         b = (double *) check_malloc(nrow * sizeof(double) );
         N = create_bltmatrix( nrow );
-        alloc_tmp( (long) nrow );
+        alloc_tmp( (LONG) nrow );
     }
 
     lsq_status = LSQ_READY;
@@ -413,14 +413,14 @@ static void form_iobs( obseqn *A, char sumall )
 static void copy_used_cvr_to_wgt( obseqn *A )
 {
     ltmat wgt, cvr;
-    long nelt;
+    LONG nelt;
     int i, j;
     char unused;
 
     wgt = A->wgt;
     cvr = A->cvr;
 
-    nelt = ((long)A->nrow * (A->nrow+1))/2;
+    nelt = ((LONG)A->nrow * (A->nrow+1))/2;
     while(nelt--) *wgt++ = *cvr++;
 
     /* Eliminate unused rows and columns (convert to the identity matrix) */
@@ -478,7 +478,7 @@ static int calc_weight_matrix( obseqn *A )
         /* Form the inverse */
 
         inverse_error = chol_dec( A->wgt, A->nrow );
-        alloc_tmp( (long) A->nrow );
+        alloc_tmp( (LONG) A->nrow );
         if( !inverse_error ) chol_inv( A->wgt, tmp, A->nrow );
     }
 
@@ -588,8 +588,8 @@ int lsq_solve_equations( int force_solution )
 
 
 
-void lsq_get_stats( long *lsnobs, int *lsnprm, long *lsnschp,
-                    long *lsdof, double *lsssr, double *lsseu )
+void lsq_get_stats( int *lsnobs, int *lsnprm, int *lsnschp,
+                    int *lsdof, double *lsssr, double *lsseu )
 {
 
     if( lsq_status == LSQ_UNINIT ) sequence_error( "lsq_solve_equations" );
@@ -1076,11 +1076,11 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
     /* Allocate space for the arrays */
 
-    alloc_tmp( (long) nrow * nrow + nprm );
+    alloc_tmp( (LONG) nrow * nrow + nprm );
 
     atna = tmp + nprm;
 
-#define ATNA(i,j)  atna[(long)i * A->nrow + j]
+#define ATNA(i,j)  atna[(LONG)i * A->nrow + j]
 
     for( icol = 0; icol < nrow; icol++ )
     {
@@ -1124,7 +1124,7 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
 
     for( irow = 0; irow < nrow; irow ++ )
     {
-        ratna = atna + (long) irow * nrow;
+        ratna = atna + (LONG) irow * nrow;
         chol_slv( A->wgt, ratna, ratna, nrow );
     }
 
@@ -1156,12 +1156,12 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
             if( irowunused )
             {
                 Lij(rescvr,irow,jrow) -=
-                    vecprd_vl( atna+(long)jrow * nrow, A->cvr, irow, nrow );
+                    vecprd_vl( atna+(LONG)jrow * nrow, A->cvr, irow, nrow );
             }
             if( jrowunused )
             {
                 Lij(rescvr,irow,jrow) -=
-                    vecprd_vl( atna+(long)irow * nrow, A->cvr, jrow, nrow );
+                    vecprd_vl( atna+(LONG)irow * nrow, A->cvr, jrow, nrow );
             }
         }
     }
@@ -1310,7 +1310,7 @@ int main( int argc, char *argv[] )
 {
     FILE *in, *out;
     int nprm;
-    long nobs, nschp, dof;
+    int nobs, nschp, dof;
     int maxrow;
     double seu, ssr;
     void *hA;
@@ -1320,7 +1320,7 @@ int main( int argc, char *argv[] )
     ltmat calccvr, rescvr;
     double *calcval, *resval;
     double schval, schvar;
-    long nelt;
+    LONG nelt;
     char diag;
 
 
@@ -1394,7 +1394,7 @@ int main( int argc, char *argv[] )
 
     /* Create arrays that will be needed..  */
 
-    nelt = ( (long) maxrow * (maxrow+1))/2;
+    nelt = ( (LONG) maxrow * (maxrow+1))/2;
     calccvr = (ltmat) malloc( nelt * sizeof(double) );
     rescvr = (ltmat) malloc( nelt * sizeof(double) );
     if( !calccvr || !rescvr ) handle_error( MEM_ALLOC_ERROR, NULL, NULL) ;

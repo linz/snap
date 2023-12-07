@@ -35,7 +35,7 @@ using namespace SNAP;
 
 SnapCsvObs::CsvClassification::CsvClassification(const std::string &name) : CsvValue(name), _classId(0)
 {
-    _classId = ldt_get_id(ID_CLASSTYPE, 0, name.c_str());
+    _classId = (int) ldt_get_id(ID_CLASSTYPE, 0, name.c_str());
 }
 
 int SnapCsvObs::CsvClassification::classValue()
@@ -48,7 +48,7 @@ int SnapCsvObs::CsvClassification::classValue()
 
 SnapCsvObs::CsvClassColumn::CsvClassColumn(const std::string &classname, const Column *column)
 {
-    _classId = ldt_get_id(ID_CLASSTYPE, 0, classname.c_str());
+    _classId = (int) ldt_get_id(ID_CLASSTYPE, 0, classname.c_str());
     _column = column;
 }
 
@@ -304,7 +304,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     else
     {
-        idfrom = ldt_get_id(ID_STATION, 0, _fromstn.value().c_str());
+        idfrom = (int) ldt_get_id(ID_STATION, 0, _fromstn.value().c_str());
         if (idfrom == 0)
         {
             string message = "From station code ";
@@ -323,7 +323,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         }
         else
         {
-            idto = ldt_get_id(ID_STATION, 0, _tostn.value().c_str());
+            idto = (int) ldt_get_id(ID_STATION, 0, _tostn.value().c_str());
             if (idto == 0)
             {
                 string message = "To station code ";
@@ -729,7 +729,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         if (value != "")
         {
             int idclass = cc->classId();
-            int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value.c_str());
+            int idvalue = (int) ldt_get_id(ID_CLASSNAME, idclass, value.c_str());
             ldt_classification(idclass, idvalue);
         }
     }
@@ -769,7 +769,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     if (type->projctn && _projection.value() != "")
     {
-        int id = ldt_get_id(ID_PROJCTN, 0, _projection.value().c_str());
+        int id = (int) ldt_get_id(ID_PROJCTN, 0, _projection.value().c_str());
         ldt_projection(id);
     }
     if (_note.value() != "")

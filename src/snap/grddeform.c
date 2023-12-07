@@ -1,4 +1,5 @@
 
+#include "snapconfig.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -155,9 +156,15 @@ static int print_griddef_model( void *, FILE *out, const char *prefix )
 {
     fprintf(out,"%sModel type: velocity\n",prefix );
     fprintf(out,"%sModel name: %s\n", prefix,model );
-    if( desc1 && desc1[0] ) {fprintf(out,"%s%s\n",prefix,desc1);}
-    if( desc2 && desc2[0] ) {fprintf(out,"%s%s\n",prefix,desc2);}
-    if( desc3 && desc3[0] ) {fprintf(out,"%s%s\n",prefix,desc3);}
+    if( desc1 && desc1[0] ) {
+        fprintf(out,"%s%s\n",prefix,desc1);
+    }
+    if( desc2 && desc2[0] ) {
+        fprintf(out,"%s%s\n",prefix,desc2);
+    }
+    if( desc3 && desc3[0] ) {
+        fprintf(out,"%s%s\n",prefix,desc3);
+    }
     fprintf(out,"%sReference epoch: %.1lf\n",prefix,epoch);
     return OK;
 }

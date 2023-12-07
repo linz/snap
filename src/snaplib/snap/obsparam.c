@@ -38,8 +38,8 @@ void add_survdata_observation_parameters( survdata *sd, int nprm, const char **d
     if( sd->nprms > 0 )
     {
         handle_error(FATAL_ERROR,
-                "Cannot handle multiple add_observation_parameters for same obs set",
-                "add_observation_parameters");
+                     "Cannot handle multiple add_observation_parameters for same obs set",
+                     "add_observation_parameters");
         return;
     }
     sd->nprms = nprm;
@@ -171,7 +171,7 @@ const char *get_obs_param_name( int prmid )
 void update_obs_param_value( int prmid, double value, double covar )
 {
     obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) 
+    if( oprm )
     {
         oprm->value=value;
         oprm->covar=covar;
@@ -181,7 +181,7 @@ void update_obs_param_value( int prmid, double value, double covar )
 int get_obs_param_rowno( int prmid, double *value )
 {
     obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) 
+    if( oprm )
     {
         if( value ) *value = oprm->value;
         return oprm->rowno;
@@ -193,7 +193,7 @@ int get_obs_param_rowno( int prmid, double *value )
 int get_obs_param_used( int prmid )
 {
     obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) 
+    if( oprm )
     {
         return oprm->used;
     }
@@ -204,7 +204,7 @@ int get_survdata_obs_param_rowno( survdata *sd, int prmno, double *value )
 {
     int oprmid=sd->prmid+prmno;
     obs_param *oprm = get_obs_param(oprmid);
-    if( oprm ) 
+    if( oprm )
     {
         if( value ) *value = oprm->value;
         return oprm->rowno;
@@ -268,7 +268,7 @@ int assign_obs_param_to_stations( int *pnstnobs )
             if( ! oprm || oprm->obsid != obsid )
             {
                 handle_error(FATAL_ERROR,"Mismatch in obs param count",
-                        "assign_obs_param_to_stations");
+                             "assign_obs_param_to_stations");
                 return 0;
             }
             oprm->rowno=istno;
@@ -281,7 +281,7 @@ int assign_obs_param_to_stations( int *pnstnobs )
 
 /* Second pass at allocating observation parameters to stations to improve bandwidth.
  * This sets the parameter row number for observation parameters.  The row number is
- * set based on the first station adjusted nobsprm value, which is assumed to have 
+ * set based on the first station adjusted nobsprm value, which is assumed to have
  * been set to the row number of the first obs prm for the station.  For obs
  * not allocated to stations takes the number from the nxtprm value.
  */
@@ -289,7 +289,6 @@ int assign_obs_param_to_stations( int *pnstnobs )
 void set_obs_prm_row_number( int nxtprm, int endobsprm )
 {
     if( n_obs_param <= 0 ) return;
-    int laststn=0;
     int *rownoptr=0;
     int *strn=0;
     int *stno=0;
@@ -300,10 +299,9 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
         int istn=oprm->rowno;
         if( istn <= 0 || istn > nstn )
         {
-            laststn=0;
             rownoptr=&nxtprm;
         }
-        else 
+        else
         {
             if( ! strn )
             {
@@ -325,7 +323,7 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
         if( ! *rownoptr )
         {
             handle_error(FATAL_ERROR,"Invalid row number setting obs prm",
-                    "set_obs_prm_row_number");
+                         "set_obs_prm_row_number");
             return;
         }
         oprm->rowno=(*rownoptr)++;
@@ -333,7 +331,7 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
     if( nxtprm-1 != endobsprm )
     {
         handle_error(FATAL_ERROR,"Mismatch in number of obs parameters set",
-                "set_obs_prm_row_number");
+                     "set_obs_prm_row_number");
     }
 
     if( strn )
@@ -343,7 +341,7 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
             if( stno[ist] != 0 )
             {
                 handle_error(FATAL_ERROR,"Mismatch in number of station obs parameters set",
-                    "set_obs_prm_row_number");
+                             "set_obs_prm_row_number");
             }
         }
         check_free(strn);

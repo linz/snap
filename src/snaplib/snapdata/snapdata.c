@@ -433,7 +433,7 @@ static void set_obstype_classification( snapfile_def *sd, int type,
     cd = sd->clsf + clsf_id;
     if( _stricmp(name,"none") != 0 )
     {
-        name_id = ldt_get_id( ID_CLASSNAME, cd->class_id, name );
+        name_id = (int) ldt_get_id( ID_CLASSNAME, cd->class_id, name );
     }
     if( type >= 0 )
     {
@@ -653,7 +653,7 @@ static void load_data_syserrs( snapfile_def *sd )
                 strcpy( syserrname, ds->name );
                 strcpy( syserrname + ds->name_len, "/");
                 strncpy( syserrname + ds->name_len + 1, clsf_code, 79 - ds->name_len );
-                ds->syserr_id = ldt_get_id( ID_SYSERR, 0, syserrname );
+                ds->syserr_id = (int) ldt_get_id( ID_SYSERR, 0, syserrname );
             }
         }
         if( ds->vector )
@@ -685,7 +685,7 @@ static int read_proj_command( snapfile_def *sd, int, const char *cmd )
         df_data_file_error( sd->df, MISSING_DATA, errmsg );
         return OK; // Already reported
     }
-    sd->projctn = ldt_get_id( ID_PROJCTN, 0, name );
+    sd->projctn = (int) ldt_get_id( ID_PROJCTN, 0, name );
     return OK;
 }
 
@@ -703,7 +703,7 @@ static int get_coef_class_id( snapfile_def *sd, int id )
 
 static int read_coef_command( snapfile_def *sd, int id, const char *cmd )
 {
-    char name[NAMELEN]={0};
+    char name[NAMELEN]= {0};
     int classid;
 
     coef_class_info *cinfo = coef_class( id );
@@ -785,7 +785,8 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
 
     switch( errtype )
     {
-    case DS_ERR:  errcodes[0].code = mm;
+    case DS_ERR:
+        errcodes[0].code = mm;
         errcodes[0].fact = 0.001;
         errcodes[0].value = &sd->dserr;
         errcodes[1].code = ppm;
@@ -794,7 +795,8 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
         nerrcodes = 2;
         break;
 
-    case LV_ERR:  errcodes[0].value = &sd->lverr;
+    case LV_ERR:
+        errcodes[0].value = &sd->lverr;
         errcodes[0].fact = 0.001;
         errcodes[0].code = mm;
         break;
@@ -826,20 +828,27 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
         nerrcodes = 3;
         break;
 
-    case LT_ERR:  errcodes[0].value = &sd->lterr; break;
-    case LN_ERR:  errcodes[0].value = &sd->lnerr; break;
+    case LT_ERR:
+        errcodes[0].value = &sd->lterr;
+        break;
+    case LN_ERR:
+        errcodes[0].value = &sd->lnerr;
+        break;
 
-    case OH_ERR:  errcodes[0].value = &sd->oherr;
+    case OH_ERR:
+        errcodes[0].value = &sd->oherr;
         errcodes[0].code = mm;
         errcodes[0].fact=0.001;
         break;
 
-    case EH_ERR:  errcodes[0].value = &sd->eherr;
+    case EH_ERR:
+        errcodes[0].value = &sd->eherr;
         errcodes[0].code = mm;
         errcodes[0].fact=0.001;
         break;
 
-    case GB_ERR: errcodes[0].code = mm;
+    case GB_ERR:
+        errcodes[0].code = mm;
         errcodes[0].fact = 1.0; /* 0.001; */
         errcodes[0].value = sd->gpserr;
         errcodes[1].code = ppm;
@@ -849,7 +858,8 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
         nerrvals = 3;
         break;
 
-    case GX_ERR: errcodes[0].code = mm;
+    case GX_ERR:
+        errcodes[0].code = mm;
         errcodes[0].fact = 1.0; /* 0.001; */
         errcodes[0].value = sd->gpterr;
         errcodes[1].code = mmr;
@@ -863,9 +873,10 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
         break;
 
 
-    default: handle_error(INTERNAL_ERROR,
-                              "Invalid error type code passed to read_error_command",
-                              "Occurred in module snapdata.c");
+    default:
+        handle_error(INTERNAL_ERROR,
+                     "Invalid error type code passed to read_error_command",
+                     "Occurred in module snapdata.c");
         return 0;
     }
 
@@ -881,7 +892,10 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
         char name[10];
         status = OK;
         if( df_end_of_line( sd->df )) break;
-        if( !df_read_double( sd->df, &value[0] )) { status = INVALID_DATA; break; }
+        if( !df_read_double( sd->df, &value[0] )) {
+            status = INVALID_DATA;
+            break;
+        }
         for( iv = 1; iv < nerrvals; iv++ )
         {
             status = MISSING_DATA;
@@ -889,7 +903,10 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
             status = OK;
         }
         if( status != OK ) break;
-        if( !df_read_field( sd->df, name, 10 ) ) {status = MISSING_DATA; break; }
+        if( !df_read_field( sd->df, name, 10 ) ) {
+            status = MISSING_DATA;
+            break;
+        }
         status = INVALID_DATA;
         for( ic = 0; ic < nerrcodes; ic++ )
         {
@@ -920,7 +937,8 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
         s = errmsg + strlen(errmsg);
         for( ic = 0; ic < nerrcodes; ic++ )
         {
-            strcpy( s, " " ); s++;
+            strcpy( s, " " );
+            s++;
             for( iv = 0; iv < nerrvals; iv++ )
             {
                 strcpy(s,"#.# ");
@@ -1031,8 +1049,10 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
             dist = ldt_calc_value( CALC_DISTANCE, sd->stn_id_inst, sd->stn_id_trgt );
             /* Ensure no div/0 error - mm component cannot be greater than 2 radians */
-            if( mmherr < dist/2.0 ) mmherr/=dist; else mmherr = 2;
-            if( mmverr < dist/2.0 ) mmverr/=dist; else mmverr = 2;
+            if( mmherr < dist/2.0 ) mmherr/=dist;
+            else mmherr = 2;
+            if( mmverr < dist/2.0 ) mmverr/=dist;
+            else mmverr = 2;
             mmherr *= cos(value);
             mmverr *= sin(value);
             error = sqrt(error*error+mmherr*mmherr+mmverr*mmverr);
@@ -1040,20 +1060,33 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
         ldt_error( &error );
         break;
 
-    case LT_ERR: ldt_error( &sd->lterr ); break;
-    case LN_ERR: ldt_error( &sd->lnerr ); break;
+    case LT_ERR:
+        ldt_error( &sd->lterr );
+        break;
+    case LN_ERR:
+        ldt_error( &sd->lnerr );
+        break;
 
-    case LV_ERR: ldt_error( &sd->lverr ); break;
+    case LV_ERR:
+        ldt_error( &sd->lverr );
+        break;
 
-    case GB_ERR: break;
-    case GX_ERR: break;
+    case GB_ERR:
+        break;
+    case GX_ERR:
+        break;
 
-    case OH_ERR: ldt_error( &sd->oherr ); break;
-    case EH_ERR: ldt_error( &sd->eherr ); break;
+    case OH_ERR:
+        ldt_error( &sd->oherr );
+        break;
+    case EH_ERR:
+        ldt_error( &sd->eherr );
+        break;
 
-    default: handle_error( INTERNAL_ERROR,
-                               "Invalid error type code passed to load_default_error",
-                               "Occurred in module snapdata.c");
+    default:
+        handle_error( INTERNAL_ERROR,
+                      "Invalid error type code passed to load_default_error",
+                      "Occurred in module snapdata.c");
         break;
     }
 }
@@ -1093,12 +1126,12 @@ static int read_date_command( snapfile_def *sd, int, const char *cmd )
 
     if( _stricmp(datestr, "unknown") == 0 )
     {
-        sd->date = UNDEFINED_DATE; 
+        sd->date = UNDEFINED_DATE;
         return OK;
     }
 
     date=snap_datetime_parse(datestr,0);
-    
+
     if( date == 0.0 )
     {
         char errmsg[100];
@@ -1108,7 +1141,7 @@ static int read_date_command( snapfile_def *sd, int, const char *cmd )
     }
     else
     {
-        sd->date=date; 
+        sd->date=date;
     }
 
     return OK; /* As errors are handled */
@@ -1230,7 +1263,8 @@ static int read_gps_errtype_command( snapfile_def *sd, int, const char * )
     sd->cvrupper = 0;
     if( df_read_field( sd->df, option, 20 ))
     {
-        if( ISEQ(option,"upper") ) sd->cvrupper = 1; else ok = 0;
+        if( ISEQ(option,"upper") ) sd->cvrupper = 1;
+        else ok = 0;
     }
 
     if( !ok )
@@ -1451,10 +1485,22 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
 
         /* Commands which can precede an observation type */
 
-        if( _stricmp( name, "grouped" ) == 0 ) { sd->grouped = 1; continue; }
-        if( _stricmp( name, "no_heights") == 0 ) { sd->heights = 0; continue; }
-        if( _stricmp( name, "time" ) == 0 ) { next_data_field( sd, DFT_TIME, 0, 0 ); continue; }
-        if( _stricmp( name, "date" ) == 0 ) { next_data_field( sd, DFT_DATE, 0, 0 ); continue; }
+        if( _stricmp( name, "grouped" ) == 0 ) {
+            sd->grouped = 1;
+            continue;
+        }
+        if( _stricmp( name, "no_heights") == 0 ) {
+            sd->heights = 0;
+            continue;
+        }
+        if( _stricmp( name, "time" ) == 0 ) {
+            next_data_field( sd, DFT_TIME, 0, 0 );
+            continue;
+        }
+        if( _stricmp( name, "date" ) == 0 ) {
+            next_data_field( sd, DFT_DATE, 0, 0 );
+            continue;
+        }
 
         /* An observation type */
 
@@ -1567,8 +1613,8 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
 
     if( sd->definition_err )
     {
-        char errmsg[100];
-        sprintf( errmsg,"Field \"%s\" invalid or out of place in %c%s",name,
+        char errmsg[256];
+        sprintf( errmsg,"Field \"%.80s\" invalid or out of place in %c%.80ss",name,
                  COMMAND_PREFIX,cmd );
         df_data_file_error( sd->df, INVALID_DATA, errmsg );
     }
@@ -1637,7 +1683,9 @@ static void setup_cvr_rows( snapfile_def *sd )
         else
         {
             int r = (ve->nvecobs - 1)*3;
-            row[i3] = r; row[i3+1] = r+1; row[i3+2] = r+2;
+            row[i3] = r;
+            row[i3+1] = r+1;
+            row[i3+2] = r+2;
         }
     }
 }
@@ -1736,13 +1784,25 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
                 if( !cvrused ) ri = -1;
                 if( sd->cvrupper )
                 {
-                    if( cvrtype == CVR_FULL ) { j3min = i3; j3max = nvecrow-1; }
-                    else { j3min = i3+1; j3max = nvecrow-1; }
+                    if( cvrtype == CVR_FULL ) {
+                        j3min = i3;
+                        j3max = nvecrow-1;
+                    }
+                    else {
+                        j3min = i3+1;
+                        j3max = nvecrow-1;
+                    }
                 }
                 else
                 {
-                    if( cvrtype == CVR_FULL ) { j3min = 0; j3max = i3; }
-                    else { j3min = 0; j3max = i3-1; }
+                    if( cvrtype == CVR_FULL ) {
+                        j3min = 0;
+                        j3max = i3;
+                    }
+                    else {
+                        j3min = 0;
+                        j3max = i3-1;
+                    }
                 }
 
 
@@ -1815,7 +1875,9 @@ static int read_vector_error( snapfile_def *sd )
     {
         double tmp;
         cvr = sd->currvecerr->vecerr;
-        tmp = cvr[2]; cvr[2] = cvr[3]; cvr[3] = tmp;
+        tmp = cvr[2];
+        cvr[2] = cvr[3];
+        cvr[3] = tmp;
     }
 
 
@@ -1872,7 +1934,10 @@ static int read_sign( DATAFILE *df, const char *sign, double *value )
     if( !df_read_field( df, field, 2 )) return 0;
     _strupr( field );
     if( field[0] == sign[0] ) return 1;
-    if( field[0] == sign[1] ) { *value = - *value; return 1; }
+    if( field[0] == sign[1] ) {
+        *value = - *value;
+        return 1;
+    }
     return 0;
 }
 
@@ -1909,10 +1974,18 @@ static int read_data_data( snapfile_def *sd, data_field *fld )
     {
         switch( sd->dmsformat )
         {
-        case AF_HP:  sts = df_read_hpangle( sd->df, value ); break;
-        case AF_DMS: sts = df_read_dmsangle( sd->df, value ); break;
-        case AF_DEG: sts = df_read_degangle( sd->df, value ); break;
-        default: handle_error(INTERNAL_ERROR,"Invalid angle format",__FILE__ " read_data_data" ); break;
+        case AF_HP:
+            sts = df_read_hpangle( sd->df, value );
+            break;
+        case AF_DMS:
+            sts = df_read_dmsangle( sd->df, value );
+            break;
+        case AF_DEG:
+            sts = df_read_degangle( sd->df, value );
+            break;
+        default:
+            handle_error(INTERNAL_ERROR,"Invalid angle format",__FILE__ " read_data_data" );
+            break;
         }
         if( sd->dmsformat != AF_DEG )
         {
@@ -2031,7 +2104,10 @@ static int start_obs( snapfile_def *sd, data_field *fld )
 
     if( sd->obsclass == SD_VECDATA )
     {
-        if( !sd->goterr ) { sd->cvrtype = CVR_DEFAULT; sd->nveccvr = 0; }
+        if( !sd->goterr ) {
+            sd->cvrtype = CVR_DEFAULT;
+            sd->nveccvr = 0;
+        }
         if( sd->grouped ) sd->goterr = 1;
         start_vector_error( sd );
     }
@@ -2081,7 +2157,7 @@ static int read_station( snapfile_def *sd, int *stn_id, double *hgt )
         return INVALID_DATA;
     }
 
-    *stn_id = ldt_get_id( ID_STATION, 0, name );
+    *stn_id = (int) ldt_get_id( ID_STATION, 0, name );
     if( *stn_id == 0 )
     {
         char errmsg[100];
@@ -2205,17 +2281,33 @@ static int read_data_line( snapfile_def *sd, int rej )
             if( sd->skipobs && fld->type != DFT_START ) continue;
             switch( fld->type )
             {
-            case DFT_START:  if( sd->inobs ) end_obs( sd );
+            case DFT_START:
+                if( sd->inobs ) end_obs( sd );
                 start_obs( sd, fld );
                 break;
-            case DFT_DATA:   read_data_data( sd, fld ); break;
-            case DFT_ERROR:  read_data_error( sd, fld ); break;
-            case DFT_DATE:   read_data_date( sd, fld ); break;
-            case DFT_TIME:   read_data_time( sd, fld ); break;
-            case DFT_OBSID:  read_data_obs_id( sd ); break;
-            case DFT_CLASS:  read_data_classification( sd, fld ); break;
-            case DFT_SYSERR: read_data_syserr( sd, fld ); break;
-            default: assert(0);
+            case DFT_DATA:
+                read_data_data( sd, fld );
+                break;
+            case DFT_ERROR:
+                read_data_error( sd, fld );
+                break;
+            case DFT_DATE:
+                read_data_date( sd, fld );
+                break;
+            case DFT_TIME:
+                read_data_time( sd, fld );
+                break;
+            case DFT_OBSID:
+                read_data_obs_id( sd );
+                break;
+            case DFT_CLASS:
+                read_data_classification( sd, fld );
+                break;
+            case DFT_SYSERR:
+                read_data_syserr( sd, fld );
+                break;
+            default:
+                assert(0);
             }
         }
     }
@@ -2232,7 +2324,7 @@ static int read_data_line( snapfile_def *sd, int rej )
         }
         else
         {
-           df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in data file");
+            df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in data file");
         }
     }
     return OK;

@@ -1,4 +1,5 @@
 
+#include "snapconfig.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -35,7 +36,10 @@ typedef struct
 static void delete_csdefmodel( CrdsysDefModel *model )
 {
     if( model == NULL ) return;
-    if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
+    if( model->stdefs ) {
+        check_free(model->stdefs);
+        model->stdefs = NULL;
+    }
     check_free(model);
 }
 

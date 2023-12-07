@@ -46,8 +46,8 @@ static int inst_id=0;
 static trgtdata *tgt = NULL;
 static int tgt_id=0;
 static double tgt_hgt;
-static long file_lineno;
-static long noteloc;
+static int file_lineno;
+static LONG noteloc;
 static int inst_cancelled;
 static int trgt_cancelled;
 static int data_cancelled;
@@ -202,7 +202,7 @@ static void init_coef_class_id()
         {
             coef_class_id[i].classname = copy_string( coef_classes[i].default_classname );
         }
-        coef_class_id[i].idclass = ldt_get_id( ID_CLASSTYPE,0, coef_class_id[i].classname);
+        coef_class_id[i].idclass = (int) ldt_get_id( ID_CLASSTYPE,0, coef_class_id[i].classname);
         coef_class_id[i].idname = ID_UNDEFINED;
         coef_class_id[i].idcoef = ID_UNDEFINED;
     }
@@ -212,7 +212,7 @@ static int get_coef_id( int coeftype, int idname )
 {
     if( idname==coef_class_id[coeftype].idname) return coef_class_id[coeftype].idcoef;
     const char * name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
-    int idcoef = ldt_get_id( ID_COEF, coeftype, name );
+    int idcoef = (int) ldt_get_id( ID_COEF, coeftype, name );
     coef_class_id[coeftype].idcoef = idcoef;
     coef_class_id[coeftype].idname = idname;
     return idcoef;
@@ -285,7 +285,7 @@ static int get_recoded_id( int id, int *reject )
         {
             int reject = tgt[0] == RECODE_IGNORE_CHAR ? 1 : 0;
             rid->reject = reject;
-            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt+reject );
+            rid->id = (int) ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt+reject );
         }
         rid->recoded=1;
     }
@@ -342,9 +342,9 @@ static void report_error( const char *location )
 }
 
 void init_load_data( void (*usedata)( survdata *sd ),
-                     long (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*codefunc)( int type, int group_id, long id ),
-                     double (*calcfunc)( int type, long id1, long id2 ))
+                     LONG (*idfunc)( int type, LONG group_id, const char *code ),
+                     const char * (*codefunc)( int type, LONG group_id, LONG id ),
+                     double (*calcfunc)( int type, LONG id1, LONG id2 ))
 {
     DEBUG_PRINT(("LDT: init_load_data"));
     usedata_func = usedata;
@@ -454,12 +454,12 @@ static void check_data( void )
         {
             if( projid == ID_UNDEFINED)
             {
-                projid = ldt_get_id( ID_PROJCTN, 0, DEFAULT_PROJECTION );
+                projid = (int) ldt_get_id( ID_PROJCTN, 0, DEFAULT_PROJECTION );
             }
             data.reffrm = projid;
             if( projclassid == ID_UNDEFINED )
             {
-                projclassid = ldt_get_id( ID_CLASSTYPE, 0, "projection" );
+                projclassid = (int) ldt_get_id( ID_CLASSTYPE, 0, "projection" );
             }
             if( projclassid )
             {
@@ -467,7 +467,7 @@ static void check_data( void )
                 {
                     const char *code = ldt_get_code( ID_PROJCTN, 0, projid );
                     projidcache = projid;
-                    projcodeid = ldt_get_id( ID_CLASSNAME, projclassid, code );
+                    projcodeid = (int) ldt_get_id( ID_CLASSNAME, projclassid, code );
                 }
                 ldt_classification( projclassid, projcodeid );
             }
@@ -480,7 +480,7 @@ static void check_data( void )
                 // If refraction coefficient not yet defined then define it (via classification)
                 if( default_refcoef == ID_UNDEFINED)
                 {
-                    default_refcoef = ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFCOEF_NAME);
+                    default_refcoef = (int) ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFCOEF_NAME);
                 }
                 ldt_classification( idclass, default_refcoef );
             }
@@ -489,7 +489,7 @@ static void check_data( void )
             {
                 if( default_refcoef == ID_UNDEFINED )
                 {
-                    default_refcoef = ldt_get_id( ID_COEF, COEF_CLASS_REFCOEF, DEFAULT_REFCOEF_NAME );
+                    default_refcoef = (int) ldt_get_id( ID_COEF, COEF_CLASS_REFCOEF, DEFAULT_REFCOEF_NAME );
                 }
                 od->refcoef = default_refcoef;
             }
@@ -506,7 +506,7 @@ static void check_data( void )
                 // If reference frame not yet defined then define it (via classification)
                 if( data.reffrm == ID_UNDEFINED )
                 {
-                    int id = ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFFRM_NAME);
+                    int id = (int) ldt_get_id( ID_CLASSNAME, idclass, DEFAULT_REFFRM_NAME);
                     ldt_classification( idclass, id );
                 }
                 // Else if subsequent vector and not classified then use previous classification
@@ -520,7 +520,7 @@ static void check_data( void )
             {
                 if( default_reffrm == ID_UNDEFINED )
                 {
-                    default_reffrm = ldt_get_id( ID_COEF, COEF_CLASS_REFFRM, DEFAULT_REFFRM_NAME );
+                    default_reffrm = (int) ldt_get_id( ID_COEF, COEF_CLASS_REFFRM, DEFAULT_REFFRM_NAME );
                 }
                 data.reffrm = default_reffrm;
             }
@@ -666,7 +666,7 @@ static void clear_cvr( int ndim, ltmat cvr )
 
 static ltmat alloc_cvr( void )
 {
-    long cvrsize;
+    LONG cvrsize;
     int dimreq;
     dimreq = data.nobs * 3;
     if( dimreq > cvrdim )
@@ -676,7 +676,7 @@ static ltmat alloc_cvr( void )
         if( rescvr ) free( rescvr );
         cvr = calccvr = rescvr = NULL;
         cvrdim = dimreq + 6;
-        cvrsize = ( (long) cvrdim * (long) (cvrdim+1) ) / 2;
+        cvrsize = ( (LONG) cvrdim * (LONG) (cvrdim+1) ) / 2;
         cvr = (ltmat) malloc( cvrsize * sizeof( double ) );
         calccvr = (ltmat) malloc( cvrsize * sizeof( double ) );
         rescvr = (ltmat) malloc( cvrsize * sizeof( double ) );
@@ -723,7 +723,7 @@ static classdata *getclassdata( void )
     return classblock + idx;
 }
 
-long ldt_get_id( int type, int group_id, const char *code )
+LONG ldt_get_id( int type, LONG group_id, const char *code )
 {
     if( type == ID_STATION && recoding )
     {
@@ -737,7 +737,7 @@ long ldt_get_id( int type, int group_id, const char *code )
     return (*id_func)( type, group_id, code );
 }
 
-const char *ldt_get_code( int type, int group_id, long id )
+const char *ldt_get_code( int type, LONG group_id, LONG id )
 {
     if( type == ID_STATION && recoding )
     {
@@ -747,7 +747,7 @@ const char *ldt_get_code( int type, int group_id, long id )
     return (*code_func)( type, group_id, id );
 }
 
-double ldt_calc_value( int calc_type, long id1, long id2 )
+double ldt_calc_value( int calc_type, LONG id1, LONG id2 )
 {
     if( recoding )
     {
@@ -755,8 +755,8 @@ double ldt_calc_value( int calc_type, long id1, long id2 )
         {
         case CALC_DISTANCE:
         case CALC_HDIST:
-            id1=get_recoded_id( id1, 0 );
-            id2=get_recoded_id( id2, 0 );
+            id1=get_recoded_id( (int) id1, 0 );
+            id2=get_recoded_id( (int) id2, 0 );
             break;
         }
     }
@@ -774,7 +774,7 @@ void ldt_file( int fileno  )
     data.file = fileno;
 }
 
-void ldt_lineno( long lineno )
+void ldt_lineno( int lineno )
 {
     DEBUG_PRINT(("LDT: ldt_lineno %ld", lineno ));
     file_lineno = lineno;
@@ -1046,15 +1046,15 @@ void ldt_vecsyserr( int syserr_id, double influence[] )
 
 void ldt_prefix_note( const char *note )
 {
-    long newnote;
+    LONG newnote;
     DEBUG_PRINT(("LDT: ldt_prefix_note %s",note));
-    newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
+    newnote = (int) ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
     if( !noteloc ) noteloc = newnote;
 }
 
 void ldt_note( const char *note )
 {
-    long newnote;
+    LONG newnote;
     DEBUG_PRINT(("LDT: ldt_note %s",note));
 
     if( !tgt )
@@ -1062,7 +1062,7 @@ void ldt_note( const char *note )
         report_error( "ldt_postfix_note" );
         return;
     }
-    newnote = ldt_get_id( ID_NOTE, tgt->noteloc ? 1 : 0, note );
+    newnote = (int) ldt_get_id( ID_NOTE, tgt->noteloc ? 1 : 0, note );
     if( !tgt->noteloc ) tgt->noteloc = newnote;
 }
 

@@ -59,7 +59,7 @@ void lsq_zero_b_vector( void );
 /* the number of constraints applied.                      */
 
 int lsq_solve_equations( int force_solution );
-void lsq_get_stats( long *nobs, int *nprm, long *nschp, long *dof,
+void lsq_get_stats( int *nobs, int *nprm, int *nschp, int *dof,
                     double *ssr, double *seu );
 
 /* Get covariance row returns one row of the full covar     */

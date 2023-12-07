@@ -107,7 +107,7 @@ void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
    data routines assemble these to convert the data to a standard internal
    format */
 
-int ldt_get_id( int type, LONG group_id, const char *code );
+LONG ldt_get_id( int type, LONG group_id, const char *code );
 const char *ldt_get_code( int type, LONG group_id, LONG id );
 double ldt_calc_value( int calc_type, LONG id1, LONG id2 );
 

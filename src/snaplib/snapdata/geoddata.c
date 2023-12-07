@@ -49,7 +49,7 @@ static double gb_date( int ldate, int itime );
 
 int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 {
-    char type[3], errmess[80];
+    char type[3], errmess[120];
     int dtype;
     char heights;
     char dms;
@@ -128,7 +128,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
         }
         else
         {
-            from = ldt_get_id( ID_STATION, 0, fromcode );
+            from = (int) ldt_get_id( ID_STATION, 0, fromcode );
         }
         if( inobs && strcmp(tocode,"0") == 0 )
         {
@@ -136,7 +136,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
         }
         else
         {
-            to = ldt_get_id( ID_STATION, 0, tocode );
+            to = (int) ldt_get_id( ID_STATION, 0, tocode );
         }
 
 
@@ -189,7 +189,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
             inobs = 0;
             if( from == 0 )
             {
-                sprintf(errmess,"Station number %s in the data file is missing from the coordinate file",fromcode );
+                sprintf(errmess,"Station number %.20s in the data file is missing from the coordinate file",fromcode );
                 df_data_file_error(d, INVALID_DATA, errmess );
                 continue;
             }
@@ -204,7 +204,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 
         if( to <= 0 )
         {
-            sprintf(errmess,"Station number %s in data file is missing from the coordinate file",tocode);
+            sprintf(errmess,"Station number %.20s in data file is missing from the coordinate file",tocode);
             df_data_file_error(d, INVALID_DATA, errmess );
             continue;
         }
@@ -230,9 +230,9 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
             int nameid;
             if( refclassid == -1 )
             {
-                refclassid = ldt_get_id( ID_CLASSTYPE, 0, coef_class(COEF_CLASS_REFCOEF)->default_classname );
+                refclassid = (int) ldt_get_id( ID_CLASSTYPE, 0, coef_class(COEF_CLASS_REFCOEF)->default_classname );
             }
-            nameid = ldt_get_id( ID_CLASSNAME, 0, rcname );
+            nameid = (int) ldt_get_id( ID_CLASSNAME, 0, rcname );
             ldt_classification( refclassid, nameid );
         }
     }

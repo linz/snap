@@ -96,11 +96,11 @@ void set_snap_command_file( char *cmd_file )
         char *cf;
         int nchmax;
         nchmax = strlen(DFLTCOMMAND_EXT);
-        if( strlen(DFLTCOMMAND_EXT2) > nchmax )
+        if( strlen(DFLTCOMMAND_EXT2) > (size_t) nchmax )
         {
             nchmax=strlen(DFLTCOMMAND_EXT2);
         }
-        if( strlen(DFLTCOMMAND_EXT3) > nchmax )
+        if( strlen(DFLTCOMMAND_EXT3) > (size_t) nchmax )
         {
             nchmax=strlen(DFLTCOMMAND_EXT3);
         }
@@ -116,7 +116,7 @@ void set_snap_command_file( char *cmd_file )
         if( ! file_exists(cf))
         {
             strcpy(cf,cmd_file);
-            strcat(cf,DFLTCOMMAND_EXT3);            
+            strcat(cf,DFLTCOMMAND_EXT3);
         }
         if( ! file_exists(cf))
         {

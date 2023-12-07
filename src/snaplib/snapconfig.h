@@ -1,12 +1,16 @@
 #ifndef _SNAPCONFIG_H
 #define _SNAPCONFIG_H
 
+#include <stdint.h>
+
 #ifndef UNIX
 #if !defined(_WIN32) && !defined(_MSC_VER)
 #define UNIX
 #endif
 #endif
 
+#define INT int32_t
+#define LONG int64_t
 
 #if defined(UNIX)
 // unix version of functions

@@ -1,3 +1,4 @@
+#include "snapconfig.h"
 #include <stdio.h>
 
 #include "snapdata/datatype.h"

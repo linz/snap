@@ -377,7 +377,7 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
         int nrow=blt_nrows( blt );
         LONG nelement=blt_requested_size( blt );
         double pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
-        fprintf(ra->logfile,"   Requested matrix size  size %d rows %lld elements %.2lf%% full\n",
+        fprintf(ra->logfile,"   Requested matrix size %d rows %lld elements %.2lf%% full\n",
                 nrow, (long long) nelement, pcntfull );
         fprintf(ra->logfile,"   Maximum bandwidth requested %d between %s and %s\n",
                 ra->maxreqbandwidth,stnptr(ra->maxreqistn)->Code,stnptr(ra->maxreqjstn)->Code);

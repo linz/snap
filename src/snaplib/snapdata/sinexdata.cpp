@@ -178,8 +178,8 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     // Try creating the record
 
     // coef_class_info *ci=coef_class( COEF_CLASS_REFFRM );
-    int classid = ldt_get_id(ID_COEFCLASS, COEF_CLASS_REFFRM, 0);
-    int idreffrm = ldt_get_id(ID_CLASSNAME, classid, ref_frame.c_str());
+    int classid = (int) ldt_get_id(ID_COEFCLASS, COEF_CLASS_REFFRM, 0);
+    int idreffrm = (int) ldt_get_id(ID_CLASSNAME, classid, ref_frame.c_str());
 
     ldt_inststn(0, 0.0);
     ldt_date(obsdate);
@@ -187,7 +187,7 @@ void SinexDataReader::loadObservations(RecordInputBase &dfi)
     {
         for (auto pt = points.begin(); pt != points.end(); pt++)
         {
-            int tgtid = ldt_get_id(ID_STATION, 0, (*pt)->code.c_str());
+            int tgtid = (int) ldt_get_id(ID_STATION, 0, (*pt)->code.c_str());
             if (tgtid == 0)
                 dfi.raiseError(std::string("Undefined station ") + (*pt)->code);
             ldt_lineno((*pt)->lineno);

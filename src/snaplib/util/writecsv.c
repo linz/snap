@@ -104,10 +104,10 @@ void write_csv_string( output_csv *csv, const char *value )
     }
 }
 
-void write_csv_int( output_csv *csv, long long value )
+void write_csv_int( output_csv *csv, LONG value )
 {
     start_field( csv );
-    if(fprintf( csv->f, "%lld", value ) < 0) csv->errcount++;
+    if(fprintf( csv->f, "%lld", (long long) value ) < 0) csv->errcount++;
 }
 
 void write_csv_double( output_csv *csv, double value, int ndp )

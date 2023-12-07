@@ -1,4 +1,5 @@
 
+#include "snapconfig.h"
 #include <stdio.h>
 #include <math.h>
 
@@ -45,10 +46,22 @@ typedef struct
 static void delete_linzdefmodel( LinzDefModel *model )
 {
     if( model == NULL ) return;
-    if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
-    if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
-    if( model->linzdef ) { utlBlobClose(model->blob); model->blob = NULL; }
-    if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
+    if( model->linzdef ) {
+        utlReleaseLinzDef(model->linzdef);
+        model->linzdef = NULL;
+    }
+    if( model->binsrc ) {
+        utlReleaseBinSrc(model->binsrc);
+        model->binsrc = NULL;
+    }
+    if( model->linzdef ) {
+        utlBlobClose(model->blob);
+        model->blob = NULL;
+    }
+    if( model->stdefs ) {
+        check_free(model->stdefs);
+        model->stdefs = NULL;
+    }
     check_free(model);
 }
 
@@ -74,7 +87,10 @@ static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
     if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
     if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
 
-    if( sts != STS_OK ) { delete_linzdefmodel( model ); model = NULL; }
+    if( sts != STS_OK ) {
+        delete_linzdefmodel( model );
+        model = NULL;
+    }
 
     return model;
 }

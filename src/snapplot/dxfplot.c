@@ -456,7 +456,7 @@ int open_dxf_file( const char *dxfname )
             if( ! layer_name[i] ) continue;
             if( i > 0 )
             {
-                get_pen_colour( i-1, &red, &green, &blue );
+                get_pen_colour( i-1, red, green, blue );
                 colourid = dxf_colour_id( red, green, blue );
             }
             fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
