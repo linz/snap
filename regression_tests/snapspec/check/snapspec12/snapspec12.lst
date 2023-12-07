@@ -932,7 +932,8 @@ Applying relative accuracy test
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
-   Matrix size 80 rows 3240 elements 100.00% full
+   Requested matrix size 80 rows 3240 elements 100.00% full
+   Maximum bandwidth requested 79 between F34 and F01
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
 
 Pass 2: Calculating with extra covariance information

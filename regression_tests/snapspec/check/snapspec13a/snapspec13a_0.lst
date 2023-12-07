@@ -1,8 +1,8 @@
-snapspec version 2.8.7-85ee5fb4: Calculation of station orders
-Run at 30-NOV-2023 21:10:23
+snapspec version 2.8.7-1b7b99cf: Calculation of station orders
+Run at  7-DEC-2023 15:26:14
 SNAP binary file: snapspec13a.bin
 Spec configuration file: snapspec13a.cfg
-SNAP run time: 30-NOV-2023 21:10:23
+SNAP run time:  7-DEC-2023 15:26:14
 Running apriori tests
 
 
@@ -932,7 +932,8 @@ Applying relative accuracy test
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
-   Matrix size 80 rows 3240 elements 100.00% full
+   Requested matrix size 80 rows 3240 elements 100.00% full
+   Maximum bandwidth requested 79 between F34 and F01
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
 
 Pass 2: Calculating with extra covariance information
@@ -1753,16 +1754,16 @@ Applying relative accuracy test
    Vector 41 to 38 true relative accuracy pass (0.04736683 < 0.16690410)
    Vector 41 to 39 true relative accuracy pass (0.00889012 < 0.16690410)
    Vector 41 to 40 true relative accuracy pass (0.04726693 < 0.16690410)
-   .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
+   .. Completed first pass using known covariances took 0.00 seconds (total 0.01 seconds)
   Summarizing relative accuracy data
-   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
+   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.01 seconds)
   35 stations passed relative accuracy tests
-   .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
+   .. Relative accuracy tests completed took 0.00 seconds (total 0.01 seconds)
 Setting node orders
-   .. Orders updated took 0.00 seconds (total 0.00 seconds)
+   .. Orders updated took 0.00 seconds (total 0.01 seconds)
 ==============================================================
 Applying default order to remaining nodes
-   .. Default order applied to remaining nodes took 0.00 seconds (total 0.00 seconds)
+   .. Default order applied to remaining nodes took 0.00 seconds (total 0.01 seconds)
 ==============================================================
 Results of order calculations
 

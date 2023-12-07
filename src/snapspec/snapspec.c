@@ -113,6 +113,9 @@ typedef struct
     int autominorder;
     int dfltminrelacc;
     int ignoreconstrained;
+    int maxreqbandwidth;
+    int maxreqistn;
+    int maxreqjstn;
 } stn_relacc_array;
 
 typedef struct cfg_stack_s
@@ -215,6 +218,9 @@ static stn_relacc_array *create_relacc()
     ra->autominorder = 0;
     ra->ignoreconstrained = 0;
     ra->dfltminrelacc = 0;
+    ra->maxreqbandwidth = 0;
+    ra->maxreqistn = -1;
+    ra->maxreqjstn = -1;
     return ra;
 }
 
@@ -371,8 +377,10 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
         int nrow=blt_nrows( blt );
         LONG nelement=blt_requested_size( blt );
         double pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
-        fprintf(ra->logfile,"   Matrix size %d rows %lld elements %.2lf%% full\n",
+        fprintf(ra->logfile,"   Requested matrix size  size %d rows %lld elements %.2lf%% full\n",
                 nrow, (long long) nelement, pcntfull );
+        fprintf(ra->logfile,"   Maximum bandwidth requested %d between %s and %s\n",
+                ra->maxreqbandwidth,stnptr(ra->maxreqistn)->Code,stnptr(ra->maxreqjstn)->Code);
         fflush(ra->logfile);
     }
     copy_bltmatrix( bltdec, blt );
@@ -412,6 +420,14 @@ static void relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jst
     blt_nonzero_element( ra->bltreq, irow+1, minrow );
     blt_nonzero_element( ra->bltreq, jrow, minrow );
     blt_nonzero_element( ra->bltreq, jrow+1, minrow );
+
+    int bandwidth=abs(irow-jrow)+1;
+    if( bandwidth > ra->maxreqbandwidth)
+    {
+        ra->maxreqbandwidth=bandwidth;
+        ra->maxreqistn=istn;
+        ra->maxreqjstn=jstn;
+    }
 }
 
 static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jstn )
