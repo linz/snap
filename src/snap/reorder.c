@@ -18,6 +18,7 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
 
 #ifndef TEST
 
@@ -44,7 +45,7 @@
 #include "reorder.h"
 #undef REORDER_C
 
-#define NO_CONNECTIONS 10
+#define NO_CONNECTIONS_INIT 32
 #define REORDER_THRESHOLD 50
 
 
@@ -79,8 +80,8 @@ static int *order1, *order2;
 
 static void init_connection( connections *conn )
 {
-        conn->count = conn->maxcount = 0;
-        conn->list = NULL;
+    conn->count = conn->maxcount = 0;
+    conn->list = NULL;
 }
 
 int init_connections( int nnodes )
@@ -135,7 +136,10 @@ void create_order_arrays( void )
     if( order2 ) check_free(order2);
     order1 = (int *) check_malloc( (nconnlst+1)*2*sizeof(int) );
     order2 = order1 + nconnlst + 1;
-    for( int i=0; i<=nconnlst;i++){ order1[i]=0; order2[i]=0; }
+    for( int i=0; i<=nconnlst; i++) {
+        order1[i]=0;
+        order2[i]=0;
+    }
 }
 
 
@@ -154,13 +158,14 @@ static void add_station_connection( int stn, connections *conn )
     ncount = conn->maxcount;
     if( i >= ncount )
     {
-        conn->maxcount += NO_CONNECTIONS;
         if( !ncount )
         {
+            conn->maxcount = NO_CONNECTIONS_INIT;
             conn->list = (int *) check_malloc( conn->maxcount * sizeof(int) );
         }
         else
         {
+            conn->maxcount *= 2;
             conn->list =
                 (int *) check_realloc( conn->list, conn->maxcount * sizeof(int) );
         }
@@ -533,6 +538,58 @@ static void dump_ordering( FILE *lst )
 
 #ifndef TEST
 
+/* Add connections for all stations within a specified distance of each other */
+
+
+static int stncmplat( const void *idx1, const void *idx2 )
+{
+
+    double lat1 = stnptr(*(int *)idx1)->ELat;
+    double lat2 = stnptr(*(int *)idx2)->ELat;
+    return lat2 > lat1 ? 1 : lat2 < lat1 ? -1 : 0;
+}
+
+long add_proximity_connections( double proximity )
+{
+    /* Form list of station ordered by latitude with indices in order2.  This is called after order1
+    has been initiallized with 0 for adjusted stations and > 0 for unadjusted stations.  order1 index
+    runs from 1 to nconnlst
+    */
+
+    int nused=0;
+    for( int i1=1; i1++ < nconnlst; )
+    {
+        if( order1[i1] == 0 ) order2[nused++]=i1;
+    }
+    qsort( order2, nused, sizeof( int ), stncmplat );
+
+    /* Loop through list each station finding all the stations with a larger
+       latitude within the specified proximity in order of latitude until
+       the latitude difference is greater than the proximity.  Add connections
+       if the stations are within the specified proximity of each other.
+    */
+
+    long nconn=0;
+    for( int i1 = 0; i1 < nused-1; i1++ )
+    {
+        int istn1 = order2[i1];
+        station *stn1 = stnptr(istn1);
+        double maxlat=stn1->ELat+(proximity/stn1->dNdLt)*1.05; /* Add a small tolerance */
+        for( int i2 = i1+1; i2 < nused-1; i2++ )
+        {
+            int istn2 = order2[i2];
+            station *stn2 = stnptr(istn2);
+            if( stn2->ELat > maxlat ) break;
+            double distance = calc_ellipsoidal_distance(stn1,stn2,0,0);
+            if(distance <= proximity)
+            {
+                nconn++;
+                add_connection(istn1,istn2);
+            }
+        }
+    }
+    return nconn;
+}
 
 /* Set row numbers does two jobs.  Firstly it allocates row numbers for
    each station.  Secondly it records all connections from a station to
@@ -574,8 +631,14 @@ static void set_row_numbers( int nprm )
 
         lowest = nrow;
         connlst[istn].level = lowest;
-        if( sa->hrowno > 0 ) { sa->hrowno=nrow; nrow += 2; }
-        if( sa->vrowno > 0 ) { sa->vrowno=nrow; nrow ++; }
+        if( sa->hrowno > 0 ) {
+            sa->hrowno=nrow;
+            nrow += 2;
+        }
+        if( sa->vrowno > 0 ) {
+            sa->vrowno=nrow;
+            nrow ++;
+        }
         nrow += sa->nobsprm;
 
         /* Check through the connections to find a connection to a lower
@@ -656,11 +719,11 @@ int setup_parameters( FILE *lst )
     }
 
     /* If we have saved connections then use them to generate an optimal
-       ordering of the stations 
+       ordering of the stations
 
        Add observation set parameters to row counts, an set nobsprm
        to the next observation set parameter id.
-       
+
        */
 
     if( reorder_stations != SKIP_REORDERING )
@@ -668,17 +731,28 @@ int setup_parameters( FILE *lst )
 
         xprintf("\nReordering the stations\n");
 
-        if( output_debug_reordering ) 
+        if( output_debug_reordering )
         {
             print_section_header( lst, "Station row reordering" );
-            dump_connection_list( lst );
         }
         create_order_arrays();
         exclude_stations();   /* for unobserved stations */
+        if( proximity_test > 0.0 )
+        {
+            long nproxconn=add_proximity_connections(proximity_test);
+            if( output_debug_reordering )
+            {
+                fprintf(lst,"Adding %ld connections with proximity <= %.2lfm\n",(long) nproxconn, proximity_test);
+            }
+        }
+        if( output_debug_reordering )
+        {
+            dump_connection_list( lst );
+        }
         order_nodes();
         set_row_numbers( nrowst );
         blt_set_sparse_rows( lsq_normal_matrix(), nrowst );
-        if( output_debug_reordering ) 
+        if( output_debug_reordering )
         {
             dump_ordering( lst );
             print_section_footer( lst );
@@ -695,8 +769,14 @@ int setup_parameters( FILE *lst )
         {
             stn_adjustment *sa;
             sa = stnadj(stnptr(istn));
-            if( sa->hrowno ) {sa->hrowno = nrow; nrow += 2;}
-            if( sa->vrowno ) {sa->vrowno = nrow; nrow ++;}
+            if( sa->hrowno ) {
+                sa->hrowno = nrow;
+                nrow += 2;
+            }
+            if( sa->vrowno ) {
+                sa->vrowno = nrow;
+                nrow ++;
+            }
             nrow += sa->nobsprm;
         }
     }

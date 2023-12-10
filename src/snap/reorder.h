@@ -23,9 +23,11 @@ int setup_parameters( FILE *lst );
 #ifdef REORDER_C
 int save_connections = 1;
 int reorder_stations = DEFAULT_REORDERING;
+double proximity_test = 0.0;
 #else
 extern int save_connections;
 extern int reorder_stations;
+extern double proximity_test;
 #endif
 
 #endif

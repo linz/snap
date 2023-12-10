@@ -1266,7 +1266,7 @@ void print_floated_stations( FILE *out )
     }
     else
     {
-        fprintf(out,"Significance is based on the Tau distribution with %d degrees of freedom\n",
+        fprintf(out,"Significance is based on the Tau distribution with %ld degrees of freedom\n",
                 dof);
     }
 

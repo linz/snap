@@ -44,6 +44,7 @@
 #include "snap/cfgprocs.h"
 #include "snap/deform.h"
 #include "snap/genparam.h"
+#include "snap/reorder.h"
 #include "snap/rftrans.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
@@ -104,8 +105,8 @@ static int read_gps_vertical( CFG_FILE *cfg, char *string, void *value, int len,
 static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_sort_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int set_magic_number( CFG_FILE *cfg, char *string ,void *value, int len, int code );
-static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value, int len, int code );
+static int set_magic_number( CFG_FILE *cfg, char *string,void *value, int len, int code );
+static int read_configuration_command( CFG_FILE *cfg, char *string,void *value, int len, int code );
 static int read_output_precision( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_deformation_model(CFG_FILE *cfg, char *string, void *value, int len, int code );
@@ -148,7 +149,7 @@ static config_item snap_commands[] =
     {"mode",&program_mode,CFG_ABSOLUTE,0,read_program_mode,CONFIG_CMD,0},
     {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
-    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0 , 0},
+    {"output_coordinate_file",NULL,CFG_ABSOLUTE,0,set_output_coordinate_file,0, 0},
     {"station_offset_file",NULL,CFG_ABSOLUTE,0,load_offset_file,0, 0},
     {"topocentre",NULL,CFG_ABSOLUTE,0,read_topocentre,CFG_ONEONLY,0},
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,CFG_REQUIRED,0},
@@ -499,35 +500,54 @@ static void set_station_mode( station *st, void *modep )
     switch( mode )
     {
 
-    case REJECT_STATIONS: sa->flag.rejected = 1; sa->flag.ignored = 0; break;
+    case REJECT_STATIONS:
+        sa->flag.rejected = 1;
+        sa->flag.ignored = 0;
+        break;
 
-    case ACCEPT_STATIONS: sa->flag.rejected = 0; sa->flag.ignored = 0; break;
+    case ACCEPT_STATIONS:
+        sa->flag.rejected = 0;
+        sa->flag.ignored = 0;
+        break;
 
-    case IGNORE_STATIONS: sa->flag.rejected = 1; sa->flag.ignored = 1; break;
+    case IGNORE_STATIONS:
+        sa->flag.rejected = 1;
+        sa->flag.ignored = 1;
+        break;
 
-    case NOREORDER_STATIONS:  sa->flag.noreorder = 1; break;
+    case NOREORDER_STATIONS:
+        sa->flag.noreorder = 1;
+        break;
 
-    case FIX_STATIONS:    
-        if(fixhor) 
-        { 
-            if( sa->flag.adj_h ) sa->flag.auto_h=fixauto; 
-            sa->flag.adj_h = 0; 
-            sa->flag.float_h=0; 
+    case FIX_STATIONS:
+        if(fixhor)
+        {
+            if( sa->flag.adj_h ) sa->flag.auto_h=fixauto;
+            sa->flag.adj_h = 0;
+            sa->flag.float_h=0;
         }
-        if(fixver) 
-        { 
-            if( sa->flag.adj_v ) sa->flag.auto_v=fixauto; 
-            sa->flag.adj_v = 0; 
-            sa->flag.float_v=0; 
+        if(fixver)
+        {
+            if( sa->flag.adj_v ) sa->flag.auto_v=fixauto;
+            sa->flag.adj_v = 0;
+            sa->flag.float_v=0;
         }
         break;
 
-    case FREE_STATIONS:  
-        if(fixhor) { sa->flag.adj_h = 1; sa->flag.float_h = 0; sa->flag.auto_h=0; }
-        if(fixver) { sa->flag.adj_v = 1; sa->flag.float_v = 0; sa->flag.auto_v=0; }
+    case FREE_STATIONS:
+        if(fixhor) {
+            sa->flag.adj_h = 1;
+            sa->flag.float_h = 0;
+            sa->flag.auto_h=0;
+        }
+        if(fixver) {
+            sa->flag.adj_v = 1;
+            sa->flag.float_v = 0;
+            sa->flag.auto_v=0;
+        }
         break;
 
-    case FLOAT_STATIONS:  
+    case FLOAT_STATIONS:
         if( sa->idcol )
         {
             char errmsg[80+STNCODELEN*2];
@@ -537,8 +557,8 @@ static void set_station_mode( station *st, void *modep )
         }
         else
         {
-            if(fixhor) 
-            { 
+            if(fixhor)
+            {
                 if( (fixauto && ! sa->flag.float_h) || ! fixauto )
                 {
                     sa->flag.auto_h=fixauto;
@@ -547,8 +567,8 @@ static void set_station_mode( station *st, void *modep )
                     sa->herror=(float) dflt_herr;
                 }
             }
-            if(fixver) 
-            { 
+            if(fixver)
+            {
                 if( (fixauto && ! sa->flag.float_v) || ! fixauto )
                 {
                     sa->flag.auto_v=fixauto;
@@ -693,12 +713,12 @@ static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *, in
             unsigned char ignoremissing=0;
             first=0;
             int sts=readcfg_boolean(cfg,opt,&ignoremissing,1,0);
-            if( sts == OK ) 
+            if( sts == OK )
             {
                 set_ignore_missing_stations( ignoremissing );
                 continue;
             }
-        } 
+        }
         if( _stricmp(opt,"report_all") == 0 )
         {
             set_report_missing_stations(REPORT_MISSING_ALL);
@@ -821,9 +841,15 @@ static int read_coef( CFG_FILE *, char *string, void *, int, int code )
         {
             switch( code )
             {
-            case PRM_BRNGREF: set_coef_class( COEF_CLASS_BRNGREF, rcname ); break;
-            case PRM_DISTSF:  set_coef_class( COEF_CLASS_DISTSF, rcname ); break;
-            case PRM_REFCOEF: set_coef_class( COEF_CLASS_REFCOEF, rcname ); break;
+            case PRM_BRNGREF:
+                set_coef_class( COEF_CLASS_BRNGREF, rcname );
+                break;
+            case PRM_DISTSF:
+                set_coef_class( COEF_CLASS_DISTSF, rcname );
+                break;
+            case PRM_REFCOEF:
+                set_coef_class( COEF_CLASS_REFCOEF, rcname );
+                break;
             }
         }
         if( st ) sts = INVALID_DATA;
@@ -982,7 +1008,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
             else if( _stricmp(prmname,"0") == 0 ) origintype=REFFRM_ORIGIN_ZERO;
             else if( _stricmp(prmname,"topocentre") == 0 ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
             else if( _stricmp(prmname,"default") == 0 ) origintype=REFFRM_ORIGIN_DEFAULT;
-            else 
+            else
             {
                 sprintf(errmess,"Invalid origin type %.20s for reference frame %.20s",
                         prmname,rfname);
@@ -1073,7 +1099,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-                
+
             calcval[ival]=calculate;
             value=strtod(prmname,&endptr);
             if( endptr == prmname )
@@ -1091,7 +1117,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
             }
             if( *endptr )
             {
-                if( strcmp(endptr,"?" )==0 ) 
+                if( strcmp(endptr,"?" )==0 )
                 {
                     calcval[ival]=1;
                 }
@@ -1126,7 +1152,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
             val[ival]=value;
         }
     }
-    
+
     if( iers )
     {
         if( topocentric )
@@ -1136,14 +1162,17 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
             return OK;
         }
         for( i=0; i<14; i++) val[i]=0.001*val[i];
-        for( i=0; i<3; i++ ) { val[i+rfRotx]*=-1.0; val[i+rfRotxRate]*=-1.0; }
+        for( i=0; i<3; i++ ) {
+            val[i+rfRotx]*=-1.0;
+            val[i+rfRotxRate]*=-1.0;
+        }
     }
 
     if( topocentric )
     {
         rfid = get_rftrans_id( rfname, REFFRM_TOPOCENTRIC );
         rf=rftrans_from_id( rfid );
-        if( ! rftrans_topocentric( rf ) ) 
+        if( ! rftrans_topocentric( rf ) )
         {
             sprintf(errmess,"Ref frame %s defined as both topocentric and geocentric",rfname);
             send_config_error( cfg, INVALID_DATA, errmess );
@@ -1154,7 +1183,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
     {
         rfid = get_rftrans_id( rfname, iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
         rf=rftrans_from_id( rfid );
-        if( rftrans_topocentric( rf ) && iers ) 
+        if( rftrans_topocentric( rf ) && iers )
         {
             sprintf(errmess,"Topocentric ref frame %s cannot be defined with IERS parameters",rfname);
             send_config_error( cfg, INVALID_DATA, errmess );
@@ -1272,7 +1301,8 @@ static int read_residual_format( CFG_FILE *cfg, char *string, void *, int, int c
             *dest = 0;
             if( j )
             {
-                if( i == 1 ) ttl1 = title1; else ttl2 = title2;
+                if( i == 1 ) ttl1 = title1;
+                else ttl2 = title2;
             }
         }
         if( valid )
@@ -1392,7 +1422,7 @@ static int read_set_obs_option( CFG_FILE *cfg, char *string, void *, int, int )
 
     optionstr=strtok(string," ");
     criteria=strtok(NULL,"");
-    
+
     if( ! optionstr )
     {
         send_config_error( cfg, INVALID_DATA, "Observation option not specified");
@@ -1465,8 +1495,14 @@ static int read_flag_levels( CFG_FILE *cfg, char *string, void *, int, int )
 
     for( s=strtok(string," "); s; s=strtok(NULL," ") )
     {
-        if( nf > 2 ) { nf = 0; break; }
-        if( _stricmp(s,"maximum") == 0 ) { taumax[nf] = 1; continue; }
+        if( nf > 2 ) {
+            nf = 0;
+            break;
+        }
+        if( _stricmp(s,"maximum") == 0 ) {
+            taumax[nf] = 1;
+            continue;
+        }
         if( sscanf( s, "%lf", &fl ) != 1 || fl <= 0.0 || fl >= 100.0 )
         {
             nf = 0;
@@ -1506,11 +1542,11 @@ static int read_error_type( CFG_FILE *cfg, char *string, void *, int, int )
     }
     else
     {
-         send_config_error( cfg, INVALID_DATA, "Expected \"apriori\" or \"aposteriori\"");
-         return OK;
+        send_config_error( cfg, INVALID_DATA, "Expected \"apriori\" or \"aposteriori\"");
+        return OK;
     }
 
-    if( fld ) 
+    if( fld )
     {
         if( _stricmp(fld,"standard_error") == 0 )
         {
@@ -1669,7 +1705,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
         }
         else if (_stricmp(item,"model") == 0 )
         {
-            if( ! model ) 
+            if( ! model )
             {
                 model = copy_string(value);
             }
@@ -1828,12 +1864,24 @@ static int read_specification_command(CFG_FILE *cfg, char *string, void *, int, 
             }
             switch( errtyp + errdir )
             {
-            case 5: herrabs = err; break;
-            case 9: herrppm = err; break;
-            case 17: herrmax = err; break;
-            case 6: verrabs = err; break;
-            case 10: verrppm = err; break;
-            case 18: verrmax = err; break;
+            case 5:
+                herrabs = err;
+                break;
+            case 9:
+                herrppm = err;
+                break;
+            case 17:
+                herrmax = err;
+                break;
+            case 6:
+                verrabs = err;
+                break;
+            case 10:
+                verrppm = err;
+                break;
+            case 18:
+                verrmax = err;
+                break;
             }
 
             errtypflg |= errtyp;
@@ -1910,7 +1958,7 @@ static int read_spec_test_options(CFG_FILE *cfg, char *string, void *, int, int 
 }
 
 
-static int set_magic_number( CFG_FILE *, char *string ,void *, int, int )
+static int set_magic_number( CFG_FILE *, char *string,void *, int, int )
 {
     int id;
     double val;
@@ -1920,18 +1968,23 @@ static int set_magic_number( CFG_FILE *, char *string ,void *, int, int )
     switch( id )
     {
     case 1:
-    case 2:  id--;
+    case 2:
+        id--;
         val *= blt_get_small(id);
         blt_set_small( id, val );
         break;
+    case 3:
+        proximity_test=val;
+        break;
 
-    default: return INVALID_DATA;
+    default:
+        return INVALID_DATA;
     }
 
     return OK;
 }
 
-static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int, int code )
+static int read_configuration_command( CFG_FILE *cfg, char *string,void *, int, int code )
 {
     const char *cfgfile;
     char *ptr;

@@ -64,7 +64,7 @@ typedef struct
 		     ))
 #endif
 
-#define BLT_JSON_STRUCTURE     0 
+#define BLT_JSON_STRUCTURE     0
 #define BLT_JSON_LOWER         1
 #define BLT_JSON_FULL          3
 #define BLT_JSON_MATRIX_ONLY   4
@@ -90,7 +90,7 @@ double *blt_get_row_data( bltmatrix * blt, int irow );
 /* Only returns rows fully populated to diagonal */
 void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
+void print_bltmatrix( bltmatrix *blt, FILE *out, char *format, int indent );
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
 
 #endif
