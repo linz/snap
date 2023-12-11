@@ -1,9 +1,9 @@
-snapspec version 2.8.7-1b7b99cf: Calculation of station orders
-Run at  7-DEC-2023 15:26:15
+snapspec version 2.8.7-70604df0: Calculation of station orders
+Run at 12-DEC-2023 09:30:49
 SNAP binary file: snapspec5.bin
 Spec configuration file: snapspec5.cfg
 Vertical tests will not be applied as no stations are adjusted vertically
-SNAP run time:  7-DEC-2023 15:26:15
+SNAP run time: 12-DEC-2023 09:30:49
 Running apriori tests
 
 
@@ -62,7 +62,7 @@ Applying relative accuracy test
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
   Checking missing covariance information
     Requesting covariance 3 to 2
-   .. Completed check for missing covariances took 0.00 seconds (total 0.00 seconds)
+   .. Completed check for missing covariances (1 required) took 0.00 seconds (total 0.00 seconds)
   Relative accuracy test postponed pending covariance calcs
    .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
