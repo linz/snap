@@ -121,11 +121,13 @@ static output_option output[] =
     {
         "station_coordinates",&output_station_coordinates,1,
         {DATA_CONSISTENCY, 0}
-    ,0},
+        ,0
+    },
     {
         "floated_stations",&output_floated_stations,1,
         {DATA_CONSISTENCY, DATA_CHECK, 0}
-    ,0},
+        ,0
+    },
     {"station_offsets",&output_station_offsets,1,{0},0},
     {"rejected_stations",&output_rejected_stations,1,{0},0},
     {"rejected_station_coordinates",&output_rejected_coordinates,1,{0},0},
@@ -138,7 +140,8 @@ static output_option output[] =
     {
         "coordinate_file",&output_coordinate_file,1,
         {DATA_CONSISTENCY,DATA_CHECK,PREANALYSIS,0}
-    ,0},
+        ,0
+    },
     {"binary_file",&output_binary_file,1,{0},0},
     {"decomposition",&output_decomposition,0,{0},0},
     {"relative_covariances",&output_relative_covariances,1,{0},&relcvr_subcommands},
@@ -150,6 +153,7 @@ static output_option output[] =
     {"covariance_matrix_file",&output_covariance,0,{0},0},
     {"covariance_json",&output_covariance_json,0,{0},0},
     {"solution_json",&output_solution_json,0,{0},0},
+    {"matrix_structure_json",&output_solution_json,0,{0},0},
     {"sinex",&output_sinex,0,{0},0},
     {"debug_reordering",&output_debug_reordering,0,{0},0},
     {NULL,NULL,0,{0},0}
@@ -191,7 +195,7 @@ int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
     for( st = strtok(string," "); st; st=strtok(NULL," "))
     {
         // If the last output command has a matched subcommand, then execute its store
-        // function on the remainder of the string and return 
+        // function on the remainder of the string and return
         if( o && o->subcommands )
         {
             output_subcommand *sc;
@@ -332,7 +336,7 @@ int add_requested_covariance_connections()
 
     // Initiallize list of ids
     usenode=(char *)check_malloc(sizeof(char)*(nnode+1));
-    
+
     for( rco=relcvr_opts; rco; rco=rco->next )
     {
         for( int i=0; i <= nnode; i++ )
@@ -379,39 +383,42 @@ int add_requested_covariance_connections()
     return sts;
 }
 
+FILE *open_output_file( const char *extension, const char *filetype, char **pfilename )
+{
+    char errmess[50+MAX_FILENAME_LEN];
+    int rlen=strlen(root_name);
+    char *filename = (char *) check_malloc(rlen+strlen(extension)+1);
+    strcpy(filename,root_name);
+    strcpy(filename+rlen,extension);
+    FILE *fh=fopen(filename,"w");
+    if( ! fh )
+    {
+        sprintf(errmess,"Unable to open %.20s file %.*s",filetype,MAX_FILENAME_LEN,filename);
+        handle_error(FILE_OPEN_ERROR, errmess,"Aborting program");
+    }
+    else
+    {
+        record_filename(filename,filetype);
+    }
+    if( ! fh || ! pfilename )
+    {
+        check_free(filename);
+        filename = 0;
+    }
+    if( pfilename ) *pfilename = filename;
+    return fh;
+}
+
+
 int open_output_files( )
 {
-    char errmess[40+MAX_FILENAME_LEN];
-    int rlen;
-
-    rlen = strlen( root_name );
-
-    lst_name = (char *) check_malloc( rlen + strlen( LISTINGFILE_EXT ) + 1);
-    strcpy( lst_name, root_name );
-    strcpy( lst_name+rlen, LISTINGFILE_EXT );
-    lst = fopen( lst_name, "w" );
-    if( !lst )
-    {
-        sprintf(errmess,"Unable to open listing file %.*s",MAX_FILENAME_LEN,lst_name);
-        handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
-        return 0;
-    }
-    record_filename( lst_name, "listing" );
-
+    lst=open_output_file(LISTINGFILE_EXT,"listing",&lst_name);
+    if( ! lst ) return 0;
     if( ! output_noruntime ) print_report_header( lst );
 
-    err_name = (char *) check_malloc( rlen + strlen( ERRORFILE_EXT ) + 1);
-    strcpy( err_name, root_name );
-    strcpy( err_name+rlen, ERRORFILE_EXT );
-    err = fopen( err_name, "w" );
-    if( !err )
-    {
-        sprintf(errmess,"Unable to open error file %.*s",MAX_FILENAME_LEN,err_name);
-        handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
-        return 0;
-    }
+    err=open_output_file(ERRORFILE_EXT,"error_listing",&err_name);
+    if( ! err ) return 0;
 
-    record_filename( lst_name, "error_listing" );
     if( ! output_noruntime ) print_report_header( err );
     print_section_header( err, "ERROR SUMMARY" );
     errcount = 0;
@@ -441,8 +448,8 @@ static void close_listing_file( void )
 static void close_error_file( const char *mess1, const char *mess2 )
 {
     set_error_handler( DEFAULT_ERROR_HANDLER );
-    
-    if( err ) 
+
+    if( err )
     {
         print_section_footer(err);
         if( ! output_noruntime ) print_report_footer( err );
@@ -511,7 +518,10 @@ void eliminate_inconsistent_outputs( void )
         for( i=0; i<MAX_INCOMPATIBLE_MODES; i++ )
         {
             if( o->incompatible[i] == 0 ) break;
-            if( o->incompatible[i] == program_mode ) { o->status = 0; break; }
+            if( o->incompatible[i] == program_mode ) {
+                o->status = 0;
+                break;
+            }
         }
     }
 
@@ -561,16 +571,30 @@ void print_solution_type( FILE *lst )
     fputs("\nSolution type: ",lst);
     switch (dimension)
     {
-    case 1: fputs("Vertical ",lst); break;
-    case 2: fputs("Horizontal ",lst); break;
-    case 3: fputs("3d ",lst); break;
+    case 1:
+        fputs("Vertical ",lst);
+        break;
+    case 2:
+        fputs("Horizontal ",lst);
+        break;
+    case 3:
+        fputs("3d ",lst);
+        break;
     }
     switch (program_mode)
     {
-    case ADJUST:           fputs("coordinate adjustment\n",lst); break;
-    case PREANALYSIS:      fputs("network preanalysis\n",lst); break;
-    case DATA_CHECK:       fputs("data checking\n",lst); break;
-    case DATA_CONSISTENCY: fputs("data internal consistency check\n",lst); break;
+    case ADJUST:
+        fputs("coordinate adjustment\n",lst);
+        break;
+    case PREANALYSIS:
+        fputs("network preanalysis\n",lst);
+        break;
+    case DATA_CHECK:
+        fputs("data checking\n",lst);
+        break;
+    case DATA_CONSISTENCY:
+        fputs("data internal consistency check\n",lst);
+        break;
     }
 }
 
@@ -633,7 +657,7 @@ void print_section_header( FILE *out, const char *heading )
 
 void print_section_footer( FILE * out )
 {
-    /* Flush the output so that it is available 
+    /* Flush the output so that it is available
      * for viewing if SNAP is still running */
     fflush(out);
 }
@@ -647,7 +671,7 @@ void handle_singularity( int sts )
 
     stno = 0;
     if( !find_param_row( sts, paramname, 40 ) &&
-        !find_obsparam_row( sts, paramname, 40 ) &&
+            !find_obsparam_row( sts, paramname, 40 ) &&
             ((stno = find_station_row( sts, paramname, 40 )) == 0) )
     {
         sprintf(paramname,"Parameter %d", (int) sts );
@@ -748,15 +772,23 @@ void print_problem_summary( FILE *lst )
     {
         stn_adjustment *sa=stnadj(st);
 
-        if( sa->flag.float_h || sa->flag.float_v ) 
-        { 
-            havefloat = 1; 
+        if( sa->flag.float_h || sa->flag.float_v )
+        {
+            havefloat = 1;
             if( sa->idcol ) floatrel=1;
         }
-        if( sa->flag.rejected ) { reject = 1; }
-        if( sa->flag.auto_h && sa->flag.auto_v ) { haveauto |= 4; }
-        else if( sa->flag.auto_h ) { haveauto |= 2; }
-        else if( sa->flag.auto_v ) { haveauto |= 1; }
+        if( sa->flag.rejected ) {
+            reject = 1;
+        }
+        if( sa->flag.auto_h && sa->flag.auto_v ) {
+            haveauto |= 4;
+        }
+        else if( sa->flag.auto_h ) {
+            haveauto |= 2;
+        }
+        else if( sa->flag.auto_v ) {
+            haveauto |= 1;
+        }
     }
 
     fputs("\n\nThe following table lists the stations included in the adjustment.\n",lst);
@@ -868,8 +900,12 @@ void print_problem_summary( FILE *lst )
         row = -1;
         if( stnadj(st)->flag.adj_h ) row = stnadj(st)->hrowno;
         else if( stnadj(st)->flag.adj_v ) row = stnadj(st)->vrowno;
-        if( row < 0 ) { fprintf(lst,"    -");}
-        else { fprintf(lst," %4d",row); }
+        if( row < 0 ) {
+            fprintf(lst,"    -");
+        }
+        else {
+            fprintf(lst," %4d",row);
+        }
         fprintf(lst,"  %s\n",st->Name);
     }
 
@@ -897,16 +933,16 @@ void print_problem_summary( FILE *lst )
         if( ! (haveauto & i) ) continue;
         switch( i )
         {
-            case 4:
-                break;
-            case 2:
-                auto_v=0;
-                break;
-            case 1:
-                auto_h=0;
-                break;
+        case 4:
+            break;
+        case 2:
+            auto_v=0;
+            break;
+        case 1:
+            auto_h=0;
+            break;
         }
-        
+
         fprintf(lst,"\n\nThe following stations have been automatically fixed %s\n",
                 i==4 ? "in 3 dimensions" : i==2 ? "horizontally" : "vertically");
 
@@ -918,7 +954,10 @@ void print_problem_summary( FILE *lst )
             stn_adjustment *sa=stnadj(st);
             if( sa->flag.auto_h==auto_h && sa->flag.auto_v==auto_v )
             {
-                if( row >= 80 ) { fputs("\n",lst); row=0; }
+                if( row >= 80 ) {
+                    fputs("\n",lst);
+                    row=0;
+                }
                 fprintf(lst," %-*s", stn_name_width,st->Code );
                 row += stn_name_width+1;
             }
@@ -1036,14 +1075,14 @@ void print_json_params( FILE *lst, int nprefix )
         {
             int stno=0;
             char paramname[40];
-            if( ! find_param_row(i,paramname,40) && 
-                ! find_obsparam_row(i,paramname,40) && 
+            if( ! find_param_row(i,paramname,40) &&
+                    ! find_obsparam_row(i,paramname,40) &&
                     !(stno=find_station_row(i,paramname,40)))
             {
                 sprintf(paramname,"Parameter %d",i);
             }
-            fprintf(lst,"%s\n%*s\"%s%s%s\"", 
-                    i > 1 ? "," : "", 
+            fprintf(lst,"%s\n%*s\"%s%s%s\"",
+                    i > 1 ? "," : "",
                     nprefix+2,"",
                     stno ? station_code(stno) : "",
                     stno ? ": " : "",
@@ -1053,46 +1092,21 @@ void print_json_params( FILE *lst, int nprefix )
     }
 }
 
-void print_solution_json_file()
+void print_solution_json_file( FILE *fh )
 {
-    int nch;
-    char *bfn;
-    FILE *f;
-    bltmatrix *invnorm;
-
-    nch = strlen( root_name ) + strlen(SOLNFILE_EXT)+strlen( JSONFILE_EXT ) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, SOLNFILE_EXT );
-    strcat( bfn, JSONFILE_EXT );
-
-    f = fopen( bfn, "w" );
-    if( !f )
-    {
-        handle_error( FILE_OPEN_ERROR,"Unable to open JSON solution file", bfn );
-    }
-    else
-    {
-        record_filename(bfn,"solution_json");
-        xprintf("\nCreating the JSON solution file %s\n",bfn);
-    }
-    check_free( bfn );
-    if( !f ) return;
-
-    fprintf(f,"{\n");
-    fprintf(f,"  \"nparam\": %d,\n",(int)nprm);
-    fprintf(f,"  \"nimplicit_param\": %ld,\n",(long)(nschp));
-    fprintf(f,"  \"nobs\": %ld,\n",(long)(nobs+nschp));
-    fprintf(f,"  \"nconstraint\": %ld,\n",(long)(ncon));
-    fprintf(f,"  \"dof\": %ld,\n",(long) dof);
-    fprintf(f,"  \"ssr\": %.5lf,\n",ssr);
-    fprintf(f,"  \"seu\": %.5lf,\n",seu);
-    print_json_params( f, 2 );
-    fprintf(f,",\n  \"covariance\":\n  ");
-    invnorm = lsq_normal_matrix();
-    print_bltmatrix_json( invnorm, f, 4, BLT_JSON_FULL | BLT_JSON_MATRIX_ONLY, "%.8le");
-    fprintf(f,"\n}\n");
-    fclose(f);
+    fprintf(fh,"{\n");
+    fprintf(fh,"  \"nparam\": %d,\n",(int)nprm);
+    fprintf(fh,"  \"nimplicit_param\": %ld,\n",(long)(nschp));
+    fprintf(fh,"  \"nobs\": %ld,\n",(long)(nobs+nschp));
+    fprintf(fh,"  \"nconstraint\": %ld,\n",(long)(ncon));
+    fprintf(fh,"  \"dof\": %ld,\n",(long) dof);
+    fprintf(fh,"  \"ssr\": %.5lf,\n",ssr);
+    fprintf(fh,"  \"seu\": %.5lf,\n",seu);
+    print_json_params( fh, 2 );
+    fprintf(fh,",\n  \"covariance\":\n  ");
+    bltmatrix *invnorm = lsq_normal_matrix();
+    print_bltmatrix_json( invnorm, fh, 4, BLT_JSON_FULL | BLT_JSON_MATRIX_ONLY, "%.8le");
+    fprintf(fh,"\n}\n");
 }
 
 output_csv *open_snap_output_csv( const char *type )

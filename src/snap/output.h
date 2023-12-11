@@ -79,6 +79,7 @@ SCOPE char output_notes;
 SCOPE char output_covariance;
 SCOPE char output_covariance_json;
 SCOPE char output_solution_json;
+SCOPE char output_matrix_structure_json;
 SCOPE char output_sinex;
 SCOPE char output_full_covariance;
 SCOPE char output_runtime;
@@ -125,6 +126,7 @@ FILE *err = 0;
 int read_output_options( CFG_FILE *cfg, char *string, void *value, int len, int code );
 
 int open_output_files( );
+FILE *open_output_file( const char *extension, const char *filetype, char **pfilename );
 void close_output_files( const char *mess1, const char *mess2 );
 void init_output_options( void );
 void eliminate_inconsistent_outputs( void );
@@ -149,7 +151,7 @@ void print_bandwidth_reduction( FILE *out );
 void print_json_start( FILE *out, const char *name );
 void print_json_end( FILE *out, const char *name );
 void print_json_params( FILE *lst, int nprefix );
-void print_solution_json_file();
+void print_solution_json_file( FILE *fh );
 
 output_csv *open_snap_output_csv( const char *type );
 

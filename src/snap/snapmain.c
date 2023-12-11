@@ -277,7 +277,7 @@ int snap_main( int argc, char *argv[] )
         {
             sts = set_network_geoid( net, geoid_file, NW_HGTFIXEDOPT_DEFAULT, geoid_error_level );
             if( sts == INFO_ERROR ) sts=OK;
-            if( sts != OK ) 
+            if( sts != OK )
             {
                 close_output_files(0,0);
                 return DEFAULT_RETURN_STATUS;
@@ -305,7 +305,7 @@ int snap_main( int argc, char *argv[] )
     add_requested_covariance_connections();
     delete_requested_covariance_connections();
 
-    /* Report information from loading the data before stopping as this 
+    /* Report information from loading the data before stopping as this
        could help understand what went wrong.
 
        Annotate the file summary section of the list file with those
@@ -372,7 +372,7 @@ int snap_main( int argc, char *argv[] )
 
     init_rftrans_prms_list();
     nprm = setup_parameters( lst );
-    free_station_autofix_data();  
+    free_station_autofix_data();
 
     if( deformation && init_deformation( deformation ) != OK )
     {
@@ -393,9 +393,9 @@ int snap_main( int argc, char *argv[] )
     {
         lsq_set_use_zero_inverse(1);
         handle_error( INFO_ERROR,
-           "The inverse of the normal equations is not being calculated",
-           "Calculated error values set to zero and statistics incomplete"
-           );
+                      "The inverse of the normal equations is not being calculated",
+                      "Calculated error values set to zero and statistics incomplete"
+                    );
     }
 
     converged=0;
@@ -516,7 +516,7 @@ int snap_main( int argc, char *argv[] )
 
         /* Check whether we have converged or run out of iterations */
 
-        if( iterations >= min_iterations && maxadj < convergence_tol ) 
+        if( iterations >= min_iterations && maxadj < convergence_tol )
         {
             converged=1;
             break;
@@ -538,7 +538,7 @@ int snap_main( int argc, char *argv[] )
             break;
         }
     }
-    
+
     if( show_iterations )
     {
         print_iteration_footer();
@@ -564,13 +564,13 @@ int snap_main( int argc, char *argv[] )
 
     /* Expand the matrix to a full matrix if required */
 
-    if( ! lsq_using_zero_inverse() && (do_accuracy_tests || 
-            output_covariance ||
-            output_covariance_json ||
-            output_sinex ||
-            output_all_covariances || 
-            (dump && output_full_covariance) 
-            ))
+    if( ! lsq_using_zero_inverse() && (do_accuracy_tests ||
+                                       output_covariance ||
+                                       output_covariance_json ||
+                                       output_sinex ||
+                                       output_all_covariances ||
+                                       (dump && output_full_covariance)
+                                      ))
     {
         expand_bltmatrix_to_full(lsq_normal_matrix());
     }
@@ -687,7 +687,12 @@ int snap_main( int argc, char *argv[] )
     {
         if( output_covariance ) print_coord_covariance();
         if( output_covariance_json ) print_coord_covariance_json();
-        if( output_solution_json ) print_solution_json_file();
+        if( output_solution_json )
+        {
+            FILE *fh=open_output_file(SOLNFILE_EXT,"solution_json",0);
+            print_solution_json_file(fh);
+            fclose(fh);
+        }
         if( output_sinex ) print_coord_sinex();
     }
 
@@ -742,7 +747,8 @@ static int read_parameters( int argc, char *argv[] )
             switch( arg[1] )
             {
             case 'c':
-            case 'C': if( arg[2] )
+            case 'C':
+                if( arg[2] )
                 {
                     cfg_file = arg+2;
                 }
@@ -763,7 +769,11 @@ static int read_parameters( int argc, char *argv[] )
             case 'T': {
                 int nthread;
                 char *topt=arg+2;
-                if( ! *topt && argc > 1 ){ argc--; argv++; topt=argv[0]; }
+                if( ! *topt && argc > 1 ) {
+                    argc--;
+                    argv++;
+                    topt=argv[0];
+                }
                 if( _stricmp(topt,"auto") == 0 )
                 {
                     blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
@@ -777,10 +787,10 @@ static int read_parameters( int argc, char *argv[] )
                 {
                     blt_set_number_of_threads(nthread);
                 }
-                }
-                break;
+            }
+            break;
 
-                /* Option for testing so that output doesn't contain run time specific info */
+            /* Option for testing so that output doesn't contain run time specific info */
 
             case 'q':
             case 'Q':
@@ -792,7 +802,8 @@ static int read_parameters( int argc, char *argv[] )
                 force_zero_inverse=1;
                 break;
 
-            default: xprintf("\nInvalid switch %c on command line\n",arg[1]);
+            default:
+                xprintf("\nInvalid switch %c on command line\n",arg[1]);
                 sts = INVALID_DATA;
                 break;
 
@@ -851,9 +862,12 @@ static void print_command_file( void )
     char inrec[256];
     cmd = fopen( command_file, "r" );
     if( !cmd ) return;
-    if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
+    if( !skip_utf8_bom(cmd)) {
+        fclose(cmd);
+        return;
+    }
     fprintf(lst,"\nThe command file %s contains:\n", command_file+path_len(command_file,0));
-    while( fgets(inrec,256,cmd)) 
+    while( fgets(inrec,256,cmd))
     {
         if (strlen(inrec) == 0) continue;
         char *p=inrec+strlen(inrec)-1;
@@ -867,7 +881,10 @@ static void print_command_file( void )
 
     cmd = fopen( config_file, "r" );
     if( !cmd ) return;
-    if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
+    if( !skip_utf8_bom(cmd)) {
+        fclose(cmd);
+        return;
+    }
     fprintf(lst,"\nAdditional configuration commands were read from %s\n",
             config_file);
     while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);
@@ -886,14 +903,16 @@ static void write_filelist_csv()
     write_csv_header(csv,"filedate");
     write_csv_header(csv,"filesize");
     end_output_csv_record(csv);
+    int id = 0;
     for( int i=0; i<recorded_filename_count(); i++ )
     {
         const char *filetype;
         const char *filename=recorded_filename(i,&filetype);
-        write_csv_int(csv,i);
+        time_t modtime=file_modtime(filename);
+        if( modtime == 0 ) continue;
+        write_csv_int(csv,id++);
         write_csv_string(csv,filename);
         write_csv_string(csv,filetype);
-        time_t modtime=file_modtime(filename);
         if( modtime != 0 )
         {
             char dbuf[30];
