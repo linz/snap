@@ -214,9 +214,13 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     for( i = 0; i < maxorder; i++ )
     {
         test = &(tests[i]);
-        test->blnAutoRange = BLN_FALSE;
         test->blnTestHor = BLN_TRUE;
         test->blnTestVrt = BLN_FALSE;
+        test->dblMaxCtlDistFactor = 0.0;
+        test->nCtlForDistance =0;
+        test->dblCtlDistFactor=0.0;
+        test->nHigherForDistance=0;
+        test->dblHigherDistFactor=0.0;
         test->dblRange = 0.0;
         test->iMinRelAcc = 0;
         test->dblAbsTestAbsMax = 1000.0;
@@ -394,9 +398,11 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
                              "   Relative accuracy by abs accuracy = %.3lf m\n",
                              test->dblRelTestAbsMin );
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
-                             "   Maximum range for relative accuracy test = %.1lf %s\n",
-                             test->dblRange,
-                             test->blnAutoRange ? " times max dist to control" : "m" );
+                             "   Maximum range for relative accuracy test = %.1lf m\n",
+                             test->dblRange);
+                if( test->dblMaxCtlDistFactor > 0  )
+                    sdcWriteLog( &sdci, SDC_LOG_STEPS, "   Max times max dist to control to test : %.1lf",
+                                 test->dblMaxCtlDistFactor );
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy maximum = %.3lf m +/- %.4lf m/100m\n",
                              test->dblRelTestDFMax, test->dblRelTestDDMax );
@@ -414,9 +420,11 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
                              "   Relative accuracy by abs accuracy = %.3lf m\n",
                              test->dblRelTestAbsMinV );
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
-                             "   Maximum range for relative accuracy test = %.1lf %s\n",
-                             test->dblRange,
-                             test->blnAutoRange ? " times max dist to control" : "m" );
+                             "   Maximum range for relative accuracy test = %.1lf m\n",
+                             test->dblRange);
+                if( test->dblMaxCtlDistFactor > 0  )
+                    sdcWriteLog( &sdci, SDC_LOG_STEPS, "   Max times max dist to control to test : %.1lf",
+                                 test->dblMaxCtlDistFactor );
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy maximum = %.3lf m +/- %.4lf m/100m\n",
                              test->dblRelTestDFMaxV, test->dblRelTestDDMaxV );
@@ -1693,11 +1701,12 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     range2 = test->dblRange;
     range2 *= range2;
 
-    if( test->blnAutoRange )
+    if( test->dblMaxCtlDistFactor > 0.0 )
     {
-        range2 *= sdci->maxctldist2;
-        if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                        "  Relative accuracy range calculated as %.2f m2\n",range2 );
+        double crange2 = sdci->maxctldist2*test->dblMaxCtlDistFactor*test->dblMaxCtlDistFactor;
+        if( crange2 < range2 ) range2 = crange2;
+        sdcWriteLog( sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                     "  Relative accuracy range calculated as %.2f m2\n",sqrt(range2) );
     }
     userange = range2 > 0.01;
 
@@ -1718,8 +1727,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         maxtestdist = (maxerror - ftol) / dtol;
         if( maxtestdist < 0.0 ) maxtestdist = 0.0;
         usemaxdistance = 1;
-        if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                        "  Relative hor accuracy assumed achieved for lines longer than %.2lf m\n",sqrt(maxtestdist));
+        sdcWriteLog( sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                     "  Relative hor accuracy assumed achieved for lines longer than %.2lf m\n",sqrt(maxtestdist));
     }
     if( shortcircuit && testvrt && dtolv > 0.0 )
     {
@@ -1729,8 +1738,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         maxerror *= factor;
         maxtestdistv = (maxerror - ftolv) / dtolv;
         usemaxdistancev = 1;
-        if( logcalcs ) sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                        "  Relative vrt accuracy assumed achieved for lines longer than %.2lf m\n",sqrt(maxtestdistv));
+        sdcWriteLog( sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                     "  Relative vrt accuracy assumed achieved for lines longer than %.2lf m\n",sqrt(maxtestdistv));
     }
 
 

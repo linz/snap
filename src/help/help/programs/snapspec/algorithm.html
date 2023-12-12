@@ -1,141 +1,206 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
-<meta name="keywords" content="snapspec, algorithm">
-<title>Snapspec order calculation algorithm</title>
-<link rel="stylesheet" type="text/css" href="../../css/snaphelp.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+    <meta name="keywords" content="snapspec, algorithm">
+    <title>Snapspec order calculation algorithm</title>
+    <link rel="stylesheet" type="text/css" href="../../css/snaphelp.css">
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 
-<h1><a name="snapspec"></a>Snapspec order calculation algorithm</h1>
+    <h1><a name="snapspec"></a>Snapspec order calculation algorithm</h1>
 
-<p>
-Snapspec assigns orders to the adjusted marks based on the absolute and relative accuracies of the calculated coordinates.  Each coordinate order has defined absolute and relative accuracy requirements.  The orders are assigned such that each station of a given order meets these accuracy requirements - the relative accuracy requirements are met in relation to all stations of the same or higher assigned order.  The algorithm is designed to assign as many stations as possible to each order, starting with the highest order.  This is not a strict mathematical optimisition.
-</p>
-<p>
-It is useful to understand that assignment of stations to orders is an ambiguous process.  For example, if there are three stations A, B, C, for which the vectors A-B and A-C meet the relative accuracy standards for an order and the vector A-B does not, then either pair of stations A,B or A,C can be assigned to that order, but not all three.  snapspec uses a set of rules described below to determine which stations are assigned to any particular order, and which are not.  This is an iterative process of assigning and discarding stations until all stations have been processed. This process is repeated for each order, starting with the most accurate.
-</p>
+    <p>
+        Snapspec assigns orders to the adjusted marks based on the absolute and relative accuracies of the calculated
+        coordinates. Each coordinate order has defined absolute and relative accuracy requirements. The orders are
+        assigned such that each station of a given order meets these accuracy requirements - the relative accuracy
+        requirements are met in relation to all stations of the same or higher assigned order. The algorithm is designed
+        to assign as many stations as possible to each order, starting with the highest order. This is not a strict
+        mathematical optimisition.
+    </p>
+    <p>
+        It is useful to understand that assignment of stations to orders is an ambiguous process. For example, if there
+        are three stations A, B, C, for which the vectors A-B and A-C meet the relative accuracy standards for an order
+        and the vector A-B does not, then either pair of stations A,B or A,C can be assigned to that order, but not all
+        three. snapspec uses a set of rules described below to determine which stations are assigned to any particular
+        order, and which are not. This is an iterative process of assigning and discarding stations until all stations
+        have been processed. This process is repeated for each order, starting with the most accurate.
+    </p>
 
-<p>
-The accuracy requirements for each order are defined in terms of the following 
-components.
-</p>
-<table>
-<tr><td>&nbsp;</td><td>h_abs_max<td>
-    <td>The maximum absolute horizontal error allowed (millimetres)</td></tr>
-<tr><td>&nbsp;</td><td>h_rel_to_control<td>
-    <td>The maximum absolute horizontal error allowed as a function of the
-        distance from the nearest control mark.  
-        Defined in terms of a 
-        fixed component (millimetres), and a distance dependent component
-        (part per million of the distance to the control mark).  
-        The allowed error is the root sum of squares of these components. 
-        </td></tr>
-<tr><td>&nbsp;</td><td>h_rel<td>
-    <td>The maximum relative horizontal error allowed to any other mark of this
-        or a higher order.  
-        Defined in terms of a 
-        fixed component (millimetres), and a distance dependent component
-        (part per million of the distance to the other mark).  
-        The allowed error is the root sum of squares of these components. 
-        </td></tr>
-<tr><td>&nbsp;</td><td>h_rel_min_abs<td>
-    <td>
-    Relative accuracy by absolute accuracy optimisation.  Any coordinates with an absolute error less than this
-    value are assumed to pass the relative accuracy test.  This is specified
-    in millimetres. This is an optional optimisation to reduce the amount
-    of relative accuracy testing required.
-    </td></tr>
-</table>
-</p>
-<p>The relative accuracy requirement can be restricted to only apply to stations within a specified distance of each other.  This distance can be specified or it can be calculated as a multiple of the largest distance between an adjusted mark and a control mark.  This builds on the assumption that control marks tend to fix coordinates around them, so relative accuracy beyond a control mark is irrelevant.
-</p>
-<p>Each order can also specify a minimum number of relative accuracy tests required for a mark.  This will only apply if the mark.  
-<p>
-The relative accuracy test includes an optimisation where it can use the absolute coordinate errors of the two 
-marks in the relative accuracy test to put an upper bound on their relative error (as the relative error cannot 
-be greater than the sum of the two absolute accuracies).  By default the algorithm assumes that the coordinates 
-errors of the two endpoints are positively correlated and uses the root mean square of the two errors for this
-optimisation.  There are two options controlling this optimisation in the configuration file.  Use 
-"options no_rel_acc_by_abs_optimisation" to disable it, and use "options strict_rel_acc_by_abs_optimisation"
-to not assume positive correlation.
-</p>
-<p>There are equivalent vertical vertical accuracy specification (v_abs_max, v_rel_to_control, v_rel, v_rel_main_abs).  Snapspec can test horizontal and/or vertical accuracies.  If both are being tested then both must be passed for a coordinate to achieve an order. </p>
-<p>The horizontal error, or relative error, is defined in terms of the length of the semi-major axis of the coordinate error ellipse (or relative error ellipse).  The vertical accuracy is the error of the height ordinate, or for relative errors the error of the difference in height between two marks. 
-The errors may be assessed using a priori or a posteriori errors at a chosen
-level of confidence.
-</p>
+    <p>
+        The accuracy requirements for each order are defined in terms of the following
+        components.
+    </p>
+    <table>
+        <tr>
+            <td>&nbsp;</td>
+            <td>h_abs_max
+            <td>
+            <td>The maximum absolute horizontal error allowed (millimetres)</td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>h_rel_to_control
+            <td>
+            <td>The maximum absolute horizontal error allowed as a function of the
+                distance from the nearest control mark.
+                Defined in terms of a
+                fixed component (millimetres), and a distance dependent component
+                (part per million of the distance to the control mark).
+                The allowed error is the root sum of squares of these components.
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>h_rel
+            <td>
+            <td>The maximum relative horizontal error allowed to any other mark of this
+                or a higher order.
+                Defined in terms of a
+                fixed component (millimetres), and a distance dependent component
+                (part per million of the distance to the other mark).
+                The allowed error is the root sum of squares of these components.
+            </td>
+        </tr>
+        <tr>
+            <td>&nbsp;</td>
+            <td>h_rel_min_abs
+            <td>
+            <td>
+                Relative accuracy by absolute accuracy optimisation. Any coordinates with an absolute error less than
+                this
+                value are assumed to pass the relative accuracy test. This is specified
+                in millimetres. This is an optional optimisation to reduce the amount
+                of relative accuracy testing required.
+            </td>
+        </tr>
+    </table>
+    </p>
+    <p>The relative accuracy requirement can be restricted to only apply to stations within a specified distance of each
+        other. This distance can be specified or it can be calculated as a multiple of the largest distance between an
+        adjusted mark and a control mark. This builds on the assumption that control marks tend to fix coordinates
+        around them, so relative accuracy beyond a control mark is irrelevant.
+    </p>
+    <p>Each order can also specify a minimum number of relative accuracy tests required for a mark. This will only apply
+        if the mark.
+    <p>
+        The relative accuracy test includes an optimisation where it can use the absolute coordinate errors of the two
+        marks in the relative accuracy test to put an upper bound on their relative error (as the relative error cannot
+        be greater than the sum of the two absolute accuracies). By default the algorithm assumes that the coordinates
+        errors of the two endpoints are positively correlated and uses the root mean square of the two errors for this
+        optimisation. There are two options controlling this optimisation in the configuration file. Use
+        "options no_rel_acc_by_abs_optimisation" to disable it, and use "options strict_rel_acc_by_abs_optimisation"
+        to not assume positive correlation.
+    </p>
+    <p>There are equivalent vertical vertical accuracy specification (v_abs_max, v_rel_to_control, v_rel,
+        v_rel_main_abs). Snapspec can test horizontal and/or vertical accuracies. If both are being tested then both
+        must be passed for a coordinate to achieve an order. </p>
+    <p>The horizontal error, or relative error, is defined in terms of the length of the semi-major axis of the
+        coordinate error ellipse (or relative error ellipse). The vertical accuracy is the error of the height ordinate,
+        or for relative errors the error of the difference in height between two marks.
+        The errors may be assessed using a priori or a posteriori errors at a chosen
+        level of confidence.
+    </p>
 
-<p>
-In order to apply this algorithm snapspec first identifies the stations as either control stations, test stations, or ignored
-stations.  By default stations which have been observed and which are fixed in the adjustment are treated as control stations, 
-and stations which do not have data are ignored marks.  The remainder are tested.  However there are some subtleties in a
-3d adjustment where the horizontal or vertical ordinates may be fixed but the other ordinates not fixed.  
-</p>
+    <p>
+        In order to apply this algorithm snapspec first identifies the stations as either control stations, test
+        stations, or ignored
+        stations. By default stations which have been observed and which are fixed in the adjustment are treated as
+        control stations,
+        and stations which do not have data are ignored marks. The remainder are tested. However there are some
+        subtleties in a
+        3d adjustment where the horizontal or vertical ordinates may be fixed but the other ordinates not fixed.
+    </p>
 
-<p>
-If only horizontal tests are applied on a 3d adjustment then stations which are adjusted vertically but fixed horizontally
-are ignored.  Conversely if only vertical tests are applied then stations which are adjusted horizontally but fixed vertically are ignored.  The assumption here is that the constraint is applied due to lack of data, not because we believe the ordinate is
-correct.  This assumes that the reason the ordinate is fixed is because of missing data, not because it is believed to be correct.
-</p>
+    <p>
+        If only horizontal tests are applied on a 3d adjustment then stations which are adjusted vertically but fixed
+        horizontally
+        are ignored. Conversely if only vertical tests are applied then stations which are adjusted horizontally but
+        fixed vertically are ignored.
+        This assumes that the reason the ordinate is fixed is because of missing data, not because it is believed to be
+        correct.
+    </p>
 
-<p>
-If horizontal and vertical tests are being applied then the default behaviour is to use a station at which only a horizontal 
-or vertical coordinate is calculated.  The uncalculated coordinate is treated as perfect (zero error) in the tests.  
-This behaviour can be changed using the &quot;ignore_constrained_stations&quot; option, in which case stations that are 
-fixed either horizontally or vertically in a 3d test are ignored.
-</p>
+    <p>
+        If horizontal and vertical tests are being applied then the default behaviour is to use a station at which only
+        a horizontal
+        or vertical coordinate is calculated. The uncalculated coordinate is treated as perfect (zero error) in the
+        tests.
+        This behaviour can be changed using the &quot;ignore_constrained_stations&quot; option, in which case stations
+        that are
+        fixed either horizontally or vertically in a 3d test are ignored.
+    </p>
 
-<p>
-Initially each tested station can be assigned a best potential order and a priority.  
-The best potential order is the highest order against which the station coordinates will be tested. 
-The priority can be used to help decide which coordinate to assign an order when there is 
-a choice of potential stations.  Because each order requires a relative accuracy constraint
-assigning one coordinate to an order may invalidate other nearby candidates for which the
-relative accuracy standard is not met. Stations with lower priority (higher numeric value), 
-or with no assigned priority are discarded by preference.
-</p>
+    <p>
+        Initially each tested station can be assigned a best potential order and a priority.
+        The best potential order is the highest order against which the station coordinates will be tested.
+        The priority can be used to help decide which coordinate to assign an order when there is
+        a choice of potential stations. Because each order requires a relative accuracy constraint
+        assigning one coordinate to an order may invalidate other nearby candidates for which the
+        relative accuracy standard is not met. Stations with lower priority (higher numeric value),
+        or with no assigned priority are discarded by preference.
+    </p>
 
-<p>In assigning orders snapspec processes each order in turn starting with the 
-highest order.  Each coordinate is passed or failed against the tests for that order.  Those which pass are assigned that order - the remainder are tested against the following orders.
-</p>
+    <p>In assigning orders snapspec processes each order in turn starting with the
+        highest order. Each coordinate is passed or failed against the tests for that order. Those which pass are
+        assigned that order - the remainder are tested against the following orders.
+    </p>
 
-<p>
-Initially each control station coordinate and those passed already passed for this order or a higher order are assigned a status of &quot;pass&quot;. The stations for which the order is better than their potential order are assigned a status &quot;fail&quot;. The remaining adjusted coordinates are assigned status of &quot;unknown&quot;.  The following steps are used iteratively to assign &quot;pass&quot; or &quot;fail&quot; status to each of the unknown coordinates.  
-</p>
+    <p>
+        Initially each control station coordinate and those passed already passed for this order or a higher order are
+        assigned a status of &quot;pass&quot;. The stations for which the order is better than their potential order are
+        assigned a status &quot;fail&quot;. The remaining adjusted coordinates are assigned status of
+        &quot;unknown&quot;. The following steps are used iteratively to assign &quot;pass&quot; or &quot;fail&quot;
+        status to each of the unknown coordinates.
+    </p>
 
-<p>
-The absolute errors of each station are tested first.  Those which fail (against either the absolute error or absolute error relative to control) are failed.  Those which pass and also pass the &quot;relative accuracy by absolute accuracy optimisation&quot; test are passed.  The remaining stations are tested against the relative accuracy specifications. 
-</p>
+    <p>
+        The absolute errors of each station are tested first. Those which fail (against either the absolute error or
+        absolute error relative to control) are failed. Those which pass and also pass the &quot;relative accuracy by
+        absolute accuracy optimisation&quot; test are passed. The remaining stations are tested against the relative
+        accuracy specifications.
+    </p>
 
-<ol>
-<li>For each unknown coordinate, test relative accuracies between this coordinate and the passed coordinates within the maximum range for relative accuracy tests.  If any fail, set the status of the coordinate to &quot;fail&quot;.
-</li>
-<li>
-For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate within the maximum distance specified for relative accuracy tests.
-</li>
+    <ol>
+        <li>For each unknown coordinate, test relative accuracies between this coordinate and the passed coordinates
+            within the maximum range for relative accuracy tests. If any fail, set the status of the coordinate to
+            &quot;fail&quot;.
+        </li>
+        <li>
+            For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate
+            within the maximum distance specified for relative accuracy tests.
+        </li>
 
-<li>Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are too rew test lines left (less than the minimum number of relative accuracy tets to  unfailed coordinates are available).  Note that by default the minimum number is zero, so
-no coordinates are failed by this test.</li>
-<li>	Set the status to &quot;pass&quot; for each coordinate for which all test lines pass (or which have no remaining test lines).</li>
-<li>	If any coordinates still have status unknown, then select and fail one. The set of candidates are filtered to keep only the stations with lowest priority and of those the stations with the lowest potential order.  Of these the
-    station with the highest ratio of test failures against test lines is selected. 
-    If this is still ambiguous the coordinate with the highest absolute error is selected.  And if this is still ambiguous, 
-    the first station in the list is used.
-    If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be muliplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.
-</li>
-<li>	Return to step 1 if there are still any unknown coordinates.
-</li>
-</ol>
+        <li>Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are too few test
+            lines left (less than the minimum number of relative accuracy tests to unfailed coordinates are available).
+            Note that by default the minimum number is zero, so
+            no coordinates are failed by this test.</li>
+        <li> Set the status to &quot;pass&quot; for each coordinate for which all test lines pass (or which have no
+            remaining test lines).</li>
+        <li> If any coordinates still have status unknown, then select and fail one. The set of candidates are filtered
+            to keep only the stations with lowest priority and of those the stations with the lowest potential order. Of
+            these the
+            station with the highest ratio of test failures against test lines is selected.
+            If this is still ambiguous the coordinate with the highest absolute error is selected. And if this is still
+            ambiguous,
+            the first station in the list is used.
+            If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node
+            is the maximum of the horizontal and vertical errors. The vertical error may be muliplied by a factor before
+            comparing, in order to apply a different weighting to the horizontal and vertical components.
+        </li>
+        <li> Return to step 1 if there are still any unknown coordinates.
+        </li>
+    </ol>
 
 
-<div class="SeeAlso">
-<h3>See also:</h3>
-<p><a href="index.html">snapspec</a></p>
-<p><a href="configuration.html">snapspec configuration file</a></p>
+    <div class="SeeAlso">
+        <h3>See also:</h3>
+        <p><a href="index.html">snapspec</a></p>
+        <p><a href="configuration.html">snapspec configuration file</a></p>
 
-</div>
+    </div>
 </body>
+
 </html>

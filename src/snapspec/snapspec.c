@@ -1753,7 +1753,11 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
     strncpy( test->scOrder, name, SYSCODE_LEN );
     test->scOrder[SYSCODE_LEN] = 0;
 
-    test->blnAutoRange = BLN_FALSE;
+    test->dblMaxCtlDistFactor = 0.0;
+    test->nCtlForDistance =0;
+    test->dblCtlDistFactor=0.0;
+    test->nHigherForDistance=0;
+    test->dblHigherDistFactor=0.0;
     test->dblRange = 0.0;
     test->iMinRelAcc = 0;
     test->blnTestHor = BLN_FALSE;
@@ -1797,9 +1801,16 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             continue;
         }
 
-        if( _stricmp(type,"autorange") == 0 )
+        if( _stricmp(type,"maxctldistfactor") == 0 )
         {
-            test->blnAutoRange = BLN_TRUE;
+            nfld = sscanf(data,"%lf%n",&err,&nchr);
+            if( nfld != 1 )
+            {
+                send_config_error(cfg,INVALID_DATA, "Invalid factor for maxctldistfactor in specification");
+                return OK;
+            }
+            data += nchr;
+            test->dblMaxCtlDistFactor = err;
             continue;
         }
         if( _stricmp(type,"range") == 0 )

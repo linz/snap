@@ -22,10 +22,16 @@ typedef struct
 {
     IdType  idOrder;       /**< Order of the nodes passing the test */
     SysCodeType scOrder;   /**< Order display code */
-    Boolean blnAutoRange;  /**< Range is calculated based on nearest control */
-
     Boolean blnTestHor;    /**< Test horizontal accuracy */
-    double  dblRange;      /**< Range used in rel accuracy test - <=0 for no limit */
+    double  dblMaxCtlDistFactor;   /**< Multiple of maximum distance of any station to control to test */
+
+    /* The following options are not yet implemented! */
+    int     nCtlForDistance;  /**< Number of nearest control mark required in test distance */
+    double  dblCtlDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
+    int     nHigherForDistance; /**< Number of higher order marks to test for a station */
+    double  dblHigherDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
+
+    double  dblRange;      /**< Maximum range used in rel accuracy test - <=0 for no limit */
     int     iMinRelAcc;    /**< Minimum number of relative accuracy tests */
     double  dblAbsTestAbsMax;  /**< Absolute test fail limit */
     double  dblAbsTestDDMax;   /**< Relative to control dist dep m/100m */
@@ -57,7 +63,7 @@ typedef struct
 #define SDC_LOG_CALCS2 16
 #define SDC_LOG_TIMESTAMP 32
 #define SDC_LOG_SUMMARY 64
-#define SDC_LOG_COMPACT 256 
+#define SDC_LOG_COMPACT 256
 #define SDC_LOG_ALL (SDC_LOG_SUMMARY | SDC_LOG_STEPS | SDC_LOG_TESTS | SDC_LOG_CALCS | SDC_LOG_DISTS | SDC_LOG_CALCS2)
 
 /* Convariance determination run in two passes if not all available at first pass */
@@ -111,7 +117,7 @@ typedef struct
     int (*pfStationPriority) ( /* Function to get the priority of the station in the  tests */
         void *env,         /* Returns an integer value used to choose potential */
         int  stn );        /* stations to discard when all have failing tests */
-                           /* Choose SDC_NO_PRIORITY or a highest numeric priority */
+    /* Choose SDC_NO_PRIORITY or a highest numeric priority */
 
     double (*pfDistance2) ( /* Function to get square of the distance between two marks */
         void *env,
