@@ -1,7 +1,7 @@
 Test data set snapspec8
 TAIETM1949
 options orthometric_heights no_deflections no_geoid_heights c=Order c=type
-! Stations assigned order 4 by snapspec - run at  2-OCT-2018 06:25:39
+! Stations assigned order 4 by snapspec - run at 14-DEC-2023 10:41:41
 
 !Code      Easting     Northing   Orth.Hgt Order type  Name
 F2     350039.9997  679999.9997     0.0000 4     PIN   F2

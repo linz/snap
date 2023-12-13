@@ -1,8 +1,8 @@
-snapspec version 2.8.7-70604df0: Calculation of station orders
-Run at 12-DEC-2023 09:30:49
+snapspec version 2.8.7-72012abc: Calculation of station orders
+Run at 14-DEC-2023 10:41:40
 SNAP binary file: snapspec13.bin
 Spec configuration file: snapspec13.cfg
-SNAP run time: 12-DEC-2023 09:30:49
+SNAP run time: 14-DEC-2023 10:41:40
 Running apriori tests
 
 
@@ -55,6 +55,7 @@ Initiallizing SDC tests
 Loading marks for SDC tests
    .. Stations loaded took 0.00 seconds (total 0.00 seconds)
 Finding nearest control for each mark
+Maximum distance to nearest control 403.70m from 14
    .. Identified nearest control marks took 0.00 seconds (total 0.00 seconds)
 
 Pass 1: Using existing covariance information

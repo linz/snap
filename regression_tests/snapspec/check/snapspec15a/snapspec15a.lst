@@ -1,9 +1,9 @@
-snapspec version 2.7.19-b60c6b3: Calculation of station orders
-Run at  7-OCT-2018 07:54:19
+snapspec version 2.8.7-72012abc: Calculation of station orders
+Run at 14-DEC-2023 10:41:40
 SNAP binary file: snapspec15a.bin
 Spec configuration file: snapspec15a.cfg
 Warning: testing 3d adjustment but some stations are adjusted hor/vrt only
-SNAP run time:  7-OCT-2018 07:54:19
+SNAP run time: 14-DEC-2023 10:41:40
 Running apriori tests
 
 
@@ -30,6 +30,7 @@ Finding nearest control for each mark
     Station 2 is 400.00 m2 from control
     Station 5 is 6409.08 m2 from control
     Station 6 is 10009.09 m2 from control
+Maximum distance to nearest control 100.05m from 6
    .. Identified nearest control marks took 0.00 seconds (total 0.00 seconds)
 
 Pass 1: Using existing covariance information

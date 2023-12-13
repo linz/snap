@@ -876,6 +876,7 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
     hSDCStation stns = sdci->stns;
     int ictl;
     int istn;
+    int istnc;
     int first;
     StatusType sts = STS_OK;
 
@@ -908,10 +909,10 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
         first = 0;
     }
 
-    /*> Calculate the maximum distance between a tested mark and a tested
-        mark */
+    /*> Calculate the maximum distance between the nearest control mark */
 
     sdci->maxctldist2 = 0.0;
+    istnc=-1;
 
     for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
     {
@@ -923,7 +924,10 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
             continue;
 
         if( stn->ctldist2 > sdci->maxctldist2 )
+        {
             sdci->maxctldist2 = stn->ctldist2;
+            istnc=istn;
+        }
 
         if( sdci->loglevel & SDC_LOG_CALCS )
         {
@@ -936,6 +940,8 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
             sdcWriteCompactLog( sdci,sdcStationId(sdci,istn),-1,SDC_TEST_DCTL,"",stn->ctldist2,-1,"" );
         }
     }
+    sdcWriteLog(sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                "Maximum distance to nearest control %.2lfm from %ld\n",sqrt(sdci->maxctldist2),sdcStationId(sdci,istnc));
 
     return sts;
 }

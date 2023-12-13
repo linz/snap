@@ -3064,7 +3064,7 @@ int main( int argc, char *argv[] )
         hsdc->loglevel |= SDC_LOG_COMPACT;
     }
 
-    if( hsdc->loglevel & (SDC_LOG_CALCS | SDC_LOG_CALCS2)) write_station_index( hsdc, ra );
+    if( hsdc->loglevel & (SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2)) write_station_index( hsdc, ra );
 
     sts = run_tests( hsdc );
 

@@ -1,8 +1,8 @@
-snapspec version 2.7.16-9663751: Calculation of station orders
-Run at 22-SEP-2018 08:22:39
+snapspec version 2.8.7-72012abc: Calculation of station orders
+Run at 14-DEC-2023 10:41:41
 SNAP binary file: snapspec7b.bin
 Spec configuration file: snapspec7b.cfg
-SNAP run time: 22-SEP-2018 08:22:39
+SNAP run time: 14-DEC-2023 10:41:40
 Lowest order of control stations: 5
 Best order permitted: 6
 Running apriori tests
@@ -28,6 +28,7 @@ Station lookup for SDC test module
 Initiallizing SDC tests
 Loading marks for SDC tests
 Finding nearest control for each mark
+Maximum distance to nearest control 40.00m from 3
 ==============================================================
 Running test for order 6
    Absolute accuracy maximum = 1000.000 m
