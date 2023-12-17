@@ -1,8 +1,8 @@
-snapspec version 2.8.7-72012abc: Calculation of station orders
-Run at 14-DEC-2023 10:41:40
+snapspec version 2.8.7-f3053a7f: Calculation of station orders
+Run at 18-DEC-2023 12:13:57
 SNAP binary file: snapspec11d.bin
 Spec configuration file: snapspec11d.cfg
-SNAP run time: 14-DEC-2023 10:41:40
+SNAP run time: 18-DEC-2023 12:13:57
 Lowest order of control stations: 4
 Best order permitted: 5
 Running apriori tests
@@ -24,26 +24,26 @@ Station lookup for SDC test module
 
 Initiallizing SDC tests
 Loading marks for SDC tests
-    Station 1 is a control mark
-    Station 2 is to be tested. Error H/V = 0.04000000/0.00000000 m2
-    Station 3 is to be tested. Error H/V = 0.04000000/0.00000000 m2
-    Station 4 is to be tested. Error H/V = 0.04000000/0.00000000 m2
-    Station 5 is to be tested. Error H/V = 0.04000000/0.00000000 m2
-    Station 6 is to be tested. Error H/V = 0.04000000/0.00000000 m2
-    Station 7 is ignored
-    Station 8 is ignored
-    Station 9 is ignored
-    Station 10 is to be tested. Error H/V = 0.04000000/0.00000000 m2
-    Station 11 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F0 is a control mark
+    Station F10 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F9 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F8 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F7 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F6 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F5 is ignored
+    Station F4 is ignored
+    Station F3 is ignored
+    Station F2 is to be tested. Error H/V = 0.04000000/0.00000000 m2
+    Station F1 is to be tested. Error H/V = 0.04000000/0.00000000 m2
 Finding nearest control for each mark
-    Station 2 is 10400.03 m2 from control
-    Station 3 is 10400.03 m2 from control
-    Station 4 is 10400.03 m2 from control
-    Station 5 is 10400.03 m2 from control
-    Station 6 is 10400.03 m2 from control
-    Station 10 is 10400.03 m2 from control
-    Station 11 is 10400.03 m2 from control
-Maximum distance to nearest control 101.98m from 2
+    Station F10 is 10400.03 m2 from control
+    Station F9 is 10400.03 m2 from control
+    Station F8 is 10400.03 m2 from control
+    Station F7 is 10400.03 m2 from control
+    Station F6 is 10400.03 m2 from control
+    Station F2 is 10400.03 m2 from control
+    Station F1 is 10400.03 m2 from control
+Maximum distance to nearest control 101.98m from F10
 ==============================================================
 Running test for order 5
    Absolute accuracy maximum = 1000.000 m
@@ -58,32 +58,32 @@ Applying relative accuracy test
   Relative hor accuracy assumed achieved for lines longer than 172.71 m
   Calculating status for each vector
   Status of marks
-    Station 2: 7 tests: 4 bad
-    Station 3: 7 tests: 4 bad
-    Station 4: 7 tests: 4 bad
-    Station 5: 7 tests: 5 bad
-    Station 6: 7 tests: 6 bad
-    Station 10: 7 tests: 3 bad
-    Station 11: 7 tests: 2 bad
-  Station 6 selected to fail rel acc tests (0.857,0.04000000)
-  Station 5 selected to fail rel acc tests (0.667,0.04000000)
-  Station 2 selected to fail rel acc tests (0.400,0.04000000)
-  Station 3 selected to fail rel acc tests (0.250,0.04000000)
-  Station 4 passes rel accuracy tests (3)
-  Station 10 selected to fail rel acc tests (0.333,0.04000000)
-  Station 11 passes rel accuracy tests (2)
+    Station F10: 7 tests: 4 bad
+    Station F9: 7 tests: 4 bad
+    Station F8: 7 tests: 4 bad
+    Station F7: 7 tests: 5 bad
+    Station F6: 7 tests: 6 bad
+    Station F2: 7 tests: 3 bad
+    Station F1: 7 tests: 2 bad
+  Station F6 selected to fail rel acc tests (0.857,0.04000000)
+  Station F7 selected to fail rel acc tests (0.667,0.04000000)
+  Station F10 selected to fail rel acc tests (0.400,0.04000000)
+  Station F9 selected to fail rel acc tests (0.250,0.04000000)
+  Station F8 passes rel accuracy tests (3)
+  Station F2 selected to fail rel acc tests (0.333,0.04000000)
+  Station F1 passes rel accuracy tests (2)
   2 stations passed relative accuracy tests
   5 stations failed by selecting a station to fail
 Setting node orders
-  Setting order of node 4 to 5
-  Setting order of node 11 to 5
+  Setting order of node F8 to 5
+  Setting order of node F1 to 5
 ==============================================================
 Applying default order to remaining nodes
-  Setting order of node 2 to default 
-  Setting order of node 3 to default 
-  Setting order of node 5 to default 
-  Setting order of node 6 to default 
-  Setting order of node 10 to default 
+  Setting order of node F10 to default 
+  Setting order of node F9 to default 
+  Setting order of node F7 to default 
+  Setting order of node F6 to default 
+  Setting order of node F2 to default 
 ==============================================================
 Results of order calculations
 

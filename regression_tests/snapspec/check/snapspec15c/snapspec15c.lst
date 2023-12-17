@@ -1,8 +1,8 @@
-snapspec version 2.8.7-72012abc: Calculation of station orders
-Run at 14-DEC-2023 10:41:40
+snapspec version 2.8.7-f3053a7f: Calculation of station orders
+Run at 18-DEC-2023 12:13:57
 SNAP binary file: snapspec15c.bin
 Spec configuration file: snapspec15c.cfg
-SNAP run time: 14-DEC-2023 10:41:40
+SNAP run time: 18-DEC-2023 12:13:57
 Running apriori tests
 
 
@@ -18,19 +18,19 @@ Station lookup for SDC test module
 Initiallizing SDC tests
    .. Initiallizing SDC tests took 0.00 seconds (total 0.00 seconds)
 Loading marks for SDC tests
-    Station 1 is a control mark
-    Station 2 is to be tested. Error H/V = 0.00000000/0.00020000 m2
-    Station 3 is ignored
-    Station 4 is to be tested. Error H/V = 0.00000000/0.00040000 m2
-    Station 5 is to be tested. Error H/V = 0.00000000/0.00080000 m2
-    Station 6 is to be tested. Error H/V = 0.00000000/0.00080000 m2
+    Station F0 is a control mark
+    Station F1 is to be tested. Error H/V = 0.00000000/0.00020000 m2
+    Station F2 is ignored
+    Station F3 is to be tested. Error H/V = 0.00000000/0.00040000 m2
+    Station F4 is to be tested. Error H/V = 0.00000000/0.00080000 m2
+    Station F5 is to be tested. Error H/V = 0.00000000/0.00080000 m2
    .. Stations loaded took 0.00 seconds (total 0.00 seconds)
 Finding nearest control for each mark
-    Station 2 is 400.00 m2 from control
-    Station 4 is 3604.06 m2 from control
-    Station 5 is 6409.08 m2 from control
-    Station 6 is 10009.09 m2 from control
-Maximum distance to nearest control 100.05m from 6
+    Station F1 is 400.00 m2 from control
+    Station F3 is 3604.06 m2 from control
+    Station F4 is 6409.08 m2 from control
+    Station F5 is 10009.09 m2 from control
+Maximum distance to nearest control 100.05m from F5
    .. Identified nearest control marks took 0.00 seconds (total 0.00 seconds)
 
 Pass 1: Using existing covariance information
@@ -51,35 +51,35 @@ Setting up array for relative accuracy tests
 Applying relative accuracy test
    .. Setting up relative accuracy status took 0.00 seconds (total 0.00 seconds)
   Calculating status for each vector
-   Vector 2 to 1 relative vrt accuracy pass by absolute (0.00020000 < 0.01502137)
-   Vector 4 to 1 relative vrt accuracy pass by absolute (0.00040000 < 0.01502137)
-   Vector 4 to 2 relative vrt accuracy pass by absolute (0.00060000 < 0.01502137)
-   Vector 5 to 1 relative vrt accuracy pass by absolute (0.00080000 < 0.01502137)
-   Vector 5 to 2 relative vrt accuracy pass by absolute (0.00100000 < 0.01502137)
-   Vector 5 to 4 relative vrt accuracy pass by absolute (0.00120000 < 0.01502137)
-   Vector 6 to 1 relative vrt accuracy pass by absolute (0.00080000 < 0.01502137)
-   Vector 6 to 2 relative vrt accuracy pass by absolute (0.00100000 < 0.01502137)
-   Vector 6 to 4 relative vrt accuracy pass by absolute (0.00120000 < 0.01502137)
-   Vector 6 to 5 relative vrt accuracy pass by absolute (0.00160000 < 0.01502137)
+   Vector F1 to F0 relative vrt accuracy pass by absolute (0.00020000 < 0.01502137)
+   Vector F3 to F0 relative vrt accuracy pass by absolute (0.00040000 < 0.01502137)
+   Vector F3 to F1 relative vrt accuracy pass by absolute (0.00060000 < 0.01502137)
+   Vector F4 to F0 relative vrt accuracy pass by absolute (0.00080000 < 0.01502137)
+   Vector F4 to F1 relative vrt accuracy pass by absolute (0.00100000 < 0.01502137)
+   Vector F4 to F3 relative vrt accuracy pass by absolute (0.00120000 < 0.01502137)
+   Vector F5 to F0 relative vrt accuracy pass by absolute (0.00080000 < 0.01502137)
+   Vector F5 to F1 relative vrt accuracy pass by absolute (0.00100000 < 0.01502137)
+   Vector F5 to F3 relative vrt accuracy pass by absolute (0.00120000 < 0.01502137)
+   Vector F5 to F4 relative vrt accuracy pass by absolute (0.00160000 < 0.01502137)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
   Summarizing relative accuracy data
    .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   Status of marks
-    Station 2: 4 tests: 0 bad
-    Station 4: 4 tests: 0 bad
-    Station 5: 4 tests: 0 bad
-    Station 6: 4 tests: 0 bad
-  Station 2 passes rel accuracy tests (4)
-  Station 4 passes rel accuracy tests (4)
-  Station 5 passes rel accuracy tests (4)
-  Station 6 passes rel accuracy tests (4)
+    Station F1: 4 tests: 0 bad
+    Station F3: 4 tests: 0 bad
+    Station F4: 4 tests: 0 bad
+    Station F5: 4 tests: 0 bad
+  Station F1 passes rel accuracy tests (4)
+  Station F3 passes rel accuracy tests (4)
+  Station F4 passes rel accuracy tests (4)
+  Station F5 passes rel accuracy tests (4)
   4 stations passed relative accuracy tests
    .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
 Setting node orders
-  Setting order of node 2 to 5
-  Setting order of node 4 to 5
-  Setting order of node 5 to 5
-  Setting order of node 6 to 5
+  Setting order of node F1 to 5
+  Setting order of node F3 to 5
+  Setting order of node F4 to 5
+  Setting order of node F5 to 5
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
 ==============================================================
 Results of order calculations

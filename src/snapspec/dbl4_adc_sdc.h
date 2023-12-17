@@ -110,6 +110,10 @@ typedef struct
         void *env,
         int  stn );
 
+    const char *(*pfStationCode) ( /* Function to get the code of the station */
+        void *env,
+        int  stn );
+
     int (*pfStationRole) ( /* Function to get the role of the station in the  tests */
         void *env,         /* Returns one of the above status, or the lowest number */
         int  stn );        /* test to apply */

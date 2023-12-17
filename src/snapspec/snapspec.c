@@ -905,6 +905,13 @@ static long f_station_id( void *, int stn )
     return stn+1;
 }
 
+static const char * f_station_code( void *env, int stn )
+{
+    int istn = f_station_id( env, stn );
+    station *st=stnptr(istn);
+    return st->Code;
+}
+
 static int f_station_role ( void *env, int stn )
 {
     station *st;
@@ -1072,6 +1079,7 @@ static hSDCTest create_test( int maxorder )
 
     hsdc = sdcCreateSDCTest( maxorder );
     hsdc->pfStationId = f_station_id;
+    hsdc->pfStationCode = f_station_code;
     hsdc->pfStationRole = f_station_role;
     hsdc->pfStationPriority = f_station_priority;
     hsdc->pfDistance2 = f_distance2;
