@@ -152,6 +152,8 @@ bltmatrix *create_bltmatrix( int nrow )
     blt->nsparse = 0;
     blt->status = BLT_UNINIT;
     blt->row = alloc_bltrow( nrow );
+    blt->_invncol = 0;
+    blt->_pfsumcol = 0;
     return blt;
 }
 
@@ -216,8 +218,12 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
             r->alloc = alloc;
             r->col = r->req;
 
-            for( rw = r0; rw < r1; rw++ ) { *(address++) = 0.0; }
-            for( rw = r1; rw < r2; rw++ ) { *(address++) = *(a1++); }
+            for( rw = r0; rw < r1; rw++ ) {
+                *(address++) = 0.0;
+            }
+            for( rw = r1; rw < r2; rw++ ) {
+                *(address++) = *(a1++);
+            }
             alloc = 0;
             i0++;
         }
@@ -241,10 +247,10 @@ long blt_requested_size( bltmatrix *blt )
     nelement = 0;
     for( i=0; i<blt->nrow; i++ )
     {
-            bltrow *r = &(blt->row[i]);
-            if( r->col < r->req ) r->req = r->col;
-            if( i >= blt->nsparse ) r->req = 0;
-            nelement += i + 1 - r->req;
+        bltrow *r = &(blt->row[i]);
+        if( r->col < r->req ) r->req = r->col;
+        if( i >= blt->nsparse ) r->req = 0;
+        nelement += i + 1 - r->req;
     }
     return nelement;
 }
@@ -334,7 +340,8 @@ void expand_bltmatrix_to_requested( bltmatrix *blt )
         bltrow *r = &(blt->row[i]);
         if( r->req < r->col || (i >= blt->nsparse && r->col > 0) )
         {
-            expand = 1; break;
+            expand = 1;
+            break;
         }
     }
 
@@ -372,7 +379,7 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
     int i;
     int nrow;
     int sts;
-    
+
     sts = copy_bltmatrix_bandwidth( bltsrc, bltcopy );
     if( sts != OK ) return sts;
 
@@ -391,7 +398,10 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
         int cc = rc->col;
         double *as = rs->address;
         double *ac = rc->address;
-        while( cc < cs ) { cc++; *ac++ = 0.0; }
+        while( cc < cs ) {
+            cc++;
+            *ac++ = 0.0;
+        }
         /* while( cc <= i ){ cc++; *ac++ = *as++; } */
         memcpy( ac, as, sizeof(double)*(i+1-cs) );
     }
@@ -482,7 +492,8 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
                 sum -= r[k]* *(blt->row[k].address + ik);
             }
         }
-        r[i] += sum; r[i] /= BLT(blt,i,i);
+        r[i] += sum;
+        r[i] /= BLT(blt,i,i);
     }
 }
 
@@ -535,25 +546,67 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
     }
 }
 
+
+void _blt_chol_inv_sumcol( bltmatrix *blt, int *dosum, double *sumcol, double *tmpcol, int i1, int c )
+{
+    int nrow = blt->nrow;
+    for (int j=i1+1; j < nrow; j++ )
+    {
+        int col0 = blt->row[j].col;
+        double *row = blt->row[j].address;
+
+        if( col0 < i1+1 )
+        {
+            row += i1+1-col0;
+            col0 = i1+1;
+        }
+
+        double sj=0;
+        for( ; col0 <= j; col0++, row++ )
+        {
+            /* Sum effect of (j,col0) element, value at *row */
+            if( c >= dosum[col0] && c >= dosum[j] )
+            {
+                sumcol[col0] -= *row * tmpcol[j];
+                if( j != col0 )
+                {
+                    sj -= *row * tmpcol[col0];
+                }
+            }
+        }
+        sumcol[j] += sj;
+    }
+}
+
 void blt_chol_inv( bltmatrix *blt )
 {
     int nrow;
     int nsave;
     int i,i0,i1,c,c1,j;
     double *tmp;
-    double *tmpcol[BLT_INV_CACHE_SIZE];
-    double *sumcol[BLT_INV_CACHE_SIZE];
+    double **tmpcol;
+    double **sumcol;
     int *dosum;
+    int ncache;
 
     long ndone;
 
     nrow = blt->nrow;
 
-    tmp = (double *) check_malloc( 2 * nrow * BLT_INV_CACHE_SIZE * sizeof(double) );
-    for( i = 0; i < BLT_INV_CACHE_SIZE; i++ )
+    ncache = blt->_invncol;
+    if( ncache <= 0 )
+    {
+        ncache=BLT_INV_CACHE_SIZE;
+    }
+
+    tmp = (double *) check_malloc( 2 * nrow * ncache * sizeof(double) );
+    tmpcol = (double **) check_malloc( 2 * ncache * sizeof(double *) );
+    sumcol=tmpcol+ncache;
+
+    for( i = 0; i < ncache; i++ )
     {
         tmpcol[i] = tmp + nrow*i;
-        sumcol[i] = tmp + nrow*(i+BLT_INV_CACHE_SIZE);
+        sumcol[i] = tmp + nrow*(i+ncache);
     }
     dosum = (int *) check_malloc( nrow * sizeof(int) );
 
@@ -562,9 +615,9 @@ void blt_chol_inv( bltmatrix *blt )
     ndone = 0;
     nsave = 0;
 
-    for (i1=nrow-1, i0=nrow-BLT_INV_CACHE_SIZE;
+    for (i1=nrow-1, i0=nrow-ncache;
             i1 >= 0;
-            i1=i0-1, i0 -= BLT_INV_CACHE_SIZE )
+            i1=i0-1, i0 -= ncache )
     {
 
         if( i0 < 0 ) i0 = 0;
@@ -574,33 +627,18 @@ void blt_chol_inv( bltmatrix *blt )
         blt_load_col_cache( blt, tmpcol, sumcol, dosum, i0, i1-i0+1, i1+1, nsave );
         nsave = i1-i0+1;
 
-        /* Sum the data for the rows after i0 into the summation */
+        /* Sum the data for the rows after i0 into the summation using the multithreading hook
+           if it has been defined. */
 
-        for (j=i1+1; j < nrow; j++ )
+        if( blt->_pfsumcol )
         {
-            int col0 = blt->row[j].col;
-            double *row = blt->row[j].address;
-
-            if( col0 < i1+1 )
+            (blt->_pfsumcol)(blt,nsave,dosum,sumcol,tmpcol,i1);
+        }
+        else
+        {
+            for ( c = nsave; c--;  )
             {
-                row += i1+1-col0;
-                col0 = i1+1;
-            }
-
-            for( ; col0 <= j; col0++, row++ )
-            {
-                /* Sum effect of (j,col0) element, value at *row */
-                for( i = i0, c = 0; c < nsave; i++, c++ )
-                {
-                    if( c >= dosum[col0] && c >= dosum[j] )
-                    {
-                        sumcol[c][col0] -= *row * tmpcol[c][j];
-                        if( j != col0 )
-                        {
-                            sumcol[c][j] -= *row * tmpcol[c][col0];
-                        }
-                    }
-                }
+                _blt_chol_inv_sumcol(blt, dosum, sumcol[c], tmpcol[c], i1, c);
             }
         }
 
@@ -657,6 +695,7 @@ void blt_chol_inv( bltmatrix *blt )
     blt_load_col_cache( blt, tmpcol, sumcol, dosum, 0, 0, 0, nsave );
     end_progress_meter();
 
+    check_free( tmpcol );
     check_free( tmp );
     check_free( dosum );
 }
@@ -769,7 +808,9 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
     int rows = options & BLT_JSON_FULL;
     int lower = rows == BLT_JSON_LOWER;
 
-    if( matonly && ! rows ){ rows=BLT_JSON_LOWER; }
+    if( matonly && ! rows ) {
+        rows=BLT_JSON_LOWER;
+    }
     if( ! format ) format = "%15.8le";
 
     if( ! matonly )
@@ -799,9 +840,9 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
             double val=0.0;
             if( ic > ir )
             {
-               if( lower ) continue;
-               ic0=ir;
-               ir0=ic;
+                if( lower ) continue;
+                ic0=ir;
+                ir0=ic;
             }
             else
             {
@@ -817,7 +858,7 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
             {
                 val=blt->row[ir0].address[ic0-col0];
             }
-            if( ic ) 
+            if( ic )
             {
                 fprintf(out,",");
                 if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
@@ -914,7 +955,10 @@ int main(int argc, char *argv[] )
     N1 = b1+nprm;
     tmp = b1+nmem;
 
-    for( i = 0; i<nmem; i++ ) { fscanf(in,"%lf",&v); b[i] = b1[i] = v; }
+    for( i = 0; i<nmem; i++ ) {
+        fscanf(in,"%lf",&v);
+        b[i] = b1[i] = v;
+    }
     for( i = 0; i<nprm; i++ ) for( j=0; j<=i; j++ )
         {
             if( Lij(N,i,j) != 0.0 ) blt_nonzero_element( blt, i, j );

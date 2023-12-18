@@ -35,14 +35,17 @@ typedef struct
     char alloc;       /* Address marks the beginning of an allocated block */
 } bltrow;
 
-typedef struct
+typedef struct bltmatrix_s bltmatrix;
+struct bltmatrix_s
 {
     char status;      /* Status of allocation of matrix */
     int nrow;         /* Number of rows/columns */
     int nsparse;      /* The number of sparse rows, used for allocation */
     long nelement;    /* The total number of elements in the matrix */
     bltrow *row;      /* Pointer to the array of rows */
-} bltmatrix;
+    int _invncol;   /* Internal value for number of columns to process in inverse */
+    void (*_pfsumcol)(bltmatrix *blt, int nsave, int *dosum, double **sumcol, double **tmpcol, int i1); /* Hook func for multithreaded version*/
+};
 
 #ifdef CHECKBLT
 #include "util/errdef.h"
@@ -64,7 +67,7 @@ typedef struct
 		     ))
 #endif
 
-#define BLT_JSON_STRUCTURE     0 
+#define BLT_JSON_STRUCTURE     0
 #define BLT_JSON_LOWER         1
 #define BLT_JSON_FULL          3
 #define BLT_JSON_MATRIX_ONLY   4
@@ -92,6 +95,7 @@ void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
 void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
+void _blt_chol_inv_sumcol( bltmatrix *blt, int *dosum, double *sumcol, double *tmpcol, int i1, int c );
 
 #endif
 
