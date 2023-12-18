@@ -381,8 +381,9 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
                 nrow, nelement, pcntfull );
         fprintf(ra->logfile,"   Maximum bandwidth requested %d between %s and %s\n",
                 ra->maxreqbandwidth,stnptr(ra->maxreqistn)->Code,stnptr(ra->maxreqjstn)->Code);
-        fflush(ra->logfile);
     }
+    fflush(ra->logfile);
+    if( ra->dbgfile ) fflush( ra->dbgfile );
     copy_bltmatrix( bltdec, blt );
     blt_chol_inv_mt( blt );
 
