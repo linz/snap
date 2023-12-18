@@ -152,6 +152,8 @@ bltmatrix *create_bltmatrix( int nrow )
     blt->nsparse = 0;
     blt->status = BLT_UNINIT;
     blt->row = alloc_bltrow( nrow );
+    blt->pfBltInvColumnCallback = 0;
+    blt->invCallbackEnv = 0;
     return blt;
 }
 
@@ -216,8 +218,12 @@ static void alloc_bltrow_arrays( bltmatrix *blt )
             r->alloc = alloc;
             r->col = r->req;
 
-            for( rw = r0; rw < r1; rw++ ) { *(address++) = 0.0; }
-            for( rw = r1; rw < r2; rw++ ) { *(address++) = *(a1++); }
+            for( rw = r0; rw < r1; rw++ ) {
+                *(address++) = 0.0;
+            }
+            for( rw = r1; rw < r2; rw++ ) {
+                *(address++) = *(a1++);
+            }
             alloc = 0;
             i0++;
         }
@@ -241,10 +247,10 @@ long blt_requested_size( bltmatrix *blt )
     nelement = 0;
     for( i=0; i<blt->nrow; i++ )
     {
-            bltrow *r = &(blt->row[i]);
-            if( r->col < r->req ) r->req = r->col;
-            if( i >= blt->nsparse ) r->req = 0;
-            nelement += i + 1 - r->req;
+        bltrow *r = &(blt->row[i]);
+        if( r->col < r->req ) r->req = r->col;
+        if( i >= blt->nsparse ) r->req = 0;
+        nelement += i + 1 - r->req;
     }
     return nelement;
 }
@@ -334,7 +340,8 @@ void expand_bltmatrix_to_requested( bltmatrix *blt )
         bltrow *r = &(blt->row[i]);
         if( r->req < r->col || (i >= blt->nsparse && r->col > 0) )
         {
-            expand = 1; break;
+            expand = 1;
+            break;
         }
     }
 
@@ -372,7 +379,7 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
     int i;
     int nrow;
     int sts;
-    
+
     sts = copy_bltmatrix_bandwidth( bltsrc, bltcopy );
     if( sts != OK ) return sts;
 
@@ -391,7 +398,10 @@ int copy_bltmatrix( bltmatrix *bltsrc, bltmatrix *bltcopy )
         int cc = rc->col;
         double *as = rs->address;
         double *ac = rc->address;
-        while( cc < cs ) { cc++; *ac++ = 0.0; }
+        while( cc < cs ) {
+            cc++;
+            *ac++ = 0.0;
+        }
         /* while( cc <= i ){ cc++; *ac++ = *as++; } */
         memcpy( ac, as, sizeof(double)*(i+1-cs) );
     }
@@ -482,7 +492,8 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
                 sum -= r[k]* *(blt->row[k].address + ik);
             }
         }
-        r[i] += sum; r[i] /= BLT(blt,i,i);
+        r[i] += sum;
+        r[i] /= BLT(blt,i,i);
     }
 }
 
@@ -492,7 +503,14 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
    at a time to reduce the number of page faults, as the matrix
    is stored in blocks of rows, so accessing column elements
    sequentially increases the incidence of faults, whereas accessing
-   rows sequentially does not */
+   rows sequentially does not.
+
+   Uses
+   tmpcol   tmpcol[i] is a full arrays of column for a set of rows
+                 of the matrix.
+   sumcol   sumcol[i] full arrays of column values,
+
+    */
 
 static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol,
                                 int *dosum, int iget, int nget, int isave, int nsave )
@@ -519,6 +537,10 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
             }
         }
 
+        /* If there is a callback function then don't overwrite the column values yet */
+
+        if( blt->pfInvCallback ) continue;
+
         /* Count number of cols to get */
 
         dosum[i] = c0 = col0 < iget ? 0 : col0-iget;
@@ -533,6 +555,41 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
             sumcol[c0][i] = 0.0;
         }
     }
+
+    if( blt->pfInvCallback )
+    {
+
+
+
+        for( i = iget; i < nrow; i++ )
+        {
+            int col0 = blt->row[i].col;
+            int c0;
+            double *row = blt->row[i].address;
+            double *r;
+
+            /* Count number of cols to get */
+
+            dosum[i] = c0 = col0 < iget ? 0 : col0-iget;
+            if( c0 >= nget ) continue;
+
+            /* Retrieve the cols and initiallize the summation */
+
+            for( r = row + iget + c0 - col0; c0 < nget; c0++, r++ )
+            {
+                if( iget + c0 > i ) break;
+                tmpcol[c0][i] = *r;
+                sumcol[c0][i] = 0.0;
+            }
+        }
+    }
+
+}
+
+void blt_set_chol_inv_callback( bltmatrix *blt, BltInvColumnCallbackFunc pfcallback, void *env )
+{
+    blt->pfInvCallback = pfcallback;
+    blt->invCallbackEnv = env;
 }
 
 void blt_chol_inv( bltmatrix *blt )
@@ -769,7 +826,9 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
     int rows = options & BLT_JSON_FULL;
     int lower = rows == BLT_JSON_LOWER;
 
-    if( matonly && ! rows ){ rows=BLT_JSON_LOWER; }
+    if( matonly && ! rows ) {
+        rows=BLT_JSON_LOWER;
+    }
     if( ! format ) format = "%15.8le";
 
     if( ! matonly )
@@ -799,9 +858,9 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
             double val=0.0;
             if( ic > ir )
             {
-               if( lower ) continue;
-               ic0=ir;
-               ir0=ic;
+                if( lower ) continue;
+                ic0=ir;
+                ir0=ic;
             }
             else
             {
@@ -817,7 +876,7 @@ void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, 
             {
                 val=blt->row[ir0].address[ic0-col0];
             }
-            if( ic ) 
+            if( ic )
             {
                 fprintf(out,",");
                 if( ic % 10 == 0 ) fprintf(out,"\n%*s  ",nprefix,"");
@@ -914,7 +973,10 @@ int main(int argc, char *argv[] )
     N1 = b1+nprm;
     tmp = b1+nmem;
 
-    for( i = 0; i<nmem; i++ ) { fscanf(in,"%lf",&v); b[i] = b1[i] = v; }
+    for( i = 0; i<nmem; i++ ) {
+        fscanf(in,"%lf",&v);
+        b[i] = b1[i] = v;
+    }
     for( i = 0; i<nprm; i++ ) for( j=0; j<=i; j++ )
         {
             if( Lij(N,i,j) != 0.0 ) blt_nonzero_element( blt, i, j );

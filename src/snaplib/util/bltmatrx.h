@@ -35,6 +35,16 @@ typedef struct
     char alloc;       /* Address marks the beginning of an allocated block */
 } bltrow;
 
+
+/* BltInvColumnCallbackFunc is a function that can be invoked during the construction
+   of the inverse during the matrix inversion.  Each column will be returned in turn
+   starting with the last.  When it is invoked the  the
+   vector row contain all inverse values for the row irow from column irow to the nrow-1,
+   and the bltmatrix itself holds inverse values for rows and cols > irow,
+   but only for the elements it holds. */
+
+typedef void (*BltInvColumnCallbackFunc)( void *env, bltmatrix *blt, int irow, double *row );
+
 typedef struct
 {
     char status;      /* Status of allocation of matrix */
@@ -42,6 +52,8 @@ typedef struct
     int nsparse;      /* The number of sparse rows, used for allocation */
     long nelement;    /* The total number of elements in the matrix */
     bltrow *row;      /* Pointer to the array of rows */
+    pfInvCallback;    /* Pointer to callback function during inverse construction */
+    void * invCallbackEnv;  /* Context information returned to s*/
 } bltmatrix;
 
 #ifdef CHECKBLT
@@ -64,7 +76,7 @@ typedef struct
 		     ))
 #endif
 
-#define BLT_JSON_STRUCTURE     0 
+#define BLT_JSON_STRUCTURE     0
 #define BLT_JSON_LOWER         1
 #define BLT_JSON_FULL          3
 #define BLT_JSON_MATRIX_ONLY   4
@@ -83,6 +95,7 @@ int blt_nrows( bltmatrix *blt );
 long blt_requested_size( bltmatrix *blt );
 int blt_chol_dec( bltmatrix *blt, int fill );
 void blt_chol_slv( bltmatrix *blt, double *b, double *r );
+void blt_set_chol_inv_callback( bltmatrix *blt, BltInvColumnCallbackFunc pfcallback, void *env );
 void blt_chol_inv( bltmatrix *blt );
 double blt_get_small( int absolute );
 void blt_set_small( int absolute, double value );
@@ -90,7 +103,7 @@ double *blt_get_row_data( bltmatrix * blt, int irow );
 /* Only returns rows fully populated to diagonal */
 void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
+void print_bltmatrix( FILE *out, bltmatrix *blt, const char *format, int indent );
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
 
 #endif
