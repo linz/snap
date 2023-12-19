@@ -1,6 +1,12 @@
 #ifndef _SNAPCONFIG_H
 #define _SNAPCONFIG_H
 
+#include <stdint.h>
+typedef int8_t  int1;
+typedef int16_t int2;
+typedef int32_t int4;
+typedef int64_t int8;
+
 #ifndef UNIX
 #if !defined(_WIN32) && !defined(_MSC_VER)
 #define UNIX

@@ -23,6 +23,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <assert.h>
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
@@ -67,13 +68,6 @@ static const char *default_output_filename="-";
 #define RELACC_BLOCK_SIZE 4196
 #define MAX_ORDER 20
 
-typedef struct
-{
-    double verr2;
-    double emax2;
-    /*   float verr2; */
-} stn_relacc;
-
 #define SRA_LOGLEVEL_OUTPUT 2048 /* Output log to stdout as well as file */
 
 #define SRA_HVMODE_AUTO 0
@@ -83,40 +77,55 @@ typedef struct
 
 typedef struct
 {
+    int4 jstn;
+    double hcvr;
+    double vcvr;
+} stn_covar;
+
+
+#define STN_CVR_DEFAULT_ALLOC 256
+
+
+typedef struct
+{
+    int4 iadj;  /* Order of station in covariance matrix */
+    int2 src_orderid;
+    int2 role;
+    int2 order;
+    int2 priority;
+    int2 needcvr;
+    double hvar;
+    double vvar;
+    int4 ncovar;      /* Number of covariances populated */
+    int4 ncovarmax;   /* Number of covariances allocated*/
+    stn_covar *covar; /* Covariances - will be sorted by jstn */
+} stn_var;
+
+typedef struct
+{
     FILE *logfile;
     FILE *dbgfile;
     hSDCTest hsdc;
     char *csvoutput;
     char *crdoutput;
+    char *binfilename;
     char *cvrcachefile;
     unsigned char outputlog;
-    int nstn;
+    int nstn;           /* Number of stations */
+    int nstnadj;        /* Number of stations in the adjustment */
     int have_srcorders;
     int hvmode;
     int splitcrdfile;
     int usecache;
-    short *src_orderid;
-    short *role;
-    short *order;
-    short *priority;
-    double *horvar;
-    double *vrtvar;
-    char *alloc;
-    stn_relacc **cols;
-    bltmatrix *bltdec;  /* Choleski decomposition of normal equns */
-    bltmatrix *bltreq;  /* Requested non-zero rows */
-    bltmatrix *blt;     /* Calculated covariance */
-    int bltupdated;     /* True if covar has been calc'd (used for caching) */
-    char testhor;
-    char testvrt;
-    int loglevel;
-    int autominorder;
+    stn_var *stnvar;        /* Indexed on istn */
+    int1 haveltdec;  /* Have choleski decomposition from snap */
+    int1 testhor;
+    int1 testvrt;
+    int1 autominorder;
+    int1 ignoreconstrained;
+    int4 loglevel;
     int dfltminrelacc;
-    int ignoreconstrained;
-    int maxreqbandwidth;
-    int maxreqistn;
-    int maxreqjstn;
-} stn_relacc_array;
+} snapspec_env;
 
 typedef struct cfg_stack_s
 {
@@ -153,529 +162,430 @@ static double calc_error_ellipse_semimajor2( double cvr[] )
 
 /*============================================================*/
 
-static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn );
+static double relacc_get_covar( snapspec_env *ra, int istn, int jstn );
 
-static stn_relacc_array *create_relacc()
+static snapspec_env *create_snapspec_env()
 {
-    stn_relacc_array *ra;
-    short *src_orderid;
-    short *role;
-    short *order;
-    short *priority;
-    double *horvar;
-    double *vrtvar;
-    int i;
+    snapspec_env *ra;
 
     int haveorders = network_order_count(net) > 0;
     int nstns = number_of_stations( net );
-    ra = (stn_relacc_array *) check_malloc( sizeof(stn_relacc_array) );
-    src_orderid = (short *) check_malloc( nstns * sizeof(short));
-    role = (short *) check_malloc( nstns * sizeof(short));
-    order = (short *) check_malloc( nstns * sizeof(short));
-    priority = (short *) check_malloc( nstns * sizeof(short));
-    horvar = (double *) check_malloc( nstns * sizeof(double));
-    vrtvar = (double *) check_malloc( nstns * sizeof(double));
-    for( i = 0; i < nstns; i++ )
+    ra = (snapspec_env *) check_malloc( sizeof(snapspec_env) );
+    ra->stnvar = (stn_var *) check_malloc((nstns+1)*sizeof(stn_var));
+    for( int istn = 0; istn++ < nstns; )
     {
-        src_orderid[i] = 0;
+        stn_var *svar=&ra->stnvar[istn];
+        svar->iadj=-1;
+        svar->src_orderid = 0;
         if( haveorders )
         {
-            station *st=stnptr(i+1);
-            src_orderid[i] = (short) network_station_order(net,st);
+            station *st=stnptr(istn);
+            svar->src_orderid = (short) network_station_order(net,st);
         }
-        role[i] = 0;
-        order[i] = 0;
-        priority[i] = SDC_NO_PRIORITY;
-        horvar[i] = 0.0;
-        vrtvar[i] = 0.0;
+        svar->role=0;
+        svar->order=0;
+        svar->priority = SDC_NO_PRIORITY;
+        svar->needcvr = 0;
+        svar->hvar = 0.0;
+        svar->vvar = 0.0;
+        svar->ncovar=0;
+        svar->ncovarmax = 0;
     }
 
     ra->nstn = nstns;
     ra->csvoutput=0;
     ra->crdoutput=0;
+    ra->binfilename=0;
     ra->cvrcachefile=0;
     ra->usecache=0;
     ra->splitcrdfile=0;
     ra->hvmode=SRA_HVMODE_AUTO;
     ra->hsdc = NULL;
-    ra->alloc = NULL;
-    ra->cols = NULL;
     ra->have_srcorders = haveorders;
-    ra->src_orderid = src_orderid;
-    ra->role = role;
-    ra->order = order;
-    ra->priority = priority;
-    ra->horvar = horvar;
-    ra->vrtvar = vrtvar;
     ra->logfile = NULL;
     ra->dbgfile = NULL;
     ra->loglevel = 0;
-    ra->bltdec = NULL;
-    ra->bltreq = NULL;
-    ra->blt = NULL;
-    ra->bltupdated = 0;
+    ra->haveltdec = 0;
     ra->outputlog = 0;
     ra->autominorder = 0;
     ra->ignoreconstrained = 0;
     ra->dfltminrelacc = 0;
-    ra->maxreqbandwidth = 0;
-    ra->maxreqistn = -1;
-    ra->maxreqjstn = -1;
     return ra;
 }
 
-static void delete_relacc( stn_relacc_array *ra )
+static void delete_snapspec_env( snapspec_env *ra )
 {
     int i;
-    ra->nstn = 0;
-    check_free( ra->role );
-    ra->role = NULL;
-    check_free( ra->order );
-    ra->order = NULL;
-    check_free( ra->priority );
-    ra->priority = NULL;
-    check_free( ra->horvar );
-    ra->horvar = NULL;
-    check_free( ra->vrtvar );
-    ra->vrtvar = NULL;
-    if( ra->cols )
+    for( i = 0; i++ < ra->nstn; )
     {
-        for( i = 0; i < ra->nstn; i++ )
-        {
-            if( ra->alloc[i] ) {
-                check_free( ra->cols[i] );
-            }
-        }
-        check_free( ra->cols );
-        ra->cols = NULL;
-        check_free( ra->alloc );
-        ra->alloc = NULL;
+        stn_var *svar=ra->stnvar+i;
+        if( svar->covar ) check_free(svar->covar);
     }
-    if( ra->bltdec ) delete_bltmatrix( ra->bltdec );
-    ra->bltdec = NULL;
-    if( ra->bltreq ) delete_bltmatrix( ra->bltreq );
-    ra->bltreq = NULL;
-    if( ra->blt ) delete_bltmatrix( ra->blt );
-    ra->blt = NULL;
+    ra->nstn = 0;
+    check_free( ra->stnvar );
     check_free( ra );
 }
 
-static void relacc_alloc_cache( stn_relacc_array *ra )
+static stn_covar *get_covar( snapspec_env *ra, int istn, int jstn, int1 *isnew )
 {
-    int istn;
-    int istn0;
-    int i;
-    char *alloc;
-    stn_relacc **cols;
-    int nstns = ra->nstn;
+    /* Get the stn_covar for the covariance between istn and jstn.
+       Allocate the covariance if it is not already done.
+       Return NULL for invalid covariances, istn or jstn not adjusted,
+       or istn=jstn.
+       If isnew is not null then set the value it points to to 1 if the covariance is
+       created by this call or 0 otherwise. */
 
-    if( ra->cols ) return;
+    if( isnew ) *isnew=0;
+    stn_var *svari = &ra->stnvar[istn];
+    stn_var *svarj = &ra->stnvar[jstn];
+    if( istn == jstn || svari->iadj < 0 || svarj->iadj < 0 ) return 0;
 
-    ra->alloc = alloc = (char *) check_malloc( nstns * sizeof(char));
-    ra->cols = cols = (stn_relacc **) check_malloc( nstns * sizeof(stn_relacc *) );
-
-    istn = 1;
-    istn0 =  1;
-    while( istn <= nstns )
+    /* Always have istn before jstn in order of rows in covariance, swap if required */
+    if( svari->iadj > svarj->iadj )
     {
-        stn_relacc *r;
-        int nblk = 0;
-        do
-        {
-            nblk += istn;
-            istn++;
-        }
-        while ( istn <= nstns && nblk < RELACC_BLOCK_SIZE );
+        int itmp=istn;
+        istn=jstn;
+        jstn=itmp;
+        stn_var *stmp=svari;
+        svari=svarj;
+        svarj=stmp;
+    }
 
-        r = (stn_relacc *) check_malloc( nblk * sizeof( stn_relacc ));
-        for( i = 0; i < nblk; i++ )
-        {
-            r[i].emax2 = SDC_COVAR_UNAVAILABLE;
-            r[i].verr2 = SDC_COVAR_UNAVAILABLE;
+    /* Binary search for variance */
+
+    stn_covar *cvr=svari->covar;
+    int4 i0=0;
+    int4 i1=svari->ncovar;
+    while( i1 > i0 )
+    {
+        int4 im = (i0+i1)/2;
+        stn_covar *cvri=&cvr[im];
+        if( cvri->jstn == jstn ) return cvri;
+        if( cvri->jstn < jstn ) {
+            i0 = im+1;
         }
-        for( nblk = 0; istn0 < istn; nblk += istn0, istn0++ )
-        {
-            alloc[istn0-1] = nblk == 0 ? 1 : 0;
-            cols[istn0-1] = r + nblk;
+        else {
+            i1=im;
         }
     }
+
+    /* i0 is the location in the array at which to create this covariance. */
+
+    /* If there isn't space then allocate */
+
+    if( svari->ncovar >= svari->ncovarmax )
+    {
+        int nalloc = svari->ncovarmax * 2;
+        if( nalloc == 0 ) nalloc = STN_CVR_DEFAULT_ALLOC;
+        /* Should never require more than the number of stations with
+           a greater row number */
+        int nmax = ra->nstnadj-svari->iadj-1;
+        if( nalloc > nmax ) nalloc=nmax;
+        assert(nalloc > svari->ncovarmax);
+        if( svari->covar )
+        {
+            svari->covar=(stn_covar *) check_realloc(svari->covar, nalloc*sizeof(stn_covar));
+        }
+        else
+        {
+            svari->covar=(stn_covar *) check_malloc( nalloc*sizeof(stn_covar));
+        }
+        svari->ncovarmax = nalloc;
+        cvr=svari->covar;
+    }
+
+    /* If inserting the covariance then need to shift other covariances along... */
+    if( i1 < svari->ncovar )
+    {
+        memmove(cvr+i1+1,cvr+i1,(svari->ncovar-i1)*sizeof(stn_covar));
+    }
+    cvr += i1;
+    cvr->jstn = jstn;
+    cvr->hcvr = cvr->vcvr = SDC_COVAR_UNAVAILABLE;
+    svari->ncovar++;
+    if( isnew ) *isnew=1;
+
+    return cvr;
 }
 
-static stn_relacc *get_relacc( stn_relacc_array *ra, int istn, int jstn )
+static void cache_calculated_covariances( snapspec_env *ra, char *cfn )
 {
-    if( ra->cols == NULL || istn < 1 || jstn < 1 || istn > ra->nstn || jstn > ra->nstn ) return NULL;
-    if( istn < jstn ) {
-        int itmp = istn;
-        istn = jstn;
-        jstn = itmp;
-    }
-    return ra->cols[istn-1] + jstn-1;
-}
-
-static void add_relacc( stn_relacc_array *ra, int istn, int jstn, double emax2, double verr2 )
-{
-    if( istn == jstn )
-    {
-        ra->horvar[istn-1] = emax2;
-        ra->vrtvar[istn-1] = verr2;
-        return;
-    }
-    else
-    {
-        stn_relacc *r = get_relacc( ra, istn, jstn );
-        if( r )
-        {
-            r->emax2 = emax2;
-            r->verr2 = verr2;
-        }
-    }
-}
-
-static int relacc_create_blt_req( stn_relacc_array *ra )
-{
-    if( ! ra->bltreq )
-    {
-        ra->bltreq = create_bltmatrix( ra->bltdec->nrow );
-        if( ra->blt )
-        {
-            copy_bltmatrix_bandwidth( ra->blt, ra->bltreq );
-        }
-    }
-    return 1;
-}
-
-static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
-{
-    if( ! ra->blt ) return;
-    if( ! ra->bltupdated ) return;
     BINARY_FILE *c;
     c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
     if( ! c ) return;
     create_section(c,CACHE_COVARIANCE_SECTION);
     fwrite(run_time,GETDATELEN,1,c->f);
-    dump_bltmatrix(ra->blt,c->f);
+    int ncovar = 0;
+    for( int istn = 0; istn++ < ra->nstn; )
+    {
+        if( ra->stnvar[istn].ncovar > 0 ) ncovar++;
+    }
+    DUMP_BINI32(ncovar,c);
+    for( int istn = 0; istn++ < ra->nstn; )
+    {
+        stn_var *svari = &ra->stnvar[istn];
+        int4 nc=svari->ncovar;
+        if( nc > 0 )
+        {
+            DUMP_BINI32(istn,c);
+            DUMP_BINI32(nc,c);
+            for( stn_covar *cvr=svari->covar; nc--; cvr++ )
+            {
+                DUMP_BINI32(cvr->jstn,c);
+                DUMP_BIN(cvr->hcvr,c);
+                DUMP_BIN(cvr->vcvr,c);
+            }
+        }
+    }
     end_section(c);
     close_binary_file(c);
     printf("Created covariance cache file %s\n",cfn);
 }
 
-static int relacc_calc_requested_covar( stn_relacc_array *ra )
+
+static int try_reload_cached_covariances( snapspec_env *ra, char *cfn )
 {
-    bltmatrix *bltdec = ra->bltdec;
-    bltmatrix *blt = ra->bltreq;
-    if( ! blt || ! bltdec ) return 0;
-
-    if( ra->blt )
+    BINARY_FILE *c;
+    char cruntime[GETDATELEN];
+    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG);
+    if( ! c ) return 0;
+    if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
     {
-        delete_bltmatrix( ra->blt );
-        ra->blt=NULL;
+        close_binary_file(c);
+        return 0;
     }
+    fread( cruntime, GETDATELEN, 1, c->f );
+    if( _strnicmp(cruntime,run_time,GETDATELEN) != 0 )
+    {
+        printf("Covariance cache file out of date - deleting %s\n",cfn);
+        close_binary_file(c);
+        _unlink(cfn);
+        return 0;
+    }
+    if( ra->loglevel & SDC_LOG_STEPS ) fprintf(ra->logfile,"Loading cached covariance\n");
+    int ncovar;
+    RELOAD_BINI32(ncovar,c);
+    while( ncovar-- )
+    {
+        int istn;
+        int ncovar;
+        RELOAD_BINI32(istn,c);
+        RELOAD_BINI32(ncovar,c);
+        stn_var *svari=&ra->stnvar[istn];
+        if( svari->covar ) check_free(svari->covar);
+        svari->ncovar=ncovar;
+        svari->ncovarmax=ncovar;
+        stn_covar *cvr=(stn_covar *) check_malloc(ncovar * sizeof(stn_covar));
+        svari->covar=cvr;
+        for( ; ncovar-- > 0; cvr++ )
+        {
+            RELOAD_BINI32(cvr->jstn,c );
+            RELOAD_BIN(cvr->hcvr,c);
+            RELOAD_BIN(cvr->vcvr,c);
+        }
+    }
+    close_binary_file(c);
+    printf("Using covariance from cache file %s\n",cfn);
+    return 1;
+}
 
-    if( ra->loglevel & SDC_LOG_STEPS )
+static bltmatrix *reload_choleski_decomposition( snapspec_env *ra )
+{
+    if( ! ra->haveltdec ) return 0;
+    BINARY_FILE *b = open_binary_file( ra->binfilename, BINFILE_SIGNATURE );
+    if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK ) return 0;
+    bltmatrix *blt=NULL;
+    int sts = reload_bltmatrix( &blt, b->f );
+    if( sts != OK ) blt=NULL;
+    close_binary_file(b);
+    return blt;
+}
+
+
+//     stn_var *svari=&ra->stnvar[istn];
+//     double **row=cbenv->row;
+//     stn_covar *scvr=svari->covar;
+//     for( int icvr = svari->ncovar; icvr--; scvr++ )
+//     {
+//         if( scvr->hcvr != SDC_COVAR_UNAVAILABLE || scvr->vcvr != SDC_COVAR_UNAVAILABLE ) continue;
+//         int jstn = scvr->jstn;
+//         stn_adjustment *jsa=stnadj(stnptr(jstn));
+//         if( isa->hrowno && jsa->hrowno )
+//         {
+//             int ir=isa->hrowno-1;
+//             int jr=jsa->hrowno-1;
+//             double cvr[3]= {row[0][ir],row[0][ir+1],row[1][ir+1]};
+//             cvr[0] -= 2*row[0][jr];
+//             cvr[1] -= (row[0][jr+1]+row[1][jr]);
+//             cvr[2] -= 2*row[1][jr+1];
+//             cvr[0] += BLT(blt,jr,jr);
+//             cvr[1] += BLT(blt,jr,jr+1);
+//             cvr[2] += BLT(blt,jr+1,jr+1);
+//             scvr->hcvr=calc_error_ellipse_semimajor2(cvr);
+//         }
+//         else
+//         {
+//             scvr->hcvr=0.0;
+//         }
+//         if( isa->vrowno && jsa->vrowno )
+//         {
+//             double *rowv = isa->hrowno ? row[2] : row[0];
+//             int ir=isa->vrowno-1;
+//             int jr=jsa->vrowno-1;
+//             scvr->vcvr=rowv[ir]-2*rowv[jr]+BLT(blt,jr,jr);
+//         }
+//         else
+//         {
+//             scvr->vcvr=0.0;
+//         }
+//         if( ra->loglevel & SDC_LOG_CALCS )
+//         {
+//             fprintf(ra->logfile,"   .. Covariance: %s to %s: H %.8lf V %.8lf\n",
+//                     stnptr(istn)->Code,stnptr(jstn)->Code,scvr->hcvr,scvr->vcvr);
+//         }
+
+// static int cmp_stnvar_iadj( const void *p1, const void *p2, void *pra )
+// {
+//     snapspec_env *ra=(snapspec_env *) pra;
+//     int i1=*(int *)p1;
+//     int i2=*(int *)p2;
+//     return ra->stnvar[i1].iadj - ra->stnvar[i2].iadj;
+// }
+
+
+static int calculate_requested_covariances( snapspec_env *ra )
+{
+    /* Create a list of stations needing covariances ordered by adjid */
+    int istn;
+    int ncalcstn=0;
+    for( istn = ra->nstn; istn > 0; istn-- )
+    {
+        if( ra->stnvar[istn].needcvr ) ncalcstn++;
+    }
+    if( ncalcstn == 0 ) return 1;
+
+    // /* Compile the list of stations */
+    // int *calcstn = (int *) check_malloc( ncalcstn*sizeof(int));
+    // int *icalc=calcstn;
+    // for( istn = ra->nstn; istn > 0; istn-- )
+    // {
+    //     if( ra->stnvar[istn].needcvr ) *icalc++ = istn;
+    // }
+    // /* Sort by adjid */
+    // qsort_r(calcstn,ncalcstn,sizeof(int),cmp_stnvar_iadj,ra);
+
+    /* Load the Lower Triangle decomposition of the normal equation matrix (inverse of covariance) */
+    bltmatrix *bltdec = reload_choleski_decomposition( ra );
+    if( ! bltdec ) return 0;
+
+    /* MISSING - code to caluclate missing covariances */
+
+    if( ra->loglevel & (SDC_LOG_STEPS | SDC_LOG_CALCS))
     {
         fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
-        long nrow=blt_nrows( blt );
-        long nelement=blt_requested_size( blt );
-        double pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
-        fprintf(ra->logfile,"   Requested matrix size %ld rows %ld elements %.2lf%% full\n",
-                nrow, nelement, pcntfull );
-        fprintf(ra->logfile,"   Maximum bandwidth requested %d between %s and %s\n",
-                ra->maxreqbandwidth,stnptr(ra->maxreqistn)->Code,stnptr(ra->maxreqjstn)->Code);
     }
-    fflush(ra->logfile);
-    if( ra->dbgfile ) fflush( ra->dbgfile );
-    copy_bltmatrix( bltdec, blt );
-    blt_chol_inv_mt( blt );
+    blt_chol_inv( bltdec );
+    delete_bltmatrix(bltdec);
 
-    ra->blt=blt;
-    ra->bltupdated=1;
-    ra->bltreq=NULL;
-
-    if( ra->cvrcachefile ) cache_covariance_matrix( ra, ra->cvrcachefile );
+    if( ra->cvrcachefile ) cache_calculated_covariances( ra, ra->cvrcachefile );
 
     return 1;
 }
 
-static void relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jstn )
+static void relacc_record_missing_covar( snapspec_env *ra, int istn, int jstn )
 {
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
-
-    isa = stnadj(stnptr(istn));
-    jsa = stnadj(stnptr(jstn));
-
-    /* If the matrix for requests is not created yet, then create it */
-
-    if( ! ra->bltreq ) {
-        relacc_create_blt_req( ra );
-    }
-
-    int irow = isa->hrowno-1;
-    int jrow = jsa->hrowno-1;
-    int minrow = irow < jrow ? irow : jrow;
-    if( irow < 0 || jrow < 0 ) return;
-
-    /* Record the elements required in the covariance matrix */
-
-    blt_nonzero_element( ra->bltreq, irow, minrow );
-    blt_nonzero_element( ra->bltreq, irow+1, minrow );
-    blt_nonzero_element( ra->bltreq, jrow, minrow );
-    blt_nonzero_element( ra->bltreq, jrow+1, minrow );
-
-    int bandwidth=abs(irow-jrow)+1;
-    if( bandwidth > ra->maxreqbandwidth)
+    stn_var *svari=&ra->stnvar[istn];
+    stn_var *svarj=&ra->stnvar[jstn];
+    if( svari->iadj > svarj->iadj )
     {
-        ra->maxreqbandwidth=bandwidth;
-        ra->maxreqistn=istn;
-        ra->maxreqjstn=jstn;
+        int itmp=istn;
+        istn=jstn;
+        jstn=itmp;
+        stn_var *svart = svari;
+        svari=svarj;
+        svarj=svart;
     }
+    svari->needcvr=1;
+    /* Request the covariance to put a placeholder in the array */
+    get_covar(ra,istn,jstn,0);
 }
 
-static double relacc_calc_missing_covar( stn_relacc_array *ra, int istn, int jstn )
-{
-    bltmatrix *blt;
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
-    double cvr[3];
-    int irx, iry, jrx, jry;
-    int i;
 
-    blt = ra->blt;
-    isa = stnadj(stnptr(istn));
-    jsa = stnadj(stnptr(jstn));
-
-    /* Note: assume that we only get here if both stations are having
-       horizontal coordinates calculated */
-
-    if( ! isa->hrowno || ! jsa->hrowno )
-    {
-        return SDC_COVAR_UNAVAILABLE;
-    }
-
-    irx = iry = isa->hrowno-1;
-    jrx = jry = jsa->hrowno-1;
-
-    for( i = 0; i < 3; i++ )
-    {
-        if( i == 1 ) {
-            iry++;
-            jry++;
-        }
-        else if( i == 2 ) {
-            irx++;
-            jrx++;
-        }
-
-        cvr[i] = BLT(blt,irx,iry) - BLT(blt,irx,jry) - BLT(blt,jrx,iry) + BLT(blt,jrx,jry);
-    }
-
-    return calc_error_ellipse_semimajor2(cvr);
-}
-
-static double relacc_try_calc_missing_covar( stn_relacc_array *ra, int istn, int jstn )
-{
-    stn_adjustment *isa = stnadj(stnptr(istn));
-    stn_adjustment *jsa = stnadj(stnptr(jstn));
-
-    int irow = isa->hrowno-1;
-    int jrow = jsa->hrowno-1;
-    int minrow = irow < jrow ? irow : jrow;
-
-    /* Check the elements required in the covariance matrix */
-
-    if (blt_is_nonzero_element( ra->blt, irow, minrow ) &&
-            blt_is_nonzero_element( ra->blt, irow+1, minrow ) &&
-            blt_is_nonzero_element( ra->blt, jrow, minrow ) &&
-            blt_is_nonzero_element( ra->blt, jrow+1, minrow ) )
-    {
-        return relacc_calc_missing_covar( ra, istn, jstn );
-    }
-
-    return SDC_COVAR_UNAVAILABLE;
-}
-
-static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn )
+static double relacc_get_covar( snapspec_env *ra, int istn, int jstn )
 {
 
+    double emax2;
     if( istn == jstn )
     {
-        return ra->horvar[istn-1];
+        emax2= ra->stnvar[istn].hvar;
     }
     else
     {
-        stn_relacc *rac = get_relacc( ra, istn, jstn );
-        double emax2;
+        stn_adjustment *isa = stnadj(stnptr(istn));
+        stn_adjustment *jsa = stnadj(stnptr(jstn));
 
-        if( rac )
+        /* If one or other station is not adjusted horizontally, then just need to use
+           the variance of the other  */
+
+        if( ! isa->hrowno  )
         {
-            emax2 = rac->emax2;
+            emax2 = ra->stnvar[jstn].hvar;
         }
+        else if( ! jsa->hrowno )
+        {
+            emax2 = ra->stnvar[istn].hvar;
+        }
+
+        /* Else if we've already calculated a covariance matrix,
+           then try using it */
 
         else
         {
-            stn_adjustment *isa = stnadj(stnptr(istn));
-            stn_adjustment *jsa = stnadj(stnptr(jstn));
-
-            /* If one or other station is not adjusted horizontally, then just need to use
-               the variance of the other  */
-
-            if( ! isa->hrowno  )
-            {
-                emax2 = ra->horvar[jstn-1];
-            }
-            else if( ! jsa->hrowno )
-            {
-                emax2 = ra->horvar[istn-1];
-            }
-
-            /* Else if we've already calculated a covariance matrix,
-               then try using it */
-
-            else if( ra->blt )
-            {
-                emax2 = relacc_try_calc_missing_covar( ra, istn, jstn );
-            }
-            else
-            {
-                emax2 = SDC_COVAR_UNAVAILABLE;
-            }
+            stn_covar *cvr=get_covar(ra,istn,jstn,0);
+            emax2 = cvr->hcvr;
         }
-        return emax2;
     }
+    return emax2;
 }
 
-static void relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn )
+
+
+static double relacc_get_verr( snapspec_env *ra, int istn, int jstn )
 {
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
-
-    isa = stnadj(stnptr(istn));
-    jsa = stnadj(stnptr(jstn));
-
-    int irow = isa->vrowno-1;
-    int jrow = jsa->vrowno-1;
-    if( irow < 0 || jrow < 0 ) return;
-
-    /* If the matrix for requests is not created yet, then create it */
-
-    if( ! ra->bltreq ) {
-        relacc_create_blt_req( ra );
-    }
-
-    blt_nonzero_element( ra->bltreq, irow, jrow );
-}
-
-static double relacc_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-    bltmatrix *blt;
-    stn_adjustment *isa;
-    stn_adjustment *jsa;
-    int irow, jrow;
-
-    blt = ra->blt;
-    isa = stnadj(stnptr(istn));
-    jsa = stnadj(stnptr(jstn));
-
-    /* Note: assume that we only get here if both stations are having
-       vertical coordinates calculated */
-
-    if( ! isa->vrowno || ! jsa->vrowno )
-    {
-        return SDC_COVAR_UNAVAILABLE;
-    }
-
-    irow = isa->vrowno-1;
-    jrow = jsa->vrowno-1;
-
-    return BLT(blt,irow,irow) - BLT(blt,irow,jrow) - BLT(blt,jrow,irow) + BLT(blt,jrow,jrow);
-}
-
-static double relacc_try_calc_missing_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-    stn_adjustment *isa = stnadj(stnptr(istn));
-    stn_adjustment *jsa = stnadj(stnptr(jstn));
-
-    int irow = isa->vrowno-1;
-    int jrow = jsa->vrowno-1;
-
-    /* Check the elements required in the covariance matrix */
-
-    if (blt_is_nonzero_element( ra->blt, irow, jrow ))
-    {
-        return relacc_calc_missing_verr( ra, istn, jstn );
-    }
-
-    return SDC_COVAR_UNAVAILABLE;
-}
-
-static double relacc_get_verr( stn_relacc_array *ra, int istn, int jstn )
-{
-
+    double verr;
     if( istn == jstn )
     {
-        return ra->vrtvar[istn-1];
+        verr= ra->stnvar[istn].vvar;
     }
     else
     {
-        double verr;
+        stn_adjustment *isa = stnadj(stnptr(istn));
+        stn_adjustment *jsa = stnadj(stnptr(jstn));
 
-        stn_relacc *rac = get_relacc( ra, istn, jstn );
-        if( rac )
+        /* If one or other station is not adjusted horizontally, then just need to use
+           the variance of the other  */
+
+        if( ! isa->vrowno  )
         {
-            verr = rac->verr2;
+            verr = ra->stnvar[jstn].vvar;
         }
+        else if( ! jsa->vrowno )
+        {
+            verr = ra->stnvar[istn].vvar;
+        }
+
+        /* Else if we've already calculated a covariance matrix,
+           then try using it */
+
         else
         {
-            /* If in second pass, then covariance should be available */
-
-            stn_adjustment *isa = stnadj(stnptr(istn));
-            stn_adjustment *jsa = stnadj(stnptr(jstn));
-
-            /* If one or other station is not adjusted horizontally, then just need to use
-               the variance of the other  */
-
-            if( ! isa->vrowno  )
-            {
-                verr = ra->vrtvar[jstn-1];
-            }
-            else if( ! jsa->vrowno )
-            {
-                verr = ra->vrtvar[istn-1];
-            }
-
-            /* Else if we've already calculated a covariance matrix,
-               then try using it */
-
-            else if( ra->blt )
-            {
-                verr = relacc_try_calc_missing_verr( ra, istn, jstn );
-            }
-            else
-            {
-                verr = SDC_COVAR_UNAVAILABLE;
-            }
-        }
-        return verr;
-    }
-}
-
-static int check_relacc_complete( stn_relacc_array *ra )
-{
-    int istn;
-    int jstn;
-
-    if( ! ra->cols ) return MISSING_DATA;
-
-    for( istn = 2; istn <= ra->nstn; istn++ )
-    {
-        for( jstn = 1; jstn < istn; jstn++ )
-        {
-            stn_relacc *r = get_relacc( ra, istn, jstn );
-            if( r->emax2 == SDC_COVAR_UNAVAILABLE ) return MISSING_DATA;
+            stn_covar *cvr=get_covar(ra,istn,jstn,0);
+            verr = cvr->vcvr;
         }
     }
-    return OK;
+    return verr;
 }
+
 
 /*======================================================================*/
 
@@ -792,65 +702,69 @@ static void calc_covar( int istn1, int istn2, double *relcvr )
 
 
 
-static int reload_covariances( BINARY_FILE *b, stn_relacc_array *ra )
+static int reload_covariances( BINARY_FILE *b, snapspec_env *ra )
 {
     int istn;
     double cvr[6];
     double emax2;
-    int nstns;
 
     if( find_section( b, "STATION_COVARIANCES" ) != OK ) return MISSING_DATA;
 
-    nstns = number_of_stations( net );
-
-    for( istn = 0; istn++ < nstns; )
+    for( istn = 0; istn++ < ra->nstn; )
     {
+        stn_var *svari=&ra->stnvar[istn];
         fread( cvr, sizeof(cvr), 1, b->f );
         emax2 = calc_error_ellipse_semimajor2( cvr );
-        add_relacc( ra, istn, istn, emax2, cvr[5] );
+        svari->hvar=emax2;
+        svari->vvar=cvr[5];
     }
 
     return check_end_section( b );
 }
 
 
-static int reload_relative_covariances( BINARY_FILE *b, stn_relacc_array *ra )
+static int reload_relative_covariances( BINARY_FILE *b, snapspec_env *ra, int1 *complete )
 {
     int from, to;
     double cvr[6];
     double emax2;
 
+    if( complete ) (*complete)=0;
     if( find_section( b, "STATION_RELATIVE_COVARIANCES" ) != OK ) return MISSING_DATA;
 
-    relacc_alloc_cache(ra);
-
+    int8 ncvr=0;
     for(;;)
     {
         if( fread( &from, sizeof(from), 1, b->f ) != 1 ) break;
         if( from < 0 ) break;
         fread( &to, sizeof(to), 1, b->f );
         fread( cvr, sizeof(cvr), 1, b->f );
-
         emax2 = calc_error_ellipse_semimajor2( cvr );
-        add_relacc( ra, from, to, emax2, cvr[5] );
+        stn_covar *scvr=get_covar(ra,from,to,0);
+        if( scvr )
+        {
+            scvr->hcvr=emax2;
+            scvr->vcvr=cvr[5];
+            ncvr++;
+        }
     }
 
+    if( complete )
+    {
+        int8 expected=ra->nstnadj;
+        expected *= (ra->nstnadj-1);
+        expected /= 2;
+        (*complete) = ncvr >= expected ? 1 : 0;
+    }
     return check_end_section( b );
 }
 
-static int reload_choleski_decomposition( BINARY_FILE *b, stn_relacc_array *ra )
+static int1 can_reload_choleski_decomposition( BINARY_FILE *b )
 {
-    bltmatrix *blt = NULL;
-    int sts;
-
-    if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK ) return MISSING_DATA;
-
-    sts = reload_bltmatrix( &blt, b->f );
-    if( sts != OK ) return sts;
-
-    ra->bltdec = blt;
-    return OK;
+    if( find_section(b, "CHOLESKI_DECOMPOSITION") == OK ) return 1;
+    return 0;
 }
+
 
 static char *cache_covariance_filename( char *bfn )
 {
@@ -861,40 +775,6 @@ static char *cache_covariance_filename( char *bfn )
     return cfn;
 }
 
-static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
-{
-    BINARY_FILE *c;
-    char cruntime[GETDATELEN];
-    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG);
-    if( ! c ) return 0;
-    if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
-    {
-        close_binary_file(c);
-        return 0;
-    }
-    fread( cruntime, GETDATELEN, 1, c->f );
-    if( _strnicmp(cruntime,run_time,GETDATELEN) != 0 )
-    {
-        printf("Covariance cache file out of date - deleting %s\n",cfn);
-        close_binary_file(c);
-        _unlink(cfn);
-        return 0;
-    }
-
-    if( ra->blt )
-    {
-        delete_bltmatrix(ra->blt);
-        ra->blt=0;
-    }
-    if( reload_bltmatrix( &(ra->blt), c->f ) !=  OK )
-    {
-        return 0;
-    }
-    close_binary_file(c);
-    ra->bltupdated=0;
-    printf("Using covariance from cache file %s\n",cfn);
-    return 1;
-}
 
 /*======================================================================*/
 /* Functions used by SDC module                                         */
@@ -915,67 +795,16 @@ static const char * f_station_code( void *env, int stn )
 
 static int f_station_role ( void *env, int stn )
 {
-    station *st;
-    stn_adjustment *sa;
-    int role;
     int istn = f_station_id( env, stn );
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    role = ra->role[stn];
-    if( role == SDC_IGNORE_MARK || role == SDC_CONTROL_MARK ) return role;
-
-    st = stnptr(istn);
-    sa = stnadj( st );
-
-    // Identify ignored stations (for testing) and control stations
-
-    if( ignored_station(istn) || rejected_station(istn) )
-    {
-        role = SDC_IGNORE_MARK;
-    }
-    // If testing 3d
-    else if( ra->testhor && ra->testvrt )
-    {
-        role = ra->role[stn];
-        // If not calculated (and not ignored) then it is a control mark
-        if( ! (sa->hrowno || sa->vrowno) )
-        {
-            role=SDC_CONTROL_MARK;
-        }
-        // If only one ordindate calced, then ignore if ignore constrained
-        // option is selected
-        else if( ra->ignoreconstrained && ! (sa->hrowno && sa->vrowno ) )
-        {
-            role=SDC_IGNORE_MARK;
-        }
-    }
-    // If only testing horizontally
-    else if( ra->testhor )
-    {
-        if( ! sa->hrowno )
-        {
-            // Assume if in 3d adjustment (vertical calculated)
-            // then not calculated because of lack of data, not because
-            // it is a control mark.
-            role = sa->vrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
-        }
-    }
-    // If only testing vertically
-    else if( ra->testvrt )
-    {
-        if( ! sa->vrowno )
-        {
-            // As per above but for vertical
-            role = sa->hrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
-        }
-    }
-    ra->role[stn]=role;
-    return role;
+    snapspec_env *ra = (snapspec_env *) env;
+    return ra->stnvar[istn].role;
 }
 
 static int f_station_priority ( void *env, int stn )
 {
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    return ra->priority[stn];
+    snapspec_env *ra = (snapspec_env *) env;
+    int istn = f_station_id( env, stn );
+    return ra->stnvar[istn].priority;
 }
 
 static double f_distance2( void *env, int stn1, int stn2 )
@@ -998,7 +827,7 @@ static double f_distance2( void *env, int stn1, int stn2 )
         }
         else
         {
-            /* Should really be assertion error. */
+            assert(0);
             dist2 = 0.0;
         }
     }
@@ -1008,7 +837,7 @@ static double f_distance2( void *env, int stn1, int stn2 )
 static double f_error2( void *env, int stn1, int stn2 )
 {
     int istn1, istn2;
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    snapspec_env *ra = (snapspec_env *) env;
     double emax2 = 0.0;
 
     istn1 = f_station_id( env, stn1 );
@@ -1021,7 +850,7 @@ static double f_error2( void *env, int stn1, int stn2 )
 static double f_vrterror2( void *env, int stn1, int stn2 )
 {
     int istn1, istn2;
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    snapspec_env *ra = (snapspec_env *) env;
     double verr = 0.0;
 
     istn1 = f_station_id( env, stn1 );
@@ -1034,28 +863,28 @@ static double f_vrterror2( void *env, int stn1, int stn2 )
 static void f_request_covar( void *env, int stn1, int stn2 )
 {
     int istn1, istn2;
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    snapspec_env *ra = (snapspec_env *) env;
     istn1 = f_station_id( env, stn1 );
     istn2 = f_station_id( env, stn2 );
     relacc_record_missing_covar( ra, istn1, istn2 );
-    relacc_record_missing_verr( ra, istn1, istn2 );
 }
 
 static int f_calc_requested( void *env )
 {
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    return relacc_calc_requested_covar( ra );
+    snapspec_env *ra = (snapspec_env *) env;
+    return calculate_requested_covariances( ra );
 }
 
 static void f_set_order( void *env, int stn, int order )
 {
-    stn_relacc_array *ra = (stn_relacc_array *) env;
-    ra->order[stn] = (short) (order+1);
+    snapspec_env *ra = (snapspec_env *) env;
+    int istn = f_station_id( env, stn );
+    ra->stnvar[istn].order = (short) (order+1);
 }
 
 static void f_write_log( void *env, const char *text )
 {
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    snapspec_env *ra = (snapspec_env *) env;
     if( ra->logfile ) {
         fputs( text, ra->logfile );
         fflush(ra->logfile);
@@ -1067,7 +896,7 @@ static void f_write_log( void *env, const char *text )
 
 static void f_write_debug( void *env, const char *text )
 {
-    stn_relacc_array *ra = (stn_relacc_array *) env;
+    snapspec_env *ra = (snapspec_env *) env;
     if( ra->dbgfile ) {
         fputs( text, ra->dbgfile );
         fflush(ra->dbgfile);
@@ -1105,7 +934,7 @@ static int run_tests( hSDCTest hsdc )
     return sdcCalcSDCOrders2( hsdc, min_order );
 }
 
-static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
+static void write_results( hSDCTest hsdc, snapspec_env *ra )
 {
     FILE *out = ra->logfile;
     int nstns = ra->nstn;
@@ -1135,9 +964,9 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
         {
             sprintf(header,"Stations achieving order %s",hsdc->tests[order-1].scOrder);
         }
-        for( int istn = 1; istn <= nstns; istn++ )
+        for( int istn = 0; istn++ < nstns; )
         {
-            if( ra->order[istn-1] != order ) continue;
+            if( ra->stnvar[istn].order != order ) continue;
             if( ! headed )
             {
                 fprintf(out,"\n%s\n",header);
@@ -1150,7 +979,7 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
 }
 
 
-static void write_station_index( hSDCTest, stn_relacc_array *ra )
+static void write_station_index( hSDCTest, snapspec_env *ra )
 {
     FILE *out = ra->logfile;
     int i;
@@ -1169,7 +998,7 @@ static void write_station_index( hSDCTest, stn_relacc_array *ra )
 }
 
 
-static const char *relacc_order_string( stn_relacc_array *ra, short order )
+static const char *relacc_order_string( snapspec_env *ra, short order )
 {
     const char *control="C";
     const char *ignored="I";
@@ -1180,7 +1009,7 @@ static const char *relacc_order_string( stn_relacc_array *ra, short order )
     return ra->hsdc->tests[order-1].scOrder;
 }
 
-static const char *relacc_role_string( stn_relacc_array *ra, short role )
+static const char *relacc_role_string( snapspec_env *ra, short role )
 {
     const char *control="C";
     const char *ignored="I";
@@ -1209,7 +1038,7 @@ static char *output_filename( const char *filename, const char *basename, const 
     return ofilename;
 }
 
-static void write_output_csv( char *csvname, stn_relacc_array *ra )
+static void write_output_csv( char *csvname, snapspec_env *ra )
 {
     output_csv *csv=open_output_csv(csvname,0);
     if( ! csv )
@@ -1264,9 +1093,9 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
     station *st;
     for( reset_station_list(net,0); NULL != (st = next_station(net)); )
     {
-        int idra=st->id-1;
         stn_adjustment *sa = stnadj(st);
         if( sa->flag.ignored ) continue;
+        stn_var *svari = &ra->stnvar[st->id];
         double height = st->OHgt;
         if( ellipsoidal ) height += st->GUnd;
 
@@ -1306,11 +1135,12 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
 
         if( haveorders )
         {
-            write_csv_string( csv, network_order(net,ra->src_orderid[idra]) );
+            write_csv_string( csv, network_order(net,svari->src_orderid) );
         }
 
         if( adjusted )
         {
+
             double de, dn, dh;
             char mode[3] = { '-', '-', 0 };
             if( sa->flag.float_h ) mode[0] = 'h';
@@ -1327,18 +1157,18 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
             write_csv_double( csv, dn, coord_precision );
             write_csv_double( csv, dh, coord_precision );
 
-            if( ra->horvar[idra] >= 0.0 )
+            if( svari->hvar >= 0.0 )
             {
-                write_csv_double( csv, sqrt(ra->horvar[idra]), coord_precision );
+                write_csv_double( csv, sqrt(svari->hvar), coord_precision );
             }
             else
             {
                 write_csv_null_field( csv );
             }
 
-            if( ra->vrtvar[idra] >= 0.0 )
+            if( svari->vvar >= 0.0 )
             {
-                write_csv_double( csv, sqrt(ra->vrtvar[idra]), coord_precision );
+                write_csv_double( csv, sqrt(svari->vvar), coord_precision );
             }
             else
             {
@@ -1356,16 +1186,16 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
             write_csv_null_field( csv );
         }
 
-        write_csv_string( csv, relacc_role_string( ra, ra->role[st->id-1]) );
-        if( ra->priority[st->id-1] == SDC_NO_PRIORITY )
+        write_csv_string( csv, relacc_role_string( ra, ra->stnvar[st->id].role) );
+        if( svari->priority == SDC_NO_PRIORITY )
         {
             write_csv_null_field(csv);
         }
         else
         {
-            write_csv_int(csv,(int) ra->priority[st->id-1]);
+            write_csv_int(csv,(int) svari->priority);
         }
-        write_csv_string( csv, relacc_order_string( ra, ra->order[st->id-1]) );
+        write_csv_string( csv, relacc_order_string( ra, svari->order ) );
 
         end_output_csv_record(csv);
     }
@@ -1381,22 +1211,21 @@ static int stations_of_order( station *st )
     return sa->obscount == station_order;
 }
 
-static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, char *fname )
+static void write_coord_files( hSDCTest hsdc, snapspec_env *ra, char *fname )
 {
-    int i;
     int iorder;
     char *crdfilebuf;
     char comment[80];
     crdfilebuf = (char *) check_malloc( strlen(fname)+SYSCODE_LEN+10);
 
-    /* Copy the order to the stnadjustment obscount element */
+    /* Copy the order to the stnadjustment obscount element (as a handy placeholder
+       for the stations_of_order filter) */
 
-    for( i = 0; i < ra->nstn; i++ )
+    for( int istn = 0; istn++ < ra->nstn; )
     {
-        int istn = i+1;
         station * st = stnptr(istn);
         stn_adjustment *sa = stnadj( st );
-        sa->obscount = ra->order[i];
+        sa->obscount = ra->stnvar[istn].order;
     }
 
     /* For each order check that there is a station achieving that order, and if
@@ -1404,10 +1233,10 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, char *fname 
 
     for( iorder = 0; iorder <= hsdc->norder; iorder++ )
     {
-        for( i = 0; i < ra->nstn; i++ )
+        for( int istn = 0; istn++ < ra->nstn; )
         {
             char *order;
-            if( ra->order[i] != iorder ) continue;
+            if( ra->stnvar[istn].order != iorder ) continue;
             order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
             sprintf(crdfilebuf,"%s_%s.crd",fname,order);
             sprintf(comment,"Stations assigned order %s by snapspec - run at %s",
@@ -1421,27 +1250,26 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, char *fname 
     check_free(crdfilebuf);
 }
 
-static void copy_unused_roles_to_orders( stn_relacc_array *ra )
+static void copy_unused_roles_to_orders( snapspec_env *ra )
 {
-    for( int istn = 0; istn < number_of_stations(net); istn++ )
+    for( int istn = 0; istn++ < ra->nstn; )
     {
-        if( ra->role[istn] == SDC_CONTROL_MARK || ra->role[istn] == SDC_IGNORE_MARK )
+        stn_var *svari = &ra->stnvar[istn];
+        if( svari->role == SDC_CONTROL_MARK || svari->role == SDC_IGNORE_MARK )
         {
-            ra->order[istn]=ra->role[istn];
+            svari->order=svari->role;
         }
     }
 }
 
-static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
+static void update_station_orders( hSDCTest hsdc, snapspec_env *ra )
 {
-    int istn;
-
     /* Force station orders onto network here - alternative is to raise error
        if they are not already included. */
 
     int order_class = add_network_orders( net );
 
-    for( istn = 0; istn++ < number_of_stations(net); )
+    for( int istn = 0; istn++ < ra->nstn; )
     {
         int iorder;
         char *order;
@@ -1450,7 +1278,7 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
 
         stn = station_ptr(net,istn);
 
-        iorder = ra->order[istn-1];
+        iorder = ra->stnvar[istn].order;
         if( iorder < 0 || iorder > hsdc->norder ) continue;
 
         order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
@@ -1467,7 +1295,7 @@ static void update_crdfile( char *fname )
     printf("Updated station orders in %s\n",fname);
 }
 
-static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const char **max_order_str )
+static int get_max_control_order( hSDCTest hsdc, snapspec_env *ra, const char **max_order_str )
 {
     int *order_lookup;
     int nnetorder;
@@ -1538,7 +1366,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
 
     nbadorder = 0;
 
-    for( istn = 0; istn++ < number_of_stations( net ); )
+    for( istn = 0; istn++ < ra->nstn; )
     {
         station *st;
         stn_adjustment *sa;
@@ -1602,7 +1430,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     return max_order;
 }
 
-static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
+static int setup_hv_mode( int hvmode, hSDCTest hsdc, snapspec_env *ra )
 {
     int adjhor;
     int adjvrt;
@@ -1610,14 +1438,12 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
     int testhor;
     int testvrt;
     int i;
-    int nstns;
     FILE *out = ra->logfile;
 
     if( hvmode == SRA_HVMODE_AUTO ) hvmode=ra->hvmode;
 
     adjhor = adjvrt = adj3d = 0;
-    nstns = number_of_stations(net);
-    for( i = 1; i <= nstns; i++ )
+    for( i = 1; i <= ra->nstn; i++ )
     {
         stn_adjustment *isa = stnadj(stnptr(i));
         if( isa->hrowno ) adjhor++;
@@ -1716,6 +1542,117 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
     }
     return OK;
 }
+
+static int cmp_stnvar_iadj( const void *p1, const void *p2 )
+{
+    stn_var **psv1 = (stn_var **)p1;
+    stn_var **psv2 = (stn_var **)p2;
+    return (*psv1)->iadj - (*psv2)->iadj;
+}
+
+void setup_station_adjustment_order( snapspec_env *ra )
+{
+    /*  Identify and count which stations are adjusted and used in these tests,
+        and define their order in the covariance matrix.
+    */
+
+    for( int istn = 0; istn++ < ra->nstn; )
+    {
+        stn_var *svari=&ra->stnvar[istn];
+        svari->iadj=-1;
+
+        // Identify ignored stations (for testing) and control stations
+
+        if( ignored_station(istn) || rejected_station(istn) )
+        {
+            svari->role = SDC_IGNORE_MARK;
+        }
+        if( svari->role == SDC_IGNORE_MARK || svari->role == SDC_CONTROL_MARK ) continue;
+
+        stn_adjustment *sa=stnadj(stnptr(istn));
+
+        // If testing 3d
+        if( ra->testhor && ra->testvrt )
+        {
+            // If not calculated (and not ignored) then it is a control mark
+            if( ! (sa->hrowno || sa->vrowno) )
+            {
+                svari->role=SDC_CONTROL_MARK;
+            }
+            // If only one ordindate calced, then ignore if ignore constrained
+            // option is selected
+            else if( ra->ignoreconstrained && ! (sa->hrowno && sa->vrowno ) )
+            {
+                svari->role=SDC_IGNORE_MARK;
+            }
+            else
+            {
+                svari->iadj=sa->hrowno;
+            }
+        }
+        // If only testing horizontally
+        else if( ra->testhor )
+        {
+            if( ! sa->hrowno )
+            {
+                // Assume if in 3d adjustment (vertical calculated)
+                // then not calculated because of lack of data, not because
+                // it is a control mark.
+                svari->role = sa->vrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
+            }
+            else
+            {
+                svari->iadj=sa->hrowno;
+            }
+        }
+        // If only testing vertically
+        else if( ra->testvrt )
+        {
+            if( ! sa->vrowno )
+            {
+                // As per above but for vertical
+                svari->role = sa->hrowno ? SDC_IGNORE_MARK : SDC_CONTROL_MARK;
+            }
+            else
+            {
+                svari->iadj=sa->vrowno;
+            }
+        }
+    }
+
+    /* Now count the number of stations being tested and update the iadj values to
+    consecutive values */
+
+    int nstnadj=0;
+    for( int istn=0; istn++ < ra->nstn; )
+    {
+        if( ra->stnvar[istn].iadj >= 0 ) nstnadj++;
+    }
+    /* Set up an array of pointers to the adjusted stations */
+    stn_var **svaradj=(stn_var **) check_malloc(nstnadj*sizeof(stn_var *));
+    ra->nstnadj=nstnadj;
+    nstnadj=0;
+    for( int istn=0; istn++ < ra->nstn; )
+    {
+        if( ra->stnvar[istn].iadj >= 0 )
+        {
+            svaradj[nstnadj]=&ra->stnvar[istn];
+            nstnadj++;
+        }
+    }
+    /* Sort the pointers by iadj */
+    qsort(svaradj,nstnadj,sizeof(stn_var *),cmp_stnvar_iadj);
+
+    /* Now set the iadj values according to this order */
+    for( int iadj=0; iadj < nstnadj; iadj++ )
+    {
+        svaradj[iadj]->iadj = iadj;
+    }
+
+    /* .. and release the array of pointers */
+    check_free(svaradj);
+}
+
 
 /*======================================================================*/
 
@@ -2006,21 +1943,21 @@ static int find_order( hSDCTest hsdc, char *order )
 typedef struct
 {
     short order;
-    stn_relacc_array *ra;
+    snapspec_env *ra;
 } limit_order_params;
 
 static void set_max_order( station *st, void *data )
 {
     limit_order_params *p = (limit_order_params *)data;
     int istn = st->id;
-    if( istn > 0 ) p->ra->role[istn-1] = p->order;
+    if( istn > 0 ) p->ra->stnvar[istn].role = p->order;
 }
 
 static void set_priority( station *st, void *data )
 {
     limit_order_params *p = (limit_order_params *)data;
     int istn = st->id;
-    if( istn > 0 ) p->ra->priority[istn-1] = p->order;
+    if( istn > 0 ) p->ra->stnvar[istn].priority = p->order;
 }
 
 static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, int, int )
@@ -2044,7 +1981,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
         return OK;
     }
 
-    p.ra = * (stn_relacc_array **) value;
+    p.ra = * (snapspec_env **) value;
     p.order = find_order(p.ra->hsdc,name);
     if( p.order == -1 )
     {
@@ -2068,7 +2005,7 @@ static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int, in
     limit_order_params p;
     int nerr;
 
-    p.ra = * (stn_relacc_array **) value;
+    p.ra = * (snapspec_env **) value;
     p.order = SDC_IGNORE_MARK;
 
     set_error_location( get_config_location(cfg));
@@ -2105,7 +2042,7 @@ static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, i
         return OK;
     }
 
-    p.ra = * (stn_relacc_array **) value;
+    p.ra = * (snapspec_env **) value;
     p.order = priority;
 
     set_error_location( get_config_location(cfg));
@@ -2157,7 +2094,7 @@ static int read_error_type(CFG_FILE *cfg, char *string, void *, int, int )
 
 #define STN_CONFIG_BUFSIZE 127
 
-static int read_station_config_file( const char *filename, stn_relacc_array *ra, int csv )
+static int read_station_config_file( const char *filename, snapspec_env *ra, int csv )
 {
     char record[STN_CONFIG_BUFSIZE+1];
     char *field[3];
@@ -2249,6 +2186,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
             if( istn <= 0 ) nbadstn++;
             if( istn > 0 && orderfield > 0 && field[orderfield] && *(field[orderfield]))
             {
+                stn_var *svari = &ra->stnvar[istn];
                 if( strcmp(field[orderfield],"-") != 0 && strcmp(field[orderfield],"") != 0 )
                 {
                     int order=SDC_IGNORE_MARK;
@@ -2257,7 +2195,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                         order = find_order(p.ra->hsdc,field[orderfield]);
                         if( order >= 0 )
                         {
-                            ra->role[istn-1]=order;
+                            svari->role=order;
                         }
                         else
                         {
@@ -2272,23 +2210,24 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                     }
                     else
                     {
-                        ra->role[istn-1]=order;
+                        svari->role=order;
                     }
                 }
             }
             if( istn > 0 && priorityfield > 0 && field[priorityfield] && *(field[priorityfield]))
             {
+                stn_var *svari = &ra->stnvar[istn];
                 if( strcmp(field[priorityfield],"-") != 0 && strcmp(field[priorityfield],"") != 0 )
                 {
                     int priority;
                     char check;
                     if( strcmp(field[priorityfield],"*") == 0 )
                     {
-                        ra->role[istn-1]=SDC_IGNORE_MARK;
+                        svari->role=SDC_IGNORE_MARK;
                     }
                     else if( sscanf(field[priorityfield],"%d%c",&priority,&check) == 1 )
                     {
-                        ra->priority[istn-1]=priority;
+                        svari->priority=priority;
                     }
                     else
                     {
@@ -2335,10 +2274,10 @@ static config_item cfg_commands[] =
     {"test",NULL,CFG_ABSOLUTE,0,read_test_command,CFG_REQUIRED,1},
     {"log_level",NULL,CFG_ABSOLUTE,0,read_log_level_command,CFG_ONEONLY,1},
     {"test_config_options",NULL,OFFSETOF(SDCTest,options),0,readcfg_int,CFG_ONEONLY,1},
-    {"output_log",NULL,OFFSETOF(stn_relacc_array,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
-    {"output_csv",NULL,OFFSETOF(stn_relacc_array,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
-    {"output_crd",NULL,OFFSETOF(stn_relacc_array,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
-    {"min_relative_accuracy_tests",NULL,OFFSETOF(stn_relacc_array,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
+    {"output_log",NULL,OFFSETOF(snapspec_env,outputlog),0,readcfg_boolean,CFG_ONEONLY,2},
+    {"output_csv",NULL,OFFSETOF(snapspec_env,csvoutput),0,read_output_file_command,CFG_ONEONLY,2},
+    {"output_crd",NULL,OFFSETOF(snapspec_env,crdoutput),0,read_output_file_command,CFG_ONEONLY,2},
+    {"min_relative_accuracy_tests",NULL,OFFSETOF(snapspec_env,dfltminrelacc),0,readcfg_int,CFG_ONEONLY,2},
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
@@ -2464,7 +2403,7 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
 
     if( cfn )
     {
-        int sts=read_station_config_file( cfn, * (stn_relacc_array **) value, csv );
+        int sts=read_station_config_file( cfn, * (snapspec_env **) value, csv );
         if( sts  != OK )
         {
             char buf[100+MAX_FILENAME_LEN];
@@ -2485,7 +2424,7 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
 static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, int )
 {
     char *option;
-    stn_relacc_array *ra = * (stn_relacc_array **) value;
+    snapspec_env *ra = * (snapspec_env **) value;
     for( option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
     {
         if( _stricmp(option,"limit_orders_by_control") == 0
@@ -2612,7 +2551,7 @@ static void set_sdctest_pointer( hSDCTest *phsdc )
     }
 }
 
-static void set_relacc_pointer( stn_relacc_array **ra )
+static void set_relacc_pointer( snapspec_env **ra )
 {
     config_item *ci;
     for( ci = cfg_commands; ci->option; ci++ )
@@ -2625,7 +2564,7 @@ static int read_configuration( CFG_FILE *cfg, hSDCTest hsdc, int skip_rel_acc )
 {
     int nerr;
     int i;
-    stn_relacc_array *ra = (stn_relacc_array *)(hsdc->env);
+    snapspec_env *ra = (snapspec_env *)(hsdc->env);
     set_sdctest_pointer( &hsdc );
     set_relacc_pointer( &ra );
     strcpy(dfltOrder,"NONE");
@@ -2701,14 +2640,14 @@ int main( int argc, char *argv[] )
 {
     char *bfn;
     CFG_FILE *cfg = 0;
-    const char *cfn;
+    char *cfn;
     const char *basecfn, *ofn;
     int nerr;
     hSDCTest hsdc;
     BINARY_FILE *b;
     FILE *debugfile;
     FILE *out;
-    stn_relacc_array *ra;
+    snapspec_env *ra;
     char *min_order_str = NULL;
     char *modestr = NULL;
     const char *max_control_str = NULL;
@@ -2926,7 +2865,9 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    ra = create_relacc();
+    ra = create_snapspec_env();
+    ra->logfile = out;
+    ra->binfilename = bfn;
 
     hsdc = create_test( MAX_ORDER );
     hsdc->nmark = ra->nstn;
@@ -2934,10 +2875,9 @@ int main( int argc, char *argv[] )
     hsdc->env = ra;
     ra->hsdc = hsdc;
 
-    ra->logfile = out;
     if( skip_rel_acc )
     {
-        printf("NOTE: snapspec is not applying relative accuracy tests\n");
+        printf("NOTE: snapspec is only applying absolute accuracy tests - relative accuracy tests are ignored\n");
     }
     printf("\nUsing configuration file %s\n",cfn);
 
@@ -2955,11 +2895,16 @@ int main( int argc, char *argv[] )
     {
         exit(1);
     }
+    setup_station_adjustment_order(ra);
 
-    if(  reload_covariances( b, ra ) != OK ||
-            (reload_choleski_decomposition(b, ra) != OK &&
-             (reload_relative_covariances( b, ra ) != OK ||
-              check_relacc_complete( ra ) != OK )))
+    ra->haveltdec=can_reload_choleski_decomposition(b);
+
+    int1 complete=0;
+    int1 havedata = 1;
+    if( reload_covariances(b,ra) != OK ) havedata=0;
+    reload_relative_covariances(b,ra,&complete);
+    if( !complete && !ra->haveltdec && !skip_rel_acc ) havedata=0;
+    if( ! havedata )
     {
 
         fprintf(out,"Cannot reload covariance data from binary file %s\n"
@@ -2973,19 +2918,16 @@ int main( int argc, char *argv[] )
         return 1;
     }
 
-    if( use_cache || ra->usecache )
+    close_binary_file(b);
+
+    if( (use_cache || ra->usecache) && ! complete )
     {
         cvrcachefile=cache_covariance_filename( bfn );
-        try_reload_cached_covariance( ra, cvrcachefile );
-        close_binary_file(b);
+        try_reload_cached_covariances( ra, cvrcachefile );
         ra->cvrcachefile=cvrcachefile;
     }
 
-
-    if( ra->bltdec )
-    {
-        hsdc->options|= SDC_OPT_TWOPASS_CVR;
-    }
+    if( ra->haveltdec ) hsdc->options|= SDC_OPT_TWOPASS_CVR;
 
     set_test_confidence( hsdc );
 
@@ -3133,7 +3075,7 @@ int main( int argc, char *argv[] )
     fclose(out);
 
     delete_test(hsdc);
-    delete_relacc( ra );
+    delete_snapspec_env( ra );
 
     return 0;
 }

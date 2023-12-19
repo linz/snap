@@ -82,6 +82,7 @@ enum { BLT_UNINIT, BLT_ROWS, BLT_READY };
 #endif
 
 static int minrowsize = 1000;
+static int invcolcachesize = BLT_INV_CACHE_SIZE;
 static double small = 1.0e-10;
 static double abssmall = 1.0e-30;
 
@@ -503,10 +504,19 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
    at a time to reduce the number of page faults, as the matrix
    is stored in blocks of rows, so accessing column elements
    sequentially increases the incidence of faults, whereas accessing
-   rows sequentially does not */
+   rows sequentially does not.
+
+   Uses
+   tmpcol   tmpcol[i] is a full arrays of column for a set of rows
+            of the matrix.
+   sumcol   sumcol[i] full arrays of column values, finally holds the
+            inverse columns.
+   dosum[i] the index in tmpcol of the first column that corresponds
+            to a saved value in the BLT matrix.
+    */
 
 static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol,
-                                int *dosum, int iget, int nget, int isave, int nsave )
+                                int *dosum, int iget, int nget )
 {
 
     int nrow = blt->nrow;
@@ -518,17 +528,6 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
         int c0;
         double *row = blt->row[i].address;
         double *r;
-
-        /* If there are rows to be saved, then do so */
-
-        if( nsave && i >= isave && dosum[i] < nsave )
-        {
-            for( c0 = dosum[i], r = row+isave+c0-col0; c0 < nsave; c0++, r++ )
-            {
-                if( isave+c0 > i ) break;
-                *r = sumcol[c0][i];
-            }
-        }
 
         /* Count number of cols to get */
 
@@ -547,25 +546,55 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
 }
 
 
-void _blt_chol_inv_sumcol( bltmatrix *blt, int *dosum, double *sumcol, double *tmpcol, int i1, int c )
+static void blt_save_col_cache( bltmatrix *blt, double **sumcol,
+                                int *dosum, int isave, int nsave )
+{
+
+    int nrow = blt->nrow;
+    int i;
+
+    for( i = isave; i < nrow; i++ )
+    {
+        int col0 = blt->row[i].col;
+        int c0;
+        double *row = blt->row[i].address;
+        double *r;
+
+        /* If there are rows to be saved, then do so */
+
+        if( dosum[i] < nsave )
+        {
+            for( c0 = dosum[i], r = row+isave+c0-col0; c0 < nsave; c0++, r++ )
+            {
+                if( isave+c0 > i ) break;
+                *r = sumcol[c0][i];
+            }
+        }
+    }
+
+
+}
+
+
+void _blt_chol_inv_sumcol( bltmatrix *blt, int *dosum, double *sumcol, double *tmpcol, int row1, int col )
 {
     int nrow = blt->nrow;
-    for (int j=i1+1; j < nrow; j++ )
+    for (int j=row1; j < nrow; j++ )
     {
         int col0 = blt->row[j].col;
         double *row = blt->row[j].address;
 
-        if( col0 < i1+1 )
+        if( col0 < row1 )
         {
-            row += i1+1-col0;
-            col0 = i1+1;
+            row += row1-col0;
+            col0 = row1;
         }
 
         double sj=0;
         for( ; col0 <= j; col0++, row++ )
         {
             /* Sum effect of (j,col0) element, value at *row */
-            if( c >= dosum[col0] && c >= dosum[j] )
+            if( col >= dosum[col0] && col >= dosum[j] )
             {
                 sumcol[col0] -= *row * tmpcol[j];
                 if( j != col0 )
@@ -596,7 +625,7 @@ void blt_chol_inv( bltmatrix *blt )
     ncache = blt->_invncol;
     if( ncache <= 0 )
     {
-        ncache=BLT_INV_CACHE_SIZE;
+        ncache=invcolcachesize;
     }
 
     tmp = (double *) check_malloc( 2 * nrow * ncache * sizeof(double) );
@@ -615,17 +644,18 @@ void blt_chol_inv( bltmatrix *blt )
     ndone = 0;
     nsave = 0;
 
-    for (i1=nrow-1, i0=nrow-ncache;
-            i1 >= 0;
-            i1=i0-1, i0 -= ncache )
+    for (i1=nrow;
+            i1 > 0;
+            i1 = i1-ncache )
     {
 
+        i0 = i1-ncache;
         if( i0 < 0 ) i0 = 0;
 
-        /* Save the cached row data and update with the new values ... */
+        /* Cache the columns to process. */
 
-        blt_load_col_cache( blt, tmpcol, sumcol, dosum, i0, i1-i0+1, i1+1, nsave );
-        nsave = i1-i0+1;
+        nsave = i1-i0;
+        blt_load_col_cache( blt, tmpcol, sumcol, dosum, i0, nsave);;
 
         /* Sum the data for the rows after i0 into the summation using the multithreading hook
            if it has been defined. */
@@ -634,6 +664,7 @@ void blt_chol_inv( bltmatrix *blt )
         {
             (blt->_pfsumcol)(blt,nsave,dosum,sumcol,tmpcol,i1);
         }
+
         else
         {
             for ( c = nsave; c--;  )
@@ -687,12 +718,13 @@ void blt_chol_inv( bltmatrix *blt )
             }
         }
 
+        blt_save_col_cache( blt, sumcol, dosum, i0, nsave );
+
         update_progress_meter( ndone );
     }
 
     /* Save the last cached columns back again... */
 
-    blt_load_col_cache( blt, tmpcol, sumcol, dosum, 0, 0, 0, nsave );
     end_progress_meter();
 
     check_free( tmpcol );
@@ -700,10 +732,10 @@ void blt_chol_inv( bltmatrix *blt )
     check_free( dosum );
 }
 
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent )
+void print_bltmatrix( FILE *out, bltmatrix *blt, const char *format, int indent )
 {
     int i, j, k, cols, wid;
-    char *f;
+    const char *f;
 
     for( f=format; *f != 0 && (*f < '0' || *f > '9'); f++);
     if( *f )
@@ -906,6 +938,7 @@ plus as many zero based non-zero row/columns as required
 
 */
 
+
 int main(int argc, char *argv[] )
 {
     FILE *in, *out;
@@ -917,17 +950,19 @@ int main(int argc, char *argv[] )
     double v;
     int expanded = 0;
 
+    invcolcachesize = 2;
+
     if( argc<2 || NULL == (in=fopen(argv[1],"r")) )
     {
-        xprintf("Need input file as parameter\n");
-        return;
+        printf("Need input file as parameter\n");
+        return 0;
     }
 
     out = stdout;
     if( argc>2 && NULL == (out = fopen(argv[2],"w")) )
     {
-        xprintf("Cannot open output file\n");
-        return;
+        printf("Cannot open output file\n");
+        return 0;
     }
 
 
@@ -935,17 +970,17 @@ int main(int argc, char *argv[] )
     fscanf(in,"%d%d%d",&nprm,&nes,&minrowsize);
     if( nprm <= 0 )
     {
-        xprintf("Invalid number of parameters\n");
-        return;
+        printf("Invalid number of parameters\n");
+        return 0;
     }
 
     nmem = (nprm * (nprm+1))/2 + nprm;
 
-    b = check_malloc( (2*nmem+nprm)*sizeof(double) );
+    b = (double *) check_malloc( (2*nmem+nprm)*sizeof(double) );
     if( !b )
     {
-        xprintf("Not enough memory");
-        return;
+        printf("Not enough memory");
+        return 0;
     }
     blt = create_bltmatrix( nprm );
     bltc = create_bltmatrix( nprm );
@@ -1041,7 +1076,7 @@ int main(int argc, char *argv[] )
 
     {
         FILE *bin;
-        char *binfile  = "blt.bin";
+        const char *binfile  = "blt.bin";
         fprintf(out,"\nTesting dump and reload using %s\n",binfile);
         bin = fopen(binfile,"w+b");
         if( bin )
@@ -1062,5 +1097,6 @@ int main(int argc, char *argv[] )
             if( bin ) fclose(bin);
         }
     }
+    return 0;
 }
 #endif

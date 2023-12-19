@@ -33,10 +33,11 @@ BOOSTRELIB=$(shell find /usr/lib -name libboost_regex.a)
 BOOSTSYSLIB=$(shell find /usr/lib -name libboost_system.a)
 
 ifeq ($(type),debug)
-LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread 
-#LDFLAGS = $(LDFLAGS)  -lefence
+LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread
+LDFLAGS +=  -lefence
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm
 CCPARAM = -Wall -g -fpermissive -std=c++0x $(WXFLAGS)
+# CCPARAM += -fsanitize=address
 MACROS = UNIX CHECKBLT
 RUNTESTFLAGS = $(TESTFLAGS)
 UPDATEVERSION =
@@ -270,4 +271,10 @@ clean:
 	$(RM) -r $(OBJ)
 	@echo Deleting built files
 	$(RM) -r $(INSTALL)
-	
+
+testblt: 
+	mkdir -p test
+	rm -rf test/*
+	cd test; \
+	source="../$(SRCDIR)/snaplib/util/bltmatrx.c ../$(SRCDIR)/snaplib/util/symmatrx.c ../$(SRCDIR)/snaplib/util/chkalloc.c ../$(SRCDIR)/snaplib/util/progress.c ../$(SRCDIR)/snaplib/util/errdef.c"; \
+	$(CC) -D TESTBLT -I ../$(SRCDIR)/snaplib $$source  $(LDFLAGS) -o testblt

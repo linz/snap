@@ -209,7 +209,10 @@ void *del_list_item(void *list,
     lst->curr = elt->next;
     lst->hold_ptr = 1;
     lst->nelement--;
-    if (lst->copysize > 0) { check_free(elt->item); item=NULL; }
+    if (lst->copysize > 0) {
+        check_free(elt->item);
+        item=NULL;
+    }
     check_free( elt );
     return item;
 }
@@ -365,7 +368,7 @@ int sort_list(void *list,
     while ( (new_entry = end_sorted->next) != NULL )
     {
 
-        /* To int cut for partially sorted lists, compare the new item
+        /* To shortcut for partially sorted lists, compare the new item
         to add to the list with the last entry, and if it is greater (or
          equal) then start the search with that entry, rather than at
          the beginning of the list */

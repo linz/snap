@@ -44,7 +44,7 @@ struct bltmatrix_s
     long nelement;    /* The total number of elements in the matrix */
     bltrow *row;      /* Pointer to the array of rows */
     int _invncol;   /* Internal value for number of columns to process in inverse */
-    void (*_pfsumcol)(bltmatrix *blt, int nsave, int *dosum, double **sumcol, double **tmpcol, int i1); /* Hook func for multithreaded version*/
+    void (*_pfsumcol)(bltmatrix *blt, int nsave, int *dosum, double **sumcol, double **tmpcol, int row1); /* Hook func for multithreaded version*/
 };
 
 #ifdef CHECKBLT
@@ -93,7 +93,7 @@ double *blt_get_row_data( bltmatrix * blt, int irow );
 /* Only returns rows fully populated to diagonal */
 void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
-void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
+void print_bltmatrix( FILE *out, bltmatrix *blt, const char *format, int indent );
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
 void _blt_chol_inv_sumcol( bltmatrix *blt, int *dosum, double *sumcol, double *tmpcol, int i1, int c );
 

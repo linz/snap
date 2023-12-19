@@ -37,14 +37,6 @@
 #define SDC_STS_SKIP       5  /* Mark is to be skipped in current test */
 #define SDC_STS_NEED_CVR   6  /* Status pending passing horizontal accuracy */
 
-#define SDC_STS_UNKNOWN    1  /* Mark to be assigned at current order */
-#define SDC_STS_FAIL       2  /* Mark has failed at current order */
-#define SDC_STS_PASS       3  /* Mark has passed at current order */
-#define SDC_STS_PASSED     4  /* Marks has passed at lower order */
-#define SDC_STS_SKIP       5  /* Mark is to be skipped in current test */
-#define SDC_STS_NEED_CVR   6  /* Status pending passing horizontal accuracy */
-
-
 /* Objects defined to implement the SDC test */
 
 /* SDCStation is the definition of the accuracy test information about
@@ -2049,7 +2041,14 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         }
     }
 
-    sdcTimeStamp(sdci,"Completed first pass using known covariances");
+    if( sdci->phase == SDCI_PHASE_TRIAL )
+    {
+        sdcTimeStamp(sdci,"Completed first pass using known covariances");
+    }
+    else
+    {
+        sdcTimeStamp(sdci,"Completed evaluating relative accuracy status");
+    }
 
     /*> Now check for missing covariance information */
     /* This is done after all covariances have been tested as covariances that were
@@ -2105,7 +2104,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
                 if( sdci->phase != SDCI_PHASE_TRIAL )
                 {
-                    sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %s (%d) to %s (%d)",
+                    sdcWriteLog( sdci, 0, "Aborting SDC tests due to missing covariance information %s (%d) to %s (%d)\n",
                                  stni->id,(int) stsi,stnj->id,(int) stsj);
                     return STS_MISSING_DATA;
                 }

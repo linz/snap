@@ -1,7 +1,8 @@
 snapspec version 2.8.7-f3053a7f: Calculation of station orders
 Run at 18-DEC-2023 12:13:57
-SNAP binary file: snapspec2.bin
-Spec configuration file: snapspec2.cfg
+SNAP binary file: snapspec5.bin
+Spec configuration file: snapspec5.cfg
+Vertical tests will not be applied as no stations are adjusted vertically
 SNAP run time: 18-DEC-2023 12:13:57
 Running apriori tests
 
@@ -68,8 +69,7 @@ Applying relative accuracy test
    .. Orders updated took 0.00 seconds (total 0.00 seconds)
    .. Calculating missing covariances took 0.00 seconds (total 0.00 seconds)
    Calculating covariances from decomposition
-   Requested matrix size 10 rows 55 elements 100.00% full
-   Maximum bandwidth requested 3 between F2 and F1
+   .. Covariance: F1 to F2: H 0.00010000 V 0.00000000
    .. Calculation of missing covariances complete took 0.00 seconds (total 0.00 seconds)
 
 Pass 2: Calculating with extra covariance information
@@ -96,7 +96,7 @@ Applying relative accuracy test
    Station F4 fails on rel accuracy to passed station F0 (0.25999999 > 0.01502137)
    Vector F5 to F0 relative accuracy fail by absolute (0.25999999 > 0.01502137)
    Station F5 fails on rel accuracy to passed station F0 (0.25999999 > 0.01502137)
-   .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
+   .. Completed evaluating relative accuracy status took 0.00 seconds (total 0.00 seconds)
   Summarizing relative accuracy data
    .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   Status of marks
