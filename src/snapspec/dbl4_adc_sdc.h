@@ -128,6 +128,17 @@ typedef struct
         int stn1,
         int stn2 );
 
+    /* Optional distance based index - the index should guarantee that
+
+        pfDistanceIndex(env,stn) <= pfDistanceIndex(env,stn+1), and
+        pfDistance2(env,stn1,stn2) >= sqr(pfDistanceIndex(env,stn1)-pfDistanceIndex(env,stn2))
+    */
+
+    double (*pfDistanceIndex) ( /* Returns a distance based index of a station. */
+        void *env,
+        int stn
+    );
+
     double (*pfError2) (   /* Get the relative error between two marks */
         void *env,         /* Returns the square of the semi-major axis */
         int stn1,

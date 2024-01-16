@@ -55,6 +55,7 @@ typedef struct
     int nrelbad;     /**< Number of relative accuracy tests failed */
     int nrelfail;    /**< Number of rel.acc. tests to passed nodes that failed */
     int passtest;    /**< The test in which then station passed, used to reset for twopass */
+    int distidx;     /**< Index of station in distance index (if defined) */
     float error2;    /**< Square of semi-major axis of error ellipse */
     float verror2;   /**< Square of the vertical error */
     float ctldist2;  /**< Square of distance to nearest control (fixed stn) */
@@ -69,6 +70,31 @@ typedef struct
                         or SDC_COVAR_UNAVAILABLE if not yet computed */
 } SDCLine, *hSDCLine;
 
+typedef struct
+{
+    double distance; /**< Index from pfDistanceIndex */
+    int istn;       /**< Corresponding station id */
+} SDCDistanceIndexEntry, *hSDCDistanceIndexEntry;
+
+typedef struct sSDCTestImp *hSDCTestImp;
+
+typedef int (*hSDCDistanceIteratorFilter)( hSDCTestImp *sdci, const void *filterenv,  int jstn );
+
+typedef struct
+{
+    hSDCTestImp sdci;
+    int nmark;
+    int istnref;
+    int idxprev;
+    int idxnext;
+    double distprev;
+    double distnext;
+    double refdist;
+    double maxdist;
+    hSDCDistanceIteratorFilter filter;
+    const void *filterenv;
+} SDCDistanceIndexIterator, *hSDCDistanceIndexIterator;
+
 /* SDCTestImp carries all the information for the relative accuracy test */
 
 typedef struct RABlock_s
@@ -79,10 +105,11 @@ typedef struct RABlock_s
     struct RABlock_s *next;
 } RABlock, *hRABlock;
 
-typedef struct
+typedef struct sSDCTestImp
 {
     hSDCTest sdc;      /**< The definition of the tests to apply */
     hSDCStation stns;  /**< The list of stations to apply the tests to */
+    hSDCDistanceIndexEntry stnidx; /**< The stations distance index */
     unsigned char **relstatus; /**< Array of arrays of status (forming lower triangle array) */
     int *relcol0;              /**< Array of first used column of status array */
     RABlock *relalloc;        /**< An linked list of relative accuracy array allocations */
@@ -105,7 +132,7 @@ typedef struct
     char logbuffer[1024]; /**< Buffer used for writing log messages */
     clock_t reftime;   /**< Reference time for timestamps */
     clock_t lasttime;  /**< Time of last timestamp */
-} SDCTestImp, *hSDCTestImp;
+} SDCTestImp;
 
 #define SDCI_PHASE_TRIAL 1
 #define SDCI_PHASE_CALC  2
@@ -149,6 +176,9 @@ typedef struct
 static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc );
 static void sdcReleaseTestImp( hSDCTestImp sdci );
 static StatusType sdcLoadSDCStations( hSDCTestImp sdci );
+static StatusType sdcCompileDistanceIndex( hSDCTestImp sdci );
+static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistanceIndexIterator idst, int istnref, hSDCDistanceIteratorFilter filter, const void *filterenv );
+static int sdcStationDistanceIteratorNext( hSDCDistanceIndexIterator idst, double searchRadius, int *inextstn, double *offset );
 static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nleft );
 static StatusType sdcFindNearestControl( hSDCTestImp sdci );
 static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
@@ -210,6 +240,7 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     sdc->pfStationRole = NULL;
     sdc->pfStationPriority = NULL;
     sdc->pfDistance2 = NULL;
+    sdc->pfDistanceIndex = NULL;
     sdc->pfError2 = NULL;
     sdc->pfVrtError2 = NULL;
     sdc->pfRequestCovar = NULL;
@@ -315,6 +346,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 
     sdcWriteLog( &sdci, SDC_LOG_STEPS, "Loading marks for SDC tests\n" );
     sts = sdcLoadSDCStations( &sdci );
+    if( sts == STS_OK ) sts=sdcCompileDistanceIndex(&sdci);
     sdcTimeStamp(&sdci,"Stations loaded");
 
     /*> Find the nearest control to each mark */
@@ -552,6 +584,7 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
 
     sdci->sdc = sdc;
     sdci->stns = NULL;
+    sdci->stnidx = NULL;
     sdci->relstatus = NULL;
     sdci->relcol0 = NULL;
     sdci->relalloc = NULL;
@@ -615,6 +648,11 @@ static void sdcReleaseTestImp( hSDCTestImp sdci)
     {
         utlFree( sdci->stns );
         sdci->stns = NULL;
+    }
+    if( sdci->stnidx )
+    {
+        utlFree(sdci->stnidx);
+        sdci->stns=NULL;
     }
     if( sdci->relstatus )
     {
@@ -809,6 +847,7 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
         s->nrelbad = 0;
         s->nrelfail = 0;
         s->passtest = -1;
+        s->distidx = -1;
 
         /*> Yield and check for user abort */
 
@@ -816,6 +855,150 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
     }
 
     return sts;
+}
+
+
+
+/*************************************************************************
+** Function name: sdcCompileDistanceIndex
+**//**
+**    Adds stations to the test which apply to the current order, but
+**    which have been skipped in previous orders.
+**
+**  \param sdci                The test implementation
+**
+**  \return                    The abort status
+**
+**************************************************************************
+*/
+
+
+static int cmpIdxDistance( const void *p1, const void *p2 )
+{
+    hSDCDistanceIndexEntry idx1=(hSDCDistanceIndexEntry) p1;
+    hSDCDistanceIndexEntry idx2=(hSDCDistanceIndexEntry) p2;
+    return idx2->distance > idx1->distance ? 1 :
+           idx1->distance < idx2->distance ? -1 : 0;
+}
+
+static StatusType sdcCompileDistanceIndex( hSDCTestImp sdci )
+{
+    hSDCTest sdc = sdci->sdc;
+    StatusType sts = STS_OK;
+    if( ! sdc->pfDistanceIndex ) return sts;
+    if( sdci->stnidx ) utlFree(sdci->stnidx );
+    sdci->stnidx=(hSDCDistanceIndexEntry)utlAlloc(sdc->nmark*sizeof(SDCDistanceIndexEntry));
+    for( int i = 0; sts == STS_OK && i < sdc->nmark; i++ )
+    {
+        hSDCStation s = & (sdci->stns[i]);
+        hSDCDistanceIndexEntry idx=sdci->stnidx+i;
+        idx->istn=i;
+        idx->distance=sdc->pfDistanceIndex(sdc->env,s->id);
+        sdcStationId(sdci,i,s->id);
+    }
+    qsort(sdci->stnidx,sdc->nmark,sizeof(SDCDistanceIndexEntry),cmpIdxDistance);
+    for( int i=0; i<sdc->nmark; i++ )
+    {
+        hSDCDistanceIndexEntry idx=sdci->stnidx+i;
+        hSDCStation s = &(sdci->stns[idx->istn]);
+        s->distidx = i;
+    }
+}
+
+static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistanceIndexIterator idst, int istnref, hSDCDistanceIteratorFilter filter, const void *filterenv )
+{
+    idst->sdci=sdci;
+    idst->nmark=sdci->sdc->nmark;
+    idst->filter=filter;
+    idst->filterenv=filterenv;
+    idst->distprev=0.0;
+    idst->distnext=0.0;
+    idst->maxdist=1.0;
+    idst->istnref=istnref
+                  if( sdci->stnidx )
+    {
+        int idx = sdci->stns[irefstn].distidx;
+        idst->refdist=sdci->stnidx[idx].distance;
+        idst->idxprev=idx-1;
+        idst->idxnext=idx+1;
+        idst->maxdist += (sdci->stnidx[idst->nmark-1].distance-sdci->stnidx[0].distance)*2.0;
+        idst->distprev = idst->maxdist;
+        idst->distnext = idst->maxdist;
+        if( idst->idxprev >= 0 )
+        {
+            idst->distprev=idst->refdist-sdci->stnidx[idst->idxprev].distance;
+        }
+        if( idst->idxnext < idst->nmark )
+        {
+            idst->distnext=sdci->stnidx[idst->idxnext].distance - idst->refdist;
+        }
+    }
+    else
+    {
+        idst->idxprev=irefstn-1;
+        idst->idxnext=irefstn+1;
+
+    }
+    return STS_OK;
+}
+
+static int sdcStationDistanceIteratorNext( hSDCDistanceIndexIterator idst, double searchRadius, int *inextstn, double *offset )
+{
+    hSDCTestImp sdci = idst->sdci;
+    hSDCTest sdc=sdci->sdc;
+    int havestations=1;
+    double rad2=searchRadius*searchRadius;
+    while( havestations )
+    {
+        havestations=0;
+        while( idst->idxprev >= 0 && idst->distprev <= searchRadius )
+        {
+            havestations=1;
+            if( idst->distprev > idst->distnext ) continue;
+            int istn=sdci->stnidx ? sdci->stnidx[idst->idxprev].istn : idst->idxprev;
+            idst->idxprev--;
+            if( sdci->stnidx )
+            {
+                idst->distprev=idst->idxprev < 0 ? idst->maxdist : idst->refdist-sdci->stnidx[idst->idxprev].distance;
+            }
+
+            if(idst->filter && !(idst->filter)(idst->sdci,idst->filterenv,istn)) continue;
+            {
+                double dist2 = (sdc->pfDistance2)(sdc->env,idst->istnref, istn);
+                if( dist2 <= rad2 )
+                {
+                    *inextstn=istn;
+                    if( offset ) *offset=sqrt(dist2);
+                    return 1;
+                }
+            }
+        }
+        while( idst->idxnext < idst->nmark && idst->distnext <= searchRadius )
+        {
+            havestations=1;
+            if( idst->distnext > idst->distprev) continue;
+            int istn=sdci->stnidx ? sdci->stnidx[idst->idxnext].istn : idst->idxnext;
+            idst->idxnext++;
+            if( sdci->stnidx )
+            {
+                idst->distnext=idst->idxnext >= idst->nmark ? idst->maxdist : sdci->stnidx[idst->idxnext].distance-idst->refdist;
+            }
+
+            if(idst->filter && !(idst->filter)(idst->sdci,idst->filterenv,istn)) continue;
+            {
+                double dist2 = (sdc->pfDistance2)(sdc->env,idst->istnref, istn);
+                if( dist2 <= rad2 )
+                {
+                    *inextstn=istn;
+                    if( offset ) *offset=sqrt(dist2);
+                    return 1;
+                }
+            }
+        }
+
+    }
+
+    return 0;
 }
 
 
