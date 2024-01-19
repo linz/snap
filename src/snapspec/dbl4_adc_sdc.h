@@ -23,11 +23,7 @@ typedef struct
     IdType  idOrder;       /**< Order of the nodes passing the test */
     SysCodeType scOrder;   /**< Order display code */
     Boolean blnTestHor;    /**< Test horizontal accuracy */
-    double  dblMaxCtlDistFactor;   /**< Multiple of maximum distance of any station to control to test */
-
     /* The following options are not yet implemented! */
-    int     nCtlForDistance;  /**< Number of nearest control mark required in test distance */
-    double  dblCtlDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
     int     nHigherForDistance; /**< Number of higher order marks to test for a station */
     double  dblHigherDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
 
@@ -104,7 +100,10 @@ typedef struct
     SDCOrderTest *tests;   /**< The definitions of each test */
     IdType idFailOrder;    /**< The order to apply if all tests fail */
     SysCodeType scFailOrder;  /**< Display string for fail order */
-    double dblErrFactor;   /**< Factor by which errors are multiplied for test */
+    double dblErrFactor;      /**< Factor by which errors are multiplied for test */
+    int     nCtlForDistance;  /**< Number of nearest control mark required in test distance */
+    double  dblCtlDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
+
 
     long (*pfStationId) ( /* Function to get the id of the station */
         void *env,

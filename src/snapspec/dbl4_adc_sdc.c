@@ -45,6 +45,10 @@
 #define STATION_ID_SIZE 31   /*     Buffer size for station id */
 typedef char SdcStationIdType[STATION_ID_SIZE+1];
 
+/* Maximum number of nth nearest station */
+
+#define MAX_NEAREST_NTH 10
+
 typedef struct
 {
     SdcStationIdType id; /**< External identication of station */
@@ -59,6 +63,7 @@ typedef struct
     float error2;    /**< Square of semi-major axis of error ellipse */
     float verror2;   /**< Square of the vertical error */
     float ctldist2;  /**< Square of distance to nearest control (fixed stn) */
+    float ctlrange2; /**< Squared max search range based on control */
 } SDCStation, *hSDCStation;
 
 /* SDCLine is the information required for relative accuracy tests */
@@ -78,7 +83,7 @@ typedef struct
 
 typedef struct sSDCTestImp *hSDCTestImp;
 
-typedef int (*hSDCDistanceIteratorFilter)( hSDCTestImp *sdci, const void *filterenv,  int jstn );
+typedef int (*hSDCDistanceIteratorFilter)( hSDCTestImp sdci, const void *filterenv,  int istn );
 
 typedef struct
 {
@@ -116,7 +121,7 @@ typedef struct sSDCTestImp
     RABlock *curalloc;        /**< Current being used relative accuracy array allocation */
     int allocsize;             /**< Size used for each new block allocation */
     int *lookup;       /**< Lookup from relative accuracy order to station order */
-    float maxctldist2; /**< The maximum distance to nearest control squared */
+    float maxctlrange2; /**< The maximum distance to nearest control squared */
     float maxerror2;   /**< The maximum squared semi-major axis of the error ellipse */
     float maxverror2;  /**< The maximum squared semi-major axis of the error ellipse */
     int nreltest;      /**< Number of relative accuracy marks */
@@ -234,6 +239,8 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     sdc->idFailOrder = 0;
     sdc->dblErrFactor = 3.0;
     sdc->scFailOrder[0] = 0;
+    sdc->nCtlForDistance = 0;
+    sdc->dblCtlDistFactor=1.0;
 
     sdc->pfStationId = NULL;
     sdc->pfStationCode = NULL;
@@ -254,9 +261,6 @@ hSDCTest sdcCreateSDCTest( int maxorder )
         test = &(tests[i]);
         test->blnTestHor = BLN_TRUE;
         test->blnTestVrt = BLN_FALSE;
-        test->dblMaxCtlDistFactor = 0.0;
-        test->nCtlForDistance =0;
-        test->dblCtlDistFactor=0.0;
         test->nHigherForDistance=0;
         test->dblHigherDistFactor=0.0;
         test->dblRange = 0.0;
@@ -439,9 +443,6 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Maximum range for relative accuracy test = %.1lf m\n",
                              test->dblRange);
-                if( test->dblMaxCtlDistFactor > 0  )
-                    sdcWriteLog( &sdci, SDC_LOG_STEPS, "   Max times max dist to control to test : %.1lf",
-                                 test->dblMaxCtlDistFactor );
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy maximum = %.3lf m +/- %.4lf m/100m\n",
                              test->dblRelTestDFMax, test->dblRelTestDDMax );
@@ -461,9 +462,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Maximum range for relative accuracy test = %.1lf m\n",
                              test->dblRange);
-                if( test->dblMaxCtlDistFactor > 0  )
-                    sdcWriteLog( &sdci, SDC_LOG_STEPS, "   Max times max dist to control to test : %.1lf",
-                                 test->dblMaxCtlDistFactor );
+
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy maximum = %.3lf m +/- %.4lf m/100m\n",
                              test->dblRelTestDFMaxV, test->dblRelTestDDMaxV );
@@ -590,7 +589,7 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc)
     sdci->relalloc = NULL;
     sdci->allocsize = DEFAULT_RAMEM_SIZE;
     sdci->lookup = NULL;
-    sdci->maxctldist2 = 0.0;
+    sdci->maxctlrange2 = 0.0;
     sdci->maxerror2 = 0.0;
     sdci->maxverror2 = 0.0;
     sdci->loglevel = sdc->loglevel;
@@ -847,6 +846,8 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
         s->nrelbad = 0;
         s->nrelfail = 0;
         s->passtest = -1;
+        s->ctldist2 = 0.0;
+        s->ctlrange2 = -1.0;
         s->distidx = -1;
 
         /*> Yield and check for user abort */
@@ -893,7 +894,7 @@ static StatusType sdcCompileDistanceIndex( hSDCTestImp sdci )
         hSDCStation s = & (sdci->stns[i]);
         hSDCDistanceIndexEntry idx=sdci->stnidx+i;
         idx->istn=i;
-        idx->distance=sdc->pfDistanceIndex(sdc->env,s->id);
+        idx->distance=sdc->pfDistanceIndex(sdc->env,i);
         sdcStationId(sdci,i,s->id);
     }
     qsort(sdci->stnidx,sdc->nmark,sizeof(SDCDistanceIndexEntry),cmpIdxDistance);
@@ -903,6 +904,7 @@ static StatusType sdcCompileDistanceIndex( hSDCTestImp sdci )
         hSDCStation s = &(sdci->stns[idx->istn]);
         s->distidx = i;
     }
+    return sts;
 }
 
 static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistanceIndexIterator idst, int istnref, hSDCDistanceIteratorFilter filter, const void *filterenv )
@@ -914,10 +916,10 @@ static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistance
     idst->distprev=0.0;
     idst->distnext=0.0;
     idst->maxdist=1.0;
-    idst->istnref=istnref
-                  if( sdci->stnidx )
+    idst->istnref=istnref;
+    if( sdci->stnidx )
     {
-        int idx = sdci->stns[irefstn].distidx;
+        int idx = sdci->stns[istnref].distidx;
         idst->refdist=sdci->stnidx[idx].distance;
         idst->idxprev=idx-1;
         idst->idxnext=idx+1;
@@ -935,8 +937,8 @@ static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistance
     }
     else
     {
-        idst->idxprev=irefstn-1;
-        idst->idxnext=irefstn+1;
+        idst->idxprev=istnref-1;
+        idst->idxnext=istnref+1;
 
     }
     return STS_OK;
@@ -1002,6 +1004,50 @@ static int sdcStationDistanceIteratorNext( hSDCDistanceIndexIterator idst, doubl
 }
 
 
+static double sdcStationDistanceNthNearest( hSDCTestImp sdci, int irefstn, int nnearest, double searchradius, hSDCDistanceIteratorFilter filter, const void *filterenv, double *pmindist )
+{
+    SDCDistanceIndexIterator idst;
+    int inextstn=0;
+    double offset=0;
+    double minoffsets[MAX_NEAREST_NTH];
+    int nminoffsets=0;
+
+    if( nnearest > MAX_NEAREST_NTH )
+    {
+        THROW_EXCEPTION(("sdcStationDistanceNthNearest: nnearest greater than maximum supported"));
+    }
+    if( nnearest <= 0 )
+    {
+        THROW_EXCEPTION(("sdcStationDistanceNthNearest: nnearest must be greater than 0"));
+    }
+
+    sdcInitStationDistanceIterator( sdci, &idst, irefstn, filter, filterenv );
+    if( searchradius <= 0 ) searchradius=idst.maxdist;
+    while( sdcStationDistanceIteratorNext(&idst,searchradius,&inextstn, &offset))
+    {
+        int iminoffset;
+        if( nminoffsets < nnearest )
+        {
+            nminoffsets++;
+        }
+        iminoffset=nminoffsets-1;
+        while( iminoffset > 0 && offset < minoffsets[iminoffset-1])
+        {
+            minoffsets[iminoffset]=minoffsets[iminoffset-1];
+            iminoffset--;
+        }
+        minoffsets[iminoffset]=offset;
+        if( nminoffsets == nnearest ) searchradius=minoffsets[nminoffsets-1];
+    }
+    if( nminoffsets > 0 )
+    {
+        if( pmindist ) *pmindist = minoffsets[0];
+        return minoffsets[nminoffsets-1];
+    }
+    return 0.0;
+}
+
+
 /*************************************************************************
 ** Function name: sdcFindStationsForTest
 **//**
@@ -1061,15 +1107,21 @@ static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nlef
 **************************************************************************
 */
 
+
+static int isControlFilter( hSDCTestImp sdci, const void *filterenv,  int istn )
+{
+    return  sdci->stns[istn].role == SDC_CONTROL_MARK ? 1 : 0;
+}
+
 static StatusType sdcFindNearestControl( hSDCTestImp sdci)
 {
     hSDCTest sdc = sdci->sdc;
     hSDCStation stns = sdci->stns;
     hSDCStation stnc = 0;
-    int ictl;
     int istn;
-    int first;
     StatusType sts = STS_OK;
+    char usectlrange = sdc->nCtlForDistance > 0 ? 1 : 0;
+    int nctl = usectlrange ? sdc->nCtlForDistance : 1;
 
     /*> Compute the distance from each control mark to each tested
         mark, and store the minimum of these distances */
@@ -1080,58 +1132,39 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
         stored value.  Could perhaps do more efficient things
         with a sorted list of nodes if we wanted to. */
 
-    first = 1;
-    for( ictl = 0; sts == STS_OK && ictl < sdc->nmark; ictl++ )
-    {
-        if( ictl % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
-        if( stns[ictl].role != SDC_CONTROL_MARK ) continue;
-        for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
-        {
-            if( istn % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
-            if( stns[istn].role != SDC_IGNORE_MARK )
-            {
-                float dist = (float) (sdc->pfDistance2)(sdc->env,ictl, istn );
-                if( first || dist < stns[istn].ctldist2 )
-                {
-                    stns[istn].ctldist2 = dist;
-                }
-            }
-        }
-        first = 0;
-    }
-
-    /*> Calculate the maximum distance between the nearest control mark */
-
-    sdci->maxctldist2 = 0.0;
-
+    sdci->maxctlrange2 = 0.0;
     for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
     {
         hSDCStation stn = &(stns[istn]);
-
-        if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
-
-        if( stn->role == SDC_CONTROL_MARK || stn->role == SDC_IGNORE_MARK )
-            continue;
-
-        if( stn->ctldist2 > sdci->maxctldist2 )
-        {
-            sdci->maxctldist2 = stn->ctldist2;
-            stnc = stn;
-        }
-
+        double dist;
+        double minctldist;
+        if( istn % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
+        if( stn->role == SDC_CONTROL_MARK || stn->role == SDC_IGNORE_MARK ) continue;
+        dist=sdcStationDistanceNthNearest(sdci,istn,nctl,0.0,isControlFilter,0,&minctldist);
         if( sdci->loglevel & SDC_LOG_CALCS )
         {
             sdcWriteLog( sdci, SDC_LOG_CALCS,
-                         "    Station %s is %.2lf m2 from control\n",
-                         stn->id, (double)(stn->ctldist2) );
+                         "    Station %s has %d control stations within %.2lf m\n",
+                         stn->id, nctl, dist );
         }
         if( sdci->loglevel & SDC_LOG_COMPACT )
         {
-            sdcWriteCompactLog( sdci,stn->id,0,SDC_TEST_DCTL,SDC_STS_NO_STATUS,stn->ctldist2,-1,"" );
+            sdcWriteCompactLog( sdci,stn->id,0,SDC_TEST_DCTL,SDC_STS_NO_STATUS,dist,-1,"" );
         }
+        stn->ctldist2=minctldist*minctldist;
+
+        dist *= sdc->dblCtlDistFactor;
+        stn->ctlrange2 = dist*dist;
+
+        if( stn->ctlrange2 > sdci->maxctlrange2 )
+        {
+            sdci->maxctlrange2 = stn->ctlrange2;
+            stnc = stn;
+        }
+
     }
     sdcWriteLog(sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                "Maximum distance to nearest control %.2lfm from %s\n",sqrt(sdci->maxctldist2),stnc ? stnc->id : "-");
+                "Maximum relative accuracy test distance based on nearest %d control marks %.2lfm (from %s)\n",sdc->nCtlForDistance,sqrt(sdci->maxctlrange2),stnc ? stnc->id : "-");
 
     return sts;
 }
@@ -1422,7 +1455,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
 /*************************************************************************
 ** Function name: sdcApplyRelTest
 **//**
-**    Applies the relative accuracy test .. a relative complex algorithm!
+**    Applies the relative accuracy test .. a relatively complex algorithm!
 **
 **  \param sdci                The test implementation
 **  \param test                Definition of the current order
@@ -1893,12 +1926,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     range2 = test->dblRange;
     range2 *= range2;
 
-    if( test->dblMaxCtlDistFactor > 0.0 )
+    if( range2 < 0.01 ) range2 = sdci->maxctlrange2;
+    if( sdci->maxctlrange2 > 0.0 && sdci->maxctlrange2 < range2 )
     {
-        double crange2 = sdci->maxctldist2*test->dblMaxCtlDistFactor*test->dblMaxCtlDistFactor;
-        if( crange2 < range2 ) range2 = crange2;
-        sdcWriteLog( sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                     "  Relative accuracy range calculated as %.2f m2\n",sqrt(range2) );
+        range2 = sdci->maxctlrange2;
     }
     userange = range2 > 0.01;
 
@@ -1965,6 +1996,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             hSDCStation stnj = &(stns[istnj]);
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
+            char irangeok = 1;
+            char jrangeok = 1;
             double dist;
             unsigned char stsij = SDC_STS_UNKNOWN;
 
@@ -1989,7 +2022,16 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
             dist = (sdc->pfDistance2)(sdc->env, istni, istnj );
 
-            if( userange && dist >= range2 ) continue;
+            if( userange )
+            {
+                if( dist >= range2 ) continue;
+                if( stni->ctlrange2 > 0.0 && dist > stni->ctlrange2 ) irangeok=0;
+                if( stnj->ctlrange2 > 0.0 && dist > stnj->ctlrange2 ) jrangeok=0;
+                if( ! irangeok && ! jrangeok ) continue;
+                // If already passed i and range more than required for j then skip, and vice versa */
+                if( passi && ! jrangeok ) continue;
+                if( passj && ! irangeok ) continue;
+            }
 
             /*>> Calculate the acceptable relative error for the line.
                  Test length against the maximum length of line that can fail
@@ -2086,7 +2128,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
                 else if ( ! sdci->needphase2 )
                 {
-                    if (passi && stsij == SDC_STS_FAIL && ! sdci->needphase2)
+                    if (jrangeok && passi && stsij == SDC_STS_FAIL && ! sdci->needphase2)
                     {
                         stnj->status = SDC_STS_FAIL;
                         sdcWriteLog( sdci, SDC_LOG_TESTS,
@@ -2094,7 +2136,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                                      stnj->id, stni->id, error, tolij);
                         if( logcompact ) sdcWriteCompactLog( sdci, stnj->id,stni->id,SDC_TEST_HRAP,SDC_STS_FAIL,error,tolij,"");
                     }
-                    else if(passj && stsij == SDC_STS_FAIL)
+                    else if(irangeok && passj && stsij == SDC_STS_FAIL)
                     {
                         stni->status = SDC_STS_FAIL;
                         sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
@@ -2190,7 +2232,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                      we can fail the other.   */
                 else if ( ! sdci->needphase2 )
                 {
-                    if (passi && stsij == SDC_STS_FAIL)
+                    if (jrangeok && passi && stsij == SDC_STS_FAIL)
                     {
                         stnj->status = SDC_STS_FAIL;
                         sdcWriteLog( sdci, SDC_LOG_TESTS,
@@ -2198,7 +2240,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                                      stnj->id, stni->id, error, tolij);
                         if( logcompact ) sdcWriteCompactLog( sdci, stnj->id,stni->id,SDC_TEST_VRAP,SDC_STS_FAIL,error,tolij,"");
                     }
-                    else if(passj && stsij == SDC_STS_FAIL)
+                    else if(irangeok && passj && stsij == SDC_STS_FAIL)
                     {
                         stni->status = SDC_STS_FAIL;
                         sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
@@ -2272,11 +2314,13 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 char stsj = stnj->status;
                 char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
 
+
                 if( j % ABORT_FREQUENCY == 0 )
                 {
                     sts = utlCheckAbort();
                     if( sts != STS_OK ) return sts;
                 }
+
 
                 /* If not passed or potential to pass then not interested */
                 if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
@@ -2350,28 +2394,45 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             hSDCStation stnj = &(stns[istnj]);
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
+            char irangeok = 1;
+            char jrangeok = 1;
+            double dist;
 
             if( j % ABORT_FREQUENCY == 0 )
             {
                 sts = utlCheckAbort();
                 if( sts != STS_OK ) return sts;
             }
+
+            dist = (sdc->pfDistance2)(sdc->env, istni, istnj );
+
+            if( userange )
+            {
+                if( dist >= range2 ) continue;
+                if( stni->ctlrange2 > 0.0 && dist > stni->ctlrange2 ) irangeok=0;
+                if( stnj->ctlrange2 > 0.0 && dist > stnj->ctlrange2 ) jrangeok=0;
+                if( ! irangeok && ! jrangeok ) continue;
+                // If already passed i and range more than required for j then skip, and vice versa */
+                if( passi && ! jrangeok ) continue;
+                if( passj && ! irangeok ) continue;
+            }
+
             if( *relstatus == SDC_STS_SKIP ) continue;
 
             if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
             if( passi && passj ) continue;
 
             /*>> Increment the count of tests for the nodes */
-            stni->nreltest++;
-            stnj->nreltest++;
+            if( irangeok ) stni->nreltest++;
+            if( jrangeok ) stnj->nreltest++;
 
             if( *relstatus == SDC_STS_FAIL )
             {
                 /*>> If it fails, then increment count of fails for nodes
                      and if one or other node is already passed, the count of fails
                      connecting to an already passed node */
-                stni->nrelbad++;
-                stnj->nrelbad++;
+                if( irangeok ) stni->nrelbad++;
+                if( jrangeok ) stnj->nrelbad++;
             }
 
         }

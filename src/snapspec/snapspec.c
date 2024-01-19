@@ -125,6 +125,7 @@ typedef struct
     int1 ignoreconstrained;
     int4 loglevel;
     int dfltminrelacc;
+    double latmult;  /* multiplier of latitude to create distance index.*/
 } snapspec_env;
 
 typedef struct cfg_stack_s
@@ -167,6 +168,7 @@ static double relacc_get_covar( snapspec_env *ra, int istn, int jstn );
 static snapspec_env *create_snapspec_env()
 {
     snapspec_env *ra;
+    ellipsoid *el = net->crdsys->rf->el;
 
     int haveorders = network_order_count(net) > 0;
     int nstns = number_of_stations( net );
@@ -210,6 +212,17 @@ static snapspec_env *create_snapspec_env()
     ra->autominorder = 0;
     ra->ignoreconstrained = 0;
     ra->dfltminrelacc = 0;
+    /* Create a latitude multiplier to support a latitude based distance index.
+    This is the maximum value of dN/dlt, except that we are ignoring height above sea
+    level.  */
+    if( el->a >= el->b )
+    {
+        ra->latmult = el->a*el->a*el->a/(el->b*el->b);
+    }
+    else
+    {
+        ra->latmult=el->b*el->b*el->b/(el->a*el->a);
+    }
     return ra;
 }
 
@@ -809,6 +822,8 @@ static int f_station_priority ( void *env, int stn )
 
 static double f_distance2( void *env, int stn1, int stn2 )
 {
+    /* Note: we are using arc-distance at sea level, though not critical in the
+       context of snapspec.  */
     double dist2 = -1.0;
     int istn1, istn2;
     if( stn1 == stn2 ) return 0.0;
@@ -822,7 +837,7 @@ static double f_distance2( void *env, int stn1, int stn2 )
         stt = station_ptr( net, istn2 );
         if( stf && stt )
         {
-            dist2 = calc_distance( stf, 0.0, stt, 0.0, NULL, NULL );
+            dist2 = calc_distance( stf,  -stf->OHgt-stf->GUnd, stt, -stt->OHgt-stt->GUnd, NULL, NULL );
             dist2 *= dist2;
         }
         else
@@ -832,6 +847,15 @@ static double f_distance2( void *env, int stn1, int stn2 )
         }
     }
     return dist2;
+}
+
+static double f_distance_index( void *env, int stn )
+{
+    snapspec_env *ra = (snapspec_env *) env;
+
+    int istn = f_station_id( env, stn );
+    station *st=station_ptr(net,istn);
+    return st->ELat*ra->latmult;
 }
 
 static double f_error2( void *env, int stn1, int stn2 )
@@ -913,6 +937,7 @@ static hSDCTest create_test( int maxorder )
     hsdc->pfStationRole = f_station_role;
     hsdc->pfStationPriority = f_station_priority;
     hsdc->pfDistance2 = f_distance2;
+    hsdc->pfDistanceIndex = f_distance_index;
     hsdc->pfRequestCovar = f_request_covar;
     hsdc->pfCalcRequested = f_calc_requested;
     hsdc->pfError2 = f_error2;
@@ -1699,9 +1724,6 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
     strncpy( test->scOrder, name, SYSCODE_LEN );
     test->scOrder[SYSCODE_LEN] = 0;
 
-    test->dblMaxCtlDistFactor = 0.0;
-    test->nCtlForDistance =0;
-    test->dblCtlDistFactor=0.0;
     test->nHigherForDistance=0;
     test->dblHigherDistFactor=0.0;
     test->dblRange = 0.0;
@@ -1747,18 +1769,6 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             continue;
         }
 
-        if( _stricmp(type,"maxctldistfactor") == 0 )
-        {
-            nfld = sscanf(data,"%lf%n",&err,&nchr);
-            if( nfld != 1 )
-            {
-                send_config_error(cfg,INVALID_DATA, "Invalid factor for maxctldistfactor in specification");
-                return OK;
-            }
-            data += nchr;
-            test->dblMaxCtlDistFactor = err;
-            continue;
-        }
         if( _stricmp(type,"range") == 0 )
         {
             nfld = sscanf(data,"%lf%4s%n",&err,errtype,&nchr);
@@ -2281,6 +2291,8 @@ static config_item cfg_commands[] =
     {"confidence",NULL,CFG_ABSOLUTE,0,read_confidence,CFG_ONEONLY,0},
     {"vertical_error_factor",&vrtHorRatio,CFG_ABSOLUTE,0,readcfg_double,CFG_ONEONLY,0},
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
+    {"control_nearest_nth",NULL,OFFSETOF(SDCTest,nCtlForDistance),0,readcfg_int,CFG_ONEONLY,1},
+    {"control_distance_multiple",NULL,OFFSETOF(SDCTest,dblCtlDistFactor),0,readcfg_double,CFG_ONEONLY,1},
     {"default_order",dfltOrder,CFG_ABSOLUTE,SYSCODE_LEN+1,STORE_AS_STRING,CFG_ONEONLY,0},
     {"limit_order",NULL,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
     {"ignore",NULL,CFG_ABSOLUTE,0,read_ignore_command,0,2},
