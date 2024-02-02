@@ -26,11 +26,10 @@ Loading marks for SDC tests
     Station F5 is to be tested. Error H/V = 0.00010000/0.00000000 m2
    .. Stations loaded took 0.00 seconds (total 0.00 seconds)
 Finding nearest control for each mark
-    Station F1 is 400.00 m2 from control
-    Station F2 is 1600.00 m2 from control
-    Station F4 is 6409.08 m2 from control
-    Station F5 is 10009.09 m2 from control
-Maximum distance to nearest control 100.05m from F5
+    Station F1 has 1 control stations within 20.00 m
+    Station F2 has 1 control stations within 40.00 m
+    Station F4 has 1 control stations within 80.00 m
+    Station F5 has 1 control stations within 100.00 m
    .. Identified nearest control marks took 0.00 seconds (total 0.00 seconds)
 
 Pass 1: Using existing covariance information

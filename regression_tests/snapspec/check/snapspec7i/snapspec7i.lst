@@ -28,7 +28,6 @@ Station lookup for SDC test module
 Initiallizing SDC tests
 Loading marks for SDC tests
 Finding nearest control for each mark
-Maximum distance to nearest control 40.00m from F2
 ==============================================================
 Running test for order 6
    Absolute accuracy maximum = 1000.000 m

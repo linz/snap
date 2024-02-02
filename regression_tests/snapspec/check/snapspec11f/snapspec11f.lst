@@ -36,15 +36,14 @@ Loading marks for SDC tests
     Station F2 is to be tested. Error H/V = 0.04000000/0.00000000 m2
     Station F1 is to be tested. Error H/V = 0.04000000/0.00000000 m2
 Finding nearest control for each mark
-    Station F10 is 10400.03 m2 from control
-    Station F9 is 10400.03 m2 from control
-    Station F8 is 10400.03 m2 from control
-    Station F7 is 10400.03 m2 from control
-    Station F6 is 10400.03 m2 from control
-    Station F3 is 10400.03 m2 from control
-    Station F2 is 10400.03 m2 from control
-    Station F1 is 10400.03 m2 from control
-Maximum distance to nearest control 101.98m from F10
+    Station F10 has 1 control stations within 100.00 m
+    Station F9 has 1 control stations within 100.00 m
+    Station F8 has 1 control stations within 100.00 m
+    Station F7 has 1 control stations within 100.00 m
+    Station F6 has 1 control stations within 100.00 m
+    Station F3 has 1 control stations within 100.00 m
+    Station F2 has 1 control stations within 100.00 m
+    Station F1 has 1 control stations within 100.00 m
 ==============================================================
 Running test for order 5
    Absolute accuracy maximum = 1000.000 m

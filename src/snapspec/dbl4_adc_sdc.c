@@ -22,6 +22,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <time.h>
+#include <float.h>
 
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_yield.h"
@@ -353,7 +354,9 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     if( sts == STS_OK ) sts=sdcCompileDistanceIndex(&sdci);
     sdcTimeStamp(&sdci,"Stations loaded");
 
-    /*> Find the nearest control to each mark */
+    /*> Find the nearest control to each mark.  This is used for the relative accuracy by absolute
+       accuracy optimisation, and for the using a test range based on the distance to nearest
+       control. */
 
     if( sts == STS_OK )
     {
@@ -878,8 +881,8 @@ static int cmpIdxDistance( const void *p1, const void *p2 )
 {
     hSDCDistanceIndexEntry idx1=(hSDCDistanceIndexEntry) p1;
     hSDCDistanceIndexEntry idx2=(hSDCDistanceIndexEntry) p2;
-    return idx2->distance > idx1->distance ? 1 :
-           idx1->distance < idx2->distance ? -1 : 0;
+    return idx2->distance > idx1->distance ? -1 :
+           idx1->distance < idx2->distance ? 1 : 0;
 }
 
 static StatusType sdcCompileDistanceIndex( hSDCTestImp sdci )
@@ -909,13 +912,18 @@ static StatusType sdcCompileDistanceIndex( hSDCTestImp sdci )
 
 static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistanceIndexIterator idst, int istnref, hSDCDistanceIteratorFilter filter, const void *filterenv )
 {
+    /*
+    Iterator returns stations that match filter condition that are within search_radius of a reference station.
+    Stations are returned in an arbitrary order.  The search radius is specified at each iteration so it can be
+    reduced once stations closer than that have been found.
+    */
     idst->sdci=sdci;
     idst->nmark=sdci->sdc->nmark;
     idst->filter=filter;
     idst->filterenv=filterenv;
     idst->distprev=0.0;
     idst->distnext=0.0;
-    idst->maxdist=1.0;
+    idst->maxdist=sqrt(DBL_MAX); /* Use square root as will be squaring this value ... */
     idst->istnref=istnref;
     if( sdci->stnidx )
     {
@@ -923,7 +931,6 @@ static StatusType sdcInitStationDistanceIterator( hSDCTestImp sdci, hSDCDistance
         idst->refdist=sdci->stnidx[idx].distance;
         idst->idxprev=idx-1;
         idst->idxnext=idx+1;
-        idst->maxdist += (sdci->stnidx[idst->nmark-1].distance-sdci->stnidx[0].distance)*2.0;
         idst->distprev = idst->maxdist;
         idst->distnext = idst->maxdist;
         if( idst->idxprev >= 0 )
@@ -956,7 +963,7 @@ static int sdcStationDistanceIteratorNext( hSDCDistanceIndexIterator idst, doubl
         while( idst->idxprev >= 0 && idst->distprev <= searchRadius )
         {
             havestations=1;
-            if( idst->distprev > idst->distnext ) continue;
+            if( idst->distprev > idst->distnext ) break;
             int istn=sdci->stnidx ? sdci->stnidx[idst->idxprev].istn : idst->idxprev;
             idst->idxprev--;
             if( sdci->stnidx )
@@ -978,7 +985,7 @@ static int sdcStationDistanceIteratorNext( hSDCDistanceIndexIterator idst, doubl
         while( idst->idxnext < idst->nmark && idst->distnext <= searchRadius )
         {
             havestations=1;
-            if( idst->distnext > idst->distprev) continue;
+            if( idst->distnext > idst->distprev) break;
             int istn=sdci->stnidx ? sdci->stnidx[idst->idxnext].istn : idst->idxnext;
             idst->idxnext++;
             if( sdci->stnidx )
@@ -1123,14 +1130,8 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
     char usectlrange = sdc->nCtlForDistance > 0 ? 1 : 0;
     int nctl = usectlrange ? sdc->nCtlForDistance : 1;
 
-    /*> Compute the distance from each control mark to each tested
-        mark, and store the minimum of these distances */
-
-    /*  This uses a very crude algorithm, simply computing the
-        distance from each control mark to each tested mark and
-        storing the distance if it is less than the currently
-        stored value.  Could perhaps do more efficient things
-        with a sorted list of nodes if we wanted to. */
+    /*> Compute the distance from tested mark to the nearest nth control mark,
+      and store the maximum of these distances */
 
     sdci->maxctlrange2 = 0.0;
     for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
@@ -1151,20 +1152,29 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
         {
             sdcWriteCompactLog( sdci,stn->id,0,SDC_TEST_DCTL,SDC_STS_NO_STATUS,dist,-1,"" );
         }
+        /* Save the minimum distance to control for relative by absolute optimisation */
         stn->ctldist2=minctldist*minctldist;
 
-        dist *= sdc->dblCtlDistFactor;
-        stn->ctlrange2 = dist*dist;
-
-        if( stn->ctlrange2 > sdci->maxctlrange2 )
+        /* If using distance to control to limit extent of relative accuracy tests then record the maximum
+           to ensure relative accuracy tests are long enough for both possible directions.  */
+        if( usectlrange )
         {
-            sdci->maxctlrange2 = stn->ctlrange2;
-            stnc = stn;
+            dist *= sdc->dblCtlDistFactor;
+            stn->ctlrange2 = dist*dist;
+
+            if( stn->ctlrange2 > sdci->maxctlrange2 )
+            {
+                sdci->maxctlrange2 = stn->ctlrange2;
+                stnc = stn;
+            }
         }
 
     }
-    sdcWriteLog(sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                "Maximum relative accuracy test distance based on nearest %d control marks %.2lfm (from %s)\n",sdc->nCtlForDistance,sqrt(sdci->maxctlrange2),stnc ? stnc->id : "-");
+    if( usectlrange )
+    {
+        sdcWriteLog(sdci, SDC_LOG_STEPS | SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                    "Maximum relative accuracy test distance based on nearest %d control marks %.2lfm (from %s)\n",nctl,sqrt(sdci->maxctlrange2),stnc ? stnc->id : "-");
+    }
 
     return sts;
 }
