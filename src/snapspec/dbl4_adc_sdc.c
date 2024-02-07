@@ -242,6 +242,7 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     sdc->scFailOrder[0] = 0;
     sdc->nCtlForDistance = 0;
     sdc->dblCtlDistFactor=1.0;
+    sdc->dblCtlMinDistance = 0.0;
 
     sdc->pfStationId = NULL;
     sdc->pfStationCode = NULL;
@@ -264,7 +265,8 @@ hSDCTest sdcCreateSDCTest( int maxorder )
         test->blnTestVrt = BLN_FALSE;
         test->nHigherForDistance=0;
         test->dblHigherDistFactor=0.0;
-        test->dblRange = 0.0;
+        test->dblMinRange = 0.0;
+        test->dblMaxRange = 0.0;
         test->iMinRelAcc = 0;
         test->dblAbsTestAbsMax = 1000.0;
         test->dblAbsTestDDMax  = 1000.0;
@@ -443,9 +445,12 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy by abs accuracy = %.3lf m\n",
                              test->dblRelTestAbsMin );
-                sdcWriteLog( &sdci, SDC_LOG_STEPS,
-                             "   Maximum range for relative accuracy test = %.1lf m\n",
-                             test->dblRange);
+                if( test->dblMaxRange > 0.0 ) sdcWriteLog( &sdci, SDC_LOG_STEPS,
+                            "   Maximum range for relative accuracy test = %.1lf m\n",
+                            test->dblMaxRange);
+                if( test->dblMinRange > 0.0 ) sdcWriteLog( &sdci, SDC_LOG_STEPS,
+                            "   Minimum value for maximum range for relative accuracy test = %.1lf m\n",
+                            test->dblMinRange);
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy maximum = %.3lf m +/- %.4lf m/100m\n",
                              test->dblRelTestDFMax, test->dblRelTestDDMax );
@@ -462,9 +467,12 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy by abs accuracy = %.3lf m\n",
                              test->dblRelTestAbsMinV );
-                sdcWriteLog( &sdci, SDC_LOG_STEPS,
-                             "   Maximum range for relative accuracy test = %.1lf m\n",
-                             test->dblRange);
+                if( test->dblMaxRange > 0.0 ) sdcWriteLog( &sdci, SDC_LOG_STEPS,
+                            "   Maximum range for relative accuracy test = %.1lf m\n",
+                            test->dblMaxRange);
+                if( test->dblMinRange > 0.0 ) sdcWriteLog( &sdci, SDC_LOG_STEPS,
+                            "   Minimum value for maximum range for relative accuracy test = %.1lf m\n",
+                            test->dblMinRange);
 
                 sdcWriteLog( &sdci, SDC_LOG_STEPS,
                              "   Relative accuracy maximum = %.3lf m +/- %.4lf m/100m\n",
@@ -1160,6 +1168,7 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
         if( usectlrange )
         {
             dist *= sdc->dblCtlDistFactor;
+            if( dist < sdc->dblCtlMinDistance ) dist=sdc->dblCtlMinDistance;
             stn->ctlrange2 = dist*dist;
 
             if( stn->ctlrange2 > sdci->maxctlrange2 )
@@ -1933,7 +1942,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         to marks with status passed.  Also may apply a maximum distance
         test. */
 
-    range2 = test->dblRange;
+    range2 = test->dblMaxRange;
     range2 *= range2;
 
     if( range2 < 0.01 ) range2 = sdci->maxctlrange2;
@@ -1942,6 +1951,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         range2 = sdci->maxctlrange2;
     }
     userange = range2 > 0.01;
+    if( userange && range2 < test->dblMinRange*test->dblMinRange)
+    {
+        range2 = test->dblMinRange*test->dblMinRange;
+    }
 
     ftol = test->dblRelTestDFMax / sdc->dblErrFactor;
     ftol *= ftol;

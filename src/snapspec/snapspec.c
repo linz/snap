@@ -1726,7 +1726,8 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
 
     test->nHigherForDistance=0;
     test->dblHigherDistFactor=0.0;
-    test->dblRange = 0.0;
+    test->dblMinRange = 0.0;
+    test->dblMaxRange = 0.0;
     test->iMinRelAcc = 0;
     test->blnTestHor = BLN_FALSE;
     test->dblAbsTestAbsMax = 1000.0;
@@ -1769,16 +1770,28 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             continue;
         }
 
-        if( _stricmp(type,"range") == 0 )
+        if( _stricmp(type,"range") == 0 || _stricmp(type,"max_range") == 0)
         {
             nfld = sscanf(data,"%lf%4s%n",&err,errtype,&nchr);
             if( nfld != 2 || strcmp(errtype,"m") != 0 )
             {
-                send_config_error(cfg,INVALID_DATA, "Invalid range in specification");
+                send_config_error(cfg,INVALID_DATA, "Invalid max_range in specification");
                 return OK;
             }
             data += nchr;
-            test->dblRange = err;
+            test->dblMaxRange = err;
+            continue;
+        }
+        if( _stricmp(type,"min_range") == 0 )
+        {
+            nfld = sscanf(data,"%lf%4s%n",&err,errtype,&nchr);
+            if( nfld != 2 || strcmp(errtype,"m") != 0 )
+            {
+                send_config_error(cfg,INVALID_DATA, "Invalid min_range in specification");
+                return OK;
+            }
+            data += nchr;
+            test->dblMinRange = err;
             continue;
         }
         if( _stricmp(type,"min_rel_acc") == 0 )
@@ -2293,6 +2306,7 @@ static config_item cfg_commands[] =
     {"error_type",NULL,CFG_ABSOLUTE,0,read_error_type,CFG_ONEONLY,0},
     {"control_nearest_nth",NULL,OFFSETOF(SDCTest,nCtlForDistance),0,readcfg_int,CFG_ONEONLY,1},
     {"control_distance_multiple",NULL,OFFSETOF(SDCTest,dblCtlDistFactor),0,readcfg_double,CFG_ONEONLY,1},
+    {"control_min_distance",NULL,OFFSETOF(SDCTest,dblCtlMinDistance),0,readcfg_double,CFG_ONEONLY,1},
     {"default_order",dfltOrder,CFG_ABSOLUTE,SYSCODE_LEN+1,STORE_AS_STRING,CFG_ONEONLY,0},
     {"limit_order",NULL,CFG_ABSOLUTE,0,read_limit_order_command,0,2},
     {"ignore",NULL,CFG_ABSOLUTE,0,read_ignore_command,0,2},
@@ -2603,7 +2617,8 @@ static int read_configuration( CFG_FILE *cfg, hSDCTest hsdc, int skip_rel_acc )
         {
             /* Crudely reset test values to disable relative accuracy tests */
             test->iMinRelAcc = 0;
-            test->dblRange = 1.0;
+            test->dblMinRange = 0.0;
+            test->dblMaxRange = 0.0;
             test->dblRelTestAbsMin = 0.0;
             test->dblRelTestDFMax  = 1000.0;
             test->dblRelTestDDMax  = 0.0;

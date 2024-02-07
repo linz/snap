@@ -1,7 +1,7 @@
 Test data set snapspec8
 TAIETM1949
 options orthometric_heights no_deflections no_geoid_heights c=Order c=type
-! Stations assigned order 5 by snapspec - run at 18-DEC-2023 12:13:57
+! Stations assigned order 5 by snapspec - run at  7-FEB-2024 02:25:16
 
 !Code      Easting     Northing   Orth.Hgt Order type  Name
 F1     350019.9998  679999.9997     0.0000 5     PEG   F1

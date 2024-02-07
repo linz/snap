@@ -1,8 +1,8 @@
-snapspec version 2.8.7-f3053a7f: Calculation of station orders
-Run at 18-DEC-2023 12:13:57
+snapspec version 2.8.7-853003e9: Calculation of station orders
+Run at  7-FEB-2024 02:25:15
 SNAP binary file: snapspec8b.bin
 Spec configuration file: snapspec8b.cfg
-SNAP run time: 18-DEC-2023 12:13:57
+SNAP run time:  7-FEB-2024 02:25:15
 Running apriori tests
 
 
@@ -31,7 +31,6 @@ Running test for order 4
    Absolute accuracy maximum = 1000.000 m
    Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
    Relative accuracy by abs accuracy = 0.000 m
-   Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 4.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
   4 stations unassigned
@@ -52,7 +51,6 @@ Running test for order 5
    Absolute accuracy maximum = 1000.000 m
    Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
    Relative accuracy by abs accuracy = 0.000 m
-   Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 5.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
   3 stations unassigned
@@ -70,7 +68,6 @@ Running test for order 6
    Absolute accuracy maximum = 1000.000 m
    Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
    Relative accuracy by abs accuracy = 0.000 m
-   Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 6.000 m +/- 0.0000 m/100m
 Applying absolute accuracy test
   2 stations unassigned
@@ -86,7 +83,6 @@ Running test for order 7
    Absolute accuracy maximum = 1000.000 m
    Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
    Relative accuracy by abs accuracy = 0.000 m
-   Maximum range for relative accuracy test = 0.0 m
    Relative accuracy maximum = 7.000 m +/- 0.0000 m/100m
 ==============================================================
 

@@ -1,205 +1,293 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
 <html>
+
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
-<meta name="keywords" content="snapspec, coordinate order, analysis, stations, coordinates, error ellipses">
-<title>Snapspec configuration file</title>
-<link rel="stylesheet" type="text/css" href="../../css/snaphelp.css">
+    <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
+    <meta name="keywords" content="snapspec, coordinate order, analysis, stations, coordinates, error ellipses">
+    <title>Snapspec configuration file</title>
+    <link rel="stylesheet" type="text/css" href="../../css/snaphelp.css">
 </head>
 
 <body bgcolor="#FFFFFF" text="#000000">
 
-<h1><a name="snapspec"></a>Snapspec configuration file</h1>
+    <h1><a name="snapspec"></a>Snapspec configuration file</h1>
 
-<p>Snapspec uses a configuration file
-to defining the specifications
-for each order to be tested.  The name of the configuration file
-can be specified on the snapspec command line - by default it is called snapspec.cfg.  
-Snapspec will look for the configuration file first in the same 
-directory as the snap binary file, and then in the directory in which the 
-snapspec program is installed.
-</p>
+    <p>Snapspec uses a configuration file
+        to defining the specifications
+        for each order to be tested. The name of the configuration file
+        can be specified on the snapspec command line - by default it is called snapspec.cfg.
+        Snapspec will look for the configuration file first in the same
+        directory as the snap binary file, and then in the directory in which the
+        snapspec program is installed.
+    </p>
 
-<h2>Configuration commands</h2>
-<p>
-The configuration file includes both 
-general settings and the specifications of orders.  It can also
-include comments on lines beginning with "!".  Each setting is defined on a line in 
-which the first word is the command name, and the following text define the 
-command options. The file can include the following commands.
-</p>
+    <h2>Configuration commands</h2>
+    <p>
+        The configuration file includes both
+        general settings and the specifications of orders. It can also
+        include comments on lines beginning with "!". Each setting is defined on a line in
+        which the first word is the command name, and the following text define the
+        command options. The file can include the following commands.
+    </p>
 
-<p class="CommandDefinition">test <i>order accuracy_specification</i></p>
-<p class="CommandDescription">
-Each order is defined by a test command, which specifies the accuracy requirements a 
-station must achieve to be assigned to that order.  
-The order test commands must be ordered from the highest (most accurate) 
-to lowest (least accurate) order.
-</p>
-<p class="CommandDescription">
-The accuracy specification comprises a number
-of components as defined by the <a href="algorithm.html">snapspec algorithm</a>.  These are:</p>
-<table class="CommandDescription">
-<tr>
-<td class="nobr">h_abs_max  <i>##</i> mm</td>
- <td>The maximum absolute horizontal error of coordinates</td>
-</tr>
-<tr>
-<td class="nobr">h_rel_to_control <i>##</i> mm <i>##</i> ppm</td>
- <td>The maximum horizontal error relative to a control station (includes a distance dependent component).</td>
-</tr>
-<tr>
-<td class="nobr">h_rel <i>##</i> mm <i>##</i> ppm</td>
- <td>The maximum permissible horizontal relative error of coordinates.</td>
-</tr>
-<tr>
-<td class="nobr">h_rel_min_abs <i>##</i> mm</td>
- <td>Coordinates with an absolute horizontal error less than this are assumed to pass the relative accuracy tests (allows more efficient processing or relative accuracy tests).</td>
-</tr>
-<tr>
-<td class="nobr">v_abs_max  <i>##</i> mm</td>
- <td>The maximum absolute vertical error of coordinates</td>
-</tr>
-<tr>
-<td class="nobr">v_rel_to_control <i>##</i> mm <i>##</i> ppm</td>
- <td>The maximum vertical error relative to a control station (includes a distance dependent component).</td>
-</tr>
-<tr>
-<td class="nobr">v_rel <i>##</i> mm <i>##</i> ppm</td>
- <td>The maximum permissible vertical relative error of coordinates.</td>
-</tr>
-<tr>
-<td class="nobr">v_rel_min_abs <i>##</i> mm</td>
- <td>Coordinates with an absolute vertical error less than this are assumed to pass the relative accuracy tests (allows more efficient processing or relative accuracy tests).</td>
-</tr>
-<tr>
-<td class="nobr">range <i>#####</i> m</td>
- <td>The maximum length of line for which relative accuracy tests are applied</td>
-</tr>
-<tr>
-    <td class="nobr">min_rel_acc <i>#</i></td>
- <td>The minimum number of relative accuracy tests required to pass a coordinate.</td>
-</tr>
-<tr>
-<td class="nobr">autorange</td>
- <td>If present then the maximum length for relative accuracy tests will be based upon the distance to the nearest control mark.</td>
-</tr>
-<tr>
-<td class="nobr">no_test</td>
- <td>Specifies that no tests will be applied for this order.  It allows the order to 
-     be defined so that it can be used in station configuration files or in coordinate
-     files but will not be assigned snapspec as a result of accuracy testing. 
- </td>
-</tr>
+    <p class="CommandDefinition">test <i>order accuracy_specification</i></p>
+    <p class="CommandDescription">
+        Each order is defined by a test command, which specifies the accuracy requirements a
+        station must achieve to be assigned to that order.
+        The order test commands must be ordered from the highest (most accurate)
+        to lowest (least accurate) order.
+    </p>
+    <p class="CommandDescription">
+        The accuracy specification comprises a number
+        of components as defined by the <a href="algorithm.html">snapspec algorithm</a>. These are:</p>
+    <table class="CommandDescription">
+        <tr>
+            <td class="nobr">h_abs_max <i>##</i> mm</td>
+            <td>The maximum absolute horizontal error of coordinates</td>
+        </tr>
+        <tr>
+            <td class="nobr">h_rel_to_control <i>##</i> mm <i>##</i> ppm</td>
+            <td>The maximum horizontal error relative to a control station (includes a distance dependent component).
+            </td>
+        </tr>
+        <tr>
+            <td class="nobr">h_rel <i>##</i> mm <i>##</i> ppm</td>
+            <td>The maximum permissible horizontal relative error of coordinates.</td>
+        </tr>
+        <tr>
+            <td class="nobr">h_rel_min_abs <i>##</i> mm</td>
+            <td>Coordinates with an absolute horizontal error less than this are assumed to pass the relative accuracy
+                tests (allows more efficient processing or relative accuracy tests).</td>
+        </tr>
+        <tr>
+            <td class="nobr">v_abs_max <i>##</i> mm</td>
+            <td>The maximum absolute vertical error of coordinates</td>
+        </tr>
+        <tr>
+            <td class="nobr">v_rel_to_control <i>##</i> mm <i>##</i> ppm</td>
+            <td>The maximum vertical error relative to a control station (includes a distance dependent component).</td>
+        </tr>
+        <tr>
+            <td class="nobr">v_rel <i>##</i> mm <i>##</i> ppm</td>
+            <td>The maximum permissible vertical relative error of coordinates.</td>
+        </tr>
+        <tr>
+            <td class="nobr">v_rel_min_abs <i>##</i> mm</td>
+            <td>Coordinates with an absolute vertical error less than this are assumed to pass the relative accuracy
+                tests (allows more efficient processing or relative accuracy tests).</td>
+        </tr>
+        <tr>
+            <td class="nobr">max_range <i>#####</i> m</td>
+            <td>The maximum length of line for which relative accuracy tests are applied. (For backwards compatibility
+                &quot;range&quot; is accepted
+                in place of &quot;max_range&quot;.)
+            </td>
+        </tr>
+        <tr>
+            <td class="nobr">min_range <i>#####</i> m</td>
+            <td>The minimum value of the range that will be tested when the range is based on the distance to nearerst
+                control marks (maximum length of line for which relative accuracy tests are applied</td>
+        </tr>
+        <tr>
+            <td class="nobr">min_rel_acc <i>#</i></td>
+            <td>The minimum number of relative accuracy tests required to pass a coordinate.</td>
+        </tr>
+        <tr>
+            <td class="nobr">autorange</td>
+            <td>If present then the maximum length for relative accuracy tests will be based upon the distance to the
+                nearest control mark.</td>
+        </tr>
+        <tr>
+            <td class="nobr">no_test</td>
+            <td>Specifies that no tests will be applied for this order. It allows the order to
+                be defined so that it can be used in station configuration files or in coordinate
+                files but will not be assigned snapspec as a result of accuracy testing.
+            </td>
+        </tr>
 
-</table>
-<p class="CommandDefinition">confidence <i>percentage</i></p>
-<p class="CommandDescription">
-Defines the confidence level to be used for calculating error ellipses and vertical errors for testing accuracy.
-</p>
-<p class="CommandDefinition">vertical_error_factor <i>factor</i></p>
-<p class="CommandDescription">
-Defines the factor by which vertical errors are multiplied when comparing them with horizontal orders in order
-to choose which station to reject (see the description of the snapspec algorithm). (Note: this is only used in 
-selecting stations, not in calculating the vertical error for vertical accuracy tests)
-</p>
-<p class="CommandDefinition">error_type <i>apriori</i>|<i>aposteriori</i></p>
-<p class="CommandDescription">
-Defines whether the accuracy tests are based on apriori or aposteriori statistics.
-</p>
-<p class="CommandDefinition">default_order <i>order</i></p>
-<p class="CommandDescription">
-Specifies the order that will be assigned to stations that fail to meet the accuracy standard for any of the 
-orders.
-</p>
-<p class="CommandDefinition">limit_order <i>order  station_list</i></p>
-<p class="CommandDescription">
-Specifies the best (most accuracte) order that specific stations will be considered for.  
-The <a href="../../files/cmdcfg/cmd_stn_list.html">station list</a> can include specific
-stations, or groups of stations identified by classification.
-</p>
-<p class="CommandDefinition">set_priority <i>priority station_list</i></p>
-<p class="CommandDescription">
-Sets the priority of the selected stations to <i>priority</i> - an integer value. The higher the
-value the lower the priority.  Higher priority stations are preferred for each order.
-</p>
-<p class="CommandDefinition">ignore <i>station_list</i></p>
-<p class="CommandDescription">
-The specified stations will be ignored in the order calculation.
-</p>
-<p class="CommandDefinition">configuration <i>configuration_file_name</i></p>
-<p class="CommandDescription">
-Reads additional configuration information from a separate configuration file.
-</p>
-<p class="CommandDefinition">station_configuration_file <i>station_config_file</i> <i>csv</i></p>
-<p class="CommandDescription">
-The station configuration file assigns best potential order and/or priority to stations.  
-The format is space delimited by default, but can this can be a CSV file if the <i>csv</i> option
-is specified.  The first line defines the fields in the file, which must be
-&quot;code&quot; and then &quot;order&quot; and/or &quot;priority&quot;.  Additional fields in
-the file are ignored.  Orders can be any order defined in the configuration, and priorities are positive integer numbers.  
-Either the priority or order fields can contain &quot;*&quot; which will cause the station to be 
-ignored.
-Empty fields and fields containing just &quot;-&quot; are ignored.
-</p>
-<p class="CommandDefinition">min_relative_accuracy_tests <i>ntests</i></p>
-<p class="CommandDescription">
-Specifies a default minimum number of relative accuracy tests required to pass a coordinate.  If specified
-the minimum for each test will be set to at least this number (though a higher value may be specified for
-individual tests).
-</p>
-<p class="CommandDefinition">options <i>option ...</i></p>
-<p class="CommandDescription">
-Specifies options controlling the tests.  The following options can be used:
-</p>
-<table class="CommandDescription">
-    <tr><td>limit_orders_by_control</td><td>limits the order tests to orders worse than the lowest ordered control station.  
-    This is equivalent to the snapspec -a command line option.</td></tr>
-    <tr><td>fail_if_no_relacc_tests</td><td>Controls the behaviour when there are no relative accuracy tests available for a station (all other stations out of range or already rejected for the order).  By default these stations are accespted for the order - this option makes them rejected.</td></tr>
-    <tr><td>no_rel_acc_by_abs_optimisation</td><td>This disables the optimisation to avoid calculating relative accuracies for tests where
-the absolute accuracy information is sufficient</td></tr> 
-    <tr><td>strict_rel_acc_by_abs_optimisation</td><td>This makes the optimisation rigorous by not assuming positive correlation
-    between mark coordinates. This makes the optimisation less efficient. </td></tr> 
-    <tr><td>ignore_constrained_stations</td><td>In 3d tests this treats causes stations which are fixed in one ordinate
-            (horizontal or vertical) but not in the other to be ignored.  By default these stations are tested with the fixed ordinate treated as 
-            being perfect</td></tr>
-    <tr><td>test_3d</td><td>Apply both horizonal and vertical tests regardless of the adjustment</td></tr>
-    <tr><td>test_horizontal</td><td>Apply only horizonal accuracy tests</td></tr>
-    <tr><td>test_vertical</td><td>Apply only vertical accuracy tests</td></tr>
-    <tr><td>split_output_crd_by_order</td><td>If creating an output coordinate file then split it into multiple files for each order</td>
-    <tr><td>use_covariance_cache</td><td>Create a cache of the expanded covariance matrix if it is claculated.  Equivalent to the -v command line option.</td>
-</table>
-<p class="CommandDefinition">log_level <i>level ...</i></p>
-<p class="CommandDescription">
-Defines the amount of information recorded in the log file.  This may be useful for analysing the assignment of
-station orders when the results are unexpected.  This is can include any of the following options:
-</p>
-<table class="CommandDescription">
-<tr><td>steps</td><td>list the steps used in assigning orders</td></tr>
-<tr><td>test_details</td><td>lists details of specific tests</td></tr>
-<tr><td>accuracy_calcs</td><td>lists details of accuracy calculations</td></tr>
-<tr><td>distance_calcs</td><td>lists calculated distances</td></tr>
-<tr><td>rel_acc_calcs</td><td>lists additional information about relative accuracy calcs</td></tr>
-<tr><td>timing</td><td>lists timings of accuracy tests</td></tr>
-<tr><td>debug</td><td>lists all log output except timing</td></tr>
-</table>
+    </table>
+    <p class="CommandDefinition">confidence <i>percentage</i></p>
+    <p class="CommandDescription">
+        Defines the confidence level to be used for calculating error ellipses and vertical errors for testing accuracy.
+    </p>
+    <p class="CommandDefinition">vertical_error_factor <i>factor</i></p>
+    <p class="CommandDescription">
+        Defines the factor by which vertical errors are multiplied when comparing them with horizontal orders in order
+        to choose which station to reject (see the description of the snapspec algorithm). (Note: this is only used in
+        selecting stations, not in calculating the vertical error for vertical accuracy tests)
+    </p>
+    <p class="CommandDefinition">error_type <i>apriori</i>|<i>aposteriori</i></p>
+    <p class="CommandDescription">
+        Defines whether the accuracy tests are based on apriori or aposteriori statistics.
+    </p>
+    <p class="CommandDefinition">control_nearest_nth <i>nctrl</i></p>
+    <p class="CommandDescription">
+        Specifies that the range of accuracy tests is based on the distance to the <i>nctl</i><sup>th</sup> nearest
+        control mark for each station, subject
+        to control_min_distance and the min_range and max_range (or range) options for each order test.
+    </p>
+    <p class="CommandDefinition">control_distance_multiple <i>factor</i></p>
+    <p class="CommandDescription">
+        If the test range is based on the distance <i>nctl</i><sup>th</sup> nearest control then that distance will be
+        multiplied by <i>factor</i> for each order,
+        subject to control_min_distance and the min_range and max_range (or range) options for each order test. Default
+        is 1.0.
+    </p>
+    <p class="CommandDefinition">min_control_distance <i>distance</i></p>
+    <p class="CommandDescription">
+        Specifies the minimum range used for testing based on the distance to the nearest control marks if
+        control_nearest_nth is specified. May
+        be overridden for individual order tests by min_range and max_range. Default is 0.0.
+    </p>
+    <p class="CommandDefinition">default_order <i>order</i></p>
+    <p class="CommandDescription">
+        Specifies the order that will be assigned to stations that fail to meet the accuracy standard for any of the
+        orders.
+    </p>
+    <p class="CommandDefinition">limit_order <i>order station_list</i></p>
+    <p class="CommandDescription">
+        Specifies the best (most accuracte) order that specific stations will be considered for.
+        The <a href="../../files/cmdcfg/cmd_stn_list.html">station list</a> can include specific
+        stations, or groups of stations identified by classification.
+    </p>
+    <p class="CommandDefinition">set_priority <i>priority station_list</i></p>
+    <p class="CommandDescription">
+        Sets the priority of the selected stations to <i>priority</i> - an integer value. The higher the
+        value the lower the priority. Higher priority stations are preferred for each order.
+    </p>
+    <p class="CommandDefinition">ignore <i>station_list</i></p>
+    <p class="CommandDescription">
+        The specified stations will be ignored in the order calculation.
+    </p>
+    <p class="CommandDefinition">configuration <i>configuration_file_name</i></p>
+    <p class="CommandDescription">
+        Reads additional configuration information from a separate configuration file.
+    </p>
+    <p class="CommandDefinition">station_configuration_file <i>station_config_file</i> <i>csv</i></p>
+    <p class="CommandDescription">
+        The station configuration file assigns best potential order and/or priority to stations.
+        The format is space delimited by default, but can this can be a CSV file if the <i>csv</i> option
+        is specified. The first line defines the fields in the file, which must be
+        &quot;code&quot; and then &quot;order&quot; and/or &quot;priority&quot;. Additional fields in
+        the file are ignored. Orders can be any order defined in the configuration, and priorities are positive integer
+        numbers.
+        Either the priority or order fields can contain &quot;*&quot; which will cause the station to be
+        ignored.
+        Empty fields and fields containing just &quot;-&quot; are ignored.
+    </p>
+    <p class="CommandDefinition">min_relative_accuracy_tests <i>ntests</i></p>
+    <p class="CommandDescription">
+        Specifies a default minimum number of relative accuracy tests required to pass a coordinate. If specified
+        the minimum for each test will be set to at least this number (though a higher value may be specified for
+        individual tests).
+    </p>
+    <p class="CommandDefinition">options <i>option ...</i></p>
+    <p class="CommandDescription">
+        Specifies options controlling the tests. The following options can be used:
+    </p>
+    <table class="CommandDescription">
+        <tr>
+            <td>limit_orders_by_control</td>
+            <td>limits the order tests to orders worse than the lowest ordered control station.
+                This is equivalent to the snapspec -a command line option.</td>
+        </tr>
+        <tr>
+            <td>fail_if_no_relacc_tests</td>
+            <td>Controls the behaviour when there are no relative accuracy tests available for a station (all other
+                stations out of range or already rejected for the order). By default these stations are accespted for
+                the order - this option makes them rejected.</td>
+        </tr>
+        <tr>
+            <td>no_rel_acc_by_abs_optimisation</td>
+            <td>This disables the optimisation to avoid calculating relative accuracies for tests where
+                the absolute accuracy information is sufficient</td>
+        </tr>
+        <tr>
+            <td>strict_rel_acc_by_abs_optimisation</td>
+            <td>This makes the optimisation rigorous by not assuming positive correlation
+                between mark coordinates. This makes the optimisation less efficient. </td>
+        </tr>
+        <tr>
+            <td>ignore_constrained_stations</td>
+            <td>In 3d tests this treats causes stations which are fixed in one ordinate
+                (horizontal or vertical) but not in the other to be ignored. By default these stations are tested with
+                the fixed ordinate treated as
+                being perfect</td>
+        </tr>
+        <tr>
+            <td>test_3d</td>
+            <td>Apply both horizonal and vertical tests regardless of the adjustment</td>
+        </tr>
+        <tr>
+            <td>test_horizontal</td>
+            <td>Apply only horizonal accuracy tests</td>
+        </tr>
+        <tr>
+            <td>test_vertical</td>
+            <td>Apply only vertical accuracy tests</td>
+        </tr>
+        <tr>
+            <td>split_output_crd_by_order</td>
+            <td>If creating an output coordinate file then split it into multiple files for each order</td>
+        <tr>
+            <td>use_covariance_cache</td>
+            <td>Create a cache of the expanded covariance matrix if it is claculated. Equivalent to the -v command line
+                option.</td>
+    </table>
+    <p class="CommandDefinition">log_level <i>level ...</i></p>
+    <p class="CommandDescription">
+        Defines the amount of information recorded in the log file. This may be useful for analysing the assignment of
+        station orders when the results are unexpected. This is can include any of the following options:
+    </p>
+    <table class="CommandDescription">
+        <tr>
+            <td>steps</td>
+            <td>list the steps used in assigning orders</td>
+        </tr>
+        <tr>
+            <td>test_details</td>
+            <td>lists details of specific tests</td>
+        </tr>
+        <tr>
+            <td>accuracy_calcs</td>
+            <td>lists details of accuracy calculations</td>
+        </tr>
+        <tr>
+            <td>distance_calcs</td>
+            <td>lists calculated distances</td>
+        </tr>
+        <tr>
+            <td>rel_acc_calcs</td>
+            <td>lists additional information about relative accuracy calcs</td>
+        </tr>
+        <tr>
+            <td>timing</td>
+            <td>lists timings of accuracy tests</td>
+        </tr>
+        <tr>
+            <td>debug</td>
+            <td>lists all log output except timing</td>
+        </tr>
+    </table>
 
-<p class="CommandDefinition">output_csv filename</p>
-<p class="CommandDescription">Create a CSV formatted output file providing information on each
-station used in the analysis (including the output orders).  This replaces the lists of stations
-and orders in the listing file and is more useful for subsequent analysis and processing.
-If no filename is supplied the output file name will be based on the name of the snap binary file.
-If the name starts with &quot;+&quot; then the rest of the filename will be appended to the
-name of the snap binary file.
-</p>
-<p class="CommandDefinition">output_crd filename</p>
-<p class="CommandDescription">Generate an output coordinate file of the stations and their calculated orders.  This is equivalent
-to the -u or -f command line options.  Use the split_output_crd_by_order to generate separate output files for each order.
-If no filename is supplied the coordinate file name will be based on the name of the snap binary file.
-If the name starts with &quot;+&quot; then the rest of the filename will be appended to the
-name of the snap binary file.
-</p>
-<!--
+    <p class="CommandDefinition">output_csv filename</p>
+    <p class="CommandDescription">Create a CSV formatted output file providing information on each
+        station used in the analysis (including the output orders). This replaces the lists of stations
+        and orders in the listing file and is more useful for subsequent analysis and processing.
+        If no filename is supplied the output file name will be based on the name of the snap binary file.
+        If the name starts with &quot;+&quot; then the rest of the filename will be appended to the
+        name of the snap binary file.
+    </p>
+    <p class="CommandDefinition">output_crd filename</p>
+    <p class="CommandDescription">Generate an output coordinate file of the stations and their calculated orders. This
+        is equivalent
+        to the -u or -f command line options. Use the split_output_crd_by_order to generate separate output files for
+        each order.
+        If no filename is supplied the coordinate file name will be based on the name of the snap binary file.
+        If the name starts with &quot;+&quot; then the rest of the filename will be appended to the
+        name of the snap binary file.
+    </p>
+    <!--
 <p class="CommandDefinition">output_log <i>on</i>|<i>off</i></p>
 <p class="CommandDescription">
 Replicates the output log on the screen while snapspec runs.
@@ -221,12 +309,12 @@ coordinates will not be negatively correlated, so the covariance is no more than
 </table>
 -->
 
-<p>The following is an 
-annotated example of a configuration file for assigning horizontal orders
-which illustrates the commands that can be included in the configuration file.  </p>
+    <p>The following is an
+        annotated example of a configuration file for assigning horizontal orders
+        which illustrates the commands that can be included in the configuration file. </p>
 
 
-<pre class="ConfigFile">
+    <pre class="ConfigFile">
 ! Configuration file for snapspec
 
 ! Order accuracy requirements
@@ -256,11 +344,12 @@ log_level steps test_details
 
 
 
-<div class="SeeAlso">
-<h3>See also:</h3>
-<p><a href="algorithm.html">snapspec algorithm</a></p>
-<p><a href="index.html">snapspec</a></p>
+    <div class="SeeAlso">
+        <h3>See also:</h3>
+        <p><a href="algorithm.html">snapspec algorithm</a></p>
+        <p><a href="index.html">snapspec</a></p>
 
-</div>
+    </div>
 </body>
+
 </html>

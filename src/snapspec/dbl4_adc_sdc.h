@@ -27,7 +27,8 @@ typedef struct
     int     nHigherForDistance; /**< Number of higher order marks to test for a station */
     double  dblHigherDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
 
-    double  dblRange;      /**< Maximum range used in rel accuracy test - <=0 for no limit */
+    double  dblMinRange;      /**< Minimum range usedin rel accuracy test  */
+    double  dblMaxRange;      /**< Maximum range used in rel accuracy test - <=0 for no limit */
     int     iMinRelAcc;    /**< Minimum number of relative accuracy tests */
     double  dblAbsTestAbsMax;  /**< Absolute test fail limit */
     double  dblAbsTestDDMax;   /**< Relative to control dist dep m/100m */
@@ -103,6 +104,7 @@ typedef struct
     double dblErrFactor;      /**< Factor by which errors are multiplied for test */
     int     nCtlForDistance;  /**< Number of nearest control mark required in test distance */
     double  dblCtlDistFactor; /**< Multiple of distance to nth nearest control to test for a station */
+    double  dblCtlMinDistance; /**< Minimum range used for testing if based on proximity to control stations */
 
 
     long (*pfStationId) ( /* Function to get the id of the station */
