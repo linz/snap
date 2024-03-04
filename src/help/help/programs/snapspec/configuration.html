@@ -80,7 +80,8 @@
             <td class="nobr">max_range <i>#####</i> m</td>
             <td>The maximum length of line for which relative accuracy tests are applied. (For backwards compatibility
                 &quot;range&quot; is accepted
-                in place of &quot;max_range&quot;.)
+                in place of &quot;max_range&quot;.). A shorter range may apply if test ranges are based on the distance
+                to the nearest control marks.
             </td>
         </tr>
         <tr>
@@ -91,11 +92,6 @@
         <tr>
             <td class="nobr">min_rel_acc <i>#</i></td>
             <td>The minimum number of relative accuracy tests required to pass a coordinate.</td>
-        </tr>
-        <tr>
-            <td class="nobr">autorange</td>
-            <td>If present then the maximum length for relative accuracy tests will be based upon the distance to the
-                nearest control mark.</td>
         </tr>
         <tr>
             <td class="nobr">no_test</td>
@@ -133,7 +129,7 @@
         subject to control_min_distance and the min_range and max_range (or range) options for each order test. Default
         is 1.0.
     </p>
-    <p class="CommandDefinition">min_control_distance <i>distance</i></p>
+    <p class="CommandDefinition">control_min_distance <i>distance</i></p>
     <p class="CommandDescription">
         Specifies the minimum range used for testing based on the distance to the nearest control marks if
         control_nearest_nth is specified. May

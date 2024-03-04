@@ -1,0 +1,5 @@
+test: Reference test for control_nearest_nth tests
+file: snapspec1.crd
+file: snapspec1.dat
+file: snapspec16.snp
+file:  snapspec16.cfg

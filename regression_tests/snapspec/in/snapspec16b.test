@@ -1,0 +1,5 @@
+test: Finding nearest more than 1
+file: snapspec1.crd
+file: snapspec1.dat
+file: snapspec16.snp snapspec16b.snp
+file:  snapspec16b.cfg

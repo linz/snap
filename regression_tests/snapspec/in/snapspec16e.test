@@ -1,0 +1,5 @@
+test: max_range
+file: snapspec1.crd
+file: snapspec1.dat
+file: snapspec16.snp snapspec16e.snp
+file:  snapspec16e.cfg

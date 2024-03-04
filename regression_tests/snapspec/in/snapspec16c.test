@@ -1,0 +1,5 @@
+test: control_min_distance
+file: snapspec1.crd
+file: snapspec1.dat
+file: snapspec16.snp snapspec16c.snp
+file:  snapspec16c.cfg

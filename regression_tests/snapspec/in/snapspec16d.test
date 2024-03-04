@@ -1,0 +1,5 @@
+test: min_range
+file: snapspec1.crd
+file: snapspec1.dat
+file: snapspec16.snp snapspec16d.snp
+file:  snapspec16d.cfg

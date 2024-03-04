@@ -1896,6 +1896,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
     hSDCTest sdc = sdci->sdc;
     hSDCStation stns = sdci->stns;
     double range2;
+    double minrange2;
     char userange;
     double ftol;
     double dtol;
@@ -1951,9 +1952,10 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         range2 = sdci->maxctlrange2;
     }
     userange = range2 > 0.01;
-    if( userange && range2 < test->dblMinRange*test->dblMinRange)
+    minrange2 = test->dblMinRange*test->dblMinRange;
+    if( userange && range2 < minrange2)
     {
-        range2 = test->dblMinRange*test->dblMinRange;
+        range2 = minrange2;
     }
 
     ftol = test->dblRelTestDFMax / sdc->dblErrFactor;
@@ -2048,8 +2050,11 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             if( userange )
             {
                 if( dist >= range2 ) continue;
-                if( stni->ctlrange2 > 0.0 && dist > stni->ctlrange2 ) irangeok=0;
-                if( stnj->ctlrange2 > 0.0 && dist > stnj->ctlrange2 ) jrangeok=0;
+                if( dist >= minrange2 )
+                {
+                    if( stni->ctlrange2 > 0.0 && dist > stni->ctlrange2 ) irangeok=0;
+                    if( stnj->ctlrange2 > 0.0 && dist > stnj->ctlrange2 ) jrangeok=0;
+                }
                 if( ! irangeok && ! jrangeok ) continue;
                 // If already passed i and range more than required for j then skip, and vice versa */
                 if( passi && ! jrangeok ) continue;

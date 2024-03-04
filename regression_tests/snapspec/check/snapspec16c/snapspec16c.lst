@@ -1,0 +1,78 @@
+snapspec version 2.8.7-bdb0c18e: Calculation of station orders
+Run at  4-MAR-2024 20:00:43
+SNAP binary file: snapspec16c.bin
+Spec configuration file: snapspec16c.cfg
+SNAP run time:  4-MAR-2024 20:00:43
+Running apriori tests
+
+
+Station lookup for SDC test module
+    id code  role prty
+     1 F0      -2   -1
+     2 F1       0   -1
+     3 F2       0   -1
+     4 F3       0   -1
+     5 F4      -2   -1
+     6 F5       0   -1
+
+Initiallizing SDC tests
+Loading marks for SDC tests
+    Station F0 is a control mark
+    Station F1 is to be tested. Error H/V = 0.01000000/0.00000000 m2
+    Station F2 is to be tested. Error H/V = 0.01010000/0.00000000 m2
+    Station F3 is to be tested. Error H/V = 0.00961538/0.00000000 m2
+    Station F4 is a control mark
+    Station F5 is to be tested. Error H/V = 0.01961538/0.00000000 m2
+Finding nearest control for each mark
+    Station F1 has 1 control stations within 20.00 m
+    Station F2 has 1 control stations within 40.00 m
+    Station F3 has 1 control stations within 20.00 m
+    Station F5 has 1 control stations within 20.00 m
+Maximum relative accuracy test distance based on nearest 1 control marks 21.00m (from F1)
+==============================================================
+Running test for order 5
+   Absolute accuracy maximum = 1000.000 m
+   Absolute accuracy maximum to nearest control = 1000.000 m +/- 1000.0000 m/100m
+   Relative accuracy by abs accuracy = 0.000 m
+   Relative accuracy maximum = 0.300 m +/- 0.0000 m/100m
+Applying absolute accuracy test
+  4 stations unassigned
+Setting up array for relative accuracy tests
+Applying relative accuracy test
+  Calculating status for each vector
+   Vector F1 to F0 relative accuracy pass by absolute (0.01000000 < 0.01502137)
+   Vector F2 to F1 true relative accuracy pass (0.00010000 < 0.01502137)
+   Vector F3 to F2 true relative accuracy fail (0.01971538 > 0.01502137)
+   Vector F4 to F3 relative accuracy pass by absolute (0.00961538 < 0.01502137)
+   Vector F5 to F4 relative accuracy fail by absolute (0.01961538 > 0.01502137)
+   Station F5 fails on rel accuracy to passed station F4 (0.01961538 > 0.01502137)
+  Status of marks
+    Station F1: 2 tests: 0 bad
+    Station F2: 2 tests: 1 bad
+    Station F3: 2 tests: 1 bad
+  Station F1 passes rel accuracy tests (2)
+  Station F2 selected to fail rel acc tests (0.500,0.01010000)
+  Station F3 passes rel accuracy tests (1)
+  2 stations passed relative accuracy tests
+  1 stations failed by selecting a station to fail
+Setting node orders
+  Setting order of node F1 to 5
+  Setting order of node F3 to 5
+==============================================================
+Applying default order to remaining nodes
+  Setting order of node F2 to default 
+  Setting order of node F5 to default 
+==============================================================
+Results of order calculations
+
+Control stations
+F0
+F4
+
+Stations assigned order 8
+F2
+F5
+
+Stations achieving order 5
+F1
+F3

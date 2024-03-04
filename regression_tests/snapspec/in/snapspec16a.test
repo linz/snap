@@ -1,0 +1,5 @@
+test: control_nearest_nth
+file: snapspec1.crd
+file: snapspec1.dat
+file: snapspec16.snp snapspec16a.snp
+file:  snapspec16a.cfg
