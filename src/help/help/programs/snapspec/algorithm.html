@@ -166,7 +166,10 @@
     <ol>
         <li>For each unknown coordinate, test relative accuracies between this coordinate and the passed coordinates
             within the maximum range for relative accuracy tests. If any fail, set the status of the coordinate to
-            &quot;fail&quot;.
+            &quot;fail&quot;. The maximum range can be specified for each order. It may also be computed for each
+            station
+            based on the distance from that station to the nth nearest control mark, which may be multiplied by a scale
+            factor, and subject to a minimum distance. Currently
         </li>
         <li>
             For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate
