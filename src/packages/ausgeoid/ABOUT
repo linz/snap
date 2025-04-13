@@ -1,5 +1,4 @@
-Add AUSGeoid09 (v1.01) to SNAP
+Add AUSGeoid09 (v1.01)and AUSGeoid2020 to SNAP
 
-Installs the SNAP geoid grid for AUSGeoid09.  Grids are 1"x1" spacing. 
+Installs the SNAP geoid gridw for AUSGeoid09 and AUSGeoid2020.  Grids are 1"x1" spacing.
 Also updates the snapgeoid menu item in SNAP manager to include AUSGeoid09.
-
