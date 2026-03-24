@@ -133,8 +133,8 @@ quote "
 !   h_min_error        The length of the minor axis of the error ellipse
 !   h_max_brng         The orientation of the major axis
 !   change_east        The east component of the coordinate change
-!   change_north       The east component of the coordinate change
-!   change_up          The east component of the coordinate change
+!   change_north       The north component of the coordinate change
+!   change_up          The up component of the coordinate change
 !   class=classname    Classification 
 !
 ! Options for columns are as follows:
