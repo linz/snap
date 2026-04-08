@@ -11,7 +11,7 @@ missing = []
 for m in modules:
     try:
         __import__(m)
-    except:
+    except ImportError:
         missing.append(m)
 
 print(version, *missing)
