@@ -1,3 +1,21 @@
+linz-snap (2.8.8-2) noble: urgency=medium
+
+  * Chore - packaging for noble release
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed 22 Nov 2026 14:00:00 +1300
+
+linz-snap (2.8.8-1) jammy; urgency=medium
+
+  * Feature: Matrix size included in snapspec output for analysis
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Thu 30 Nov 2023 14:00:00 +1300
+
+linz-snap (2.8.7-1) jammy; urgency=medium
+
+  * Feature: gps_antenna_height command
+
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri 24 Nov 2023 14:00:00 +1300
+
 linz-snap (2.8.6-1) jammy; urgency=medium
 
   * Feature: better handling of datafile wild cards in obs modifications

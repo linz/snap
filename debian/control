@@ -8,7 +8,7 @@ Build-Depends: debhelper (>= 8.0.0),
     libboost-math-dev,
     libboost-regex-dev,
     libboost-filesystem-dev,
-    libwxgtk3.0-gtk3-dev,
+    libwxgtk3.0-gtk3-dev | libwxgtk-dev,
     python3
 Standards-Version: 3.9.2
 Homepage:
@@ -20,7 +20,7 @@ Architecture: amd64
 Depends: ${shlibs:Depends}, ${misc:Depends},
     perl,
     linz-coordsys,
-    libwxgtk3.0-gtk3-dev,
+    libwxgtk3.0-gtk3-dev | libwxgtk-dev,
 Description: Install LINZ snap software
  Install LINZ snap survey network adjustment software suite.
  Includes snap (run with command runsnap), snap_manager, concord, etc.
