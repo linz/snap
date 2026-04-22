@@ -1,4 +1,4 @@
-ARG DISTRIBUTION=bionic
+ARG DISTRIBUTION=noble
 FROM ubuntu:${DISTRIBUTION}
 # MAINTAINER Chris Crook <ccrook@linz.govt.nz>
 ENV DEBIAN_FRONTEND=noninteractive
@@ -12,8 +12,10 @@ RUN apt-get install --no-install-recommends -y \
     git
 RUN apt-get install -y \
     g++ \
+    libboost-dev \
     libboost-math-dev \
     libboost-regex-dev \
+    libboost-filesystem-dev \
     perl \
     python3 \
     debhelper \

@@ -83,6 +83,7 @@ SITE2GPSEXE = $(INSTALL)/site2gps
 SNAP_MANAGEREXE = $(INSTALL)/snap_manager
 SNAPADJUSTEXE = $(INSTALL)/snapadjust
 SNAPPLOTEXE = $(INSTALL)/snapplot
+CHANGELOG = ../debian/changelog
 
 INCPATH = $(SRCDIR)/snaplib $(SRCDIR)/snaplib/util $(SRCDIR)/wxutils $(SRCDIR)/snapspec $(SRCDIR)/snap $(SRCDIR) $(SRCDIR)/snaplib/dbl4 $(SRCDIR) $(SRCDIR)/third_party
 
@@ -113,9 +114,9 @@ install: installable all
 	cp -r $(INSTALL)/* $(INSTALLDIR)
 
 package: installable
-	@if  ! ( head -1 debian/changelog | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
+	@if  ! ( head -1 $(CHANGELOG) | grep -q "($(SNAPVER)-" ) ; then echo "***************************************"; echo "ABORTED: changelog version does not match $(SNAPVER)"; exit 1; fi
 	@echo "Building debian package"
-	SNAP_BUILD_DIR=$(builddir) debuild -uc -us -b
+	SNAP_BUILD_DIR=$(builddir) debuild --check-dirname-level=0 -uc -us -b
 else
 install: 
 	@echo "Can only build installation for release version"
@@ -157,7 +158,7 @@ snapadjust: $(SNAPADJUSTEXE) support_files
 
 # Test (command line programs only)
 test: snap_cmd
-	../regression_tests/testall.pl $(RUNTESTFLAGS)
+	../regression_tests/testall.pl $(RUNTESTFLAGS) -e
 
 update_version_date:
 	touch `grep -rl GETVERSION_SET_PROGRAM_DATE ../src`

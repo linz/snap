@@ -1,20 +1,20 @@
-linz-snap (2.8.8-2) noble: urgency=medium
+linz-snap (2.8.8-2) noble; urgency=medium
 
-  * Chore - packaging for noble release
+  * Feature:- packaging for noble release
 
- -- Chris Crook <ccrook@linz.govt.nz>  Wed 22 Nov 2026 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 22 Nov 2026 14:00:00 +1300
 
 linz-snap (2.8.8-1) jammy; urgency=medium
 
   * Feature: Matrix size included in snapspec output for analysis
 
- -- Chris Crook <ccrook@linz.govt.nz>  Thu 30 Nov 2023 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Thu, 30 Nov 2023 14:00:00 +1300
 
 linz-snap (2.8.7-1) jammy; urgency=medium
 
   * Feature: gps_antenna_height command
 
- -- Chris Crook <ccrook@linz.govt.nz>  Fri 24 Nov 2023 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri, 24 Nov 2023 14:00:00 +1300
 
 linz-snap (2.8.6-1) jammy; urgency=medium
 
@@ -22,33 +22,33 @@ linz-snap (2.8.6-1) jammy; urgency=medium
     commands
   * Fix: concord hanging on inputs with unexpected longitudes
 
- -- Chris Crook <ccrook@linz.govt.nz>  Sun 19 Nov 2023 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Sun, 19 Nov 2023 14:00:00 +1300
 
 linz-snap (2.8.5-1) jammy; urgency=medium
 
   * Feature: rationalisation of handling of vertical datums in coordsys
   * Feature: improved error messaging for some data file errors
 
- -- Chris Crook <ccrook@linz.govt.nz>  Wed 18 Oct 2023 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Wed, 18 Oct 2023 14:00:00 +1300
 
 linz-snap (2.8.4-1) focal; urgency=medium
 
   * Feature - Rationalisation of DMS handling in concord.
 
- -- Chris Crook <ccrook@linz.govt.nz>  Thu 22 Oct 2022 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Thu, 22 Oct 2022 14:00:00 +1300
 
 linz-snap (2.8.3-1) focal; urgency=medium
 
   * Feature - Limited support for spaces in file name.  Currently does not include 
     format files (.dtf) and not supported in snap_manager.
 
- -- Chris Crook <ccrook@linz.govt.nz>  Sat 2 Apr 2022 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Sat, 2 Apr 2022 14:00:00 +1300
 
 linz-snap (2.8.2-3) focal; urgency=medium
 
   * Fix - missing link debian/linz-snap.link file
 
- -- Chris Crook <ccrook@linz.govt.nz>  Fri 25 Feb 2022 14:00:00 +1300
+ -- Chris Crook <ccrook@linz.govt.nz>  Fri, 25 Feb 2022 14:00:00 +1300
 
 linz-snap (2.8.2-2) focal; urgency=medium
 
