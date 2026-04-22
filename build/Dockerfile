@@ -1,7 +1,7 @@
 ARG DISTRIBUTION=bionic
 FROM ubuntu:${DISTRIBUTION}
-MAINTAINER Chris Crook <ccrook@linz.govt.nz>
-ENV DEBIAN_FRONTEND noninteractive
+# MAINTAINER Chris Crook <ccrook@linz.govt.nz>
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get -y update 
 RUN ln -fs /usr/share/zoneinfo/Pacific/Auckland /etc/localtime
 RUN apt-get install --no-install-recommends -y \
