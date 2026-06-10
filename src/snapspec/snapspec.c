@@ -2609,6 +2609,7 @@ int main( int argc, char *argv[] )
     int autominorder = 0;
     int hvmode = SRA_HVMODE_AUTO;
     int skip_rel_acc = 0;
+    int use_kdtree = 0;
     int sts;
 
     get_date( spec_run_time );
@@ -2683,6 +2684,11 @@ int main( int argc, char *argv[] )
             use_cache=1;
             break;
 
+        case 'k':
+        case 'K':
+            use_kdtree=1;
+            break;
+
         case 'x':
         case 'X':
             skip_rel_acc=1;
@@ -2746,6 +2752,7 @@ int main( int argc, char *argv[] )
         printf("   -s filename   Base name for seperate coordinate files for each order (no extension)\n");
         printf("   -c filename   Output results in a csv file\n");
         /* printf("   -d filename   Output calculation debug csv file\n"); - hidden option */
+        printf("   -k            Use KD-tree spatial index to potentially accelerate inter-station distance calculations (requires range limits in config file)\n");
         printf("   -v            Use covariance cache (.ssc file) if calculating covariances\n");
         printf("   -t #|auto     Specifies the number of threads to use\n");
         /* printf("   -x            Disable relative accuracy tests\n\n"); - hidden option */
@@ -2811,6 +2818,7 @@ int main( int argc, char *argv[] )
     ra = create_relacc();
 
     hsdc = create_test( MAX_ORDER );
+    hsdc->useKDTree = use_kdtree;
     hsdc->nmark = ra->nstn;
     hsdc->options = 0;
     hsdc->env = ra;

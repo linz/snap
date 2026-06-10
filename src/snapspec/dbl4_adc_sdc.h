@@ -94,6 +94,7 @@ typedef struct
     int  norder;           /**< The number of orders in the test */
     int  maxorder;         /**< The number of orders allocated in tests */
     int  options;          /**< Options controlling application of SDC algorithm */
+    int  useKDTree;        /**< Non-zero to build KD-tree spatial indices (also requires range limits) */
     int  loglevel;         /**< Greater than 0 for logging */
     SDCOrderTest *tests;   /**< The definitions of each test */
     IdType idFailOrder;    /**< The order to apply if all tests fail */
