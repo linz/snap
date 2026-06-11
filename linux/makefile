@@ -36,7 +36,7 @@ ifeq ($(type),debug)
 LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread
 LDFLAGS +=  -lefence
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm
-CCPARAM = -Wall -g -std=c++20 $(WXFLAGS)
+CCPARAM = -Wall -g -std=c++17 $(WXFLAGS)
 # CCPARAM += -fsanitize=address
 MACROS = UNIX CHECKBLT
 RUNTESTFLAGS = $(TESTFLAGS)
@@ -47,7 +47,7 @@ else ifeq ($(type), release)
 LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread -s
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
-CCPARAM = -Wall -Ofast -std=c++20 $(WXFLAGS)
+CCPARAM = -Wall -Ofast -std=c++17 $(WXFLAGS)
 MACROS = NDEBUG UNIX
 RUNTESTFLAGS = $(TESTFLAGS) -r
 UPDATEVERSION = update_version_date
@@ -56,7 +56,7 @@ SNAPPACKAGES =
 else ifeq ($(type), profile)
 LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread -pg
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -pg
-CCPARAM = -Wall -O2 -g -pg -std=c++20 $(WXFLAGS)
+CCPARAM = -Wall -O2 -g -pg -std=c++17 $(WXFLAGS)
 MACROS = NDEBUG UNIX
 RUNTESTFLAGS = $(TESTFLAGS) -r
 UPDATEVERSION =
