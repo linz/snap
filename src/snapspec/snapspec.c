@@ -103,9 +103,16 @@ typedef struct
     double *vrtvar;
     char *alloc;
     stn_relacc **cols;
-    bltmatrix *bltdec;  /* Choleski decomposition of normal equns */
-    bltmatrix *bltreq;  /* Requested non-zero rows */
-    bltmatrix *blt;     /* Calculated covariance */
+    char *binfn;
+    /* bltreq and blt are the same allocation at different lifecycle stages:
+     * bltreq is loaded with the Cholesky factor at creation, its bandwidth is
+     * widened by Phase 1 pair requests, then inverted in-place. Two fields (blt
+     * and bltreq) exist because relacc_create_blt_req seeds bltreq's bandwidth
+     * from the previous order's blt (if non-NULL, its bandwidth (col array only)
+     * is saved to re-apply after load) before blt is deleted in
+     * relacc_calc_requested_covar. */
+    bltmatrix *bltreq;  /* Requested non-zero rows (pre-inversion) */
+    bltmatrix *blt;     /* Calculated covariance (post-inversion) */
     int bltupdated;     /* True if covar has been calc'd (used for caching) */
     char testhor;
     char testvrt;
@@ -204,7 +211,7 @@ static stn_relacc_array *create_relacc()
     ra->logfile = NULL;
     ra->dbgfile = NULL;
     ra->loglevel = 0;
-    ra->bltdec = NULL;
+    ra->binfn = NULL;
     ra->bltreq = NULL;
     ra->blt = NULL;
     ra->bltupdated = 0;
@@ -240,8 +247,8 @@ static void delete_relacc( stn_relacc_array *ra )
         check_free( ra->alloc );
         ra->alloc = NULL;
     }
-    if( ra->bltdec ) delete_bltmatrix( ra->bltdec );
-    ra->bltdec = NULL;
+    check_free( ra->binfn );
+    ra->binfn = NULL;
     if( ra->bltreq ) delete_bltmatrix( ra->bltreq );
     ra->bltreq = NULL;
     if( ra->blt ) delete_bltmatrix( ra->blt );
@@ -320,11 +327,41 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
 {
     if( ! ra->bltreq )
     {
-        ra->bltreq = create_bltmatrix( ra->bltdec->nrow );
-        blt_set_sparse_rows( ra->bltreq, ra->bltdec->nrow );
+        /* Save and free blt before reloading to avoid holding both simultaneously. */
+        int *saved_col = NULL;
+        int nrow_saved = 0;
         if( ra->blt )
         {
-            copy_bltmatrix_bandwidth( ra->blt, ra->bltreq );
+            nrow_saved = blt_nrows( ra->blt );
+            saved_col = (int *) check_malloc( nrow_saved * sizeof(int) );
+            for( int i = 0; i < nrow_saved; i++ )
+                saved_col[i] = ra->blt->row[i].col;
+            delete_bltmatrix( ra->blt );
+            ra->blt = NULL;
+        }
+
+        BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE );
+        if( !b ) { if( saved_col ) check_free( saved_col ); return 0; }
+        if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK )
+        {
+            close_binary_file(b);
+            if( saved_col ) check_free( saved_col );
+            return 0;
+        }
+        int sts = reload_bltmatrix( &(ra->bltreq), b->f );
+        close_binary_file(b);
+        if( sts != OK || !ra->bltreq ) { if( saved_col ) check_free( saved_col ); return 0; }
+
+        if( saved_col )
+        {
+            int nrow = blt_nrows( ra->bltreq );
+            if( nrow == nrow_saved )
+            {
+                for( int i = 0; i < nrow; i++ )
+                    blt_nonzero_element( ra->bltreq, i, saved_col[i] );
+                blt_set_sparse_rows( ra->bltreq, nrow );
+            }
+            check_free( saved_col );
         }
     }
     return 1;
@@ -347,29 +384,28 @@ static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
 
 static int relacc_calc_requested_covar( stn_relacc_array *ra )
 {
-    bltmatrix *bltdec = ra->bltdec;
-    bltmatrix *blt = ra->bltreq;
-    if( ! blt || ! bltdec ) return 0;
+    if( ! ra->bltreq ) return 0;
 
-    if( ra->blt ) 
+    if( ra->blt )
     {
-        delete_bltmatrix( ra->blt ); 
+        delete_bltmatrix( ra->blt );
         ra->blt=NULL;
     }
 
     if( ra->loglevel & SDC_LOG_STEPS )
     {
         fprintf(ra->logfile,"   Calculating covariances from decomposition\n");
-        long nrow=blt_nrows( blt );
-        long nelement=blt_requested_size( blt );
+        long nrow=blt_nrows( ra->bltreq );
+        long nelement=blt_requested_size( ra->bltreq );
         double pcntfull=100.0*((double) nelement)/(((double) nrow) * (((double) nrow)+1)/2.0);
         fprintf(ra->logfile,"   Matrix size %ld rows %ld elements %.2lf%% full\n",
                 nrow, nelement, pcntfull );
     }
-    copy_bltmatrix( bltdec, blt );
-    blt_chol_inv_mt( blt );
 
-    ra->blt=blt;
+    expand_bltmatrix_to_requested( ra->bltreq );
+    blt_chol_inv_mt( ra->bltreq );
+
+    ra->blt=ra->bltreq;
     ra->bltupdated=1;
     ra->bltreq=NULL;
 
@@ -389,6 +425,7 @@ static void relacc_record_missing_covar( stn_relacc_array *ra, int istn, int jst
     /* If the matrix for requests is not created yet, then create it */
 
     if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
+    if( ! ra->bltreq ) return;
 
     int irow = isa->hrowno-1;
     int jrow = jsa->hrowno-1;
@@ -525,6 +562,7 @@ static void relacc_record_missing_verr( stn_relacc_array *ra, int istn, int jstn
     /* If the matrix for requests is not created yet, then create it */
 
     if( ! ra->bltreq ) { relacc_create_blt_req( ra ); }
+    if( ! ra->bltreq ) return;
 
     blt_nonzero_element( ra->bltreq, irow, jrow );
 }
@@ -800,20 +838,6 @@ static int reload_relative_covariances( BINARY_FILE *b, stn_relacc_array *ra )
     }
 
     return check_end_section( b );
-}
-
-static int reload_choleski_decomposition( BINARY_FILE *b, stn_relacc_array *ra )
-{
-    bltmatrix *blt = NULL;
-    int sts;
-
-    if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK ) return MISSING_DATA;
-
-    sts = reload_bltmatrix( &blt, b->f );
-    if( sts != OK ) return sts;
-
-    ra->bltdec = blt;
-    return OK;
 }
 
 static char *cache_covariance_filename( char *bfn )
@@ -2847,12 +2871,13 @@ int main( int argc, char *argv[] )
         exit(1);
     }
 
+    ra->binfn = copy_string( bfn );
+
     if(  reload_covariances( b, ra ) != OK ||
-            (reload_choleski_decomposition(b, ra) != OK &&
+            (!relacc_create_blt_req( ra ) &&
              (reload_relative_covariances( b, ra ) != OK ||
               check_relacc_complete( ra ) != OK )))
     {
-
         fprintf(out,"Cannot reload covariance data from binary file %s\n"
                 "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
                 "or \"output decomposition\"\n",
@@ -2872,8 +2897,7 @@ int main( int argc, char *argv[] )
         ra->cvrcachefile=cvrcachefile;
     }
 
-
-    if( ra->bltdec )
+    if( ra->bltreq )
     {
         hsdc->options|= SDC_OPT_TWOPASS_CVR;
     }
