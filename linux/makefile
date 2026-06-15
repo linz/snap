@@ -47,7 +47,7 @@ else ifeq ($(type), release)
 LDFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -lpthread -s
 LDWXFLAGS = $(BOOSTFSLIB) $(BOOSTRELIB) $(BOOSTSYSLIB) -lm -s
 #CCPARAM = -Wall -O2 -fpermissive -std=c++0x $(WXFLAGS)
-CCPARAM = -Wall -Ofast -std=c++17 $(WXFLAGS)
+CCPARAM = -Wall -Ofast -mfma -std=c++17 $(WXFLAGS)
 MACROS = NDEBUG UNIX
 RUNTESTFLAGS = $(TESTFLAGS) -r
 UPDATEVERSION = update_version_date

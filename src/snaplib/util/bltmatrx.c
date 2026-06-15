@@ -77,8 +77,14 @@
 
 enum { BLT_UNINIT, BLT_ROWS, BLT_READY };
 
+/* Number of columns of the inverse computed simultaneously in blt_chol_inv.
+   32 - a power of 2 - is chosen so that the inner cache loop aligns cleanly
+   with SIMD vector widths (AVX2 processes 4 doubles per instruction, giving
+   8 iterations; AVX-512 gives 4).  The resulting row size of 32 * 8 = 256
+   bytes keeps the working set for each element pair (4 rows = 1 KB) comfortably
+   within L1 cache. */
 #ifndef BLT_INV_CACHE_SIZE
-#define BLT_INV_CACHE_SIZE 30
+#define BLT_INV_CACHE_SIZE 32
 #endif
 
 static int minrowsize = 1000;
@@ -486,15 +492,18 @@ void blt_chol_slv( bltmatrix *blt, double *b, double *r )
     }
 }
 
-/* Form the inverse within the banded structure using the
-   cholesky decomposition.  The inverse is formed summing several
-   columns
-   at a time to reduce the number of page faults, as the matrix
-   is stored in blocks of rows, so accessing column elements
-   sequentially increases the incidence of faults, whereas accessing
-   rows sequentially does not */
-
-static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol,
+/* Form the inverse within the banded structure using the cholesky decomposition.
+   The inverse is formed summing several columns at a time to reduce the number of
+   page faults, as the matrix is stored in blocks of rows, so accessing column
+   elements sequentially increases the incidence of faults, whereas accessing rows
+   sequentially does not.
+   Orthogonally to this page fault concern, we store tmpcol and sumcol as flat
+   row-major arrays of shape [nrow][BLT_INV_CACHE_SIZE].  Element (row i, cache
+   slot c) is at index i*BLT_INV_CACHE_SIZE+c, so iterating over cache slots for
+   a given row walks consecutive memory.  Both this function and the sum loop in
+   blt_chol_inv iterate over slots for a given row as their inner loop, so both
+   benefit from the layout. */
+static void blt_load_col_cache( bltmatrix *blt, double *tmpcol, double *sumcol,
                                 int *dosum, int iget, int nget, int isave, int nsave )
 {
 
@@ -512,10 +521,13 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
 
         if( nsave && i >= isave && dosum[i] < nsave )
         {
+            /* Pre-compute base pointer for row i to avoid recomputing the
+               stride offset on every iteration of the inner loop. */
+            double *sc_i = sumcol + i * BLT_INV_CACHE_SIZE;
             for( c0 = dosum[i], r = row+isave+c0-col0; c0 < nsave; c0++, r++ )
             {
                 if( isave+c0 > i ) break;
-                *r = sumcol[c0][i];
+                *r = sc_i[c0];
             }
         }
 
@@ -526,41 +538,41 @@ static void blt_load_col_cache( bltmatrix *blt, double **tmpcol, double **sumcol
 
         /* Retrieve the cols and initiallize the summation */
 
-        for( r = row + iget + c0 - col0; c0 < nget; c0++, r++ )
         {
-            if( iget + c0 > i ) break;
-            tmpcol[c0][i] = *r;
-            sumcol[c0][i] = 0.0;
+            /* Pre-compute base pointers for row i to avoid recomputing the
+               stride offset on every iteration of the inner loop. */
+            double *tc_i = tmpcol + i * BLT_INV_CACHE_SIZE;
+            double *sc_i = sumcol + i * BLT_INV_CACHE_SIZE;
+            for( r = row + iget + c0 - col0; c0 < nget; c0++, r++ )
+            {
+                if( iget + c0 > i ) break;
+                tc_i[c0] = *r;
+                sc_i[c0] = 0.0;
+            }
         }
     }
 }
 
+
 void blt_chol_inv( bltmatrix *blt )
 {
-    int nrow;
-    int nsave;
-    int i,i0,i1,c,c1,j;
-    double *tmp;
-    double *tmpcol[BLT_INV_CACHE_SIZE];
-    double *sumcol[BLT_INV_CACHE_SIZE];
-    int *dosum;
-
-    long ndone;
-
-    nrow = blt->nrow;
-
-    tmp = (double *) check_malloc( 2 * nrow * BLT_INV_CACHE_SIZE * sizeof(double) );
-    for( i = 0; i < BLT_INV_CACHE_SIZE; i++ )
-    {
-        tmpcol[i] = tmp + nrow*i;
-        sumcol[i] = tmp + nrow*(i+BLT_INV_CACHE_SIZE);
-    }
-    dosum = (int *) check_malloc( nrow * sizeof(int) );
+    int i0,i1,c,c1,j;
+    /* tmpcol and sumcol are flat row-major arrays [nrow][BLT_INV_CACHE_SIZE],
+       held in separate allocations.  We benefit from their:
+       - Row-major layout: see blt_load_col_cache().
+       - Separate allocations: if tmpcol and sumcol shared a single allocation,
+         the compiler could not rule out that writing to one might affect what is
+         read from the other (aliasing), and would refuse to vectorise the inner
+         loop.  Distinct allocations give it that guarantee. */
+    const int nrow = blt->nrow;
+    double *tmpcol = (double *) check_malloc( nrow * BLT_INV_CACHE_SIZE * sizeof(double) );
+    double *sumcol = (double *) check_malloc( nrow * BLT_INV_CACHE_SIZE * sizeof(double) );
+    int    *dosum  = (int *)    check_malloc( nrow * sizeof(int) );
 
     init_progress_meter( blt->nelement );
 
-    ndone = 0;
-    nsave = 0;
+    long ndone = 0;
+    int  nsave = 0;
 
     for (i1=nrow-1, i0=nrow-BLT_INV_CACHE_SIZE;
             i1 >= 0;
@@ -575,7 +587,6 @@ void blt_chol_inv( bltmatrix *blt )
         nsave = i1-i0+1;
 
         /* Sum the data for the rows after i0 into the summation */
-
         for (j=i1+1; j < nrow; j++ )
         {
             int col0 = blt->row[j].col;
@@ -589,43 +600,59 @@ void blt_chol_inv( bltmatrix *blt )
 
             for( ; col0 <= j; col0++, row++ )
             {
-                /* Sum effect of (j,col0) element, value at *row */
-                for( i = i0, c = 0; c < nsave; i++, c++ )
+                /* Sum the effect of matrix element (j, col0) into the cache.
+                   c_start skips slots not yet active for either row, removing
+                   the per-slot branch from the inner loop.  Pre-computing base
+                   pointers avoids recomputing the row stride on every iteration. */
+                int c_start = dosum[col0] > dosum[j] ? dosum[col0] : dosum[j];
+                double elem = *row;
+                double *sc_col0 = sumcol + col0 * BLT_INV_CACHE_SIZE;
+                double *sc_j    = sumcol + j   * BLT_INV_CACHE_SIZE;
+                double *tc_j    = tmpcol + j   * BLT_INV_CACHE_SIZE;
+                double *tc_col0 = tmpcol + col0 * BLT_INV_CACHE_SIZE;
+                if( j != col0 )
                 {
-                    if( c >= dosum[col0] && c >= dosum[j] )
+                    for( c = c_start; c < nsave; c++ )
                     {
-                        sumcol[c][col0] -= *row * tmpcol[c][j];
-                        if( j != col0 )
-                        {
-                            sumcol[c][j] -= *row * tmpcol[c][col0];
-                        }
+                        sc_col0[c] -= elem * tc_j[c];
+                        sc_j[c]    -= elem * tc_col0[c];
                     }
+                }
+                else
+                {
+                    for( c = c_start; c < nsave; c++ )
+                        sc_col0[c] -= elem * tc_j[c];
                 }
             }
         }
 
         /* Now process the cached columns to generate the inverse in
            sumcol */
-
         for( c = nsave; c--; )
         {
             double sc;
             int ic = i0 + c;
+            /* Pre-compute base pointers for the current cached column ic so
+               the j-loop body doesn't recompute the row stride each iteration. */
+            double *sc_ic = sumcol + ic * BLT_INV_CACHE_SIZE;
+            double *tc_ic = tmpcol + ic * BLT_INV_CACHE_SIZE;
             for( j = nrow-1; j > ic; j-- )
             {
+                double *sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
+                double *tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
                 /* Calculate the new element [ic,j] in sumcol */
                 if( c < dosum[j] ) continue;
-                sc = sumcol[c][j];
-                sc /= tmpcol[c][ic];
-                sumcol[c][j] = sc;
+                sc = sc_j[c];
+                sc /= tc_ic[c];
+                sc_j[c] = sc;
                 ndone++;
                 /* Update the sums affected by this element (ic,j) */
                 for( c1 = dosum[j]; c1 < c; c1++ )
                 {
                     if( c1 >= dosum[ic] )
                     {
-                        sumcol[c1][ic] -= sc * tmpcol[c1][j];
-                        sumcol[c1][j] -= sc * tmpcol[c1][ic];
+                        sc_ic[c1] -= sc * tc_j[c1];
+                        sc_j[c1]  -= sc * tc_ic[c1];
                     }
                 }
             }
@@ -635,17 +662,19 @@ void blt_chol_inv( bltmatrix *blt )
                sum in FPU, hence improving accuracy, and accuracy is more
                critical for diagonal element than for others. */
 
-            sc = 1.0/tmpcol[c][ic];
+            sc = 1.0/tc_ic[c];
             for( j = ic+1; j < nrow; j++ )
             {
-                if( c >= dosum[j] ) sc -= sumcol[c][j] * tmpcol[c][j];
+                double *sc_j = sumcol + j * BLT_INV_CACHE_SIZE;
+                double *tc_j = tmpcol + j * BLT_INV_CACHE_SIZE;
+                if( c >= dosum[j] ) sc -= sc_j[c] * tc_j[c];
             }
-            sc /= tmpcol[c][ic];
-            sumcol[c][ic] = sc;
+            sc /= tc_ic[c];
+            sc_ic[c] = sc;
 
             for( c1 = dosum[ic]; c1 < c; c1++ )
             {
-                sumcol[c1][ic] -= sc * tmpcol[c1][ic];
+                sc_ic[c1] -= sc * tc_ic[c1];
             }
         }
 
@@ -657,7 +686,8 @@ void blt_chol_inv( bltmatrix *blt )
     blt_load_col_cache( blt, tmpcol, sumcol, dosum, 0, 0, 0, nsave );
     end_progress_meter();
 
-    check_free( tmp );
+    check_free( tmpcol );
+    check_free( sumcol );
     check_free( dosum );
 }
 
