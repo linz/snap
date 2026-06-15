@@ -22,12 +22,17 @@
 #include <stdarg.h>
 #include <math.h>
 #include <time.h>
+#include <memory>
 
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_yield.h"
 #include "dbl4_utl_progress.h"
 #include "dbl4_utl_error.h"
 #include "dbl4_utl_alloc.h"
+
+#include "snap/stnadj.h"
+#include "network/network.h"
+#include "nanoflann/nanoflann.hpp"
 
 #define SDC_STS_UNKNOWN    1  /* Mark to be assigned at current order */
 #define SDC_STS_FAIL       2  /* Mark has failed at current order */
@@ -74,7 +79,86 @@ typedef struct RABlock_s
     struct RABlock_s *next;
 } RABlock, *hRABlock;
 
-typedef struct
+/* Forward declaration — full definition follows the KD-tree bundle types below,
+   since SDCTestImp owns them via unique_ptr. */
+struct SDCTestImp;
+typedef SDCTestImp *hSDCTestImp;
+
+/* Nanoflann KD-tree adaptor over ECEF station positions.
+   Indexed by SDC station number (0..nmark-1); uses station_ptr(net,...)->XYZ
+   directly, the same data pfDistance2 uses internally.
+   Method bodies are defined after SDCTestImp is complete (below). */
+struct SDC_KDTreeAdaptor
+{
+    const SDCTestImp *sdci;
+
+    size_t kdtree_get_point_count() const;
+    double kdtree_get_pt( size_t idx, size_t dim ) const;
+
+    template<class BBOX>
+    bool kdtree_get_bbox( BBOX & ) const { return false; }
+};
+
+/* 3D KD-tree over ECEF station positions using squared L2 distance */
+using SDC_KDTree = nanoflann::KDTreeSingleIndexAdaptor<
+    nanoflann::L2_Simple_Adaptor<double, SDC_KDTreeAdaptor>,
+    SDC_KDTreeAdaptor,
+    3>;
+
+/* Owns adaptor + tree together. Adaptor is declared before tree so it is
+   constructed first and destroyed last — the tree holds a const ref to the
+   adaptor and must never outlive it. Caller must also ensure the SDCTestImp*
+   passed at construction remains valid for the bundle's lifetime. */
+struct SDC_KDTreeBundle
+{
+    SDC_KDTreeAdaptor adaptor;
+    SDC_KDTree        tree;
+
+    explicit SDC_KDTreeBundle( const SDCTestImp *sdci_ptr )
+        : adaptor{ sdci_ptr }   /* aggregate init: sets adaptor.sdci = sdci_ptr */
+        , tree( 3, adaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10) )
+    { tree.buildIndex(); }
+};
+
+/* Adaptor over control stations only, indexed 0..n_ctl-1 via a collected
+   index list. Can be queried from any point — including free stations not
+   in the tree — to find the nearest control.
+   Method bodies are defined after SDCTestImp is complete (below). */
+struct SDC_CtlKDTreeAdaptor
+{
+    const SDCTestImp *sdci;
+    std::vector<int>  ctl_sdc_idx;   /* SDC station indices of control marks */
+
+    size_t kdtree_get_point_count() const;
+    double kdtree_get_pt( size_t k, size_t dim ) const;
+
+    template<class BBOX>
+    bool kdtree_get_bbox( BBOX & ) const { return false; }
+};
+
+using SDC_CtlKDTree = nanoflann::KDTreeSingleIndexAdaptor<
+    nanoflann::L2_Simple_Adaptor<double, SDC_CtlKDTreeAdaptor>,
+    SDC_CtlKDTreeAdaptor,
+    3>;
+
+/* Same lifetime rules as SDC_KDTreeBundle. ctl_indices is moved into the
+   adaptor at construction so the vector's storage is owned by the bundle. */
+struct SDC_CtlKDTreeBundle
+{
+    SDC_CtlKDTreeAdaptor adaptor;
+    SDC_CtlKDTree        tree;
+
+    SDC_CtlKDTreeBundle( const SDCTestImp *sdci_ptr, std::vector<int> ctl_indices )
+        : adaptor{ sdci_ptr, std::move(ctl_indices) }   /* aggregate init: sets sdci then ctl_sdc_idx */
+        , tree( 3, adaptor, nanoflann::KDTreeSingleIndexAdaptorParams(10) )
+    { tree.buildIndex(); }
+};
+
+/* Full definition of SDCTestImp. Placed here so that unique_ptr members can
+   name the complete bundle types above. The destructor is declared but not
+   defined inline so that unique_ptr's deleter is only instantiated where the
+   bundle types are complete (i.e. here, not at a forward-declaration site). */
+struct SDCTestImp
 {
     hSDCTest sdc;      /**< The definition of the tests to apply */
     hSDCStation stns;  /**< The list of stations to apply the tests to */
@@ -100,7 +184,57 @@ typedef struct
     char logbuffer[1024]; /**< Buffer used for writing log messages */
     clock_t reftime;   /**< Reference time for timestamps */
     clock_t lasttime;  /**< Time of last timestamp */
-} SDCTestImp, *hSDCTestImp;
+    std::unique_ptr<SDC_KDTreeBundle>    kdtree;    /**< All stations — pair-loop range filter */
+    std::unique_ptr<SDC_CtlKDTreeBundle> ctlkdtree; /**< Control stations — nearest-control */
+
+    ~SDCTestImp();
+};
+
+/* Destructor defined here where both bundle types are complete. The
+   = default body lets unique_ptr call the correct deleters. */
+inline SDCTestImp::~SDCTestImp() = default;
+
+/* Adaptor method bodies — defined here where SDCTestImp is complete. */
+inline size_t SDC_KDTreeAdaptor::kdtree_get_point_count() const
+{
+    return (size_t)sdci->sdc->nmark;
+}
+
+inline double SDC_KDTreeAdaptor::kdtree_get_pt( size_t idx, size_t dim ) const
+{
+    int istn = (int)(sdci->sdc->pfStationId)( sdci->sdc->env, (int)idx );
+    return station_ptr( net, istn )->XYZ[dim];
+}
+
+inline size_t SDC_CtlKDTreeAdaptor::kdtree_get_point_count() const
+{
+    return ctl_sdc_idx.size();
+}
+
+inline double SDC_CtlKDTreeAdaptor::kdtree_get_pt( size_t k, size_t dim ) const
+{
+    int istn = (int)(sdci->sdc->pfStationId)( sdci->sdc->env, ctl_sdc_idx[k] );
+    return station_ptr( net, istn )->XYZ[dim];
+}
+
+/* Configuration for sdcTestPairAccuracy — collects per-order test parameters
+   computed once in sdcSetupRelAccuracyStatus and reused for every pair. */
+struct SDCPairTestConfig {
+    char   testhor;
+    char   testvrt;
+    char   shortcircuit;
+    char   strictcovar;
+    char   logcalcs2;
+    char   logcompact;
+    double ftol;
+    double dtol;
+    double ftolv;
+    double dtolv;
+    char   usemaxdistance;
+    char   usemaxdistancev;
+    double maxtestdist;
+    double maxtestdistv;
+};
 
 #define SDCI_PHASE_TRIAL 1
 #define SDCI_PHASE_CALC  2
@@ -144,12 +278,18 @@ static void sdcInitTestImp( hSDCTestImp sdci, hSDCTest sdc );
 static void sdcReleaseTestImp( hSDCTestImp sdci );
 static StatusType sdcLoadSDCStations( hSDCTestImp sdci );
 static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nleft );
+static StatusType sdcFillCtlDistKDTree( hSDCTestImp sdci ); /* KD-tree helper for sdcFindNearestControl */
 static StatusType sdcFindNearestControl( hSDCTestImp sdci );
 static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
                                        int *nleft );
 static StatusType sdcCreateRelTest( hSDCTestImp sdci );
 static void sdcRAInitAllocRow( hSDCTestImp sdci );
 static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 );
+static unsigned char sdcTestPairAccuracy( hSDCTestImp sdci, hSDCTest sdc,
+    hSDCStation stni, hSDCStation stnj,
+    int istni, int istnj, long sdcstni, long sdcstnj,
+    double dist, char passi, char passj,
+    const SDCPairTestConfig *cfg, char *needcovariances );
 static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest test );
 static StatusType sdcApplyRelTest( hSDCTestImp sdci, hSDCOrderTest test );
 static StatusType sdcApplyRelTestPass( hSDCTestImp sdci, int *pnpass );
@@ -194,6 +334,7 @@ hSDCTest sdcCreateSDCTest( int maxorder )
     sdc->maxorder = maxorder;
     sdc->loglevel = 0;
     sdc->options = 0;
+    sdc->useKDTree = 0;
     sdc->tests = tests;
     sdc->idFailOrder = 0;
     sdc->dblErrFactor = 3.0;
@@ -305,6 +446,26 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     sdcWriteLog( &sdci, SDC_LOG_STEPS, "Loading marks for SDC tests\n" );
     sts = sdcLoadSDCStations( &sdci );
     sdcTimeStamp(&sdci,"Stations loaded");
+
+    /*> Build KDTree spatial indices now that station roles are known */
+
+    if( sts == STS_OK && sdc->nmark > 0 && sdc->useKDTree )
+    {
+        std::vector<int> ctl_idx;
+        for( int k = 0; k < sdc->nmark; k++ )
+            if( sdci.stns[k].role == SDC_CONTROL_MARK ) ctl_idx.push_back(k);
+        if( !ctl_idx.empty() )
+            sdci.ctlkdtree = std::make_unique<SDC_CtlKDTreeBundle>( &sdci, std::move(ctl_idx) );
+
+        /* Full all-stations tree only needed when range limits can prune the pair loop */
+        bool anyrange = false;
+        for( int o = 0; o < sdc->norder && !anyrange; o++ )
+            anyrange = sdc->tests[o].dblRange > 0.0;
+        if( anyrange )
+            sdci.kdtree = std::make_unique<SDC_KDTreeBundle>( &sdci );
+
+        sdcTimeStamp(&sdci,"Spatial index build");
+    }
 
     /*> Find the nearest control to each mark */
 
@@ -855,6 +1016,48 @@ static StatusType sdcFindStationsForTest( hSDCTestImp sdci, int ntest, int *nlef
 **************************************************************************
 */
 
+/*************************************************************************
+** Function name: sdcFillCtlDistKDTree
+**//**
+**    KD-tree helper for sdcFindNearestControl. Fills stns[i].ctldist2 for
+**    every non-ignored station using knn(1) on the controls-only KD-tree.
+**    Called only when sdci->ctlkdtree is set.
+**
+**  \param sdci                The test implementation
+**
+**  \return                    returns abort status
+**
+**************************************************************************
+*/
+
+static StatusType sdcFillCtlDistKDTree( hSDCTestImp sdci )
+{
+    hSDCTest sdc = sdci->sdc;
+    hSDCStation stns = sdci->stns;
+    int istn;
+    StatusType sts = STS_OK;
+
+    for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
+    {
+        if( istn % ABORT_FREQUENCY == 0 ) sts = utlCheckAbort();
+        if( stns[istn].role == SDC_IGNORE_MARK ) continue;
+
+        long snap_id = (sdc->pfStationId)(sdc->env, istn);
+        double query[3] = {
+            station_ptr(net, (int)snap_id)->XYZ[0],
+            station_ptr(net, (int)snap_id)->XYZ[1],
+            station_ptr(net, (int)snap_id)->XYZ[2]
+        };
+        SDC_CtlKDTree::IndexType nn_idx;
+        double nn_dist2;
+        (void)sdci->ctlkdtree->tree.knnSearch(query, 1, &nn_idx, &nn_dist2);
+        stns[istn].ctldist2 = (float)nn_dist2;
+    }
+
+    return sts;
+}
+
+
 static StatusType sdcFindNearestControl( hSDCTestImp sdci)
 {
     hSDCTest sdc = sdci->sdc;
@@ -867,30 +1070,37 @@ static StatusType sdcFindNearestControl( hSDCTestImp sdci)
     /*> Compute the distance from each control mark to each tested
         mark, and store the minimum of these distances */
 
-    /*  This uses a very crude algorithm, simply computing the
-        distance from each control mark to each tested mark and
-        storing the distance if it is less than the currently
-        stored value.  Could perhaps do more efficient things
-        with a sorted list of nodes if we wanted to. */
-
-    first = 1;
-    for( ictl = 0; sts == STS_OK && ictl < sdc->nmark; ictl++ )
+    if( sdci->ctlkdtree )
     {
-        if( ictl % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
-        if( stns[ictl].role != SDC_CONTROL_MARK ) continue;
-        for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
+        sts = sdcFillCtlDistKDTree( sdci );
+    }
+    else
+    {
+        /*  This uses a very crude algorithm, simply computing the
+            distance from each control mark to each tested mark and
+            storing the distance if it is less than the currently
+            stored value.  Could perhaps do more efficient things
+            with a sorted list of nodes if we wanted to. */
+
+        first = 1;
+        for( ictl = 0; sts == STS_OK && ictl < sdc->nmark; ictl++ )
         {
-            if( istn % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
-            if( stns[istn].role != SDC_IGNORE_MARK )
+            if( ictl % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
+            if( stns[ictl].role != SDC_CONTROL_MARK ) continue;
+            for( istn = 0; sts == STS_OK && istn < sdc->nmark; istn++ )
             {
-                float dist = (float) (sdc->pfDistance2)(sdc->env,ictl, istn );
-                if( first || dist < stns[istn].ctldist2 )
+                if( istn % ABORT_FREQUENCY  == 0 ) sts = utlCheckAbort();
+                if( stns[istn].role != SDC_IGNORE_MARK )
                 {
-                    stns[istn].ctldist2 = dist;
+                    float dist = (float) (sdc->pfDistance2)(sdc->env,ictl, istn );
+                    if( first || dist < stns[istn].ctldist2 )
+                    {
+                        stns[istn].ctldist2 = dist;
+                    }
                 }
             }
+            first = 0;
         }
-        first = 0;
     }
 
     /*> Calculate the maximum distance between a tested mark and a tested
@@ -1615,6 +1825,200 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 
 
 /*************************************************************************
+** Function name: sdcTestPairAccuracy
+**//**
+**    Evaluates horizontal and vertical relative accuracy for one station
+**    pair (i, j).  Extracted so both the sequential and KD-tree j-loops
+**    share a single copy of the test logic.
+**
+**    Returns the pair status (SDC_STS_PASS/FAIL/NEED_CVR/UNKNOWN).
+**    When the function sets stni->status = SDC_STS_FAIL the caller must
+**    break the j-loop (replaces the original break statements).
+**
+**************************************************************************
+*/
+
+static unsigned char sdcTestPairAccuracy(
+    hSDCTestImp sdci, hSDCTest sdc,
+    hSDCStation stni, hSDCStation stnj,
+    int istni, int istnj, long sdcstni, long sdcstnj,
+    double dist, char passi, char passj,
+    const SDCPairTestConfig *cfg, char *needcovariances )
+{
+    unsigned char stsij = SDC_STS_UNKNOWN;
+
+    if( cfg->testhor )
+    {
+        double error = 0.0;
+        double tolij = cfg->ftol + cfg->dtol * dist;
+
+        if( cfg->usemaxdistance && dist > cfg->maxtestdist )
+        {
+            stsij = SDC_STS_PASS;
+            if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                    "   Vector %ld to %ld relative accuracy pass by max distance test\n",
+                    sdcstni,sdcstnj);
+            if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAD,"P",-1,-1,"");
+        }
+        else
+        {
+            if( cfg->shortcircuit )
+            {
+                error = stni->error2 + stnj->error2;
+                if( cfg->strictcovar ) error += 2*sqrt(stni->error2*stnj->error2);
+                if( error < tolij )
+                {
+                    stsij = SDC_STS_PASS;
+                    if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld relative accuracy pass by absolute (%.8lf < %.8lf)\n",
+                            sdcstni,sdcstnj,error,tolij);
+                    if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"P",error,tolij,"");
+                }
+                else if(
+                    (error=(stni->error2 + stnj->error2 - 2*sqrt(stni->error2*stnj->error2))) > tolij )
+                {
+                    stsij = SDC_STS_FAIL;
+                    if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld relative accuracy fail by absolute (%.8lf > %.8lf)\n",
+                            sdcstni,sdcstnj,error,tolij);
+                    if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"F",error,tolij,"");
+                }
+            }
+            if( stsij == SDC_STS_UNKNOWN )
+            {
+                error = (sdc->pfError2)(sdc->env,istni,istnj);
+                if( error != SDC_COVAR_UNAVAILABLE )
+                {
+                    if( error < tolij ) stsij = SDC_STS_PASS;
+                    else stsij = SDC_STS_FAIL;
+                    if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld true relative accuracy %s (%.8lf %s %.8lf)\n",
+                            sdcstni,sdcstnj, stsij==SDC_STS_PASS ? "pass" : "fail",
+                            error, stsij==SDC_STS_PASS ? "<" : ">", tolij);
+                    if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_HRAC,
+                            (stsij==SDC_STS_PASS ? "P" :"F"),error,tolij,"");
+                }
+            }
+        }
+
+        if( stsij == SDC_STS_UNKNOWN )
+        {
+            stsij = SDC_STS_NEED_CVR;
+            *needcovariances = 1;
+        }
+        else if ( ! sdci->needphase2 )
+        {
+            if (passi && stsij == SDC_STS_FAIL && ! sdci->needphase2)
+            {
+                stnj->status = SDC_STS_FAIL;
+                sdcWriteLog( sdci, SDC_LOG_TESTS,
+                             "   Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                             sdcstnj, sdcstni, error, tolij);
+                if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_HRAP,"F",error,tolij,"");
+            }
+            else if(passj && stsij == SDC_STS_FAIL)
+            {
+                stni->status = SDC_STS_FAIL;
+                sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                             "   Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                             sdcstni,sdcstnj, error, tolij);
+                if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAP,"F",error,tolij,"");
+                return SDC_STS_FAIL; /* caller breaks j-loop when stni->status == SDC_STS_FAIL */
+            }
+        }
+    }
+
+    if( cfg->testvrt && stsij != SDC_STS_FAIL )
+    {
+        double tolij = cfg->ftolv + cfg->dtolv * dist;
+        double error = 0.0;
+        char needcvr = stsij == SDC_STS_NEED_CVR;
+
+        stsij = SDC_STS_UNKNOWN;
+
+        if( cfg->usemaxdistancev && dist > cfg->maxtestdistv )
+        {
+            stsij = SDC_STS_PASS;
+            if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                    "   Vector %ld to %ld vrt accuracy pass by max distance test\n",
+                    sdcstni,sdcstnj);
+            if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAD,"P",-1,-1,"");
+        }
+        else
+        {
+            if( cfg->shortcircuit )
+            {
+                error = stni->verror2 + stnj->verror2;
+                if( cfg->strictcovar ) error += 2*sqrt(stni->verror2*stnj->verror2);
+                if( error < tolij )
+                {
+                    stsij = SDC_STS_PASS;
+                    if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld relative vrt accuracy pass by absolute (%.8lf < %.8lf)\n",
+                            sdcstni,sdcstnj,error,tolij);
+                    if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"P",error,tolij,"");
+                }
+                else if(
+                    (error=(stni->verror2 + stnj->verror2 - 2*sqrt(stni->verror2*stnj->verror2))) > tolij )
+                {
+                    stsij = SDC_STS_FAIL;
+                    if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld relative vrt accuracy fail by absolute (%.8lf > %.8lf)\n",
+                            sdcstni,sdcstnj,error,tolij);
+                    if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"F",error,tolij,"");
+                }
+            }
+            if( stsij == SDC_STS_UNKNOWN )
+            {
+                error = (sdc->pfVrtError2)(sdc->env,istni,istnj);
+                if( error != SDC_COVAR_UNAVAILABLE )
+                {
+                    if( error < tolij ) stsij = SDC_STS_PASS;
+                    else stsij = SDC_STS_FAIL;
+                    if( cfg->logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
+                            "   Vector %ld to %ld true vrt relative accuracy %s (%.8lf %s %.8lf)\n",
+                            sdcstni,sdcstnj, stsij==SDC_STS_PASS ? "pass" : "fail",
+                            error, stsij==SDC_STS_PASS ? "<" : ">", tolij);
+                    if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_VRAC,
+                            stsij==SDC_STS_PASS ? "P" :"F",error,tolij,"");
+                }
+            }
+        }
+
+        if( stsij == SDC_STS_UNKNOWN )
+        {
+            stsij = SDC_STS_NEED_CVR;
+            *needcovariances = 1;
+        }
+        else if ( ! sdci->needphase2 )
+        {
+            if (passi && stsij == SDC_STS_FAIL)
+            {
+                stnj->status = SDC_STS_FAIL;
+                sdcWriteLog( sdci, SDC_LOG_TESTS,
+                             "   Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                             sdcstnj, sdcstni, error, tolij);
+                if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_VRAP,"F",error,tolij,"");
+            }
+            else if(passj && stsij == SDC_STS_FAIL)
+            {
+                stni->status = SDC_STS_FAIL;
+                sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
+                             "   Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
+                             sdcstni, sdcstnj, error, tolij);
+                if( cfg->logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAP,"F",error,tolij,"");
+                return SDC_STS_FAIL; /* caller breaks j-loop when stni->status == SDC_STS_FAIL */
+            }
+        }
+
+        if( needcvr ) stsij = SDC_STS_NEED_CVR;
+    }
+
+    return stsij;
+}
+
+
+/*************************************************************************
 ** Function name: sdcSetupRelAccuracyStatus
 **//**
 **    Sets up the relative accuracy status matrix for a given order.  This
@@ -1732,6 +2136,21 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
     sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Calculating status for each vector\n");
 
+    SDCPairTestConfig cfg;
+    cfg.testhor         = testhor;
+    cfg.testvrt         = testvrt;
+    cfg.shortcircuit    = shortcircuit;
+    cfg.strictcovar     = strictcovar;
+    cfg.logcalcs2       = logcalcs2;
+    cfg.logcompact      = logcompact;
+    cfg.ftol            = ftol;
+    cfg.dtol            = dtol;
+    cfg.ftolv           = ftolv;
+    cfg.dtolv           = dtolv;
+    cfg.usemaxdistance  = usemaxdistance;
+    cfg.usemaxdistancev = usemaxdistancev;
+    cfg.maxtestdist     = maxtestdist;
+    cfg.maxtestdistv    = maxtestdistv;
 
     for( i = 1; i < sdci->nreltest; i++ )
     {
@@ -1752,21 +2171,75 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
         if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
-        for( j = 0; j < i; j++ )
+        /* When range limits are active and the KD-tree is available, use a radius
+           search to enumerate only in-range j candidates instead of iterating all
+           j < i.  Both paths write through `relstatus`, which sdcRAAllocRow
+           registers in sdci->relstatus[i] — the downstream second pass reads
+           sdci->relstatus[i] and is unaffected by which path filled it.
+           KD-tree path: relstatus is pre-allocated and accessed by offset.
+           Sequential path: relstatus is lazily allocated and walked by pointer. */
+        struct JCand { int j; double dist2; };
+        std::vector<JCand> jcands;
+        int relstatus_col0 = 0;
+        bool kdtree_j = userange && sdci->kdtree;
+
+        if( kdtree_j )
         {
+            /* Build sorted candidate list via KD-tree radius search */
+            long snap_id_i = (sdc->pfStationId)(sdc->env, istni);
+            double query[3] = {
+                station_ptr(net, (int)snap_id_i)->XYZ[0],
+                station_ptr(net, (int)snap_id_i)->XYZ[1],
+                station_ptr(net, (int)snap_id_i)->XYZ[2]
+            };
+            std::vector<nanoflann::ResultItem<SDC_KDTree::IndexType, double>> hits;
+            (void)sdci->kdtree->tree.radiusSearch(query, range2, hits);
+
+            for( auto &h : hits )
+            {
+                int jk = stns[(int)h.first].nrelrow;
+                if( jk >= 0 && jk < i )
+                    jcands.push_back({jk, h.second});
+            }
+            std::sort(jcands.begin(), jcands.end(),
+                      [](const JCand &a, const JCand &b){ return a.j < b.j; });
+
+            /* Pre-allocate relstatus from first candidate and fill with SKIP so
+               positions between candidates need no further attention */
+            if( !jcands.empty() )
+            {
+                relstatus_col0 = jcands[0].j;
+                relstatus = sdcRAAllocRow(sdci, i, relstatus_col0);
+                if( relstatus )
+                    memset(relstatus, SDC_STS_SKIP, i - relstatus_col0 + 1);
+            }
+        }
+
+        int jlim = kdtree_j ? (int)jcands.size() : i;
+
+        for( int jidx = 0; jidx < jlim; jidx++ )
+        {
+            /* KD-tree path: j comes from sorted candidates; dist already known.
+               Sequential path: j is jidx; walk relstatus pointer as before. */
+            if( kdtree_j )
+                j = jcands[jidx].j;
+            else
+            {
+                j = jidx;
+                if( relstatus )
+                {
+                    relstatus++;
+                    *relstatus = SDC_STS_SKIP;
+                }
+            }
+
             int istnj = sdci->lookup[j];
             long sdcstnj=sdcStationId(sdci,istnj);
             hSDCStation stnj = &(stns[istnj]);
             char stsj = stnj->status;
             char passj = (stsj == SDC_STS_PASS || stsj == SDC_STS_PASSED);
             double dist;
-            unsigned char stsij = SDC_STS_UNKNOWN;
-
-            if( relstatus ) 
-            {
-                relstatus++;
-                *relstatus = SDC_STS_SKIP;
-            }
+            unsigned char stsij;
 
             if( j % ABORT_FREQUENCY == 0 )
             {
@@ -1781,239 +2254,33 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
             /*>> If the stations are more than maximum distance apart then continue */
 
-            dist = (sdc->pfDistance2)(sdc->env, istni, istnj );
-
-            if( userange && dist >= range2 ) continue;
-
-            /*>> Calculate the acceptable relative error for the line.
-                 Test length against the maximum length of line that can fail
-                 given the maximum station variance.  If this doesn't pass then
-                 test against the endpoint coordinate accuracies to see
-            	 whether we can pass or fail based on these.  If not, then
-            	 use actual relative accuracy and pass or fail using that.
-                 The actual relative error (squared) of the line is retrieved from the
-            	 the array of relative accuracy values.  If it is not yet stored there
-            	 (value of SDC_COVAR_UNAVAILABLE) then calculate it and store it.
-
-                 Do this for horizontal and vertical as required by test. */
-
-            if( testhor )
+            if( kdtree_j )
+                dist = jcands[jidx].dist2; /* already computed by radius search */
+            else
             {
-                double error = 0.0;
-                double tolij = ftol + dtol * dist;
-
-                /* Test against maximum length of line that can fail */
-
-                if( usemaxdistance && dist > maxtestdist )
-                {
-                    stsij = SDC_STS_PASS;
-                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                            "   Vector %ld to %ld relative accuracy pass by max distance test\n",
-                            sdcstni,sdcstnj);
-                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAD,"P",-1,-1,"");
-                }
-
-                else
-                {
-
-                    /* See if we can pass or fail based on the endpoint coordinate accuracies.
-                       Note: adding errors like this is not strictly correct - assumes that they
-                       are positively or 0 correlated.  Using strictcovar means this works even 
-                       if errors could be negatively correlated. */
-
-                    if( shortcircuit )
-                    {
-                        error = stni->error2 + stnj->error2;
-
-                        if( strictcovar ) error += 2*sqrt(stni->error2*stnj->error2);
-                        if( error < tolij )
-                        {
-                            stsij = SDC_STS_PASS;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                                    "   Vector %ld to %ld relative accuracy pass by absolute (%.8lf < %.8lf)\n",
-                                    sdcstni,sdcstnj,error,tolij);
-                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"P",error,tolij,"");
-                        }
-                        else if(
-                            (error=(stni->error2 + stnj->error2 - 2*sqrt(stni->error2*stnj->error2))) > tolij )
-                        {
-                            stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                                    "   Vector %ld to %ld relative accuracy fail by absolute (%.8lf > %.8lf)\n",
-                                    sdcstni,sdcstnj,error,tolij);
-                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAS,"F",error,tolij,"");
-                        }
-                    }
-                    if( stsij == SDC_STS_UNKNOWN )
-                    {
-                        error = (sdc->pfError2)(sdc->env,istni,istnj);
-                        if( error != SDC_COVAR_UNAVAILABLE )
-                        {
-                            if( error < tolij ) stsij = SDC_STS_PASS;
-                            else stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                                    "   Vector %ld to %ld true relative accuracy %s (%.8lf %s %.8lf)\n",
-                                    sdcstni,sdcstnj, stsij==SDC_STS_PASS ? "pass" : "fail", 
-                                    error, stsij==SDC_STS_PASS ? "<" : ">", tolij);
-                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_HRAC,
-                                    (stsij==SDC_STS_PASS ? "P" :"F"),error,tolij,"");
-                        }
-                    }
-                }
-
-                /*>> If the covariance could not be found, then record the missing covariance info.
-                     It may turn out to be unnecessary, if we can fail one of the nodes in subsequent
-                     tests.  */
-
-                if( stsij == SDC_STS_UNKNOWN )
-                {
-                    stsij = SDC_STS_NEED_CVR;
-                    needcovariances=1;
-                }
-                /*>> If the vector has failed then if one or other node is already passed
-                     we can fail the other.   */
-
-                /* If sdci->needphase2 is set then a previous order has incomplete tests so
-                 * can't be sure which stations would have passed or failed in those tests.
-                 * So in that case we can't fail anything.
-                 */
-
-                else if ( ! sdci->needphase2 )
-                {
-                    if (passi && stsij == SDC_STS_FAIL && ! sdci->needphase2)
-                    {
-                        stnj->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_TESTS,
-                                     "   Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcstnj, sdcstni, error, tolij);
-                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_HRAP,"F",error,tolij,"");
-                    }
-                    else if(passj && stsij == SDC_STS_FAIL)
-                    {
-                        stni->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                     "   Station %ld fails on rel accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcstni,sdcstnj, error, tolij);
-                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_HRAP,"F",error,tolij,"");
-                        /* Station i has failed so don't need to look at this any more */
-                        break;
-                    }
-                }
+                dist = (sdc->pfDistance2)(sdc->env, istni, istnj );
+                if( userange && dist >= range2 ) continue;
             }
 
-            /* --------------------------------------------------------------- */
-            /* If not already failed on the horizontal test, then try vertical */
-
-            if( testvrt && stsij != SDC_STS_FAIL )
-            {
-                double tolij = ftolv + dtolv * dist;
-                double error = 0.0;
-                char needcvr = stsij == SDC_STS_NEED_CVR;
-
-                stsij = SDC_STS_UNKNOWN;
-
-                /* Test against maximum length of line that can fail */
-
-                if( usemaxdistancev && dist > maxtestdistv )
-                {
-                    stsij = SDC_STS_PASS;
-                    if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                            "   Vector %ld to %ld vrt accuracy pass by max distance test\n",
-                            sdcstni,sdcstnj);
-                    if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAD,"P",-1,-1,"");
-                }
-
-                else
-                {
-
-                    /* See if we can pass or fail based on the endpoint coordinate accuracies.
-                       Note: adding errors like this is not strictly correct - assumes that they
-                       are positively or 0 correlated.  Should add on 2*sqrt(stni->error2*stnj->error2)
-                       if we think errors could be negatively correlated. */
-
-                    if( shortcircuit )
-                    {
-                        error = stni->verror2 + stnj->verror2;
-
-                        if( strictcovar ) error += 2*sqrt(stni->verror2*stnj->verror2);
-                        if( error < tolij )
-                        {
-                            stsij = SDC_STS_PASS;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                                    "   Vector %ld to %ld relative vrt accuracy pass by absolute (%.8lf < %.8lf)\n",
-                                    sdcstni,sdcstnj,error,tolij);
-                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"P",error,tolij,"");
-                        }
-                        else if(
-                            (error=(stni->verror2 + stnj->verror2 - 2*sqrt(stni->verror2*stnj->verror2))) > tolij )
-                        {
-                            stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                                    "   Vector %ld to %ld relative vrt accuracy fail by absolute (%.8lf > %.8lf)\n",
-                                    sdcstni,sdcstnj,error,tolij);
-                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAS,"F",error,tolij,"");
-                        }
-                    }
-                    if( stsij == SDC_STS_UNKNOWN )
-                    {
-                        error = (sdc->pfVrtError2)(sdc->env,istni,istnj);
-                        if( error != SDC_COVAR_UNAVAILABLE )
-                        {
-                            if( error < tolij ) stsij = SDC_STS_PASS;
-                            else stsij = SDC_STS_FAIL;
-                            if( logcalcs2 ) sdcWriteLog(sdci,SDC_LOG_CALCS2,
-                                    "   Vector %ld to %ld true vrt relative accuracy %s (%.8lf %s %.8lf)\n",
-                                    sdcstni,sdcstnj, stsij==SDC_STS_PASS ? "pass" : "fail", 
-                                    error, stsij==SDC_STS_PASS ? "<" : ">", tolij);
-                            if( logcompact ) sdcWriteCompactLog( sdci, sdcstni, sdcstnj, SDC_TEST_VRAC,
-                                    stsij==SDC_STS_PASS ? "P" :"F",error,tolij,"");
-                        }
-                    }
-                }
-
-                /*   If the covariance could not be found, then record this and continue.
-                     It may turn out to be unnecessary if one or other node is subsequently
-                     failed. */
-
-                if( stsij == SDC_STS_UNKNOWN )
-                {
-                    stsij = SDC_STS_NEED_CVR;
-                    needcovariances=1;
-                }
-                /*   If the vector has failed then if one or other node is already passed
-                     we can fail the other.   */
-                else if ( ! sdci->needphase2 )
-                {
-                    if (passi && stsij == SDC_STS_FAIL)
-                    {
-                        stnj->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_TESTS,
-                                     "   Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcstnj, sdcstni, error, tolij);
-                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstnj,sdcstni,SDC_TEST_VRAP,"F",error,tolij,"");
-                    }
-                    else if(passj && stsij == SDC_STS_FAIL)
-                    {
-                        stni->status = SDC_STS_FAIL;
-                        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2,
-                                     "   Station %ld fails on rel vrt accuracy to passed station %ld (%.8lf > %.8lf)\n",
-                                     sdcstni, sdcstnj, error, tolij);
-                        if( logcompact ) sdcWriteCompactLog( sdci, sdcstni,sdcstnj,SDC_TEST_VRAP,"F",error,tolij,"");
-                        /* Station i has failed so don't need to look at this any more */
-                        break;
-                    }
-                }
-
-                if( needcvr ) stsij = SDC_STS_NEED_CVR;
-            }
+            stsij = sdcTestPairAccuracy( sdci, sdc, stni, stnj,
+                                         istni, istnj, sdcstni, sdcstnj,
+                                         dist, passi, passj, &cfg, &needcovariances );
+            if( stni->status == SDC_STS_FAIL ) break;
 
             if( stsij != SDC_STS_SKIP )
             {
-                if( ! relstatus )
+                if( kdtree_j )
                 {
-                    relstatus=sdcRAAllocRow( sdci, i, j );
+                    /* Offset into pre-allocated relstatus row */
+                    if( relstatus )
+                        relstatus[j - relstatus_col0] = stsij;
                 }
-                *relstatus = stsij;
+                else
+                {
+                    if( ! relstatus )
+                        relstatus=sdcRAAllocRow( sdci, i, j );
+                    *relstatus = stsij;
+                }
             }
         }
     }

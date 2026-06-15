@@ -30,4 +30,6 @@ src/VERSIONID
 /notes/
 /linux/debug/
 /linux/release/
+/linux/profile/
+/regression_tests/snapspec_k/
 /wxtest
