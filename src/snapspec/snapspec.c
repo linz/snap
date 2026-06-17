@@ -320,7 +320,8 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
 {
     if( ! ra->bltreq )
     {
-        ra->bltreq = create_bltmatrix( ra->bltdec->nrow ); 
+        ra->bltreq = create_bltmatrix( ra->bltdec->nrow );
+        blt_set_sparse_rows( ra->bltreq, ra->bltdec->nrow );
         if( ra->blt )
         {
             copy_bltmatrix_bandwidth( ra->blt, ra->bltreq );
