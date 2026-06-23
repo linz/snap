@@ -1,6 +1,13 @@
 linz-snap (2.8.8-2) noble; urgency=medium
 
-  * Feature:- packaging for noble release
+  * Feature: packaging for noble release
+  * Fix: fix OOM for large networks in snapspec caused by incorrect dense
+    matrix allocation
+  * Performance: KD-tree spatial index for snapspec relative accuracy pair
+    loop; enable with -k flag
+  * Performance: improved cache efficiency and multi-threaded performance
+    for Cholesky inversion in large adjustments
+  * Memory: reduced peak memory usage in snapspec for large adjustments
 
  -- Chris Crook <ccrook@linz.govt.nz>  Wed, 22 Nov 2026 14:00:00 +1300
 
