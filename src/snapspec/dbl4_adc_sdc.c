@@ -34,6 +34,7 @@
 #include "network/network.h"
 #include "nanoflann/nanoflann.hpp"
 
+/* relstatus array entries are nibble-packed (two per byte); values must not exceed 15. */
 #define SDC_STS_UNKNOWN    1  /* Mark to be assigned at current order */
 #define SDC_STS_FAIL       2  /* Mark has failed at current order */
 #define SDC_STS_PASS       3  /* Mark has passed at current order */
@@ -305,6 +306,24 @@ static void sdcWriteCompactLog( hSDCTestImp sdci, long stn1, long stn2,
         const char *test, const char *status, double v1, double v2, const char *comment );
 static long sdcStationId( hSDCTestImp sdci, int istn );
 static void sdcTimeStamp( hSDCTestImp sdci, const char *status );
+
+/* nibble_get/nibble_set: pack two SDC_STS_* values per byte in the relstatus row
+ * arrays, halving their memory footprint. data is the row's packed byte array.
+ * k is the column offset within the row (col - col0). An even-valued k occupies
+ * the lower nibble of byte k/2, odd-valued k the upper nibble. */
+static inline void nibble_set(unsigned char *data, int k, unsigned char val)
+{
+    /* 0 for even k (lower nibble), 4 for odd k (upper nibble). */
+    int shift = (k & 1) << 2;
+    /* Clear nibble, OR in val. */
+    data[k >> 1] = (data[k >> 1] & ~(0x0Fu << shift)) | ((unsigned char)val << shift);
+}
+
+static inline unsigned char nibble_get(const unsigned char *data, int k)
+{
+    /* Shift target nibble to bits 3-0, mask off the rest. */
+    return (data[k >> 1] >> ((k & 1) << 2)) & 0x0F;
+}
 
 /*************************************************************************
 ** Function name: sdcCreateSDCTest
@@ -850,7 +869,7 @@ static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 )
     hRABlock newalloc;
 
     if( sdci->relstatus[row] ) return 0;
-    nalloc=row-col0+1;
+    nalloc=(row-col0+2)/2;
 
     alloc=sdci->curalloc;
     while( 1 )
@@ -874,6 +893,8 @@ static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 )
     sdci->curalloc=alloc;
     rowstatus=alloc->data+alloc->alloc;
     alloc->alloc += nalloc;
+    /* Nibble-pack two SDC_STS_SKIP values into every element of rowstatus. */
+    memset(rowstatus, (SDC_STS_SKIP | (SDC_STS_SKIP << 4)), nalloc);
     sdci->relstatus[row]=rowstatus;
     sdci->relcol0[row]=col0;
     return rowstatus;
@@ -1775,14 +1796,14 @@ static void sdcSetRelTestStatus( hSDCTestImp sdci, int istn, char status)
 
         if( i <= nrelrow )
         {
-            stsij=relstatus[i-col0];
+            stsij=nibble_get(relstatus,i-col0);
         }
         else
         {
             relstatus=sdci->relstatus[i];
             col0=sdci->relcol0[i];
             if( ! relstatus || col0 > nrelrow ) continue;
-            stsij=relstatus[nrelrow-col0];
+            stsij=nibble_get(relstatus,nrelrow-col0);
         }
 
         /*>> If the station has passed then .. */
@@ -2210,8 +2231,6 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             {
                 relstatus_col0 = jcands[0].j;
                 relstatus = sdcRAAllocRow(sdci, i, relstatus_col0);
-                if( relstatus )
-                    memset(relstatus, SDC_STS_SKIP, i - relstatus_col0 + 1);
             }
         }
 
@@ -2226,11 +2245,6 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             else
             {
                 j = jidx;
-                if( relstatus )
-                {
-                    relstatus++;
-                    *relstatus = SDC_STS_SKIP;
-                }
             }
 
             int istnj = sdci->lookup[j];
@@ -2271,15 +2285,17 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             {
                 if( kdtree_j )
                 {
-                    /* Offset into pre-allocated relstatus row */
                     if( relstatus )
-                        relstatus[j - relstatus_col0] = stsij;
+                        nibble_set( relstatus, j - relstatus_col0, stsij );
                 }
                 else
                 {
                     if( ! relstatus )
-                        relstatus=sdcRAAllocRow( sdci, i, j );
-                    *relstatus = stsij;
+                    {
+                        relstatus = sdcRAAllocRow( sdci, i, j );
+                        relstatus_col0 = j;
+                    }
+                    nibble_set( relstatus, j - relstatus_col0, stsij );
                 }
             }
         }
@@ -2318,7 +2334,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             if( ! relstatus ) continue;
             if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
-            for( j = col0; j < i; j++, relstatus++ )
+            for( j = col0; j < i; j++ )
             {
                 int istnj = sdci->lookup[j];
                 long sdcstnj=sdcStationId(sdci,istnj);
@@ -2334,7 +2350,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
                 /* If not passed or potential to pass then not interested */
                 if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
-                if( *relstatus != SDC_STS_NEED_CVR ) continue;
+                if( nibble_get(relstatus, j - col0) != SDC_STS_NEED_CVR ) continue;
 
                 /*>> If trial phase of two pass calculation then record missing covariance,
                      else abort relative accuracy test */
@@ -2396,7 +2412,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         if( ! relstatus ) continue;
         if( ! passi && stsi != SDC_STS_UNKNOWN) continue;
 
-        for( j = col0; j < i; relstatus++, j++ )
+        for( j = col0; j < i; j++ )
         {
             int istnj = sdci->lookup[j];
             hSDCStation stnj = &(stns[istnj]);
@@ -2408,7 +2424,8 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
                 sts = utlCheckAbort();
                 if( sts != STS_OK ) return sts;
             }
-            if( *relstatus == SDC_STS_SKIP ) continue;
+            unsigned char stsij_rel = nibble_get(relstatus, j - col0);
+            if( stsij_rel == SDC_STS_SKIP ) continue;
 
             if( ! passj && stsj != SDC_STS_UNKNOWN) continue;
             if( passi && passj ) continue;
@@ -2417,7 +2434,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
             stni->nreltest++;
             stnj->nreltest++;
 
-            if( *relstatus == SDC_STS_FAIL )
+            if( stsij_rel == SDC_STS_FAIL )
             {
                 /*>> If it fails, then increment count of fails for nodes
                      and if one or other node is already passed, the count of fails
