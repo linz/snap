@@ -14,6 +14,32 @@
 
     <!-- <h2>Pending release</h2> -->
 
+    <h2>Release: Date 23 Nov 2023: 2.8.8</h2>
+
+    <h3>snapspec</h3>
+
+    <p>Enhancement: Minor addition of matrix size in output for analysis of large adjustments.
+    </p>
+
+    <p>Fix: Fixed incorrect dense matrix allocation in snapspec that could cause out-of-memory
+    failures when processing large networks.
+    </p>
+
+    <p>Enhancement: Added optional KD-tree spatial index for the relative accuracy pair loop
+    (enable with the <code>-k</code> command line flag). Reduces pair search time for large
+    networks by avoiding an O(n&sup2;) scan.
+    </p>
+
+    <p>Enhancement: Reduced peak memory usage for large adjustments. The Cholesky decomposition
+    is no longer held in memory alongside the inverted covariance matrix, and relative accuracy
+    status arrays are now stored more compactly.
+    </p>
+
+    <p>Enhancement: Improved multi-threaded performance for Cholesky inversion. Threading now
+    partitions work by row range rather than by column, significantly reducing cache pressure
+    at high thread counts.
+    </p>
+
     <h2>Release: Date 23 Nov 2023: 2.8.7</h2>
 
     <h3>snap</h3>
