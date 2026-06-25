@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\concord\concord.c">
+    <ClCompile Include="..\..\..\src\concord\concord.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

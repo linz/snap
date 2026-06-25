@@ -1,7 +1,7 @@
 #!/bin/bash
 
 if [ -z "$DISTRIBUTION" ]; then
-    DISTRIBUTION=bionic
+    DISTRIBUTION=noble
 fi
 
 scriptfile=`realpath $0`
@@ -17,7 +17,7 @@ gid=`id -g`
 docker run --rm  \
     -v "$rootdir:/home" -u $uid:$gid \
     $buildimage \
-    bash -c "cd /home/snap/linux && SNAP_BUILD_DIR=/tmp/buildsnap make type=release package"
+    bash -c "cd /home/snap && python3 build.py release package --build-dir /tmp/buildsnap"
 
 # Crude copy to desired location
 debfile=`find $rootdir -maxdepth 1 -name $pkgname_*.deb -mmin -1`; 

@@ -61,331 +61,331 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_binsrc.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_binsrc.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_blob.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_blob.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_date.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_date.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_grid.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_grid.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_lnzdef.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_lnzdef.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trig.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\dbl4_utl_trig.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\dbl4\snap_dbl4_interface.c">
+    <ClCompile Include="..\..\..\src\snaplib\dbl4\snap_dbl4_interface.cpp">
       <Filter>Source Files\dbl4</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_conv.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_conv.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys_describe.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys_describe.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys_parse.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_csys_parse.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell_func.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell_func.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell_parse.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_ell_parse.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_func.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_func.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_install.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_install.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_parse.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_parse.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_register.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_prj_register.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf_func.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf_func.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf_parse.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rf_parse.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_bw.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_bw.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_grid.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_grid.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_linzdef.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rfdef_linzdef.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc_grid.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_rffunc_grid.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_csdef.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_csdef.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_default.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_default.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_lists.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_src_lists.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\emproj.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\emproj.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\emprojr.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\emprojr.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\gnproj.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\gnproj.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\gnprojr.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\gnprojr.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\isometrc.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\isometrc.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\lambert.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\lambert.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\lambertr.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\lambertr.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\nzmg.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\nzmg.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\nzmgr.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\nzmgr.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\paramdef.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\paramdef.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\psproj.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\psproj.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\psprojr.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\psprojr.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\tmproj.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\tmproj.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\tmprojr.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\tmprojr.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\geoid\geoid.c">
+    <ClCompile Include="..\..\..\src\snaplib\geoid\geoid.cpp">
       <Filter>Source Files\geoid</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\geoid\griddata.c">
+    <ClCompile Include="..\..\..\src\snaplib\geoid\griddata.cpp">
       <Filter>Source Files\geoid</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\netcalcs.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\netcalcs.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\netlist.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\netlist.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\netlist1.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\netlist1.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\netstns.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\netstns.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\netstns1.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\netstns1.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\network.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\network.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkb.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkb.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkd.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkd.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkm.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkm.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkr.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkr.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networks.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networks.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkt.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkt.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkw.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkw.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\datatype.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\datatype.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\geoddata.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\geoddata.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\gpscvr.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\gpscvr.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\loaddata.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\loaddata.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\snapdata.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\snapdata.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\bearing.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\bearing.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\bindata.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\bindata.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\cfgprocs.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\cfgprocs.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\datastat.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\datastat.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\deform.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\deform.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\genparam.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\genparam.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\gpscvr2.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\gpscvr2.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\obsparam.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\obsparam.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\rftrans.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\rftrans.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\rftrndmp.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\rftrndmp.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\snapglob.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\snapglob.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\stnadj.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\stnadj.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\survfile.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\survfile.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snap\survfilr.c">
+    <ClCompile Include="..\..\..\src\snaplib\snap\survfilr.cpp">
       <Filter>Source Files\snap</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\avltree.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\avltree.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\binfile.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\binfile.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\chkallcx.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\chkallcx.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\chkalloc.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\chkalloc.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\classify.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\classify.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\datafile.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\datafile.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\dateutil.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\dateutil.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\dms.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\dms.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\dstring.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\dstring.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\errdef.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\errdef.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\filelist.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\filelist.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\fileutil.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\fileutil.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\geodetic.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\geodetic.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\get_date.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\get_date.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\iostring.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\iostring.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\leastsqu.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\leastsqu.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\license.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\license.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\linklist.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\linklist.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\lsobseq.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\lsobseq.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\probfunc.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\probfunc.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\progress.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\progress.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\readcfg.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\readcfg.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\strarray.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\strarray.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\strtokq.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\strtokq.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\symmatrx.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\wildcard.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\wildcard.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\writecsv.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\writecsv.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\xprintf.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\xprintf.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\delimitedtextfile.cpp">
@@ -397,7 +397,7 @@
     <ClCompile Include="..\..\..\src\snaplib\util\recordstream.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\survdata.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\survdata.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\snapdata\snapcsvbase.cpp">
@@ -415,16 +415,16 @@
     <ClCompile Include="..\..\..\src\snaplib\util\parseangle.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\network_geoid.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\stnoffset.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\polygon.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecode.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecode.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\snapdata\stnrecodefile.cpp">
@@ -439,25 +439,25 @@
     <ClCompile Include="..\..\..\src\snaplib\util\datafileinput.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\snapdata\obsmod.c">
+    <ClCompile Include="..\..\..\src\snaplib\snapdata\obsmod.cpp">
       <Filter>Source Files\snapdata</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\network\networkl.c">
+    <ClCompile Include="..\..\..\src\snaplib\network\networkl.cpp">
       <Filter>Source Files\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_func.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_func.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_parse.c">
+    <ClCompile Include="..\..\..\src\snaplib\coordsys\crdsys_hrs_parse.cpp">
       <Filter>Source Files\coordsys</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx_mt.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\bltmatrx_mt.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snaplib\util\getversion.c">
+    <ClCompile Include="..\..\..\src\snaplib\util\getversion.cpp">
       <Filter>Source Files\util</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snaplib\util\wildcard.h">

@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapconv\snapconv.c">
+    <ClCompile Include="..\..\..\src\snapconv\snapconv.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

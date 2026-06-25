@@ -31,17 +31,15 @@ computers.  The original code and data structures were constructed to optimise m
 usage, often at the expense of clarity.  Also much of the string handling is very traditional
 C code manipulating character pointers.  The entire code base is due for refactoring to use 
 more modern practices and tools, such as C++ classes, string handling, STL and so on.  Likewise 
-the graphical user interface is currently built on WxWidgets version 2.8.  This requires significant
-work to port to version 3.0, in particular because of the changes to support unicode.  Also 
-at present there is not consistent good build system.  It is intended that cmake will be used
-for building in the future.
+the graphical user interface is built on WxWidgets version 3.x.  The build system uses
+CMake, driven by `build.py` in the repository root.
 
 It is not recommended that this code is used as a basis for building further tools or for 
 building capability from.  The main intent in releasing as open source code is to provide 
 for compiling the package to work in otherwise unsupported operating systems.  
 
 Currently LINZ provides Microsoft Windows binaries for the package. The code base can also be 
-compiled into linux components.  Currently this has been tested in Ubuntu 18.04. See [BUILD.md](BUILD.md)
+compiled into linux components.  Currently this has been tested in Ubuntu 22.04 and 24.04. See [BUILD.md](BUILD.md)
 for more information on building the software.
 
 Disclaimer
@@ -59,8 +57,6 @@ of the software on any particular system or system configuration.
 Licence
 -------
 
-Except for the wxwidget-2.8 directory the contents of this repository are licensed 
-under the MIT licence as in [LICENCE.md](LICENCE.md).  The wxwidgets-2.8 directory contains
-the [https://www.wxwidgets.org](wxWidgets library).  The licence for this code is in the 
-[/linz/snap/blob/master/wxwidgets-2.8/docs/licendoc.txt](wxwidgets-2.8/docs/licendoc.txt).
+The contents of this repository are licensed under the MIT licence as in [LICENCE.md](LICENCE.md).
+The wxWidgets library in the `wxwidgets` directory is subject to its own licence.
 
