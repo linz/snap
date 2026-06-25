@@ -174,10 +174,6 @@ $(OBJ)/%.o: $(SRCDIR)/%.cpp
 	@echo Compiling $<...
 	$(CC) $(CCFLAGS) -c $< -o $@
 
-$(OBJ)/%.o: $(SRCDIR)/%.c
-	@mkdir -p `dirname $@` 
-	@echo Compiling $<...
-	$(CC) $(CCFLAGS) -c $< -o $@
 
 $(SNAPEXE): $(SNAPLIB) $(SNAPOBJS)
 	@mkdir -p `dirname $@` 
@@ -286,5 +282,5 @@ testblt:
 	mkdir -p test
 	rm -rf test/*
 	cd test; \
-	source="../$(SRCDIR)/snaplib/util/bltmatrx.c ../$(SRCDIR)/snaplib/util/symmatrx.c ../$(SRCDIR)/snaplib/util/chkalloc.c ../$(SRCDIR)/snaplib/util/progress.c ../$(SRCDIR)/snaplib/util/errdef.c"; \
+	source="../$(SRCDIR)/snaplib/util/bltmatrx.cpp ../$(SRCDIR)/snaplib/util/symmatrx.cpp ../$(SRCDIR)/snaplib/util/chkalloc.cpp ../$(SRCDIR)/snaplib/util/progress.cpp ../$(SRCDIR)/snaplib/util/errdef.cpp"; \
 	$(CC) -D TESTBLT -I ../$(SRCDIR)/snaplib $$source  $(LDFLAGS) -o testblt

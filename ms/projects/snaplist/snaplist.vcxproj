@@ -106,7 +106,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snaplist\snaplist.c" />
+    <ClCompile Include="..\..\..\src\snaplist\snaplist.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\src\snaplist\mdfc1.tbf" />
