@@ -15,7 +15,7 @@ for fbase, dirs, files in os.walk(base):
     objects = None
 
     for f in files:
-        match = re.match(r'(.*)\.c(pp)?$',f)
+        match = re.match(r'(.*)\.cpp$',f)
         if match:
             file = join(fbase,match.group(1)+'.o')
             module = file.split(os.path.sep)[1]

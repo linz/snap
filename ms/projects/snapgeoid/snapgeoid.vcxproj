@@ -105,7 +105,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapgeoid\snapgeoid.c" />
+    <ClCompile Include="..\..\..\src\snapgeoid\snapgeoid.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">

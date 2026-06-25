@@ -126,7 +126,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapplot\backgrnd.c" />
+    <ClCompile Include="..\..\..\src\snapplot\backgrnd.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\ctrl_station_selector.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\dlg_error_options.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\dlg_findstation.cpp" />
@@ -135,21 +135,21 @@
     <ClCompile Include="..\..\..\src\snapplot\dlg_obs_options.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\dlg_pen_options.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\dlg_station_highlight.cpp" />
-    <ClCompile Include="..\..\..\src\snapplot\dxfplot.c" />
-    <ClCompile Include="..\..\..\src\snapplot\loadplot.c" />
-    <ClCompile Include="..\..\..\src\snapplot\plotbin.c" />
-    <ClCompile Include="..\..\..\src\snapplot\plotcmd.c" />
-    <ClCompile Include="..\..\..\src\snapplot\plotconn.c" />
-    <ClCompile Include="..\..\..\src\snapplot\plotfunc.c" />
-    <ClCompile Include="..\..\..\src\snapplot\plotscal.c" />
-    <ClCompile Include="..\..\..\src\snapplot\plotstns.c" />
+    <ClCompile Include="..\..\..\src\snapplot\dxfplot.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\loadplot.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\plotbin.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\plotcmd.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\plotconn.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\plotfunc.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\plotscal.cpp" />
+    <ClCompile Include="..\..\..\src\snapplot\plotstns.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_app.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_detailsview.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_dragger.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_event.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_frame.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_layers.cpp" />
-    <ClCompile Include="..\..\..\src\snapplot\snapplot_load.c" />
+    <ClCompile Include="..\..\..\src\snapplot\snapplot_load.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_loadlog.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_map.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_mapprinter.cpp" />
@@ -157,7 +157,7 @@
     <ClCompile Include="..\..\..\src\snapplot\snapplot_obslist.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_stationlist.cpp" />
     <ClCompile Include="..\..\..\src\snapplot\snapplot_util.cpp" />
-    <ClCompile Include="..\..\..\src\snapplot\trimmer.c" />
+    <ClCompile Include="..\..\..\src\snapplot\trimmer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snapplot\backgrnd.h" />

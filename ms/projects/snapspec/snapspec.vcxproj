@@ -120,8 +120,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapspec\dbl4_adc_sdc.c" />
-    <ClCompile Include="..\..\..\src\snapspec\snapspec.c" />
+    <ClCompile Include="..\..\..\src\snapspec\dbl4_adc_sdc.cpp" />
+    <ClCompile Include="..\..\..\src\snapspec\snapspec.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\src\snapspec\dbl4_adc_sdc.h" />

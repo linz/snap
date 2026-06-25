@@ -105,7 +105,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\dat2site\dat2site.c" />
+    <ClCompile Include="..\..\..\src\dat2site\dat2site.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">

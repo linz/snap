@@ -110,7 +110,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\concord\concord.c" />
+    <ClCompile Include="..\..\..\src\concord\concord.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">

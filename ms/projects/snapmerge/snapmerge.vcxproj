@@ -151,7 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapmerge\snapmerge.c" />
+    <ClCompile Include="..\..\..\src\snapmerge\snapmerge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\snaplib\snaplib.vcxproj">
