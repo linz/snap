@@ -23,6 +23,6 @@ jobs:
           sudo apt-get update
           DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libboost-filesystem-dev python3
       - name: Build snap command line utilities for regression tests
-        run: python3 build.py release snap_cmd
+        run: python3 build.py release snap_cmd --no-gui
       - name: Run regression tests
         run: perl regression_tests/testall.pl -e -r
