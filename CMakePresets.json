@@ -1,0 +1,63 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "windows-msvc-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "cl.exe",
+        "BOOST_ROOT": "$env{BOOST_ROOT}",
+        "SNAP_BUILD_GUI": "OFF"
+      }
+    },
+    {
+      "name": "windows-msvc-debug",
+      "displayName": "Windows x64 Debug (MSVC)",
+      "inherits": "windows-msvc-base",
+      "binaryDir": "${sourceDir}/build/windows-debug",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug"
+      }
+    },
+    {
+      "name": "windows-msvc-release",
+      "displayName": "Windows x64 Release (MSVC)",
+      "inherits": "windows-msvc-base",
+      "binaryDir": "${sourceDir}/build/windows-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release"
+      }
+    },
+    {
+      "name": "windows-msvc-debug-gui",
+      "displayName": "Windows x64 Debug with GUI (MSVC)",
+      "inherits": "windows-msvc-debug",
+      "binaryDir": "${sourceDir}/build/windows-debug-gui",
+      "cacheVariables": {
+        "SNAP_BUILD_GUI": "ON",
+        "wxWidgets_ROOT_DIR": "$env{WXWIN}",
+        "wxWidgets_LIB_DIR": "$env{WXWIN}/lib/vc_x64_lib",
+        "wxWidgets_USE_REL_AND_DBG": "OFF"
+      }
+    },
+    {
+      "name": "windows-msvc-release-gui",
+      "displayName": "Windows x64 Release with GUI (MSVC)",
+      "inherits": "windows-msvc-release",
+      "binaryDir": "${sourceDir}/build/windows-release-gui",
+      "cacheVariables": {
+        "SNAP_BUILD_GUI": "ON",
+        "wxWidgets_ROOT_DIR": "$env{WXWIN}",
+        "wxWidgets_LIB_DIR": "$env{WXWIN}/lib/vc_x64_lib",
+        "wxWidgets_USE_REL_AND_DBG": "OFF"
+      }
+    }
+  ],
+  "buildPresets": [
+    {"name": "windows-msvc-debug", "configurePreset": "windows-msvc-debug"},
+    {"name": "windows-msvc-release", "configurePreset": "windows-msvc-release"},
+    {"name": "windows-msvc-debug-gui", "configurePreset": "windows-msvc-debug-gui"},
+    {"name": "windows-msvc-release-gui", "configurePreset": "windows-msvc-release-gui"}
+  ]
+}

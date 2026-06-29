@@ -2,12 +2,21 @@
 # Populates <var> with absolute paths of all tracked .cpp files under <path>
 # (relative to CMAKE_CURRENT_SOURCE_DIR).  CMake re-configures automatically
 # when the git index changes (i.e. after git add / git rm).
+# HINTS cover VS's bundled git, which isn't on PATH during cmake configure.
+# On Linux the env vars are unset so the hints are ignored and git is found via PATH.
+find_program(GIT_EXECUTABLE git
+    HINTS
+        "$ENV{VSINSTALLDIR}Common7/IDE/CommonExtensions/Microsoft/TeamFoundation/Team Explorer/Git/cmd"
+        "$ENV{ProgramFiles}/Git/cmd"
+        "$ENV{ProgramW6432}/Git/cmd"
+    REQUIRED)
+
 set_property(DIRECTORY "${CMAKE_SOURCE_DIR}" APPEND PROPERTY
     CMAKE_CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/.git/index")
 
 function(git_sources var path)
     execute_process(
-        COMMAND git ls-files -- ":(glob)${path}**/*.cpp"
+        COMMAND "${GIT_EXECUTABLE}" ls-files -- ":(glob)${path}**/*.cpp"
         WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
         OUTPUT_VARIABLE _raw
         OUTPUT_STRIP_TRAILING_WHITESPACE
@@ -32,6 +41,7 @@ include_directories(
 
 # ── Common link dependencies ──────────────────────────────────────────────────
 add_library(snap_link_deps INTERFACE)
+target_include_directories(snap_link_deps INTERFACE ${Boost_INCLUDE_DIRS})
 target_link_libraries(snap_link_deps INTERFACE
     Boost::filesystem
     Boost::regex
@@ -101,22 +111,25 @@ if(SNAP_BUILD_GUI)
 
     git_sources(SNAP_MANAGER_SOURCES "snap_manager/")
     list(APPEND SNAP_MANAGER_SOURCES ${_parse_cpp})
-    add_executable(snap_manager
+    add_executable(snap_manager WIN32
         ${SNAP_MANAGER_SOURCES}
         $<$<BOOL:${WIN32}>:snap_manager/snap_manager.rc>)
     target_link_libraries(snap_manager PRIVATE wxutils snaplib snap_link_deps)
+    target_include_directories(snap_manager PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
-    add_executable(snapadjust
+    add_executable(snapadjust WIN32
         snapadjust/snapadjust_app.cpp
         $<TARGET_OBJECTS:snap_core>
         $<$<BOOL:${WIN32}>:snapadjust/snapadjust.rc>)
     target_link_libraries(snapadjust PRIVATE wxutils snaplib snap_link_deps)
+    target_include_directories(snapadjust PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 
     git_sources(SNAPPLOT_SOURCES "snapplot/")
-    add_executable(snapplot
+    add_executable(snapplot WIN32
         ${SNAPPLOT_SOURCES}
         $<$<BOOL:${WIN32}>:snapplot/snapplot.rc>)
     target_link_libraries(snapplot PRIVATE wxutils snaplib snap_link_deps)
+    target_include_directories(snapplot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/resources)
 endif()
 
 # ── Install ───────────────────────────────────────────────────────────────────
@@ -128,20 +141,20 @@ if(SNAP_BUILD_GUI)
 endif()
 
 install(TARGETS ${SNAP_CMD_TARGETS} ${SNAP_GUI_TARGETS}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_DATADIR}/linz/snap)
+    RUNTIME DESTINATION ${SNAP_INSTALL_ROOT})
 
 install(DIRECTORY
         ${CMAKE_CURRENT_SOURCE_DIR}/snap/config/
         ${CMAKE_CURRENT_SOURCE_DIR}/snapspec/config/
         ${CMAKE_CURRENT_SOURCE_DIR}/snaplist/config/
         ${CMAKE_CURRENT_SOURCE_DIR}/snap_manager/config/
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/linz/snap/config)
+    DESTINATION ${SNAP_INSTALL_ROOT}/config)
 
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/perl/
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/linz/snap/config/perl)
+    DESTINATION ${SNAP_INSTALL_ROOT}/config/perl)
 
-install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/VERSION
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/linz/snap)
+install(FILES ${CMAKE_SOURCE_DIR}/VERSION
+    DESTINATION ${SNAP_INSTALL_ROOT})
 
 install(CODE "
     execute_process(
@@ -151,22 +164,22 @@ install(CODE "
         OUTPUT_STRIP_TRAILING_WHITESPACE
         ERROR_QUIET)
     if(_versionid)
-        file(WRITE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/linz/snap/VERSIONID\" \"\${_versionid}\")
+        file(WRITE \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${SNAP_INSTALL_ROOT}/VERSIONID\" \"\${_versionid}\")
     endif()
 ")
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/help/help/
-    DESTINATION ${CMAKE_INSTALL_DATADIR}/linz/snap/help)
+    DESTINATION ${SNAP_INSTALL_ROOT}/help)
 
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/packages/devel/
-        DESTINATION ${CMAKE_INSTALL_DATADIR}/linz/snap/config/package/devel)
+        DESTINATION ${SNAP_INSTALL_ROOT}/config/package/devel)
 endif()
 
 # Coordsys symlink — Linux/Debian packaging only
 if(UNIX)
     install(CODE "
-        set(_link \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/linz/snap/config/coordsys\")
+        set(_link \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${SNAP_INSTALL_ROOT}/config/coordsys\")
         if(NOT EXISTS \"\${_link}\")
             file(CREATE_LINK \"${SNAP_COORDSYSDIR}\" \"\${_link}\" SYMBOLIC)
         endif()
