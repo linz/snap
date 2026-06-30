@@ -15,7 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\src\snapplot\backgrnd.c">
+    <ClCompile Include="..\..\..\src\snapplot\backgrnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snapplot\ctrl_station_selector.cpp">
@@ -42,28 +42,28 @@
     <ClCompile Include="..\..\..\src\snapplot\dlg_station_highlight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\dxfplot.c">
+    <ClCompile Include="..\..\..\src\snapplot\dxfplot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\loadplot.c">
+    <ClCompile Include="..\..\..\src\snapplot\loadplot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\plotbin.c">
+    <ClCompile Include="..\..\..\src\snapplot\plotbin.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\plotcmd.c">
+    <ClCompile Include="..\..\..\src\snapplot\plotcmd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\plotconn.c">
+    <ClCompile Include="..\..\..\src\snapplot\plotconn.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\plotfunc.c">
+    <ClCompile Include="..\..\..\src\snapplot\plotfunc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\plotscal.c">
+    <ClCompile Include="..\..\..\src\snapplot\plotscal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\plotstns.c">
+    <ClCompile Include="..\..\..\src\snapplot\plotstns.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snapplot\snapplot_app.cpp">
@@ -84,7 +84,7 @@
     <ClCompile Include="..\..\..\src\snapplot\snapplot_layers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\snapplot_load.c">
+    <ClCompile Include="..\..\..\src\snapplot\snapplot_load.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\src\snapplot\snapplot_loadlog.cpp">
@@ -108,7 +108,7 @@
     <ClCompile Include="..\..\..\src\snapplot\snapplot_util.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\src\snapplot\trimmer.c">
+    <ClCompile Include="..\..\..\src\snapplot\trimmer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

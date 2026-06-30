@@ -1,15 +1,6 @@
 BUILD INSTRUCTIONS
 ==================
 
-Old instructions .. these require updating.  
-
-Note that it is intended to implement cmake for these build tasks.  
-Also boost and wxwidgets components need well defined installation processes.
-
-Note that although source files include both .c and .cpp extensions they 
-are all compiled as C++, which provides some better error checking etc.
-Note also that the code currently generates a scary number of compiler 
-warnings!
 
 Build instructions Windows
 ==========================
@@ -42,49 +33,46 @@ The .msi file will be created in the ms/install/Release directory
 Build instructions for Linux
 ============================
 
-These instructions are not complete.  In as much as they are, they have 
-been tested against a Ubunutu 18.04 amd64 platform.  They may require adapting for other 
-distributions.
+Tested against Ubuntu 22.04 (Jammy) and 24.04 (Noble) amd64.
 
-Install prerequisites (the last three are required to build a debian package 
+Install prerequisites (the last three are required to build a debian package
 for installation):
 
 ```
 apt-get install -y \
+    cmake \
     g++ \
     libboost-all-dev \
-    libwxgtk3.0-gtk3-dev \
+    libwxgtk3.2-dev \
     perl \
+    python3 \
     debhelper \
     dpkg-dev \
     devscripts
 ```
 
-The snap software is built using the makefile in the linux directory
+The snap software is built using `build.py` in the root of the repository:
 
 ```
-cd linux
-make
-make test
+python3 build.py
+python3 build.py release test
 ```
 
-(Note: for the release version running make test rebuilds some components as the
-compilation date is updated by the build).
+Build types are `release` (default), `debug`, and `profile`. The release build
+is placed in `build-release/`. The GUI targets (snap_manager, snapadjust,
+snapplot) are built by default; pass `--no-gui` to skip them. See
+`python3 build.py --help` for all options.
 
-The software is built in the linux/release/install directory.
-
-To build a debian package
+To build a debian package (all changes must be committed first):
 
 ```
-make package
+python3 build.py release package
 ```
 
-The package will be created in the root directory and can be installed using 
-dpkg -i linz-snap-<i>version</i>.deb.  Note that this installs snap into the 
-default path /usr/bin as runsnap.  This is to avoid conflict with the system snap
-command.  The snap components are installed into /usr/share/linz/snap.  To use
-the snap command itself you can install this directory into the path, for 
-example in the .bashrc file 
+The package will be created in the parent directory and can be installed using
+`dpkg -i linz-snap-<version>.deb`. The snap components are installed into
+`/usr/share/linz/snap`. To use the snap command itself you can add this
+directory to the path, for example in the `.bashrc` file:
 
 ```
 export PATH=/usr/share/linz/snap:${PATH}

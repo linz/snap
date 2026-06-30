@@ -11,6 +11,7 @@ RUN apt-get install --no-install-recommends -y \
     debhelper \
     git
 RUN apt-get install -y \
+    cmake \
     g++ \
     libboost-dev \
     libboost-math-dev \

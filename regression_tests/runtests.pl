@@ -141,23 +141,23 @@ die "Configuration does not define program\n" if ! @{$config->{program}};
 
 my $linux_config={
     name=>"Linux",
-    debug_dir=>'../../linux/debug/install',
-    release_dir=>'../../linux/release/install',
+    debug_dir=>'../../build-debug/src',
+    release_dir=>'../../build-release/src',
     install_dir=>'/usr/share/linz/snap',
     debug_prefix=>'gdb --args '
 };
 
 my $win32_config={
    name=>"Windows 32",
-   debug_dir=>'../../ms/built/Debugx86',
-   release_dir=>'../../ms/built/Releasex86',
+   debug_dir=>'../../build-debug/src',
+   release_dir=>'../../build-release/src',
    install_dir=>'C:/Program Files (x86)/Land Information New Zealand/SNAP',
 };
 
 my $win64_config={
    name=>"Windows 64",
-   debug_dir=>'../../ms/built/Debugx64',
-   release_dir=>'../../ms/built/Releasex64',
+   debug_dir=>'../../build-debug/src',
+   release_dir=>'../../build-release/src',
    install_dir=>'C:/Program Files/Land Information New Zealand/SNAP64',
 };
 
