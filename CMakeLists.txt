@@ -139,11 +139,23 @@ if(WIN32)
         # The old vdproj installer always created a Desktop shortcut for SNAP
         # Manager (not optional). CPack's own "Create Desktop Icon" checkbox
         # is non-functional in the current NSIS template, so add it directly.
+        #
+        # It also registered .snp/.snap files to open in SNAP Manager.
         set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [[
   CreateShortCut "$DESKTOP\SNAP Manager.lnk" "$INSTDIR\snap_manager.exe"
+
+  WriteRegStr SHCTX "Software\Classes\.snp" "" "SNAP.CommandFile"
+  WriteRegStr SHCTX "Software\Classes\.snap" "" "SNAP.CommandFile"
+  WriteRegStr SHCTX "Software\Classes\SNAP.CommandFile" "" "SNAP command file"
+  WriteRegStr SHCTX "Software\Classes\SNAP.CommandFile\DefaultIcon" "" "$INSTDIR\snap_manager.exe,0"
+  WriteRegStr SHCTX "Software\Classes\SNAP.CommandFile\shell\open\command" "" '"$INSTDIR\snap_manager.exe" "%1"'
 ]])
         set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [[
   Delete "$DESKTOP\SNAP Manager.lnk"
+
+  DeleteRegKey SHCTX "Software\Classes\.snp"
+  DeleteRegKey SHCTX "Software\Classes\.snap"
+  DeleteRegKey SHCTX "Software\Classes\SNAP.CommandFile"
 ]])
     endif()
     include(CPack)
