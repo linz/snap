@@ -176,7 +176,9 @@ if(CMAKE_BUILD_TYPE STREQUAL "Debug")
         DESTINATION ${SNAP_INSTALL_ROOT}/config/package/devel)
 endif()
 
-# Coordsys symlink — Linux/Debian packaging only
+# Coordsys data: on Linux this comes from a separate Debian package, so we
+# just symlink to it; Windows has no equivalent package, so install the data
+# directly.
 if(UNIX)
     install(CODE "
         set(_link \"\$ENV{DESTDIR}\${CMAKE_INSTALL_PREFIX}/${SNAP_INSTALL_ROOT}/config/coordsys\")
@@ -184,4 +186,7 @@ if(UNIX)
             file(CREATE_LINK \"${SNAP_COORDSYSDIR}\" \"\${_link}\" SYMBOLIC)
         endif()
     ")
+else()
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/coordsys/
+        DESTINATION ${SNAP_INSTALL_ROOT}/config/coordsys)
 endif()
