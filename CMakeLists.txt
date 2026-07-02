@@ -136,6 +136,15 @@ if(WIN32)
             "snap_manager" "SNAP Manager"
             "snapadjust" "SNAP Adjust"
             "snapplot" "SNAP Plot")
+        # The old vdproj installer always created a Desktop shortcut for SNAP
+        # Manager (not optional). CPack's own "Create Desktop Icon" checkbox
+        # is non-functional in the current NSIS template, so add it directly.
+        set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [[
+  CreateShortCut "$DESKTOP\SNAP Manager.lnk" "$INSTDIR\snap_manager.exe"
+]])
+        set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [[
+  Delete "$DESKTOP\SNAP Manager.lnk"
+]])
     endif()
     include(CPack)
 endif()
