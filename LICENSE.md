@@ -1,11 +1,11 @@
-Copyright (c) 2017, Land Information New Zealand
+Copyright (c) 2017-2026, Land Information New Zealand
 All rights reserved.
 
 SNAP original components are released under the following license. This
 excludes the contents of the following directories:
-* the contents of the wxwidgets-2.8 directory.  The wxwidgets-2.8 directory 
-  is copied directly from https://www.wxwidgets.org and is subject to the 
-  license in wxwidgets-2.8/docs/licendoc.txt.
+* wxWidgets, vendored as wxwidgets/wxWidgets-3.2.4.7z and built locally via
+  wxwidgets/build_wx64.bat, is copied directly from https://www.wxwidgets.org
+  and is subject to its own license, see https://www.wxwidgets.org/about/licence/.
 * lapg: subject to the license in tools/lapg/src/license
 
 LICENSE

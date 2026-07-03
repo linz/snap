@@ -45,7 +45,7 @@ bool RecordStream::_iscomment(const std::string &str)
     if (!_leadcomment)
         return false;
     auto first = std::find_if(str.begin(), str.end(),
-                              std::not1(std::ptr_fun<int, int>(std::isspace)));
+                              [](unsigned char c) { return !std::isspace(c); });
     return first < str.end() && (*first) == _leadcomment;
 }
 

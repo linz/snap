@@ -2,6 +2,7 @@
 .vscode/
 .vscodex/
 .vs/
+CMakeUserPresets.json
 *.swp
 *.o
 *.obj

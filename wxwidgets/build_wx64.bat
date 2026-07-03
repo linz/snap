@@ -1,3 +1,9 @@
+@echo off
+REM Auto-configure the MSVC x64 environment so this bat can be run from any prompt.
+set "VSWHERE=%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe"
+for /f "usebackq tokens=*" %%i in (`"%VSWHERE%" -latest -property installationPath`) do set "_VSINSTALL=%%i"
+call "%_VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
+
 REM Build wx widgets libraries
 
 cd wxwidgets\build\msw

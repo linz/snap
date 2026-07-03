@@ -1,9 +1,0 @@
-*.pdb
-*.sdf
-*.ipch
-*.suo
-*.user
-/built/
-/install/
-/lib/
-/temp/

@@ -5,30 +5,62 @@ BUILD INSTRUCTIONS
 Build instructions Windows
 ==========================
 
-Note: Building 32bit windows versions is no longer maintained.  Only 64 bit Release and Debug configurations are still supported.
+Only 64-bit builds are supported.
 
-In order to build SNAP the following tools must be installed on the build computer:
+**Prerequisites**
 
-1) Microsoft Visual Studio 2014
+1. **CMake** 3.20 or later — https://cmake.org/download/
+2. **Ninja** — `winget install Ninja-build.Ninja` or download from https://ninja-build.org
+3. **Visual Studio 2022 or later** with the *Desktop development with C++* workload
+4. **Boost** — download source from https://www.boost.org/users/download/ and build the
+   required components from the Boost root directory:
+   ```
+   ./b2 toolset=msvc-14.3 --with-filesystem --with-regex --with-system
+   ```
+   Replace the toolset version to match your Visual Studio installation:
+   | Visual Studio | Toolset   |
+   |---------------|-----------|
+   | 2022          | msvc-14.3 |
+   | 2026          | msvc-14.5 |
 
-2) perl (this has been built with the Activestate perl distribution, however other distributions should work)
+   Then set the `BOOST_ROOT` environment variable to the Boost root directory
+   (e.g. `set BOOST_ROOT=C:\boost_1_78_0`).
+5. **Perl** — ActiveState (https://www.activestate.com/products/perl/) or
+   Strawberry Perl (https://strawberryperl.com/)
 
-3) hhc - the Microsoft HTML help compiler - assumed to be in a directory in the PATH variable.  This is no longer maintained by MicroSoft.  Looking at alternatives!
+**Building**
 
-4) boost libraries installed into a /boost subdirectory.  The boost libraries are downloaded from https://sourceforge.net/projects/boost/.  Currently installed using the prebuilt binaries and installing to snap directory, which creates boost subdirectory (but also overwrites README.md).  The boost version may need updating in ms/projects/snapwin.props.  
+Run all commands from an *x64 Native Tools Command Prompt for VS* so that `cl.exe` is on
+the PATH.
 
-5) wxWidgets built in the /wxwidgets directory (see the README.md file in that directory)
+```
+cmake --preset windows-msvc-release
+cmake --build --preset windows-msvc-release
+```
 
+Binaries are placed in `build\windows-release\`. For a debug build use the
+`windows-msvc-debug` preset, which places output in `build\windows-debug\`.
 
-Build the snap programs
-* Open ms/projects/snapwin.sln
-* Set the configuration to "Debug" or "Release"
-* Build the solution.
+**Packaging**
 
-To build the installation (.msi) file
-* Set the configuration to "Release"
-* Build the snap_install project (note: this is not built by default)
-The .msi file will be created in the ms/install/Release directory
+Run `cpack` inside the build directory after a successful release build:
+
+```
+cmake --preset windows-msvc-release
+cmake --build --preset windows-msvc-release
+cd build\windows-release
+cpack           # builds both ZIP archive and NSIS installer
+cpack -G ZIP    # ZIP only — useful for a portable install without running a setup wizard
+cpack -G NSIS   # NSIS installer only
+```
+
+NSIS must be installed for the `.exe` target: https://nsis.sourceforge.io/
+
+**GUI targets (optional)**
+
+The GUI programs (snap_manager, snapadjust, snapplot) are disabled by default on Windows.
+Building them requires wxWidgets — see `wxwidgets\README.md` for instructions.
+Once wxWidgets is built, re-configure with `-DSNAP_BUILD_GUI=ON`.
 
 Build instructions for Linux
 ============================
