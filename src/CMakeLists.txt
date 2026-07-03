@@ -156,6 +156,13 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/perl/
 install(FILES ${CMAKE_SOURCE_DIR}/VERSION
     DESTINATION ${SNAP_INSTALL_ROOT})
 
+# Invoked by the NSIS installer (see CPACK_NSIS_EXTRA_INSTALL/UNINSTALL_COMMANDS)
+# to add/remove SNAP_INSTALL_ROOT from the system PATH.
+if(WIN32)
+    install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resources/snap_setup.js
+        DESTINATION ${SNAP_INSTALL_ROOT})
+endif()
+
 install(CODE "
     execute_process(
         COMMAND git rev-parse --short HEAD

@@ -128,21 +128,41 @@ if(WIN32)
     set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "LINZ\\snap")
     set(CPACK_NSIS_DISPLAY_NAME "SNAP ${PROJECT_VERSION}")
+    # CPack's own modify-PATH option (CPACK_NSIS_MODIFY_PATH) always targets a
+    # hardcoded "$INSTDIR\bin", which doesn't exist in our flat install layout
+    # (see CPACK_NSIS_EXECUTABLES_DIRECTORY below) - it would silently do nothing.
+    # The plain NSIS AddToPath/RemoveFromPath functions it would otherwise use
+    # are also unsafe: they read/write PATH through a fixed-length NSIS string
+    # and silently truncate (corrupting PATH) if it's already long, which is
+    # common on a machine with a lot installed - see
+    # https://nsis.sourceforge.io/Path_Manipulation. So instead, reuse the old
+    # vdproj installer's snap_setup.vbs logic (ported to snap_setup.js - see
+    # that file for why), which does this safely via WScript.Shell (no
+    # fixed-length buffer) and has done so correctly for years.
     set(CPACK_NSIS_MODIFY_PATH OFF)
     # Executables install flat under SNAP_INSTALL_ROOT ("."), not the NSIS-default "bin".
     set(CPACK_NSIS_EXECUTABLES_DIRECTORY ".")
+    set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [[
+  ExecWait 'cscript //nologo "$INSTDIR\snap_setup.js" install "$INSTDIR"'
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+]])
+    set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [[
+  ExecWait 'cscript //nologo "$INSTDIR\snap_setup.js" uninstall "$INSTDIR"'
+  SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
+]])
     if(SNAP_BUILD_GUI)
         set(CPACK_PACKAGE_EXECUTABLES
             "snap_manager" "SNAP Manager"
             "snapadjust" "SNAP Adjust"
             "snapplot" "SNAP Plot")
         # The old vdproj installer always created a Desktop shortcut for SNAP
-        # Manager (not optional). CPack's own "Create Desktop Icon" checkbox
-        # is non-functional in the current NSIS template, so add it directly.
+        # Manager (not optional, named "Run SNAP"). CPack's own "Create Desktop
+        # Icon" checkbox is non-functional in the current NSIS template, so add
+        # it directly.
         #
         # It also registered .snp/.snap files to open in SNAP Manager.
-        set(CPACK_NSIS_EXTRA_INSTALL_COMMANDS [[
-  CreateShortCut "$DESKTOP\SNAP Manager.lnk" "$INSTDIR\snap_manager.exe"
+        string(APPEND CPACK_NSIS_EXTRA_INSTALL_COMMANDS [[
+  CreateShortCut "$DESKTOP\Run SNAP.lnk" "$INSTDIR\snap_manager.exe"
 
   WriteRegStr SHCTX "Software\Classes\.snp" "" "SNAP.CommandFile"
   WriteRegStr SHCTX "Software\Classes\.snap" "" "SNAP.CommandFile"
@@ -150,8 +170,8 @@ if(WIN32)
   WriteRegStr SHCTX "Software\Classes\SNAP.CommandFile\DefaultIcon" "" "$INSTDIR\snap_manager.exe,0"
   WriteRegStr SHCTX "Software\Classes\SNAP.CommandFile\shell\open\command" "" '"$INSTDIR\snap_manager.exe" "%1"'
 ]])
-        set(CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [[
-  Delete "$DESKTOP\SNAP Manager.lnk"
+        string(APPEND CPACK_NSIS_EXTRA_UNINSTALL_COMMANDS [[
+  Delete "$DESKTOP\Run SNAP.lnk"
 
   DeleteRegKey SHCTX "Software\Classes\.snp"
   DeleteRegKey SHCTX "Software\Classes\.snap"
