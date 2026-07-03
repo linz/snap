@@ -189,8 +189,17 @@ SnapplotFrame::~SnapplotFrame()
 void SnapplotFrame::SetupIcons()
 {
     wxIconBundle icons;
+#ifdef __WXMSW__
+    // snap.ico embeds 16/32/48/256px frames (for a crisp Explorer/shortcut icon), so an
+    // explicit size is needed here to still get a distinct small and large icon -
+    // wxICON()'s default load just returns whichever frame matches the system's
+    // standard large-icon size for both calls.
+    icons.AddIcon( wxIcon(wxT("ICO_SNAP16"), wxBITMAP_TYPE_ICO_RESOURCE, 16, 16) );
+    icons.AddIcon( wxIcon(wxT("ICO_SNAP32"), wxBITMAP_TYPE_ICO_RESOURCE, 32, 32) );
+#else
     icons.AddIcon( wxIcon(wxICON(ICO_SNAP16)) );
     icons.AddIcon( wxIcon(wxICON(ICO_SNAP32)) );
+#endif
     SetIcons( icons );
 }
 
