@@ -11,6 +11,8 @@
 */
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include <time.h>
 #include "util/get_date.h"
 
@@ -24,6 +26,19 @@ static char runtime[GETDATELEN];
 char *get_date( char * datestr )
 {
     if( !datestr ) datestr = runtime;
+
+    // Test tooling needs deterministic .bin output to diff byte-for-byte
+    // against a committed golden copy. The real current time can't do
+    // that, so this override writes a fixed value into the full
+    // GETDATELEN buffer instead - covering every byte, not just the
+    // string prefix, so no output byte is left non-deterministic.
+    const char *fixed_date = getenv( "SNAP_TEST_FIXED_DATE" );
+    if( fixed_date ) {
+        memset( datestr, 0, GETDATELEN );
+        snprintf( datestr, GETDATELEN, "%s", fixed_date );
+        return datestr;
+    }
+
     time( &now );
     lt = localtime( &now );
     sprintf( datestr, "%2d-%3s-%4d %02d:%02d:%02d", lt->tm_mday,

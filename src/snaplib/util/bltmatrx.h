@@ -90,6 +90,14 @@ double *blt_get_row_data( bltmatrix * blt, int irow );
 /* Only returns rows fully populated to diagonal */
 void dump_bltmatrix( bltmatrix *blt, FILE *b );
 int reload_bltmatrix( bltmatrix **pblt, FILE *b );
+/* Dense variant: no per-row column marker, every row starts at column 0.
+   This is the encoding snapmain.cpp's dump_covariance_matrix uses for
+   FULL_COVARIANCE - it calls dump_bltmatrix_dense_header/_row directly.
+   See bltmatrx.cpp for details. */
+void dump_bltmatrix_dense_header( bltmatrix *blt, FILE *b );
+void dump_bltmatrix_dense_row( bltmatrix *blt, int irow, FILE *b );
+void dump_bltmatrix_dense( bltmatrix *blt, FILE *b );
+int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b );
 void print_bltmatrix( FILE *out, bltmatrix *blt, char *format, int indent );
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format );
 

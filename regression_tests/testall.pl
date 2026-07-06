@@ -23,4 +23,14 @@ foreach my $f (glob('*/test.config'))
     my $rc=system("perl ./runtests.pl -c $f $param");
     $fail=1 if $rc;
 }
+
+# Suites with their own standalone driver script instead of a
+# test.config - checktests.pl's regex/text-diff engine isn't suited to
+# a binary-file comparison, so these run and report pass/fail directly.
+foreach my $t (glob('*/run_test.py'))
+{
+    my $rc=system("python3 $t");
+    $fail=1 if $rc;
+}
+
 exit($fail);
