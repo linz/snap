@@ -133,7 +133,7 @@ typedef struct           /* Data relating to an observation or set of obs */
         vecdata *vdata;
         pntdata *pdata;
     } obs;
-    long obsalloc;      /* Space allocated for the observations */
+    int32_t obsalloc;   /* Space allocated for the observations */
     int maxcvr;       /* Allocated size of covariance matrices */
     int maxclass;     /* Allocated size of classification array */
     int maxsyserr;    /* Allocated size of systematic error array */

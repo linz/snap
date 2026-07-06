@@ -18,6 +18,8 @@
 /* Define a binary file containing a list of binary sections */
 
 #include <stdint.h>
+#include <limits>
+#include <stdexcept>
 
 #ifndef _ERRDEF_H
 #include "util/errdef.h"
@@ -43,14 +45,50 @@ void end_section( BINARY_FILE *bin );
 int find_section( BINARY_FILE *bin, const char *section );
 int check_end_section( BINARY_FILE *bin );
 
-#define DUMP_BIN(x,b)   fwrite(&x,sizeof(x),1,b->f)
-#define RELOAD_BIN(x,b) fread(&x,sizeof(x),1,b->f)
+template<class T> inline void write_raw( FILE *f, const T &x ) { fwrite(&x, sizeof(T), 1, f); }
+template<class T> inline void read_raw( FILE *f, T &x )        { fread(&x, sizeof(T), 1, f); }
 
-#define DUMP_BINI16(x,b)   { int16_t dumpval=(int16_t) x; DUMP_BIN(dumpval,b); }
-#define DUMP_BINI32(x,b)   { int32_t dumpval=(int32_t) x; DUMP_BIN(dumpval,b); }
-#define DUMP_BINI64(x,b)   { int64_t dumpval=(int64_t) x; DUMP_BIN(dumpval,b); }
+template<class Disk, class T> inline void write_raw_as( FILE *f, const T &x )
+{ Disk d = static_cast<Disk>(x); write_raw(f, d); }
+template<class Disk, class T> inline void read_raw_as( FILE *f, T &x )
+{ Disk d; read_raw(f, d); x = static_cast<T>(d); }
 
-#define RELOAD_BINI16(x,b)   { int16_t dumpval; RELOAD_BIN(dumpval,b); x=dumpval; }
-#define RELOAD_BINI32(x,b)   { int32_t dumpval; RELOAD_BIN(dumpval,b); x=dumpval; }
-#define RELOAD_BINI64(x,b)   { int64_t dumpval; RELOAD_BIN(dumpval,b); x=dumpval; }
+// These BINARY_FILE-taking wrappers are a thin `b->f` unwrap around the FILE*-based
+// functions above, nothing more - BINARY_FILE (above) is a plain C struct with public
+// members, so this isn't encapsulation/access-control (any call site could reach into
+// ->f directly, same as the DUMP_BIN/RELOAD_BIN macros they replace already did). The
+// actual trade-off is just where the ->f unwrap happens: once here, vs repeated at
+// every call site. Kept for now for that convenience and to match the existing
+// call-site vocabulary (create_section(b, ...), etc.) - not because inlining
+// write_raw_as<Disk>(b->f, x) at call sites would be wrong.
+template<class T> inline void dump_bin( BINARY_FILE *b, const T &x )   { write_raw(b->f, x); }
+template<class T> inline void reload_bin( BINARY_FILE *b, T &x )       { read_raw(b->f, x); }
+
+template<class Disk, class T> inline void dump_bin_fixed( BINARY_FILE *b, const T &x )   { write_raw_as<Disk>(b->f, x); }
+template<class Disk, class T> inline void reload_bin_fixed( BINARY_FILE *b, T &x )       { read_raw_as<Disk>(b->f, x); }
+
+// long -> int32_t is the one narrowing in this file format where the source type
+// (8 bytes on Linux/LP64) genuinely has more range than the disk representation
+// (4 bytes) - every other write_raw_as<Disk> use elsewhere is a same-width
+// reinterpretation (int/unsigned int/unsigned char are already 4/4/1 bytes on
+// every target here) where a value can never fail to fit. Kept as a dedicated,
+// non-template function rather than a generic checked write_raw_as, because a
+// generic numeric_limits<Disk> bounds check would misfire on the same-width,
+// different-signedness cases elsewhere (e.g. an unsigned char written as int8_t -
+// a legitimate value like 200 is in-range for the source type but out of int8_t's
+// signed range, even though it round-trips correctly via modular truncation).
+inline void write_raw_long32( FILE *f, long x )
+{
+    if (x < std::numeric_limits<int32_t>::min() || x > std::numeric_limits<int32_t>::max())
+        throw std::overflow_error("value exceeds int32_t range while writing .bin file");
+    write_raw_as<int32_t>(f, x);
+}
+inline void read_raw_long32( FILE *f, long &x )
+{
+    read_raw_as<int32_t>(f, x);   // int32_t -> long always widens safely, no check needed
+}
+
+inline void dump_bin_long32( BINARY_FILE *b, long x )      { write_raw_long32(b->f, x); }
+inline void reload_bin_long32( BINARY_FILE *b, long &x )   { read_raw_long32(b->f, x); }
+
 #endif

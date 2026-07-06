@@ -64,8 +64,8 @@ int64_t write_bindata_header( long size, int type )
 {
     int64_t loc;
     loc = ftell64( bindata_file );
-    fwrite( &size, sizeof(size), 1, bindata_file );
-    fwrite( &type, sizeof(type), 1, bindata_file );
+    write_raw_as<int64_t>( bindata_file, size );
+    write_raw( bindata_file, type );
     if( size > maxsize ) maxsize = size;
     if( type == SURVDATA ) nbindata++;
     return loc;
@@ -73,9 +73,11 @@ int64_t write_bindata_header( long size, int type )
 
 int read_bindata_header( long *size, int *type )
 {
-    if( fread( size, sizeof( long ), 1, bindata_file ) == 1 &&
+    int64_t disksize;
+    if( fread( &disksize, sizeof(disksize), 1, bindata_file ) == 1 &&
             fread( type, sizeof( int ), 1, bindata_file ) == 1 )
     {
+        *size = static_cast<long>(disksize);
         return 1;
     }
     else
