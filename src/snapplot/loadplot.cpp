@@ -106,9 +106,9 @@ static void list_missing_stations( void )
 }
 
 
-static long snap_id( int type, int group_id, const char *code )
+static int64_t snap_id( int type, int group_id, const char *code )
 {
-    long id;
+    int64_t id;
     id = 0;
     switch (type)
     {

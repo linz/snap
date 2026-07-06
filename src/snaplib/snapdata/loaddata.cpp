@@ -47,7 +47,7 @@ static trgtdata *tgt = NULL;
 static int tgt_id=0;
 static double tgt_hgt;
 static long file_lineno;
-static long noteloc;
+static int64_t noteloc;
 static int inst_cancelled;
 static int trgt_cancelled;
 static int data_cancelled;
@@ -130,7 +130,7 @@ void (*usedata_func)( survdata *sd );
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-static long (*id_func)( int type, int group_id, const char *code );
+static int64_t (*id_func)( int type, int group_id, const char *code );
 static const char * (*code_func)( int type, int group_id, long id );
 static double (*calc_func)( int type, long id1, long id2 );
 
@@ -342,7 +342,7 @@ static void report_error( const char *location )
 }
 
 void init_load_data( void (*usedata)( survdata *sd ),
-                     long (*idfunc)( int type, int group_id, const char *code ),
+                     int64_t (*idfunc)( int type, int group_id, const char *code ),
                      const char * (*codefunc)( int type, int group_id, long id ),
                      double (*calcfunc)( int type, long id1, long id2 ))
 {
@@ -719,7 +719,7 @@ static classdata *getclassdata( void )
     return classblock + idx;
 }
 
-long ldt_get_id( int type, int group_id, const char *code )
+int64_t ldt_get_id( int type, int group_id, const char *code )
 {
     if( type == ID_STATION && recoding )
     {
@@ -1042,15 +1042,13 @@ void ldt_vecsyserr( int syserr_id, double influence[] )
 
 void ldt_prefix_note( const char *note )
 {
-    long newnote;
     DEBUG_PRINT(("LDT: ldt_prefix_note %s",note));
-    newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
+    const int64_t newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
     if( !noteloc ) noteloc = newnote;
 }
 
 void ldt_note( const char *note )
 {
-    long newnote;
     DEBUG_PRINT(("LDT: ldt_note %s",note));
 
     if( !tgt )
@@ -1058,7 +1056,7 @@ void ldt_note( const char *note )
         report_error( "ldt_postfix_note" );
         return;
     }
-    newnote = ldt_get_id( ID_NOTE, tgt->noteloc ? 1 : 0, note );
+    const int64_t newnote = ldt_get_id( ID_NOTE, tgt->noteloc ? 1 : 0, note );
     if( !tgt->noteloc ) tgt->noteloc = newnote;
 }
 

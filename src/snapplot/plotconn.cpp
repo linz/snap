@@ -103,7 +103,7 @@ typedef struct
     float sres;            /* standardised residual */
     float rfac;            /*  factor */
     double date;           /*  date of observation */
-    long bloc;             /* location of binary data in data source */
+    int64_t bloc;          /* location of binary data in data source */
     int idata;           /* Index of data in data block in file */
     int cclass[1];        /* Classifications */
 } conn_data;
@@ -587,7 +587,7 @@ static int get_connection_to_id( int from, int to )
 }
 
 
-static int get_connection_obs_id( int from, int to_id, long bloc, int index )
+static int get_connection_obs_id( int from, int to_id, int64_t bloc, int index )
 {
     fconn_ptr *fp;
     tconn_ptr *tp;
@@ -632,7 +632,7 @@ int have_binary_data()
     return binary_data;
 }
 
-void add_survdata_connections( survdata *sd, long bloc )
+void add_survdata_connections( survdata *sd, int64_t bloc )
 {
     trgtdata *t;
     int i, j, iclass;
@@ -2759,7 +2759,7 @@ static double degree_angle( double rad )
     return angle;
 }
 
-void list_obsdata( void *dest, PutTextFunc f, survdata *sd, long binloc, int index )
+void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int index )
 {
     PutTextInfo jmp;
     obsdata *o;
@@ -2995,7 +2995,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, long binloc, int ind
 }
 
 void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
-                   long bloc, int index )
+                   int64_t bloc, int index )
 {
     PutTextInfo jmp;
     vecdata *v;

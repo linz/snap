@@ -8,7 +8,9 @@
 
 */
 
-long save_note( const char *note, int continued );
-void list_note( FILE *out, long loc );
+#include <stdint.h>
+
+int64_t save_note( const char *note, int continued );
+void list_note( FILE *out, int64_t loc );
 
 #endif

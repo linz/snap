@@ -11,6 +11,8 @@
 
 */
 
+#include <stdint.h>
+
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
 #endif
@@ -29,7 +31,7 @@
 
 void set_binary_data( int status );
 int have_binary_data( void );
-void add_survdata_connections( survdata *sd, long bloc );
+void add_survdata_connections( survdata *sd, int64_t bloc );
 void add_relative_covariance( int from, int to, double cvr[6] );
 
 #define DPEN_BY_TYPE -1

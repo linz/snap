@@ -8,6 +8,8 @@
 
 */
 
+#include <stdint.h>
+
 #ifndef _SYMMATRX_H
 #include "util/symmatrx.h"
 #endif
@@ -58,7 +60,7 @@ typedef struct
     int  nsyserr;   /* Number of systematic errors */
     int  isyserr;   /* Index of first systematic error in array of syserrs */
     char   unused;  /* Flags whether the observation has been rejected */
-    long   noteloc; /* Identifies a note associated with the obs */
+    int64_t noteloc; /* Identifies a note associated with the obs */
     double errfct;  /* Error factor applied to the obs by obs modifications */
 } trgtdata;
 

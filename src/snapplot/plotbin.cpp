@@ -109,7 +109,7 @@ void load_observations_from_binary( void )
 #define NOTEWIDTH 90
 #define NOTEPREFIX 6
 
-void display_note_text( void *dest, PutTextFunc f, long loc )
+void display_note_text( void *dest, PutTextFunc f, int64_t loc )
 {
     PutTextInfo jmp;
     int64_t curloc;
@@ -162,7 +162,7 @@ static int reload_observations( BINARY_FILE *bf )
     return OK;
 }
 
-survdata *get_survdata_from_binary( long loc )
+survdata *get_survdata_from_binary( int64_t loc )
 {
     if( !bd ) bd = create_bindata();
     init_get_bindata( loc );
