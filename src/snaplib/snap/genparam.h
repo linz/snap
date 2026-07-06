@@ -12,6 +12,12 @@
 #include "util/binfile.h"
 #endif
 
+// hash..identical (everything but `name`) are dumped to the .bin file via a
+// fixed-width table, PARAM_DISK_FIELDS in genparam.cpp - adding, removing, or
+// resizing a field here without updating that table silently desyncs the
+// on-disk format from the struct. genparam.cpp's compile-time
+// param_disk_fields_contiguous() check catches most such drift, but can't catch
+// a field added and never added to the table at all.
 typedef struct param_s
 {
     char *name;

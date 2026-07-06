@@ -54,6 +54,7 @@ The procedure requires the following sequence of calls
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <cstddef>
 
 #include "util/chkalloc.h"
 #include "util/dstring.h"
@@ -509,6 +510,93 @@ void clear_param_list( void )
 }
 
 
+// Single source of truth for the fixed-width on-disk param layout, excluding
+// `name` (handled separately via dump_string/reload_string, since it's a
+// pointer). `name` is the struct's first field, so it sits entirely before this
+// table's first entry rather than in the middle - unlike rftrndmp.cpp's table,
+// there's no interior gap here to skip when checking contiguity below.
+//
+// hash and flags get an explicitly unsigned kind (UInt32/UInt8) rather than
+// Int32/Int8: converting an unsigned value that doesn't fit the corresponding
+// signed type was implementation-defined before C++20. Unsigned-to-unsigned
+// conversion has always been fully defined (modulo 2^N), at zero extra cost.
+// hash needs the full unsigned range by design - it's a hash code. flags only
+// uses 3 of 8 bits today (PRM_ADJUST/PRM_USED/PRM_LISTED, genparam.h), but
+// there's no structural guarantee that stays true, so UInt8 removes the
+// dependency on that fact rather than relying on it.
+//
+// NOTE: this table must stay in sync with param's declared fields (see the
+// matching note at genparam.h next to the struct) - adding/removing a field in
+// one place without the other silently desyncs the on-disk format from the
+// struct. param_disk_fields_contiguous() below verifies this at compile time.
+struct ParamDiskField { FieldKind kind; size_t offset; };
+
+static constexpr ParamDiskField PARAM_DISK_FIELDS[] = {
+    { FieldKind::UInt32,  offsetof(param, hash) },
+    { FieldKind::Float64, offsetof(param, value) },
+    { FieldKind::Float64, offsetof(param, covar) },
+    { FieldKind::Int32,   offsetof(param, rowno) },
+    { FieldKind::UInt8,   offsetof(param, flags) },
+    { FieldKind::Int32,   offsetof(param, identical) },
+};
+static constexpr size_t PARAM_DISK_FIELD_COUNT = sizeof(PARAM_DISK_FIELDS) / sizeof(PARAM_DISK_FIELDS[0]);
+
+// Verifies PARAM_DISK_FIELDS has no gap relative to param's actual memory layout -
+// the same rounded-up-to-next-alignment check as survdata_disk_fields_contiguous()
+// in bindata.cpp. Every consecutive pair in this table is checked (there's no
+// interior exclusion to skip, unlike rftrndmp.cpp's table), and the last tracked
+// field (identical) must, by the same rule, reach exactly the end of the struct.
+static constexpr bool param_disk_fields_contiguous()
+{
+    for( size_t i = 0; i + 1 < PARAM_DISK_FIELD_COUNT; ++i )
+    {
+        const size_t end = PARAM_DISK_FIELDS[i].offset + field_in_memory_size(PARAM_DISK_FIELDS[i].kind);
+        const size_t expected_next = round_up(end, field_in_memory_alignment(PARAM_DISK_FIELDS[i+1].kind));
+        if( expected_next != PARAM_DISK_FIELDS[i+1].offset ) return false;
+    }
+    const ParamDiskField &last = PARAM_DISK_FIELDS[PARAM_DISK_FIELD_COUNT-1];
+    const size_t last_end = last.offset + field_in_memory_size(last.kind);
+    return round_up(last_end, alignof(param)) == sizeof(param);
+}
+// Runs entirely at compile time, same as survdata_disk_fields_contiguous() in
+// bindata.cpp - costs nothing in the compiled binary either way.
+static_assert(param_disk_fields_contiguous(),
+    "PARAM_DISK_FIELDS has a gap relative to param's actual layout - a field was "
+    "likely added, removed, or reordered in genparam.h without updating this table");
+
+static void write_param_fixed_width( const param &p, FILE *f )
+{
+    const char *base = reinterpret_cast<const char*>(&p);
+    for( const auto &field : PARAM_DISK_FIELDS )
+    {
+        switch( field.kind )
+        {
+        case FieldKind::UInt32:  write_raw_as<uint32_t>(f, *reinterpret_cast<const unsigned int*>(base+field.offset)); break;
+        case FieldKind::UInt8:   write_raw_as<uint8_t>(f, *reinterpret_cast<const unsigned char*>(base+field.offset)); break;
+        case FieldKind::Float64: write_raw(f, *reinterpret_cast<const double*>(base+field.offset)); break;
+        default:                 write_raw_as<int32_t>(f, *reinterpret_cast<const int*>(base+field.offset)); break;
+        }
+    }
+}
+
+// Mirrors write_param_fixed_width: same table, same iteration order, reading
+// into *reinterpret_cast<...*>(base+field.offset) instead of writing.
+static void read_param_fixed_width( FILE *f, param &p )
+{
+    char *base = reinterpret_cast<char*>(&p);
+    for( const auto &field : PARAM_DISK_FIELDS )
+    {
+        switch( field.kind )
+        {
+        case FieldKind::UInt32:  read_raw_as<uint32_t>(f, *reinterpret_cast<unsigned int*>(base+field.offset)); break;
+        case FieldKind::UInt8:   read_raw_as<uint8_t>(f, *reinterpret_cast<unsigned char*>(base+field.offset)); break;
+        case FieldKind::Float64: read_raw(f, *reinterpret_cast<double*>(base+field.offset)); break;
+        default:                 read_raw_as<int32_t>(f, *reinterpret_cast<int*>(base+field.offset)); break;
+        }
+    }
+}
+
+
 void dump_parameters( BINARY_FILE *b )
 {
     int np, nprm;
@@ -517,7 +605,7 @@ void dump_parameters( BINARY_FILE *b )
     fwrite( &nprm, sizeof(nprm), 1, b->f );
     for( np = 0; np < nparam; np++ )
     {
-        fwrite( prmlist[np], sizeof(param), 1, b->f );
+        write_param_fixed_width( *prmlist[np], b->f );
         dump_string( prmlist[np]->name, b->f );
     }
     fwrite( srtlist, sizeof(int), nparam, b->f );
@@ -540,7 +628,7 @@ int reload_parameters( BINARY_FILE *b )
     {
         param *p;
         p = (param *) check_malloc( sizeof(param) );
-        if( fread( p, sizeof(param), 1, b->f ) != 1 ) return INVALID_DATA;
+        read_param_fixed_width( b->f, *p );
         p->name = reload_string( b->f );
         if( !p->name ) return INVALID_DATA;
         prmlist[np] = p;
