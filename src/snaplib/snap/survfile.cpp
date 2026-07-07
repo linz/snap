@@ -219,9 +219,9 @@ void dump_filenames( BINARY_FILE *b )
     {
         const char *context_def=context_definition(sdindx[i]->context);
         fwrite( &sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f );
-        dump_string( sdindx[i]->name, b->f );
+        dump_filepath( sdindx[i]->name, b->f );
         dump_string( sdindx[i]->subtype, b->f );
-        dump_string( sdindx[i]->recodefile, b->f );
+        dump_filepath( sdindx[i]->recodefile, b->f );
         dump_string( context_def, b->f );
         check_free((void *) context_def);
     }

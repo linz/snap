@@ -14,6 +14,7 @@
 /* fileutil.h: routines to assist file management */
 
 #include <time.h>
+#include <string>
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
@@ -90,6 +91,15 @@ const char *context_definition(file_context *context);
 file_context *recreate_context( const  char *context_def );
 const char *relative_filename( const char *filepath, const char *basedir );
 const char *absolute_filename( const char *relname, const char *basedir );
+
+/* Returns path with every PATH_SEPARATOR replaced by '/', for writing a path
+   into a portable, cross-platform file format. */
+std::string portable_path( const std::string &path );
+
+/* Writes path to disk via dump_string (util/dstring.h), normalized via
+   portable_path first. Use in place of dump_string for any path being written
+   to a .bin file. */
+void dump_filepath( const char *path, FILE *f );
 
 /* Note: find..file return a static character string.  The result should be used
    straight away or copied */

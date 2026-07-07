@@ -472,6 +472,44 @@ void free_file_contexts()
     }
 }
 
+std::string portable_path( const std::string &path )
+{
+    std::string result = path;
+    for( char &c : result )
+    {
+        if( c == PATH_SEPARATOR ) c = '/';
+    }
+    return result;
+}
+
+void dump_filepath( const char *path, FILE *f )
+{
+    if( ! path )
+    {
+        dump_string( nullptr, f );
+        return;
+    }
+    dump_string( portable_path(path).c_str(), f );
+}
+
+// context_definition/recreate_context serialize a chain of relative directory
+// paths to and from a single string. A doubled separator marks the boundary
+// between path segments - a real relative path never contains two consecutive
+// separators, so that's a safe, unambiguous marker.
+//
+// This used to double up PATH_SEPARATOR for that marker: '\\' on Windows,
+// '/' on Linux. relative_filename's result also carries PATH_SEPARATOR
+// internally (boost::filesystem::path::string() renders using the platform's
+// native separator). Both make a context string written on one platform
+// unparseable on the other. Worse, it's not even a loud failure: POSIX
+// treats '\\' as a literal filename character, not a separator, so a
+// Windows-written reldir silently resolves to the wrong path on Linux instead
+// of failing.
+//
+// Fixed by always using '/' here, on both platforms, for the marker and for
+// every separator within each reldir's own content (via portable_path).
+// boost::filesystem::path (used by relative_filename/absolute_filename)
+// accepts '/' as a valid separator on both platforms - unlike '\\' on POSIX.
 const char *context_definition(file_context *context)
 {
     int nch=1;
@@ -479,7 +517,9 @@ const char *context_definition(file_context *context)
     {
         if( ! child->reldir )
         {
-            child->reldir=relative_filename(child->dir,child->parent->dir);
+            const char *native_reldir = relative_filename(child->dir,child->parent->dir);
+            child->reldir = copy_string( portable_path(native_reldir).c_str() );
+            check_free( (void *) native_reldir );
         }
         nch += strlen(child->reldir)+2;
     }
@@ -490,8 +530,8 @@ const char *context_definition(file_context *context)
     {
         nch=strlen(child->reldir);
         endptr -= (nch+2);
-        *endptr=PATH_SEPARATOR;
-        *(endptr+1)=PATH_SEPARATOR;
+        *endptr='/';
+        *(endptr+1)='/';
         strncpy(endptr+2,child->reldir,nch);
     }
     return context_def;
@@ -502,7 +542,7 @@ file_context *recreate_context(  const char *context_def )
 {
     file_context *saved_context=current_context;
     file_context *context=current_context;
-    if( ! context ) 
+    if( ! context )
     {
         return 0;
     }
@@ -513,7 +553,7 @@ file_context *recreate_context(  const char *context_def )
     {
         const char *start=context_def;
         const char *end=context_def;
-        while( *end && ! (*end == PATH_SEPARATOR && *(end+1) == PATH_SEPARATOR)) end++;
+        while( *end && ! (*end == '/' && *(end+1) == '/')) end++;
         char *reldir;
         int nch=end-start;
         reldir=(char *) check_malloc(nch+1);
@@ -532,7 +572,7 @@ file_context *recreate_context(  const char *context_def )
             context->reldir=reldir;
         }
         context_def = end;
-        if( *context_def == PATH_SEPARATOR ) context_def += 2;
+        if( *context_def == '/' ) context_def += 2;
     }
     set_file_context(saved_context);
     return context;
