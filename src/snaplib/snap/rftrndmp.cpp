@@ -38,9 +38,10 @@
 // field in one place without the other silently desyncs the on-disk format from
 // the struct. rftrans_disk_fields_contiguous() below verifies this at compile time
 // for every consecutive pair except the two deliberate exclusions above.
-struct RfTransDiskField { FieldKind kind; size_t offset; size_t count; };
-
-static constexpr RfTransDiskField RFTRANS_DISK_FIELDS[] = {
+//
+// Uses DiskField (util/binfile.h) and has external linkage via the
+// `extern` declarations in rftrans.h - see the comment there.
+constexpr DiskField RFTRANS_DISK_FIELDS[] = {
     { FieldKind::Int32,   offsetof(rfTransformation, id),         1 },
     { FieldKind::Float64, offsetof(rfTransformation, refepoch),   1 },
     { FieldKind::Float64, offsetof(rfTransformation, prm),        sizeof(rfTransformation::prm) / sizeof(rfTransformation::prm[0]) },
@@ -61,7 +62,7 @@ static constexpr RfTransDiskField RFTRANS_DISK_FIELDS[] = {
     { FieldKind::Float64, offsetof(rfTransformation, toporot),     sizeof(rfTransformation::toporot) / sizeof(double) },
     { FieldKind::Float64, offsetof(rfTransformation, invtoporot),  sizeof(rfTransformation::invtoporot) / sizeof(double) },
 };
-static constexpr size_t RFTRANS_DISK_FIELD_COUNT = sizeof(RFTRANS_DISK_FIELDS) / sizeof(RFTRANS_DISK_FIELDS[0]);
+constexpr size_t RFTRANS_DISK_FIELD_COUNT = sizeof(RFTRANS_DISK_FIELDS) / sizeof(RFTRANS_DISK_FIELDS[0]);
 
 // Verifies RFTRANS_DISK_FIELDS has no gap relative to rfTransformation's actual
 // memory layout - the same rounded-up-to-next-alignment check bindata.cpp uses for
@@ -74,7 +75,7 @@ static constexpr bool rftrans_disk_fields_contiguous()
 {
     for( size_t i = 0; i + 1 < RFTRANS_DISK_FIELD_COUNT; ++i )
     {
-        const RfTransDiskField &field = RFTRANS_DISK_FIELDS[i];
+        const DiskField &field = RFTRANS_DISK_FIELDS[i];
         if( field.offset == offsetof(rfTransformation, id) ) continue;
         if( field.offset == offsetof(rfTransformation, prmId) ) continue;
 
@@ -82,7 +83,7 @@ static constexpr bool rftrans_disk_fields_contiguous()
         const size_t expected_next = round_up(end, field_in_memory_alignment(RFTRANS_DISK_FIELDS[i+1].kind));
         if( expected_next != RFTRANS_DISK_FIELDS[i+1].offset ) return false;
     }
-    const RfTransDiskField &last = RFTRANS_DISK_FIELDS[RFTRANS_DISK_FIELD_COUNT-1];
+    const DiskField &last = RFTRANS_DISK_FIELDS[RFTRANS_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
     return round_up(last_end, alignof(rfTransformation)) == sizeof(rfTransformation);
 }
@@ -132,19 +133,8 @@ static void unpack_rftrans_flags( const uint16_t flags, rfTransformation &rf )
 // covers every field of rfTransformation.
 static void write_rftrans_fixed_width( const rfTransformation &rf, FILE *f )
 {
-    const char *base = reinterpret_cast<const char*>(&rf);
-    for( const auto &field : RFTRANS_DISK_FIELDS )
-    {
-        for( size_t i = 0; i < field.count; ++i )
-        {
-            switch( field.kind )
-            {
-            case FieldKind::Int8:    write_raw_as<int8_t>(f, reinterpret_cast<const char*>(base+field.offset)[i]); break;
-            case FieldKind::Float64: write_raw(f, reinterpret_cast<const double*>(base+field.offset)[i]); break;
-            default:                 write_raw_as<int32_t>(f, reinterpret_cast<const int*>(base+field.offset)[i]); break;
-            }
-        }
-    }
+    for_each_disk_field( rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
     write_raw(f, pack_rftrans_flags(rf));
 }
 

@@ -8,6 +8,10 @@
 
 */
 
+#ifndef _BINFILE_H
+#include "util/binfile.h"
+#endif
+
 typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
 /* Parameters of a reference frame transformation */
@@ -68,6 +72,19 @@ typedef struct
     tmatrix toporot;      /* Conversion to and from topocentric system */
     tmatrix invtoporot;
 } rfTransformation;
+
+// The fixed-width on-disk layout of every field above except `name` (a
+// pointer) and the 12 bitfields (packed separately into a uint16_t) - see
+// rftrndmp.cpp, where this table is defined and checked at compile time
+// against rfTransformation's actual memory layout. Exposed here, rather
+// than kept file-local, so a caller elsewhere can walk the same fields via
+// for_each_disk_field (util/binfile.h) without re-listing them by hand.
+// `extern` (plain C++ external linkage, unrelated to `extern "C"`) is
+// required because a `static` array at file scope is only visible within
+// its own translation unit - this declares "a definition exists
+// elsewhere," letting rftrndmp.cpp's one real array be linked from here.
+extern const DiskField RFTRANS_DISK_FIELDS[];
+extern const size_t RFTRANS_DISK_FIELD_COUNT;
 
 #define REFFRAMELEN 20
 

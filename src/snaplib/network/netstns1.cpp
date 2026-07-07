@@ -52,9 +52,10 @@
 // resizing a field in one place without the other silently desyncs the
 // on-disk format from the struct.
 // station_disk_fields_contiguous() below verifies this at compile time.
-struct StationDiskField { FieldKind kind; size_t offset; size_t count; };
-
-static constexpr StationDiskField STATION_DISK_FIELDS[] = {
+//
+// Uses DiskField (util/binfile.h) and has external linkage via the
+// `extern` declarations in network.h - see the comment there.
+constexpr DiskField STATION_DISK_FIELDS[] = {
     { FieldKind::Int8,    offsetof(station, Code),  sizeof(station::Code) / sizeof(station::Code[0]) },
     { FieldKind::Int32,   offsetof(station, id),    1 },
     { FieldKind::Float64, offsetof(station, ELat),  1 },
@@ -70,7 +71,7 @@ static constexpr StationDiskField STATION_DISK_FIELDS[] = {
     { FieldKind::Float64, offsetof(station, dEdLn), 1 },
     { FieldKind::Int32,   offsetof(station, nclass), 1 },
 };
-static constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof(STATION_DISK_FIELDS[0]);
+constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof(STATION_DISK_FIELDS[0]);
 
 // Verifies STATION_DISK_FIELDS has no gap relative to station's actual
 // memory layout. Uses the same rounded-up-to-next-alignment check as
@@ -83,12 +84,12 @@ static constexpr bool station_disk_fields_contiguous()
 {
     for( size_t i = 0; i + 1 < STATION_DISK_FIELD_COUNT; ++i )
     {
-        const StationDiskField &field = STATION_DISK_FIELDS[i];
+        const DiskField &field = STATION_DISK_FIELDS[i];
         const size_t end = field.offset + field_in_memory_size(field.kind) * field.count;
         const size_t expected_next = round_up(end, field_in_memory_alignment(STATION_DISK_FIELDS[i+1].kind));
         if( expected_next != STATION_DISK_FIELDS[i+1].offset ) return false;
     }
-    const StationDiskField &last = STATION_DISK_FIELDS[STATION_DISK_FIELD_COUNT-1];
+    const DiskField &last = STATION_DISK_FIELDS[STATION_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind) * last.count;
     const size_t expected_classval = round_up(last_end, alignof(decltype(station::classval)));
     return expected_classval == offsetof(station, classval);
@@ -101,19 +102,8 @@ static_assert(station_disk_fields_contiguous(),
 
 static void write_station_fixed_width( const station &st, FILE *f )
 {
-    const char *base = reinterpret_cast<const char*>(&st);
-    for( const auto &field : STATION_DISK_FIELDS )
-    {
-        for( size_t i = 0; i < field.count; ++i )
-        {
-            switch( field.kind )
-            {
-            case FieldKind::Int8:    write_raw_as<int8_t>(f, reinterpret_cast<const char*>(base+field.offset)[i]); break;
-            case FieldKind::Float64: write_raw(f, reinterpret_cast<const double*>(base+field.offset)[i]); break;
-            default:                 write_raw_as<int32_t>(f, reinterpret_cast<const int*>(base+field.offset)[i]); break;
-            }
-        }
-    }
+    for_each_disk_field( st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
 }
 
 // Mirrors write_station_fixed_width. Same table, same iteration order.

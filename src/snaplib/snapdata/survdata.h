@@ -18,6 +18,10 @@
 #include "snapdata/datatype.h"
 #endif
 
+#ifndef _BINFILE_H
+#include "util/binfile.h"
+#endif
+
 /* Data formats used by loaddata routines */
 
 enum { SD_OBSDATA, SD_VECDATA, SD_PNTDATA };
@@ -143,6 +147,19 @@ typedef struct           /* Data relating to an observation or set of obs */
     classdata *clsf;    /* Array of classifications - observations index into this */
     syserrdata *syserr; /* The list of systematic errors */
 } survdata;
+
+// The fixed-width on-disk layout of the 16 fields above `from` through
+// `prmid` - see bindata.cpp, where this table is defined and checked at
+// compile time against survdata's actual memory layout. Exposed here,
+// rather than kept file-local, so a caller elsewhere can walk the same
+// fields via for_each_disk_field (util/binfile.h) without re-listing them
+// by hand. `extern` (plain C++ external linkage, unrelated to `extern
+// "C"`) is required because a `static` array at file scope is only
+// visible within its own translation unit - this declares "a definition
+// exists elsewhere," letting bindata.cpp's one real array be linked from
+// here.
+extern const DiskField SURVDATA_DISK_FIELDS[];
+extern const size_t SURVDATA_DISK_FIELD_COUNT;
 
 /* Flag bits set in the unused flag */
 

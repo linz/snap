@@ -88,8 +88,6 @@ int read_bindata_header( long *size, int *type )
 
 static void reset_survdata_pointers( survdata *sd );
 
-struct SurvdataDiskField { FieldKind kind; size_t offset; };
-
 // Single source of truth for the on-disk survdata layout - the 16 genuinely-stored
 // fields (`from` through `prmid`, survdata.h), in declared order. survdata's
 // integer fields are already plain `int` (4 bytes on every target here), so writing
@@ -103,25 +101,29 @@ struct SurvdataDiskField { FieldKind kind; size_t offset; };
 // adding/removing a field in one place without the other silently desyncs the
 // on-disk format from the struct. survdata_disk_fields_contiguous() below verifies
 // this at compile time.
-static constexpr SurvdataDiskField SURVDATA_DISK_FIELDS[] = {
-    { FieldKind::Int32,   offsetof(survdata, from) },
-    { FieldKind::Float64, offsetof(survdata, fromhgt) },
-    { FieldKind::Float64, offsetof(survdata, date) },
-    { FieldKind::Int32,   offsetof(survdata, reffrm) },
-    { FieldKind::Int32,   offsetof(survdata, file) },
-    { FieldKind::Float64, offsetof(survdata, schval) },
-    { FieldKind::Float64, offsetof(survdata, schvar) },
-    { FieldKind::Int32,   offsetof(survdata, format) },
-    { FieldKind::Int32,   offsetof(survdata, nobs) },
-    { FieldKind::Int32,   offsetof(survdata, obssize) },
-    { FieldKind::Int32,   offsetof(survdata, ncvr) },
-    { FieldKind::Int32,   offsetof(survdata, nclass) },
-    { FieldKind::Int32,   offsetof(survdata, nsyserr) },
-    { FieldKind::Int32,   offsetof(survdata, options) },
-    { FieldKind::Int32,   offsetof(survdata, nprms) },
-    { FieldKind::Int32,   offsetof(survdata, prmid) },
+//
+// Uses DiskField (util/binfile.h) and has external linkage via the `extern`
+// declarations in survdata.h - see the comment there. Every entry's count is
+// 1 (survdata has no array fields in its fixed-width portion).
+constexpr DiskField SURVDATA_DISK_FIELDS[] = {
+    { FieldKind::Int32,   offsetof(survdata, from), 1 },
+    { FieldKind::Float64, offsetof(survdata, fromhgt), 1 },
+    { FieldKind::Float64, offsetof(survdata, date), 1 },
+    { FieldKind::Int32,   offsetof(survdata, reffrm), 1 },
+    { FieldKind::Int32,   offsetof(survdata, file), 1 },
+    { FieldKind::Float64, offsetof(survdata, schval), 1 },
+    { FieldKind::Float64, offsetof(survdata, schvar), 1 },
+    { FieldKind::Int32,   offsetof(survdata, format), 1 },
+    { FieldKind::Int32,   offsetof(survdata, nobs), 1 },
+    { FieldKind::Int32,   offsetof(survdata, obssize), 1 },
+    { FieldKind::Int32,   offsetof(survdata, ncvr), 1 },
+    { FieldKind::Int32,   offsetof(survdata, nclass), 1 },
+    { FieldKind::Int32,   offsetof(survdata, nsyserr), 1 },
+    { FieldKind::Int32,   offsetof(survdata, options), 1 },
+    { FieldKind::Int32,   offsetof(survdata, nprms), 1 },
+    { FieldKind::Int32,   offsetof(survdata, prmid), 1 },
 };
-static constexpr size_t SURVDATA_DISK_FIELD_COUNT = sizeof(SURVDATA_DISK_FIELDS) / sizeof(SURVDATA_DISK_FIELDS[0]);
+constexpr size_t SURVDATA_DISK_FIELD_COUNT = sizeof(SURVDATA_DISK_FIELDS) / sizeof(SURVDATA_DISK_FIELDS[0]);
 
 // Verifies SURVDATA_DISK_FIELDS has no gap relative to survdata's actual memory
 // layout: each field's end, rounded up to the next field's required alignment,
@@ -141,7 +143,7 @@ static constexpr bool survdata_disk_fields_contiguous()
         const size_t expected_next = round_up(end, field_in_memory_alignment(SURVDATA_DISK_FIELDS[i+1].kind));
         if (expected_next != SURVDATA_DISK_FIELDS[i+1].offset) return false;
     }
-    const SurvdataDiskField &last = SURVDATA_DISK_FIELDS[SURVDATA_DISK_FIELD_COUNT-1];
+    const DiskField &last = SURVDATA_DISK_FIELDS[SURVDATA_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind);
     const size_t expected_obs = round_up(last_end, alignof(decltype(survdata::obs)));
     return expected_obs == offsetof(survdata, obs);
@@ -171,14 +173,8 @@ static const size_t SURVDATA_DISK_FIXED_WIDTH_SIZE = survdata_disk_fixed_width_s
 // fixed-stride copy, already portable without per-field handling.
 static void write_survdata_fixed_width( const survdata &sd, FILE *f )
 {
-    const char *base = reinterpret_cast<const char*>(&sd);
-    for (const auto &field : SURVDATA_DISK_FIELDS)
-    {
-        if (field.kind == FieldKind::Float64)
-            write_raw(f, *reinterpret_cast<const double*>(base + field.offset));
-        else
-            write_raw_as<int32_t>(f, *reinterpret_cast<const int*>(base + field.offset));
-    }
+    for_each_disk_field( sd, SURVDATA_DISK_FIELDS, SURVDATA_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
 }
 
 // Mirrors write_survdata_fixed_width: same table, same iteration order, reading

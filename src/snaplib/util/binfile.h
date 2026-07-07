@@ -92,14 +92,16 @@ inline void dump_bin_long32( BINARY_FILE *b, const long x )   { write_raw_long32
 inline void reload_bin_long32( BINARY_FILE *b, long &x )      { read_raw_long32(b->f, x); }
 
 // Shared vocabulary for the table-driven fixed-width dumps of survdata,
-// rfTransformation, and param (bindata.cpp/rftrndmp.cpp/genparam.cpp). Each
-// struct's own table type, write/read functions, and layout-contiguity check
-// stay separate - rfTransformation needs an extra per-entry array count and a
-// manual bitfield pack the other two don't, so a single shared table/loop would
-// force that complexity onto structs that don't need it. What genuinely doesn't
-// vary by struct is the disk-width/alignment of each kind and how to round an
-// offset up to the next field's alignment - shared here so three copies of the
-// same arithmetic can't drift from each other.
+// rfTransformation, station, and param. Each struct's own table, layout-
+// contiguity check, and any per-struct extras (a trailing bitfield pack, a
+// struct's own excluded pointer fields) stay separate - those genuinely vary
+// by struct. What doesn't vary is the disk-width/alignment of each kind, how
+// to round an offset up to the next field's alignment, and walking a table to
+// fetch each field's current value - shared here (FieldKind/round_up below,
+// DiskField/for_each_disk_field further down) so those copies can't drift
+// from each other, and so any caller that needs to walk the same fields for a
+// different purpose (e.g. a text dump for diffing) reuses the exact same
+// table instead of re-listing fields by hand.
 enum class FieldKind { Int32, UInt32, Int8, UInt8, Float64 };
 
 // In-memory size of the field's declared type. Fixed-width and identical across
@@ -131,6 +133,81 @@ inline constexpr size_t field_in_memory_alignment(const FieldKind kind)
 inline constexpr size_t round_up(const size_t value, const size_t alignment)
 {
     return (value + alignment - 1) / alignment * alignment;
+}
+
+// A single table entry: `count` scalars of `kind`, starting at `offset` bytes
+// into the struct. Every table-driven struct's own field-table type (station's
+// StationDiskField, rfTransformation's RfTransDiskField, param's
+// ParamDiskField, ...) has always had exactly this shape - unified here so
+// for_each_disk_field (below) can walk any of them the same way.
+struct DiskField { FieldKind kind; size_t offset; size_t count; };
+
+// Calls `action(kind, value)` once per scalar element declared by `table`,
+// with `value` read from `base`'s memory as that field's real in-memory type
+// (char/unsigned char/unsigned int/double/int). This is the part of a
+// table-driven dump that never varies by struct; what happens with each
+// value - write raw bytes, print as text, anything else - is decided
+// entirely by `action`, so a second caller can walk the exact same table for
+// a different purpose without re-listing fields by hand.
+//
+// `action` is any callable shaped `action(FieldKind, value)` - in practice a
+// generic lambda (`[]( FieldKind kind, auto value ) {...}`):
+// - `Action` is a template parameter, not a function pointer or
+//   std::function, so the compiler sees the concrete lambda at each call
+//   site and inlines it straight into this loop - no indirect call, no
+//   std::function heap allocation.
+// - The lambda's own `auto value` parameter makes its call operator a
+//   template too, so one lambda body handles every FieldKind's differently-
+//   typed value (char/unsigned char/unsigned int/double/int) without the
+//   caller writing five overloads or type-erasing to void* - write_disk_field
+//   (below) is exactly one such lambda body, reused across every kind.
+// - A lambda captures exactly the state its caller needs (a FILE* to write
+//   to, an ostream to print to) with no separate named functor struct to
+//   declare just to carry that one piece of state.
+// Put together, this is why the same table can drive two unrelated outputs -
+// e.g. binary bytes via write_disk_field's action and human-readable text
+// via a distinct action defined elsewhere - just by passing a different
+// lambda in; for_each_disk_field's own loop and switch never change.
+//
+// `table`/`table_size` stay a pointer+size pair (rather than a bound array
+// reference) because the real table is defined once, in one translation
+// unit, next to its own layout-contiguity check - a caller elsewhere sees it
+// only through an `extern` declaration with no compile-time-visible bound.
+template<class T, class Action>
+inline void for_each_disk_field( const T &base, const DiskField *table, size_t table_size, Action action )
+{
+    const char *b = reinterpret_cast<const char*>(&base);
+    for( size_t t = 0; t < table_size; ++t )
+    {
+        const DiskField &field = table[t];
+        for( size_t i = 0; i < field.count; ++i )
+        {
+            switch( field.kind )
+            {
+            case FieldKind::Int8:    action( field.kind, reinterpret_cast<const char*>(b+field.offset)[i] ); break;
+            case FieldKind::UInt8:   action( field.kind, reinterpret_cast<const unsigned char*>(b+field.offset)[i] ); break;
+            case FieldKind::UInt32:  action( field.kind, reinterpret_cast<const unsigned int*>(b+field.offset)[i] ); break;
+            case FieldKind::Float64: action( field.kind, reinterpret_cast<const double*>(b+field.offset)[i] ); break;
+            default:                 action( field.kind, reinterpret_cast<const int*>(b+field.offset)[i] ); break;
+            }
+        }
+    }
+}
+
+// The binary-write action for_each_disk_field callers use: pins the on-disk
+// width by `kind`, same as every write_*_fixed_width used to do independently
+// in its own repeated switch.
+template<class T>
+inline void write_disk_field( FILE *f, FieldKind kind, const T &value )
+{
+    switch( kind )
+    {
+    case FieldKind::Int8:    write_raw_as<int8_t>(f, value); break;
+    case FieldKind::UInt8:   write_raw_as<uint8_t>(f, value); break;
+    case FieldKind::UInt32:  write_raw_as<uint32_t>(f, value); break;
+    case FieldKind::Float64: write_raw(f, value); break;
+    default:                 write_raw_as<int32_t>(f, value); break;
+    }
 }
 
 #endif

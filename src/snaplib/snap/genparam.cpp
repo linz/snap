@@ -529,17 +529,19 @@ void clear_param_list( void )
 // matching note at genparam.h next to the struct) - adding/removing a field in
 // one place without the other silently desyncs the on-disk format from the
 // struct. param_disk_fields_contiguous() below verifies this at compile time.
-struct ParamDiskField { FieldKind kind; size_t offset; };
-
-static constexpr ParamDiskField PARAM_DISK_FIELDS[] = {
-    { FieldKind::UInt32,  offsetof(param, hash) },
-    { FieldKind::Float64, offsetof(param, value) },
-    { FieldKind::Float64, offsetof(param, covar) },
-    { FieldKind::Int32,   offsetof(param, rowno) },
-    { FieldKind::UInt8,   offsetof(param, flags) },
-    { FieldKind::Int32,   offsetof(param, identical) },
+//
+// Uses DiskField (util/binfile.h) and has external linkage via the `extern`
+// declarations in genparam.h - see the comment there. Every entry's count is
+// 1 (param has no array fields), unlike station's/rfTransformation's tables.
+constexpr DiskField PARAM_DISK_FIELDS[] = {
+    { FieldKind::UInt32,  offsetof(param, hash), 1 },
+    { FieldKind::Float64, offsetof(param, value), 1 },
+    { FieldKind::Float64, offsetof(param, covar), 1 },
+    { FieldKind::Int32,   offsetof(param, rowno), 1 },
+    { FieldKind::UInt8,   offsetof(param, flags), 1 },
+    { FieldKind::Int32,   offsetof(param, identical), 1 },
 };
-static constexpr size_t PARAM_DISK_FIELD_COUNT = sizeof(PARAM_DISK_FIELDS) / sizeof(PARAM_DISK_FIELDS[0]);
+constexpr size_t PARAM_DISK_FIELD_COUNT = sizeof(PARAM_DISK_FIELDS) / sizeof(PARAM_DISK_FIELDS[0]);
 
 // Verifies PARAM_DISK_FIELDS has no gap relative to param's actual memory layout -
 // the same rounded-up-to-next-alignment check as survdata_disk_fields_contiguous()
@@ -554,7 +556,7 @@ static constexpr bool param_disk_fields_contiguous()
         const size_t expected_next = round_up(end, field_in_memory_alignment(PARAM_DISK_FIELDS[i+1].kind));
         if( expected_next != PARAM_DISK_FIELDS[i+1].offset ) return false;
     }
-    const ParamDiskField &last = PARAM_DISK_FIELDS[PARAM_DISK_FIELD_COUNT-1];
+    const DiskField &last = PARAM_DISK_FIELDS[PARAM_DISK_FIELD_COUNT-1];
     const size_t last_end = last.offset + field_in_memory_size(last.kind);
     return round_up(last_end, alignof(param)) == sizeof(param);
 }
@@ -566,17 +568,8 @@ static_assert(param_disk_fields_contiguous(),
 
 static void write_param_fixed_width( const param &p, FILE *f )
 {
-    const char *base = reinterpret_cast<const char*>(&p);
-    for( const auto &field : PARAM_DISK_FIELDS )
-    {
-        switch( field.kind )
-        {
-        case FieldKind::UInt32:  write_raw_as<uint32_t>(f, *reinterpret_cast<const unsigned int*>(base+field.offset)); break;
-        case FieldKind::UInt8:   write_raw_as<uint8_t>(f, *reinterpret_cast<const unsigned char*>(base+field.offset)); break;
-        case FieldKind::Float64: write_raw(f, *reinterpret_cast<const double*>(base+field.offset)); break;
-        default:                 write_raw_as<int32_t>(f, *reinterpret_cast<const int*>(base+field.offset)); break;
-        }
-    }
+    for_each_disk_field( p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
 }
 
 // Mirrors write_param_fixed_width: same table, same iteration order, reading
