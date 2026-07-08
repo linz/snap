@@ -100,6 +100,10 @@ static_assert(station_disk_fields_contiguous(),
     "STATION_DISK_FIELDS has a gap relative to station's actual layout - a field "
     "was likely added, removed, or reordered in network.h without updating this table");
 
+// Writes STATION_DISK_FIELDS in table order through the fixed-width disk-cast
+// templates from binfile.h. classval/Name/ts/hook are handled separately
+// (see the table comment above) - together, this covers every field of
+// station.
 static void write_station_fixed_width( const station &st, FILE *f )
 {
     for_each_disk_field( st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT,

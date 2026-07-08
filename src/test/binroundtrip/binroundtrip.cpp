@@ -149,8 +149,8 @@ static void dump_relative_covariances_raw( BINARY_FILE *b, const RelativeCovaria
 // call it directly, without a label. `long long`, not `long`: some fields
 // printed through this (trgtdata::noteloc, survdata.h) are genuinely 64-bit
 // (int64_t) - `long` is only 32 bits on Windows/MSVC (LLP64), so a `long`
-// overload here would silently truncate exactly the kind of value this
-// branch exists to stop truncating.
+// overload here would silently truncate a value that this dump exists
+// specifically to compare byte-for-byte across platforms.
 static void dump_bare_value( std::ostream &out, double value )
 {
     out << std::setprecision(17) << value << "\n";

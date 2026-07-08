@@ -126,8 +126,8 @@ a standardised residual that can amplify ordinary rounding noise through a near-
 covariance Cholesky decomposition, see the override's own comment in `compare_dump.py`) and a
 round trip of the golden copy vs. itself (a plain byte comparison - no floating-point
 recomputation involved, so no tolerance needed). Both are run on Linux by `testall.pl`, and have
-been run and passed on a Windows build of this branch against the same, Linux-produced golden
-fixture - proving the two platforms agree, not just that each platform agrees with itself. The
+been run and passed on a Windows build against the same, Linux-produced golden fixture - proving
+the two platforms agree, not just that each platform agrees with itself. The
 golden fixture (`regression_tests/binroundtrip/in/binroundtrip.snp`/`.crd`/`.dat`/`.bin`)
 exercises every section listed above, including a `NOTEDATA` record via one `#note` line.
 

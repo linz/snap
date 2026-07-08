@@ -566,6 +566,10 @@ static_assert(param_disk_fields_contiguous(),
     "PARAM_DISK_FIELDS has a gap relative to param's actual layout - a field was "
     "likely added, removed, or reordered in genparam.h without updating this table");
 
+// Writes PARAM_DISK_FIELDS in table order through the fixed-width disk-cast
+// templates from binfile.h. name is handled separately via dump_string (it's
+// a pointer, out of scope for this fixed-width table) - together, this
+// covers every field of param.
 static void write_param_fixed_width( const param &p, FILE *f )
 {
     for_each_disk_field( p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,

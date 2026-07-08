@@ -77,6 +77,9 @@ template<class Disk, class T> inline void reload_bin_fixed( BINARY_FILE *b, T &x
 // different-signedness cases elsewhere (e.g. an unsigned char written as int8_t -
 // a legitimate value like 200 is in-range for the source type but out of int8_t's
 // signed range, even though it round-trips correctly via modular truncation).
+// Throws std::overflow_error if x doesn't fit in int32_t, rather than silently
+// truncating it - a caller passing a genuinely >4-byte value wants to find out,
+// not get a corrupt .bin file.
 inline void write_raw_long32( FILE *f, const long x )
 {
     if (x < std::numeric_limits<int32_t>::min() || x > std::numeric_limits<int32_t>::max())
