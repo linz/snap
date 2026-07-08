@@ -531,9 +531,11 @@ static void dump_syserrdata_text( std::ostream &out, const syserrdata &se )
 // matrices (cvr/calccvr/rescvr), each a flat packed lower-triangular array
 // of ncvr*(ncvr+1)/2 doubles (util/symmatrx.h), dumped in that same flat
 // order rather than via its 2D Lij indexing macro, since no 2D position
-// needs preserving without per-field labels. NOTEDATA is an opaque blob
-// with no writer anywhere in this codebase today - only its size is
-// printed, not decoded.
+// needs preserving without per-field labels. NOTEDATA records (save_note,
+// snap/notedata.cpp) are plain text, not struct fields: one flag byte
+// (' ' if this note continues the previous one, '\n' if it starts a new
+// one), then the note text verbatim, then a trailing '\n' and a NUL -
+// bd->size is nch+3.
 static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
 {
     if( find_section( in, "OBSERVATIONS" ) != OK ) {
@@ -552,7 +554,10 @@ static void dump_observations_text( std::ostream &out, BINARY_FILE *in )
 
         if( bd->bintype != SURVDATA ) {
             out << "=== OBSERVATIONS[" << irec << "] (NOTEDATA) ===\n";
-            dump_bare_value( out, static_cast<long long>(bd->size) );
+            const auto *note = static_cast<const unsigned char *>( bd->data );
+            dump_bare_value( out, static_cast<long long>(note[0]) );
+            const int64_t nch = bd->size - 3;
+            out << std::string( reinterpret_cast<const char *>(note + 1), static_cast<size_t>(nch) ) << "\n";
             continue;
         }
 

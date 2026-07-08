@@ -11,6 +11,7 @@ Testing Vector formats
 ! Testing translation
 #reference_frame GPS_T
 ! offset 1.2000	-0.3000	15.8000
+#note Exercises the NOTEDATA record type in binroundtrip
 1	-4787263.3200	560595.2704	-4163666.0023
 #reference_frame GPS_S
 ! scale 2.5
