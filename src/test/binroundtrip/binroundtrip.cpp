@@ -486,7 +486,14 @@ static void dump_vecdata_text( std::ostream &out, const vecdata &vd )
     for( int i = 0; i < 3; i++ ) dump_bare_value( out, vd.vector[i] );
     for( int i = 0; i < 3; i++ ) dump_bare_value( out, vd.calc[i] );
     for( int i = 0; i < 3; i++ ) dump_bare_value( out, vd.residual[i] );
-    dump_bare_value( out, vd.vsres );
+    // Labeled, unlike every other field here: vsres divides a residual by
+    // a Cholesky-decomposed covariance pivot (vector_standardised_residual,
+    // gpscvr.cpp) - a near-singular pivot amplifies ordinary cross-compiler
+    // rounding noise well past this dump's default tolerance, without the
+    // underlying computation being wrong. compare_dump.py widens the
+    // tolerance specifically for this label; it needs a label to do that
+    // at all, since a bare value carries no way to single it out.
+    dump_value( out, "vsres", vd.vsres );
     dump_bare_value( out, static_cast<long long>(vd.rank) );
 }
 

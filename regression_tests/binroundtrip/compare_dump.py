@@ -22,6 +22,26 @@ from typing import NamedTuple
 ABSTOL = 1.0e-8
 RELTOL = 1.0e-10
 
+# Per-label absolute-tolerance overrides, the same idea as checktests.pl's
+# own match_line_absolute_tolerance/match_line_relative_tolerance for known-
+# sensitive lines (checktests.pl:135-137) - the default tolerance above is
+# for ordinary last-bit rounding noise, not for a field whose calculation
+# can itself amplify that noise.
+#
+# vsres (vecdata's vector standardised residual, binroundtrip.cpp's
+# dump_vecdata_text): divides a residual by a Cholesky-decomposed
+# covariance pivot (vector_standardised_residual, gpscvr.cpp) - a
+# near-singular pivot amplifies ordinary cross-compiler rounding noise
+# well past the default tolerance without the underlying computation being
+# wrong. 5e-5 is calibrated against real observed Windows-vs-Linux
+# differences for this field, not a guess: the worst difference seen so
+# far is ~6.2e-6 absolute (~0.135% relative) - this gives roughly 8x
+# margin above that, while still catching a difference an order of
+# magnitude past anything observed as a real failure.
+LINE_ABSTOL_OVERRIDES: dict[str, float] = {
+    "vsres": 5.0e-5,
+}
+
 MAX_REPORTED_MISMATCHES = 20
 
 
@@ -41,10 +61,10 @@ def _try_float(text: str) -> float | None:
         return None
 
 
-def _values_close(expected: float, actual: float) -> bool:
+def _values_close(expected: float, actual: float, abstol: float) -> bool:
     """True if actual is within tolerance of expected (checktests.pl's formula)."""
     diff = abs(actual - expected)
-    return diff <= ABSTOL or diff <= abs(expected) * RELTOL
+    return diff <= abstol or diff <= abs(expected) * RELTOL
 
 
 def _lines_match(expected: str, actual: str) -> bool:
@@ -58,7 +78,8 @@ def _lines_match(expected: str, actual: str) -> bool:
     expected_float = _try_float(expected_value)
     actual_float = _try_float(actual_value)
     if expected_float is not None and actual_float is not None:
-        return _values_close(expected_float, actual_float)
+        abstol = LINE_ABSTOL_OVERRIDES.get(expected_label, ABSTOL)
+        return _values_close(expected_float, actual_float, abstol)
     return expected_value == actual_value
 
 
