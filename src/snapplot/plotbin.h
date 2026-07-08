@@ -27,8 +27,8 @@ void load_observations_from_binary( void );
 void open_data_source( void );
 void close_data_source( void );
 
-survdata *get_survdata_from_binary( long loc );
-void display_note_text( void *dest, PutTextFunc f, long loc );
+survdata *get_survdata_from_binary( int64_t loc );
+void display_note_text( void *dest, PutTextFunc f, int64_t loc );
 
 #endif
 

@@ -759,11 +759,11 @@ static void load_data( survdata *sd )
 
 // #pragma warning (disable : 4100)
 
-static long get_id( int type, int, const char *code )
+static int64_t get_id( int type, int, const char *code )
 {
     if( type == ID_STATION )
     {
-        return (long) get_station_id( code );
+        return (int64_t) get_station_id( code );
     }
     else if ( type == ID_PROJCTN )
     {

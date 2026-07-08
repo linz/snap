@@ -328,7 +328,6 @@ static int split_obsdata_for_schreiber( survdata *sd )
 static void save_split_survdata( survdata *sd )
 {
     unsigned char typesaved[NOBSTYPE];
-    long loc;
     int iobs, sobs, to;
     trgtdata *t;
 
@@ -347,7 +346,7 @@ static void save_split_survdata( survdata *sd )
         {
             sobs = iobs;
         }
-        loc = save_survdata_subset( sd, sobs, t->type );
+        const int64_t loc = save_survdata_subset( sd, sobs, t->type );
         to = t->to;
         if( sobs < 0 ) to = 0;
         if( t->type == GB && sd->nobs == 1 ) to = t->to;
@@ -357,10 +356,9 @@ static void save_split_survdata( survdata *sd )
 
 static void save_whole_survdata( survdata *sd )
 {
-    long loc;
     int to;
     trgtdata *t;
-    loc = save_survdata( sd );
+    const int64_t loc = save_survdata( sd );
     to = 0;
     t = get_trgtdata( sd, 0 );
     if( sd->nobs == 1 ) to = t->to;
@@ -433,9 +431,9 @@ static void load_snap( survdata *sd )
 /* Callback function used by loaddata to get id's of various objects */
 
 
-static long snap_id( int type, int group_id, const char *code )
+static int64_t snap_id( int type, int group_id, const char *code )
 {
-    long id;
+    int64_t id;
     id = 0;
     switch (type)
     {

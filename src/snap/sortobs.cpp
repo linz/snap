@@ -26,13 +26,13 @@ typedef struct
     int from;  /* From station */
     int to;    /* To station, or 0 if there are several */
     int type;  /* Observation type */
-    long loc;  /* File location */
+    int64_t loc;  /* File location */
 } obsdef;
 
 typedef union
 {
     obsdef *ptr;
-    long loc;
+    int64_t loc;
 } obsloc;
 
 static void *obsdeflst = NULL;
@@ -40,7 +40,7 @@ static obsloc *obslst = NULL;
 static int nobslst = 0;
 static int nextobs = 0;
 
-void save_observation( int from, int to, int type, long loc )
+void save_observation( int from, int to, int type, int64_t loc )
 {
     obsdef *o;
     if( !obsdeflst ) obsdeflst = create_list( sizeof(obsdef) );
@@ -93,7 +93,7 @@ void sort_observation_list( void )
 
     /* Create an index array */
 
-    obslst = (obsloc *) check_malloc( sizeof(obslst) * nobslst );
+    obslst = (obsloc *) check_malloc( sizeof(*obslst) * nobslst );
 
     /* Copy the locations of the definitions into the list */
 
@@ -127,7 +127,7 @@ void init_get_sorted_obs_loc( void )
 }
 
 
-long get_sorted_obs_loc( void )
+int64_t get_sorted_obs_loc( void )
 {
     if( nextobs >= nobslst ) return -1;
     if( !obslst ) sort_observation_list();

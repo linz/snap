@@ -63,7 +63,7 @@ void init_get_bindata(int64_t loc )
 int64_t write_bindata_header( long size, int type )
 {
     int64_t loc;
-    loc = ftell( bindata_file );
+    loc = ftell64( bindata_file );
     fwrite( &size, sizeof(size), 1, bindata_file );
     fwrite( &type, sizeof(type), 1, bindata_file );
     if( size > maxsize ) maxsize = size;
@@ -89,7 +89,7 @@ static void reset_survdata_pointers( survdata *sd );
 
 int get_bindata( int bintype, bindata *b )
 {
-    long loc;
+    int64_t loc;
     int sts;
 
 
@@ -224,23 +224,9 @@ static long survdata_size( survdata *sd )
 	       not saved.
      */
 
-long save_survdata( survdata *sd )
+int64_t save_survdata( survdata *sd )
 {
-    int64_t fileloc;
-    long loc;
-    // Cannot handle locations which are not within the range of long 
-    // at the moment (and on MSW 64 long is 4 bytes).  This should be ok as 
-    // observations are loaded into the binary file before the covariance 
-    // which is the only bit likely to push the size over 2Gb.  For the moment
-    // accept this limitation - this can be fixed as/when the snap codebase
-    // is overhauled.
-    fileloc = write_bindata_header(survdata_size(sd), SURVDATA);
-    loc = (long)fileloc;
-    if (loc != fileloc)
-    {
-        loc = 0;
-        handle_error( FATAL_ERROR, "Cannot save data in binary file - too much data","");
-    }
+    const int64_t loc = write_bindata_header(survdata_size(sd), SURVDATA);
     fwrite( sd, sizeof(survdata), 1, bindata_file );
     fwrite( sd->obs.odata, sd->obssize, sd->nobs, bindata_file );
     if( sd->nclass )
@@ -274,11 +260,10 @@ long save_survdata( survdata *sd )
     return loc;
 }
 
-long save_survdata_subset( survdata *sd, int iobs, int type )
+int64_t save_survdata_subset( survdata *sd, int iobs, int type )
 {
     int nobs, nclass, nsyserr;
     int cvrperobs, cvrtype;
-    int64_t loc;
     int i, i0, i1;
 
     /* Determine the possible range of observations */
@@ -323,35 +308,24 @@ long save_survdata_subset( survdata *sd, int iobs, int type )
     cvrperobs = sd->ncvr/sd->nobs;
     if( !sd->cvr ) cvrperobs = 0;
 
-    {
-        int oldnobs, oldnclass, oldnsyserr, oldncvr;
-        int64_t fileloc;
+    const int oldnobs = sd->nobs;
+    const int oldnclass = sd->nclass;
+    const int oldnsyserr = sd->nsyserr;
+    const int oldncvr = sd->ncvr;
 
-        oldnobs = sd->nobs;
-        oldnclass = sd->nclass;
-        oldnsyserr = sd->nsyserr;
-        oldncvr = sd->ncvr;
+    sd->nobs = nobs;
+    sd->nclass = nclass;
+    sd->nsyserr = nsyserr;
+    sd->ncvr = cvrperobs * nobs;
 
-        sd->nobs = nobs;
-        sd->nclass = nclass;
-        sd->nsyserr = nsyserr;
-        sd->ncvr = cvrperobs * nobs;
+    const int64_t loc = write_bindata_header( survdata_size( sd ), SURVDATA );
 
-        fileloc = write_bindata_header( survdata_size( sd ), SURVDATA );
-        loc = (long)fileloc;
-        if (loc != fileloc)
-        {
-            loc = 0;
-            handle_error(FATAL_ERROR, "Cannot save data in binary file - too much data", "");
-        }
+    fwrite( sd, sizeof(survdata), 1, bindata_file );
 
-        fwrite( sd, sizeof(survdata), 1, bindata_file );
-
-        sd->nobs = oldnobs;
-        sd->nclass = oldnclass;
-        sd->nsyserr = oldnsyserr;
-        sd->ncvr = oldncvr;
-    }
+    sd->nobs = oldnobs;
+    sd->nclass = oldnclass;
+    sd->nsyserr = oldnsyserr;
+    sd->ncvr = oldncvr;
 
     /* Save the observations */
 

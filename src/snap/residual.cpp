@@ -55,7 +55,7 @@ typedef struct
     int line;
     char unused;
     double sres;
-    long note;
+    int64_t note;
 } residual;
 
 #define MAXRANK 3
@@ -140,7 +140,7 @@ const char *residual_flag( int unused, int rank, double sres )
 
 
 void save_residual( int from, int to, int id, int type,
-                    int file, int line, char unused, int rank, double sres, long note )
+                    int file, int line, char unused, int rank, double sres, int64_t note )
 {
     int i, level;
     int used;

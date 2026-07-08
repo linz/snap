@@ -46,8 +46,8 @@ void update_bindata( bindata *b );
 bindata *create_bindata( void );
 void delete_bindata( bindata *b );
 
-long save_survdata( survdata *sd );
-long save_survdata_subset( survdata *sd, int iobs, int type );
+int64_t save_survdata( survdata *sd );
+int64_t save_survdata_subset( survdata *sd, int iobs, int type );
 
 char *get_obs_classification_name( survdata *sd, trgtdata *t, int class_id );
 

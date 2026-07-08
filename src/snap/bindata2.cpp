@@ -1207,7 +1207,6 @@ void print_residuals( FILE *out )
 {
     bindata *b;
     double semult;
-    long loc;
     long nbin;
     survdata *sd;
 
@@ -1386,7 +1385,7 @@ void print_residuals( FILE *out )
     {
         if( sort_obs )
         {
-            loc = get_sorted_obs_loc();
+            const int64_t loc = get_sorted_obs_loc();
             if( loc < 0 ) break;
             init_get_bindata( loc );
         }

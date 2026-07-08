@@ -10,10 +10,12 @@
 #ifndef _SORTOBS_H
 #define _SORTOBS_H
 
-void save_observation( int from, int to, int type, long loc );
+#include <stdint.h>
+
+void save_observation( int from, int to, int type, int64_t loc );
 void sort_observation_list( void );
 void init_get_sorted_obs_loc( void );
-long get_sorted_obs_loc( void );
+int64_t get_sorted_obs_loc( void );
 
 #ifdef SORTOBS_C
 int sort_obs = 0;
