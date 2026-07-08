@@ -30,6 +30,10 @@ After the header, the file is a singly-linked list of named sections. Each secti
 - the section's own payload bytes
 - an `End_of_Section` marker
 
+File positions throughout the file - this offset chain, and record locations elsewhere such as
+survey-data records and notes - are read and written via `ftell64`/`fseek64` (`snapconfig.h`), so
+the format now correctly handles files larger than 2GB on all platforms.
+
 `find_section` (`binfile.cpp`) always searches from the start of the file, following the
 next-offset chain - so sections can be located in any order, and locating one section doesn't
 depend on what's already been read. `check_end_section` verifies the very next bytes really are

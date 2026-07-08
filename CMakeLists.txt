@@ -1,7 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
 
+file(READ "${CMAKE_CURRENT_SOURCE_DIR}/VERSION" SNAP_VERSION)
+string(STRIP "${SNAP_VERSION}" SNAP_VERSION)
+
 project(snap
-    VERSION 2.8.8
+    VERSION ${SNAP_VERSION}
     DESCRIPTION "SNAP network adjustment software"
     LANGUAGES CXX)
 
