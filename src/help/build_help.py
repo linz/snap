@@ -18,6 +18,7 @@ TEMPLATE="""
 <html>
 <head>
 <title><!--TITLE--></title>
+<link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="css/helpapp.css">
 <style media="print">#menu { display: none }</style>
 <script src="js/jquery.min.js" ></script>

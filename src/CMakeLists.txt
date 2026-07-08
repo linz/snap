@@ -178,6 +178,10 @@ install(CODE "
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/help/help/
     DESTINATION ${SNAP_INSTALL_ROOT}/help)
 
+install(FILES ${CMAKE_CURRENT_SOURCE_DIR}/resources/snap.ico
+    DESTINATION ${SNAP_INSTALL_ROOT}/help
+    RENAME favicon.ico)
+
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/packages/devel/
         DESTINATION ${SNAP_INSTALL_ROOT}/config/package/devel)
