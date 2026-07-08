@@ -98,7 +98,7 @@ def copy_config_files(build_d: str, build_type: str) -> None:
     if os.path.isdir(perl_src):
         shutil.copytree(perl_src, perl_dst, dirs_exist_ok=True)
 
-    version_src = os.path.join(REPO_ROOT, "src", "VERSION")
+    version_src = os.path.join(REPO_ROOT, "VERSION")
     if os.path.isfile(version_src):
         shutil.copy2(version_src, os.path.join(build_d, "src", "VERSION"))
 
@@ -143,7 +143,7 @@ def check_committed() -> None:
 
 
 def check_version_changelog() -> None:
-    with open(os.path.join(REPO_ROOT, "src", "VERSION")) as f:
+    with open(os.path.join(REPO_ROOT, "VERSION")) as f:
         version = f.read().strip()
     with open(os.path.join(REPO_ROOT, "debian", "changelog")) as f:
         first_line = f.readline()
