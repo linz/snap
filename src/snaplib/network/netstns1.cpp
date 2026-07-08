@@ -106,23 +106,12 @@ static void write_station_fixed_width( const station &st, FILE *f )
         [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
 }
 
-// Mirrors write_station_fixed_width. Same table, same iteration order.
-// Reads into *reinterpret_cast<...*>(base+field.offset)[i] instead of writing.
+// Mirrors write_station_fixed_width. Same table, same iteration order,
+// reading into each field in place instead of writing.
 static void read_station_fixed_width( FILE *f, station &st )
 {
-    char *base = reinterpret_cast<char*>(&st);
-    for( const auto &field : STATION_DISK_FIELDS )
-    {
-        for( size_t i = 0; i < field.count; ++i )
-        {
-            switch( field.kind )
-            {
-            case FieldKind::Int8:    read_raw_as<int8_t>(f, reinterpret_cast<char*>(base+field.offset)[i]); break;
-            case FieldKind::Float64: read_raw(f, reinterpret_cast<double*>(base+field.offset)[i]); break;
-            default:                 read_raw_as<int32_t>(f, reinterpret_cast<int*>(base+field.offset)[i]); break;
-            }
-        }
-    }
+    for_each_disk_field_mutable( st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto &value ) { read_disk_field( f, kind, value ); } );
 }
 
 /* Procedure to dump the station coordinates to a binary file */

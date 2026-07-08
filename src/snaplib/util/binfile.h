@@ -210,4 +210,46 @@ inline void write_disk_field( FILE *f, FieldKind kind, const T &value )
     }
 }
 
+// Mutable counterpart to for_each_disk_field: calls action(kind, ref) once
+// per scalar element declared by `table`, with `ref` a reference straight
+// into `base`'s memory, so an action can write into it (read_disk_field,
+// below) instead of only observing it. Same table, same iteration order, so
+// a read_*_fixed_width built on this stays paired with its
+// write_*_fixed_width automatically.
+template<class T, class Action>
+inline void for_each_disk_field_mutable( T &base, const DiskField *table, size_t table_size, Action action )
+{
+    char *b = reinterpret_cast<char*>(&base);
+    for( size_t t = 0; t < table_size; ++t )
+    {
+        const DiskField &field = table[t];
+        for( size_t i = 0; i < field.count; ++i )
+        {
+            switch( field.kind )
+            {
+            case FieldKind::Int8:    action( field.kind, reinterpret_cast<char*>(b+field.offset)[i] ); break;
+            case FieldKind::UInt8:   action( field.kind, reinterpret_cast<unsigned char*>(b+field.offset)[i] ); break;
+            case FieldKind::UInt32:  action( field.kind, reinterpret_cast<unsigned int*>(b+field.offset)[i] ); break;
+            case FieldKind::Float64: action( field.kind, reinterpret_cast<double*>(b+field.offset)[i] ); break;
+            default:                 action( field.kind, reinterpret_cast<int*>(b+field.offset)[i] ); break;
+            }
+        }
+    }
+}
+
+// The binary-read action for_each_disk_field_mutable callers use: mirrors
+// write_disk_field's on-disk width by `kind`.
+template<class T>
+inline void read_disk_field( FILE *f, FieldKind kind, T &value )
+{
+    switch( kind )
+    {
+    case FieldKind::Int8:    read_raw_as<int8_t>(f, value); break;
+    case FieldKind::UInt8:   read_raw_as<uint8_t>(f, value); break;
+    case FieldKind::UInt32:  read_raw_as<uint32_t>(f, value); break;
+    case FieldKind::Float64: read_raw(f, value); break;
+    default:                 read_raw_as<int32_t>(f, value); break;
+    }
+}
+
 #endif

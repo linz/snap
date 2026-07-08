@@ -573,20 +573,11 @@ static void write_param_fixed_width( const param &p, FILE *f )
 }
 
 // Mirrors write_param_fixed_width: same table, same iteration order, reading
-// into *reinterpret_cast<...*>(base+field.offset) instead of writing.
+// into each field in place instead of writing.
 static void read_param_fixed_width( FILE *f, param &p )
 {
-    char *base = reinterpret_cast<char*>(&p);
-    for( const auto &field : PARAM_DISK_FIELDS )
-    {
-        switch( field.kind )
-        {
-        case FieldKind::UInt32:  read_raw_as<uint32_t>(f, *reinterpret_cast<unsigned int*>(base+field.offset)); break;
-        case FieldKind::UInt8:   read_raw_as<uint8_t>(f, *reinterpret_cast<unsigned char*>(base+field.offset)); break;
-        case FieldKind::Float64: read_raw(f, *reinterpret_cast<double*>(base+field.offset)); break;
-        default:                 read_raw_as<int32_t>(f, *reinterpret_cast<int*>(base+field.offset)); break;
-        }
-    }
+    for_each_disk_field_mutable( p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto &value ) { read_disk_field( f, kind, value ); } );
 }
 
 

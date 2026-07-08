@@ -177,18 +177,12 @@ static void write_survdata_fixed_width( const survdata &sd, FILE *f )
         [f]( FieldKind kind, auto value ) { write_disk_field( f, kind, value ); } );
 }
 
-// Mirrors write_survdata_fixed_width: same table, same iteration order, reading
-// into *reinterpret_cast<double*/int*>(base + field.offset) instead of writing.
+// Mirrors write_survdata_fixed_width: same table, same iteration order,
+// reading into each field in place instead of writing.
 static void read_survdata_fixed_width( FILE *f, survdata &sd )
 {
-    char *base = reinterpret_cast<char*>(&sd);
-    for (const auto &field : SURVDATA_DISK_FIELDS)
-    {
-        if (field.kind == FieldKind::Float64)
-            read_raw(f, *reinterpret_cast<double*>(base + field.offset));
-        else
-            read_raw_as<int32_t>(f, *reinterpret_cast<int*>(base + field.offset));
-    }
+    for_each_disk_field_mutable( sd, SURVDATA_DISK_FIELDS, SURVDATA_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto &value ) { read_disk_field( f, kind, value ); } );
 }
 
 int get_bindata( int bintype, bindata *b )

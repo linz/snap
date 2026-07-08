@@ -139,23 +139,12 @@ static void write_rftrans_fixed_width( const rfTransformation &rf, FILE *f )
 }
 
 // Mirrors write_rftrans_fixed_width: same table, same iteration order, reading
-// into *reinterpret_cast<...*>(base+field.offset)[i] instead of writing, then
-// unpacking the trailing uint16_t back into the 12 named bitfields.
+// into each field in place instead of writing, then unpacking the trailing
+// uint16_t back into the 12 named bitfields.
 static void read_rftrans_fixed_width( FILE *f, rfTransformation &rf )
 {
-    char *base = reinterpret_cast<char*>(&rf);
-    for( const auto &field : RFTRANS_DISK_FIELDS )
-    {
-        for( size_t i = 0; i < field.count; ++i )
-        {
-            switch( field.kind )
-            {
-            case FieldKind::Int8:    read_raw_as<int8_t>(f, reinterpret_cast<char*>(base+field.offset)[i]); break;
-            case FieldKind::Float64: read_raw(f, reinterpret_cast<double*>(base+field.offset)[i]); break;
-            default:                 read_raw_as<int32_t>(f, reinterpret_cast<int*>(base+field.offset)[i]); break;
-            }
-        }
-    }
+    for_each_disk_field_mutable( rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
+        [f]( FieldKind kind, auto &value ) { read_disk_field( f, kind, value ); } );
     uint16_t flags;
     read_raw(f, flags);
     unpack_rftrans_flags(flags, rf);
