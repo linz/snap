@@ -58,7 +58,7 @@ void check_value_id( classifications *csf, int cid, int id )
     int cmax;
     check_class_id( csf, cid );
     cid--;
-    if( csf->class_index[cid]->type == CLASS_TYPE_INT ) return;
+    if( csf->class_index[cid]->type == ClassValueType::Int ) return;
     cmax = csf->class_index[cid]->count;
     if( id < 0 || id >= cmax )
     {
@@ -123,7 +123,7 @@ static int class_type_value_id( class_type *ct, const char *name, int create )
     class_value *cv;
     class_value **cvs;
 
-    if( ct->type == CLASS_TYPE_INT )
+    if( ct->type == ClassValueType::Int )
     {
         int id;
         if( sscanf(name,"%d",&id) != 1 )
@@ -149,7 +149,7 @@ static int class_type_value_id( class_type *ct, const char *name, int create )
     return ct->count-1;
 }
 
-static class_type *create_class_type( const char*name, int type, char *dflt )
+static class_type *create_class_type( const char*name, ClassValueType type, char *dflt )
 {
     class_type *ct = (class_type *) check_malloc( sizeof( class_type ) );
     ct->name = copy_string( name );
@@ -159,7 +159,7 @@ static class_type *create_class_type( const char*name, int type, char *dflt )
     ct->alloc_size = 0;
     ct->value = NULL;
     /* Set up the default classification */
-    if( type == CLASS_TYPE_CHAR ) class_type_value_id( ct, dflt ? dflt : "Default", 1 );
+    if( type == ClassValueType::Char ) class_type_value_id( ct, dflt ? dflt : "Default", 1 );
     return ct;
 }
 
@@ -168,7 +168,7 @@ static void delete_class_type( class_type *ct )
     int nv;
     for( nv = 0; nv < ct->count; nv++ )
     {
-        if( ct->type == CLASS_TYPE_CHAR ) check_free( ct->value[nv]->value.name );
+        if( ct->type == ClassValueType::Char ) check_free( ct->value[nv]->value.name );
         check_free( ct->value[nv]);
         ct->value[nv] = NULL;
     }
@@ -214,7 +214,7 @@ static int find_classification_id( classifications *csf, const char *name )
     return 0;
 }
 
-static int create_classification( classifications *csf, const char *name, int type, char *dflt, int create )
+static int create_classification( classifications *csf, const char *name, ClassValueType type, char *dflt, int create )
 {
     int class_count;
     class_type *ct;
@@ -245,12 +245,12 @@ static int create_classification( classifications *csf, const char *name, int ty
 
 int classification_id( classifications *csf, const char *name, int create )
 {
-    return create_classification( csf, name, CLASS_TYPE_CHAR, NULL, create );
+    return create_classification( csf, name, ClassValueType::Char, NULL, create );
 }
 
 int classification_id_integer( classifications *csf, char *name, int create )
 {
-    return create_classification( csf, name, CLASS_TYPE_INT, NULL, create );
+    return create_classification( csf, name, ClassValueType::Int, NULL, create );
 }
 
 
@@ -275,7 +275,7 @@ void set_default_class_value( classifications *csf, int class_id, const char *df
     class_id--;
     ct = csf->class_index[class_id];
 
-    if( ct->type != CLASS_TYPE_CHAR ) return;
+    if( ct->type != ClassValueType::Char ) return;
     if( ct->count > 0 )
     {
         class_value *cv = ct->value[0];
@@ -304,7 +304,7 @@ static class_value *get_class_value(  classifications *csf, int class_id, int va
     CHECK_CLASS_ID(csf,class_id);
     ct = csf->class_index[class_id-1];
 
-    if( ct->type == CLASS_TYPE_CHAR )
+    if( ct->type == ClassValueType::Char )
     {
         CHECK_VALUE_ID( csf, class_id, val_id );
         return ct->value[val_id];
@@ -331,7 +331,7 @@ char * class_value_name( classifications *csf, int class_id, int id )
 
     CHECK_CLASS_ID(csf,class_id);
     ct = csf->class_index[class_id-1];
-    if( ct->type == CLASS_TYPE_INT )
+    if( ct->type == ClassValueType::Int )
     {
         sprintf(ct->valuebuf,"%d",id);
         return ct->valuebuf;
@@ -346,7 +346,7 @@ int class_value_count( classifications *csf, int class_id )
 
     CHECK_CLASS_ID(csf,class_id);
     ct = csf->class_index[class_id-1];
-    if( ct->type == CLASS_TYPE_INT ) return 0;
+    if( ct->type == ClassValueType::Int ) return 0;
 
     CHECK_CLASS_ID( csf, class_id );
     return csf->class_index[class_id-1]->count;
@@ -388,43 +388,39 @@ unsigned char get_class_usage( classifications *csf, int class_id, int val_id )
 
 /* Dump and reload classifications */
 
-#define DUMP(x,f)   fwrite(&x,sizeof(x),1,f)
-
 void dump_classifications( classifications *csf, FILE *f )
 {
     int ic, iv;
-    DUMP( csf->class_count, f );
+    write_raw( f, csf->class_count );
     for(ic = 0; ic < csf->class_count; ic++ )
     {
         class_type *cl;
         cl = csf->class_index[ic];
         dump_string( cl->name, f );
-        DUMP( cl->count, f );
-        DUMP( cl->type, f );
+        write_raw( f, cl->count );
+        write_raw( f, cl->type );
         for( iv = 0; iv < cl->count; iv++ )
         {
             class_value *cv;
             cv = cl->value[iv];
-            if( cl->type == CLASS_TYPE_INT )
+            if( cl->type == ClassValueType::Int )
             {
-                DUMP( cv->value.value, f );
+                write_raw( f, cv->value.value );
             }
             else
             {
                 dump_string( cv->value.name, f );
             }
-            DUMP( cv->usage, f );
-            DUMP( cv->error_factor, f );
+            write_raw( f, cv->usage );
+            write_raw( f, cv->error_factor );
         }
     }
 }
 
-#define RELOAD(x,f) fread(&x,sizeof(x),1,f)
-
 int reload_classifications( classifications *csf, FILE *f )
 {
     int ic, iv;
-    RELOAD( csf->class_count, f );
+    read_raw( f, csf->class_count );
     if( csf->class_count )
     {
         csf->class_index = (class_type **) check_malloc( csf->class_count * sizeof(class_type *));
@@ -435,8 +431,8 @@ int reload_classifications( classifications *csf, FILE *f )
             cl = (class_type *) check_malloc( sizeof(class_type) );
             csf->class_index[ic] = cl;
             cl->name = reload_string( f );
-            RELOAD( cl->count, f );
-            RELOAD( cl->type, f );
+            read_raw( f, cl->count );
+            read_raw( f, cl->type );
             cl->value = (class_value **) check_malloc( cl->count * sizeof(class_value *));
             cl->alloc_size = cl->count;
             for( iv = 0; iv < cl->count; iv++ )
@@ -444,16 +440,16 @@ int reload_classifications( classifications *csf, FILE *f )
                 class_value *cv;
                 cv = (class_value *) check_malloc( sizeof( class_value ));
                 cl->value[iv] = cv;
-                if( cl->type == CLASS_TYPE_INT )
+                if( cl->type == ClassValueType::Int )
                 {
-                    RELOAD( cv->value.value, f );
+                    read_raw( f, cv->value.value );
                 }
                 else
                 {
                     cv->value.name = reload_string( f );
                 }
-                RELOAD( cv->usage, f );
-                RELOAD( cv->error_factor, f );
+                read_raw( f, cv->usage );
+                read_raw( f, cv->error_factor );
             }
         }
     }

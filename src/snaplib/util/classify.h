@@ -8,8 +8,14 @@
 
 */
 
-#define CLASS_TYPE_CHAR 0
-#define CLASS_TYPE_INT  1
+#include <stdint.h>
+
+// Pinned to int32_t (matching the field's previous plain `int` type)
+// rather than left as the compiler's default choice of underlying type,
+// which is implementation-defined and could differ in size between
+// compilers - this gets written to a .bin file via write_raw<T>, which
+// sizes itself off sizeof(T).
+enum class ClassValueType : int32_t { Char = 0, Int = 1 };
 #define CLASS_VALUE_NOT_DEFINED -1
 
 typedef struct class_value_s
@@ -27,7 +33,7 @@ typedef struct class_type_s
 {
     char *name;
     class_value **value;
-    int type;
+    ClassValueType type;
     int count;
     int alloc_size;
     char valuebuf[20];

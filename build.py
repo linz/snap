@@ -211,7 +211,7 @@ def main() -> None:
         cmake_build(build_d, targets=SNAP_CMD_TARGETS, jobs=args.jobs)
         copy_config_files(build_d, args.type)
     elif args.target == "test":
-        cmake_build(build_d, targets=SNAP_CMD_TARGETS, jobs=args.jobs)
+        cmake_build(build_d, targets=SNAP_CMD_TARGETS + ["binroundtrip"], jobs=args.jobs)
         copy_config_files(build_d, args.type)
         run_tests(args.type)
     elif args.target == "install":

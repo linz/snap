@@ -27,13 +27,10 @@
 
 int64_t save_note( const char *text, int continued )
 {
-    int nch;
-    int64_t loc;
-    long size;
-    nch = strlen( text );
-    size = nch+3;
+    const int nch = strlen( text );
+    const long size = nch+3;
 
-    loc = write_bindata_header( size, NOTEDATA );
+    const int64_t loc = write_bindata_header( size, NOTEDATA );
 
     fputc( continued ? ' ' : '\n', bindata_file );
     fwrite( text, nch, 1, bindata_file );
@@ -47,13 +44,12 @@ int64_t save_note( const char *text, int continued )
 
 void list_note( FILE *out, int64_t loc )
 {
-    int64_t curloc;
     char note[81];
     long size;
     int block, type;
     int firstline, c;
     if( loc < 0 || !output_notes ) return;
-    curloc = ftell64( bindata_file );
+    const int64_t curloc = ftell64( bindata_file );
     fseek64( bindata_file, loc, SEEK_SET );
 
     firstline = 1;

@@ -585,8 +585,18 @@ static void *next_data( int type )
     required = (data.nobs+1)*data.obssize;
     if( required > datasize )
     {
+        const int old_datasize = datasize;
         datasize = required + INC_SIZE * data.obssize;
         datablock = (unsigned char *) check_realloc( datablock, datasize );
+        // Zero the portion of the reallocated pointer that's larger than
+        // what previously existed - realloc leaves it uninitialized. This
+        // buffer gets written to a .bin file as one raw fwrite
+        // (save_survdata, bindata.cpp), so any garbage here (compiler
+        // struct padding in obsdata/vecdata/pntdata, or fields like
+        // isyserr/iclass that are only set when an observation actually
+        // has classifications/syserrs) would otherwise leak nondeterministic
+        // bytes into the file, differing between runs and compilers.
+        memset( datablock + old_datasize, 0, datasize - old_datasize );
         switch( format )
         {
         case SD_OBSDATA:

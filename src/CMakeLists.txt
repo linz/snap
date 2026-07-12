@@ -76,6 +76,11 @@ target_link_libraries(snapspec PRIVATE snaplib snap_link_deps)
 add_executable(dat2site dat2site/dat2site.cpp)
 target_link_libraries(dat2site PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - verifies the .bin format
+# round-trips byte-for-byte. See BINFILE_FORMAT.md.
+add_executable(binroundtrip test/binroundtrip/binroundtrip.cpp)
+target_link_libraries(binroundtrip PRIVATE snaplib snap_link_deps)
+
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
 

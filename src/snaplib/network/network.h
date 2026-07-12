@@ -26,6 +26,10 @@
 #include "util/classify.h"
 #endif
 
+#ifndef _BINFILE_H
+#include "util/binfile.h"
+#endif
+
 #define DFLTSTLIST_EXT  ".stl"
 #define DFLTSTOFFS_EXT  ".sts"
 
@@ -65,6 +69,22 @@ typedef struct
     void    *ts;       /* Station coordinate time series data */
     void    *hook;     /* Pointer to user defined info */
 } station;
+
+// The fixed-width on-disk layout of every field above except the four
+// trailing pointers (classval, Name, ts, hook) - see netstns1.cpp, where
+// this table is defined (without `static`) and checked at compile time
+// against station's actual memory layout. Exposed here, rather than kept
+// file-local, so a second caller elsewhere can walk the same fields via
+// for_each_disk_field (util/binfile.h) without re-listing them by hand.
+// `extern` (plain C++ external linkage, unrelated to `extern "C"`) is
+// required because a `static` array at file scope is only visible within
+// its own translation unit - this declares "a definition exists
+// elsewhere," letting netstns1.cpp's one real array be linked from here
+// instead of each translation unit getting its own private copy (or,
+// without this declaration, no visibility into it at all). Same pattern
+// as `extern datatypedef datatype[]` in snapdata/datatype.h.
+extern const DiskField STATION_DISK_FIELDS[];
+extern const size_t STATION_DISK_FIELD_COUNT;
 
 
 /*------------------------------------------------------------------------

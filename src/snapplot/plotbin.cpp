@@ -112,13 +112,12 @@ void load_observations_from_binary( void )
 void display_note_text( void *dest, PutTextFunc f, int64_t loc )
 {
     PutTextInfo jmp;
-    int64_t curloc;
     char note[NOTEWIDTH + NOTEPREFIX + 1];
     long size;
     int block, type;
     int firstline, c;
     if( loc < 0 ) return;
-    curloc = ftell64( b->f );
+    const int64_t curloc = ftell64( b->f );
     fseek64( b->f, loc, SEEK_SET );
 
     jmp.type = ptfNone;

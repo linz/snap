@@ -17,8 +17,8 @@
 typedef struct
 {
     int64_t loc;      /* Location of structure on the file */
-    long size;      /* The size of the data element */
-    long allocsize; /* The space allocated */
+    int64_t size;      /* The size of the data element */
+    int64_t allocsize; /* The space allocated */
     int  bintype;  /* The binary data format - see enum below */
     void *data; /* Pointer to the data structure */
 } bindata;

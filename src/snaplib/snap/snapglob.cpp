@@ -155,27 +155,27 @@ void dump_snap_globals( BINARY_FILE *b )
 
     fwrite( job_title, JOBTITLELEN+1, 1, b->f );
     fwrite( run_time, GETDATELEN, 1, b->f );
-    DUMP_BIN(dimension, b);
-    DUMP_BIN(program_mode, b);
-    DUMP_BIN(nobs, b);
-    DUMP_BIN(nprm, b);
-    DUMP_BIN(nschp, b);
-    DUMP_BIN(ncon, b);
-    DUMP_BIN(dof, b);
-    DUMP_BIN(ssr, b);
-    DUMP_BIN(seu, b);
-    DUMP_BIN(iterations, b);
-    DUMP_BIN(converged, b);
-    DUMP_BIN(apriori, b);
-    DUMP_BIN(flag_level[0], b);
-    DUMP_BIN(flag_level[1], b);
+    dump_bin(b, dimension);
+    dump_bin(b, program_mode);
+    dump_bin_long32(b, nobs);
+    dump_bin(b, nprm);
+    dump_bin_long32(b, nschp);
+    dump_bin_long32(b, ncon);
+    dump_bin_long32(b, dof);
+    dump_bin(b, ssr);
+    dump_bin(b, seu);
+    dump_bin(b, iterations);
+    dump_bin(b, converged);
+    dump_bin(b, apriori);
+    dump_bin(b, flag_level[0]);
+    dump_bin(b, flag_level[1]);
     /* TODO : Codeguard complains attempting to access 4 bytes from 2 byte block.  Possibly getting sizeof address rather than sizeof addressee */
-    DUMP_BIN(taumax[0], b);
-    DUMP_BIN(taumax[1], b);
-    DUMP_BIN(coord_precision, b);
-    DUMP_BIN(have_obs_ids, b);
-    DUMP_BIN(errconflim, b);
-    DUMP_BIN(errconfval, b);
+    dump_bin(b, taumax[0]);
+    dump_bin(b, taumax[1]);
+    dump_bin(b, coord_precision);
+    dump_bin(b, have_obs_ids);
+    dump_bin(b, errconflim);
+    dump_bin(b, errconfval);
     end_section( b );
 }
 
@@ -188,27 +188,27 @@ int reload_snap_globals( BINARY_FILE *b )
 
     fread( job_title, JOBTITLELEN+1, 1, b->f );
     fread( run_time, GETDATELEN, 1, b->f );
-    RELOAD_BIN(dimension, b);
-    RELOAD_BIN(program_mode, b);
-    RELOAD_BIN(nobs, b);
-    RELOAD_BIN(nprm, b);
-    RELOAD_BIN(nschp, b);
-    RELOAD_BIN(ncon, b);
-    RELOAD_BIN(dof, b);
-    RELOAD_BIN(ssr, b);
-    RELOAD_BIN(seu, b);
-    RELOAD_BIN(iterations, b);
-    RELOAD_BIN(converged, b);
-    RELOAD_BIN(apriori, b);
-    RELOAD_BIN(flag_level[0], b);
-    RELOAD_BIN(flag_level[1], b);
-    RELOAD_BIN(taumax[0], b);
-    RELOAD_BIN(taumax[1], b);
-    RELOAD_BIN(coord_precision, b);
-    RELOAD_BIN(have_obs_ids, b);
+    reload_bin(b, dimension);
+    reload_bin(b, program_mode);
+    reload_bin_long32(b, nobs);
+    reload_bin(b, nprm);
+    reload_bin_long32(b, nschp);
+    reload_bin_long32(b, ncon);
+    reload_bin_long32(b, dof);
+    reload_bin(b, ssr);
+    reload_bin(b, seu);
+    reload_bin(b, iterations);
+    reload_bin(b, converged);
+    reload_bin(b, apriori);
+    reload_bin(b, flag_level[0]);
+    reload_bin(b, flag_level[1]);
+    reload_bin(b, taumax[0]);
+    reload_bin(b, taumax[1]);
+    reload_bin(b, coord_precision);
+    reload_bin(b, have_obs_ids);
     if( check_end_section(b) == OK ) return OK;
-    RELOAD_BIN(errconflim, b);
-    RELOAD_BIN(errconfval, b);
+    reload_bin(b, errconflim);
+    reload_bin(b, errconfval);
     return check_end_section( b );
 }
 

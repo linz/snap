@@ -41,6 +41,19 @@ cmake --build --preset windows-msvc-release
 Binaries are placed in `build\windows-release\`. For a debug build use the
 `windows-msvc-debug` preset, which places output in `build\windows-debug\`.
 
+**Coordinate system data**
+
+SNAP needs `coordsys.def` (and related deformation/geoid files). When running
+straight out of `build\windows-release\`, before packaging, these aren't
+present yet — they're only bundled in by the `cpack` step below, which
+copies the repo's own `src\coordsys\coordsys.def`. To run the unpackaged
+build directly, point SNAP at that file with the `COORDSYSDEF` environment
+variable:
+
+```
+set COORDSYSDEF=<repo>\src\coordsys\coordsys.def
+```
+
 **Packaging**
 
 Run `cpack` inside the build directory after a successful release build:
@@ -83,6 +96,9 @@ apt-get install -y \
     devscripts
 ```
 
+On Jammy (22.04), the wxWidgets package is `libwxgtk3.0-gtk3-dev` — the `3.2`
+package above is Noble-only.
+
 The snap software is built using `build.py` in the root of the repository:
 
 ```
@@ -94,6 +110,21 @@ Build types are `release` (default), `debug`, and `profile`. The release build
 is placed in `build-release/`. The GUI targets (snap_manager, snapadjust,
 snapplot) are built by default; pass `--no-gui` to skip them. See
 `python3 build.py --help` for all options.
+
+**Coordinate system data**
+
+SNAP needs `coordsys.def` (and related deformation/geoid files) from the
+separate `linz-coordsys` package, normally found at
+`/usr/share/linz/coordsys`. When running straight out of `build-release/`,
+before packaging, this isn't wired up yet — it's only symlinked in when SNAP
+is installed from its own `.deb` package (see below). To run the unpackaged
+build directly, point SNAP at the data with the `COORDSYSDEF` environment
+variable, e.g. a `linz-coordsys` checkout or the system path if that package
+is already installed:
+
+```
+export COORDSYSDEF=/usr/share/linz/coordsys/coordsys.def
+```
 
 To build a debian package (all changes must be committed first):
 

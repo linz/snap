@@ -1074,15 +1074,13 @@ void dump_covariance_matrix( BINARY_FILE *b )
     if( ! blt ) return;
     create_section( b, "FULL_COVARIANCE");
     nprm = blt->nrow;
-    fwrite(&nprm,sizeof(nprm),1,b->f );
+    dump_bltmatrix_dense_header( blt, b->f );
     xprintf("\nDumping full covariance matrix to binary file..\n");
     init_progress_meter( nprm );
     for( i = 0; i < nprm; i++ )
     {
-        double *row;
         update_progress_meter( i );
-        row = blt_get_row_data(blt,i);
-        if( row ) fwrite( row, sizeof(double), i+1, b->f );
+        dump_bltmatrix_dense_row( blt, i, b->f );
     }
     end_progress_meter();
     end_section(b);

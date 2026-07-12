@@ -791,6 +791,79 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
     return OK;
 }
 
+// dump_bltmatrix/reload_bltmatrix (above) store only each row's populated
+// band. Each row starts with a `col` marker for that. That's the right
+// encoding for a banded matrix, like a Choleski decomposition.
+//
+// A fully dense matrix has no band to mark - every row starts at column
+// 0. A covariance matrix is generally dense after inversion.
+// snapmain.cpp's dump_covariance_matrix writes FULL_COVARIANCE as nrow
+// plus each row's full triangle, no `col` marker, using the header/row
+// helpers below directly.
+//
+// dump_bltmatrix_dense_header/dump_bltmatrix_dense_row below are the two
+// pieces of that encoding, split out so dump_covariance_matrix can keep
+// injecting its own progress-meter update between rows while sharing
+// the actual byte layout with dump_bltmatrix_dense - a plain convenience
+// wrapper over the same two pieces, with no progress meter, for callers
+// that don't need one.
+void dump_bltmatrix_dense_header( bltmatrix *blt, FILE *b )
+{
+    fwrite(&(blt->nrow), sizeof(blt->nrow), 1, b);
+}
+
+void dump_bltmatrix_dense_row( bltmatrix *blt, int irow, FILE *b )
+{
+    double *row = blt_get_row_data(blt, irow);
+    if( row ) {
+        fwrite( row, sizeof(double), irow+1, b );
+    }
+}
+
+void dump_bltmatrix_dense( bltmatrix *blt, FILE *b )
+{
+    int i;
+    if( blt->status != BLT_READY ) return;
+    dump_bltmatrix_dense_header(blt, b);
+    for( i = 0; i < blt->nrow; i++ ) {
+        dump_bltmatrix_dense_row(blt, i, b);
+    }
+}
+
+// Mirrors dump_bltmatrix_dense. Every row is marked as starting at
+// column 0, matching what dump_bltmatrix_dense_header/_row always write.
+// This lets a verification tool reload and re-dump FULL_COVARIANCE
+// without going through snap_main's own live adjustment state -
+// lsq_get_covariance_matrix() only has a meaningful answer during a
+// real snap run.
+int reload_bltmatrix_dense( bltmatrix **pblt, FILE *b )
+{
+    int i;
+    int nrow;
+    bltmatrix *blt = NULL;
+
+    *pblt = NULL;
+    if( fread(&nrow, sizeof(nrow), 1, b) != 1 ) return FILE_READ_ERROR;
+    if( nrow <= 0 ) return INVALID_DATA;
+
+    blt = create_bltmatrix(nrow);
+    *pblt = blt;
+    for( i = 0; i < blt->nrow; i++ ) {
+        blt_nonzero_element(blt, i, 0);
+    }
+    blt_set_sparse_rows(blt, nrow);
+    init_bltmatrix(blt);
+    for( i = 0; i < blt->nrow; i++ )
+    {
+        bltrow *r = &(blt->row[i]);
+        int len = i + 1 - r->col;
+        if( fread(r->address, sizeof(double), len, b) != (unsigned int) len) {
+            return FILE_READ_ERROR;
+        }
+    }
+    return OK;
+}
+
 void print_bltmatrix_json( bltmatrix *blt, FILE *out, int nprefix, int options, const char *format )
 {
     int ir,ic,ir0,ic0,col0;
