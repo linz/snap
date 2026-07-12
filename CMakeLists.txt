@@ -131,6 +131,14 @@ if(WIN32)
     set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
     set(CPACK_PACKAGE_INSTALL_DIRECTORY "LINZ\\snap")
     set(CPACK_NSIS_DISPLAY_NAME "SNAP ${PROJECT_VERSION}")
+    # CPACK_NSIS_PACKAGE_NAME defaults to CPACK_NSIS_DISPLAY_NAME, but it also
+    # seeds the Start Menu folder NSIS remembers across upgrades (unrelated to
+    # its documented role as the installer title). Since installs are in-place
+    # (fixed CPACK_PACKAGE_INSTALL_DIRECTORY, matching the old vdproj's fixed
+    # DefaultLocation), that default must stay version-independent too, or
+    # each upgrade's suggested Start Menu folder drifts to the last-installed
+    # version's name instead of staying "SNAP".
+    set(CPACK_NSIS_PACKAGE_NAME "SNAP")
     # CPack's own modify-PATH option (CPACK_NSIS_MODIFY_PATH) always targets a
     # hardcoded "$INSTDIR\bin", which doesn't exist in our flat install layout
     # (see CPACK_NSIS_EXECUTABLES_DIRECTORY below) - it would silently do nothing.
