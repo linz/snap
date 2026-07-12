@@ -96,6 +96,9 @@ apt-get install -y \
     devscripts
 ```
 
+On Jammy (22.04), the wxWidgets package is `libwxgtk3.0-gtk3-dev` — the `3.2`
+package above is Noble-only.
+
 The snap software is built using `build.py` in the root of the repository:
 
 ```
