@@ -348,6 +348,11 @@ void SnapplotMapView::ClearLocator()
 void SnapplotMapView::PaintLocator( wxDC &dc )
 {
     RestoreMapImage(dc);
+    DrawLocator(dc);
+}
+
+void SnapplotMapView::DrawLocator( wxDC &dc )
+{
     if( locatorFrom == 0 ) return;
     wxColour locatorCol = GetSymbology()->LayerColour( get_pen( SELECTED_PEN ) );
     wxColour backCol = GetSymbology()->LayerColour( get_pen( BACKGROUND_PEN ) );
@@ -464,7 +469,7 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
     wxPaintDC dc(this);
     PaintMap(dc);
     SaveMapImage();
-    PaintLocator(dc);
+    DrawLocator(dc);
 }
 
 // Routine generates a bitmap image that is a copy of contents of the screen map,

@@ -2,6 +2,11 @@
 
 #include "wxmapwindow.hpp"
 
+static_assert( false, "wxtest/wxmapwindow.cpp duplicates wxutils/wxmapwindow.cpp's "
+    "wxMapDragger, including its older wxINVERT/XOR rubber-band drawing, which fails on "
+    "modern GTK3/Wayland - apply the same wxOverlay-based fix as wxutils/wxmapwindow.cpp "
+    "here before building this file" );
+
 DEFINE_EVENT_TYPE( WX_MAPWINDOW_POSITION );
 DEFINE_EVENT_TYPE( WX_MAPWINDOW_CLICKED );
 DEFINE_EVENT_TYPE( WX_MAPWINDOW_REPAINTED);

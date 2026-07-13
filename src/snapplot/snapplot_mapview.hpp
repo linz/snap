@@ -39,6 +39,7 @@ private:
     void SetLocatorLocked( bool locked );
     void PaintLocator();
     void PaintLocator( wxDC &dc );
+    void DrawLocator( wxDC &dc );
     void ClearLocator();
 
     void SaveMapImage();
