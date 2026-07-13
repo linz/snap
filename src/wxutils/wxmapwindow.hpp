@@ -42,7 +42,7 @@ typedef void (wxEvtHandler::*wxMapWindowEventFunction)(wxMapWindowEvent&);
 
 // Modes for rubber band dragging
 
-enum RBDragMode { rbmNone, rbmLine, rbmRect };
+enum RBDragMode { rbmNone, rbmRect };
 enum ZoomDragMode { zdmNone, zdmZoom, zdmPan };
 
 // Options for rubber band dragging
@@ -76,6 +76,17 @@ protected:
     void SetMapCursor( const wxCursor &cursor );
     virtual void DrawDragger( wxDC &dc );
 
+    // Fills dc with the background colour, then draws a fresh copy of the
+    // map onto it - rather than reading back what's currently on screen
+    // (e.g. via wxClientDC::Blit), which is unreliable on wxGTK, and isn't
+    // meaningful at all under wx's native overlay backend (selected on
+    // Wayland sessions), which draws to a separate transparent layer
+    // instead of the real window.
+    void PaintMapOnto( wxDC &dc );
+
+    // As PaintMapOnto, but into an owned bitmap sized to the window.
+    wxBitmap CaptureMapBitmap();
+
     wxMapWindow *mapWindow;
     wxPoint dragStartPoint;
     wxPoint dragEndPoint;
@@ -85,15 +96,32 @@ private:
     void ProcessMouseEvent( wxMouseEvent &event );
     void ProcessMouseCaptureLostEvent( wxMouseCaptureLostEvent &event );
 
+    // Called by wxMapWindow::PaintMap() (a friend) right after it draws -
+    // if a reset was requested, starts a settle timer rather than resetting
+    // immediately, since the repaint may not be actually presented on
+    // screen yet even though it's just been issued.
+    void CheckPendingOverlayReset();
+
+    // Called by wxMapWindow once the settle timer fires - actually hides
+    // the drag preview.
+    void ResetOverlayNow();
+
     bool dragging;
     bool canDrag;  // Used to avoid repeated checks after a rejected drag start
     bool moveOriginOnShift;
+    bool overlayResetPending;
+
+    // Button whose up event should be swallowed rather than forwarded as a
+    // fresh click, because it only cancelled an in-progress drag
+    // (wxMOUSE_BTN_NONE if no such swallow is pending).
+    int dragCancelButton;
 
     int minDragLength;
 
     RBDragMode dragMode;
 
     wxCursor savedCursor;
+    wxOverlay overlay;
 };
 
 // Map scale dragger class
@@ -107,10 +135,19 @@ public:
     virtual void EndDrag();
     void SetZoomDragMode( ZoomDragMode newMode );
     void SetAutoZoomPanMode( bool newMode = true );
+protected:
+    // protected, not private: a subclass may need to call this base
+    // implementation directly (qualified, non-virtually) from within its
+    // own override, which requires at least protected access.
+    virtual void DrawDragger( wxDC &dc );
 private:
     void ZoomTo( const MapRect &newRect );
     ZoomDragMode zoomMode;
     bool autoZoomPanMode;
+
+    // Snapshot of the view taken when a pan drag starts, blitted at the
+    // current drag offset each frame for a live-scrolling preview.
+    wxBitmap panBitmap;
 };
 
 // Map window class
@@ -148,6 +185,14 @@ private:
     void OnScaleChangeEvent( wxSimpleEvent &event );
     void OnRedrawMap( wxSimpleEvent &event );
     void ForwardMouseEvent(  wxEventType type, const wxMouseEvent &event );
+    void RefreshCursorPosition();
+    void OnOverlayResetTimer( wxTimerEvent &event );
+
+    // Starts a one-shot timer that calls dragger->ResetOverlayNow() after
+    // delayMilliseconds - the repaint that made this necessary may have
+    // been issued but not yet actually presented on screen, so this gives
+    // it a margin to catch up before the drag preview is hidden.
+    void StartOverlayResetTimer( int delayMilliseconds );
 
     wxMap *map;
     wxMapScale scale;
@@ -155,6 +200,7 @@ private:
     wxMapDragger *dragger;
     MapPoint cursorPosition;
     bool sendPositionEvent;
+    wxTimer overlayResetTimer;
 
     DECLARE_DYNAMIC_CLASS( wxMapWindow );
     DECLARE_EVENT_TABLE();
