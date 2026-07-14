@@ -128,7 +128,15 @@ const char *find_file( const char *name, const char *dflt_ext, const char *base,
 
 /* Create a temporary file, and set up a handler to delete it when the program terminates */
 
+#ifdef _WIN32
+/* The standard tmpfile() creates the file in the root of the current drive,
+   which a non-administrator Windows account often cannot write to. Use a
+   proper scratch-file implementation based on the actual temp directory
+   (TMP/TEMP/USERPROFILE) instead. */
+FILE *snaptmpfile();
+#else
 #define snaptmpfile tmpfile
+#endif
 
 /* Skip unicode BOM (byte order marker).  Assumes file pointer is set to beginning of file */
 /* Returns 1 if successful (UTF8 or no BOM), 0 if UTF16 BOM at start of file */

@@ -19,10 +19,18 @@ if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif()
 
 # ── Compiler flags ────────────────────────────────────────────────────────────
+if(WIN32)
+    # Static-link everything on Windows, so the built exe has no dependency on
+    # a redistributable (MSVC runtime / MinGW's libgcc+libstdc++) on the
+    # target machine. Mechanism differs per compiler; the goal is shared.
+    if(MSVC)
+        set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
+    else()
+        add_link_options(-static-libgcc -static-libstdc++ -static)
+    endif()
+endif()
+
 if(MSVC)
-    # Match wxWidgets' RUNTIME_LIBS=static build (/MT) so the exe has no
-    # dependency on the MSVC redistributable on the target machine.
-    set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
     add_compile_options(/W4 /wd4244)
     add_compile_definitions(
         _CRT_SECURE_NO_WARNINGS
@@ -50,9 +58,12 @@ else()
         add_link_options(-lefence)
     endif()
 
-    # CMake injects -DNDEBUG automatically for Release; Profile needs it added
+    # CMake injects -DNDEBUG automatically for Release; Profile needs it added.
+    # UNIX is only correct for an actual Unix target - a non-MSVC compiler
+    # (e.g. MinGW) targeting Windows must not get it, or it contradicts
+    # snapconfig.h's own _WIN32/_MSC_VER platform check.
     add_compile_definitions(
-        UNIX
+        $<$<NOT:$<BOOL:${WIN32}>>:UNIX>
         $<$<CONFIG:Debug>:CHECKBLT>
         $<$<CONFIG:Profile>:NDEBUG>)
 endif()
@@ -75,6 +86,10 @@ endif()
 # the 'mt-s' variants rather than the default 'mt' (/MD) variants.
 if(MSVC)
     set(Boost_USE_STATIC_RUNTIME ON)
+elseif(WIN32)
+    # MinGW: only a static (runtime-link=static), untagged build is staged,
+    # so there's no 'mt'/'mt-s' variant choice to make - just select static.
+    set(Boost_USE_STATIC_LIBS ON)
 endif()
 find_package(Boost REQUIRED COMPONENTS filesystem regex)
 # boost::system is header-only since Boost 1.69; newer distros ship no .so for it.

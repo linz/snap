@@ -16,8 +16,13 @@
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef _MSC_VER
+#ifdef _WIN32
 #include <io.h>
+#include <fcntl.h>
+#include <share.h>
+#define WIN32_LEAN_AND_MEAN
+#define NOMINMAX
+#include <windows.h>
 #endif
 #ifdef UNIX
 #define _stat stat
@@ -678,6 +683,20 @@ const char *find_file( const char *name, const char *dflt_ext, const char *relat
     }
     return spec;
 }
+
+#ifdef _WIN32
+FILE *snaptmpfile()
+{
+    char tmpdir[MAX_PATH];
+    char tmpname[MAX_PATH];
+    if( ! GetTempPathA( MAX_PATH, tmpdir ) ) return NULL;
+    if( ! GetTempFileNameA( tmpdir, "snp", 0, tmpname ) ) return NULL;
+    int fd = _sopen( tmpname, _O_RDWR | _O_CREAT | _O_TRUNC | _O_BINARY | _O_TEMPORARY,
+                      _SH_DENYRW, _S_IREAD | _S_IWRITE );
+    if( fd == -1 ) return NULL;
+    return _fdopen( fd, "w+b" );
+}
+#endif
 
 int skip_utf8_bom( FILE *f )
 {

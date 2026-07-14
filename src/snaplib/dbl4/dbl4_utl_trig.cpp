@@ -772,7 +772,7 @@ StatusType utlCreateTrig( hBinSrc binsrc, hTrig *trig)
     *trig = 0;
     sts = create_trig_def( &def, binsrc );
     if( sts == STS_OK ) *trig =  (void *) def;
-    TRACE_TRIG(("utlCreateTrig %lX",(unsigned long) *trig));
+    TRACE_TRIG(("utlCreateTrig %llX",reinterpret_cast<unsigned long long>(*trig)));
     return sts;
 }
 
@@ -792,7 +792,7 @@ StatusType utlCreateTrig( hBinSrc binsrc, hTrig *trig)
 StatusType utlReleaseTrig( hTrig trig)
 {
     hTrigDef def;
-    TRACE_TRIG(("utlReleaseTrig %lX",(unsigned long) trig));
+    TRACE_TRIG(("utlReleaseTrig %llX",reinterpret_cast<unsigned long long>(trig)));
     def = trig_def_from_handle( trig );
     if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
     delete_trig_def(def);
@@ -912,7 +912,7 @@ StatusType utlCalcTrig( hTrig trig, double x, double y, double *value)
     def = trig_def_from_handle( trig );
     if( ! def ) RETURN_STATUS(STS_INVALID_HANDLE);
 
-    TRACE_TRIG(("utlCalcTrig: %lX %lf %lf",(unsigned long) trig,x,y));
+    TRACE_TRIG(("utlCalcTrig: %llX %lf %lf",reinterpret_cast<unsigned long long>(trig),x,y));
 
     sts = calc_triangle_value( def, x, y, value );
 
