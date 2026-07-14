@@ -96,6 +96,16 @@ static int error_handler( int sts, const char *msg1, const char *msg2 )
     else if ( WARNING_ERROR_CONDITION(sts) )
     {
         wxLogWarning( "%s %s\n", msg1 ? msg1 : blank, msg2 ? msg2 : blank );
+        // wxLogWarning's target (see ImplementErrorHandler below) only buffers
+        // messages in memory, with nothing in the UI that ever displays them -
+        // so a caller that wants this specific warning seen must ask for it
+        // explicitly via SHOW_DIALOG, rather than every warning popping up
+        // unprompted.
+        if( SHOW_DIALOG_CONDITION(sts) )
+        {
+            wxMessageBox( wxString::Format("%s %s", msg1 ? msg1 : blank, msg2 ? msg2 : blank ),
+                          "Warning", wxOK | wxICON_EXCLAMATION );
+        }
     }
     else
     {

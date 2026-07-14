@@ -44,10 +44,18 @@
 #define MEM_ALLOC_ERROR  65
 #define INTERNAL_ERROR   66
 
+/* Orthogonal modifier bit, ORed onto a severity above (e.g.
+   WARNING_ERROR | SHOW_DIALOG) - not a severity/condition itself. Lets a
+   caller explicitly ask for a warning to be shown as a dialog in GUI
+   programs that support it, rather than only logged, without changing
+   default behaviour for every other (unaudited) warning call site. */
+#define SHOW_DIALOG      128
+
 #define REPORTABLE_ERROR(sts)        ((sts) & (INFO_ERROR | WARNING_ERROR | FATAL_ERROR))
 #define INFO_ERROR_CONDITION(sts)    (((sts) & INFO_ERROR) && !((sts) & (FATAL_ERROR | WARNING_ERROR)))
 #define FATAL_ERROR_CONDITION(sts)    ((sts) & FATAL_ERROR)
 #define WARNING_ERROR_CONDITION(sts)  ((sts) & WARNING_ERROR)
+#define SHOW_DIALOG_CONDITION(sts)    ((sts) & SHOW_DIALOG)
 
 /* Define a default error handler - takes three parameters,
    1) An integer error status

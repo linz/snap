@@ -59,9 +59,20 @@ int reload_binary_data( )
     memcpy( bfn, root_name, nch );
     strcpy( bfn+nch, BINFILE_EXT );
 
-    b = open_binary_file( bfn, BINFILE_SIGNATURE );
+    auto [file, result] = open_binary_file( bfn, BINFILE_SIGNATURE );
+    b = file;
 
-    if( !b ) { free(bfn); return NO_MORE_DATA;}
+    if( !b )
+    {
+        if( result == BinFileOpenResult::InvalidVersion )
+        {
+            handle_error( WARNING_ERROR | SHOW_DIALOG,
+                          "Cannot reload data - binary file version is not compatible with this version of SNAP",
+                          bfn );
+        }
+        free(bfn);
+        return NO_MORE_DATA;
+    }
 
     print_log("     Reloading data from binary file...\n");
 
@@ -72,7 +83,7 @@ int reload_binary_data( )
             reload_parameters( b ) != OK )
     {
 
-        handle_error( FILE_OPEN_ERROR, "Cannot reload data from binary file",
+        handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Cannot reload data from binary file",
                       bfn);
         sts = FILE_READ_ERROR;
     }

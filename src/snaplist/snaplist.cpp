@@ -1101,7 +1101,7 @@ int main( int argc, char *argv[] )
     install_default_crdsys_file( );
 
     bfn = argv[1];
-    b = open_binary_file( bfn, BINFILE_SIGNATURE );
+    b = open_binary_file( bfn, BINFILE_SIGNATURE ).file;
 
     if( !b ||
             reload_snap_globals( b ) != OK ||

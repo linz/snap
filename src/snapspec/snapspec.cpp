@@ -340,7 +340,7 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
             ra->blt = NULL;
         }
 
-        BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE );
+        BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE ).file;
         if( !b ) { if( saved_col ) check_free( saved_col ); return 0; }
         if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK )
         {
@@ -853,7 +853,7 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
 {
     BINARY_FILE *c;
     char cruntime[GETDATELEN];
-    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG);
+    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG).file;
     if( ! c ) return 0;
     if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
     {
@@ -2828,7 +2828,7 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    b = open_binary_file( bfn, BINFILE_SIGNATURE );
+    b = open_binary_file( bfn, BINFILE_SIGNATURE ).file;
 
     if( !b ||
             reload_snap_globals( b ) != OK ||

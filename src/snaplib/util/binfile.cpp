@@ -99,7 +99,7 @@ BINARY_FILE *create_binary_file( char *fname, const char *signature )
 }
 
 
-BINARY_FILE *open_binary_file( char *fname, const char *signature )
+BinFileOpenOutcome open_binary_file( char *fname, const char *signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;
@@ -133,7 +133,7 @@ BINARY_FILE *open_binary_file( char *fname, const char *signature )
 #else
     f = fopen( fname, "rb" );
 #endif
-    if( !f ) return NULL;
+    if( !f ) return { NULL, BinFileOpenResult::NotFound };
 
     nsig = strlen(signature) + strlen(SIG_TRAILER);
 
@@ -144,7 +144,7 @@ BINARY_FILE *open_binary_file( char *fname, const char *signature )
     {
         check_free( sig );
         fclose(f);
-        return NULL;
+        return { NULL, BinFileOpenResult::InvalidVersion };
     }
 
     check_free( sig );
@@ -161,7 +161,7 @@ BINARY_FILE *open_binary_file( char *fname, const char *signature )
     b->sigchar = 0;
     find_section(b,VERSION_SECTION);
     b->bf_version = b->section_version;
-    return b;
+    return { b, BinFileOpenResult::Ok };
 }
 
 
