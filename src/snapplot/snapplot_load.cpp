@@ -244,7 +244,7 @@ int snapplot_load( int argc, char *argv[] )
         {
             if( add_configuration_file( filelist[i] ) != OK )
             {
-                handle_error( FILE_OPEN_ERROR, "Configuration file cannot be found",
+                handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found",
                               filelist[i] );
             }
         }
@@ -278,7 +278,7 @@ int snapplot_load( int argc, char *argv[] )
         const char *filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, 0, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
         if( add_configuration_file( filename ) != 0 )
         {
-            handle_error( FILE_OPEN_ERROR, "Configuration file cannot be found", cfgfile[i] );
+            handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found", cfgfile[i] );
         }
     }
 

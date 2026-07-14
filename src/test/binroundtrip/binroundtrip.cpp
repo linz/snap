@@ -647,7 +647,7 @@ static ReloadedState reload_almost_everything( BINARY_FILE *in )
 
 static int run_roundtrip( const char *input_path, const char *output_path )
 {
-    BinaryFilePtr in( open_binary_file( const_cast<char *>(input_path), BINFILE_SIGNATURE ) );
+    BinaryFilePtr in( open_binary_file( const_cast<char *>(input_path), BINFILE_SIGNATURE ).file );
     if( !in ) {
         fail( std::string( "Cannot open " ) + input_path );
     }
@@ -690,7 +690,7 @@ static int run_roundtrip( const char *input_path, const char *output_path )
 // floating-point differences between compilers.
 static int run_dump( const char *input_path, const char *output_path )
 {
-    BinaryFilePtr in( open_binary_file( const_cast<char *>(input_path), BINFILE_SIGNATURE ) );
+    BinaryFilePtr in( open_binary_file( const_cast<char *>(input_path), BINFILE_SIGNATURE ).file );
     if( !in ) {
         fail( std::string( "Cannot open " ) + input_path );
     }
