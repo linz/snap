@@ -53,11 +53,38 @@
         "wxWidgets_USE_REL_AND_DBG": "OFF"
       }
     }
+    ,
+    {
+      "name": "windows-mingw-release",
+      "displayName": "Windows x64 Release (MinGW-w64 cross-compile)",
+      "generator": "Unix Makefiles",
+      "toolchainFile": "${sourceDir}/cmake/toolchain-mingw-w64.cmake",
+      "binaryDir": "${sourceDir}/build/windows-mingw-release",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release",
+        "BOOST_ROOT": "$env{BOOST_ROOT}",
+        "BOOST_LIBRARYDIR": "$env{BOOST_ROOT}/stage-mingw/lib",
+        "Boost_NO_SYSTEM_PATHS": "ON",
+        "SNAP_BUILD_GUI": "OFF"
+      }
+    },
+    {
+      "name": "windows-mingw-release-gui",
+      "displayName": "Windows x64 Release with GUI (MinGW-w64 cross-compile)",
+      "inherits": "windows-mingw-release",
+      "binaryDir": "${sourceDir}/build/windows-mingw-release-gui",
+      "cacheVariables": {
+        "SNAP_BUILD_GUI": "ON",
+        "wxWidgets_CONFIG_EXECUTABLE": "$env{WX_MINGW_CONFIG}"
+      }
+    }
   ],
   "buildPresets": [
     {"name": "windows-msvc-debug", "configurePreset": "windows-msvc-debug"},
     {"name": "windows-msvc-release", "configurePreset": "windows-msvc-release"},
     {"name": "windows-msvc-debug-gui", "configurePreset": "windows-msvc-debug-gui"},
-    {"name": "windows-msvc-release-gui", "configurePreset": "windows-msvc-release-gui"}
+    {"name": "windows-msvc-release-gui", "configurePreset": "windows-msvc-release-gui"},
+    {"name": "windows-mingw-release", "configurePreset": "windows-mingw-release"},
+    {"name": "windows-mingw-release-gui", "configurePreset": "windows-mingw-release-gui"}
   ]
 }

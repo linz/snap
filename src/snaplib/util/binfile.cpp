@@ -27,7 +27,7 @@
 #include "util/binfile.h"
 #include "util/errdef.h"
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #define MS_LOCKING
 #endif
 

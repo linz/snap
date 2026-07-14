@@ -50,7 +50,16 @@
 #else
 #define CONFIGURE_EXPONENT()
 #endif
+// _set_printf_count_output enables %n support in MSVC/UCRT's printf, and is
+// only ever declared (and exported) there - MinGW's own printf engine (used
+// when __USE_MINGW_ANSI_STDIO is set, and its msvcrt-target import library
+// doesn't even export the symbol regardless) supports %n unconditionally,
+// so this is a no-op for anything other than real MSVC.
+#if defined(_MSC_VER)
 #define CONFIGURE_PRINTF() _set_printf_count_output(1)
+#else
+#define CONFIGURE_PRINTF()
+#endif
 #endif
 
 #define CONFIGURE_RUNTIME() CONFIGURE_PRINTF(); CONFIGURE_EXPONENT()
