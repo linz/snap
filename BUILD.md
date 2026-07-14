@@ -2,8 +2,8 @@ BUILD INSTRUCTIONS
 ==================
 
 
-Build instructions Windows
-==========================
+Build instructions on Windows - MSVC
+====================================
 
 Only 64-bit builds are supported.
 
@@ -73,7 +73,85 @@ NSIS must be installed for the `.exe` target: https://nsis.sourceforge.io/
 
 The GUI programs (snap_manager, snapadjust, snapplot) are disabled by default on Windows.
 Building them requires wxWidgets — see `wxwidgets\README.md` for instructions.
-Once wxWidgets is built, re-configure with `-DSNAP_BUILD_GUI=ON`.
+
+Once wxWidgets is built, set the `WXWIN` environment variable to the extracted wxWidgets
+source root (e.g. `set WXWIN=<repo>\wxwidgets\wxWidgets`), then build with one of the
+`-gui` presets:
+
+```
+cmake --preset windows-msvc-release-gui
+cmake --build --preset windows-msvc-release-gui
+```
+
+Build instructions for Windows - MinGW-w64 cross-compile (from Linux)
+=======================================================================
+
+Windows binaries can also be built entirely from a Linux (or WSL) host using the
+MinGW-w64 cross-compiler, without needing Visual Studio at all.
+
+**Prerequisites**
+
+1. **MinGW-w64 cross-compiler** — `sudo apt-get install g++-mingw-w64-x86-64`
+2. **7zip** — `sudo apt-get install 7zip` (to extract the vendored wxWidgets archive;
+   only needed for the GUI targets)
+3. **NSIS** — `sudo apt-get install nsis` (only needed for packaging)
+4. **Boost**, cross-built for MinGW. Reuse an existing Boost source tree if you have
+   one already (no need to re-download), or fetch a fresh one from
+   https://www.boost.org/users/download/, then from the Boost source root:
+   ```
+   cat > user-config.jam <<'EOF'
+   using gcc : 13 : x86_64-w64-mingw32-g++ ;
+   EOF
+   ./bootstrap.sh
+   ./b2 --user-config=$(pwd)/user-config.jam toolset=gcc-13 target-os=windows \
+     address-model=64 architecture=x86 link=static runtime-link=static \
+     threading=multi variant=release \
+     --with-filesystem --with-regex --with-system --stagedir=stage-mingw -j$(nproc)
+   ```
+   Replace `13` with the major GCC version of your installed
+   `g++-mingw-w64-x86-64` (check with `x86_64-w64-mingw32-g++ --version`) - the
+   toolset name field must be a numeric-parseable tag, not an arbitrary word.
+
+   Set `BOOST_ROOT` to this Boost source root.
+5. **wxWidgets**, cross-built for MinGW (only needed for the GUI targets). wx's own
+   Windows makefile (`wxwidgets\build\msw\makefile.gcc`) is `cmd.exe`-only and does
+   not work for cross-compiling from Linux - use wx's autotools `configure` build
+   instead, which is designed for exactly this:
+   ```
+   cd wxwidgets
+   mkdir wxWidgets_mingw && 7z x wxWidgets-3.2.4.7z -owxWidgets_mingw
+   mkdir wx-mingw-build && cd wx-mingw-build
+   ../wxWidgets_mingw/configure --host=x86_64-w64-mingw32 --build=x86_64-linux-gnu \
+     --disable-shared --enable-unicode --prefix=$(pwd)/install
+   make -j$(nproc)
+   ```
+   Set `WX_MINGW_CONFIG` to the generated `wxwidgets/wx-mingw-build/wx-config` script.
+
+**Building**
+
+Either use `build.py --mingw` (see below), or invoke the presets directly:
+
+```
+cmake --preset windows-mingw-release-gui
+cmake --build --preset windows-mingw-release-gui
+```
+
+(Use `windows-mingw-release` instead for a non-GUI build.) Binaries are placed in
+`build/windows-mingw-release[-gui]/src/`.
+
+Using `build.py`:
+
+```
+python3 build.py release all --mingw
+python3 build.py release package --mingw   # ZIP + NSIS installer, via cpack
+```
+
+`--no-gui` skips the GUI targets (and the `WX_MINGW_CONFIG` requirement). Only the
+`release` type and the `all`/`package`/`clean` targets are supported with `--mingw` -
+`snap_cmd`/`test`/`install` don't apply to a cross-compiled Windows build.
+
+Coordinate system data and packaging otherwise work the same way as the MSVC build
+above (`COORDSYSDEF`, `cpack`).
 
 Build instructions for Linux
 ============================

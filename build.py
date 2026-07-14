@@ -15,7 +15,8 @@ TARGET (default: all):
     snap_cmd   Build command-line tools only
     test       Build snap_cmd and run regression tests
     install    Build all and install to system
-    package    Build a Debian package (Linux, release only; --build-dir sets SNAP_BUILD_DIR)
+    package    Build a Debian package (Linux, release only; --build-dir sets SNAP_BUILD_DIR),
+               or a Windows ZIP/NSIS package with --mingw (release only)
     clean      Remove the build directory
 
 Options:
@@ -24,6 +25,13 @@ Options:
     --build-dir DIR  Build output directory (default: build-{type}); for package,
                      sets SNAP_BUILD_DIR passed to debuild/debian/rules
     --no-efence      Do not link efence (debug builds link efence by default)
+    --mingw          Cross-compile for Windows using MinGW-w64 (from Linux only;
+                     release only). Requires BOOST_ROOT set to a MinGW-built Boost
+                     tree, and (unless --no-gui) WX_MINGW_CONFIG set to a MinGW-built
+                     wxWidgets wx-config script - see BUILD.md. Uses the
+                     windows-mingw-release[-gui] CMake presets rather than the plain
+                     -D flags used for the native Linux build; snap_cmd/test/install
+                     targets are not supported with --mingw.
 """
 
 from __future__ import annotations
@@ -135,6 +143,46 @@ def run_tests(build_type: str) -> None:
     run(["perl", testall, "-e"] + (["-r"] if build_type == "release" else []))
 
 
+def mingw_build(args) -> None:
+    if platform.system() != "Linux":
+        print("ABORTED: --mingw cross-compiles for Windows and is only supported "
+              "when run from Linux")
+        sys.exit(1)
+    if args.type != "release":
+        print("ABORTED: --mingw only supports the release build type")
+        sys.exit(1)
+    if args.target not in ("all", "package", "clean"):
+        print(f"ABORTED: --mingw does not support the '{args.target}' target "
+              "(snap_cmd/test/install don't apply to a cross-compiled Windows build)")
+        sys.exit(1)
+
+    preset = "windows-mingw-release" if args.no_gui else "windows-mingw-release-gui"
+    build_d = os.path.join(REPO_ROOT, "build", preset)
+
+    if args.target == "clean":
+        if os.path.exists(build_d):
+            print(f"Removing {build_d}")
+            shutil.rmtree(build_d)
+        return
+
+    if not os.environ.get("BOOST_ROOT"):
+        print("ABORTED: BOOST_ROOT must be set to a MinGW-built Boost tree - see BUILD.md")
+        sys.exit(1)
+    if not args.no_gui and not os.environ.get("WX_MINGW_CONFIG"):
+        print("ABORTED: WX_MINGW_CONFIG must be set to a MinGW-built wxWidgets "
+              "wx-config script (or pass --no-gui) - see BUILD.md")
+        sys.exit(1)
+
+    run(["cmake", "--preset", preset])
+    build_cmd = ["cmake", "--build", "--preset", preset]
+    if args.jobs:
+        build_cmd += ["--parallel", str(args.jobs)]
+    run(build_cmd)
+
+    if args.target == "package":
+        run(["cpack"], cwd=build_d)
+
+
 def check_committed() -> None:
     result = subprocess.run(["git", "diff", "--quiet", "HEAD"], cwd=REPO_ROOT, check=False)
     if result.returncode != 0:
@@ -171,7 +219,14 @@ def main() -> None:
                         help="Build output directory (default: build-{type})")
     parser.add_argument("--no-efence", action="store_true",
                         help="Do not link efence (debug builds link efence by default)")
+    parser.add_argument("--mingw", action="store_true",
+                        help="Cross-compile for Windows using MinGW-w64 (Linux host, "
+                             "release only) - see BUILD.md")
     args = parser.parse_args()
+
+    if args.mingw:
+        mingw_build(args)
+        return
 
     build_d = args.build_dir if args.build_dir else build_dir(args.type)
     efence = (args.type == "debug") and not args.no_efence
