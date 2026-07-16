@@ -1110,7 +1110,7 @@ Token *ScriptImp::GetVariable(const wxString &name )
 
 Token *ScriptImp::InterpolateString(const wxString &dtext )
 {
-    // Remove intial and final quote marks
+    // Remove initial and final quote marks
 
     bool interpolate = dtext[0] == '"';
     wxString text;

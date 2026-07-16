@@ -46,7 +46,7 @@
 ** Function name: utlCreateBlobHandle
 **//**
 **      This routine manages the generic component of blob creation,
-**      allocation and initiallization of the blob object.  This is
+**      allocation and initialisation of the blob object.  This is
 **      called by constructor functions, which must then install the
 **      object data and the function pointers.
 **
@@ -129,7 +129,7 @@ StatusType utlBlobReadAt( hBlob blob, long lngOffset, long lngBufSize,
     }
     else
     {
-        THROW_EXCEPTION( "utlBlobReadAt called with uninitiallized hBlob" );
+        THROW_EXCEPTION( "utlBlobReadAt called with uninitialised hBlob" );
     }
     return STS_OK;
 }
@@ -159,7 +159,7 @@ StatusType utlBlobWrite( hBlob blob, long lngBufSize, void *buffer)
     }
     else
     {
-        THROW_EXCEPTION( "utlBlobWrite called with uninitiallized hBlob" );
+        THROW_EXCEPTION( "utlBlobWrite called with uninitialised hBlob" );
     }
     return STS_OK;
 }
@@ -190,7 +190,7 @@ StatusType utlBlobSeek( hBlob blob, long position, int whence)
     }
     else
     {
-        THROW_EXCEPTION( "utlBlobSeek called with uninitiallized hBlob" );
+        THROW_EXCEPTION( "utlBlobSeek called with uninitialised hBlob" );
     }
     return STS_OK;
 }
@@ -219,7 +219,7 @@ StatusType utlBlobTell( hBlob blob, long *position)
     }
     else
     {
-        THROW_EXCEPTION( "utlBlobTell called with uninitiallized hBlob" );
+        THROW_EXCEPTION( "utlBlobTell called with uninitialised hBlob" );
     }
     return STS_OK;
 }
@@ -261,7 +261,7 @@ StatusType utlBlobPrintf( hBlob blob, char *format, ... )
     }
     else
     {
-        THROW_EXCEPTION( "utlBlobPrintf called with uninitiallized hBlob" );
+        THROW_EXCEPTION( "utlBlobPrintf called with uninitialised hBlob" );
     }
     return STS_OK;
 }

@@ -41,7 +41,7 @@ void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour
 void date_as_yds( double snapdate, int *year, int *dayno, int *secs );
 
 /* Conversion to string.  Format only minimally used.  
- * Current optionare are "D", date only, 
+ * Current options are "D", date only, 
  * and "DT?" to omit time string if 00:00:00 
  */
 const char *date_as_string( double snapdate, const char *format, char *buffer );

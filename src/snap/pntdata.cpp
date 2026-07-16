@@ -66,7 +66,7 @@ int pntdata_obseq(survdata *p, void *hA, int nextra)
     int type;
     pntdata *pd;
 
-    /* Initiallize the observation equations */
+    /* Initialise the observation equations */
 
     if (p->nobs > 1)
     {

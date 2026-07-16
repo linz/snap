@@ -184,7 +184,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
         }
 
         /* If the base frame code is the same as the reference frame, then
-         * the tranformation parameters must all be 0
+         * the transformation parameters must all be 0
          */
         if( sts == OK && _stricmp(stdcode,refcode) == 0 )
         {
@@ -295,7 +295,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
              * arbitrary base system) or if the last base reference frame is
              * based on itself
              *
-             * Invalid defintions of the base system are not reported correctly,
+             * Invalid definitions of the base system are not reported correctly,
              * the reference frame is just ignored.
              */
             newbase=getrf(base->refcode,0);

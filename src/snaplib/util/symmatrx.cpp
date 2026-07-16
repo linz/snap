@@ -26,7 +26,7 @@
 /*           May optionally overwrite the initial vector      */
 /*           with the solution vector                         */
 /*                                                            */
-/*  chol_inv Computes inverse given Choleski decomposition    */
+/*  chol_inv Computes inverse given Cholesky decomposition    */
 /*           Requires a working vector equal to the one row   */
 /*           of the matrix                                    */
 /*                                                            */
@@ -174,7 +174,7 @@ void print_ltmat_json( FILE *out, ltmat N, int nrow, const char *format, int ind
     fprintf( out, "\n%*s  ]\n%*s",indent,"",indent,"");
 }
 
-/* This code performs a choleski decomposition with pivoting to
+/* This code performs a Cholesky decomposition with pivoting to
    bring the largest remaining diagonal term to the top.  The
    routine automatically fills any zero diagonal elements with 1
    to ensure a solution.  Requires a double precision workspace
@@ -204,7 +204,7 @@ int pvt_chol_dec( ltmat N, int *col, int nprm )
     rmin /= 1.0e10;
     if( rmin < 1.0e-20 ) rmin = 1.0e-20;
 
-    /* Initiallize the pointers */
+    /* Initialise the pointers */
 
     for( i = 0; i<nprm*2; i++) col[i] = -1;
     prm = col + nprm;

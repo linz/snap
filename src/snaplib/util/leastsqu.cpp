@@ -108,17 +108,17 @@ static int   *cols;  /* A scratch area for integer column numbers */
 static int   ncols = 0;
 
 static int zero_inverse=0;  /* If true then set the inverse to zero 
-                               - gets residuls etc without stats */
+                               - gets residuals etc without stats */
 
 /*------------------------------------------------------------*/
 /*  Routine to allocate memory for observations. The memory   */
 /*  allocation is only increased, never decreased.  For most  */
 /*  the calls the routine will simply return the address of   */
 /*  the observation equation array.  The routine also         */
-/*  initiallises the counters of columns                      */
+/*  initialises the counters of columns                      */
 /*                                                            */
 /*  alloc_ls    Allocates space for least squares arrays      */
-/*  init_ls     Initiallizes least squares equationss         */
+/*  init_ls     Initialises least squares equations         */
 /*  alloc_oe    Allocates space for a group of nobs eqns.     */
 /*  alloc_vec   Allocates space for a vector                  */
 /*                                                            */
@@ -206,7 +206,7 @@ bltmatrix *lsq_normal_matrix( void )
 /*---------------------------------------------------------------*/
 /*  Routines to sum observations into the Normal equations       */
 /*  Note that non-general matrix routines have been used rather  */
-/*  than generallised routines for efficiency - the observation  */
+/*  than generalised routines for efficiency - the observation  */
 /*  equations tend to be sparse.                                 */
 /*                                                               */
 /*  sum_cobs    Sums a pair of correlated observations with      */
@@ -222,7 +222,7 @@ bltmatrix *lsq_normal_matrix( void )
 /*              observations equations                           */
 /*                                                               */
 /*  sum_obseqn  Sums a group of observations, applying           */
-/*              corrections for implicitely LSQ_SOLVED parameters.   */
+/*              corrections for implicitly LSQ_SOLVED parameters.   */
 /*                                                               */
 /*---------------------------------------------------------------*/
 
@@ -642,7 +642,7 @@ double *lsq_get_covariance_row( int row )
     return tmp;
 }
 
-/* Get the choleski decomposition */
+/* Get the Cholesky decomposition */
 
 bltmatrix *lsq_get_decomposition()
 {
@@ -817,7 +817,7 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
     schv = 0;
 
     /* If we were using Schreibers equations then calculate the value of
-       the implicitely LSQ_SOLVED parameter (f) */
+       the implicitly LSQ_SOLVED parameter (f) */
 
 
     schreiber = A->flag & OE_SCHREIBER;
@@ -896,9 +896,9 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
     if( !calccvr ) return;
 
     /* If we have schreiber equations then calculate the covariance of the
-       p, the parameters, and f, the implicitely LSQ_SOLVED parameter.  This
+       p, the parameters, and f, the implicitly LSQ_SOLVED parameter.  This
        covariance is -M"vw", unless no observations were actually used,
-       in which case it is zero.  Store in tmp.  We only initiallize the
+       in which case it is zero.  Store in tmp.  We only initialise the
        columns of tmp that are referenced in this set of observations, but
        we need to make sure that this includes columns of rejected
        observations.  */
@@ -913,7 +913,7 @@ void lsq_calc_obs( void *hA, double *calc, double *res,
         else
         {
 
-            /* Initiallize for unused columns */
+            /* Initialise for unused columns */
 
             for( irow = 0; irow < A->nrow; irow++ )
             {
@@ -1321,7 +1321,7 @@ int main( int argc, char *argv[] )
 
     fscanf(in,"%d",&nprm);
 
-    /* Initiallize the equations... */
+    /* Initialise the equations... */
 
     lsq_alloc( nprm );
     lsq_init( );

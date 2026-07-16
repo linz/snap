@@ -69,7 +69,7 @@ w-		      NULL, then it is written to a static string.
 Return value:
    char *    The string to which the angle is written
 
-Should be first initiallized with a call to init_dms_string with parameters
+Should be first initialised with a call to init_dms_string with parameters
 
    ndeg     int       The number of digits to show for degrees
    ndp      int       The number of decimal places in the seconds

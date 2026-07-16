@@ -1,7 +1,7 @@
 %=SNX 2.01 SNP 18:251:32629 SNP 08:001:00000 08:001:00000 C 00006 2 S
 +FILE/REFERENCE
  OUTPUT             Coordinate calculation results
- SOFTWARE           SNAP survey network adjustment pacakge
+ SOFTWARE           SNAP survey network adjustment package
  SOFTWARE           SNAP version 2.7.14-f90eaf0 date Sep  8 2018 08:54:01
 -FILE/REFERENCE
 +SITE/ID

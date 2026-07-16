@@ -412,7 +412,7 @@ void print_coord_sinex( void )
 
         fprintf(f,"+FILE/REFERENCE\n");
         fprintf(f," %-18s %s\n","OUTPUT","Coordinate calculation results");
-        fprintf(f," %-18s %s\n","SOFTWARE","SNAP survey network adjustment pacakge");
+        fprintf(f," %-18s %s\n","SOFTWARE","SNAP survey network adjustment package");
         fprintf(f," %-18s SNAP version %s date %s\n","SOFTWARE",
                 PROGRAM_VERSION, PROGRAM_DATE );
         fprintf(f,"-FILE/REFERENCE\n");

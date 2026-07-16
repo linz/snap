@@ -115,7 +115,7 @@ void close_config_file( CFG_FILE *cfg );
 int set_config_read_options( CFG_FILE *cfg, int options );
 int set_config_command_flag( CFG_FILE *cfg, int flag );
 int set_config_ignore_flag( CFG_FILE *cfg, int flag );
-void initiallize_config_items( config_item item[] );
+void initialise_config_items( config_item item[] );
 int read_config_file( CFG_FILE *cfg, config_item item[] );
 int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
 int send_config_error( CFG_FILE *cfg, int errstat, const char *errmsg );

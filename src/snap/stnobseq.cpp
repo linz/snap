@@ -2,7 +2,7 @@
 /*
    $Log: stnobseq.c,v $
    Revision 1.6  2005/08/02 00:37:39  ccrook
-   Removed minor error ... brng can be used without being initiallized.
+   Removed minor error ... brng can be used without being initialised.
 
    Revision 1.5  2003/11/23 23:05:19  ccrook
    Updated iteration output to display number of stations exceeding adjustment

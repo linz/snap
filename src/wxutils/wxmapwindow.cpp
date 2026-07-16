@@ -152,7 +152,7 @@ void wxMapDragger::ProcessMouseEvent( wxMouseEvent &event )
         // TODO Need to handle the corresponding mouse up event so that it is not treated as a click
         // event ... may need to make the whole thing smarter in terms of mouse button states and
         // events.  May also need to include timing, as mouse up event long after mouse down isn't
-        // really of interest, as down may have occured in a different window when not capturing mouse.
+        // really of interest, as down may have occurred in a different window when not capturing mouse.
 
         if( event.ButtonUp() || event.ButtonDown() )
         {

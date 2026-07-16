@@ -13,7 +13,7 @@ wxString wxTabbedTextSource::GetText()
     int nrow = GetRowCount();
     wxString text(GetHeader());
 
-    // Guestimate an allocation amount
+    // Guesstimate an allocation amount
     int nchar = (int) ((text.Len()+1) * (nrow+1) * 1.1);
     text.Alloc( nchar );
     text.Trim( true );

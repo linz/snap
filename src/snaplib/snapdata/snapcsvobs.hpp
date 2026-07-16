@@ -141,7 +141,7 @@ namespace LINZ
         protected:
             virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs);
             virtual void readerAttached();
-            virtual void initiallizeLoadData();
+            virtual void initialiseLoadData();
             virtual void loadRecord();
             virtual void terminateLoadData();
 

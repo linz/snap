@@ -521,7 +521,7 @@ static void topocentric_cvr_to_xyz( survdata *vd, bool correlation )
         return;
     }
 
-    /* Initiallize */
+    /* Initialise */
 
     if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
 
@@ -659,7 +659,7 @@ void transform_xyz_cvr_to_topocentric( survdata *vd, ltmat cvr )
         return;
     }
 
-    /* Initiallize */
+    /* Initialise */
 
     if( fixed_gps_vertical ) get_enu_rf_xform( 0, 0, vd->reffrm, xform );
 

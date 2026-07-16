@@ -1289,7 +1289,7 @@ void print_residuals( FILE *out )
             prob = 100 * (1-prob);
         }
         fprintf(out,"\nThe marginal detectable error (MDE) is calculated for \n");
-        fprintf(out,"signficance %6.3lf%% and power %6.1lf%%\n",prob,mde_power);
+        fprintf(out,"significance %6.3lf%% and power %6.1lf%%\n",prob,mde_power);
         set_mde_level( prob, mde_power );
     }
 

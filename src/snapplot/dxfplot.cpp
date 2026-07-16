@@ -408,7 +408,7 @@ int open_dxf_file( const char *dxfname )
     cur_layer = default_layer;
     if( dxf )
     {
-        /* Initiallize layers etc.. */
+        /* Initialise layers etc.. */
 
         int usedlayers = setup_dxf_layers( );
         fprintf(dxf,"  0\nSECTION\n");

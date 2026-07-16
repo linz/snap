@@ -240,7 +240,7 @@ void *ins_list_item(void *list,
 }
 
 /* Routine to sequentially return elements of the list */
-/* reset_list_pointer initiallizes the current item pointer and returns the
+/* reset_list_pointer initialises the current item pointer and returns the
    number of elements in the list, and next_list_item
    returns items sequentially until the list is exhausted, after which
    it returns NULL. Note that the current item pointer may be

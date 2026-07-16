@@ -159,7 +159,7 @@ static int printf_func( const char *s, void * )
 /*  dms_deg     Converts degrees, minutes, seconds to degrees       */
 /*                                                                  */
 /*  deg_dms     Converts degrees to degrees, minutes, seconds       */
-/*              Can take an arguement prec, which defines the       */
+/*              Can take an argument prec, which defines the       */
 /*              number of decimal places used for the output of     */
 /*              seconds.  This is used to ensure numbers do not     */
 /*              round to 60.0 seconds. The precision is ignored     */
@@ -329,7 +329,7 @@ static int copy_to_newline( FILE *input, FILE *output, char *prefix )
 
 /*-------------------------------------------------------------------*/
 /*                                                                   */
-/*  Initiallize concord parameters                                   */
+/*  Initialise concord parameters                                   */
 /*                                                                   */
 /*-------------------------------------------------------------------*/
 
@@ -1254,7 +1254,7 @@ static void tidy_up_parameters( void )
 
 /*-------------------------------------------------------------------*/
 /*                                                                   */
-/*  Set up parameters of transformation and initiallize the          */
+/*  Set up parameters of transformation and initialise the          */
 /*  projection routine (using define_conv).                          */
 /*                                                                   */
 /*-------------------------------------------------------------------*/
@@ -1439,7 +1439,7 @@ static void setup_transformation( void )
     else                          outvfldlen = output_vprec + 6;
 
 
-    /* Initiallize counters */
+    /* Initialise counters */
 
     ncrdcnv = 0;
     ncrderr = 0;

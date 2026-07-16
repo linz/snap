@@ -123,7 +123,7 @@ public:
     virtual LookupValue *clone() const;
     LookupMap map() { return _map; }
     LookupValue &setMap( LookupMap map ) { _map = map; return *this; }
-    // Assigning pointer transfers ounership
+    // Assigning pointer transfers ownership
     LookupValue &setSource( CalcValue *source );
     LookupValue &setSource( const CalcValue &source ) { return setSource( source.clone() ); }
     LookupValue &setSource( const std::string source ) { return setSource( new NamedValue(source)); }

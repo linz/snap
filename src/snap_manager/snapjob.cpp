@@ -121,7 +121,7 @@ void SnapJob::DeleteJobFiles()
 {
     SnapJobFile *jf;
 
-    // Dont try and delete the first job file, as it is this file!
+    // Don't try and delete the first job file, as it is this file!
     jf = jobFiles->Next();
     while( jf )
     {
@@ -338,7 +338,7 @@ bool SnapJob::Update()
     {
         /*
 
-        Atthe moment don't do anything with other types of files, so
+        At the moment don't do anything with other types of files, so
         no sense in updating them ...
 
         for( jf = jobFiles->Next(); jf; jf = jf->Next() )

@@ -739,7 +739,7 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
     seq = (hDefSeq) utlAlloc( sizeof( DefSeq ) );
     if( ! seq ) RETURN_STATUS(STS_ALLOC_FAILED);
 
-    /*> Initiallize resource pointers in the object */
+    /*> Initialise resource pointers in the object */
 
     seq->id = 0;
     seq->name = NULL;
@@ -1335,7 +1335,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
 **  \param x                   The x coordinate
 **  \param y                   The y coordinate
 **  \param value               Array in which to return the
-**                             displacment.
+**                             displacement.
 **
 **  \return                    The return status
 **

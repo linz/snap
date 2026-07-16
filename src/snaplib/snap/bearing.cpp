@@ -4,7 +4,7 @@
 /*
    $Log: bearing.c,v $
    Revision 1.1  2004/04/20 00:58:36  ccrook
-   These files were ommitted when they were first built
+   These files were omitted when they were first built
 
    Revision 1.1  1995/12/22 17:46:54  CHRIS
    Initial revision

@@ -289,7 +289,7 @@ static command commands[] =
     {NULL, 0, NULL, 0}
 };
 
-/* Initiallize the snapfile_def structure */
+/* Initialise the snapfile_def structure */
 
 static void init_snapfile_def( snapfile_def *sd, DATAFILE *df )
 {
@@ -572,7 +572,7 @@ static int create_syserr( snapfile_def *sd, char *sename, int class_id )
 
 
 /* Procedure for loading systematic errors is analogous to that for
-   classfications, ie init_data_syserrs for each observations, then
+   classifications, ie init_data_syserrs for each observations, then
    read_data_syserr for each DFT_SYSERR field, then load_data_syserrs */
 
 static void init_data_syserrs( snapfile_def *sd )

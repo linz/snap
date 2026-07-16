@@ -22,7 +22,7 @@ using namespace std;
 DEFINE_EVENT_TYPE(wxEVT_SNAP_JOBUPDATED);
 DEFINE_EVENT_TYPE(wxEVT_SNAP_CLEARLOG);
 
-// Maximum replacements by replacement funtion, to avoid indefinite loops with replacing 0 length string
+// Maximum replacements by replacement function, to avoid indefinite loops with replacing 0 length string
 
 const int maxReplace = 10000;
 

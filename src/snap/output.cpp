@@ -330,7 +330,7 @@ int add_requested_covariance_connections()
 
     if( ! relcvr_opts ) return sts;
 
-    // Initiallize list of ids
+    // Initialise list of ids
     usenode=(char *)check_malloc(sizeof(char)*(nnode+1));
     
     for( rco=relcvr_opts; rco; rco=rco->next )

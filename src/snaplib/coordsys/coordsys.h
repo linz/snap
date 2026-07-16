@@ -166,7 +166,7 @@ typedef struct
     char crdtype;      /* As per CSTP_ enum above            */
     char gotrange;     /* Defines whether a valid range has  */
     char ownsrf;       /* If true then CS owns rf            */
-    char setrf;        /* If true then orginal rf is overridden */
+    char setrf;        /* If true then original rf is overridden */
     double emin, nmin; /* Easting northing limits - if defined */
     double emax, nmax;
     double ltmin, lnmin;  /* Latitude/longitude range */
@@ -395,7 +395,7 @@ double deformation_model_epoch( coordsys *cs );
 
 /* Coordinates in range check functions.  Note that the latitude/longitude
    functions take pointers to the lat and long, as the longitude may be
-   shifted by a mulltiple of 2*PI to get into range */
+   shifted by a multiple of 2*PI to get into range */
 
 int en_coords_in_range( coordsys *cs, double e, double n );
 int ll_coords_in_range( coordsys *cs, double *lon, double *lat );
@@ -449,7 +449,7 @@ int proj_to_geog( projection *prj, double easting, double northing,
 int define_coord_conversion( coord_conversion *conv,
                              coordsys *from, coordsys *to );
 
-/* Define coordinate conversion, specifing the epoch at which the      */
+/* Define coordinate conversion, specifying the epoch at which the      */
 /* the conversion will be applied (only applies for conversions        */
 /* involving two different deformation models, it is the epoch at      */
 /* which the reference frame transformation is applied).  Can be used  */

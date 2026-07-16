@@ -62,7 +62,7 @@
    pttopoidx is an array defining the location in topodata of the data for each point
    topodata is an array containing for each point the number of surrounding nodes, the ids of the
       surrounding nodes, and the id of the opposite triangle node across the edge between the
-	  corresponding and next surrounding node.  ids are all 1 based.  an opposited triangle node
+	  corresponding and next surrounding node.  ids are all 1 based.  an opposite triangle node
 	  id 0 implies that there is no opposite triangle node, and a surrounding node id of 0 implies
 	  a break in the triangulation (ie the boundary of the triangulation). */
 
@@ -610,7 +610,7 @@ static short create_trig_def( hTrigDef* ptrig, hBinSrc binsrc)
     trig = (hTrigDef) utlAlloc( sizeof( TrigDef ) );
     if( ! trig ) RETURN_STATUS(STS_ALLOC_FAILED);
 
-    /*> Initiallize the object */
+    /*> Initialise the object */
 
     trig->desc1 = 0;
     trig->desc2 = 0;
@@ -828,7 +828,7 @@ StatusType utlTrigVectorDimension( hTrig trig, int *dimension)
 ** Function name: utlTrigCoordSysDef
 **//**
 **       Returns a coordinate system code stored in the trig.  This is not
-**       particularly relevent to CRS as it is currently defined.
+**       particularly relevant to CRS as it is currently defined.
 **
 **  \param trig                The trig handle
 **  \param crdsys              Returns a pointer to the string

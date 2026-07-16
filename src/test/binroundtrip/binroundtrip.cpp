@@ -36,7 +36,7 @@
 // either compiler. See BINFILE_FORMAT.md.
 //
 // It deliberately does NOT call snap's own dump_station_covariances,
-// dump_relative_covariances, dump_choleski_decomposition, or
+// dump_relative_covariances, dump_cholesky_decomposition, or
 // dump_covariance_matrix. Those read from live adjustment-engine state
 // (lsq_get_params, lsq_get_covariance_matrix, lsq_get_decomposition)
 // that nothing here repopulates. Instead this tool reads and writes
@@ -590,7 +590,7 @@ struct ReloadedState
 {
     StationCovariances stn_cvr;
     RelativeCovariances rel_cvr;
-    BltMatrixPtr choleski;
+    BltMatrixPtr cholesky;
     BltMatrixPtr full_covariance;
 };
 
@@ -629,9 +629,9 @@ static ReloadedState reload_almost_everything( BINARY_FILE *in )
     if( find_section( in, "CHOLESKI_DECOMPOSITION" ) != OK ) {
         fail( "Missing section: CHOLESKI_DECOMPOSITION" );
     }
-    bltmatrix *choleski_raw = nullptr;
-    reload_bltmatrix( &choleski_raw, in->f );
-    state.choleski.reset( choleski_raw );
+    bltmatrix *cholesky_raw = nullptr;
+    reload_bltmatrix( &cholesky_raw, in->f );
+    state.cholesky.reset( cholesky_raw );
     check_end_section( in );
 
     if( find_section( in, "FULL_COVARIANCE" ) != OK ) {
@@ -665,7 +665,7 @@ static int run_roundtrip( const char *input_path, const char *output_path )
     in.reset();
 
     create_section( out.get(), "CHOLESKI_DECOMPOSITION" );
-    dump_bltmatrix( state.choleski.get(), out->f );
+    dump_bltmatrix( state.cholesky.get(), out->f );
     end_section( out.get() );
 
     create_section( out.get(), "FULL_COVARIANCE" );
@@ -714,7 +714,7 @@ static int run_dump( const char *input_path, const char *output_path )
     dump_classifications_text( out, "OBS_CLASSES", obs_classes );
     dump_rftransformations_text( out );
     dump_parameters_text( out );
-    dump_bltmatrix_text( out, "CHOLESKI_DECOMPOSITION", state.choleski.get() );
+    dump_bltmatrix_text( out, "CHOLESKI_DECOMPOSITION", state.cholesky.get() );
     dump_bltmatrix_text( out, "FULL_COVARIANCE", state.full_covariance.get() );
 
     return 0;

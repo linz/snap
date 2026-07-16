@@ -186,7 +186,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
 
     status = OK;
 
-    /* Initiallize for the two stations plus up to 3 extra parameters */
+    /* Initialise for the two stations plus up to 3 extra parameters */
 
     init_oe( hA, o->nobs, 2*dimension+3+nextra, OE_DIAGONAL_CVR );
 

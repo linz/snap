@@ -15,8 +15,8 @@ Station lookup for SDC test module
      5 F4       0   -1
      6 F5       0   -1
 
-Initiallizing SDC tests
-   .. Initiallizing SDC tests took 0.00 seconds (total 0.00 seconds)
+Initialising SDC tests
+   .. Initialising SDC tests took 0.00 seconds (total 0.00 seconds)
 Loading marks for SDC tests
     Station 1 is a control mark
     Station 2 is to be tested. Error H/V = 0.01000000/0.00000000 m2
@@ -95,8 +95,8 @@ Applying relative accuracy test
    Vector 6 to 1 relative accuracy fail by absolute (0.25999999 > 0.01502137)
    Station 6 fails on rel accuracy to passed station 1 (0.25999999 > 0.01502137)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
-  Summarizing relative accuracy data
-   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
+  Summarising relative accuracy data
+   .. Completed summarising relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   Status of marks
     Station 2: 2 tests: 0 bad
     Station 3: 2 tests: 0 bad

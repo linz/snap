@@ -175,7 +175,7 @@ static char use_conn_file = 0;
 
    The fconn_ptr also contains the coordinate of the most easterly connected
    station.  This is to facilitate searching for the nearest connection to
-   a point.  This member is not initiallized until it is first needed.
+   a point.  This member is not initialised until it is first needed.
    (as the station plot coordinates are not defined until then).
 
    The conn_ptr in turn is a pointer to the actual data, stored in a
@@ -189,7 +189,7 @@ static char use_conn_file = 0;
    The size of the object is conn_data_size.
 */
 
-/* Initiallize the list, determine the size of a connection data block, and
+/* Initialise the list, determine the size of a connection data block, and
    allocate one to be used for loading the connection list. Open the
    temporary file */
 

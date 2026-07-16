@@ -4,7 +4,7 @@
 
    May 1998: Implementation supports only simple velocity model.  Interface
    would need reworking to provide more sophisticated models - time constraints
-   prevent generalizing in the first hit.
+   prevent generalising in the first hit.
 
    $Log: deform.c,v $
    Revision 1.3  2004/04/22 02:35:43  ccrook

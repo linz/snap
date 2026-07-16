@@ -33,7 +33,7 @@
 
 	Revision 1.2  1996/01/10 19:51:13  CHRIS
 	Added function to allow binary dump of full covariance matrix.
-	This does a row by row choleski inversion to get the covariance
+	This does a row by row Cholesky inversion to get the covariance
 	matrix, so it could be slow.  It doesn't require the full matrix
 	to be stored however.
 
@@ -102,7 +102,7 @@ static int read_parameters( int argc, char *argv[] );
 static void update_station_file( char *filename );
 static BINARY_FILE *open_dump_file( void );
 static void dump_binary_data( BINARY_FILE *b );
-static void dump_choleski_decomposition( BINARY_FILE *b );
+static void dump_cholesky_decomposition( BINARY_FILE *b );
 static void dump_covariance_matrix( BINARY_FILE *b );
 static void write_metadata_csv();
 static void write_filelist_csv();
@@ -159,9 +159,9 @@ int snap_main( int argc, char *argv[] )
         return DEFAULT_RETURN_STATUS;
     }
 
-    /* Initiallize the program */
+    /* Initialise the program */
 
-    xprintf("\nInitiallizing the program\n");
+    xprintf("\nInitialising the program\n");
     init_output_options();
     if( ! open_output_files( ) )
     {
@@ -189,7 +189,7 @@ int snap_main( int argc, char *argv[] )
 
     xprintf("\nReading the command file %s\n", command_file );
 
-    /* Set station initiallization for reading the station file before it is loaded by read_command_file */
+    /* Set station initialisation for reading the station file before it is loaded by read_command_file */
     set_stnadj_init_network();
 
     if( read_command_file( command_file ) != OK )
@@ -376,8 +376,8 @@ int snap_main( int argc, char *argv[] )
 
     if( deformation && init_deformation( deformation ) != OK )
     {
-        xprintf("\nUnable to initiallize the deformation model\n");
-        handle_error( INVALID_DATA, "Unable to initiallized deformation model", NO_MESSAGE );
+        xprintf("\nUnable to initialise the deformation model\n");
+        handle_error( INVALID_DATA, "Unable to initialised deformation model", NO_MESSAGE );
         close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
     }
@@ -404,7 +404,7 @@ int snap_main( int argc, char *argv[] )
 
         iterations++;
 
-        /* Initiallize the least squares equations */
+        /* Initialise the least squares equations */
 
         lsq_init();
         if( iterations==1 && nprm )
@@ -550,11 +550,11 @@ int snap_main( int argc, char *argv[] )
 
     if( program_mode != PREANALYSIS ) xprint_ls_summary();
 
-    /* Dump the choleski decomposition if required */
+    /* Dump the Cholesky decomposition if required */
 
     if( output_decomposition && dump )
     {
-        dump_choleski_decomposition( dump );
+        dump_cholesky_decomposition( dump );
     }
 
     /* Zero the b vector... we have already applied any updates, so we
@@ -1086,7 +1086,7 @@ void dump_covariance_matrix( BINARY_FILE *b )
     end_section(b);
 }
 
-void dump_choleski_decomposition( BINARY_FILE *b )
+void dump_cholesky_decomposition( BINARY_FILE *b )
 {
     bltmatrix *blt = lsq_get_decomposition();
     if( blt == NULL ) return;

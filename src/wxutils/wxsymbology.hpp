@@ -206,7 +206,7 @@ public:
     ~Symbology();
 
     ColourPalette *GetPalette() { return &palette ; }
-    void InitiallizePalette( const ColourPalette &basepalette );
+    void InitialisePalette( const ColourPalette &basepalette );
 
     int AddLayer( wxString name, int type, const wxColour &colour, bool display = true );
     void AddTitle(wxString name);

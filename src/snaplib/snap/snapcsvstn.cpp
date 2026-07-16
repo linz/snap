@@ -287,7 +287,7 @@ void SnapCsvStn::loadDefinitionCommand(const string &command, RecordStream &rs)
     }
 }
 
-void SnapCsvStn::initiallizeLoadData()
+void SnapCsvStn::initialiseLoadData()
 {
     _cscode = "";
     _cs = 0;

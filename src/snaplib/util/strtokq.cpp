@@ -31,7 +31,7 @@ char *strtokq( char *str, const char *delim )
         {
             /* Look for closing quote followed by delimiter or end of string */
             /* If not matched then continue */
-            /* Ignore quotes in not followed by delimter.  No escaping of quotes */
+            /* Ignore quotes in not followed by delimiter.  No escaping of quotes */
             if( *s2 != quote ) continue;
             if( *(s2+1) && ! strchr(delim,*(s2+1))) continue;
             break;

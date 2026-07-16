@@ -8,7 +8,7 @@
 
    Revision 1.2  1996/01/09 18:07:53  CHRIS
    Fixes an error in the routines snap_id and snap_name - refraction
-   coeffients and other parameters were being treated as classifications.
+   coefficients and other parameters were being treated as classifications.
 
    Revision 1.1  1996/01/03 22:21:46  CHRIS
    Initial revision

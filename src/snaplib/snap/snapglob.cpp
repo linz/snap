@@ -32,12 +32,12 @@
 #include "util/fileutil.h"
 #include "util/get_date.h"
 
-static bool initiallized=false;
+static bool initialised=false;
 
 void init_snap_globals()
 {
     int i;
-    if( initiallized ) return;
+    if( initialised ) return;
     command_file = NULL;
     config_file = NULL;
     root_name = NULL;
@@ -80,13 +80,13 @@ void init_snap_globals()
     obs_modifications=0;
     converged=1;
     last_iteration_max_adjustment=0.0;
-    initiallized=true;
+    initialised=true;
 }
 
 
 void set_snap_command_file( char *cmd_file )
 {
-    if( ! initiallized ) init_snap_globals();
+    if( ! initialised ) init_snap_globals();
     if( file_exists( cmd_file ) )
     {
         command_file = copy_string( cmd_file );
@@ -133,13 +133,13 @@ void set_snap_command_file( char *cmd_file )
 
 void set_snap_config_file( char *cfg_file )
 {
-    if( ! initiallized ) init_snap_globals();
+    if( ! initialised ) init_snap_globals();
     config_file = cfg_file;
 }
 
 void *snap_obs_modifications( bool create )
 {
-    if( ! initiallized ) init_snap_globals();
+    if( ! initialised ) init_snap_globals();
     if( (! obs_modifications) && create)
     {
         obs_modifications=new_obs_modifications( net, &obs_classes );
@@ -150,7 +150,7 @@ void *snap_obs_modifications( bool create )
 
 void dump_snap_globals( BINARY_FILE *b )
 {
-    if( ! initiallized ) init_snap_globals();
+    if( ! initialised ) init_snap_globals();
     create_section( b, "SNAP_GLOBALS" );
 
     fwrite( job_title, JOBTITLELEN+1, 1, b->f );
@@ -182,7 +182,7 @@ void dump_snap_globals( BINARY_FILE *b )
 
 int reload_snap_globals( BINARY_FILE *b )
 {
-    if( ! initiallized ) init_snap_globals();
+    if( ! initialised ) init_snap_globals();
 
     if( find_section( b, "SNAP_GLOBALS" ) != OK ) return MISSING_DATA;
 

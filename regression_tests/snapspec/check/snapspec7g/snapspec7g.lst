@@ -2,6 +2,6 @@ snapspec version 2.7.16-9663751: Calculation of station orders
 Run at 22-SEP-2018 08:22:39
 SNAP binary file: snapspec7g.bin
 Spec configuration file: snapspec7g.cfg
-Control station F0 has unrecognized order 4
-Control station F4 has unrecognized order 5
+Control station F0 has unrecognised order 4
+Control station F4 has unrecognised order 5
 Unable to determine order of control stations

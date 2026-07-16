@@ -1037,7 +1037,7 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
     if( ! obsmod->get_fileid )
     {
         handle_error( INTERNAL_ERROR, 
-            "Program error: Survey file id function not initiallized in observation modifications",
+            "Program error: Survey file id function not initialised in observation modifications",
             nullptr );
         return -1;
     }
@@ -1334,9 +1334,9 @@ static void apply_obs_modification_action( obs_modifications *obsmod, obsmod_con
 }
 
 /* Sort the criteria into groups based on classification tests and file id
- * tests. Then only need to go through these groups to find matching critera,
+ * tests. Then only need to go through these groups to find matching criteria,
  * which avoids testing every different value of each one.
- * To get best efficiency choose group in which critieria goes based on
+ * To get best efficiency choose group in which criteria goes based on
  * which classifications are most used.
  * 
  * 
@@ -1867,7 +1867,7 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
 
         if( action & (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET)  && ncriteria > 1 )
         {
-            fprintf(lst,"\n%sNote: error factors are multiplied for observations meeting several critera\n",prefix);
+            fprintf(lst,"\n%sNote: error factors are multiplied for observations meeting several criteria\n",prefix);
         }
     }
 }
