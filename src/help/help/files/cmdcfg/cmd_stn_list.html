@@ -22,7 +22,7 @@
 <p>which specifies that the three stations ABCD, 1234, and BM1 will be fixed.</p>
 
 <p>Note that the commands <i>or</i>, <i>and</i>, <i>except</i>, <i>inside</i>, <i>ignore_missing</i>, <i>warn_missing</i>, and
-<i>reject_missing</i> are treated specially in station lists.  To specify these as station codes they must be prefixed with 
+<i>fail_missing</i> are treated specially in station lists.  To specify these as station codes they must be prefixed with
 a backslash character &quot;\&quot;. For example to fix a station called INSIDE the following command would be used:
 </p>
 
@@ -56,6 +56,8 @@ be modified by including <i>and</i> or <i>except</i> operators in the list.  Thi
 <p>
 
 <p>The station list can include any of the following items:</p>
+
+<p class="BulletList">the keyword <i>all</i>, which selects every station.</p>
 
 <p class="BulletList">individual station codes.  Where a station code would be confused with
 a station list keyword such as <i>and</a></i> then it is specified by prepending with a \, for 
@@ -140,7 +142,7 @@ Many polygons can be defined in the file.  However a very simplistic algorithm i
 to parse the file, so it may give incorrect results if the file contains other data.
 The critical part of the file are one or more sequences of:
 </p>
-<p class="Commanddefinition">(x1 y1, x2, y2, ... , xn yn )</p>
+<p class="Commanddefinition">(x1 y1, x2 y2, ... , xn yn )</p>
 <p>
 where x and y are the longitude and latitude or easting and northing coordinates. 
 Any such list is treated as defining a polygon edge (either outside edge or edge of a hole
@@ -148,7 +150,7 @@ in the polygon).  The routine does not do any more complex testing for a valid W
 The final 
 coordinates in each such list must be the same as the initial coordinates.  
 Note that if the file contains overlapping polygons then a point that 
-inside an even number of them will be considerered outside the total extent.
+inside an even number of them will be considered outside the total extent.
 Similarly a point that is inside an odd number of them is considered inside the total extent.
 This algorithm handles polygons definitions which include holes.
 </p>

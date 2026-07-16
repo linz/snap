@@ -22,19 +22,39 @@ observation date, and on station classifications.  These critera are defined in 
 <a href="cmd_reject_observations.html">reject_observations</a> command.
 </p>
 
-<p>Currently just one option is supported which is:<p>
+<p>The available options are:</p>
 <p class="Commanddefinition">calculate_gx_translation</p>
 <p class="Commanddescription">
-This affects the calculation of sets of GX <a href="../data/obs_gx_data.html">(GNSS correlated point coordinate sets)</a> observations.  
+This affects the calculation of sets of GX <a href="../data/obs_gx_data.html">(GNSS correlated point coordinate sets)</a> observations.
 If this option is specified then a translation will be calculated and applied to the observed coordinates to best fit them into
-the adjustment. This option has no effect on other data types. 
+the adjustment. This option has no effect on other data types.
 </p>
 
-</p>Warning: If the criteria include selection based on data files, then the <a href="cmd_data_file.html">data_file</a> commands must be placed earlier in the SNAP command file.</p>
+<p class="Commanddefinition">use_distance_ratios_as_distances</p>
+<p class="Commanddescription">
+This affects distance ratio (DR) observations.  If this option is specified then the affected distance ratio data are
+treated as independent slope distance observations rather than as a set of dependent observations with a common scale factor.
+This has the same effect as the <a href="cmd_use_distance_ratios.html">use_distance_ratios</a> command, except that it can be
+restricted to a selection of observations rather than applying to all distance ratio data.
+</p>
 
-<p>An example of setting observation options is:</p>
+<p>Both options are off by default for all observations, unless a matching set_observation_option command applies.  Any option can be prefixed with no_ (eg no_calculate_gx_translation) to explicitly turn it off for observations matching the selection criteria.</p>
+
+<p>The no_ prefix does not necessarily restore a default value - each set_observation_option command adds a modification that applies to observations matching its criteria.  These are applied in the order the commands appear in the command file, so for any observation matched by more than one set_observation_option command (with or without no_), the last matching command in the file determines the final state - not whichever command has the more specific criteria.</p>
+
+<p>Warning: If the criteria include selection based on certain data files, then the commands specifying those files as data files (via <a href="cmd_data_file.html">data_file</a> commands) must be placed earlier in the SNAP command file.</p>
+
+<p>Examples of setting observation options are:</p>
 
 <p class="Commandexample">set_observation_option calculate_gx_translation ref_frame=ITRF2000</p>
+
+<p class="Commanddescription">This next example turns calculate_gx_translation on for all GX observations, then turns it back off just for observations from suspect_gx.dat:</p>
+<p class="Commandexample">set_observation_option calculate_gx_translation<br>
+set_observation_option no_calculate_gx_translation data_file=suspect_gx.dat</p>
+
+<p class="Commanddescription">This last example demonstrates that the order of these commands matters. This turns calculate_gx_translation on for observations from suspect_gx.dat, then turns it off for all GX observations (including those from suspect_gx.dat) - so the option ends up off everywhere, because the second, broader command is applied after the first:</p>
+<p class="Commandexample">set_observation_option calculate_gx_translation data_file=suspect_gx.dat<br>
+set_observation_option no_calculate_gx_translation</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

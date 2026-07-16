@@ -37,11 +37,15 @@ Sections marked with an asterisk (*) are output by default. </p>
 
 <p class="Commanddefinition">input_data</p><p class="Commanddescription">Makes a detailed list of the input data.  The format of the data is not very readable.  This is intended for debugging the program more than for use in interpreting the adjustment.</p>
 
+<p class="Commanddefinition">station_recoding</p><p class="Commanddescription">Lists stations that have been recoded (renamed) as they were read from data files.</p>
+
 <p class="Commanddefinition">problem_definition</p><p class="Commanddescription">Summarizes the adjustment that will be done.  This section lists the stations that will be adjusted or fixed and the additional parameters that will be calculated in the adjustment. </p>
 
 <p class="Commanddefinition">iteration_summary*</p><p class="Commanddescription">Prints a summary of each iteration which lists the maximum change to a station coordinate.  </p>
 
 <p class="Commanddefinition">observation_equations</p><p class="Commanddescription">Prints a list of the least squares observation equations at each iteration.  This is intended for debugging purposes only.  The equations are output in a JSON format that can be easily imported into many scripting software.</p>
+
+<p class="Commanddefinition">normal_equations</p><p class="Commanddescription">Prints the least-squares normal equations at each iteration, in JSON format.  This is intended for debugging purposes only.</p>
 
 <p class="Commanddefinition">observation_deformation</p><p class="Commanddescription">Prints station deformations that are used to calculate observation equations.  This is intended for debugging purposes only.</p>
 
@@ -51,7 +55,7 @@ Sections marked with an asterisk (*) are output by default. </p>
 
 <p class="Commanddefinition">station_coordinates*</p><p class="Commanddescription">Prints a list of station coordinates, total adjustments to the coordinates, error ellipses, and height errors.</p>
 
-<p class="Commanddefinition">station_offsets</p><p class="Commanddescription">Prints a list of the offset time series that apply at each station.</p>
+<p class="Commanddefinition">station_offsets*</p><p class="Commanddescription">Prints a list of the offset time series that apply at each station.</p>
 
 <p class="Commanddefinition">floated_stations*</p><p class="Commanddescription">Prints a list of adjustments of floated stations with their significance.</p>
 
@@ -67,11 +71,35 @@ command file.  This can be modified with the geocentric_ref_frame, topocentric_r
 
 <p class="Commanddefinition">parameters*</p><p class="Commanddescription">Prints a list of additional parameters of the adjustment with their values and errors.</p>
 
-<p class="Commanddefinition">residuals*</p><p class="Commanddescription">Prints a list of all observations used.  By default this includes the residuals errors and standardized residuals for each observation.  However the contents of this section can be changed with the define_residual_format and add_residual_column commands.  </p>
+<p class="Commanddefinition">residuals*</p><p class="Commanddescription">Prints a list of all observations used.  By default this includes the residuals errors and standardised residuals for each observation.  However the contents of this section can be changed with the define_residual_format and add_residual_column commands.  </p>
 
 <p class="Commanddefinition">error_summary*</p><p class="Commanddescription">This section presents accumulated error summaries.  By default it presents summaries of the errors for each data file and for each data type.  However you can obtain other summaries using the summarize_errors_by command.</p>
 
-<p class="Commanddefinition">worst_residuals*</p><p class="Commanddescription">Prints a list of the worst standardized residual errors in the adjustment.  By default the 10 worst residuals are listed.  This can be modified with the number_of_worst_residuals command.</p>
+<p class="Commanddefinition">worst_residuals*</p><p class="Commanddescription">Prints a list of the worst standardised residual errors in the adjustment.  By default the 10 worst residuals are listed.  This can be modified with the number_of_worst_residuals command.</p>
+
+<p class="Commanddefinition">coordinate_file*</p><p class="Commanddescription">Writes an updated coordinate file after the adjustment.  The name and location of the file is set separately by the <a href="cmd_output_coordinate_file.html">output_coordinate_file</a> command.</p>
+
+<p class="Commanddefinition">rejected_station_coordinates*</p><p class="Commanddescription">Includes rejected stations' coordinates when writing an updated coordinate file (see coordinate_file above).</p>
+
+<p class="Commanddefinition">binary_file*</p><p class="Commanddescription">Writes a binary (.bin) dump file of the adjustment, used by snapplot, snapspec, and other SNAP programs.</p>
+
+<p class="Commanddefinition">decomposition</p><p class="Commanddescription">Dumps the Cholesky decomposition of the normal equations into the binary dump file.</p>
+
+<p class="Commanddefinition">relative_covariances*</p><p class="Commanddescription">Includes relative covariances between selected pairs/groups of stations in the binary dump file.  Takes an "under <i>maxlen</i>" or "between" subcommand to control which pairs are included.</p>
+
+<p class="Commanddefinition">all_relative_covariances</p><p class="Commanddescription">Includes relative covariances between all pairs of stations (rather than only selected ones) in the binary dump file.</p>
+
+<p class="Commanddefinition">full_covariance_matrix</p><p class="Commanddescription">Includes the full covariance matrix of all adjusted parameters in the binary dump file.</p>
+
+<p class="Commanddefinition">covariance_matrix_file</p><p class="Commanddescription">Writes the station coordinate covariance matrix to a separate file.</p>
+
+<p class="Commanddefinition">covariance_json</p><p class="Commanddescription">Writes the station coordinate covariance matrix to a separate file in JSON format.</p>
+
+<p class="Commanddefinition">solution_json</p><p class="Commanddescription">Writes a summary of the adjustment solution to a separate file in JSON format.</p>
+
+<p class="Commanddefinition">sinex</p><p class="Commanddescription">Writes the adjusted station coordinates to a separate file in SINEX format.</p>
+
+<p class="Commanddefinition">debug_reordering</p><p class="Commanddescription">Prints diagnostic information about the station row-reordering used to optimise the normal equations.  This is intended for debugging purposes only.</p>
 
 <p>The list and print command are also used to modify the presentation of  some sections of the output.  The following items can be included as list options.  Again the options are turned off by prefixing them with no_.</p>
 
@@ -90,11 +118,11 @@ use E, N, U residuals.</p>
 
 <p class="Commanddefinition">rejected_stations</p><p class="Commanddescription">Specifies that rejected stations will be included in the output.  If rejection stations are excluded (using list no_rejected_stations) then rejected stations and observations to them are omitted from the output.  This causes rejected stations to be treated the same way as ignored stations.</p>
 
-<p class="Commanddefinition">grouped_data_by_type</p><p class="Commanddescription">By default observations are listed in the same order as they occur in the input.  If this option is selected then grouped data involving more than one data type are listed showing each type separately.  This is often a lot clearer.  For example if the input contained grouped data with a horizontal angle and a slope distance on each line. then the output would contain all the distances for the each set followed by all the angles.</p>
+<p class="Commanddefinition">grouped_data_by_type</p><p class="Commanddescription">By default grouped data involving more than one data type are listed showing each type separately.  This is often a lot clearer.  For example if the input contained grouped data with a horizontal angle and a slope distance on each line, then the default output would contain all the distances for each set followed by all the angles.  If this option is turned off (no_grouped_data_by_type) then observations are listed in the same order as they occur in the input.</p>
 
 <p class="Commanddefinition">sort_stations</p><p class="Commanddescription">By default stations are listed in the listing file in the same order that they appear in the input coordinate file.  Using this option causes them to be sorted according to the station code.</p>
 
-<p class="Commanddefinition">form_feeds</p><p class="Commanddescription">By default sections in the output file are separated by form feed characters.  These can be suppressed using the no_form_feeds option.</p>
+<p class="Commanddefinition">form_feeds</p><p class="Commanddescription">By default sections in the output file are not separated by form feed characters.  This option can be used to have them separated by form feed characters instead.</p>
 
 
 

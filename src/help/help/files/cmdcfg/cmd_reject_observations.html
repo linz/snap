@@ -27,7 +27,7 @@ have residuals calculated, whereas ignored observations are not included in the 
 The selection criteria can include:
 </p>
 
-<p class="Commanddefinition">@classification=value</p><p class="Commanddescription">
+<p class="Commanddefinition">classification=value</p><p class="Commanddescription">
 Specifies observations based on a classification.  The classification can be one of
 &quot;<a href="../data/obs_data_types.html">data_type</a>&quot;, 
 &quot;data_file&quot;, or a <a href="../data/obs_classifications.html">user defined classification</a> such as &quot;EQUIPMENT&quot;.  
@@ -42,6 +42,10 @@ A single classification value can also include wildcards ? which matches any sin
 Values are interpreted slightly differently for testing &quot;data_file&quot; criteria. Data file critera can only specify one value - the &quot;/&quot; character is treated as part of a file path.  Also the wildcard characters ? and * will not match a file path delimiter (&quot;/&quot; or &quot;\&quot;).  However you can use ** to match any characters including path delimiters.  Data file criteria can be preceded by &quot;ignore_missing&quot;, &quot;warn_missing&quot;, or 
 &quot;fail_missing&quot; to specify the error handling if the specified data file is not in the adjustment. 
 </p>
+
+<p class="Commanddefinition">id=value</p><p class="Commanddescription">
+Specifies observations by their observation id.  Multiple ids can be entered separated by &quot;/&quot; characters
+(eg id=8001/8002).</p>
 
 <p class="Commanddefinition">before <i>date</i></p>
 <p class="Commanddescription">Selects observations dated before the specified date.  The date can be 
@@ -72,15 +76,15 @@ if the list is followed by additional selection criteria.</p>
 be selected.
 </p>
 
-</p>Warning: If the criteria include selection based on data files, then the <a href="cmd_data_file.html">data_file</a> commands must be placed earlier in the SNAP command file.</p>
+<p>Warning: If the criteria include selection based on certain data files, then the commands specifying those files as data files (via <a href="cmd_data_file.html">data_file</a> commands) must be placed earlier in the SNAP command file.</p>
 
 <p>Examples of rejecting observations are:</p>
 
-<p class="Commandexample">reject_observations @equipment=DI20/TAPE</p>
+<p class="Commandexample">reject_observations equipment=DI20/TAPE</p>
 
 <p class="Commandexample">reject_observations before 2000-01-01 using_stations inside NZGD2000 affected_area.wkt</p>
 
-<p class="Commandexample">reject_observations ignore_missing @data_file=post_eq_*.dat</p>
+<p class="Commandexample">reject_observations ignore_missing data_file=post_eq_*.dat</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

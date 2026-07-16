@@ -52,7 +52,7 @@
 		command, and this is followed by text definition the corresponding value. For example the &quot;FORMAT&quot;
 		command could be entered as:
 	</p>
-	<p class="Commanddefinition">FORMAT DELMITER=| HEADER=Y</p>
+	<p class="Commanddefinition">FORMAT DELIMITER=| HEADER=Y</p>
 
 	<p>The commands are case insensitive, as are references to column names in the CSV file</p>
 
@@ -83,7 +83,7 @@
 
 	<p class="Commanddefinition">
 		FORMAT CSV [HEADER=Y|N]<br />
-		FORMAT WHITESPACE [HEADER=Y|N]<br />
+		FORMAT DELIMITER=WHITESPACE [HEADER=Y|N]<br />
 		FORMAT DELIMITER=<i>d</i> QUOTE=<i>q</i> ESCAPE=<i>e</i> [HEADER=Y|N]
 	</p>
 	<p class="Commanddescription">
@@ -181,15 +181,15 @@
 		The ordinates
 		LONGITUDE and EASTING are equivalent, as are LATITUDE and NORTHING.
 		Either can be used. The HEIGHT_TYPE must be one of &quot;ellipsoidal&quot;
-		or &quot;orthometric&quot;. The default is &quot;orthometric&quot;.
-		The <i>value</i>s are calculated as describe <a href="#value">below</a>.
+		or &quot;orthometric&quot;. If not specified, the default follows the height type used by the coordinate system.
+		The <i>value</i>s are calculated as described <a href="#values">below</a>.
 	</p>
 	<p class="Commanddefinition">
 		CLASSIFICATION <i>name value</i>
 	</p>
 	<p class="Commanddescription">
 		Specifies a classification that will be assigned to the station.
-		The <i>value</i> is calculated as describe <a href="#value">below</a>.
+		The <i>value</i> is calculated as described <a href="#values">below</a>.
 	</p>
 
 	<p class="Commanddefinition">
@@ -259,7 +259,7 @@
 		The observation VALUE and ERROR are in metres for distances and degrees for angles (except for
 		&quot;calculated&quot; distance and vector errors - see comments below). For vector observations the VALUE and
 		ERROR should include all components of the observation separated by whitespace (Note that the <i>value</i> may
-		be compiled from several columns in the data file - see <a href="#value">below</a>).
+		be compiled from several columns in the data file - see <a href="#values">below</a>).
 	</p>
 	<p class="Commanddescription">
 		The ERROR_FACTOR is a factor by which the errors of the observation are
@@ -290,7 +290,7 @@
 	<p class="Commanddescription">
 		Specifies a <a href="../data/obs_classifications.html">classification</a> that will be assigned to the
 		observation.
-		The <i>value</i> is calculated as describe <a href="#value">below</a>.
+		The <i>value</i> is calculated as described <a href="#values">below</a>.
 	</p>
 
 	<p class="Commanddefinition">
@@ -377,7 +377,7 @@
 		&quot;dms&quot; (&quot;dms_angles&quot;), or &quot;hp&quot; (&quot;hp_angles&quot;).
 	</p>
 	<p class="Commanddefinition">
-		ANGLE_ERROR_UNITS <i>error_units</i>
+		ANGLE_ERROR_UNIT <i>error_units</i>
 	</p>
 	<p class="Commanddescription">
 		Defines how the error for angle observations (horizontal angles, azimuth and bearing
