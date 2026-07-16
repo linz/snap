@@ -67,7 +67,7 @@ Menu: Select <span class="MenuItem">View | All</span><br>
 <td>Undo last zoom/pan</td>
 <td>Mouse: Right+Click anywhere on the map<br>
 Keyboard: Press Alt+P<br>
-Menu: Select <span class="MenuItem">View | Previous</span><br>
+Menu: Select <span class="MenuItem">View | Previous view</span><br>
 </td>
 </tr>
 <tr>
@@ -99,8 +99,9 @@ back to zero.
 <p>The map window interacts with the text windows (station/observation lists
 and details window) in a number of ways. </p>
 <p>Left+clicking on a station or observation will give detailed information
-about it in the details window.  The map shows the selected station or
-observation with a yellow outline</p>
+about it in the details window.  The maps below show the configurable
+selection colour (e.g. yellow) used to outline a selected station or
+observation.</p>
 <img src="images/sp_eg_selected_mark.png" alt="highlighted mark">
 <img src="images/sp_eg_selected_obs.png" alt="highlighted observation">
 <p>Whenever the station or observation in the details window changes, the 
@@ -119,7 +120,10 @@ map:</p>
 Choosing to hide or display items or changing colours 
 using the <a href="key_window.html">key</a>. </p>
 <p class="BulletList">
-Choosing different ways of colour coding observations, for example by the size of the standardised residual, by the redundancy, or by any of the <a href="../../files/data/obs_classifications.html">observation classifications"</a> using the <span class="MenuItem">Observations | Colour coding</span> menu option
+Choosing different ways of colour coding observations, for example by the size of the standardised residual, by the redundancy, or by any of the <a href="../../files/data/obs_classifications.html">observation classifications</a> using the <span class="MenuItem">Observations | Colour coding</span> menu option
+</p>
+<p class="BulletList">
+Choosing different ways of colour coding stations, either by their usage in the adjustment or by a station classification, using the <span class="MenuItem">Stations | Colour coding</span> menu option
 </p>
 <p class="BulletList">
 Changing the how multiple observations of a line are displayed with the <a href="dlg_obs_display_options.html">Observation display options</a> dialog using the <span class="MenuItem">Observations | Display options</span> menu option.
@@ -128,11 +132,17 @@ Changing the how multiple observations of a line are displayed with the <a href=
 Highlighting observations using various criteria with the <a href="dlg_highlight_observations.html">Highlight observations</a> dialog from the <span class="MenuItem">Observations | Highlight observations</span> menu option.
 </p>
 <p class="BulletList">
-Hiding or showing specific stations or categories of stations using the <a href="dlg_hideshow_stations.html">Hide stations</a> dialog using the <span class="MenuItem">Stations | Hide stations</span> menu option. Optionally the 
+Finding and zooming to a specific station using the <a href="dlg_find_station.html">Find station</a> dialog using the <span class="MenuItem">Stations | Find station</span> menu option.
+</p>
+<p class="BulletList">
+Hiding or showing specific stations or categories of stations using the <a href="dlg_hideshow_stations.html">Hide stations</a> dialog using the <span class="MenuItem">Stations | Hide stations</span> menu option. Optionally the
 observations to and from hidden stations will also be hidden.
 </p>
 <p class="BulletList">
 Highlighting specific stations or categories of stations using the <a href="dlg_highlight_stations.html">Highlight stations</a> dialog using the <span class="MenuItem">Stations | Highlight stations</span> menu option.
+</p>
+<p class="BulletList">
+Showing all stations in their true positions, ignoring any offsets applied with the <a href="configcmd.html">offset_station</a> command, using the <span class="MenuItem">Stations | Ignore station offsets</span> checkbox.
 </p>
 <p class="BulletList">
 Changing the font used to display station codes and names using the 
@@ -140,7 +150,7 @@ Changing the font used to display station codes and names using the
 </p>
 <p class="BulletList">
 Changing the scaling of error ellipses and vertical error bars using the
-<a href="dlg_error_options.html">Error options</a> dialog from the <span class="MenuItem">Error | Error options</span> menu option.
+<a href="dlg_error_options.html">Error options</a> dialog from the <span class="MenuItem">Errors | Error options</span> menu option.
 </p>
 
 

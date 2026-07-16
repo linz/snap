@@ -35,6 +35,8 @@
    4	The standardised residuals colours dialog	programs/snapplot/dlg_stdres_pens.html
    4	The redundancy colours dialog	programs/snapplot/dlg_redundancy_pens.html
   3	Background graphics	programs/snapplot/background.html
+  3	Exporting and printing the map	programs/snapplot/export.html
+  3	Copying to the clipboard	programs/snapplot/copy.html
  2	Dat2site - calculate trial coordinates	programs/dat2site/index.html
   3	Example of dat2site	programs/dat2site/example.html
  2	Snapconv - changing coordinate systems	programs/snapconv/index.html

@@ -18,7 +18,7 @@
 <p>
 The error options dialog controls how observation errors, 
 and station error ellipses and vertical error bars are displayed.
-This dialog is accessed from the <span class="MenuItem">Error | Error options</span>
+This dialog is accessed from the <span class="MenuItem">Errors | Error options</span>
 menu item.
 </p>
 
@@ -27,22 +27,22 @@ menu item.
 <table>
 
 <tr>
-<td>A priori errors</td>
-<td>All errors will be represented by a priori values .. that is based upon
-the purely specified errors of the observation, and not on how well they 
+<td>Apriori errors</td>
+<td>All errors and standardised residuals will be represented by a priori values .. that is based upon
+the purely specified errors of the observation, and not on how well they
 fit together and with the fixed coordinates.
 </td>
 </tr>
 
 <tr>
-<td>A posteriori errors</td>
-<td>All errors will be represented by a posteriori errors .. that is scaled
+<td>Aposteriori errors</td>
+<td>All errors and standardised residuals will be represented by a posteriori errors .. that is scaled
 by the standard error of unit weight</td>
 </tr>
 
 <tr>
 <td>Standard errors</td>
-<td>Error ellipses and height errors will be displayed a standard errors</td>
+<td>Error ellipses and height errors will be displayed as standard errors</td>
 </tr>
 
 <tr>
@@ -54,7 +54,9 @@ at the specified confidence level</td>
 <tr>
 <td>Confidence level</td>
 <td>The confidence level to use when errors are displayed as confidence
-limits</td>
+limits. If "Standard errors" is selected instead, this same field is
+used as a multiplier applied to the standard error (e.g. entering 2
+displays errors at 2 standard errors).</td>
 </tr>
 
 <tr>
@@ -69,8 +71,8 @@ vector</td>
 <tr>
 <td>Vertical error exaggeration</td>
 <td>Specifies the exaggeration used to display vertical error bars on
-If autoscale is true then as the map scale changes the exaggeration will 
-change so that the ellipses are drawn at an approximately consistent size.
+the map. If autoscale is true then as the map scale changes the exaggeration will
+change so that the bars are drawn at an approximately consistent size.
 Note these settings also apply to drawing the vertical adjustment.</td>
 </tr>
 

@@ -12,17 +12,25 @@
 </head>
 <body>
 <h1>snap_manager scripting</h1>
-<p>The snap manager program uses a scripting language to define
+<p><a name="find_script" id="find_script"></a>The snap manager program uses a scripting language to define
 menu options. This can be customised as required. When the program
-starts it loads a script called "snap_manager.cfg" located in the
-same directory as the snap_manager program. This sets up
-the menu options, then looks for additional configuration scripts
-in the scripts subdirectory of the program. It will run any scripts
-called "*_menu.cfg", and then a script "local.cfg" if it exists.
-Local customisations are best installed into the local.cfg file.
-All the menu actions are implemented by functions. These functions
-can be overwritten in the local configuration to change their
-behaviour.</p>
+starts it loads a script called "snap_manager.cfg" from a
+"snapscript" subdirectory, searched for in turn under: any
+directories listed in the SNAPDIR environment variable, the user's
+configuration directory, and finally a "config" subdirectory
+installed alongside the snap_manager program itself. The first
+"snap_manager.cfg" found is used - if a user's own copy exists it
+entirely replaces the installed one, rather than adding to it.</p>
+<p>The installed snap_manager.cfg sets up the default menu options,
+then, first for the SNAP program's own script directory and then
+for the user's script directory, runs any scripts named
+"*_menu.cfg" found there, then a script called "local.cfg" if one
+exists, then loads any installed packages. Local customisations are
+therefore best added as a "local.cfg" or "*_menu.cfg" file in the
+user's own script directory, rather than by editing the installed
+snap_manager.cfg. All the menu actions are implemented by
+functions; these can be overwritten in a local configuration script
+to change their behaviour.</p>
 <h2>Scripting reference index</h2>
 <p><a href="script.html#constants">Constants</a><br>
 <a href="script.html#variables">Variables</a><br>
@@ -62,7 +70,7 @@ or more digits).</p>
 <p>Variables are named with a leading "$" character followed by
 letters, numbers, or underscore characters. For example
 "$my_job_file". Some variable have predefined values .. 
-see <a href="#sysvar">System variables</a> below. 
+see <a href="script_functions.html#sysvar">System variables</a> in the system variables and functions reference.
 Variables starting with "$_" are global variables
 ... they remain defined until snap_manager terminates. Other
 variables exist only for the duration of the script or function in
@@ -73,7 +81,7 @@ which they are defined. For example:</p>
 <h2>Function calls</h2>
 <p>Functions are called by a function name followed by zero or more
 parameters in brackets. snap_manager defines a number of <a href=
-"script.html#sysfunc">built-in functions</a>. The script can also
+"script_functions.html#sysfunc">built-in functions</a>. The script can also
 define new <a href="script.html#udf">user defined functions</a>.
 Examples of function calls are:</p>
 <p class="Commandexample">SetConfig("editor","notepad.exe")</p>

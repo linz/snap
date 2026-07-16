@@ -24,8 +24,8 @@ the command file directory and snapplot program directory.
 <p class="Commanddefinition">plot projection <i>projection_crdsys_code</i></p>
 <p>Specifies the projection coordinate system to use for the snapplot <a href="map_window.html">map</a>.</p>
 
-<p class="Commanddefinition">plot background <i>background_file</i></p>
-<p>Specifies a file of <a href="background.html">background graphical features</a> to plot on the map underlying the stations and observations.
+<p class="Commanddefinition">plot background <i>background_file</i> [<i>coordsys</i>] [<i>layer</i>]</p>
+<p>Specifies a file of <a href="background.html">background graphical features</a> to plot on the map underlying the stations and observations.  The optional coordsys and layer parameters specify a default coordinate system and layer name to use for features in the file that are not preceded by their own #coordsys or #layer directive.
 </p>
 
 <p class="Commanddefinition">plot offset_station <i>station_code</i> <i>east_offset</i> <i>north_offset</i></p>
@@ -39,7 +39,6 @@ coordinate system of the adjustment.</p>
 <p><a href="index.html">snapplot</a></p>
 <p><a href="starting.html">Starting snapplot</a></p>
 <p><a href="../../files/cmdcfg/index.html">The snap command file</a></p>
-<p><a href="configuration.html">Configuring snapplot</a></p>
 <p><a href="configuration.html">Configuring snapplot</a></p>
 <p><a href="background.html">Displaying background features</a></p>
 <p><a href="../../coordsys/crdsys_standard_list.html">Coordinate system codes</a></p>

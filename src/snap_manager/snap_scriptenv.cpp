@@ -521,7 +521,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     // Query function
 
     DEFINE_FUNCTION("Ask",2)
-    int result = ::wxMessageBox(STRPRM(0),STRPRM(1), wxYES_NO | wxICON_QUESTION );
+    int result = ::wxMessageBox(STRPRM(0),STRPRM(1), wxYES_NO | wxCANCEL | wxICON_QUESTION );
     if( result == wxCANCEL ) return fsTerminateScript;
     RETURN( result == wxYES )
 
@@ -881,7 +881,7 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
     Value result;
     wxString text(STRPRM(0));
     bool global=false;
-    if( nParams == 3 && BOOLPRM(3)) global=true;
+    if( nParams == 3 && BOOLPRM(2)) global=true;
     wxRegEx re;
     if( re.Compile(STRPRM(1),wxRE_ADVANCED))
     {
