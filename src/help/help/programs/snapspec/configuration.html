@@ -77,8 +77,8 @@ of components as defined by the <a href="algorithm.html">snapspec algorithm</a>.
  <td>The maximum length of line for which relative accuracy tests are applied</td>
 </tr>
 <tr>
-    <td class="nobr">min_rel_acc <i>#</i></td>
- <td>The minimum number of relative accuracy tests required to pass a coordinate.</td>
+    <td class="nobr"><a name="min_rel_acc"></a>min_rel_acc <i>#</i></td>
+ <td>The minimum number of relative accuracy tests required to pass a coordinate. (See also <a href="#min_relative_accuracy_tests">min_relative_accuracy_tests</a>.)</td>
 </tr>
 <tr>
 <td class="nobr">autorange</td>
@@ -114,7 +114,7 @@ orders.
 </p>
 <p class="CommandDefinition">limit_order <i>order  station_list</i></p>
 <p class="CommandDescription">
-Specifies the best (most accuracte) order that specific stations will be considered for.  
+Specifies the best (most accurate) order that specific stations will be considered for.  
 The <a href="../../files/cmdcfg/cmd_stn_list.html">station list</a> can include specific
 stations, or groups of stations identified by classification.
 </p>
@@ -142,7 +142,7 @@ Either the priority or order fields can contain &quot;*&quot; which will cause t
 ignored.
 Empty fields and fields containing just &quot;-&quot; are ignored.
 </p>
-<p class="CommandDefinition">min_relative_accuracy_tests <i>ntests</i></p>
+<p class="CommandDefinition"><a name="min_relative_accuracy_tests"></a>min_relative_accuracy_tests <i>ntests</i></p>
 <p class="CommandDescription">
 Specifies a default minimum number of relative accuracy tests required to pass a coordinate.  If specified
 the minimum for each test will be set to at least this number (though a higher value may be specified for
@@ -155,7 +155,7 @@ Specifies options controlling the tests.  The following options can be used:
 <table class="CommandDescription">
     <tr><td>limit_orders_by_control</td><td>limits the order tests to orders worse than the lowest ordered control station.  
     This is equivalent to the snapspec -a command line option.</td></tr>
-    <tr><td>fail_if_no_relacc_tests</td><td>Controls the behaviour when there are no relative accuracy tests available for a station (all other stations out of range or already rejected for the order).  By default these stations are accespted for the order - this option makes them rejected.</td></tr>
+    <tr><td>fail_if_no_relacc_tests</td><td>Controls the behaviour when there are no relative accuracy tests available for a station (all other stations out of range or already rejected for the order).  By default these stations are accepted for the order - this option makes them rejected.</td></tr>
     <tr><td>no_rel_acc_by_abs_optimisation</td><td>This disables the optimisation to avoid calculating relative accuracies for tests where
 the absolute accuracy information is sufficient</td></tr> 
     <tr><td>strict_rel_acc_by_abs_optimisation</td><td>This makes the optimisation rigorous by not assuming positive correlation
@@ -163,11 +163,11 @@ the absolute accuracy information is sufficient</td></tr>
     <tr><td>ignore_constrained_stations</td><td>In 3d tests this treats causes stations which are fixed in one ordinate
             (horizontal or vertical) but not in the other to be ignored.  By default these stations are tested with the fixed ordinate treated as 
             being perfect</td></tr>
-    <tr><td>test_3d</td><td>Apply both horizonal and vertical tests regardless of the adjustment</td></tr>
-    <tr><td>test_horizontal</td><td>Apply only horizonal accuracy tests</td></tr>
+    <tr><td>test_3d</td><td>Apply both horizontal and vertical tests regardless of the adjustment</td></tr>
+    <tr><td>test_horizontal</td><td>Apply only horizontal accuracy tests</td></tr>
     <tr><td>test_vertical</td><td>Apply only vertical accuracy tests</td></tr>
     <tr><td>split_output_crd_by_order</td><td>If creating an output coordinate file then split it into multiple files for each order</td>
-    <tr><td>use_covariance_cache</td><td>Create a cache of the expanded covariance matrix if it is claculated.  Equivalent to the -v command line option.</td>
+    <tr><td>use_covariance_cache</td><td>Create a cache of the expanded covariance matrix if it is calculated.  Equivalent to the -v command line option.</td>
 </table>
 <p class="CommandDefinition">log_level <i>level ...</i></p>
 <p class="CommandDescription">
@@ -210,7 +210,7 @@ Defines some controls on how the analysis is performed.  The option_code is form
 </p>
 <table class="CommandDescription">
 <tr><td>1</td><td>Defines whether relative accuracy tests run in two passes which allows only the required covariance
-matrix elements to be calculated.  This is set by snapspec if the binary file includes the Choleski decomposition.
+matrix elements to be calculated.  This is set by snapspec if the binary file includes the Cholesky decomposition.
 </td></tr>
 <tr><td>2</td><td>Allows the relative accuracy  tests to be short circuited if the test can be passed or failed 
 based on the endpoint station variances without accounting for correlation.

@@ -342,7 +342,7 @@
         observation date and stations used.</a>
     <p>Enhancement: <a href="../files/cmdcfg/cmd_stn_list.html">Station lists</a> are more sophisticated
         and can select stations based on multiple criteria, for example selecting order 0 or 1 stations
-        outsidels a geographical area.
+        outside a geographical area.
     </p>
     <p>Enhancement: Added functionality to automatically fix or float stations horizontally or vertically.
         See the <a href="../files/cmdcfg/cmd_fix.html">fix frame</a> command documentation. Also the algorithm used
@@ -548,7 +548,7 @@
     </p>
     <p>Enhancement: SNAP can output CSV (comma separated value)
         formatted files of adjustment results
-        (station/coordinate information, observation information, and adjustment metdata).
+        (station/coordinate information, observation information, and adjustment metadata).
         This simplifies importing adjustment data into other analysis packages. CSV format files
         are generated using the <a href="../files/cmdcfg/cmd_output_csv.html">output_csv</a> command
         in the SNAP command file. Note that this feature is &quot;under development&quot; - the implementation is likely
@@ -651,7 +651,7 @@ whereby the coordinate system specifications can include an epoch (eg NZGD2000@2
     <p>Enhancement: Added ability to use a full LINZ deformation model, including ongoing national deformation
         components and
         local &quot;patches&quot;.</p>
-    <p>Enhancement: Added &quot;output decomposition&quot; option to include the Choleski decomposition of
+    <p>Enhancement: Added &quot;output decomposition&quot; option to include the Cholesky decomposition of
         the normal equations in the binary file (for use by snapspec instead of using the using the full covariance
         matrix).</p>
     <p>Enhancement: Coordinate files can now include additional columns of station classifications. These can be used in
@@ -665,7 +665,7 @@ whereby the coordinate system specifications can include an epoch (eg NZGD2000@2
 
     <h3>snapspec</h3>
     <p>
-        Enhancement: Modified to allow use of the Choleski decomposition instead of the full coordinate covariance
+        Enhancement: Modified to allow use of the Cholesky decomposition instead of the full coordinate covariance
         matrix.
         Also added a number of optimisations for calculating orders.
     </p>
@@ -742,7 +742,7 @@ whereby the coordinate system specifications can include an epoch (eg NZGD2000@2
     <h3>snapplot</h3>
     <p>Bug fix: Fixed a bug which disabled panning the map window.</p>
     <p>Enhancement: Added option to choose font for plotting station names and codes.</p>
-    <p>Enhancement: Tidied up highight stations and hide stations dialog boxes.</p>
+    <p>Enhancement: Tidied up highlight stations and hide stations dialog boxes.</p>
 
     <!--
 <p>Updated to wxWidgets version 2.8.4 which incorporates the patch fixing grids required
@@ -788,7 +788,7 @@ program without requiring an installation package</p>
     <p>New: Added the trvtest and gpstest SNAP configuration files to the build.</p>
 
     <h3>snap_manager</h3>
-    <p>Enhancement: Added the ExecuteFuntion function to the scripting language. Added
+    <p>Enhancement: Added the ExecuteFunction function to the scripting language. Added
         listbox to available items in a dialog box</p>
     <p>Enhancement: Added plotting and editing data files to the menu</p>
     <p>Enhancement: Changed all menu functions to be executed by functions, which can be overridden
@@ -856,7 +856,7 @@ program without requiring an installation package</p>
     <p>Enhancement: Added option to include station orders in coordinate file, and to include order=x in station lists
         in the command file</p>
     <h3>snapgeoid</h3>
-    <p>Enhancement: Rationallised the processing of geoid options
+    <p>Enhancement: Rationalised the processing of geoid options
         in snapgeoid, and the
         processing of these in snapgeoid. The command line options for snapgeoid
         have been modified reflecting this .. see
@@ -866,7 +866,7 @@ program without requiring an installation package</p>
     <p>Enhancement: Added help button to dialog boxes</p>
     <p>Enhancement: Restored Ctrl+Shift+Right click function of the DOS snapplot map to clear the station offset of a
         single station.</p>
-    <p>Enhancement: Rationallised the colour key and added an option for the selected station/observation
+    <p>Enhancement: Rationalised the colour key and added an option for the selected station/observation
         colour to give full control of map colours</p>
     <p>Enhancement: Added "order" to the station listing columns.</p>
     <p>Enhancement: Added options to export map as an image (PNG or BMP), and reinstated the DXF export
