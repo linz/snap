@@ -114,6 +114,30 @@ if(SNAP_BUILD_GUI)
         DEPENDS lapg ${_parse_syntax}
         COMMENT "Generating scriptimp_parse.cpp from grammar")
 
+    # snap_manager/snapplot — help/help/index.html and help/help/js/wordindex.js
+    # are generated from the tracked help content pages by build_help.py (the
+    # generated files themselves are not checked in).
+    set(_help_dir ${CMAKE_CURRENT_SOURCE_DIR}/help)
+    set(_help_script ${_help_dir}/build_help.py)
+    set(_help_contents ${_help_dir}/snaphelp.contents)
+    set(_help_index ${_help_dir}/help/index.html)
+    set(_help_wordindex ${_help_dir}/help/js/wordindex.js)
+    execute_process(
+        COMMAND "${GIT_EXECUTABLE}" ls-files -- "help/help/**"
+        WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+        OUTPUT_VARIABLE _raw
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        COMMAND_ERROR_IS_FATAL ANY)
+    string(REPLACE "\n" ";" _help_page_sources "${_raw}")
+    list(TRANSFORM _help_page_sources PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+    add_custom_command(
+        OUTPUT  ${_help_index} ${_help_wordindex}
+        COMMAND Python3::Interpreter ${_help_script} -b help snaphelp.contents index.html
+        WORKING_DIRECTORY ${_help_dir}
+        DEPENDS ${_help_script} ${_help_contents} ${_help_page_sources}
+        COMMENT "Generating ${_help_index} and ${_help_wordindex}")
+    add_custom_target(help_files DEPENDS ${_help_index} ${_help_wordindex})
+
     git_sources(SNAP_MANAGER_SOURCES "snap_manager/")
     list(APPEND SNAP_MANAGER_SOURCES ${_parse_cpp})
     add_executable(snap_manager WIN32
@@ -121,6 +145,7 @@ if(SNAP_BUILD_GUI)
         $<$<BOOL:${WIN32}>:snap_manager/snap_manager.rc>)
     target_link_libraries(snap_manager PRIVATE wxutils snaplib snap_link_deps)
     target_include_directories(snap_manager PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/resources)
+    add_dependencies(snap_manager help_files)
 
     add_executable(snapadjust WIN32
         snapadjust/snapadjust_app.cpp
@@ -135,6 +160,7 @@ if(SNAP_BUILD_GUI)
         $<$<BOOL:${WIN32}>:snapplot/snapplot.rc>)
     target_link_libraries(snapplot PRIVATE wxutils snaplib snap_link_deps)
     target_include_directories(snapplot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/resources)
+    add_dependencies(snapplot help_files)
 endif()
 
 # ── Install ───────────────────────────────────────────────────────────────────
