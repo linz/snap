@@ -14,7 +14,8 @@ TARGET (default: all):
     all        Build all targets
     snap_cmd   Build command-line tools only
     test       Build snap_cmd and run regression tests
-    install    Build all and install to system
+    install    Build all and install to system (release only, requires a
+               clean git tree, so VERSIONID reflects what was actually built)
     package    Build a Debian package (Linux, release only; --build-dir sets SNAP_BUILD_DIR),
                or a Windows ZIP/NSIS package with --mingw (release only)
     clean      Remove the build directory
@@ -253,6 +254,12 @@ def main() -> None:
             env["SNAP_BUILD_GUI"] = "OFF"
         run(["debuild", "--check-dirname-level=0", "-uc", "-us", "-b"], env=env)
         return
+
+    if args.target == "install":
+        if args.type != "release":
+            print("install target only supported for release builds")
+            sys.exit(1)
+        check_committed()
 
     configure(args.type, args.no_gui, efence, build_d)
 
