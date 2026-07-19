@@ -526,7 +526,7 @@ Symbology::~Symbology()
 {
 }
 
-void Symbology::InitiallizePalette( const ColourPalette &basepalette )
+void Symbology::InitialisePalette( const ColourPalette &basepalette )
 {
     int psize = basepalette.Size();
 

@@ -22,7 +22,7 @@ Station lookup for SDC test module
     10 F2       0    5
     11 F1       0    5
 
-Initiallizing SDC tests
+Initialising SDC tests
 Loading marks for SDC tests
     Station 1 is a control mark
     Station 2 is to be tested. Error H/V = 0.04000000/0.00000000 m2

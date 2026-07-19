@@ -1,5 +1,5 @@
 #include "snapconfig.h"
-/* Station reordering is done to minimize matrix bandwidth.  The algorithm
+/* Station reordering is done to minimise matrix bandwidth.  The algorithm
    used is from
 
    Sloan S.W. (1986): An algorithm for profile and wavefront reduction of
@@ -473,7 +473,7 @@ static void order_nodes( void )
 {
     int seqno, start, end;
 
-    /* Initiallize the order array order1.  In the end each element will
+    /* Initialise the order array order1.  In the end each element will
        contain the sequence number of the corresponding station, starting
        with number 1.  Number 0 means not yet assigned - stations which
        are not connected or which have the noreorder flag set are immediately
@@ -610,7 +610,7 @@ void exclude_stations( void )
     }
 }
 
-/* This routine initiallizes the least squares adjustment.  It allocates
+/* This routine initialises the least squares adjustment.  It allocates
    memory for the least squares, determines parameters numbers for all
    parameters involved, and if required reorders the stations to give an
    optimal ordering. */

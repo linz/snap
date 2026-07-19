@@ -488,7 +488,7 @@ int network_station_order( network *nw, station *stn );
 void dump_network( network *nw, FILE *bin );
 network *reload_network( FILE *bin );
 
-/* Initiallize an object to hold station selection criteria */
+/* Initialise an object to hold station selection criteria */
 /* If maxstn is greater than zero then the criteria have a selection cache installed 
  * so each station only needs be tested once.  Not useful if only processing each
  * station once in any case!

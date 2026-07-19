@@ -43,8 +43,8 @@ typedef struct
 
 
 /*--------------------------------------------------------------------*/
-/* Initiallize an AVL tree structure ....                             */
-/* Allocate and initiallize the handle.                               */
+/* Initialise an AVL tree structure ....                             */
+/* Allocate and initialise the handle.                               */
 
 void *init_avltree( int copysize, int (*compare)(void *, void *) )
 {

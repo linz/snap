@@ -408,7 +408,7 @@ static void load_snap( survdata *sd )
     }
 
     /* Record the usage (for identifying which parameters can be calculated),
-       and the connections (for minimizing bandwidth) */
+       and the connections (for minimising bandwidth) */
 
     record_connections( sd );
     record_parameter_usage( sd );

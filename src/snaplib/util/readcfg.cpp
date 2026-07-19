@@ -213,7 +213,7 @@ int send_config_error( CFG_FILE *cfg, int stat, const char *mess1 )
 }
 
 
-void initiallize_config_items( config_item item[] )
+void initialise_config_items( config_item item[] )
 {
     config_item *it;
     for( it=item; it->option; it++ ) it->flags &= ~CFG_PRESENT;
@@ -261,11 +261,11 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         push_file_context( get_config_directory(cfg) );
     }
 
-    /* Do we want to initiallize */
+    /* Do we want to initialise */
 
     if( cfg->read_options & CFG_INIT_ITEMS )
     {
-        initiallize_config_items( item );
+        initialise_config_items( item );
     }
 
     while( !cfg->abort && get_config_line(cfg, cfg->buffer, cfg->nbuffer, &overrun) != NULL )

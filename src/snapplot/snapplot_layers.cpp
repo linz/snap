@@ -178,7 +178,7 @@ Symbology *CreateSymbology()
         p.AddColour( wxColour( *c ));
     }
 
-    s->InitiallizePalette( p );
+    s->InitialisePalette( p );
     stationTextStyleId = s->AddTextStyle( new TextStyle("text", stationFont()) );
 
     return s;
@@ -431,7 +431,7 @@ static void setup_snapplot_symbology()
 {
     Symbology *oldSymbology = symbology;
     symbology = CreateSymbology();
-    if( oldSymbology ) symbology->InitiallizePalette( *(oldSymbology->GetPalette()) );
+    if( oldSymbology ) symbology->InitialisePalette( *(oldSymbology->GetPalette()) );
 
     if( ! data_type_layers ) setup_data_type_layers();
     if( ! background_layers ) setup_background_layers();

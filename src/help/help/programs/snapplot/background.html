@@ -17,15 +17,27 @@
 to provide a visual reference for stations and observations.  Reference 
 features are defined in simple text files.  These are loaded either by 
 include the files in the <a href="../../files/cmdcfg/index.html">snap command
-file</a>, or by specifing them when snapplot is started using the -b command
+file</a>, or by specifying them when snapplot is started using the -b command
 line option.
 <p>
 <p>Background files are specified in the command file with the command</p>
 <p class="Commanddefinition">plot background <i>file_name</i><p>
-<p>The format of the background file is very simple.  It consists of two 
-commands to specify the name of the background layer, and the coordinate system used for coordinates, and a series of coordinates defining the features.  Each
-coordinate has a pen code of 1 (to start a new feature) or 0 (to continue the
-feature).  The following example illustrates this:
+<p>The format of the background file is very simple.  #coordsys and #layer
+commands can appear anywhere in the file, and take effect for the
+coordinates that follow, until changed by another such command; both are
+optional, and independent of each other.  #coordsys sets the coordinate
+system for subsequent coordinates (this can also be set via the
+<a href="sp_commandfile.html">plot background</a> command's optional
+coordsys argument); coordinate lines are ignored until a coordinate system
+has been set, by either means.  #layer sets the name of the layer
+subsequent coordinates belong to (or this can be set via the command's
+optional layer argument).  Each coordinate line has a pen code and an x,y
+coordinate: pen code 0 continues the current feature, and any nonzero value
+starts a new one.  If no layer has been set, each distinct nonzero pen code
+(including negative values) instead creates its own automatically named
+layer, e.g. pen code 2 creates a layer called "Background 2".  The following
+example illustrates a single layer and coordinate system, set once at the
+start of the file, with pen codes 0 and 1:
 </p>
 <pre class="ConfigFile">
 #layer coast

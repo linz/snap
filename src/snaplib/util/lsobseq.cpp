@@ -115,7 +115,7 @@ void init_oe( void *hA, int nrow, int ncol, char options )
         obs[i]->val = (double *) check_malloc( A->maxcol * sizeof(double) );
     }
 
-    /* Initiallize the observation equations data */
+    /* Initialise the observation equations data */
 
     A->nrow = nrow;
     A->flag = options;
@@ -142,7 +142,7 @@ void init_oe( void *hA, int nrow, int ncol, char options )
 }
 
 
-/* All other initiallizations defined as macros */
+/* All other initialisations defined as macros */
 
 void oe_add_param( obseqn *A, int irow, int c, double v )
 {

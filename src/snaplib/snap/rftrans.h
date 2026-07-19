@@ -46,7 +46,7 @@ typedef struct
     double prmCvr[105];
     char calcPrm[14];
     int usage;            /* Or'ed usage flags */
-    int prmId[14];       /* The adjustment parameter ids of the tranformation */
+    int prmId[14];       /* The adjustment parameter ids of the transformation */
     unsigned  istopo:1; /* True if the reference frame is topocentric */
     unsigned  isiers:1; /* True if the reference frame was defined using IERS units */
     unsigned  userates:1;  /* True if rates are being used or calculated */

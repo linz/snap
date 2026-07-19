@@ -41,7 +41,7 @@ typedef struct
 
 typedef struct
 {
-    int  class_id;  /* The index of the classication */
+    int  class_id;  /* The index of the classification */
     int  name_id;   /* The index of the obs within the classification */
 } classdata;
 

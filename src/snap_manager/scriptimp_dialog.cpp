@@ -493,7 +493,7 @@ Value DialogToken::evaluate()
     ScriptDialog dialog( label->GetValue().AsString(), controls, buttons );
     bool ok = dialog.RunDialog();
 
-    // Inital values may have been altered when running dialog programs
+    // Initial values may have been altered when running dialog programs
 
     if( ! ok ) dialog.ResetInitialValues();
     if( variable )

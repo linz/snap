@@ -19,7 +19,7 @@ static ListControlOption obsListOptions[] =
     {0,0}
 };
 
-// Note: The order here should match the order initiallized for displayFields in plotconn.c
+// Note: The order here should match the order initialised for displayFields in plotconn.c
 static ListControlOption fieldListOptions[] =
 {
 	{ "Obs id", SRF_OBSID },   	
@@ -84,7 +84,7 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
         fieldLookupCode[nField++] = fieldListOptions[i].value;
     }
 
-    // Note: classications are 1 based, not 0 based
+    // Note: classifications are 1 based, not 0 based
     for( int i = 0; i++ < nClassification; )
     {
         options.Add(wxString(classification_name( &obs_classes,i)));

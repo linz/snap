@@ -50,8 +50,8 @@ Station lookup for SDC test module
     40 F25      1   -1
     41 F35      1   -1
 
-Initiallizing SDC tests
-   .. Initiallizing SDC tests took 0.00 seconds (total 0.00 seconds)
+Initialising SDC tests
+   .. Initialising SDC tests took 0.00 seconds (total 0.00 seconds)
 Loading marks for SDC tests
    .. Stations loaded took 0.00 seconds (total 0.00 seconds)
 Finding nearest control for each mark
@@ -961,8 +961,8 @@ Applying relative accuracy test
    Vector 14 to 4 true relative accuracy pass (0.00019979 < 0.00166904)
    Vector 14 to 8 true relative accuracy pass (0.00009989 < 0.00166904)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
-  Summarizing relative accuracy data
-   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
+  Summarising relative accuracy data
+   .. Completed summarising relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   4 stations passed relative accuracy tests
    .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
 Setting node orders
@@ -1754,8 +1754,8 @@ Applying relative accuracy test
    Vector 41 to 39 true relative accuracy pass (0.00889012 < 0.16690410)
    Vector 41 to 40 true relative accuracy pass (0.04726693 < 0.16690410)
    .. Completed first pass using known covariances took 0.00 seconds (total 0.00 seconds)
-  Summarizing relative accuracy data
-   .. Completed summarizing relative covariance statuses took 0.00 seconds (total 0.00 seconds)
+  Summarising relative accuracy data
+   .. Completed summarising relative covariance statuses took 0.00 seconds (total 0.00 seconds)
   35 stations passed relative accuracy tests
    .. Relative accuracy tests completed took 0.00 seconds (total 0.00 seconds)
 Setting node orders

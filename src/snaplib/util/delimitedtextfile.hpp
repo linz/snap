@@ -25,7 +25,7 @@ using namespace LINZ;
  *  writing the fields to typed values.
  *
  *  Warning: Column objects read from a Reader cannot be used once the Reader is destroyed.
- *  Currently there is no check on this, it is the programmers reponsibility to limit the
+ *  Currently there is no check on this, it is the programmers responsibility to limit the
  *  scope of the Column to match the corresponding Reader.
  *
  *  Synopsis:

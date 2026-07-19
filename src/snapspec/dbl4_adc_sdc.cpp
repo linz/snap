@@ -450,17 +450,17 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
     if ( sdc->norder <= 0 ) THROW_EXCEPTION(("SDC test called with less than 1 order to test"));
     if ( sdc->nmark <= 0 ) THROW_EXCEPTION(("SDC test called with less than 1 mark to test"));
 
-    /*> Initiallize the SDCTestImp object */
+    /*> Initialise the SDCTestImp object */
 
     sdcInitTestImp( &sdci, sdc );
     sdci.sdc = sdc;
     sdci.reftime = sdci.lasttime = clock();
 
-    sdcWriteLog( &sdci, SDC_LOG_STEPS, "Initiallizing SDC tests\n" );
-    sdcTimeStamp(&sdci,"Initiallizing SDC tests");
+    sdcWriteLog( &sdci, SDC_LOG_STEPS, "Initialising SDC tests\n" );
+    sdcTimeStamp(&sdci,"Initialising SDC tests");
     sdcWriteCompactLogHeader( &sdci );
 
-    /*> Initiallize the list of sdc stations */
+    /*> Initialise the list of sdc stations */
 
     sdcWriteLog( &sdci, SDC_LOG_STEPS, "Loading marks for SDC tests\n" );
     sts = sdcLoadSDCStations( &sdci );
@@ -700,7 +700,7 @@ StatusType sdcCalcSDCOrders2( hSDCTest sdc, int minorder)
 /*************************************************************************
 ** Function name: sdcInitTestImp
 **//**
-**    Initiallizes the SDCTestImp structure - simply associates the
+**    Initialises the SDCTestImp structure - simply associates the
 **    test definition with it and sets the pointers to NULL.
 **
 **  \param sdci                The implementation object
@@ -904,7 +904,7 @@ static unsigned char *sdcRAAllocRow( hSDCTestImp sdci, int row, int col0 )
 /*************************************************************************
 ** Function name: sdcLoadSDCStations
 **//**
-**    Creates and initiallizes an array of SDCStation objects in the
+**    Creates and initialises an array of SDCStation objects in the
 **    test implementation SDCTestImp
 **
 **  \param sdci                The test implementation
@@ -923,7 +923,7 @@ static StatusType sdcLoadSDCStations( hSDCTestImp sdci)
     /*> Allocate an array of SDCStation objects */
     sdci->stns = (hSDCStation) utlAlloc( sdc->nmark * sizeof(SDCStation) );
 
-    /*> Initiallize each with the role, status, and max error ellipse */
+    /*> Initialise each with the role, status, and max error ellipse */
     /*> Only calculate the ellipse semi-major if it will be required for
         testing */
 
@@ -1381,7 +1381,7 @@ static StatusType sdcApplyAbsAccuracy( hSDCTestImp sdci, hSDCOrderTest test,
 ** Function name: sdcCreateRelTest
 **//**
 **    Creates the matrices required to hold the relative accuracy test
-**    information, and initiallizes the array of distances between marks,
+**    information, and initialises the array of distances between marks,
 **    as this will always be required (either to apply a test, or to
 **    determine that a test need not be applied).
 **
@@ -1419,7 +1419,7 @@ static StatusType sdcCreateRelTest( hSDCTestImp sdci)
     sdci->lookup = (int *) utlAlloc( sizeof(int) * nrow );
     sdci->nreltest = nrow;
 
-    /*> Initiallize the reverse lookup from rel test code to station code */
+    /*> Initialise the reverse lookup from rel test code to station code */
 
     for( i = 0; i < sdc->nmark; i++ )
     {
@@ -1660,7 +1660,7 @@ static StatusType sdcApplyRelTestFail( hSDCTestImp sdci, hSDCOrderTest test,
 **//**
 **    Seeks a candidate node to fail when there is no automatic choice.
 **    Seaches for the unassigned (ie unknown status) station with the
-**    lowest priortity, or worst test order, or highest percentage of failed vectors.  
+**    lowest priority, or worst test order, or highest percentage of failed vectors.  
 **    If more than one match, then pick the node with the highest absolute error.
 **
 **  \param sdci                The test implementation
@@ -2088,7 +2088,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
     sdcTimeStamp(sdci,"Setting up relative accuracy status");
 
-    /*> Initiallize the counters for each of the tests */
+    /*> Initialise the counters for each of the tests */
 
     for( i = 0; i < nmark; i++ )
     {
@@ -2098,7 +2098,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         s->nrelfail = 0;
     }
 
-    /*> Initiallized the memory allocator for the relative
+    /*> Initialised the memory allocator for the relative
      * accuracy calcs */
 
     sdcRAInitAllocRow( sdci );
@@ -2390,7 +2390,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 
     if( sdci->twopass )
     {
-        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Summarizing relative accuracy data\n");
+        sdcWriteLog( sdci, SDC_LOG_CALCS | SDC_LOG_CALCS2, "  Summarising relative accuracy data\n");
     }
 
     for( i = 1; i < sdci->nreltest; i++ )
@@ -2446,7 +2446,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
         }
     }
 
-    sdcTimeStamp(sdci,"Completed summarizing relative covariance statuses");
+    sdcTimeStamp(sdci,"Completed summarising relative covariance statuses");
 
     if( sts == STS_OK && sdci->loglevel & SDC_LOG_CALCS )
     {
@@ -2471,7 +2471,7 @@ static StatusType sdcSetupRelAccuracyStatus( hSDCTestImp sdci, hSDCOrderTest tes
 ** Function name: sdcUpdateOrders
 **//**
 **    Updates the orders of stations which pass a given order test, and
-**    initiallizes their status for the next order to be tested.
+**    initialises their status for the next order to be tested.
 **
 **  \param sdci                The test implementation
 **  \param itest               The number of the order being

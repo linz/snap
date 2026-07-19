@@ -35,6 +35,8 @@ void init_plot_scales( void );
 SCOPE double plot_emin, plot_nmin, plot_emax, plot_nmax;
 
 SCOPE double stn_name_size;
+// TODO: fix this: use_default_font is set from the use_fixed_size_font config
+// command but never read anywhere to actually affect font rendering.
 SCOPE char use_default_font;
 SCOPE double stn_symbol_size;
 SCOPE double errell_factor;

@@ -322,7 +322,7 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
 
     end_progress_meter();
 
-    /* Summarize tests for this specification */
+    /* Summarise tests for this specification */
 
     if( gothtol )
     {

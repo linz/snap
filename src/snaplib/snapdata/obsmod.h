@@ -71,7 +71,7 @@ bool obsmod_ignore_datafile( void *obsmod, int file_id );
  * has already been done. */
 int check_obsmod_station_criteria_codes( void *pobsmod, network *nw );
 
-/* Summarize the observation modifications */
+/* Summarise the observation modifications */
 void summarize_obs_modifications( void *obsmod, FILE *lst, const char *prefix );
 
 #endif /* _OBSMOD_HPP */

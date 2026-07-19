@@ -12,7 +12,7 @@
 <h1><a name="snapspec"></a>Snapspec order calculation algorithm</h1>
 
 <p>
-Snapspec assigns orders to the adjusted marks based on the absolute and relative accuracies of the calculated coordinates.  Each coordinate order has defined absolute and relative accuracy requirements.  The orders are assigned such that each station of a given order meets these accuracy requirements - the relative accuracy requirements are met in relation to all stations of the same or higher assigned order.  The algorithm is designed to assign as many stations as possible to each order, starting with the highest order.  This is not a strict mathematical optimisition.
+Snapspec assigns orders to the adjusted marks based on the absolute and relative accuracies of the calculated coordinates.  Each coordinate order has defined absolute and relative accuracy requirements.  The orders are assigned such that each station of a given order meets these accuracy requirements - the relative accuracy requirements are met in relation to all stations of the same or higher assigned order.  The algorithm is designed to assign as many stations as possible to each order, starting with the highest order.  This is not a strict mathematical optimisation.
 </p>
 <p>
 It is useful to understand that assignment of stations to orders is an ambiguous process.  For example, if there are three stations A, B, C, for which the vectors A-B and A-C meet the relative accuracy standards for an order and the vector A-B does not, then either pair of stations A,B or A,C can be assigned to that order, but not all three.  snapspec uses a set of rules described below to determine which stations are assigned to any particular order, and which are not.  This is an iterative process of assigning and discarding stations until all stations have been processed. This process is repeated for each order, starting with the most accurate.
@@ -117,14 +117,14 @@ The absolute errors of each station are tested first.  Those which fail (against
 For each unknown coordinate test the relative accuracy against every other unknown or passed coordinate within the maximum distance specified for relative accuracy tests.
 </li>
 
-<li>Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are too rew test lines left (less than the minimum number of relative accuracy tets to  unfailed coordinates are available).  Note that by default the minimum number is zero, so
+<li>Set the status to &quot;fail&quot; for any coordinates with status unknown for which there are too few test lines left &mdash; that is, fewer test lines to unfailed (passed or still-unknown) coordinates remain than the configured minimum number of relative accuracy tests (<a href="configuration.html#min_rel_acc">min_rel_acc</a>).  Note that by default the minimum number is zero, so
 no coordinates are failed by this test.</li>
 <li>	Set the status to &quot;pass&quot; for each coordinate for which all test lines pass (or which have no remaining test lines).</li>
 <li>	If any coordinates still have status unknown, then select and fail one. The set of candidates are filtered to keep only the stations with lowest priority and of those the stations with the lowest potential order.  Of these the
     station with the highest ratio of test failures against test lines is selected. 
     If this is still ambiguous the coordinate with the highest absolute error is selected.  And if this is still ambiguous, 
     the first station in the list is used.
-    If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be muliplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.
+    If the both horizontal and vertical errors are being tested, then the absolute coordinate error for a node is the maximum of the horizontal and vertical errors.  The vertical error may be multiplied by a factor before comparing, in order to apply a different weighting to the horizontal and vertical components.
 </li>
 <li>	Return to step 1 if there are still any unknown coordinates.
 </li>

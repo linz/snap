@@ -31,7 +31,7 @@ enum { LSQ_UNINIT, LSQ_READY, LSQ_SUMMING, LSQ_SOLVED, LSQ_INVERTED };
 /* Header file for leastsqu.c - basic least squares routines for sparse
    observation equations */
 
-/* Initiallization */
+/* Initialisation */
 
 void lsq_alloc( int nprm );
 void lsq_init( void );
@@ -70,7 +70,7 @@ void lsq_get_stats( long *nobs, int *nprm, long *nschp, long *dof,
 
 double *lsq_get_covariance_row( int row );
 
-/* Get the choleski decomposition of the normal matrix     */
+/* Get the Cholesky decomposition of the normal matrix     */
 /* It must be called immediately before or after           */
 /* lsq_solve_equations, and may be invalidated by          */
 /* subsequent lsq_... calls                                */

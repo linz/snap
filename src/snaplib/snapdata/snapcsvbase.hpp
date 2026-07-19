@@ -72,12 +72,12 @@ public:
 
 protected:
     // Implementation functions
-    virtual void initiallizeLoadDefinition();
+    virtual void initialiseLoadDefinition();
     virtual void loadDefinitionCommand(const std::string &command, RecordStream &rs) = 0;
     virtual void terminateLoadDefinition();
 
     virtual void readerAttached() = 0;
-    virtual void initiallizeLoadData();
+    virtual void initialiseLoadData();
     virtual void loadRecord() = 0;
     virtual void terminateLoadData();
 

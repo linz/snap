@@ -16,12 +16,12 @@
 <p class="Commanddefinition">output_csv <i>output_options</i></p>
 
 <p>The output_csv command is used to control output of csv (comma separated) files of 
-adjustment results that can be imported into other software.  SNAP can generate three types of CSV files - metadata, station, and observation files.  The metadata file contains summary and configuration information.  The station and observation files contain input and calculated information about the stations, and observations in the adjustment.  
+adjustment results that can be imported into other software.  SNAP can generate four types of CSV files - metadata, stations, observations, and filelist.  The metadata file contains summary and configuration information.  The stations and observations files contain input and calculated information about the stations, and observations in the adjustment.  The filelist file contains a catalogue of files used by snap.  
 </p>
 <p>The files can be formatted either with comma separated fields in which text fields are delimited by 
-quote (&quot;) characters, or with tab character separated fieldsd, in which text fields are unquoted.  In the comma separated format, quote characters within the text fields are replaced with two quote characters - eg &quot;Bearing swing 5&quot;&quot; east&quot;.  The first line of each file contains the names of the columns.  This format is compatible with many software packages, for example Microsoft Excel.
+quote (&quot;) characters, or with tab character separated fields, in which text fields are unquoted.  In the comma separated format, quote characters within the text fields are replaced with two quote characters - eg &quot;Bearing swing 5&quot;&quot; east&quot;.  The first line of each file contains the names of the columns.  This format is compatible with many software packages, for example Microsoft Excel.
 </p>
-<p>The output CSV files are named with the name of the command file followed by &quot;-<i>type</i>.<i>ext</i>&quot;, where <i>type</i> is one of &quot;metadata&quot;, &quot;stn&quot;, or &quot;obs&quot;, and <i>ext</i> is either &quot;csv&quot; for comma separated files, or &quot;txt&quot; for tab delimited files.
+<p>The output CSV files are named with the name of the command file followed by &quot;-<i>type</i>.<i>ext</i>&quot;, where <i>type</i> is one of &quot;metadata&quot;, &quot;stn&quot;, &quot;obs&quot;, or &quot;filelist&quot;, and <i>ext</i> is either &quot;csv&quot; for comma separated files, or &quot;txt&quot; for tab delimited files.
 <p>
 The syntax of the output_csv command is very similar to that for the list command - it may be followed by several options separated by spaces.  Each option can be negated by preceding it with "no_", for example "no_stations".  The options that are available with the output command are:</p>
 
@@ -33,7 +33,9 @@ The syntax of the output_csv command is very similar to that for the list comman
 
 <p class="Commanddefinition">filelist</p><p class="Commanddescription">Creates a CSV file with a catalogue of files used by snap</p>
 
-<p class="Commanddefinition">all</p><p class="Commanddescription">A shorthand for &quot;metadata stations observations filelist&quot;.  (It is recommented that this shorthand is not used in configuration files - just in command files).</p>
+<p class="Commanddefinition">all</p><p class="Commanddescription">A shorthand for &quot;metadata stations observations filelist&quot;.  (It is recommended that this shorthand is not used in configuration files - just in command files).</p>
+
+<p>Two further options control the format of the CSV files, rather than which files are generated.</p>
 
 <p class="Commanddefinition">tab_delimited</p><p class="Commanddescription">Generate tab delimited files instead of the default comma delimiters</p>
 

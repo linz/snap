@@ -2,7 +2,7 @@
 /*
    $Log: crdsysc3.c,v $
    Revision 1.2  2003/05/26 22:53:58  ccrook
-   Fixed bug with trying to delete unitiallised data when the coordsys file isn't formatted
+   Fixed bug with trying to delete uninitialised data when the coordsys file isn't formatted
    correctly
 
    Revision 1.1  1996/01/03 23:37:17  CHRIS

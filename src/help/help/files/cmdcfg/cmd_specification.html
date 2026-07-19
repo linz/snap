@@ -13,9 +13,25 @@
 
 <h1><a name="cmd_specification"></a>The specification command</h1>
 
-<p class="Commanddefinition">specification <i>name</i> confidence <i>conf</i>% horizontal <i>habs</i> mm <i>hppm</i> ppm vertical <i>vabs</i> mm <i>vppm</i> ppm</p>
+<p class="Commanddefinition">specification <i>name</i> confidence <i>conf</i>% [horizontal [<i>habs</i> mm] [<i>hppm</i> ppm] [<i>hmax</i> mm_abs]] [vertical [<i>vabs</i> mm] [<i>vppm</i> ppm] [<i>vmax</i> mm_abs]]</p>
 
 <p>This command defines an accuracy specification that can be used to test the relative accuracy with which stations are positioned in an adjustment.  There may be several specifications used in an adjustment (for example relating to different orders of station).  Each specification is given a name which is used to refer to it in the <a href="cmd_test_specification.html">test_specification</a> command (which defines which stations it applies to).</p>
+
+<p>At least one of "horizontal" or "vertical" must be given; both may be included in the same command.  Within each, the mm, ppm, and mm_abs values are all individually optional, but at least one must be given.  Including an mm_abs value defines an additional, separate absolute (network) accuracy test, which tests each station's absolute position error against a fixed tolerance, rather than the distance-dependent relative tolerance defined by the mm and ppm values.</p>
+
+<p>For example:</p>
+
+<p class="Commandexample">specification order1 confidence 95% horizontal 5 mm 1 ppm</p>
+<p class="Commanddescription">Defines a relative horizontal accuracy test only: a distance-dependent tolerance of 5mm + 1ppm of the distance between stations.</p>
+
+<p class="Commandexample">specification order2 confidence 95% horizontal 5 mm 1 ppm vertical 10 mm 2 ppm</p>
+<p class="Commanddescription">Defines relative horizontal and vertical accuracy tests together.</p>
+
+<p class="Commandexample">specification network_check confidence 95% horizontal 20 mm_abs</p>
+<p class="Commanddescription">Defines an absolute (network) horizontal accuracy test only: each station's absolute position error is tested against a fixed 20mm tolerance, independent of distance to other stations.</p>
+
+<p class="Commandexample">specification combined confidence 95% horizontal 5 mm 1 ppm 20 mm_abs vertical 10 mm 2 ppm 15 mm_abs</p>
+<p class="Commanddescription">Defines relative and absolute accuracy tests for both horizontal and vertical in a single command.</p>
 
 <p>The parameters of the command are:</p>
 
@@ -31,9 +47,13 @@ specification tests are by default apriori confidence limits.  This may be chang
 
 <p class="Commanddefinition">hppm</p><p class="Commanddescription">The distance dependent component of the horizontal tolerance in part per million.</p>
 
+<p class="Commanddefinition">hmax</p><p class="Commanddescription">An absolute horizontal accuracy tolerance in millimetres (given with the mm_abs unit).  This defines a separate absolute (network) accuracy test rather than contributing to the relative tolerance formed from habs and hppm.</p>
+
 <p class="Commanddefinition">vabs</p><p class="Commanddescription">The absolute component of the vertical tolerance in millimetres.</p>
 
 <p class="Commanddefinition">vppm</p><p class="Commanddescription">The distance dependent component of the vertical tolerance in part per million.</p>
+
+<p class="Commanddefinition">vmax</p><p class="Commanddescription">An absolute vertical accuracy tolerance in millimetres (given with the mm_abs unit).  This defines a separate absolute (network) accuracy test rather than contributing to the relative tolerance formed from vabs and vppm.</p>
 
 <div class="SeeAlso">
 <h3>See also:</h3>

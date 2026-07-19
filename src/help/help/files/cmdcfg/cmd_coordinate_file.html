@@ -22,7 +22,7 @@
 coordinate system used in the adjustment.  Also it defines name of the output coordinate file unless the <a href="cmd_output_coordinate_file.html">output_coordinate_file</a> command is used.  
 </p>
 <p>
-The add_coordinate_file command adds additonal information from a coordinate file. This can be used
+The add_coordinate_file command adds additional information from a coordinate file. This can be used
 to update coordinates and station classifications read from the station , or to add new stations to the adjustment.
 </p>
 <p>The station file may be either a SNAP format file, or a CSV delimited text file.  For CSV format files the coordinate_file command can also include one or more CSV options entered as 
@@ -34,6 +34,8 @@ to update coordinates and station classifications read from the station , or to 
 </p>
 <p class="Commanddefinition">coordinates</p>
 <p class="Commanddescription">Updates the coordinate of marks.</p>
+<p class="Commanddefinition">geoid</p>
+<p class="Commanddescription">Updates deflection of the vertical and geoid undulation values for existing stations, from geoid information already present in the added coordinate file.</p>
 <p class="Commanddefinition">classes</p>
 <p class="Commanddescription">Updates station classifications (including coordinate order) which may include adding new classifications </p>
 <p class="Commanddefinition">existing_classes</p>

@@ -13,7 +13,7 @@ enum JobFileType
 };
 
 // Class defines a file referenced in the SNAP job.  Main function is to track files which have changed.
-// Includes simplistic support for buildin into a list.
+// Includes simplistic support for building into a list.
 
 class SnapJobFile
 {

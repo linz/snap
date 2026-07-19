@@ -1,7 +1,7 @@
 #ifndef WX_SIMPLE_EVENT_HPP
 #define WX_SIMPLE_EVENT_HPP
 
-// Declare a simple event .. just has an event id and a propogation level
+// Declare a simple event .. just has an event id and a propagation level
 
 class wxSimpleEvent : public wxEvent
 {

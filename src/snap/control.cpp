@@ -112,7 +112,7 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *value, int 
 static int read_specification_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
 static int read_spec_test_options(CFG_FILE *cfg, char *string, void *value, int len, int code );
 
-static int config_initiallized = 0;
+static int config_initialised = 0;
 static double dflt_herr, dflt_verr;
 static double dflt_rc;
 
@@ -218,14 +218,14 @@ static config_item snap_commands[] =
     {NULL}
 };
 
-static void initiallize_config( void )
+static void initialise_config( void )
 {
-    if( config_initiallized ) return;
+    if( config_initialised ) return;
     stations_read = 0;
     dflt_herr = dflt_verr = 1.0;
     dflt_rc = DEFAULT_REFCOEF;
-    initiallize_config_items( snap_commands );
-    config_initiallized = 1;
+    initialise_config_items( snap_commands );
+    config_initialised = 1;
 }
 
 
@@ -235,7 +235,7 @@ int read_command_file( const char *command_file )
 
     int sts;
 
-    initiallize_config();
+    initialise_config();
 
     cfg = open_config_file( command_file, COMMENT_CHAR );
 
@@ -288,7 +288,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
 
     if( ! file_exists( file_name ) ) return FILE_OPEN_ERROR;
 
-    initiallize_config();
+    initialise_config();
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg )
     {

@@ -1088,7 +1088,7 @@ StatusType utlGridVectorDimension( hGrid grid, int *dimension)
 ** Function name: utlGridCoordSysDef
 **//**
 **       Returns a coordinate system code stored in the grid.  This is not
-**       particularly relevent to CRS as it is currently defined.
+**       particularly relevant to CRS as it is currently defined.
 **
 **  \param grid                The grid handle
 **  \param crdsys              Returns a pointer to the string

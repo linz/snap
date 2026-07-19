@@ -39,11 +39,13 @@ Syntax</a><br>
 <hr>
 <a name="resyntax" id="resyntax"></a>
 <h2>Regular Expression Syntax</h2>
-<p>These regular expressions are implemented using the package
+<p>These regular expressions follow the syntax of the package
 written by Henry Spencer, based on the 1003.2 spec and some (not
-quite all) of the Perl5 extensions. Much of the description of
-regular expressions below is copied verbatim from his manual
-entry.</p>
+quite all) of the Perl5 extensions. As of wxWidgets 3.1.6 the
+underlying implementation is PCRE2, not Spencer's package itself,
+though wxWidgets translates this syntax for compatibility. Much of
+the description of regular expressions below is copied verbatim
+from his manual entry.</p>
 <p>A regular expression is one or more <i>branches</i>, separated
 by '<b>|</b>', matching anything that matches any of the
 branches.</p>
@@ -96,7 +98,7 @@ largest number of matches (see <a href=
 </table>
 <p>The forms using <b>{</b> and <b>}</b> are known as
 <i>bound</i>s. The numbers <i>m</i> and <i>n</i> are unsigned
-decimal integers with permissible values from 0 to 255 inclusive.
+decimal integers.
 An atom is one of:</p>
 <table>
 <tbody>
@@ -202,25 +204,23 @@ ASCII matches any decimal digit. Two ranges may not share an
 endpoint, so e.g. <b>a-c-e</b> is illegal. Ranges are very
 collating-sequence-dependent, and portable programs should avoid
 relying on them.</p>
-<p>To include a literal <b>]</b> or <b>-</b> in the list, the
-simplest method is to enclose it in <b>[.</b> and <b>.]</b> to make
-it a collating element (see below). Alternatively, make it the
+<p>To include a literal <b>]</b> or <b>-</b> in the list, make it the
 first character (following a possible '<b>^</b>'), or precede it
 with '<b>\</b>'. Alternatively, for '<b>-</b>', make it the last
-character, or the second endpoint of a range. To use a literal
-<b>-</b> as the first endpoint of a range, make it a collating
-element or precede it with '<b>\</b>'. With the exception of these,
-some combinations using <b>[</b> (see next paragraphs), and
-escapes, all other special characters lose their special
-significance within a bracket expression.</p>
-<p>Within a bracket expression, a collating element (a character, a
-multi-character sequence that collates as if it were a single
-character, or a collating-sequence name for either) enclosed in
-<b>[.</b> and <b>.]</b> stands for the sequence of characters of
-that collating element.</p>
+character, the second endpoint of a range, or precede it with
+'<b>\</b>' to use it as the first endpoint of a range. With the
+exception of these, some combinations using <b>[</b> (see next
+paragraph), and escapes, all other special characters lose their
+special significance within a bracket expression.</p>
+<p>Collating elements (a character, a multi-character sequence that
+collates as if it were a single character, or a collating-sequence
+name for either) enclosed in <b>[.</b> and <b>.]</b>, as found in
+full POSIX EREs, are not supported by this implementation.
+Attempting to use them (e.g. <b>[.a.]</b>) results in a "POSIX
+collating elements are not supported" error.</p>
 <p>Within a bracket expression, the name of a <i>character
 class</i> enclosed in <b>[:</b> and <b>:]</b> stands for the list
-of all characters (not all collating elements!) belonging to that
+of all characters belonging to that
 class. Standard character classes are:</p>
 <table>
 <tbody>
@@ -284,7 +284,7 @@ not affected by the current locale.</p>
 <hr>
 <a name="wxresynescapes" id="wxresynescapes"></a>
 <h2>Escapes</h2>
-<p>Escapes (AREs only), which begin with a <b>\</b> followed by an
+<p>Escapes, which begin with a <b>\</b> followed by an
 alphanumeric character, come in several varieties: character entry,
 class shorthands, constraint escapes, and back references. A
 <b>\</b> followed by an alphanumeric character but not constituting
@@ -294,7 +294,7 @@ alphanumeric character merely stands for that character as an
 ordinary character, and inside a bracket expression, <b>\</b> is an
 ordinary character. (The latter is the one actual incompatibility
 between EREs and AREs.)</p>
-<p>Character-entry escapes (AREs only) exist to make it easier to
+<p>Character-entry escapes exist to make it easier to
 specify non-printing and otherwise inconvenient characters in
 REs:</p>
 <table>
@@ -302,10 +302,6 @@ REs:</p>
 <tr>
 <td valign="top" width="158"><b>\a</b></td>
 <td valign="top">alert (bell) character, as in C</td>
-</tr>
-<tr>
-<td valign="top" width="158"><b>\b</b></td>
-<td valign="top">backspace, as in C</td>
 </tr>
 <tr>
 <td valign="top" width="158"><b>\B</b></td>
@@ -392,7 +388,7 @@ however, that some applications (e.g., C compilers) interpret such
 sequences themselves before the regular-expression package gets to
 see them, which may require doubling (quadrupling, etc.) the
 '<b>\</b>'.</p>
-<p>Class-shorthand escapes (AREs only) provide shorthands for
+<p>Class-shorthand escapes provide shorthands for
 certain commonly-used character classes:</p>
 <table>
 <tbody>
@@ -428,7 +424,7 @@ certain commonly-used character classes:</p>
 <b>[a-c\d]</b> is equivalent to <b>[a-c[:digit:]]</b>. Also,
 <b>[a-c\D]</b>, which is equivalent to <b>[a-c^[:digit:]]</b>, is
 illegal.)</p>
-<p>A constraint escape (AREs only) is a constraint, matching the
+<p>A constraint escape is a constraint, matching the
 empty string if specific conditions are met, written as an
 escape:</p>
 <table>
@@ -450,7 +446,8 @@ how this differs from '<b>^</b>')</td>
 <tr>
 <td valign="top" width="158"><b>\y</b></td>
 <td valign="top">matches only at the beginning or end of a
-word</td>
+word (in this implementation, <b>\b</b> is a synonym for this,
+rather than a literal backspace character)</td>
 </tr>
 <tr>
 <td valign="top" width="158"><b>\Y</b></td>
@@ -480,7 +477,7 @@ far) a <i>back reference</i>, see below</td>
 <p>A word is defined as in the specification of <b>[[:&lt;:]]</b>
 and <b>[[:&gt;:]]</b> above. Constraint escapes are illegal within
 bracket expressions.</p>
-<p>A back reference (AREs only) matches the same string matched by
+<p>A back reference matches the same string matched by
 the parenthesized subexpression specified by the number, so that
 (e.g.) <b>([bc])\1</b> matches <b>bb</b> or <b>cc</b> but not
 '<b>bc</b>'. The subexpression must entirely precede the back
@@ -594,7 +591,7 @@ any character that belongs to the <i>space</i> character class.
 '<b>(?#ttt)</b>' (where <i>ttt</i> is any text not containing a
 '<b>)</b>') is a comment, completely ignored. Again, this is not
 allowed between the characters of multi-character symbols like
-'<b>(?:</b>'. Such comments are more a historical artifact than a
+'<b>(?:</b>'. Such comments are more a historical artefact than a
 useful facility, and their use is deprecated; use the expanded
 syntax instead.</p>
 <p><i>None</i> of these metasyntax extensions is available if the
@@ -607,33 +604,28 @@ RE.</p>
 <p>In the event that an RE could match more than one substring of a
 given string, the RE matches the one starting earliest in the
 string. If the RE could match more than one substring starting at
-that point, its choice is determined by its <i>preference</i>:
-either the longest substring, or the shortest.</p>
-<p>Most atoms, and all constraints, have no preference. A
-parenthesized RE has the same preference (possibly none) as the RE.
-A quantified atom with quantifier <b>{m}</b> or <b>{m}?</b> has the
-same preference (possibly none) as the atom itself. A quantified
-atom with other normal quantifiers (including <b>{m,n}</b> with
-<i>m</i> equal to <i>n</i>) prefers longest match. A quantified
-atom with other non-greedy quantifiers (including <b>{m,n}?</b>
-with <i>m</i> equal to <i>n</i>) prefers shortest match. A branch
-has the same preference as the first quantified atom in it which
-has a preference. An RE consisting of two or more branches
-connected by the <b>|</b> operator prefers longest match.</p>
-<p>Subject to the constraints imposed by the rules for matching the
-whole RE, subexpressions also match the longest or shortest
-possible substrings, based on their preferences, with
-subexpressions starting earlier in the RE taking priority over ones
-starting later. Note that outer subexpressions thus take priority
-over their component subexpressions.</p>
+that point, individual quantified atoms resolve the choice according
+to their <i>preference</i>: greedy quantifiers (e.g. <b>*</b>,
+<b>+</b>, <b>{m,n}</b>) prefer the longest match, and non-greedy
+quantifiers (e.g. <b>*?</b>, <b>+?</b>, <b>{m,n}?</b>) prefer the
+shortest.</p>
+<p>Note, however, that when the ambiguity instead comes from a
+choice between <i>alternatives</i> - either directly via the
+<b>|</b> operator, or indirectly through a subexpression containing
+one - the choice is resolved by matching whichever alternative,
+tried in the order written, succeeds first at that position, not
+necessarily the longest, or the one that lets the rest of the RE
+match the most of the string. For example, <b>(week|wee)(night|knights)</b>
+matches only the first nine characters of <b>weeknights</b>
+(<b>week</b> then <b>night</b>), not all ten, because <b>week</b>
+and <b>night</b> are both tried - and both succeed - before
+<b>wee</b> and <b>knights</b> are ever considered.</p>
 <p>Note that the quantifiers <b>{1,1}</b> and <b>{1,1}?</b> can be
 used to force longest and shortest preference, respectively, on a
 subexpression or a whole RE.</p>
-<p>Match lengths are measured in characters, not collating
-elements. An empty string is considered longer than no match at
+<p>Match lengths are measured in characters. An empty string is considered longer than no match at
 all. For example, <b>bb*</b> matches the three middle characters of
-'<b>abbbc</b>', <b>(week|wee)(night|knights)</b> matches all ten
-characters of '<b>weeknights</b>', when <b>(.*).*</b> is matched
+'<b>abbbc</b>', when <b>(.*).*</b> is matched
 against <b>abc</b> the parenthesized subexpression matches all
 three characters, and when <b>(a*)*</b> is matched against
 <b>bc</b> both the whole RE and the parenthesized subexpression

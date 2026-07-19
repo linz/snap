@@ -50,7 +50,7 @@
 
    type             id1              id2              Value
    CALC_DISTANCE    From station id  To station id    Slope distance
-   CALC_HDIST       From station id  To station id    Horizonal distance
+   CALC_HDIST       From station id  To station id    Horizontal distance
 
 */
 
@@ -131,7 +131,7 @@ void ldt_time( double time );
 void ldt_projection( int proj_id );
 void ldt_tgtstn( int stn_id, double ihgt );
 
-/* Initiallizes an observation */
+/* Initialises an observation */
 void ldt_nextdata( int type );
 void ldt_value( double *value );
 void ldt_error( double *error );

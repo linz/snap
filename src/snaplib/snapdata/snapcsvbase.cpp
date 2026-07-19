@@ -53,7 +53,7 @@ SnapCsvBase::~SnapCsvBase()
 {
 }
 
-void SnapCsvBase::initiallizeLoadDefinition()
+void SnapCsvBase::initialiseLoadDefinition()
 {
 }
 
@@ -70,7 +70,7 @@ void SnapCsvBase::loadDefinition()
         {
             _defstream = &rs;
             rs.setLeadingComment('!');
-            initiallizeLoadDefinition();
+            initialiseLoadDefinition();
             loadDefinition(rs);
             terminateLoadDefinition();
             _definitionLoaded = true;
@@ -260,7 +260,7 @@ bool SnapCsvBase::load(RecordInputBase &input)
         {
             reader.setColumnNames(_columns);
         }
-        initiallizeLoadData();
+        initialiseLoadData();
 
         while (reader.readRecord())
         {
@@ -285,7 +285,7 @@ bool SnapCsvBase::load(RecordInputBase &input)
     return true;
 }
 
-void SnapCsvBase::initiallizeLoadData()
+void SnapCsvBase::initialiseLoadData()
 {
 }
 

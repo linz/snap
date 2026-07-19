@@ -52,7 +52,7 @@ typedef struct
     double *val;    /* Value of non-zero element */
     int     ncol;   /* Number of non-zero elts */
     double  obsv;   /* The value of the observation */
-    double  schv;   /* Implicitely solved parameter */
+    double  schv;   /* Implicitly solved parameter */
     char    flag;   /* Flag for observations */
 }  obsrow;
 
@@ -80,7 +80,7 @@ void delete_oe( void *A );
 void init_oe( void *A, int nrow, int ncol, char options );
 
 
-/* Routines for initiallizing observation equations - mainly defined as
+/* Routines for initialising observation equations - mainly defined as
    macros for efficiency */
 
 #define oe_value( A, irow, v ) \

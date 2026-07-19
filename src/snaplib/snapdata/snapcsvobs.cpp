@@ -1189,7 +1189,7 @@ void SnapCsvObs::loadCoefDefinition(RecordStream &rs, CsvObservation &obs, int c
     loadValueDefinition(rs, *clsf);
 }
 
-void SnapCsvObs::initiallizeLoadData()
+void SnapCsvObs::initialiseLoadData()
 {
     _inset = false;
 }

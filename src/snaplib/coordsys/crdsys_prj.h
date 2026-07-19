@@ -32,7 +32,7 @@ struct projection_type_s
     param_def *params;  /* List of parameters */
     int nparams;
 
-    void *(*create)(   /* Function to allocate and initiallize the projection */
+    void *(*create)(   /* Function to allocate and initialise the projection */
         void );
 
     void (*destroy)(

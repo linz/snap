@@ -134,7 +134,7 @@ static double foot_point_lat( tmprojection *tm, double m )
 /*                                                                         */
 /*   tmgeod                                                                */
 /*                                                                         */
-/*   Routine to convert from Tranverse Mercator to latitude and longitude. */
+/*   Routine to convert from Transverse Mercator to latitude and longitude. */
 /*   Method based on Redfearn's formulation as expressed in GDA technical  */
 /*   manual at http://www.anzlic.org.au/icsm/gdatm/index.html              */
 /*                                                                         */

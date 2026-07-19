@@ -2,7 +2,7 @@
 
 /*  This module processes banded format lower trianglar matrices for
     storage of symmetric matrices in least squares problems.  The routines
-    provide for initiallization, allocation, Cholesky decomposition, and
+    provide for initialisation, allocation, Cholesky decomposition, and
     inversion of the matrix.  The inversion is not complete - only the
     banded components are inverted.
 
@@ -26,14 +26,14 @@
     the array, and a long integer is a pointer into the array of doubles
     to identify the beginning of the row.
 
-    The matrix is initiallized by creating the structure without the
+    The matrix is initialised by creating the structure without the
     array of doubles, but with a specified number of row.  Also the number
     of the first non-sparse row is provided.  Then non-zero rows and columns
     are registered to determine their extent of the banding.  When all
     requirements have been registered, the double array and the pointers
-    are initiallized.
+    are initialised.
 
-    The initiallized matrix may then be used for summing and solving
+    The initialised matrix may then be used for summing and solving
     equations, inverting, etc.
 
     Note: all references to rows and columns in the matrix are 0
@@ -328,7 +328,7 @@ void expand_bltmatrix_to_requested( bltmatrix *blt )
 
     if( ! blt  ) return;
 
-    /* If not initiallized, then there is nothing to do */
+    /* If not initialised, then there is nothing to do */
 
     if( blt->status == BLT_UNINIT || blt->status == BLT_ROWS ) return;
 
@@ -536,7 +536,7 @@ static void blt_load_col_cache( bltmatrix *blt, double *tmpcol, double *sumcol,
         dosum[i] = c0 = col0 < iget ? 0 : col0-iget;
         if( c0 >= nget ) continue;
 
-        /* Retrieve the cols and initiallize the summation */
+        /* Retrieve the cols and initialise the summation */
 
         {
             /* Pre-compute base pointers for row i to avoid recomputing the
@@ -793,7 +793,7 @@ int reload_bltmatrix( bltmatrix **pblt, FILE *b )
 
 // dump_bltmatrix/reload_bltmatrix (above) store only each row's populated
 // band. Each row starts with a `col` marker for that. That's the right
-// encoding for a banded matrix, like a Choleski decomposition.
+// encoding for a banded matrix, like a Cholesky decomposition.
 //
 // A fully dense matrix has no band to mark - every row starts at column
 // 0. A covariance matrix is generally dense after inversion.
@@ -1077,7 +1077,7 @@ int main(int argc, char *argv[] )
         }
         expand_bltmatrix_to_requested(blt);
 
-        fprintf(out,"\nExpanded choleski matrix\n");
+        fprintf(out,"\nExpanded Cholesky matrix\n");
         print_bltmatrix( out, blt, "%10.4lf", 0 );
         expanded = 1;
     }

@@ -177,7 +177,7 @@ int define_error_summary( const char *definition )
     return sts;
 }
 
-/* Initiallize a summary using a definition */
+/* Initialise a summary using a definition */
 
 static int init_summary( summary_def *sdf )
 {

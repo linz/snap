@@ -2,7 +2,7 @@
 /* loaddata.h: Routines to load observations into the structures defined
    in loaddata.h.
 
-   Handling of errors needs a lot of rationallizing ...
+   Handling of errors needs a lot of rationalising ...
 
    */
 
@@ -156,7 +156,7 @@ static int cvrtype;
 static double cvr_mmerr[9];
 // static double cvr_ppmerr[3];
 
-/* Initiallization and clean-up functions */
+/* Initialisation and clean-up functions */
 
 static coef_class_info coef_classes[] =
 {
@@ -515,7 +515,7 @@ static void check_data( void )
                     ldt_classification( idclass, reffrm_classification );
                 }
             }
-            // Cannot define via class, defined direclty
+            // Cannot define via class, defined directly
             else if( data.reffrm == ID_UNDEFINED )
             {
                 if( default_reffrm == ID_UNDEFINED )
@@ -813,7 +813,7 @@ void ldt_inststn( int stn_id, double ihgt )
 
     if( data.nobs ) ldt_end_data();
 
-    /* Initiallize data structure.
+    /* Initialise data structure.
 
        Note: data.file persists, everything else is reset */
 

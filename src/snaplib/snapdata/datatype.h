@@ -28,9 +28,9 @@
    LT = Latitude observation
    LN = Longitude observation
    PB = Projection bearing
-   OH = Othometric height
+   OH = Orthometric height
    EH = Ellipsoidal height
-   EP = Ellipoidal point obs
+   EP = Ellipsoidal point obs
 */
 
 enum

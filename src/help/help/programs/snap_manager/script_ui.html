@@ -21,7 +21,7 @@ that can be used in scripts.
 The functions 
 <a href="script_functions.html#func_Message">Message</a>, 
 <a href="script_functions.html#func_Ask">Ask</a>, 
-<a href="script_functions.html#func_GetOpenFilename">GetOpenFilename</a>, and
+<a href="script_functions.html#func_GetOpenFileName">GetOpenFileName</a>, and
 <a href="script_functions.html#func_GetSaveFileName">GetSaveFileName</a>
 also run standard dialog boxes providing user interface components.
 </p>
@@ -80,17 +80,20 @@ the menu item is selected</p>
 <p>The script can define dialog boxes to get input from the user.
 The syntax is</p>
 <pre class="Commandexample">
-dialog <i>title</i> <i>$variable</i> <i>buttons</i>
+dialog <i>title</i> [<i>$variable</i> [<i>buttons</i>]]
    <i>dialog_controls</i>
 end_dialog
 </pre>
 <p>The dialog will be displayed with the specified title and
-controls, and with an Ok and Cancel button. When the user exits the
-variable will be set to true if the user pressed Ok, or false if
-the user pressed cancel. The variable can be omitted .. in this
-case the script will exit if the user presses cancel. If buttons is
-specified it can be one of "none", "ok", "cancel", "ok+cancel". The
-default is "ok+cancel".</p>
+controls, and with an Ok and Cancel button. If <i>$variable</i> is
+given, it will be set to true if the user pressed Ok, or false if
+the user pressed cancel; <i>buttons</i> may then optionally be
+specified as one of "none", "ok", "cancel", "ok+cancel" (default
+"ok+cancel"). Only "none", "ok" and "cancel" are actually checked
+for; any other value, including a misspelling, silently falls back
+to the "ok+cancel" default with no error. If <i>$variable</i> is
+omitted, <i>buttons</i> cannot be specified, and the script will
+exit if the user presses cancel.</p>
 <p>Each dialog control defines an element that appears on the
 dialog, for example a text entry field, check box, or whatever.
 Most define a variable which will be used to populate the control
@@ -107,16 +110,27 @@ dialog.</p>
 <i>specification</i></p>
 <p class="Commanddescription">Defines a text field. The
 specification is optional and consists of a string organised as
-"width:height:validation", any part is optional. Width width of the
-text field in characters, height is the height (if more than one
-then the text box will accept multiple rows of text. Validation
-defines rules about data entry and is structured as
-~chars~regexp~message, where ~ is any character, chars is a list of
-valid characters that may be entered into the list box, regexp is a
-<a href="resyntax.html">regular expression</a> defining valid
-entries, and message is a message that will be displayed if the
-data entered is invalid. Alternatively validation can be just
-"readonly", to specify that data may not be edited.</p>
+"width:height:validation", where any part may be omitted. Width is
+the width of the text field in characters; height is the height (if
+more than one, the text box will accept multiple rows of text). The
+delimiter separating width, height and validation is not
+necessarily ":" - it is auto-detected as the first non-digit
+character found in the specification. This is typically the same
+character used as the delimiter within validation itself (see
+below), since width and height are always plain digits - but there
+is no way to escape this character if it needs to appear within
+width, height or validation.</p>
+<p class="Commanddescription">If validation is exactly "readonly",
+the field cannot be edited. Otherwise it is structured as
+~chars~regexp~message, where ~ is any character, auto-detected as
+described above (so it need not match the width/height delimiter).
+chars is a
+list of valid characters that may be entered into the text field (a
+hyphen between two characters, e.g. a-z, expands to the full
+range), regexp is a <a href="resyntax.html">regular expression</a>
+defining valid entries, and message is a message that will be
+displayed if the data entered is invalid, or "silent" to suppress
+the message and just reject the invalid entry silently.</p>
 <p class="Commanddefinition">listbox <i>$variable</i> <i>label</i>
 <i>valuelist</i> <i>options</i></p>
 <p class="Commanddescription">Creates a list box selector for

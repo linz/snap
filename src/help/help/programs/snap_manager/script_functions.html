@@ -37,7 +37,7 @@ When the program
 <p>
 <a href="#func_AppendFile">AppendFile</a>(<i>filename</i>,<i>text</i>)<br />
 <a href="#func_Ask">Ask</a>(<i>message</i>,<i>title</i>)<br />
-<a href="#func_BrowseFile">BrowseFile</a>(<i>message</i>,<i>filename/url</i>)<br />
+<a href="#func_BrowseFile">BrowseFile</a>(<i>filename/url</i>)<br />
 <a href="#func_ClearLog">ClearLog</a>()<br />
 <a href="#func_CopyFile">CopyFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
 <a href="#func_DeleteFile">DeleteFile</a>(<i>filename</i>)<br />
@@ -53,8 +53,8 @@ When the program
 <a href="#func_GetConfig">GetConfig</a>(<i>item</i>)<br />
 <a href="#func_GetDate">GetDate</a>(<i>format</i>)<br />
 <a href="#func_GetEnv">GetEnv</a>(<i>envvar</i>)<br />
-<a href="#func_GetOpenFilename">GetOpenFilename</a>(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)<br />
-<a href="#func_GetSaveFilename">GetSaveFilename</a>(<i>prompt</i>,<i>filter</i>)<br />
+<a href="#func_GetOpenFileName">GetOpenFileName</a>(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)<br />
+<a href="#func_GetSaveFileName">GetSaveFileName</a>(<i>prompt</i>,<i>filter</i>)<br />
 <a href="#func_GetValue">GetValue</a>(<i>variablename</i>)<br />
 <a href="#func_InsertPath">InsertPath</a>(<i>path</i>,<i>envvar</i>)<br />
 <a href="#func_LoadJob">LoadJob</a>(<i>jobfile</i>)<br />
@@ -63,14 +63,14 @@ When the program
 <a href="#func_LowerCase">LowerCase</a>( <i>string</i> )<br />
 <a href="#func_MakeDir">MakeDir</a>(<i>dirname</i>)<br />
 <a href="#func_Match">Match</a>(<i>string</i>,<i>regex</i>,<i>nMatch</i>)<br />
-<a href="#func_MatchGroups">MatchGroups</a>(<i>string</i>,<i>regex</i>)<br />
+<a href="#func_MatchGroups">MatchGroups</a>(<i>string</i>,<i>regex</i>,<i>global</i>)<br />
 <a href="#func_Message">Message</a>(<i>message</i>,<i>title</i>)<br />
 <a href="#func_ReadFile">ReadFile</a>(<i>filename</i>,<i>regex</i>,<i>count</i>)<br />
 <a href="#func_RemoveDir">RemoveDir</a>(<i>dirname</i>)<br />
 <a href="#func_RenameFile">RenameFile</a>(<i>from_filename</i>,<i>to_filename</i>)<br />
 <a href="#func_Replace">Replace</a>(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)<br />
 <a href="#func_Run">Run</a>(<i>program</i>,<i>parameter</i>,...)<br />
-<a href="#func_RunScript">RunScript</a>(<i>scriptfile</i>)<br />
+<a href="#func_RunScript">RunScript</a>(<i>scriptfile</i>,<i>basePath</i>)<br />
 <a href="#func_SetConfig">SetConfig</a>(<i>item</i>,<i>value</i>)<br />
 <a href="#func_SetEnv">SetEnv</a>(<i>envvar</i>,<i>envvalue</i>)<br />
 <a href="#func_SetExtension">SetExtension</a>(<i>filename</i>,<i>extension</i>)<br />
@@ -292,14 +292,14 @@ specified message and title. Always returns true.</p>
 specified message and title, and with Yes, No, and Cancel buttons.
 Returns true or false if the yes or no buttons are pressed, and
 aborts the script if Cancel is pressed.</p>
-<p class="Commanddefinition"><a name="func_GetOpenFilename"></a>GetOpenFilename(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)</p>
+<p class="Commanddefinition"><a name="func_GetOpenFileName"></a>GetOpenFileName(<i>prompt</i>,<i>filter</i>,<i>multiple</i>)</p>
 <p class="Commanddescription">Request the name of an existing file
 from the user. The prompt is used to title the dialog box, and the
 filter defines the files shown. The filter is formatted as "List
 files (*.lst)|*.lst|All files (*.*)|*.*". This will only return the
 name of an existing file. The multiple parameter is optional .. if
 true then the user can select more than one file.</p>
-<p class="Commanddefinition"><a name="func_GetSaveFilename"></a>GetSaveFilename(<i>prompt</i>,<i>filter</i>)</p>
+<p class="Commanddefinition"><a name="func_GetSaveFileName"></a>GetSaveFileName(<i>prompt</i>,<i>filter</i>)</p>
 <p class="Commanddescription">Request the name of file to save
 information to from the user. The prompt is used to title the
 dialog box, and the filter defines the files shown. The filter is
@@ -327,13 +327,19 @@ filename if it does. For example: FindJobFile("err")</p>
 specified directory separated by newline characters. If filespec is
 given then only the names matching that are returned.</p>
 <p class="Commanddefinition"><a name="func_Filename"></a>Filename(<i>filename</i>,<i>part</i>,<i>path</i>)</p>
-<p class="Commanddescription">Returns the specified part of a
-filename. Options for part are "path", "name", "extension",
-"fullname" (name + extension). Also "absolute" to make the name
-absolute in terms of the specified path (default current
-directory), and "relative" to make the name relative to the
-specified path. Note that when a job is opened the command file
-directory becomes the current directory.</p>
+<p class="Commanddescription">Returns the specified component of a
+filename. Options for part are: "absolute" (the filename made
+absolute against the path parameter, which defaults to the current
+directory), "relative" (the filename made relative to the path
+parameter, which defaults to the current directory), "fullname"
+(the filename with preceding path components stripped), "name" (as
+"fullname", excluding its extension, i.e. also removing the final
+"." delimited component), "extension" (the file extension, i.e.
+only the final "." delimited component, without the leading "."),
+"path" (the directory component of the filename, including a
+trailing separator), and "directory" (as "path", but without the
+trailing separator). Note that when a job is opened the command
+file directory becomes the current directory.</p>
 <p class="Commanddefinition"><a name="func_SetExtension"></a>SetExtension(<i>filename</i>,<i>extension</i>)</p>
 <p class="Commanddescription">Returns a filename based on a source
 file name but with a specified extension.</p>
@@ -358,7 +364,7 @@ false otherwise.</p>
 <p class="Commanddefinition"><a name="func_CopyFile"></a>CopyFile(<i>from_filename</i>,<i>to_filename</i>)</p>
 <p class="Commanddescription">Copies a file. If a file with the
 target name already exists then it will be replaced with the copied
-file. Returns true if the file is successfully renamed, false
+file. Returns true if the file is successfully copied, false
 otherwise.</p>
 <p class="Commanddefinition"><a name="func_TempFile"></a>TempFile()</p> <p class="Commanddescription">Creates and returns the name of a
 temporary file.</p>
@@ -375,9 +381,24 @@ file. If the file already exists then it will be overwritten.</p>
 <p class="Commanddefinition"><a name="func_AppendFile"></a>AppendFile(<i>filename</i>,<i>text</i>)</p>
 <p class="Commanddescription">Appends the specified text to the
 file. If the file does not exist then it will be created.</p>
-<p class="Commanddefinition"><a name="func_RunScript"></a>RunScript(<i>scriptfile</i>)</p> <p class="Commanddescription">Runs the script in the named file.
-The script should be in the scripts subdirectory of the SNAP
-program directory.</p>
+<p class="Commanddefinition"><a name="func_RunScript"></a>RunScript(<i>scriptfile</i>,<i>basePath</i>)</p>
+<p class="Commanddescription">Runs the script in the named file. A
+script file is written in the same language as snap_manager.cfg
+itself - any sequence of statements, expressions, variable
+assignments, function calls, user defined functions, or
+menu_item/dialog definitions is valid, run from the top of the
+file. There is no required entry point or particular structure.</p>
+<p class="Commanddescription">If scriptfile is a relative path, it
+is resolved relative to basePath - or, if basePath does not itself
+name a directory, relative to the directory of the file basePath
+names (for example, passing $script_file as basePath resolves
+scriptfile relative to the directory of the running script). If
+basePath is not given, scriptfile is looked up using the
+<a href="script.html#find_script">same</a> search snap_manager.cfg
+itself uses to find its own file.</p>
+<p class="Commanddescription">Returns true if scriptfile was found
+and successfully parsed and run. This does not reflect any value
+computed by the script itself, which is discarded.</p>
 <p class="Commanddefinition"><a name="func_Run"></a>Run(<i>program</i>,<i>parameter</i>,...)</p>
 <p class="Commanddescription">Runs a program with the specified
 parameters. Waits for the program to finish.  If only the program name is defined and it starts 
@@ -387,7 +408,7 @@ the name of a program.  For example:</p>
 Run("\"$_perlexe\" -q $options \"progdir/long program name.pl\"")
 </p>
 <p class="Commanddefinition"><a name="func_LogRun"></a>LogRun(<i>program</i>,<i>parameter</i>,...)</p>
-<p class="Commanddescription">Similer to the run() function, except
+<p class="Commanddescription">Similar to the run() function, except
 that output from the program is collected and returned by the
 function, rather than being displayed as it occurs.</p>
 <p class="Commanddefinition"><a name="func_Start"></a>Start(<i>program</i>,<i>parameter</i>,...)</p>
@@ -412,7 +433,7 @@ Returns an empty string if no such file is found.</i>
 <p class="Commanddescription">Returns the string converted to lower case.</p>
 
 <p class="Commanddefinition"><a name="func_UpperCase"></a>UpperCase(<i>string</i>)</p>
-<p class="Commanddescription">Returns the string converted to lower case.</p>
+<p class="Commanddescription">Returns the string converted to upper case.</p>
 
 <p class="Commanddefinition"><a name="func_SubString"></a>SubString(<i>string</i>,<i>start</i>,<i>length</i>)</p>
 <p class="Commanddescription">Returns a substring of the input string starting at the <i>start</i> character, where 
@@ -431,14 +452,22 @@ substring.</p>
 
 <p class="Commanddefinition"><a name="func_MatchGroups"></a>MatchGroups(<i>string</i>,<i>regex</i>,<i>global</i>)</p>
 <p class="Commanddescription">Returns a value for each match group
-in the 
-<a href="resyntax.html">regular expression</a> as it is matched in 
-the string. If the optional global parameter is true, then returns values
-for each match of the expression in the string, otherwise only returns values 
-from the first match of the expression with the string. For example:<br />
+in the
+<a href="resyntax.html">regular expression</a> as it is matched in
+the string. The optional global parameter defaults to false, returning
+values from only the first match of the expression with the string. If
+global is true, then values are returned for each match of the
+expression in the string. For example:<br />
 </p>
 <p class="Commandexample">
-$hour,$mins=MatchGroups($time,'^(\d+)\:(\d+)$'))
+$hour,$mins=MatchGroups($time,'^(\d+)\:(\d+)$')
+</p>
+<p class="Commanddescription">With <i>global</i> set to true, values are
+returned for every match in the string, not just the first. For
+example:<br />
+</p>
+<p class="Commandexample">
+$name1,$value1,$name2,$value2,$name3,$value3=MatchGroups("a=1 b=2 c=3",'(\w+)=(\d+)',true)
 </p>
 <p class="Commanddefinition"><a name="func_Replace"></a>Replace(<i>string</i>,<i>regex</i>,<i>replacement</i>,<i>max_replacements</i>)</p>
 <p class="Commanddescription">Returns the input string with each
@@ -453,10 +482,10 @@ that reference capture groups in the regular expressions - see
 its name. For example GetValue($varname) where $varname contains
 the name of a variable (eg "$snap_path")</p>
 
-<p class="Commanddefinition"><a name="func_GetEnv"></a>GetEnv(<i>envvar</i>)</p> <p class="Commanddescription">Returns the value of a windows
+<p class="Commanddefinition"><a name="func_GetEnv"></a>GetEnv(<i>envvar</i>)</p> <p class="Commanddescription">Returns the value of an
 environment variable.</p>
 
-<p class="Commanddefinition"><a name="func_SetEnv"></a>SetEnv(<i>envvar</i>,<i>envvalue</i>)</p> <p class="Commanddescription">Sets the value of a windows
+<p class="Commanddefinition"><a name="func_SetEnv"></a>SetEnv(<i>envvar</i>,<i>envvalue</i>)</p> <p class="Commanddescription">Sets the value of an
 environment variable <i>envvar</i> to the value <i>envvalue</i>, and returns the new value.</p>
 
 <p class="Commanddefinition"><a name="func_InsertPath"></a>InsertPath(<i>path</i>,<i>envvar</i>)</p> 
@@ -489,7 +518,7 @@ substitutions being made:</p>
 </tr>
 <tr>
 <td>%#m</td>
-<td>Number of month excluding leading 0</td>
+<td>Number of month excluding leading 0 (Windows only - no effect on Linux)</td>
 </tr>
 <tr>
 <td>%d</td>
@@ -497,7 +526,7 @@ substitutions being made:</p>
 </tr>
 <tr>
 <td>%#d</td>
-<td>Day of month excluding leading 0</td>
+<td>Day of month excluding leading 0 (Windows only - no effect on Linux)</td>
 </tr>
 <tr>
 <td>%H</td>
@@ -505,7 +534,7 @@ substitutions being made:</p>
 </tr>
 <tr>
 <td>%#H</td>
-<td>Hour excluding leading 0</td>
+<td>Hour excluding leading 0 (Windows only - no effect on Linux)</td>
 </tr>
 <tr>
 <td>%M</td>
@@ -513,10 +542,10 @@ substitutions being made:</p>
 </tr>
 <tr>
 <td>%#M</td>
-<td>Minute excluding leading 0</td>
+<td>Minute excluding leading 0 (Windows only - no effect on Linux)</td>
 </tr>
 <tr>
-<td>%s</td>
+<td>%S</td>
 <td>Two digit seconds including leading 0</td>
 </tr>
 <tr>

@@ -2,8 +2,8 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=Windows-1252">
-<meta name="keywords" content="snapplot, standardised residuals colours dialog">
-<title>The standardised residuals colours dialog</title>
+<meta name="keywords" content="snapplot, standardised residual colours dialog">
+<title>The standardised residual colours dialog</title>
 <link rel="stylesheet" type="text/css" href="../../css/snaphelp.css">
 </head>
 
@@ -11,13 +11,14 @@
 
 
 
-<h1><a name="snapplot"></a>The standardised residuals colours dialog</h1>
+<h1><a name="snapplot"></a>The standardised residual colours dialog</h1>
 
-<img class="RightImage" src="images/sp_dlg_stdres_pens.png" alt="Picture of standardised residuals colours dialog">
+<img class="RightImage" src="images/sp_dlg_stdres_pens.png" alt="Picture of standardised residual colours dialog">
 
 <p>
-The standardised residuals colours dialog is used to choose how observations are
-to be coloured based on standardised residuals.  
+The standardised residual colours dialog is used to choose how observations are
+to be coloured based on standardised residuals.  This dialog is accessed from the
+<span class="MenuItem">Observations | Colour coding | Residual</span> menu item.
 </p>
 <p>The residuals will be classified in equal 
 sized groups from 0 up to a maximum residual.  For example if the maximum
@@ -31,21 +32,28 @@ another group for residuals greater than the maximum.
 
 <tr>
 <td>Residuals to use</td>
-<td>Select whether observations are to be colorued according to the 
-a priori or aposteriori standardised residuals.
+<td>Select whether observations are to be coloured according to the
+apriori or aposteriori standardised residuals.
 </td>
 </tr>
 
 <tr>
 <td>Maximum residual class</td>
-<td>The maximum value of the standardised residual to use for 
-calculating classes.
+<td>The maximum value of the standardised residual to use for
+calculating classes. A negative value silently defaults to 1.0;
+values above 100 are capped at 100.0.
+</td>
 </tr>
 
+<!-- setup_ranges() in plotconn.cpp clamps ninterval<2 or >20 to 5, but the
+     dialog's own Apply() (dlg_pen_options.cpp) always caps values above 20
+     to 20 first, so only ninterval==1 can actually reach that fallback. -->
 <tr>
 <td>Number of classes</td>
 <td>The number of standardised residual classes (not including the
-class for values greater than the maximum)
+class for values greater than the maximum). Valid values are 2 to 20.
+Entering 1 does not produce a single class — it silently falls
+back to 5 classes instead.
 </td>
 </tr>
 

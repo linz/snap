@@ -17,7 +17,7 @@
 
 <p>Specifies the number of characters to allocate for station codes in the output listing.  The default is 5, or the length of the longest code, whichever is greater.</p>
 
-<p class="Commanddefinition">number</p><p class="Commanddescription">The number of columns used for printing station codes in the listing file.  The maximum is 10.</p>
+<p class="Commanddefinition">number</p><p class="Commanddescription">The number of columns used for printing station codes in the listing file.  This value will override the minimum column width (which defaults to 5).  SNAP will still use a wider column if needed to fit a longer station code, but never a narrower one than specified here.</p>
 
 
 

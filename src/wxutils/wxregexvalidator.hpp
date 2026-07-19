@@ -8,7 +8,7 @@
 // These are defined in a delimited string, in which the first character is the
 // delimiter, eg
 //
-// ~1234567890-~^\d\d\d-\d\d\d$~Input must be formated as ddd-ddd
+// ~1234567890-~^\d\d\d-\d\d\d$~Input must be formatted as ddd-ddd
 //
 // If the message is silent, then it fails silently
 

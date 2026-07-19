@@ -197,7 +197,7 @@ int main( int argc, char *argv[] )
         printf(" -e             set the height coordinate type to ellipsoidal\n");
         printf(" -o             set the height coordinate type to orthometric\n");
         printf(" -v             list the available vertical datums and exit\n");
-        printf(" -q             miminizes output comments\n");
+        printf(" -q             minimises output comments\n");
         printf("\nOnly one of -h, -g, -c -z can be selected.\n");
         printf("\nOnly one of -e and -o can be selected.\n");
         return 1;

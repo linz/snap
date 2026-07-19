@@ -165,7 +165,7 @@ void save_residual( int from, int to, int id, int type,
     rs.sres = sres;
     rs.note = note;
 
-    /* If we haven't initiallized yet - do so */
+    /* If we haven't initialised yet - do so */
 
     if( totalcount == 0 )
     {

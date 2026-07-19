@@ -1521,7 +1521,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
         {
             if( ra->logfile )
             {
-                fprintf(ra->logfile,"Control station %s has unrecognized order %s\n",
+                fprintf(ra->logfile,"Control station %s has unrecognised order %s\n",
                         st->Code, network_order( net, orderid ) );
             }
             nbadorder++;
@@ -1977,7 +1977,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
     p.order = find_order(p.ra->hsdc,name);
     if( p.order == -1 )
     {
-        send_config_error( cfg, INVALID_DATA, "Unrecognized order in limit_order command");
+        send_config_error( cfg, INVALID_DATA, "Unrecognised order in limit_order command");
         return OK;
     }
 
@@ -2230,7 +2230,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
     {
         char errmsg1[80];
         char errmsg2[MAX_FILENAME_LEN+80];
-        sprintf(errmsg1,"%d unrecognized stations in station configuration file",
+        sprintf(errmsg1,"%d unrecognised stations in station configuration file",
                 nbadstn);
         sprintf(errmsg2,"File %*s",MAX_FILENAME_LEN,filename);
         handle_error(INFO_ERROR,errmsg1,errmsg2);
@@ -2774,7 +2774,7 @@ int main( int argc, char *argv[] )
         printf("   -a            Base the highest order on the control station orders\n");
         printf("   -m mode       The mode for testing, 3d, horizontal, vertical, or auto (default)\n");
         printf("   -u filename   Updates the orders in the named coordinate file\n");
-        printf("   -s filename   Base name for seperate coordinate files for each order (no extension)\n");
+        printf("   -s filename   Base name for separate coordinate files for each order (no extension)\n");
         printf("   -c filename   Output results in a csv file\n");
         /* printf("   -d filename   Output calculation debug csv file\n"); - hidden option */
         printf("   -k            Use KD-tree spatial index to potentially accelerate inter-station distance calculations (requires range limits in config file)\n");

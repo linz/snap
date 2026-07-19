@@ -157,7 +157,7 @@ typedef struct
 /* Types of fixes that are done in order of priority.  Stations are fixed
    in order depending upon the priority of the best fix available
    for each station.  Some types of fixes have a quality measure
-   associated with them. Selection of staiton is based upon product
+   associated with them. Selection of station is based upon product
    of type and quality.  Quality runs from 0 to 1 */
 
 
@@ -643,7 +643,7 @@ static void add_azdata( stn *from, stn *to, double az, int *ro_id, double *ro_co
             diff = fabs(diff);
             if( diff > AZ_TOL )
             {
-                fprintf(errlog,"From %s to %s: Angle/azimuth discrepency of %.2f deg\n",
+                fprintf(errlog,"From %s to %s: Angle/azimuth discrepancy of %.2f deg\n",
                         from->code, to->code, diff*RTOD );
                 errcount++;
             }

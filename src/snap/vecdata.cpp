@@ -80,7 +80,7 @@ int vecdata_obseq( survdata  *v, void *hA, int nextra )
     int gxprmrow[3];
     double gxprmval[3];
 
-    /* Initiallize the observation equations for two station plus up to 7
+    /* Initialise the observation equations for two station plus up to 7
        ref_frame parameters plus a possible reference frame scale error 
        plus 3 gx translation params */
 
