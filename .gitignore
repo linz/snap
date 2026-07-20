@@ -22,6 +22,8 @@ makefile.inc
 /wxWidgets/
 /backup/
 src/snap_manager/scriptimp_parse.cpp
+src/help/help/index.html
+src/help/help/js/wordindex.js
 src/VERSIONID
 /example_jobs/
 *.orig

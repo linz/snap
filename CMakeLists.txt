@@ -102,6 +102,10 @@ else()
 endif()
 find_package(Threads REQUIRED)
 
+# Needed by the custom command in src/CMakeLists.txt that runs build_help.py
+# to generate src/help/help/index.html and js/wordindex.js at build time.
+find_package(Python3 COMPONENTS Interpreter REQUIRED)
+
 option(SNAP_BUILD_GUI
     "Build wxWidgets GUI targets (snap_manager, snapadjust, snapplot)" ON)
 if(SNAP_BUILD_GUI)
