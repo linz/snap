@@ -1,5 +1,6 @@
 var wordindex=null;
 var ready=false;
+var pendingClickedLink=null;
 
 function closeContentsLevel( item )
 {
@@ -30,21 +31,157 @@ function helpRootRelativeUrl( absoluteUrl )
     return absoluteUrl.startsWith(base) ? absoluteUrl.substring(base.length) : absoluteUrl;
 }
 
-function highlightPage( url )
+function renderBreadcrumbs( levels )
 {
-    $(".contents-item").removeClass("selected");
-    $(".contents-item a").each(function(){
-        if( $(this).attr("href") == url )
+    let bar=$("#breadcrumbs");
+    bar.empty();
+    levels.forEach(function(level,i){
+        if( i > 0 ) bar.append($("<span>").addClass("breadcrumb-sep").text("/"));
+        let item=level.children(".contents-item").first();
+        let link=item.children("a").first();
+        let label=item.text().trim();
+        let isCurrent=(i == levels.length-1);
+        if( link.length && ! isCurrent )
         {
-            $(this).closest(".contents-item").addClass("selected");
-            $(this).parents(".contents-level").each(function(){openContentsLevel($(this));});
+            let href=link.attr("href");
+            let crumb=$("<a>").addClass("breadcrumb-item").attr("href",href).text(label);
+            crumb.click(function(event){
+                event.preventDefault();
+                event.stopPropagation();
+                setPage(href,link);
+                return false;
+            });
+            bar.append(crumb);
+        }
+        else
+        {
+            bar.append($("<span>").addClass("breadcrumb-item").text(label));
         }
     });
 }
 
-function setPage( url )
+function highlightPage( url )
 {
+    // Some pages are linked from more than one place in the tree (eg the
+    // alphabetic command list links to the same page under several command
+    // names). pendingClickedLink - set by setPage() when the caller knows
+    // exactly which sidebar/breadcrumb link was activated - disambiguates
+    // those; navigation with no such origin (in-page content links, search
+    // results, back/forward, initial load) falls back to the first match,
+    // so highlighting and the breadcrumb trail always agree on one entry.
+    $(".contents-item").removeClass("selected");
+    $("#breadcrumbs").empty();
+    let link=pendingClickedLink;
+    pendingClickedLink=null;
+    if( ! link || link.attr("href") != url )
+    {
+        link=$(".contents-item a").filter(function(){ return $(this).attr("href")==url; }).first();
+    }
+    if( link && link.length )
+    {
+        link.closest(".contents-item").addClass("selected");
+        let levels=[];
+        link.parents(".contents-level").each(function(){
+            openContentsLevel($(this));
+            levels.unshift($(this));
+        });
+        renderBreadcrumbs(levels);
+    }
+}
+
+function setPage( url, link )
+{
+    pendingClickedLink=link || null;
     $('#help-page').attr("src",url);
+}
+
+function contentsItemRightEdge( item )
+{
+    let link=item.children("a").first();
+    if( link.length ) return link.get(0).getBoundingClientRect().right;
+    // A plain-text (non-link) item - eg a grouping label like "Dialog boxes" -
+    // has no inline element of its own to measure; the wrapping div is a block
+    // stretched to fill #contents, so measure the text node itself via a Range.
+    for( let child of item.get(0).childNodes )
+    {
+        if( child.nodeType===3 && child.textContent.trim() )
+        {
+            let range=document.createRange();
+            range.selectNodeContents(child);
+            return range.getBoundingClientRect().right;
+        }
+    }
+    return item.get(0).getBoundingClientRect().left;
+}
+
+function fitSidebarToContent()
+{
+    // Measure against the whole tree, not just whatever happens to be expanded
+    // right now - otherwise expanding any collapsed branch afterward would
+    // immediately be too wide again, needing a second double-click. Collapsed
+    // levels have no layout box at all (display:none), so force them all open
+    // just long enough to measure, then restore the original state - this all
+    // happens synchronously, before the browser's next paint, so it's not
+    // visible to the user.
+    let menu=$("#menu");
+    let closedLevels=$(".contents-level.closed");
+    closedLevels.removeClass("closed");
+    let menuLeft=menu.offset().left;
+    let maxRight=menuLeft;
+    $(".contents-item").each(function(){
+        let right=contentsItemRightEdge($(this));
+        if( right>maxRight ) maxRight=right;
+    });
+    closedLevels.addClass("closed");
+    if( maxRight>menuLeft ) menu.width(maxRight-menuLeft+15);
+}
+
+function installResizeHandle()
+{
+    let menu=$("#menu");
+    $("#resize-handle").on("dblclick",function(event){
+        event.preventDefault();
+        fitSidebarToContent();
+    });
+    $("#resize-handle").on("mousedown",function(event){
+        event.preventDefault();
+        // Defensively clear any handlers/overlay left over from an earlier
+        // cycle that didn't clean up - otherwise a stale overlay can sit on
+        // top of the divider indefinitely, silently blocking every later
+        // click/drag until the page is reloaded.
+        endResize();
+        // The overlay (see below) must only appear once an actual drag starts,
+        // not on mousedown itself - a plain click has no movement in between,
+        // and if the overlay already existed at mouseup it would be the click's
+        // resolved target instead of #resize-handle, breaking click/dblclick.
+        let overlay=null;
+        $(document).on("mousemove.resize",function(event){
+            if( ! overlay )
+            {
+                $("body").addClass("resizing");
+                // The iframe is a separate document, so it never sees mousemove/
+                // mouseup dispatched to this one - a same-document overlay on
+                // top of it (rather than eg disabling the iframe's pointer-
+                // events) keeps every drag event reaching our own handlers, and
+                // leaves the iframe itself untouched so it doesn't need any
+                // hover/hit-test state restored once the drag ends. It also
+                // gets its own mouseup handler as a redundant safety net: if
+                // this document-level one somehow doesn't fire, the overlay -
+                // being whatever the mouseup actually lands on - still can.
+                overlay=$("<div>").attr("id","resize-overlay").appendTo("body");
+                overlay.on("mouseup",endResize);
+            }
+            menu.width(event.pageX-menu.offset().left);
+        });
+        $(document).on("mouseup.resize",endResize);
+    });
+}
+
+function endResize()
+{
+    $(document).off(".resize");
+    $("#resize-overlay").off("mouseup").remove();
+    $("body").removeClass("resizing");
 }
 
 function installContents()
@@ -68,7 +205,7 @@ function installContents()
         $(this).click(function(){ //event){
             // event.preventDefault();
             // event.stopPropagation();
-            setPage(target);
+            setPage(target,link);
             openContentsLevel(level);
             return false;
         });
@@ -107,7 +244,7 @@ function contextKeyEvent( event )
             let link = selected.find('a').first();
             if( link.length )
             {
-                setPage(link.attr('href'));
+                setPage(link.attr('href'),link);
             }
             break;
         case "Left":
@@ -267,6 +404,10 @@ function lookupWords()
                     search.prop('selectionStart',index+word.length-prefixlen);
                     search.prop('selectionEnd',index+word.length-prefixlen);
                     wordlist.empty();
+                    // Match what pressing Enter on a selected word does - fill
+                    // it in and immediately search, rather than leaving the
+                    // mouse and keyboard paths with different behaviour.
+                    doSearch();
                 }
             })
             wordlist.append(suggestion);
@@ -373,6 +514,7 @@ function setup()
     });
     $('#show-contents-button').click();
     installContents();
+    installResizeHandle();
     let url= window.location.search ? window.location.search.substring(1) : $('.contents-item a').first().attr("href");
     setPage(url);
     $(window).on("message",function(e){

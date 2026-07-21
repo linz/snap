@@ -17,6 +17,7 @@ INDEX_PLURAL_ENDINGS = [
 TEMPLATE="""
 <html>
 <head>
+<meta charset="utf-8">
 <title><!--TITLE--></title>
 <link rel="icon" href="favicon.ico">
 <link rel="stylesheet" href="css/helpapp.css">
@@ -33,7 +34,9 @@ TEMPLATE="""
 </div>
 <div id="search"></div></div>
 </div>
+<div id="resize-handle"></div>
 <div id="page-content" class="frame">
+<div id="breadcrumbs"></div>
 <iframe id="help-page"></iframe>
 </div>
 </div>
@@ -151,7 +154,7 @@ def writeContentsItem(th, item):
     if href:
         th.write(f'<div class="contents-item"><a href="{href}">{html.escape(label)}</a></div>\n')
     else:
-        th.write(f'<div class="contents-item">{label}</div>\n')
+        th.write(f'<div class="contents-item contents-group">{label}</div>\n')
     for subitem in subitems:
         writeContentsItem(th, subitem)
     th.write("</div>\n")
