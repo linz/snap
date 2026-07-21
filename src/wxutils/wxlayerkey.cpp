@@ -8,6 +8,7 @@
 #include "wxlayerkey.hpp"
 #include "wxsimpleevent.hpp"
 #include "wxpalettepopup.hpp"
+#include <wx/renderer.h>
 
 DEFINE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED)
 
@@ -108,6 +109,13 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
     {
         LayerSymbology &sym = symkey->GetLayer( row );
 
+        if( col == 1 && sym.IsControlCheckbox() ) {
+            const int flags = sym.IsMixedRowStatus() ? wxCONTROL_UNDETERMINED :
+                               sym.Status() ? wxCONTROL_CHECKED : wxCONTROL_NONE;
+            wxRendererNative::Get().DrawCheckBox( &grid, dc, rect, flags );
+            return;
+        }
+
         const wxBitmap *bmp = 0;
         if( col  == 0 && sym.HasColour() )
         {
@@ -159,12 +167,16 @@ BEGIN_EVENT_TABLE(wxLayerKey, wxGrid)
     EVT_GRID_CELL_LEFT_CLICK( wxLayerKey::OnLeftClick )
 END_EVENT_TABLE()
 
-wxLayerKey::wxLayerKey()
+wxLayerKey::wxLayerKey() :
+    masterRow(-1),
+    masterLastChild(-1)
 {
 }
 
 wxLayerKey::wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos, const wxSize& size ) :
-    wxGrid( parent, id, pos, size )
+    wxGrid( parent, id, pos, size ),
+    masterRow(-1),
+    masterLastChild(-1)
 {
     long style = GetWindowStyleFlag();
     style &= ! wxHSCROLL;
@@ -199,6 +211,9 @@ void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
     // rendering
 
     if( GetNumberRows() > 0 ) DeleteRows( 0, GetNumberRows() );
+
+    masterRow = -1;
+    masterLastChild = -1;
 
     if( symbologyKey->LayerCount() > 0 )
     {
@@ -240,6 +255,24 @@ void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
         AutoSizeColumns();
         SetColSize( 0, symbologyKey->PaletteBitmapSize() + 6 );
         SetColSize( 1, wxBitmapGridRenderer::TickBitmapSize() + 6 );
+
+        // Locate the (at most one) control checkbox row and the range of ordinary
+        // status rows it controls, once here rather than on every click.
+        for( int i = 0; i < symbologyKey->LayerCount(); i++ ) {
+            LayerSymbology &sym = symbologyKey->GetLayer( i );
+            if( sym.IsControlCheckbox() ) {
+                masterRow = i;
+                masterLastChild = i;
+                continue;
+            }
+            if( masterRow < 0 ) {
+                continue;
+            }
+            if( ! sym.HasStatus() ) {
+                break;
+            }
+            masterLastChild = i;
+        }
     }
 }
 
@@ -267,14 +300,38 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
             }
         }
     }
-    else if( event.GetCol() == 1 )
-    {
-        LayerSymbology &sym = symbologyKey->GetLayer( event.GetRow() );
-        if( sym.HasStatus() )
-        {
+    else if( event.GetCol() == 1 ) {
+        const int row = event.GetRow();
+        LayerSymbology &sym = symbologyKey->GetLayer( row );
+        if( row == masterRow ) {
+            // Clicking the master control while it's indeterminate or unchecked
+            // selects every child row below it; clicking it while checked deselects
+            // them all. The master itself can never end up indeterminate directly
+            // from its own click - only from an individual child edit.
+            const bool checkAll = sym.IsMixedRowStatus() || ! sym.Status();
+            for( int i = masterRow+1; i <= masterLastChild; i++ ) {
+                symbologyKey->GetLayer( i ).SetStatus( checkAll );
+            }
+            sym.SetStatus( checkAll );
+            sym.SetMixedRowStatus( false );
+            wxGridCellCoords topLeft( masterRow, event.GetCol() );
+            wxGridCellCoords bottomRight( masterLastChild, event.GetCol() );
+            RefreshRect( BlockToDeviceRect( topLeft, bottomRight ) );
+            FireSymbologyChangedEvent();
+        } else if( sym.HasStatus() ) {
             sym.SetStatus( ! sym.Status() );
-            wxGridCellCoords cell( event.GetRow(), event.GetCol() );
+            wxGridCellCoords cell( row, event.GetCol() );
             RefreshRect( BlockToDeviceRect( cell, cell) );
+            // Any time a single child row is clicked, the master control turns
+            // indeterminate to show its children no longer agree, no matter which
+            // way that child was toggled or what state the master was in before.
+            // It stays indeterminate until the user clicks the master control
+            // directly.
+            if( masterRow >= 0 && row > masterRow && row <= masterLastChild ) {
+                symbologyKey->GetLayer( masterRow ).SetMixedRowStatus( true );
+                wxGridCellCoords masterCell( masterRow, event.GetCol() );
+                RefreshRect( BlockToDeviceRect( masterCell, masterCell ) );
+            }
             FireSymbologyChangedEvent();
         }
     }

@@ -103,7 +103,7 @@ class LayerSymbology : public SymbologyBase
 public:
     enum Type { label = 0, hasColour = 1, hasStatus = 2, hasColourAndStatus = 3 };
 
-    LayerSymbology( wxString name, int type, int colourId, bool show );
+    LayerSymbology( wxString name, int type, int colourId, bool show, bool isControlCheckbox = false );
     int Type() const;
     int ColourId() const;
     void SetColourId( int newColourId );
@@ -112,10 +112,20 @@ public:
     void SetStatus( bool newStatus );
     bool HasColour() const;
     bool HasStatus() const;
+    bool IsControlCheckbox() const;
+    bool IsMixedRowStatus() const;
+    void SetMixedRowStatus( bool newMixedRowStatus );
 private:
     int type;
     int colourId;
     bool show;
+    // true if this row's checkbox controls a following range of
+    // other rows' status, instead of its own
+    bool isControlCheckbox;
+    // when isControlCheckbox, true forces this row's checkbox glyph
+    // indeterminate, overriding the checked/unchecked mark show would
+    // otherwise draw; else unused
+    bool mixedRowStatus;
 };
 
 
@@ -208,7 +218,7 @@ public:
     ColourPalette *GetPalette() { return &palette ; }
     void InitialisePalette( const ColourPalette &basepalette );
 
-    int AddLayer( wxString name, int type, const wxColour &colour, bool display = true );
+    int AddLayer( wxString name, int type, const wxColour &colour, bool display = true, bool isControlCheckbox = false );
     void AddTitle(wxString name);
     void AddSpacer();
     int LayerCount() const;

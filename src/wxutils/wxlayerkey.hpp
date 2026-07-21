@@ -30,6 +30,12 @@ private:
     Symbology *symbologyKey;
     void FireSymbologyChangedEvent();
 
+    // Row holding the active control checkbox, or -1 if the current symbology has none.
+    // Recomputed by SetSymbology(), not on every click.
+    int masterRow;
+    // Last row controlled by masterRow (inclusive). Meaningless if masterRow < 0.
+    int masterLastChild;
+
     DECLARE_DYNAMIC_CLASS( wxLayerKey );
     DECLARE_EVENT_TABLE();
 

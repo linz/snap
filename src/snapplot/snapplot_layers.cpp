@@ -55,6 +55,9 @@ struct layer_s
     bool need_vrt;
     bool need_cvr;
     int lyr_id;
+    // true if this row's checkbox is to control a following range of
+    // other rows' status, instead of its own
+    bool is_control_checkbox = false;
 };
 
 static layer_s *station_user_layers = 0;
@@ -254,6 +257,7 @@ static void init_layer( layer_s *l, const char *name, const char *colour, bool t
     l->need_vrt = false;
     l->need_cvr = false;
     l->lyr_id = -1;
+    l->is_control_checkbox = false;
 }
 
 static void set_station_layer_colourflag( bool on )
@@ -291,25 +295,37 @@ static void setup_station_class_layers( int class_id )
 static void setup_data_type_layers()
 {
     if( data_type_layers ) return;
-    data_type_layers = (layer_s *) check_malloc( sizeof(layer_s) * (NOBSTYPE + 1) );
+    // NOBSTYPE data rows + 1 header/control-checkbox row (index 0) + 1 terminator (name=0)
+    data_type_layers = (layer_s *) check_malloc( sizeof(layer_s) * (NOBSTYPE + 2) );
+    layer_s *l = &(data_type_layers[0]);
+    init_layer(l,"Data type",dflt_data_colour,true);
+    l->opt_id = OTHER_OPT;
+    l->is_control_checkbox = true;
     for( int itype = 0; itype<NOBSTYPE; itype++ )
     {
-        layer_s *l = &(data_type_layers[itype]);
+        // itype+1 into data_type_layers to skip the header row; datatype[]/obstypecount[]
+        // have no header row of their own, so they stay indexed by the plain itype
+        l = &(data_type_layers[itype+1]);
         init_layer(l,datatype[itype].name,dflt_data_colour, 0 );
         if( obstypecount[itype] == 0 ) l->pen_id = UNUSED_LAYER_PEN_ID;
     }
-    data_type_layers[NOBSTYPE].name = 0;
+    data_type_layers[NOBSTYPE+1].name = 0;
 }
 
 static void set_datatype_layer_colourflag( bool on )
 {
     setup_data_type_layers();
     if( ! data_type_layers ) return;
+    // on means "Data type" is the active colour-coding mode: show the header row
+    // with its control checkbox. Otherwise (Data file/Residual/Redundancy active
+    // instead) drop the header row entirely, as before this feature existed.
+    data_type_layers[0].pen_id = on ? UNUSED_PEN_ID : UNUSED_LAYER_PEN_ID;
     for( int i = 0; i < NOBSTYPE; i++ )
     {
-        if( data_type_layers[i].pen_id != UNUSED_LAYER_PEN_ID )
+        // i+1 to skip the header row added at index 0
+        if( data_type_layers[i+1].pen_id != UNUSED_LAYER_PEN_ID )
         {
-            data_type_layers[i].pen_id = on ? OTHER_PEN : UNUSED_PEN_ID;
+            data_type_layers[i+1].pen_id = on ? OTHER_PEN : UNUSED_PEN_ID;
         }
     }
 }
@@ -324,6 +340,8 @@ void setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
     data_user_layers = (layer_s *) check_malloc( sizeof(layer_s) * (ndatapens+2) );
     layer_s *l = &(data_user_layers[0]);
     init_layer(l,header,dflt_data_colour,true);
+    l->opt_id = OTHER_OPT;
+    l->is_control_checkbox = true;
     for( int i = 0; i < ndatapens; i++ )
     {
         l = &(data_user_layers[i+1]);
@@ -378,7 +396,7 @@ static void add_layer_to_symbology( Symbology *symbology, layer_s *l, Symbology 
     wxColour colour = wxColour( l->dfltColour );
     bool display = true;
 
-    l->lyr_id = symbology->AddLayer( l->name, type, colour, display );
+    l->lyr_id = symbology->AddLayer( l->name, type, colour, display, l->is_control_checkbox );
     if( oldSymbology && oldid >= 0 ) copy_layer( symbology, l->lyr_id, oldSymbology, oldid );
 
     if( l->pen_id >= 0 ) basepenid[l->pen_id] = l->lyr_id;
@@ -644,7 +662,8 @@ int data_pen( int dpen )
     }
     else
     {
-        lyr_id = data_type_layers[dpen].lyr_id;
+        // dpen+1 to account for header layer..
+        lyr_id = data_type_layers[dpen+1].lyr_id;
     }
     return lyr_id;
 }
@@ -659,7 +678,8 @@ int pen_selected( int pen )
 int datatype_selected( int datatype )
 {
     int lyrid;
-    lyrid = data_type_layers[datatype].lyr_id;
+    // datatype+1 to account for header layer..
+    lyrid = data_type_layers[datatype+1].lyr_id;
     return pen_selected( lyrid );
 }
 
