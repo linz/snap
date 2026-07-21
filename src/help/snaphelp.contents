@@ -86,6 +86,7 @@
   3	horizontal_float_error	files/cmdcfg/cmd_horizontal_float_error.html
   3	ignore	files/cmdcfg/cmd_reject.html
   3	ignore_missing_stations	files/cmdcfg/cmd_ignore_missing_stations.html
+  3	ignore_observations	files/cmdcfg/cmd_ignore_observations.html
   3	include	files/cmdcfg/cmd_include.html
   3	list	files/cmdcfg/cmd_list.html
   3	magic_number	files/cmdcfg/cmd_magic_number.html
@@ -96,6 +97,7 @@
   3	mode	files/cmdcfg/cmd_mode.html
   3	number_of_worst_residuals	files/cmdcfg/cmd_number_of_worst_residuals.html
   3	output	files/cmdcfg/cmd_output.html
+  3	output_coordinate_file	files/cmdcfg/cmd_output_coordinate_file.html
   3	output_csv	files/cmdcfg/cmd_output_csv.html
   3	output_precision	files/cmdcfg/cmd_output_precision.html
   3	plot	files/cmdcfg/cmd_plot.html
@@ -107,7 +109,9 @@
   3	reference_frame_scale_error	files/cmdcfg/cmd_additional_parameter_commands.html
   3	refraction_coefficient	files/cmdcfg/cmd_additional_parameter_commands.html
   3	reject	files/cmdcfg/cmd_reject.html
+  3	reject_observations	files/cmdcfg/cmd_reject_observations.html
   3	reorder_stations	files/cmdcfg/cmd_reorder_stations.html
+  3	reweight_observations	files/cmdcfg/cmd_reweight_observations.html
   3	set_observation_option	files/cmdcfg/cmd_set_observation_option.html
   3	sort_observations	files/cmdcfg/cmd_sort_observations.html
   3	spec_test_options	files/cmdcfg/cmd_spec_test_options.html
@@ -120,6 +124,7 @@
   3	title	files/cmdcfg/cmd_title.html
   3	topocentre	files/cmdcfg/cmd_topocentre.html
   3	use_distance_ratios	files/cmdcfg/cmd_use_distance_ratios.html
+  3	use_zero_inverse	files/cmdcfg/cmd_use_zero_inverse.html
   3	vertical_float_error	files/cmdcfg/cmd_vertical_float_error.html
 1	Station coordinate file	files/crd/index.html
  2	Station codes	files/crd/stn_code.html
