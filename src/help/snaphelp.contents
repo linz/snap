@@ -196,6 +196,7 @@
    4	New Zealand Map Grid definition format	coordsys/crdsys_nzmg.html
    4	Polar Stereographic projection definition format	coordsys/crdsys_ps.html
    4	Transverse Mercator projection definition format	coordsys/crdsys_tm.html
+  3	Vertical datum definition format	coordsys/crdsys_hgtref_def.html
   3	Coordinate system notes format	coordsys/crdsys_file_notes.html
  2	Standard coordinate systems provided with concord	coordsys/crdsys_standard_list.html
  2	Geoid grid files	coordsys/geoid.html
@@ -213,4 +214,5 @@
  2	Vertical adjustments	programs/snap/snap_proc_vertical.html
  2	Testing accuracy specifications	programs/snap/snap_proc_accspec.html
 1	Files used by SNAP	files/index.html
+ 2	File formats	files/file_formats.html
 1	Change log	general/changelog.html
