@@ -1,37 +1,46 @@
 body {
-	font-family: Verdana, Arial, Helvetica, sans-serif;
-        font-size: 10pt;
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        font-size: 14px;
+        line-height: 1.5;
+        color: #1f2328;
 }
 
 h1 {
-        color: #000055;
-        font-size: 14;
-	font-weight: bold;
-	border-width: 1px;
-	border-style: solid;
-	border-color: black;
-	background-color: #DDDDFF;
-	padding: 5px;
+        color: #1f2328;
+        font-size: 22px;
+	font-weight: 600;
+	border-width: 0;
+	border-bottom: 1px solid #d8dee4;
+	padding: 0 0 8px 0;
 }
 
 h2 {
         margin-top: 2em;
         margin-bottom: 1em;
-        color: #000055;
-        font-size: 12;
-	font-weight: bold;
+        color: #1f2328;
+        font-size: 17px;
+	font-weight: 600;
 }
 
 h3 {
         margin-top: 1em;
         margin-bottom: 1em;
-        color: #000055;
-        font-size: 12;
+        color: #1f2328;
+        font-size: 15px;
+        font-weight: 600;
 }
 
 
 a {
-	color: #000055;
+	color: #0969da;
+        text-decoration: none;
+}
+
+a:visited {
+        color: #8250df;
+}
+
+a:hover {
         text-decoration: underline;
 }
 
@@ -93,13 +102,13 @@ ul.Commanddescription
 }
 
 
-p.alert 
+p.alert
 {
-        color: #000000;
+        color: #1f2328;
 	border-width: 1px;
 	border-style: solid;
-	border-color: #FFEE00;
-	background-color: #FFFFCC;
+	border-color: #d4a72c;
+	background-color: #fff8c5;
 	padding: 5px;
 }
 
@@ -159,7 +168,7 @@ p.Listingtail,
 	white-space: pre-line;
 	font-family: monospace;
 	font-size: 80%;
-	background-color: #FFFFAA;
+	background-color: #f6f8fa;
 	margin-top: 0;
 	margin-bottom: 0;
 }
@@ -169,7 +178,7 @@ pre.ConfigFile
 {
 	font-family: monospace;
 	font-size: 80%;
-	background-color: #FFFFAA;
+	background-color: #f6f8fa;
 	margin-top: 10px;
 	margin-bottom: 10px;
 }
@@ -182,13 +191,14 @@ pre.Listing span.UserInput
 span.MenuItem
 {
 	white-space: nowrap;
-	background-color: #CCCCCC;
+	background-color: #eaeef2;
 }
 
 img
 {
 	border-width: 1px;
 	border-style: solid;
+	border-color: #d8dee4;
 }
 
 img.RightImage

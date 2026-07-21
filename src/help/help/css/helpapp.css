@@ -1,9 +1,15 @@
+*, *::before, *::after
+{
+    box-sizing: border-box;
+}
+
 body
 {
     width: 100%;
     height: 100%;
     margin: 0;
-    font-family:Arial, Helvetica, sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1f2328;
 }
 
 .container
@@ -18,9 +24,44 @@ body
     flex: 0 1 auto;
     height: 100%;
     width: 20em;
-    resize: horizontal;
     overflow: hidden;
     min-width: 10em;
+    max-width: 80%;
+    display: flex;
+    flex-flow: column;
+}
+
+.menu_area
+{
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+#resize-handle
+{
+    flex: 0 0 6px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: #d8dee4;
+}
+
+#resize-handle:hover, body.resizing #resize-handle
+{
+    background-color: #8c959f;
+}
+
+body.resizing
+{
+    cursor: col-resize;
+    user-select: none;
+}
+
+#resize-overlay
+{
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    cursor: col-resize;
 }
 
 #contents
@@ -36,12 +77,43 @@ body
 {
     flex: 1 1 auto;
     overflow: hidden;
+    display: flex;
+    flex-flow: column;
+}
+
+#breadcrumbs
+{
+    flex: 0 0 auto;
+    padding: 6px 10px;
+    font-size: 90%;
+    color: #57606a;
+    border-bottom: 1px solid #d8dee4;
+    white-space: nowrap;
+    overflow-x: auto;
+}
+
+.breadcrumb-sep
+{
+    margin: 0 5px;
+    color: #8c959f;
+}
+
+a.breadcrumb-item
+{
+    color: #0969da;
+    text-decoration: none;
+}
+
+a.breadcrumb-item:hover
+{
+    text-decoration: underline;
 }
 
 #help-page
 {
-    height: 100%;
+    flex: 1 1 auto;
     width: 100%;
+    border: none;
 }
 
 div.contents-level
@@ -64,52 +136,95 @@ div.contents-item
     width: 14px;
     height: 14px;
     display: inline-block;
+    text-align: center;
 }
 
-.contents-level.has-contents > .contents-item > .contents-level-toggle
+.contents-level.has-contents > .contents-item > .contents-level-toggle::before
 {
-    background-image: url("open.png");
-    background-size: 12px 12px;
-    background-repeat: no-repeat;
+    content: "\25b6";
+    display: inline-block;
+    font-size: 9px;
+    line-height: 14px;
+    color: #6e7781;
+    transform: rotate(90deg);
+    transition: transform 0.1s ease;
 }
 
-
-.contents-level.has-contents.closed > .contents-item > .contents-level-toggle
+.contents-level.has-contents.closed > .contents-item > .contents-level-toggle::before
 {
-    background-image: url("closed.png");
-    background-size: 12px 12px;
-    background-repeat: no-repeat;
+    transform: rotate(0deg);
 }
 
 .contents-item a, .contents-item a:visited
 {
-    color: darkblue;
+    color: #0969da;
     text-decoration: none;
+}
+
+.contents-group
+{
+    color: #57606a;
+    font-size: 85%;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.menu_header
+{
+    display: flex;
+    gap: 4px;
+    padding: 8px 8px 0 8px;
+    background-color: #f6f8fa;
+    border-bottom: 1px solid #d8dee4;
 }
 
 .menu-button
 {
-    padding: 2px 5px;
-    margin-bottom: 5px;
-    border: 1px solid black;
-    display: inline-block;
+    padding: 6px 14px;
+    margin-bottom: -1px;
+    border: 1px solid transparent;
+    border-radius: 6px 6px 0 0;
+    color: #57606a;
+    cursor: pointer;
+}
+
+.menu-button:hover
+{
+    color: #1f2328;
 }
 
 .menu-button.selected
 {
-    background-color: lightskyblue;
+    background-color: #ffffff;
+    border-color: #d8dee4 #d8dee4 #ffffff #d8dee4;
+    color: #1f2328;
+    font-weight: 600;
 }
 
 #search-bar
 {
     display: flex;
     flex-flow: row;
+    align-items: center;
     width: 100%;
+    margin-top: 10px;
+    padding: 0 5px;
 }
 
 #search-text
 {
     flex: 1 0 10em;
+    font-family: inherit;
+    font-size: inherit;
+    padding: 4px 6px;
+    border: 1px solid #d8dee4;
+    border-radius: 4px;
+    outline: none;
+}
+
+#search-text:focus
+{
+    border-color: #0969da;
 }
 
 #search-button
@@ -117,15 +232,27 @@ div.contents-item
     flex: 0 0 16px;
     width: 16px;
     height: 16px;
-    margin: 2px 5px; 
+    margin: 2px 5px;
     display: inline-block;
-    background-image: url("search.png");
+    cursor: pointer;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16"><circle cx="6.5" cy="6.5" r="4.5" fill="none" stroke="%236e7781" stroke-width="1.6"/><line x1="9.8" y1="9.8" x2="14" y2="14" stroke="%236e7781" stroke-width="1.6" stroke-linecap="round"/></svg>');
     background-size: 16px 16px;
-    background-repeat: no-repeat; 
-    vertical-align: middle;   
+    background-repeat: no-repeat;
 }
 
 .contents-item.selected, .search-item.selected, .search-word.selected
 {
-    background-color: hsl(203, 92%, 90%);
+    background-color: #dbeafe;
+    border-radius: 4px;
+}
+
+.search-item, .search-word
+{
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.search-item:hover, .search-word:hover
+{
+    background-color: #eaeef2;
 }
