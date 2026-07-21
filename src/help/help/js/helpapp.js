@@ -23,9 +23,15 @@ function toggleContentsLevel( item )
     }
 }
 
-function setPage( url )
+function helpRootRelativeUrl( absoluteUrl )
 {
-    $('#help-page').attr("src",url); 
+    let base=window.location.href.split(/[?#]/)[0];
+    base=base.substring(0,base.lastIndexOf('/')+1);
+    return absoluteUrl.startsWith(base) ? absoluteUrl.substring(base.length) : absoluteUrl;
+}
+
+function highlightPage( url )
+{
     $(".contents-item").removeClass("selected");
     $(".contents-item a").each(function(){
         if( $(this).attr("href") == url )
@@ -34,6 +40,11 @@ function setPage( url )
             $(this).parents(".contents-level").each(function(){openContentsLevel($(this));});
         }
     });
+}
+
+function setPage( url )
+{
+    $('#help-page').attr("src",url);
 }
 
 function installContents()
@@ -364,7 +375,22 @@ function setup()
     installContents();
     let url= window.location.search ? window.location.search.substring(1) : $('.contents-item a').first().attr("href");
     setPage(url);
-    $(window).on("keydown",function(e){ 
+    $(window).on("message",function(e){
+        // The browser already creates its own joint-history entry for every
+        // iframe navigation (sidebar/search click, in-page content link, or a
+        // back/forward traversal restoring one) - whether we drove it or the
+        // user did. So this only ever labels the entry the browser just made;
+        // it must never pushState, or it would add a redundant second entry on
+        // top of that implicit one (which is what used to make Back land on a
+        // stale entry whose address had changed but whose content hadn't).
+        let msg=e.originalEvent;
+        if( ! msg.data || msg.data.type !== "snap-help-page" ) return;
+        if( msg.source !== document.getElementById('help-page').contentWindow ) return;
+        let pageurl=helpRootRelativeUrl(msg.data.url);
+        highlightPage(pageurl);
+        history.replaceState({page:pageurl},"","?"+pageurl);
+    });
+    $(window).on("keydown",function(e){
         if( e.altKey && e.key == 'c' )
         {
             $('#show-contents-button').click();
