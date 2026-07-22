@@ -66,6 +66,7 @@ static int station_layers_pens[] = {FREE_STN_PEN,FREE_STN_PEN,HOR_FIXED_STN_PEN,
 
 static layer_s station_layers[] =
 {
+    {"Station types",UNUSED_PEN_ID,OTHER_OPT,0,true,false,false,false,-1,true},
     {"Free stations",FREE_STN_PEN,FREE_STN_OPT,"GREY",true,false,false,false,-1},
     {"Fixed stations",FIXED_STN_PEN,FIXED_STN_OPT,"RED",true,true,true,false,-1},
     {"Hor fixed stns",HOR_FIXED_STN_PEN,HOR_FIXED_STN_OPT,"RED",true,true,false,false,-1},
@@ -75,6 +76,7 @@ static layer_s station_layers[] =
     {"Name",UNUSED_PEN_ID, NAME_OPT,0,false,false,false,false,-1},
     {"Code",UNUSED_PEN_ID, CODE_OPT,0,false,false,false,false,-1},
     {"",UNUSED_PEN_ID,UNUSED_OPT_ID,0,false,false,false,false,-1},
+    {"Station metrics",UNUSED_PEN_ID,OTHER_OPT,0,true,false,false,false,-1,true},
     {"Error ellipses",ELLIPSE_PEN,ELLIPSE_OPT,"SEA GREEN",true,true,false,true,-1},
     {"Relative ellipse",REL_ELL_PEN, REL_ELL_OPT,"SEA GREEN",false,true,false,true,-1},
     {"Hor adjustment",HOR_ADJ_PEN,HOR_ADJ_OPT,"RED",false,true,false,true,-1},
@@ -91,6 +93,7 @@ static layer_s *data_type_layers = 0;
 
 static layer_s data_usage_layers[] =
 {
+    {"Obs status",UNUSED_PEN_ID,OTHER_OPT,0,true,false,false,false,-1,true},
     {"Used obs",UNUSED_PEN_ID, USED_OBS_OPT,0,true,false,false,false,-1},
     {"Rejected obs",UNUSED_PEN_ID, REJECTED_OBS_OPT,0,true,false,false,false,-1},
     {"Unused obs",UNUSED_PEN_ID, UNUSED_OBS_OPT,0,true,false,false,false,-1},
@@ -264,7 +267,8 @@ static void set_station_layer_colourflag( bool on )
 {
     for( int i = 0; station_layers_pens[i] >= 0; i++ )
     {
-        station_layers[i].pen_id = on ? station_layers_pens[i] : UNUSED_PEN_ID;
+        // i+1 to skip the "Station types" header row added at index 0
+        station_layers[i+1].pen_id = on ? station_layers_pens[i] : UNUSED_PEN_ID;
     }
 }
 
@@ -280,6 +284,8 @@ static void setup_station_class_layers( int class_id )
         station_user_layers = (layer_s *) check_malloc( sizeof(layer_s) * (nlayer+2) );
         layer_s *l = &(station_user_layers[0]);
         init_layer( l, network_class_name(net, class_id), dflt_data_colour, true );
+        l->opt_id = OTHER_OPT;
+        l->is_control_checkbox = true;
         for( int i = 0; i < nlayer; i++ )
         {
             char buf[256];
@@ -316,10 +322,10 @@ static void set_datatype_layer_colourflag( bool on )
 {
     setup_data_type_layers();
     if( ! data_type_layers ) return;
-    // on means "Data type" is the active colour-coding mode: show the header row
-    // with its control checkbox. Otherwise (Data file/Residual/Redundancy active
-    // instead) drop the header row entirely, as before this feature existed.
-    data_type_layers[0].pen_id = on ? UNUSED_PEN_ID : UNUSED_LAYER_PEN_ID;
+    // The header row and its control checkbox are shown whether or not "Data type"
+    // is the active colour-coding mode; only the colour swatches on the rows below
+    // it depend on on/off.
+    data_type_layers[0].pen_id = UNUSED_PEN_ID;
     for( int i = 0; i < NOBSTYPE; i++ )
     {
         // i+1 to skip the header row added at index 0

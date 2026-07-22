@@ -10,6 +10,8 @@
 #include "wx_includes.hpp"
 #include "wxsymbology.hpp"
 
+#include <vector>
+
 DECLARE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED, -1)
 
 class wxLayerKey : public wxGrid
@@ -30,11 +32,27 @@ private:
     Symbology *symbologyKey;
     void FireSymbologyChangedEvent();
 
-    // Row holding the active control checkbox, or -1 if the current symbology has none.
+    // A control checkbox row and the range of ordinary status rows below it that
+    // it controls (inclusive). A symbology can contain more than one of these
+    // (e.g. the Data type list and the Data file/Residual/Redundancy list can
+    // both show a header at once), so every one found is kept, not just the first.
+    struct MasterRange
+    {
+        int master;
+        int lastChild;
+    };
     // Recomputed by SetSymbology(), not on every click.
-    int masterRow;
-    // Last row controlled by masterRow (inclusive). Meaningless if masterRow < 0.
-    int masterLastChild;
+    std::vector<MasterRange> masterRanges;
+
+    // Result of looking up which masterRanges entry a row belongs to, as either
+    // the master itself or one of its children. rangeIndex is -1 if row is not
+    // part of any range, in which case isMaster is meaningless.
+    struct MasterLookup
+    {
+        int rangeIndex;
+        bool isMaster;
+    };
+    MasterLookup FindMasterRange( int row ) const;
 
     DECLARE_DYNAMIC_CLASS( wxLayerKey );
     DECLARE_EVENT_TABLE();
