@@ -2,12 +2,16 @@
 
 #include "wxpalettepopup.hpp"
 
+#include <wx/evtloop.h>
+
 wxPalettePopup::wxPalettePopup( ColourPalette *thisPalette, wxWindow *parent, wxWindowID id ) :
-    wxDialog( parent, id, "", wxDefaultPosition, wxDefaultSize, wxSIMPLE_BORDER )
+    wxPopupTransientWindow( parent, wxBORDER_SIMPLE )
 {
+    SetId( id );
     SetExtraStyle( wxWS_EX_BLOCK_EVENTS );
     bitmapsize = 1;
     spacing = 3;
+    ignoreNextButtonUp = false;
     SetPalette( thisPalette );
     highlightColour.Set( 255, 127, 0 );
 }
@@ -16,10 +20,11 @@ wxPalettePopup::~wxPalettePopup()
 {
 }
 
-BEGIN_EVENT_TABLE( wxPalettePopup, wxWindow )
+BEGIN_EVENT_TABLE( wxPalettePopup, wxPopupTransientWindow )
     EVT_PAINT( wxPalettePopup::OnPaint )
     EVT_MOUSE_EVENTS( wxPalettePopup::OnMouseEvent )
     EVT_KEY_DOWN( wxPalettePopup::OnKeyDownEvent )
+    EVT_MOUSE_CAPTURE_LOST( wxPalettePopup::OnCaptureLost )
 END_EVENT_TABLE()
 
 void wxPalettePopup::SetPalette(ColourPalette *newPalette)
@@ -142,6 +147,15 @@ void wxPalettePopup::OnPaint( wxPaintEvent & WXUNUSED(event) )
 {
     wxPaintDC dc(this);
     dc.Clear();
+
+    // Drawn explicitly rather than relying on the wxBORDER_SIMPLE window style: the popup can
+    // sit right over the panel it opened from, and against a background the same colour, a
+    // native border isn't always visible enough to tell the two apart.
+    wxSize clientSize = GetClientSize();
+    dc.SetPen( wxSystemSettings::GetColour( wxSYS_COLOUR_3DSHADOW ) );
+    dc.SetBrush( *wxTRANSPARENT_BRUSH );
+    dc.DrawRectangle( 0, 0, clientSize.GetWidth(), clientSize.GetHeight() );
+
     if( palette )
     {
         for( int i = 0; i < palette->Size(); i++ )
@@ -171,7 +185,8 @@ void wxPalettePopup::OnMouseEvent( wxMouseEvent &event )
 
     if( event.ButtonDown() || event.ButtonUp() )
     {
-        EndModal(0);
+        if( IgnoreAsOpeningClick() ) return;
+        DismissAndNotify();
     }
 }
 
@@ -179,15 +194,67 @@ void wxPalettePopup::OnKeyDownEvent( wxKeyEvent &event )
 {
     if( event.GetKeyCode() == WXK_ESCAPE )
     {
-        EndModal(0);
+        DismissAndNotify();
     }
 }
 
+void wxPalettePopup::OnCaptureLost( wxMouseCaptureLostEvent & WXUNUSED(event) )
+{
+    if( IgnoreAsOpeningClick() ) return;
+    if( wxEventLoopBase::GetActive() ) wxEventLoopBase::GetActive()->Exit();
+}
+
+// True for exactly one event: either the button-up that ends the click that opened the popup
+// (tracked via ignoreNextButtonUp, however long that click is held), or, as a secondary safety
+// net, anything arriving in the first moment after showing, since capturing the mouse right
+// after showing can itself generate a spurious, immediate capture-lost notification.
+bool wxPalettePopup::IgnoreAsOpeningClick()
+{
+    bool ignore = ignoreNextButtonUp || ( wxGetLocalTimeMillis() - shownTime ) < 175;
+    ignoreNextButtonUp = false;
+    return ignore;
+}
+
+void wxPalettePopup::OnDismiss()
+{
+    if( wxEventLoopBase::GetActive() ) wxEventLoopBase::GetActive()->Exit();
+}
+
+// wxPopupTransientWindow isn't modal, so this blocks by running its own nested event loop
+// instead of ShowModal().  Popup()/DismissAndNotify() (called from OnMouseEvent/OnKeyDownEvent,
+// and automatically by wxPopupTransientWindow itself on an outside click or loss of focus) drive
+// OnDismiss(), which is the single place that exits the loop.
 bool wxPalettePopup::SelectColour( int &colourId )
 {
     selectedColour = colourId;
     PositionWindow();
-    ShowModal();
+    // "this" is safe to capture here since we don't return from this function until the popup
+    // is dismissed. We defer showing the popup (and capturing the mouse) until the next event
+    // loop iteration, rather than doing it directly from within the click that's opening it.
+    // We capture the mouse ourselves rather than relying only on wxPopupTransientWindow's own
+    // handling: where the popup overlaps a sibling panel like the map view, a click there can
+    // still be routed to that sibling by the OS's own hit-testing unless we hold the mouse the
+    // whole time we're shown.
+    CallAfter( [this]()
+    {
+        shownTime = wxGetLocalTimeMillis();
+        ignoreNextButtonUp = wxGetMouseState().LeftIsDown();
+        Popup();
+        CaptureMouse();
+    } );
+
+    // Deliberately not disabling the rest of the app (e.g. via wxWindowDisabler) while this runs.
+    // wxPopupTransientWindow dismisses itself when it loses activation to another top-level
+    // window, on Windows this is implemented as a deactivation notification, and a disabled
+    // window can't become active from a mouse click. Disabling the rest of the app would stop
+    // the user's click from ever reaching it, so the popup would never see that deactivation and
+    // would never dismiss on an outside click.
+    wxEventLoop loop;
+    loop.Run();
+
+    if( HasCapture() ) ReleaseMouse();
+    Hide();
+
     if( selectedColour < 0 ) selectedColour = colourId;
     bool colourChanged = selectedColour != colourId;
     colourId = selectedColour;
