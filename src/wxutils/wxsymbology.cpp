@@ -229,11 +229,13 @@ int SymbologyList::GetSymbologyByIdentifier( wxString uid ) const
 
 // LayerSymbology. Simple class defining a symbology.
 
-LayerSymbology::LayerSymbology(wxString name, int type, int colourId, bool show) :
+LayerSymbology::LayerSymbology(wxString name, int type, int colourId, bool show, const bool isControlCheckbox) :
     SymbologyBase(name),
     type(type),
     colourId(colourId),
-    show(show)
+    show(show),
+    isControlCheckbox(isControlCheckbox),
+    mixedRowStatus(false)
 {
 }
 
@@ -286,6 +288,21 @@ bool LayerSymbology::HasColour() const
 bool LayerSymbology::HasStatus() const
 {
     return (type & hasStatus) == hasStatus;
+}
+
+bool LayerSymbology::IsControlCheckbox() const
+{
+    return isControlCheckbox;
+}
+
+bool LayerSymbology::IsMixedRowStatus() const
+{
+    return mixedRowStatus;
+}
+
+void LayerSymbology::SetMixedRowStatus( const bool newMixedRowStatus )
+{
+    mixedRowStatus = newMixedRowStatus;
 }
 
 // TextAlign: A class for rendering text at a specified offset relative to a point.
@@ -536,11 +553,11 @@ void Symbology::InitialisePalette( const ColourPalette &basepalette )
     }
 }
 
-int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool display )
+int Symbology::AddLayer(wxString name, int type, const wxColour &colour, bool display, const bool isControlCheckbox )
 {
     int colourId = 0;
     if( colour.IsOk() ) colourId= palette.AddColour( colour );
-    LayerSymbology *s = new LayerSymbology( name, type, colourId, display );
+    LayerSymbology *s = new LayerSymbology( name, type, colourId, display, isControlCheckbox );
     return layers.AddSymbology( s );
 }
 
