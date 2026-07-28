@@ -589,6 +589,14 @@ const char *relative_filename( const char *filepath, const char *basedir )
     {
         std::filesystem::path fp(filepath);
         std::filesystem::path bp(basedir);
+        // boost::filesystem::relative returns an empty path when either
+        // input is empty; std::filesystem::relative instead returns "."
+        // when the two (both-empty) paths compare equal. context_definition
+        // relies on an empty reldir producing no characters, so that
+        // difference must be preserved here.
+        if( fp.empty() || bp.empty() ) {
+            return copy_string("");
+        }
         auto relpath=std::filesystem::relative( fp, bp );
         auto relstr=relpath.string();
         return copy_string( relstr.c_str());
