@@ -28,7 +28,7 @@
 #define _stat stat
 #include <unistd.h>
 #endif
-#include <boost/filesystem.hpp>
+#include <filesystem>
 
 
 #include "util/fileutil.h"
@@ -504,7 +504,7 @@ void dump_filepath( const char *path, FILE *f )
 //
 // This used to double up PATH_SEPARATOR for that marker: '\\' on Windows,
 // '/' on Linux. relative_filename's result also carries PATH_SEPARATOR
-// internally (boost::filesystem::path::string() renders using the platform's
+// internally (std::filesystem::path::string() renders using the platform's
 // native separator). Both make a context string written on one platform
 // unparseable on the other. Worse, it's not even a loud failure: POSIX
 // treats '\\' as a literal filename character, not a separator, so a
@@ -513,7 +513,7 @@ void dump_filepath( const char *path, FILE *f )
 //
 // Fixed by always using '/' here, on both platforms, for the marker and for
 // every separator within each reldir's own content (via portable_path).
-// boost::filesystem::path (used by relative_filename/absolute_filename)
+// std::filesystem::path (used by relative_filename/absolute_filename)
 // accepts '/' as a valid separator on both platforms - unlike '\\' on POSIX.
 const char *context_definition(file_context *context)
 {
@@ -587,9 +587,9 @@ const char *relative_filename( const char *filepath, const char *basedir )
 {
     try
     {
-        boost::filesystem::path fp(filepath);
-        boost::filesystem::path bp(basedir);
-        auto relpath=boost::filesystem::relative( fp, bp );
+        std::filesystem::path fp(filepath);
+        std::filesystem::path bp(basedir);
+        auto relpath=std::filesystem::relative( fp, bp );
         auto relstr=relpath.string();
         return copy_string( relstr.c_str());
     }
@@ -603,9 +603,30 @@ const char *absolute_filename( const char *relname, const char *basedir )
 {
     try
     {
-        boost::filesystem::path rp(relname);
-        boost::filesystem::path bp(basedir);
-        auto relpath=boost::filesystem::absolute( rp, bp );
+        std::filesystem::path rp(relname);
+        std::filesystem::path bp(basedir);
+        // std::filesystem::absolute has no (path, base) overload - it only
+        // resolves against the process's current directory - so resolve
+        // basedir against the current directory ourselves when it isn't
+        // already absolute. std::filesystem::absolute() throws on an empty
+        // path rather than treating it as the current directory, so that
+        // case is handled explicitly too.
+        if( bp.empty() ) {
+            bp = std::filesystem::current_path();
+        }
+        else if( ! bp.is_absolute() ) {
+            bp = std::filesystem::absolute(bp);
+        }
+        std::filesystem::path relpath;
+        if( rp.empty() ) {
+            relpath = bp;
+        }
+        else if( rp.is_absolute() ) {
+            relpath = rp;
+        }
+        else {
+            relpath = bp / rp;
+        }
         auto relstr=relpath.string();
         return copy_string( relstr.c_str());
     }

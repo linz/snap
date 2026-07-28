@@ -91,9 +91,9 @@ elseif(WIN32)
     # so there's no 'mt'/'mt-s' variant choice to make - just select static.
     set(Boost_USE_STATIC_LIBS ON)
 endif()
-find_package(Boost REQUIRED COMPONENTS filesystem regex)
+find_package(Boost REQUIRED COMPONENTS regex)
 # boost::system is header-only since Boost 1.69; newer distros ship no .so for it.
-# FindBoost creates Boost::system as a side-effect of filesystem on older Boost — link
+# FindBoost creates Boost::system as a side-effect of regex on older Boost — link
 # it explicitly only if that target exists, so we don't fail on Ubuntu 24.04+.
 if(TARGET Boost::system)
     set(BOOST_SYSTEM_LIB Boost::system)

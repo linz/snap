@@ -15,7 +15,7 @@ Only 64-bit builds are supported.
 4. **Boost** — download source from https://www.boost.org/users/download/ and build the
    required components from the Boost root directory:
    ```
-   ./b2 toolset=msvc-14.3 --with-filesystem --with-regex --with-system
+   ./b2 toolset=msvc-14.3 --with-regex --with-system
    ```
    Replace the toolset version to match your Visual Studio installation:
    | Visual Studio | Toolset   |
@@ -106,7 +106,7 @@ MinGW-w64 cross-compiler, without needing Visual Studio at all.
    ./b2 --user-config=$(pwd)/user-config.jam toolset=gcc-13 target-os=windows \
      address-model=64 architecture=x86 link=static runtime-link=static \
      threading=multi variant=release \
-     --with-filesystem --with-regex --with-system --stagedir=stage-mingw -j$(nproc)
+     --with-regex --with-system --stagedir=stage-mingw -j$(nproc)
    ```
    Replace `13` with the major GCC version of your installed
    `g++-mingw-w64-x86-64` (check with `x86_64-w64-mingw32-g++ --version`) - the

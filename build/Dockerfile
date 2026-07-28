@@ -16,7 +16,6 @@ RUN apt-get install -y \
     libboost-dev \
     libboost-math-dev \
     libboost-regex-dev \
-    libboost-filesystem-dev \
     perl \
     python3 \
     debhelper \

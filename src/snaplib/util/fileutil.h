@@ -89,7 +89,22 @@ file_context *set_file_context( file_context *new_context );
 void free_file_contexts();
 const char *context_definition(file_context *context);
 file_context *recreate_context( const  char *context_def );
+/* relative_filename and absolute_filename both operate lexically on the path
+   strings - neither requires filepath, relname, or basedir to exist on disk.
+   Both return a newly allocated string (as per copy_string) that the caller
+   is responsible for freeing. */
+
+/* Expresses filepath relative to basedir - e.g. relative_filename("/a/b/c","/a/b")
+   returns "c". Returns "." if the two paths resolve to the same location. Falls
+   back to returning a copy of filepath unchanged if the paths can't be compared
+   (e.g. on Windows, when they're on different drives). */
 const char *relative_filename( const char *filepath, const char *basedir );
+
+/* Resolves relname to an absolute path. If relname is already absolute, it is
+   returned unchanged; otherwise it is composed onto basedir. basedir is
+   resolved against the current working directory first if it is itself
+   relative (including empty). Falls back to returning a copy of relname
+   unchanged if resolution fails. */
 const char *absolute_filename( const char *relname, const char *basedir );
 
 /* Returns path with every PATH_SEPARATOR replaced by '/', for writing a path
