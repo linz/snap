@@ -56,5 +56,5 @@ if (snappath !== "") {
     }
 
     // Write the key
-    sh.RegWrite(key, path, "REG_SZ");
+    sh.RegWrite(key, path, "REG_EXPAND_SZ");
 }
