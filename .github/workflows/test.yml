@@ -21,6 +21,6 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++ libboost-dev libboost-math-dev libboost-regex-dev libboost-filesystem-dev python3
+          DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++ libboost-dev libboost-math-dev libboost-regex-dev python3
       - name: Build snap command line utilities and run regression tests
         run: python3 build.py release test --no-gui
