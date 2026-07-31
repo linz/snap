@@ -1,0 +1,50 @@
+[build-system]
+requires = ["poetry-core>=2.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poetry]
+name = "snap-python-tools"
+version = "0.1.0"
+description = "Python tools for building SNAP grid/trig/deformation-model binary files"
+authors = []
+package-mode = false
+
+[tool.poetry.dependencies]
+python = ">=3.10,<4.0"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "^2.3.0"
+pip-audit = "^2.10.0"
+pylint = "^4.0.5"
+pytest = "^9.0.3"
+ruff = "^0.15.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py310"
+
+[tool.pylint.main]
+source-roots = ["."]
+
+[tool.pylint.basic]
+module-rgx = "[a-zA-Z_][a-zA-Z0-9_]*"
+
+[tool.pylint.format]
+max-line-length = 120
+
+[tool.pylint.messages_control]
+disable = [
+    "W0511",  # fixme: TODOs are acceptable work-in-progress markers
+    "W0621",  # pytest fixtures intentionally shadow the fixture function name
+]
+
+[tool.pylint.design]
+max-args = 6
+max-positional-arguments = 6
+max-attributes = 10
+max-locals = 25
+max-statements = 90
