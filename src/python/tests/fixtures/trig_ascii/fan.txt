@@ -1,0 +1,17 @@
+FORMAT TRIG2L
+HEADER0 Test closed fan triangulation
+HEADER1 second header
+HEADER2 third header
+CRDSYS NZGD2000
+NDIM 1
+P 1 5 5 100.0
+P 2 9 5 20.0
+P 3 7 9 30.0
+P 4 2 8 40.0
+P 5 1 3 50.0
+P 6 6 1 60.0
+T 1 2 3
+T 1 3 4
+T 1 4 5
+T 1 5 6
+T 1 6 2
