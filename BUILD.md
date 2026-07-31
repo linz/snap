@@ -27,6 +27,9 @@ Only 64-bit builds are supported.
    (e.g. `set BOOST_ROOT=C:\boost_1_78_0`).
 5. **Perl** — ActiveState (https://www.activestate.com/products/perl/) or
    Strawberry Perl (https://strawberryperl.com/)
+6. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
+   grid.py/trig.py/linzdeformationmodel.py, the tools that convert grid,
+   triangulation, and deformation-model definitions to their binary form)
 
 **Building**
 

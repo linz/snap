@@ -43,8 +43,9 @@ import platform
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
-REPO_ROOT = os.path.dirname(os.path.abspath(__file__))
+REPO_ROOT = Path(__file__).resolve().parent
 
 SNAP_CMD_TARGETS = [
     "snap", "concord", "snapspec", "dat2site",
@@ -58,18 +59,18 @@ BUILD_TYPE_MAP = {
 }
 
 
-def build_dir(build_type: str) -> str:
-    return os.path.join(REPO_ROOT, f"build-{build_type}")
+def build_dir(build_type: str) -> Path:
+    return REPO_ROOT / f"build-{build_type}"
 
 
-def run(cmd: list[str], cwd: str | None = None, env: dict | None = None) -> None:
-    print("+", " ".join(cmd))
+def run(cmd: list[str | Path], cwd: Path | None = None, env: dict | None = None) -> None:
+    print("+", " ".join(str(part) for part in cmd))
     result = subprocess.run(cmd, cwd=cwd or REPO_ROOT, env=env, check=False)
     if result.returncode != 0:
         sys.exit(result.returncode)
 
 
-def configure(build_type: str, no_gui: bool, efence: bool, build_d: str) -> None:
+def configure(build_type: str, no_gui: bool, efence: bool, build_d: Path) -> None:
     run([
         "cmake", "-S", ".", "-B", build_d,
         f"-DCMAKE_BUILD_TYPE={BUILD_TYPE_MAP[build_type]}",
@@ -87,51 +88,62 @@ def touch_version_files() -> None:
         ["grep", "-rl", "GETVERSION_SET_PROGRAM_DATE", "src"],
         cwd=REPO_ROOT, capture_output=True, text=True, check=False)
     for path in result.stdout.splitlines():
-        os.utime(os.path.join(REPO_ROOT, path), None)
+        os.utime(REPO_ROOT / path, None)
 
 
-def copy_config_files(build_d: str, build_type: str) -> None:
+def copy_config_files(build_d: Path, build_type: str) -> None:
     # snap locates config files in a config/ subdirectory next to the executable
     # (system_config_dir() = image_dir() + "/config").  Merge the per-component
     # config directories from source so the build-tree executable is runnable.
-    config_dst = os.path.join(build_d, "src", "config")
-    os.makedirs(config_dst, exist_ok=True)
+    config_dst = build_d / "src" / "config"
+    config_dst.mkdir(parents=True, exist_ok=True)
     for src_subdir in ["snap/config", "snapspec/config", "snaplist/config",
                        "snap_manager/config"]:
-        src = os.path.join(REPO_ROOT, "src", src_subdir)
-        if os.path.isdir(src):
+        src = REPO_ROOT / "src" / src_subdir
+        if src.is_dir():
             shutil.copytree(src, config_dst, dirs_exist_ok=True)
 
-    perl_src = os.path.join(REPO_ROOT, "src", "perl")
-    perl_dst = os.path.join(config_dst, "perl")
-    if os.path.isdir(perl_src):
+    perl_src = REPO_ROOT / "src" / "perl"
+    perl_dst = config_dst / "perl"
+    if perl_src.is_dir():
         shutil.copytree(perl_src, perl_dst, dirs_exist_ok=True)
 
-    version_src = os.path.join(REPO_ROOT, "VERSION")
-    if os.path.isfile(version_src):
-        shutil.copy2(version_src, os.path.join(build_d, "src", "VERSION"))
+    # Unlike perl_src above, src/python also holds dev-only content (tests, tool
+    # caches, dependency/lock files) that a runnable build doesn't need, so only
+    # lib/ and the top-level scripts are copied, rather than the whole directory -
+    # matching src/CMakeLists.txt's own install rules for the same reason.
+    python_lib_src = REPO_ROOT / "src" / "python" / "lib"
+    python_dst = config_dst / "python"
+    if python_lib_src.is_dir():
+        shutil.copytree(python_lib_src, python_dst / "lib", dirs_exist_ok=True,
+                         ignore=shutil.ignore_patterns("__pycache__"))
+        for script in ("grid.py", "trig.py", "linzdeformationmodel.py"):
+            shutil.copy2(REPO_ROOT / "src" / "python" / script, python_dst / script)
 
-    help_src = os.path.join(REPO_ROOT, "src", "help", "help")
-    help_dst = os.path.join(build_d, "src", "help")
-    if os.path.isdir(help_src):
+    version_src = REPO_ROOT / "VERSION"
+    if version_src.is_file():
+        shutil.copy2(version_src, build_d / "src" / "VERSION")
+
+    help_src = REPO_ROOT / "src" / "help" / "help"
+    help_dst = build_d / "src" / "help"
+    if help_src.is_dir():
         shutil.copytree(help_src, help_dst, dirs_exist_ok=True)
 
     versionid = subprocess.run(
         ["git", "rev-parse", "--short", "HEAD"],
         cwd=REPO_ROOT, capture_output=True, text=True, check=False)
     if versionid.returncode == 0:
-        with open(os.path.join(build_d, "src", "VERSIONID"), "w") as f:
-            f.write(versionid.stdout.strip())
+        (build_d / "src" / "VERSIONID").write_text(versionid.stdout.strip())
 
     if build_type == "debug":
-        devel_src = os.path.join(REPO_ROOT, "src", "packages", "devel")
-        devel_dst = os.path.join(config_dst, "package", "devel")
-        if os.path.isdir(devel_src):
+        devel_src = REPO_ROOT / "src" / "packages" / "devel"
+        devel_dst = config_dst / "package" / "devel"
+        if devel_src.is_dir():
             shutil.copytree(devel_src, devel_dst, dirs_exist_ok=True)
 
 
-def cmake_build(build_d: str, targets: list[str] | None = None, jobs: int | None = None) -> None:
-    cmd = (
+def cmake_build(build_d: Path, targets: list[str] | None = None, jobs: int | None = None) -> None:
+    cmd: list[str | Path] = (
         ["cmake", "--build", build_d, "--parallel"]
         + ([str(jobs)] if jobs else [])
         + (["--target"] + targets if targets else [])
@@ -140,7 +152,7 @@ def cmake_build(build_d: str, targets: list[str] | None = None, jobs: int | None
 
 
 def run_tests(build_type: str) -> None:
-    testall = os.path.join(REPO_ROOT, "regression_tests", "testall.pl")
+    testall = REPO_ROOT / "regression_tests" / "testall.pl"
     run(["perl", testall, "-e"] + (["-r"] if build_type == "release" else []))
 
 
@@ -158,10 +170,10 @@ def mingw_build(args) -> None:
         sys.exit(1)
 
     preset = "windows-mingw-release" if args.no_gui else "windows-mingw-release-gui"
-    build_d = os.path.join(REPO_ROOT, "build", preset)
+    build_d = REPO_ROOT / "build" / preset
 
     if args.target == "clean":
-        if os.path.exists(build_d):
+        if build_d.exists():
             print(f"Removing {build_d}")
             shutil.rmtree(build_d)
         return
@@ -192,9 +204,8 @@ def check_committed() -> None:
 
 
 def check_version_changelog() -> None:
-    with open(os.path.join(REPO_ROOT, "VERSION")) as f:
-        version = f.read().strip()
-    with open(os.path.join(REPO_ROOT, "debian", "changelog")) as f:
+    version = (REPO_ROOT / "VERSION").read_text().strip()
+    with (REPO_ROOT / "debian" / "changelog").open() as f:
         first_line = f.readline()
     if f"({version}-" not in first_line:
         print(f"ABORTED: changelog version does not match {version}")
@@ -216,7 +227,7 @@ def main() -> None:
                         help="Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot)")
     parser.add_argument("--jobs", type=int, metavar="N",
                         help="Parallel build jobs (default: all cores)")
-    parser.add_argument("--build-dir", metavar="DIR", default=None,
+    parser.add_argument("--build-dir", type=Path, metavar="DIR", default=None,
                         help="Build output directory (default: build-{type})")
     parser.add_argument("--no-efence", action="store_true",
                         help="Do not link efence (debug builds link efence by default)")
@@ -233,7 +244,7 @@ def main() -> None:
     efence = (args.type == "debug") and not args.no_efence
 
     if args.target == "clean":
-        if os.path.exists(build_d):
+        if build_d.exists():
             print(f"Removing {build_d}")
             shutil.rmtree(build_d)
         return
@@ -249,7 +260,7 @@ def main() -> None:
         check_version_changelog()
         env = os.environ.copy()
         if args.build_dir:
-            env["SNAP_BUILD_DIR"] = args.build_dir
+            env["SNAP_BUILD_DIR"] = str(args.build_dir)
         if args.no_gui:
             env["SNAP_BUILD_GUI"] = "OFF"
         run(["debuild", "--check-dirname-level=0", "-uc", "-us", "-b"], env=env)
