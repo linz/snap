@@ -183,6 +183,20 @@ install(DIRECTORY
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/perl/
     DESTINATION ${SNAP_INSTALL_ROOT}/config/perl)
 
+# Unlike perl/ above, python/ also holds dev-only content (tests/, pyproject.toml,
+# poetry.lock, .gitignore) that end users don't need, so only lib/ and the top-level
+# scripts are installed rather than the whole directory. install(DIRECTORY) resets
+# permissions on copy, so the scripts are installed separately via install(PROGRAMS)
+# to keep them executable.
+install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python/lib/
+    DESTINATION ${SNAP_INSTALL_ROOT}/config/python/lib
+    PATTERN "__pycache__" EXCLUDE)
+install(PROGRAMS
+        ${CMAKE_CURRENT_SOURCE_DIR}/python/grid.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/python/trig.py
+        ${CMAKE_CURRENT_SOURCE_DIR}/python/linzdeformationmodel.py
+    DESTINATION ${SNAP_INSTALL_ROOT}/config/python)
+
 install(FILES ${CMAKE_SOURCE_DIR}/VERSION
     DESTINATION ${SNAP_INSTALL_ROOT})
 

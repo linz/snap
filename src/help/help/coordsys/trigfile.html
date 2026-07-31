@@ -24,7 +24,7 @@ the triangulation is defined in terms of latitude and longitude the triangulatio
 account of curvature, either in forming the triangles or in interpolating values across them.
 </p>
 
-<p>A triangulated data file can be constructed using the maketrig.pl perl script supplied with SNAP.  
+<p>A triangulated data file can be constructed using the trig.py script supplied with SNAP.
 This builds a binary format triangulation file based on a text format defined below.  The SNAP
 programs only used triangulated data as part of a <a href="linzdeffile.html">deformation model file</a>,
 which is built directly from the text format.
@@ -52,11 +52,11 @@ the value of the record. </p>
   </p>
   <table>
     <tr>
-      <td> TRIG1L </td>
+      <td> TRIG2L </td>
       <td> Little endian binary format (this is the preferred option for SNAP) </td>
     </tr>
     <tr>
-      <td> TRIG1B </td>
+      <td> TRIG2B </td>
       <td> Big endian binary format </td>
     </tr>
   </table>
@@ -104,7 +104,7 @@ the value of the record. </p>
 follows:</p>
 
 <pre class="ConfigFile">
-FORMAT TRIG1L
+FORMAT TRIG2L
 HEADER0 Fiordland earthquake July 2009
 HEADER1 Coseismic deformation
 HEADER2 Initial model - horizontal deformation only

@@ -24,3 +24,17 @@ jobs:
           DEBIAN_FRONTEND=noninteractive sudo apt-get install cmake g++ libboost-dev libboost-math-dev libboost-regex-dev python3
       - name: Build snap command line utilities and run regression tests
         run: python3 build.py release test --no-gui
+      - name: Install Poetry
+        run: pipx install poetry
+      - name: Install Python tool dependencies
+        working-directory: src/python
+        run: poetry install --with dev
+      - name: Lint, type-check, and test src/python
+        working-directory: src/python
+        run: |
+          poetry run ruff check .
+          poetry run ruff format --check .
+          poetry run pylint $(git ls-files '*.py')
+          poetry run mypy --strict --ignore-missing-imports $(git ls-files '*.py')
+          poetry run pytest -v
+          poetry run pip-audit

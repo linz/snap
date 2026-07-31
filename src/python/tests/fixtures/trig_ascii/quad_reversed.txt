@@ -1,0 +1,12 @@
+FORMAT TRIG2L
+HEADER0 Test quadrilateral triangulation
+HEADER1 second header
+HEADER2 third header
+CRDSYS NZGD2000
+NDIM 1
+P 1 0 0 1.0
+P 2 10 2 2.0
+P 3 8 10 3.0
+P 4 2 8 4.0
+T 1 3 2
+T 1 3 4

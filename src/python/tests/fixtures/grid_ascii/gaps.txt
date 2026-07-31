@@ -1,0 +1,31 @@
+FORMAT: GRID2L
+HEADER0: Gaps test grid
+HEADER1:
+HEADER2:
+CRDSYS: NZGD2000
+NGRDX: 8
+NGRDY: 2
+XMIN: 170
+XMAX: 177
+YMIN: -40
+YMAX: -39
+VRES: 1
+NDIM: 1
+LATLON: 1
+VALUES: REAL
+V1,1: *
+V2,1: *
+V3,1: 20
+V4,1: *
+V5,1: 25
+V6,1: 30
+V7,1: *
+V8,1: *
+V1,2: *
+V2,2: *
+V3,2: *
+V4,2: *
+V5,2: *
+V6,2: *
+V7,2: *
+V8,2: *
