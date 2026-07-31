@@ -2,7 +2,7 @@
 definition. See src/help/help/coordsys/linzdeffile.html for the user-facing format description. A
 model is one or more named sequences, each a list of components - a single grid or triangulated
 deformation/velocity model, with its own reference date and spatial extent. Ported from
-makelinzdefmodel.pl, which supports 3 format versions:
+makelinzdefmodel.pl, which supported 3 format versions:
 
 - v1 (LINZDEF1L/1B): each component has a BEFORE_REF_DATE/AFTER_REF_DATE method
   (fixed/zero/interpolate). Two components with different reference dates aren't a choice between
