@@ -1197,7 +1197,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
     {
         ellpen = get_pen( REL_ELL_PEN );
         if( !pen_visible(ellpen) ) pltrelerr = 0;
-        eemult = errell_factor * errell_scale;
+        eemult = errell_factor * rel_errell_scale;
     }
 
     pltrelhgt = option_selected( REL_HGT_OPT );
@@ -1468,7 +1468,7 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
             if( pltrelhgt && cvr.sehgt > 0.0 )
             {
 
-                double he = cvr.sehgt  * hgterr_factor * hgterr_scale;
+                double he = cvr.sehgt  * hgterr_factor * rel_hgterr_scale;
 
                 if( he > 0 )
                 {

@@ -20,6 +20,11 @@ void get_hgterr_exaggeration( double *scale, int *autoscl );
 void set_confidence_limit();
 double calc_default_stn_size( void );
 double calc_default_error_scale( void );
+double calc_default_relative_ellipse_scale( void );
+double calc_default_height_error_scale( void );
+double calc_default_relative_height_scale( void );
+double calc_default_hor_adjustment_scale( void );
+double calc_default_vrt_adjustment_scale( void );
 double calc_obs_offset( void );
 
 void init_plot_scales( void );
@@ -43,6 +48,17 @@ SCOPE double errell_factor;
 SCOPE double errell_scale;
 SCOPE double hgterr_factor;
 SCOPE double hgterr_scale;
+// Scale factor for "Relative ellipse", independent of errell_scale so that
+// toggling one doesn't resize the other.
+SCOPE double rel_errell_scale;
+// Scale factor for "Relative hgt err", independent of hgterr_scale for the same reason.
+SCOPE double rel_hgterr_scale;
+// Scale factors for the Hor/Vrt adjustment vectors, also independent of every
+// scale above: adjustment magnitudes are typically much larger than
+// covariance-based error magnitudes and would otherwise dominate a shared
+// auto-scale, or resize unrelated items, whenever more than one is selected.
+SCOPE double adjhor_scale;
+SCOPE double adjvrt_scale;
 SCOPE double confidence_limit;
 SCOPE char use_confidence_limit;
 SCOPE char aposteriori_errors;

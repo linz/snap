@@ -1592,9 +1592,9 @@ int plot_adjustments( map_plotter *plotter, int first )
 
         get_station_coordinates( istn, &x, &y );
 
-        dx = stns[istn].de * errell_scale;
-        dy = stns[istn].dn * errell_scale;
-        dh = stns[istn].dh * hgterr_scale;
+        dx = stns[istn].de * adjhor_scale;
+        dy = stns[istn].dn * adjhor_scale;
+        dh = stns[istn].dh * adjvrt_scale;
 
         if( plthor )
         {

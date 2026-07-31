@@ -36,6 +36,8 @@ void init_plot_scales( void )
     set_stn_symbol_size( 1.0, 1 );
     set_errell_exaggeration( 1.0, 1 );
     set_hgterr_exaggeration( 1.0, 1 );
+    adjhor_scale = 1.0;
+    adjvrt_scale = 1.0;
     /*
     apriori=program_mode == PREANALYSIS ? 1 : 0;
     errconflim=0;
@@ -215,47 +217,66 @@ static double nice_number( double value )
     return nice * *best;
 }
 
+typedef void (*component_func)( double *h, double *v );
+
+// Shared by every calc_default_*_scale() function below. componentFunc supplies
+// the raw horizontal/vertical magnitude (max_covariance_component,
+// maximum_relative_covariance, or max_adjustment_component); useHorizontal picks
+// which of the two to scale for; factor is the confidence-interval multiplier to
+// apply (1.0 for adjustment vectors, which have no such concept). The result
+// makes that single magnitude span about 1/20th of the visible plot extent.
+static double component_scale( const component_func componentFunc, const bool useHorizontal, const double factor )
+{
+    if( !got_covariances() ) return 0.0;
+    double h, v;
+    componentFunc( &h, &v );
+    const double cvrmax = (useHorizontal ? h : v) * factor;
+    const double safeCvrmax = cvrmax > 0 ? cvrmax : 1.0;
+    return (plot_emax - plot_emin + plot_nmax - plot_nmin) /
+           (20.0 * safeCvrmax);
+}
+
 double calc_default_error_scale( void )
 {
-    double dfltscale;
-    double cvrmax;
-    double h, v;
+    return component_scale( max_covariance_component, true, errell_factor );
+}
 
-    if( !got_covariances() ) return 0.0;
-    cvrmax = 0.0;
-    max_covariance_component( &h, &v );
-    if( option_selected(ELLIPSE_OPT) && h > cvrmax ) cvrmax = h;
-    if( option_selected(HGTERR_OPT)  && v > cvrmax ) cvrmax = v;
-    maximum_relative_covariance( &h, &v );
-    if( option_selected(REL_ELL_OPT) && h > cvrmax ) cvrmax = h;
-    if( option_selected(REL_HGT_OPT) && v > cvrmax ) cvrmax = v;
+double calc_default_relative_ellipse_scale( void )
+{
+    return component_scale( maximum_relative_covariance, true, errell_factor );
+}
 
-    if( errell_factor > hgterr_factor )
-    {
-        cvrmax *= errell_factor;
-    }
-    else
-    {
-        cvrmax *= hgterr_factor;
-    }
+double calc_default_height_error_scale( void )
+{
+    return component_scale( max_covariance_component, false, hgterr_factor );
+}
 
-    max_adjustment_component( &h, &v );
-    if( option_selected(HOR_ADJ_OPT) && h > cvrmax ) cvrmax = h;
-    if( option_selected(HGT_ADJ_OPT) && v > cvrmax ) cvrmax = v;
+double calc_default_relative_height_scale( void )
+{
+    return component_scale( maximum_relative_covariance, false, hgterr_factor );
+}
 
-    if( cvrmax <= 0 ) cvrmax = 1.0;
-    dfltscale = (plot_emax - plot_emin + plot_nmax - plot_nmin) /
-                (20.0 * cvrmax);
-    return dfltscale;
+double calc_default_hor_adjustment_scale( void )
+{
+    return component_scale( max_adjustment_component, true, 1.0 );
+}
+
+double calc_default_vrt_adjustment_scale( void )
+{
+    return component_scale( max_adjustment_component, false, 1.0 );
 }
 
 
 static void autoscale_errors( void )
 {
-    double dfltscale;
-    dfltscale = calc_default_error_scale();
-    if( autoscale_ellipse ) errell_scale = nice_number( dfltscale * ell_autosf );
-    if( autoscale_hgterr ) hgterr_scale = nice_number( dfltscale * he_autosf );
+    if( autoscale_ellipse ) errell_scale = nice_number( calc_default_error_scale() * ell_autosf );
+    if( autoscale_hgterr ) hgterr_scale = nice_number( calc_default_height_error_scale() * he_autosf );
+
+    rel_errell_scale = nice_number( calc_default_relative_ellipse_scale() * ell_autosf );
+    rel_hgterr_scale = nice_number( calc_default_relative_height_scale() * he_autosf );
+
+    adjhor_scale = nice_number( calc_default_hor_adjustment_scale() * ell_autosf );
+    adjvrt_scale = nice_number( calc_default_vrt_adjustment_scale() * he_autosf );
 }
 
 

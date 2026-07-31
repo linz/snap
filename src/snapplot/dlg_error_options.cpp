@@ -69,12 +69,11 @@ void ErrorOptionsDialog::Apply()
     errconflim=useConfLimit ? 1 : 0;
     errconfval=confLimit;
     set_confidence_limit();
-    double dfltscl = calc_default_error_scale();
     double scl = horErrorFactor;
-    if( horAutoScale ) scl = 1.1 * scl / dfltscl;
+    if( horAutoScale ) scl = 1.1 * scl / calc_default_error_scale();
     set_errell_exaggeration( scl, horAutoScale ? 1 : 0 );
     scl = vrtErrorFactor;
-    if( vrtAutoScale ) scl = 1.1 * scl / dfltscl;
+    if( vrtAutoScale ) scl = 1.1 * scl / calc_default_height_error_scale();
     set_hgterr_exaggeration( scl, vrtAutoScale ? 1 : 0 );
 }
 
