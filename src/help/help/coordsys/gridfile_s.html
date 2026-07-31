@@ -44,10 +44,11 @@ in the binary file as integer values. The grid model defines a scale
 factor to convert from the stored integer format to the actual data values.</p>
 
 <p>The binary file is created from a text
-formatted file using the makegrid.pl script supplied with concord. This
-requires the perl script interpreter to run (perl for Windows can be obtained
-from <a href="http://www.strawberryperl.com">www.strawberryperl.com</a>). 
-The binary data can be converted back to text format using the dumpgrid.pl script. </p>
+formatted file using the grid.py script supplied with concord. This
+requires the Python interpreter to run (Python for Windows can be obtained
+from <a href="https://www.python.org/downloads/windows/">www.python.org</a>).
+The binary data can be converted back to text format using the same
+grid.py script, with the -f ASCII option. </p>
 
 <p>The text format comprises a set of header
 records followed by records defining the values at each grid node. Each record
