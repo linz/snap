@@ -117,6 +117,12 @@ table
 	margin-left: 1em;
 }
 
+table.NormalTable tr:first-child td
+{
+	font-weight: bold;
+	border-bottom: 1px solid #d8dee4;
+}
+
 table.Commanddescription,
 table.Commanddescription_compact
 {
