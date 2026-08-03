@@ -16,33 +16,94 @@
 
 <p>
 The NZGD2000 datum is defined as a semi-dynamic datum, which means that NZGD2000 spatial coordinates
-are defined at a specific epoch (currently 2000.0 - 1 January 2000), and that a deformation model is 
-used to calculate the equivalent coordinates at other times.  The deformation model will include the 
-long term regional deformation trend and may include deformation related to specific events such as 
-earthquakes.
+are defined at a specific epoch (currently 2000.0 - 1 January 2000), and a deformation model is 
+used to calculate the equivalent coordinates at other times.  The New Zealand deformation model will
+typically include both national long-term and regional shorter-term deformation trends.
 </p>
-<p>The regional deformation reflects the relative movement of the Pacific and Australasian
+<p>The large-scale deformation reflects plate-tectonics - the relative movement of the Pacific and Australasian
 tectonic plates and the distribution of this movement across New Zealand.  Over a timespan of decades this
-is dominated by a constant velocity component.  Individual deformation events can be represented as
-short term perturbations of this.
+is dominated by a constant velocity component (which integrates to linear displacement).  Individual deformation
+events (earthquakes, volcanism) typically affect smaller areas and can be represented by short-term perturbations
+to the long-term trend.
 </p>
 <p>
 The deformation model associated with NZGD2000 will be periodically updated, both to reflect new deformation events, and as a result of improved calculation of the long term component.
 </p>
 
 <p>
-In order to represent this deformation field the LINZ deformation model can include an arbitrary number 
+In order to represent this deformation field the LINZ deformation model can include an arbitrary number of
 &quot;deformation sequences&quot;, each of which consists of one or more &quot;deformation components&quot;. 
-The deformation at any time and place is determined by adding the corresponding deformation of from each sequence. 
+In perhaps the simplest case, the deformation at any time and place may be thought of as the sum of individual
+components in a sequence (see below for more complex use-cases, such as nested sequences etc.), and across all sequences.
 </p>
-<p>
-Each deformation sequence represents either a regional deformation or a specific deformation event.  It can have a number of components, each representing either the deformation or velocity before, after, or at a specific reference time.  
-For deformation sequences the deformation at other times is based on the deformation components before and after that time (or the two nearest components if the calculation time is beyond the range of the components).  The value may be determined using linear interpolation (extrapolation), or by using the next or previous value, depending on how the component is specified.
-For velocity sequences the velocities of each applicable component are added - each velocity component may apply before or after the reference time or both - and the total velocity is used to determine deformation.
+
+<div class="diagram">
+<svg viewBox="0 0 720 320" width="720" height="320" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="deftotal-title deftotal-desc">
+<title id="deftotal-title">How the total deformation is built up over time, from three kinds of component</title>
+<desc id="deftotal-desc">A schematic showing a constant velocity component (e.g. typically large-scale deformation), an instantaneous displacement component (e.g. co-seismic motion) and a linear displacement component over time Tp to Tq (e.g. post-seismic rebound). The bold total line is the exact sum of the other three at every point in time, and coincides exactly with the constant-velocity line until the first event begins.</desc>
+
+<!-- legend, aligned to the plot's own left edge (x=110) rather than the page's body text -->
+<rect x="110" y="8" width="472" height="92" rx="4" fill="none" stroke="#d8dee4" stroke-width="1"/>
+<line x1="125" y1="18" x2="149" y2="18" stroke="#0969da" stroke-width="2.5"/>
+<text x="155" y="22" font-size="14" fill="#1f2328">Constant velocity (e.g. typically large-scale deformation)</text>
+<line x1="125" y1="40" x2="149" y2="40" stroke="#d4a72c" stroke-width="2.5" stroke-dasharray="6 3"/>
+<text x="155" y="44" font-size="14" fill="#1f2328">Fixed displacement (e.g. co-seismic motion)</text>
+<line x1="125" y1="62" x2="149" y2="62" stroke="#8250df" stroke-width="2.5" stroke-dasharray="8 3 2 3"/>
+<text x="155" y="66" font-size="14" fill="#1f2328">Linear displacement over T<tspan baseline-shift="sub" font-size="70%">p</tspan> to T<tspan baseline-shift="sub" font-size="70%">q</tspan> (e.g. post-seismic rebound)</text>
+<line x1="125" y1="84" x2="149" y2="84" stroke="#1f2328" stroke-width="5"/>
+<text x="155" y="88" font-size="14" fill="#1f2328">Total (sum of all three)</text>
+
+<!-- value gridlines, shared by every line below; top gridline (2) matches the highest plotted value, so nothing extends beyond it -->
+<line x1="110" y1="290" x2="660" y2="290" stroke="#d8dee4" stroke-width="1"/>
+<line x1="110" y1="207.5" x2="660" y2="207.5" stroke="#d8dee4" stroke-width="1"/>
+<line x1="110" y1="125" x2="660" y2="125" stroke="#d8dee4" stroke-width="1"/>
+<text x="100" y="294" font-size="14" fill="#1f2328" text-anchor="end">0</text>
+<text x="100" y="211.5" font-size="14" fill="#1f2328" text-anchor="end">1</text>
+<text x="100" y="129" font-size="14" fill="#1f2328" text-anchor="end">2</text>
+
+<!-- event start marker: displacement and rebound both begin here (Tp) -->
+<line x1="303" y1="125" x2="303" y2="290" stroke="#d8dee4" stroke-width="1" stroke-dasharray="4 3"/>
+<line x1="385" y1="287" x2="385" y2="293" stroke="#1f2328" stroke-width="1"/>
+<text x="303" y="306" font-size="14" fill="#1f2328" text-anchor="middle">T<tspan baseline-shift="sub" font-size="70%">p</tspan></text>
+<text x="385" y="306" font-size="14" fill="#1f2328" text-anchor="middle">T<tspan baseline-shift="sub" font-size="70%">q</tspan></text>
+
+<!-- total, drawn first and thick so it shows as a black outline wherever a thinner component line sits exactly on top of it -->
+<polyline points="110,290 303,261.13 303,211.63 385,166.25 660,125" fill="none" stroke="#1f2328" stroke-width="6" stroke-linejoin="round"/>
+
+<!-- constant velocity: a straight line for the whole domain, rate never changes -->
+<polyline points="110,290 660,207.5" fill="none" stroke="#0969da" stroke-width="2.5"/>
+
+<!-- displacement: zero, then an instant jump to a fixed offset -->
+<polyline points="110,290 303,290 303,240.5 660,240.5" fill="none" stroke="#d4a72c" stroke-width="2.5" stroke-dasharray="6 3"/>
+
+<!-- piecewise linear: zero, a smooth transition starting immediately after the displacement, then flat again at the new value -->
+<polyline points="110,290 303,290 385,257 660,257" fill="none" stroke="#8250df" stroke-width="2.5" stroke-dasharray="8 3 2 3"/>
+
+<line x1="110" y1="290" x2="660" y2="290" stroke="#1f2328" stroke-width="1"/>
+<text x="660" y="310" font-size="14" fill="#1f2328" text-anchor="end">time &#8594;</text>
+
+</svg>
+</div>
+<p class="diagram-caption">
+Schematic example: all three component types plotted on the same value axis, plus their sum.
 </p>
+
 <p>
-Each sequence comprises one or more components which can define either horizontal, vertical, or three dimensional deformation/velocity field, and can be represented as 
-either a grid of values (on a regular grid in the coordinate system of the deformation model), or by a triangulated model.  The spatial interpolation of the deformation across grid squares uses bilinear interpolation and across triangles uses linear interpolation.  The east/north/up components of deformation are interpolated independently.  
+Beyond a simple sum, a sequence's components may be combined in two other ways:
+</p>
+
+<p class="BulletList">
+Depending on the <a href="linzdeffile.html">model version</a>, a component's contribution beyond its own defined extent is handled in different ways.  Older versions evaluate this relative to a single reference date &ndash; treating it as zero, holding it fixed, interpolating towards a neighbouring component in the same sequence, or, for a rate-of-change component, adding it with other such components to give a total velocity.  Newer versions instead let a component's own value vary continuously over time, following its own profile, as illustrated above.
+</p>
+<p class="BulletList">
+Newer versions may still operate identically to older versions where, by default, all of a sequence's components covering a given point &ndash; for a gridded component, point coverage is defined by the bounding box of its grid of values &ndash; are evaluated and their contributions added together.  However, if a sequence is now defined as nested, only the first matching component &ndash; the first, in sequence order, whose bounding box includes the point &ndash; is used, with any other components of that sequence ignored.  This avoids double-counting in cases where, for example, a detailed local patch sits inside the area of another, broader component in the same sequence.  Nesting only affects how this one sequence's own components combine; every other sequence in the model is still added in as usual, regardless of whether it is nested.
+</p>
+
+<p>
+Each component can define either horizontal, vertical, or three dimensional deformation/velocity fields,
+and can be represented as either a grid of values (on a regular grid in the coordinate system of the deformation model),
+or by a triangulated model.  The spatial interpolation of the deformation across grid squares uses bilinear interpolation
+and across triangles uses linear interpolation.  The east/north/up components of deformation are interpolated independently. 
 </p>
 
 <div class="SeeAlso">

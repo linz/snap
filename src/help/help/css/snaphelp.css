@@ -205,3 +205,20 @@ img.RightImage
 {
 	float: right;
 }
+
+div.diagram
+{
+	margin: 1em 0 1em 1em;
+}
+
+div.diagram svg
+{
+	max-width: 100%;
+	height: auto;
+}
+
+p.diagram-caption
+{
+	margin-left: 6em;
+	color: #57606a;
+}
