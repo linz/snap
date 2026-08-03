@@ -117,7 +117,7 @@ table
 	margin-left: 1em;
 }
 
-table.NormalTable tr:first-child td
+tr.TableHeader td
 {
 	font-weight: bold;
 	border-bottom: 1px solid #d8dee4;

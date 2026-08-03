@@ -37,13 +37,13 @@ since it ensures every component ends up built with the same endianness.
 <p>The index file is structured with a header section followed by
 one or more deformation sequences. Each sequence has one or more
 deformation components. Each record comprises a code defining the
-content of the record, followed by the value of the record. Dates
-in the file are formatted as dd-mmm-yyyy, for example
+content of the record, followed by the value of the record.</p>
+<p>Dates in the file are formatted as dd-mmm-yyyy, for example
 &ldquo;20-Jan-2004&rdquo;. This can optionally be followed by a
-time such as &ldquo;12:30&rdquo;</p>
+time such as &ldquo;12:30&rdquo;.</p>
 <p>The header section should contain the following records:</p>
 <table class="NormalTable">
-<tr>
+<tr class="TableHeader">
 <td>
 <p>Code</p>
 </td>
@@ -111,10 +111,32 @@ after this are invalid</p>
 </td>
 <td>
 <p>A code for the coordinate system in which the deformation is
-defined &ndash; eg NZGD2000.</p>
+defined &ndash; eg NZGD2000. Must be a single word (letters, digits,
+and underscores only &ndash; no spaces or punctuation).</p>
+</td>
+</tr>
+<tr>
+<td>
+<p>GEOGRAPHICAL</p>
+</td>
+<td>
+<p>string</p>
+</td>
+<td>
+<p>Either &ldquo;yes&rdquo; or &ldquo;no&rdquo;. If &ldquo;yes&rdquo;,
+coordinates are treated as longitude/latitude, and the model wraps a
+point's longitude by multiples of 360&deg; where necessary to bring
+it within the model's coordinate range (so the model can cover an
+area either side of the &plusmn;180&deg; meridian). If omitted,
+defaults to &ldquo;yes&rdquo;.</p>
 </td>
 </tr>
 </table>
+<p class="alert">
+Fields marked &ldquo;yes&rdquo;/&ldquo;no&rdquo; throughout this format
+default to <strong>yes</strong> if omitted, not no &ndash; only an
+explicit &ldquo;no&rdquo; turns them off.
+</p>
 <p>The header is followed by the deformation model version information, then
 one or more deformation sequence sections, each of which is followed by
 one or more deformation components. The records in each of these
@@ -126,18 +148,18 @@ is a strict increase in complexity over the last, so it is worth
 understanding version 1 before moving on to version 2, and version 2
 before version 3.</p>
 
-<p><a href="linzdeffile_v1.html">Version 1</a> (FORMAT = <code>LINZDEF1L</code> or
+<p class="BulletList"><a href="linzdeffile_v1.html">Version 1</a> (FORMAT = <code>LINZDEF1L</code> or
 <code>LINZDEF1B</code>) provides basic grids and a simple time model: each
 component has a single reference date, and is evaluated as zero, fixed, or
 interpolated either side of it.</p>
 
-<p><a href="linzdeffile_v2.html">Version 2</a> (FORMAT = <code>LINZDEF2L</code> or
+<p class="BulletList"><a href="linzdeffile_v2.html">Version 2</a> (FORMAT = <code>LINZDEF2L</code> or
 <code>LINZDEF2B</code>) adds nested sequences (so that only the first
 spatially matching component of a sequence is used, rather than summing all
 of them), and lets each component define a more flexible time model of its
 own, including piecewise-linear and velocity-based scaling.</p>
 
-<p><a href="linzdeffile_v3.html">Version 3</a> (FORMAT = <code>LINZDEF3L</code> or
+<p class="BulletList"><a href="linzdeffile_v3.html">Version 3</a> (FORMAT = <code>LINZDEF3L</code> or
 <code>LINZDEF3B</code>) adds support for holding multiple versions of the
 deformation model in a single file, each with its own version date and
 description.  Version 3
