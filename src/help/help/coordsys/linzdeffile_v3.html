@@ -10,11 +10,383 @@
 </head>
 <body>
 <h1>LINZ deformation file format version 3</h1>
-<p>This page is under construction.</p>
+<p>Version 3 of the <a href="linzdeffile.html">LINZ deformation file
+format</a> adds support for a single file holding more than one
+edition (version) of the deformation model. This is a subtle distinction
+versus v1/v2 files because adding a new <code>DEFORMATION_SEQUENCE</code> block
+with its own <code>START_DATE</code> already let them represent changes to
+a model over time, e.g. if a significant new earthquake occurred. However,
+what v1/v2 cannot do is preserve the model as it stood before that sequence
+existed. Once a new sequence is added, it becomes part of every calculation
+whose date falls within its own <code>START_DATE</code>/<code>END_DATE</code>,
+with no way to recover the answer the file would have given before the
+sequence existed. In v3 files, the <code>VERSION</code> keyword
+closes that gap: it allows the model's publication history to also be
+considered and recorded, not just the physical timeline of any one deformation
+event.</p>
+
+<p>
+Sequence and component records are identical to <a href="linzdeffile_v2.html">version 2</a>
+(<code>NESTED_SEQUENCE</code>, <code>TIME_MODEL</code> etc.) &ndash;
+except for the new repeatable <code>VERSION</code> keyword described below,
+and two new sequence-level records, <code>VERSION_START</code>/
+<code>VERSION_END</code> which allow them to document which of the file's
+<code>VERSION</code> blocks a given sequence belongs to.</p>
+
+<p>Set <code>FORMAT</code> to <code>LINZDEF3L</code> (little-endian,
+the current preferred format for SNAP) or <code>LINZDEF3B</code>
+(big-endian) in the header to select this version &ndash; see the
+<a href="linzdeffile.html">shared header section</a> for the other
+header records. Unlike <a href="linzdeffile_v1.html">version 1</a>
+and <a href="linzdeffile_v2.html">version 2</a>, version 3 has no
+additional records of its own at the model header level. Everything
+version-related moves into the repeatable <code>VERSION</code> record
+instead.</p>
+
+<p>Unless otherwise specified, dates on this page are formatted as dd-mmm-yyyy, for example
+&ldquo;20-Jan-2004&rdquo;, optionally followed by a time such as
+&ldquo;12:30&rdquo;.</p>
+
+<h2>The VERSION record</h2>
+<p>The header section may contain one or more <code>VERSION</code>
+blocks, each introduced by a <code>VERSION</code> record whose value
+is the edition's own identifier. This is a new record, distinct from
+the <code>VERSION_NUMBER</code> record used in version 1/2. Each
+<code>VERSION</code> record must be followed by <code>VERSION_DATE</code>
+and <code>DESCRIPTION</code> records:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Code</p></td>
+<td><p>Type</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr>
+<td><p>VERSION</p></td>
+<td class="nobr"><p>YYYYMMDD</p></td>
+<td><p>The identifier of this edition of the deformation model.
+Must be exactly 8 digits, starting with &ldquo;20&rdquo; (e.g.
+&ldquo;20090716&rdquo;). Unlike <code>VERSION_NUMBER</code> in
+version 1/2, this is not free-form text &ndash; the exact YYYYMMDD
+format is required, not just recommended, since editions are
+ordered by comparing this value as a string.</p></td>
+</tr>
+<tr>
+<td><p>VERSION_DATE</p></td>
+<td><p>date</p></td>
+<td><p>A human-readable record of when this edition became
+authoritative. Required &ndash; there is no default. As with version
+1/2's model-level <code>VERSION_DATE</code>, SNAP does not use this
+value in any calculation &ndash; it is descriptive only.</p></td>
+</tr>
+<tr>
+<td><p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p></td>
+<td><p>text</p></td>
+<td><p>A free-form, multi-line description of this edition. Required
+&ndash; there is no default, though the text itself may be empty. Any
+text is accepted, up to the terminating <code>END_DESCRIPTION</code>
+line.</p></td>
+</tr>
+</table>
+<p>SNAP always runs against exactly one edition of the model at a
+time: whichever <code>VERSION</code> block has the highest
+identifier is used by default. A coordinate system can instead pin
+the model to a specific edition &ndash; see the <code>LINZDEF</code>
+entry in <a href="crdsys_refframe_def.html">the reference frame
+definition format</a>. Every sequence is then either enabled
+or disabled for that edition, according to its own
+<code>VERSION_START</code>/<code>VERSION_END</code> &ndash; see
+below.</p>
+
+<p>A <code>VERSION</code> is not itself a span of time the model applies
+over &ndash; that is what a sequence's own <code>START_DATE</code>/
+<code>END_DATE</code> already describe, see the sequence records
+below. <code>VERSION_START</code>/<code>VERSION_END</code> answer a
+different question: which editions of the model definition include a
+given sequence at all? SNAP fixes the edition for an entire
+calculation regardless of the dates being computed. In the worked
+example below, a coordinate computed for 2015 under the &ldquo;20040312&rdquo;
+edition still omits the 2009 Fiordland earthquake sequence &ndash; not
+because 2015 falls outside that sequence's own time range, but because
+the sequence does not exist yet in that edition.</p>
+
+<h2>Sequence records</h2>
+<p>Each deformation sequence section should contain the following
+records &ndash; identical to <a href="linzdeffile_v2.html">version
+2</a>, except with <code>VERSION_START</code>/<code>VERSION_END</code>
+added:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Code</p></td>
+<td><p>Type</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr>
+<td><p>DEFORMATION_SEQUENCE</p></td>
+<td><p>string</p></td>
+<td><p>The name of the sequence (e.g. National model, Arthurs&rsquo;
+Pass earthquake).</p></td>
+</tr>
+<tr>
+<td><p>DIMENSION</p></td>
+<td class="nobr"><p>1, 2, 3</p></td>
+<td><p>The dimension of the deformation (1 = height only, 2 =
+horizontal only, 3 = 3d deformation).</p></td>
+</tr>
+<tr>
+<td><p>START_DATE</p></td>
+<td><p>date</p></td>
+<td><p>The first date at which the sequence applies &ndash; it is
+assumed to be zero before this.</p></td>
+</tr>
+<tr>
+<td><p>END_DATE</p></td>
+<td><p>date</p></td>
+<td><p>The last date at which the sequence applies &ndash; it is
+assumed to be zero after this date.</p></td>
+</tr>
+<tr>
+<td><p>ZERO_BEYOND_RANGE</p></td>
+<td><p>string</p></td>
+<td><p>Either &ldquo;yes&rdquo; or &ldquo;no&rdquo;. If
+&ldquo;yes&rdquo;, the sequence contributes zero for points beyond
+the spatial extent of its components. If &ldquo;no&rdquo;, evaluating
+a point beyond that extent fails with an error &ndash; and since the
+model's total deformation is the sum of every sequence, that error
+aborts the whole calculation, not just this sequence's contribution.
+If omitted, defaults to &ldquo;yes&rdquo;.</p></td>
+</tr>
+<tr>
+<td><p>NESTED_SEQUENCE</p></td>
+<td><p>string</p></td>
+<td><p>Either &ldquo;yes&rdquo; or &ldquo;no&rdquo;. If
+&ldquo;yes&rdquo;, only the first component of the sequence (in
+sequence order) whose own spatial extent includes the evaluation
+point is used, and every other component of the same sequence is
+ignored. If &ldquo;no&rdquo;, every component of the sequence that
+covers the point is evaluated and all of their contributions are
+added together. Nesting only affects this one sequence's own
+components &ndash; every other sequence in the model is still added
+in as usual regardless of whether it is nested. <strong>If omitted,
+defaults to &ldquo;yes&rdquo;.</strong></p></td>
+</tr>
+<tr>
+<td><p>VERSION_START</p></td>
+<td class="nobr"><p>YYYYMMDD</p></td>
+<td><p>The identifier of the first <code>VERSION</code> in which
+this sequence exists. Required &ndash; there is no default. If the
+model's currently-selected edition is earlier than this, the
+sequence is disabled entirely (it contributes nothing, as if it were
+not in the file).</p></td>
+</tr>
+<tr>
+<td><p>VERSION_END</p></td>
+<td class="nobr"><p>YYYYMMDD, or 0</p></td>
+<td><p>The identifier of the <code>VERSION</code> in which this
+sequence was revoked &ndash; the sequence is disabled from that
+edition onwards. Required &ndash; there is no default. Write
+&ldquo;0&rdquo; if the sequence has never been revoked (this is
+translated internally to a value that sorts after every real
+edition, so the sequence stays enabled in every edition that
+exists); a literal identifier disables it from that edition on.</p></td>
+</tr>
+<tr>
+<td><p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p></td>
+<td><p>text</p></td>
+<td><p>A free-form, multi-line description of the sequence. Any text is
+accepted, up to the terminating <code>END_DESCRIPTION</code> line.</p></td>
+</tr>
+</table>
+<p>A sequence is enabled for a given selected edition exactly when
+<code>VERSION_START &le; selected edition &lt; VERSION_END</code>
+(comparing the YYYYMMDD identifiers as plain strings, which is why
+<code>VERSION</code>'s exact 8-digit format matters). A disabled
+sequence is skipped entirely &ndash; it contributes nothing, exactly
+as if it were absent from the file for that edition.</p>
+
+<p><code>VERSION_START</code>/<code>VERSION_END</code> are still
+expected to follow the same YYYYMMDD format as <code>VERSION</code>,
+for the same reason: the comparison is done as a plain string, not as
+a date. The file format only rejects values over 8 characters &ndash;
+it does not require exactly 8. A shorter value, or one that is not a
+real date, is still compared as a plain string against the selected
+edition's identifier, and that comparison will not reliably match
+real chronological order unless YYYYMMDD is followed.</p>
+
+<p>Owing to this lexical comparison of <code>VERSION_START</code>/<code>VERSION_END</code>
+to the selected edition, neither needs to match one of the file's own
+declared <code>VERSION</code> identifiers identically.
+They are only ever compared against whichever edition ends up
+being selected, whether that is the default (highest) edition or one a
+coordinate system has pinned to.</p>
+
+<p>For example, with two editions
+<code>VERSION 20040312</code> and <code>VERSION 20090716</code>, and
+three sequences
+&ndash; one with <code>VERSION_START 20040312</code>/
+<code>VERSION_END 0</code>, one with
+<code>VERSION_START 20090716</code>/<code>VERSION_END 0</code>, and
+one with <code>VERSION_START 20060101</code>/<code>VERSION_END 0</code>
+&ndash; a start date that matches neither declared edition:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Selected edition</p></td>
+<td><p>Sequence starting 20040312</p></td>
+<td><p>Sequence starting 20090716</p></td>
+<td><p>Sequence starting 20060101</p></td>
+</tr>
+<tr>
+<td><p>20040312</p></td>
+<td><p>enabled</p></td>
+<td><p>disabled (not introduced yet)</p></td>
+<td><p>disabled (not introduced yet)</p></td>
+</tr>
+<tr>
+<td><p>20090716</p></td>
+<td><p>enabled</p></td>
+<td><p>enabled</p></td>
+<td><p>enabled</p></td>
+</tr>
+</table>
+<p>The sequence starting &ldquo;20060101&rdquo; behaves identically to
+the one starting &ldquo;20090716&rdquo;, because no declared edition
+falls between the two dates for the comparison to tell them apart.
+That only holds because each sequence's <code>VERSION_END</code> is
+<code>0</code> (unbounded) here &ndash; nothing caps how far forward
+the match can be pushed.</p>
+
+<p>If both ends of a sequence's window fall strictly between two
+declared editions instead, the sequence can end up permanently
+disabled rather than just shifted to the next one. Suppose a file
+declares only two editions, <code>VERSION 20040312</code> and
+<code>VERSION 20120101</code>, and a sequence has
+<code>VERSION_START 20060101</code> and <code>VERSION_END 20090101</code>:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Selected edition</p></td>
+<td><p>Comparison</p></td>
+<td><p>Result</p></td>
+</tr>
+<tr>
+<td><p>20040312</p></td>
+<td><p><code>20060101 &le; 20040312 &lt; 20090101</code></p></td>
+<td><p>false &ndash; disabled</p></td>
+</tr>
+<tr>
+<td><p>20120101</p></td>
+<td><p><code>20060101 &le; 20120101 &lt; 20090101</code></p></td>
+<td><p>false &ndash; disabled</p></td>
+</tr>
+</table>
+<p>No declared edition ever falls inside
+<code>[20060101, 20090101)</code>, so this sequence can never be
+enabled under any edition the file actually offers. The same would be
+true, unconditionally, if the sequence were specified with
+<code>VERSION_END</code> &le; <code>VERSION_START</code> &ndash; no
+selected edition could ever satisfy <code>VERSION_START</code>
+&le; selected edition &lt; <code>VERSION_END</code>; this is
+not checked when the file is loaded.</p>
+
+<h2>Component records</h2>
+<p>Identical to <a href="linzdeffile_v2.html">version 2</a>.
+See <a href="linzdeffile_v2.html#timemodel">the TIME_MODEL record</a>
+for the full derivation of <code>PIECEWISE_LINEAR</code> and
+<code>VELOCITY</code>.</p>
+
+<h2>Worked example</h2>
+<p>This is the same scenario as the <a href="linzdeffile_v2.html">version
+2</a> worked example, except now split across two editions of the model:
+the national model was introduced first, and the Fiordland earthquake
+patch was added later when the model was revised to include it.</p>
+<pre class="ConfigFile">
+DEFORMATION_MODEL NZGD2000 deformation model
+FORMAT LINZDEF3B
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2200
+COORDSYS NZGD2000
+
+VERSION 20040312
+VERSION_DATE 12-Mar-2004
+DESCRIPTION
+This is the description of the model
+This is a first try
+END_DESCRIPTION
+
+VERSION 20090716
+VERSION_DATE 16-Jul-2009
+DESCRIPTION
+Updated to include the 15 July 2009 Fiordland earthquake
+END_DESCRIPTION
+
+# National model
+
+DEFORMATION_SEQUENCE National model
+DIMENSION 2
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2101
+ZERO_BEYOND_RANGE no
+VERSION_START 20040312
+VERSION_END 0
+DESCRIPTION
+National velocity model
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT velgrid.gdf
+MODEL_TYPE grid
+REF_DATE 1-Jan-2000
+TIME_MODEL VELOCITY
+DESCRIPTION
+National velocity grid deformation model
+END_DESCRIPTION
+
+# 15 July 2009 Fiordland earthquake
+
+DEFORMATION_SEQUENCE Fiordland earthquake 15 July 2009
+DIMENSION 2
+START_DATE 1-Jan-2020
+END_DATE 1-Jan-2030
+ZERO_BEYOND_RANGE yes
+NESTED_SEQUENCE yes
+VERSION_START 20090716
+VERSION_END 0
+DESCRIPTION
+Deformation patch with single model, zero before, fixed after
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_a.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 0.8 20-Jul-2009 1.0
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_b.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 1.0
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake (near-field)
+END_DESCRIPTION
+
+</pre>
+<p>Under edition &ldquo;20040312&rdquo; (the model as originally
+published), only the National model sequence is enabled &ndash; the
+Fiordland sequence does not exist yet. Under edition
+&ldquo;20090716&rdquo; (the current, most recent edition, and so the
+one SNAP uses by default), both sequences are enabled.</p>
+
 <div class="SeeAlso">
 <h3>See also:</h3>
 <p><a href="linzdeffile.html">The SNAP LINZ deformation file format</a></p>
+<p><a href="linzdeffile_v1.html">Version 1 of the file format</a></p>
+<p><a href="linzdeffile_v2.html">Version 2 of the file format</a></p>
 <p><a href="linzdefmodel.html">The LINZ deformation model</a></p>
+<p><a href="gridfile_s.html">Gridded component file format</a></p>
+<p><a href="trigfile.html">Triangulated component file format</a></p>
 </div>
 <script src="../js/helppage.js"></script>
 </body>

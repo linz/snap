@@ -112,7 +112,7 @@ DEFORMATION <i>type</i> <i>parameters</i>
 There are currently four model types supported by concord and SNAP. These are <p>
 <pre><code>
 VELGRID <i>grid_file_name</i> <i>reference_epoch</i><br />
-LINZDEF <i>def_model_file</i>
+LINZDEF <i>def_model_file</i> [<i>version</i>]
 BW14 <i>reference_epoch dTx dTy dTz dRx dRy dRz dS</i> 
 EULER <i>reference_epoch Plon Plat rate</i>
 NONE
@@ -123,11 +123,15 @@ components of velocities on the grid in metres per year.  It requires a referenc
 defines the time at which the deformation is zero.
 </p>
 <p>
-The LINZDEF model is a <a href="linzdefmodel.html">complex model</a> comprising 
-multiple components.  This has just one parameter, the name of the model definition file.  
-Coordinates in the 
-This does not necessarily correspond to actual coordinates at any real epoch.  
-For NZGD2000 this would be the reference coordinates used to refer to a mark.
+The LINZDEF model is a <a href="linzdefmodel.html">complex model</a> comprising
+multiple components.  Its required parameter is the name of the model definition file.
+</p>
+<p>
+Some LINZDEF files hold more than one edition (version) of the model
+&ndash; see <a href="linzdeffile_v3.html">version 3 of the file
+format</a>.  The optional <i>version</i> parameter pins the coordinate
+system to one specific version by its identifier.  If omitted, SNAP
+uses the file's most recent version.
 </p>
 <p>The BW14 and EULER models are both equivalent to 14 parameter Bursa Wolf transformations and can be implemented in the transformation
 definition section (with RATES or IERS_ETSR).  The EULER model does provide a convenient alternative formulation however.
