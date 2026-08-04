@@ -889,15 +889,24 @@ void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
     }
 }
 
+// Rebuilds the active list from scratch (defaults, including colours) before
+// applying the requested status, so "reset all" also restores default colours.
 void SnapplotFrame::OnCmdDataColourResetAllOn( wxCommandEvent & WXUNUSED(event) )
 {
+    invalidate_active_data_user_layer_cache();
+    SetupDataPens( get_data_pen_type() );
     reset_data_user_layers( true );
+    reset_data_type_layer_colours();
     SetupSymbology();
 }
 
+// See OnCmdDataColourResetAllOn.
 void SnapplotFrame::OnCmdDataColourResetAllOff( wxCommandEvent & WXUNUSED(event) )
 {
+    invalidate_active_data_user_layer_cache();
+    SetupDataPens( get_data_pen_type() );
     reset_data_user_layers( false );
+    reset_data_type_layer_colours();
     SetupSymbology();
 }
 

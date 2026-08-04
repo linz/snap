@@ -4,6 +4,9 @@
 
 #include "util/snapctype.h"
 
+#include <map>
+#include <memory>
+
 // Provides a crude interface to existing C code by replacing functions
 // defined in plotpens.h
 
@@ -88,6 +91,32 @@ static layer_s station_layers[] =
 
 static layer_s *data_user_layers = 0;
 static bool sort_data_user_layers = true;
+
+static void delete_layers( layer_s **pl );
+
+// Deleter for a dynamically-built layer_s array, so ownership in
+// data_mode_layer_cache can be a plain unique_ptr rather than a raw
+// pointer someone has to remember to free by hand.
+struct LayerArrayDeleter
+{
+    void operator()( layer_s *layers ) const
+    {
+        delete_layers( &layers );
+    }
+};
+using LayerArrayPtr = std::unique_ptr<layer_s, LayerArrayDeleter>;
+
+// data_user_layers holds whichever mode's list is currently active; the
+// cache below is what actually owns each mode's list. A given mode's
+// content (a classification, the data file list) is fixed for a snap
+// session, so once built it's kept alive here rather than deleted and
+// rebuilt on every colour-by switch - the same way data_type_layers
+// already behaves - which lets copy_layer()'s existing lyr_id matching
+// persist checkbox status and colour across switches for free. Residual
+// and redundancy lists depend on dialog-chosen parameters rather than the
+// underlying data, so those entries are explicitly evicted by
+// invalidate_data_user_layer_cache() when their parameters change.
+static std::map<wxString, LayerArrayPtr> data_mode_layer_cache;
 
 static layer_s *data_type_layers = 0;
 
@@ -318,43 +347,76 @@ static void setup_data_type_layers()
     data_type_layers[NOBSTYPE+1].name = 0;
 }
 
-static void set_datatype_layer_colourflag( bool on )
-{
-    setup_data_type_layers();
-    if( ! data_type_layers ) return;
-    // The header row and its control checkbox are shown whether or not "Data type"
-    // is the active colour-coding mode; only the colour swatches on the rows below
-    // it depend on on/off.
-    data_type_layers[0].pen_id = UNUSED_PEN_ID;
-    for( int i = 0; i < NOBSTYPE; i++ )
-    {
-        // i+1 to skip the header row added at index 0
-        if( data_type_layers[i+1].pen_id != UNUSED_LAYER_PEN_ID )
-        {
-            data_type_layers[i+1].pen_id = on ? OTHER_PEN : UNUSED_PEN_ID;
-        }
-    }
-}
-
+// Points data_user_layers at the cached list for this header, building and
+// caching it first if this is the first time this mode has been selected.
 void setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
 {
-    set_datatype_layer_colourflag( true );
-    if( data_user_layers ) delete_layers( &data_user_layers );
-    if( ndatapens <= 0 ) return;
+    if( ndatapens <= 0 )
+    {
+        data_user_layers = 0;
+        return;
+    }
 
-    set_datatype_layer_colourflag( false );
-    data_user_layers = (layer_s *) check_malloc( sizeof(layer_s) * (ndatapens+2) );
-    layer_s *l = &(data_user_layers[0]);
+    const wxString key( header );
+    const auto cached = data_mode_layer_cache.find( key );
+    if( cached != data_mode_layer_cache.end() )
+    {
+        data_user_layers = cached->second.get();
+        return;
+    }
+
+    layer_s *layers = static_cast<layer_s *>( check_malloc( sizeof(layer_s) * (ndatapens+2) ) );
+    layer_s *l = &(layers[0]);
     init_layer(l,header,dflt_data_colour,true);
     l->opt_id = OTHER_OPT;
     l->is_control_checkbox = true;
     for( int i = 0; i < ndatapens; i++ )
     {
-        l = &(data_user_layers[i+1]);
+        l = &(layers[i+1]);
         init_layer(l,copy_string(datapennames[i]),dflt_data_colour,false);
     }
-    data_user_layers[ndatapens+1].name = 0;
+    layers[ndatapens+1].name = 0;
 
+    data_user_layers = layers;
+    data_mode_layer_cache.emplace( key, LayerArrayPtr( layers ) );
+}
+
+// Evicts and frees the cached list for the given header, e.g. when a
+// dialog changes the parameters (bin count, max value) that generated it,
+// so it gets rebuilt fresh next time that mode is selected.
+void invalidate_data_user_layer_cache( const char *header )
+{
+    const auto cached = data_mode_layer_cache.find( wxString( header ) );
+    if( cached == data_mode_layer_cache.end() )
+    {
+        return;
+    }
+    if( data_user_layers == cached->second.get() )
+    {
+        data_user_layers = 0;
+    }
+    data_mode_layer_cache.erase( cached );
+}
+
+// Evicts and frees data_user_layers' own cache entry, found by pointer
+// rather than by header text so the caller doesn't need to know which
+// mode is active - used by "reset all" so the list rebuilds with default
+// colours as well as the requested checkbox status.
+void invalidate_active_data_user_layer_cache()
+{
+    if( ! data_user_layers )
+    {
+        return;
+    }
+    for( auto it = data_mode_layer_cache.begin(); it != data_mode_layer_cache.end(); ++it )
+    {
+        if( it->second.get() == data_user_layers )
+        {
+            data_mode_layer_cache.erase( it );
+            data_user_layers = 0;
+            return;
+        }
+    }
 }
 
 static void reset_layer_status( layer_s *layers, const bool is_on )
@@ -383,6 +445,26 @@ void reset_data_user_layers( const bool is_on )
     // Both appear under OBSERVATIONS in the Key panel, so both get reset together.
     reset_layer_status( data_user_layers, is_on );
     reset_layer_status( data_type_layers, is_on );
+}
+
+// Resets every data_type_layers row's colour back to the default palette
+// entry. Unlike data_user_layers, this list is never rebuilt, so it has no
+// cache entry to evict - this is its only way back to default colours.
+void reset_data_type_layer_colours()
+{
+    if( ! data_type_layers || ! symbology ) {
+        return;
+    }
+    for( layer_s *l = data_type_layers; l->name; l++ ) {
+        if( l->lyr_id < 0 ) {
+            continue;
+        }
+        LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
+        if( ! ls.HasColour() ) {
+            continue;
+        }
+        ls.SetColourId( symbology->GetPalette()->AddColour( wxColour( dflt_data_colour ) ) );
+    }
 }
 
 static void setup_background_layers()

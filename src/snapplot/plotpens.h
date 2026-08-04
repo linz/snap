@@ -76,6 +76,14 @@ typedef struct
 void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
 void setup_station_layers( int class_id );
 void reset_data_user_layers( bool is_on );
+// Resets every data_type_layers row's colour back to the default palette entry.
+void reset_data_type_layer_colours();
+// Evicts a cached colour-by list by its header text, forcing a rebuild next time it's selected.
+void invalidate_data_user_layer_cache( const char *header );
+// Evicts whichever colour-by list is currently active, without needing to know its header.
+void invalidate_active_data_user_layer_cache();
+// Returns the pen-type code (DPEN_BY_* or a classification id) of the active observation colour-by mode.
+int get_data_pen_type();
 void rebuild_station_symbols();
 int get_pen( int item_code );
 int pen_visible( int pen );

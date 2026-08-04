@@ -932,8 +932,17 @@ static void setup_classification_pens( int class_type )
     check_free( class_pen_names );
 }
 
+// Evicts the cached residual list before overwriting maxsres/nsres if either
+// is actually changing, so it rebuilds fresh with the new bins next time
+// residual colouring is selected. Both header variants are evicted since
+// apriori/aposteriori share these parameters.
 void setup_sres_pens( double max, int apost, int npens )
 {
+    if( max != maxsres || npens != nsres )
+    {
+        invalidate_data_user_layer_cache( nmApostStdRes );
+        invalidate_data_user_layer_cache( nmStdRes );
+    }
     maxsres = max;
     nsres = npens;
     aposteriori_sres = apost;
@@ -946,8 +955,15 @@ void get_sres_pen_options( double *max, int *apost, int *npens )
     *npens = nsres;
 }
 
+// Evicts the cached redundancy list before overwriting nrfac if it's
+// actually changing, so it rebuilds fresh with the new bins next time
+// redundancy colouring is selected.
 void setup_rfac_pens( int npens )
 {
+    if( npens != nrfac )
+    {
+        invalidate_data_user_layer_cache( nmRedundancy );
+    }
     nrfac = npens;
 }
 
@@ -982,6 +998,12 @@ void setup_data_pens( int type )
         setup_datatype_pens();
         data_pen_type = DPEN_BY_TYPE;
     }
+}
+
+// Returns the pen-type code of the currently active observation colour-by mode.
+int get_data_pen_type()
+{
+    return data_pen_type;
 }
 
 int set_datapen_definition( char *def )
