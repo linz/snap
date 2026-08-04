@@ -443,6 +443,13 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
     }
     else if ( _stricmp(field,"file") == 0 )
     {
+        // "recode file <recodefile>" is a distinct grammar from the other
+        // two forms below, and shares none of their optional uncertainty or
+        // date-range clauses etc. - the recode file's own columns are all it
+        // supports. read_station_recode_file has already applied every
+        // recode from the file by the time it returns, so this branch returns
+        // immediately rather than falling into logic that assumes codefrom
+        // and codeto are set.
         char *filename=next_field(&def);
         int sts;
         if( ! filename )
@@ -459,6 +466,11 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
                 ok=0;
             }
         }
+        if( ! ok )
+        {
+            handle_error(INVALID_DATA,"Error reading station recoding",msg);
+        }
+        return ok ? OK : INVALID_DATA;
     }
     else if ( _stricmp(field,"suffix") == 0 )
     {
