@@ -48,6 +48,8 @@ public:
     void OnCmdStationIgnoreOffsets( wxCommandEvent &event );
     void OnCmdStationFindStation( wxCommandEvent &event );
     void OnCmdColourBy( wxCommandEvent &event );
+    void OnCmdDataColourResetAllOn( wxCommandEvent &event );
+    void OnCmdDataColourResetAllOff( wxCommandEvent &event );
     void OnCmdStationColourBy( wxCommandEvent &event );
     void OnCmdDataOptions( wxCommandEvent &event );
     void OnCmdDataHighlight( wxCommandEvent &event );

@@ -75,6 +75,7 @@ typedef struct
 
 void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
 void setup_station_layers( int class_id );
+void reset_data_user_layers( bool is_on );
 void rebuild_station_symbols();
 int get_pen( int item_code );
 int pen_visible( int pen );

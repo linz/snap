@@ -96,6 +96,8 @@ BEGIN_EVENT_TABLE(SnapplotFrame, wxFrame)
     EVT_MENU(CMD_DATA_LISTOPTIONS, SnapplotFrame::OnCmdDataListOptions )
 
     EVT_MENU_RANGE( CMD_COLOURBY_FIRST, CMD_COLOURBY_LAST, SnapplotFrame::OnCmdColourBy )
+    EVT_MENU(CMD_DATA_COLOURBY_RESETALLON, SnapplotFrame::OnCmdDataColourResetAllOn )
+    EVT_MENU(CMD_DATA_COLOURBY_RESETALLOFF, SnapplotFrame::OnCmdDataColourResetAllOff )
 
     EVT_MENU(CMD_ERROR_OPTIONS, SnapplotFrame::OnCmdErrorOptions )
 
@@ -520,6 +522,14 @@ void SnapplotFrame::AddColourByClassifications()
             nextCommandId++;
         }
     }
+
+    dataColourMenu->AppendSeparator();
+    dataColourMenu->Append( CMD_DATA_COLOURBY_RESETALLON,
+                            "Reset all o&n",
+                            "Reset every item's checkbox in this list to on" );
+    dataColourMenu->Append( CMD_DATA_COLOURBY_RESETALLOFF,
+                            "Reset all &off",
+                            "Reset every item's checkbox in this list to off" );
 }
 
 void SnapplotFrame::AddConfigMenuItems()
@@ -877,6 +887,18 @@ void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
             break;
         }
     }
+}
+
+void SnapplotFrame::OnCmdDataColourResetAllOn( wxCommandEvent & WXUNUSED(event) )
+{
+    reset_data_user_layers( true );
+    SetupSymbology();
+}
+
+void SnapplotFrame::OnCmdDataColourResetAllOff( wxCommandEvent & WXUNUSED(event) )
+{
+    reset_data_user_layers( false );
+    SetupSymbology();
 }
 
 

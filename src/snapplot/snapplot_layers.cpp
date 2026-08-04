@@ -357,6 +357,34 @@ void setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
 
 }
 
+static void reset_layer_status( layer_s *layers, const bool is_on )
+{
+    if( ! layers || ! symbology ) {
+        return;
+    }
+    // Walk the array until we reach the null-terminated sentinel row.
+    for( layer_s *l = layers; l->name; l++ ) {
+        if( l->lyr_id < 0 ) {
+            continue;
+        }
+        LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
+        ls.SetStatus( is_on );
+        if( l->is_control_checkbox ) {
+            ls.SetMixedRowStatus( false );
+        }
+    }
+}
+
+void reset_data_user_layers( const bool is_on )
+{
+    // data_user_layers holds the active colour-by list (data file/residual/redundancy/
+    // classification); data_type_layers is the separate, always-shown observation-type
+    // list, which is what's populated instead when "Data type" is the active mode.
+    // Both appear under OBSERVATIONS in the Key panel, so both get reset together.
+    reset_layer_status( data_user_layers, is_on );
+    reset_layer_status( data_type_layers, is_on );
+}
+
 static void setup_background_layers()
 {
     if( background_layers )  return;
