@@ -46,6 +46,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>
+#include <exception>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -110,6 +111,7 @@ static void write_filelist_csv();
 static int force_zero_inverse=0;
 
 int snap_main( int argc, char *argv[] )
+try
 {
 
     int show_iterations;
@@ -717,6 +719,20 @@ int snap_main( int argc, char *argv[] )
         xprintf( "\nWARNING: Adjustment has not converged - results may be misleading\n" );
         xprintf( "Final iteration maximum adjustment is %.4lf.\n",last_iteration_max_adjustment );
     }
+    return get_error_count() > 0 ? DEFAULT_RETURN_STATUS : OK;
+}
+catch( const std::exception &e )
+{
+    char errmess[256];
+    snprintf( errmess, sizeof(errmess), "Unexpected internal error: %s", e.what() );
+    handle_error( INVALID_DATA, errmess, NO_MESSAGE );
+    close_output_files(0,0);
+    return DEFAULT_RETURN_STATUS;
+}
+catch( ... )
+{
+    handle_error( INVALID_DATA, "Unexpected internal error of unknown type", NO_MESSAGE );
+    close_output_files(0,0);
     return DEFAULT_RETURN_STATUS;
 }
 
