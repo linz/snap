@@ -416,6 +416,44 @@ static StatusType load_date( hBinSrc binsrc, long offset, DateTimeType *date )
 
 
 /*************************************************************************
+** Function name: load_version_field
+**//**
+**    Load a version identifier (VERSION, VERSION_NUMBER, VERSION_START,
+**    or VERSION_END) into a fixed-size buffer. VERSION_NUMBER (version
+**    1/2) and VERSION (version 3) have always accepted strings longer
+**    than VERSIONLEN by silently truncating them, so rejectOverlength
+**    must be false for those two to preserve that behaviour. Only
+**    VERSION_START/VERSION_END have always rejected them.
+**
+**  \param binsrc              The binary source object
+**  \param dest                The destination buffer (VERSIONLEN+1 bytes)
+**  \param rejectOverlength     If true, reject strings longer than
+**                             VERSIONLEN instead of truncating them
+**
+**  \return                    The return status
+**
+**************************************************************************
+*/
+
+static StatusType load_version_field( const hBinSrc binsrc, Version dest, const bool rejectOverlength )
+{
+    char *data=0;
+    const StatusType sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
+    if( sts != STS_OK ) {
+        RETURN_STATUS( sts );
+    }
+    if( rejectOverlength && strlen(data) > VERSIONLEN ) {
+        utlFree(data);
+        RETURN_STATUS( STS_INVALID_DATA );
+    }
+    strncpy( dest, data, VERSIONLEN );
+    dest[VERSIONLEN] = 0;
+    utlFree(data);
+    return STS_OK;
+}
+
+
+/*************************************************************************
 ** Function name: load_component
 **//**
 **    Creates and loads a deformation component
@@ -781,18 +819,10 @@ static StatusType load_sequence( int version, hBinSrc binsrc, hDefSeq *pseq )
 
     if( sts == STS_OK && version >= 3 )
     {
-        char *data=0;
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
-        if( sts == STS_OK && strlen(data) > VERSIONLEN ) sts = STS_INVALID_DATA;
-        strncpy( seq->startver, data, VERSIONLEN );
-        seq->endver[VERSIONLEN]=0;
-        utlFree(data);
-        data=0;
-        if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
-        if( sts == STS_OK && strlen(data) > VERSIONLEN ) sts = STS_INVALID_DATA;
-        strncpy( seq->endver, data, VERSIONLEN );
-        seq->endver[VERSIONLEN]=0;
-        utlFree(data);
+        sts = load_version_field( binsrc, seq->startver, true );
+        if( sts == STS_OK ) {
+            sts = load_version_field( binsrc, seq->endver, true );
+        }
     }
 
     if( sts == STS_OK ) sts = utlBinSrcLoad2( binsrc, BINSRC_CONTINUE, 1, &ncomponents );
@@ -1190,7 +1220,6 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     INT2 nver=0;
     int idseq;
     hDefVer ver=0;
-    char *data;
 
     (*pdef) = NULL;
 
@@ -1218,17 +1247,12 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
     ver=0;
     if( version < 3 ) { sts=create_def_ver( &ver ); def->firstver=ver; }
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, indexloc, &(def->name) );
-    if( sts == STS_OK && version < 3 ) 
-    { 
-        sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
-        if( sts == STS_OK )
-        {
-            if( data[0] )
-            {
-                strncpy( ver->version, data, VERSIONLEN );
-                ver->version[VERSIONLEN]=0;
-            }
-            utlFree(data);
+    if( sts == STS_OK && version < 3 )
+    {
+        Version tmpver;
+        sts = load_version_field( binsrc, tmpver, false );
+        if( sts == STS_OK && tmpver[0] ) {
+            strcpy( ver->version, tmpver );
         }
     }
     if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(def->crdsyscode) );
@@ -1256,13 +1280,7 @@ static StatusType create_def_mod( hDefMod* pdef, hBinSrc binsrc)
             *pver=ver;
             pver=&(ver->nextver);
 
-            sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &data );
-            if( sts == STS_OK )
-            {
-                strncpy( ver->version, data, VERSIONLEN );
-                ver->version[VERSIONLEN]=0;
-                utlFree(data);
-            }
+            sts = load_version_field( binsrc, ver->version, false );
             if( sts == STS_OK ) sts = load_date( binsrc, BINSRC_CONTINUE, &(ver->versiondate) );
             if( sts == STS_OK ) sts = utlBinSrcLoadString( binsrc, BINSRC_CONTINUE, &(ver->description) );
         }
