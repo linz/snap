@@ -110,9 +110,11 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
         LayerSymbology &sym = symkey->GetLayer( row );
 
         if( col == 1 && sym.IsControlCheckbox() ) {
-            const int flags = sym.IsMixedRowStatus() ? wxCONTROL_UNDETERMINED :
-                               sym.Status() ? wxCONTROL_CHECKED : wxCONTROL_NONE;
-            wxRendererNative::Get().DrawCheckBox( &grid, dc, rect, flags );
+            if( ! wxsymkey.IsSingleChildMasterRow( row ) ) {
+                const int flags = sym.IsMixedRowStatus() ? wxCONTROL_UNDETERMINED :
+                                   sym.Status() ? wxCONTROL_CHECKED : wxCONTROL_NONE;
+                wxRendererNative::Get().DrawCheckBox( &grid, dc, rect, flags );
+            }
             return;
         }
 
@@ -282,6 +284,16 @@ Symbology *wxLayerKey::GetSymbologyKey()
     return symbologyKey;
 }
 
+bool wxLayerKey::IsSingleChildMasterRow( const int row ) const
+{
+    const MasterLookup lookup = FindMasterRange( row );
+    if( ! lookup.isMaster ) {
+        return false;
+    }
+    const MasterRange &range = masterRanges[lookup.rangeIndex];
+    return range.lastChild == range.master + 1;
+}
+
 void wxLayerKey::OnLeftClick( wxGridEvent &event )
 {
     if( event.GetCol() == 0 )
@@ -305,6 +317,10 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
         const int row = event.GetRow();
         LayerSymbology &sym = symbologyKey->GetLayer( row );
         const MasterLookup lookup = FindMasterRange( row );
+        if( lookup.isMaster && IsSingleChildMasterRow( row ) ) {
+            // No checkbox is drawn for a single-child master, so clicking it is a no-op.
+            return;
+        }
         if( lookup.isMaster ) {
             // Clicking the master control while it's indeterminate or unchecked
             // selects every child row below it; clicking it while checked deselects

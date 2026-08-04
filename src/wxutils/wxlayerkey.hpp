@@ -28,6 +28,11 @@ public:
 
     Symbology *GetSymbologyKey();
 
+    // True if row is a control checkbox whose range has exactly one child -
+    // the checkbox is then redundant, since it can only ever match that one
+    // child's own status.
+    bool IsSingleChildMasterRow( int row ) const;
+
 private:
     Symbology *symbologyKey;
     void FireSymbologyChangedEvent();
