@@ -1,0 +1,442 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<meta http-equiv="Content-Type" content=
+"text/html; charset=us-ascii">
+<meta name="keywords" content=
+"SNAP, deformation, LINZ deformation model, file format, version 2">
+<link rel="stylesheet" type="text/css" href="../css/snaphelp.css">
+<title>LINZ deformation file format version 2</title>
+</head>
+<body>
+<h1>LINZ deformation file format version 2</h1>
+<p>Version 2 of the <a href="linzdeffile.html">LINZ deformation file
+format</a> replaces version 1's single-reference-date, per-component
+zero/fixed/interpolate rule with a more flexible per-component time
+model, and adds nested sequences. There is no <code>DATA_TYPE</code>
+in version 2 &ndash; every sequence works the same way, and each
+component instead chooses its own time model: either
+<code>PIECEWISE_LINEAR</code>, which scales the component's value
+directly at each date, or <code>VELOCITY</code>, which treats the
+component's value as a rate to be integrated into a displacement
+&ndash; see <a href="#timemodel">the TIME_MODEL record</a> below.</p>
+
+<p>Set <code>FORMAT</code> to <code>LINZDEF2L</code> (little-endian)
+or <code>LINZDEF2B</code> (big-endian) in the header to select this
+version &ndash; see the <a href="linzdeffile.html">shared header
+section</a> for the other header records.</p>
+
+<p>Dates on this page are formatted as dd-mmm-yyyy, for example
+&ldquo;20-Jan-2004&rdquo;, optionally followed by a time such as
+&ldquo;12:30&rdquo;.</p>
+
+<h2>Model header records</h2>
+<p>In addition to the <a href="linzdeffile.html">shared header
+records</a>, version 2 requires the same model-level records as
+<a href="linzdeffile_v1.html">version 1</a>:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Code</p></td>
+<td><p>Type</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr>
+<td><p>VERSION_NUMBER</p></td>
+<td><p>number</p></td>
+<td><p>The version of the deformation model &ndash; digits, optionally
+with a single decimal point (e.g. &ldquo;1.0&rdquo;).</p></td>
+</tr>
+<tr>
+<td><p>VERSION_DATE</p></td>
+<td><p>date</p></td>
+<td><p>A human-readable record of when this version became
+authoritative. SNAP does not use this value in any calculation
+&ndash; it is descriptive only.</p></td>
+</tr>
+<tr>
+<td><p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p></td>
+<td><p>text</p></td>
+<td><p>A free-form, multi-line description of the model. Any text is
+accepted, up to the terminating <code>END_DESCRIPTION</code> line.</p></td>
+</tr>
+</table>
+<p>These header records, together with the shared ones, may appear
+in any order, except that <code>DEFORMATION_MODEL</code> must be the
+first record in the file, and <code>FORMAT</code> must appear before
+the first <code>DEFORMATION_SEQUENCE</code> record.</p>
+
+<h2>Sequence records</h2>
+<p>Each deformation sequence section should contain the following
+records:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Code</p></td>
+<td><p>Type</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr>
+<td><p>DEFORMATION_SEQUENCE</p></td>
+<td><p>string</p></td>
+<td><p>The name of the sequence (e.g. National model, Arthurs&rsquo;
+Pass earthquake).</p></td>
+</tr>
+<tr>
+<td><p>DIMENSION</p></td>
+<td class="nobr"><p>1, 2, 3</p></td>
+<td><p>The dimension of the deformation (1 = height only, 2 =
+horizontal only, 3 = 3d deformation).</p></td>
+</tr>
+<tr>
+<td><p>START_DATE</p></td>
+<td><p>date</p></td>
+<td><p>The first date at which the sequence applies &ndash; it is
+assumed to be zero before this.</p></td>
+</tr>
+<tr>
+<td><p>END_DATE</p></td>
+<td><p>date</p></td>
+<td><p>The last date at which the sequence applies &ndash; it is
+assumed to be zero after this date.</p></td>
+</tr>
+<tr>
+<td><p>ZERO_BEYOND_RANGE</p></td>
+<td><p>string</p></td>
+<td><p>Either &ldquo;yes&rdquo; or &ldquo;no&rdquo;. If
+&ldquo;yes&rdquo;, the sequence contributes zero for points beyond
+the spatial extent of its components. If &ldquo;no&rdquo;, evaluating
+a point beyond that extent fails with an error &ndash; and since the
+model's total deformation is the sum of every sequence, that error
+aborts the whole calculation, not just this sequence's contribution.
+If omitted, defaults to &ldquo;yes&rdquo;.</p></td>
+</tr>
+<tr>
+<td><p>NESTED_SEQUENCE</p></td>
+<td><p>string</p></td>
+<td><p>Either &ldquo;yes&rdquo; or &ldquo;no&rdquo;. If
+&ldquo;yes&rdquo;, only the first component of the sequence (in
+sequence order) whose own spatial extent includes the evaluation
+point is used, and every other component of the same sequence is
+ignored. If &ldquo;no&rdquo;, every component of the sequence that
+covers the point is evaluated and all of their contributions are
+added together. Nesting only affects this one sequence's own
+components &ndash; every other sequence in the model is still added
+in as usual regardless of whether it is nested. <strong>If omitted,
+defaults to &ldquo;yes&rdquo;.</strong></p></td>
+</tr>
+<tr>
+<td><p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p></td>
+<td><p>text</p></td>
+<td><p>A free-form, multi-line description of the sequence. Any text is
+accepted, up to the terminating <code>END_DESCRIPTION</code> line.</p></td>
+</tr>
+</table>
+<p class="alert">
+Because <code>NESTED_SEQUENCE</code> defaults to &ldquo;yes&rdquo;,
+a sequence with several components that are meant to all contribute
+together (rather than only the first match) must set
+<code>NESTED_SEQUENCE no</code> explicitly &ndash; omitting it silently
+nests the sequence instead.
+</p>
+
+<h2>Component records</h2>
+<p>Each deformation component should contain the following records:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Code</p></td>
+<td><p>Type</p></td>
+<td><p>Description</p></td>
+</tr>
+<tr>
+<td><p>DEFORMATION_COMPONENT</p></td>
+<td><p>string</p></td>
+<td><p>The name of the <a href="gridfile_s.html">grid</a> or <a href=
+"trigfile.html">triangulation</a> data file containing the model.
+This must match the dimension of the sequence. The name may be
+followed by additional parameters to be used to generate the grid
+or trig file (by the grid.py or trig.py scripts, respectively).</p></td>
+</tr>
+<tr>
+<td><p>MODEL_TYPE</p></td>
+<td><p>string</p></td>
+<td><p>Either &ldquo;grid&rdquo; or &ldquo;trig&rdquo;.</p></td>
+</tr>
+<tr>
+<td><p>REF_DATE</p></td>
+<td><p>date</p></td>
+<td><p>The component's own reference date &ndash; see
+<code>TIME_MODEL</code> below for how it is used.</p></td>
+</tr>
+<tr>
+<td><p>TIME_MODEL</p></td>
+<td><p>string</p></td>
+<td><p>Replaces version 1's <code>BEFORE_REF_DATE</code>/
+<code>AFTER_REF_DATE</code>. Either
+&ldquo;<code>PIECEWISE_LINEAR</code>&rdquo; or
+&ldquo;<code>VELOCITY</code>&rdquo;, each followed by its own
+parameters &ndash; see below. There is no default; this record is
+required.</p></td>
+</tr>
+<tr>
+<td><p>DESCRIPTION<br>
+<i>text ...</i><br>
+END_DESCRIPTION</p></td>
+<td><p>text</p></td>
+<td><p>A free-form, multi-line description of the component. Any text is
+accepted, up to the terminating <code>END_DESCRIPTION</code> line.</p></td>
+</tr>
+</table>
+
+<h2 id="timemodel">The TIME_MODEL record</h2>
+<p><code>TIME_MODEL</code> never specifies a deformation value
+directly &ndash; it always works together with the fixed spatial
+pattern already defined by the component's own grid or trig file.
+There are two forms (case insensitive), each using the same
+list-of-dates syntax (dates in the same dd-mmm-yyyy form used
+throughout this file, converted internally to a decimal year for
+the calculation) but combining with the component's value in
+different ways:</p>
+
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Form</p></td>
+<td><p>Syntax</p></td>
+</tr>
+<tr>
+<td><p>PIECEWISE_LINEAR</p></td>
+<td><p><code>PIECEWISE_LINEAR f0 d1 f1 ... dn fn</code></p></td>
+</tr>
+<tr>
+<td><p>VELOCITY</p></td>
+<td><p><code>VELOCITY v0 d1 v1 ... dn vn</code> (or bare
+&ldquo;<code>VELOCITY</code>&rdquo; with no parameters at all)</p></td>
+</tr>
+</table>
+<p>&nbsp;</p>
+
+<h3>PIECEWISE_LINEAR</h3>
+<p><code>TIME_MODEL</code> only computes <code>factor(time)</code>.
+Call the component's own grid or trig value at a given point
+<code>G</code> (it does not change over time). The deformation this
+component contributes, at a point and a time, is:</p>
+<p class="Commandexample">deformation(point, time) = factor(time) &times; G(point)</p>
+<p><code>f0</code> gives <code>factor(time)</code> at and before
+<code>d1</code>; <code>fn</code> holds it constant after
+<code>dn</code>; and between any two consecutive listed dates
+d<sub>i</sub>/f<sub>i</sub> and d<sub>i+1</sub>/f<sub>i+1</sub>,
+the factor interpolates linearly:</p>
+<p class="Commandexample">factor(time) = f<sub>i</sub> + [(time &minus; d<sub>i</sub>) / (d<sub>i+1</sub> &minus; d<sub>i</sub>)] &times; (f<sub>i+1</sub> &minus; f<sub>i</sub>)</p>
+<p>Since <code>G</code> is a fixed number for a given point, and the
+factor is linear between d<sub>i</sub> and d<sub>i+1</sub>,
+<code>deformation(point, time)</code> is also a straight line between
+those two dates, running from f<sub>i</sub> &times; <code>G(point)</code>
+at d<sub>i</sub> to f<sub>i+1</sub> &times; <code>G(point)</code> at
+d<sub>i+1</sub>. This holds for every consecutive pair in the list,
+so the whole curve &ndash; across all of <code>d1</code>...<code>dn</code>
+&ndash; is a series of straight-line segments joined at each listed
+date, each with its own slope: a genuine piecewise linear function of
+time, exactly as this form's name says.</p>
+<p>A ramp, not a step, is what happens between any two <em>distinct</em>
+dates &ndash; there is always some elapsed time to interpolate across.
+A step instead needs zero elapsed time to ramp across, which happens
+in one of two ways: a component with only one listed date has nothing
+to ramp towards, so it jumps straight from <code>f0</code> to that
+single <code>f1</code> the instant <code>d1</code> passes (as in the
+second worked example below); or two consecutive dates in the list
+can be given as the same date, giving that particular ramp zero width
+so it happens instantaneously at that shared date, while still
+allowing further ramps to or from it.</p>
+
+<h3>VELOCITY</h3>
+<p><code>VELOCITY</code> has the same shape as
+<code>PIECEWISE_LINEAR</code>'s own syntax &ndash; except that
+<code>v0</code>...<code>vn</code> are rates instead of values.
+Turning those rates into actual displacement values means
+integrating them, and integration needs a start and end point to
+anchor the accumulation: this uses the sequence's own
+<code>START_DATE</code> and <code>END_DATE</code>. So call the full
+list of dates D<sub>0</sub>...D<sub>n+1</sub>, where D<sub>0</sub> =
+<code>START_DATE</code>, D<sub>1</sub>...D<sub>n</sub> =
+<code>d1</code>...<code>dn</code>, and D<sub>n+1</sub> =
+<code>END_DATE</code>. Rate v<sub>k</sub> applies for the gap between
+D<sub>k</sub> and D<sub>k+1</sub>.</p>
+
+<p>First, integrate: accumulate a running total by adding each rate's
+contribution over its own gap &ndash; this is the actual
+&ldquo;integration&rdquo;. Call this running total f&prime;, a factor
+value in its own right, just not yet re-centred:</p>
+<p class="Commandexample">f&prime;<sub>0</sub> = 0</p>
+<p class="Commandexample">f&prime;<sub>k</sub> = f&prime;<sub>k-1</sub> + (D<sub>k</sub> &minus; D<sub>k-1</sub>) &times; v<sub>k-1</sub> &nbsp; for k = 1...n+1</p>
+<p>Second, re-centre: find whichever gap <code>REF_DATE</code> falls
+into &ndash; call it segment j, so
+D<sub>j</sub> &le; ref_year &lt; D<sub>j+1</sub> &ndash; and work out
+f&prime; at <code>REF_DATE</code> itself, partway through that
+segment. Subtracting it from every f&prime;<sub>k</sub> shifts the
+whole curve so it is exactly zero at <code>REF_DATE</code>:</p>
+<p class="Commandexample">offset = f&prime;<sub>j</sub> + (ref_year &minus; D<sub>j</sub>) &times; v<sub>j</sub></p>
+<p class="Commandexample">f<sub>k</sub> = f&prime;<sub>k</sub> &minus; offset &nbsp; for every k</p>
+
+<p>Once f<sub>0</sub>...f<sub>n+1</sub> are
+worked out at D<sub>0</sub>...D<sub>n+1</sub>, they are used exactly
+as <code>PIECEWISE_LINEAR</code>'s own f<sub>i</sub>/d<sub>i</sub>
+pairs are in the formula already given above: f<sub>0</sub> holds
+before D<sub>0</sub>, f<sub>n+1</sub> holds after D<sub>n+1</sub>,
+and every gap between them interpolates linearly. There is no way to
+give a <code>VELOCITY</code> component a non-zero displacement at
+its own reference date, since the re-centring step always forces it
+to zero there by construction.</p>
+
+<p>Bare &ldquo;<code>TIME_MODEL VELOCITY</code>&rdquo; is the case
+with no <code>d</code>/<code>v</code> pairs at all, so
+n=0: a single rate v<sub>0</sub>=1.0, spanning the whole sequence
+from D<sub>0</sub>=<code>START_DATE</code> to
+D<sub>1</sub>=<code>END_DATE</code>. Working through both steps
+above: V<sub>0</sub>=0, V<sub>1</sub>=D<sub>1</sub>&minus;D<sub>0</sub>;
+offset = ref_year&minus;D<sub>0</sub>; so f<sub>0</sub> =
+D<sub>0</sub>&minus;ref_year and f<sub>1</sub> =
+D<sub>1</sub>&minus;ref_year. Interpolating between those two with
+the same <code>PIECEWISE_LINEAR</code> formula used above gives:</p>
+<p class="Commandexample">factor(t) = t &minus; ref_year</p>
+<p>&ndash; a straight line through zero at <code>REF_DATE</code>,
+slope 1, matching the single rate of 1.0. If the grid or trig file
+holds an actual velocity (say, mm/year), this is exactly what turns
+elapsed years into an accumulated displacement in mm.</p>
+
+<h2>Worked example</h2>
+<p>The example on the <a href="linzdeffile.html">LINZ deformation
+file format</a> page has a national velocity model (a single
+component with the bare <code>TIME_MODEL VELOCITY</code> form) and a
+Fiordland earthquake sequence with two trig components, each with its
+own <code>PIECEWISE_LINEAR</code> time model. Here is how those two
+components' own factors play out at specific dates.</p>
+
+<p>The first component (<code>fiordland_20090715_a.trg</code>) has
+<code>REF_DATE 15-Jul-2009</code> and
+<code>TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 0.8 20-Jul-2009 1.0</code>.
+The initial factor (0.0) applies up to and including the first listed
+date, so this is not a single smooth ramp: it is an instant step from
+0.0 to 0.8 exactly at 15-Jul-2009, immediately followed by a five-day
+ramp from 0.8 up to 1.0:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Date</p></td>
+<td><p>Factor</p></td>
+</tr>
+<tr>
+<td><p>Before, and at, 15-Jul-2009</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr>
+<td><p>Immediately after 15-Jul-2009</p></td>
+<td><p>0.8</p></td>
+</tr>
+<tr>
+<td><p>17-Jul-2009 (interpolated)</p></td>
+<td><p>0.88</p></td>
+</tr>
+<tr>
+<td><p>20-Jul-2009 and after</p></td>
+<td><p>1.0</p></td>
+</tr>
+</table>
+
+<p>The second component (<code>fiordland_20090715_b.trg</code>) has
+the same <code>REF_DATE</code> but only one listed date,
+<code>TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 1.0</code> &ndash;
+with nothing to interpolate towards, this is a pure instantaneous
+step, from the initial factor to the single listed one, exactly at
+that date:</p>
+<table class="NormalTable">
+<tr class="TableHeader">
+<td><p>Date</p></td>
+<td><p>Factor</p></td>
+</tr>
+<tr>
+<td><p>Before, and at, 15-Jul-2009</p></td>
+<td><p>0.0</p></td>
+</tr>
+<tr>
+<td><p>After 15-Jul-2009</p></td>
+<td><p>1.0</p></td>
+</tr>
+</table>
+
+<p>The following is a (somewhat contrived) example of a LINZ
+deformation model version 2 index file:</p>
+<pre class="ConfigFile">
+DEFORMATION_MODEL NZGD2000 deformation model
+FORMAT LINZDEF2B
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2200
+COORDSYS NZGD2000
+VERSION_NUMBER 1.0
+VERSION_DATE  12-Mar-2004
+DESCRIPTION
+This is the description of the model
+This is a first try
+END_DESCRIPTION
+
+# National model
+
+DEFORMATION_SEQUENCE National model
+DIMENSION 2
+START_DATE 1-Jan-1850
+END_DATE 1-Jan-2101
+ZERO_BEYOND_RANGE no
+DESCRIPTION
+National velocity model
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT velgrid.gdf
+MODEL_TYPE grid
+REF_DATE 1-Jan-2000
+TIME_MODEL VELOCITY
+DESCRIPTION
+National velocity grid deformation model
+END_DESCRIPTION
+
+# 15 July 2009 Fiordland earthquake
+
+DEFORMATION_SEQUENCE Fiordland earthquake 15 July 2009
+DIMENSION 2
+START_DATE 1-Jan-2009
+END_DATE 1-Jan-2200
+ZERO_BEYOND_RANGE yes
+NESTED_SEQUENCE yes
+DESCRIPTION
+Deformation patch with single model, zero before, fixed after
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_a.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 0.8 20-Jul-2009 1.0
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake
+END_DESCRIPTION
+
+DEFORMATION_COMPONENT fiordland_20090715_b.trg -c
+MODEL_TYPE trig
+REF_DATE 15-Jul-2009
+TIME_MODEL PIECEWISE_LINEAR 0.0 15-Jul-2009 1.0
+DESCRIPTION
+Initial model of 15 July 2009 Fiordland earthquake (near-field)
+END_DESCRIPTION
+
+</pre>
+
+<div class="SeeAlso">
+<h3>See also:</h3>
+<p><a href="linzdeffile.html">The SNAP LINZ deformation file format</a></p>
+<p><a href="linzdeffile_v1.html">Version 1 of the file format</a></p>
+<p><a href="linzdeffile_v3.html">Version 3 of the file format</a></p>
+<p><a href="linzdefmodel.html">The LINZ deformation model</a></p>
+<p><a href="gridfile_s.html">Gridded component file format</a></p>
+<p><a href="trigfile.html">Triangulated component file format</a></p>
+</div>
+<script src="../js/helppage.js"></script>
+</body>
+</html>

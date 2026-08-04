@@ -208,6 +208,9 @@
   3	Grid file format	coordsys/gridfile_s.html
  2	LINZ deformation model	coordsys/linzdefmodel.html
   3	LINZ deformation file format	coordsys/linzdeffile.html
+   4	LINZ deformation file format version 1	coordsys/linzdeffile_v1.html
+   4	LINZ deformation file format version 2	coordsys/linzdeffile_v2.html
+   4	LINZ deformation file format version 3	coordsys/linzdeffile_v3.html
   3	Triangulated data file format	coordsys/trigfile.html
 1	Adjustment strategies	adjustment/index.html
  2	Minimum constraints adjustment to find gross errors	adjustment/topic_strategy_gross_errors.html
