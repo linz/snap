@@ -380,16 +380,16 @@ void SnapplotFrame::CreateMenu()
 
     wxMenu *dataMenu = new wxMenu;
     dataColourMenu = new wxMenu;
-    dataColourMenu->Append( CMD_COLOURBY_DATATYPE,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_DATATYPE,
                             "Data &type",
                             "Colour observations according to data type");
-    dataColourMenu->Append( CMD_COLOURBY_DATAFILE,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_DATAFILE,
                             "Data &file",
                             "Colour observations according to data type");
-    dataColourMenu->Append( CMD_COLOURBY_RESIDUAL,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_RESIDUAL,
                             "&Residual ...",
                             "Colour observations according to standardised residual in adjustment");
-    dataColourMenu->Append( CMD_COLOURBY_REDUNDANCY,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_REDUNDANCY,
                             "Re&dundancy ...",
                             "Colour observations according to redundancy factor in adjustment");
 
@@ -449,6 +449,7 @@ void SnapplotFrame::SetupData()
     SetupSymbology();
     AddStationColourOptions();
     AddColourByClassifications();
+    UpdateColourByMenuCheck();
     AddConfigMenuItems();
     detailsWindow->Show( PutTextInfoWriter(ptfTitleBlock));
     stationListWindow->Reload();
@@ -510,7 +511,7 @@ void SnapplotFrame::AddColourByClassifications()
         for( int i = 0; i++ < classification_count( &obs_classes); )
         {
             wxString menuText = wxString::Format("&%d %.40s",i,classification_name( &obs_classes,i) );
-            dataColourMenu->Append( nextCommandId,
+            dataColourMenu->AppendCheckItem( nextCommandId,
                                     menuText,
                                     wxString::Format("Colour observations according to %s classification",
                                             classification_name( &obs_classes,i) )
@@ -577,6 +578,7 @@ void SnapplotFrame::ShowObsList()
 void SnapplotFrame::ReadConfiguration( const char *filename )
 {
     process_configuration_file( filename );
+    UpdateColourByMenuCheck();
     SetupSymbology();
     mapWindow->RedrawMap();
     dataView->Refresh();
@@ -880,10 +882,16 @@ void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
             SetupDataPens(DPEN_BY_FILE);
             break;
         case CMD_COLOURBY_RESIDUAL:
+            // wx already auto-checked this item on click; if the dialog is
+            // cancelled, data_pen_type hasn't changed, so the checkmark needs
+            // restoring to whichever mode is still actually active.
             if( SetupStandardisedResidualPens( help ) ) SetupDataPens(DPEN_BY_SRES);
+            else UpdateColourByMenuCheck();
             break;
         case CMD_COLOURBY_REDUNDANCY:
+            // See CMD_COLOURBY_RESIDUAL above.
             if( SetupRedundancyFactorPens( help ) ) SetupDataPens(DPEN_BY_RFAC);
+            else UpdateColourByMenuCheck();
             break;
         }
     }
@@ -1005,7 +1013,40 @@ void SnapplotFrame::FunctionNotImplemented( wxCommandEvent & WXUNUSED(event) )
 void SnapplotFrame::SetupDataPens( int dataPenType )
 {
     setup_data_pens( dataPenType );
+    UpdateColourByMenuCheck();
     SetupSymbology();
+}
+
+void SnapplotFrame::UpdateColourByMenuCheck()
+{
+    const int type = get_data_pen_type();
+    int id;
+    switch( type ) {
+    case DPEN_BY_TYPE:
+        id = CMD_COLOURBY_DATATYPE;
+        break;
+    case DPEN_BY_FILE:
+        id = CMD_COLOURBY_DATAFILE;
+        break;
+    case DPEN_BY_SRES:
+        id = CMD_COLOURBY_RESIDUAL;
+        break;
+    case DPEN_BY_RFAC:
+        id = CMD_COLOURBY_REDUNDANCY;
+        break;
+    default:
+        id = classifyCommandFirst + type - 1;
+        break;
+    }
+    dataColourMenu->Check( CMD_COLOURBY_DATATYPE, id == CMD_COLOURBY_DATATYPE );
+    dataColourMenu->Check( CMD_COLOURBY_DATAFILE, id == CMD_COLOURBY_DATAFILE );
+    dataColourMenu->Check( CMD_COLOURBY_RESIDUAL, id == CMD_COLOURBY_RESIDUAL );
+    dataColourMenu->Check( CMD_COLOURBY_REDUNDANCY, id == CMD_COLOURBY_REDUNDANCY );
+    if( classifyCommandLast > 0 ) {
+        for( int classifyId = classifyCommandFirst; classifyId <= classifyCommandLast; classifyId++ ) {
+            dataColourMenu->Check( classifyId, classifyId == id );
+        }
+    }
 }
 
 void SnapplotFrame::SetupStationPens( int stationPenType )

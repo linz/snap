@@ -119,7 +119,7 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
         }
 
         const wxBitmap *bmp = 0;
-        if( col  == 0 && sym.HasColour() )
+        if( col  == 0 && sym.HasColour() && sym.ColourEditable() )
         {
             bmp = &(symkey->LayerBitmap(row));
         }
@@ -299,7 +299,7 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
     if( event.GetCol() == 0 )
     {
         LayerSymbology &sym = symbologyKey->GetLayer( event.GetRow() );
-        if( sym.HasColour() )
+        if( sym.HasColour() && sym.ColourEditable() )
         {
             int colourId = sym.ColourId();
             wxPalettePopup palettePopup( symbologyKey->GetPalette(), this );

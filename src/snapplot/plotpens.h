@@ -107,6 +107,9 @@ void init_options( void );
 int option_selected( int option_code );
 int data_pen( int dpen );
 int datatype_selected( int datatype );
+// Whether the given data file's checkbox is currently on, independent of
+// whatever mode is active for Colour by.
+int filetype_selected( int file );
 int select_display_options( void );
 int background_option( int layer_id );
 

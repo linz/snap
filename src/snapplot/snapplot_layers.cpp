@@ -12,7 +12,9 @@
 
 //extern "C" {
 #include "plotpens.h"
+#include "plotconn.h"
 #include "snap/snapglob.h"
+#include "snap/survfile.h"
 #include "snapdata/datatype.h"
 #include "snap/stnadj.h"
 #include "plotstns.h"
@@ -119,6 +121,10 @@ using LayerArrayPtr = std::unique_ptr<layer_s, LayerArrayDeleter>;
 static std::map<wxString, LayerArrayPtr> data_mode_layer_cache;
 
 static layer_s *data_type_layers = 0;
+// Persistent, always-shown filter list of data files - unlike data_user_layers,
+// this is independent of which mode is selected for Colour by, exactly like
+// data_type_layers already is.
+static layer_s *data_file_layers = 0;
 
 static layer_s data_usage_layers[] =
 {
@@ -347,20 +353,40 @@ static void setup_data_type_layers()
     data_type_layers[NOBSTYPE+1].name = 0;
 }
 
+// Builds the persistent, always-shown data file filter list once - the file
+// list is fixed for a snap session, so this never needs rebuilding.
+static void setup_data_file_layers()
+{
+    if( data_file_layers ) {
+        return;
+    }
+    const int nfiles = survey_data_file_count();
+    // nfiles data rows + 1 header/control-checkbox row (index 0) + 1 terminator (name=0)
+    data_file_layers = static_cast<layer_s *>( check_malloc( sizeof(layer_s) * (nfiles + 2) ) );
+    layer_s *l = &(data_file_layers[0]);
+    init_layer(l,"Data file",dflt_data_colour,true);
+    l->opt_id = OTHER_OPT;
+    l->is_control_checkbox = true;
+    for( int ifile = 0; ifile < nfiles; ifile++ ) {
+        // ifile+1 to skip the header row added at index 0
+        l = &(data_file_layers[ifile+1]);
+        init_layer(l,survey_data_file_name(ifile),dflt_data_colour,false);
+    }
+    data_file_layers[nfiles+1].name = 0;
+}
+
 // Points data_user_layers at the cached list for this header, building and
 // caching it first if this is the first time this mode has been selected.
 void setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
 {
-    if( ndatapens <= 0 )
-    {
+    if( ndatapens <= 0 ) {
         data_user_layers = 0;
         return;
     }
 
     const wxString key( header );
     const auto cached = data_mode_layer_cache.find( key );
-    if( cached != data_mode_layer_cache.end() )
-    {
+    if( cached != data_mode_layer_cache.end() ) {
         data_user_layers = cached->second.get();
         return;
     }
@@ -370,8 +396,7 @@ void setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
     init_layer(l,header,dflt_data_colour,true);
     l->opt_id = OTHER_OPT;
     l->is_control_checkbox = true;
-    for( int i = 0; i < ndatapens; i++ )
-    {
+    for( int i = 0; i < ndatapens; i++ ) {
         l = &(layers[i+1]);
         init_layer(l,copy_string(datapennames[i]),dflt_data_colour,false);
     }
@@ -387,12 +412,10 @@ void setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
 void invalidate_data_user_layer_cache( const char *header )
 {
     const auto cached = data_mode_layer_cache.find( wxString( header ) );
-    if( cached == data_mode_layer_cache.end() )
-    {
+    if( cached == data_mode_layer_cache.end() ) {
         return;
     }
-    if( data_user_layers == cached->second.get() )
-    {
+    if( data_user_layers == cached->second.get() ) {
         data_user_layers = 0;
     }
     data_mode_layer_cache.erase( cached );
@@ -404,14 +427,11 @@ void invalidate_data_user_layer_cache( const char *header )
 // colours as well as the requested checkbox status.
 void invalidate_active_data_user_layer_cache()
 {
-    if( ! data_user_layers )
-    {
+    if( ! data_user_layers ) {
         return;
     }
-    for( auto it = data_mode_layer_cache.begin(); it != data_mode_layer_cache.end(); ++it )
-    {
-        if( it->second.get() == data_user_layers )
-        {
+    for( auto it = data_mode_layer_cache.begin(); it != data_mode_layer_cache.end(); ++it ) {
+        if( it->second.get() == data_user_layers ) {
             data_mode_layer_cache.erase( it );
             data_user_layers = 0;
             return;
@@ -439,12 +459,13 @@ static void reset_layer_status( layer_s *layers, const bool is_on )
 
 void reset_data_user_layers( const bool is_on )
 {
-    // data_user_layers holds the active colour-by list (data file/residual/redundancy/
-    // classification); data_type_layers is the separate, always-shown observation-type
-    // list, which is what's populated instead when "Data type" is the active mode.
-    // Both appear under OBSERVATIONS in the Key panel, so both get reset together.
+    // data_user_layers holds the active colour-by list (residual/redundancy/
+    // classification); data_type_layers and data_file_layers are independent,
+    // always-shown filter lists, present under OBSERVATIONS regardless of
+    // which mode is active. All three get reset together.
     reset_layer_status( data_user_layers, is_on );
     reset_layer_status( data_type_layers, is_on );
+    reset_layer_status( data_file_layers, is_on );
 }
 
 // Resets every data_type_layers row's colour back to the default palette
@@ -498,7 +519,7 @@ static void remove_unwanted_layers( layer_s *layers )
     }
 }
 
-static void add_layer_to_symbology( Symbology *symbology, layer_s *l, Symbology *oldSymbology )
+static void add_layer_to_symbology( Symbology *symbology, layer_s *l, Symbology *oldSymbology, const bool colourEditable = true )
 {
     int oldid = l->lyr_id;
     l->lyr_id = -1;
@@ -512,20 +533,20 @@ static void add_layer_to_symbology( Symbology *symbology, layer_s *l, Symbology 
     wxColour colour = wxColour( l->dfltColour );
     bool display = true;
 
-    l->lyr_id = symbology->AddLayer( l->name, type, colour, display, l->is_control_checkbox );
+    l->lyr_id = symbology->AddLayer( l->name, type, colour, display, l->is_control_checkbox, colourEditable );
     if( oldSymbology && oldid >= 0 ) copy_layer( symbology, l->lyr_id, oldSymbology, oldid );
 
     if( l->pen_id >= 0 ) basepenid[l->pen_id] = l->lyr_id;
     if( l->opt_id >= 0 ) baseoptid[l->opt_id] = l->lyr_id;
 }
 
-static void add_layers_to_symbology( Symbology *symbology, layer_s *layers, Symbology *oldSymbology )
+static void add_layers_to_symbology( Symbology *symbology, layer_s *layers, Symbology *oldSymbology, const bool colourEditable = true )
 {
     remove_unwanted_layers( layers );
 
     for( layer_s *l = layers; l->name; l++ )
     {
-        add_layer_to_symbology( symbology, l, oldSymbology );
+        add_layer_to_symbology( symbology, l, oldSymbology, colourEditable );
     }
 }
 
@@ -568,6 +589,9 @@ static void setup_snapplot_symbology()
     if( oldSymbology ) symbology->InitialisePalette( *(oldSymbology->GetPalette()) );
 
     if( ! data_type_layers ) setup_data_type_layers();
+    if( ! data_file_layers ) {
+        setup_data_file_layers();
+    }
     if( ! background_layers ) setup_background_layers();
 
     for( int i = 0; i < N_BASE_PENS; i++ ) { basepenid[i] = -1; }
@@ -602,7 +626,9 @@ static void setup_snapplot_symbology()
         add_sorted_layers_to_symbology( symbology, data_user_layers, oldSymbology, sort_data_user_layers );
         symbology->AddSpacer();
     }
-    add_layers_to_symbology( symbology, data_type_layers, oldSymbology );
+    add_layers_to_symbology( symbology, data_type_layers, oldSymbology, get_data_pen_type() == DPEN_BY_TYPE );
+    symbology->AddSpacer();
+    add_layers_to_symbology( symbology, data_file_layers, oldSymbology, get_data_pen_type() == DPEN_BY_FILE );
     symbology->AddSpacer();
     add_layers_to_symbology( symbology, data_usage_layers, oldSymbology );
 
@@ -619,7 +645,7 @@ static void setup_snapplot_symbology()
     if( oldSymbology ) delete oldSymbology;
 }
 
-//extern "C" 
+//extern "C"
 void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted )
 {
     setup_data_pens_layers( ndatapens, datapennames, header );
@@ -770,18 +796,14 @@ int background_pen( int layer_id )
 
 int data_pen( int dpen )
 {
-    int lyr_id = -1;
-    if( data_user_layers )
-    {
-        // dpen+1 to account for header layer..
-        lyr_id = data_user_layers[dpen+1].lyr_id;
+    // dpen+1 to account for header layer..
+    if( data_user_layers ) {
+        return data_user_layers[dpen+1].lyr_id;
     }
-    else
-    {
-        // dpen+1 to account for header layer..
-        lyr_id = data_type_layers[dpen+1].lyr_id;
+    if( get_data_pen_type() == DPEN_BY_FILE ) {
+        return data_file_layers[dpen+1].lyr_id;
     }
-    return lyr_id;
+    return data_type_layers[dpen+1].lyr_id;
 }
 
 int pen_selected( int pen )
@@ -796,6 +818,16 @@ int datatype_selected( int datatype )
     int lyrid;
     // datatype+1 to account for header layer..
     lyrid = data_type_layers[datatype+1].lyr_id;
+    return pen_selected( lyrid );
+}
+
+// Whether the given data file's checkbox is currently on, independent of
+// whatever mode is active for Colour by - mirrors datatype_selected().
+int filetype_selected( int file )
+{
+    int lyrid;
+    // file+1 to account for header layer..
+    lyrid = data_file_layers[file+1].lyr_id;
     return pen_selected( lyrid );
 }
 

@@ -82,6 +82,8 @@ private:
     void SetupData();
     void SetupSymbology();
     void SetupDataPens( int dataPenType );
+    // Checks the dataColourMenu item matching the currently active colour-by mode.
+    void UpdateColourByMenuCheck();
     void SetupStationPens( int stationPenType );
     void AddColourByClassifications();
     void AddStationColourOptions();
