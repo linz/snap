@@ -15,6 +15,9 @@
 // ----------------------------------------------------------------------------
 
 #include "wx_includes.hpp"
+#include <wx/popupwin.h>
+
+#include <vector>
 
 #include "snapplot_frame.hpp"
 #include "snapplot_eventids.hpp"
@@ -56,6 +59,11 @@
 // ----------------------------------------------------------------------------
 // constants
 // ----------------------------------------------------------------------------
+
+// Fixed ids for the Display-by trio, distinct from classification ids (which
+// are 1..classification_count(&obs_classes), the same numbering already used
+// for Colour-by classifications).
+enum { DISPLAYBY_DATATYPE = 0, DISPLAYBY_DATAFILE = -1, DISPLAYBY_OBSSTATUS = -2 };
 
 
 // ----------------------------------------------------------------------------
@@ -128,6 +136,8 @@ SnapplotFrame::SnapplotFrame()
     dataColourMenu = 0;
     stationColourMenuItem = 0;
     stationColourMenu = 0;
+    displayMenu = 0;
+    displayByEnabled = { DISPLAYBY_DATATYPE, DISPLAYBY_DATAFILE, DISPLAYBY_OBSSTATUS };
     configMenu = 0;
     ignoreOffsetsItem = 0;
     help = 0;
@@ -425,6 +435,83 @@ void SnapplotFrame::CreateMenu()
 
     configMenu = new wxMenu;
     menuBar->Append( configMenu, "Co&nfiguration");
+
+    displayMenu = new wxMenu;
+    wxMenuItem *displaySelectOptionsItem = displayMenu->Append( wxID_ANY, "&Select options..." );
+    menuBar->Append( displayMenu, "&Display" );
+
+    Bind( wxEVT_MENU, [this]( wxCommandEvent & )
+    {
+        wxPopupTransientWindow *popup = new wxPopupTransientWindow( this, wxBORDER_SIMPLE );
+        wxBoxSizer *sizer = new wxBoxSizer( wxVERTICAL );
+
+        // One row per Display-by dimension: the fixed trio, then every
+        // classification the loaded dataset defines - not hardcoded, same
+        // classification_count/name() accessors AddColourByClassifications()
+        // already uses for the Colour-by menu.
+        struct DisplayByDimension { int id; wxString label; };
+        std::vector<DisplayByDimension> dimensions = {
+            { DISPLAYBY_DATATYPE, "Data type" },
+            { DISPLAYBY_DATAFILE, "Data file" },
+            { DISPLAYBY_OBSSTATUS, "Obs status" },
+        };
+        for( int i = 1; i <= classification_count( &obs_classes ); i++ )
+        {
+            dimensions.push_back( { i, wxString( classification_name( &obs_classes, i ) ) } );
+        }
+
+        std::vector<wxCheckBox *> checkboxes;
+        for( const DisplayByDimension &dimension : dimensions )
+        {
+            int id = dimension.id;
+            wxCheckBox *checkbox = new wxCheckBox( popup, wxID_ANY, dimension.label );
+            checkbox->SetValue( displayByEnabled.count( id ) > 0 );
+            checkbox->Bind( wxEVT_CHECKBOX, [this, id]( wxCommandEvent &event )
+            {
+                if( event.IsChecked() ) { displayByEnabled.insert( id ); }
+                else { displayByEnabled.erase( id ); }
+            } );
+            sizer->Add( checkbox, 0, wxALL, 4 );
+            checkboxes.push_back( checkbox );
+        }
+
+        wxBoxSizer *buttons = new wxBoxSizer( wxHORIZONTAL );
+        wxButton *allButton = new wxButton( popup, wxID_ANY, "All" );
+        wxButton *noneButton = new wxButton( popup, wxID_ANY, "None" );
+        allButton->Bind( wxEVT_BUTTON, [this, checkboxes, dimensions]( wxCommandEvent & )
+        {
+            for( size_t i = 0; i < checkboxes.size(); i++ )
+            {
+                checkboxes[i]->SetValue( true );
+                displayByEnabled.insert( dimensions[i].id );
+            }
+        } );
+        noneButton->Bind( wxEVT_BUTTON, [this, checkboxes, dimensions]( wxCommandEvent & )
+        {
+            for( size_t i = 0; i < checkboxes.size(); i++ )
+            {
+                checkboxes[i]->SetValue( false );
+                displayByEnabled.erase( dimensions[i].id );
+            }
+        } );
+        buttons->Add( allButton, 0, wxALL, 4 );
+        buttons->Add( noneButton, 0, wxALL, 4 );
+        sizer->Add( buttons, 0, wxALIGN_CENTRE );
+        popup->SetSizerAndFit( sizer );
+
+        // Fixed, deterministic position rather than mouse-based: top at the
+        // frame's client area (starts right below the menu bar), left
+        // horizontally centred over the map window.
+        wxPoint clientTopLeft = ClientToScreen( wxPoint( 0, 0 ) );
+        wxRect frameRect = GetScreenRect();
+        wxRect mapRect = mapWindow->GetScreenRect();
+        wxSize popupSize = sizer->GetMinSize();
+        int x = mapRect.GetLeft() + ( mapRect.GetWidth() - popupSize.GetWidth() ) / 2;
+        if( x > frameRect.GetRight() - popupSize.GetWidth() ) x = frameRect.GetRight() - popupSize.GetWidth();
+        if( x < frameRect.GetLeft() ) x = frameRect.GetLeft();
+        popup->Position( wxPoint( x, clientTopLeft.y ), wxSize( 0, 0 ) );
+        popup->Popup();
+    }, displaySelectOptionsItem->GetId() );
 
     wxMenu *helpMenu = new wxMenu;
     helpMenu->Append( CMD_HELP_HELP,
