@@ -6,6 +6,7 @@
 
 #include <map>
 #include <memory>
+#include <optional>
 #include <type_traits>
 
 // Provides a crude interface to existing C code by replacing functions
@@ -64,18 +65,13 @@ struct layer_s
     // true if this row's checkbox is to control a following range of
     // other rows' status, instead of its own
     bool is_control_checkbox = false;
-    // Last known live status/colour for this row, saved by save_layer_state()
-    // before this list is repointed elsewhere or freed and rebuilt. Stored as
-    // raw RGB rather than wxColour: these structs are check_malloc()'d rather
-    // than constructed, so a non-trivial class member would sit in memory
-    // without its constructor ever running. savedColourValid is false until
-    // the first save - checked by restore_layer_state() to leave never-saved
-    // rows at their fresh construction-time defaults.
+    // Last known live status for this row - and colour if this row has one -
+    // saved by save_layer_state() before this list is repointed elsewhere or
+    // freed and rebuilt. savedColour being empty means either it's never
+    // been saved, or this row has no colour at all - restore_layer_state()
+    // leaves such rows at their fresh construction-time colour default.
     bool savedStatus = true;
-    bool savedColourValid = false;
-    unsigned char savedRed = 0;
-    unsigned char savedGreen = 0;
-    unsigned char savedBlue = 0;
+    std::optional<wxColour> savedColour;
 };
 
 static layer_s *station_user_layers = 0;
@@ -302,7 +298,7 @@ static void delete_layers( layer_s **pl )
     {
         check_free( (void *)(l->name) );
     }
-    check_free(*pl);
+    delete[] (*pl);
     (*pl) = 0;
 }
 
@@ -320,10 +316,6 @@ static void init_layer( layer_s *l, const char *name, const char *colour, bool t
     l->need_cvr = false;
     l->lyr_id = -1;
     l->is_control_checkbox = false;
-    // Explicit, rather than relying on the struct's NSDMI defaults - this
-    // row may be check_malloc()'d rather than constructed, so those never ran.
-    l->savedStatus = true;
-    l->savedColourValid = false;
 }
 
 static void set_station_layer_colourflag( bool on )
@@ -361,7 +353,7 @@ static void setup_station_class_layers( int class_id )
     }
 
     set_station_layer_colourflag( false );
-    layer_s *layers = (layer_s *) check_malloc( sizeof(layer_s) * (nlayer+2) );
+    layer_s *layers = new layer_s[nlayer+2];
     layer_s *l = &(layers[0]);
     init_layer( l, network_class_name(net, class_id), dflt_data_colour, true );
     l->opt_id = OTHER_OPT;
@@ -384,7 +376,7 @@ static void setup_data_type_layers()
 {
     if( data_type_layers ) return;
     // NOBSTYPE data rows + 1 header/control-checkbox row (index 0) + 1 terminator (name=0)
-    data_type_layers = (layer_s *) check_malloc( sizeof(layer_s) * (NOBSTYPE + 2) );
+    data_type_layers = new layer_s[NOBSTYPE + 2];
     layer_s *l = &(data_type_layers[0]);
     init_layer(l,"Data type",dflt_data_colour,true);
     l->opt_id = OTHER_OPT;
@@ -409,7 +401,7 @@ static void setup_data_file_layers()
     }
     const int nfiles = survey_data_file_count();
     // nfiles data rows + 1 header/control-checkbox row (index 0) + 1 terminator (name=0)
-    data_file_layers = static_cast<layer_s *>( check_malloc( sizeof(layer_s) * (nfiles + 2) ) );
+    data_file_layers = new layer_s[nfiles + 2];
     layer_s *l = &(data_file_layers[0]);
     init_layer(l,"Data file",dflt_data_colour,true);
     l->opt_id = OTHER_OPT;
@@ -440,33 +432,31 @@ static void save_layer_state( layer_s *layers )
         LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
         l->savedStatus = ls.Status();
         if( ls.HasColour() ) {
-            const wxColour &colour = symbology->GetPalette()->Colour( ls.ColourId() );
-            l->savedRed = colour.Red();
-            l->savedGreen = colour.Green();
-            l->savedBlue = colour.Blue();
-            l->savedColourValid = true;
+            l->savedColour = symbology->GetPalette()->Colour( ls.ColourId() );
         }
     }
 }
 
-// Applies a layer_s list's saved status/colour (if it's ever been saved)
-// onto the live LayerSymbology, once the symbology has been rebuilt and each
-// row has a fresh lyr_id. Rows with no saved state (first time this list has
-// ever been shown) are left at their fresh defaults.
+// Applies a layer_s list's saved state onto the live LayerSymbology, once the
+// symbology has been rebuilt and each row has a fresh lyr_id. Status is
+// applied unconditionally - savedStatus defaults to true, matching a fresh
+// row's own default, so this is a no-op the first time a list is shown -
+// since some rows (e.g. a list's own header/control-checkbox row) have a
+// status but no colour at all. Colour is only applied if this row actually
+// had one saved.
 static void restore_layer_state( layer_s *layers )
 {
     if( ! layers || ! symbology ) {
         return;
     }
     for( layer_s *l = layers; l->name; l++ ) {
-        if( l->lyr_id < 0 || ! l->savedColourValid ) {
+        if( l->lyr_id < 0 ) {
             continue;
         }
         LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
         ls.SetStatus( l->savedStatus );
-        if( ls.HasColour() ) {
-            const wxColour colour( l->savedRed, l->savedGreen, l->savedBlue );
-            ls.SetColourId( symbology->GetPalette()->AddColour( colour ) );
+        if( ls.HasColour() && l->savedColour ) {
+            ls.SetColourId( symbology->GetPalette()->AddColour( *l->savedColour ) );
         }
     }
 }
@@ -492,7 +482,7 @@ bool setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
         return false;
     }
 
-    layer_s *layers = static_cast<layer_s *>( check_malloc( sizeof(layer_s) * (ndatapens+2) ) );
+    layer_s *layers = new layer_s[ndatapens+2];
     layer_s *l = &(layers[0]);
     init_layer(l,header,dflt_data_colour,true);
     l->opt_id = OTHER_OPT;
@@ -617,7 +607,7 @@ static void setup_background_layers()
     if( background_layers )  return;
     int nlayer = background_layer_count();
     if( nlayer <= 0 ) return;
-    background_layers = (layer_s *) check_malloc( sizeof(layer_s) * (nlayer+1) );
+    background_layers = new layer_s[nlayer+1];
     for( int i = 0; i < nlayer; i++ )
     {
         layer_s *l = &(background_layers[i]);
