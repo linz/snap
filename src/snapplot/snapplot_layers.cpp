@@ -642,8 +642,9 @@ static void add_sorted_layers_to_symbology( Symbology *symbology, layer_s *layer
     for( layer_s *l = layers; l->name; l++ )
     {
         if( l->pen_id == UNUSED_LAYER_PEN_ID ) continue;
-        // If it is a header then assume it should remain at the top of the list
-        if( l->pen_id == UNUSED_PEN_ID && l->opt_id == UNUSED_OPT_ID )
+        // A control checkbox row should remain at the top of the list,
+        // rather than sorting alongside the children it controls.
+        if( l->is_control_checkbox )
         {
             add_layer_to_symbology( symbology, l, oldSymbology );
             continue;
