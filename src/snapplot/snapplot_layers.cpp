@@ -63,6 +63,21 @@ struct layer_s
     // true if this row's checkbox is to control a following range of
     // other rows' status, instead of its own
     bool is_control_checkbox = false;
+    // Last known live status/colour for this row, saved by
+    // save_data_user_layer_state() before data_user_layers is repointed
+    // elsewhere. Stored as raw RGB rather than wxColour: these structs are
+    // check_malloc()'d rather than constructed, so a non-trivial class
+    // member would sit in memory without its constructor ever running.
+    // savedColourValid is false until the first save - checked by
+    // restore_data_user_layer_state() to leave never-saved rows at their
+    // fresh construction-time defaults. Only ever used for data_user_layers'
+    // rows, since copy_layer()'s lyr_id matching already works correctly for
+    // every other layer_s list.
+    bool savedStatus = true;
+    bool savedColourValid = false;
+    unsigned char savedRed = 0;
+    unsigned char savedGreen = 0;
+    unsigned char savedBlue = 0;
 };
 
 static layer_s *station_user_layers = 0;
@@ -296,6 +311,10 @@ static void init_layer( layer_s *l, const char *name, const char *colour, bool t
     l->need_cvr = false;
     l->lyr_id = -1;
     l->is_control_checkbox = false;
+    // Explicit, rather than relying on the struct's NSDMI defaults - this
+    // row may be check_malloc()'d rather than constructed, so those never ran.
+    l->savedStatus = true;
+    l->savedColourValid = false;
 }
 
 static void set_station_layer_colourflag( bool on )
@@ -375,20 +394,74 @@ static void setup_data_file_layers()
     data_file_layers[nfiles+1].name = 0;
 }
 
+// Snapshots data_user_layers' current live status/colour onto each row's own
+// savedStatus/savedColour, before it's repointed to a different list. Must
+// run while `symbology` is still the generation this list was last shown in -
+// copy_layer()'s lyr_id matching only survives one rebuild, so this is the
+// only reliable way to carry state across the intervening rebuilds that
+// happen while a different mode is active.
+static void save_data_user_layer_state()
+{
+    if( ! data_user_layers || ! symbology ) {
+        return;
+    }
+    for( layer_s *l = data_user_layers; l->name; l++ ) {
+        if( l->lyr_id < 0 ) {
+            continue;
+        }
+        LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
+        l->savedStatus = ls.Status();
+        if( ls.HasColour() ) {
+            const wxColour &colour = symbology->GetPalette()->Colour( ls.ColourId() );
+            l->savedRed = colour.Red();
+            l->savedGreen = colour.Green();
+            l->savedBlue = colour.Blue();
+            l->savedColourValid = true;
+        }
+    }
+}
+
+// Applies each data_user_layers row's savedStatus/savedColour (if it's ever
+// been saved) onto the live LayerSymbology, once the symbology has been
+// rebuilt and the row has a fresh lyr_id. Rows with no saved state (first
+// time this mode has ever been selected) are left at their fresh defaults.
+static void restore_data_user_layer_state()
+{
+    if( ! data_user_layers || ! symbology ) {
+        return;
+    }
+    for( layer_s *l = data_user_layers; l->name; l++ ) {
+        if( l->lyr_id < 0 || ! l->savedColourValid ) {
+            continue;
+        }
+        LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
+        ls.SetStatus( l->savedStatus );
+        if( ls.HasColour() ) {
+            const wxColour colour( l->savedRed, l->savedGreen, l->savedBlue );
+            ls.SetColourId( symbology->GetPalette()->AddColour( colour ) );
+        }
+    }
+}
+
 // Points data_user_layers at the cached list for this header, building and
 // caching it first if this is the first time this mode has been selected.
-void setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
+// Returns true if it was freshly built just now, false if reused from cache
+// (or if ndatapens <= 0, leaving data_user_layers null) - callers that give
+// freshly-built rows a nicer default colouring than init_layer()'s plain
+// dflt_data_colour need this to avoid overwriting colours restored from cache.
+bool setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
 {
+    save_data_user_layer_state();
     if( ndatapens <= 0 ) {
         data_user_layers = 0;
-        return;
+        return false;
     }
 
     const wxString key( header );
     const auto cached = data_mode_layer_cache.find( key );
     if( cached != data_mode_layer_cache.end() ) {
         data_user_layers = cached->second.get();
-        return;
+        return false;
     }
 
     layer_s *layers = static_cast<layer_s *>( check_malloc( sizeof(layer_s) * (ndatapens+2) ) );
@@ -404,6 +477,7 @@ void setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
 
     data_user_layers = layers;
     data_mode_layer_cache.emplace( key, LayerArrayPtr( layers ) );
+    return true;
 }
 
 // Evicts and frees the cached list for the given header, e.g. when a
@@ -646,11 +720,13 @@ static void setup_snapplot_symbology()
 }
 
 //extern "C"
-void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted )
+bool setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted )
 {
-    setup_data_pens_layers( ndatapens, datapennames, header );
+    const bool freshlyBuilt = setup_data_pens_layers( ndatapens, datapennames, header );
     sort_data_user_layers = (sorted != 0);
     setup_snapplot_symbology();
+    restore_data_user_layer_state();
+    return freshlyBuilt;
 }
 
 //extern "C" 

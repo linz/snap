@@ -862,9 +862,12 @@ static void setup_ranges( double maxval, int ninterval, int reverse, const char 
     }
     nranges = ninterval;
 
-    setup_data_layers( nranges, range_names, name, 0 );
-
-    set_pen_colour_range();
+    // Only give the list its default rainbow colouring when it's freshly
+    // built - a cache hit means copy_layer() has already restored whatever
+    // colours were previously chosen, and this would overwrite them.
+    if( setup_data_layers( nranges, range_names, name, 0 ) ) {
+        set_pen_colour_range();
+    }
 }
 
 static int get_range_pen( double value )

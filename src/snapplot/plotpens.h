@@ -73,7 +73,8 @@ typedef struct
     double y;
 } symbolpoint;
 
-void setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
+// Returns true if the list was freshly built, false if reused from cache.
+bool setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
 void setup_station_layers( int class_id );
 void reset_data_user_layers( bool is_on );
 // Resets every data_type_layers row's colour back to the default palette entry.
