@@ -1345,6 +1345,11 @@ void setup_station_pens( int class_id )
     setup_station_layers(class_id);
 }
 
+int get_station_colourby_class()
+{
+    return stn_colourby_class;
+}
+
 void get_stationpen_definition( char *def )
 {
     if( stn_colourby_class == 0 ) strcpy(def,"usage");

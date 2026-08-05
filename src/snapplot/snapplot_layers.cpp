@@ -6,6 +6,7 @@
 
 #include <map>
 #include <memory>
+#include <type_traits>
 
 // Provides a crude interface to existing C code by replacing functions
 // defined in plotpens.h
@@ -63,16 +64,13 @@ struct layer_s
     // true if this row's checkbox is to control a following range of
     // other rows' status, instead of its own
     bool is_control_checkbox = false;
-    // Last known live status/colour for this row, saved by
-    // save_data_user_layer_state() before data_user_layers is repointed
-    // elsewhere. Stored as raw RGB rather than wxColour: these structs are
-    // check_malloc()'d rather than constructed, so a non-trivial class
-    // member would sit in memory without its constructor ever running.
-    // savedColourValid is false until the first save - checked by
-    // restore_data_user_layer_state() to leave never-saved rows at their
-    // fresh construction-time defaults. Only ever used for data_user_layers'
-    // rows, since copy_layer()'s lyr_id matching already works correctly for
-    // every other layer_s list.
+    // Last known live status/colour for this row, saved by save_layer_state()
+    // before this list is repointed elsewhere or freed and rebuilt. Stored as
+    // raw RGB rather than wxColour: these structs are check_malloc()'d rather
+    // than constructed, so a non-trivial class member would sit in memory
+    // without its constructor ever running. savedColourValid is false until
+    // the first save - checked by restore_layer_state() to leave never-saved
+    // rows at their fresh construction-time defaults.
     bool savedStatus = true;
     bool savedColourValid = false;
     unsigned char savedRed = 0;
@@ -110,6 +108,8 @@ static layer_s *data_user_layers = 0;
 static bool sort_data_user_layers = true;
 
 static void delete_layers( layer_s **pl );
+static void save_layer_state( layer_s *layers );
+static void restore_layer_state( layer_s *layers );
 
 // Deleter for a dynamically-built layer_s array, so ownership in
 // data_mode_layer_cache can be a plain unique_ptr rather than a raw
@@ -134,6 +134,15 @@ using LayerArrayPtr = std::unique_ptr<layer_s, LayerArrayDeleter>;
 // underlying data, so those entries are explicitly evicted by
 // invalidate_data_user_layer_cache() when their parameters change.
 static std::map<wxString, LayerArrayPtr> data_mode_layer_cache;
+
+// station_user_layers holds whichever classification's list is currently
+// active; the cache below is what actually owns each classification's list,
+// keyed by class_id, for the same reason data_mode_layer_cache exists - a
+// classification's content is fixed for a snap session, so once built it's
+// kept alive here rather than deleted and rebuilt on every switch. No
+// explicit invalidation is needed: unlike data_user_layers' residual/
+// redundancy entries, classification definitions never change mid-session.
+static std::map<int, LayerArrayPtr> station_class_layer_cache;
 
 static layer_s *data_type_layers = 0;
 // Persistent, always-shown filter list of data files - unlike data_user_layers,
@@ -328,28 +337,47 @@ static void set_station_layer_colourflag( bool on )
 
 static void setup_station_class_layers( int class_id )
 {
+    save_layer_state( station_user_layers );
     set_station_layer_colourflag( true );
-    if( station_user_layers )  delete_layers( &station_user_layers );
-    if( class_id < 1 || class_id > network_classification_count(net)) return;
-    int nlayer = network_class_count( net, class_id );
-    if( nlayer > 0 )
+    if( class_id < 1 || class_id > network_classification_count(net))
+    {
+        station_user_layers = 0;
+        return;
+    }
+
+    const auto cached = station_class_layer_cache.find( class_id );
+    if( cached != station_class_layer_cache.end() )
     {
         set_station_layer_colourflag( false );
-        station_user_layers = (layer_s *) check_malloc( sizeof(layer_s) * (nlayer+2) );
-        layer_s *l = &(station_user_layers[0]);
-        init_layer( l, network_class_name(net, class_id), dflt_data_colour, true );
-        l->opt_id = OTHER_OPT;
-        l->is_control_checkbox = true;
-        for( int i = 0; i < nlayer; i++ )
-        {
-            char buf[256];
-            l = &(station_user_layers[i+1]);
-            const char *v = network_class_value(net,class_id,i);
-            sprintf(buf,"SC_%.120s|%.120s",v,v);
-            init_layer(l,buf,dflt_stn_colour,false);
-        }
-        station_user_layers[nlayer+1].name = 0;
+        station_user_layers = cached->second.get();
+        return;
     }
+
+    int nlayer = network_class_count( net, class_id );
+    if( nlayer <= 0 )
+    {
+        station_user_layers = 0;
+        return;
+    }
+
+    set_station_layer_colourflag( false );
+    layer_s *layers = (layer_s *) check_malloc( sizeof(layer_s) * (nlayer+2) );
+    layer_s *l = &(layers[0]);
+    init_layer( l, network_class_name(net, class_id), dflt_data_colour, true );
+    l->opt_id = OTHER_OPT;
+    l->is_control_checkbox = true;
+    for( int i = 0; i < nlayer; i++ )
+    {
+        char buf[256];
+        l = &(layers[i+1]);
+        const char *v = network_class_value(net,class_id,i);
+        sprintf(buf,"SC_%.120s|%.120s",v,v);
+        init_layer(l,buf,dflt_stn_colour,false);
+    }
+    layers[nlayer+1].name = 0;
+
+    station_user_layers = layers;
+    station_class_layer_cache.emplace( class_id, LayerArrayPtr( layers ) );
 }
 
 static void setup_data_type_layers()
@@ -394,18 +422,18 @@ static void setup_data_file_layers()
     data_file_layers[nfiles+1].name = 0;
 }
 
-// Snapshots data_user_layers' current live status/colour onto each row's own
-// savedStatus/savedColour, before it's repointed to a different list. Must
-// run while `symbology` is still the generation this list was last shown in -
-// copy_layer()'s lyr_id matching only survives one rebuild, so this is the
-// only reliable way to carry state across the intervening rebuilds that
-// happen while a different mode is active.
-static void save_data_user_layer_state()
+// Snapshots a layer_s list's current live status/colour onto each row's own
+// savedStatus/savedColour, before the list is repointed elsewhere or freed
+// and rebuilt. Must run while `symbology` is still the generation this list
+// was last shown in - copy_layer()'s lyr_id matching only survives one
+// rebuild, so this is the only reliable way to carry state across the
+// intervening rebuilds that happen while a different list is active.
+static void save_layer_state( layer_s *layers )
 {
-    if( ! data_user_layers || ! symbology ) {
+    if( ! layers || ! symbology ) {
         return;
     }
-    for( layer_s *l = data_user_layers; l->name; l++ ) {
+    for( layer_s *l = layers; l->name; l++ ) {
         if( l->lyr_id < 0 ) {
             continue;
         }
@@ -421,16 +449,16 @@ static void save_data_user_layer_state()
     }
 }
 
-// Applies each data_user_layers row's savedStatus/savedColour (if it's ever
-// been saved) onto the live LayerSymbology, once the symbology has been
-// rebuilt and the row has a fresh lyr_id. Rows with no saved state (first
-// time this mode has ever been selected) are left at their fresh defaults.
-static void restore_data_user_layer_state()
+// Applies a layer_s list's saved status/colour (if it's ever been saved)
+// onto the live LayerSymbology, once the symbology has been rebuilt and each
+// row has a fresh lyr_id. Rows with no saved state (first time this list has
+// ever been shown) are left at their fresh defaults.
+static void restore_layer_state( layer_s *layers )
 {
-    if( ! data_user_layers || ! symbology ) {
+    if( ! layers || ! symbology ) {
         return;
     }
-    for( layer_s *l = data_user_layers; l->name; l++ ) {
+    for( layer_s *l = layers; l->name; l++ ) {
         if( l->lyr_id < 0 || ! l->savedColourValid ) {
             continue;
         }
@@ -451,7 +479,7 @@ static void restore_data_user_layer_state()
 // dflt_data_colour need this to avoid overwriting colours restored from cache.
 bool setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
 {
-    save_data_user_layer_state();
+    save_layer_state( data_user_layers );
     if( ndatapens <= 0 ) {
         data_user_layers = 0;
         return false;
@@ -495,22 +523,39 @@ void invalidate_data_user_layer_cache( const char *header )
     data_mode_layer_cache.erase( cached );
 }
 
-// Evicts and frees data_user_layers' own cache entry, found by pointer
-// rather than by header text so the caller doesn't need to know which
-// mode is active - used by "reset all" so the list rebuilds with default
-// colours as well as the requested checkbox status.
-void invalidate_active_data_user_layer_cache()
+// Evicts and frees the cache entry currently pointed to by `activeLayers`,
+// found by pointer rather than by key so the caller doesn't need to know
+// which mode/classification is active - used by "reset all" so the list
+// rebuilds with default colours as well as the requested checkbox status.
+// Restricted to the two key types data_mode_layer_cache/station_class_layer_cache
+// actually use, rather than left open to any type by mistake.
+template <typename K>
+static void invalidate_active_layer_cache( std::map<K, LayerArrayPtr> &cache, layer_s *&activeLayers )
 {
-    if( ! data_user_layers ) {
+    static_assert( std::is_same_v<K, wxString> || std::is_same_v<K, int>,
+                   "invalidate_active_layer_cache is only used with wxString (per-mode header) or int (per-classification id) keys" );
+    if( ! activeLayers ) {
         return;
     }
-    for( auto it = data_mode_layer_cache.begin(); it != data_mode_layer_cache.end(); ++it ) {
-        if( it->second.get() == data_user_layers ) {
-            data_mode_layer_cache.erase( it );
-            data_user_layers = 0;
+    for( auto it = cache.begin(); it != cache.end(); ++it ) {
+        if( it->second.get() == activeLayers ) {
+            cache.erase( it );
+            activeLayers = 0;
             return;
         }
     }
+}
+
+// Evicts and frees data_user_layers' own cache entry - see invalidate_active_layer_cache().
+void invalidate_active_data_user_layer_cache()
+{
+    invalidate_active_layer_cache( data_mode_layer_cache, data_user_layers );
+}
+
+// Evicts and frees station_user_layers' own cache entry - see invalidate_active_layer_cache().
+void invalidate_active_station_class_layer_cache()
+{
+    invalidate_active_layer_cache( station_class_layer_cache, station_user_layers );
 }
 
 static void reset_layer_status( layer_s *layers, const bool is_on )
@@ -540,6 +585,11 @@ void reset_data_user_layers( const bool is_on )
     reset_layer_status( data_user_layers, is_on );
     reset_layer_status( data_type_layers, is_on );
     reset_layer_status( data_file_layers, is_on );
+}
+
+void reset_station_user_layers( const bool is_on )
+{
+    reset_layer_status( station_user_layers, is_on );
 }
 
 // Resets every data_type_layers row's colour back to the default palette
@@ -726,7 +776,7 @@ bool setup_data_layers( int ndatapens, const char **datapennames, const char *he
     const bool freshlyBuilt = setup_data_pens_layers( ndatapens, datapennames, header );
     sort_data_user_layers = (sorted != 0);
     setup_snapplot_symbology();
-    restore_data_user_layer_state();
+    restore_layer_state( data_user_layers );
     return freshlyBuilt;
 }
 
@@ -735,6 +785,7 @@ void setup_station_layers( int class_id )
 {
     setup_station_class_layers( class_id );
     setup_snapplot_symbology();
+    restore_layer_state( station_user_layers );
 }
 
 

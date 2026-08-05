@@ -85,6 +85,8 @@ BEGIN_EVENT_TABLE(SnapplotFrame, wxFrame)
     EVT_MENU(CMD_VIEW_MAPFONT, SnapplotFrame::OnCmdViewMapFont )
 
     EVT_MENU(CMD_STATION_COLOURBY_USAGE, SnapplotFrame::OnCmdStationColourBy )
+    EVT_MENU(CMD_STATION_COLOURBY_RESETALLON, SnapplotFrame::OnCmdStationColourResetAllOn )
+    EVT_MENU(CMD_STATION_COLOURBY_RESETALLOFF, SnapplotFrame::OnCmdStationColourResetAllOff )
     EVT_MENU(CMD_STATION_OPTIONS, SnapplotFrame::FunctionNotImplemented )
     EVT_MENU(CMD_STATION_HIGHLIGHT, SnapplotFrame::OnCmdStationHighlight )
     EVT_MENU(CMD_STATION_HIDESHOW, SnapplotFrame::OnCmdStationHideShow )
@@ -499,6 +501,14 @@ void SnapplotFrame::AddStationColourOptions()
     {
         stationColourMenuItem->Enable(false);
     }
+
+    stationColourMenu->AppendSeparator();
+    stationColourMenu->Append( CMD_STATION_COLOURBY_RESETALLON,
+                                "Reset all o&n",
+                                "Reset every item's checkbox in this list to on" );
+    stationColourMenu->Append( CMD_STATION_COLOURBY_RESETALLOFF,
+                                "Reset all &off",
+                                "Reset every item's checkbox in this list to off" );
 }
 
 void SnapplotFrame::AddColourByClassifications()
@@ -899,25 +909,46 @@ void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
 
 // Rebuilds the active list from scratch (defaults, including colours) before
 // applying the requested status, so "reset all" also restores default colours.
+void SnapplotFrame::ResetDataColourAll( const bool is_on )
+{
+    invalidate_active_data_user_layer_cache();
+    SetupDataPens( get_data_pen_type() );
+    reset_data_user_layers( is_on );
+    reset_data_type_layer_colours();
+    SetupSymbology();
+}
+
 void SnapplotFrame::OnCmdDataColourResetAllOn( wxCommandEvent & WXUNUSED(event) )
 {
-    invalidate_active_data_user_layer_cache();
-    SetupDataPens( get_data_pen_type() );
-    reset_data_user_layers( true );
-    reset_data_type_layer_colours();
-    SetupSymbology();
+    ResetDataColourAll( true );
 }
 
-// See OnCmdDataColourResetAllOn.
 void SnapplotFrame::OnCmdDataColourResetAllOff( wxCommandEvent & WXUNUSED(event) )
 {
-    invalidate_active_data_user_layer_cache();
-    SetupDataPens( get_data_pen_type() );
-    reset_data_user_layers( false );
-    reset_data_type_layer_colours();
+    ResetDataColourAll( false );
+}
+
+// See ResetDataColourAll - the station equivalent. setup_station_layers() is
+// called directly rather than through SetupStationPens()/setup_station_pens(),
+// since that guards against redundant rebuilds when the class_id is
+// unchanged, which would make it a no-op here.
+void SnapplotFrame::ResetStationColourAll( const bool is_on )
+{
+    invalidate_active_station_class_layer_cache();
+    setup_station_layers( get_station_colourby_class() );
+    reset_station_user_layers( is_on );
     SetupSymbology();
 }
 
+void SnapplotFrame::OnCmdStationColourResetAllOn( wxCommandEvent & WXUNUSED(event) )
+{
+    ResetStationColourAll( true );
+}
+
+void SnapplotFrame::OnCmdStationColourResetAllOff( wxCommandEvent & WXUNUSED(event) )
+{
+    ResetStationColourAll( false );
+}
 
 void SnapplotFrame::OnCmdStationColourBy( wxCommandEvent &event )
 {

@@ -77,6 +77,10 @@ typedef struct
 bool setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
 void setup_station_layers( int class_id );
 void reset_data_user_layers( bool is_on );
+// Resets every station_user_layers row's checkbox to is_on.
+void reset_station_user_layers( bool is_on );
+// Evicts whichever station classification list is currently active, without needing to know its class_id.
+void invalidate_active_station_class_layer_cache();
 // Resets every data_type_layers row's colour back to the default palette entry.
 void reset_data_type_layer_colours();
 // Evicts a cached colour-by list by its header text, forcing a rebuild next time it's selected.

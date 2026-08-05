@@ -51,6 +51,8 @@ public:
     void OnCmdDataColourResetAllOn( wxCommandEvent &event );
     void OnCmdDataColourResetAllOff( wxCommandEvent &event );
     void OnCmdStationColourBy( wxCommandEvent &event );
+    void OnCmdStationColourResetAllOn( wxCommandEvent &event );
+    void OnCmdStationColourResetAllOff( wxCommandEvent &event );
     void OnCmdDataOptions( wxCommandEvent &event );
     void OnCmdDataHighlight( wxCommandEvent &event );
     void OnCmdDataListOptions( wxCommandEvent &event );
@@ -85,6 +87,10 @@ private:
     // Checks the dataColourMenu item matching the currently active colour-by mode.
     void UpdateColourByMenuCheck();
     void SetupStationPens( int stationPenType );
+    // Shared by OnCmdDataColourResetAllOn/Off.
+    void ResetDataColourAll( bool is_on );
+    // Shared by OnCmdStationColourResetAllOn/Off.
+    void ResetStationColourAll( bool is_on );
     void AddColourByClassifications();
     void AddStationColourOptions();
     void AddConfigMenuItems();
