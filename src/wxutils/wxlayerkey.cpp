@@ -9,6 +9,7 @@
 #include "wxsimpleevent.hpp"
 #include "wxpalettepopup.hpp"
 #include <wx/renderer.h>
+#include <limits>
 
 DEFINE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED)
 
@@ -105,12 +106,13 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
 
     wxLayerKey &wxsymkey = dynamic_cast<wxLayerKey &> (grid);
     Symbology *symkey = wxsymkey.GetSymbologyKey();
-    if( symkey && symkey && row >= 0 && row < symkey->LayerCount() )
+    const int layerIndex = wxsymkey.RowToLayerIndex( row );
+    if( symkey && layerIndex >= 0 && layerIndex < symkey->LayerCount() )
     {
-        LayerSymbology &sym = symkey->GetLayer( row );
+        LayerSymbology &sym = symkey->GetLayer( layerIndex );
 
         if( col == 1 && sym.IsControlCheckbox() ) {
-            if( ! wxsymkey.IsSingleChildMasterRow( row ) ) {
+            if( ! wxsymkey.IsSingleChildMasterRow( layerIndex ) ) {
                 const int flags = sym.IsMixedRowStatus() ? wxCONTROL_UNDETERMINED :
                                    sym.Status() ? wxCONTROL_CHECKED : wxCONTROL_NONE;
                 wxRendererNative::Get().DrawCheckBox( &grid, dc, rect, flags );
@@ -121,11 +123,11 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
         const wxBitmap *bmp = 0;
         if( col  == 0 && sym.HasColour() && sym.ColourEditable() )
         {
-            bmp = &(symkey->LayerBitmap(row));
+            bmp = &(symkey->LayerBitmap(layerIndex));
         }
         else if ( col == 1 && sym.HasStatus() )
         {
-            bmp = GetTickBitmap( symkey->ShowLayer(row) );
+            bmp = GetTickBitmap( symkey->ShowLayer(layerIndex) );
         }
 
         if( bmp )
@@ -211,6 +213,7 @@ void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
     if( GetNumberRows() > 0 ) DeleteRows( 0, GetNumberRows() );
 
     masterRanges.clear();
+    visibleRows.clear();
 
     if( symbologyKey->LayerCount() > 0 )
     {
@@ -276,6 +279,10 @@ void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
             }
             masterRanges[current].lastChild = i;
         }
+
+        for( int i = 0; i < symbologyKey->LayerCount(); i++ ) {
+            visibleRows.push_back( i );
+        }
     }
 }
 
@@ -284,9 +291,9 @@ Symbology *wxLayerKey::GetSymbologyKey()
     return symbologyKey;
 }
 
-bool wxLayerKey::IsSingleChildMasterRow( const int row ) const
+bool wxLayerKey::IsSingleChildMasterRow( const int layerIndex ) const
 {
-    const MasterLookup lookup = FindMasterRange( row );
+    const MasterLookup lookup = FindMasterRange( layerIndex );
     if( ! lookup.isMaster ) {
         return false;
     }
@@ -294,11 +301,35 @@ bool wxLayerKey::IsSingleChildMasterRow( const int row ) const
     return range.lastChild == range.master + 1;
 }
 
+int wxLayerKey::RowToLayerIndex( const int row ) const
+{
+    if( row < 0 || static_cast<size_t>( row ) >= visibleRows.size() ) {
+        return -1;
+    }
+    return visibleRows[row];
+}
+
+int wxLayerKey::LayerIndexToRow( const int layerIndex ) const
+{
+    for( size_t row = 0; row < visibleRows.size(); row++ ) {
+        if( visibleRows[row] != layerIndex ) {
+            continue;
+        }
+        if( row > static_cast<size_t>( std::numeric_limits<int>::max() ) ) {
+            return -1;
+        }
+        return static_cast<int>( row );
+    }
+    return -1;
+}
+
 void wxLayerKey::OnLeftClick( wxGridEvent &event )
 {
+    const int row = event.GetRow();
+    const int layerIndex = RowToLayerIndex( row );
     if( event.GetCol() == 0 )
     {
-        LayerSymbology &sym = symbologyKey->GetLayer( event.GetRow() );
+        LayerSymbology &sym = symbologyKey->GetLayer( layerIndex );
         if( sym.HasColour() && sym.ColourEditable() )
         {
             int colourId = sym.ColourId();
@@ -307,17 +338,16 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
             if( colourChanged )
             {
                 sym.SetColourId( colourId );
-                wxGridCellCoords cell( event.GetRow(), event.GetCol() );
+                wxGridCellCoords cell( row, event.GetCol() );
                 RefreshRect( BlockToDeviceRect( cell, cell) );
                 FireSymbologyChangedEvent();
             }
         }
     }
     else if( event.GetCol() == 1 ) {
-        const int row = event.GetRow();
-        LayerSymbology &sym = symbologyKey->GetLayer( row );
-        const MasterLookup lookup = FindMasterRange( row );
-        if( lookup.isMaster && IsSingleChildMasterRow( row ) ) {
+        LayerSymbology &sym = symbologyKey->GetLayer( layerIndex );
+        const MasterLookup lookup = FindMasterRange( layerIndex );
+        if( lookup.isMaster && IsSingleChildMasterRow( layerIndex ) ) {
             // No checkbox is drawn for a single-child master, so clicking it is a no-op.
             return;
         }
@@ -333,8 +363,8 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
             }
             sym.SetStatus( checkAll );
             sym.SetMixedRowStatus( false );
-            wxGridCellCoords topLeft( range.master, event.GetCol() );
-            wxGridCellCoords bottomRight( range.lastChild, event.GetCol() );
+            wxGridCellCoords topLeft( LayerIndexToRow( range.master ), event.GetCol() );
+            wxGridCellCoords bottomRight( LayerIndexToRow( range.lastChild ), event.GetCol() );
             RefreshRect( BlockToDeviceRect( topLeft, bottomRight ) );
             FireSymbologyChangedEvent();
         } else if( sym.HasStatus() ) {
@@ -347,8 +377,9 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
             // in before. It stays indeterminate until the user clicks the master
             // control directly.
             if( lookup.rangeIndex >= 0 ) {
-                const int masterRow = masterRanges[lookup.rangeIndex].master;
-                symbologyKey->GetLayer( masterRow ).SetMixedRowStatus( true );
+                const int masterLayerIndex = masterRanges[lookup.rangeIndex].master;
+                symbologyKey->GetLayer( masterLayerIndex ).SetMixedRowStatus( true );
+                const int masterRow = LayerIndexToRow( masterLayerIndex );
                 wxGridCellCoords masterCell( masterRow, event.GetCol() );
                 RefreshRect( BlockToDeviceRect( masterCell, masterCell ) );
             }
@@ -357,14 +388,15 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
     }
 }
 
-wxLayerKey::MasterLookup wxLayerKey::FindMasterRange( const int row ) const
+wxLayerKey::MasterLookup wxLayerKey::FindMasterRange( const int layerIndex ) const
 {
     for( size_t r = 0; r < masterRanges.size(); r++ ) {
-        if( masterRanges[r].master == row ) {
-            return MasterLookup{ (int) r, true };
+        const int rangeIndex = r <= static_cast<size_t>( std::numeric_limits<int>::max() ) ? static_cast<int>( r ) : -1;
+        if( masterRanges[r].master == layerIndex ) {
+            return MasterLookup{ rangeIndex, true };
         }
-        if( row > masterRanges[r].master && row <= masterRanges[r].lastChild ) {
-            return MasterLookup{ (int) r, false };
+        if( layerIndex > masterRanges[r].master && layerIndex <= masterRanges[r].lastChild ) {
+            return MasterLookup{ rangeIndex, false };
         }
     }
     return MasterLookup{ -1, false };
