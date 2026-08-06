@@ -120,6 +120,16 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
             return;
         }
 
+        // A master row never has a colour swatch (see init_layer()'s title
+        // case), so column 0 is otherwise blank there - use it for the
+        // disclosure triangle instead of widening column 1. Every master row
+        // is collapsible, even a single-child one that draws no checkbox.
+        if( col == 0 && sym.IsControlCheckbox() ) {
+            const int flags = wxsymkey.IsRangeCollapsed( layerIndex ) ? 0 : wxCONTROL_EXPANDED;
+            wxRendererNative::Get().DrawTreeItemButton( &grid, dc, rect, flags );
+            return;
+        }
+
         const wxBitmap *bmp = 0;
         if( col  == 0 && sym.HasColour() && sym.ColourEditable() )
         {
@@ -188,6 +198,10 @@ wxLayerKey::wxLayerKey(wxWindow* parent, wxWindowID id, const wxPoint& pos, cons
     SetSelectionBackground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNFACE) );
     SetSelectionForeground( wxSystemSettings::GetColour(wxSYS_COLOUR_BTNTEXT) );
     SetCellHighlightPenWidth(0);
+    // Every cell in this grid is read-only (see SetReadOnly() below), and
+    // wxGrid draws the current cell's border with this separate setting when
+    // read-only, not the one above.
+    SetCellHighlightROPenWidth(0);
     EnableGridLines( false );
     EnableEditing( false );
     DisableDragGridSize();
@@ -205,57 +219,12 @@ wxLayerKey::~wxLayerKey()
 void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
 {
     symbologyKey = newSymbologyKey;
-    // Set up new symbology and redraw..
-
-    // TODO: Figure out how to handle this so that it doesn't screw up
-    // rendering
-
-    if( GetNumberRows() > 0 ) DeleteRows( 0, GetNumberRows() );
 
     masterRanges.clear();
     visibleRows.clear();
 
     if( symbologyKey->LayerCount() > 0 )
     {
-        AppendRows( symbologyKey->LayerCount(), false );
-
-        for( int i = 0; i < symbologyKey->LayerCount(); i++ )
-        {
-            // Attempt to reset everything before writing.
-            // SetCellSize( i, 0, 1, 1 );
-            SetReadOnly( i, 0, true );
-            SetReadOnly( i, 1, true );
-            SetReadOnly( i, 2, true );
-            //SetCellRenderer( i, 0, new wxGridCellStringRenderer() );
-            //SetCellRenderer( i, 1, new wxGridCellStringRenderer() );
-            //SetCellRenderer( i, 2, new wxGridCellStringRenderer() );
-
-            LayerSymbology &sym = symbologyKey->GetLayer( i );
-
-            if( sym.HasStatus() || sym.HasColour() )
-            {
-                if( sym.HasColour() )
-                {
-                    SetCellRenderer( i, 0, new wxBitmapGridRenderer() );
-                }
-                if( sym.HasStatus() )
-                {
-                    SetCellRenderer( i, 1, new wxBitmapGridRenderer() );
-                }
-                SetCellValue( i, 2, sym.Name() );
-                SetCellRenderer( i, 2, new wxGridCellStringRenderer() );
-            }
-            else
-            {
-                SetCellSize( i, 0, 1, 3 );
-                SetCellValue(i, 0, sym.Name() );
-                SetCellRenderer( i, 0, new wxGridCellStringRenderer() );
-            }
-        }
-        AutoSizeColumns();
-        SetColSize( 0, symbologyKey->PaletteBitmapSize() + 6 );
-        SetColSize( 1, wxBitmapGridRenderer::TickBitmapSize() + 6 );
-
         // Locate every control checkbox row and the range of ordinary status rows
         // each controls, once here rather than on every click. A symbology can
         // contain more than one (two colour-coding lists can both show a header
@@ -266,7 +235,9 @@ void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
         for( int i = 0; i < symbologyKey->LayerCount(); i++ ) {
             LayerSymbology &sym = symbologyKey->GetLayer( i );
             if( sym.IsControlCheckbox() ) {
-                masterRanges.push_back( MasterRange{ i, i } );
+                const auto saved = collapsedByName.find( sym.Name() );
+                const bool collapsed = saved != collapsedByName.end() && saved->second;
+                masterRanges.push_back( MasterRange{ i, i, collapsed } );
                 current = (int) masterRanges.size() - 1;
                 continue;
             }
@@ -280,10 +251,92 @@ void wxLayerKey::SetSymbology( Symbology *newSymbologyKey )
             masterRanges[current].lastChild = i;
         }
 
-        for( int i = 0; i < symbologyKey->LayerCount(); i++ ) {
-            visibleRows.push_back( i );
+        RecomputeVisibleRows();
+    }
+
+    RebuildRows();
+}
+
+void wxLayerKey::RecomputeVisibleRows()
+{
+    visibleRows.clear();
+    for( int layerIndex = 0; layerIndex < symbologyKey->LayerCount(); layerIndex++ ) {
+        const MasterLookup lookup = FindMasterRange( layerIndex );
+        if( ! lookup.isMaster && lookup.rangeIndex >= 0 && masterRanges[lookup.rangeIndex].collapsed ) {
+            continue;
+        }
+        visibleRows.push_back( layerIndex );
+    }
+}
+
+void wxLayerKey::RebuildRows()
+{
+    // TODO: Figure out how to handle this so that it doesn't screw up
+    // rendering
+
+    if( GetNumberRows() > 0 ) DeleteRows( 0, GetNumberRows() );
+
+    if( visibleRows.empty() ) {
+        return;
+    }
+
+    AppendRows( static_cast<int>( visibleRows.size() ), false );
+
+    for( size_t row = 0; row < visibleRows.size(); row++ )
+    {
+        const int gridRow = static_cast<int>( row );
+        const int layerIndex = visibleRows[row];
+
+        // Attempt to reset everything before writing.
+        // SetCellSize( gridRow, 0, 1, 1 );
+        SetReadOnly( gridRow, 0, true );
+        SetReadOnly( gridRow, 1, true );
+        SetReadOnly( gridRow, 2, true );
+        //SetCellRenderer( gridRow, 0, new wxGridCellStringRenderer() );
+        //SetCellRenderer( gridRow, 1, new wxGridCellStringRenderer() );
+        //SetCellRenderer( gridRow, 2, new wxGridCellStringRenderer() );
+
+        LayerSymbology &sym = symbologyKey->GetLayer( layerIndex );
+
+        if( sym.HasStatus() || sym.HasColour() )
+        {
+            // A master row has neither colour nor status of its own to show
+            // in column 0, but still needs this renderer - it draws that
+            // row's disclosure triangle.
+            if( sym.HasColour() || sym.IsControlCheckbox() )
+            {
+                SetCellRenderer( gridRow, 0, new wxBitmapGridRenderer() );
+            }
+            if( sym.HasStatus() )
+            {
+                SetCellRenderer( gridRow, 1, new wxBitmapGridRenderer() );
+            }
+            SetCellValue( gridRow, 2, sym.Name() );
+            SetCellRenderer( gridRow, 2, new wxGridCellStringRenderer() );
+        }
+        else
+        {
+            SetCellSize( gridRow, 0, 1, 3 );
+            SetCellValue( gridRow, 0, sym.Name() );
+            SetCellRenderer( gridRow, 0, new wxGridCellStringRenderer() );
         }
     }
+    AutoSizeColumns();
+    SetColSize( 0, symbologyKey->PaletteBitmapSize() + 6 );
+    SetColSize( 1, wxBitmapGridRenderer::TickBitmapSize() + 6 );
+}
+
+void wxLayerKey::ToggleRangeCollapsed( const int layerIndex )
+{
+    const MasterLookup lookup = FindMasterRange( layerIndex );
+    if( ! lookup.isMaster ) {
+        return;
+    }
+    MasterRange &range = masterRanges[lookup.rangeIndex];
+    range.collapsed = ! range.collapsed;
+    collapsedByName[ symbologyKey->GetLayer( range.master ).Name() ] = range.collapsed;
+    RecomputeVisibleRows();
+    RebuildRows();
 }
 
 Symbology *wxLayerKey::GetSymbologyKey()
@@ -323,6 +376,15 @@ int wxLayerKey::LayerIndexToRow( const int layerIndex ) const
     return -1;
 }
 
+bool wxLayerKey::IsRangeCollapsed( const int layerIndex ) const
+{
+    const MasterLookup lookup = FindMasterRange( layerIndex );
+    if( ! lookup.isMaster ) {
+        return false;
+    }
+    return masterRanges[lookup.rangeIndex].collapsed;
+}
+
 void wxLayerKey::OnLeftClick( wxGridEvent &event )
 {
     const int row = event.GetRow();
@@ -330,6 +392,11 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
     if( event.GetCol() == 0 )
     {
         LayerSymbology &sym = symbologyKey->GetLayer( layerIndex );
+        const MasterLookup lookup = FindMasterRange( layerIndex );
+        if( lookup.isMaster ) {
+            ToggleRangeCollapsed( layerIndex );
+            return;
+        }
         if( sym.HasColour() && sym.ColourEditable() )
         {
             int colourId = sym.ColourId();
@@ -363,8 +430,12 @@ void wxLayerKey::OnLeftClick( wxGridEvent &event )
             }
             sym.SetStatus( checkAll );
             sym.SetMixedRowStatus( false );
-            wxGridCellCoords topLeft( LayerIndexToRow( range.master ), event.GetCol() );
-            wxGridCellCoords bottomRight( LayerIndexToRow( range.lastChild ), event.GetCol() );
+            // A collapsed range hides its children from the grid entirely, so
+            // there is nothing below the master row itself to refresh.
+            const int masterRow = LayerIndexToRow( range.master );
+            const int bottomRow = range.collapsed ? masterRow : LayerIndexToRow( range.lastChild );
+            wxGridCellCoords topLeft( masterRow, event.GetCol() );
+            wxGridCellCoords bottomRight( bottomRow, event.GetCol() );
             RefreshRect( BlockToDeviceRect( topLeft, bottomRight ) );
             FireSymbologyChangedEvent();
         } else if( sym.HasStatus() ) {

@@ -11,6 +11,7 @@
 #include "wxsymbology.hpp"
 
 #include <vector>
+#include <map>
 
 DECLARE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED, -1)
 
@@ -42,6 +43,10 @@ public:
     // that layer is hidden (e.g. inside a collapsed range).
     int LayerIndexToRow( int layerIndex ) const;
 
+    // True if the master row at layerIndex owns a currently-collapsed range.
+    // False if layerIndex isn't a master row.
+    bool IsRangeCollapsed( int layerIndex ) const;
+
 private:
     Symbology *symbologyKey;
     void FireSymbologyChangedEvent();
@@ -50,18 +55,38 @@ private:
     // that it controls (inclusive). A symbology can contain more than one of
     // these (e.g. the Data type list and the Data file/Residual/Redundancy list
     // can both show a header at once), so every one found is kept, not just the
-    // first.
+    // first. A spacer/title row never qualifies as a child (see AddSpacer()),
+    // so collapsing a range can never hide the separator that follows it.
     struct MasterRange
     {
         int master;
         int lastChild;
+        bool collapsed;
     };
     // Recomputed by SetSymbology(), not on every click.
     std::vector<MasterRange> masterRanges;
 
+    // Collapse state keyed by master row name, persisted across SetSymbology()
+    // calls - unlike masterRanges itself, which SetSymbology() throws away and
+    // recomputes from scratch every rebuild, so a name-keyed record is the only
+    // way a collapsed section stays collapsed once its symbology is rebuilt
+    // (e.g. after a Display-by toggle rebuilds the whole Key panel).
+    std::map<wxString, bool> collapsedByName;
+
     // Grid row -> layer index, in display order (see RowToLayerIndex).
-    // Recomputed by SetSymbology().
+    // Recomputed whenever masterRanges' collapsed state changes, not just by
+    // SetSymbology().
     std::vector<int> visibleRows;
+    void RecomputeVisibleRows();
+
+    // Rebuilds every grid row from visibleRows, discarding and recreating the
+    // grid's rows from scratch. Called after visibleRows changes, whether from
+    // a fresh SetSymbology() or a collapse toggle.
+    void RebuildRows();
+
+    // Flips whether the range owned by the master at layerIndex is collapsed,
+    // and rebuilds the grid to match. No-op if layerIndex isn't a master.
+    void ToggleRangeCollapsed( int layerIndex );
 
     // Result of looking up which masterRanges entry a layer index belongs to,
     // as either the master itself or one of its children. rangeIndex is -1 if
