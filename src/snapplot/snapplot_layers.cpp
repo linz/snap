@@ -819,6 +819,7 @@ static void setup_snapplot_symbology()
     if( station_user_layers )
     {
         add_sorted_layers_to_symbology( symbology, station_user_layers, oldSymbology, true );
+        restore_layer_state( station_user_layers );
         symbology->AddSpacer();
     }
     add_layers_to_symbology( symbology, station_layers, oldSymbology );
@@ -842,6 +843,7 @@ static void setup_snapplot_symbology()
     if( data_user_layers )
     {
         add_sorted_layers_to_symbology( symbology, data_user_layers, oldSymbology, sort_data_user_layers );
+        restore_layer_state( data_user_layers );
         symbology->AddSpacer();
     }
     if( is_displayby_enabled( DISPLAYBY_DATATYPE ) )
@@ -904,7 +906,6 @@ bool setup_data_layers( int ndatapens, const char **datapennames, const char *he
     const bool freshlyBuilt = setup_data_pens_layers( ndatapens, datapennames, header );
     sort_data_user_layers = (sorted != 0);
     setup_snapplot_symbology();
-    restore_layer_state( data_user_layers );
     return freshlyBuilt;
 }
 
@@ -913,7 +914,6 @@ void setup_station_layers( int class_id )
 {
     setup_station_class_layers( class_id );
     setup_snapplot_symbology();
-    restore_layer_state( station_user_layers );
 }
 
 void rebuild_displayby_symbology()
