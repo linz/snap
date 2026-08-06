@@ -55,15 +55,15 @@ static const char *defaultPalette[] =
 
 struct layer_s
 {
-    const char *name;
-    int  pen_id;
-    int  opt_id;
-    const char *dfltColour;
-    bool dfltOption;
-    bool need_hor;
-    bool need_vrt;
-    bool need_cvr;
-    int lyr_id;
+    const char *name = nullptr;
+    int  pen_id = UNUSED_PEN_ID;
+    int  opt_id = UNUSED_OPT_ID;
+    const char *dfltColour = nullptr;
+    bool dfltOption = false;
+    bool need_hor = false;
+    bool need_vrt = false;
+    bool need_cvr = false;
+    int lyr_id = -1;
     // true if this row's checkbox is to control a following range of
     // other rows' status, instead of its own
     bool is_control_checkbox = false;
