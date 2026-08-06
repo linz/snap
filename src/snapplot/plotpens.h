@@ -75,6 +75,14 @@ typedef struct
 
 // Returns true if the list was freshly built, false if reused from cache.
 bool setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
+// Points data_user_layers at classification class_type's list (building and
+// caching it first if needed), the exclusive Colour-by mode path. Returns
+// true if it was freshly built, false if reused from cache or class_type has
+// no values.
+bool setup_classification_pens_layers( int class_type );
+// Triggers a full symbology rebuild, e.g. after a Display-by toggle changes
+// which lists should be included.
+void rebuild_displayby_symbology();
 void setup_station_layers( int class_id );
 void reset_data_user_layers( bool is_on );
 // Resets every station_user_layers row's checkbox to is_on.
@@ -114,7 +122,11 @@ int data_pen( int dpen );
 int datatype_selected( int datatype );
 // Whether the given data file's checkbox is currently on, independent of
 // whatever mode is active for Colour by.
-int filetype_selected( int file );
+bool filetype_selected( int file );
+// Whether the checkbox for classification class_type's value value_id is
+// currently on. Callers should only call this for a class_type they already
+// know is active, via is_displayby_enabled() or get_data_pen_type().
+bool classification_value_selected( int class_type, int value_id );
 int select_display_options( void );
 int background_option( int layer_id );
 

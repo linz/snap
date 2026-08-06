@@ -8,6 +8,7 @@
 #include <memory>
 #include <optional>
 #include <type_traits>
+#include <vector>
 
 // Provides a crude interface to existing C code by replacing functions
 // defined in plotpens.h
@@ -22,6 +23,7 @@
 #include "plotstns.h"
 #include "backgrnd.h"
 #include "util/chkalloc.h"
+#include "util/classify.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
 //}
@@ -66,10 +68,11 @@ struct layer_s
     // other rows' status, instead of its own
     bool is_control_checkbox = false;
     // Last known live status for this row - and colour if this row has one -
-    // saved by save_layer_state() before this list is repointed elsewhere or
-    // freed and rebuilt. savedColour being empty means either it's never
-    // been saved, or this row has no colour at all - restore_layer_state()
-    // leaves such rows at their fresh construction-time colour default.
+    // saved by save_and_invalidate_layer_state() before this list is
+    // repointed elsewhere or freed and rebuilt. savedColour being empty
+    // means either it's never been saved, or this row has no colour at all -
+    // restore_layer_state() leaves such rows at their fresh construction-time
+    // colour default.
     bool savedStatus = true;
     std::optional<wxColour> savedColour;
 };
@@ -104,7 +107,7 @@ static layer_s *data_user_layers = 0;
 static bool sort_data_user_layers = true;
 
 static void delete_layers( layer_s **pl );
-static void save_layer_state( layer_s *layers );
+static void save_and_invalidate_layer_state( layer_s *layers );
 static void restore_layer_state( layer_s *layers );
 
 // Deleter for a dynamically-built layer_s array, so ownership in
@@ -329,7 +332,7 @@ static void set_station_layer_colourflag( bool on )
 
 static void setup_station_class_layers( int class_id )
 {
-    save_layer_state( station_user_layers );
+    save_and_invalidate_layer_state( station_user_layers );
     set_station_layer_colourflag( true );
     if( class_id < 1 || class_id > network_classification_count(net))
     {
@@ -414,13 +417,33 @@ static void setup_data_file_layers()
     data_file_layers[nfiles+1].name = 0;
 }
 
+// Resets every row's lyr_id to -1, marking this list as not present in the
+// current symbology generation. Called by save_and_invalidate_layer_state()
+// below - without this, a list excluded from a rebuild would keep its
+// stale, still-positive lyr_id from whenever it was last shown, so a later
+// save on it (e.g. from an unrelated rebuild while this list stays excluded)
+// would misread that lyr_id as still valid and capture whatever unrelated
+// layer now sits at that index in the current symbology, corrupting
+// savedColour/savedStatus.
+static void invalidate_layer_ids( layer_s *layers )
+{
+    if( ! layers ) {
+        return;
+    }
+    for( layer_s *l = layers; l->name; l++ ) {
+        l->lyr_id = -1;
+    }
+}
+
 // Snapshots a layer_s list's current live status/colour onto each row's own
-// savedStatus/savedColour, before the list is repointed elsewhere or freed
-// and rebuilt. Must run while `symbology` is still the generation this list
-// was last shown in - copy_layer()'s lyr_id matching only survives one
+// savedStatus/savedColour, then invalidates every row's lyr_id (see
+// invalidate_layer_ids()) - together, what a list needs before it's
+// repointed elsewhere, freed and rebuilt, or simply left out of the next
+// symbology rebuild. Must run while `symbology` is still the generation this
+// list was last shown in - copy_layer()'s lyr_id matching only survives one
 // rebuild, so this is the only reliable way to carry state across the
 // intervening rebuilds that happen while a different list is active.
-static void save_layer_state( layer_s *layers )
+static void save_and_invalidate_layer_state( layer_s *layers )
 {
     if( ! layers || ! symbology ) {
         return;
@@ -435,6 +458,7 @@ static void save_layer_state( layer_s *layers )
             l->savedColour = symbology->GetPalette()->Colour( ls.ColourId() );
         }
     }
+    invalidate_layer_ids( layers );
 }
 
 // Applies a layer_s list's saved state onto the live LayerSymbology, once the
@@ -461,28 +485,21 @@ static void restore_layer_state( layer_s *layers )
     }
 }
 
-// Points data_user_layers at the cached list for this header, building and
-// caching it first if this is the first time this mode has been selected.
-// Returns true if it was freshly built just now, false if reused from cache
-// (or if ndatapens <= 0, leaving data_user_layers null) - callers that give
-// freshly-built rows a nicer default colouring than init_layer()'s plain
-// dflt_data_colour need this to avoid overwriting colours restored from cache.
-bool setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
+// Looks up `header` in data_mode_layer_cache; if absent, builds a fresh list
+// from ndatapens/datapennames and caches it. Returns the list either way,
+// reporting via freshlyBuilt whether it was just constructed. Does not touch
+// data_user_layers - callers needing the exclusive Colour-by mode slot do
+// that themselves.
+static layer_s *get_or_build_data_mode_layers( const int ndatapens, const char **datapennames, const char *header, bool &freshlyBuilt )
 {
-    save_layer_state( data_user_layers );
-    if( ndatapens <= 0 ) {
-        data_user_layers = 0;
-        return false;
-    }
-
     const wxString key( header );
-    const auto cached = data_mode_layer_cache.find( key );
-    if( cached != data_mode_layer_cache.end() ) {
-        data_user_layers = cached->second.get();
-        return false;
+    const auto inserted = data_mode_layer_cache.emplace( key, LayerArrayPtr( new layer_s[ndatapens+2] ) );
+    layer_s *layers = inserted.first->second.get();
+    freshlyBuilt = inserted.second;
+    if( ! freshlyBuilt ) {
+        return layers;
     }
 
-    layer_s *layers = new layer_s[ndatapens+2];
     layer_s *l = &(layers[0]);
     init_layer(l,header,dflt_data_colour,true);
     l->opt_id = OTHER_OPT;
@@ -493,9 +510,79 @@ bool setup_data_pens_layers( int ndatapens, const char **datapennames, const cha
     }
     layers[ndatapens+1].name = 0;
 
-    data_user_layers = layers;
-    data_mode_layer_cache.emplace( key, LayerArrayPtr( layers ) );
+    return layers;
+}
+
+// Builds classification class_type's row names ("OC_value|value", mirroring
+// plotconn.cpp's old setup_classification_pens()), shared by
+// setup_classification_pens_layers() and get_classification_filter_layers().
+// Returns false if class_type has no values, leaving header/names untouched.
+static const char *classificationPrefix = "OC_";
+#define CLASSIFICATION_LABEL_SIZE 64
+
+static bool build_classification_pen_names( const int class_type, wxString &header, std::vector<wxString> &names )
+{
+    const int npens = class_value_count( &obs_classes, class_type );
+    if( npens <= 0 ) {
+        return false;
+    }
+    header = classification_name( &obs_classes, class_type );
+    names.clear();
+    for( int i = 0; i < npens; i++ ) {
+        const char *value = class_value_name( &obs_classes, class_type, i );
+        names.push_back( wxString::Format( "%s%.*s|%.*s", classificationPrefix,
+                          CLASSIFICATION_LABEL_SIZE, value, CLASSIFICATION_LABEL_SIZE, value ) );
+    }
     return true;
+}
+
+// Makes classification class_type the active Colour-by mode, by pointing
+// data_user_layers at its list - the same single-slot mechanism used for
+// every other Colour-by mode (Data file, Residual, Redundancy, ...).
+bool setup_classification_pens_layers( const int class_type )
+{
+    wxString header;
+    std::vector<wxString> names;
+    if( ! build_classification_pen_names( class_type, header, names ) ) {
+        return false;
+    }
+    std::vector<const char *> namePtrs;
+    for( const wxString &name : names ) {
+        namePtrs.push_back( name.c_str() );
+    }
+    return setup_data_layers( (int) namePtrs.size(), namePtrs.data(), header.c_str(), 1 );
+}
+
+// Points at classification class_type's list (building and caching it first
+// if needed) as an always-on Display-by filter, independent of whichever
+// mode is the active Colour-by selection. Doesn't touch data_user_layers or
+// trigger a rebuild itself - setup_snapplot_symbology() is already rebuilding
+// when it calls this. Returns nullptr if class_type has no values.
+static layer_s *get_classification_filter_layers( const int class_type )
+{
+    wxString header;
+    std::vector<wxString> names;
+    if( ! build_classification_pen_names( class_type, header, names ) ) {
+        return nullptr;
+    }
+    std::vector<const char *> namePtrs;
+    for( const wxString &name : names ) {
+        namePtrs.push_back( name.c_str() );
+    }
+    bool freshlyBuilt;
+    return get_or_build_data_mode_layers( (int) namePtrs.size(), namePtrs.data(), header.c_str(), freshlyBuilt );
+}
+
+bool setup_data_pens_layers( int ndatapens, const char **datapennames, const char *header )
+{
+    save_and_invalidate_layer_state( data_user_layers );
+    if( ndatapens <= 0 ) {
+        data_user_layers = 0;
+        return false;
+    }
+    bool freshlyBuilt;
+    data_user_layers = get_or_build_data_mode_layers( ndatapens, datapennames, header, freshlyBuilt );
+    return freshlyBuilt;
 }
 
 // Evicts and frees the cached list for the given header, e.g. when a
@@ -671,7 +758,7 @@ static int cmp_layer_names( const void *p1, const void *p2 )
     return stncodecmp(l1->name, l2->name);
 }
 
-static void add_sorted_layers_to_symbology( Symbology *symbology, layer_s *layers, Symbology *oldSymbology, bool sort )
+static void add_sorted_layers_to_symbology( Symbology *symbology, layer_s *layers, Symbology *oldSymbology, bool sort, const bool colourEditable = true )
 {
     remove_unwanted_layers( layers );
     int nlayer;
@@ -686,19 +773,35 @@ static void add_sorted_layers_to_symbology( Symbology *symbology, layer_s *layer
         // rather than sorting alongside the children it controls.
         if( l->is_control_checkbox )
         {
-            add_layer_to_symbology( symbology, l, oldSymbology );
+            add_layer_to_symbology( symbology, l, oldSymbology, colourEditable );
             continue;
         }
         // Otherwise add it to list to be sorted..
         sorted[nlayer++] = l;
     }
     if( sort ) qsort(sorted,nlayer,sizeof(layer_s *),cmp_layer_names);
-    for( int i = 0; i < nlayer; i++ ) { add_layer_to_symbology( symbology, sorted[i], oldSymbology );}
+    for( int i = 0; i < nlayer; i++ ) { add_layer_to_symbology( symbology, sorted[i], oldSymbology, colourEditable );}
     check_free( sorted );
 }
 
 static void setup_snapplot_symbology()
 {
+    // Snapshot every cached data-mode list's live state before this
+    // generation's symbology is discarded, and mark all of them as not
+    // present - only whichever ones actually get re-added further down (via
+    // add_layers_to_symbology/add_sorted_layers_to_symbology) pick up a
+    // fresh lyr_id this generation. Covers data_user_layers (also saved
+    // explicitly by setup_data_pens_layers(), harmlessly redundant here) and
+    // every classification's Display-by filter list, which can be included
+    // or excluded from one rebuild to the next based on Display-by toggles,
+    // with no other "before rebuild" hook of its own.
+    for( auto &entry : data_mode_layer_cache ) {
+        save_and_invalidate_layer_state( entry.second.get() );
+    }
+    save_and_invalidate_layer_state( data_type_layers );
+    save_and_invalidate_layer_state( data_file_layers );
+    save_and_invalidate_layer_state( data_usage_layers );
+
     Symbology *oldSymbology = symbology;
     symbology = CreateSymbology();
     if( oldSymbology ) symbology->InitialisePalette( *(oldSymbology->GetPalette()) );
@@ -741,11 +844,46 @@ static void setup_snapplot_symbology()
         add_sorted_layers_to_symbology( symbology, data_user_layers, oldSymbology, sort_data_user_layers );
         symbology->AddSpacer();
     }
-    add_layers_to_symbology( symbology, data_type_layers, oldSymbology, get_data_pen_type() == DPEN_BY_TYPE );
-    symbology->AddSpacer();
-    add_layers_to_symbology( symbology, data_file_layers, oldSymbology, get_data_pen_type() == DPEN_BY_FILE );
-    symbology->AddSpacer();
-    add_layers_to_symbology( symbology, data_usage_layers, oldSymbology );
+    if( is_displayby_enabled( DISPLAYBY_DATATYPE ) )
+    {
+        add_layers_to_symbology( symbology, data_type_layers, oldSymbology, get_data_pen_type() == DPEN_BY_TYPE );
+        restore_layer_state( data_type_layers );
+        symbology->AddSpacer();
+    }
+    if( is_displayby_enabled( DISPLAYBY_DATAFILE ) )
+    {
+        add_layers_to_symbology( symbology, data_file_layers, oldSymbology, get_data_pen_type() == DPEN_BY_FILE );
+        restore_layer_state( data_file_layers );
+        symbology->AddSpacer();
+    }
+    if( is_displayby_enabled( DISPLAYBY_OBSSTATUS ) )
+    {
+        add_layers_to_symbology( symbology, data_usage_layers, oldSymbology );
+        restore_layer_state( data_usage_layers );
+        symbology->AddSpacer();
+    }
+
+    // Classifications enabled as Display-by filters, other than whichever
+    // one (if any) is already shown above as the active Colour-by mode via
+    // data_user_layers - showing it again here would duplicate the row.
+    // Never colour-editable here: a classification only reaches this loop
+    // when it is *not* the active Colour-by mode, and only the active mode's
+    // list should ever have editable colour swatches.
+    for( int classType = 1; classType <= classification_count( &obs_classes ); classType++ ) {
+        if( classType == get_data_pen_type() ) {
+            continue;
+        }
+        if( ! is_displayby_enabled( classType ) ) {
+            continue;
+        }
+        layer_s *filterLayers = get_classification_filter_layers( classType );
+        if( ! filterLayers ) {
+            continue;
+        }
+        add_sorted_layers_to_symbology( symbology, filterLayers, oldSymbology, true, false );
+        restore_layer_state( filterLayers );
+        symbology->AddSpacer();
+    }
 
     symbology->AddSpacer();
     symbology->AddTitle("BACKGROUND");
@@ -770,7 +908,7 @@ bool setup_data_layers( int ndatapens, const char **datapennames, const char *he
     return freshlyBuilt;
 }
 
-//extern "C" 
+//extern "C"
 void setup_station_layers( int class_id )
 {
     setup_station_class_layers( class_id );
@@ -778,6 +916,10 @@ void setup_station_layers( int class_id )
     restore_layer_state( station_user_layers );
 }
 
+void rebuild_displayby_symbology()
+{
+    setup_snapplot_symbology();
+}
 
 static void build_station_symbols()
 {
@@ -939,14 +1081,35 @@ int datatype_selected( int datatype )
     return pen_selected( lyrid );
 }
 
-// Whether the given data file's checkbox is currently on, independent of
-// whatever mode is active for Colour by - mirrors datatype_selected().
-int filetype_selected( int file )
+bool filetype_selected( const int file )
 {
-    int lyrid;
     // file+1 to account for header layer..
-    lyrid = data_file_layers[file+1].lyr_id;
-    return pen_selected( lyrid );
+    const int lyrid = data_file_layers[file+1].lyr_id;
+    return pen_selected( lyrid ) != 0;
+}
+
+// Looks up class_type's cached Display-by filter list, without building it -
+// unlike get_classification_filter_layers(), safe to call from the
+// connection-drawing loop (once per connection) without risking a wasted
+// allocation on every call.
+static layer_s *find_classification_filter_layers( int class_type )
+{
+    const wxString header( classification_name( &obs_classes, class_type ) );
+    const auto cached = data_mode_layer_cache.find( header );
+    if( cached == data_mode_layer_cache.end() ) {
+        return nullptr;
+    }
+    return cached->second.get();
+}
+
+bool classification_value_selected( const int class_type, const int value_id )
+{
+    layer_s *filterLayers = find_classification_filter_layers( class_type );
+    if( ! filterLayers ) {
+        return true;
+    }
+    // value_id+1 to account for header layer..
+    return pen_selected( filterLayers[value_id+1].lyr_id ) != 0;
 }
 
 

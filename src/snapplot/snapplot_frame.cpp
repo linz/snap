@@ -60,12 +60,6 @@
 // constants
 // ----------------------------------------------------------------------------
 
-// Fixed ids for the Display-by trio, distinct from classification ids (which
-// are 1..classification_count(&obs_classes), the same numbering already used
-// for Colour-by classifications).
-enum { DISPLAYBY_DATATYPE = 0, DISPLAYBY_DATAFILE = -1, DISPLAYBY_OBSSTATUS = -2 };
-
-
 // ----------------------------------------------------------------------------
 // SnapplotFrame
 // ----------------------------------------------------------------------------
@@ -137,7 +131,6 @@ SnapplotFrame::SnapplotFrame()
     stationColourMenuItem = 0;
     stationColourMenu = 0;
     displayMenu = 0;
-    displayByEnabled = { DISPLAYBY_DATATYPE, DISPLAYBY_DATAFILE, DISPLAYBY_OBSSTATUS };
     configMenu = 0;
     ignoreOffsetsItem = 0;
     help = 0;
@@ -463,13 +456,14 @@ void SnapplotFrame::CreateMenu()
         std::vector<wxCheckBox *> checkboxes;
         for( const DisplayByDimension &dimension : dimensions )
         {
-            int id = dimension.id;
+            const int id = dimension.id;
             wxCheckBox *checkbox = new wxCheckBox( popup, wxID_ANY, dimension.label );
-            checkbox->SetValue( displayByEnabled.count( id ) > 0 );
+            checkbox->SetValue( is_displayby_enabled( id ) );
             checkbox->Bind( wxEVT_CHECKBOX, [this, id]( wxCommandEvent &event )
             {
-                if( event.IsChecked() ) { displayByEnabled.insert( id ); }
-                else { displayByEnabled.erase( id ); }
+                set_displayby_enabled( id, event.IsChecked() );
+                rebuild_displayby_symbology();
+                SetupSymbology();
             } );
             sizer->Add( checkbox, 0, wxALL, 4 );
             checkboxes.push_back( checkbox );
@@ -483,16 +477,20 @@ void SnapplotFrame::CreateMenu()
             for( size_t i = 0; i < checkboxes.size(); i++ )
             {
                 checkboxes[i]->SetValue( true );
-                displayByEnabled.insert( dimensions[i].id );
+                set_displayby_enabled( dimensions[i].id, true );
             }
+            rebuild_displayby_symbology();
+            SetupSymbology();
         } );
         noneButton->Bind( wxEVT_BUTTON, [this, checkboxes, dimensions]( wxCommandEvent & )
         {
             for( size_t i = 0; i < checkboxes.size(); i++ )
             {
                 checkboxes[i]->SetValue( false );
-                displayByEnabled.erase( dimensions[i].id );
+                set_displayby_enabled( dimensions[i].id, false );
             }
+            rebuild_displayby_symbology();
+            SetupSymbology();
         } );
         buttons->Add( allButton, 0, wxALL, 4 );
         buttons->Add( noneButton, 0, wxALL, 4 );

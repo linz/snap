@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <set>
 #include "util/snapctype.h"
 
 #ifdef _WIN32
@@ -801,6 +802,24 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
 
 static int data_pen_type;
 
+// Which Display-by dimensions are currently enabled as filters - on by
+// default, user-toggleable.
+static std::set<int> display_by_enabled = { DISPLAYBY_DATATYPE, DISPLAYBY_DATAFILE, DISPLAYBY_OBSSTATUS };
+
+bool is_displayby_enabled( const int id )
+{
+    return display_by_enabled.count( id ) > 0;
+}
+
+void set_displayby_enabled( const int id, const bool enabled )
+{
+    if( enabled ) {
+        display_by_enabled.insert( id );
+    } else {
+        display_by_enabled.erase( id );
+    }
+}
+
 static char *range_name_alloc = NULL;
 static const char **range_names = NULL;
 static double *range_values = NULL;
@@ -891,38 +910,6 @@ static const char *nmStdRes = "Apriori std residuals";
 static const char *cdStdRes = "SRS_";
 static const char *nmRedundancy = "Redundancy";
 static const char *cdRedundancy = "RDC_";
-static const char *classPrefix = "OC_";
-
-#define CLASS_LABEL_SIZE 64
-
-static void setup_classification_pens( int class_type )
-{
-    int i, npens, namewidth;
-    const char *header;
-    char *names, *nm;
-    const char **class_pen_names;
-
-    npens = class_value_count( &obs_classes, class_type );
-    header = classification_name( &obs_classes, class_type );
-    if( npens <= 0 ) return;
-
-    namewidth = strlen(classPrefix)+2*CLASS_LABEL_SIZE+2;
-    names = (char *) check_malloc( npens * namewidth );
-    class_pen_names = (const char **) check_malloc( npens * sizeof( char * ) );
-
-    nm = names;
-    for( i = 0; i < npens; i++ )
-    {
-        char *v = class_value_name( &obs_classes, class_type, i );
-        sprintf(nm,"%s%.*s|%.*s",classPrefix,CLASS_LABEL_SIZE,v,CLASS_LABEL_SIZE,v);
-        class_pen_names[i] = nm;
-        nm += namewidth;
-    }
-
-    setup_data_layers( npens, class_pen_names, header, 1 );
-    check_free( names );
-    check_free( class_pen_names );
-}
 
 // Data file's content now lives in data_file_layers, the always-shown filter
 // list, instead of a cached data_user_layers entry - this just needs
@@ -998,7 +985,7 @@ void setup_data_pens( int type )
     else if( type > 0 && type <= nclass )
     {
         data_pen_type = type;
-        setup_classification_pens( type );
+        setup_classification_pens_layers( type );
     }
     else
     {
@@ -1356,6 +1343,27 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                 if( !datatype_selected( connection->type ) ) continue;
                 if( !filetype_selected( connection->file ) ) continue;
 
+                // Also filter by every classification currently enabled as
+                // a Display-by filter, other than whichever one (if any) is
+                // the active Colour-by mode - checked below via
+                // pen_selected(cpen).
+                bool classificationFilteredOut = false;
+                for( int classType = 1; classType <= nclass; classType++ ) {
+                    if( classType == data_pen_type ) {
+                        continue;
+                    }
+                    if( ! is_displayby_enabled( classType ) ) {
+                        continue;
+                    }
+                    const bool valueSelected = classification_value_selected( classType, connection->cclass[classType-1] );
+                    if( ! valueSelected ) {
+                        classificationFilteredOut = true;
+                        break;
+                    }
+                }
+                if( classificationFilteredOut ) {
+                    continue;
+                }
 
                 /* Otherwise determine which pen is to be used */
                 switch( data_pen_type )

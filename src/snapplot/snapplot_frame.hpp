@@ -1,8 +1,6 @@
 #ifndef SNAPPLOT_FRAME_HPP
 #define SNAPPLOT_FRAME_HPP
 
-#include <set>
-
 #include "wx_includes.hpp"
 
 #include "wxsymbology.hpp"
@@ -141,12 +139,6 @@ private:
     wxPageSetupDialogData *pageData;
 
     bool zoomOnFind;
-
-    // Which Display-by dimensions are currently shown as always-on filters.
-    // Fixed ids for the trio (see DISPLAYBY_* in snapplot_frame.cpp) plus
-    // positive classification ids (1..classification_count(&obs_classes)),
-    // the same numbering already used for Colour-by classifications.
-    std::set<int> displayByEnabled;
 
     DECLARE_EVENT_TABLE()
     DECLARE_NO_COPY_CLASS(SnapplotFrame)
