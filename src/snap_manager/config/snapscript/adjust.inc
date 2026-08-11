@@ -9,14 +9,24 @@ function RunAdjustment()
    DeleteFile(FindJobFile("lst"))
    DeleteFile(FindJobFile("err"))
    
-   debugrun("$snap_path/snapadjust",$job_file)
-   $error_file = FindJobFile("err")
-   if $error_file then
-      if Ask("SNAP has reported errors with this job\r\nView the error file","SNAP errors") then
-         start($_editor,$error_file)
+   # snapadjust's exit status is 0 for a genuinely clean run and non-zero
+   # otherwise - including runs that only logged informational notices, which
+   # still keep their .err file (with that informational content) but are not
+   # themselves a problem worth interrupting the user about here.
+   $exit_status = debugrun("$snap_path/snapadjust",$job_file)
+   if $exit_status != "0" then
+      $error_file = FindJobFile("err")
+      if $error_file then
+         if Ask("SNAP has reported errors with this job\r\nView the error file","SNAP errors") then
+            start($_editor,$error_file)
+         endif
+      else
+         if Ask("SNAP did not complete successfully (exit status $exit_status), though it reported no specific errors.\r\nResults may be incomplete or invalid.\r\n\r\nView the listing file","SNAP failed") then
+            start($_editor,FindJobFile("lst"))
+         endif
       endif
    endif
-end_function   
+end_function
  
 #######################################################################
 # Function to plot an adjustment
