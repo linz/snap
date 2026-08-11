@@ -103,7 +103,7 @@ class LayerSymbology : public SymbologyBase
 public:
     enum Type { label = 0, hasColour = 1, hasStatus = 2, hasColourAndStatus = 3 };
 
-    LayerSymbology( wxString name, int type, int colourId, bool show, bool isControlCheckbox = false );
+    LayerSymbology( wxString name, int type, int colourId, bool show, bool isControlCheckbox = false, bool colourEditable = true );
     int Type() const;
     int ColourId() const;
     void SetColourId( int newColourId );
@@ -115,6 +115,11 @@ public:
     bool IsControlCheckbox() const;
     bool IsMixedRowStatus() const;
     void SetMixedRowStatus( bool newMixedRowStatus );
+    // Whether the swatch should currently be drawn/clickable. Independent of
+    // HasColour(): a row can have a colour value that persists across
+    // rebuilds while its swatch is temporarily hidden because it isn't the
+    // list currently selected for Colour by.
+    bool ColourEditable() const;
 private:
     int type;
     int colourId;
@@ -126,6 +131,7 @@ private:
     // indeterminate, overriding the checked/unchecked mark show would
     // otherwise draw; else unused
     bool mixedRowStatus;
+    bool colourEditable;
 };
 
 
@@ -218,7 +224,7 @@ public:
     ColourPalette *GetPalette() { return &palette ; }
     void InitialisePalette( const ColourPalette &basepalette );
 
-    int AddLayer( wxString name, int type, const wxColour &colour, bool display = true, bool isControlCheckbox = false );
+    int AddLayer( wxString name, int type, const wxColour &colour, bool display = true, bool isControlCheckbox = false, bool colourEditable = true );
     void AddTitle(wxString name);
     void AddSpacer();
     int LayerCount() const;

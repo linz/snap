@@ -11,6 +11,7 @@
 #include "wxsymbology.hpp"
 
 #include <vector>
+#include <map>
 
 DECLARE_EVENT_TYPE(WX_SYMBOLOGY_CHANGED, -1)
 
@@ -28,31 +29,74 @@ public:
 
     Symbology *GetSymbologyKey();
 
+    // True if the layer at layerIndex is a control checkbox whose range has
+    // exactly one child - the checkbox is then redundant, since it can only
+    // ever match that one child's own status.
+    bool IsSingleChildMasterRow( int layerIndex ) const;
+
+    // Maps a grid row to the underlying layer index it currently displays, or
+    // -1 if row is out of range. Every layer has its own row today, so this is
+    // the identity mapping - it will diverge once a collapsed range hides some
+    // layers from the grid.
+    int RowToLayerIndex( int row ) const;
+    // Maps a layer index to the grid row currently displaying it, or -1 if
+    // that layer is hidden (e.g. inside a collapsed range).
+    int LayerIndexToRow( int layerIndex ) const;
+
+    // True if the master row at layerIndex owns a currently-collapsed range.
+    // False if layerIndex isn't a master row.
+    bool IsRangeCollapsed( int layerIndex ) const;
+
 private:
     Symbology *symbologyKey;
     void FireSymbologyChangedEvent();
 
-    // A control checkbox row and the range of ordinary status rows below it that
-    // it controls (inclusive). A symbology can contain more than one of these
-    // (e.g. the Data type list and the Data file/Residual/Redundancy list can
-    // both show a header at once), so every one found is kept, not just the first.
+    // A control checkbox layer and the range of ordinary status layers below it
+    // that it controls (inclusive). A symbology can contain more than one of
+    // these (e.g. the Data type list and the Data file/Residual/Redundancy list
+    // can both show a header at once), so every one found is kept, not just the
+    // first. A spacer/title row never qualifies as a child (see AddSpacer()),
+    // so collapsing a range can never hide the separator that follows it.
     struct MasterRange
     {
         int master;
         int lastChild;
+        bool collapsed;
     };
     // Recomputed by SetSymbology(), not on every click.
     std::vector<MasterRange> masterRanges;
 
-    // Result of looking up which masterRanges entry a row belongs to, as either
-    // the master itself or one of its children. rangeIndex is -1 if row is not
-    // part of any range, in which case isMaster is meaningless.
+    // Collapse state keyed by master row name, persisted across SetSymbology()
+    // calls - unlike masterRanges itself, which SetSymbology() throws away and
+    // recomputes from scratch every rebuild, so a name-keyed record is the only
+    // way a collapsed section stays collapsed once its symbology is rebuilt
+    // (e.g. after a Display-by toggle rebuilds the whole Key panel).
+    std::map<wxString, bool> collapsedByName;
+
+    // Grid row -> layer index, in display order (see RowToLayerIndex).
+    // Recomputed whenever masterRanges' collapsed state changes, not just by
+    // SetSymbology().
+    std::vector<int> visibleRows;
+    void RecomputeVisibleRows();
+
+    // Rebuilds every grid row from visibleRows, discarding and recreating the
+    // grid's rows from scratch. Called after visibleRows changes, whether from
+    // a fresh SetSymbology() or a collapse toggle.
+    void RebuildRows();
+
+    // Flips whether the range owned by the master at layerIndex is collapsed,
+    // and rebuilds the grid to match. No-op if layerIndex isn't a master.
+    void ToggleRangeCollapsed( int layerIndex );
+
+    // Result of looking up which masterRanges entry a layer index belongs to,
+    // as either the master itself or one of its children. rangeIndex is -1 if
+    // the layer is not part of any range, in which case isMaster is meaningless.
     struct MasterLookup
     {
         int rangeIndex;
         bool isMaster;
     };
-    MasterLookup FindMasterRange( int row ) const;
+    MasterLookup FindMasterRange( int layerIndex ) const;
 
     DECLARE_DYNAMIC_CLASS( wxLayerKey );
     DECLARE_EVENT_TABLE();

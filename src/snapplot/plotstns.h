@@ -89,6 +89,8 @@ int sorted_x_station_number( int i );
 int first_station_past_x( double value );
 
 void setup_station_pens( int class_id );
+// Returns the class id (or 0 for "Usage") of the active station colour-by mode.
+int get_station_colourby_class();
 void get_stationpen_definition( char *def );  /* Assumes def is big enough */
 void init_plotting_stations( void );
 int station_in_view( int istn );

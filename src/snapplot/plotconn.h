@@ -39,6 +39,16 @@ void add_relative_covariance( int from, int to, double cvr[6] );
 #define DPEN_BY_SRES -3
 #define DPEN_BY_RFAC -4
 
+// Fixed ids for the Display-by trio, distinct from classification ids (which
+// are 1..classification_count(&obs_classes), the same numbering already used
+// for Colour-by classifications).
+enum { DISPLAYBY_DATATYPE = 0, DISPLAYBY_DATAFILE = -1, DISPLAYBY_OBSSTATUS = -2 };
+
+// Whether the given Display-by dimension (DISPLAYBY_* or a classification
+// id) is currently enabled as a filter - on by default, user-toggleable.
+bool is_displayby_enabled( int id );
+void set_displayby_enabled( int id, bool enabled );
+
 void setup_data_pens( int pen_type );
 void select_data_pen_type( void );
 void setup_sres_pens( double max, int apost, int npens );

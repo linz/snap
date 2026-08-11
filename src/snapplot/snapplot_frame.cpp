@@ -15,6 +15,9 @@
 // ----------------------------------------------------------------------------
 
 #include "wx_includes.hpp"
+#include <wx/popupwin.h>
+
+#include <vector>
 
 #include "snapplot_frame.hpp"
 #include "snapplot_eventids.hpp"
@@ -57,7 +60,6 @@
 // constants
 // ----------------------------------------------------------------------------
 
-
 // ----------------------------------------------------------------------------
 // SnapplotFrame
 // ----------------------------------------------------------------------------
@@ -85,6 +87,8 @@ BEGIN_EVENT_TABLE(SnapplotFrame, wxFrame)
     EVT_MENU(CMD_VIEW_MAPFONT, SnapplotFrame::OnCmdViewMapFont )
 
     EVT_MENU(CMD_STATION_COLOURBY_USAGE, SnapplotFrame::OnCmdStationColourBy )
+    EVT_MENU(CMD_STATION_COLOURBY_RESETALLON, SnapplotFrame::OnCmdStationColourResetAllOn )
+    EVT_MENU(CMD_STATION_COLOURBY_RESETALLOFF, SnapplotFrame::OnCmdStationColourResetAllOff )
     EVT_MENU(CMD_STATION_OPTIONS, SnapplotFrame::FunctionNotImplemented )
     EVT_MENU(CMD_STATION_HIGHLIGHT, SnapplotFrame::OnCmdStationHighlight )
     EVT_MENU(CMD_STATION_HIDESHOW, SnapplotFrame::OnCmdStationHideShow )
@@ -96,6 +100,8 @@ BEGIN_EVENT_TABLE(SnapplotFrame, wxFrame)
     EVT_MENU(CMD_DATA_LISTOPTIONS, SnapplotFrame::OnCmdDataListOptions )
 
     EVT_MENU_RANGE( CMD_COLOURBY_FIRST, CMD_COLOURBY_LAST, SnapplotFrame::OnCmdColourBy )
+    EVT_MENU(CMD_DATA_COLOURBY_RESETALLON, SnapplotFrame::OnCmdDataColourResetAllOn )
+    EVT_MENU(CMD_DATA_COLOURBY_RESETALLOFF, SnapplotFrame::OnCmdDataColourResetAllOff )
 
     EVT_MENU(CMD_ERROR_OPTIONS, SnapplotFrame::OnCmdErrorOptions )
 
@@ -124,6 +130,7 @@ SnapplotFrame::SnapplotFrame()
     dataColourMenu = 0;
     stationColourMenuItem = 0;
     stationColourMenu = 0;
+    displayMenu = 0;
     configMenu = 0;
     ignoreOffsetsItem = 0;
     help = 0;
@@ -378,16 +385,16 @@ void SnapplotFrame::CreateMenu()
 
     wxMenu *dataMenu = new wxMenu;
     dataColourMenu = new wxMenu;
-    dataColourMenu->Append( CMD_COLOURBY_DATATYPE,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_DATATYPE,
                             "Data &type",
                             "Colour observations according to data type");
-    dataColourMenu->Append( CMD_COLOURBY_DATAFILE,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_DATAFILE,
                             "Data &file",
                             "Colour observations according to data type");
-    dataColourMenu->Append( CMD_COLOURBY_RESIDUAL,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_RESIDUAL,
                             "&Residual ...",
                             "Colour observations according to standardised residual in adjustment");
-    dataColourMenu->Append( CMD_COLOURBY_REDUNDANCY,
+    dataColourMenu->AppendCheckItem( CMD_COLOURBY_REDUNDANCY,
                             "Re&dundancy ...",
                             "Colour observations according to redundancy factor in adjustment");
 
@@ -422,6 +429,88 @@ void SnapplotFrame::CreateMenu()
     configMenu = new wxMenu;
     menuBar->Append( configMenu, "Co&nfiguration");
 
+    displayMenu = new wxMenu;
+    wxMenuItem *displaySelectOptionsItem = displayMenu->Append( wxID_ANY, "&Select options..." );
+    menuBar->Append( displayMenu, "&Display" );
+
+    Bind( wxEVT_MENU, [this]( wxCommandEvent & )
+    {
+        wxPopupTransientWindow *popup = new wxPopupTransientWindow( this, wxBORDER_SIMPLE );
+        wxBoxSizer *sizer = new wxBoxSizer( wxVERTICAL );
+
+        // One row per Display-by dimension: the fixed trio, then every
+        // classification the loaded dataset defines - not hardcoded, same
+        // classification_count/name() accessors AddColourByClassifications()
+        // already uses for the Colour-by menu.
+        struct DisplayByDimension { int id; wxString label; };
+        std::vector<DisplayByDimension> dimensions = {
+            { DISPLAYBY_DATATYPE, "Data type" },
+            { DISPLAYBY_DATAFILE, "Data file" },
+            { DISPLAYBY_OBSSTATUS, "Obs status" },
+        };
+        for( int i = 1; i <= classification_count( &obs_classes ); i++ )
+        {
+            dimensions.push_back( { i, wxString( classification_name( &obs_classes, i ) ) } );
+        }
+
+        std::vector<wxCheckBox *> checkboxes;
+        for( const DisplayByDimension &dimension : dimensions )
+        {
+            const int id = dimension.id;
+            wxCheckBox *checkbox = new wxCheckBox( popup, wxID_ANY, dimension.label );
+            checkbox->SetValue( is_displayby_enabled( id ) );
+            checkbox->Bind( wxEVT_CHECKBOX, [this, id]( wxCommandEvent &event )
+            {
+                set_displayby_enabled( id, event.IsChecked() );
+                rebuild_displayby_symbology();
+                SetupSymbology();
+            } );
+            sizer->Add( checkbox, 0, wxALL, 4 );
+            checkboxes.push_back( checkbox );
+        }
+
+        wxBoxSizer *buttons = new wxBoxSizer( wxHORIZONTAL );
+        wxButton *allButton = new wxButton( popup, wxID_ANY, "All" );
+        wxButton *noneButton = new wxButton( popup, wxID_ANY, "None" );
+        allButton->Bind( wxEVT_BUTTON, [this, checkboxes, dimensions]( wxCommandEvent & )
+        {
+            for( size_t i = 0; i < checkboxes.size(); i++ )
+            {
+                checkboxes[i]->SetValue( true );
+                set_displayby_enabled( dimensions[i].id, true );
+            }
+            rebuild_displayby_symbology();
+            SetupSymbology();
+        } );
+        noneButton->Bind( wxEVT_BUTTON, [this, checkboxes, dimensions]( wxCommandEvent & )
+        {
+            for( size_t i = 0; i < checkboxes.size(); i++ )
+            {
+                checkboxes[i]->SetValue( false );
+                set_displayby_enabled( dimensions[i].id, false );
+            }
+            rebuild_displayby_symbology();
+            SetupSymbology();
+        } );
+        buttons->Add( allButton, 0, wxALL, 4 );
+        buttons->Add( noneButton, 0, wxALL, 4 );
+        sizer->Add( buttons, 0, wxALIGN_CENTRE );
+        popup->SetSizerAndFit( sizer );
+
+        // Fixed, deterministic position rather than mouse-based: top at the
+        // frame's client area (starts right below the menu bar), left
+        // horizontally centred over the map window.
+        wxPoint clientTopLeft = ClientToScreen( wxPoint( 0, 0 ) );
+        wxRect frameRect = GetScreenRect();
+        wxRect mapRect = mapWindow->GetScreenRect();
+        wxSize popupSize = sizer->GetMinSize();
+        int x = mapRect.GetLeft() + ( mapRect.GetWidth() - popupSize.GetWidth() ) / 2;
+        if( x > frameRect.GetRight() - popupSize.GetWidth() ) x = frameRect.GetRight() - popupSize.GetWidth();
+        if( x < frameRect.GetLeft() ) x = frameRect.GetLeft();
+        popup->Position( wxPoint( x, clientTopLeft.y ), wxSize( 0, 0 ) );
+        popup->Popup();
+    }, displaySelectOptionsItem->GetId() );
+
     wxMenu *helpMenu = new wxMenu;
     helpMenu->Append( CMD_HELP_HELP,
                       "&Help\tF1",
@@ -447,6 +536,7 @@ void SnapplotFrame::SetupData()
     SetupSymbology();
     AddStationColourOptions();
     AddColourByClassifications();
+    UpdateColourByMenuCheck();
     AddConfigMenuItems();
     detailsWindow->Show( PutTextInfoWriter(ptfTitleBlock));
     stationListWindow->Reload();
@@ -496,6 +586,14 @@ void SnapplotFrame::AddStationColourOptions()
     {
         stationColourMenuItem->Enable(false);
     }
+
+    stationColourMenu->AppendSeparator();
+    stationColourMenu->Append( CMD_STATION_COLOURBY_RESETALLON,
+                                "Reset all o&n",
+                                "Reset every item's checkbox in this list to on" );
+    stationColourMenu->Append( CMD_STATION_COLOURBY_RESETALLOFF,
+                                "Reset all &off",
+                                "Reset every item's checkbox in this list to off" );
 }
 
 void SnapplotFrame::AddColourByClassifications()
@@ -508,7 +606,7 @@ void SnapplotFrame::AddColourByClassifications()
         for( int i = 0; i++ < classification_count( &obs_classes); )
         {
             wxString menuText = wxString::Format("&%d %.40s",i,classification_name( &obs_classes,i) );
-            dataColourMenu->Append( nextCommandId,
+            dataColourMenu->AppendCheckItem( nextCommandId,
                                     menuText,
                                     wxString::Format("Colour observations according to %s classification",
                                             classification_name( &obs_classes,i) )
@@ -520,6 +618,14 @@ void SnapplotFrame::AddColourByClassifications()
             nextCommandId++;
         }
     }
+
+    dataColourMenu->AppendSeparator();
+    dataColourMenu->Append( CMD_DATA_COLOURBY_RESETALLON,
+                            "Reset all o&n",
+                            "Reset every item's checkbox in this list to on" );
+    dataColourMenu->Append( CMD_DATA_COLOURBY_RESETALLOFF,
+                            "Reset all &off",
+                            "Reset every item's checkbox in this list to off" );
 }
 
 void SnapplotFrame::AddConfigMenuItems()
@@ -567,6 +673,7 @@ void SnapplotFrame::ShowObsList()
 void SnapplotFrame::ReadConfiguration( const char *filename )
 {
     process_configuration_file( filename );
+    UpdateColourByMenuCheck();
     SetupSymbology();
     mapWindow->RedrawMap();
     dataView->Refresh();
@@ -870,15 +977,63 @@ void SnapplotFrame::OnCmdColourBy( wxCommandEvent &event )
             SetupDataPens(DPEN_BY_FILE);
             break;
         case CMD_COLOURBY_RESIDUAL:
+            // wx already auto-checked this item on click; if the dialog is
+            // cancelled, data_pen_type hasn't changed, so the checkmark needs
+            // restoring to whichever mode is still actually active.
             if( SetupStandardisedResidualPens( help ) ) SetupDataPens(DPEN_BY_SRES);
+            else UpdateColourByMenuCheck();
             break;
         case CMD_COLOURBY_REDUNDANCY:
+            // See CMD_COLOURBY_RESIDUAL above.
             if( SetupRedundancyFactorPens( help ) ) SetupDataPens(DPEN_BY_RFAC);
+            else UpdateColourByMenuCheck();
             break;
         }
     }
 }
 
+// Rebuilds the active list from scratch (defaults, including colours) before
+// applying the requested status, so "reset all" also restores default colours.
+void SnapplotFrame::ResetDataColourAll( const bool is_on )
+{
+    invalidate_active_data_user_layer_cache();
+    SetupDataPens( get_data_pen_type() );
+    reset_data_user_layers( is_on );
+    reset_data_type_layer_colours();
+    SetupSymbology();
+}
+
+void SnapplotFrame::OnCmdDataColourResetAllOn( wxCommandEvent & WXUNUSED(event) )
+{
+    ResetDataColourAll( true );
+}
+
+void SnapplotFrame::OnCmdDataColourResetAllOff( wxCommandEvent & WXUNUSED(event) )
+{
+    ResetDataColourAll( false );
+}
+
+// See ResetDataColourAll - the station equivalent. setup_station_layers() is
+// called directly rather than through SetupStationPens()/setup_station_pens(),
+// since that guards against redundant rebuilds when the class_id is
+// unchanged, which would make it a no-op here.
+void SnapplotFrame::ResetStationColourAll( const bool is_on )
+{
+    invalidate_active_station_class_layer_cache();
+    setup_station_layers( get_station_colourby_class() );
+    reset_station_user_layers( is_on );
+    SetupSymbology();
+}
+
+void SnapplotFrame::OnCmdStationColourResetAllOn( wxCommandEvent & WXUNUSED(event) )
+{
+    ResetStationColourAll( true );
+}
+
+void SnapplotFrame::OnCmdStationColourResetAllOff( wxCommandEvent & WXUNUSED(event) )
+{
+    ResetStationColourAll( false );
+}
 
 void SnapplotFrame::OnCmdStationColourBy( wxCommandEvent &event )
 {
@@ -974,7 +1129,40 @@ void SnapplotFrame::FunctionNotImplemented( wxCommandEvent & WXUNUSED(event) )
 void SnapplotFrame::SetupDataPens( int dataPenType )
 {
     setup_data_pens( dataPenType );
+    UpdateColourByMenuCheck();
     SetupSymbology();
+}
+
+void SnapplotFrame::UpdateColourByMenuCheck()
+{
+    const int type = get_data_pen_type();
+    int id;
+    switch( type ) {
+    case DPEN_BY_TYPE:
+        id = CMD_COLOURBY_DATATYPE;
+        break;
+    case DPEN_BY_FILE:
+        id = CMD_COLOURBY_DATAFILE;
+        break;
+    case DPEN_BY_SRES:
+        id = CMD_COLOURBY_RESIDUAL;
+        break;
+    case DPEN_BY_RFAC:
+        id = CMD_COLOURBY_REDUNDANCY;
+        break;
+    default:
+        id = classifyCommandFirst + type - 1;
+        break;
+    }
+    dataColourMenu->Check( CMD_COLOURBY_DATATYPE, id == CMD_COLOURBY_DATATYPE );
+    dataColourMenu->Check( CMD_COLOURBY_DATAFILE, id == CMD_COLOURBY_DATAFILE );
+    dataColourMenu->Check( CMD_COLOURBY_RESIDUAL, id == CMD_COLOURBY_RESIDUAL );
+    dataColourMenu->Check( CMD_COLOURBY_REDUNDANCY, id == CMD_COLOURBY_REDUNDANCY );
+    if( classifyCommandLast > 0 ) {
+        for( int classifyId = classifyCommandFirst; classifyId <= classifyCommandLast; classifyId++ ) {
+            dataColourMenu->Check( classifyId, classifyId == id );
+        }
+    }
 }
 
 void SnapplotFrame::SetupStationPens( int stationPenType )

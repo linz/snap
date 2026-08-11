@@ -22,9 +22,26 @@ colour and a checkbox.
 </p>
 <p>To hide or display a feature click the check box.  Some features may
 be represented by more than one check box.  For example a horizontal angle
- observation in the adjustment will be affected by the 
-"horizontal angle" check box, and the "Used obs" checkbox.  
+ observation in the adjustment will be affected by the
+"horizontal angle" check box, and the "Used obs" checkbox.
 It will only be displayed if both are selected.
+</p>
+<p>Each section with more than one item also has its own checkbox in the
+title row, used to turn every item in that section on or off together.
+If the items in a section have a mix of ticked and unticked checkboxes,
+the section's own checkbox shows an indeterminate mark rather than ticked
+or unticked.  Clicking it while it is unticked or indeterminate ticks
+every item in the section; clicking it while it is ticked unticks every
+item.  Sections with only one item do not show this checkbox.
+</p>
+<p>Sections of the key with several checkboxes, such as a classification
+with many values, can be collapsed to just their title row to keep the key
+compact.  Each section's title has a small expand/collapse button beside it
+(its appearance depends on your operating system); click it to collapse or
+expand that section.  Collapsing a section only hides its individual
+checkboxes and colour boxes from view - the current selections are
+unaffected, and continue to control what is displayed or coloured on the
+map.
 </p>
 <p>To change the colour of a feature, position the mouse over the colour box,
 and hold down the the left mouse button.  This will give display a colour
@@ -35,6 +52,31 @@ select it.
 <p>Additional colours can be added to the palette using the 
 <span class="MenuItem">View | Add colour to palette</span> menu item.
 <p>
+
+<h2><a name="colourby"></a>Colour by and Display by</h2>
+<p>Observations and stations are each coloured according to one attribute
+at a time.  Observations can be coloured by data type, data file, size of
+standardised residual, redundancy factor, or any observation
+classification, chosen with the
+<span class="MenuItem">Observations | Colour coding</span> menu.  Stations
+can be coloured by their usage in the adjustment or by a station
+classification, chosen with the
+<span class="MenuItem">Stations | Colour coding</span> menu.</p>
+<p>For observations, a separate
+<span class="MenuItem">Display | Select options...</span> menu chooses
+which of data type, data file, observation status, and each observation
+classification appear in the key as filters, independently of which one is
+currently used for colouring.  Several can be selected at once - for
+example the map can be coloured by redundancy while also being filtered by
+data file and by a classification at the same time.  Only the section that
+is also the current Colour coding choice shows a colour box; the others
+show checkboxes only.  This menu applies only to observations - stations
+have no equivalent multiple-filter option.</p>
+<p>Each <span class="MenuItem">Colour coding</span> menu also has
+<span class="MenuItem">Reset all on</span> and
+<span class="MenuItem">Reset all off</span> items, which return every
+checkbox in that section (and, for observations, the data type and data
+file sections too) back to a known state.</p>
 
 <h2>Features</h2>
 <p>The following features may be included in the key:</p>
@@ -69,11 +111,12 @@ scaling of errors is controlled by the <a href="dlg_error_options.html">error op
 </tr>
 <tr>
 <td>OBSERVATIONS</td>
-<td>The categories of observations displayed may be changed using the
-<span class="MenuItem">Observations | Colour coding</span> menu item.  
-They can be coded by observation type, data file, size of residual,
-redundancy, or any observation classifications.  The key will always 
-provide options for hiding or showing each observation data type.
+<td>Which observation categories appear here, and which one determines
+colour, are controlled by the <span class="MenuItem">Display</span> and
+<span class="MenuItem">Colour coding</span> menus - see
+<a href="#colourby">Colour by and Display by</a> above.  Data type and
+data file are shown by default alongside observation status; any
+observation classification can also be turned on.
 </td>
 </tr>
 <tr>

@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <set>
 #include "util/snapctype.h"
 
 #ifdef _WIN32
@@ -801,6 +802,24 @@ void add_survdata_connections( survdata *sd, int64_t bloc )
 
 static int data_pen_type;
 
+// Which Display-by dimensions are currently enabled as filters - on by
+// default, user-toggleable.
+static std::set<int> display_by_enabled = { DISPLAYBY_DATATYPE, DISPLAYBY_DATAFILE, DISPLAYBY_OBSSTATUS };
+
+bool is_displayby_enabled( const int id )
+{
+    return display_by_enabled.count( id ) > 0;
+}
+
+void set_displayby_enabled( const int id, const bool enabled )
+{
+    if( enabled ) {
+        display_by_enabled.insert( id );
+    } else {
+        display_by_enabled.erase( id );
+    }
+}
+
 static char *range_name_alloc = NULL;
 static const char **range_names = NULL;
 static double *range_values = NULL;
@@ -862,9 +881,12 @@ static void setup_ranges( double maxval, int ninterval, int reverse, const char 
     }
     nranges = ninterval;
 
-    setup_data_layers( nranges, range_names, name, 0 );
-
-    set_pen_colour_range();
+    // Only give the list its default rainbow colouring when it's freshly
+    // built - a cache hit means copy_layer() has already restored whatever
+    // colours were previously chosen, and this would overwrite them.
+    if( setup_data_layers( nranges, range_names, name, 0 ) ) {
+        set_pen_colour_range();
+    }
 }
 
 static int get_range_pen( double value )
@@ -888,52 +910,25 @@ static const char *nmStdRes = "Apriori std residuals";
 static const char *cdStdRes = "SRS_";
 static const char *nmRedundancy = "Redundancy";
 static const char *cdRedundancy = "RDC_";
-static const char *classPrefix = "OC_";
 
-#define CLASS_LABEL_SIZE 64
-
-static void setup_classification_pens( int class_type )
+// Data file's content now lives in data_file_layers, the always-shown filter
+// list, instead of a cached data_user_layers entry - this just needs
+// data_user_layers left null, the same way setup_datatype_pens() does.
+static void setup_datafile_pens( void )
 {
-    int i, npens, namewidth;
-    const char *header;
-    char *names, *nm;
-    const char **class_pen_names;
-    static const char *obsfileheader = "Data file";
-
-    if( class_type > 0 )
-    {
-        npens = class_value_count( &obs_classes, class_type );
-        header = classification_name( &obs_classes, class_type );
-    }
-    else
-    {
-        npens = survey_data_file_count();
-        header = obsfileheader;
-    }
-    if( npens <= 0 ) return;
-
-    namewidth = strlen(classPrefix)+2*CLASS_LABEL_SIZE+2;
-    names = (char *) check_malloc( npens * namewidth );
-    class_pen_names = (const char **) check_malloc( npens * sizeof( char * ) );
-
-    nm = names;
-    for( i = 0; i < npens; i++ )
-    {
-        char *v = class_type > 0 ?
-                  class_value_name( &obs_classes, class_type, i ):
-                  survey_data_file_name( i );
-        sprintf(nm,"%s%.*s|%.*s",classPrefix,CLASS_LABEL_SIZE,v,CLASS_LABEL_SIZE,v);
-        class_pen_names[i] = nm;
-        nm += namewidth;
-    }
-
-    setup_data_layers( npens, class_pen_names, header, 1 );
-    check_free( names );
-    check_free( class_pen_names );
+    setup_data_layers( 0, NULL, NULL, 0 );
 }
 
+// Evicts the cached residual list before overwriting maxsres/nsres if either
+// is actually changing, so it rebuilds fresh with the new bins next time
+// residual colouring is selected. Both header variants are evicted since
+// apriori/aposteriori share these parameters.
 void setup_sres_pens( double max, int apost, int npens )
 {
+    if( max != maxsres || npens != nsres ) {
+        invalidate_data_user_layer_cache( nmApostStdRes );
+        invalidate_data_user_layer_cache( nmStdRes );
+    }
     maxsres = max;
     nsres = npens;
     aposteriori_sres = apost;
@@ -946,8 +941,14 @@ void get_sres_pen_options( double *max, int *apost, int *npens )
     *npens = nsres;
 }
 
+// Evicts the cached redundancy list before overwriting nrfac if it's
+// actually changing, so it rebuilds fresh with the new bins next time
+// redundancy colouring is selected.
 void setup_rfac_pens( int npens )
 {
+    if( npens != nrfac ) {
+        invalidate_data_user_layer_cache( nmRedundancy );
+    }
     nrfac = npens;
 }
 
@@ -956,32 +957,47 @@ void get_rfac_pen_options( int *npens )
     *npens = nrfac;
 }
 
+// data_pen_type is set before each setup call below, not after - the setup
+// calls chain through to setup_snapplot_symbology(), which reads
+// get_data_pen_type() to decide which list's colour swatches are currently
+// editable, so it needs the new mode, not the one being switched away from.
 void setup_data_pens( int type )
 {
     if( type == DPEN_BY_SRES )
     {
-        setup_ranges( maxsres, nsres, 1, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
         data_pen_type = DPEN_BY_SRES;
+        setup_ranges( maxsres, nsres, 1, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
         sresmult = 1.0;
         if( aposteriori_sres ) sresmult = 1.0/seu;
     }
 
     else if( type == DPEN_BY_RFAC )
     {
-        setup_ranges( 1.0, nrfac, 0, nmRedundancy, cdRedundancy );
         data_pen_type = DPEN_BY_RFAC;
+        setup_ranges( 1.0, nrfac, 0, nmRedundancy, cdRedundancy );
     }
 
-    else if( (type > 0 && type <= nclass) || type == DPEN_BY_FILE) 
+    else if( type == DPEN_BY_FILE )
     {
-        setup_classification_pens( type );
+        data_pen_type = DPEN_BY_FILE;
+        setup_datafile_pens();
+    }
+    else if( type > 0 && type <= nclass )
+    {
         data_pen_type = type;
+        setup_classification_pens_layers( type );
     }
     else
     {
-        setup_datatype_pens();
         data_pen_type = DPEN_BY_TYPE;
+        setup_datatype_pens();
     }
+}
+
+// Returns the pen-type code of the currently active observation colour-by mode.
+int get_data_pen_type()
+{
+    return data_pen_type;
 }
 
 int set_datapen_definition( char *def )
@@ -1325,7 +1341,29 @@ int plot_connections( map_plotter *plotter, int first, int offset_opt, double of
                     if( !pltused ) continue;
                 }
                 if( !datatype_selected( connection->type ) ) continue;
+                if( !filetype_selected( connection->file ) ) continue;
 
+                // Also filter by every classification currently enabled as
+                // a Display-by filter, other than whichever one (if any) is
+                // the active Colour-by mode - checked below via
+                // pen_selected(cpen).
+                bool classificationFilteredOut = false;
+                for( int classType = 1; classType <= nclass; classType++ ) {
+                    if( classType == data_pen_type ) {
+                        continue;
+                    }
+                    if( ! is_displayby_enabled( classType ) ) {
+                        continue;
+                    }
+                    const bool valueSelected = classification_value_selected( classType, connection->cclass[classType-1] );
+                    if( ! valueSelected ) {
+                        classificationFilteredOut = true;
+                        break;
+                    }
+                }
+                if( classificationFilteredOut ) {
+                    continue;
+                }
 
                 /* Otherwise determine which pen is to be used */
                 switch( data_pen_type )
