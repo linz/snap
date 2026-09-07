@@ -30,6 +30,16 @@ Only 64-bit builds are supported.
 6. **Python 3** — https://www.python.org/downloads/windows/ (needed to run
    grid.py/trig.py/linzdeformationmodel.py, the tools that convert grid,
    triangulation, and deformation-model definitions to their binary form)
+7. **netCDF-C**, via vcpkg — needed to read GGRXF deformation model files
+   (netCDF-4/HDF5-based):
+   ```
+   git clone https://github.com/microsoft/vcpkg.git
+   .\vcpkg\bootstrap-vcpkg.bat
+   .\vcpkg\vcpkg install netcdf-c:x64-windows
+   ```
+   Set the `VCPKG_ROOT` environment variable to the cloned `vcpkg` directory
+   (e.g. `set VCPKG_ROOT=C:\vcpkg`) — the MSVC presets below pick vcpkg's own
+   toolchain file up from there automatically.
 
 **Building**
 
@@ -129,6 +139,21 @@ MinGW-w64 cross-compiler, without needing Visual Studio at all.
    make -j$(nproc)
    ```
    Set `WX_MINGW_CONFIG` to the generated `wxwidgets/wx-mingw-build/wx-config` script.
+6. **netCDF-C**, cross-built for MinGW — needed to read GGRXF deformation
+   model files (netCDF-4/HDF5-based). MSYS2 already publishes a prebuilt
+   `mingw-w64-x86_64-netcdf` package (built for the same mingw-w64 ABI the
+   `g++-mingw-w64-x86-64` cross-compiler above targets), including a
+   `netCDFConfig.cmake` — no from-source cross-build needed, just download
+   and extract it:
+   ```
+   sudo apt-get install -y zstd
+   curl -LO https://repo.msys2.org/mingw/mingw64/mingw-w64-x86_64-netcdf-4.9.3-7-any.pkg.tar.zst
+   mkdir netcdf-mingw && tar --zstd -xf mingw-w64-x86_64-netcdf-4.9.3-7-any.pkg.tar.zst -C netcdf-mingw
+   ```
+   Check https://repo.msys2.org/mingw/mingw64/ for the current package
+   filename if this exact version is no longer available. Set
+   `NETCDF_MINGW_ROOT` to the extracted `mingw64` subdirectory (e.g.
+   `export NETCDF_MINGW_ROOT=$(pwd)/netcdf-mingw/mingw64`).
 
 **Building**
 
@@ -187,6 +212,7 @@ apt-get install -y \
     cmake \
     g++ \
     libboost-all-dev \
+    libnetcdf-dev \
     libwxgtk3.2-dev \
     perl \
     python3 \

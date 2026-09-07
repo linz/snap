@@ -5,9 +5,11 @@
       "name": "windows-msvc-base",
       "hidden": true,
       "generator": "Ninja",
+      "toolchainFile": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "cl.exe",
         "BOOST_ROOT": "$env{BOOST_ROOT}",
+        "VCPKG_TARGET_TRIPLET": "x64-windows",
         "SNAP_BUILD_GUI": "OFF"
       }
     },
@@ -65,6 +67,7 @@
         "BOOST_ROOT": "$env{BOOST_ROOT}",
         "BOOST_LIBRARYDIR": "$env{BOOST_ROOT}/stage-mingw/lib",
         "Boost_NO_SYSTEM_PATHS": "ON",
+        "CMAKE_PREFIX_PATH": "$env{NETCDF_MINGW_ROOT}",
         "SNAP_BUILD_GUI": "OFF"
       }
     },
