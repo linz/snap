@@ -1,29 +1,29 @@
-#include "deformation/layer.h"
+#include "deformation/scalarlayer.h"
 
 #include <stdexcept>
 #include <string>
 
 namespace deformation {
 
-void Layer::addRootGrid( std::unique_ptr<Grid> grid )
+void ScalarLayer::addRootGrid( std::unique_ptr<Grid<ScalarGridData>> grid )
 {
     if( ! grid ) {
-        throw std::invalid_argument( "Layer::addRootGrid: grid must not be null" );
+        throw std::invalid_argument( "ScalarLayer::addRootGrid: grid must not be null" );
     }
     if( ! rootGrids_.empty() && grid->axisCount() != axisCount() ) {
         throw std::invalid_argument(
-            "Layer::addRootGrid: grid axisCount (" + std::to_string( grid->axisCount() )
+            "ScalarLayer::addRootGrid: grid axisCount (" + std::to_string( grid->axisCount() )
             + ") does not match layer's own (" + std::to_string( *axisCount() ) + ")" );
     }
     rootGrids_.push_back( std::move( grid ) );
 }
 
-void Layer::addTimeFunction( TimeFunction timeFunction )
+void ScalarLayer::addTimeFunction( TimeFunction timeFunction )
 {
     timeFunctions_.push_back( std::move( timeFunction ) );
 }
 
-std::optional<std::size_t> Layer::axisCount() const
+std::optional<std::size_t> ScalarLayer::axisCount() const
 {
     if( rootGrids_.empty() ) {
         return std::nullopt;
@@ -31,9 +31,9 @@ std::optional<std::size_t> Layer::axisCount() const
     return rootGrids_.front()->axisCount();
 }
 
-std::optional<std::array<double, 3>> Layer::evaluate( double c0, double c1, double queryDateDays ) const
+std::optional<std::array<double, 3>> ScalarLayer::evaluate( double c0, double c1, double queryDateDays ) const
 {
-    auto resolution = Grid::selectAmongSiblings( rootGrids_, c0, c1 );
+    auto resolution = Grid<ScalarGridData>::selectAmongSiblings( rootGrids_, c0, c1 );
     if( ! resolution ) {
         return std::nullopt;
     }
@@ -41,7 +41,7 @@ std::optional<std::array<double, 3>> Layer::evaluate( double c0, double c1, doub
         resolution = childResolution;
     }
 
-    auto values = resolution->grid->interpolate( resolution->cell );
+    auto values = resolution->grid->data().interpolate( resolution->cell );
     if( ! values ) {
         return std::nullopt;
     }
