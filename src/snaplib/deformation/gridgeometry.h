@@ -41,7 +41,7 @@ public:
     // Throws std::invalid_argument if iNodeCount/jNodeCount is < 2 - same
     // "fail hard on a violated external-boundary invariant" reasoning as
     // TimeFunction's own constructor.
-    GridGeometry( std::array<double, 6> affineCoeffs,          // node (i,j) -> (c0,c1): c0 = coeffs[0] + coeffs[1]*i + coeffs[2]*j, c1 = coeffs[3] + coeffs[4]*i + coeffs[5]*j. Which of c0/c1 is longitude/latitude is a caller concern (GGRXF: determined by the file's own interpolationCrsWkt) - GridGeometry itself is agnostic
+    GridGeometry( const std::array<double, 6> &affineCoeffs,   // node (i,j) -> (c0,c1): c0 = coeffs[0] + coeffs[1]*i + coeffs[2]*j, c1 = coeffs[3] + coeffs[4]*i + coeffs[5]*j. Which of c0/c1 is longitude/latitude is a caller concern (GGRXF: determined by the file's own interpolationCrsWkt) - GridGeometry itself is agnostic. Taken by const reference and copied, not by value: a plain 6-double aggregate has no move benefit over a copy, so by-value would only cost an extra copy for no gain
                    std::uint32_t iNodeCount,                    // grid extent along the first axis; must be >= 2
                    std::uint32_t jNodeCount,                    // grid extent along the second axis; must be >= 2
                    double cellTolerance );                      // boundary slop for locate(), in grid-index units - 0.0 reproduces LINZDEF's exact hard-edge behaviour; GGRXF's own spec value is 0.00001

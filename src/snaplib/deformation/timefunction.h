@@ -69,7 +69,7 @@ public:
     // evaluate() - a file declaring an unsupported or malformed time
     // function should fail as soon as it's read, not on the first query
     // that happens to reach it.
-    explicit TimeFunction( Params params );   // throws std::invalid_argument if params.shape is not Linear/Step/Ramp, or if params is missing a date/parameter its own shape requires
+    explicit TimeFunction( const Params &params );   // copied - no heap-owning members, no move benefit over a copy. Throws std::invalid_argument if params.shape is not Linear/Step/Ramp, or if params is missing a date/parameter its own shape requires
 
     // Evaluates this shape's own reference function at queryDateDays: Δ is
     // computed relative to this shape's own required date parameter (see

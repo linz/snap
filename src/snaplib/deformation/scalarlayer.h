@@ -40,7 +40,7 @@ public:
     // this layer is scaled by the sum of every time function added this
     // way, evaluated at the query date (GGXF's own CompoundTimeFunction
     // summation, adopted here for `scalar_with_time_function`).
-    void addTimeFunction( TimeFunction timeFunction );
+    void addTimeFunction( const TimeFunction &timeFunction );   // copied - see TimeFunction's own constructor for why (no heap-owning members, no move benefit over a copy)
 
     // The number of displacement axes every grid under this layer shares
     // (GGRXF's own gridParameters is declared once per layer, so every grid

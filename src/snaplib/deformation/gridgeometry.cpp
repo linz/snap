@@ -31,7 +31,7 @@ std::array<double, 2> nodeToWorld( const std::array<double, 6> &affineCoeffs, do
 
 } // namespace
 
-GridGeometry::GridGeometry( std::array<double, 6> affineCoeffs,
+GridGeometry::GridGeometry( const std::array<double, 6> &affineCoeffs,
                              std::uint32_t iNodeCount,
                              std::uint32_t jNodeCount,
                              double cellTolerance )

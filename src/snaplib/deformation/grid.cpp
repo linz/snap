@@ -9,8 +9,8 @@
 namespace deformation {
 
 template <typename NodeData>
-Grid<NodeData>::Grid( GridGeometry geometry, NodeData data )
-    : geometry_( std::move( geometry ) ),
+Grid<NodeData>::Grid( const GridGeometry &geometry, NodeData data )
+    : geometry_( geometry ),
       data_( std::move( data ) )
 {
 }
@@ -80,7 +80,7 @@ std::optional<Resolution<NodeData>> Grid<NodeData>::selectAmongSiblings(
 {
     for( const auto &sibling : siblings ) {
         if( const auto cell = sibling->locate( c0, c1 ) ) {
-            return Resolution<NodeData>{ sibling.get(), *cell };
+            return Resolution<NodeData>{ *sibling, *cell };
         }
     }
     return std::nullopt;

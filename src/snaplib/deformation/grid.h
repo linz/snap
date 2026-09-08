@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <memory>
 #include <optional>
 #include <type_traits>
@@ -20,7 +21,16 @@ class Grid;
 template <typename NodeData>
 struct Resolution
 {
-    const Grid<NodeData> *grid;
+    // Non-owning - the resolved grid is (and stays) owned by whichever
+    // Layer's rootGrids_/Grid's children_ it came from; a Resolution never
+    // outlives that owner, so this only ever observes it. reference_wrapper
+    // rather than a raw pointer: a Resolution is only ever produced already
+    // pointing at a real grid (see selectAmongSiblings()/resolveChild()
+    // below), so there is no genuine "no grid yet" state for this field to
+    // represent - reference_wrapper makes that a compile-time guarantee
+    // instead of a convention every future caller has to keep upholding by
+    // hand.
+    std::reference_wrapper<const Grid<NodeData>> grid;
     Cell cell;
 };
 
@@ -84,7 +94,7 @@ class Grid
                    "NodeData must provide std::size_t axisCount() const" );
 
 public:
-    Grid( GridGeometry geometry, NodeData data );   // this grid's own geometry and node data; children are added afterward via addChild()
+    Grid( const GridGeometry &geometry, NodeData data );   // this grid's own geometry and node data; children are added afterward via addChild(). geometry is copied (it's a trivial, cheap-to-copy aggregate with no move benefit over a copy); data is a sink parameter (NodeData is move-only, owns a unique_ptr) and is moved from
 
     const GridGeometry &geometry() const;
     const NodeData &data() const;

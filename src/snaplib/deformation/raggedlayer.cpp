@@ -62,7 +62,7 @@ void RaggedLayer::addRootGrid( std::unique_ptr<Grid<RaggedGridData>> grid )
     rootGrids_.push_back( std::move( grid ) );
 }
 
-void RaggedLayer::indexRootGrid( Grid<RaggedGridData> &grid )
+void RaggedLayer::indexRootGrid( const Grid<RaggedGridData> &grid )
 {
     const GridGeometry &geometry = grid.geometry();
     const std::array<double, 6> &affineCoeffs = geometry.affineCoeffs();
@@ -120,7 +120,7 @@ void RaggedLayer::indexRootGrid( Grid<RaggedGridData> &grid )
             "RaggedLayer::addRootGrid: a grid is already indexed at row0=" + std::to_string( row0 )
             + ", col0=" + std::to_string( col0 ) + ", sizeSteps=" + std::to_string( sizeSteps ) );
     }
-    rootIndex_.emplace( key, &grid );
+    rootIndex_.emplace( key, grid );
     if( std::find( distinctSizeSteps_.begin(), distinctSizeSteps_.end(), sizeSteps ) == distinctSizeSteps_.end() ) {
         distinctSizeSteps_.push_back( sizeSteps );
     }
@@ -175,7 +175,7 @@ std::optional<Resolution<RaggedGridData>> RaggedLayer::resolveRootGrid( double c
                 if( found == rootIndex_.end() ) {
                     continue;
                 }
-                if( const auto cell = found->second->locate( c0, c1 ) ) {
+                if( const auto cell = found->second.get().locate( c0, c1 ) ) {
                     return Resolution<RaggedGridData>{ found->second, *cell };
                 }
             }
@@ -190,12 +190,12 @@ std::optional<std::array<double, 3>> RaggedLayer::evaluate( double c0, double c1
     if( ! resolution ) {
         return std::nullopt;
     }
-    while( auto childResolution = resolution->grid->resolveChild( c0, c1 ) ) {
+    while( auto childResolution = resolution->grid.get().resolveChild( c0, c1 ) ) {
         resolution = childResolution;
     }
 
     const std::int64_t queryDayCount = static_cast<std::int64_t>( queryDateDays - referenceDateDays_ );
-    return resolution->grid->data().evaluate( resolution->cell, queryDayCount );
+    return resolution->grid.get().data().evaluate( resolution->cell, queryDayCount );
 }
 
 } // namespace deformation

@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <optional>
 #include <unordered_map>
@@ -86,7 +87,7 @@ private:
     // Registers `grid` into rootIndex_/distinctSizeSteps_ - establishing
     // this layer's own shared lattice reference if this is the first root
     // grid added, or validating against it otherwise (see addRootGrid()).
-    void indexRootGrid( Grid<RaggedGridData> &grid );
+    void indexRootGrid( const Grid<RaggedGridData> &grid );
 
     // Resolves this layer's own root grids at (c0, c1) - a bucket lookup,
     // not a tree: rootIndex_ is one hash map, but folding sizeSteps into
@@ -127,7 +128,15 @@ private:
 
     double referenceDateDays_;
     std::vector<std::unique_ptr<Grid<RaggedGridData>>> rootGrids_;   // this layer's own root grids, in the order they were added; owns them
-    std::unordered_map<RootKey, Grid<RaggedGridData> *, RootKeyHash> rootIndex_;   // non-owning - see resolveRootGrid()
+    // Non-owning, read-only lookup alongside rootGrids_ (the real owner) -
+    // see resolveRootGrid(). reference_wrapper rather than a raw pointer:
+    // every entry is always inserted already pointing at a real grid (see
+    // indexRootGrid()), so there is no "not yet indexed" state this needs
+    // to represent (absence is a missing *key*, checked via rootIndex_.
+    // find() == end(), never a null *value* under an existing one) -
+    // reference_wrapper makes "never null" a compile-time guarantee here
+    // too, the same reasoning as Resolution::grid (see grid.h).
+    std::unordered_map<RootKey, std::reference_wrapper<const Grid<RaggedGridData>>, RootKeyHash> rootIndex_;
     std::vector<std::int64_t> distinctSizeSteps_;   // every distinct sizeSteps value present in rootIndex_, in the order first seen
     bool haveReference_ = false;
     double refC0Origin_ = 0.0;

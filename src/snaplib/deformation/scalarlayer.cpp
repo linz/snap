@@ -18,9 +18,9 @@ void ScalarLayer::addRootGrid( std::unique_ptr<Grid<ScalarGridData>> grid )
     rootGrids_.push_back( std::move( grid ) );
 }
 
-void ScalarLayer::addTimeFunction( TimeFunction timeFunction )
+void ScalarLayer::addTimeFunction( const TimeFunction &timeFunction )
 {
-    timeFunctions_.push_back( std::move( timeFunction ) );
+    timeFunctions_.push_back( timeFunction );
 }
 
 std::optional<std::size_t> ScalarLayer::axisCount() const
@@ -37,11 +37,11 @@ std::optional<std::array<double, 3>> ScalarLayer::evaluate( double c0, double c1
     if( ! resolution ) {
         return std::nullopt;
     }
-    while( auto childResolution = resolution->grid->resolveChild( c0, c1 ) ) {
+    while( auto childResolution = resolution->grid.get().resolveChild( c0, c1 ) ) {
         resolution = childResolution;
     }
 
-    auto values = resolution->grid->data().interpolate( resolution->cell );
+    auto values = resolution->grid.get().data().interpolate( resolution->cell );
     if( ! values ) {
         return std::nullopt;
     }
@@ -51,7 +51,7 @@ std::optional<std::array<double, 3>> ScalarLayer::evaluate( double c0, double c1
         factor += timeFunction.evaluate( queryDateDays );
     }
 
-    const std::size_t n = resolution->grid->axisCount();
+    const std::size_t n = resolution->grid.get().axisCount();
     for( std::size_t a = 0; a < n; ++a ) {
         (*values)[a] *= factor;
     }

@@ -28,8 +28,8 @@ const char *shapeName( TimeFunctionShape shape )
 
 } // namespace
 
-TimeFunction::TimeFunction( Params params )
-    : params_( std::move( params ) )
+TimeFunction::TimeFunction( const Params &params )
+    : params_( params )
 {
     switch( params_.shape ) {
     case TimeFunctionShape::Linear:
