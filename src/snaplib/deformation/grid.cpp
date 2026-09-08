@@ -3,8 +3,8 @@
 #include <stdexcept>
 #include <string>
 
-#include "deformation/scalargriddata.h"
-#include "deformation/raggedgriddata.h"
+#include "deformation/scalar_grid_data.h"
+#include "deformation/ragged_grid_data.h"
 
 namespace deformation {
 
@@ -40,57 +40,54 @@ std::size_t Grid<NodeData>::axisCount() const
 }
 
 template <typename NodeData>
-void Grid<NodeData>::addChild( std::unique_ptr<Grid<NodeData>> child )
+GridParent<NodeData>::GridParent( const GridGeometry &geometry, NodeData data )
+    : Grid<NodeData>( geometry, std::move( data ) )
+{
+}
+
+template <typename NodeData>
+void GridParent<NodeData>::addChild( std::unique_ptr<Grid<NodeData>> child )
 {
     if( ! child ) {
-        throw std::invalid_argument( "Grid::addChild: child must not be null" );
+        throw std::invalid_argument( "GridParent::addChild: child must not be null" );
     }
-    if( child->axisCount() != axisCount() ) {
+    if( child->axisCount() != this->axisCount() ) {
         throw std::invalid_argument(
-            "Grid::addChild: child axisCount (" + std::to_string( child->axisCount() )
-            + ") does not match parent's own (" + std::to_string( axisCount() ) + ")" );
+            "GridParent::addChild: child axisCount (" + std::to_string( child->axisCount() )
+            + ") does not match parent's own (" + std::to_string( this->axisCount() ) + ")" );
     }
-    if( ! geometry_.containsExtentOf( child->geometry_ ) ) {
-        throw std::invalid_argument( "Grid::addChild: child extent is not contained within parent's own extent" );
+    if( ! this->geometry().containsExtentOf( child->geometry() ) ) {
+        throw std::invalid_argument( "GridParent::addChild: child extent is not contained within parent's own extent" );
     }
     children_.push_back( std::move( child ) );
 }
 
 template <typename NodeData>
-const std::vector<std::unique_ptr<Grid<NodeData>>> &Grid<NodeData>::children() const
+const std::vector<std::unique_ptr<Grid<NodeData>>> &GridParent<NodeData>::children() const
 {
     return children_;
 }
 
 template <typename NodeData>
-bool Grid<NodeData>::isLeaf() const
+std::optional<Resolution<NodeData>> GridParent<NodeData>::resolveChild( double c0, double c1 ) const
 {
-    return children_.empty();
-}
-
-template <typename NodeData>
-std::optional<Resolution<NodeData>> Grid<NodeData>::resolveChild( double c0, double c1 ) const
-{
-    return selectAmongSiblings( children_, c0, c1 );
-}
-
-template <typename NodeData>
-std::optional<Resolution<NodeData>> Grid<NodeData>::selectAmongSiblings(
-    const std::vector<std::unique_ptr<Grid<NodeData>>> &siblings, double c0, double c1 )
-{
-    for( const auto &sibling : siblings ) {
-        if( const auto cell = sibling->locate( c0, c1 ) ) {
-            return Resolution<NodeData>{ *sibling, *cell };
+    for( auto it = children_.rbegin(); it != children_.rend(); ++it ) {
+        const auto &child = *it;
+        if( const auto cell = child->locate( c0, c1 ) ) {
+            return Resolution<NodeData>{ *child, *cell };
         }
     }
     return std::nullopt;
 }
 
-// Explicit instantiation - Grid is only ever used with these two node-data
-// types (ScalarGridData for scalar_with_time_function, RaggedGridData for
-// ragged_segments), so the definitions above live here rather than in the
-// header, matching this module's own declaration/definition split.
+// Explicit instantiation - Grid/GridParent are only ever used with these two
+// node-data types (ScalarGridData for scalar_with_time_function,
+// RaggedGridData for ragged_segments), so the definitions above live here
+// rather than in the header, matching this module's own declaration/
+// definition split.
 template class Grid<ScalarGridData>;
 template class Grid<RaggedGridData>;
+template class GridParent<ScalarGridData>;
+template class GridParent<RaggedGridData>;
 
 } // namespace deformation

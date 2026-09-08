@@ -5,7 +5,7 @@
 #include <memory>
 #include <vector>
 
-#include "gridgeometry.h"
+#include "grid_geometry.h"
 
 namespace deformation {
 
@@ -21,6 +21,27 @@ struct RaggedSegment
     std::int64_t startDay;
     double startValue;
     double ratePerDay;
+};
+
+// Two pointers marking the start and one-past-the-end of one node's own
+// list of RaggedSegment values. This is what RaggedNodeValueSource::segments()
+// returns. It lets segments() point at one node's own place inside one
+// big, shared array of RaggedSegment values, instead of, for example,
+// copying a node's segments into another separate array. A separate
+// std::vector<RaggedSegment> per node will cause real heap-fragmentation -
+// see NetcdfRaggedNodeValueSource's own comment. Would be
+// std::span<const RaggedSegment> on a newer C++ standard than this
+// project's own C++17. begin()/end() are here for range-based for-loop use.
+struct RaggedSegmentRange
+{
+    RaggedSegmentRange( const RaggedSegment *begin, const RaggedSegment *end ) : begin_( begin ), end_( end ) {}
+
+    const RaggedSegment *begin() const { return begin_; }
+    const RaggedSegment *end() const { return end_; }
+
+private:
+    const RaggedSegment *begin_;
+    const RaggedSegment *end_;
 };
 
 // Supplies the raw per-node segment data for one ragged_segments grid's own
@@ -48,7 +69,7 @@ public:
     // node has no active segment there at all - a genuine gap (e.g. the
     // edge of a quadtree-tiled InSAR patch), not an error; see
     // RaggedGridData::evaluate() for how that resolves.
-    virtual const std::vector<RaggedSegment> &segments(
+    virtual RaggedSegmentRange segments(
         std::uint32_t i, std::uint32_t j, std::size_t axis ) const = 0;
 };
 

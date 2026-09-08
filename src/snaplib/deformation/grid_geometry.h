@@ -8,7 +8,7 @@ namespace deformation {
 
 // One grid cell a query point resolved into: the base corner (bi, bj) and
 // the fractional position within it (fi, fj) - what a grid's own node-data
-// type (GridData::interpolate(), RaggedNodeData::evaluate()) needs to do
+// type (ScalarGridData::interpolate(), RaggedGridData::evaluate()) needs to do
 // its bilinear weighting. fi/fj are each in [0, 1) for a query point in the
 // grid's own interior, but can range as far as [-cellTolerance, 1+cellTolerance]
 // for a point resolved via GridGeometry's own tolerance band near a
@@ -18,8 +18,8 @@ namespace deformation {
 // deliberately left unclamped themselves, which is what allows that
 // slightly-past-[0, 1) range within the tolerance band. Returned only by
 // GridGeometry::locate() (and, bundled with the grid it belongs to, by
-// Grid's resolution methods) once a query point has been confirmed to fall
-// within a grid's own extent - never constructed by hand.
+// a Layer's own resolution methods) once a query point has been confirmed to
+// fall within a grid's own extent - never constructed by hand.
 struct Cell
 {
     std::uint32_t bi;
@@ -64,7 +64,7 @@ public:
     // cellTolerance applies). An affine transform maps a rectangle to a
     // parallelogram, always convex, so checking the 4 corners is enough to
     // confirm the whole of `other` is contained, not just its corners.
-    // Used by Grid::addChild() to validate the "a child's extent must be a
+    // Used by GridParent::addChild() to validate the "a child's extent must be a
     // subset of its parent's" invariant nesting depends on.
     bool containsExtentOf( const GridGeometry &other ) const;
 

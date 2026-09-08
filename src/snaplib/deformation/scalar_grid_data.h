@@ -5,7 +5,7 @@
 #include <memory>
 #include <optional>
 
-#include "gridgeometry.h"
+#include "grid_geometry.h"
 
 namespace deformation {
 
@@ -33,6 +33,20 @@ public:
         std::uint32_t i,   // node index along the grid's first axis, 0 <= i < iNodeCount
         std::uint32_t j    // node index along the grid's second axis, 0 <= j < jNodeCount
     ) const = 0;
+
+    // True if this whole grid declares GGRXF's own grid-wide has_end_day -
+    // a single flag for the whole grid, unlike
+    // RaggedNodeValueSource::hasEndDay()'s per-node one. Signals that this
+    // grid's own contribution should stop being extrapolated, and hold
+    // fixed, from own_end_date onward (early termination or temporal
+    // supersession - see the GGRXF spec's own "Terminal-node evaluation").
+    // That behaviour itself is not implemented here; ScalarGridData's
+    // constructor throws std::runtime_error if this is ever true. No real
+    // file this project's own deformation model is built from sets it -
+    // the equivalent effect (an existing ramp component cut off where a
+    // newer dataset takes over) is achieved instead by rescaling and
+    // truncating that ramp's own end_date directly.
+    virtual bool hasEndDay() const = 0;
 };
 
 // One scalar_with_time_function grid's own per-node value computation - the

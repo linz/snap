@@ -12,9 +12,13 @@ bilinear interpolation, multi-resolution containment and priority, and GGXF-styl
   ragged grids, no shared time function).
 
 - **Grid** — one node in a layer's own resolution hierarchy: a single affine-indexed rectangle of
-  nodes, plus (for scalar grids) whichever finer child grids nest inside it. A **root grid** is one
-  directly under a layer, with no parent. Ragged grids never nest in any real file today — every
-  one is a flat root-level sibling, even though the file format permits nesting in principle.
+  nodes. Always a leaf — has no children of its own. A **root grid** is one directly under a layer,
+  with no parent.
+
+- **GridParent** — a `Grid` that additionally has its own finer child grids nested inside it
+  (`Grid::asParent()` distinguishes the two without RTTI). Either grid type, scalar or ragged, can
+  be a `GridParent` in principle; real ragged grids never nest in any file today — every one is a
+  flat root-level sibling, even though the file format permits nesting there too.
 
 - **Cell** — the single bilinear cell one query point resolves into *within one grid*: the base
   corner `(bi, bj)`, its diagonal opposite `(bi+1, bj+1)`, and the fractional weights `(fi, fj)`

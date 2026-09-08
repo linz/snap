@@ -1,4 +1,4 @@
-#include "deformation/raggedgriddata.h"
+#include "deformation/ragged_grid_data.h"
 
 #include <stdexcept>
 #include <string>

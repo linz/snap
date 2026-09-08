@@ -1,4 +1,4 @@
-#include "deformation/scalarlayer.h"
+#include "deformation/scalar_layer.h"
 
 #include <stdexcept>
 #include <string>
@@ -33,13 +33,21 @@ std::optional<std::size_t> ScalarLayer::axisCount() const
 
 std::optional<std::array<double, 3>> ScalarLayer::evaluate( double c0, double c1, double queryDateDays ) const
 {
-    auto resolution = Grid<ScalarGridData>::selectAmongSiblings( rootGrids_, c0, c1 );
+    // Plain linear scan for the root grid containing (c0, c1) - the first
+    // one found wins; see rootGrids_'s own doc comment above for why list
+    // order, not this method, is what makes that meaningful when two roots
+    // do overlap.
+    std::optional<Resolution<ScalarGridData>> resolution;
+    for( const auto &root : rootGrids_ ) {
+        if( const auto cell = root->locate( c0, c1 ) ) {
+            resolution = Resolution<ScalarGridData>{ *root, *cell };
+            break;
+        }
+    }
     if( ! resolution ) {
         return std::nullopt;
     }
-    while( auto childResolution = resolution->grid.get().resolveChild( c0, c1 ) ) {
-        resolution = childResolution;
-    }
+    resolution = descendToLeaf( *resolution, c0, c1 );
 
     auto values = resolution->grid.get().data().interpolate( resolution->cell );
     if( ! values ) {

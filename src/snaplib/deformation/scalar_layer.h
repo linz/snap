@@ -7,8 +7,8 @@
 
 #include "grid.h"
 #include "layer.h"
-#include "scalargriddata.h"
-#include "timefunction.h"
+#include "scalar_grid_data.h"
+#include "time_function.h"
 
 namespace deformation {
 
@@ -28,11 +28,11 @@ class ScalarLayer : public Layer
 public:
     // Adds a root grid to this layer. Ownership transfers to this Layer.
     // If this layer has multiple root grids that could both cover the
-    // same point, add them in the order they should be tried - first
-    // come, first served (see Grid's own class comment); root grids
+    // same point, add them in the order they should be tried - evaluate()
+    // picks the first one found, first come first served; root grids
     // covering different areas can be added in any order. The first root
     // grid added establishes this layer's own axisCount(); every later
-    // one must match it - same reasoning as Grid::addChild()'s own
+    // one must match it - same reasoning as GridParent::addChild()'s own
     // validation.
     void addRootGrid( std::unique_ptr<Grid<ScalarGridData>> grid );   // the grid to add; throws std::invalid_argument if grid is null, or if a root grid was added before and grid->axisCount() != axisCount()
 
@@ -50,14 +50,14 @@ public:
     std::optional<std::size_t> axisCount() const;
 
     // Evaluates this layer's own contribution at (c0, c1, queryDateDays):
-    // picks a single grid by repeatedly taking Grid::
-    // selectAmongSiblings()/resolveChild() - first among this layer's own
-    // root grids, then into that grid's own children, and so on until
-    // none of them cover the point - interpolates the picked grid, and
-    // scales the result by the sum of every time function evaluated at
-    // queryDateDays. Like Grid's own picking (see grid.h), this never
-    // scans the whole hierarchy - only the current grid's immediate
-    // children are ever inspected at each step.
+    // picks a single grid - a plain linear scan among this layer's own root
+    // grids for the first one covering the point, then descendToLeaf()
+    // (grid.h) into that grid's own children, and so on until none of them
+    // cover the point - interpolates the picked grid, and scales the result
+    // by the sum of every time function evaluated at queryDateDays. Like
+    // GridParent's own child resolution (see grid.h), this never scans the
+    // whole hierarchy - only the current grid's immediate children are ever
+    // inspected at each step.
     //
     // Returns the picked grid's own interpolated values (only the first
     // axisCount() entries meaningful), scaled by the summed time functions

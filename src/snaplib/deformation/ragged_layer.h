@@ -10,37 +10,36 @@
 
 #include "grid.h"
 #include "layer.h"
-#include "raggedgriddata.h"
+#include "ragged_grid_data.h"
 
 namespace deformation {
 
 // One GGRXF-style layer covering the `ragged_segments` grid type: a set of
-// root grids, one of which is picked per query point (see Grid's own class
-// comment for the first-come-first-served rule that applies identically
-// here). Unlike ScalarLayer, there is no grid-wide time function to share -
-// each ragged grid's own nodes carry their own independent segment chains
-// (see RaggedGridData) - so this only ever needs a single reference date,
-// not a summed set of TimeFunctions.
+// root grids, one of which is picked per query point - the first one in the
+// list whose extent contains the point, same first-come-first-served rule
+// ScalarLayer's own root scan uses. Unlike ScalarLayer, there is no
+// grid-wide time function to share - each ragged grid's own nodes carry
+// their own independent segment chains (see RaggedGridData) - so this only
+// ever needs a single reference date, not a summed set of TimeFunctions.
 //
 // Real files (the InSAR quadtree-tiling producer this format was designed
 // for) put potentially thousands of root grids directly under one
 // RaggedLayer, as a flat, non-overlapping partition. Resolving which one
-// covers a query point by testing every root grid in turn (as Grid's own
-// selectAmongSiblings() does, and as ScalarLayer relies on for its own,
-// typically small, root list) doesn't scale to that - see
+// covers a query point by testing every root grid in turn (as ScalarLayer
+// does for its own, typically small, root list) doesn't scale to that - see
 // resolveRootGrid() below for how this layer resolves its own root grids
 // instead.
 class RaggedLayer : public Layer
 {
 public:
-    explicit RaggedLayer( double referenceDateDays );   // this layer's own reference date, in the same epoch as evaluate()'s own queryDateDays and every TimeFunction::Params field - every RaggedSegment's own startDay (see raggedgriddata.h) is relative to this, matching the real GGRXF spec's own per-layer reference_date attribute for `ragged_segments` layers
+    explicit RaggedLayer( double referenceDateDays );   // this layer's own reference date, in the same epoch as evaluate()'s own queryDateDays and every TimeFunction::Params field - every RaggedSegment's own startDay (see ragged_grid_data.h) is relative to this, matching the real GGRXF spec's own per-layer reference_date attribute for `ragged_segments` layers
 
     // Adds a root grid to this layer. Ownership transfers to this Layer.
     // Real root grids are a flat, non-overlapping partition, added in any
     // order - unlike ScalarLayer's own addRootGrid(), list order plays no
     // role in resolveRootGrid() below. The first root grid added
     // establishes this layer's own axisCount(); every later one must match
-    // it - same reasoning as Grid::addChild()'s own validation. It also
+    // it - same reasoning as GridParent::addChild()'s own validation. It also
     // establishes this layer's own shared lattice reference (origin/step,
     // taken from the grid's own affineCoeffs, assumed axis-aligned - real
     // ragged root grids always are, see GridGeometry) - every later grid's

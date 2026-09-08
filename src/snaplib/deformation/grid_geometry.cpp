@@ -1,4 +1,4 @@
-#include "deformation/gridgeometry.h"
+#include "deformation/grid_geometry.h"
 
 #include <algorithm>
 #include <cmath>
@@ -59,10 +59,10 @@ std::optional<Cell> GridGeometry::locate( double c0, double c1 ) const
     // node index past the last valid one - needed both for a point exactly
     // on the grid's last row/column, and for a point in the tolerance band
     // just beyond it in either direction, where an unclamped floor() would
-    // give -1 or iNodeCount-1. fi/fj (in GridData::interpolate()/
-    // RaggedNodeData::evaluate()) are the resulting remainder i-bi/j-bj,
+    // give -1 or iNodeCount-1. fi/fj (in ScalarGridData::interpolate()/
+    // RaggedGridData::evaluate()) are the resulting remainder i-bi/j-bj,
     // deliberately left unclamped themselves - see the Cell comment in
-    // gridgeometry.h for the exact range that produces.
+    // grid_geometry.h for the exact range that produces.
     const std::uint32_t bi = static_cast<std::uint32_t>(
         std::clamp( std::floor( i ), 0.0, static_cast<double>( iNodeCount_ - 2 ) ) );
     const std::uint32_t bj = static_cast<std::uint32_t>(

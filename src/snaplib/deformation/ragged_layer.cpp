@@ -1,4 +1,4 @@
-#include "deformation/raggedlayer.h"
+#include "deformation/ragged_layer.h"
 
 #include <algorithm>
 #include <cmath>
@@ -190,9 +190,7 @@ std::optional<std::array<double, 3>> RaggedLayer::evaluate( double c0, double c1
     if( ! resolution ) {
         return std::nullopt;
     }
-    while( auto childResolution = resolution->grid.get().resolveChild( c0, c1 ) ) {
-        resolution = childResolution;
-    }
+    resolution = descendToLeaf( *resolution, c0, c1 );
 
     const std::int64_t queryDayCount = static_cast<std::int64_t>( queryDateDays - referenceDateDays_ );
     return resolution->grid.get().data().evaluate( resolution->cell, queryDayCount );

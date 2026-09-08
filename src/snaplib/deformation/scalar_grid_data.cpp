@@ -1,4 +1,4 @@
-#include "deformation/scalargriddata.h"
+#include "deformation/scalar_grid_data.h"
 
 #include <stdexcept>
 
@@ -10,6 +10,10 @@ ScalarGridData::ScalarGridData( double scaleFactor, std::unique_ptr<ScalarNodeVa
 {
     if( ! values_ ) {
         throw std::invalid_argument( "ScalarGridData: values must not be null" );
+    }
+    if( values_->hasEndDay() ) {
+        throw std::runtime_error(
+            "ScalarGridData: has_end_day/own_end_date terminal-node termination is not implemented" );
     }
 }
 
