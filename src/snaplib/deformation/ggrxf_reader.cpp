@@ -3,9 +3,11 @@
 #include <algorithm>
 #include <array>
 #include <cstdint>
+#include <limits>
 #include <optional>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -425,15 +427,111 @@ std::unique_ptr<Layer> parseScalarLayer( const netcdf::NetcdfGroup &layerGroup )
     return layer;
 }
 
+// The sentinel `parent_grid_index` value marking a root grid in a
+// ragged_segments layer's own consolidated grid arrays - GGRXF_DEFORMATION_
+// FORMAT.md's own uint32 max (grid index 0 is an ordinary, valid array
+// position, so it can't double as "no parent").
+constexpr std::uint32_t kRaggedRootSentinel = std::numeric_limits<std::uint32_t>::max();
+
+// One ragged_segments layer's own consolidated storage, read once in full:
+// every grid's own geometry/nesting fields, indexed by a `grid` dimension,
+// plus every node's own reference_day/has_end_day and every component's own
+// segment records, indexed by a layer-wide `node` dimension spanning every
+// grid's nodes concatenated. A per-grid RaggedGridData (see
+// parseRaggedGridContent() below) is built by slicing into these arrays,
+// never by reading a per-grid netCDF object - this grid type has no grid
+// subgroups at all.
+struct RaggedLayerArrays
+{
+    std::vector<double> affineCoeffs;             // [grid * 6 + k]
+    std::vector<std::uint32_t> iNodeCount;        // [grid]
+    std::vector<std::uint32_t> jNodeCount;        // [grid]
+    std::vector<std::uint8_t> gridPriority;       // [grid] - meaningless for a root grid, see parseRaggedLayer() below
+    std::vector<std::uint32_t> parentGridIndex;   // [grid], kRaggedRootSentinel for a root grid
+    std::vector<std::size_t> gridNodeOffset;      // [grid + 1]; gridNodeOffset[g] is grid g's own base index into the layer-wide node arrays below, reconstructed (not stored) as a cumulative sum of iNodeCount*jNodeCount
+
+    std::vector<std::uint32_t> referenceDay;      // layer-wide, one entry per node
+    std::vector<bool> hasEndDayPerNode;           // layer-wide, one entry per node; empty if the file has no has_end_day variable at all
+
+    std::size_t axisCount = 0;
+    // Per axis: layer-wide CSR offsets (one entry per node, plus a final
+    // sentinel), reconstructed from segment_count_{enu}, and the raw
+    // segment fields those offsets index into (each sum(segment_count_{enu})
+    // long).
+    std::vector<std::vector<std::size_t>> nodeSegmentOffset;
+    std::vector<std::vector<std::int32_t>> segmentStartValues;
+    std::vector<std::vector<std::uint16_t>> segmentDayDeltas;
+    std::vector<std::vector<std::int16_t>> segmentScaleFactors;
+    std::vector<std::vector<std::uint8_t>> segmentFunctionTypes;
+};
+
 // This format always requires segment_count_e/n; segment_count_u is only
 // present for a 3-axis model. Throws if even e/n are missing - a
-// ragged_segments grid with neither is malformed.
-std::size_t raggedAxisCount( const netcdf::NetcdfGroup &gridGroup )
+// ragged_segments layer with neither is malformed.
+std::size_t raggedLayerAxisCount( const netcdf::NetcdfGroup &layerGroup )
 {
-    if( ! gridGroup.hasVariable( "segment_count_e" ) || ! gridGroup.hasVariable( "segment_count_n" ) ) {
-        throw std::runtime_error( "ggrxf_reader: '" + gridGroup.name() + "' is missing segment_count_e/n" );
+    if( ! layerGroup.hasVariable( "segment_count_e" ) || ! layerGroup.hasVariable( "segment_count_n" ) ) {
+        throw std::runtime_error( "ggrxf_reader: '" + layerGroup.name() + "' is missing segment_count_e/n" );
     }
-    return gridGroup.hasVariable( "segment_count_u" ) ? 3 : 2;
+    return layerGroup.hasVariable( "segment_count_u" ) ? 3 : 2;
+}
+
+// Reads layerGroup's own consolidated grid/node/segment arrays in full -
+// see RaggedLayerArrays' own class comment.
+RaggedLayerArrays readRaggedLayerArrays( const netcdf::NetcdfGroup &layerGroup )
+{
+    RaggedLayerArrays arrays;
+    arrays.affineCoeffs = layerGroup.variable( "affineCoeffs" ).readValues<double>();
+    arrays.iNodeCount = layerGroup.variable( "iNodeCount" ).readValues<std::uint32_t>();
+    arrays.jNodeCount = layerGroup.variable( "jNodeCount" ).readValues<std::uint32_t>();
+    arrays.gridPriority = layerGroup.variable( "gridPriority" ).readValues<std::uint8_t>();
+    arrays.parentGridIndex = layerGroup.variable( "parent_grid_index" ).readValues<std::uint32_t>();
+
+    const std::size_t gridCount = arrays.iNodeCount.size();
+    arrays.gridNodeOffset.assign( gridCount + 1, 0 );
+    for( std::size_t grid = 0; grid < gridCount; ++grid ) {
+        arrays.gridNodeOffset[grid + 1] =
+            arrays.gridNodeOffset[grid] + static_cast<std::size_t>( arrays.iNodeCount[grid] ) * arrays.jNodeCount[grid];
+    }
+
+    arrays.referenceDay = layerGroup.variable( "reference_day" ).readValues<std::uint32_t>();
+    const std::size_t nodeCount = arrays.referenceDay.size();
+    if( layerGroup.hasVariable( "has_end_day" ) ) {
+        const auto raw = layerGroup.variable( "has_end_day" ).readValues<std::uint8_t>();
+        arrays.hasEndDayPerNode.resize( raw.size() );
+        for( std::size_t node = 0; node < raw.size(); ++node ) {
+            arrays.hasEndDayPerNode[node] = raw[node] != 0;
+        }
+    }
+
+    arrays.axisCount = raggedLayerAxisCount( layerGroup );
+    arrays.nodeSegmentOffset.resize( arrays.axisCount );
+    arrays.segmentStartValues.resize( arrays.axisCount );
+    arrays.segmentDayDeltas.resize( arrays.axisCount );
+    arrays.segmentScaleFactors.resize( arrays.axisCount );
+    arrays.segmentFunctionTypes.resize( arrays.axisCount );
+    for( std::size_t axis = 0; axis < arrays.axisCount; ++axis ) {
+        const std::string suffix( 1, kComponentLetters[axis] );
+        const auto counts = layerGroup.variable( "segment_count_" + suffix ).readValues<std::uint16_t>();
+
+        // The CSR-style offsets into segments_{suffix}/function_type_{suffix}
+        // for each node's own slice - a running sum of counts,
+        // reconstructed once per (layer, axis) rather than per query.
+        std::vector<std::size_t> offsets( nodeCount + 1, 0 );
+        for( std::size_t node = 0; node < nodeCount; ++node ) {
+            offsets[node + 1] = offsets[node] + counts[node];
+        }
+        arrays.nodeSegmentOffset[axis] = std::move( offsets );
+
+        arrays.segmentStartValues[axis] =
+            layerGroup.variable( "segments_" + suffix ).readCompoundField<std::int32_t>( "segment_start_value" );
+        arrays.segmentDayDeltas[axis] =
+            layerGroup.variable( "segments_" + suffix ).readCompoundField<std::uint16_t>( "day_delta" );
+        arrays.segmentScaleFactors[axis] =
+            layerGroup.variable( "segments_" + suffix ).readCompoundField<std::int16_t>( "segment_scale_factor" );
+        arrays.segmentFunctionTypes[axis] = layerGroup.variable( "function_type_" + suffix ).readValues<std::uint8_t>();
+    }
+    return arrays;
 }
 
 // One ragged_segments grid group's own geometry and node data - the ragged
@@ -444,78 +542,72 @@ struct RaggedGridContent
     RaggedGridData data;
 };
 
-// Reads gridGroup's own geometry, its own per-node reference_day/
-// has_end_day, and for each displacement axis this grid carries: the
-// per-node segment_count offsets (reconstructed once here, not per query),
-// the segments_{e,n,u} compound records, and the paired
-// function_type_{e,n,u} array (every entry must be linear/code 0 - the only
-// ragged segment shape RaggedGridData implements). Every parsed segment is
-// combined into a single, already-scaled RaggedSegment (see RaggedSegment's
-// own documentation for why startDay is already the combined reference_day
-// + day_delta rather than the two kept apart). Never recurses into
-// gridGroup's own subgroups - same rationale as ScalarGridContent above.
-RaggedGridContent parseRaggedGridContent( const netcdf::NetcdfGroup &gridGroup )
+// Builds gridIndex's own geometry and node data by slicing them out of
+// `arrays` (read once, layer-wide, by readRaggedLayerArrays() above) rather
+// than reading a per-grid netCDF object - this grid type has no grid
+// subgroups at all. For each displacement axis this grid carries: rebases
+// that axis's own layer-wide CSR segment offsets to this grid's own node
+// range, then copies out its own segments_{e,n,u} compound records and
+// paired function_type_{e,n,u} entries (every entry must be linear/code 0 -
+// the only ragged segment shape RaggedGridData implements). Every parsed
+// segment is combined into a single, already-scaled RaggedSegment (see
+// RaggedSegment's own documentation for why startDay is already the
+// combined reference_day + day_delta rather than the two kept apart).
+RaggedGridContent parseRaggedGridContent( const RaggedLayerArrays &arrays, std::size_t gridIndex )
 {
-    const auto affineCoeffs = readAffineCoeffs( gridGroup );
-    const std::uint32_t iNodeCount = gridGroup.readNumericAttribute<std::uint32_t>( "iNodeCount" )[0];
-    const std::uint32_t jNodeCount = gridGroup.readNumericAttribute<std::uint32_t>( "jNodeCount" )[0];
+    std::array<double, 6> affineCoeffs{};
+    std::copy(
+        arrays.affineCoeffs.begin() + static_cast<std::ptrdiff_t>( gridIndex * 6 ),
+        arrays.affineCoeffs.begin() + static_cast<std::ptrdiff_t>( gridIndex * 6 + 6 ), affineCoeffs.begin() );
+    const std::uint32_t iNodeCount = arrays.iNodeCount[gridIndex];
+    const std::uint32_t jNodeCount = arrays.jNodeCount[gridIndex];
     GridGeometry geometry( affineCoeffs, iNodeCount, jNodeCount, kCellTolerance );
 
     const std::size_t nodeCount = static_cast<std::size_t>( iNodeCount ) * jNodeCount;
-    const std::size_t axisCount = raggedAxisCount( gridGroup );
-
-    const auto referenceDay = gridGroup.variable( "reference_day" ).readValues<std::uint32_t>();
+    const std::size_t nodeBase = arrays.gridNodeOffset[gridIndex];
 
     std::vector<bool> hasEndDayPerNode;
-    if( gridGroup.hasVariable( "has_end_day" ) ) {
-        const auto raw = gridGroup.variable( "has_end_day" ).readValues<std::uint8_t>();
-        hasEndDayPerNode.resize( raw.size() );
-        for( std::size_t node = 0; node < raw.size(); ++node ) {
-            hasEndDayPerNode[node] = raw[node] != 0;
-        }
+    if( ! arrays.hasEndDayPerNode.empty() ) {
+        hasEndDayPerNode.assign(
+            arrays.hasEndDayPerNode.begin() + static_cast<std::ptrdiff_t>( nodeBase ),
+            arrays.hasEndDayPerNode.begin() + static_cast<std::ptrdiff_t>( nodeBase + nodeCount ) );
     }
 
     // One flat, pre-sized std::vector<RaggedSegment> per axis (built below),
     // rather than one per node - see NetcdfRaggedNodeValueSource's own class
     // comment for why (a real, measured heap-fragmentation problem the
     // one-vector-per-node shape had).
-    std::vector<std::vector<std::size_t>> segmentOffsetsByAxis( axisCount );
-    std::vector<std::vector<RaggedSegment>> segmentsByAxis( axisCount );
+    std::vector<std::vector<std::size_t>> segmentOffsetsByAxis( arrays.axisCount );
+    std::vector<std::vector<RaggedSegment>> segmentsByAxis( arrays.axisCount );
 
-    for( std::size_t axis = 0; axis < axisCount; ++axis ) {
-        const std::string suffix( 1, kComponentLetters[axis] );
-        const auto counts = gridGroup.variable( "segment_count_" + suffix ).readValues<std::uint16_t>();
+    for( std::size_t axis = 0; axis < arrays.axisCount; ++axis ) {
+        const auto &globalOffsets = arrays.nodeSegmentOffset[axis];
 
-        // The CSR-style offsets into segments_{suffix}/function_type_{suffix}
-        // for each node's own slice - a running sum of counts,
-        // reconstructed once per (grid, axis) rather than per query.
+        // This grid's own node-local CSR offsets, rebased from the
+        // layer-wide ones above at nodeBase.
         std::vector<std::size_t> offsets( nodeCount + 1, 0 );
-        for( std::size_t node = 0; node < nodeCount; ++node ) {
-            offsets[node + 1] = offsets[node] + counts[node];
+        for( std::size_t local = 0; local < nodeCount; ++local ) {
+            offsets[local + 1] = offsets[local] + ( globalOffsets[nodeBase + local + 1] - globalOffsets[nodeBase + local] );
         }
 
-        const auto startValues =
-            gridGroup.variable( "segments_" + suffix ).readCompoundField<std::int32_t>( "segment_start_value" );
-        const auto dayDeltas = gridGroup.variable( "segments_" + suffix ).readCompoundField<std::uint16_t>( "day_delta" );
-        const auto scaleFactors =
-            gridGroup.variable( "segments_" + suffix ).readCompoundField<std::int16_t>( "segment_scale_factor" );
-        const auto functionTypes = gridGroup.variable( "function_type_" + suffix ).readValues<std::uint8_t>();
-
-        // offsets[nodeCount] is the total segment count for this axis - the
-        // whole buffer is allocated once, at that exact size, then filled
-        // node by node in place (no per-node allocation, no reallocation).
         std::vector<RaggedSegment> flatSegments( offsets[nodeCount] );
-        for( std::size_t node = 0; node < nodeCount; ++node ) {
-            for( std::size_t k = offsets[node]; k < offsets[node + 1]; ++k ) {
-                if( functionTypes[k] != 0 ) {
+        for( std::size_t local = 0; local < nodeCount; ++local ) {
+            const std::size_t absNode = nodeBase + local;
+            const std::size_t globalStart = globalOffsets[absNode];
+            const std::size_t globalEnd = globalOffsets[absNode + 1];
+            for( std::size_t k = globalStart; k < globalEnd; ++k ) {
+                if( arrays.segmentFunctionTypes[axis][k] != 0 ) {
                     throw std::runtime_error(
-                        "ggrxf_reader: function_type_" + suffix + " code " + std::to_string( functionTypes[k] )
+                        "ggrxf_reader: function_type_" + std::string( 1, kComponentLetters[axis] ) + " code "
+                        + std::to_string( arrays.segmentFunctionTypes[axis][k] )
                         + " is not implemented (only linear, code 0, is)" );
                 }
-                RaggedSegment &segment = flatSegments[k];
-                segment.startDay = static_cast<std::int64_t>( referenceDay[node] ) + static_cast<std::int64_t>( dayDeltas[k] );
-                segment.startValue = static_cast<double>( startValues[k] ) * kSegmentStartValueScale;
-                segment.ratePerDay = static_cast<double>( scaleFactors[k] ) * kSegmentScaleFactorLinearScale;
+                RaggedSegment &segment = flatSegments[offsets[local] + ( k - globalStart )];
+                segment.startDay = static_cast<std::int64_t>( arrays.referenceDay[absNode] )
+                    + static_cast<std::int64_t>( arrays.segmentDayDeltas[axis][k] );
+                segment.startValue = static_cast<double>( arrays.segmentStartValues[axis][k] ) * kSegmentStartValueScale;
+                segment.ratePerDay =
+                    static_cast<double>( arrays.segmentScaleFactors[axis][k] ) * kSegmentScaleFactorLinearScale;
             }
         }
         segmentOffsetsByAxis[axis] = std::move( offsets );
@@ -523,113 +615,133 @@ RaggedGridContent parseRaggedGridContent( const netcdf::NetcdfGroup &gridGroup )
     }
 
     auto valueSource = std::make_unique<NetcdfRaggedNodeValueSource>(
-        jNodeCount, axisCount, std::move( hasEndDayPerNode ), std::move( segmentOffsetsByAxis ), std::move( segmentsByAxis ) );
+        jNodeCount, arrays.axisCount, std::move( hasEndDayPerNode ), std::move( segmentOffsetsByAxis ),
+        std::move( segmentsByAxis ) );
     return RaggedGridContent{ std::move( geometry ), RaggedGridData( std::move( valueSource ) ) };
 }
 
-// Parses gridGroup's own geometry/data only, as a plain leaf Grid - the
-// ragged sibling to parseScalarLeafGrid() above, same rationale.
-std::unique_ptr<Grid<RaggedGridData>> parseRaggedLeafGrid( const netcdf::NetcdfGroup &gridGroup )
+// Builds gridIndex's own geometry/data as a plain leaf Grid - the ragged
+// sibling to parseScalarLeafGrid() above, same rationale.
+std::unique_ptr<Grid<RaggedGridData>> parseRaggedLeafGrid( const RaggedLayerArrays &arrays, std::size_t gridIndex )
 {
-    auto content = parseRaggedGridContent( gridGroup );
+    auto content = parseRaggedGridContent( arrays, gridIndex );
     return std::make_unique<Grid<RaggedGridData>>( content.geometry, std::move( content.data ) );
 }
 
-// The ragged sibling to collectScalarDescendants() above, same rationale.
+// Recursively collects gridIndex's entire descendant subtree - at every
+// depth, not just its own direct children - into `descendants`, each paired
+// with its own required gridPriority read straight from `arrays` (every
+// grid always carries one, see RaggedLayerArrays' own class comment; a
+// descendant's own value is validated by validateAndAddDescendants() below,
+// not here). The ragged sibling to collectScalarDescendants() above, same
+// rationale, but walking childrenOf (parent grid index -> child grid
+// indices, built once in parseRaggedLayer() below from parent_grid_index)
+// instead of netCDF subgroup nesting.
 void collectRaggedDescendants(
-    const netcdf::NetcdfGroup &gridGroup, std::vector<DescendantEntry<RaggedGridData>> &descendants )
+    std::size_t gridIndex, const RaggedLayerArrays &arrays,
+    const std::unordered_map<std::uint32_t, std::vector<std::size_t>> &childrenOf,
+    std::vector<DescendantEntry<RaggedGridData>> &descendants )
 {
-    for( const auto &childGroup : gridGroup.subgroups() ) {
+    const auto found = childrenOf.find( static_cast<std::uint32_t>( gridIndex ) );
+    if( found == childrenOf.end() ) {
+        return;
+    }
+    for( const std::size_t childIndex : found->second ) {
         descendants.push_back( DescendantEntry<RaggedGridData>{
-            parseRaggedLeafGrid( childGroup ), readRequiredGridPriority( childGroup ), childGroup.name() } );
-        collectRaggedDescendants( childGroup, descendants );
+            parseRaggedLeafGrid( arrays, childIndex ), arrays.gridPriority[childIndex],
+            "grid index " + std::to_string( childIndex ) } );
+        collectRaggedDescendants( childIndex, arrays, childrenOf, descendants );
     }
 }
 
-// The ragged sibling to parseScalarRootGrid() above, same rationale.
-std::unique_ptr<Grid<RaggedGridData>> parseRaggedRootGrid( const netcdf::NetcdfGroup &gridGroup )
-{
-    if( gridGroup.subgroups().empty() ) {
-        if( gridGroup.hasAttribute( "gridPriority" ) ) {
-            throw std::runtime_error(
-                "ggrxf_reader: '" + gridGroup.name() + "' has no child grids but carries gridPriority" );
-        }
-        return parseRaggedLeafGrid( gridGroup );
-    }
-
-    if( ! gridGroup.hasAttribute( "gridPriority" ) ) {
-        throw std::runtime_error(
-            "ggrxf_reader: '" + gridGroup.name() + "' has child grids but no gridPriority (expected 0)" );
-    }
-    const std::uint8_t rootPriority = gridGroup.readNumericAttribute<std::uint8_t>( "gridPriority" )[0];
-    if( rootPriority != 0 ) {
-        throw std::runtime_error(
-            "ggrxf_reader: '" + gridGroup.name() + "' is a nest root with gridPriority "
-            + std::to_string( rootPriority ) + ", expected 0" );
-    }
-
-    auto content = parseRaggedGridContent( gridGroup );
-    auto root = std::make_unique<GridParent<RaggedGridData>>( content.geometry, std::move( content.data ) );
-
-    std::vector<DescendantEntry<RaggedGridData>> descendants;
-    collectRaggedDescendants( gridGroup, descendants );
-    validateAndAddDescendants( *root, std::move( descendants ) );
-    return root;
-}
-
-// Parses one ragged_segments layer group: its own reference_date, then
-// every root grid subgroup beneath it - added to the layer sorted by
-// descending size (iNodeCount), not file order. Real files never need this
-// reordering to matter for anything else (RaggedLayer's own class comment:
-// list order plays no role in root-grid resolution) - it exists purely to
-// fix a real bug in RaggedLayer's own root-grid index, confirmed directly
-// against a real file, explained here since it isn't obvious from
-// RaggedLayer's own code alone.
-//
-// RaggedLayer looks up a root grid of size S at coordinate c via:
-//   rawRow = (c - refC0Origin_) / refC0Step_
-//   primaryRow0 = floor(rawRow / S) * S
-// then looks for a grid stored under (primaryRow0, S) - see
-// RaggedLayer::resolveRootGrid(). floor(x / S) * S only ever produces an
-// exact multiple of S, so a grid is only ever found if its own row0
-// (computed the same way, at index time - see RaggedLayer::indexRootGrid())
-// is itself an exact multiple of its own size S. refC0Origin_ is fixed,
-// once, to whichever root grid happens to be added to the layer first -
-// so which grid gets picked as that reference changes whether every OTHER
-// grid's own row0 comes out as a multiple of its own size.
-//
-// Concrete example: two real, non-overlapping root grids on the same axis
-// - grid A, corner at 44.0 (in c0's own units), size 4 steps (covers
-// 44.0-48.0); grid B, corner at 128.0, size 128 steps (covers
-// 128.0-256.0).
-//
-// If A is added first (reference = 44.0): A's own row0 = (44.0-44.0)/step
-// = 0, a multiple of 4 - fine. B's own row0 = (128.0-44.0)/step = 84, not
-// a multiple of 128 - so no query anywhere inside B can ever compute a
-// primaryRow0 equal to 84 (only 0, 128, 256, ... are ever produced for
-// size 128) - B is never found, for any query point inside it.
-//
-// If B is added first instead (reference = 128.0): B's own row0 =
-// (128.0-128.0)/step = 0, a multiple of 128 - fine. A's own row0 =
-// (44.0-128.0)/step = -84, a multiple of 4 - fine too. A query at 150.0
-// (inside B) computes primaryRow0 = floor((150.0-128.0)/128)*128 = 0,
-// matching B's own stored (0, 128) - found. A query at 45.0 (inside A)
-// computes, for size 128, primaryRow0 = floor((45.0-128.0)/128)*128 =
-// -128 - nothing stored there, so size 4 is tried next: primaryRow0 =
-// floor((45.0-128.0)/4)*4 = -84, matching A's own stored (-84, 4) - found.
-//
-// So B (the larger grid) works as the reference for both grids; A (the
-// smaller one) does not. Sorting root grids descending by size before
-// adding them makes the largest one always the reference.
+// Parses one ragged_segments layer group: reads its own consolidated grid
+// arrays in full (readRaggedLayerArrays() above), builds a parent-grid-index
+// -> child-grid-indices adjacency map from parent_grid_index (one pass,
+// O(grid count)), then builds one Grid<RaggedGridData> per grid whose own
+// parent_grid_index is the root sentinel - a plain leaf Grid if childless,
+// or a GridParent whose entire descendant subtree (any depth) is flattened
+// via collectRaggedDescendants()/validateAndAddDescendants(), exactly as
+// parseScalarRootGrid() does for a scalar_with_time_function grid's own
+// subgroup nesting. Root grids are collected in ascending grid-index (file)
+// order, then re-sorted descending by size (iNodeCount) before being added
+// to the layer - see the comment on that sort below for why.
 std::unique_ptr<Layer> parseRaggedLayer( const netcdf::NetcdfGroup &layerGroup )
 {
     const double referenceDateDays = ggrxfDateToDayNumber( layerGroup.readTextAttribute( "reference_date" ) );
     auto layer = std::make_unique<RaggedLayer>( referenceDateDays );
 
-    std::vector<std::unique_ptr<Grid<RaggedGridData>>> rootGrids;
-    for( const auto &rootGroup : rootGridGroupsInFileOrder( layerGroup ) ) {
-        rootGrids.push_back( parseRaggedRootGrid( rootGroup ) );
+    const RaggedLayerArrays arrays = readRaggedLayerArrays( layerGroup );
+    const std::size_t gridCount = arrays.iNodeCount.size();
+
+    std::unordered_map<std::uint32_t, std::vector<std::size_t>> childrenOf;
+    for( std::size_t grid = 0; grid < gridCount; ++grid ) {
+        childrenOf[arrays.parentGridIndex[grid]].push_back( grid );
     }
+
+    std::vector<std::unique_ptr<Grid<RaggedGridData>>> rootGrids;
+    for( std::size_t grid = 0; grid < gridCount; ++grid ) {
+        if( arrays.parentGridIndex[grid] != kRaggedRootSentinel ) {
+            continue;   // not a root - collected as a descendant of whichever root it traces back to, below
+        }
+
+        const auto childrenFound = childrenOf.find( static_cast<std::uint32_t>( grid ) );
+        if( childrenFound == childrenOf.end() || childrenFound->second.empty() ) {
+            // A childless root's own gridPriority is meaningless (see
+            // RaggedLayerArrays' own class comment) - not read here, unlike
+            // a nest root's below.
+            rootGrids.push_back( parseRaggedLeafGrid( arrays, grid ) );
+            continue;
+        }
+
+        if( arrays.gridPriority[grid] != 0 ) {
+            throw std::runtime_error(
+                "ggrxf_reader: '" + layerGroup.name() + "' grid index " + std::to_string( grid )
+                + " is a nest root with gridPriority " + std::to_string( arrays.gridPriority[grid] ) + ", expected 0" );
+        }
+        auto content = parseRaggedGridContent( arrays, grid );
+        auto root = std::make_unique<GridParent<RaggedGridData>>( content.geometry, std::move( content.data ) );
+
+        std::vector<DescendantEntry<RaggedGridData>> descendants;
+        collectRaggedDescendants( grid, arrays, childrenOf, descendants );
+        validateAndAddDescendants( *root, std::move( descendants ) );
+        rootGrids.push_back( std::move( root ) );
+    }
+
+    // RaggedLayer looks up a root grid of size S at coordinate c via:
+    //   rawRow = (c - refC0Origin_) / refC0Step_
+    //   primaryRow0 = floor(rawRow / S) * S
+    // then looks for a grid stored under (primaryRow0, S) - see
+    // RaggedLayer::resolveRootGrid(). floor(x / S) * S only ever produces an
+    // exact multiple of S, so a grid is only ever found if its own row0
+    // (computed the same way, at index time - see RaggedLayer::indexRootGrid())
+    // is itself an exact multiple of its own size S. refC0Origin_ is fixed,
+    // once, to whichever root grid happens to be added to the layer first -
+    // so which grid gets picked as that reference changes whether every OTHER
+    // grid's own row0 comes out as a multiple of its own size.
+    //
+    // Concrete example: two real, non-overlapping root grids on the same axis
+    // - grid A, corner at 44.0 (in c0's own units), size 4 steps (covers
+    // 44.0-48.0); grid B, corner at 128.0, size 128 steps (covers
+    // 128.0-256.0).
+    //
+    // If A is added first (reference = 44.0): A's own row0 = (44.0-44.0)/step
+    // = 0, a multiple of 4 - fine. B's own row0 = (128.0-44.0)/step = 84, not
+    // a multiple of 128 - so no query anywhere inside B can ever compute a
+    // primaryRow0 equal to 84 (only 0, 128, 256, ... are ever produced for
+    // size 128) - B is never found, for any query point inside it.
+    //
+    // If B is added first instead (reference = 128.0): B's own row0 =
+    // (128.0-128.0)/step = 0, a multiple of 128 - fine. A's own row0 =
+    // (44.0-128.0)/step = -84, a multiple of 4 - fine too. A query at 150.0
+    // (inside B) computes primaryRow0 = floor((150.0-128.0)/128)*128 = 0,
+    // matching B's own stored (0, 128) - found. A query at 45.0 (inside A)
+    // computes, for size 128, primaryRow0 = floor((45.0-128.0)/128)*128 =
+    // -128 - nothing stored there, so size 4 is tried next: primaryRow0 =
+    // floor((45.0-128.0)/4)*4 = -84, matching A's own stored (-84, 4) - found.
+    //
+    // So B (the larger grid) works as the reference for both grids; A (the
+    // smaller one) does not. Sorting root grids descending by size before
+    // adding them makes the largest one always the reference.
     std::sort( rootGrids.begin(), rootGrids.end(), []( const auto &a, const auto &b ) {
         return a->geometry().iNodeCount() > b->geometry().iNodeCount();
     } );
@@ -641,10 +753,12 @@ std::unique_ptr<Layer> parseRaggedLayer( const netcdf::NetcdfGroup &layerGroup )
 
 // Parses one top-level layer group: validates interpolationMethod (must be
 // bilinear - the only method Grid's own resolution/interpolation
-// implements), then dispatches on whether this layer carries a
-// reference_date - present only for a ragged_segments layer, absent only
-// for a scalar_with_time_function one; a real file's own layers are never
-// a mix of both grid types.
+// implements), then dispatches on this layer's own grid_type attribute -
+// every grid within one layer, at every nesting depth, is required to share
+// this one value, so a layer's own grid_type fully determines which shape
+// (scalar_with_time_function's grid subgroups, or ragged_segments'
+// consolidated layer-wide arrays) the rest of this layer group is parsed
+// as.
 std::unique_ptr<Layer> parseLayer( const netcdf::NetcdfGroup &layerGroup )
 {
     const std::string interpolationMethod = layerGroup.readTextAttribute( "interpolationMethod" );
@@ -654,10 +768,16 @@ std::unique_ptr<Layer> parseLayer( const netcdf::NetcdfGroup &layerGroup )
             + "' is not implemented (only bilinear is)" );
     }
 
-    if( layerGroup.hasAttribute( "reference_date" ) ) {
+    const std::string gridType = layerGroup.readTextAttribute( "grid_type" );
+    if( gridType == "ragged_segments" ) {
         return parseRaggedLayer( layerGroup );
     }
-    return parseScalarLayer( layerGroup );
+    if( gridType == "scalar_with_time_function" ) {
+        return parseScalarLayer( layerGroup );
+    }
+    throw std::runtime_error(
+        "ggrxf_reader: '" + layerGroup.name() + "'.grid_type '" + gridType
+        + "' is not implemented (only scalar_with_time_function/ragged_segments are)" );
 }
 
 } // namespace
