@@ -46,6 +46,7 @@ target_link_libraries(snap_link_deps INTERFACE
     Boost::regex
     ${BOOST_SYSTEM_LIB}
     Threads::Threads
+    netCDF::netcdf
     $<$<PLATFORM_ID:Linux>:m>)
 
 # ── snaplib ───────────────────────────────────────────────────────────────────
