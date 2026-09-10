@@ -16,6 +16,10 @@
 #include "util/fileutil.h"
 #include "util/pi.h"
 
+// Matches crdsys_rfdef_linzdef.cpp's own VERSIONLEN - both files parse the
+// same trailing version token syntax on a DEFORMATION line.
+#define VERSIONLEN 8
+
 namespace {
 
 // GGRXF displacement values are always stored in millimetres
@@ -35,7 +39,9 @@ constexpr double kMillimetresToMetres = 0.001;
 struct GgrxfModel
 {
     std::string path;
+    std::string version;   // empty: no version declared in coordsys.def
     std::optional<bool> loadSucceeded;   // nullopt: not yet attempted
+    std::string loadError;   // set alongside loadSucceeded==false, for rf_ggrxf_describe
     std::vector<std::unique_ptr<deformation::Layer>> layers;
 };
 
@@ -63,7 +69,23 @@ int loadGgrxfModel( GgrxfModel &model )
         return *model.loadSucceeded ? OK : INVALID_DATA;
     }
     try {
-        model.layers = deformation::parseGgrxfFile( model.path );
+        deformation::GgrxfFile file = deformation::parseGgrxfFile( model.path );
+
+        // An empty model.version means no version was declared in
+        // coordsys.def, so there's nothing to check against - matches
+        // rfdef_parse_linzdef's own optional-version semantics. A missing
+        // modelVersion attribute compares unequal to any declared version
+        // (std::optional's own != against a bare value), so it's treated
+        // the same as a real mismatch, not as "nothing to check".
+        if( ! model.version.empty() && file.modelVersion != model.version ) {
+            model.loadError = "GGRXF file's modelVersion (" +
+                ( file.modelVersion ? "\"" + *file.modelVersion + "\"" : std::string( "none" ) ) +
+                ") does not match the version declared in coordsys.def (\"" + model.version + "\")";
+            model.loadSucceeded = false;
+            return INVALID_DATA;
+        }
+
+        model.layers = std::move( file.layers );
         model.loadSucceeded = true;
         return OK;
     } catch( const std::logic_error & ) {
@@ -90,6 +112,7 @@ void *rf_ggrxf_copy( void *data )
 {
     auto copy = std::make_unique<GgrxfModel>();
     copy->path = asGgrxfModel( data )->path;
+    copy->version = asGgrxfModel( data )->version;
     return copy.release();
 }
 
@@ -105,8 +128,9 @@ int rf_ggrxf_identical( void *data1, void *data2 )
 // Describes this deformation model for output - the GGRXF sibling to
 // rf_linzdef_describe. Deliberately minimal: unlike LINZDEF's own compiled
 // binary, GGRXF has no single per-file title/version to extract, only a
-// per-layer description - so this reports only the file path and whether
-// it loaded successfully.
+// per-layer description - so this reports only the file path, whether it
+// loaded successfully, and (on failure) the specific reason if one was
+// recorded, e.g. a modelVersion mismatch (see loadGgrxfModel()).
 int rf_ggrxf_describe( ref_frame *rf, output_string_def *os )
 {
     ref_deformation *def = rf->def;
@@ -117,9 +141,15 @@ int rf_ggrxf_describe( ref_frame *rf, output_string_def *os )
 
     write_output_string( os, "GGRXF deformation model\n" );
     if( loadGgrxfModel( *model ) != OK ) {
-        write_output_string( os, "   Cannot load from file " );
-        write_output_string( os, model->path.c_str() );
-        write_output_string( os, "\n" );
+        if( ! model->loadError.empty() ) {
+            write_output_string( os, "   " );
+            write_output_string( os, model->loadError.c_str() );
+            write_output_string( os, "\n" );
+        } else {
+            write_output_string( os, "   Cannot load from file " );
+            write_output_string( os, model->path.c_str() );
+            write_output_string( os, "\n" );
+        }
     } else {
         write_output_string( os, "   " );
         write_output_string( os, model->path.c_str() );
@@ -180,10 +210,10 @@ int rf_ggrxf_calc( ref_frame *rf, double lon, double lat, double epoch, double d
 
 } // namespace
 
-// Parses a "DEFORMATION GGRXF <filename>" config clause - the GGRXF
-// sibling to rfdef_parse_linzdef. Only records the file path here; the
-// file itself is opened lazily on first real calc_denu()/describe_func()
-// call (see loadGgrxfModel()).
+// Parses a "DEFORMATION GGRXF <filename> [version]" config clause - the
+// GGRXF sibling to rfdef_parse_linzdef. Only records the file path and the
+// optional declared version here; the file itself is opened lazily on
+// first real calc_denu()/describe_func() call (see loadGgrxfModel()).
 int rfdef_parse_ggrxf( ref_deformation *def, input_string_def *is )
 {
     char filename[MAX_FILENAME_LEN];
@@ -202,8 +232,15 @@ int rfdef_parse_ggrxf( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
+    // The trailing version token is optional, the same as
+    // rfdef_parse_linzdef's own version argument - absence means "don't
+    // check the file's own modelVersion" (see loadGgrxfModel()).
+    char version[VERSIONLEN + 1] = "";
+    next_string_field( is, version, sizeof( version ) );
+
     auto model = std::make_unique<GgrxfModel>();
     model->path = ggrxfFile;
+    model->version = version;
     def->data = model.release();
     def->delete_func = rf_ggrxf_delete;
     def->copy_func = rf_ggrxf_copy;

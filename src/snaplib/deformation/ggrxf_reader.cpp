@@ -782,14 +782,19 @@ std::unique_ptr<Layer> parseLayer( const netcdf::NetcdfGroup &layerGroup )
 
 } // namespace
 
-std::vector<std::unique_ptr<Layer>> parseGgrxfFile( const std::string &path )
+GgrxfFile parseGgrxfFile( const std::string &path )
 {
     netcdf::NetcdfFile file( path );
-    std::vector<std::unique_ptr<Layer>> layers;
-    for( const auto &layerGroup : file.rootGroup().subgroups() ) {
-        layers.push_back( parseLayer( layerGroup ) );
+    const auto rootGroup = file.rootGroup();
+
+    GgrxfFile result;
+    for( const auto &layerGroup : rootGroup.subgroups() ) {
+        result.layers.push_back( parseLayer( layerGroup ) );
     }
-    return layers;
+    if( rootGroup.hasAttribute( "modelVersion" ) ) {
+        result.modelVersion = rootGroup.readTextAttribute( "modelVersion" );
+    }
+    return result;
 }
 
 } // namespace deformation
