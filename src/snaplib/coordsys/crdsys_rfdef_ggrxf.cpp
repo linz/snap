@@ -208,14 +208,22 @@ int rf_ggrxf_calc( ref_frame *rf, double lon, double lat, double epoch, double d
         double totalE = 0.0;
         double totalN = 0.0;
         double totalU = 0.0;
+        bool anyLayerMatched = false;
         for( const auto &layer : model->layers ) {
             const auto contribution = layer->evaluate( latDeg, lonDeg, queryDateDays );
             if( ! contribution ) {
                 continue;
             }
+            anyLayerMatched = true;
             totalE += ( *contribution )[0];
             totalN += ( *contribution )[1];
             totalU += ( *contribution )[2];
+        }
+        if( ! anyLayerMatched ) {
+            throw std::runtime_error(
+                "GGRXF model " + model->path + " has no layer covering lat=" +
+                std::to_string( latDeg ) + " lon=" + std::to_string( lonDeg ) +
+                " date=" + std::to_string( queryDateDays ) );
         }
         denu[0] = totalE * kMillimetresToMetres;
         denu[1] = totalN * kMillimetresToMetres;
