@@ -151,12 +151,53 @@ std::vector<netcdf::NetcdfGroup> rootGridGroupsInFileOrder( const netcdf::Netcdf
     return groups;
 }
 
+// Determines whether interpolationCrsWkt (GGRXF_DEFORMATION_FORMAT.md
+// "Container": real OGC WKT text for the CRS affineCoeffs coordinates are
+// expressed in) declares its geodetic latitude axis before its geodetic
+// longitude axis - GGXF's own convention for reading a file's own (c0, c1)
+// identity from a CRS WKT's AXIS[...] clause order (GGXF's own
+// nodeCoordinateParametersFromCrsWkt), applied here as a plain substring
+// search for each axis clause's own literal name, not a general CRS WKT
+// grammar parser - this reader only ever needs to distinguish these two
+// specific axis names, not parse arbitrary CRS WKT text. Throws if either
+// axis name is absent - an unsupported or malformed interpolation CRS, not
+// something to guess an order for.
+bool wktDeclaresLatitudeFirst( const std::string &interpolationCrsWkt )
+{
+    const auto latitudePos = interpolationCrsWkt.find( "geodetic latitude" );
+    const auto longitudePos = interpolationCrsWkt.find( "geodetic longitude" );
+    if( latitudePos == std::string::npos || longitudePos == std::string::npos ) {
+        throw std::runtime_error(
+            "ggrxf_reader: interpolationCrsWkt does not declare both a geodetic latitude axis and "
+            "a geodetic longitude axis" );
+    }
+    return latitudePos < longitudePos;
+}
+
+// Reorders one grid's own affineCoeffs so its (c0, c1) is always (latitude,
+// longitude), regardless of the axis order interpolationCrsWkt actually
+// declares for this file - swaps the two axes' own coefficient rows
+// ([0..2], [3..5]) when latitudeFirst is false, otherwise leaves coeffs
+// unchanged. Applied once, here, at parse time, rather than carrying axis
+// order as a fact every downstream caller (rf_ggrxf_calc, GridGeometry)
+// would otherwise have to separately account for.
+void canonicalizeAffineCoeffsAxisOrder( std::array<double, 6> &coeffs, bool latitudeFirst )
+{
+    if( latitudeFirst ) {
+        return;
+    }
+    for( std::size_t k = 0; k < 3; ++k ) {
+        std::swap( coeffs[k], coeffs[k + 3] );
+    }
+}
+
 // Reads and validates one grid group's own affineCoeffs attribute (node
 // (i, j) <-> world (c0, c1) - see GridGeometry's own constructor for what
-// each element means). Throws if the file's own attribute isn't exactly
-// length 6 - a malformed file, or this reader misreading it, either way
-// not safe to proceed past silently.
-std::array<double, 6> readAffineCoeffs( const netcdf::NetcdfGroup &gridGroup )
+// each element means), canonicalized to (latitude, longitude) axis order
+// (see canonicalizeAffineCoeffsAxisOrder() above). Throws if the file's own
+// attribute isn't exactly length 6 - a malformed file, or this reader
+// misreading it, either way not safe to proceed past silently.
+std::array<double, 6> readAffineCoeffs( const netcdf::NetcdfGroup &gridGroup, bool latitudeFirst )
 {
     const auto raw = gridGroup.readNumericAttribute<double>( "affineCoeffs" );
     if( raw.size() != 6 ) {
@@ -166,6 +207,7 @@ std::array<double, 6> readAffineCoeffs( const netcdf::NetcdfGroup &gridGroup )
     }
     std::array<double, 6> coeffs{};
     std::copy( raw.begin(), raw.end(), coeffs.begin() );
+    canonicalizeAffineCoeffsAxisOrder( coeffs, latitudeFirst );
     return coeffs;
 }
 
@@ -251,9 +293,9 @@ struct ScalarGridContent
 // canonical-component mapping (see scalarCanonicalAxisIndices() above) -
 // one entry per raw file axis, in raw file-axis order.
 ScalarGridContent parseScalarGridContent(
-    const netcdf::NetcdfGroup &gridGroup, const std::vector<std::size_t> &canonicalAxisIndices )
+    const netcdf::NetcdfGroup &gridGroup, const std::vector<std::size_t> &canonicalAxisIndices, bool latitudeFirst )
 {
-    const auto affineCoeffs = readAffineCoeffs( gridGroup );
+    const auto affineCoeffs = readAffineCoeffs( gridGroup, latitudeFirst );
     const std::uint32_t iNodeCount = gridGroup.readNumericAttribute<std::uint32_t>( "iNodeCount" )[0];
     const std::uint32_t jNodeCount = gridGroup.readNumericAttribute<std::uint32_t>( "jNodeCount" )[0];
     GridGeometry geometry( affineCoeffs, iNodeCount, jNodeCount, kCellTolerance );
@@ -295,9 +337,9 @@ ScalarGridContent parseScalarGridContent(
 // are walked separately by that same function, never preserved as this
 // leaf's own children).
 std::unique_ptr<Grid<ScalarGridData>> parseScalarLeafGrid(
-    const netcdf::NetcdfGroup &gridGroup, const std::vector<std::size_t> &canonicalAxisIndices )
+    const netcdf::NetcdfGroup &gridGroup, const std::vector<std::size_t> &canonicalAxisIndices, bool latitudeFirst )
 {
-    auto content = parseScalarGridContent( gridGroup, canonicalAxisIndices );
+    auto content = parseScalarGridContent( gridGroup, canonicalAxisIndices, latitudeFirst );
     return std::make_unique<Grid<ScalarGridData>>( content.geometry, std::move( content.data ) );
 }
 
@@ -311,13 +353,13 @@ std::unique_ptr<Grid<ScalarGridData>> parseScalarLeafGrid(
 // GridParent's own children_, not a multi-level Grid<T> tree.
 void collectScalarDescendants(
     const netcdf::NetcdfGroup &gridGroup, std::vector<DescendantEntry<ScalarGridData>> &descendants,
-    const std::vector<std::size_t> &canonicalAxisIndices )
+    const std::vector<std::size_t> &canonicalAxisIndices, bool latitudeFirst )
 {
     for( const auto &childGroup : gridGroup.subgroups() ) {
         descendants.push_back( DescendantEntry<ScalarGridData>{
-            parseScalarLeafGrid( childGroup, canonicalAxisIndices ), readRequiredGridPriority( childGroup ),
+            parseScalarLeafGrid( childGroup, canonicalAxisIndices, latitudeFirst ), readRequiredGridPriority( childGroup ),
             childGroup.name() } );
-        collectScalarDescendants( childGroup, descendants, canonicalAxisIndices );
+        collectScalarDescendants( childGroup, descendants, canonicalAxisIndices, latitudeFirst );
     }
 }
 
@@ -330,14 +372,14 @@ void collectScalarDescendants(
 // collectScalarDescendants() and validateAndAddDescendants() - becomes its
 // own children_, in ascending gridPriority order.
 std::unique_ptr<Grid<ScalarGridData>> parseScalarRootGrid(
-    const netcdf::NetcdfGroup &gridGroup, const std::vector<std::size_t> &canonicalAxisIndices )
+    const netcdf::NetcdfGroup &gridGroup, const std::vector<std::size_t> &canonicalAxisIndices, bool latitudeFirst )
 {
     if( gridGroup.subgroups().empty() ) {
         if( gridGroup.hasAttribute( "gridPriority" ) ) {
             throw std::runtime_error(
                 "ggrxf_reader: '" + gridGroup.name() + "' has no child grids but carries gridPriority" );
         }
-        return parseScalarLeafGrid( gridGroup, canonicalAxisIndices );
+        return parseScalarLeafGrid( gridGroup, canonicalAxisIndices, latitudeFirst );
     }
 
     if( ! gridGroup.hasAttribute( "gridPriority" ) ) {
@@ -351,11 +393,11 @@ std::unique_ptr<Grid<ScalarGridData>> parseScalarRootGrid(
             + std::to_string( rootPriority ) + ", expected 0" );
     }
 
-    auto content = parseScalarGridContent( gridGroup, canonicalAxisIndices );
+    auto content = parseScalarGridContent( gridGroup, canonicalAxisIndices, latitudeFirst );
     auto root = std::make_unique<GridParent<ScalarGridData>>( content.geometry, std::move( content.data ) );
 
     std::vector<DescendantEntry<ScalarGridData>> descendants;
-    collectScalarDescendants( gridGroup, descendants, canonicalAxisIndices );
+    collectScalarDescendants( gridGroup, descendants, canonicalAxisIndices, latitudeFirst );
     validateAndAddDescendants( *root, std::move( descendants ) );
     return root;
 }
@@ -416,13 +458,13 @@ void parseTimeFunctions( const netcdf::NetcdfGroup &layerGroup, ScalarLayer &lay
 // by gridPriority - see ScalarLayer's own class comment - so no reordering
 // happens here, unlike a nest root's own children, see parseScalarRootGrid()
 // above).
-std::unique_ptr<Layer> parseScalarLayer( const netcdf::NetcdfGroup &layerGroup )
+std::unique_ptr<Layer> parseScalarLayer( const netcdf::NetcdfGroup &layerGroup, bool latitudeFirst )
 {
     auto layer = std::make_unique<ScalarLayer>();
     parseTimeFunctions( layerGroup, *layer );
     const auto canonicalAxisIndices = scalarCanonicalAxisIndices( layerGroup );
     for( const auto &rootGroup : rootGridGroupsInFileOrder( layerGroup ) ) {
-        layer->addRootGrid( parseScalarRootGrid( rootGroup, canonicalAxisIndices ) );
+        layer->addRootGrid( parseScalarRootGrid( rootGroup, canonicalAxisIndices, latitudeFirst ) );
     }
     return layer;
 }
@@ -477,11 +519,23 @@ std::size_t raggedLayerAxisCount( const netcdf::NetcdfGroup &layerGroup )
 }
 
 // Reads layerGroup's own consolidated grid/node/segment arrays in full -
-// see RaggedLayerArrays' own class comment.
-RaggedLayerArrays readRaggedLayerArrays( const netcdf::NetcdfGroup &layerGroup )
+// see RaggedLayerArrays' own class comment. Every grid's own affineCoeffs
+// entry is canonicalized to (latitude, longitude) axis order in place here
+// (see canonicalizeAffineCoeffsAxisOrder()), the ragged sibling to
+// readAffineCoeffs()'s own per-grid canonicalization for a
+// scalar_with_time_function grid.
+RaggedLayerArrays readRaggedLayerArrays( const netcdf::NetcdfGroup &layerGroup, bool latitudeFirst )
 {
     RaggedLayerArrays arrays;
     arrays.affineCoeffs = layerGroup.variable( "affineCoeffs" ).readValues<double>();
+    if( ! latitudeFirst ) {
+        const std::size_t gridCount = arrays.affineCoeffs.size() / 6;
+        for( std::size_t grid = 0; grid < gridCount; ++grid ) {
+            for( std::size_t k = 0; k < 3; ++k ) {
+                std::swap( arrays.affineCoeffs[grid * 6 + k], arrays.affineCoeffs[grid * 6 + k + 3] );
+            }
+        }
+    }
     arrays.iNodeCount = layerGroup.variable( "iNodeCount" ).readValues<std::uint32_t>();
     arrays.jNodeCount = layerGroup.variable( "jNodeCount" ).readValues<std::uint32_t>();
     arrays.gridPriority = layerGroup.variable( "gridPriority" ).readValues<std::uint8_t>();
@@ -665,12 +719,12 @@ void collectRaggedDescendants(
 // subgroup nesting. Root grids are collected in ascending grid-index (file)
 // order, then re-sorted descending by size (iNodeCount) before being added
 // to the layer - see the comment on that sort below for why.
-std::unique_ptr<Layer> parseRaggedLayer( const netcdf::NetcdfGroup &layerGroup )
+std::unique_ptr<Layer> parseRaggedLayer( const netcdf::NetcdfGroup &layerGroup, bool latitudeFirst )
 {
     const double referenceDateDays = ggrxfDateToDayNumber( layerGroup.readTextAttribute( "reference_date" ) );
     auto layer = std::make_unique<RaggedLayer>( referenceDateDays );
 
-    const RaggedLayerArrays arrays = readRaggedLayerArrays( layerGroup );
+    const RaggedLayerArrays arrays = readRaggedLayerArrays( layerGroup, latitudeFirst );
     const std::size_t gridCount = arrays.iNodeCount.size();
 
     std::unordered_map<std::uint32_t, std::vector<std::size_t>> childrenOf;
@@ -759,7 +813,7 @@ std::unique_ptr<Layer> parseRaggedLayer( const netcdf::NetcdfGroup &layerGroup )
 // (scalar_with_time_function's grid subgroups, or ragged_segments'
 // consolidated layer-wide arrays) the rest of this layer group is parsed
 // as.
-std::unique_ptr<Layer> parseLayer( const netcdf::NetcdfGroup &layerGroup )
+std::unique_ptr<Layer> parseLayer( const netcdf::NetcdfGroup &layerGroup, bool latitudeFirst )
 {
     const std::string interpolationMethod = layerGroup.readTextAttribute( "interpolationMethod" );
     if( interpolationMethod != "bilinear" ) {
@@ -770,10 +824,10 @@ std::unique_ptr<Layer> parseLayer( const netcdf::NetcdfGroup &layerGroup )
 
     const std::string gridType = layerGroup.readTextAttribute( "grid_type" );
     if( gridType == "ragged_segments" ) {
-        return parseRaggedLayer( layerGroup );
+        return parseRaggedLayer( layerGroup, latitudeFirst );
     }
     if( gridType == "scalar_with_time_function" ) {
-        return parseScalarLayer( layerGroup );
+        return parseScalarLayer( layerGroup, latitudeFirst );
     }
     throw std::runtime_error(
         "ggrxf_reader: '" + layerGroup.name() + "'.grid_type '" + gridType
@@ -787,9 +841,16 @@ GgrxfFile parseGgrxfFile( const std::string &path )
     netcdf::NetcdfFile file( path );
     const auto rootGroup = file.rootGroup();
 
+    // interpolationCrsWkt is required (GGRXF_DEFORMATION_FORMAT.md
+    // "Container") - read once here, since every layer's own grids share
+    // this file's one interpolation CRS, and used only to determine axis
+    // order (see wktDeclaresLatitudeFirst()); nothing else in the WKT text
+    // is read.
+    const bool latitudeFirst = wktDeclaresLatitudeFirst( rootGroup.readTextAttribute( "interpolationCrsWkt" ) );
+
     GgrxfFile result;
     for( const auto &layerGroup : rootGroup.subgroups() ) {
-        result.layers.push_back( parseLayer( layerGroup ) );
+        result.layers.push_back( parseLayer( layerGroup, latitudeFirst ) );
     }
     if( rootGroup.hasAttribute( "modelVersion" ) ) {
         result.modelVersion = rootGroup.readTextAttribute( "modelVersion" );

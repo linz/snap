@@ -26,19 +26,24 @@ struct GgrxfFile
 // Scoped to exactly what a real producer's own files carry and what a real
 // reference reader actually reads back, confirmed directly against both
 // rather than the full GGRXF spec: no container/root-level parsing at all
-// beyond modelVersion (Conventions/content/CRS WKT/root parameters.* are
-// never read); interpolationMethod must be "bilinear" (throws otherwise);
-// only linear/step/ramp time functions and only linear (function_type code
-// 0) ragged segments are supported, matching TimeFunction's/RaggedGridData's
+// beyond modelVersion and interpolationCrsWkt (Conventions/content/root
+// parameters.* are never read, and interpolationCrsWkt itself is only ever
+// read for its AXIS[...] clause order, see wktDeclaresLatitudeFirst() in
+// ggrxf_reader.cpp - no other part of its CRS text is parsed);
+// interpolationMethod must be "bilinear" (throws otherwise); only
+// linear/step/ramp time functions and only linear (function_type code 0)
+// ragged segments are supported, matching TimeFunction's/RaggedGridData's
 // own scope; has_end_day is read and passed through to ScalarGridData's/
 // RaggedGridData's own has_end_day handling (which throws if it's ever
 // true - not implemented, and no real file sets it, see ScalarGridData's
 // own has_end_day comment).
 //
 // Every returned Layer's own evaluate(c0, c1, ...) expects (c0, c1) in
-// whichever axis order this file's own affineCoeffs use - assumed to be
-// (latitude, longitude), matching this project's own fixed interpolation
-// CRS, rather than parsed from interpolationCrsWkt generically.
+// (latitude, longitude) order, regardless of which axis order this file's
+// own interpolationCrsWkt actually declares - every grid's own affineCoeffs
+// is canonicalized to that order at parse time (throwing if
+// interpolationCrsWkt doesn't clearly declare both axes), so a caller never
+// needs to know or check a particular file's own declared order itself.
 GgrxfFile parseGgrxfFile( const std::string &path );
 
 } // namespace deformation
