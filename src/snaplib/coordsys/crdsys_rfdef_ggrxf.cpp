@@ -1,5 +1,6 @@
 #include "snapconfig.h"
 
+#include <cmath>
 #include <cstdio>
 #include <memory>
 #include <optional>
@@ -182,7 +183,26 @@ int rf_ggrxf_calc( ref_frame *rf, double lon, double lat, double epoch, double d
     // already uses.
     const double queryDateDays = year_as_snapdate( epoch );
     const double latDeg = lat * RTOD;
-    const double lonDeg = lon * RTOD;
+
+    // GGRXF_DEFORMATION_FORMAT.md documents this project's own producer as
+    // always storing longitude in [0, 360) - the nationwide file's own
+    // coarse grid spans the antimeridian to cover the Chatham Islands
+    // alongside the mainland in one grid, and every other, non-crossing
+    // grid's own longitude is already non-negative regardless (all real NZ
+    // territory bar the Chathams lies east of Greenwich, under 180), so
+    // rebasing into that same [0, 360) convention here is a no-op for every
+    // grid except where SNAP's own signed convention would otherwise place
+    // a Chatham Islands query on the wrong side of every grid's own extent.
+    //
+    // lon itself is not guaranteed to already be within (-180, 180] -
+    // stations read from a decimal-degrees or DMS station file carry
+    // whatever raw value the file declared, with no range check applied
+    // anywhere before this point (confirmed directly against networkr.cpp's
+    // own df_read_double()/df_read_dmsangle() station readers) - so this
+    // rebases via a real modulo, not a single one-directional shift that
+    // would only be exhaustive over an already-bounded input.
+    const double lonDegMod360 = std::fmod( lon * RTOD, 360.0 );
+    const double lonDeg = lonDegMod360 < 0.0 ? lonDegMod360 + 360.0 : lonDegMod360;
 
     try {
         double totalE = 0.0;
