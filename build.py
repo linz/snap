@@ -43,27 +43,37 @@ import platform
 import shutil
 import subprocess
 import sys
+from collections.abc import Sequence
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parent
 
 SNAP_CMD_TARGETS = [
-    "snap", "concord", "snapspec", "dat2site",
-    "snaplist", "snapconv", "snapgeoid", "snapmerge", "site2gps",
+    "snap",
+    "concord",
+    "snapspec",
+    "dat2site",
+    "snaplist",
+    "snapconv",
+    "snapgeoid",
+    "snapmerge",
+    "site2gps",
 ]
 
 BUILD_TYPE_MAP = {
     "release": "Release",
-    "debug":   "Debug",
+    "debug": "Debug",
     "profile": "Profile",
 }
 
 
 def build_dir(build_type: str) -> Path:
+    """The default build directory for build_type, when --build-dir isn't given."""
     return REPO_ROOT / f"build-{build_type}"
 
 
-def run(cmd: list[str | Path], cwd: Path | None = None, env: dict | None = None) -> None:
+def run(cmd: Sequence[str | Path], cwd: Path | None = None, env: dict[str, str] | None = None) -> None:
+    """Runs cmd, echoing it first, and exits with its return code if it fails."""
     print("+", " ".join(str(part) for part in cmd))
     result = subprocess.run(cmd, cwd=cwd or REPO_ROOT, env=env, check=False)
     if result.returncode != 0:
@@ -71,34 +81,43 @@ def run(cmd: list[str | Path], cwd: Path | None = None, env: dict | None = None)
 
 
 def configure(build_type: str, no_gui: bool, efence: bool, build_d: Path) -> None:
-    run([
-        "cmake", "-S", ".", "-B", build_d,
-        f"-DCMAKE_BUILD_TYPE={BUILD_TYPE_MAP[build_type]}",
-        f"-DSNAP_BUILD_GUI={'OFF' if no_gui else 'ON'}",
-        f"-DSNAP_EFENCE={'ON' if efence else 'OFF'}",
-    ])
+    """Runs cmake's configure step for build_d with the given build options."""
+    run(
+        [
+            "cmake",
+            "-S",
+            ".",
+            "-B",
+            build_d,
+            f"-DCMAKE_BUILD_TYPE={BUILD_TYPE_MAP[build_type]}",
+            f"-DSNAP_BUILD_GUI={'OFF' if no_gui else 'ON'}",
+            f"-DSNAP_EFENCE={'ON' if efence else 'OFF'}",
+        ]
+    )
 
 
 def touch_version_files() -> None:
-    # Each executable has one translation unit that defines GETVERSION_SET_PROGRAM_DATE,
-    # which causes getversion.h to instantiate programDate = __DATE__ " " __TIME__.
-    # Touching those files forces the compiler to re-instantiate programDate with
-    # today's date on every release build, keeping the "Version date:" output current.
+    """Touches every translation unit defining GETVERSION_SET_PROGRAM_DATE, forcing the
+    compiler to re-instantiate getversion.h's programDate (__DATE__ " " __TIME__) with
+    today's date on every release build, keeping the "Version date:" output current."""
     result = subprocess.run(
         ["grep", "-rl", "GETVERSION_SET_PROGRAM_DATE", "src"],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
     for path in result.stdout.splitlines():
         os.utime(REPO_ROOT / path, None)
 
 
 def copy_config_files(build_d: Path, build_type: str) -> None:
-    # snap locates config files in a config/ subdirectory next to the executable
-    # (system_config_dir() = image_dir() + "/config").  Merge the per-component
-    # config directories from source so the build-tree executable is runnable.
+    """Merges the per-component config directories from source into build_d's own
+    config/ subdirectory, next to the executable (system_config_dir() =
+    image_dir() + "/config"), so the build-tree executable is runnable."""
     config_dst = build_d / "src" / "config"
     config_dst.mkdir(parents=True, exist_ok=True)
-    for src_subdir in ["snap/config", "snapspec/config", "snaplist/config",
-                       "snap_manager/config"]:
+    for src_subdir in ["snap/config", "snapspec/config", "snaplist/config", "snap_manager/config"]:
         src = REPO_ROOT / "src" / src_subdir
         if src.is_dir():
             shutil.copytree(src, config_dst, dirs_exist_ok=True)
@@ -115,8 +134,9 @@ def copy_config_files(build_d: Path, build_type: str) -> None:
     python_lib_src = REPO_ROOT / "src" / "python" / "lib"
     python_dst = config_dst / "python"
     if python_lib_src.is_dir():
-        shutil.copytree(python_lib_src, python_dst / "lib", dirs_exist_ok=True,
-                         ignore=shutil.ignore_patterns("__pycache__"))
+        shutil.copytree(
+            python_lib_src, python_dst / "lib", dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__")
+        )
         for script in ("grid.py", "trig.py", "linzdeformationmodel.py"):
             shutil.copy2(REPO_ROOT / "src" / "python" / script, python_dst / script)
 
@@ -130,8 +150,8 @@ def copy_config_files(build_d: Path, build_type: str) -> None:
         shutil.copytree(help_src, help_dst, dirs_exist_ok=True)
 
     versionid = subprocess.run(
-        ["git", "rev-parse", "--short", "HEAD"],
-        cwd=REPO_ROOT, capture_output=True, text=True, check=False)
+        ["git", "rev-parse", "--short", "HEAD"], cwd=REPO_ROOT, capture_output=True, text=True, check=False
+    )
     if versionid.returncode == 0:
         (build_d / "src" / "VERSIONID").write_text(versionid.stdout.strip())
 
@@ -143,30 +163,40 @@ def copy_config_files(build_d: Path, build_type: str) -> None:
 
 
 def cmake_build(build_d: Path, targets: list[str] | None = None, jobs: int | None = None) -> None:
-    cmd: list[str | Path] = (
-        ["cmake", "--build", build_d, "--parallel"]
-        + ([str(jobs)] if jobs else [])
-        + (["--target"] + targets if targets else [])
-    )
+    """Runs cmake's build step for build_d, optionally restricted to targets."""
+    cmd: list[str | Path] = ["cmake", "--build", build_d, "--parallel"]
+    if jobs:
+        cmd.append(str(jobs))
+    if targets:
+        cmd += ["--target", *targets]
     run(cmd)
 
 
 def run_tests(build_type: str) -> None:
+    """Runs testall.pl against the already-built snap_cmd targets."""
     testall = REPO_ROOT / "regression_tests" / "testall.pl"
-    run(["perl", testall, "-e"] + (["-r"] if build_type == "release" else []))
+    cmd: list[str | Path] = ["perl", testall, "-e"]
+    if build_type == "release":
+        cmd.append("-r")
+    run(cmd)
 
 
-def mingw_build(args) -> None:
+def mingw_build(args: argparse.Namespace) -> None:
+    """Handles the --mingw cross-compile path: validates the host/type/target
+    combination, checks the required MinGW dependency env vars, then configures,
+    builds, and (for the package target) cpacks via the windows-mingw-release[-gui]
+    presets."""
     if platform.system() != "Linux":
-        print("ABORTED: --mingw cross-compiles for Windows and is only supported "
-              "when run from Linux")
+        print("ABORTED: --mingw cross-compiles for Windows and is only supported when run from Linux")
         sys.exit(1)
     if args.type != "release":
         print("ABORTED: --mingw only supports the release build type")
         sys.exit(1)
     if args.target not in ("all", "package", "clean"):
-        print(f"ABORTED: --mingw does not support the '{args.target}' target "
-              "(snap_cmd/test/install don't apply to a cross-compiled Windows build)")
+        print(
+            f"ABORTED: --mingw does not support the '{args.target}' target "
+            "(snap_cmd/test/install don't apply to a cross-compiled Windows build)"
+        )
         sys.exit(1)
 
     preset = "windows-mingw-release" if args.no_gui else "windows-mingw-release-gui"
@@ -182,8 +212,10 @@ def mingw_build(args) -> None:
         print("ABORTED: BOOST_ROOT must be set to a MinGW-built Boost tree - see BUILD.md")
         sys.exit(1)
     if not args.no_gui and not os.environ.get("WX_MINGW_CONFIG"):
-        print("ABORTED: WX_MINGW_CONFIG must be set to a MinGW-built wxWidgets "
-              "wx-config script (or pass --no-gui) - see BUILD.md")
+        print(
+            "ABORTED: WX_MINGW_CONFIG must be set to a MinGW-built wxWidgets "
+            "wx-config script (or pass --no-gui) - see BUILD.md"
+        )
         sys.exit(1)
 
     run(["cmake", "--preset", preset])
@@ -197,6 +229,7 @@ def mingw_build(args) -> None:
 
 
 def check_committed() -> None:
+    """Aborts if the working tree has uncommitted changes."""
     result = subprocess.run(["git", "diff", "--quiet", "HEAD"], cwd=REPO_ROOT, check=False)
     if result.returncode != 0:
         print("ABORTED: current files not committed")
@@ -204,6 +237,7 @@ def check_committed() -> None:
 
 
 def check_version_changelog() -> None:
+    """Aborts if debian/changelog's latest entry doesn't match VERSION."""
     version = (REPO_ROOT / "VERSION").read_text().strip()
     with (REPO_ROOT / "debian" / "changelog").open() as f:
         first_line = f.readline()
@@ -212,28 +246,36 @@ def check_version_changelog() -> None:
         sys.exit(1)
 
 
-def main() -> None:
+def main() -> None:  # pylint: disable=too-many-branches
+    """Parses arguments and dispatches to the requested build type/target."""
     parser = argparse.ArgumentParser(
-        description="SNAP build helper",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=__doc__)
-    parser.add_argument("type", nargs="?", default="release",
-                        choices=list(BUILD_TYPE_MAP),
-                        help="Build type (default: release)")
-    parser.add_argument("target", nargs="?", default="all",
-                        choices=["all", "snap_cmd", "test", "install", "package", "clean"],
-                        help="Build target (default: all)")
-    parser.add_argument("--no-gui", action="store_true",
-                        help="Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot)")
-    parser.add_argument("--jobs", type=int, metavar="N",
-                        help="Parallel build jobs (default: all cores)")
-    parser.add_argument("--build-dir", type=Path, metavar="DIR", default=None,
-                        help="Build output directory (default: build-{type})")
-    parser.add_argument("--no-efence", action="store_true",
-                        help="Do not link efence (debug builds link efence by default)")
-    parser.add_argument("--mingw", action="store_true",
-                        help="Cross-compile for Windows using MinGW-w64 (Linux host, "
-                             "release only) - see BUILD.md")
+        description="SNAP build helper", formatter_class=argparse.RawDescriptionHelpFormatter, epilog=__doc__
+    )
+    parser.add_argument(
+        "type", nargs="?", default="release", choices=list(BUILD_TYPE_MAP), help="Build type (default: release)"
+    )
+    parser.add_argument(
+        "target",
+        nargs="?",
+        default="all",
+        choices=["all", "snap_cmd", "test", "install", "package", "clean"],
+        help="Build target (default: all)",
+    )
+    parser.add_argument(
+        "--no-gui", action="store_true", help="Skip wxWidgets GUI targets (snap_manager, snapadjust, snapplot)"
+    )
+    parser.add_argument("--jobs", type=int, metavar="N", help="Parallel build jobs (default: all cores)")
+    parser.add_argument(
+        "--build-dir", type=Path, metavar="DIR", default=None, help="Build output directory (default: build-{type})"
+    )
+    parser.add_argument(
+        "--no-efence", action="store_true", help="Do not link efence (debug builds link efence by default)"
+    )
+    parser.add_argument(
+        "--mingw",
+        action="store_true",
+        help="Cross-compile for Windows using MinGW-w64 (Linux host, release only) - see BUILD.md",
+    )
     args = parser.parse_args()
 
     if args.mingw:
