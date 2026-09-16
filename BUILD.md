@@ -156,6 +156,24 @@ python3 build.py release package --mingw   # ZIP + NSIS installer, via cpack
 Coordinate system data and packaging otherwise work the same way as the MSVC build
 above (`COORDSYSDEF`, `cpack`).
 
+**Standalone concord package**
+
+`build_concord_mingw_package.py` (repository root) builds a standalone `concord.exe` +
+`linz-coordsys` data zip, reproducing the old "SNAP and CONCORD downloads" concord
+package without needing a full SNAP install. It clones `linz/snap` and
+`linz/linz-coordsys` fresh at the given tags (never the caller's own working tree),
+cross-compiles just the `concord` target via the `windows-mingw-release` preset, and
+zips the result together with a manifest recording both tags and their resolved
+commits:
+
+```
+python3 build_concord_mingw_package.py --snap-tag 3.0.0-1 --coordsys-tag 1.15.0-1 \
+    --output concord-3.0.0-1.zip
+```
+
+Requires `BOOST_ROOT` (see above) - no `WX_MINGW_CONFIG` needed, since concord has no
+GUI dependency.
+
 Build instructions for Linux
 ============================
 
