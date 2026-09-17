@@ -42,6 +42,7 @@ SnapplotMapView::SnapplotMapView( wxWindow *parent ) :
     weakLock = true;
     locatorFrom = 0;
     locatorTo = 0;
+    locatorOnlyRepaint = false;
     savedMap = 0;
 
     mapDragger.SetMoveOriginOnShift( true );
@@ -273,19 +274,19 @@ void SnapplotMapView::LocateStation( int istn )
 void SnapplotMapView::SetLocator( int from, int to )
 {
     if( from == locatorFrom && to == locatorTo ) return;
-    ClearLocator();
     locatorFrom = from;
     locatorTo = to;
-    PaintLocator();
+    locatorOnlyRepaint = true;
+    Refresh();
 }
 
 void SnapplotMapView::SetLocatorLocked( bool locked )
 {
     if( locatorFrom && (locked != locatorLocked ))
     {
-        ClearLocator();
         locatorLocked = locked;
-        PaintLocator();
+        locatorOnlyRepaint = true;
+        Refresh();
     }
 }
 
@@ -327,20 +328,6 @@ void SnapplotMapView::DropSavedMap()
 
 }
 
-void SnapplotMapView::PaintLocator()
-{
-    wxClientDC dc(this);
-    PaintLocator( dc );
-}
-
-
-void SnapplotMapView::ClearLocator()
-{
-    // Using XOR for clearing locator doesn't work in GTK, so replacing with saving and clearing context
-    wxClientDC dc(this);
-    RestoreMapImage(dc);
-}
-
 // Using macro to shift circles a little as otherwise don't line up properly!
 
 #define DC_CIRCLE( dc, pt, radius ) dc.DrawEllipse( (pt).x-(radius), (pt).y-(radius), (radius)*2+1, (radius)*2+1 )
@@ -377,7 +364,7 @@ void SnapplotMapView::DrawLocator( wxDC &dc )
     {
         if( station_in_view( locatorFrom ) || station_in_view(locatorTo) )
         {
-            
+
             wxMapScale scale = GetScale();
             double e, n;
             wxPoint ptStart;
@@ -467,6 +454,15 @@ void SnapplotMapView::OnPaint( wxPaintEvent & WXUNUSED(event) )
     //wxPaintDC dc(this);
     //#endif
     wxPaintDC dc(this);
+    bool locatorOnly = locatorOnlyRepaint && savedMap;
+    locatorOnlyRepaint = false;
+    if( locatorOnly )
+    {
+        // Only the locator moved since the last full repaint, so just blit the 
+        // cached base map back and paint the new locator on top
+        PaintLocator(dc);
+        return;
+    }
     PaintMap(dc);
     SaveMapImage();
     DrawLocator(dc);

@@ -37,10 +37,8 @@ private:
 
     void SetLocator( int from, int to );
     void SetLocatorLocked( bool locked );
-    void PaintLocator();
     void PaintLocator( wxDC &dc );
     void DrawLocator( wxDC &dc );
-    void ClearLocator();
 
     void SaveMapImage();
     void RestoreMapImage( wxDC &dc );
@@ -54,6 +52,7 @@ private:
     int locatorTo;
     bool locatorLocked; // If the from station is locked ...
     bool weakLock; // If true, then clicking other than a station will release a lock
+    bool locatorOnlyRepaint; // Set when the next OnPaint only needs to redraw the locator, not the whole map
     wxString coordString;
 
     // Object used to manage dragging on the map
