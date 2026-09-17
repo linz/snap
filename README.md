@@ -32,7 +32,9 @@ usage, often at the expense of clarity.  Also much of the string handling is ver
 C code manipulating character pointers.  The entire code base is due for refactoring to use 
 more modern practices and tools, such as C++ classes, string handling, STL and so on.  Likewise 
 the graphical user interface is built on WxWidgets version 3.x.  The build system uses
-CMake, driven by `build.py` in the repository root.
+CMake, driven by `build.py` in the repository root. `build_concord_mingw_package.py`,
+also in the repository root, builds a standalone `concord` + `linz-coordsys` package
+for Windows.
 
 It is not recommended that this code is used as a basis for building further tools or for 
 building capability from.  The main intent in releasing as open source code is to provide 
