@@ -365,7 +365,7 @@ static void dump_parameters_text( std::ostream &out )
         const param *p = param_from_id( pid );
         out << "=== MISCPARAMS[" << pid << "] ===\n";
         dump_disk_fields_text( out, *p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT );
-        out << (p->name ? p->name : "") << "\n";
+        out << p->name << "\n";
     }
 }
 

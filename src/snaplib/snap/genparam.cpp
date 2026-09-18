@@ -172,8 +172,8 @@ int define_param( const char *name, double value, int adjust )
     p = find_param( name );
     if( !p )
     {
-        prm = (param *) check_malloc( sizeof(param));
-        prm->name = copy_string( name );
+        prm = new param();
+        prm->name = name;
         prm->hash = hash(name);
         prm->identical = 0;
         prm->flags = 0;
@@ -249,7 +249,7 @@ static void merge_params( param *p1, param *p2 )
     p2->flags |= p1->flags & PRM_USED;
     p1->flags = p2->flags;
 
-    if( _stricmp(p1->name, p2->name) > 0  )
+    if( _stricmp(p1->name.c_str(), p2->name.c_str()) > 0  )
     {
         param *ptmp;
         ptmp = p1;
@@ -276,7 +276,7 @@ int find_param( const char *name )
     for( p = 0; p < nparam; p++ )
     {
         if( hashedname == prmlist[p]->hash &&
-                strcmp( prmlist[p]->name, name ) == 0 ) return p+1;
+                prmlist[p]->name == name ) return p+1;
     }
     return 0;
 }
@@ -299,7 +299,7 @@ void update_param_value( int pid, double value, double var )
 
 const char *param_name( int p )
 {
-    return p ? prmlist[p-1]->name : "";
+    return p ? prmlist[p-1]->name.c_str() : "";
 }
 
 
@@ -332,7 +332,7 @@ static void do_prm_actions( void )
             for( np=0; np < nparam; np++ )
             {
                 p = prmlist[np];
-                if( ! wildcard_match(pa->prm.n,p->name ) ) continue;
+                if( ! wildcard_match(pa->prm.n,p->name.c_str() ) ) continue;
                 apa.prm.p = p;
                 do_action( &apa );
             }
@@ -373,7 +373,7 @@ int find_param_row( int row, char *name, int nlen )
 
         if( p->rowno == row )
         {
-            strncpy( name, p->name, nlen-1 );
+            strncpy( name, p->name.c_str(), nlen-1 );
             name[nlen-1] = 0;
             return 1;
         }
@@ -467,7 +467,7 @@ int init_param_rowno( int nextprm )
         if( !(p->flags & PRM_USED) )
         {
             char errmsg[80];
-            sprintf(errmsg,"Parameter %.40s cannot be calculated",p->name);
+            sprintf(errmsg,"Parameter %.40s cannot be calculated",p->name.c_str());
             handle_error( WARNING_ERROR, errmsg, NO_MESSAGE );
             continue;
         }
@@ -485,16 +485,10 @@ void clear_param_list( void )
     }
     if( nparam )
     {
-        param *p;
         int np;
         for( np = 0; np < nparam; np++ )
         {
-            p = prmlist[np];
-            if( p )
-            {
-                if( p->name ) check_free( p->name );
-                check_free( p );
-            }
+            delete prmlist[np];
         }
         nparam = 0;
     }
@@ -511,10 +505,11 @@ void clear_param_list( void )
 
 
 // Single source of truth for the fixed-width on-disk param layout, excluding
-// `name` (handled separately via dump_string_c/reload_string_c, since it's a
-// pointer). `name` is the struct's first field, so it sits entirely before this
-// table's first entry rather than in the middle - unlike rftrndmp.cpp's table,
-// there's no interior gap here to skip when checking contiguity below.
+// `name` (handled separately via dump_string/reload_string, since it's a
+// variable-length std::string). `name` is the struct's first field, so it
+// sits entirely before this table's first entry rather than in the middle -
+// unlike rftrndmp.cpp's table, there's no interior gap here to skip when
+// checking contiguity below.
 //
 // hash and flags get an explicitly unsigned kind (UInt32/UInt8) rather than
 // Int32/Int8: converting an unsigned value that doesn't fit the corresponding
@@ -567,9 +562,9 @@ static_assert(param_disk_fields_contiguous(),
     "likely added, removed, or reordered in genparam.h without updating this table");
 
 // Writes PARAM_DISK_FIELDS in table order through the fixed-width disk-cast
-// templates from binfile.h. name is handled separately via dump_string_c (it's
-// a pointer, out of scope for this fixed-width table) - together, this
-// covers every field of param.
+// templates from binfile.h. name is handled separately via dump_string (it's
+// a variable-length std::string, out of scope for this fixed-width table) -
+// together, this covers every field of param.
 static void write_param_fixed_width( const param &p, FILE *f )
 {
     for_each_disk_field( p, PARAM_DISK_FIELDS, PARAM_DISK_FIELD_COUNT,
@@ -594,7 +589,7 @@ void dump_parameters( BINARY_FILE *b )
     for( np = 0; np < nparam; np++ )
     {
         write_param_fixed_width( *prmlist[np], b->f );
-        dump_string_c( prmlist[np]->name, b->f );
+        dump_string( prmlist[np]->name, b->f );
     }
     fwrite( srtlist, sizeof(int), nparam, b->f );
     end_section( b );
@@ -614,11 +609,10 @@ int reload_parameters( BINARY_FILE *b )
     }
     for( np = 0; np < nprm; np++ )
     {
-        param *p;
-        p = (param *) check_malloc( sizeof(param) );
+        param *p = new param();
         read_param_fixed_width( b->f, *p );
-        p->name = reload_string_c( b->f );
-        if( !p->name ) return INVALID_DATA;
+        p->name = reload_string( b->f );
+        if( p->name.empty() ) return INVALID_DATA;
         prmlist[np] = p;
     }
     if( (int) fread(srtlist,sizeof(int),nprm,b->f) != nprm ) return INVALID_DATA;

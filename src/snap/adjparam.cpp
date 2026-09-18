@@ -96,7 +96,7 @@ void list_calculated_parameters( FILE *out )
                 first = 0;
             }
 
-            fputs( p->name, out );
+            fputs( p->name.c_str(), out );
             if( p->identical ) fprintf(out,"  (same as %s)", param_name(p->identical) );
             fputs( "\n", out );
         }
@@ -152,7 +152,7 @@ void print_adjusted_parameters( FILE *out )
                 first = 0;
             }
 
-            fprintf(out,"%-30.30s   %11.5lf  ",p->name,p->value);
+            fprintf(out,"%-30.30s   %11.5lf  ",p->name.c_str(),p->value);
             if( param_rowno(pid) )
             {
                 fprintf(out,"%11.5lf",p->covar > 0.0 ? sqrt(p->covar)*semult : 0.0 );

@@ -12,6 +12,8 @@
 #include "util/binfile.h"
 #endif
 
+#include <string>
+
 // hash..identical (everything but `name`) are dumped to the .bin file via a
 // fixed-width table, PARAM_DISK_FIELDS in genparam.cpp - adding, removing, or
 // resizing a field here without updating that table silently desyncs the
@@ -20,7 +22,7 @@
 // a field added and never added to the table at all.
 typedef struct param_s
 {
-    char *name;
+    std::string name;
     unsigned int hash;
     double value;
     double covar;
@@ -30,14 +32,15 @@ typedef struct param_s
 } param;
 
 // The fixed-width on-disk layout of every field above except `name` (a
-// pointer) - see genparam.cpp, where this table is defined and checked at
-// compile time against param's actual memory layout. Exposed here, rather
-// than kept file-local, so a caller elsewhere can walk the same fields via
-// for_each_disk_field (util/binfile.h) without re-listing them by hand.
-// `extern` (plain C++ external linkage, unrelated to `extern "C"`) is
-// required because a `static` array at file scope is only visible within
-// its own translation unit - this declares "a definition exists
-// elsewhere," letting genparam.cpp's one real array be linked from here.
+// variable-length std::string) - see genparam.cpp, where this table is
+// defined and checked at compile time against param's actual memory layout.
+// Exposed here, rather than kept file-local, so a caller elsewhere can walk
+// the same fields via for_each_disk_field (util/binfile.h) without
+// re-listing them by hand. `extern` (plain C++ external linkage, unrelated
+// to `extern "C"`) is required because a `static` array at file scope is
+// only visible within its own translation unit - this declares "a
+// definition exists elsewhere," letting genparam.cpp's one real array be
+// linked from here.
 extern const DiskField PARAM_DISK_FIELDS[];
 extern const size_t PARAM_DISK_FIELD_COUNT;
 
