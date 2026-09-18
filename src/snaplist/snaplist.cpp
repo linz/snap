@@ -89,8 +89,8 @@ typedef struct
 
 static char *fromStn;
 static char *toStn;
-static char *fromStnName;
-static char *toStnName;
+static const char *fromStnName;
+static const char *toStnName;
 static double obs_ell_dist;
 static double calc_ell_dist;
 static double ell_dist_err;
@@ -373,8 +373,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
         to = station_ptr( net, t->tgt.to );
         fromStn = from->Code;
         toStn = to->Code;
-        fromStnName = from->Name;
-        toStnName = to->Name;
+        fromStnName = from->Name.c_str();
+        toStnName = to->Name.c_str();
 
         for( axis = 0; axis < 3; axis++ )
         {
@@ -384,8 +384,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
             d1xyz[axis] = x - d1xyz[axis]/2.0;
         }
 
-        memcpy( &dummy1, from, sizeof(station) );
-        memcpy( &dummy2, to, sizeof(station) );
+        dummy1 = *from;
+        dummy2 = *to;
         modify_station_xyz( &dummy1, d1xyz, el );
         modify_station_xyz( &dummy2, d2xyz, el );
 
@@ -510,7 +510,7 @@ static int list_stations( FILE *out )
 
         convert_coords( &from_xyz, st->XYZ, NULL, enh, NULL );
         stn_code = st->Code;
-        stn_name = st->Name;
+        stn_name = st->Name.c_str();
         stn_order = network_order( net, network_station_order( net, st ) );
         if( stn_order == NULL ) stn_order = "-";
 

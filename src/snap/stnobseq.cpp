@@ -365,7 +365,7 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
             fprintf(lst,"Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n",
                     stn_name_width,st->Code,date_as_year(date),
                     denu[0],denu[1],denu[2],
-                    st->Name);
+                    st->Name.c_str());
         }
         oe_add_value( hA, irow, -(denu[0]*dst[0] + denu[1]*dst[1] + denu[2]*dst[2]) );
     }
@@ -578,7 +578,7 @@ void print_coordinate_changes( FILE *out )
                 fprintf(out,"    -    ");
             }
 
-            fprintf(out,"   %s\n",st->Name);
+            fprintf(out,"   %s\n",st->Name.c_str());
         }
     }
 
@@ -770,7 +770,7 @@ void print_adjusted_coordinates( FILE *lst )
 
         if( stnadj(st)->flag.adj_h ) fprintf(lst,"%8.4lf %3.0lf  ",emax*errmult,brng);
         else fprintf(lst,"   -          ");
-        fprintf(lst,"%s\n",st->Name);
+        fprintf(lst,"%s\n",st->Name.c_str());
 
 
         /* Print the second line, longitude or northing */
@@ -1184,7 +1184,7 @@ void write_station_csv()
             write_csv_string( csv, network_class_value(net, i+1, iclass ));
         }
 
-        write_csv_string( csv, st->Name );
+        write_csv_string( csv, st->Name.c_str() );
         if( output_csv_shape )
         {
             char wkt[128];

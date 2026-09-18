@@ -2608,11 +2608,11 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
     jmp.type = ptfStation;
     jmp.from = from;
 
-    sprintf( buf,"From %s: %.50s", sfrom->Code,sfrom->Name);
+    sprintf( buf,"From %s: %.50s", sfrom->Code,sfrom->Name.c_str());
     (*f)( dest, &jmp, buf );
 
     jmp.from = to;
-    sprintf( buf,"To   %s: %.50s", sto->Code,sto->Name);
+    sprintf( buf,"To   %s: %.50s", sto->Code,sto->Name.c_str());
     (*f)( dest, &jmp, buf );
 
     jmp.type = ptfNone;
@@ -2817,11 +2817,11 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     jmp.type = ptfStation;
     jmp.from = sd->from;
 
-    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name);
+    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name.c_str());
     (*f)( dest, &jmp, buf );
 
     jmp.from = o->tgt.to;
-    sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name);
+    sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name.c_str());
     (*f)( dest, &jmp, buf );
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
@@ -3087,14 +3087,14 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     jmp.type = ptfStation;
     jmp.from = from;
 
-    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name);
+    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name.c_str());
     (*f)( dest, &jmp, buf );
 
     if( to )
     {
         sto = stnptr( to );
         jmp.from = to;
-        sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name);
+        sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name.c_str());
         (*f)( dest, &jmp, buf );
     }
 
@@ -3328,7 +3328,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     jmp.type = ptfStation;
     jmp.from = sd->from;
 
-    sprintf( buf,"Station:  %-10s  %.50s", sfrom->Code,sfrom->Name);
+    sprintf( buf,"Station:  %-10s  %.50s", sfrom->Code,sfrom->Name.c_str());
     (*f)( dest, &jmp, buf );
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );

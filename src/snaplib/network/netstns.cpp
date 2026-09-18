@@ -22,11 +22,10 @@
 station *new_station( void )
 {
     station *st;
-    st = (station *) check_malloc( sizeof( station ) );
+    st = new station();
     st->Code[0] = 0;
     st->nclass = 0;
     st->classval = NULL;
-    st->Name = NULL;
     st->ts = NULL;
     st->hook = NULL;
     return st;
@@ -35,10 +34,9 @@ station *new_station( void )
 void delete_station( station *st )
 {
     if( !st ) return;
-    if( st->Name ) check_free( st->Name );
     if( st->classval ) check_free( st->classval );
     if (st->ts ) delete_station_offset( st );
-    check_free( st );
+    delete st;
 }
 
 void init_station_classes( station *st, int nclass )
@@ -96,7 +94,7 @@ void init_station( station *st, const char *code, const char *Name,
 
     strncpy( st->Code, code, STNCODELEN );
     st->Code[STNCODELEN] = 0;
-    st->Name = copy_string( Name );
+    st->Name = Name;
     st->ELat = Lat;
     st->ELon = Lon;
     st->OHgt = Hgt;

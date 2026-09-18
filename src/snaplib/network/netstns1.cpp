@@ -18,14 +18,15 @@
 #include "util/binfile.h"
 
 // Single source of truth for the fixed-width on-disk station layout.
-// Excludes the four trailing pointers: classval, Name, ts, hook.
-// Each is already handled separately below. classval is a raw int
-// array sized by nclass. Name goes through dump_string_c/reload_string_c.
-// ts goes through dump_station_offset/reload_station_offset. hook is
-// a void pointer to scratch space defined at runtime, so there's
-// nothing meaningful to write for it - it's never serialized at all.
+// Excludes the three trailing pointers (classval, ts, hook) and Name (a
+// variable-length std::string). Each is already handled separately
+// below. classval is a raw int array sized by nclass. Name goes through
+// dump_string/reload_string. ts goes through
+// dump_station_offset/reload_station_offset. hook is a void pointer to
+// scratch space defined at runtime, so there's nothing meaningful to
+// write for it - it's never serialized at all.
 //
-// All four pointers sit contiguously at the end of the struct, after
+// All four fields sit contiguously at the end of the struct, after
 // every field tracked here. Unlike rftrndmp.cpp's table, there's no
 // interior gap to skip when checking contiguity below.
 //
@@ -182,7 +183,7 @@ void dump_station( station *st, FILE *f )
     write_station_fixed_width( *st, f );
     if( st->nclass > 0 ) fwrite( st->classval, sizeof(int), st->nclass, f );
     dump_station_offset( st, f );  // handle ts
-    dump_string_c( st->Name, f );
+    dump_string( st->Name, f );
 }
 
 station *reload_station( FILE *f )
@@ -200,7 +201,7 @@ station *reload_station( FILE *f )
         fread( st->classval, sizeof(int), nclass,f );
     }
     reload_station_offset( st, f );  // reconstruct ts
-    st->Name = reload_string_c( f );
+    st->Name = reload_string( f );
     return st;
 }
 

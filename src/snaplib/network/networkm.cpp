@@ -185,7 +185,7 @@ int merge_network( network *base, network *data, int mergeopts,
 
         if( ! stnew )
         {
-            stnew = new_network_station( base, st->Code, st->Name,
+            stnew = new_network_station( base, st->Code, st->Name.c_str(),
                                      llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT],
                                      exu[CRD_LAT], exu[CRD_LON], exu[CRD_HGT] );
             loadclass=1;

@@ -298,7 +298,7 @@ static void build_sort_index( void )
         switch( indexCol )
         {
         case STNF_CODE: sortValues[istn].cPtr = stn->Code; break;
-        case STNF_NAME: sortValues[istn].cPtr = stn->Name; break;
+        case STNF_NAME: sortValues[istn].cPtr = stn->Name.c_str(); break;
         case STNF_LAT:  sortValues[istn].fValue =  stn->ELat; break;
         case STNF_LON:  sortValues[istn].fValue =  stn->ELon; break;
         case STNF_EAST: sortValues[istn].fValue =  stns[istn].easting; break;
@@ -523,7 +523,7 @@ char *station_list_item( int istnsrt )
         switch( slist_field[icol] )
         {
         case STNF_CODE: strcpy(buf,stn->Code); break;
-        case STNF_NAME: strncpy(buf,stn->Name,MAXCOLWIDTH); buf[MAXCOLWIDTH] = 0; replace_tabs(buf); break;
+        case STNF_NAME: strncpy(buf,stn->Name.c_str(),MAXCOLWIDTH); buf[MAXCOLWIDTH] = 0; replace_tabs(buf); break;
         case STNF_LAT:  dms_string( stn->ELat * RTOD, latfmt, buf ); strcat(buf," "); break;
         case STNF_LON:  dms_string( stn->ELon * RTOD, lonfmt, buf ); strcat(buf," "); break;
         case STNF_EAST: sprintf(buf,"%.*lf ",coord_precision,stns[istn].easting); break;
@@ -660,7 +660,7 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
     double dxyz[3];
 
     stn = stnptr(istn);
-    sprintf( slist_buf,"Station %s: %.50s",stn->Code,stn->Name);
+    sprintf( slist_buf,"Station %s: %.50s",stn->Code,stn->Name.c_str());
     replace_tabs( slist_buf );
     (*f)( dest, NULL, slist_buf );
 
@@ -1554,7 +1554,7 @@ int plot_station_names( map_plotter *plotter, int first )
                 strcpy( name+nch, "  ");
                 nch += 2;
             }
-            strncpy( name+nch, stnptr(istn)->Name, 80-nch);
+            strncpy( name+nch, stnptr(istn)->Name.c_str(), 80-nch);
             name[79] = 0;
             replace_tabs( name+nch  );
         }

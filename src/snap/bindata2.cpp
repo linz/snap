@@ -978,7 +978,7 @@ void set_survdata_fields( survdata *sd )
     if( sd->from )
     {
         set_residual_field( OF_FROM, station_code( sd->from ));
-        set_residual_field( OF_FROMNAME, stnptr(sd->from)->Name );
+        set_residual_field( OF_FROMNAME, stnptr(sd->from)->Name.c_str() );
         set_residual_field_value( OF_HI, 3, sd->fromhgt );
     }
     set_date_field( sd );
@@ -995,7 +995,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
         if( t->to )
         {
             set_residual_field( OF_TO, station_code( t->to ));
-            set_residual_field( OF_TONAME, stnptr(t->to)->Name );
+            set_residual_field( OF_TONAME, stnptr(t->to)->Name.c_str() );
             set_residual_field_value(OF_HT,3,t->tohgt);
             set_calculated_fields(sd,t);
         }
@@ -1003,7 +1003,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
     else
     {
         set_residual_field( OF_FROM, station_code( t->to ));
-        set_residual_field( OF_FROMNAME, stnptr(t->to)->Name );
+        set_residual_field( OF_FROMNAME, stnptr(t->to)->Name.c_str() );
         set_residual_field_value(OF_HI,3,t->tohgt);
     }
     sprintf( fileno, "%d", (int) (sd->file) );

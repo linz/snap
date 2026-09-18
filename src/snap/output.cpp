@@ -870,7 +870,7 @@ void print_problem_summary( FILE *lst )
         else if( stnadj(st)->flag.adj_v ) row = stnadj(st)->vrowno;
         if( row < 0 ) { fprintf(lst,"    -");}
         else { fprintf(lst," %4d",row); }
-        fprintf(lst,"  %s\n",st->Name);
+        fprintf(lst,"  %s\n",st->Name.c_str());
     }
 
     if( reject )
@@ -886,7 +886,7 @@ void print_problem_summary( FILE *lst )
     {
         if( !stnadj(st)->flag.rejected ) continue;
         fprintf(lst,"%c%-*s   %s\n",stnadj(st)->flag.autoreject ? '*' : ' ',
-                stn_name_width,st->Code, st->Name );
+                stn_name_width,st->Code, st->Name.c_str() );
     }
 
     /* Print out auto constrained stations */

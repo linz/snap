@@ -802,7 +802,7 @@ const char *recoded_network_station( void *recode_data, const char *code, double
             if( id )
             {
                 station *st=station_ptr(srd->net,id);
-                duplicate_network_station( srd->net, st, code2, st->Name );
+                duplicate_network_station( srd->net, st, code2, st->Name.c_str() );
             }
         }
     }

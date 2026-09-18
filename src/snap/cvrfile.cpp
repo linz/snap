@@ -468,7 +468,7 @@ void print_coord_sinex( void )
             dms_string(lon,lonfmt,lonbuf);
             
             fprintf(f," %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n",
-                    st->Code,mark,st->Code,st->Name,lonbuf,latbuf,st->OHgt+st->GUnd
+                    st->Code,mark,st->Code,st->Name.c_str(),lonbuf,latbuf,st->OHgt+st->GUnd
                    );
         }
         delete_dms_format(latfmt);

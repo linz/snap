@@ -293,7 +293,7 @@ static void dump_station_text( std::ostream &out, const std::string &section, co
     out << "=== " << section << " ===\n";
     dump_disk_fields_text( out, *st, STATION_DISK_FIELDS, STATION_DISK_FIELD_COUNT );
     for( int i = 0; i < st->nclass; i++ ) out << static_cast<long>(st->classval[i]) << "\n";
-    out << (st->Name ? st->Name : "") << "\n";
+    out << st->Name << "\n";
 }
 
 // Field order mirrors dump_network (networkd.cpp): name/crdsysdef/topocentre/

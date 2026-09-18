@@ -70,7 +70,7 @@ wxString wxStationSelectorTable::GetValue( int row, int col )
 {
     int istn = id[row];
     station *stn = stnptr(istn);
-    return col == 0 ? stn->Code : stn->Name;
+    return col == 0 ? stn->Code : stn->Name.c_str();
 }
 
 void wxStationSelectorTable::SetValue( int WXUNUSED(row), int WXUNUSED(col), const wxString & WXUNUSED(value)  ) {}
@@ -89,7 +89,7 @@ wxGridCellAttr *wxStationSelectorTable::GetAttr( int row, int WXUNUSED(col),  wx
 
 static int cmp_station_name( const void *istn1, const void *istn2 )
 {
-    return _stricmp( stnptr(*(int *)istn1)->Name, stnptr(*(int *)istn2)->Name );
+    return _stricmp( stnptr(*(int *)istn1)->Name.c_str(), stnptr(*(int *)istn2)->Name.c_str() );
 }
 
 void wxStationSelectorTable::SortByCode()

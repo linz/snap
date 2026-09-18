@@ -638,7 +638,7 @@ const char *InfoWin::ItemText( long id )
     {
         sort_stations_by_name( showStationNames );
         int s = sorted_station_number( (int) id );
-        sprintf( buf, "%-10s %.50s",stnptr(s)->Code, stnptr(s)->Name );
+        sprintf( buf, "%-10s %.50s",stnptr(s)->Code, stnptr(s)->Name.c_str() );
         return buf;
     }
     return ccScrollingTextWindow::ItemText(id);

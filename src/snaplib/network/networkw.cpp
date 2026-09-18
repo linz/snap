@@ -234,7 +234,7 @@ int write_network( network *nw, const char *fname, const char *comment,
             }
         }
 
-        fprintf(stf," %s\n", st->Name );
+        fprintf(stf," %s\n", st->Name.c_str() );
     }
 
     if( latfmt ) check_free( latfmt );
