@@ -351,7 +351,7 @@ static void dump_rftransformations_text( std::ostream &out )
             << rf->localoriginok << "\n" << rf->localorigin << "\n" << rf->calctrans << "\n"
             << rf->calcrot << "\n" << rf->calcscale << "\n" << rf->calctransrate << "\n"
             << rf->calcrotrate << "\n" << rf->calcscalerate << "\n";
-        out << (rf->name ? rf->name : "") << "\n";
+        out << rf->name << "\n";
     }
 }
 

@@ -201,7 +201,7 @@ static void init_rftrans_prms( rfTransformation *rf )
 
     /* Define the parameters of the reference frame */
 
-    strncpy( prmname, rf->name, REFFRAMELEN );
+    strncpy( prmname, rf->name.c_str(), REFFRAMELEN );
     prmname[REFFRAMELEN] = 0;
     prmtype = prmname + strlen(prmname);
 
@@ -535,7 +535,7 @@ static void print_rftrans( rfTransformation *rf, double semult, FILE *out, int o
 
     /* OK - now all we need to do is to print out the results... */
 
-    fprintf(out,"\nReference frame: %s\n",rf->name );
+    fprintf(out,"\nReference frame: %s\n",rf->name.c_str() );
     fprintf(out,"\n   %s as a %s reference frame\n",
             calced ? "Calculated" : "Defined",
             rf->istopo ? "topocentric" : "geocentric" );

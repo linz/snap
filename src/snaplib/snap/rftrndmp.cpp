@@ -16,9 +16,10 @@
 #include "util/dstring.h"
 
 // Single source of truth for the fixed-width on-disk rfTransformation layout,
-// excluding `name` (handled separately via dump_string_c/reload_string_c, since it's
-// a pointer) and the 12 `unsigned x:1` bitfields (packed into one uint16_t below -
-// bitfields have no address for offsetof to take, so they can't join this table).
+// excluding `name` (handled separately via dump_string/reload_string, since it's a
+// variable-length std::string, not a fixed-width field) and the 12 `unsigned x:1`
+// bitfields (packed into one uint16_t below - bitfields have no address for
+// offsetof to take, so they can't join this table).
 // Order here matches rftrans.h's declared field order for readability, though
 // both write/read functions just iterate this same table so it isn't load-bearing.
 //
@@ -128,9 +129,9 @@ static void unpack_rftrans_flags( const uint16_t flags, rfTransformation &rf )
 
 // Writes RFTRANS_DISK_FIELDS in table order through the fixed-width disk-cast
 // templates from binfile.h, then the packed bitfield uint16_t. Together with
-// dump_string_c(rf->name, ...) (kept as a separate call at the existing call site,
-// since name is a pointer and out of scope for this fixed-width table), this
-// covers every field of rfTransformation.
+// dump_string(rf->name, ...) (kept as a separate call at the existing call site,
+// since name is a variable-length std::string and out of scope for this
+// fixed-width table), this covers every field of rfTransformation.
 static void write_rftrans_fixed_width( const rfTransformation &rf, FILE *f )
 {
     for_each_disk_field( rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT,
@@ -168,7 +169,7 @@ void dump_rftransformations( BINARY_FILE *b )
     {
         rf = rftrans_from_id( irf );
         write_rftrans_fixed_width( *rf, b->f );
-        dump_string_c( rf->name, b->f );
+        dump_string( rf->name, b->f );
     }
 
     end_section( b );
@@ -193,8 +194,8 @@ int reload_rftransformations( BINARY_FILE *b )
     {
         rf = new_rftrans();
         read_rftrans_fixed_width( b->f, *rf );
-        rf->name = reload_string_c( b->f );
-        if( !rf->name ) return INVALID_DATA;
+        rf->name = reload_string( b->f );
+        if( rf->name.empty() ) return INVALID_DATA;
     }
     return check_end_section( b );
 }

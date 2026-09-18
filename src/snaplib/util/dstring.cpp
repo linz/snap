@@ -13,6 +13,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <limits>
+#include <stdexcept>
 #include "util/snapctype.h"
 
 #include "util/dstring.h"
@@ -50,6 +52,32 @@ char *reload_string_c( FILE *b )
     s = (char *) check_malloc( len+1 );
     fread( s, len, 1, b );
     s[len] = 0;
+    return s;
+}
+
+// Throws std::overflow_error if string.size() doesn't fit in the int32_t length
+// prefix, rather than silently truncating it - matching write_raw_long32's
+// precedent (util/binfile.h).
+void dump_string( const std::string &string, FILE *b )
+{
+    if( string.size() > static_cast<size_t>( std::numeric_limits<int>::max() ) )
+    {
+        throw std::overflow_error(
+            "string of length " + std::to_string( string.size() ) +
+            " exceeds int32_t range while writing .bin file" );
+    }
+    int len = static_cast<int>( string.size() );
+    fwrite(&len,sizeof(len),1,b);
+    if( len > 0 ) fwrite(string.data(),len,1,b);
+}
+
+std::string reload_string( FILE *b )
+{
+    int len;
+    fread(&len,sizeof(len),1,b);
+    if( len <= 0 ) return std::string();
+    std::string s( len, '\0' );
+    fread( &s[0], len, 1, b );
     return s;
 }
 

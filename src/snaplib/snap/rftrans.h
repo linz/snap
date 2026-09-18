@@ -12,6 +12,8 @@
 #include "util/binfile.h"
 #endif
 
+#include <string>
+
 typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
 /* Parameters of a reference frame transformation */
@@ -40,7 +42,7 @@ enum
 typedef struct
 {
     int id;               /* Id used to reference the frame */
-    char *name;           /* The name of the reference frame     */
+    std::string name;     /* The name of the reference frame     */
     double refepoch;      /* The reference date for the reference frame as a decimal year*/
     double prm[14];        /* Parameters of the transformation */
     double prmCvr[105];
@@ -74,7 +76,8 @@ typedef struct
 } rfTransformation;
 
 // The fixed-width on-disk layout of every field above except `name` (a
-// pointer) and the 12 bitfields (packed separately into a uint16_t) - see
+// variable-length std::string) and the 12 bitfields (packed separately into
+// a uint16_t) - see
 // rftrndmp.cpp, where this table is defined and checked at compile time
 // against rfTransformation's actual memory layout. Exposed here, rather
 // than kept file-local, so a caller elsewhere can walk the same fields via

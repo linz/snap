@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <cctype>
 
 #include "snap/rftrans.h"
 #include "util/chkalloc.h"
@@ -64,7 +66,7 @@ static int find_rftrans( const char *name )
 
     for( nrf = 0; nrf < nrftrans; nrf++ )
     {
-        if( _stricmp( rflist[nrf]->name, name ) == 0 ) return nrf+1;
+        if( _stricmp( rflist[nrf]->name.c_str(), name ) == 0 ) return nrf+1;
     }
     return 0;
 }
@@ -74,7 +76,7 @@ rfTransformation *new_rftrans( void )
 {
     rfTransformation *rf;
 
-    rf = (rfTransformation *) check_malloc( sizeof( rfTransformation ) );
+    rf = new rfTransformation();
 
     if( nrftrans >= nrflist )
     {
@@ -86,7 +88,6 @@ rfTransformation *new_rftrans( void )
     rflist[nrftrans] = rf;
     nrftrans++;
 
-    rf->name = NULL;
     rf->id = nrftrans;
 
     return rf;
@@ -99,8 +100,7 @@ void clear_rftrans_list( void )
     {
         if( rflist[i] )
         {
-            if( rflist[i]->name ) check_free( rflist[i]->name );
-            check_free( rflist[i] );
+            delete rflist[i];
         }
     }
     nrftrans = 0;
@@ -113,8 +113,9 @@ static int create_rftrans( const char *name, int rftype )
 
     rf = new_rftrans();
 
-    rf->name = copy_string( name );
-    _strupr( rf->name );
+    rf->name = name;
+    std::transform( rf->name.begin(), rf->name.end(), rf->name.begin(),
+                     []( unsigned char c ) { return std::toupper(c); } );
     rf->refepoch=DEFAULT_REF_EPOCH;
     rf->usage=0;
     rf->userates=0;
@@ -623,7 +624,7 @@ double * rftrans_invtmat( rfTransformation *rf )
 
 const char * rftrans_name( rfTransformation *rf )
 {
-    return rf->name;
+    return rf->name.c_str();
 }
 
 void rftrans_correct_vector( int rfid, double vd[3], double date )
