@@ -111,8 +111,8 @@ const char *absolute_filename( const char *relname, const char *basedir );
    into a portable, cross-platform file format. */
 std::string portable_path( const std::string &path );
 
-/* Writes path to disk via dump_string (util/dstring.h), normalized via
-   portable_path first. Use in place of dump_string for any path being written
+/* Writes path to disk via dump_string_c (util/dstring.h), normalized via
+   portable_path first. Use in place of dump_string_c for any path being written
    to a .bin file. */
 void dump_filepath( const char *path, FILE *f );
 

@@ -33,7 +33,7 @@ char *copy_string_nch( const char *string, int nch )
     return s;
 }
 
-void dump_string( const char *string, FILE *b )
+void dump_string_c( const char *string, FILE *b )
 {
     int len;
     len = string ? strlen(string) : -1;
@@ -41,7 +41,7 @@ void dump_string( const char *string, FILE *b )
     if( len > 0 ) fwrite(string,len,1,b);
 }
 
-char *reload_string( FILE *b )
+char *reload_string_c( FILE *b )
 {
     int len;
     char *s;

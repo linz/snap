@@ -28,8 +28,8 @@ void dump_network( network *nw, FILE *f )
 
     /* Dump the station file data */
 
-    dump_string( nw->name, f );
-    dump_string( nw->crdsysdef, f );
+    dump_string_c( nw->name, f );
+    dump_string_c( nw->crdsysdef, f );
     fwrite(&nw->topolat, sizeof(nw->topolat), 1, f );
     fwrite(&nw->topolon, sizeof(nw->topolon), 1, f );
     fwrite(&nw->got_topocentre, sizeof(nw->got_topocentre), 1, f );
@@ -52,8 +52,8 @@ network *reload_network( FILE *f )
     /* Restore the critical static information */
 
     nw = new_network();
-    nw->name = reload_string( f );
-    nw->crdsysdef = reload_string( f );
+    nw->name = reload_string_c( f );
+    nw->crdsysdef = reload_string_c( f );
     fread(&nw->topolat, sizeof(nw->topolat), 1, f );
     fread(&nw->topolon, sizeof(nw->topolon), 1, f );
     fread(&nw->got_topocentre, sizeof(nw->got_topocentre), 1, f );

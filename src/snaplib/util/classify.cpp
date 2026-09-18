@@ -396,7 +396,7 @@ void dump_classifications( classifications *csf, FILE *f )
     {
         class_type *cl;
         cl = csf->class_index[ic];
-        dump_string( cl->name, f );
+        dump_string_c( cl->name, f );
         write_raw( f, cl->count );
         write_raw( f, cl->type );
         for( iv = 0; iv < cl->count; iv++ )
@@ -409,7 +409,7 @@ void dump_classifications( classifications *csf, FILE *f )
             }
             else
             {
-                dump_string( cv->value.name, f );
+                dump_string_c( cv->value.name, f );
             }
             write_raw( f, cv->usage );
             write_raw( f, cv->error_factor );
@@ -430,7 +430,7 @@ int reload_classifications( classifications *csf, FILE *f )
             class_type *cl;
             cl = (class_type *) check_malloc( sizeof(class_type) );
             csf->class_index[ic] = cl;
-            cl->name = reload_string( f );
+            cl->name = reload_string_c( f );
             read_raw( f, cl->count );
             read_raw( f, cl->type );
             cl->value = (class_value **) check_malloc( cl->count * sizeof(class_value *));
@@ -446,7 +446,7 @@ int reload_classifications( classifications *csf, FILE *f )
                 }
                 else
                 {
-                    cv->value.name = reload_string( f );
+                    cv->value.name = reload_string_c( f );
                 }
                 read_raw( f, cv->usage );
                 read_raw( f, cv->error_factor );

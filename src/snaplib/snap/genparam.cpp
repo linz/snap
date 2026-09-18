@@ -511,7 +511,7 @@ void clear_param_list( void )
 
 
 // Single source of truth for the fixed-width on-disk param layout, excluding
-// `name` (handled separately via dump_string/reload_string, since it's a
+// `name` (handled separately via dump_string_c/reload_string_c, since it's a
 // pointer). `name` is the struct's first field, so it sits entirely before this
 // table's first entry rather than in the middle - unlike rftrndmp.cpp's table,
 // there's no interior gap here to skip when checking contiguity below.
@@ -567,7 +567,7 @@ static_assert(param_disk_fields_contiguous(),
     "likely added, removed, or reordered in genparam.h without updating this table");
 
 // Writes PARAM_DISK_FIELDS in table order through the fixed-width disk-cast
-// templates from binfile.h. name is handled separately via dump_string (it's
+// templates from binfile.h. name is handled separately via dump_string_c (it's
 // a pointer, out of scope for this fixed-width table) - together, this
 // covers every field of param.
 static void write_param_fixed_width( const param &p, FILE *f )
@@ -594,7 +594,7 @@ void dump_parameters( BINARY_FILE *b )
     for( np = 0; np < nparam; np++ )
     {
         write_param_fixed_width( *prmlist[np], b->f );
-        dump_string( prmlist[np]->name, b->f );
+        dump_string_c( prmlist[np]->name, b->f );
     }
     fwrite( srtlist, sizeof(int), nparam, b->f );
     end_section( b );
@@ -617,7 +617,7 @@ int reload_parameters( BINARY_FILE *b )
         param *p;
         p = (param *) check_malloc( sizeof(param) );
         read_param_fixed_width( b->f, *p );
-        p->name = reload_string( b->f );
+        p->name = reload_string_c( b->f );
         if( !p->name ) return INVALID_DATA;
         prmlist[np] = p;
     }

@@ -94,7 +94,7 @@ void dump_strarray( strarray *stra, FILE *f )
     fwrite( &nstr, sizeof(nstr), 1, f );
     for( i = 0; i < stra->nstrings; i++ )
     {
-        dump_string( stra->strings[i], f  );
+        dump_string_c( stra->strings[i], f  );
     }
 }
 
@@ -106,7 +106,7 @@ void reload_strarray( strarray *stra, FILE *f )
     fread( &nstr, sizeof( nstr ), 1 ,f );
     for( i = 0; i < nstr; i++ )
     {
-        char *c = reload_string( f );
+        char *c = reload_string_c( f );
         if( c ) strarray_add_ptr( stra, c );
     }
 }

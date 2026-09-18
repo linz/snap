@@ -491,10 +491,10 @@ void dump_filepath( const char *path, FILE *f )
 {
     if( ! path )
     {
-        dump_string( nullptr, f );
+        dump_string_c( nullptr, f );
         return;
     }
-    dump_string( portable_path(path).c_str(), f );
+    dump_string_c( portable_path(path).c_str(), f );
 }
 
 // context_definition/recreate_context serialize a chain of relative directory

@@ -220,9 +220,9 @@ void dump_filenames( BINARY_FILE *b )
         const char *context_def=context_definition(sdindx[i]->context);
         fwrite( &sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f );
         dump_filepath( sdindx[i]->name, b->f );
-        dump_string( sdindx[i]->subtype, b->f );
+        dump_string_c( sdindx[i]->subtype, b->f );
         dump_filepath( sdindx[i]->recodefile, b->f );
-        dump_string( context_def, b->f );
+        dump_string_c( context_def, b->f );
         check_free((void *) context_def);
     }
     end_section( b );
@@ -242,12 +242,12 @@ int reload_filenames( BINARY_FILE *b )
     while( i-- > 0 )
     {
         fread( &fmt, sizeof(fmt), 1, b->f );
-        name = reload_string( b->f );
-        subtype = reload_string( b->f );
-        recodefile = reload_string( b->f );
+        name = reload_string_c( b->f );
+        subtype = reload_string_c( b->f );
+        recodefile = reload_string_c( b->f );
         // Note: flawed implementation of restoring context.  
         // 
-        context_def = reload_string( b->f );
+        context_def = reload_string_c( b->f );
         file_context *context=recreate_context(context_def);
         check_free(context_def);
         add_data_file_nocopy( name, fmt, subtype, recodefile, context );
