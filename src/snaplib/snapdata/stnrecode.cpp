@@ -411,19 +411,260 @@ static void apply_recode_suffix( station *st, void *psrd )
     add_stn_recode_to_map_err( srd->srm, codefrom, codeto, srd->datefrom, srd->dateto, srd->herror, srd->verror );
 }
 
+struct RecodeTarget
+{
+    std::optional<std::string> suffix;  ///< set only for the "suffix <name>" form
+    std::string codefrom;               ///< set only for the plain "<codefrom> [to] <codeto>" form
+    std::string codeto;                 ///< set only for the plain "<codefrom> [to] <codeto>" form
+};
+
+/// Parses the recode target: "suffix <name>" or a plain
+/// "<codefrom> [to] <codeto>" pair. Returns nullopt on any parse error,
+/// with msg set to describe it.
+/// e.g. "suffix RC1" (suffix form), or "ABC to XYZ" / "ABC XYZ" (plain
+/// form, "to" optional).
+static std::optional<RecodeTarget> parse_recode_codes(
+    FieldScanner &scanner,        ///< field cursor, will be advanced past whatever this function consumes
+    std::string_view firstField,  ///< the first field of the recode definition; the caller has already
+                                   ///< checked it isn't "file", which is a separate grammar handled inline
+    char *msg )                   ///< caller's fixed-size error message buffer, filled in on failure
+{
+    RecodeTarget target;
+
+    if( boost::algorithm::iequals(firstField,"suffix") )
+    {
+        auto suffixField=scanner.next();
+        if( ! suffixField )
+        {
+            strcpy(msg,"Suffix missing in station recode");
+            return std::nullopt;
+        }
+        target.suffix=std::string(*suffixField);
+        return target;
+    }
+
+    target.codefrom.assign(firstField);
+    auto field=scanner.next();
+    if( field && boost::algorithm::iequals(*field,"to") ) field=scanner.next();
+    bool ok=true;
+    if( ! field )
+    {
+        strcpy(msg,"Missing target station code in recode definition");
+        ok=false;
+    }
+    else
+    {
+        target.codeto.assign(*field);
+    }
+    if( boost::algorithm::iequals(target.codefrom,RECODE_IGNORE_CODE) && ! boost::algorithm::iequals(target.codeto,RECODE_IGNORE_CODE) )
+    {
+        sprintf(msg,"Cannot recode from %.20s to %.20s",target.codefrom.c_str(),target.codeto.c_str());
+        ok=false;
+    }
+    return ok ? std::optional<RecodeTarget>(target) : std::nullopt;
+}
+
+struct UncertaintyResult
+{
+    double herror=0.0;                          ///< horizontal error, 0.0 if no hv_error clause
+    double verror=0.0;                          ///< vertical error, 0.0 if no hv_error clause
+    int n_enu=0;                                ///< count of hv_error values parsed (0, 1 or 2)
+    std::optional<std::string_view> nextField;   ///< the field after this clause, for the date-range parser
+};
+
+/// Parses the optional uncertainty clause ("disconnected" or
+/// "hv_error <val> [<val>] m|metres") named by field. If the field names
+/// neither keyword, nextField is set to field unchanged, so the caller can
+/// reinterpret it as the start of the date-range clause. Returns nullopt
+/// only on a genuine hv_error parse error, with msg set.
+/// e.g. "disconnected", "hv_error 0.5 m", or "hv_error 0.5 0.6 m".
+static std::optional<UncertaintyResult> parse_uncertainty(
+    FieldScanner &scanner,     ///< field cursor, will be advanced past whatever this function consumes
+    std::string_view field,    ///< the field to inspect; the caller has already confirmed it has a value
+    char *msg )                ///< caller's fixed-size error message buffer, filled in on failure
+{
+    UncertaintyResult result;
+
+    if( boost::algorithm::iequals(field,"disconnected") )
+    {
+        result.nextField=scanner.next();
+        return result;
+    }
+    if( ! boost::algorithm::iequals(field,"hv_error") )
+    {
+        result.nextField=field;
+        return result;
+    }
+
+    bool ok=true;
+    while( ok )
+    {
+        auto errorField=scanner.next();
+        if( ! errorField ) break;
+        if( boost::algorithm::iequals(*errorField,"m") || boost::algorithm::iequals(*errorField,"metres") )
+        {
+            break;
+        }
+        else
+        {
+            if( result.n_enu > 1 )
+            {
+                strcpy(msg,"Missing m (metres) at end of hv_error in recode definition");
+                ok=false;
+                break;
+            }
+            if( ! parse_positive_double( *errorField, result.verror ) )
+            {
+                std::string errorText(*errorField);
+                sprintf(msg,"Invalid hv_error %s in recode definition",errorText.c_str());
+                ok=false;
+                break;
+            }
+            if( result.n_enu == 0 ) result.herror=result.verror;
+            result.n_enu++;
+        }
+    }
+    if( ok && result.n_enu == 0 )
+    {
+        strcpy(msg,"Missing hv_error in recode definition");
+        ok=false;
+    }
+    result.nextField=scanner.next();
+    return ok ? std::optional<UncertaintyResult>(result) : std::nullopt;
+}
+
+struct DateRange
+{
+    double datefrom=UNDEFINED_DATE;  ///< start of the date range, UNDEFINED_DATE if unbounded
+    double dateto=UNDEFINED_DATE;    ///< end of the date range, UNDEFINED_DATE if unbounded
+};
+
+/// Parses the optional date-range clause ("between X and Y" / "before Y" /
+/// "after X") named by field. n_enu is the count of hv_error values already
+/// parsed ("hv_error" and "between" cannot be combined). Returns nullopt on
+/// any parse error, with msg set.
+/// e.g. "between 2000-01-01 and 2001-01-01", "before 2000-01-01", or
+/// "after 2000-01-01".
+static std::optional<DateRange> parse_date_range(
+    FieldScanner &scanner,   ///< field cursor, will be advanced past whatever this function consumes
+    std::string_view field,  ///< the field to inspect; the caller has already confirmed it has a value
+    int n_enu,               ///< count of hv_error values already parsed by parse_uncertainty
+    char *msg )               ///< caller's fixed-size error message buffer, filled in on failure
+{
+    DateRange range;
+    std::optional<std::string> fromdef;
+    std::optional<std::string> todef;
+    bool ok=true;
+    if( boost::algorithm::iequals(field,"between") )
+    {
+        auto fromField=scanner.next();
+        if( ! fromField )
+        {
+            strcpy(msg,"Date missing after \"between\"");
+            ok=false;
+        }
+        else
+        {
+            fromdef=std::string(*fromField);
+        }
+        if( ok )
+        {
+            auto andField=scanner.next();
+            if( ! ( andField && boost::algorithm::iequals(*andField,"and") ) )
+            {
+                strcpy(msg,"\"and\" missing after \"between\"");
+                ok=false;
+            }
+        }
+        if( ok )
+        {
+            auto toField=scanner.next();
+            if( ! toField )
+            {
+                strcpy(msg,"Date missing after \"and\"");
+                ok=false;
+            }
+            else
+            {
+                todef=std::string(*toField);
+            }
+        }
+        if( ok && n_enu > 0 )
+        {
+            strcpy(msg,"Cannot use \"hv_error\" and \"between\" in recode definition");
+            ok=false;
+        }
+    }
+    else if( boost::algorithm::iequals(field,"before") )
+    {
+        auto toField=scanner.next();
+        if( ! toField )
+        {
+            strcpy(msg,"Date missing after \"before\"");
+            ok=false;
+        }
+        else
+        {
+            todef=std::string(*toField);
+        }
+    }
+    else if( boost::algorithm::iequals(field,"after") )
+    {
+        auto fromField=scanner.next();
+        if( ! fromField )
+        {
+            strcpy(msg,"Date missing after \"after\"");
+            ok=false;
+        }
+        else
+        {
+            fromdef=std::string(*fromField);
+        }
+    }
+    else
+    {
+        std::string fieldText(field);
+        sprintf(msg,"Undefined field %.50s",fieldText.c_str());
+        ok=false;
+    }
+    if( ok && fromdef )
+    {
+        range.datefrom=snap_datetime_parse( fromdef->c_str(), nullptr );
+        if( ! range.datefrom )
+        {
+            sprintf(msg,"Invalid from date \"%.50s\"",fromdef->c_str());
+            ok=false;
+        }
+    }
+    if( ok && todef )
+    {
+        range.dateto=snap_datetime_parse( todef->c_str(), nullptr );
+        if( ! range.dateto )
+        {
+            sprintf(msg,"Invalid to date \"%.50s\"",todef->c_str());
+            ok=false;
+        }
+        else if( range.datefrom != UNDEFINED_DATE && range.datefrom >= range.dateto )
+        {
+            sprintf(msg,"Start date \"%.20s\" and end date \"%.20s\" inconsistent",fromdef ? fromdef->c_str() : "",todef->c_str());
+            ok=false;
+        }
+    }
+    return ok ? std::optional<DateRange>(range) : std::nullopt;
+}
+
 int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile )
 {
     char msg[80+MAX_FILENAME_LEN];
     std::string codefrom;
     std::string codeto;
-    double datefrom;
-    double dateto;
-    std::string suffix;
-    bool have_suffix=false;
-    int nenu=0;
+    double datefrom=UNDEFINED_DATE;
+    double dateto=UNDEFINED_DATE;
+    std::optional<std::string> suffix;
+    int n_enu=0;
     double herror=0.0;
     double verror=0.0;
-    int ok=1;
+    bool ok=true;
 
 /*
    recode xxx to yyyy uncertainty
@@ -444,7 +685,7 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
     if( ! field )
     {
         strcpy(msg,"Missing source station code in recode definition");
-        ok=0;
+        ok=false;
     }
     else if ( boost::algorithm::iequals(*field,"file") )
     {
@@ -456,20 +697,19 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         // immediately rather than falling into logic that assumes codefrom
         // and codeto are set.
         auto filenameField=scanner.next();
-        int sts;
         if( ! filenameField )
         {
             strcpy(msg,"Filename missing in station recode");
-            ok=0;
+            ok=false;
         }
         else
         {
             std::string filename(*filenameField);
-            sts=read_station_recode_file( stt, filename.c_str(), basefile );
+            int sts=read_station_recode_file( stt, filename.c_str(), basefile );
             if( sts != OK )
             {
                 sprintf(msg,"Error reading station recode file %.*s",MAX_FILENAME_LEN,filename.c_str());
-                ok=0;
+                ok=false;
             }
         }
         if( ! ok )
@@ -478,192 +718,53 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         }
         return ok ? OK : INVALID_DATA;
     }
-    else if ( boost::algorithm::iequals(*field,"suffix") )
-    {
-        auto suffixField=scanner.next();
-        if( ! suffixField )
-        {
-            strcpy(msg,"Suffix missing in station recode");
-            ok=0;
-        }
-        else
-        {
-            suffix.assign(*suffixField);
-            have_suffix=true;
-        }
-    }
     else
     {
-        codefrom.assign(*field);
-        field=scanner.next();
-        if( field && boost::algorithm::iequals(*field,"to") ) field=scanner.next();
-        if( ! field )
+        auto target=parse_recode_codes( scanner, *field, msg );
+        if( ! target )
         {
-            strcpy(msg,"Missing target station code in recode definition");
-            ok=0;
+            ok=false;
         }
         else
         {
-            codeto.assign(*field);
-        }
-        if( boost::algorithm::iequals(codefrom,RECODE_IGNORE_CODE) && ! boost::algorithm::iequals(codeto,RECODE_IGNORE_CODE) )
-        {
-            sprintf(msg,"Cannot recode from %.20s to %.20s",codefrom.c_str(),codeto.c_str());
-            ok=0;
+            suffix=std::move(target->suffix);
+            codefrom=std::move(target->codefrom);
+            codeto=std::move(target->codeto);
         }
     }
 
     field=scanner.next();
-    herror=verror=0.0;
     if( ok && field )
     {
-        if( boost::algorithm::iequals(*field,"disconnected") )
+        auto uncertainty=parse_uncertainty( scanner, *field, msg );
+        if( ! uncertainty )
         {
-            field=scanner.next();
-        }
-        else if( boost::algorithm::iequals(*field,"hv_error") )
-        {
-            while( ok)
-            {
-                auto errorField=scanner.next();
-                if( ! errorField ) break;
-                if( boost::algorithm::iequals(*errorField,"m") || boost::algorithm::iequals(*errorField,"metres") )
-                {
-                    break;
-                }
-                else
-                {
-                    if( nenu > 1 )
-                    {
-                        strcpy(msg,"Missing m (metres) at end of hv_error in recode definition");
-                        ok=0;
-                        break;
-                    }
-                    if( ! parse_positive_double( *errorField, verror ) )
-                    {
-                        std::string errorText(*errorField);
-                        sprintf(msg,"Invalid hv_error %s in recode definition",errorText.c_str());
-                        ok=0;
-                        break;
-                    }
-                    if( nenu == 0 ) herror=verror;
-                    nenu++;
-                }
-            }
-            if( ok && nenu == 0 )
-            {
-                strcpy(msg,"Missing hv_error in recode definition");
-                ok=0;
-            }
-            field=scanner.next();
-        }
-    }
-
-    datefrom=UNDEFINED_DATE;
-    dateto=UNDEFINED_DATE;
-    if( ok && field )
-    {
-        std::optional<std::string> fromdef;
-        std::optional<std::string> todef;
-        if( boost::algorithm::iequals(*field,"between") )
-        {
-            auto fromField=scanner.next();
-            if( ! fromField )
-            {
-                strcpy(msg,"Date missing after \"between\"");
-                ok=0;
-            }
-            else
-            {
-                fromdef=std::string(*fromField);
-            }
-            if( ok )
-            {
-                field=scanner.next();
-                if( ! ( field && boost::algorithm::iequals(*field,"and") ) )
-                {
-                    strcpy(msg,"\"and\" missing after \"between\"");
-                    ok=0;
-                }
-            }
-            if( ok )
-            {
-                auto toField=scanner.next();
-                if( ! toField )
-                {
-                    strcpy(msg,"Date missing after \"and\"");
-                    ok=0;
-                }
-                else
-                {
-                    todef=std::string(*toField);
-                }
-            }
-            if( ok && nenu > 0 )
-            {
-                strcpy(msg,"Cannot use \"hv_error\" and \"between\" in recode definition");
-                ok=0;
-
-            }
-        }
-        else if( boost::algorithm::iequals(*field,"before") )
-        {
-            auto toField=scanner.next();
-            if( ! toField )
-            {
-                strcpy(msg,"Date missing after \"before\"");
-                ok=0;
-            }
-            else
-            {
-                todef=std::string(*toField);
-            }
-        }
-        else if( boost::algorithm::iequals(*field,"after") )
-        {
-            auto fromField=scanner.next();
-            if( ! fromField )
-            {
-                strcpy(msg,"Date missing after \"after\"");
-                ok=0;
-            }
-            else
-            {
-                fromdef=std::string(*fromField);
-            }
+            ok=false;
         }
         else
         {
-            std::string fieldText(*field);
-            sprintf(msg,"Undefined field %.50s",fieldText.c_str());
-            ok=0;
-        }
-        if( ok && fromdef )
-        {
-            datefrom=snap_datetime_parse( fromdef->c_str(), nullptr );
-            if( ! datefrom )
-            {
-                sprintf(msg,"Invalid from date \"%.50s\"",fromdef->c_str());
-                ok=0;
-            }
-        }
-        if( ok && todef )
-        {
-            dateto=snap_datetime_parse( todef->c_str(), nullptr );
-            if( ! dateto )
-            {
-                sprintf(msg,"Invalid to date \"%.50s\"",todef->c_str());
-                ok=0;
-            }
-            else if( datefrom != UNDEFINED_DATE && datefrom >= dateto )
-            {
-                sprintf(msg,"Start date \"%.20s\" and end date \"%.20s\" inconsistent",fromdef ? fromdef->c_str() : "",todef->c_str());
-                ok=0;
-            }
+            herror=uncertainty->herror;
+            verror=uncertainty->verror;
+            n_enu=uncertainty->n_enu;
+            field=uncertainty->nextField;
         }
     }
 
-    if( have_suffix && ok )
+    if( ok && field )
+    {
+        auto range=parse_date_range( scanner, *field, n_enu, msg );
+        if( ! range )
+        {
+            ok=false;
+        }
+        else
+        {
+            datefrom=range->datefrom;
+            dateto=range->dateto;
+        }
+    }
+
+    if( suffix && ok )
     {
         field=scanner.next();
         if( ! field || ! boost::algorithm::iequals(*field,"for") )
@@ -675,13 +776,13 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         if( stationList.empty() )
         {
             strcpy(msg,"Station list missing from recode suffix definition");
-            ok=0;
+            ok=false;
         }
         else
         {
             stn_recode_suffix_data srd;
             srd.srm=stt;
-            srd.suffix=suffix.data();
+            srd.suffix=suffix->data();
             srd.datefrom=datefrom;
             srd.dateto=dateto;
             srd.herror=herror;
