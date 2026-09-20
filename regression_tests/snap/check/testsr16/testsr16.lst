@@ -1,0 +1,24 @@
+================================================================================
+
+                      PROGRAM SNAP  Version 3.0.0-19d56fbe
+
+                       Survey Network Adjustment Program
+
+                    Copyright: Land Information New Zealand
+                              Author: Chris Crook
+                       Version date: Sep 21 2026 08:58:39
+
+================================================================================
+                   Run at 21-SEP-2026 09:24:21 by asibthorpe
+
+
+
+
+================================================================================
+Regression tests - recode command validation errors         21-SEP-2026 09:24:21
+
+                                     ERRORS
+
+================================================================================
+
+Note: 5 errors reported in testsr16.err
