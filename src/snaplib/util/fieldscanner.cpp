@@ -28,6 +28,27 @@ std::string_view FieldScanner::span( std::string_view::const_iterator start, std
                               std::distance( start, end ) );
 }
 
+std::optional<std::string_view> FieldScanner::quotedValue( std::string_view::const_iterator start, char quoteChar )
+{
+    auto pos=start;
+    while( pos != _text.end() )
+    {
+        if( *pos == quoteChar )
+        {
+            auto afterQuote=pos+1;
+            if( afterQuote == _text.end() || ISSPACE(*afterQuote) )
+            {
+                _pos=afterQuote;
+                return span( start, pos );
+            }
+            break;
+        }
+        ++pos;
+    }
+    _pos = ( pos == _text.end() ) ? pos : pos+1;
+    return std::nullopt;
+}
+
 bool parse_positive_double( std::string_view field, double &value )
 {
     const char *begin = field.data();
