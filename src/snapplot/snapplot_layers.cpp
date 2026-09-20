@@ -412,7 +412,7 @@ static void setup_data_file_layers()
     for( int ifile = 0; ifile < nfiles; ifile++ ) {
         // ifile+1 to skip the header row added at index 0
         l = &(data_file_layers[ifile+1]);
-        init_layer(l,survey_data_file_name(ifile),dflt_data_colour,false);
+        init_layer(l,survey_data_file_name(ifile).c_str(),dflt_data_colour,false);
     }
     data_file_layers[nfiles+1].name = 0;
 }

@@ -15,15 +15,18 @@
 #include "snapdata/stnrecode.h"
 #include "util/fileutil.h"
 
+#include <string>
+#include <optional>
+
 enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT, SINEX_FORMAT };
 
 typedef struct
 {
-    char *name;
+    std::string name;
     int format;
-    char *subtype;
+    std::optional<std::string> subtype;
     file_context *context;
-    char *recodefile;
+    std::optional<std::string> recodefile;
     double mindate;
     double maxdate;
     long nnodate;
@@ -32,9 +35,9 @@ typedef struct
     stn_recode_map *recode;
 } survey_data_file;
 
-int  add_data_file( char *name, int format, char *subtype, char *recode, file_context *context );
+int  add_data_file( const std::string &name, int format, const std::optional<std::string> &subtype, const std::optional<std::string> &recode, file_context *context );
 survey_data_file *survey_data_file_ptr( int ifile );
-char *survey_data_file_name( int ifile );
+std::string survey_data_file_name( int ifile );
 int survey_data_file_id( char *name, file_context *context );
 int survey_data_file_count( void );
 void survey_data_file_dates( double *mindate, double *maxdate, int *nnodate );

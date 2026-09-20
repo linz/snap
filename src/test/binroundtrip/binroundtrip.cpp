@@ -326,9 +326,9 @@ static void dump_filenames_text( std::ostream &out )
         const survey_data_file *sd = survey_data_file_ptr( i );
         out << "=== DATA_FILES[" << i << "] ===\n";
         out << sd->format << "\n";
-        out << portable_path( sd->name ? sd->name : "" ) << "\n";
-        out << (sd->subtype ? sd->subtype : "") << "\n";
-        out << portable_path( sd->recodefile ? sd->recodefile : "" ) << "\n";
+        out << portable_path( sd->name ) << "\n";
+        out << sd->subtype.value_or("") << "\n";
+        out << portable_path( sd->recodefile.value_or("") ) << "\n";
         const char *context_def = context_definition( sd->context );
         out << (context_def ? context_def : "") << "\n";
         check_free( (void*)context_def );

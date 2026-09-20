@@ -264,8 +264,8 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
 int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *fname, *format, errmess[80];
-    char *options = 0;
-    char *recode = 0;
+    std::optional<std::string> options;
+    std::optional<std::string> recode;
     char *specs;
     int ftype;
     int fileid;
@@ -297,7 +297,8 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
         }
         else if ( _stricmp(format,"RECODE") == 0 )
         {
-            recode = strtok(specs," ");
+            char *recodefield = strtok(specs," ");
+            recode = recodefield ? std::optional<std::string>(recodefield) : std::nullopt;
             specs = strtok(NULL,"");
         }
         else if ( _stricmp(format,"ERROR_FACTOR") == 0 )
@@ -329,16 +330,17 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
 
         if( readoptions && specs )
         {
+            char *optstart;
             char *endopts;
             char *nextfield;
             int inopts;
             /* Options are following fields containing '=' */
 
             while( ISSPACE(*specs) ) specs++;
-            options=specs;
+            optstart=specs;
 
             inopts=0;
-            nextfield=options;
+            nextfield=optstart;
             endopts=0;
             for( char *c=specs; *c; c++ )
             {
@@ -365,8 +367,9 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
                     if( ! endopts ) endopts=c;
                 }
             }
-            if( nextfield == options ) options=0;
+            if( nextfield == optstart ) optstart=0;
             if( endopts ) *endopts=0;
+            options = optstart ? std::optional<std::string>(optstart) : std::nullopt;
             specs=nextfield;
         }
     }
@@ -376,7 +379,7 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
     if( factor != 1.0 )
     {
         void *obs_modifications=snap_obs_modifications( true );
-        add_obs_modifications_datafile_factor(cfg,obs_modifications,fileid,survey_data_file_name(fileid),factor);
+        add_obs_modifications_datafile_factor(cfg,obs_modifications,fileid,survey_data_file_name(fileid).c_str(),factor);
     }
 
     return OK;

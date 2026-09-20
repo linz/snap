@@ -285,7 +285,7 @@ static void describe_obs_datatype_criterion( FILE *lst, obs_criterion *oc, const
     }
 }
 
-static obs_criterion *new_obs_datafile_criterion( int file_id, char *filename )
+static obs_criterion *new_obs_datafile_criterion( int file_id, const char *filename )
 {
     obs_criterion *oc=new_obs_criterion();
     oc->crit_type=OBS_CRIT_DATAFILE;
@@ -302,8 +302,8 @@ static bool obs_datafile_match_fileid( obs_modifications *obsmod, obs_criterion 
     {
         int last_file_id = oc->c.datafile.last_file_id;
         if( file_id == last_file_id ) return oc->c.datafile.last_match;
-        char *filename = obsmod->get_filename( file_id );
-        oc->c.datafile.last_match = filename_wildcard_match(oc->c.datafile.filename,filename);
+        std::string filename = obsmod->get_filename( file_id );
+        oc->c.datafile.last_match = filename_wildcard_match(oc->c.datafile.filename,filename.c_str());
         return oc->c.datafile.last_match;
     }
     else
@@ -1263,7 +1263,7 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     return OK;
 }
 
-int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid, char *filename, double err_factor )
+int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid, const char *filename, double err_factor )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criterion *oc = new_obs_datafile_criterion( fileid, filename);

@@ -27,12 +27,12 @@ static int maxsdindx = 0;
 #define SDINDX_INC 10
 
 
-static int add_data_file_nocopy( char *name, int format, char *subtype, char *recode, file_context *context )
+static int add_data_file_nocopy( const std::string &name, int format, const std::optional<std::string> &subtype, const std::optional<std::string> &recode, file_context *context )
 {
     survey_data_file *sd;
     int i;
 
-    sd = (survey_data_file *) check_malloc( sizeof( survey_data_file ) );
+    sd = new survey_data_file();
     if( nsdindx >= maxsdindx )
     {
         maxsdindx = nsdindx + SDINDX_INC;
@@ -45,7 +45,7 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, char *re
     sd->name = name;
     sd->format = format;
     sd->subtype = subtype;
-    sd->recodefile=recode;
+    sd->recodefile = recode;
     sd->context=context;
     sd->mindate=UNDEFINED_DATE;
     sd->maxdate=UNDEFINED_DATE;
@@ -57,27 +57,24 @@ static int add_data_file_nocopy( char *name, int format, char *subtype, char *re
 
 }
 
-int add_data_file( char *name, int format, char *subtype, char *recode, file_context *context )
+int add_data_file( const std::string &name, int format, const std::optional<std::string> &subtype, const std::optional<std::string> &recode, file_context *context )
 {
-    char *buffer=0;
+    std::string resolved_name = name;
 
     /* If context is not null */
 
     if( context )
     {
         const char *refpath = context->dir;
-        int nch=strlen(name)+strlen(refpath)+2;
+        int nch=name.size()+strlen(refpath)+2;
         char *filename;
-        buffer= (char *) check_malloc( nch );
-        filename=build_filespec(buffer,nch,refpath,name,NULL);
-        if( file_exists(filename) ) name=filename;
+        char *buffer= (char *) check_malloc( nch );
+        filename=build_filespec(buffer,nch,refpath,name.c_str(),NULL);
+        if( file_exists(filename) ) resolved_name = filename;
+        check_free( buffer );
     }
 
-    name = copy_string( name );
-    subtype = copy_string( subtype );
-    recode = copy_string( recode );
-    if( buffer ) check_free( buffer );
-    return add_data_file_nocopy( name, format, subtype, recode, context );
+    return add_data_file_nocopy( resolved_name, format, subtype, recode, context );
 }
 
 void delete_survey_data_file_recodes()
@@ -98,10 +95,7 @@ void delete_survey_file_list()
     {
         survey_data_file *sd=sdindx[i];
         if( sd->recode ) delete_stn_recode_map( sd->recode );
-        if( sd->name ) check_free( sd->name );
-        if( sd->subtype ) check_free( sd->subtype );
-        if( sd->recodefile ) check_free( sd->recodefile );
-        check_free( sd );
+        delete sd;
         sdindx[i] = 0;
     }
     check_free( sdindx );
@@ -114,7 +108,7 @@ survey_data_file *survey_data_file_ptr( int  ifile )
     return sdindx[ifile];
 }
 
-char *survey_data_file_name( int ifile )
+std::string survey_data_file_name( int ifile )
 {
     return sdindx[ifile]->name;
 }
@@ -141,7 +135,7 @@ int survey_data_file_id( char *name, file_context *context )
     /* Case sensitive match - not checking for ambiguity */
     for( i = 0; i < nsdindx; i++ )
     {
-        if( strcmp( name, sdindx[i]->name ) == 0 ) { matchid=i; break; }
+        if( strcmp( name, sdindx[i]->name.c_str() ) == 0 ) { matchid=i; break; }
     }
 
     /* Case insensitive match - not checking for ambiguity */
@@ -149,7 +143,7 @@ int survey_data_file_id( char *name, file_context *context )
     {
         for( i = 0; i < nsdindx; i++ )
         {
-            if( _stricmp( name, sdindx[i]->name ) == 0 ) { matchid=i; break; }
+            if( _stricmp( name, sdindx[i]->name.c_str() ) == 0 ) { matchid=i; break; }
         }
     }
 
@@ -159,7 +153,7 @@ int survey_data_file_id( char *name, file_context *context )
         matchlen=strlen(name);
         for( i=0; i < nsdindx; i++ )
         {
-            char *dfname=sdindx[i]->name;
+            const char *dfname=sdindx[i]->name.c_str();
             int offset=strlen(dfname)-matchlen;
             if( offset > 0 )
             {
@@ -219,8 +213,8 @@ void dump_filenames( BINARY_FILE *b )
     {
         const char *context_def=context_definition(sdindx[i]->context);
         fwrite( &sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f );
-        dump_filepath( sdindx[i]->name, b->f );
-        dump_string_c( sdindx[i]->subtype, b->f );
+        dump_filepath( sdindx[i]->name.c_str(), b->f );
+        dump_string( sdindx[i]->subtype, b->f );
         dump_filepath( sdindx[i]->recodefile, b->f );
         dump_string_c( context_def, b->f );
         check_free((void *) context_def);
@@ -232,9 +226,9 @@ void dump_filenames( BINARY_FILE *b )
 int reload_filenames( BINARY_FILE *b )
 {
     int i, fmt;
-    char *name;
-    char *subtype;
-    char *recodefile;
+    std::string name;
+    std::optional<std::string> subtype;
+    std::optional<std::string> recodefile;
     char *context_def;
 
     if( find_section(b,"DATA_FILES") != OK ) return MISSING_DATA;
@@ -242,9 +236,9 @@ int reload_filenames( BINARY_FILE *b )
     while( i-- > 0 )
     {
         fread( &fmt, sizeof(fmt), 1, b->f );
-        name = reload_string_c( b->f );
-        subtype = reload_string_c( b->f );
-        recodefile = reload_string_c( b->f );
+        name = reload_string( b->f );
+        subtype = reload_optional_string( b->f );
+        recodefile = reload_optional_string( b->f );
         // Note: flawed implementation of restoring context.  
         // 
         context_def = reload_string_c( b->f );

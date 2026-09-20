@@ -377,7 +377,7 @@ static void load_snap( survdata *sd )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",
-                survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
+                survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno );
         handle_error(INVALID_DATA,"Observation date not defined", location);
         missing_data++;
         return;
@@ -389,7 +389,7 @@ static void load_snap( survdata *sd )
     {
         char location[80];
         sprintf(location,"In %.50s line %d",
-                survey_data_file_name(sd->file), sd->obs.vdata[0].tgt.lineno );
+                survey_data_file_name(sd->file).c_str(), sd->obs.vdata[0].tgt.lineno );
         handle_error(INVALID_DATA,"Observation covariance not defined", location);
         missing_data++;
         return;

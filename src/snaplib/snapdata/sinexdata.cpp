@@ -308,11 +308,11 @@ using namespace SNAP;
 //
 // Global SINEX load function
 
-int load_sinex_obs(const char *options, DATAFILE *df, int (*check_progress)(DATAFILE *df))
+int load_sinex_obs(const std::string &options, DATAFILE *df, int (*check_progress)(DATAFILE *df))
 {
     try
     {
-        OptionString config(options ? options : "");
+        OptionString config(options);
         LINZ::SNAP::SinexDataReader snx(config);
         DatafileInput dfi(df, check_progress);
         try

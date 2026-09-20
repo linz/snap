@@ -1689,10 +1689,9 @@ static void set_display_field_widths( void )
             int j;
             for( j = 0; j < survey_data_file_count(); j++ )
             {
-                char *filnam = survey_data_file_name(j);
+                std::string filnam = survey_data_file_name(j);
                 int dfw;
-                if( !filnam ) continue;
-                dfw = strlen(filnam);
+                dfw = filnam.size();
                 if( dfw > width ) width = dfw;
             }
             width  += 5;  /* Leave a bit of space */
@@ -1880,7 +1879,7 @@ static int cmp_srdef_fileloc( const void *p1, const void *p2 )
     get_connection_data_by_id( srList[i1].from, srList[i1].to_id, srList[i1].obs_id, connection );
     get_connection_data_by_id( srList[i2].from, srList[i2].to_id, srList[i2].obs_id, connection2 );
 
-    cmp = strcmp(survey_data_file_name( connection->file ),survey_data_file_name( connection2->file ));
+    cmp = survey_data_file_name( connection->file ).compare(survey_data_file_name( connection2->file ));
     if( cmp == 0 ) { cmp = connection->line - connection2->line; }
     if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
 
@@ -2188,7 +2187,7 @@ char *sres_item_description( long id )
     nch = 0;
     for( i = 0; i < nDisplayFields; i++ )
     {
-        const char *data = 0;
+        std::string data;
         char number[32];
         int datalen;
         switch( displayFields[i] )
@@ -2237,11 +2236,10 @@ char *sres_item_description( long id )
             }
             break;
         }
-        if( !data ) { number[0] = 0; data = number; }
-        datalen = strlen( data );
+        datalen = data.size();
         if( nch + datalen + 2 > SRES_BUF_SIZE ) break;
         if( i > 0 ) { sres_buf[nch++] = '\t'; }
-        strcpy( sres_buf+nch, data );
+        strcpy( sres_buf+nch, data.c_str() );
         nch += datalen;
     }
     return sres_buf;
@@ -2588,7 +2586,7 @@ void list_connections( void *dest, PutTextFunc f, int from )
             }
             sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
                     MAX_FILENAME_LEN,
-                    survey_data_file_name( connection->file ));
+                    survey_data_file_name( connection->file ).c_str());
             (*f)( dest, &jump, buf );
         }
     }
@@ -2783,7 +2781,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
         nch=strlen(buf);
         sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
                 MAX_FILENAME_LEN,
-                survey_data_file_name( connection->file ));
+                survey_data_file_name( connection->file ).c_str());
         (*f)( dest, &jump, buf );
     }
 }
@@ -2839,7 +2837,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (o->tgt.lineno),
-            survey_data_file_name( sd->file ) );
+            survey_data_file_name( sd->file ).c_str() );
     (*f)( dest, &jmp, buf );
     if( o->tgt.noteloc ) display_note_text( dest, f, o->tgt.noteloc );
 
@@ -3125,7 +3123,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (tgt->lineno),
-            survey_data_file_name( sd->file ) );
+            survey_data_file_name( sd->file ).c_str() );
     (*f)( dest, &jmp, buf );
     if( tgt->noteloc ) display_note_text( dest, f, tgt->noteloc );
     buf[0] = 0;
@@ -3345,7 +3343,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (p->tgt.lineno),
-            survey_data_file_name( sd->file ) );
+            survey_data_file_name( sd->file ).c_str() );
     (*f)( dest, &jmp, buf );
     if( p->tgt.noteloc ) display_note_text( dest, f, p->tgt.noteloc );
     buf[0] = 0;

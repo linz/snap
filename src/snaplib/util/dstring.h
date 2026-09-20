@@ -12,6 +12,7 @@
 */
 
 #include <string>
+#include <optional>
 
 char *copy_string( const char *string);
 char *copy_string_nch( const char *string, int nch );
@@ -23,6 +24,14 @@ char *reload_string_c( FILE *f );
  * std::optional<std::string> around this, not a sentinel value. */
 void dump_string( const std::string &string, FILE *f );
 std::string reload_string( FILE *f );
+/* std::optional<std::string> overloads, for fields that are genuinely absent
+ * (not just empty) - preserves the exact same on-disk length-prefixed format
+ * as dump_string_c/reload_string_c (-1 for absent, real length otherwise), so
+ * a field switching from char* to this loses nothing byte-for-byte on disk.
+ * reload_string can't be overloaded by return type alone, hence the
+ * distinct name here. */
+void dump_string( const std::optional<std::string> &string, FILE *f );
+std::optional<std::string> reload_optional_string( FILE *f );
 /* Case insensitive and underscore/whitespace insensitive match */
 int ismatch( const char *string1, const char *string2 );
 /* Next field - skips whitespace, puts zero delimiter at end of next 

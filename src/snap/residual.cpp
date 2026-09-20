@@ -332,7 +332,7 @@ void print_worst_residuals( FILE *out )
                 fputs("   -   ", out );
             }
             fprintf(out," %-3s",residual_flag( 1-maxi, maxj+1,ws->sres) );
-            fprintf(out,"  %5d  %s\n",(int)(ws->line),survey_data_file_name(ws->file));
+            fprintf(out,"  %5d  %s\n",(int)(ws->line),survey_data_file_name(ws->file).c_str());
 
             index[maxi][maxj]++;
             if( index[maxi][maxj] < nworst[maxi][maxj] )

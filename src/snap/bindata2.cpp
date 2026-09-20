@@ -324,7 +324,7 @@ static void print_obsheader( FILE *lst, bindata *b )
 
     tgt=get_trgtdata(sd,0);
     fprintf(lst,"\nFile %s: line %d: Station ",
-            survey_data_file_name(sd->file),(int)(tgt->lineno));
+            survey_data_file_name(sd->file).c_str(),(int)(tgt->lineno));
     if( sd->from ) { fprintf(lst,"%s ",stnptr(sd->from)->Code ); }
     if( tgt->to ) { fprintf( lst, "%s%s ",(sd->from ? "to " : ""),stnptr(tgt->to)->Code);}
     fprintf(lst,": %s",datatype[tgt->type].code);
@@ -375,7 +375,7 @@ int sum_bindata( int iteration )
             survdata *sd = (survdata *) b->data;
             trgtdata *tgt=get_trgtdata(sd,0);
             sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"obsid\": %d, \"type\": \"%s\",\"nobs\": %d}",
-                survey_data_file_name(sd->file),
+                survey_data_file_name(sd->file).c_str(),
                 (int)(tgt->lineno),
                 sd->from ? stnptr(sd->from)->Code : "",
                 sd->from && tgt->to ? " - " : "",
@@ -394,7 +394,7 @@ int sum_bindata( int iteration )
             survdata *sd = (survdata *) b->data;
             trgtdata *tgt=get_trgtdata(sd,0);
             sprintf(location,"Cannot sum observation from %.80s line %d\n",
-                    survey_data_file_name(sd->file),
+                    survey_data_file_name(sd->file).c_str(),
                     (int)(tgt->lineno)
                    );
             handle_error(INVALID_DATA,"Observation error",location);
@@ -1008,7 +1008,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
     }
     sprintf( fileno, "%d", (int) (sd->file) );
     set_residual_field( OF_FILENO, fileno );
-    set_residual_field( OF_FILENAME, survey_data_file_name( sd->file ));
+    set_residual_field( OF_FILENAME, survey_data_file_name( sd->file ).c_str());
     sprintf( lineno, "%d", (int) (t->lineno) );
     set_residual_field( OF_LINENO, lineno );
     sprintf(obsid,"%d",(int) (t->id));
@@ -1427,7 +1427,7 @@ void list_file_location( FILE *out, int file, int lineno )
         nwait = 1;
     }
     if( --nwait ) return;
-    fprintf(out,"\nFile %s: line %d\n",survey_data_file_name(file),(int)lineno);
+    fprintf(out,"\nFile %s: line %d\n",survey_data_file_name(file).c_str(),(int)lineno);
     nwait = file_location_frequency;
 }
 
@@ -1469,7 +1469,7 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
     {
         write_csv_string(csv,get_obs_classification_name(sd,tgt,i+1));
     }
-    write_csv_string(csv,survey_data_file_name(sd->file));
+    write_csv_string(csv,survey_data_file_name(sd->file).c_str());
     write_csv_int(csv,tgt->lineno);
 
     if( output_csv_shape )

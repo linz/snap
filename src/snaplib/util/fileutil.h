@@ -15,6 +15,7 @@
 
 #include <time.h>
 #include <string>
+#include <optional>
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
@@ -115,6 +116,9 @@ std::string portable_path( const std::string &path );
    portable_path first. Use in place of dump_string_c for any path being written
    to a .bin file. */
 void dump_filepath( const char *path, FILE *f );
+/* std::optional<std::string> overload, for a genuinely-absent path field -
+   writes std::nullopt exactly as dump_filepath(nullptr, f) does. */
+void dump_filepath( const std::optional<std::string> &path, FILE *f );
 
 /* Note: find..file return a static character string.  The result should be used
    straight away or copied */

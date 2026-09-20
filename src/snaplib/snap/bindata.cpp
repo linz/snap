@@ -795,7 +795,7 @@ void print_json_observations( FILE *out )
                 fprintf( out, "\n          },\n");
             }
             fprintf( out, "        \"useobs\":%s,\n",tgt->unused ? "false" : "true");
-            fprintf( out, "        \"file\":\"%s\",\n",survey_data_file_name(sd->file));
+            fprintf( out, "        \"file\":\"%s\",\n",survey_data_file_name(sd->file).c_str());
             fprintf( out, "        \"file_line_no\":%d\n",tgt->lineno);
             fprintf( out, "      }");
         }

@@ -507,19 +507,18 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
             {
                 int indent;
                 int ttlwidth;
-                const char *title;
+                std::string title;
                 char ttlbuf[32];
                 indent = ilevel * LEVEL_INDENT;
                 if( iaxis && lastlevel ) indent += AXIS_INDENT;
                 ttlwidth = TITLE_WIDTH - indent;
                 if( indent ) fprintf(lst,"%*s",indent,""); else fprintf(lst,"\n");
 
-                title = 0;
                 switch( sdf->level_id[ilevel] )
                     {
 
                     case BY_DATA_TYPE:
-                        if( iaxis ) 
+                        if( iaxis )
                         {
                             if( output_xyz_vector_residuals )
                             {
@@ -543,7 +542,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                             {
                                 sprintf(ttlbuf,"%.4s %s",
                                     datatype[obstype_from_index[ilvl]].code,
-                                    title);
+                                    title.c_str());
                                 title=ttlbuf;
                             }
                         }
@@ -563,7 +562,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                     }
 
                 if( ttlwidth > 0 )
-                    fprintf(lst,"%-*.*s",ttlwidth,ttlwidth,title);
+                    fprintf(lst,"%-*.*s",ttlwidth,ttlwidth,title.c_str());
 
                 for( j=0; j<3; j++)
                 {

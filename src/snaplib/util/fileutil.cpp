@@ -497,6 +497,16 @@ void dump_filepath( const char *path, FILE *f )
     dump_string_c( portable_path(path).c_str(), f );
 }
 
+void dump_filepath( const std::optional<std::string> &path, FILE *f )
+{
+    if( ! path )
+    {
+        dump_string( std::nullopt, f );
+        return;
+    }
+    dump_string( portable_path(*path), f );
+}
+
 // context_definition/recreate_context serialize a chain of relative directory
 // paths to and from a single string. A doubled separator marks the boundary
 // between path segments - a real relative path never contains two consecutive

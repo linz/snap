@@ -17,6 +17,8 @@
 #include "snapdata/survdata.h"
 #endif
 
+#include <string>
+
 #define OBS_MOD_IGNORE   1
 #define OBS_MOD_REJECT   2
 #define OBS_MOD_REWEIGHT 4
@@ -39,7 +41,7 @@ void set_obs_modifications_network( void *obsmod, network *nw );
  * For C++ rewrite! */
 
 typedef int (*fileid_func)(char *filename, file_context *context);
-typedef char *(*filename_func)(int ifile);
+typedef std::string (*filename_func)(int ifile);
 void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc, filename_func namefunc );
 
 /* Add modifications based on a string specifying multiple criteria */
@@ -52,7 +54,7 @@ int add_obs_option_modification( CFG_FILE *cfg, void *obsmod, char *criteria, in
 int add_obs_modifications_classification( CFG_FILE *cfg, void *obsmod, char *classification, char *value, int action, double err_factor, int missing_error );
 
 /* Add modifications for data file error factor */
-int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *obsmod, int fileid, char *filename, double factor );
+int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *obsmod, int fileid, const char *filename, double factor );
 
 /* Determine the observation stations based upon the criteria.  Returns a flag specifying 
  * ignoring, rejecting, and reweighting observations, and the error factor

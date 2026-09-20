@@ -70,14 +70,14 @@ long read_data_files( FILE *lst )
     for (i = 0; i < nfile; i++ )
     {
         sd = survey_data_file_ptr(i);
-        c = strlen( sd->name )+1;
+        c = sd->name.size()+1;
         if( c > nch ) nch = c;
     }
     fname = (char *) check_malloc( nch );
 
     for( i = 0; i < nfile; i++ )
     {
-        char *filename;
+        const char *filename;
 
         if( obsmod_ignore_datafile( obs_modifications, i )) continue;
 
@@ -85,7 +85,7 @@ long read_data_files( FILE *lst )
 
         set_file_context( sd->context );
 
-        filename = sd->name;
+        filename = sd->name.c_str();
 
         if( d ) 
         {
@@ -96,17 +96,17 @@ long read_data_files( FILE *lst )
         d = df_open_data_file( filename, "survey data file" );
         if( !d )
         {
-            xprintf("\n   Unable to open data file %s\n",sd->name);
+            xprintf("\n   Unable to open data file %s\n",sd->name.c_str());
             continue;
         }
 
-        if( sd->recodefile && ! sd->recode )
+        if( sd->recodefile.has_value() && ! sd->recode )
         {
             sd->recode=create_stn_recode_map( net );
-            sts = read_station_recode_file( sd->recode, sd->recodefile, filename );
+            sts = read_station_recode_file( sd->recode, sd->recodefile->c_str(), filename );
             if( sts != OK )
             {
-                xprintf("\n   Unable to read station recode file %s\n",sd->recodefile);
+                xprintf("\n   Unable to read station recode file %s\n",sd->recodefile->c_str());
                 total_errors++;
                 continue;
             }
@@ -126,10 +126,10 @@ long read_data_files( FILE *lst )
         sd->mindate=sd->maxdate=UNDEFINED_DATE;
         sd->nnodate=0;
 
-        xprintf("\n   Reading data from %s\n",sd->name);
+        xprintf("\n   Reading data from %s\n",sd->name.c_str());
         if( lst )
         {
-            fprintf(lst,"\nData file %d: %s\n",(int) (i+1),sd->name);
+            fprintf(lst,"\nData file %d: %s\n",(int) (i+1),sd->name.c_str());
         }
 
         misc_errors=get_error_count();
@@ -145,10 +145,10 @@ long read_data_files( FILE *lst )
             read_snap_data( d, datafile_progress );
             break;
         case CSV_FORMAT:
-            load_snap_csv_obs( sd->subtype, d, datafile_progress );
+            load_snap_csv_obs( sd->subtype.value_or(""), d, datafile_progress );
             break;
         case SINEX_FORMAT:
-            load_sinex_obs( sd->subtype, d, datafile_progress );
+            load_sinex_obs( sd->subtype.value_or(""), d, datafile_progress );
             break;
         default:
             handle_error( INTERNAL_ERROR, "Program error: Invalid file format",
