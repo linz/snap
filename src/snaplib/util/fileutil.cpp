@@ -233,29 +233,23 @@ char *build_filespec( char *spec, int nspec,
 
 const char *image_path()
 {
-    char _link[20];
-    char buf[10];
     if( imgpath ) return imgpath;
-    pid_t pid = getpid();
-    sprintf( buf,"%d", pid );
-    strcpy( _link, "/proc/" );
-    strcat( _link, buf );
+    std::string link = "/proc/" + std::to_string(getpid());
 #if defined(__linux) || defined(linux)
-    strcat( _link, "/exe" );
+    link += "/exe";
 #endif
 #if defined(sun) || defined(__sun)
-    strcat( _link, "/path/a.out" );
+    link += "/path/a.out";
 #endif
 #if defined(__bsdi__)
-    strcat( _link, "/file" );
+    link += "/file";
 #endif
-    char proc[512];
-    ssize_t len = readlink( _link, proc, 512);
+    std::string proc(512, '\0');
+    ssize_t len = readlink( link.c_str(), proc.data(), proc.size() );
     if ( len != -1 )
     {
-        proc[len] = '\0';
-        imgpath = (char *) check_malloc(strlen(proc)+1 );
-        strcpy( imgpath, proc );
+        proc.resize(len);
+        imgpath = copy_string(proc.c_str());
     }
     return imgpath;
 }
