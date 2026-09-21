@@ -1056,6 +1056,105 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
     return file_id;
 }
 
+/// Parses a "key=value" observation selection criteria field, e.g.
+/// data_type=GB, data_file="obs 2020.dat", or id=123. If valuePart starts
+/// with a quote character, scanner is advanced past the closing quote
+/// (which may span further next() fields) to pick up the verbatim quoted
+/// text. Returns nullptr if the criterion is invalid or the value is
+/// missing/malformed; the error is already reported via send_config_error
+/// before returning.
+static obs_criterion *parse_key_value_criterion(
+    CFG_FILE *cfg,                 ///< current config file, for error reporting
+    obs_modifications *obsmod,     ///< owns the classification map and data-file lookup used by some keys
+    FieldScanner &scanner,         ///< field cursor; advanced past a multi-field quoted value
+    std::string_view field,        ///< the whole "key=value" field, for error messages
+    std::string_view key,          ///< the part of field before '='
+    std::string_view valuePart,    ///< the part of field after '=', not yet unquoted
+    int missing_error )            ///< error severity to use if a data_file value doesn't resolve
+{
+    if( key.empty() || valuePart.empty() )
+    {
+        char errmess[100];
+        std::string fieldText(field);
+        sprintf(errmess,"Invalid observation selection criteria \"%.40s\"",fieldText.c_str());
+        send_config_error(cfg,INVALID_DATA,errmess);
+        return nullptr;
+    }
+
+    bool quoted=false;
+    std::string value;
+    if( valuePart.front() == '"' || valuePart.front() == '\'' )
+    {
+        char quoteChar=valuePart.front();
+        quoted=true;
+        auto tokenEnd=scanner.pos();
+        auto quotedResult=scanner.quotedValue( valuePart.begin()+1, quoteChar );
+        if( ! quotedResult )
+        {
+            char errmess[100];
+            auto messageEnd = scanner.pos() > tokenEnd ? scanner.pos() : tokenEnd;
+            std::string fieldText( scanner.span( field.begin(), messageEnd ) );
+            sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",fieldText.c_str());
+            send_config_error(cfg,INVALID_DATA,errmess);
+            return nullptr;
+        }
+        value.assign(*quotedResult);
+    }
+    else
+    {
+        value.assign(valuePart);
+    }
+
+    if( boost::algorithm::iequals(key,"data_type") )
+    {
+        return new_obs_datatype_criterion(cfg,value.data());
+    }
+    if( boost::algorithm::iequals(key,"data_file") )
+    {
+        int file_id=OBS_CRIT_WILDCARD_FILEID;
+        if( quoted || ! has_wildcard(value.c_str()) )
+        {
+            file_id=get_file_id( obsmod, cfg, value.data(), missing_error );
+            if( file_id < 0 ) return nullptr;
+        }
+        return new_obs_datafile_criterion(file_id,value.c_str());
+    }
+    if( boost::algorithm::iequals(key,"id") )
+    {
+        return new_obs_id_criterion(cfg,value.data());
+    }
+    std::string keyText(key);
+    return new_obs_classification_criterion(cfg, obsmod->classes, keyText.data(), value.data(), quoted );
+}
+
+/// Parses a using_stations/between_stations ... end_stations span, capturing
+/// the station list verbatim (preserving the original spacing between
+/// names) between the two keywords. scanner is positioned right after the
+/// opening keyword; it is advanced to just past end_stations (or to end of
+/// text if end_stations is never found). Returns nullptr if the station
+/// list itself is missing; the error is already reported via
+/// send_config_error before returning.
+static obs_criterion *parse_stations_criterion(
+    CFG_FILE *cfg,              ///< current config file, for error reporting
+    FieldScanner &scanner,      ///< field cursor, positioned after using_stations/between_stations
+    int station_crit_type )     ///< OBS_CRIT_STATION_USES or OBS_CRIT_STATION_BETWEEN
+{
+    auto stationField=scanner.next();
+    if( ! stationField )
+    {
+        send_config_error(cfg,INVALID_DATA,"Missing station list in observation selection criteria");
+        return nullptr;
+    }
+    auto start=stationField->begin();
+    while( stationField && ! boost::algorithm::iequals(*stationField,"end_stations") )
+    {
+        stationField=scanner.next();
+    }
+    auto stop = stationField ? stationField->begin() : scanner.pos();
+    std::string stationList( scanner.span(start,stop) );
+    return new_obs_stations_criterion( cfg, station_crit_type, stationList.data() );
+}
+
 static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, int option, double errval1, double errval2 )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
@@ -1079,64 +1178,7 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
         {
             auto key=field->substr(0,eqPos);
             auto valuePart=field->substr(eqPos+1);
-            if( eqPos == 0 || valuePart.empty() )
-            {
-                char errmess[100];
-                std::string fieldText(*field);
-                sprintf(errmess,"Invalid observation selection criteria \"%.40s\"",fieldText.c_str());
-                send_config_error(cfg,INVALID_DATA,errmess);
-                sts=INVALID_DATA;
-                continue;
-            }
-            bool quoted=false;
-            std::string value;
-            if( valuePart.front() == '"' || valuePart.front() == '\'' )
-            {
-                char quoteChar=valuePart.front();
-                quoted=true;
-                auto tokenEnd=scanner.pos();
-                auto quotedResult=scanner.quotedValue( valuePart.begin()+1, quoteChar );
-                if( ! quotedResult )
-                {
-                    char errmess[100];
-                    auto messageEnd = scanner.pos() > tokenEnd ? scanner.pos() : tokenEnd;
-                    std::string fieldText( scanner.span( field->begin(), messageEnd ) );
-                    sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",fieldText.c_str());
-                    send_config_error(cfg,INVALID_DATA,errmess);
-                    sts=INVALID_DATA;
-                    continue;
-                }
-                value.assign(*quotedResult);
-            }
-            else
-            {
-                value.assign(valuePart);
-            }
-
-            if( boost::algorithm::iequals(key,"data_type") )
-            {
-                oc=new_obs_datatype_criterion(cfg,value.data());
-            }
-            else if( boost::algorithm::iequals(key,"data_file") )
-            {
-                int file_id=OBS_CRIT_WILDCARD_FILEID;
-                bool ok=true;
-                if( quoted || ! has_wildcard(value.c_str()) )
-                {
-                    file_id=get_file_id( obsmod, cfg, value.data(), missing_error );
-                    if( file_id < 0 ) ok=false;
-                }
-                if( ok ) oc=new_obs_datafile_criterion(file_id,value.c_str());
-            }
-            else if( boost::algorithm::iequals(key,"id") )
-            {
-                oc=new_obs_id_criterion(cfg,value.data());
-            }
-            else
-            {
-                std::string keyText(key);
-                oc=new_obs_classification_criterion(cfg, obsmod->classes, keyText.data(), value.data(), quoted );
-            }
+            oc=parse_key_value_criterion(cfg,obsmod,scanner,*field,key,valuePart,missing_error);
         }
         else if( boost::algorithm::iequals(*field,"before") )
         {
@@ -1175,23 +1217,7 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
         {
             int station_crit_type= boost::algorithm::iequals(*field,"between_stations") ?
                 OBS_CRIT_STATION_BETWEEN : OBS_CRIT_STATION_USES;
-            auto stationField=scanner.next();
-            if( ! stationField )
-            {
-                send_config_error(cfg,INVALID_DATA,"Missing station list in observation selection criteria");
-                sts=INVALID_DATA;
-            }
-            else
-            {
-                auto start=stationField->begin();
-                while( stationField && ! boost::algorithm::iequals(*stationField,"end_stations") )
-                {
-                    stationField=scanner.next();
-                }
-                auto stop = stationField ? stationField->begin() : scanner.pos();
-                std::string stationList( scanner.span(start,stop) );
-                oc=new_obs_stations_criterion( cfg, station_crit_type, stationList.data() );
-            }
+            oc=parse_stations_criterion(cfg,scanner,station_crit_type);
         }
         else
         {
