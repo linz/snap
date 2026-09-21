@@ -15,11 +15,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #include "network/network.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "util/fileutil.h"
 #include "util/filelist.h"
 #include "util/errdef.h"
@@ -421,14 +426,14 @@ void setup_station_criteria_cache( void *psc, int maxstn )
     if( maxstn > 0 ) sc->cache=new_criteria_cache(maxstn);
 }
 
-static void set_station_criteria_source( station_criteria *sc, char *file )
+static void set_station_criteria_source( station_criteria *sc, const char *file )
 {
     station_criteria_source *src=sc->sources;
     int prefix_len=strlen(source_prefix);
     char *srcfile;
     while( src )
     {
-        if( strcmp(src->source + prefix_len, file) == 0 ) 
+        if( strcmp(src->source + prefix_len, file) == 0 )
         {
             sc->cur_source=src;
             return;
@@ -447,7 +452,7 @@ static void set_station_criteria_source( station_criteria *sc, char *file )
     sc->cur_source=src;
 }
 
-static bool station_criteria_source_used( station_criteria *sc, int maxstack, char *file )
+static bool station_criteria_source_used( station_criteria *sc, int maxstack, const char *file )
 {
     for( criterion *c=sc->first; c; c=c->next )
     {
@@ -633,9 +638,9 @@ int check_station_criteria_codes( void *psc, network *nw )
 /*-----------------------------------------------------------------------*/
 
 
-static int compile_station_criteria1( station_criteria *sc, network *nw, char *select, char *basefile, unsigned char stacklevel );
+static int compile_station_criteria1( station_criteria *sc, network *nw, std::string_view select, const char *basefile, unsigned char stacklevel );
 
-static int compile_station_list_file_criteria( station_criteria *sc, network *nw, char *file, char *basefile, unsigned char stacklevel )
+static int compile_station_list_file_criteria( station_criteria *sc, network *nw, const char *file, const char *basefile, unsigned char stacklevel )
 {
     const char *spec;
     FILE *list_file;
@@ -668,42 +673,40 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
     return sts;
 }
 
-static int compile_station_criteria1( station_criteria *sc, network *nw, char *select, char *basefile, unsigned char stacklevel )
+static int compile_station_criteria1( station_criteria *sc, network *nw, std::string_view select, const char *basefile, unsigned char stacklevel )
 {
-    char *field;
-    char *s = select;
-    char *delim;
     const char *src;
     char errmess[200];
     int missing_error=sc->cur_missing_error;
-    int sts;
+    int sts=OK;
     unsigned char curop=CRIT_OP_LINE;
-    int baselevel=stacklevel;
+    const int baselevel=stacklevel;
 
     criterion *c;
 
     errmess[0] = 0;
     src=sc->cur_source ? sc->cur_source->source : default_source;
 
-    sts=OK;
-    while( (field=next_field(&s)) )
+    FieldScanner scanner( select );
+    std::optional<std::string_view> field;
+    while( (field=scanner.next()) )
     {
 
         /* Missing station options */
 
-        if( _stricmp( field, "ignore_missing" ) == 0 )
+        if( boost::algorithm::iequals( *field, "ignore_missing" ) )
         {
             missing_error=OK;
             continue;
         }
 
-        if( _stricmp( field, "warn_missing" ) == 0 )
+        if( boost::algorithm::iequals( *field, "warn_missing" ) )
         {
             missing_error=INFO_ERROR;
             continue;
         }
 
-        if( _stricmp( field, "fail_missing" ) == 0 )
+        if( boost::algorithm::iequals( *field, "fail_missing" ) )
         {
             missing_error=INVALID_DATA;
             continue;
@@ -713,19 +716,20 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
 
         {
             unsigned char op=CRIT_OP_DEFAULT;
-            if( _stricmp( field, "except" ) == 0 ) op=CRIT_OP_EXCEPT;
-            else if( _stricmp( field, "and" ) == 0 ) op=CRIT_OP_AND;
-            else if( _stricmp( field, "or" ) == 0 ) op=CRIT_OP_OR;
+            if( boost::algorithm::iequals( *field, "except" ) ) op=CRIT_OP_EXCEPT;
+            else if( boost::algorithm::iequals( *field, "and" ) ) op=CRIT_OP_AND;
+            else if( boost::algorithm::iequals( *field, "or" ) ) op=CRIT_OP_OR;
             if( op != CRIT_OP_DEFAULT )
             {
                 if( curop != CRIT_OP_DEFAULT )
                 {
-                    sprintf(errmess,"\"%s\" out of place in %.100s",field,src);
+                    std::string fieldText(*field);
+                    sprintf(errmess,"\"%s\" out of place in %.100s",fieldText.c_str(),src);
                     break;
                 }
                 /* Except increments stack level by one so can evaluate except clause on stack
                  * before inverting status */
-                if( op == CRIT_OP_EXCEPT ) 
+                if( op == CRIT_OP_EXCEPT )
                 {
                     add_station_criterion( sc, new_criteria_frame( op, baselevel ));
                     op=CRIT_OP_LINE;
@@ -739,25 +743,25 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
         /* If this reference a file of station definitions, then process the file.
            Not allowed if this is already in a station list file. */
 
-        if( field[0] == '@' && field[1] )
+        if( field->size() > 1 && (*field)[0] == '@' )
         {
-            char *file=field+1;
+            const std::string file( field->substr(1) );
             station_criteria_source *save_src=sc->cur_source;
             /* Add a placeholder for the current operation */
             add_station_criterion( sc, new_criteria_frame( curop, stacklevel ));
             sc->cur_missing_error=missing_error;
-            if( station_criteria_source_used( sc, stacklevel, file ))
+            if( station_criteria_source_used( sc, stacklevel, file.c_str() ))
             {
-                sprintf(errmess,"Station list file %.100s uses itself",file);
+                sprintf(errmess,"Station list file %.100s uses itself",file.c_str());
                 break;
             }
             /* Embedded station list increments stack level by 2 to distinguish from
              * except stack level */
-            sts=compile_station_list_file_criteria( sc, nw,file,basefile,stacklevel+1);
+            sts=compile_station_list_file_criteria( sc, nw,file.c_str(),basefile,stacklevel+1);
             sc->cur_source=save_src;
-            if( sts != OK ) 
+            if( sts != OK )
             {
-                sprintf(errmess,"Error processing station list file %.100s",file);
+                sprintf(errmess,"Error processing station list file %.100s",file.c_str());
                 break;
             }
             curop=CRIT_OP_DEFAULT;
@@ -765,67 +769,66 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
         }
 
         c=nullptr;
-        if( _stricmp( field, "all" ) == 0 )
+        if( boost::algorithm::iequals( *field, "all" ) )
         {
             c=new_all_criterion();
         }
-        else if( _stricmp( field, "inside" ) == 0 || _stricmp( field, "outside" ) == 0 )
+        else if( boost::algorithm::iequals( *field, "inside" ) || boost::algorithm::iequals( *field, "outside" ) )
         {
-            char *crdsys;
-            char *pgnfile;
-            const char *spec;
-            void *pgn=0;
             bool isgeo=true;
             coordsys *cs;
             coord_conversion *conv=nullptr;
 
-            bool inside=_stricmp(field,"inside") == 0 ? true : false;
-            crdsys=next_field(&s);
-            pgnfile=next_field(&s);
-            if( ! pgnfile )
+            const bool inside=boost::algorithm::iequals(*field,"inside");
+            const auto crdsysField=scanner.next();
+            const auto pgnfileField=scanner.next();
+            if( ! pgnfileField )
             {
-                sprintf(errmess,"Invalid \"%s\" option in %s requires coord sys code and wkt file name",field,src);
+                std::string fieldText(*field);
+                sprintf(errmess,"Invalid \"%s\" option in %s requires coord sys code and wkt file name",fieldText.c_str(),src);
                 break;
             }
-            cs=load_coordsys( crdsys );
+            const std::string crdsys( *crdsysField );
+            const std::string pgnfile( *pgnfileField );
+            cs=load_coordsys( crdsys.c_str() );
             if( ! cs )
             {
-                sprintf(errmess,"Invalid coordinate system %-20s in \"%s\" option in %s",crdsys,field,src);
+                sprintf(errmess,"Invalid coordinate system %-20s in \"%s\" option in %s",crdsys.c_str(),std::string(*field).c_str(),src);
                 break;
             }
 
-            spec = find_file( pgnfile,DFLT_WKT_EXT,basefile,1,0);
+            const char *spec = find_file( pgnfile.c_str(),DFLT_WKT_EXT,basefile,1,0);
             if( ! spec )
             {
                 sprintf(errmess,"Cannot find WKT polygon file %.50s in %s",
-                        pgnfile,src);
+                        pgnfile.c_str(),src);
                 break;
             }
-            
+
             if( identical_coordinate_systems( cs, nw->geosys ) )
             {
                 delete_coordsys( cs );
                 cs=nullptr;
             }
-            else 
+            else
             {
                 isgeo=is_geodetic(cs);
                 conv=(coord_conversion *)check_malloc( sizeof (coord_conversion) );
                 if( define_coord_conversion_epoch( conv, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK )
                 {
                     sprintf(errmess,"Cannot use WKT coordinate system %.20s in %s option in %s",
-                            crdsys,field,src);
+                            crdsys.c_str(),std::string(*field).c_str(),src);
                     check_free( conv );
                     delete_coordsys( cs );
                     break;
                 }
             }
 
-            pgn=read_polygon_wkt( spec, isgeo);
+            void *const pgn=read_polygon_wkt( spec, isgeo);
             if( ! pgn )
             {
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
-                        pgnfile,src);
+                        pgnfile.c_str(),src);
                 if( conv ) check_free( conv );
                 if( cs ) delete_coordsys( cs );
                 break;
@@ -835,29 +838,27 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
         }
 
 
-        /* If this is a classification criteria */
+        /* If this is a classification criteria ("class=value1/value2/..."):
+           split on the first '=' after the first character (so a field
+           starting with '=' is never treated as a classification), then
+           split the value on '/'. A trailing or doubled '/' produces an
+           empty value segment, matched against no defined class value -
+           reproducing the original char*-based splitting's behavior
+           exactly, not just its common case. */
 
-        else if( field[0] != '\\' && (delim=strchr(field+1,'=')) )
+        else if( (*field)[0] != '\\' && field->find('=',1) != std::string_view::npos )
         {
-            int class_id = 0;
-            *delim = 0;
-            class_id = network_class_id( nw, field, 0 );
-            *delim='=';
-            delim++;
-            while( *delim )
+            const auto eqPos=field->find('=',1);
+            const std::string className( field->substr(0,eqPos) );
+            const int class_id = network_class_id( nw, className.c_str(), 0 );
+            const std::string_view values = field->substr(eqPos+1);
+            size_t pos=0;
+            while( pos < values.size() )
             {
-                char *value=delim;
-                char delchr;
-                int value_id = CLASS_VALUE_NOT_DEFINED;
-                while( *delim && *delim != '/' ) delim++;
-                delchr=*delim;
-                *delim=0;
-                if( class_id )
-                {
-                    value_id = network_class_value_id( nw, class_id, value, 0 );
-                }
-                *delim=delchr;
-                if( *delim ) delim++;
+                const auto slashPos=values.find('/',pos);
+                const auto valueEnd = slashPos==std::string_view::npos ? values.size() : slashPos;
+                const std::string value( values.substr(pos,valueEnd-pos) );
+                const int value_id = class_id ? network_class_value_id( nw, class_id, value.c_str(), 0 ) : CLASS_VALUE_NOT_DEFINED;
                 if( value_id != CLASS_VALUE_NOT_DEFINED )
                 {
                     c=new_classification_criterion( class_id, value_id );
@@ -867,6 +868,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
                     add_station_criterion( sc, c );
                     curop=CRIT_OP_OR;
                 }
+                pos = slashPos==std::string_view::npos ? values.size() : slashPos+1;
             }
             c=nullptr;
             curop=CRIT_OP_DEFAULT;
@@ -875,23 +877,27 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, char *s
 
         /* Is it matched as a range? */
 
-        else if( field[0] != '\\' && (delim=strchr(field+1,'-')) )
+        else if( (*field)[0] != '\\' && field->find('-',1) != std::string_view::npos )
         {
-            *delim = 0;
-            c=new_code_range_criterion( field, delim+1 );
-            *delim='-';
+            const auto dashPos=field->find('-',1);
+            std::string fromCode( field->substr(0,dashPos) );
+            std::string toCode( field->substr(dashPos+1) );
+            c=new_code_range_criterion( fromCode.data(), toCode.data() );
         }
-        else if( field[0] != '\\' && has_wildcard(field) )
+        else if( (*field)[0] != '\\' && has_wildcard( std::string(*field).c_str() ) )
         {
-            c=new_code_match_criterion(field);
+            std::string fieldStr(*field);
+            c=new_code_match_criterion(fieldStr.data());
         }
         else
         {
             /* Allow \ escape on station names matching keywords */
 
-            if( field[0] == '\\' ) field++;
-            if( ! field[0] ) continue;
-            c=new_code_criterion(field, missing_error);
+            std::string_view codeField=*field;
+            if( codeField.front() == '\\' ) codeField.remove_prefix(1);
+            if( codeField.empty() ) continue;
+            std::string codeStr(codeField);
+            c=new_code_criterion(codeStr.data(), missing_error);
         }
 
         if( c )
@@ -919,9 +925,7 @@ int compile_station_criteria( void *psc, network *nw, const char *select, char *
 {
     int sts;
     station_criteria *sc=(station_criteria *) psc;
-    char *sel = copy_string(select);
-    sts=compile_station_criteria1( sc, nw, sel, basefile, 0 );
-    check_free(sel);
+    sts=compile_station_criteria1( sc, nw, select, basefile, 0 );
     return sts;
 }
 
