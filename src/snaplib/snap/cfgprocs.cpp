@@ -212,30 +212,24 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
 
 int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
-    char *fname;
     char *base_dir=get_config_directory(cfg);
-    int nch=strlen(string);
+    std::string fname;
     if( string[0] == '.' )
     {
-        fname=(char *) check_malloc( strlen(root_name)+nch+1);
-        strcpy(fname,root_name);
-        strcat(fname,string);
+        fname = std::string(root_name) + string;
     }
     else
     {
-        nch += (base_dir ? strlen(base_dir) : 0 ) + 1;
-        fname=(char *) check_malloc( nch );
-        build_filespec( fname, nch, base_dir, string, NULL );
+        fname = build_filespec( base_dir?base_dir:"", string, "" );
     }
-    set_output_station_file( fname );
-    check_free(fname);
+    set_output_station_file( fname.c_str() );
     return OK;
 }
 
 int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
     const char *filename;
-    const char *filespec;
+    std::optional<std::string> filespec;
     int sts;
 
     filename=strtok(string," ");
@@ -245,14 +239,14 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
         return OK;
     }
 
-    filespec = find_relative_file( station_filespec, filename,DFLTSTOFFS_EXT);
-    if(! filespec )  filespec=find_file( filename,DFLTSTOFFS_EXT,get_config_directory(cfg),FF_TRYALL,0);
+    if( station_filespec ) filespec = find_relative_file( station_filespec, filename, DFLTSTOFFS_EXT );
+    if( ! filespec ) filespec = find_file( filename, DFLTSTOFFS_EXT, std::optional<std::string>(get_config_directory(cfg)), FF_TRYALL, "" );
     if(! filespec )
     {
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
         return OK;
     }
-    sts=read_network_station_offsets( net, filespec );
+    sts=read_network_station_offsets( net, filespec->c_str() );
     if( sts != OK )
     {
         send_config_error( cfg, INVALID_DATA, "Errors reading station offset file");

@@ -388,7 +388,7 @@ static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, 
     return OK;
 }
 
-static const char *get_csfile( void *pcfs, const char *filename, const char *extension )
+static std::optional<std::string> get_csfile( void *pcfs, const std::string &filename, const std::string &extension )
 {
     crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
     const char *sourcepath = df_file_name( cfs->df );

@@ -19,6 +19,7 @@
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 static survey_data_file **sdindx = NULL;
 static int nsdindx = 0;
@@ -65,13 +66,8 @@ int add_data_file( const std::string &name, int format, const std::optional<std:
 
     if( context )
     {
-        const char *refpath = context->dir;
-        int nch=name.size()+strlen(refpath)+2;
-        char *filename;
-        char *buffer= (char *) check_malloc( nch );
-        filename=build_filespec(buffer,nch,refpath,name.c_str(),NULL);
+        std::string filename = build_filespec(context->dir,name,"");
         if( file_exists(filename) ) resolved_name = filename;
-        check_free( buffer );
     }
 
     return add_data_file_nocopy( resolved_name, format, subtype, recode, context );
@@ -117,25 +113,20 @@ int survey_data_file_id( char *name, file_context *context )
 {
     int i;
     int matchid=-1;
-    int matchlen;
-    char *buffer=0;
+    std::string matchName = name;
 
     /* If context is not null then try looking for a matching file */
 
     if( context )
     {
-        const char *refpath = context->dir;
-        int nch=strlen(name)+strlen(refpath)+2;
-        char *filename;
-        buffer=(char *) check_malloc( nch );
-        filename=build_filespec(buffer,nch,refpath,name,NULL);
-        if( file_exists(filename) ) name=filename;
+        std::string filename = build_filespec(context->dir,name,"");
+        if( file_exists(filename) ) matchName=filename;
     }
 
     /* Case sensitive match - not checking for ambiguity */
     for( i = 0; i < nsdindx; i++ )
     {
-        if( strcmp( name, sdindx[i]->name.c_str() ) == 0 ) { matchid=i; break; }
+        if( matchName == sdindx[i]->name ) { matchid=i; break; }
     }
 
     /* Case insensitive match - not checking for ambiguity */
@@ -143,21 +134,21 @@ int survey_data_file_id( char *name, file_context *context )
     {
         for( i = 0; i < nsdindx; i++ )
         {
-            if( _stricmp( name, sdindx[i]->name.c_str() ) == 0 ) { matchid=i; break; }
+            if( boost::algorithm::iequals( matchName, sdindx[i]->name ) ) { matchid=i; break; }
         }
     }
 
     /* Path insensitive match (but path delimiter character sensitive) */
     if( matchid < 0 )
     {
-        matchlen=strlen(name);
+        size_t matchlen=matchName.size();
         for( i=0; i < nsdindx; i++ )
         {
-            const char *dfname=sdindx[i]->name.c_str();
-            int offset=strlen(dfname)-matchlen;
-            if( offset > 0 )
+            const std::string &dfname=sdindx[i]->name;
+            if( dfname.size() > matchlen )
             {
-                if( _stricmp( dfname+offset, name ) == 0 &&
+                size_t offset=dfname.size()-matchlen;
+                if( boost::algorithm::iequals( dfname.substr(offset), matchName ) &&
                     (dfname[offset-1]=='/' || dfname[offset-1]=='\\'))
                 {
                     if( matchid < 0 ) matchid=i;
@@ -172,8 +163,6 @@ int survey_data_file_id( char *name, file_context *context )
 
         }
     }
-
-    if( buffer ) check_free( buffer );
 
     return matchid;
 }

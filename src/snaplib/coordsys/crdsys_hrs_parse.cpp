@@ -47,7 +47,7 @@ vdatum *parse_vdatum_def ( input_string_def *is,
     char hrsname[CRDSYS_NAME_LEN+1];
     char basecode[CRDSYS_CODE_LEN+1];
     char geoidname[MAX_FILENAME_LEN+1];
-    const char *geoidfile;
+    std::optional<std::string> geoidfile;
     double offset;
     int isgeoid;
     int isgrid;
@@ -98,7 +98,7 @@ vdatum *parse_vdatum_def ( input_string_def *is,
         }
         else
         {
-            hrf=create_grid_vdatum_func( geoidfile, isgeoid );
+            hrf=create_grid_vdatum_func( geoidfile->c_str(), isgeoid );
         }
     }
     else

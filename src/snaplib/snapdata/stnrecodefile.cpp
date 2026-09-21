@@ -119,8 +119,8 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
     int sts = OK;
     try
     {
-        const char *recodefile;
-        recodefile=find_file(filename,DFLTSTRCD_EXT,basefile,FF_TRYALL,0);
+        std::optional<std::string> base = basefile ? std::optional<std::string>(basefile) : std::nullopt;
+        auto recodefile = find_file( filename, DFLTSTRCD_EXT, base, FF_TRYALL, "" );
         if( ! recodefile )
         {
             std::ostringstream os;
@@ -129,9 +129,8 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
             return INVALID_DATA;
         }
 
-        std::string recodefilename(recodefile);
-        const char *formatfile;
-        formatfile = find_file( "stnrecode", ".dtf", recodefilename.c_str(), FF_TRYALL, CSVFORMAT_CONFIG );
+        std::string recodefilename(*recodefile);
+        auto formatfile = find_file( "stnrecode", ".dtf", recodefilename, FF_TRYALL, CSVFORMAT_CONFIG );
         if( ! formatfile )
         {
             std::ostringstream os;
@@ -139,7 +138,7 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
             handle_error( INVALID_DATA, os.str().c_str(), 0 );
             return INVALID_DATA;
         }
-        SnapCsvRecode csvstnrecode( stt, formatfile );
+        SnapCsvRecode csvstnrecode( stt, *formatfile );
         DatafileInput dfi( recodefilename.c_str(),"station recode file" );
         csvstnrecode.load( dfi );
         if( dfi.errorCount()) sts = INVALID_DATA;

@@ -132,7 +132,7 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
 int rfdef_parse_griddef( ref_deformation *def, input_string_def *is )
 {
     double refepoch;
-    const char *gridfile;
+    std::optional<std::string> gridfile;
     char filename[MAX_FILENAME_LEN];
     int sts;
 
@@ -160,7 +160,7 @@ int rfdef_parse_griddef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
-    def->data = rf_grid_create( gridfile, refepoch );
+    def->data = rf_grid_create( gridfile->c_str(), refepoch );
     def->delete_func = rf_grid_delete;
     def->copy_func = rf_grid_copy;
     def->identical = rf_grid_identical;

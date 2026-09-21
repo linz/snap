@@ -275,8 +275,8 @@ int snapplot_load( int argc, char *argv[] )
 
     for( i = 0; i < ncfgfiles; i++ )
     {
-        const char *filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, 0, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
-        if( add_configuration_file( filename ) != 0 )
+        auto filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
+        if( add_configuration_file( filename ? filename->c_str() : nullptr ) != 0 )
         {
             handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found", cfgfile[i] );
         }

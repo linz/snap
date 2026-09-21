@@ -837,11 +837,10 @@ static int read_parameters( int argc, char *argv[] )
 
     if( cfg_file )
     {
-        const char *cf;
-        cf = find_configuration_file( cfg_file );
+        auto cf = find_configuration_file( cfg_file );
         if( cf )
         {
-            set_snap_config_file( copy_string( cf ));
+            set_snap_config_file( copy_string( cf->c_str() ));
         }
     }
 

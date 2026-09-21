@@ -63,14 +63,14 @@ void SnapMgrScriptEnv::SetupConfiguration()
         scriptPath.Append(PATH_SEPARATOR);
         scriptPath.Append(SNAPSCRIPT_DIR);
 
-        userScriptPath=wxString(user_config_dir());
+        userScriptPath=wxString(user_config_dir().value_or(""));
         userScriptPath.Append(PATH_SEPARATOR);
         userScriptPath.Append(SNAPSCRIPT_DIR);
 
-        const char *cfgfile=find_config_file(SNAPSCRIPT_DIR,"snap_manager.cfg",0);
+        auto cfgfile=find_config_file(SNAPSCRIPT_DIR,"snap_manager.cfg","");
     if( cfgfile )
     {
-        script->ExecuteScript( cfgfile );
+        script->ExecuteScript( cfgfile->c_str() );
     }
 }
 
@@ -426,14 +426,14 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$job_title",(job ? job->Title() : wxString() ));
     DEFINE_VARIABLE("$job_path",(job ? job->GetPath() : wxString() ));
     DEFINE_VARIABLE("$snap_path",image_dir());
-    DEFINE_VARIABLE("$user_config_path",user_config_dir());
+    DEFINE_VARIABLE("$user_config_path",user_config_dir().value_or(""));
     DEFINE_VARIABLE("$system_config_path", system_config_dir());
     DEFINE_VARIABLE("$coordinate_file",(job ? job->CoordinateFilename(): wxString() ));
     DEFINE_VARIABLE("$data_files",(job ? job->DataFiles() : wxString() ));
     DEFINE_VARIABLE("$load_errors",(job ? job->LoadErrors() : wxString() ));
     DEFINE_VARIABLE("$coordsys_list", GetCoordSysList() );
     DEFINE_VARIABLE("$heightref_list", GetHeightRefList() );
-    DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file() );
+    DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file().value_or("") );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
     DEFINE_VARIABLE("$version",PROGRAM_VERSION);    
@@ -773,8 +773,8 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
                 }
                 else
                 {
-                        const char *sf=find_config_file("snapscript",CSTRPRM(0),0);
-                        if( sf ) scriptFile=wxString(sf); else result=false;
+                        auto sf=find_config_file("snapscript",CSTRPRM(0),"");
+                        if( sf ) scriptFile=wxString(*sf); else result=false;
                 }
     }
 
@@ -851,9 +851,9 @@ FunctionStatus SnapMgrScriptEnv::EvaluateFunction( const wxString &functionName,
 
         DEFINE_FUNCTION2("FindConfigFile",2,3)
        reset_config_dirs();
-        const char *cfgfile=find_config_file(CSTRPRM(0),CSTRPRM(1),
-                nParams > 2 ? CSTRPRM(2) : 0 );
-        wxString result = cfgfile ? cfgfile : "";
+        auto cfgfile=find_config_file(CSTRPRM(0),CSTRPRM(1),
+                nParams > 2 ? CSTRPRM(2) : "" );
+        wxString result = cfgfile.value_or("");
         RETURN( result );
 
     // Regular expression match

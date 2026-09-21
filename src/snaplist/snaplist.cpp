@@ -1083,7 +1083,7 @@ int main( int argc, char *argv[] )
     coordsys *xyzcs;
     double lat, lon;
     CFG_FILE *cfg = 0;
-    const char *cfn;
+    std::optional<std::string> cfn;
     const char *basecfn, *ofn;
 
     CONFIGURE_RUNTIME();
@@ -1144,8 +1144,8 @@ int main( int argc, char *argv[] )
         ofn = argv[3];
     }
 
-    cfn = find_file( basecfn, ".tbf", bfn, FF_TRYALL, "snaplist" );
-    if( cfn ) { cfg = open_config_file( cfn, '!' );}
+    cfn = find_file( basecfn, ".tbf", std::optional<std::string>(bfn), FF_TRYALL, "snaplist" );
+    if( cfn ) { cfg = open_config_file( cfn->c_str(), '!' );}
     if( !cfn || !cfg )
     {
         printf("Cannot open configuration file %s\n",basecfn);
@@ -1159,7 +1159,7 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    printf("\nUsing configuration file %s\n",cfn);
+    printf("\nUsing configuration file %s\n",cfn->c_str());
     read_config_file( cfg, main_commands );
     close_config_file( cfg );
 

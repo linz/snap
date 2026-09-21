@@ -107,27 +107,24 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
 {
     int nch, sts;
     network *stndata;
-    char *stnfile=0;
 
     if( ! net ) clear_stnadj_globals();
 
-    nch = strlen( fname ) + (base_dir ? strlen(base_dir) : 0) + 1;
-    stnfile = (char *) check_malloc( nch );
-    build_filespec( stnfile, nch, base_dir, fname, NULL );
-    if( !file_exists(stnfile ) ) strcpy( stnfile, fname );
+    std::string stnfile = build_filespec( base_dir?base_dir:"", fname, "" );
+    if( !file_exists(stnfile ) ) stnfile = fname;
     if( options ) station_fileoptions = copy_string( options );
 
     stndata = new_network();
     switch( format )
     {
     case STN_FORMAT_SNAP:
-        sts = read_network( stndata, stnfile, 0 );
+        sts = read_network( stndata, stnfile.c_str(), 0 );
         break;
     case STN_FORMAT_GB:
-        sts = read_network( stndata, stnfile, NW_READOPT_GBFORMAT );
+        sts = read_network( stndata, stnfile.c_str(), NW_READOPT_GBFORMAT );
         break;
     case STN_FORMAT_CSV:
-        sts = load_snap_csv_stations( stndata, stnfile, station_fileoptions );
+        sts = load_snap_csv_stations( stndata, stnfile.c_str(), station_fileoptions );
         break;
     default:
         handle_error( INVALID_DATA, "Invalid station file format specified", NO_MESSAGE );
@@ -143,7 +140,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         {
             void *obsmod=snap_obs_modifications( false );
             station_filename = copy_string( fname );
-            station_filespec = copy_string( stnfile );
+            station_filespec = copy_string( stnfile.c_str() );
             if( ! output_station_filespec )
             {
                 nch=path_len(station_filespec,1);
@@ -166,8 +163,6 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         delete_network(stndata);
         clear_stnadj_globals();
     }
-
-    check_free( stnfile );
 
     return sts;
 }

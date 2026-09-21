@@ -44,12 +44,11 @@ static char *desc3 = NULL;
 
 static int init_grid_deformation(  char *pmodel, double pepoch )
 {
-    const char *grdfile;
     epoch = pepoch;
     model = copy_string( pmodel );
-    grdfile = find_coordsys_data_file( model, ".grd" );
+    auto grdfile = find_coordsys_data_file( model, ".grd" );
     if( !grdfile ) return INVALID_DATA;
-    modelfile = copy_string( grdfile );
+    modelfile = copy_string( grdfile->c_str() );
     if(  grd_open_grid_file( modelfile, 2, &velgrid ) == OK )
     {
         veldimension = 2;

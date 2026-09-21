@@ -21,6 +21,9 @@
 #ifndef CRDSYSDF_H
 #define CRDSYSDF_H
 
+#include <string>
+#include <optional>
+
 #ifndef _COORDSYS_H
 #include "coordsys/coordsys.h"
 #endif
@@ -31,7 +34,11 @@ typedef struct csd_s
 {
     struct csd_s *next;
     void *data;
-    const char *(*getcsfile)( void *data, const char *filename, const char *extension );
+    /// Searches this one coordinate system source (data) for filename+extension,
+    /// e.g. relative to the source's own definition file. nullptr if this source
+    /// doesn't support file lookup (e.g. crdsys_src_lists.cpp's in-memory source).
+    /// Returns nullopt if this source doesn't have the file.
+    std::optional<std::string> (*getcsfile)( void *data, const std::string &filename, const std::string &extension );
     int (*getrf)( void *data, long id, const char *code, ref_frame **rf );
     int (*getel)( void *data, long id, const char *code, ellipsoid **el );
     int (*getcs)( void *data, long id, const char *code, coordsys  **cs );

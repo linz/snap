@@ -2913,11 +2913,13 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
                              int recalconly )
 {
     DATAFILE *d;
-    const char *f;
-    f = NULL;
-    if( gotroot ) f = find_file( coord_file, 0, 0, FF_TRYALL, 0 );
-    if( !f  ) f = coord_file;
-    crdfname=copy_string(f);
+    std::string f = coord_file;
+    if( gotroot )
+    {
+        auto found = find_file( coord_file, "", std::nullopt, FF_TRYALL, "" );
+        f = found.value_or(coord_file);
+    }
+    crdfname=copy_string(f.c_str());
 
     net = new_network();
     if( read_network(net,crdfname,0) != OK )
@@ -2933,9 +2935,9 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
 
     for( ; ndatafiles-- > 0 ; data_files++ )
     {
-        f = find_file( *data_files, 0, 0, FF_TRYALL, 0 );
-        if( !f ) f = *data_files;
-        d = df_open_data_file( f, "SNAP data file" );
+        auto found = find_file( *data_files, "", std::nullopt, FF_TRYALL, "" );
+        f = found.value_or(*data_files);
+        d = df_open_data_file( f.c_str(), "SNAP data file" );
         if( d )
         {
             read_snap_data( d, 0 );
@@ -2962,17 +2964,16 @@ static config_item snap_commands[] =
 static void load_command_file( const char *cmd_file, int recalconly, int included )
 {
     CFG_FILE *cfg;
-    const char *f;
     char *cfgfile;
-    int tryopt=FF_TRYLOCAL;
+    FindFileOption tryopt=FF_TRYLOCAL;
     int sts;
 
     if( included ) tryopt |= FF_TRYPROJECT;
 
-    f = find_file( cmd_file, DFLTCOMMAND_EXT2, 0, tryopt, 0 );
-    if( !f ) f = find_file( cmd_file, DFLTCOMMAND_EXT, 0, tryopt, 0 );
-    if( !f ) f = cmd_file;
-    cfgfile=copy_string(f);
+    auto found = find_file( cmd_file, DFLTCOMMAND_EXT2, std::nullopt, tryopt, "" );
+    if( !found ) found = find_file( cmd_file, DFLTCOMMAND_EXT, std::nullopt, tryopt, "" );
+    std::string f = found.value_or(cmd_file);
+    cfgfile=copy_string(f.c_str());
 
     cfg = open_config_file( cfgfile, COMMENT_CHAR );
     if( ! included ) set_logname( cfgfile );

@@ -85,6 +85,11 @@ target_link_libraries(binroundtrip PRIVATE snaplib snap_link_deps)
 add_executable(fieldscanner_test test/fieldscanner_test/fieldscanner_test.cpp)
 target_link_libraries(fieldscanner_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for
+# util/fileutil.cpp. Exit code is the pass/fail signal.
+add_executable(fileutil_test test/fileutil_test/fileutil_test.cpp)
+target_link_libraries(fileutil_test PRIVATE snaplib snap_link_deps)
+
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
 

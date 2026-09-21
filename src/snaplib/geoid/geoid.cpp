@@ -33,15 +33,15 @@
 
 
 
-static const char *get_geoid_filename( const char *geoidname )
+static std::string get_geoid_filename( const std::optional<std::string> &geoidname )
 {
-    const char *geoid = "geoid";
-    const char *filename = NULL;
+    std::string geoid = "geoid";
+    std::optional<std::string> filename;
 
     /* If name explicitely given, then use that. */
     if( geoidname )
     {
-        geoid = geoidname;
+        geoid = *geoidname;
         filename = find_coordsys_data_file( geoid, GEOID_GRID_EXTENSION );
     }
     /* Else if a specific geoid file is defined */
@@ -58,15 +58,14 @@ static const char *get_geoid_filename( const char *geoidname )
     }
 
     /* Return just the geoid name if a file isn't found */
-    if( ! filename ) filename = geoid;
-    return filename;
+    return filename.value_or(geoid);
 }
 
 const char *create_geoid_filename( const char *geoidname )
 {
-    const char *filename = get_geoid_filename( geoidname );
+    std::string filename = get_geoid_filename( geoidname ? std::optional<std::string>(geoidname) : std::nullopt );
     if( ! file_exists(filename) ) return NULL;
-    return copy_string( filename );
+    return copy_string( filename.c_str() );
 }
 
 void delete_geoid_filename( const char *filename )
@@ -77,13 +76,12 @@ void delete_geoid_filename( const char *filename )
 geoid_def *create_geoid_grid( const char *source )
 {
     int status;
-    const char *filename;
     geoid_def *gd = NULL;
     grid_def *grd;
     coordsys *cs = 0;
 
-    filename = get_geoid_filename( source );
-    status = grd_open_grid_file( filename, 1, &grd );
+    std::string filename = get_geoid_filename( source ? std::optional<std::string>(source) : std::nullopt );
+    status = grd_open_grid_file( filename.c_str(), 1, &grd );
 
     if( status != OK )
     {

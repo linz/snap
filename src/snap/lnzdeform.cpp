@@ -54,13 +54,12 @@ static void delete_linzdefmodel( LinzDefModel *model )
 
 static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
 {
-    const char *deffile;
     LinzDefModel *model;
     int sts;
 
     model = NULL;
 
-    deffile = find_coordsys_data_file( pmodel, ".ldm" );
+    auto deffile = find_coordsys_data_file( pmodel, ".ldm" );
     if( !deffile ) return NULL;
 
     model = (LinzDefModel *) check_malloc( sizeof(LinzDefModel));
@@ -70,7 +69,7 @@ static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
     model->epoch = pepoch;
     model->stdefs = NULL;
 
-    sts = utlCreateReadonlyFileBlob( deffile, &(model->blob) );
+    sts = utlCreateReadonlyFileBlob( deffile->c_str(), &(model->blob) );
     if( sts == STS_OK ) sts = utlCreateBinSrc( model->blob, &(model->binsrc) );
     if( sts == STS_OK ) sts = utlCreateLinzDef( model->binsrc, &(model->linzdef) );
 

@@ -176,7 +176,7 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
 
 int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
 {
-    const char *ldeffile;
+    std::optional<std::string> ldeffile;
     char filename[MAX_FILENAME_LEN];
     char version[VERSIONLEN+1];
     int sts;
@@ -201,7 +201,7 @@ int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is )
         return sts;
     }
 
-    def->data = rf_linzdef_create( ldeffile, version );
+    def->data = rf_linzdef_create( ldeffile->c_str(), version );
     def->delete_func = rf_linzdef_delete;
     def->copy_func = rf_linzdef_copy;
     def->identical = rf_linzdef_identical;

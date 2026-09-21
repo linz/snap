@@ -15,7 +15,6 @@
 #define _fileno fileno
 #define _unlink unlink
 #define _setmode setmode
-#define _access access
 #define _stricmp strcasecmp
 #define _strnicmp strncasecmp
 #define _isatty isatty

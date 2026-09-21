@@ -313,33 +313,36 @@ int read_configuration_file( const char *file_name )
 }
 
 
-const char *find_configuration_file( const char *name )
+std::optional<std::string> find_configuration_file( const std::string &name )
 {
-    return find_file( name, DFLTCONFIG_EXT, 0, FF_TRYPROJECT, SNAP_CONFIG_SECTION );
+    return find_file( name, DFLTCONFIG_EXT, std::nullopt, FF_TRYPROJECT, SNAP_CONFIG_SECTION );
 }
 
 int process_default_configuration( void )
 {
     int sts, sts1;
-    const char *spec;
+    std::string spec;
     sts = OK;
-    spec=build_config_filespec(0, 0, system_config_dir(),0,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, NULL );
+    spec=build_config_filespec(system_config_dir(),false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
     if( file_exists( spec ))
     {
-        sts = read_configuration_file( spec );
+        sts = read_configuration_file( spec.c_str() );
     }
 
-    spec=build_config_filespec(0, 0, user_config_dir(),0,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, NULL );
-    if( file_exists( spec ))
+    if( auto userdir = user_config_dir() )
     {
-        sts1 = read_configuration_file( spec );
-        if( sts == OK ) sts = sts1;
+        spec=build_config_filespec(*userdir,false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
+        if( file_exists( spec ))
+        {
+            sts1 = read_configuration_file( spec.c_str() );
+            if( sts == OK ) sts = sts1;
+        }
     }
 
-    spec=build_config_filespec( 0, 0, command_file, 1, 0, SNAP_CONFIG_FILE, NULL );
+    spec=build_config_filespec( command_file, true, "", SNAP_CONFIG_FILE, "" );
     if( file_exists( spec ))
     {
-        sts1 = read_configuration_file( spec );
+        sts1 = read_configuration_file( spec.c_str() );
         if( sts == OK ) sts = sts1;
     }
     return sts;
@@ -1946,12 +1949,12 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int,
     while( ptr && NULL != (cfgfile=strtokq(ptr," \t\n")))
     {
         ptr = strtokq(NULL,"\n");
-        cfgfile = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
-                             0, FF_TRYPROJECT,
-                             cfg_only ? SNAP_CONFIG_SECTION : 0 );
-        if( cfgfile )
+        auto resolved = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
+                             std::nullopt, FF_TRYPROJECT,
+                             cfg_only ? SNAP_CONFIG_SECTION : "" );
+        if( resolved )
         {
-            int status = constraint ? read_command_file_constraints( cfgfile ) : process_configuration_file( cfgfile, cfg_only );
+            int status = constraint ? read_command_file_constraints( resolved->c_str() ) : process_configuration_file( resolved->c_str(), cfg_only );
             if( status != OK )
             {
                 sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);

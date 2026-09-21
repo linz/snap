@@ -642,14 +642,15 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
 
 static int compile_station_list_file_criteria( station_criteria *sc, network *nw, const char *file, const char *basefile, unsigned char stacklevel )
 {
-    const char *spec;
+    std::optional<std::string> spec;
     FILE *list_file;
     char buf[2048];
     int sts = OK;
 
-    spec = find_file( file,DFLTSTLIST_EXT,basefile,1,0);
+    std::optional<std::string> base = basefile ? std::optional<std::string>(basefile) : std::nullopt;
+    spec = find_file( file, DFLTSTLIST_EXT, base, FF_TRYLOCAL, "" );
     list_file = NULL;
-    if( spec ) list_file = fopen( spec, "r" );
+    if( spec ) list_file = fopen( spec->c_str(), "r" );
 
     if( !list_file )
     {
@@ -658,7 +659,7 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
         handle_error( INVALID_DATA, errmess, NULL  );
         return INVALID_DATA;
     }
-    record_filename( spec, "station_list_file" );
+    record_filename( spec->c_str(), "station_list_file" );
 
     skip_utf8_bom(list_file);
 
@@ -797,7 +798,8 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 break;
             }
 
-            const char *spec = find_file( pgnfile.c_str(),DFLT_WKT_EXT,basefile,1,0);
+            std::optional<std::string> base = basefile ? std::optional<std::string>(basefile) : std::nullopt;
+            std::optional<std::string> spec = find_file( pgnfile, DFLT_WKT_EXT, base, FF_TRYLOCAL, "" );
             if( ! spec )
             {
                 sprintf(errmess,"Cannot find WKT polygon file %.50s in %s",
@@ -824,7 +826,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 }
             }
 
-            void *const pgn=read_polygon_wkt( spec, isgeo);
+            void *const pgn=read_polygon_wkt( spec->c_str(), isgeo);
             if( ! pgn )
             {
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
@@ -833,7 +835,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 if( cs ) delete_coordsys( cs );
                 break;
             }
-            record_filename(spec,"wkt_polygon_definition");
+            record_filename(spec->c_str(),"wkt_polygon_definition");
             c=new_polygon_criterion( pgn, cs, conv, isgeo, inside );
         }
 

@@ -512,8 +512,8 @@ int load_snap_csv_stations(network *net, const char *filename, const char *optio
     {
         OptionString config(options ? options : "");
         std::string format = config.valueOf("format", "stn");
-        const char *formatfile;
-        formatfile = find_file(format.c_str(), ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG);
+        std::optional<std::string> base = filename ? std::optional<std::string>(filename) : std::nullopt;
+        auto formatfile = find_file(format, ".dtf", base, FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;
@@ -523,7 +523,7 @@ int load_snap_csv_stations(network *net, const char *filename, const char *optio
         }
         string netname = string("Read from ") + filename;
         set_network_name(net, netname.c_str());
-        SnapCsvStn csvstn(net, formatfile, config);
+        SnapCsvStn csvstn(net, *formatfile, config);
         DatafileInput dfi(filename, "station coordinate file");
         csvstn.load(dfi);
         std::string deffile = csvstn.definitionFilename();

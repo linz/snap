@@ -235,35 +235,21 @@ int add_configuration_file( const char *fname )
 
 void add_default_configuration_files( void )
 {
-    int nch;
-    char *spec;
-    const char *cfgdir;
+    std::string spec = build_config_filespec( system_config_dir(),false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
+    if( file_exists( spec )) store_configuration_file( spec.c_str() );
 
-    cfgdir = system_config_dir();
-    if( cfgdir )
+    if( auto userdir = user_config_dir() )
     {
-        spec=build_config_filespec( 0, 0, cfgdir,0,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, 0 );
-        if( file_exists( spec )) store_configuration_file( spec );
+        spec=build_config_filespec( *userdir,false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
+        if( file_exists( spec )) store_configuration_file( spec.c_str() );
     }
 
-    cfgdir = user_config_dir();
-    if( cfgdir )
-    {
-        spec=build_config_filespec( 0, 0, cfgdir,0,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, 0 );
-        if( file_exists( spec )) store_configuration_file( spec );
-    }
+    spec=build_config_filespec( command_file, true, "", SNAPPLOT_CONFIG_FILE, "" );
+    if( file_exists( spec )) store_configuration_file( spec.c_str() );
 
-    spec=build_config_filespec( 0, 0, command_file, 1, 0, SNAPPLOT_CONFIG_FILE, 0 );
-    if( file_exists( spec )) store_configuration_file( spec );
-
-
-    nch = path_len( command_file, 1 );
-    if( nch + strlen(SNAPPLOT_CONFIG_EXT) + 1 < MAX_FILENAME_LEN )
-    {
-        strncpy( spec, command_file, nch );
-        strcpy( spec+nch, SNAPPLOT_CONFIG_EXT );
-        if( file_exists( spec )) store_configuration_file( spec );
-    }
+    int nch = path_len( command_file, 1 );
+    spec = std::string(command_file, nch) + SNAPPLOT_CONFIG_EXT;
+    if( file_exists( spec )) store_configuration_file( spec.c_str() );
 }
 
 int process_configuration_file_list( void )
@@ -287,12 +273,11 @@ int process_configuration_file_list( void )
 
 int process_configuration_file( const char *fname )
 {
-    const char *fspec;
     int sts;
-    fspec = find_file( fname, SNAPPLOT_CONFIG_EXT, 0, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
+    auto fspec = find_file( fname, SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
     if( fspec )
     {
-        sts = read_plot_configuration_file( fspec );
+        sts = read_plot_configuration_file( fspec->c_str() );
     }
     else
     {
@@ -314,11 +299,11 @@ static int read_include_command( CFG_FILE *cfg, char *string, void *, int, int )
     while( ptr && NULL != (cmdfile=strtokq(ptr,whitespace)))
     {
         ptr = strtokq(NULL,"\n");
-        cmdfile = find_file( cmdfile, SNAPPLOT_CONFIG_EXT, cfg->name, 0, SNAPPLOT_CONFIG_SECTION );
-        if( cmdfile )
+        auto resolved = find_file( cmdfile, SNAPPLOT_CONFIG_EXT, std::optional<std::string>(cfg->name), FF_TRYNONE, SNAPPLOT_CONFIG_SECTION );
+        if( resolved )
         {
 
-            if( read_command_file( cmdfile, 0 ) != OK )
+            if( read_command_file( resolved->c_str(), 0 ) != OK )
             {
                 sprintf(errmsg,"Invalid data in command file %.*s",MAX_FILENAME_LEN,string);
                 send_config_error(cfg,INVALID_DATA,errmsg);
@@ -345,11 +330,10 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
 
     if( _stricmp( plot_command, "configuration" ) == 0 )
     {
-        const char *cfgfile;
         if( ! plot_data ) return MISSING_DATA;
-        cfgfile=find_file(plot_data,SNAPPLOT_CONFIG_EXT,cfg->name,0,SNAPPLOT_CONFIG_SECTION);
+        auto cfgfile=find_file(plot_data,SNAPPLOT_CONFIG_EXT,std::optional<std::string>(cfg->name),FF_TRYNONE,SNAPPLOT_CONFIG_SECTION);
         if( !cfg ) return MISSING_DATA;
-        if( ! cfgfile || add_configuration_file( cfgfile ) != OK )
+        if( ! cfgfile || add_configuration_file( cfgfile->c_str() ) != OK )
         {
             char errmess[40+MAX_FILENAME_LEN];
             sprintf(errmess, "Cannot find configuration file %.*s",MAX_FILENAME_LEN,plot_data);
@@ -366,7 +350,6 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
     if( _stricmp( plot_command, "background" ) == 0 )
     {
         char *fname;
-        const char *fspec;
         char *crdsys;
         char *layer;
         coordsys *cs;
@@ -378,7 +361,7 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
             send_config_error( cfg, MISSING_DATA, "Background file name missing" );
             return OK;
         }
-        fspec = find_file( fname, ".dat", cfg->name, FF_TRYALL, SNAPPLOT_CONFIG_SECTION );
+        auto fspec = find_file( fname, ".dat", std::optional<std::string>(cfg->name), FF_TRYALL, SNAPPLOT_CONFIG_SECTION );
         if( !fspec )
         {
             char errmess[40+MAX_FILENAME_LEN];
@@ -399,7 +382,7 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
             }
             delete_coordsys( cs );
         }
-        add_background_file( fspec, crdsys, layer );
+        add_background_file( fspec->c_str(), crdsys, layer );
         return OK;
     }
 
@@ -742,16 +725,15 @@ static void set_station_mode( int istn, int mode )
 static void process_station_list_file( CFG_FILE *cfg, char *name,
                                        int mode)
 {
-    char list_spec[MAX_FILENAME_LEN];
     FILE *list_file;
     char stn_code[21];
 
-    build_filespec( list_spec, MAX_FILENAME_LEN, cmd_dir, name, DFLTSTLIST_EXT );
-    list_file = fopen( list_spec, "r" );
+    std::string list_spec = build_filespec( cmd_dir?cmd_dir:"", name, DFLTSTLIST_EXT );
+    list_file = fopen( list_spec.c_str(), "r" );
     if( !list_file )
     {
-        build_filespec( list_spec, MAX_FILENAME_LEN, NULL, name, DFLTSTLIST_EXT );
-        list_file = fopen( list_spec, "r" );
+        list_spec = build_filespec( "", name, DFLTSTLIST_EXT );
+        list_file = fopen( list_spec.c_str(), "r" );
     }
 
     if( !list_file )
@@ -949,11 +931,10 @@ static int read_ignore_offsets( CFG_FILE *cfg, char *string, void *, int, int )
 static int read_config_menu_command( CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *s1, *s2;
-    const char *fspec;
     s1 = strtok(string,whitespace);
     s2 = strtok(NULL,"\n");
     if( !s2 ) return MISSING_DATA;
-    fspec = find_file( s1, SNAPPLOT_CONFIG_EXT, cfg->name, FF_TRYALL, SNAPPLOT_CONFIG_SECTION  );
+    auto fspec = find_file( s1, SNAPPLOT_CONFIG_EXT, std::optional<std::string>(cfg->name), FF_TRYALL, SNAPPLOT_CONFIG_SECTION  );
     if( !fspec )
     {
         char buf[256];
@@ -961,7 +942,7 @@ static int read_config_menu_command( CFG_FILE *cfg, char *string, void *, int, i
         send_config_error( cfg, INVALID_DATA, buf);
         return OK;
     }
-    add_config_menu_item( fspec, s2 );
+    add_config_menu_item( fspec->c_str(), s2 );
     return OK;
 }
 

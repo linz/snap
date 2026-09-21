@@ -12,7 +12,7 @@
 
 static char progversion[MAXVER+MAXID+2]={0};
 
-const char *getProgramName()
+std::string getProgramName()
 {
     return image_name();
 }
@@ -22,11 +22,11 @@ const char *getProgramVersion( const char *version )
     if( progversion[0] ) return progversion;
 
     char format[20];
-    char *versionfile=build_filespec(0,0,image_dir(),"VERSION","");
+    std::string versionfile=build_filespec(image_dir(),"VERSION","");
     if( file_exists(versionfile))
     {
         sprintf(format,"%%%ds",MAXVER);
-        FILE *vf=fopen(versionfile,"r");
+        FILE *vf=fopen(versionfile.c_str(),"r");
         if( vf )
         {
             fscanf(vf,format,progversion);
@@ -37,11 +37,11 @@ const char *getProgramVersion( const char *version )
     {
         strncpy(progversion,version,MAXVER);
     }
-    versionfile=build_filespec(0,0,image_dir(),"VERSIONID","");
+    versionfile=build_filespec(image_dir(),"VERSIONID","");
     if( file_exists(versionfile))
     {
         char *pv=progversion+strlen(progversion);
-        FILE *vf=fopen(versionfile,"r");
+        FILE *vf=fopen(versionfile.c_str(),"r");
         if( vf )
         {
             sprintf(format,"%%%ds",MAXID);

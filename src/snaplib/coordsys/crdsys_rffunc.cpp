@@ -40,7 +40,7 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
     else
     {
         char gridtype[20+1];
-        const char *gfile = 0;
+        std::optional<std::string> gfile;
         char gridfile[MAX_FILENAME_LEN+1];
         char description[255+1];
         sts = next_string_field( is, gridtype, 20 );
@@ -60,7 +60,7 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
         if( sts == OK )
         {
             *rff =
-                create_rf_grid_func( gridtype, gfile, description );
+                create_rf_grid_func( gridtype, gfile->c_str(), description );
             if( ! *rff )
             {
                 report_string_error( is, INVALID_DATA, "Reference frame GRID"

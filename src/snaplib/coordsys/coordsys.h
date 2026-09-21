@@ -24,6 +24,9 @@ This includes managing reference frames, ellipsoids, and projections.
 #ifndef COORDSYS_H
 #define COORDSYS_H
 
+#include <string>
+#include <optional>
+
 #ifndef IOSTRING_H
 #include "util/iostring.h"
 #endif
@@ -495,7 +498,14 @@ void install_crdsys_nz_metre_circuits( void );
 /* Get definitions from a file */
 
 int install_crdsys_file( const char *file_name );
-const char* get_default_crdsys_file();
+
+/// Locates the default coordinate system definition file: first the
+/// CRDSYSENV environment variable (used verbatim, not checked to exist),
+/// then CRDSYSFILE searched via find_file's FF_TRYALL strategies within
+/// the COORDSYS_CONFIG_SECTION config subdirectory. Returns nullopt if
+/// neither yields a file.
+std::optional<std::string> get_default_crdsys_file();
+
 int install_default_crdsys_file();
 void  install_default_projections( void );
 
@@ -541,12 +551,23 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os );
 int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os );
 int get_conv_notes( coord_conversion *conv, output_string_def *os );
 
-/*  get_crdsys_file looks for a file relative to installed file sources.
- *  find_coordsys_data_file looks for a file that could be local, project,
- *  or coordinate system based.  It will look in the coordsys config section
- *  if it is not found elsewhere
- */
-const char *get_crdsys_file( const char *filename, const char *extension );
-const char *find_coordsys_data_file( const char *filename,const char *extension );
+/// Searches every installed coordinate system source (crdsys_source_def's
+/// getcsfile callback, e.g. get_csfile in crdsys_src_csdef.cpp - relative
+/// to that source's own file, not the current file context or project)
+/// for filename+extension, trying each source in turn until one succeeds.
+/// Returns nullopt if none do.
+std::optional<std::string> get_crdsys_file(
+    const std::string &filename,   ///< base filename to search for
+    const std::string &extension );///< extension (incl. the leading '.') to try
+
+/// General purpose search for a coordinate-system-related data file (e.g.
+/// a datum grid), trying local/project search strategies first (via
+/// find_file's FF_TRYALL, no base file and no config subdirectory), then
+/// every installed coordinate system source (via get_crdsys_file), then
+/// finally the COORDSYS_CONFIG_SECTION config subdirectory (via find_file
+/// again). Returns nullopt if none succeed.
+std::optional<std::string> find_coordsys_data_file(
+    const std::string &filename,   ///< base filename to search for
+    const std::string &extension );///< extension (incl. the leading '.') to try
 
 #endif /* COORDSYS_H defined */

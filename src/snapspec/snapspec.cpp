@@ -2271,7 +2271,7 @@ static config_item cfg_commands[] =
 static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, int )
 {
     char *basecfn;
-    const char *cfn;
+    std::optional<std::string> cfn;
     CFG_FILE *cfg2;
     cfg_stack *stack;
     int nerr;
@@ -2282,15 +2282,15 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
         send_config_error( cfg, INVALID_DATA, "Configuration file name missing");
         return OK;
     }
-    cfn = find_file( basecfn, ".cfg", cfg->name, FF_TRYALL, "snapspec" );
+    cfn = find_file( basecfn, ".cfg", std::optional<std::string>(cfg->name), FF_TRYALL, "snapspec" );
 
     if( cfn )
     {
         int recurse = 0;
-        if( strcmp(cfn,cfg->name) == 0 ) recurse = 1;
+        if( strcmp(cfn->c_str(),cfg->name) == 0 ) recurse = 1;
         for( stack = cfgs; stack && ! recurse; stack = stack->next )
         {
-            if( strcmp(stack->cfg->name,cfn) == 0 ) recurse = 1;
+            if( strcmp(stack->cfg->name,cfn->c_str()) == 0 ) recurse = 1;
         }
         if( recurse )
         {
@@ -2302,7 +2302,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     }
 
     cfg2 = NULL;
-    if( cfn ) { cfg2 = open_config_file( cfn, '!' );}
+    if( cfn ) { cfg2 = open_config_file( cfn->c_str(), '!' );}
     if( !cfg2 )
     {
         char buf[120];
@@ -2341,7 +2341,7 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
     char *stcfgfn;
     char *format;
     char *remainder;
-    const char *cfn;
+    std::optional<std::string> cfn;
     int csv=0;
 
     stcfgfn = strtok(string," \t\n");
@@ -2373,16 +2373,16 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
         return OK;
     }
 
-    cfn = find_file( stcfgfn, csv ? ".csv" : ".dat", cfg->name, FF_TRYALL, 0 );
+    cfn = find_file( stcfgfn, csv ? ".csv" : ".dat", std::optional<std::string>(cfg->name), FF_TRYALL, "" );
 
     if( cfn )
     {
-        int sts=read_station_config_file( cfn, * (stn_relacc_array **) value, csv );
+        int sts=read_station_config_file( cfn->c_str(), * (stn_relacc_array **) value, csv );
         if( sts  != OK )
         {
             char buf[100+MAX_FILENAME_LEN];
             sprintf(buf,"Errors encountered reading station configuration file %.*s",
-                    MAX_FILENAME_LEN,cfn);
+                    MAX_FILENAME_LEN,cfn->c_str());
             send_config_error( cfg, INVALID_DATA, buf);
         }
     }
@@ -2614,7 +2614,7 @@ int main( int argc, char *argv[] )
 {
     char *bfn;
     CFG_FILE *cfg = 0;
-    const char *cfn;
+    std::optional<std::string> cfn;
     const char *basecfn, *ofn;
     int nerr;
     hSDCTest hsdc;
@@ -2809,7 +2809,7 @@ int main( int argc, char *argv[] )
     init_snap_globals();
     install_default_projections();
     install_default_crdsys_file();
-    cfn = copy_string(find_file( basecfn, ".cfg", bfn, FF_TRYALL, "snapspec" ));
+    cfn = find_file( basecfn, ".cfg", std::optional<std::string>(bfn), FF_TRYALL, "snapspec" );
 
     if( skip_rel_acc )
     {
@@ -2818,9 +2818,9 @@ int main( int argc, char *argv[] )
     fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
     fprintf(out,"Run at %s\n",spec_run_time);
     fprintf(out,"SNAP binary file: %s\n",bfn);
-    fprintf(out,"Spec configuration file: %s\n",cfn);
+    fprintf(out,"Spec configuration file: %s\n",cfn?cfn->c_str():nullptr);
 
-    if( cfn ) { cfg = open_config_file( cfn, '!' );}
+    if( cfn ) { cfg = open_config_file( cfn->c_str(), '!' );}
     if( !cfn || !cfg )
     {
         fprintf(out,"Cannot open configuration file %s\n",basecfn);
@@ -2854,15 +2854,15 @@ int main( int argc, char *argv[] )
     {
         printf("NOTE: snapspec is not applying relative accuracy tests\n");
     }
-    printf("\nUsing configuration file %s\n",cfn);
+    printf("\nUsing configuration file %s\n",cfn->c_str());
 
     nerr = read_configuration( cfg, hsdc, skip_rel_acc );
     close_config_file( cfg );
 
     if( nerr > 0 )
     {
-        printf("\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn);
-        fprintf(out,"\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn);
+        printf("\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn->c_str());
+        fprintf(out,"\n%d errors in configuration file %s\nTest aborted\n",nerr,cfn->c_str());
         return 1;
     }
 

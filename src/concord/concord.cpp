@@ -1967,7 +1967,8 @@ int main( int argc, char *argv[] )
     parse_command_line( argc, argv );
     if( ! coordsys_file )
     {
-        coordsys_file=get_default_crdsys_file();
+        auto defaultCrdsysFile=get_default_crdsys_file();
+        if( defaultCrdsysFile ) coordsys_file=copy_string(defaultCrdsysFile->c_str());
     }
     if( ! coordsys_file )
     {

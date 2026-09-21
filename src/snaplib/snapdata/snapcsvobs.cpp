@@ -1238,8 +1238,8 @@ int load_snap_csv_obs(const std::string &options, DATAFILE *df, int (*check_prog
     {
         OptionString config(options);
         std::string format = config.valueOf("format", "obs");
-        const char *formatfile;
-        formatfile = find_file(format.c_str(), ".dtf", df->fname, FF_TRYALL, CSVFORMAT_CONFIG);
+        std::optional<std::string> base = df->fname ? std::optional<std::string>(df->fname) : std::nullopt;
+        auto formatfile = find_file(format, ".dtf", base, FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;
@@ -1247,7 +1247,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE *df, int (*check_prog
             handle_error(INVALID_DATA, os.str().c_str(), 0);
             return INVALID_DATA;
         }
-        SnapCsvObs csvobs(formatfile, config);
+        SnapCsvObs csvobs(*formatfile, config);
         DatafileInput dfi(df, check_progress);
         csvobs.load(dfi);
         std::string deffile = csvobs.definitionFilename();
