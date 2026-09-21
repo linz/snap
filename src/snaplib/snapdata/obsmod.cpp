@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <string>
+#include <string_view>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "snapdata/obsmod.h"
 #include "snapdata/datatype.h"
@@ -15,6 +18,7 @@
 #include "util/errdef.h"
 #include "util/dateutil.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 #include "util/wildcard.h"
 
@@ -1056,140 +1060,144 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criteria *ocr=new_obs_criteria( action, errval1, errval2, option );
-    char *strptr=criteria;
-    char *field;
-    char *fptr;
+    FieldScanner scanner( criteria );
     int sts=OK;
     int missing_error=INVALID_DATA;
     bool have_criterion=false;
-    while( (field=next_field(&strptr)) )
+    std::optional<std::string_view> field;
+    while( (field=scanner.next()) )
     {
         obs_criterion *oc=nullptr;
 
-        if( _stricmp(field,"ignore_missing") == 0 ){ missing_error=OK; continue; }
-        if( _stricmp(field,"warn_missing") == 0 ){ missing_error=INFO_ERROR; continue; }
-        if( _stricmp(field,"fail_missing") == 0 ){ missing_error=INVALID_DATA; continue; }
-        if( _stricmp(field,"all_observations") == 0 ){ have_criterion=true; continue; }
+        if( boost::algorithm::iequals(*field,"ignore_missing") ){ missing_error=OK; continue; }
+        if( boost::algorithm::iequals(*field,"warn_missing") ){ missing_error=INFO_ERROR; continue; }
+        if( boost::algorithm::iequals(*field,"fail_missing") ){ missing_error=INVALID_DATA; continue; }
+        if( boost::algorithm::iequals(*field,"all_observations") ){ have_criterion=true; continue; }
 
-        if( (fptr = strchr(field,'=')) )
+        auto eqPos=field->find('=');
+        if( eqPos != std::string_view::npos )
         {
-            *fptr=0;
-            char quote=0;
-            char *vptr=fptr+1;
-            if( fptr == field || ! *vptr )
+            auto key=field->substr(0,eqPos);
+            auto valuePart=field->substr(eqPos+1);
+            if( eqPos == 0 || valuePart.empty() )
             {
                 char errmess[100];
-                *fptr='=';
-                sprintf(errmess,"Invalid observation selection criteria \"%.40s\"",field);
+                std::string fieldText(*field);
+                sprintf(errmess,"Invalid observation selection criteria \"%.40s\"",fieldText.c_str());
                 send_config_error(cfg,INVALID_DATA,errmess);
                 sts=INVALID_DATA;
                 continue;
             }
-            if( *vptr == '"' || *vptr == '\'')
+            bool quoted=false;
+            std::string value;
+            if( valuePart.front() == '"' || valuePart.front() == '\'' )
             {
-                char *vend=vptr+1;
-                quote=*vptr;
-                vptr=vend;
-                while( vend < strptr )
-                {
-                    if( ! *vend ) *vend=' ';
-                    vend++;
-                }
-                vend=vptr;
-                while( *vend && *vend != quote ) vend++;
-                if( ! *vend  || !(*(vend+1) == 0 || ISSPACE(*(vend+1))) )
+                char quoteChar=valuePart.front();
+                quoted=true;
+                auto tokenEnd=scanner.pos();
+                auto quotedResult=scanner.quotedValue( valuePart.begin()+1, quoteChar );
+                if( ! quotedResult )
                 {
                     char errmess[100];
-                    strptr=vend;
-                    if( *strptr ) strptr++;
-                    *fptr='=';
-                    sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",field);
+                    auto messageEnd = scanner.pos() > tokenEnd ? scanner.pos() : tokenEnd;
+                    std::string fieldText( scanner.span( field->begin(), messageEnd ) );
+                    sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",fieldText.c_str());
                     send_config_error(cfg,INVALID_DATA,errmess);
                     sts=INVALID_DATA;
                     continue;
                 }
-                *vend=0;
-                strptr=vend+1;
-            }
-            if( _stricmp(field,"data_type") == 0 )
-            {
-                oc=new_obs_datatype_criterion(cfg,vptr);
-            }
-            else if( _stricmp(field,"data_file") == 0 )
-            {
-                int file_id=OBS_CRIT_WILDCARD_FILEID;
-                int ok = 1;
-                if( quote || ! has_wildcard(vptr))
-                {
-                    file_id=get_file_id( obsmod, cfg, vptr, missing_error );
-                    if( file_id < 0 ) ok=0;
-                }
-                if( ok ) oc=new_obs_datafile_criterion(file_id,vptr);
-            }
-            else if( _stricmp(field,"id") == 0 )
-            {
-                oc=new_obs_id_criterion(cfg,vptr );
+                value.assign(*quotedResult);
             }
             else
             {
-                oc=new_obs_classification_criterion(cfg, obsmod->classes, field, vptr, quote != 0 );
+                value.assign(valuePart);
             }
-            *fptr='=';
+
+            if( boost::algorithm::iequals(key,"data_type") )
+            {
+                oc=new_obs_datatype_criterion(cfg,value.data());
+            }
+            else if( boost::algorithm::iequals(key,"data_file") )
+            {
+                int file_id=OBS_CRIT_WILDCARD_FILEID;
+                bool ok=true;
+                if( quoted || ! has_wildcard(value.c_str()) )
+                {
+                    file_id=get_file_id( obsmod, cfg, value.data(), missing_error );
+                    if( file_id < 0 ) ok=false;
+                }
+                if( ok ) oc=new_obs_datafile_criterion(file_id,value.c_str());
+            }
+            else if( boost::algorithm::iequals(key,"id") )
+            {
+                oc=new_obs_id_criterion(cfg,value.data());
+            }
+            else
+            {
+                std::string keyText(key);
+                oc=new_obs_classification_criterion(cfg, obsmod->classes, keyText.data(), value.data(), quoted );
+            }
         }
-        else if( _stricmp(field,"before") == 0 )
+        else if( boost::algorithm::iequals(*field,"before") )
         {
-            field=next_field(&strptr);
-            if( ! field )
+            auto dateField=scanner.next();
+            if( ! dateField )
             {
                 send_config_error(cfg,INVALID_DATA,"Missing date in before observation selection criteria");
                 sts=INVALID_DATA;
             }
             else
             {
-                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_BEFORE, field );
+                std::string dateText(*dateField);
+                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_BEFORE, dateText.data() );
             }
         }
-        else if( _stricmp(field,"after") == 0 )
+        else if( boost::algorithm::iequals(*field,"after") )
         {
-            field=next_field(&strptr);
-            if( ! field )
+            auto dateField=scanner.next();
+            if( ! dateField )
             {
                 send_config_error(cfg,INVALID_DATA,"Missing date in after observation selection criteria");
                 sts=INVALID_DATA;
             }
             else
             {
-                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_AFTER, field );
+                std::string dateText(*dateField);
+                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_AFTER, dateText.data() );
             }
         }
-        else if( _stricmp(field,"date_unknown") == 0 )
+        else if( boost::algorithm::iequals(*field,"date_unknown") )
         {
             oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_UNKNOWN, nullptr );
         }
-        else if( _stricmp(field,"using_stations")==0 || 
-                _stricmp(field,"between_stations")==0 )
+        else if( boost::algorithm::iequals(*field,"using_stations") ||
+                boost::algorithm::iequals(*field,"between_stations") )
         {
-            int station_crit_type= _stricmp(field,"between_stations") == 0 ?
+            int station_crit_type= boost::algorithm::iequals(*field,"between_stations") ?
                 OBS_CRIT_STATION_BETWEEN : OBS_CRIT_STATION_USES;
-            field=next_field(&strptr);
-            if( ! field )
+            auto stationField=scanner.next();
+            if( ! stationField )
             {
                 send_config_error(cfg,INVALID_DATA,"Missing station list in observation selection criteria");
                 sts=INVALID_DATA;
             }
             else
             {
-                fptr=field;
-                while( field && _stricmp(field,"end_stations") != 0 ) field=next_field(&strptr);
-                for( char *c=fptr; c < strptr; c++ ) { if( ! *c ) (*c)=' '; }
-                if( field ){ *field = 0; }
-                oc=new_obs_stations_criterion( cfg, station_crit_type, fptr );
+                auto start=stationField->begin();
+                while( stationField && ! boost::algorithm::iequals(*stationField,"end_stations") )
+                {
+                    stationField=scanner.next();
+                }
+                auto stop = stationField ? stationField->begin() : scanner.pos();
+                std::string stationList( scanner.span(start,stop) );
+                oc=new_obs_stations_criterion( cfg, station_crit_type, stationList.data() );
             }
         }
         else
         {
             char errmess[120];
-            sprintf(errmess,"Invalid specification %.50s in observation selection criteria",field);
+            std::string fieldText(*field);
+            sprintf(errmess,"Invalid specification %.50s in observation selection criteria",fieldText.c_str());
             send_config_error(cfg,INVALID_DATA,errmess);
             sts=INVALID_DATA;
         }
