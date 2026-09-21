@@ -988,6 +988,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
 {
     static char lineno[10];
     static char fileno[10];
+    static std::string filename;
     int i;
 
     if( sd->from )
@@ -1008,7 +1009,8 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
     }
     sprintf( fileno, "%d", (int) (sd->file) );
     set_residual_field( OF_FILENO, fileno );
-    set_residual_field( OF_FILENAME, survey_data_file_name( sd->file ).c_str());
+    filename = survey_data_file_name( sd->file );
+    set_residual_field( OF_FILENAME, filename.c_str());
     sprintf( lineno, "%d", (int) (t->lineno) );
     set_residual_field( OF_LINENO, lineno );
     sprintf(obsid,"%d",(int) (t->id));
