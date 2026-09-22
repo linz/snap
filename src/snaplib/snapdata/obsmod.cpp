@@ -1085,10 +1085,12 @@ static obs_criterion *parse_key_value_criterion(
     std::string value;
     if( valuePart.front() == '"' || valuePart.front() == '\'' )
     {
+        static const std::optional<std::vector<QuoteFollowOption>> quoteMustBeFollowedBy{
+            std::vector<QuoteFollowOption>{ QuoteFollowOption::Whitespace, QuoteFollowOption::End } };
         char quoteChar=valuePart.front();
         quoted=true;
         auto tokenEnd=scanner.pos();
-        auto quotedResult=scanner.quotedValue( valuePart.begin()+1, quoteChar );
+        auto quotedResult=scanner.quotedValue( valuePart.begin()+1, quoteChar, quoteMustBeFollowedBy );
         if( ! quotedResult )
         {
             char errmess[100];

@@ -4,6 +4,18 @@
 
 #include <optional>
 #include <string_view>
+#include <vector>
+
+/// Which characters may immediately follow a quoted value's closing quote
+/// for FieldScanner::quotedValue() to accept it - see quotedValue() itself.
+/// Kept in the global namespace alongside FieldScanner, not nested inside
+/// it, so callers write QuoteFollowOption::Whitespace rather than the more
+/// verbose FieldScanner::QuoteFollowOption::Whitespace.
+enum class QuoteFollowOption
+{
+    Whitespace,  ///< a whitespace character may follow
+    End          ///< end of input may follow
+};
 
 /// Non-owning, non-destructive cursor over a whitespace-delimited field
 /// sequence. Replaces next_field()/dstring.cpp's destructive char*-based
@@ -46,16 +58,44 @@ public:
     /// within a field next() already returned, e.g. a config value like
     /// key="a value"). A quoted value can contain the whitespace next()
     /// would otherwise split on, so this may consume further fields
-    /// internally to find the closing quote. The closing quote must be
-    /// immediately followed by whitespace or end of input to count - i.e.
-    /// it must land on a field boundary next() would also recognize - or
-    /// this fails. Either way leaves the scanner positioned right after
-    /// wherever the scan stopped, so the caller can continue parsing after
-    /// reporting an error.
-    /// \return the text between the quotes verbatim, or nullopt on failure.
+    /// internally to find the closing quote. Either way leaves the scanner
+    /// positioned right after wherever the scan stopped, so the caller can
+    /// continue parsing after reporting an error.
+    /// \return the text between the quotes verbatim, or nullopt if the
+    ///         closing quote isn't found, or is found but not followed by
+    ///         one of followOptions.
     std::optional<std::string_view> quotedValue(
         std::string_view::const_iterator start,  ///< position right after the opening quote
-        char quoteChar );                        ///< the quote character to match ('"' or '\'')
+        char quoteChar,                          ///< the quote character to match ('"' or '\'')
+        const std::optional<std::vector<QuoteFollowOption>> &followOptions );
+                                                  ///< what may follow the closing quote for it to
+                                                  ///< count - e.g. {Whitespace,End} to require the
+                                                  ///< closing quote land on a field boundary next()
+                                                  ///< would also recognize, or std::nullopt to
+                                                  ///< require nothing.
+
+    /// Reads the next field, whichever comes first: a quote-delimited
+    /// segment (see isQuoted()/quotedValue()) if it starts with a quote
+    /// character, otherwise a plain whitespace-delimited segment (see
+    /// next()). Lets a caller read a field that might be quoted without
+    /// checking-then-branching itself - e.g. coordsys.def's
+    /// ANS "Australian National Spheroid (ANS)" 6378160 298.25, where the
+    /// second field is quoted (and contains whitespace) but the others
+    /// aren't.
+    /// \return the field's value (quotes stripped, if quoted), or nullopt
+    ///         at end of input or on a malformed quoted value.
+    std::optional<std::string_view> checkAndRecoverQuotedValue(
+        bool onlyDoubleQuote,                     ///< see isQuoted()
+        const std::optional<std::vector<QuoteFollowOption>> &followOptions );
+                                                   ///< see quotedValue()
+
+    /// Checks whether field begins with a quote character - '"'
+    /// unconditionally, and also '\'' unless onlyDoubleQuote is set.
+    /// \return the position of the opening quote (field.begin()), or
+    ///         field.end() if field is empty or doesn't start with a quote.
+    static std::string_view::const_iterator isQuoted(
+        std::string_view field,
+        bool onlyDoubleQuote );
 
 private:
     std::string_view _text;                    ///< the text being scanned, owned by the caller

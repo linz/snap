@@ -7,7 +7,10 @@
 
 #include <cstdlib>
 #include <iostream>
+#include <optional>
 #include <string>
+#include <string_view>
+#include <vector>
 
 #include "util/fieldscanner.hpp"
 
@@ -15,6 +18,9 @@ namespace
 {
 
 int failures=0;
+
+const std::optional<std::vector<QuoteFollowOption>> whitespaceOrEnd{
+    std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} };
 
 void check( bool condition, const std::string &description )
 {
@@ -65,7 +71,7 @@ void check_quoted_value_single_field()
     auto field=scanner.next();
     auto equalsPos=field->find('=');
     auto openQuote=field->begin()+equalsPos+2;  // past '=' and the opening quote
-    auto value=scanner.quotedValue( openQuote, '"' );
+    auto value=scanner.quotedValue( openQuote, '"', whitespaceOrEnd );
     check( value.has_value() && *value == "short", "quotedValue: single-field quoted value" );
     check( scanner.next() == "next", "quotedValue: scanner resumes correctly after a single-field value" );
 }
@@ -77,7 +83,7 @@ void check_quoted_value_spans_fields()
     auto field=scanner.next();
     auto equalsPos=field->find('=');
     auto openQuote=field->begin()+equalsPos+2;
-    auto value=scanner.quotedValue( openQuote, '"' );
+    auto value=scanner.quotedValue( openQuote, '"', whitespaceOrEnd );
     check( value.has_value() && *value == "a  b", "quotedValue: spans multiple next()-delimited fields, preserving internal spacing" );
     check( scanner.next() == "next", "quotedValue: scanner resumes correctly after a multi-field value" );
 }
@@ -89,7 +95,7 @@ void check_quoted_value_unterminated()
     auto field=scanner.next();
     auto equalsPos=field->find('=');
     auto openQuote=field->begin()+equalsPos+2;
-    auto value=scanner.quotedValue( openQuote, '"' );
+    auto value=scanner.quotedValue( openQuote, '"', whitespaceOrEnd );
     check( ! value.has_value(), "quotedValue: nullopt when the closing quote never appears" );
 }
 
@@ -100,8 +106,52 @@ void check_quoted_value_not_followed_by_whitespace()
     auto field=scanner.next();
     auto equalsPos=field->find('=');
     auto openQuote=field->begin()+equalsPos+2;
-    auto value=scanner.quotedValue( openQuote, '"' );
+    auto value=scanner.quotedValue( openQuote, '"', whitespaceOrEnd );
     check( ! value.has_value(), "quotedValue: nullopt when the closing quote isn't followed by whitespace or end of input" );
+}
+
+void check_quoted_value_lenient()
+{
+    std::string text="key=\"abc\"trailing next";
+    FieldScanner scanner( text );
+    auto field=scanner.next();
+    auto equalsPos=field->find('=');
+    auto openQuote=field->begin()+equalsPos+2;
+    auto value=scanner.quotedValue( openQuote, '"', std::nullopt );
+    check( value.has_value() && *value == "abc", "quotedValue: with nullopt followOptions, a closing quote not followed by whitespace still counts" );
+    check( scanner.next() == "trailing", "quotedValue: with nullopt followOptions, scanner resumes right after the closing quote" );
+}
+
+void check_is_quoted()
+{
+    std::string_view doubleQuoted="\"abc";
+    check( FieldScanner::isQuoted(doubleQuoted,false) == doubleQuoted.begin(), "isQuoted: double-quoted field" );
+
+    std::string_view singleQuoted="'abc";
+    check( FieldScanner::isQuoted(singleQuoted,false) == singleQuoted.begin(), "isQuoted: single-quoted field, both quote characters accepted" );
+    check( FieldScanner::isQuoted(singleQuoted,true) == singleQuoted.end(), "isQuoted: single quote rejected when onlyDoubleQuote is set" );
+
+    std::string_view plain="abc";
+    check( FieldScanner::isQuoted(plain,false) == plain.end(), "isQuoted: plain field, not quoted" );
+
+    std::string_view empty="";
+    check( FieldScanner::isQuoted(empty,false) == empty.end(), "isQuoted: empty field, not quoted" );
+}
+
+void check_and_recover_quoted_value()
+{
+    std::string text="ANS \"Australian National Spheroid (ANS)\" 6378160 298.25";
+    FieldScanner scanner( text );
+    auto first=scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    check( first.has_value() && *first == "ANS", "checkAndRecoverQuotedValue: plain field, read via next()" );
+    auto second=scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    check( second.has_value() && *second == "Australian National Spheroid (ANS)",
+        "checkAndRecoverQuotedValue: quoted field spanning whitespace, read via quotedValue()" );
+    auto third=scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    check( third.has_value() && *third == "6378160", "checkAndRecoverQuotedValue: plain field after a quoted one" );
+    auto fourth=scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    check( fourth.has_value() && *fourth == "298.25", "checkAndRecoverQuotedValue: last plain field" );
+    check( ! scanner.checkAndRecoverQuotedValue( true, std::nullopt ), "checkAndRecoverQuotedValue: nullopt at end of input" );
 }
 
 void check_parse_positive_double()
@@ -126,6 +176,9 @@ int main()
     check_quoted_value_spans_fields();
     check_quoted_value_unterminated();
     check_quoted_value_not_followed_by_whitespace();
+    check_quoted_value_lenient();
+    check_is_quoted();
+    check_and_recover_quoted_value();
     check_parse_positive_double();
 
     if( failures == 0 )
