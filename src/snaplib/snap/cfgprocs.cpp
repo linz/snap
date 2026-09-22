@@ -387,37 +387,35 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int
     void *obs_modifications;
     if( code == OBS_MOD_REWEIGHT )
     {
-        long loc;
         int ok;
-        input_string_def is;
-        set_input_string_def(&is,string);
-        if( test_next_string_field(&is,"offset_error") ) code=OBS_MOD_OFFSET_ERROR;
-        else if( test_next_string_field(&is,"centroid_error") ) code=OBS_MOD_CENTROID_ERROR;
+        input_string_def is(string);
+        if( test_next_string_field(is.scanner,"offset_error") ) code=OBS_MOD_OFFSET_ERROR;
+        else if( test_next_string_field(is.scanner,"centroid_error") ) code=OBS_MOD_CENTROID_ERROR;
         if( code != OBS_MOD_REWEIGHT )
         {
-            ok=double_from_string(&is,&errval1);
+            ok=double_from_string(is.scanner,&errval1);
             if( ok != OK )
             {
                 if( errval1 < 0.0 ) ok=INVALID_DATA;
             }
-            loc=get_string_loc(&is);
-            if( ok == OK && double_from_string(&is,&errval2) == OK )
+            auto saved=is.scanner.remainder();
+            if( ok == OK && double_from_string(is.scanner,&errval2) == OK )
             {
                 if( errval2 < 0.0 ) ok=INVALID_DATA;
             }
             else
             {
                 errval2=errval1;
-                set_string_loc(&is,loc);
+                is.scanner=FieldScanner(saved);
             }
             if( ok == OK )
             {
-                if( test_next_string_field(&is,"mm") )
+                if( test_next_string_field(is.scanner,"mm") )
                 {
                     errval1 /= 1000.0;
                     errval2 /= 1000.0;
                 }
-                else if( ! test_next_string_field(&is,"m") )
+                else if( ! test_next_string_field(is.scanner,"m") )
                 {
                     ok=INVALID_DATA;
                 }
@@ -425,12 +423,12 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int
         }
         else
         {
-            if( test_next_string_field(&is,"by_set") )
+            if( test_next_string_field(is.scanner,"by_set") )
             {
                 code=OBS_MOD_REWEIGHT_SET;
             }
-            test_next_string_field(&is,"by");
-            ok=double_from_string(&is,&errval1);
+            test_next_string_field(is.scanner,"by");
+            ok=double_from_string(is.scanner,&errval1);
             if( errval1 <= 0.0 ) ok=INVALID_DATA;
         }
         if( ok != OK )
@@ -438,18 +436,17 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int
             send_config_error(cfg, INVALID_DATA, "Invalid or missing data in reweight_observations command");
             return OK;
         }
-        string=unread_string(&is);
+        string=unread_string(is);
     }
     else if( code == OBS_MOD_ANTENNA_OFFSET )
     {
-        input_string_def is;
-        set_input_string_def(&is,string);
-        if( double_from_string(&is,&errval1) != OK || ! test_next_string_field(&is,"m"))
+        input_string_def is(string);
+        if( double_from_string(is.scanner,&errval1) != OK || ! test_next_string_field(is.scanner,"m"))
         {
             send_config_error(cfg, INVALID_DATA, "Invalid or missing data in gps_antenna_height command");
             return OK;
         }
-        string=unread_string(&is);
+        string=unread_string(is);
     }
     obs_modifications=snap_obs_modifications( true );
     add_obs_modifications( cfg, obs_modifications, string, code, errval1, errval2 );

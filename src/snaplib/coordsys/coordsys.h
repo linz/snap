@@ -351,21 +351,21 @@ ref_frame *vdatum_ref_frame( vdatum *hrs );
 /* error may come from the calls to calls to *getel and *getrf for     */
 /* the reference frame and coordinate system routines.                 */
 
-ellipsoid  *parse_ellipsoid_def ( input_string_def *is, int embedded );
-ref_frame  *parse_ref_frame_def ( input_string_def *is,
+ellipsoid  *parse_ellipsoid_def ( input_string_def &is, int embedded );
+ref_frame  *parse_ref_frame_def ( input_string_def &is,
                                   ellipsoid *(*getel)(const char *code ),
                                   ref_frame *(*getrf)(const char *code, int loadref ),
                                   int embedded, int loadref );
-int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff );
-int parse_ref_deformation_def ( input_string_def *is, ref_deformation **rdf );
+int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff );
+int parse_ref_deformation_def ( input_string_def &is, ref_deformation **rdf );
 
-projection *parse_projection_def( input_string_def *is );
-coordsys   *parse_coordsys_def  ( input_string_def *is,
+projection *parse_projection_def( input_string_def &is );
+coordsys   *parse_coordsys_def  ( input_string_def &is,
                                   ref_frame *(*getrf)(const char *code, int loadref ));
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch );
 
-vdatum *parse_vdatum_def ( input_string_def *is, 
+vdatum *parse_vdatum_def ( input_string_def &is,
                                   ref_frame *(*getrf)(const char *code, int loadref ),
                                   vdatum *(*gethrs)(const char *code, int loadref ));
 

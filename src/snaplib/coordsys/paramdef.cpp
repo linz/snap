@@ -88,17 +88,17 @@ int print_longitude( output_string_def *os, void *address )
 }
 
 
-int read_radians( input_string_def *is, void *address )
+int read_radians( FieldScanner &scanner, void *address )
 {
     double rad;
     int sts;
-    sts = double_from_string( is, &rad );
+    sts = double_from_string( scanner, &rad );
     if( sts == OK ) rad *= DTOR;
     *(double *)address = rad;
     return sts;
 }
 
-int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base )
+int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base )
 {
     int sts;
     int iprm;
@@ -106,7 +106,7 @@ int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base
     sts = OK;
     for( iprm = 0; iprm < nprm; iprm++, prms++ )
     {
-        sts = (*prms->read)( is, OFFSET_ADDRESS(base,prms->offset) );
+        sts = (*prms->read)( is.scanner, OFFSET_ADDRESS(base,prms->offset) );
         if( sts == MISSING_DATA )
         {
             sprintf(errmess,"%s is missing",prms->name);

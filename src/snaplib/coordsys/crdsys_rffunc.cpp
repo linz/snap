@@ -28,12 +28,12 @@
 #include "util/fileutil.h"
 #include "util/pi.h"
 
-int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
+int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff )
 {
     int sts;
 
     *rff = 0;
-    if( ! test_next_string_field( is, "GRID" ) )
+    if( ! test_next_string_field( is.scanner, "GRID" ) )
     {
         sts = OK;
     }
@@ -43,12 +43,12 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
         std::optional<std::string> gfile;
         char gridfile[MAX_FILENAME_LEN+1];
         char description[255+1];
-        sts = next_string_field( is, gridtype, 20 );
+        sts = next_string_field( is.scanner, gridtype, 20 );
         if( sts == OK )
-            sts = next_string_field( is, gridfile, MAX_FILENAME_LEN );
+            sts = next_string_field( is.scanner, gridfile, MAX_FILENAME_LEN );
         if( sts == OK )
         {
-            gfile = find_relative_file( is->sourcename, gridfile, ".grd" );
+            gfile = find_relative_file( is.sourcename, gridfile, ".grd" );
             if( ! gfile )
             {
                 sts = INVALID_DATA;
@@ -56,7 +56,7 @@ int parse_ref_frame_func_def ( input_string_def *is, ref_frame_func **rff )
             }
         }
         description[0] = 0;
-        next_string_field( is, description, 255 );
+        next_string_field( is.scanner, description, 255 );
         if( sts == OK )
         {
             *rff =

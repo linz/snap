@@ -29,16 +29,16 @@
 
 #define READ_STRING( name, str, len ) \
 	 if( sts == OK ) { \
-        sts = next_string_field( is, str, len ); \
+        sts = next_string_field( is.scanner, str, len ); \
         }
 
 #define READ_DOUBLE( name, pdouble ) \
      if( sts == OK ) { \
-         sts = double_from_string( is, pdouble ); \
+         sts = double_from_string( is.scanner, pdouble ); \
          }
 
 
-vdatum *parse_vdatum_def ( input_string_def *is, 
+vdatum *parse_vdatum_def ( input_string_def &is,
                                   ref_frame *(*getrf)(const char *code, int loadref ),
                                   vdatum *(*gethrs)(const char *code, int loadref )
                                   )
@@ -65,29 +65,29 @@ vdatum *parse_vdatum_def ( input_string_def *is,
     READ_STRING( "code",hrscode,CRDSYS_CODE_LEN );
     READ_STRING( "name",hrsname,CRDSYS_NAME_LEN );
     READ_STRING( "base height surface code",basecode,CRDSYS_CODE_LEN );
-    if( test_next_string_field(is,"geoid") )
+    if( test_next_string_field(is.scanner,"geoid") )
     {
         isgeoid=1;
         isgrid=1;
         READ_STRING("geoid name",geoidname,MAX_FILENAME_LEN);
     }
-    else if( test_next_string_field(is,"grid") )
+    else if( test_next_string_field(is.scanner,"grid") )
     {
         isgrid=1;
         READ_STRING("offset grid name",geoidname,MAX_FILENAME_LEN);
     }
     else
     {
-        /* Skip optional string "offset" - as originally implemented with 
-         * offset assumed and just a float value 
+        /* Skip optional string "offset" - as originally implemented with
+         * offset assumed and just a float value
          */
-        test_next_string_field(is, "offset");
+        test_next_string_field(is.scanner, "offset");
         READ_DOUBLE("offset",&offset);
     }
 
     if( isgrid )
     {
-        geoidfile = find_relative_file( is->sourcename, geoidname, ".grd" );
+        geoidfile = find_relative_file( is.sourcename, geoidname, ".grd" );
         if( ! geoidfile )
         {
             char errmess[255];

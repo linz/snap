@@ -50,7 +50,7 @@ static int default_calc_func( ref_frame *, double, double, double, double denu[3
 }
 
 
-int parse_ref_deformation_def ( input_string_def *is, ref_deformation **prdf )
+int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
 {
     char type[20+1];
     int sts;
@@ -59,9 +59,9 @@ int parse_ref_deformation_def ( input_string_def *is, ref_deformation **prdf )
     *prdf = 0;
     sts = OK;
 
-    if( test_next_string_field( is, "DEFORMATION" ))
+    if( test_next_string_field( is.scanner, "DEFORMATION" ))
     {
-        sts = next_string_field(is,type,20);
+        sts = next_string_field(is.scanner,type,20);
         if( sts != OK )
         {
             report_string_error(is,INVALID_DATA,"DEFORMATION type is missing");

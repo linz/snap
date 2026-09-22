@@ -24,7 +24,7 @@ typedef struct
 #define READ_DOUBLE( name, pdouble ) \
      if( sts == OK ) { \
          bad = name; \
-         sts = double_from_string( is, pdouble ); \
+         sts = double_from_string( is.scanner, pdouble ); \
          }
 
 
@@ -136,7 +136,7 @@ static ref_deformation_xyz *rf_xyz_create( ref_deformation *def, char *descripti
     return dxyz;
 }
 
-int rfdef_parse_bw14def( ref_deformation *def, input_string_def *is )
+int rfdef_parse_bw14def( ref_deformation *def, input_string_def &is )
 {
     double refepoch=0;
     double tx=0, ty=0, tz=0;
@@ -213,7 +213,7 @@ int rfdef_parse_bw14def( ref_deformation *def, input_string_def *is )
     return OK;
 }
 
-int rfdef_parse_eulerdef( ref_deformation *def, input_string_def *is )
+int rfdef_parse_eulerdef( ref_deformation *def, input_string_def &is )
 {
 
     double refepoch=0;

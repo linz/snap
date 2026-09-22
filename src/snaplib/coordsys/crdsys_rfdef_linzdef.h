@@ -4,6 +4,6 @@
 #include "util/iostring.h"
 #include "coordsys/coordsys.h"
 
-int rfdef_parse_linzdef( ref_deformation *def, input_string_def *is );
+int rfdef_parse_linzdef( ref_deformation *def, input_string_def &is );
 
 #endif

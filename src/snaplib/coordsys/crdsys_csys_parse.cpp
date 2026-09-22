@@ -22,16 +22,16 @@
 #define READ_STRING( name, str, len ) \
   if( sts == OK ) { \
         bad = name; \
-        sts = next_string_field( is, str, len ); \
+        sts = next_string_field( is.scanner, str, len ); \
         }
 
 #define READ_DOUBLE( name, pdouble ) \
      if( sts == OK ) { \
          bad = name; \
-         sts = double_from_string( is, pdouble ); \
+         sts = double_from_string( is.scanner, pdouble ); \
          }
 
-coordsys *parse_coordsys_def  ( input_string_def *is,
+coordsys *parse_coordsys_def  ( input_string_def &is,
                                 ref_frame *(*getrf)(const char *code, int loadref ))
 {
     char cscode[CRDSYS_CODE_LEN+1];
@@ -46,18 +46,17 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
     double range[4];
     const char *bad = "";
     int sts = OK;
-    long loc;
 
     READ_STRING( "Coordinate system code",cscode,CRDSYS_CODE_LEN);
     READ_STRING( "Coordinate system name",csname,CRDSYS_NAME_LEN);
-    loc = get_string_loc( is );
+    auto savedBeforeRfCode = is.scanner.remainder();
     READ_STRING( "Reference frame code", rfcode, CRDSYS_CODE_LEN);
 
     if( sts == OK )
     {
         if( _stricmp( rfcode, "REF_FRAME" ) != 0 )
         {
-            set_string_loc( is , loc );
+            is.scanner = FieldScanner(savedBeforeRfCode);
             rf = parse_ref_frame_def( is, 0, 0, 1, 1 );
             if( !rf ) return NULL;
         }
@@ -106,11 +105,11 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
     got_range = 0;
     if( sts == OK )
     {
-        loc = get_string_loc( is );
+        auto savedBeforeTypecode = is.scanner.remainder();
         READ_STRING( "", typecode, CRDSYS_CODE_LEN );
         if( sts != OK || _stricmp(typecode,"RANGE") != 0 )
         {
-            set_string_loc( is, loc );
+            is.scanner = FieldScanner(savedBeforeTypecode);
             sts = OK;
         }
         else
@@ -126,7 +125,7 @@ coordsys *parse_coordsys_def  ( input_string_def *is,
     if( sts == OK )
     {
         char test[32];
-        sts = next_string_field( is, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
+        sts = next_string_field( is.scanner, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
         if( sts != OK )
         {
             char errmsg[100+CRDSYS_CODE_LEN];

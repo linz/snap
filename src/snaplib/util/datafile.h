@@ -12,6 +12,8 @@
 */
 
 #include <stdio.h>
+#include <optional>
+#include <string>
 
 #ifndef IOSTRING_H
 #include "util/iostring.h"
@@ -19,7 +21,7 @@
 
 typedef struct
 {
-    char *fname;
+    std::string fname;
     FILE *f;
     long startloc;
     long startlineno;
@@ -34,7 +36,7 @@ typedef struct
     char comment_char;
     char continuation_char;
     char quote_char;
-    input_string_def instr;
+    std::optional<input_string_def> instr; ///< constructed fresh by each df_input_string() call
 } DATAFILE;
 
 
@@ -46,7 +48,7 @@ typedef struct
 
 int   df_data_file_default_reclen( int newlen );
 DATAFILE *df_open_data_file( const char *fname, const char *description ) ;
-char *df_file_name( DATAFILE *d );
+std::string df_file_name( DATAFILE *d );
 void  df_close_data_file( DATAFILE *d ) ;
 void  df_set_data_file_comment( DATAFILE *d, char comment );
 void  df_set_data_file_quote( DATAFILE *d, char quote );
@@ -54,7 +56,13 @@ void  df_set_data_file_continuation( DATAFILE *d, char continuation );
 int df_skip_to_blank_line( DATAFILE *d );
 int df_read_data_file( DATAFILE *d );
 char *df_rest_of_line( DATAFILE *d );
-input_string_def *df_input_string( DATAFILE *d );
+
+/// Constructs (or reconstructs) d's input_string_def to view its current
+/// record, wired to report errors via df_data_file_error(). Called fresh
+/// each time the current record needs a read cursor - the previous return
+/// value is no longer valid once this is called again.
+input_string_def &df_input_string( DATAFILE *d );
+
 long  df_line_number( DATAFILE *d ) ;
 int df_data_file_error( DATAFILE *d, int sts, const char *errmsg ) ;
 int df_data_file_errcount( DATAFILE *d );

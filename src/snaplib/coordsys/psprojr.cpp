@@ -18,7 +18,7 @@
 #include "coordsys/psproj.h"
 #include "coordsys/psprojr.h"
 
-static int read_north_south( input_string_def *is, void *address );
+static int read_north_south( FieldScanner &scanner, void *address );
 static int print_north_south( output_string_def *os, void *address );
 
 static param_def psparams[]  =
@@ -112,11 +112,11 @@ projection *create_ps_projection(  double cm, double sf,
     return prj;
 }
 
-static int read_north_south( input_string_def *is, void *address )
+static int read_north_south( FieldScanner &scanner, void *address )
 {
     char def[11];
     int sts;
-    sts = next_string_field( is, def, 10 );
+    sts = next_string_field( scanner, def, 10 );
     if( sts != OK ) return sts;
     if( _stricmp(def,"north") == 0 )
     {

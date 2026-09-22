@@ -12,7 +12,7 @@
 #include "util/errdef.h"
 #include "coordsys/crdsys_prj.h"
 
-projection *parse_projection_def( input_string_def *is )
+projection *parse_projection_def( input_string_def &is )
 {
     char typecode[CRDSYS_CODE_LEN+1];
     char errmess[128];
@@ -22,7 +22,7 @@ projection *parse_projection_def( input_string_def *is )
 
     prj = NULL;
 
-    if( next_string_field( is, typecode, CRDSYS_CODE_LEN ) != OK )
+    if( next_string_field( is.scanner, typecode, CRDSYS_CODE_LEN ) != OK )
     {
         report_string_error( is, MISSING_DATA, "Projection code missing" );
         return prj;

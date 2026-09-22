@@ -113,12 +113,11 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     fseek(f,0L,SEEK_SET);
 
 
-    d = (DATAFILE *) check_malloc( sizeof(DATAFILE) +  strlen(fname) + 1 );
+    d = new DATAFILE;
     d->inrec = (char *) check_malloc( default_reclen );
 
     d->maxreclen = default_reclen;
-    d->fname = (char *)d + sizeof(DATAFILE);
-    strcpy( d->fname, fname );
+    d->fname = fname;
     d->f = f;
     d->lineno = d->startlineno = 0;
     d->startloc = 0;
@@ -134,7 +133,7 @@ DATAFILE *df_open_data_file( const char *fname, const char *description )
     return d;
 }
 
-char *df_file_name( DATAFILE *d )
+std::string df_file_name( DATAFILE *d )
 {
     return d->fname;
 }
@@ -161,7 +160,7 @@ void df_close_data_file( DATAFILE *d )
     {
         if( d->f ) fclose(d->f);
         check_free(d->inrec);
-        check_free(d);
+        delete d;
     }
 }
 
@@ -269,14 +268,14 @@ static int send_datafile_error( void *src, int status, const char *message )
 }
 #endif
 
-input_string_def *df_input_string( DATAFILE *d )
+input_string_def &df_input_string( DATAFILE *d )
 {
-    d->instr.buffer = d->inrec;
-    d->instr.ptr = d->inrecptr;
-    d->instr.sourcename = d->fname;
-    d->instr.source = (void *) d;
-    d->instr.report_error = (input_string_errfunc) df_data_file_error;
-    return &d->instr;
+    // Constructs d->instr fresh in place, whether or not it already held a value.
+    d->instr.emplace( std::string_view(d->inrecptr) );
+    d->instr->sourcename = d->fname;
+    d->instr->source = (void *) d;
+    d->instr->report_error = (input_string_errfunc) df_data_file_error;
+    return *d->instr;
 }
 
 
@@ -506,7 +505,7 @@ int df_data_file_error( DATAFILE *d, int sts, const char *errmsg )
     {
         sprintf(fline,"Line: %ld  ",d->reclineno);
     }
-    sprintf(fmsg,"%sFile: %.*s", fline, MAX_FILENAME_LEN, d->fname );
+    sprintf(fmsg,"%sFile: %.*s", fline, MAX_FILENAME_LEN, d->fname.c_str() );
     handle_error(sts,errmsg,fmsg );
     if( sts >= WARNING_ERROR ) d->errcount++;
     return sts;

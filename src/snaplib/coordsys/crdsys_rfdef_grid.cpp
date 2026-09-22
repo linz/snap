@@ -129,28 +129,28 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
     return rf_apply_enu_deformation_to_llh( rf, llh, denu );
 }
 
-int rfdef_parse_griddef( ref_deformation *def, input_string_def *is )
+int rfdef_parse_griddef( ref_deformation *def, input_string_def &is )
 {
     double refepoch;
     std::optional<std::string> gridfile;
     char filename[MAX_FILENAME_LEN];
     int sts;
 
-    sts = next_string_field( is, filename, MAX_FILENAME_LEN );
+    sts = next_string_field( is.scanner, filename, MAX_FILENAME_LEN );
     if( sts != OK )
     {
         report_string_error( is, sts, "Missing filename for VELGRID deformation");
         return sts;
     }
 
-    sts = double_from_string( is, &refepoch );
+    sts = double_from_string( is.scanner, &refepoch );
     if( sts != OK )
     {
         report_string_error( is, sts, "Missing reference epoch for VELGRID deformation");
         return sts;
     }
 
-    gridfile = find_relative_file( is->sourcename, filename, ".grd" );
+    gridfile = find_relative_file( is.sourcename, filename, ".grd" );
     if( ! gridfile )
     {
         char errmess[80+MAX_FILENAME_LEN];

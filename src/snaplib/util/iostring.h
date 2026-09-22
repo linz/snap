@@ -12,18 +12,33 @@
 */
 
 #include <stdio.h>
+#include <string>
+#include <string_view>
+
+#include "util/fieldscanner.hpp"
 
 /* Definitions of an input and output string structure */
 
+/// Called by report_string_error() to report a parse error, with whatever
+/// opaque context input_string_def::source carries (e.g. a DATAFILE*, cast
+/// back to its concrete type by the handler).
 typedef int (*input_string_errfunc)( void *source, int status, const char *message );
-typedef struct
+
+/// A cursor over one piece of input text being parsed field-by-field, plus
+/// enough context to attribute a parse error back to where the text came
+/// from. Used both by cfgprocs.cpp's still-unconverted config-line parsing
+/// and by the coordsys/ parsers (which read scanner directly for anything
+/// not covered by the functions below).
+struct input_string_def
 {
-    char *buffer;   /* The input string data */
-    char *ptr;      /* Pointer into the data for the next read operation */
-    char *sourcename; /* Name of the source - file name for a file source */
-    void *source;   /* Used for the error handler */
-    input_string_errfunc report_error;
-} input_string_def;
+    /// \param text must outlive this input_string_def - it is only viewed, never copied.
+    explicit input_string_def( std::string_view text ) : scanner(text) {}
+
+    FieldScanner scanner;                        ///< the input text and read cursor
+    std::string sourcename;                      ///< name of the source - file name for a file source
+    void *source = nullptr;                      ///< opaque context passed to report_error
+    input_string_errfunc report_error = nullptr; ///< called by report_string_error(), or null for no reporting
+};
 
 /* Output string def - defines a way of sending strings to some form
    of output device */
@@ -37,22 +52,32 @@ typedef struct
 } output_string_def;
 
 /* Input string functions.  Return status values are as defined in
-   errdef.h, ie 0 = OK, non-zero represent errors.
+   errdef.h, ie 0 = OK, non-zero represent errors. Used by both
+   cfgprocs.cpp and the coordsys/ parsers. Operate on a plain FieldScanner,
+   not input_string_def, since none of them need the error-reporting
+   fields (sourcename/source/report_error) - only report_string_error()
+   and unread_string() below do. */
 
-   The end_of_string function returns 1 if there is no more data available
-   in the string, 0 otherwise.  */
+/// Reads the next field (quote-transparent) from scanner into buf,
+/// truncating without error if it doesn't fit.
+/// \return OK, or NO_MORE_DATA/MISSING_DATA on failure (see errdef.h).
+int next_string_field( FieldScanner &scanner, char *buf, int nbuf );
 
-void set_input_string_def( input_string_def *s, char *string );
-int next_string_field( input_string_def *is, char *buf, int nbuf );
-int test_next_string_field( input_string_def *is, const char *test );
-int skip_string_field( input_string_def *is );
+/// Reads the next field (quote-transparent) from scanner and, if it
+/// case-insensitively equals test, consumes it. Otherwise leaves scanner
+/// unchanged.
+/// \return 1 if the field matched and was consumed, 0 otherwise.
+int test_next_string_field( FieldScanner &scanner, std::string_view test );
 
-int double_from_string( input_string_def *is, void *value );
-long get_string_loc( input_string_def *is );
-void set_string_loc( input_string_def *is, long loc );
-int end_of_string( input_string_def *is );
-char *unread_string( input_string_def *is );
-void report_string_error( input_string_def *is, int status, const char *message );
+/// Reads the next field (quote-transparent) from scanner and parses it as a double.
+/// \param value a double* to set on success.
+/// \return OK, or NO_MORE_DATA/MISSING_DATA/INVALID_DATA on failure (see errdef.h).
+int double_from_string( FieldScanner &scanner, void *value );
+
+/// \return the remainder of def's input, unconsumed, verbatim.
+char *unread_string( input_string_def &def );
+
+void report_string_error( input_string_def &def, int status, const char *message );
 
 int write_output_string( output_string_def *os, const char *s );
 int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix );

@@ -16,168 +16,69 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #include "util/pi.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
 
-void set_input_string_def( input_string_def *is, char *string )
+/// Reads the next field (quote-transparent) from scanner into field.
+/// \return OK with field set, NO_MORE_DATA if nothing non-whitespace is
+///         left (checked via a throwaway copy, since the real read must go
+///         through checkAndRecoverQuotedValue() for quote-transparency, not
+///         a plain next()), or MISSING_DATA on a malformed quote.
+static int read_next_field_status( FieldScanner &scanner, std::string_view &field )
 {
-    is->ptr = string;
-    is->buffer = string;
-    is->sourcename = 0;
-    is->source = NULL;
-    is->report_error = (input_string_errfunc) 0;
-}
-
-static int find_next_field( input_string_def *is )
-{
-    if( is->ptr ) while( ISSPACE(*is->ptr)) is->ptr++;
-    return is->ptr && *is->ptr ? OK : NO_MORE_DATA;
-}
-
-static int read_next_field( input_string_def *is, char **start, int *length )
-{
-    char *s;
-    int nxt;
-    int sts;
-
-    /* Skip over white space */
-
-    sts = find_next_field(is);
-    if( sts != OK ) return sts;
-
-    /* Is it a quoted string */
-
-    *length = 0;
-
-    s = is->ptr;
-    nxt = 0;
-
-    if( s[nxt] == '\"' )
     {
-        s++;
-        *start = s;
-        while( s[nxt] != '\"' && s[nxt] ) nxt++;
-        if( s[nxt] == '\"' )
-        {
-            *length = nxt;
-            is->ptr = s+nxt+1;
-            sts = OK;
-        }
-        else
-        {
-            *length = nxt-1;
-            is->ptr = s+nxt;
-            sts = MISSING_DATA;
-        }
+        FieldScanner probe = scanner;
+        if( ! probe.next() ) return NO_MORE_DATA;
     }
-    else
-    {
-        *start = s;
-        while( s[nxt] && !ISSPACE(s[nxt]) ) nxt++;
-        *length = nxt;
-        is->ptr = s+nxt;
-        sts = OK;
-    }
-
-    return sts;
-}
-
-
-int next_string_field( input_string_def *is, char *buf, int nbuf )
-{
-    int length;
-    char *start;
-    int sts;
-
-    sts = read_next_field( is, &start, &length );
-    if( sts != OK ) return sts;
-    if( length >= nbuf ) length = nbuf-1;
-    memcpy( buf, start, length );
-
-    buf[length] = 0;
+    auto f = scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    if( ! f ) return MISSING_DATA;
+    field = *f;
     return OK;
 }
 
-int test_next_string_field( input_string_def *is, const char *test )
+int next_string_field( FieldScanner &scanner, char *buf, int nbuf )
 {
-    int length;
-    char *start;
-    double loc;
-    int sts;
+    std::string_view field;
+    int sts = read_next_field_status( scanner, field );
+    if( sts == OK ) copy_field( field, buf, nbuf );
+    return sts;
+}
 
-    loc = get_string_loc(is);
-    sts = read_next_field( is, &start, &length );
-    if( sts != OK ) return 0;
-    if( (int) strlen(test) == length && _strnicmp(test,start,length)==0 ) return 1;
-    set_string_loc(is,loc);
+int test_next_string_field( FieldScanner &scanner, std::string_view test )
+{
+    auto saved = scanner.remainder();
+    std::string_view field;
+    if( read_next_field_status( scanner, field ) != OK ) return 0;   // read failed - position already correctly left advanced (or unchanged), don't restore
+    if( boost::algorithm::iequals(field,test) ) return 1;
+    scanner = FieldScanner(saved);   // read fine but didn't match - restore
     return 0;
 }
 
-int skip_string_field( input_string_def *is )
+int double_from_string( FieldScanner &scanner, void *value )
 {
-    char *start;
-    int length;
-    return read_next_field( is, &start, &length );
+    std::string_view field;
+    int sts = read_next_field_status( scanner, field );
+    if( sts != OK ) return sts;
+    auto parsed = parse_double( field );
+    if( ! parsed ) return INVALID_DATA;
+    *(double *)value = *parsed;
+    return OK;
 }
 
-static int parse_number( input_string_def *is, const char *fmt, void *value )
+char *unread_string( input_string_def &def )
 {
-    int length, nfld, sts;
-    char *fld, save, garbage;
-    sts = read_next_field( is, &fld, &length );
-    if( sts != OK )  return sts;
-
-    /* Put a NULL terminator at the end of the string */
-
-    save = fld[length];
-    fld[length] = 0;
-
-    nfld = sscanf( fld, fmt, value, &garbage );
-
-    fld[length] = save;
-
-    /* Determine the return status */
-
-    return nfld == 1 ? OK : INVALID_DATA;
+    return const_cast<char *>( def.scanner.remainder().data() );
 }
 
-
-int double_from_string( input_string_def *is, void *value )
+void report_string_error( input_string_def &def, int status, const char *message )
 {
-    return parse_number( is, "%lf%1s", value );
-}
-
-long get_string_loc( input_string_def *is )
-{
-    return is->ptr - is->buffer;
-}
-
-void set_string_loc( input_string_def *is, long loc )
-{
-    if( loc >= 0 && loc <= (long) strlen(is->buffer) )
+    if( def.report_error )
     {
-        is->ptr = is->buffer + loc;
-    }
-}
-
-int end_of_string( input_string_def *is )
-{
-    return find_next_field( is ) ?  0 : 1;
-}
-
-char *unread_string( input_string_def *is )
-{
-    return is->ptr;
-}
-
-void report_string_error( input_string_def *is, int status, const char *message )
-{
-    if( is->report_error )
-    {
-        (*is->report_error)( is->source, status, message );
+        (*def.report_error)( def.source, status, message );
     }
 }
 

@@ -28,7 +28,7 @@ typedef struct
 
        Return status should be as defined in errdef.h */
 
-    int (*read)( input_string_def *is, void *address );
+    int (*read)( FieldScanner &scanner, void *address );
     int (*write)( output_string_def *os, void *address );
     int (*print)( output_string_def *os, void *address );
 } param_def;
@@ -47,8 +47,8 @@ int print_longitude( output_string_def *os, void *address );
 void print_param_list( output_string_def *os, param_def *prms, int nprm,
                        void *base, const char *prefix );
 
-int read_radians( input_string_def *is, void *address );
-int read_param_list( input_string_def *is, param_def *prms, int nprm, void *base );
+int read_radians( FieldScanner &scanner, void *address );
+int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base );
 
 
 

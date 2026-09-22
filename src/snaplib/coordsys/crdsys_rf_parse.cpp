@@ -28,16 +28,16 @@
 #define READ_STRING( name, str, len ) \
 	 if( sts == OK ) { \
         bad = name; \
-        sts = next_string_field( is, str, len ); \
+        sts = next_string_field( is.scanner, str, len ); \
         }
 
 #define READ_DOUBLE( name, pdouble ) \
      if( sts == OK ) { \
          bad = name; \
-         sts = double_from_string( is, pdouble ); \
+         sts = double_from_string( is.scanner, pdouble ); \
          }
 
-ref_frame  *parse_ref_frame_def ( input_string_def *is,
+ref_frame  *parse_ref_frame_def ( input_string_def &is,
                                   ellipsoid *(*getel)(const char *code ),
                                   ref_frame *(*getrf)(const char *code, int loadref ),
                                   int embedded, int loadref )
@@ -57,7 +57,6 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     ref_deformation *rdf = 0;
     int sts;
     const char *bad;
-    long loc;
     int reported;
 
     bad = NULL;
@@ -66,12 +65,12 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
 
     READ_STRING( "code",refcode,CRDSYS_CODE_LEN );
     READ_STRING( "name",refname,CRDSYS_NAME_LEN );
-    loc = get_string_loc( is );
+    auto loc = is.scanner.remainder();
     READ_STRING( "ellipsoid code",elcode,CRDSYS_CODE_LEN );
 
     if( sts == OK && _stricmp(elcode, "ELLIPSOID") != 0 )
     {
-        set_string_loc( is, loc );
+        is.scanner = FieldScanner(loc);
         el = parse_ellipsoid_def( is, 1 );
         if( !el ) return NULL;
     }
@@ -117,16 +116,16 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
             iersunits=0;
             ierstsr=0;
             iersrates=0;
-            if( test_next_string_field( is, "IERS") )
+            if( test_next_string_field( is.scanner, "IERS") )
             {
                 iersunits=1;
             }
-            else if( test_next_string_field( is, "IERS_TSR" ) )
+            else if( test_next_string_field( is.scanner, "IERS_TSR" ) )
             {
                 iersunits=1;
                 ierstsr=1;
             }
-            else if( test_next_string_field( is, "IERS_ETSR" ) )
+            else if( test_next_string_field( is.scanner, "IERS_ETSR" ) )
             {
                 iersunits=1;
                 ierstsr=1;
@@ -146,7 +145,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
 
             if( ! ierstsr ) { READ_DOUBLE( "scale factor", &sf ); }
 
-            if( sts == OK && (iersrates || test_next_string_field( is, "RATES" )))
+            if( sts == OK && (iersrates || test_next_string_field( is.scanner, "RATES" )))
             {
                 if( ! iersrates ) { READ_DOUBLE( "reference date", &refdate ); }
                 READ_DOUBLE( "x translation rate", &dtxyz[0] );
@@ -245,7 +244,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def *is,
     if( sts == OK && ! embedded )
     {
         char test[32];
-        sts = next_string_field( is, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
+        sts = next_string_field( is.scanner, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
         if( sts != OK )
         {
             char errmsg[100+CRDSYS_CODE_LEN];

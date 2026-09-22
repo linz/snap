@@ -25,7 +25,7 @@ static param_def ell_params[] =
     }
 };
 
-ellipsoid *parse_ellipsoid_def( input_string_def *is, int embedded )
+ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
 {
     char elcode[CRDSYS_CODE_LEN + 1];
     char elname[CRDSYS_NAME_LEN + 1];
@@ -34,11 +34,11 @@ ellipsoid *parse_ellipsoid_def( input_string_def *is, int embedded )
     int sts;
 
     bad = "code";
-    sts = next_string_field( is, elcode, CRDSYS_CODE_LEN );
+    sts = next_string_field( is.scanner, elcode, CRDSYS_CODE_LEN );
     if( sts == OK )
     {
         bad = "name";
-        sts = next_string_field( is, elname, CRDSYS_NAME_LEN );
+        sts = next_string_field( is.scanner, elname, CRDSYS_NAME_LEN );
     }
     if( sts != OK )
     {
@@ -59,7 +59,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def *is, int embedded )
     if( sts == OK && ! embedded )
     {
         char test[32];
-        sts = next_string_field( is, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
+        sts = next_string_field( is.scanner, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
         if( sts != OK )
         {
             char errmsg[100+CRDSYS_CODE_LEN];
