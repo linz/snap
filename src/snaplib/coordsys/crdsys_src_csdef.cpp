@@ -21,6 +21,12 @@ that the file had not been modified in the mean time - tricky .
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string>
+#include <vector>
+
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/algorithm/string/split.hpp>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_src.h"
@@ -29,6 +35,7 @@ that the file had not been modified in the mean time - tricky .
 #include "util/datafile.h"
 #include "util/fileutil.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "util/linklist.h"
 
 #define MAXRECLEN 512
@@ -49,13 +56,21 @@ that the file had not been modified in the mean time - tricky .
 /* Structure used to record reference frames and ellipsoids already
    passed when loading a coordinate system */
 
-typedef struct code_loc_s
+struct code_loc
 {
-    struct code_loc_s *next;
-    char *code;
+    code_loc *next;
+    std::string code;
     datafile_loc loc;
-    char hidden;
-} code_loc;
+    bool hidden;
+
+    /// Scratch storage for cfs_code_def()'s reconstructed line, owned by
+    /// this code_loc (not a buffer shared across other codes) since it must
+    /// outlive cfs_code_def()'s own return - see cfs_code_def(). A
+    /// std::vector<char>, not a std::string, since cfs_code_def()'s callers
+    /// write through it (parse_number()'s null-terminate-then-restore
+    /// trick), which is undefined behavior on a std::string's own storage.
+    std::vector<char> replacedLine;
+};
 
 /* Structure defining a coordinate system definition file */
 
@@ -67,59 +82,58 @@ typedef struct
 
 /* Add a new code */
 
-static code_loc *add_code( crdsys_file_source *csf, int type, const char *code, int clen, char hidden, datafile_loc *loc )
+static code_loc *add_code( crdsys_file_source *csf, int type, const std::string &code, bool hidden, datafile_loc *loc )
 {
-    code_loc **next;
-    code_loc *newloc;
-    char *newcode;
     if( type < 0  || type >= CS_COORDSYS_COUNT )
     {
         return 0;
     }
-    next = &(csf->codes[type]);
+    // Walk forward while the current slot holds a node, so `next` ends up
+    // pointing at whichever pointer needs to become non-null to add one here
+    // - the list head itself, or the last node's own next field.
+    code_loc **next = &(csf->codes[type]);
     while( *next ) next=&((*next)->next);
-    newloc = (code_loc *) check_malloc( sizeof(code_loc) + clen + 1 );
-    newcode = ((char *) newloc)+sizeof(code_loc);
-    strncpy(newcode,code,clen);
-    newcode[clen] = 0;
-    newloc->next=0;
-    newloc->code=newcode;
-    newloc->hidden=hidden;
-    memcpy(&(newloc->loc),loc,sizeof(datafile_loc));
+    code_loc *newloc = new code_loc{ nullptr, code, *loc, hidden, {} };
     (*next)=newloc;
     return newloc;
 }
 
+/// One '='-delimited segment of a coordinate system code's alias list, e.g.
+/// "NZGD2000", "NZGD2000_20180701" and "(20180701)" in
+/// "NZGD2000=NZGD2000_20180701=(20180701)".
+struct CodeAlias
+{
+    std::string code;  ///< the alias code, with any hiding parentheses stripped
+    bool hidden;        ///< true if the segment was wrapped in parentheses
+};
+
+/// Parses one alias segment, recognizing the "(code)" hidden-alias form. A
+/// hidden alias is still fully valid and lookupable directly by name - it's
+/// just suppressed from get_codes()'s general listing (e.g. a "pick a
+/// coordinate system" dropdown), typically used for a legacy/internal
+/// shorthand kept functional for backward compatibility.
+static CodeAlias parse_code_alias( const std::string &segment )
+{
+    if( segment.size() >= 3 && segment.front() == '(' && segment.back() == ')' )
+    {
+        return CodeAlias{ segment.substr(1,segment.size()-2), true };
+    }
+    return CodeAlias{ segment, false };
+}
+
 static code_loc *add_codes( crdsys_file_source *csf, int type, const char *code, datafile_loc *loc )
 {
-    const char *cptr, *eptr;
-    int clen;
-    char hidden;
     code_loc *newloc=0;
-
-    eptr=code;
-    while( *eptr )
+    std::vector<std::string> segments;
+    /* Allow for codes with aliases as NZGD2000=NZGD2000_2010601 */
+    boost::algorithm::split( segments, code, boost::algorithm::is_any_of("=") );
+    for( const std::string &segment : segments )
     {
-        cptr=eptr;
-        /* Allow for codes with aliases as NZGD2000=NZGD2000_2010601 */
-        /* Allow for hidden codes with (20170601) */
-        while( *eptr && *eptr != '=' ) eptr++;
-        if( eptr > cptr )
+        CodeAlias alias = parse_code_alias( segment );
+        if( alias.code.size() > 0 && alias.code.size() <= CRDSYS_CODE_LEN )
         {
-            clen=eptr-cptr;
-            hidden=0;
-            if( *cptr == '(' && clen >= 3 && cptr[clen-1] == ')' )
-            {
-                cptr++;
-                clen -= 2;
-                hidden=1;
-            }
-            if( clen > 0 && clen <= CRDSYS_CODE_LEN )
-            {
-                newloc=add_code( csf, type, cptr, clen, hidden, loc );
-            }
+            newloc=add_code( csf, type, alias.code, alias.hidden, loc );
         }
-        if( *eptr ) eptr++;
     }
     return newloc;
 }
@@ -132,7 +146,7 @@ static code_loc *find_code_loc( crdsys_file_source *csf, int type, const char *c
         return 0;
     }
     loc=csf->codes[type];
-    while( loc && _stricmp(loc->code, code) != 0 ) loc=loc->next;
+    while( loc && ! boost::algorithm::iequals(loc->code,code) ) loc=loc->next;
     return loc;
 }
 
@@ -145,7 +159,7 @@ static void delete_code_locs( code_loc **codes )
     while( code )
     {
         next = code->next;
-        check_free( code );
+        delete code;
         code = next;
     }
 }
@@ -223,7 +237,7 @@ static int get_codes( void *pcfs,
                 {
                     strcpy(name,"(unnamed)");
                 }
-                (*addfunc)((int) type, id, cl->code, name );
+                (*addfunc)((int) type, id, cl->code.c_str(), name );
             }
             id++;
         }
@@ -257,7 +271,24 @@ static input_string_def *cfs_code_def( crdsys_file_source *cfs, long id, int typ
     if( !cl ) return NULL;
     df_reset_data_file_loc( cfs->df, &cl->loc );
     instr = df_input_string( cfs->df );
-    replace_next_field(instr,cl->code);
+
+    // The line's raw first field may be a combined alias list, e.g.
+    // "NZGD2000=NZGD2000_20180701=(20180701)" - cl->code is already the one
+    // resolved alias (set once, at file-scan time by add_codes()). Replace
+    // the raw combined token with the resolved code before handing the line
+    // to whatever re-parses the definition, by building a fresh line owned
+    // by cl itself (stable for as long as cl is, unlike a buffer shared
+    // across other codes) rather than mutating the DATAFILE's own record
+    // buffer in place - nothing downstream depends on the replacement
+    // landing at the original token's byte offset.
+    FieldScanner scanner( instr->ptr );
+    scanner.next();
+    std::string newLine = cl->code + std::string(scanner.remainder());
+    cl->replacedLine.assign( newLine.begin(), newLine.end() );
+    cl->replacedLine.push_back( '\0' );
+    instr->buffer = cl->replacedLine.data();
+    instr->ptr = cl->replacedLine.data();
+
     return instr;
 }
 
