@@ -154,6 +154,17 @@ void check_and_recover_quoted_value()
     check( ! scanner.checkAndRecoverQuotedValue( true, std::nullopt ), "checkAndRecoverQuotedValue: nullopt at end of input" );
 }
 
+void check_and_recover_quoted_double_value()
+{
+    FieldScanner scanner( "6378160 \"298.25\" abc" );
+    auto first=scanner.checkAndRecoverQuotedDoubleValue( true, std::nullopt );
+    check( first.has_value() && *first==6378160, "checkAndRecoverQuotedDoubleValue: plain field, read via next()" );
+    auto second=scanner.checkAndRecoverQuotedDoubleValue( true, std::nullopt );
+    check( second.has_value() && *second==298.25, "checkAndRecoverQuotedDoubleValue: quoted numeric field" );
+    check( ! scanner.checkAndRecoverQuotedDoubleValue( true, std::nullopt ), "checkAndRecoverQuotedDoubleValue: rejects non-numeric text" );
+    check( ! scanner.checkAndRecoverQuotedDoubleValue( true, std::nullopt ), "checkAndRecoverQuotedDoubleValue: nullopt at end of input" );
+}
+
 void check_parse_double()
 {
     auto value = parse_double("1.5");
@@ -189,6 +200,7 @@ int main()
     check_quoted_value_lenient();
     check_is_quoted();
     check_and_recover_quoted_value();
+    check_and_recover_quoted_double_value();
     check_parse_double();
     check_parse_positive_double();
 

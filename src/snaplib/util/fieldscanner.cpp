@@ -81,6 +81,14 @@ std::optional<std::string_view> FieldScanner::checkAndRecoverQuotedValue( const 
     return next();
 }
 
+std::optional<double> FieldScanner::checkAndRecoverQuotedDoubleValue( const bool onlyDoubleQuote,
+    const std::optional<std::vector<QuoteFollowOption>> &followOptions )
+{
+    auto field = checkAndRecoverQuotedValue( onlyDoubleQuote, followOptions );
+    if( ! field ) return std::nullopt;
+    return parse_double( *field );
+}
+
 std::optional<double> parse_double( std::string_view field )
 {
     double value;

@@ -89,6 +89,19 @@ public:
         const std::optional<std::vector<QuoteFollowOption>> &followOptions );
                                                    ///< see quotedValue()
 
+    /// A thin wrapper over checkAndRecoverQuotedValue() that additionally
+    /// parses the recovered field as a double (see parse_double()) - for
+    /// callers where a numeric field may legally be quoted (iostring.cpp's
+    /// double_from_string() went through the same quote-transparent field
+    /// reader as its string fields, so a quoted number was always legal,
+    /// however rarely used in practice).
+    /// \return the parsed value, or nullopt at end of input, on a malformed
+    ///         quoted value, or if the recovered field isn't a valid double.
+    std::optional<double> checkAndRecoverQuotedDoubleValue(
+        bool onlyDoubleQuote,                     ///< see isQuoted()
+        const std::optional<std::vector<QuoteFollowOption>> &followOptions );
+                                                   ///< see quotedValue()
+
     /// Checks whether field begins with a quote character - '"'
     /// unconditionally, and also '\'' unless onlyDoubleQuote is set.
     /// \return the position of the opening quote (field.begin()), or
