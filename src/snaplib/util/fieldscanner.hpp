@@ -132,4 +132,12 @@ std::optional<double> parse_double(
 std::optional<double> parse_positive_double(
     std::string_view field );  ///< the field to parse
 
+/// Copies field into buf, truncating without error if it doesn't fit -
+/// matches the legacy next_string_field()'s truncate-not-error behavior,
+/// for callers not yet converted off fixed-size buffers.
+void copy_field(
+    std::string_view field,  ///< the field to copy
+    char *buf,               ///< destination buffer
+    int nbuf );              ///< buf's capacity, including the trailing '\0'
+
 #endif

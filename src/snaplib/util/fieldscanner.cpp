@@ -4,6 +4,7 @@
 #include "util/snapctype.h"
 #include <algorithm>
 #include <charconv>
+#include <cstring>
 
 std::optional<std::string_view> FieldScanner::next()
 {
@@ -104,4 +105,12 @@ std::optional<double> parse_positive_double( std::string_view field )
     auto value = parse_double( field );
     if( value && *value <= 0.0 ) return std::nullopt;
     return value;
+}
+
+void copy_field( std::string_view field, char *buf, int nbuf )
+{
+    int length = (int) field.size();
+    if( length >= nbuf ) length = nbuf-1;
+    memcpy( buf, field.data(), length );
+    buf[length] = 0;
 }

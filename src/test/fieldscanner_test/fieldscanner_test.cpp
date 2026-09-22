@@ -185,6 +185,17 @@ void check_parse_positive_double()
     check( ! parse_positive_double("0"), "parse_positive_double: rejects zero (must be strictly positive)" );
 }
 
+void check_copy_field()
+{
+    char buf[8];
+    copy_field( "abc", buf, sizeof(buf) );
+    check( std::string(buf)=="abc", "copy_field: fits with room to spare" );
+    copy_field( "abcdefgh", buf, sizeof(buf) );
+    check( std::string(buf)=="abcdefg", "copy_field: truncates without error when it doesn't fit" );
+    copy_field( "", buf, sizeof(buf) );
+    check( std::string(buf)=="", "copy_field: empty field" );
+}
+
 } // namespace
 
 int main()
@@ -203,6 +214,7 @@ int main()
     check_and_recover_quoted_double_value();
     check_parse_double();
     check_parse_positive_double();
+    check_copy_field();
 
     if( failures == 0 )
     {
