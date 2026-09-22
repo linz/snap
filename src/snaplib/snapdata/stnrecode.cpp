@@ -513,13 +513,15 @@ static std::optional<UncertaintyResult> parse_uncertainty(
                 ok=false;
                 break;
             }
-            if( ! parse_positive_double( *errorField, result.verror ) )
+            auto verror = parse_positive_double( *errorField );
+            if( ! verror )
             {
                 std::string errorText(*errorField);
                 sprintf(msg,"Invalid hv_error %s in recode definition",errorText.c_str());
                 ok=false;
                 break;
             }
+            result.verror = *verror;
             if( result.n_enu == 0 ) result.herror=result.verror;
             result.n_enu++;
         }

@@ -81,10 +81,19 @@ std::optional<std::string_view> FieldScanner::checkAndRecoverQuotedValue( const 
     return next();
 }
 
-bool parse_positive_double( std::string_view field, double &value )
+std::optional<double> parse_double( std::string_view field )
 {
+    double value;
     const char *begin = field.data();
     const char *end = begin + field.size();
     auto result = std::from_chars( begin, end, value );
-    return result.ec == std::errc() && result.ptr == end && value > 0.0;
+    if( result.ec != std::errc() || result.ptr != end ) return std::nullopt;
+    return value;
+}
+
+std::optional<double> parse_positive_double( std::string_view field )
+{
+    auto value = parse_double( field );
+    if( value && *value <= 0.0 ) return std::nullopt;
+    return value;
 }

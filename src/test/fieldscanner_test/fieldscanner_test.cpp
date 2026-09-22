@@ -154,14 +154,24 @@ void check_and_recover_quoted_value()
     check( ! scanner.checkAndRecoverQuotedValue( true, std::nullopt ), "checkAndRecoverQuotedValue: nullopt at end of input" );
 }
 
+void check_parse_double()
+{
+    auto value = parse_double("1.5");
+    check( value.has_value() && *value==1.5, "parse_double: plain valid value" );
+    check( ! parse_double("abc"), "parse_double: rejects non-numeric text" );
+    check( ! parse_double("1.5x"), "parse_double: rejects trailing garbage" );
+    value = parse_double("-1.5");
+    check( value.has_value() && *value==-1.5, "parse_double: accepts a negative value" );
+}
+
 void check_parse_positive_double()
 {
-    double value=0.0;
-    check( parse_positive_double("1.5",value) && value==1.5, "parse_positive_double: plain valid value" );
-    check( ! parse_positive_double("abc",value), "parse_positive_double: rejects non-numeric text" );
-    check( ! parse_positive_double("1.5x",value), "parse_positive_double: rejects trailing garbage" );
-    check( ! parse_positive_double("-1.5",value), "parse_positive_double: rejects a negative value" );
-    check( ! parse_positive_double("0",value), "parse_positive_double: rejects zero (must be strictly positive)" );
+    auto value = parse_positive_double("1.5");
+    check( value.has_value() && *value==1.5, "parse_positive_double: plain valid value" );
+    check( ! parse_positive_double("abc"), "parse_positive_double: rejects non-numeric text" );
+    check( ! parse_positive_double("1.5x"), "parse_positive_double: rejects trailing garbage" );
+    check( ! parse_positive_double("-1.5"), "parse_positive_double: rejects a negative value" );
+    check( ! parse_positive_double("0"), "parse_positive_double: rejects zero (must be strictly positive)" );
 }
 
 } // namespace
@@ -179,6 +189,7 @@ int main()
     check_quoted_value_lenient();
     check_is_quoted();
     check_and_recover_quoted_value();
+    check_parse_double();
     check_parse_positive_double();
 
     if( failures == 0 )

@@ -102,14 +102,21 @@ private:
     std::string_view::const_iterator _pos;      ///< current cursor position within _text
 };
 
-/// Parses field as a positive double, requiring the whole field to be
-/// consumed (no trailing characters) - a std::from_chars-based replacement
-/// for the old sscanf(field,"%lf%c",&value,&c) != 1 idiom, usable directly on
-/// a FieldScanner field without needing it null-terminated.
-/// \return true if field was consumed in full as a positive double, with
-///         value set; false otherwise, with value left unchanged.
-bool parse_positive_double(
-    std::string_view field,  ///< the field to parse
-    double &value );         ///< set to the parsed value on success
+/// Parses field as a double, requiring the whole field to be consumed (no
+/// trailing characters) - a std::from_chars-based replacement for
+/// iostring.cpp's double_from_string(), usable directly on a FieldScanner
+/// field without needing it null-terminated.
+/// \return the parsed value, or nullopt if field isn't a valid double or has
+///         trailing characters after the number.
+std::optional<double> parse_double(
+    std::string_view field );  ///< the field to parse
+
+/// A thin wrapper over parse_double() that additionally requires the value
+/// be strictly positive - a std::from_chars-based replacement for the old
+/// sscanf(field,"%lf%c",&value,&c) != 1 || value <= 0.0 idiom.
+/// \return the parsed value, or nullopt if field isn't a valid positive
+///         double or has trailing characters after the number.
+std::optional<double> parse_positive_double(
+    std::string_view field );  ///< the field to parse
 
 #endif
