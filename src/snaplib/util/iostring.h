@@ -48,11 +48,6 @@ int test_next_string_field( input_string_def *is, const char *test );
 int skip_string_field( input_string_def *is );
 
 int double_from_string( input_string_def *is, void *value );
-int float_from_string( input_string_def *is, void *value );
-int long_from_string( input_string_def *is, void *value );
-int int_from_string( input_string_def *is, void *value );
-int short_from_string( input_string_def *is, void *value );
-int character_from_string( input_string_def *is, void *c );
 long get_string_loc( input_string_def *is );
 void set_string_loc( input_string_def *is, long loc );
 int end_of_string( input_string_def *is );

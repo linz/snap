@@ -150,42 +150,6 @@ int double_from_string( input_string_def *is, void *value )
     return parse_number( is, "%lf%1s", value );
 }
 
-int float_string( input_string_def *is, void *value )
-{
-    return parse_number( is, "%f%1s", value );
-}
-
-int long_from_string( input_string_def *is, void *value )
-{
-    return parse_number( is, "%ld%1s", value );
-}
-
-int int_from_string( input_string_def *is, void *value )
-{
-    int ival;
-    int sts;
-    sts = parse_number( is, "%d%1s", &ival );
-    (*(int *)value) = ival;
-    return sts;
-}
-
-int short_from_string( input_string_def *is, void *value )
-{
-    int ival;
-    int sts;
-    sts = parse_number( is, "%hd%1s", &ival );
-    (*(short *)value) = ival;
-    return sts;
-}
-
-int character_from_string( input_string_def *is, void *cp )
-{
-    char *c = (char *) cp;
-    *c = is->ptr ? *(is->ptr) : 0;
-    if(*c) is->ptr++;
-    return *c ? 1 : 0;
-}
-
 long get_string_loc( input_string_def *is )
 {
     return is->ptr - is->buffer;
