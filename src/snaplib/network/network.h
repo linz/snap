@@ -521,7 +521,7 @@ void setup_station_criteria_cache( void *psc, int maxstn );
  *    except ...        don't match following stations/criteria on the line
  */
 
-int  compile_station_criteria( void *psc, network *nw, const char *select, char *basefile );
+int  compile_station_criteria( void *psc, network *nw, const std::string &select, const std::string &basefile );
 
 /* Check if a station matches the criteria */
 
@@ -542,7 +542,7 @@ void apply_station_criteria_to_network( void *psc, network *nw,
 /* Process selected stations - compiles and applies station criteria in
  * a single function */
 
-int process_selected_stations( network *nw, const char *select, char *basefile, 
+int process_selected_stations( network *nw, const std::string &select, const std::string &basefile,
         void *data, stnfunc function);
 
 #endif /* NETWORK_H not defined */

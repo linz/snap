@@ -219,11 +219,11 @@ static criterion *new_criteria_frame( int crit_operator, int stacklevel )
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_code_criterion( char *code, int missing_error )
+static criterion *new_code_criterion( const std::string &code, int missing_error )
 {
     criterion *c=new_criterion();
     c->type=CRIT_CODE;
-    c->c.code.code=copy_string(code);
+    c->c.code.code=copy_string(code.c_str());
     c->c.code.id=CRIT_ID_UNKNOWN;
     c->c.code.missing_error=missing_error;
     return c;
@@ -249,11 +249,11 @@ static void delete_code_criterion( criterion *c )
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_code_match_criterion( char *code )
+static criterion *new_code_match_criterion( const std::string &code )
 {
     criterion *c=(criterion *) new_criterion();
     c->type=CRIT_MATCH;
-    c->c.code_match.code=copy_string(code);
+    c->c.code_match.code=copy_string(code.c_str());
     return c;
 }
 
@@ -275,12 +275,12 @@ static void delete_code_match_criterion( criterion *c )
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_code_range_criterion( char *fromcode, char *tocode )
+static criterion *new_code_range_criterion( const std::string &fromcode, const std::string &tocode )
 {
     criterion *c=(criterion *) new_criterion();
     c->type=CRIT_RANGE;
-    c->c.code_range.fromcode=copy_string(fromcode);
-    c->c.code_range.tocode=copy_string(tocode);
+    c->c.code_range.fromcode=copy_string(fromcode.c_str());
+    c->c.code_range.tocode=copy_string(tocode.c_str());
     return c;
 }
 
@@ -884,12 +884,12 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             const auto dashPos=field->find('-',1);
             std::string fromCode( field->substr(0,dashPos) );
             std::string toCode( field->substr(dashPos+1) );
-            c=new_code_range_criterion( fromCode.data(), toCode.data() );
+            c=new_code_range_criterion( fromCode, toCode );
         }
         else if( (*field)[0] != '\\' && has_wildcard( std::string(*field).c_str() ) )
         {
             std::string fieldStr(*field);
-            c=new_code_match_criterion(fieldStr.data());
+            c=new_code_match_criterion(fieldStr);
         }
         else
         {
@@ -899,7 +899,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             if( codeField.front() == '\\' ) codeField.remove_prefix(1);
             if( codeField.empty() ) continue;
             std::string codeStr(codeField);
-            c=new_code_criterion(codeStr.data(), missing_error);
+            c=new_code_criterion(codeStr, missing_error);
         }
 
         if( c )
@@ -923,16 +923,16 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
     return sts;
 }
 
-int compile_station_criteria( void *psc, network *nw, const char *select, char *basefile )
+int compile_station_criteria( void *psc, network *nw, const std::string &select, const std::string &basefile )
 {
     int sts;
     station_criteria *sc=(station_criteria *) psc;
-    sts=compile_station_criteria1( sc, nw, select, basefile, 0 );
+    sts=compile_station_criteria1( sc, nw, select, basefile.c_str(), 0 );
     return sts;
 }
 
 
-int process_selected_stations( network *nw, const char *select, char *basefile,
+int process_selected_stations( network *nw, const std::string &select, const std::string &basefile,
                                 void *data, void (*function)( station *st, void *data ))
 {
     int sts;
