@@ -32,6 +32,8 @@
 #define SCOPE extern
 #endif
 
+#include <string>
+
 #include "util/readcfg.h"
 #include "util/writecsv.h"
 
@@ -103,14 +105,14 @@ SCOPE char output_csv_tab;
 
 #ifndef OUTPUT_C
 
-SCOPE char *lst_name;
-SCOPE char *err_name;
+SCOPE std::string lst_name;
+SCOPE std::string err_name;
 SCOPE FILE *lst;
 SCOPE FILE *err;
 
 #else
-char *lst_name = 0;
-char *err_name = 0;
+std::string lst_name;
+std::string err_name;
 FILE *lst = 0;
 FILE *err = 0;
 

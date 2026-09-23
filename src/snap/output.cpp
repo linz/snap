@@ -33,6 +33,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
+#include <vector>
+#include <algorithm>
 #include <math.h>
 #include "util/snapctype.h"
 
@@ -175,7 +178,7 @@ static output_option csvopt[] =
 static int print_err( int sts, const char *mess1, const char *mess2 );
 static int errcount = 0;
 static int page_width = 80;
-static char *divider = NULL;
+static std::string divider;
 static relcvr_opt *relcvr_opts = NULL;
 
 int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
@@ -323,7 +326,6 @@ void delete_requested_covariance_connections()
 int add_requested_covariance_connections()
 {
     relcvr_opt *rco;
-    char *usenode;
     station *stnf, *stnt;
     int nnode=number_of_stations(net);
     int sts=OK;
@@ -331,18 +333,15 @@ int add_requested_covariance_connections()
     if( ! relcvr_opts ) return sts;
 
     // Initialise list of ids
-    usenode=(char *)check_malloc(sizeof(char)*(nnode+1));
-    
+    std::vector<char> usenode(nnode+1, 0);
+
     for( rco=relcvr_opts; rco; rco=rco->next )
     {
-        for( int i=0; i <= nnode; i++ )
-        {
-            usenode[i]=0;
-        }
+        std::fill( usenode.begin(), usenode.end(), 0 );
         if( rco->stnlist )
         {
             int errcount=get_error_count();
-            process_selected_stations( net, rco->stnlist, command_file, (void *)usenode, set_usenode );
+            process_selected_stations( net, rco->stnlist, command_file, (void *)usenode.data(), set_usenode );
             if( get_error_count() > errcount )
             {
                 handle_error(sts,"Error in relative_covariance station list",rco->stnlist);
@@ -375,43 +374,35 @@ int add_requested_covariance_connections()
 
         }
     }
-    check_free(usenode);
     return sts;
 }
 
 int open_output_files( )
 {
     char errmess[40+MAX_FILENAME_LEN];
-    int rlen;
 
-    rlen = strlen( root_name );
-
-    lst_name = (char *) check_malloc( rlen + strlen( LISTINGFILE_EXT ) + 1);
-    strcpy( lst_name, root_name );
-    strcpy( lst_name+rlen, LISTINGFILE_EXT );
-    lst = fopen( lst_name, "w" );
+    lst_name = std::string(root_name) + LISTINGFILE_EXT;
+    lst = fopen( lst_name.c_str(), "w" );
     if( !lst )
     {
-        sprintf(errmess,"Unable to open listing file %.*s",MAX_FILENAME_LEN,lst_name);
+        sprintf(errmess,"Unable to open listing file %.*s",MAX_FILENAME_LEN,lst_name.c_str());
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }
-    record_filename( lst_name, "listing" );
+    record_filename( lst_name.c_str(), "listing" );
 
     if( ! output_noruntime ) print_report_header( lst );
 
-    err_name = (char *) check_malloc( rlen + strlen( ERRORFILE_EXT ) + 1);
-    strcpy( err_name, root_name );
-    strcpy( err_name+rlen, ERRORFILE_EXT );
-    err = fopen( err_name, "w" );
+    err_name = std::string(root_name) + ERRORFILE_EXT;
+    err = fopen( err_name.c_str(), "w" );
     if( !err )
     {
-        sprintf(errmess,"Unable to open error file %.*s",MAX_FILENAME_LEN,err_name);
+        sprintf(errmess,"Unable to open error file %.*s",MAX_FILENAME_LEN,err_name.c_str());
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }
 
-    record_filename( lst_name, "error_listing" );
+    record_filename( lst_name.c_str(), "error_listing" );
     if( ! output_noruntime ) print_report_header( err );
     print_section_header( err, "ERROR SUMMARY" );
     errcount = 0;
@@ -425,16 +416,16 @@ static void close_listing_file( void )
     if( ! lst ) return;
     if( errcount > 0 )
     {
-        int ierrname=path_len(err_name,0);
+        int ierrname=path_len(err_name.c_str(),0);
         print_section_header( lst, "ERRORS" );
-        fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,err_name+ierrname);
+        fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,err_name.c_str()+ierrname);
         print_section_footer( lst );
     }
     if( ! output_noruntime ) print_report_footer(lst);
     if( lst ) fclose( lst );
     lst = 0;
     xprintf("\n\n****************************************************\n\n");
-    xprintf("The results are in file %s\n\n",lst_name);
+    xprintf("The results are in file %s\n\n",lst_name.c_str());
 }
 
 
@@ -451,12 +442,12 @@ static void close_error_file( const char *mess1, const char *mess2 )
     err = 0;
     if( errcount <= 0 )
     {
-        _unlink( err_name );
+        _unlink( err_name.c_str() );
     }
     else
     {
         fprintf(stderr,"\n\n****************************************************\n\n");
-        fprintf(stderr,"See the errors reported in %s\n",err_name);
+        fprintf(stderr,"See the errors reported in %s\n",err_name.c_str());
         if( mess1 || mess2 )
         {
             fprintf(stderr,"\nThe program stopped with the following error:\n");
@@ -530,15 +521,11 @@ static void new_page( FILE *out )
 
 static void print_line( FILE *out )
 {
-    int i;
-    if( !divider )
+    if( divider.empty() )
     {
-        divider = (char *) check_malloc( page_width + 2 );
-        for( i=0; i<page_width; i++ ) divider[i] = '=';
-        divider[i] = '\n';
-        divider[i+1] = 0;
+        divider = std::string(page_width, '=') + "\n";
     }
-    fputs( divider, out );
+    fputs( divider.c_str(), out );
 }
 
 static void print_centred( FILE *out, const char *heading )
@@ -1055,28 +1042,21 @@ void print_json_params( FILE *lst, int nprefix )
 
 void print_solution_json_file()
 {
-    int nch;
-    char *bfn;
     FILE *f;
     bltmatrix *invnorm;
 
-    nch = strlen( root_name ) + strlen(SOLNFILE_EXT)+strlen( JSONFILE_EXT ) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, SOLNFILE_EXT );
-    strcat( bfn, JSONFILE_EXT );
+    const std::string bfn = std::string(root_name) + SOLNFILE_EXT + JSONFILE_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open JSON solution file", bfn );
+        handle_error( FILE_OPEN_ERROR,"Unable to open JSON solution file", bfn.c_str() );
     }
     else
     {
-        record_filename(bfn,"solution_json");
-        xprintf("\nCreating the JSON solution file %s\n",bfn);
+        record_filename(bfn.c_str(),"solution_json");
+        xprintf("\nCreating the JSON solution file %s\n",bfn.c_str());
     }
-    check_free( bfn );
     if( !f ) return;
 
     fprintf(f,"{\n");
@@ -1097,31 +1077,22 @@ void print_solution_json_file()
 
 output_csv *open_snap_output_csv( const char *type )
 {
-    int rlen;
     output_csv *csv;
-    char *filename;
     const char *ext = output_csv_tab ? WRITECSV_TAB_EXT : WRITECSV_CSV_EXT;
-    rlen = strlen( root_name );
-    filename = (char *) check_malloc( rlen + strlen(type) + strlen(ext)+2);
-    strcpy(filename,root_name);
-    strcpy(filename+rlen,"-");
-    strcpy(filename+rlen+1,type);
-    strcat(filename,ext);
-    csv=open_output_csv( filename, output_csv_tab );
+    const std::string filename = std::string(root_name) + "-" + type + ext;
+    csv=open_output_csv( filename.c_str(), output_csv_tab );
     if( csv )
     {
         char ftype[40];
         sprintf(ftype,"%.20s_output_csv",type);
-        record_filename(filename,ftype);
+        record_filename(filename.c_str(),ftype);
     }
     else
     {
         char errmess[120];
-        sprintf(errmess,"Unable to open CSV file %.80s",filename);
+        sprintf(errmess,"Unable to open CSV file %.80s",filename.c_str());
         handle_error( FILE_OPEN_ERROR, errmess, NO_MESSAGE);
-        check_free(filename);
         return 0;
     }
-    check_free( filename );
     return csv;
 }
