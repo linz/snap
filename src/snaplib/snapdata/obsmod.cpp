@@ -593,18 +593,18 @@ static void describe_obs_id_criterion( FILE *lst, obs_criterion *oc, const char 
     }
 }
 
-static obs_criterion *new_obs_date_criterion( CFG_FILE *cfg, unsigned char date_crit_type, char *datestr  )
+static obs_criterion *new_obs_date_criterion( CFG_FILE *cfg, unsigned char date_crit_type, const std::string &datestr )
 {
     obs_criterion *oc;
     double date=UNDEFINED_DATE;
 
     if( date_crit_type == OBS_CRIT_DATE_BEFORE || date_crit_type == OBS_CRIT_DATE_AFTER )
     {
-        date=snap_datetime_parse(datestr,0);
+        date=snap_datetime_parse(datestr.c_str(),0);
         if( date == UNDEFINED_DATE )
         {
             char errmsg[100];
-            sprintf( errmsg,"Invalid date \"%.50s\" in observation date criteria",datestr);
+            sprintf( errmsg,"Invalid date \"%.50s\" in observation date criteria",datestr.c_str());
             send_config_error( cfg, INVALID_DATA, errmsg );
             return nullptr;
         }
@@ -672,7 +672,7 @@ static void init_obs_stations_criterion( obs_criterion *oc, network *nw  )
     oc->c.stations.criteria = psc;
 }
 
-static obs_criterion *new_obs_stations_criterion( CFG_FILE *cfg, unsigned char station_crit_type, char *station_list )
+static obs_criterion *new_obs_stations_criterion( CFG_FILE *cfg, unsigned char station_crit_type, const std::string &station_list )
 {
     obs_criterion *oc;
     if( station_crit_type != OBS_CRIT_STATION_BETWEEN ) station_crit_type=OBS_CRIT_STATION_USES;
@@ -680,7 +680,7 @@ static obs_criterion *new_obs_stations_criterion( CFG_FILE *cfg, unsigned char s
     oc->crit_type=station_crit_type;
     oc->c.stations.config_loc=copy_string(get_config_location(cfg));
     oc->c.stations.config_filename=copy_string(get_config_filename(cfg));
-    oc->c.stations.station_list=copy_string(station_list);
+    oc->c.stations.station_list=copy_string(station_list.c_str());
     oc->c.stations.criteria = nullptr;
     return oc;
 }
@@ -1166,7 +1166,7 @@ static obs_criterion *parse_stations_criterion(
     }
     auto stop = stationField ? stationField->data() : scanner.remainder().data();
     std::string stationList( start, stop - start );
-    return new_obs_stations_criterion( cfg, station_crit_type, stationList.data() );
+    return new_obs_stations_criterion( cfg, station_crit_type, stationList );
 }
 
 static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, int option, double errval1, double errval2 )
@@ -1205,7 +1205,7 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
             else
             {
                 std::string dateText(*dateField);
-                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_BEFORE, dateText.data() );
+                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_BEFORE, dateText );
             }
         }
         else if( boost::algorithm::iequals(*field,"after") )
@@ -1219,12 +1219,12 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
             else
             {
                 std::string dateText(*dateField);
-                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_AFTER, dateText.data() );
+                oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_AFTER, dateText );
             }
         }
         else if( boost::algorithm::iequals(*field,"date_unknown") )
         {
-            oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_UNKNOWN, nullptr );
+            oc=new_obs_date_criterion( cfg, OBS_CRIT_DATE_UNKNOWN, std::string() );
         }
         else if( boost::algorithm::iequals(*field,"using_stations") ||
                 boost::algorithm::iequals(*field,"between_stations") )
