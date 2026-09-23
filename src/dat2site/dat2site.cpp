@@ -2994,7 +2994,7 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
     }
     else
     {
-        printf("\n\nCannot open command file %s\n",f);
+        printf("\n\nCannot open command file %s\n",f.c_str());
         exit(0);
     }
     if( sts != OK )
