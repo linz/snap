@@ -7,6 +7,12 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <array>
+#include <map>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #if defined( _WIN32 )
@@ -691,8 +697,10 @@ static void list_program_details_and_exit( void )
 
 /*-------------------------------------------------------------------*/
 
-static const char *param_args="CGIONPSYH";
-static char *param_value[9]={0,0,0,0,0,0,0,0,0};
+static std::map<char, std::optional<std::string>> param_value = {
+    {'C',std::nullopt}, {'G',std::nullopt}, {'I',std::nullopt}, {'O',std::nullopt},
+    {'N',std::nullopt}, {'P',std::nullopt}, {'S',std::nullopt}, {'Y',std::nullopt}, {'H',std::nullopt}
+};
 static const char *switch_args="AELVRKH?ZFN";
 static int switch_value[11]={0,0,0,0,0,0,0,0,0,0,0};
 static char **unused_args;
@@ -704,10 +712,10 @@ static int switch_option( char opt )
     return prm ? switch_value[prm-switch_args] : 0;
 }
 
-static char * command_line_option( char opt )
+static std::optional<std::string> command_line_option( char opt )
 {
-    const char *prm=strchr(param_args,opt);
-    return prm ? param_value[prm-param_args] : 0;
+    auto it = param_value.find(opt);
+    return it != param_value.end() ? it->second : std::nullopt;
 }
 
 static void parse_command_line( int argc, char **argv )
@@ -731,8 +739,8 @@ static void parse_command_line( int argc, char **argv )
             switch_value[prm-switch_args]=TRUE;
             if( ! arg[2] ) continue;
         }
-        prm=strchr(param_args,argchar);
-        if( prm )
+        auto pit = param_value.find(argchar);
+        if( pit != param_value.end() )
         {
             char *pval=arg+2;
             if( ! *pval )
@@ -746,7 +754,7 @@ static void parse_command_line( int argc, char **argv )
                 }
                 pval=*argv;
             }
-            param_value[prm-param_args]=pval;
+            pit->second = pval;
             continue;
         }
         prm=strchr(switch_args,argchar);
@@ -764,13 +772,15 @@ static void parse_command_line( int argc, char **argv )
 
     if( switch_option('H') || switch_option('?') ){ help(); exit(0); }
 
-    coordsys_file=command_line_option('C');
-    geoid_file=command_line_option('G');
+    auto cfile = command_line_option('C');
+    coordsys_file = cfile ? copy_string(cfile->c_str()) : nullptr;
+    auto gfile = command_line_option('G');
+    geoid_file = gfile ? copy_string(gfile->c_str()) : nullptr;
 }
 
 static void process_command_line_options()
 {
-    char *pval;
+    std::optional<std::string> pval;
 
     if( switch_option('L') )
     {
@@ -795,27 +805,27 @@ static void process_command_line_options()
     verbose=switch_option('F');
 
     pval=command_line_option('I');
-    if( pval ) decode_proj_string(pval,&input_cs,&input_dms,
-                     &input_ne,&input_h,&input_ortho,"input"); 
+    if( pval ) decode_proj_string(pval->data(),&input_cs,&input_dms,
+                     &input_ne,&input_h,&input_ortho,"input");
 
     pval=command_line_option('O');
-    if( pval ) decode_proj_string(pval,&output_cs,&output_dms,
-                      &output_ne,&output_h,&output_ortho, "output"); 
+    if( pval ) decode_proj_string(pval->data(),&output_cs,&output_dms,
+                      &output_ne,&output_h,&output_ortho, "output");
 
     pval=command_line_option('Y');
-    if( pval &&  ! parse_crdsys_epoch(pval,&conv_epoch) )
+    if( pval &&  ! parse_crdsys_epoch(pval->c_str(),&conv_epoch) )
     {
         error_exit("Invalid value for conversion epoch (-Y parameter)","");
     }
 
     pval=command_line_option('N');
-    if( pval ) id_length = decode_number(pval,0,80,"point id length");
+    if( pval ) id_length = decode_number(pval->c_str(),0,80,"point id length");
 
     pval=command_line_option('P');
     if( pval )
     {
         char *s1, *s2;
-        s1 = strtok(pval,":,");
+        s1 = strtok(pval->data(),":,");
         s2 = strtok(NULL,"");
         output_prec = decode_number(s1,0,20,"output precision");
         if( s2 )
@@ -825,9 +835,9 @@ static void process_command_line_options()
     pval=command_line_option('S');
     if( pval )
     {
-        if( _stricmp(pval,"tab") == 0 || _stricmp(pval,"t") == 0 ) separator='\t';
-        else if ( _stricmp(pval,"blank") == 0 ) separator=' ';
-        else separator=*pval;
+        if( boost::algorithm::iequals(*pval,"tab") || boost::algorithm::iequals(*pval,"t") ) separator='\t';
+        else if ( boost::algorithm::iequals(*pval,"blank") ) separator=' ';
+        else separator=pval->front();
     }
 
     if( nunused_args > 2 )
@@ -1109,7 +1119,7 @@ static void head_output( FILE *out );
 
 static void show_example_input( void  )
 {
-    static const char *east[] = {
+    static constexpr std::array<std::string_view,6> east = {
         "315378.28",
         "2571312.90",
         "171.14238",
@@ -1117,7 +1127,7 @@ static void show_example_input( void  )
         "171 41 53.55 E",
         "2.98699802"
         };
-    static const char *north[] = {
+    static constexpr std::array<std::string_view,6> north = {
         "728910.43",
         "6025519.64",
         "-41.25531",
@@ -1125,7 +1135,7 @@ static void show_example_input( void  )
         "41 22 03.26 S",
         "-0.72004099"
         };
-    const char *c1, *c2;
+    std::string_view c1, c2;
     int ncd;
 
     clear_screen();
@@ -1153,7 +1163,7 @@ static void show_example_input( void  )
     {
         c1 = east[ncd]; c2 = north[ncd];
     }
-    printf("%s  %s%s\n\n",c1,c2,input_h ? "  1532.40" : "");
+    printf("%s  %s%s\n\n",c1.data(),c2.data(),input_h ? "  1532.40" : "");
     printf("Each item should be separated by at least one blank space.\n");
     if( point_ids ) printf("The name cannot include blanks.\n");
     printf("When you have finished enter a blank line to quit the program\n\n");
@@ -1520,12 +1530,12 @@ static void head_output( FILE * out )
 
 static void head_columns( FILE *out )
 {
-    const char *prjcol[3] = { "Easting", "Northing", "Height" };
-    const char *geocol[3] = { "Longitude", "Latitude", "Height" };
-    const char *xyzcol[3] = { "X", "Y", "Z" };
+    constexpr std::array<std::string_view,3> prjcol = { "Easting", "Northing", "Height" };
+    constexpr std::array<std::string_view,3> geocol = { "Longitude", "Latitude", "Height" };
+    constexpr std::array<std::string_view,3> xyzcol = { "X", "Y", "Z" };
     int  enorder[3] = { 0, 1, 2 };
     int  neorder[3] = { 1, 0, 2 };
-    const char **cols;
+    const std::array<std::string_view,3> *cols;
     int  *order;
     int  ncol;
     int  icol;
@@ -1534,26 +1544,26 @@ static void head_columns( FILE *out )
     if (point_ids) fprintf(out,"%-*s  ",id_length,"ID");
     if (verbose)
     {
-        if( is_projection(input_cs)) cols = prjcol;
-        else if( is_geodetic(input_cs)) cols = geocol;
-        else cols = xyzcol;
+        if( is_projection(input_cs)) cols = &prjcol;
+        else if( is_geodetic(input_cs)) cols = &geocol;
+        else cols = &xyzcol;
         if( input_ne ) order = neorder; else order = enorder;
         if( input_h ) ncol = 3; else ncol = 2;
         for( icol = 0; icol < ncol; icol++ )
         {
-            fprintf(out,"%*s ",icol == 2 ? invfldlen : infldlen,cols[order[icol]]);
+            fprintf(out,"%*s ",icol == 2 ? invfldlen : infldlen,(*cols)[order[icol]].data());
         }
         fprintf(out," ");
     }
 
-    if( is_projection(output_cs)) cols = prjcol;
-    else if( is_geodetic(output_cs)) cols = geocol;
-    else cols = xyzcol;
+    if( is_projection(output_cs)) cols = &prjcol;
+    else if( is_geodetic(output_cs)) cols = &geocol;
+    else cols = &xyzcol;
     if( output_ne ) order = neorder; else order = enorder;
     if( output_h ) ncol = 3; else ncol = 2;
     for( icol = 0; icol < ncol; icol++ )
     {
-        fprintf(out, "%*s ", icol == 2 ? outvfldlen : outfldlen,cols[order[icol]]);
+        fprintf(out, "%*s ", icol == 2 ? outvfldlen : outfldlen,(*cols)[order[icol]].data());
     }
     fprintf(out,"\n");
 }
