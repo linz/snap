@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <math.h>
 
@@ -50,16 +51,11 @@ static bindata *bd = NULL;
 
 int reload_binary_data( )
 {
-    int nch;
     int sts;
-    char *bfn;
 
-    nch = path_len( root_name, 1 );
-    bfn = (char *) check_malloc( nch + strlen(BINFILE_EXT) + 1);
-    memcpy( bfn, root_name, nch );
-    strcpy( bfn+nch, BINFILE_EXT );
+    const std::string bfn = std::string(root_name).substr(0, path_len(root_name, 1)) + BINFILE_EXT;
 
-    auto [file, result] = open_binary_file( bfn, BINFILE_SIGNATURE );
+    auto [file, result] = open_binary_file( const_cast<char*>(bfn.c_str()), BINFILE_SIGNATURE );
     b = file;
 
     if( !b )
@@ -68,9 +64,8 @@ int reload_binary_data( )
         {
             handle_error( WARNING_ERROR | SHOW_DIALOG,
                           "Cannot reload data - binary file version is not compatible with this version of SNAP",
-                          bfn );
+                          bfn.c_str() );
         }
-        free(bfn);
         return NO_MORE_DATA;
     }
 
@@ -84,7 +79,7 @@ int reload_binary_data( )
     {
 
         handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Cannot reload data from binary file",
-                      bfn);
+                      bfn.c_str());
         sts = FILE_READ_ERROR;
     }
     else
@@ -96,8 +91,6 @@ int reload_binary_data( )
         reload_relative_covariances( b );
         reload_observations( b );
     }
-
-    free( bfn );
 
     return sts;
 }
