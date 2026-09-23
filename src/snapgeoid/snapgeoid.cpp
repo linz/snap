@@ -16,11 +16,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <filesystem>
+#include <string>
 
 #include "coordsys/coordsys.h"
 #include "network/network.h"
 #include "geoid/geoid.h"
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
 #include "snap/filenames.h"
@@ -44,9 +45,8 @@ enum
 
 int main( int argc, char *argv[] )
 {
-    char *oldfn, *newfn;
+    std::string newfn;
     int readopt;
-    int nch;
     network net;
     char list_only=0;
     char keep_existing = 0;
@@ -220,7 +220,7 @@ int main( int argc, char *argv[] )
 
     init_network( &net );
     readopt = NW_READOPT_CALCHGTREF;
-    oldfn = argv[1];
+    const std::string oldfn = argv[1];
 
     if( argc > 2 && _stricmp(argv[2],"gb")==0 )
     {
@@ -235,15 +235,12 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        nch = path_len( argv[1], 1 );
-        newfn = (char *) check_malloc( nch + 5 );
-        strncpy( newfn, argv[1], nch );
-        strcpy( newfn+nch, ".new");
+        newfn = std::filesystem::path( oldfn ).replace_extension( ".new" ).string();
     }
 
-    if( read_network( &net, oldfn, readopt ) != OK )
+    if( read_network( &net, oldfn.c_str(), readopt ) != OK )
     {
-        printf("Unable to load station file %s\n",oldfn);
+        printf("Unable to load station file %s\n",oldfn.c_str());
         return 2;
     }
 
@@ -372,7 +369,7 @@ int main( int argc, char *argv[] )
 
     /* And write the file out again */
 
-    if( write_network( &net, newfn,
+    if( write_network( &net, newfn.c_str(),
                        geoid_msg[0] ? geoid_msg : NULL,
                        0,NULL) != OK )
     {
@@ -381,7 +378,7 @@ int main( int argc, char *argv[] )
 
     if( ! quiet )
     {
-        printf("\nThe updated station file is %s\n",newfn);
+        printf("\nThe updated station file is %s\n",newfn.c_str());
     }
 
 
