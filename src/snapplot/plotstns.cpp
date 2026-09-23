@@ -13,6 +13,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <array>
+#include <string_view>
 
 #include "util/geodetic.h"
 #include "util/chkalloc.h"
@@ -217,9 +219,9 @@ static int station_flag_status_id( stn_adjustment *sa )
     return statusid;
 }
 
-static const char *station_flag_status( stn_adjustment *sa )
+static std::string_view station_flag_status( stn_adjustment *sa )
 {
-    const char *statusnames[] =
+    constexpr std::array<std::string_view,18> statusnames =
     {
         "",
         "Rejected",
@@ -529,7 +531,7 @@ char *station_list_item( int istnsrt )
         case STNF_EAST: sprintf(buf,"%.*lf ",coord_precision,stns[istn].easting); break;
         case STNF_NRTH: sprintf(buf,"%.*lf ",coord_precision,stns[istn].northing); break;
         case STNF_HGT:  sprintf(buf,"%.*lf ",coord_precision,stn->OHgt); break;
-        case STNF_STS:  strcpy(buf,station_flag_status(sa)); break;
+        case STNF_STS:  strcpy(buf,station_flag_status(sa).data()); break;
         case STNF_HERR:
             get_error_ellipse( istn, &emax, &emin, &b1 );
             emax *= errell_factor;

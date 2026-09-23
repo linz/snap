@@ -19,6 +19,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <array>
+#include <string_view>
 
 #include "cvrfile.h"
 #include "output.h"
@@ -497,7 +499,7 @@ void print_coord_sinex( void )
     }
 
     {
-        const char *params[]={"STAX","STAY","STAZ"};
+        constexpr std::array<std::string_view,3> params={"STAX","STAY","STAZ"};
         double epoch=(maxdate+mindate)/2;
         int nprm = 0;
 
@@ -528,7 +530,7 @@ void print_coord_sinex( void )
             for ( int i=0; i<3; i++ )
             {
                 nprm++;
-                fprintf(f," %5d %-6.6s %-4.4s %-2.2s 0001 ",nprm,params[i],st->Code,
+                fprintf(f," %5d %-6.6s %-4.4s %-2.2s 0001 ",nprm,params[i].data(),st->Code,
                         mark);
                 print_sinex_date(f,epoch);
                 fprintf(f," m    %d %21.14lE %11.5lE\n",

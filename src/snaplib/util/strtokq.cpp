@@ -57,36 +57,3 @@ char *strtokq( char *str, const char *delim )
     laststr=*s2 ? s2 : 0;
     return str;
 }
-
-#ifdef TEST_STRTOKQ
-#include <stdio.h>
-
-int main()
-{
-    const char *strings[]={
-        "This is a simple string",
-        "  with spaces   \t\n before and after  ",
-        "This one has \"a quoted string\"",
-        "This one has not\"a quoted string\"",
-        "This one \"has\" another \"quoted string\"",
-        "This one \"an unterminated quoted string",
-        "This one \"an muc\"ky quoted string",
-        0,
-    };
-
-    for( const char **string=strings; *string; string++ )
-    {
-        char str[80];
-        strcpy(str,*string);
-        printf("======================================\n");
-        printf("%s\n",str);
-        for( char *sub=strtokq(str,"\r\n\t "); sub; sub=strtokq(0,"\r\n\t "))
-        {
-            printf("%s\n",sub);
-        }
-    }
-    return 0;
-}
-
-
-#endif

@@ -28,6 +28,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <array>
+#include <string_view>
 
 #include "snap/snapglob.h"
 #include "snapdata/datatype.h"
@@ -1621,9 +1623,9 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
     vecdata *vd = &(sd->obs.vdata[iobs]);
     trgtdata *t = &(vd->tgt);
     int ndp = obs_precision[t->type];
-    const char *xyzcomp[3] = {"X","Y","Z"};
-    const char *topocomp[3] = {"X-E","Y-N","Z-U"};
-    const char **comp = output_csv_vecenu ? topocomp : xyzcomp;
+    constexpr std::array<std::string_view,3> xyzcomp = {"X","Y","Z"};
+    constexpr std::array<std::string_view,3> topocomp = {"X-E","Y-N","Z-U"};
+    const std::array<std::string_view,3> *comp = output_csv_vecenu ? &topocomp : &xyzcomp;
     int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
 
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, 0);
@@ -1638,7 +1640,7 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
         int cvridx[3] = {0,2,5};
         for( dim = 0; dim < 3; dim++ )
         {
-            write_observation_csv_common_start( csv, sd, t, comp[dim] );
+            write_observation_csv_common_start( csv, sd, t, (*comp)[dim].data() );
             write_csv_double( csv, vec[dim], ndp );
             write_csv_double( csv, veccvr[cvridx[dim]]*semult, ndp+2 );
             write_csv_double( csv, res[dim], ndp );

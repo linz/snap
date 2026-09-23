@@ -55,6 +55,8 @@ The procedure requires the following sequence of calls
 #include <math.h>
 #include <string.h>
 #include <cstddef>
+#include <array>
+#include <string_view>
 
 #include "util/chkalloc.h"
 #include "util/dstring.h"
@@ -92,7 +94,7 @@ static param** prmlist = NULL;
 static int* srtlist = NULL;
 static void *action_list = NULL;
 
-static const char *coefprefix[] =
+static constexpr std::array<std::string_view,4> coefprefix =
 {
     "Refr coef ",
     "Scale error ",
@@ -627,7 +629,7 @@ int reload_parameters( BINARY_FILE *b )
 static void make_prmname( char *prmname, int type, const char *name )
 {
     char *coefname;
-    strcpy( prmname, coefprefix[type]);
+    strcpy( prmname, coefprefix[type].data());
     coefname = prmname+prefixlen[type];
     strncpy( coefname,name,COEFLEN);
     coefname[COEFLEN-1] = 0;

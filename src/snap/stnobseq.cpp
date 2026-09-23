@@ -26,6 +26,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <array>
+#include <string_view>
 
 #include "stnobseq.h"
 #include "adjparam.h"
@@ -327,7 +329,7 @@ int find_station_row( int row, char *param, int plen )
     int istn, maxstn;
     stn_adjustment *st;
 
-    const char *crdname[] = {"north coordinate", "east coordinate", "height coordinate"};
+    constexpr std::array<std::string_view,3> crdname = {"north coordinate", "east coordinate", "height coordinate"};
 
     maxstn = number_of_stations(net);
 
@@ -336,14 +338,14 @@ int find_station_row( int row, char *param, int plen )
         st = stnadj(stnptr( istn ) );
         if( st->hrowno && (st->hrowno==row || st->hrowno==row-1) )
         {
-            strncpy( param, crdname[row-st->hrowno], plen );
+            strncpy( param, crdname[row-st->hrowno].data(), plen );
             param[plen-1] = 0;
             return istn;
         }
 
         if( st->vrowno == row )
         {
-            strncpy( param, crdname[2], plen );
+            strncpy( param, crdname[2].data(), plen );
             param[plen-1] = 0;
             return istn;
         }
@@ -1210,7 +1212,7 @@ void print_floated_stations( FILE *out )
 {
     station *st;
     stn_adjustment *sa;
-    const char *coordname[3] = { "East", "North", "Up" };
+    constexpr std::array<std::string_view,3> coordname = { "East", "North", "Up" };
     double calccvr[6];
     double rescvr[6];
     double calc[3];
@@ -1287,7 +1289,7 @@ void print_floated_stations( FILE *out )
                      stn_name_width, (rowno==0 ? st->Code : ""), 
                      relative_floating ? stn_name_width+1 : 0,
                      stcol ? stcol->Code : "",
-                     coordname[axis],
+                     coordname[axis].data(),
                      (axis < 2 ? sa->herror : sa->verror)*semult,
                      sqrt(fabs(Lij(calccvr,rowno,rowno)))*semult,
                      -resval, ser);

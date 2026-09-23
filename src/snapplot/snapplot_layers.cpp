@@ -4,9 +4,12 @@
 
 #include "util/snapctype.h"
 
+#include <algorithm>
+#include <array>
 #include <map>
 #include <memory>
 #include <optional>
+#include <string_view>
 #include <type_traits>
 #include <vector>
 
@@ -30,7 +33,7 @@
 
 // Null terminated list of default palette colours ..
 
-static const char *defaultPalette[] =
+static constexpr std::array<std::string_view,14> defaultPalette =
 {
     "BLACK",
     "GREY",
@@ -45,8 +48,7 @@ static const char *defaultPalette[] =
     "ORANGE",
     "RED",
     "PURPLE",
-    "BROWN",
-    0
+    "BROWN"
 };
 
 #define UNUSED_LAYER_PEN_ID -2
@@ -197,8 +199,8 @@ static int symbol_lookup[N_STN_SYM];
 // TODO: May be better to calculate a range of colours using RGB, or
 // at least define a better set as RGB values..
 
-static const char *range_colours[] =
-{ "RED", "ORANGE", "PURPLE", "BLUE", "GREY", 0 };
+static constexpr std::array<std::string_view,5> range_colours =
+{ "RED", "ORANGE", "PURPLE", "BLUE", "GREY" };
 
 static const char *dflt_stn_colour = "RED";
 static const char *dflt_data_colour = "BLUE";
@@ -237,9 +239,9 @@ Symbology *CreateSymbology()
 
     ColourPalette p;
 
-    for( const char **c = defaultPalette; *c; c++ )
+    for( auto c : defaultPalette )
     {
-        p.AddColour( wxColour( *c ));
+        p.AddColour( wxColour( c.data() ));
     }
 
     s->InitialisePalette( p );
@@ -1004,15 +1006,15 @@ int get_symbol_points( int symbol_id, symbolpoint *ptlist, int maxpts )
 
 void set_pen_colour_range( )
 {
-    const char **colour = range_colours; \
+    size_t colourIdx = 0;
     if( ! data_user_layers ) return;
     for( layer_s *l = data_user_layers; l->name; l++  )
     {
         LayerSymbology &ls = symbology->GetLayer( l->lyr_id );
-        int colourid = symbology->GetPalette()->AddColour( wxColour(*colour) );
+        int colourid = symbology->GetPalette()->AddColour(
+            wxColour(range_colours[std::min(colourIdx, range_colours.size()-1)].data()) );
         ls.SetColourId( colourid );
-        colour++;
-        if( ! *colour ) colour--;
+        colourIdx++;
     }
 }
 

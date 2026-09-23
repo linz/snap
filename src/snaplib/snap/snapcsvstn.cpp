@@ -1,11 +1,13 @@
 #include "snapconfig.hpp"
 
 #include <algorithm>
+#include <array>
 #include <boost/algorithm/string.hpp>
 #include <iostream>
 #include <memory>
 #include <regex>
 #include <sstream>
+#include <string_view>
 #include <vector>
 
 #include "util/datafile.h"
@@ -300,10 +302,10 @@ void SnapCsvStn::initialiseLoadData()
 
 void SnapCsvStn::loadRecord()
 {
-    const char *llhords[] = {"Longitude", "Latitude", "Height"};
-    const char *prjords[] = {"Easting", "Northing", "Height"};
-    const char *xyzords[] = {"X", "Y", "Z"};
-    const char **ords;
+    constexpr std::array<std::string_view,3> llhords = {"Longitude", "Latitude", "Height"};
+    constexpr std::array<std::string_view,3> prjords = {"Easting", "Northing", "Height"};
+    constexpr std::array<std::string_view,3> xyzords = {"X", "Y", "Z"};
+    const std::array<std::string_view,3> *ords;
 
     const std::string &cscode = _crdsys.value();
 
@@ -342,10 +344,10 @@ void SnapCsvStn::loadRecord()
     boost::to_lower(heightType);
     if (heightType == "") heightType = coordsys_heights_orthometric(_cs) ? "orthometric" :"ellipsoidal";
 
-    ords = _projection ? prjords : _geocentric ? xyzords : llhords;
-    _crdlon.setName(ords[0]);
-    _crdlat.setName(ords[1]);
-    _crdhgt.setName(ords[2]);
+    ords = _projection ? &prjords : _geocentric ? &xyzords : &llhords;
+    _crdlon.setName(std::string((*ords)[0]));
+    _crdlat.setName(std::string((*ords)[1]));
+    _crdhgt.setName(std::string((*ords)[2]));
 
     if (heightType != "ellipsoidal" && heightType != "orthometric")
     {
@@ -391,8 +393,8 @@ void SnapCsvStn::loadRecord()
     }
     else
     {
-        if (!(_crdlon >> crdlon)) dataError(string(ords[0]) + " is missing or invalid");
-        if (!(_crdlat >> crdlat)) dataError(string(ords[1]) + " is missing or invalid");
+        if (!(_crdlon >> crdlon)) dataError(string((*ords)[0]) + " is missing or invalid");
+        if (!(_crdlat >> crdlat)) dataError(string((*ords)[1]) + " is missing or invalid");
     }
     if (!_geocentric && _crdhgt.value() != "" && !(_crdhgt >> crdhgt))
     {
@@ -400,7 +402,7 @@ void SnapCsvStn::loadRecord()
     }
     else if (_geocentric && !(_crdhgt >> crdhgt))
     {
-        dataError(string(ords[2]) + " is missing or invalid");
+        dataError(string((*ords)[2]) + " is missing or invalid");
     }
 
     if (_haveGeoid)

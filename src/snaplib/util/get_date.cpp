@@ -14,11 +14,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <array>
+#include <string_view>
 #include "util/get_date.h"
 
 static time_t now;
 static struct tm *lt;
-static const char *mon[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG",
+static constexpr std::array<std::string_view,12> mon = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG",
                       "SEP", "OCT", "NOV", "DEC"
                      };
 static char runtime[GETDATELEN];
@@ -42,6 +44,6 @@ char *get_date( char * datestr )
     time( &now );
     lt = localtime( &now );
     sprintf( datestr, "%2d-%3s-%4d %02d:%02d:%02d", lt->tm_mday,
-             mon[lt->tm_mon],1900+lt->tm_year,lt->tm_hour,lt->tm_min,lt->tm_sec);
+             mon[lt->tm_mon].data(),1900+lt->tm_year,lt->tm_hour,lt->tm_min,lt->tm_sec);
     return datestr;
 }
