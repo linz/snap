@@ -44,6 +44,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <stdlib.h>
 #include <time.h>
 #include <exception>
@@ -1059,24 +1060,18 @@ static void update_station_file( char *filename)
 
 BINARY_FILE *open_dump_file( void )
 {
-    int nch;
-    char *bfn;
     BINARY_FILE *b;
 
-    nch = strlen( root_name ) + strlen( BINFILE_EXT ) + 1;
-    bfn = (char *) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, BINFILE_EXT );
+    const std::string bfn = std::string(root_name) + BINFILE_EXT;
 
-    record_filename( bfn, "snap_binary" );
+    record_filename( bfn.c_str(), "snap_binary" );
 
-    b = create_binary_file( bfn, BINFILE_SIGNATURE );
+    b = create_binary_file( const_cast<char*>(bfn.c_str()), BINFILE_SIGNATURE );
     if( !b )
     {
-        handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn );
+        handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn.c_str() );
     }
 
-    check_free( bfn );
     return b;
 }
 
