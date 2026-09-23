@@ -23,6 +23,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
+#include <array>
+#include <optional>
+#include <string>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
@@ -50,6 +55,7 @@
 #include "util/bltmatrx_mt.h"
 #include "util/getversion.h"
 #include "util/writecsv.h"
+#include "util/fieldscanner.hpp"
 
 #include "dbl4_adc_sdc.h"
 #include "dbl4_utl_error.h"
@@ -1917,7 +1923,7 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
     return OK;
 }
 
-static int find_order( hSDCTest hsdc, char *order )
+static int find_order( hSDCTest hsdc, const char *order )
 {
     int iorder = -1;
     int i;
@@ -2089,65 +2095,88 @@ static int read_error_type(CFG_FILE *cfg, char *string, void *, int, int )
 static int read_station_config_file( const char *filename, stn_relacc_array *ra, int csv )
 {
     char record[STN_CONFIG_BUFSIZE+1];
-    char *field[3];
+    std::array<std::optional<std::string>,3> field;
     int codefield=-1;
     int orderfield=-1;
     int priorityfield=-1;
     int sts=OK;
     int nbadstn=0;
-    char *eol;
     limit_order_params p;
     FILE *f = fopen(filename,"r");
     if( ! f ) return FILE_OPEN_ERROR;
     p.ra=ra;
 
+    constexpr char csvDelimiter = ',';
     int first=1;
     int nrec=0;
     while( ! feof(f) )
     {
         if( ! fgets(record,STN_CONFIG_BUFSIZE,f) ) break;
         nrec++;
+        std::string line(record);
         /* Split into fields */
-        eol=strchr(record,'\n');
-        field[0]=field[1]=field[2]=0;
+        bool haveEol = line.find('\n') != std::string::npos;
+        std::array<std::string,3> parts;
         int nfield=0;
         if( csv )
         {
-            for( char *c=record; *c; c++ ){ if( *c == '"' ) *c=' '; }
-            field[0]=record;
-            nfield=1;
-            for( char *c=record; nfield<3 && *c; c++ )
+            std::replace( line.begin(), line.end(), '"', ' ' );
+            std::array<std::string,3> rawparts;
+            FieldScanner splitter(line);
+            auto f0 = splitter.next(csvDelimiter);
+            if( f0 )
             {
-                if( *c == ',' ){ field[nfield++]=c+1; *c=0; }
+                rawparts[0] = std::string(*f0);
+                auto f1 = splitter.next(csvDelimiter);
+                if( f1 )
+                {
+                    rawparts[1] = std::string(*f1);
+                    rawparts[2] = std::string(splitter.remainder());
+                    nfield = 3;
+                }
+                else
+                {
+                    rawparts[1] = std::string(splitter.remainder());
+                    nfield = 2;
+                }
+            }
+            else
+            {
+                rawparts[0] = std::string(splitter.remainder());
+                nfield = 1;
             }
             for( int ifld=0; ifld < nfield; ifld++ )
             {
-                char *c=field[ifld];
-                while(isspace(*c)) c++;
-                field[ifld]=c;
-                while(*c && ! isspace(*c)) c++;
-                *c=0;
+                FieldScanner trimmer(rawparts[ifld]);
+                auto tok = trimmer.next();
+                parts[ifld] = tok ? std::string(*tok) : std::string();
             }
         }
         else
         {
-            field[0]=strtok(record," \n\t");
-            if( field[0] ) { field[1]=strtok(NULL," \n\t"); }
-            if( field[1] ) { field[2]=strtok(NULL," \n\t"); }
-            if( field[2] ) nfield=3;
-            else if( field[1] ) nfield=2;
-            else if( field[0] ) nfield=1;
+            size_t pos=0;
+            while( nfield < 3 )
+            {
+                while( pos<line.size() && (line[pos]==' '||line[pos]=='\n'||line[pos]=='\t') ) pos++;
+                if( pos>=line.size() ) break;
+                size_t start=pos;
+                while( pos<line.size() && !(line[pos]==' '||line[pos]=='\n'||line[pos]=='\t') ) pos++;
+                parts[nfield++] = line.substr(start,pos-start);
+            }
+        }
+        for( int ifld=0; ifld < 3; ifld++ )
+        {
+            field[ifld] = ifld < nfield ? std::optional<std::string>(parts[ifld]) : std::nullopt;
         }
         if( first )
         {
             first=0;
             for( int ifld=0; ifld < nfield; ifld++ )
             {
-                char *fld=field[ifld];
-                if( _stricmp(fld,"code") == 0 ) codefield=ifld;
-                else if( _stricmp(fld,"order") == 0 ) orderfield=ifld;
-                else if( _stricmp(fld,"limit_order") == 0 ) orderfield=ifld;
-                else if( _stricmp(fld,"priority") == 0 ) priorityfield=ifld;
+                if( boost::algorithm::iequals(*field[ifld],"code") ) codefield=ifld;
+                else if( boost::algorithm::iequals(*field[ifld],"order") ) orderfield=ifld;
+                else if( boost::algorithm::iequals(*field[ifld],"limit_order") ) orderfield=ifld;
+                else if( boost::algorithm::iequals(*field[ifld],"priority") ) priorityfield=ifld;
             }
             if( codefield < 0 )
             {
@@ -2164,17 +2193,16 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
         }
         else
         {
-            char *code=field[codefield];
-            int istn = find_station(net,code);
+            int istn = find_station(net, field[codefield] ? field[codefield]->c_str() : nullptr);
             if( istn <= 0 ) nbadstn++;
-            if( istn > 0 && orderfield > 0 && field[orderfield] && *(field[orderfield])) 
+            if( istn > 0 && orderfield > 0 && field[orderfield] && ! field[orderfield]->empty() )
             {
-                if( strcmp(field[orderfield],"-") != 0 && strcmp(field[orderfield],"") != 0 )
+                if( *field[orderfield] != "-" && *field[orderfield] != "" )
                 {
                     int order=SDC_IGNORE_MARK;
-                    if( strcmp(field[orderfield],"*") != 0 )
+                    if( *field[orderfield] != "*" )
                     {
-                        order = find_order(p.ra->hsdc,field[orderfield]);
+                        order = find_order(p.ra->hsdc,field[orderfield]->c_str());
                         if( order >= 0 )
                         {
                             ra->role[istn-1]=order;
@@ -2184,7 +2212,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                             char errmsg1[80];
                             char errmsg2[MAX_FILENAME_LEN+80];
                             sprintf(errmsg1,"Invalid order %.10s in station configuration file",
-                                    field[orderfield]);
+                                    field[orderfield]->c_str());
                             sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename);
                             handle_error(INVALID_DATA,errmsg1,errmsg2);
                             sts=INVALID_DATA;
@@ -2196,17 +2224,17 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                     }
                 }
             }
-            if( istn > 0 && priorityfield > 0 && field[priorityfield] && *(field[priorityfield])) 
+            if( istn > 0 && priorityfield > 0 && field[priorityfield] && ! field[priorityfield]->empty() )
             {
-                if( strcmp(field[priorityfield],"-") != 0 && strcmp(field[priorityfield],"") != 0 )
+                if( *field[priorityfield] != "-" && *field[priorityfield] != "" )
                 {
                     int priority;
                     char check;
-                    if( strcmp(field[priorityfield],"*") == 0 )
+                    if( *field[priorityfield] == "*" )
                     {
                         ra->role[istn-1]=SDC_IGNORE_MARK;
                     }
-                    else if( sscanf(field[priorityfield],"%d%c",&priority,&check) == 1 )
+                    else if( sscanf(field[priorityfield]->c_str(),"%d%c",&priority,&check) == 1 )
                     {
                         ra->priority[istn-1]=priority;
                     }
@@ -2215,7 +2243,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                         char errmsg1[80];
                         char errmsg2[MAX_FILENAME_LEN+80];
                         sprintf(errmsg1,"Invalid priority %.10s in station configuration file",
-                                field[priorityfield]);
+                                field[priorityfield]->c_str());
                         sprintf(errmsg2,"Line %d file %*s",nrec,MAX_FILENAME_LEN,filename);
                         handle_error(INVALID_DATA,errmsg1,errmsg2);
                         sts=INVALID_DATA;
@@ -2223,7 +2251,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
                 }
             }
         }
-        if( ! eol ){ while( 1 ) { int c=fgetc(f); if( c == '\n' || c == EOF ) break; } }
+        if( ! haveEol ){ while( 1 ) { int c=fgetc(f); if( c == '\n' || c == EOF ) break; } }
     }
     fclose(f);
     if( nbadstn > 0 )
