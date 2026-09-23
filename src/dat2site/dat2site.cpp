@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
+#include <filesystem>
 
 #define MAIN
 #define GETVERSION_SET_PROGRAM_DATE
@@ -2647,7 +2648,7 @@ static int check_fixed_stn( station *st )
 
 static char inrec[256];
 static char * crdfname = 0;
-static char *logname = 0;
+static std::string logname;
 static int gotroot = 0;
 static char newcrdfile = 0;
 
@@ -2656,12 +2657,8 @@ static FILE *logfile = NULL;
 
 static void set_logname( const char *name )
 {
-    int l;
-    if( logname ) return;
-    l = path_len(name,1);
-    logname=(char *) check_malloc(strlen(name)+4+1);
-    strncpy( logname, name, l );
-    strcpy( logname+l,".lst" );
+    if( ! logname.empty() ) return;
+    logname = std::filesystem::path( name ).replace_extension( ".lst" ).string();
 }
 
 
@@ -3198,9 +3195,9 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    if( logname )
+    if( ! logname.empty() )
     {
-        logfile = fopen( logname, "w" );
+        logfile = fopen( logname.c_str(), "w" );
     }
     if( logfile )
     {
@@ -3288,7 +3285,7 @@ int main( int argc, char *argv[] )
     if( logfile )
     {
         fclose( logfile );
-        printf("\nLog file written to %s\n\n",logname );
+        printf("\nLog file written to %s\n\n",logname.c_str() );
     }
 
     return 0;
