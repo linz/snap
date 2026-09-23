@@ -10,6 +10,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <string>
+#include <filesystem>
 
 #include "network/networkb.h"
 #include "snap/stnadj.h"
@@ -30,7 +32,7 @@ network *net = NULL;
 stn_recode_map *stnrecode = NULL;
 char *station_filename = NULL;
 char *station_filespec = NULL;
-char *output_station_filespec = NULL;
+std::string output_station_filespec;
 int station_filetype = STN_FORMAT_SNAP;
 char *station_fileoptions = 0;
 
@@ -97,15 +99,14 @@ static void clear_stnadj_globals( void )
 
 void set_output_station_file( const char *fname )
 {
-    if( output_station_filespec ) check_free( output_station_filespec );
-    output_station_filespec=copy_string(fname);
+    output_station_filespec = fname;
 }
 
 
 
 int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts, double mergedate )
 {
-    int nch, sts;
+    int sts;
     network *stndata;
 
     if( ! net ) clear_stnadj_globals();
@@ -141,12 +142,9 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
             void *obsmod=snap_obs_modifications( false );
             station_filename = copy_string( fname );
             station_filespec = copy_string( stnfile.c_str() );
-            if( ! output_station_filespec )
+            if( output_station_filespec.empty() )
             {
-                nch=path_len(station_filespec,1);
-                output_station_filespec = (char *) check_malloc(nch+strlen(NEWSTNFILE_EXT)+1);
-                memcpy(output_station_filespec,station_filespec,nch);
-                strcpy(output_station_filespec+nch,NEWSTNFILE_EXT);
+                output_station_filespec = std::filesystem::path( station_filespec ).replace_extension( NEWSTNFILE_EXT ).string();
             }
             net=stndata;
             if( obsmod ) set_obs_modifications_network( obsmod, net );
@@ -190,7 +188,7 @@ int write_station_file( const char *prog, const char *fname, const char *ver, co
         return INVALID_DATA;
     }
 
-    if( ! fname ) fname=output_station_filespec;
+    if( ! fname && ! output_station_filespec.empty() ) fname=output_station_filespec.c_str();
     if( ! ver ) ver=PROGRAM_VERSION;
     if( ! rtime ) rtime=get_date(0);
 
@@ -329,6 +327,5 @@ int reload_stations( BINARY_FILE *b )
 void unload_stations( void )
 {
     clear_stnadj_globals();
-    if( output_station_filespec ) check_free( output_station_filespec );
-    output_station_filespec = NULL;
+    output_station_filespec.clear();
 }

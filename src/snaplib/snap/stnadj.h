@@ -14,6 +14,8 @@
 #ifndef _STNADJ_H
 #define _STNADJ_H
 
+#include <string>
+
 #ifndef _NETWORK_H
 #include "network/network.h"
 #endif
@@ -65,7 +67,7 @@ extern network *net;
 extern stn_recode_map *stnrecode;
 extern char *station_filename;
 extern char *station_filespec;
-extern char *output_station_filespec;
+extern std::string output_station_filespec;
 extern int station_filetype;
 extern char *station_fileoptions;
 extern char *geoid_file;

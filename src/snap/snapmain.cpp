@@ -101,7 +101,7 @@
 static void print_help( void );
 static void print_command_file( void );
 static int read_parameters( int argc, char *argv[] );
-static void update_station_file( char *filename );
+static void update_station_file( const std::string &filename );
 static BINARY_FILE *open_dump_file( void );
 static void dump_binary_data( BINARY_FILE *b );
 static void dump_cholesky_decomposition( BINARY_FILE *b );
@@ -1041,18 +1041,18 @@ static void write_metadata_csv()
     close_output_csv( csv );
 }
 
-static void update_station_file( char *filename)
+static void update_station_file( const std::string &filename)
 {
-    if( ! filename ) return;
-    if( write_station_file( PROGRAM, filename, PROGRAM_VERSION, run_time,
+    if( filename.empty() ) return;
+    if( write_station_file( PROGRAM, filename.c_str(), PROGRAM_VERSION, run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
-        xprintf("\nNew station coordinates have been written to %s\n",filename);
+        xprintf("\nNew station coordinates have been written to %s\n",filename.c_str());
     }
     else
     {
         handle_error( FILE_OPEN_ERROR, "Unable to create updated station coordinate file",
-                      filename);
+                      filename.c_str());
     }
 }
 
