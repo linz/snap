@@ -51,9 +51,8 @@ long read_data_files( FILE *lst )
 {
     DATAFILE *d=0;
     survey_data_file *sd;
-    int i, c, nfile, nch, sts;
+    int i, c, nfile, sts;
     long file_errors, total_errors, misc_errors;
-    char *fname;
     stn_recode_data recodedata;
     file_context *saved_context = current_file_context();
 
@@ -63,17 +62,7 @@ long read_data_files( FILE *lst )
     recodedata.global_map=stnrecode;
     recodedata.net=net;
 
-    fname = NULL;
-    nch = 0;
     total_errors=0;
-
-    for (i = 0; i < nfile; i++ )
-    {
-        sd = survey_data_file_ptr(i);
-        c = sd->name.size()+1;
-        if( c > nch ) nch = c;
-    }
-    fname = (char *) check_malloc( nch );
 
     for( i = 0; i < nfile; i++ )
     {
@@ -214,8 +203,7 @@ long read_data_files( FILE *lst )
 
     set_stn_recode_func( 0, 0 );
     if( d ) df_close_data_file( d );
-    if( fname ) check_free( fname );
-    
+
     sts=check_obsmod_station_criteria_codes( obs_modifications, net );
     if( sts >= WARNING_ERROR )
     {
