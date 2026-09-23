@@ -1,6 +1,8 @@
 #include "snapconfig.h"
 
 #include <string.h>
+#include <array>
+#include <string_view>
 
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
@@ -32,7 +34,7 @@ static void delete_obs_param_index();
 static void create_obs_param_index();
 static obs_param *get_obs_param( int oprmid );
 
-void add_survdata_observation_parameters( survdata *sd, int nprm, const char **descriptions )
+void add_survdata_observation_parameters( survdata *sd, int nprm, const std::array<std::string_view,3> &descriptions )
 {
     if( nprm == 0 ) return;
     if( sd->nprms > 0 )
@@ -49,7 +51,7 @@ void add_survdata_observation_parameters( survdata *sd, int nprm, const char **d
     for( int iprm = 0; iprm < nprm; iprm++ )
     {
         char prmname[80];
-        sprintf(prmname,"Obs set %d %.40s",obsid,descriptions[iprm]);
+        sprintf(prmname,"Obs set %d %.40s",obsid,descriptions[iprm].data());
         obs_param *oprm=(obs_param *) check_malloc( sizeof(obs_param) + strlen(prmname) + 1 );
         oprm->prmname=((char *)(void *)oprm)+sizeof(obs_param);
         strcpy(oprm->prmname,prmname);

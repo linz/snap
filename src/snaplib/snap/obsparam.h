@@ -1,18 +1,21 @@
 #ifndef _OBSPARAM_H
 #define _OBSPARAM_H
 
+#include <array>
+#include <string_view>
+
 #ifndef _SURVDATA_H
 #include "snapdata/survdata.h"
 #endif
 
 /* Record observation parameters.  nprm is number of parameters.  description is
- * name of observation parameters 
+ * name of observation parameters
  */
 
 void init_observation_parameters();
 void delete_observation_parameters();
 
-void add_survdata_observation_parameters( survdata *sd, int nprm, const char **descriptions );
+void add_survdata_observation_parameters( survdata *sd, int nprm, const std::array<std::string_view,3> &descriptions );
 int get_survdata_obs_param_rowno( survdata *sd, int prmno, double *value );
 void flag_obsparam_used( survdata *sd );
 

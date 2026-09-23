@@ -28,6 +28,9 @@
 #include <stdio.h>
 #include <math.h>
 #include <string.h>
+#include <array>
+#include <string_view>
+#include <array>
 
 #include "bindata2.h"
 #include "coefs.h"
@@ -49,7 +52,7 @@
 #include "util/symmatrx.h"
 #include "vecdata.h"
 
-const char *gx_trans_params[]={
+static constexpr std::array<std::string_view,3> gx_trans_params={
     "X translation",
     "Y translation",
     "Z translation"
