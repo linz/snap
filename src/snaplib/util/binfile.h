@@ -20,6 +20,7 @@
 #include <stdint.h>
 #include <limits>
 #include <stdexcept>
+#include <string>
 
 #ifndef _ERRDEF_H
 #include "util/errdef.h"
@@ -44,13 +45,62 @@ struct BinFileOpenOutcome
     BinFileOpenResult result;
 };
 
-BINARY_FILE *create_binary_file( char *fname, const char *header );
-BinFileOpenOutcome open_binary_file( char *fname, const char *header );
+/// Creates a new binary file at fname, writing header as its on-disk
+/// signature immediately followed by a fixed trailer, then invalidating
+/// its first byte until close_binary_file() completes it - see
+/// close_binary_file().
+/// \return the new file's handle, or nullptr if fname could not be opened
+///         for writing.
+BINARY_FILE *create_binary_file(
+    char *fname,                    ///< path of the file to create
+    const std::string &header );    ///< the signature identifying this file's format/version, e.g. "SNAP binary file version 3.0"
+
+/// Opens an existing binary file at fname for reading, verifying its
+/// stored signature matches header exactly, including the fixed trailer
+/// create_binary_file() wrote after it.
+/// \return the opened file and why it succeeded or failed - see
+///         BinFileOpenResult.
+BinFileOpenOutcome open_binary_file(
+    char *fname,                    ///< path of the file to open
+    const std::string &header );    ///< the expected signature, e.g. "SNAP binary file version 3.0"
+
+/// Finalizes and closes bin, completing its signature (see
+/// create_binary_file()) if it was opened for writing, then frees bin -
+/// bin must not be used again after this call.
 void close_binary_file( BINARY_FILE *bin );
-void create_section_ex( BINARY_FILE *bin, const char *section, long version );
-void create_section( BINARY_FILE *bin, const char *section );
+
+/// Starts a new named section in bin, ending whichever section (if any)
+/// is currently open first (see end_section()). Records version as the
+/// section's own version, if bin's own format version supports
+/// per-section versioning (bin->bf_version > 0).
+void create_section_ex(
+    BINARY_FILE *bin,
+    const std::string &section,     ///< the section's name, e.g. "STATION_COVARIANCES"
+    long version );                 ///< this section's version, ignored if bin->bf_version is 0
+
+/// A thin wrapper over create_section_ex() for the common case of an
+/// unversioned section (version 0).
+void create_section(
+    BINARY_FILE *bin,
+    const std::string &section );   ///< the section's name, e.g. "STATION_COVARIANCES"
+
+/// Ends whichever section is currently open in bin, if any - writes the
+/// end-of-section marker and back-patches the section's recorded length.
+/// A no-op if no section is currently open (e.g. bin was only opened for
+/// reading).
 void end_section( BINARY_FILE *bin );
-int find_section( BINARY_FILE *bin, const char *section );
+
+/// Searches bin for a section named section, leaving the file positioned
+/// to read its content (and bin->section_version updated) if found.
+/// \return OK if found, MISSING_DATA otherwise.
+int find_section(
+    BINARY_FILE *bin,
+    const std::string &section );   ///< the section's name to search for, e.g. "STATION_COVARIANCES"
+
+/// Checks whether bin's current file position is immediately followed by
+/// the end-of-section marker create_section_ex()/end_section() write -
+/// consumes it if so, otherwise rewinds bin back to its original position.
+/// \return OK if the marker was found, INVALID_DATA otherwise.
 int check_end_section( BINARY_FILE *bin );
 
 template<class T> inline void write_raw( FILE *f, const T &x ) { fwrite(&x, sizeof(T), 1, f); }

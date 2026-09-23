@@ -19,13 +19,30 @@
 */
 
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
 #include <stdint.h>
+#include <string>
+#include <string_view>
 
 #include "util/chkalloc.h"
 #include "util/binfile.h"
 #include "util/errdef.h"
+
+// This file reads and writes several std::string values as raw C buffers
+// (fread/fwrite destinations, or truncate-at-null comparisons), so it mixes
+// std::string::data() and std::string::c_str() throughout. The choice
+// between them is never stylistic - it follows one rule: does this call's
+// correctness depend on a null terminator sitting at that exact byte
+// position, or is it just moving/reading a fixed, already-known count of
+// raw bytes?
+//   - Depends on the terminator (writing a name+null on-disk record,
+//     truncating a fixed-size read buffer at its first embedded null the
+//     way strcmp would) -> c_str(). c_str() always returns const char*,
+//     even on a non-const string.
+//   - Just raw bytes, count already known, terminator irrelevant ->
+//     data(). Only data() has a non-const, writable overload (C++17), so
+//     any fread() destination must use data() - c_str() cannot compile
+//     there.
 
 #ifdef _WIN32
 #define MS_LOCKING
@@ -43,7 +60,14 @@
 #define VERSION_SECTION "\x01_BF_VERSION\x02"
 #define BF_VERSION 1
 
-BINARY_FILE *create_binary_file( char *fname, const char *signature )
+// Compile-time lengths of the two fixed marker literals above - both macros
+// expand to a string literal at every point of use, so sizeof(...)-1 (the
+// array size minus its own trailing null) is a real constant, not just a
+// cached runtime strlen() result.
+constexpr size_t sig_trailer_length = sizeof(SIG_TRAILER) - 1;
+constexpr size_t end_section_length = sizeof(ENDSECTION) - 1;
+
+BINARY_FILE *create_binary_file( char *fname, const std::string &signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;
@@ -75,8 +99,8 @@ BINARY_FILE *create_binary_file( char *fname, const char *signature )
     if( !f ) return NULL;
 
     b = (BINARY_FILE *) check_malloc( sizeof( BINARY_FILE ) );
-    fwrite(signature, strlen(signature), 1, f );
-    fwrite(SIG_TRAILER,strlen(SIG_TRAILER),1,f);      /* DOS eof character */
+    fwrite(signature.data(), signature.size(), 1, f );
+    fwrite(SIG_TRAILER, sig_trailer_length, 1, f);      /* DOS eof character */
 
     b->f = f;
     b->start = ftell64(f);
@@ -99,12 +123,10 @@ BINARY_FILE *create_binary_file( char *fname, const char *signature )
 }
 
 
-BinFileOpenOutcome open_binary_file( char *fname, const char *signature )
+BinFileOpenOutcome open_binary_file( char *fname, const std::string &signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;
-    char *sig;
-    int nsig;
 
     /* Note: this implementation has
        removed write permissions for opening existing file,
@@ -135,19 +157,13 @@ BinFileOpenOutcome open_binary_file( char *fname, const char *signature )
 #endif
     if( !f ) return { NULL, BinFileOpenResult::NotFound };
 
-    nsig = strlen(signature) + strlen(SIG_TRAILER);
-
-    sig = (char *) check_malloc( nsig );
-    if( fread( sig, nsig, 1, f ) != 1 ||
-            memcmp( signature, sig, strlen(signature) ) != 0 ||
-            memcmp( SIG_TRAILER, sig+strlen(signature), strlen(SIG_TRAILER)) != 0 )
+    const std::string expectedSignature = signature + SIG_TRAILER;
+    std::string sig(expectedSignature.size(), '\0');
+    if( fread( sig.data(), sig.size(), 1, f ) != 1 || sig != expectedSignature )
     {
-        check_free( sig );
         fclose(f);
         return { NULL, BinFileOpenResult::InvalidVersion };
     }
-
-    check_free( sig );
 
     b = (BINARY_FILE *) check_malloc( sizeof( BINARY_FILE ) );
     b->f = f;
@@ -171,7 +187,7 @@ void end_section( BINARY_FILE *b )
     if( b->section_start )
     {
         fseek64( b->f, 0L, SEEK_END );
-        fwrite( ENDSECTION, strlen(ENDSECTION)+1, 1, b->f );
+        fwrite( ENDSECTION, end_section_length+1, 1, b->f );
         end = ftell64( b->f );
         fseek64( b->f, b->section_start, SEEK_SET );
         fwrite( &end, sizeof(end), 1, b->f );
@@ -195,13 +211,13 @@ void close_binary_file( BINARY_FILE *b )
 }
 
 
-void create_section( BINARY_FILE *b, const char *section )
+void create_section( BINARY_FILE *b, const std::string &section )
 {
     create_section_ex( b, section, 0L );
 }
 
 
-void create_section_ex( BINARY_FILE *b, const char *section, long version )
+void create_section_ex( BINARY_FILE *b, const std::string &section, long version )
 {
     int64_t end;
     end = 0L;
@@ -210,7 +226,7 @@ void create_section_ex( BINARY_FILE *b, const char *section, long version )
     b->section_start = ftell64( b->f );
     b->section_version = 0;
     fwrite( &end, sizeof(end), 1, b->f );
-    fwrite( section, strlen(section)+1, 1, b->f );
+    fwrite( section.c_str(), section.size()+1, 1, b->f );
     if( b->bf_version > 0 )
     {
         b->section_version = version;
@@ -220,15 +236,13 @@ void create_section_ex( BINARY_FILE *b, const char *section, long version )
 }
 
 
-int find_section( BINARY_FILE *b, const char *section )
+int find_section( BINARY_FILE *b, const std::string &section )
 {
     int64_t next;
-    char *match;
-    int nch;
     int sts;
 
-    nch = strlen(section)+1;
-    match = (char *) check_malloc( nch );
+    const size_t nch = section.size()+1;
+    std::string match(nch, '\0');
 
     next = b->start;
 
@@ -238,8 +252,15 @@ int find_section( BINARY_FILE *b, const char *section )
     {
         fseek64( b->f, next, SEEK_SET );
         if( fread( &next, sizeof(next), 1, b->f ) != 1 ) break;
-        if( fread( match, nch, 1, b->f ) != 1 ) break;
-        if( strcmp( match, section ) == 0 )
+        if( fread( match.data(), nch, 1, b->f ) != 1 ) break;
+        // match is always nch = section.size()+1 bytes long regardless of
+        // what section name actually sits on disk at this position, so a
+        // plain std::string equality against match itself (which compares
+        // full logical length) would never match - it's one byte longer
+        // than section by construction. string_view(match.c_str())
+        // truncates at the first embedded null, same as strcmp's own
+        // stopping rule, to recover the real on-disk name for comparison.
+        if( std::string_view(match.c_str()) == section )
         {
             /* b->section_start = next; This cannot be added without modifying
                                         end_section, as it results in writing an
@@ -256,19 +277,18 @@ int find_section( BINARY_FILE *b, const char *section )
         }
     }
 
-    check_free( match );
     return sts;
 }
 
 
 int check_end_section( BINARY_FILE *bin )
 {
-    char endsec[80];
     int64_t loc;
 
     loc=ftell64(bin->f);
-    if( fread( endsec, strlen(ENDSECTION)+1, 1, bin->f ) == 1 &&
-            strcmp(endsec,ENDSECTION) == 0 ) return OK;
+    std::string endsec(end_section_length+1, '\0');
+    if( fread( endsec.data(), end_section_length+1, 1, bin->f ) == 1 &&
+            std::string_view(endsec.c_str()) == ENDSECTION ) return OK;
     fseek64( bin->f, loc, SEEK_SET );
     return INVALID_DATA;
 }
