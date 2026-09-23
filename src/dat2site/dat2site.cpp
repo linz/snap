@@ -2852,7 +2852,8 @@ static void load_interactively( void )
     for(;;)
     {
         printf("\nEnter input coordinate file name: ");
-        if( !fgets(inrec,256,stdin) || sscanf(inrec,"%79s",crdfname) != 1 ) exit(0);
+        if( !fgets(inrec,256,stdin) || sscanf(inrec,"%79s",fname) != 1 ) exit(0);
+        crdfname = copy_string(fname);
         if( !file_exists(crdfname) )
         {
             printf("File %s does not exist\n",crdfname);
