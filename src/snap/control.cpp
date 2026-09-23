@@ -1615,7 +1615,6 @@ static int load_plot_data( CFG_FILE *, char *, void *, int, int )
 
 static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int )
 {
-    char *params;
     double epoch;
     char *model;
     int type;
@@ -1629,8 +1628,6 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
     model = NULL;
     ignore_deformation = 0;
     type = 0;
-    params = (char *) check_malloc( strlen(string) + 2 );
-    params[0] = 0;
     rest = string;
 
     while( NULL != (item = strtok( rest, " " )) )
@@ -1689,16 +1686,6 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
                 send_config_error( cfg, INVALID_DATA, "Invalid epoch in deformation definition" );
             }
         }
-        else
-        {
-            strcat( params, item );
-            if( strlen(value) > 0 )
-            {
-                strcat( params, "=");
-                strcat( params, value );
-            }
-            strcat( params, " ");
-        }
     }
     if( epoch < 0 )
     {
@@ -1720,7 +1707,6 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
     {
         send_config_error( cfg, INVALID_DATA, "Invalid parameters in LINZ deformation definition");
     }
-    check_free( params );
     if( model ) check_free( model );
     return OK;
 }
