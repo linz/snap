@@ -15,6 +15,15 @@ std::optional<std::string_view> FieldScanner::next()
     return _span( start, _pos );
 }
 
+std::optional<std::string_view> FieldScanner::next( const char delimiter )
+{
+    auto found = std::find( _pos, _text.end(), delimiter );
+    if( found == _text.end() ) return std::nullopt;
+    auto field = _span( _pos, found );
+    _pos = found + 1;
+    return field;
+}
+
 std::string_view FieldScanner::remainder() const
 {
     return _span( _pos, _text.end() );

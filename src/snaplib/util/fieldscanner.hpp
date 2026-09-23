@@ -36,6 +36,22 @@ public:
     /// next_field's behavior.
     std::optional<std::string_view> next();
 
+    /// Returns the text up to the next occurrence of delimiter, consuming it -
+    /// a single-character-delimited split, unlike the no-argument next().
+    /// Two real behavioral differences from next(): consecutive delimiters
+    /// are NOT collapsed (an empty field between two adjacent delimiters is
+    /// returned as an empty string_view, not skipped), and on failure - no
+    /// further delimiter found - this returns nullopt \em without advancing
+    /// the position, so a subsequent remainder() call still gives the
+    /// caller everything not yet split off. That "fails without consuming"
+    /// behavior is what lets a caller do a bounded split (e.g. at most two
+    /// delimiters, three fields) by calling this a fixed number of times and
+    /// falling back to remainder() for the final field, whether or not that
+    /// last delimiter was actually present.
+    /// \return the field, or nullopt if delimiter doesn't occur again before
+    ///         the end of input.
+    std::optional<std::string_view> next( char delimiter );
+
     /// Unconsumed text from the current position to the end, verbatim - for
     /// handing the rest of the line off to another parser, or as a
     /// checkpoint a caller can capture and compare against a later

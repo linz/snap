@@ -54,6 +54,38 @@ void check_remainder()
     check( scanner.remainder() == "  def", "remainder: starts at the trailing whitespace, not past it" );
 }
 
+void check_next_delimiter()
+{
+    // Zero occurrences: fails without consuming, remainder() gives everything.
+    {
+        FieldScanner scanner( "abc" );
+        check( ! scanner.next(','), "next(delim): nullopt when the delimiter never occurs" );
+        check( scanner.remainder() == "abc", "next(delim): position unchanged after a failed match" );
+    }
+    // One occurrence: the field after it is only reachable via remainder(),
+    // not a second next(delim) call - the "bounded split" pattern this
+    // overload exists for.
+    {
+        FieldScanner scanner( "a,bc" );
+        check( scanner.next(',') == "a", "next(delim): field up to the delimiter" );
+        check( ! scanner.next(','), "next(delim): nullopt on the second call, no second delimiter" );
+        check( scanner.remainder() == "bc", "next(delim): remainder still gives the rest after a failed second call" );
+    }
+    // Consecutive delimiters: an empty field between them, not collapsed
+    // (the real behavioral difference from the no-argument next()).
+    {
+        FieldScanner scanner( "a,,c" );
+        check( scanner.next(',') == "a", "next(delim): field before the first delimiter" );
+        check( scanner.next(',') == "", "next(delim): empty field between two adjacent delimiters, not skipped" );
+        check( scanner.remainder() == "c", "next(delim): remainder after both delimiters consumed" );
+    }
+    // Empty input.
+    {
+        FieldScanner scanner( "" );
+        check( ! scanner.next(','), "next(delim): nullopt on empty input" );
+    }
+}
+
 void check_span_preserves_multiple_spaces()
 {
     FieldScanner scanner( "one  two   three" );
@@ -204,6 +236,7 @@ int main()
     check_next_basic();
     check_next_empty();
     check_remainder();
+    check_next_delimiter();
     check_span_preserves_multiple_spaces();
     check_quoted_value_single_field();
     check_quoted_value_spans_fields();
