@@ -57,11 +57,12 @@ void check_remainder()
 void check_span_preserves_multiple_spaces()
 {
     FieldScanner scanner( "one  two   three" );
-    auto start=scanner.pos();
+    auto start = scanner.remainder();
     scanner.next();
     scanner.next();
-    auto end=scanner.pos();
-    check( scanner.span(start,end) == "one  two", "span: verbatim text, multi-space run untouched" );
+    auto stop = scanner.remainder();
+    std::string captured( start.data(), stop.data() - start.data() );
+    check( captured == "one  two", "remainder(): verbatim text, multi-space run untouched" );
 }
 
 void check_quoted_value_single_field()

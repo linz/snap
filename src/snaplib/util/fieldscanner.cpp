@@ -12,15 +12,15 @@ std::optional<std::string_view> FieldScanner::next()
     if( _pos == _text.end() ) return std::nullopt;
     auto start = _pos;
     while( _pos != _text.end() && ! ISSPACE(*_pos) ) ++_pos;
-    return span( start, _pos );
+    return _span( start, _pos );
 }
 
 std::string_view FieldScanner::remainder() const
 {
-    return span( _pos, _text.end() );
+    return _span( _pos, _text.end() );
 }
 
-std::string_view FieldScanner::span( std::string_view::const_iterator start, std::string_view::const_iterator end ) const
+std::string_view FieldScanner::_span( std::string_view::const_iterator start, std::string_view::const_iterator end ) const
 {
     /* Computed via iterator subtraction and pointer arithmetic on
        _text.data(), not by dereferencing start/end - either may legitimately
@@ -48,7 +48,7 @@ std::optional<std::string_view> FieldScanner::quotedValue( const std::string_vie
             if( followOk )
             {
                 _pos=afterQuote;
-                return span( start, pos );
+                return _span( start, pos );
             }
             break;
         }

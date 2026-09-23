@@ -36,22 +36,12 @@ public:
     /// next_field's behavior.
     std::optional<std::string_view> next();
 
-    /// Current cursor position - a checkpoint to pass back into span().
-    std::string_view::const_iterator pos() const { return _pos; }
-
     /// Unconsumed text from the current position to the end, verbatim - for
-    /// handing the rest of the line off to another parser.
+    /// handing the rest of the line off to another parser, or as a
+    /// checkpoint a caller can capture and compare against a later
+    /// remainder() (via .data()/.size() arithmetic) to recover an exact
+    /// verbatim span without needing raw iterator access.
     std::string_view remainder() const;
-
-    /// Exact original text between two positions (both from pos()), verbatim
-    /// - including any interior whitespace runs (multiple spaces, tabs)
-    /// untouched. Used to capture several consecutive fields as one span
-    /// without re-joining tokens with an inserted separator, which would
-    /// collapse any original multi-space run between them.
-    std::string_view span(
-        std::string_view::const_iterator start,  ///< a position from pos(), at or before end
-        std::string_view::const_iterator end )   ///< a position from pos(), at or after start
-        const;
 
     /// Scans a quoted value, given the position right after its opening
     /// quote and the quote character itself (both found by the caller
@@ -111,6 +101,16 @@ public:
         bool onlyDoubleQuote );
 
 private:
+    /// Exact original text between two positions (both from _pos at some
+    /// point in this scanner's history), verbatim - including any interior
+    /// whitespace runs (multiple spaces, tabs) untouched. Internal only -
+    /// external callers get the same result via two remainder() captures
+    /// and .data()/.size() arithmetic, without needing raw iterator access.
+    std::string_view _span(
+        std::string_view::const_iterator start,
+        std::string_view::const_iterator end )
+        const;
+
     std::string_view _text;                    ///< the text being scanned, owned by the caller
     std::string_view::const_iterator _pos;      ///< current cursor position within _text
 };

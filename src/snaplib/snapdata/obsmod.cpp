@@ -1057,12 +1057,14 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
 }
 
 /// Parses a "key=value" observation selection criteria field, e.g.
-/// data_type=GB, data_file="obs 2020.dat", or id=123. If valuePart starts
-/// with a quote character, scanner is advanced past the closing quote
-/// (which may span further next() fields) to pick up the verbatim quoted
-/// text. Returns nullptr if the criterion is invalid or the value is
-/// missing/malformed; the error is already reported via send_config_error
-/// before returning.
+/// data_type=GB, data_file=*1.dat (unquoted - '*' is a wildcard), or
+/// data_file='t??t1.dat' (quoted - '?' is literal, not a wildcard).
+/// A quoted value may itself contain whitespace (e.g. equpt=' quote '),
+/// spanning further next() fields to find its closing quote - see
+/// quotedValue(). Any key other than data_type/data_file/id becomes a
+/// classification criterion instead. Returns nullptr if the criterion is
+/// invalid or the value is missing/malformed; the error is already
+/// reported via send_config_error before returning.
 static obs_criterion *parse_key_value_criterion(
     CFG_FILE *cfg,                 ///< current config file, for error reporting
     obs_modifications *obsmod,     ///< owns the classification map and data-file lookup used by some keys
@@ -1081,21 +1083,31 @@ static obs_criterion *parse_key_value_criterion(
         return nullptr;
     }
 
-    bool quoted=false;
+    // quoted disables wildcard-pattern interpretation for this value - e.g.
+    // data_file=t??t1.dat matches multiple files via wildcard, but
+    // data_file='t??t1.dat' means a file literally named t??t1.dat.
+    auto quoteStart = FieldScanner::isQuoted( valuePart, false );
+    const bool quoted = quoteStart != valuePart.end();
     std::string value;
-    if( valuePart.front() == '"' || valuePart.front() == '\'' )
+    if( quoted )
     {
         static const std::optional<std::vector<QuoteFollowOption>> quoteMustBeFollowedBy{
             std::vector<QuoteFollowOption>{ QuoteFollowOption::Whitespace, QuoteFollowOption::End } };
-        char quoteChar=valuePart.front();
-        quoted=true;
-        auto tokenEnd=scanner.pos();
-        auto quotedResult=scanner.quotedValue( valuePart.begin()+1, quoteChar, quoteMustBeFollowedBy );
+        char quoteChar=*quoteStart;
+        auto beforeQuote=scanner.remainder();
+        auto quotedResult=scanner.quotedValue( quoteStart+1, quoteChar, quoteMustBeFollowedBy );
         if( ! quotedResult )
         {
             char errmess[100];
-            auto messageEnd = scanner.pos() > tokenEnd ? scanner.pos() : tokenEnd;
-            std::string fieldText( scanner.span( field.begin(), messageEnd ) );
+            // quotedValue() can leave the scanner further along, or further
+            // back, than it was before the call: key="my value
+            // (unterminated) runs off the end, further along; key="ab"x
+            // leaves it further back, since the closing quote is rejected
+            // by quoteMustBeFollowedBy (not followed by whitespace).
+            // Whichever remainder is shorter is further along.
+            auto afterQuote = scanner.remainder();
+            auto messageEnd = afterQuote.size() < beforeQuote.size() ? afterQuote : beforeQuote;
+            std::string fieldText( field.data(), messageEnd.data() - field.data() );
             sprintf(errmess,"Invalid observation selection criteria for \"%.40s\"",fieldText.c_str());
             send_config_error(cfg,INVALID_DATA,errmess);
             return nullptr;
@@ -1141,19 +1153,19 @@ static obs_criterion *parse_stations_criterion(
     FieldScanner &scanner,      ///< field cursor, positioned after using_stations/between_stations
     int station_crit_type )     ///< OBS_CRIT_STATION_USES or OBS_CRIT_STATION_BETWEEN
 {
-    auto stationField=scanner.next();
+    auto stationField = scanner.next();
     if( ! stationField )
     {
         send_config_error(cfg,INVALID_DATA,"Missing station list in observation selection criteria");
         return nullptr;
     }
-    auto start=stationField->begin();
+    auto start = stationField->data();
     while( stationField && ! boost::algorithm::iequals(*stationField,"end_stations") )
     {
-        stationField=scanner.next();
+        stationField = scanner.next();
     }
-    auto stop = stationField ? stationField->begin() : scanner.pos();
-    std::string stationList( scanner.span(start,stop) );
+    auto stop = stationField ? stationField->data() : scanner.remainder().data();
+    std::string stationList( start, stop - start );
     return new_obs_stations_criterion( cfg, station_crit_type, stationList.data() );
 }
 
