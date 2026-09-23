@@ -36,6 +36,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <filesystem>
+#include <string>
 
 #define MAIN
 #define GETVERSION_SET_PROGRAM_DATE
