@@ -79,16 +79,16 @@ int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
 }
 
 ref_deformation::ref_deformation( std::string type_, void *data_,
-                                   void (*delete_func_)(void *data),
-                                   void *(*copy_func_)(void *data),
+                                   void (*delete_data_)(void *data),
+                                   void *(*copy_data_)(void *data),
                                    int (*identical_)(void *data1, void *data2),
                                    int (*describe_func_)( ref_frame *rf, output_string_def *os ),
                                    int (*calc_denu_)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]),
                                    int (*apply_llh_)( ref_frame *rf, double llh[3], double epochfrom, double epochto ) ) :
     type( std::move(type_) ),
     data( data_ ),
-    delete_func( delete_func_ ),
-    copy_func( copy_func_ ),
+    delete_data( delete_data_ ),
+    copy_data( copy_data_ ),
     identical( identical_ ),
     describe_func( describe_func_ ),
     calc_denu( calc_denu_ ),
@@ -98,14 +98,14 @@ ref_deformation::ref_deformation( std::string type_, void *data_,
 
 ref_deformation::~ref_deformation()
 {
-    delete_func( data );
+    delete_data( data );
 }
 
 ref_deformation * copy_ref_deformation( ref_deformation *rdf )
 {
     if( ! rdf ) return nullptr;
-    return new ref_deformation( rdf->type, rdf->copy_func( rdf->data ),
-                                 rdf->delete_func, rdf->copy_func, rdf->identical,
+    return new ref_deformation( rdf->type, rdf->copy_data( rdf->data ),
+                                 rdf->delete_data, rdf->copy_data, rdf->identical,
                                  rdf->describe_func, rdf->calc_denu, rdf->apply_llh );
 }
 

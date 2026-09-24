@@ -131,11 +131,15 @@ struct ref_frame
 };
 
 /// Always fully-formed once constructed (no default constructor, all
-/// fields const) - copy via copy_ref_frame_func() (a real deep copy: data
-/// is deep-copied via copy_func), never via the copy constructor, which is
-/// deleted. Destroying one calls delete_func(data). Exactly one concrete
-/// implementation exists today (the grid transform in
-/// crdsys_rffunc_grid.cpp), reached only through create_rf_grid_func().
+/// fields const) - copy via copy_ref_frame_func() (a real deep copy: this
+/// struct's own data member is deep-copied via copy_data), never via the
+/// copy constructor, which is deleted. Destroying one calls
+/// delete_data(data) - note this is a different thing from destroying the
+/// ref_frame_func itself: delete_data only knows how to free the opaque
+/// data payload, it's an internal detail the destructor uses, never a
+/// public destruction API of its own. Exactly one concrete implementation
+/// exists today (the grid transform in crdsys_rffunc_grid.cpp), reached
+/// only through create_rf_grid_func().
 struct ref_frame_func
 {
     /// type/description are taken by value and moved into the member,
@@ -143,9 +147,9 @@ struct ref_frame_func
     /// a caller passing a temporary (e.g. the string literal "GRID")
     /// avoids the extra copy const& would still require.
     ref_frame_func( std::string type, std::optional<std::string> description, void *data,
-                     void (*delete_func)(void *data),
+                     void (*delete_data)(void *data),
                      int (*describe_func)(ref_frame *rf, output_string_def *os),
-                     void *(*copy_func)(void *data),
+                     void *(*copy_data)(void *data),
                      int (*identical)(void *data1, void *data2),
                      int (*xyz_to_std_func)( ref_frame *rf, double xyz[3], double date ),
                      int (*std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ) );
@@ -154,25 +158,28 @@ struct ref_frame_func
 
     const std::string type;                      ///< Discriminator tag for the concrete implementation, e.g. "GRID"
     const std::optional<std::string> description; ///< Human-readable description used in reporting, or nullopt
-    void * const data;                            ///< Opaque payload for the concrete implementation, freed by delete_func
-    void (* const delete_func)(void *data);       ///< Frees the object pointed to by this struct's own data member
+    void * const data;                            ///< Opaque payload for the concrete implementation, freed by delete_data
+    void (* const delete_data)(void *data);       ///< Frees the object pointed to by this struct's own data member
     int (* const describe_func)(ref_frame *rf, output_string_def *os ); ///< Writes a human-readable description of the transform
-    void *(* const copy_func)(void *data);        ///< Deep-copies data
+    void *(* const copy_data)(void *data);        ///< Deep-copies this struct's own data member
     int (* const identical)(void *data1, void *data2); ///< Compares two data payloads for equality
     int (* const xyz_to_std_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard xyz->std transform
     int (* const std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard std->xyz transform
 };
 
 /// Always fully-formed once constructed (no default constructor, all
-/// fields const) - copy via copy_ref_deformation() (a real deep copy: data
-/// is deep-copied via copy_func), never via the copy constructor, which is
-/// deleted. Destroying one calls delete_func(data). 3 concrete
-/// implementations exist today (linzdef, grid, and a shared xyz-transform
-/// one for both BW14 and Euler deformation types), each reached only
-/// through its own factory in crdsys_rfdef_*.cpp. apply_llh is the one
-/// field that is genuinely, deliberately null for a real implementation
-/// (linzdef) - every other function pointer is unconditionally set by all
-/// 3 implementations.
+/// fields const) - copy via copy_ref_deformation() (a real deep copy: this
+/// struct's own data member is deep-copied via copy_data), never via the
+/// copy constructor, which is deleted. Destroying one calls
+/// delete_data(data) - note this is a different thing from destroying the
+/// ref_deformation itself: delete_data only knows how to free the opaque
+/// data payload, it's an internal detail the destructor uses, never a
+/// public destruction API of its own. 3 concrete implementations exist
+/// today (linzdef, grid, and a shared xyz-transform one for both BW14 and
+/// Euler deformation types), each reached only through its own factory in
+/// crdsys_rfdef_*.cpp. apply_llh is the one field that is genuinely,
+/// deliberately null for a real implementation (linzdef) - every other
+/// function pointer is unconditionally set by all 3 implementations.
 struct ref_deformation
 {
     /// type is taken by value and moved into the member, not by const&:
@@ -180,8 +187,8 @@ struct ref_deformation
     /// temporary (e.g. a string literal type tag) avoids the extra copy
     /// const& would still require.
     ref_deformation( std::string type, void *data,
-                      void (*delete_func)(void *data),
-                      void *(*copy_func)(void *data),
+                      void (*delete_data)(void *data),
+                      void *(*copy_data)(void *data),
                       int (*identical)(void *data1, void *data2),
                       int (*describe_func)( ref_frame *rf, output_string_def *os ),
                       int (*calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]),
@@ -190,9 +197,9 @@ struct ref_deformation
     ~ref_deformation();
 
     const std::string type;                       ///< Discriminator tag for the concrete implementation, e.g. "LINZDEF"
-    void * const data;                             ///< Opaque payload for the concrete implementation, freed by delete_func
-    void (* const delete_func)(void *data);        ///< Frees the object pointed to by this struct's own data member
-    void *(* const copy_func)(void *data);         ///< Deep-copies data
+    void * const data;                             ///< Opaque payload for the concrete implementation, freed by delete_data
+    void (* const delete_data)(void *data);        ///< Frees the object pointed to by this struct's own data member
+    void *(* const copy_data)(void *data);         ///< Deep-copies this struct's own data member
     int (* const identical)(void *data1, void *data2); ///< Compares two data payloads for equality
     int (* const describe_func)( ref_frame *rf, output_string_def *os ); ///< Writes a human-readable description of the deformation model
     int (* const calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]); ///< Computes the east/north/up offset the model predicts at a given epoch

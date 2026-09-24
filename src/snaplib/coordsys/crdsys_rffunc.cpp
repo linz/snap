@@ -75,18 +75,18 @@ int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff )
 }
 
 ref_frame_func::ref_frame_func( std::string type_, std::optional<std::string> description_, void *data_,
-                                 void (*delete_func_)(void *data),
+                                 void (*delete_data_)(void *data),
                                  int (*describe_func_)(ref_frame *rf, output_string_def *os),
-                                 void *(*copy_func_)(void *data),
+                                 void *(*copy_data_)(void *data),
                                  int (*identical_)(void *data1, void *data2),
                                  int (*xyz_to_std_func_)( ref_frame *rf, double xyz[3], double date ),
                                  int (*std_to_xyz_func_)( ref_frame *rf, double xyz[3], double date ) ) :
     type( std::move(type_) ),
     description( std::move(description_) ),
     data( data_ ),
-    delete_func( delete_func_ ),
+    delete_data( delete_data_ ),
     describe_func( describe_func_ ),
-    copy_func( copy_func_ ),
+    copy_data( copy_data_ ),
     identical( identical_ ),
     xyz_to_std_func( xyz_to_std_func_ ),
     std_to_xyz_func( std_to_xyz_func_ )
@@ -95,14 +95,14 @@ ref_frame_func::ref_frame_func( std::string type_, std::optional<std::string> de
 
 ref_frame_func::~ref_frame_func()
 {
-    delete_func( data );
+    delete_data( data );
 }
 
 ref_frame_func * copy_ref_frame_func( ref_frame_func *rff )
 {
     if( ! rff ) return nullptr;
-    return new ref_frame_func( rff->type, rff->description, rff->copy_func( rff->data ),
-                                rff->delete_func, rff->describe_func, rff->copy_func,
+    return new ref_frame_func( rff->type, rff->description, rff->copy_data( rff->data ),
+                                rff->delete_data, rff->describe_func, rff->copy_data,
                                 rff->identical, rff->xyz_to_std_func, rff->std_to_xyz_func );
 }
 
