@@ -135,10 +135,10 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
 int describe_projection( output_string_def *os, projection *prj )
 {
     if( !prj ) return OK;
-    if( prj->type->name )
+    if( ! prj->type->name.empty() )
     {
         write_output_string( os, "Projection: " );
-        write_output_string( os, prj->type->name);
+        write_output_string( os, prj->type->name.c_str());
         write_output_string( os, "\n" );
     }
 

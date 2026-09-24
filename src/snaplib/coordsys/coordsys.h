@@ -352,7 +352,7 @@ void init_ref_frame( ref_frame *rf, double convepoch );
 /* This could go to a private header file */
 
 projection_type *register_projection_type( projection_type *tp );
-projection_type *find_projection_type( const char *code );
+projection_type *find_projection_type( const std::string &code );
 
 projection *create_projection( projection_type *type );
 projection *copy_projection( projection *prj );

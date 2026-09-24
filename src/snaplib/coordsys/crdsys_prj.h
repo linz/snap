@@ -16,6 +16,8 @@
 #include "coordsys/paramdef.h"
 #endif
 
+#include <string>
+
 /* Definition of a projection.  This is defined in two components.  First is
 	a projection type, such as Transverse Mercator, or NZMG.  This defines a
 	set of function pointers used to process the projection.  These functions
@@ -23,48 +25,68 @@
 	the projection.
 	*/
 
+/// Always fully-formed once constructed (no default constructor, all
+/// fields const) - never copied or destroyed once registered
+/// (register_projection_type() either adopts a newly-constructed
+/// instance into the permanent process-lifetime list, or deletes a
+/// duplicate - see crdsys_prj_register.cpp), so no copy constructor or
+/// destructor is declared here at all; the implicit ones are never
+/// exercised in practice, but std::string's own destructor still runs
+/// correctly if one ever is.
 struct projection_type
 {
-    const char *code;        /* Code for the projection type, eg TM, NZMG, LCC */
-    const char *name;        /* Name of the type, eg Transverse Mercator */
-    int size;
+    projection_type( std::string code, std::string name, int size,
+                      param_def *params, int nparams,
+                      void *(*create)( void ),
+                      void (*destroy)( void *data ),
+                      int (*copy)( void *trgt, void *src ),
+                      int (*bind_ellipsoid)( void *data, ellipsoid *el ),
+                      int (*identical)( void *data1, void *data2 ),
+                      int (*geog_to_proj)( void *data, double lon, double lat, double *east, double *north ),
+                      int (*proj_to_geog)( void *data, double east, double north, double *lon, double *lat ),
+                      int (*calc_sf_cv)( void *data, double lon, double lat, double *sf, double *cv ) );
+    projection_type( const projection_type& ) = delete;
 
-    param_def *params;  /* List of parameters */
-    int nparams;
+    const std::string code;  ///< Code for the projection type, eg TM, NZMG, LCC
+    const std::string name;  ///< Name of the type, eg Transverse Mercator
+    const int size;            ///< Byte size of the per-instance opaque data blob, used when create/destroy/copy aren't supplied
 
-    void *(*create)(   /* Function to allocate and initialise the projection */
+    param_def * const params; ///< List of parameters, owned by the file that registered this type
+    const int nparams;          ///< Number of entries in params
+
+    void *(* const create)(   /* Function to allocate and initialise the projection */
         void );
 
-    void (*destroy)(
+    void (* const destroy)(
         void *data );
 
-    int (*copy)(       /* Copy the definition */
+    int (* const copy)(       /* Copy the definition */
         void *trgt,
         void *src );
 
-    int (*bind_ellipsoid)(  /* Associate an ellipsoid with the projection */
+    int (* const bind_ellipsoid)(  /* Associate an ellipsoid with the projection */
         void *data,
         ellipsoid *el );
 
-    int (*identical)(       /* Compare two copies, return 1 or 0 */
+    int (* const identical)(       /* Compare two copies, return 1 or 0 */
         void *data1,
         void *data2 );
 
-    int (*geog_to_proj)(    /* Conversion routines */
+    int (* const geog_to_proj)(    /* Conversion routines */
         void *data,
         double lon,
         double lat,
         double *east,
         double *north );
 
-    int (*proj_to_geog)(
+    int (* const proj_to_geog)(
         void *data,
         double east,
         double north,
         double *lon,
         double *lat );
 
-    int (*calc_sf_cv)(      /* Calc scale factor and convergence */
+    int (* const calc_sf_cv)(      /* Calc scale factor and convergence */
         void *data,
         double lon,
         double lat,

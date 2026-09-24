@@ -71,28 +71,12 @@ static int ps_geog_to_proj( void *data, double ln, double lt, double *e, double 
 
 void register_ps_projection( void )
 {
-    const char *code = "PS";
-    const char *name = "Polar Stereographic";
-
-    projection_type ps;
-
     if( ps_type ) return;
 
-    ps.code = code;
-    ps.name = name;
-    ps.size = sizeof(PSProjection);
-    ps.params = psparams;
-    ps.nparams = COUNT_OF(psparams);
-    ps.create = NULL;
-    ps.destroy = NULL;
-    ps.copy = NULL;
-    ps.identical = NULL;
-    ps.bind_ellipsoid = ps_bind_ellipsoid;
-    ps.geog_to_proj = ps_geog_to_proj;
-    ps.proj_to_geog = ps_proj_to_geog;
-    ps.calc_sf_cv = NULL;
-
-    ps_type = register_projection_type( &ps );
+    ps_type = register_projection_type( new projection_type(
+        "PS", "Polar Stereographic", sizeof(PSProjection), psparams, COUNT_OF(psparams),
+        nullptr, nullptr, nullptr, ps_bind_ellipsoid, nullptr,
+        ps_geog_to_proj, ps_proj_to_geog, nullptr ) );
 }
 
 projection *create_ps_projection(  double cm, double sf,
