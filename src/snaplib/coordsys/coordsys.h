@@ -130,17 +130,37 @@ struct ref_frame
     ref_deformation * const def; /* Deformation function */
 };
 
+/// Always fully-formed once constructed (no default constructor, all
+/// fields const) - copy via copy_ref_frame_func() (a real deep copy: data
+/// is deep-copied via copy_func), never via the copy constructor, which is
+/// deleted. Destroying one calls delete_func(data). Exactly one concrete
+/// implementation exists today (the grid transform in
+/// crdsys_rffunc_grid.cpp), reached only through create_rf_grid_func().
 struct ref_frame_func
 {
-    char *type;
-    char *description;
-    void *data;
-    void (*delete_func)(void *data);
-    int (*describe_func)(ref_frame *rf, output_string_def *os );
-    void *(*copy_func)(void *data);
-    int (*identical)(void *data1, void *data2);
-    int (*xyz_to_std_func)( ref_frame *rf, double xyz[3], double date );
-    int (*std_to_xyz_func)( ref_frame *rf, double xyz[3], double date );
+    /// type/description are taken by value and moved into the member,
+    /// not by const&: both are stored verbatim with no transformation, so
+    /// a caller passing a temporary (e.g. the string literal "GRID")
+    /// avoids the extra copy const& would still require.
+    ref_frame_func( std::string type, std::optional<std::string> description, void *data,
+                     void (*delete_func)(void *data),
+                     int (*describe_func)(ref_frame *rf, output_string_def *os),
+                     void *(*copy_func)(void *data),
+                     int (*identical)(void *data1, void *data2),
+                     int (*xyz_to_std_func)( ref_frame *rf, double xyz[3], double date ),
+                     int (*std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ) );
+    ref_frame_func( const ref_frame_func& ) = delete;
+    ~ref_frame_func();
+
+    const std::string type;                      ///< Discriminator tag for the concrete implementation, e.g. "GRID"
+    const std::optional<std::string> description; ///< Human-readable description used in reporting, or nullopt
+    void * const data;                            ///< Opaque payload for the concrete implementation, freed by delete_func
+    void (* const delete_func)(void *data);       ///< Frees the object pointed to by this struct's own data member
+    int (* const describe_func)(ref_frame *rf, output_string_def *os ); ///< Writes a human-readable description of the transform
+    void *(* const copy_func)(void *data);        ///< Deep-copies data
+    int (* const identical)(void *data1, void *data2); ///< Compares two data payloads for equality
+    int (* const xyz_to_std_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard xyz->std transform
+    int (* const std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard std->xyz transform
 };
 
 struct ref_deformation
@@ -299,7 +319,6 @@ struct coord_conversion
 ref_frame *copy_ref_frame( ref_frame *rf );
 
 ref_frame_func *copy_ref_frame_func( ref_frame_func *rff );
-void delete_ref_frame_func( ref_frame_func *rff );
 
 ref_deformation *copy_ref_deformation( ref_deformation *rdf );
 void delete_ref_deformation( ref_deformation *rdf );

@@ -20,44 +20,45 @@
 */
 
 #include <stdio.h>
-#include <string.h>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rffunc_grid.h"
 #include "geoid/griddata.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
-#include "util/fileutil.h"
 #include "util/errdef.h"
 #include "util/pi.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 enum {NULL_GRID, SNAP2D_GRID};
 
+/// The opaque payload behind a grid-based ref_frame_func's data member.
+/// File-private to this translation unit - never exposed via a header, so
+/// it has no external callers. grid/status are never caller-supplied -
+/// every real construction starts unopened (grid=nullptr) and valid
+/// (status=OK); grid is lazily opened later by rf_grid_open_file.
 struct rf_grid_def
 {
-    char *filename;
-    grid_def *grid;
-    int type;
-    int status;
+    rf_grid_def( std::string filename, int type ) :
+        filename( std::move(filename) ), grid( nullptr ), type( type ), status( OK )
+    {}
+    rf_grid_def( const rf_grid_def& ) = delete;
+
+    std::string filename; ///< Path to the transformation grid file
+    grid_def *grid;       ///< Loaded grid, or nullptr until rf_grid_open_file lazily opens it
+    int type;              ///< NULL_GRID or SNAP2D_GRID
+    int status;             ///< OK, or the error code from the lazy file open
 };
 
 
-static rf_grid_def *rf_grid_create( const char *filename, int type )
+static rf_grid_def *rf_grid_create( const std::string &filename, int type )
 {
-    rf_grid_def *gd;
-    if( type != SNAP2D_GRID ) return NULL;
-    gd = (rf_grid_def *) check_malloc( sizeof(rf_grid_def) );
-    gd->filename = copy_string( filename );
-    gd->grid = NULL;
-    gd->status = OK;
-    gd->type = type;
-    return gd;
+    if( type != SNAP2D_GRID ) return nullptr;
+    return new rf_grid_def( filename, type );
 }
 
 static void rf_grid_open_file( rf_grid_def *gd )
 {
     grid_def *grid = NULL;
     if( gd->status != OK ) return;
-    grd_open_grid_file(gd->filename,2,&grid);
+    grd_open_grid_file(gd->filename.c_str(),2,&grid);
     if( grid )
     {
         gd->grid = grid;
@@ -72,12 +73,8 @@ static void rf_grid_delete( void *pgd )
 {
     rf_grid_def *gd = (rf_grid_def *) pgd;
     if( ! gd ) return;
-    if( gd->filename ) check_free( gd->filename );
-    gd->filename = NULL;
     if( gd->grid ) grd_delete_grid( gd->grid );
-    gd->grid = NULL;
-    gd->type =  NULL_GRID;
-    check_free( gd );
+    delete gd;
 }
 
 static void *rf_grid_copy( void *pgd )
@@ -90,7 +87,7 @@ static int rf_grid_identical( void *pgd1, void *pgd2 )
 {
     rf_grid_def *gd1 = (rf_grid_def *) pgd1;
     rf_grid_def *gd2 = (rf_grid_def *) pgd2;
-    return strcmp(gd1->filename, gd2->filename) == 0 ? 1 : 0;
+    return gd1->filename == gd2->filename ? 1 : 0;
 }
 
 static int rf_grid_describe( ref_frame *rf, output_string_def *os )
@@ -100,12 +97,12 @@ static int rf_grid_describe( ref_frame *rf, output_string_def *os )
     write_output_string(os,"Transformation uses ");
     if( rff->description )
     {
-        write_output_string(os,rff->description);
+        write_output_string(os,rff->description->c_str());
     }
     else
     {
         write_output_string(os,"transformation grid from file ");
-        write_output_string(os,gd->filename);
+        write_output_string(os,gd->filename.c_str());
     }
     write_output_string(os,"\n");
     return OK;
@@ -171,25 +168,15 @@ static int rf_grid_std_to_xyz( ref_frame *rf, double xyz[3], double date )
     return OK;
 }
 
-ref_frame_func *create_rf_grid_func( const char *type, const char *filename, char *description )
+ref_frame_func *create_rf_grid_func( const std::string &type, const std::string &filename, const std::string &description )
 {
     int gridtype = NULL_GRID;
-    void *pgd;
-    ref_frame_func *rff;
-    if( _stricmp(type,"SNAP2D") == 0 ) gridtype = SNAP2D_GRID;
-    pgd = rf_grid_create( filename, gridtype );
-    if( ! pgd ) return NULL;
-    rff = (ref_frame_func *) check_malloc( sizeof(ref_frame_func) );
-    rff->description = NULL;
-    if( description && strlen(description) > 0 )
-        rff->description = copy_string( description );
-    rff->data = pgd;
-    rff->delete_func = rf_grid_delete;
-    rff->describe_func = rf_grid_describe;
-    rff->copy_func = rf_grid_copy;
-    rff->identical = rf_grid_identical;
-    rff->xyz_to_std_func = rf_grid_xyz_to_std;
-    rff->std_to_xyz_func = rf_grid_std_to_xyz;
-    return rff;
+    if( boost::algorithm::iequals(type,"SNAP2D") ) gridtype = SNAP2D_GRID;
+    void *pgd = rf_grid_create( filename, gridtype );
+    if( ! pgd ) return nullptr;
+    std::optional<std::string> desc;
+    if( ! description.empty() ) desc = description;
+    return new ref_frame_func( "GRID", desc, pgd, rf_grid_delete, rf_grid_describe,
+                                rf_grid_copy, rf_grid_identical, rf_grid_xyz_to_std, rf_grid_std_to_xyz );
 }
 

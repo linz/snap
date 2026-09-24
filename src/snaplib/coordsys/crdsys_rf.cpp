@@ -78,7 +78,7 @@ ref_frame::ref_frame( const std::string &code_, const std::string &name_, ellips
 
 ref_frame::~ref_frame()
 {
-    if( func ) delete_ref_frame_func( func );
+    delete func;
     if( def ) delete_ref_deformation( def );
     delete refrf;
     delete el;
