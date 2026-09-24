@@ -86,7 +86,7 @@ ref_frame *copy_ref_frame( ref_frame *rf )
     ellipsoid *el;
     ref_frame *rf1;
     if( rf == NULL ) return NULL;
-    el = copy_ellipsoid( rf->el );
+    el = rf->el ? new ellipsoid( *rf->el ) : nullptr;
     if( !el ) return NULL;
     rf1 = create_ref_frame( rf->code, rf->name, el, rf->refcode, rf->txyz,
                             rf->rxyz, rf->scale, rf->refdate,
@@ -104,7 +104,7 @@ ref_frame *copy_ref_frame( ref_frame *rf )
     }
     else
     {
-        delete_ellipsoid( el );
+        delete el;
     }
     return rf1;
 }
@@ -119,7 +119,7 @@ void delete_ref_frame( ref_frame *rf )
     rf->def = 0;
     if( rf->refrf ) delete_ref_frame( rf->refrf );
     rf->refrf = 0;
-    delete_ellipsoid( rf->el );
+    delete rf->el;
     check_free( rf->code );
     check_free( rf->name );
     if( rf->refcode ) { check_free( rf->refcode ); rf->refcode=0; }

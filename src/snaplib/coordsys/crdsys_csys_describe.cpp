@@ -27,7 +27,7 @@ int  describe_ellipsoid( output_string_def *os, ellipsoid *el )
     char out[80];
     if( !el ) return OK;
     write_output_string( os, "Ellipsoid: ");
-    write_output_string( os, el->name );
+    write_output_string( os, el->name.c_str() );
     sprintf(out,"\n  a = %.3lf  1/f = %.6lf\n",el->a,el->rf);
     write_output_string( os, out );
     return OK;

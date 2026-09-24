@@ -13,14 +13,27 @@
 #include "coordsys/paramdef.h"
 #include "coordsys/coordsys.h"
 
+namespace
+{
+/// read_param_list's fill target - a and rf are read before ellipsoid's
+/// code/name are known, and ellipsoid itself has no default constructor
+/// (it's always fully-formed once it exists), so this plain struct holds
+/// them until the real ellipsoid can be constructed.
+struct ellipsoid_axes
+{
+    double a;
+    double rf;
+};
+}
+
 static param_def ell_params[] =
 {
     {
-        "Semi-major axis","a",OFFSET_OF(a,ellipsoid),
+        "Semi-major axis","a",OFFSET_OF(a,ellipsoid_axes),
         double_from_string, print_double3, print_double3
     },
     {
-        "Reciprocal flattening","rf",OFFSET_OF(rf,ellipsoid),
+        "Reciprocal flattening","rf",OFFSET_OF(rf,ellipsoid_axes),
         double_from_string, print_double6, print_double6
     }
 };
@@ -29,7 +42,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
 {
     char elcode[CRDSYS_CODE_LEN + 1];
     char elname[CRDSYS_NAME_LEN + 1];
-    ellipsoid el;
+    ellipsoid_axes axes;
     const char *bad;
     int sts;
 
@@ -54,7 +67,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
         report_string_error( is, sts, errmess );
         return NULL;
     }
-    sts =  read_param_list( is, ell_params, COUNT_OF(ell_params), &el );
+    sts =  read_param_list( is, ell_params, COUNT_OF(ell_params), &axes );
 
     if( sts == OK && ! embedded )
     {
@@ -71,7 +84,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
 
     if( sts == OK )
     {
-        return create_ellipsoid( elcode, elname, el.a, el.rf );
+        return new ellipsoid( elcode, elname, axes.a, axes.rf );
     }
     return NULL;
 }

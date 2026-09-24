@@ -54,17 +54,24 @@ enum { CS_ELLIPSOID, CS_REF_FRAME, CS_COORDSYS, CS_REF_FRAME_NOTE, CS_COORDSYS_N
 	two parameters, it contains several calculated values which are
 	useful in coordinate conversions. */
 
-typedef struct
+/// Always fully-formed once constructed (no default constructor, all
+/// fields const) - copy freely via the compiler-generated copy
+/// constructor, never assign.
+struct ellipsoid
 {
-    char *code;        /* Code for the ellipsoid    */
-    char *name;        /* Name of the ellipsoid     */
-    double a;          /* Ellipsoid semi-major axis */
-    double b;          /* Ellipsoid semi-minor axis */
-    double rf;         /* Reciprocal of flattening  */
-    double a2;         /* Square of a               */
-    double b2;         /* Square of b               */
-    double a2b2;       /* a2 - b2                   */
-} ellipsoid;
+    /// Uppercases code (matching every existing ellipsoid code convention)
+    /// and derives b/a2/b2/a2b2 from a/rf.
+    ellipsoid( const std::string &code, const std::string &name, double a, double rf );
+
+    const std::string code;  ///< Code for the ellipsoid
+    const std::string name;  ///< Name of the ellipsoid
+    const double a;          ///< Ellipsoid semi-major axis
+    const double b;          ///< Ellipsoid semi-minor axis
+    const double rf;         ///< Reciprocal of flattening
+    const double a2;         ///< Square of a
+    const double b2;         ///< Square of b
+    const double a2b2;       ///< a2 - b2
+};
 
 /* Definition of a reference frame.  The refcode is an identifier for the
 	reference system in terms of which the transformation parameters are
@@ -233,13 +240,6 @@ typedef struct
 
 /*====================================================================*/
 /* Routines to create, copy and destroy coordinate systems components */
-
-/* Routines relating to ellipsoids */
-
-void init_ellipsoid( ellipsoid *el, double a, double rf );
-ellipsoid *create_ellipsoid( const char *code, const char *name, double a, double rf );
-ellipsoid *copy_ellipsoid( ellipsoid *el );
-void delete_ellipsoid( ellipsoid *el );
 
 /* Routines relating to reference frames.  NOTE: The reference frame takes
    over ownership of the ellipsoid.  */
