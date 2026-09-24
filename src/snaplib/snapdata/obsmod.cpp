@@ -5,8 +5,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <array>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "snapdata/obsmod.h"
@@ -215,46 +218,44 @@ static obs_criterion *new_obs_criterion()
     return oc;
 }
 
-static obs_criterion *new_obs_datatype_criterion( CFG_FILE *cfg, char *datatypes )
+static obs_criterion *new_obs_datatype_criterion( CFG_FILE *cfg, const std::string &datatypes )
 {
     int sts=OK;
-    char *typecode=datatypes;
-    bool select[NOBSTYPE];
-    obs_criterion *oc;
-    if( ! datatypes ) return 0;
+    std::array<bool,NOBSTYPE> select{};
 
-    for( int i=0; i<NOBSTYPE; i++ ) select[i]=false;
-
-    while( *typecode)
+    // Splits datatypes on '/', one code per field - unbounded field count,
+    // so next('/') is called until it fails (no more delimiter found), with
+    // remainder() supplying the final field. A trailing '/' at the very end
+    // of datatypes does not produce a spurious empty final field, since the
+    // loop condition (scanner.remainder().empty()) is already false by then
+    // - matching the original char*-scanning loop's own "while(*typecode)"
+    // termination exactly (verified by hand-tracing both against
+    // "GB/", "GB//SD", "" and plain "GB").
+    FieldScanner scanner(datatypes);
+    while( ! scanner.remainder().empty() )
     {
-        char *end=typecode;
-        int id;
-        char savechr;
-        while( *end && *end != '/' ) end++;
-        savechr=*end;
-        *end=0;
-        id=datatype_from_code( typecode );
+        const auto tok=scanner.next('/');
+        const std::string typecode( tok ? *tok : scanner.remainder() );
+        const int id=datatype_from_code( typecode.c_str() );
         if( id == NOBSTYPE )
         {
             char errmess[80];
-            sprintf(errmess,"Invalid data type code %.20s in observation criteria",typecode);
+            sprintf(errmess,"Invalid data type code %.20s in observation criteria",typecode.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             sts=INVALID_DATA;
         }
-        *end=savechr;
-        typecode=end;
-        if( *typecode ) typecode++;
-        if( id < NOBSTYPE )
+        else
         {
             select[id]=true;
         }
+        if( ! tok ) break;
     }
 
     if( sts != OK ) return nullptr;
-    
-    oc=new_obs_criterion();
+
+    obs_criterion * const oc=new_obs_criterion();
     oc->crit_type=OBS_CRIT_DATATYPE;
-    memcpy( &(oc->c.datatype.select), &(select[0]), sizeof(select));
+    std::copy( select.begin(), select.end(), oc->c.datatype.select );
     return oc;
 }
 
@@ -339,47 +340,41 @@ static void describe_obs_datafile_criterion( FILE *lst, obs_criterion *oc, const
     }
 }
 
-static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classifications *classes, 
-        char *classification, char *values, bool singlevalue )
+static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classifications *classes,
+        const std::string &classification, const std::string &values, const bool singlevalue )
 {
-    int class_id;
-    obs_criterion *oc;
-
     if( ! classes ) return nullptr;
-    class_id=classification_id( classes, classification, 1 );
+    const int class_id=classification_id( classes, classification.c_str(), 1 );
     /* If values string contains / then this is a list of multiple classes */
-    oc=new_obs_criterion();
-    if( ! singlevalue && strchr(values,'/') )
+    obs_criterion * const oc=new_obs_criterion();
+    if( ! singlevalue && values.find('/') != std::string::npos )
     {
-        char *pval;
-        char *pend;
-        int nval=1;
-        for( pval=values; *pval; pval++ ){ if( *pval=='/' ) nval++; }
+        // A known, fixed field count (number of '/' plus one), so each of
+        // the first nval-1 fields comes from next('/') (guaranteed to
+        // succeed, since that many delimiters are known to exist) and the
+        // last from remainder() - unlike new_obs_datatype_criterion's
+        // unbounded split above, a trailing '/' here does produce an empty
+        // final field (verified by hand-tracing "A/" against this same
+        // precomputed-count algorithm the original char*-based loop used).
+        const int nval=std::count( values.begin(), values.end(), '/' ) + 1;
 
         oc->crit_type=OBS_CRIT_MCLASSIFICATION;
         oc->c.mult_classification.class_id=class_id;
         oc->c.mult_classification.nvalues=nval;
         oc->c.mult_classification.value_ids=(int *) check_malloc( nval*sizeof(int) );
-        pval=values;
-        nval=0;
-        while( 1 )
+
+        FieldScanner scanner(values);
+        for( int i=0; i<nval; i++ )
         {
-            char savechr;
-            for( pend=pval; *pend; pend++ ){ if( *pend=='/' ) break; }
-            savechr=*pend;
-            *pend=0;
-            oc->c.mult_classification.value_ids[nval]=class_value_id( classes, class_id, pval, 1 );
-            nval++;
-            if( ! savechr ) break;
-            *pend=savechr;
-            pval=pend+1;
+            const std::string value( i+1<nval ? *scanner.next('/') : scanner.remainder() );
+            oc->c.mult_classification.value_ids[i]=class_value_id( classes, class_id, value.c_str(), 1 );
         }
     }
-    else if ( ! singlevalue && has_wildcard(values) )
+    else if ( ! singlevalue && has_wildcard(values.c_str()) )
     {
         oc->crit_type=OBS_CRIT_WCLASSIFICATION;
         oc->c.wildcard_classification.class_id=class_id;
-        oc->c.wildcard_classification.wildclass=copy_string(values);
+        oc->c.wildcard_classification.wildclass=copy_string(values.c_str());
         oc->c.wildcard_classification.nvalues=0;
         oc->c.wildcard_classification.nalloc=0;
         oc->c.wildcard_classification.ntested=0;
@@ -390,7 +385,7 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
     {
         oc->crit_type=OBS_CRIT_CLASSIFICATION;
         oc->c.classification.class_id=class_id;
-        oc->c.classification.value_id=class_value_id( classes, class_id, values, 1 );
+        oc->c.classification.value_id=class_value_id( classes, class_id, values.c_str(), 1 );
     }
     return oc;
 }
@@ -523,52 +518,48 @@ static void describe_obs_wildcard_classification_criterion( FILE *lst, obs_crite
 }
 
 
-static obs_criterion *new_obs_id_criterion( CFG_FILE *cfg, char *idstr )
+static obs_criterion *new_obs_id_criterion( CFG_FILE *cfg, const std::string &idstr )
 {
-    int obs_id=0;
-    int *obs_ids=&obs_id;
-    char *pval;
-    char *pend;
-    int nval=1;
-    obs_criterion *oc;
-    for( pval=idstr; *pval; pval++ ){ if( *pval=='/' ) nval++; }
-    if( nval > 1 ) obs_ids=(int *) check_malloc( nval*sizeof(int) );
-    pval=idstr;
-    nval=0;
-    while( 1 )
+    // Same fixed-field-count split as new_obs_classification_criterion's
+    // multi-value branch above (a trailing '/' does produce an empty final
+    // field, parsed and rejected below as an invalid id).
+    const int nval=std::count( idstr.begin(), idstr.end(), '/' ) + 1;
+    std::vector<int> parsed(nval);
+
+    FieldScanner scanner(idstr);
+    for( int i=0; i<nval; i++ )
     {
-        char savechr;
+        const std::string token( i+1<nval ? *scanner.next('/') : scanner.remainder() );
         char chk[2];
-        int ival;
-        for( pend=pval; *pend; pend++ ){ if( *pend=='/' ) break; }
-        savechr=*pend;
-        *pend=0;
         chk[0]=0;
-        if( sscanf( pval, "%d%1s", &ival , chk ) < 1 || chk[0] ) 
+        if( sscanf( token.c_str(), "%d%1s", &parsed[i], chk ) < 1 || chk[0] )
         {
             char errmsg[100];
-            sprintf( errmsg,"Invalid observation id \"%.50s\" in observation criteria",pval);
+            sprintf( errmsg,"Invalid observation id \"%.50s\" in observation criteria",token.c_str());
             send_config_error( cfg, INVALID_DATA, errmsg );
-            if( nval > 1 ) check_free( obs_ids );
             return nullptr;
         }
-        obs_ids[nval]=ival;
-        nval++;
-        if( ! savechr ) break;
-        *pend=savechr;
-        pval=pend+1;
     }
-    oc=new_obs_criterion();
+
+    obs_criterion * const oc=new_obs_criterion();
     oc->crit_type=OBS_CRIT_ID;
-    oc->c.id.obs_id=obs_id;
-    oc->c.id.obs_ids=nval == 1 ? &(oc->c.id.obs_id) : obs_ids;
+    oc->c.id.obs_id=parsed[0];
+    if( nval == 1 )
+    {
+        oc->c.id.obs_ids=&(oc->c.id.obs_id);
+    }
+    else
+    {
+        oc->c.id.obs_ids=new int[nval];
+        std::copy( parsed.begin(), parsed.end(), oc->c.id.obs_ids );
+    }
     oc->c.id.nobs_ids=nval;
     return oc;
 }
 
 static void delete_obs_id_criterion( obs_criterion *oc )
 {
-    if( oc->c.id.nobs_ids > 1 ){check_free( oc->c.id.obs_ids ); oc->c.id.obs_ids=0; }
+    if( oc->c.id.nobs_ids > 1 ){delete[] oc->c.id.obs_ids; oc->c.id.obs_ids=nullptr; }
 }
 
 static bool obs_id_match( obs_criterion *oc, obsmod_context *oac )
@@ -1121,7 +1112,7 @@ static obs_criterion *parse_key_value_criterion(
 
     if( boost::algorithm::iequals(key,"data_type") )
     {
-        return new_obs_datatype_criterion(cfg,value.data());
+        return new_obs_datatype_criterion(cfg,value);
     }
     if( boost::algorithm::iequals(key,"data_file") )
     {
@@ -1135,10 +1126,10 @@ static obs_criterion *parse_key_value_criterion(
     }
     if( boost::algorithm::iequals(key,"id") )
     {
-        return new_obs_id_criterion(cfg,value.data());
+        return new_obs_id_criterion(cfg,value);
     }
-    std::string keyText(key);
-    return new_obs_classification_criterion(cfg, obsmod->classes, keyText.data(), value.data(), quoted );
+    const std::string keyText(key);
+    return new_obs_classification_criterion(cfg, obsmod->classes, keyText, value, quoted );
 }
 
 /// Parses a using_stations/between_stations ... end_stations span, capturing
