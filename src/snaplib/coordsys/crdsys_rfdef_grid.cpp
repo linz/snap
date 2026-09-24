@@ -1,43 +1,45 @@
 #include "snapconfig.h"
 #include <stdio.h>
-#include <string.h>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_grid.h"
 
 #include "geoid/griddata.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/iostring.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
 #include "util/pi.h"
 
+/// The opaque payload behind a VELGRID ref_deformation's data member.
+/// File-private to this translation unit - never exposed via a header, so
+/// it has no external callers. grid/status are the only fields ever
+/// mutated after construction - every real construction starts unopened
+/// (grid=nullptr) and valid (status=OK); grid is lazily opened later by
+/// rf_grid_open_file.
 struct ref_deformation_grid
 {
-    char *filename;
-    grid_def *grid;
-    double refepoch;
-    int status;
+    ref_deformation_grid( std::string filename, double refepoch ) :
+        filename( std::move(filename) ), grid( nullptr ), refepoch( refepoch ), status( OK )
+    {}
+    ref_deformation_grid( const ref_deformation_grid& ) = delete;
+
+    const std::string filename; ///< Path to the velocity grid file
+    grid_def *grid;              ///< Loaded grid, or nullptr until rf_grid_open_file lazily opens it
+    const double refepoch;      ///< Reference epoch the grid's velocities are relative to
+    int status;                   ///< OK, or the error code from the lazy file open
 };
 
 
-static ref_deformation_grid *rf_grid_create( const char *filename, double refepoch )
+static ref_deformation_grid *rf_grid_create( const std::string &filename, double refepoch )
 {
-    ref_deformation_grid *gd;
-    gd = (ref_deformation_grid *) check_malloc( sizeof(ref_deformation_grid) );
-    gd->filename = copy_string( filename );
-    gd->grid = NULL;
-    gd->refepoch = refepoch;
-    gd->status = OK;
-    return gd;
+    return new ref_deformation_grid( filename, refepoch );
 }
 
 static int rf_grid_open_file( ref_deformation_grid *gd )
 {
     if( gd->grid ) return OK;
     if( gd->status != OK ) return gd->status;
-    grd_open_grid_file( gd->filename,2,&(gd->grid));
+    grd_open_grid_file( gd->filename.c_str(),2,&(gd->grid));
     if( ! gd->grid )
     {
         gd->status = FILE_OPEN_ERROR;
@@ -49,11 +51,8 @@ static void rf_grid_delete( void *pgd )
 {
     ref_deformation_grid *gd = (ref_deformation_grid *) pgd;
     if( ! gd ) return;
-    if( gd->filename ) check_free( gd->filename );
-    gd->filename = NULL;
     if( gd->grid ) grd_delete_grid( gd->grid );
-    gd->grid = NULL;
-    check_free( gd );
+    delete gd;
 }
 
 static void *rf_grid_copy( void *pgd )
@@ -67,7 +66,7 @@ static int rf_grid_identical( void *pgd1, void *pgd2 )
     ref_deformation_grid *gd1 = (ref_deformation_grid *) pgd1;
     ref_deformation_grid *gd2 = (ref_deformation_grid *) pgd2;
     if( gd1->refepoch != gd2->refepoch ) return 0;
-    return strcmp(gd1->filename, gd2->filename) == 0 ? 1 : 0;
+    return gd1->filename == gd2->filename ? 1 : 0;
 }
 
 static int rf_grid_describe(  ref_frame *rf, output_string_def *os )
@@ -129,7 +128,7 @@ static int rf_grid_apply( ref_frame *rf,  double llh[3], double epochfrom, doubl
     return rf_apply_enu_deformation_to_llh( rf, llh, denu );
 }
 
-int rfdef_parse_griddef( ref_deformation *def, input_string_def &is )
+ref_deformation *rfdef_parse_griddef( input_string_def &is )
 {
     double refepoch;
     std::optional<std::string> gridfile;
@@ -140,32 +139,25 @@ int rfdef_parse_griddef( ref_deformation *def, input_string_def &is )
     if( sts != OK )
     {
         report_string_error( is, sts, "Missing filename for VELGRID deformation");
-        return sts;
+        return nullptr;
     }
 
     sts = double_from_string( is.scanner, &refepoch );
     if( sts != OK )
     {
         report_string_error( is, sts, "Missing reference epoch for VELGRID deformation");
-        return sts;
+        return nullptr;
     }
 
     gridfile = find_relative_file( is.sourcename, filename, ".grd" );
     if( ! gridfile )
     {
-        char errmess[80+MAX_FILENAME_LEN];
-        sts = FILE_OPEN_ERROR;
-        sprintf(errmess,"Cannot open VELGRID deformation grid file %s",filename);
-        report_string_error(is, sts, errmess );
-        return sts;
+        std::string errmess = "Cannot open VELGRID deformation grid file " + std::string(filename);
+        report_string_error(is, FILE_OPEN_ERROR, errmess.c_str() );
+        return nullptr;
     }
 
-    def->data = rf_grid_create( gridfile->c_str(), refepoch );
-    def->delete_func = rf_grid_delete;
-    def->copy_func = rf_grid_copy;
-    def->identical = rf_grid_identical;
-    def->describe_func = rf_grid_describe;
-    def->calc_denu = rf_grid_calc;
-    def->apply_llh = rf_grid_apply;
-    return sts;
+    return new ref_deformation( "VELGRID", rf_grid_create( *gridfile, refepoch ),
+                                 rf_grid_delete, rf_grid_copy, rf_grid_identical,
+                                 rf_grid_describe, rf_grid_calc, rf_grid_apply );
 }

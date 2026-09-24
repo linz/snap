@@ -1563,24 +1563,24 @@ StatusType utlLinzDefCoordSysDef( hLinzDefModel def, char ** crdsys )
 **************************************************************************
 */
 
-StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, char ** title )
+StatusType utlLinzDefTitle( hLinzDefModel def, int nTitle, std::optional<std::string_view> &title )
 {
-    (*title) = NULL;
+    title = std::nullopt;
     if( ! def ) RETURN_STATUS( STS_INVALID_DATA );
     if( nTitle < 1 || nTitle > 3 ) RETURN_STATUS( STS_INVALID_DATA );
     switch( nTitle )
     {
     case 1:
-        (*title) = ((hDefMod) def)->name;
+        if( ((hDefMod) def)->name ) title = ((hDefMod) def)->name;
         break;
     case 2:
-        (*title) = ((hDefMod) def)->currver->description;
+        if( ((hDefMod) def)->currver->description ) title = ((hDefMod) def)->currver->description;
         break;
     case 3:
         {
         char *version=((hDefMod) def)->currver->version;
-        if( version && strcmp(version,"00000000") == 0 ){ version += 8; }
-        (*title) = version;
+        if( strcmp(version,"00000000") == 0 ){ version += 8; }
+        title = version;
         }
         break;
     }

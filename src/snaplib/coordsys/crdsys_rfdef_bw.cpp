@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <memory.h>
+#include <string>
 #include <math.h>
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/iostring.h"
 #include "util/pi.h"
@@ -12,12 +10,29 @@
 #include "coordsys/crdsys_rfdef_bw.h"
 
 
+/// The opaque payload behind a BW14/EULER ref_deformation's data member.
+/// File-private to this translation unit - never exposed via a header, so
+/// it has no external callers. tmat/shift are the only fields ever
+/// mutated after construction - rfdef_parse_bw14def/rfdef_parse_eulerdef
+/// each fill in the actual transform coefficients once rf_xyz_create has
+/// built the base object with everything else already settled.
 struct ref_deformation_xyz
 {
-    char *description;
-    double refepoch;
-    double tmat[3][3];
-    double shift[3];
+    ref_deformation_xyz( std::string description, double refepoch ) :
+        description( std::move(description) ), refepoch( refepoch )
+    {
+        for( int i = 0; i < 3; i++ )
+        {
+            shift[i] = 0;
+            for( int j=0; j<3; j++) tmat[i][j] = 0;
+        }
+    }
+    ref_deformation_xyz( const ref_deformation_xyz& ) = delete;
+
+    const std::string description; ///< Human-readable description of the transform
+    const double refepoch;          ///< Reference epoch the transform is relative to
+    double tmat[3][3];                ///< Linear transform matrix, filled in after construction
+    double shift[3];                    ///< Constant shift vector, filled in after construction
 };
 
 
@@ -30,19 +45,18 @@ struct ref_deformation_xyz
 
 static void rf_xyz_delete( void *pdxyz )
 {
-    ref_deformation_xyz *dxyz = (ref_deformation_xyz *) pdxyz;
-    if( ! dxyz ) return;
-    if( dxyz->description ) check_free( dxyz->description );
-    dxyz->description = NULL;
-    check_free( dxyz );
+    delete (ref_deformation_xyz *) pdxyz;
 }
 
 static void *rf_xyz_copy( void *pdxyz )
 {
     ref_deformation_xyz *dxyz = (ref_deformation_xyz *) pdxyz;
-    ref_deformation_xyz *dxyz2 = (ref_deformation_xyz *) check_malloc( sizeof(ref_deformation_xyz) );
-    memcpy( dxyz2, dxyz, sizeof(ref_deformation_xyz));
-    dxyz2->description = copy_string( dxyz->description );
+    ref_deformation_xyz *dxyz2 = new ref_deformation_xyz( dxyz->description, dxyz->refepoch );
+    for( int i = 0; i < 3; i++ )
+    {
+        dxyz2->shift[i] = dxyz->shift[i];
+        for( int j = 0; j < 3; j++ ) dxyz2->tmat[i][j] = dxyz->tmat[i][j];
+    }
     return dxyz2;
 }
 
@@ -51,17 +65,16 @@ static int rf_xyz_identical( void *pgd1, void *pgd2 )
     ref_deformation_xyz *gd1 = (ref_deformation_xyz *) pgd1;
     ref_deformation_xyz *gd2 = (ref_deformation_xyz *) pgd2;
     if( gd1->refepoch != gd2->refepoch ) return 0;
-    if( strcmp(gd1->description,gd2->description) != 0 ) return 0;
-    return 1;
+    return gd1->description == gd2->description ? 1 : 0;
 }
 
 static int rf_xyz_describe(  ref_frame *rf, output_string_def *os )
 {
     ref_deformation *def = rf->def;
     ref_deformation_xyz *dxyz = (ref_deformation_xyz *)(def->data);
-    if( dxyz && dxyz->description )
+    if( dxyz && ! dxyz->description.empty() )
     {
-        write_output_string(os,dxyz->description);
+        write_output_string(os,dxyz->description.c_str());
     }
     return OK;
 }
@@ -113,30 +126,12 @@ static int rf_xyz_apply( ref_frame *rf,  double llh[3], double epochfrom, double
     return OK;
 }
 
-static ref_deformation_xyz *rf_xyz_create( ref_deformation *def, char *description, double refepoch )
+static ref_deformation_xyz *rf_xyz_create( const std::string &description, double refepoch )
 {
-    int i, j;
-    ref_deformation_xyz *dxyz;
-    dxyz = (ref_deformation_xyz *) check_malloc( sizeof(ref_deformation_xyz) );
-    dxyz->description = copy_string(description);
-    dxyz->refepoch = refepoch;
-    for( i = 0; i < 3; i++ )
-    {
-        dxyz->shift[i] = 0;
-        for( j=0; j<3; j++) dxyz->tmat[i][j] = 0;
-    }
-
-    def->data = dxyz;
-    def->delete_func = rf_xyz_delete;
-    def->copy_func= rf_xyz_copy;
-    def->identical = rf_xyz_identical;
-    def->describe_func = rf_xyz_describe;
-    def->calc_denu = rf_xyz_calc;
-    def->apply_llh = rf_xyz_apply;
-    return dxyz;
+    return new ref_deformation_xyz( description, refepoch );
 }
 
-int rfdef_parse_bw14def( ref_deformation *def, input_string_def &is )
+ref_deformation *rfdef_parse_bw14def( input_string_def &is )
 {
     double refepoch=0;
     double tx=0, ty=0, tz=0;
@@ -161,20 +156,10 @@ int rfdef_parse_bw14def( ref_deformation *def, input_string_def &is )
 
     if( sts !=  OK && bad)
     {
-        char errmess[80];
-        strcpy(errmess,bad);
-        if( sts == MISSING_DATA )
-        {
-            strcpy(errmess,bad);
-            strcat(errmess," is missing");
-        }
-        else
-        {
-            strcpy(errmess,"Invalid value for ");
-            strcat(errmess,bad);
-        }
-        report_string_error( is, sts, errmess );
-        return sts;
+        std::string errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
+                                                    : "Invalid value for " + std::string(bad);
+        report_string_error( is, sts, errmess.c_str() );
+        return nullptr;
     }
 
     sprintf(description,"14 parameter Bursa-Wolf transformation referenced to epoch %.1lf\n",
@@ -195,7 +180,7 @@ int rfdef_parse_bw14def( ref_deformation *def, input_string_def &is )
                 "    scale change %.3lf ppb/year\n",sf);
     }
 
-    dxyz = rf_xyz_create( def, description, refepoch );
+    dxyz = rf_xyz_create( description, refepoch );
     dxyz->shift[0] = tx*0.001;
     dxyz->shift[1] = ty*0.001;
     dxyz->shift[2] = tz*0.001;
@@ -210,10 +195,11 @@ int rfdef_parse_bw14def( ref_deformation *def, input_string_def &is )
     dxyz->tmat[1][2] = -rz;
     dxyz->tmat[2][1] = rz;
 
-    return OK;
+    return new ref_deformation( "BW14", dxyz, rf_xyz_delete, rf_xyz_copy, rf_xyz_identical,
+                                 rf_xyz_describe, rf_xyz_calc, rf_xyz_apply );
 }
 
-int rfdef_parse_eulerdef( ref_deformation *def, input_string_def &is )
+ref_deformation *rfdef_parse_eulerdef( input_string_def &is )
 {
 
     double refepoch=0;
@@ -232,20 +218,10 @@ int rfdef_parse_eulerdef( ref_deformation *def, input_string_def &is )
 
     if( sts!=  OK && bad)
     {
-        char errmess[80];
-        strcpy(errmess,bad);
-        if( sts == MISSING_DATA )
-        {
-            strcpy(errmess,bad);
-            strcat(errmess," is missing");
-        }
-        else
-        {
-            strcpy(errmess,"Invalid value for ");
-            strcat(errmess,bad);
-        }
-        report_string_error( is, sts, errmess );
-        return sts;
+        std::string errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
+                                                    : "Invalid value for " + std::string(bad);
+        report_string_error( is, sts, errmess.c_str() );
+        return nullptr;
     }
 
     sprintf(description,"Euler rotation referenced to epoch %.1lf\n",
@@ -262,7 +238,7 @@ int rfdef_parse_eulerdef( ref_deformation *def, input_string_def &is )
     cln = cos(lon);
     sln = sin(lon);
 
-    dxyz = rf_xyz_create( def, description, refepoch );
+    dxyz = rf_xyz_create( description, refepoch );
     dxyz->tmat[0][0] = dxyz->tmat[1][1] = dxyz->tmat[2][2] = 1.0;
     dxyz->tmat[0][1] = -clt*rate;
     dxyz->tmat[1][0] = clt*rate;
@@ -271,5 +247,6 @@ int rfdef_parse_eulerdef( ref_deformation *def, input_string_def &is )
     dxyz->tmat[1][2] = -slt*cln*rate;
     dxyz->tmat[2][1] = slt*cln*rate;
 
-    return OK;
+    return new ref_deformation( "EULER", dxyz, rf_xyz_delete, rf_xyz_copy, rf_xyz_identical,
+                                 rf_xyz_describe, rf_xyz_calc, rf_xyz_apply );
 }

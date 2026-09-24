@@ -19,44 +19,21 @@
 */
 
 #include <stdio.h>
-#include <string.h>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_grid.h"
 #include "coordsys/crdsys_rfdef_linzdef.h"
 #include "coordsys/crdsys_rfdef_bw.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
-#include "coordsys/crdsys_rffunc_grid.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/pi.h"
-
-static int default_describe_func(ref_frame *rf, output_string_def *os )
-{
-    char buf[32];
-    ref_deformation *rdf = rf->def;
-    if( ! rdf ) return OK;
-    write_output_string( os, "Deformation model type ");
-    write_output_string( os, rdf->type);
-    write_output_string( os, buf );
-    write_output_string( os, "\n");
-    return OK;
-}
-
-static int default_calc_func( ref_frame *, double, double, double, double denu[3])
-{
-    denu[0] = denu[1] = denu[2] = 0.0;
-    return INVALID_DATA;
-}
-
+#include <boost/algorithm/string/predicate.hpp>
 
 int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
 {
     char type[20+1];
     int sts;
-    ref_deformation *rdf;
 
-    *prdf = 0;
+    *prdf = nullptr;
     sts = OK;
 
     if( test_next_string_field( is.scanner, "DEFORMATION" ))
@@ -68,79 +45,68 @@ int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
             return INVALID_DATA;
         }
 
-        _strupr(type);
-        rdf = (ref_deformation *) check_malloc(sizeof(ref_deformation));
-        rdf->type = copy_string(type);
-        rdf->copy_func = 0;
-        rdf->identical = 0;
-        rdf->delete_func = 0;
-        rdf->describe_func = default_describe_func;
-        rdf->calc_denu = default_calc_func;
-        rdf->apply_llh = 0;
-        rdf->data = 0;
-
-        if( strcmp(type,"LINZDEF") == 0 )
+        if( boost::algorithm::iequals(type,"LINZDEF") )
         {
-            sts = rfdef_parse_linzdef( rdf, is );
+            *prdf = rfdef_parse_linzdef( is );
         }
-        else if( strcmp(type,"VELGRID") == 0 )
+        else if( boost::algorithm::iequals(type,"VELGRID") )
         {
-            sts = rfdef_parse_griddef( rdf, is );
+            *prdf = rfdef_parse_griddef( is );
         }
-        else if( strcmp(type,"BW14") == 0 )
+        else if( boost::algorithm::iequals(type,"BW14") )
         {
-            sts = rfdef_parse_bw14def( rdf, is );
+            *prdf = rfdef_parse_bw14def( is );
         }
-        else if( strcmp(type,"EULER") == 0 )
+        else if( boost::algorithm::iequals(type,"EULER") )
         {
-            sts = rfdef_parse_eulerdef( rdf, is );
+            *prdf = rfdef_parse_eulerdef( is );
         }
-        else if( strcmp(type,"NONE") == 0 )
+        else if( boost::algorithm::iequals(type,"NONE") )
         {
-            delete_ref_deformation(rdf);
-            rdf = 0;
+            return OK;
         }
         else
         {
-            char errmsg[80];
-            sprintf(errmsg,"Invalid DEFORMATION type %s",type);
-            report_string_error(is, INVALID_DATA, errmsg);
+            std::string errmsg = "Invalid DEFORMATION type " + std::string(type);
+            report_string_error(is, INVALID_DATA, errmsg.c_str());
+            return INVALID_DATA;
         }
 
-        if( sts != OK )
-        {
-            delete_ref_deformation(rdf);
-            rdf = 0;
-        }
-        *prdf = rdf;
+        if( ! *prdf ) sts = INVALID_DATA;
     }
 
     return sts;
 }
 
-void delete_ref_deformation( ref_deformation *rdf )
+ref_deformation::ref_deformation( std::string type_, void *data_,
+                                   void (*delete_func_)(void *data),
+                                   void *(*copy_func_)(void *data),
+                                   int (*identical_)(void *data1, void *data2),
+                                   int (*describe_func_)( ref_frame *rf, output_string_def *os ),
+                                   int (*calc_denu_)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]),
+                                   int (*apply_llh_)( ref_frame *rf, double llh[3], double epochfrom, double epochto ) ) :
+    type( std::move(type_) ),
+    data( data_ ),
+    delete_func( delete_func_ ),
+    copy_func( copy_func_ ),
+    identical( identical_ ),
+    describe_func( describe_func_ ),
+    calc_denu( calc_denu_ ),
+    apply_llh( apply_llh_ )
 {
-    if( ! rdf ) return;
-    if( rdf->type ) check_free( rdf->type );
-    if( rdf->delete_func) (*(rdf->delete_func))(rdf->data);
-    check_free( rdf );
+}
+
+ref_deformation::~ref_deformation()
+{
+    delete_func( data );
 }
 
 ref_deformation * copy_ref_deformation( ref_deformation *rdf )
 {
-    ref_deformation *rdf1;
-    if( ! rdf ) return NULL;
-    rdf1 = (ref_deformation *)check_malloc( sizeof(ref_deformation) );
-    rdf1->type = copy_string( rdf->type );
-    rdf1->data = 0;
-    if( rdf->copy_func ) rdf1->data = (*(rdf->copy_func))( rdf->data );
-    rdf1->delete_func = rdf->delete_func;
-    rdf1->describe_func = rdf->describe_func;
-    rdf1->copy_func = rdf->copy_func;
-    rdf1->identical = rdf->identical;
-    rdf1->calc_denu = rdf->calc_denu;
-    rdf1->apply_llh = rdf->apply_llh;
-    return rdf1;
+    if( ! rdf ) return nullptr;
+    return new ref_deformation( rdf->type, rdf->copy_func( rdf->data ),
+                                 rdf->delete_func, rdf->copy_func, rdf->identical,
+                                 rdf->describe_func, rdf->calc_denu, rdf->apply_llh );
 }
 
 
@@ -149,7 +115,6 @@ int identical_ref_deformation(  ref_deformation *def1,  ref_deformation *def2 )
     if( def1 && ! def2 ) return 0;
     if( def2 && ! def1 ) return 0;
     if( !def1 && ! def2 ) return 1;
-    if( strcmp( def1->type, def2->type ) != 0 ) return 0;
-    if( ! def1->identical ) return 0;
-    return (*(def1->identical))(def1->data,def2->data);
+    if( def1->type != def2->type ) return 0;
+    return def1->identical( def1->data, def2->data );
 }

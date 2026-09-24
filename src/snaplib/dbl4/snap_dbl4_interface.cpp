@@ -152,12 +152,12 @@ void utlReleaseBlobDB( void * blob)
     fclose((FILE *) blob);
 }
 
-int utlCreateReadonlyFileBlob( const char *filename, hBlob *blob )
+int utlCreateReadonlyFileBlob( const std::string &filename, hBlob *blob )
 {
     FILE *f;
     StatusType sts;
     *blob = NULL;
-    f = fopen(filename,"rb");
+    f = fopen(filename.c_str(),"rb");
     if( ! f ) return FILE_OPEN_ERROR;
     sts = utlCreateBlobHandle( NULL, blob, BLN_FALSE );
     if( *blob ) (*blob)->pvBlob=f;

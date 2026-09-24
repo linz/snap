@@ -323,7 +323,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     {
         delete el;
         delete rff;
-        if( rdf ) delete_ref_deformation( rdf );
+        delete rdf;
     }
     else if( sts != OK )
     {

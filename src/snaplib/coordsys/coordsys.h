@@ -163,16 +163,40 @@ struct ref_frame_func
     int (* const std_to_xyz_func)( ref_frame *rf, double xyz[3], double date ); ///< Overrides the standard std->xyz transform
 };
 
+/// Always fully-formed once constructed (no default constructor, all
+/// fields const) - copy via copy_ref_deformation() (a real deep copy: data
+/// is deep-copied via copy_func), never via the copy constructor, which is
+/// deleted. Destroying one calls delete_func(data). 3 concrete
+/// implementations exist today (linzdef, grid, and a shared xyz-transform
+/// one for both BW14 and Euler deformation types), each reached only
+/// through its own factory in crdsys_rfdef_*.cpp. apply_llh is the one
+/// field that is genuinely, deliberately null for a real implementation
+/// (linzdef) - every other function pointer is unconditionally set by all
+/// 3 implementations.
 struct ref_deformation
 {
-    char *type;
-    void *data;
-    void (*delete_func)(void *data);
-    void *(*copy_func)(void *data);
-    int (*identical)(void *data1, void *data2);
-    int (*describe_func)( ref_frame *rf, output_string_def *os );
-    int (*calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]);
-    int (*apply_llh)( ref_frame *rf,  double llh[3], double epochfrom, double epochto );
+    /// type is taken by value and moved into the member, not by const&:
+    /// it's stored verbatim with no transformation, so a caller passing a
+    /// temporary (e.g. a string literal type tag) avoids the extra copy
+    /// const& would still require.
+    ref_deformation( std::string type, void *data,
+                      void (*delete_func)(void *data),
+                      void *(*copy_func)(void *data),
+                      int (*identical)(void *data1, void *data2),
+                      int (*describe_func)( ref_frame *rf, output_string_def *os ),
+                      int (*calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]),
+                      int (*apply_llh)( ref_frame *rf, double llh[3], double epochfrom, double epochto ) );
+    ref_deformation( const ref_deformation& ) = delete;
+    ~ref_deformation();
+
+    const std::string type;                       ///< Discriminator tag for the concrete implementation, e.g. "LINZDEF"
+    void * const data;                             ///< Opaque payload for the concrete implementation, freed by delete_func
+    void (* const delete_func)(void *data);        ///< Frees the object pointed to by this struct's own data member
+    void *(* const copy_func)(void *data);         ///< Deep-copies data
+    int (* const identical)(void *data1, void *data2); ///< Compares two data payloads for equality
+    int (* const describe_func)( ref_frame *rf, output_string_def *os ); ///< Writes a human-readable description of the deformation model
+    int (* const calc_denu)( ref_frame *rf, double lon, double lat, double epoch, double denu[3]); ///< Computes the east/north/up offset the model predicts at a given epoch
+    int (* const apply_llh)( ref_frame *rf, double llh[3], double epochfrom, double epochto ); ///< Applies the deformation between two epochs directly to llh, or nullptr to use the generic calc_denu-difference fallback
 };
 
 /* A projection.  projection_type is defined in a private header file,
@@ -321,7 +345,6 @@ ref_frame *copy_ref_frame( ref_frame *rf );
 ref_frame_func *copy_ref_frame_func( ref_frame_func *rff );
 
 ref_deformation *copy_ref_deformation( ref_deformation *rdf );
-void delete_ref_deformation( ref_deformation *rdf );
 
 void init_ref_frame( ref_frame *rf, double convepoch );
 
