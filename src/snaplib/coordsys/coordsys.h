@@ -82,32 +82,52 @@ struct ellipsoid
 struct ref_frame_func;
 struct ref_deformation;
 
+/// Always fully-formed once constructed (no default constructor) - copy
+/// via copy_ref_frame() (a real deep copy: el/func/def/refrf are owned
+/// pointers, so a shallow member-wise copy would be wrong), never via the
+/// copy constructor, which is deleted. Destroying one recursively deletes
+/// el/func/def/refrf.
+///
+/// func is temporarily swapped out and restored by some conversion
+/// functions; refrf is mutated while resolving a chain of base reference
+/// frames, including on already-existing ref_frame objects; calcdate/
+/// trans/csrot/snrot/sclfct are a lazily-recomputed cache (see
+/// init_ref_frame); defepoch is mutated by define_deformation_model_epoch().
+/// None of these five are const, for those reasons.
 struct ref_frame
 {
-    char *code;        /* Code for the reference frame   */
-    char *name;        /* Name of the frame              */
-    ellipsoid *el;     /* Ellipsoid defined for the frame*/
+    ref_frame( const std::string &code, const std::string &name, ellipsoid *el,
+               std::optional<std::string> refcode, double txyz[3], double rxyz[3], double scale,
+               double refdate, double dtxyz[3], double drxyz[3], double dscale,
+               ref_frame_func *func = nullptr, ref_deformation *def = nullptr,
+               int use_iersunits = 0 );
+    ref_frame( const ref_frame& ) = delete;
+    ~ref_frame();
+
+    const std::string code;        ///< Code for the reference frame
+    const std::string name;        ///< Name of the frame
+    ellipsoid * const el;          ///< Ellipsoid defined for the frame (nullptr if none)
     double txyz[3];    /* The translation components (m) */
     double rxyz[3];    /* The rotation components (sec)  */
-    double scale;      /* The scale factor (ppm)         */
+    const double scale;      /* The scale factor (ppm)         */
     double dtxyz[3];   /* The rate of change of translation components (m/yr) */
     double drxyz[3];   /* The rate of change of rotation components (sec/yr)  */
-    double dscale;     /* The rate of change of scale factor (ppm/yr) */
-    double refdate;    /* The date at which the translation,
+    const double dscale;     /* The rate of change of scale factor (ppm/yr) */
+    const double refdate;    /* The date at which the translation,
                           rotation, and scale apply (years) */
     double calcdate;   /* Date at which the calculation values apply */
     double trans[3];   /* Translations applying at the date */
     double csrot[3];   /* Cosine of rotations at calculation date */
     double snrot[3];   /* Sine of rotations at calculation date */
     double sclfct;     /* Scale factor applying at calculation date */
-    int use_rates;     /* Non-zero if have time dependent transformations */
-    int use_iersunits; /* Non-zero if using IERS units mm, mas, ppb */
-    char *refcode;     /* Base system code or NULL       */
+    const bool use_rates;     /* True if have time dependent transformations */
+    const int use_iersunits; /* Non-zero if using IERS units mm, mas, ppb */
+    const std::optional<std::string> refcode;     ///< Base system code, or nullopt
     ref_frame *refrf;  /* Base system reference frame definition */
     ref_frame_func *func;
     /* Non-standard reference frame conversion function */
     double defepoch;      /* The reference epoch of the deformation model */
-    ref_deformation *def; /* Deformation function */
+    ref_deformation * const def; /* Deformation function */
 };
 
 struct ref_frame_func
@@ -260,12 +280,7 @@ struct coord_conversion
 /* Routines relating to reference frames.  NOTE: The reference frame takes
    over ownership of the ellipsoid.  */
 
-ref_frame *create_ref_frame( const char *code, const char *name,
-                             ellipsoid *el,
-                             const char *refcode, double txyz[3], double rxyz[3], double scale,
-                             double refdate, double dtxyz[3], double drxyz[3], double dscale );
 ref_frame *copy_ref_frame( ref_frame *rf );
-void delete_ref_frame( ref_frame *rf );
 
 ref_frame_func *copy_ref_frame_func( ref_frame_func *rff );
 void delete_ref_frame_func( ref_frame_func *rff );
@@ -294,7 +309,7 @@ void set_projection_ellipsoid( projection *prj, ellipsoid *el );
   If the calling routines needs to retain ownership it should make
   copies for the call to create_coordsys */
 
-coordsys *create_coordsys( const char *code, const char *name, int type,
+coordsys *create_coordsys( const std::string &code, const std::string &name, int type,
                            ref_frame *rf, projection *prj );
 coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );

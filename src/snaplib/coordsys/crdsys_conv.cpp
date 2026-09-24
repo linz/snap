@@ -70,8 +70,8 @@ static int define_coord_conversion_base( coord_conversion *conv,
      */
 
     {
-        char *common_rf=0;
-        char *from_code=from->rf->code;
+        bool common_rf=false;
+        const char *from_code=from->rf->code.c_str();
         ref_frame *from_rf=from->rf;
         int nfrom=0;
         int nto=0;
@@ -81,14 +81,14 @@ static int define_coord_conversion_base( coord_conversion *conv,
 
         while( ! common_rf )
         {
-            char *to_code=to->rf->code;
+            const char *to_code=to->rf->code.c_str();
             ref_frame *to_rf=to->rf;
             nto=0;
             while( ! common_rf )
             {
                 if( _stricmp(from_code, to_code) == 0 )
                 {
-                    common_rf=from_code;
+                    common_rf=true;
                     /* If have reached a common actual reference frame (rather than
                      * base code) then check we have the same deformation reference
                      * epoch */
@@ -106,7 +106,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
                 if( ! to_rf ) break;
                 if( to_rf )
                 {
-                    to_code=to_rf->refcode;
+                    to_code = to_rf->refcode ? to_rf->refcode->c_str() : nullptr;
                     to_rf=to_rf->refrf;
                     nto++;
                 }
@@ -116,7 +116,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
             if( common_rf || ! from_rf ) break;
             if( from_rf )
             {
-                from_code=from_rf->refcode;
+                from_code = from_rf->refcode ? from_rf->refcode->c_str() : nullptr;
                 from_rf=from_rf->refrf;
                 nfrom++;
             }
@@ -203,7 +203,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
                 conv->valid=0;
                 sprintf(conv->errmsg,
                         "Conversion between reference frames %.20s and %.20s requires a date",
-                        from->rf->code, to->rf->code);
+                        from->rf->code.c_str(), to->rf->code.c_str());
             }
             conv->needsepoch = needsepoch;
         }
@@ -415,7 +415,7 @@ int convert_coords( coord_conversion *conv,
                         {
                             sprintf(conv->errmsg,
                                     "Cannot apply %s deformation model",
-                                    rf->code);
+                                    rf->code.c_str());
                             break;
                         }
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }
@@ -426,11 +426,11 @@ int convert_coords( coord_conversion *conv,
                 {
                     if( ! isgeoc ) { llh_to_xyz( rf->el, xyz, xyz, 0, 0 ); isgeoc=1; }
                     sts = xyz_to_std( rf, xyz, conv->epochconv );
-                    if( sts != OK ) 
+                    if( sts != OK )
                     {
                         sprintf(conv->errmsg,
                                 "Cannot convert from %s to %s",
-                                rf->code, rf->refcode ? rf->refcode : "base" );
+                                rf->code.c_str(), rf->refcode ? rf->refcode->c_str() : "base" );
                         break;
                     }
                 }
@@ -447,7 +447,7 @@ int convert_coords( coord_conversion *conv,
                         {
                             sprintf(conv->errmsg,
                                     "Cannot convert from %s to %s",
-                                    rf->refcode ? rf->refcode : "base", rf->code );
+                                    rf->refcode ? rf->refcode->c_str() : "base", rf->code.c_str() );
                             break;
                         }
                     }
@@ -465,7 +465,7 @@ int convert_coords( coord_conversion *conv,
                         {
                             sprintf(conv->errmsg,
                                     "Cannot apply %s deformation model",
-                                    rf->code);
+                                    rf->code.c_str());
                             break;
                         }
                         if( geoid ) { int ia; for( ia=0; ia<3; ia++ ) gllh[i]+=xyz[i]; }

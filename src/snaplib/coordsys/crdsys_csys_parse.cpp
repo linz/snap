@@ -93,7 +93,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         prj = parse_projection_def( is );
         if( !prj )
         {
-            if( rf ) delete_ref_frame( rf );
+            delete rf;
             return NULL;
         }
     }
@@ -166,7 +166,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
     if( sts != OK )
     {
         if( prj ) delete_projection( prj );
-        if( rf ) delete_ref_frame( rf );
+        delete rf;
         return NULL;
     }
 

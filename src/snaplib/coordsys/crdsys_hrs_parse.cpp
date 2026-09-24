@@ -162,7 +162,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
     if( ! hrs )
     {
         delete basehrs;
-        if( baserf ) delete_ref_frame( baserf );
+        delete baserf;
         if( hrf ) delete_vdatum_func( hrf );
     }
 

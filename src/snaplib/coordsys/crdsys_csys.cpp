@@ -20,15 +20,15 @@
 static const char *metre_units = "m";
 static const char *radian_units = "rad";
 
-coordsys *create_coordsys( const char *code, const char *name, int type,
+coordsys *create_coordsys( const std::string &code, const std::string &name, int type,
                            ref_frame *rf, projection *prj )
 {
     coordsys *cs;
 
     cs = (coordsys *) check_malloc( sizeof(coordsys) );
-    cs->code = copy_string( code );
+    cs->code = copy_string( code.c_str() );
     _strupr( cs->code );
-    cs->name = copy_string( name );
+    cs->name = copy_string( name.c_str() );
     cs->source = 0;
     if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
     cs->crdtype = (char) type;
@@ -109,7 +109,7 @@ vdatum *coordsys_vdatum( coordsys *cs )
 int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf )
 {
     int sts=OK;
-    if( cs->ownsrf ) delete_ref_frame( cs->rf );
+    if( cs->ownsrf ) delete cs->rf;
     cs->ownsrf=1;
     cs->setrf=1;
     cs->rf=rf;
@@ -244,7 +244,7 @@ void delete_coordsys( coordsys *cs )
     check_free( cs->code );
     check_free( cs->name );
     check_free( cs->source );
-    if( cs->ownsrf ) delete_ref_frame( cs->rf );
+    if( cs->ownsrf ) delete cs->rf;
     delete_projection( cs->prj );
     if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *)(cs->hunits) );
     if( cs->vunits != metre_units ) check_free( (void *)(cs->vunits) );

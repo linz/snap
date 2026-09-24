@@ -45,7 +45,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
     constexpr std::array<std::string_view,3> std_units= {"m","sec","ppm"};
 
     write_output_string( os, "Reference frame: " );
-    write_output_string( os, rf->name );
+    write_output_string( os, rf->name.c_str() );
     write_output_string( os, "\n" );
 
     scale = rf->scale != 0.0 || rf->dscale;
@@ -78,7 +78,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         int rates = rf->use_rates;
 
         write_output_string( os, "  Relative to ");
-        write_output_string( os, rf->refcode);
+        write_output_string( os, rf->refcode->c_str());
         write_output_string( os, "\n" );
         if( rates )
         {

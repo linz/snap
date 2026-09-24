@@ -239,7 +239,7 @@ coordsys * load_coordsys( const char *code )
             hrs=load_vdatum( hrscode );
             if( ! hrs ) 
             {
-                delete_ref_frame( rf );
+                delete rf;
                 return NULL;
             }
         }
@@ -288,7 +288,7 @@ coordsys * load_coordsys( const char *code )
     else
     {
         delete hrs;
-        delete_ref_frame( rf );
+        delete rf;
     }
     return cs;
 }
@@ -296,11 +296,11 @@ coordsys * load_coordsys( const char *code )
 const char *coordsys_load_code( coordsys *cs )
 {
     strncpy( csfullcode, cs->code, CRDCNV_CODE_LEN );
-    if( cs->setrf && cs->rf && cs->rf->code && 
-            strlen(cs->rf->code)+strlen(csfullcode)+2 < CRDCNV_CODE_LEN )
+    if( cs->setrf && cs->rf &&
+            cs->rf->code.size()+strlen(csfullcode)+2 < CRDCNV_CODE_LEN )
     {
         strcat(csfullcode,"(");
-        strcat(csfullcode,cs->rf->code);
+        strcat(csfullcode,cs->rf->code.c_str());
         strcat(csfullcode,")");
         
     }
@@ -374,7 +374,7 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os  )
     sts = get_notes( CS_COORDSYS_NOTE, cs->code, os );
     if( cs->rf )
     {
-        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) sts=OK;
+        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code.c_str(), os  ) == OK ) sts=OK;
     }
     return sts;
 }
@@ -416,14 +416,14 @@ int get_conv_notes( coord_conversion *conv, output_string_def *os )
     {
         sts = OK;
     }
-    code2=conv->from->rf->code;
+    code2=conv->from->rf->code.c_str();
     for( icrf=0; icrf < conv->ncrf; icrf++ )
     {
         coord_conversion_rf *crf = &(conv->crf[icrf]);
         if( crf->def_only ) continue;
         if( ! crf->rf ) continue;
         code1=code2;
-        code2=crf->rf->code;
+        code2=crf->rf->code.c_str();
         if( get_conv_code_notes( CS_REF_FRAME_NOTE,code1,code2, os ) == OK )
         {
             sts = OK;

@@ -257,11 +257,10 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
 
     if( sts == OK )
     {
-        rf = create_ref_frame(  refcode, refname, el, stdfrm, txyz, rxyz, sf,
-                                refdate, dtxyz, drxyz, dsf );
-        rf->func = rff;
-        rf->def = rdf;
-        rf->use_iersunits=iersunits;
+        rf = new ref_frame( refcode, refname, el,
+                             stdfrm ? std::optional<std::string>(stdfrm) : std::nullopt,
+                             txyz, rxyz, sf, refdate, dtxyz, drxyz, dsf,
+                             rff, rdf, iersunits );
     }
 
     /* If we are loading the base reference frame ... */
@@ -275,11 +274,11 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
             ref_frame *newbase=0;
             while( check )
             {
-                if( _stricmp(check->code,base->refcode) == 0 )
+                if( _stricmp(check->code.c_str(),base->refcode->c_str()) == 0 )
                 {
                     char errmsg[80+CRDSYS_CODE_LEN];
                     strcpy( errmsg, "Reference frame ");
-                    strcat( errmsg, check->code );
+                    strcat( errmsg, check->code.c_str() );
                     strcat( errmsg, " has a cyclic base reference frame dependency");
                     report_string_error( is, INVALID_DATA, errmsg );
                     sts = INVALID_DATA;
@@ -297,7 +296,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
              * Invalid definitions of the base system are not reported correctly,
              * the reference frame is just ignored.
              */
-            newbase=getrf(base->refcode,0);
+            newbase=getrf(base->refcode->c_str(),0);
             if( ! newbase ) break;
             base->refrf=newbase;
             base=newbase;
@@ -328,7 +327,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
     }
     else if( sts != OK )
     {
-        delete_ref_frame( rf );
+        delete rf;
         rf=0;
     }
     return rf;
