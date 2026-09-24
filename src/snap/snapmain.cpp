@@ -956,8 +956,8 @@ static void write_metadata_csv()
     end_output_csv_record(csv);
 
     write_csv_string(csv,"CRDSYS");
-    write_csv_string(csv,net->crdsys->code);
-    write_csv_string(csv,net->crdsys->name);
+    write_csv_string(csv,net->crdsys->code.c_str());
+    write_csv_string(csv,net->crdsys->name.c_str());
     end_output_csv_record(csv);
 
     if( has_deformation_model(net->crdsys) && deformation_model_epoch(net->crdsys) > 0 )

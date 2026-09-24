@@ -275,9 +275,9 @@ coordsys * load_coordsys( const char *code )
             {
                 char errmsg[100];
                 sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
-                        hrs->code.c_str(), cs->code );
+                        hrs->code.c_str(), cs->code.c_str() );
                 handle_error( INVALID_DATA, errmsg, nullptr );
-                delete_coordsys( cs );
+                delete cs;
                 delete hrs;
                 return NULL;
             }
@@ -295,7 +295,7 @@ coordsys * load_coordsys( const char *code )
 
 const char *coordsys_load_code( coordsys *cs )
 {
-    strncpy( csfullcode, cs->code, CRDCNV_CODE_LEN );
+    strncpy( csfullcode, cs->code.c_str(), CRDCNV_CODE_LEN );
     if( cs->setrf && cs->rf &&
             cs->rf->code.size()+strlen(csfullcode)+2 < CRDCNV_CODE_LEN )
     {
@@ -371,7 +371,7 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os  )
 {
     int sts;
 
-    sts = get_notes( CS_COORDSYS_NOTE, cs->code, os );
+    sts = get_notes( CS_COORDSYS_NOTE, cs->code.c_str(), os );
     if( cs->rf )
     {
         if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code.c_str(), os  ) == OK ) sts=OK;
@@ -412,7 +412,7 @@ int get_conv_notes( coord_conversion *conv, output_string_def *os )
     int sts = MISSING_DATA;
     int icrf;
     const char *code1, *code2;
-    if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code, conv->to->code, os ) == OK )
+    if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code.c_str(), conv->to->code.c_str(), os ) == OK )
     {
         sts = OK;
     }

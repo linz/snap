@@ -90,7 +90,7 @@ void clear_bproj_list( void )
         if( bplist[i] )
         {
             if( bplist[i]->name ) check_free( bplist[i]->name );
-            if( bplist[i]->prjsys ) delete_coordsys( bplist[i]->prjsys );
+            if( bplist[i]->prjsys ) delete bplist[i]->prjsys;
             check_free( bplist[i] );
         }
     }
@@ -115,7 +115,7 @@ static int create_bproj( const char *name )
             (use_datum_trans &&
              define_coord_conversion( &cc, net->geosys, prjsys ) != OK) )
     {
-        delete_coordsys( prjsys );
+        delete prjsys;
         return 0;
     }
 

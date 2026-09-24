@@ -131,7 +131,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
             conv->valid=0;
             sprintf(conv->errmsg,
                     "Conversion between coordinate systems %.20s and %.20s is not possible",
-                    from->code, to->code);
+                    from->code.c_str(), to->code.c_str());
         }
 
         else if( nfrom+nto > CONVMAXRF  )
@@ -139,7 +139,7 @@ static int define_coord_conversion_base( coord_conversion *conv,
             conv->valid=0;
             sprintf(conv->errmsg,
                     "Conversion between coordinate systems %.20s and %.20s is too complex (> %d steps)",
-                    from->code, to->code, CONVMAXRF );
+                    from->code.c_str(), to->code.c_str(), CONVMAXRF );
         }
         else
         {
@@ -526,7 +526,7 @@ int convert_coords( coord_conversion *conv,
                 sts=INCONSISTENT_DATA;
                 sprintf(conv->errmsg,
                         "Converted coordinates are outside range of %.20s coordinate system",
-                        to->code);
+                        to->code.c_str());
             }
         }
         else

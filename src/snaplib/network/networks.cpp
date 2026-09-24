@@ -121,7 +121,7 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
                     strncpy(errmsg,cconv.errmsg,nmsg);
                     errmsg[nmsg-1]=0;
                 }
-                delete_coordsys( geosys );
+                delete geosys;
                 return INCONSISTENT_DATA;
             }
 
@@ -139,8 +139,8 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
             }
         }
 
-        delete_coordsys( csold );
-        delete_coordsys( nw->geosys );
+        delete csold;
+        delete nw->geosys;
     }
 
     nw->crdsys = copy_coordsys( cs );

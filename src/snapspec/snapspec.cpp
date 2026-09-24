@@ -1249,7 +1249,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
         int adjusted = sa->hrowno || sa->vrowno;
 
         write_csv_string( csv, st->Code );
-        write_csv_string(csv,net->crdsys->code);
+        write_csv_string(csv,net->crdsys->code.c_str());
 
         if( geocentric_coords )
         {

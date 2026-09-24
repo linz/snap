@@ -201,13 +201,29 @@ struct vdatum
 
 /* Definition of a coordinate system */
 
+/// Always fully-formed once constructed - copy via copy_coordsys() (a real
+/// deep copy: rf/prj/hrs are owned pointers, so a shallow member-wise copy
+/// would be wrong), never via the copy constructor, which is deleted.
+/// Destroying one recursively deletes rf (if owned)/prj/hrs.
+///
+/// rf/hrs are mutated after construction by the public set_coordsys_ref_frame()/
+/// set_coordsys_vdatum() setters; crdtype is overridden by related_coordsys();
+/// gotrange/emin.../ltmax are mutated by define_coordsys_range(); hunits/
+/// hmult/vunits/vmult are mutated by define_coordsys_units(); ownsrf/setrf
+/// are mutated alongside rf. None of these are const, for those reasons.
 struct coordsys
 {
-    char *code;        /* The code for the coordinate system */
-    char *name;        /* The name of the coordinate system  */
-    char *source;      /* Where the coordsys was loaded from */
+    coordsys( const std::string &code, const std::string &name, int type,
+              ref_frame *rf, projection *prj,
+              std::optional<std::string> source = std::nullopt );
+    coordsys( const coordsys& ) = delete;
+    ~coordsys();
+
+    const std::string code;        ///< The code for the coordinate system
+    const std::string name;        ///< The name of the coordinate system
+    const std::optional<std::string> source; ///< Where the coordsys was loaded from
     ref_frame *rf;     /* The reference frame                */
-    projection *prj;   /* The projection - if any            */
+    projection * const prj;   /* The projection - if any            */
     vdatum *hrs;   /* Vertical datum, if any   */
     char crdtype;      /* As per CSTP_ enum above            */
     char gotrange;     /* Defines whether a valid range has  */
@@ -220,9 +236,9 @@ struct coordsys
 
     /* NOTE: units information is a placeholder at present - not used */
 
-    const char *hunits;  /* Name of horizontal units */
+    std::string hunits;  /* Name of horizontal units */
     double hmult;        /* Multiplier for horizontal units */
-    const char *vunits;  /* Name of vertical units */
+    std::string vunits;  /* Name of vertical units */
     double vmult;        /* Multiplier for vertical units */
 };
 
@@ -305,15 +321,12 @@ void set_projection_ellipsoid( projection *prj, ellipsoid *el );
 
 
 /* Routines relating to coordinate systems */
-/* NOTE: create_coordsys copies the pointers to the component features only.
-  If the calling routines needs to retain ownership it should make
-  copies for the call to create_coordsys */
+/* NOTE: coordsys's constructor copies the pointers to the component
+  features only. If the calling routines needs to retain ownership it
+  should make copies before constructing the coordsys */
 
-coordsys *create_coordsys( const std::string &code, const std::string &name, int type,
-                           ref_frame *rf, projection *prj );
 coordsys *copy_coordsys( coordsys *cs );
 coordsys *related_coordsys( coordsys *cs, int type );
-void delete_coordsys( coordsys *cs );
 int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf );
 
 /* Set the vertical datum for the coordinate system.  The 
@@ -341,8 +354,8 @@ void define_coordsys_range( coordsys *cs,
                             double emin, double nmin, double emax, double nmax );
 
 void define_coordsys_units( coordsys *cs,
-                            const char *hunit, double hmult, 
-                            const char *vunit, double vmult );
+                            const std::string &hunit, double hmult,
+                            const std::string &vunit, double vmult );
 
 /* For projection coordinate systems checks that xyz[CRD_EAST] lies in the
    range emin to emax, and xyz[CRD_NORTH] lies in the range nmin to nmax.

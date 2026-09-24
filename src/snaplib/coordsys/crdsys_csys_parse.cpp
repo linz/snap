@@ -170,8 +170,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         return NULL;
     }
 
-    cs = create_coordsys( cscode, csname, cstype, rf, prj );
-    if( !cs ) return NULL;
+    cs = new coordsys( cscode, csname, cstype, rf, prj, "file:" + is.sourcename );
     if( got_range ) define_coordsys_range( cs, range[0], range[1], range[2], range[3] );
 
     return cs;

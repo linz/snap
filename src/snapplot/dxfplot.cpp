@@ -808,7 +808,7 @@ void write_dxf_title_block( map_plotter * )
         NOTE( text );
     }
 
-    sprintf(text,"Coordinate system: %.60s",plot_projection()->name);
+    sprintf(text,"Coordinate system: %.60s",plot_projection()->name.c_str());
     NOTE( text );
 
     if( got_covariances() )

@@ -669,7 +669,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
                         delete hrs;
                     }
                 }
-                delete_coordsys( cs );
+                delete cs;
             }
             else
             {
@@ -892,7 +892,7 @@ static void prompt_for_proj(coordsys **proj,
     for(;;)
     {
         *dms = AF_DEG;
-        if( nprj ) delete_coordsys( nprj );
+        if( nprj ) delete nprj;
         nprj = NULL;
         printf("    Enter %s coord sys code or ?: ",iostring);
         nstr = read_string(stdin,DEFAULT_SEPARATOR,0,0,instring,20);
@@ -1321,9 +1321,9 @@ static void setup_transformation( void )
         else
         {
             printf("Cannot convert coordinates from %s to %s\n",
-                   input_cs->code, output_cs->code );
+                   input_cs->code.c_str(), output_cs->code.c_str() );
         }
-        get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code, output_cs->code, &printf_writer);
+        get_conv_code_notes( CS_COORDSYS_NOTE, input_cs->code.c_str(), output_cs->code.c_str(), &printf_writer);
         exit(1);
     }
 
@@ -1509,11 +1509,11 @@ static void head_output( FILE * out )
     output_string_def os;
     fprintf(out,"\n%s - coordinate conversion program (version %s dated %s)\n",
             PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
-    fprintf(out,"\nInput coordinates:  %s", input_cs->name);
+    fprintf(out,"\nInput coordinates:  %s", input_cs->name.c_str());
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochfrom); */
     fprintf(out,"\n");
     if( input_ortho ) fprintf(out,"                    Input heights are orthometric\n");
-    fprintf(out,  "\nOutput coordinates: %s", output_cs->name );
+    fprintf(out,  "\nOutput coordinates: %s", output_cs->name.c_str() );
     /* if( use_deformation ) fprintf(out," at epoch %.2lf",cnv.epochto); */
     fprintf(out,"\n");
     if( output_ortho ) fprintf(out,"                    Output heights are orthometric\n");

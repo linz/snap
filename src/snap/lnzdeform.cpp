@@ -109,7 +109,7 @@ static int init_linzdef_deformation( void *deformation )
     if( define_coord_conversion( &tovcs, net->geosys, vcs ) != OK )
     {
         sprintf(buf,"Cannot convert station coordinates to coordinate system %.20s of deformation model",
-                vcs->code);
+                vcs->code.c_str());
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
@@ -137,7 +137,7 @@ static int init_linzdef_deformation( void *deformation )
         if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
-                    st->Code, vcs->code);
+                    st->Code, vcs->code.c_str());
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -162,7 +162,7 @@ static int init_linzdef_deformation( void *deformation )
     }
 
     /* Release resource held by grid now that we have all values from it! */
-    delete_coordsys( vcs );
+    delete vcs;
     return OK;
 }
 

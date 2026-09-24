@@ -351,10 +351,6 @@ static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
     *cs = parse_coordsys_def( instr->get(), ref_frame_from_code );
-    if( *cs )
-    {
-        (*cs)->source = copy_string( ("file:" + df_file_name(cfs->df)).c_str() );
-    }
     return *cs ? OK : INVALID_DATA;
 }
 

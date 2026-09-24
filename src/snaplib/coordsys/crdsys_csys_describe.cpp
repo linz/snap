@@ -162,7 +162,7 @@ int describe_vdatum( output_string_def *os, vdatum *hrs )
 int  describe_coordsys(  output_string_def *os, coordsys *cs )
 {
     write_output_string( os, "Coordinate system: " );
-    write_output_string( os, cs->name );
+    write_output_string( os, cs->name.c_str() );
     write_output_string( os, "\n" );
     describe_ref_frame( os, cs->rf );
     if( has_deformation_model(cs) && cs->rf->defepoch != 0.0)

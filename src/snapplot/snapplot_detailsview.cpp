@@ -259,7 +259,7 @@ void SnapplotDetailsView::ShowTitleInfo()
     AddString( job_title );
     AddNewLine();
     AddString( "Coordinate system: ",false);
-    AddString( plot_crdsys_name() );
+    AddString( plot_crdsys_name().c_str() );
 
     if( got_covariances() )
     {

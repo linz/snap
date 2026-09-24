@@ -118,7 +118,7 @@ static void delete_grid_vdatum_func_data( void *data )
     if( ! data ) return;
     grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) data;
     if( ghrfd->gd ) { delete_geoid_grid( ghrfd->gd ); ghrfd->gd=nullptr; }
-    if( ghrfd->rfcs ) { delete_coordsys( ghrfd->rfcs ); ghrfd->rfcs=nullptr; }
+    if( ghrfd->rfcs ) { delete ghrfd->rfcs; ghrfd->rfcs=nullptr; }
     if( ghrfd->rfconv ) { check_free( ghrfd->rfconv ); }
     check_free( data );
 }
@@ -153,7 +153,7 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
     {
         ghrfd->rfconv=(coord_conversion *) check_malloc( sizeof(coord_conversion)*2 );
         ghrfd->irfconv=ghrfd->rfconv+1;
-        ghrfd->rfcs=create_coordsys( rf->code, rf->name, CSTP_GEODETIC, rf, nullptr );
+        ghrfd->rfcs=new coordsys( rf->code, rf->name, CSTP_GEODETIC, rf, nullptr );
         ghrfd->rfcs->ownsrf=0;
         ghrfd->loadsts=define_coord_conversion_epoch( ghrfd->rfconv, 
                 ghrfd->rfcs, get_geoid_coordsys( ghrfd->gd ),

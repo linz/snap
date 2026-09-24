@@ -88,8 +88,8 @@ void clear_network( network *nw )
     if( nw->name ) { check_free( nw->name ); nw->name = 0; }
     if( nw->crdsysdef ) { check_free( nw->crdsysdef ); nw->crdsysdef = 0; }
     if( nw->stnlist ) { delete_station_list( nw->stnlist ); nw->stnlist = 0; }
-    if( nw->crdsys ) { delete_coordsys( nw->crdsys ); nw->crdsys = 0; }
-    if( nw->geosys ) { delete_coordsys( nw->geosys ); nw->geosys = 0; }
+    if( nw->crdsys ) { delete nw->crdsys; nw->crdsys = 0; }
+    if( nw->geosys ) { delete nw->geosys; nw->geosys = 0; }
     delete_classifications( &(nw->stnclasses));
 }
 

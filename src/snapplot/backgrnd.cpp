@@ -212,7 +212,7 @@ static void load_background_file( background_file *bf )
         {
             char *newcrdsys;
             newcrdsys = strtok( inrec+9, whitespace );
-            if( cs ) { delete_coordsys( cs ); cs = NULL; }
+            if( cs ) { delete cs; cs = NULL; }
             got_conversion = 0;
             bad_coordsys = 1;
             if( newcrdsys )
@@ -268,7 +268,7 @@ static void load_background_file( background_file *bf )
     end_file_display();
     print_log("%ld lines loaded\n",flines);
     fclose(in);
-    if( cs ) delete_coordsys( cs );
+    if( cs ) delete cs;
 }
 
 void load_background_files( void )

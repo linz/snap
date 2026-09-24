@@ -1,6 +1,8 @@
 #ifndef _PLOTSTNS_H
 #define _PLOTSTNS_H
 
+#include <string>
+
 /*
    $Log: plotstns.h,v $
    Revision 1.2  1996/07/12 20:33:35  CHRIS
@@ -55,7 +57,7 @@ coordsys *plot_projection( void );
 char geodetic_coordsys( void );
 void init_plotstns( int adjusted );   /* Called after stations have been read */
 void format_plot_coords( double e, double n, char *buf );  /* Assumes buf is big enough!? */
-char *plot_crdsys_name();
+const std::string &plot_crdsys_name();
 int projection_defined( void );
 #ifdef _BINFILE_H
 int reload_covariances( BINARY_FILE *b );

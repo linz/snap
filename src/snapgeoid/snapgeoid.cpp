@@ -307,7 +307,7 @@ int main( int argc, char *argv[] )
                     hrscode);
             return 2;
         }
-        coordsys *cs=create_coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
+        coordsys *cs=new coordsys(rf->code,"",CSTP_GEODETIC,rf,0);
         if( ! cs )
         {
             printf("Unable to create reference coordinate system for vertical datum %s\n",

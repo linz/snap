@@ -99,7 +99,7 @@ geoid_def *create_geoid_grid( const char *source )
         }
         else if( ! is_geodetic( cs ) )
         {
-            delete_coordsys( cs );
+            delete cs;
             status = INVALID_DATA;
             handle_error( status,"Geoid coordinate system must be geodetic", source );
         }
@@ -124,7 +124,7 @@ void delete_geoid_grid( geoid_def *gd )
     {
         if( gd->grd ) grd_delete_grid( gd->grd );
         gd->grd = 0;
-        if( gd->cs )delete_coordsys( gd->cs );
+        if( gd->cs )delete gd->cs;
         gd->cs = 0;
     }
     check_free( gd );

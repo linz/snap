@@ -132,7 +132,7 @@ void format_plot_coords( double e, double n, char *buf )
     }
 }
 
-char *plot_crdsys_name()
+const std::string &plot_crdsys_name()
 {
     return plot_crdsys->name;
 }
@@ -866,7 +866,7 @@ void init_plotstns( int adjusted )
             projection *prj;
             get_network_topocentre( net, &rlat, &cm );
             prj = create_tm_projection( cm, 1.0, rlat, 0.0, 0.0, 1.0 );
-            plot_crdsys = create_coordsys( "LTM", net->crdsys->name,
+            plot_crdsys = new coordsys( "LTM", net->crdsys->name,
                                            CSTP_PROJECTION, copy_ref_frame( net->crdsys->rf ), prj );
             lonfmt = create_dms_format(3, 6, 0, 0, 0, 0, " E", " W" );
             latfmt = create_dms_format(3, 6, 0, 0, 0, 0, " N", " S" );

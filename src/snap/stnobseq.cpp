@@ -639,7 +639,7 @@ void print_adjusted_coordinates( FILE *lst )
     output_string_to_file( &os, lst );
     cs = net->crdsys;
     write_output_string( &os, "Coordinate system: " );
-    write_output_string( &os, cs->name );
+    write_output_string( &os, cs->name.c_str() );
     write_output_string( &os, "\n" );
     describe_ellipsoid( &os, cs->rf->el );
     describe_projection( &os, cs->prj );
@@ -663,7 +663,7 @@ void print_adjusted_coordinates( FILE *lst )
     if( has_deformation_model(net->crdsys) && ignore_deformation )
     {
         fprintf(lst,"\nNote: the deformation model associated with %s has not been used\n\n",
-                cs->name);
+                cs->name.c_str());
     }
 
     adjusted = program_mode != PREANALYSIS;
@@ -992,7 +992,7 @@ void write_station_csv()
         easting = northing = 0.0;
 
         write_csv_string( csv, st->Code );
-        write_csv_string(csv,net->crdsys->code);
+        write_csv_string(csv,net->crdsys->code.c_str());
 
         if( geocentric_coords )
         {

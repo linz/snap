@@ -92,7 +92,7 @@ static int init_griddef( void * )
     if( define_coord_conversion( &tovcs, net->geosys, vcs ) != OK )
     {
         sprintf(buf,"Cannot convert station coordinates to coordinate system %-20s of velocity model",
-                vcs->code);
+                vcs->code.c_str());
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
@@ -116,7 +116,7 @@ static int init_griddef( void * )
         if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %-20s to velocity coordinate system %-20s",
-                    st->Code, vcs->code);
+                    st->Code, vcs->code.c_str());
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -125,7 +125,7 @@ static int init_griddef( void * )
     }
 
     /* Release resource held by grid now that we have all values from it! */
-    delete_coordsys( vcs );
+    delete vcs;
     grd_delete_grid( velgrid );
     velgrid = 0;
 

@@ -12,49 +12,48 @@
 #include <string.h>
 
 #include "coordsys/coordsys.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/pi.h"
+#include <boost/algorithm/string/case_conv.hpp>
 
-static const char *metre_units = "m";
-static const char *radian_units = "rad";
+static const std::string metre_units = "m";
+static const std::string radian_units = "rad";
 
-coordsys *create_coordsys( const std::string &code, const std::string &name, int type,
-                           ref_frame *rf, projection *prj )
+coordsys::coordsys( const std::string &code_, const std::string &name_, int type,
+                     ref_frame *rf_, projection *prj_,
+                     std::optional<std::string> source_ ) :
+    code( boost::algorithm::to_upper_copy(code_) ),
+    name( name_ ),
+    source( std::move(source_) ),
+    rf( rf_ ),
+    prj( prj_ ),
+    hrs( nullptr ),
+    crdtype( (char)( (type != CSTP_CARTESIAN && type != CSTP_PROJECTION) ? CSTP_GEODETIC : type ) ),
+    gotrange( 0 ),
+    ownsrf( 1 ),
+    setrf( 0 ),
+    hunits( crdtype == CSTP_GEODETIC ? radian_units : metre_units ),
+    hmult( 1.0 ),
+    vunits( metre_units ),
+    vmult( 1.0 )
 {
-    coordsys *cs;
-
-    cs = (coordsys *) check_malloc( sizeof(coordsys) );
-    cs->code = copy_string( code.c_str() );
-    _strupr( cs->code );
-    cs->name = copy_string( name.c_str() );
-    cs->source = 0;
-    if( type != CSTP_CARTESIAN && type != CSTP_PROJECTION ) type = CSTP_GEODETIC;
-    cs->crdtype = (char) type;
-    cs->rf = rf;
-    cs->ownsrf = 1;
-    cs->setrf = 0;
-    cs->prj = prj;
-    cs->hrs = nullptr;
     if( prj && rf->el ) set_projection_ellipsoid( prj, rf->el );
-    cs->gotrange = 0;
-    cs->hunits = (type == CSTP_GEODETIC) ? radian_units : metre_units;
-    cs->hmult = 1.0;
-    cs->vunits = metre_units;
-    cs->vmult = 1.0;
-    return cs;
+}
+
+coordsys::~coordsys()
+{
+    if( ownsrf ) delete rf;
+    delete_projection( prj );
+    delete hrs;
 }
 
 coordsys *copy_coordsys( coordsys *cs )
 {
-    coordsys *copy;
-    if( !cs ) return NULL;
-    copy = create_coordsys( cs->code, cs->name,cs->crdtype,
-                            copy_ref_frame(cs->rf), copy_projection( cs->prj ) );
-    if( !copy ) return copy;
+    if( !cs ) return nullptr;
+    coordsys *copy = new coordsys( cs->code, cs->name, cs->crdtype,
+                                    copy_ref_frame(cs->rf), copy_projection( cs->prj ),
+                                    cs->source );
     copy->hrs = copy_vdatum( cs->hrs );
-    copy->source = copy_string( cs->source );
     if( copy->prj && copy->rf->el )
         set_projection_ellipsoid( copy->prj, copy->rf->el );
     if( cs->gotrange )
@@ -133,7 +132,7 @@ int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )
     {
         char errmsg[100];
         sprintf( errmsg, "Vertical datum %.20s not compatible with coordinate system %.20s",
-                hrs->code.c_str(),cs->code);
+                hrs->code.c_str(),cs->code.c_str());
         handle_error( INVALID_DATA, errmsg, nullptr );
         delete hrs;
         sts=INVALID_DATA;
@@ -156,22 +155,10 @@ void define_deformation_model_epoch( coordsys *cs, double epoch )
     cs->rf->defepoch = epoch;
 }
 
-void define_coordsys_units( coordsys *cs, 
-                            const char *hunits, double hmult,
-                            const char *vunits, double vmult )
+void define_coordsys_units( coordsys *cs,
+                            const std::string &hunits, const double hmult,
+                            const std::string &vunits, const double vmult )
 {
-    if( hunits != metre_units && hunits != radian_units )
-    {
-        hunits = copy_string( hunits );
-    }
-    if( vunits != metre_units )
-    {
-        vunits = copy_string( vunits );
-    }
-
-    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *) (cs->hunits) );
-    if( cs->vunits != metre_units ) check_free( (void *) (cs->vunits) );
-
     cs->hunits = hunits;
     cs->vunits = vunits;
     cs->hmult = hmult;
@@ -237,19 +224,6 @@ int check_coordsys_range( coordsys *cs, double xyz[3] )
     return sts;
 }
 
-
-void delete_coordsys( coordsys *cs )
-{
-    if( !cs ) return;
-    check_free( cs->code );
-    check_free( cs->name );
-    check_free( cs->source );
-    if( cs->ownsrf ) delete cs->rf;
-    delete_projection( cs->prj );
-    if( cs->hunits != metre_units && cs->hunits != radian_units ) check_free( (void *)(cs->hunits) );
-    if( cs->vunits != metre_units ) check_free( (void *)(cs->vunits) );
-    check_free( cs );
-}
 
 int is_projection( coordsys *cs )
 {

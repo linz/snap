@@ -348,7 +348,7 @@ static void delete_polygon_criterion( criterion *c )
 {
     if( c->c.polygon.polygon ) delete_polygon( c->c.polygon.polygon );
     if( c->c.polygon.conv ) check_free( c->c.polygon.conv );
-    if( c->c.polygon.cs ) delete_coordsys( c->c.polygon.cs );
+    if( c->c.polygon.cs ) delete c->c.polygon.cs;
     c->c.polygon.polygon = nullptr;
     c->c.polygon.conv = nullptr;
 }
@@ -809,7 +809,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
 
             if( identical_coordinate_systems( cs, nw->geosys ) )
             {
-                delete_coordsys( cs );
+                delete cs;
                 cs=nullptr;
             }
             else
@@ -821,7 +821,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                     sprintf(errmess,"Cannot use WKT coordinate system %.20s in %s option in %s",
                             crdsys.c_str(),std::string(*field).c_str(),src);
                     check_free( conv );
-                    delete_coordsys( cs );
+                    delete cs;
                     break;
                 }
             }
@@ -832,7 +832,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
                         pgnfile.c_str(),src);
                 if( conv ) check_free( conv );
-                if( cs ) delete_coordsys( cs );
+                if( cs ) delete cs;
                 break;
             }
             record_filename(spec->c_str(),"wkt_polygon_definition");

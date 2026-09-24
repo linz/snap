@@ -193,7 +193,7 @@ void print_coord_covariance_json( void )
     elp = net->crdsys->rf->el;
 
     fprintf(f,"{\n");
-    fprintf(f,"  \"coordsys\": \"%s\",\n",net->crdsys->code);
+    fprintf(f,"  \"coordsys\": \"%s\",\n",net->crdsys->code.c_str());
     fprintf(f,"  \"stations\": [");
     for( istn = 0, ir=0; istn++ < maxstn; ir+=3)
     {

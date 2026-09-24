@@ -1563,7 +1563,7 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
         {
             itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
-        if( temp ) delete_coordsys( temp );
+        if( temp ) delete temp;
         define_coord_conversion( &toitrf, netcs, itrf );
         define_coord_conversion( &tonet, itrf, netcs );
         got_conversion = 1;
@@ -1670,7 +1670,7 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
         {
             itrf = related_coordsys( temp, CSTP_CARTESIAN );
         }
-        if( temp ) delete_coordsys( temp );
+        if( temp ) delete temp;
         define_coord_conversion( &tonet, itrf, netcs );
         got_conversion = 1;
     }
@@ -2701,14 +2701,14 @@ static int get_net_coordsys( void )
         cs = load_coordsys( code );
         if( is_geocentric(cs) )
         {
-            delete_coordsys( cs );
+            delete cs;
             cs = NULL;
             printf("Cannot use a geocentric (XYZ) coordinate system\n");
         }
         if( cs ) break;
     }
     set_network_coordsys( net, cs, 0.0, 0, 0, 0 );
-    delete_coordsys( cs );
+    delete cs;
     return 1;
 }
 
@@ -2835,7 +2835,7 @@ static int add_stations( void )
                                   llh[CRD_HGT], 0.0, 0.0, 0.0 );
         if( add_known_station( st ) ) nnew++;
     }
-    delete_coordsys( csfrom );
+    delete csfrom;
     return nnew;
 }
 

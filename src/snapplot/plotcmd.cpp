@@ -380,7 +380,7 @@ static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, in
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-            delete_coordsys( cs );
+            delete cs;
         }
         add_background_file( fspec->c_str(), crdsys, layer );
         return OK;
