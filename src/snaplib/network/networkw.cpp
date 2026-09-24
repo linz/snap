@@ -55,8 +55,8 @@ int write_network( network *nw, const char *fname, const char *comment,
     geocentric_coords = is_geocentric( nw->crdsys );
     ellipsoidal_heights = nw->options & NW_ELLIPSOIDAL_HEIGHTS ? 1 : 0;
 
-    fprintf(stf,"%s\n", nw->name ? nw->name : "Unnamed network" );
-    fprintf(stf,"%s\n", nw->crdsysdef);
+    fprintf(stf,"%s\n", nw->name ? nw->name->c_str() : "Unnamed network" );
+    fprintf(stf,"%s\n", nw->crdsysdef.c_str());
     fputs("options",stf);
 
     if( ! geocentric_coords )

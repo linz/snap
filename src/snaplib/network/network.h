@@ -18,6 +18,9 @@
 #include "geoid/geoid.h"
 #endif
 
+#include <optional>
+#include <string>
+
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
 #endif
@@ -127,10 +130,25 @@ network:
 
 typedef void (*stationfunc)( station *st);
 
+/// Every field is set explicitly by the constructor. Nothing is known
+/// yet at either real construction site (a plain stack network net; or
+/// new_network()'s heap allocation) - name/crdsysdef/stations are all
+/// populated later, incrementally, by set_network_name()/
+/// set_network_coordsys()/read_network()/add_station() etc.
 struct network
 {
-    char         *name;          /* Name of network */
-    char         *crdsysdef;     /* Definition of the coordinate system */
+    network();
+    ~network();
+
+    /// Resets every field to the same empty state a freshly-constructed
+    /// network has (freeing stnlist/crdsys/geosys, running the
+    /// uninitstation callback over every station first) - used both by
+    /// the destructor and by read_network() to reuse an existing network
+    /// for a fresh file read, without reconstructing it.
+    void clear();
+
+    std::optional<std::string> name;   /* Name of network, or nullopt if never set */
+    std::string   crdsysdef;     /* Definition of the coordinate system */
     station_list *stnlist;       /* List of stations */
     coordsys     *crdsys;        /* Parameters of the coordinate system */
     coordsys     *geosys;        /* Parameters of the related geodetic system */
@@ -366,12 +384,10 @@ void print_station_offset( FILE *lst, station *st );
 /* The network                                                      */
 
 network *new_network( void );
-void init_network( network *nw );
 /* Set the function hook called when network station is created or removed.
  * If nw is NULL then sets default values that are used for a new network.
  */
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc );
-void clear_network( network *nw );
 void delete_network( network *nw );
 
 int read_network( network *nw, const char *filename, int options );
@@ -387,7 +403,7 @@ int merge_network( network *base, network *data, int mergeopts,
  */
 
 int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg );
-void    set_network_name( network *nw, const char *name );
+void    set_network_name( network *nw, const std::string &name );
 
 station * new_network_station( network *nw,
                                const char *code, const char *Name,

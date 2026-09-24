@@ -300,8 +300,8 @@ static void dump_station_text( std::ostream &out, const std::string &section, co
 // options, then stnclasses, then the station list itself.
 static void dump_network_text( std::ostream &out )
 {
-    dump_value( out, "Network.name", net->name ? net->name : "" );
-    dump_value( out, "Network.crdsysdef", net->crdsysdef ? net->crdsysdef : "" );
+    dump_value( out, "Network.name", net->name.value_or("") );
+    dump_value( out, "Network.crdsysdef", net->crdsysdef );
     dump_value( out, "Network.topolat", net->topolat );
     dump_value( out, "Network.topolon", net->topolon );
     dump_value( out, "Network.got_topocentre", static_cast<long>(net->got_topocentre) );

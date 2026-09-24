@@ -26,11 +26,10 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <string>
 #include "util/errdef.h"
 #include "network/network.h"
 #include "util/fileutil.h"
-#include "util/dstring.h"
-#include "util/chkalloc.h"
 #include "snap/filenames.h"
 #include "util/getversion.h"
 
@@ -55,8 +54,8 @@ int main( int argc, char *argv[] )
     char msg[256];
     char quiet = 0;
     double epoch = 0.0;
-    char *epochstr=0;
-    char *netcrdsys=0;
+    const char *epochstr=nullptr;
+    std::string netcrdsys;
     char syntax_error=0;
     int hgtfixopt=NW_HGTFIXEDOPT_ELLIPSOIDAL;
     int degopt = SET_DEGOPT_DEFAULT;
@@ -170,7 +169,7 @@ int main( int argc, char *argv[] )
         return 2;
     }
 
-    netcrdsys=copy_string(net->crdsysdef);
+    netcrdsys = net->crdsysdef;
 
     msg[0]=0;
     if( set_network_coordsys( net, cs, epoch, hgtfixopt, msg, 256 ) != OK )
@@ -180,10 +179,9 @@ int main( int argc, char *argv[] )
     }
 
     msg[0]=0;
-    if( netcrdsys )
+    if( ! netcrdsys.empty() )
     {
-        sprintf(msg,"Converted from %.32s",netcrdsys);
-        check_free( netcrdsys );
+        sprintf(msg,"Converted from %.32s",netcrdsys.c_str());
     }
     if( epochstr && msg[0] )
     {

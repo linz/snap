@@ -19,7 +19,6 @@
 
 #include "network/network.h"
 #include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/datafile.h"
 #include "util/filelist.h"
 #include "util/dms.h"
@@ -66,7 +65,7 @@ int read_network( network *nw, const char *fname, int options )
 
     dfsts = OK;
 
-    clear_network( nw );
+    nw->clear();
 
     stf = df_open_data_file( fname, "station coordinate file" );
     if( stf == NULL ) return FILE_OPEN_ERROR;
@@ -76,7 +75,7 @@ int read_network( network *nw, const char *fname, int options )
     df_read_data_file( stf);
     if( df_read_rest( stf, inrec, INRECLEN ) )
     {
-        nw->name = copy_string( inrec );
+        nw->name = inrec;
     }
 
     /* Read in the coordinate system definition */
@@ -90,13 +89,13 @@ int read_network( network *nw, const char *fname, int options )
         df_data_file_error( stf, INVALID_DATA,
                             "Invalid or missing definition of coordinate system");
         df_close_data_file( stf );
-        clear_network( nw );
+        nw->clear();
         return INVALID_DATA;
     }
 
     set_network_coordsys( nw, cs, 0.0, 0, 0, 0 );
     delete cs;
-    nw->crdsysdef = copy_string( inrec );
+    nw->crdsysdef = inrec;
     projection_coords = is_projection( nw->crdsys );
     geocentric_coords = is_geocentric( nw->crdsys );
 

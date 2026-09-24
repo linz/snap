@@ -14,8 +14,6 @@
 #include <string.h>
 
 #include "network/network.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 
 /*=============================================================*/
 /* Basic routine to read a station data file                   */
@@ -23,30 +21,25 @@
 static stationfunc default_initstation=0;
 static stationfunc default_uninitstation=0;
 
-network *new_network( void )
+network::network() :
+    name( std::nullopt ),
+    stnlist( nullptr ),
+    crdsys( nullptr ),
+    geosys( nullptr ),
+    topolat( 0 ),
+    topolon( 0 ),
+    got_topocentre( 0 ),
+    options( 0 ),
+    orderclsid( 0 ),
+    initstation( default_initstation ),
+    uninitstation( default_uninitstation )
 {
-    network *nw;
-
-    nw = (network *) check_malloc( sizeof( network ) );
-    init_network( nw );
-    return nw;
+    init_classifications( &stnclasses );
 }
 
-void init_network( network *nw )
+network *new_network( void )
 {
-    nw->name = NULL;
-    nw->crdsysdef = NULL;
-    nw->stnlist = NULL;
-    nw->crdsys = NULL;
-    nw->geosys = NULL;
-    nw->topolat = 0;
-    nw->topolon = 0;
-    nw->got_topocentre = 0;
-    nw->options = 0;
-    nw->orderclsid = 0;
-    nw->initstation = default_initstation;
-    nw->uninitstation = default_uninitstation;
-    init_classifications( &(nw->stnclasses));
+    return new network();
 }
 
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc )
@@ -63,14 +56,15 @@ void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc un
     }
 }
 
-void set_network_name( network *nw, const char *n )
+void set_network_name( network *nw, const std::string &n )
 {
-    char *pn;
-    if( nw->name ) {check_free( nw->name ); nw->name = NULL; }
-    while( *n == ' ' || *n == '\n' ) n++;
-    if( !*n || *n=='\n') return;
-    nw->name = copy_string( n );
-    for( pn = nw->name; *pn; pn++ ) {if( *pn == '\n' ) *pn = 0;}
+    nw->name = std::nullopt;
+    size_t start = n.find_first_not_of(" \n");
+    if( start == std::string::npos ) return;
+    std::string name = n.substr(start);
+    size_t nl = name.find('\n');
+    if( nl != std::string::npos ) name.resize(nl);
+    nw->name = std::move(name);
 }
 
 static void uninit_station( station *st, void *pnw )
@@ -79,24 +73,28 @@ static void uninit_station( station *st, void *pnw )
     nw->uninitstation( st );
 }
 
-void clear_network( network *nw )
+void network::clear()
 {
-    if( nw->uninitstation )
+    if( uninitstation )
     {
-        process_stations( nw, nw, uninit_station );
+        process_stations( this, this, uninit_station );
     }
-    if( nw->name ) { check_free( nw->name ); nw->name = 0; }
-    if( nw->crdsysdef ) { check_free( nw->crdsysdef ); nw->crdsysdef = 0; }
-    if( nw->stnlist ) { delete_station_list( nw->stnlist ); nw->stnlist = 0; }
-    if( nw->crdsys ) { delete nw->crdsys; nw->crdsys = 0; }
-    if( nw->geosys ) { delete nw->geosys; nw->geosys = 0; }
-    delete_classifications( &(nw->stnclasses));
+    name = std::nullopt;
+    crdsysdef.clear();
+    if( stnlist ) { delete_station_list( stnlist ); stnlist = 0; }
+    if( crdsys ) { delete crdsys; crdsys = 0; }
+    if( geosys ) { delete geosys; geosys = 0; }
+    delete_classifications( &stnclasses );
+}
+
+network::~network()
+{
+    clear();
 }
 
 void delete_network( network *nw )
 {
-    clear_network( nw );
-    check_free( nw );
+    delete nw;
 }
 
 int network_classification_count( network *nw )

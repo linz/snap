@@ -148,8 +148,7 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
     define_coord_conversion( &nw->ccgeo, nw->crdsys, nw->geosys );
     define_coord_conversion( &nw->ccnet, nw->geosys, nw->crdsys );
 
-    if( nw->crdsysdef ) check_free(nw->crdsysdef);
-    nw->crdsysdef = copy_string( coordsys_load_code(cs) );
+    nw->crdsysdef = coordsys_load_code(cs);
 
     return OK;
 }

@@ -218,7 +218,6 @@ int main( int argc, char *argv[] )
     }
     /* Load the station file */
 
-    init_network( &net );
     readopt = NW_READOPT_CALCHGTREF;
     const std::string oldfn = argv[1];
 

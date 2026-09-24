@@ -9,11 +9,10 @@
 */
 
 #include <stdio.h>
-#include <string.h>
+#include <utility>
 
 #include "network/networkb.h"
 #include "util/errdef.h"
-#include "util/chkalloc.h"
 
 #define SECTION_NAME "Network"
 
@@ -34,10 +33,17 @@ int reload_network_from_bin( network *net, BINARY_FILE *b )
 
     if( !nt || check_end_section(b) != OK ) return INVALID_DATA;
 
-    /* Copy the globals read in to the network structure supplied */
+    /* Move the globals read in to the network structure supplied. net is
+       always freshly-constructed here (every real caller does
+       net = new_network() immediately before this call) - swapping is
+       safe specifically because of that: network has no real move
+       assignment (a user-declared destructor suppresses it), so this
+       falls back to 3 copy-assignments, but since net starts empty,
+       nt ends up holding net's old (empty) state afterward, safe to
+       delete, while net ends up the sole owner of nt's real data. */
 
-    memcpy( net, nt, sizeof(network) );
-    check_free( nt );
+    std::swap( *net, *nt );
+    delete nt;
 
     return OK;
 }

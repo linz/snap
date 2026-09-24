@@ -174,9 +174,9 @@ int read_plot_command_file( const char *command_file, int got_data )
 
     sts = read_command_file( command_file, 1 );
 
-    if( sts == OK && !job_title[0] )
+    if( sts == OK && !job_title[0] && net->name )
     {
-        strncpy( job_title, net->name, JOBTITLELEN );
+        strncpy( job_title, net->name->c_str(), JOBTITLELEN );
         job_title[JOBTITLELEN] = 0;
     }
 
