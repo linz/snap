@@ -377,10 +377,6 @@ static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs )
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
     *hrs = parse_vdatum_def( instr->get(), ref_frame_from_code, vdatum_from_code );
-    if( *hrs )
-    {
-        (*hrs)->source = copy_string( ("file:" + df_file_name(cfs->df)).c_str() );
-    }
     return *hrs ? OK : INVALID_DATA;
 }
 

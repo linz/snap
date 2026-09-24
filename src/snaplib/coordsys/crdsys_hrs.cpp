@@ -7,32 +7,41 @@
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
 #include "geoid/griddata.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/fileutil.h"
 #include "util/errdef.h"
+#include <boost/algorithm/string/case_conv.hpp>
 
-
-vdatum *create_vdatum( const char *code, const char *name, 
-                               vdatum *basehrs, ref_frame *rf,
-                               vdatum_func *hrf )
+vdatum::vdatum( const std::string &code_, const std::string &name_,
+                vdatum *basehrs_, vdatum_func *hrf_,
+                std::optional<std::string> source_ ) :
+    code( boost::algorithm::to_upper_copy(code_) ),
+    name( name_ ),
+    source( std::move(source_) ),
+    basehrs( basehrs_ ),
+    rf( nullptr ),
+    func( hrf_ )
 {
-    vdatum *hrs;
+    func->hrs = this;
+}
 
-    /* Need basehrs or rf, but not both */
-    if( basehrs && rf ) return NULL;
-    if( ! basehrs && ! rf ) return NULL;
+vdatum::vdatum( const std::string &code_, const std::string &name_,
+                ref_frame *rf_, vdatum_func *hrf_,
+                std::optional<std::string> source_ ) :
+    code( boost::algorithm::to_upper_copy(code_) ),
+    name( name_ ),
+    source( std::move(source_) ),
+    basehrs( nullptr ),
+    rf( rf_ ),
+    func( hrf_ )
+{
+    func->hrs = this;
+}
 
-    hrs = (vdatum *) check_malloc( sizeof( vdatum ) );
-    hrs->code = copy_string( code );
-    _strupr( hrs->code );
-    hrs->name = copy_string( name );
-    hrs->basehrs = basehrs;
-    hrs->rf = rf;
-    hrs->func = hrf;
-    hrs->source = nullptr;
-    hrf->hrs=hrs;
-    return hrs;
+vdatum::~vdatum()
+{
+    delete basehrs;
+    delete rf;
+    delete func;
 }
 
 vdatum *geoid_vdatum( const char *geoidfile, ref_frame *rf )
@@ -45,45 +54,21 @@ vdatum *geoid_vdatum( const char *geoidfile, ref_frame *rf )
     end=strchr(hrs_name,'.');
     if( end ) *end=0;
     strcat( hrs_name," geoid");
-    
+
     vdatum_func *hrf=create_grid_vdatum_func( geoidfile, 1 );
-    vdatum *hrs=create_vdatum( "geoid", hrs_name, nullptr, rf, hrf );
-    return hrs;
+    return new vdatum( "geoid", hrs_name, rf, hrf );
 }
 
 vdatum *copy_vdatum( vdatum *hrs )
 {
     if( ! hrs ) return nullptr;
-    vdatum *hrs1;
-    vdatum_func *hrf=NULL;
-    ref_frame *rf=NULL;
-    vdatum *basehrs=NULL;
-    if( hrs == NULL ) return NULL;
-    if( hrs->func )
+    vdatum_func *hrf = hrs->func ? copy_vdatum_func( hrs->func ) : nullptr;
+    if( hrs->rf )
     {
-        hrf=copy_vdatum_func( hrs->func );
+        return new vdatum( hrs->code, hrs->name, copy_ref_frame( hrs->rf ), hrf );
     }
-    if( hrs->basehrs ) basehrs=copy_vdatum( hrs->basehrs );
-    if( hrs->rf ) rf=copy_ref_frame( hrs->rf );
-
-    hrs1 = create_vdatum( hrs->code, hrs->name, basehrs, rf, hrf );
-    return hrs1;
-}
-
-
-void delete_vdatum( vdatum *hrs )
-{
-    if( ! hrs ) return;
-    if( hrs->basehrs ) delete_vdatum( hrs->basehrs ); 
-    hrs->basehrs=0;
-    if( hrs->rf ) delete_ref_frame( hrs->rf ); 
-    hrs->rf=0;
-    if( hrs->func ) delete_vdatum_func( hrs->func );
-    hrs->func = 0;
-    check_free( hrs->code );
-    check_free( hrs->name );
-    if( hrs->source ) check_free( hrs->source );
-    check_free( hrs );
+    vdatum *basehrs = hrs->basehrs ? copy_vdatum( hrs->basehrs ) : nullptr;
+    return new vdatum( hrs->code, hrs->name, basehrs, hrf );
 }
 
 

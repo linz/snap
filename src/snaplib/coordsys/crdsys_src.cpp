@@ -275,10 +275,10 @@ coordsys * load_coordsys( const char *code )
             {
                 char errmsg[100];
                 sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
-                        hrs->code, cs->code );
+                        hrs->code.c_str(), cs->code );
                 handle_error( INVALID_DATA, errmsg, nullptr );
                 delete_coordsys( cs );
-                delete_vdatum( hrs );
+                delete hrs;
                 return NULL;
             }
             set_coordsys_vdatum( cs, hrs );
@@ -287,7 +287,7 @@ coordsys * load_coordsys( const char *code )
     }
     else
     {
-        delete_vdatum( hrs );
+        delete hrs;
         delete_ref_frame( rf );
     }
     return cs;
@@ -304,13 +304,12 @@ const char *coordsys_load_code( coordsys *cs )
         strcat(csfullcode,")");
         
     }
-    if( cs->hrs 
-            && cs->hrs->code 
-            && strlen(cs->hrs->code)+strlen(csfullcode)+1 < CRDCNV_CODE_LEN
+    if( cs->hrs
+            && cs->hrs->code.size()+strlen(csfullcode)+1 < CRDCNV_CODE_LEN
       )
     {
         strcat(csfullcode,"/");
-        strcat(csfullcode,cs->hrs->code);
+        strcat(csfullcode,cs->hrs->code.c_str());
     }
     return csfullcode;
 }

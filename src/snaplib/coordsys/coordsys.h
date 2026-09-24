@@ -149,18 +149,36 @@ typedef struct
 
 /* Vertical datum definition */
 
-typedef struct vdatum_s vdatum;
+struct vdatum;
 typedef struct vdatum_func_s vdatum_func;
 
-struct vdatum_s
+/// Always fully-formed once constructed (no default constructor, all
+/// fields const) - copy via copy_vdatum() (a real deep copy: basehrs/rf/
+/// func are owned pointers, so a shallow member-wise copy would be
+/// wrong), never via the copy constructor, which is deleted. Destroying
+/// one recursively deletes basehrs/rf/func. Exactly one of basehrs/rf is
+/// ever set - which constructor is used decides which, structurally
+/// (not validated at runtime).
+struct vdatum
 {
-    char *code;           /* Code for the vertical datum */
-    char *name;           /* Name of the surface                   */
-    char *source;      /* Where the coordsys was loaded from */
-    vdatum *basehrs;   /* Base reference surface pointer     */ 
-    ref_frame *rf;        /* The underlying reference frame     */
-    vdatum_func *func; /* Function surface height relative base surface, 
-                              or to ellipsoidal if basehrscode is null */
+    /// Based on another vertical datum (basehrs), not a reference frame.
+    vdatum( const std::string &code, const std::string &name,
+            vdatum *basehrs, vdatum_func *hrf,
+            std::optional<std::string> source = std::nullopt );
+    /// Based directly on a reference frame (rf), not another vertical datum.
+    vdatum( const std::string &code, const std::string &name,
+            ref_frame *rf, vdatum_func *hrf,
+            std::optional<std::string> source = std::nullopt );
+    vdatum( const vdatum& ) = delete;
+    ~vdatum();
+
+    const std::string code;                  ///< Code for the vertical datum
+    const std::string name;                  ///< Name of the surface
+    const std::optional<std::string> source; ///< Where the vdatum was loaded from
+    vdatum * const basehrs;                  ///< Base reference surface pointer
+    ref_frame * const rf;                    ///< The underlying reference frame
+    vdatum_func * const func;                ///< Function surface height relative base
+                                              ///< surface, or to ellipsoidal if basehrscode is null
 };
 
 /* Definition of a coordinate system */
@@ -326,13 +344,9 @@ int check_coordsys_range( coordsys *cs, double xyz[3] );
 
 /* Routines relating to vertical datum systems */
 
-vdatum *create_vdatum( const char *code, const char *name, 
-                           vdatum *basehrs, ref_frame *rf,
-                           vdatum_func *hrf );
 vdatum *geoid_vdatum( const char *geoidfile, ref_frame *rf );
 vdatum *copy_vdatum( vdatum *hrs );
 int identical_vdatum( vdatum *hrs1, vdatum *hrs2 );
-void delete_vdatum( vdatum *hrs );
 int calc_vdatum_offset( vdatum *hrs, double llh[3], double *height, double *exu );
 
 /* Calculate geoid information from coordinate info.  If exu is not null

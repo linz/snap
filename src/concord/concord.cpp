@@ -666,7 +666,7 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
                                     vdatum_list_desc(ihrs));
 
                         }
-                        delete_vdatum( hrs );
+                        delete hrs;
                     }
                 }
                 delete_coordsys( cs );

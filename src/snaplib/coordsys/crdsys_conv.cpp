@@ -260,8 +260,8 @@ static int define_coord_conversion_base( coord_conversion *conv,
             conv->valid=0;
             sprintf(conv->errmsg,
                     "Conversion between vertical datums %.20s and %.20s is too complex (> %d steps)",
-                    from->hrs ? from->hrs->code : "ellipsoid", 
-                    to->hrs ? to->hrs->code : "ellipsoid", 
+                    from->hrs ? from->hrs->code.c_str() : "ellipsoid",
+                    to->hrs ? to->hrs->code.c_str() : "ellipsoid",
                     CONVMAXRF );
         }
         else
@@ -381,7 +381,7 @@ int convert_coords( coord_conversion *conv,
         {
             sprintf(conv->errmsg,
                  "Cannot calculate %s height",
-                                    conv->from->hrs->code);
+                                    conv->from->hrs->code.c_str());
         }
     }
 
@@ -496,7 +496,7 @@ int convert_coords( coord_conversion *conv,
         {
             sprintf(conv->errmsg,
                  "Cannot calculate %s height",
-                                    conv->to->hrs->code);
+                                    conv->to->hrs->code.c_str());
         }
     }
 

@@ -153,12 +153,9 @@ int describe_projection( output_string_def *os, projection *prj )
 int describe_vdatum( output_string_def *os, vdatum *hrs )
 {
     if( !hrs ) return OK;
-    if( hrs->name )
-    {
-        write_output_string( os, "Heights: " );
-        write_output_string( os, hrs->name);
-        write_output_string( os, "\n" );
-    }
+    write_output_string( os, "Heights: " );
+    write_output_string( os, hrs->name.c_str() );
+    write_output_string( os, "\n" );
     return OK;
 }
 

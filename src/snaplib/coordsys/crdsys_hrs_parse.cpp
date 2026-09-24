@@ -136,7 +136,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
                 vdatum *base=basehrs;
                 while( base )
                 {
-                    if( _stricmp(base->code,hrscode) == 0 )
+                    if( _stricmp(base->code.c_str(),hrscode) == 0 )
                     {
                         char errmess[80+CRDSYS_CODE_LEN];
                         strcpy( errmess, "Vertical datum ");
@@ -154,20 +154,14 @@ vdatum *parse_vdatum_def ( input_string_def &is,
 
     if( sts == OK )
     {
-        hrs=create_vdatum( hrscode, hrsname, basehrs, baserf, hrf );
-        if( ! hrs )
-        {
-            char errmess[80+CRDSYS_CODE_LEN];
-            strcpy( errmess, "Cannot create vertical datum ");
-            strcat( errmess, hrscode );
-            report_string_error( is, INVALID_DATA, errmess );
-            sts=INVALID_DATA;
-        }
+        std::string source = "file:" + is.sourcename;
+        hrs = baserf ? new vdatum( hrscode, hrsname, baserf, hrf, source )
+                     : new vdatum( hrscode, hrsname, basehrs, hrf, source );
     }
 
     if( ! hrs )
     {
-        if( basehrs ) delete_vdatum( basehrs );
+        delete basehrs;
         if( baserf ) delete_ref_frame( baserf );
         if( hrf ) delete_vdatum_func( hrf );
     }

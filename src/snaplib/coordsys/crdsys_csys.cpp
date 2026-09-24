@@ -119,7 +119,7 @@ int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf )
 int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )
 {
     int sts=OK;
-    if( cs->hrs ) { delete_vdatum( cs->hrs ); cs->hrs=nullptr; }
+    if( cs->hrs ) { delete cs->hrs; cs->hrs=nullptr; }
     if( ! hrs ) return sts;
 
     /* Check that vertical datum datum matches coordinate datum,
@@ -133,9 +133,9 @@ int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )
     {
         char errmsg[100];
         sprintf( errmsg, "Vertical datum %.20s not compatible with coordinate system %.20s",
-                hrs->code,cs->code);
+                hrs->code.c_str(),cs->code);
         handle_error( INVALID_DATA, errmsg, nullptr );
-        delete_vdatum( hrs );
+        delete hrs;
         sts=INVALID_DATA;
     }
     return sts;

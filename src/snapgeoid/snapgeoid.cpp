@@ -288,7 +288,7 @@ int main( int argc, char *argv[] )
         vdatum *hrs = coordsys_vdatum( net.crdsys );
         if( hrs )
         {
-            sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
+            sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
         }
     }
 
@@ -324,7 +324,7 @@ int main( int argc, char *argv[] )
         sts=calc_station_geoid_info_from_coordsys( &net, cs,
                 orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) return 2;
-        sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name);
+        sprintf(geoid_msg,"Geoid undulations from %.80s",hrs->name.c_str());
     }
 
     else if( calc_geoid_opt == CALC_GEOID )
