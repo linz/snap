@@ -8,7 +8,7 @@
 
 */
 
-typedef struct
+struct tmprojection
 {
     double meridian;          /* Central meridian */
     double scalef;            /* Scale factor */
@@ -19,7 +19,7 @@ typedef struct
 
     double a, rf, f, e2, ep2;     /* Ellipsoid parameters */
     double om;                /* Intermediate calculation */
-} tmprojection;
+};
 
 
 /* Functions defined in TMPROJ.C */

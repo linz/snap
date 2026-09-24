@@ -23,7 +23,7 @@
 	the projection.
 	*/
 
-struct projection_type_s
+struct projection_type
 {
     const char *code;        /* Code for the projection type, eg TM, NZMG, LCC */
     const char *name;        /* Name of the type, eg Transverse Mercator */

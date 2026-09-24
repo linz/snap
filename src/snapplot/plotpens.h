@@ -59,19 +59,19 @@ enum
     N_STN_SYM
 };
 
-typedef struct
+struct key_def
 {
     const char *name;
     int  *pen;
     int  *opt;
     int  datapen;
-} key_def;
+};
 
-typedef struct
+struct symbolpoint
 {
     double x;
     double y;
-} symbolpoint;
+};
 
 // Returns true if the list was freshly built, false if reused from cache.
 bool setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );

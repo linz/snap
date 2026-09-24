@@ -12,13 +12,13 @@
 #include "coordsys/crdsys_rfdef_bw.h"
 
 
-typedef struct
+struct ref_deformation_xyz
 {
     char *description;
     double refepoch;
     double tmat[3][3];
     double shift[3];
-} ref_deformation_xyz;
+};
 
 
 #define READ_DOUBLE( name, pdouble ) \

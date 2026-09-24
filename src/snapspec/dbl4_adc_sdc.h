@@ -18,7 +18,7 @@
 
 #include "dbl4_types.h"
 
-typedef struct
+struct SDCOrderTest
 {
     IdType  idOrder;       /**< Order of the nodes passing the test */
     SysCodeType scOrder;   /**< Order display code */
@@ -45,7 +45,8 @@ typedef struct
                                   determining station with maximum error
                                   to reject */
 
-} SDCOrderTest, *hSDCOrderTest;
+};
+typedef SDCOrderTest *hSDCOrderTest;
 
 #define SDC_IGNORE_MARK    -1
 #define SDC_CONTROL_MARK   -2
@@ -87,7 +88,7 @@ typedef struct
 
 #define SDC_COVAR_UNAVAILABLE -1.0
 
-typedef struct
+struct SDCTest
 {
     void *env;         /**< Environment passed to function pointers */
     int  nmark;        /**< Number of marks - ids are 0 .. nmark-1  */
@@ -149,7 +150,8 @@ typedef struct
     void (*pfWriteCompact) (   /* Writes compact log information */
         void *env,
         const char *text );
-} SDCTest, *hSDCTest;
+};
+typedef SDCTest *hSDCTest;
 
 hSDCTest sdcCreateSDCTest( int maxorder );
 

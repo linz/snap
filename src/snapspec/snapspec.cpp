@@ -73,12 +73,12 @@ static const char *default_output_filename="-";
 #define RELACC_BLOCK_SIZE 4196
 #define MAX_ORDER 20
 
-typedef struct
+struct stn_relacc
 {
     double verr2;
     double emax2;
     /*   float verr2; */
-} stn_relacc;
+};
 
 #define SRA_LOGLEVEL_OUTPUT 2048 /* Output log to stdout as well as file */
 
@@ -87,7 +87,7 @@ typedef struct
 #define SRA_HVMODE_HOR  2
 #define SRA_HVMODE_3D   3
 
-typedef struct
+struct stn_relacc_array
 {
     FILE *logfile;
     FILE *dbgfile;
@@ -126,13 +126,13 @@ typedef struct
     int autominorder;
     int dfltminrelacc;
     int ignoreconstrained;
-} stn_relacc_array;
+};
 
-typedef struct cfg_stack_s
+struct cfg_stack
 {
     CFG_FILE *cfg;
-    struct cfg_stack_s *next;
-} cfg_stack;
+    struct cfg_stack *next;
+};
 
 cfg_stack *cfgs = NULL;
 
@@ -1938,11 +1938,11 @@ static int find_order( hSDCTest hsdc, const char *order )
     return iorder;
 }
 
-typedef struct
+struct limit_order_params
 {
     short order;
     stn_relacc_array *ra;
-} limit_order_params;
+};
 
 static void set_max_order( station *st, void *data )
 {

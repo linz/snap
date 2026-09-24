@@ -25,21 +25,21 @@ enum { NO_CHANGE, IS_TALLER };
 #define VALIDTREE 0xA8F1	         /* Arbitrary number */
 
 
-typedef struct node_s
+struct avlnode_t
 {
     void *value;             /* Pointer to node value */
-    struct node_s *left;     /* Pointer to left and right branches */
-    struct node_s *right;
+    struct avlnode_t *left;     /* Pointer to left and right branches */
+    struct avlnode_t *right;
     balance_t balance;	 /* Definition of balance of the tree */
-} avlnode_t;
+};
 
-typedef struct
+struct avltree_t
 {
     unsigned valid;		 /* Magic number for validity check */
-    struct node_s *root;	 /* Root of the tree */
+    struct avlnode_t *root;	 /* Root of the tree */
     int (*compare)(void *, void *);	 /* Comparison function - takes two pointers */
     int copysize;		 /* If non-zero then inserted values are copied */
-} avltree_t;
+};
 
 
 /*--------------------------------------------------------------------*/

@@ -29,12 +29,12 @@
 
 #define GEOID_GRID_EXTENSION ".grd"
 
-typedef struct
+struct geoid_def
 {
     grid_def *grd;
     coordsys *cs;
     double gridsize;
-} geoid_def;
+};
 
 const char *create_geoid_filename( const char *geoidname );
 void delete_geoid_filename( const char *filename );

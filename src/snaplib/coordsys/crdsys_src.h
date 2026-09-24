@@ -30,9 +30,9 @@
 
 #define CS_ID_UNAVAILABLE -1
 
-typedef struct csd_s
+struct crdsys_source_def
 {
-    struct csd_s *next;
+    struct crdsys_source_def *next;
     void *data;
     /// Searches this one coordinate system source (data) for filename+extension,
     /// e.g. relative to the source's own definition file. nullptr if this source
@@ -46,7 +46,7 @@ typedef struct csd_s
     int (*getnotes)( void *data, int type, const char *code, void *sink, int (*puttext)(const char *note, void *sink ));
     int (*getcodes)( void *data, void (*addfunc)( int type, long id, const char *code, const char *desc ) );
     int (*delsource)( void *data );
-} crdsys_source_def;
+};
 
 int crdsys_source_update( void );
 crdsys_source_def *crdsys_sources( void );

@@ -35,12 +35,12 @@
 
 /* Callback function used by loaddata to get id's of various objects */
 
-typedef struct missing_stn_s
+struct missing_stn
 {
-    struct missing_stn_s *next;
+    struct missing_stn *next;
     char *code;
     int id;
-} missing_stn;
+};
 
 static missing_stn *missing = NULL;
 static int missing_id = 0;

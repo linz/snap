@@ -66,7 +66,7 @@ The procedure requires the following sequence of calls
 #include "util/errdef.h"
 #include "util/wildcard.h"
 
-typedef struct
+struct prm_action
 {
     unsigned char action;
     union
@@ -79,7 +79,7 @@ typedef struct
         double v;
         param *p;
     } value;
-} prm_action;
+};
 
 #define PA_SET       1
 #define PA_ADJ       2

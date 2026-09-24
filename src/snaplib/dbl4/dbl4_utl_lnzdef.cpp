@@ -67,21 +67,23 @@ typedef char Version[VERSIONLEN+1];
 const char *defaultStartVer="00000000";
 const char *defaultEndVer="99999999";
 
-typedef struct
+struct CrdRange
 {
     double xmin;
     double ymin;
     double xmax;
     double ymax;
-} CrdRange, *hCrdRange;
+};
+typedef CrdRange *hCrdRange;
 
-typedef struct
+struct TimeModelPoint
 {
     double year;
     double factor;
-} TimeModelPoint, *hTimeModelPoint;
+};
+typedef TimeModelPoint *hTimeModelPoint;
 
-typedef struct s_DefCmp
+struct DefCmp
 {
     int id;
     char *description;
@@ -104,10 +106,11 @@ typedef struct s_DefCmp
     } model;
     Boolean loaded;
     StatusType loadstatus;
-    struct s_DefCmp *nextcmp;
-} DefCmp, *hDefCmp;
+    struct DefCmp *nextcmp;
+};
+typedef DefCmp *hDefCmp;
 
-typedef struct s_DefSeq
+struct DefSeq
 {
     int id;
     char *name;
@@ -124,18 +127,20 @@ typedef struct s_DefSeq
     Version startver;
     Version endver;
     Boolean enabled;
-    struct s_DefSeq *nextseq;
-} DefSeq, *hDefSeq;
+    struct DefSeq *nextseq;
+};
+typedef DefSeq *hDefSeq;
 
-typedef struct s_DefVer
+struct DefVer
 {
     Version version;
     DateTimeType versiondate;
     char *description;
-    struct s_DefVer *nextver;
-} DefVer, *hDefVer;
+    struct DefVer *nextver;
+};
+typedef DefVer *hDefVer;
 
-typedef struct
+struct DefMod
 {
     char *name;
     char *crdsyscode;
@@ -149,7 +154,8 @@ typedef struct
     hDefVer firstver;
     hDefVer currver;
     hBinSrc binsrc;
-} DefMod, *hDefMod;
+};
+typedef DefMod *hDefMod;
 
 
 

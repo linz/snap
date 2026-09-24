@@ -381,7 +381,7 @@ void add_stn_recode_to_map( stn_recode_map *stt, const char *codefrom, const cha
     add_stn_recode_to_map_err( stt, codefrom, codeto, datefrom, dateto, 0.0, 0.0 );
 }
 
-typedef struct 
+struct stn_recode_suffix_data
 {
     stn_recode_map *srm;
     char *suffix;
@@ -389,7 +389,7 @@ typedef struct
     double dateto;
     double herror;
     double verror;
-} stn_recode_suffix_data;
+};
 
 
 static void apply_recode_suffix( station *st, void *psrd )

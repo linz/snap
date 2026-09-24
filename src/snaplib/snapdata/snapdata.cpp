@@ -80,12 +80,12 @@
 
 /* Definition of a data field in the file */
 
-typedef struct
+struct data_field
 {
     int type;   /* Data type */
     int id;     /* Data type id */
     int sec_id; /* Secondary id - eg for classified systematic errors */
-} data_field;
+};
 
 /* Valid types of data field */
 
@@ -113,15 +113,15 @@ enum { DFT_START,          /* Start of a group relating to an observation
 
 /* Structures used to hold lists of valid classifications and systematic errors */
 
-typedef struct
+struct data_class
 {
     char *name;
     int class_id;
     int id[NOBSTYPE];
     int data_id;        /* Id for the current data field group */
-} data_class;
+};
 
-typedef struct
+struct data_syserr
 {
     char *name;
     int syserr_id;
@@ -131,19 +131,19 @@ typedef struct
     char defined;         /* Defined for current data field group */
     char vector;          /* True if the current systematic error is a vector */
     double influence[3];  /* Influence for current data field */
-} data_syserr;
+};
 
 /* Structure for holding a vector error specification */
 
-typedef struct
+struct vecerr_def
 {
     int nvecobs;
     double vecerr[MAXVECERR];
-} vecerr_def;
+};
 
 /* Structure holding the current state of the file */
 
-typedef struct
+struct snapfile_def
 {
     DATAFILE *df;
 
@@ -219,7 +219,7 @@ typedef struct
     int definition_err;    /* Error status */
     int group_err;
 
-} snapfile_def;
+};
 
 
 /* Structure used to define valid specification commands within the data file */
@@ -239,13 +239,13 @@ static int read_note_command( snapfile_def *sd, int id, const char *cmd );
 static int read_data_command( snapfile_def *sd, int id, const char *cmd );
 static int read_endset_command( snapfile_def *sd, int id, const char *cmd );
 
-typedef struct
+struct command
 {
     const char *command;
     int id;
     int (*action)( snapfile_def *sd, int id, const char *cmd );
     int flags;
-} command;
+};
 
 #define CMD_ENDDATA 0x01
 #define CMD_ENDSET  0x02

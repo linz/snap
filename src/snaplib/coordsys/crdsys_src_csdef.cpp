@@ -74,11 +74,11 @@ struct code_loc
 
 /* Structure defining a coordinate system definition file */
 
-typedef struct
+struct crdsys_file_source
 {
     DATAFILE *df;
     code_loc *codes[CS_COORDSYS_COUNT];
-} crdsys_file_source;
+};
 
 /* Add a new code */
 

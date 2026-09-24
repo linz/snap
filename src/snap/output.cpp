@@ -67,28 +67,28 @@
 
 #define MAX_SUBCOMMANDS 10
 
-typedef struct
+struct output_subcommand
 {
     const char *name;
     config_store_func store;
     int code;
-} output_subcommand;
+};
 
-typedef struct
+struct output_option
 {
     const char *name;
     char *status;
     char dflt;
     char incompatible[MAX_INCOMPATIBLE_MODES];
     output_subcommand (*subcommands)[MAX_SUBCOMMANDS];
-} output_option;
+};
 
-typedef struct relcvr_opt_s
+struct relcvr_opt
 {
-    relcvr_opt_s *next;
+    relcvr_opt *next;
     double maxlen;
     char *stnlist;
-} relcvr_opt;
+};
 
 static int read_cvr_connections( CFG_FILE *cfg, char *string, void *value, int len, int code );
 

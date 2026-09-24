@@ -32,13 +32,13 @@
 
 enum {NULL_GRID, SNAP2D_GRID};
 
-typedef struct
+struct rf_grid_def
 {
     char *filename;
     grid_def *grid;
     int type;
     int status;
-} rf_grid_def;
+};
 
 
 static rf_grid_def *rf_grid_create( const char *filename, int type )

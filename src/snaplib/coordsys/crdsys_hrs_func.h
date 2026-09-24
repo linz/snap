@@ -2,7 +2,7 @@
 #define CRDSYS_HRS_FUNC_H
 
 
-struct vdatum_func_s
+struct vdatum_func
 {
     char *type;
     char *description;

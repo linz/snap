@@ -20,7 +20,7 @@
 // on-disk format from the struct. genparam.cpp's compile-time
 // param_disk_fields_contiguous() check catches most such drift, but can't catch
 // a field added and never added to the table at all.
-typedef struct param_s
+struct param
 {
     std::string name;
     unsigned int hash;
@@ -29,7 +29,7 @@ typedef struct param_s
     int rowno;
     unsigned char flags;
     int identical;
-} param;
+};
 
 // The fixed-width on-disk layout of every field above except `name` (a
 // variable-length std::string) - see genparam.cpp, where this table is

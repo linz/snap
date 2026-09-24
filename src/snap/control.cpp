@@ -129,11 +129,11 @@ static double dflt_rc;
 #define MODE_VRT 2
 #define MODE_AUTO 4
 
-typedef struct
+struct station_process_mode
 {
     int mode;
     int option;
-} station_process_mode;
+};
 
 #define INC_COMMAND 0
 #define CFG_COMMAND 1

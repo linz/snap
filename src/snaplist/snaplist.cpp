@@ -57,11 +57,11 @@ static coord_conversion from_xyz;
 static ellipsoid *el;
 static station dummy1, dummy2;
 
-typedef struct
+struct covariance
 {
     double emax, emin, az;
     double sehgt;
-} covariance;
+};
 
 static covariance *covar;
 
@@ -71,7 +71,7 @@ enum {TYPE_STRING, TYPE_PSTRING, TYPE_DOUBLE, TYPE_ANGLE };
 
 #define MAX_HEADERS 3
 
-typedef struct
+struct column_def
 {
     const char *name;
     int width;
@@ -85,7 +85,7 @@ typedef struct
     char *suffix;
     char *header[MAX_HEADERS];
     int extralen;
-} column_def;
+};
 
 static char *fromStn;
 static char *toStn;

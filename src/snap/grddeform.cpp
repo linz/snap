@@ -26,10 +26,10 @@ static char *modelfile;
 static int veldimension;
 
 
-typedef struct
+struct velocity
 {
     double dxyz[3];
-} velocity;
+};
 
 static velocity *stn_velocities = NULL;
 

@@ -1,7 +1,7 @@
 #ifndef _WRITECSV_H
 #define _WRITECSV_H
 
-typedef struct
+struct output_csv
 {
     char *filename;
     FILE *f;
@@ -13,7 +13,7 @@ typedef struct
     char *quoterep;
     char *newlinerep;
     char charbuf[20];
-} output_csv;
+};
 
 
 output_csv *open_output_csv( const char *filename, int tab_delimited );

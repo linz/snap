@@ -8,11 +8,11 @@
 
 #define INIT_FILENAME_COUNT 100
 
-typedef struct 
+struct recfilename
 {
     const char *filename;
     const char *filetype;
-} recfilename;
+};
 
 static int recording=0;
 static strarray filetypes;

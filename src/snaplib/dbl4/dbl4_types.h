@@ -39,7 +39,7 @@ typedef int  StatusType;        /* Used for function return values */
 
 /* Date types */
 
-typedef struct
+struct DateTimeType
 {
     double years;
     float dtSec;
@@ -48,7 +48,7 @@ typedef struct
     short dtDay;
     short dtHour;
     short dtMin;
-}  DateTimeType;
+};
 
 /* Database handle types */
 

@@ -3,12 +3,12 @@
 
 #include <stdio.h>
 
-typedef struct
+struct strarray
 {
     char **strings;
     int nstrings;
     int maxstrings;
-} strarray;
+};
 
 
 void strarray_init( strarray *stra );

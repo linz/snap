@@ -32,20 +32,20 @@
 
 /* Structure used to hold plotting information about a station */
 
-typedef struct
+struct stn_plot_s
 {
     double easting, northing;
     float de, dn, dh;
     float e_offset, n_offset;
     int symbol;  /* Actually usage!! */
     unsigned char flags;
-} stn_plot_s;
+};
 
-typedef struct
+struct covariance
 {
     double emax, emin, az;
     double sehgt;
-} covariance;
+};
 
 typedef union
 {

@@ -46,7 +46,7 @@
 /*                                                            */
 /*------------------------------------------------------------*/
 
-typedef struct
+struct obsrow
 {
     int    *col;    /* Column no of non-zero element */
     double *val;    /* Value of non-zero element */
@@ -54,11 +54,11 @@ typedef struct
     double  obsv;   /* The value of the observation */
     double  schv;   /* Implicitly solved parameter */
     char    flag;   /* Flag for observations */
-}  obsrow;
+};
 
 #define OE_UNUSED  1
 
-typedef struct
+struct obseqn
 {
     int     nprm;   /* Number of parameters */
     int     nrow;   /* Number of rows in equns */
@@ -69,7 +69,7 @@ typedef struct
     ltmat   cvr;    /* Covariance matrix */
     char    flag;   /* TRUE if weight matrix is diagonal */
     long    maxelt; /* Size currently allocated to the matrix*/
-}  obseqn;
+};
 
 #define OE_LOWERTRI_CVR 0    /* Covariance is lower triangle storage */
 #define OE_DIAGONAL_CVR 1    /* Covariance matrix is diagonal */

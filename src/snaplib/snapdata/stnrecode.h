@@ -20,7 +20,7 @@
 #define RECODE_USED        1
 #define RECODE_STN_CREATED 2
 
-typedef struct stn_recode_s
+struct stn_recode
 {
     const char *codeto;
     double datefrom;
@@ -30,15 +30,15 @@ typedef struct stn_recode_s
     int seqid;
     double herror; /* if errors > 0.0 then used as obs */
     double verror; 
-    struct stn_recode_s *next;
-} stn_recode;
+    struct stn_recode *next;
+};
 
-typedef struct stn_recode_list_s
+struct stn_recode_list
 {
     const char *codefrom;
     stn_recode *translations;
-    struct stn_recode_list_s *next;
-} stn_recode_list;
+    struct stn_recode_list *next;
+};
 
 /* get_station_func should return 
  * STN_RECODE_FAIL   cannot create station
@@ -52,7 +52,7 @@ typedef struct stn_recode_list_s
 
 typedef int (*get_recode_station_func)( void *data, const char *codefrom, const char *codeto );
 
-typedef struct 
+struct stn_recode_map
 {
     stn_recode_list *stlists;
     stn_recode_list **index;
@@ -60,14 +60,14 @@ typedef struct
     int nindex;
     int used;
     network *net;
-} stn_recode_map;
+};
 
-typedef struct
+struct stn_recode_data
 {
     stn_recode_map *global_map;
     stn_recode_map *file_map;
     network *net;
-} stn_recode_data;
+};
 
 
 /* 

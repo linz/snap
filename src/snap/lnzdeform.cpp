@@ -19,23 +19,23 @@
 #include "dbl4_utl_lnzdef.h"
 #include "dbl4_utl_error.h"
 
-typedef struct
+struct StationDeformation
 {
     double x, y;
     double y0def[3];
     double year;
     double def[3];
-} StationDeformation;
+};
 
 
-typedef struct
+struct LinzDefModel
 {
     hBlob blob;
     hBinSrc binsrc;
     hLinzDefModel linzdef;
     double epoch;
     StationDeformation *stdefs;
-} LinzDefModel;
+};
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */

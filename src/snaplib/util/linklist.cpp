@@ -21,13 +21,13 @@
 #include "util/linklist.h"
 #include "util/errdef.h"
 
-typedef struct element_s
+struct element
 {
-    struct element_s *next;   /* Next member of list */
+    struct element *next;   /* Next member of list */
     void *item;                /* Pointer to data item */
-} element;
+};
 
-typedef struct list_s
+struct llist
 {
     element *first;  /* First element of the list */
     element *last;   /* Last element of the list */
@@ -38,7 +38,7 @@ typedef struct list_s
     int copysize;    /* If non-zero, then items supplied to the
 				routine are copied, otherwise only the
 				pointer to the item is saved */
-} llist;
+};
 
 /* Basic routines to create a list, add an element to the list,
    and delete the list.  The routine create_list returns a handle

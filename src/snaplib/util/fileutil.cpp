@@ -44,11 +44,11 @@ static std::optional<std::string> imgpath;
 static std::optional<std::string> imgdir;
 static std::optional<std::string> imgname;
 
-typedef struct config_path_def_s
+struct config_path_def
 {
-    struct config_path_def_s *next;
+    struct config_path_def *next;
     std::string path;
-} config_path_def;
+};
 
 static config_path_def *config_dir_list=0;
 static int config_dirs_set=0;

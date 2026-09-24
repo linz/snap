@@ -45,7 +45,7 @@
 #include "notedata.h"
 #include "snap/datastat.h"
 
-typedef struct
+struct residual
 {
     int from;
     int to;
@@ -56,7 +56,7 @@ typedef struct
     char unused;
     double sres;
     int64_t note;
-} residual;
+};
 
 #define MAXRANK 3
 

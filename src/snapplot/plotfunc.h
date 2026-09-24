@@ -19,7 +19,7 @@
 
 #define ALL_DONE (-1)
 
-typedef struct
+struct map_plotter
 {
     void *plotobj;
     void (*line_func)( void *plotter, double px, double py, int pen, int dashed );
@@ -27,7 +27,7 @@ typedef struct
     void (*ellipse_func)( void *plotter, double px, double py, double a, double b, double az, int pen );
     void (*symbol_func)( void *plotter, double px, double py, int pen, int symbol );
     double (*symbol_size_func)( void *plotter, int symbol );
-} map_plotter;
+};
 
 /* To facilitate background processing draw functions are called repeatedly
    until they return status ALL_DONE.  Otherwise they should always be called

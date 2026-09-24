@@ -15,12 +15,12 @@
 #include "util/errdef.h"
 #include "util/chkalloc.h"
 
-typedef struct
+struct autofix_data
 {
     int flags;
     int horstn1;
     int horstn2;
-} autofix_data;
+};
 
 /* PDOBS = horizontal position dependent observations */
 /* HDOBS = height dependent observations */

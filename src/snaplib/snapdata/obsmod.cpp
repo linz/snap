@@ -51,41 +51,41 @@
 
 /* Criterion against which observations are tested.  obs_criterion is a union of these */
 
-typedef struct 
+struct obs_datatype_criterion
 {
     bool select[NOBSTYPE];
-} obs_datatype_criterion;
+};
 
-typedef struct 
+struct obs_datafile_criterion
 {
     int file_id;
     bool wildcard;
     char *filename;
     int last_file_id;
     bool last_match;
-} obs_datafile_criterion;
+};
 
-typedef struct 
+struct obs_classification_criterion
 {
     int class_id;
     int value_id;
-} obs_classification_criterion;
+};
 
-typedef struct 
+struct obs_id_criterion
 {
     int nobs_ids;
     int obs_id;
     int *obs_ids;
-} obs_id_criterion;
+};
 
-typedef struct 
+struct mult_obs_classification_criterion
 {
     int class_id;
     int nvalues;
     int *value_ids;
-} mult_obs_classification_criterion;
+};
 
-typedef struct 
+struct wildcard_obs_classification_criterion
 {
     int class_id;
     char *wildclass;
@@ -93,25 +93,25 @@ typedef struct
     int nalloc;
     int nvalues;
     int *value_ids;
-} wildcard_obs_classification_criterion;
+};
 
-typedef struct 
+struct obs_date_criterion
 {
     unsigned char date_criterion_type;
     double date;
-} obs_date_criterion;
+};
 
-typedef struct 
+struct obs_stations_criterion
 {
     char *station_list;
     char *config_filename;
     char *config_loc;
     void *criteria;
-} obs_stations_criterion;
+};
 
 /* Single observation criterion, which is configured as a linked list. */
 
-typedef struct obs_criterion_s
+struct obs_criterion
 {
     unsigned char crit_type;   // Identifies the criterion type
     bool groupmatch;
@@ -126,10 +126,10 @@ typedef struct obs_criterion_s
         obs_date_criterion date;
         obs_stations_criterion stations;
     } c;
-    struct obs_criterion_s *next;
-} obs_criterion;
+    struct obs_criterion *next;
+};
 
-typedef struct obs_criteria_s
+struct obs_criteria
 {
     obs_criterion *first;
     obs_criterion *last;
@@ -139,38 +139,38 @@ typedef struct obs_criteria_s
     int option;
     double factor;
     double factor2;
-    struct obs_criteria_s *next;
-    struct obs_criteria_s *pnext; /* Next criteria to process */
-} obs_criteria;
+    struct obs_criteria *next;
+    struct obs_criteria *pnext; /* Next criteria to process */
+};
 
 
-typedef struct crit_group_s /* Structure used to prepare classification groupings */
+struct crit_group_id
 {
     obs_criteria *criteria;
     int groupid;
     int valueid;
-} crit_group_id;
+};
 
-typedef struct obs_criteria_group_s
+struct obs_criteria_group
 {
     int class_id;
     int min_value_id;
     int max_value_id;
     int ncriteria; /* Used to assess how much discrimination provided by group */
     obs_criteria **criteria;
-    struct obs_criteria_group_s *next;
-} obs_criteria_group;
+    struct obs_criteria_group *next;
+};
 
 #define DFLT_MAX_OFFSETS 256
 
-typedef struct obs_offset_error_s
+struct obs_offset_error
 {
     int iobs;
     double offsethv;
     double offsetvv;
-} obs_offset_error;
+};
 
-typedef struct
+struct obs_modifications
 {
     obs_criteria *first;
     obs_criteria *last;
@@ -185,9 +185,9 @@ typedef struct
     obs_offset_error *offsets;
     int noffsets;
     int maxoffsets;
-} obs_modifications;
+};
 
-typedef struct
+struct obsmod_context
 {
     obs_modifications *obsmod;
     survdata *sd; 
@@ -203,7 +203,7 @@ typedef struct
     double offsetvv;   /* Vertical station offset variance */
     double centroidhv; /* Horizontal station centroid/basestation variance */
     double centroidvv; /* Vertical station centroid/basestation variance */
-} obsmod_context;
+};
 
 static void delete_criteria_groups( obs_modifications *obsmod );
 

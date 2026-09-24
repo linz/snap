@@ -13,31 +13,31 @@
 #define STN_TS_ENU 0
 #define STN_TS_XYZ 1
 
-typedef struct
+struct stn_tspoint
 {
     double date;
     vector3 denu;
-} stn_tspoint;
+};
 
 /* Note: tspoints is allocated in same allocation as stn_offset_comp
  * if it is required  */
 
-typedef struct stn_offset_comp_s
+struct stn_offset_comp
 {
     int mode;
     int isxyz;
     int ntspoints;
     stn_tspoint basepoint;
     stn_tspoint *tspoints;
-    struct stn_offset_comp_s *next;
-} stn_offset_comp;
+    struct stn_offset_comp *next;
+};
 
-typedef struct
+struct stn_offset
 {
     int isdeformation;
     stn_offset_comp *components;
 
-} stn_offset;
+};
 
 stn_offset_comp *create_stn_offset_comp( int mode, int isxyz, int ntspoints );
 void add_stn_offset_comp_to_station( station *st, stn_offset_comp *comp, int isdeformation );

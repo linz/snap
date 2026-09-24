@@ -132,14 +132,14 @@ static int ncrderr;
 /* If no_seconds is set then the format holds degrees and decimal minutes -
    but with the minutes in the last seconds field! */
 
-typedef struct
+struct DMS
 {
     int degrees;
     int minutes;
     double seconds;
     char neg;
     char no_seconds;
-} DMS;
+};
 
 static int printf_func( const char *s, void *dummy );
 

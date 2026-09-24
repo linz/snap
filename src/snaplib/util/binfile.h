@@ -26,7 +26,7 @@
 #include "util/errdef.h"
 #endif
 
-typedef struct
+struct BINARY_FILE
 {
     FILE *f;
     int64_t start;
@@ -34,7 +34,7 @@ typedef struct
     int32_t section_version;
     int32_t bf_version;
     char sigchar;
-} BINARY_FILE;
+};
 
 
 enum class BinFileOpenResult { NotFound, InvalidVersion, Ok };

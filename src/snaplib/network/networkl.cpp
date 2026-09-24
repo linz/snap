@@ -64,46 +64,46 @@
 static const char *source_prefix="station list in ";
 static const char *default_source="station list";
 
-typedef struct code_criterion_s
+struct code_criterion
 {
     char *code;
     int id;
     int missing_error;
-} code_criterion;
+};
 
-typedef struct criteria_cache_s
+struct criteria_cache
 {
     unsigned char *cache;
     int maxcache;
-} criteria_cache;
+};
 
-typedef struct code_match_criterion_s
+struct code_match_criterion
 {
     char *code;
-} code_match_criterion;
+};
 
-typedef struct code_range_criterion_s
+struct code_range_criterion
 {
     char *fromcode;
     char *tocode;
-} code_range_criterion;
+};
 
-typedef struct polygon_criterion_s
+struct polygon_criterion
 {
     void *polygon;
     coordsys *cs;
     coord_conversion *conv;
     bool isgeodetic;
     bool inside;
-} polygon_criterion;
+};
 
-typedef struct classification_criterion_s
+struct classification_criterion
 {
     int class_id;
     int value_id;
-} classification_criterion;
+};
 
-typedef struct criterion_s
+struct criterion
 {
     unsigned char type;
     unsigned char crit_operator;
@@ -117,16 +117,16 @@ typedef struct criterion_s
         polygon_criterion polygon;
         classification_criterion classification;
     } c;
-    struct criterion_s *next;
-} criterion;
+    struct criterion *next;
+};
 
-typedef struct station_criteria_source_s
+struct station_criteria_source
 {
     const char *source;
-    struct station_criteria_source_s *next;
-} station_criteria_source;
+    struct station_criteria_source *next;
+};
 
-typedef struct station_criteria_s
+struct station_criteria
 {
     criterion *first;
     criterion *last;
@@ -135,7 +135,7 @@ typedef struct station_criteria_s
     station_criteria_source *sources;
     station_criteria_source *cur_source;
     int cur_missing_error;
-} station_criteria;
+};
 
 /*-----------------------------------------------------------------------*/
 

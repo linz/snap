@@ -83,7 +83,7 @@ Should be first initialised with a call to init_dms_string with parameters
 
 ---------------------------------------------------------*/
 
-typedef struct
+struct DMS_format
 {
     int ndeg;
     int ndp;
@@ -96,7 +96,7 @@ typedef struct
     char *sec;
     char *plus;
     char *minus;
-} DMS_format;
+};
 
 
 void *create_dms_format( int ndeg, int ndp, int fmt,

@@ -19,12 +19,12 @@ void init_file_display( FILE *infile );
 void update_file_display( void );
 void end_file_display( void );
 
-typedef struct
+struct progress_meter_def
 {
     void (*init_meter)( long total_size );
     void (*update_meter)( long progress );
     void (*end_meter)( void );
-} progress_meter_def;
+};
 
 void install_progress_meter( progress_meter_def *meter );
 void uninstall_progress_meter( void );

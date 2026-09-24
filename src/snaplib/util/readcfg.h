@@ -24,7 +24,7 @@
 #define CFG_FILE_NAME_LEN 256
 #define ABORT_CONFIG_FILE NO_MORE_DATA
 
-typedef struct
+struct CFG_FILE
 {
     FILE *f;       			/* The file handle */
     char *name;                 /* The file name */
@@ -38,7 +38,7 @@ typedef struct
     char abort;
     char *buffer;               /* Text buffer for reading options */
     int nbuffer;                /* Size of buffer */
-} CFG_FILE;
+};
 
 
 /* Definition of an item in a configuration file - the user supplies an
@@ -46,7 +46,7 @@ typedef struct
 
 typedef int (*config_store_func)( CFG_FILE *cfg, char *valst, void *value, int vallen, int code);
 
-typedef struct
+struct config_item
 {
     const char *option;   /* Address of option name */
     void *value;    /* Address into which value is to be stored */
@@ -56,7 +56,7 @@ typedef struct
     int flags;      /* Flag defining required options  - on exit
 			   identifies which options were present */
     int code;       /* User defined integer code */
-} config_item;
+};
 
 /* Definition of NULL function for storage - default is to store as a
    string of up to length-1 characters. The store function should return

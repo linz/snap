@@ -127,12 +127,12 @@ static const char *whitespace = " \t\r\n";
 
 static void add_config_menu_item( const char *filename, char *text );
 
-typedef struct config_menu_item_s
+struct config_menu_item
 {
     char *menu_text;
     char *file_name;
-    struct config_menu_item_s *next;
-} config_menu_item;
+    struct config_menu_item *next;
+};
 
 config_menu_item *config_menu = NULL;
 int config_menu_size = 0;

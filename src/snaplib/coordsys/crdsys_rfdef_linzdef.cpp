@@ -20,7 +20,7 @@
 
 #define VERSIONLEN 8
 
-typedef struct
+struct LinzDefModel
 {
     char *ldeffile;
     char version[VERSIONLEN+1];
@@ -29,7 +29,7 @@ typedef struct
     hBlob blob;
     hBinSrc binsrc;
     hLinzDefModel linzdef;
-} LinzDefModel;
+};
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */

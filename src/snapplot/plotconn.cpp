@@ -68,13 +68,13 @@ typedef union              /* Location of data on file or in memory */
     char *mloc;
 } conn_location;
 
-typedef struct conn_ptr
+struct conn_ptr
 {
     conn_location l;        /* Location of connections (conn_data) */
     int nconn;            /* Number of connections saved   */
     int nalloc;           /* Number of connections allocated */
     char visible;
-} conn_ptr;
+};
 
 /* conn_ptr's are allocated in blocks of CONN_BLOCK_SIZE */
 
@@ -84,17 +84,17 @@ static int nspare_conn;
 static conn_ptr *conn_block;
 static void * conn_block_alloc;
 
-typedef struct
+struct conn_cvr
 {
     double emin, emax, az;   /* Error ellipse definition */
     double sehgt;
-} conn_cvr;
+};
 
 /* Data structures used in the binary file holding the definitions of the
    connections.  These are stored in blocks of initial size
    CONN_DATA_INIT, and are doubled each time more is required */
 
-typedef struct
+struct conn_data
 {
     unsigned char flags;   /* Unused, Reverse direction */
     unsigned char type;    /* data type */
@@ -107,7 +107,7 @@ typedef struct
     int64_t bloc;          /* location of binary data in data source */
     int idata;           /* Index of data in data block in file */
     int cclass[1];        /* Classifications */
-} conn_data;
+};
 
 #define CONN_DATA_INIT 4
 
@@ -115,22 +115,22 @@ typedef struct
 /* The initial size is TCONN_ARRAY_INIT and the expansion is in units of
    TCONN_ARRAY_INC */
 
-typedef struct
+struct tconn_ptr
 {
     conn_ptr *conn;
     int to;
-} tconn_ptr;
+};
 
 #define TCONN_ARRAY_INIT 5
 #define TCONN_ARRAY_INC 5
 
-typedef struct
+struct fconn_ptr
 {
     int nconn;
     int max_conn;
     int eastmost_conn;
     tconn_ptr *to;
-} fconn_ptr;
+};
 
 /* Flags used in definitions of connections */
 
@@ -1168,12 +1168,12 @@ static int obs_station_showable( int istn )
     return show_hidden_stn_obs || station_showable(istn);
 }
 
-typedef struct
+struct pendef
 {
     int pen;
     unsigned char flags;
     unsigned char highlight;
-} pendef;
+};
 
 static int max_pens;
 static pendef *pens = NULL;
@@ -1537,7 +1537,7 @@ double get_obs_highlight_offset()
 /* Create and maintain a sorted index of the standardised        */
 /* residuals                                                     */
 
-typedef struct
+struct SresDef
 {
     int from;
     int to_id;
@@ -1549,7 +1549,7 @@ typedef struct
         double fval;
         long ival;
     } cmpval;
-} SresDef;
+};
 
 #define MAX_DISPLAY_FIELDS 32
 
@@ -2419,12 +2419,12 @@ int get_connected_station( int from, int index, char *visible )
 
 /**********************************************************************/
 
-typedef struct
+struct ConnData
 {
     int nto;
     double dist;
     double azimuth;
-} ConnData;
+};
 
 static double *connAz = NULL;
 static int *connId = NULL;
@@ -3134,7 +3134,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     if( unused & REJECT_OBS_BIT ) strcat( buf, "  (rejected)");
     else if( unused ) strcat( buf, "  (not used)");
     (*f)( dest, &jmp, buf );
-    if( sd->reffrm ) sprintf(buf,"Reference frame: %s",rftrans_from_id(sd->reffrm)->name);
+    if( sd->reffrm ) sprintf(buf,"Reference frame: %s",rftrans_from_id(sd->reffrm)->name.c_str());
     (*f)( dest, &jmp, buf );
     if( datatype[type].ispoint )
     {

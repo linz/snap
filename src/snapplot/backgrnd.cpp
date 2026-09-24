@@ -32,25 +32,25 @@
 #include "util/fileutil.h"
 #include "snapplot_util.h"
 
-typedef struct
+struct background_file
 {
     char *filename;
     char *crdsysdef;
     char *layer_name;
-} background_file;
+};
 
-typedef struct
+struct background_layer
 {
     char *layer_name;
     int input_id;
     int pen_id;
-} background_layer;
+};
 
-typedef struct
+struct bkg_point
 {
     int pen;
     double x, y;
-} bkg_point;
+};
 
 static FILE *bkg_file = NULL;
 static void *bkg_list = NULL;

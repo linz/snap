@@ -19,7 +19,7 @@
 
 static vdatum_func *create_vdatum_func( const char *type, const char *description )
 {
-    int hrfsize=sizeof(vdatum_func_s)+strlen(type)+strlen(description)+2;
+    int hrfsize=sizeof(vdatum_func)+strlen(type)+strlen(description)+2;
     vdatum_func *hrf = (vdatum_func * ) check_malloc( hrfsize ); 
     char *ptr=((char *)(void *) hrf) + sizeof(vdatum_func);
     hrf->type=ptr;
@@ -86,7 +86,7 @@ vdatum_func *create_offset_vdatum_func( double offset )
 /*========================================================================================*/
 /* Grid based vertical datum function routine                                           */
 
-typedef struct 
+struct grid_vdatum_func_data
 {
     char *filename;
     geoid_def *gd;
@@ -95,7 +95,7 @@ typedef struct
     coord_conversion *irfconv;
     int loadsts;
     int isoffset;  /* Offset is offset to height coord, so negative of offset to surface */
-} grid_vdatum_func_data;
+};
 
 static grid_vdatum_func_data *create_grid_vdatum_func_data( const char *filename, int isoffset )
 {

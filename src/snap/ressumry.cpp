@@ -36,15 +36,15 @@
    as an array of level_id's.  Possible values are BY_DATA_TYPE, BY_FILE,
    or the number of a classification type.  */
 
-typedef struct summary_def_s
+struct summary_def
 {
     int nlevel;
     int enu_components;
     int *level_id;
     int *level_count;
     int *obs_id;
-    struct summary_def_s *next;
-} summary_def;
+    struct summary_def *next;
+};
 
 #define BY_DATA_TYPE -1
 #define BY_FILE      -2
@@ -57,13 +57,13 @@ static summary_def *first_def = NULL;
 
 /*=======================================================================*/
 
-typedef struct
+struct error_total
 {
     double ssr;
     long  count;
     int axis;
     int used;
-} error_total;
+};
 
 /* Static data used for summing obs .. should be moved to dynamically allocated structure */
 

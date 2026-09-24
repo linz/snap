@@ -100,13 +100,13 @@ static int cvrdim = 0;
  * observation group (but the memory used is retained until the end of the
  * data set. */
 
-typedef struct
+struct recoded_id
 {
     int codeid;   /* Index into saved codes - subtract saved_codes_offset */
     int recoded;  /* Flag for recoded */
     int id;       /* Recoded station id */
     int reject;   /* Recoded rejection */
-} recoded_id;
+};
 
 static recoded_id *saved_ids=NULL;
 static int max_saved_id=0;

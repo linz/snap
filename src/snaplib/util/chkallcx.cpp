@@ -33,23 +33,23 @@
 
 #define MAGIC_NUMBER 0xA55A
 
-typedef struct MemFile_s
+struct MemFile
 {
-    struct MemFile_s *next;
+    struct MemFile *next;
     char *fname;
     int count;
-} MemFile;
+};
 
-typedef struct MemHandle_s
+struct MemHandle
 {
     unsigned magic;
-    struct MemHandle_s *next;
-    struct MemHandle_s *prev;
+    struct MemHandle *next;
+    struct MemHandle *prev;
     MemFile *file;
     int line;
     size_t size;
     long id;
-} MemHandle;
+};
 
 static MemFile *filelist = NULL;
 static MemHandle *memlist = NULL;

@@ -13,13 +13,13 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-typedef struct
+struct ref_deformation_grid
 {
     char *filename;
     grid_def *grid;
     double refepoch;
     int status;
-} ref_deformation_grid;
+};
 
 
 static ref_deformation_grid *rf_grid_create( const char *filename, double refepoch )

@@ -20,7 +20,7 @@
 
 enum { SNAP_FORMAT, GB_FORMAT, CSV_FORMAT, SINEX_FORMAT };
 
-typedef struct
+struct survey_data_file
 {
     std::string name;
     int format;
@@ -33,7 +33,7 @@ typedef struct
     long obscount[NOBSTYPE];
     unsigned char usage;
     stn_recode_map *recode;
-} survey_data_file;
+};
 
 int  add_data_file( const std::string &name, int format, const std::optional<std::string> &subtype, const std::optional<std::string> &recode, file_context *context );
 survey_data_file *survey_data_file_ptr( int ifile );

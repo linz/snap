@@ -19,14 +19,14 @@
 #include "network/network.h"
 #endif
 
-typedef struct
+struct brngProjection
 {
     char *name;             /* The name of the reference frame     */
     int dtmtrans;           /* Apply datum transformation as well as projection */
     coordsys *prjsys;       /* The coordinate system for the projection */
     coord_conversion prjconv;  /* The conversion from the network geodetic
                              coordinate system to the bearing projection system */
-} brngProjection;
+};
 
 #define REFFRAMELEN 20
 

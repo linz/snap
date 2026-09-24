@@ -33,7 +33,7 @@
    and holds a long integer which is a handle to the name of the
    file (implementation of names to be sorted out!) */
 
-typedef struct
+struct stn_adjustment
 {
     double  initELat;  /* Initial coordinates */
     double  initELon;
@@ -59,7 +59,7 @@ typedef struct
         unsigned auto_h:1;
         unsigned auto_v:1;
     } flag;         /* Flags defining what is to be adjusted */
-} stn_adjustment;
+};
 
 enum { STN_FORMAT_SNAP, STN_FORMAT_GB, STN_FORMAT_CSV };
 

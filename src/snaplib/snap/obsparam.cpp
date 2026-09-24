@@ -12,7 +12,7 @@
 #include "util/errdef.h"
 
 
-typedef struct obs_param_s
+struct obs_param
 {
     int obsid;       /* Id of first obs of referencing observation set */
     int rowno;       /* Row number in obs equations */
@@ -20,9 +20,9 @@ typedef struct obs_param_s
     double value;    /* Calculated value of parameter */
     double covar;    /* Error of calculated value */
     char *prmname;   /* Name of the parameter */
-    struct obs_param_s *next;
-    struct obs_param_s *prev;
-} obs_param;
+    struct obs_param *next;
+    struct obs_param *prev;
+};
 
 static int n_obs_param=0;
 

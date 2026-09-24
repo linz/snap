@@ -53,10 +53,10 @@
 
 #define MAGIC_NUMBER 0xA1387B59
 
-typedef struct file_row_s file_row;
-typedef struct cache_row_s cache_row;
+struct file_row;
+struct cache_row;
 
-typedef struct
+struct grid_def_crs
 {
     unsigned int magic;
     hBinSrc binsrc;
@@ -88,15 +88,15 @@ typedef struct
     cache_row *cache_mru;  /**< Most recently used */
     cache_row *cache_lru;  /**< Least recently used */
     void *loadbuffer;
-} grid_def_crs;
+};
 
-struct file_row_s
+struct file_row
 {
     INT4 fileloc;
     cache_row *cacheloc;
 };
 
-struct cache_row_s
+struct cache_row
 {
     INT4 *data;
     file_row *lat;

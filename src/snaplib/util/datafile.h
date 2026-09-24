@@ -19,7 +19,7 @@
 #include "util/iostring.h"
 #endif
 
-typedef struct
+struct DATAFILE
 {
     std::string fname;
     FILE *f;
@@ -37,14 +37,14 @@ typedef struct
     char continuation_char;
     char quote_char;
     std::optional<input_string_def> instr; ///< constructed fresh by each df_input_string() call
-} DATAFILE;
+};
 
 
-typedef struct
+struct datafile_loc
 {
     long loc;
     long line;
-} datafile_loc;
+};
 
 int   df_data_file_default_reclen( int newlen );
 DATAFILE *df_open_data_file( const char *fname, const char *description ) ;

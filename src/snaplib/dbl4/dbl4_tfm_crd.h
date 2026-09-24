@@ -22,13 +22,14 @@
 
 /* Structure used to define a coordinate in the blade */
 
-typedef struct
+struct CrdType
 {
     double ordinate[3];       /**< COO.VALUE_n or ODT.VALUE_n */
     Boolean blnDefined[3];    /**< True if the ordinate type is defined */
     Boolean blnHeightUnknown; /**< Height invented by setting to 0  - applies
                                  for reference datum coordinates only*/
-} CrdType, *hCrd;
+};
+typedef CrdType *hCrd;
 
 /* Definitions of convention for datablade ordinate storage */
 

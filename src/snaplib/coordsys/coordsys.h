@@ -79,11 +79,10 @@ struct ellipsoid
 	it will be.  Coordinate transformations are permitted only between systems
 	with a common reference system */
 
-typedef struct ref_frame_s ref_frame;
-typedef struct ref_frame_func_s ref_frame_func;
-typedef struct ref_deformation_s ref_deformation;
+struct ref_frame_func;
+struct ref_deformation;
 
-struct ref_frame_s
+struct ref_frame
 {
     char *code;        /* Code for the reference frame   */
     char *name;        /* Name of the frame              */
@@ -111,7 +110,7 @@ struct ref_frame_s
     ref_deformation *def; /* Deformation function */
 };
 
-struct ref_frame_func_s
+struct ref_frame_func
 {
     char *type;
     char *description;
@@ -124,7 +123,7 @@ struct ref_frame_func_s
     int (*std_to_xyz_func)( ref_frame *rf, double xyz[3], double date );
 };
 
-struct ref_deformation_s
+struct ref_deformation
 {
     char *type;
     void *data;
@@ -136,21 +135,20 @@ struct ref_deformation_s
     int (*apply_llh)( ref_frame *rf,  double llh[3], double epochfrom, double epochto );
 };
 
-/* A projection.  projection_type_s is defined in a private header file,
+/* A projection.  projection_type is defined in a private header file,
    crdsyspj.h */
 
-typedef struct projection_type_s projection_type;
+struct projection_type;
 
-typedef struct
+struct projection
 {
-    struct projection_type_s *type;
+    projection_type *type;
     void *data;
-} projection;
+};
 
 /* Vertical datum definition */
 
-struct vdatum;
-typedef struct vdatum_func_s vdatum_func;
+struct vdatum_func;
 
 /// Always fully-formed once constructed (no default constructor, all
 /// fields const) - copy via copy_vdatum() (a real deep copy: basehrs/rf/
@@ -183,7 +181,7 @@ struct vdatum
 
 /* Definition of a coordinate system */
 
-typedef struct
+struct coordsys
 {
     char *code;        /* The code for the coordinate system */
     char *name;        /* The name of the coordinate system  */
@@ -206,22 +204,22 @@ typedef struct
     double hmult;        /* Multiplier for horizontal units */
     const char *vunits;  /* Name of vertical units */
     double vmult;        /* Multiplier for vertical units */
-} coordsys;
+};
 
 /* Definition of a coordinate conversion */
 
 #define CONVERRSIZE 256
 #define CONVMAXRF 10
 
-typedef struct
+struct coord_conversion_rf
 {
     ref_frame *rf;        /* Reference frame in which conversion is defined */
     char xyz_to_std;      /* Direction, 1 for xyz->base, 0 for base->xyz */
     char def_only;        /* Set if only need to apply deformation, not rf axes trans */
     char need_xyz;        /* Need geocentric at end of step (next rf has different ellipsoid ) */
-} coord_conversion_rf;
+};
 
-typedef struct
+struct coord_conversion
 {
     coordsys *from;    /* Source reference frame */
     coordsys *to;      /* Target reference frame */
@@ -240,7 +238,7 @@ typedef struct
     int      nhrf_from;  /* Number of vertical datum functions from source */
     int      nhrf_to;   /* Number of vertical datum functions to target */
 
-} coord_conversion;
+};
 
 /*====================================================================*/
 /* #defines to locate coordinates in arrays                           */

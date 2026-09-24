@@ -14,14 +14,14 @@
 
 #include "snapdata/survdata.h"
 
-typedef struct
+struct bindata
 {
     int64_t loc;      /* Location of structure on the file */
     int64_t size;      /* The size of the data element */
     int64_t allocsize; /* The space allocated */
     int  bintype;  /* The binary data format - see enum below */
     void *data; /* Pointer to the data structure */
-} bindata;
+};
 
 
 /* Types of binary data format */

@@ -16,11 +16,11 @@
 #include "util/chkalloc.h"
 #include "util/dstring.h"
 
-typedef struct prj_list_s
+struct prj_list
 {
-    struct prj_list_s *next;
+    struct prj_list *next;
     projection_type prj_type;
-} prj_list;
+};
 
 static prj_list *prj_types = NULL;
 

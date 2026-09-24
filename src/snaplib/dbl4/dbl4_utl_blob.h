@@ -35,11 +35,12 @@ StatusType utlTellBlobDB( void *pvBlob, long *position );
 
 StatusType utlWriteBlobDB( void *blob, long lngBufSize, void *pvBuffer );
 
-typedef struct
+struct BlobType
 {
     void *pvBlob;                /**< Data blob read/write functions */
     char *buffer;                /**< Used for formatted output routines */
-} BlobType, *hBlob;
+};
+typedef BlobType *hBlob;
 
 #define BLOB_SEEK_SET    0
 #define BLOB_SEEK_CUR    1

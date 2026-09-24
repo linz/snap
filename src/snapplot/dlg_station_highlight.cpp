@@ -15,12 +15,12 @@
 //}
 
 
-typedef struct
+struct SelectionData
 {
     const char *label;
     unsigned char mask;
     unsigned char incompatible;
-} SelectionData;
+};
 
 enum { flgAll=1, flgRej=2, flgHFix=4, flgVFix=8,
        flgHFlt=16, flgVFlt=32, flgHAdj=64, flgVAdj=128

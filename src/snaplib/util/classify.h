@@ -18,7 +18,7 @@
 enum class ClassValueType : int32_t { Char = 0, Int = 1 };
 #define CLASS_VALUE_NOT_DEFINED -1
 
-typedef struct class_value_s
+struct class_value
 {
     union
     {
@@ -27,9 +27,9 @@ typedef struct class_value_s
     } value;
     unsigned char usage;
     double error_factor;
-} class_value;
+};
 
-typedef struct class_type_s
+struct class_type
 {
     char *name;
     class_value **value;
@@ -37,14 +37,14 @@ typedef struct class_type_s
     int count;
     int alloc_size;
     char valuebuf[20];
-} class_type;
+};
 
-typedef struct classifications_s
+struct classifications
 {
     class_type **class_index;
     int class_count;
     int class_index_size;
-} classifications;
+};
 
 /* Conversion to/from name and index, and count of names */
 

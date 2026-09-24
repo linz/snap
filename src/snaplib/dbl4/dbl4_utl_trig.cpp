@@ -66,7 +66,7 @@
 	  id 0 implies that there is no opposite triangle node, and a surrounding node id of 0 implies
 	  a break in the triangulation (ie the boundary of the triangulation). */
 
-typedef struct
+struct TrigDef
 {
     INT4 magic;
     char *desc1;
@@ -84,9 +84,10 @@ typedef struct
     double *ptdata;
     INT4 *pttopoidx;
     INT2 *topodata;
-} TrigDef, *hTrigDef;
+};
+typedef TrigDef *hTrigDef;
 
-typedef struct
+struct PointDef
 {
     short id;
     short nnode;
@@ -94,13 +95,15 @@ typedef struct
     double *data;
     short *nodeid;
     short *opposite;
-} PointDef, *hPointDef;
+};
+typedef PointDef *hPointDef;
 
 
-typedef struct
+struct TriangleDef
 {
     PointDef pts[3];
-} TriangleDef, *hTriangleDef;
+};
+typedef TriangleDef *hTriangleDef;
 
 
 /*************************************************************************

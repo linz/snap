@@ -66,7 +66,7 @@
 
 /* Definition of output fields that may be put in a residual listing file */
 
-typedef struct
+struct listing_field_def
 {
     int id;
     const char *code;
@@ -79,7 +79,7 @@ typedef struct
     char vector_title2;  /* title2 is for vector formats only */
     int requested;
 
-} listing_field_def;
+};
 
 static char obs[30];
 static char obserr[20];
@@ -167,26 +167,26 @@ static int default_point_format[] =
 #define CLASSIFICATION_FIELD 512
 #define INVALID_FIELD -1
 
-typedef struct
+struct listing_column
 {
     int column;
     int width;
     const char *title1;
     const char *title2;
     char *data;
-} listing_column;
+};
 
-typedef struct
+struct listing_def
 {
     int ncolumn;
     listing_column col[MAX_COLUMNS];
-} listing_def;
+};
 
-typedef struct column_heading_def_s
+struct column_heading_def
 {
     char *heading;
-    struct column_heading_def_s *next;
-} column_heading_def;
+    struct column_heading_def *next;
+};
 
 static listing_def *listing_format = NULL;
 static listing_def data_format[NOBSTYPE] = {0};

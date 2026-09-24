@@ -21,13 +21,13 @@
 
 #undef SORTOBS_C
 
-typedef struct
+struct obsdef
 {
     int from;  /* From station */
     int to;    /* To station, or 0 if there are several */
     int type;  /* Observation type */
     int64_t loc;  /* File location */
-} obsdef;
+};
 
 typedef union
 {

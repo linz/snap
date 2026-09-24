@@ -13,19 +13,19 @@
 #include "util/pi.h"
 #include "csdeform.h"
 
-typedef struct
+struct StationDeformation
 {
     double x, y;
     double y0def[3];
     double year;
     double def[3];
-} StationDeformation;
+};
 
 
-typedef struct
+struct CrdsysDefModel
 {
     StationDeformation *stdefs;
-} CrdsysDefModel;
+};
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */

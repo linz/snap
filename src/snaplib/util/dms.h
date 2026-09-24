@@ -14,13 +14,13 @@
 /* dms.h - header file for dms.c, degrees, minutes, seconds conversion
    routines */
 
-typedef struct                       /*  DMS angle */
+struct DMS
 {
     int    deg;
     int    min;
     double sec;
     char   neg;          /*  TRUE = negative, FALSE = positive */
-} DMS;
+};
 
 double dms_deg( DMS *dms );
 DMS *deg_dms( double d, DMS *dms );

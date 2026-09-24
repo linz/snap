@@ -24,7 +24,7 @@
 
 enum { HDR_OBSDATA, HDR_VECDATA, HDR_PNTDATA };
 
-typedef struct
+struct lsdata
 {
     double *calc;
     ltmat  calccvr;
@@ -33,7 +33,7 @@ typedef struct
     double sch;
     double schvar;
     char   diagonal;
-} lsdata;
+};
 
 /* Output fields in residual listing */
 

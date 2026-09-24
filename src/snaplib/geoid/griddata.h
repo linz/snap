@@ -21,10 +21,10 @@
 #define GRID_FILE_HEADER_4 "SNAP grid binary v2.0 \r\n\x1A"
 #define GRID_FILE_HEADER_5 "CRS grid binary v2.0  \r\n\x1A"
 
-typedef struct file_row_s file_row;
-typedef struct cache_row_s cache_row;
+struct file_row;
+struct cache_row;
 
-typedef struct
+struct grid_def
 {
     FILE *bin;
     long indexloc;
@@ -55,15 +55,15 @@ typedef struct
     cache_row *cache_mru;  /* Most recently used */
     cache_row *cache_lru;  /* Least recently used */
     void *loadbuffer;
-} grid_def;
+};
 
-struct file_row_s
+struct file_row
 {
     long fileloc;
     cache_row *cacheloc;
 };
 
-struct cache_row_s
+struct cache_row
 {
     long *data;
     file_row *lat;

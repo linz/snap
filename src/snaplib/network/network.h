@@ -45,7 +45,7 @@
 
 #define STNCODELEN 15
 
-typedef struct
+struct station
 {
     char    Code[STNCODELEN+1];   /* Station ID */
     int     id;        /* Used to identify the station - populated when indexed */
@@ -70,7 +70,7 @@ typedef struct
     std::string Name;  /* Station name */
     void    *ts;       /* Station coordinate time series data */
     void    *hook;     /* Pointer to user defined info */
-} station;
+};
 
 // The fixed-width on-disk layout of every field above except the three
 // trailing pointers (classval, ts, hook) and Name (a variable-length
@@ -103,7 +103,7 @@ station_list
 ------------------------------------------------------------------------*/
 
 
-typedef struct
+struct station_list
 {
     int count;               /* Number of stations */
     int lastid;              /* Last allocated station id - same as count if no deletions*/
@@ -115,7 +115,7 @@ typedef struct
     int usesorted;           /* Define which index to use for processing stations */
     int nextstn;             /* The next station to be returned by the iterator */
 
-} station_list;
+};
 
 /*------------------------------------------------------------------------
 
@@ -127,7 +127,7 @@ network:
 
 typedef void (*stationfunc)( station *st);
 
-typedef struct
+struct network
 {
     char         *name;          /* Name of network */
     char         *crdsysdef;     /* Definition of the coordinate system */
@@ -144,7 +144,7 @@ typedef struct
     classifications stnclasses;  /* Array of classifications used for stations */
     stationfunc  initstation;    /* Function called when a station is added */
     stationfunc  uninitstation;  /* Function called when a station is deleted */
-} network;
+};
 
 /* Network options flags */
 
@@ -192,7 +192,7 @@ typedef struct
  */
 
 typedef void (*stnfunc)(station *st, void *data);
-typedef struct { void *data1; stnfunc func1; void *data2; stnfunc func2; } stnmultifunc_data;
+struct stnmultifunc_data { void *data1; stnfunc func1; void *data2; stnfunc func2; };
 
 /*------------------------------------------------------------------------
 

@@ -21,7 +21,7 @@
 #include "dbl4_utl_blob.h"
 #endif
 
-typedef struct
+struct BinSrc
 {
     hBlob blob;           /**< The blob object from which to read data */
     long offset;          /**< The offset from which to read the next data */
@@ -29,7 +29,8 @@ typedef struct
     int src_endian;       /**< The endianness of the source data - 1=big */
     int arch_endian;      /**< The endianness of the architecture - 1=big */
     int swap_bytes;       /**< True if the byte order needs to be reversed */
-} BinSrc, *hBinSrc;
+};
+typedef BinSrc *hBinSrc;
 
 /* The offset value to specify to continue reading from the last read
    statement */

@@ -57,14 +57,14 @@
 #define W1 2
 #define W2 1
 
-typedef struct
+struct connections
 {
     int count;
     int maxcount;
     int status;
     int level;
     int *list;
-} connections;
+};
 
 
 static connections *connlst = NULL;

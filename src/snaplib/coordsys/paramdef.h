@@ -17,7 +17,7 @@
 /* Definition of parameters of an object.  Used to create lists of parameters which
    can be used for input or output of a system definition */
 
-typedef struct
+struct param_def
 {
     const char *name;     /* Name of parameter - used for descriptive output */
     const char *code;     /* Code - not used at present */
@@ -31,7 +31,7 @@ typedef struct
     int (*read)( FieldScanner &scanner, void *address );
     int (*write)( output_string_def *os, void *address );
     int (*print)( output_string_def *os, void *address );
-} param_def;
+};
 
 /* Useful routines to be used in parameter definitions (reading, writing.. ) */
 

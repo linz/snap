@@ -39,7 +39,7 @@ enum
     rfRotzRate
 };
 
-typedef struct
+struct rfTransformation
 {
     int id;               /* Id used to reference the frame */
     std::string name;     /* The name of the reference frame     */
@@ -73,7 +73,7 @@ typedef struct
     tmatrix dtmatdrot[3]; /* The differential of tmat wrt x rot. */
     tmatrix toporot;      /* Conversion to and from topocentric system */
     tmatrix invtoporot;
-} rfTransformation;
+};
 
 // The fixed-width on-disk layout of every field above except `name` (a
 // variable-length std::string) and the 12 bitfields (packed separately into

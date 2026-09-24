@@ -17,13 +17,13 @@
 
 typedef double vector3[3];            /* The basic 3d vector */
 
-typedef struct                        /* Definition of a rotation matrix */
+struct rotmat
 {
     double cslt;           /* in compressed form.             */
     double snlt;
     double csln;
     double snln;
-} rotmat;
+};
 
 /* Definition of topocentric and gravitational coordinate systems */
 

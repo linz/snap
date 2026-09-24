@@ -45,11 +45,11 @@ struct input_string_def
 
 typedef int (*output_string_func)( const char *string, void *sink );
 
-typedef struct
+struct output_string_def
 {
     void *sink;
     output_string_func write;
-} output_string_def;
+};
 
 /* Input string functions.  Return status values are as defined in
    errdef.h, ie 0 = OK, non-zero represent errors. Used by both

@@ -40,13 +40,13 @@
 
 #define MAX_FILENAME_LEN 256
 
-typedef struct file_context_s
+struct file_context
 {
    std::string dir;
    std::optional<std::string> reldir;  // Directory relative to parent - used to persist context with context_definition()
-   struct file_context_s *parent;
-   struct file_context_s *next;  // Used for keeping list of contexts to search/clean.
-} file_context;
+   struct file_context *parent;
+   struct file_context *next;  // Used for keeping list of contexts to search/clean.
+};
 
 int path_len( const char *base, int want_name );
 int file_exists( const std::string &file );

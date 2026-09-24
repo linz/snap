@@ -47,7 +47,7 @@
 /* SDCStation is the definition of the accuracy test information about
    a station */
 
-typedef struct
+struct SDCStation
 {
     char role;       /**< Role of the station in the test */
     char status;     /**< Status of the station (one of SDC_STS macro values) */
@@ -59,26 +59,29 @@ typedef struct
     float error2;    /**< Square of semi-major axis of error ellipse */
     float verror2;   /**< Square of the vertical error */
     float ctldist2;  /**< Square of distance to nearest control (fixed stn) */
-} SDCStation, *hSDCStation;
+};
+typedef SDCStation *hSDCStation;
 
 /* SDCLine is the information required for relative accuracy tests */
 
-typedef struct
+struct SDCLine
 {
     float distance;  /**< Square of the length of the line */
     float error;     /**< Square of semi-major of rel err ellipse -
                         or SDC_COVAR_UNAVAILABLE if not yet computed */
-} SDCLine, *hSDCLine;
+};
+typedef SDCLine *hSDCLine;
 
 /* SDCTestImp carries all the information for the relative accuracy test */
 
-typedef struct RABlock_s
+struct RABlock
 {
     int size;             /**< Size of block */
     int alloc;            /**< Allocated from block */
     unsigned char *data;  /**< Block memory */
-    struct RABlock_s *next;
-} RABlock, *hRABlock;
+    struct RABlock *next;
+};
+typedef RABlock *hRABlock;
 
 /* Forward declaration — full definition follows the KD-tree bundle types below,
    since SDCTestImp owns them via unique_ptr. */

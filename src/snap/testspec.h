@@ -14,9 +14,9 @@
 */
 
 
-typedef struct SpecDef_s
+struct SpecDef
 {
-    struct SpecDef_s * next;
+    struct SpecDef * next;
     char *name;
     double confidence;
     int gothtol;
@@ -30,7 +30,7 @@ typedef struct SpecDef_s
     double vtolmax;
     double vtolfactor;
     int  testid;
-} SpecDef;
+};
 
 int define_spec( char *name, double conf,
                  int goth, double habs, double hppm, double hmax,

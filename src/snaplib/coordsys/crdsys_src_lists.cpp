@@ -20,20 +20,20 @@
 #include "util/linklist.h"
 #include "util/chkalloc.h"
 
-typedef struct
+struct crdsys_list_item
 {
     long id;
     char *code;
     char *desc;
     crdsys_source_def *source;
-} crdsys_list_item;
+};
 
-typedef struct
+struct crdsys_list
 {
     void *list;
     crdsys_list_item **indx;
     int count;
-} crdsys_list;
+};
 
 static crdsys_list rflist = { NULL, NULL, 0 };
 static crdsys_list ellist = { NULL, NULL, 0 };

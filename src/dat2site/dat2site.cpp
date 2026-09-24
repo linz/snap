@@ -67,49 +67,49 @@
 
 #define COMMENT_CHAR '!'
 
-typedef struct
+struct GX_obs
 {
     double xyz[3];
-} GX_obs;
+};
 
-typedef struct
+struct GB_obs
 {
     double xyz[3];
-} GB_obs;
+};
 
-typedef struct
+struct AZ_obs
 {
     double az;
     int ro_id;  /* ro_id = 0 implies true azimuth */
-} AZ_obs;
+};
 
-typedef struct
+struct DS_obs
 {
     double ds;
     int type;
-} DS_obs;
+};
 
 #define DS_ARC 0
 #define DS_HOR 1
 #define DS_SLP 2
 
-typedef struct
+struct ZD_obs
 {
     double zd;
-} ZD_obs;
+};
 
-typedef struct
+struct LV_obs
 {
     double hd;
-} LV_obs;
+};
 
 
-struct stn_s;
+struct stn;
 
-typedef struct conn_s
+struct conn
 {
-    struct conn_s *next;
-    struct stn_s *to;
+    struct conn *next;
+    struct stn *to;
     unsigned short flag;
     GB_obs gb;
     AZ_obs az;
@@ -117,7 +117,7 @@ typedef struct conn_s
     DS_obs ds;
     ZD_obs zd;
     LV_obs lv;
-} conn;
+};
 
 #define CN_GB 0x01
 #define CN_GX 0x02
@@ -136,11 +136,11 @@ typedef struct conn_s
 #define ST_FIXMASK 0x03
 #define ST_HIDEFIX 0x80
 
-typedef struct
+struct ro_def
 {
     int link_ro;
     double corr;
-} ro_def;
+};
 
 
 /* Tolerances accepted before error reported -
@@ -219,7 +219,7 @@ static char fix_effect[NO_FIX_TYPES] =
 
 /* Definition of information about a station */
 
-typedef struct stn_s
+struct stn
 {
     station *st;
     char *code;
@@ -239,7 +239,7 @@ typedef struct stn_s
     char can_fix[NO_FIX_TYPES];
     double fix_quality[NO_FIX_TYPES];
     conn *connlist;  /* Head of linked list of connections */
-} stn;
+};
 
 static void *stnlist;
 static stn **stations;
@@ -2075,11 +2075,11 @@ static int fix_with_dshaha( stn *st, double *lt, double *ln, double *hgt )
     return 1;
 }
 
-typedef struct
+struct rsc_def
 {
     double xy[2];
     double r;
-} rsc_def;
+};
 
 static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 {
