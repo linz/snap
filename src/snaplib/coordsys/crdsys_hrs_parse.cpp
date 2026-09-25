@@ -98,7 +98,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
         }
         else
         {
-            hrf=create_grid_vdatum_func( geoidfile->c_str(), isgeoid );
+            hrf=create_grid_vdatum_func( *geoidfile, isgeoid );
         }
     }
     else
@@ -163,7 +163,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
     {
         delete basehrs;
         delete baserf;
-        if( hrf ) delete_vdatum_func( hrf );
+        delete hrf;
     }
 
     return hrs;

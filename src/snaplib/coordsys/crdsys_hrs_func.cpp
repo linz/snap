@@ -4,37 +4,15 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <string>
+#include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
 #include "geoid/geoid.h"
-#include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/geodetic.h"
 #include "util/pi.h"
-
-/*========================================================================================*/
-/* Generic vertical datum function routine                                              */
-
-static vdatum_func *create_vdatum_func( const char *type, const char *description )
-{
-    int hrfsize=sizeof(vdatum_func)+strlen(type)+strlen(description)+2;
-    vdatum_func *hrf = (vdatum_func * ) check_malloc( hrfsize ); 
-    char *ptr=((char *)(void *) hrf) + sizeof(vdatum_func);
-    hrf->type=ptr;
-    strcpy(ptr,type);
-    ptr += strlen(type)+1;
-    hrf->description=ptr;
-    strcpy(ptr,description);
-    hrf->hrs=nullptr;
-    hrf->data=nullptr;
-    hrf->delete_func=nullptr;
-    hrf->copy_func=nullptr;
-    hrf->identical=nullptr;
-    hrf->calc_height=nullptr;
-    return hrf;
-}
 
 /*========================================================================================*/
 /* Offset vertical datum function routine                                               */
@@ -51,9 +29,12 @@ static int identical_offset_vdatum_func( void *data1, void *data2 )
 
 static void *copy_offset_vdatum_func_data( void *data )
 {
-    void *copy=check_malloc( sizeof(double));
-    memcpy(copy,data,sizeof(double));
-    return copy;
+    return new double( *(double *)data );
+}
+
+static void delete_offset_vdatum_func_data( void *data )
+{
+    delete (double *) data;
 }
 
 static int calc_offset_vdatum_func( vdatum_func *hrf, double[3], double *height, double *exu )
@@ -72,55 +53,51 @@ vdatum_func *create_offset_vdatum_func( double offset )
 {
     char description[80];
     sprintf(description,"Offset of %.3lf metres", offset );
-    vdatum_func *hrf=create_vdatum_func( "OFFSET", description );
-    hrf->data=check_malloc(sizeof(double));
-    *(double *)(hrf->data)=offset;
-    hrf->delete_func=check_free;
-    hrf->describe_func=describe_offset_vdatum_func;
-    hrf->copy_func=copy_offset_vdatum_func_data;
-    hrf->identical=identical_offset_vdatum_func;
-    hrf->calc_height=calc_offset_vdatum_func;
-    return hrf;
+    return new vdatum_func( "OFFSET", description, new double(offset),
+                             delete_offset_vdatum_func_data, describe_offset_vdatum_func,
+                             copy_offset_vdatum_func_data, identical_offset_vdatum_func,
+                             calc_offset_vdatum_func );
 }
 
 /*========================================================================================*/
 /* Grid based vertical datum function routine                                           */
 
+/// The opaque payload behind a GRID/GEOID vdatum_func's data member.
+/// File-private to this translation unit - never exposed via a header, so
+/// it has no external callers, and is only ever destroyed through
+/// delete_grid_vdatum_func_data (matching rf_grid_def/LinzDefModel/etc. -
+/// no destructor of its own, since that free function is the only real
+/// destroy path). gd/rfcs/rfconv/irfconv/loadsts are the only fields ever
+/// mutated after construction - every real construction starts unloaded
+/// (gd=nullptr, loadsts=OK), and load_grid_vdatum_func populates the rest
+/// lazily, on first real use. rfconv/irfconv share a single
+/// new coord_conversion[2] allocation - irfconv is just rfconv+1, freed
+/// together via delete[].
 struct grid_vdatum_func_data
 {
-    char *filename;
-    geoid_def *gd;
-    coordsys *rfcs;
-    coord_conversion *rfconv;
-    coord_conversion *irfconv;
-    int loadsts;
-    int isoffset;  /* Offset is offset to height coord, so negative of offset to surface */
-};
+    grid_vdatum_func_data( std::string filename, int isoffset ) :
+        filename( std::move(filename) ), gd( nullptr ), rfcs( nullptr ),
+        rfconv( nullptr ), irfconv( nullptr ), loadsts( OK ), isoffset( isoffset )
+    {}
+    grid_vdatum_func_data( const grid_vdatum_func_data& ) = delete;
 
-static grid_vdatum_func_data *create_grid_vdatum_func_data( const char *filename, int isoffset )
-{
-    grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *)
-        check_malloc(sizeof(grid_vdatum_func_data)+strlen(filename)+1);
-    char *gfilename=((char *)(void *)ghrfd)+sizeof(grid_vdatum_func_data);
-    ghrfd->filename=gfilename;
-    strcpy(gfilename,filename);
-    ghrfd->gd=nullptr;
-    ghrfd->rfcs=nullptr;
-    ghrfd->rfconv=nullptr;
-    ghrfd->irfconv=nullptr;
-    ghrfd->loadsts=OK;
-    ghrfd->isoffset=isoffset;
-    return ghrfd;
-}
+    const std::string filename; ///< Path to the geoid/grid file
+    geoid_def *gd;                ///< Loaded geoid grid, or nullptr until load_grid_vdatum_func lazily opens it
+    coordsys *rfcs;                ///< Reference-frame-only coordinate system, lazily built alongside gd
+    coord_conversion *rfconv;        ///< Conversion to the geoid's own coordsys - see irfconv
+    coord_conversion *irfconv;         ///< The inverse conversion of rfconv
+    int loadsts;                         ///< OK, or the error code from the lazy load
+    const int isoffset;                    ///< Offset is offset to height coord, so negative of offset to surface
+};
 
 static void delete_grid_vdatum_func_data( void *data )
 {
-    if( ! data ) return;
     grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) data;
-    if( ghrfd->gd ) { delete_geoid_grid( ghrfd->gd ); ghrfd->gd=nullptr; }
-    if( ghrfd->rfcs ) { delete ghrfd->rfcs; ghrfd->rfcs=nullptr; }
-    if( ghrfd->rfconv ) { check_free( ghrfd->rfconv ); }
-    check_free( data );
+    if( ! ghrfd ) return;
+    if( ghrfd->gd ) delete_geoid_grid( ghrfd->gd );
+    if( ghrfd->rfcs ) delete ghrfd->rfcs;
+    delete[] ghrfd->rfconv;
+    delete ghrfd;
 }
 
 static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd )
@@ -141,7 +118,7 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
         return INTERNAL_ERROR;
     }
     /* Load the geoid */
-    ghrfd->gd=create_geoid_grid( ghrfd->filename );
+    ghrfd->gd=create_geoid_grid( ghrfd->filename.c_str() );
     if( ! ghrfd->gd )
     {
         ghrfd->loadsts=INVALID_DATA;
@@ -151,7 +128,7 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
     coordsys *gcs=get_geoid_coordsys( ghrfd->gd );
     if( ! identical_datum(gcs->rf,rf) )
     {
-        ghrfd->rfconv=(coord_conversion *) check_malloc( sizeof(coord_conversion)*2 );
+        ghrfd->rfconv=new coord_conversion[2];
         ghrfd->irfconv=ghrfd->rfconv+1;
         ghrfd->rfcs=new coordsys( rf->code, rf->name, CSTP_GEODETIC, rf, nullptr );
         ghrfd->rfcs->ownsrf=0;
@@ -189,16 +166,14 @@ static void describe_grid_vdatum_func( vdatum_func *hrf, output_string_def *os )
 
 static int identical_grid_vdatum_func( void *data1, void *data2 )
 {
-    return strcmp(
-            ((grid_vdatum_func_data *)data1)->filename,
-            ((grid_vdatum_func_data *)data2)->filename
-            ) == 0;
+    return ((grid_vdatum_func_data *)data1)->filename ==
+           ((grid_vdatum_func_data *)data2)->filename;
 }
 
 static void *copy_grid_vdatum_func_data( void *data )
 {
     grid_vdatum_func_data *ghrfd=(grid_vdatum_func_data *) data;
-    return create_grid_vdatum_func_data(ghrfd->filename,ghrfd->isoffset);
+    return new grid_vdatum_func_data( ghrfd->filename, ghrfd->isoffset );
 }
 
 static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
@@ -246,53 +221,55 @@ static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *heigh
     return sts;
 }
 
-vdatum_func *create_grid_vdatum_func( const char *grid_file, int isgeoid )
+vdatum_func *create_grid_vdatum_func( const std::string &grid_file, int isgeoid )
 {
-    char description[256];
-    sprintf(description,"%s defined in %.150s", 
-            isgeoid ? "Geoid" : "Grid offset",
-            grid_file+path_len(grid_file,0) );
-    vdatum_func *hrf=create_vdatum_func( isgeoid ? "GEOID" : "GRID", description );
-    hrf->data=create_grid_vdatum_func_data( grid_file, ! isgeoid );
-    hrf->delete_func=delete_grid_vdatum_func_data;
-    hrf->describe_func=describe_grid_vdatum_func;
-    hrf->copy_func=copy_grid_vdatum_func_data;
-    hrf->identical=identical_grid_vdatum_func;
-    hrf->calc_height=calc_grid_vdatum_func;
-    return hrf;
+    const int plen = path_len( grid_file.c_str(), 0 );
+    const std::string description = std::string( isgeoid ? "Geoid" : "Grid offset" ) +
+                                     " defined in " + grid_file.substr( plen, 150 );
+    return new vdatum_func( isgeoid ? "GEOID" : "GRID", description,
+                             new grid_vdatum_func_data( grid_file, ! isgeoid ),
+                             delete_grid_vdatum_func_data, describe_grid_vdatum_func,
+                             copy_grid_vdatum_func_data, identical_grid_vdatum_func,
+                             calc_grid_vdatum_func );
 }
 
 /*========================================================================================*/
 /* Generic vertical datum function routines                                             */
 
-void delete_vdatum_func( vdatum_func *hrf )
+vdatum_func::vdatum_func( std::string type_, std::string description_, void *data_,
+                           void (*delete_data_)(void *data),
+                           void (*describe_func_)(vdatum_func *hrf, output_string_def *os),
+                           void *(*copy_data_)(void *data),
+                           int (*identical_)(void *data1, void *data2),
+                           int (*calc_height_)( vdatum_func *hrf, double llh[3], double *height, double *exu ) ) :
+    type( std::move(type_) ), description( std::move(description_) ),
+    hrs( nullptr ), data( data_ ),
+    delete_data( delete_data_ ), describe_func( describe_func_ ),
+    copy_data( copy_data_ ), identical( identical_ ), calc_height( calc_height_ )
 {
-    if( hrf->data && hrf->delete_func ) hrf->delete_func( hrf->data );
-    hrf->data=0;
-    check_free( hrf );
+}
+
+vdatum_func::~vdatum_func()
+{
+    delete_data( data );
 }
 
 vdatum_func *copy_vdatum_func( vdatum_func *hrf )
 {
-    vdatum_func *newhrf=create_vdatum_func( hrf->type, hrf->description );
-    newhrf->delete_func=hrf->delete_func;
-    newhrf->copy_func=hrf->copy_func;
-    newhrf->identical=hrf->identical;
-    newhrf->calc_height=hrf->calc_height;
-    if( newhrf->copy_func ) newhrf->data=hrf->copy_func( hrf->data );
-    return newhrf;
+    return new vdatum_func( hrf->type, hrf->description, hrf->copy_data( hrf->data ),
+                             hrf->delete_data, hrf->describe_func, hrf->copy_data,
+                             hrf->identical, hrf->calc_height );
 }
 
 int identical_vdatum_func( vdatum_func *hrf1, vdatum_func *hrf2 )
 {
-    if( strcmp(hrf1->type,hrf2->type) != 0 ) return 0;
-    if( hrf1->identical && ! hrf1->identical(hrf1->data,hrf2->data)) return 0;
-    return 1;
+    if( hrf1->type != hrf2->type ) return 0;
+    return hrf1->identical( hrf1->data, hrf2->data );
 }
 
 int calc_vdatum_func( vdatum_func *hrf, double llh[3], double *height, double *exu )
 {
     if( height ) *height=0;
-    if( ! hrf || ! hrf->calc_height ) return INVALID_DATA;
+    if( ! hrf ) return INVALID_DATA;
     return hrf->calc_height( hrf, llh, height, exu );
 }
