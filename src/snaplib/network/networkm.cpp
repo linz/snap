@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
 
 #include "util/chkalloc.h"
 #include "util/errdef.h"
@@ -80,18 +81,18 @@ int merge_network( network *base, network *data, int mergeopts,
 
     if( nnew == 0 ) { check_free(stnewlist); return OK; }
 
-    nclass = network_classification_count(data);
-    nbaseclass=network_classification_count(base);
+    nclass = data->classification_count();
+    nbaseclass=base->classification_count();
     if( nclass > 0 )
     {
         int i;
         classmap = (int *) check_malloc( (nclass+1) * sizeof(int));
         for( i = 1; i <= nclass; i++ )
         {
-            classmap[i] = network_class_id( base, network_class_name(data,i), addclasses);
+            classmap[i] = base->class_id( data->class_name(i), addclasses);
         }
     }
-    nclassnew=network_classification_count(base);
+    nclassnew=base->classification_count();
     if( nclassnew == nbaseclass ) nclassnew=0;
 
     preserve_ellipsoidal=0;
@@ -196,8 +197,8 @@ int merge_network( network *base, network *data, int mergeopts,
             {
                 if( classmap[i] > 0 )
                 {
-                    const char *classval = network_class_value( data, i, get_station_class(st,i));
-                    int tgtval = network_class_value_id(base,classmap[i],classval,1);
+                    std::string classval = data->class_value( i, get_station_class(st,i));
+                    int tgtval = base->class_value_id(classmap[i],classval,1);
                     set_station_class( stnew, classmap[i],tgtval );
                 }
             }

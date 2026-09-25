@@ -55,6 +55,7 @@ into SNAP
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string>
 
 #include "adjparam.h"
 #include "coefs.h"
@@ -459,8 +460,8 @@ static int64_t snap_id( int type, int group_id, const char *code )
         break;
     case ID_PROJCTN:    id = get_bproj( code ); break;
     case ID_SYSERR:     id = syserr_prm( code ); break;
-    case ID_CLASSTYPE:  id = classification_id( &obs_classes, code, 1 ); break;
-    case ID_CLASSNAME:  id = class_value_id( &obs_classes, group_id, code, 1 ); break;
+    case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
+    case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
     case ID_NOTE:       id = save_note( code, group_id ); break;
     }
     return id;
@@ -469,6 +470,7 @@ static int64_t snap_id( int type, int group_id, const char *code )
 static const char *snap_name( int type, int group_id, long id )
 {
     const char *name;
+    static std::string classification_value;
     name = NULL;
     switch (type)
     {
@@ -486,8 +488,8 @@ static const char *snap_name( int type, int group_id, long id )
         break;
     case ID_SYSERR:    name = syserr_name( (int) id ); break;
     case ID_PROJCTN:   name = bproj_name( (int) id ); break;
-    case ID_CLASSTYPE: name = classification_name( &obs_classes, (int) id ); break;
-    case ID_CLASSNAME: name = class_value_name( &obs_classes, group_id, (int) id ); break;
+    case ID_CLASSTYPE: classification_value = obs_classes.name( (int) id ); name = classification_value.c_str(); break;
+    case ID_CLASSNAME: classification_value = obs_classes.value_name( group_id, (int) id ); name = classification_value.c_str(); break;
     case ID_NOTE:    break;
     }
     return name;

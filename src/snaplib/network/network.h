@@ -138,6 +138,9 @@ typedef void (*stationfunc)( station *st);
 struct network
 {
     network();
+    network( const network& ) = delete; ///< stnclasses owns a vector of unique_ptr, which can't be copied, so neither can network
+    network( network&& ) = default;        ///< && marks a move constructor - needed for use with vector<unique_ptr>, which can move but not copy
+    network& operator=( network&& ) = default; ///< && marks a move assignment operator - declaring a destructor stops the compiler generating this one on its own, so it has to be asked for explicitly
     ~network();
 
     /// Resets every field to the same empty state a freshly-constructed
@@ -146,6 +149,45 @@ struct network
     /// the destructor and by read_network() to reuse an existing network
     /// for a fresh file read, without reconstructing it.
     void clear();
+
+    /// Number of classifications currently defined for this network's stations.
+    int classification_count() const;
+
+    /// Id of the classification named classname. If create is set and no
+    /// such classification yet exists, creates one with a default value
+    /// of "-" and returns its id; otherwise returns 0 if not found.
+    int class_id( const std::string &classname, int create );
+
+    /// Name of the classification identified by class_id.
+    std::string class_name( int class_id ) const;
+
+    /// Count of values defined for the classification identified by class_id.
+    int class_count( int class_id ) const;
+
+    /// Id of the value named value within the classification identified
+    /// by class_id, creating it if create is set and no such value yet exists.
+    int class_value_id( int class_id, const std::string &value, int create );
+
+    /// Name of the value identified by value_id within the classification
+    /// identified by class_id.
+    std::string class_value( int class_id, int value_id ) const;
+
+    /// Defines the "Order" classification used to record each station's
+    /// order, returning its classification id.
+    int add_orders();
+
+    /// Count of order values defined for this network.
+    int order_count() const;
+
+    /// Id of the named order value, creating it if addorder is set.
+    int order_id( const std::string &order, int addorder );
+
+    /// Name of the order value identified by orderid.
+    std::string order( int orderid ) const;
+
+    /// The order classification value id assigned to stn, or 0 if this
+    /// network has no order classification defined.
+    int station_order( station *stn ) const;
 
     std::optional<std::string> name;   /* Name of network, or nullopt if never set */
     std::string   crdsysdef;     /* Definition of the coordinate system */
@@ -490,19 +532,6 @@ void    set_network_topocentre( network *nw, double lat, double lon );
 void    get_network_topocentre( network *nw, double *lat, double *lon );
 void    get_network_topocentre_xyz( network *nw, double *xyz );
 
-
-int network_classification_count( network *nw );
-int network_class_id( network *nw, const char *classname, int create );
-const char *network_class_name( network *nw, int class_id );
-int network_class_count( network *nw, int class_id );
-int network_class_value_id( network *nw, int class_id, const char *value, int create );
-const char *network_class_value( network *nw, int class_id, int value_id );
-
-int add_network_orders( network *nw );
-int network_order_count( network *nw );
-int network_order_id( network *nw, const char *order, int addorder );
-const char *network_order( network *nw, int orderid );
-int network_station_order( network *nw, station *stn );
 
 void dump_network( network *nw, FILE *bin );
 network *reload_network( FILE *bin );

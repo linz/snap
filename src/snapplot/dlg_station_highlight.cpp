@@ -316,7 +316,7 @@ void StationHighlightDialog::SelectStations( bool select )
     else if( stnSelOpt == scOrder )
     {
         wxString strOrder = txtSelValue->GetValue().Trim().Trim(false);
-        iorder = network_order_id( net, strOrder.mb_str(), 0 );
+        iorder = net->order_id( strOrder.ToStdString(), 0 );
         if( iorder <= 0 ) return;
     }
     else

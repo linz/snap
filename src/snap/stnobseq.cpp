@@ -27,6 +27,7 @@
 #include <string.h>
 #include <math.h>
 #include <array>
+#include <string>
 #include <string_view>
 
 #include "stnobseq.h"
@@ -948,13 +949,10 @@ void write_station_csv()
         }
     }
 
-    for( i = 0; i < network_classification_count(net); i++ )
+    for( i = 0; i < net->classification_count(); i++ )
     {
-        char fieldname[33];
-        strcpy(fieldname,"c_");
-        strncpy(fieldname+2,network_class_name(net,i+1),30);
-        fieldname[32] = 0;
-        write_csv_header(csv,fieldname);
+        std::string fieldname = "c_" + net->class_name(i+1).substr(0,30);
+        write_csv_header(csv,fieldname.c_str());
     }
     write_csv_header(csv,"name");
     if( output_csv_shape ) write_csv_header(csv,"shape");
@@ -1180,10 +1178,10 @@ void write_station_csv()
             }
         }
 
-        for( i = 0; i < network_classification_count(net); i++ )
+        for( i = 0; i < net->classification_count(); i++ )
         {
             int iclass = get_station_class( st, i+1 );
-            write_csv_string( csv, network_class_value(net, i+1, iclass ));
+            write_csv_string( csv, net->class_value(i+1, iclass).c_str());
         }
 
         write_csv_string( csv, st->Name.c_str() );

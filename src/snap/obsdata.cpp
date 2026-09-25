@@ -24,6 +24,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <math.h>
 
 #include "snap/snapglob.h"
@@ -136,11 +137,11 @@ void list_obsdata( FILE *out, survdata *o )
             clsf = o->clsf + t->tgt.iclass;
             for( i = 0; i< t->tgt.nclass; i++, clsf++ )
             {
-                char *class_name;
-                char *class_value;
-                class_name = classification_name( &obs_classes, clsf->class_id );
-                class_value = class_value_name( &obs_classes, clsf->class_id, clsf->name_id );
-                fprintf(out, "     %s = %s\n",class_name,class_value );
+                std::string class_name;
+                std::string class_value;
+                class_name = obs_classes.name( clsf->class_id );
+                class_value = obs_classes.value_name( clsf->class_id, clsf->name_id );
+                fprintf(out, "     %s = %s\n",class_name.c_str(),class_value.c_str() );
             }
         }
 

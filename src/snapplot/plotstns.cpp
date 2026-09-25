@@ -14,7 +14,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include <array>
+#include <string>
 #include <string_view>
+#include <variant>
+#include <vector>
 
 #include "util/geodetic.h"
 #include "util/chkalloc.h"
@@ -47,12 +50,29 @@ struct covariance
     double sehgt;
 };
 
-typedef union
+struct sortobj
 {
-    int iValue;
-    float fValue;
-    const char *cPtr;
-} sortobj;
+    /// Compares this value to another's, returning a strcmp-style
+    /// result (negative/zero/positive). Both values must hold the same
+    /// alternative.
+    int compare( const sortobj &other ) const;
+
+    std::variant<std::string, float, int> value;
+};
+
+int sortobj::compare( const sortobj &other ) const
+{
+    if( std::holds_alternative<float>(value) )
+    {
+        float diff = std::get<float>(value) - std::get<float>(other.value);
+        return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+    }
+    if( std::holds_alternative<int>(value) )
+    {
+        return std::get<int>(value) - std::get<int>(other.value);
+    }
+    return stncodecmp( std::get<std::string>(value).c_str(), std::get<std::string>(other.value).c_str() );
+}
 
 #define BUF_SIZE 1024
 #define MAXCOLWIDTH 50
@@ -65,7 +85,7 @@ static int *xyindex = NULL;      /* Array of pointers sorted by easting */
 static char xyindex_valid = 0;     /* True when the index is valid */
 static long xyindex_version = 0;   /* Incremented at each change of index */
 static int *sortIndex = NULL;    /* Array of indices of non-ignored stations */
-static sortobj *sortValues = NULL; /* Array of values used for sorting */
+static std::vector<sortobj> sortValues; /* Array of values used for sorting */
 static int *slist_field; /* Array station list fields */
 static int slist_ncols = 0;
 static char slist_buf[BUF_SIZE];
@@ -247,40 +267,16 @@ static std::string_view station_flag_status( stn_adjustment *sa )
 }
 
 
-static int cmp_sortobj_ivalue( const void *sp1, const void *sp2 )
+static int cmp_sortobj_generic( const void *sp1, const void *sp2 )
 {
     int s1 = (*(int *) sp1 );
     int s2 =  (*(int *) sp2 );
-    return sortValues[s1].iValue - sortValues[s2].iValue;
+    return sortValues[s1].compare(sortValues[s2]);
 }
 
-static int cmp_sortobj_fvalue( const void *sp1, const void *sp2 )
+static int cmp_sortobj_reverse( const void *sp1, const void *sp2 )
 {
-    int s1 = (*(int *) sp1 );
-    int s2 =  (*(int *) sp2 );
-    float diff = sortValues[s1].fValue - sortValues[s2].fValue;
-    return diff < 0 ? -1 : diff > 0 ? 1 : 0;
-}
-
-static int cmp_sortobj_reverse_fvalue( const void *sp1, const void *sp2 )
-{
-    return cmp_sortobj_fvalue( sp2, sp1 );
-}
-
-/*
-static int cmp_sortobj_cptr( const void *sp1, const void *sp2 )
-{
-    int s1 = (*(int *) sp1 );
-    int s2 =  (*(int *) sp2 );
-    return _stricmp(sortValues[s1].cPtr,sortValues[s2].cPtr);
-}
-*/
-
-static int cmp_sortobj_code( const void *sp1, const void *sp2 )
-{
-    int s1 = (*(int *) sp1 );
-    int s2 =  (*(int *) sp2 );
-    return stncodecmp(sortValues[s1].cPtr,sortValues[s2].cPtr);
+    return cmp_sortobj_generic( sp2, sp1 );
 }
 
 static void build_sort_index( void )
@@ -291,7 +287,7 @@ static void build_sort_index( void )
     station *stn;
     double emax, emin, b1, dxyz[3], hgterr;
 
-    if( ! no_good_stations || ! sortIndex || ! sortValues ) return;
+    if( ! no_good_stations || ! sortIndex || sortValues.empty() ) return;
     for( i = 0; i < no_good_stations; i++ )
     {
         int istn = sortIndex[i];
@@ -299,34 +295,34 @@ static void build_sort_index( void )
 
         switch( indexCol )
         {
-        case STNF_CODE: sortValues[istn].cPtr = stn->Code; break;
-        case STNF_NAME: sortValues[istn].cPtr = stn->Name.c_str(); break;
-        case STNF_LAT:  sortValues[istn].fValue =  stn->ELat; break;
-        case STNF_LON:  sortValues[istn].fValue =  stn->ELon; break;
-        case STNF_EAST: sortValues[istn].fValue =  stns[istn].easting; break;
-        case STNF_NRTH: sortValues[istn].fValue =  stns[istn].northing; break;
-        case STNF_HGT:  sortValues[istn].fValue =  stn->OHgt; break;
-        case STNF_STS:  sortValues[istn].iValue =  station_flag_status_id(stnadj(stn)); break;
+        case STNF_CODE: sortValues[istn].value = stn->Code; break;
+        case STNF_NAME: sortValues[istn].value = stn->Name; break;
+        case STNF_LAT:  sortValues[istn].value = (float) stn->ELat; break;
+        case STNF_LON:  sortValues[istn].value = (float) stn->ELon; break;
+        case STNF_EAST: sortValues[istn].value = (float) stns[istn].easting; break;
+        case STNF_NRTH: sortValues[istn].value = (float) stns[istn].northing; break;
+        case STNF_HGT:  sortValues[istn].value = (float) stn->OHgt; break;
+        case STNF_STS:  sortValues[istn].value = station_flag_status_id(stnadj(stn)); break;
         case STNF_HERR:
             get_error_ellipse( istn, &emax, &emin, &b1 );
-            sortValues[istn].fValue = emax;
+            sortValues[istn].value = (float) emax;
             break;
         case STNF_HADJ:
             get_station_adjustment( istn, dxyz );
-            sortValues[istn].fValue = (dxyz[0]*dxyz[0]+dxyz[1]*dxyz[1]);
+            sortValues[istn].value = (float) (dxyz[0]*dxyz[0]+dxyz[1]*dxyz[1]);
             break;
         case STNF_VERR:
             get_height_error( istn, &hgterr );
-            sortValues[istn].fValue = hgterr;
+            sortValues[istn].value = (float) hgterr;
             break;
         case STNF_VADJ:
             get_station_adjustment( istn, dxyz );
-            sortValues[istn].fValue = fabs(dxyz[2]);
+            sortValues[istn].value = (float) fabs(dxyz[2]);
             break;
         default:
             classid = indexCol - STNF_CLASS;
             valueid = get_station_class( stn, classid );
-            sortValues[istn].cPtr = network_class_value( net, classid, valueid );
+            sortValues[istn].value = net->class_value( classid, valueid );
             break;
 
         }
@@ -336,27 +332,27 @@ static void build_sort_index( void )
     {
     case STNF_CODE:
     case STNF_NAME:
-        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_code );
+        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic );
         break;
     case STNF_STS:
-        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_ivalue );
+        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic );
         break;
     case STNF_LAT:
     case STNF_LON:
     case STNF_EAST:
     case STNF_NRTH:
     case STNF_HGT:
-        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_fvalue );
+        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic );
         break;
 
     case STNF_HERR:
     case STNF_HADJ:
     case STNF_VERR:
     case STNF_VADJ:
-        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_reverse_fvalue );
+        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_reverse );
         break;
     default:
-        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_code );
+        qsort( sortIndex, no_good_stations, sizeof(int), cmp_sortobj_generic );
     }
 }
 
@@ -380,7 +376,7 @@ static void reverse_sort_index()
 
 void init_station_list()
 {
-    int nclass = network_classification_count(net);
+    int nclass = net->classification_count();
     if( slist_field ) check_free( slist_field );
     slist_field = (int *) check_malloc( (STNF_CLASS+1+nclass) * sizeof(int));
     slist_ncols = 0;
@@ -467,7 +463,7 @@ char *station_list_header( void )
         case STNF_VADJ: strcpy(buf," Vrt.Adj"); len = 13; break;
         default:
             classid = slist_field[icol]-STNF_CLASS;
-            strncpy(buf,network_class_name(net,classid),MAXCOLWIDTH);
+            strncpy(buf,net->class_name(classid).c_str(),MAXCOLWIDTH);
             buf[MAXCOLWIDTH-1] = 0;
             len = 12;
             break;
@@ -553,7 +549,7 @@ char *station_list_item( int istnsrt )
         default:
             classid = slist_field[icol]-STNF_CLASS;
             valueid = get_station_class( stn, classid );
-            strncpy(buf,network_class_value(net,classid,valueid),MAXCOLWIDTH);
+            strncpy(buf,net->class_value(classid,valueid).c_str(),MAXCOLWIDTH);
             buf[MAXCOLWIDTH] = 0;
             replace_tabs(buf);
             break;
@@ -666,7 +662,7 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
     replace_tabs( slist_buf );
     (*f)( dest, NULL, slist_buf );
 
-    nclass = network_classification_count(net);
+    nclass = net->classification_count();
     if( nclass > 0 )
     {
         int i;
@@ -674,8 +670,8 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
         for( i = 0; i++ < nclass; )
         {
             sprintf(slist_buf,"%s: %s",
-                    network_class_name(net,i),
-                    network_class_value(net,i,get_station_class(stn,i)));
+                    net->class_name(i).c_str(),
+                    net->class_value(i,get_station_class(stn,i)).c_str());
             replace_tabs(slist_buf);
             (*f)(dest, NULL, slist_buf);
         }
@@ -980,7 +976,7 @@ void init_plotstns( int adjusted )
         int iGood = 0;
         xyindex = (int *) check_malloc( no_good_stations * (sizeof( int)));
         sortIndex = (int *) check_malloc( no_good_stations * sizeof(int) );
-        sortValues = (sortobj *) check_malloc( (nstns+1) * sizeof(sortobj) );
+        sortValues.resize( nstns+1 );
         for( istn = 0; istn++ < nstns;  )
         {
             st = stnptr(istn);
@@ -1341,7 +1337,7 @@ void flag_station_visible( int istn )
 
 void setup_station_pens( int class_id )
 {
-    if( class_id < 0 || class_id > network_classification_count(net)) class_id = 0;
+    if( class_id < 0 || class_id > net->classification_count()) class_id = 0;
     if( class_id == stn_colourby_class ) return;
     stn_colourby_class = class_id;
     setup_station_layers(class_id);
@@ -1355,7 +1351,7 @@ int get_station_colourby_class()
 void get_stationpen_definition( char *def )
 {
     if( stn_colourby_class == 0 ) strcpy(def,"usage");
-    else strcpy(def,network_class_name(net,stn_colourby_class));
+    else strcpy(def,net->class_name(stn_colourby_class).c_str());
 }
 
 void init_plotting_stations( void )
@@ -1629,8 +1625,7 @@ void free_station_resources()
     xyindex = NULL;
     if( sortIndex ) check_free( sortIndex );
     sortIndex = NULL;
-    if( sortValues ) check_free( sortValues );
-    sortValues = NULL;
+    sortValues.clear();
     if( covar ) check_free( covar );
     covar = NULL;
 }

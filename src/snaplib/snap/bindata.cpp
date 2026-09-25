@@ -629,7 +629,7 @@ static void reset_survdata_pointers( survdata *sd )
     }
 }
 
-char *get_obs_classification_name( survdata *sd, trgtdata *t, int class_id )
+std::optional<std::string> get_obs_classification_name( survdata *sd, trgtdata *t, int class_id )
 {
     int ic;
     for( ic = 0; ic < t->nclass; ic++ )
@@ -638,10 +638,10 @@ char *get_obs_classification_name( survdata *sd, trgtdata *t, int class_id )
         cd = sd->clsf + ic + t->iclass;
         if( cd->class_id == class_id )
         {
-            return class_value_name( &obs_classes, class_id, cd->name_id );
+            return obs_classes.value_name( class_id, cd->name_id );
         }
     }
-    return NULL;
+    return std::nullopt;
 }
 
 void print_json_observation_types( FILE *out )
@@ -775,8 +775,8 @@ void print_json_observations( FILE *out )
                     classdata *clsf=sd->clsf+iclass+tgt->iclass;
                     if( iclass ) fprintf(out,",");
                     fprintf( out, "\n          \"%s\":\"%s\"",
-                            classification_name(&obs_classes,clsf->class_id),
-                            class_value_name(&obs_classes,clsf->class_id,clsf->name_id));
+                            obs_classes.name(clsf->class_id).c_str(),
+                            obs_classes.value_name(clsf->class_id,clsf->name_id).c_str());
                 }
                 fprintf( out, "\n          },\n");
             }

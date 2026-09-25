@@ -12,6 +12,8 @@
 */
 
 #include <stdint.h>
+#include <optional>
+#include <string>
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
@@ -40,8 +42,8 @@ void add_relative_covariance( int from, int to, double cvr[6] );
 #define DPEN_BY_RFAC -4
 
 // Fixed ids for the Display-by trio, distinct from classification ids (which
-// are 1..classification_count(&obs_classes), the same numbering already used
-// for Colour-by classifications).
+// are 1..obs_classes.count(), the same numbering already used for Colour-by
+// classifications).
 enum { DISPLAYBY_DATATYPE = 0, DISPLAYBY_DATAFILE = -1, DISPLAYBY_OBSSTATUS = -2 };
 
 // Whether the given Display-by dimension (DISPLAYBY_* or a classification
@@ -107,7 +109,7 @@ void init_displayed_fields();
 void set_displayed_fields( int *fields, int nFields );
 int get_displayed_fields( int *fields, int maxFields );
 int get_display_field_code( const char *name );
-const char *get_display_field_name( int code );
+std::optional<std::string> get_display_field_name( int code );
 int read_display_fields_definition( char *def );
 void write_display_fields_definition( char *def, int nchar );
 

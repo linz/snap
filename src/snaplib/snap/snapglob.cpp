@@ -76,7 +76,6 @@ void init_snap_globals()
         obstypecount[i] = 0;
         obs_precision[i] = datatype[i].dfltndp;
     }
-    init_classifications( &obs_classes );
     obs_modifications=0;
     converged=1;
     last_iteration_max_adjustment=0.0;
@@ -215,7 +214,7 @@ int reload_snap_globals( BINARY_FILE *b )
 void dump_obs_classes( BINARY_FILE *b )
 {
     create_section( b, "OBS_CLASSES" );
-    dump_classifications( &obs_classes, b->f );
+    obs_classes.dump( b->f );
     end_section(b);
 
 }
@@ -223,7 +222,7 @@ void dump_obs_classes( BINARY_FILE *b )
 int reload_obs_classes( BINARY_FILE *b )
 {
     if( find_section( b, "OBS_CLASSES") != OK ) return MISSING_DATA;
-    reload_classifications( &obs_classes, b->f );
+    obs_classes.reload( b->f );
     return check_end_section(b);
 }
 

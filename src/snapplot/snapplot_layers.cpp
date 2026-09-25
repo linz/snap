@@ -9,6 +9,7 @@
 #include <map>
 #include <memory>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <type_traits>
 #include <vector>
@@ -336,7 +337,7 @@ static void setup_station_class_layers( int class_id )
 {
     save_and_invalidate_layer_state( station_user_layers );
     set_station_layer_colourflag( true );
-    if( class_id < 1 || class_id > network_classification_count(net))
+    if( class_id < 1 || class_id > net->classification_count())
     {
         station_user_layers = 0;
         return;
@@ -350,7 +351,7 @@ static void setup_station_class_layers( int class_id )
         return;
     }
 
-    int nlayer = network_class_count( net, class_id );
+    int nlayer = net->class_count( class_id );
     if( nlayer <= 0 )
     {
         station_user_layers = 0;
@@ -360,15 +361,15 @@ static void setup_station_class_layers( int class_id )
     set_station_layer_colourflag( false );
     layer_s *layers = new layer_s[nlayer+2];
     layer_s *l = &(layers[0]);
-    init_layer( l, network_class_name(net, class_id), dflt_data_colour, true );
+    init_layer( l, net->class_name(class_id).c_str(), dflt_data_colour, true );
     l->opt_id = OTHER_OPT;
     l->is_control_checkbox = true;
     for( int i = 0; i < nlayer; i++ )
     {
         char buf[256];
         l = &(layers[i+1]);
-        const char *v = network_class_value(net,class_id,i);
-        sprintf(buf,"SC_%.120s|%.120s",v,v);
+        std::string v = net->class_value(class_id,i);
+        sprintf(buf,"SC_%.120s|%.120s",v.c_str(),v.c_str());
         init_layer(l,buf,dflt_stn_colour,false);
     }
     layers[nlayer+1].name = 0;
@@ -524,16 +525,16 @@ static const char *classificationPrefix = "OC_";
 
 static bool build_classification_pen_names( const int class_type, wxString &header, std::vector<wxString> &names )
 {
-    const int npens = class_value_count( &obs_classes, class_type );
+    const int npens = obs_classes.value_count( class_type );
     if( npens <= 0 ) {
         return false;
     }
-    header = classification_name( &obs_classes, class_type );
+    header = obs_classes.name( class_type );
     names.clear();
     for( int i = 0; i < npens; i++ ) {
-        const char *value = class_value_name( &obs_classes, class_type, i );
+        std::string value = obs_classes.value_name( class_type, i );
         names.push_back( wxString::Format( "%s%.*s|%.*s", classificationPrefix,
-                          CLASSIFICATION_LABEL_SIZE, value, CLASSIFICATION_LABEL_SIZE, value ) );
+                          CLASSIFICATION_LABEL_SIZE, value.c_str(), CLASSIFICATION_LABEL_SIZE, value.c_str() ) );
     }
     return true;
 }
@@ -873,7 +874,7 @@ static void setup_snapplot_symbology()
     // Never colour-editable here: a classification only reaches this loop
     // when it is *not* the active Colour-by mode, and only the active mode's
     // list should ever have editable colour swatches.
-    for( int classType = 1; classType <= classification_count( &obs_classes ); classType++ ) {
+    for( int classType = 1; classType <= obs_classes.count(); classType++ ) {
         if( classType == get_data_pen_type() ) {
             continue;
         }
@@ -1096,7 +1097,7 @@ bool filetype_selected( const int file )
 // allocation on every call.
 static layer_s *find_classification_filter_layers( int class_type )
 {
-    const wxString header( classification_name( &obs_classes, class_type ) );
+    const wxString header( obs_classes.name( class_type ) );
     const auto cached = data_mode_layer_cache.find( header );
     if( cached == data_mode_layer_cache.end() ) {
         return nullptr;

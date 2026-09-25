@@ -38,7 +38,7 @@ void dump_network( network *nw, FILE *f )
 
     /* Dump the station list and coordinate system */
 
-    dump_classifications( &(nw->stnclasses), f);
+    nw->stnclasses.dump( f );
     dump_station_list( nw->stnlist, f );
 }
 
@@ -74,7 +74,7 @@ network *reload_network( FILE *f )
     {
         set_network_coordsys( nw, cs, 0.0, 0, 0, 0 );
         delete cs;
-        reload_classifications( &(nw->stnclasses), f );
+        nw->stnclasses.reload( f );
         nw->stnlist = reload_station_list( f );
     }
 

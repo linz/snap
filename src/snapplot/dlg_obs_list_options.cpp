@@ -61,7 +61,7 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
 {
     obsToShow = 0;
     lbFieldList = 0;
-    int nClassification = classification_count( &obs_classes);
+    int nClassification = obs_classes.count();
 
     for( nFieldList = 0; fieldListOptions[nFieldList].name != 0; nFieldList++ ) {};
     nFieldList += nClassification;
@@ -87,7 +87,7 @@ ObsListOptionsDialog::ObsListOptionsDialog( wxHelpController *help ) :
     // Note: classifications are 1 based, not 0 based
     for( int i = 0; i++ < nClassification; )
     {
-        options.Add(wxString(classification_name( &obs_classes,i)));
+        options.Add(wxString(obs_classes.name(i)));
         fieldLookupCode[nField++] = i;
     }
     sizer2->Add( Label("Fields to list"),flags );

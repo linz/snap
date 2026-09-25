@@ -175,11 +175,11 @@ int read_network( network *nw, const char *fname, int options )
                 else if( strlen(inrec) > 2 && _strnicmp( inrec, "c=", 2) == 0 )
                 {
                     /* Get the class id, which creates the classification */
-                    network_class_id( nw, inrec+2, 1 );
+                    nw->class_id( inrec+2, 1 );
                 }
                 else if( _stricmp( inrec, "station_orders" ) == 0 )
                 {
-                    network_class_id( nw, STATION_ORDER_CLASS_NAME, 1 );
+                    nw->class_id( STATION_ORDER_CLASS_NAME, 1 );
                 }
                 else if( _stricmp( inrec, "no_station_orders" ) == 0 )
                 {
@@ -236,7 +236,7 @@ int read_network( network *nw, const char *fname, int options )
     easting = 0.0;
     northing = 0.0;
     degrees = file_options & NW_DEC_DEGREES;
-    nclass = network_classification_count(nw);
+    nclass = nw->classification_count();
     clsids = 0;
     if( nclass ) clsids = (int *) check_malloc( (nclass+1) * sizeof(int));
 
@@ -304,7 +304,7 @@ int read_network( network *nw, const char *fname, int options )
                 int clsid;
                 sts = df_read_field( stf,inrec, INRECLEN );
                 if( ! sts ) break;
-                clsid = network_class_value_id(nw,i,inrec,1);
+                clsid = nw->class_value_id(i,inrec,1);
                 clsids[i] = clsid;
             }
         }

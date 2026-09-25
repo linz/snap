@@ -28,38 +28,37 @@
 */
 
 #include <stdio.h>
-#include <string.h>
+#include <charconv>
 #include "util/snapctype.h"
 
 #include "util/binfile.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/classify.h"
 
 #include "util/errdef.h"
 
-#define BLOCK_SIZE 10
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #ifdef DEBUG
 
-#define CHECK_CLASS_ID( csf, id) check_class_id( csf, id )
-#define CHECK_VALUE_ID( csf, cid,id) check_value_id( csf, cid, id );
+#define CHECK_CLASS_ID( id ) check_class_id( this, id )
+#define CHECK_VALUE_ID( cid, id ) check_value_id( this, cid, id )
 
-void check_class_id( classifications *csf, int id )
+static void check_class_id( const classifications *csf, int id )
 {
-    if( id <= 0 || id > csf->class_count )
+    if( id <= 0 || id > numeric_cast<int>(csf->class_index.size()) )
     {
         handle_error( INTERNAL_ERROR, "Out of range classification id specified",NO_MESSAGE);
     }
 }
 
-void check_value_id( classifications *csf, int cid, int id )
+static void check_value_id( const classifications *csf, int cid, int id )
 {
-    int cmax;
     check_class_id( csf, cid );
     cid--;
     if( csf->class_index[cid]->type == ClassValueType::Int ) return;
-    cmax = csf->class_index[cid]->count;
+    int cmax = numeric_cast<int>(csf->class_index[cid]->value.size());
     if( id < 0 || id >= cmax )
     {
         handle_error( INTERNAL_ERROR, "Out of range class value id specified", NO_MESSAGE );
@@ -67,320 +66,175 @@ void check_value_id( classifications *csf, int cid, int id )
 }
 
 #else
-#define CHECK_CLASS_ID(csf,id)
-#define CHECK_VALUE_ID(csf,cid,id)
+#define CHECK_CLASS_ID(id)
+#define CHECK_VALUE_ID(cid,id)
 #endif
 
 
-void init_classifications( classifications *csf )
+static void clean_name( std::string &name )
 {
-    csf->class_index = NULL;
-    csf->class_index_size = 0;
-    csf->class_count = 0;
+    for( char &c : name ) { if( ISSPACE(c) ) c = '_'; }
 }
 
-static void resize_class_index( class_type *ct, int new_size )
+class_value *class_type::add_value( std::variant<std::string,int> new_value )
 {
-    size_t alloc_size;
-    class_value **ci;
-    alloc_size = new_size * sizeof( class_value * );
-    ci = ct->value;
-    ci = (class_value **) check_realloc( ci, alloc_size );
-    ct->alloc_size = new_size;
-    ct->value = ci;
+    value.emplace_back( std::move(new_value) );
+    return &value.back();
 }
 
-static class_value *create_class_value( class_type *ct )
+int class_type::value_id( const std::string &value_name, int create )
 {
-    class_value *cv;
-
-    if( ct->count >= ct->alloc_size )
+    if( type == ClassValueType::Int )
     {
-        int newsize = ct->alloc_size > 0 ? ct->alloc_size * 2 : BLOCK_SIZE;
-        resize_class_index(ct,newsize);
-    }
-    cv = (class_value *) check_malloc( sizeof( class_value ) );
-    cv->value.value = 0;
-    cv->usage = 0;
-    cv->error_factor = 1.0;
-    ct->value[ct->count] = cv;
-    ct->count++;
-    return cv;
-}
-
-static void clean_name( char *name )
-{
-    for( ; *name; name++ )
-    {
-        if( ISSPACE(*name)) *name = '_';
-    }
-}
-
-static int class_type_value_id( class_type *ct, const char *name, int create )
-{
-    int cmax;
-    int i;
-    class_value *cv;
-    class_value **cvs;
-
-    if( ct->type == ClassValueType::Int )
-    {
-        int id;
-        if( sscanf(name,"%d",&id) != 1 )
+        int id = 0;
+        auto result = std::from_chars( value_name.data(), value_name.data()+value_name.size(), id );
+        if( result.ec != std::errc() )
         {
-            char errmess[80];
-            sprintf(errmess,"Invalid value %.10s for integer class %.20s",name,ct->name);
+            std::string errmess = "Invalid value " + value_name.substr(0,10) +
+                                   " for integer class " + name.substr(0,20);
+            (void) errmess;
         }
         return id;
     };
 
-    cmax = ct->count;
-    cvs = ct->value;
-
-    for( i=0; i<cmax; i++ )
+    int cmax = numeric_cast<int>(value.size());
+    for( int i=0; i<cmax; i++ )
     {
-        if( ismatch(cvs[i]->value.name, name) ) return i;
+        if( ismatch(std::get<std::string>(value[i].value).c_str(), value_name.c_str()) ) return i;
     }
     if( ! create ) return CLASS_VALUE_NOT_DEFINED;
 
-    cv = create_class_value(ct);
-    cv->value.name = copy_string( name );
-    clean_name( cv->value.name );
-    return ct->count-1;
+    std::string cleaned = value_name;
+    clean_name( cleaned );
+    add_value( std::move(cleaned) );
+    return numeric_cast<int>(value.size())-1;
 }
 
-static class_type *create_class_type( const char*name, ClassValueType type, char *dflt )
+class_value *class_type::find_value( int value_id, int create )
 {
-    class_type *ct = (class_type *) check_malloc( sizeof( class_type ) );
-    ct->name = copy_string( name );
-    clean_name( ct->name );
-    ct->type = type;
-    ct->count = 0;
-    ct->alloc_size = 0;
-    ct->value = NULL;
-    /* Set up the default classification */
-    if( type == ClassValueType::Char ) class_type_value_id( ct, dflt ? dflt : "Default", 1 );
-    return ct;
-}
-
-static void delete_class_type( class_type *ct )
-{
-    int nv;
-    for( nv = 0; nv < ct->count; nv++ )
+    if( type == ClassValueType::Char )
     {
-        if( ct->type == ClassValueType::Char ) check_free( ct->value[nv]->value.name );
-        check_free( ct->value[nv]);
-        ct->value[nv] = NULL;
-    }
-    check_free( ct->value );
-    check_free( ct->name );
-    check_free( ct );
-}
-
-void delete_classifications( classifications *csf )
-{
-    int nc;
-    if( ! csf ) return;
-    if( csf->class_index )
-    {
-        for( nc = 0; nc < csf->class_count; nc++ )
-        {
-            delete_class_type( csf->class_index[nc]);
-            csf->class_index[nc] = NULL;
-        }
-        check_free( csf->class_index );
-    }
-    csf->class_index = 0;
-    csf->class_count = 0;
-    csf->class_index_size = 0;
-}
-
-static void resize_index( classifications *csf, int new_size )
-{
-    size_t alloc_size;
-    alloc_size = new_size * sizeof( class_type * );
-    csf->class_index = (class_type **) check_realloc( csf->class_index, alloc_size );
-    csf->class_index_size = new_size;
-}
-
-static int find_classification_id( classifications *csf, const char *name )
-{
-    int i;
-    int class_count = csf->class_count;
-    for( i = 0; i<class_count; i++ )
-    {
-        if( ismatch(name, csf->class_index[i]->name )) return i+1;
-    }
-    return 0;
-}
-
-static int create_classification( classifications *csf, const char *name, ClassValueType type, char *dflt, int create )
-{
-    int class_count;
-    class_type *ct;
-
-    class_count = find_classification_id( csf, name );
-    if( class_count ) return class_count;
-    if( ! create ) return 0;
-
-    class_count = csf->class_count;
-
-    if( class_count >= csf->class_index_size )
-    {
-        int newsize = class_count * 2;
-        if( newsize < BLOCK_SIZE ) newsize = BLOCK_SIZE;
-        resize_index( csf, newsize );
+        return &value[value_id];
     }
 
-    ct = create_class_type( name, type, dflt );
-
-    csf->class_index[class_count] = ct;
-    class_count++;
-
-    csf->class_count = class_count;
-
-
-    return class_count;
-}
-
-int classification_id( classifications *csf, const char *name, int create )
-{
-    return create_classification( csf, name, ClassValueType::Char, NULL, create );
-}
-
-int classification_id_integer( classifications *csf, char *name, int create )
-{
-    return create_classification( csf, name, ClassValueType::Int, NULL, create );
-}
-
-
-
-char * classification_name( classifications *csf, int id )
-{
-    CHECK_CLASS_ID( csf, id );
-    return csf->class_index[id-1]->name;
-}
-
-
-int classification_count(  classifications *csf )
-{
-    return csf->class_count;
-}
-
-void set_default_class_value( classifications *csf, int class_id, const char *dflt )
-{
-    class_type *ct;
-
-    CHECK_CLASS_ID(csf,class_id);
-    class_id--;
-    ct = csf->class_index[class_id];
-
-    if( ct->type != ClassValueType::Char ) return;
-    if( ct->count > 0 )
+    for( auto &cv : value )
     {
-        class_value *cv = ct->value[0];
-        check_free( cv->value.name );
-        cv->value.name = copy_string( dflt );
-    }
-}
-
-int class_value_id( classifications *csf, int class_id, const char *name, int create )
-{
-    class_type *ct;
-
-    CHECK_CLASS_ID(csf,class_id);
-    class_id--;
-
-    ct = csf->class_index[class_id];
-    return class_type_value_id( ct, name, create );
-}
-
-static class_value *get_class_value(  classifications *csf, int class_id, int val_id, int create )
-{
-    class_type *ct;
-    class_value *cv;
-    int i;
-
-    CHECK_CLASS_ID(csf,class_id);
-    ct = csf->class_index[class_id-1];
-
-    if( ct->type == ClassValueType::Char )
-    {
-        CHECK_VALUE_ID( csf, class_id, val_id );
-        return ct->value[val_id];
-    }
-
-    for( i = 0; i < ct->count; i++ )
-    {
-        cv = ct->value[i];
-        if( cv->value.value == val_id ) return cv;
+        if( std::get<int>(cv.value) == value_id ) return &cv;
     }
 
     if( ! create ) return NULL;
 
-    cv = create_class_value(ct);
-    cv->value.value = val_id;
+    return add_value( value_id );
+}
 
-    return cv;
+int classifications::find_or_create_id( const std::string &name, ClassValueType type, int create )
+{
+    int class_count = numeric_cast<int>(class_index.size());
+    for( int i = 0; i<class_count; i++ )
+    {
+        if( ismatch(name.c_str(), class_index[i]->name.c_str()) ) return i+1;
+    }
+    if( ! create ) return 0;
+
+    std::string cleaned = name;
+    clean_name( cleaned );
+    auto ct = std::make_unique<class_type>( std::move(cleaned), type );
+    /* Set up the default classification */
+    if( type == ClassValueType::Char ) ct->value_id( "Default", 1 );
+
+    class_index.push_back( std::move(ct) );
+    return numeric_cast<int>(class_index.size());
+}
+
+int classifications::id( const std::string &name, int create )
+{
+    return find_or_create_id( name, ClassValueType::Char, create );
+}
+
+int classification_id_integer( classifications *csf, const std::string &name, int create )
+{
+    return csf->find_or_create_id( name, ClassValueType::Int, create );
+}
+
+std::string classifications::name( int id ) const
+{
+    CHECK_CLASS_ID( id );
+    return class_index[id-1]->name;
 }
 
 
-char * class_value_name( classifications *csf, int class_id, int id )
+int classifications::count() const
 {
-    class_type *ct;
+    return numeric_cast<int>(class_index.size());
+}
 
-    CHECK_CLASS_ID(csf,class_id);
-    ct = csf->class_index[class_id-1];
+void classifications::set_default_value( int class_id, const std::string &dflt )
+{
+    CHECK_CLASS_ID(class_id);
+    class_id--;
+    class_type *ct = class_index[class_id].get();
+
+    if( ct->type != ClassValueType::Char ) return;
+    if( ! ct->value.empty() )
+    {
+        ct->value[0].value = dflt;
+    }
+}
+
+int classifications::value_id( int class_id, const std::string &value, int create )
+{
+    CHECK_CLASS_ID(class_id);
+    class_id--;
+
+    return class_index[class_id]->value_id( value, create );
+}
+
+std::string classifications::value_name( int class_id, int value_id ) const
+{
+    CHECK_CLASS_ID(class_id);
+    class_type *ct = class_index[class_id-1].get();
     if( ct->type == ClassValueType::Int )
     {
-        sprintf(ct->valuebuf,"%d",id);
-        return ct->valuebuf;
+        return std::to_string(value_id);
     }
-    CHECK_VALUE_ID( csf, class_id, id );
-    return csf->class_index[class_id-1]->value[id]->value.name;
+    CHECK_VALUE_ID( class_id, value_id );
+    return std::get<std::string>(ct->value[value_id].value);
 }
 
-int class_value_count( classifications *csf, int class_id )
+int classifications::value_count( int class_id ) const
 {
-    class_type *ct;
-
-    CHECK_CLASS_ID(csf,class_id);
-    ct = csf->class_index[class_id-1];
+    CHECK_CLASS_ID(class_id);
+    class_type *ct = class_index[class_id-1].get();
     if( ct->type == ClassValueType::Int ) return 0;
 
-    CHECK_CLASS_ID( csf, class_id );
-    return csf->class_index[class_id-1]->count;
+    return numeric_cast<int>(ct->value.size());
 }
 
-void set_class_flag( classifications *csf, int class_id, int val_id, unsigned char flagbit )
+void classifications::set_value_flag( int class_id, int value_id, unsigned char flagbit )
 {
-    class_value *cv;
-    CHECK_VALUE_ID( csf, class_id, val_id );
-    cv=get_class_value(csf,class_id,val_id,1);
+    CHECK_VALUE_ID( class_id, value_id );
+    class_value *cv = class_index[class_id-1]->find_value(value_id,1);
     cv->usage |= flagbit;
 }
 
-void set_class_error_factor( classifications *csf, int class_id, int val_id, double ef )
+void classifications::set_value_error_factor( int class_id, int value_id, double error_factor )
 {
-    class_value *cv;
-    CHECK_VALUE_ID( csf, class_id, val_id );
-    cv=get_class_value(csf,class_id,val_id,1);
-    cv->error_factor = ef;
+    CHECK_VALUE_ID( class_id, value_id );
+    class_value *cv = class_index[class_id-1]->find_value(value_id,1);
+    cv->error_factor = error_factor;
 }
 
-double get_class_errfct( classifications *csf, int class_id, int val_id )
+double classifications::value_error_factor( int class_id, int value_id )
 {
-    class_value *cv;
-    CHECK_VALUE_ID( csf, class_id, val_id );
-    cv=get_class_value(csf,class_id,val_id,0);
+    CHECK_VALUE_ID( class_id, value_id );
+    class_value *cv = class_index[class_id-1]->find_value(value_id,0);
     return cv ? cv->error_factor : 1.0;
 }
 
-unsigned char get_class_usage( classifications *csf, int class_id, int val_id )
+unsigned char classifications::value_usage( int class_id, int value_id )
 {
-    class_value *cv;
-    CHECK_VALUE_ID( csf, class_id, val_id );
-    cv=get_class_value(csf,class_id,val_id,0);
+    CHECK_VALUE_ID( class_id, value_id );
+    class_value *cv = class_index[class_id-1]->find_value(value_id,0);
     return cv ? cv->usage : 0;
 }
 
@@ -388,73 +242,60 @@ unsigned char get_class_usage( classifications *csf, int class_id, int val_id )
 
 /* Dump and reload classifications */
 
-void dump_classifications( classifications *csf, FILE *f )
+void classifications::dump( FILE *f ) const
 {
-    int ic, iv;
-    write_raw( f, csf->class_count );
-    for(ic = 0; ic < csf->class_count; ic++ )
+    write_raw( f, numeric_cast<int>(class_index.size()) );
+    for( auto &cl : class_index )
     {
-        class_type *cl;
-        cl = csf->class_index[ic];
-        dump_string_c( cl->name, f );
-        write_raw( f, cl->count );
+        dump_string( cl->name, f );
+        write_raw( f, numeric_cast<int>(cl->value.size()) );
         write_raw( f, cl->type );
-        for( iv = 0; iv < cl->count; iv++ )
+        for( auto &cv : cl->value )
         {
-            class_value *cv;
-            cv = cl->value[iv];
             if( cl->type == ClassValueType::Int )
             {
-                write_raw( f, cv->value.value );
+                write_raw( f, std::get<int>(cv.value) );
             }
             else
             {
-                dump_string_c( cv->value.name, f );
+                dump_string( std::get<std::string>(cv.value), f );
             }
-            write_raw( f, cv->usage );
-            write_raw( f, cv->error_factor );
+            write_raw( f, cv.usage );
+            write_raw( f, cv.error_factor );
         }
     }
 }
 
-int reload_classifications( classifications *csf, FILE *f )
+int classifications::reload( FILE *f )
 {
-    int ic, iv;
-    read_raw( f, csf->class_count );
-    if( csf->class_count )
+    int class_count;
+    read_raw( f, class_count );
+    for( int ic = 0; ic<class_count; ic++ )
     {
-        csf->class_index = (class_type **) check_malloc( csf->class_count * sizeof(class_type *));
-        csf->class_index_size = csf->class_count;
-        for( ic = 0; ic<csf->class_count; ic++ )
+        std::string name = reload_string( f );
+        int value_count;
+        ClassValueType type;
+        read_raw( f, value_count );
+        read_raw( f, type );
+        auto cl = std::make_unique<class_type>( std::move(name), type );
+        for( int iv = 0; iv < value_count; iv++ )
         {
-            class_type *cl;
-            cl = (class_type *) check_malloc( sizeof(class_type) );
-            csf->class_index[ic] = cl;
-            cl->name = reload_string_c( f );
-            read_raw( f, cl->count );
-            read_raw( f, cl->type );
-            cl->value = (class_value **) check_malloc( cl->count * sizeof(class_value *));
-            cl->alloc_size = cl->count;
-            for( iv = 0; iv < cl->count; iv++ )
+            class_value *cv;
+            if( type == ClassValueType::Int )
             {
-                class_value *cv;
-                cv = (class_value *) check_malloc( sizeof( class_value ));
-                cl->value[iv] = cv;
-                if( cl->type == ClassValueType::Int )
-                {
-                    read_raw( f, cv->value.value );
-                }
-                else
-                {
-                    cv->value.name = reload_string_c( f );
-                }
-                read_raw( f, cv->usage );
-                read_raw( f, cv->error_factor );
+                int v;
+                read_raw( f, v );
+                cv = cl->add_value( v );
             }
+            else
+            {
+                std::string vname = reload_string( f );
+                cv = cl->add_value( std::move(vname) );
+            }
+            read_raw( f, cv->usage );
+            read_raw( f, cv->error_factor );
         }
+        class_index.push_back( std::move(cl) );
     }
     return OK;
 }
-
-
-

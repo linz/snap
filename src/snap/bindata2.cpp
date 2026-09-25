@@ -29,7 +29,11 @@
 #include <string.h>
 #include <math.h>
 #include <array>
+#include <string>
 #include <string_view>
+
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "snap/snapglob.h"
 #include "snapdata/datatype.h"
@@ -173,7 +177,7 @@ struct listing_column
     int width;
     const char *title1;
     const char *title2;
-    char *data;
+    const char *data;
 };
 
 struct listing_def
@@ -732,10 +736,10 @@ static int add_residual_field_def( int type, const char *code, int width, const 
 
     if( column == INVALID_FIELD && _strnicmp(code,"C=",2) == 0 )
     {
-        column = classification_id( &obs_classes, code+2, 1 );
+        column = obs_classes.id( code+2, 1 );
         if( !title1 && !title2 )
         {
-            title1 = get_column_heading( classification_name( &obs_classes, column ) );
+            title1 = get_column_heading( obs_classes.name( column ).c_str() );
         }
         column |= CLASSIFICATION_FIELD;
     }
@@ -991,6 +995,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
     static char lineno[10];
     static char fileno[10];
     static std::string filename;
+    static std::array<std::string, MAX_COLUMNS> classification_value;
     int i;
 
     if( sd->from )
@@ -1024,7 +1029,16 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
         {
             int class_id;
             class_id = listing_format->col[i].column & ~CLASSIFICATION_FIELD;
-            listing_format->col[i].data = get_obs_classification_name( sd, t, class_id );
+            auto name = get_obs_classification_name( sd, t, class_id );
+            if( name )
+            {
+                classification_value[i] = std::move(*name);
+                listing_format->col[i].data = classification_value[i].c_str();
+            }
+            else
+            {
+                listing_format->col[i].data = nullptr;
+            }
         }
     }
 }
@@ -1101,11 +1115,11 @@ static void setup_format_columns( listing_def *format )
             int class_id, class_count, ic, len, width;
             if( col->width ) continue;
             class_id = col->column & ~CLASSIFICATION_FIELD;
-            class_count = class_value_count( &obs_classes, class_id );
+            class_count = obs_classes.value_count( class_id );
             width = 0;
             for( ic = 0; ic < class_count; ic++ )
             {
-                len = strlen( class_value_name( &obs_classes, class_id, ic ) );
+                len = numeric_cast<int>( obs_classes.value_name( class_id, ic ).size() );
                 if( len > width ) width = len;
             }
             col->width = width;
@@ -1469,9 +1483,10 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
     station *to = stnptr(tgt->to);
     if( ! from ) { from = to; to = 0; }
 
-    for( i = 0; i < classification_count(&obs_classes); i++ )
+    for( i = 0; i < obs_classes.count(); i++ )
     {
-        write_csv_string(csv,get_obs_classification_name(sd,tgt,i+1));
+        auto name = get_obs_classification_name(sd,tgt,i+1);
+        write_csv_string(csv, name ? name->c_str() : nullptr);
     }
     write_csv_string(csv,survey_data_file_name(sd->file).c_str());
     write_csv_int(csv,tgt->lineno);
@@ -1854,13 +1869,10 @@ void write_observation_csv()
     }
     /* write_csv_header(csv,"flags"); */
 
-    for( i = 0; i < classification_count(&obs_classes); i++ )
+    for( i = 0; i < obs_classes.count(); i++ )
     {
-        char fieldname[33];
-        strcpy(fieldname,"c_");
-        strncpy(fieldname+2,classification_name(&obs_classes,i+1),30);
-        fieldname[32] = 0;
-        write_csv_header(csv,fieldname);
+        std::string fieldname = "c_" + obs_classes.name(i+1).substr(0,30);
+        write_csv_header(csv,fieldname.c_str());
     }
 
     write_csv_header(csv,"sourcefile");

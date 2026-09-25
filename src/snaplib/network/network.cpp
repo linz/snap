@@ -13,6 +13,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <boost/algorithm/string/predicate.hpp>
+
 #include "network/network.h"
 
 /*=============================================================*/
@@ -34,7 +36,6 @@ network::network() :
     initstation( default_initstation ),
     uninitstation( default_uninitstation )
 {
-    init_classifications( &stnclasses );
 }
 
 network *new_network( void )
@@ -84,7 +85,7 @@ void network::clear()
     if( stnlist ) { delete_station_list( stnlist ); stnlist = 0; }
     if( crdsys ) { delete crdsys; crdsys = 0; }
     if( geosys ) { delete geosys; geosys = 0; }
-    delete_classifications( &stnclasses );
+    stnclasses.clear();
 }
 
 network::~network()
@@ -97,64 +98,66 @@ void delete_network( network *nw )
     delete nw;
 }
 
-int network_classification_count( network *nw )
+int network::classification_count() const
 {
-    return classification_count( &(nw->stnclasses) );
+    return stnclasses.count();
 }
 
-int network_class_id( network *nw, const char *classname, int create )
+int network::class_id( const std::string &classname, int create )
 {
-    int id = classification_id( &(nw->stnclasses), classname, 0 );
+    int id = stnclasses.id( classname, 0 );
     if( create && id == 0 )
     {
-        id = classification_id( &(nw->stnclasses), classname, 1 );
-        set_default_class_value( &(nw->stnclasses), id, "-" );
-        if( _stricmp(classname,STATION_ORDER_CLASS_NAME) == 0 ) nw->orderclsid = id;
+        id = stnclasses.id( classname, 1 );
+        stnclasses.set_default_value( id, "-" );
+        if( boost::algorithm::iequals(classname,STATION_ORDER_CLASS_NAME) ) orderclsid = id;
     }
     return id;
 }
-const char *network_class_name( network *nw, int class_id )
+
+std::string network::class_name( int class_id ) const
 {
-    return classification_name( &(nw->stnclasses), class_id);
-}
-int network_class_count( network *nw, int class_id )
-{
-    return class_value_count( &(nw->stnclasses), class_id );
+    return stnclasses.name( class_id );
 }
 
-int network_class_value_id( network *nw, int class_id, const char *value, int create )
+int network::class_count( int class_id ) const
 {
-    return class_value_id( &(nw->stnclasses), class_id, value, create );
+    return stnclasses.value_count( class_id );
 }
 
-const char *network_class_value( network *nw, int class_id, int value_id )
+int network::class_value_id( int class_id, const std::string &value, int create )
 {
-    return class_value_name( &(nw->stnclasses), class_id, value_id );
+    return stnclasses.value_id( class_id, value, create );
 }
 
-int add_network_orders( network *nw )
+std::string network::class_value( int class_id, int value_id ) const
 {
-    return network_class_id( nw, STATION_ORDER_CLASS_NAME, 1 );
+    return stnclasses.value_name( class_id, value_id );
 }
 
-int network_order_count( network *nw )
+int network::add_orders()
 {
-    return nw->orderclsid ? network_class_count(nw,nw->orderclsid) : 0;
+    return class_id( STATION_ORDER_CLASS_NAME, 1 );
 }
 
-int network_order_id( network *nw, const char *order, int addorder )
+int network::order_count() const
 {
-    return nw->orderclsid ? network_class_value_id( nw, nw->orderclsid, order, addorder ) : 0;
+    return orderclsid ? class_count(orderclsid) : 0;
 }
 
-const char *network_order( network *nw, int orderid )
+int network::order_id( const std::string &order, int addorder )
 {
-    return network_class_value(nw,nw->orderclsid,orderid);
+    return orderclsid ? class_value_id( orderclsid, order, addorder ) : 0;
 }
 
-int network_station_order( network *nw, station *stn )
+std::string network::order( int orderid ) const
 {
-    return nw->orderclsid ? get_station_class( stn, nw->orderclsid ) : 0;
+    return class_value(orderclsid,orderid);
+}
+
+int network::station_order( station *stn ) const
+{
+    return orderclsid ? get_station_class( stn, orderclsid ) : 0;
 }
 
 int network_has_explicit_geoid_info( network *nw )

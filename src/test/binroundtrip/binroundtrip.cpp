@@ -10,6 +10,9 @@
 #include <vector>
 #include <array>
 
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
+
 #include "util/errdef.h"
 #include "util/binfile.h"
 #include "util/bltmatrx.h"
@@ -183,22 +186,22 @@ static void dump_value( std::ostream &out, const std::string &label, const std::
 // dump_classifications (util/classify.cpp).
 static void dump_classifications_text( std::ostream &out, const std::string &section, const classifications &csf )
 {
-    for( int ic = 0; ic < csf.class_count; ic++ ) {
-        const class_type *cl = csf.class_index[ic];
+    for( int ic = 0; ic < csf.count(); ic++ ) {
+        const class_type *cl = csf.class_index[ic].get();
         const std::string p = section + "[" + std::to_string(ic) + "].";
-        dump_value( out, p+"name", cl->name ? cl->name : "" );
-        dump_value( out, p+"count", static_cast<long>(cl->count) );
+        dump_value( out, p+"name", cl->name );
+        dump_value( out, p+"count", numeric_cast<long>(cl->value.size()) );
         dump_value( out, p+"type", cl->type == ClassValueType::Int ? "Int" : "Char" );
-        for( int iv = 0; iv < cl->count; iv++ ) {
-            const class_value *cv = cl->value[iv];
+        for( int iv = 0; iv < numeric_cast<int>(cl->value.size()); iv++ ) {
+            const class_value &cv = cl->value[iv];
             const std::string vp = p+"value["+std::to_string(iv)+"].";
             if( cl->type == ClassValueType::Int ) {
-                dump_value( out, vp+"value", static_cast<long>(cv->value.value) );
+                dump_value( out, vp+"value", static_cast<long>(std::get<int>(cv.value)) );
             } else {
-                dump_value( out, vp+"value", cv->value.name ? cv->value.name : "" );
+                dump_value( out, vp+"value", std::get<std::string>(cv.value) );
             }
-            dump_value( out, vp+"usage", static_cast<long>(cv->usage) );
-            dump_value( out, vp+"error_factor", cv->error_factor );
+            dump_value( out, vp+"usage", static_cast<long>(cv.usage) );
+            dump_value( out, vp+"error_factor", cv.error_factor );
         }
     }
 }

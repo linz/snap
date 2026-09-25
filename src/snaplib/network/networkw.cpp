@@ -9,6 +9,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <string>
+
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "network/network.h"
 #include "util/datafile.h"
@@ -95,21 +98,21 @@ int write_network( network *nw, const char *fname, const char *comment,
         degrees = 1;
     }
 
-    nclass = network_classification_count(nw);
+    nclass = nw->classification_count();
     if( nclass )
     {
         int i;
         for( i = 0; i++ < nclass; )
         {
-            const char *name = network_class_name( nw, i );
-            if( nclass==1 && _stricmp(name,STATION_ORDER_CLASS_NAME)==0)
+            std::string name = nw->class_name( i );
+            if( nclass==1 && boost::algorithm::iequals(name,STATION_ORDER_CLASS_NAME))
             {
                 fputs(" station_orders",stf);
             }
             else
             {
                 fputs(" c=",stf);
-                fputs(name,stf);
+                fputs(name.c_str(),stf);
             }
         }
     }
@@ -151,8 +154,8 @@ int write_network( network *nw, const char *fname, const char *comment,
         int i;
         for( i = 0; i++ < nclass; )
         {
-            const char *name = network_class_name( nw, i );
-            fprintf( stf, " %-5s", name);
+            std::string name = nw->class_name( i );
+            fprintf( stf, " %-5s", name.c_str());
         }
     }
     fprintf( stf, " Name\n");
@@ -229,8 +232,8 @@ int write_network( network *nw, const char *fname, const char *comment,
             for( i = 0; i++ < nclass; )
             {
                 int clsid = get_station_class( st, i );
-                const char *cval = network_class_value( nw, i, clsid );
-                fprintf( stf, " %-5s", cval ? cval : "-" );
+                std::string cval = nw->class_value( i, clsid );
+                fprintf( stf, " %-5s", cval.empty() ? "-" : cval.c_str() );
             }
         }
 

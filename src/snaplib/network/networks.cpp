@@ -188,7 +188,7 @@ station * new_network_station( network *nw,
 
     init_station( st, code, Name, Lat, Lon, Hgt, Xi, Eta, Und, nw->crdsys->rf->el );
 
-    init_station_classes( st, network_classification_count(nw) );
+    init_station_classes( st, nw->classification_count() );
 
     add_station( nw, st );
 
@@ -209,7 +209,7 @@ station * duplicate_network_station( network *nw,
             st->ELat, st->ELon, st->OHgt, 
             st->GXi, st->GEta, st->GUnd, nw->crdsys->rf->el );
 
-    init_station_classes( stnew, network_classification_count(nw) );
+    init_station_classes( stnew, nw->classification_count() );
 
     add_station( nw, stnew );
     if( stnew->nclass == st->nclass )

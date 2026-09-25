@@ -17,6 +17,8 @@
 
 #include <stdio.h>
 
+#include <boost/algorithm/string/predicate.hpp>
+
 #include "util/errdef.h"
 
 #include "snap/stnadj.h"
@@ -541,7 +543,7 @@ static int read_observation_colour_command( CFG_FILE *, char *string, void *, in
 static int read_station_colour_command( CFG_FILE *, char *string, void *, int, int )
 {
     int class_id = 0;
-    if( _stricmp(string,"usage") != 0 ) class_id = network_class_id( net, string, 0 );
+    if( ! boost::algorithm::iequals(string,"usage") ) class_id = net->class_id( string, 0 );
     setup_station_pens(class_id);
     return OK;
 }
@@ -828,7 +830,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
 
             if( _strnicmp(field,"order=",6) == 0 )
             {
-                int orderId = network_order_id( net, field+6, 0 );
+                int orderId = net->order_id( field+6, 0 );
                 for( istn = number_of_stations(net); istn; istn-- )
                 {
                     station *st = stnptr(istn);
@@ -985,7 +987,7 @@ int write_config_file( FILE *out, int key_only )
         write_display_fields_definition( def, 256 );
         fputs( def, out );
         fputs( "\n", out );
-        fprintf( out, "obs_listing_order %s\n",get_display_field_name(get_sres_sort_option()));
+        fprintf( out, "obs_listing_order %s\n",get_display_field_name(get_sres_sort_option()).value_or("").c_str());
         fputs( "observation_options ", out );
 
         if( !show_oneway_obs ) fputs("no_", out);

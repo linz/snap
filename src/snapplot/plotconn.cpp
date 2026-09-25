@@ -29,7 +29,14 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <optional>
 #include <set>
+#include <string>
+#include <variant>
+#include <vector>
+#include <boost/algorithm/string.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 #include "util/snapctype.h"
 
 #ifdef _WIN32
@@ -215,7 +222,7 @@ static void init_connection_list( void )
         }
     }
 
-    nclass = classification_count( &obs_classes);
+    nclass = obs_classes.count();
     conn_data_size = sizeof( conn_data ) + (nclass - 1) * sizeof( int );
     connection = (conn_data *) check_malloc( conn_data_size );
     connection2 = (conn_data *) check_malloc( conn_data_size );
@@ -1060,9 +1067,9 @@ int set_datapen_definition( char *def )
         fld = strtok(NULL," \t\r\n");
         if( ! fld ) return MISSING_DATA;
         found = 0;
-        for( i = 0; i++ < classification_count( &obs_classes); )
+        for( i = 0; i++ < obs_classes.count(); )
         {
-            if( _stricmp( fld, classification_name( &obs_classes,i)) == 0 )
+            if( boost::algorithm::iequals( fld, obs_classes.name(i)) )
             {
                 found = 1;
                 break;
@@ -1094,7 +1101,7 @@ void get_datapen_definition( char *def )
         break;
 
     default:            sprintf(def,"by_classification %s",
-                                    classification_name( &obs_classes,data_pen_type));
+                                    obs_classes.name(data_pen_type).c_str());
         break;
     }
 }
@@ -1543,17 +1550,34 @@ struct SresDef
     int to_id;
     int obs_id;
     char unused;
-    union
-    {
-        const char *cpr;
-        double fval;
-        long ival;
-    } cmpval;
+
+    /// Recomputes the sort key - derived from this record's own
+    /// from/to_id/obs_id - for the given display field.
+    void set_sort_key( int order );
+
+    /// Compares this record's sort key to another's, returning a
+    /// strcmp-style result (negative/zero/positive). Both records must
+    /// have been given a sort key for the same display field.
+    int compare( const SresDef &other ) const;
+
+    /// Compares two records by instrument station, using this record's
+    /// sort key as a station code. Ties are broken by each record's
+    /// target station, looked up via connlst using its own from/to_id.
+    int compare_from( const SresDef &other ) const;
+
+    /// Compares two records by the two stations they connect, treating a
+    /// connection and its reverse as the same line. Each record's own two
+    /// endpoints are its sort key (as a station code) and its target
+    /// station, looked up via connlst using its own from/to_id.
+    int compare_line( const SresDef &other ) const;
+
+private:
+    std::variant<std::string, double, long> cmpval;
 };
 
 #define MAX_DISPLAY_FIELDS 32
 
-static SresDef *srList = NULL;
+static std::vector<SresDef> srList;
 static long *srIndex = NULL;
 static long *srIndex2 = NULL;
 static long srListCount = 0;
@@ -1601,9 +1625,9 @@ int get_display_field_code( const char *field )
     }
     if( fieldCode == 0 )
     {
-        for( i = 0; i++ < classification_count( &obs_classes); )
+        for( i = 0; i++ < obs_classes.count(); )
         {
-            if( _stricmp( field, classification_name( &obs_classes,i)) == 0 )
+            if( boost::algorithm::iequals( field, obs_classes.name(i)) )
             {
                 fieldCode = i;
                 break;
@@ -1613,23 +1637,20 @@ int get_display_field_code( const char *field )
     return fieldCode;
 }
 
-const char *get_display_field_name( int fieldCode )
+std::optional<std::string> get_display_field_name( int fieldCode )
 {
-    const char *fieldName = NULL;
-    int j;
-    for( j = 0; displayFieldDefs[j].name; j++ )
+    for( int j = 0; displayFieldDefs[j].name; j++ )
     {
-        if( displayFieldDefs[j].code  == fieldCode )
+        if( displayFieldDefs[j].code == fieldCode )
         {
-            fieldName = displayFieldDefs[j].name;
-            break;
+            return displayFieldDefs[j].name;
         }
     }
-    if( fieldName == NULL && fieldCode > 0 )
+    if( fieldCode > 0 )
     {
-        fieldName = classification_name( &obs_classes,fieldCode);
+        return obs_classes.name(fieldCode);
     }
-    return fieldName;
+    return std::nullopt;
 }
 
 
@@ -1657,15 +1678,13 @@ void write_display_fields_definition( char *def, int nchar )
     int i;
     for( i = 0; i < nDisplayFields; i++ )
     {
-        const char *fieldName;
-        fieldName = get_display_field_name(displayFields[i]);
-        if( fieldName != NULL )
+        auto fieldName = get_display_field_name(displayFields[i]);
+        if( fieldName )
         {
-            int fnlen;
-            fnlen = strlen(fieldName);
+            int fnlen = numeric_cast<int>(fieldName->size());
             if( fnlen + nch + 2 > nchar ) break;
             if( nch ) def[nch++] = ' ';
-            strcpy( def+nch, fieldName );
+            strcpy( def+nch, fieldName->c_str() );
             nch += fnlen;
         }
     }
@@ -1701,12 +1720,10 @@ static void set_display_field_widths( void )
         {
             int j;
             width = 7;  /* Default string for "Default" is 7 chrs */
-            for( j = 0; j < class_value_count( &obs_classes,fldCode); j++ )
+            for( j = 0; j < obs_classes.value_count(fldCode); j++ )
             {
-                char *valnam =  class_value_name( &obs_classes, fldCode, j );
-                int dfw;
-                if( !valnam ) continue;
-                dfw = strlen( valnam );
+                std::string valnam = obs_classes.value_name( fldCode, j );
+                int dfw = numeric_cast<int>(valnam.size());
                 if( dfw > width ) width = dfw;
             }
             width += 5; /* Leave a bit of space! */
@@ -1766,51 +1783,67 @@ int get_displayed_fields( int *fields, int maxFields )
     }
     return nDisplayFields;
 }
-/* Sorts based on preset floating point numbers */
 /* Note: all sorts include comparison of srIndex2 values to retain original sort order
    where new is no different */
 
-static int cmp_srdef_float_base( const void *p1, const void *p2, char reverse )
+int SresDef::compare( const SresDef &other ) const
+{
+    if( std::holds_alternative<double>(cmpval) )
+    {
+        double diff = std::get<double>(cmpval) - std::get<double>(other.cmpval);
+        return diff < 0.0 ? -1 : diff > 0.0 ? 1 : 0;
+    }
+    if( std::holds_alternative<long>(cmpval) )
+    {
+        long diff = std::get<long>(cmpval) - std::get<long>(other.cmpval);
+        return diff < 0 ? -1 : diff > 0 ? 1 : 0;
+    }
+    return stncodecmp( std::get<std::string>(cmpval).c_str(), std::get<std::string>(other.cmpval).c_str() );
+}
+
+int SresDef::compare_from( const SresDef &other ) const
+{
+    int cmp = compare( other );
+    if( cmp != 0 ) return cmp;
+    int to1 = connlst[from].to[to_id].to;
+    int to2 = connlst[other.from].to[other.to_id].to;
+    if( to1 == to2 ) return 0;
+    if( to1 == 0 || to2 == 0 ) return to1 - to2;
+    return stncodecmp( stnptr(to1)->Code, stnptr(to2)->Code );
+}
+
+int SresDef::compare_line( const SresDef &other ) const
+{
+    const char *f1 = std::get<std::string>(cmpval).c_str();
+    const char *f2 = std::get<std::string>(other.cmpval).c_str();
+    int to1 = connlst[from].to[to_id].to;
+    int to2 = connlst[other.from].to[other.to_id].to;
+    const char *t1 = to1 ? stnptr(to1)->Code : "";
+    const char *t2 = to2 ? stnptr(to2)->Code : "";
+
+    if( stncodecmp(f1,t1) > 0 ) { const char *t = t1; t1 = f1; f1 = t; }
+    if( stncodecmp(f2,t2) > 0 ) { const char *t = t2; t2 = f2; f2 = t; }
+
+    int cmp = stncodecmp( f1, f2 );
+    if( cmp == 0 ) cmp = stncodecmp(t1,t2);
+    return cmp;
+}
+
+static int cmp_srdef_generic( const void *p1, const void *p2 )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    double diff = srList[i1].cmpval.fval - srList[i2].cmpval.fval;
-    if( reverse ) diff = -diff;
-    if( diff < 0.0 ) return -1;
-    if( diff > 0.0 ) return 1;
-    return srIndex2[i1] - srIndex2[i2];
-}
-
-static int cmp_srdef_float( const void *p1, const void *p2 )
-{
-    return cmp_srdef_float_base( p1, p2, 0 );
+    int cmp = srList[i1].compare(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
+    return cmp;
 }
 
 static int cmp_srdef_reversefloat( const void *p1, const void *p2 )
 {
-    return cmp_srdef_float_base( p1, p2, 1 );
-}
-
-/* Based on int value */
-
-static int cmp_srdef_int( const void *p1, const void *p2 )
-{
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    long diff = srList[i1].cmpval.ival - srList[i2].cmpval.ival;
-    if( diff < 0.0 ) return -1;
-    if( diff > 0.0 ) return 1;
-    return srIndex2[i1] - srIndex2[i2];
-}
-
-/* Sorts based on predefined character string */
-
-static int cmp_srdef_stri( const void *p1, const void *p2 )
-{
-    long i1 = * (long *) p1;
-    long i2 = * (long *) p2;
-    int cmp = _stricmp( srList[i1].cmpval.cpr, srList[i2].cmpval.cpr);
-    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
+    int cmp = -srList[i1].compare(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
     return cmp;
 }
 
@@ -1822,19 +1855,8 @@ static int cmp_srdef_from( const void *p1, const void *p2 )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    SresDef *sr1 = srList + i1;
-    SresDef *sr2 = srList + i2;
-    int cmp;
-    int to1, to2;
-
-    cmp = stncodecmp( sr1->cmpval.cpr, sr2->cmpval.cpr );
-    if( cmp != 0 ) return cmp;
-    to1 = connlst[srList[i1].from].to[srList[i1].to_id].to;
-    to2 = connlst[srList[i2].from].to[srList[i2].to_id].to;
-    if( to1 == to2 ) return 0;
-    if( to1 == 0 || to2 == 0 ) return to1 - to2;
-    cmp = stncodecmp( stnptr(to1)->Code, stnptr(to2)->Code );
-    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
+    int cmp = srList[i1].compare_from(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
     return cmp;
 }
 
@@ -1844,27 +1866,8 @@ static int cmp_srdef_line( const void *p1, const void *p2 )
 {
     long i1 = * (long *) p1;
     long i2 = * (long *) p2;
-    SresDef *sr1 = srList + i1;
-    SresDef *sr2 = srList + i2;
-    int cmp;
-    int to1, to2;
-    const char *f1, *f2;
-    const char *t1, *t2;
-
-    f1 = sr1->cmpval.cpr;
-    f2 = sr2->cmpval.cpr;
-    to1 = connlst[srList[i1].from].to[srList[i1].to_id].to;
-    to2 = connlst[srList[i2].from].to[srList[i2].to_id].to;
-    t1 = to1 ? stnptr(to1)->Code : "";
-    t2 = to2 ? stnptr(to2)->Code : "";
-
-    if( stncodecmp(f1,t1) > 0 ) { const char *t = t1; t1 = f1; f1 = t; }
-    if( stncodecmp(f2,t2) > 0 ) { const char *t = t2; t2 = f2; f2 = t; }
-
-    cmp = stncodecmp( f1, f2 );
-    if( cmp == 0 ) cmp = stncodecmp(t1,t2);
-    if( cmp == 0 ) { cmp = srIndex2[i1] - srIndex2[i2]; }
-
+    int cmp = srList[i1].compare_line(srList[i2]);
+    if( cmp == 0 ) cmp = srIndex2[i1] - srIndex2[i2];
     return cmp;
 }
 
@@ -1889,10 +1892,10 @@ static int cmp_srdef_fileloc( const void *p1, const void *p2 )
 static void create_sres_index( void )
 {
     int from;
-    if( srList ) return;
+    if( ! srList.empty() ) return;
     if( !ndata ) return;
     if( !connlst ) return;
-    srList = (SresDef *) check_malloc( ndata * sizeof(SresDef) );
+    srList.resize( ndata );
     srIndex = (long *) check_malloc( ndata * sizeof(long) );
     srIndex2 = (long *) check_malloc( ndata * sizeof(long) );
     srListCount = 0;
@@ -1916,7 +1919,7 @@ static void create_sres_index( void )
                 // assert( srListCount < ndata );
                 if( srListCount >= ndata ) break;
                 if( connection->flags & CONN_OBS_REVERSE ) continue;
-                sr = srList + srListCount;
+                sr = &srList[srListCount];
                 srListCount++;
                 sr->from = from;
                 sr->to_id = to_id;
@@ -1934,8 +1937,8 @@ static void SetupSresIndex( void )
     int (*cmp_func)( const void *p1, const void *p2 );
 
     if( indexValid ) return;
-    if( !srList ) create_sres_index();
-    if( !srList ) return;
+    if( srList.empty() ) create_sres_index();
+    if( srList.empty() ) return;
     srIndexCount = 0;
 
     /* Save the old index order to make the sort preserve order */
@@ -1953,7 +1956,7 @@ static void SetupSresIndex( void )
 
     for( idata = 0; idata < srListCount; idata++ )
     {
-        SresDef *sr = srList + idata;
+        SresDef *sr = &srList[idata];
         int valid = 1;
         switch( srListMode )
         {
@@ -1963,63 +1966,8 @@ static void SetupSresIndex( void )
         }
         if( valid )
         {
-            station *sfrom;
-            station *sto;
-            int to;
-            double value;
-
             srIndex[srIndexCount++] = idata;
-            switch (srListOrder)
-            {
-            case SRF_FROM:
-            case SRF_TO:      sr->cmpval.cpr = stnptr(sr->from)->Code;
-                break;
-            case SRF_TYPE:    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.cpr = datatype[connection->type].code;
-                break;
-            case SRF_STATUS:  get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.cpr =   (connection->flags & CONN_REJECTED ) ? "reject" :
-                                   (connection->flags & CONN_UNUSED) ? "unused" : "";
-                break;
-            case SRF_SRES:    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.fval = connection->sres;
-                break;
-            case SRF_RFAC:    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.fval = connection->rfac;
-                break;
-            case SRF_OBSID:   get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.ival = connection->id;
-                break;
-            case SRF_FILE:
-            case SRF_LINENO:
-                break;
-            case SRF_DATE:
-                get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                sr->cmpval.fval=connection->date;
-                break;
-            case SRF_LENGTH:  value = 0.0;
-                to = connlst[sr->from].to[sr->to_id].to;
-                if( to )
-                {
-                    sfrom = stnptr(sr->from);
-                    sto = stnptr(to);
-                    value = calc_distance( sfrom, 0.0, sto, 0.0, NULL, NULL );
-                    value *= ellipsoidal_distance_correction( sfrom, sto );
-                }
-                sr->cmpval.fval = value;
-                break;
-            default:          if( srListOrder > 0 )
-                {
-                    get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
-                    sr->cmpval.cpr = class_value_name( &obs_classes, srListOrder,
-                                                       connection->cclass[srListOrder-1] );
-                }
-                else
-                {
-                    sr->cmpval.cpr = "";
-                }
-                break;
-            }
+            sr->set_sort_key( srListOrder );
         }
     }
 
@@ -2029,21 +1977,87 @@ static void SetupSresIndex( void )
     {
     case SRF_FROM:    cmp_func = cmp_srdef_from; break;
     case SRF_TO:      cmp_func = cmp_srdef_line; break;
-    case SRF_TYPE:    cmp_func = cmp_srdef_stri; break;
-    case SRF_STATUS:  cmp_func = cmp_srdef_stri; break;
+    case SRF_TYPE:    cmp_func = cmp_srdef_generic; break;
+    case SRF_STATUS:  cmp_func = cmp_srdef_generic; break;
     case SRF_SRES:    cmp_func = cmp_srdef_reversefloat; break;
-    case SRF_RFAC:    cmp_func = cmp_srdef_float; break;
-    case SRF_DATE:    cmp_func = cmp_srdef_float; break;
-    case SRF_OBSID:   cmp_func = cmp_srdef_int; break;
+    case SRF_RFAC:    cmp_func = cmp_srdef_generic; break;
+    case SRF_DATE:    cmp_func = cmp_srdef_generic; break;
+    case SRF_OBSID:   cmp_func = cmp_srdef_generic; break;
     case SRF_FILE:
     case SRF_LINENO:  cmp_func = cmp_srdef_fileloc; break;
-    case SRF_LENGTH:  cmp_func = cmp_srdef_float; break;
-    default:          cmp_func = cmp_srdef_stri; break;
+    case SRF_LENGTH:  cmp_func = cmp_srdef_generic; break;
+    default:          cmp_func = cmp_srdef_generic; break;
     }
 
     qsort( srIndex, srIndexCount, sizeof(long), cmp_func );
     indexValid = 1;
     set_display_field_widths();
+}
+
+void SresDef::set_sort_key( int order )
+{
+    switch (order)
+    {
+    case SRF_FROM:
+    case SRF_TO:      cmpval = stnptr(from)->Code;
+        break;
+    case SRF_TYPE:    get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = datatype[connection->type].code;
+        break;
+    case SRF_STATUS:  get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval =   (connection->flags & CONN_REJECTED ) ? "reject" :
+                   (connection->flags & CONN_UNUSED) ? "unused" : "";
+        break;
+    case SRF_SRES:    get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = (double) connection->sres;
+        break;
+    case SRF_RFAC:    get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = (double) connection->rfac;
+        break;
+    case SRF_OBSID:   get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = (long) connection->id;
+        break;
+    case SRF_FILE:
+    case SRF_LINENO:
+        break;
+    case SRF_DATE:
+        get_connection_data_by_id( from, to_id, obs_id, connection );
+        cmpval = connection->date;
+        break;
+    case SRF_LENGTH:
+        {
+            double value = 0.0;
+            int to = connlst[from].to[to_id].to;
+            if( to )
+            {
+                station *sfrom = stnptr(from);
+                station *sto = stnptr(to);
+                value = calc_distance( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
+                value *= ellipsoidal_distance_correction( sfrom, sto );
+            }
+            cmpval = value;
+        }
+        break;
+    default:
+        if( order > 0 )
+        {
+            get_connection_data_by_id( from, to_id, obs_id, connection );
+            cmpval = obs_classes.value_name( order, connection->cclass[order-1] );
+        }
+        else
+        {
+            cmpval = "";
+        }
+        break;
+    }
+    // stncodecmp (used by compare_from/compare_line) already folds case
+    // itself, and every other consumer of a string sort key needs a
+    // case-insensitive ordering too - canonicalise once here rather than
+    // on every comparison during the sort.
+    if( std::holds_alternative<std::string>(cmpval) )
+    {
+        cmpval = boost::algorithm::to_upper_copy(std::get<std::string>(cmpval));
+    }
 }
 
 
@@ -2112,7 +2126,7 @@ char *sres_list_header()
     nch = 0;
     for( i = 0; i < nDisplayFields; i++ )
     {
-        const char *data;
+        std::string data;
         int datalen;
         int number = 0;
         switch( displayFields[i] )
@@ -2130,7 +2144,7 @@ char *sres_list_header()
         case SRF_LENGTH:	data = "Length"; number = 1; break;
         default:          if( displayFields[i] > 0 )
             {
-                data = classification_name( &obs_classes, displayFields[i] );
+                data = obs_classes.name( displayFields[i] );
             }
             else
             {
@@ -2138,12 +2152,11 @@ char *sres_list_header()
             }
             break;
         }
-        if( ! data ) data = "";
-        datalen = strlen( data );
+        datalen = numeric_cast<int>(data.size());
         if( datalen < displayFieldWidths[i] ) datalen = displayFieldWidths[i];
         if( nch + datalen + 2 > SRES_BUF_SIZE ) break;
         if( i ) { sres_buf[nch++] = '\t'; }
-        sprintf( sres_buf + nch, "%s%-*.*s", number ? " " : "", datalen, datalen, data );
+        sprintf( sres_buf + nch, "%s%-*.*s", number ? " " : "", datalen, datalen, data.c_str() );
         nch += datalen + number;
     }
     return sres_buf;
@@ -2173,13 +2186,13 @@ char *sres_item_description( long id )
     double value;
     float sres;
     if( !indexValid ) SetupSresIndex();
-    if( !indexValid ) return NULL;
-    if( id < 0 || id >= srIndexCount ) return NULL;
+    if( !indexValid ) return nullptr;
+    if( id < 0 || id >= srIndexCount ) return nullptr;
     id = srIndex[id];
-    sr = srList + id;
+    sr = &srList[id];
     sfrom = stnptr( sr->from );
     tp = &connlst[sr->from].to[sr->to_id];
-    sto = tp->to ? stnptr( tp->to ) : NULL;
+    sto = tp->to ? stnptr( tp->to ) : nullptr;
     get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
     sres = connection->sres;
     if( aposteriori_errors && seu > 0.0 ) sres /= seu;
@@ -2215,7 +2228,7 @@ char *sres_item_description( long id )
             break;
         case SRF_LENGTH:  if( sto )
             {
-                value = calc_distance( sfrom, 0.0, sto, 0.0, NULL, NULL );
+                value = calc_distance( sfrom, 0.0, sto, 0.0, nullptr, nullptr );
                 value *= ellipsoidal_distance_correction( sfrom, sto );
                 sprintf(number,"%.2lf",value);
             }
@@ -2227,7 +2240,7 @@ char *sres_item_description( long id )
             break;
         default:          if( displayFields[i] > 0 )
             {
-                data = class_value_name( &obs_classes, displayFields[i],
+                data = obs_classes.value_name( displayFields[i],
                                          connection->cclass[displayFields[i]-1] );
             }
             else
@@ -2254,7 +2267,7 @@ void sres_item_info( long id, PutTextInfo *jmp )
     if( !indexValid ) return;
     if( id < 0 || id >= srIndexCount ) return;
     id = srIndex[id];
-    sr = srList + id;
+    sr = &srList[id];
     tp = &connlst[sr->from].to[sr->to_id];
     jmp->type = ptfObs;
     jmp->from = sr->from;
@@ -2847,8 +2860,8 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
         classdata *c;
         for( n = o->tgt.nclass, c = sd->clsf + o->tgt.iclass; n--; c++ )
         {
-            sprintf(buf,"%s: %s", classification_name( &obs_classes, c->class_id ),
-                    class_value_name( &obs_classes, c->class_id, c->name_id ) );
+            sprintf(buf,"%s: %s", obs_classes.name( c->class_id ).c_str(),
+                    obs_classes.value_name( c->class_id, c->name_id ).c_str() );
             (*f)(dest, &jmp, buf );
         }
     }
@@ -3213,8 +3226,8 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         (*f)(dest, &jmp, "Classifications");
         for( n = tgt->nclass, c = sd->clsf + tgt->iclass; n--; c++ )
         {
-            sprintf(buf,"     %-15s  %s", classification_name( &obs_classes, c->class_id ),
-                    class_value_name( &obs_classes, c->class_id, c->name_id ) );
+            sprintf(buf,"     %-15s  %s", obs_classes.name( c->class_id ).c_str(),
+                    obs_classes.value_name( c->class_id, c->name_id ).c_str() );
             (*f)(dest, &jmp, buf );
         }
     }
@@ -3416,8 +3429,8 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         (*f)(dest, &jmp, "Classifications");
         for( n = p->tgt.nclass, c = sd->clsf + p->tgt.iclass; n--; c++ )
         {
-            sprintf(buf,"     %-15s  %s", classification_name( &obs_classes, c->class_id ),
-                    class_value_name( &obs_classes, c->class_id, c->name_id ) );
+            sprintf(buf,"     %-15s  %s", obs_classes.name( c->class_id ).c_str(),
+                    obs_classes.value_name( c->class_id, c->name_id ).c_str() );
             (*f)(dest, &jmp, buf );
         }
     }
@@ -3455,8 +3468,7 @@ void list_single_observation( void *dest, PutTextFunc f, int from, int to, int o
 
 void free_connection_resources()
 {
-    if( srList ) check_free( srList );
-    srList = NULL;
+    srList.clear();
     if( srIndex ) check_free( srIndex );
     srIndex = NULL;
     if( srIndex2 ) check_free( srIndex2 );

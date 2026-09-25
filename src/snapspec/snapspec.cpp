@@ -173,7 +173,7 @@ static stn_relacc_array *create_relacc()
     double *vrtvar;
     int i;
 
-    int haveorders = network_order_count(net) > 0;
+    int haveorders = net->order_count() > 0;
     int nstns = number_of_stations( net );
     ra = (stn_relacc_array *) check_malloc( sizeof(stn_relacc_array) );
     src_orderid = (short *) check_malloc( nstns * sizeof(short));
@@ -188,7 +188,7 @@ static stn_relacc_array *create_relacc()
         if( haveorders )
         {
             station *st=stnptr(i+1);
-            src_orderid[i] = (short) network_station_order(net,st);
+            src_orderid[i] = (short) net->station_order(st);
         }
         role[i] = 0;
         order[i] = 0;
@@ -1282,7 +1282,7 @@ static void write_output_csv( char *csvname, stn_relacc_array *ra )
 
         if( haveorders )
         {
-            write_csv_string( csv, network_order(net,ra->src_orderid[idra]) );
+            write_csv_string( csv, net->order(ra->src_orderid[idra]).c_str() );
         }
 
         if( adjusted )
@@ -1415,7 +1415,7 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
     /* Force station orders onto network here - alternative is to raise error
        if they are not already included. */
 
-    int order_class = add_network_orders( net );
+    int order_class = net->add_orders();
 
     for( istn = 0; istn++ < number_of_stations(net); )
     {
@@ -1431,7 +1431,7 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
 
         order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
 
-        set_station_class( stn, order_class, network_order_id( net, order, 1 ));
+        set_station_class( stn, order_class, net->order_id( order, 1 ));
     }
 
 }
@@ -1453,8 +1453,9 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     int i,j;
     int istn;
     int sorted;
+    static std::string max_order_str_store;
 
-    if( ! network_order_count(net) )
+    if( ! net->order_count() )
     {
         if( ra->logfile )
         {
@@ -1478,7 +1479,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
     /* Set up the order_lookup array which converts from the network station orders
        to the SDC test orders */
 
-    nnetorder = network_order_count(net);
+    nnetorder = net->order_count();
     order_lookup = (int *) check_malloc( sizeof(int) * (nnetorder+1) );
 
     /* Orders will be defined as -2: undefined, -1 less than lowest test, >=0 control order */
@@ -1490,13 +1491,13 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
 
     for( i = 1; i < nnetorder; i++ )
     {
-        const char *order = network_order(net,i);
+        std::string order = net->order(i);
         order_lookup[i] = sorted ? -1 : -2;
 
         for( j = 0; j <= hsdc->norder; j++ )
         {
             char *testorder = j < hsdc->norder ? hsdc->tests[j].scOrder : dfltOrder;
-            int cmp = stncodecmp(testorder,order);
+            int cmp = stncodecmp(testorder,order.c_str());
             if( cmp == 0 ) { order_lookup[i] = j; break; }
             if( sorted )
             {
@@ -1521,14 +1522,14 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
 
         if( (ra->testhor && sa->hrowno) || (ra->testvrt && sa->vrowno) ) continue;
 
-        orderid = network_station_order(net,st);
+        orderid = net->station_order(st);
         iorder = order_lookup[orderid];
         if( iorder == -2 )
         {
             if( ra->logfile )
             {
                 fprintf(ra->logfile,"Control station %s has unrecognised order %s\n",
-                        st->Code, network_order( net, orderid ) );
+                        st->Code, net->order( orderid ).c_str() );
             }
             nbadorder++;
             order_lookup[orderid] = -3;
@@ -1536,14 +1537,16 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
         else if( iorder > max_order )
         {
             max_order = iorder;
-            (*max_order_str) = network_order(net,orderid);
+            max_order_str_store = net->order(orderid);
+            (*max_order_str) = max_order_str_store.c_str();
         }
         else if( sorted && orderid > 0)
         {
-            const char *orderstr = network_order( net, orderid );
-            if( ! (*max_order_str) || strcmp((*max_order_str),orderstr) > 0 )
+            std::string orderstr = net->order( orderid );
+            if( ! (*max_order_str) || orderstr.compare(*max_order_str) < 0 )
             {
-                (*max_order_str) = orderstr;
+                max_order_str_store = std::move(orderstr);
+                (*max_order_str) = max_order_str_store.c_str();
             }
         }
     }
@@ -1561,7 +1564,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
                 else
                 {
                     printf("Control stations order %s not defined in snapspec configuration\n",
-                           network_order(net,i) );
+                           net->order(i).c_str() );
                 }
             }
         }

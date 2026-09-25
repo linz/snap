@@ -18,6 +18,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <string>
 
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
@@ -115,8 +116,8 @@ static int64_t snap_id( int type, int group_id, const char *code )
     case ID_STATION:    id = find_station( net, code );
         if( id == 0 ) id = missing_station_id( code );
         break;
-    case ID_CLASSTYPE:  id = classification_id( &obs_classes, code, 1 ); break;
-    case ID_CLASSNAME:  id = class_value_id( &obs_classes, group_id, code, 1 ); break;
+    case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
+    case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
     case ID_PROJCTN:    id = get_bproj( code ); break;
     case ID_COEF:
     case ID_SYSERR:
@@ -128,14 +129,15 @@ static int64_t snap_id( int type, int group_id, const char *code )
 static const char *snap_name( int type, int group_id, long id )
 {
     const char *name;
+    static std::string classification_value;
     name = NULL;
     switch (type)
     {
     case ID_STATION:    if( id < 0 ) name = missing_station_name( id );
         else name = station_code( (int) id );
         break;
-    case ID_CLASSTYPE: name = classification_name( &obs_classes, (int) id ); break;
-    case ID_CLASSNAME: name = class_value_name( &obs_classes, group_id, (int) id ); break;
+    case ID_CLASSTYPE: classification_value = obs_classes.name( (int) id ); name = classification_value.c_str(); break;
+    case ID_CLASSNAME: classification_value = obs_classes.value_name( group_id, (int) id ); name = classification_value.c_str(); break;
     case ID_PROJCTN: name = bproj_name( id ); break;
     case ID_COEF:
     case ID_SYSERR:

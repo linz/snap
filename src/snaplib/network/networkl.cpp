@@ -852,7 +852,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
         {
             const auto eqPos=field->find('=',1);
             const std::string className( field->substr(0,eqPos) );
-            const int class_id = network_class_id( nw, className.c_str(), 0 );
+            const int class_id = nw->class_id( className, 0 );
             const std::string_view values = field->substr(eqPos+1);
             size_t pos=0;
             while( pos < values.size() )
@@ -860,7 +860,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 const auto slashPos=values.find('/',pos);
                 const auto valueEnd = slashPos==std::string_view::npos ? values.size() : slashPos;
                 const std::string value( values.substr(pos,valueEnd-pos) );
-                const int value_id = class_id ? network_class_value_id( nw, class_id, value.c_str(), 0 ) : CLASS_VALUE_NOT_DEFINED;
+                const int value_id = class_id ? nw->class_value_id( class_id, value, 0 ) : CLASS_VALUE_NOT_DEFINED;
                 if( value_id != CLASS_VALUE_NOT_DEFINED )
                 {
                     c=new_classification_criterion( class_id, value_id );

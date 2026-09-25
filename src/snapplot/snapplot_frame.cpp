@@ -448,9 +448,9 @@ void SnapplotFrame::CreateMenu()
             { DISPLAYBY_DATAFILE, "Data file" },
             { DISPLAYBY_OBSSTATUS, "Obs status" },
         };
-        for( int i = 1; i <= classification_count( &obs_classes ); i++ )
+        for( int i = 1; i <= obs_classes.count(); i++ )
         {
-            dimensions.push_back( { i, wxString( classification_name( &obs_classes, i ) ) } );
+            dimensions.push_back( { i, wxString( obs_classes.name( i ) ) } );
         }
 
         std::vector<wxCheckBox *> checkboxes;
@@ -567,13 +567,13 @@ void SnapplotFrame::AddStationColourOptions()
 {
     stationColourCommandFirst = nextCommandId;
     int nitems = 0;
-    for( int i = 0; i++ < network_classification_count( net ); )
+    for( int i = 0; i++ < net->classification_count(); )
     {
-        wxString menuText = wxString::Format("&%d %.40s",i,network_class_name( net,i) );
+        wxString menuText = wxString::Format("&%d %.40s",i,net->class_name(i).c_str() );
         stationColourMenu->Append( nextCommandId,
                                    menuText,
                                    wxString::Format("Colour stations according to %s",
-                                           network_class_name( net,i) )
+                                           net->class_name(i).c_str() )
                                  );
         Connect( nextCommandId, wxEVT_COMMAND_MENU_SELECTED,
                  wxCommandEventHandler(SnapplotFrame::OnCmdStationColourBy));
@@ -600,16 +600,16 @@ void SnapplotFrame::AddColourByClassifications()
 {
     // Add classifications to the colour by menu ...
 
-    if( classification_count( &obs_classes) > 0 )
+    if( obs_classes.count() > 0 )
     {
         classifyCommandFirst = nextCommandId;
-        for( int i = 0; i++ < classification_count( &obs_classes); )
+        for( int i = 0; i++ < obs_classes.count(); )
         {
-            wxString menuText = wxString::Format("&%d %.40s",i,classification_name( &obs_classes,i) );
+            wxString menuText = wxString::Format("&%d %.40s",i,obs_classes.name(i).c_str() );
             dataColourMenu->AppendCheckItem( nextCommandId,
                                     menuText,
                                     wxString::Format("Colour observations according to %s classification",
-                                            classification_name( &obs_classes,i) )
+                                            obs_classes.name(i).c_str() )
                                   );
             Connect( nextCommandId, wxEVT_COMMAND_MENU_SELECTED,
                      wxCommandEventHandler(SnapplotFrame::OnCmdColourBy));

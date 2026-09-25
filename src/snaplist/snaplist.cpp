@@ -27,6 +27,8 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <array>
+#include <string>
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
@@ -122,9 +124,10 @@ static BINARY_FILE *b;
 
 #define MAXCLASS 20
 static int classid[MAXCLASS];
-static char *classname[MAXCLASS];
+static std::array<std::string, MAXCLASS> classname;
 static const char *classvalue[MAXCLASS];
 static const char *blankvalue = "";
+static std::array<std::string, MAXCLASS> classvaluestore;
 static int nclass = 0;
 
 static column_def classcol = { "",0,0,0,JST_LEFT,TYPE_PSTRING,NULL,NULL };
@@ -154,6 +157,7 @@ static column_def obs_valid_columns[] =
 static const char *stn_code;
 static const char *stn_name;
 static const char *stn_order;
+static std::string stn_order_store;
 static double stn_northing;
 static double stn_easting;
 static double stn_height;
@@ -206,21 +210,21 @@ static column_def *get_class_column_def( char *cls )
         return 0;
     }
     int id;
-    const char *name = cls;
+    std::string name = cls;
     if( stn_data )
     {
-        id = network_class_id( net, cls, 0 );
-        if( id ) name = network_class_name(net,id);
+        id = net->class_id( cls, 0 );
+        if( id ) name = net->class_name(id);
     }
     else
     {
-        id = classification_id( &obs_classes, cls, 0 );
-        if( id ) name = classification_name( &obs_classes, id );
+        id = obs_classes.id( cls, 0 );
+        if( id ) name = obs_classes.name( id );
     }
     classid[nclass] = id;
-    classname[nclass] = copy_string(name);
+    classname[nclass] = std::move(name);
     classvalue[nclass] = blankvalue;
-    classcol.name = classname[nclass];
+    classcol.name = classname[nclass].c_str();
     classcol.data = &classvalue[nclass];
     nclass++;
     return &classcol;
@@ -248,14 +252,6 @@ static void init_table( void )
     clear_list( table_columns, delete_column_def );
     table_header_rows = 0;
     valid_columns = 0;
-    if( nclass > 0 )
-    {
-        for( int i = 0; i < nclass; i++ )
-        {
-            check_free( classname[i] );
-            classname[i] = 0;
-        }
-    }
     nclass = 0;
 }
 
@@ -457,7 +453,12 @@ void list_vecdata_residuals( FILE *out, survdata  *v )
             classvalue[i] = blankvalue;
             if( idclass > 0 )
             {
-                classvalue[i] = get_obs_classification_name( v,  &(t->tgt), idclass );
+                auto name = get_obs_classification_name( v,  &(t->tgt), idclass );
+                if( name )
+                {
+                    classvaluestore[i] = std::move(*name);
+                    classvalue[i] = classvaluestore[i].c_str();
+                }
             }
         }
 
@@ -511,8 +512,8 @@ static int list_stations( FILE *out )
         convert_coords( &from_xyz, st->XYZ, NULL, enh, NULL );
         stn_code = st->Code;
         stn_name = st->Name.c_str();
-        stn_order = network_order( net, network_station_order( net, st ) );
-        if( stn_order == NULL ) stn_order = "-";
+        stn_order_store = net->order( net->station_order( st ) );
+        stn_order = stn_order_store.empty() ? "-" : stn_order_store.c_str();
 
         if( projection_coords )
         {
@@ -547,7 +548,11 @@ static int list_stations( FILE *out )
             if( idclass > 0 )
             {
                 int idvalue = get_station_class( st, idclass );
-                if(idvalue > 0 ) classvalue[i] = network_class_value( net, idclass, idvalue );
+                if(idvalue > 0 )
+                {
+                    classvaluestore[i] = net->class_value( idclass, idvalue );
+                    classvalue[i] = classvaluestore[i].c_str();
+                }
             }
         }
         print_table_row( out );

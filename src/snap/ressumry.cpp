@@ -128,7 +128,7 @@ int define_error_summary( const char *definition )
             }
             else
             {
-                sdf->level_id[nlevel] = classification_id( &obs_classes, field, 1 );
+                sdf->level_id[nlevel] = obs_classes.id( field, 1 );
             }
             for( ilevel = 0; ilevel < nlevel; ilevel++ )
             {
@@ -235,7 +235,7 @@ static int init_summary( summary_def *sdf )
             break;
 
         default:
-            sdf->level_count[i] = class_value_count( &obs_classes, sdf->level_id[i] );
+            sdf->level_count[i] = obs_classes.value_count( sdf->level_id[i] );
             break;
         }
         if( sdf->level_count[i] <= 0 ) sdf->level_count[i] = 1;
@@ -557,7 +557,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                         break;
 
                     default:
-                        title = class_value_name( &obs_classes, sdf->level_id[ilevel], ilvl );
+                        title = obs_classes.value_name( sdf->level_id[ilevel], ilvl );
                         break;
                     }
 
@@ -605,7 +605,7 @@ static void print_summary( FILE *lst, summary_def *sdf, double semult )
         case BY_DATA_TYPE: fprintf(lst,"data type"); break;
         case BY_FILE:      fprintf(lst,"input file"); break;
         default:           fprintf(lst,"%s",
-                                       classification_name( &obs_classes,sdf->level_id[ilvl]));
+                                       obs_classes.name(sdf->level_id[ilvl]).c_str());
             break;
         }
     }

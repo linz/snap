@@ -344,7 +344,7 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
         const std::string &classification, const std::string &values, const bool singlevalue )
 {
     if( ! classes ) return nullptr;
-    const int class_id=classification_id( classes, classification.c_str(), 1 );
+    const int class_id=classes->id( classification, 1 );
     /* If values string contains / then this is a list of multiple classes */
     obs_criterion * const oc=new_obs_criterion();
     if( ! singlevalue && values.find('/') != std::string::npos )
@@ -367,7 +367,7 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
         for( int i=0; i<nval; i++ )
         {
             const std::string value( i+1<nval ? *scanner.next('/') : scanner.remainder() );
-            oc->c.mult_classification.value_ids[i]=class_value_id( classes, class_id, value.c_str(), 1 );
+            oc->c.mult_classification.value_ids[i]=classes->value_id( class_id, value, 1 );
         }
     }
     else if ( ! singlevalue && has_wildcard(values.c_str()) )
@@ -385,7 +385,7 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
     {
         oc->crit_type=OBS_CRIT_CLASSIFICATION;
         oc->c.classification.class_id=class_id;
-        oc->c.classification.value_id=class_value_id( classes, class_id, values.c_str(), 1 );
+        oc->c.classification.value_id=classes->value_id( class_id, values, 1 );
     }
     return oc;
 }
@@ -441,17 +441,17 @@ static bool obs_wildcard_classification_match( obs_criterion *oc, obsmod_context
     obs_modifications *obsmod = oac->obsmod;
     classifications *csf = obsmod->classes;
     if( ! csf ) return false;
-    int class_count=class_value_count(csf,cclass_id);
+    int class_count=csf->value_count(cclass_id);
     int ntested = oc->c.wildcard_classification.ntested;
 
     if( class_count > ntested )
     {
         const char *pattern = oc->c.wildcard_classification.wildclass;
-        int class_count=class_value_count(csf,cclass_id);
+        int class_count=csf->value_count(cclass_id);
         int nmatch=0;
         for( int iv = ntested; iv < class_count; iv++ )
         {
-            if( wildcard_match(pattern,class_value_name(csf,cclass_id,iv)) )
+            if( wildcard_match(pattern,csf->value_name(cclass_id,iv).c_str()) )
             {
                 nmatch++;
             }
@@ -471,7 +471,7 @@ static bool obs_wildcard_classification_match( obs_criterion *oc, obsmod_context
             }
             for( int iv = ntested; iv < class_count; iv++ )
             {
-                if( wildcard_match(pattern,class_value_name(csf,cclass_id,iv)) )
+                if( wildcard_match(pattern,csf->value_name(cclass_id,iv).c_str()) )
                 {
                     value_ids[nvalues]=iv;
                     nvalues++;
@@ -493,8 +493,8 @@ static bool obs_wildcard_classification_match( obs_criterion *oc, obsmod_context
 static void describe_obs_classification_criterion( FILE *lst, obs_criterion *oc, const char *, classifications *classes )
 {
     fprintf(lst,"where %s classification is \"%s\"",
-            classification_name( classes, oc->c.classification.class_id),
-            class_value_name( classes, oc->c.classification.class_id, oc->c.classification.value_id));
+            classes->name( oc->c.classification.class_id).c_str(),
+            classes->value_name( oc->c.classification.class_id, oc->c.classification.value_id).c_str());
 }
 
 static void describe_obs_mult_classification_criterion( FILE *lst, obs_criterion *oc, const char *prefix, classifications *classes )
@@ -502,18 +502,18 @@ static void describe_obs_mult_classification_criterion( FILE *lst, obs_criterion
     int class_id=oc->c.mult_classification.class_id;
 
     fprintf(lst,"where %s classification is one of:",
-            classification_name( classes, class_id ));
+            classes->name( class_id ).c_str());
     for( int i=0; i < oc->c.mult_classification.nvalues; i++ )
     {
         fprintf(lst,"\n%s    - \"%s\"",prefix,
-            class_value_name( classes, class_id, oc->c.mult_classification.value_ids[i]));
+            classes->value_name( class_id, oc->c.mult_classification.value_ids[i]).c_str());
     }
 }
 
 static void describe_obs_wildcard_classification_criterion( FILE *lst, obs_criterion *oc, const char *, classifications *classes )
 {
     fprintf(lst,"where %s classification matches \"%s\"",
-            classification_name( classes, oc->c.wildcard_classification.class_id), 
+            classes->name( oc->c.wildcard_classification.class_id).c_str(),
             oc->c.wildcard_classification.wildclass );
 }
 
@@ -1427,7 +1427,7 @@ static void prepare_obs_modifications( obs_modifications *obsmod )
     /* Count class usage to select preferred class for grouping criteria */
     /* Note: classification ids are 1 based.  Use 0 for file_id */
 
-    int nclass=classification_count(obsmod->classes)+1;
+    int nclass=obsmod->classes->count()+1;
     int *class_count=(int *) check_malloc(nclass*sizeof(int));
     for( int i = 0; i < nclass; i++ ) class_count[i]=0;
     int ncriteria=0;

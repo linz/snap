@@ -33,12 +33,12 @@ using namespace SNAP;
 
 SnapCsvStn::CsvClassification::CsvClassification(network *net, const std::string &name) : CsvValue(name), _classId(0), _net(net)
 {
-    _classId = network_class_id(_net, name.c_str(), 1);
+    _classId = _net->class_id(name, 1);
 }
 
 int SnapCsvStn::CsvClassification::classValue()
 {
-    return network_class_value_id(_net, _classId, value().c_str(), 1);
+    return _net->class_value_id(_classId, value(), 1);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -47,7 +47,7 @@ int SnapCsvStn::CsvClassification::classValue()
 SnapCsvStn::CsvClassColumn::CsvClassColumn(network *net, const std::string &classname, const Column *column) : _column(column),
                                                                                                                _net(net)
 {
-    _classId = network_class_id(_net, classname.c_str(), 1);
+    _classId = _net->class_id(classname, 1);
 }
 
 /////////////////////////////////////////////////////////////////
@@ -470,7 +470,7 @@ void SnapCsvStn::loadRecord()
         if (value != "")
         {
             int idclass = cc->classId();
-            int idvalue = network_class_value_id(_net, idclass, value.c_str(), 1);
+            int idvalue = _net->class_value_id(idclass, value, 1);
             set_station_class(st, idclass, idvalue);
         }
     }
