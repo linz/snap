@@ -15,7 +15,10 @@
 #include "util/errdef.h"
 #endif
 
-#include <stddef.h>
+#include <cstddef>
+#include <fstream>
+#include <optional>
+#include <string>
 
 /* Header file for readcfg.c  - code to read a configuration file */
 
@@ -24,20 +27,49 @@
 #define CFG_FILE_NAME_LEN 256
 #define ABORT_CONFIG_FILE NO_MORE_DATA
 
+/* The maximum length of a single config file line's content that
+   CFG_FILE::get_config_line() will accept before reporting overrun -
+   matches the original fixed-size cfg->buffer's effective capacity (1024
+   bytes, minus one reserved for a null terminator that std::string no
+   longer needs, but the content limit itself is unchanged). */
+constexpr std::size_t CFG_MAX_LINE_LENGTH = 1023;
+
+/// One filtered config file line - see CFG_FILE::get_config_line().
+struct ConfigLine
+{
+    /// Filtered, whitespace-normalised, comment-stripped line content.
+    std::string content;
+    /// Count of significant characters discarded because content was too
+    /// long for the caller's own length limit - 0 if nothing was discarded.
+    int overrun{0};
+
+    /// Reserves CFG_MAX_LINE_LENGTH up front, since that's the common-case length limit.
+    ConfigLine() { content.reserve( CFG_MAX_LINE_LENGTH ); }
+};
+
 struct CFG_FILE
 {
-    FILE *f;       			/* The file handle */
-    char *name;                 /* The file name */
-    char *dirname;              /* The directory containing the config file (or blank if none)  */
+    /* Opens name for reading (reporting via handle_error() and leaving f
+       closed on failure - check f.is_open() before use), skipping a UTF-8
+       BOM if present. */
+    CFG_FILE( const std::string &name, char comment_char );
+
+    std::ifstream f;              /* The file handle */
+    const std::string name;       /* The file name */
+    const std::string dirname;    /* The directory containing the config file (or blank if none)  */
     int lineno;			/* The current line number */
     int errcount;                 /* The number of errors encountered */
     int read_options;             /* Options controlling reading of config file */
     int command_flag;             /* Flag defining which commands are acceptable */
     int ignore_flag;             /* Flag defining which commands are to be ignored */
-    char comment_char;		/* Text after this character is ignored */
+    const char comment_char;      /* Text after this character is ignored */
     char abort;
-    char *buffer;               /* Text buffer for reading options */
-    int nbuffer;                /* Size of buffer */
+
+    /// Reads and filters the next line into line (overwriting its previous
+    /// contents) - see readcfg_internal.h's filter_line()/cap_line() for the
+    /// exact comment/whitespace/capacity rules. Returns false at end of file
+    /// (line is left unchanged in that case), true otherwise.
+    bool get_config_line( ConfigLine &line, std::size_t max_len );
 };
 
 
@@ -80,7 +112,7 @@ struct config_item
 #define CFG_PRESENT     4   /* Set by the readcfg routine if the item is present */
 #define CFG_END         8   /* The item will terminate the read_config_file function */
 #define CFG_USERFLAG1   (1*256)
-#define CFG_USERFLAG2   (2*256) 
+#define CFG_USERFLAG2   (2*256)
 #define CFG_USERFLAG3   (4*256)
 #define CFG_USERFLAG4   (8*256)
 
@@ -90,8 +122,6 @@ struct config_item
 #define CFG_IGNORE_COMMENT 8
 #define CFG_POSITIONAL_COMMENT 16
 #define CFG_SET_PATH   32
-
-#define CFG_DFLT_BUFFER_SIZE 1024
 
 #ifndef DEFAULT_ERROR_HANDLER
 #define DEFAULT_ERROR_HANDLER ( (int (*)()) 0 )
@@ -109,7 +139,7 @@ struct config_item
 
 /* Basic routines for reading a configuration file */
 
-CFG_FILE *open_config_file( const char *name, char comment_char );
+CFG_FILE *open_config_file( const std::string &name, char comment_char );
 void close_config_file( CFG_FILE *cfg );
 
 int set_config_read_options( CFG_FILE *cfg, int options );
@@ -118,14 +148,13 @@ int set_config_ignore_flag( CFG_FILE *cfg, int flag );
 void initialise_config_items( config_item item[] );
 int read_config_file( CFG_FILE *cfg, config_item item[] );
 int report_missing_config_items( CFG_FILE *cfg, config_item item[] );
-int send_config_error( CFG_FILE *cfg, int errstat, const char *errmsg );
-char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun );
-char *get_config_location( CFG_FILE *cfg );
-char *get_config_filename( CFG_FILE *cfg );
-char *get_config_directory( CFG_FILE *cfg );
+int send_config_error( CFG_FILE *cfg, int errstat, const std::string &errmsg );
+
+std::string get_config_location( CFG_FILE *cfg );
+std::string get_config_filename( CFG_FILE *cfg );
+std::string get_config_directory( CFG_FILE *cfg );
 
 void abort_config_file( CFG_FILE *cfg );
-void cancel_config_abort( CFG_FILE *cfg );
 
 
 /* Items mainly of use in defining configuration file items.  In each
@@ -141,4 +170,3 @@ int readcfg_double( CFG_FILE *cfg, char *str, void *value, int length, int code 
 int readcfg_boolean( CFG_FILE *cfg, char *str, void *value, int length, int code );
 
 #endif  /* READCFG_H defined */
-

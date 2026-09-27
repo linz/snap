@@ -51,163 +51,105 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <filesystem>
+#include <optional>
+#include <string>
 #include "util/snapctype.h"
 
 #include "util/chkalloc.h"
 #include "util/readcfg.h"
+#include "util/readcfg_internal.h"
 #include "util/fileutil.h"
 
-CFG_FILE *open_config_file( const char *name, char comment_char )
+CFG_FILE::CFG_FILE( const std::string &name, const char comment_char ) :
+    name(name), dirname(std::filesystem::path(name).parent_path().string()),
+    lineno(0), errcount(0), read_options(CFG_INIT_ITEMS|CFG_CHECK_MISSING),
+    command_flag(0), ignore_flag(0), comment_char(comment_char), abort(0)
 {
-    FILE *cfgfil;
-    CFG_FILE *cfg;
-    int nbuffer=CFG_DFLT_BUFFER_SIZE;
-    int pathlen=0;
-
-    cfgfil = fopen( name, "r");
-    if( cfgfil == NULL )
+    f.open( name );
+    if( ! f.is_open() )
     {
-        handle_error(FILE_OPEN_ERROR,"Cannot open configuration file",name);
-        return (CFG_FILE *) NULL;
+        handle_error(FILE_OPEN_ERROR,"Cannot open configuration file",name.c_str());
+        return;
     }
-    if( ! skip_utf8_bom(cfgfil) )
+    if( ! skip_utf8_bom(f) )
     {
-        fclose(cfgfil);
-        handle_error(FILE_OPEN_ERROR,"Cannot handle UTF16 file",name);
-        return (CFG_FILE *) NULL;
+        f.close();
+        handle_error(FILE_OPEN_ERROR,"Cannot handle UTF16 file",name.c_str());
     }
+}
 
-    pathlen=path_len(name,0);
-    cfg = (CFG_FILE *) check_malloc( sizeof(CFG_FILE) + strlen(name) + pathlen + nbuffer + 2 );
-
-    cfg->f = cfgfil;
-    cfg->lineno = 0;
-    cfg->errcount = 0;
-    cfg->command_flag = 0;
-    cfg->ignore_flag = 0;
-    cfg->abort = 0;
-    cfg->read_options = CFG_INIT_ITEMS | CFG_CHECK_MISSING;
-    cfg->comment_char = comment_char;
-    cfg->name = ((char *) cfg) + sizeof(CFG_FILE);
-    strcpy( cfg->name,name);
-    cfg->dirname=cfg->name+strlen(name)+1;
-    strncpy(cfg->dirname,name,pathlen);
-    cfg->dirname[pathlen]=0;
-    cfg->nbuffer=nbuffer;
-    cfg->buffer=cfg->dirname+pathlen+1;
+CFG_FILE *open_config_file( const std::string &name, const char comment_char )
+{
+    CFG_FILE *cfg = new CFG_FILE( name, comment_char );
+    if( ! cfg->f.is_open() )
+    {
+        delete cfg;
+        return nullptr;
+    }
     return cfg;
 }
 
 void close_config_file( CFG_FILE *cfg )
 {
-    if( cfg->f ) { fclose(cfg->f); cfg->f = NULL; }
-    check_free( cfg );
+    delete cfg;
 }
 
 
-int set_config_read_options( CFG_FILE *cfg, int options )
+int set_config_read_options( CFG_FILE *cfg, const int options )
 {
-    int old_options;
-    old_options = cfg->read_options;
-    cfg->read_options= options;
+    const int old_options = cfg->read_options;
+    cfg->read_options = options;
     return old_options;
 }
 
-int set_config_command_flag( CFG_FILE *cfg, int flag )
+int set_config_command_flag( CFG_FILE *cfg, const int flag )
 {
-    int old_flag;
-    old_flag = cfg->command_flag;
+    const int old_flag = cfg->command_flag;
     cfg->command_flag = flag;
     return old_flag;
 }
 
-int set_config_ignore_flag( CFG_FILE *cfg, int flag )
+int set_config_ignore_flag( CFG_FILE *cfg, const int flag )
 {
-    int old_flag;
-    old_flag = cfg->ignore_flag;
+    const int old_flag = cfg->ignore_flag;
     cfg->ignore_flag = flag;
     return old_flag;
 }
 
-
-char *get_config_line( CFG_FILE *cfg, char *line, int nch, int *noverrun )
+bool CFG_FILE::get_config_line( ConfigLine &line, const std::size_t max_len )
 {
-    char *l;
-    char cmnt;
-    int iscmt;
-    int overrun;
-    int c;
+    if( ! std::getline( f, line.content ) ) return false;
 
-    l = line;
-    if( cfg->read_options & CFG_IGNORE_COMMENT )
-    {
-        cmnt = '\n';
-    }
-    else
-    {
-        cmnt = cfg->comment_char;
-    }
-    nch--;
-
-    if( noverrun ) (*noverrun)=0;
-
-    c = fgetc(cfg->f);
-    if( c == EOF ) return NULL;
-
-    iscmt=0;
-    overrun=0;
-
-    while( c != EOF && c != '\n' )
-    {
-        if (c == cmnt) { nch = 0; iscmt=1; }
-
-        if ( c != '\r' && c != '\x1A' ) 
-        { 
-            if( nch > 0 )
-            {
-                *l++ = ISSPACE(c) ? ' ' : c; 
-                nch--; 
-            }
-            else if( ! iscmt && (overrun || ! ISSPACE(c)) )
-            {
-                overrun++;
-            }
-        }
-        c = fgetc(cfg->f);
-        if( cfg->read_options & CFG_POSITIONAL_COMMENT )
-        {
-            cmnt = '\n';
-        }
-    }
-
-    *l = 0;
-    cfg->lineno++;
-    if( noverrun ){ (*noverrun) = overrun; }
-    return line;
+    const CommentRule comment{
+        (read_options & CFG_IGNORE_COMMENT) ? std::nullopt : std::optional<char>(comment_char),
+        (read_options & CFG_POSITIONAL_COMMENT) != 0
+    };
+    filter_line( line.content, comment );
+    line.overrun = cap_line( line.content, max_len );
+    lineno++;
+    return true;
 }
 
-static char location[CFG_FILE_NAME_LEN + 30];
-
-char *get_config_location( CFG_FILE *cfg )
+std::string get_config_location( CFG_FILE *cfg )
 {
-    sprintf(location,"Line %d: File %.*s",(int) cfg->lineno,CFG_FILE_NAME_LEN,cfg->name);
-    return location;
+    return "Line " + std::to_string(cfg->lineno) + ": File " + cfg->name.substr(0,CFG_FILE_NAME_LEN);
 }
 
-char *get_config_filename( CFG_FILE *cfg )
+std::string get_config_filename( CFG_FILE *cfg )
 {
     return cfg->name;
 }
 
-char *get_config_directory( CFG_FILE *cfg )
+std::string get_config_directory( CFG_FILE *cfg )
 {
     return cfg->dirname;
 }
 
-int send_config_error( CFG_FILE *cfg, int stat, const char *mess1 )
+int send_config_error( CFG_FILE *cfg, const int stat, const std::string &mess1 )
 {
-    char *mess2 = get_config_location(cfg);
-    handle_error(stat,mess1,mess2);
+    const std::string mess2 = get_config_location(cfg);
+    handle_error(stat,mess1.c_str(),mess2.c_str());
     if( WARNING_ERROR_CONDITION(stat)) cfg->errcount++;
     return stat;
 }
@@ -246,15 +188,15 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
     char errmess[256];
     char *opt, *val, *storestr, *address;
-    int end, initcount;
-    int overrun;
+    int end;
     config_item *it;
     int errstat;
     char blank[2]={0,0};
+    ConfigLine line;
 
     /* Get the initial error count */
 
-    initcount = cfg->errcount;
+    const int initcount = cfg->errcount;
 
     if( cfg->read_options & CFG_SET_PATH )
     {
@@ -268,20 +210,20 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         initialise_config_items( item );
     }
 
-    while( !cfg->abort && get_config_line(cfg, cfg->buffer, cfg->nbuffer, &overrun) != NULL )
+    while( !cfg->abort && cfg->get_config_line(line, CFG_MAX_LINE_LENGTH) )
     {
 
         /* If blank line or comment then skip */
 
-        if( NULL == (opt = strtok(cfg->buffer,FIELD_DELIMS))) continue;
+        if( NULL == (opt = strtok(line.content.data(),FIELD_DELIMS))) continue;
 
         /* Is the record too long?  If so then send error and skip */
 
-        if( overrun )
+        if( line.overrun )
         {
             if( !(cfg->read_options & CFG_IGNORE_BAD) )
             {
-                sprintf(errmess,"Line %d characters too long in configuration file",overrun);
+                sprintf(errmess,"Line %d characters too long in configuration file",line.overrun);
                 send_config_error(cfg,INVALID_DATA,errmess);
             }
             continue;
@@ -407,11 +349,6 @@ void abort_config_file( CFG_FILE *cfg )
     if( cfg ) cfg->abort = 1;
 }
 
-void clear_config_abort( CFG_FILE *cfg )
-{
-    if( cfg ) cfg->abort = 0;
-}
-
 int readcfg_int( CFG_FILE *, char *str, void *value, int, int )
 {
 
@@ -524,4 +461,3 @@ int readcfg_boolean( CFG_FILE *, char *str, void *value, int length, int )
     else
         return INVALID_DATA;
 }
-

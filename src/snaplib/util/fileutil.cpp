@@ -627,3 +627,21 @@ int skip_utf8_bom( FILE *f )
     return 1;
 }
 
+int skip_utf8_bom( std::istream &f )
+{
+    if( f.tellg() != std::streampos(0) ) return 1;
+    unsigned char bom[3] = {0,0,0};
+    f.read( reinterpret_cast<char *>(bom), 3 );
+    std::streamsize nchar = f.gcount();
+    f.clear();
+    if( nchar >= 2 && ( (bom[0] == '\xFE' && bom[1] == '\xFF') || (bom[0] == '\xFF' && bom[1] == '\xFE') ) )
+    {
+        return 0;
+    }
+    else if ( nchar < 3 || bom[0] != '\xEF' || bom[1] != '\xBB' || bom[2] != '\xBF' )
+    {
+        f.seekg(0);
+    }
+    return 1;
+}
+

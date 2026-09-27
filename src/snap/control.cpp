@@ -241,7 +241,7 @@ int read_command_file( const char *command_file )
 
     if(cfg)
     {
-        record_filename(get_config_filename(cfg),"command");
+        record_filename(get_config_filename(cfg).c_str(),"command");
         set_config_read_options( cfg, CFG_CHECK_MISSING | CFG_SET_PATH );
         set_config_ignore_flag( cfg, CONSTRAINT_CMD );
         sts = read_config_file( cfg, snap_commands );
@@ -292,7 +292,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg )
     {
-        record_filename(get_config_filename(cfg),"configuration");
+        record_filename(get_config_filename(cfg).c_str(),"configuration");
         set_config_read_options( cfg,  CFG_SET_PATH );
         if( cfg_only ) set_config_command_flag( cfg, CONFIG_CMD );
         else set_config_ignore_flag( cfg, CONSTRAINT_CMD );
@@ -673,7 +673,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
             if( ! *s ) *s = ' ';
         }
         /* Set up error handler so that errors can be attributed to configuration file */
-        set_error_location( get_config_location(cfg));
+        set_error_location( get_config_location(cfg).c_str());
         nerr = get_error_count();
 
         process_selected_stations( net,field,cfg->name,&spm,set_station_mode);

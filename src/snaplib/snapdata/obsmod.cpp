@@ -669,8 +669,8 @@ static obs_criterion *new_obs_stations_criterion( CFG_FILE *cfg, unsigned char s
     if( station_crit_type != OBS_CRIT_STATION_BETWEEN ) station_crit_type=OBS_CRIT_STATION_USES;
     oc=new_obs_criterion();
     oc->crit_type=station_crit_type;
-    oc->c.stations.config_loc=copy_string(get_config_location(cfg));
-    oc->c.stations.config_filename=copy_string(get_config_filename(cfg));
+    oc->c.stations.config_loc=copy_string(get_config_location(cfg).c_str());
+    oc->c.stations.config_filename=copy_string(get_config_filename(cfg).c_str());
     oc->c.stations.station_list=copy_string(station_list.c_str());
     oc->c.stations.criteria = nullptr;
     return oc;

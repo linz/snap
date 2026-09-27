@@ -109,7 +109,7 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
             }
             xprintf("\n");
         }
-        sts = read_station_file( fname, get_config_directory(cfg), format, csvdata, mergeopts, mergedate );
+        sts = read_station_file( fname, get_config_directory(cfg).c_str(), format, csvdata, mergeopts, mergedate );
         if( sts == OK )
         {
             stations_read = 1;
@@ -212,7 +212,6 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
 
 int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int )
 {
-    char *base_dir=get_config_directory(cfg);
     std::string fname;
     if( string[0] == '.' )
     {
@@ -220,7 +219,7 @@ int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int )
     }
     else
     {
-        fname = build_filespec( base_dir?base_dir:"", string, "" );
+        fname = build_filespec( get_config_directory(cfg), string, "" );
     }
     set_output_station_file( fname.c_str() );
     return OK;
@@ -240,7 +239,7 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
     }
 
     if( station_filespec ) filespec = find_relative_file( station_filespec, filename, DFLTSTOFFS_EXT );
-    if( ! filespec ) filespec = find_file( filename, DFLTSTOFFS_EXT, std::optional<std::string>(get_config_directory(cfg)), FF_TRYALL, "" );
+    if( ! filespec ) filespec = find_file( filename, DFLTSTOFFS_EXT, get_config_directory(cfg), FF_TRYALL, "" );
     if(! filespec )
     {
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
@@ -570,7 +569,8 @@ int read_recode_command( CFG_FILE *cfg, char *string, void *, int, int )
         return OK;
     }
     if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
-    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
+    std::string basefile = cfg->name;
+    if( read_station_recode_definition( stnrecode, string, basefile.data() ) != OK )
     {
         send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
     }

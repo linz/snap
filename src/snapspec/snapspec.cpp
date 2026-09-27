@@ -1990,7 +1990,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
         return OK;
     }
 
-    set_error_location( get_config_location(cfg));
+    set_error_location( get_config_location(cfg).c_str());
     nerr = get_error_count();
 
     process_selected_stations( net,data,cfg->name,&p,set_max_order);
@@ -2009,7 +2009,7 @@ static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int, in
     p.ra = * (stn_relacc_array **) value;
     p.order = SDC_IGNORE_MARK;
 
-    set_error_location( get_config_location(cfg));
+    set_error_location( get_config_location(cfg).c_str());
     nerr = get_error_count();
 
     process_selected_stations( net,string,cfg->name,&p,set_max_order);
@@ -2046,7 +2046,7 @@ static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, i
     p.ra = * (stn_relacc_array **) value;
     p.order = priority;
 
-    set_error_location( get_config_location(cfg));
+    set_error_location( get_config_location(cfg).c_str());
     nerr = get_error_count();
 
     process_selected_stations( net,data,cfg->name,&p,set_priority);
@@ -2318,10 +2318,10 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     if( cfn )
     {
         int recurse = 0;
-        if( strcmp(cfn->c_str(),cfg->name) == 0 ) recurse = 1;
+        if( *cfn == cfg->name ) recurse = 1;
         for( stack = cfgs; stack && ! recurse; stack = stack->next )
         {
-            if( strcmp(stack->cfg->name,cfn->c_str()) == 0 ) recurse = 1;
+            if( stack->cfg->name == *cfn ) recurse = 1;
         }
         if( recurse )
         {
@@ -2333,7 +2333,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     }
 
     cfg2 = NULL;
-    if( cfn ) { cfg2 = open_config_file( cfn->c_str(), '!' );}
+    if( cfn ) { cfg2 = open_config_file( *cfn, '!' );}
     if( !cfg2 )
     {
         char buf[120];
@@ -2851,7 +2851,7 @@ int main( int argc, char *argv[] )
     fprintf(out,"SNAP binary file: %s\n",bfn);
     fprintf(out,"Spec configuration file: %s\n",cfn?cfn->c_str():nullptr);
 
-    if( cfn ) { cfg = open_config_file( cfn->c_str(), '!' );}
+    if( cfn ) { cfg = open_config_file( *cfn, '!' );}
     if( !cfn || !cfg )
     {
         fprintf(out,"Cannot open configuration file %s\n",basecfn);

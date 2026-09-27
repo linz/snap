@@ -29,6 +29,7 @@
 #include <math.h>
 #include <array>
 #include <string>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
@@ -773,26 +774,25 @@ static int read_angle_format( CFG_FILE *, char *string, void *, int, int )
 
 static int read_text( CFG_FILE *cfg, char *, void *, int, int )
 {
-    int finished, read_opts, overrun;
-    static char buf[1024];
-    read_opts = set_config_read_options( cfg, CFG_IGNORE_COMMENT );
-    finished = 0;
-    while( !finished  && get_config_line( cfg, buf, 1024, &overrun ) )
+    bool finished = false;
+    const int read_opts = set_config_read_options( cfg, CFG_IGNORE_COMMENT );
+    ConfigLine line;
+    while( !finished && cfg->get_config_line( line, CFG_MAX_LINE_LENGTH ) )
     {
-        if( overrun )
+        if( line.overrun )
         {
             send_config_error( cfg, INVALID_DATA,
                            "Text line too long in config file");
-            finished=1;
+            finished=true;
             break;
         }
-        if( _strnicmp( buf, "end_text", 8 ) == 0 )
+        if( boost::algorithm::istarts_with( line.content, "end_text" ) )
         {
-            finished = 1;
+            finished = true;
         }
         else
         {
-            if( out ) fprintf(out,"%s\n",buf);
+            if( out ) fprintf(out,"%s\n",line.content.c_str());
         }
     }
     if( !finished )
@@ -1150,7 +1150,7 @@ int main( int argc, char *argv[] )
     }
 
     cfn = find_file( basecfn, ".tbf", std::optional<std::string>(bfn), FF_TRYALL, "snaplist" );
-    if( cfn ) { cfg = open_config_file( cfn->c_str(), '!' );}
+    if( cfn ) { cfg = open_config_file( *cfn, '!' );}
     if( !cfn || !cfg )
     {
         printf("Cannot open configuration file %s\n",basecfn);

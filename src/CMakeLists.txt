@@ -95,6 +95,12 @@ target_link_libraries(iostring_test PRIVATE snaplib snap_link_deps)
 add_executable(fileutil_test test/fileutil_test/fileutil_test.cpp)
 target_link_libraries(fileutil_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for
+# util/readcfg_internal.h's filter_line()/cap_line(). Exit code is the
+# pass/fail signal.
+add_executable(readcfg_test test/readcfg_test/readcfg_test.cpp)
+target_link_libraries(readcfg_test PRIVATE snaplib snap_link_deps)
+
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
 

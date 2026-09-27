@@ -14,8 +14,9 @@
 /* fileutil.h: routines to assist file management */
 
 #include <time.h>
-#include <string>
+#include <istream>
 #include <optional>
+#include <string>
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
@@ -218,5 +219,9 @@ FILE *snaptmpfile();
 /* Returns 1 if file pointer is not set to the beginning of the file */
 
 int skip_utf8_bom(FILE *f);
+
+/* Same as skip_utf8_bom(FILE*) above, for a std::istream - identical rules,
+   just read via stream operations instead of stdio. */
+int skip_utf8_bom(std::istream &f);
 
 #endif
