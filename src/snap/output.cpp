@@ -33,10 +33,13 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <boost/algorithm/string/predicate.hpp>
 #include <string>
+#include <string_view>
 #include <vector>
 #include <algorithm>
 #include <math.h>
+#include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 
 #define OUTPUT_C
@@ -87,10 +90,10 @@ struct relcvr_opt
 {
     relcvr_opt *next;
     double maxlen;
-    char *stnlist;
+    std::string stnlist;  ///< empty if no station-list restriction was given
 };
 
-static int read_cvr_connections( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_cvr_connections( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 #define RELCVR_CMD_UNDER 0
 #define RELCVR_CMD_BETWEEN 1
@@ -181,31 +184,33 @@ static int page_width = 80;
 static std::string divider;
 static relcvr_opt *relcvr_opts = NULL;
 
-int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
+int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, int code )
 {
     output_option *output_set;
     output_option *o=0;
-    char *st;
     char set;
     char errmess[80];
 
     output_set = code == CSV_OPTIONS ? csvopt : output;
 
-    for( st = strtok(string," "); st; st=strtok(NULL," "))
+    FieldScanner scanner(string);
+    for( auto stOpt = scanner.next(); stOpt; stOpt = scanner.next() )
     {
+        std::string_view st = *stOpt;
+
         // If the last output command has a matched subcommand, then execute its store
-        // function on the remainder of the string and return 
+        // function on the remainder of the string and return
         if( o && o->subcommands )
         {
             output_subcommand *sc;
             for( sc=*(o->subcommands); sc->name; sc++ )
             {
-                if( _stricmp(sc->name, st) == 0 ) break;
+                if( boost::algorithm::iequals(sc->name, st) ) break;
             }
             if( sc->name )
             {
-                st=strtok(NULL,"\n");
-                if( ! st )
+                const std::string_view rest = scanner.remainder();
+                if( rest.empty() )
                 {
                     sprintf(errmess,"Incomplete output option %.30s", o->name );
                     send_config_error( cfg, INVALID_DATA, errmess );
@@ -213,20 +218,21 @@ int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
                 }
                 else
                 {
-                    return (sc->store)(cfg,st,0,0,sc->code);
+                    return (sc->store)(cfg,rest,0,0,sc->code);
                 }
             }
         }
 
-        if( _stricmp( st, "everything") == 0 )
+        if( boost::algorithm::iequals( st, "everything") )
         {
             for( o = output_set; o->name; o++ ) *(o->status) = 1;
             continue;
         }
-        if( _strnicmp(st,"no_",3) == 0 )
+        std::string_view name = st;
+        if( boost::algorithm::istarts_with(st,"no_") )
         {
             set = 0;
-            st += 3;
+            name = st.substr(3);
         }
         else
         {
@@ -235,7 +241,7 @@ int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
 
         for( o = output_set; o->name; o++ )
         {
-            if( _stricmp( st, o->name ) == 0 )
+            if( boost::algorithm::iequals( name, o->name ) )
             {
                 *(o->status) = set;
                 break;
@@ -243,7 +249,7 @@ int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
         }
         if( !o->name )
         {
-            sprintf(errmess,"Invalid output option %.30s", st );
+            sprintf(errmess,"Invalid output option %.30s", std::string(name).c_str() );
             send_config_error( cfg, INVALID_DATA, errmess );
         }
         if( ! set || ! o->name ) o=0;
@@ -251,13 +257,11 @@ int read_output_options( CFG_FILE *cfg, char *string, void *, int, int code )
     return OK;
 }
 
-static int read_cvr_connections( CFG_FILE *cfg, char *string, void *, int, int code )
+static int read_cvr_connections( CFG_FILE *cfg, std::string_view string, void *, int, int code )
 {
     char errmess[80];
-    char *st;
-    char *stnlist=NULL;
+    std::string_view stnlist;
     double maxlen=0.0;
-    int listlen;
     relcvr_opt *rco;
 
     if( ! net )
@@ -265,24 +269,31 @@ static int read_cvr_connections( CFG_FILE *cfg, char *string, void *, int, int c
         send_config_error( cfg, INVALID_DATA, "Cannot specify output relative_covariances before coordinate_file" );
         return OK;
     }
+
+    FieldScanner scanner(string);
     if( code == RELCVR_CMD_UNDER )
     {
-        st=strtok(string," ");
-        if( ! st || sscanf(st,"%lf",&maxlen) != 1 )
+        const auto st = scanner.next();
+        // Matches the old sscanf(st,"%lf",&maxlen)!=1 check - only a valid
+        // leading number is required, any trailing text is ignored here
+        // (unlike parse_double(), which would reject it).
+        const auto value = st ? parse_leading<double>(*st) : std::nullopt;
+        if( ! value )
         {
-            sprintf(errmess,"Invalid relative covariance max length %.30s",st);
+            sprintf(errmess,"Invalid relative covariance max length %.30s", st ? std::string(*st).c_str() : "" );
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
-        st=strtok(NULL," ");
-        if( st && _stricmp( st, "between") == 0 )
+        maxlen = *value;
+        const auto next = scanner.next();
+        if( next && boost::algorithm::iequals( *next, "between") )
         {
             code=RELCVR_CMD_BETWEEN;
-            string=strtok(NULL,"\n");
+            string=scanner.remainder();
         }
-        else if( st )
+        else if( next )
         {
-            sprintf(errmess,"Invalid option %.30s in output relative_ covariance",st);
+            sprintf(errmess,"Invalid option %.30s in output relative_ covariance", std::string(*next).c_str() );
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -292,17 +303,8 @@ static int read_cvr_connections( CFG_FILE *cfg, char *string, void *, int, int c
         stnlist=string;
     }
 
-    listlen=stnlist ? strlen(stnlist)+1 : 0;
-    rco=(relcvr_opt *)check_malloc(sizeof(relcvr_opt)+listlen);
-    rco->next=relcvr_opts;
-    relcvr_opts=rco;
-    rco->maxlen=maxlen;
-    rco->stnlist=0;
-    if( stnlist )
-    {
-        rco->stnlist=((char *)(void *)rco)+sizeof(relcvr_opt);
-        strcpy(rco->stnlist,stnlist);
-    }
+    rco = new relcvr_opt{ relcvr_opts, maxlen, std::string(stnlist) };
+    relcvr_opts = rco;
     return OK;
 }
 
@@ -314,12 +316,11 @@ static void set_usenode( station *st, void *data )
 
 void delete_requested_covariance_connections()
 {
-    relcvr_opt *rco;
     while( relcvr_opts )
     {
-        rco=relcvr_opts;
+        relcvr_opt *rco=relcvr_opts;
         relcvr_opts=relcvr_opts->next;
-        check_free(rco);
+        delete rco;
     }
 }
 
@@ -338,13 +339,13 @@ int add_requested_covariance_connections()
     for( rco=relcvr_opts; rco; rco=rco->next )
     {
         std::fill( usenode.begin(), usenode.end(), 0 );
-        if( rco->stnlist )
+        if( ! rco->stnlist.empty() )
         {
             int errcount=get_error_count();
             process_selected_stations( net, rco->stnlist, command_file, (void *)usenode.data(), set_usenode );
             if( get_error_count() > errcount )
             {
-                handle_error(sts,"Error in relative_covariance station list",rco->stnlist);
+                handle_error(sts,"Error in relative_covariance station list",rco->stnlist.c_str());
                 sts=INVALID_DATA;
                 break;
             }

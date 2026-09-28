@@ -27,9 +27,13 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
 #include <array>
+#include <charconv>
 #include <string>
+#include <string_view>
 #include <boost/algorithm/string/predicate.hpp>
+#include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 
 #include "util/errdef.h"
@@ -194,32 +198,32 @@ static int stn_data = 0;
 static void *table_columns = NULL;
 static int table_header_rows = 0;
 
-static column_def *get_column_def( char *name )
+static column_def *get_column_def( std::string_view name )
 {
     column_def *c;
     for( c = valid_columns; c && c->name; c++ )
     {
-        if( _stricmp(c->name,name) == 0 ) return c;
+        if( boost::algorithm::iequals(c->name,name) ) return c;
     }
     return NULL;
 }
 
-static column_def *get_class_column_def( char *cls )
+static column_def *get_class_column_def( std::string_view cls )
 {
     if( nclass >= MAXCLASS )
     {
         return 0;
     }
     int id;
-    std::string name = cls;
+    std::string name(cls);
     if( stn_data )
     {
-        id = net->class_id( cls, 0 );
+        id = net->class_id( name, 0 );
         if( id ) name = net->class_name(id);
     }
     else
     {
-        id = obs_classes.id( cls, 0 );
+        id = obs_classes.id( name, 0 );
         if( id ) name = obs_classes.name( id );
     }
     classid[nclass] = id;
@@ -655,14 +659,12 @@ static char deg[30] = {' ', 0 };
 static char min[30] = {' ', 0 };
 static char sec[30] = {0};
 
-static const char *whitespace = " \r\t\n";
-
-static int read_angle_format( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_text( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_table( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_delimiter( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_column( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_angle_format( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_text( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_table( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_data( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_delimiter( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_column( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 static config_item main_commands[] =
 {
@@ -686,82 +688,122 @@ static config_item table_commands[] =
     {NULL}
 };
 
-static char *interpret_escaped_string( char *source, char *target, int maxtgt )
+namespace {
+/// Decodes the 2-hex-digit escape byte starting right after source[xi]
+/// (the 'x'/'X' character itself), if both following characters are
+/// present and are hex digits.
+std::optional<char> parseHexEscapeByte( std::string_view source, std::size_t xi )
 {
-    char *s = source;
-    char *t = target;
-    int nch = maxtgt;
-    char escape;
-    if( nch < 1 || !target ) {return target; }
-    escape = 0;
-    for( ; *s; s++ )
-    {
-        if( !escape && *s == '\\' )
-        {
-            escape = 1;
-            continue;
-        }
-        else if( escape )
-        {
-            escape = 0;
-            switch( *s )
-            {
-            case 'B': case 'b': *t = ' '; break;
-            case 'T': case 't': *t = '\t'; break;
-            case 'N': case 'n': *t = '\n'; break;
-            case 'X': case 'x':
-                if( ISXDIGIT(s[1]) && ISXDIGIT(s[2]))
-                {
-                    unsigned char c;
-                    c = ISDIGIT(s[1]) ? (s[1] - '0') : (10 + TOUPPER(s[1]) - 'A');
-                    c *= 16;
-                    c += ISDIGIT(s[2]) ? (s[2] - '0') : (10 + TOUPPER(s[2]) - 'A');
-                    s += 2;
-                    *t = c;
-                }
-                else
-                {
-                    *t = *s;
-                }
-                break;
+    if( xi+2 >= source.size() || ! ISXDIGIT(source[xi+1]) || ! ISXDIGIT(source[xi+2]) ) return std::nullopt;
+    unsigned char hx = ISDIGIT(source[xi+1]) ? (source[xi+1] - '0') : (10 + TOUPPER(source[xi+1]) - 'A');
+    hx = hx*16 + ( ISDIGIT(source[xi+2]) ? (source[xi+2] - '0') : (10 + TOUPPER(source[xi+2]) - 'A') );
+    return static_cast<char>(hx);
+}
+}
 
-            default: *t = *s; break;
+/// Decodes one escape unit from source starting at position i - a single
+/// plain/underscore character, a two-character \\b/\\t/\\n/\\X-with-no-valid-
+/// hex-pair escape, or a four-character \\xNN hex escape. Sets target to the
+/// character to emit, or leaves it nullopt if this step produces no output
+/// at all (a lone trailing '\\' with nothing following it).
+/// \return the number of source characters consumed (always at least 1).
+static std::size_t interpret_escaped_string( std::string_view source, std::size_t i, std::optional<char> &target )
+{
+    target = std::nullopt;
+    const char c = source[i];
+    if( c == '\\' )
+    {
+        if( i+1 >= source.size() ) return 1;  // dangling backslash - no output
+        const char next = source[i+1];
+        switch( next )
+        {
+        case 'B': case 'b': target = ' '; return 2;
+        case 'T': case 't': target = '\t'; return 2;
+        case 'N': case 'n': target = '\n'; return 2;
+        case 'X': case 'x':
+            if( auto hx = parseHexEscapeByte(source,i+1) )
+            {
+                target = *hx;
+                return 4;  // '\', 'x', and 2 hex digits
             }
+            target = next;
+            return 2;
+        default: target = next; return 2;
         }
-        else if( *s == '_' )
-        {
-            *t = ' ';
-        }
-        else
-        {
-            *t = *s;
-        }
-        t++; nch--;
+    }
+    if( c == '_' )
+    {
+        target = ' ';
+        return 1;
+    }
+    target = c;
+    return 1;
+}
+
+/// Runs interpret_escaped_string() over the whole of source, writing the
+/// decoded result into buf, truncating without error if it doesn't fit -
+/// the caller-facing entry point for the 7 not-yet-converted fixed-buffer
+/// destinations (deg/min/sec, quote/delim/escape, header/prefix/suffix).
+static char *fill_escaped_buffer( std::string_view source, char *buf, int maxbuf )
+{
+    char *t = buf;
+    int nch = maxbuf;
+    if( nch < 1 || !buf ) {return buf; }
+    for( std::size_t i=0; i<source.size(); )
+    {
+        std::optional<char> ch;
+        i += interpret_escaped_string( source, i, ch );
+        if( ! ch ) continue;
+        *t++ = *ch;
+        nch--;
         if( !nch ) break;
     }
     *t = 0;
-    return target;
+    return buf;
 }
 
 // #pragma warning(disable: 4100)
 
-static int read_angle_format( CFG_FILE *, char *string, void *, int, int )
+static int read_angle_format( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    char *sdeg, *smin, *ssec;
-    char angle_delim[2];
-    while( *string && ISSPACE(*string) ) string++;
-    angle_delim[0] = *string;
-    angle_delim[1] = 0;
+    // The format's own field separator is whatever character comes first
+    // after leading whitespace (e.g. "." or ":") - matches the original's
+    // *string after the same skip. strtok(string,angle_delim) then skips
+    // that leading occurrence of the separator itself before returning the
+    // first real field, so the scanner below starts one character later.
+    const auto firstNonSpace = std::find_if( string.begin(), string.end(),
+        []( const char c ){ return ! ISSPACE(c); } );
+    if( firstNonSpace == string.end() ) return MISSING_DATA;
+    const char delim = *firstNonSpace;
+    const std::size_t start = std::distance( string.begin(), firstNonSpace );
+    FieldScanner scanner( string.substr(start+1) );
 
-    sdeg = strtok( string, angle_delim );
-    smin = strtok( NULL, angle_delim );
-    if( !smin ) return MISSING_DATA;
-    interpret_escaped_string( sdeg, deg, 30 );
-    interpret_escaped_string( smin, min, 30 );
-    ssec = strtok( NULL, angle_delim );
-    if( ssec )
+    // Matches strtok's own semantics for a mid-string field - when no
+    // further delimiter is found, the rest of the string becomes the final
+    // field rather than the split failing (unlike FieldScanner::next(char),
+    // which fails without consuming in that case).
+    auto degField = scanner.next(delim);
+    if( ! degField ) return MISSING_DATA;
+    std::string_view smin;
+    std::string_view ssec;
+    bool haveSec = false;
+    if( auto minField = scanner.next(delim) )
     {
-        interpret_escaped_string( ssec, sec, 30 );
+        smin = *minField;
+        std::string_view rest = scanner.remainder();
+        if( ! rest.empty() ) { ssec = rest; haveSec = true; }
+    }
+    else
+    {
+        smin = scanner.remainder();
+        if( smin.empty() ) return MISSING_DATA;
+    }
+
+    fill_escaped_buffer( *degField, deg, 30 );
+    fill_escaped_buffer( smin, min, 30 );
+    if( haveSec )
+    {
+        fill_escaped_buffer( ssec, sec, 30 );
     }
     else
     {
@@ -772,7 +814,7 @@ static int read_angle_format( CFG_FILE *, char *string, void *, int, int )
 
 // #pragma warning(disable: 4100)
 
-static int read_text( CFG_FILE *cfg, char *, void *, int, int )
+static int read_text( CFG_FILE *cfg, std::string_view, void *, int, int )
 {
     bool finished = false;
     const int read_opts = set_config_read_options( cfg, CFG_IGNORE_COMMENT );
@@ -806,7 +848,7 @@ static int read_text( CFG_FILE *cfg, char *, void *, int, int )
 
 // #pragma warning(disable: 4100)
 
-static int read_table( CFG_FILE *cfg, char *, void *, int, int )
+static int read_table( CFG_FILE *cfg, std::string_view, void *, int, int )
 {
     int read_opts;
     int sts;
@@ -823,17 +865,17 @@ static int read_table( CFG_FILE *cfg, char *, void *, int, int )
 
 // #pragma warning(disable: 4100)
 
-static int read_data( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_data( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *s;
     column_def *coltype = 0;
-    s = strtok(string,whitespace);
-    if( _stricmp( s, "stations" ) == 0 )
+    FieldScanner scanner(string);
+    auto s = scanner.next();
+    if( s && boost::algorithm::iequals( *s, "stations" ) )
     {
         coltype = stn_valid_columns;
         stn_data = 1;
     }
-    else if( _stricmp( s, "gps" ) == 0 )
+    else if( s && boost::algorithm::iequals( *s, "gps" ) )
     {
         coltype = obs_valid_columns;
         stn_data = 0;
@@ -852,9 +894,9 @@ static int read_data( CFG_FILE *cfg, char *string, void *, int, int )
 
 // #pragma warning(disable: 4100)
 
-static int read_delimiter( CFG_FILE *, char *string, void *, int, int code )
+static int read_delimiter( CFG_FILE *, std::string_view string, void *, int, int code )
 {
-    char *s, *t;
+    char *t;
     switch( code )
     {
     case CHAR_QUOTE: t=quote; break;
@@ -863,29 +905,30 @@ static int read_delimiter( CFG_FILE *, char *string, void *, int, int code )
     default:
         return INVALID_DATA;
     }
-    s = strtok( string, whitespace );
+    FieldScanner scanner(string);
+    auto s = scanner.next();
     if( !s ) return MISSING_DATA;
-    if( _stricmp(s,"tab") == 0 )
+    if( boost::algorithm::iequals(*s,"tab") )
     {
         strcpy(t,"\t");
         return OK;
     }
-    if( _stricmp(s,"comma") == 0)
+    if( boost::algorithm::iequals(*s,"comma") )
     {
         strcpy(t,",");
         return OK;
     }
-    if( _stricmp(s,"blank") == 0 )
+    if( boost::algorithm::iequals(*s,"blank") )
     {
         strcpy(t," ");
         return OK;
     }
-    if( _stricmp(s,"none") == 0 )
+    if( boost::algorithm::iequals(*s,"none") )
     {
         strcpy(t,"");
         return OK;
     }
-    interpret_escaped_string( s, t, MAX_DELIM );
+    fill_escaped_buffer( *s, t, MAX_DELIM );
     return OK;
 }
 
@@ -894,11 +937,8 @@ static int read_delimiter( CFG_FILE *, char *string, void *, int, int code )
 
 #define MAX_PREFIX 30
 
-static int read_column( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_column( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *data;
-    char *opt;
-    char *val;
     column_def *cd, *tblcol;
     int width = -1;
     int just = -1;
@@ -913,49 +953,49 @@ static int read_column( CFG_FILE *cfg, char *string, void *, int, int )
 
     prefix[0] = 0;
     suffix[0] = 0;
-    data = strtok(string,whitespace);
+    FieldScanner scanner(string);
+    auto data = scanner.next();
     if( !data ) return MISSING_DATA;
     cd = 0;
-    if( _strnicmp(data,"class=",6) == 0)
+    if( boost::algorithm::istarts_with(*data,"class="))
     {
-        cd = get_class_column_def( data+6 );
+        cd = get_class_column_def( data->substr(6) );
     }
     else
     {
-        cd = get_column_def( data );
+        cd = get_column_def( *data );
     }
     if( !cd )
     {
         char errmess[80];
-        sprintf(errmess,"Invalid column name %.20s specified",data );
+        sprintf(errmess,"Invalid column name %.20s specified",std::string(*data).c_str() );
         send_config_error( cfg, INVALID_DATA, errmess );
         return OK;
     }
 
     header[0] = 0;
 
-    while( NULL != (opt = strtok(NULL, whitespace) ) )
+    for( auto opt = scanner.next(); opt; opt = scanner.next() )
     {
-        if( _stricmp(opt,"quote") == 0 ) { quote = QT_QUOTE; continue; }
-        if( _stricmp(opt,"literal") == 0 ) { quote = QT_LITERAL; continue; }
-        for( val = opt; *val; val++ )
-        {
-            if( *val == '=' ) break;
-        }
-        if( !val[0] || !val[1])
+        if( boost::algorithm::iequals(*opt,"quote") ) { quote = QT_QUOTE; continue; }
+        if( boost::algorithm::iequals(*opt,"literal") ) { quote = QT_LITERAL; continue; }
+        const auto eqPos = opt->find('=');
+        if( eqPos == std::string_view::npos || eqPos == opt->size()-1 )
         {
             char errmess[80];
             sprintf(errmess,"Missing value for option %.20s in column command",
-                    opt);
+                    std::string(*opt).c_str());
             send_config_error( cfg, MISSING_DATA, errmess );
             return OK;
         }
-        *val++ = 0;
-        if( _stricmp(opt,"width") == 0 )
+        const std::string_view key = opt->substr(0,eqPos);
+        const std::string_view val = opt->substr(eqPos+1);
+        if( boost::algorithm::iequals(key,"width") )
         {
-            if( sscanf(val,"%d",&width) == 1 && width >= 0 ) continue;
+            auto w = parse_leading<int>(val);
+            if( w && *w >= 0 ) { width = *w; continue; }
         }
-        else if( _stricmp(opt,"align") == 0 )
+        else if( boost::algorithm::iequals(key,"align") )
         {
             switch( val[0] )
             {
@@ -964,35 +1004,36 @@ static int read_column( CFG_FILE *cfg, char *string, void *, int, int )
             case 'r': case 'R': just = JST_RIGHT; continue;
             }
         }
-        else if( _stricmp(opt,"ndp") == 0 )
+        else if( boost::algorithm::iequals(key,"ndp") )
         {
-            if( sscanf(val,"%d",&ndp) == 1 && ndp >= 0 ) continue;
+            auto d = parse_leading<int>(val);
+            if( d && *d >= 0 ) { ndp = *d; continue; }
         }
-        else if( _stricmp(opt,"header") == 0 )
+        else if( boost::algorithm::iequals(key,"header") )
         {
-            interpret_escaped_string( val, header, 1024 );
+            fill_escaped_buffer( val, header, 1024 );
             continue;
         }
-        else if( _stricmp(opt,"prefix") == 0 )
+        else if( boost::algorithm::iequals(key,"prefix") )
         {
-            interpret_escaped_string( val, prefix, MAX_PREFIX );
+            fill_escaped_buffer( val, prefix, MAX_PREFIX );
             continue;
         }
-        else if( _stricmp(opt,"suffix") == 0 )
+        else if( boost::algorithm::iequals(key,"suffix") )
         {
-            interpret_escaped_string( val, suffix, MAX_PREFIX );
+            fill_escaped_buffer( val, suffix, MAX_PREFIX );
             continue;
         }
         else
         {
             char errmess[80];
-            sprintf(errmess,"Invalid option %.20s in column command",opt);
+            sprintf(errmess,"Invalid option %.20s in column command",std::string(key).c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
         {
             char errmess[80];
-            sprintf(errmess,"Invalid value %.20s for option %.20s",val,opt);
+            sprintf(errmess,"Invalid value %.20s for option %.20s",std::string(val).c_str(),std::string(key).c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }

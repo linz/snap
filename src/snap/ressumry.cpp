@@ -15,9 +15,15 @@
 #include <string.h>
 #include <math.h>
 
+#include <algorithm>
 #include <assert.h>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+#include "util/fieldscanner.hpp"
 
 #include "ressumry.h"
+
+using boost::numeric_cast;
 #include "snap/snapglob.h"
 #include "util/classify.h"
 #include "snapdata/datatype.h"
@@ -79,16 +85,13 @@ static int obsenu_from_index[NOBSTYPE*4];
    data_type can be followed by :no_enu to suppress calculating summaries for
    east, north, up components. */
 
-int define_error_summary( const char *definition )
+int define_error_summary( const std::string &definition )
 {
-    const char *start, *end;
     int nlevel, ilevel;
     summary_def *sdf;
     int sts;
 
-    nlevel = 1;
-    for( start = definition; *start; start++ )
-        if( *start == ERROR_SUMMARY_DELIMITER ) nlevel++;
+    nlevel = numeric_cast<int>( std::count( definition.begin(), definition.end(), ERROR_SUMMARY_DELIMITER ) ) + 1;
 
     sdf = (summary_def *) check_malloc( sizeof(summary_def) + nlevel * 3 * sizeof(int) );
     sdf->enu_components=0;
@@ -98,37 +101,36 @@ int define_error_summary( const char *definition )
 
     nlevel = 0;
 
-    start = definition;
-
+    FieldScanner scanner(definition);
     sts = OK;
-    while( sts == OK )
+    bool lastField = false;
+    while( sts == OK && ! lastField )
     {
-        end = strchr( start, ERROR_SUMMARY_DELIMITER );
-        if( ! end ) end=start+strlen(start);
-        if( end > start && end-start < 32)
-        {
-            char field[32];
-            strncpy(field,start,32);
-            field[end-start]=0;
+        std::string_view field;
+        if( auto f = scanner.next(ERROR_SUMMARY_DELIMITER) ) { field = *f; }
+        else { field = scanner.remainder(); lastField = true; }
 
-            if( _stricmp(field,DATA_TYPE_STR) == 0 )
+        if( ! field.empty() && field.size() < 32 )
+        {
+            const std::string fieldStr(field);
+            if( boost::algorithm::iequals(fieldStr,DATA_TYPE_STR) )
             {
                 sdf->level_id[nlevel] = BY_DATA_TYPE;
                 sdf->enu_components = 1;
             }
-            else if( _strnicmp(field,DATA_TYPE_STR,strlen(DATA_TYPE_STR)) == 0 && 
-                     field[strlen(DATA_TYPE_STR)] == ':' )
+            else if( boost::algorithm::istarts_with(fieldStr,DATA_TYPE_STR) &&
+                     fieldStr.size() > strlen(DATA_TYPE_STR) && fieldStr[strlen(DATA_TYPE_STR)] == ':' )
             {
                 sdf->level_id[nlevel] = BY_DATA_TYPE;
-                sdf->enu_components = _stricmp(field+strlen(DATA_TYPE_STR),":no_enu") ? 1 : 0;
+                sdf->enu_components = boost::algorithm::iequals(fieldStr.substr(strlen(DATA_TYPE_STR)),":no_enu") ? 0 : 1;
             }
-            else if( _stricmp(field,FILE_STR) == 0 )
+            else if( boost::algorithm::iequals(fieldStr,FILE_STR) )
             {
                 sdf->level_id[nlevel] = BY_FILE;
             }
             else
             {
-                sdf->level_id[nlevel] = obs_classes.id( field, 1 );
+                sdf->level_id[nlevel] = obs_classes.id( fieldStr, 1 );
             }
             for( ilevel = 0; ilevel < nlevel; ilevel++ )
             {
@@ -140,9 +142,6 @@ int define_error_summary( const char *definition )
         {
             sts = INVALID_DATA;
         }
-
-        if( ! *end ) break;
-        start = end+1;
     }
 
     if( sts == OK && nlevel )

@@ -1027,11 +1027,11 @@ static void add_obs_criteria_to_modifications( obs_modifications *obsmod, obs_cr
 }
 
 
-static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile, int missing_error )
+static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, std::string_view datafile, int missing_error )
 {
     if( ! obsmod->get_fileid )
     {
-        handle_error( INTERNAL_ERROR, 
+        handle_error( INTERNAL_ERROR,
             "Program error: Survey file id function not initialised in observation modifications",
             nullptr );
         return -1;
@@ -1039,9 +1039,9 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, char *datafile
 
     int file_id = obsmod->get_fileid( datafile, current_file_context() );
     if( file_id < 0 && missing_error != OK )
-    { 
+    {
         char errmess[120];
-        sprintf(errmess,"Invalid data_file %.60s in classification command",datafile);
+        sprintf(errmess,"Invalid data_file %.60s in classification command",std::string(datafile).c_str());
         send_config_error( cfg, missing_error, errmess );
     }
     return file_id;
@@ -1160,7 +1160,7 @@ static obs_criterion *parse_stations_criterion(
     return new_obs_stations_criterion( cfg, station_crit_type, stationList );
 }
 
-static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, int option, double errval1, double errval2 )
+static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, std::string_view criteria, int action, int option, double errval1, double errval2 )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criteria *ocr=new_obs_criteria( action, errval1, errval2, option );
@@ -1259,38 +1259,38 @@ static int add_obs_modifications_imp( CFG_FILE *cfg, void *pobsmod, char *criter
     return OK;
 }
 
-int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, char *criteria, int action, double errval1, double errval2 )
+int add_obs_modifications( CFG_FILE *cfg, void *pobsmod, std::string_view criteria, int action, double errval1, double errval2 )
 {
     return add_obs_modifications_imp( cfg, pobsmod, criteria, action, 0, errval1, errval2);
 }
 
-int add_obs_option_modification( CFG_FILE *cfg, void *pobsmod, char *criteria, int set, int option )
+int add_obs_option_modification( CFG_FILE *cfg, void *pobsmod, std::string_view criteria, int set, int option )
 {
     int action=set ? OBS_MOD_SET_OPTION : OBS_MOD_UNSET_OPTION;
     return add_obs_modifications_imp( cfg, pobsmod, criteria,action,option,1.0,0.0);
 }
 
-int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *classification, char *value, int action, double err_factor, int missing_error )
+int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, std::string_view classification, std::string_view value, int action, double err_factor, int missing_error )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     obs_criterion *oc=nullptr;
-    
-    if( _stricmp(classification,"data_type") == 0 )
+
+    if( boost::algorithm::iequals(classification,"data_type") )
     {
-        oc=new_obs_datatype_criterion(cfg,value);
+        oc=new_obs_datatype_criterion(cfg,std::string(value));
     }
-    else if( _stricmp(classification,"data_file") == 0 )
+    else if( boost::algorithm::iequals(classification,"data_file") )
     {
         int file_id=get_file_id( obsmod, cfg, value, missing_error );
-        if( file_id >= 0 ) oc=new_obs_datafile_criterion( file_id,value);
+        if( file_id >= 0 ) oc=new_obs_datafile_criterion( file_id,std::string(value).c_str());
     }
-    else if( _stricmp(classification,"id") == 0 )
+    else if( boost::algorithm::iequals(classification,"id") )
     {
-        oc=new_obs_id_criterion(cfg,value);
+        oc=new_obs_id_criterion(cfg,std::string(value));
     }
     else
     {
-        oc=new_obs_classification_criterion(cfg, obsmod->classes, classification, value, true );
+        oc=new_obs_classification_criterion(cfg, obsmod->classes, std::string(classification), std::string(value), true );
     }
     if( ! oc )
     {
@@ -1302,10 +1302,10 @@ int add_obs_modifications_classification( CFG_FILE *cfg, void *pobsmod, char *cl
     return OK;
 }
 
-int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid, const char *filename, double err_factor )
+int add_obs_modifications_datafile_factor( CFG_FILE *, void *pobsmod, int fileid, const std::string &filename, double err_factor )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
-    obs_criterion *oc = new_obs_datafile_criterion( fileid, filename);
+    obs_criterion *oc = new_obs_datafile_criterion( fileid, filename.c_str());
     obs_criteria *ocr=new_obs_criteria( OBS_MOD_REWEIGHT, err_factor, 0.0, 0 );
     add_obs_criterion_to_criteria( ocr, oc );
     add_obs_criteria_to_modifications( obsmod, ocr );
@@ -1789,7 +1789,7 @@ int check_obsmod_station_criteria_codes( void *pobsmod, network *nw )
     return return_sts;
 }
 
-void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
+void summarize_obs_modifications( void *pobsmod, FILE *lst, const std::string &prefix )
 {
     obs_modifications *obsmod = (obs_modifications *) pobsmod;
     if( ! obsmod ) return;
@@ -1849,41 +1849,41 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
             if( ! match ) break;
             if( action == OBS_MOD_IGNORE )
             {
-                fprintf(lst,"\n%sThe following observations are ignored:\n",prefix);
+                fprintf(lst,"\n%sThe following observations are ignored:\n",prefix.c_str());
             }
             else if( action == OBS_MOD_REJECT )
             {
-                fprintf(lst,"\n%sThe following observations are rejected\n",prefix);
+                fprintf(lst,"\n%sThe following observations are rejected\n",prefix.c_str());
             }
             else if( action == OBS_MOD_REWEIGHT )
             {
                 fprintf(lst,"\n%sErrors of the following observations are scaled by %.3lf\n",
-                        prefix, errfct);
+                        prefix.c_str(), errfct);
             }
             else if( action == OBS_MOD_REWEIGHT_SET )
             {
                 fprintf(lst,"\n%sErrors of the following observations are scaled by set by %.3lf\n",
-                        prefix, errfct);
+                        prefix.c_str(), errfct);
             }
             else if( action == OBS_MOD_OFFSET_ERROR )
             {
                 fprintf(lst,"\n%sOffset error %0.3lf %0.3lf m applied to the following observations\n",
-                        prefix, match->factor, match->factor2 );
+                        prefix.c_str(), match->factor, match->factor2 );
             }
             else if( action == OBS_MOD_CENTROID_ERROR )
             {
                 fprintf(lst,"\n%sCentroid error %0.3lf %0.3lf m applied to the following observations\n",
-                        prefix, match->factor, match->factor2 );
+                        prefix.c_str(), match->factor, match->factor2 );
             }
-            else if( action == OBS_MOD_ANTENNA_OFFSET ) 
+            else if( action == OBS_MOD_ANTENNA_OFFSET )
             {
                 fprintf(lst,"\n%sAntenna offset %0.3lf m applied to the following GX/GB observations\n",
-                        prefix, match->factor );
+                        prefix.c_str(), match->factor );
 
             }
             while( match )
             {
-                summarize_obs_criteria( lst, prefix, match, obsmod->classes );
+                summarize_obs_criteria( lst, prefix.c_str(), match, obsmod->classes );
                 ncriteria++;
                 match=match->next;
                 while( match )
@@ -1906,7 +1906,7 @@ void summarize_obs_modifications( void *pobsmod, FILE *lst, const char *prefix )
 
         if( action & (OBS_MOD_REWEIGHT | OBS_MOD_REWEIGHT_SET)  && ncriteria > 1 )
         {
-            fprintf(lst,"\n%sNote: error factors are multiplied for observations meeting several criteria\n",prefix);
+            fprintf(lst,"\n%sNote: error factors are multiplied for observations meeting several criteria\n",prefix.c_str());
         }
     }
 }

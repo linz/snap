@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <optional>
+#include <string>
 #include <string_view>
 
 #include "snap/snapglob.h"
@@ -54,7 +55,7 @@ static void delete_linzdefmodel( LinzDefModel *model )
     check_free(model);
 }
 
-static LinzDefModel *init_linzdefmodel( char *pmodel, double pepoch )
+static LinzDefModel *init_linzdefmodel( const std::string &pmodel, double pepoch )
 {
     LinzDefModel *model;
     int sts;
@@ -240,7 +241,7 @@ static int delete_linzdef( void *deformation )
     return OK;
 }
 
-int create_linzdef_deformation( deformation_model **model, char *pmodel, double pepoch )
+int create_linzdef_deformation( deformation_model **model, const std::string &pmodel, double pepoch )
 {
     int sts;
     LinzDefModel *ldm;

@@ -55,7 +55,9 @@ into SNAP
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <optional>
 #include <string>
+#include <string_view>
 
 #include "adjparam.h"
 #include "coefs.h"
@@ -99,11 +101,15 @@ into SNAP
 
 struct missing_stn
 {
-    struct missing_stn *next;
-    char *code;
-    int refcount;
-    int quiet;
-    int id;
+    missing_stn( missing_stn *next, std::string_view code, int id ) :
+        next(next), code(code), refcount(0), quiet(0), id(id)
+    {}
+
+    struct missing_stn *next;      ///< mutated later, appending a new node
+    const std::string code;
+    int refcount;                  ///< mutated later, incremented on each use
+    int quiet;                     ///< mutated later, set by set_accept_missing_station
+    const int id;
 };
 
 
@@ -132,30 +138,24 @@ void set_require_obs_date( int option )
     need_obs_date = option;
 }
 
-static missing_stn *get_missing_station( const char *code, int create )
+static missing_stn *get_missing_station( std::string_view code, int create )
 {
-    missing_stn *ms, *prev, *newst;
-    if( !code ) return 0;
+    missing_stn *ms, *prev;
+    const std::string codeStr(code);
     for( ms = missing, prev = NULL; ms; prev = ms, ms = ms->next )
     {
         int cmp;
-        cmp = stncodecmp( ms->code, code );
+        cmp = stncodecmp( ms->code.c_str(), codeStr.c_str() );
         if( cmp == 0 ) return ms;
         if( cmp > 0 ) break;
     }
     if( ! create ) return 0;
-    newst = (missing_stn *) check_malloc( sizeof(missing_stn) + strlen(code) + 1 );
-    newst->next = ms;
+    missing_stn *newst = new missing_stn( ms, codeStr, --missing_id );
     if( prev ) prev->next = newst; else missing = newst;
-    newst->id = --missing_id;
-    newst->refcount = 0;
-    newst->quiet = 0;
-    newst->code = ((char *)(void *)newst)+sizeof(missing_stn);
-    strcpy( newst->code, code );
     return newst;
 }
 
-void set_accept_missing_station( const char *code )
+void set_accept_missing_station( std::string_view code )
 {
     missing_stn *ms=get_missing_station(code,1);
     if( ms ) ms->quiet=1;
@@ -174,14 +174,14 @@ static int missing_station_id( const char *code )
     return 0;
 }
 
-static char *missing_station_name( int id )
+static std::optional<std::string_view> missing_station_name( int id )
 {
     missing_stn *ms;
     for( ms = missing; ms; ms = ms->next )
     {
         if( ms->id == id ) return ms->code;
     }
-    return NULL;
+    return std::nullopt;
 }
 
 static void delete_missing_station_list( void )
@@ -190,7 +190,7 @@ static void delete_missing_station_list( void )
     while( missing )
     {
         ms = missing->next;
-        check_free( missing );
+        delete missing;
         missing = ms;
     }
     missing_id = IGNORE_ID;
@@ -206,7 +206,7 @@ static void list_missing_stations( void )
     {
         if( ! reportall && ms->quiet ) continue;
         sprintf(buf,"Station %-10s is not in the coordinate file.  Used %d times",
-                ms->code,ms->refcount );
+                ms->code.c_str(),ms->refcount );
         handle_error(WARNING_ERROR, buf, NO_MESSAGE );
     }
 }
@@ -469,12 +469,15 @@ static int64_t snap_id( int type, int group_id, const char *code )
 
 static const char *snap_name( int type, int group_id, long id )
 {
-    const char *name;
+    const char *name = nullptr;
     static std::string classification_value;
-    name = NULL;
     switch (type)
     {
-    case ID_STATION:   if( id < 0 ) name = missing_station_name( (int) id );
+    case ID_STATION:   if( id < 0 )
+        {
+            auto missingName = missing_station_name( (int) id );
+            if( missingName ) name = missingName->data();
+        }
         else name = station_code( (int) id );
         break;
     case ID_COEF:

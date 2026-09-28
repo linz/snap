@@ -1,6 +1,7 @@
 
 #include <stdio.h>
 #include <math.h>
+#include <string>
 
 #include "snap/snapglob.h"
 #include "snap/deform.h"
@@ -42,10 +43,10 @@ static char *desc3 = NULL;
 
 // #pragma warning (disable : 4100)
 
-static int init_grid_deformation(  char *pmodel, double pepoch )
+static int init_grid_deformation(  const std::string &pmodel, double pepoch )
 {
     epoch = pepoch;
-    model = copy_string( pmodel );
+    model = copy_string( pmodel.c_str() );
     auto grdfile = find_coordsys_data_file( model, ".grd" );
     if( !grdfile ) return INVALID_DATA;
     modelfile = copy_string( grdfile->c_str() );
@@ -166,7 +167,7 @@ static int delete_griddef( void * )
     return OK;
 }
 
-int create_grid_deformation( deformation_model **model, char *pmodel, double pepoch )
+int create_grid_deformation( deformation_model **model, const std::string &pmodel, double pepoch )
 {
     int sts;
     sts = init_grid_deformation( pmodel, pepoch );

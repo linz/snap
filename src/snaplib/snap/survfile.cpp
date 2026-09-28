@@ -10,6 +10,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string_view>
 
 #include "util/chkalloc.h"
 #include "util/dstring.h"
@@ -109,17 +110,17 @@ std::string survey_data_file_name( int ifile )
     return sdindx[ifile]->name;
 }
 
-int survey_data_file_id( char *name, file_context *context )
+int survey_data_file_id( std::string_view name, file_context *context )
 {
     int i;
     int matchid=-1;
-    std::string matchName = name;
+    std::string matchName(name);
 
     /* If context is not null then try looking for a matching file */
 
     if( context )
     {
-        std::string filename = build_filespec(context->dir,name,"");
+        std::string filename = build_filespec(context->dir,std::string(name),"");
         if( file_exists(filename) ) matchName=filename;
     }
 

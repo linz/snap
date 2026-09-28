@@ -19,6 +19,7 @@
 #include <fstream>
 #include <optional>
 #include <string>
+#include <string_view>
 
 /* Header file for readcfg.c  - code to read a configuration file */
 
@@ -76,7 +77,7 @@ struct CFG_FILE
 /* Definition of an item in a configuration file - the user supplies an
    array of items to the read_config_file routine */
 
-typedef int (*config_store_func)( CFG_FILE *cfg, char *valst, void *value, int vallen, int code);
+typedef int (*config_store_func)( CFG_FILE *cfg, std::string_view valst, void *value, int vallen, int code);
 
 struct config_item
 {
@@ -162,11 +163,11 @@ void abort_config_file( CFG_FILE *cfg );
    readcfg_boolean, for which the length is a bit mask defining which
    bits of an unsigned char variable are modified. */
 
-int readcfg_int( CFG_FILE *cfg, char *str, void *value, int length, int code );
-int readcfg_short( CFG_FILE *cfg, char *str, void *value, int length, int code );
-int readcfg_long( CFG_FILE *cfg, char *str, void *value, int length, int code );
-int readcfg_float( CFG_FILE *cfg, char *str, void *value, int length, int code );
-int readcfg_double( CFG_FILE *cfg, char *str, void *value, int length, int code );
-int readcfg_boolean( CFG_FILE *cfg, char *str, void *value, int length, int code );
+int readcfg_int( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
+int readcfg_short( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
+int readcfg_long( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
+int readcfg_float( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
+int readcfg_double( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
+int readcfg_boolean( CFG_FILE *cfg, std::string_view str, void *value, int length, int code );
 
 #endif  /* READCFG_H defined */

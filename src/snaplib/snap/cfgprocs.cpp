@@ -11,6 +11,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <boost/algorithm/string/predicate.hpp>
+#include <charconv>
+#include <string_view>
 #include "util/snapctype.h"
 
 #include "coordsys/coordsys.h"
@@ -22,32 +25,31 @@
 #include "snapdata/obsmod.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "util/iostring.h"
 #include "util/dateutil.h"
 #include "util/errdef.h"
 #include "util/fileutil.h"
 #include "util/readcfg.h"
-#include "util/strtokq.h"
 #include "util/xprintf.h"
 
 int stations_read = 0;
 
 // #pragma warning (disable : 4100)
 
-static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int mergeopts, double mergedate )
+static int load_merge_coordinate_file( CFG_FILE *cfg, std::string_view string, void *, int, int mergeopts, double mergedate )
 {
     int sts;
-    char *fname;
-    char *typestr;
-    char *csvdata;
     int format;
 
     sts = OK;
     format = STN_FORMAT_SNAP;
-    csvdata = 0;
+    std::optional<std::string_view> csvdata;
 
-    fname = strtokq( string, " ");
-    typestr = strtokq( NULL, " ");
+    FieldScanner scanner(string);
+    auto fname = scanner.checkAndRecoverQuotedValue( true,
+        std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} );
+    auto typestr = scanner.next();
 
     if( !fname )
     {
@@ -58,18 +60,18 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
 
     if( sts == OK && typestr )
     {
-        if( _stricmp(typestr,"SNAP") == 0 )
+        if( boost::algorithm::iequals(*typestr,"SNAP") )
         {
             format = STN_FORMAT_SNAP;
         }
-        else if( _stricmp(typestr,"GB") == 0 )
+        else if( boost::algorithm::iequals(*typestr,"GB") )
         {
             format = STN_FORMAT_GB;
         }
-        else if( _stricmp(typestr,"CSV") == 0 )
+        else if( boost::algorithm::iequals(*typestr,"CSV") )
         {
             format = STN_FORMAT_CSV;
-            csvdata = strtokq( NULL, "" );
+            csvdata = scanner.remainder();
         }
         else
         {
@@ -81,16 +83,17 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
 
     if( sts == OK )
     {
+        const std::string fnameStr(*fname);
         int adding=net ? 1 : 0;
         int n0=adding ? number_of_stations(net) : 0;
-        const char *action=(! adding) ? "Reading" 
-                         :  mergeopts & NW_MERGEOPT_ADDNEW ? "Reading additional" 
+        const std::string action=(! adding) ? "Reading"
+                         :  mergeopts & NW_MERGEOPT_ADDNEW ? "Reading additional"
                          : "Updating";
-        xprintf("\n%s coordinates from file %s\n",action,fname);
+        xprintf("\n%s coordinates from file %s\n",action.c_str(),fnameStr.c_str());
         if( adding && mergeopts & (NW_MERGEOPT_COORDS | NW_MERGEOPT_EXU | NW_MERGEOPT_CLASSES ))
         {
-            const char *comma=", ";
-            const char *sep="";
+            const std::string comma=", ";
+            std::string sep="";
             xprintf("Updating ");
             if( mergeopts & NW_MERGEOPT_COORDS )
             {
@@ -99,17 +102,19 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
             }
             if( mergeopts & NW_MERGEOPT_EXU )
             {
-                xprintf("%sgeoid/deflections",sep);
+                xprintf("%sgeoid/deflections",sep.c_str());
                 sep=comma;
             }
             if( mergeopts & NW_MERGEOPT_CLASSES )
             {
-                xprintf("%sclassifications",sep);
+                xprintf("%sclassifications",sep.c_str());
                 sep=comma;
             }
             xprintf("\n");
         }
-        sts = read_station_file( fname, get_config_directory(cfg).c_str(), format, csvdata, mergeopts, mergedate );
+        const std::string csvdataStr( csvdata.value_or(std::string_view()) );
+        sts = read_station_file( fnameStr.c_str(), get_config_directory(cfg).c_str(), format,
+                                  csvdata ? csvdataStr.c_str() : nullptr, mergeopts, mergedate );
         if( sts == OK )
         {
             stations_read = 1;
@@ -129,18 +134,16 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, char *string, void *, int,
     return sts == OK ? OK : ABORT_CONFIG_FILE;
 }
 
-int load_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int mergeopts )
+int load_coordinate_file( CFG_FILE *cfg, std::string_view string, void *value, int len, int mergeopts )
 {
     return load_merge_coordinate_file( cfg, string, value, len, mergeopts, UNDEFINED_DATE );
 }
 
-int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int )
+int add_coordinate_file( CFG_FILE *cfg, std::string_view string, void *value, int len, int )
 {
     /* Parse merge options, then call load_coordinate file */
     int mergeopts=0;
     double mergedate=UNDEFINED_DATE;
-    char *opt;
-    char *str;
     int sts=OK;
 
     if( ! stations_read )
@@ -150,96 +153,99 @@ int add_coordinate_file( CFG_FILE *cfg, char *string, void *value, int len, int 
         return ABORT_CONFIG_FILE;
     }
 
-    str=string;
-    while( str && NULL != (opt = strtok(str," ")) )
+    FieldScanner scanner(string);
+    for( auto opt = scanner.next(); opt; opt = scanner.next() )
     {
-        str = strtok(NULL,"");
-        if( _stricmp(opt,"coordinates") == 0 )
+        if( boost::algorithm::iequals(*opt,"coordinates") )
         {
             mergeopts |= NW_MERGEOPT_COORDS;
         }
-        else if( _stricmp(opt,"geoid") == 0 )
+        else if( boost::algorithm::iequals(*opt,"geoid") )
         {
             mergeopts |= NW_MERGEOPT_EXU;
         }
-        else if( _stricmp(opt,"classes") == 0 )
+        else if( boost::algorithm::iequals(*opt,"classes") )
         {
             mergeopts |= NW_MERGEOPT_CLASSES | NW_MERGEOPT_ADDCLASSES;
         }
-        else if( _stricmp(opt,"existing_classes") == 0 )
+        else if( boost::algorithm::iequals(*opt,"existing_classes") )
         {
             mergeopts |= NW_MERGEOPT_CLASSES;
         }
-        else if( _stricmp(opt,"stations") == 0 )
+        else if( boost::algorithm::iequals(*opt,"stations") )
         {
             mergeopts |= NW_MERGEOPT_ADDNEW;
         }
-        else if( _stricmp(opt,"epoch") == 0 )
+        else if( boost::algorithm::iequals(*opt,"epoch") )
         {
-            if( ! str )
+            auto epochstr = scanner.next();
+            if( ! epochstr )
             {
                 send_config_error( cfg,INVALID_DATA,
                         "Date missing in add_coordinate_file epoch option");
                 sts=INVALID_DATA;
             }
-            char *epochstr=strtok(str," ");
-            str=strtok(NULL,"");
-            if( ! parse_crdsys_epoch(epochstr,&mergedate) )
+            // The original fell through to parse_crdsys_epoch(NULL,...) here
+            // (a latent null-deref, unrelated to this conversion) - skip the
+            // call instead now that "missing" is representable directly.
+            else if( ! parse_crdsys_epoch( std::string(*epochstr).c_str(), &mergedate ) )
             {
                 char errmsg[100];
                 sprintf(errmsg,"Invalid date %.20s in add_coordinate_file epoch",
-                        epochstr);
+                        std::string(*epochstr).c_str());
                 send_config_error( cfg,INVALID_DATA,errmsg);
                 sts=INVALID_DATA;
             }
         }
-        else if( _stricmp(opt,"from") == 0 )
+        else if( boost::algorithm::iequals(*opt,"from") )
         {
             break;
         }
         else
         {
             char errmsg[80];
-            sprintf(errmsg,"Invalid add_coordinate_file option %.20s",opt);
+            sprintf(errmsg,"Invalid add_coordinate_file option %.20s",std::string(*opt).c_str());
             send_config_error( cfg, INVALID_DATA, errmsg );
             return ABORT_CONFIG_FILE;
         }
     }
     if( ! mergeopts ) mergeopts = NW_MERGEOPT_ADDNEW;
     if( sts != OK ) return ABORT_CONFIG_FILE;
-    return load_merge_coordinate_file( cfg, str, value, len, mergeopts, mergedate );
+    return load_merge_coordinate_file( cfg, scanner.remainder(), value, len, mergeopts, mergedate );
 }
 
-int set_output_coordinate_file( CFG_FILE *cfg, char *string, void *, int, int )
+int set_output_coordinate_file( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     std::string fname;
-    if( string[0] == '.' )
+    if( !string.empty() && string[0] == '.' )
     {
-        fname = std::string(root_name) + string;
+        fname = std::string(root_name) + std::string(string);
     }
     else
     {
-        fname = build_filespec( get_config_directory(cfg), string, "" );
+        fname = build_filespec( get_config_directory(cfg), std::string(string), "" );
     }
     set_output_station_file( fname.c_str() );
     return OK;
 }
 
-int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
+int load_offset_file( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    const char *filename;
     std::optional<std::string> filespec;
     int sts;
 
-    filename=strtok(string," ");
+    FieldScanner scanner(string);
+    auto filename = scanner.checkAndRecoverQuotedValue( true,
+        std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} );
     if( ! filename )
     {
         send_config_error( cfg, INVALID_DATA, "station_offset_file command requires a filename");
         return OK;
     }
+    const std::string filenameStr(*filename);
 
-    if( station_filespec ) filespec = find_relative_file( station_filespec, filename, DFLTSTOFFS_EXT );
-    if( ! filespec ) filespec = find_file( filename, DFLTSTOFFS_EXT, get_config_directory(cfg), FF_TRYALL, "" );
+    if( station_filespec ) filespec = find_relative_file( station_filespec, filenameStr, DFLTSTOFFS_EXT );
+    if( ! filespec ) filespec = find_file( filenameStr, DFLTSTOFFS_EXT, get_config_directory(cfg), FF_TRYALL, "" );
     if(! filespec )
     {
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
@@ -254,116 +260,102 @@ int load_offset_file( CFG_FILE *cfg, char *string, void *, int, int )
 }
 
 
-int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
+int load_data_file( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *fname, *format, errmess[80];
+    char errmess[80];
     std::optional<std::string> options;
     std::optional<std::string> recode;
-    char *specs;
     int ftype;
     int fileid;
     double factor;
 
-    fname = strtokq( string, " " );
+    FieldScanner scanner(string);
+    auto fnameField = scanner.checkAndRecoverQuotedValue( true,
+        std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} );
 
-    if( !fname )
+    if( !fnameField )
     {
         send_config_error(cfg,MISSING_DATA,"Data file name missing");
         return OK;
     }
+    const std::string fname(*fnameField);
 
     ftype = SNAP_FORMAT;
     factor = 1.0;
 
-    specs = strtokq(NULL,"");
-    while( specs && NULL != (format = strtok(specs," ")) )
+    for( auto formatField = scanner.next(); formatField; formatField = scanner.next() )
     {
         int readoptions=0;
-        specs = strtok(NULL,"");
-        if( _stricmp(format,"SNAP") == 0 )
+        if( boost::algorithm::iequals(*formatField,"SNAP") )
         {
             ftype = SNAP_FORMAT;
         }
-        else if ( _stricmp(format,"GB") == 0 )
+        else if ( boost::algorithm::iequals(*formatField,"GB") )
         {
             ftype = GB_FORMAT;
         }
-        else if ( _stricmp(format,"RECODE") == 0 )
+        else if ( boost::algorithm::iequals(*formatField,"RECODE") )
         {
-            char *recodefield = strtok(specs," ");
-            recode = recodefield ? std::optional<std::string>(recodefield) : std::nullopt;
-            specs = strtok(NULL,"");
+            auto recodefield = scanner.next();
+            recode = recodefield ? std::optional<std::string>(std::string(*recodefield)) : std::nullopt;
         }
-        else if ( _stricmp(format,"ERROR_FACTOR") == 0 )
+        else if ( boost::algorithm::iequals(*formatField,"ERROR_FACTOR") )
         {
-            format = strtok(specs," ");
-            specs = strtok(NULL,"");
-            if( !format || sscanf(format,"%lf",&factor) != 1 )
+            // Matches the old sscanf(format,"%lf",&factor)!=1 check - only a
+            // valid leading number is required, no full-consumption check.
+            auto factorField = scanner.next();
+            auto value = factorField ? parse_leading<double>(*factorField) : std::nullopt;
+            if( !value )
             {
                 send_config_error( cfg, INVALID_DATA, "Invalid error factor for data file");
                 return OK;
             }
+            factor = *value;
         }
-        else if ( _stricmp(format,"CSV") == 0 )
+        else if ( boost::algorithm::iequals(*formatField,"CSV") )
         {
             ftype = CSV_FORMAT;
             readoptions=1;
         }
-        else if ( _stricmp(format,"SINEX") == 0 )
+        else if ( boost::algorithm::iequals(*formatField,"SINEX") )
         {
             ftype = SINEX_FORMAT;
             readoptions=1;
         }
         else
         {
-            sprintf(errmess,"Invalid format %.20s specified for data file",format);
+            sprintf(errmess,"Invalid format %.20s specified for data file",std::string(*formatField).c_str());
             send_config_error( cfg, INVALID_DATA,errmess);
             return OK;
         }
 
-        if( readoptions && specs )
+        if( readoptions )
         {
-            char *optstart;
-            char *endopts;
-            char *nextfield;
-            int inopts;
-            /* Options are following fields containing '=' */
-
-            while( ISSPACE(*specs) ) specs++;
-            optstart=specs;
-
-            inopts=0;
-            nextfield=optstart;
-            endopts=0;
-            for( char *c=specs; *c; c++ )
+            /* Options are following fields containing '=' - the first
+               field without one ends the options block and is left for
+               the next iteration of this loop to reprocess as a format
+               keyword. beforeOptions/afterOptions are both remainder()
+               checkpoints into the same underlying text, so the verbatim
+               options span between them is plain size arithmetic - no
+               raw pointers needed. */
+            const std::string_view beforeOptions = scanner.remainder();
+            std::string_view afterOptions;
+            while( true )
             {
-                if( ! ISSPACE(*c))
+                const std::string_view beforeField = scanner.remainder();
+                auto field = scanner.next();
+                if( !field ) { afterOptions = std::string_view(); break; }
+                if( field->find('=') == std::string_view::npos )
                 {
-                    if( *c == '=' )
-                    {
-                        inopts=1;
-                        nextfield=0;
-                        endopts=0;
-                    }
-                    else if( ! inopts )
-                    {
-                        if(! nextfield ) nextfield=c;
-                    }
-                }
-                else if( ! inopts )
-                {
+                    scanner = FieldScanner(beforeField);
+                    afterOptions = beforeField;
                     break;
                 }
-                else
-                {
-                    inopts=0;
-                    if( ! endopts ) endopts=c;
-                }
+                afterOptions = scanner.remainder();
             }
-            if( nextfield == optstart ) optstart=0;
-            if( endopts ) *endopts=0;
-            options = optstart ? std::optional<std::string>(optstart) : std::nullopt;
-            specs=nextfield;
+            const std::string_view optionsSpan =
+                beforeOptions.substr( 0, beforeOptions.size() - afterOptions.size() );
+            options = optionsSpan.empty() ? std::nullopt : std::optional<std::string>(std::string(optionsSpan));
         }
     }
 
@@ -372,14 +364,14 @@ int load_data_file( CFG_FILE *cfg, char *string, void *, int, int )
     if( factor != 1.0 )
     {
         void *obs_modifications=snap_obs_modifications( true );
-        add_obs_modifications_datafile_factor(cfg,obs_modifications,fileid,survey_data_file_name(fileid).c_str(),factor);
+        add_obs_modifications_datafile_factor(cfg,obs_modifications,fileid,survey_data_file_name(fileid),factor);
     }
 
     return OK;
 }
 
 
-int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int code )
+int read_obs_modification_command( CFG_FILE *cfg, std::string_view string, void *, int, int code )
 {
     double errval1=0.0;
     double errval2=0.0;
@@ -453,58 +445,56 @@ int read_obs_modification_command( CFG_FILE *cfg, char *string, void *, int, int
 }
 
 
-int read_classification_command( CFG_FILE *cfg, char *string, void *, int, int )
+int read_classification_command( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     double errfct;
-    char *classification;
-    char *classvalue;
     int isdatafile;
     int action;
     int missing_error;
-    char *st;
     void *obs_modifications;
 
     missing_error=INVALID_DATA;
-    st = strtok( string, " " );
+    FieldScanner scanner(string);
+    auto st = scanner.next();
     if( !st )
     {
         send_config_error( cfg, MISSING_DATA, "Name of the classification is missing");
         return OK;
     }
 
-    classification=st;
-    isdatafile=_stricmp(classification,"data_file")==0;
+    const std::string_view classification = *st;
+    isdatafile=boost::algorithm::iequals(classification,"data_file");
 
     errfct = -1.0;
     action=0;
 
-    st = strtok( NULL, " " );
+    st = scanner.next();
     if( st )
     {
-        if( _stricmp( st, "reject" ) == 0 )
+        if( boost::algorithm::iequals( *st, "reject" ) )
         {
             action |= OBS_MOD_REJECT;
         }
-        else if( _stricmp( st, "ignore" ) == 0 )
+        else if( boost::algorithm::iequals( *st, "ignore" ) )
         {
             action |= OBS_MOD_IGNORE;
         }
-        if( action ) st = strtok( NULL, " " );
+        if( action ) st = scanner.next();
     }
 
-    if( isdatafile && st && _stricmp(st,"ignore_missing") == 0 ) 
+    if( isdatafile && st && boost::algorithm::iequals(*st,"ignore_missing") )
     {
         missing_error=OK;
-        st = strtok( NULL, " " );
+        st = scanner.next();
     }
-    else if( isdatafile && st && _stricmp(st,"warn_missing") == 0 ) 
+    else if( isdatafile && st && boost::algorithm::iequals(*st,"warn_missing") )
     {
         missing_error=INFO_ERROR;
-        st = strtok( NULL, " " );
+        st = scanner.next();
     }
-    else if( isdatafile && st && _stricmp(st,"fail_missing") == 0 ) 
+    else if( isdatafile && st && boost::algorithm::iequals(*st,"fail_missing") )
     {
-        st = strtok( NULL, " " );
+        st = scanner.next();
     }
 
     if( !st )
@@ -513,9 +503,9 @@ int read_classification_command( CFG_FILE *cfg, char *string, void *, int, int )
         return OK;
     }
 
-    classvalue=st;
+    const std::string_view classvalue = *st;
 
-    st = strtok( NULL, " " );
+    st = scanner.next();
 
     if( ! action )
     {
@@ -525,27 +515,47 @@ int read_classification_command( CFG_FILE *cfg, char *string, void *, int, int )
             return OK;
         }
 
-        if( _stricmp( st, "reject" ) == 0 )
+        if( boost::algorithm::iequals( *st, "reject" ) )
         {
             action |= OBS_MOD_REJECT;
         }
-        else if( _stricmp( st, "ignore" ) == 0 )
+        else if( boost::algorithm::iequals( *st, "ignore" ) )
         {
             action |= OBS_MOD_IGNORE;
         }
-        if( action ) st = strtok( NULL, " " );
+        if( action ) st = scanner.next();
     }
 
     if( st )
     {
-        if( _stricmp(st,"error_factor") != 0 || (st=strtok(NULL," ")) == NULL ||
-                sscanf(st, "%lf", &errfct ) != 1 || errfct <= 0.0 ||
-                strtok(NULL," ") != NULL )
+        // Mirrors the original's short-circuit chain (_stricmp!=0 ||
+        // (st=strtok(...))==NULL || sscanf(...)!=1 || errfct<=0.0 ||
+        // strtok(...)!=NULL) step by step, since dereferencing an empty
+        // optional at any stage would be UB if done via a single chained
+        // expression instead.
+        bool valid = boost::algorithm::iequals(*st,"error_factor");
+        std::optional<std::string_view> factorField;
+        std::optional<double> value;
+        if( valid )
         {
-
+            factorField = scanner.next();
+            valid = factorField.has_value();
+        }
+        if( valid )
+        {
+            value = parse_leading<double>(*factorField);
+            valid = value.has_value() && *value > 0.0;
+        }
+        if( valid )
+        {
+            valid = ! scanner.next().has_value();
+        }
+        if( ! valid )
+        {
             send_config_error(cfg, INVALID_DATA, "Invalid or missing data in classification command");
             return OK;
         }
+        errfct = *value;
         if( errfct != 1.0 ) action |= OBS_MOD_REWEIGHT;
     }
 
@@ -559,7 +569,7 @@ int read_classification_command( CFG_FILE *cfg, char *string, void *, int, int )
     return OK;
 }
 
-int read_recode_command( CFG_FILE *cfg, char *string, void *, int, int )
+int read_recode_command( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
 
     if( ! stations_read )
@@ -569,8 +579,7 @@ int read_recode_command( CFG_FILE *cfg, char *string, void *, int, int )
         return OK;
     }
     if( ! stnrecode ) stnrecode=create_stn_recode_map( net );
-    std::string basefile = cfg->name;
-    if( read_station_recode_definition( stnrecode, string, basefile.data() ) != OK )
+    if( read_station_recode_definition( stnrecode, string, cfg->name ) != OK )
     {
         send_config_error(cfg,INVALID_DATA,"Errors encountered in recode command" );
     }

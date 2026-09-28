@@ -8,10 +8,10 @@
 
 std::optional<std::string_view> FieldScanner::next()
 {
-    while( _pos != _text.end() && ISSPACE(*_pos) ) ++_pos;
+    _pos = std::find_if( _pos, _text.end(), []( const char c ){ return ! ISSPACE(c); } );
     if( _pos == _text.end() ) return std::nullopt;
     auto start = _pos;
-    while( _pos != _text.end() && ! ISSPACE(*_pos) ) ++_pos;
+    _pos = std::find_if( _pos, _text.end(), []( const char c ){ return ISSPACE(c); } );
     return _span( start, _pos );
 }
 
@@ -99,14 +99,35 @@ std::optional<double> FieldScanner::checkAndRecoverQuotedDoubleValue( const bool
     return parse_double( *field );
 }
 
+template <typename T>
+std::optional<ParsedField<T>> parse_leading_field( std::string_view field )
+{
+    // std::from_chars doesn't accept a leading '+' - matches the same
+    // handling in readcfg.cpp's store_numeric_config_value.
+    if( ! field.empty() && field.front() == '+' ) field.remove_prefix(1);
+    ParsedField<T> r{};
+    r.result = std::from_chars( field.data(), field.data() + field.size(), r.value );
+    if( r.result.ec != std::errc() ) return std::nullopt;
+    return r;
+}
+template std::optional<ParsedField<int>> parse_leading_field<int>( std::string_view );
+template std::optional<ParsedField<double>> parse_leading_field<double>( std::string_view );
+
+template <typename T>
+std::optional<T> parse_leading( std::string_view field )
+{
+    const auto r = parse_leading_field<T>( field );
+    if( ! r ) return std::nullopt;
+    return r->value;
+}
+template std::optional<int> parse_leading<int>( std::string_view );
+template std::optional<double> parse_leading<double>( std::string_view );
+
 std::optional<double> parse_double( std::string_view field )
 {
-    double value;
-    const char *begin = field.data();
-    const char *end = begin + field.size();
-    auto result = std::from_chars( begin, end, value );
-    if( result.ec != std::errc() || result.ptr != end ) return std::nullopt;
-    return value;
+    const auto r = parse_leading_field<double>( field );
+    if( ! r || r->result.ptr != field.data() + field.size() ) return std::nullopt;
+    return r->value;
 }
 
 std::optional<double> parse_positive_double( std::string_view field )

@@ -51,9 +51,12 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <boost/algorithm/string/predicate.hpp>
+#include <charconv>
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <string_view>
 #include "util/snapctype.h"
 
 #include "util/chkalloc.h"
@@ -349,113 +352,69 @@ void abort_config_file( CFG_FILE *cfg )
     if( cfg ) cfg->abort = 1;
 }
 
-int readcfg_int( CFG_FILE *, char *str, void *value, int, int )
-{
+namespace {
 
-    int val;
-    char check[2];
-    check[0] = 0;
-    if( sscanf(str,"%d%1s",&val,check) >= 1 && check[0] == 0)
-    {
-        * (int *) value = val;
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
+/// Parses str as a T, matching the whitespace/sign handling of the old
+/// sscanf(str,"%d%1s",...)-style checks this replaces: leading/trailing
+/// whitespace and a leading '+' are accepted (std::from_chars accepts
+/// neither), and the whole trimmed string must be consumed - no trailing
+/// non-whitespace garbage.
+template <typename T>
+int store_numeric_config_value( std::string_view str, T &value )
+{
+    const auto begin = str.find_first_not_of( " \t" );
+    if( begin == std::string_view::npos ) return INVALID_DATA;
+    const auto end = str.find_last_not_of( " \t" );
+    str = str.substr( begin, end - begin + 1 );
+    if( str.front() == '+' ) str.remove_prefix(1);
+
+    const auto [ptr,ec] = std::from_chars( str.data(), str.data()+str.size(), value );
+    if( ec != std::errc() || ptr != str.data()+str.size() ) return INVALID_DATA;
+    return OK;
 }
 
-
-int readcfg_short( CFG_FILE *, char *str, void *value, int, int )
-{
-
-    short ival;
-    char check[2];
-    check[0] = 0;
-    if( sscanf(str,"%hd%1s",&ival,check) >= 1 && check[0] == 0)
-    {
-        * (short *) value = ival;
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
 }
 
-
-int readcfg_long( CFG_FILE *, char *str, void *value, int, int )
+int readcfg_int( CFG_FILE *, std::string_view str, void *value, int, int )
 {
-
-    long val;
-    char check[2];
-    check[0] = 0;
-    if( sscanf(str,"%ld%1s",&val,check) >= 1 && check[0] == 0)
-    {
-        * (long *) value = val;
-        return 0;
-    }
-    else
-    {
-        return 1;
-    }
+    return store_numeric_config_value( str, *static_cast<int*>(value) );
 }
 
-
-
-int readcfg_float( CFG_FILE *, char *str, void *value, int, int )
+int readcfg_short( CFG_FILE *, std::string_view str, void *value, int, int )
 {
-    float val;
-    char check[2];
-    check[0] = 0;
-    if( sscanf(str,"%f%1s",&val,check) >= 1 && check[0] == 0)
+    return store_numeric_config_value( str, *static_cast<short*>(value) );
+}
+
+int readcfg_long( CFG_FILE *, std::string_view str, void *value, int, int )
+{
+    return store_numeric_config_value( str, *static_cast<long*>(value) );
+}
+
+int readcfg_float( CFG_FILE *, std::string_view str, void *value, int, int )
+{
+    return store_numeric_config_value( str, *static_cast<float*>(value) );
+}
+
+int readcfg_double( CFG_FILE *, std::string_view str, void *value, int, int )
+{
+    return store_numeric_config_value( str, *static_cast<double*>(value) );
+}
+
+int readcfg_boolean( CFG_FILE *, std::string_view str, void *value, int length, int )
+{
+    const unsigned char flag = length ? static_cast<unsigned char>(length) : 1;
+    if( boost::algorithm::iequals(str,"y") || boost::algorithm::iequals(str,"yes") ||
+            boost::algorithm::iequals(str,"t") || boost::algorithm::iequals(str,"true") ||
+            boost::algorithm::iequals(str,"on") )
     {
-        * (float *) value = val;
+        *static_cast<unsigned char*>(value) |= flag;
         return OK;
     }
-    else
+    else if( boost::algorithm::iequals(str,"n") || boost::algorithm::iequals(str,"no") ||
+             boost::algorithm::iequals(str,"f") || boost::algorithm::iequals(str,"false") ||
+             boost::algorithm::iequals(str,"off") )
     {
-        return INVALID_DATA;
-    }
-}
-
-
-
-int readcfg_double( CFG_FILE *, char *str, void *value, int, int )
-{
-    double val;
-    char check[2];
-    check[0] = 0;
-    if( sscanf(str,"%lf%1s",&val,check) >= 1 && check[0] == 0 )
-    {
-        * (double *) value = val;
-        return OK;
-    }
-    else
-    {
-        return INVALID_DATA;
-    }
-}
-
-int readcfg_boolean( CFG_FILE *, char *str, void *value, int length, int )
-{
-    unsigned char flag;
-    flag = length;
-    if( flag == 0 ) flag=1;
-    _strlwr(str);
-    if( strcmp(str,"y")==0 || strcmp(str,"yes") ==0 ||
-            strcmp(str,"t")==0 || strcmp(str,"true") ==0 ||
-            strcmp(str,"on")==0 )
-    {
-        * (unsigned char *) value |= flag;
-        return OK;
-    }
-    else if( strcmp(str,"n")==0 || strcmp(str,"no") ==0 ||
-             strcmp(str,"f")==0 || strcmp(str,"false") ==0 ||
-             strcmp(str,"off")==0 )
-    {
-        * (unsigned char *) value &= ~flag;
+        *static_cast<unsigned char*>(value) &= ~flag;
         return OK;
     }
     else

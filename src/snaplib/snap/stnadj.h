@@ -14,6 +14,7 @@
 #ifndef _STNADJ_H
 #define _STNADJ_H
 
+#include <optional>
 #include <string>
 
 #ifndef _NETWORK_H
@@ -70,7 +71,7 @@ extern char *station_filespec;
 extern std::string output_station_filespec;
 extern int station_filetype;
 extern char *station_fileoptions;
-extern char *geoid_file;
+extern std::optional<std::string> geoid_file;
 extern char overwrite_geoid;
 extern int geoid_error_level;
 

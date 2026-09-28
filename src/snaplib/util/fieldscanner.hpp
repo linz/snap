@@ -2,6 +2,7 @@
 #ifndef _FIELDSCANNER_HPP
 #define _FIELDSCANNER_HPP
 
+#include <charconv>
 #include <optional>
 #include <string_view>
 #include <vector>
@@ -138,6 +139,36 @@ private:
 /// \return the parsed value, or nullopt if field isn't a valid double or has
 ///         trailing characters after the number.
 std::optional<double> parse_double(
+    std::string_view field );  ///< the field to parse
+
+/// A leading T (int, double, etc.) parsed from the start of a field, plus
+/// where in field the number ended (result.ptr, as std::from_chars leaves
+/// it) - the raw shared primitive behind parse_leading() and callers that
+/// need to inspect whatever followed the number themselves (e.g. to
+/// recognize a "?" continuation marker, as in control.cpp's reference frame
+/// parameter parsing, via field.substr(result.ptr-field.data())). Only
+/// instantiated (in fieldscanner.cpp) for the types real callers actually use.
+/// \return nullopt if field doesn't start with a valid T.
+template <typename T>
+struct ParsedField
+{
+    T value;
+    std::from_chars_result result;
+};
+
+template <typename T>
+std::optional<ParsedField<T>> parse_leading_field(
+    std::string_view field );  ///< the field to parse
+
+/// A thin wrapper over parse_leading_field() that discards where the number
+/// ended, tolerating trailing text after it (unlike parse_double(), which
+/// requires the whole field be consumed) - a std::from_chars-based
+/// replacement for the sscanf(field,"%d",&value)!=1/
+/// sscanf(field,"%lf",&value)!=1 family of idioms, which themselves tolerate
+/// trailing text.
+/// \return the parsed value, or nullopt if field doesn't start with a valid T.
+template <typename T>
+std::optional<T> parse_leading(
     std::string_view field );  ///< the field to parse
 
 /// A thin wrapper over parse_double() that additionally requires the value

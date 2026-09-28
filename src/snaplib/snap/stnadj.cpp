@@ -36,7 +36,7 @@ std::string output_station_filespec;
 int station_filetype = STN_FORMAT_SNAP;
 char *station_fileoptions = 0;
 
-char *geoid_file = 0;
+std::optional<std::string> geoid_file;
 char overwrite_geoid = 0;
 int geoid_error_level = WARNING_ERROR;
 

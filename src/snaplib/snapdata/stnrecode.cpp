@@ -655,7 +655,7 @@ static std::optional<DateRange> parse_date_range(
     return ok ? std::optional<DateRange>(range) : std::nullopt;
 }
 
-int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile )
+int read_station_recode_definition( stn_recode_map *stt, std::string_view def, const std::string &basefile )
 {
     char msg[80+MAX_FILENAME_LEN];
     std::string codefrom;
@@ -707,7 +707,7 @@ int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefi
         else
         {
             std::string filename(*filenameField);
-            int sts=read_station_recode_file( stt, filename.c_str(), basefile );
+            int sts=read_station_recode_file( stt, filename.c_str(), basefile.c_str() );
             if( sts != OK )
             {
                 sprintf(msg,"Error reading station recode file %.*s",MAX_FILENAME_LEN,filename.c_str());

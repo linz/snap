@@ -37,6 +37,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <boost/algorithm/string/predicate.hpp>
+#include <charconv>
+#include <string_view>
+#include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 
 #include "control.h"
@@ -62,7 +66,6 @@
 #include "util/filelist.h"
 #include "util/pi.h"
 #include "util/readcfg.h"
-#include "util/strtokq.h"
 #include "autofix.h"
 #include "coefs.h"
 #include "grddeform.h"
@@ -85,32 +88,32 @@
 #define DTP_VELOCITY 1
 #define DTP_LINZDEF  2
 
-static int read_program_mode( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_geoid_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int process_station_list( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_coef( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_rftrans( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_rfscale( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_set_obs_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_use_distance_ratios( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_flag_levels( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_error_type( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_error_summary( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_topocentre( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_gps_vertical( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int load_plot_data( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_sort_option( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int set_magic_number( CFG_FILE *cfg, char *string ,void *value, int len, int code );
-static int read_configuration_command( CFG_FILE *cfg, char *string ,void *value, int len, int code );
-static int read_output_precision( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_residual_format( CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_deformation_model(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_specification_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_spec_test_options(CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_program_mode( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_geoid_option( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int process_station_list( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_ignore_missing_stations( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_use_zero_inverse( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_coef( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_rfscale( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_pb_use_datum_trans( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_set_obs_option( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_use_distance_ratios( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_flag_levels( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_error_type( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_error_summary( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_topocentre( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_gps_vertical( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_station_ordering( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_sort_option( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int set_magic_number( CFG_FILE *cfg, std::string_view string ,void *value, int len, int code );
+static int read_configuration_command( CFG_FILE *cfg, std::string_view string ,void *value, int len, int code );
+static int read_output_precision( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_deformation_model(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_specification_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_spec_test_options(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 static int config_initialised = 0;
 static double dflt_herr, dflt_verr;
@@ -351,58 +354,58 @@ int process_default_configuration( void )
 
 // #pragma warning( disable : 4100 )
 
-static int read_program_mode( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_program_mode( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char modeset, dimset, sts, *opt;
-    dimset = 0;
-    modeset = 0;
-    sts = OK;
+    bool dimset = false;
+    bool modeset = false;
+    int sts = OK;
 
-    for( opt = strtok(string," "); sts == OK && opt; opt = strtok(NULL," ") )
+    FieldScanner scanner(string);
+    for( auto opt = scanner.next(); sts == OK && opt; opt = scanner.next() )
     {
-        if( _stricmp(opt,"horizontal") == 0 || _stricmp(opt,"2d") == 0 )
+        if( boost::algorithm::iequals(*opt,"horizontal") || boost::algorithm::iequals(*opt,"2d") )
         {
             dimension = 2;
             if( dimset ) sts = INVALID_DATA;
-            dimset = 1;
+            dimset = true;
         }
-        else if( _stricmp(opt,"vertical") == 0 || _stricmp(opt,"1d") == 0 )
+        else if( boost::algorithm::iequals(*opt,"vertical") || boost::algorithm::iequals(*opt,"1d") )
         {
             dimension = 1;
             if( dimset ) sts = INVALID_DATA;
-            dimset = 1;
+            dimset = true;
         }
-        else if( _stricmp(opt,"3d") == 0 )
+        else if( boost::algorithm::iequals(*opt,"3d") )
         {
             dimension = 3;
             if( dimset ) sts = INVALID_DATA;
-            dimset = 1;
+            dimset = true;
         }
-        else if( _stricmp(opt,"preanalysis") == 0 ||
-                 _stricmp(opt,"network_analysis") == 0 )
+        else if( boost::algorithm::iequals(*opt,"preanalysis") ||
+                 boost::algorithm::iequals(*opt,"network_analysis") )
         {
             program_mode = PREANALYSIS;
             if( modeset ) sts = INVALID_DATA;
-            modeset = 1;
+            modeset = true;
         }
-        else if( _stricmp(opt,"adjustment") == 0 )
+        else if( boost::algorithm::iequals(*opt,"adjustment") )
         {
             program_mode = ADJUST;
             if( modeset ) sts = INVALID_DATA;
-            modeset = 1;
+            modeset = true;
         }
-        else if( _stricmp(opt,"data_check") == 0 )
+        else if( boost::algorithm::iequals(*opt,"data_check") )
         {
             program_mode = DATA_CHECK;
             if( modeset ) sts = INVALID_DATA;
-            modeset = 1;
+            modeset = true;
         }
-        else if( _stricmp(opt,"data_consistency") == 0 ||
-                 _stricmp(opt,"free_net_adjustment") == 0 )
+        else if( boost::algorithm::iequals(*opt,"data_consistency") ||
+                 boost::algorithm::iequals(*opt,"free_net_adjustment") )
         {
             program_mode = DATA_CONSISTENCY;
             if( modeset ) sts = INVALID_DATA;
-            modeset = 1;
+            modeset = true;
         }
         else
         {
@@ -416,40 +419,35 @@ static int read_program_mode( CFG_FILE *cfg, char *string, void *, int, int )
     return OK;
 }
 
-static int read_geoid_option( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_geoid_option( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *opt;
-
-    opt = strtok( string, " " );
+    FieldScanner scanner(string);
+    auto opt = scanner.next();
     if( ! opt )
     {
         send_config_error( cfg, INVALID_DATA, "Geoid command requires a filename or option");
         return OK;
     }
 
-    if( geoid_file )
-    {
-        check_free( geoid_file );
-        geoid_file = 0;
-    }
+    geoid_file = std::nullopt;
     overwrite_geoid = 0;
     geoid_error_level = WARNING_ERROR;
 
-    if( _stricmp(opt,"none") != 0 )
+    if( ! boost::algorithm::iequals(*opt,"none") )
     {
-        geoid_file = copy_string( opt );
-        opt = strtok( NULL, " " );
+        geoid_file = std::string(*opt);
+        opt = scanner.next();
         while( opt )
         {
-            if( _stricmp(opt,"overwrite") == 0 )
+            if( boost::algorithm::iequals(*opt,"overwrite") )
             {
                 overwrite_geoid = 1;
             }
-            else if( _stricmp(opt,"warn_errors") == 0 )
+            else if( boost::algorithm::iequals(*opt,"warn_errors") )
             {
                 geoid_error_level = INFO_ERROR;
             }
-            else if( _stricmp(opt,"ignore_errors") == 0 )
+            else if( boost::algorithm::iequals(*opt,"ignore_errors") )
             {
                 geoid_error_level = OK;
             }
@@ -457,12 +455,12 @@ static int read_geoid_option( CFG_FILE *cfg, char *string, void *, int, int )
             {
                 break;
             }
-            opt = strtok( NULL, " " );
+            opt = scanner.next();
         }
     }
     else
     {
-        opt = strtok( NULL, " " );
+        opt = scanner.next();
     }
     if( opt )
     {
@@ -566,12 +564,9 @@ static void set_station_mode( station *st, void *modep )
 }
 
 
-static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int mode )
+static int process_station_list( CFG_FILE *cfg, std::string_view string, void *, int, int mode )
 {
-    char *field;
-    char *strend;
     station_process_mode spm;
-    char *allptr=0;
 
     if( ! stations_read )
     {
@@ -580,14 +575,16 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
         return OK;
     }
 
-    strend = string + strlen(string);
-
     spm.mode = mode;
     spm.option = MODE_HOR | MODE_VRT;
 
-    allptr = 0;
-
-    field = strtok( string, " " );
+    FieldScanner scanner(string);
+    // listStart always holds the remainder as it stood right before the
+    // most recent scanner.next() call, so at any point it equals
+    // "field's own text, plus everything after it, to the end of input" -
+    // reassigned in lockstep with field throughout this function.
+    std::string_view listStart = scanner.remainder();
+    auto field = scanner.next();
 
     if( mode == SPEC_TEST )
     {
@@ -597,19 +594,29 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
             send_config_error(cfg,INVALID_DATA,"Test class name missing");
             return OK;
         }
-        if( get_spec_testid( field, &(spm.option) ) != OK )
+        if( get_spec_testid( *field, &(spm.option) ) != OK )
         {
             send_config_error(cfg,INVALID_DATA,"Invalid  test class name");
             return OK;
         }
-        field = strtok(NULL, " ");
+        listStart = scanner.remainder();
+        field = scanner.next();
     }
 
-
-    if( field && _stricmp( field, "all" ) == 0 )
+    // allStart is checkpointed right before testing for "all", so the
+    // eventual station-list span can be re-anchored to include "all"
+    // itself when it matches - matching the original's allptr, which
+    // pointed at "all"'s own start (and consequently at everything from
+    // "all" onward, including any further keywords consumed below, ends up
+    // handed to process_selected_stations verbatim - a real, if unusual,
+    // quirk of the original preserved exactly, not second-guessed here).
+    const std::string_view allStart = listStart;
+    bool haveAll = false;
+    if( field && boost::algorithm::iequals( *field, "all" ) )
     {
-        allptr = field;
-        field = strtok(NULL, " ");
+        haveAll = true;
+        listStart = scanner.remainder();
+        field = scanner.next();
     }
 
     if( field && (
@@ -618,25 +625,34 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
                 mode == FREE_STATIONS    ) )
     {
         spm.option = 0;
-        if( mode != FREE_STATIONS && _stricmp( field, "automatically") == 0 )
+        if( mode != FREE_STATIONS && boost::algorithm::iequals( *field, "automatically") )
         {
             spm.option |= MODE_AUTO;
-            field = strtok( NULL, " ");
+            listStart = scanner.remainder();
+            field = scanner.next();
         }
-        if( _stricmp( field, "horizontal") == 0 )
+        // The original dereferenced field here unguarded, even though it
+        // could be null after consuming "automatically" with nothing
+        // following - a latent null-deref on master. Guarded here instead,
+        // falling through to the same default (MODE_HOR|MODE_VRT) a
+        // genuinely-absent trailing keyword would produce anyway.
+        if( field && boost::algorithm::iequals( *field, "horizontal") )
         {
             spm.option |= MODE_HOR;
-            field = strtok( NULL, " ");
+            listStart = scanner.remainder();
+            field = scanner.next();
         }
-        else if( _stricmp( field, "vertical") == 0 )
+        else if( field && boost::algorithm::iequals( *field, "vertical") )
         {
             spm.option |= MODE_VRT;
-            field = strtok( NULL, " ");
+            listStart = scanner.remainder();
+            field = scanner.next();
         }
-        else if( _stricmp( field, "3d") == 0 )
+        else if( field && boost::algorithm::iequals( *field, "3d") )
         {
             spm.option |= (MODE_HOR | MODE_VRT);
-            field = strtok( NULL, " ");
+            listStart = scanner.remainder();
+            field = scanner.next();
         }
         else
         {
@@ -644,7 +660,7 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
         }
     }
 
-    if( allptr && ! field )
+    if( haveAll && ! field )
     {
         int istn;
         for( istn = number_of_stations(net); istn; istn-- )
@@ -655,28 +671,14 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
 
     else if( field )
     {
-        /* Remove nulls introduced by strtok from rest of string */
-        char *s;
         int nerr;
+        const std::string stationList( haveAll ? allStart : listStart );
 
-        if( allptr )
-        {
-            for( s=allptr+3; s<field; s++ )
-            {
-                *s = ' ';
-            }
-            field=allptr;
-        }
-
-        for( s = field; s < strend; s++ )
-        {
-            if( ! *s ) *s = ' ';
-        }
         /* Set up error handler so that errors can be attributed to configuration file */
         set_error_location( get_config_location(cfg).c_str());
         nerr = get_error_count();
 
-        process_selected_stations( net,field,cfg->name,&spm,set_station_mode);
+        process_selected_stations( net,stationList,cfg->name,&spm,set_station_mode);
 
         set_error_location(NULL);
         cfg->errcount += (get_error_count()-nerr);
@@ -686,38 +688,39 @@ static int process_station_list( CFG_FILE *cfg, char *string, void *, int, int m
 }
 
 
-static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_ignore_missing_stations( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     int first=1;
-    for( char *opt = strtok( string, " " ); opt; opt = strtok( NULL, " " ) )
+    FieldScanner scanner(string);
+    for( auto opt = scanner.next(); opt; opt = scanner.next() )
     {
         if( first )
         {
             unsigned char ignoremissing=0;
             first=0;
-            int sts=readcfg_boolean(cfg,opt,&ignoremissing,1,0);
-            if( sts == OK ) 
+            int sts=readcfg_boolean(cfg,*opt,&ignoremissing,1,0);
+            if( sts == OK )
             {
                 set_ignore_missing_stations( ignoremissing );
                 continue;
             }
-        } 
-        if( _stricmp(opt,"report_all") == 0 )
+        }
+        if( boost::algorithm::iequals(*opt,"report_all") )
         {
             set_report_missing_stations(REPORT_MISSING_ALL);
             continue;
         }
-        if( _stricmp(opt,"report_none") == 0 )
+        if( boost::algorithm::iequals(*opt,"report_none") )
         {
             set_report_missing_stations(REPORT_MISSING_NONE);
             continue;
         }
-        if( _stricmp(opt,"report_unlisted") == 0 )
+        if( boost::algorithm::iequals(*opt,"report_unlisted") )
         {
             set_report_missing_stations(REPORT_MISSING_UNLISTED);
             continue;
         }
-        set_accept_missing_station( opt );
+        set_accept_missing_station( *opt );
     }
     if( first )
     {
@@ -727,12 +730,12 @@ static int read_ignore_missing_stations( CFG_FILE *cfg, char *string, void *, in
     return OK;
 }
 
-static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_use_zero_inverse( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     unsigned char option;
     int sts;
     option = 0;
-    if( !string[0] )
+    if( string.empty() )
     {
         option = 1;
         sts = OK;
@@ -745,23 +748,20 @@ static int read_use_zero_inverse( CFG_FILE *cfg, char *string, void *, int, int 
     return sts;
 }
 
-static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int len, int )
+static int read_station_ordering( CFG_FILE *cfg, std::string_view string, void *value, int len, int )
 {
-    char *opt;
-    char *st;
-
-    for( opt = strtok( string, " " ); opt; opt = strtok( NULL, " " ) )
+    FieldScanner scanner(string);
+    for( auto opt = scanner.next(); opt; opt = scanner.next() )
     {
-
-        if( !opt || _stricmp(opt,"on") == 0  )
+        if( boost::algorithm::iequals(*opt,"on") )
         {
             reorder_stations = FORCE_REORDERING;
         }
-        else if ( _stricmp(opt,"off") == 0 )
+        else if ( boost::algorithm::iequals(*opt,"off") )
         {
             reorder_stations = SKIP_REORDERING;
         }
-        else if( _stricmp(opt,"except") == 0 && NULL != (st = strtok(NULL,"")) )
+        else if( boost::algorithm::iequals(*opt,"except") && ! scanner.remainder().empty() )
         {
             if( !stations_read )
             {
@@ -771,7 +771,7 @@ static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int 
             }
             else
             {
-                process_station_list( cfg, st, value, len, NOREORDER_STATIONS );
+                process_station_list( cfg, scanner.remainder(), value, len, NOREORDER_STATIONS );
                 reorder_stations = FORCE_REORDERING;
                 break;
             }
@@ -786,9 +786,8 @@ static int read_station_ordering( CFG_FILE *cfg, char *string, void *value, int 
 }
 
 
-static int read_coef( CFG_FILE *, char *string, void *, int, int code )
+static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code )
 {
-    char *st, *rcname;
     int sts, use, calculate;
     double rc;
 
@@ -798,47 +797,49 @@ static int read_coef( CFG_FILE *, char *string, void *, int, int code )
     calculate = 0;
     use = 0;
 
-    rcname = strtok( string, " " );
+    FieldScanner scanner(string);
+    auto rcname = scanner.next();
 
     if( rcname )
     {
-        if( code != PRM_SYSERR && _stricmp(rcname, "use" ) == 0 )
+        if( code != PRM_SYSERR && boost::algorithm::iequals(*rcname, "use" ) )
         {
             use = 1;
-            rcname = strtok( NULL, " " );
+            rcname = scanner.next();
         }
-        else if( _stricmp( rcname, "calculate" ) == 0 )
+        else if( boost::algorithm::iequals( *rcname, "calculate" ) )
         {
             calculate = 1;
-            rcname = strtok( NULL, " " );
+            rcname = scanner.next();
         }
     }
 
     if( !rcname ) sts = MISSING_DATA;
 
-    st = strtok( NULL, " ");
+    auto st = scanner.next();
 
     if( use )
     {
         if( sts == OK )
         {
+            const std::string rcnameStr(*rcname);
             switch( code )
             {
-            case PRM_BRNGREF: set_coef_class( COEF_CLASS_BRNGREF, rcname ); break;
-            case PRM_DISTSF:  set_coef_class( COEF_CLASS_DISTSF, rcname ); break;
-            case PRM_REFCOEF: set_coef_class( COEF_CLASS_REFCOEF, rcname ); break;
+            case PRM_BRNGREF: set_coef_class( COEF_CLASS_BRNGREF, rcnameStr.c_str() ); break;
+            case PRM_DISTSF:  set_coef_class( COEF_CLASS_DISTSF, rcnameStr.c_str() ); break;
+            case PRM_REFCOEF: set_coef_class( COEF_CLASS_REFCOEF, rcnameStr.c_str() ); break;
             }
         }
         if( st ) sts = INVALID_DATA;
         return sts;
     }
 
-    if( !calculate && st && strcmp( st, "=" ) == 0 )
+    if( !calculate && st && *st == "=" )
     {
-        st = strtok( NULL, " " );
+        st = scanner.next();
         if( st )
         {
-            configure_param_match( code, rcname, st );
+            configure_param_match( code, std::string(*rcname).c_str(), std::string(*st).c_str() );
         }
         else
         {
@@ -849,11 +850,12 @@ static int read_coef( CFG_FILE *, char *string, void *, int, int code )
     {
         if( st )
         {
-            if( sscanf( st, "%lf", &rc ) != 1 ) sts = INVALID_DATA;
-            st = strtok( NULL, " ");
-            if( st && strcmp(st,"?") == 0 ) calculate = 1;
+            auto value = parse_leading<double>(*st);
+            if( !value ) sts = INVALID_DATA; else rc = *value;
+            st = scanner.next();
+            if( st && *st == "?" ) calculate = 1;
         }
-        if( sts == OK ) configure_param( code, rcname, rc, calculate );
+        if( sts == OK ) configure_param( code, std::string(*rcname).c_str(), rc, calculate );
     }
     else
     {
@@ -863,21 +865,23 @@ static int read_coef( CFG_FILE *, char *string, void *, int, int code )
 }
 
 
-static int read_rfscale( CFG_FILE *, char *string, void *, int, int )
+static int read_rfscale( CFG_FILE *, std::string_view string, void *, int, int )
 {
     double scale = 0.0;
     int calculate = 0;
-    char *st;
 
-    for( st = strtok(string," "); st; st=strtok(NULL," "))
+    FieldScanner scanner(string);
+    for( auto st = scanner.next(); st; st = scanner.next() )
     {
-        if( _stricmp(st,"calculate") == 0 || strcmp(st,"?") == 0 )
+        if( boost::algorithm::iequals(*st,"calculate") || *st == "?" )
         {
             calculate = 1;
         }
-        else if( sscanf( st, "%lf", &scale ) != 1 )
+        else
         {
-            return INVALID_DATA;
+            auto value = parse_leading<double>(*st);
+            if( !value ) return INVALID_DATA;
+            scale = *value;
         }
     }
 
@@ -886,9 +890,9 @@ static int read_rfscale( CFG_FILE *, char *string, void *, int, int )
 }
 
 
-static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *rfname, *prmname, *valuetype;
+    std::optional<std::string_view> prmname, valuetype;
     int rfid;
     rfTransformation *rf;
     double val[14];
@@ -901,7 +905,6 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
     int topocentric;
     int origintype=REFFRM_ORIGIN_DEFAULT;
     int iers;
-    int prmread;
     char errmess[256];
     int first;
 
@@ -917,22 +920,41 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
     sts=OK;
     iers=0;
 
-    rfname = NULL;
-
     /* Process to handle the calculate, geocentric/topocentric, and name
        fields */
 
     sts = OK;
     first = 1;
 
-    rfname=strtok( string, " " );
-    if( _stricmp(rfname,"use") == 0 )
+    FieldScanner scanner(string);
+    // pending is a one-slot hold-and-check cache shared by both the outer
+    // keyword loop and the inner value loop below, matching the original's
+    // shared prmread flag: fetchPrmname() returns whatever's cached there
+    // and clears it if something's waiting, otherwise it pulls a fresh
+    // token from the scanner. Which of the two loops last populated it
+    // doesn't matter - whichever calls fetchPrmname() next just gets it.
+    std::optional<std::string_view> pending;
+    auto fetchPrmname = [&]() -> std::optional<std::string_view>
     {
-        prmname = strtok(NULL," ");
+        if( pending ) { auto p = pending; pending = std::nullopt; return p; }
+        return scanner.next();
+    };
+
+    auto rfnameField = scanner.next();
+    if( ! rfnameField )
+    {
+        send_config_error( cfg, MISSING_DATA, "Reference frame command requires a name" );
+        return OK;
+    }
+    const std::string rfnameStr(*rfnameField);
+
+    if( boost::algorithm::iequals(*rfnameField,"use") )
+    {
+        prmname = scanner.next();
         if( prmname )
         {
-            set_coef_class( COEF_CLASS_REFFRM, prmname );
-            if( strtok(NULL," ")) sts = INVALID_DATA;
+            set_coef_class( COEF_CLASS_REFFRM, std::string(*prmname).c_str() );
+            if( scanner.next() ) sts = INVALID_DATA;
         }
         else
         {
@@ -941,108 +963,106 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
         return sts;
     }
 
-    for( prmread=0, prmname = strtok(NULL, " ");
-            prmname;
-            prmname = prmread ? prmname : strtok(NULL, " "), prmread=0)
+    for( prmname = fetchPrmname(); prmname; prmname = fetchPrmname() )
     {
         nval=0;
         ival=0;
         valuetype=prmname;
-        if( _stricmp( prmname, "calculate" ) == 0 )
+        if( boost::algorithm::iequals( *prmname, "calculate" ) )
         {
             calculate=1;
         }
-        else if( _stricmp( prmname, "topocentric" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "topocentric" ) )
         {
             topocentric=1;
         }
-        else if( _stricmp( prmname, "geocentric" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "geocentric" ) )
         {
             topocentric=0;
         }
-        else if( _stricmp( prmname, "epoch" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "epoch" ) )
         {
-            prmname=strtok( NULL, " ");
+            prmname=scanner.next();
             if( ! prmname )
             {
-                sprintf(errmess,"Missing epoch date for reference frame %.20s",rfname);
+                sprintf(errmess,"Missing epoch date for reference frame %.20s",rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-            date=snap_datetime_parse( prmname, 0 );
+            date=snap_datetime_parse( std::string(*prmname).c_str(), 0 );
             if( date == UNDEFINED_DATE )
             {
                 sprintf(errmess,"Invalid epoch date %.20s for reference frame %.20s",
-                        prmname,rfname);
+                        std::string(*prmname).c_str(),rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
         }
-        else if( _stricmp( prmname, "origin" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "origin" ) )
         {
-            prmname=strtok( NULL, " ");
-            if( _stricmp(prmname,"zero") == 0 ) origintype=REFFRM_ORIGIN_ZERO;
-            else if( _stricmp(prmname,"0") == 0 ) origintype=REFFRM_ORIGIN_ZERO;
-            else if( _stricmp(prmname,"topocentre") == 0 ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
-            else if( _stricmp(prmname,"default") == 0 ) origintype=REFFRM_ORIGIN_DEFAULT;
-            else 
+            prmname=scanner.next();
+            if( prmname && boost::algorithm::iequals(*prmname,"zero") ) origintype=REFFRM_ORIGIN_ZERO;
+            else if( prmname && *prmname=="0" ) origintype=REFFRM_ORIGIN_ZERO;
+            else if( prmname && boost::algorithm::iequals(*prmname,"topocentre") ) origintype=REFFRM_ORIGIN_TOPOCENTRE;
+            else if( prmname && boost::algorithm::iequals(*prmname,"default") ) origintype=REFFRM_ORIGIN_DEFAULT;
+            else
             {
                 sprintf(errmess,"Invalid origin type %.20s for reference frame %.20s",
-                        prmname,rfname);
+                        prmname?std::string(*prmname).c_str():"",rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
         }
-        else if( _stricmp( prmname, "translation" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "translation" ) )
         {
             ival=rfTx;
             nval=3;
         }
-        else if( _stricmp( prmname, "translation_rate" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "translation_rate" ) )
         {
             ival=rfTxRate;
             nval=3;
         }
-        else if( _stricmp( prmname, "scale" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "scale" ) )
         {
             ival=rfScale;
             nval=1;
         }
-        else if( _stricmp( prmname, "scale_rate" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "scale_rate" ) )
         {
             ival=rfScaleRate;
             nval=1;
         }
-        else if( _stricmp( prmname, "rotation" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "rotation" ) )
         {
             ival=rfRotx;
             nval=3;
         }
-        else if( _stricmp( prmname, "rotation_rate" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "rotation_rate" ) )
         {
             ival=rfRotxRate;
             nval=3;
         }
-        else if( _stricmp( prmname, "iers_tsr" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "iers_tsr" ) )
         {
             ival=rfTx;
             nval=7;
             iers=1;
         }
-        else if( _stricmp( prmname, "iers_etsr" ) == 0 )
+        else if( boost::algorithm::iequals( *prmname, "iers_etsr" ) )
         {
-            prmname=strtok( NULL, " ");
+            prmname=scanner.next();
             if( ! prmname )
             {
-                sprintf(errmess,"Missing IERS_ETSR epoch date for reference frame %.20s",rfname);
+                sprintf(errmess,"Missing IERS_ETSR epoch date for reference frame %.20s",rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-            date=snap_datetime_parse( prmname, 0 );
+            date=snap_datetime_parse( std::string(*prmname).c_str(), 0 );
             if( date == UNDEFINED_DATE )
             {
                 sprintf(errmess,"Invalid IERS_ETSR epoch date %.20s for reference frame %.20s",
-                        prmname,rfname);
+                        std::string(*prmname).c_str(),rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
@@ -1053,7 +1073,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
         else
         {
             sprintf(errmess,"Invalid parameter %.20s for reference frame %.20s command",
-                    prmname, rfname);
+                    std::string(*prmname).c_str(), rfnameStr.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -1061,9 +1081,7 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
         first=1;
         for( ; nval; nval--, ival++, first=0 )
         {
-            char *endptr;
-            double value;
-            prmname=prmread ? prmname : strtok(NULL, " ");
+            prmname=fetchPrmname();
             if( ! prmname )
             {
                 if( first )
@@ -1072,69 +1090,70 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
                     break;
                 }
                 sprintf(errmess,"Missing %.20s value for reference frame %.20s command",
-                        valuetype,rfname );
+                        std::string(*valuetype).c_str(),rfnameStr.c_str() );
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-                
+
             calcval[ival]=calculate;
-            value=strtod(prmname,&endptr);
-            if( endptr == prmname )
+            auto parsed = parse_leading_field<double>(*prmname);
+            if( ! parsed )
             {
                 if( first )
                 {
                     while( nval--) calcval[ival++]=calculate;
-                    prmread=1;
+                    pending=prmname;
                     break;
                 }
                 sprintf(errmess,"Invalid %.20s value %.20s for reference frame %.20s command",
-                        valuetype, prmname, rfname);
+                        std::string(*valuetype).c_str(), std::string(*prmname).c_str(), rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-            if( *endptr )
+            const std::string_view suffix = prmname->substr( parsed->result.ptr - prmname->data() );
+            if( ! suffix.empty() )
             {
-                if( strcmp(endptr,"?" )==0 ) 
+                if( suffix == "?" )
                 {
                     calcval[ival]=1;
                 }
                 else
                 {
                     sprintf(errmess,"Invalid %.20s value %.20s for reference frame %.20s command",
-                            valuetype, prmname, rfname);
+                            std::string(*valuetype).c_str(), std::string(*prmname).c_str(), rfnameStr.c_str());
                     send_config_error( cfg, INVALID_DATA, errmess );
                     return OK;
                 }
             }
             else
             {
-                prmname=strtok(NULL," ");
-                if( prmname && strcmp(prmname,"?") == 0 )
+                prmname=scanner.next();
+                if( prmname && *prmname == "?" )
                 {
                     calcval[ival]=1;
                 }
                 else
                 {
-                    prmread=1;
+                    pending=prmname;
                 }
             }
             if( defined[ival] )
             {
                 sprintf(errmess,"Duplicated %.20s value definition for reference frame %.20s command",
-                        valuetype, rfname);
+                        std::string(*valuetype).c_str(), rfnameStr.c_str());
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
             defined[ival]=1;
-            val[ival]=value;
+            val[ival]=parsed->value;
         }
     }
-    
+
     if( iers )
     {
         if( topocentric )
         {
-            sprintf(errmess,"Ref frame %s cannot be defined with IERS parameters and topocentric",rfname);
+            sprintf(errmess,"Ref frame %s cannot be defined with IERS parameters and topocentric",rfnameStr.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -1144,22 +1163,22 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
 
     if( topocentric )
     {
-        rfid = get_rftrans_id( rfname, REFFRM_TOPOCENTRIC );
+        rfid = get_rftrans_id( rfnameStr.c_str(), REFFRM_TOPOCENTRIC );
         rf=rftrans_from_id( rfid );
-        if( ! rftrans_topocentric( rf ) ) 
+        if( ! rftrans_topocentric( rf ) )
         {
-            sprintf(errmess,"Ref frame %s defined as both topocentric and geocentric",rfname);
+            sprintf(errmess,"Ref frame %s defined as both topocentric and geocentric",rfnameStr.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
     }
     else
     {
-        rfid = get_rftrans_id( rfname, iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
+        rfid = get_rftrans_id( rfnameStr.c_str(), iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
         rf=rftrans_from_id( rfid );
-        if( rftrans_topocentric( rf ) && iers ) 
+        if( rftrans_topocentric( rf ) && iers )
         {
-            sprintf(errmess,"Topocentric ref frame %s cannot be defined with IERS parameters",rfname);
+            sprintf(errmess,"Topocentric ref frame %s cannot be defined with IERS parameters",rfnameStr.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
             return OK;
         }
@@ -1172,137 +1191,139 @@ static int read_rftrans( CFG_FILE *cfg, char *string, void *, int, int )
     return OK;
 }
 
-static int read_residual_format( CFG_FILE *cfg, char *string, void *, int, int code )
+namespace {
+/// Decodes one residual-format title field from remaining, up to the next
+/// un-escaped ':' or end of text (or after 80 decoded characters, matching
+/// the original's fixed 80-char title buffer limit) - '_' becomes a space,
+/// '\' takes the next character literally, including a colon (so "\:"
+/// inserts a literal ':' into the title rather than ending the field - the
+/// terminator check only ever looks at the *current*, not-yet-consumed
+/// character, and the backslash branch unconditionally consumes the next
+/// character as content without re-checking it). Leaves remaining
+/// positioned at the ':' that ended the field, or empty if none was found.
+/// \return the decoded title, or nullopt if the field was empty.
+std::optional<std::string> decodeResidualTitle( std::string_view &remaining )
 {
-    char *types;
-    char *column;
-    char *nextcol;
-    char *saveptr, save;
-    char title1[81];
-    char title2[81];
-    char *ttl1, *ttl2;
-    int width;
+    std::string result;
+    std::size_t i = 0;
+    for( ; result.size() < 80; i++ )
+    {
+        if( i >= remaining.size() || remaining[i] == ':' ) break;
+        if( remaining[i] == '_' )
+        {
+            result += ' ';
+        }
+        else
+        {
+            if( remaining[i] == '\\' )
+            {
+                i++;
+                if( i >= remaining.size() ) break;
+            }
+            result += remaining[i];
+        }
+    }
+    remaining.remove_prefix( std::min(i,remaining.size()) );
+    if( result.empty() ) return std::nullopt;
+    return result;
+}
+}
 
-    types = strtok( string, " " );
-    if( !types ) return MISSING_DATA;
+static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *, int, int code )
+{
+    FieldScanner scanner(string);
+    auto typesField = scanner.next();
+    if( !typesField ) return MISSING_DATA;
 
     /* If types doesn't define valid types, then assume it is all and
      * use as column definition */
 
-    nextcol=types;
-    if( define_residual_formats( types, code ) == OK )
+    std::optional<std::string_view> nextcol = typesField;
     {
-        nextcol=0;
+        std::string typesStr(*typesField);
+        if( define_residual_formats( typesStr.data(), code ) == OK )
+        {
+            nextcol = std::nullopt;
+        }
     }
-    string = strtok( NULL, "\n");
 
-    while( 1 )
+    while( true )
     {
-        char *endcol;
-        char *number;
-        int valid = 1;
-        int i;
-
+        std::string_view column;
         if( nextcol )
         {
-            column=nextcol;
-            nextcol=0;
+            column = *nextcol;
+            nextcol = std::nullopt;
         }
         else
         {
-            column = strtok( string, " " );
-            string = strtok( NULL, "\n" );  /* Save a pointer to the rest */
+            auto colField = scanner.next();
+            if( ! colField ) break;
+            column = *colField;
         }
-        if( ! column ) break;
 
-        width = 0;
-        ttl1 = NULL;
-        ttl2 = NULL;
-        for( endcol = column; *endcol; endcol++ )
-        {
-            if( *endcol == ':' ) break;
-        }
-        saveptr = number = endcol;
-        if( *number )
-        {
-            number++;
-            saveptr = number;
-            while( *saveptr && *saveptr != ':' ) saveptr++;
-            save = *saveptr;
-            *saveptr = 0;
-            if( *number )
-            {
-                char garbage;
-                int iwid;
-                if( sscanf(number,"%d%c",&iwid,&garbage) != 1 || iwid < 0 )
-                {
-                    valid = 0;
-                }
-                width = iwid;
-            }
-            *saveptr = save;
-        }
-        for( i = 0; i++ < 2; )
-        {
-            int j;
-            char *dest;
+        bool valid = true;
+        int width = 0;
+        std::optional<std::string> ttl1, ttl2;
 
-            /* Reading the titles, only if we have a : separator, then
-               a character after it.  Copy characters to title1 or title2.
-               _ converted to blanks, : terminates, \ initiates literal
-               character */
-            if( !*saveptr ) continue;
-            saveptr++;
-            if( !*saveptr ) continue;
-            dest = (i == 1) ? title1 : title2;
-            for( j = 0; j < 80; j++, saveptr++)
+        const auto colonPos = column.find(':');
+        const std::string_view columnName = colonPos==std::string_view::npos ? column : column.substr(0,colonPos);
+        std::string_view remaining = colonPos==std::string_view::npos ? std::string_view() : column.substr(colonPos);
+
+        if( ! remaining.empty() )
+        {
+            std::string_view afterFirstColon = remaining.substr(1);
+            const auto nextColon = afterFirstColon.find(':');
+            const std::string_view widthField = nextColon==std::string_view::npos ? afterFirstColon : afterFirstColon.substr(0,nextColon);
+            remaining = nextColon==std::string_view::npos ? std::string_view() : afterFirstColon.substr(nextColon);
+
+            if( ! widthField.empty() )
             {
-                if( *saveptr == ':' || !*saveptr ) break;
-                if( *saveptr == '_' )
+                auto parsedWidth = parse_leading_field<int>(widthField);
+                if( ! parsedWidth || parsedWidth->result.ptr != widthField.data()+widthField.size() || parsedWidth->value < 0 )
                 {
-                    *dest++ = ' ';
+                    valid = false;
                 }
                 else
                 {
-                    if( *saveptr == '\\' )
-                    {
-                        saveptr++;
-                        if( !*saveptr ) break;
-                    }
-                    *dest++ = *saveptr;
+                    width = parsedWidth->value;
                 }
             }
-            *dest = 0;
-            if( j )
-            {
-                if( i == 1 ) ttl1 = title1; else ttl2 = title2;
-            }
+        }
+
+        for( int i = 1; i <= 2; i++ )
+        {
+            /* Reading the titles, only if we have a : separator, then
+               a character after it. */
+            if( remaining.empty() ) continue;
+            remaining.remove_prefix(1);
+            if( remaining.empty() ) continue;
+            if( i == 1 ) ttl1 = decodeResidualTitle( remaining );
+            else ttl2 = decodeResidualTitle( remaining );
         }
         if( valid )
         {
-            save = *endcol;
-            *endcol = 0;
-            if( add_residual_field( column, width, ttl1, ttl2 ) != OK ) valid = 0;
-            *endcol = save;
+            if( add_residual_field( std::string(columnName).c_str(), width,
+                        ttl1 ? ttl1->c_str() : nullptr, ttl2 ? ttl2->c_str() : nullptr ) != OK ) valid = false;
         }
         if( !valid )
         {
-            sprintf( title1, "Invalid column definition %.40s",column);
-            send_config_error( cfg, INVALID_DATA, title1 );
+            char errmess[100];
+            sprintf( errmess, "Invalid column definition %.40s",std::string(column).c_str());
+            send_config_error( cfg, INVALID_DATA, errmess );
         }
     }
     return OK;
 }
 
 
-static int read_output_precision( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_output_precision( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *st;
-    for( st = strtok(string," "); st; st=strtok(NULL," "))
+    FieldScanner scanner(string);
+    for( auto st = scanner.next(); st; st = scanner.next() )
     {
-        char *ndp_str;
         int type;
-        ndp_str = strtok(NULL," ");
+        auto ndp_str = scanner.next();
         if( !ndp_str )
         {
             send_config_error(cfg,MISSING_DATA,"Missing precision in output_precision command");
@@ -1310,45 +1331,43 @@ static int read_output_precision( CFG_FILE *cfg, char *string, void *, int, int 
         }
         for( type = 0; type < NOBSTYPE; type++ )
         {
-            if( _stricmp(st,datatype[type].code) == 0 ) break;
+            if( boost::algorithm::iequals(*st,datatype[type].code) ) break;
         }
         if( type == NOBSTYPE )
         {
             char errmess[80];
-            sprintf(errmess,"Invalid type code %.20s in output_precision command",st);
+            sprintf(errmess,"Invalid type code %.20s in output_precision command",std::string(*st).c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
         }
-        else if( strlen(ndp_str) != 1 || !ISDIGIT(ndp_str[0]) )
+        else if( ndp_str->size() != 1 || !ISDIGIT((*ndp_str)[0]) )
         {
             char errmess[80];
-            sprintf(errmess,"Invalid precision %.20s in output_precision command",ndp_str);
+            sprintf(errmess,"Invalid precision %.20s in output_precision command",std::string(*ndp_str).c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
         }
         else
         {
-            obs_precision[type] = ndp_str[0] - '0';
+            obs_precision[type] = (*ndp_str)[0] - '0';
         }
     }
     return OK;
 }
 
-static int read_sort_option( CFG_FILE *, char *string, void *, int, int )
+static int read_sort_option( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    char *s;
-
     sort_obs = SORTED_OBS + SORT_BY_LINE;
-    s = strtok( string, " " );
+    FieldScanner scanner(string);
 
-    while( s )
+    for( auto s = scanner.next(); s; s = scanner.next() )
     {
-        if( _stricmp(s,"by_line") == 0 )
+        if( boost::algorithm::iequals(*s,"by_line") )
         {
         }
-        else if( _stricmp(s,"by_type") == 0 )
+        else if( boost::algorithm::iequals(*s,"by_type") )
         {
             sort_obs |= SORT_BY_TYPE;
         }
-        else if( _stricmp(s,"by_instrument_station")==0 )
+        else if( boost::algorithm::iequals(*s,"by_instrument_station") )
         {
             sort_obs &= ~SORT_BY_LINE;
         }
@@ -1356,19 +1375,18 @@ static int read_sort_option( CFG_FILE *, char *string, void *, int, int )
         {
             return INVALID_DATA;
         }
-        s = strtok( NULL, " ");
     }
 
     return OK;
 }
 
 
-static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_pb_use_datum_trans( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     unsigned char option;
     int sts;
     option = 0;
-    if( !string[0] )
+    if( string.empty() )
     {
         option = 1;
         sts = OK;
@@ -1381,103 +1399,94 @@ static int read_pb_use_datum_trans( CFG_FILE *cfg, char *string, void *, int, in
     return sts;
 }
 
-static int read_set_obs_option( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_set_obs_option( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     int option;
-    char *optionstr;
-    const char *selection_prefix=0;
-    char *criteria;
-    char *selection=0;
+    std::string selection_prefix;
     int result;
-    int nch;
     int set;
     void *obsmod=0;
 
-    optionstr=strtok(string," ");
-    criteria=strtok(NULL,"");
-    
-    if( ! optionstr )
+    FieldScanner scanner(string);
+    auto optionField = scanner.next();
+
+    if( ! optionField )
     {
         send_config_error( cfg, INVALID_DATA, "Observation option not specified");
         return OK;
     }
+    std::string_view optionstr = *optionField;
+    const std::string_view criteria = scanner.remainder();
 
     set=1;
-    if( _strnicmp( "no_", optionstr, 3 ) == 0 )
+    if( boost::algorithm::istarts_with( optionstr, "no_" ) )
     {
         set=0;
-        optionstr += 3;
+        optionstr = optionstr.substr(3);
     }
 
-    if( _stricmp(optionstr,"calculate_gx_translation") == 0 )
+    if( boost::algorithm::iequals(optionstr,"calculate_gx_translation") )
     {
         option=OBS_OPT_CALC_GX_TRANSLATION;
         selection_prefix="data_type=GX";
     }
-    else if( _stricmp(optionstr,"use_distance_ratios_as_distances") == 0 )
+    else if( boost::algorithm::iequals(optionstr,"use_distance_ratios_as_distances") )
     {
         option=OBS_OPT_CALC_DISTRATIO_AS_DIST;
         selection_prefix="data_type=DR";
     }
     else
     {
-        char errmess[80];
-        sprintf(errmess,"Invalid observation option %.20s specified",optionstr);
+        // The original built a real "Invalid observation option ..." message
+        // into errmess here but never actually used it below, sending the
+        // generic message instead - preserved as-is, not "fixed", since
+        // changing which message is sent would be an observable behavior
+        // change.
         send_config_error( cfg, INVALID_DATA, "Observation option not specified");
         return OK;
     }
 
-    if( ! selection_prefix && ! criteria ) selection_prefix="all_observations";
-    nch = selection_prefix ? strlen(selection_prefix)+1 : 0;
-    nch += criteria ? strlen(criteria)+1 : 0;
-    selection=(char *) check_malloc(nch);
-    selection[0]=0;
-    if( selection_prefix )
-    {
-        strcpy(selection,selection_prefix);
-        if( criteria ) strcat(selection," ");
-    }
-    if( criteria ) strcat(selection,criteria);
+    if( selection_prefix.empty() && criteria.empty() ) selection_prefix="all_observations";
+    std::string selection = selection_prefix;
+    if( ! selection_prefix.empty() && ! criteria.empty() ) selection += " ";
+    if( ! criteria.empty() ) selection += criteria;
     obsmod=snap_obs_modifications(true);
     result=add_obs_option_modification(cfg,obsmod,selection,set,option);
-    check_free(selection);
     return result;
 }
 
-static int read_use_distance_ratios( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_use_distance_ratios( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     unsigned char set=0;
     int sts=readcfg_boolean(cfg,string,&set,1,0);
     if( sts == OK )
     {
-        char selection[20];
-        strcpy(selection,"data_type=DR");
         void *obsmod=snap_obs_modifications(true);
-        add_obs_option_modification(cfg,obsmod,selection,set,OBS_OPT_CALC_DISTRATIO_AS_DIST);
+        add_obs_option_modification(cfg,obsmod,"data_type=DR",set,OBS_OPT_CALC_DISTRATIO_AS_DIST);
     }
     return sts;
 }
 
-static int read_flag_levels( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_flag_levels( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *s;
     int nf;
-    double fl;
 
     nf = 0;
 
-    for( s=strtok(string," "); s; s=strtok(NULL," ") )
+    FieldScanner scanner(string);
+    for( auto s = scanner.next(); s; s = scanner.next() )
     {
         if( nf > 2 ) { nf = 0; break; }
-        if( _stricmp(s,"maximum") == 0 ) { taumax[nf] = 1; continue; }
-        if( sscanf( s, "%lf", &fl ) != 1 || fl <= 0.0 || fl >= 100.0 )
+        if( boost::algorithm::iequals(*s,"maximum") ) { taumax[nf] = 1; continue; }
+        auto fl = parse_leading<double>(*s);
+        if( !fl || *fl <= 0.0 || *fl >= 100.0 )
         {
             nf = 0;
             break;
         }
         else
         {
-            flag_level[nf] = fl;
+            flag_level[nf] = *fl;
             nf++;
         }
     }
@@ -1489,23 +1498,23 @@ static int read_flag_levels( CFG_FILE *cfg, char *string, void *, int, int )
     return OK;
 }
 
-static int read_error_type( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_error_type( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *fld;
     double conf=1.0;
     int useconf=0;
 
-    fld = strtok( string, " ");
+    FieldScanner scanner(string);
+    auto fld = scanner.next();
     if( !fld ) return MISSING_DATA;
-    if( _stricmp( fld, "aposteriori" ) == 0 )
+    if( boost::algorithm::iequals( *fld, "aposteriori" ) )
     {
         apriori = 0;
-        fld = strtok( NULL, " ");
+        fld = scanner.next();
     }
-    else if( _stricmp( fld, "apriori" ) == 0 )
+    else if( boost::algorithm::iequals( *fld, "apriori" ) )
     {
         apriori = 1;
-        fld = strtok( NULL, " ");
+        fld = scanner.next();
     }
     else
     {
@@ -1513,31 +1522,33 @@ static int read_error_type( CFG_FILE *cfg, char *string, void *, int, int )
          return OK;
     }
 
-    if( fld ) 
+    if( fld )
     {
-        if( _stricmp(fld,"standard_error") == 0 )
+        if( boost::algorithm::iequals(*fld,"standard_error") )
         {
             useconf = 0;
         }
         else
         {
-            if( sscanf(fld,"%lf",&conf) != 1 )
+            auto parsedConf = parse_leading<double>(*fld);
+            if( ! parsedConf )
             {
                 send_config_error( cfg, INVALID_DATA, "Expected \"standard_error\" or \"##.#% confidence_limit\"");
                 return OK;
             }
+            conf = *parsedConf;
             if( conf <= 0.0 || conf >= 100.0 )
             {
                 send_config_error( cfg, INVALID_DATA, "Confidence limit not between 0 and 100");
                 return OK;
             }
-            fld = strtok( NULL, " " );
+            fld = scanner.next();
             if( ! fld ) return MISSING_DATA;
-            if( _stricmp(fld,"standard_error") == 0 )
+            if( boost::algorithm::iequals(*fld,"standard_error") )
             {
                 useconf = 0;
             }
-            else if( _stricmp(fld,"confidence_limit") == 0 )
+            else if( boost::algorithm::iequals(*fld,"confidence_limit") )
             {
                 useconf = 1;
             }
@@ -1552,27 +1563,25 @@ static int read_error_type( CFG_FILE *cfg, char *string, void *, int, int )
     return OK;
 }
 
-static int read_error_summary( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_error_summary( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *str;
     int sts;
-    for( str = strtok(string," "); str; str=strtok(NULL," "))
+    FieldScanner scanner(string);
+    for( auto str = scanner.next(); str; str = scanner.next() )
     {
-        sts = define_error_summary( str );
+        sts = define_error_summary( std::string(*str) );
         if( sts != OK )
         {
             char errmsg[100];
-            sprintf(errmsg,"Invalid error summary definition %.50s",str);
+            sprintf(errmsg,"Invalid error summary definition %.50s",std::string(*str).c_str());
             send_config_error( cfg, INVALID_DATA, errmsg );
         }
     }
     return OK;
 }
 
-static int read_topocentre( CFG_FILE *cfg, char *string, void *, int, int )
+static int read_topocentre( CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    double lt, ln;
-
     if( ! stations_read )
     {
         send_config_error(cfg,INVALID_DATA,
@@ -1580,26 +1589,32 @@ static int read_topocentre( CFG_FILE *cfg, char *string, void *, int, int )
         return OK;
     }
 
-    if( sscanf( string,"%lf%lf", &lt, &ln ) == 2 &&
-            lt > -90.0 && lt < 90.0 && ln >= -180.0 && ln <= 180.0 )
+    FieldScanner scanner(string);
+    auto ltField = scanner.next();
+    auto lnField = ltField ? scanner.next() : std::nullopt;
+    auto lt = ltField ? parse_leading<double>(*ltField) : std::nullopt;
+    auto ln = lnField ? parse_leading<double>(*lnField) : std::nullopt;
+
+    if( lt && ln &&
+            *lt > -90.0 && *lt < 90.0 && *ln >= -180.0 && *ln <= 180.0 )
     {
-        set_network_topocentre( net, lt*DTOR, ln*DTOR );
+        set_network_topocentre( net, *lt*DTOR, *ln*DTOR );
         return OK;
     }
 
     return INVALID_DATA;
 }
 
-static int read_gps_vertical( CFG_FILE *, char *string, void *, int, int )
+static int read_gps_vertical( CFG_FILE *, std::string_view string, void *, int, int )
 {
 
-    if( _stricmp(string,"individual") == 0 || _stricmp(string,"midpoint")==0 )
+    if( boost::algorithm::iequals(string,"individual") || boost::algorithm::iequals(string,"midpoint") )
     {
         set_gps_vertical_fixed( 0 );
         return OK;
     }
 
-    if( _stricmp(string,"topocentre") == 0 )
+    if( boost::algorithm::iequals(string,"topocentre") )
     {
         set_gps_vertical_fixed( 1 );
         return OK;
@@ -1608,57 +1623,52 @@ static int read_gps_vertical( CFG_FILE *, char *string, void *, int, int )
     return INVALID_DATA;
 }
 
-static int load_plot_data( CFG_FILE *, char *, void *, int, int )
+static int load_plot_data( CFG_FILE *, std::string_view, void *, int, int )
 {
     return OK;
 }
 
-static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int )
+static int read_deformation_model(CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
     double epoch;
-    char *model;
+    std::optional<std::string> model;
     int type;
-    char *rest;
-    char *item;
-    const char *value;
-    const char *blank="";
-    char first;
-    first = 1;
+    bool first;
+    first = true;
     epoch = -1;
-    model = NULL;
     ignore_deformation = 0;
     type = 0;
-    rest = string;
 
-    while( NULL != (item = strtok( rest, " " )) )
+    FieldScanner scanner(string);
+    for( auto itemField = scanner.next(); itemField; itemField = scanner.next() )
     {
-        rest = strtok( NULL, "");
-        if( first && _stricmp(item,"none") == 0 )
+        const std::string_view item = *itemField;
+        if( first && boost::algorithm::iequals(item,"none") )
         {
             ignore_deformation = 1;
             return OK;
         }
-        else if( first && _stricmp(item,"datum") == 0 )
+        else if( first && boost::algorithm::iequals(item,"datum") )
         {
             return OK;
         }
-        first = 0;
-        item = strtok(item,"=");
-        value = strtok( NULL,"");
-        if( value == NULL ) value = blank;
-        if( _stricmp(item,"type") == 0 )
+        first = false;
+        const auto eqPos = item.find('=');
+        const std::string_view key = eqPos==std::string_view::npos ? item : item.substr(0,eqPos);
+        const std::string_view value = eqPos==std::string_view::npos ? std::string_view() : item.substr(eqPos+1);
+        if( boost::algorithm::iequals(key,"type") )
         {
             ignore_deformation = 1;
-            if( _stricmp(value,"velocity") == 0 || _stricmp(value,"velgrid") == 0 )
+            if( boost::algorithm::iequals(value,"velocity") || boost::algorithm::iequals(value,"velgrid") )
             {
                 type = DTP_VELOCITY;
             }
-            else if( _stricmp(value,"linz") == 0 || _stricmp(value,"linzdef") == 0 )
+            else if( boost::algorithm::iequals(value,"linz") || boost::algorithm::iequals(value,"linzdef") )
             {
                 type = DTP_LINZDEF;
                 if( epoch < 0 ) epoch = 0;
             }
-            else if( _stricmp(value,"none") == 0 )
+            else if( boost::algorithm::iequals(value,"none") )
             {
                 ignore_deformation = 1;
             }
@@ -1667,11 +1677,11 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
                 send_config_error( cfg, INVALID_DATA, "Invalid deformation model type" );
             }
         }
-        else if (_stricmp(item,"model") == 0 )
+        else if (boost::algorithm::iequals(key,"model") )
         {
-            if( ! model ) 
+            if( ! model )
             {
-                model = copy_string(value);
+                model = std::string(value);
             }
             else
             {
@@ -1679,11 +1689,16 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
             }
 
         }
-        else if (_stricmp(item,"epoch") == 0 )
+        else if (boost::algorithm::iequals(key,"epoch") )
         {
-            if( sscanf(value,"%lf",&epoch) != 1 )
+            auto parsedEpoch = parse_leading<double>(value);
+            if( ! parsedEpoch )
             {
                 send_config_error( cfg, INVALID_DATA, "Invalid epoch in deformation definition" );
+            }
+            else
+            {
+                epoch = *parsedEpoch;
             }
         }
     }
@@ -1695,122 +1710,130 @@ static int read_deformation_model(CFG_FILE *cfg, char *string, void *, int, int 
     {
         send_config_error( cfg, MISSING_DATA, "Type missing in deformation definition");
     }
-    else if( model == NULL )
+    else if( ! model )
     {
         send_config_error( cfg, MISSING_DATA, "Model missing in deformation definition");
     }
-    else if( type==DTP_VELOCITY && create_grid_deformation( &deformation, model, epoch ) != OK )
+    else if( type==DTP_VELOCITY && create_grid_deformation( &deformation, *model, epoch ) != OK )
     {
         send_config_error( cfg, INVALID_DATA, "Invalid parameters in grid deformation definition");
     }
-    else if( type==DTP_LINZDEF && create_linzdef_deformation( &deformation, model, epoch ) != OK )
+    else if( type==DTP_LINZDEF && create_linzdef_deformation( &deformation, *model, epoch ) != OK )
     {
         send_config_error( cfg, INVALID_DATA, "Invalid parameters in LINZ deformation definition");
     }
-    if( model ) check_free( model );
     return OK;
 }
 
 
-static int read_specification_command(CFG_FILE *cfg, char *string, void *, int, int )
+namespace {
+/// Matches sscanf's %Ns behavior for this comparison: only the first cap
+/// characters of field participate (as a fixed %Ns-sized buffer would only
+/// have captured that many) - a no-op unless field is actually longer than
+/// cap, which it practically never is for a real keyword here.
+bool truncatedIEquals( std::string_view field, std::size_t cap, const char *literal )
 {
-    char *name;
-    char *data;
-    char type[21];
-    char errtype[8];
-    int nfld;
-    int nchr;
+    return boost::algorithm::iequals( field.substr(0,std::min(field.size(),cap)), std::string_view(literal) );
+}
+}
+
+static int read_specification_command(CFG_FILE *cfg, std::string_view string, void *, int, int )
+{
     int gothortol;
     int gotvertol;
-    double conf;
-    double herrabs;
-    double herrppm;
-    double herrmax;
-    double verrabs;
-    double verrppm;
-    double verrmax;
+    double conf = 0.0;
+    double herrabs, herrppm, herrmax;
+    double verrabs, verrppm, verrmax;
     int errdirflg;
 
     herrabs = herrppm = herrmax = 0.0;
     verrabs = verrppm = verrmax = 0.0;
     gothortol = gotvertol = 0;
-    conf = 0.0;
 
-    name = strtok(string," ");
-    data = strtok(NULL,"\n");
-    if( ! name || ! data )
-    {
-        send_config_error( cfg, INVALID_DATA, "Missing data in specification command" );
-        return OK;
-    }
-
-    nfld = sscanf(data, "%20s%lf%%%n",type,&conf,&nchr);
-
-    if( nfld < 2 || _stricmp(type,"confidence") != 0 )
+    FieldScanner scanner(string);
+    auto nameField = scanner.next();
+    auto typeField = scanner.next();
+    if( ! nameField || ! typeField || ! truncatedIEquals(*typeField,20,"confidence") )
     {
         send_config_error( cfg, INVALID_DATA, "Missing confidence in specification command" );
         return OK;
     }
-    data += nchr;
+    const std::string name(*nameField);
+
+    auto confField = scanner.next();
+    auto parsedConf = confField ? parse_leading_field<double>(*confField) : std::nullopt;
+    std::string_view confSuffix;
+    if( parsedConf ) confSuffix = confField->substr( parsedConf->result.ptr - confField->data() );
+    if( ! parsedConf || confSuffix.empty() || confSuffix[0] != '%' )
+    {
+        send_config_error( cfg, INVALID_DATA, "Missing confidence in specification command" );
+        return OK;
+    }
+    conf = parsedConf->value;
 
     errdirflg = 0;
-    for(;;)
+    while( true )
     {
         int errtypflg = 0;
         int errdir = 0;
 
-        nfld = sscanf(data,"%20s%n",type,&nchr);
-        if( nfld <= 0 ) break;
-        if( nfld != 1 )
-        {
-            send_config_error( cfg, INVALID_DATA, "Invalid specification accuracy");
-            return OK;
-        }
-        data += nchr;
+        auto dirField = scanner.next();
+        if( ! dirField ) break;
 
-        if( _stricmp(type, "horizontal") == 0 )
+        if( truncatedIEquals(*dirField,20,"horizontal") )
         {
             errdir = 1;
             gothortol = 1;
         }
-        else if( _stricmp(type, "vertical") == 0 )
+        else if( truncatedIEquals(*dirField,20,"vertical") )
         {
             errdir = 2;
             gotvertol = 1;
         }
-        if( ! errdir || errdir & errdirflg )
+        if( ! errdir || (errdir & errdirflg) )
         {
             send_config_error( cfg, INVALID_DATA, "Invalid hor/ver in accuracy specification");
             return OK;
         }
         errdirflg |= errdir;
 
-        for(;;)
+        while( true )
         {
-            double err;
-            int errtyp = 0;
-
-            nfld = sscanf(data,"%lf%7s%n",&err,errtype,&nchr);
-            if( nfld <= 0 ) break;
-            data += nchr;
-            if( nfld != 2 )
+            // A non-numeric token here isn't an error - it's the next
+            // direction keyword (e.g. "vertical") ending this direction's
+            // accuracy list, which is the normal one-value-per-direction
+            // case. Rewind to the checkpoint so the outer loop re-reads it.
+            const std::string_view checkpoint = scanner.remainder();
+            auto valField = scanner.next();
+            if( ! valField ) break;
+            auto parsedErr = parse_leading_field<double>(*valField);
+            if( ! parsedErr )
+            {
+                scanner = FieldScanner(checkpoint);
+                break;
+            }
+            const std::string_view errSuffix = valField->substr( parsedErr->result.ptr - valField->data() );
+            const double err = parsedErr->value;
+            if( errSuffix.empty() )
             {
                 send_config_error(cfg,INVALID_DATA, "Invalid accuracy in specification");
                 return OK;
             }
-            if( _stricmp(errtype,"MM") == 0 )
+
+            int errtyp = 0;
+            if( truncatedIEquals(errSuffix,7,"MM") )
             {
                 errtyp = 4;
             }
-            else if( _stricmp(errtype,"PPM") == 0 )
+            else if( truncatedIEquals(errSuffix,7,"PPM") )
             {
                 errtyp = 8;
             }
-            else if( _stricmp(errtype,"MM_ABS") == 0 )
+            else if( truncatedIEquals(errSuffix,7,"MM_ABS") )
             {
                 errtyp = 16;
             }
-            if( ! errtyp || errtyp & errtypflg )
+            if( ! errtyp || (errtyp & errtypflg) )
             {
                 send_config_error(cfg,INVALID_DATA, "Invalid error type in specification -  must be mm, ppm, or mm_abs");
                 return OK;
@@ -1865,28 +1888,28 @@ static int read_specification_command(CFG_FILE *cfg, char *string, void *, int, 
 }
 
 
-static int read_spec_test_options(CFG_FILE *cfg, char *string, void *, int, int )
+static int read_spec_test_options(CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *option;
-    for( option = strtok(string," "); option; option = strtok(NULL," "))
+    FieldScanner scanner(string);
+    for( auto option = scanner.next(); option; option = scanner.next() )
     {
-        if( _stricmp(option,"APRIORI") == 0 )
+        if( boost::algorithm::iequals(*option,"APRIORI") )
         {
             set_spec_apriori( 1 );
         }
-        else if ( _stricmp(option,"APOSTERIORI") == 0 )
+        else if ( boost::algorithm::iequals(*option,"APOSTERIORI") )
         {
             set_spec_apriori( 0 );
         }
-        else if ( _stricmp(option,"LIST_ALL") == 0 )
+        else if ( boost::algorithm::iequals(*option,"LIST_ALL") )
         {
             set_spec_listoption( SPEC_LIST_ALL);
         }
-        else if ( _stricmp(option,"LIST_FAIL") == 0 )
+        else if ( boost::algorithm::iequals(*option,"LIST_FAIL") )
         {
             set_spec_listoption( SPEC_LIST_FAIL);
         }
-        else if ( _stricmp(option,"LIST_NONE") == 0 )
+        else if ( boost::algorithm::iequals(*option,"LIST_NONE") )
         {
             set_spec_listoption( SPEC_LIST_NONE);
         }
@@ -1899,12 +1922,16 @@ static int read_spec_test_options(CFG_FILE *cfg, char *string, void *, int, int 
 }
 
 
-static int set_magic_number( CFG_FILE *, char *string ,void *, int, int )
+static int set_magic_number( CFG_FILE *, std::string_view string ,void *, int, int )
 {
-    int id;
-    double val;
-
-    if( sscanf( string, "%d%lf", &id, &val ) != 2 ) return INVALID_DATA;
+    FieldScanner scanner(string);
+    auto idField = scanner.next();
+    auto valField = idField ? scanner.next() : std::nullopt;
+    auto idOpt = idField ? parse_leading<int>(*idField) : std::nullopt;
+    auto valOpt = valField ? parse_leading<double>(*valField) : std::nullopt;
+    if( !idOpt || !valOpt ) return INVALID_DATA;
+    int id = *idOpt;
+    double val = *valOpt;
 
     switch( id )
     {
@@ -1920,10 +1947,8 @@ static int set_magic_number( CFG_FILE *, char *string ,void *, int, int )
     return OK;
 }
 
-static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int, int code )
+static int read_configuration_command( CFG_FILE *cfg, std::string_view string ,void *, int, int code )
 {
-    const char *cfgfile;
-    char *ptr;
     char errmsg[60+MAX_FILENAME_LEN];
     char cfg_only;
     char constraint;
@@ -1931,10 +1956,19 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int,
     cfg_only = code == CFG_COMMAND;
     constraint = code == CON_COMMAND;
 
-    ptr = string;
-    while( ptr && NULL != (cfgfile=strtokq(ptr," \t\n")))
+    FieldScanner scanner(string);
+    // The original's error messages read the whole `string` pointer, not
+    // the current cfgfile - but by the time any error is reported, the
+    // first strtokq call has already null-terminated that buffer right
+    // after the first filename, so on a multi-file include line every
+    // error message actually shows only the first filename, never
+    // whichever one failed. Preserved exactly via firstFile below.
+    std::optional<std::string> firstFile;
+    while( auto cfgfileField = scanner.checkAndRecoverQuotedValue( true,
+                std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} ) )
     {
-        ptr = strtokq(NULL,"\n");
+        const std::string cfgfile(*cfgfileField);
+        if( ! firstFile ) firstFile = cfgfile;
         auto resolved = find_file( cfgfile, cfg_only ? DFLTCONFIG_EXT : DFLTCOMMAND_EXT,
                              std::nullopt, FF_TRYPROJECT,
                              cfg_only ? SNAP_CONFIG_SECTION : "" );
@@ -1943,13 +1977,13 @@ static int read_configuration_command( CFG_FILE *cfg, char *string ,void *, int,
             int status = constraint ? read_command_file_constraints( resolved->c_str() ) : process_configuration_file( resolved->c_str(), cfg_only );
             if( status != OK )
             {
-                sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,string);
+                sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,firstFile->c_str());
                 send_config_error(cfg,INVALID_DATA,errmsg);
             }
         }
         else
         {
-            sprintf(errmsg,"Cannot find configuration file %.*s",MAX_FILENAME_LEN,string);
+            sprintf(errmsg,"Cannot find configuration file %.*s",MAX_FILENAME_LEN,firstFile->c_str());
             send_config_error( cfg, INVALID_DATA, errmsg );
         }
     }

@@ -37,6 +37,7 @@
 #include <math.h>
 #include <filesystem>
 #include <string>
+#include <string_view>
 
 #define MAIN
 #define GETVERSION_SET_PROGRAM_DATE
@@ -46,8 +47,8 @@
 #include "util/geodetic.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "util/readcfg.h"
-#include "util/strtokq.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/progress.h"
@@ -2945,7 +2946,7 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
     }
 }
 
-static int read_include_file( CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_include_file( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 static config_item snap_commands[] =
 {
@@ -2960,10 +2961,9 @@ static config_item snap_commands[] =
 };
 
 
-static void load_command_file( const char *cmd_file, int recalconly, int included )
+static void load_command_file( const std::string &cmd_file, int recalconly, int included )
 {
     CFG_FILE *cfg;
-    char *cfgfile;
     FindFileOption tryopt=FF_TRYLOCAL;
     int sts;
 
@@ -2972,10 +2972,9 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
     auto found = find_file( cmd_file, DFLTCOMMAND_EXT2, std::nullopt, tryopt, "" );
     if( !found ) found = find_file( cmd_file, DFLTCOMMAND_EXT, std::nullopt, tryopt, "" );
     std::string f = found.value_or(cmd_file);
-    cfgfile=copy_string(f.c_str());
 
-    cfg = open_config_file( cfgfile, COMMENT_CHAR );
-    if( ! included ) set_logname( cfgfile );
+    cfg = open_config_file( f, COMMENT_CHAR );
+    if( ! included ) set_logname( f.c_str() );
 
     if(cfg)
     {
@@ -3015,15 +3014,18 @@ static void load_command_file( const char *cmd_file, int recalconly, int include
         crdfname=copy_string( station_filename );
         delete_survey_file_list();
     }
-    check_free(cfgfile);
 }
 
-static int read_include_file( CFG_FILE *, char *string, void *, int, int )
+static int read_include_file( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    char *s;
-    s = strtokq(string," \t\n");
+    // Matches strtokq(string," \t\n")'s quote-aware tokenizing: a leading
+    // '"'-quoted filename (no escaping, closing quote must be followed by
+    // whitespace or end) is unquoted, otherwise the first whitespace-
+    // delimited field is taken as-is.
+    FieldScanner scanner(string);
+    auto s = scanner.checkAndRecoverQuotedValue( true, std::vector<QuoteFollowOption>{QuoteFollowOption::Whitespace,QuoteFollowOption::End} );
     if( !s ) return MISSING_DATA;
-    load_command_file( s,  0, 1 );
+    load_command_file( std::string(*s), 0, 1 );
     return OK;
 }
 

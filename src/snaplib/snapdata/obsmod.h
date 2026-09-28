@@ -18,6 +18,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 
 #define OBS_MOD_IGNORE   1
 #define OBS_MOD_REJECT   2
@@ -40,21 +41,21 @@ void set_obs_modifications_network( void *obsmod, network *nw );
 /* Crude fix to avoid snapdata dependency on snap.  Would be nicer with environment pointer.
  * For C++ rewrite! */
 
-typedef int (*fileid_func)(char *filename, file_context *context);
+typedef int (*fileid_func)(std::string_view filename, file_context *context);
 typedef std::string (*filename_func)(int ifile);
 void set_obs_modifications_file_func( void *obsmod, fileid_func idfunc, filename_func namefunc );
 
 /* Add modifications based on a string specifying multiple criteria */
-int add_obs_modifications( CFG_FILE *cfg, void *obsmod, char *modifications, int action, double errval1, double errval2 );
+int add_obs_modifications( CFG_FILE *cfg, void *obsmod, std::string_view modifications, int action, double errval1, double errval2 );
 
 /* Set or unset observation modifications */
-int add_obs_option_modification( CFG_FILE *cfg, void *obsmod, char *criteria, int set, int option );
+int add_obs_option_modification( CFG_FILE *cfg, void *obsmod, std::string_view criteria, int set, int option );
 
 /* Add modifications criteria based on a classification name and list of values */
-int add_obs_modifications_classification( CFG_FILE *cfg, void *obsmod, char *classification, char *value, int action, double err_factor, int missing_error );
+int add_obs_modifications_classification( CFG_FILE *cfg, void *obsmod, std::string_view classification, std::string_view value, int action, double err_factor, int missing_error );
 
 /* Add modifications for data file error factor */
-int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *obsmod, int fileid, const char *filename, double factor );
+int add_obs_modifications_datafile_factor( CFG_FILE *cfg, void *obsmod, int fileid, const std::string &filename, double factor );
 
 /* Determine the observation stations based upon the criteria.  Returns a flag specifying 
  * ignoring, rejecting, and reweighting observations, and the error factor
@@ -74,6 +75,6 @@ bool obsmod_ignore_datafile( void *obsmod, int file_id );
 int check_obsmod_station_criteria_codes( void *pobsmod, network *nw );
 
 /* Summarise the observation modifications */
-void summarize_obs_modifications( void *obsmod, FILE *lst, const char *prefix );
+void summarize_obs_modifications( void *obsmod, FILE *lst, const std::string &prefix );
 
 #endif /* _OBSMOD_HPP */

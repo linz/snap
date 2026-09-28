@@ -16,6 +16,9 @@
 #include "network/network.h"
 #endif
 
+#include <string>
+#include <string_view>
+
 #define RECODE_UNUSED      0
 #define RECODE_USED        1
 #define RECODE_STN_CREATED 2
@@ -86,7 +89,7 @@ int recodes_used( stn_recode_map *stt );
 void add_stn_recode_to_map( stn_recode_map *stt, 
         const char *codefrom, const char *codeto, double datefrom, double dateto );
 
-int read_station_recode_definition( stn_recode_map *stt, char *def, char *basefile );
+int read_station_recode_definition( stn_recode_map *stt, std::string_view def, const std::string &basefile );
 
 void print_stn_recode_list( FILE *out, stn_recode_map *stt, int onlyused, int stn_name_width, const char *prefix );
 

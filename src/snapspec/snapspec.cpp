@@ -1694,30 +1694,23 @@ static int setup_hv_mode( int hvmode, hSDCTest hsdc, stn_relacc_array *ra )
 
 
 
-static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_test_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    char *name;
-    char *data;
-    char type[21];
-    char errtype[5];
-    int nfld;
-    int nchr;
     int notest;
-    double err;
     int errdirflg;
     int errdirflgv;
     hSDCOrderTest test;
     hSDCTest hsdc = * (hSDCTest *) value;
 
-    name = strtok(string," ");
-    data = strtok(NULL,"\n");
-    if( ! name || ! data )
+    FieldScanner scanner(string);
+    auto nameField = scanner.next();
+    if( ! nameField || scanner.remainder().empty() )
     {
         send_config_error( cfg, INVALID_DATA, "Missing data in specification command" );
         return OK;
     }
 
-    if( strlen(name) > SYSCODE_LEN )
+    if( nameField->size() > SYSCODE_LEN )
     {
         send_config_error( cfg, INVALID_DATA, "Order name too long in test command");
         return OK;
@@ -1732,8 +1725,7 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
     test = hsdc->tests+hsdc->norder;
     hsdc->norder++;
     test->idOrder = hsdc->norder;
-    strncpy( test->scOrder, name, SYSCODE_LEN );
-    test->scOrder[SYSCODE_LEN] = 0;
+    copy_field( *nameField, test->scOrder, SYSCODE_LEN+1 );
 
     test->blnAutoRange = BLN_FALSE;
     test->dblRange = 0.0;
@@ -1757,78 +1749,86 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
     errdirflgv = 0;
     notest=0;
 
-    for(;;)
+    while( true )
     {
         int errtypflg = 0;
         int errdir = 0;
         int vflag = 0;
         int haveppm = 0;
 
-        nfld = sscanf(data,"%20s%n",type,&nchr);
-        if( nfld <= 0 ) break;
-        if( nfld != 1 )
-        {
-            send_config_error( cfg, INVALID_DATA, "Invalid specification accuracy");
-            return OK;
-        }
-        data += nchr;
+        auto typeField = scanner.next();
+        if( ! typeField ) break;
+        const std::string_view type = *typeField;
 
-        if( _stricmp(type,"no_test") == 0 )
+        if( boost::algorithm::iequals(type,"no_test") )
         {
             notest=1;
             continue;
         }
 
-        if( _stricmp(type,"autorange") == 0 )
+        if( boost::algorithm::iequals(type,"autorange") )
         {
             test->blnAutoRange = BLN_TRUE;
             continue;
         }
-        if( _stricmp(type,"range") == 0 )
+        if( boost::algorithm::iequals(type,"range") )
         {
-            nfld = sscanf(data,"%lf%4s%n",&err,errtype,&nchr);
-            if( nfld != 2 || strcmp(errtype,"m") != 0 )
+            auto valField = scanner.next();
+            auto parsedRange = valField ? parse_leading_field<double>(*valField) : std::nullopt;
+            if( ! parsedRange )
             {
                 send_config_error(cfg,INVALID_DATA, "Invalid range in specification");
                 return OK;
             }
-            data += nchr;
-            test->dblRange = err;
+            std::string_view rangeSuffix = valField->substr( parsedRange->result.ptr - valField->data() );
+            if( rangeSuffix.empty() )
+            {
+                // The unit may be a separate whitespace-delimited token
+                // ("300 m"), not just glued onto the number ("300m").
+                auto unitField = scanner.next();
+                rangeSuffix = unitField ? *unitField : std::string_view();
+            }
+            if( rangeSuffix != "m" )
+            {
+                send_config_error(cfg,INVALID_DATA, "Invalid range in specification");
+                return OK;
+            }
+            test->dblRange = parsedRange->value;
             continue;
         }
-        if( _stricmp(type,"min_rel_acc") == 0 )
+        if( boost::algorithm::iequals(type,"min_rel_acc") )
         {
-            int minrel;
-            nfld = sscanf(data,"%d%n",&minrel,&nchr);
-            if( nfld != 1 )
+            auto valField = scanner.next();
+            auto minrel = valField ? parse_leading<int>(*valField) : std::nullopt;
+            if( ! minrel )
             {
                 send_config_error(cfg,INVALID_DATA, "Invalid minimum number of relative accuracy tests in specification");
                 return OK;
             }
-            data += nchr;
-            test->iMinRelAcc = minrel;
+            test->iMinRelAcc = *minrel;
             continue;
         }
 
         if( type[0] == 'h' || type[0] == 'v' )
         {
             vflag = type[0] == 'v' ? 64 : 0;
+            const std::string_view dir = type.substr(1);
 
-            if( _stricmp(type+1, "_abs_max") == 0 )
+            if( boost::algorithm::iequals(dir, "_abs_max") )
             {
                 errdir = 1;
             }
-            else if( _stricmp(type+1, "_rel_to_control") == 0 )
+            else if( boost::algorithm::iequals(dir, "_rel_to_control") )
             {
                 errdir = 2;
                 haveppm = 1;
             }
-            else if( _stricmp(type+1, "_rel") == 0 )
+            else if( boost::algorithm::iequals(dir, "_rel") )
             {
                 errdir = 4;
                 haveppm = 1;
             }
-            else if( _stricmp(type+1, "_rel_min_abs") == 0 )
+            else if( boost::algorithm::iequals(dir, "_rel_min_abs") )
             {
                 errdir = 8;
             }
@@ -1853,24 +1853,42 @@ static int read_test_command(CFG_FILE *cfg, char *string, void *value, int, int 
             errdirflg |= errdir;
         }
 
-        for(;;)
+        while( true )
         {
-            double err;
             int errtyp = haveppm ? 0 : 32;
 
-            nfld = sscanf(data,"%lf%4s%n",&err,errtype,&nchr);
-            if( nfld <= 0 ) break;
-            data += nchr;
-            if( nfld != 2 )
+            // A non-numeric token here isn't an error - it's the next
+            // type/direction keyword ending this accuracy list, which is
+            // the normal one-value case. Rewind so the outer loop re-reads
+            // it (matches the fix in control.cpp's read_specification_command).
+            const std::string_view checkpoint = scanner.remainder();
+            auto valField = scanner.next();
+            if( ! valField ) break;
+            auto parsedErr = parse_leading_field<double>(*valField);
+            if( ! parsedErr )
             {
-                send_config_error(cfg,INVALID_DATA, "Invalid accuracy in specification");
-                return OK;
+                scanner = FieldScanner(checkpoint);
+                break;
             }
-            if( _stricmp(errtype,"MM") == 0 )
+            std::string_view errSuffix = valField->substr( parsedErr->result.ptr - valField->data() );
+            const double err = parsedErr->value;
+            if( errSuffix.empty() )
+            {
+                // The unit may be a separate whitespace-delimited token
+                // ("300 mm"), not just glued onto the number ("300mm").
+                auto unitField = scanner.next();
+                if( ! unitField )
+                {
+                    send_config_error(cfg,INVALID_DATA, "Invalid accuracy in specification");
+                    return OK;
+                }
+                errSuffix = *unitField;
+            }
+            if( boost::algorithm::iequals(errSuffix,"MM") )
             {
                 errtyp = 16;
             }
-            else if( _stricmp(errtype,"PPM") == 0 && haveppm )
+            else if( haveppm && boost::algorithm::iequals(errSuffix,"PPM") )
             {
                 errtyp = 32;
             }
@@ -1961,34 +1979,35 @@ static void set_priority( station *st, void *data )
     if( istn > 0 ) p->ra->priority[istn-1] = p->order;
 }
 
-static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_limit_order_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
     limit_order_params p;
-    char *name;
-    char *data;
     int nerr;
 
-    name = strtok(string," ");
-    data = strtok(NULL,"\n");
-    if( ! name || ! data )
+    FieldScanner scanner(string);
+    auto nameField = scanner.next();
+    if( ! nameField || scanner.remainder().empty() )
     {
         send_config_error( cfg, INVALID_DATA, "Missing order or station list in limit_order command" );
         return OK;
     }
 
-    if( strlen(name) > SYSCODE_LEN )
+    if( nameField->size() > SYSCODE_LEN )
     {
         send_config_error( cfg, INVALID_DATA, "Order name too long in limit_order command");
         return OK;
     }
 
     p.ra = * (stn_relacc_array **) value;
-    p.order = find_order(p.ra->hsdc,name);
+    const std::string name(*nameField);
+    p.order = find_order(p.ra->hsdc,name.c_str());
     if( p.order == -1 )
     {
         send_config_error( cfg, INVALID_DATA, "Unrecognised order in limit_order command");
         return OK;
     }
+
+    const std::string data( scanner.remainder() );
 
     set_error_location( get_config_location(cfg).c_str());
     nerr = get_error_count();
@@ -2001,7 +2020,7 @@ static int read_limit_order_command(CFG_FILE *cfg, char *string, void *value, in
     return OK;
 }
 
-static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_ignore_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
     limit_order_params p;
     int nerr;
@@ -2012,7 +2031,8 @@ static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int, in
     set_error_location( get_config_location(cfg).c_str());
     nerr = get_error_count();
 
-    process_selected_stations( net,string,cfg->name,&p,set_max_order);
+    const std::string data( string );
+    process_selected_stations( net,data,cfg->name,&p,set_max_order);
 
     set_error_location(NULL);
     cfg->errcount += (get_error_count()-nerr);
@@ -2020,31 +2040,32 @@ static int read_ignore_command(CFG_FILE *cfg, char *string, void *value, int, in
     return OK;
 }
 
-static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_set_priority_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
     limit_order_params p;
-    char *prioritystr;
-    char *data;
-    char check;
-    int priority;
     int nerr;
 
-    prioritystr = strtok(string," ");
-    data = strtok(NULL,"\n");
-    if( ! prioritystr || ! data )
+    FieldScanner scanner(string);
+    auto priorityField = scanner.next();
+    if( ! priorityField || scanner.remainder().empty() )
     {
         send_config_error( cfg, INVALID_DATA, "Missing priority or station_list in set_priority command" );
         return OK;
     }
 
-    if( sscanf(prioritystr,"%d%c",&priority,&check) != 1 || priority < 0 )
+    auto parsedPriority = parse_leading_field<int>(*priorityField);
+    const bool fullyConsumed = parsedPriority &&
+        parsedPriority->result.ptr == priorityField->data() + priorityField->size();
+    if( ! fullyConsumed || parsedPriority->value < 0 )
     {
         send_config_error( cfg, INVALID_DATA, "Invalid priority in set_priority command - must be a positive number");
         return OK;
     }
 
     p.ra = * (stn_relacc_array **) value;
-    p.order = priority;
+    p.order = parsedPriority->value;
+
+    const std::string data( scanner.remainder() );
 
     set_error_location( get_config_location(cfg).c_str());
     nerr = get_error_count();
@@ -2057,10 +2078,13 @@ static int read_set_priority_command(CFG_FILE *cfg, char *string, void *value, i
     return OK;
 }
 
-static int read_confidence(CFG_FILE *cfg, char *string, void *, int, int )
+static int read_confidence(CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    if( sscanf(string,"%lf%%",&test_confidence) < 1 ||
-            test_confidence <= 0 || test_confidence >= 100 )
+    FieldScanner scanner(string);
+    auto field = scanner.next();
+    auto confidence = field ? parse_leading<double>(*field) : std::nullopt;
+    if( confidence ) test_confidence = *confidence;
+    if( ! confidence || test_confidence <= 0 || test_confidence >= 100 )
     {
         send_config_error( cfg, INVALID_DATA, "Invalid confidence in specification");
     }
@@ -2068,15 +2092,15 @@ static int read_confidence(CFG_FILE *cfg, char *string, void *, int, int )
 }
 
 
-static int read_error_type(CFG_FILE *cfg, char *string, void *, int, int )
+static int read_error_type(CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char error_type[32];
-    sscanf(string,"%31s",error_type);
-    if( _stricmp(error_type,"apriori") == 0 )
+    FieldScanner scanner(string);
+    auto field = scanner.next();
+    if( field && boost::algorithm::iequals(*field,"apriori") )
     {
         test_apriori = 1;
     }
-    else if( _stricmp(error_type,"aposteriori") == 0 )
+    else if( field && boost::algorithm::iequals(*field,"aposteriori") )
     {
         test_apriori = 0;
     }
@@ -2269,11 +2293,11 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
     return sts;
 }
 
-static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_configuration_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_options_command(CFG_FILE *cfg, char *string, void *value, int len, int code ); 
-static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
-static int read_output_file_command(CFG_FILE *cfg, char *string, void *value, int len, int code );
+static int read_station_config_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_configuration_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_options_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
+static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 static config_item cfg_commands[] =
 {
@@ -2299,20 +2323,21 @@ static config_item cfg_commands[] =
 
 // #pragma warning ( default : 4305 )
 
-static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, int )
+static int read_configuration_command(CFG_FILE *cfg, std::string_view string, void *, int, int )
 {
-    char *basecfn;
     std::optional<std::string> cfn;
     CFG_FILE *cfg2;
     cfg_stack *stack;
     int nerr;
 
-    basecfn = strtok(string," \t\n");
-    if( ! basecfn )
+    FieldScanner scanner(string);
+    auto basecfnField = scanner.next();
+    if( ! basecfnField )
     {
         send_config_error( cfg, INVALID_DATA, "Configuration file name missing");
         return OK;
     }
+    const std::string basecfn(*basecfnField);
     cfn = find_file( basecfn, ".cfg", std::optional<std::string>(cfg->name), FF_TRYALL, "snapspec" );
 
     if( cfn )
@@ -2326,7 +2351,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
         if( recurse )
         {
             char buf[120];
-            sprintf(buf,"Error - recursive load of configuration %.60s",basecfn);
+            sprintf(buf,"Error - recursive load of configuration %.60s",basecfn.c_str());
             send_config_error(cfg, INVALID_DATA,buf);
             return OK;
         }
@@ -2337,7 +2362,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     if( !cfg2 )
     {
         char buf[120];
-        sprintf(buf,"Cannot open configuration file %.60s",basecfn);
+        sprintf(buf,"Cannot open configuration file %.60s",basecfn.c_str());
         send_config_error( cfg, INVALID_DATA, buf);
         return OK;
     }
@@ -2359,7 +2384,7 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     if( nerr > 0 )
     {
         char buf[120];
-        sprintf(buf,"Errors processing configuration file %.60s",basecfn);
+        sprintf(buf,"Errors processing configuration file %.60s",basecfn.c_str());
         send_config_error( cfg, INVALID_DATA, buf);
         return OK;
     }
@@ -2367,39 +2392,41 @@ static int read_configuration_command(CFG_FILE *cfg, char *string, void *, int, 
     return OK;
 }
 
-static int read_station_config_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_station_config_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    char *stcfgfn;
-    char *format;
-    char *remainder;
     std::optional<std::string> cfn;
     int csv=0;
 
-    stcfgfn = strtok(string," \t\n");
-    if( ! stcfgfn )
+    FieldScanner scanner(string);
+    auto fileField = scanner.next();
+    if( ! fileField )
     {
         send_config_error( cfg, INVALID_DATA, "Station configuration file name missing");
         return OK;
     }
+    const std::string stcfgfn(*fileField);
 
-    format=strtok(NULL," \t\n");
-    remainder=strtok(NULL," \t\n");
-    if( format )
+    auto formatField = scanner.next();
+    auto extraField = scanner.next();
+    std::optional<std::string_view> invalidField;
+    if( formatField )
     {
-        if( _stricmp(format,"csv") == 0 )
+        if( boost::algorithm::iequals(*formatField,"csv") )
         {
             csv=1;
+            invalidField = extraField;
         }
         else
         {
-            remainder=format;
+            invalidField = formatField;
         }
     }
-    if( remainder )
+    if( invalidField )
     {
+        const std::string bad(*invalidField);
         char buf[150];
         sprintf(buf,"Error - invalid format %.60s in station_configuration_file command",
-                remainder);
+                bad.c_str());
         send_config_error(cfg, INVALID_DATA, buf );
         return OK;
     }
@@ -2420,79 +2447,79 @@ static int read_station_config_command(CFG_FILE *cfg, char *string, void *value,
     else
     {
         char buf[100+MAX_FILENAME_LEN];
-        sprintf(buf,"Cannot open station configuration file %.*s",MAX_FILENAME_LEN,stcfgfn);
+        sprintf(buf,"Cannot open station configuration file %.*s",MAX_FILENAME_LEN,stcfgfn.c_str());
         send_config_error( cfg, INVALID_DATA, buf);
     }
     return OK;
 }
 
-static int read_options_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_options_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    char *option;
     stn_relacc_array *ra = * (stn_relacc_array **) value;
-    for( option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
+    FieldScanner scanner(string);
+    for( auto option = scanner.next(); option; option = scanner.next() )
     {
-        if( _stricmp(option,"limit_orders_by_control") == 0 
-                || _stricmp(option,"auto_min_order") == 0 )
+        if( boost::algorithm::iequals(*option,"limit_orders_by_control")
+                || boost::algorithm::iequals(*option,"auto_min_order") )
         {
             ra->autominorder=1;
         }
-        else if( _stricmp(option,"no_rel_acc_by_abs_optimisation") == 0 )
+        else if( boost::algorithm::iequals(*option,"no_rel_acc_by_abs_optimisation") )
         {
             ra->hsdc->options |= SDC_OPT_NO_SHORTCIRCUIT_CVR;
         }
-        else if( _stricmp(option,"strict_rel_acc_by_abs_optimisation") == 0 )
+        else if( boost::algorithm::iequals(*option,"strict_rel_acc_by_abs_optimisation") )
         {
             ra->hsdc->options |= SDC_OPT_STRICT_SHORTCIRCUIT_CVR;
         }
-        else if( _stricmp(option,"ignore_constrained_stations") == 0 )
+        else if( boost::algorithm::iequals(*option,"ignore_constrained_stations") )
         {
             ra->ignoreconstrained=1;
         }
-        else if( _stricmp(option,"test_horizontal") == 0 )
+        else if( boost::algorithm::iequals(*option,"test_horizontal") )
         {
             ra->hvmode=SRA_HVMODE_HOR;
         }
-        else if( _stricmp(option,"test_vertical") == 0 )
+        else if( boost::algorithm::iequals(*option,"test_vertical") )
         {
             ra->hvmode=SRA_HVMODE_VRT;
         }
-        else if( _stricmp(option,"test_3d") == 0 )
+        else if( boost::algorithm::iequals(*option,"test_3d") )
         {
             ra->hvmode=SRA_HVMODE_3D;
         }
-        else if( _stricmp(option,"split_output_crd_by_order") == 0 )
+        else if( boost::algorithm::iequals(*option,"split_output_crd_by_order") )
         {
             ra->splitcrdfile=1;
         }
-        else if( _stricmp(option,"use_covariance_cache") == 0 )
+        else if( boost::algorithm::iequals(*option,"use_covariance_cache") )
         {
             ra->usecache=1;
         }
         else
         {
+            const std::string opt(*option);
             char errmsg[100];
             sprintf(errmsg,"Invalid value %.40s in option command",
-                    option);
+                    opt.c_str());
             send_config_error(cfg, INVALID_DATA, errmsg );
         }
     }
     return OK;
 }
 
-static int read_output_file_command(CFG_FILE *cfg, char *string, void *value, int len, int code )
+static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
-    const char *option=strtok(string," \t\n"); 
-    if( ! option || strlen(option) == 0 )
-    {
-        option=default_output_filename;
-    }
-    *(char **) value=copy_string(option);
+    FieldScanner scanner(string);
+    auto optionField = scanner.next();
+    const std::string option( ( ! optionField || optionField->empty() ) ?
+        std::string(default_output_filename) : std::string(*optionField) );
+    *(char **) value=copy_string(option.c_str());
     return OK;
 }
 
 
-static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int, int )
+static int read_log_level_command(CFG_FILE *cfg, std::string_view string, void *value, int, int )
 {
     hSDCTest sdc=*(hSDCTest *) value;
     int level;
@@ -2502,42 +2529,44 @@ static int read_log_level_command(CFG_FILE *cfg, char *string, void *value, int,
     }
     else
     {
-        for( char *option=strtok(string," \t\n"); option; option=strtok(NULL," \t\n") )
+        FieldScanner scanner(string);
+        for( auto option = scanner.next(); option; option = scanner.next() )
         {
             level=0;
-            if( _stricmp(option,"steps") == 0 )
+            if( boost::algorithm::iequals(*option,"steps") )
             {
                 level=SDC_LOG_STEPS;
             }
-            else if( _stricmp(option,"test_details") == 0 )
+            else if( boost::algorithm::iequals(*option,"test_details") )
             {
                 level=SDC_LOG_TESTS;
             }
-            else if( _stricmp(option,"accuracy_calcs") == 0 )
+            else if( boost::algorithm::iequals(*option,"accuracy_calcs") )
             {
                 level=SDC_LOG_CALCS;
             }
-            else if( _stricmp(option,"distance_calcs") == 0 )
+            else if( boost::algorithm::iequals(*option,"distance_calcs") )
             {
                 level=SDC_LOG_DISTS;
             }
-            else if( _stricmp(option,"rel_acc_calcs") == 0 )
+            else if( boost::algorithm::iequals(*option,"rel_acc_calcs") )
             {
                 level=SDC_LOG_CALCS2;
             }
-            else if( _stricmp(option,"debug") == 0 )
+            else if( boost::algorithm::iequals(*option,"debug") )
             {
                 level=SDC_LOG_ALL;
             }
-            else if( _stricmp(option,"timing") == 0 )
+            else if( boost::algorithm::iequals(*option,"timing") )
             {
                 level=SDC_LOG_TIMESTAMP;
             }
             else
             {
+                const std::string opt(*option);
                 char errmsg[100];
                 sprintf(errmsg,"Invalid value %.40s in option command",
-                        option);
+                        opt.c_str());
                 send_config_error(cfg, INVALID_DATA, errmsg );
                 continue;
             }
