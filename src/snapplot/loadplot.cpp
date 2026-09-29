@@ -18,7 +18,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <forward_list>
 #include <string>
+#include <string_view>
 
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
@@ -30,7 +32,6 @@
 #include "snap/bindata.h"
 #include "util/classify.h"
 #include "snap/bearing.h"
-#include "util/chkalloc.h"
 #include "snapplot_util.h"
 
 
@@ -38,67 +39,61 @@
 
 struct missing_stn
 {
-    struct missing_stn *next;
-    char *code;
-    int id;
+    missing_stn( std::string_view code, int id ) : code(code), id(id)
+    {}
+
+    const std::string code;
+    const int id;
 };
 
-static missing_stn *missing = NULL;
+/// Stations used in the data files but absent from the coordinate file,
+/// kept sorted by stncodecmp. Nodes never move, so a code's c_str() stays
+/// valid until the list is cleared.
+static std::forward_list<missing_stn> missing;
 static int missing_id = 0;
 
-static int missing_station_id( const char *code )
+/// Returns the id for a missing station code, adding it to the list if it
+/// is not there already.
+static int missing_station_id( std::string_view code )
 {
-    missing_stn *ms, *prev, *newstn;
-    if( !code ) return 0;
-    for( ms = missing, prev = NULL; ms; prev = ms, ms = ms->next )
+    auto previous = missing.before_begin();
+    for( auto station = missing.begin(); station != missing.end(); previous = station, ++station )
     {
-        int cmp;
-        cmp = stncodecmp( ms->code, code );
-        if( cmp == 0 ) return ms->id;
+        const int cmp = stncodecmp( station->code, code );
+        if( cmp == 0 ) return station->id;
         if( cmp > 0 ) break;
     }
-    newstn = (missing_stn *) check_malloc( sizeof(missing_stn) + strlen(code) + 1 );
-    newstn->next = ms;
-    if( prev ) prev->next = newstn; else missing = newstn;
-    newstn->id = --missing_id;
-    newstn->code = ((char *)(void *)newstn)+sizeof(missing_stn);
-    strcpy( newstn->code, code );
-    return newstn->id;
+    return missing.emplace_after( previous, code, --missing_id )->id;
 }
 
-static char *missing_station_name( int id )
+/// Returns the code of the missing station with the given id, or nullptr
+/// if there is none.
+static const char *missing_station_name( int id )
 {
-    missing_stn *ms;
-    for( ms = missing; ms; ms = ms->next )
+    for( const missing_stn &station : missing )
     {
-        if( ms->id == id ) return ms->code;
+        if( station.id == id ) return station.code.c_str();
     }
-    return NULL;
+    return nullptr;
 }
 
+/// Empties the missing station list and restarts id numbering.
 static void delete_missing_station_list( void )
 {
-    missing_stn *ms;
-    while( missing )
-    {
-        ms = missing->next;
-        check_free( missing );
-        missing = ms;
-    }
+    missing.clear();
     missing_id = 0;
 }
 
 static void list_missing_stations( void )
 {
-    missing_stn *ms;
     int nline = 0;
-    if( !missing ) return;
+    if( missing.empty() ) return;
     print_log("\nThe following station codes are used in the data files\n");
     print_log("but are not listed in the coordinate file\n");
-    for( ms = missing; ms; ms = ms->next )
+    for( const missing_stn &station : missing )
     {
         if( nline == 6 ) { print_log("\n"); nline = 0; }
-        print_log("  %-10s",ms->code);
+        print_log("  %-10s",station.code.c_str());
         nline++;
     }
     /* TODO: Fix up this ...                       */
@@ -114,7 +109,7 @@ static int64_t snap_id( int type, int group_id, const char *code )
     switch (type)
     {
     case ID_STATION:    id = find_station( net, code );
-        if( id == 0 ) id = missing_station_id( code );
+        if( id == 0 && code ) id = missing_station_id( code );
         break;
     case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
     case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
