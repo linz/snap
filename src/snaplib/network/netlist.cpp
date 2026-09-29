@@ -11,10 +11,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <algorithm>
+#include <cctype>
+#include <string_view>
 #include "util/snapctype.h"
 #include <assert.h>
 
 #include "network/network.h"
+#include "util/fieldscanner.hpp"
 #include "util/linklist.h"
 #include "util/chkalloc.h"
 #include "util/errdef.h"
@@ -103,22 +107,26 @@ void sl_remove_station( station_list *sl, station *st )
 }
 
 
-int stncodecmp( const char *s1, const char *s2 )
+/// Compares two station codes, returning negative if s1 sorts before s2,
+/// zero if they are equal and positive if s1 sorts after s2. Letters are
+/// compared ignoring case, and codes whose first run of digits starts at the
+/// same place after equal text are ordered by the value of that run, so
+/// "AB9" sorts before "AB10".
+int stncodecmp(
+    std::string_view s1,   ///< the first station code
+    std::string_view s2 )  ///< the second station code
 {
-    long l1, l2;
-    while( *s1 && *s2 && TOLOWER(*s1) == TOLOWER(*s2) && ! ISDIGIT(*s1) )
+    const auto isDigit = []( unsigned char ch ) { return std::isdigit( ch ) != 0; };
+    const size_t digits1 = std::find_if( s1.begin(), s1.end(), isDigit ) - s1.begin();
+    const size_t digits2 = std::find_if( s2.begin(), s2.end(), isDigit ) - s2.begin();
+    if( digits1 == digits2 && digits1 < s1.size() && digits1 < s2.size()
+        && compare_ignoring_case( s1.substr(0,digits1), s2.substr(0,digits1) ) == 0 )
     {
-        s1++;
-        s2++;
+        const long number1 = parse_leading<long>( s1.substr(digits1) ).value_or(0);
+        const long number2 = parse_leading<long>( s2.substr(digits2) ).value_or(0);
+        if( number1 != number2 ) return number1 < number2 ? -1 : 1;
     }
-    if( ISDIGIT(*s1 ) && ISDIGIT(*s2) )
-    {
-        l1 = atol( s1 );
-        l2 = atol( s2 );
-        if( l1 < l2 ) return -1;
-        if( l1 > l2 ) return 1;
-    }
-    return _stricmp( s1, s2 );
+    return compare_ignoring_case( s1, s2 );
 }
 
 static  int stncodecmps( const void *code, const void *st )

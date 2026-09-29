@@ -3,6 +3,7 @@
 #include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
 #include <algorithm>
+#include <cctype>
 #include <charconv>
 #include <cstring>
 
@@ -111,6 +112,7 @@ std::optional<ParsedField<T>> parse_leading_field( std::string_view field )
     return r;
 }
 template std::optional<ParsedField<int>> parse_leading_field<int>( std::string_view );
+template std::optional<ParsedField<long>> parse_leading_field<long>( std::string_view );
 template std::optional<ParsedField<double>> parse_leading_field<double>( std::string_view );
 
 template <typename T>
@@ -121,6 +123,7 @@ std::optional<T> parse_leading( std::string_view field )
     return r->value;
 }
 template std::optional<int> parse_leading<int>( std::string_view );
+template std::optional<long> parse_leading<long>( std::string_view );
 template std::optional<double> parse_leading<double>( std::string_view );
 
 std::optional<double> parse_double( std::string_view field )
@@ -135,6 +138,13 @@ std::optional<double> parse_positive_double( std::string_view field )
     auto value = parse_double( field );
     if( value && *value <= 0.0 ) return std::nullopt;
     return value;
+}
+
+int compare_ignoring_case( std::string_view string1, std::string_view string2 )
+{
+    const auto foldedLess = []( unsigned char a, unsigned char b ) { return std::tolower(a) < std::tolower(b); };
+    if( std::lexicographical_compare( string1.begin(), string1.end(), string2.begin(), string2.end(), foldedLess ) ) return -1;
+    return std::lexicographical_compare( string2.begin(), string2.end(), string1.begin(), string1.end(), foldedLess ) ? 1 : 0;
 }
 
 void copy_field( std::string_view field, char *buf, int nbuf )

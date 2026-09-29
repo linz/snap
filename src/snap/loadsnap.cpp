@@ -141,16 +141,15 @@ void set_require_obs_date( int option )
 static missing_stn *get_missing_station( std::string_view code, int create )
 {
     missing_stn *ms, *prev;
-    const std::string codeStr(code);
     for( ms = missing, prev = NULL; ms; prev = ms, ms = ms->next )
     {
         int cmp;
-        cmp = stncodecmp( ms->code.c_str(), codeStr.c_str() );
+        cmp = stncodecmp( ms->code, code );
         if( cmp == 0 ) return ms;
         if( cmp > 0 ) break;
     }
     if( ! create ) return 0;
-    missing_stn *newst = new missing_stn( ms, codeStr, --missing_id );
+    missing_stn *newst = new missing_stn( ms, code, --missing_id );
     if( prev ) prev->next = newst; else missing = newst;
     return newst;
 }

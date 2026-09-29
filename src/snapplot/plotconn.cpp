@@ -1798,7 +1798,7 @@ int SresDef::compare( const SresDef &other ) const
         long diff = std::get<long>(cmpval) - std::get<long>(other.cmpval);
         return diff < 0 ? -1 : diff > 0 ? 1 : 0;
     }
-    return stncodecmp( std::get<std::string>(cmpval).c_str(), std::get<std::string>(other.cmpval).c_str() );
+    return stncodecmp( std::get<std::string>(cmpval), std::get<std::string>(other.cmpval) );
 }
 
 int SresDef::compare_from( const SresDef &other ) const

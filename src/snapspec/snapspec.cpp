@@ -1450,7 +1450,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
         for( j = 0; j <= hsdc->norder; j++ )
         {
             char *testorder = j < hsdc->norder ? hsdc->tests[j].scOrder : dfltOrder;
-            int cmp = stncodecmp(testorder,order.c_str());
+            int cmp = stncodecmp(testorder,order);
             if( cmp == 0 ) { order_lookup[i] = j; break; }
             if( sorted )
             {

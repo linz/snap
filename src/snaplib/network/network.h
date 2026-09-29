@@ -20,6 +20,7 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
 
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
@@ -413,7 +414,7 @@ station_list *reload_station_list( FILE *f );
 
 /* Station code comparison function */
 
-int stncodecmp( const char *s1, const char *s2 );
+int stncodecmp( std::string_view s1, std::string_view s2 );
 
 /* Functions for processing station offsets */
 

@@ -71,7 +71,7 @@ int sortobj::compare( const sortobj &other ) const
     {
         return std::get<int>(value) - std::get<int>(other.value);
     }
-    return stncodecmp( std::get<std::string>(value).c_str(), std::get<std::string>(other.value).c_str() );
+    return stncodecmp( std::get<std::string>(value), std::get<std::string>(other.value) );
 }
 
 #define BUF_SIZE 1024

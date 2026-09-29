@@ -179,6 +179,13 @@ std::optional<T> parse_leading(
 std::optional<double> parse_positive_double(
     std::string_view field );  ///< the field to parse
 
+/// Compares two strings ignoring case, returning -1 if string1 sorts before
+/// string2, 0 if they are equal and 1 if string1 sorts after string2. Each
+/// character is folded to lower case before comparing, matching _stricmp.
+int compare_ignoring_case(
+    std::string_view string1,    ///< the first string
+    std::string_view string2 );  ///< the second string
+
 /// Copies field into buf, truncating without error if it doesn't fit -
 /// matches the legacy next_string_field()'s truncate-not-error behavior,
 /// for callers not yet converted off fixed-size buffers.

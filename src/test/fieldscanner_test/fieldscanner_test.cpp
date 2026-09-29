@@ -218,6 +218,40 @@ void check_parse_positive_double()
     check( ! parse_positive_double("0"), "parse_positive_double: rejects zero (must be strictly positive)" );
 }
 
+void check_parse_leading_long()
+{
+    auto value = parse_leading<long>("123");
+    check( value.has_value() && *value==123, "parse_leading<long>: plain digits" );
+    value = parse_leading<long>("42abc");
+    check( value.has_value() && *value==42, "parse_leading<long>: stops at the first non-digit" );
+    value = parse_leading<long>("+7");
+    check( value.has_value() && *value==7, "parse_leading<long>: accepts a leading plus sign" );
+    value = parse_leading<long>("-7");
+    check( value.has_value() && *value==-7, "parse_leading<long>: accepts a leading minus sign" );
+    value = parse_leading<long>("007");
+    check( value.has_value() && *value==7, "parse_leading<long>: ignores leading zeros" );
+    check( ! parse_leading<long>("abc"), "parse_leading<long>: rejects text that isn't a number" );
+    check( ! parse_leading<long>(""), "parse_leading<long>: rejects an empty field" );
+}
+
+void check_compare_ignoring_case()
+{
+    check( compare_ignoring_case("abc","abc") == 0, "compare_ignoring_case: identical strings" );
+    check( compare_ignoring_case("abc","ABC") == 0, "compare_ignoring_case: equal apart from case" );
+    check( compare_ignoring_case("","") == 0, "compare_ignoring_case: two empty strings" );
+    check( compare_ignoring_case("abc","abd") == -1, "compare_ignoring_case: first sorts before second" );
+    check( compare_ignoring_case("abd","abc") == 1, "compare_ignoring_case: first sorts after second" );
+    check( compare_ignoring_case("ab","abc") == -1, "compare_ignoring_case: a prefix sorts before the longer string" );
+    check( compare_ignoring_case("abc","ab") == 1, "compare_ignoring_case: a longer string sorts after its prefix" );
+    check( compare_ignoring_case("","a") == -1, "compare_ignoring_case: empty sorts before non-empty" );
+    check( compare_ignoring_case("B","a") == 1, "compare_ignoring_case: compares by letter, not by case" );
+    // Folding is to lower case, so '_' (between 'Z' and 'a') sorts before any letter
+    check( compare_ignoring_case("_","a") == -1, "compare_ignoring_case: underscore sorts before letters" );
+    check( compare_ignoring_case("_","A") == -1, "compare_ignoring_case: underscore sorts before upper case letters" );
+    // A byte above 127 must not be treated as a negative char
+    check( compare_ignoring_case("\xE9","a") == 1, "compare_ignoring_case: high bytes sort after ASCII" );
+}
+
 void check_copy_field()
 {
     char buf[8];
@@ -248,6 +282,8 @@ int main()
     check_and_recover_quoted_double_value();
     check_parse_double();
     check_parse_positive_double();
+    check_parse_leading_long();
+    check_compare_ignoring_case();
     check_copy_field();
 
     if( failures == 0 )

@@ -91,6 +91,11 @@ add_executable(iostring_test test/iostring_test/iostring_test.cpp)
 target_link_libraries(iostring_test PRIVATE snaplib snap_link_deps)
 
 # Test-only tool, not a shipped application - standalone unit test for
+# stncodecmp in network/netlist.cpp. Exit code is the pass/fail signal.
+add_executable(stncodecmp_test test/stncodecmp_test/stncodecmp_test.cpp)
+target_link_libraries(stncodecmp_test PRIVATE snaplib snap_link_deps)
+
+# Test-only tool, not a shipped application - standalone unit test for
 # util/fileutil.cpp. Exit code is the pass/fail signal.
 add_executable(fileutil_test test/fileutil_test/fileutil_test.cpp)
 target_link_libraries(fileutil_test PRIVATE snaplib snap_link_deps)
