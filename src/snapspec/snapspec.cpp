@@ -27,6 +27,7 @@
 #include <array>
 #include <optional>
 #include <string>
+#include <string_view>
 #include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
@@ -89,27 +90,27 @@ struct stn_relacc
 
 struct stn_relacc_array
 {
-    FILE *logfile;
-    FILE *dbgfile;
-    hSDCTest hsdc;
-    char *csvoutput;
-    char *crdoutput;
-    char *cvrcachefile;
-    unsigned char outputlog;
-    int nstn;
-    int have_srcorders;
-    int hvmode;
-    int splitcrdfile;
-    int usecache;
-    short *src_orderid;
-    short *role;
-    short *order;
-    short *priority;
-    double *horvar;
-    double *vrtvar;
-    char *alloc;
-    stn_relacc **cols;
-    char *binfn;
+    FILE *logfile = nullptr;
+    FILE *dbgfile = nullptr;
+    hSDCTest hsdc = nullptr;
+    std::string csvoutput;
+    std::string crdoutput;
+    std::string cvrcachefile;
+    unsigned char outputlog = 0;
+    int nstn = 0;
+    int have_srcorders = 0;
+    int hvmode = SRA_HVMODE_AUTO;
+    int splitcrdfile = 0;
+    int usecache = 0;
+    short *src_orderid = nullptr;
+    short *role = nullptr;
+    short *order = nullptr;
+    short *priority = nullptr;
+    double *horvar = nullptr;
+    double *vrtvar = nullptr;
+    char *alloc = nullptr;
+    stn_relacc **cols = nullptr;
+    std::string binfn;
     /* bltreq and blt are the same allocation at different lifecycle stages:
      * bltreq is loaded with the Cholesky factor at creation, its bandwidth is
      * widened by Phase 1 pair requests, then inverted in-place. Two fields (blt
@@ -117,15 +118,15 @@ struct stn_relacc_array
      * from the previous order's blt (if non-NULL, its bandwidth (col array only)
      * is saved to re-apply after load) before blt is deleted in
      * relacc_calc_requested_covar. */
-    bltmatrix *bltreq;  /* Requested non-zero rows (pre-inversion) */
-    bltmatrix *blt;     /* Calculated covariance (post-inversion) */
-    int bltupdated;     /* True if covar has been calc'd (used for caching) */
-    char testhor;
-    char testvrt;
-    int loglevel;
-    int autominorder;
-    int dfltminrelacc;
-    int ignoreconstrained;
+    bltmatrix *bltreq = nullptr;  /* Requested non-zero rows (pre-inversion) */
+    bltmatrix *blt = nullptr;     /* Calculated covariance (post-inversion) */
+    int bltupdated = 0;     /* True if covar has been calc'd (used for caching) */
+    char testhor = 0;
+    char testvrt = 0;
+    int loglevel = 0;
+    int autominorder = 0;
+    int dfltminrelacc = 0;
+    int ignoreconstrained = 0;
 };
 
 struct cfg_stack
@@ -164,102 +165,57 @@ static double relacc_get_covar( stn_relacc_array *ra, int istn, int jstn );
 
 static stn_relacc_array *create_relacc()
 {
-    stn_relacc_array *ra;
-    short *src_orderid;
-    short *role;
-    short *order;
-    short *priority;
-    double *horvar;
-    double *vrtvar;
-    int i;
+    const int haveorders = net->order_count() > 0;
+    const int nstns = number_of_stations( net );
 
-    int haveorders = net->order_count() > 0;
-    int nstns = number_of_stations( net );
-    ra = (stn_relacc_array *) check_malloc( sizeof(stn_relacc_array) );
-    src_orderid = (short *) check_malloc( nstns * sizeof(short));
-    role = (short *) check_malloc( nstns * sizeof(short));
-    order = (short *) check_malloc( nstns * sizeof(short));
-    priority = (short *) check_malloc( nstns * sizeof(short));
-    horvar = (double *) check_malloc( nstns * sizeof(double));
-    vrtvar = (double *) check_malloc( nstns * sizeof(double));
-    for( i = 0; i < nstns; i++ )
+    stn_relacc_array * const ra = new stn_relacc_array();
+    ra->nstn = nstns;
+    ra->have_srcorders = haveorders;
+    ra->src_orderid = new short[nstns];
+    ra->role = new short[nstns];
+    ra->order = new short[nstns];
+    ra->priority = new short[nstns];
+    ra->horvar = new double[nstns];
+    ra->vrtvar = new double[nstns];
+
+    for( int i = 0; i < nstns; i++ )
     {
-        src_orderid[i] = 0;
+        ra->src_orderid[i] = 0;
         if( haveorders )
         {
             station *st=stnptr(i+1);
-            src_orderid[i] = (short) net->station_order(st);
+            ra->src_orderid[i] = (short) net->station_order(st);
         }
-        role[i] = 0;
-        order[i] = 0;
-        priority[i] = SDC_NO_PRIORITY;
-        horvar[i] = 0.0;
-        vrtvar[i] = 0.0;
+        ra->role[i] = 0;
+        ra->order[i] = 0;
+        ra->priority[i] = SDC_NO_PRIORITY;
+        ra->horvar[i] = 0.0;
+        ra->vrtvar[i] = 0.0;
     }
 
-    ra->nstn = nstns;
-    ra->csvoutput=0;
-    ra->crdoutput=0;
-    ra->cvrcachefile=0;
-    ra->usecache=0;
-    ra->splitcrdfile=0;
-    ra->hvmode=SRA_HVMODE_AUTO;
-    ra->hsdc = NULL;
-    ra->alloc = NULL;
-    ra->cols = NULL;
-    ra->have_srcorders = haveorders;
-    ra->src_orderid = src_orderid;
-    ra->role = role;
-    ra->order = order;
-    ra->priority = priority;
-    ra->horvar = horvar;
-    ra->vrtvar = vrtvar;
-    ra->logfile = NULL;
-    ra->dbgfile = NULL;
-    ra->loglevel = 0;
-    ra->binfn = NULL;
-    ra->bltreq = NULL;
-    ra->blt = NULL;
-    ra->bltupdated = 0;
-    ra->outputlog = 0;
-    ra->autominorder = 0;
-    ra->ignoreconstrained = 0;
-    ra->dfltminrelacc = 0;
     return ra;
 }
 
 static void delete_relacc( stn_relacc_array *ra )
 {
-    int i;
-    ra->nstn = 0;
-    check_free( ra->role );
-    ra->role = NULL;
-    check_free( ra->order );
-    ra->order = NULL;
-    check_free( ra->priority );
-    ra->priority = NULL;
-    check_free( ra->horvar );
-    ra->horvar = NULL;
-    check_free( ra->vrtvar );
-    ra->vrtvar = NULL;
+    delete[] ra->src_orderid;
+    delete[] ra->role;
+    delete[] ra->order;
+    delete[] ra->priority;
+    delete[] ra->horvar;
+    delete[] ra->vrtvar;
     if( ra->cols )
     {
-        for( i = 0; i < ra->nstn; i++ )
+        for( int i = 0; i < ra->nstn; i++ )
         {
-            if( ra->alloc[i] ) { check_free( ra->cols[i] ); }
+            if( ra->alloc[i] ) { delete[] ra->cols[i]; }
         }
-        check_free( ra->cols );
-        ra->cols = NULL;
-        check_free( ra->alloc );
-        ra->alloc = NULL;
+        delete[] ra->cols;
+        delete[] ra->alloc;
     }
-    check_free( ra->binfn );
-    ra->binfn = NULL;
     if( ra->bltreq ) delete_bltmatrix( ra->bltreq );
-    ra->bltreq = NULL;
     if( ra->blt ) delete_bltmatrix( ra->blt );
-    ra->blt = NULL;
-    check_free( ra );
+    delete ra;
 }
 
 static void relacc_alloc_cache( stn_relacc_array *ra )
@@ -269,12 +225,12 @@ static void relacc_alloc_cache( stn_relacc_array *ra )
     int i;
     char *alloc;
     stn_relacc **cols;
-    int nstns = ra->nstn;
+    const int nstns = ra->nstn;
 
     if( ra->cols ) return;
 
-    ra->alloc = alloc = (char *) check_malloc( nstns * sizeof(char));
-    ra->cols = cols = (stn_relacc **) check_malloc( nstns * sizeof(stn_relacc *) );
+    ra->alloc = alloc = new char[nstns];
+    ra->cols = cols = new stn_relacc *[nstns];
 
     istn = 1;
     istn0 =  1;
@@ -289,7 +245,7 @@ static void relacc_alloc_cache( stn_relacc_array *ra )
         }
         while ( istn <= nstns && nblk < RELACC_BLOCK_SIZE );
 
-        r = (stn_relacc *) check_malloc( nblk * sizeof( stn_relacc ));
+        r = new stn_relacc[nblk];
         for( i = 0; i < nblk; i++ )
         {
             r[i].emax2 = SDC_COVAR_UNAVAILABLE;
@@ -346,7 +302,7 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
             ra->blt = NULL;
         }
 
-        BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE ).file;
+        BINARY_FILE *b = open_binary_file( const_cast<char*>(ra->binfn.c_str()), BINFILE_SIGNATURE ).file;
         if( !b ) { if( saved_col ) check_free( saved_col ); return 0; }
         if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK )
         {
@@ -373,19 +329,19 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
     return 1;
 }
 
-static void cache_covariance_matrix( stn_relacc_array *ra, char *cfn )
+static void cache_covariance_matrix( stn_relacc_array *ra, const std::string &cfn )
 {
     if( ! ra->blt ) return;
     if( ! ra->bltupdated ) return;
     BINARY_FILE *c;
-    c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
+    c=create_binary_file(const_cast<char*>(cfn.c_str()),CACHE_COVARIANCE_SIG);
     if( ! c ) return;
     create_section(c,CACHE_COVARIANCE_SECTION);
     fwrite(run_time,GETDATELEN,1,c->f);
     dump_bltmatrix(ra->blt,c->f);
     end_section(c);
     close_binary_file(c);
-    printf("Created covariance cache file %s\n",cfn);
+    printf("Created covariance cache file %s\n",cfn.c_str());
 }
 
 static int relacc_calc_requested_covar( stn_relacc_array *ra )
@@ -415,7 +371,7 @@ static int relacc_calc_requested_covar( stn_relacc_array *ra )
     ra->bltupdated=1;
     ra->bltreq=NULL;
 
-    if( ra->cvrcachefile ) cache_covariance_matrix( ra, ra->cvrcachefile );
+    if( ! ra->cvrcachefile.empty() ) cache_covariance_matrix( ra, ra->cvrcachefile );
 
     return 1;
 }
@@ -846,20 +802,17 @@ static int reload_relative_covariances( BINARY_FILE *b, stn_relacc_array *ra )
     return check_end_section( b );
 }
 
-static char *cache_covariance_filename( char *bfn )
+static std::string cache_covariance_filename( const std::string &bfn )
 {
-    int flen=path_len(bfn,1);
-    char *cfn=(char *) check_malloc(flen+strlen(CACHE_COVARIANCE_EXT)+1);
-    strncpy(cfn,bfn,flen);
-    strcpy(cfn+flen,CACHE_COVARIANCE_EXT);
-    return cfn;
+    const int flen = path_len(bfn.c_str(),1);
+    return bfn.substr(0,flen) + CACHE_COVARIANCE_EXT;
 }
 
-static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
+static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string &cfn )
 {
     BINARY_FILE *c;
     char cruntime[GETDATELEN];
-    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG).file;
+    c=open_binary_file(const_cast<char*>(cfn.c_str()),CACHE_COVARIANCE_SIG).file;
     if( ! c ) return 0;
     if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
     {
@@ -869,9 +822,9 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
     fread( cruntime, GETDATELEN, 1, c->f );
     if( _strnicmp(cruntime,run_time,GETDATELEN) != 0 )
     {
-        printf("Covariance cache file out of date - deleting %s\n",cfn);
+        printf("Covariance cache file out of date - deleting %s\n",cfn.c_str());
         close_binary_file(c);
-        _unlink(cfn);
+        _unlink(cfn.c_str());
         return 0;
     }
 
@@ -886,7 +839,7 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, char *cfn )
     }
     close_binary_file(c);
     ra->bltupdated=0;
-    printf("Using covariance from cache file %s\n",cfn);
+    printf("Using covariance from cache file %s\n",cfn.c_str());
     return 1;
 }
 
@@ -2512,9 +2465,8 @@ static int read_output_file_command(CFG_FILE *cfg, std::string_view string, void
 {
     FieldScanner scanner(string);
     auto optionField = scanner.next();
-    const std::string option( ( ! optionField || optionField->empty() ) ?
-        std::string(default_output_filename) : std::string(*optionField) );
-    *(char **) value=copy_string(option.c_str());
+    *(std::string *) value = ( ! optionField || optionField->empty() ) ?
+        std::string(default_output_filename) : std::string(*optionField);
     return OK;
 }
 
@@ -2690,7 +2642,7 @@ int main( int argc, char *argv[] )
     char *updatecrdfile = NULL;
     int splitcrdfile = 0;
     int use_cache = 0;
-    char *cvrcachefile = 0;
+    std::string cvrcachefile;
     int autominorder = 0;
     int hvmode = SRA_HVMODE_AUTO;
     int skip_rel_acc = 0;
@@ -2931,7 +2883,7 @@ int main( int argc, char *argv[] )
         exit(1);
     }
 
-    ra->binfn = copy_string( bfn );
+    ra->binfn = bfn;
 
     if(  reload_covariances( b, ra ) != OK ||
             (!relacc_create_blt_req( ra ) &&
@@ -3063,7 +3015,7 @@ int main( int argc, char *argv[] )
     if( sts == STS_OK )
     {
         update_station_orders(hsdc,ra);
-        if( ! outputcsvname ) outputcsvname=ra->csvoutput;
+        if( ! outputcsvname && ! ra->csvoutput.empty() ) outputcsvname=ra->csvoutput.data();
         if( outputcsvname )
         {
             char *csvfile=output_filename(outputcsvname,bfn,SNAPSPEC_CSV_EXT);
@@ -3077,7 +3029,7 @@ int main( int argc, char *argv[] )
             write_results( hsdc, ra );
         }
 
-        if( ! updatecrdfile ) updatecrdfile=ra->crdoutput;
+        if( ! updatecrdfile && ! ra->crdoutput.empty() ) updatecrdfile=ra->crdoutput.data();
         if( updatecrdfile )
         {
             if( splitcrdfile || ra->splitcrdfile ) 
