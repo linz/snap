@@ -39,7 +39,7 @@ static int rf_grid_open_file( ref_deformation_grid *gd )
 {
     if( gd->grid ) return OK;
     if( gd->status != OK ) return gd->status;
-    grd_open_grid_file( gd->filename.c_str(),2,&(gd->grid));
+    grd_open_grid_file( gd->filename,2,&(gd->grid));
     if( ! gd->grid )
     {
         gd->status = FILE_OPEN_ERROR;

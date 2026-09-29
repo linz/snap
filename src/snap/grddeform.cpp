@@ -23,7 +23,7 @@
 static double epoch;
 static grid_def *velgrid;
 static char *model;
-static char *modelfile;
+static std::string modelfile;
 static int veldimension;
 
 
@@ -49,7 +49,7 @@ static int init_grid_deformation(  const std::string &pmodel, double pepoch )
     model = copy_string( pmodel.c_str() );
     auto grdfile = find_coordsys_data_file( model, ".grd" );
     if( !grdfile ) return INVALID_DATA;
-    modelfile = copy_string( grdfile->c_str() );
+    modelfile = *grdfile;
     if(  grd_open_grid_file( modelfile, 2, &velgrid ) == OK )
     {
         veldimension = 2;

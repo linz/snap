@@ -81,7 +81,7 @@ geoid_def *create_geoid_grid( const char *source )
     coordsys *cs = 0;
 
     std::string filename = get_geoid_filename( source ? std::optional<std::string>(source) : std::nullopt );
-    status = grd_open_grid_file( filename.c_str(), 1, &grd );
+    status = grd_open_grid_file( filename, 1, &grd );
 
     if( status != OK )
     {

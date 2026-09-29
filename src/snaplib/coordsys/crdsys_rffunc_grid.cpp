@@ -58,7 +58,7 @@ static void rf_grid_open_file( rf_grid_def *gd )
 {
     grid_def *grid = NULL;
     if( gd->status != OK ) return;
-    grd_open_grid_file(gd->filename.c_str(),2,&grid);
+    grd_open_grid_file(gd->filename,2,&grid);
     if( grid )
     {
         gd->grid = grid;
