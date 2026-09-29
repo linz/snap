@@ -9,6 +9,8 @@
 */
 
 #include <stdint.h>
+#include <optional>
+#include <string_view>
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
@@ -89,11 +91,17 @@ void term_load_data( void );
 
 /* Station recode function */
 
-#define RECODE_IGNORE_CHAR '*'
-#define RECODE_IGNORE_CODE "*"
+/// The outcome of recoding a station code.
+struct recode_result
+{
+    std::string_view code;  ///< the recoded station code, empty if reject is set and the whole station is ignored
+    bool reject;            ///< true if observations to or from the station are to be rejected
+};
 
-void set_stn_recode_func( 
-        const char *(*recode)( void *recodedata, const char *code, double date ), 
+/// Sets the function used to recode station codes read from data files.
+/// The function returns nullopt if the code is not recoded.
+void set_stn_recode_func(
+        std::optional<recode_result> (*recode)( void *recodedata, std::string_view code, double date ),
         void *recodedata);
 
 /* The following routine can be called to enable handling of GPS covariances.

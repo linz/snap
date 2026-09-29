@@ -416,6 +416,16 @@ station_list *reload_station_list( FILE *f );
 
 int stncodecmp( std::string_view s1, std::string_view s2 );
 
+/// Orders station codes as stncodecmp does. Transparent so that maps can be searched by string_view.
+struct station_code_order
+{
+    using is_transparent = void;
+    bool operator()( std::string_view code1, std::string_view code2 ) const
+    {
+        return stncodecmp( code1, code2 ) < 0;
+    }
+};
+
 /* Functions for processing station offsets */
 
 int station_has_offset( station *st );

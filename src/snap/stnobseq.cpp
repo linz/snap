@@ -27,6 +27,7 @@
 #include <string.h>
 #include <math.h>
 #include <array>
+#include <iterator>
 #include <string>
 #include <string_view>
 
@@ -104,15 +105,15 @@ int add_station_colocation_constraints()
     for( int i = 0; i++ < number_of_stations(net); )
     {
         station *st = stnptr(i);
-        stn_recode *recode0 = get_station_recodes( stnrecode,  st->Code );
-        if( ! recode0 ) continue;
+        const stn_recode_list *recodes = get_station_recodes( stnrecode,  st->Code );
+        if( ! recodes ) continue;
         /* Check for duplicate recodings */
         int sts0=OK;
-        for( stn_recode *recode=recode0; recode->next ; recode=recode->next )
+        for( auto recode=recodes->begin(); std::next(recode) != recodes->end(); ++recode )
         {
             if( recode->datefrom != UNDEFINED_DATE && recode->dateto != UNDEFINED_DATE ) continue;
             if( recode->datefrom == UNDEFINED_DATE && recode->dateto == UNDEFINED_DATE ) continue;
-            for( stn_recode *rec2=recode->next; rec2; rec2=rec2->next )
+            for( auto rec2=std::next(recode); rec2 != recodes->end(); ++rec2 )
             {
                 if( rec2->datefrom != UNDEFINED_DATE && rec2->dateto != UNDEFINED_DATE ) continue;
                 if( rec2->datefrom == UNDEFINED_DATE && rec2->dateto == UNDEFINED_DATE ) continue;
@@ -121,12 +122,12 @@ int add_station_colocation_constraints()
                     char errmsg[100+STNCODELEN*3+MAX_DATE_LEN*2];
                     sprintf(errmsg,"Recode of %.*s to %.*s %s %s inconsistent with %.*s %s %s",
                             STNCODELEN,st->Code,
-                            STNCODELEN,recode->codeto,
+                            STNCODELEN,recode->codeto.c_str(),
                             recode->datefrom == UNDEFINED_DATE ? "before" : "after",
                             recode->datefrom == UNDEFINED_DATE ? 
                                  date_as_string(recode->dateto,"DT?",0) : 
                                  date_as_string(recode->datefrom,"DT?",0),
-                            STNCODELEN,rec2->codeto,
+                            STNCODELEN,rec2->codeto.c_str(),
                             rec2->datefrom == UNDEFINED_DATE ? "before" : "after",
                             rec2->datefrom == UNDEFINED_DATE ? 
                                  date_as_string(rec2->dateto,"DT?",0) : 
@@ -146,13 +147,13 @@ int add_station_colocation_constraints()
         station*st0=0;
         double herror2=0.0;
         double verror2=0.0;
-        for( stn_recode *recode=recode0; recode; recode=recode->next )
+        for( auto recode=recodes->begin(); recode != recodes->end(); ++recode )
         {
             if( recode->datefrom != UNDEFINED_DATE || recode->dateto == UNDEFINED_DATE )
             {
                 continue;
             }
-            int idto=find_station( net, recode->codeto );
+            int idto=find_station( net, recode->codeto.c_str() );
             station *stto=stnptr(idto);
             bool usestn=false;
             if( stto )
@@ -204,13 +205,13 @@ int add_station_colocation_constraints()
         st0=st;
         herror2=0.0;
         verror2=0.0;
-        for( stn_recode *recode=recode0; recode; recode=recode->next )
+        for( auto recode=recodes->begin(); recode != recodes->end(); ++recode )
         {
             if( recode->datefrom == UNDEFINED_DATE || recode->dateto != UNDEFINED_DATE )
             {
                 continue;
             }
-            int idto=find_station( net, recode->codeto );
+            int idto=find_station( net, recode->codeto.c_str() );
             station *stto=stnptr(idto);
             bool usestn=false;
             if( stto )

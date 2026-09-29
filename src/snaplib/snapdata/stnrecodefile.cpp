@@ -98,7 +98,7 @@ void SnapCsvRecode::loadRecord()
         }
     }
 
-    add_stn_recode_to_map( _stt, codefrom.c_str(), codeto.c_str(), datefrom, dateto );
+    add_stn_recode_to_map( _stt, codefrom, codeto, datefrom, dateto );
 }
 
 void SnapCsvRecode::dataError( const std::string &message )

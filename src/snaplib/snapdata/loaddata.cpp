@@ -105,7 +105,7 @@ struct recoded_id
     int codeid;   /* Index into saved codes - subtract saved_codes_offset */
     int recoded;  /* Flag for recoded */
     int id;       /* Recoded station id */
-    int reject;   /* Recoded rejection */
+    bool reject;  /* Recoded rejection */
 };
 
 static recoded_id *saved_ids=NULL;
@@ -141,7 +141,7 @@ static void *pobsmod=0;
 
 /* A function for recoding station codes read from data files */
 
-static const char *(*recode_func)( void *recodedata, const char *code, double date ) = 0;
+static std::optional<recode_result> (*recode_func)( void *recodedata, std::string_view code, double date ) = 0;
 static void *recode_data=0; 
 static int recoding=0;
 
@@ -247,7 +247,7 @@ static int save_code( const char *code )
     newid->codeid=codeid;
     newid->recoded=0;
     newid->id=0;
-    newid->reject=0;
+    newid->reject=false;
     return next_saved_id;
 }
 
@@ -259,12 +259,9 @@ static const char *saved_code( int codeid )
     return saved_codes+codeid;
 }
 
-static int get_recoded_id( int id, int *reject )
+static int get_recoded_id( int id, bool *reject )
 {
-    const char * src;
-    const char * tgt;
-    
-    if( reject ) *reject=0;
+    if( reject ) *reject=false;
     recoded_id *rid;
     if( id == 0 ) return 0;
     if( id > next_saved_id ) return 0;
@@ -274,18 +271,20 @@ static int get_recoded_id( int id, int *reject )
     rid=saved_ids+id;
     if( ! rid->recoded )
     {
-        src=saved_code(rid->codeid);
-        tgt=(*recode_func)(recode_data,src,data.date);
-        if( ! tgt ) tgt = src;
-        if( _stricmp(tgt,RECODE_IGNORE_CODE) == 0 ) 
+        const std::string_view src=saved_code(rid->codeid);
+        recode_result target{ src, false };
+        if( const auto recoded=(*recode_func)(recode_data,src,data.date) )
+        {
+            target=*recoded;
+        }
+        if( target.reject && target.code.empty() )
         {
             rid->id=-1;
         }
         else
         {
-            int reject = tgt[0] == RECODE_IGNORE_CHAR ? 1 : 0;
-            rid->reject = reject;
-            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, tgt+reject );
+            rid->reject=target.reject;
+            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, std::string(target.code).c_str() );
         }
         rid->recoded=1;
     }
@@ -388,8 +387,8 @@ void term_load_data( void )
 }
 
 
-void set_stn_recode_func( 
-        const char *(*recode)( void *recodedata, const char *code, double date ), 
+void set_stn_recode_func(
+        std::optional<recode_result> (*recode)( void *recodedata, std::string_view code, double date ),
         void *recodedata)
 {
     DEBUG_PRINT(("LDT: set_stn_recode_func"));
@@ -431,8 +430,8 @@ static void setup_data_format( int format )
 
 static void check_data( void )
 {
-    int rejfrom=0;
-    int rejto=0;
+    bool rejfrom=false;
+    bool rejto=false;
 
     if( recoding )
     {
