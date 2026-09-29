@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <forward_list>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -120,21 +121,24 @@ struct criterion
     struct criterion *next;
 };
 
-struct station_criteria_source
-{
-    const char *source;
-    struct station_criteria_source *next;
-};
-
 struct station_criteria
 {
-    criterion *first;
-    criterion *last;
-    criteria_cache *cache;
-    bool all_code_criteria;
-    station_criteria_source *sources;
-    station_criteria_source *cur_source;
-    int cur_missing_error;
+    criterion *first = nullptr;
+    criterion *last = nullptr;
+    criteria_cache *cache = nullptr;
+    bool all_code_criteria = true;
+    // Each entry is one "station list in <file>" source, in the order
+    // encountered. forward_list rather than vector: cur_source below, and
+    // criterion::source elsewhere, hold views/pointers straight into an
+    // entry's string, and must stay valid across later insertions - a
+    // guarantee forward_list gives unconditionally (push_front never
+    // relocates existing elements) that vector cannot.
+    std::forward_list<std::string> sources;
+    // Always a view of a whole entry in sources (never a substring) -
+    // criterion::source elsewhere relies on that to treat .data() as a
+    // null-terminated C string.
+    std::optional<std::string_view> cur_source;
+    int cur_missing_error = INVALID_DATA;
 };
 
 /*-----------------------------------------------------------------------*/
@@ -406,17 +410,9 @@ static void delete_criterion( criterion *c )
 
 /*-----------------------------------------------------------------------*/
 
-void *new_station_criteria() 
+void *new_station_criteria()
 {
-    station_criteria *sc=(station_criteria *) check_malloc( sizeof(station_criteria) );
-    sc->first = nullptr;
-    sc->last = nullptr;
-    sc->cache = nullptr;
-    sc->sources = nullptr;
-    sc->cur_source = nullptr;
-    sc->cur_missing_error=INVALID_DATA;
-    sc->all_code_criteria=true;
-    return (void *) sc;
+    return new station_criteria();
 }
 
 void setup_station_criteria_cache( void *psc, int maxstn )
@@ -428,28 +424,20 @@ void setup_station_criteria_cache( void *psc, int maxstn )
 
 static void set_station_criteria_source( station_criteria *sc, const char *file )
 {
-    station_criteria_source *src=sc->sources;
-    int prefix_len=strlen(source_prefix);
-    char *srcfile;
-    while( src )
+    // The prefix is identical for every entry, so comparing the whole
+    // string is equivalent to the original's "skip the prefix, compare the
+    // rest against file" - no pointer arithmetic needed.
+    std::string search = std::string(source_prefix) + file;
+    for( const std::string &source : sc->sources )
     {
-        if( strcmp(src->source + prefix_len, file) == 0 )
+        if( source == search )
         {
-            sc->cur_source=src;
+            sc->cur_source = source;
             return;
         }
-        src=src->next;
     }
-    src=(station_criteria_source *) check_malloc( sizeof(station_criteria_source) 
-         + prefix_len + strlen(file) + 1 );
-    srcfile=((char *)src) + sizeof(station_criteria_source);
-
-    strcpy( srcfile, source_prefix );
-    strcpy( srcfile+prefix_len, file );
-    src->source=srcfile;
-    src->next=sc->sources;
-    sc->sources=src;
-    sc->cur_source=src;
+    sc->sources.push_front( std::move(search) );
+    sc->cur_source = sc->sources.front();
 }
 
 static bool station_criteria_source_used( station_criteria *sc, int maxstack, const char *file )
@@ -484,7 +472,7 @@ static void add_station_criterion( station_criteria *sc, criterion *c )
         (c->crit_operator != CRIT_OP_LINE && c->crit_operator != CRIT_OP_OR) )
                 sc->all_code_criteria=false;
 
-    if( sc->cur_source ) c->source=sc->cur_source->source;
+    if( sc->cur_source ) c->source=sc->cur_source->data();
     if( sc->last )
     {
         sc->last->next=c;
@@ -568,13 +556,7 @@ void delete_station_criteria( void *psc )
     delete_all_station_criteria( sc );
     if( sc->cache ) delete_criteria_cache( sc->cache );
     sc->cache=nullptr;
-    while( sc->sources )
-    {
-        station_criteria_source *src=sc->sources;
-        sc->sources=src->next;
-        check_free( src );
-    }
-    check_free( sc );
+    delete sc;
 }
 
 void apply_station_criteria_to_network( void *psc, network *nw, 
@@ -686,7 +668,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
     criterion *c;
 
     errmess[0] = 0;
-    src=sc->cur_source ? sc->cur_source->source : default_source;
+    src=sc->cur_source ? sc->cur_source->data() : default_source;
 
     FieldScanner scanner( select );
     std::optional<std::string_view> field;
@@ -747,7 +729,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
         if( field->size() > 1 && (*field)[0] == '@' )
         {
             const std::string file( field->substr(1) );
-            station_criteria_source *save_src=sc->cur_source;
+            std::optional<std::string_view> save_src=sc->cur_source;
             /* Add a placeholder for the current operation */
             add_station_criterion( sc, new_criteria_frame( curop, stacklevel ));
             sc->cur_missing_error=missing_error;
