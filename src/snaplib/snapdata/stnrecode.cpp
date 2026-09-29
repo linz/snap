@@ -36,8 +36,17 @@ using boost::numeric_cast;
 
 /* Tolerance in comparing dates */
 
-#define CMPFLOAT(a,b) (((a)<(b)) ? -1 : ((a)==(b)) ? 0 : 1)
 #define DESCRIBE_MAX_LEN (STNCODELEN+(MAX_DATE_LEN)*2+80)
+
+/// Returns -1, 0 or 1 as d0 is before, the same as or after d1
+static int compare_three_way( const double d0, const double d1 )
+{
+    if( d0 < d1 )
+    {
+        return -1;
+    }
+    return d0 == d1 ? 0 : 1;
+}
 
 static int nextseqid=0;
 
@@ -118,7 +127,7 @@ static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
         }
         else
         {
-            return CMPFLOAT(src0.datefrom,src1.datefrom);
+            return compare_three_way(src0.datefrom,src1.datefrom);
         }
     }
     if( src0.dateto == UNDEFINED_DATE )
@@ -133,17 +142,17 @@ static int cmp_stn_recode( const stn_recode &src0, const stn_recode &src1 )
         }
         else
         {
-            return CMPFLOAT(src0.dateto,src1.dateto);
+            return compare_three_way(src0.dateto,src1.dateto);
         }
     }
     if( src0.dateto == UNDEFINED_DATE )
     {
         return -1;
     }
-    int result = CMPFLOAT(src0.datefrom,src1.datefrom);
+    int result = compare_three_way(src0.datefrom,src1.datefrom);
     if( result == 0 )
     {
-        result=CMPFLOAT(src0.dateto,src1.dateto);
+        result=compare_three_way(src0.dateto,src1.dateto);
     }
     return result;
 }
