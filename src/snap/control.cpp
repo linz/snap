@@ -1303,8 +1303,7 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
         }
         if( valid )
         {
-            if( add_residual_field( std::string(columnName).c_str(), width,
-                        ttl1 ? ttl1->c_str() : nullptr, ttl2 ? ttl2->c_str() : nullptr ) != OK ) valid = false;
+            if( add_residual_field( columnName, width, ttl1, ttl2 ) != OK ) valid = false;
         }
         if( !valid )
         {

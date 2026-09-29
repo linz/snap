@@ -22,6 +22,9 @@
 #include "snapdata/survdata.h"
 #endif
 
+#include <optional>
+#include <string_view>
+
 enum { HDR_OBSDATA, HDR_VECDATA, HDR_PNTDATA };
 
 struct lsdata
@@ -68,7 +71,9 @@ void write_observation_csv();
 /* Functions relating to the residual listing format */
 
 int define_residual_formats( char *typelist, int add_columns  );
-int add_residual_field( const char *code, int width, const char *title1, const char *title2 );
+int add_residual_field( std::string_view code, int width,
+                         std::optional<std::string_view> title1,
+                         std::optional<std::string_view> title2 );
 
 int set_residual_listing_data_type( FILE *out, int itype );
 void clear_residual_field_defs(void);

@@ -29,9 +29,12 @@
 #include <string.h>
 #include <math.h>
 #include <array>
+#include <forward_list>
+#include <optional>
 #include <string>
 #include <string_view>
 
+#include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
@@ -74,8 +77,8 @@ struct listing_field_def
 {
     int id;
     const char *code;
-    const char *title1;  /* Default titles - title2 used for vector formats only */
-    const char *title2;
+    std::optional<std::string_view> title1;  /* Default titles - title2 used for vector formats only */
+    std::optional<std::string_view> title2;
     const char *source;
     char *buffer;
     int width;
@@ -107,42 +110,41 @@ static char mde[20];
 static char obsdate[20];
 static char obsid[20];
 static char significance[20];
-static char vecrescmp[6];
 
 #define LEFT_JUST 1
 #define RIGHT_JUST 2
 
 static listing_field_def fields[] =
 {
-    { OF_FROM,       "from",         "From",     NULL,    NULL, NULL,      0, LEFT_JUST, 0, 0},
-    { OF_TO,         "to",           "To",       NULL,    NULL, NULL,      0, LEFT_JUST, 0, 0},
-    { OF_FROMNAME,   "from_name",    "From",     NULL,    NULL, NULL,     20, LEFT_JUST, 0, 0},
-    { OF_TONAME,     "to_name",      "To",       NULL,    NULL, NULL,     20, LEFT_JUST, 0, 0},
-    { OF_HI,         "hgt_inst",     "H.I.",     NULL,    NULL, hgti,      6, 0, 0, 0},
-    { OF_HT,         "hgt_trgt",     "H.T.",     NULL,    NULL, hgtt,      6, 0, 0, 0},
-    { OF_TYPE,       "type",         "Type",     NULL,    NULL, typecode,  4, LEFT_JUST, 0, 0},
-    { OF_FILENAME,   "file",         "File",     NULL,    NULL, NULL,     20, LEFT_JUST, 0, 0},
-    { OF_FILENO,     "file_no",      "Fl",       NULL,    NULL, NULL,      2, 0, 0, 0},
-    { OF_LINENO,     "line_no",      "Lin",      NULL,    NULL, NULL,      3, 0, 0, 0},
+    { OF_FROM,       "from",         "From",     std::nullopt,    NULL, NULL,      0, LEFT_JUST, 0, 0},
+    { OF_TO,         "to",           "To",       std::nullopt,    NULL, NULL,      0, LEFT_JUST, 0, 0},
+    { OF_FROMNAME,   "from_name",    "From",     std::nullopt,    NULL, NULL,     20, LEFT_JUST, 0, 0},
+    { OF_TONAME,     "to_name",      "To",       std::nullopt,    NULL, NULL,     20, LEFT_JUST, 0, 0},
+    { OF_HI,         "hgt_inst",     "H.I.",     std::nullopt,    NULL, hgti,      6, 0, 0, 0},
+    { OF_HT,         "hgt_trgt",     "H.T.",     std::nullopt,    NULL, hgtt,      6, 0, 0, 0},
+    { OF_TYPE,       "type",         "Type",     std::nullopt,    NULL, typecode,  4, LEFT_JUST, 0, 0},
+    { OF_FILENAME,   "file",         "File",     std::nullopt,    NULL, NULL,     20, LEFT_JUST, 0, 0},
+    { OF_FILENO,     "file_no",      "Fl",       std::nullopt,    NULL, NULL,      2, 0, 0, 0},
+    { OF_LINENO,     "line_no",      "Lin",      std::nullopt,    NULL, NULL,      3, 0, 0, 0},
     { OF_OBS,        "obs_val",      "Value",    "X,Y,Z", NULL, obs,       0, 0, 1, 0},
-    { OF_OBSERR,     "obs_err",      "+/- ",     NULL,    NULL, obserr,    0, 0, 0, 0},
+    { OF_OBSERR,     "obs_err",      "+/- ",     std::nullopt,    NULL, obserr,    0, 0, 0, 0},
     { OF_CALC,       "calc_val",     "Calc",     "X,Y,Z", NULL, calc,      0, 0, 1, 0},
-    { OF_CALCERR,    "calc_err",     "+/- ",     NULL,    NULL, calcerr,   0, 0, 0, 0},
-    { OF_RES,        "res_val",      "Res",      vecrescmp, NULL, res,       0, 0, 1, 0},
-    { OF_RESERR,     "res_err",      "+/- ",     NULL,    NULL, reserr,    0, 0, 0, 0},
-    { OF_ALTRES,     "alt_res",      "Res*",     NULL,    NULL, altres,    0, 0, 0, 0},
-    { OF_SRES,       "std_res",      "S.R.",     NULL,    NULL, stdres,    6, 0, 0, 0},
-    { OF_REDUNDANCY, "redundancy",   "Rdncy",    NULL,    NULL, redundancy,6, 0, 0, 0},
-    { OF_FLAGS,      "flags",        NULL,       NULL,    NULL, flags,     4, LEFT_JUST, 0, 0},
-    { OF_AZIMUTH,    "azimuth",      "Azimuth",  NULL,    NULL, azimuth,   0, 0, 0, 0},
+    { OF_CALCERR,    "calc_err",     "+/- ",     std::nullopt,    NULL, calcerr,   0, 0, 0, 0},
+    { OF_RES,        "res_val",      "Res",      std::nullopt, NULL, res,       0, 0, 1, 0},
+    { OF_RESERR,     "res_err",      "+/- ",     std::nullopt,    NULL, reserr,    0, 0, 0, 0},
+    { OF_ALTRES,     "alt_res",      "Res*",     std::nullopt,    NULL, altres,    0, 0, 0, 0},
+    { OF_SRES,       "std_res",      "S.R.",     std::nullopt,    NULL, stdres,    6, 0, 0, 0},
+    { OF_REDUNDANCY, "redundancy",   "Rdncy",    std::nullopt,    NULL, redundancy,6, 0, 0, 0},
+    { OF_FLAGS,      "flags",        std::nullopt, std::nullopt,  NULL, flags,     4, LEFT_JUST, 0, 0},
+    { OF_AZIMUTH,    "azimuth",      "Azimuth",  std::nullopt,    NULL, azimuth,   0, 0, 0, 0},
     { OF_PRJAZ,      "prj_azimuth",  "Projection", "Azimuth", NULL, prjaz, 0, 0, 0, 0},
-    { OF_HGTDIFF,    "hgt_diff",     "Hgt dif",  NULL,    NULL, hgtdiff,   0, 0, 0, 0},
-    { OF_ARCDST,     "arc_dist",     "Arc dst",  NULL,    NULL, arcdst,    0, 0, 0, 0},
-    { OF_SLPDST,     "slp_dist",     "Slp dst",  NULL,    NULL, slpdst,    0, 0, 0, 0},
-    { OF_MDE,        "mde",          "MDE",      NULL,    NULL, mde,       6, 0, 0, 0},
-    { OF_SIG,        "significance", "sig(%)",   NULL,    NULL, significance,8, 0, 0, 0},
-    { OF_DATE,       "date",         "Date",     NULL,    NULL, obsdate     ,10, 0, 0, 0},
-    { OF_OBSID,      "id",           "Id",       NULL,    NULL, obsid        ,8, RIGHT_JUST, 0, 0},
+    { OF_HGTDIFF,    "hgt_diff",     "Hgt dif",  std::nullopt,    NULL, hgtdiff,   0, 0, 0, 0},
+    { OF_ARCDST,     "arc_dist",     "Arc dst",  std::nullopt,    NULL, arcdst,    0, 0, 0, 0},
+    { OF_SLPDST,     "slp_dist",     "Slp dst",  std::nullopt,    NULL, slpdst,    0, 0, 0, 0},
+    { OF_MDE,        "mde",          "MDE",      std::nullopt,    NULL, mde,       6, 0, 0, 0},
+    { OF_SIG,        "significance", "sig(%)",   std::nullopt,    NULL, significance,8, 0, 0, 0},
+    { OF_DATE,       "date",         "Date",     std::nullopt,    NULL, obsdate     ,10, 0, 0, 0},
+    { OF_OBSID,      "id",           "Id",       std::nullopt,    NULL, obsid        ,8, RIGHT_JUST, 0, 0},
 };
 
 #define WANT(fld) (fields[fld].requested)
@@ -175,8 +177,8 @@ struct listing_column
 {
     int column;
     int width;
-    const char *title1;
-    const char *title2;
+    std::optional<std::string_view> title1;
+    std::optional<std::string_view> title2;
     const char *data;
 };
 
@@ -186,18 +188,15 @@ struct listing_def
     listing_column col[MAX_COLUMNS];
 };
 
-struct column_heading_def
-{
-    char *heading;
-    struct column_heading_def *next;
-};
-
 static listing_def *listing_format = NULL;
 static listing_def data_format[NOBSTYPE] = {0};
 static int listing_title = -1;
 static int title_id[NOBSTYPE] = {0};
 static int defining_format[NOBSTYPE] = {0};
-column_heading_def *headings;
+// Interned column headings - get_column_heading() below returns a stable
+// pointer into this list, safe to keep past this call (forward_list never
+// relocates existing elements on push_front).
+static std::forward_list<std::string> headings;
 
 
 static int maxrow, maxlt, last_file_loc;
@@ -522,9 +521,9 @@ static void print_title( FILE *out )
         for( ; ncolumn--; column++ )
         {
             int width = column->width;
-            const char *source = (ipass == 0) ? column->title1 : column->title2;
+            std::optional<std::string_view> titleOpt = (ipass == 0) ? column->title1 : column->title2;
             if( column->title2 ) needpass2 = 1;
-            if( !source ) source = blank;
+            std::string_view source = titleOpt.value_or(std::string_view(blank));
             if( column->column == SPACE_FIELD )
             {
                 fprintf(out,"%-*s",width," ");
@@ -553,16 +552,16 @@ static void print_title( FILE *out )
 
             if( justify == LEFT_JUST )
             {
-                fprintf(out,lftjst,width,source);
+                fprintf(out,lftjst,width,source.data());
             }
             else
             {
                 int len1, len2;
-                len1 = width - strlen(source);
+                len1 = width - source.size();
                 if( justify != RIGHT_JUST ) len1 /= 2;
                 if( len1 < 0 ) len1 = 0;
                 len2 = width - len1;
-                fprintf(out,centrejst,len1,blank,len2,source);
+                fprintf(out,centrejst,len1,blank,len2,source.data());
             }
         }
         fprintf(out,"\n");
@@ -674,19 +673,21 @@ int set_residual_listing_data_type( FILE *out, int newtype )
     return 0;
 }
 
-static char *get_column_heading( const char *text )
+// Interns text - a title supplied by a caller whose own storage may not
+// outlive this call (a config-parsed title, a computed classification
+// name) - copying it into headings, which lives for the rest of the
+// program, and returning a stable view of that copy instead. fields[]'s own
+// title1/title2 entries never need this: they're always either a string
+// literal (program-lifetime already) or absent.
+static std::optional<std::string_view> get_column_heading( std::optional<std::string_view> text )
 {
-    column_heading_def *hdr, **phdr;
-    if( !text ) return NULL;
-    for( hdr = headings, phdr = &headings; hdr; phdr = &hdr->next, hdr = hdr->next )
+    if( !text ) return std::nullopt;
+    for( const std::string &heading : headings )
     {
-        if( strcmp(hdr->heading,text) == 0 ) return hdr->heading;
+        if( heading == *text ) return heading;
     }
-    *phdr = (column_heading_def *) check_malloc( sizeof( column_heading_def ) );
-    hdr = *phdr;
-    hdr->next = NULL;
-    hdr->heading = copy_string( text );
-    return hdr->heading;
+    headings.push_front( std::string(*text) );
+    return headings.front();
 }
 
 void clear_residual_field_defs()
@@ -694,7 +695,9 @@ void clear_residual_field_defs()
     listing_format->ncolumn = 0;
 }
 
-static int add_residual_field_def( int type, const char *code, int width, const char *title1, const char *title2 )
+static int add_residual_field_def( int type, std::string_view code, int width,
+                                    std::optional<std::string_view> title1,
+                                    std::optional<std::string_view> title2 )
 {
     int i;
     int column;
@@ -710,36 +713,35 @@ static int add_residual_field_def( int type, const char *code, int width, const 
 
     for( i = 0; i < OF_COUNT; i++ )
     {
-        if( _stricmp( code, fields[i].code ) == 0 )
+        if( boost::algorithm::iequals( code, fields[i].code ) )
         {
             column = i;
             if( !title1 && !title2 )
             {
-                title1 = get_column_heading( fields[i].title1 );
+                title1 = fields[i].title1;
                 title2 = (!fields[i].vector_title2 || datatype[type].isvector) ?
-                         get_column_heading( fields[i].title2 ) :
-                         NULL;
+                         fields[i].title2 : std::nullopt;
             }
             break;
         }
     }
 
-    if( column == INVALID_FIELD && _stricmp(code,"S") == 0 )
+    if( column == INVALID_FIELD && boost::algorithm::iequals(code,"S") )
     {
         column = SPACE_FIELD;
     }
 
-    if( column == INVALID_FIELD && _stricmp(code,"NL") == 0 )
+    if( column == INVALID_FIELD && boost::algorithm::iequals(code,"NL") )
     {
         column = NEWLINE_FIELD;
     }
 
-    if( column == INVALID_FIELD && _strnicmp(code,"C=",2) == 0 )
+    if( column == INVALID_FIELD && boost::algorithm::istarts_with(code,"C=") )
     {
-        column = obs_classes.id( code+2, 1 );
+        column = obs_classes.id( std::string(code.substr(2)), 1 );
         if( !title1 && !title2 )
         {
-            title1 = get_column_heading( obs_classes.name( column ).c_str() );
+            title1 = get_column_heading( obs_classes.name( column ) );
         }
         column |= CLASSIFICATION_FIELD;
     }
@@ -757,7 +759,9 @@ static int add_residual_field_def( int type, const char *code, int width, const 
     return column == INVALID_FIELD ? INVALID_DATA : OK;
 }
 
-int add_residual_field( const char *code, int width, const char *title1, const char *title2 )
+int add_residual_field( std::string_view code, int width,
+                         std::optional<std::string_view> title1,
+                         std::optional<std::string_view> title2 )
 {
     int itype;
     for( itype = 0; itype < NOBSTYPE; itype++ )
@@ -808,7 +812,6 @@ static void merge_residual_titles( void )
         for( icol = 0; icol < idef->ncolumn; icol++ )
         {
             int maxwidth = idef->col[icol].width;
-            const char *title;
             int ttlen;
             for( jtype = itype+1; jtype < NOBSTYPE; jtype++ )
             {
@@ -816,11 +819,9 @@ static void merge_residual_titles( void )
                 if( data_format[jtype].col[icol].width > maxwidth )
                     maxwidth = data_format[jtype].col[icol].width;
             }
-            title = idef->col[icol].title1;
-            ttlen = title ? strlen(title) : 0;
+            ttlen = idef->col[icol].title1 ? idef->col[icol].title1->size() : 0;
             if( ttlen > maxwidth ) maxwidth = ttlen;
-            title = idef->col[icol].title2;
-            ttlen = title ? strlen(title) : 0;
+            ttlen = idef->col[icol].title2 ? idef->col[icol].title2->size() : 0;
             if( ttlen > maxwidth ) maxwidth = ttlen;
 
             for( jtype = itype; jtype < NOBSTYPE; jtype++ )
@@ -1138,14 +1139,7 @@ static void setup_default_format( int type )
     int *cols;
     listing_def *format = &data_format[type];
 
-    if( output_xyz_vector_residuals )
-    {
-        strcpy(vecrescmp,"X,Y,Z");
-    }
-    else
-    {
-        strcpy(vecrescmp,"E,N,U");
-    }
+    fields[OF_RES].title2 = output_xyz_vector_residuals ? "X,Y,Z" : "E,N,U";
 
     if( format->ncolumn ) return;
     if( datatype[type].ispoint )
@@ -1163,7 +1157,7 @@ static void setup_default_format( int type )
         if( fld < 0 ) break;
         width = *cols++;
         if( width < 0 ) break;
-        add_residual_field_def( type, fields[fld].code, width, NULL, NULL );
+        add_residual_field_def( type, fields[fld].code, width, std::nullopt, std::nullopt );
     }
 }
 
