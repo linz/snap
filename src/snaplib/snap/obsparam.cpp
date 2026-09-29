@@ -1,6 +1,6 @@
 #include "snapconfig.h"
 
-#include <string.h>
+#include <algorithm>
 #include <array>
 #include <string>
 #include <string_view>
@@ -304,17 +304,11 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
     }
 }
 
-int find_obsparam_row( int row, char *name, int nlen )
+std::optional<std::string> find_obsparam_row( const int row )
 {
-    for( const obs_param &oprm : obs_params )
-    {
-        if( oprm.rowno == row )
-        {
-            strncpy( name, oprm.prmname().c_str(), nlen-1 );
-            name[nlen-1] = 0;
-            return 1;
-        }
-    }
-    return 0;
+    const auto oprm = std::find_if( obs_params.begin(), obs_params.end(),
+        [row]( const obs_param &candidate ) { return candidate.rowno == row; } );
+    if( oprm == obs_params.end() ) return std::nullopt;
+    return oprm->prmname();
 }
 

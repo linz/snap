@@ -12,6 +12,7 @@
 #include "util/binfile.h"
 #endif
 
+#include <optional>
 #include <string>
 
 // hash..identical (everything but `name`) are dumped to the .bin file via a
@@ -80,7 +81,8 @@ void define_param_match( int p1, int p2 );
 void wildcard_param_match( char *name, int p );
 
 int init_param_rowno( int nextprm );
-int find_param_row( int row, char *name, int nlen );
+/// Returns the name of the parameter solved at equation row \p row, if there is one.
+std::optional<std::string> find_param_row( int row );
 
 void clear_param_list( void );
 void dump_parameters( BINARY_FILE *b );

@@ -325,29 +325,24 @@ int init_station_rowno( void )
 }
 
 
-int find_station_row( int row, char *param, int plen )
+int find_station_row( const int row, std::string_view &description )
 {
-    int istn, maxstn;
-    stn_adjustment *st;
-
     constexpr std::array<std::string_view,3> crdname = {"north coordinate", "east coordinate", "height coordinate"};
 
-    maxstn = number_of_stations(net);
+    const int maxstn = number_of_stations(net);
 
-    for( istn = 0; istn++ < maxstn; )
+    for( int istn = 0; istn++ < maxstn; )
     {
-        st = stnadj(stnptr( istn ) );
+        const stn_adjustment *st = stnadj(stnptr( istn ) );
         if( st->hrowno && (st->hrowno==row || st->hrowno==row-1) )
         {
-            strncpy( param, crdname[row-st->hrowno].data(), plen );
-            param[plen-1] = 0;
+            description = crdname[row-st->hrowno];
             return istn;
         }
 
         if( st->vrowno == row )
         {
-            strncpy( param, crdname[2].data(), plen );
-            param[plen-1] = 0;
+            description = crdname[2];
             return istn;
         }
     }

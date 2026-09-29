@@ -15,6 +15,8 @@
 
 */
 
+#include <string_view>
+
 #ifndef _STNADJ_H
 #include "snap/stnadj.h"
 #endif
@@ -25,7 +27,9 @@
 
 void count_stn_obs( int type, int stn, char unused );
 int init_station_rowno( void );
-int find_station_row( int row, char *param, int plen );
+/// Returns the number of the station whose coordinate is solved at equation row \p row,
+/// or 0 if there is none. Sets \p description to which coordinate it is.
+int find_station_row( int row, std::string_view &description );
 void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double date );
 void init_rf_scale_error( double value, int adjust );
 double rf_scale_error( double dist, void *hA, int irow );

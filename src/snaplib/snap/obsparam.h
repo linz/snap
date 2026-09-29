@@ -2,6 +2,8 @@
 #define _OBSPARAM_H
 
 #include <array>
+#include <optional>
+#include <string>
 #include <string_view>
 
 #ifndef _SURVDATA_H
@@ -28,6 +30,7 @@ const char *get_obs_param_name( int prmid );
 void update_obs_param_value( int prmid, double value, double covar );
 int assign_obs_param_to_stations( int *pnstnobs );
 void set_obs_prm_row_number( int nxtprm, int endobsprm );
-int find_obsparam_row( int row, char *name, int nlen );
+/// Returns the name of the observation parameter solved at equation row \p row, if there is one.
+std::optional<std::string> find_obsparam_row( int row );
 
 #endif

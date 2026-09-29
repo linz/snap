@@ -363,24 +363,18 @@ static void merge_common_params( void )
     }
 }
 
-int find_param_row( int row, char *name, int nlen )
+std::optional<std::string> find_param_row( const int row )
 {
-    param *p;
-    int np;
-    if( !nparam ) return 0;
-
-    for( np = 0; np < nparam; np++ )
+    for( int np = 0; np < nparam; np++ )
     {
-        p = prmlist[np];
+        const param *p = prmlist[np];
 
         if( p->rowno == row )
         {
-            strncpy( name, p->name.c_str(), nlen-1 );
-            name[nlen-1] = 0;
-            return 1;
+            return p->name;
         }
     }
-    return 0;
+    return std::nullopt;
 }
 
 

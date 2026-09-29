@@ -627,31 +627,36 @@ void print_section_footer( FILE * out )
 }
 
 
+/// Describes what is solved at equation row \p row: a general parameter, an observation
+/// parameter or a station coordinate, else just the row number.
+/// Sets \p stno to the station number for a station coordinate, otherwise 0.
+static std::string describe_parameter_row( const int row, int &stno )
+{
+    stno = 0;
+    if( const auto name = find_param_row( row ) ) return *name;
+    if( const auto name = find_obsparam_row( row ) ) return *name;
+    std::string_view coordinate;
+    stno = find_station_row( row, coordinate );
+    if( stno ) return std::string( coordinate );
+    return "Parameter " + std::to_string( row );
+}
+
 void handle_singularity( int sts )
 {
-    char paramname[40];
-    char errmess[120];
     int stno;
-
-    stno = 0;
-    if( !find_param_row( sts, paramname, 40 ) &&
-        !find_obsparam_row( sts, paramname, 40 ) &&
-            ((stno = find_station_row( sts, paramname, 40 )) == 0) )
-    {
-        sprintf(paramname,"Parameter %d", (int) sts );
-    }
+    const std::string paramname = describe_parameter_row( sts, stno );
 
     print_section_header( lst, "SINGULARITY REPORT" );
     fprintf( lst, "The least squares equations cannot be solved\n");
-    sprintf(errmess,"A singularity was detected at %s",paramname);
+    std::string errmess = "A singularity was detected at " + paramname;
     if(stno)
     {
-        sprintf(errmess+strlen(errmess)," of station %s",station_code(stno));
+        errmess += std::string( " of station " ) + station_code(stno);
     }
 
-    fprintf( lst, "%s\n\n", errmess);
+    fprintf( lst, "%s\n\n", errmess.c_str());
 
-    handle_error(INVALID_DATA,"Normal equations are singular",errmess);
+    handle_error(INVALID_DATA,"Normal equations are singular",errmess.c_str());
     print_section_footer( lst );
 }
 
@@ -1022,20 +1027,14 @@ void print_json_params( FILE *lst, int nprefix )
         fprintf(lst,",\n%*s\"parameters\": [",nprefix,"");
         for( int i = 0; i++ < nprm; )
         {
-            int stno=0;
-            char paramname[40];
-            if( ! find_param_row(i,paramname,40) && 
-                ! find_obsparam_row(i,paramname,40) && 
-                    !(stno=find_station_row(i,paramname,40)))
-            {
-                sprintf(paramname,"Parameter %d",i);
-            }
-            fprintf(lst,"%s\n%*s\"%s%s%s\"", 
-                    i > 1 ? "," : "", 
+            int stno;
+            const std::string paramname = describe_parameter_row( i, stno );
+            fprintf(lst,"%s\n%*s\"%s%s%s\"",
+                    i > 1 ? "," : "",
                     nprefix+2,"",
                     stno ? station_code(stno) : "",
                     stno ? ": " : "",
-                    paramname );
+                    paramname.c_str() );
         }
         fprintf(lst,"\n%*s]",nprefix,"");
     }
