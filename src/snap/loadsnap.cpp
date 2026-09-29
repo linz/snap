@@ -55,6 +55,7 @@ into SNAP
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <forward_list>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -101,19 +102,20 @@ into SNAP
 
 struct missing_stn
 {
-    missing_stn( missing_stn *next, std::string_view code, int id ) :
-        next(next), code(code), refcount(0), quiet(0), id(id)
+    missing_stn( std::string_view code, int id ) :
+        code(code), refcount(0), quiet(false), id(id)
     {}
 
-    struct missing_stn *next;      ///< mutated later, appending a new node
     const std::string code;
     int refcount;                  ///< mutated later, incremented on each use
-    int quiet;                     ///< mutated later, set by set_accept_missing_station
+    bool quiet;                    ///< mutated later, set by set_accept_missing_station
     const int id;
 };
 
-
-static missing_stn *missing = NULL;
+/// Stations used in the data files but absent from the coordinate file,
+/// kept sorted by stncodecmp. Nodes never move, so pointers to them stay
+/// valid until the list is cleared.
+static std::forward_list<missing_stn> missing;
 static int missing_id = IGNORE_ID;
 
 static int ignore_missing_stations = 0;
@@ -138,33 +140,30 @@ void set_require_obs_date( int option )
     need_obs_date = option;
 }
 
+/// Returns the missing station with the given code, adding it to the list
+/// first if create is set. Returns nullptr if it is absent and create is not set.
 static missing_stn *get_missing_station( std::string_view code, int create )
 {
-    missing_stn *ms, *prev;
-    for( ms = missing, prev = NULL; ms; prev = ms, ms = ms->next )
+    auto previous = missing.before_begin();
+    for( auto station = missing.begin(); station != missing.end(); previous = station, ++station )
     {
-        int cmp;
-        cmp = stncodecmp( ms->code, code );
-        if( cmp == 0 ) return ms;
-        if( cmp > 0 ) break;
+        const int cmp = stncodecmp( station->code, code );
+        if( cmp == 0 ) { return &*station; }
+        if( cmp > 0 ) { break; }
     }
-    if( ! create ) return 0;
-    missing_stn *newst = new missing_stn( ms, code, --missing_id );
-    if( prev ) prev->next = newst; else missing = newst;
-    return newst;
+    if( ! create ) { return nullptr; }
+    return &*missing.emplace_after( previous, code, --missing_id );
 }
 
 void set_accept_missing_station( std::string_view code )
 {
     missing_stn *ms=get_missing_station(code,1);
-    if( ms ) ms->quiet=1;
+    if( ms ) ms->quiet=true;
 }
 
-static int missing_station_id( const char *code )
+static int missing_station_id( std::string_view code )
 {
-    missing_stn *ms;
-    if( !code ) return 0;
-    ms = get_missing_station( code, ignore_missing_stations );
+    missing_stn *ms = get_missing_station( code, ignore_missing_stations );
     if( ms )
     {
         ms->refcount++;
@@ -175,37 +174,29 @@ static int missing_station_id( const char *code )
 
 static std::optional<std::string_view> missing_station_name( int id )
 {
-    missing_stn *ms;
-    for( ms = missing; ms; ms = ms->next )
+    for( const missing_stn &station : missing )
     {
-        if( ms->id == id ) return ms->code;
+        if( station.id == id ) return station.code;
     }
     return std::nullopt;
 }
 
 static void delete_missing_station_list( void )
 {
-    missing_stn *ms;
-    while( missing )
-    {
-        ms = missing->next;
-        delete missing;
-        missing = ms;
-    }
+    missing.clear();
     missing_id = IGNORE_ID;
 }
 
 static void list_missing_stations( void )
 {
-    missing_stn *ms;
     char buf[80];
     if( ! report_missing_stations ) return;
-    int reportall=report_missing_stations == REPORT_MISSING_ALL;
-    for( ms = missing; ms; ms = ms->next )
+    const bool reportall=report_missing_stations == REPORT_MISSING_ALL;
+    for( const missing_stn &station : missing )
     {
-        if( ! reportall && ms->quiet ) continue;
+        if( ! reportall && station.quiet ) continue;
         sprintf(buf,"Station %-10s is not in the coordinate file.  Used %d times",
-                ms->code.c_str(),ms->refcount );
+                station.code.c_str(),station.refcount );
         handle_error(WARNING_ERROR, buf, NO_MESSAGE );
     }
 }
@@ -445,7 +436,7 @@ static int64_t snap_id( int type, int group_id, const char *code )
         }
         else
         { 
-            if( !id ) id = missing_station_id( code );
+            if( code ) id = missing_station_id( code );
         }
         break;
     case ID_COEF:
