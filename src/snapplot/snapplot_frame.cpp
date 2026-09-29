@@ -17,6 +17,7 @@
 #include "wx_includes.hpp"
 #include <wx/popupwin.h>
 
+#include <string_view>
 #include <vector>
 
 #include "snapplot_frame.hpp"
@@ -637,11 +638,12 @@ void SnapplotFrame::AddConfigMenuItems()
         configMenuCommandFirst = nextCommandId;
         for( int i = 0; i < config_menu_item_count(); i++ )
         {
-            wxString menuText = wxString::Format("&%d %.40s",i+1,config_menu_text(i) );
+            const std::string_view menuTextView = config_menu_text(i);
+            wxString menuText = wxString::Format("&%d %.40s",i+1,menuTextView.data() );
             configMenu->Append( nextCommandId,
                                 menuText,
                                 wxString::Format("Load configuration file for %s",
-                                                 config_menu_text(i) )
+                                                 menuTextView.data() )
                               );
             Connect( nextCommandId, wxEVT_COMMAND_MENU_SELECTED,
                      wxCommandEventHandler(SnapplotFrame::OnCmdReadConfig));
@@ -1102,8 +1104,7 @@ void SnapplotFrame::OnCmdReadConfig( wxCommandEvent &event )
     int id = event.GetId();
     if( id >= configMenuCommandFirst && id <= configMenuCommandLast )
     {
-        char *filename = config_menu_filename( id - configMenuCommandFirst );
-        ReadConfiguration( filename );
+        ReadConfiguration( config_menu_filename( id - configMenuCommandFirst ).data() );
     }
 }
 

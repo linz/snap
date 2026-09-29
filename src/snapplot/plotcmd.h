@@ -8,6 +8,8 @@
 
 */
 
+#include <string_view>
+
 int read_plot_command_file( const char *command_file, int got_data );
 
 /* Done before configuration file read */
@@ -25,8 +27,8 @@ void abort_snapplot_config_file( void );
 /* List of configuration menu items */
 
 int config_menu_item_count();
-char *config_menu_text( int i );
-char *config_menu_filename( int i );
+std::string_view config_menu_text( int i );
+std::string_view config_menu_filename( int i );
 
 /* Function to write configuration information to a file */
 

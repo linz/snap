@@ -45,6 +45,7 @@
 #include <string>
 #include <string.h>
 #include <string_view>
+#include <vector>
 
 #define COMMENT_CHAR '!'
 
@@ -130,17 +131,15 @@ static config_item snapplot_cfg_commands[] =
 static config_item *snapplot_commands = NULL;
 static void *cfg_list = NULL;
 
-static void add_config_menu_item( const char *filename, char *text );
+static void add_config_menu_item( std::string_view filename, std::string_view text );
 
 struct config_menu_item
 {
-    char *menu_text;
-    char *file_name;
-    struct config_menu_item *next;
+    std::string menu_text;
+    std::string file_name;
 };
 
-config_menu_item *config_menu = NULL;
-int config_menu_size = 0;
+static std::vector<config_menu_item> config_menu;
 
 static int read_command_file( const char *file_name, int main_file  )
 {
@@ -932,8 +931,7 @@ static int read_config_menu_command( CFG_FILE *cfg, std::string_view string, voi
         send_config_error( cfg, INVALID_DATA, "Cannot find configuration file " + std::string(*s1) + " in config_menu command" );
         return OK;
     }
-    std::string s2Str(s2);
-    add_config_menu_item( fspec->c_str(), s2Str.data() );
+    add_config_menu_item( *fspec, s2 );
     return OK;
 }
 
@@ -1124,43 +1122,30 @@ int save_configuration( const char *cfgname )
     return 1;
 }
 
-void add_config_menu_item( const char *filename, char *text )
+void add_config_menu_item( std::string_view filename, std::string_view text )
 {
-    config_menu_item *item;
-    config_menu_item **itemptr;
-
-    item = (config_menu_item *) check_malloc( sizeof(config_menu_item) );
-    item->menu_text = copy_string( text );
-    item->file_name = copy_string( filename );
-    item->next = NULL;
-
-    /* Append the item to the end of the list */
-    itemptr = &config_menu;
-    while( *itemptr ) { itemptr = &((*itemptr)->next); }
-    *itemptr = item;
-
-    config_menu_size++;
+    config_menu.push_back( { std::string(text), std::string(filename) } );
 }
 
 int config_menu_item_count()
 {
-    return config_menu_size;
+    return static_cast<int>( config_menu.size() );
 }
 
-static config_menu_item *get_config_menu( int i )
+static const config_menu_item *get_config_menu( int i )
 {
-    config_menu_item *menu = config_menu;
-    while( menu && i-- ) { menu = menu->next; }
-    return menu;
-}
-char *config_menu_text( int i )
-{
-    config_menu_item *menu = get_config_menu(i);
-    return menu ? menu->menu_text : NULL;
+    if( i < 0 || static_cast<size_t>(i) >= config_menu.size() ) return nullptr;
+    return &config_menu[i];
 }
 
-char *config_menu_filename( int i )
+std::string_view config_menu_text( int i )
 {
-    config_menu_item *menu = get_config_menu(i);
-    return menu ? menu->file_name : NULL;
+    const config_menu_item *menu = get_config_menu(i);
+    return menu ? std::string_view(menu->menu_text) : std::string_view("");
+}
+
+std::string_view config_menu_filename( int i )
+{
+    const config_menu_item *menu = get_config_menu(i);
+    return menu ? std::string_view(menu->file_name) : std::string_view("");
 }
