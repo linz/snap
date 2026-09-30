@@ -443,21 +443,21 @@ ref_frame *vdatum_ref_frame( vdatum *hrs );
 
 ellipsoid  *parse_ellipsoid_def ( input_string_def &is, int embedded );
 ref_frame  *parse_ref_frame_def ( input_string_def &is,
-                                  ellipsoid *(*getel)(const char *code ),
-                                  ref_frame *(*getrf)(const char *code, int loadref ),
+                                  ellipsoid *(*getel)(std::string_view code ),
+                                  ref_frame *(*getrf)(std::string_view code, int loadref ),
                                   int embedded, int loadref );
 int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff );
 int parse_ref_deformation_def ( input_string_def &is, ref_deformation **rdf );
 
 projection *parse_projection_def( input_string_def &is );
 coordsys   *parse_coordsys_def  ( input_string_def &is,
-                                  ref_frame *(*getrf)(const char *code, int loadref ));
+                                  ref_frame *(*getrf)(std::string_view code, int loadref ));
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch );
 
 vdatum *parse_vdatum_def ( input_string_def &is,
-                                  ref_frame *(*getrf)(const char *code, int loadref ),
-                                  vdatum *(*gethrs)(const char *code, int loadref ));
+                                  ref_frame *(*getrf)(std::string_view code, int loadref ),
+                                  vdatum *(*gethrs)(std::string_view code, int loadref ));
 
 /*=====================================================================*/
 /* Getting information about components of coordinate systems.         */

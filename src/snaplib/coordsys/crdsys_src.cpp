@@ -171,7 +171,7 @@ coordsys * load_coordsys( std::string_view code )
         const std::string errmsg = "Invalid coordinate definition (" +
             std::string( rest.substr( 0, 40 ) ) + ") in " + std::string( code.substr( 0, 40 ) );
         handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
-        return NULL;
+        return nullptr;
     }
 
     /* Check epoch */
@@ -179,7 +179,7 @@ coordsys * load_coordsys( std::string_view code )
     {
         const std::string errmsg = "Invalid coordinate system epoch in " + std::string( code.substr( 0, 40 ) );
         handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
-        return NULL;
+        return nullptr;
     }
 
     /* Check length of coordinate system code */
@@ -187,7 +187,7 @@ coordsys * load_coordsys( std::string_view code )
     {
         const std::string errmsg = "Invalid coordinate system code in " + std::string( code.substr( 0, 40 ) );
         handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
-        return NULL;
+        return nullptr;
     }
 
     /* Check alternative reference frame */
@@ -197,12 +197,12 @@ coordsys * load_coordsys( std::string_view code )
         {
             const std::string errmsg = "Invalid alternative ref frame code in " + std::string( code.substr( 0, 40 ) );
             handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
-            return NULL;
+            return nullptr;
         }
         else if( ! dtmcode->empty() )
         {
             rf=load_ref_frame( std::string( *dtmcode ).c_str() );
-            if( ! rf ) return NULL;
+            if( ! rf ) return nullptr;
         }
     }
 
@@ -213,7 +213,7 @@ coordsys * load_coordsys( std::string_view code )
         {
             const std::string errmsg = "Invalid height system code in " + std::string( code.substr( 0, 40 ) );
             handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
-            return NULL;
+            return nullptr;
         }
         else if( ! hrscode->empty() )
         {
@@ -221,7 +221,7 @@ coordsys * load_coordsys( std::string_view code )
             if( ! hrs )
             {
                 delete rf;
-                return NULL;
+                return nullptr;
             }
         }
     }
@@ -260,7 +260,7 @@ coordsys * load_coordsys( std::string_view code )
                 handle_error( INVALID_DATA, errmsg, nullptr );
                 delete cs;
                 delete hrs;
-                return NULL;
+                return nullptr;
             }
             set_coordsys_vdatum( cs, hrs );
         }

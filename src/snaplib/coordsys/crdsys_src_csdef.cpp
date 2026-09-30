@@ -138,7 +138,7 @@ static code_loc *add_codes( crdsys_file_source *csf, int type, const char *code,
     return newloc;
 }
 
-static code_loc *find_code_loc( crdsys_file_source *csf, int type, const char *code )
+static code_loc *find_code_loc( crdsys_file_source *csf, int type, std::string_view code )
 {
     code_loc *loc;
     if( type < 0  || type >= CS_COORDSYS_COUNT )
@@ -262,7 +262,7 @@ static code_loc *get_code_loc( crdsys_file_source *cfs, int type, long id )
     return cl;
 }
 
-static std::optional<std::reference_wrapper<input_string_def>> cfs_code_def( crdsys_file_source *cfs, long id, int type, const char *code )
+static std::optional<std::reference_wrapper<input_string_def>> cfs_code_def( crdsys_file_source *cfs, long id, int type, std::string_view code )
 {
     code_loc *cl;
     if( id == CS_ID_UNAVAILABLE )
@@ -296,32 +296,35 @@ static std::optional<std::reference_wrapper<input_string_def>> cfs_code_def( crd
 }
 
 
-static int get_ellipsoid( void *pcfs, long id, const char *code, ellipsoid**el )
+static int read_ellipsoid_def( crdsys_file_source *cfs, long id, std::string_view code, ellipsoid**el )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    *el = NULL;
+    *el = nullptr;
     auto instr = cfs_code_def( cfs, id, CS_ELLIPSOID, code );
     if( !instr ) return MISSING_DATA;
     *el = parse_ellipsoid_def( instr->get(), 0 );
     return *el ? OK : INVALID_DATA;
 }
 
+static int get_ellipsoid( void *pcfs, long id, const char *code, ellipsoid**el )
+{
+    return read_ellipsoid_def( static_cast<crdsys_file_source *>( pcfs ), id, code, el );
+}
+
 static crdsys_file_source *input_cfs;
-static ellipsoid *ellipsoid_from_code( const char *code)
+static ellipsoid *ellipsoid_from_code( std::string_view code)
 {
     ellipsoid *el;
     int sts;
-    sts = get_ellipsoid( input_cfs, CS_ID_UNAVAILABLE, code, &el );
-    if( sts != OK ) el = NULL;
+    sts = read_ellipsoid_def( input_cfs, CS_ID_UNAVAILABLE, code, &el );
+    if( sts != OK ) el = nullptr;
     return el;
 }
 
-static ref_frame *ref_frame_from_code( const char *code, int loadref );
+static ref_frame *ref_frame_from_code( std::string_view code, int loadref );
 
-static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf, int loadref)
+static int read_ref_frame_def( crdsys_file_source *cfs, long id, std::string_view code, ref_frame **rf, int loadref)
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    *rf = NULL;
+    *rf = nullptr;
     auto instr = cfs_code_def( cfs, id, CS_REF_FRAME, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
@@ -329,18 +332,18 @@ static int get_ref_frame( void *pcfs, long id, const char *code, ref_frame **rf,
     return *rf ? OK : INVALID_DATA;
 }
 
-static ref_frame *ref_frame_from_code( const char *code, int loadref )
+static ref_frame *ref_frame_from_code( std::string_view code, int loadref )
 {
     ref_frame *rf;
     int sts;
-    sts = get_ref_frame( input_cfs, CS_ID_UNAVAILABLE, code, &rf, loadref );
-    if( sts != OK ) rf = NULL;
+    sts = read_ref_frame_def( input_cfs, CS_ID_UNAVAILABLE, code, &rf, loadref );
+    if( sts != OK ) rf = nullptr;
     return rf;
 }
 
 static int get_ref_frame_cs( void *pcfs, long id, const char *code, ref_frame **rf )
 {
-    return get_ref_frame( pcfs, id, code, rf, 1 );
+    return read_ref_frame_def( static_cast<crdsys_file_source *>( pcfs ), id, code, rf, 1 );
 }
 
 static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
@@ -354,26 +357,30 @@ static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
     return *cs ? OK : INVALID_DATA;
 }
 
-static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs );
+static int read_vdatum_def( crdsys_file_source *cfs, long id, std::string_view code, vdatum **hrs );
 
-static vdatum *vdatum_from_code( const char *code, int )
+static vdatum *vdatum_from_code( std::string_view code, int )
 {
     vdatum *hrf;
     int sts;
-    sts = get_vdatum( input_cfs, CS_ID_UNAVAILABLE, code, &hrf );
-    if( sts != OK ) hrf = NULL;
+    sts = read_vdatum_def( input_cfs, CS_ID_UNAVAILABLE, code, &hrf );
+    if( sts != OK ) hrf = nullptr;
     return hrf;
 }
 
-static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs )
+static int read_vdatum_def( crdsys_file_source *cfs, long id, std::string_view code, vdatum **hrs )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    *hrs = NULL;
+    *hrs = nullptr;
     auto instr = cfs_code_def( cfs, id, CS_VDATUM, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
     *hrs = parse_vdatum_def( instr->get(), ref_frame_from_code, vdatum_from_code );
     return *hrs ? OK : INVALID_DATA;
+}
+
+static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs )
+{
+    return read_vdatum_def( static_cast<crdsys_file_source *>( pcfs ), id, code, hrs );
 }
 
 static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, int (*puttext)(const char *note, void *sptr ))

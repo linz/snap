@@ -4,6 +4,7 @@
 
 #include <charconv>
 #include <optional>
+#include <string>
 #include <string_view>
 #include <vector>
 
@@ -202,5 +203,28 @@ void copy_field(
     std::string_view field,  ///< the field to copy
     char *buf,               ///< destination buffer
     int nbuf );              ///< buf's capacity, including the trailing '\0'
+
+/// The outcome of reading a field with read_string_field() or
+/// read_double_field().
+enum class FieldResult
+{
+    Ok,              ///< the field was read
+    NoMoreData,      ///< nothing but whitespace is left to read
+    MalformedQuote,  ///< the field starts a quoted value that is not closed
+    InvalidValue     ///< the field could not be converted to the requested type
+};
+
+/// Reads the next field from scanner as a string, treating a quoted value as
+/// one field. A field longer than maxlength is cut short without error.
+FieldResult read_string_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    std::string &value,     ///< set to the field when the result is Ok
+    size_t maxlength );     ///< the most characters to keep
+
+/// Reads the next field from scanner as a number, treating a quoted value as
+/// one field. The whole field must be the number.
+FieldResult read_double_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    double &value );        ///< set to the number when the result is Ok
 
 #endif

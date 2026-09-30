@@ -18,43 +18,32 @@
 
 #include "util/errdef.h"
 #include "coordsys/coordsys.h"
-
-#define READ_STRING( name, str, len ) \
-  if( sts == OK ) { \
-        bad = name; \
-        sts = next_string_field( is.scanner, str, len ); \
-        }
-
-#define READ_DOUBLE( name, pdouble ) \
-     if( sts == OK ) { \
-         bad = name; \
-         sts = double_from_string( is.scanner, pdouble ); \
-         }
+#include "coordsys/crdsys_parse_field.h"
 
 coordsys *parse_coordsys_def  ( input_string_def &is,
-                                ref_frame *(*getrf)(const char *code, int loadref ))
+                                ref_frame *(*getrf)(std::string_view code, int loadref ))
 {
-    char cscode[CRDSYS_CODE_LEN+1];
-    char csname[CRDSYS_NAME_LEN+1];
-    char rfcode[CRDSYS_CODE_LEN+1];
-    char typecode[CRDSYS_CODE_LEN+1];
+    std::string cscode;
+    std::string csname;
+    std::string rfcode;
+    std::string typecode;
     int cstype = CSTP_CARTESIAN;
     ref_frame *rf = NULL;
     projection *prj = NULL;
     coordsys *cs = NULL;
     char got_range;
     double range[4];
-    const char *bad = "";
+    std::string_view bad;
     int sts = OK;
 
-    READ_STRING( "Coordinate system code",cscode,CRDSYS_CODE_LEN);
-    READ_STRING( "Coordinate system name",csname,CRDSYS_NAME_LEN);
+    sts = read_crdsys_string( is.scanner, sts, cscode, CRDSYS_CODE_LEN, "Coordinate system code", bad );
+    sts = read_crdsys_string( is.scanner, sts, csname, CRDSYS_NAME_LEN, "Coordinate system name", bad );
     auto savedBeforeRfCode = is.scanner.remainder();
-    READ_STRING( "Reference frame code", rfcode, CRDSYS_CODE_LEN);
+    sts = read_crdsys_string( is.scanner, sts, rfcode, CRDSYS_CODE_LEN, "Reference frame code", bad );
 
     if( sts == OK )
     {
-        if( _stricmp( rfcode, "REF_FRAME" ) != 0 )
+        if( compare_ignoring_case( rfcode, "REF_FRAME" ) != 0 )
         {
             is.scanner = FieldScanner(savedBeforeRfCode);
             rf = parse_ref_frame_def( is, 0, 0, 1, 1 );
@@ -62,23 +51,23 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         }
         else
         {
-            READ_STRING( "Reference frame code",rfcode,CRDSYS_CODE_LEN);
+            sts = read_crdsys_string( is.scanner, sts, rfcode, CRDSYS_CODE_LEN, "Reference frame code", bad );
             rf = NULL;
         }
     }
 
-    READ_STRING( "Coordinate system type",typecode,CRDSYS_CODE_LEN);
+    sts = read_crdsys_string( is.scanner, sts, typecode, CRDSYS_CODE_LEN, "Coordinate system type", bad );
     if( sts == OK )
     {
-        if( _stricmp( typecode, "GEOCENTRIC" ) == 0 )
+        if( compare_ignoring_case( typecode, "GEOCENTRIC" ) == 0 )
         {
             cstype = CSTP_CARTESIAN;
         }
-        else if( _stricmp( typecode, "GEODETIC" ) == 0 )
+        else if( compare_ignoring_case( typecode, "GEODETIC" ) == 0 )
         {
             cstype = CSTP_GEODETIC;
         }
-        else if( _stricmp( typecode, "PROJECTION" ) == 0 )
+        else if( compare_ignoring_case( typecode, "PROJECTION" ) == 0 )
         {
             cstype = CSTP_PROJECTION;
         }
@@ -106,32 +95,31 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
     if( sts == OK )
     {
         auto savedBeforeTypecode = is.scanner.remainder();
-        READ_STRING( "", typecode, CRDSYS_CODE_LEN );
-        if( sts != OK || _stricmp(typecode,"RANGE") != 0 )
+        sts = read_crdsys_string( is.scanner, sts, typecode, CRDSYS_CODE_LEN, "", bad );
+        if( sts != OK || compare_ignoring_case(typecode,"RANGE") != 0 )
         {
             is.scanner = FieldScanner(savedBeforeTypecode);
             sts = OK;
         }
         else
         {
-            READ_DOUBLE( "valid range", &range[0]);
-            READ_DOUBLE( "valid range", &range[1]);
-            READ_DOUBLE( "valid range", &range[2]);
-            READ_DOUBLE( "valid range", &range[3]);
+            sts = read_crdsys_double( is.scanner, sts, range[0], "valid range", bad );
+            sts = read_crdsys_double( is.scanner, sts, range[1], "valid range", bad );
+            sts = read_crdsys_double( is.scanner, sts, range[2], "valid range", bad );
+            sts = read_crdsys_double( is.scanner, sts, range[3], "valid range", bad );
             got_range = sts == OK;
         }
     }
 
     if( sts == OK )
     {
-        char test[32];
-        sts = next_string_field( is.scanner, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
+        std::string test;
+        sts = read_string_field( is.scanner, test, 31 ) == FieldResult::NoMoreData ? OK : TOO_MUCH_DATA;
         if( sts != OK )
         {
-            char errmsg[100+CRDSYS_CODE_LEN];
-            sprintf(errmsg,"Extraneous data \"%s\" in definition of crdsys \"%s\"",
-                    test,cscode);
-            report_string_error(is,sts,errmsg);
+            const std::string errmsg = "Extraneous data \"" + test +
+                                       "\" in definition of crdsys \"" + cscode + "\"";
+            report_string_error( is, sts, errmsg.c_str() );
         }
     }
 
@@ -140,27 +128,16 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         if( getrf ) rf = (*getrf)(rfcode,1);
         if( !rf )
         {
-            char errmess[80];
-            strcpy(errmess,"Cannot load reference frame ");
-            strcat(errmess,rfcode);
-            report_string_error(is,INVALID_DATA,errmess);
+            const std::string errmess = "Cannot load reference frame " + rfcode;
+            report_string_error( is, INVALID_DATA, errmess.c_str() );
             sts = MISSING_DATA;
         }
     }
     else if( sts != OK )
     {
-        char errmess[80];
-        if( sts == MISSING_DATA )
-        {
-            strcpy( errmess, bad);
-            strcat( errmess, " is missing" );
-        }
-        else
-        {
-            strcpy( errmess, "Invalid value for " );
-            strcat( errmess, bad );
-        }
-        report_string_error( is, sts, errmess );
+        const std::string errmess = sts == MISSING_DATA ? std::string( bad ) + " is missing"
+                                                        : "Invalid value for " + std::string( bad );
+        report_string_error( is, sts, errmess.c_str() );
     }
 
     if( sts != OK )

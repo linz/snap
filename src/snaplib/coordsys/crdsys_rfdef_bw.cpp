@@ -8,6 +8,7 @@
 #include "util/pi.h"
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_bw.h"
+#include "coordsys/crdsys_parse_field.h"
 
 
 /// The opaque payload behind a BW14/EULER ref_deformation's data member.
@@ -34,13 +35,6 @@ struct ref_deformation_xyz
     double tmat[3][3];                ///< Linear transform matrix, filled in after construction
     double shift[3];                    ///< Constant shift vector, filled in after construction
 };
-
-
-#define READ_DOUBLE( name, pdouble ) \
-     if( sts == OK ) { \
-         bad = name; \
-         sts = double_from_string( is.scanner, pdouble ); \
-         }
 
 
 static void rf_xyz_delete( void *pdxyz )
@@ -138,23 +132,23 @@ ref_deformation *rfdef_parse_bw14def( input_string_def &is )
     double rx=0, ry=0, rz=0;
     double sf=0;
     int sts = OK;
-    const char *bad = 0;
+    std::string_view bad;
     ref_deformation_xyz *dxyz;
     char description[256];
 
-    READ_DOUBLE( "deformation epoch", &refepoch );
+    sts = read_crdsys_double( is.scanner, sts, refepoch, "deformation epoch", bad );
 
-    READ_DOUBLE( "x translation rate", &tx );
-    READ_DOUBLE( "y translation rate", &ty );
-    READ_DOUBLE( "z translation rate", &tz );
+    sts = read_crdsys_double( is.scanner, sts, tx, "x translation rate", bad );
+    sts = read_crdsys_double( is.scanner, sts, ty, "y translation rate", bad );
+    sts = read_crdsys_double( is.scanner, sts, tz, "z translation rate", bad );
 
-    READ_DOUBLE( "x rotation rate", &rx );
-    READ_DOUBLE( "y rotation rate", &ry );
-    READ_DOUBLE( "z rotation rate", &rz );
+    sts = read_crdsys_double( is.scanner, sts, rx, "x rotation rate", bad );
+    sts = read_crdsys_double( is.scanner, sts, ry, "y rotation rate", bad );
+    sts = read_crdsys_double( is.scanner, sts, rz, "z rotation rate", bad );
 
-    READ_DOUBLE( "scale change rate", &sf );
+    sts = read_crdsys_double( is.scanner, sts, sf, "scale change rate", bad );
 
-    if( sts !=  OK && bad)
+    if( sts !=  OK && ! bad.empty() )
     {
         std::string errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
                                                     : "Invalid value for " + std::string(bad);
@@ -205,18 +199,18 @@ ref_deformation *rfdef_parse_eulerdef( input_string_def &is )
     double refepoch=0;
     double lon=0,lat=0,rate=0;
     int sts = OK;
-    const char *bad = 0;
+    std::string_view bad;
     double clt, slt, cln, sln;
     char description[256];
     ref_deformation_xyz *dxyz;
 
-    READ_DOUBLE( "Euler base epoch", &refepoch );
+    sts = read_crdsys_double( is.scanner, sts, refepoch, "Euler base epoch", bad );
 
-    READ_DOUBLE( "Euler pole longitude", &lon );
-    READ_DOUBLE( "Euler pole latitude", &lat );
-    READ_DOUBLE( "Euler rotation rate", &rate );
+    sts = read_crdsys_double( is.scanner, sts, lon, "Euler pole longitude", bad );
+    sts = read_crdsys_double( is.scanner, sts, lat, "Euler pole latitude", bad );
+    sts = read_crdsys_double( is.scanner, sts, rate, "Euler rotation rate", bad );
 
-    if( sts!=  OK && bad)
+    if( sts!=  OK && ! bad.empty() )
     {
         std::string errmess = sts == MISSING_DATA ? std::string(bad) + " is missing"
                                                     : "Invalid value for " + std::string(bad);

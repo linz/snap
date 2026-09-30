@@ -172,3 +172,39 @@ void copy_field( std::string_view field, char *buf, int nbuf )
     memcpy( buf, field.data(), length );
     buf[length] = 0;
 }
+
+/// Reads the next field from scanner, treating a quoted value as one field.
+/// checkAndRecoverQuotedValue gives nullopt both at the end of the text and
+/// for a malformed quote, so a copy of the scanner is used to tell which.
+/// The scanner is unchanged if nothing is left to read, and is advanced past
+/// a malformed quote.
+static FieldResult read_field(
+    FieldScanner &scanner,      ///< the scanner to read from
+    std::string_view &field )   ///< set to the field when the result is Ok
+{
+    FieldScanner probe = scanner;
+    if( ! probe.next() ) return FieldResult::NoMoreData;
+    const std::optional<std::string_view> result = scanner.checkAndRecoverQuotedValue( true, std::nullopt );
+    if( ! result ) return FieldResult::MalformedQuote;
+    field = *result;
+    return FieldResult::Ok;
+}
+
+FieldResult read_string_field( FieldScanner &scanner, std::string &value, size_t maxlength )
+{
+    std::string_view field;
+    const FieldResult result = read_field( scanner, field );
+    if( result == FieldResult::Ok ) value.assign( field.substr( 0, maxlength ) );
+    return result;
+}
+
+FieldResult read_double_field( FieldScanner &scanner, double &value )
+{
+    std::string_view field;
+    const FieldResult result = read_field( scanner, field );
+    if( result != FieldResult::Ok ) return result;
+    const std::optional<double> parsed = parse_double( field );
+    if( ! parsed ) return FieldResult::InvalidValue;
+    value = *parsed;
+    return FieldResult::Ok;
+}

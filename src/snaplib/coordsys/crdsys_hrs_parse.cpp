@@ -26,27 +26,17 @@
 #include "util/fileutil.h"
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
-
-#define READ_STRING( name, str, len ) \
-	 if( sts == OK ) { \
-        sts = next_string_field( is.scanner, str, len ); \
-        }
-
-#define READ_DOUBLE( name, pdouble ) \
-     if( sts == OK ) { \
-         sts = double_from_string( is.scanner, pdouble ); \
-         }
-
+#include "coordsys/crdsys_parse_field.h"
 
 vdatum *parse_vdatum_def ( input_string_def &is,
-                                  ref_frame *(*getrf)(const char *code, int loadref ),
-                                  vdatum *(*gethrs)(const char *code, int loadref )
+                                  ref_frame *(*getrf)(std::string_view code, int loadref ),
+                                  vdatum *(*gethrs)(std::string_view code, int loadref )
                                   )
 {
-    char hrscode[CRDSYS_CODE_LEN+1];
-    char hrsname[CRDSYS_NAME_LEN+1];
-    char basecode[CRDSYS_CODE_LEN+1];
-    char geoidname[MAX_FILENAME_LEN+1];
+    std::string hrscode;
+    std::string hrsname;
+    std::string basecode;
+    std::string geoidname;
     std::optional<std::string> geoidfile;
     double offset;
     int isgeoid;
@@ -62,19 +52,19 @@ vdatum *parse_vdatum_def ( input_string_def &is,
     isgeoid = 0;
     isgrid = 0;
 
-    READ_STRING( "code",hrscode,CRDSYS_CODE_LEN );
-    READ_STRING( "name",hrsname,CRDSYS_NAME_LEN );
-    READ_STRING( "base height surface code",basecode,CRDSYS_CODE_LEN );
+    sts = read_crdsys_string( is.scanner, sts, hrscode, CRDSYS_CODE_LEN );
+    sts = read_crdsys_string( is.scanner, sts, hrsname, CRDSYS_NAME_LEN );
+    sts = read_crdsys_string( is.scanner, sts, basecode, CRDSYS_CODE_LEN );
     if( test_next_string_field(is.scanner,"geoid") )
     {
         isgeoid=1;
         isgrid=1;
-        READ_STRING("geoid name",geoidname,MAX_FILENAME_LEN);
+        sts = read_crdsys_string( is.scanner, sts, geoidname, MAX_FILENAME_LEN );
     }
     else if( test_next_string_field(is.scanner,"grid") )
     {
         isgrid=1;
-        READ_STRING("offset grid name",geoidname,MAX_FILENAME_LEN);
+        sts = read_crdsys_string( is.scanner, sts, geoidname, MAX_FILENAME_LEN );
     }
     else
     {
@@ -82,7 +72,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
          * offset assumed and just a float value
          */
         test_next_string_field(is.scanner, "offset");
-        READ_DOUBLE("offset",&offset);
+        sts = read_crdsys_double( is.scanner, sts, offset );
     }
 
     if( isgrid )
@@ -90,10 +80,9 @@ vdatum *parse_vdatum_def ( input_string_def &is,
         geoidfile = find_relative_file( is.sourcename, geoidname, ".grd" );
         if( ! geoidfile )
         {
-            char errmess[255];
-            sprintf(errmess,"Cannot locate geoid file %.120s for vertical datum %.20s",
-                    geoidname,hrscode);
-            report_string_error( is, INVALID_DATA, errmess );
+            const std::string errmess = "Cannot locate geoid file " + geoidname +
+                                        " for vertical datum " + hrscode;
+            report_string_error( is, INVALID_DATA, errmess.c_str() );
             sts = INVALID_DATA;
         }
         else
@@ -113,10 +102,9 @@ vdatum *parse_vdatum_def ( input_string_def &is,
             baserf=getrf(basecode,1);
             if( ! baserf )
             {
-                char errmess[255];
-                sprintf(errmess,"Cannot load reference datum %.20s for vertical datum %.20s",
-                        basecode,hrscode);
-                report_string_error( is, INVALID_DATA, errmess );
+                const std::string errmess = "Cannot load reference datum " + basecode +
+                                            " for vertical datum " + hrscode;
+                report_string_error( is, INVALID_DATA, errmess.c_str() );
                 sts = INVALID_DATA;
             }
         }
@@ -125,10 +113,9 @@ vdatum *parse_vdatum_def ( input_string_def &is,
             basehrs=gethrs(basecode,1);
             if( ! basehrs )
             {
-                char errmess[255];
-                sprintf(errmess,"Cannot load underlying vertical datum %.20s for %.20s",
-                        basecode,hrscode);
-                report_string_error( is, INVALID_DATA, errmess );
+                const std::string errmess = "Cannot load underlying vertical datum " + basecode +
+                                            " for " + hrscode;
+                report_string_error( is, INVALID_DATA, errmess.c_str() );
                 sts = INVALID_DATA;
             }
             else
@@ -136,13 +123,10 @@ vdatum *parse_vdatum_def ( input_string_def &is,
                 vdatum *base=basehrs;
                 while( base )
                 {
-                    if( _stricmp(base->code.c_str(),hrscode) == 0 )
+                    if( compare_ignoring_case(base->code,hrscode) == 0 )
                     {
-                        char errmess[80+CRDSYS_CODE_LEN];
-                        strcpy( errmess, "Vertical datum ");
-                        strcat( errmess, hrscode );
-                        strcat( errmess, " has a cyclic dependency");
-                        report_string_error( is, INVALID_DATA, errmess );
+                        const std::string errmess = "Vertical datum " + hrscode + " has a cyclic dependency";
+                        report_string_error( is, INVALID_DATA, errmess.c_str() );
                         sts = INVALID_DATA;
                         break;
                     }
