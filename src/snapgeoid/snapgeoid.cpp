@@ -342,7 +342,7 @@ int main( int argc, char *argv[] )
             print_geoid_header( gd, stdout, 0, "   " );
         }
 
-        sprintf(geoid_msg,"Geoid undulations from %.80s",get_geoid_model( gd ));
+        sprintf(geoid_msg,"Geoid undulations from %.80s",std::string( get_geoid_model( gd ) ).c_str());
         int sts = set_network_geoid_def( &net, gd, orthometric_fixed, errlevel );
         if( sts != OK && sts != INFO_ERROR ) return 2;
     }

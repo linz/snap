@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <string>
+#include <string_view>
 #include <utility>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
@@ -153,8 +154,8 @@ static void describe_grid_vdatum_func( vdatum_func *hrf, output_string_def *os )
     {
         for( int i=1; i < 4; i++ )
         {
-            const char *title=geoid_title( ghrfd->gd, i );
-            if( title && strlen(title) > 0 )
+            const std::string_view title = geoid_title( ghrfd->gd, i );
+            if( !title.empty() )
             {
                 write_output_string( os, title );
                 write_output_string( os, "\n" );

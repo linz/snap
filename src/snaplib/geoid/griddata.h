@@ -98,8 +98,6 @@ void grd_delete_grid( grid_def *grd );
 void grd_grid_spacing( grid_def *grd, double *dx, double *dy );
 int grd_calc_cubic(  grid_def *grd, double x, double y, double *value );
 int grd_calc_linear( grid_def *grd, double x, double y, double *value );
-const char *grd_coordsys_def( grid_def *grd );
-const char *grd_title( grid_def *grd, int titleno );
 void grd_print_grid_data( grid_def *grd, FILE *out, char showGrid );
 
 #endif

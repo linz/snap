@@ -23,6 +23,7 @@
 
 
 #include <stdio.h>
+#include <string_view>
 
 #include "geoid/griddata.h"
 #include "coordsys/coordsys.h"
@@ -41,11 +42,11 @@ void delete_geoid_filename( const char *filename );
 
 geoid_def *create_geoid_grid( const char *filename );
 void delete_geoid_grid( geoid_def *gd );
-void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix );
+void print_geoid_header( geoid_def *gd, FILE *out, int width, std::string_view prefix );
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid );
-const char *geoid_title( geoid_def *gd, int titleno );
+std::string_view geoid_title( geoid_def *gd, int titleno );
 coordsys *get_geoid_coordsys( geoid_def *gd );
-const char *get_geoid_model( geoid_def *gd );
+std::string_view get_geoid_model( geoid_def *gd );
 
 /* Note, lat/lon in radians in these calls */
 

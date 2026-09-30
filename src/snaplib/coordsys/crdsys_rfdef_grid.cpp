@@ -1,5 +1,7 @@
 #include "snapconfig.h"
 #include <stdio.h>
+#include <optional>
+#include <string>
 
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_rfdef_grid.h"
@@ -80,11 +82,11 @@ static int rf_grid_describe(  ref_frame *rf, output_string_def *os )
     if( sts != OK ) return sts;
     for( i = 1; i <= 3; i++ )
     {
-        const char *text = grd_title(gd->grid,i);
-        if( text && text[0] )
+        const std::optional<std::string> &text = gd->grid->title(i);
+        if( text && !text->empty() )
         {
             write_output_string(os,"    ");
-            write_output_string(os,text);
+            write_output_string(os,*text);
             write_output_string(os,"\n");
         }
     }

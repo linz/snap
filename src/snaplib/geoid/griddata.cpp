@@ -69,6 +69,8 @@ static std::optional<std::string> load_string( FILE *bin )
     if( !len ) return std::nullopt;
     std::string s( len, '\0' );
     if( !fread( s.data(), len, 1, bin ) ) return std::nullopt;
+    // The text is stored as a C string, so drop the terminator and anything after it
+    s.resize( std::char_traits<char>::length( s.c_str() ) );
     return s;
 }
 
@@ -665,23 +667,6 @@ const std::optional<std::string> &grid_def::title( int titleno ) const
 {
     if( titleno > 3 ) titleno = 3;
     return titleno == 3 ? desc3 : titleno == 2 ? desc2 : desc1;
-}
-
-// Thin const char* shim over grid_def::crdsys, kept for callers not yet
-// converted to std::optional<std::string> (grddeform.cpp's own char*
-// variables, geoid.cpp/crdsys_rfdef_grid.cpp's const char*-returning
-// wrappers).
-const char *grd_coordsys_def( grid_def *grd )
-{
-    return grd->crdsys ? grd->crdsys->c_str() : nullptr;
-}
-
-// Thin const char* shim over grid_def::title(), for the same not-yet-
-// converted callers as grd_coordsys_def above.
-const char *grd_title( grid_def *grd, int titleno )
-{
-    const std::optional<std::string> &desc = grd->title( titleno );
-    return desc ? desc->c_str() : nullptr;
 }
 
 void grd_grid_spacing( grid_def *grd, double *dx, double *dy )

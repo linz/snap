@@ -8,7 +8,6 @@
 #include "util/dateutil.h"
 #include "util/fileutil.h"
 #include "util/chkalloc.h"
-#include "util/dstring.h"
 #include "geoid/griddata.h"
 #include "coordsys/coordsys.h"
 #include "snap/stnadj.h"
@@ -22,7 +21,7 @@
 
 static double epoch;
 static grid_def *velgrid;
-static char *model;
+static std::string model;
 static std::string modelfile;
 static int veldimension;
 
@@ -32,11 +31,11 @@ struct velocity
     double dxyz[3];
 };
 
-static velocity *stn_velocities = NULL;
+static velocity *stn_velocities = nullptr;
 
-static char *desc1 = NULL;
-static char *desc2 = NULL;
-static char *desc3 = NULL;
+static std::string desc1;
+static std::string desc2;
+static std::string desc3;
 
 /* Called when the configuration file includes a deformation command - the
    command is passed to define_deformation as the string model */
@@ -46,7 +45,7 @@ static char *desc3 = NULL;
 static int init_grid_deformation(  const std::string &pmodel, double pepoch )
 {
     epoch = pepoch;
-    model = copy_string( pmodel.c_str() );
+    model = pmodel;
     auto grdfile = find_coordsys_data_file( model, ".grd" );
     if( !grdfile ) return INVALID_DATA;
     modelfile = *grdfile;
@@ -62,9 +61,9 @@ static int init_grid_deformation(  const std::string &pmodel, double pepoch )
     {
         return INVALID_DATA;
     }
-    desc1 = copy_string( grd_title( velgrid, 1 ));
-    desc2 = copy_string( grd_title( velgrid, 2 ));
-    desc3 = copy_string( grd_title( velgrid, 3 ));
+    desc1 = velgrid->title( 1 ).value_or( "" );
+    desc2 = velgrid->title( 2 ).value_or( "" );
+    desc3 = velgrid->title( 3 ).value_or( "" );
     return OK;
 }
 
@@ -74,19 +73,15 @@ static int init_grid_deformation(  const std::string &pmodel, double pepoch )
 
 static int init_griddef( void * )
 {
-    const char *vcsdef;
-    coordsys *vcs;
     coord_conversion tovcs;
-    double factor;
-    int nstns, istn;
     char buf[128];
 
     if( ! velgrid ) return INVALID_DATA;
-    vcsdef = grd_coordsys_def( velgrid );
-    vcs = load_coordsys( vcsdef ? vcsdef : "" );
+    const std::string vcsdef = velgrid->crdsys.value_or( "" );
+    coordsys * const vcs = load_coordsys( vcsdef );
     if( !vcs )
     {
-        sprintf( buf,"Cannot load velocity model coordinate system %-20s",vcsdef);
+        sprintf( buf,"Cannot load velocity model coordinate system %-20s",vcsdef.c_str());
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
@@ -97,24 +92,23 @@ static int init_griddef( void * )
         handle_error(WARNING_ERROR,buf,NO_MESSAGE);
         return INVALID_DATA;
     }
-    factor = vcs->crdtype == CSTP_GEODETIC ? 180/M_PI  : 1.0;
+    const double factor = vcs->crdtype == CSTP_GEODETIC ? 180/M_PI  : 1.0;
 
     /* Allocate space for a set of deformation parameters.. */
 
-    nstns = number_of_stations( net );
-    stn_velocities = (velocity *) check_malloc( sizeof(velocity) * (nstns+1) );
+    const int nstns = number_of_stations( net );
+    stn_velocities = static_cast<velocity *>( check_malloc( sizeof(velocity) * (nstns+1) ) );
 
     /* For each station calculate the velocity */
 
-    for( istn = 1; istn <= nstns; istn++ )
+    for( int istn = 1; istn <= nstns; istn++ )
     {
         double xyz[3];
-        station *st;
-        st = station_ptr( net, istn );
+        const station * const st = station_ptr( net, istn );
         xyz[CRD_LAT] = st->ELat;
         xyz[CRD_LON] = st->ELon;
         xyz[CRD_HGT] = st->OHgt + st->GUnd;
-        if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
+        if( convert_coords( &tovcs, xyz, nullptr, xyz, nullptr ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %-20s to velocity coordinate system %-20s",
                     st->Code, vcs->code.c_str());
@@ -154,10 +148,10 @@ static int calc_griddef( void *, station *st, double date, double denu[3] )
 static int print_griddef_model( void *, FILE *out, const char *prefix )
 {
     fprintf(out,"%sModel type: velocity\n",prefix );
-    fprintf(out,"%sModel name: %s\n", prefix,model );
-    if( desc1 && desc1[0] ) {fprintf(out,"%s%s\n",prefix,desc1);}
-    if( desc2 && desc2[0] ) {fprintf(out,"%s%s\n",prefix,desc2);}
-    if( desc3 && desc3[0] ) {fprintf(out,"%s%s\n",prefix,desc3);}
+    fprintf(out,"%sModel name: %s\n", prefix,model.c_str() );
+    if( !desc1.empty() ) {fprintf(out,"%s%s\n",prefix,desc1.c_str());}
+    if( !desc2.empty() ) {fprintf(out,"%s%s\n",prefix,desc2.c_str());}
+    if( !desc3.empty() ) {fprintf(out,"%s%s\n",prefix,desc3.c_str());}
     fprintf(out,"%sReference epoch: %.1lf\n",prefix,epoch);
     return OK;
 }

@@ -21,6 +21,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <optional>
+#include <string>
+#include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
 #include "util/fileutil.h"
 #include "string.h"
 #include "util/chkalloc.h"
@@ -89,8 +93,7 @@ geoid_def *create_geoid_grid( const char *source )
     }
     else
     {
-        const char *cscode = grd_coordsys_def( grd );
-        cs = load_coordsys( cscode ? cscode : "" );
+        cs = load_coordsys( grd->crdsys ? *grd->crdsys : std::string() );
         if( ! cs )
         {
             grd_delete_grid( grd );
@@ -130,10 +133,9 @@ void delete_geoid_grid( geoid_def *gd )
     check_free( gd );
 }
 
-const char *get_geoid_model( geoid_def *gd )
+std::string_view get_geoid_model( geoid_def *gd )
 {
-    if( !gd ) return NULL;
-    return grd_title( gd->grd, 1 );
+    return geoid_title( gd, 1 );
 }
 
 coordsys *get_geoid_coordsys(  geoid_def *gd )
@@ -142,29 +144,29 @@ coordsys *get_geoid_coordsys(  geoid_def *gd )
     return gd->cs;
 }
 
-void print_geoid_header( geoid_def *gd, FILE *out, int width, const char *prefix )
+void print_geoid_header( geoid_def *gd, FILE *out, int width, std::string_view prefix )
 {
-    int i, nblank;
     if( !gd->grd ) return;
-    for( i = 0; i++ < 3; )
+    for( int i = 1; i <= 3; i++ )
     {
-        const char *s = grd_title(gd->grd, i);
+        const std::optional<std::string> &s = gd->grd->title( i );
         if( !s ) continue;
-        if( prefix ) fputs( prefix, out );
+        fwrite( prefix.data(), 1, prefix.size(), out );
         if( width > 0 )
         {
-            nblank = width - strlen(s)/2;
+            const int nblank = width - boost::numeric_cast<int>( s->size() / 2 );
             if( nblank > 0 ) fprintf( out, "%*s", nblank, "" );
         }
-        fprintf(out,"%s\n", s );
+        fprintf(out,"%s\n", s->c_str() );
     }
 }
 
 
-const char *geoid_title( geoid_def *gd, int titleno )
+std::string_view geoid_title( geoid_def *gd, int titleno )
 {
-    if( gd->grd ) return grd_title( gd->grd, titleno );
-    return 0;
+    if( !gd || !gd->grd ) return std::string_view();
+    const std::optional<std::string> &title = gd->grd->title( titleno );
+    return title ? std::string_view( *title ) : std::string_view();
 }
 
 void print_geoid_data( geoid_def *gd, FILE *out, char showGrid )
