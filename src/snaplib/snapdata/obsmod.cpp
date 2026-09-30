@@ -591,7 +591,7 @@ static obs_criterion *new_obs_date_criterion( CFG_FILE *cfg, unsigned char date_
 
     if( date_crit_type == OBS_CRIT_DATE_BEFORE || date_crit_type == OBS_CRIT_DATE_AFTER )
     {
-        date=snap_datetime_parse(datestr.c_str(),0);
+        date=snap_datetime_parse(datestr);
         if( date == UNDEFINED_DATE )
         {
             char errmsg[100];

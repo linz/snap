@@ -110,7 +110,7 @@ ellipsoid * load_ellipsoid( std::string_view code )
 
 int parse_crdsys_epoch( const char *epochstr, double *epoch )
 {
-    *epoch=snap_datetime_parse(epochstr,0);
+    *epoch=snap_datetime_parse(epochstr);
     if( ! *epoch ) return 0;
     *epoch = date_as_year(*epoch);
     return 1;

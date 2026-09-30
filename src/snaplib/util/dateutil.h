@@ -13,6 +13,9 @@
 
 /* Header file for dateutil.c - SNAP date functions */
 
+#include <optional>
+#include <string_view>
+
 #define DAYS_PER_YEAR 365.25
 #define MAX_DATE_LEN 30
 
@@ -20,17 +23,15 @@
 
 #define UNDEFINED_DATE     0.0
 
-/* Undefined date format - default format tries a number of options */
-
-#define DEFAULT_DATE_FORMAT 0
-
 /* Snap uses dates as double day number */
 
 double snap_date( int year, int month, int day );
 double snap_datetime( int year, int month, int day, int hour, int min, int sec );
 double snap_yds( int year, int dayno, int secs );
 double snap_datetime_now();
-double snap_datetime_parse( const char *definition, const char *format );
+/// Parses a date or date time, returning UNDEFINED_DATE if it is not valid.
+/// If no format is given the default formats are tried in turn.
+double snap_datetime_parse( std::string_view definition, std::optional<std::string_view> format = std::nullopt );
 int same_date( double date0, double date1 );
 
 /* Conversion to other date formats */

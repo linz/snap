@@ -529,7 +529,7 @@ static std::optional<DateRange> parse_date_range(
     }
     if( ok && fromdef )
     {
-        range.datefrom=snap_datetime_parse( fromdef->c_str(), nullptr );
+        range.datefrom=snap_datetime_parse( *fromdef );
         if( ! range.datefrom )
         {
             sprintf(msg,"Invalid from date \"%.50s\"",fromdef->c_str());
@@ -538,7 +538,7 @@ static std::optional<DateRange> parse_date_range(
     }
     if( ok && todef )
     {
-        range.dateto=snap_datetime_parse( todef->c_str(), nullptr );
+        range.dateto=snap_datetime_parse( *todef );
         if( ! range.dateto )
         {
             sprintf(msg,"Invalid to date \"%.50s\"",todef->c_str());

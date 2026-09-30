@@ -680,7 +680,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         _obsid >> obsid;
     if (_time.value() != "")
     {
-        snaptime = snap_datetime_parse(_time.value().c_str(), _dateformat.c_str());
+        snaptime = snap_datetime_parse(_time.value(), _dateformat);
         if (snaptime == 0.0)
             dataError("Invalid date or date format");
     }

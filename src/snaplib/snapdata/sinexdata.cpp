@@ -66,7 +66,7 @@ SinexDataReader::SinexDataReader(const OptionString &config)
     obsdate = UNDEFINED_DATE;
     if (datestr != "")
     {
-        obsdate = snap_datetime_parse(datestr.c_str(), 0);
+        obsdate = snap_datetime_parse(datestr);
         if (obsdate == UNDEFINED_DATE)
         {
             throw RecordError(std::string("Invalid date ") + datestr + " specified for SINEX file");

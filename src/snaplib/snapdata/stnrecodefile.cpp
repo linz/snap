@@ -80,7 +80,7 @@ void SnapCsvRecode::loadRecord()
 
     if( datefromstr != "" && datefromstr != "" )
     {
-        datefrom=snap_datetime_parse( datefromstr.c_str(), 0 );
+        datefrom=snap_datetime_parse( datefromstr );
         if( datefrom == UNDEFINED_DATE ) 
         {
             dataError(string("Invalid from date ")+datefromstr);
@@ -90,7 +90,7 @@ void SnapCsvRecode::loadRecord()
 
     if( datetostr != "" && datetostr != "" )
     {
-        dateto=snap_datetime_parse( datetostr.c_str(), 0 );
+        dateto=snap_datetime_parse( datetostr );
         if( dateto == UNDEFINED_DATE ) 
         {
             dataError(string("Invalid to date ")+datetostr);

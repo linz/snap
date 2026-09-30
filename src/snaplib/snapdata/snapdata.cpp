@@ -1091,7 +1091,7 @@ static int read_date_command( snapfile_def *sd, int, const char *cmd )
         return OK;
     }
 
-    date=snap_datetime_parse(datestr,0);
+    date=snap_datetime_parse(datestr);
     
     if( date == 0.0 )
     {
@@ -1131,7 +1131,7 @@ static int read_date( DATAFILE *d, double *obsdate )
 
     if( !df_read_field( d, datestr, 32 ) ) return 0;
 
-    (*obsdate)=snap_datetime_parse(datestr,0);
+    (*obsdate)=snap_datetime_parse(datestr);
     return (*obsdate == 0) ? 0 :  1;
 }
 

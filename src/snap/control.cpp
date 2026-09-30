@@ -989,7 +989,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-            date=snap_datetime_parse( std::string(*prmname).c_str(), 0 );
+            date=snap_datetime_parse( *prmname );
             if( date == UNDEFINED_DATE )
             {
                 sprintf(errmess,"Invalid epoch date %.20s for reference frame %.20s",
@@ -1058,7 +1058,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
                 send_config_error( cfg, INVALID_DATA, errmess );
                 return OK;
             }
-            date=snap_datetime_parse( std::string(*prmname).c_str(), 0 );
+            date=snap_datetime_parse( *prmname );
             if( date == UNDEFINED_DATE )
             {
                 sprintf(errmess,"Invalid IERS_ETSR epoch date %.20s for reference frame %.20s",
