@@ -299,10 +299,9 @@ void list_vecdata( FILE *out, survdata  *v )
             sd = v->syserr + t->tgt.isyserr;
             for( i = 0; i < t->tgt.nsyserr; i+=3,sd +=3 )
             {
-                const char *name;
-                name = syserr_name( sd->prm_id );
+                const std::string_view name = syserr_name( sd->prm_id );
                 fprintf(out,"     Systematic error: %s = %lf %lf %lf\n",
-                        name,sd[0].influence,sd[1].influence,sd[2].influence);
+                        name.data(),sd[0].influence,sd[1].influence,sd[2].influence);
             }
         }
 

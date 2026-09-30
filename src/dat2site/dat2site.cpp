@@ -38,6 +38,8 @@
 #include <filesystem>
 #include <string>
 #include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #define MAIN
 #define GETVERSION_SET_PROGRAM_DATE
@@ -299,10 +301,10 @@ static void close_station_list( void )
     next_stn = -1;
 }
 
-static stn *new_stn( const char *code )
+static stn *new_stn( std::string_view code )
 {
     stn *st = (stn * ) add_to_list( stnlist, NEW_ITEM );
-    st->code = copy_string( code );
+    st->code = copy_string( std::string( code ).c_str() );
     st->st = NULL;
     st->id = next_stn++;
     st->fixed = 0;
@@ -319,17 +321,17 @@ static stn *new_stn( const char *code )
     return st;
 }
 
-static stn *find_stn( const char *code )
+static stn *find_stn( std::string_view code )
 {
     stn *st;
     FOR_ALL_STATIONS(st)
     {
-        if( _stricmp( st->code, code ) == 0 ) return st;
+        if( compare_ignoring_case( st->code, code ) == 0 ) return st;
     }
     return 0;
 }
 
-static station *find_network_station( const char *code )
+static station *find_network_station( std::string_view code )
 {
     return station_ptr(net,find_station(net,code));
 }
@@ -340,7 +342,7 @@ static void link_station( station *s, stn *st )
     st->st=s;
 }
 
-static stn *get_station( const char *code )
+static stn *get_station( std::string_view code )
 {
     stn *st=0;
     if( net )
@@ -383,7 +385,7 @@ void add_network_stations()
     }
 }
 
-static int get_station_id( const char *code )
+static int get_station_id( std::string_view code )
 {
     return get_station(code)->id;
 }
@@ -423,11 +425,11 @@ static double ds_calc_height_diff( stn *from, stn *to )
 }
 
 
-static char *dstation_code( int id )
+static std::string dstation_code( int id )
 {
     stn *st;
     st = station_from_id( id );
-    return st ? st->code : NULL;
+    return st ? st->code : std::string();
 }
 
 
@@ -762,7 +764,7 @@ static void load_data( survdata *sd )
 
 // #pragma warning (disable : 4100)
 
-static int64_t get_id( int type, int, const char *code )
+static int64_t get_id( int type, int, std::string_view code )
 {
     if( type == ID_STATION )
     {
@@ -778,15 +780,15 @@ static int64_t get_id( int type, int, const char *code )
     }
 }
 
-static const  char * get_name( int type, int, long id )
+static std::string get_name( int type, int, long id )
 {
     if( type == ID_STATION )
     {
-        return dstation_code( (int) id );
+        return dstation_code( numeric_cast<int>( id ) );
     }
     else
     {
-        return NULL;
+        return std::string();
     }
 }
 

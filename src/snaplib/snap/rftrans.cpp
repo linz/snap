@@ -19,6 +19,7 @@
 #include "util/dstring.h"
 #include "util/geodetic.h"
 #include "util/dateutil.h"
+#include "util/fieldscanner.hpp"
 /* #include "errdef.h" */
 #include "util/pi.h"
 
@@ -60,13 +61,13 @@ static tmatrix toporot;
 static tmatrix invtoporot;
 
 
-static int find_rftrans( const char *name )
+static int find_rftrans( std::string_view name )
 {
     int nrf;
 
     for( nrf = 0; nrf < nrftrans; nrf++ )
     {
-        if( _stricmp( rflist[nrf]->name.c_str(), name ) == 0 ) return nrf+1;
+        if( compare_ignoring_case( rflist[nrf]->name, name ) == 0 ) return nrf+1;
     }
     return 0;
 }
@@ -106,7 +107,7 @@ void clear_rftrans_list( void )
     nrftrans = 0;
 }
 
-static int create_rftrans( const char *name, int rftype )
+static int create_rftrans( std::string_view name, int rftype )
 {
     rfTransformation *rf;
     int i;
@@ -161,7 +162,7 @@ static int create_rftrans( const char *name, int rftype )
 }
 
 
-int get_rftrans_id( const char *name, int rftype )
+int get_rftrans_id( std::string_view name, int rftype )
 {
     int rf;
 

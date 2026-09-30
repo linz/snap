@@ -839,7 +839,7 @@ static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code
         st = scanner.next();
         if( st )
         {
-            configure_param_match( code, std::string(*rcname).c_str(), std::string(*st).c_str() );
+            configure_param_match( code, *rcname, *st );
         }
         else
         {
@@ -855,7 +855,7 @@ static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code
             st = scanner.next();
             if( st && *st == "?" ) calculate = 1;
         }
-        if( sts == OK ) configure_param( code, std::string(*rcname).c_str(), rc, calculate );
+        if( sts == OK ) configure_param( code, *rcname, rc, calculate );
     }
     else
     {
@@ -1163,7 +1163,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
 
     if( topocentric )
     {
-        rfid = get_rftrans_id( rfnameStr.c_str(), REFFRM_TOPOCENTRIC );
+        rfid = get_rftrans_id( rfnameStr, REFFRM_TOPOCENTRIC );
         rf=rftrans_from_id( rfid );
         if( ! rftrans_topocentric( rf ) )
         {
@@ -1174,7 +1174,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
     }
     else
     {
-        rfid = get_rftrans_id( rfnameStr.c_str(), iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
+        rfid = get_rftrans_id( rfnameStr, iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
         rf=rftrans_from_id( rfid );
         if( rftrans_topocentric( rf ) && iers )
         {

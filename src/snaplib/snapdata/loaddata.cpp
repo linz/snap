@@ -20,6 +20,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <string>
+#include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "util/chkalloc.h"
 #include "util/symmatrx.h"
@@ -114,13 +118,11 @@ static int saved_id_offset=1;
 static int next_saved_id=0;
 static int preserve_saved_codes=0;  /* Used to handle exception with point data */
 
-static char *saved_codes=NULL;
-static int saved_codes_len=0;
+static std::string saved_codes;  /* NUL terminated codes, one after another */
 static int code_offset=0;
 static int next_code_id=0;
 
 #define SAVED_IDS_INC 64
-#define SAVED_CODES_INC 2048
 #define GET_REAL_STATION_ID 42
 
 /* The function to call when data has been read */
@@ -130,8 +132,8 @@ void (*usedata_func)( survdata *sd );
 /* The functions for converting codes to and from numeric id's,
    and for calculating values  */
 
-static int64_t (*id_func)( int type, int group_id, const char *code );
-static const char * (*code_func)( int type, int group_id, long id );
+static int64_t (*id_func)( int type, int group_id, std::string_view code );
+static std::string (*code_func)( int type, int group_id, long id );
 static double (*calc_func)( int type, long id1, long id2 );
 
 /* Specifications for reweighting, rejecting, and ignoring observations */
@@ -211,29 +213,22 @@ static void init_coef_class_id()
 static int get_coef_id( int coeftype, int idname )
 {
     if( idname==coef_class_id[coeftype].idname) return coef_class_id[coeftype].idcoef;
-    const char * name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
+    const std::string name = ldt_get_code( ID_CLASSNAME, coef_class_id[coeftype].idclass, idname );
     int idcoef = ldt_get_id( ID_COEF, coeftype, name );
     coef_class_id[coeftype].idcoef = idcoef;
     coef_class_id[coeftype].idname = idname;
     return idcoef;
 }
 
-static int save_code( const char *code )
+static int save_code( std::string_view code )
 {
-    int codelen=strlen(code)+1;
+    const int codelen=numeric_cast<int>( code.size() )+1;
     int codeid=next_code_id;
-    int codeloc=codeid-code_offset;
-    int sclen = saved_codes_len;
     int idoffset;
     recoded_id *newid;
 
-    while( codeloc+codelen >= sclen ) sclen=sclen+SAVED_CODES_INC;
-    if( sclen != saved_codes_len )
-    {
-        saved_codes=(char *) check_realloc(saved_codes,sclen);
-        saved_codes_len=sclen;
-    }
-    strcpy( saved_codes + codeloc, code );
+    saved_codes.append( code );
+    saved_codes.push_back( '\0' );
     next_code_id += codelen;
 
     next_saved_id++;
@@ -251,12 +246,13 @@ static int save_code( const char *code )
     return next_saved_id;
 }
 
-static const char *saved_code( int codeid )
+/// Returns the saved code with the given id, or an empty view if there isn't one.
+static std::string_view saved_code( int codeid )
 {
-    if( codeid >= next_code_id ) return 0;
+    if( codeid >= next_code_id ) return {};
     codeid -= code_offset;
-    if( codeid < 0 ) return 0;
-    return saved_codes+codeid;
+    if( codeid < 0 ) return {};
+    return std::string_view( saved_codes.c_str()+codeid );
 }
 
 static int get_recoded_id( int id, bool *reject )
@@ -284,7 +280,7 @@ static int get_recoded_id( int id, bool *reject )
         else
         {
             rid->reject=target.reject;
-            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, std::string(target.code).c_str() );
+            rid->id=ldt_get_id( ID_STATION, GET_REAL_STATION_ID, target.code );
         }
         rid->recoded=1;
     }
@@ -298,6 +294,7 @@ static void reset_saved_code_ids()
     next_saved_id=0;
     code_offset=0;
     next_code_id=0;
+    saved_codes.clear();
 }
 
 static void reset_saved_codes( int lastid )
@@ -316,8 +313,7 @@ static void reset_saved_codes( int lastid )
     {
         int codeloc=saved_ids->codeid;
         int codeshift=codeloc-code_offset;
-        int shiftlen=next_code_id-codeloc;
-        memmove( saved_codes, saved_codes+codeshift, shiftlen );
+        saved_codes.erase( 0, codeshift );
         code_offset+=codeshift;
     }
 }
@@ -325,8 +321,8 @@ static void reset_saved_codes( int lastid )
 static void clear_saved_codes()
 { 
     reset_saved_code_ids();
-    check_free( saved_codes );
-    saved_codes=0;
+    saved_codes.clear();
+    saved_codes.shrink_to_fit();
     check_free( saved_ids );
     saved_ids=0;
 }
@@ -341,8 +337,8 @@ static void report_error( const char *location )
 }
 
 void init_load_data( void (*usedata)( survdata *sd ),
-                     int64_t (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*codefunc)( int type, int group_id, long id ),
+                     int64_t (*idfunc)( int type, int group_id, std::string_view code ),
+                     std::string (*codefunc)( int type, int group_id, long id ),
                      double (*calcfunc)( int type, long id1, long id2 ))
 {
     DEBUG_PRINT(("LDT: init_load_data"));
@@ -464,7 +460,7 @@ static void check_data( void )
             {
                 if( projid != projidcache )
                 {
-                    const char *code = ldt_get_code( ID_PROJCTN, 0, projid );
+                    const std::string code = ldt_get_code( ID_PROJCTN, 0, projid );
                     projidcache = projid;
                     projcodeid = ldt_get_id( ID_CLASSNAME, projclassid, code );
                 }
@@ -728,7 +724,7 @@ static classdata *getclassdata( void )
     return classblock + idx;
 }
 
-int64_t ldt_get_id( int type, int group_id, const char *code )
+int64_t ldt_get_id( int type, int group_id, std::string_view code )
 {
     if( type == ID_STATION && recoding )
     {
@@ -742,11 +738,11 @@ int64_t ldt_get_id( int type, int group_id, const char *code )
     return (*id_func)( type, group_id, code );
 }
 
-const char *ldt_get_code( int type, int group_id, long id )
+std::string ldt_get_code( int type, int group_id, long id )
 {
     if( type == ID_STATION && recoding )
     {
-        if( group_id != GET_REAL_STATION_ID ) return saved_code( id );
+        if( group_id != GET_REAL_STATION_ID ) return std::string( saved_code( id ) );
         group_id=0;
     }
     return (*code_func)( type, group_id, id );
@@ -1049,16 +1045,16 @@ void ldt_vecsyserr( int syserr_id, double influence[] )
 }
 
 
-void ldt_prefix_note( const char *note )
+void ldt_prefix_note( std::string_view note )
 {
-    DEBUG_PRINT(("LDT: ldt_prefix_note %s",note));
+    DEBUG_PRINT(("LDT: ldt_prefix_note %.*s",numeric_cast<int>(note.size()),note.data()));
     const int64_t newnote = ldt_get_id( ID_NOTE, noteloc ? 1 : 0, note );
     if( !noteloc ) noteloc = newnote;
 }
 
-void ldt_note( const char *note )
+void ldt_note( std::string_view note )
 {
-    DEBUG_PRINT(("LDT: ldt_note %s",note));
+    DEBUG_PRINT(("LDT: ldt_note %.*s",numeric_cast<int>(note.size()),note.data()));
 
     if( !tgt )
     {

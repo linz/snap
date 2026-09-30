@@ -2961,15 +2961,15 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     buf[0] = 0;
     if( type == ZD && o->refcoef)
     {
-        sprintf(buf,"%s (%.3lf)",param_name(o->refcoef), param_value(o->refcoef) );
+        sprintf(buf,"%s (%.3lf)",param_name(o->refcoef).data(), param_value(o->refcoef) );
     }
     else if( o->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR ))
     {
-        sprintf( buf, "   %s  (%.1lfppm)", param_name( o->prm_id ), param_value(o->prm_id));
+        sprintf( buf, "   %s  (%.1lfppm)", param_name( o->prm_id ).data(), param_value(o->prm_id));
     }
     else if( o->prm_id && (type == AZ || type == PB) )
     {
-        sprintf( buf, "   %s  (%.1lfsec)", param_name( o->prm_id ), param_value( o->prm_id) );
+        sprintf( buf, "   %s  (%.1lfsec)", param_name( o->prm_id ).data(), param_value( o->prm_id) );
     }
     if( buf[0] ) (*f)( dest, &jmp, buf );
 

@@ -376,7 +376,7 @@ static void print_rftrans_def( const std::array<std::string_view,14> &rownames, 
             dispcvr[i]=1;
         }
         else { fprintf(out,"%s",missingstr);}
-        if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]));
+        if( identical[i] ) fprintf( out, "  (same as %s)",param_name(identical[i]).data());
         fprintf(out,"\n");
         nval++;
     }

@@ -490,7 +490,7 @@ static int read_data_classification( snapfile_def *sd, data_field *fld )
     {
         char errmsg[80];
         sprintf(errmsg,"Classification %s is missing",
-                ldt_get_code( ID_CLASSTYPE, 0, sd->clsf[fld->id].class_id ) );
+                ldt_get_code( ID_CLASSTYPE, 0, sd->clsf[fld->id].class_id ).c_str() );
         df_data_file_error( sd->df, MISSING_DATA, errmsg );
         ldt_cancel_data();
         return 0;
@@ -610,7 +610,7 @@ static int read_data_syserr( snapfile_def *sd, data_field *fld )
     {
         char errmsg[100];
         sprintf(errmsg,"Influence of %s is missing or invalid",
-                ldt_get_code( ID_SYSERR, 0, ds->syserr_id ) );
+                ldt_get_code( ID_SYSERR, 0, ds->syserr_id ).c_str() );
         df_data_file_error( sd->df, MISSING_DATA, errmsg );
         ldt_cancel_data();
         return 0;
@@ -642,17 +642,14 @@ static void load_data_syserrs( snapfile_def *sd )
             class_name_id = sd->clsf[class_id].data_id;
             if( class_name_id != ds->class_name_id )
             {
-                const char *clsf_code = "default";
                 char syserrname[80];
                 ds->class_name_id = class_name_id;
-                if( class_name_id )
-                {
-                    clsf_code = ldt_get_code( ID_CLASSNAME,
-                                              sd->clsf[class_id].class_id, class_name_id );
-                }
+                const std::string clsf_code = class_name_id
+                    ? ldt_get_code( ID_CLASSNAME, sd->clsf[class_id].class_id, class_name_id )
+                    : "default";
                 strcpy( syserrname, ds->name );
                 strcpy( syserrname + ds->name_len, "/");
-                strncpy( syserrname + ds->name_len + 1, clsf_code, 79 - ds->name_len );
+                strncpy( syserrname + ds->name_len + 1, clsf_code.c_str(), 79 - ds->name_len );
                 ds->syserr_id = ldt_get_id( ID_SYSERR, 0, syserrname );
             }
         }

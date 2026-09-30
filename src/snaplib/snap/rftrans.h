@@ -13,6 +13,7 @@
 #endif
 
 #include <string>
+#include <string_view>
 
 typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
@@ -103,7 +104,7 @@ extern const size_t RFTRANS_DISK_FIELD_COUNT;
 #define FRF_VECDIFF  1
 #define FRF_ABSOLUTE 2
 
-int get_rftrans_id( const char *name, int rftype ) ;
+int get_rftrans_id( std::string_view name, int rftype ) ;
 int rftrans_count( void );
 
 rfTransformation *rftrans_from_id( int id );

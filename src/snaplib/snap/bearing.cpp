@@ -14,10 +14,18 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <cctype>
+#include <memory>
+#include <string_view>
+#include <vector>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "snap/bearing.h"
 #include "util/chkalloc.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "network/network.h"
 /* #include "errdef.h" */
 #include "snap/stnadj.h"
@@ -39,76 +47,36 @@
 
 */
 
-#define BPLIST_INC 10
-
-static brngProjection **bplist = NULL;
-static int nbplist = 0;
-static int nbproj = 0;
-static const char *null_bpname = "null";
+static std::vector<std::unique_ptr<brngProjection>> bplist;
+static constexpr std::string_view null_bpname = "null";
 
 static int use_datum_trans=1;
 
-static int find_bproj( const char *name )
+static int find_bproj( std::string_view name )
 {
-    int nbp;
-
-    for( nbp = 0; nbp < nbproj; nbp++ )
+    for( size_t nbp = 0; nbp < bplist.size(); nbp++ )
     {
-        if( _stricmp( bplist[nbp]->name, name ) == 0 ) return nbp+1;
+        if( compare_ignoring_case( bplist[nbp]->name, name ) == 0 ) return numeric_cast<int>( nbp+1 );
     }
     return 0;
 }
 
 
-static brngProjection *new_bproj( void )
-{
-    brngProjection *bp;
-
-    bp = (brngProjection *) check_malloc( sizeof( brngProjection ) );
-
-    if( nbproj >= nbplist )
-    {
-        nbplist = nbproj + BPLIST_INC;
-        bplist = (brngProjection **) check_realloc( bplist,
-                 nbplist * sizeof( brngProjection *) );
-    }
-
-    bplist[nbproj] = bp;
-    nbproj++;
-
-    bp->name = NULL;
-    bp->prjsys = NULL;
-
-    return bp;
-}
-
 void clear_bproj_list( void )
 {
-    int i;
-    for( i = 0; i < nbproj; i++ )
-    {
-        if( bplist[i] )
-        {
-            if( bplist[i]->name ) check_free( bplist[i]->name );
-            if( bplist[i]->prjsys ) delete bplist[i]->prjsys;
-            check_free( bplist[i] );
-        }
-    }
-    nbproj = 0;
+    bplist.clear();
 }
 
-static int create_bproj( const char *name )
+static int create_bproj( std::string_view name )
 {
-    brngProjection *bp;
     coord_conversion cc;
-    coordsys *prjsys;
 
     /* See if coordinate system is valid and can be converted to the
        network coordinate system */
 
     if( ! net ) return 0;
 
-    prjsys = load_coordsys( name );
+    coordsys *prjsys = load_coordsys( std::string(name).c_str() );
     if( ! prjsys ) return 0;
 
     if( ! is_projection( prjsys ) ||
@@ -119,19 +87,21 @@ static int create_bproj( const char *name )
         return 0;
     }
 
-    bp= new_bproj();
+    auto bp = std::make_unique<brngProjection>();
 
-    bp->name = copy_string( name );
-    _strupr( bp->name );
+    bp->name = name;
+    std::transform( bp->name.begin(), bp->name.end(), bp->name.begin(),
+                    []( unsigned char ch ) { return std::toupper( ch ); } );
     bp->dtmtrans=use_datum_trans;
     bp->prjsys = prjsys;
     define_coord_conversion( &(bp->prjconv), net->geosys, prjsys );
+    bplist.push_back( std::move(bp) );
 
-    return nbproj;
+    return bproj_count();
 }
 
 
-int get_bproj( const char *name )
+int get_bproj( std::string_view name )
 {
     int bp;
 
@@ -142,18 +112,18 @@ int get_bproj( const char *name )
 
 int bproj_count( void )
 {
-    return nbproj;
+    return numeric_cast<int>( bplist.size() );
 }
 
 brngProjection *bproj_from_id( int id )
 {
-    return id ? bplist[id-1] : NULL;
+    return id ? bplist[id-1].get() : NULL;
 }
 
-const char *bproj_name( int id )
+std::string_view bproj_name( int id )
 {
     brngProjection *bp = bproj_from_id( id );
-    return bp ? bp->name : null_bpname;
+    return bp ? std::string_view( bp->name ) : null_bpname;
 }
 
 

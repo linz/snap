@@ -55,8 +55,12 @@ The procedure requires the following sequence of calls
 #include <math.h>
 #include <string.h>
 #include <cstddef>
+#include <algorithm>
 #include <array>
+#include <cctype>
+#include <string>
 #include <string_view>
+#include <vector>
 
 #include "util/chkalloc.h"
 #include "util/dstring.h"
@@ -64,21 +68,32 @@ The procedure requires the following sequence of calls
 #include "util/linklist.h"
 #include "util/binfile.h"
 #include "util/errdef.h"
+#include "util/fieldscanner.hpp"
 #include "util/wildcard.h"
 
 struct prm_action
 {
     unsigned char action;
-    union
-    {
-        param *p;
-        char  *n;
-    } prm;
-    union
-    {
-        double v;
-        param *p;
-    } value;
+    param *prm = nullptr;         ///< the parameter acted on, unless PA_WILDCARD is set
+    std::string wildcard;         ///< pattern for the parameters acted on, if PA_WILDCARD is set
+    double value = 0.0;           ///< the value assigned, for PA_SET and PA_ADJ
+    param *matchprm = nullptr;    ///< the parameter matched to, for PA_MATCH
+
+    /// Sets or adjusts one parameter to a value.
+    prm_action( unsigned char action, param *prm, double value )
+        : action( action ), prm( prm ), value( value ) {}
+
+    /// Sets or adjusts every parameter matching a name pattern to a value.
+    prm_action( unsigned char action, std::string_view pattern, double value )
+        : action( action ), wildcard( pattern ), value( value ) {}
+
+    /// Makes one parameter identical to another.
+    prm_action( unsigned char action, param *prm, param *matchprm )
+        : action( action ), prm( prm ), matchprm( matchprm ) {}
+
+    /// Makes every parameter matching a name pattern identical to another parameter.
+    prm_action( unsigned char action, std::string_view pattern, param *matchprm )
+        : action( action ), wildcard( pattern ), matchprm( matchprm ) {}
 };
 
 #define PA_SET       1
@@ -92,7 +107,7 @@ static int nparam = 0;
 static int nprmlist = 0;
 static param** prmlist = NULL;
 static int* srtlist = NULL;
-static void *action_list = NULL;
+static std::vector<prm_action> action_list;
 
 static constexpr std::array<std::string_view,4> coefprefix =
 {
@@ -109,9 +124,7 @@ static int prefixlen[] =
     14,
     12
 };
-#define MAXPFXLEN 14
 #define COEFLEN 20
-#define MAXCOEFLEN MAXPFXLEN+COEFLEN
 
 static double default_refcoef = DEFAULT_REFCOEF;
 
@@ -128,10 +141,10 @@ int param_count( void )
     return nparam;
 }
 
-static unsigned int hash( const char *name )
+static unsigned int hash( std::string_view name )
 {
-    unsigned int h;
-    for( h = 0; *name; name++ ) h = (h<<3) + h + *name;
+    unsigned int h = 0;
+    for( const char ch : name ) h = (h<<3) + h + ch;
     return h;
 }
 
@@ -152,21 +165,20 @@ static param *reset_param( param *p, double value, int adjust )
 
 static void sort_param( int n )
 {
-    const char *name;
     int np;
 
     np = srtlist[n];
-    name = param_name( np );
+    const std::string_view name = param_name( np );
     while( n > 0 )
     {
-        if( _stricmp( param_name(srtlist[n-1]), name ) <= 0 ) break;
+        if( compare_ignoring_case( param_name(srtlist[n-1]), name ) <= 0 ) break;
         srtlist[n] = srtlist[n-1];
         n--;
     }
     srtlist[n] = np;
 }
 
-int define_param( const char *name, double value, int adjust )
+int define_param( std::string_view name, double value, int adjust )
 {
     int p;
     param *prm;
@@ -269,7 +281,7 @@ static void merge_params( param *p1, param *p2 )
 
 }
 
-int find_param( const char *name )
+int find_param( std::string_view name )
 {
     int p;
     unsigned int hashedname;
@@ -299,44 +311,36 @@ void update_param_value( int pid, double value, double var )
     }
 }
 
-const char *param_name( int p )
+std::string_view param_name( int p )
 {
-    return p ? prmlist[p-1]->name.c_str() : "";
+    return p ? std::string_view( prmlist[p-1]->name ) : std::string_view( "" );
 }
 
 
-static void do_action( prm_action *pa )
+static void do_action( const prm_action &pa )
 {
-    switch( pa->action )
+    switch( pa.action )
     {
-    case PA_SET:   reset_param( pa->prm.p, pa->value.v, 0 ); break;
-    case PA_ADJ:   reset_param( pa->prm.p, pa->value.v, 1 ); break;
-    case PA_MATCH: merge_params( pa->prm.p, pa->value.p ); break;
+    case PA_SET:   reset_param( pa.prm, pa.value, 0 ); break;
+    case PA_ADJ:   reset_param( pa.prm, pa.value, 1 ); break;
+    case PA_MATCH: merge_params( pa.prm, pa.matchprm ); break;
     }
 }
 
 static void do_prm_actions( void )
 {
-    prm_action *pa;
-    prm_action apa;
-    param *p;
-    int np;
-
-    if( !action_list ) return;
-
-    reset_list_pointer( action_list );
-    while ( NULL != (pa = (prm_action *) next_list_item(action_list)) )
+    for( const prm_action &pa : action_list )
     {
-        if( pa->action & PA_WILDCARD )
+        if( pa.action & PA_WILDCARD )
         {
-            memcpy( &apa, pa, sizeof( prm_action ) );
+            prm_action apa = pa;
             apa.action &= ~PA_WILDCARD;
-            for( np=0; np < nparam; np++ )
+            for( int np=0; np < nparam; np++ )
             {
-                p = prmlist[np];
-                if( ! wildcard_match(pa->prm.n,p->name.c_str() ) ) continue;
-                apa.prm.p = p;
-                do_action( &apa );
+                param *p = prmlist[np];
+                if( ! wildcard_match(pa.wildcard,p->name) ) continue;
+                apa.prm = p;
+                do_action( apa );
             }
         }
         else
@@ -395,49 +399,24 @@ int identical_param( int pid )
     return p ? p->identical : 0;
 }
 
-static void add_prm_action( prm_action *pa )
-{
-    void *npa;
-    if( !action_list ) action_list = create_list( sizeof(prm_action));
-    npa = add_to_list( action_list, NEW_ITEM );
-    memcpy( npa, pa, sizeof(prm_action) );
-}
-
-
 void define_param_value( int pid, double value, int adjust )
 {
-    prm_action pa;
-    pa.prm.p = prmlist[pid-1];
-    pa.value.v = value;
-    pa.action = adjust ? PA_ADJ : PA_SET;
-    add_prm_action( &pa );
+    action_list.emplace_back( adjust ? PA_ADJ : PA_SET, prmlist[pid-1], value );
 }
 
-void wildcard_param_value( char *name, double value, int adjust )
+void wildcard_param_value( std::string_view name, double value, int adjust )
 {
-    prm_action pa;
-    pa.prm.n = copy_string( name );
-    pa.value.v = value;
-    pa.action = (adjust ? PA_ADJ : PA_SET ) | PA_WILDCARD;
-    add_prm_action( &pa );
+    action_list.emplace_back( (adjust ? PA_ADJ : PA_SET) | PA_WILDCARD, name, value );
 }
 
 void define_param_match( int pid1, int pid2 )
 {
-    prm_action pa;
-    pa.prm.p = prmlist[pid1-1];
-    pa.value.p = prmlist[pid2-1];
-    pa.action = PA_MATCH;
-    add_prm_action( &pa );
+    action_list.emplace_back( PA_MATCH, prmlist[pid1-1], prmlist[pid2-1] );
 }
 
-void wildcard_param_match( char *name, int pid )
+void wildcard_param_match( std::string_view name, int pid )
 {
-    prm_action pa;
-    pa.prm.n = copy_string( name );
-    pa.value.p = prmlist[pid-1];
-    pa.action = PA_MATCH | PA_WILDCARD;
-    add_prm_action( &pa );
+    action_list.emplace_back( PA_MATCH | PA_WILDCARD, name, prmlist[pid-1] );
 }
 
 
@@ -474,11 +453,7 @@ int init_param_rowno( int nextprm )
 
 void clear_param_list( void )
 {
-    if( action_list )
-    {
-        free_list( action_list, NO_ACTION );
-        action_list = NULL;
-    }
+    action_list.clear();
     if( nparam )
     {
         int np;
@@ -618,79 +593,66 @@ int reload_parameters( BINARY_FILE *b )
 }
 
 
-#define MAXCOEFLEN MAXPFXLEN+COEFLEN
-
-static void make_prmname( char *prmname, int type, const char *name )
+/// Builds the full parameter name from the prefix for the parameter type and the
+/// upper case coefficient name, truncated to fit COEFLEN.
+static std::string make_prmname( int type, std::string_view name )
 {
-    char *coefname;
-    strcpy( prmname, coefprefix[type].data());
-    coefname = prmname+prefixlen[type];
-    strncpy( coefname,name,COEFLEN);
-    coefname[COEFLEN-1] = 0;
-    _strupr( coefname );
+    std::string prmname( coefprefix[type] );
+    const size_t prefixchars = prmname.size();
+    prmname.append( name.substr( 0, COEFLEN-1 ) );
+    std::transform( prmname.begin()+prefixchars, prmname.end(), prmname.begin()+prefixchars,
+                    []( unsigned char ch ) { return std::toupper( ch ); } );
+    return prmname;
 }
 
-int get_param( int type, const char *name, int create )
+int get_param( int type, std::string_view name, int create )
 {
-    int prm;
-    char  prmname[MAXCOEFLEN];
+    const std::string prmname = make_prmname( type, name );
 
-    make_prmname( prmname, type, name );
-
-    prm = find_param( prmname );
+    int prm = find_param( prmname );
     if( create && !prm )
     {
-        double dflt = type == PRM_REFCOEF && _stricmp(name,"zero") ? default_refcoef : 0;
+        const double dflt = type == PRM_REFCOEF && compare_ignoring_case(name,"zero") != 0 ? default_refcoef : 0;
         prm = define_param( prmname, dflt, 0 );
     }
 
     return prm;
 }
 
-const char *param_type_name( int type, int pid )
+std::string_view param_type_name( int type, int pid )
 {
-    return param_name(pid)+prefixlen[type];
+    const std::string_view name = param_name(pid);
+    return name.substr( std::min<size_t>( prefixlen[type], name.size() ) );
 }
 
-void configure_param( int type, const char *name, double value, int adjust )
+void configure_param( int type, std::string_view name, double value, int adjust )
 {
-    int prm;
-    int len;
-
-    len = strlen(name);
-    if( !len ) return;
+    if( name.empty() ) return;
 
     if( has_wildcard(name))
     {
-        char wildcard[MAXCOEFLEN];
-        make_prmname( wildcard, type, name );
-        wildcard_param_value( wildcard, value, adjust );
+        wildcard_param_value( make_prmname( type, name ), value, adjust );
     }
     else
     {
-        prm = get_param( type, name, 1 );
+        const int prm = get_param( type, name, 1 );
         define_param_value( prm, value, adjust );
     }
 }
 
-void configure_param_match( int type, const char *coef1, const char *coef2 )
+void configure_param_match( int type, std::string_view coef1, std::string_view coef2 )
 {
-    int p1, p2, len;
+    const int p2 = get_param( type, coef2, 1 );
 
-    p2 = get_param( type, coef2, 1 );
+    if( coef1.empty() ) return;
 
-    len = strlen(coef1);
-    if( !len ) return;
-
-    if( coef1[len-1] == '*' )
+    if( coef1.back() == '*' )
     {
-        char wildcard[MAXCOEFLEN];
-        make_prmname( wildcard, type, coef1);
-        wildcard_param_match( wildcard, p2 );
+        wildcard_param_match( make_prmname( type, coef1 ), p2 );
     }
     else
     {
-        p1 = get_param( type, coef1, 1 );
+        const int p1 = get_param( type, coef1, 1 );
         define_param_match( p1, p2 );
     }
 }

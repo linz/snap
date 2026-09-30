@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <optional>
+#include <string>
 #include <string_view>
 
 #ifndef _DATATYPE_H
@@ -83,8 +84,8 @@ void set_coef_class( int coeftype, const char *name );
    before and after loading a data file */
 
 void init_load_data( void (*usedata_func)( survdata *sd ),
-                     int64_t (*idfunc)( int type, int group_id, const char *code ),
-                     const char * (*namefunc)( int type, int group_id, long id ),
+                     int64_t (*idfunc)( int type, int group_id, std::string_view code ),
+                     std::string (*namefunc)( int type, int group_id, long id ),
                      double (*calcfunc)( int type, long id1, long id2 ));
 void term_load_data( void );
 
@@ -117,8 +118,8 @@ void set_gpscvr_func( void (*func)( survdata *vd, int cvrtype,
    data routines assemble these to convert the data to a standard internal
    format */
 
-int64_t ldt_get_id( int type, int group_id, const char *code );
-const char *ldt_get_code( int type, int group_id, long id );
+int64_t ldt_get_id( int type, int group_id, std::string_view code );
+std::string ldt_get_code( int type, int group_id, long id );
 double ldt_calc_value( int calc_type, long id1, long id2 );
 
 /* Set state - can happen at any time */
@@ -152,8 +153,8 @@ void ldt_classification( int class_id, int name_id );
 void ldt_syserr( int syserr_id, double influence );
 void ldt_vecsyserr( int syserr_id, double influence[] );
 
-void ldt_prefix_note( const char *note );
-void ldt_note( const char *note );
+void ldt_prefix_note( std::string_view note );
+void ldt_note( std::string_view note );
 
 /* Once all observations in a set are created */
 

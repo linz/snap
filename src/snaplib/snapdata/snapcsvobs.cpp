@@ -35,12 +35,12 @@ using namespace SNAP;
 
 SnapCsvObs::CsvClassification::CsvClassification(const std::string &name) : CsvValue(name), _classId(0)
 {
-    _classId = ldt_get_id(ID_CLASSTYPE, 0, name.c_str());
+    _classId = ldt_get_id(ID_CLASSTYPE, 0, name);
 }
 
 int SnapCsvObs::CsvClassification::classValue()
 {
-    return ldt_get_id(ID_CLASSNAME, _classId, value().c_str());
+    return ldt_get_id(ID_CLASSNAME, _classId, value());
 }
 
 /////////////////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ int SnapCsvObs::CsvClassification::classValue()
 
 SnapCsvObs::CsvClassColumn::CsvClassColumn(const std::string &classname, const Column *column)
 {
-    _classId = ldt_get_id(ID_CLASSTYPE, 0, classname.c_str());
+    _classId = ldt_get_id(ID_CLASSTYPE, 0, classname);
     _column = column;
 }
 
@@ -304,7 +304,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     else
     {
-        idfrom = ldt_get_id(ID_STATION, 0, _fromstn.value().c_str());
+        idfrom = ldt_get_id(ID_STATION, 0, _fromstn.value());
         if (idfrom == 0)
         {
             string message = "From station code ";
@@ -323,7 +323,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         }
         else
         {
-            idto = ldt_get_id(ID_STATION, 0, _tostn.value().c_str());
+            idto = ldt_get_id(ID_STATION, 0, _tostn.value());
             if (idto == 0)
             {
                 string message = "To station code ";
@@ -729,7 +729,7 @@ bool SnapCsvObs::CsvObservation::loadObservation()
         if (value != "")
         {
             int idclass = cc->classId();
-            int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value.c_str());
+            int idvalue = ldt_get_id(ID_CLASSNAME, idclass, value);
             ldt_classification(idclass, idvalue);
         }
     }
@@ -769,12 +769,12 @@ bool SnapCsvObs::CsvObservation::loadObservation()
     }
     if (type->projctn && _projection.value() != "")
     {
-        int id = ldt_get_id(ID_PROJCTN, 0, _projection.value().c_str());
+        int id = ldt_get_id(ID_PROJCTN, 0, _projection.value());
         ldt_projection(id);
     }
     if (_note.value() != "")
     {
-        ldt_note(_note.value().c_str());
+        ldt_note(_note.value());
     }
     if (!_owner->InSet())
         ldt_end_data();

@@ -59,6 +59,8 @@ into SNAP
 #include <optional>
 #include <string>
 #include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "adjparam.h"
 #include "coefs.h"
@@ -422,7 +424,7 @@ static void load_snap( survdata *sd )
 /* Callback function used by loaddata to get id's of various objects */
 
 
-static int64_t snap_id( int type, int group_id, const char *code )
+static int64_t snap_id( int type, int group_id, std::string_view code )
 {
     int64_t id;
     id = 0;
@@ -436,7 +438,7 @@ static int64_t snap_id( int type, int group_id, const char *code )
         }
         else
         { 
-            if( code ) id = missing_station_id( code );
+            id = missing_station_id( code );
         }
         break;
     case ID_COEF:
@@ -457,35 +459,31 @@ static int64_t snap_id( int type, int group_id, const char *code )
     return id;
 }
 
-static const char *snap_name( int type, int group_id, long id )
+static std::string snap_name( int type, int group_id, long id )
 {
-    const char *name = nullptr;
-    static std::string classification_value;
     switch (type)
     {
     case ID_STATION:   if( id < 0 )
         {
-            auto missingName = missing_station_name( (int) id );
-            if( missingName ) name = missingName->data();
+            return std::string( missing_station_name( numeric_cast<int>( id ) ).value_or( std::string_view() ) );
         }
-        else name = station_code( (int) id );
-        break;
+        return station_code( numeric_cast<int>( id ) );
     case ID_COEF:
         switch( group_id )
         {
-        case COEF_CLASS_DISTSF:  name = distsf_name( (int) id ); break;
-        case COEF_CLASS_BRNGREF: name = brngref_name( (int) id ); break;
-        case COEF_CLASS_REFCOEF: name = refcoef_name( (int) id ); break;
+        case COEF_CLASS_DISTSF:  return std::string( distsf_name( numeric_cast<int>( id ) ) );
+        case COEF_CLASS_BRNGREF: return std::string( brngref_name( numeric_cast<int>( id ) ) );
+        case COEF_CLASS_REFCOEF: return std::string( refcoef_name( numeric_cast<int>( id ) ) );
         case COEF_CLASS_REFFRM:  break;
         }
         break;
-    case ID_SYSERR:    name = syserr_name( (int) id ); break;
-    case ID_PROJCTN:   name = bproj_name( (int) id ); break;
-    case ID_CLASSTYPE: classification_value = obs_classes.name( (int) id ); name = classification_value.c_str(); break;
-    case ID_CLASSNAME: classification_value = obs_classes.value_name( group_id, (int) id ); name = classification_value.c_str(); break;
+    case ID_SYSERR:    return std::string( syserr_name( numeric_cast<int>( id ) ) );
+    case ID_PROJCTN:   return std::string( bproj_name( numeric_cast<int>( id ) ) );
+    case ID_CLASSTYPE: return obs_classes.name( numeric_cast<int>( id ) );
+    case ID_CLASSNAME: return obs_classes.value_name( group_id, numeric_cast<int>( id ) );
     case ID_NOTE:    break;
     }
-    return name;
+    return std::string();
 }
 
 static double snap_calc_value( int type, long id1, long id2 )

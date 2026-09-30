@@ -14,6 +14,7 @@
 
 #include <optional>
 #include <string>
+#include <string_view>
 
 // hash..identical (everything but `name`) are dumped to the .bin file via a
 // fixed-width table, PARAM_DISK_FIELDS in genparam.cpp - adding, removing, or
@@ -62,13 +63,13 @@ extern const size_t PARAM_DISK_FIELD_COUNT;
 
 void set_default_refcoef( double value );
 
-int define_param( const char *name, double value, int adjust );
-int find_param( const char *name );
+int define_param( std::string_view name, double value, int adjust );
+int find_param( std::string_view name );
 void   flag_param_used( int p);
 void   flag_param_listed( int p );
 double param_value( int p );
 void update_param_value( int p, double v, double var );
-const char *param_name( int p );
+std::string_view param_name( int p );
 int param_rowno( int p );
 int identical_param( int p );
 int param_count( void );
@@ -76,9 +77,9 @@ param * param_from_id( int pid );
 int sorted_param_id( int n );
 
 void define_param_value( int p, double value, int adjust );
-void wildcard_param_value( char *name, double value, int adjust );
+void wildcard_param_value( std::string_view name, double value, int adjust );
 void define_param_match( int p1, int p2 );
-void wildcard_param_match( char *name, int p );
+void wildcard_param_match( std::string_view name, int p );
 
 int init_param_rowno( int nextprm );
 /// Returns the name of the parameter solved at equation row \p row, if there is one.
@@ -88,9 +89,9 @@ void clear_param_list( void );
 void dump_parameters( BINARY_FILE *b );
 int reload_parameters( BINARY_FILE *b );
 
-int get_param( int type, const char *name, int create );
-const char *param_type_name( int type, int pid );
-void configure_param( int type, const char *refcoef, double value, int adjust );
-void configure_param_match( int type, const char *coef1, const char *coef2 );
+int get_param( int type, std::string_view name, int create );
+std::string_view param_type_name( int type, int pid );
+void configure_param( int type, std::string_view refcoef, double value, int adjust );
+void configure_param_match( int type, std::string_view coef1, std::string_view coef2 );
 
 #endif

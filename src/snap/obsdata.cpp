@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
+#include <string_view>
 #include <math.h>
 
 #include "snap/snapglob.h"
@@ -119,15 +120,15 @@ void list_obsdata( FILE *out, survdata *o )
 
         if( type == ZD )
         {
-            fprintf( out, "   %s", refcoef_name( t->refcoef ) );
+            fprintf( out, "   %s", refcoef_name( t->refcoef ).data() );
         }
         else if( t->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR ))
         {
-            fprintf( out, "   %s", distsf_name( t->prm_id ));
+            fprintf( out, "   %s", distsf_name( t->prm_id ).data());
         }
         else if( t->prm_id && (type == AZ || type == PB) )
         {
-            fprintf( out, "   %s", brngref_name( t->prm_id ));
+            fprintf( out, "   %s", brngref_name( t->prm_id ).data());
         }
         fputs("\n", out );
 
@@ -151,9 +152,8 @@ void list_obsdata( FILE *out, survdata *o )
             sd = o->syserr + t->tgt.isyserr;
             for( i = 0; i < t->tgt.nsyserr; i++, sd++ )
             {
-                const char *name;
-                name = syserr_name( sd->prm_id );
-                fprintf(out,"     Systematic error: %s = %lf\n",name,sd->influence);
+                const std::string_view name = syserr_name( sd->prm_id );
+                fprintf(out,"     Systematic error: %s = %lf\n",name.data(),sd->influence);
             }
         }
 
@@ -299,7 +299,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
             {
                 char buf[256];
                 sprintf(buf,"Unable to calculate %s projection bearin from %s to %s - obs not used",
-                        bproj_name(o->reffrm),st1->Code,st2->Code );
+                        bproj_name(o->reffrm).data(),st1->Code,st2->Code );
                 handle_error( WARNING_ERROR, buf, NO_MESSAGE );
                 status = INVALID_DATA;
                 continue;

@@ -30,6 +30,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <string>
+#include <string_view>
 
 #include "coefs.h"
 #include "notedata.h"
@@ -186,10 +187,9 @@ void list_pntdata(FILE *out, survdata *p)
         sd = p->syserr + t->isyserr;
         for (i = 0; i < t->nsyserr; i++, sd++)
         {
-            const char *name;
-            name = syserr_name(sd->prm_id);
+            const std::string_view name = syserr_name(sd->prm_id);
             fprintf(out, "     Systematic error: %s = %lf",
-                    name, sd->influence);
+                    name.data(), sd->influence);
             fprintf(out, "\n");
         }
     }

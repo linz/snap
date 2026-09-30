@@ -759,7 +759,7 @@ void print_json_observations( FILE *out )
             }
             if( tgt->type == PB )
             {
-                fprintf( out, "        \"projection\": \"%s\",\n", bproj_name(sd->reffrm));
+                fprintf( out, "        \"projection\": \"%s\",\n", bproj_name(sd->reffrm).data());
             }
             if( sd->format == SD_VECDATA )
             {
@@ -789,7 +789,7 @@ void print_json_observations( FILE *out )
                     syserrdata *syserr=sd->syserr+isyserr+tgt->isyserr;
                     if( isyserr ) fprintf(out,",");
                     fprintf( out, "\n          \"%s\":%.8le",
-                            param_type_name(PRM_SYSERR, syserr->prm_id), 
+                            param_type_name(PRM_SYSERR, syserr->prm_id).data(),
                             syserr->influence);
                 }
                 fprintf( out, "\n          },\n");

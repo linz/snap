@@ -22,12 +22,12 @@
 #include "util/geodetic.h"
 #include "util/pi.h"
 
-int refcoef_prm( const char *refcoef )
+int refcoef_prm( std::string_view refcoef )
 {
     return get_param( PRM_REFCOEF, refcoef, 1 );
 }
 
-const char *refcoef_name( int rc )
+std::string_view refcoef_name( int rc )
 {
     return param_type_name( PRM_REFCOEF, rc);
 }
@@ -58,12 +58,12 @@ double zd_ref_correction( int p, station *st1, station *st2, void *hA, int irow 
 /*=============================================================*/
 /* Distance scale err specific bits                            */
 
-int distsf_prm( const char *distsf )
+int distsf_prm( std::string_view distsf )
 {
     return get_param( PRM_DISTSF, distsf, 1 );
 }
 
-const char *distsf_name( int ds )
+std::string_view distsf_name( int ds )
 {
     return param_type_name(PRM_DISTSF, ds);
 }
@@ -80,12 +80,12 @@ double distsf_correction( int p, double dist, void *hA, int irow )
 /*==============================================================*/
 /* Azimuth bias parameter                                       */
 
-int brngref_prm( const char *brngref )
+int brngref_prm( std::string_view brngref )
 {
     return get_param( PRM_BRNGREF, brngref, 1 );
 }
 
-const char *brngref_name( int br )
+std::string_view brngref_name( int br )
 {
     return param_type_name(PRM_BRNGREF, br);
 }
@@ -101,12 +101,12 @@ double brngref_correction( int br, void *hA, int irow )
 /*==============================================================*/
 /* Systematic error parameter                                   */
 
-int syserr_prm( const char *syserr )
+int syserr_prm( std::string_view syserr )
 {
     return get_param( PRM_SYSERR, syserr, 1 );
 }
 
-const char *syserr_name( int se )
+std::string_view syserr_name( int se )
 {
     return param_type_name(PRM_SYSERR, se);
 }

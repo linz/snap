@@ -97,7 +97,7 @@ void list_calculated_parameters( FILE *out )
             }
 
             fputs( p->name.c_str(), out );
-            if( p->identical ) fprintf(out,"  (same as %s)", param_name(p->identical) );
+            if( p->identical ) fprintf(out,"  (same as %s)", param_name(p->identical).data() );
             fputs( "\n", out );
         }
     }
@@ -163,7 +163,7 @@ void print_adjusted_parameters( FILE *out )
             }
             if( p->identical )
             {
-                fprintf(out,"  = %s",param_name( p->identical ));
+                fprintf(out,"  = %s",param_name( p->identical ).data());
             }
             fprintf(out,"\n");
         }

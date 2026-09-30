@@ -19,8 +19,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include <forward_list>
+#include <optional>
 #include <string>
 #include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 
 #include "snap/stnadj.h"
 #include "snap/snapglob.h"
@@ -66,15 +69,15 @@ static int missing_station_id( std::string_view code )
     return missing.emplace_after( previous, code, --missing_id )->id;
 }
 
-/// Returns the code of the missing station with the given id, or nullptr
+/// Returns the code of the missing station with the given id, or nullopt
 /// if there is none.
-static const char *missing_station_name( int id )
+static std::optional<std::string_view> missing_station_name( int id )
 {
     for( const missing_stn &station : missing )
     {
-        if( station.id == id ) return station.code.c_str();
+        if( station.id == id ) return station.code;
     }
-    return nullptr;
+    return std::nullopt;
 }
 
 /// Empties the missing station list and restarts id numbering.
@@ -102,14 +105,14 @@ static void list_missing_stations( void )
 }
 
 
-static int64_t snap_id( int type, int group_id, const char *code )
+static int64_t snap_id( int type, int group_id, std::string_view code )
 {
     int64_t id;
     id = 0;
     switch (type)
     {
     case ID_STATION:    id = find_station( net, code );
-        if( id == 0 && code ) id = missing_station_id( code );
+        if( id == 0 ) id = missing_station_id( code );
         break;
     case ID_CLASSTYPE:  id = obs_classes.id( code, 1 ); break;
     case ID_CLASSNAME:  id = obs_classes.value_id( group_id, code, 1 ); break;
@@ -121,24 +124,23 @@ static int64_t snap_id( int type, int group_id, const char *code )
     return id;
 }
 
-static const char *snap_name( int type, int group_id, long id )
+static std::string snap_name( int type, int group_id, long id )
 {
-    const char *name;
-    static std::string classification_value;
-    name = NULL;
     switch (type)
     {
-    case ID_STATION:    if( id < 0 ) name = missing_station_name( id );
-        else name = station_code( (int) id );
-        break;
-    case ID_CLASSTYPE: classification_value = obs_classes.name( (int) id ); name = classification_value.c_str(); break;
-    case ID_CLASSNAME: classification_value = obs_classes.value_name( group_id, (int) id ); name = classification_value.c_str(); break;
-    case ID_PROJCTN: name = bproj_name( id ); break;
+    case ID_STATION:    if( id < 0 )
+        {
+            return std::string( missing_station_name( numeric_cast<int>( id ) ).value_or( std::string_view() ) );
+        }
+        return station_code( numeric_cast<int>( id ) );
+    case ID_CLASSTYPE: return obs_classes.name( numeric_cast<int>( id ) );
+    case ID_CLASSNAME: return obs_classes.value_name( group_id, numeric_cast<int>( id ) );
+    case ID_PROJCTN: return std::string( bproj_name( numeric_cast<int>( id ) ) );
     case ID_COEF:
     case ID_SYSERR:
-    case ID_NOTE:      name = NULL; break;
+    case ID_NOTE:      break;
     }
-    return name;
+    return std::string();
 }
 
 static double snap_calc_value( int type, long id1, long id2 )
