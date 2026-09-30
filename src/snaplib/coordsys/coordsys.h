@@ -453,7 +453,7 @@ projection *parse_projection_def( input_string_def &is );
 coordsys   *parse_coordsys_def  ( input_string_def &is,
                                   ref_frame *(*getrf)(std::string_view code, int loadref ));
 
-int parse_crdsys_epoch( const char *epochstr, double *epoch );
+bool parse_crdsys_epoch( std::string_view epochstr, double &epoch );
 
 vdatum *parse_vdatum_def ( input_string_def &is,
                                   ref_frame *(*getrf)(std::string_view code, int loadref ),

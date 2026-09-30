@@ -188,7 +188,7 @@ int add_coordinate_file( CFG_FILE *cfg, std::string_view string, void *value, in
             // The original fell through to parse_crdsys_epoch(NULL,...) here
             // (a latent null-deref, unrelated to this conversion) - skip the
             // call instead now that "missing" is representable directly.
-            else if( ! parse_crdsys_epoch( std::string(*epochstr).c_str(), &mergedate ) )
+            else if( ! parse_crdsys_epoch( *epochstr, mergedate ) )
             {
                 char errmsg[100];
                 sprintf(errmsg,"Invalid date %.20s in add_coordinate_file epoch",

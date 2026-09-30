@@ -109,7 +109,7 @@ int main( int argc, char *argv[] )
                 printf("Missing value for conversion epoch (-Y)\n");
                 return 1;
             }
-            if( ! parse_crdsys_epoch( epochstr, &epoch ))
+            if( ! parse_crdsys_epoch( epochstr, epoch ))
             {
                 printf("Invalid value for conversion epoch (-Y %s)\n",epochstr);
                 return 1;

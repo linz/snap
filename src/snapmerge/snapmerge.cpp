@@ -129,7 +129,7 @@ int main( int argc, char *argv[] )
         case 'Y':
             if( argc > 2 )
             {
-                if( ! parse_crdsys_epoch(argv[2],&mergedate) )
+                if( ! parse_crdsys_epoch(argv[2],mergedate) )
                 {
                     syntaxerror=1;
                 }

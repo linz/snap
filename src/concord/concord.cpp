@@ -813,7 +813,7 @@ static void process_command_line_options()
                       &output_ne,&output_h,&output_ortho, "output");
 
     pval=command_line_option('Y');
-    if( pval &&  ! parse_crdsys_epoch(pval->c_str(),&conv_epoch) )
+    if( pval &&  ! parse_crdsys_epoch(*pval,conv_epoch) )
     {
         error_exit("Invalid value for conversion epoch (-Y parameter)","");
     }
@@ -989,7 +989,7 @@ static void prompt_for_epoch( const char *prompt, double *value )
         copy_to_newline( stdin, NULL,NULL);
         if (nstr<0) error_exit("Unexpected EOF in input","");
         if (nstr==0) strcpy(instring,"now");
-        ok = parse_crdsys_epoch(instring,&epoch);
+        ok = parse_crdsys_epoch(instring,epoch);
         if( ! ok )
         {
             printf("    **** Invalid data ****\n");

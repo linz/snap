@@ -108,12 +108,12 @@ ellipsoid * load_ellipsoid( std::string_view code )
     return el;
 }
 
-int parse_crdsys_epoch( const char *epochstr, double *epoch )
+bool parse_crdsys_epoch( std::string_view epochstr, double &epoch )
 {
-    *epoch=snap_datetime_parse(epochstr);
-    if( ! *epoch ) return 0;
-    *epoch = date_as_year(*epoch);
-    return 1;
+    epoch=snap_datetime_parse(epochstr);
+    if( ! epoch ) return false;
+    epoch = date_as_year(epoch);
+    return true;
 }
 
 /* Coordinate systems defined by code, optionally followed by @epoch, where
@@ -172,7 +172,7 @@ coordsys * load_coordsys( std::string_view code )
     }
 
     /* Check epoch */
-    if( epochstr && ! parse_crdsys_epoch( std::string( *epochstr ).c_str(), &epoch ) )
+    if( epochstr && ! parse_crdsys_epoch( *epochstr, epoch ) )
     {
         const std::string errmsg = "Invalid coordinate system epoch in " + std::string( code.substr( 0, 40 ) );
         handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
@@ -320,7 +320,7 @@ int get_notes( int type, const char *code, output_string_def *os )
 
     /* Look for an @ character, defining an deformation model reference epoch */
     for( nch = 0; code[nch] != 0 && code[nch] != '@'; nch++ ) {}
-    if( code[nch] && ! parse_crdsys_epoch( code+nch+1, &epoch ) )
+    if( code[nch] && ! parse_crdsys_epoch( code+nch+1, epoch ) )
     {
         return INVALID_DATA;
     }
