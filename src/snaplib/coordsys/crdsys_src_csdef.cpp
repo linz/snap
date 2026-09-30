@@ -305,7 +305,7 @@ static int read_ellipsoid_def( crdsys_file_source *cfs, long id, std::string_vie
     return *el ? OK : INVALID_DATA;
 }
 
-static int get_ellipsoid( void *pcfs, long id, const char *code, ellipsoid**el )
+static int get_ellipsoid( void *pcfs, long id, std::string_view code, ellipsoid**el )
 {
     return read_ellipsoid_def( static_cast<crdsys_file_source *>( pcfs ), id, code, el );
 }
@@ -341,15 +341,15 @@ static ref_frame *ref_frame_from_code( std::string_view code, int loadref )
     return rf;
 }
 
-static int get_ref_frame_cs( void *pcfs, long id, const char *code, ref_frame **rf )
+static int get_ref_frame_cs( void *pcfs, long id, std::string_view code, ref_frame **rf )
 {
     return read_ref_frame_def( static_cast<crdsys_file_source *>( pcfs ), id, code, rf, 1 );
 }
 
-static int get_coordsys( void *pcfs, long id, const char *code, coordsys **cs )
+static int get_coordsys( void *pcfs, long id, std::string_view code, coordsys **cs )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    *cs = NULL;
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
+    *cs = nullptr;
     auto instr = cfs_code_def( cfs, id, CS_COORDSYS, code );
     if( !instr ) return MISSING_DATA;
     input_cfs = cfs;
@@ -378,7 +378,7 @@ static int read_vdatum_def( crdsys_file_source *cfs, long id, std::string_view c
     return *hrs ? OK : INVALID_DATA;
 }
 
-static int get_vdatum( void *pcfs, long id, const char *code, vdatum **hrs )
+static int get_vdatum( void *pcfs, long id, std::string_view code, vdatum **hrs )
 {
     return read_vdatum_def( static_cast<crdsys_file_source *>( pcfs ), id, code, hrs );
 }

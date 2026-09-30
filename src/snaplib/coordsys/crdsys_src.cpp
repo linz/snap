@@ -226,18 +226,17 @@ coordsys * load_coordsys( std::string_view code )
         }
     }
 
-    const std::string cscodestr( cscode );
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
             csd = csd->next ) if( csd->getcs )
         {
 
-            sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscodestr.c_str(), &cs );
+            sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscode, &cs );
         }
 
     if( sts == MISSING_DATA )
     {
-        const std::string errmsg = "Coordinate system " + cscodestr + " is not defined";
+        const std::string errmsg = "Coordinate system " + std::string( cscode ) + " is not defined";
         handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
     }
 

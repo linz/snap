@@ -22,6 +22,7 @@
 #define CRDSYSDF_H
 
 #include <string>
+#include <string_view>
 #include <optional>
 
 #ifndef _COORDSYS_H
@@ -39,10 +40,10 @@ struct crdsys_source_def
     /// doesn't support file lookup (e.g. crdsys_src_lists.cpp's in-memory source).
     /// Returns nullopt if this source doesn't have the file.
     std::optional<std::string> (*getcsfile)( void *data, const std::string &filename, const std::string &extension );
-    int (*getrf)( void *data, long id, const char *code, ref_frame **rf );
-    int (*getel)( void *data, long id, const char *code, ellipsoid **el );
-    int (*getcs)( void *data, long id, const char *code, coordsys  **cs );
-    int (*gethrs)( void *data, long id, const char *code, vdatum  **hrs );
+    int (*getrf)( void *data, long id, std::string_view code, ref_frame **rf );
+    int (*getel)( void *data, long id, std::string_view code, ellipsoid **el );
+    int (*getcs)( void *data, long id, std::string_view code, coordsys  **cs );
+    int (*gethrs)( void *data, long id, std::string_view code, vdatum  **hrs );
     int (*getnotes)( void *data, int type, const char *code, void *sink, int (*puttext)(const char *note, void *sink ));
     int (*getcodes)( void *data, void (*addfunc)( int type, long id, const char *code, const char *desc ) );
     int (*delsource)( void *data );
