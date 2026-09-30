@@ -609,14 +609,14 @@ int ref_frame_list_count( void );
 const char *ref_frame_list_code( int item );
 const char *ref_frame_list_desc( int item );
 ref_frame * ref_frame_from_list( int item );
-ref_frame * load_ref_frame( const char *code );
+ref_frame * load_ref_frame( std::string_view code );
 
 
 int ellipsoid_list_count( void );
 const char *ellipsoid_list_code( int item );
 const char *ellipsoid_list_desc( int item );
 ellipsoid * ellipsoid_from_list( int item );
-ellipsoid * load_ellipsoid( const char *code );
+ellipsoid * load_ellipsoid( std::string_view code );
 
 /* Note - load_coordsys handles vertical datum also as cscode/hrscode */
 
@@ -634,7 +634,7 @@ int vdatum_list_count( void);
 const char *vdatum_list_code( int item );
 const char *vdatum_list_desc( int item );
 vdatum * vdatum_from_list( int item );
-vdatum * load_vdatum( const char *code );
+vdatum * load_vdatum( std::string_view code );
 
 int get_notes( int type, const char *code, output_string_def *os );
 int get_crdsys_notes( coordsys *cs, output_string_def *os );

@@ -64,11 +64,11 @@ void uninstall_crdsys_lists( void )
 }
 
 
-ref_frame * load_ref_frame( const char *code )
+ref_frame * load_ref_frame( std::string_view code )
 {
     crdsys_source_def *csd;
     int sts;
-    ref_frame *rf = NULL;
+    ref_frame *rf = nullptr;
 
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
@@ -80,19 +80,18 @@ ref_frame * load_ref_frame( const char *code )
 
     if( sts == MISSING_DATA )
     {
-        char errmsg[80];
-        sprintf(errmsg,"Reference frame %.20s is not defined",code);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Reference frame " + std::string( code.substr( 0, 20 ) ) + " is not defined";
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
     }
     return rf;
 }
 
 
-ellipsoid * load_ellipsoid( const char *code )
+ellipsoid * load_ellipsoid( std::string_view code )
 {
     crdsys_source_def *csd;
     int sts;
-    ellipsoid *el= NULL;
+    ellipsoid *el= nullptr;
 
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
@@ -103,9 +102,8 @@ ellipsoid * load_ellipsoid( const char *code )
         }
     if( sts == MISSING_DATA )
     {
-        char errmsg[80];
-        sprintf(errmsg,"Ellipsoid %.20s is not defined",code);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Ellipsoid " + std::string( code.substr( 0, 20 ) ) + " is not defined";
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
     }
 
     return el;
@@ -201,7 +199,7 @@ coordsys * load_coordsys( std::string_view code )
         }
         else if( ! dtmcode->empty() )
         {
-            rf=load_ref_frame( std::string( *dtmcode ).c_str() );
+            rf=load_ref_frame( *dtmcode );
             if( ! rf ) return nullptr;
         }
     }
@@ -217,7 +215,7 @@ coordsys * load_coordsys( std::string_view code )
         }
         else if( ! hrscode->empty() )
         {
-            hrs=load_vdatum( std::string( *hrscode ).c_str() );
+            hrs=load_vdatum( *hrscode );
             if( ! hrs )
             {
                 delete rf;
@@ -294,11 +292,11 @@ const char *coordsys_load_code( coordsys *cs )
     return csfullcode;
 }
 
-vdatum * load_vdatum( const char *code )
+vdatum * load_vdatum( std::string_view code )
 {
     crdsys_source_def *csd;
     int sts;
-    vdatum *hrs= NULL;
+    vdatum *hrs= nullptr;
 
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
@@ -310,9 +308,8 @@ vdatum * load_vdatum( const char *code )
 
     if( sts == MISSING_DATA )
     {
-        char errmsg[80];
-        sprintf(errmsg,"Vertical datum %.20s is not defined",code);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Vertical datum " + std::string( code.substr( 0, 20 ) ) + " is not defined";
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
     }
     return hrs;
 }
