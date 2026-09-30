@@ -90,7 +90,7 @@ geoid_def *create_geoid_grid( const char *source )
     else
     {
         const char *cscode = grd_coordsys_def( grd );
-        cs = load_coordsys( cscode );
+        cs = load_coordsys( cscode ? cscode : "" );
         if( ! cs )
         {
             grd_delete_grid( grd );

@@ -76,7 +76,7 @@ static int create_bproj( std::string_view name )
 
     if( ! net ) return 0;
 
-    coordsys *prjsys = load_coordsys( std::string(name).c_str() );
+    coordsys *prjsys = load_coordsys( name );
     if( ! prjsys ) return 0;
 
     if( ! is_projection( prjsys ) ||

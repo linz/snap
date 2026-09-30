@@ -358,7 +358,7 @@ static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, 
         }
         if( crdsys )
         {
-            coordsys *cs = load_coordsys( std::string(*crdsys).c_str() );
+            coordsys *cs = load_coordsys( *crdsys );
             if( !cs )
             {
                 send_config_error( cfg, INVALID_DATA,
@@ -377,7 +377,7 @@ static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, 
     {
         if( plot_data.empty() ) return MISSING_DATA;
 
-        coordsys *cs = load_coordsys( std::string(plot_data).c_str() );
+        coordsys *cs = load_coordsys( plot_data );
         if( !cs )
         {
             send_config_error( cfg, INVALID_DATA,

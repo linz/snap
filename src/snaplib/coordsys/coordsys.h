@@ -25,6 +25,7 @@ This includes managing reference frames, ellipsoids, and projections.
 #define COORDSYS_H
 
 #include <string>
+#include <string_view>
 #include <optional>
 
 #ifndef IOSTRING_H
@@ -623,7 +624,7 @@ int coordsys_list_count( void);
 const char *coordsys_list_code( int item );
 const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
-coordsys * load_coordsys( const char *code );
+coordsys * load_coordsys( std::string_view code );
 /* coordsys_load_code returns the code a coordinate system including potential hrs
  * can be loaded as.  Returns a pointer to a static buffer, so must be used or 
  * copied immediately! */

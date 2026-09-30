@@ -15,6 +15,9 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <optional>
+#include <string>
+#include <string_view>
 #include "util/snapctype.h"
 
 #include "coordsys/coordsys.h"
@@ -119,125 +122,103 @@ int parse_crdsys_epoch( const char *epochstr, double *epoch )
 /* Coordinate systems defined by code, optionally followed by @epoch, where
    epoch is either a decimal year number (eg 2007.5) or "now" */
 
-coordsys * load_coordsys( const char *code )
+coordsys * load_coordsys( std::string_view code )
 {
     crdsys_source_def *csd;
-    char cscode[CRDSYS_CODE_LEN+1];
-    char dtmcode[CRDSYS_CODE_LEN+1];
-    char hrscode[CRDSYS_CODE_LEN+1];
     double epoch = 0;
     int sts;
-    const char *endcodeptr=0;
-    const char *dtmptr=0;
-    const char *enddtmptr=0;
-    const char *epochptr=0;
-    const char *hrsptr=0;
-    const char *endhrsptr=0;
-    const char *cptr;
-    int nch;
 
     vdatum *hrs=nullptr;
     coordsys *cs= nullptr;
     ref_frame *rf=nullptr;
 
     /* Code format is  CSCODE(DATUMCODE)/HRSCODE@epoch */
-    
-    cptr=code;
-    while( *cptr )
+
+    const std::string_view::size_type endcode = code.find_first_of( "(/@" );
+    const std::string_view cscode = code.substr( 0, endcode );
+    std::string_view rest =
+        endcode == std::string_view::npos ? std::string_view() : code.substr( endcode );
+    std::optional<std::string_view> dtmcode;
+    std::optional<std::string_view> hrscode;
+    std::optional<std::string_view> epochstr;
+
+    // An unclosed "(" is left in rest, which is reported as invalid below
+    if( ! rest.empty() && rest.front() == '(' )
     {
-        if( *cptr == '(' || *cptr == '/' || *cptr == '@' ) break;
-        cptr++;
+        const std::string_view::size_type close = rest.find( ')' );
+        if( close != std::string_view::npos )
+        {
+            dtmcode = rest.substr( 1, close-1 );
+            rest.remove_prefix( close+1 );
+        }
     }
-    endcodeptr=cptr;
-    if( *cptr == '(' )
+    if( ! rest.empty() && rest.front() == '/' )
     {
-        cptr++;
-        dtmptr=cptr;
-        while( *cptr && *cptr != ')' ) cptr++;
-        enddtmptr=cptr;
-        if( *cptr == ')' ) cptr++; else { cptr=dtmptr-1; dtmptr=0; }
+        rest.remove_prefix( 1 );
+        const std::string_view::size_type at = rest.find( '@' );
+        hrscode = rest.substr( 0, at );
+        rest = at == std::string_view::npos ? std::string_view() : rest.substr( at );
     }
-    if( *cptr == '/' )
+    if( ! rest.empty() && rest.front() == '@' )
     {
-        cptr++;
-        hrsptr=cptr;
-        while( *cptr && *cptr != '@' ) cptr++;
-        endhrsptr=cptr;
-    }
-    if( *cptr == '@' )
-    {
-        cptr++;
-        epochptr=cptr;
-        while( *cptr ) cptr++;
+        epochstr = rest.substr( 1 );
+        rest = std::string_view();
     }
 
     /* Invalid coordinate system definition */
-    if( *cptr )
+    if( ! rest.empty() )
     {
-        char errmsg[150];
-        sprintf(errmsg,"Invalid coordinate definition (%.40s) in %.40s",cptr,code);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Invalid coordinate definition (" +
+            std::string( rest.substr( 0, 40 ) ) + ") in " + std::string( code.substr( 0, 40 ) );
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
         return NULL;
     }
 
     /* Check epoch */
-    if( epochptr && ! parse_crdsys_epoch( epochptr, &epoch ) )
+    if( epochstr && ! parse_crdsys_epoch( std::string( *epochstr ).c_str(), &epoch ) )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Invalid coordinate system epoch in %.40s",code);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Invalid coordinate system epoch in " + std::string( code.substr( 0, 40 ) );
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
         return NULL;
     }
 
     /* Check length of coordinate system code */
-    nch=endcodeptr-code;
-    if( nch < 1 || nch > CRDSYS_CODE_LEN ) 
+    if( cscode.empty() || cscode.size() > CRDSYS_CODE_LEN )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Invalid coordinate system code n %.40s",code);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Invalid coordinate system code in " + std::string( code.substr( 0, 40 ) );
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
         return NULL;
     }
-    strncpy(cscode,code,nch);
-    cscode[nch]=0;
 
     /* Check alternative reference frame */
-    if( dtmptr )
+    if( dtmcode )
     {
-        nch=enddtmptr-dtmptr;
-        if( nch > CRDSYS_CODE_LEN )
+        if( dtmcode->size() > CRDSYS_CODE_LEN )
         {
-            char errmsg[100];
-            sprintf(errmsg,"Invalid alternative ref frame code in %.40s",code);
-            handle_error(INVALID_DATA,errmsg,nullptr);
+            const std::string errmsg = "Invalid alternative ref frame code in " + std::string( code.substr( 0, 40 ) );
+            handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
             return NULL;
         }
-        else if( nch > 0 )
+        else if( ! dtmcode->empty() )
         {
-            strncpy(dtmcode,dtmptr,nch);
-            dtmcode[nch]=0;
-            rf=load_ref_frame( dtmcode );
+            rf=load_ref_frame( std::string( *dtmcode ).c_str() );
             if( ! rf ) return NULL;
         }
     }
 
     /* Check vertical datum */
-    if( hrsptr )
+    if( hrscode )
     {
-        nch=endhrsptr-hrsptr;
-        if( nch > CRDSYS_CODE_LEN )
+        if( hrscode->size() > CRDSYS_CODE_LEN )
         {
-            char errmsg[100];
-            sprintf(errmsg,"Invalid height system code in %.40s",code);
-            handle_error(INVALID_DATA,errmsg,nullptr);
+            const std::string errmsg = "Invalid height system code in " + std::string( code.substr( 0, 40 ) );
+            handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
             return NULL;
         }
-        else if( nch > 0 )
+        else if( ! hrscode->empty() )
         {
-            strncpy(hrscode,hrsptr,nch);
-            hrscode[nch]=0;
-            hrs=load_vdatum( hrscode );
-            if( ! hrs ) 
+            hrs=load_vdatum( std::string( *hrscode ).c_str() );
+            if( ! hrs )
             {
                 delete rf;
                 return NULL;
@@ -245,19 +226,19 @@ coordsys * load_coordsys( const char *code )
         }
     }
 
+    const std::string cscodestr( cscode );
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
             csd = csd->next ) if( csd->getcs )
         {
 
-            sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscode, &cs );
+            sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscodestr.c_str(), &cs );
         }
 
     if( sts == MISSING_DATA )
     {
-        char errmsg[80];
-        sprintf(errmsg,"Coordinate system %.20s is not defined",cscode);
-        handle_error(INVALID_DATA,errmsg,nullptr);
+        const std::string errmsg = "Coordinate system " + cscodestr + " is not defined";
+        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
     }
 
 
@@ -322,7 +303,7 @@ vdatum * load_vdatum( const char *code )
 
     for( sts = MISSING_DATA, csd = sources;
             sts == MISSING_DATA && csd;
-            csd = csd->next ) if( csd->getel )
+            csd = csd->next ) if( csd->gethrs )
         {
 
             sts = (*csd->gethrs)( csd->data, CS_ID_UNAVAILABLE, code, &hrs );

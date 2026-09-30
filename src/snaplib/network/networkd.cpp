@@ -62,7 +62,7 @@ network *reload_network( FILE *f )
 
     /* Restore the station list and coordinate system */
 
-    cs = load_coordsys( nw->crdsysdef.c_str() );
+    cs = load_coordsys( nw->crdsysdef );
 
     if( !cs )
     {

@@ -83,7 +83,7 @@ static int init_griddef( void * )
 
     if( ! velgrid ) return INVALID_DATA;
     vcsdef = grd_coordsys_def( velgrid );
-    vcs = load_coordsys( vcsdef );
+    vcs = load_coordsys( vcsdef ? vcsdef : "" );
     if( !vcs )
     {
         sprintf( buf,"Cannot load velocity model coordinate system %-20s",vcsdef);

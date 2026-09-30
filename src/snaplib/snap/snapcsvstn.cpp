@@ -318,7 +318,7 @@ void SnapCsvStn::loadRecord()
     if (_cscode == "")
     {
         _cscode = cscode;
-        _cs = load_coordsys(cscode.c_str());
+        _cs = load_coordsys(cscode);
         if (!_cs)
         {
             dataError(string("Invalid coordinate system code ") + cscode);

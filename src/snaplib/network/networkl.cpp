@@ -773,7 +773,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             }
             const std::string crdsys( *crdsysField );
             const std::string pgnfile( *pgnfileField );
-            cs=load_coordsys( crdsys.c_str() );
+            cs=load_coordsys( crdsys );
             if( ! cs )
             {
                 sprintf(errmess,"Invalid coordinate system %-20s in \"%s\" option in %s",crdsys.c_str(),std::string(*field).c_str(),src);
