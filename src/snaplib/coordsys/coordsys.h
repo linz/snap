@@ -626,9 +626,8 @@ const char *coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
 coordsys * load_coordsys( std::string_view code );
 /* coordsys_load_code returns the code a coordinate system including potential hrs
- * can be loaded as.  Returns a pointer to a static buffer, so must be used or 
- * copied immediately! */
-const char* coordsys_load_code( coordsys *cs );
+ * can be loaded as. */
+std::string coordsys_load_code( coordsys *cs );
 
 int vdatum_list_count( void);
 const char *vdatum_list_code( int item );

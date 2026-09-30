@@ -29,7 +29,6 @@
 
 static crdsys_source_def *sources = NULL;
 static int update_id = 0;
-static char csfullcode[CRDCNV_CODE_LEN+1];
 
 crdsys_source_def *crdsys_sources()
 {
@@ -271,25 +270,21 @@ coordsys * load_coordsys( std::string_view code )
     return cs;
 }
 
-const char *coordsys_load_code( coordsys *cs )
+std::string coordsys_load_code( coordsys *cs )
 {
-    strncpy( csfullcode, cs->code.c_str(), CRDCNV_CODE_LEN );
+    std::string fullcode = cs->code.substr( 0, CRDCNV_CODE_LEN );
     if( cs->setrf && cs->rf &&
-            cs->rf->code.size()+strlen(csfullcode)+2 < CRDCNV_CODE_LEN )
+            cs->rf->code.size()+fullcode.size()+2 < CRDCNV_CODE_LEN )
     {
-        strcat(csfullcode,"(");
-        strcat(csfullcode,cs->rf->code.c_str());
-        strcat(csfullcode,")");
-        
+        fullcode += "(" + cs->rf->code + ")";
     }
     if( cs->hrs
-            && cs->hrs->code.size()+strlen(csfullcode)+1 < CRDCNV_CODE_LEN
+            && cs->hrs->code.size()+fullcode.size()+1 < CRDCNV_CODE_LEN
       )
     {
-        strcat(csfullcode,"/");
-        strcat(csfullcode,cs->hrs->code.c_str());
+        fullcode += "/" + cs->hrs->code;
     }
-    return csfullcode;
+    return fullcode;
 }
 
 vdatum * load_vdatum( std::string_view code )
