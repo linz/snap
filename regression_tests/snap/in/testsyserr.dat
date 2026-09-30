@@ -1,0 +1,14 @@
+Systematic error test - errors that depend on a classification
+
+#date unknown
+
+#classification equpt
+#systematic_error EDM_CONST equpt
+#systematic_error EDM_SCALE
+
+#data ED equpt EDM_CONST EDM_SCALE error no_heights
+
+1 2 889.2687  EDM  0.001 0.5 0.0103
+1 3 1152.1500 Tape 0.001 0.5 0.0106
+1 2 889.2687  Tape 0.001 0.5 0.0103
+1 3 1152.1500 EDM  0.001 0.5 0.0106
