@@ -12,6 +12,7 @@
 #include "util/errdef.h"
 #include "coordsys/paramdef.h"
 #include "coordsys/coordsys.h"
+#include "coordsys/crdsys_parse_field.h"
 
 namespace
 {
@@ -40,45 +41,32 @@ static param_def ell_params[] =
 
 ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
 {
-    char elcode[CRDSYS_CODE_LEN + 1];
-    char elname[CRDSYS_NAME_LEN + 1];
+    std::string elcode;
+    std::string elname;
     ellipsoid_axes axes;
-    const char *bad;
-    int sts;
+    std::string_view bad;
+    int sts = OK;
 
-    bad = "code";
-    sts = next_string_field( is.scanner, elcode, CRDSYS_CODE_LEN );
-    if( sts == OK )
-    {
-        bad = "name";
-        sts = next_string_field( is.scanner, elname, CRDSYS_NAME_LEN );
-    }
+    sts = read_crdsys_string( is.scanner, sts, elcode, CRDSYS_CODE_LEN, "code", bad );
+    sts = read_crdsys_string( is.scanner, sts, elname, CRDSYS_NAME_LEN, "name", bad );
     if( sts != OK )
     {
-        char errmess[40];
-        if( sts == MISSING_DATA )
-        {
-            sprintf( errmess,"Missing ellipsoid %s",bad);
-        }
-        else
-        {
-            sprintf( errmess,"Invalid ellipsoid %s",bad);
-        }
-        report_string_error( is, sts, errmess );
-        return NULL;
+        const std::string errmess = ( sts == MISSING_DATA ? "Missing ellipsoid " : "Invalid ellipsoid " ) +
+                                    std::string( bad );
+        report_string_error( is, sts, errmess.c_str() );
+        return nullptr;
     }
     sts =  read_param_list( is, ell_params, COUNT_OF(ell_params), &axes );
 
     if( sts == OK && ! embedded )
     {
-        char test[32];
-        sts = next_string_field( is.scanner, test, 32-1 ) == NO_MORE_DATA ? OK : TOO_MUCH_DATA;
+        std::string test;
+        sts = read_string_field( is.scanner, test, 31 ) == FieldResult::NoMoreData ? OK : TOO_MUCH_DATA;
         if( sts != OK )
         {
-            char errmsg[100+CRDSYS_CODE_LEN];
-            sprintf(errmsg,"Extraneous data \"%s\" in definition of ellipsoid \"%s\"",
-                    test,elcode);
-            report_string_error(is,sts,errmsg);
+            const std::string errmsg = "Extraneous data \"" + test +
+                                       "\" in definition of ellipsoid \"" + elcode + "\"";
+            report_string_error( is, sts, errmsg.c_str() );
         }
     }
 
@@ -86,5 +74,5 @@ ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
     {
         return new ellipsoid( elcode, elname, axes.a, axes.rf );
     }
-    return NULL;
+    return nullptr;
 }
