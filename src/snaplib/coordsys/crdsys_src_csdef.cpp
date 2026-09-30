@@ -121,7 +121,7 @@ static CodeAlias parse_code_alias( const std::string &segment )
     return CodeAlias{ segment, false };
 }
 
-static code_loc *add_codes( crdsys_file_source *csf, int type, const char *code, datafile_loc *loc )
+static code_loc *add_codes( crdsys_file_source *csf, int type, std::string_view code, datafile_loc *loc )
 {
     code_loc *newloc=0;
     std::vector<std::string> segments;
@@ -171,21 +171,20 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
     while( df_read_data_file( cfs->df ) == OK )
     {
         datafile_loc loc;
-        char code[255];
         df_save_data_file_loc( cfs->df, &loc );
         input_string_def &is = df_input_string( cfs->df );
         auto field = is.scanner.checkAndRecoverQuotedValue( true, std::nullopt );
         if( ! field ) continue;
-        copy_field( *field, code, 255 );
-        if( code[0] == '[' )
+        const std::string_view code = *field;
+        if( ! code.empty() && code.front() == '[' )
         {
-            if( _stricmp(code,ELLIPSOID_TAG) == 0 ) type = CS_ELLIPSOID;
-            else if( _stricmp(code,REFFRAME_TAG) == 0 ) type = CS_REF_FRAME;
-            else if( _stricmp(code,COORDSYS_TAG ) == 0 ) type = CS_COORDSYS;
-            else if( _stricmp(code,COORDSYS_NOTE_TAG ) == 0 ) type = CS_COORDSYS_NOTE;
-            else if( _stricmp(code,REFFRAME_NOTE_TAG ) == 0 ) type = CS_REF_FRAME_NOTE;
-            else if( _stricmp(code,VDATUM_TAG ) == 0 ) type = CS_VDATUM;
-            else if( _stricmp(code,VDATUM_TAG2 ) == 0 ) type = CS_VDATUM;
+            if( boost::algorithm::iequals(code,ELLIPSOID_TAG) ) type = CS_ELLIPSOID;
+            else if( boost::algorithm::iequals(code,REFFRAME_TAG) ) type = CS_REF_FRAME;
+            else if( boost::algorithm::iequals(code,COORDSYS_TAG ) ) type = CS_COORDSYS;
+            else if( boost::algorithm::iequals(code,COORDSYS_NOTE_TAG ) ) type = CS_COORDSYS_NOTE;
+            else if( boost::algorithm::iequals(code,REFFRAME_NOTE_TAG ) ) type = CS_REF_FRAME_NOTE;
+            else if( boost::algorithm::iequals(code,VDATUM_TAG ) ) type = CS_VDATUM;
+            else if( boost::algorithm::iequals(code,VDATUM_TAG2 ) ) type = CS_VDATUM;
             else type = CS_INVALID;
         }
         else if( type != CS_INVALID )
@@ -196,8 +195,7 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
                 /* Notes can refer to multiple codes - get a complete list */
                 while( (field = is.scanner.checkAndRecoverQuotedValue( true, std::nullopt )) )
                 {
-                    copy_field( *field, code, CRDSYS_CODE_LEN+1 );
-                    add_codes( cfs, type, code, &loc );
+                    add_codes( cfs, type, *field, &loc );
                 }
                 /* Notes continue to a line ending end_note ... */
                 while( df_read_data_file( cfs->df ) == OK )
@@ -216,8 +214,7 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
 static int get_codes( void *pcfs,
                       void (*addfunc)( int type, long id, const char *code, const char *desc ))
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    char name[CRDSYS_NAME_LEN];
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
     long id;
     int type;
     code_loc *cl;
@@ -235,15 +232,8 @@ static int get_codes( void *pcfs,
                 input_string_def &instr = df_input_string( cfs->df );
                 instr.scanner.checkAndRecoverQuotedValue( true, std::nullopt ); // skip the code field
                 auto field = instr.scanner.checkAndRecoverQuotedValue( true, std::nullopt );
-                if( field )
-                {
-                    copy_field( *field, name, CRDSYS_NAME_LEN );
-                }
-                else
-                {
-                    strcpy(name,"(unnamed)");
-                }
-                (*addfunc)((int) type, id, cl->code.c_str(), name );
+                const std::string name = field ? std::string( *field ) : std::string( "(unnamed)" );
+                (*addfunc)( type, id, cl->code.c_str(), name.c_str() );
             }
             id++;
         }
