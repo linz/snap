@@ -642,14 +642,11 @@ static void load_data_syserrs( snapfile_def *sd )
             class_name_id = sd->clsf[class_id].data_id;
             if( class_name_id != ds->class_name_id )
             {
-                char syserrname[80];
                 ds->class_name_id = class_name_id;
                 const std::string clsf_code = class_name_id
                     ? ldt_get_code( ID_CLASSNAME, sd->clsf[class_id].class_id, class_name_id )
                     : "default";
-                strcpy( syserrname, ds->name );
-                strcpy( syserrname + ds->name_len, "/");
-                strncpy( syserrname + ds->name_len + 1, clsf_code.c_str(), 79 - ds->name_len );
+                const std::string syserrname = std::string( ds->name ) + "/" + clsf_code;
                 ds->syserr_id = ldt_get_id( ID_SYSERR, 0, syserrname );
             }
         }
