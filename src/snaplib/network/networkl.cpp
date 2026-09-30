@@ -868,7 +868,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             std::string toCode( field->substr(dashPos+1) );
             c=new_code_range_criterion( fromCode, toCode );
         }
-        else if( (*field)[0] != '\\' && has_wildcard( std::string(*field).c_str() ) )
+        else if( (*field)[0] != '\\' && has_wildcard( *field ) )
         {
             std::string fieldStr(*field);
             c=new_code_match_criterion(fieldStr);

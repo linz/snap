@@ -308,7 +308,7 @@ static bool obs_datafile_match_fileid( obs_modifications *obsmod, obs_criterion 
         int last_file_id = oc->c.datafile.last_file_id;
         if( file_id == last_file_id ) return oc->c.datafile.last_match;
         std::string filename = obsmod->get_filename( file_id );
-        oc->c.datafile.last_match = filename_wildcard_match(oc->c.datafile.filename,filename.c_str());
+        oc->c.datafile.last_match = filename_wildcard_match(oc->c.datafile.filename,filename);
         return oc->c.datafile.last_match;
     }
     else
@@ -370,7 +370,7 @@ static obs_criterion *new_obs_classification_criterion( CFG_FILE *, classificati
             oc->c.mult_classification.value_ids[i]=classes->value_id( class_id, value, 1 );
         }
     }
-    else if ( ! singlevalue && has_wildcard(values.c_str()) )
+    else if ( ! singlevalue && has_wildcard(values) )
     {
         oc->crit_type=OBS_CRIT_WCLASSIFICATION;
         oc->c.wildcard_classification.class_id=class_id;
@@ -451,7 +451,7 @@ static bool obs_wildcard_classification_match( obs_criterion *oc, obsmod_context
         int nmatch=0;
         for( int iv = ntested; iv < class_count; iv++ )
         {
-            if( wildcard_match(pattern,csf->value_name(cclass_id,iv).c_str()) )
+            if( wildcard_match(pattern,csf->value_name(cclass_id,iv)) )
             {
                 nmatch++;
             }
@@ -471,7 +471,7 @@ static bool obs_wildcard_classification_match( obs_criterion *oc, obsmod_context
             }
             for( int iv = ntested; iv < class_count; iv++ )
             {
-                if( wildcard_match(pattern,csf->value_name(cclass_id,iv).c_str()) )
+                if( wildcard_match(pattern,csf->value_name(cclass_id,iv)) )
                 {
                     value_ids[nvalues]=iv;
                     nvalues++;
@@ -1117,7 +1117,7 @@ static obs_criterion *parse_key_value_criterion(
     if( boost::algorithm::iequals(key,"data_file") )
     {
         int file_id=OBS_CRIT_WILDCARD_FILEID;
-        if( quoted || ! has_wildcard(value.c_str()) )
+        if( quoted || ! has_wildcard(value) )
         {
             file_id=get_file_id( obsmod, cfg, value.data(), missing_error );
             if( file_id < 0 ) return nullptr;
