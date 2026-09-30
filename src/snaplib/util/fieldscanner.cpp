@@ -147,6 +147,24 @@ int compare_ignoring_case( std::string_view string1, std::string_view string2 )
     return std::lexicographical_compare( string2.begin(), string2.end(), string1.begin(), string1.end(), foldedLess ) ? 1 : 0;
 }
 
+/// Reduces a character to the form used when comparing names. Letters become
+/// lower case, and spaces, control characters, DEL and characters outside
+/// ASCII all become an underscore. Other characters are unchanged.
+static char normalise_name_char(
+    unsigned char ch )  ///< the character to reduce
+{
+    if( ch <= ' ' || ch >= 127 ) return '_';
+    return static_cast<char>( std::tolower( ch ) );
+}
+
+/// Two names match when they are the same length and every pair of characters
+/// is the same after reducing it with normalise_name_char.
+bool is_name_match( std::string_view string1, std::string_view string2 )
+{
+    return std::equal( string1.begin(), string1.end(), string2.begin(), string2.end(),
+        []( unsigned char a, unsigned char b ) { return normalise_name_char( a ) == normalise_name_char( b ); } );
+}
+
 void copy_field( std::string_view field, char *buf, int nbuf )
 {
     int length = (int) field.size();

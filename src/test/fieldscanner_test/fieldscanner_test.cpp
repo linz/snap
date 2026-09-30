@@ -252,6 +252,25 @@ void check_compare_ignoring_case()
     check( compare_ignoring_case("\xE9","a") == 1, "compare_ignoring_case: high bytes sort after ASCII" );
 }
 
+void check_is_name_match()
+{
+    check( is_name_match("abc","abc"), "is_name_match: identical names" );
+    check( is_name_match("abc","ABC"), "is_name_match: equal apart from case" );
+    check( is_name_match("",""), "is_name_match: two empty names" );
+    check( ! is_name_match("abc","abd"), "is_name_match: different letters" );
+    check( ! is_name_match("","a"), "is_name_match: empty and non-empty" );
+    check( ! is_name_match("ab","abc"), "is_name_match: a prefix is not a match" );
+    check( ! is_name_match("abc","ab"), "is_name_match: a longer name is not a match" );
+    check( is_name_match("Day Shift","day_shift"), "is_name_match: space matches underscore" );
+    check( is_name_match("DAY_SHIFT","day shift"), "is_name_match: case and space together" );
+    check( is_name_match("a\tb","a b"), "is_name_match: a control character matches a space" );
+    check( is_name_match("a\xE9","a_"), "is_name_match: a character outside ASCII matches underscore" );
+    check( is_name_match("a\xE9","a\xE8"), "is_name_match: two characters outside ASCII match each other" );
+    check( ! is_name_match("a-b","a_b"), "is_name_match: hyphen is not treated as underscore" );
+    check( ! is_name_match("a.b","a_b"), "is_name_match: full stop is not treated as underscore" );
+    check( ! is_name_match("a1","a2"), "is_name_match: different digits" );
+}
+
 void check_copy_field()
 {
     char buf[8];
@@ -284,6 +303,7 @@ int main()
     check_parse_positive_double();
     check_parse_leading_long();
     check_compare_ignoring_case();
+    check_is_name_match();
     check_copy_field();
 
     if( failures == 0 )

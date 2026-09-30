@@ -33,6 +33,7 @@
 
 #include "util/binfile.h"
 #include "util/dstring.h"
+#include "util/fieldscanner.hpp"
 #include "util/classify.h"
 
 #include "util/errdef.h"
@@ -82,29 +83,21 @@ class_value *class_type::add_value( std::variant<std::string,int> new_value )
     return &value.back();
 }
 
-int class_type::value_id( const std::string &value_name, int create )
+int class_type::value_id( std::string_view value_name, int create )
 {
     if( type == ClassValueType::Int )
     {
-        int id = 0;
-        auto result = std::from_chars( value_name.data(), value_name.data()+value_name.size(), id );
-        if( result.ec != std::errc() )
-        {
-            std::string errmess = "Invalid value " + value_name.substr(0,10) +
-                                   " for integer class " + name.substr(0,20);
-            (void) errmess;
-        }
-        return id;
+        return parse_leading<int>( value_name ).value_or( 0 );
     };
 
     int cmax = numeric_cast<int>(value.size());
     for( int i=0; i<cmax; i++ )
     {
-        if( ismatch(std::get<std::string>(value[i].value).c_str(), value_name.c_str()) ) return i;
+        if( is_name_match(std::get<std::string>(value[i].value), value_name) ) return i;
     }
     if( ! create ) return CLASS_VALUE_NOT_DEFINED;
 
-    std::string cleaned = value_name;
+    std::string cleaned( value_name );
     clean_name( cleaned );
     add_value( std::move(cleaned) );
     return numeric_cast<int>(value.size())-1;
@@ -127,16 +120,16 @@ class_value *class_type::find_value( int value_id, int create )
     return add_value( value_id );
 }
 
-int classifications::find_or_create_id( const std::string &name, ClassValueType type, int create )
+int classifications::find_or_create_id( std::string_view name, ClassValueType type, int create )
 {
     int class_count = numeric_cast<int>(class_index.size());
     for( int i = 0; i<class_count; i++ )
     {
-        if( ismatch(name.c_str(), class_index[i]->name.c_str()) ) return i+1;
+        if( is_name_match(name, class_index[i]->name) ) return i+1;
     }
     if( ! create ) return 0;
 
-    std::string cleaned = name;
+    std::string cleaned( name );
     clean_name( cleaned );
     auto ct = std::make_unique<class_type>( std::move(cleaned), type );
     /* Set up the default classification */
@@ -146,12 +139,12 @@ int classifications::find_or_create_id( const std::string &name, ClassValueType 
     return numeric_cast<int>(class_index.size());
 }
 
-int classifications::id( const std::string &name, int create )
+int classifications::id( std::string_view name, int create )
 {
     return find_or_create_id( name, ClassValueType::Char, create );
 }
 
-int classification_id_integer( classifications *csf, const std::string &name, int create )
+int classification_id_integer( classifications *csf, std::string_view name, int create )
 {
     return csf->find_or_create_id( name, ClassValueType::Int, create );
 }
@@ -181,7 +174,7 @@ void classifications::set_default_value( int class_id, const std::string &dflt )
     }
 }
 
-int classifications::value_id( int class_id, const std::string &value, int create )
+int classifications::value_id( int class_id, std::string_view value, int create )
 {
     CHECK_CLASS_ID(class_id);
     class_id--;

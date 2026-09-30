@@ -103,29 +103,6 @@ std::optional<std::string> reload_optional_string( FILE *b )
     return s;
 }
 
-int ismatch( const char *string1, const char *string2 )
-{
-    static const char *map =
-        " _______________________________"
-        "_!\"#$%&'()*+,-./0123456789:;<=>?"
-        "@abcdefghijklmnopqrstuvwxyz[\\]^_"
-        "`abcdefghijklmnopqrstuvwxyz{|}~_"
-        "________________________________"
-        "________________________________"
-        "________________________________"
-        "________________________________";
-
-    const char *s1;
-    const char *s2;
-    if( ! string1 || ! string2 ) return 0;
-    for( s1 = string1, s2=string2; ; s1++, s2++ )
-    {
-        if( *s1 != *s2 && map[(int)(*s1)] != map[(int)(*s2)] ) return 0;
-        if( ! *s1 ) break;
-    }
-    return 1;
-}
-
 char *next_field( char **start )
 {
     char *result=0;

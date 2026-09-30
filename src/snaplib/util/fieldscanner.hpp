@@ -186,6 +186,15 @@ int compare_ignoring_case(
     std::string_view string1,    ///< the first string
     std::string_view string2 );  ///< the second string
 
+/// Tests whether two names are the same, ignoring case and treating spaces,
+/// underscores, control characters and characters outside ASCII as
+/// interchangeable. So "Day Shift", "day_shift" and "DAY_SHIFT" all match.
+/// The names must be the same length to match.
+/// \return true if the names match.
+bool is_name_match(
+    std::string_view string1,    ///< the first name
+    std::string_view string2 );  ///< the second name
+
 /// Copies field into buf, truncating without error if it doesn't fit -
 /// matches the legacy next_string_field()'s truncate-not-error behavior,
 /// for callers not yet converted off fixed-size buffers.

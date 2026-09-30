@@ -738,7 +738,7 @@ static int add_residual_field_def( int type, std::string_view code, int width,
 
     if( column == INVALID_FIELD && boost::algorithm::istarts_with(code,"C=") )
     {
-        column = obs_classes.id( std::string(code.substr(2)), 1 );
+        column = obs_classes.id( code.substr(2), 1 );
         if( !title1 && !title2 )
         {
             title1 = get_column_heading( obs_classes.name( column ) );

@@ -11,6 +11,7 @@
 #include <stdint.h>
 #include <memory>
 #include <string>
+#include <string_view>
 #include <variant>
 #include <vector>
 
@@ -49,7 +50,7 @@ struct class_type
     /// Id of value_name within this classification's values (0 based),
     /// or CLASS_VALUE_NOT_DEFINED if not found and create is 0. If type is
     /// Int, parses value_name as an integer instead, ignoring create.
-    int value_id( const std::string &value_name, int create );
+    int value_id( std::string_view value_name, int create );
 
     /// Appends new_value as a new value of this classification, returning
     /// a pointer to it (stable until the next call to add_value).
@@ -82,16 +83,16 @@ struct classifications
 
     int count() const;
 
-    int id( const std::string &name, int create );
+    int id( std::string_view name, int create );
     std::string name( int id ) const;
 
     /// Id of the classification named name (1 based), adding it first
     /// with the given value type if create is set and it isn't already
     /// present, or 0 if not found and create is 0.
-    int find_or_create_id( const std::string &name, ClassValueType type, int create );
+    int find_or_create_id( std::string_view name, ClassValueType type, int create );
 
     void set_default_value( int class_id, const std::string &dflt );
-    int value_id( int class_id, const std::string &value, int create );
+    int value_id( int class_id, std::string_view value, int create );
     std::string value_name( int class_id, int value_id ) const;
     int value_count( int class_id ) const;
 
