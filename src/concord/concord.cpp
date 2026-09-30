@@ -141,7 +141,7 @@ struct DMS
     char no_seconds;
 };
 
-static int printf_func( const char *s, void *dummy );
+static int printf_func( std::string_view s, void *dummy );
 
 output_string_def printf_writer = {0,printf_func};
 
@@ -153,9 +153,9 @@ static void clear_screen(void)
 
 // #pragma warning (disable : 4100)
 
-static int printf_func( const char *s, void * )
+static int printf_func( std::string_view s, void * )
 {
-    printf("%s",s);
+    printf("%.*s",static_cast<int>(s.size()),s.data());
     return 0;
 }
 /*------------------------------------------------------------------*/
@@ -583,7 +583,7 @@ static void list_coordsys_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",coordsys_list_code(i), coordsys_list_desc(i));
+        printf("  %-10s %s\n",coordsys_list_code(i).c_str(), coordsys_list_desc(i).c_str());
     }
     printf("\n");
 }
@@ -603,7 +603,7 @@ static void list_vertical_datum_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",vdatum_list_code(i), vdatum_list_desc(i));
+        printf("  %-10s %s\n",vdatum_list_code(i).c_str(), vdatum_list_desc(i).c_str());
     }
     printf("\n");
 }
@@ -623,7 +623,7 @@ static void list_ref_frame_with_pause( void )
             if( pause_output()) nl = 0; else break;
         }
         nl++;
-        printf("  %-10s %s\n",ref_frame_list_code(i), ref_frame_list_desc(i));
+        printf("  %-10s %s\n",ref_frame_list_code(i).c_str(), ref_frame_list_desc(i).c_str());
     }
     printf("\n");
 }
@@ -662,8 +662,8 @@ static void list_coordsys_and_exit( int argc, char *argv[] )
                                 printf("Compatible vertical datums:\n");
                                 firsthrs=0;
                             }
-                            printf( "  %-20s %s\n", vdatum_list_code(ihrs),
-                                    vdatum_list_desc(ihrs));
+                            printf( "  %-20s %s\n", vdatum_list_code(ihrs).c_str(),
+                                    vdatum_list_desc(ihrs).c_str());
 
                         }
                         delete hrs;
@@ -1522,8 +1522,7 @@ static void head_output( FILE * out )
         fprintf(out,"\nDatum conversion epoch %.2lf\n",cnv.epochconv);
     }
 
-    os.sink=out;
-    os.write= (output_string_func) fputs;
+    output_string_to_file( &os, out );
     get_conv_notes( &cnv, &os );
 }
 

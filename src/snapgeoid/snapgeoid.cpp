@@ -210,9 +210,9 @@ int main( int argc, char *argv[] )
         int nhrf=vdatum_list_count();
         for( i=0; i < nhrf; i++)
         {
-            const char *code=vdatum_list_code(i);
-            const char *name=vdatum_list_desc(i);
-            printf("  %-*s %s\n",CRDSYS_CODE_LEN,code,name);
+            const std::string &code=vdatum_list_code(i);
+            const std::string &name=vdatum_list_desc(i);
+            printf("  %-*s %s\n",CRDSYS_CODE_LEN,code.c_str(),name.c_str());
         }
         exit(0);
     }

@@ -134,7 +134,7 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
     if( sts != OK )
     {
         write_output_string(os,"   Cannot load from file ");
-        write_output_string(os,model->ldeffile.c_str());
+        write_output_string(os,model->ldeffile);
         write_output_string(os,"\n");
     }
     else
@@ -161,12 +161,12 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
                 buffer = "Version " + std::string(title->substr(0,20));
             }
         }
-        write_output_string2(os,buffer.c_str(),OSW_TRIMR | OSW_SKIPBLANK,"    ");
+        write_output_string2(os,buffer,OSW_TRIMR | OSW_SKIPBLANK,"    ");
         /* Description */
         sts = utlLinzDefTitle( model->linzdef, 2, title );
         if( sts == STS_OK && title && ! title->empty() )
         {
-            write_output_string2(os,std::string(*title).c_str(),OSW_TRIMR | OSW_SKIPBLANK,"    ");
+            write_output_string2(os,*title,OSW_TRIMR | OSW_SKIPBLANK,"    ");
         }
     }
     return OK;

@@ -68,7 +68,7 @@ static int rf_xyz_describe(  ref_frame *rf, output_string_def *os )
     ref_deformation_xyz *dxyz = (ref_deformation_xyz *)(def->data);
     if( dxyz && ! dxyz->description.empty() )
     {
-        write_output_string(os,dxyz->description.c_str());
+        write_output_string(os,dxyz->description);
     }
     return OK;
 }

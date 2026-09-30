@@ -27,7 +27,7 @@ int  describe_ellipsoid( output_string_def *os, ellipsoid *el )
     char out[80];
     if( !el ) return OK;
     write_output_string( os, "Ellipsoid: ");
-    write_output_string( os, el->name.c_str() );
+    write_output_string( os, el->name );
     sprintf(out,"\n  a = %.3lf  1/f = %.6lf\n",el->a,el->rf);
     write_output_string( os, out );
     return OK;
@@ -45,7 +45,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
     constexpr std::array<std::string_view,3> std_units= {"m","sec","ppm"};
 
     write_output_string( os, "Reference frame: " );
-    write_output_string( os, rf->name.c_str() );
+    write_output_string( os, rf->name );
     write_output_string( os, "\n" );
 
     scale = rf->scale != 0.0 || rf->dscale;
@@ -78,7 +78,7 @@ int  describe_ref_frame( output_string_def *os, ref_frame *rf )
         int rates = rf->use_rates;
 
         write_output_string( os, "  Relative to ");
-        write_output_string( os, rf->refcode->c_str());
+        write_output_string( os, *rf->refcode );
         write_output_string( os, "\n" );
         if( rates )
         {
@@ -138,7 +138,7 @@ int describe_projection( output_string_def *os, projection *prj )
     if( ! prj->type->name.empty() )
     {
         write_output_string( os, "Projection: " );
-        write_output_string( os, prj->type->name.c_str());
+        write_output_string( os, prj->type->name );
         write_output_string( os, "\n" );
     }
 
@@ -154,7 +154,7 @@ int describe_vdatum( output_string_def *os, vdatum *hrs )
 {
     if( !hrs ) return OK;
     write_output_string( os, "Heights: " );
-    write_output_string( os, hrs->name.c_str() );
+    write_output_string( os, hrs->name );
     write_output_string( os, "\n" );
     return OK;
 }
@@ -162,7 +162,7 @@ int describe_vdatum( output_string_def *os, vdatum *hrs )
 int  describe_coordsys(  output_string_def *os, coordsys *cs )
 {
     write_output_string( os, "Coordinate system: " );
-    write_output_string( os, cs->name.c_str() );
+    write_output_string( os, cs->name );
     write_output_string( os, "\n" );
     describe_ref_frame( os, cs->rf );
     if( has_deformation_model(cs) && cs->rf->defepoch != 0.0)

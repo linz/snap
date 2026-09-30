@@ -97,12 +97,12 @@ static int rf_grid_describe( ref_frame *rf, output_string_def *os )
     write_output_string(os,"Transformation uses ");
     if( rff->description )
     {
-        write_output_string(os,rff->description->c_str());
+        write_output_string(os,*rff->description);
     }
     else
     {
         write_output_string(os,"transformation grid from file ");
-        write_output_string(os,gd->filename.c_str());
+        write_output_string(os,gd->filename);
     }
     write_output_string(os,"\n");
     return OK;

@@ -15,6 +15,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
@@ -27,10 +28,10 @@
 #include "util/errdef.h"
 
 
-static crdsys_source_def *sources = NULL;
+static std::forward_list<crdsys_source_def> sources;
 static int update_id = 0;
 
-crdsys_source_def *crdsys_sources()
+const std::forward_list<crdsys_source_def> &crdsys_sources()
 {
     return sources;
 }
@@ -41,41 +42,34 @@ int crdsys_source_update()
 }
 
 
-void register_crdsys_source( crdsys_source_def *csd )
+void register_crdsys_source( const crdsys_source_def &csd )
 {
-    csd->next = sources;
-    sources = (crdsys_source_def *) check_malloc( sizeof( crdsys_source_def ) );
-    memcpy( sources, csd, sizeof( crdsys_source_def ) );
+    sources.push_front( csd );
     update_id++;
 }
 
 void uninstall_crdsys_lists( void )
 {
-    crdsys_source_def *csd;
     update_id++;
-    while( sources )
+    for( const crdsys_source_def &csd : sources )
     {
-        csd = sources;
-        sources = sources->next;
-        if( csd->delsource ) (*csd->delsource)( csd->data );
-        check_free( csd );
+        if( csd.delsource ) (*csd.delsource)( csd.data );
     }
+    sources.clear();
 }
 
 
 ref_frame * load_ref_frame( std::string_view code )
 {
-    crdsys_source_def *csd;
-    int sts;
+    int sts = MISSING_DATA;
     ref_frame *rf = nullptr;
 
-    for( sts = MISSING_DATA, csd = sources;
-            sts == MISSING_DATA && csd;
-            csd = csd->next ) if( csd->getrf )
-        {
-
-            sts = (*csd->getrf)( csd->data, CS_ID_UNAVAILABLE, code, &rf );
-        }
+    for( const crdsys_source_def &csd : sources )
+    {
+        if( ! csd.getrf ) continue;
+        sts = (*csd.getrf)( csd.data, CS_ID_UNAVAILABLE, code, &rf );
+        if( sts != MISSING_DATA ) break;
+    }
 
     if( sts == MISSING_DATA )
     {
@@ -88,17 +82,15 @@ ref_frame * load_ref_frame( std::string_view code )
 
 ellipsoid * load_ellipsoid( std::string_view code )
 {
-    crdsys_source_def *csd;
-    int sts;
+    int sts = MISSING_DATA;
     ellipsoid *el= nullptr;
 
-    for( sts = MISSING_DATA, csd = sources;
-            sts == MISSING_DATA && csd;
-            csd = csd->next ) if( csd->getel )
-        {
-
-            sts = (*csd->getel)( csd->data, CS_ID_UNAVAILABLE, code, &el );
-        }
+    for( const crdsys_source_def &csd : sources )
+    {
+        if( ! csd.getel ) continue;
+        sts = (*csd.getel)( csd.data, CS_ID_UNAVAILABLE, code, &el );
+        if( sts != MISSING_DATA ) break;
+    }
     if( sts == MISSING_DATA )
     {
         const std::string errmsg = "Ellipsoid " + std::string( code.substr( 0, 20 ) ) + " is not defined";
@@ -121,9 +113,8 @@ bool parse_crdsys_epoch( std::string_view epochstr, double &epoch )
 
 coordsys * load_coordsys( std::string_view code )
 {
-    crdsys_source_def *csd;
     double epoch = 0;
-    int sts;
+    int sts = MISSING_DATA;
 
     vdatum *hrs=nullptr;
     coordsys *cs= nullptr;
@@ -223,13 +214,12 @@ coordsys * load_coordsys( std::string_view code )
         }
     }
 
-    for( sts = MISSING_DATA, csd = sources;
-            sts == MISSING_DATA && csd;
-            csd = csd->next ) if( csd->getcs )
-        {
-
-            sts = (*csd->getcs)( csd->data, CS_ID_UNAVAILABLE, cscode, &cs );
-        }
+    for( const crdsys_source_def &csd : sources )
+    {
+        if( ! csd.getcs ) continue;
+        sts = (*csd.getcs)( csd.data, CS_ID_UNAVAILABLE, cscode, &cs );
+        if( sts != MISSING_DATA ) break;
+    }
 
     if( sts == MISSING_DATA )
     {
@@ -289,17 +279,15 @@ std::string coordsys_load_code( coordsys *cs )
 
 vdatum * load_vdatum( std::string_view code )
 {
-    crdsys_source_def *csd;
-    int sts;
+    int sts = MISSING_DATA;
     vdatum *hrs= nullptr;
 
-    for( sts = MISSING_DATA, csd = sources;
-            sts == MISSING_DATA && csd;
-            csd = csd->next ) if( csd->gethrs )
-        {
-
-            sts = (*csd->gethrs)( csd->data, CS_ID_UNAVAILABLE, code, &hrs );
-        }
+    for( const crdsys_source_def &csd : sources )
+    {
+        if( ! csd.gethrs ) continue;
+        sts = (*csd.gethrs)( csd.data, CS_ID_UNAVAILABLE, code, &hrs );
+        if( sts != MISSING_DATA ) break;
+    }
 
     if( sts == MISSING_DATA )
     {
@@ -310,31 +298,26 @@ vdatum * load_vdatum( std::string_view code )
 }
 
 
-int get_notes( int type, const char *code, output_string_def *os )
+int get_notes( int type, std::string_view code, output_string_def *os )
 {
-    crdsys_source_def *csd;
-    char cscode[CRDCNV_CODE_LEN+1];
-    int nch;
     double epoch = 0;
     int sts = MISSING_DATA;
 
     /* Look for an @ character, defining an deformation model reference epoch */
-    for( nch = 0; code[nch] != 0 && code[nch] != '@'; nch++ ) {}
-    if( code[nch] && ! parse_crdsys_epoch( code+nch+1, epoch ) )
+    const size_t nch = std::min( code.find( '@' ), code.size() );
+    if( nch < code.size() && ! parse_crdsys_epoch( code.substr( nch + 1 ), epoch ) )
     {
         return INVALID_DATA;
     }
     if( nch > CRDCNV_CODE_LEN ) return INVALID_DATA;
-    strncpy(cscode,code,nch);
-    cscode[nch] = 0;
+    const std::string_view cscode = code.substr( 0, nch );
 
-    for( csd = sources; csd; csd = csd->next )
-        if( csd->getnotes )
-        {
-
-            sts = (*csd->getnotes)( csd->data, type, cscode, os->sink, os->write );
-            if( sts == OK ) break;
-        }
+    for( const crdsys_source_def &csd : sources )
+    {
+        if( ! csd.getnotes ) continue;
+        sts = (*csd.getnotes)( csd.data, type, cscode, os->sink, os->write );
+        if( sts == OK ) break;
+    }
     return sts;
 }
 
@@ -343,37 +326,35 @@ int get_crdsys_notes( coordsys *cs, output_string_def *os  )
 {
     int sts;
 
-    sts = get_notes( CS_COORDSYS_NOTE, cs->code.c_str(), os );
+    sts = get_notes( CS_COORDSYS_NOTE, cs->code, os );
     if( cs->rf )
     {
-        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code.c_str(), os  ) == OK ) sts=OK;
+        if( get_notes( CS_REF_FRAME_NOTE, cs->rf->code, os  ) == OK ) sts=OK;
     }
     return sts;
 }
 
 std::optional<std::string> get_crdsys_file( const std::string &filename, const std::string &extension )
 {
-    for( crdsys_source_def *csd = sources; csd; csd = csd->next )
-        if( csd->getcsfile )
-        {
-            auto found = (*csd->getcsfile)( csd->data, filename, extension );
-            if( found ) return found;
-        }
+    for( const crdsys_source_def &csd : sources )
+    {
+        if( ! csd.getcsfile ) continue;
+        auto found = (*csd.getcsfile)( csd.data, filename, extension );
+        if( found ) return found;
+    }
     return std::nullopt;
 }
 
-static int gcc_notes( int type, const char *code1, const char *code2, output_string_def *os )
+static int gcc_notes( int type, std::string_view code1, std::string_view code2, output_string_def *os )
 {
-    char convcode[CRDCNV_CODE_LEN+1];
-    if( ! code1 || ! code2 ) return INVALID_DATA;
-    if( strlen(code1) > CRDSYS_CODE_LEN || strlen(code2) > CRDSYS_CODE_LEN ) return INVALID_DATA;
-    strcpy(convcode,code1);
-    strcat(convcode,":");
-    strcat(convcode,code2);
+    if( code1.size() > CRDSYS_CODE_LEN || code2.size() > CRDSYS_CODE_LEN ) return INVALID_DATA;
+    std::string convcode( code1 );
+    convcode += ':';
+    convcode += code2;
     return get_notes(type,convcode,os);
 }
 
-int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os )
+int get_conv_code_notes( int type, std::string_view code1, std::string_view code2, output_string_def *os )
 {
     if( gcc_notes(type,code1,code2,os)==OK || gcc_notes(type,code2,code1,os)==OK ) return OK;
     return MISSING_DATA;
@@ -383,19 +364,19 @@ int get_conv_notes( coord_conversion *conv, output_string_def *os )
 {
     int sts = MISSING_DATA;
     int icrf;
-    const char *code1, *code2;
-    if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code.c_str(), conv->to->code.c_str(), os ) == OK )
+    std::string_view code1, code2;
+    if( get_conv_code_notes( CS_COORDSYS_NOTE,conv->from->code, conv->to->code, os ) == OK )
     {
         sts = OK;
     }
-    code2=conv->from->rf->code.c_str();
+    code2=conv->from->rf->code;
     for( icrf=0; icrf < conv->ncrf; icrf++ )
     {
         coord_conversion_rf *crf = &(conv->crf[icrf]);
         if( crf->def_only ) continue;
         if( ! crf->rf ) continue;
         code1=code2;
-        code2=crf->rf->code.c_str();
+        code2=crf->rf->code;
         if( get_conv_code_notes( CS_REF_FRAME_NOTE,code1,code2, os ) == OK )
         {
             sts = OK;

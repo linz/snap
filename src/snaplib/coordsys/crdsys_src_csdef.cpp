@@ -212,7 +212,7 @@ static void scan_coordsys_defs( crdsys_file_source *cfs )
 /* Load all codes defined in the coordinate system file */
 
 static int get_codes( void *pcfs,
-                      void (*addfunc)( int type, long id, const char *code, const char *desc ))
+                      void (*addfunc)( int type, long id, std::string_view code, std::string_view desc ))
 {
     crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
     long id;
@@ -232,8 +232,7 @@ static int get_codes( void *pcfs,
                 input_string_def &instr = df_input_string( cfs->df );
                 instr.scanner.checkAndRecoverQuotedValue( true, std::nullopt ); // skip the code field
                 auto field = instr.scanner.checkAndRecoverQuotedValue( true, std::nullopt );
-                const std::string name = field ? std::string( *field ) : std::string( "(unnamed)" );
-                (*addfunc)( type, id, cl->code.c_str(), name.c_str() );
+                (*addfunc)( type, id, cl->code, field ? *field : std::string_view( "(unnamed)" ) );
             }
             id++;
         }
@@ -373,14 +372,13 @@ static int get_vdatum( void *pcfs, long id, std::string_view code, vdatum **hrs 
     return read_vdatum_def( static_cast<crdsys_file_source *>( pcfs ), id, code, hrs );
 }
 
-static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, int (*puttext)(const char *note, void *sptr ))
+static int get_csdef_notes( void *pcfs, int type, std::string_view code, void *sptr, output_string_func puttext )
 {
-    crdsys_file_source *cfs = (crdsys_file_source *) pcfs;
-    code_loc *cl;
+    crdsys_file_source *cfs = static_cast<crdsys_file_source *>( pcfs );
 
     if( type != CS_COORDSYS_NOTE && type != CS_REF_FRAME_NOTE ) return INVALID_DATA;
 
-    cl = find_code_loc( cfs, type, code );
+    code_loc *cl = find_code_loc( cfs, type, code );
     if( ! cl ) return INVALID_DATA;
 
     df_reset_data_file_loc( cfs->df, &cl->loc );
@@ -390,8 +388,7 @@ static int get_csdef_notes( void *pcfs, int type, const char *code, void *sptr, 
     {
         input_string_def &instr = df_input_string( cfs->df );
         if( test_next_string_field( instr.scanner, END_NOTE_MARKER ) ) break;
-        std::string text( instr.scanner.remainder() );
-        (*puttext)( text.c_str(), sptr );
+        (*puttext)( instr.scanner.remainder(), sptr );
         (*puttext)( "\n", sptr );
     }
     return OK;
@@ -438,7 +435,7 @@ static int create_crdsys_file_source( const char *filename )
     csd.getnotes = get_csdef_notes;
     csd.getcodes = get_codes;
     csd.delsource = delete_crdsys_file_source;
-    register_crdsys_source( &csd );
+    register_crdsys_source( csd );
     return OK;
 }
 

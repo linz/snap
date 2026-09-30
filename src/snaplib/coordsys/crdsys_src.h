@@ -21,6 +21,7 @@
 #ifndef CRDSYSDF_H
 #define CRDSYSDF_H
 
+#include <forward_list>
 #include <string>
 #include <string_view>
 #include <optional>
@@ -33,25 +34,24 @@
 
 struct crdsys_source_def
 {
-    struct crdsys_source_def *next;
-    void *data;
+    void *data = nullptr;
     /// Searches this one coordinate system source (data) for filename+extension,
     /// e.g. relative to the source's own definition file. nullptr if this source
     /// doesn't support file lookup (e.g. crdsys_src_lists.cpp's in-memory source).
     /// Returns nullopt if this source doesn't have the file.
-    std::optional<std::string> (*getcsfile)( void *data, const std::string &filename, const std::string &extension );
-    int (*getrf)( void *data, long id, std::string_view code, ref_frame **rf );
-    int (*getel)( void *data, long id, std::string_view code, ellipsoid **el );
-    int (*getcs)( void *data, long id, std::string_view code, coordsys  **cs );
-    int (*gethrs)( void *data, long id, std::string_view code, vdatum  **hrs );
-    int (*getnotes)( void *data, int type, const char *code, void *sink, int (*puttext)(const char *note, void *sink ));
-    int (*getcodes)( void *data, void (*addfunc)( int type, long id, const char *code, const char *desc ) );
-    int (*delsource)( void *data );
+    std::optional<std::string> (*getcsfile)( void *data, const std::string &filename, const std::string &extension ) = nullptr;
+    int (*getrf)( void *data, long id, std::string_view code, ref_frame **rf ) = nullptr;
+    int (*getel)( void *data, long id, std::string_view code, ellipsoid **el ) = nullptr;
+    int (*getcs)( void *data, long id, std::string_view code, coordsys  **cs ) = nullptr;
+    int (*gethrs)( void *data, long id, std::string_view code, vdatum  **hrs ) = nullptr;
+    int (*getnotes)( void *data, int type, std::string_view code, void *sink, output_string_func puttext ) = nullptr;
+    int (*getcodes)( void *data, void (*addfunc)( int type, long id, std::string_view code, std::string_view desc ) ) = nullptr;
+    int (*delsource)( void *data ) = nullptr;
 };
 
 int crdsys_source_update( void );
-crdsys_source_def *crdsys_sources( void );
-void register_crdsys_source( crdsys_source_def *src );
+const std::forward_list<crdsys_source_def> &crdsys_sources( void );
+void register_crdsys_source( const crdsys_source_def &src );
 
 #define CS_ID_UNAVAILABLE -1
 

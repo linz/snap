@@ -2679,7 +2679,7 @@ static void list_coordsys_codes()
             if( !fgets(inrec,256,stdin) || inrec[0] != '\n' ) break;
             nlines = 0;
         }
-        printf("  %-10s  %s\n",coordsys_list_code(i),coordsys_list_desc(i));
+        printf("  %-10s  %s\n",coordsys_list_code(i).c_str(),coordsys_list_desc(i).c_str());
         nlines++;
     }
     printf("\n");

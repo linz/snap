@@ -43,7 +43,7 @@ struct input_string_def
 /* Output string def - defines a way of sending strings to some form
    of output device */
 
-typedef int (*output_string_func)( const char *string, void *sink );
+typedef int (*output_string_func)( std::string_view string, void *sink );
 
 struct output_string_def
 {
@@ -79,8 +79,8 @@ char *unread_string( input_string_def &def );
 
 void report_string_error( input_string_def &def, int status, const char *message );
 
-int write_output_string( output_string_def *os, const char *s );
-int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix );
+int write_output_string( output_string_def *os, std::string_view s );
+int write_output_string2( output_string_def *os, std::string_view s, int options, std::string_view prefix );
 void output_string_to_file( output_string_def *os, FILE *f );
 
 #define OSW_TRIMR      1

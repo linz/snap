@@ -84,69 +84,57 @@ void report_string_error( input_string_def &def, int status, const char *message
 
 /*================================================================*/
 
-int write_output_string( output_string_def *os, const char *s )
+int write_output_string( output_string_def *os, std::string_view s )
 {
     if( os->write ) return (*os->write)( s, os->sink );
     return FILE_WRITE_ERROR;
 }
 
-int write_output_string2( output_string_def *os, const char *s, int options, const char *prefix )
+int write_output_string2( output_string_def *os, std::string_view s, int options, std::string_view prefix )
 {
     if( ! os->write ) return FILE_WRITE_ERROR;
-    const char *ptrs;
-    const char *ptre;
-    int triml = options & OSW_TRIML;
-    int trimr = options & OSW_TRIMR;
-    int skipblank = options & OSW_SKIPBLANK;
-    ptrs = s;
-    while( *ptrs )
+    const bool triml = options & OSW_TRIML;
+    const bool trimr = options & OSW_TRIMR;
+    const bool skipblank = options & OSW_SKIPBLANK;
+    size_t pos = 0;
+    while( pos < s.size() )
     {
-        const char *start;
-        int nch;
-        ptre=ptrs;
-        start=ptrs;
-        if( triml ) while( *start && *start != '\n' && ISSPACE(*start)) start++;
-        if( ! *start ) break;
-        if( *start == '\n' )
+        size_t start = pos;
+        size_t nch = 0;
+        if( triml ) while( start < s.size() && s[start] != '\n' && ISSPACE(s[start]) ) start++;
+        if( start >= s.size() ) break;
+        if( s[start] == '\n' )
         {
-            nch=0;
-            ptrs=start;
+            pos = start;
         }
         else
         {
-            nch=0;
-            ptre=start;
-            while( *ptre && *ptre != '\n' )
+            size_t end = start;
+            while( end < s.size() && s[end] != '\n' )
             {
-                if( ! ISSPACE(*ptre) ) nch=ptre-start+1;
-                ptre++;
+                if( ! ISSPACE(s[end]) ) nch = end - start + 1;
+                end++;
             }
-            if( ! trimr ) nch=ptre-start;
-            ptrs = ptre;
+            if( ! trimr ) nch = end - start;
+            pos = end;
         }
         if( nch > 0 || ! skipblank )
         {
-            if( nch && prefix ) write_output_string(os,prefix);
-            while( nch > 0 )
+            if( nch > 0 )
             {
-                char buffer[33];
-                int ncopy = nch > 32 ? 32 : nch;
-                strncpy( buffer,start,ncopy );
-                buffer[ncopy]=0;
-                write_output_string(os,buffer);
-                start += ncopy;
-                nch -= ncopy;
+                write_output_string( os, prefix );
+                write_output_string( os, s.substr( start, nch ) );
             }
-            write_output_string(os,"\n");
+            write_output_string( os, "\n" );
         }
-        if( *ptrs ) ptrs++;
+        if( pos < s.size() ) pos++;
     }
     return 0;
 }
 
-static int sfputs( const char *s, void *f )
+static int sfputs( std::string_view s, void *f )
 {
-    return (int) fputs( s, (FILE *) f );
+    return fwrite( s.data(), 1, s.size(), static_cast<FILE *>( f ) ) == s.size() ? 0 : FILE_WRITE_ERROR;
 }
 
 void output_string_to_file( output_string_def *os, FILE *f )

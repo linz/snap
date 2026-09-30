@@ -606,23 +606,23 @@ void uninstall_crdsys_lists( void );
 /* Functions to process the list of installed definitions */
 
 int ref_frame_list_count( void );
-const char *ref_frame_list_code( int item );
-const char *ref_frame_list_desc( int item );
+const std::string &ref_frame_list_code( int item );
+const std::string &ref_frame_list_desc( int item );
 ref_frame * ref_frame_from_list( int item );
 ref_frame * load_ref_frame( std::string_view code );
 
 
 int ellipsoid_list_count( void );
-const char *ellipsoid_list_code( int item );
-const char *ellipsoid_list_desc( int item );
+const std::string &ellipsoid_list_code( int item );
+const std::string &ellipsoid_list_desc( int item );
 ellipsoid * ellipsoid_from_list( int item );
 ellipsoid * load_ellipsoid( std::string_view code );
 
 /* Note - load_coordsys handles vertical datum also as cscode/hrscode */
 
 int coordsys_list_count( void);
-const char *coordsys_list_code( int item );
-const char *coordsys_list_desc( int item );
+const std::string &coordsys_list_code( int item );
+const std::string &coordsys_list_desc( int item );
 coordsys * coordsys_from_list( int item );
 coordsys * load_coordsys( std::string_view code );
 /* coordsys_load_code returns the code a coordinate system including potential hrs
@@ -630,14 +630,14 @@ coordsys * load_coordsys( std::string_view code );
 std::string coordsys_load_code( coordsys *cs );
 
 int vdatum_list_count( void);
-const char *vdatum_list_code( int item );
-const char *vdatum_list_desc( int item );
+const std::string &vdatum_list_code( int item );
+const std::string &vdatum_list_desc( int item );
 vdatum * vdatum_from_list( int item );
 vdatum * load_vdatum( std::string_view code );
 
-int get_notes( int type, const char *code, output_string_def *os );
+int get_notes( int type, std::string_view code, output_string_def *os );
 int get_crdsys_notes( coordsys *cs, output_string_def *os );
-int get_conv_code_notes( int type, const char *code1, const char *code2, output_string_def *os );
+int get_conv_code_notes( int type, std::string_view code1, std::string_view code2, output_string_def *os );
 int get_conv_notes( coord_conversion *conv, output_string_def *os );
 
 /// Searches every installed coordinate system source (crdsys_source_def's

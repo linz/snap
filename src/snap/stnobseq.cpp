@@ -636,7 +636,7 @@ void print_adjusted_coordinates( FILE *lst )
     output_string_to_file( &os, lst );
     cs = net->crdsys;
     write_output_string( &os, "Coordinate system: " );
-    write_output_string( &os, cs->name.c_str() );
+    write_output_string( &os, cs->name );
     write_output_string( &os, "\n" );
     describe_ellipsoid( &os, cs->rf->el );
     describe_projection( &os, cs->prj );
