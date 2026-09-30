@@ -822,11 +822,11 @@ std::optional<recode_result> recoded_network_station( void *recode_data, std::st
     if( ! ( reject && recoded.code.empty() ) && srd->net )
     {
         const std::string recoded_code( recoded.code );
-        int id = find_station( srd->net, recoded_code.c_str() );
+        int id = find_station( srd->net, recoded_code );
         if( ! id )
         {
-            if( global_recode && file_recode ) id = find_station( srd->net, std::string(file_recode->code).c_str() );
-            if( ! id ) id = find_station( srd->net, std::string(code).c_str() );
+            if( global_recode && file_recode ) id = find_station( srd->net, file_recode->code );
+            if( ! id ) id = find_station( srd->net, code );
             if( id )
             {
                 station *st=station_ptr(srd->net,id);

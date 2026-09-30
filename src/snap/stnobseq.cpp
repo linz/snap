@@ -153,7 +153,7 @@ int add_station_colocation_constraints()
             {
                 continue;
             }
-            int idto=find_station( net, recode->codeto.c_str() );
+            int idto=find_station( net, recode->codeto );
             station *stto=stnptr(idto);
             bool usestn=false;
             if( stto )
@@ -211,7 +211,7 @@ int add_station_colocation_constraints()
             {
                 continue;
             }
-            int idto=find_station( net, recode->codeto.c_str() );
+            int idto=find_station( net, recode->codeto );
             station *stto=stnptr(idto);
             bool usestn=false;
             if( stto )

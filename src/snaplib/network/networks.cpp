@@ -267,7 +267,7 @@ int remove_duplicate_network_stations( network *nw, int reindex, void *data, stn
     return nremove ? INCONSISTENT_DATA : OK;
 }
 
-int find_station( network *nw, const char *code )
+int find_station( network *nw, std::string_view code )
 {
     if( !nw->stnlist ) return 0;
     return sl_find_station( nw->stnlist, code );
@@ -286,7 +286,7 @@ station *station_ptr( network *nw, int istn )
     return sl_station_ptr( nw->stnlist, istn );
 }
 
-int   find_station_sorted_id( network *nw, const char *code )
+int   find_station_sorted_id( network *nw, std::string_view code )
 {
     if( !nw->stnlist ) return 0;
     return sl_find_station_sorted_id( nw->stnlist, code );

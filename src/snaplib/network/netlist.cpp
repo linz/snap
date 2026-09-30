@@ -14,6 +14,8 @@
 #include <algorithm>
 #include <cctype>
 #include <string_view>
+#include <boost/numeric/conversion/cast.hpp>
+using boost::numeric_cast;
 #include "util/snapctype.h"
 #include <assert.h>
 
@@ -129,14 +131,6 @@ int stncodecmp(
     return compare_ignoring_case( s1, s2 );
 }
 
-static  int stncodecmps( const void *code, const void *st )
-{
-    char *s1, *s2;
-    s1 = (char *) code;
-    s2 = (*(station**)st)->Code;
-    return stncodecmp( s1, s2 );
-}
-
 static int stncmp( const void *st1, const void *st2 )
 {
     int cmp=stncodecmp( (*(station **)st1)->Code, (*(station **)st2)->Code );
@@ -174,19 +168,17 @@ static void index_stations( station_list *sl )
     sl->nsorted=count;
 }
 
-static int sl_lookup_codeindex( station_list *sl, const char *code )
+/// Returns the position in the sorted code index of the first station with the
+/// given code, or 0 if there is none.
+static int sl_lookup_codeindex( station_list *sl, std::string_view code )
 {
-    station **match;
     if( sl->nsorted < 1 ) return 0;
-    match = (station **) bsearch( code, sl->codeindex+1, sl->nsorted, sizeof(station *), stncodecmps );
-    if( ! match ) return 0;
-    int id=match-sl->codeindex;
-    while( id > 1 )
-    {
-        if( stncodecmp(sl->codeindex[id-1]->Code, code) != 0 ) break;
-        id--;
-    }
-    return match ? match - sl->codeindex : 0;
+    station **first = sl->codeindex+1;
+    station **last = first+sl->nsorted;
+    station **match = std::lower_bound( first, last, code,
+        []( const station *st, std::string_view target ) { return stncodecmp( st->Code, target ) < 0; } );
+    if( match == last || stncodecmp( (*match)->Code, code ) != 0 ) return 0;
+    return numeric_cast<int>( match - sl->codeindex );
 }
 
 int sl_reindex_stations( station_list *sl )
@@ -245,7 +237,7 @@ int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stn
     return nremove;
 }
 
-int sl_find_station( station_list *sl, const char *code )
+int sl_find_station( station_list *sl, std::string_view code )
 {
     int i;
     if( sl->count < 0 ) return 0;
@@ -268,7 +260,7 @@ int sl_find_station( station_list *sl, const char *code )
     return i ? sl->codeindex[i]->id: 0;
 }
 
-int sl_find_station_sorted_id( station_list *sl, const char *code )
+int sl_find_station_sorted_id( station_list *sl, std::string_view code )
 {
     index_stations(sl);
     return sl_lookup_codeindex( sl, code );

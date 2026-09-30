@@ -2173,7 +2173,7 @@ static int read_station_config_file( const char *filename, stn_relacc_array *ra,
         }
         else
         {
-            int istn = find_station(net, field[codefield] ? field[codefield]->c_str() : nullptr);
+            const int istn = field[codefield] ? find_station(net, *field[codefield]) : 0;
             if( istn <= 0 ) nbadstn++;
             if( istn > 0 && orderfield > 0 && field[orderfield] && ! field[orderfield]->empty() )
             {

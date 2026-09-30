@@ -831,7 +831,7 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
             std::string code(f);
             for( char &c : code ) c = static_cast<char>( std::toupper( static_cast<unsigned char>(c) ) );
 
-            istn = find_station( net, code.c_str() );
+            istn = find_station( net, code );
 
             /* Is the string matched as a station */
 
@@ -848,8 +848,8 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
             {
                 const std::string first = code.substr( 0, delimPos );
                 const std::string second = code.substr( delimPos + 1 );
-                if( 0 != (ist1=find_station( net,first.c_str())) &&
-                        0 != (ist2=find_station( net,second.c_str())) &&
+                if( 0 != (ist1=find_station( net,first)) &&
+                        0 != (ist2=find_station( net,second)) &&
                         ist2 >= ist1 )
                 {
 
@@ -890,7 +890,7 @@ static int read_station_offset( CFG_FILE *cfg, std::string_view string, void *, 
 
     if( !s1 ) return MISSING_DATA;
 
-    const int istn = find_station( net, std::string(*s1).c_str() );
+    const int istn = find_station( net, *s1 );
     if( !istn )
     {
         send_config_error( cfg, INVALID_DATA, "Offset station " + std::string(*s1) + " does not exist" );

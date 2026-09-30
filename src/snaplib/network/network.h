@@ -389,13 +389,13 @@ int    sl_reindex_stations( station_list *sl );
 int    sl_remove_duplicate_stations( station_list *sl, int reindex, 
            void *data, stnfunc function );
 
-int   sl_find_station( station_list *sl, const char *code );
+int   sl_find_station( station_list *sl, std::string_view code );
 int   sl_station_id( station_list *sl, station *st );
 station *sl_station_ptr( station_list *sl, int stnindex );
 
 /* Integer pointer to sorted index, and corresponding station  */
 
-int sl_find_station_sorted_id( station_list *sl, const char *code );
+int sl_find_station_sorted_id( station_list *sl, std::string_view code );
 station *sl_station_sorted_ptr( station_list *sl, int istn );
 
 /* Iterator, sorted or not */
@@ -523,11 +523,11 @@ int   add_station( network *nw, station *st );
 
 void    remove_station( network *nw, station *st );
 
-int   find_station( network *nw, const char *code );
+int   find_station( network *nw, std::string_view code );
 int station_id( network *nw, station *st );
 station *station_ptr( network *nw, int stnindex );
 
-int   find_station_sorted_id( network *nw, const char *code );
+int   find_station_sorted_id( network *nw, std::string_view code );
 station *station_sorted_ptr( network *nw, int sortedid );
 
 void    reset_station_list( network *nw, int sorted );
