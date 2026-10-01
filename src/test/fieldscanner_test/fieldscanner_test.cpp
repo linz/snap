@@ -5,6 +5,7 @@
 // code is the pass/fail signal (0 = all passed), matching how other
 // test-only tools in src/test/ are checked.
 
+#include <cmath>
 #include <cstdlib>
 #include <iostream>
 #include <optional>
@@ -13,6 +14,7 @@
 #include <vector>
 
 #include "util/fieldscanner.hpp"
+#include "util/pi.h"
 
 namespace
 {
@@ -52,6 +54,31 @@ void check_remainder()
     FieldScanner scanner( "abc  def" );
     scanner.next();
     check( scanner.remainder() == "  def", "remainder: starts at the trailing whitespace, not past it" );
+}
+
+void check_at_end()
+{
+    FieldScanner scanner( "abc  def  " );
+    check( ! scanner.atEnd(), "atEnd: false before any field is read" );
+    scanner.next();
+    check( ! scanner.atEnd(), "atEnd: false with a field still to read" );
+    check( scanner.remainder() == "  def  ", "atEnd: does not consume anything" );
+    scanner.next();
+    check( scanner.atEnd(), "atEnd: true when only trailing whitespace is left" );
+    FieldScanner empty( "" );
+    check( empty.atEnd(), "atEnd: true on an empty input" );
+}
+
+void check_skip_if_next()
+{
+    FieldScanner scanner( "  *12 #cmd" );
+    check( ! scanner.skipIfNext( '#' ), "skipIfNext: false when a different character is next" );
+    check( scanner.remainder() == "  *12 #cmd", "skipIfNext: nothing consumed on a mismatch" );
+    check( scanner.skipIfNext( '*' ), "skipIfNext: true when the character is next after whitespace" );
+    check( scanner.next() == "12", "skipIfNext: the rest of the field is left to read" );
+    check( scanner.skipIfNext( '#' ), "skipIfNext: character at the start of a field" );
+    check( scanner.next() == "cmd", "skipIfNext: the field after the character" );
+    check( ! scanner.skipIfNext( '#' ), "skipIfNext: false at the end of the input" );
 }
 
 void check_next_delimiter()
@@ -282,6 +309,77 @@ void check_copy_field()
     check( std::string(buf)=="", "copy_field: empty field" );
 }
 
+void check_read_remaining_text()
+{
+    std::string value = "unchanged";
+    FieldScanner scanner( "first   the rest\r of  it\x1a " );
+    scanner.next();
+    check( read_remaining_text( scanner, value, 100 ) == FieldResult::Ok && value == "the rest of  it ",
+           "read_remaining_text: skips leading whitespace, drops carriage return and Ctrl-Z, keeps interior spacing" );
+    check( scanner.atEnd() && scanner.remainder().empty(), "read_remaining_text: leaves the scanner at the end" );
+    check( read_remaining_text( scanner, value, 100 ) == FieldResult::NoMoreData && value == "the rest of  it ",
+           "read_remaining_text: NoMoreData at the end, value unchanged" );
+
+    FieldScanner longer( "abcdefgh" );
+    check( read_remaining_text( longer, value, 4 ) == FieldResult::Ok && value == "abcd", "read_remaining_text: cut short without error" );
+
+    FieldScanner blank( "   " );
+    check( read_remaining_text( blank, value, 100 ) == FieldResult::NoMoreData, "read_remaining_text: only whitespace is NoMoreData" );
+}
+
+void check_read_whole_number_fields()
+{
+    FieldScanner scanner( "12 -7 +5 1.5 abc 99999999999 \"4\" 123456 " );
+    int i = 0;
+    long l = 0;
+    check( read_int_field( scanner, i ) == FieldResult::Ok && i == 12, "read_int_field: plain value" );
+    check( read_int_field( scanner, i ) == FieldResult::Ok && i == -7, "read_int_field: negative value" );
+    check( read_int_field( scanner, i ) == FieldResult::Ok && i == 5, "read_int_field: leading plus" );
+    check( read_int_field( scanner, i ) == FieldResult::InvalidValue && i == 5, "read_int_field: a decimal is not a whole number, value unchanged" );
+    check( read_int_field( scanner, i ) == FieldResult::InvalidValue, "read_int_field: not a number" );
+    check( read_int_field( scanner, i ) == FieldResult::InvalidValue && i == 5, "read_int_field: value too big for an int" );
+    check( read_int_field( scanner, i ) == FieldResult::Ok && i == 4, "read_int_field: quoted value" );
+    check( read_long_field( scanner, l ) == FieldResult::Ok && l == 123456L, "read_long_field: plain value" );
+    check( read_long_field( scanner, l ) == FieldResult::NoMoreData && l == 123456L, "read_long_field: NoMoreData at the end" );
+}
+
+bool near( double value, double expected )
+{
+    return std::fabs( value - expected ) < 1.0e-12;
+}
+
+void check_read_angle_fields()
+{
+    double radians = 0.0;
+
+    FieldScanner deg( "45.5 x" );
+    check( read_degree_angle_field( deg, radians ) == FieldResult::Ok && near( radians, 45.5*DTOR ), "read_degree_angle_field: degrees to radians" );
+    check( read_degree_angle_field( deg, radians ) == FieldResult::InvalidValue, "read_degree_angle_field: not a number" );
+
+    FieldScanner dms( "12 30 15.5 -10 15 0 12 x 5" );
+    check( read_dms_angle_field( dms, radians ) == FieldResult::Ok
+           && near( radians, (12 + 30/60.0 + 15.5/3600.0)*DTOR ), "read_dms_angle_field: degrees, minutes and seconds" );
+    check( read_dms_angle_field( dms, radians ) == FieldResult::Ok
+           && near( radians, (-10 + 15/60.0)*DTOR ), "read_dms_angle_field: a negative degrees field is added to the positive minutes" );
+    check( read_dms_angle_field( dms, radians ) == FieldResult::InvalidValue, "read_dms_angle_field: invalid minutes" );
+    FieldScanner dmsShort( "12 30" );
+    check( read_dms_angle_field( dmsShort, radians ) == FieldResult::NoMoreData, "read_dms_angle_field: seconds missing" );
+
+    FieldScanner hp( "12.3015 12.30155 .3045 12 -1.3000 1.30 1.3a00 1.30000z" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::Ok
+           && near( radians, (12 + 30/60.0 + 15/3600.0)*DTOR ), "read_hp_angle_field: ddd.mmss" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::Ok
+           && near( radians, (12 + 30/60.0 + 15.5/3600.0)*DTOR ), "read_hp_angle_field: decimal fraction of a second" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::Ok
+           && near( radians, (30/60.0 + 45/3600.0)*DTOR ), "read_hp_angle_field: degrees omitted" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::InvalidValue, "read_hp_angle_field: no decimal point" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::InvalidValue, "read_hp_angle_field: negative angle" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::InvalidValue, "read_hp_angle_field: seconds missing" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::InvalidValue, "read_hp_angle_field: non-digit in the fraction" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::InvalidValue, "read_hp_angle_field: non-digit after the seconds" );
+    check( read_hp_angle_field( hp, radians ) == FieldResult::NoMoreData, "read_hp_angle_field: NoMoreData at the end" );
+}
+
 } // namespace
 
 int main()
@@ -289,6 +387,8 @@ int main()
     check_next_basic();
     check_next_empty();
     check_remainder();
+    check_at_end();
+    check_skip_if_next();
     check_next_delimiter();
     check_span_preserves_multiple_spaces();
     check_quoted_value_single_field();
@@ -305,6 +405,9 @@ int main()
     check_compare_ignoring_case();
     check_is_name_match();
     check_copy_field();
+    check_read_remaining_text();
+    check_read_whole_number_fields();
+    check_read_angle_fields();
 
     if( failures == 0 )
     {

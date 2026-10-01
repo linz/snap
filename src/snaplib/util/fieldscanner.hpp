@@ -61,6 +61,15 @@ public:
     /// verbatim span without needing raw iterator access.
     std::string_view remainder() const;
 
+    /// Consumes c if it is the next character after any whitespace. Nothing is
+    /// consumed if it is not.
+    /// \return true if c was consumed.
+    bool skipIfNext( char c );
+
+    /// Tests whether nothing but whitespace is left to read, without consuming anything.
+    /// \return true if next() would return nullopt.
+    bool atEnd() const;
+
     /// Scans a quoted value, given the position right after its opening
     /// quote and the quote character itself (both found by the caller
     /// within a field next() already returned, e.g. a config value like
@@ -226,5 +235,48 @@ FieldResult read_string_field(
 FieldResult read_double_field(
     FieldScanner &scanner,  ///< the scanner to read from
     double &value );        ///< set to the number when the result is Ok
+
+/// Reads all the text left in scanner, without the whitespace before it and
+/// without any carriage return or Ctrl-Z characters in it, and leaves the
+/// scanner at the end. More than maxlength characters are cut short without
+/// error.
+FieldResult read_remaining_text(
+    FieldScanner &scanner,  ///< the scanner to read from
+    std::string &value,     ///< set to the remaining text when the result is Ok
+    size_t maxlength );     ///< the most characters to keep
+
+/// Reads the next field from scanner as a whole number, treating a quoted
+/// value as one field. The whole field must be the number.
+FieldResult read_int_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    int &value );           ///< set to the number when the result is Ok
+
+/// Reads the next field from scanner as a whole number, treating a quoted
+/// value as one field. The whole field must be the number.
+FieldResult read_long_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    long &value );          ///< set to the number when the result is Ok
+
+/// Reads the next field from scanner as an angle in degrees, and converts it
+/// to radians.
+FieldResult read_degree_angle_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    double &radians );      ///< set to the angle when the result is Ok
+
+/// Reads the next three fields from scanner as an angle in degrees, minutes
+/// and seconds, and converts it to radians. The degrees and minutes are whole
+/// numbers.
+FieldResult read_dms_angle_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    double &radians );      ///< set to the angle when the result is Ok
+
+/// Reads the next field from scanner as an angle in the format commonly used
+/// by Hewlett-Packard calculators, ddd.mmssfff, and converts it to radians.
+/// The degrees can be omitted, the minutes and seconds are two digits each,
+/// and the fraction of a second is any number of digits. The angle cannot be
+/// negative.
+FieldResult read_hp_angle_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    double &radians );      ///< set to the angle when the result is Ok
 
 #endif

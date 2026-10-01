@@ -2,6 +2,7 @@
 
 #include "util/fieldscanner.hpp"
 #include "util/snapctype.h"
+#include "util/pi.h"
 #include <algorithm>
 #include <cctype>
 #include <charconv>
@@ -28,6 +29,19 @@ std::optional<std::string_view> FieldScanner::next( const char delimiter )
 std::string_view FieldScanner::remainder() const
 {
     return _span( _pos, _text.end() );
+}
+
+bool FieldScanner::skipIfNext( const char c )
+{
+    const auto next = std::find_if( _pos, _text.end(), []( const char ch ){ return ! ISSPACE(ch); } );
+    if( next == _text.end() || *next != c ) return false;
+    _pos = next + 1;
+    return true;
+}
+
+bool FieldScanner::atEnd() const
+{
+    return std::all_of( _pos, _text.end(), []( const char c ){ return ISSPACE(c); } );
 }
 
 std::string_view FieldScanner::_span( std::string_view::const_iterator start, std::string_view::const_iterator end ) const
@@ -206,5 +220,93 @@ FieldResult read_double_field( FieldScanner &scanner, double &value )
     const std::optional<double> parsed = parse_double( field );
     if( ! parsed ) return FieldResult::InvalidValue;
     value = *parsed;
+    return FieldResult::Ok;
+}
+
+FieldResult read_remaining_text( FieldScanner &scanner, std::string &value, size_t maxlength )
+{
+    if( scanner.atEnd() ) return FieldResult::NoMoreData;
+    std::string_view text = scanner.remainder();
+    while( scanner.next() ) {}
+    text.remove_prefix( std::find_if( text.begin(), text.end(), []( char c ) { return ! ISSPACE(c); } ) - text.begin() );
+    value.clear();
+    for( const char c : text )
+    {
+        if( value.size() >= maxlength ) break;
+        if( c != '\r' && c != '\x1a' ) value += c;
+    }
+    return FieldResult::Ok;
+}
+
+/// Reads the next field from scanner as a whole number of type T.
+template <typename T>
+static FieldResult read_whole_number_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    T &value )              ///< set to the number when the result is Ok
+{
+    std::string_view field;
+    const FieldResult result = read_field( scanner, field );
+    if( result != FieldResult::Ok ) return result;
+    const std::optional<ParsedField<T>> parsed = parse_leading_field<T>( field );
+    if( ! parsed || parsed->result.ptr != field.data() + field.size() ) return FieldResult::InvalidValue;
+    value = parsed->value;
+    return FieldResult::Ok;
+}
+
+FieldResult read_int_field( FieldScanner &scanner, int &value )
+{
+    return read_whole_number_field( scanner, value );
+}
+
+FieldResult read_long_field( FieldScanner &scanner, long &value )
+{
+    return read_whole_number_field( scanner, value );
+}
+
+FieldResult read_degree_angle_field( FieldScanner &scanner, double &radians )
+{
+    double degrees = 0.0;
+    const FieldResult result = read_double_field( scanner, degrees );
+    if( result == FieldResult::Ok ) radians = degrees * (PI/180.0);
+    return result;
+}
+
+FieldResult read_dms_angle_field( FieldScanner &scanner, double &radians )
+{
+    int degrees = 0;
+    int minutes = 0;
+    double seconds = 0.0;
+    FieldResult result = read_int_field( scanner, degrees );
+    if( result == FieldResult::Ok ) result = read_int_field( scanner, minutes );
+    if( result == FieldResult::Ok ) result = read_double_field( scanner, seconds );
+    if( result == FieldResult::Ok ) radians = (degrees + minutes/60.0 + seconds/3600.0) * PI/180.0;
+    return result;
+}
+
+FieldResult read_hp_angle_field( FieldScanner &scanner, double &radians )
+{
+    std::string_view field;
+    const FieldResult result = read_field( scanner, field );
+    if( result != FieldResult::Ok ) return result;
+
+    const auto isDigit = []( char c ) { return std::isdigit( static_cast<unsigned char>( c ) ) != 0; };
+    const size_t point = field.find( '.' );
+    if( point == std::string_view::npos ) return FieldResult::InvalidValue;
+    const std::string_view whole = field.substr( 0, point );
+    const std::string_view fraction = field.substr( point + 1 );
+    if( ! std::all_of( whole.begin(), whole.end(), isDigit ) ) return FieldResult::InvalidValue;
+    if( fraction.size() < 4 || ! std::all_of( fraction.begin(), fraction.end(), isDigit ) ) return FieldResult::InvalidValue;
+
+    int degrees = 0;
+    for( const char c : whole ) degrees = degrees*10 + (c - '0');
+    const int minutes = (fraction[0] - '0')*10 + (fraction[1] - '0');
+    double seconds = (fraction[2] - '0')*10 + (fraction[3] - '0');
+    double place = 0.1;
+    for( const char c : fraction.substr( 4 ) )
+    {
+        seconds += (c - '0')*place;
+        place *= 0.1;
+    }
+    radians = (degrees + minutes/60.0 + seconds/3600.0) * PI/180.0;
     return FieldResult::Ok;
 }
