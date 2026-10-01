@@ -25,6 +25,8 @@
 
 /* Snap global data - mainly for programs which use the SNAP binary file */
 
+#include <string>
+
 #ifndef _GET_DATA_H
 #include "util/get_date.h"  /* For definition of GETDATELEN  */
 #endif
@@ -119,7 +121,7 @@ SCOPE double mde_power;
 SCOPE double redundancy_flag_level;
 
 void init_snap_globals();
-void set_snap_command_file( char *cmd_file );
+void set_snap_command_file( const std::string &cmd_file );
 void set_snap_config_file( char *cfg_file );
 void *snap_obs_modifications( bool create );
 

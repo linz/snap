@@ -1418,13 +1418,13 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
 /* the still to be fixed known stations can be fixed from */
 /* the data                                               */
 
-static void fix_known_stations( char **recalclist, int nrecalc )
+static void fix_known_stations( const std::vector<std::string> &recalclist )
 {
-    int i, j, maxstn;
+    int i, maxstn;
     maxstn = number_of_stations( net );
-    for( j = 0; j < nrecalc; j++ )
+    for( const std::string &code : recalclist )
     {
-        station *s=find_network_station(recalclist[j]);
+        station *s=find_network_station(code);
         if( s && s->hook )
         {
             stn *st=(stn *)(s->hook);
@@ -2611,7 +2611,7 @@ static int check_fixed_stn( station *st )
 /* Get the location of the network                                     */
 
 static char inrec[256];
-static char * crdfname = 0;
+static std::string crdfname;
 static std::string logname;
 static int gotroot = 0;
 static char newcrdfile = 0;
@@ -2619,7 +2619,7 @@ static char newcrdfile = 0;
 static FILE *logfile = NULL;
 
 
-static void set_logname( const char *name )
+static void set_logname( const std::string &name )
 {
     if( ! logname.empty() ) return;
     logname = std::filesystem::path( name ).replace_extension( ".lst" ).string();
@@ -2816,10 +2816,10 @@ static void load_interactively( void )
     {
         printf("\nEnter input coordinate file name: ");
         if( !fgets(inrec,256,stdin) || sscanf(inrec,"%79s",fname) != 1 ) exit(0);
-        crdfname = copy_string(fname);
+        crdfname = fname;
         if( !file_exists(crdfname) )
         {
-            printf("File %s does not exist\n",crdfname);
+            printf("File %s does not exist\n",crdfname.c_str());
             if( get_option("Do you want to create a new coordinate file? Y/N: ",0) &&
                     get_net_coordsys() )
             {
@@ -2827,12 +2827,12 @@ static void load_interactively( void )
                 newcrdfile = 1;
                 break;
             }
-            printf("Cannot open file %s\n",crdfname);
+            printf("Cannot open file %s\n",crdfname.c_str());
         }
         else
         {
             if( read_network(net,crdfname,0) == OK ) break;
-            printf("Error reading coordinate file %s\n",crdfname);
+            printf("Error reading coordinate file %s\n",crdfname.c_str());
         }
     }
     add_network_stations();
@@ -2869,7 +2869,7 @@ void set_recalc_list()
     stations_frozen = true;
 }
 
-static void load_data_files( char *coord_file, char **data_files, int ndatafiles,
+static void load_data_files( const std::string &coord_file, const std::vector<std::string> &data_files,
                              int recalconly )
 {
     std::string f = coord_file;
@@ -2878,12 +2878,12 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
         auto found = find_file( coord_file, "", std::nullopt, FF_TRYALL, "" );
         f = found.value_or(coord_file);
     }
-    crdfname=copy_string(f.c_str());
+    crdfname = f;
 
     net = new_network();
     if( read_network(net,crdfname,0) != OK )
     {
-        printf("Error reading coordinate file %s\n",crdfname);
+        printf("Error reading coordinate file %s\n",crdfname.c_str());
         exit(0);
     }
     add_network_stations();
@@ -2892,10 +2892,10 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
 
     set_logname( crdfname );
 
-    for( ; ndatafiles-- > 0 ; data_files++ )
+    for( const std::string &data_file : data_files )
     {
-        auto found = find_file( *data_files, "", std::nullopt, FF_TRYALL, "" );
-        f = found.value_or(*data_files);
+        auto found = find_file( data_file, "", std::nullopt, FF_TRYALL, "" );
+        f = found.value_or(data_file);
         const std::unique_ptr<DATAFILE> d = DATAFILE::open( f, "SNAP data file" );
         if( d )
         {
@@ -2932,7 +2932,7 @@ static void load_command_file( const std::string &cmd_file, int recalconly, int 
     std::string f = found.value_or(cmd_file);
 
     cfg = open_config_file( f, COMMENT_CHAR );
-    if( ! included ) set_logname( f.c_str() );
+    if( ! included ) set_logname( f );
 
     if(cfg)
     {
@@ -2969,7 +2969,7 @@ static void load_command_file( const std::string &cmd_file, int recalconly, int 
         add_network_stations();
         if( recalconly ) set_recalc_list();
         read_data_files( stdout );
-        crdfname=copy_string( station_filename );
+        crdfname = station_filename ? station_filename : "";
         delete_survey_file_list();
     }
 }
@@ -3004,12 +3004,10 @@ int main( int argc, char *argv[] )
     int i;
     int interactive;
     int syntax_error;
-    int nfilelist;
     int recalc;
     int command_file;
-    char **filelist;
-    int nrecalclist;
-    char **recalclist;
+    std::vector<std::string> filelist;
+    std::vector<std::string> recalclist;
     std::optional<std::string> outputfile;
 
     CONFIGURE_RUNTIME();
@@ -3021,15 +3019,6 @@ int main( int argc, char *argv[] )
     recalc = 0;
     syntax_error = 0;
 
-    filelist = (char **) malloc( sizeof(char*)*argc );
-    recalclist = (char **) malloc( sizeof(char*)*argc );
-    if( !filelist || !recalclist )
-    {
-        printf("Not enough memory for program\n"); return 0;
-    }
-
-    nfilelist = 0;
-    nrecalclist = 0;
     command_file = 1;
 
     for( i = 1; i < argc; i++ )
@@ -3054,18 +3043,18 @@ int main( int argc, char *argv[] )
         }
         else if ( recalc )
         {
-            recalclist[nrecalclist++] = arg;
+            recalclist.push_back( arg );
         }
         else
         {
-            filelist[nfilelist++] = arg;
+            filelist.push_back( arg );
         }
     }
 
-    if( nfilelist == 0 ) interactive = 1;
-    if( recalc && (interactive || !nrecalclist) ) syntax_error = 1;
-    if( command_file && nfilelist > 1 ) syntax_error = 1;
-    if( !command_file && nfilelist < 2 ) syntax_error = 1;
+    if( filelist.empty() ) interactive = 1;
+    if( recalc && (interactive || recalclist.empty()) ) syntax_error = 1;
+    if( command_file && filelist.size() > 1 ) syntax_error = 1;
+    if( !command_file && filelist.size() < 2 ) syntax_error = 1;
 
     if( interactive || syntax_error )
     {
@@ -3111,7 +3100,7 @@ int main( int argc, char *argv[] )
     }
     else
     {
-        load_data_files( filelist[0], filelist+1, nfilelist-1, recalc );
+        load_data_files( filelist[0], std::vector<std::string>( filelist.begin()+1, filelist.end() ), recalc );
     }
 
     stations_frozen = true;
@@ -3160,7 +3149,7 @@ int main( int argc, char *argv[] )
     if( logfile )
     {
         fprintf(logfile,"DAT2SITE log file\n");
-        fprintf(logfile,"\nAdding coordinates to file %s\n\n",crdfname );
+        fprintf(logfile,"\nAdding coordinates to file %s\n\n",crdfname.c_str() );
     }
 
     /* Calculate height differences where available, and convert
@@ -3186,7 +3175,7 @@ int main( int argc, char *argv[] )
 
     /* Fix the stations in the input coordinate file */
 
-    fix_known_stations( recalclist, nrecalclist );
+    fix_known_stations( recalclist );
 
     /* Set up flags for potential point fixes */
 
@@ -3231,14 +3220,13 @@ int main( int argc, char *argv[] )
 
     if( ! newcrdfile )
     {
-        i = path_len( crdfname, 1 );
-        if( i < 75 ) strcpy(crdfname+i,".new");
-        set_output_station_file( crdfname );
+        crdfname = std::filesystem::path( crdfname ).replace_extension( ".new" ).string();
+        set_output_station_file( crdfname.c_str() );
     }
 
     write_station_file( "dat2site", 0, 0, 0, 0, 1 );
 
-    printf("\nUpdated coordinates written to %s\n", crdfname );
+    printf("\nUpdated coordinates written to %s\n", crdfname.c_str() );
 
     if( logfile )
     {

@@ -21,6 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <array>
+#include <string>
+#include <string_view>
 
 #define _SNAPGLOB_C
 #include "util/binfile.h"
@@ -83,45 +86,27 @@ void init_snap_globals()
 }
 
 
-void set_snap_command_file( char *cmd_file )
+void set_snap_command_file( const std::string &cmd_file )
 {
     if( ! initialised ) init_snap_globals();
     if( file_exists( cmd_file ) )
     {
-        command_file = copy_string( cmd_file );
+        command_file = copy_string( cmd_file.c_str() );
     }
     else
     {
-        char *cf;
-        int nchmax;
-        nchmax = strlen(DFLTCOMMAND_EXT);
-        if( strlen(DFLTCOMMAND_EXT2) > nchmax )
+        constexpr std::array<std::string_view, 3> extensions{ DFLTCOMMAND_EXT, DFLTCOMMAND_EXT2, DFLTCOMMAND_EXT3 };
+        std::string cf = cmd_file;
+        for( const std::string_view extension : extensions )
         {
-            nchmax=strlen(DFLTCOMMAND_EXT2);
+            const std::string candidate = std::string(cmd_file).append(extension);
+            if( file_exists(candidate) )
+            {
+                cf = candidate;
+                break;
+            }
         }
-        if( strlen(DFLTCOMMAND_EXT3) > nchmax )
-        {
-            nchmax=strlen(DFLTCOMMAND_EXT3);
-        }
-        nchmax += strlen(cmd_file) + 1;
-        cf = (char *) check_malloc(nchmax);
-        strcpy(cf,cmd_file);
-        strcat(cf,DFLTCOMMAND_EXT);
-        if( ! file_exists(cf) )
-        {
-            strcpy(cf,cmd_file);
-            strcat(cf,DFLTCOMMAND_EXT2);
-        }
-        if( ! file_exists(cf))
-        {
-            strcpy(cf,cmd_file);
-            strcat(cf,DFLTCOMMAND_EXT3);            
-        }
-        if( ! file_exists(cf))
-        {
-            strcpy(cf,cmd_file);
-        }
-        command_file = cf;
+        command_file = copy_string( cf.c_str() );
     }
 
     cmd_dir=copy_string_nch( command_file, path_len(command_file,0));
