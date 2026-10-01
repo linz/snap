@@ -24,10 +24,6 @@
 #include "coordsys/lambert.h"
 #include "util/pi.h"
 
-/* Defines PI (from Abramowitz and Stegun Table 1.1) */
-
-#define PI 3.1415926535898
-
 #define MAX_IT 10
 #define TOLERANCE 1.0e-9
 
@@ -167,9 +163,6 @@ void convertLCCToGeog( LCCProjection *lp,
 
 
 #ifdef TESTLC
-
-#define RTOD (180.0/PI)
-#define DTOR (PI/180.0)
 
 int main( int argc, char *argv[] )
 {
