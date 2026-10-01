@@ -35,10 +35,12 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <math.h>
+#include <deque>
 #include <filesystem>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 
@@ -225,33 +227,33 @@ static char fix_effect[NO_FIX_TYPES] =
 
 struct stn
 {
-    station *st;
-    char *code;
-    int id;
-    char fixed;
-    int traverse;
-    double travwgt;
-    double travxy[2];
-    double xy[2];  /* Plane projection coords for calcs */
+    station *st = nullptr;
+    std::string code;
+    int id = 0;
+    char fixed = 0;
+    int traverse = 0;
+    double travwgt = 0.0;
+    double travxy[2] = {};
+    double xy[2] = {};  /* Plane projection coords for calcs */
     /* Point observation data */
-    unsigned int flag;
-    GX_obs gx;
+    unsigned int flag = 0;
+    GX_obs gx = {};
     /* Info relating to possible fixes of station */
-    int fix_order;
-    int besttype;
-    double bestfix;
-    char can_fix[NO_FIX_TYPES];
-    double fix_quality[NO_FIX_TYPES];
-    conn *connlist;  /* Head of linked list of connections */
+    int fix_order = 0;
+    int besttype = 0;
+    double bestfix = 0.0;
+    char can_fix[NO_FIX_TYPES] = {};
+    double fix_quality[NO_FIX_TYPES] = {};
+    conn *connlist = nullptr;  /* Head of linked list of connections */
 };
 
-static void *stnlist;
-static stn **stations;
+// A deque so that the addresses held in station::hook and conn::to stay valid as stations are added.
+
+static std::deque<stn> stnlist;
 static ro_def *ro_list;
 static double max_ro_diff;
 
-static int next_stn = 1;
-static int nostns;
+static bool stations_frozen = false;
 
 static long nvecdata = 0;
 
@@ -274,62 +276,27 @@ static int logfix = 1;
 static void printlog( const char *fmt,...);
 #define PRINTLOG(x,y) if(x) printlog y
 
-#define FOR_ALL_STATIONS(st) \
-   reset_list_pointer( stnlist ); \
-   while( NULL != (st = (stn *) next_list_item( stnlist )))
-
 #define FOR_ALL_CONNECTIONS(st,cn) \
-   for( cn = st->connlist; cn; cn = cn->next )
+   for( cn = (st)->connlist; cn; cn = cn->next )
 
 /*====================================================================*/
 /* Read in the data                                               */
 
-static void close_station_list( void )
-{
-    stn *st;
-    if( next_stn <= 0 ) return;
-    stations = (stn **) check_malloc( sizeof(stn) * next_stn );
-    if( !stations )
-    {
-        printf("Not enough memory for program\n");
-        exit(0);
-    }
-    FOR_ALL_STATIONS(st)
-    {
-        stations[st->id] = st;
-    }
-    nostns = next_stn-1;
-    next_stn = -1;
-}
-
 static stn *new_stn( std::string_view code )
 {
-    stn *st = (stn * ) add_to_list( stnlist, NEW_ITEM );
-    st->code = copy_string( std::string( code ).c_str() );
-    st->st = NULL;
-    st->id = next_stn++;
-    st->fixed = 0;
-    st->connlist = NULL;
-    st->bestfix = 0.0;
-    st->besttype = 0;
-    for( int i = 0; i < NO_FIX_TYPES; i++ )
-    {
-        st->can_fix[i] = 0;
-        st->fix_quality[i] = 0.0;
-    }
-
-    st->flag = 0;
-    return st;
+    stn &st = stnlist.emplace_back();
+    st.code = code;
+    st.id = boost::numeric_cast<int>( stnlist.size() );
+    return &st;
 }
 
 static stn *find_stn( std::string_view code )
 {
-    stn *st;
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
-        if( compare_ignoring_case( st->code, code ) == 0 ) return st;
+        if( compare_ignoring_case( st.code, code ) == 0 ) return &st;
     }
-    return 0;
+    return nullptr;
 }
 
 static station *find_network_station( std::string_view code )
@@ -356,7 +323,7 @@ static stn *get_station( std::string_view code )
         st=find_stn(code);
     }
     if( st  ) return st;
-    if( next_stn < 0 ) return 0;
+    if( stations_frozen ) return 0;
     return new_stn( code );
 }
 
@@ -398,11 +365,11 @@ static stn *station_from_id( int id )
     station *s=stnptr(id);
     if( s ) st=(stn *)(s->hook);
     if( st && st->id == id ) return st;
-    FOR_ALL_STATIONS(st)
+    for( stn &candidate : stnlist )
     {
-        if( st->id == id ) return st;
+        if( candidate.id == id ) return &candidate;
     }
-    return 0;
+    return nullptr;
 }
 
 
@@ -487,7 +454,7 @@ static void add_vecdata( stn * from, stn * to, double value[3], int type )
             {
                 fprintf( errlog,
                          "\nFrom %s to %s\n: GPS baselines differ by %.2f m\n",
-                         from->code, to->code, diff );
+                         from->code.c_str(), to->code.c_str(), diff );
                 errcount++;
             }
             cn->gb.xyz[0] = (cn->gb.xyz[0]+value[0])/2;
@@ -518,7 +485,7 @@ static void add_vecdata( stn * from, stn * to, double value[3], int type )
             {
                 fprintf( errlog,
                          "\nFrom %s\n: Point coordinate obs differ by %.2f m\n",
-                         to->code, diff );
+                         to->code.c_str(), diff );
                 errcount++;
             }
             to->gx.xyz[0] = (to->gx.xyz[0] + value[0])/2;
@@ -553,7 +520,7 @@ static void add_dsdata ( stn *from, stn *to, double dist, char type )
             if( diff > DS_TOL )
             {
                 fprintf(errlog, "From %s to %s: Distances differ by %.1f m\n" ,
-                        from->code, to->code, diff );
+                        from->code.c_str(), to->code.c_str(), diff );
             }
             cn->ds.ds = dist;
             cn->ds.type = type;
@@ -588,7 +555,7 @@ static void add_zddata( stn *from, stn *to, double zd )
         if( diff > ZD_TOL )
         {
             fprintf(errlog,"From %s to %s: Zenith distances differ by %.3f degrees\n",
-                    from->code, to->code, diff);
+                    from->code.c_str(), to->code.c_str(), diff);
             errcount++;
         }
         cn->zd.zd = (cn->zd.zd+zd)/2.0;
@@ -616,7 +583,7 @@ static void add_lvdata( stn *from, stn *to, double hd )
         if( diff > LV_TOL )
         {
             fprintf( errlog, "From %s to %s: Height differences differ by %.1fm\n",
-                     from->code, to->code, diff);
+                     from->code.c_str(), to->code.c_str(), diff);
             errcount++;
         }
         cn->lv.hd = (cn->lv.hd + hd)/2.0;
@@ -650,7 +617,7 @@ static void add_azdata( stn *from, stn *to, double az, int *ro_id, double *ro_co
             if( diff > AZ_TOL )
             {
                 fprintf(errlog,"From %s to %s: Angle/azimuth discrepancy of %.2f deg\n",
-                        from->code, to->code, diff*RTOD );
+                        from->code.c_str(), to->code.c_str(), diff*RTOD );
                 errcount++;
             }
             cn->az.az = (cn->az.az+az)/2.0;
@@ -822,7 +789,7 @@ static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
         if( diff > ZD_TOL )
         {
             fprintf(errlog,"From %s to %s: Zenith distances differ by %.1f deg",
-                    from->code, to->code, diff*RTOD );
+                    from->code.c_str(), to->code.c_str(), diff*RTOD );
             errcount++;
         }
         zd = (a1 + PI - a2)/2.0;
@@ -847,11 +814,10 @@ static void convert_zd_to_lv( stn *from, stn *to, double arcdist )
 static void fixup_all_zdds( void )
 {
     conn *cn, *rcn;
-    stn *st;
     double dist;
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
-        FOR_ALL_CONNECTIONS(st,cn)
+        FOR_ALL_CONNECTIONS(&st,cn)
         {
             if( cn->flag & CN_LV )
             {
@@ -863,7 +829,7 @@ static void fixup_all_zdds( void )
                     {
                         cn->ds.type = DS_HOR;
                         cn->ds.ds = sqrt(nds);
-                        rcn = get_connection( cn->to, st );
+                        rcn = get_connection( cn->to, &st );
                         rcn->ds.type = cn->ds.type;
                         rcn->ds.ds = cn->ds.ds;
                     }
@@ -878,11 +844,11 @@ static void fixup_all_zdds( void )
                 dist *= sin( cn->zd.zd - 0.425*dist/RADIUS_OF_EARTH);
                 cn->ds.ds = dist;
                 cn->ds.type = DS_HOR;
-                rcn = get_connection( cn->to, st );
+                rcn = get_connection( cn->to, &st );
                 rcn->ds.ds = dist;
                 rcn->ds.type = DS_HOR;
             }
-            convert_zd_to_lv( st, cn->to, dist );
+            convert_zd_to_lv( &st, cn->to, dist );
         }
     }
 }
@@ -980,15 +946,14 @@ static void add_ro_link( int ro1, int ro2, double corr )
 static void resolve_ha_ros( void )
 {
     conn *cn;
-    stn *st;
     double diff;
     setup_ro_list();
     max_ro_diff = 0.0;
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
-        FOR_ALL_CONNECTIONS(st,cn)
+        FOR_ALL_CONNECTIONS(&st,cn)
         {
-            if( cn->to->id < st->id ) continue; /* To avoid doing everything twice*/
+            if( cn->to->id < st.id ) continue; /* To avoid doing everything twice*/
             if( ! (cn->flag & CN_AZ && cn->flag & CN_REVAZ ) ) continue;
             diff = cn->revaz.az - cn->az.az;
             while( diff > PI ) diff -= TWOPI;
@@ -1079,18 +1044,16 @@ static void use_vertical_fix( stn *from )
 /* Maintain a list of stations in the order that they    */
 /* can be fixed..                                        */
 
-stn ** fix_list = NULL;
+static std::vector<stn *> fix_list;
 
 static void setup_fix_order( void )
 {
-    stn *st;
-    int i = 0;
-    fix_list = (stn **) check_malloc( nostns * sizeof(stn *) );
-    FOR_ALL_STATIONS(st)
+    fix_list.clear();
+    fix_list.reserve( stnlist.size() );
+    for( stn &st : stnlist )
     {
-        fix_list[i] = st;
-        st->fix_order = i;
-        i++;
+        st.fix_order = boost::numeric_cast<int>( fix_list.size() );
+        fix_list.push_back( &st );
     }
 }
 
@@ -1130,7 +1093,7 @@ static void update_fix_order( stn *st )
                 continue;
             }
         }
-        if( fo < nostns-1 )
+        if( fo + 1 < boost::numeric_cast<int>( fix_list.size() ) )
         {
             stn *next;
             next = fix_list[fo+1];
@@ -1151,18 +1114,16 @@ static void update_fix_order( stn *st )
 
 static void setup_point_fixes()
 {
-    stn *st;
-
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
         int havefix = 0;
-        if( st->flag & CN_GX )
+        if( st.flag & CN_GX )
         {
-            st->can_fix[FIX_GPS_PT] = 1;
-            st->fix_quality[FIX_GPS_PT] = 1;
+            st.can_fix[FIX_GPS_PT] = 1;
+            st.fix_quality[FIX_GPS_PT] = 1;
             havefix = 1;
         }
-        if( havefix ) update_fix_order(st);
+        if( havefix ) update_fix_order(&st);
     }
 }
 
@@ -1393,7 +1354,7 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
     {
         if( !(flag & ST_FIXH) ) lat = lon = 0.0;
         if( !(flag & ST_FIXV) ) hgt = 0.0;
-        station *s = new_network_station( net, st->code, st->code, lat, lon, hgt,
+        station *s = new_network_station( net, st->code.c_str(), st->code.c_str(), lat, lon, hgt,
                                       0.0, 0.0, 0.0 );
         link_station(s,st);
     }
@@ -1414,7 +1375,7 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
         offset = sqrt(offset);
         if( ! (flag & ST_HIDEFIX) )
         {
-            PRINTLOG(LOGFIX,("Station %s shifted %.2lf m\n",st->code,offset));
+            PRINTLOG(LOGFIX,("Station %s shifted %.2lf m\n",st->code.c_str(),offset));
         }
 
     }
@@ -1547,11 +1508,11 @@ static int fix_with_gps( stn *st, double *lat, double *lon, double *hgt, int * )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using GPS",st->code);
+        sprintf(msg,"Fixing %.10s using GPS",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using GPS\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using GPS\n",st->code.c_str() ));
 
 
     if( !got_conversion )
@@ -1655,11 +1616,11 @@ static int fix_with_gps_point( stn *st, double *lat, double *lon, double *hgt, i
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using GPS point observation",st->code);
+        sprintf(msg,"Fixing %.10s using GPS point observation",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using GPS point observation\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using GPS point observation\n",st->code.c_str() ));
 
     if( !got_conversion )
     {
@@ -1694,11 +1655,11 @@ static int fix_with_hgtdif( stn *st, double *lt, double *ln, double *hgt )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s vertically using height difference",st->code);
+        sprintf(msg,"Fixing %.10s vertically using height difference",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s vertically using height difference\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s vertically using height difference\n",st->code.c_str() ));
 
     *lt = *ln = *hgt = 0;
     nvrt = 0;
@@ -1804,11 +1765,11 @@ static int fix_with_azds( stn *st, double *lt, double *ln, double *hgt )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using azimuths and distances",st->code);
+        sprintf(msg,"Fixing %.10s using azimuths and distances",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using azimuths and distances\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using azimuths and distances\n",st->code.c_str() ));
 
     if( !setup_plane_projection_at(st) ) return 0;
     xy[0] = xy[1] = 0.0;
@@ -1864,11 +1825,11 @@ static int fix_with_azaz( stn *st, double *lt, double *ln, double *hgt )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using intersecting azimuths",st->code);
+        sprintf(msg,"Fixing %.10s using intersecting azimuths",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using intersecting azimuths\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using intersecting azimuths\n",st->code.c_str() ));
 
     if( !setup_plane_projection_at(st) ) return 0;
     n = 0;
@@ -1911,11 +1872,11 @@ static int fix_with_dsds( stn *st, double *lt, double *ln, double *hgt )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using a distances",st->code);
+        sprintf(msg,"Fixing %.10s using a distances",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using distances to fixed stations\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using distances to fixed stations\n",st->code.c_str() ));
 
 
     /* Find the two distances best suited to fixing the position - that is
@@ -2017,11 +1978,11 @@ static int fix_with_dshaha( stn *st, double *lt, double *ln, double *hgt )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using a distance and horizontal angles",st->code);
+        sprintf(msg,"Fixing %.10s using a distance and horizontal angles",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using a distance and horizontal angles\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using a distance and horizontal angles\n",st->code.c_str() ));
 
 
     setup_plane_projection_at( st );
@@ -2100,11 +2061,11 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 
     {
         char msg[80];
-        sprintf(msg,"Fixing %.10s using resection",st->code);
+        sprintf(msg,"Fixing %.10s using resection",st->code.c_str());
         if( !confirm_fix(msg) ) return 0;
     }
 
-    PRINTLOG(LOGFIX,("Fixing %s using resection\n",st->code ));
+    PRINTLOG(LOGFIX,("Fixing %s using resection\n",st->code.c_str() ));
 
     setup_plane_projection_at(st);
 
@@ -2257,7 +2218,7 @@ static int fix_by_resection( stn *st, double *lt, double *ln, double *hgt )
 
 static int fix_by_traverse( void )
 {
-    stn *st, *start;
+    stn *start;
     conn *cn;
     int start_ro_id;
     int current_id;
@@ -2281,28 +2242,28 @@ static int fix_by_traverse( void )
        and angles */
 
     /* Clear out the traverse id's */
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
-        st->traverse = 0;
-        st->travwgt = 0.0;
-        st->travxy[0] = st->travxy[1] = 0.0;
+        st.traverse = 0;
+        st.travwgt = 0.0;
+        st.travxy[0] = st.travxy[1] = 0.0;
     }
 
     /* Find a starting station.  That is a station which is not fixed, and
        which is connected to a fixed station by an horizontal angle and distance */
 
-    start = NULL;
+    start = nullptr;
     start_ro_id = 0;
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
-        if( st->fixed & ST_FIXH ) continue;
-        FOR_ALL_CONNECTIONS( st, cn )
+        if( st.fixed & ST_FIXH ) continue;
+        FOR_ALL_CONNECTIONS( &st, cn )
         {
             if( (cn->to->fixed & ST_FIXH) &&
                     (cn->flag & CN_AZ ) &&
                     (cn->flag & CN_DS ) )
             {
-                start = st;
+                start = &st;
                 start_ro_id = cn->az.ro_id;
                 break;
             }
@@ -2328,10 +2289,10 @@ static int fix_by_traverse( void )
            last fix */
         new_count = 0;
 
-        FOR_ALL_STATIONS(st)
+        for( stn &st : stnlist )
         {
-            if( st->traverse != current_id ) continue;
-            if( st->fixed & ST_FIXH ) continue;  /* Control station - stop here! */
+            if( st.traverse != current_id ) continue;
+            if( st.fixed & ST_FIXH ) continue;  /* Control station - stop here! */
             /* Work out azimuth corrections for each ro at the station (usually
                only 1).  If this is the first station, then use the ro linked
                to the fixed station.  Otherwise base on the coordinates of
@@ -2347,12 +2308,12 @@ static int fix_by_traverse( void )
             else
             {
                 nro = 0;
-                FOR_ALL_CONNECTIONS( st, cn )
+                FOR_ALL_CONNECTIONS( &st, cn )
                 {
                     if( (cn->to->traverse == current_id - 1 ) &&
                             (cn->flag & CN_AZ) )
                     {
-                        azcorr = bearing( st->travxy, cn->to->travxy ) - cn->az.az;
+                        azcorr = bearing( st.travxy, cn->to->travxy ) - cn->az.az;
                         for( iro = 0; iro < nro; iro++ )
                         {
                             if( ro_id[iro] == cn->az.ro_id ) break;
@@ -2384,7 +2345,7 @@ static int fix_by_traverse( void )
             }
             /* Sorted out the ro corrections - now assign coordinates to new
                adjacent points */
-            FOR_ALL_CONNECTIONS(st,cn)
+            FOR_ALL_CONNECTIONS(&st,cn)
             {
                 if( !cn->to->traverse &&
                         (cn->flag & CN_AZ) &&
@@ -2399,8 +2360,8 @@ static int fix_by_traverse( void )
                     az = cn->az.az + ro_corr[iro];
                     ds = cn->ds.ds;
                     wgt = (cn->ds.type == DS_SLP) ? SLP_DIST_FACTOR : 1.0;
-                    cn->to->travxy[0] += wgt * (st->travxy[0] + ds*sin(az));
-                    cn->to->travxy[1] += wgt * (st->travxy[1] + ds*cos(az));
+                    cn->to->travxy[0] += wgt * (st.travxy[0] + ds*sin(az));
+                    cn->to->travxy[1] += wgt * (st.travxy[1] + ds*cos(az));
                     cn->to->travwgt += wgt;
                     if( cn->to->traverse == 0 )
                     {
@@ -2419,15 +2380,15 @@ static int fix_by_traverse( void )
         /* Otherwise calculate the coordinates of the new stations.... */
 
         current_id++;
-        FOR_ALL_STATIONS( st )
+        for( stn &st : stnlist )
         {
-            if( st->traverse == current_id )
+            if( st.traverse == current_id )
             {
-                st->travxy[0] /= st->travwgt;
-                st->travxy[1] /= st->travwgt;
-                if( st->fixed & ST_FIXH )
+                st.travxy[0] /= st.travwgt;
+                st.travxy[1] /= st.travwgt;
+                if( st.fixed & ST_FIXH )
                 {
-                    st->traverse = -1;
+                    st.traverse = -1;
                 }
             }
         }
@@ -2438,11 +2399,10 @@ static int fix_by_traverse( void )
 
     xyz[0] = xyz[1] = xyz[2] = 0;
     fixed_stns = 0;
-    FOR_ALL_STATIONS(st)
+    for( stn &st : stnlist )
     {
-        int i;
-        if( st->traverse != -1 ) continue;
-        for( i = 0; i < 3; i++ ) xyz[i] += st->st->XYZ[i];
+        if( st.traverse != -1 ) continue;
+        for( int i = 0; i < 3; i++ ) xyz[i] += st.st->XYZ[i];
         fixed_stns++;
     }
     if( fixed_stns < 2 ) return 0;
@@ -2454,12 +2414,12 @@ static int fix_by_traverse( void )
 
     ca[0] = ca[1] = 0.0;
     ct[0] = ct[1] = 0.0;
-    FOR_ALL_STATIONS( st )
+    for( stn &st : stnlist )
     {
-        if( st->traverse != -1 ) continue;
-        calc_projection_coords( st );
-        ca[0] += st->xy[0]; ca[1] += st->xy[1];
-        ct[0] += st->travxy[0]; ct[1] += st->travxy[1];
+        if( st.traverse != -1 ) continue;
+        calc_projection_coords( &st );
+        ca[0] += st.xy[0]; ca[1] += st.xy[1];
+        ct[0] += st.travxy[0]; ct[1] += st.travxy[1];
     }
     ca[0] /= fixed_stns;
     ca[1] /= fixed_stns;
@@ -2467,14 +2427,14 @@ static int fix_by_traverse( void )
     ct[1] /= fixed_stns;
 
     sc = ss = rr = 0.0;
-    FOR_ALL_STATIONS( st )
+    for( stn &st : stnlist )
     {
         double dxa, dya, dxt, dyt;
-        if( st->traverse != -1 ) continue;
-        dxa = st->xy[0] - ca[0];
-        dya = st->xy[1] - ca[1];
-        dxt = st->travxy[0] - ct[0];
-        dyt = st->travxy[1] - ct[1];
+        if( st.traverse != -1 ) continue;
+        dxa = st.xy[0] - ca[0];
+        dya = st.xy[1] - ca[1];
+        dxt = st.travxy[0] - ct[0];
+        dyt = st.travxy[1] - ct[1];
         sc += dxa*dxt + dya*dyt;
         ss += dxa*dyt - dxt*dya;
         rr += dxt*dxt + dyt*dyt;
@@ -2487,19 +2447,19 @@ static int fix_by_traverse( void )
     maxerr = 0.0;
     nfixed = 0;
     PRINTLOG(LOGFIX,("\nLocating stations by traverse\n"));
-    FOR_ALL_STATIONS( st )
+    for( stn &st : stnlist )
     {
         double dxt, dyt;
-        if( ! st->traverse ) continue;
-        dxt = st->travxy[0] - ct[0];
-        dyt = st->travxy[1] - ct[1];
-        st->travxy[0] = ca[0] + sc * dxt + ss * dyt;
-        st->travxy[1] = ca[1] + sc * dyt - ss * dxt;
-        if( st->traverse == -1 )
+        if( ! st.traverse ) continue;
+        dxt = st.travxy[0] - ct[0];
+        dyt = st.travxy[1] - ct[1];
+        st.travxy[0] = ca[0] + sc * dxt + ss * dyt;
+        st.travxy[1] = ca[1] + sc * dyt - ss * dxt;
+        if( st.traverse == -1 )
         {
             double err;
-            err = distance( st->travxy, st->xy );
-            PRINTLOG(LOGFIX,("Error at traverse control station %s is %.1lf\n",st->code,err));
+            err = distance( st.travxy, st.xy );
+            PRINTLOG(LOGFIX,("Error at traverse control station %s is %.1lf\n",st.code.c_str(),err));
             if( err > maxerr ) maxerr = err;
         }
     }
@@ -2511,13 +2471,13 @@ static int fix_by_traverse( void )
         if( !confirm_fix(msg) ) return 0;
     }
 
-    FOR_ALL_STATIONS( st )
+    for( stn &st : stnlist )
     {
-        if( st->traverse > 0 )
+        if( st.traverse > 0 )
         {
-            plane_to_geodetic( st->travxy, &lt, &ln );
-            PRINTLOG(LOGFIX,("Fixing %s by traverse\n",st->code));
-            fix_station( st, lt, ln, 0.0, ST_FIXH );
+            plane_to_geodetic( st.travxy, &lt, &ln );
+            PRINTLOG(LOGFIX,("Fixing %s by traverse\n",st.code.c_str()));
+            fix_station( &st, lt, ln, 0.0, ST_FIXH );
             nfixed++;
         }
     }
@@ -2613,13 +2573,12 @@ static int fix_unknown_stations( void )
 
 static int print_unfixed_stations( FILE *out, char status, char mask, const char *prompt)
 {
-    stn *st;
     int lineno = 0;
     int nbad = 0;
     status &= mask;
-    FOR_ALL_STATIONS( st )
+    for( const stn &st : stnlist )
     {
-        if( (st->fixed & mask) != status ) continue;
+        if( (st.fixed & mask) != status ) continue;
         if( !lineno )
         {
             fprintf(out,"\n%s\n",prompt);
@@ -2629,7 +2588,7 @@ static int print_unfixed_stations( FILE *out, char status, char mask, const char
             fprintf(out,"\n");
             lineno = 0;
         }
-        fprintf(out,"  %-10s",st->code);
+        fprintf(out,"  %-10s",st.code.c_str());
         lineno++;
         nbad++;
     }
@@ -2907,7 +2866,7 @@ void set_recalc_list()
     {
         get_station( station_ptr(net,istn)->Code );
     }
-    close_station_list();
+    stations_frozen = true;
 }
 
 static void load_data_files( char *coord_file, char **data_files, int ndatafiles,
@@ -3132,8 +3091,6 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    stnlist = create_list( sizeof(stn) );
-
     init_snap_globals();
     install_default_crdsys_file();
 
@@ -3157,9 +3114,9 @@ int main( int argc, char *argv[] )
         load_data_files( filelist[0], filelist+1, nfilelist-1, recalc );
     }
 
-    close_station_list();
+    stations_frozen = true;
 
-    if( ! list_count(stnlist) )
+    if( stnlist.empty() )
     {
         printf("\nNo data has been loaded\n");
         return 0;
@@ -3168,7 +3125,6 @@ int main( int argc, char *argv[] )
     if( listonly )
     {
         FILE *out;
-        stn *st;
         if( outputfile )
         {
             out = fopen(outputfile->c_str(),"w");
@@ -3184,14 +3140,13 @@ int main( int argc, char *argv[] )
             out = stdout;
         }
 
-        FOR_ALL_STATIONS(st)
+        for( const stn &st : stnlist )
         {
-            char *code = st->code;
             if( listonly > 1 )
             {
-                if( find_station(net,code) ) continue;
+                if( find_station(net,st.code) ) continue;
             }
-            fprintf(out,"%s\n",code);
+            fprintf(out,"%s\n",st.code.c_str());
         }
 
         if( outputfile ) fclose(out);
