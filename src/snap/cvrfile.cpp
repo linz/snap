@@ -20,6 +20,7 @@
 #include <string.h>
 #include <math.h>
 #include <array>
+#include <string>
 #include <string_view>
 
 #include "cvrfile.h"
@@ -41,8 +42,6 @@ typedef double tmatrix[3][3];   /* Vector transformation matrix */
 
 void print_coord_covariance( void )
 {
-    int nch;
-    char *bfn;
     FILE *f;
     int maxstn, istn, ncrd;
     int *rownos;
@@ -56,22 +55,18 @@ void print_coord_covariance( void )
     void *latfmt = 0;
     void *lonfmt = 0;
 
-    nch = strlen( root_name ) + strlen( CVRFILE_EXT ) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, CVRFILE_EXT );
+    const std::string bfn = std::string( root_name ) + CVRFILE_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open covariance_file", bfn );
+        handle_error( FILE_OPEN_ERROR,"Unable to open covariance_file", bfn.c_str() );
     }
     else
     {
-        xprintf("\nCreating the coordinate covariance file %s\n",bfn);
+        xprintf("\nCreating the coordinate covariance file %s\n",bfn.c_str());
         record_filename(bfn,"coord_covariance");
     }
-    check_free( bfn );
     if( !f ) return;
 
     maxstn = number_of_stations( net );
@@ -145,8 +140,6 @@ void print_coord_covariance( void )
 
 void print_coord_covariance_json( void )
 {
-    int nch;
-    char *bfn;
     FILE *f;
     int maxstn, istn, ncrd;
     int *rownos;
@@ -161,23 +154,18 @@ void print_coord_covariance_json( void )
     int geocentric_coords;
     int ellipsoidal;
 
-    nch = strlen( root_name ) + strlen(CVRFILE_EXT)+strlen( JSONFILE_EXT ) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, CVRFILE_EXT );
-    strcat( bfn, JSONFILE_EXT );
+    const std::string bfn = std::string( root_name ) + CVRFILE_EXT + JSONFILE_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open JSON covariance_file", bfn );
+        handle_error( FILE_OPEN_ERROR,"Unable to open JSON covariance_file", bfn.c_str() );
     }
     else
     {
-        xprintf("\nCreating the JSON coordinate covariance file %s\n",bfn);
+        xprintf("\nCreating the JSON coordinate covariance file %s\n",bfn.c_str());
         record_filename(bfn,"coord_covariance_json");
     }
-    check_free( bfn );
     if( !f ) return;
 
     maxstn = number_of_stations( net );
@@ -332,8 +320,6 @@ static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix
 
 void print_coord_sinex( void )
 {
-    int nch;
-    char *bfn;
     FILE *f;
     int maxstn, istn;
     ellipsoid *elp;
@@ -346,22 +332,18 @@ void print_coord_sinex( void )
     tmatrix cvr;
     int badcvr=0;
 
-    nch = strlen( root_name ) + strlen(SINEX_EXT) + 1;
-    bfn = ( char * ) check_malloc( nch );
-    strcpy( bfn, root_name );
-    strcat( bfn, SINEX_EXT );
+    const std::string bfn = std::string( root_name ) + SINEX_EXT;
 
-    f = fopen( bfn, "w" );
+    f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open SINEX output file", bfn );
+        handle_error( FILE_OPEN_ERROR,"Unable to open SINEX output file", bfn.c_str() );
     }
     else
     {
-        xprintf("\nCreating the SINEX file %s\n",bfn);
+        xprintf("\nCreating the SINEX file %s\n",bfn.c_str());
         record_filename(bfn,"solution_sinex");
     }
-    check_free( bfn );
     if( !f ) return;
 
     elp = net->crdsys->rf->el;
