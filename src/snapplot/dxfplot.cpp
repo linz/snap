@@ -16,8 +16,13 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include <string>
+#include <vector>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "dxfplot.h"
-#include "util/chkalloc.h"
 #include "snap/snapglob.h"
 #include "snap/stnadj.h"
 #include "plotscal.h"
@@ -41,10 +46,11 @@ static long poly_id;
 static int precision = 3;
 static long entid = 0;
 
-static char **layer_name = NULL;
+// Layer names indexed by pen number, with index 0 the annotation layer. An empty name is a pen with no layer.
+static std::vector<std::string> layer_name;
 static int nlayer = 0;
-static const char *cur_layer;
-static const char *default_layer = "0";
+static std::string cur_layer;
+static const std::string default_layer = "0";
 static int text_layer = 0;
 
 static Trimmer tr;
@@ -320,46 +326,35 @@ static dxfcolour colourtable[] =
 
 static void clear_dxf_layers( void )
 {
-    int i;
-    if( layer_name )
-    {
-        for( i = 0; i<=nlayer; i++ ) { if( layer_name[i] ) check_free( layer_name[i] ); }
-        check_free( layer_name );
-        layer_name = NULL;
-        nlayer = 0;
-    }
+    layer_name.clear();
+    nlayer = 0;
 }
 
 static int setup_dxf_layers( void )
 {
-    int i;
-    char *c;
-    int npen;
     int nused = 0;
     clear_dxf_layers();
-    npen = pen_count();
+    const int npen = pen_count();
     if( npen <= 0 ) return nused;
-    layer_name = (char **) check_malloc( sizeof( char * ) * (npen+1) );
-    layer_name[0] = copy_string("ANNOTATION");
+    layer_name.assign( npen+1, std::string() );
+    layer_name[0] = "ANNOTATION";
     nused = 1;
-    for( i=1; i<=npen; i++)
+    for( int i=1; i<=npen; i++)
     {
         const char *name = pen_name(i-1);
-        layer_name[i] = 0;
         if( !name || ! name[0] || ! pen_has_colour(i-1) ) continue;
         nused++;
-        layer_name[i] = copy_string(name);
-        _strupr( layer_name[i] );
-        if( strcmp(layer_name[i],"TEXT") == 0 ) text_layer=i;
-        for( c = layer_name[i]; *c; c++ ) if( *c == ' ') *c = '_';
+        std::string &layer = layer_name[i];
+        layer = boost::algorithm::to_upper_copy( std::string(name) );
+        if( layer == "TEXT" ) text_layer=i;
+        boost::algorithm::replace_all( layer, " ", "_" );
         for( int j = 0; j < i; j++ )
         {
-            if( layer_name[j] && _stricmp(layer_name[j],layer_name[i]) == 0 )
+            if( ! layer_name[j].empty() && boost::algorithm::iequals( layer_name[j], layer ) )
             {
                 char buf[40];
-                sprintf(buf,"_LAYER_%04d",i);
-                check_free( layer_name[i] );
-                layer_name[i] = copy_string(buf);
+                snprintf(buf,sizeof(buf),"_LAYER_%04d",i);
+                layer = buf;
             }
         }
     }
@@ -381,11 +376,11 @@ static int dxf_colour_id( unsigned char red, unsigned char green, unsigned char 
 
 static void set_layer( int pen )
 {
-    if( pen > 0 && pen <= nlayer && layer_name[pen] )
+    if( pen > 0 && pen <= nlayer && ! layer_name[pen].empty() )
     {
         cur_layer = layer_name[pen];
     }
-    else if( pen < 0 )
+    else if( pen < 0 || layer_name.empty() )
     {
         cur_layer = default_layer;
     }
@@ -444,18 +439,19 @@ int open_dxf_file( const char *dxfname )
         fprintf(dxf,"  2\nLAYER\n");
         fprintf(dxf," 70\n%d\n",usedlayers);
 
-        for( i = 0; i <= nlayer; i++ )
+        const int layer_count = boost::numeric_cast<int>( layer_name.size() );
+        for( i = 0; i < layer_count; i++ )
         {
             unsigned char red, green, blue;
             int colourid = 1;
-            if( ! layer_name[i] ) continue;
+            if( layer_name[i].empty() ) continue;
             if( i > 0 )
             {
                 get_pen_colour( i-1, red, green, blue );
                 colourid = dxf_colour_id( red, green, blue );
             }
             fprintf(dxf,"  0\nLAYER\n  2\n%s\n 70\n64\n 62\n%d\n  6\nCONTINUOUS\n",
-                    layer_name[i],colourid);
+                    layer_name[i].c_str(),colourid);
         }
         fprintf(dxf,"  0\nENDTAB\n");
 
@@ -493,7 +489,7 @@ static long end_line( void )
     }
     else if( nppt > 1 )
     {
-        fprintf(dxf,"  0\nLINE\n  8\n%s\n",cur_layer);
+        fprintf(dxf,"  0\nLINE\n  8\n%s\n",cur_layer.c_str());
         id =write_dxf_entity_id();
         fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n 11\n%.*lf\n 21\n%.*lf\n",
                 precision, save_x1, precision, save_y1, precision, save_x2, precision, save_y2 );
@@ -504,7 +500,7 @@ static long end_line( void )
 
 static void start_polyline( void )
 {
-    fprintf(dxf,"  0\nPOLYLINE\n  8\n%s\n 66\n1\n",cur_layer);
+    fprintf(dxf,"  0\nPOLYLINE\n  8\n%s\n 66\n1\n",cur_layer.c_str());
     entid = write_dxf_entity_id();
     poly_id = entid;
 }
@@ -512,7 +508,7 @@ static void start_polyline( void )
 
 static void write_poly_vertex( double x, double y )
 {
-    fprintf(dxf,"  0\nVERTEX\n  8\n%s\n", cur_layer);
+    fprintf(dxf,"  0\nVERTEX\n  8\n%s\n", cur_layer.c_str());
     write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
 }
@@ -555,7 +551,7 @@ static long write_dxf_text( double x, double y, int pen, double size,
     end_line();
     set_layer( pen );
 
-    fprintf(dxf,"  0\nTEXT\n  8\n%s\n 62\n256\n",cur_layer);
+    fprintf(dxf,"  0\nTEXT\n  8\n%s\n 62\n256\n",cur_layer.c_str());
     id = write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
     fprintf(dxf," 40\n%.*lf\n  1\n%s\n",precision,size,text);
@@ -570,7 +566,7 @@ static long write_dxf_circle( double x, double y, double rad, int pen )
     if( !dxf ) return 0;
     end_line();
     set_layer( pen );
-    fprintf(dxf,"  0\nCIRCLE\n  8\n%s\n 62\n256\n",cur_layer);
+    fprintf(dxf,"  0\nCIRCLE\n  8\n%s\n 62\n256\n",cur_layer.c_str());
     id = write_dxf_entity_id();
     fprintf(dxf,"  10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
     fprintf(dxf,"  40\n%.*lf\n",precision,rad);
@@ -586,7 +582,7 @@ static long write_dxf_blockref( double x, double y, const char *blkname, double 
     set_layer( pen );
 
     fprintf(dxf,"  0\nINSERT\n");
-    fprintf(dxf,"  8\n%s\n 62\n0\n",cur_layer);
+    fprintf(dxf,"  8\n%s\n 62\n0\n",cur_layer.c_str());
     id = write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
     fprintf(dxf,"  2\n%s\n",blkname);
