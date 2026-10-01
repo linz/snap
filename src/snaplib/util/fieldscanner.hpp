@@ -20,13 +20,12 @@ enum class QuoteFollowOption
 };
 
 /// Non-owning, non-destructive cursor over a whitespace-delimited field
-/// sequence. Replaces next_field()/dstring.cpp's destructive char*-based
-/// tokenization, which writes '\0' into the source buffer, with a
-/// std::string_view-based scan that never modifies its input.
+/// sequence. A std::string_view-based scan that never modifies its input,
+/// unlike the destructive char*-based tokenization it replaced, which wrote
+/// '\0' into the source buffer.
 ///
-/// Kept in the global namespace (not LINZ::), matching next_field's own
-/// declaration site in dstring.h, since its real callers are C-flavoured
-/// legacy files that don't otherwise use the LINZ namespace.
+/// Kept in the global namespace (not LINZ::), since its real callers are
+/// C-flavoured legacy files that don't otherwise use the LINZ namespace.
 class FieldScanner
 {
 public:
@@ -34,8 +33,7 @@ public:
     explicit FieldScanner( std::string_view text ) : _text(text), _pos(_text.begin()) {}
 
     /// Returns the next whitespace-delimited field, or nullopt at end. Runs
-    /// of consecutive whitespace are skipped as a single delimiter, matching
-    /// next_field's behavior.
+    /// of consecutive whitespace are skipped as a single delimiter.
     std::optional<std::string_view> next();
 
     /// Returns the text up to the next occurrence of delimiter, consuming it -

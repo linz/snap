@@ -102,17 +102,3 @@ std::optional<std::string> reload_optional_string( FILE *b )
     fread( &s[0], len, 1, b );
     return s;
 }
-
-char *next_field( char **start )
-{
-    char *result=0;
-    char *s=*start;
-    while( ISSPACE(*s) ) s++;
-    (*start)=s;
-    if( ! *s ) return 0;
-    result = s;
-    while( *s && ! ISSPACE(*s) ) s++;
-    if( *s ) {*s=0; s++; }
-    (*start)=s;
-    return result;
-}
