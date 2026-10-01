@@ -20,6 +20,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <array>
 #include <string>
 #include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
@@ -168,45 +169,38 @@ static coef_class_info coef_classes[] =
     {"ref_frame_code", &datatypedef::reffrm }
 };
 
-static struct
+struct coef_class_state
 {
-    char *classname;
-    int idtype;
-    int idclass;
-    int idname;
-    int idcoef;
-} coef_class_id[N_COEF_CLASSES];
+    std::optional<std::string> classname;
+    int idclass = ID_UNDEFINED;
+    int idname = ID_UNDEFINED;
+    int idcoef = ID_UNDEFINED;
+};
+
+static std::array<coef_class_state, N_COEF_CLASSES> coef_class_id;
 
 coef_class_info *coef_class( int coeftype )
 {
     return &(coef_classes[coeftype]);
 }
 
-void set_coef_class( int coeftype, const char *name )
+void set_coef_class( int coeftype, std::string_view name )
 {
-    if( coef_class_id[coeftype].classname )
-    {
-        check_free( coef_class_id[coeftype].classname );
-        coef_class_id[coeftype].classname = 0;
-    }
-    if( name )
-    {
-        coef_class_id[coeftype].classname = copy_string( name );
-    }
+    coef_class_id[coeftype].classname = std::string( name );
 }
 
 static void init_coef_class_id()
 {
     for( int i = 0; i < N_COEF_CLASSES; i++ )
     {
-        coef_class_id[i].idtype = i;
-        if( ! coef_class_id[i].classname )
+        coef_class_state &state = coef_class_id[i];
+        if( ! state.classname )
         {
-            coef_class_id[i].classname = copy_string( coef_classes[i].default_classname );
+            state.classname = std::string( coef_classes[i].default_classname );
         }
-        coef_class_id[i].idclass = ldt_get_id( ID_CLASSTYPE,0, coef_class_id[i].classname);
-        coef_class_id[i].idname = ID_UNDEFINED;
-        coef_class_id[i].idcoef = ID_UNDEFINED;
+        state.idclass = numeric_cast<int>( ldt_get_id( ID_CLASSTYPE, 0, *state.classname ) );
+        state.idname = ID_UNDEFINED;
+        state.idcoef = ID_UNDEFINED;
     }
 }
 

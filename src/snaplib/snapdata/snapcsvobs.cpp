@@ -1185,7 +1185,7 @@ void SnapCsvObs::loadObservationDefinition(RecordStream &rs, CsvObservation &obs
 
 void SnapCsvObs::loadCoefDefinition(RecordStream &rs, CsvObservation &obs, int coef)
 {
-    CsvClassification *clsf = obs.addClassification(coef_class(coef)->default_classname);
+    CsvClassification *clsf = obs.addClassification(std::string(coef_class(coef)->default_classname));
     loadValueDefinition(rs, *clsf);
 }
 

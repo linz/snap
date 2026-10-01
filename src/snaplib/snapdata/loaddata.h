@@ -73,12 +73,12 @@ enum { CALC_DISTANCE, CALC_HDIST };
 
 struct coef_class_info
 {
-    const char *default_classname;
+    std::string_view default_classname;
     bool datatypedef::*useclass;
 };
 
 coef_class_info *coef_class( int coeftype );
-void set_coef_class( int coeftype, const char *name );
+void set_coef_class( int coeftype, std::string_view name );
 
 /* The following two routines are called by the "main" program
    before and after loading a data file */

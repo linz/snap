@@ -822,12 +822,11 @@ static int read_coef( CFG_FILE *, std::string_view string, void *, int, int code
     {
         if( sts == OK )
         {
-            const std::string rcnameStr(*rcname);
             switch( code )
             {
-            case PRM_BRNGREF: set_coef_class( COEF_CLASS_BRNGREF, rcnameStr.c_str() ); break;
-            case PRM_DISTSF:  set_coef_class( COEF_CLASS_DISTSF, rcnameStr.c_str() ); break;
-            case PRM_REFCOEF: set_coef_class( COEF_CLASS_REFCOEF, rcnameStr.c_str() ); break;
+            case PRM_BRNGREF: set_coef_class( COEF_CLASS_BRNGREF, *rcname ); break;
+            case PRM_DISTSF:  set_coef_class( COEF_CLASS_DISTSF, *rcname ); break;
+            case PRM_REFCOEF: set_coef_class( COEF_CLASS_REFCOEF, *rcname ); break;
             }
         }
         if( st ) sts = INVALID_DATA;
@@ -953,7 +952,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
         prmname = scanner.next();
         if( prmname )
         {
-            set_coef_class( COEF_CLASS_REFFRM, std::string(*prmname).c_str() );
+            set_coef_class( COEF_CLASS_REFFRM, *prmname );
             if( scanner.next() ) sts = INVALID_DATA;
         }
         else
