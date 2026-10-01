@@ -36,6 +36,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <filesystem>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <boost/numeric/conversion/cast.hpp>
@@ -3050,7 +3051,7 @@ int main( int argc, char *argv[] )
     char **filelist;
     int nrecalclist;
     char **recalclist;
-    char *outputfile = NULL;
+    std::optional<std::string> outputfile;
 
     CONFIGURE_RUNTIME();
 
@@ -3087,7 +3088,7 @@ int main( int argc, char *argv[] )
             case 'u': case 'U': userejected = 1; break;
             case 'o': case 'O': i++;
                 if( i > argc ) { syntax_error = 1; }
-                else { outputfile = argv[i]; }
+                else if( i < argc ) { outputfile = argv[i]; }
                 break;
             default: syntax_error = 1; break;
             }
@@ -3170,10 +3171,10 @@ int main( int argc, char *argv[] )
         stn *st;
         if( outputfile )
         {
-            out = fopen(outputfile,"w");
+            out = fopen(outputfile->c_str(),"w");
             if( ! out )
             {
-                printf("\nCannot open output file %s\n",outputfile);
+                printf("\nCannot open output file %s\n",outputfile->c_str());
                 return 0;
             }
         }
