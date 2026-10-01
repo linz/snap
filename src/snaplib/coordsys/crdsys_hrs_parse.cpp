@@ -82,7 +82,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
         {
             const std::string errmess = "Cannot locate geoid file " + geoidname +
                                         " for vertical datum " + hrscode;
-            report_string_error( is, INVALID_DATA, errmess.c_str() );
+            report_string_error( is, INVALID_DATA, errmess );
             sts = INVALID_DATA;
         }
         else
@@ -104,7 +104,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
             {
                 const std::string errmess = "Cannot load reference datum " + basecode +
                                             " for vertical datum " + hrscode;
-                report_string_error( is, INVALID_DATA, errmess.c_str() );
+                report_string_error( is, INVALID_DATA, errmess );
                 sts = INVALID_DATA;
             }
         }
@@ -115,7 +115,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
             {
                 const std::string errmess = "Cannot load underlying vertical datum " + basecode +
                                             " for " + hrscode;
-                report_string_error( is, INVALID_DATA, errmess.c_str() );
+                report_string_error( is, INVALID_DATA, errmess );
                 sts = INVALID_DATA;
             }
             else
@@ -126,7 +126,7 @@ vdatum *parse_vdatum_def ( input_string_def &is,
                     if( compare_ignoring_case(base->code,hrscode) == 0 )
                     {
                         const std::string errmess = "Vertical datum " + hrscode + " has a cyclic dependency";
-                        report_string_error( is, INVALID_DATA, errmess.c_str() );
+                        report_string_error( is, INVALID_DATA, errmess );
                         sts = INVALID_DATA;
                         break;
                     }

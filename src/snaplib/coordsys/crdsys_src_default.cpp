@@ -50,7 +50,7 @@ int install_default_crdsys_file()
     auto filename=get_default_crdsys_file();
     if( ! filename )  return FILE_OPEN_ERROR;
     install_default_projections();
-    return install_crdsys_file( filename->c_str() );
+    return install_crdsys_file( *filename );
 }
 
 std::optional<std::string> find_coordsys_data_file( const std::string &filename, const std::string &extension )

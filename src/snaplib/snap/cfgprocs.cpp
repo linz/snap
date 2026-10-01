@@ -251,7 +251,7 @@ int load_offset_file( CFG_FILE *cfg, std::string_view string, void *, int, int )
         send_config_error( cfg, INVALID_DATA, "Cannot find station offset file");
         return OK;
     }
-    sts=read_network_station_offsets( net, filespec->c_str() );
+    sts=read_network_station_offsets( net, *filespec );
     if( sts != OK )
     {
         send_config_error( cfg, INVALID_DATA, "Errors reading station offset file");

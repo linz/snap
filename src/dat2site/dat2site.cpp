@@ -2847,13 +2847,12 @@ static int add_stations( void )
 static void load_interactively( void )
 {
     char fname[80];
-    DATAFILE *d;
 
     printf("\nDAT2SITE requires a SNAP coordinate file and one or more SNAP data files\n\n");
     printf("\n=============================================================\n");
 
     net = new_network();
-    for(;;)
+    while( true )
     {
         printf("\nEnter input coordinate file name: ");
         if( !fgets(inrec,256,stdin) || sscanf(inrec,"%79s",fname) != 1 ) exit(0);
@@ -2886,15 +2885,14 @@ static void load_interactively( void )
     printf("\nEnter the names of the data files\n");
     printf("\nAfter the last file enter a blank line to start calculating coordinates\n");
 
-    for(;;)
+    while( true )
     {
         printf("\nEnter the SNAP data file name: ");
         if( !fgets(inrec,256,stdin) || sscanf(inrec,"%79s",fname) != 1 ) break;
-        d = df_open_data_file( fname, "SNAP data file" );
+        const std::unique_ptr<DATAFILE> d = DATAFILE::open( fname, "SNAP data file" );
         if( d )
         {
-            read_snap_data( d, 0 );
-            df_close_data_file( d );
+            read_snap_data( d.get(), 0 );
         }
     }
 }
@@ -2914,7 +2912,6 @@ void set_recalc_list()
 static void load_data_files( char *coord_file, char **data_files, int ndatafiles,
                              int recalconly )
 {
-    DATAFILE *d;
     std::string f = coord_file;
     if( gotroot )
     {
@@ -2939,11 +2936,10 @@ static void load_data_files( char *coord_file, char **data_files, int ndatafiles
     {
         auto found = find_file( *data_files, "", std::nullopt, FF_TRYALL, "" );
         f = found.value_or(*data_files);
-        d = df_open_data_file( f.c_str(), "SNAP data file" );
+        const std::unique_ptr<DATAFILE> d = DATAFILE::open( f, "SNAP data file" );
         if( d )
         {
-            read_snap_data( d, 0 );
-            df_close_data_file( d );
+            read_snap_data( d.get(), 0 );
         }
     }
 }

@@ -74,7 +74,7 @@ char *unread_string( input_string_def &def )
     return const_cast<char *>( def.scanner.remainder().data() );
 }
 
-void report_string_error( input_string_def &def, int status, const char *message )
+void report_string_error( input_string_def &def, int status, std::string_view message )
 {
     if( def.report_error )
     {

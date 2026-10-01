@@ -9,7 +9,10 @@
 */
 
 #include <stdio.h>
-#include <string.h>
+#include <string>
+#include <string_view>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include "util/snapctype.h"
 
 #include "snapdata/geoddata.h"
@@ -20,27 +23,28 @@
 #include "util/dateutil.h"
 #include "util/pi.h"
 
-#define NAMELEN 20
+using boost::numeric_cast;
 
-static struct
+static constexpr size_t NAMELEN = 20;
+
+static const struct
 {
-    const char *code;
+    std::string_view code;
     int type;
-    char heights;
-    char dms;
-    char refcoef;
+    bool heights;
+    bool dms;
+    bool refcoef;
 }
 
 
 gb_types[] =
 {
     /* Code Type H DMS RC */
-    { "DS", SD, 1, 0, 0 },
-    { "ED", ED, 0, 0, 0 },
-    { "HA", HA, 0, 1, 0 },
-    { "AZ", AZ, 0, 1, 0 },
-    { "VA", ZD, 1, 1, 1 },
-    { NULL, 0, 0, 0, 0 }
+    { "DS", SD, true, false, false },
+    { "ED", ED, false, false, false },
+    { "HA", HA, false, true, false },
+    { "AZ", AZ, false, true, false },
+    { "VA", ZD, true, true, true }
 };
 
 
@@ -49,64 +53,48 @@ static double gb_date( long ldate, int itime );
 
 int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 {
-    char type[3], errmess[80];
-    int dtype;
-    char heights;
-    char dms;
-    char refcoef;
-    int refclassid;
-    double errfct;
-    char rcname[NAMELEN+1];
-    int i, sts;
-    int rtnsts;
+    d->read_record();   /* Skip the header line */
 
-    char fromcode[NAMELEN+1], tocode[NAMELEN+1];
-    int from, to, oldfrom, oldto, itime;
-    double value, error, fromhgt, tohgt, dt;
-    long ldate;
-    char unused;
-    char inobs = 0;
+    d->read_record();   /* Read the file type */
 
-    df_read_data_file( d );   /* Skip the header line */
-
-    df_read_data_file( d );   /* Read the file type */
-
-    dtype = -1;
-    dms = 0;
-    heights = 0;
-    refcoef = 0;
-    refclassid = -1;
-    if( df_read_field( d, type, 3 ) )
+    int dtype = -1;
+    bool dms = false;
+    bool heights = false;
+    bool refcoef = false;
+    std::string type;
+    if( read_string_field( d->input_string().scanner, type, 2 ) == FieldResult::Ok )
     {
-        for( i=0; gb_types[i].code; i++ )
+        for( const auto &gb_type : gb_types )
         {
-            if( strcmp(type,gb_types[i].code) == 0 )
+            if( type == gb_type.code )
             {
-                dtype = gb_types[i].type;
-                heights = gb_types[i].heights;
-                dms = gb_types[i].dms;
-                refcoef = gb_types[i].refcoef;
+                dtype = gb_type.type;
+                heights = gb_type.heights;
+                dms = gb_type.dms;
+                refcoef = gb_type.refcoef;
                 break;
             }
-
         }
     }
 
     if( dtype < 0 )
     {
-        df_data_file_error( d, INVALID_DATA, "Missing or invalid type of data file");
+        d->error( INVALID_DATA, "Missing or invalid type of data file");
         return INVALID_DATA;
     }
 
-    errfct = dms ? PI/(180.0*3600.0) : 1.0;
-    fromhgt = tohgt = 0.0;
-    inobs = 0;
-    oldfrom = -1; oldto = -1;
+    const double errfct = dms ? PI/(180.0*3600.0) : 1.0;
+    double fromhgt = 0.0;
+    double tohgt = 0.0;
+    bool inobs = false;
+    int oldfrom = -1;
+    int oldto = -1;
+    int refclassid = -1;
 
-    df_skip_to_blank_line( d );   /* Skip over comments section */
+    d->skip_to_blank_line();   /* Skip over comments section */
 
-    rtnsts = OK;
-    while( df_read_data_file( d ) == OK )
+    int rtnsts = OK;
+    while( d->read_record() == OK )
     {
 
         if( check_progress && !(*check_progress)( d ) )
@@ -115,29 +103,19 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
             break;
         }
 
-        sts = df_read_code( d, fromcode, NAMELEN+1 ) &&
-              df_read_code( d, tocode, NAMELEN+1 );
+        FieldScanner &scanner = d->input_string().scanner;
+        std::string fromcode;
+        std::string tocode;
+        bool sts = read_string_field( scanner, fromcode, NAMELEN ) == FieldResult::Ok &&
+                   read_string_field( scanner, tocode, NAMELEN ) == FieldResult::Ok;
+        boost::to_upper( fromcode );
+        boost::to_upper( tocode );
 
         /* Reciprocal zenith distances are denoted by 0 station numbers */
         /* In SNAP they are split into the two independent obs */
 
-        if( inobs && strcmp(fromcode,"0") == 0 )
-        {
-            from = -1;
-        }
-        else
-        {
-            from = ldt_get_id( ID_STATION, 0, fromcode );
-        }
-        if( inobs && strcmp(tocode,"0") == 0 )
-        {
-            to = -1;
-        }
-        else
-        {
-            to = ldt_get_id( ID_STATION, 0, tocode );
-        }
-
+        int from = inobs && fromcode == "0" ? -1 : numeric_cast<int>( ldt_get_id( ID_STATION, 0, fromcode ) );
+        int to = inobs && tocode == "0" ? -1 : numeric_cast<int>( ldt_get_id( ID_STATION, 0, tocode ) );
 
         if( dtype == ZD && from < 0 && to < 0 )
         {
@@ -150,87 +128,89 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
             oldto = to;
         }
 
-        value = error = 0;
-        itime = 0;
-        ldate = 0;
-        rcname[0] = 0;
+        double value = 0.0;
+        double error = 0.0;
+        int itime = 0;
+        long ldate = 0;
+        std::string rcname;
 
         if( sts )
         {
-            sts = dms ? df_read_dmsangle( d, &value ) :
-                  df_read_double( d, &value );
+            sts = ( dms ? read_dms_angle_field( scanner, value ) :
+                    read_double_field( scanner, value ) ) == FieldResult::Ok;
         }
 
-        if( sts ) sts = df_read_double( d, &error );
+        if( sts ) sts = read_double_field( scanner, error ) == FieldResult::Ok;
         if( sts && heights )
         {
-            sts = df_read_double( d, &fromhgt ) && df_read_double( d, &tohgt );
+            sts = read_double_field( scanner, fromhgt ) == FieldResult::Ok &&
+                  read_double_field( scanner, tohgt ) == FieldResult::Ok;
         }
         if( sts && refcoef )
         {
-            sts = df_read_field( d, rcname, NAMELEN+1 );
+            sts = read_string_field( scanner, rcname, NAMELEN ) == FieldResult::Ok;
         }
         if( sts )
         {
-            sts = df_read_long( d, &ldate ) && df_read_int( d, &itime );
+            sts = read_long_field( scanner, ldate ) == FieldResult::Ok &&
+                  read_int_field( scanner, itime ) == FieldResult::Ok;
         }
 
         if( !sts )
         {
-            df_data_file_error(d, INVALID_DATA, "Cannot interpret data");
+            d->error( INVALID_DATA, "Cannot interpret data");
             continue;
         }
 
         if( from >= 0 )
         {
             if( inobs ) ldt_end_data();
-            inobs = 0;
+            inobs = false;
             if( from == 0 )
             {
-                sprintf(errmess,"Station number %s in the data file is missing from the coordinate file",fromcode );
-                df_data_file_error(d, INVALID_DATA, errmess );
+                d->error( INVALID_DATA,
+                          "Station number " + fromcode + " in the data file is missing from the coordinate file" );
                 continue;
             }
 
-            dt = gb_date( ldate, itime );
+            const double dt = gb_date( ldate, itime );
             ldt_inststn( from, fromhgt );
             ldt_date( dt );
-            inobs = 1;
+            inobs = true;
         }
 
         if( !inobs ) continue;
 
         if( to <= 0 )
         {
-            sprintf(errmess,"Station number %s in data file is missing from the coordinate file",tocode);
-            df_data_file_error(d, INVALID_DATA, errmess );
+            d->error( INVALID_DATA,
+                      "Station number " + tocode + " in data file is missing from the coordinate file" );
             continue;
         }
 
-        unused = error < 0 ? 1 : 0;
+        const bool unused = error < 0;
         if( unused ) error = -error;
         error *= errfct;
 
         if( error < 1.0e-12 )
         {
-            df_data_file_error(d, INVALID_DATA, "Error specified for data is too small");
+            d->error( INVALID_DATA, "Error specified for data is too small");
             continue;
         }
 
         ldt_tgtstn( to, tohgt );
         ldt_nextdata( dtype );
-        ldt_lineno( df_line_number(d));
+        ldt_lineno( d->line_number() );
         ldt_value( &value );
         ldt_error( &error );
         if( unused ) ldt_unused();
         if( refcoef )
         {
-            int nameid;
             if( refclassid == -1 )
             {
-                refclassid = ldt_get_id( ID_CLASSTYPE, 0, coef_class(COEF_CLASS_REFCOEF)->default_classname );
+                refclassid = numeric_cast<int>( ldt_get_id( ID_CLASSTYPE, 0, coef_class(COEF_CLASS_REFCOEF)->default_classname ) );
             }
-            nameid = ldt_get_id( ID_CLASSNAME, 0, rcname );
+            const int nameid = numeric_cast<int>( ldt_get_id( ID_CLASSNAME, 0, rcname ) );
             ldt_classification( refclassid, nameid );
         }
     }

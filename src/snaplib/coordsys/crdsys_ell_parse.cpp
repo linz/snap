@@ -53,7 +53,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
     {
         const std::string errmess = ( sts == MISSING_DATA ? "Missing ellipsoid " : "Invalid ellipsoid " ) +
                                     std::string( bad );
-        report_string_error( is, sts, errmess.c_str() );
+        report_string_error( is, sts, errmess );
         return nullptr;
     }
     sts =  read_param_list( is, ell_params, COUNT_OF(ell_params), &axes );
@@ -66,7 +66,7 @@ ellipsoid *parse_ellipsoid_def( input_string_def &is, int embedded )
         {
             const std::string errmsg = "Extraneous data \"" + test +
                                        "\" in definition of ellipsoid \"" + elcode + "\"";
-            report_string_error( is, sts, errmsg.c_str() );
+            report_string_error( is, sts, errmsg );
         }
     }
 

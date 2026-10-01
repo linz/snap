@@ -99,7 +99,7 @@ SnapCsvObs::CsvObservation::CsvObservation(SnapCsvObs *owner) : _type("Data type
 datatypedef *SnapCsvObs::CsvObservation::getDataType()
 {
     const std::string &obstype = _type.value();
-    return datatypedef_from_code(obstype.c_str());
+    return datatypedef_from_code(obstype);
 }
 
 void SnapCsvObs::CsvObservation::definitionError(const string &message)
@@ -1238,7 +1238,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE *df, int (*check_prog
     {
         OptionString config(options);
         std::string format = config.valueOf("format", "obs");
-        auto formatfile = find_file(format, ".dtf", df->fname, FF_TRYALL, CSVFORMAT_CONFIG);
+        auto formatfile = find_file(format, ".dtf", df->file_name(), FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;
@@ -1252,7 +1252,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE *df, int (*check_prog
         std::string deffile = csvobs.definitionFilename();
         if (deffile != "")
         {
-            record_filename(deffile.c_str(), "csv_obs_format");
+            record_filename(deffile, "csv_obs_format");
         }
         if (dfi.aborted())
             return OPERATION_ABORTED;

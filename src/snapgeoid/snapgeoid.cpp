@@ -237,7 +237,7 @@ int main( int argc, char *argv[] )
         newfn = std::filesystem::path( oldfn ).replace_extension( ".new" ).string();
     }
 
-    if( read_network( &net, oldfn.c_str(), readopt ) != OK )
+    if( read_network( &net, oldfn, readopt ) != OK )
     {
         printf("Unable to load station file %s\n",oldfn.c_str());
         return 2;

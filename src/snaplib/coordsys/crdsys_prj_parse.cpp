@@ -32,7 +32,7 @@ projection *parse_projection_def( input_string_def &is )
     if( !pt )
     {
         const std::string errmess = "Invalid projection code " + typecode;
-        report_string_error( is, INVALID_DATA, errmess.c_str() );
+        report_string_error( is, INVALID_DATA, errmess );
         return nullptr;
     }
 

@@ -22,7 +22,7 @@
 /// Called by report_string_error() to report a parse error, with whatever
 /// opaque context input_string_def::source carries (e.g. a DATAFILE*, cast
 /// back to its concrete type by the handler).
-typedef int (*input_string_errfunc)( void *source, int status, const char *message );
+typedef int (*input_string_errfunc)( void *source, int status, std::string_view message );
 
 /// A cursor over one piece of input text being parsed field-by-field, plus
 /// enough context to attribute a parse error back to where the text came
@@ -77,7 +77,7 @@ int double_from_string( FieldScanner &scanner, void *value );
 /// \return the remainder of def's input, unconsumed, verbatim.
 char *unread_string( input_string_def &def );
 
-void report_string_error( input_string_def &def, int status, const char *message );
+void report_string_error( input_string_def &def, int status, std::string_view message );
 
 int write_output_string( output_string_def *os, std::string_view s );
 int write_output_string2( output_string_def *os, std::string_view s, int options, std::string_view prefix );

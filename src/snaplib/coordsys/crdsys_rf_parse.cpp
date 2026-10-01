@@ -193,7 +193,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
             {
                 const std::string errmsg = "Reference frame " + refcode +
                                            " cannot have a non-null transformation to itself";
-                report_string_error( is, INVALID_DATA, errmsg.c_str() );
+                report_string_error( is, INVALID_DATA, errmsg );
                 sts = INVALID_DATA;
                 reported = 1;
             }
@@ -219,7 +219,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
             if( !el )
             {
                 const std::string errmsg = "Cannot load ellipsoid " + elcode;
-                report_string_error( is, INVALID_DATA, errmsg.c_str() );
+                report_string_error( is, INVALID_DATA, errmsg );
                 sts = INVALID_DATA;
                 reported = 1;
             }
@@ -233,7 +233,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
         {
             const std::string errmsg = "Extraneous data \"" + test +
                                        "\" in definition of ref frame \"" + refcode + "\"";
-            report_string_error( is, sts, errmsg.c_str() );
+            report_string_error( is, sts, errmsg );
             reported = 1;
         }
     }
@@ -260,7 +260,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
                 {
                     const std::string errmsg = "Reference frame " + check->code +
                                                " has a cyclic base reference frame dependency";
-                    report_string_error( is, INVALID_DATA, errmsg.c_str() );
+                    report_string_error( is, INVALID_DATA, errmsg );
                     sts = INVALID_DATA;
                     reported = 1;
                     break;
@@ -294,7 +294,7 @@ ref_frame  *parse_ref_frame_def ( input_string_def &is,
         {
             errmess = "Invalid value for " + std::string( bad );
         }
-        if( ! errmess.empty() ) report_string_error( is, sts, errmess.c_str() );
+        if( ! errmess.empty() ) report_string_error( is, sts, errmess );
     }
 
     if( ! rf )

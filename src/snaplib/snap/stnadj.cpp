@@ -119,7 +119,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
     switch( format )
     {
     case STN_FORMAT_SNAP:
-        sts = read_network( stndata, stnfile.c_str(), 0 );
+        sts = read_network( stndata, stnfile, 0 );
         break;
     case STN_FORMAT_GB:
         sts = read_network( stndata, stnfile.c_str(), NW_READOPT_GBFORMAT );

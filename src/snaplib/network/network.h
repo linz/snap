@@ -443,7 +443,7 @@ network *new_network( void );
 void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc uninitfunc );
 void delete_network( network *nw );
 
-int read_network( network *nw, const char *filename, int options );
+int read_network( network *nw, std::string_view filename, int options );
 int write_network( network *nw, const char *filename, const char *comment,
                    int coord_precision, int (*select)(station *st) );
 
@@ -516,7 +516,7 @@ void set_network_height_coord_orthometric( network *nw );
 
 /* Read station offset definition file */
 
-int read_network_station_offsets( network *nw, const char *filename );
+int read_network_station_offsets( network *nw, std::string_view filename );
 
 /* add_station only to be used by network routines .. use new_network_station */
 int   add_station( network *nw, station *st );

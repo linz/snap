@@ -25,586 +25,214 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+#include <string>
+#include <string_view>
 #include "util/snapctype.h"
 
 #ifndef SEEK_SET
 #define SEEK_SET 0
 #endif
 
-#include "util/chkalloc.h"
 #include "util/fileutil.h"
 #include "util/filelist.h"
 #include "util/datafile.h"
-#include "util/pi.h"
 #include "util/errdef.h"
 
-#define CONTINUATION_CHR '&'
-#define COMMENT_CHR      '!'
-#define QUOTE_CHR        '\"'
-
-static int default_reclen = 256;
+static int default_reclen_capacity = 256;
 
 #define ISSPACEZ(x) (ISSPACE(x) || (x)=='\x1A')
 
-static const char *utf8_bom = "\xEF\xBB\xBF";
-static const char *utf16_bom = "\xFF\xFE\x46";
-
-int df_data_file_default_reclen( int newlen )
+int DATAFILE::default_reclen( int newlen )
 {
-    int oldlen = default_reclen;
-    if( newlen > 80 ) default_reclen = newlen;
+    const int oldlen = default_reclen_capacity;
+    if( newlen > 80 ) default_reclen_capacity = newlen;
     return oldlen;
 }
 
-DATAFILE *df_open_data_file( const char *fname, const char *description )
+/// Converts a file description such as "station coordinate file" to the file
+/// type recorded for it, "station_coordinate". Spaces become underscores and a
+/// trailing "_file" is dropped.
+static std::string description_filetype( std::string_view description )
 {
-    FILE *f;
-    DATAFILE *d;
-    char msg[80];
-    int nch;
-    char unicode;
-    char binary;
-    int i;
-
-    f = fopen( fname, "rb" );
-    if( f == NULL )
+    std::string filetype( description.substr( 0, 79 ) );
+    std::replace( filetype.begin(), filetype.end(), ' ', '_' );
+    constexpr std::string_view suffix = "_file";
+    if( filetype.size() > suffix.size() &&
+        std::string_view( filetype ).substr( filetype.size() - suffix.size() ) == suffix )
     {
-        if( description )
-        {
-            sprintf(msg,"Unable to open %.60s",description);
-            handle_error(FILE_OPEN_ERROR,msg,fname);
-        }
-        return NULL;
+        filetype.resize( filetype.size() - suffix.size() );
+    }
+    return filetype;
+}
+
+std::unique_ptr<DATAFILE> DATAFILE::open( std::string_view fname, std::string_view description )
+{
+    const std::string filename( fname );
+    FILE *f = fopen( filename.c_str(), "rb" );
+    if( f == nullptr )
+    {
+        const std::string msg = "Unable to open " + std::string( description.substr( 0, 60 ) );
+        handle_error( FILE_OPEN_ERROR, msg.c_str(), filename.c_str() );
+        return nullptr;
     }
 
-    strncpy(msg,description,79);
-    msg[79]=0;
-    for( char *c=msg; *c; c++ ){ if( *c == ' ' ) *c='_'; }
-    int typelen=strlen(msg);
-    if( typelen > 5 && strcmp(msg+typelen-5,"_file") == 0 ) msg[typelen-5]=0;
-    record_filename(fname,msg);
+    record_filename( filename, description_filetype( description ) );
 
-    nch = fread(msg,1,80,f);
-    unicode = 0;
-    binary = 0;
-    if( (nch >= (int) strlen(utf8_bom)) && memcmp(msg,utf8_bom,strlen(utf8_bom))==0) unicode = 1;
-    if( (nch >= (int) strlen(utf16_bom)) && memcmp(msg,utf16_bom,strlen(utf16_bom))==0) unicode = 2;
-    if( ! unicode )
-    {
-        for( i = 0; i < nch; i++ )
-        {
-            if( msg[i] == 0 || (msg[i] & '\x80')) { binary=1; break; }
-        }
-    }
+    char header[80];
+    const std::string_view start( header, fread( header, 1, sizeof( header ), f ) );
+    const bool unicode = start.substr( 0, DATAFILE_UTF8_BOM.size() ) == DATAFILE_UTF8_BOM ||
+                         start.substr( 0, DATAFILE_UTF16_BOM.size() ) == DATAFILE_UTF16_BOM;
+    const bool binary = ! unicode && std::any_of( start.begin(), start.end(),
+        []( char c ){ return c == 0 || static_cast<unsigned char>( c ) >= 0x80; } );
     if( unicode )
     {
-        fclose(f);
-        sprintf(msg,"Cannot use unicode file - convert to ASCII");
-        handle_error(FILE_OPEN_ERROR,msg,fname);
-        return NULL;
+        fclose( f );
+        handle_error( FILE_OPEN_ERROR, "Cannot use unicode file - convert to ASCII", filename.c_str() );
+        return nullptr;
     }
     if( binary )
     {
-        fclose(f);
-        sprintf(msg,"File appears to contain binary data");
-        handle_error(FILE_OPEN_ERROR,msg,fname);
-        return NULL;
+        fclose( f );
+        handle_error( FILE_OPEN_ERROR, "File appears to contain binary data", filename.c_str() );
+        return nullptr;
     }
-    fseek(f,0L,SEEK_SET);
+    fseek( f, 0L, SEEK_SET );
 
-
-    d = new DATAFILE;
-    d->inrec = (char *) check_malloc( default_reclen );
-
-    d->maxreclen = default_reclen;
-    d->fname = fname;
-    d->f = f;
-    d->lineno = d->startlineno = 0;
-    d->startloc = 0;
-    d->reclineno = 0;
-    d->inrec[0] = 0;
-    d->inrecptr = d->inrec;
-    d->lastrecptr = d->inrec;
-    d->unicode = 0;
-    d->errcount = 0;
-    d->comment_char = COMMENT_CHR;
-    d->continuation_char = CONTINUATION_CHR;
-    d->quote_char = QUOTE_CHR;
+    std::unique_ptr<DATAFILE> d( new DATAFILE );
+    d->_fname = filename;
+    d->_f = f;
+    d->_inrec.reserve( default_reclen_capacity );
+    d->start_scanner();
     return d;
 }
 
-std::string df_file_name( DATAFILE *d )
+DATAFILE::~DATAFILE()
 {
-    return d->fname;
+    if( _f ) fclose( _f );
 }
 
-void  df_set_data_file_comment( DATAFILE *d, char comment )
+void DATAFILE::start_scanner()
 {
-    d->comment_char = comment;
+    // Constructs _instr afresh, whether or not it already held a value.
+    _instr.emplace( _inrec );
+    _instr->sourcename = _fname;
+    _instr->source = this;
+    _instr->report_error = report_input_string_error;
 }
 
-void  df_set_data_file_quote( DATAFILE *d, char quote )
+int DATAFILE::report_input_string_error( void *source, int sts, std::string_view errmsg )
 {
-    d->quote_char = quote;
+    return static_cast<DATAFILE *>( source )->error( sts, errmsg );
 }
 
-void  df_set_data_file_continuation( DATAFILE *d, char continuation )
+int DATAFILE::skip_to_blank_line()
 {
-    d->continuation_char = continuation;
-}
-
-
-void df_close_data_file( DATAFILE *d )
-{
-    if( d )
-    {
-        if( d->f ) fclose(d->f);
-        check_free(d->inrec);
-        delete d;
-    }
-}
-
-
-int df_skip_to_blank_line( DATAFILE *d )
-{
-    char blank;
+    bool blank = true;
     int c;
-    blank = 1;
 
-    while( EOF != (c = fgetc( d->f )) )
+    while( EOF != (c = fgetc( _f )) )
     {
         if( c == '\n' )
         {
-            d->lineno++;
+            _lineno++;
             if( blank ) return OK;
-            blank = 1;
+            blank = true;
         }
         else if( ! ISSPACEZ(c) )
         {
-            blank = 0;
+            blank = false;
         }
     }
     return NO_MORE_DATA;
 }
 
-static void df_expand_buffer( DATAFILE *d )
+/// Appends the next line of the file, including its newline, to text. A line
+/// is cut short at any null character, as fgets and strlen always have. Returns
+/// false if the end of the file was reached.
+static bool append_line( FILE *f, std::string &text )
 {
-    d->maxreclen *= 2;
-    d->inrec = (char *) check_realloc( d->inrec, d->maxreclen );
+    char chunk[256];
+    while( fgets( chunk, sizeof( chunk ), f ) )
+    {
+        const size_t len = strlen( chunk );
+        if( ! len ) return true;
+        text.append( chunk, len );
+        if( chunk[len-1] == '\n' ) return true;
+    }
+    return false;
 }
 
-int df_read_data_file( DATAFILE *d )
+int DATAFILE::read_record()
 {
-    int eof = 0;
+    bool eof = false;
 
-    d->startlineno = d->lineno;
-    d->startloc = ftell( d->f );
-    d->inrec[0] = 0;
-    d->reclineno = 0;
+    _startlineno = _lineno;
+    _startloc = ftell( _f );
+    _inrec.clear();
+    _reclineno = 0;
 
     // Until we get to a non-blank line...
-    while( ! d->inrec[0] && ! eof)
+    while( _inrec.empty() && ! eof )
     {
-        int offset = 0;
-        int continued = 1;
-        char *line;
-        d->reclineno = 0;
+        bool continued = true;
+        _reclineno = 0;
 
         while ( continued && ! eof )
         {
-            int lineoffset = offset;
-            while( 1 )
-            {
-                char *start = d->inrec+offset;
-                if( ! fgets( start, d->maxreclen-offset, d->f )) { eof = 1; break; }
-                int len = strlen(start);
-                if( ! len ) break;
-                if( start[len-1] == '\n' ) break;
-                df_expand_buffer(d);
-                offset += len;
-            }
-            d->lineno++;
-            if( ! d->reclineno ) d->reclineno = d->lineno;
+            const size_t lineoffset = _inrec.size();
+            if( ! append_line( _f, _inrec ) ) eof = true;
+            _lineno++;
+            if( ! _reclineno ) _reclineno = _lineno;
             // Remove everything after a comment character
-            line = d->inrec+lineoffset;
-            if( d->comment_char )
+            if( _comment_char )
             {
-                char *end = strchr(line,d->comment_char);
-                if( end ) *end = 0;
+                const size_t end = _inrec.find( _comment_char, lineoffset );
+                if( end != std::string::npos ) _inrec.erase( end );
             }
             // Trim whitespace
-            int nch = strlen(line);
-            while( nch-- && ISSPACEZ(line[nch])) { line[nch] = 0; }
-            offset = lineoffset + nch;
+            while( _inrec.size() > lineoffset && ISSPACEZ( _inrec.back() ) ) _inrec.pop_back();
             // Check for line continuation
-            if( nch >= 1 && line[nch] == d->continuation_char && ISSPACEZ(line[nch-1]))
+            const size_t nch = _inrec.size() - lineoffset;
+            if( nch >= 2 && _inrec.back() == _continuation_char && ISSPACEZ( _inrec[_inrec.size()-2] ) )
             {
-                line[offset] = 0;
+                _inrec.pop_back();
             }
             else
             {
-                continued = 0;
+                continued = false;
             }
         }
         // Retrim in case continuation only adds blanks
-        line = d->inrec;
-        while( offset > 0 && ISSPACEZ(line[offset])) { line[offset--] = 0; }
+        while( _inrec.size() > 1 && ISSPACEZ( _inrec.back() ) ) _inrec.pop_back();
     }
 
-    d->inrecptr = d->lastrecptr = d->inrec;
-    return d->inrec[0] ? OK : NO_MORE_DATA;
+    start_scanner();
+    return _inrec.empty() ? NO_MORE_DATA : OK;
 }
 
-char *df_rest_of_line( DATAFILE *d )
+int DATAFILE::error( int sts, std::string_view errmsg )
 {
-    return d->inrecptr;
-}
-
-#if 0
-static int send_datafile_error( void *src, int status, const char *message )
-{
-    DATAFILE *d = (DATAFILE *) src;
-    return df_data_file_error( d, status, message );
-}
-#endif
-
-input_string_def &df_input_string( DATAFILE *d )
-{
-    // Constructs d->instr fresh in place, whether or not it already held a value.
-    d->instr.emplace( std::string_view(d->inrecptr) );
-    d->instr->sourcename = d->fname;
-    d->instr->source = (void *) d;
-    d->instr->report_error = (input_string_errfunc) df_data_file_error;
-    return *d->instr;
-}
-
-
-/* Routines to extract data from the data file record  */
-/* Assumes data is all space delimited                 */
-/* All return 1 if found and OK, 0 otherwise, for easy */
-/* combination in logical expression                   */
-
-int df_read_field( DATAFILE *d, char *field, int nfld )
-{
-    char *s, *e;
-
-    s = d->inrecptr;
-    while( ISSPACEZ(*s) ) s++;
-
-    d->lastrecptr = s;
-
-    if ( !*s ) { *field = 0; d->inrecptr = s; return 0; }
-
-    if( *s == d->quote_char )
+    std::string location;
+    if( ! _inrec.empty() )
     {
-        e = ++s;
-        while( *e && *e != d->quote_char ) e++;
-        if( *e )
-        {
-            d->inrecptr = e+1;
-        }
-        else
-        {
-            d->inrecptr = e;
-        }
+        location = "Line: " + std::to_string( _reclineno ) + "  ";
     }
-
-    else
-    {
-        e = s;
-        while( *e && ! ISSPACEZ(*e) ) e++;
-        d->inrecptr = e;
-    }
-
-
-    while( --nfld > 0 && s < e ) *field++ = *s++;
-    *field = 0;
-
-    return 1;
-}
-
-
-int df_skip_character( DATAFILE *d )
-{
-    if ( *d->inrecptr )
-    {
-        d->inrecptr++;
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-
-int df_read_code( DATAFILE *d, char *field, int nfld )
-{
-    int sts;
-    sts = df_read_field(d,field,nfld);
-    if(sts) _strupr(field);
+    location += "File: " + _fname.substr( 0, MAX_FILENAME_LEN );
+    handle_error( sts, std::string( errmsg ).c_str(), location.c_str() );
+    if( sts >= WARNING_ERROR ) _errcount++;
     return sts;
 }
 
-
-
-int df_read_int( DATAFILE *d, int *v )
+void DATAFILE::save_loc( datafile_loc &dl ) const
 {
-    char field[30], chk[2];
-    chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
-    if( sscanf( field, "%d%1s", v, chk ) < 1 || chk[0] ) return 0;
-    return 1;
+    dl.line = _startlineno;
+    dl.loc = _startloc;
 }
 
-
-int df_read_short( DATAFILE *d, short *v )
+void DATAFILE::reset_loc( const datafile_loc &dl )
 {
-    char field[30], chk[2];
-    short i;
-    chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
-    if( sscanf( field, "%hd%1s", &i, chk ) < 1 || chk[0] ) return 0;
-    (*v) = i;
-    return 1;
+    _lineno = dl.line;
+    fseek( _f, dl.loc, SEEK_SET );
+    read_record();
 }
-
-
-int df_read_long( DATAFILE *d, long *v )
-{
-    char field[30], chk[2];
-    chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
-    if( sscanf( field, "%ld%1s", v, chk ) < 1 || chk[0] ) return 0;
-    return 1;
-}
-
-int df_read_double( DATAFILE *d, double *v )
-{
-    char field[30], chk[2];
-    chk[0]=0;
-    if( !df_read_field( d, field, 30 ) ) return 0;
-    if( sscanf( field, "%lf%1s", v, chk ) < 1 || chk[0] ) return 0;
-    return 1;
-}
-
-int df_read_degangle( DATAFILE *d, double *v )
-{
-    int ok;
-    ok = df_read_double(d, v);
-    (*v) *= (PI/180.0);
-    return ok;
-}
-
-int df_read_dmsangle( DATAFILE *d, double *v )
-{
-    int deg, min;
-    double sec;
-    if( df_read_int( d, &deg) && df_read_int( d, &min ) && df_read_double( d, &sec ) )
-    {
-        *v = (deg + min/60.0 + sec/3600.0 )*PI/180.0;
-        return 1;
-    }
-    else
-    {
-        return 0;
-    }
-}
-
-int df_read_hpangle( DATAFILE *d, double *v )
-{
-    char field[30], *f;
-    int deg, min;
-    double sec, den;
-
-    if( !df_read_field( d, field, 30 ) ) return 0;
-
-    deg = min = 0; sec = 0.0;
-
-    for( f = field; *f != '.'; f++ )
-    {
-        if( !ISDIGIT(*f) ) return 0;
-        deg = deg*10 + (*f - '0');
-    }
-    f++;
-    if( !ISDIGIT( *f )) return 0;
-    min = (*f - '0')*10;
-    f++;
-    if( !ISDIGIT( *f )) return 0;
-    min += (*f - '0' );
-    f++;
-    if( !ISDIGIT( *f )) return 0;
-    sec = (*f - '0')*10;
-    f++;
-    if( !ISDIGIT( *f )) return 0;
-    sec += (*f - '0' );
-    f++;
-    den = 0.1;
-    while( ISDIGIT(*f) )
-    {
-        sec += (*f - '0')*den;
-        den *= 0.1;
-        f++;
-    }
-    if( *f ) return 0;
-    *v = (deg + min/60.0 + sec/3600.0 ) * PI/180.0;
-    return 1;
-}
-
-
-int df_read_rest( DATAFILE *d, char *line, int nlin )
-{
-    char *s;
-    d->lastrecptr = d->inrecptr;
-    s = d->inrecptr;
-    while ( ISSPACEZ(*s) ) s++;
-    if( !*s ) { *line = 0; d->inrecptr = s; return 0; }
-    nlin--;
-    for( ; nlin > 0 && *s ; s++ )
-    {
-        if( *s != '\r' && *s != '\x1a' )
-        {
-            *line++ = *s;
-            nlin--;
-        }
-    }
-    *line = 0;
-    while( *s ) s++;
-    d->inrecptr = s;
-    return 1;
-}
-
-
-void df_reread_field( DATAFILE *d )
-{
-    d->inrecptr = d->lastrecptr;
-}
-
-
-long df_line_number( DATAFILE *d )
-{
-    return d->reclineno;
-}
-
-int df_end_of_line( DATAFILE *d )
-{
-    char *s;
-    s = d->inrecptr;
-    while( ISSPACEZ(*s) ) s++;
-    d->inrecptr = s;
-    return *s ? 0 : 1;
-}
-
-
-int df_data_file_error( DATAFILE *d, int sts, const char *errmsg )
-{
-    char fmsg[MAX_FILENAME_LEN+40];
-    char fline[20];
-    fline[0]=0;
-    if( d->inrec[0] )
-    {
-        sprintf(fline,"Line: %ld  ",d->reclineno);
-    }
-    sprintf(fmsg,"%sFile: %.*s", fline, MAX_FILENAME_LEN, d->fname.c_str() );
-    handle_error(sts,errmsg,fmsg );
-    if( sts >= WARNING_ERROR ) d->errcount++;
-    return sts;
-}
-
-int df_data_file_errcount( DATAFILE *d )
-{
-    return d->errcount;
-}
-
-void df_save_data_file_loc( DATAFILE *d, datafile_loc *dl )
-{
-    dl->line = d->startlineno;
-    dl->loc = d->startloc;
-}
-
-void df_reset_data_file_loc( DATAFILE *d, datafile_loc *dl )
-{
-    d->lineno = dl->line;
-    fseek( d->f, dl->loc, SEEK_SET );
-    df_read_data_file( d );
-}
-
-
-#ifdef TESTDF
-
-int main( int argc, char *argv[] )
-{
-    DATAFILE *in;
-    char field[20], *f, data[20], rest[80];
-    int sts,;
-    int ival;
-    long lval;
-    double dval;
-
-    if( argc < 2 || (in = open_data_file( argv[1],"test file")) == NULL )
-    {
-        printf("Invalid or missing file name parameter\n");
-        return 0;
-    }
-
-    while( read_data_file(in) == OK )
-    {
-        df_read_field(in,field,20);
-        printf("\n\nLine %ld: fields %s\n",line_number(in),field);
-        _strupr( field );
-        for( f=field; *f; f++ )
-        {
-            sts = 1;
-            switch(*f)
-            {
-            case 'F': sts = df_read_field( in, data, 20 );
-                printf("Status %d: Field %s\n",(int)sts,data);
-                break;
-
-            case 'I': sts = read_int( in, &ival );
-                printf("Status %d: Integer %d\n",(int) sts, ival);
-                break;
-
-            case 'L': sts = read_long( in, &lval );
-                printf("Status %d: Long %ld\n",(int) sts, lval);
-                break;
-
-            case 'D': sts = read_double( in, &dval );
-                printf("Status %d: Double %lf\n",(int) sts,dval);
-                break;
-
-            case 'A': sts = read_dmsangle( in, &dval );
-                printf("Status %d: DMS %lf\n",(int) sts,dval);
-                break;
-
-            case 'H': sts = read_hpangle( in, &dval );
-                printf("Status %d: HP %lf\n",(int) sts,dval);
-                break;
-
-            case 'R': sts = read_rest( in, rest, 80 );
-                printf("Status %d: Rest %s\n",(int) sts,rest);
-                break;
-
-            case 'B': reread_field( in );
-                break;
-
-            default:
-                data_file_error( in, INVALID_DATA,
-                                 "Invalid data in field specifier");
-                break;
-
-            }
-            if( !sts )
-            {
-                data_file_error( in, INVALID_DATA, "Invalid data read from field");
-            }
-        }
-
-    }
-    close_data_file( in );
-    return 0;
-}
-
-
-
-#endif

@@ -193,7 +193,7 @@ ref_deformation *rfdef_parse_linzdef( input_string_def &is )
     if( ! ldeffile )
     {
         std::string errmess = "Cannot open LINZDEF deformation grid file " + std::string(filename);
-        report_string_error(is, FILE_OPEN_ERROR, errmess.c_str() );
+        report_string_error(is, FILE_OPEN_ERROR, errmess );
         return nullptr;
     }
 

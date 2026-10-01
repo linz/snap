@@ -83,7 +83,7 @@ void check_unread_string()
 
 int lastStatus=0;
 std::string lastMessage;
-int recordError( void *, int status, const char *message )
+int recordError( void *, int status, std::string_view message )
 {
     lastStatus=status;
     lastMessage=message;

@@ -16,6 +16,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "network/network.h"
 #include "util/chkalloc.h"
@@ -25,16 +31,15 @@
 #include "util/errdef.h"
 #include "util/pi.h"
 
-#define INRECLEN 256
+/* The longest field read from a station coordinate file - longer fields are cut short */
+static constexpr size_t MAXFIELDLEN = 255;
 
 /* Worker function used to delete duplicate stations */
 
 static void delete_duplicate_station( station *st, void *data )
 {
-    DATAFILE *stf=(DATAFILE *)data;
-    char errmsg [30+STNCODELEN];
-    sprintf(errmsg,"Duplicate station code %s",st->Code);
-    df_data_file_error(stf, INVALID_DATA,errmsg);
+    DATAFILE *stf=static_cast<DATAFILE *>( data );
+    stf->error( INVALID_DATA, "Duplicate station code " + std::string( st->Code ) );
     delete_station(st);
 }
 
@@ -43,83 +48,69 @@ static void delete_duplicate_station( station *st, void *data )
 /* Reads a SNAP format file, or the very similar geodetic      */
 /* database format file.                                       */
 
-int read_network( network *nw, const char *fname, int options )
+int read_network( network *nw, std::string_view fname, int options )
 {
-    DATAFILE *stf;
-    char stcode[STNCODELEN+1];
-    char inrec[INRECLEN];
-    double lat, lon, hgt, xi, eta, und, easting, northing;
-    char lth[2],lnh[2];
-    station *st;
-    char *stname;
-    int sts, dfsts;
-    char projection_coords;
-    char geocentric_coords;
-    char file_options;
-    char degrees;
-    int nclass;
-    int *clsids;
-    int i;
-    int gbformat=options & NW_READOPT_GBFORMAT;
-    coordsys *cs;
+    const int gbformat=options & NW_READOPT_GBFORMAT;
 
-    dfsts = OK;
+    int dfsts = OK;
 
     nw->clear();
 
-    stf = df_open_data_file( fname, "station coordinate file" );
-    if( stf == NULL ) return FILE_OPEN_ERROR;
+    const std::unique_ptr<DATAFILE> stf = DATAFILE::open( fname, "station coordinate file" );
+    if( ! stf ) return FILE_OPEN_ERROR;
 
     /* Read in the name of the network */
 
-    df_read_data_file( stf);
-    if( df_read_rest( stf, inrec, INRECLEN ) )
+    stf->read_record();
+    std::string name;
+    if( read_remaining_text( stf->input_string().scanner, name, MAXFIELDLEN ) == FieldResult::Ok )
     {
-        nw->name = inrec;
+        nw->name = name;
     }
 
     /* Read in the coordinate system definition */
 
-    df_read_data_file( stf );
-    df_read_rest( stf, inrec, INRECLEN);
+    stf->read_record();
+    std::string crdsysdef;
+    read_remaining_text( stf->input_string().scanner, crdsysdef, MAXFIELDLEN );
 
-    cs = load_coordsys( inrec);
+    coordsys *cs = load_coordsys( crdsysdef );
     if( !cs )
     {
-        df_data_file_error( stf, INVALID_DATA,
-                            "Invalid or missing definition of coordinate system");
-        df_close_data_file( stf );
+        stf->error( INVALID_DATA, "Invalid or missing definition of coordinate system");
         nw->clear();
         return INVALID_DATA;
     }
 
-    set_network_coordsys( nw, cs, 0.0, 0, 0, 0 );
+    set_network_coordsys( nw, cs, 0.0, 0, nullptr, 0 );
     delete cs;
-    nw->crdsysdef = inrec;
-    projection_coords = is_projection( nw->crdsys );
-    geocentric_coords = is_geocentric( nw->crdsys );
+    nw->crdsysdef = crdsysdef;
+    const bool projection_coords = is_projection( nw->crdsys );
+    const bool geocentric_coords = is_geocentric( nw->crdsys );
 
-    file_options = 0;
+    char file_options = 0;
 
     /* If geodetic branch format then skip over comments section */
 
     if( gbformat )
     {
-        df_skip_to_blank_line( stf );
-        df_read_data_file( stf );
+        stf->skip_to_blank_line();
+        stf->read_record();
     }
 
     else
     {
-        int options_record = 0;
-
         /* Otherwise check if the file includes geoid perturbations */
 
-        df_read_data_file( stf );
-        df_read_field( stf, inrec, INRECLEN );
+        stf->read_record();
+        FieldScanner &scanner = stf->input_string().scanner;
+        const FieldScanner unread = scanner;
+        std::string word;
+        read_string_field( scanner, word, MAXFIELDLEN );
 
-        if( _stricmp(inrec,"options") == 0 || _stricmp(inrec,"no_geoid") == 0 ) options_record = 1;
-        if( _stricmp(inrec,"options") == 0 )
+        const bool options_keyword = boost::algorithm::iequals( word, "options" );
+        const bool options_record = options_keyword || boost::algorithm::iequals( word, "no_geoid" );
+        if( options_keyword )
         {
             file_options = 0;
         }
@@ -127,80 +118,77 @@ int read_network( network *nw, const char *fname, int options )
         {
             /* Previous version used default options of NW_GEOID_HEIGHTS and NW_UNDULATIONS */
             file_options = NW_GEOID_HEIGHTS | NW_DEFLECTIONS;
-            df_reread_field( stf );
+            scanner = unread;
         }
 
         if( options_record )
         {
-            while( df_read_field( stf, inrec, INRECLEN ))
+            while( read_string_field( scanner, word, MAXFIELDLEN ) == FieldResult::Ok )
             {
-                if( _stricmp(inrec,"no_geoid") == 0 )
+                if( boost::algorithm::iequals( word, "no_geoid" ) )
                 {
                     file_options &=  ~NW_GEOID_INFO;
                 }
-                else if( _stricmp(inrec,"geoid") == 0 )
+                else if( boost::algorithm::iequals( word, "geoid" ) )
                 {
                     file_options |= NW_GEOID_INFO;
                 }
-                else if( _stricmp(inrec,"geoid_heights") == 0 )
+                else if( boost::algorithm::iequals( word, "geoid_heights" ) )
                 {
                     file_options |= NW_GEOID_HEIGHTS;
                 }
-                else if( _stricmp(inrec,"no_geoid_heights") == 0 )
+                else if( boost::algorithm::iequals( word, "no_geoid_heights" ) )
                 {
                     file_options &= ~NW_GEOID_HEIGHTS;
                 }
-                else if( _stricmp(inrec,"deflections") == 0 )
+                else if( boost::algorithm::iequals( word, "deflections" ) )
                 {
                     file_options |= NW_DEFLECTIONS;
                 }
-                else if( _stricmp(inrec,"no_deflections") == 0 )
+                else if( boost::algorithm::iequals( word, "no_deflections" ) )
                 {
                     file_options &= ~ NW_DEFLECTIONS;
                 }
-                else if (_stricmp(inrec,"ellipsoidal_heights") == 0 )
+                else if( boost::algorithm::iequals( word, "ellipsoidal_heights" ) )
                 {
                     file_options |= NW_ELLIPSOIDAL_HEIGHTS;
                     file_options |= NW_EXPLICIT_HGT_TYPE;
                 }
-                else if (_stricmp(inrec,"orthometric_heights") == 0 )
+                else if( boost::algorithm::iequals( word, "orthometric_heights" ) )
                 {
                     file_options &= ~NW_ELLIPSOIDAL_HEIGHTS;
                     file_options |= NW_EXPLICIT_HGT_TYPE;
                 }
-                else if( _stricmp( inrec, "degrees" ) == 0 )
+                else if( boost::algorithm::iequals( word, "degrees" ) )
                 {
                     file_options |= NW_DEC_DEGREES;
                 }
-                else if( strlen(inrec) > 2 && _strnicmp( inrec, "c=", 2) == 0 )
+                else if( word.size() > 2 && boost::algorithm::istarts_with( word, "c=" ) )
                 {
                     /* Get the class id, which creates the classification */
-                    nw->class_id( inrec+2, 1 );
+                    nw->class_id( word.substr( 2 ), 1 );
                 }
-                else if( _stricmp( inrec, "station_orders" ) == 0 )
+                else if( boost::algorithm::iequals( word, "station_orders" ) )
                 {
                     nw->class_id( STATION_ORDER_CLASS_NAME, 1 );
                 }
-                else if( _stricmp( inrec, "no_station_orders" ) == 0 )
+                else if( boost::algorithm::iequals( word, "no_station_orders" ) )
                 {
                     /* do nothing - option no longer possible but kept to avoid errors */
                 }
                 else
                 {
-                    if( options_record )
-                    {
-                        df_data_file_error(stf, INVALID_DATA,"Invalid coordinate file options definition");
-                        dfsts = INVALID_DATA;
-                    }
+                    stf->error( INVALID_DATA,"Invalid coordinate file options definition");
+                    dfsts = INVALID_DATA;
                     break;
                 }
             }
-            if( file_options & NW_GEOID_INFO ) 
+            if( file_options & NW_GEOID_INFO )
             {
                 file_options |= NW_EXPLICIT_GEOID;
             }
 
-            df_read_data_file( stf );
+            stf->read_record();
         }
     }
 
@@ -209,7 +197,7 @@ int read_network( network *nw, const char *fname, int options )
 
     if( ! (file_options & NW_EXPLICIT_HGT_TYPE) )
     {
-        if( coordsys_heights_orthometric(nw->crdsys) ) 
+        if( coordsys_heights_orthometric(nw->crdsys) )
         {
             file_options &= ~NW_ELLIPSOIDAL_HEIGHTS;
         }
@@ -227,108 +215,119 @@ int read_network( network *nw, const char *fname, int options )
 
     nw->options = file_options;
     nw->stnlist = new_station_list();
-    xi = 0.0;
-    eta = 0.0;
-    und = 0.0;
-    lat = 0.0;
-    lon = 0.0;
-    hgt = 0.0;
-    easting = 0.0;
-    northing = 0.0;
-    degrees = file_options & NW_DEC_DEGREES;
-    nclass = nw->classification_count();
-    clsids = 0;
-    if( nclass ) clsids = (int *) check_malloc( (nclass+1) * sizeof(int));
+    double xi = 0.0;
+    double eta = 0.0;
+    double und = 0.0;
+    double lat = 0.0;
+    double lon = 0.0;
+    double hgt = 0.0;
+    const bool degrees = file_options & NW_DEC_DEGREES;
+    const int nclass = nw->classification_count();
+    std::vector<int> clsids( nclass+1 );
 
     do
     {
-
-        sts =  df_read_code( stf, stcode, STNCODELEN+1 );
-        if( ! sts ) continue;
-
-
-        if( sts )
+        FieldScanner &scanner = stf->input_string().scanner;
+        const auto read_number = [&scanner]( double &value )
         {
-            if( projection_coords )
+            return read_double_field( scanner, value ) == FieldResult::Ok;
+        };
+
+        std::string stcode;
+        bool sts = read_string_field( scanner, stcode, STNCODELEN ) == FieldResult::Ok;
+        if( ! sts ) continue;
+        boost::algorithm::to_upper( stcode );
+
+        if( projection_coords )
+        {
+            double easting = 0.0;
+            double northing = 0.0;
+            sts = read_number( easting ) && read_number( northing );
+            if( sts ) proj_to_geog(nw->crdsys->prj,easting,northing,&lon,&lat);
+            if( sts ) sts = read_number( hgt );
+        }
+        else if( geocentric_coords )
+        {
+            double xyz[3] = { 0.0, 0.0, 0.0 };
+            double llh[3];
+            sts = read_number( xyz[0] ) &&
+                  read_number( xyz[1] ) &&
+                  read_number( xyz[2] );
+            if( sts )
             {
-                sts = df_read_double( stf, &easting ) && df_read_double( stf, &northing );
-                if( sts ) proj_to_geog(nw->crdsys->prj,easting,northing,&lon,&lat);
-                if( sts ) sts = df_read_double( stf, &hgt );
-            }
-            else if( geocentric_coords )
-            {
-                double xyz[3],llh[3];
-                sts = df_read_double( stf, &xyz[0] ) &&
-                      df_read_double( stf, &xyz[1] ) &&
-                      df_read_double( stf, &xyz[2] );
                 xyz_to_llh( nw->crdsys->rf->el, xyz, llh );
                 lat = llh[CRD_LAT];
                 lon = llh[CRD_LON];
                 hgt = llh[CRD_HGT];
             }
-            else if( degrees )
+        }
+        else if( degrees )
+        {
+            sts = read_number( lat ) &&
+                  read_number( lon ) &&
+                  read_number( hgt );
+            if( sts ) { lat *= DTOR; lon *= DTOR; }
+        }
+        else
+        {
+            std::string lth;
+            std::string lnh;
+            sts = read_dms_angle_field( scanner, lat ) == FieldResult::Ok &&
+                  read_string_field( scanner, lth, 1 ) == FieldResult::Ok &&
+                  read_dms_angle_field( scanner, lon ) == FieldResult::Ok &&
+                  read_string_field( scanner, lnh, 1 ) == FieldResult::Ok;
+            if( sts )
             {
-                sts = df_read_double( stf, &lat ) &&
-                      df_read_double( stf, &lon ) &&
-                      df_read_double( stf, &hgt );
-                if( sts ) { lat *= DTOR; lon *= DTOR; }
-            }
-            else
-            {
-                sts = df_read_dmsangle( stf, &lat ) && df_read_field( stf, lth, 2 ) &&
-                      df_read_dmsangle( stf, &lon ) && df_read_field( stf, lnh, 2 );
                 if( lth[0] == 's' || lth[0] == 'S' ) lat = -lat;
                 if( lnh[0] == 'w' || lnh[0] == 'W' ) lon = -lon;
-                if( sts ) sts = df_read_double( stf, &hgt );
+                sts = read_number( hgt );
             }
         }
 
         if( sts && file_options & NW_DEFLECTIONS )
         {
-            sts = df_read_double( stf, &xi ) && df_read_double( stf, &eta );
-            xi = xi*DTOR/3600.0;
-            eta = eta*DTOR/3600.0;
+            sts = read_number( xi ) && read_number( eta );
+            if( sts )
+            {
+                xi = xi*DTOR/3600.0;
+                eta = eta*DTOR/3600.0;
+            }
         }
 
         if( sts && file_options & NW_GEOID_HEIGHTS )
         {
-            sts = df_read_double( stf, &und );
-            if( file_options & NW_ELLIPSOIDAL_HEIGHTS ) hgt -= und;
+            sts = read_number( und );
+            if( sts && file_options & NW_ELLIPSOIDAL_HEIGHTS ) hgt -= und;
         }
 
         if( sts && nclass > 0 )
         {
-            int i;
-            for( i = 0; i++ < nclass; )
+            std::string value;
+            for( int i = 1; i <= nclass; i++ )
             {
-                int clsid;
-                sts = df_read_field( stf,inrec, INRECLEN );
+                sts = read_string_field( scanner, value, MAXFIELDLEN ) == FieldResult::Ok;
                 if( ! sts ) break;
-                clsid = nw->class_value_id(i,inrec,1);
-                clsids[i] = clsid;
+                clsids[i] = nw->class_value_id( i, value, 1 );
             }
         }
 
-        stname = stcode;
-        if( sts && df_read_rest(stf,inrec, INRECLEN ) ) stname = inrec;
+        std::string stname;
+        if( sts && read_remaining_text( scanner, stname, MAXFIELDLEN ) != FieldResult::Ok ) stname = stcode;
 
         if( !sts )
         {
-            df_data_file_error(stf, INVALID_DATA,"Invalid station coordinate definition");
+            stf->error( INVALID_DATA,"Invalid station coordinate definition");
             dfsts = INVALID_DATA;
             continue;
         }
 
-        st = new_network_station( nw, stcode, stname, lat, lon, hgt, xi, eta, und );
-        if( nclass )
+        station *st = new_network_station( nw, stcode.c_str(), stname.c_str(), lat, lon, hgt, xi, eta, und );
+        for( int i = 1; i <= nclass; i++ )
         {
-            for( i = 0; i++ < nclass; )
-            {
-                set_station_class( st, i, clsids[i]);
-            }
+            set_station_class( st, i, clsids[i]);
         }
     }
-    while( df_read_data_file(stf) == OK );
+    while( stf->read_record() == OK );
 
     /*  Removing this check as can allow empty coordinate files ...
     if( number_of_stations(nw) <= 0 ) {
@@ -338,23 +337,19 @@ int read_network( network *nw, const char *fname, int options )
        }
     */
 
-    if( clsids ) check_free( clsids );
     /*
         if( sl_find_station( nw->stnlist, stcode ) > 0 )
         {
             char errmsg [30+STNCODELEN];
             sprintf(errmsg,"Duplicate station code %s",stcode);
-            df_data_file_error(stf, INVALID_DATA,errmsg);
+            df_data_file_error(stf, INVALID_DATA, errmsg);
             dfsts = INVALID_DATA;
             continue;
         }
     */
 
-    
-    sts=remove_duplicate_network_stations( nw, 1, (void *) stf, delete_duplicate_station );
+    const int sts=remove_duplicate_network_stations( nw, 1, stf.get(), delete_duplicate_station );
     if( dfsts == OK ) dfsts = sts;
-
-    df_close_data_file( stf );
 
     /* If recalculating geoid info then do so without raising errors */
     if( coordsys_heights_orthometric(nw->crdsys) )

@@ -587,7 +587,7 @@ void install_crdsys_nz_metre_circuits( void );
 
 /* Get definitions from a file */
 
-int install_crdsys_file( const char *file_name );
+int install_crdsys_file( std::string_view file_name );
 
 /// Locates the default coordinate system definition file: first the
 /// CRDSYSENV environment variable (used verbatim, not checked to exist),

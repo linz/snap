@@ -1,9 +1,12 @@
 #include "snapconfig.hpp"
 
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "util/datafileinput.hpp"
 #include "util/errdef.h"
 
 using namespace LINZ;
+using boost::numeric_cast;
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -11,58 +14,47 @@ using namespace LINZ;
 
 DatafileInput::DatafileInput( const std::string &filename, const std::string &description ) :
     RecordInputBase( filename),
-    _df(df_open_data_file( filename.c_str(), description.c_str() )),
+    _df_own( DATAFILE::open( filename, description ) ),
     _check_progress(0),
     _aborted(false)
 {
-    if( ! _df )
+    if( ! _df_own )
     {
         throw RecordError(std::string("Cannot open ") + description + " " + filename );
     }
-    _owner = true;
+    _df = *_df_own;
 
-    setName( df_file_name( _df ) );
-    df_set_data_file_comment( _df, 0 );
-    df_set_data_file_quote( _df, 0 );
-    df_set_data_file_continuation( _df, 0 );
+    setName( _df_own->file_name() );
+    _df_own->set_comment( 0 );
+    _df_own->set_continuation( 0 );
 }
 
 DatafileInput::DatafileInput( DATAFILE *df, int (*check_progress)( DATAFILE *df ) ) :
-    RecordInputBase( df_file_name( df )),
-    _df(df),
+    RecordInputBase( df->file_name() ),
+    _df( *df ),
     _check_progress(check_progress),
     _aborted(false)
 {
-    _owner = false;
-    setName( df_file_name( _df ) );
-    df_set_data_file_comment( df, 0 );
-    df_set_data_file_quote( df, 0 );
-    df_set_data_file_continuation( df, 0 );
-}
-
-DatafileInput::~DatafileInput()
-{
-    if( _owner && _df )
-    {
-        df_close_data_file( _df );
-        _df = 0;
-    }
+    setName( df->file_name() );
+    df->set_comment( 0 );
+    df->set_continuation( 0 );
 }
 
 bool DatafileInput::getNextLine( std::string &line )
 {
-    if( df_read_data_file(_df ) != OK )
+    DATAFILE &df = _df->get();
+    if( df.read_record() != OK )
     {
         return false;
     }
-    line = df_rest_of_line( _df );
+    line = df.input_string().scanner.remainder();
     return true;
 }
 
 
 int DatafileInput::lineNumber()
 {
-    return _df ? df_line_number( _df ) : -1;
+    return _df ? numeric_cast<int>( _df->get().line_number() ) : -1;
 }
 
 bool DatafileInput::handleError( const RecordError &error )
@@ -72,11 +64,11 @@ bool DatafileInput::handleError( const RecordError &error )
     {
         status = WARNING_ERROR;
     }
-    df_data_file_error( _df, status, error.message().c_str());
+    _df->get().error( status, error.message() );
     return true;
 }
 
 int DatafileInput::errorCount()
 {
-    return df_data_file_errcount( _df );
+    return _df->get().error_count();
 }

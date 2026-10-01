@@ -119,7 +119,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         {
             const std::string errmsg = "Extraneous data \"" + test +
                                        "\" in definition of crdsys \"" + cscode + "\"";
-            report_string_error( is, sts, errmsg.c_str() );
+            report_string_error( is, sts, errmsg );
         }
     }
 
@@ -129,7 +129,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
         if( !rf )
         {
             const std::string errmess = "Cannot load reference frame " + rfcode;
-            report_string_error( is, INVALID_DATA, errmess.c_str() );
+            report_string_error( is, INVALID_DATA, errmess );
             sts = MISSING_DATA;
         }
     }
@@ -137,7 +137,7 @@ coordsys *parse_coordsys_def  ( input_string_def &is,
     {
         const std::string errmess = sts == MISSING_DATA ? std::string( bad ) + " is missing"
                                                         : "Invalid value for " + std::string( bad );
-        report_string_error( is, sts, errmess.c_str() );
+        report_string_error( is, sts, errmess );
     }
 
     if( sts != OK )

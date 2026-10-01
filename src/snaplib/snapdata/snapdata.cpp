@@ -37,6 +37,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <string_view>
+#include <vector>
+#include <boost/algorithm/string/case_conv.hpp>
+#include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include "util/snapctype.h"
 
 #ifndef DEBUG
@@ -63,10 +71,14 @@
 /* Some useful names and numbers */
 
 #define MAXVECERR  6    /* Maximum number of vector errors components per line */
-#define COMLEN 80
-#define UNITLEN 10
-#define NOTELEN 80
-#define NAMELEN 20
+
+/* The most characters read for each kind of word - longer words are cut short */
+
+static constexpr size_t MAX_COMMAND_LEN = 79;
+static constexpr size_t MAX_NOTE_LEN = 79;
+static constexpr size_t MAX_NAME_LEN = 19;
+static constexpr size_t MAX_DATE_FIELD_LEN = 31;
+static constexpr size_t MAX_WORD_LEN = 9;
 
 
 #define COMMAND_PREFIX '#'
@@ -76,7 +88,7 @@
 #define ERROR1         "error"
 #define ERROR2         "+/-"
 
-#define ISEQ(s1,s2) (_stricmp(s1,s2)==0)
+using boost::numeric_cast;
 
 /* Definition of a data field in the file */
 
@@ -115,7 +127,7 @@ enum { DFT_START,          /* Start of a group relating to an observation
 
 struct data_class
 {
-    char *name;
+    std::string name;
     int class_id;
     int id[NOBSTYPE];
     int data_id;        /* Id for the current data field group */
@@ -123,13 +135,12 @@ struct data_class
 
 struct data_syserr
 {
-    char *name;
+    std::string name;
     int syserr_id;
     int class_id;
     int class_name_id;  /* Cache the last value */
-    int name_len;
-    char defined;         /* Defined for current data field group */
-    char vector;          /* True if the current systematic error is a vector */
+    bool defined;         /* Defined for current data field group */
+    bool vector;          /* True if the current systematic error is a vector */
     double influence[3];  /* Influence for current data field */
 };
 
@@ -145,105 +156,107 @@ struct vecerr_def
 
 struct snapfile_def
 {
+    explicit snapfile_def( DATAFILE *datafile );
+    snapfile_def( const snapfile_def & ) = delete;
+    snapfile_def &operator=( const snapfile_def & ) = delete;
+    ~snapfile_def();
+
+    /// The scanner over the current record of the data file
+    FieldScanner &scanner() { return df->input_string().scanner; }
+
+    /// Reports an error in the current record of the data file
+    int error( int sts, std::string_view errmsg ) { return df->error( sts, errmsg ); }
+
     DATAFILE *df;
 
-    int nfield;         /* Definitions of data fields */
-    int maxfield;
-    data_field *fields;
-
-    int nclass;         /* Definitions of classifications */
-    int maxclass;
-    data_class *clsf;
-
-    int nsyserr;        /* Definitions of systematic errors */
-    int maxsyserr;
-    data_syserr *syserr;
+    std::vector<data_field> fields;     /* Definitions of data fields */
+    std::vector<data_class> clsf;       /* Definitions of classifications */
+    std::vector<data_syserr> syserr;    /* Definitions of systematic errors */
 
     int coef_class_id[N_COEF_CLASSES];
 
-    double dserr, dsppmerr;    /* Definitions of errors */
-    double haerr, hammerr;
-    double azerr, azmmerr;
-    double zderr, zdmmherr, zdmmverr;
-    double lverr;
-    double lnerr, lterr;
-    double oherr;
-    double eherr;
-    double gpserr[9], gpterr[9];
+    double dserr = -1, dsppmerr = -1;    /* Definitions of errors */
+    double haerr = -1, hammerr = -1;
+    double azerr = -1, azmmerr = -1;
+    double zderr = -1, zdmmherr = -1, zdmmverr = -1;
+    double lverr = -1;
+    double lnerr = -1, lterr = -1;
+    double oherr = -1;
+    double eherr = -1;
+    double gpserr[9] = { -1 };
+    double gpterr[9] = { -1 };
 
-    int gotdflterr[NERRTYPE];
+    int gotdflterr[NERRTYPE] = {};
 
     /* Definitions of coefficients */
     int dmsformat;
-    int refcoef;      /* Default values - 0 = none */
-    int distsf;
-    int brngref;
+    int refcoef = 0;      /* Default values - 0 = none */
+    int distsf = 0;
+    int brngref = 0;
 
-    int refframe;     /* Definition of the reference frame */
-    int projctn;      /* Projection id */
-    int usereffrm;    /* True if current data uses reffrm/projection */
-    int useprojctn;
+    int refframe = 0;     /* Definition of the reference frame */
+    int projctn = 0;      /* Projection id */
+    int usereffrm = 0;    /* True if current data uses reffrm/projection */
+    int useprojctn = 0;
 
-    int obs_refcoef;  /* As applying to the current observation */
-    int obs_distsf;
-    int obs_brngref;
+    int obs_refcoef = 0;  /* As applying to the current observation */
+    int obs_distsf = 0;
+    int obs_brngref = 0;
 
 
-    double date;        /* Miscellaneous data */
-    double value;       /* Used for default error of scalar data */
-    snap_data_type *obstype;      /* Current observation type */
-    int stn_id_inst;
-    int stn_id_trgt;
-    int obsclass;
-    int rejobs;
-    int skipobs;
-    int inobs;
-    int noinststn;
-    int grouped;
-    int ingroup;
-    int rejgroup;
-    int goterr;
-    int endset;       /* Requires definition of end of group */
-    int heights;
-    int nveccvr;
-    int cvrupper;
-    int nvecobs;
-    int nvecgood;
-    void  *vecerrlst;   /* Link list used to hold vector errors as they are read */
-    int *cvrrow;
-    int maxcvrrow;
-    vecerr_def *currvecerr;
-    int dfltcvrtype;
-    int cvrtype;
+    double date = UNDEFINED_DATE;        /* Miscellaneous data */
+    double value = 0.0;       /* Used for default error of scalar data */
+    snap_data_type *obstype = nullptr;      /* Current observation type */
+    int stn_id_inst = 0;
+    int stn_id_trgt = 0;
+    int obsclass = 0;
+    int rejobs = 0;
+    int skipobs = 0;
+    int inobs = 0;
+    int noinststn = 0;
+    int grouped = 0;
+    int ingroup = 0;
+    int rejgroup = 0;
+    int goterr = 0;
+    int endset = 0;       /* Requires definition of end of group */
+    int heights = 0;
+    int nveccvr = 0;
+    int cvrupper = 0;
+    int nvecobs = 0;
+    int nvecgood = 0;
+    void  *vecerrlst = nullptr;   /* Link list used to hold vector errors as they are read */
+    std::vector<int> cvrrow;
+    vecerr_def *currvecerr = nullptr;
+    int dfltcvrtype = CVR_FULL;
+    int cvrtype = 0;
 
-    int definition_err;    /* Error status */
-    int group_err;
+    int definition_err = 0;    /* Error status */
+    int group_err = 0;
 
 };
 
 
 /* Structure used to define valid specification commands within the data file */
 
-static int read_error_command( snapfile_def *sd, int id, const char *cmd );
-static int read_angle_type_command( snapfile_def *sd, int id, const char *cmd );
-static int read_date_command( snapfile_def *sd, int id, const char *cmd );
-static int read_time_command( snapfile_def *sd, int id, const char *cmd );
-static int read_proj_command( snapfile_def *sd, int id, const char *cmd );
-static int read_coef_command( snapfile_def *sd, int id, const char *cmd );
-static int read_gps_errtype_command( snapfile_def *sd, int id, const char *cmd );
-static int read_syserr_command( snapfile_def *sd, int id, const char *cmd );
-static int read_classification( snapfile_def *sd, int id, const char *cmd );
-static int read_classify_command( snapfile_def *sd, int id, const char *cmd );
-static int read_endset_command( snapfile_def *sd, int id, const char *cmd );
-static int read_note_command( snapfile_def *sd, int id, const char *cmd );
-static int read_data_command( snapfile_def *sd, int id, const char *cmd );
-static int read_endset_command( snapfile_def *sd, int id, const char *cmd );
+static int read_error_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_angle_type_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_date_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_time_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_proj_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_coef_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_gps_errtype_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_syserr_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_classification( snapfile_def *sd, int id, std::string_view cmd );
+static int read_classify_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_endset_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_note_command( snapfile_def *sd, int id, std::string_view cmd );
+static int read_data_command( snapfile_def *sd, int id, std::string_view cmd );
 
 struct command
 {
-    const char *command;
+    std::string_view command;
     int id;
-    int (*action)( snapfile_def *sd, int id, const char *cmd );
+    int (*action)( snapfile_def *sd, int id, std::string_view cmd );
     int flags;
 };
 
@@ -285,96 +298,25 @@ static command commands[] =
     {"end_set",0,read_endset_command,CMD_ENDDATA | CMD_ENDSET},
     {"",0,read_endset_command,CMD_ENDDATA | CMD_ENDSET},
     {"note",0,read_note_command,0},
-    {"data",0,read_data_command,CMD_ENDDATA},
-    {NULL, 0, NULL, 0}
+    {"data",0,read_data_command,CMD_ENDDATA}
 };
 
-/* Initialise the snapfile_def structure */
-
-static void init_snapfile_def( snapfile_def *sd, DATAFILE *df )
+snapfile_def::snapfile_def( DATAFILE *datafile ) :
+    df( datafile ),
+    dmsformat( AF_DMS )
 {
-    int i;
-    sd->df = df;
-    sd->nfield = 0;
-    sd->maxfield = 0;
-    sd->fields = NULL;
-    sd->nclass = 0;
-    sd->maxclass = 0;
-    sd->clsf = NULL;
-    sd->nsyserr = 0;
-    sd->maxsyserr = 0;
-    sd->syserr = NULL;
-    sd->dserr = -1;
-    sd->dsppmerr = -1;
-    sd->haerr = -1;
-    sd->hammerr = -1;
-    sd->azerr = -1;
-    sd->azmmerr = -1;
-    sd->zderr = -1;
-    sd->zdmmherr = -1;
-    sd->zdmmverr = -1;
-    sd->lverr = -1;
-    sd->lnerr = -1;
-    sd->lterr = -1;
-    sd->oherr = -1;
-    sd->eherr = -1;
-    for( i = 0; i < 9; i++ )
-    {
-        sd->gpserr[i] = 0.0;
-        sd->gpterr[i] = 0.0;
-    }
-    sd->gpserr[0] = -1;
-    sd->gpterr[0] = -1;
-    for( i = 0; i < NERRTYPE; i++ )
-    {
-        sd->gotdflterr[i] = 0;
-    }
-    for( i = 0; i < N_COEF_CLASSES; i++ )
-    {
-        sd->coef_class_id[i] = -1;
-    }
-    sd->nveccvr = 0;
-    sd->cvrupper = 0;
-    sd->dfltcvrtype = CVR_FULL;
-    sd->cvrtype = 0;
-    sd->date = UNDEFINED_DATE;
-    sd->noinststn = 0;
-    sd->grouped = 0;
-    sd->ingroup = 0;
-    sd->heights = 0;
-    sd->dmsformat = AF_DMS;
-    sd->refcoef = 0;
-    sd->distsf = 0;
-    sd->brngref = 0;
-    sd->refframe = 0;
-    sd->usereffrm = 0;
-    sd->projctn = 0;
-    sd->useprojctn = 0;
-    sd->definition_err = 0;
-    sd->group_err = 0;
-    sd->vecerrlst = NULL;
-    sd->currvecerr = NULL;
-    sd->maxcvrrow = 0;
-    sd->cvrrow = NULL;
-};
+    std::fill( std::begin( coef_class_id ), std::end( coef_class_id ), -1 );
+}
 
-static void term_snapfile_def( snapfile_def *sd )
+snapfile_def::~snapfile_def()
 {
-    int i;
-    check_free( sd->fields );
-    for( i = 0; i < sd->nclass; i++ ) check_free( sd->clsf[i].name );
-    if( sd->clsf ) check_free( sd->clsf );
-    for( i = 0; i < sd->nsyserr; i++ ) check_free( sd->syserr[i].name );
-    if( sd->syserr ) check_free( sd->syserr );
-    if( sd->vecerrlst ) free_list( sd->vecerrlst, NO_ACTION );
-    if( sd->cvrrow ) check_free( sd->cvrrow );
-    init_snapfile_def( sd, sd->df );
+    if( vecerrlst ) free_list( vecerrlst, NO_ACTION );
 }
 
 /*===============================================================*/
 /* Get observation snap type from its code                       */
 
-static snap_data_type *obstype_from_code( char *code )
+static snap_data_type *obstype_from_code( std::string_view code )
 {
     snap_data_type *sdt = 0;
     datatypedef *dt = datatypedef_from_code( code );
@@ -389,63 +331,45 @@ static snap_data_type *obstype_from_code( char *code )
 /*===============================================================*/
 /* Management of classifications                                 */
 
-static int get_classification( snapfile_def *sd, const char *cclass )
+static int get_classification( snapfile_def *sd, std::string_view cclass )
 {
-    int i;
-    for( i = 0; i<sd->nclass; i++ )
+    for( size_t i = 0; i < sd->clsf.size(); i++ )
     {
-        if( _stricmp( cclass, sd->clsf[i].name ) == 0 ) return i;
+        if( boost::algorithm::iequals( cclass, sd->clsf[i].name ) ) return numeric_cast<int>( i );
     }
     return -1;
 }
 
-static int create_classification( snapfile_def *sd, const char *cclass )
+static int create_classification( snapfile_def *sd, std::string_view cclass )
 {
-    int ic, ot;
-    data_class *cd;
-    ic = get_classification( sd, cclass );
+    const int ic = get_classification( sd, cclass );
     if( ic >= 0 ) return ic;
 
-    if( sd->nclass >= sd->maxclass )
-    {
-        sd->maxclass = sd->nclass + 5;
-        sd->clsf = (data_class *)
-                   check_realloc( sd->clsf, sd->maxclass*sizeof(data_class));
-    }
-    ic = sd->nclass;
-    sd->nclass ++;
-    cd = sd->clsf + ic;
+    data_class cd{};
+    cd.name = cclass;
+    cd.class_id = numeric_cast<int>( ldt_get_id( ID_CLASSTYPE, 0, cclass ) );
+    sd->clsf.push_back( cd );
 
-    cd->name = copy_string( cclass );
-    cd->class_id = (int) ldt_get_id( ID_CLASSTYPE, 0, cclass );
-    for( ot = 0; ot < NOBSTYPE; ot++ ) cd->id[ot] = 0;
-
-    return ic;
+    return numeric_cast<int>( sd->clsf.size() ) - 1;
 }
 
 static void set_obstype_classification( snapfile_def *sd, int type,
-                                        int clsf_id, char *name )
+                                        int clsf_id, std::string_view name )
 {
-
-    data_class *cd;
+    data_class &cd = sd->clsf[clsf_id];
     int name_id = 0;
 
-    cd = sd->clsf + clsf_id;
-    if( _stricmp(name,"none") != 0 )
+    if( ! boost::algorithm::iequals( name, "none" ) )
     {
-        name_id = ldt_get_id( ID_CLASSNAME, cd->class_id, name );
+        name_id = numeric_cast<int>( ldt_get_id( ID_CLASSNAME, cd.class_id, name ) );
     }
     if( type >= 0 )
     {
-        cd->id[type] = name_id;
+        cd.id[type] = name_id;
     }
     else
     {
-        int i;
-        for( i=0; i < NOBSTYPE; i++ )
-        {
-            cd->id[i] = name_id;
-        }
+        std::fill( std::begin( cd.id ), std::end( cd.id ), name_id );
     }
 }
 
@@ -457,24 +381,23 @@ static void set_obstype_classification( snapfile_def *sd, int type,
 
 static void init_data_classifications( snapfile_def *sd )
 {
-    int i;
-    for( i = 0; i < sd->nclass; i++ )
+    for( data_class &cd : sd->clsf )
     {
-        sd->clsf[i].data_id = sd->clsf[i].id[sd->obstype->type];
+        cd.data_id = cd.id[sd->obstype->type];
     }
 }
 
 static int read_data_obs_id( snapfile_def *sd )
 {
-    int id;
-    if( df_read_int( sd->df, &id ) )
+    int id = 0;
+    if( read_int_field( sd->scanner(), id ) == FieldResult::Ok )
     {
         ldt_obs_id( id );
     }
     else
     {
-        df_data_file_error( sd->df, INVALID_DATA,
-                            "Observation id is missing or invalid - must be an integer number");
+        sd->error( INVALID_DATA,
+                   "Observation id is missing or invalid - must be an integer number");
     }
 
     return OK;
@@ -482,42 +405,34 @@ static int read_data_obs_id( snapfile_def *sd )
 
 static int read_data_classification( snapfile_def *sd, data_field *fld )
 {
-    char name[NAMELEN];
+    std::string name;
     int name_id = 0;
-    data_class *cd;
 
-    if( !df_read_field( sd->df, name, NAMELEN ) )
+    if( read_string_field( sd->scanner(), name, MAX_NAME_LEN ) != FieldResult::Ok )
     {
-        char errmsg[80];
-        sprintf(errmsg,"Classification %s is missing",
-                ldt_get_code( ID_CLASSTYPE, 0, sd->clsf[fld->id].class_id ).c_str() );
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA,
+                   "Classification " + ldt_get_code( ID_CLASSTYPE, 0, sd->clsf[fld->id].class_id ) + " is missing" );
         ldt_cancel_data();
         return 0;
     }
 
     assert( fld->type == DFT_CLASS );
-    assert( fld->id >= 0 && fld->id <= sd->nclass );
+    assert( fld->id >= 0 && static_cast<size_t>( fld->id ) <= sd->clsf.size() );
 
-    cd = sd->clsf + fld->id;
-    if( _stricmp(name,"none") != 0 )
+    data_class &cd = sd->clsf[fld->id];
+    if( ! boost::algorithm::iequals( name, "none" ) )
     {
-        name_id = (int) ldt_get_id( ID_CLASSNAME, cd->class_id, name );
+        name_id = numeric_cast<int>( ldt_get_id( ID_CLASSNAME, cd.class_id, name ) );
     }
-    cd->data_id = name_id;
+    cd.data_id = name_id;
     return 1;
 }
 
 static void load_data_classifications( snapfile_def *sd )
 {
-    int ic;
-    data_class *cd;
-
-    cd = sd->clsf;
-
-    for( ic = sd->nclass; ic--; cd++ )
+    for( const data_class &cd : sd->clsf )
     {
-        if( cd->data_id > 0 ) ldt_classification( cd->class_id, cd->data_id );
+        if( cd.data_id > 0 ) ldt_classification( cd.class_id, cd.data_id );
     }
 }
 
@@ -525,49 +440,35 @@ static void load_data_classifications( snapfile_def *sd )
 /* Management of systematic errors                            */
 
 
-static int get_syserr( snapfile_def *sd, char *sename )
+static int get_syserr( snapfile_def *sd, std::string_view sename )
 {
-    int i;
-    for( i = 0; i<sd->nsyserr; i++ )
+    for( size_t i = 0; i < sd->syserr.size(); i++ )
     {
-        if( _stricmp( sename, sd->syserr[i].name ) == 0 ) return i;
+        if( boost::algorithm::iequals( sename, sd->syserr[i].name ) ) return numeric_cast<int>( i );
     }
     return -1;
 }
 
-static int create_syserr( snapfile_def *sd, char *sename, int class_id )
+static int create_syserr( snapfile_def *sd, std::string_view sename, int class_id )
 {
-    int ic;
-    data_syserr *ds;
-    ic = get_syserr( sd, sename );
+    const int ic = get_syserr( sd, sename );
     if( ic >= 0 )
     {
         if( sd->syserr[ic].class_id != class_id )
         {
-            char errmess[120];
-            sprintf( errmess, "Cannot redefine systematic error %s",sename);
-            df_data_file_error( sd->df, INVALID_DATA, errmess );
+            sd->error( INVALID_DATA, "Cannot redefine systematic error " + std::string( sename ) );
         }
         return ic;
     }
 
-    if( sd->nsyserr >= sd->maxsyserr )
-    {
-        sd->maxsyserr = sd->nsyserr + 5;
-        sd->syserr= (data_syserr *)
-                    check_realloc( sd->syserr, sd->maxsyserr*sizeof(data_syserr));
-    }
-    ic = sd->nsyserr;
-    sd->nsyserr ++;
-    ds = sd->syserr + ic;
+    data_syserr ds{};
+    ds.name = sename;
+    ds.syserr_id = class_id >= 0 ? 0 : numeric_cast<int>( ldt_get_id( ID_SYSERR, 0, sename ) );
+    ds.class_id = class_id;
+    ds.class_name_id = -1;
+    sd->syserr.push_back( ds );
 
-    ds->name = copy_string( sename );
-    ds->name_len = strlen( sename );
-    ds->syserr_id = class_id >= 0 ? 0 : (int) ldt_get_id( ID_SYSERR, 0, sename );
-    ds->class_id = class_id;
-    ds->class_name_id = -1;
-
-    return ic;
+    return numeric_cast<int>( sd->syserr.size() ) - 1;
 }
 
 
@@ -577,86 +478,70 @@ static int create_syserr( snapfile_def *sd, char *sename, int class_id )
 
 static void init_data_syserrs( snapfile_def *sd )
 {
-    int i;
-    for( i = 0; i < sd->nsyserr; i++ )
+    for( data_syserr &ds : sd->syserr )
     {
-        sd->syserr[i].defined = 0;
+        ds.defined = false;
     }
 }
 
 static int read_data_syserr( snapfile_def *sd, data_field *fld )
 {
-    data_syserr *ds;
-    int i;
-    double *inf;
-    int isangle;
-
     assert( fld->type == DFT_SYSERR );
-    assert( fld->id >= 0 && fld->id <= sd->nsyserr);
+    assert( fld->id >= 0 && static_cast<size_t>( fld->id ) <= sd->syserr.size() );
 
-    ds = sd->syserr + fld->id;
-    inf = ds->influence;
-    ds->defined = 1;
-    ds->vector = sd->obstype->datatype->isvector;
-    isangle = sd->obstype->datatype->isangle;
+    data_syserr &ds = sd->syserr[fld->id];
+    ds.defined = true;
+    ds.vector = sd->obstype->datatype->isvector;
+    const bool isangle = sd->obstype->datatype->isangle;
 
-    for( i = ds->vector ? 3 : 1; i--; inf++)
+    double *inf = ds.influence;
+    for( int i = ds.vector ? 3 : 1; i--; inf++)
     {
-        ds->defined = ds->defined && df_read_double( sd->df, inf );
+        ds.defined = ds.defined && read_double_field( sd->scanner(), *inf ) == FieldResult::Ok;
         if( isangle ) *inf *= STOR;
     }
 
-    if( !ds->defined )
+    if( !ds.defined )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Influence of %s is missing or invalid",
-                ldt_get_code( ID_SYSERR, 0, ds->syserr_id ).c_str() );
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA,
+                   "Influence of " + ldt_get_code( ID_SYSERR, 0, ds.syserr_id ) + " is missing or invalid" );
         ldt_cancel_data();
         return 0;
     }
 
-    return ds->defined ? 1 : 0;
+    return 1;
 }
 
 
 static void load_data_syserrs( snapfile_def *sd )
 {
-    int ic;
-    data_syserr *ds;
-
-    ds = sd->syserr;
-
-    for( ic = sd->nsyserr; ic--; ds++ )
+    for( data_syserr &ds : sd->syserr )
     {
-        if( !ds->defined ) continue;
+        if( !ds.defined ) continue;
 
         /* If the systematic error is classification dependent, get the
         value for the class */
 
-        if( ds->class_id >= 0 )
+        if( ds.class_id >= 0 )
         {
-            int class_id;
-            int class_name_id;
-            class_id = ds->class_id;
-            class_name_id = sd->clsf[class_id].data_id;
-            if( class_name_id != ds->class_name_id )
+            const int class_name_id = sd->clsf[ds.class_id].data_id;
+            if( class_name_id != ds.class_name_id )
             {
-                ds->class_name_id = class_name_id;
+                ds.class_name_id = class_name_id;
                 const std::string clsf_code = class_name_id
-                    ? ldt_get_code( ID_CLASSNAME, sd->clsf[class_id].class_id, class_name_id )
+                    ? ldt_get_code( ID_CLASSNAME, sd->clsf[ds.class_id].class_id, class_name_id )
                     : "default";
-                const std::string syserrname = std::string( ds->name ) + "/" + clsf_code;
-                ds->syserr_id = ldt_get_id( ID_SYSERR, 0, syserrname );
+                const std::string syserrname = ds.name + "/" + clsf_code;
+                ds.syserr_id = numeric_cast<int>( ldt_get_id( ID_SYSERR, 0, syserrname ) );
             }
         }
-        if( ds->vector )
+        if( ds.vector )
         {
-            ldt_vecsyserr( ds->syserr_id, ds->influence );
+            ldt_vecsyserr( ds.syserr_id, ds.influence );
         }
         else
         {
-            ldt_syserr( ds->syserr_id, ds->influence[0] );
+            ldt_syserr( ds.syserr_id, ds.influence[0] );
         }
     }
 }
@@ -667,19 +552,23 @@ static void load_data_syserrs( snapfile_def *sd )
 
 // #pragma warning(disable: 4100)
 
-static int read_proj_command( snapfile_def *sd, int, const char *cmd )
-{
-    char name[NAMELEN];
+/* A command as it is written in a data file, for example "#projection" */
 
-    if( ! df_read_field( sd->df, name, NAMELEN ) )
+static std::string command_text( std::string_view cmd )
+{
+    return COMMAND_PREFIX + std::string( cmd );
+}
+
+static int read_proj_command( snapfile_def *sd, int, std::string_view cmd )
+{
+    std::string name;
+
+    if( read_string_field( sd->scanner(), name, MAX_NAME_LEN ) != FieldResult::Ok )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Name missing - use syntax %c%s name",
-                COMMAND_PREFIX, cmd );
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA, "Name missing - use syntax " + command_text( cmd ) + " name" );
         return OK; // Already reported
     }
-    sd->projctn = ldt_get_id( ID_PROJCTN, 0, name );
+    sd->projctn = numeric_cast<int>( ldt_get_id( ID_PROJCTN, 0, name ) );
     return OK;
 }
 
@@ -695,20 +584,16 @@ static int get_coef_class_id( snapfile_def *sd, int id )
     return classid;
 }
 
-static int read_coef_command( snapfile_def *sd, int id, const char *cmd )
+static int read_coef_command( snapfile_def *sd, int id, std::string_view cmd )
 {
-    char name[NAMELEN]={0};
-    int classid;
+    std::string name;
 
     coef_class_info *cinfo = coef_class( id );
-    classid = get_coef_class_id( sd, id );
+    const int classid = get_coef_class_id( sd, id );
 
-    if( ! df_read_field( sd->df, name, NAMELEN ) )
+    if( read_string_field( sd->scanner(), name, MAX_NAME_LEN ) != FieldResult::Ok )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Name missing - use syntax %c%s name",
-                COMMAND_PREFIX, cmd );
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA, "Name missing - use syntax " + command_text( cmd ) + " name" );
         return OK;
     }
 
@@ -731,8 +616,8 @@ static void load_projection( snapfile_def *sd )
     {
         if( !sd->projctn )
         {
-            df_data_file_error( sd->df, MISSING_DATA,
-                                "Missing or invalid projection - check #projection in data file");
+            sd->error( MISSING_DATA,
+                       "Missing or invalid projection - check #projection in data file");
             ldt_cancel_inst();
             sd->definition_err = 1;
         }
@@ -745,24 +630,24 @@ static void load_projection( snapfile_def *sd )
 
 // #pragma warning(disable: 4100)
 
-static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
+static int read_error_command( snapfile_def *sd, int errtype, std::string_view cmd )
 {
     double value[3];
 
-    const char *ppm = "ppm";
-    const char *mm  = "mm";
-    const char *mmh = "mmh";
-    const char *mmv = "mmv";
-    const char *mmr = "mmr";
-    const char *ppmr = "ppmr";
-    const char *secs = "sec";
+    constexpr std::string_view ppm = "ppm";
+    constexpr std::string_view mm  = "mm";
+    constexpr std::string_view mmh = "mmh";
+    constexpr std::string_view mmv = "mmv";
+    constexpr std::string_view mmr = "mmr";
+    constexpr std::string_view ppmr = "ppmr";
+    constexpr std::string_view secs = "sec";
     int nerrvals;
     int goterr = 0;
     int status;
 
     struct
     {
-        const char *code;
+        std::string_view code;
         double fact;
         double *value;
         int  found;
@@ -870,24 +755,25 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
 
     goterr = 0;
 
-    for(;;)
+    while( true )
     {
-        char name[10];
+        FieldScanner &scanner = sd->scanner();
+        std::string name;
         status = OK;
-        if( df_end_of_line( sd->df )) break;
-        if( !df_read_double( sd->df, &value[0] )) { status = INVALID_DATA; break; }
+        if( scanner.atEnd() ) break;
+        if( read_double_field( scanner, value[0] ) != FieldResult::Ok ) { status = INVALID_DATA; break; }
         for( iv = 1; iv < nerrvals; iv++ )
         {
             status = MISSING_DATA;
-            if( !df_read_double( sd->df, &value[iv] )) break;
+            if( read_double_field( scanner, value[iv] ) != FieldResult::Ok ) break;
             status = OK;
         }
         if( status != OK ) break;
-        if( !df_read_field( sd->df, name, 10 ) ) {status = MISSING_DATA; break; }
+        if( read_string_field( scanner, name, MAX_WORD_LEN ) != FieldResult::Ok ) {status = MISSING_DATA; break; }
         status = INVALID_DATA;
         for( ic = 0; ic < nerrcodes; ic++ )
         {
-            if( !errcodes[ic].found && _stricmp( errcodes[ic].code, name ) == 0 )
+            if( !errcodes[ic].found && boost::algorithm::iequals( errcodes[ic].code, name ) )
             {
                 errcodes[ic].found = 1;
                 goterr = 1;
@@ -906,25 +792,19 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
 
     if( status != OK )
     {
-        char errmsg[100];
-        char *s;
-        sprintf(errmsg,"%s error definition - use syntax %c%s",
-                status == MISSING_DATA ? "Missing" : "Invalid",
-                COMMAND_PREFIX,cmd);
-        s = errmsg + strlen(errmsg);
+        std::string errmsg = std::string( status == MISSING_DATA ? "Missing" : "Invalid" ) +
+                             " error definition - use syntax " + command_text( cmd );
         for( ic = 0; ic < nerrcodes; ic++ )
         {
-            strcpy( s, " " ); s++;
+            errmsg += ' ';
             for( iv = 0; iv < nerrvals; iv++ )
             {
-                strcpy(s,"#.# ");
-                s+=4;
+                errmsg += "#.# ";
             }
-            strcpy( s, errcodes[ic].code );
-            s += strlen( s );
+            errmsg += errcodes[ic].code;
         }
 
-        df_data_file_error( sd->df, status, errmsg );
+        sd->error( status, errmsg );
     }
 
     else
@@ -938,23 +818,11 @@ static int read_error_command( snapfile_def *sd, int errtype, const char *cmd )
 
 static void report_missing_default_error( snapfile_def *sd, snap_data_type *obstype )
 {
-    char errmsg[100];
-    const char *errcmd;
-    int ic;
-
-    errcmd = 0;
-    for( ic = 0; commands[ic].command && !errcmd; ic++ )
-    {
-        if( commands[ic].action == read_error_command &&
-                commands[ic].id == obstype->errortype )
-            errcmd = commands[ic].command;
-    }
-    sprintf(errmsg,"Error of %s not defined%s%c%s",
-            datatype[obstype->type].name,
-            errcmd ? " - use " : "",
-            errcmd ? COMMAND_PREFIX : '\0',
-            errcmd ? errcmd : "");
-    df_data_file_error( sd->df, MISSING_DATA, errmsg );
+    std::string errmsg = std::string( "Error of " ) + datatype[obstype->type].name + " not defined";
+    const auto errcmd = std::find_if( std::begin( commands ), std::end( commands ),
+        [obstype]( const command &cmd ) { return cmd.action == read_error_command && cmd.id == obstype->errortype; } );
+    if( errcmd != std::end( commands ) ) errmsg += " - use " + command_text( errcmd->command );
+    sd->error( MISSING_DATA, errmsg );
 
     ldt_cancel_inst();
     sd->definition_err = 1;
@@ -1058,7 +926,7 @@ static void load_default_error( snapfile_def *sd, snap_data_type *obstype, doubl
 
 // #pragma warning(disable: 4100)
 
-static int read_angle_type_command( snapfile_def *sd, int id, const char * )
+static int read_angle_type_command( snapfile_def *sd, int id, std::string_view )
 {
     sd->dmsformat = id;
     return OK;
@@ -1066,92 +934,83 @@ static int read_angle_type_command( snapfile_def *sd, int id, const char * )
 
 // #pragma warning(disable: 4100)
 
-static int read_date_command( snapfile_def *sd, int, const char *cmd )
+static int read_date_command( snapfile_def *sd, int, std::string_view cmd )
 {
-    char datestr[32];
-    int ok;
-    double date;
-    DATAFILE *d;
-
-    d = sd->df;
-    ok=df_read_rest(d,datestr,32);
-    _strupr(datestr);
+    std::string datestr;
+    const bool ok = read_remaining_text( sd->scanner(), datestr, MAX_DATE_FIELD_LEN ) == FieldResult::Ok;
+    boost::algorithm::to_upper( datestr );
     if( ! ok )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Missing date definition, use \"%c%s unknown\" or eg %c%s 5 MAY 1993",
-                COMMAND_PREFIX,cmd,COMMAND_PREFIX,cmd );
-        df_data_file_error( d, INVALID_DATA, errmsg );
+        const std::string command = command_text( cmd );
+        sd->error( INVALID_DATA,
+                   "Missing date definition, use \"" + command + " unknown\" or eg " + command + " 5 MAY 1993" );
         return OK;
     }
 
-    if( _stricmp(datestr, "unknown") == 0 )
+    if( boost::algorithm::iequals( datestr, "unknown" ) )
     {
-        sd->date = UNDEFINED_DATE; 
+        sd->date = UNDEFINED_DATE;
         return OK;
     }
 
-    date=snap_datetime_parse(datestr);
-    
+    const double date = snap_datetime_parse( datestr );
+
     if( date == 0.0 )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Invalid date definition, use \"%c%s unknown\" or eg %c%s 1993-05-13",
-                COMMAND_PREFIX,cmd,COMMAND_PREFIX,cmd );
-        df_data_file_error( d, INVALID_DATA, errmsg );
+        const std::string command = command_text( cmd );
+        sd->error( INVALID_DATA,
+                   "Invalid date definition, use \"" + command + " unknown\" or eg " + command + " 1993-05-13" );
     }
     else
     {
-        sd->date=date; 
+        sd->date=date;
     }
 
     return OK; /* As errors are handled */
 }
 
 
-static int read_time( DATAFILE *d, double *obstime )
+static bool read_time( FieldScanner &scanner, double &obstime )
 {
-    char time[10];
-    int hr, min;
+    std::string time;
+    int hr = 0;
+    int min = 0;
 
-    if( !df_read_field( d, time, 10 ) ) return 0;
+    if( read_string_field( scanner, time, MAX_WORD_LEN ) != FieldResult::Ok ) return false;
 
-    if( (sscanf(time,"%d:%d", &hr, &min ) < 2 &&
-            sscanf(time,"%d.%d", &hr, &min ) < 2 ) ||
-            hr < 0 || hr > 24 || min < 0 || min > 59 ) return 0;
+    if( (sscanf(time.c_str(),"%d:%d", &hr, &min ) < 2 &&
+            sscanf(time.c_str(),"%d.%d", &hr, &min ) < 2 ) ||
+            hr < 0 || hr > 24 || min < 0 || min > 59 ) return false;
 
-    *obstime = (hr + min/60.0)/24.0;
-    return 1;
+    obstime = (hr + min/60.0)/24.0;
+    return true;
 }
 
 
-static int read_date( DATAFILE *d, double *obsdate )
+static bool read_date( FieldScanner &scanner, double &obsdate )
 {
-    char datestr[32];
+    std::string datestr;
 
-    if( !df_read_field( d, datestr, 32 ) ) return 0;
+    if( read_string_field( scanner, datestr, MAX_DATE_FIELD_LEN ) != FieldResult::Ok ) return false;
 
-    (*obsdate)=snap_datetime_parse(datestr);
-    return (*obsdate == 0) ? 0 :  1;
+    obsdate = snap_datetime_parse( datestr );
+    return obsdate != 0;
 }
 
 
 // #pragma warning(disable: 4100)
 
-static int read_time_command( snapfile_def *sd, int, const char *cmd )
+static int read_time_command( snapfile_def *sd, int, std::string_view cmd )
 {
-    double obstime;
-    if( read_time( sd->df, &obstime ) )
+    double obstime = 0.0;
+    if( read_time( sd->scanner(), obstime ) )
     {
         if( sd->date != UNDEFINED_DATE ) sd->date = floor( sd->date) + obstime;
         ldt_date( sd->date );
     }
     else
     {
-        char errmsg[80];
-        sprintf(errmsg,"Invalid time - use syntax eg \"%c%s 15:20\"",
-                COMMAND_PREFIX, cmd );
-        df_data_file_error( sd->df, INVALID_DATA, errmsg );
+        sd->error( INVALID_DATA, "Invalid time - use syntax eg \"" + command_text( cmd ) + " 15:20\"" );
     }
     return OK; /* Since errors are already handled */
 }
@@ -1160,30 +1019,30 @@ static int read_time_command( snapfile_def *sd, int, const char *cmd )
 
 static int read_data_time( snapfile_def *sd, data_field * )
 {
-    double obstime;
-    if( read_time( sd->df, &obstime ) )
+    double obstime = 0.0;
+    if( read_time( sd->scanner(), obstime ) )
     {
         ldt_time( obstime );
     }
     else
     {
-        df_data_file_error( sd->df, INVALID_DATA,
-                            "Invalid time - use syntax eg \"15:20\"");
+        sd->error( INVALID_DATA,
+                   "Invalid time - use syntax eg \"15:20\"");
     }
     return OK; /* Since errors are already handled */
 }
 
 static int read_data_date( snapfile_def *sd, data_field * )
 {
-    double obsdate;
-    if( read_date( sd->df, &obsdate ) )
+    double obsdate = 0.0;
+    if( read_date( sd->scanner(), obsdate ) )
     {
         ldt_date( obsdate );
     }
     else
     {
-        df_data_file_error( sd->df, INVALID_DATA,
-                            "Invalid date - use syntax eg \"2012-03-25\"");
+        sd->error( INVALID_DATA,
+                   "Invalid date - use syntax eg \"2012-03-25\"");
     }
     return OK; /* Since errors are already handled */
 }
@@ -1205,32 +1064,32 @@ static void calc_nveccvr( snapfile_def *sd )
 
 // #pragma warning(disable: 4100)
 
-static int read_gps_errtype_command( snapfile_def *sd, int, const char * )
+static int read_gps_errtype_command( snapfile_def *sd, int, std::string_view )
 {
-    char option[20];
-    int ok;
+    FieldScanner &scanner = sd->scanner();
+    std::string option;
+    bool ok = false;
 
-    ok = 0;
-    if( df_read_field( sd->df, option, 20 ))
+    if( read_string_field( scanner, option, MAX_NAME_LEN ) == FieldResult::Ok )
     {
-        ok = 1;
-        if( ISEQ(option,"diagonal") )  sd->dfltcvrtype = CVR_DIAGONAL;
-        else if( ISEQ(option,"full") ) sd->dfltcvrtype = CVR_FULL;
-        else if( ISEQ(option,"correlation") )
+        ok = true;
+        if( boost::algorithm::iequals( option, "diagonal" ) )  sd->dfltcvrtype = CVR_DIAGONAL;
+        else if( boost::algorithm::iequals( option, "full" ) ) sd->dfltcvrtype = CVR_FULL;
+        else if( boost::algorithm::iequals( option, "correlation" ) )
             sd->dfltcvrtype = CVR_CORRELATION;
-        else if( ISEQ(option,"enu") )  sd->dfltcvrtype = CVR_TOPOCENTRIC;
-        else ok = 0;
+        else if( boost::algorithm::iequals( option, "enu" ) )  sd->dfltcvrtype = CVR_TOPOCENTRIC;
+        else ok = false;
     }
     sd->cvrupper = 0;
-    if( df_read_field( sd->df, option, 20 ))
+    if( read_string_field( scanner, option, MAX_NAME_LEN ) == FieldResult::Ok )
     {
-        if( ISEQ(option,"upper") ) sd->cvrupper = 1; else ok = 0;
+        if( boost::algorithm::iequals( option, "upper" ) ) sd->cvrupper = 1; else ok = false;
     }
 
     if( !ok )
     {
-        df_data_file_error( sd->df, INVALID_DATA,
-                            "Invalid gps error type - must be \"diagonal\", \"full\", \"correlation\", or \"enu\"");
+        sd->error( INVALID_DATA,
+                   "Invalid gps error type - must be \"diagonal\", \"full\", \"correlation\", or \"enu\"");
     }
 
     return OK; /* As error is already handled */
@@ -1238,29 +1097,22 @@ static int read_gps_errtype_command( snapfile_def *sd, int, const char * )
 
 // #pragma warning(disable: 4100)
 
-static int read_syserr_command( snapfile_def *sd, int, const char *cmd )
+static int read_syserr_command( snapfile_def *sd, int, std::string_view cmd )
 {
-    char name[NAMELEN];
-    char classname[NAMELEN];
-    int class_id;
+    FieldScanner &scanner = sd->scanner();
+    std::string name;
+    std::string classname;
 
-    if( !df_read_field( sd->df, name, NAMELEN ) )
+    if( read_string_field( scanner, name, MAX_NAME_LEN ) != FieldResult::Ok )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Name missing - use %c%s name [classification_name]",
-                COMMAND_PREFIX, cmd );
-        df_data_file_error( sd->df,MISSING_DATA,errmsg );
+        sd->error( MISSING_DATA,
+                   "Name missing - use " + command_text( cmd ) + " name [classification_name]" );
         return OK;
     }
 
-    if( df_read_field( sd->df, classname, NAMELEN ))
-    {
-        class_id = create_classification( sd, classname );
-    }
-    else
-    {
-        class_id = -1;
-    }
+    const int class_id = read_string_field( scanner, classname, MAX_NAME_LEN ) == FieldResult::Ok
+        ? create_classification( sd, classname )
+        : -1;
 
     create_syserr( sd, name, class_id );
     return OK;
@@ -1269,14 +1121,12 @@ static int read_syserr_command( snapfile_def *sd, int, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_classification( snapfile_def *sd, int, const char *cmd )
+static int read_classification( snapfile_def *sd, int, std::string_view cmd )
 {
-    char name[NAMELEN];
-    if( !df_read_field( sd->df, name, NAMELEN ) )
+    std::string name;
+    if( read_string_field( sd->scanner(), name, MAX_NAME_LEN ) != FieldResult::Ok )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Name missing - use %c%s name",COMMAND_PREFIX,cmd );
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA, "Name missing - use " + command_text( cmd ) + " name" );
     }
     else
     {
@@ -1287,66 +1137,51 @@ static int read_classification( snapfile_def *sd, int, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_classify_command( snapfile_def *sd, int, const char *cmd )
+static int read_classify_command( snapfile_def *sd, int, std::string_view cmd )
 {
-    char fields[3][NAMELEN];
-    char *types, *clsf, *value;
-    int class_id;
-    int i;
+    FieldScanner &scanner = sd->scanner();
+    std::string fields[3];
+    size_t nfields = 0;
 
-    for( i=0; i<3; i++ )
+    while( nfields < 3 && read_string_field( scanner, fields[nfields], MAX_NAME_LEN ) == FieldResult::Ok )
     {
-        if( ! df_read_field( sd->df, fields[i], NAMELEN ) ) break;
+        nfields++;
     }
 
-    if( i < 2 )
+    if( nfields < 2 )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Missing information - use %c%s [type/type...] class value",
-                COMMAND_PREFIX, cmd);
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA,
+                   "Missing information - use " + command_text( cmd ) + " [type/type...] class value" );
+        return OK;
     }
 
-    if( i == 2 )
-    {
-        types = NULL;
-        i = 0;
-    }
-    else
-    {
-        types = fields[0];
-        i = 1;
-    }
-    clsf = fields[i++];
-    value = fields[i++];
+    /* Without the observation types the classification applies to all of them */
 
-    class_id = create_classification( sd, clsf );
+    const bool has_types = nfields == 3;
+    const std::string &clsf = fields[has_types ? 1 : 0];
+    const std::string &value = fields[has_types ? 2 : 1];
 
-    if( types )
+    const int class_id = create_classification( sd, clsf );
+
+    if( has_types )
     {
-        char *te;
-        int end;
-        snap_data_type *obstype;
-        te = types;
-        end = 0;
+        std::string_view types( fields[0] );
+        bool end = false;
         while( !end )
         {
-            te = types;
-            while( *te && *te != '/' ) te++;
-            end = (*te == 0);
-            *te = 0;
-            obstype = obstype_from_code( types );
+            const size_t slash = types.find( '/' );
+            end = slash == std::string_view::npos;
+            const std::string_view code = types.substr( 0, slash );
+            snap_data_type *obstype = obstype_from_code( code );
             if( ! obstype )
             {
-                char errmsg[100];
-                sprintf(errmsg,"Invalid observation type %s",types);
-                df_data_file_error( sd->df, INVALID_DATA, errmsg );
+                sd->error( INVALID_DATA, "Invalid observation type " + std::string( code ) );
             }
             else
             {
                 set_obstype_classification( sd, obstype->type, class_id, value );
             }
-            types = te+1;
+            if( ! end ) types.remove_prefix( slash + 1 );
         }
     }
 
@@ -1359,19 +1194,18 @@ static int read_classify_command( snapfile_def *sd, int, const char *cmd )
 
 // #pragma warning(disable: 4100)
 
-static int read_endset_command( snapfile_def *, int, const char * )
+static int read_endset_command( snapfile_def *, int, std::string_view )
 {
     return OK; /* Nothing to do - just marks end of the group */
 }
 
 // #pragma warning(disable: 4100)
 
-static int read_note_command( snapfile_def *sd, int, const char * )
+static int read_note_command( snapfile_def *sd, int, std::string_view )
 {
-    char note[NOTELEN];
     if( sd->definition_err ) return OK;
-    note[0] = 0;
-    df_read_rest( sd->df, note, NOTELEN );
+    std::string note;
+    read_remaining_text( sd->scanner(), note, MAX_NOTE_LEN );
     ldt_prefix_note( note );
     return OK;
 }
@@ -1379,33 +1213,21 @@ static int read_note_command( snapfile_def *sd, int, const char * )
 /**********************************************************************/
 /* Reading a data command -                                           */
 
-static data_field *next_data_field( snapfile_def *sd, int dftype, int id, int sec_id )
+static void next_data_field( snapfile_def *sd, int dftype, int id, int sec_id )
 {
-    data_field *df;
-    if( sd->nfield >= sd->maxfield )
-    {
-        sd->maxfield = sd->nfield+10;
-        sd->fields = (data_field *)
-                     check_realloc( sd->fields, sd->maxfield*sizeof(data_field) );
-    }
-    df = sd->fields + sd->nfield;
-    sd->nfield++;
-    df->type = dftype;
-    df->id = id;
-    df->sec_id = sec_id;
-    return df;
+    sd->fields.push_back( { dftype, id, sec_id } );
 }
 
 
 // #pragma warning(disable: 4100)
 
-static int read_data_command( snapfile_def *sd, int id, const char *cmd )
+static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
 {
     int nobs = 0;
     int oneonly = 0;
-    int startno = 0;
-    snap_data_type *obstype = 0;
-    char name[COMLEN];
+    size_t startno = 0;
+    snap_data_type *obstype = nullptr;
+    std::string name;
 
     /* Set up the defaults */
 
@@ -1414,7 +1236,7 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
     sd->heights = 1;
     sd->definition_err = 0;
     sd->group_err = 0;
-    sd->nfield = 0;
+    sd->fields.clear();
     sd->endset = 0;
     sd->usereffrm = 0;
     sd->useprojctn = 0;
@@ -1440,15 +1262,15 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
 
     */
 
-    while( df_read_field( sd->df, name, COMLEN ) )
+    while( read_string_field( sd->scanner(), name, MAX_COMMAND_LEN ) == FieldResult::Ok )
     {
 
         /* Commands which can precede an observation type */
 
-        if( _stricmp( name, "grouped" ) == 0 ) { sd->grouped = 1; continue; }
-        if( _stricmp( name, "no_heights") == 0 ) { sd->heights = 0; continue; }
-        if( _stricmp( name, "time" ) == 0 ) { next_data_field( sd, DFT_TIME, 0, 0 ); continue; }
-        if( _stricmp( name, "date" ) == 0 ) { next_data_field( sd, DFT_DATE, 0, 0 ); continue; }
+        if( boost::algorithm::iequals( name, "grouped" ) ) { sd->grouped = 1; continue; }
+        if( boost::algorithm::iequals( name, "no_heights" ) ) { sd->heights = 0; continue; }
+        if( boost::algorithm::iequals( name, "time" ) ) { next_data_field( sd, DFT_TIME, 0, 0 ); continue; }
+        if( boost::algorithm::iequals( name, "date" ) ) { next_data_field( sd, DFT_DATE, 0, 0 ); continue; }
 
         /* An observation type */
 
@@ -1468,10 +1290,8 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
             if (st->datatype->projctn) sd->useprojctn = 1;
             if( nobs && st->obsclass != sd->obsclass )
             {
-                char errmsg[100];
-                sprintf(errmsg,"%s obs not compatible with %s",
-                        datatype[sd->fields[0].id].name, dt->name );
-                df_data_file_error( sd->df, INCONSISTENT_DATA, errmsg );
+                sd->error( INCONSISTENT_DATA,
+                           std::string( datatype[sd->fields[0].id].name ) + " obs not compatible with " + dt->name );
                 sd->definition_err = 1;
                 break;
             }
@@ -1481,7 +1301,7 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
                so they can be grouped!? */
             sd->noinststn = dt->isvector && dt->ispoint;
             sd->obstype = obstype;
-            startno = sd->nfield;
+            startno = sd->fields.size();
             next_data_field( sd, DFT_START, obstype->type,
                              FLG_DFLT_DATA | FLG_DFLT_ERROR );
             nobs++;
@@ -1490,7 +1310,7 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
             continue;
         }
 
-        if( _stricmp( name, "value" ) == 0 )
+        if( boost::algorithm::iequals( name, "value" ) )
         {
             if( !(sd->fields[startno].sec_id & FLG_DFLT_DATA) )
             {
@@ -1502,7 +1322,7 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
             continue;
         }
 
-        if ( _stricmp( name, "error" ) == 0 )
+        if( boost::algorithm::iequals( name, "error" ) )
         {
             if( !(sd->fields[startno].sec_id & FLG_DFLT_ERROR) )
             {
@@ -1514,25 +1334,25 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
             continue;
         }
 
-        if( _stricmp( name, "distance_scale_error" ) == 0 )
+        if( boost::algorithm::iequals( name, "distance_scale_error" ) )
         {
             next_data_field( sd, DFT_CLASS, get_coef_class_id(sd,COEF_CLASS_DISTSF), 0 );
             continue;
         }
 
-        if( _stricmp( name, "refraction_coefficient" ) == 0 )
+        if( boost::algorithm::iequals( name, "refraction_coefficient" ) )
         {
             next_data_field( sd, DFT_CLASS, get_coef_class_id(sd,COEF_CLASS_REFCOEF), 0 );
             continue;
         }
 
-        if( _stricmp( name, "bearing_orientation_error" ) == 0 )
+        if( boost::algorithm::iequals( name, "bearing_orientation_error" ) )
         {
             next_data_field( sd, DFT_CLASS, get_coef_class_id(sd,COEF_CLASS_BRNGREF), 0 );
             continue;
         }
 
-        if( _stricmp( name, "id" ) == 0 )
+        if( boost::algorithm::iequals( name, "id" ) )
         {
             next_data_field( sd, DFT_OBSID, 0, 0 );
             continue;
@@ -1561,33 +1381,27 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
 
     if( sd->definition_err )
     {
-        char errmsg[100];
-        sprintf( errmsg,"Field \"%s\" invalid or out of place in %c%s",name,
-                 COMMAND_PREFIX,cmd );
-        df_data_file_error( sd->df, INVALID_DATA, errmsg );
+        sd->error( INVALID_DATA,
+                   "Field \"" + name + "\" invalid or out of place in " + command_text( cmd ) );
     }
 
     else if( sd->usereffrm && sd->useprojctn )
     {
-        df_data_file_error(sd->df, INVALID_DATA,
-                           "Cannot mix data using reference frames and projections");
+        sd->error( INVALID_DATA,
+                   "Cannot mix data using reference frames and projections");
         sd->definition_err = 1;
     }
 
     else if( nobs < 1 )
     {
-        char errmsg[80];
-        sprintf( errmsg,"No data is specified in %c%s",COMMAND_PREFIX,cmd);
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA, "No data is specified in " + command_text( cmd ) );
         sd->definition_err = 1;
     }
 
     else if( nobs > 1 && oneonly )
     {
-        char errmsg[100];
-        sprintf(errmsg,"Cannot combine %s with other observations",
-                datatype[oneonly-1].name );
-        df_data_file_error( sd->df, INCONSISTENT_DATA, errmsg );
+        sd->error( INCONSISTENT_DATA,
+                   std::string( "Cannot combine " ) + datatype[oneonly-1].name + " with other observations" );
         sd->definition_err = 1;
     }
 
@@ -1610,17 +1424,14 @@ static int read_data_command( snapfile_def *sd, int id, const char *cmd )
 
 static void setup_cvr_rows( snapfile_def *sd )
 {
-    int nc = sd->nvecobs*3;
-    int *row;
+    const int nc = sd->nvecobs*3;
     int i, i3;
-    if( nc > sd->maxcvrrow )
+    if( nc > numeric_cast<int>( sd->cvrrow.size() ) )
     {
-        sd->maxcvrrow = nc+30;
-        if( sd->cvrrow ) check_free( sd->cvrrow );
-        sd->cvrrow = (int *) check_malloc( sd->maxcvrrow * sizeof(int) );
+        sd->cvrrow.resize( nc+30 );
     }
     reset_list_pointer( sd->vecerrlst );
-    row = sd->cvrrow;
+    int *row = sd->cvrrow.data();
     for( i = sd->nvecobs, i3 = 0; i--; i3 += 3 )
     {
         vecerr_def *ve = (vecerr_def *) next_list_item( sd->vecerrlst );
@@ -1639,11 +1450,9 @@ static void setup_cvr_rows( snapfile_def *sd )
 static int read_vector_covariance( snapfile_def *sd, int data_available )
 {
     ltmat cvr;
-    double val;
+    double val = 0.0;
     int i, i3, j3, ok, cvrtype;
     int grouped;
-    char errmess[80];
-    DATAFILE *df;
     int cvrused;
     int errtype;
 
@@ -1709,19 +1518,17 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
     setup_cvr_rows( sd );
     if( grouped && ( cvrtype == CVR_CORRELATION || cvrtype== CVR_FULL ))
     {
+        const std::string matrix = cvrtype == CVR_CORRELATION ? "correlation" : "covariance";
         if( !data_available )
         {
-            sprintf(errmess,"The %s matrix is missing",
-                    cvrtype == CVR_CORRELATION ? "correlation" : "covariance");
-            df_data_file_error( sd->df, MISSING_DATA, errmess );
+            sd->error( MISSING_DATA, "The " + matrix + " matrix is missing" );
             ldt_cancel_inst();
             ok = 0;
         }
         else
         {
-            int *row = sd->cvrrow;
+            const int *row = sd->cvrrow.data();
             int nvecrow = sd->nvecobs*3;
-            df = sd->df;
 
             for( i3 = 0; i3 < nvecrow; i3++ )
             {
@@ -1744,17 +1551,15 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
                 {
                     int rj = row[j3];
 
-                    while( df_end_of_line( df ) )
+                    while( sd->scanner().atEnd() )
                     {
-                        if( df_read_data_file( df ) != OK ) break;
+                        if( sd->df->read_record() != OK ) break;
                     }
-                    ok = df_read_double( df, &val );
+                    ok = read_double_field( sd->scanner(), val ) == FieldResult::Ok;
                     if( ri >= 0 && rj >= 0 ) Lij(cvr,ri,rj) = val;
                     if( !ok )
                     {
-                        sprintf(errmess,"The %s matrix is not correctly specified",
-                                cvrtype == CVR_CORRELATION ? "correlation" : "covariance" );
-                        df_data_file_error( df, INVALID_DATA, errmess);
+                        sd->error( INVALID_DATA, "The " + matrix + " matrix is not correctly specified" );
                         ldt_cancel_inst();
                         break;
                     }
@@ -1793,23 +1598,22 @@ static void start_vector_error( snapfile_def *sd )
 
 static int read_vector_error( snapfile_def *sd )
 {
-    double *cvr;
-    int i;
+    double *cvr = sd->currvecerr->vecerr;
 
-    cvr = sd->currvecerr->vecerr;
-
-    for ( i = sd->nveccvr; i--; ) if( !df_read_double( sd->df, cvr++ ) )
+    for( int i = sd->nveccvr; i--; )
+    {
+        if( read_double_field( sd->scanner(), *cvr++ ) != FieldResult::Ok )
         {
-            df_data_file_error( sd->df, INVALID_DATA,
-                                "The errors for the vector components are not correctly specified");
+            sd->error( INVALID_DATA,
+                       "The errors for the vector components are not correctly specified");
             ldt_cancel_data();
             return 0;
         }
+    }
     if( sd->cvrtype == CVR_FULL && sd->nveccvr == 6 && sd->cvrupper )
     {
-        double tmp;
         cvr = sd->currvecerr->vecerr;
-        tmp = cvr[2]; cvr[2] = cvr[3]; cvr[3] = tmp;
+        std::swap( cvr[2], cvr[3] );
     }
 
 
@@ -1829,10 +1633,8 @@ static void validate_vector_error( snapfile_def *sd )
 
 static int read_data_error( snapfile_def *sd, data_field * )
 {
-    snap_data_type *st;
-    double error;
-
-    st = sd->obstype;
+    snap_data_type *st = sd->obstype;
+    double error = 0.0;
 
     if( st->datatype->isvector )
     {
@@ -1840,12 +1642,10 @@ static int read_data_error( snapfile_def *sd, data_field * )
     }
     else
     {
-        if( !df_read_double( sd->df, &error ))
+        if( read_double_field( sd->scanner(), error ) != FieldResult::Ok )
         {
-            char errmsg[80];
-            sprintf(errmsg,"Invalid or missing error for %s",
-                    datatype[st->type].name);
-            df_data_file_error( sd->df, INVALID_DATA, errmsg );
+            sd->error( INVALID_DATA,
+                       std::string( "Invalid or missing error for " ) + datatype[st->type].name );
             ldt_cancel_data();
             return 0;
         }
@@ -1859,78 +1659,60 @@ static int read_data_error( snapfile_def *sd, data_field * )
 }
 
 
-static int read_sign( DATAFILE *df, const char *sign, double *value )
-{
-    char field[2];
+/* Reads a hemisphere letter and negates value if it is the second of the two letters in sign */
 
-    if( !df_read_field( df, field, 2 )) return 0;
-    _strupr( field );
-    if( field[0] == sign[0] ) return 1;
-    if( field[0] == sign[1] ) { *value = - *value; return 1; }
-    return 0;
+static bool read_sign( FieldScanner &scanner, std::string_view sign, double &value )
+{
+    std::string field;
+
+    if( read_string_field( scanner, field, 1 ) != FieldResult::Ok ) return false;
+    boost::algorithm::to_upper( field );
+    if( field[0] == sign[0] ) return true;
+    if( field[0] == sign[1] ) { value = -value; return true; }
+    return false;
 }
 
 static int read_data_data( snapfile_def *sd, data_field *fld )
 {
-    double value[3];
-    snap_data_type *st;
-    int sts;
-    char reject[3];
-    char errstr[10];
-    int unused;
+    double value[3] = { 0.0, 0.0, 0.0 };
+    FieldScanner &scanner = sd->scanner();
 
     /* Check whether the observation is to be rejected */
-    /* Read the field, then reread skip the first character if the obs
-       is to be rejected */
 
-    df_read_field( sd->df, reject, 3 );
-    df_reread_field( sd->df );
+    const bool unused = scanner.skipIfNext( REJECT_CHAR ) || sd->rejobs;
 
-    if( reject[0] == REJECT_CHAR )
-    {
-        df_skip_character( sd->df );
-        unused = 1;
-    }
-    else
-    {
-        unused = sd->rejobs;
-    }
+    snap_data_type *st = sd->obstype;
 
-    st = sd->obstype;
-
-    sts = 1;
+    bool sts = true;
     if( st->datatype->isangle )
     {
         switch( sd->dmsformat )
         {
-        case AF_HP:  sts = df_read_hpangle( sd->df, value ); break;
-        case AF_DMS: sts = df_read_dmsangle( sd->df, value ); break;
-        case AF_DEG: sts = df_read_degangle( sd->df, value ); break;
+        case AF_HP:  sts = read_hp_angle_field( scanner, value[0] ) == FieldResult::Ok; break;
+        case AF_DMS: sts = read_dms_angle_field( scanner, value[0] ) == FieldResult::Ok; break;
+        case AF_DEG: sts = read_degree_angle_field( scanner, value[0] ) == FieldResult::Ok; break;
         default: handle_error(INTERNAL_ERROR,"Invalid angle format",__FILE__ " read_data_data" ); break;
         }
         if( sd->dmsformat != AF_DEG )
         {
-            if( sts && st->type == LT ) sts = read_sign( sd->df, "NS", value );
-            if( sts && st->type == LN ) sts = read_sign( sd->df, "EW", value );
+            if( sts && st->type == LT ) sts = read_sign( scanner, "NS", value[0] );
+            if( sts && st->type == LN ) sts = read_sign( scanner, "EW", value[0] );
         }
     }
     else if ( st->datatype->isvector )
     {
-        sts = df_read_double( sd->df, value )   &&
-              df_read_double( sd->df, value+1 ) &&
-              df_read_double( sd->df, value+2 );
+        sts = read_double_field( scanner, value[0] ) == FieldResult::Ok &&
+              read_double_field( scanner, value[1] ) == FieldResult::Ok &&
+              read_double_field( scanner, value[2] ) == FieldResult::Ok;
     }
     else
     {
-        sts = df_read_double( sd->df, value );
+        sts = read_double_field( scanner, value[0] ) == FieldResult::Ok;
     }
 
     if( !sts )
     {
-        char errmsg[80];
-        sprintf(errmsg,"%s is missing",
-                datatype[sd->obstype->type].name);
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA, std::string( datatype[sd->obstype->type].name ) + " is missing" );
         ldt_cancel_data();
     }
 
@@ -1946,23 +1728,28 @@ static int read_data_data( snapfile_def *sd, data_field *fld )
     /* Is the observation followed by an explicit error over-riding
        the default value. */
 
-    if( sts && !sd->goterr && df_read_field( sd->df, errstr, 10 ) )
+    if( sts && !sd->goterr )
     {
-        if( _stricmp(errstr,ERROR1)==0 || _stricmp(errstr,ERROR2)==0 )
+        const FieldScanner unread = scanner;
+        std::string errstr;
+        if( read_string_field( scanner, errstr, MAX_WORD_LEN ) == FieldResult::Ok )
         {
-
-            if( sd->obsclass == SD_VECDATA )
+            if( boost::algorithm::iequals( errstr, ERROR1 ) || boost::algorithm::iequals( errstr, ERROR2 ) )
             {
-                sd->cvrtype = CVR_TOPOCENTRIC;  /* sd->dfltcvrtype; */
-                calc_nveccvr( sd );
-            }
 
-            sts = read_data_error( sd, fld );
-            sd->goterr = 1;
-        }
-        else
-        {
-            df_reread_field( sd->df );
+                if( sd->obsclass == SD_VECDATA )
+                {
+                    sd->cvrtype = CVR_TOPOCENTRIC;  /* sd->dfltcvrtype; */
+                    calc_nveccvr( sd );
+                }
+
+                sts = read_data_error( sd, fld );
+                sd->goterr = 1;
+            }
+            else
+            {
+                scanner = unread;
+            }
         }
     }
 
@@ -1994,20 +1781,17 @@ static void end_group( snapfile_def *sd, int at_endset )
 
 static int start_obs( snapfile_def *sd, data_field *fld )
 {
-    char skip[3];
-    int sts;
+    FieldScanner &scanner = sd->scanner();
+    const FieldScanner unread = scanner;
+    std::string skip;
 
-    sts = df_read_field( sd->df, skip, 3 );
-    if( sts && skip[0] == SKIPOBS_CHAR && skip[1] == 0 )
+    if( read_string_field( scanner, skip, 2 ) == FieldResult::Ok && skip.size() == 1 && skip[0] == SKIPOBS_CHAR )
     {
         sd->skipobs = 1;
         return OK;
     }
-    else
-    {
-        df_reread_field( sd->df );
-        sd->skipobs = 0;
-    }
+    scanner = unread;
+    sd->skipobs = 0;
 
     ldt_nextdata( fld->id );
 
@@ -2015,7 +1799,7 @@ static int start_obs( snapfile_def *sd, data_field *fld )
     init_data_classifications( sd );
     init_data_syserrs( sd );
 
-    sts = OK;
+    int sts = OK;
     sd->goterr = fld->sec_id & FLG_DFLT_ERROR ? 0 : 1;
 
     /* Cannot override default errors for multistation GPS data */
@@ -2055,81 +1839,65 @@ static void end_obs( snapfile_def *sd )
 /* read_station returns OK, INVALID_DATA (missing or illformatted), or
    WARNING_ERROR (station not listed) */
 
-static int read_station( snapfile_def *sd, int *stn_id, double *hgt )
+static int read_station( snapfile_def *sd, int &stn_id, double &hgt )
 {
-    char name[NAMELEN];
-    int sts;
+    std::string name;
+    const std::string station_role = sd->ingroup ? "target" : "instrument";
 
     /* Read the station code and the optional height */
 
-    *stn_id = 0;
-    *hgt = 0.0;
+    stn_id = 0;
+    hgt = 0.0;
 
-    sts = df_read_field( sd->df, name, NAMELEN );
-    if( !sts )
+    if( read_string_field( sd->scanner(), name, MAX_NAME_LEN ) != FieldResult::Ok )
     {
-        char errmsg[100];
-        sprintf(errmsg, "Invalid or missing %s station code",
-                sd->ingroup ? "target" : "instrument" );
-        df_data_file_error( sd->df, INVALID_DATA, errmsg );
+        sd->error( INVALID_DATA, "Invalid or missing " + station_role + " station code" );
         return INVALID_DATA;
     }
 
-    *stn_id = ldt_get_id( ID_STATION, 0, name );
-    if( *stn_id == 0 )
+    stn_id = numeric_cast<int>( ldt_get_id( ID_STATION, 0, name ) );
+    if( stn_id == 0 )
     {
-        char errmsg[100];
-        sprintf( errmsg, "Invalid %s station code \"%s\"",
-                 sd->ingroup ? "target" : "instrument", name);
-        df_data_file_error( sd->df, INVALID_DATA, errmsg );
+        sd->error( INVALID_DATA, "Invalid " + station_role + " station code \"" + name + "\"" );
     }
 
     if( sd->heights )
     {
-        sts = df_read_double( sd->df, hgt );
-        if( !sts )
+        if( read_double_field( sd->scanner(), hgt ) != FieldResult::Ok )
         {
-            char errmsg[80];
-            sprintf( errmsg, "Invalid or missing %s height",
-                     sd->ingroup ? "target" : "instrument" );
-            df_data_file_error( sd->df, INVALID_DATA, errmsg );
+            sd->error( INVALID_DATA, "Invalid or missing " + station_role + " height" );
             if( !sd->ingroup ) sd->group_err = 1;
             return INVALID_DATA;
         }
     }
 
-    return *stn_id <= 0 ? WARNING_ERROR : OK;
+    return stn_id <= 0 ? WARNING_ERROR : OK;
 }
 
 
-static int read_data_line( snapfile_def *sd, int rej )
+static int read_data_line( snapfile_def *sd, bool rej )
 {
     int stn_id;
     double ihgt;
-    int startgrp;
-    int sts;
-    int i;
 
-    if( sd->nfield <= 0 )
+    if( sd->fields.empty() )
     {
-        char errmsg[80];
-        sprintf(errmsg, "Definition of data format missing - use %cdata",COMMAND_PREFIX);
-        df_data_file_error( sd->df, MISSING_DATA, errmsg );
+        sd->error( MISSING_DATA, "Definition of data format missing - use " + command_text( "data" ) );
         sd->definition_err = 1;
         return MISSING_DATA;
     }
 
-    ldt_lineno( df_line_number( sd->df ) );
+    ldt_lineno( sd->df->line_number() );
 
-    sts = read_station( sd, &stn_id, &ihgt );
+    int sts = read_station( sd, stn_id, ihgt );
 
     /* For grouped data which does not require an end of set test whether
        this is the end of the line.  If it is then automatically start
        a new group. */
 
-    startgrp = !sd->grouped ||
-               !sd->ingroup ||
-               (!sd->endset && df_end_of_line( sd->df ));
+    bool startgrp = !sd->grouped ||
+                    !sd->ingroup ||
+                    (!sd->endset && sd->scanner().atEnd());
 
     if( startgrp )
     {
@@ -2139,7 +1907,7 @@ static int read_data_line( snapfile_def *sd, int rej )
         sd->stn_id_inst = -1;
         if( sd->noinststn )
         {
-            startgrp = 0;
+            startgrp = false;
             ldt_inststn( 0, 0.0 );
         }
         else
@@ -2166,7 +1934,7 @@ static int read_data_line( snapfile_def *sd, int rej )
 
     if( !sd->grouped && sd->obsclass != SD_PNTDATA )
     {
-        if( ! sd->noinststn) sts = read_station( sd, &stn_id, &ihgt );
+        if( ! sd->noinststn) sts = read_station( sd, stn_id, ihgt );
         ldt_tgtstn( stn_id, ihgt );
         sd->stn_id_trgt = stn_id;
     }
@@ -2193,22 +1961,21 @@ static int read_data_line( snapfile_def *sd, int rej )
 
     if( !sd->grouped || !startgrp )
     {
-        data_field *fld;
-        for( i = sd->nfield, fld = sd->fields; i--; fld++ )
+        for( data_field &fld : sd->fields )
         {
-            if( sd->skipobs && fld->type != DFT_START ) continue;
-            switch( fld->type )
+            if( sd->skipobs && fld.type != DFT_START ) continue;
+            switch( fld.type )
             {
             case DFT_START:  if( sd->inobs ) end_obs( sd );
-                start_obs( sd, fld );
+                start_obs( sd, &fld );
                 break;
-            case DFT_DATA:   read_data_data( sd, fld ); break;
-            case DFT_ERROR:  read_data_error( sd, fld ); break;
-            case DFT_DATE:   read_data_date( sd, fld ); break;
-            case DFT_TIME:   read_data_time( sd, fld ); break;
+            case DFT_DATA:   read_data_data( sd, &fld ); break;
+            case DFT_ERROR:  read_data_error( sd, &fld ); break;
+            case DFT_DATE:   read_data_date( sd, &fld ); break;
+            case DFT_TIME:   read_data_time( sd, &fld ); break;
             case DFT_OBSID:  read_data_obs_id( sd ); break;
-            case DFT_CLASS:  read_data_classification( sd, fld ); break;
-            case DFT_SYSERR: read_data_syserr( sd, fld ); break;
+            case DFT_CLASS:  read_data_classification( sd, &fld ); break;
+            case DFT_SYSERR: read_data_syserr( sd, &fld ); break;
             default: assert(0);
             }
         }
@@ -2218,15 +1985,15 @@ static int read_data_line( snapfile_def *sd, int rej )
 
     /* Check that there is no spurious data on the line */
 
-    if( !df_end_of_line( sd->df ) )
+    if( !sd->scanner().atEnd() )
     {
         if( startgrp )
         {
-            df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in grouped data instrument station line");
+            sd->error( TOO_MUCH_DATA, "Extra data in grouped data instrument station line");
         }
         else
         {
-           df_data_file_error( sd->df, TOO_MUCH_DATA, "Extra data in data file");
+            sd->error( TOO_MUCH_DATA, "Extra data in data file");
         }
     }
     return OK;
@@ -2234,21 +2001,16 @@ static int read_data_line( snapfile_def *sd, int rej )
 
 static void process_command( snapfile_def *sd )
 {
-    command *cmd;
-    char  cmdname[COMLEN];
+    std::string cmdname;
 
-    df_read_field( sd->df, cmdname, COMLEN );
+    read_string_field( sd->scanner(), cmdname, MAX_COMMAND_LEN );
 
-    for( cmd = commands; cmd->command; cmd++ )
+    const auto cmd = std::find_if( std::begin( commands ), std::end( commands ),
+        [&cmdname]( const command &known ) { return boost::algorithm::iequals( known.command, cmdname ); } );
+
+    if( cmd == std::end( commands ) )
     {
-        if( _stricmp( cmd->command, cmdname ) == 0 ) break;
-    }
-
-    if( !cmd->command )
-    {
-        char errmsg[80];
-        sprintf(errmsg,"Invalid data definition command \"#%.30s\"",cmdname);
-        df_data_file_error( sd->df, INVALID_DATA, errmsg );
+        sd->error( INVALID_DATA, "Invalid data definition command \"#" + cmdname.substr( 0, 30 ) + "\"" );
         return;
     }
 
@@ -2264,38 +2026,30 @@ static void process_command( snapfile_def *sd )
 
 int read_snap_data( DATAFILE *df, int (*check_progress)( DATAFILE *df ) )
 {
-    snapfile_def sd;
-    int sts;
+    df->read_record();  /* Skip over the header line */
 
-    df_read_data_file( df );  /* Skip over the header line */
+    snapfile_def sd( df );
 
-    init_snapfile_def( &sd, df );
-
-    sts = OK;
-    while( df_read_data_file( df ) == OK )
+    int sts = OK;
+    while( df->read_record() == OK )
     {
-        char prefix[2];
-        int rej;
         if( check_progress && !(*check_progress)(df) )
         {
             sts = OPERATION_ABORTED;
             break;
         }
-        if( !df_read_field( df, prefix, 2 )) continue;
-        df_reread_field( df );
-        if( prefix[0] == COMMAND_PREFIX )
+        FieldScanner &scanner = df->input_string().scanner;
+        if( scanner.atEnd() ) continue;
+        if( scanner.skipIfNext( COMMAND_PREFIX ) )
         {
-            df_skip_character( df );
             process_command( &sd );
         }
         else if( !sd.definition_err )
         {
-            rej = (prefix[0] == REJECT_CHAR);
-            if( rej ) df_skip_character( df );
+            const bool rej = scanner.skipIfNext( REJECT_CHAR );
             read_data_line( &sd, rej );
         }
     }
     if( sd.ingroup ) end_group( &sd, 0 );
-    term_snapfile_def( &sd );
     return sts;
 }
