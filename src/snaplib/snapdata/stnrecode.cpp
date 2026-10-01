@@ -605,7 +605,7 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
         else
         {
             std::string filename(*filenameField);
-            int sts=read_station_recode_file( stt, filename.c_str(), basefile.c_str() );
+            int sts=read_station_recode_file( stt, filename, basefile );
             if( sts != OK )
             {
                 sprintf(msg,"Error reading station recode file %.*s",MAX_FILENAME_LEN,filename.c_str());

@@ -114,13 +114,12 @@ void SnapCsvRecode::dataError( const std::string &message )
 
 #include "snap/stnadj.h"
 
-int read_station_recode_file( stn_recode_map *stt, const char *filename, const char *basefile  )
+int read_station_recode_file( stn_recode_map *stt, std::string_view filename, std::string_view basefile )
 {
     int sts = OK;
     try
     {
-        std::optional<std::string> base = basefile ? std::optional<std::string>(basefile) : std::nullopt;
-        auto recodefile = find_file( filename, DFLTSTRCD_EXT, base, FF_TRYALL, "" );
+        auto recodefile = find_file( std::string( filename ), DFLTSTRCD_EXT, std::string( basefile ), FF_TRYALL, "" );
         if( ! recodefile )
         {
             std::ostringstream os;
@@ -139,7 +138,7 @@ int read_station_recode_file( stn_recode_map *stt, const char *filename, const c
             return INVALID_DATA;
         }
         SnapCsvRecode csvstnrecode( stt, *formatfile );
-        DatafileInput dfi( recodefilename.c_str(),"station recode file" );
+        DatafileInput dfi( recodefilename,"station recode file" );
         csvstnrecode.load( dfi );
         if( dfi.errorCount()) sts = INVALID_DATA;
     }
