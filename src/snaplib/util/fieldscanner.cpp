@@ -161,6 +161,11 @@ int compare_ignoring_case( std::string_view string1, std::string_view string2 )
     return std::lexicographical_compare( string2.begin(), string2.end(), string1.begin(), string1.end(), foldedLess ) ? 1 : 0;
 }
 
+int compare_ignoring_case( std::string_view string1, std::string_view string2, size_t maxLength )
+{
+    return compare_ignoring_case( string1.substr( 0, maxLength ), string2.substr( 0, maxLength ) );
+}
+
 /// Reduces a character to the form used when comparing names. Letters become
 /// lower case, and spaces, control characters, DEL and characters outside
 /// ASCII all become an underscore. Other characters are unchanged.

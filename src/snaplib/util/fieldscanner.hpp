@@ -196,6 +196,14 @@ int compare_ignoring_case(
     std::string_view string1,    ///< the first string
     std::string_view string2 );  ///< the second string
 
+/// Compares at most the first maxLength characters of two strings ignoring
+/// case, matching _strnicmp. A string shorter than maxLength is compared in
+/// full, so it sorts before a longer string that it is a prefix of.
+int compare_ignoring_case(
+    std::string_view string1,    ///< the first string
+    std::string_view string2,    ///< the second string
+    size_t maxLength );          ///< the maximum number of characters to compare
+
 /// Tests whether two names are the same, ignoring case and treating spaces,
 /// underscores, control characters and characters outside ASCII as
 /// interchangeable. So "Day Shift", "day_shift" and "DAY_SHIFT" all match.

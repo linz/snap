@@ -277,6 +277,14 @@ void check_compare_ignoring_case()
     check( compare_ignoring_case("_","A") == -1, "compare_ignoring_case: underscore sorts before upper case letters" );
     // A byte above 127 must not be treated as a negative char
     check( compare_ignoring_case("\xE9","a") == 1, "compare_ignoring_case: high bytes sort after ASCII" );
+
+    // The length limited form compares only the first maxLength characters
+    check( compare_ignoring_case("#Layer name","#layer",6) == 0, "compare_ignoring_case: limited compare ignores the tail" );
+    check( compare_ignoring_case("#layer","#LAYER",6) == 0, "compare_ignoring_case: limited compare ignores case" );
+    check( compare_ignoring_case("#layx","#layer",6) == 1, "compare_ignoring_case: limited compare sorts a short string by its content" );
+    check( compare_ignoring_case("#lay","#layer",6) == -1, "compare_ignoring_case: limited compare of a short prefix sorts first" );
+    check( compare_ignoring_case("#lay","#layer",3) == 0, "compare_ignoring_case: limit shorter than both strings" );
+    check( compare_ignoring_case("abc","abd",0) == 0, "compare_ignoring_case: zero limit always matches" );
 }
 
 void check_is_name_match()
