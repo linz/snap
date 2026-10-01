@@ -302,7 +302,7 @@ static int relacc_create_blt_req( stn_relacc_array *ra )
             ra->blt = NULL;
         }
 
-        BINARY_FILE *b = open_binary_file( const_cast<char*>(ra->binfn.c_str()), BINFILE_SIGNATURE ).file;
+        BINARY_FILE *b = open_binary_file( ra->binfn, BINFILE_SIGNATURE ).file;
         if( !b ) { if( saved_col ) check_free( saved_col ); return 0; }
         if( find_section(b, "CHOLESKI_DECOMPOSITION") != OK )
         {
@@ -334,7 +334,7 @@ static void cache_covariance_matrix( stn_relacc_array *ra, const std::string &cf
     if( ! ra->blt ) return;
     if( ! ra->bltupdated ) return;
     BINARY_FILE *c;
-    c=create_binary_file(const_cast<char*>(cfn.c_str()),CACHE_COVARIANCE_SIG);
+    c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
     if( ! c ) return;
     create_section(c,CACHE_COVARIANCE_SECTION);
     fwrite(run_time,GETDATELEN,1,c->f);
@@ -808,11 +808,19 @@ static std::string cache_covariance_filename( const std::string &bfn )
     return bfn.substr(0,flen) + CACHE_COVARIANCE_EXT;
 }
 
+/// The text of a run date held in a fixed size buffer, up to the first NUL.
+/// Bytes after the NUL are ignored, as they were when the buffers were compared with _strnicmp.
+static std::string_view run_date_text( const char (&buffer)[GETDATELEN] )
+{
+    const std::string_view text( buffer, GETDATELEN );
+    return text.substr( 0, text.find( '\0' ) );
+}
+
 static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string &cfn )
 {
     BINARY_FILE *c;
     char cruntime[GETDATELEN];
-    c=open_binary_file(const_cast<char*>(cfn.c_str()),CACHE_COVARIANCE_SIG).file;
+    c=open_binary_file(cfn,CACHE_COVARIANCE_SIG).file;
     if( ! c ) return 0;
     if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
     {
@@ -820,7 +828,7 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string
         return 0;
     }
     fread( cruntime, GETDATELEN, 1, c->f );
-    if( _strnicmp(cruntime,run_time,GETDATELEN) != 0 )
+    if( compare_ignoring_case( run_date_text(cruntime), run_date_text(run_time) ) != 0 )
     {
         printf("Covariance cache file out of date - deleting %s\n",cfn.c_str());
         close_binary_file(c);
@@ -1120,30 +1128,25 @@ static const char *relacc_role_string( stn_relacc_array *ra, short role )
     return "";
 }
 
-static char *output_filename( const char *filename, const char *basename, const char *ext )
+static std::string output_filename( std::string_view filename, const std::string &basename, std::string_view ext )
 {
-    if( filename[0] == '+' )
+    if( ! filename.empty() && filename.front() == '+' )
     {
-        ext=filename+1;
-        filename=0;
+        ext = filename.substr( 1 );
     }
-    if( filename && _stricmp(filename,default_output_filename) != 0 )
+    else if( ! boost::algorithm::iequals( filename, default_output_filename ) )
     {
-        return copy_string(filename);
+        return std::string( filename );
     }
-    int flen=path_len(basename,1);
-    char *ofilename=(char *) check_malloc(flen+strlen(ext)+1);
-    strncpy(ofilename,basename,flen);
-    strcpy(ofilename+flen,ext);
-    return ofilename;
+    return basename.substr( 0, path_len( basename.c_str(), 1 ) ) + std::string( ext );
 }
 
-static void write_output_csv( char *csvname, stn_relacc_array *ra )
+static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
 {
-    output_csv *csv=open_output_csv(csvname,0);
+    output_csv *csv=open_output_csv(csvname.c_str(),0);
     if( ! csv )
     {
-        printf("\nCannot open results csv file %s\n",csvname);
+        printf("\nCannot open results csv file %s\n",csvname.c_str());
         return;
     } 
 
@@ -1310,13 +1313,11 @@ static int stations_of_order( station *st )
     return sa->obscount == station_order;
 }
 
-static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, char *fname )
+static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, const std::string &fname )
 {
     int i;
     int iorder;
-    char *crdfilebuf;
     char comment[80];
-    crdfilebuf = (char *) check_malloc( strlen(fname)+SYSCODE_LEN+10);
 
     /* Copy the order to the stnadjustment obscount element */
 
@@ -1338,16 +1339,14 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, char *fname 
             char *order;
             if( ra->order[i] != iorder ) continue;
             order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
-            sprintf(crdfilebuf,"%s_%s.crd",fname,order);
+            const std::string crdfile = fname + "_" + order + ".crd";
             sprintf(comment,"Stations assigned order %s by snapspec - run at %s",
                     order,spec_run_time);
             station_order = iorder;
-            write_network(net,crdfilebuf,comment,coord_precision,stations_of_order);
+            write_network(net,crdfile.c_str(),comment,coord_precision,stations_of_order);
             break;
         }
     }
-
-    check_free(crdfilebuf);
 }
 
 static void copy_unused_roles_to_orders( stn_relacc_array *ra )
@@ -1390,10 +1389,10 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
 }
 
 
-static void update_crdfile( char *fname )
+static void update_crdfile( const std::string &fname )
 {
-    write_network( net, fname, "Coordinate orders updated by snapspec",coord_precision,0);
-    printf("Updated station orders in %s\n",fname);
+    write_network( net, fname.c_str(), "Coordinate orders updated by snapspec",coord_precision,0);
+    printf("Updated station orders in %s\n",fname.c_str());
 }
 
 static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const char **max_order_str )
@@ -2624,7 +2623,6 @@ static const char *default_cfg_name = "snapspec";
 
 int main( int argc, char *argv[] )
 {
-    char *bfn;
     CFG_FILE *cfg = 0;
     std::optional<std::string> cfn;
     const char *basecfn, *ofn;
@@ -2797,7 +2795,7 @@ int main( int argc, char *argv[] )
         return 0;
     }
 
-    bfn = argv[1];
+    const std::string bfn = argv[1];
 
     if( argc == 3 )
     {
@@ -2829,7 +2827,7 @@ int main( int argc, char *argv[] )
     }
     fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
     fprintf(out,"Run at %s\n",spec_run_time);
-    fprintf(out,"SNAP binary file: %s\n",bfn);
+    fprintf(out,"SNAP binary file: %s\n",bfn.c_str());
     fprintf(out,"Spec configuration file: %s\n",cfn?cfn->c_str():nullptr);
 
     if( cfn ) { cfg = open_config_file( *cfn, '!' );}
@@ -2847,8 +2845,8 @@ int main( int argc, char *argv[] )
             reload_stations( b ) != OK )
     {
 
-        fprintf(out,"Cannot reload data from binary file %s\n", bfn);
-        printf( "snapspec: Cannot reload data from binary file %s\n", bfn);
+        fprintf(out,"Cannot reload data from binary file %s\n", bfn.c_str());
+        printf( "snapspec: Cannot reload data from binary file %s\n", bfn.c_str());
         return 0;
     }
 
@@ -2893,11 +2891,11 @@ int main( int argc, char *argv[] )
         fprintf(out,"Cannot reload covariance data from binary file %s\n"
                 "Make sure that the SNAP command file includes \"output all_relative_covariances\"\n"
                 "or \"output decomposition\"\n",
-                bfn );
+                bfn.c_str() );
         printf( "snapspec: Cannot reload covariance data from binary file %s\n"
                 "Make sure the SNAP command file includes\n"
                 "   output all_relative_covariances or\n"
-                "   output decomposition\n", bfn);
+                "   output decomposition\n", bfn.c_str());
         return 1;
     }
 
@@ -2988,14 +2986,13 @@ int main( int argc, char *argv[] )
     debugfile=0;
     if( debugcsvname )
     {
-        char *csvfile=output_filename(debugcsvname,bfn,SNAPSPEC_CSV_EXT);
-        debugfile=fopen(csvfile,"w");
+        const std::string csvfile=output_filename(debugcsvname,bfn,SNAPSPEC_CSV_EXT);
+        debugfile=fopen(csvfile.c_str(),"w");
         if( ! debugfile )
         {
-            printf("Cannot create debug output file %s\n",csvfile);
+            printf("Cannot create debug output file %s\n",csvfile.c_str());
             return 1;
         }
-        check_free(csvfile);
         ra->dbgfile=debugfile;
         hsdc->loglevel |= SDC_LOG_COMPACT;
     }
@@ -3018,11 +3015,10 @@ int main( int argc, char *argv[] )
         if( ! outputcsvname && ! ra->csvoutput.empty() ) outputcsvname=ra->csvoutput.data();
         if( outputcsvname )
         {
-            char *csvfile=output_filename(outputcsvname,bfn,SNAPSPEC_CSV_EXT);
+            const std::string csvfile=output_filename(outputcsvname,bfn,SNAPSPEC_CSV_EXT);
             write_output_csv( csvfile, ra );
-            fprintf(out,"\nResults written to CSV file %s\n",csvfile);
-            printf("Results written to CSV file %s\n",csvfile);
-            check_free(csvfile);
+            fprintf(out,"\nResults written to CSV file %s\n",csvfile.c_str());
+            printf("Results written to CSV file %s\n",csvfile.c_str());
         }
         else
         {
@@ -3034,18 +3030,17 @@ int main( int argc, char *argv[] )
         {
             if( splitcrdfile || ra->splitcrdfile ) 
             {
-                char *crdfile=output_filename(updatecrdfile,bfn,"");
+                const std::string crdfile=output_filename(updatecrdfile,bfn,"");
                 write_coord_files( hsdc, ra, crdfile );
-                fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile);
-                printf("Split coordinate files written to %s...\n",crdfile);
+                fprintf(out,"\nSplit coordinate files written to %s...\n",crdfile.c_str());
+                printf("Split coordinate files written to %s...\n",crdfile.c_str());
             }
             else
             {
-                char *crdfile=output_filename(updatecrdfile,bfn,SNAPSPEC_CRD_EXT);
+                const std::string crdfile=output_filename(updatecrdfile,bfn,SNAPSPEC_CRD_EXT);
                 update_crdfile( crdfile );
-                fprintf(out,"\nUpdated coordinate file written to %s\n",crdfile);
-                printf("Updated coordinate file written to %s\n",crdfile);
-                check_free(crdfile);
+                fprintf(out,"\nUpdated coordinate file written to %s\n",crdfile.c_str());
+                printf("Updated coordinate file written to %s\n",crdfile.c_str());
             }
         }
     }
