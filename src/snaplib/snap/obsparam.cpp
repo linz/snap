@@ -14,7 +14,6 @@ using boost::numeric_cast;
 #include "snap/stnadj.h"
 #include "snap/bindata.h"
 #include "snap/obsparam.h"
-#include "util/chkalloc.h"
 #include "util/errdef.h"
 
 
@@ -245,9 +244,9 @@ int assign_obs_param_to_stations( int *pnstnobs )
 void set_obs_prm_row_number( int nxtprm, int endobsprm )
 {
     if( get_obs_param_count() <= 0 ) return;
-    int *rownoptr=0;
-    int *strn=0;
-    int *stno=0;
+    int *rownoptr=nullptr;
+    std::vector<int> strn;
+    std::vector<int> stno;
     int nstn=number_of_stations(net);
     for( obs_param &oprm : obs_params )
     {
@@ -259,21 +258,20 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
         }
         else 
         {
-            if( ! strn )
+            if( strn.empty() )
             {
-                strn=(int *) check_malloc(sizeof(int)*(nstn+1)*2);
-                stno=strn+nstn+1;
-                strn[0]=stno[0]=0;
-                for( int ist=0; ist++<nstn; )
+                strn.assign( nstn+1, 0 );
+                stno.assign( nstn+1, 0 );
+                for( int ist=1; ist<=nstn; ist++ )
                 {
-                    stn_adjustment *sa=stnadj(stnptr(ist));
+                    const stn_adjustment *sa=stnadj(stnptr(ist));
                     int rn = sa->hrowno ? sa->hrowno+2 : 0;
                     if( sa->vrowno ) rn=sa->vrowno+1;
                     strn[ist]=rn;
                     stno[ist]=sa->nobsprm;
                 }
             }
-            rownoptr=strn+istn;
+            rownoptr=&strn[istn];
             stno[istn]--;
         }
         if( ! *rownoptr )
@@ -290,17 +288,13 @@ void set_obs_prm_row_number( int nxtprm, int endobsprm )
                 "set_obs_prm_row_number");
     }
 
-    if( strn )
+    for( int ist = 1; ist <= nstn && ! stno.empty(); ist++ )
     {
-        for( int ist = 0; ist++ < nstn; )
+        if( stno[ist] != 0 )
         {
-            if( stno[ist] != 0 )
-            {
-                handle_error(FATAL_ERROR,"Mismatch in number of station obs parameters set",
-                    "set_obs_prm_row_number");
-            }
+            handle_error(FATAL_ERROR,"Mismatch in number of station obs parameters set",
+                "set_obs_prm_row_number");
         }
-        check_free(strn);
     }
 }
 

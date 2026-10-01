@@ -58,11 +58,13 @@ The procedure requires the following sequence of calls
 #include <algorithm>
 #include <array>
 #include <cctype>
+#include <memory>
 #include <string>
 #include <string_view>
 #include <vector>
 
-#include "util/chkalloc.h"
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "util/dstring.h"
 #include "snap/genparam.h"
 #include "util/linklist.h"
@@ -101,12 +103,12 @@ struct prm_action
 #define PA_MATCH     3
 #define PA_WILDCARD  8
 
-#define PRMLIST_INC 20
+/// The parameters in the order they were defined. The parameter id is the index plus one.
+static std::vector<std::unique_ptr<param>> prmlist;
 
-static int nparam = 0;
-static int nprmlist = 0;
-static param** prmlist = NULL;
-static int* srtlist = NULL;
+/// The parameter ids in case insensitive name order.
+static std::vector<int> srtlist;
+
 static std::vector<prm_action> action_list;
 
 static constexpr std::array<std::string_view,4> coefprefix =
@@ -138,7 +140,7 @@ void set_default_refcoef( double value )
 
 int param_count( void )
 {
-    return nparam;
+    return boost::numeric_cast<int>( prmlist.size() );
 }
 
 static unsigned int hash( std::string_view name )
@@ -180,32 +182,21 @@ static void sort_param( int n )
 
 int define_param( std::string_view name, double value, int adjust )
 {
-    int p;
-    param *prm;
-
-    p = find_param( name );
+    int p = find_param( name );
     if( !p )
     {
-        prm = new param();
+        auto prm = std::make_unique<param>();
         prm->name = name;
         prm->hash = hash(name);
         prm->identical = 0;
         prm->flags = 0;
 
-        if( nparam >= nprmlist )
-        {
-            nprmlist = nparam + PRMLIST_INC;
-            prmlist = (param **) check_realloc( prmlist, nprmlist * sizeof(param));
-            srtlist = (int *) check_realloc( srtlist, nprmlist * sizeof(int));
-        }
-
-        prmlist[nparam] = prm;
-        srtlist[nparam] = nparam+1;
-        nparam++;
-        sort_param(nparam-1);
-        p = nparam;
+        prmlist.push_back( std::move( prm ) );
+        p = param_count();
+        srtlist.push_back( p );
+        sort_param( p-1 );
     }
-    reset_param( prmlist[p-1], value, adjust );
+    reset_param( prmlist[p-1].get(), value, adjust );
     return p;
 }
 
@@ -219,39 +210,36 @@ void flag_param_listed( int p )
     if( p ) prmlist[p-1]->flags |= PRM_LISTED;
 }
 
-static int get_param_id( param *p )
+static int get_param_id( const param *p )
 {
-    int i;
-    for( i = 0; i < nparam; i++ )
+    for( int i = 0; i < param_count(); i++ )
     {
-        if( prmlist[i] == p ) return i+1;
+        if( prmlist[i].get() == p ) return i+1;
     }
     return 0;
 }
 
 param * param_from_id( int pid )
 {
-    if( pid <= 0 || pid > nparam ) return 0;
-    return prmlist[pid - 1];
+    if( pid <= 0 || pid > param_count() ) return nullptr;
+    return prmlist[pid - 1].get();
 }
 
 static param *identical_param_ptr( param *p )
 {
     if( !p->identical ) return p;
-    return prmlist[p->identical-1];
+    return prmlist[p->identical-1].get();
 }
 
 int sorted_param_id( int n )
 {
-    if( n <= 0 || n > nparam ) return 0;
+    if( n <= 0 || n > param_count() ) return 0;
     return srtlist[n-1];
 }
 
 static void merge_params( param *p1, param *p2 )
 {
-    int p2id;
-    int np;
-    if( !nparam ) return;
+    if( prmlist.empty() ) return;
 
     p1 = identical_param_ptr( p1 );
     p2 = identical_param_ptr( p2 );
@@ -272,27 +260,24 @@ static void merge_params( param *p1, param *p2 )
     }
 
     p2->identical = get_param_id( p1 );
-    p2id = get_param_id( p2 );
-    for( np = 0; np < nparam; np++ )
+    const int p2id = get_param_id( p2 );
+    for( const std::unique_ptr<param> &prm : prmlist )
     {
-        if( prmlist[np]->identical == p2id )
-            prmlist[np]->identical = p2->identical;
+        if( prm->identical == p2id )
+            prm->identical = p2->identical;
     }
 
 }
 
 int find_param( std::string_view name )
 {
-    int p;
-    unsigned int hashedname;
-    if( !nparam ) return 0;
-    hashedname = hash(name);
-    for( p = 0; p < nparam; p++ )
-    {
-        if( hashedname == prmlist[p]->hash &&
-                prmlist[p]->name == name ) return p+1;
-    }
-    return 0;
+    const unsigned int hashedname = hash(name);
+    const auto found = std::find_if( prmlist.begin(), prmlist.end(),
+        [&]( const std::unique_ptr<param> &prm )
+        {
+            return hashedname == prm->hash && prm->name == name;
+        } );
+    return found == prmlist.end() ? 0 : boost::numeric_cast<int>( found - prmlist.begin() ) + 1;
 }
 
 double param_value( int p )
@@ -335,11 +320,10 @@ static void do_prm_actions( void )
         {
             prm_action apa = pa;
             apa.action &= ~PA_WILDCARD;
-            for( int np=0; np < nparam; np++ )
+            for( const std::unique_ptr<param> &p : prmlist )
             {
-                param *p = prmlist[np];
                 if( ! wildcard_match(pa.wildcard,p->name) ) continue;
-                apa.prm = p;
+                apa.prm = p.get();
                 do_action( apa );
             }
         }
@@ -352,14 +336,10 @@ static void do_prm_actions( void )
 
 static void merge_common_params( void )
 {
-    param *p, *ip;
-    int np;
-
-    for( np = 0; np < nparam; np++ )
+    for( const int pid : srtlist )
     {
-
-        p = param_from_id(srtlist[np]);
-        ip = identical_param_ptr(p);
+        param *p = param_from_id(pid);
+        param *ip = identical_param_ptr(p);
         if( ip != identical_param_ptr(ip) )
         {
             merge_params( p, identical_param_ptr(ip) );
@@ -369,16 +349,10 @@ static void merge_common_params( void )
 
 std::optional<std::string> find_param_row( const int row )
 {
-    for( int np = 0; np < nparam; np++ )
-    {
-        const param *p = prmlist[np];
-
-        if( p->rowno == row )
-        {
-            return p->name;
-        }
-    }
-    return std::nullopt;
+    const auto found = std::find_if( prmlist.begin(), prmlist.end(),
+        [row]( const std::unique_ptr<param> &p ) { return p->rowno == row; } );
+    if( found == prmlist.end() ) return std::nullopt;
+    return (*found)->name;
 }
 
 
@@ -386,22 +360,21 @@ int param_rowno( int pid )
 {
     param *p;
     if( !pid ) return 0;
-    p = identical_param_ptr(prmlist[pid-1]);
+    p = identical_param_ptr(prmlist[pid-1].get());
     if( !p ) return 0;
     return p->rowno;
 }
 
 int identical_param( int pid )
 {
-    param *p;
     if( !pid ) return 0;
-    p = prmlist[pid-1];
+    const param *p = prmlist[pid-1].get();
     return p ? p->identical : 0;
 }
 
 void define_param_value( int pid, double value, int adjust )
 {
-    action_list.emplace_back( adjust ? PA_ADJ : PA_SET, prmlist[pid-1], value );
+    action_list.emplace_back( adjust ? PA_ADJ : PA_SET, prmlist[pid-1].get(), value );
 }
 
 void wildcard_param_value( std::string_view name, double value, int adjust )
@@ -411,21 +384,18 @@ void wildcard_param_value( std::string_view name, double value, int adjust )
 
 void define_param_match( int pid1, int pid2 )
 {
-    action_list.emplace_back( PA_MATCH, prmlist[pid1-1], prmlist[pid2-1] );
+    action_list.emplace_back( PA_MATCH, prmlist[pid1-1].get(), prmlist[pid2-1].get() );
 }
 
 void wildcard_param_match( std::string_view name, int pid )
 {
-    action_list.emplace_back( PA_MATCH | PA_WILDCARD, name, prmlist[pid-1] );
+    action_list.emplace_back( PA_MATCH | PA_WILDCARD, name, prmlist[pid-1].get() );
 }
 
 
 int init_param_rowno( int nextprm )
 {
-    param *p;
-    int np;
-
-    if( !nparam ) return nextprm;
+    if( prmlist.empty() ) return nextprm;
 
     /* Sort needed for merging parameters to word correctly */
     /* Apply parameter constraints, etc */
@@ -433,9 +403,9 @@ int init_param_rowno( int nextprm )
     do_prm_actions();
     merge_common_params();
 
-    for( np = 0; np < nparam; np++ )
+    for( const int pid : srtlist )
     {
-        p = param_from_id(srtlist[np]);
+        param *p = param_from_id(pid);
         p->rowno = 0;
         if( p->identical ) continue;
         if( !(p->flags & PRM_ADJUST ) ) continue;
@@ -454,24 +424,8 @@ int init_param_rowno( int nextprm )
 void clear_param_list( void )
 {
     action_list.clear();
-    if( nparam )
-    {
-        int np;
-        for( np = 0; np < nparam; np++ )
-        {
-            delete prmlist[np];
-        }
-        nparam = 0;
-    }
-
-    if( nprmlist )
-    {
-        check_free( prmlist );
-        check_free( srtlist );
-        prmlist = NULL;
-        srtlist = NULL;
-        nprmlist = 0;
-    }
+    prmlist.clear();
+    srtlist.clear();
 }
 
 
@@ -553,41 +507,40 @@ static void read_param_fixed_width( FILE *f, param &p )
 
 void dump_parameters( BINARY_FILE *b )
 {
-    int np, nprm;
     create_section( b, "MISCPARAMS" );
-    nprm = nparam;
+    const int nprm = param_count();
     fwrite( &nprm, sizeof(nprm), 1, b->f );
-    for( np = 0; np < nparam; np++ )
+    for( const std::unique_ptr<param> &p : prmlist )
     {
-        write_param_fixed_width( *prmlist[np], b->f );
-        dump_string( prmlist[np]->name, b->f );
+        write_param_fixed_width( *p, b->f );
+        dump_string( p->name, b->f );
     }
-    fwrite( srtlist, sizeof(int), nparam, b->f );
+    fwrite( srtlist.data(), sizeof(int), srtlist.size(), b->f );
     end_section( b );
 }
 
 int reload_parameters( BINARY_FILE *b )
 {
-    int np, nprm;
     clear_param_list();
     if( find_section( b, "MISCPARAMS" ) != OK ) return MISSING_DATA;
+    int nprm = 0;
     if( fread( &nprm, sizeof(nprm), 1, b->f ) != 1 ) return INVALID_DATA;
-    if( nprm )
+    if( nprm < 0 ) return INVALID_DATA;
+
+    std::vector<std::unique_ptr<param>> params;
+    for( int np = 0; np < nprm; np++ )
     {
-        nprmlist = nprm;
-        prmlist = (param **) check_malloc( nprm * sizeof(param *) );
-        srtlist = (int *) check_malloc( nprm * sizeof(int) );
-    }
-    for( np = 0; np < nprm; np++ )
-    {
-        param *p = new param();
+        auto p = std::make_unique<param>();
         read_param_fixed_width( b->f, *p );
         p->name = reload_string( b->f );
         if( p->name.empty() ) return INVALID_DATA;
-        prmlist[np] = p;
+        params.push_back( std::move( p ) );
     }
-    if( (int) fread(srtlist,sizeof(int),nprm,b->f) != nprm ) return INVALID_DATA;
-    nparam = nprm;
+
+    std::vector<int> sorted( params.size() );
+    if( fread( sorted.data(), sizeof(int), sorted.size(), b->f ) != sorted.size() ) return INVALID_DATA;
+    prmlist = std::move( params );
+    srtlist = std::move( sorted );
 
     return check_end_section( b );
 }
