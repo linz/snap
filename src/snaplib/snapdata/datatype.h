@@ -12,6 +12,8 @@
 #ifndef _DATATYPE_H
 #define _DATATYPE_H
 
+#include <string_view>
+
 
 /* Data types
    GB = GPS baseline
@@ -82,9 +84,9 @@ struct datatypedef
 extern datatypedef datatype[];
 
 /* Returns NOBSTYPE if code is not valid */
-int datatype_from_code( const char *code );
+int datatype_from_code( std::string_view code );
 
-datatypedef* datatypedef_from_code( const char *code );
+datatypedef* datatypedef_from_code( std::string_view code );
 datatypedef *datatypedef_from_id( int idtype );
 
 #endif  /* DATATYPE_H not defined */

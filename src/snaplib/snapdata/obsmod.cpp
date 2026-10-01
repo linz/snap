@@ -236,7 +236,7 @@ static obs_criterion *new_obs_datatype_criterion( CFG_FILE *cfg, const std::stri
     {
         const auto tok=scanner.next('/');
         const std::string typecode( tok ? *tok : scanner.remainder() );
-        const int id=datatype_from_code( typecode.c_str() );
+        const int id=datatype_from_code( typecode );
         if( id == NOBSTYPE )
         {
             char errmess[80];
