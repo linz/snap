@@ -1067,7 +1067,7 @@ BINARY_FILE *open_dump_file( void )
 
     record_filename( bfn, "snap_binary" );
 
-    b = create_binary_file( const_cast<char*>(bfn.c_str()), BINFILE_SIGNATURE );
+    b = create_binary_file( bfn, BINFILE_SIGNATURE );
     if( !b )
     {
         handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn.c_str() );

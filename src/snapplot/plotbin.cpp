@@ -55,7 +55,7 @@ int reload_binary_data( )
 
     const std::string bfn = std::string(root_name).substr(0, path_len(root_name, 1)) + BINFILE_EXT;
 
-    auto [file, result] = open_binary_file( const_cast<char*>(bfn.c_str()), BINFILE_SIGNATURE );
+    auto [file, result] = open_binary_file( bfn, BINFILE_SIGNATURE );
     b = file;
 
     if( !b )

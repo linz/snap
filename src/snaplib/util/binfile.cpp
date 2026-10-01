@@ -67,7 +67,7 @@
 constexpr size_t sig_trailer_length = sizeof(SIG_TRAILER) - 1;
 constexpr size_t end_section_length = sizeof(ENDSECTION) - 1;
 
-BINARY_FILE *create_binary_file( char *fname, const std::string &signature )
+BINARY_FILE *create_binary_file( const std::string &fname, const std::string &signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;
@@ -84,7 +84,7 @@ BINARY_FILE *create_binary_file( char *fname, const std::string &signature )
         shflag = _SH_DENYRW;
         pflag = _S_IREAD | _S_IWRITE;
 
-        fd = _sopen( fname, oflag, shflag, pflag );
+        fd = _sopen( fname.c_str(), oflag, shflag, pflag );
 
         if( fd != -1 )
         {
@@ -93,7 +93,7 @@ BINARY_FILE *create_binary_file( char *fname, const std::string &signature )
         }
     }
 #else
-    f = fopen( fname, "w+b" );
+    f = fopen( fname.c_str(), "w+b" );
 #endif
 
     if( !f ) return NULL;
@@ -123,7 +123,7 @@ BINARY_FILE *create_binary_file( char *fname, const std::string &signature )
 }
 
 
-BinFileOpenOutcome open_binary_file( char *fname, const std::string &signature )
+BinFileOpenOutcome open_binary_file( const std::string &fname, const std::string &signature )
 {
     FILE *f = NULL;
     BINARY_FILE *b;
@@ -145,7 +145,7 @@ BinFileOpenOutcome open_binary_file( char *fname, const std::string &signature )
         shflag = _SH_DENYWR;
         pflag = _S_IREAD | _S_IWRITE;
 
-        fd = _sopen( fname, oflag, shflag, pflag );
+        fd = _sopen( fname.c_str(), oflag, shflag, pflag );
 
         if( fd != -1 )
         {
@@ -153,7 +153,7 @@ BinFileOpenOutcome open_binary_file( char *fname, const std::string &signature )
         }
     }
 #else
-    f = fopen( fname, "rb" );
+    f = fopen( fname.c_str(), "rb" );
 #endif
     if( !f ) return { NULL, BinFileOpenResult::NotFound };
 

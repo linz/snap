@@ -52,7 +52,7 @@ struct BinFileOpenOutcome
 /// \return the new file's handle, or nullptr if fname could not be opened
 ///         for writing.
 BINARY_FILE *create_binary_file(
-    char *fname,                    ///< path of the file to create
+    const std::string &fname,       ///< path of the file to create
     const std::string &header );    ///< the signature identifying this file's format/version, e.g. "SNAP binary file version 3.0"
 
 /// Opens an existing binary file at fname for reading, verifying its
@@ -61,7 +61,7 @@ BINARY_FILE *create_binary_file(
 /// \return the opened file and why it succeeded or failed - see
 ///         BinFileOpenResult.
 BinFileOpenOutcome open_binary_file(
-    char *fname,                    ///< path of the file to open
+    const std::string &fname,       ///< path of the file to open
     const std::string &header );    ///< the expected signature, e.g. "SNAP binary file version 3.0"
 
 /// Finalizes and closes bin, completing its signature (see
