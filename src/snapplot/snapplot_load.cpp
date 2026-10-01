@@ -100,11 +100,11 @@ int snapplot_load( int argc, char *argv[] )
                 }
                 else if( arg[2] )
                 {
-                    add_background_file( arg+2, NULL, NULL );
+                    add_background_file( arg+2 );
                 }
                 else if( ++narg < argc )
                 {
-                    add_background_file( argv[narg], NULL, NULL );
+                    add_background_file( argv[narg] );
                 }
                 else
                 {

@@ -701,7 +701,7 @@ static void setup_background_layers()
     for( int i = 0; i < nlayer; i++ )
     {
         layer_s *l = &(background_layers[i]);
-        init_layer(l,background_layer_name(i+1),dflt_background_colour,false);
+        init_layer(l,background_layer_name(i+1).c_str(),dflt_background_colour,false);
     }
     background_layers[nlayer].name = 0;
 }

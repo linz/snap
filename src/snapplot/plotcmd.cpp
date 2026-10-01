@@ -367,9 +367,7 @@ static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, 
             }
             delete cs;
         }
-        std::string crdsysStr = crdsys ? std::string(*crdsys) : std::string();
-        std::string layerStr = layer ? std::string(*layer) : std::string();
-        add_background_file( fspec->c_str(), crdsys ? crdsysStr.data() : nullptr, layer ? layerStr.data() : nullptr );
+        add_background_file( *fspec, crdsys, layer );
         return OK;
     }
 

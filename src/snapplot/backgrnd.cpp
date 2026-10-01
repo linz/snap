@@ -18,6 +18,14 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <optional>
+#include <string>
+#include <string_view>
+#include <vector>
+
+#include <boost/algorithm/string.hpp>
+#include <boost/numeric/conversion/cast.hpp>
+
 #include "coordsys/coordsys.h"
 #include "backgrnd.h"
 #include "plotstns.h"
@@ -26,7 +34,7 @@
 #include "plotfunc.h"
 #include "util/errdef.h"
 #include "util/dstring.h"
-#include "util/linklist.h"
+#include "util/fieldscanner.hpp"
 #include "util/pi.h"
 #include "util/progress.h"
 #include "util/fileutil.h"
@@ -34,14 +42,14 @@
 
 struct background_file
 {
-    char *filename;
-    char *crdsysdef;
-    char *layer_name;
+    std::string filename;
+    std::optional<std::string> crdsysdef;
+    std::optional<std::string> layer_name;
 };
 
 struct background_layer
 {
-    char *layer_name;
+    std::string layer_name;
     int input_id;
     int pen_id;
 };
@@ -52,89 +60,59 @@ struct bkg_point
     double x, y;
 };
 
-static FILE *bkg_file = NULL;
-static void *bkg_list = NULL;
-static void *bkg_layers = NULL;
-static int npens = 0;
+static FILE *bkg_file = nullptr;
+static std::vector<background_file> bkg_list;
+static std::vector<background_layer> bkg_layers;
 static long npts = 0;
-static const char *whitespace = " \r\n\t";
 
-void add_background_file( const char *fname, char *crdsysdef, char *layer )
+void add_background_file( std::string_view fname, std::optional<std::string_view> crdsysdef, std::optional<std::string_view> layer )
 {
-    background_file *bf;
-    if( !bkg_list )
-    {
-        bkg_list = create_list( sizeof( background_file ) );
-    }
-    bf = (background_file *) add_to_list( bkg_list, NEW_ITEM );
-    bf->filename = copy_string( fname );
-    bf->crdsysdef = crdsysdef ? copy_string( crdsysdef ) : NULL;
-    bf->layer_name = layer ? copy_string( layer ) : NULL;
+    background_file bf;
+    bf.filename = std::string( fname );
+    if( crdsysdef ) bf.crdsysdef = std::string( *crdsysdef );
+    if( layer ) bf.layer_name = std::string( *layer );
+    bkg_list.push_back( std::move( bf ) );
 }
 
-static int add_layer( char *name, int id )
+static int add_layer( std::string_view name, int id )
 {
-    background_layer *bl;
-    if( ! bkg_layers )
-    {
-        bkg_layers = create_list( sizeof( background_layer ) );
-    }
-    bl = (background_layer *) add_to_list( bkg_layers, NEW_ITEM );
-    bl->layer_name = copy_string( name );
-    bl->input_id = id;
-    bl->pen_id = ++npens;
-    return npens;
+    const int pen_id = boost::numeric_cast<int>( bkg_layers.size() ) + 1;
+    bkg_layers.push_back( { std::string( name ), id, pen_id } );
+    return pen_id;
 }
 
 static int pen_id_from_id( int id )
 {
-    background_layer *bl;
-    char pen_name[40];
-    if( bkg_layers )
+    for( const background_layer &bl : bkg_layers )
     {
-        reset_list_pointer( bkg_layers );
-        while( NULL != (bl = (background_layer *) next_list_item( bkg_layers )) )
-        {
-            if( bl->input_id == id ) return bl->pen_id;
-        }
+        if( bl.input_id == id ) return bl.pen_id;
     }
-    sprintf(pen_name,"Background %d",id);
-    return add_layer(pen_name,id);
+    return add_layer( "Background " + std::to_string( id ), id );
 }
 
 
-static int pen_id_from_name( char *name )
+static int pen_id_from_name( std::string_view name )
 {
-    background_layer *bl;
-    if( bkg_layers )
+    for( const background_layer &bl : bkg_layers )
     {
-        reset_list_pointer( bkg_layers );
-        while( NULL != (bl = (background_layer *) next_list_item( bkg_layers )) )
-        {
-            if( _stricmp( bl->layer_name, name ) == 0 ) return bl->pen_id;
-        }
+        if( boost::algorithm::iequals( bl.layer_name, name ) ) return bl.pen_id;
     }
-    return add_layer(name,0);
+    return add_layer( name, 0 );
 }
 
 int background_layer_count( void )
 {
-    return npens;
+    return boost::numeric_cast<int>( bkg_layers.size() );
 }
 
-char *background_layer_name( int pen_id )
+const std::string &background_layer_name( int pen_id )
 {
-    background_layer *bl;
-    if( pen_id > npens || pen_id <= 0 ) return NULL;
-    reset_list_pointer( bkg_layers );
-    while( NULL != (bl = (background_layer *) next_list_item( bkg_layers )) )
-    {
-        if( bl->pen_id == pen_id ) return bl->layer_name;
-    }
-    return NULL;
+    static const std::string no_name;
+    if( pen_id > background_layer_count() || pen_id <= 0 ) return no_name;
+    return bkg_layers[pen_id - 1].layer_name;
 }
 
-static void load_background_file( background_file *bf )
+static void load_background_file( const background_file &bf )
 {
     FILE *in;
     coordsys *cs, *csp;
@@ -151,20 +129,20 @@ static void load_background_file( background_file *bf )
     long flines;
     char input_latlon;
 
-    in = fopen( bf->filename, "r" );
+    in = fopen( bf.filename.c_str(), "r" );
     if( !in ) return;
     skip_utf8_bom(in);
 
     csp = plot_projection();
     bad_coordsys = 1;
     got_conversion = 0;
-    cs = NULL;
+    cs = nullptr;
     need_conversion = 0;
     input_latlon = 0;
 
-    if( bf->crdsysdef )
+    if( bf.crdsysdef )
     {
-        cs = load_coordsys( bf->crdsysdef );
+        cs = load_coordsys( *bf.crdsysdef );
         if( cs )
         {
             need_conversion = ! identical_coordinate_systems( csp, cs );
@@ -173,16 +151,16 @@ static void load_background_file( background_file *bf )
         }
     }
 
-    if( bf->layer_name )
+    if( bf.layer_name )
     {
-        file_pen_id = pen_id_from_name( bf->layer_name );
+        file_pen_id = pen_id_from_name( *bf.layer_name );
     }
     else
     {
         file_pen_id = 0;
     }
 
-    print_log("\nLoading background file %s\n",bf->filename );
+    print_log("\nLoading background file %s\n",bf.filename.c_str() );
     firstpt = 1;
     fpts = 0;
     flines = 0;
@@ -200,24 +178,24 @@ static void load_background_file( background_file *bf )
             update_file_display();
             nlines = 0;
         }
-        if( _strnicmp( inrec, "#layer", 6 ) == 0 )
+        if( compare_ignoring_case( inrec, "#layer", 6 ) == 0 )
         {
-            char *layer;
-            layer = strtok( inrec+6, whitespace );
+            FieldScanner scanner( std::string_view( inrec ).substr( 6 ) );
+            const std::optional<std::string_view> layer = scanner.next();
             file_pen_id = 0;
-            if( layer ) file_pen_id = pen_id_from_name( layer );
+            if( layer ) file_pen_id = pen_id_from_name( *layer );
             continue;
         }
-        if( _strnicmp( inrec, "#coordsys", 9 ) == 0 )
+        if( compare_ignoring_case( inrec, "#coordsys", 9 ) == 0 )
         {
-            char *newcrdsys;
-            newcrdsys = strtok( inrec+9, whitespace );
-            if( cs ) { delete cs; cs = NULL; }
+            FieldScanner scanner( std::string_view( inrec ).substr( 9 ) );
+            const std::optional<std::string_view> newcrdsys = scanner.next();
+            if( cs ) { delete cs; cs = nullptr; }
             got_conversion = 0;
             bad_coordsys = 1;
             if( newcrdsys )
             {
-                cs = load_coordsys( newcrdsys );
+                cs = load_coordsys( *newcrdsys );
                 if( cs )
                 {
                     need_conversion = ! identical_coordinate_systems( csp, cs );
@@ -273,13 +251,11 @@ static void load_background_file( background_file *bf )
 
 void load_background_files( void )
 {
-    background_file *bf;
-    if( ! bkg_list ) return;
+    if( bkg_list.empty() ) return;
     if( !bkg_file ) bkg_file = snaptmpfile();
     if( !bkg_file ) return;
-    reset_list_pointer( bkg_list );
     npts = 0;
-    while( NULL != (bf = (background_file *) next_list_item( bkg_list )) )
+    for( const background_file &bf : bkg_list )
     {
         load_background_file( bf );
     }
