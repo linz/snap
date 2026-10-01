@@ -1125,7 +1125,6 @@ static const char *default_cfg_name = "snaplist";
 
 int main( int argc, char *argv[] )
 {
-    char *bfn;
     coordsys *xyzcs;
     double lat, lon;
     CFG_FILE *cfg = 0;
@@ -1146,7 +1145,7 @@ int main( int argc, char *argv[] )
     install_default_projections();
     install_default_crdsys_file( );
 
-    bfn = argv[1];
+    const std::string bfn = argv[1];
     b = open_binary_file( bfn, BINFILE_SIGNATURE ).file;
 
     if( !b ||
@@ -1156,7 +1155,7 @@ int main( int argc, char *argv[] )
             reload_rftransformations( b ) != OK )
     {
 
-        printf( "Cannot reload data from binary file %s\n", bfn);
+        printf( "Cannot reload data from binary file %s\n", bfn.c_str());
         return 0;
     }
 
