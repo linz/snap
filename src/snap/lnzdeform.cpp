@@ -50,7 +50,7 @@ static void delete_linzdefmodel( LinzDefModel *model )
     if( model == NULL ) return;
     if( model->linzdef ) { utlReleaseLinzDef(model->linzdef); model->linzdef = NULL; }
     if( model->binsrc ) { utlReleaseBinSrc(model->binsrc); model->binsrc = NULL; }
-    if( model->linzdef ) { utlBlobClose(model->blob); model->blob = NULL; }
+    if( model->blob ) { utlBlobClose(model->blob); model->blob = NULL; }
     if( model->stdefs ) { check_free(model->stdefs); model->stdefs = NULL; }
     check_free(model);
 }
