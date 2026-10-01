@@ -641,7 +641,7 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
         handle_error( INVALID_DATA, errmess, NULL  );
         return INVALID_DATA;
     }
-    record_filename( spec->c_str(), "station_list_file" );
+    record_filename( *spec, "station_list_file" );
 
     skip_utf8_bom(list_file);
 
@@ -817,7 +817,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 if( cs ) delete cs;
                 break;
             }
-            record_filename(spec->c_str(),"wkt_polygon_definition");
+            record_filename(*spec,"wkt_polygon_definition");
             c=new_polygon_criterion( pgn, cs, conv, isgeo, inside );
         }
 

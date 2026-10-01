@@ -390,7 +390,7 @@ int open_output_files( )
         handle_error( FILE_OPEN_ERROR, errmess,"Aborting program");
         return 0;
     }
-    record_filename( lst_name.c_str(), "listing" );
+    record_filename( lst_name, "listing" );
 
     if( ! output_noruntime ) print_report_header( lst );
 
@@ -403,7 +403,7 @@ int open_output_files( )
         return 0;
     }
 
-    record_filename( lst_name.c_str(), "error_listing" );
+    record_filename( lst_name, "error_listing" );
     if( ! output_noruntime ) print_report_header( err );
     print_section_header( err, "ERROR SUMMARY" );
     errcount = 0;
@@ -1054,7 +1054,7 @@ void print_solution_json_file()
     }
     else
     {
-        record_filename(bfn.c_str(),"solution_json");
+        record_filename(bfn,"solution_json");
         xprintf("\nCreating the JSON solution file %s\n",bfn.c_str());
     }
     if( !f ) return;
@@ -1085,7 +1085,7 @@ output_csv *open_snap_output_csv( const char *type )
     {
         char ftype[40];
         sprintf(ftype,"%.20s_output_csv",type);
-        record_filename(filename.c_str(),ftype);
+        record_filename(filename,ftype);
     }
     else
     {

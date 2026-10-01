@@ -1,94 +1,59 @@
 #include "snapconfig.h"
-#include <stdio.h>
-#include <string.h>
-#include "util/chkalloc.h"
+#include <algorithm>
+#include <string>
+#include <vector>
+#include <boost/numeric/conversion/cast.hpp>
+#include "util/fieldscanner.hpp"
 #include "util/filelist.h"
-#include "util/dstring.h"
-#include "util/strarray.h"
 
-#define INIT_FILENAME_COUNT 100
+using boost::numeric_cast;
 
 struct recfilename
 {
-    const char *filename;
-    const char *filetype;
+    std::string filename;
+    std::string filetype;
 };
 
 static int recording=0;
-static strarray filetypes;
-static recfilename *filenames=0;
-static int nfilenames=0;
-static int maxfilenames=0;
+static std::vector<recfilename> filenames;
 
 int set_record_filenames( int record )
 {
-    int wasrecording=recording;
-    if( record && ! filenames )
-    {
-        strarray_init(&filetypes);
-        filenames= (recfilename *) check_malloc(sizeof(recfilename)*INIT_FILENAME_COUNT);
-        nfilenames=0;
-        maxfilenames=INIT_FILENAME_COUNT;
-    }
+    const int wasrecording=recording;
     recording=record;
     return wasrecording;
 }
 
-int record_filename( const char *filename, const char *filetype )
+int record_filename( std::string_view filename, std::string_view filetype )
 {
     if( ! recording ) return NO_FILENAME_ID;
-    if( ! filename || ! filetype ) return NO_FILENAME_ID;
-    for( int i=0; i<nfilenames; i++ )
-    {
-        if( strcmp(filename,filenames[i].filename) == 0 )
-        {
-            return i;
-        }
-    }
-    int ftypeid=strarray_find(&filetypes,filetype);
-    if( ftypeid == STRARRAY_NOT_FOUND ) ftypeid=strarray_add(&filetypes,filetype);
-    filetype=strarray_get(&filetypes,ftypeid);
-    filename=copy_string(filename);
-    while( nfilenames >= maxfilenames )
-    {
-        maxfilenames *= 2;
-        filenames=(recfilename *) check_realloc(filenames,sizeof(recfilename)*maxfilenames);
-    }
-    filenames[nfilenames].filetype=filetype;
-    filenames[nfilenames].filename=filename;
-    nfilenames++;
-    return nfilenames-1;
+    const auto known=std::find_if( filenames.begin(), filenames.end(),
+        [filename]( const recfilename &rec ){ return rec.filename == filename; } );
+    if( known != filenames.end() ) return numeric_cast<int>( known - filenames.begin() );
+
+    // A file type is stored with the spelling it was first recorded with
+    const auto sametype=std::find_if( filenames.begin(), filenames.end(),
+        [filetype]( const recfilename &rec ){ return compare_ignoring_case( filetype, rec.filetype ) == 0; } );
+    const std::string type( sametype != filenames.end() ? sametype->filetype : std::string( filetype ) );
+    filenames.push_back( { std::string( filename ), type } );
+    return numeric_cast<int>( filenames.size() ) - 1;
 }
 
 int recorded_filename_count()
 {
-    return nfilenames;
+    return numeric_cast<int>( filenames.size() );
 }
 
-const char *recorded_filename( int i, const char **pfiletype )
+bool recorded_filename( int i, std::string &filename, std::string &filetype )
 {
-    const char *filename=0;
-    const char *filetype=0;
-    if( filenames && i >= 0 && i < nfilenames )
-    {
-        filename=filenames[i].filename;
-        filetype=filenames[i].filetype;
-    }
-    if( pfiletype ) *pfiletype=filetype;
-    return filename;
+    if( i < 0 || i >= recorded_filename_count() ) return false;
+    const recfilename &rec=filenames[i];
+    filename=rec.filename;
+    filetype=rec.filetype;
+    return true;
 }
 
 void delete_recorded_filenames()
 {
-    for( int i = 0; i < nfilenames; i++ )
-    {
-        check_free( (void *) filenames[i].filename);
-    }
-    check_free( filenames );
-    strarray_delete( &filetypes );
-    nfilenames=0;
-    maxfilenames=0;
-    filenames=0;
+    filenames.clear();
 }
-
-

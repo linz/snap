@@ -904,11 +904,12 @@ static void write_filelist_csv()
     end_output_csv_record(csv);
     for( int i=0; i<recorded_filename_count(); i++ )
     {
-        const char *filetype;
-        const char *filename=recorded_filename(i,&filetype);
+        std::string filename;
+        std::string filetype;
+        recorded_filename(i,filename,filetype);
         write_csv_int(csv,i);
-        write_csv_string(csv,filename);
-        write_csv_string(csv,filetype);
+        write_csv_string(csv,filename.c_str());
+        write_csv_string(csv,filetype.c_str());
         time_t modtime=file_modtime(filename);
         if( modtime != 0 )
         {
@@ -1064,7 +1065,7 @@ BINARY_FILE *open_dump_file( void )
 
     const std::string bfn = std::string(root_name) + BINFILE_EXT;
 
-    record_filename( bfn.c_str(), "snap_binary" );
+    record_filename( bfn, "snap_binary" );
 
     b = create_binary_file( const_cast<char*>(bfn.c_str()), BINFILE_SIGNATURE );
     if( !b )

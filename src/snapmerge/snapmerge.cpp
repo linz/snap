@@ -8,8 +8,10 @@
 #include <stdlib.h>
 #include <math.h>
 #include "util/errdef.h"
-#include "util/strarray.h"
+#include <string>
+#include <vector>
 #include "network/network.h"
+#include "util/fieldscanner.hpp"
 #include "util/fileutil.h"
 #include "util/dateutil.h"
 #include "util/dstring.h"
@@ -17,14 +19,18 @@
 #include "snap/filenames.h"
 
 
-strarray codes;
+std::vector<std::string> codes;
 network *base = 0;
 char listonly = 0;
 
 int select_station( station *st )
 {
-    if( listonly && strarray_find( &codes, st->Code ) == STRARRAY_NOT_FOUND ) return 0;
-    return 1;
+    if( ! listonly ) return 1;
+    for( const std::string &code : codes )
+    {
+        if( compare_ignoring_case( st->Code, code ) == 0 ) return 1;
+    }
+    return 0;
 }
 
 int main( int argc, char *argv[] )
@@ -222,7 +228,6 @@ int main( int argc, char *argv[] )
         }
     }
 
-    strarray_init( &codes );
     if( stnlistfile )
     {
         char code[81];
@@ -236,7 +241,7 @@ int main( int argc, char *argv[] )
         skip_utf8_bom(list);
         while( fscanf( list,"%80s",code) == 1 )
         {
-            strarray_add( &codes, code );
+            codes.push_back( code );
         }
         fclose(list);
         listonly = 1;
@@ -250,7 +255,6 @@ int main( int argc, char *argv[] )
     if( updatecrd ) mergeopt |= NW_MERGEOPT_COORDS;
     if( updatecls ) mergeopt |= NW_MERGEOPT_CLASSES;
     sts=merge_network( base, data, mergeopt, mergedate, &select_station );
-    strarray_delete( &codes );
 
     if( sts != OK || write_network( base, newfile, 0, 0, 0 ) != OK )
     {

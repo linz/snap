@@ -531,7 +531,7 @@ int load_snap_csv_stations(network *net, const char *filename, const char *optio
         std::string deffile = csvstn.definitionFilename();
         if (deffile != "")
         {
-            record_filename(deffile.c_str(), "csv_station_format");
+            record_filename(deffile, "csv_station_format");
         }
         if (dfi.errorCount()) sts = INVALID_DATA;
     }
