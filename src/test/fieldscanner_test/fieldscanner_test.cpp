@@ -113,6 +113,66 @@ void check_next_delimiter()
     }
 }
 
+void check_next_token()
+{
+    // Runs of delimiters separate fields as a single one does, and the last
+    // field needs no delimiter after it.
+    {
+        FieldScanner scanner( "a,,b,c" );
+        check( scanner.nextToken(',') == "a", "nextToken: first field" );
+        check( scanner.nextToken(',') == "b", "nextToken: empty field between adjacent delimiters skipped" );
+        check( scanner.nextToken(',') == "c", "nextToken: last field with no delimiter after it" );
+        check( ! scanner.nextToken(','), "nextToken: nullopt after the last field" );
+    }
+    // Leading and trailing delimiters.
+    {
+        FieldScanner scanner( ",,a,b,," );
+        check( scanner.nextToken(',') == "a", "nextToken: leading delimiters skipped" );
+        check( scanner.nextToken(',') == "b", "nextToken: second field" );
+        check( ! scanner.nextToken(','), "nextToken: trailing delimiters are not a field" );
+    }
+    // The same fields however many delimiters separate them.
+    {
+        FieldScanner many( "###a##b##c" );
+        FieldScanner one( "#a#b#c" );
+        for( const char *field : { "a", "b", "c" } )
+        {
+            check( many.nextToken('#') == field, std::string( "nextToken: " ) + field + " after repeated delimiters" );
+            check( one.nextToken('#') == field, std::string( "nextToken: " ) + field + " after single delimiters" );
+        }
+    }
+    // Position is left at the delimiter after the field.
+    {
+        FieldScanner scanner( "a,b" );
+        scanner.nextToken(',');
+        check( scanner.remainder() == ",b", "nextToken: position left at the delimiter after the field" );
+    }
+    // Only delimiters, or nothing at all.
+    {
+        FieldScanner delimiters( ",,," );
+        check( ! delimiters.nextToken(','), "nextToken: nullopt when there are only delimiters" );
+        check( delimiters.remainder() == "", "nextToken: only delimiters are all consumed" );
+        FieldScanner empty( "" );
+        check( ! empty.nextToken(','), "nextToken: nullopt on empty input" );
+    }
+    // Whitespace is not special: only the delimiter separates fields.
+    {
+        FieldScanner scanner( ";a b; c ;" );
+        check( scanner.nextToken(';') == "a b", "nextToken: whitespace inside a field kept" );
+        check( scanner.nextToken(';') == " c ", "nextToken: whitespace around a field kept" );
+        check( ! scanner.nextToken(';'), "nextToken: nullopt after the last field" );
+    }
+    // snaplist's angle_format line, as read from its configuration file
+    // (backslash escapes are still raw text here, decoded later).
+    {
+        FieldScanner scanner( "###\\xC2\\xB0##'##\"" );
+        check( scanner.nextToken('#') == "\\xC2\\xB0", "nextToken: angle format, text after the degrees" );
+        check( scanner.nextToken('#') == "'", "nextToken: angle format, text after the minutes" );
+        check( scanner.nextToken('#') == "\"", "nextToken: angle format, text after the seconds" );
+        check( ! scanner.nextToken('#'), "nextToken: angle format, nothing after that" );
+    }
+}
+
 void check_span_preserves_multiple_spaces()
 {
     FieldScanner scanner( "one  two   three" );
@@ -398,6 +458,7 @@ int main()
     check_at_end();
     check_skip_if_next();
     check_next_delimiter();
+    check_next_token();
     check_span_preserves_multiple_spaces();
     check_quoted_value_single_field();
     check_quoted_value_spans_fields();

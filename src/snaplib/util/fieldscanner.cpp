@@ -26,6 +26,15 @@ std::optional<std::string_view> FieldScanner::next( const char delimiter )
     return field;
 }
 
+std::optional<std::string_view> FieldScanner::nextToken( const char delimiter )
+{
+    _pos = std::find_if( _pos, _text.end(), [delimiter]( const char c ){ return c != delimiter; } );
+    if( _pos == _text.end() ) return std::nullopt;
+    const auto start = _pos;
+    _pos = std::find( _pos, _text.end(), delimiter );
+    return _span( start, _pos );
+}
+
 std::string_view FieldScanner::remainder() const
 {
     return _span( _pos, _text.end() );

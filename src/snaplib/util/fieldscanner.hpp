@@ -52,6 +52,14 @@ public:
     ///         the end of input.
     std::optional<std::string_view> next( char delimiter );
 
+    /// Returns the next run of characters that are not delimiter, skipping any
+    /// delimiters before it, as strtok does. Unlike next(char), several
+    /// delimiters in a row separate fields just as one does, so no field is
+    /// ever empty, and the last field need not be followed by a delimiter.
+    /// The position is left at the delimiter after the field, or at the end.
+    /// \return the field, or nullopt if there is nothing but delimiters left.
+    std::optional<std::string_view> nextToken( char delimiter );
+
     /// Unconsumed text from the current position to the end, verbatim - for
     /// handing the rest of the line off to another parser, or as a
     /// checkpoint a caller can capture and compare against a later
