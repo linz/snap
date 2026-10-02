@@ -25,6 +25,8 @@
 #include <optional>
 #include <string_view>
 
+#include "util/dms.h"
+
 enum { HDR_OBSDATA, HDR_VECDATA, HDR_PNTDATA };
 
 struct lsdata
@@ -70,7 +72,7 @@ void write_observation_csv();
 
 /* Functions relating to the residual listing format */
 
-int define_residual_formats( char *typelist, int add_columns  );
+int define_residual_formats( std::string_view typelist, int add_columns  );
 int add_residual_field( std::string_view code, int width,
                          std::optional<std::string_view> title1,
                          std::optional<std::string_view> title2 );
@@ -83,15 +85,15 @@ void clear_residual_field_defs(void);
 void print_residual_line( FILE *out );
 void print_residual_title( FILE *out );
 void clear_residual_fields( void );
-/* Note: value in the following call must be valid until
-   print_residual_line is called */
-void set_residual_field( int field_id, const char *value );
+/* The value is copied, so it need not outlive the call */
+void set_residual_field( int field_id, std::string_view value );
 void clear_residual_field( int field_id );
 void set_survdata_fields( survdata *sd );
 void set_trgtdata_fields( trgtdata *t, survdata *sd);
-char *get_field_buffer( int id );
+/* Sets the type field to the data type code right-justified in two columns, followed by the flag */
+void set_residual_type_field( std::string_view code, char flag );
 void set_residual_field_value( int id, int ndp, double value );
-void set_residual_field_dms( int id, void *format, double value );
+void set_residual_field_dms( int id, const DmsFormat &format, double value );
 
 void list_file_location( FILE *out, int file, int lineno );
 

@@ -52,8 +52,6 @@ void print_coord_covariance( void )
     bltmatrix *invnorm;
     double value;
     char projection_coords;
-    void *latfmt = 0;
-    void *lonfmt = 0;
 
     const std::string bfn = std::string( root_name ) + CVRFILE_EXT;
 
@@ -75,11 +73,8 @@ void print_coord_covariance( void )
     for( istn = 0; istn < ncrd; istn++ ) rownos[istn] = -1;
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
-    if( !projection_coords )
-    {
-        latfmt = create_dms_format(3,6,0,NULL,NULL,NULL," N"," S");
-        lonfmt = create_dms_format(3,6,0,NULL,NULL,NULL," E"," W");
-    }
+    const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
+    const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     fprintf(f,"! Lower triangle of coordinate covariance matrix\n");
     fprintf(f,"! Number of stations, number of coords per station\n");
@@ -99,8 +94,8 @@ void print_coord_covariance( void )
         }
         else
         {
-            fprintf(f,"%s ",dms_string(st->ELat*RTOD,latfmt,NULL));
-            fprintf(f,"%s ",dms_string(st->ELon*RTOD,lonfmt,NULL));
+            fprintf(f,"%s ",dms_string(st->ELat*RTOD,latitudeFormat).c_str());
+            fprintf(f,"%s ",dms_string(st->ELon*RTOD,longitudeFormat).c_str());
         }
         fprintf(f,"%13.*lf\n",(int) coord_precision,st->OHgt);
         if( sa->hrowno ) { rownos[ir] = sa->hrowno-1; rownos[ir+1] = sa->hrowno; }
@@ -134,8 +129,6 @@ void print_coord_covariance( void )
     end_progress_meter();
     fclose(f);
     check_free(rownos);
-    if( latfmt ) delete_dms_format( latfmt );
-    if( lonfmt ) delete_dms_format( lonfmt );
 }
 
 void print_coord_covariance_json( void )
@@ -428,8 +421,8 @@ void print_coord_sinex( void )
 
     /* SITE/ID block */
     {
-        void *latfmt = create_dms_format(3,1,DMSF_FMT_PREFIX_HEM,0,0,0,0,"-");
-        void *lonfmt = create_dms_format(3,1,DMSF_FMT_PREFIX_HEM,0,0,0,0,"-");
+        const DmsFormat latitudeFormat( 3, 1, DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt, std::nullopt, "-" );
+        const DmsFormat longitudeFormat( 3, 1, DMSF_FMT_PREFIX_HEM, std::nullopt, std::nullopt, std::nullopt, std::nullopt, "-" );
 
         fprintf(f,"+SITE/ID\n");
         fprintf(f,"*CODE PT __DOMES__ T _STATION DESCRIPTION__ APPROX_LON_ APPROX_LAT_ _APP_H_\n");
@@ -438,8 +431,6 @@ void print_coord_sinex( void )
             double lat;
             double lon;
             const char *mark;
-            char latbuf[20];
-            char lonbuf[20];
 
             st = stnptr( istn );
             sa = stnadj( st );
@@ -448,15 +439,13 @@ void print_coord_sinex( void )
             lon=st->ELon*RTOD;
             if( lon < 0 ) lon += 360.0;
             lat=st->ELat*RTOD;
-            dms_string(lat,latfmt,latbuf);
-            dms_string(lon,lonfmt,lonbuf);
-            
+            const std::string latitudeText = dms_string(lat,latitudeFormat);
+            const std::string longitudeText = dms_string(lon,longitudeFormat);
+
             fprintf(f," %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n",
-                    st->Code,mark,st->Code,st->Name.c_str(),lonbuf,latbuf,st->OHgt+st->GUnd
+                    st->Code,mark,st->Code,st->Name.c_str(),longitudeText.c_str(),latitudeText.c_str(),st->OHgt+st->GUnd
                    );
         }
-        delete_dms_format(latfmt);
-        delete_dms_format(lonfmt);
         fprintf(f,"-SITE/ID\n");
     }
     /*

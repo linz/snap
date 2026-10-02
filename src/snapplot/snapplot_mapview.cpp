@@ -421,12 +421,10 @@ void SnapplotMapView::OnIdle( wxIdleEvent & WXUNUSED(event)  )
     if( ! positionChanged ) return;
     positionChanged = false;
 
-    char buf[128];
     MapPoint pt = GetCursorPosition();
-    format_plot_coords( pt.x, pt.y, buf );
 
     coordString.Empty();
-    coordString.Append(buf);
+    coordString.Append(format_plot_coords( pt.x, pt.y ).c_str());
 
     double tolerance = pickTolerance * mscale.GetScale();
     int istn = nearest_station( pt.x, pt.y, tolerance );

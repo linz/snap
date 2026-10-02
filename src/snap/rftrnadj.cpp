@@ -595,7 +595,6 @@ void print_rftrans_list( FILE *out )
     int nrf;
     double semult;
     double topolat, topolon;
-    void *latfmt, *lonfmt;
     int output_types;
     int topo_header;
 
@@ -622,16 +621,14 @@ void print_rftrans_list( FILE *out )
 
     if( topo_header )
     {
-        latfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "N", "S" );
-        lonfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "E", "W" );
+        const DmsFormat latitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+        const DmsFormat longitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
         get_network_topocentre( net, &topolat, &topolon );
         fprintf(out,"\nTopocentric axes are east, north, up directions at\n   ");
-        fputs( dms_string( topolat* RTOD, latfmt, NULL ), out );
+        fputs( dms_string( topolat* RTOD, latitudeFormat ).c_str(), out );
         fputs( "    ", out );
-        fputs( dms_string( topolon* RTOD, lonfmt, NULL ), out );
+        fputs( dms_string( topolon* RTOD, longitudeFormat ).c_str(), out );
         fputs( "\n", out );
-        check_free( latfmt );
-        check_free( lonfmt );
     }
 
     semult = apriori ? 1.0 : seu;

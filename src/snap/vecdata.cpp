@@ -427,8 +427,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
                     if( obslength <= 0.0 ) obslength = 1.0;  /* Avoid divide by 0 */
                     obslength /= 1.0e6;
                     set_trgtdata_fields(&t->tgt,v);
-                    sprintf(get_field_buffer(OF_TYPE),"%2s%c",
-                            datatype[t->tgt.type].code, unused );
+                    set_residual_type_field( datatype[t->tgt.type].code, unused );
                 }
 
                 set_residual_field_value( OF_OBS, ndp, vec[axis] );
@@ -467,12 +466,12 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
 
                 if( sres[axis] < 0.0 )
                 {
-                    sprintf(get_field_buffer(OF_FLAGS),"%c",rfunused);
+                    set_residual_field( OF_FLAGS, std::string( 1, rfunused ) );
                 }
                 else
                 {
-                    sprintf(get_field_buffer(OF_FLAGS),"%c%s",rfunused,
-                            residual_flag( unused == ' ', 1, sres[axis]) );
+                    set_residual_field( OF_FLAGS,
+                            std::string( 1, rfunused ) + residual_flag( unused == ' ', 1, sres[axis] ) );
                 }
                 print_residual_line( out );
             }
@@ -486,13 +485,13 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
             if( t->rank )
             {
                 set_residual_field_value( OF_SRES, 2, t->vsres/semult );
-                sprintf(get_field_buffer(OF_FLAGS),"%c%s",unused,
-                        residual_flag( unused == ' ', t->rank, t->vsres/semult ) );
+                set_residual_field( OF_FLAGS,
+                        std::string( 1, unused ) + residual_flag( unused == ' ', t->rank, t->vsres/semult ) );
             }
             else
             {
                 set_residual_field(OF_SRES,"-  ");
-                sprintf(get_field_buffer(OF_FLAGS),"%c",unused);
+                set_residual_field( OF_FLAGS, std::string( 1, unused ) );
             }
             print_residual_line( out );
         }

@@ -17,7 +17,8 @@ SnapplotStationSource::~SnapplotStationSource()
 
 char *SnapplotStationSource::GetHeader()
 {
-    return station_list_header();
+    _header = station_list_header();
+    return _header.data();
 }
 
 int SnapplotStationSource::GetRowCount()
@@ -27,7 +28,8 @@ int SnapplotStationSource::GetRowCount()
 
 char *SnapplotStationSource::GetRow( int i )
 {
-    return station_list_item(i);
+    _row = station_list_item(i);
+    return _row.data();
 }
 
 

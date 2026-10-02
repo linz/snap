@@ -1,6 +1,8 @@
 #ifndef SNAPPLOT_STATIONLIST_HPP
 #define SNAPPLOT_STATIONLIST_HPP
 
+#include <string>
+
 #include "wxtabbedtextgrid.hpp"
 
 class SnapplotStationSource : public wxTabbedTextSource
@@ -11,6 +13,11 @@ public:
     virtual char *GetHeader();
     virtual int GetRowCount();
     virtual char *GetRow( int i );
+
+private:
+    // The grid wants a char * that stays valid after the call, until the next call
+    std::string _header;
+    std::string _row;
 };
 
 class SnapplotStationList : public wxTabbedTextGrid

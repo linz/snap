@@ -1238,12 +1238,9 @@ static int read_residual_format( CFG_FILE *cfg, std::string_view string, void *,
      * use as column definition */
 
     std::optional<std::string_view> nextcol = typesField;
+    if( define_residual_formats( *typesField, code ) == OK )
     {
-        std::string typesStr(*typesField);
-        if( define_residual_formats( typesStr.data(), code ) == OK )
-        {
-            nextcol = std::nullopt;
-        }
+        nextcol = std::nullopt;
     }
 
     while( true )

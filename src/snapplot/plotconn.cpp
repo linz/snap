@@ -2443,15 +2443,10 @@ static double *connAz = NULL;
 static int *connId = NULL;
 static char buf[256+MAX_FILENAME_LEN];
 
-static void *angle_format( void )
-{
-    static void *fmt = NULL;
-    if( !fmt )
-    {
-        fmt = create_dms_format( 3, 1, 0, NULL, NULL, NULL, NULL, NULL );
-    }
-    return fmt;
-}
+static const DmsFormat angleFormat( 3, 1 );
+static const DmsFormat signedAngleFormat( 3, 1, 1, " ", " ", "", " ", "-" );
+static const DmsFormat latitudeObservationFormat( 3, 1, 1, " ", " ", "", "N", "S" );
+static const DmsFormat longitudeObservationFormat( 3, 1, 1, " ", " ", "", "E", "W" );
 
 void list_connections( void *dest, PutTextFunc f, int from )
 {
@@ -2639,7 +2634,7 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
     edist = calc_ellipsoidal_distance( sfrom, sto, NULL, NULL );
 
     sprintf( buf, "Slope dist %.3lf  Ell dist %.3lf   Az %s  Hgt diff %.3lf",
-             dist,edist,dms_string(az,angle_format(),NULL),hd);
+             dist,edist,dms_string(az,angleFormat).c_str(),hd);
     jmp.type = ptfNone;
     (*f)( dest, &jmp, buf );
     if( !geodetic_coordsys() )
@@ -2655,7 +2650,7 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
             while( az > 360.0 ) az -= 360.0;
             while( az < 0.0 ) az += 360.0;
             sprintf(buf, "Projection distance %.3lf  azimuth %s", dist,
-                    dms_string( az, angle_format(), NULL) );
+                    dms_string( az, angleFormat ).c_str() );
             (*f)( dest, &jmp, buf );
         }
     }
@@ -2815,7 +2810,6 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     station *sfrom, *sto;
     double semult, srmult;
     int type;
-    void *dms_format = NULL;
 
 
     o = & sd->obs.odata[index];
@@ -2877,9 +2871,8 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     (*f)( dest, &jmp, buf );
     if( datatype[type].isangle )
     {
-        if( !dms_format ) dms_format = create_dms_format(3,1,1," "," ",""," ","-");
         sprintf(buf,"Observed value:  %s  +/-  %6.1lf",
-                dms_string(degree_angle(o->value), dms_format, NULL ),
+                dms_string(degree_angle(o->value), signedAngleFormat).c_str(),
                 o->error*semult*RTOS );
     }
     else
@@ -2895,7 +2888,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
             int nch;
             double obslength, altres;
             sprintf(buf,"Calculated:      %s  +/-  %6.1lf",
-                    dms_string(degree_angle(o->calc), dms_format, NULL ),
+                    dms_string(degree_angle(o->calc), signedAngleFormat).c_str(),
                     o->calcerr*semult*RTOS );
             (*f)( dest, &jmp, buf );
             sprintf(buf,"Residual:        %12.1lf  +/-  %6.1f%n",o->residual*RTOS,
@@ -3014,7 +3007,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
             {
                 int nch2;
                 sprintf(buf+nch,"%s%n",
-                        dms_string(o->value * RTOD, dms_format, NULL ),&nch2 );
+                        dms_string(o->value * RTOD, signedAngleFormat).c_str(),&nch2 );
                 nch += nch2;
                 if( binary_data )
                 {
@@ -3324,11 +3317,6 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     station *sfrom;
     double semult, srmult;
     int type;
-    void *lat_format = NULL;
-    void *lon_format = NULL;
-    void *dms_format = NULL;
-    void *fmt;
-
 
     p = & sd->obs.pdata[index];
     semult = aposteriori_errors ? seu : 1.0;
@@ -3366,26 +3354,13 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     if(  p->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
     else if(  p->tgt.unused ) strcat( buf, "  (not used)");
     (*f)( dest, &jmp, buf );
-    fmt = 0;
-    if( type == LT )
-    {
-        if( !lat_format ) lat_format = create_dms_format(3,1,1," "," ","","N","S");
-        fmt = lat_format;
-    }
-    else if( type == LN )
-    {
-        if( !lon_format ) lon_format = create_dms_format(3,1,1," "," ","","E","W");
-        fmt = lon_format;
-    }
-    else if( datatype[type].isangle )
-    {
-        if( !dms_format ) dms_format = create_dms_format(3,1,1," "," ",""," ","-");
-        fmt = dms_format;
-    }
+    /* Only used for angle observations, which includes latitude and longitude */
+    const DmsFormat &format = type == LT ? latitudeObservationFormat
+                              : type == LN ? longitudeObservationFormat : signedAngleFormat;
     if( datatype[type].isangle )
     {
         sprintf(buf,"Observed value:  %s  +/-  %6.1lf",
-                dms_string(p->value * RTOD, fmt, NULL ),
+                dms_string(p->value * RTOD, format).c_str(),
                 p->error*semult*RTOS );
     }
     else
@@ -3400,7 +3375,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         {
             int nch;
             sprintf(buf,"Calculated:      %s  +/-  %6.1lf",
-                    dms_string(p->calc * RTOD, fmt, NULL ),
+                    dms_string(p->calc * RTOD, format).c_str(),
                     p->calcerr*semult*RTOS );
             (*f)( dest, &jmp, buf );
             sprintf(buf,"Residual:        %12.1lf  +/-  %6.1f%n",p->residual*RTOS,

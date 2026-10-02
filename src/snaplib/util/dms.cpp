@@ -9,15 +9,13 @@
 
 */
 
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stdlib.h>
+#include <algorithm>
+#include <cmath>
+#include <string>
 
 #include "util/dms.h"
 #include "util/pi.h"
-#include "util/errdef.h"
-#include "util/chkalloc.h"
+#include "util/textformat.hpp"
 
 /*------------------------------------------------------------------*/
 /*  Angle format conversion routines - DMS to radians and           */
@@ -55,243 +53,120 @@ DMS *deg_dms( double d, DMS *dms )
     return dms;
 }
 
-/*--------------------------------------------------------
-
-Routine to convert decimal degrees to a string containing
-degrees, minutes, seconds.  The parameters are:
-
-   d        double    The angle in degrees
-   format   void *    Created using create_dms_format
-   str      char *    The string to which the angle is written.  If
-w-		      NULL, then it is written to a static string.
-
-
-Return value:
-   char *    The string to which the angle is written
-
-Should be first initialised with a call to init_dms_string with parameters
-
-   ndeg     int       The number of digits to show for degrees
-   ndp      int       The number of decimal places in the seconds
-   prfx     int       If 1 then the sign prefixes the string
-                      If 2 then prefix degrees with -
-   deg      char *    text between degrees and minutes
-   min      char *    text between minutes and seconds
-   sec      char *    text after seconds
-   plus     char *    Character string used if the angle is positive
-   minus    char *    Character string used if the angle is negative
-
----------------------------------------------------------*/
-
-struct DMS_format
-{
-    int ndeg;
-    int ndp;
-    double offset;
-    int prfx;
-    int radians;
-    int type;
-    char *deg;
-    char *min;
-    char *sec;
-    char *plus;
-    char *minus;
-};
-
-
-void *create_dms_format( int ndeg, int ndp, int fmt,
-                         const char *deg, const char *min, const char *sec, 
-                         const char *plus, const char *minus )
+namespace
 {
 
-    void *data;
-    DMS_format *dmsf;
+// The most decimal places that can be shown on the last component, by components shown.
+constexpr int maximumDecimalPlacesSeconds = 6;
+constexpr int maximumDecimalPlacesMinutes = 8;
+constexpr int maximumDecimalPlacesDegrees = 10;
 
-    int i, size, ndpmax;
-    char *blank, *empty, *next;
-    double offset;
+constexpr std::size_t maximumDegreeDigits = 4;
 
-    if( ndeg < 0 ) ndeg = 0;
-    if( ndeg > 4 ) ndeg = 4;
-
-    size = sizeof( DMS_format ) + 2;
-    if( deg ) size += strlen(deg) + 1;
-    if( min ) size += strlen(min) + 1;
-    if( sec ) size += strlen(sec) + 1;
-    if( plus ) size += strlen(plus) + 1;
-    if( minus ) size += strlen(minus) + 1;
-
-    data = check_malloc( size );
-
-    dmsf = (DMS_format *) data;
-    blank = (char *) data + sizeof(DMS_format);
-    empty = blank + 1;
-    *blank = ' ';
-    *empty = 0;
-    next = blank + 2;
-    if( ! plus ) plus=empty;
-    if( ! minus ) minus=empty;
-
-    dmsf->ndeg = ndeg;
-    dmsf->prfx = (fmt & DMSF_FMT_PREFIX_HEM) ? 1 : 0;
-    if( dmsf->prfx && strlen(plus)==0 && strcmp(minus,"-")==0 )
-    {
-        dmsf->prfx=2;
-        minus=plus=empty;
-    }
-    dmsf->radians = (fmt & DMSF_FMT_INPUT_RADIANS);
-    dmsf->type = 0;
-    if( fmt & DMSF_FMT_DM ) dmsf->type = 1;
-    if( fmt & DMSF_FMT_DEG ) dmsf->type = 2;
-
-    if( ndp < 0 ) ndp = 0;
-    ndpmax = 6 + dmsf->type*2;
-    if( ndp > ndpmax ) ndp = ndpmax;
-    dmsf->ndp = ndp;
-
-    offset = 0.0;
-    if( dmsf->type != 2 )
-    {
-      offset=0.5;
-      for( i=ndp; i--;) offset /= 10;
-      if( dmsf->type == 1 ) offset /= 60.0;
-      else offset /= 3600.0;
-    }
-    dmsf->offset = offset;
-
-    if( deg )
-    {
-        dmsf->deg = next;
-        strcpy( next, deg );
-        next += strlen(deg) + 1;
-    }
-    else
-    {
-        dmsf->deg = blank;
-    }
-
-    if( min )
-    {
-        dmsf->min = next;
-        strcpy( next, min );
-        next += strlen(min) + 1;
-    }
-    else
-    {
-        dmsf->min = dmsf->type == 0 ? blank : empty;
-    }
-
-    if( sec )
-    {
-        dmsf->sec = next;
-        strcpy( next, sec);
-        next += strlen(sec) + 1;
-    }
-    else
-    {
-        dmsf->sec = empty;
-    }
-
-    if( plus && *plus)
-    {
-        dmsf->plus = next;
-        strcpy( next, plus);
-        next += strlen(plus) + 1;
-    }
-    else
-    {
-        dmsf->plus = empty;
-    }
-
-    if( minus && *minus)
-    {
-        dmsf->minus= next;
-        strcpy( next, minus);
-        next += strlen(minus) + 1;
-    }
-    else
-    {
-        dmsf->minus= empty;
-    }
-
-    return data;
 }
 
-
-void delete_dms_format( void *dmsf )
+DmsFormat::Components DmsFormat::_componentsFor( const int flags )
 {
-    if( dmsf )check_free( dmsf );
+    if( flags & DMSF_FMT_DEG ) return Components::Degrees;
+    if( flags & DMSF_FMT_DM ) return Components::DegreesMinutes;
+    return Components::DegreesMinutesSeconds;
 }
 
-const char *dms_string( double d, void *pdmsf, char *str )
+int DmsFormat::_decimalPlacesFor( const int decimalPlaces, const Components components )
 {
-    static char dmsstr[80];
-    static char degstr[20];
-    char *sign;
-    int deg, min;
-    double sec;
-    double offset;
-    int seclen;
-    char dneg;
-    char *tgt;
-
-    DMS_format *dmsf=(DMS_format *)pdmsf;
-
-    tgt = str ? str : dmsstr;
-
-    if( dmsf->radians ) d *= RTOD;
-    sign = dmsf->plus;
-    dneg=0;
-    if(d < 0 ) 
-    { 
-        d = -d; 
-        sign = dmsf->minus; 
-        if( dmsf->prfx == 2 ) { dneg=1; }
-    }
-
-    if( dmsf->type == 2 )
+    switch( components )
     {
-        if( dneg ) d *= -1;
-        sprintf(tgt,"%s%.*lf%s",(dmsf->prfx == 1 ? sign : ""),
-                (int) (dmsf->ndp), d, (dmsf->prfx ? "" : sign) );
-
-        return tgt;
+    case Components::Degrees: return std::clamp( decimalPlaces, 0, maximumDecimalPlacesDegrees );
+    case Components::DegreesMinutes: return std::clamp( decimalPlaces, 0, maximumDecimalPlacesMinutes );
+    case Components::DegreesMinutesSeconds: break;
     }
+    return std::clamp( decimalPlaces, 0, maximumDecimalPlacesSeconds );
+}
 
-    d += dmsf->offset;
-    offset = dmsf->offset*60.0;
+double DmsFormat::_roundingOffsetFor( const int decimalPlaces, const Components components )
+{
+    if( components == Components::Degrees ) return 0.0;
+    double offset = 0.5;
+    for( int i = decimalPlaces; i--; ) offset /= 10;
+    return offset / (components == Components::DegreesMinutes ? 60.0 : 3600.0);
+}
 
-    deg = floor(d);
-    d -= deg;
-    min = 0;
-    if( dmsf->type != 1 )
+DmsFormat::SignPlacement DmsFormat::_signPlacementFor(
+    const int flags,
+    const std::optional<std::string_view> &positiveSign,
+    const std::optional<std::string_view> &negativeSign )
+{
+    if( ! (flags & DMSF_FMT_PREFIX_HEM) ) return SignPlacement::Suffix;
+    if( positiveSign.value_or( "" ).empty() && negativeSign.value_or( "" ) == "-" ) return SignPlacement::LeadingMinus;
+    return SignPlacement::Prefix;
+}
+
+DmsFormat::DmsFormat(
+    const std::size_t degreeDigits,
+    const int decimalPlaces,
+    const int flags,
+    const std::optional<std::string_view> &afterDegrees,
+    const std::optional<std::string_view> &afterMinutes,
+    const std::optional<std::string_view> &afterSeconds,
+    const std::optional<std::string_view> &positiveSign,
+    const std::optional<std::string_view> &negativeSign )
+    : _degreeDigits( std::min( degreeDigits, maximumDegreeDigits ) ),
+      _components( _componentsFor( flags ) ),
+      _decimalPlaces( _decimalPlacesFor( decimalPlaces, _components ) ),
+      _roundingOffset( _roundingOffsetFor( _decimalPlaces, _components ) ),
+      _inputRadians( (flags & DMSF_FMT_INPUT_RADIANS) != 0 ),
+      _signPlacement( _signPlacementFor( flags, positiveSign, negativeSign ) ),
+      _afterDegrees( afterDegrees.value_or( " " ) ),
+      _afterMinutes( afterMinutes.value_or( _components == Components::DegreesMinutesSeconds ? " " : "" ) ),
+      _afterSeconds( afterSeconds.value_or( "" ) ),
+      _positiveSign( positiveSign.value_or( "" ) ),
+      _negativeSign( _signPlacement == SignPlacement::LeadingMinus ? "" : negativeSign.value_or( "" ) )
+{
+}
+
+std::string DmsFormat::format( const double angle ) const
+{
+    const double signedDegrees = _inputRadians ? angle * RTOD : angle;
+    const bool negative = signedDegrees < 0;
+    const double degreesValue = negative ? -signedDegrees : signedDegrees;
+    const std::string &sign = negative ? _negativeSign : _positiveSign;
+    const bool leadingMinus = negative && _signPlacement == SignPlacement::LeadingMinus;
+
+    std::string text;
+    if( _signPlacement == SignPlacement::Prefix ) text += sign;
+
+    if( _components == Components::Degrees )
     {
-        d *= 60.0;
-        min = floor(d);
-        d -= min;
-        offset *= 60.0;
-    }
-    sec = d*60.0 - offset;
-    if( sec < 0 ) sec = 0.0;
-
-    seclen = dmsf->ndp ? dmsf->ndp+3 : dmsf->ndp+2;
-
-    sprintf( degstr, "%s%d", dneg ? "-" : "", (int) deg );
-    if( dmsf->type == 1 )
-    {
-        sprintf(tgt,"%s%*s%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
-                (int) (dmsf->ndeg), degstr, dmsf->deg,
-                seclen,(int)(dmsf->ndp), sec, dmsf->min, (dmsf->prfx ? "" : sign) );
+        text += format_fixed( leadingMinus ? -degreesValue : degreesValue, _decimalPlaces );
     }
     else
     {
-        sprintf(tgt,"%s%*s%s%02d%s%0*.*lf%s%s",(dmsf->prfx ? sign : ""),
-                (int) (dmsf->ndeg), degstr, dmsf->deg, (int)min, dmsf->min,
-                seclen,(int)(dmsf->ndp), sec, dmsf->sec, (dmsf->prfx ? "" : sign) );
+        const bool showsMinutes = _components == Components::DegreesMinutesSeconds;
+        const double roundedDegrees = degreesValue + _roundingOffset;
+        const int degrees = static_cast<int>( std::floor( roundedDegrees ) );
+        const double fractionOfDegree = roundedDegrees - degrees;
+        const double minutesAndFraction = fractionOfDegree * 60.0;
+        const int minutes = showsMinutes ? static_cast<int>( std::floor( minutesAndFraction ) ) : 0;
+        const double lastFraction = showsMinutes ? minutesAndFraction - minutes : fractionOfDegree;
+        const double lastOffset = showsMinutes ? _roundingOffset * 60.0 * 60.0 : _roundingOffset * 60.0;
+        const double lastComponent = std::max( lastFraction * 60.0 - lastOffset, 0.0 );
+
+        std::string degreesText = (leadingMinus ? "-" : "") + std::to_string( degrees );
+        if( degreesText.size() < _degreeDigits ) degreesText.insert( 0, _degreeDigits - degreesText.size(), ' ' );
+        text += degreesText + _afterDegrees;
+        if( showsMinutes )
+        {
+            text += format_fixed( minutes, 0, 2, '0' ) + _afterMinutes;
+        }
+        const int lastWidth = _decimalPlaces ? _decimalPlaces + 3 : _decimalPlaces + 2;
+        text += format_fixed( lastComponent, _decimalPlaces, lastWidth, '0' ) + (showsMinutes ? _afterSeconds : _afterMinutes);
     }
 
-    return tgt;
+    if( _signPlacement == SignPlacement::Suffix ) text += sign;
+    return text;
 }
 
-
-
+std::string dms_string( const double angle, const DmsFormat &format )
+{
+    return format.format( angle );
+}

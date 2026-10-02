@@ -15,7 +15,6 @@
 
 #include "network/network.h"
 #include "util/datafile.h"
-#include "util/chkalloc.h"
 #include "util/dms.h"
 #include "util/pi.h"
 #include "util/errdef.h"
@@ -33,7 +32,6 @@ int write_network( network *nw, const char *fname, const char *comment,
     double northing, easting;
     char projection_coords;
     char geocentric_coords;
-    void *latfmt, *lonfmt;
     int cp;
     int nclass;
     int ellipsoidal_heights;
@@ -164,15 +162,8 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     reset_station_list( nw, 0 );
 
-    if( !projection_coords && !geocentric_coords && !degrees )
-    {
-        latfmt = create_dms_format(3,6,0,NULL,NULL,NULL," N"," S");
-        lonfmt = create_dms_format(3,6,0,NULL,NULL,NULL," E"," W");
-    }
-    else
-    {
-        latfmt = lonfmt = 0;
-    }
+    const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
+    const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     cp = coord_precision;
     if( cp <= 0 || cp > 10 ) cp = 4;
@@ -206,8 +197,8 @@ int write_network( network *nw, const char *fname, const char *comment,
             }
             else
             {
-                fprintf(stf," %s",dms_string( st->ELat/DTOR, latfmt, NULL ));
-                fprintf(stf," %s",dms_string( st->ELon/DTOR, lonfmt, NULL ));
+                fprintf(stf," %s",dms_string( st->ELat/DTOR, latitudeFormat ).c_str());
+                fprintf(stf," %s",dms_string( st->ELon/DTOR, longitudeFormat ).c_str());
             }
             fprintf(stf," %10.*lf",cp, st->OHgt + ellipsoidal_heights * st->GUnd );
         }
@@ -239,9 +230,6 @@ int write_network( network *nw, const char *fname, const char *comment,
 
         fprintf(stf," %s\n", st->Name.c_str() );
     }
-
-    if( latfmt ) check_free( latfmt );
-    if( lonfmt ) check_free( lonfmt );
 
     fclose( stf );
     return OK;

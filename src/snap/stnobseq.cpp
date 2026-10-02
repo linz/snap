@@ -56,16 +56,6 @@ int scale_error = 0;
 char  floating_stations=0;
 char  relative_floating=0;
 
-static void *latfmt = NULL;
-static void *lonfmt = NULL;
-
-static void setup_latlon_format( void )
-{
-    latfmt = create_dms_format(3,6,0,NULL,NULL,NULL," N"," S");
-    lonfmt = create_dms_format(3,6,0,NULL,NULL,NULL," E"," W");
-}
-
-
 void count_stn_obs( int type, int stn, char unused )
 {
     stn_adjustment *sa;
@@ -696,6 +686,8 @@ void print_adjusted_coordinates( FILE *lst )
 
     projection_coords = is_projection( net->crdsys ) ? 1 : 0;
     prj = net->crdsys->prj;
+    const DmsFormat latitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
+    const DmsFormat longitudeFormat( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
 
     if( projection_coords )
     {
@@ -714,7 +706,6 @@ void print_adjusted_coordinates( FILE *lst )
                 stn_name_width,"",adjusted ? "  (metres) ":"");
         fprintf(lst," %-*s      Height        %s Hgt err\n",
                 stn_name_width,"",adjusted ? "           ":"");
-        setup_latlon_format();
     }
 
     for( reset_station_list(net,(int)output_sorted_stations);
@@ -758,7 +749,7 @@ void print_adjusted_coordinates( FILE *lst )
         }
         else
         {
-            fprintf(lst,"%s  ",dms_string(st->ELat*RTOD,latfmt,NULL));
+            fprintf(lst,"%s  ",dms_string(st->ELat*RTOD,latitudeFormat).c_str());
         }
 
         if( adjusted )
@@ -781,7 +772,7 @@ void print_adjusted_coordinates( FILE *lst )
         }
         else
         {
-            fprintf(lst,"  %s  ",dms_string(st->ELon*RTOD,lonfmt,NULL));
+            fprintf(lst,"  %s  ",dms_string(st->ELon*RTOD,longitudeFormat).c_str());
         }
 
         if( adjusted )

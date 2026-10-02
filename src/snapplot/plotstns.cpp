@@ -13,7 +13,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
 #include <array>
+#include <optional>
 #include <string>
 #include <string_view>
 #include <variant>
@@ -23,6 +25,7 @@
 #include "util/chkalloc.h"
 #include "util/dms.h"
 #include "util/pi.h"
+#include "util/textformat.hpp"
 
 #include "util/binfile.h"
 #include "snap/stnadj.h"
@@ -74,12 +77,11 @@ int sortobj::compare( const sortobj &other ) const
     return stncodecmp( std::get<std::string>(value), std::get<std::string>(other.value) );
 }
 
-#define BUF_SIZE 1024
 #define MAXCOLWIDTH 50
 
 static char arbitrary_projection;  /* Set to 1 if coords were geodetic */
-static void *latfmt = NULL;               /* Format for printing coordinates if coord system is lat/lon */
-static void *lonfmt = NULL;
+static std::optional<DmsFormat> latitudeFormat;   /* Format for printing coordinates if coord system is lat/lon */
+static std::optional<DmsFormat> longitudeFormat;
 static stn_plot_s *stns = NULL;    /* Array of station plot information */
 static int *xyindex = NULL;      /* Array of pointers sorted by easting */
 static char xyindex_valid = 0;     /* True when the index is valid */
@@ -88,7 +90,6 @@ static int *sortIndex = NULL;    /* Array of indices of non-ignored stations */
 static std::vector<sortobj> sortValues; /* Array of values used for sorting */
 static int *slist_field; /* Array station list fields */
 static int slist_ncols = 0;
-static char slist_buf[BUF_SIZE];
 static char indexCol = STNF_CODE;        /* Can be set to index codes or names */
 static int no_good_stations = 0;     /* Number of non-ignored stations */
 static int nadjust3=0;               /* Counts of stations adjusted */
@@ -126,30 +127,26 @@ char geodetic_coordsys()
     return arbitrary_projection;
 }
 
-void format_plot_coords( double e, double n, char *buf )
+std::string format_plot_coords( const double e, const double n )
 {
-    if( ! buf || ! plot_crdsys ) return;
+    std::string text;
+    if( ! plot_crdsys ) return text;
 
-    buf[0] = 0;
     if( using_station_offsets() && offset_station_count() )
     {
-        strcpy(buf,"Note: Some stations are offset\r\n");
-        buf += strlen(buf);
+        text = "Note: Some stations are offset\r\n";
     }
-    if( arbitrary_projection && latfmt && lonfmt )
+    if( arbitrary_projection && latitudeFormat && longitudeFormat )
     {
         double lat, lon;
         proj_to_geog( plot_crdsys->prj, e, n, &lon, &lat );
-        dms_string( lat*RTOD, latfmt, buf );
-        buf += strlen(buf);
-        strcpy(buf,"\r\n");
-        buf += 2;
-        dms_string( lon*RTOD, lonfmt, buf+strlen(buf) );
+        text += dms_string( lat*RTOD, *latitudeFormat ) + "\r\n" + dms_string( lon*RTOD, *longitudeFormat );
     }
     else
     {
-        sprintf(buf, "%12.3lf\r\n%12.3lf", e, n );
+        text += format_fixed( e, 3, 12 ) + "\r\n" + format_fixed( n, 3, 12 );
     }
+    return text;
 }
 
 const std::string &plot_crdsys_name()
@@ -392,10 +389,10 @@ void init_station_list()
     }
     else
     {
-        if( !latfmt )
+        if( !latitudeFormat )
         {
-            latfmt = create_dms_format( 3, 6, 0, NULL, NULL, NULL, "N", "S" );
-            lonfmt = create_dms_format( 3, 6, 0, NULL, NULL, NULL, "E", "W" );
+            latitudeFormat.emplace( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+            longitudeFormat.emplace( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
         }
         slist_field[ slist_ncols++] = STNF_LAT;
         slist_field[ slist_ncols++] = STNF_LON;
@@ -435,55 +432,50 @@ void init_station_list()
     build_sort_index();
 }
 
-char *station_list_header( void )
+std::string station_list_header( void )
 {
-    int icol;
-    int classid;
-    char *buf = slist_buf;
-    *buf = 0;
+    std::string header;
 
-    for( icol = 0; icol < slist_ncols; icol++ )
+    for( int icol = 0; icol < slist_ncols; icol++ )
     {
-        int len = 0;
-        int nc = 0;
-        if( icol ) {*buf++ = '\t'; *buf = 0; }
+        std::string title;
+        std::size_t len = 0;
         switch( slist_field[icol] )
         {
-        case STNF_CODE: strcpy(buf,"Code"); len=12; break;
-        case STNF_NAME: strcpy(buf,"Name"); len=50; break;
-        case STNF_LAT:  strcpy(buf," Latitude"); len=15; break;
-        case STNF_LON:  strcpy(buf," Longitude"); len = 15; break;
-        case STNF_EAST:  strcpy(buf," Easting"); len = 13; break;
-        case STNF_NRTH:  strcpy(buf," Northing"); len = 13; break;
-        case STNF_HGT:  strcpy(buf," Height"); len = 13; break;
-        case STNF_STS:    strcpy(buf,"Status"); len = 13;  break;
-        case STNF_HERR:  strcpy(buf," Hor.Err"); len = 13; break;
-        case STNF_HADJ: strcpy(buf," Hor.Adj"); len = 13; break;
-        case STNF_VERR: strcpy(buf," Vrt.Err"); len = 13; break;
-        case STNF_VADJ: strcpy(buf," Vrt.Adj"); len = 13; break;
+        case STNF_CODE: title = "Code"; len=12; break;
+        case STNF_NAME: title = "Name"; len=50; break;
+        case STNF_LAT:  title = " Latitude"; len=15; break;
+        case STNF_LON:  title = " Longitude"; len = 15; break;
+        case STNF_EAST:  title = " Easting"; len = 13; break;
+        case STNF_NRTH:  title = " Northing"; len = 13; break;
+        case STNF_HGT:  title = " Height"; len = 13; break;
+        case STNF_STS:    title = "Status"; len = 13;  break;
+        case STNF_HERR:  title = " Hor.Err"; len = 13; break;
+        case STNF_HADJ: title = " Hor.Adj"; len = 13; break;
+        case STNF_VERR: title = " Vrt.Err"; len = 13; break;
+        case STNF_VADJ: title = " Vrt.Adj"; len = 13; break;
         default:
-            classid = slist_field[icol]-STNF_CLASS;
-            strncpy(buf,net->class_name(classid).c_str(),MAXCOLWIDTH);
-            buf[MAXCOLWIDTH-1] = 0;
+            title = net->class_name( slist_field[icol]-STNF_CLASS ).substr( 0, MAXCOLWIDTH-1 );
             len = 12;
             break;
         }
 
         // Messy business setting column to desired length, etc ..
-        if( *buf == ' ' ) { len++; }
-        nc = strlen(buf);
-        buf += nc;
-        len -= nc;
+        if( icol ) header += '\t';
+        if( ! title.empty() && title.front() == ' ' ) { len++; }
+        header += title;
         // TODO: Fix up header for sorted column  .. requires resetting header without
         // changing column widths ..
-        // if( slist_field[icol] == indexCol ) { *buf++ = '*'; len--; }
-        while( len-- > 0 ) { *buf++ = ' '; }
-        *buf = 0;
-
-        if( strlen( slist_buf ) + MAXCOLWIDTH > BUF_SIZE ) break;
+        // if( slist_field[icol] == indexCol ) { header += '*'; len--; }
+        if( title.size() < len ) header.append( len - title.size(), ' ' );
     }
 
-    return slist_buf;
+    return header;
+}
+
+static void replace_tabs( std::string &text )
+{
+    std::replace( text.begin(), text.end(), '\t', ' ' );
 }
 
 static void replace_tabs( char *buf )
@@ -495,71 +487,68 @@ static void replace_tabs( char *buf )
     }
 }
 
-char *station_list_item( int istnsrt )
+std::string station_list_item( const int istnsrt )
 {
-    int icol;
-    int istn;
-    int classid;
-    int valueid;
-    station *stn;
-    stn_adjustment *sa;
     double emax, emin, b1;
     double hgterr;
     double dxyz[3];
     char gotadj = 0;
-    char *buf = slist_buf;
-    int buflen = BUF_SIZE;
+    std::string row;
 
-    *buf = 0;
-    istn = sortIndex[istnsrt];
-    stn = stnptr(istn);
-    sa = stnadj( stnptr(istn) );
+    const int istn = sortIndex[istnsrt];
+    station *stn = stnptr(istn);
+    stn_adjustment *sa = stnadj( stn );
 
-    for( icol = 0; icol < slist_ncols; icol++ )
+    for( int icol = 0; icol < slist_ncols; icol++ )
     {
-        if( icol ) {*buf++ = '\t'; *buf = 0; }
+        if( icol ) row += '\t';
         switch( slist_field[icol] )
         {
-        case STNF_CODE: strcpy(buf,stn->Code); break;
-        case STNF_NAME: strncpy(buf,stn->Name.c_str(),MAXCOLWIDTH); buf[MAXCOLWIDTH] = 0; replace_tabs(buf); break;
-        case STNF_LAT:  dms_string( stn->ELat * RTOD, latfmt, buf ); strcat(buf," "); break;
-        case STNF_LON:  dms_string( stn->ELon * RTOD, lonfmt, buf ); strcat(buf," "); break;
-        case STNF_EAST: sprintf(buf,"%.*lf ",coord_precision,stns[istn].easting); break;
-        case STNF_NRTH: sprintf(buf,"%.*lf ",coord_precision,stns[istn].northing); break;
-        case STNF_HGT:  sprintf(buf,"%.*lf ",coord_precision,stn->OHgt); break;
-        case STNF_STS:  strcpy(buf,station_flag_status(sa).data()); break;
+        case STNF_CODE: row += stn->Code; break;
+        case STNF_NAME:
+        {
+            std::string name = stn->Name.substr( 0, MAXCOLWIDTH );
+            replace_tabs( name );
+            row += name;
+            break;
+        }
+        case STNF_LAT:  row += dms_string( stn->ELat * RTOD, *latitudeFormat ) + " "; break;
+        case STNF_LON:  row += dms_string( stn->ELon * RTOD, *longitudeFormat ) + " "; break;
+        case STNF_EAST: row += format_fixed( stns[istn].easting, coord_precision ) + " "; break;
+        case STNF_NRTH: row += format_fixed( stns[istn].northing, coord_precision ) + " "; break;
+        case STNF_HGT:  row += format_fixed( stn->OHgt, coord_precision ) + " "; break;
+        case STNF_STS:  row += station_flag_status(sa); break;
         case STNF_HERR:
             get_error_ellipse( istn, &emax, &emin, &b1 );
             emax *= errell_factor;
-            sprintf(buf,"%.*lf ",coord_precision,emax);
+            row += format_fixed( emax, coord_precision ) + " ";
             break;
         case STNF_HADJ:
             if( ! gotadj ) {get_station_adjustment( istn, dxyz ); gotadj = 1; }
-            sprintf(buf,"%.*lf ",coord_precision,_hypot(dxyz[0],dxyz[1]));
+            row += format_fixed( _hypot(dxyz[0],dxyz[1]), coord_precision ) + " ";
             break;
         case STNF_VERR:
             get_height_error( istn, &hgterr );
             hgterr *= hgterr_factor;
-            sprintf(buf,"%.*lf ",coord_precision,hgterr);
+            row += format_fixed( hgterr, coord_precision ) + " ";
             break;
         case STNF_VADJ:
             if( ! gotadj ) {get_station_adjustment( istn, dxyz ); gotadj = 1; }
-            sprintf(buf,"%.*lf ",coord_precision,dxyz[2]);
+            row += format_fixed( dxyz[2], coord_precision ) + " ";
             break;
         default:
-            classid = slist_field[icol]-STNF_CLASS;
-            valueid = get_station_class( stn, classid );
-            strncpy(buf,net->class_value(classid,valueid).c_str(),MAXCOLWIDTH);
-            buf[MAXCOLWIDTH] = 0;
-            replace_tabs(buf);
+        {
+            const int classid = slist_field[icol]-STNF_CLASS;
+            const int valueid = get_station_class( stn, classid );
+            std::string value = net->class_value( classid, valueid ).substr( 0, MAXCOLWIDTH );
+            replace_tabs( value );
+            row += value;
             break;
         }
-        buf += strlen(buf);
-        buflen -= strlen(buf);
-        if( buflen < MAXCOLWIDTH ) break;
+        }
     }
 
-    return slist_buf;
+    return row;
 }
 
 void station_item_info( int istnsrt, PutTextInfo *jmp )
@@ -573,207 +562,141 @@ void station_item_info( int istnsrt, PutTextInfo *jmp )
 
 void list_station_summary( void *dest, PutTextFunc f )
 {
-    int nch;
-    sprintf(slist_buf,"Adjustment includes %d stations",no_good_stations);
-    (*f)(dest,NULL,slist_buf);
+    put_text( dest, f, "Adjustment includes " + std::to_string( no_good_stations ) + " stations" );
     if( nadjust3 > 0 )
     {
-        sprintf(slist_buf,"%d stations adjusted horizontally and vertically",nadjust3);
-        (*f)(dest,NULL,slist_buf);
+        put_text( dest, f, std::to_string( nadjust3 ) + " stations adjusted horizontally and vertically" );
     }
     if( nadjusth > 0 )
     {
-        sprintf(slist_buf,"%d stations adjusted horizontally",nadjusth);
-        (*f)(dest,NULL,slist_buf);
+        put_text( dest, f, std::to_string( nadjusth ) + " stations adjusted horizontally" );
     }
     if( nadjustv > 0 )
     {
-        sprintf(slist_buf,"%d stations adjusted vertically",nadjustv);
-        (*f)(dest,NULL,slist_buf);
+        put_text( dest, f, std::to_string( nadjustv ) + " stations adjusted vertically" );
     }
     if( got_covariances())
     {
+        std::string maximum = aposteriori_errors ? "Maximum aposteriori " : "Maximum apriori ";
+        if( use_confidence_limit )
+        {
+            maximum += format_fixed( confidence_limit, 2 ) + "% conf. lim. ";
+        }
+        else if( confidence_limit != 1.0 )
+        {
+            maximum += format_fixed( confidence_limit, 0 ) + " times ";
+        }
+
         if( nadjust3 + nadjusth > 0 )
         {
-            sprintf(slist_buf,"Maximum horizontal adjustment %.1lf mm",adjmaxh*1000.0);
-            (*f)(dest,NULL,slist_buf);
-
-            if( aposteriori_errors )
-            {
-                strcpy(slist_buf,"Maximum aposteriori ");
-            }
-            else
-            {
-                strcpy(slist_buf,"Maximum apriori ");
-            }
-            nch = strlen(slist_buf);
-            if( use_confidence_limit )
-            {
-                sprintf(slist_buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
-            }
-            else if( confidence_limit != 1.0 )
-            {
-                sprintf(slist_buf+nch,"%.lf times ",confidence_limit);
-            }
-            nch = strlen(slist_buf);
-            sprintf(slist_buf+nch," horizontal error %.1lf mm",cvrmaxh* errell_factor * 1000.0);
-            (*f)( dest, NULL, slist_buf );
+            put_text( dest, f, "Maximum horizontal adjustment " + format_fixed( adjmaxh*1000.0, 1 ) + " mm" );
+            put_text( dest, f, maximum + " horizontal error " + format_fixed( cvrmaxh* errell_factor * 1000.0, 1 ) + " mm" );
         }
 
         if( nadjust3+nadjustv > 0 )
         {
-            sprintf(slist_buf,"Maximum vertical adjustment %.1lf mm",adjmaxv*1000.0);
-            (*f)(dest,NULL,slist_buf);
-
-            if( aposteriori_errors )
-            {
-                strcpy(slist_buf,"Maximum aposteriori ");
-            }
-            else
-            {
-                strcpy(slist_buf,"Maximum apriori ");
-            }
-            nch = strlen(slist_buf);
-            if( use_confidence_limit )
-            {
-                sprintf(slist_buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
-            }
-            else if( confidence_limit != 1.0 )
-            {
-                sprintf(slist_buf+nch,"%.lf times ",confidence_limit);
-            }
-            nch = strlen(slist_buf);
-            sprintf(slist_buf+nch," vertical error %.1lf mm",cvrmaxv* hgterr_factor * 1000.0);
-            (*f)( dest, NULL, slist_buf );
-
+            put_text( dest, f, "Maximum vertical adjustment " + format_fixed( adjmaxv*1000.0, 1 ) + " mm" );
+            put_text( dest, f, maximum + " vertical error " + format_fixed( cvrmaxv* hgterr_factor * 1000.0, 1 ) + " mm" );
         }
     }
 }
 
 void list_station_details( void *dest, PutTextFunc f, int istn )
 {
-    station *stn;
-    int nch;
-    int nclass;
-    double dxyz[3];
+    station *stn = stnptr(istn);
+    std::string heading = "Station " + std::string( stn->Code ) + ": " + stn->Name.substr( 0, 50 );
+    replace_tabs( heading );
+    put_text( dest, f, heading );
 
-    stn = stnptr(istn);
-    sprintf( slist_buf,"Station %s: %.50s",stn->Code,stn->Name.c_str());
-    replace_tabs( slist_buf );
-    (*f)( dest, NULL, slist_buf );
-
-    nclass = net->classification_count();
+    const int nclass = net->classification_count();
     if( nclass > 0 )
     {
         int i;
-        (*f)( dest, NULL, "");
+        put_text( dest, f, "" );
         for( i = 0; i++ < nclass; )
         {
-            sprintf(slist_buf,"%s: %s",
-                    net->class_name(i).c_str(),
-                    net->class_value(i,get_station_class(stn,i)).c_str());
-            replace_tabs(slist_buf);
-            (*f)(dest, NULL, slist_buf);
+            std::string classification = net->class_name(i) + ": " + net->class_value(i,get_station_class(stn,i));
+            replace_tabs( classification );
+            put_text( dest, f, classification );
         }
     }
-    (*f)( dest, NULL, "");
+    put_text( dest, f, "" );
 
+    std::string coordinates;
     if( projection_defined() )
     {
-        double e, n;
-        e = stns[istn].easting;
-        n = stns[istn].northing;
-        sprintf(slist_buf,"%.4lf   %.4lf",e,n);
+        coordinates = format_fixed( stns[istn].easting, 4 ) + "   " + format_fixed( stns[istn].northing, 4 );
     }
     else
     {
-        if( !latfmt )
+        if( !latitudeFormat )
         {
-            latfmt = create_dms_format( 3, 6, 0, NULL, NULL, NULL, "N", "S" );
-            lonfmt = create_dms_format( 3, 6, 0, NULL, NULL, NULL, "E", "W" );
+            latitudeFormat.emplace( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+            longitudeFormat.emplace( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
         }
-        dms_string( stn->ELat * RTOD, latfmt, slist_buf );
-        nch = strlen(slist_buf);
-        strcpy( slist_buf+nch, "   ");
-        nch += 3;
-        dms_string( stn->ELon * RTOD, lonfmt, slist_buf+nch );
+        coordinates = dms_string( stn->ELat * RTOD, *latitudeFormat ) + "   " + dms_string( stn->ELon * RTOD, *longitudeFormat );
     }
-    nch = strlen( slist_buf );
-    sprintf(slist_buf+nch,"   %.4lf\n",stn->OHgt );
-    (*f)( dest, NULL, slist_buf );
+    put_text( dest, f, coordinates + "   " + format_fixed( stn->OHgt, 4 ) + "\n" );
 
     if( got_covariances() )
     {
         stn_adjustment *sa = stnadj( stn );
 
+        std::string status;
         if( sa->flag.rejected )
         {
-            strcpy(slist_buf,"Rejected from the adjustment");
+            status = "Rejected from the adjustment";
             if( sa->flag.autoreject )
             {
-                /* Wanted to use strcat, but Borland did something odd with it*/
-                char *b = strchr( slist_buf, 0 );
-                if( b ) strcpy(b," by SNAP (not enough data)");
+                status += " by SNAP (not enough data)";
             }
         }
         else
         {
-            char *b = slist_buf;
-            *b = 0;
             if( dimension != 1 )
             {
                 if( sa->flag.float_h )
                 {
-                    sprintf(b,"Floated horizontally (%.4fm)",sa->herror);
+                    status += "Floated horizontally (" + format_fixed( sa->herror, 4 ) + "m)";
                 }
                 else if( sa->flag.adj_h )
                 {
-                    strcpy(b,"Adjusted horizontally");
+                    status += "Adjusted horizontally";
                 }
                 else
                 {
-                    strcpy(b,"Fixed horizontally");
+                    status += "Fixed horizontally";
                 }
-                b = strchr(b,0);
-                if( dimension != 2 ) {strcpy(b,", "); b+= 2;}
+                if( dimension != 2 ) status += ", ";
             }
             if( dimension != 2 )
             {
                 if( sa->flag.float_v )
                 {
-                    sprintf(b,"Floated vertically (%.4fm)",sa->verror);
+                    status += "Floated vertically (" + format_fixed( sa->verror, 4 ) + "m)";
                 }
                 else if( sa->flag.adj_v )
                 {
-                    strcpy(b,"Adjusted vertically");
+                    status += "Adjusted vertically";
                 }
                 else
                 {
-                    strcpy(b,"Fixed vertically");
+                    status += "Fixed vertically";
                 }
             }
         }
 
-        (*f)( dest, NULL, slist_buf );
+        put_text( dest, f, status );
 
-        if( aposteriori_errors )
-        {
-            strcpy(slist_buf,"Aposteriori ");
-        }
-        else
-        {
-            strcpy(slist_buf,"Apriori ");
-        }
-        nch = strlen(slist_buf);
+        std::string errors = aposteriori_errors ? "Aposteriori " : "Apriori ";
         if( use_confidence_limit )
         {
-            sprintf(slist_buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
+            errors += format_fixed( confidence_limit, 2 ) + "% conf. lim. ";
         }
         else if( confidence_limit != 1.0 )
         {
-            sprintf(slist_buf+nch,"%.1lf times ",confidence_limit);
+            errors += format_fixed( confidence_limit, 1 ) + " times ";
         }
-        nch = strlen(slist_buf);
 
         if( sa->flag.adj_h && dimension != 1 )
         {
@@ -788,9 +711,8 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
             emax *= errell_factor * 1000.0;
             emin *= errell_factor * 1000.0;
 
-            sprintf(slist_buf+nch,"error ellipse %.1lfmm at N%.0lfE, %.1lfmm at N%.0lfE",
-                    emax,b1,emin,b2 );
-            (*f)( dest, NULL, slist_buf );
+            put_text( dest, f, errors + "error ellipse " + format_fixed( emax, 1 ) + "mm at N" + format_fixed( b1, 0 ) + "E, "
+                      + format_fixed( emin, 1 ) + "mm at N" + format_fixed( b2, 0 ) + "E" );
         }
 
         if( sa->flag.adj_v && dimension != 2 )
@@ -798,14 +720,13 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
             double hgterr;
             get_height_error( istn, &hgterr );
             hgterr *= hgterr_factor * 1000.0;
-            sprintf(slist_buf+nch,"height error %.1lfmm",hgterr);
-            (*f)( dest, NULL, slist_buf );
+            put_text( dest, f, errors + "height error " + format_fixed( hgterr, 1 ) + "mm" );
         }
 
+        double dxyz[3];
         get_station_adjustment( istn, dxyz );
-        sprintf(slist_buf,"Station adjustment (E,N,Z):  %7.3lfm %7.3lfm %7.3lfm\n",
-                dxyz[0], dxyz[1], dxyz[2] );
-        (*f)( dest, NULL, slist_buf );
+        put_text( dest, f, "Station adjustment (E,N,Z):  " + format_fixed( dxyz[0], 3, 7 ) + "m " + format_fixed( dxyz[1], 3, 7 ) + "m "
+                  + format_fixed( dxyz[2], 3, 7 ) + "m\n" );
     }
 }
 
@@ -864,8 +785,8 @@ void init_plotstns( int adjusted )
             prj = create_tm_projection( cm, 1.0, rlat, 0.0, 0.0, 1.0 );
             plot_crdsys = new coordsys( "LTM", net->crdsys->name,
                                            CSTP_PROJECTION, copy_ref_frame( net->crdsys->rf ), prj );
-            lonfmt = create_dms_format(3, 6, 0, 0, 0, 0, " E", " W" );
-            latfmt = create_dms_format(3, 6, 0, 0, 0, 0, " N", " S" );
+            longitudeFormat.emplace( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " E", " W" );
+            latitudeFormat.emplace( 3, 6, 0, std::nullopt, std::nullopt, std::nullopt, " N", " S" );
             arbitrary_projection = 1;
         }
     }

@@ -47,25 +47,16 @@
 #include "util/pi.h"
 
 
-static void *hafmt = NULL;
-static void *azfmt = NULL;
-static void *pbfmt = NULL;
-static void *zdfmt = NULL;
-
-static void *angle_format( int type )
+static const DmsFormat &angle_format( const int type )
 {
-    if( !hafmt )
-    {
-        hafmt = create_dms_format( 3,obs_precision[HA],0,NULL,NULL,NULL,NULL,NULL);
-        azfmt = create_dms_format( 3,obs_precision[AZ],0,NULL,NULL,NULL,NULL,NULL);
-        pbfmt = create_dms_format( 3,obs_precision[PB],0,NULL,NULL,NULL,NULL,NULL);
-        zdfmt = create_dms_format( 3,obs_precision[ZD],0,NULL,NULL,NULL,NULL,NULL);
-    }
-    if( type == HA ) return hafmt;
-    if( type == PB ) return pbfmt;
-    if( type == AZ ) return azfmt;
-    if( type == ZD ) return zdfmt;
-    return hafmt;
+    static const DmsFormat horizontalAngleFormat( 3, obs_precision[HA] );
+    static const DmsFormat azimuthFormat( 3, obs_precision[AZ] );
+    static const DmsFormat projectionBearingFormat( 3, obs_precision[PB] );
+    static const DmsFormat zenithDistanceFormat( 3, obs_precision[ZD] );
+    if( type == PB ) return projectionBearingFormat;
+    if( type == AZ ) return azimuthFormat;
+    if( type == ZD ) return zenithDistanceFormat;
+    return horizontalAngleFormat;
 }
 
 
@@ -111,7 +102,7 @@ void list_obsdata( FILE *out, survdata *o )
 
         if( datatype[type].isangle )
         {
-            fprintf( out, "%11s   %6.1lf",dms_string(t->value*RTOD,angle_format(type),NULL),t->error*RTOS);
+            fprintf( out, "%11s   %6.1lf",dms_string(t->value*RTOD,angle_format(type)).c_str(),t->error*RTOS);
         }
         else
         {
@@ -351,7 +342,6 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
     char unused, rfunused, firstobs, firstoutput;
     char ok;
     char distratios;
-    char *typecode;
     double obslength;
     double altres;
     double mde;
@@ -424,14 +414,9 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                     unused = ' ';
                 }
 
-                typecode = get_field_buffer( OF_TYPE );
-                strcpy( typecode, datatype[type].code );
-                if( unused != ' ' )
-                {
-                    int l = strlen(typecode );
-                    typecode[l++] = unused;
-                    typecode[l] = 0;
-                }
+                std::string typecode = datatype[type].code;
+                if( unused != ' ' ) typecode += unused;
+                set_residual_field( OF_TYPE, typecode );
 
                 calc = t->calc;
                 seo = t->error * semult;
@@ -536,8 +521,8 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                     rfunused = LOW_REDUNDANCY_FLAG;
                 }
 
-                sprintf(get_field_buffer(OF_FLAGS),"%c%s",rfunused,
-                        residual_flag((unused != ' '), 1, sres ));
+                set_residual_field( OF_FLAGS,
+                        std::string( 1, rfunused ) + residual_flag((unused != ' '), 1, sres ));
 
                 print_residual_line( out );
 

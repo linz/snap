@@ -24,9 +24,6 @@
    sprintf(buf,fmt,*(type*)address); \
    return (*os->write)(buf,os->sink)
 
-void *latfmt = NULL;
-void *lonfmt = NULL;
-
 int print_int( output_string_def *os, void *address )
 {
     DO_PRINT("%d",int);
@@ -65,26 +62,18 @@ int print_radians( output_string_def *os, void *address )
     return (*os->write)(buf,os->sink);
 }
 
-static void define_dms_formats( void )
-{
-    latfmt = create_dms_format(3,4,0,NULL,NULL,NULL,"N","S");
-    lonfmt = create_dms_format(3,4,0,NULL,NULL,NULL,"E","W");
-}
-
 int print_latitude( output_string_def *os, void *address )
 {
-    const char *buf;
-    if( !latfmt ) define_dms_formats();
-    buf = dms_string( * (double *) address * RTOD, latfmt, NULL );
-    return (*os->write)(buf,os->sink);
+    static const DmsFormat latitudeFormat( 3, 4, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+    const std::string text = dms_string( * static_cast<double *>( address ) * RTOD, latitudeFormat );
+    return (*os->write)(text,os->sink);
 }
 
 int print_longitude( output_string_def *os, void *address )
 {
-    const char *buf;
-    if( !latfmt ) define_dms_formats();
-    buf = dms_string( * (double *) address * RTOD, lonfmt, NULL );
-    return (*os->write)(buf,os->sink);
+    static const DmsFormat longitudeFormat( 3, 4, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
+    const std::string text = dms_string( * static_cast<double *>( address ) * RTOD, longitudeFormat );
+    return (*os->write)(text,os->sink);
 }
 
 

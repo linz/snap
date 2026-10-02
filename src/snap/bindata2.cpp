@@ -30,7 +30,9 @@
 #include <math.h>
 #include <array>
 #include <forward_list>
+#include <iomanip>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -70,81 +72,66 @@ using boost::numeric_cast;
 #include "util/dateutil.h"
 #include "util/dstring.h"
 #include "util/pi.h"
+#include "util/textformat.hpp"
 
 /* Definition of output fields that may be put in a residual listing file */
-
-struct listing_field_def
-{
-    int id;
-    const char *code;
-    std::optional<std::string_view> title1;  /* Default titles - title2 used for vector formats only */
-    std::optional<std::string_view> title2;
-    const char *source;
-    char *buffer;
-    int width;
-    char justify;
-    char vector_title2;  /* title2 is for vector formats only */
-    int requested;
-
-};
-
-static char obs[30];
-static char obserr[20];
-static char calc[30];
-static char calcerr[20];
-static char res[20];
-static char reserr[20];
-static char altres[20];
-static char stdres[20];
-static char redundancy[20];
-static char typecode[10];
-static char flags[10];
-static char hgti[20];
-static char hgtt[20];
-static char slpdst[20];
-static char arcdst[20];
-static char hgtdiff[20];
-static char azimuth[20];
-static char prjaz[20];
-static char mde[20];
-static char obsdate[20];
-static char obsid[20];
-static char significance[20];
 
 #define LEFT_JUST 1
 #define RIGHT_JUST 2
 
+struct listing_field_def
+{
+    listing_field_def( const int id, const std::string_view code,
+                       const std::optional<std::string_view> title1,
+                       const std::optional<std::string_view> title2,
+                       const int width, const char justify, const bool vector_title2 )
+        : id( id ), code( code ), title1( title1 ), title2( title2 ),
+          width( width ), justify( justify ), vector_title2( vector_title2 )
+    {
+    }
+
+    const int id;
+    const std::string code;
+    const std::optional<std::string_view> title1;  /* Default titles - title2 used for vector formats only */
+    std::optional<std::string_view> title2;  /* Not const: OF_RES's is set when the default format is set up */
+    std::string value;  /* Text printed for this field on the current line, empty if there is none */
+    int width;
+    const char justify;
+    const bool vector_title2;  /* title2 is for vector formats only */
+    int requested = 0;
+};
+
 static listing_field_def fields[] =
 {
-    { OF_FROM,       "from",         "From",     std::nullopt,    NULL, NULL,      0, LEFT_JUST, 0, 0},
-    { OF_TO,         "to",           "To",       std::nullopt,    NULL, NULL,      0, LEFT_JUST, 0, 0},
-    { OF_FROMNAME,   "from_name",    "From",     std::nullopt,    NULL, NULL,     20, LEFT_JUST, 0, 0},
-    { OF_TONAME,     "to_name",      "To",       std::nullopt,    NULL, NULL,     20, LEFT_JUST, 0, 0},
-    { OF_HI,         "hgt_inst",     "H.I.",     std::nullopt,    NULL, hgti,      6, 0, 0, 0},
-    { OF_HT,         "hgt_trgt",     "H.T.",     std::nullopt,    NULL, hgtt,      6, 0, 0, 0},
-    { OF_TYPE,       "type",         "Type",     std::nullopt,    NULL, typecode,  4, LEFT_JUST, 0, 0},
-    { OF_FILENAME,   "file",         "File",     std::nullopt,    NULL, NULL,     20, LEFT_JUST, 0, 0},
-    { OF_FILENO,     "file_no",      "Fl",       std::nullopt,    NULL, NULL,      2, 0, 0, 0},
-    { OF_LINENO,     "line_no",      "Lin",      std::nullopt,    NULL, NULL,      3, 0, 0, 0},
-    { OF_OBS,        "obs_val",      "Value",    "X,Y,Z", NULL, obs,       0, 0, 1, 0},
-    { OF_OBSERR,     "obs_err",      "+/- ",     std::nullopt,    NULL, obserr,    0, 0, 0, 0},
-    { OF_CALC,       "calc_val",     "Calc",     "X,Y,Z", NULL, calc,      0, 0, 1, 0},
-    { OF_CALCERR,    "calc_err",     "+/- ",     std::nullopt,    NULL, calcerr,   0, 0, 0, 0},
-    { OF_RES,        "res_val",      "Res",      std::nullopt, NULL, res,       0, 0, 1, 0},
-    { OF_RESERR,     "res_err",      "+/- ",     std::nullopt,    NULL, reserr,    0, 0, 0, 0},
-    { OF_ALTRES,     "alt_res",      "Res*",     std::nullopt,    NULL, altres,    0, 0, 0, 0},
-    { OF_SRES,       "std_res",      "S.R.",     std::nullopt,    NULL, stdres,    6, 0, 0, 0},
-    { OF_REDUNDANCY, "redundancy",   "Rdncy",    std::nullopt,    NULL, redundancy,6, 0, 0, 0},
-    { OF_FLAGS,      "flags",        std::nullopt, std::nullopt,  NULL, flags,     4, LEFT_JUST, 0, 0},
-    { OF_AZIMUTH,    "azimuth",      "Azimuth",  std::nullopt,    NULL, azimuth,   0, 0, 0, 0},
-    { OF_PRJAZ,      "prj_azimuth",  "Projection", "Azimuth", NULL, prjaz, 0, 0, 0, 0},
-    { OF_HGTDIFF,    "hgt_diff",     "Hgt dif",  std::nullopt,    NULL, hgtdiff,   0, 0, 0, 0},
-    { OF_ARCDST,     "arc_dist",     "Arc dst",  std::nullopt,    NULL, arcdst,    0, 0, 0, 0},
-    { OF_SLPDST,     "slp_dist",     "Slp dst",  std::nullopt,    NULL, slpdst,    0, 0, 0, 0},
-    { OF_MDE,        "mde",          "MDE",      std::nullopt,    NULL, mde,       6, 0, 0, 0},
-    { OF_SIG,        "significance", "sig(%)",   std::nullopt,    NULL, significance,8, 0, 0, 0},
-    { OF_DATE,       "date",         "Date",     std::nullopt,    NULL, obsdate     ,10, 0, 0, 0},
-    { OF_OBSID,      "id",           "Id",       std::nullopt,    NULL, obsid        ,8, RIGHT_JUST, 0, 0},
+    listing_field_def( OF_FROM,       "from",         "From",       std::nullopt, 0, LEFT_JUST, false ),
+    listing_field_def( OF_TO,         "to",           "To",         std::nullopt, 0, LEFT_JUST, false ),
+    listing_field_def( OF_FROMNAME,   "from_name",    "From",       std::nullopt, 20, LEFT_JUST, false ),
+    listing_field_def( OF_TONAME,     "to_name",      "To",         std::nullopt, 20, LEFT_JUST, false ),
+    listing_field_def( OF_HI,         "hgt_inst",     "H.I.",       std::nullopt, 6, 0, false ),
+    listing_field_def( OF_HT,         "hgt_trgt",     "H.T.",       std::nullopt, 6, 0, false ),
+    listing_field_def( OF_TYPE,       "type",         "Type",       std::nullopt, 4, LEFT_JUST, false ),
+    listing_field_def( OF_FILENAME,   "file",         "File",       std::nullopt, 20, LEFT_JUST, false ),
+    listing_field_def( OF_FILENO,     "file_no",      "Fl",         std::nullopt, 2, 0, false ),
+    listing_field_def( OF_LINENO,     "line_no",      "Lin",        std::nullopt, 3, 0, false ),
+    listing_field_def( OF_OBS,        "obs_val",      "Value",      "X,Y,Z", 0, 0, true ),
+    listing_field_def( OF_OBSERR,     "obs_err",      "+/- ",       std::nullopt, 0, 0, false ),
+    listing_field_def( OF_CALC,       "calc_val",     "Calc",       "X,Y,Z", 0, 0, true ),
+    listing_field_def( OF_CALCERR,    "calc_err",     "+/- ",       std::nullopt, 0, 0, false ),
+    listing_field_def( OF_RES,        "res_val",      "Res",        std::nullopt, 0, 0, true ),
+    listing_field_def( OF_RESERR,     "res_err",      "+/- ",       std::nullopt, 0, 0, false ),
+    listing_field_def( OF_ALTRES,     "alt_res",      "Res*",       std::nullopt, 0, 0, false ),
+    listing_field_def( OF_SRES,       "std_res",      "S.R.",       std::nullopt, 6, 0, false ),
+    listing_field_def( OF_REDUNDANCY, "redundancy",   "Rdncy",      std::nullopt, 6, 0, false ),
+    listing_field_def( OF_FLAGS,      "flags",        std::nullopt, std::nullopt, 4, LEFT_JUST, false ),
+    listing_field_def( OF_AZIMUTH,    "azimuth",      "Azimuth",    std::nullopt, 0, 0, false ),
+    listing_field_def( OF_PRJAZ,      "prj_azimuth",  "Projection", "Azimuth", 0, 0, false ),
+    listing_field_def( OF_HGTDIFF,    "hgt_diff",     "Hgt dif",    std::nullopt, 0, 0, false ),
+    listing_field_def( OF_ARCDST,     "arc_dist",     "Arc dst",    std::nullopt, 0, 0, false ),
+    listing_field_def( OF_SLPDST,     "slp_dist",     "Slp dst",    std::nullopt, 0, 0, false ),
+    listing_field_def( OF_MDE,        "mde",          "MDE",        std::nullopt, 6, 0, false ),
+    listing_field_def( OF_SIG,        "significance", "sig(%)",     std::nullopt, 8, 0, false ),
+    listing_field_def( OF_DATE,       "date",         "Date",       std::nullopt, 10, 0, false ),
+    listing_field_def( OF_OBSID,      "id",           "Id",         std::nullopt, 8, RIGHT_JUST, false ),
 };
 
 #define WANT(fld) (fields[fld].requested)
@@ -179,7 +166,7 @@ struct listing_column
     int width;
     std::optional<std::string_view> title1;
     std::optional<std::string_view> title2;
-    const char *data;
+    std::string data;  /* Classification value printed for this column on the current line */
 };
 
 struct listing_def
@@ -504,9 +491,9 @@ void calc_residuals( void )
 
 static void print_title( FILE *out )
 {
-    static const char *blank = "";
-    static const char *lftjst = "%-*s";
-    static const char *centrejst = "%-*s%-*s";
+    constexpr std::string_view blank = "";
+    constexpr std::string_view lftjst = "%-*s";
+    constexpr std::string_view centrejst = "%-*s%-*s";
     listing_column *column;
     int ncolumn;
     int need_space;
@@ -523,7 +510,7 @@ static void print_title( FILE *out )
             int width = column->width;
             std::optional<std::string_view> titleOpt = (ipass == 0) ? column->title1 : column->title2;
             if( column->title2 ) needpass2 = 1;
-            std::string_view source = titleOpt.value_or(std::string_view(blank));
+            std::string_view source = titleOpt.value_or(blank);
             if( column->column == SPACE_FIELD )
             {
                 fprintf(out,"%-*s",width," ");
@@ -552,7 +539,7 @@ static void print_title( FILE *out )
 
             if( justify == LEFT_JUST )
             {
-                fprintf(out,lftjst,width,source.data());
+                fprintf(out,lftjst.data(),width,source.data());
             }
             else
             {
@@ -561,7 +548,7 @@ static void print_title( FILE *out )
                 if( justify != RIGHT_JUST ) len1 /= 2;
                 if( len1 < 0 ) len1 = 0;
                 len2 = width - len1;
-                fprintf(out,centrejst,len1,blank,len2,source.data());
+                fprintf(out,centrejst.data(),len1,blank.data(),len2,source.data());
             }
         }
         fprintf(out,"\n");
@@ -572,22 +559,20 @@ static void print_title( FILE *out )
 
 static void setup_default_format( int type );
 
-int define_residual_formats( char *typelist, int add_columns )
+int define_residual_formats( const std::string_view typelist, const int add_columns )
 {
     int status = MISSING_DATA;
-    char *tp, *end, save;
     int itype;
 
     for( itype = 0; itype < NOBSTYPE; itype++ ) defining_format[itype] = 0;
 
-    tp = typelist;
-    while( *tp )
+    std::string_view remaining = typelist;
+    while( ! remaining.empty() )
     {
-        end = tp;
-        while( *end && *end != '/' ) end++;
-        save = *end;
-        *end = 0;
-        if( _stricmp( tp, "ALL" ) == 0 )
+        const std::size_t slash = remaining.find( '/' );
+        const std::string_view type = remaining.substr( 0, slash );
+        remaining = slash == std::string_view::npos ? std::string_view() : remaining.substr( slash + 1 );
+        if( boost::algorithm::iequals( type, "ALL" ) )
         {
             for( itype = NOBSTYPE; itype--; )
             {
@@ -595,7 +580,7 @@ int define_residual_formats( char *typelist, int add_columns )
             }
             status = OK;
         }
-        else if( _stricmp( tp, "POINT" ) == 0 )
+        else if( boost::algorithm::iequals( type, "POINT" ) )
         {
             for( itype = NOBSTYPE; itype--; ) if( datatype[itype].ispoint )
                 {
@@ -603,7 +588,7 @@ int define_residual_formats( char *typelist, int add_columns )
                 }
             status = OK;
         }
-        else if( _stricmp( tp, "VECTOR" ) == 0 )
+        else if( boost::algorithm::iequals( type, "VECTOR" ) )
         {
             for( itype = NOBSTYPE; itype--; ) if( datatype[itype].isvector )
                 {
@@ -611,7 +596,7 @@ int define_residual_formats( char *typelist, int add_columns )
                 }
             status = OK;
         }
-        else if( _stricmp( tp, "LINE" ) == 0 )
+        else if( boost::algorithm::iequals( type, "LINE" ) )
         {
             for( itype = NOBSTYPE; itype--; )
             {
@@ -625,7 +610,7 @@ int define_residual_formats( char *typelist, int add_columns )
         {
             for( itype = NOBSTYPE; itype--; )
             {
-                if( _stricmp(datatype[itype].code,tp) == 0 )
+                if( boost::algorithm::iequals( datatype[itype].code, type ) )
                 {
                     defining_format[itype] = 1;
                     status = OK;
@@ -634,9 +619,6 @@ int define_residual_formats( char *typelist, int add_columns )
             }
             if( itype < 0 ) status = INVALID_DATA;
         }
-        *end = save;
-        tp = end;
-        if( *tp ) tp++;
         if( status != OK ) break;
     }
     /* If string doesn't define a type, then assume all types are being defined
@@ -835,9 +817,8 @@ static void merge_residual_titles( void )
 
 void print_residual_line( FILE *out )
 {
-    static const char *blank = "";
-    static const char *lftjst = "%-*s";
-    static const char *rgtjst = "%*s";
+    constexpr std::string_view lftjst = "%-*s";
+    constexpr std::string_view rgtjst = "%*s";
     listing_column *col;
     int ncolumn = listing_format->ncolumn;
     int need_space = 0;
@@ -857,19 +838,15 @@ void print_residual_line( FILE *out )
         }
         else if( col->column & CLASSIFICATION_FIELD )
         {
-            fprintf(out,"%-*s",col->width,col->data ? col->data : "" );
+            fprintf(out,"%-*s",col->width,col->data.c_str() );
             need_space = 1;
         }
         else
         {
-            listing_field_def *fld;
-            const char *source;
-            fld = fields + col->column;
-            if( fld->id == OF_OBSID && ! have_obs_ids ) continue;
-            source = fld->source;
-            if( !source ) source = blank;
+            const listing_field_def &fld = fields[col->column];
+            if( fld.id == OF_OBSID && ! have_obs_ids ) continue;
             if( need_space ) fputc(' ',out);
-            fprintf(out,fld->justify == LEFT_JUST ? lftjst : rgtjst, col->width, source );
+            fprintf(out,(fld.justify == LEFT_JUST ? lftjst : rgtjst).data(), col->width, fld.value.c_str() );
             need_space = 1;
         }
     }
@@ -882,18 +859,18 @@ void clear_residual_fields( void )
     int i;
     for( i=0; i < OF_COUNT; i++ )
     {
-        fields[i].source = NULL;
+        fields[i].value.clear();
     }
 }
 
-void set_residual_field( int field_id, const char *value )
+void set_residual_field( const int field_id, const std::string_view value )
 {
-    fields[field_id].source = value;
+    fields[field_id].value = value;
 }
 
-void clear_residual_field( int field_id )
+void clear_residual_field( const int field_id )
 {
-    fields[field_id].source = NULL;
+    fields[field_id].value.clear();
 }
 
 static void set_calculated_fields( survdata *sd, trgtdata *t )
@@ -922,26 +899,26 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
     if( WANT(OF_AZIMUTH) || WANT(OF_PRJAZ) )
     {
         double value;
-        static void *azfmt = NULL;
+        static std::optional<DmsFormat> azimuthFormat;
         static char isproj;
-        if( !azfmt )
+        if( !azimuthFormat )
         {
             isproj = is_projection(net->crdsys);
-            azfmt = create_dms_format( 3,obs_precision[AZ],0,NULL,NULL,NULL,NULL,NULL);
+            azimuthFormat.emplace( 3, obs_precision[AZ] );
         }
         if( WANT(OF_AZIMUTH) )
         {
             value = calc_azimuth( stf, 0.0, stt, 0.0, 0, NULL, NULL );
             while( value > TWOPI ) value -= TWOPI;
             while( value < 0.0 ) value += TWOPI;
-            set_residual_field_dms( OF_AZIMUTH, azfmt, value*RTOD );
+            set_residual_field_dms( OF_AZIMUTH, *azimuthFormat, value*RTOD );
         }
         if( WANT( OF_PRJAZ ) && isproj)
         {
             value = calc_prj_azimuth( net, stf, 0.0, stt, 0.0, NULL, NULL );
             while( value > TWOPI ) value -= TWOPI;
             while( value < 0.0 ) value += TWOPI;
-            set_residual_field_dms( OF_PRJAZ, azfmt, value*RTOD );
+            set_residual_field_dms( OF_PRJAZ, *azimuthFormat, value*RTOD );
         }
     }
     if( WANT(OF_HGTDIFF) )
@@ -955,29 +932,21 @@ static void set_calculated_fields( survdata *sd, trgtdata *t )
 
 static void set_date_field( survdata *sd )
 {
-    if( WANT(OF_DATE) )
+    /* An undefined date leaves the field blank */
+    if( WANT(OF_DATE) && sd->date != UNDEFINED_DATE )
     {
-        if( sd->date == UNDEFINED_DATE )
-        {
-            strcpy(obsdate,"Unknown");
-        }
-        else
-        {
-            int dy,mn,yr;
-            date_as_ymd(sd->date,&yr,&mn,&dy);
-            sprintf(get_field_buffer(OF_DATE),"%2d/%02d/%04d",
-                    (int)dy, (int)mn, (int)yr);
-        }
+        int dy,mn,yr;
+        date_as_ymd(sd->date,&yr,&mn,&dy);
+        std::ostringstream text;
+        text << std::setw(2) << dy << std::setfill('0') << '/' << std::setw(2) << mn << '/' << std::setw(4) << yr;
+        set_residual_field( OF_DATE, text.str() );
     }
 }
 
-void set_residual_field_value( int id, int ndp, double value )
+void set_residual_field_value( const int id, const int ndp, const double value )
 {
-    char buffer[256];
-    char *buf = get_field_buffer(id);
-    sprintf( buffer, "%.*lf", (int) ndp, value );
-    if( strlen(buffer) < 20 ) strcpy(buf,buffer);
-    else sprintf(buf,"%.8e",value);
+    const std::string fixedText = format_fixed( value, ndp );
+    set_residual_field( id, fixedText.size() < 20 ? fixedText : format_scientific( value, 8 ) );
 }
 
 void set_survdata_fields( survdata *sd )
@@ -985,7 +954,7 @@ void set_survdata_fields( survdata *sd )
     if( sd->from )
     {
         set_residual_field( OF_FROM, station_code( sd->from ));
-        set_residual_field( OF_FROMNAME, stnptr(sd->from)->Name.c_str() );
+        set_residual_field( OF_FROMNAME, stnptr(sd->from)->Name );
         set_residual_field_value( OF_HI, 3, sd->fromhgt );
     }
     set_date_field( sd );
@@ -993,10 +962,6 @@ void set_survdata_fields( survdata *sd )
 
 void set_trgtdata_fields( trgtdata *t, survdata *sd )
 {
-    static char lineno[10];
-    static char fileno[10];
-    static std::string filename;
-    static std::array<std::string, MAX_COLUMNS> classification_value;
     int i;
 
     if( sd->from )
@@ -1004,7 +969,7 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
         if( t->to )
         {
             set_residual_field( OF_TO, station_code( t->to ));
-            set_residual_field( OF_TONAME, stnptr(t->to)->Name.c_str() );
+            set_residual_field( OF_TONAME, stnptr(t->to)->Name );
             set_residual_field_value(OF_HT,3,t->tohgt);
             set_calculated_fields(sd,t);
         }
@@ -1012,17 +977,13 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
     else
     {
         set_residual_field( OF_FROM, station_code( t->to ));
-        set_residual_field( OF_FROMNAME, stnptr(t->to)->Name.c_str() );
+        set_residual_field( OF_FROMNAME, stnptr(t->to)->Name );
         set_residual_field_value(OF_HI,3,t->tohgt);
     }
-    sprintf( fileno, "%d", (int) (sd->file) );
-    set_residual_field( OF_FILENO, fileno );
-    filename = survey_data_file_name( sd->file );
-    set_residual_field( OF_FILENAME, filename.c_str());
-    sprintf( lineno, "%d", (int) (t->lineno) );
-    set_residual_field( OF_LINENO, lineno );
-    sprintf(obsid,"%d",(int) (t->id));
-    set_residual_field( OF_OBSID, obsid);
+    set_residual_field( OF_FILENO, std::to_string( sd->file ) );
+    set_residual_field( OF_FILENAME, survey_data_file_name( sd->file ) );
+    set_residual_field( OF_LINENO, std::to_string( t->lineno ) );
+    set_residual_field( OF_OBSID, std::to_string( t->id ) );
 
     for( i = 0; i < listing_format->ncolumn; i++ )
     {
@@ -1031,29 +992,21 @@ void set_trgtdata_fields( trgtdata *t, survdata *sd )
             int class_id;
             class_id = listing_format->col[i].column & ~CLASSIFICATION_FIELD;
             auto name = get_obs_classification_name( sd, t, class_id );
-            if( name )
-            {
-                classification_value[i] = std::move(*name);
-                listing_format->col[i].data = classification_value[i].c_str();
-            }
-            else
-            {
-                listing_format->col[i].data = nullptr;
-            }
+            listing_format->col[i].data = name ? std::move(*name) : std::string();
         }
     }
 }
 
-char *get_field_buffer( int id )
+void set_residual_type_field( const std::string_view code, const char flag )
 {
-    fields[id].source = fields[id].buffer;
-    fields[id].buffer[0] = 0;
-    return fields[id].buffer;
+    std::ostringstream text;
+    text << std::setw( 2 ) << code << flag;
+    set_residual_field( OF_TYPE, text.str() );
 }
 
-void set_residual_field_dms( int id, void *format, double value )
+void set_residual_field_dms( const int id, const DmsFormat &format, const double value )
 {
-    dms_string(value, format, get_field_buffer(id));
+    set_residual_field( id, dms_string( value, format ) );
 }
 
 
@@ -1311,17 +1264,14 @@ void print_residuals( FILE *out )
         if( gps_vertical_fixed() )
         {
             double topolat, topolon;
-            void *latfmt, *lonfmt;
-            latfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "N", "S" );
-            lonfmt = create_dms_format( 3, 5, 0, NULL, NULL, NULL, "E", "W" );
+            const DmsFormat latitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "N", "S" );
+            const DmsFormat longitudeFormat( 3, 5, 0, std::nullopt, std::nullopt, std::nullopt, "E", "W" );
             get_network_topocentre( net, &topolat, &topolon );
             fprintf(out,"\nVector residual east, north, up directions are calculated at\n   ");
-            fputs( dms_string( topolat* RTOD, latfmt, NULL ), out );
+            fputs( dms_string( topolat* RTOD, latitudeFormat ).c_str(), out );
             fputs( "    ", out );
-            fputs( dms_string( topolon* RTOD, lonfmt, NULL ), out );
+            fputs( dms_string( topolon* RTOD, longitudeFormat ).c_str(), out );
             fputs( "\n", out );
-            check_free( latfmt );
-            check_free( lonfmt );
         }
         else
         {
