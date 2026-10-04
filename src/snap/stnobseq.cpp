@@ -831,8 +831,6 @@ void write_station_csv()
     double dn, de, dh;
     unsigned char projection_coords;
     unsigned char geocentric_coords;
-    output_csv *csv;
-    int i;
     int defl;
     int geoid;
     int ellipsoidal;
@@ -859,91 +857,90 @@ void write_station_csv()
     prj = net->crdsys->prj;
     elp = net->crdsys->rf->el;
 
-    csv = open_snap_output_csv("stn");
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv("stn");
     if( ! csv ) return;
 
-    write_csv_header( csv, "code" );
-    write_csv_header( csv, "crdsys" );
+    csv->writeHeader( "code" );
+    csv->writeHeader( "crdsys" );
     if( geocentric_coords )
     {
         /* Set ellipsoidal as true so that ellipsoidal height is calced */
         ellipsoidal=1;
-        write_csv_header( csv,"X");
-        write_csv_header( csv,"Y");
-        write_csv_header( csv,"Z");
+        csv->writeHeader("X");
+        csv->writeHeader("Y");
+        csv->writeHeader("Z");
     }
     else
     {
         if( projection_coords )
         {
-            write_csv_header( csv,"easting");
-            write_csv_header( csv,"northing");
+            csv->writeHeader("easting");
+            csv->writeHeader("northing");
         }
         else
         {
-            write_csv_header( csv,"longitude");
-            write_csv_header( csv,"latitude");
+            csv->writeHeader("longitude");
+            csv->writeHeader("latitude");
         }
-        write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
-        write_csv_header( csv, "height_type" );
+        csv->writeHeader( ellipsoidal ? "ellheight" : "height" );
+        csv->writeHeader( "height_type" );
     }
-    if( geoid ) write_csv_header( csv, "geoidhgt" );
-    if( defl ) { write_csv_header( csv, "xi"); write_csv_header( csv, "eta" ); }
+    if( geoid ) csv->writeHeader( "geoidhgt" );
+    if( defl ) { csv->writeHeader( "xi"); csv->writeHeader( "eta" ); }
     if( autofix )
     {
-        write_csv_header( csv, "autofix" );
+        csv->writeHeader( "autofix" );
     }
     if( adjusted )
     {
-        write_csv_header( csv, "mode" );
-        write_csv_header( csv, "adj_e" );
-        write_csv_header( csv, "adj_n" );
-        write_csv_header( csv, "adj_h" );
+        csv->writeHeader( "mode" );
+        csv->writeHeader( "adj_e" );
+        csv->writeHeader( "adj_n" );
+        csv->writeHeader( "adj_h" );
 
-        write_csv_header( csv, "errell_max" );
-        write_csv_header( csv, "errell_min" );
-        write_csv_header( csv, "errell_bmax" );
-        write_csv_header( csv, "errhgt" );
+        csv->writeHeader( "errell_max" );
+        csv->writeHeader( "errell_min" );
+        csv->writeHeader( "errell_bmax" );
+        csv->writeHeader( "errhgt" );
         if( projection_coords )
         {
-            write_csv_header( csv,"easting_init");
-            write_csv_header( csv,"northing_init");
+            csv->writeHeader("easting_init");
+            csv->writeHeader("northing_init");
         }
         else
         {
-            write_csv_header( csv,"longitude_init");
-            write_csv_header( csv,"latitude_init");
+            csv->writeHeader("longitude_init");
+            csv->writeHeader("latitude_init");
         }
-        write_csv_header( csv, ellipsoidal ? "ellheight_init" : "height_init" );
+        csv->writeHeader( ellipsoidal ? "ellheight_init" : "height_init" );
 
         if( floating_stations )
         {
             if( relative_floating )
             {
-                write_csv_header(csv,"rel_station");
+                csv->writeHeader("rel_station");
             }
-            write_csv_header(csv,"float_hor_err");
-            write_csv_header(csv,"float_vrt_err");
-            write_csv_header(csv,"float_de");
-            write_csv_header(csv,"float_dn");
-            write_csv_header(csv,"float_errell_max");
-            write_csv_header(csv,"float_errell_min");
-            write_csv_header(csv,"float_errell_bmax");
-            write_csv_header(csv,"float_hor_stdres");
-            write_csv_header(csv,"float_dh");
-            write_csv_header(csv,"float_errhgt");
-            write_csv_header(csv,"float_vrt_stdres");
+            csv->writeHeader("float_hor_err");
+            csv->writeHeader("float_vrt_err");
+            csv->writeHeader("float_de");
+            csv->writeHeader("float_dn");
+            csv->writeHeader("float_errell_max");
+            csv->writeHeader("float_errell_min");
+            csv->writeHeader("float_errell_bmax");
+            csv->writeHeader("float_hor_stdres");
+            csv->writeHeader("float_dh");
+            csv->writeHeader("float_errhgt");
+            csv->writeHeader("float_vrt_stdres");
         }
     }
 
-    for( i = 0; i < net->classification_count(); i++ )
+    for( int i = 0; i < net->classification_count(); i++ )
     {
-        std::string fieldname = "c_" + net->class_name(i+1).substr(0,30);
-        write_csv_header(csv,fieldname.c_str());
+        csv->writeHeader( "c_" + net->class_name(i+1).substr(0,30) );
     }
-    write_csv_header(csv,"name");
-    if( output_csv_shape ) write_csv_header(csv,"shape");
-    end_output_csv_record(csv);
+    csv->writeHeader("name");
+    if( output_csv_shape ) csv->writeHeader("shape");
+    csv->endRecord();
 
     hA=create_oe(nprm);
 
@@ -976,8 +973,8 @@ void write_station_csv()
 
         easting = northing = 0.0;
 
-        write_csv_string( csv, st->Code );
-        write_csv_string(csv,net->crdsys->code.c_str());
+        csv->writeString( st->Code );
+        csv->writeString(net->crdsys->code);
 
         if( geocentric_coords )
         {
@@ -986,110 +983,110 @@ void write_station_csv()
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
             llh_to_xyz( elp, llh, xyz, 0, 0);
-            write_csv_double( csv, xyz[CRD_X], coord_precision );
-            write_csv_double( csv, xyz[CRD_Y], coord_precision );
-            write_csv_double( csv, xyz[CRD_Z], coord_precision );
+            csv->writeDouble( xyz[CRD_X], coord_precision );
+            csv->writeDouble( xyz[CRD_Y], coord_precision );
+            csv->writeDouble( xyz[CRD_Z], coord_precision );
         }
         else
         {
             if( projection_coords )
             {
                 geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
-                write_csv_double( csv, easting, coord_precision );
-                write_csv_double( csv, northing, coord_precision );
+                csv->writeDouble( easting, coord_precision );
+                csv->writeDouble( northing, coord_precision );
             }
             else
             {
-                write_csv_double( csv, st->ELon*RTOD, coord_precision+5 );
-                write_csv_double( csv, st->ELat*RTOD, coord_precision+5 );
+                csv->writeDouble( st->ELon*RTOD, coord_precision+5 );
+                csv->writeDouble( st->ELat*RTOD, coord_precision+5 );
             }
 
-            write_csv_double( csv, height, coord_precision );
-            write_csv_string( csv, ellipsoidal ? "ellipsoidal" : "orthometric" );
+            csv->writeDouble( height, coord_precision );
+            csv->writeString( ellipsoidal ? "ellipsoidal" : "orthometric" );
         }
-        if( geoid ) write_csv_double( csv, st->GUnd, coord_precision );
+        if( geoid ) csv->writeDouble( st->GUnd, coord_precision );
         if( defl )
         {
-            write_csv_double( csv, st->GXi * RTOS, 2 );
-            write_csv_double( csv, st->GEta * RTOS, 2 );
+            csv->writeDouble( st->GXi * RTOS, 2 );
+            csv->writeDouble( st->GEta * RTOS, 2 );
         }
 
         if( autofix )
         {
-            char mode[3] = { '-', '-', 0 };
+            std::string mode = "--";
             if( sa->flag.auto_h) mode[0]='H';
-            if( sa->flag.auto_v) mode[1]='V'; 
-            write_csv_string(csv,mode);
+            if( sa->flag.auto_v) mode[1]='V';
+            csv->writeString(mode);
         }
         if( adjusted )
         {
-            if( sa->flag.autoreject ) write_csv_string(csv,"*");
-            else if( sa->flag.rejected ) write_csv_string(csv,"**");
+            if( sa->flag.autoreject ) csv->writeString("*");
+            else if( sa->flag.rejected ) csv->writeString("**");
             else
             {
-                char mode[3] = { '-', '-', 0 };
+                std::string mode = "--";
                 if( sa->flag.float_h ) mode[0] = 'h';
                 else if( sa->flag.adj_h ) mode[0] = 'H';
                 if( sa->flag.float_v ) mode[1] = 'v';
                 else if( sa->flag.adj_v ) mode[1] = 'V';
-                write_csv_string(csv,mode);
+                csv->writeString(mode);
             }
 
-            write_csv_double( csv, de, coord_precision );
-            write_csv_double( csv, dn, coord_precision );
-            write_csv_double( csv, dh, coord_precision );
+            csv->writeDouble( de, coord_precision );
+            csv->writeDouble( dn, coord_precision );
+            csv->writeDouble( dh, coord_precision );
 
-            write_csv_double( csv, emax, coord_precision );
-            write_csv_double( csv, emin, coord_precision );
-            write_csv_double( csv, brng, 1 );
-            write_csv_double( csv, OHgt, coord_precision );
+            csv->writeDouble( emax, coord_precision );
+            csv->writeDouble( emin, coord_precision );
+            csv->writeDouble( brng, 1 );
+            csv->writeDouble( OHgt, coord_precision );
             if( projection_coords )
             {
                 geog_to_proj( prj, sa->initELon, sa->initELat, &easting, &northing );
-                write_csv_double( csv, easting, coord_precision );
-                write_csv_double( csv, northing, coord_precision );
+                csv->writeDouble( easting, coord_precision );
+                csv->writeDouble( northing, coord_precision );
             }
             else
             {
-                write_csv_double( csv, sa->initELon*RTOD, coord_precision+5 );
-                write_csv_double( csv, sa->initELat*RTOD, coord_precision+5 );
+                csv->writeDouble( sa->initELon*RTOD, coord_precision+5 );
+                csv->writeDouble( sa->initELat*RTOD, coord_precision+5 );
             }
 
-            write_csv_double( csv, height-dh, coord_precision );
+            csv->writeDouble( height-dh, coord_precision );
 
             if( floating_stations )
             {
                 if( relative_floating )
                 {
-                    station *stcol=0;
+                    station *stcol=nullptr;
                     if( sa->idcol )
                     {
                         stcol=stnptr(sa->idcol);
                     }
                     if( stcol )
                     {
-                        write_csv_string(csv,stcol->Code);
+                        csv->writeString(stcol->Code);
                     }
                     else
                     {
-                        write_csv_null_field(csv);
+                        csv->writeNullField();
                     }
                 }
-                if( sa->flag.float_h ) 
+                if( sa->flag.float_h )
                 {
-                    write_csv_double(csv,sa->herror,coord_precision);
+                    csv->writeDouble(sa->herror,coord_precision);
                 }
                 else
                 {
-                    write_csv_null_field(csv);
+                    csv->writeNullField();
                 }
-                if( sa->flag.float_v ) 
+                if( sa->flag.float_v )
                 {
-                    write_csv_double(csv,sa->verror,coord_precision);
+                    csv->writeDouble(sa->verror,coord_precision);
                 }
                 else
                 {
-                    write_csv_null_field(csv);
+                    csv->writeNullField();
                 }
                 
                 int nfprm=float_station_obseq( st, hA );
@@ -1111,11 +1108,11 @@ void write_station_csv()
                     brng *= RTOD;
                     while(brng < 0) brng += 180;
                     while(brng > 180) brng -= 180;
-                    write_csv_double(csv,-res[0],coord_precision);
-                    write_csv_double(csv,-res[1],coord_precision);
-                    write_csv_double(csv,emax,coord_precision);
-                    write_csv_double(csv,emin,coord_precision);
-                    write_csv_double(csv,brng,1);
+                    csv->writeDouble(-res[0],coord_precision);
+                    csv->writeDouble(-res[1],coord_precision);
+                    csv->writeDouble(emax,coord_precision);
+                    csv->writeDouble(emin,coord_precision);
+                    csv->writeDouble(brng,1);
                     if( emax > 1.0e-5 )
                     {
                         double dmax=cs*res[0]+sn*res[1];
@@ -1126,52 +1123,45 @@ void write_station_csv()
                             dmax += (dmin*dmin)/(emin*emin);
                         }
                         dmax=sqrt(dmax);
-                        write_csv_double(csv,dmax,3);
+                        csv->writeDouble(dmax,3);
                     }
                     else
                     {
-                        write_csv_null_field( csv );
+                        csv->writeNullField();
                     }
                 }
                 else
                 {
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
+                    csv->writeNullFields(6);
                 }
                 if( nfprm == 1 || nfprm == 3 )
                 {
-                    write_csv_double(csv,-res[vrow],coord_precision);
+                    csv->writeDouble(-res[vrow],coord_precision);
                     double verr=sqrt(fabs(Lij(cvr,vrow,vrow)));
-                    write_csv_double(csv,verr,coord_precision);
+                    csv->writeDouble(verr,coord_precision);
                     if( verr < 1.0e-5 )
                     {
-                        write_csv_null_field( csv );
+                        csv->writeNullField();
                     }
                     else
                     {
-                        write_csv_double( csv, fabs(res[vrow])/verr, 3 );
+                        csv->writeDouble( fabs(res[vrow])/verr, 3 );
                     }
                 }
                 else
                 {
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
-                    write_csv_null_field( csv );
+                    csv->writeNullFields(3);
                 }
             }
         }
 
-        for( i = 0; i < net->classification_count(); i++ )
+        for( int i = 0; i < net->classification_count(); i++ )
         {
             int iclass = get_station_class( st, i+1 );
-            write_csv_string( csv, net->class_value(i+1, iclass).c_str());
+            csv->writeString( net->class_value(i+1, iclass) );
         }
 
-        write_csv_string( csv, st->Name.c_str() );
+        csv->writeString( st->Name );
         if( output_csv_shape )
         {
             char wkt[128];
@@ -1185,12 +1175,11 @@ void write_station_csv()
                 sprintf(wkt,"POINT(%.*lf %.*lf)",
                         coord_precision+5,st->ELon*RTOD,coord_precision+5,st->ELat*RTOD);
             }
-            write_csv_string( csv, wkt );
+            csv->writeString( wkt );
         }
-        end_output_csv_record( csv );
+        csv->endRecord();
     }
     delete_oe(hA);
-    close_output_csv( csv );
 }
 
 void print_floated_stations( FILE *out )

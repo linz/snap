@@ -154,7 +154,7 @@ void print_json_end( FILE *out, const char *name );
 void print_json_params( FILE *lst, int nprefix );
 void print_solution_json_file();
 
-output_csv *open_snap_output_csv( const char *type );
+std::unique_ptr<output_csv> open_snap_output_csv( std::string_view type );
 
 int add_requested_covariance_connections();
 void delete_requested_covariance_connections();

@@ -894,22 +894,22 @@ static void print_command_file( void )
 
 static void write_filelist_csv()
 {
-    output_csv *csv = open_snap_output_csv("filelist");
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv("filelist");
     if( ! csv ) return;
-    write_csv_header(csv,"id");
-    write_csv_header(csv,"filename");
-    write_csv_header(csv,"filetype");
-    write_csv_header(csv,"filedate");
-    write_csv_header(csv,"filesize");
-    end_output_csv_record(csv);
+    csv->writeHeader("id");
+    csv->writeHeader("filename");
+    csv->writeHeader("filetype");
+    csv->writeHeader("filedate");
+    csv->writeHeader("filesize");
+    csv->endRecord();
     for( int i=0; i<recorded_filename_count(); i++ )
     {
         std::string filename;
         std::string filetype;
         recorded_filename(i,filename,filetype);
-        write_csv_int(csv,i);
-        write_csv_string(csv,filename.c_str());
-        write_csv_string(csv,filetype.c_str());
+        csv->writeInt(i);
+        csv->writeString(filename);
+        csv->writeString(filetype);
         time_t modtime=file_modtime(filename);
         if( modtime != 0 )
         {
@@ -918,128 +918,131 @@ static void write_filelist_csv()
             sprintf(dbuf,"%04d-%02d-%02d %02d:%02d:%02d",
                     ltime->tm_year+1900,ltime->tm_mon+1,ltime->tm_mday,
                     ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
-            write_csv_string(csv,dbuf);
-            write_csv_int(csv,file_size(filename));
+            csv->writeString(dbuf);
+            csv->writeInt(file_size(filename));
         }
         else
         {
-            write_csv_null_field(csv);
-            write_csv_null_field(csv);
+            csv->writeNullFields(2);
         }
-        end_output_csv_record(csv);
+        csv->endRecord();
     }
-    close_output_csv( csv );
 }
 
 static void write_metadata_csv()
 {
-    char buffer[128];
-    output_csv *csv = open_snap_output_csv("metadata");
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv("metadata");
     if( ! csv ) return;
-    write_csv_header(csv,"code");
-    write_csv_header(csv,"value");
-    write_csv_header(csv,"comment");
-    end_output_csv_record(csv);
+    csv->writeHeader("code");
+    csv->writeHeader("value");
+    csv->writeHeader("comment");
+    csv->endRecord();
 
-    write_csv_string(csv,"SNAPVER");
-    write_csv_string(csv,PROGRAM_VERSION);
-    write_csv_string(csv,"SNAP version");
-    end_output_csv_record(csv);
+    csv->writeString("SNAPVER");
+    csv->writeString(PROGRAM_VERSION);
+    csv->writeString("SNAP version");
+    csv->endRecord();
 
-    write_csv_string(csv,"RUNTIME");
-    write_csv_string(csv,run_time);
-    write_csv_string(csv,"Run time");
-    end_output_csv_record(csv);
+    csv->writeString("RUNTIME");
+    csv->writeString(run_time);
+    csv->writeString("Run time");
+    csv->endRecord();
 
-    write_csv_string(csv,"TITLE");
-    write_csv_string(csv,job_title);
-    write_csv_string(csv,"Job title");
-    end_output_csv_record(csv);
+    csv->writeString("TITLE");
+    csv->writeString(job_title);
+    csv->writeString("Job title");
+    csv->endRecord();
 
-    write_csv_string(csv,"CRDSYS");
-    write_csv_string(csv,net->crdsys->code.c_str());
-    write_csv_string(csv,net->crdsys->name.c_str());
-    end_output_csv_record(csv);
+    csv->writeString("CRDSYS");
+    csv->writeString(net->crdsys->code);
+    csv->writeString(net->crdsys->name);
+    csv->endRecord();
 
     if( has_deformation_model(net->crdsys) && deformation_model_epoch(net->crdsys) > 0 )
     {
-        write_csv_string(csv,"CRDSYSEPOCH");
-        write_csv_double(csv,deformation_model_epoch(net->crdsys),1);
-        write_csv_string(csv,"Coordinate system epoch");
-        end_output_csv_record(csv);
+        csv->writeString("CRDSYSEPOCH");
+        csv->writeDouble(deformation_model_epoch(net->crdsys),1);
+        csv->writeString("Coordinate system epoch");
+        csv->endRecord();
     }
 
-    write_csv_string(csv,"NOBS");
-    write_csv_int(csv,nobs+nschp);
-    write_csv_string(csv,"Number of observations");
-    end_output_csv_record(csv);
+    csv->writeString("NOBS");
+    csv->writeInt(nobs+nschp);
+    csv->writeString("Number of observations");
+    csv->endRecord();
 
-    write_csv_string(csv,"NPRM");
-    write_csv_int(csv,nprm);
-    write_csv_string(csv,"Number of parameters");
-    end_output_csv_record(csv);
+    csv->writeString("NPRM");
+    csv->writeInt(nprm);
+    csv->writeString("Number of parameters");
+    csv->endRecord();
 
-    write_csv_string(csv,"NIMP");
-    write_csv_int(csv,nschp);
-    write_csv_string(csv,"Number of implicit parameters");
-    end_output_csv_record(csv);
+    csv->writeString("NIMP");
+    csv->writeInt(nschp);
+    csv->writeString("Number of implicit parameters");
+    csv->endRecord();
 
-    write_csv_string(csv,"NCON");
-    write_csv_int(csv,ncon);
-    write_csv_string(csv,"Number of arbitrary constraints");
-    end_output_csv_record(csv);
+    csv->writeString("NCON");
+    csv->writeInt(ncon);
+    csv->writeString("Number of arbitrary constraints");
+    csv->endRecord();
 
-    write_csv_string(csv,"NDOF");
-    write_csv_int(csv,dof);
-    write_csv_string(csv,"Degrees of freedom");
-    end_output_csv_record(csv);
+    csv->writeString("NDOF");
+    csv->writeInt(dof);
+    csv->writeString("Degrees of freedom");
+    csv->endRecord();
 
-    write_csv_string(csv,"SSR");
-    write_csv_double(csv,ssr,-1);
-    write_csv_string(csv,"Sum of squared residuals");
-    end_output_csv_record(csv);
+    csv->writeString("SSR");
+    csv->writeDouble(ssr,-1);
+    csv->writeString("Sum of squared residuals");
+    csv->endRecord();
 
-    write_csv_string(csv,"SEU");
-    write_csv_double(csv,seu,5);
-    write_csv_string(csv,"Standard error of unit weight");
-    end_output_csv_record(csv);
+    csv->writeString("SEU");
+    csv->writeDouble(seu,5);
+    csv->writeString("Standard error of unit weight");
+    csv->endRecord();
 
-    write_csv_string(csv,"CONVERGED");
-    write_csv_string(csv,converged ? "Y" : "N");
-    write_csv_string(csv,"Adjustment met convergence criteria");
-    end_output_csv_record(csv);
+    csv->writeString("CONVERGED");
+    csv->writeString(converged ? "Y" : "N");
+    csv->writeString("Adjustment met convergence criteria");
+    csv->endRecord();
 
-    write_csv_string(csv,"ZERO_INVERSE");
-    write_csv_string(csv,lsq_using_zero_inverse() ? "Y" : "N");
-    write_csv_string(csv,"Inverse set to zero - calc errors not correct");
-    end_output_csv_record(csv);
+    csv->writeString("ZERO_INVERSE");
+    csv->writeString(lsq_using_zero_inverse() ? "Y" : "N");
+    csv->writeString("Inverse set to zero - calc errors not correct");
+    csv->endRecord();
 
-    write_csv_string(csv,"ERRTYPE");
-    write_csv_string(csv,apriori ? "apriori" : "aposteriori");
-    write_csv_string(csv,"Errors presented as apriori or aposteriori");
-    end_output_csv_record(csv);
+    csv->writeString("ERRTYPE");
+    csv->writeString(apriori ? "apriori" : "aposteriori");
+    csv->writeString("Errors presented as apriori or aposteriori");
+    csv->endRecord();
 
     if( got_vector_data() )
     {
-        buffer[0] = buffer[1] = 0;
-        if( output_csv_veccomp ) strcat(buffer,"-components");
-        if( output_csv_vecsum ) strcat(buffer,"-summary");
-        if( output_csv_vecinline ) strcat(buffer,"-inline");
-        if( output_csv_correlations ) strcat(buffer,"-correlations");
-        write_csv_string(csv,"VECFORMAT");
-        write_csv_string(csv,buffer+1);
-        write_csv_string(csv,"Vector format");
-        end_output_csv_record(csv);
+        std::string vecformat;
+        const auto addVecFormat = [&vecformat]( const bool selected, const std::string_view name )
+        {
+            if( ! selected ) return;
+            // Skips the first hyphen
+            if( ! vecformat.empty() ) vecformat += '-';
+            vecformat += name;
+        };
+        addVecFormat( output_csv_veccomp, "components" );
+        addVecFormat( output_csv_vecsum, "summary" );
+        addVecFormat( output_csv_vecinline, "inline" );
+        addVecFormat( output_csv_correlations, "correlations" );
+        csv->writeString("VECFORMAT");
+        csv->writeString(vecformat);
+        csv->writeString("Vector format");
+        csv->endRecord();
 
         if( output_csv_veccomp )
         {
-            write_csv_string(csv,"VECERRTYPE");
-            write_csv_string(csv,output_csv_vecenu ? "ENU" : "XYZ");
-            write_csv_string(csv,"Vector errors/residual components");
-            end_output_csv_record(csv);
+            csv->writeString("VECERRTYPE");
+            csv->writeString(output_csv_vecenu ? "ENU" : "XYZ");
+            csv->writeString("Vector errors/residual components");
+            csv->endRecord();
         }
     }
-    close_output_csv( csv );
 }
 
 static void update_station_file( const std::string &filename)

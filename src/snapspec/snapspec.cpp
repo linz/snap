@@ -1143,7 +1143,7 @@ static std::string output_filename( std::string_view filename, const std::string
 
 static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
 {
-    output_csv *csv=open_output_csv(csvname.c_str(),0);
+    const std::unique_ptr<output_csv> csv = output_csv::open(csvname,false);
     if( ! csv )
     {
         printf("\nCannot open results csv file %s\n",csvname.c_str());
@@ -1157,41 +1157,41 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
     projection *prj = net->crdsys->prj;
     ellipsoid *elp = net->crdsys->rf->el;
 
-    write_csv_header( csv, "code" );
-    write_csv_header( csv, "crdsys" );
+    csv->writeHeader( "code" );
+    csv->writeHeader( "crdsys" );
     if( geocentric_coords )
     {
         /* Set ellipsoidal as true so that ellipsoidal height is calced */
         ellipsoidal=1;
-        write_csv_header( csv,"X");
-        write_csv_header( csv,"Y");
-        write_csv_header( csv,"Z");
+        csv->writeHeader("X");
+        csv->writeHeader("Y");
+        csv->writeHeader("Z");
     }
     else
     {
         if( projection_coords )
         {
-            write_csv_header( csv,"easting");
-            write_csv_header( csv,"northing");
+            csv->writeHeader("easting");
+            csv->writeHeader("northing");
         }
         else
         {
-            write_csv_header( csv,"longitude");
-            write_csv_header( csv,"latitude");
+            csv->writeHeader("longitude");
+            csv->writeHeader("latitude");
         }
-        write_csv_header( csv, ellipsoidal ? "ellheight" : "height" );
+        csv->writeHeader( ellipsoidal ? "ellheight" : "height" );
     }
-    if( haveorders ) write_csv_header(csv,"src_order");
-    write_csv_header(csv,"mode");
-    write_csv_header( csv, "adj_e" );
-    write_csv_header( csv, "adj_n" );
-    write_csv_header( csv, "adj_h" );
-    write_csv_header( csv, "errhor" );
-    write_csv_header( csv, "errhgt" );
-    write_csv_header( csv, "limit_order" );
-    write_csv_header( csv, "priority" );
-    write_csv_header( csv, "calc_order" );
-    end_output_csv_record(csv);
+    if( haveorders ) csv->writeHeader("src_order");
+    csv->writeHeader("mode");
+    csv->writeHeader( "adj_e" );
+    csv->writeHeader( "adj_n" );
+    csv->writeHeader( "adj_h" );
+    csv->writeHeader( "errhor" );
+    csv->writeHeader( "errhgt" );
+    csv->writeHeader( "limit_order" );
+    csv->writeHeader( "priority" );
+    csv->writeHeader( "calc_order" );
+    csv->endRecord();
 
     station *st;
     for( reset_station_list(net,0); NULL != (st = next_station(net)); )
@@ -1204,8 +1204,8 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
 
         int adjusted = sa->hrowno || sa->vrowno;
 
-        write_csv_string( csv, st->Code );
-        write_csv_string(csv,net->crdsys->code.c_str());
+        csv->writeString( st->Code );
+        csv->writeString(net->crdsys->code);
 
         if( geocentric_coords )
         {
@@ -1214,9 +1214,9 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
             llh[CRD_LAT]=st->ELat;
             llh[CRD_HGT]=height;
             llh_to_xyz( elp, llh, xyz, 0, 0);
-            write_csv_double( csv, xyz[CRD_X], coord_precision );
-            write_csv_double( csv, xyz[CRD_Y], coord_precision );
-            write_csv_double( csv, xyz[CRD_Z], coord_precision );
+            csv->writeDouble( xyz[CRD_X], coord_precision );
+            csv->writeDouble( xyz[CRD_Y], coord_precision );
+            csv->writeDouble( xyz[CRD_Z], coord_precision );
         }
         else
         {
@@ -1224,27 +1224,27 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
             {
                 double easting, northing;
                 geog_to_proj( prj, st->ELon, st->ELat, &easting, &northing );
-                write_csv_double( csv, easting, coord_precision );
-                write_csv_double( csv, northing, coord_precision );
+                csv->writeDouble( easting, coord_precision );
+                csv->writeDouble( northing, coord_precision );
             }
             else
             {
-                write_csv_double( csv, st->ELon*RTOD, coord_precision+5 );
-                write_csv_double( csv, st->ELat*RTOD, coord_precision+5 );
+                csv->writeDouble( st->ELon*RTOD, coord_precision+5 );
+                csv->writeDouble( st->ELat*RTOD, coord_precision+5 );
             }
 
-            write_csv_double( csv, height, coord_precision );
+            csv->writeDouble( height, coord_precision );
         }
 
         if( haveorders )
         {
-            write_csv_string( csv, net->order(ra->src_orderid[idra]).c_str() );
+            csv->writeString( net->order(ra->src_orderid[idra]) );
         }
 
         if( adjusted )
         {
             double de, dn, dh;
-            char mode[3] = { '-', '-', 0 };
+            std::string mode = "--";
             if( sa->flag.float_h ) mode[0] = 'h';
             else if( sa->flag.adj_h ) mode[0] = 'H';
             if( sa->flag.float_v ) mode[1] = 'v';
@@ -1254,54 +1254,48 @@ static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )
             de = ( st->ELon - sa->initELon ) * st->dEdLn;
             dh = st->OHgt - sa->initOHgt;
 
-            write_csv_string(csv,mode);
-            write_csv_double( csv, de, coord_precision );
-            write_csv_double( csv, dn, coord_precision );
-            write_csv_double( csv, dh, coord_precision );
+            csv->writeString(mode);
+            csv->writeDouble( de, coord_precision );
+            csv->writeDouble( dn, coord_precision );
+            csv->writeDouble( dh, coord_precision );
 
             if( ra->horvar[idra] >= 0.0 )
             {
-                write_csv_double( csv, sqrt(ra->horvar[idra]), coord_precision );
+                csv->writeDouble( sqrt(ra->horvar[idra]), coord_precision );
             }
             else
             {
-                write_csv_null_field( csv );
+                csv->writeNullField();
             }
 
             if( ra->vrtvar[idra] >= 0.0 )
             {
-                write_csv_double( csv, sqrt(ra->vrtvar[idra]), coord_precision );
+                csv->writeDouble( sqrt(ra->vrtvar[idra]), coord_precision );
             }
             else
             {
-                write_csv_null_field( csv );
+                csv->writeNullField();
             }
 
         }
         else
         {
-            write_csv_null_field( csv );
-            write_csv_null_field( csv );
-            write_csv_null_field( csv );
-            write_csv_null_field( csv );
-            write_csv_null_field( csv );
-            write_csv_null_field( csv );
+            csv->writeNullFields(6);
         }
-        
-        write_csv_string( csv, relacc_role_string( ra, ra->role[st->id-1]) );
+
+        csv->writeString( relacc_role_string( ra, ra->role[st->id-1]) );
         if( ra->priority[st->id-1] == SDC_NO_PRIORITY )
         {
-            write_csv_null_field(csv);
+            csv->writeNullField();
         }
         else
         {
-            write_csv_int(csv,(int) ra->priority[st->id-1]);
+            csv->writeInt(static_cast<int>(ra->priority[st->id-1]));
         }
-        write_csv_string( csv, relacc_order_string( ra, ra->order[st->id-1]) );
+        csv->writeString( relacc_order_string( ra, ra->order[st->id-1]) );
 
-        end_output_csv_record(csv);
+        csv->endRecord();
     }
-    close_output_csv( csv );
 }
 
 

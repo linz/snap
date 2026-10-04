@@ -1396,44 +1396,44 @@ void list_file_location( FILE *out, int file, int lineno )
 
 static int obsset = -1;
 
-static void write_observation_csv_common_start( output_csv *csv, survdata *sd, trgtdata *tgt, const char *component )
+static void write_observation_csv_common_start( output_csv &csv, survdata *sd, trgtdata *tgt, const std::string_view component )
 {
-    char type[16];
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
-    if( ! from ) { from = to; to = 0; }
+    if( ! from ) { from = to; to = nullptr; }
     if( obsset < 0 ) obsset=tgt->obsid;
-    strcpy( type, datatype[tgt->type].code);
-    if(component && strlen(type)+strlen(component)+2 < 16) { strcat(type,"-"); strcat(type,component); }
-    write_csv_int( csv, tgt->obsid );
-    if( have_obs_ids ) write_csv_int( csv, tgt->id );
-    write_csv_string(csv,from->Code);
-    write_csv_string(csv,to ? to->Code : 0);
-    write_csv_date(csv,sd->date);
-    write_csv_double(csv,sd->fromhgt,3);
-    write_csv_double(csv,tgt->tohgt,3);
-    write_csv_string(csv,type);
-    write_csv_int(csv,obsset);
-    if( to ) write_csv_double(csv,calc_distance( from, 0.0, to, 0.0, NULL, NULL ),3);
-    else write_csv_null_field(csv);
-    write_csv_string(csv,tgt->unused ? "rej" : "use" );
-    write_csv_double(csv,tgt->errfct,3);
+    std::string type = datatype[tgt->type].code;
+    if( ! component.empty() && type.size()+component.size()+2 < 16 ) { type += '-'; type += component; }
+    csv.writeInt( tgt->obsid );
+    if( have_obs_ids ) csv.writeInt( tgt->id );
+    csv.writeString(from->Code);
+    if( to ) csv.writeString(to->Code);
+    else csv.writeNullField();
+    csv.writeDate(sd->date);
+    csv.writeDouble(sd->fromhgt,3);
+    csv.writeDouble(tgt->tohgt,3);
+    csv.writeString(type);
+    csv.writeInt(obsset);
+    if( to ) csv.writeDouble(calc_distance( from, 0.0, to, 0.0, nullptr, nullptr ),3);
+    else csv.writeNullField();
+    csv.writeString(tgt->unused ? "rej" : "use" );
+    csv.writeDouble(tgt->errfct,3);
 }
 
-static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trgtdata *tgt )
+static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trgtdata *tgt )
 {
-    int i;
     station *from = stnptr(sd->from);
     station *to = stnptr(tgt->to);
-    if( ! from ) { from = to; to = 0; }
+    if( ! from ) { from = to; to = nullptr; }
 
-    for( i = 0; i < obs_classes.count(); i++ )
+    for( int i = 0; i < obs_classes.count(); i++ )
     {
-        auto name = get_obs_classification_name(sd,tgt,i+1);
-        write_csv_string(csv, name ? name->c_str() : nullptr);
+        const auto name = get_obs_classification_name(sd,tgt,i+1);
+        if( name ) csv.writeString(*name);
+        else csv.writeNullField();
     }
-    write_csv_string(csv,survey_data_file_name(sd->file).c_str());
-    write_csv_int(csv,tgt->lineno);
+    csv.writeString(survey_data_file_name(sd->file));
+    csv.writeInt(tgt->lineno);
 
     if( output_csv_shape )
     {
@@ -1466,10 +1466,10 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
         {
             sprintf(wkt,"POINT(%.*lf %.*lf)",ndp,ef,ndp,nf);
         }
-        write_csv_string(csv,wkt);
+        csv.writeString(wkt);
     }
 
-    end_output_csv_record(csv);
+    csv.endRecord();
 }
 
 //&output_csv_veccomp
@@ -1478,12 +1478,7 @@ static void write_observation_csv_common_end( output_csv *csv, survdata *sd, trg
 //&output_csv_vecenu
 //&output_csv_correlations
 
-static void skip_csv_fields( output_csv *csv, int nskip )
-{
-    while( nskip-- > 0) { write_csv_null_field(csv); }
-}
-
-void write_obsdata_csv( output_csv *csv, survdata *sd, obsdata *o, double semult )
+void write_obsdata_csv( output_csv &csv, survdata *sd, obsdata *o, double semult )
 {
     trgtdata *t = &(o->tgt);
     int ndp = obs_precision[t->type];
@@ -1499,32 +1494,32 @@ void write_obsdata_csv( output_csv *csv, survdata *sd, obsdata *o, double semult
 
     if( datatype[t->type].isangle ) { ndp+=4; mult=RTOD; }
 
-    write_observation_csv_common_start( csv, sd, t, 0 );
-    write_csv_double( csv, o->value*mult, ndp );
-    skip_csv_fields( csv, nskip1 );
-    write_csv_double( csv, o->error*mult*semult, ndp );
-    skip_csv_fields( csv, nskip1+nskip2 );
-    write_csv_double( csv, o->residual*mult, ndp );
-    skip_csv_fields( csv, nskip1 );
-    write_csv_double( csv, o->reserr*mult*semult, ndp );
-    skip_csv_fields( csv, nskip1+nskip2 );
+    write_observation_csv_common_start( csv, sd, t, {} );
+    csv.writeDouble( o->value*mult, ndp );
+    csv.writeNullFields( nskip1 );
+    csv.writeDouble( o->error*mult*semult, ndp );
+    csv.writeNullFields( nskip1+nskip2 );
+    csv.writeDouble( o->residual*mult, ndp );
+    csv.writeNullFields( nskip1 );
+    csv.writeDouble( o->reserr*mult*semult, ndp );
+    csv.writeNullFields( nskip1+nskip2 );
     sres = o->sres;
     if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-    write_csv_double( csv,sres, 3 );
-    skip_csv_fields( csv, nskip1 );
+    csv.writeDouble( sres, 3 );
+    csv.writeNullFields( nskip1 );
     if( o->error > 0 && ! t->unused )
     {
-        write_csv_double( csv, o->reserr/o->error, 3 );
+        csv.writeDouble( o->reserr/o->error, 3 );
     }
     else
     {
-        skip_csv_fields( csv, 1 );
+        csv.writeNullField();
     }
-    skip_csv_fields( csv, nskip1 );
+    csv.writeNullFields( nskip1 );
     write_observation_csv_common_end( csv, sd, t );
 }
 
-void write_pntdata_csv( output_csv *csv, survdata *sd, pntdata *p, double semult )
+void write_pntdata_csv( output_csv &csv, survdata *sd, pntdata *p, double semult )
 {
     trgtdata *t = &(p->tgt);
     int ndp = obs_precision[t->type];
@@ -1540,28 +1535,28 @@ void write_pntdata_csv( output_csv *csv, survdata *sd, pntdata *p, double semult
 
     if( datatype[t->type].isangle ) { ndp+=4; mult=RTOD; }
 
-    write_observation_csv_common_start( csv, sd, t, 0 );
-    write_csv_double( csv, p->value*mult, ndp );
-    skip_csv_fields( csv, nskip1 );
-    write_csv_double( csv, p->error*mult*semult, ndp );
-    skip_csv_fields( csv, nskip1+nskip2 );
-    write_csv_double( csv, p->residual*mult, ndp );
-    skip_csv_fields( csv, nskip1 );
-    write_csv_double( csv, p->reserr*mult*semult, ndp );
-    skip_csv_fields( csv, nskip1+nskip2 );
+    write_observation_csv_common_start( csv, sd, t, {} );
+    csv.writeDouble( p->value*mult, ndp );
+    csv.writeNullFields( nskip1 );
+    csv.writeDouble( p->error*mult*semult, ndp );
+    csv.writeNullFields( nskip1+nskip2 );
+    csv.writeDouble( p->residual*mult, ndp );
+    csv.writeNullFields( nskip1 );
+    csv.writeDouble( p->reserr*mult*semult, ndp );
+    csv.writeNullFields( nskip1+nskip2 );
     sres = p->sres;
     if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-    write_csv_double( csv,sres, 3 );
-    skip_csv_fields( csv, nskip1 );
+    csv.writeDouble( sres, 3 );
+    csv.writeNullFields( nskip1 );
     if( p->error > 0 && ! t->unused )
     {
-        write_csv_double( csv, p->reserr/p->error, 3 );
+        csv.writeDouble( p->reserr/p->error, 3 );
     }
     else
     {
-        skip_csv_fields( csv, 1 );
+        csv.writeNullField();
     }
-    skip_csv_fields( csv, nskip1 );
+    csv.writeNullFields( nskip1 );
     write_observation_csv_common_end( csv, sd, t );
 }
 
@@ -1575,7 +1570,7 @@ static void convert_cvr_to_secorr( double cvr[6] )
     if( cvr[5] > 0 ) { cvr[3] /= cvr[5]; cvr[4] /= cvr[5]; }
 }
 
-void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, double semult )
+void write_vecdata_csv_components( output_csv &csv, survdata *sd, int iobs, double semult )
 {
     double sres;
     double vec[3],veccvr[6],res[3],rescvr[6];
@@ -1599,23 +1594,23 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
         int cvridx[3] = {0,2,5};
         for( dim = 0; dim < 3; dim++ )
         {
-            write_observation_csv_common_start( csv, sd, t, (*comp)[dim].data() );
-            write_csv_double( csv, vec[dim], ndp );
-            write_csv_double( csv, veccvr[cvridx[dim]]*semult, ndp+2 );
-            write_csv_double( csv, res[dim], ndp );
-            write_csv_double( csv, rescvr[cvridx[dim]]*semult, ndp+2 );
+            write_observation_csv_common_start( csv, sd, t, (*comp)[dim] );
+            csv.writeDouble( vec[dim], ndp );
+            csv.writeDouble( veccvr[cvridx[dim]]*semult, ndp+2 );
+            csv.writeDouble( res[dim], ndp );
+            csv.writeDouble( rescvr[cvridx[dim]]*semult, ndp+2 );
             sres = rescvr[cvridx[dim]];
             if( sres <= 0.0 ) sres = 1.0;
             sres = res[dim] / sres;
             if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-            write_csv_double( csv,sres, 3 );
+            csv.writeDouble( sres, 3 );
             if( veccvr[cvridx[dim]] > 0 && ! t->unused )
             {
-                write_csv_double( csv, rescvr[cvridx[dim]]/veccvr[cvridx[dim]], 3 );
+                csv.writeDouble( rescvr[cvridx[dim]]/veccvr[cvridx[dim]], 3 );
             }
             else
             {
-                skip_csv_fields( csv, 1 );
+                csv.writeNullField();
             }
             write_observation_csv_common_end( csv, sd, t );
         }
@@ -1625,22 +1620,22 @@ void write_vecdata_csv_components( output_csv *csv, survdata *sd, int iobs, doub
         double length = 0.0;
         if( ! datatype[t->type].ispoint )
             length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
-        write_observation_csv_common_start( csv, sd, t, 0 );
-        write_csv_double( csv, length, ndp );
-        skip_csv_fields( csv, 1 );
+        write_observation_csv_common_start( csv, sd, t, {} );
+        csv.writeDouble( length, ndp );
+        csv.writeNullField();
         length = sqrt( res[0]*res[0]+res[1]*res[1]+res[2]*res[2] );
-        write_csv_double( csv, length, ndp );
-        skip_csv_fields( csv, 1 );
+        csv.writeDouble( length, ndp );
+        csv.writeNullField();
 
         sres = vd->vsres;
         if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-        write_csv_double( csv,sres, 3 );
-        skip_csv_fields( csv, 1 );
+        csv.writeDouble( sres, 3 );
+        csv.writeNullField();
         write_observation_csv_common_end( csv, sd, t );
     }
 }
 
-void write_vecdata_csv_inline( output_csv *csv, survdata *sd, int iobs, double semult )
+void write_vecdata_csv_inline( output_csv &csv, survdata *sd, int iobs, double semult )
 {
     double sres;
     double vec[3],veccvr[6],res[3],rescvr[6];
@@ -1649,8 +1644,6 @@ void write_vecdata_csv_inline( output_csv *csv, survdata *sd, int iobs, double s
     int ndp = obs_precision[t->type];
     int cvridx[3] = {0,2,5};
     int topo = output_csv_vecenu ? VD_TOPOCENTRIC : 0;
-    int dim;
-
 
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC,vec, 0);
     calc_vecdata_vector(sd,VD_REF_STN,iobs,VD_OBSVEC | topo,0,veccvr);
@@ -1658,69 +1651,69 @@ void write_vecdata_csv_inline( output_csv *csv, survdata *sd, int iobs, double s
     convert_cvr_to_secorr( veccvr );
     convert_cvr_to_secorr( rescvr );
 
-    write_observation_csv_common_start( csv, sd, t, 0 );
+    write_observation_csv_common_start( csv, sd, t, {} );
     if( output_csv_vecsum )
     {
         double length = sqrt(vec[0]*vec[0]+vec[1]*vec[1]+vec[2]*vec[2]);
-        write_csv_double(csv, length, ndp);
+        csv.writeDouble(length, ndp);
     }
-    write_csv_double( csv, vec[0], ndp );
-    write_csv_double( csv, vec[1], ndp );
-    write_csv_double( csv, vec[2], ndp );
-    if( output_csv_vecsum ) skip_csv_fields(csv,1);
+    csv.writeDouble( vec[0], ndp );
+    csv.writeDouble( vec[1], ndp );
+    csv.writeDouble( vec[2], ndp );
+    if( output_csv_vecsum ) csv.writeNullField();
 
-    write_csv_double( csv, veccvr[0]*semult, ndp+2 );
-    write_csv_double( csv, veccvr[2]*semult, ndp+2 );
-    write_csv_double( csv, veccvr[5]*semult, ndp+2 );
+    csv.writeDouble( veccvr[0]*semult, ndp+2 );
+    csv.writeDouble( veccvr[2]*semult, ndp+2 );
+    csv.writeDouble( veccvr[5]*semult, ndp+2 );
     if( output_csv_correlations )
     {
-        write_csv_double( csv, veccvr[1], 4 );
-        write_csv_double( csv, veccvr[3], 4 );
-        write_csv_double( csv, veccvr[4], 4 );
+        csv.writeDouble( veccvr[1], 4 );
+        csv.writeDouble( veccvr[3], 4 );
+        csv.writeDouble( veccvr[4], 4 );
     }
     if( output_csv_vecsum )
     {
         double length = sqrt(res[0]*res[0]+res[1]*res[1]+res[2]*res[2]);
-        write_csv_double(csv,length,ndp);
+        csv.writeDouble(length,ndp);
     }
-    write_csv_double( csv, res[0], ndp );
-    write_csv_double( csv, res[1], ndp );
-    write_csv_double( csv, res[2], ndp );
-    if( output_csv_vecsum ) skip_csv_fields(csv,1);
-    write_csv_double( csv, rescvr[0]*semult, ndp+2 );
-    write_csv_double( csv, rescvr[2]*semult, ndp+2 );
-    write_csv_double( csv, rescvr[5]*semult, ndp+2 );
+    csv.writeDouble( res[0], ndp );
+    csv.writeDouble( res[1], ndp );
+    csv.writeDouble( res[2], ndp );
+    if( output_csv_vecsum ) csv.writeNullField();
+    csv.writeDouble( rescvr[0]*semult, ndp+2 );
+    csv.writeDouble( rescvr[2]*semult, ndp+2 );
+    csv.writeDouble( rescvr[5]*semult, ndp+2 );
     if( output_csv_correlations )
     {
-        write_csv_double( csv, rescvr[1], 4 );
-        write_csv_double( csv, rescvr[3], 4 );
-        write_csv_double( csv, rescvr[4], 4 );
+        csv.writeDouble( rescvr[1], 4 );
+        csv.writeDouble( rescvr[3], 4 );
+        csv.writeDouble( rescvr[4], 4 );
     }
     if( output_csv_vecsum )
     {
         sres = vd->vsres;
         if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-        write_csv_double( csv,sres, 3 );
+        csv.writeDouble( sres, 3 );
     }
-    for( dim = 0; dim < 3; dim++ )
+    for( int dim = 0; dim < 3; dim++ )
     {
 
         sres = rescvr[cvridx[dim]];
         if( sres <= 0.0 ) sres = 1.0;
         sres = res[dim] / sres;
         if( sres >= 0.0 && semult > 0.0 ) sres /= semult;
-        write_csv_double( csv,sres, 3 );
+        csv.writeDouble( sres, 3 );
     }
-    if( output_csv_vecsum ) skip_csv_fields(csv,1);
-    for( dim = 0; dim < 3; dim++ )
+    if( output_csv_vecsum ) csv.writeNullField();
+    for( int dim = 0; dim < 3; dim++ )
     {
         if( veccvr[cvridx[dim]] > 0 && ! t->unused )
         {
-            write_csv_double( csv, rescvr[cvridx[dim]]/veccvr[cvridx[dim]], 3 );
+            csv.writeDouble( rescvr[cvridx[dim]]/veccvr[cvridx[dim]], 3 );
         }
         else
         {
-            skip_csv_fields( csv, 1 );
+            csv.writeNullField();
         }
     }
     write_observation_csv_common_end( csv, sd, t );
@@ -1734,8 +1727,6 @@ void write_observation_csv()
     double semult;
     long nbin;
     survdata *sd;
-    output_csv *csv;
-    int i, iobs;
 
     /* Allocate space for the least squares results */
 
@@ -1748,81 +1739,80 @@ void write_observation_csv()
 
     b = create_bindata();
 
-    csv = open_snap_output_csv( "obs" );
+    const std::unique_ptr<output_csv> csv = open_snap_output_csv( "obs" );
     if( ! csv ) return;
 
-    write_csv_header(csv,"obsid");
-    if( have_obs_ids ) write_csv_header(csv,"srcid");
-    write_csv_header(csv,"fromstn");
-    write_csv_header(csv,"tostn");
-    write_csv_header(csv,"date");
-    write_csv_header(csv,"fromhgt");
-    write_csv_header(csv,"tohgt");
-    write_csv_header(csv,"obstype");
-    write_csv_header(csv,"obsset");
-    write_csv_header(csv,"length");
-    write_csv_header(csv,"status");
-    write_csv_header(csv,"errfct");
+    csv->writeHeader("obsid");
+    if( have_obs_ids ) csv->writeHeader("srcid");
+    csv->writeHeader("fromstn");
+    csv->writeHeader("tostn");
+    csv->writeHeader("date");
+    csv->writeHeader("fromhgt");
+    csv->writeHeader("tohgt");
+    csv->writeHeader("obstype");
+    csv->writeHeader("obsset");
+    csv->writeHeader("length");
+    csv->writeHeader("status");
+    csv->writeHeader("errfct");
     if( output_csv_vecinline )
     {
-        if( output_csv_vecsum ) write_csv_header( csv,"value");
-        write_csv_header( csv,"value1");
-        write_csv_header( csv,"value2");
-        write_csv_header( csv,"value3");
-        if( output_csv_vecsum ) write_csv_header( csv,"error");
-        write_csv_header( csv,"error1");
-        write_csv_header( csv,"error2");
-        write_csv_header( csv,"error3");
+        if( output_csv_vecsum ) csv->writeHeader("value");
+        csv->writeHeader("value1");
+        csv->writeHeader("value2");
+        csv->writeHeader("value3");
+        if( output_csv_vecsum ) csv->writeHeader("error");
+        csv->writeHeader("error1");
+        csv->writeHeader("error2");
+        csv->writeHeader("error3");
         if( output_csv_correlations )
         {
-            write_csv_header( csv,"corr12");
-            write_csv_header( csv,"corr13");
-            write_csv_header( csv,"corr23");
+            csv->writeHeader("corr12");
+            csv->writeHeader("corr13");
+            csv->writeHeader("corr23");
         }
-        if( output_csv_vecsum ) write_csv_header( csv,"residual");
-        write_csv_header(csv,"residual1");
-        write_csv_header(csv,"residual2");
-        write_csv_header(csv,"residual3");
-        if( output_csv_vecsum ) write_csv_header( csv,"reserror");
-        write_csv_header(csv,"reserror1");
-        write_csv_header(csv,"reserror2");
-        write_csv_header(csv,"reserror3");
+        if( output_csv_vecsum ) csv->writeHeader("residual");
+        csv->writeHeader("residual1");
+        csv->writeHeader("residual2");
+        csv->writeHeader("residual3");
+        if( output_csv_vecsum ) csv->writeHeader("reserror");
+        csv->writeHeader("reserror1");
+        csv->writeHeader("reserror2");
+        csv->writeHeader("reserror3");
         if( output_csv_correlations )
         {
-            write_csv_header( csv,"rescorr12");
-            write_csv_header( csv,"rescorr13");
-            write_csv_header( csv,"rescorr23");
+            csv->writeHeader("rescorr12");
+            csv->writeHeader("rescorr13");
+            csv->writeHeader("rescorr23");
         }
-        if( output_csv_vecsum ) write_csv_header( csv,"stdres");
-        write_csv_header(csv,"stdres1");
-        write_csv_header(csv,"stdres2");
-        write_csv_header(csv,"stdres3");
-        if( output_csv_vecsum ) write_csv_header( csv,"redundancy");
-        write_csv_header(csv,"redundancy1");
-        write_csv_header(csv,"redundancy2");
-        write_csv_header(csv,"redundancy3");
+        if( output_csv_vecsum ) csv->writeHeader("stdres");
+        csv->writeHeader("stdres1");
+        csv->writeHeader("stdres2");
+        csv->writeHeader("stdres3");
+        if( output_csv_vecsum ) csv->writeHeader("redundancy");
+        csv->writeHeader("redundancy1");
+        csv->writeHeader("redundancy2");
+        csv->writeHeader("redundancy3");
     }
     else
     {
-        write_csv_header( csv,"value");
-        write_csv_header( csv,"error");
-        write_csv_header( csv,"residual");
-        write_csv_header( csv,"reserror");
-        write_csv_header( csv,"stdres");
-        write_csv_header( csv,"redundancy");
+        csv->writeHeader("value");
+        csv->writeHeader("error");
+        csv->writeHeader("residual");
+        csv->writeHeader("reserror");
+        csv->writeHeader("stdres");
+        csv->writeHeader("redundancy");
     }
-    /* write_csv_header(csv,"flags"); */
+    /* csv->writeHeader("flags"); */
 
-    for( i = 0; i < obs_classes.count(); i++ )
+    for( int i = 0; i < obs_classes.count(); i++ )
     {
-        std::string fieldname = "c_" + obs_classes.name(i+1).substr(0,30);
-        write_csv_header(csv,fieldname.c_str());
+        csv->writeHeader( "c_" + obs_classes.name(i+1).substr(0,30) );
     }
 
-    write_csv_header(csv,"sourcefile");
-    write_csv_header(csv,"sourcelineno");
-    if( output_csv_shape ) write_csv_header(csv,"shape");
-    end_output_csv_record(csv);
+    csv->writeHeader("sourcefile");
+    csv->writeHeader("sourcelineno");
+    if( output_csv_shape ) csv->writeHeader("shape");
+    csv->endRecord();
 
     semult = apriori ? 1.0 : seu;
 
@@ -1841,20 +1831,20 @@ void write_observation_csv()
         update_progress_meter( nbin );
 
         sd = (survdata *) b->data;
-        /* Set obsset to -1 so that it gets reset on first call to write_csv_common_start */
+        /* Set obsset to -1 so that it gets reset on first call to write_observation_csv_common_start */
         obsset = -1;
-        for( iobs = 0; iobs < sd->nobs; iobs++ )
+        for( int iobs = 0; iobs < sd->nobs; iobs++ )
         {
             switch( sd->format )
             {
-            case SD_OBSDATA: write_obsdata_csv( csv, sd, &sd->obs.odata[iobs], semult ); break;
+            case SD_OBSDATA: write_obsdata_csv( *csv, sd, &sd->obs.odata[iobs], semult ); break;
 
             case SD_VECDATA:
-                if( output_csv_vecinline ) write_vecdata_csv_inline( csv, sd, iobs, semult );
-                else write_vecdata_csv_components( csv, sd, iobs, semult );
+                if( output_csv_vecinline ) write_vecdata_csv_inline( *csv, sd, iobs, semult );
+                else write_vecdata_csv_components( *csv, sd, iobs, semult );
                 break;
 
-            case SD_PNTDATA: write_pntdata_csv( csv, sd, &sd->obs.pdata[iobs], semult ); break;
+            case SD_PNTDATA: write_pntdata_csv( *csv, sd, &sd->obs.pdata[iobs], semult ); break;
 
             default: program_error("Invalid survdata format","write_observation_csv");
             }
@@ -1862,8 +1852,6 @@ void write_observation_csv()
     }
 
     end_progress_meter();
-
-    close_output_csv(csv);
 
     delete_bindata( b );
 }

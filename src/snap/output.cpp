@@ -1075,24 +1075,22 @@ void print_solution_json_file()
     fclose(f);
 }
 
-output_csv *open_snap_output_csv( const char *type )
+std::unique_ptr<output_csv> open_snap_output_csv( const std::string_view type )
 {
-    output_csv *csv;
-    const char *ext = output_csv_tab ? WRITECSV_TAB_EXT : WRITECSV_CSV_EXT;
-    const std::string filename = std::string(root_name) + "-" + type + ext;
-    csv=open_output_csv( filename.c_str(), output_csv_tab );
+    std::string filename = std::string(root_name) + "-";
+    filename += type;
+    filename += output_csv_tab ? WRITECSV_TAB_EXT : WRITECSV_CSV_EXT;
+    std::unique_ptr<output_csv> csv = output_csv::open( filename, output_csv_tab );
     if( csv )
     {
-        char ftype[40];
-        sprintf(ftype,"%.20s_output_csv",type);
-        record_filename(filename,ftype);
+        record_filename(filename,std::string(type.substr(0,20)) + "_output_csv");
     }
     else
     {
         char errmess[120];
         sprintf(errmess,"Unable to open CSV file %.80s",filename.c_str());
         handle_error( FILE_OPEN_ERROR, errmess, NO_MESSAGE);
-        return 0;
+        return nullptr;
     }
     return csv;
 }
