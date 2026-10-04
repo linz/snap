@@ -15,10 +15,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <forward_list>
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <variant>
+#include <vector>
 #include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
@@ -36,20 +38,14 @@
 
 #define COMMENT_CHAR '!'
 
-#define CRIT_NONE      0
-#define CRIT_ALL       1
-#define CRIT_CODE      2
-#define CRIT_MATCH     3
-#define CRIT_RANGE     4
-#define CRIT_POLYGON   5
-#define CRIT_CLSF      6
-#define CRIT_FRAME    32 
-
-#define CRIT_OP_DEFAULT 0
-#define CRIT_OP_LINE    1
-#define CRIT_OP_EXCEPT  2
-#define CRIT_OP_AND     3
-#define CRIT_OP_OR      4
+// The order matters: skip_criterion_frame compares operators.
+enum class criterion_operator
+{
+    line,
+    except,
+    and_,
+    or_
+};
 
 #define CRIT_IGNORE_MISSING 1
 #define CRIT_WARN_MISSING 2
@@ -67,267 +63,180 @@ static const char *default_source="station list";
 
 struct code_criterion
 {
-    char *code;
-    int id;
-    int missing_error;
-};
-
-struct criteria_cache
-{
-    unsigned char *cache;
-    int maxcache;
+    std::string code;
+    // Cache of the station id this code resolved to, or CRIT_ID_UNKNOWN or
+    // CRIT_ID_MISSING. Station ids can change if stations are removed.
+    mutable int id = CRIT_ID_UNKNOWN;
+    int missing_error = OK;
 };
 
 struct code_match_criterion
 {
-    char *code;
+    std::string code;
 };
 
 struct code_range_criterion
 {
-    char *fromcode;
-    char *tocode;
+    std::string fromcode;
+    std::string tocode;
 };
 
 struct polygon_criterion
 {
-    void *polygon;
-    coordsys *cs;
-    coord_conversion *conv;
-    bool isgeodetic;
-    bool inside;
+    void *polygon = nullptr;
+    coordsys *cs = nullptr;
+    coord_conversion *conv = nullptr;
+    bool isgeodetic = false;
+    bool inside = false;
 };
 
 struct classification_criterion
 {
-    int class_id;
-    int value_id;
+    int class_id = 0;
+    int value_id = 0;
 };
+
+// Matches every station.
+struct all_criterion
+{
+};
+
+// Marks the start of a frame. The criteria after it at a greater stacklevel
+// are evaluated together, and their result is combined using this entry's
+// crit_operator (inverted for except). It matches no station itself.
+struct frame_start
+{
+};
+
+using criterion_type = std::variant<all_criterion, frame_start, code_criterion,
+                                    code_match_criterion, code_range_criterion,
+                                    polygon_criterion, classification_criterion>;
 
 struct criterion
 {
-    unsigned char type;
-    unsigned char crit_operator;
-    unsigned char stacklevel;
-    const char *source;
-    union
-    {
-        code_criterion code;
-        code_match_criterion code_match;
-        code_range_criterion code_range;
-        polygon_criterion polygon;
-        classification_criterion classification;
-    } c;
-    struct criterion *next;
+    criterion( criterion_type type, criterion_operator crit_operator, int stacklevel )
+        : type( std::move( type ) ), crit_operator( crit_operator ), stacklevel( stacklevel ) {}
+
+    const criterion_type type;
+    const criterion_operator crit_operator;
+    const int stacklevel;
+    // Index into station_criteria::sources, or nullopt if the criterion
+    // did not come from a station list file.
+    std::optional<size_t> source;
 };
 
 struct station_criteria
 {
-    criterion *first = nullptr;
-    criterion *last = nullptr;
-    criteria_cache *cache = nullptr;
+    std::vector<criterion> criteria;
+    // The result of matching each station, indexed by station id, as one of
+    // CRIT_STATUS_*. No value means caching has not been set up.
+    std::optional<std::vector<unsigned char>> cache;
     bool all_code_criteria = true;
-    // Each entry is one "station list in <file>" source, in the order
-    // encountered. forward_list rather than vector: cur_source below, and
-    // criterion::source elsewhere, hold views/pointers straight into an
-    // entry's string, and must stay valid across later insertions - a
-    // guarantee forward_list gives unconditionally (push_front never
-    // relocates existing elements) that vector cannot.
-    std::forward_list<std::string> sources;
-    // Always a view of a whole entry in sources (never a substring) -
-    // criterion::source elsewhere relies on that to treat .data() as a
-    // null-terminated C string.
-    std::optional<std::string_view> cur_source;
-    int cur_missing_error = INVALID_DATA;
+    // The station list file names criteria were read from, without
+    // duplicates. criterion::source is an index into this.
+    std::vector<std::string> sources;
 };
 
 /*-----------------------------------------------------------------------*/
 
-static criteria_cache *new_criteria_cache( int maxcache )
+static unsigned char check_criteria_cache( const std::vector<unsigned char> &cache, int id )
 {
-    criteria_cache *cache=(criteria_cache *) check_malloc( sizeof(criteria_cache));
-    cache->cache=0;
-    cache->maxcache=maxcache;
-    return cache;
+    if( id < 0 ) return CRIT_STATUS_UNKNOWN;
+    const size_t index=id;
+    return index < cache.size() ? cache[index] : CRIT_STATUS_UNKNOWN;
 }
 
-static unsigned char check_criteria_cache( criteria_cache *cache, int id )
-{
-    if( id < 0 || ! cache->cache || id > cache->maxcache ) return CRIT_STATUS_UNKNOWN;
-    return cache->cache[id];
-}
-
-static void set_criteria_cache( criteria_cache *cache, int id, unsigned char match )
+static void set_criteria_cache( std::vector<unsigned char> &cache, int id, unsigned char match )
 {
     if( id < 0 ) return;
-    if( id > cache->maxcache || ! cache->cache )
+    const size_t index=id;
+    if( index >= cache.size() )
     {
-        unsigned char *newcache;
-        int maxcache=cache->maxcache;
-        int newmax=cache->maxcache*2;
-        int idmax=id+id/10;
-        if( idmax > newmax ) newmax=idmax;
-        if( newmax < 1023 ) newmax=1023;
-        newcache=(unsigned char *)check_malloc( newmax+1 );
-        if( cache->cache )
-        {
-            memcpy( newcache, cache->cache, maxcache );
-            memset( newcache+maxcache+1, CRIT_STATUS_UNKNOWN, newmax-maxcache );
-            check_free( cache->cache );
-        }
-        else
-        {
-            memset( newcache, CRIT_STATUS_UNKNOWN, newmax );
-        }
-        cache->cache=newcache;
-        cache->maxcache=newmax;
+        const size_t newsize=std::max( { cache.size()*2, index+index/10+1, size_t( 1024 ) } );
+        cache.resize( newsize, CRIT_STATUS_UNKNOWN );
     }
-    cache->cache[id]=match;
-}
-
-static void delete_criteria_cache( criteria_cache *cache )
-{
-    if( ! cache ) return;
-    if( cache->cache ) check_free( cache->cache );
-    check_free( cache );
+    cache[index]=match;
 }
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_criterion()
+static criterion new_all_criterion( criterion_operator crit_operator, int stacklevel )
 {
-    criterion *c=(criterion *)check_malloc(sizeof(criterion));
-    c->type=CRIT_NONE;
-    c->crit_operator=CRIT_OP_OR;
-    c->stacklevel=0;
-    c->next=nullptr;
-    c->source=default_source;
-    return c;
+    return criterion( all_criterion(), crit_operator, stacklevel );
 }
 
-static criterion *new_all_criterion()
+static criterion new_criteria_frame( criterion_operator crit_operator, int stacklevel )
 {
-    criterion *c=new_criterion();
-    c->type=CRIT_ALL;
-    return c;
-}
-
-static criterion *new_criteria_frame( int crit_operator, int stacklevel )
-{
-    criterion *c=new_criterion();
-    c->type=CRIT_FRAME;
-    c->crit_operator=crit_operator;
-    c->stacklevel=stacklevel;
-    return c;
+    return criterion( frame_start(), crit_operator, stacklevel );
 }
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_code_criterion( const std::string &code, int missing_error )
+static criterion new_code_criterion( const std::string &code, int missing_error, criterion_operator crit_operator, int stacklevel )
 {
-    criterion *c=new_criterion();
-    c->type=CRIT_CODE;
-    c->c.code.code=copy_string(code.c_str());
-    c->c.code.id=CRIT_ID_UNKNOWN;
-    c->c.code.missing_error=missing_error;
-    return c;
+    return criterion( code_criterion{ code, CRIT_ID_UNKNOWN, missing_error }, crit_operator, stacklevel );
 }
 
-static bool code_criterion_match( criterion *c, station *stn )
+static bool code_criterion_match( const criterion &c, station *stn )
 {
-    if( stn->id == c->c.code.id ) return true;
-    if( c->c.code.id == CRIT_ID_MISSING ) return false;
-    if( _stricmp(stn->Code,c->c.code.code) == 0 )
+    const code_criterion &code=std::get<code_criterion>( c.type );
+    if( stn->id == code.id ) return true;
+    if( code.id == CRIT_ID_MISSING ) return false;
+    if( boost::algorithm::iequals( std::string_view( stn->Code ), code.code ) )
     {
-        c->c.code.id = stn->id;
+        code.id = stn->id;
         return true;
     }
     return false;
 }
 
-static void delete_code_criterion( criterion *c )
+/*-----------------------------------------------------------------------*/
+
+static criterion new_code_match_criterion( const std::string &code, criterion_operator crit_operator, int stacklevel )
 {
-    check_free( c->c.code.code );
-    c->c.code.code=nullptr;
+    return criterion( code_match_criterion{ code }, crit_operator, stacklevel );
+}
+
+static bool code_match_criterion_match( const criterion &c, station *stn )
+{
+    return wildcard_match( std::get<code_match_criterion>( c.type ).code, stn->Code );
 }
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_code_match_criterion( const std::string &code )
+static criterion new_code_range_criterion( const std::string &fromcode, const std::string &tocode, criterion_operator crit_operator, int stacklevel )
 {
-    criterion *c=(criterion *) new_criterion();
-    c->type=CRIT_MATCH;
-    c->c.code_match.code=copy_string(code.c_str());
-    return c;
+    return criterion( code_range_criterion{ fromcode, tocode }, crit_operator, stacklevel );
 }
 
-static bool is_code_match( const char *m, const char *c )
+static bool code_range_criterion_match( const criterion &c, station *stn )
 {
-    return wildcard_match(m,c);
-}
-
-static bool code_match_criterion_match( criterion *c, station *stn )
-{
-    return is_code_match( c->c.code_match.code, stn->Code );
-}
-
-static void delete_code_match_criterion( criterion *c )
-{
-    check_free( c->c.code_match.code );
-    c->c.code_match.code=nullptr;
+    const code_range_criterion &range=std::get<code_range_criterion>( c.type );
+    return stncodecmp( stn->Code, range.fromcode ) >= 0 &&
+           stncodecmp( stn->Code, range.tocode ) <= 0;
 }
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_code_range_criterion( const std::string &fromcode, const std::string &tocode )
+static criterion new_polygon_criterion( void *polygon, coordsys *cs, coord_conversion *conv, bool isgeodetic, bool inside, criterion_operator crit_operator, int stacklevel )
 {
-    criterion *c=(criterion *) new_criterion();
-    c->type=CRIT_RANGE;
-    c->c.code_range.fromcode=copy_string(fromcode.c_str());
-    c->c.code_range.tocode=copy_string(tocode.c_str());
-    return c;
+    return criterion( polygon_criterion{ polygon, cs, conv, isgeodetic, inside }, crit_operator, stacklevel );
 }
 
-static bool code_range_criterion_match( criterion *c, station *stn )
+static bool polygon_criterion_match( const criterion &c, station *stn )
 {
-    if( stncodecmp(stn->Code,c->c.code_range.fromcode) >= 0 &&
-        stncodecmp(stn->Code,c->c.code_range.tocode) <= 0 ) return true;
-    return false;
-}
-
-static void delete_code_range_criterion( criterion *c )
-{
-    check_free( c->c.code_range.fromcode );
-    check_free( c->c.code_range.tocode );
-}
-
-/*-----------------------------------------------------------------------*/
-
-static criterion *new_polygon_criterion( void *polygon, coordsys *cs, coord_conversion *conv, bool isgeodetic, bool inside )
-{
-    criterion *c=(criterion *) new_criterion();
-    c->type = CRIT_POLYGON;
-    c->c.polygon.polygon=polygon;
-    c->c.polygon.cs=cs;
-    c->c.polygon.conv=conv;
-    c->c.polygon.inside=inside;
-    c->c.polygon.isgeodetic=isgeodetic;
-    return c;
-}
-
-static bool polygon_criterion_match( criterion *c, station *stn )
-{
+    const polygon_criterion &poly=std::get<polygon_criterion>( c.type );
     bool isinside;
     double lon=stn->ELon;
     double lat=stn->ELat;
-    if( c->c.polygon.conv ) 
+    if( poly.conv )
     {
         double llh[3];
         llh[CRD_LAT]=lat;
         llh[CRD_LON]=lon;
         llh[CRD_HGT]=stn->OHgt+stn->GUnd;
-        convert_coords( c->c.polygon.conv, llh, NULL, llh, NULL );
-        if( c->c.polygon.isgeodetic )
+        convert_coords( poly.conv, llh, NULL, llh, NULL );
+        if( poly.isgeodetic )
         {
             lon=llh[CRD_LON]*RTOD;
             lat=llh[CRD_LAT]*RTOD;
@@ -343,69 +252,49 @@ static bool polygon_criterion_match( criterion *c, station *stn )
         lat *= RTOD;
         lon *= RTOD;
     }
-    isinside=polygon_contains_point( c->c.polygon.polygon, lon, lat ) ? 1 : 0;
-    bool ok=isinside == c->c.polygon.inside;
+    isinside=polygon_contains_point( poly.polygon, lon, lat ) ? 1 : 0;
+    bool ok=isinside == poly.inside;
     return ok;
 }
 
-static void delete_polygon_criterion( criterion *c )
+// The polygon criterion owns its polygon, coordinate conversion and
+// coordinate system. Nothing else in a criterion needs freeing.
+static void delete_polygon_criterion( const polygon_criterion &poly )
 {
-    if( c->c.polygon.polygon ) delete_polygon( c->c.polygon.polygon );
-    if( c->c.polygon.conv ) check_free( c->c.polygon.conv );
-    if( c->c.polygon.cs ) delete c->c.polygon.cs;
-    c->c.polygon.polygon = nullptr;
-    c->c.polygon.conv = nullptr;
+    if( poly.polygon ) delete_polygon( poly.polygon );
+    if( poly.conv ) check_free( poly.conv );
+    if( poly.cs ) delete poly.cs;
 }
 
 /*-----------------------------------------------------------------------*/
 
-static criterion *new_classification_criterion( int class_id, int value_id )
+static criterion new_classification_criterion( int class_id, int value_id, criterion_operator crit_operator, int stacklevel )
 {
-    criterion *c=(criterion *) new_criterion();
-    c->type=CRIT_CLSF;
-    c->c.classification.class_id=class_id;
-    c->c.classification.value_id=value_id;
-    return c;
+    return criterion( classification_criterion{ class_id, value_id }, crit_operator, stacklevel );
 }
 
-static bool classification_criterion_match( criterion *c, station *stn )
+static bool classification_criterion_match( const criterion &c, station *stn )
 {
-    return get_station_class( stn, c->c.classification.class_id ) == c->c.classification.value_id;
-}
-
-static void delete_classification_criterion( criterion * )
-{
+    const classification_criterion &clsf=std::get<classification_criterion>( c.type );
+    return get_station_class( stn, clsf.class_id ) == clsf.value_id;
 }
 
 /*-----------------------------------------------------------------------*/
 
-static bool criterion_match( criterion *c, station *stn )
+static bool criterion_match( const criterion &c, station *stn )
 {
-    bool ok=false;
-    switch( c->type )
-    {
-        case CRIT_ALL: ok=true; break;
-        case CRIT_CODE: ok=code_criterion_match( c, stn ); break;
-        case CRIT_MATCH: ok=code_match_criterion_match( c, stn ); break;
-        case CRIT_RANGE: ok=code_range_criterion_match( c, stn ); break;
-        case CRIT_POLYGON: ok=polygon_criterion_match( c, stn ); break;
-        case CRIT_CLSF: ok=classification_criterion_match( c, stn ); break;
-    };
-    return ok;
+    if( std::holds_alternative<all_criterion>( c.type ) ) return true;
+    if( std::holds_alternative<code_criterion>( c.type ) ) return code_criterion_match( c, stn );
+    if( std::holds_alternative<code_match_criterion>( c.type ) ) return code_match_criterion_match( c, stn );
+    if( std::holds_alternative<code_range_criterion>( c.type ) ) return code_range_criterion_match( c, stn );
+    if( std::holds_alternative<polygon_criterion>( c.type ) ) return polygon_criterion_match( c, stn );
+    if( std::holds_alternative<classification_criterion>( c.type ) ) return classification_criterion_match( c, stn );
+    return false;
 }
 
-static void delete_criterion( criterion *c )
+static void delete_criterion( const criterion &c )
 {
-    switch( c->type )
-    {
-        case CRIT_ALL: break;
-        case CRIT_CODE: delete_code_criterion( c ); break;
-        case CRIT_MATCH: delete_code_match_criterion( c ); break;
-        case CRIT_RANGE: delete_code_range_criterion( c ); break;
-        case CRIT_POLYGON: delete_polygon_criterion( c ); break;
-        case CRIT_CLSF: delete_classification_criterion( c ); break;
-    };
-    check_free(c);
+    if( const polygon_criterion *poly=std::get_if<polygon_criterion>( &c.type ) ) delete_polygon_criterion( *poly );
 }
 
 /*-----------------------------------------------------------------------*/
@@ -419,34 +308,24 @@ void setup_station_criteria_cache( void *psc, int maxstn )
 {
     station_criteria *sc=(station_criteria *) psc;
     if( sc->cache ) return;
-    if( maxstn > 0 ) sc->cache=new_criteria_cache(maxstn);
+    // Station ids run from 1 to maxstn
+    if( maxstn > 0 ) sc->cache=std::vector<unsigned char>( maxstn+1, CRIT_STATUS_UNKNOWN );
 }
 
-static void set_station_criteria_source( station_criteria *sc, const char *file )
+// Returns the index of file in sc->sources, adding it if it is not there.
+static size_t station_criteria_source_index( station_criteria *sc, const std::string &file )
 {
-    // The prefix is identical for every entry, so comparing the whole
-    // string is equivalent to the original's "skip the prefix, compare the
-    // rest against file" - no pointer arithmetic needed.
-    std::string search = std::string(source_prefix) + file;
-    for( const std::string &source : sc->sources )
-    {
-        if( source == search )
-        {
-            sc->cur_source = source;
-            return;
-        }
-    }
-    sc->sources.push_front( std::move(search) );
-    sc->cur_source = sc->sources.front();
+    const auto found=std::find( sc->sources.begin(), sc->sources.end(), file );
+    if( found != sc->sources.end() ) return found-sc->sources.begin();
+    sc->sources.push_back( file );
+    return sc->sources.size()-1;
 }
 
-static bool station_criteria_source_used( station_criteria *sc, int maxstack, const char *file )
+static bool station_criteria_source_used( const station_criteria *sc, int maxstack, const std::string &file )
 {
-    for( criterion *c=sc->first; c; c=c->next )
+    for( const criterion &c : sc->criteria )
     {
-        if( c->stacklevel < maxstack 
-                && c->source != default_source 
-                && strcmp(c->source+strlen(source_prefix),file)==0) return true;
+        if( c.stacklevel < maxstack && c.source && sc->sources[*c.source] == file ) return true;
     }
     return false;
 }
@@ -454,84 +333,72 @@ static bool station_criteria_source_used( station_criteria *sc, int maxstack, co
 
 static void delete_all_station_criteria( station_criteria *sc )
 {
-    while( sc->first )
-    {
-        criterion *cur=sc->first;
-        sc->first=cur->next;
-        delete_criterion( cur );
-    }
-    sc->first=nullptr;
-    sc->last=nullptr;
+    for( const criterion &c : sc->criteria ) delete_criterion( c );
+    sc->criteria.clear();
     sc->all_code_criteria=true;
 }
 
-static void add_station_criterion( station_criteria *sc, criterion *c )
+static void add_station_criterion( station_criteria *sc, criterion c, std::optional<size_t> source )
 {
     /* Optimisation for simple list of codes */
-    if( (c->type != CRIT_CODE && c->type != CRIT_FRAME ) ||
-        (c->crit_operator != CRIT_OP_LINE && c->crit_operator != CRIT_OP_OR) )
+    if( ! (std::holds_alternative<code_criterion>( c.type ) || std::holds_alternative<frame_start>( c.type )) ||
+        (c.crit_operator != criterion_operator::line && c.crit_operator != criterion_operator::or_) )
                 sc->all_code_criteria=false;
 
-    if( sc->cur_source ) c->source=sc->cur_source->data();
-    if( sc->last )
+    c.source=source;
+    sc->criteria.push_back( std::move( c ) );
+}
+
+// The frame functions take pos, the index of the criterion to start at, and
+// leave it at the first criterion after the frame.
+static void skip_criterion_frame( const std::vector<criterion> &criteria, size_t &pos, int stacklevel, criterion_operator op )
+{
+    while( pos < criteria.size() &&
+            (criteria[pos].stacklevel > stacklevel ||
+            (criteria[pos].stacklevel == stacklevel && criteria[pos].crit_operator >= op)) )
     {
-        sc->last->next=c;
-        sc->last=c;
-    }
-    else
-    {
-        sc->first=c;
-        sc->last=c;
+        pos++;
     }
 }
 
-static void skip_criterion_frame( criterion **c, int stacklevel, int op )
+static bool criterion_frame_match( const std::vector<criterion> &criteria, size_t &pos, station *stn )
 {
-    criterion *crt=*c;
-    while( crt && 
-            (crt->stacklevel > stacklevel ||
-            (crt->stacklevel == stacklevel && crt->crit_operator >= op)) )
-    {
-        crt=crt->next;
-    }
-    (*c)=crt;
-}
-
-static bool criterion_frame_match( criterion **c, station *stn )
-{
-    criterion *crt=*c;
-    if( ! crt ) return false;
-    bool invert=crt->crit_operator == CRIT_OP_EXCEPT;
+    // pos must be strictly less than criteria.size() to index criteria[pos].
+    // It equals size() when there is nothing left, including an empty list.
+    if( pos >= criteria.size() ) return false;
+    bool invert=criteria[pos].crit_operator == criterion_operator::except;
     bool match=invert;
-    int stacklevel=crt->stacklevel;
-    while( crt && crt->stacklevel >= stacklevel )
+    int stacklevel=criteria[pos].stacklevel;
+    while( pos < criteria.size() && criteria[pos].stacklevel >= stacklevel )
     {
-        unsigned char op=crt->crit_operator;
+        const criterion &crt=criteria[pos];
+        criterion_operator op=crt.crit_operator;
         /* Can we skip this frame */
-        if( (op == CRIT_OP_LINE && match) ||
-                (op == CRIT_OP_EXCEPT && ! match) ||
-                (op == CRIT_OP_AND && ! match) ||
-                (op == CRIT_OP_OR && match) )
+        if( (op == criterion_operator::line && match) ||
+                (op == criterion_operator::except && ! match) ||
+                (op == criterion_operator::and_ && ! match) ||
+                (op == criterion_operator::or_ && match) )
         {
-            skip_criterion_frame( &crt, stacklevel, op );
+            skip_criterion_frame( criteria, pos, stacklevel, op );
             continue;
         }
-        if( crt->type == CRIT_FRAME )
+        if( std::holds_alternative<frame_start>( crt.type ) )
         {
-            if( crt->next && crt->next->stacklevel > crt->stacklevel )
+            // A frame with no criteria after it, such as an empty station
+            // list file, has no effect and is stepped over
+            pos++;
+            if( pos < criteria.size() && criteria[pos].stacklevel > crt.stacklevel )
             {
-                crt=crt->next;
-                match=criterion_frame_match( &crt, stn );
-                if( op == CRIT_OP_EXCEPT ) match = ! match;
+                match=criterion_frame_match( criteria, pos, stn );
+                if( op == criterion_operator::except ) match = ! match;
             }
         }
         else
         {
             match=criterion_match( crt, stn );
-            crt=crt->next;
+            pos++;
         }
     }
-    *c=crt;
     return match;
 }
 
@@ -539,13 +406,13 @@ bool station_criteria_match( void *psc, station *stn )
 {
     station_criteria *sc=(station_criteria *) psc;
     unsigned int status=CRIT_STATUS_UNKNOWN;
-    if( sc->cache ) status=check_criteria_cache(sc->cache, stn->id);
+    if( sc->cache ) status=check_criteria_cache(*sc->cache, stn->id);
     if( status == CRIT_STATUS_UNKNOWN )
     {
         /* Match if any criteria match, except may be undone by reverse criteria */
-        criterion *crt=sc->first;
-        status=criterion_frame_match( &crt, stn ) ? CRIT_STATUS_PASS : CRIT_STATUS_FAIL;
-        if( sc->cache ) set_criteria_cache(sc->cache, stn->id, status );
+        size_t pos=0;
+        status=criterion_frame_match( sc->criteria, pos, stn ) ? CRIT_STATUS_PASS : CRIT_STATUS_FAIL;
+        if( sc->cache ) set_criteria_cache(*sc->cache, stn->id, status );
     }
     return status == CRIT_STATUS_PASS;
 }
@@ -554,8 +421,6 @@ void delete_station_criteria( void *psc )
 {
     station_criteria *sc=(station_criteria *) psc;
     delete_all_station_criteria( sc );
-    if( sc->cache ) delete_criteria_cache( sc->cache );
-    sc->cache=nullptr;
     delete sc;
 }
 
@@ -566,11 +431,11 @@ void apply_station_criteria_to_network( void *psc, network *nw,
     /* Optimisation for simple criteria - no need to process entire list */
     if( sc->all_code_criteria )
     {
-        int id;
-        for( criterion *c=sc->first; c != nullptr; c=c->next )
+        for( const criterion &c : sc->criteria )
         {
-            if( c->type != CRIT_CODE ) continue;
-            id=find_station(nw, c->c.code.code );
+            const code_criterion *code=std::get_if<code_criterion>( &c.type );
+            if( ! code ) continue;
+            const int id=find_station(nw, code->code );
             if( id )
             {
                 station *stn=station_ptr(nw,id);
@@ -592,27 +457,27 @@ void apply_station_criteria_to_network( void *psc, network *nw,
 int check_station_criteria_codes( void *psc, network *nw )
 {
     station_criteria *sc = (station_criteria *) psc;
-    char errmess[150];
     int sts=OK;
-    for( criterion *c=sc->first; c != nullptr; c=c->next )
+    for( const criterion &c : sc->criteria )
     {
-        if( c->type != CRIT_CODE ) continue;
-        if( c->c.code.missing_error == OK ) continue;
-        if( c->c.code.id == CRIT_ID_UNKNOWN )
+        const code_criterion *code=std::get_if<code_criterion>( &c.type );
+        if( ! code ) continue;
+        if( code->missing_error == OK ) continue;
+        if( code->id == CRIT_ID_UNKNOWN )
         {
-            int id=find_station(nw, c->c.code.code );
-            if( id ) 
+            int id=find_station(nw, code->code );
+            if( id )
             {
-                c->c.code.id=id;
+                code->id=id;
                 continue;
             }
-            c->c.code.id=CRIT_ID_MISSING;
+            code->id=CRIT_ID_MISSING;
         }
-        if( c->c.code.id != CRIT_ID_MISSING ) continue;
-        sprintf(errmess,"Invalid station %.20s in %.80s",c->c.code.code,
-                c->source ? c->source : "station_list");
-        handle_error(c->c.code.missing_error,errmess,NULL);
-        if( sts != INVALID_DATA ) sts=c->c.code.missing_error;
+        if( code->id != CRIT_ID_MISSING ) continue;
+        const std::string source=c.source ? source_prefix+sc->sources[*c.source] : default_source;
+        const std::string errmess="Invalid station "+code->code.substr(0,20)+" in "+source.substr(0,80);
+        handle_error(code->missing_error,errmess.c_str(),NULL);
+        if( sts != INVALID_DATA ) sts=code->missing_error;
     }
     return sts;
 }
@@ -620,55 +485,53 @@ int check_station_criteria_codes( void *psc, network *nw )
 /*-----------------------------------------------------------------------*/
 
 
-static int compile_station_criteria1( station_criteria *sc, network *nw, std::string_view select, const char *basefile, unsigned char stacklevel );
+// source is the index in sc->sources of the station list file select was read
+// from, if any. missing_error is the default for stations that do not exist.
+static int compile_station_criteria1( station_criteria *sc, network *nw, std::string_view select, const std::string &basefile, int stacklevel, std::optional<size_t> source, int missing_error );
 
-static int compile_station_list_file_criteria( station_criteria *sc, network *nw, const char *file, const char *basefile, unsigned char stacklevel )
+static int compile_station_list_file_criteria( station_criteria *sc, network *nw, const std::string &file, const std::string &basefile, int stacklevel, int missing_error )
 {
     std::optional<std::string> spec;
     FILE *list_file;
     char buf[2048];
     int sts = OK;
 
-    std::optional<std::string> base = basefile ? std::optional<std::string>(basefile) : std::nullopt;
-    spec = find_file( file, DFLTSTLIST_EXT, base, FF_TRYLOCAL, "" );
+    spec = find_file( file, DFLTSTLIST_EXT, std::optional<std::string>( basefile ), FF_TRYLOCAL, "" );
     list_file = NULL;
     if( spec ) list_file = fopen( spec->c_str(), "r" );
 
     if( !list_file )
     {
-        char errmess[40+MAX_FILENAME_LEN];
-        sprintf(errmess,"Cannot open station list file %.*s\n",MAX_FILENAME_LEN,file);
-        handle_error( INVALID_DATA, errmess, NULL  );
+        const std::string errmess="Cannot open station list file "+file.substr(0,MAX_FILENAME_LEN)+"\n";
+        handle_error( INVALID_DATA, errmess.c_str(), NULL  );
         return INVALID_DATA;
     }
     record_filename( *spec, "station_list_file" );
 
     skip_utf8_bom(list_file);
 
-    set_station_criteria_source( sc, file );
+    const size_t source=station_criteria_source_index( sc, file );
     while( sts==OK && fgets(buf,2048,list_file) )
     {
         char *b = buf;
         while( *b && ISSPACE(*b) ) b++;
         if( ! *b || *b == COMMENT_CHAR ) continue;
-        sts=compile_station_criteria1(sc, nw,b,file,stacklevel);
+        sts=compile_station_criteria1(sc, nw,b,file,stacklevel,source,missing_error);
     }
     return sts;
 }
 
-static int compile_station_criteria1( station_criteria *sc, network *nw, std::string_view select, const char *basefile, unsigned char stacklevel )
+static int compile_station_criteria1( station_criteria *sc, network *nw, std::string_view select, const std::string &basefile, int stacklevel, std::optional<size_t> source, int missing_error )
 {
-    const char *src;
     char errmess[200];
-    int missing_error=sc->cur_missing_error;
     int sts=OK;
-    unsigned char curop=CRIT_OP_LINE;
+    // The operator read for the next criterion, if any. A list starts with
+    // line, so it cannot begin with and, or, or except.
+    std::optional<criterion_operator> curop=criterion_operator::line;
     const int baselevel=stacklevel;
 
-    criterion *c;
-
     errmess[0] = 0;
-    src=sc->cur_source ? sc->cur_source->data() : default_source;
+    const std::string src=source ? source_prefix+sc->sources[*source] : default_source;
 
     FieldScanner scanner( select );
     std::optional<std::string_view> field;
@@ -698,24 +561,24 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
         /* Operators */
 
         {
-            unsigned char op=CRIT_OP_DEFAULT;
-            if( boost::algorithm::iequals( *field, "except" ) ) op=CRIT_OP_EXCEPT;
-            else if( boost::algorithm::iequals( *field, "and" ) ) op=CRIT_OP_AND;
-            else if( boost::algorithm::iequals( *field, "or" ) ) op=CRIT_OP_OR;
-            if( op != CRIT_OP_DEFAULT )
+            std::optional<criterion_operator> op;
+            if( boost::algorithm::iequals( *field, "except" ) ) op=criterion_operator::except;
+            else if( boost::algorithm::iequals( *field, "and" ) ) op=criterion_operator::and_;
+            else if( boost::algorithm::iequals( *field, "or" ) ) op=criterion_operator::or_;
+            if( op )
             {
-                if( curop != CRIT_OP_DEFAULT )
+                if( curop )
                 {
                     std::string fieldText(*field);
-                    sprintf(errmess,"\"%s\" out of place in %.100s",fieldText.c_str(),src);
+                    sprintf(errmess,"\"%s\" out of place in %.100s",fieldText.c_str(),src.c_str());
                     break;
                 }
                 /* Except increments stack level by one so can evaluate except clause on stack
                  * before inverting status */
-                if( op == CRIT_OP_EXCEPT )
+                if( *op == criterion_operator::except )
                 {
-                    add_station_criterion( sc, new_criteria_frame( op, baselevel ));
-                    op=CRIT_OP_LINE;
+                    add_station_criterion( sc, new_criteria_frame( *op, baselevel ), source );
+                    op=criterion_operator::line;
                     stacklevel=baselevel+1;
                 }
                 curop=op;
@@ -723,38 +586,38 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             }
         }
 
+        /* Items are alternatives unless another operator is given */
+        const criterion_operator op = curop.value_or( criterion_operator::or_ );
+
         /* If this reference a file of station definitions, then process the file.
            Not allowed if this is already in a station list file. */
 
         if( field->size() > 1 && (*field)[0] == '@' )
         {
             const std::string file( field->substr(1) );
-            std::optional<std::string_view> save_src=sc->cur_source;
             /* Add a placeholder for the current operation */
-            add_station_criterion( sc, new_criteria_frame( curop, stacklevel ));
-            sc->cur_missing_error=missing_error;
-            if( station_criteria_source_used( sc, stacklevel, file.c_str() ))
+            add_station_criterion( sc, new_criteria_frame( op, stacklevel ), source );
+            if( station_criteria_source_used( sc, stacklevel, file ))
             {
                 sprintf(errmess,"Station list file %.100s uses itself",file.c_str());
                 break;
             }
             /* Embedded station list increments stack level by 2 to distinguish from
              * except stack level */
-            sts=compile_station_list_file_criteria( sc, nw,file.c_str(),basefile,stacklevel+1);
-            sc->cur_source=save_src;
+            sts=compile_station_list_file_criteria( sc, nw,file,basefile,stacklevel+1,missing_error);
             if( sts != OK )
             {
                 sprintf(errmess,"Error processing station list file %.100s",file.c_str());
                 break;
             }
-            curop=CRIT_OP_DEFAULT;
+            curop.reset();
             continue;
         }
 
-        c=nullptr;
+        std::optional<criterion> c;
         if( boost::algorithm::iequals( *field, "all" ) )
         {
-            c=new_all_criterion();
+            c.emplace( new_all_criterion( op, stacklevel ) );
         }
         else if( boost::algorithm::iequals( *field, "inside" ) || boost::algorithm::iequals( *field, "outside" ) )
         {
@@ -768,7 +631,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             if( ! pgnfileField )
             {
                 std::string fieldText(*field);
-                sprintf(errmess,"Invalid \"%s\" option in %s requires coord sys code and wkt file name",fieldText.c_str(),src);
+                sprintf(errmess,"Invalid \"%s\" option in %s requires coord sys code and wkt file name",fieldText.c_str(),src.c_str());
                 break;
             }
             const std::string crdsys( *crdsysField );
@@ -776,16 +639,15 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             cs=load_coordsys( crdsys );
             if( ! cs )
             {
-                sprintf(errmess,"Invalid coordinate system %-20s in \"%s\" option in %s",crdsys.c_str(),std::string(*field).c_str(),src);
+                sprintf(errmess,"Invalid coordinate system %-20s in \"%s\" option in %s",crdsys.c_str(),std::string(*field).c_str(),src.c_str());
                 break;
             }
 
-            std::optional<std::string> base = basefile ? std::optional<std::string>(basefile) : std::nullopt;
-            std::optional<std::string> spec = find_file( pgnfile, DFLT_WKT_EXT, base, FF_TRYLOCAL, "" );
+            std::optional<std::string> spec = find_file( pgnfile, DFLT_WKT_EXT, std::optional<std::string>( basefile ), FF_TRYLOCAL, "" );
             if( ! spec )
             {
                 sprintf(errmess,"Cannot find WKT polygon file %.50s in %s",
-                        pgnfile.c_str(),src);
+                        pgnfile.c_str(),src.c_str());
                 break;
             }
 
@@ -801,7 +663,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 if( define_coord_conversion_epoch( conv, nw->geosys, cs, DEFAULT_CRDSYS_EPOCH ) != OK )
                 {
                     sprintf(errmess,"Cannot use WKT coordinate system %.20s in %s option in %s",
-                            crdsys.c_str(),std::string(*field).c_str(),src);
+                            crdsys.c_str(),std::string(*field).c_str(),src.c_str());
                     check_free( conv );
                     delete cs;
                     break;
@@ -812,13 +674,13 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             if( ! pgn )
             {
                 sprintf(errmess,"Cannot read WKT polygon file %.50s in %s",
-                        pgnfile.c_str(),src);
+                        pgnfile.c_str(),src.c_str());
                 if( conv ) check_free( conv );
                 if( cs ) delete cs;
                 break;
             }
             record_filename(*spec,"wkt_polygon_definition");
-            c=new_polygon_criterion( pgn, cs, conv, isgeo, inside );
+            c.emplace( new_polygon_criterion( pgn, cs, conv, isgeo, inside, op, stacklevel ) );
         }
 
 
@@ -836,8 +698,9 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             const std::string className( field->substr(0,eqPos) );
             const int class_id = nw->class_id( className, 0 );
             const std::string_view values = field->substr(eqPos+1);
-            size_t pos=0;
-            while( pos < values.size() )
+            // The first value uses the operator read, the rest are ored with it
+            criterion_operator valueOp=op;
+            for( size_t pos=0; pos < values.size(); )
             {
                 const auto slashPos=values.find('/',pos);
                 const auto valueEnd = slashPos==std::string_view::npos ? values.size() : slashPos;
@@ -845,17 +708,12 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
                 const int value_id = class_id ? nw->class_value_id( class_id, value, 0 ) : CLASS_VALUE_NOT_DEFINED;
                 if( value_id != CLASS_VALUE_NOT_DEFINED )
                 {
-                    c=new_classification_criterion( class_id, value_id );
-                    if( curop == CRIT_OP_DEFAULT ) curop=CRIT_OP_OR;
-                    c->crit_operator=curop;
-                    c->stacklevel=stacklevel;
-                    add_station_criterion( sc, c );
-                    curop=CRIT_OP_OR;
+                    add_station_criterion( sc, new_classification_criterion( class_id, value_id, valueOp, stacklevel ), source );
+                    valueOp=criterion_operator::or_;
                 }
                 pos = slashPos==std::string_view::npos ? values.size() : slashPos+1;
             }
-            c=nullptr;
-            curop=CRIT_OP_DEFAULT;
+            curop.reset();
             continue;
         }
 
@@ -866,12 +724,12 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             const auto dashPos=field->find('-',1);
             std::string fromCode( field->substr(0,dashPos) );
             std::string toCode( field->substr(dashPos+1) );
-            c=new_code_range_criterion( fromCode, toCode );
+            c.emplace( new_code_range_criterion( fromCode, toCode, op, stacklevel ) );
         }
         else if( (*field)[0] != '\\' && has_wildcard( *field ) )
         {
             std::string fieldStr(*field);
-            c=new_code_match_criterion(fieldStr);
+            c.emplace( new_code_match_criterion( fieldStr, op, stacklevel ) );
         }
         else
         {
@@ -881,21 +739,18 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
             if( codeField.front() == '\\' ) codeField.remove_prefix(1);
             if( codeField.empty() ) continue;
             std::string codeStr(codeField);
-            c=new_code_criterion(codeStr, missing_error);
+            c.emplace( new_code_criterion(codeStr, missing_error, op, stacklevel) );
         }
 
         if( c )
         {
-            if( curop == CRIT_OP_DEFAULT ) curop=CRIT_OP_OR;
-            c->crit_operator=curop;
-            c->stacklevel=stacklevel;
-            add_station_criterion( sc, c );
-            curop=CRIT_OP_DEFAULT;
+            add_station_criterion( sc, std::move( *c ), source );
+            curop.reset();
         }
     }
-    if( ! errmess[0] && curop != CRIT_OP_DEFAULT )
+    if( ! errmess[0] && curop )
     {
-         sprintf(errmess,"Station list cannot end with and, or, or except in %.100s",src);
+         sprintf(errmess,"Station list cannot end with and, or, or except in %.100s",src.c_str());
     }
     if( errmess[0] )
     {
@@ -909,7 +764,7 @@ int compile_station_criteria( void *psc, network *nw, const std::string &select,
 {
     int sts;
     station_criteria *sc=(station_criteria *) psc;
-    sts=compile_station_criteria1( sc, nw, select, basefile.c_str(), 0 );
+    sts=compile_station_criteria1( sc, nw, select, basefile, 0, std::nullopt, INVALID_DATA );
     return sts;
 }
 

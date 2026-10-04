@@ -126,11 +126,17 @@ target_link_libraries(textformat_test PRIVATE snaplib snap_link_deps)
 add_executable(writecsv_test test/writecsv_test/writecsv_test.cpp)
 target_link_libraries(writecsv_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for the
+# station selection criteria in network/networkl.cpp. Exit code is the
+# pass/fail signal.
+add_executable(criteria_test test/criteria_test/criteria_test.cpp)
+target_link_libraries(criteria_test PRIVATE snaplib snap_link_deps)
+
 # Every standalone unit test above. build.py's test target builds this, and
 # regression_tests/unittests/run_test.py then runs each *_test executable it
 # finds in the build directory, so a new unit test must be added here.
 add_custom_target(unit_tests DEPENDS
-    fieldscanner_test iostring_test stncodecmp_test fileutil_test readcfg_test wildcard_test dms_test textformat_test writecsv_test)
+    fieldscanner_test iostring_test stncodecmp_test fileutil_test readcfg_test wildcard_test dms_test textformat_test writecsv_test criteria_test)
 
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
