@@ -22,6 +22,8 @@
 #include <string.h>
 #include <time.h>
 #include <charconv>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -201,37 +203,29 @@ double snap_datetime_parse( std::string_view definition, std::optional<std::stri
     return snap_datetime(ymdhmse[0],ymdhmse[1],ymdhmse[2],ymdhmse[3],ymdhmse[4],ymdhmse[5])+ymdhmse[6];
 }
 
-const char *date_as_string( double snapdate, const char *format, char *buffer )
+std::string date_as_string( const double snapdate, const DateStringFormat format )
 {
-    static char datebuffer[MAX_DATE_LEN];
-    if( ! buffer ) buffer=datebuffer;
     if( snapdate == UNDEFINED_DATE )
     {
-        strcpy(buffer,"undefined");
+        return "undefined";
     }
-    else
+    int y=0;
+    int m=0;
+    int d=0;
+    int hh=0;
+    int mm=0;
+    int ss=0;
+    date_as_ymdhms(snapdate,&y,&m,&d,&hh,&mm,&ss);
+    std::ostringstream text;
+    text << std::setfill('0') << std::setw(4) << y << '-' << std::setw(2) << m << '-' << std::setw(2) << d;
+    const bool midnight = hh==0 && mm==0 && ss==0;
+    const bool printTime = format == DateStringFormat::dateTime ||
+                           (format == DateStringFormat::timeIfNotMidnight && ! midnight);
+    if( printTime )
     {
-        int y,m,d,hh,mm,ss,nch,ptime;
-        date_as_ymdhms(snapdate,&y,&m,&d,&hh,&mm,&ss);
-        sprintf(buffer,"%04d-%02d-%02d%n",y,m,d,&nch); 
-        ptime=1;
-        if( format )
-        {
-            if( _stricmp(format,"D") == 0 )
-            {
-                ptime=0;
-            }
-            else if (_stricmp(format,"DT?") == 0 && hh==0 && mm==0 && ss==0 )
-            {
-                ptime=0;
-            }
-        }
-        if( ptime )
-        {
-            sprintf(buffer+nch," %02d:%02d:%02d",hh,mm,ss);
-        }
+        text << ' ' << std::setw(2) << hh << ':' << std::setw(2) << mm << ':' << std::setw(2) << ss;
     }
-    return buffer;
+    return text.str();
 }
 
 

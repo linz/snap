@@ -51,7 +51,7 @@ int main( int argc, char *argv[] )
 {
     coordsys *cs;
     network *net;
-    char msg[256];
+    std::string msg;
     char quiet = 0;
     double epoch = 0.0;
     const char *epochstr=nullptr;
@@ -171,21 +171,20 @@ int main( int argc, char *argv[] )
 
     netcrdsys = net->crdsysdef;
 
-    msg[0]=0;
-    if( set_network_coordsys( net, cs, epoch, hgtfixopt, msg, 256 ) != OK )
+    if( set_network_coordsys( net, cs, epoch, hgtfixopt, msg ) != OK )
     {
-        printf("Unable to convert network coordinate system to %s\n%s\n",argv[2],msg);
+        printf("Unable to convert network coordinate system to %s\n%s\n",argv[2],msg.c_str());
         return 2;
     }
 
-    msg[0]=0;
+    msg.clear();
     if( ! netcrdsys.empty() )
     {
-        sprintf(msg,"Converted from %.32s",netcrdsys.c_str());
-    }
-    if( epochstr && msg[0] )
-    {
-        sprintf(msg+strlen(msg)," at epoch %.32s",epochstr);
+        msg="Converted from "+netcrdsys.substr(0,32);
+        if( epochstr )
+        {
+            msg += " at epoch "+std::string(epochstr).substr(0,32);
+        }
     }
 
     if( degopt != SET_DEGOPT_DEFAULT )
@@ -203,7 +202,7 @@ int main( int argc, char *argv[] )
         set_network_height_coord_orthometric( net );
     }
 
-    if( write_network( net, argv[3], msg, 0, 0 ) != OK )
+    if( write_network( net, argv[3], msg.c_str(), 0, 0 ) != OK )
     {
         return 2;
     }

@@ -54,7 +54,7 @@ void init_snap_globals()
             break;
         }
     }
-    get_date( run_time );
+    run_time = get_date();
 
     job_title[0] = 0;
     dimension = 2;
@@ -143,7 +143,7 @@ void dump_snap_globals( BINARY_FILE *b )
     create_section( b, "SNAP_GLOBALS" );
 
     fwrite( job_title, JOBTITLELEN+1, 1, b->f );
-    fwrite( run_time, GETDATELEN, 1, b->f );
+    write_run_date_field( b->f, run_time );
     dump_bin(b, dimension);
     dump_bin(b, program_mode);
     dump_bin_long32(b, nobs);
@@ -176,7 +176,7 @@ int reload_snap_globals( BINARY_FILE *b )
     if( find_section( b, "SNAP_GLOBALS" ) != OK ) return MISSING_DATA;
 
     fread( job_title, JOBTITLELEN+1, 1, b->f );
-    fread( run_time, GETDATELEN, 1, b->f );
+    read_run_date_field( b->f, run_time );
     reload_bin(b, dimension);
     reload_bin(b, program_mode);
     reload_bin_long32(b, nobs);

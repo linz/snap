@@ -144,8 +144,8 @@ long read_data_files( FILE *lst )
         {
             if( sd->mindate != UNDEFINED_DATE )
             {
-                fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,"DT?",0));
-                fprintf(lst," and %s\n",date_as_string(sd->maxdate,"DT?",0));
+                fprintf(lst,"    Observations between %s",date_as_string(sd->mindate,DateStringFormat::timeIfNotMidnight).c_str());
+                fprintf(lst," and %s\n",date_as_string(sd->maxdate,DateStringFormat::timeIfNotMidnight).c_str());
             }
             if( sd->nnodate > 0 )
             {

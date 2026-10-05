@@ -2162,17 +2162,10 @@ char *sres_list_header()
     return sres_buf;
 }
 
-static char *pdate_as_string( double date, char *buffer )
+/// Returns the date as text, empty if it is undefined
+static std::string pdate_as_string( const double date )
 {
-    if( date == UNDEFINED_DATE )
-    {
-        buffer[0]=0;
-    }
-    else
-    {
-        date_as_string(date,"DT?",buffer);
-    }
-    return buffer;
+    return date == UNDEFINED_DATE ? std::string() : date_as_string(date,DateStringFormat::timeIfNotMidnight);
 }
 
 char *sres_item_description( long id )
@@ -2223,8 +2216,7 @@ char *sres_item_description( long id )
             data = number;
             break;
         case SRF_DATE:
-            pdate_as_string( connection->date,number);
-            data=number;
+            data=pdate_as_string( connection->date );
             break;
         case SRF_LENGTH:  if( sto )
             {
@@ -2781,9 +2773,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             nch = strlen(buf);
         }
         {
-            char dbuff[32];
-            pdate_as_string( connection->date, dbuff );
-            sprintf( buf+nch, "%21s", dbuff );
+            sprintf( buf+nch, "%21s", pdate_as_string( connection->date ).c_str() );
             nch=strlen(buf);
         }
         nch=strlen(buf);
@@ -2838,9 +2828,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
 
     if( sd->date != UNDEFINED_DATE )
     {
-        char dbuff[32];
-        pdate_as_string( sd->date, dbuff );
-        sprintf(buf,"Date/time:  %s",dbuff);
+        sprintf(buf,"Date/time:  %s",pdate_as_string( sd->date ).c_str());
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (o->tgt.lineno),
@@ -3123,9 +3111,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
 
     if( sd->date != UNDEFINED_DATE )
     {
-        char dbuff[32];
-        pdate_as_string( sd->date, dbuff );
-        sprintf(buf,"Date/time:  %s",dbuff);
+        sprintf(buf,"Date/time:  %s",pdate_as_string( sd->date ).c_str());
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (tgt->lineno),
@@ -3338,9 +3324,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     }
     if( sd->date != UNDEFINED_DATE )
     {
-        char dbuff[32];
-        pdate_as_string( sd->date, dbuff );
-        sprintf(buf,"Date/time:  %s",dbuff);
+        sprintf(buf,"Date/time:  %s",pdate_as_string( sd->date ).c_str());
         (*f)( dest, &jmp, buf );
     }
     sprintf(buf,"Source: Line %d,  %s",  (int) (p->tgt.lineno),

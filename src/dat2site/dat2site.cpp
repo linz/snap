@@ -2670,7 +2670,8 @@ static int get_net_coordsys( void )
         }
         if( cs ) break;
     }
-    set_network_coordsys( net, cs, 0.0, 0, 0, 0 );
+    std::string ignoredMessage;
+    set_network_coordsys( net, cs, 0.0, 0, ignoredMessage );
     delete cs;
     return 1;
 }

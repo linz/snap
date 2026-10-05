@@ -70,7 +70,7 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt
 }
 
 
-int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg )
+int set_network_coordsys( network *nw, coordsys *cs, const double epoch, int hgtfixopt, std::string &errmsg )
 {
     coordsys *geosys, *csold;
     coord_conversion cconv;
@@ -116,10 +116,9 @@ int set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt
 
             if( sts != OK )
             {
-                if( errmsg && cconv.errmsg[0] )
+                if( cconv.errmsg[0] )
                 {
-                    strncpy(errmsg,cconv.errmsg,nmsg);
-                    errmsg[nmsg-1]=0;
+                    errmsg=cconv.errmsg;
                 }
                 delete geosys;
                 return INCONSISTENT_DATA;

@@ -94,5 +94,5 @@ void output_csv::writeDate( const double date )
         writeNullField();
         return;
     }
-    writeString( date_as_string(date,nullptr,nullptr) );
+    writeString( date_as_string(date) );
 }

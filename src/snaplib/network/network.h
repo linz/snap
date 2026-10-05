@@ -452,10 +452,11 @@ int merge_network( network *base, network *data, int mergeopts,
 
 /* set_network_coordsys.  Returns OK if succeeds.  Otherwise network is unaltered
  * hgtfixopt is one of the NW_HGTFIXEDOPT_ values.
- * If errmsg is not null will copy up to nsmg chars of error message to it
+ * If the conversion fails and there is an error message it is assigned to errmsg,
+ * otherwise errmsg is not altered.
  */
 
-int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, char *errmsg, int nmsg );
+int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixopt, std::string &errmsg );
 void    set_network_name( network *nw, const std::string &name );
 
 station * new_network_station( network *nw,

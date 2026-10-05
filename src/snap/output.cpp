@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <boost/algorithm/string/predicate.hpp>
+#include <boost/numeric/conversion/cast.hpp>
 #include <filesystem>
 #include <string>
 #include <string_view>
@@ -580,7 +581,7 @@ void print_report_header( FILE *out )
     print_centred( out, heading );
     skip_line( out );
     print_line( out );
-    sprintf(heading,"Run at %.20s",run_time);
+    sprintf(heading,"Run at %.20s",run_time.c_str());
     if( snap_user )
     {
         sprintf(heading+strlen(heading)," by %.40s",snap_user->c_str());
@@ -607,9 +608,9 @@ void print_section_header( FILE *out, const char *heading )
 
     new_page( out );
     print_line( out );
-    rtl = strlen( run_time );
+    rtl = boost::numeric_cast<int>(run_time.size());
     fprintf(out,"%-*s   %s\n\n",page_width - rtl - 3, job_title,
-            output_noruntime ? "" : run_time );
+            output_noruntime ? "" : run_time.c_str() );
 
     rtl = (page_width - strlen( heading ))/2;
     if( rtl < 0 ) rtl = 0;

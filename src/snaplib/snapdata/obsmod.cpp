@@ -585,7 +585,7 @@ static void describe_obs_date_criterion( FILE *lst, const obs_date_criterion &da
         fprintf(lst,"which are observed %s %s",
             date_criterion.date_criterion_type == obs_date_criterion_type::before ?
             "before" : "after",
-            date_as_string(date_criterion.date,"DT?",0) );
+            date_as_string(date_criterion.date,DateStringFormat::timeIfNotMidnight).c_str() );
     }
 }
 

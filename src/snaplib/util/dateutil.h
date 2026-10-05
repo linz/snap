@@ -14,10 +14,10 @@
 /* Header file for dateutil.c - SNAP date functions */
 
 #include <optional>
+#include <string>
 #include <string_view>
 
 #define DAYS_PER_YEAR 365.25
-#define MAX_DATE_LEN 30
 
 /* Unspecified date */
 
@@ -41,10 +41,15 @@ void date_as_ymd( double snapdate, int *year, int *month, int *day );
 void date_as_ymdhms( double snapdate, int *year, int *month, int *day, int *hour, int *min, int *sec );
 void date_as_yds( double snapdate, int *year, int *dayno, int *secs );
 
-/* Conversion to string.  Format only minimally used.  
- * Current options are "D", date only, 
- * and "DT?" to omit time string if 00:00:00 
- */
-const char *date_as_string( double snapdate, const char *format, char *buffer );
+/// How date_as_string formats a date.
+enum class DateStringFormat
+{
+    dateTime,           ///< Date and time, yyyy-mm-dd hh:mm:ss
+    dateOnly,           ///< Date only, yyyy-mm-dd
+    timeIfNotMidnight   ///< As dateTime, but the time is omitted if it is 00:00:00
+};
+
+/// Formats a date as text, or "undefined" if it is UNDEFINED_DATE.
+std::string date_as_string( double snapdate, DateStringFormat format = DateStringFormat::dateTime );
 
 #endif

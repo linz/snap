@@ -179,7 +179,7 @@ int write_station_file( const std::optional<std::string> &prog, const std::optio
 
     const std::string filename = fname ? *fname : output_station_filespec;
     const std::string version = ver ? *ver : PROGRAM_VERSION;
-    const std::string run_time_text = rtime ? *rtime : get_date(nullptr);
+    const std::string run_time_text = rtime ? *rtime : get_date();
 
     if( filename.empty() )
     {

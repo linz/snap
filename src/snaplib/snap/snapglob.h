@@ -89,7 +89,7 @@ enum { ADJUST=1, PREANALYSIS, DATA_CHECK, DATA_CONSISTENCY };
 #define JOBTITLELEN 80
 
 SCOPE char job_title[JOBTITLELEN+1];
-SCOPE char run_time[GETDATELEN];
+SCOPE std::string run_time;
 SCOPE int dimension;
 SCOPE int program_mode;
 SCOPE int max_iterations;

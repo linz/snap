@@ -63,7 +63,7 @@
 #include "dbl4_utl_error.h"
 
 
-char spec_run_time[GETDATELEN];
+std::string spec_run_time;
 static double test_confidence = 95.0;
 static int test_apriori = 1;
 static double varmult = 1.0;
@@ -338,7 +338,7 @@ static void cache_covariance_matrix( stn_relacc_array *ra, const std::string &cf
     c=create_binary_file(cfn,CACHE_COVARIANCE_SIG);
     if( ! c ) return;
     create_section(c,CACHE_COVARIANCE_SECTION);
-    fwrite(run_time,GETDATELEN,1,c->f);
+    write_run_date_field(c->f,run_time);
     dump_bltmatrix(ra->blt,c->f);
     end_section(c);
     close_binary_file(c);
@@ -808,18 +808,10 @@ static std::string cache_covariance_filename( const std::string &bfn )
     return std::filesystem::path( native_path(bfn) ).replace_extension().string() + CACHE_COVARIANCE_EXT;
 }
 
-/// The text of a run date held in a fixed size buffer, up to the first NUL.
-/// Bytes after the NUL are ignored, as they were when the buffers were compared with _strnicmp.
-static std::string_view run_date_text( const char (&buffer)[GETDATELEN] )
-{
-    const std::string_view text( buffer, GETDATELEN );
-    return text.substr( 0, text.find( '\0' ) );
-}
-
 static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string &cfn )
 {
     BINARY_FILE *c;
-    char cruntime[GETDATELEN];
+    std::string cruntime;
     c=open_binary_file(cfn,CACHE_COVARIANCE_SIG).file;
     if( ! c ) return 0;
     if( find_section(c,CACHE_COVARIANCE_SECTION) != OK )
@@ -827,8 +819,8 @@ static int try_reload_cached_covariance( stn_relacc_array *ra, const std::string
         close_binary_file(c);
         return 0;
     }
-    fread( cruntime, GETDATELEN, 1, c->f );
-    if( compare_ignoring_case( run_date_text(cruntime), run_date_text(run_time) ) != 0 )
+    read_run_date_field( c->f, cruntime );
+    if( compare_ignoring_case( cruntime, run_time ) != 0 )
     {
         printf("Covariance cache file out of date - deleting %s\n",cfn.c_str());
         close_binary_file(c);
@@ -1335,7 +1327,7 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, const std::s
             order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
             const std::string crdfile = fname + "_" + order + ".crd";
             sprintf(comment,"Stations assigned order %s by snapspec - run at %s",
-                    order,spec_run_time);
+                    order,spec_run_time.c_str());
             station_order = iorder;
             write_network(net,crdfile.c_str(),comment,coord_precision,stations_of_order);
             break;
@@ -2641,7 +2633,7 @@ int main( int argc, char *argv[] )
     int use_kdtree = 0;
     int sts;
 
-    get_date( spec_run_time );
+    spec_run_time = get_date();
 
     /* Default is not to use multithreaded matrix ops */
 
@@ -2820,7 +2812,7 @@ int main( int argc, char *argv[] )
         fprintf(out,"NOTE: Relative accuracy tests have not been run\n");
     }
     fprintf(out,"snapspec version %s: Calculation of station orders\n",PROGRAM_VERSION);
-    fprintf(out,"Run at %s\n",spec_run_time);
+    fprintf(out,"Run at %s\n",spec_run_time.c_str());
     fprintf(out,"SNAP binary file: %s\n",bfn.c_str());
     fprintf(out,"Spec configuration file: %s\n",cfn?cfn->c_str():nullptr);
 
@@ -2955,7 +2947,7 @@ int main( int argc, char *argv[] )
         }
     }
 
-    fprintf(out,"SNAP run time: %s\n",run_time);
+    fprintf(out,"SNAP run time: %s\n",run_time.c_str());
 
     if( max_control_str )
     {

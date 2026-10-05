@@ -29,14 +29,13 @@
 #include "util/fileutil.h"
 #include "util/linklist.h"
 #include "util/symmatrx.h"
+#include "util/textformat.hpp"
 #include "util/progress.h"
 #include "util/pi.h"
 
 using boost::numeric_cast;
 
 /* Tolerance in comparing dates */
-
-#define DESCRIBE_MAX_LEN (STNCODELEN+(MAX_DATE_LEN)*2+80)
 
 /// Returns -1, 0 or 1 as d0 is before, the same as or after d1
 static int compare_three_way( const double d0, const double d1 )
@@ -58,44 +57,42 @@ static stn_recode create_stn_recode( std::string_view codeto, double datefrom, d
     return stn_recode( std::string(codeto), reject, datefrom, dateto, herror, verror, ++nextseqid );
 }
 
-/* Write description of recoding - assume buffer is big enough (DESCRIBE_MAX_LEN) */
-static char *describe_stn_recode( const stn_recode &src, char *buffer, int stnwidth )
+/// Describes a recoding, with the station code padded to stnwidth
+static std::string describe_stn_recode( const stn_recode &src, const int stnwidth )
 {
-    int nch=0;
-    int nch1=0;
+    std::string description;
     if( src.reject && src.codeto.empty() )
     {
-        sprintf( buffer,"ignored");
-        nch=7;
+        description="ignored";
     }
     else
     {
-        const std::string codeto=(src.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src.codeto;
-        sprintf( buffer, "%-*.*s%n",stnwidth,STNCODELEN+1,codeto.c_str(),&nch);
+        std::string codeto=(src.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src.codeto;
+        codeto.resize(std::min(codeto.size(),static_cast<std::size_t>(STNCODELEN+1)));
+        const std::size_t width=stnwidth > 0 ? static_cast<std::size_t>(stnwidth) : 0;
+        if( codeto.size() < width ) codeto.append(width-codeto.size(),' ');
+        description=codeto;
     }
+    const DateStringFormat format=DateStringFormat::timeIfNotMidnight;
     if( src.datefrom != UNDEFINED_DATE && src.dateto != UNDEFINED_DATE )
     {
-        sprintf( buffer+nch, " between %s%n",date_as_string(src.datefrom,"DT?",0),&nch1 );
-        nch += nch1;
-        sprintf( buffer+nch, " and %s%n",date_as_string(src.dateto,"DT?",0),&nch1 );
-
+        description += " between "+date_as_string(src.datefrom,format)+" and "+date_as_string(src.dateto,format);
     }
     else if( src.datefrom != UNDEFINED_DATE )
     {
-        sprintf( buffer+nch, " after %s%n",date_as_string(src.datefrom,"DT?",0),&nch1 );
+        description += " after "+date_as_string(src.datefrom,format);
     }
     else if( src.dateto != UNDEFINED_DATE )
     {
-        sprintf( buffer+nch, " before %s%n",date_as_string(src.dateto,"DT?",0),&nch1 );
+        description += " before "+date_as_string(src.dateto,format);
     }
-    nch += nch1;
     if( src.herror > 0.0 || src.verror > 0.0 )
     {
-        sprintf( buffer+nch, " co-location error %.3lf %.3lf m",
-                std::max(std::min(src.herror,9999.999),0.0),
-                std::max(std::min(src.verror,9999.999),0.0));
+        description += " co-location error "+
+                format_fixed(std::max(std::min(src.herror,9999.999),0.0),3)+" "+
+                format_fixed(std::max(std::min(src.verror,9999.999),0.0),3)+" m";
     }
-    return buffer;
+    return description;
 }
 
 /* Sort function sorts into order that ensures first match is the correct
@@ -162,13 +159,10 @@ static void update_stn_recode( const std::string &codefrom, stn_recode &src, con
     int diffmark=stncodecmp(src.codeto,src_update.codeto);
     if( diffmark || src.reject != src_update.reject )
     {
-        char errmsg[60+2*STNCODELEN+DESCRIBE_MAX_LEN];
-        int nch;
         const std::string codeto=(src_update.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src_update.codeto;
-        sprintf(errmsg,"Overriding recode of %.*s to %.*s with recode to %n",
-                STNCODELEN,codefrom.c_str(),STNCODELEN+1,codeto.c_str(),&nch);
-        describe_stn_recode(src,errmsg+nch,0);
-        handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
+        const std::string errmsg="Overriding recode of "+codefrom.substr(0,STNCODELEN)+" to "+
+                codeto.substr(0,STNCODELEN+1)+" with recode to "+describe_stn_recode(src,0);
+        handle_error(INFO_ERROR,errmsg.c_str(),NO_MESSAGE);
         if( diffmark ) return;
     }
     if( src_update.herror <= 0.0 )
@@ -227,12 +221,9 @@ static void add_stn_recode_to_list( stn_recode_list &list, const std::string &co
                 && src.datefrom != UNDEFINED_DATE
                 && trans.dateto < src.datefrom
                 ) continue;
-        char errmsg[40+STNCODELEN+2*DESCRIBE_MAX_LEN];
-        sprintf(errmsg,"Recode of %.*s to ", STNCODELEN,codefrom.c_str());
-        describe_stn_recode(trans,errmsg+strlen(errmsg),0);
-        strcat(errmsg," conflicts with ");
-        describe_stn_recode(src,errmsg+strlen(errmsg),0);
-        handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
+        const std::string errmsg="Recode of "+codefrom.substr(0,STNCODELEN)+" to "+describe_stn_recode(trans,0)+
+                " conflicts with "+describe_stn_recode(src,0);
+        handle_error(INFO_ERROR,errmsg.c_str(),NO_MESSAGE);
     }
 }
 
@@ -704,7 +695,6 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
 
 void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int stn_name_width, std::string_view prefix )
 {
-    char description[DESCRIBE_MAX_LEN];
     if( ! stt ) return;
     const int prefix_length=numeric_cast<int>(prefix.size());
     for( const auto &[codefrom,recodes] : stt->lists )
@@ -740,8 +730,7 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int s
             {
                 fprintf(out,"%.*s%-*s ", prefix_length,prefix.data(),stn_name_width," ");
             }
-            fprintf(out,"to %s",describe_stn_recode( src, description, stn_name_width ));
-            fprintf( out, "\n");
+            fprintf(out,"to %s\n",describe_stn_recode( src, stn_name_width ).c_str());
         }
     }
     bool first=true;
@@ -757,8 +746,7 @@ void print_stn_recode_list( FILE *out, stn_recode_map *stt, bool onlyused, int s
         {
             fprintf(out,"%.*s              ", prefix_length,prefix.data());
         }
-        fprintf(out,"to %s",describe_stn_recode( src, description, stn_name_width ));
-        fprintf( out, "\n");
+        fprintf(out,"to %s\n",describe_stn_recode( src, stn_name_width ).c_str());
     }
 }
 

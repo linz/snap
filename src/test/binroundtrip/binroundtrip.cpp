@@ -210,7 +210,7 @@ static void dump_classifications_text( std::ostream &out, const std::string &sec
 static void dump_snap_globals_text( std::ostream &out )
 {
     dump_value( out, "SNAP_GLOBALS.job_title", std::string(job_title) );
-    dump_value( out, "SNAP_GLOBALS.run_time", std::string(run_time) );
+    dump_value( out, "SNAP_GLOBALS.run_time", run_time );
     dump_value( out, "SNAP_GLOBALS.dimension", static_cast<long>(dimension) );
     dump_value( out, "SNAP_GLOBALS.program_mode", static_cast<long>(program_mode) );
     dump_value( out, "SNAP_GLOBALS.nobs", static_cast<long>(nobs) );

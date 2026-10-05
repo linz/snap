@@ -28,6 +28,7 @@
 #include <math.h>
 #include <array>
 #include <iterator>
+#include <sstream>
 #include <string>
 #include <string_view>
 
@@ -109,20 +110,18 @@ int add_station_colocation_constraints()
                 if( rec2->datefrom == UNDEFINED_DATE && rec2->dateto == UNDEFINED_DATE ) continue;
                 if( stncodecmp(recode->codeto,rec2->codeto) == 0 )
                 {
-                    char errmsg[100+STNCODELEN*3+MAX_DATE_LEN*2];
-                    sprintf(errmsg,"Recode of %.*s to %.*s %s %s inconsistent with %.*s %s %s",
-                            STNCODELEN,st->Code,
-                            STNCODELEN,recode->codeto.c_str(),
-                            recode->datefrom == UNDEFINED_DATE ? "before" : "after",
-                            recode->datefrom == UNDEFINED_DATE ? 
-                                 date_as_string(recode->dateto,"DT?",0) : 
-                                 date_as_string(recode->datefrom,"DT?",0),
-                            STNCODELEN,rec2->codeto.c_str(),
-                            rec2->datefrom == UNDEFINED_DATE ? "before" : "after",
-                            rec2->datefrom == UNDEFINED_DATE ? 
-                                 date_as_string(rec2->dateto,"DT?",0) : 
-                                 date_as_string(rec2->datefrom,"DT?",0));
-                    handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
+                    const auto recodeLimit = []( const stn_recode &recode ) {
+                        const bool before = recode.datefrom == UNDEFINED_DATE;
+                        return std::string( before ? "before " : "after " ) +
+                               date_as_string( before ? recode.dateto : recode.datefrom, DateStringFormat::timeIfNotMidnight );
+                    };
+                    std::ostringstream errmsg;
+                    errmsg << "Recode of " << std::string_view(st->Code).substr(0,STNCODELEN)
+                           << " to " << std::string_view(recode->codeto).substr(0,STNCODELEN)
+                           << ' ' << recodeLimit(*recode)
+                           << " inconsistent with " << std::string_view(rec2->codeto).substr(0,STNCODELEN)
+                           << ' ' << recodeLimit(*rec2);
+                    handle_error(INCONSISTENT_DATA,errmsg.str().c_str(),NO_MESSAGE);
                     sts0=INCONSISTENT_DATA;
                 }
             }

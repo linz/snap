@@ -798,9 +798,9 @@ void write_dxf_title_block( map_plotter * )
 
     NOTE( job_title );
 
-    if(run_time[0])
+    if(! run_time.empty())
     {
-        sprintf(text,"Run at %s",run_time);
+        sprintf(text,"Run at %s",run_time.c_str());
         NOTE( text );
     }
 

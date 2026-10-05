@@ -82,7 +82,8 @@ int read_network( network *nw, std::string_view fname, int options )
         return INVALID_DATA;
     }
 
-    set_network_coordsys( nw, cs, 0.0, 0, nullptr, 0 );
+    std::string ignoredMessage;
+    set_network_coordsys( nw, cs, 0.0, 0, ignoredMessage );
     delete cs;
     nw->crdsysdef = crdsysdef;
     const bool projection_coords = is_projection( nw->crdsys );

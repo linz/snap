@@ -1,54 +1,48 @@
 #include "snapconfig.h"
 
-#include <stdio.h>
-#include <string.h>
+#include <algorithm>
+#include <fstream>
+#include <string>
 
 #include "util/fileutil.h"
 #include "util/getversion.h"
 
-#define MAXVER 20
-#define MAXID  40
-#define MAXNAME  20
+inline constexpr std::size_t MAX_VERSION_LENGTH = 20;
+inline constexpr std::size_t MAX_VERSION_ID_LENGTH = 40;
 
-static char progversion[MAXVER+MAXID+2]={0};
+/// Reads the first whitespace delimited word of a file, truncated to maxLength characters.
+/// Returns an empty string if the file does not exist or has no text.
+static std::string read_first_word( const std::string &filename, const std::size_t maxLength )
+{
+    std::string word;
+    if( path_exists(filename) )
+    {
+        std::ifstream file(filename);
+        file >> word;
+    }
+    word.resize(std::min(word.size(),maxLength));
+    return word;
+}
 
 std::string getProgramName()
 {
     return image_name();
 }
 
-const char *getProgramVersion( const char *version )
+const std::string &getProgramVersion( const char *const version )
 {
-    if( progversion[0] ) return progversion;
+    static std::string programVersion;
+    if( ! programVersion.empty() ) return programVersion;
 
-    char format[20];
-    std::string versionfile=build_filespec(image_dir(),"VERSION","");
-    if( path_exists(versionfile))
+    programVersion=read_first_word(build_filespec(image_dir(),"VERSION",""),MAX_VERSION_LENGTH);
+    if( programVersion.empty() )
     {
-        sprintf(format,"%%%ds",MAXVER);
-        FILE *vf=fopen(versionfile.c_str(),"r");
-        if( vf )
-        {
-            fscanf(vf,format,progversion);
-        }
-        fclose(vf);
+        programVersion=std::string(version).substr(0,MAX_VERSION_LENGTH);
     }
-    if( ! progversion[0] )
+    const std::string versionId=read_first_word(build_filespec(image_dir(),"VERSIONID",""),MAX_VERSION_ID_LENGTH);
+    if( ! versionId.empty() )
     {
-        strncpy(progversion,version,MAXVER);
+        programVersion += "-"+versionId;
     }
-    versionfile=build_filespec(image_dir(),"VERSIONID","");
-    if( path_exists(versionfile))
-    {
-        char *pv=progversion+strlen(progversion);
-        FILE *vf=fopen(versionfile.c_str(),"r");
-        if( vf )
-        {
-            sprintf(format,"%%%ds",MAXID);
-            *pv='-';
-            fscanf(vf,format,pv+1);
-        }
-        fclose(vf);
-    }
-    return progversion;
+    return programVersion;
 }

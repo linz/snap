@@ -72,7 +72,8 @@ network *reload_network( FILE *f )
     }
     else
     {
-        set_network_coordsys( nw, cs, 0.0, 0, 0, 0 );
+        std::string ignoredMessage;
+        set_network_coordsys( nw, cs, 0.0, 0, ignoredMessage );
         delete cs;
         nw->stnclasses.reload( f );
         nw->stnlist = reload_station_list( f );

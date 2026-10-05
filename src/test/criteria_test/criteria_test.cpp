@@ -63,7 +63,8 @@ struct TestNetwork
         coordsys *cs=load_coordsys( "WGS84" );
         if( cs )
         {
-            set_network_coordsys( nw, cs, 0.0, 0, nullptr, 0 );
+            std::string ignoredMessage;
+            set_network_coordsys( nw, cs, 0.0, 0, ignoredMessage );
             delete cs;
         }
         const int grp=nw->class_id( "grp", 1 );

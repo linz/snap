@@ -127,7 +127,7 @@ try
 
     CONFIGURE_RUNTIME();
 
-    get_date( run_time );
+    run_time = get_date();
 
     init_snap_globals();
 
