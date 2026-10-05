@@ -190,11 +190,9 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 {
 
     char errmess[256];
-    char *opt, *val, *storestr, *address;
-    int end;
+    char *address;
     config_item *it;
     int errstat;
-    char blank[2]={0,0};
     ConfigLine line;
 
     /* Get the initial error count */
@@ -218,7 +216,11 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* If blank line or comment then skip */
 
-        if( NULL == (opt = strtok(line.content.data(),FIELD_DELIMS))) continue;
+        const std::string_view content( line.content );
+        const size_t opt_start = content.find_first_not_of( FIELD_DELIMS );
+        if( opt_start == std::string_view::npos ) continue;
+        const size_t opt_end = content.find_first_of( FIELD_DELIMS, opt_start );
+        std::string opt( content.substr( opt_start, opt_end == std::string_view::npos ? opt_end : opt_end - opt_start ) );
 
         /* Is the record too long?  If so then send error and skip */
 
@@ -235,12 +237,12 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         /* Is it a valid option record - if not print warning and
             continue */
 
-        _strlwr(opt);
+        for( char &c : opt ) c = static_cast<char>( TOLOWER( c ) );
         for ( it = item; it->option; it++ )
         {
             if( ( !cfg->command_flag ) | (cfg->command_flag & it->flags) )
             {
-                if( strcmp( it->option, opt ) == 0 ) break;
+                if( opt == it->option ) break;
             }
         }
 
@@ -253,8 +255,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
         {
             if( !(cfg->read_options & CFG_IGNORE_BAD) )
             {
-                sprintf(errmess,"Invalid item %.32s in configuration file",opt);
-                send_config_error(cfg,INVALID_DATA,errmess);
+                send_config_error(cfg,INVALID_DATA,"Invalid item " + opt.substr(0,32) + " in configuration file");
             }
             continue;
         }
@@ -267,8 +268,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         if( it->flags & CFG_ONEONLY && it->flags & CFG_PRESENT )
         {
-            sprintf(errmess,"Definition of %.32s is duplicated",opt);
-            send_config_error(cfg,INVALID_DATA,errmess);
+            send_config_error(cfg,INVALID_DATA,"Definition of " + opt.substr(0,32) + " is duplicated");
             continue;
         }
 
@@ -280,23 +280,20 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         /* Is there a value defined ... */
 
-        if( (val = strtok(NULL,"\n")) )
-        {
-            /* Delete leading field delimiters, then trailing blanks
-               and tab characters */
+        /* Delete leading field delimiters, then trailing blanks
+           and tab characters.  The value is kept in a std::string so that
+           it is null terminated for the store functions. */
 
-            while( *val && strchr( FIELD_DELIMS, *val )) val++;
-            end = strlen(val)-1;
-            while( end >= 0 && (val[end]==' ' || val[end]=='\t') )
-            {
-                val[end] = '\0';
-                end--;
-            }
-        }
-        else
+        std::string val;
+        if( opt_end != std::string_view::npos )
         {
-            blank[0]=0;
-            val=blank;
+            std::string_view rest = content.substr( opt_end );
+            const size_t val_start = rest.find_first_not_of( FIELD_DELIMS );
+            if( val_start != std::string_view::npos )
+            {
+                rest.remove_prefix( val_start );
+                val = rest.substr( 0, rest.find_last_not_of( " \t" ) + 1 );
+            }
         }
 
         /* Get the address in which the value is to be stored */
@@ -314,9 +311,8 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
 
         if( it->store == STORE_AS_STRING )
         {
-            storestr = address;
-            strncpy( storestr, val, it->vallen-1 );
-            storestr[it->vallen-1] = '\0';
+            strncpy( address, val.c_str(), it->vallen-1 );
+            address[it->vallen-1] = '\0';
         }
         else
         {
@@ -324,9 +320,7 @@ int read_config_file( CFG_FILE *cfg, config_item item[] )
             if( errstat == ABORT_CONFIG_FILE ) break;
             if( errstat != OK )
             {
-                sprintf(errmess,"Invalid value %.32s defined for %.32s in configuration file",
-                        val,opt);
-                send_config_error(cfg,errstat,errmess);
+                send_config_error(cfg,errstat,"Invalid value " + val.substr(0,32) + " defined for " + opt.substr(0,32) + " in configuration file");
                 continue;
             }
         }
