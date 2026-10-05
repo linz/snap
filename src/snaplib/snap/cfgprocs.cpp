@@ -113,8 +113,8 @@ static int load_merge_coordinate_file( CFG_FILE *cfg, std::string_view string, v
             xprintf("\n");
         }
         const std::string csvdataStr( csvdata.value_or(std::string_view()) );
-        sts = read_station_file( fnameStr.c_str(), get_config_directory(cfg).c_str(), format,
-                                  csvdata ? csvdataStr.c_str() : nullptr, mergeopts, mergedate );
+        sts = read_station_file( fnameStr, get_config_directory(cfg), format,
+                                  csvdataStr, mergeopts, mergedate );
         if( sts == OK )
         {
             stations_read = 1;
@@ -219,13 +219,13 @@ int set_output_coordinate_file( CFG_FILE *cfg, std::string_view string, void *, 
     std::string fname;
     if( !string.empty() && string[0] == '.' )
     {
-        fname = std::string(root_name) + std::string(string);
+        fname = command_file->root + std::string(string);
     }
     else
     {
         fname = build_filespec( get_config_directory(cfg), std::string(string), "" );
     }
-    set_output_station_file( fname.c_str() );
+    set_output_station_file( fname );
     return OK;
 }
 
@@ -244,7 +244,7 @@ int load_offset_file( CFG_FILE *cfg, std::string_view string, void *, int, int )
     }
     const std::string filenameStr(*filename);
 
-    if( station_filespec ) filespec = find_relative_file( station_filespec, filenameStr, DFLTSTOFFS_EXT );
+    if( station_file ) filespec = find_relative_file( station_file->filespec, filenameStr, DFLTSTOFFS_EXT );
     if( ! filespec ) filespec = find_file( filenameStr, DFLTSTOFFS_EXT, get_config_directory(cfg), FF_TRYALL, "" );
     if(! filespec )
     {

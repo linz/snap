@@ -507,15 +507,14 @@ void SnapCsvStn::terminateLoadData()
 
 #include "snap/stnadj.h"
 
-int load_snap_csv_stations(network *net, const char *filename, const char *options)
+int load_snap_csv_stations(network *net, const std::string &filename, const std::string &options)
 {
     int sts = OK;
     try
     {
-        OptionString config(options ? options : "");
+        OptionString config(options);
         std::string format = config.valueOf("format", "stn");
-        std::optional<std::string> base = filename ? std::optional<std::string>(filename) : std::nullopt;
-        auto formatfile = find_file(format, ".dtf", base, FF_TRYALL, CSVFORMAT_CONFIG);
+        auto formatfile = find_file(format, ".dtf", filename, FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;
@@ -523,7 +522,7 @@ int load_snap_csv_stations(network *net, const char *filename, const char *optio
             handle_error(INVALID_DATA, os.str().c_str(), 0);
             return INVALID_DATA;
         }
-        string netname = string("Read from ") + filename;
+        string netname = "Read from " + filename;
         set_network_name(net, netname.c_str());
         SnapCsvStn csvstn(net, *formatfile, config);
         DatafileInput dfi(filename, "station coordinate file");

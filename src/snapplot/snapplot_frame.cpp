@@ -531,7 +531,7 @@ void SnapplotFrame::SetupData()
     // if( map ) delete map;
     // if( symbologyKey ) delete symbologyKey;
 
-    if( command_file ) SetLabel(wxString("Snapplot - " )+ wxString(command_file));
+    if( command_file ) SetLabel(wxString("Snapplot - " )+ wxString(command_file->path));
     map = new SnapplotMap();
     mapWindow->SetMap( map );
     SetupSymbology();
@@ -694,7 +694,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
 
 
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxFileDialog dlgFile(
         this,
@@ -720,7 +720,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
 void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
 {
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxString configFile = wxFileSelector(
                               "Select configuration file to restore",
@@ -742,7 +742,7 @@ void SnapplotFrame::OnCmdExportImage( wxCommandEvent & WXUNUSED(event) )
 {
 
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxFileDialog dlgFile(
         this,
@@ -788,7 +788,7 @@ void SnapplotFrame::OnCmdExportDxf( wxCommandEvent & WXUNUSED(event) )
 {
 
     wxString cmdDir;
-    if( cmd_dir ) { cmdDir.Append(cmd_dir); }
+    if( command_file ) { cmdDir.Append(command_file->dir); }
     if( cmdDir.IsEmpty() ) { cmdDir.Append("."); }
     wxFileDialog dlgFile(
         this,

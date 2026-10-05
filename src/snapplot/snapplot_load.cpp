@@ -232,12 +232,12 @@ int snapplot_load( int argc, char *argv[] )
     if( use_command_file )
     {
         set_stnadj_init_network();
-        sts = read_plot_command_file( command_file, binary_data );
+        sts = read_plot_command_file( command_file->path, binary_data );
         if( sts != OK )
         {
             print_log("\n%s command file %s\n",
                       sts == FILE_OPEN_ERROR ? "Cannot open" : "Errors in",
-                      command_file);
+                      command_file->path.c_str());
             return 0;
         }
         for( i = 0; i < nfiles; i++ )
@@ -256,7 +256,7 @@ int snapplot_load( int argc, char *argv[] )
          * Possibly not necessary?
          */
         set_stnadj_init_network();
-        sts = read_station_file( firstfile, cmd_dir, STN_FORMAT_SNAP, 0, 0, UNDEFINED_DATE );
+        sts = read_station_file( firstfile, command_file->dir, STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE );
         if( sts == OK )
         {
             print_log("    %d stations read\n",number_of_stations(net));

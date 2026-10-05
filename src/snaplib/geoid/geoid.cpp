@@ -65,16 +65,11 @@ static std::string get_geoid_filename( const std::optional<std::string> &geoidna
     return filename.value_or(geoid);
 }
 
-const char *create_geoid_filename( const char *geoidname )
+std::optional<std::string> create_geoid_filename( const std::optional<std::string> &geoidname )
 {
-    std::string filename = get_geoid_filename( geoidname ? std::optional<std::string>(geoidname) : std::nullopt );
-    if( ! path_exists(filename) ) return NULL;
-    return copy_string( filename.c_str() );
-}
-
-void delete_geoid_filename( const char *filename )
-{
-    check_free( (void *) filename );
+    std::string filename = get_geoid_filename( geoidname );
+    if( ! path_exists(filename) ) return std::nullopt;
+    return filename;
 }
 
 geoid_def *create_geoid_grid( const char *source )

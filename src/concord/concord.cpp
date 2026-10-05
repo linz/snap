@@ -40,8 +40,8 @@ static FILE *crdin;
 static FILE *crdout;
 static FILE *crdcom;
 
-static const char *coordsys_file;
-static const char *geoid_file;
+static std::optional<std::string> coordsys_file;
+static std::optional<std::string> geoid_file;
 
 static char *crdin_fname;
 static char *crdout_fname;
@@ -345,8 +345,6 @@ static void concord_init( void )
     crdout = stdout;
     crdin_fname = NULL;
     crdout_fname = NULL;
-    coordsys_file = NULL;
-    geoid_file = NULL;
     crdin_open = FALSE;
     crdout_open = FALSE;
     ask_params = FALSE;
@@ -690,7 +688,7 @@ static void list_program_details_and_exit( void )
     printf("\nProgram %s version %s, dated %s\n",PROGRAM_NAME,PROGRAM_VERSION,PROGRAM_DATE);
     printf("Copyright: Land Information New Zealand\n");
     printf("Author: Chris Crook\n");
-    printf("Coordsys file: %s\n",coordsys_file);
+    printf("Coordsys file: %s\n",coordsys_file.value_or("").c_str());
     /* printf("Licensed to: %s\n",decrypted_license()); */
     exit(1);
 }
@@ -772,10 +770,8 @@ static void parse_command_line( int argc, char **argv )
 
     if( switch_option('H') || switch_option('?') ){ help(); exit(0); }
 
-    auto cfile = command_line_option('C');
-    coordsys_file = cfile ? copy_string(cfile->c_str()) : nullptr;
-    auto gfile = command_line_option('G');
-    geoid_file = gfile ? copy_string(gfile->c_str()) : nullptr;
+    coordsys_file = command_line_option('C');
+    geoid_file = command_line_option('G');
 }
 
 static void process_command_line_options()
@@ -1287,27 +1283,27 @@ static void setup_transformation( void )
 
         if( need_ingeoid || need_outgeoid )
         {
-            const char *gfile = geoid_file;
-            if( ! gfile || ! path_exists(gfile) )
+            std::optional<std::string> gfile = geoid_file;
+            if( ! gfile || ! path_exists(*gfile) )
             {
                 gfile = create_geoid_filename(geoid_file);
             }
-            if( ! gfile || ! path_exists(gfile) )
+            if( ! gfile || ! path_exists(*gfile) )
             {
-                printf("Cannot find geoid file %s\n",geoid_file ? geoid_file : "");
+                printf("Cannot find geoid file %s\n",geoid_file.value_or("").c_str());
                 exit(1);
             }
             else
             {
-                geoid_def *geoiddef = create_geoid_grid( gfile );
+                geoid_def *geoiddef = create_geoid_grid( gfile->c_str() );
                 if( ! geoiddef )
                 {
-                    printf("Cannot read geoid file %s\n",gfile ? gfile : "");
+                    printf("Cannot read geoid file %s\n",gfile->c_str());
                     exit(1);
                 }
                 delete_geoid_grid( geoiddef );
-                if( need_ingeoid ) set_coordsys_geoid( input_cs, gfile );
-                if( need_outgeoid ) set_coordsys_geoid( output_cs, gfile );
+                if( need_ingeoid ) set_coordsys_geoid( input_cs, *gfile );
+                if( need_outgeoid ) set_coordsys_geoid( output_cs, *gfile );
             }
         }
     }
@@ -1976,20 +1972,17 @@ int main( int argc, char *argv[] )
     parse_command_line( argc, argv );
     if( ! coordsys_file )
     {
-        auto defaultCrdsysFile=get_default_crdsys_file();
-        if( defaultCrdsysFile ) coordsys_file=copy_string(defaultCrdsysFile->c_str());
+        coordsys_file = get_default_crdsys_file();
     }
     if( ! coordsys_file )
     {
         printf("Cannot find coordsys.def file\n");
     }
-    // coordsys_file may be overwritten if from get_default_crdsys_file
-    coordsys_file=copy_string(coordsys_file);
     install_default_projections();
-    sts = install_crdsys_file( coordsys_file );
+    sts = install_crdsys_file( coordsys_file.value_or("") );
     if( sts != OK )
     {
-        printf("Cannot read coordsys.def file %s\n",coordsys_file);
+        printf("Cannot read coordsys.def file %s\n",coordsys_file.value_or("").c_str());
         return 0;
     }
     process_command_line_options();

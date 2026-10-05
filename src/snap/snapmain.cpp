@@ -151,15 +151,15 @@ try
 
     /* Check that the command file exists */
 
-    if( config_file && !path_exists(config_file) )
+    if( config_file && !path_exists(*config_file) )
     {
-        xprintf("\nCannot open configuration file %s\n", config_file );
+        xprintf("\nCannot open configuration file %s\n", config_file->c_str() );
         return DEFAULT_RETURN_STATUS;
     }
 
-    if( !path_exists(command_file) )
+    if( !path_exists(command_file->path) )
     {
-        xprintf("\nCannot open command file %s\n", command_file );
+        xprintf("\nCannot open command file %s\n", command_file->path.c_str() );
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -179,10 +179,10 @@ try
 
     if( config_file )
     {
-        xprintf("\nReading the configuration file %s\n", config_file);
-        if( read_configuration_file( config_file ) != OK )
+        xprintf("\nReading the configuration file %s\n", config_file->c_str());
+        if( read_configuration_file( *config_file ) != OK )
         {
-            xprintf("\nErrors loading configuration file %s\n", config_file );
+            xprintf("\nErrors loading configuration file %s\n", config_file->c_str() );
             handle_error( INVALID_DATA, "The configuration file is not correct", NO_MESSAGE );
             close_output_files(0,0);
             return DEFAULT_RETURN_STATUS;
@@ -191,14 +191,14 @@ try
 
     /* Read the command file */
 
-    xprintf("\nReading the command file %s\n", command_file );
+    xprintf("\nReading the command file %s\n", command_file->path.c_str() );
 
     /* Set station initialisation for reading the station file before it is loaded by read_command_file */
     set_stnadj_init_network();
 
-    if( read_command_file( command_file ) != OK )
+    if( read_command_file( command_file->path ) != OK )
     {
-        xprintf("\nErrors loading command file %s\n", command_file );
+        xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
         close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
@@ -272,7 +272,7 @@ try
     if( output_file_summary )
     {
         fprintf(lst,"\n\nCoordinates file %s\n    %4d stations read\n",
-                station_filename, (int) number_of_stations( net ));
+                station_file->filename.c_str(), number_of_stations( net ));
     }
 
     if( geoid_file )
@@ -361,10 +361,10 @@ try
 
     /* Now add the constraints from the command file */
 
-    xprintf("\nReading the station constraint commands %s\n", command_file );
-    if( read_command_file_constraints( command_file ) != OK )
+    xprintf("\nReading the station constraint commands %s\n", command_file->path.c_str() );
+    if( read_command_file_constraints( command_file->path ) != OK )
     {
-        xprintf("\nErrors loading command file %s\n", command_file );
+        xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
         close_output_files(0,0);
         return DEFAULT_RETURN_STATUS;
@@ -842,7 +842,7 @@ static int read_parameters( int argc, char *argv[] )
         auto cf = find_configuration_file( cfg_file );
         if( cf )
         {
-            set_snap_config_file( copy_string( cf->c_str() ));
+            set_snap_config_file( *cf );
         }
     }
 
@@ -866,10 +866,10 @@ static void print_command_file( void )
 {
     FILE *cmd;
     char inrec[256];
-    cmd = fopen( command_file, "r" );
+    cmd = fopen( command_file->path.c_str(), "r" );
     if( !cmd ) return;
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
-    fprintf(lst,"\nThe command file %s contains:\n", std::filesystem::path(native_path(command_file)).filename().string().c_str());
+    fprintf(lst,"\nThe command file %s contains:\n", std::filesystem::path(native_path(command_file->path)).filename().string().c_str());
     while( fgets(inrec,256,cmd)) 
     {
         if (strlen(inrec) == 0) continue;
@@ -882,11 +882,11 @@ static void print_command_file( void )
 
     if( !config_file )  return;
 
-    cmd = fopen( config_file, "r" );
+    cmd = fopen( config_file->c_str(), "r" );
     if( !cmd ) return;
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
     fprintf(lst,"\nAdditional configuration commands were read from %s\n",
-            config_file);
+            config_file->c_str());
     while( fgets(inrec,256,cmd)) fprintf(lst,"     %s",inrec);
     fprintf(lst,"\n");
     fclose( cmd );
@@ -1049,7 +1049,7 @@ static void write_metadata_csv()
 static void update_station_file( const std::string &filename)
 {
     if( filename.empty() ) return;
-    if( write_station_file( PROGRAM, filename.c_str(), PROGRAM_VERSION, run_time,
+    if( write_station_file( PROGRAM, filename, PROGRAM_VERSION, run_time,
                             coord_precision, output_rejected_coordinates ) == OK )
     {
         xprintf("\nNew station coordinates have been written to %s\n",filename.c_str());
@@ -1067,7 +1067,7 @@ BINARY_FILE *open_dump_file( void )
 {
     BINARY_FILE *b;
 
-    const std::string bfn = std::string(root_name) + BINFILE_EXT;
+    const std::string bfn = command_file->root + BINFILE_EXT;
 
     record_filename( bfn, "snap_binary" );
 

@@ -232,7 +232,7 @@ static void initialise_config( void )
 }
 
 
-int read_command_file( const char *command_file )
+int read_command_file( const std::string &fname )
 {
     CFG_FILE *cfg;
 
@@ -240,7 +240,7 @@ int read_command_file( const char *command_file )
 
     initialise_config();
 
-    cfg = open_config_file( command_file, COMMENT_CHAR );
+    cfg = open_config_file( fname, COMMENT_CHAR );
 
     if(cfg)
     {
@@ -261,12 +261,12 @@ int read_command_file( const char *command_file )
     return sts;
 }
 
-int read_command_file_constraints( const char *command_file )
+int read_command_file_constraints( const std::string &fname )
 {
     CFG_FILE *cfg;
     int sts;
 
-    cfg = open_config_file( command_file, COMMENT_CHAR );
+    cfg = open_config_file( fname, COMMENT_CHAR );
     if(cfg)
     {
         set_config_read_options( cfg, CFG_IGNORE_BAD | CFG_SET_PATH );
@@ -284,7 +284,7 @@ int read_command_file_constraints( const char *command_file )
 }
 
 
-static int process_configuration_file( const char *file_name, char cfg_only )
+static int process_configuration_file( const std::string &file_name, const char cfg_only )
 {
     CFG_FILE *cfg;
     int sts;
@@ -310,7 +310,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     return sts;
 }
 
-int read_configuration_file( const char *file_name )
+int read_configuration_file( const std::string &file_name )
 {
     return process_configuration_file( file_name, 1 );
 }
@@ -329,7 +329,7 @@ int process_default_configuration( void )
     spec=build_config_filespec(system_config_dir(),false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
     if( path_exists( spec ))
     {
-        sts = read_configuration_file( spec.c_str() );
+        sts = read_configuration_file( spec );
     }
 
     if( auto userdir = user_config_dir() )
@@ -337,15 +337,15 @@ int process_default_configuration( void )
         spec=build_config_filespec(*userdir,false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
         if( path_exists( spec ))
         {
-            sts1 = read_configuration_file( spec.c_str() );
+            sts1 = read_configuration_file( spec );
             if( sts == OK ) sts = sts1;
         }
     }
 
-    spec=build_config_filespec( command_file, true, "", SNAP_CONFIG_FILE, "" );
+    spec=build_config_filespec( command_file->path, true, "", SNAP_CONFIG_FILE, "" );
     if( path_exists( spec ))
     {
-        sts1 = read_configuration_file( spec.c_str() );
+        sts1 = read_configuration_file( spec );
         if( sts == OK ) sts = sts1;
     }
     return sts;
@@ -1969,7 +1969,7 @@ static int read_configuration_command( CFG_FILE *cfg, std::string_view string ,v
                              cfg_only ? SNAP_CONFIG_SECTION : "" );
         if( resolved )
         {
-            int status = constraint ? read_command_file_constraints( resolved->c_str() ) : process_configuration_file( resolved->c_str(), cfg_only );
+            int status = constraint ? read_command_file_constraints( *resolved ) : process_configuration_file( *resolved, cfg_only );
             if( status != OK )
             {
                 sprintf(errmsg,"Invalid data in configuration file %.*s",MAX_FILENAME_LEN,firstFile->c_str());

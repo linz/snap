@@ -36,19 +36,24 @@
 #include "util/fileutil.h"
 #include "util/get_date.h"
 
+std::optional<CommandFile> command_file;
+std::optional<std::string> config_file;
+std::optional<std::string> snap_user;
+
 static bool initialised=false;
 
 void init_snap_globals()
 {
-    int i;
     if( initialised ) return;
-    command_file = NULL;
-    config_file = NULL;
-    root_name = NULL;
-    cmd_dir = NULL;
-    snap_user = getenv("SNAPUSER");
-    if( ! snap_user ) snap_user = getenv("USERNAME");
-    if( ! snap_user ) snap_user = getenv("USER");
+    for( const char *const variable : { "SNAPUSER", "USERNAME", "USER" } )
+    {
+        const char *const value = getenv( variable );
+        if( value )
+        {
+            snap_user = value;
+            break;
+        }
+    }
     get_date( run_time );
 
     job_title[0] = 0;
@@ -71,57 +76,51 @@ void init_snap_globals()
     stn_name_width = 5;
     coord_precision = 4;
     ignore_deformation = 0;
-    deformation = NULL;
+    deformation = nullptr;
     have_obs_ids = 0;
-    for( i=0; i<NOBSTYPE; i++ )
+    for( int i=0; i<NOBSTYPE; i++ )
     {
         obs_usage[i] = 0;
         obs_errfct[i] = 1.0;
         obstypecount[i] = 0;
         obs_precision[i] = datatype[i].dfltndp;
     }
-    obs_modifications=0;
+    obs_modifications=nullptr;
     converged=1;
     last_iteration_max_adjustment=0.0;
     initialised=true;
 }
 
 
+std::string CommandFile::_locate( const std::string &name )
+{
+    if( path_exists( name ) ) return name;
+
+    constexpr std::array<std::string_view, 3> extensions{ DFLTCOMMAND_EXT, DFLTCOMMAND_EXT2, DFLTCOMMAND_EXT3 };
+    for( const std::string_view extension : extensions )
+    {
+        const std::string candidate = std::string(name).append(extension);
+        if( path_exists(candidate) ) return candidate;
+    }
+    return name;
+}
+
+CommandFile::CommandFile( const std::string &name )
+    : path( _locate( name ) ),
+      dir( std::filesystem::path( native_path( path ) ).remove_filename().string() ),
+      root( std::filesystem::path( native_path( path ) ).replace_extension().string() )
+{
+}
+
 void set_snap_command_file( const std::string &cmd_file )
 {
     if( ! initialised ) init_snap_globals();
-    if( path_exists( cmd_file ) )
-    {
-        command_file = copy_string( cmd_file.c_str() );
-    }
-    else
-    {
-        constexpr std::array<std::string_view, 3> extensions{ DFLTCOMMAND_EXT, DFLTCOMMAND_EXT2, DFLTCOMMAND_EXT3 };
-        std::string cf = cmd_file;
-        for( const std::string_view extension : extensions )
-        {
-            const std::string candidate = std::string(cmd_file).append(extension);
-            if( path_exists(candidate) )
-            {
-                cf = candidate;
-                break;
-            }
-        }
-        command_file = copy_string( cf.c_str() );
-    }
-
-    const std::filesystem::path command_path( native_path( command_file ) );
-    std::filesystem::path command_dir = command_path;
-    command_dir.remove_filename();
-    std::filesystem::path command_root = command_path;
-    command_root.replace_extension();
-    cmd_dir=copy_string( command_dir.string().c_str() );
-    root_name=copy_string( command_root.string().c_str() );
-    push_file_context( cmd_dir );
+    command_file.emplace( cmd_file );
+    push_file_context( command_file->dir );
 }
 
 
-void set_snap_config_file( char *cfg_file )
+void set_snap_config_file( const std::string &cfg_file )
 {
     if( ! initialised ) init_snap_globals();
     config_file = cfg_file;

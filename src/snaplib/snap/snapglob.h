@@ -25,6 +25,7 @@
 
 /* Snap global data - mainly for programs which use the SNAP binary file */
 
+#include <optional>
 #include <string>
 
 #ifndef _GET_DATA_H
@@ -51,19 +52,33 @@
 #include "snapdata/obsmod.h"
 #endif
 
+/// The command file a program is run with, and the names derived from it.
+class CommandFile
+{
+public:
+    /// Locates the command file, trying the default command file extensions if
+    /// the name as given does not exist, and derives its directory and root name.
+    explicit CommandFile( const std::string &name );
+
+    const std::string path; ///< The command file name, including any extension that was added
+    const std::string dir;  ///< The drive/directory of the command file
+    const std::string root; ///< The command file name without its extension, used as the base of the output file names
+
+private:
+    static std::string _locate( const std::string &name );
+};
+
+/* The program output files */
+
+extern std::optional<CommandFile> command_file;
+extern std::optional<std::string> config_file;
+extern std::optional<std::string> snap_user;  /* User id running SNAP */
+
 #ifdef _SNAPGLOB_C
 #define SCOPE
 #else
 #define SCOPE extern
 #endif
-
-/* The program output files */
-
-SCOPE char *command_file;
-SCOPE char *config_file;
-SCOPE char *root_name;
-SCOPE char *cmd_dir;   /* drive/directory of the command file */
-SCOPE char *snap_user;  /* User id running SNAP */
 
 /* Program modes */
 
@@ -122,7 +137,7 @@ SCOPE double redundancy_flag_level;
 
 void init_snap_globals();
 void set_snap_command_file( const std::string &cmd_file );
-void set_snap_config_file( char *cfg_file );
+void set_snap_config_file( const std::string &cfg_file );
 void *snap_obs_modifications( bool create );
 
 #undef SCOPE

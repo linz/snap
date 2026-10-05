@@ -23,6 +23,8 @@
 
 
 #include <stdio.h>
+#include <optional>
+#include <string>
 #include <string_view>
 
 #include "geoid/griddata.h"
@@ -37,8 +39,8 @@ struct geoid_def
     double gridsize;
 };
 
-const char *create_geoid_filename( const char *geoidname );
-void delete_geoid_filename( const char *filename );
+/// Returns the name of the geoid grid file, or nullopt if it does not exist
+std::optional<std::string> create_geoid_filename( const std::optional<std::string> &geoidname );
 
 geoid_def *create_geoid_grid( const char *filename );
 void delete_geoid_grid( geoid_def *gd );

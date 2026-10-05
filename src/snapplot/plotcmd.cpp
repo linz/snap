@@ -142,7 +142,7 @@ struct config_menu_item
 
 static std::vector<config_menu_item> config_menu;
 
-static int read_command_file( const char *file_name, int main_file  )
+static int read_command_file( const std::string &file_name, const int main_file )
 {
     CFG_FILE *cfg;
     int sts;
@@ -168,7 +168,7 @@ static int read_command_file( const char *file_name, int main_file  )
 }
 
 
-int read_plot_command_file( const char *command_file, int got_data )
+int read_plot_command_file( const std::string &fname, const int got_data )
 {
     int sts;
 
@@ -177,7 +177,7 @@ int read_plot_command_file( const char *command_file, int got_data )
     snapplot_commands = got_data ? snapplot_binary_commands :
                         snapplot_general_commands;
 
-    sts = read_command_file( command_file, 1 );
+    sts = read_command_file( fname, 1 );
 
     if( sts == OK && !job_title[0] && net->name )
     {
@@ -249,10 +249,10 @@ void add_default_configuration_files( void )
         if( path_exists( spec )) store_configuration_file( spec.c_str() );
     }
 
-    spec=build_config_filespec( command_file, true, "", SNAPPLOT_CONFIG_FILE, "" );
+    spec=build_config_filespec( command_file->path, true, "", SNAPPLOT_CONFIG_FILE, "" );
     if( path_exists( spec )) store_configuration_file( spec.c_str() );
 
-    spec = std::filesystem::path( native_path(command_file) ).replace_extension().string() + SNAPPLOT_CONFIG_EXT;
+    spec = std::filesystem::path( native_path(command_file->path) ).replace_extension().string() + SNAPPLOT_CONFIG_EXT;
     if( path_exists( spec )) store_configuration_file( spec.c_str() );
 }
 
@@ -302,7 +302,7 @@ static int read_include_command( CFG_FILE *cfg, std::string_view string, void *,
         auto resolved = find_file( std::string(*cmdfile), SNAPPLOT_CONFIG_EXT, std::optional<std::string>(cfg->name), FF_TRYNONE, SNAPPLOT_CONFIG_SECTION );
         if( resolved )
         {
-            if( read_command_file( resolved->c_str(), 0 ) != OK )
+            if( read_command_file( *resolved, 0 ) != OK )
             {
                 send_config_error(cfg,INVALID_DATA,"Invalid data in command file " + std::string(*cmdfile));
             }
@@ -718,7 +718,7 @@ static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
     FILE *list_file;
     char stn_code[21];
 
-    std::string list_spec = build_filespec( cmd_dir?cmd_dir:"", name, DFLTSTLIST_EXT );
+    std::string list_spec = build_filespec( command_file ? command_file->dir : "", name, DFLTSTLIST_EXT );
     list_file = fopen( list_spec.c_str(), "r" );
     if( !list_file )
     {

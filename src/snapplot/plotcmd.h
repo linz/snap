@@ -10,7 +10,7 @@
 
 #include <string_view>
 
-int read_plot_command_file( const char *command_file, int got_data );
+int read_plot_command_file( const std::string &fname, int got_data );
 
 /* Done before configuration file read */
 void add_default_configuration_files( void );

@@ -2969,7 +2969,7 @@ static void load_command_file( const std::string &cmd_file, int recalconly, int 
         add_network_stations();
         if( recalconly ) set_recalc_list();
         read_data_files( stdout );
-        crdfname = station_filename ? station_filename : "";
+        crdfname = station_file ? station_file->filename : "";
         delete_survey_file_list();
     }
 }
@@ -3221,10 +3221,10 @@ int main( int argc, char *argv[] )
     if( ! newcrdfile )
     {
         crdfname = std::filesystem::path( crdfname ).replace_extension( ".new" ).string();
-        set_output_station_file( crdfname.c_str() );
+        set_output_station_file( crdfname );
     }
 
-    write_station_file( "dat2site", 0, 0, 0, 0, 1 );
+    write_station_file( "dat2site", std::nullopt, std::nullopt, std::nullopt, 0, true );
 
     printf("\nUpdated coordinates written to %s\n", crdfname.c_str() );
 

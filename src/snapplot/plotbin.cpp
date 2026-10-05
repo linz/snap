@@ -54,7 +54,7 @@ int reload_binary_data( )
 {
     int sts;
 
-    const std::string bfn = std::filesystem::path( native_path(root_name) ).replace_extension().string() + BINFILE_EXT;
+    const std::string bfn = std::filesystem::path( native_path(command_file->root) ).replace_extension().string() + BINFILE_EXT;
 
     auto [file, result] = open_binary_file( bfn, BINFILE_SIGNATURE );
     b = file;

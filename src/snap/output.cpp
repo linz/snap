@@ -343,7 +343,7 @@ int add_requested_covariance_connections()
         if( ! rco->stnlist.empty() )
         {
             int errcount=get_error_count();
-            process_selected_stations( net, rco->stnlist, command_file, (void *)usenode.data(), set_usenode );
+            process_selected_stations( net, rco->stnlist, command_file->path, (void *)usenode.data(), set_usenode );
             if( get_error_count() > errcount )
             {
                 handle_error(sts,"Error in relative_covariance station list",rco->stnlist.c_str());
@@ -383,7 +383,7 @@ int open_output_files( )
 {
     char errmess[40+MAX_FILENAME_LEN];
 
-    lst_name = std::string(root_name) + LISTINGFILE_EXT;
+    lst_name = command_file->root + LISTINGFILE_EXT;
     lst = fopen( lst_name.c_str(), "w" );
     if( !lst )
     {
@@ -395,7 +395,7 @@ int open_output_files( )
 
     if( ! output_noruntime ) print_report_header( lst );
 
-    err_name = std::string(root_name) + ERRORFILE_EXT;
+    err_name = command_file->root + ERRORFILE_EXT;
     err = fopen( err_name.c_str(), "w" );
     if( !err )
     {
@@ -583,7 +583,7 @@ void print_report_header( FILE *out )
     sprintf(heading,"Run at %.20s",run_time);
     if( snap_user )
     {
-        sprintf(heading+strlen(heading)," by %.40s",snap_user);
+        sprintf(heading+strlen(heading)," by %.40s",snap_user->c_str());
     }
     print_centred( out, heading );
     skip_line( out );
@@ -595,7 +595,7 @@ void print_report_footer( FILE * )
 
 void print_control_options( FILE *lst )
 {
-    fprintf( lst, "\n\nProgram options read from %s\n\n",std::filesystem::path(native_path(command_file)).filename().string().c_str() );
+    fprintf( lst, "\n\nProgram options read from %s\n\n",std::filesystem::path(native_path(command_file->path)).filename().string().c_str() );
     fprintf( lst, "Job: %s\n\n", job_title );
     print_solution_type( lst );
 }
@@ -1045,7 +1045,7 @@ void print_solution_json_file()
     FILE *f;
     bltmatrix *invnorm;
 
-    const std::string bfn = std::string(root_name) + SOLNFILE_EXT + JSONFILE_EXT;
+    const std::string bfn = command_file->root + SOLNFILE_EXT + JSONFILE_EXT;
 
     f = fopen( bfn.c_str(), "w" );
     if( !f )
@@ -1077,7 +1077,7 @@ void print_solution_json_file()
 
 std::unique_ptr<output_csv> open_snap_output_csv( const std::string_view type )
 {
-    std::string filename = std::string(root_name) + "-";
+    std::string filename = command_file->root + "-";
     filename += type;
     filename += output_csv_tab ? WRITECSV_TAB_EXT : WRITECSV_CSV_EXT;
     std::unique_ptr<output_csv> csv = output_csv::open( filename, output_csv_tab );

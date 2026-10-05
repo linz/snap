@@ -11,6 +11,7 @@
 #include <string.h>
 #include <math.h>
 #include <string>
+#include <sstream>
 #include <filesystem>
 
 #include "network/networkb.h"
@@ -30,11 +31,9 @@
 
 network *net = NULL;
 stn_recode_map *stnrecode = NULL;
-char *station_filename = NULL;
-char *station_filespec = NULL;
+std::optional<StationFile> station_file;
 std::string output_station_filespec;
 int station_filetype = STN_FORMAT_SNAP;
-char *station_fileoptions = 0;
 
 std::optional<std::string> geoid_file;
 char overwrite_geoid = 0;
@@ -81,41 +80,33 @@ void set_stnadj_init_network( void )
 
 static void clear_stnadj_globals( void )
 {
-    void *obsmod;
     if( net ) delete_network( net );
-    obsmod=snap_obs_modifications( false );
+    void *const obsmod=snap_obs_modifications( false );
 
-    if( obsmod ) set_obs_modifications_network( obsmod, NULL );
+    if( obsmod ) set_obs_modifications_network( obsmod, nullptr );
     if( stnrecode ) delete_stn_recode_map( stnrecode );
-    if( station_filename ) check_free( station_filename );
-    if( station_filespec ) check_free( station_filespec );
-    if( station_fileoptions ) check_free( station_fileoptions );
-    net = NULL;
-    stnrecode = NULL;
-    station_filename = NULL;
-    station_filespec = NULL;
-    station_fileoptions = NULL;
+    net = nullptr;
+    stnrecode = nullptr;
+    station_file.reset();
 }
 
-void set_output_station_file( const char *fname )
+void set_output_station_file( const std::string &fname )
 {
     output_station_filespec = fname;
 }
 
 
 
-int read_station_file( const char *fname, const char *base_dir, int format, const char *options, int mergeopts, double mergedate )
+int read_station_file( const std::string &fname, const std::string &base_dir, const int format, const std::string &options, int mergeopts, const double mergedate )
 {
     int sts;
-    network *stndata;
 
     if( ! net ) clear_stnadj_globals();
 
-    std::string stnfile = build_filespec( base_dir?base_dir:"", fname, "" );
+    std::string stnfile = build_filespec( base_dir, fname, "" );
     if( !path_exists(stnfile ) ) stnfile = fname;
-    if( options ) station_fileoptions = copy_string( options );
 
-    stndata = new_network();
+    network *const stndata = new_network();
     switch( format )
     {
     case STN_FORMAT_SNAP:
@@ -125,7 +116,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         sts = read_network( stndata, stnfile.c_str(), NW_READOPT_GBFORMAT );
         break;
     case STN_FORMAT_CSV:
-        sts = load_snap_csv_stations( stndata, stnfile.c_str(), station_fileoptions );
+        sts = load_snap_csv_stations( stndata, stnfile, options );
         break;
     default:
         handle_error( INVALID_DATA, "Invalid station file format specified", NO_MESSAGE );
@@ -139,12 +130,11 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
         calculate_network_coordsys_geoid( stndata, INFO_ERROR ); 
         if( ! net )
         {
-            void *obsmod=snap_obs_modifications( false );
-            station_filename = copy_string( fname );
-            station_filespec = copy_string( stnfile.c_str() );
+            void *const obsmod=snap_obs_modifications( false );
+            station_file.emplace( StationFile{ fname, stnfile } );
             if( output_station_filespec.empty() )
             {
-                output_station_filespec = std::filesystem::path( station_filespec ).replace_extension( NEWSTNFILE_EXT ).string();
+                output_station_filespec = std::filesystem::path( stnfile ).replace_extension( NEWSTNFILE_EXT ).string();
             }
             net=stndata;
             if( obsmod ) set_obs_modifications_network( obsmod, net );
@@ -168,7 +158,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
 
 /* Routine to write a station file */
 
-static int skip_rejected;
+static bool skip_rejected;
 
 static int check_rejected( station *st )
 {
@@ -177,22 +167,21 @@ static int check_rejected( station *st )
     return 1;
 }
 
-int write_station_file( const char *prog, const char *fname, const char *ver, const char *rtime,
-                        int coord_precision, char rejected )
+int write_station_file( const std::optional<std::string> &prog, const std::optional<std::string> &fname,
+                        const std::optional<std::string> &ver, const std::optional<std::string> &rtime,
+                        const int coord_precision, const bool rejected )
 {
-    char comment[256];
-
     if( station_filetype != STN_FORMAT_SNAP )
     {
         handle_error( INVALID_DATA, "Can only write SNAP format coordinate files", NO_MESSAGE );
         return INVALID_DATA;
     }
 
-    if( ! fname && ! output_station_filespec.empty() ) fname=output_station_filespec.c_str();
-    if( ! ver ) ver=PROGRAM_VERSION;
-    if( ! rtime ) rtime=get_date(0);
+    const std::string filename = fname ? *fname : output_station_filespec;
+    const std::string version = ver ? *ver : PROGRAM_VERSION;
+    const std::string run_time_text = rtime ? *rtime : get_date(nullptr);
 
-    if( ! fname )
+    if( filename.empty() )
     {
         handle_error( INVALID_DATA, "Coordinate file not written as no filename defined", NO_MESSAGE );
         return INVALID_DATA;
@@ -200,20 +189,21 @@ int write_station_file( const char *prog, const char *fname, const char *ver, co
 
     skip_rejected = !rejected;
 
+    std::ostringstream comment;
     if( prog )
     {
-        sprintf(comment,"Updated by %s version %s at %s",prog,ver,rtime);
+        comment << "Updated by " << *prog << " version " << version << " at " << run_time_text;
     }
     else
     {
-        sprintf(comment,"Updated at %s",rtime);
+        comment << "Updated at " << run_time_text;
     }
 
-    int sts=write_network( net, fname, comment, coord_precision,
+    const int sts=write_network( net, filename.c_str(), comment.str().c_str(), coord_precision,
                           check_rejected );
     if( sts == OK )
     {
-        record_filename( fname, "output_station_coordinate" );
+        record_filename( filename, "output_station_coordinate" );
     }
     return sts;
 }

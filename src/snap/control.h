@@ -11,9 +11,9 @@
 
 */
 
-int read_command_file( const char *fname );
-int read_command_file_constraints( const char *command_file );
-int read_configuration_file( const char *fname );
+int read_command_file( const std::string &fname );
+int read_command_file_constraints( const std::string &fname );
+int read_configuration_file( const std::string &fname );
 std::optional<std::string> find_configuration_file( const std::string &name );
 int process_default_configuration( void );
 

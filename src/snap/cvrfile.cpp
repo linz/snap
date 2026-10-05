@@ -53,7 +53,7 @@ void print_coord_covariance( void )
     double value;
     char projection_coords;
 
-    const std::string bfn = std::string( root_name ) + CVRFILE_EXT;
+    const std::string bfn = command_file->root + CVRFILE_EXT;
 
     f = fopen( bfn.c_str(), "w" );
     if( !f )
@@ -147,7 +147,7 @@ void print_coord_covariance_json( void )
     int geocentric_coords;
     int ellipsoidal;
 
-    const std::string bfn = std::string( root_name ) + CVRFILE_EXT + JSONFILE_EXT;
+    const std::string bfn = command_file->root + CVRFILE_EXT + JSONFILE_EXT;
 
     f = fopen( bfn.c_str(), "w" );
     if( !f )
@@ -325,7 +325,7 @@ void print_coord_sinex( void )
     tmatrix cvr;
     int badcvr=0;
 
-    const std::string bfn = std::string( root_name ) + SINEX_EXT;
+    const std::string bfn = command_file->root + SINEX_EXT;
 
     f = fopen( bfn.c_str(), "w" );
     if( !f )
