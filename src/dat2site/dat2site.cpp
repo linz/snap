@@ -2817,7 +2817,7 @@ static void load_interactively( void )
         printf("\nEnter input coordinate file name: ");
         if( !fgets(inrec,256,stdin) || sscanf(inrec,"%79s",fname) != 1 ) exit(0);
         crdfname = fname;
-        if( !file_exists(crdfname) )
+        if( !path_exists(crdfname) )
         {
             printf("File %s does not exist\n",crdfname.c_str());
             if( get_option("Do you want to create a new coordinate file? Y/N: ",0) &&

@@ -56,7 +56,11 @@ struct file_context
 /// Use before taking a path from the command line or a config file apart with
 /// std::filesystem, which on POSIX does not treat a backslash as a separator.
 std::string native_path( std::string_view path );
-int file_exists( const std::string &file );
+/// Wrapper for std::filesystem::exists. Returns 1 if anything exists at path (a file, a
+/// directory or any other entry), otherwise 0. An error while checking, such as a permission
+/// failure, counts as not existing, where std::filesystem::exists without an error_code
+/// would throw.
+int path_exists( const std::string &path );
 int is_dir( const std::string &path );
 int file_size( const std::string &path );
 time_t file_modtime( const std::string &path );
@@ -105,9 +109,6 @@ std::optional<std::string> user_config_dir();
 
 /* Reset config directories - use if environment variable is redefined */
 void reset_config_dirs();
-
-/* Override the default user environment */
-void set_user_config_dir( const std::string &cfgdir );
 
 /* Set the project dir, that can be included in the find_file search.  Supply the name
    of the project file - the path will be extracted .*/
@@ -162,7 +163,7 @@ std::optional<std::string> find_config_file(
 
 /// Searches for a file with the given name and extension in the directory containing
 /// base (base is treated as a filename, not a directory, unless it doesn't exist as a
-/// file - see is_dir/file_exists in build_config_filespec's pathonly), trying with and
+/// file - see is_dir/path_exists in build_config_filespec's pathonly), trying with and
 /// then without dflt_ext. Returns nullopt if not found.
 std::optional<std::string> find_relative_file(
     const std::string &base,       ///< a file (or directory) to search relative to

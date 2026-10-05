@@ -147,7 +147,7 @@ static int read_command_file( const char *file_name, int main_file  )
     CFG_FILE *cfg;
     int sts;
 
-    if( ! file_exists( file_name ) ) return FILE_OPEN_ERROR;
+    if( ! path_exists( file_name ) ) return FILE_OPEN_ERROR;
 
     cfg = open_config_file( file_name, COMMENT_CHAR );
     if( cfg && snapplot_commands )
@@ -241,19 +241,19 @@ int add_configuration_file( const char *fname )
 void add_default_configuration_files( void )
 {
     std::string spec = build_config_filespec( system_config_dir(),false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
-    if( file_exists( spec )) store_configuration_file( spec.c_str() );
+    if( path_exists( spec )) store_configuration_file( spec.c_str() );
 
     if( auto userdir = user_config_dir() )
     {
         spec=build_config_filespec( *userdir,false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
-        if( file_exists( spec )) store_configuration_file( spec.c_str() );
+        if( path_exists( spec )) store_configuration_file( spec.c_str() );
     }
 
     spec=build_config_filespec( command_file, true, "", SNAPPLOT_CONFIG_FILE, "" );
-    if( file_exists( spec )) store_configuration_file( spec.c_str() );
+    if( path_exists( spec )) store_configuration_file( spec.c_str() );
 
     spec = std::filesystem::path( native_path(command_file) ).replace_extension().string() + SNAPPLOT_CONFIG_EXT;
-    if( file_exists( spec )) store_configuration_file( spec.c_str() );
+    if( path_exists( spec )) store_configuration_file( spec.c_str() );
 }
 
 int process_configuration_file_list( void )

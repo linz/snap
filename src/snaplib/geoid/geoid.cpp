@@ -68,7 +68,7 @@ static std::string get_geoid_filename( const std::optional<std::string> &geoidna
 const char *create_geoid_filename( const char *geoidname )
 {
     std::string filename = get_geoid_filename( geoidname ? std::optional<std::string>(geoidname) : std::nullopt );
-    if( ! file_exists(filename) ) return NULL;
+    if( ! path_exists(filename) ) return NULL;
     return copy_string( filename.c_str() );
 }
 

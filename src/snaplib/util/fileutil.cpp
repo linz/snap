@@ -30,6 +30,7 @@
 #endif
 #include <algorithm>
 #include <filesystem>
+#include <forward_list>
 #include <system_error>
 #include <vector>
 
@@ -44,14 +45,7 @@ static std::optional<std::string> imgpath;
 static std::optional<std::string> imgdir;
 static std::optional<std::string> imgname;
 
-struct config_path_def
-{
-    struct config_path_def *next;
-    std::string path;
-};
-
-static config_path_def *config_dir_list=0;
-static int config_dirs_set=0;
+static std::optional<std::forward_list<std::string>> config_dir_list;
 
 static file_context *current_context = 0;
 static file_context *context_list = 0;
@@ -68,12 +62,10 @@ std::string native_path( const std::string_view path )
     return result;
 }
 
-/* Check whether a file exists */
-
-int file_exists( const std::string &file )
+int path_exists( const std::string &path )
 {
     std::error_code ec;
-    return std::filesystem::exists(file, ec) ? 1 : 0;
+    return std::filesystem::exists(path, ec) ? 1 : 0;
 }
 
 int is_dir(const std::string &path)
@@ -251,68 +243,43 @@ std::string system_config_dir()
     return *syscfg;
 }
 
-static config_path_def *config_dirs()
+/// The directories searched for config files, in search order: the SNAPENV entries, then the
+/// user's config directory, then the system's. Only those that exist when the list is first
+/// built are kept. Built on the first call and kept until reset_config_dirs().
+static const std::forward_list<std::string> &config_dirs()
 {
-    const char *snapenv;
-    const char *start, *end;
-    config_path_def **nextpath;
-    if( config_dirs_set ) return config_dir_list;
-    config_dirs_set = 1;
-    nextpath = &config_dir_list;
-    snapenv =  getenv(SNAPENV);
-    if( snapenv )
+    if( config_dir_list ) return *config_dir_list;
+    config_dir_list.emplace();
+    auto last = config_dir_list->before_begin();
+
+    if( const char *snapenv = getenv(SNAPENV) )
     {
-        start=snapenv;
-        while( *start )
+        std::string_view remaining( snapenv );
+        while( ! remaining.empty() )
         {
-            int nch;
-            end=start;
-            while(*end && *end != PATHENV_SEP) end++;
-            nch=end-start;
-            if( nch > 0 )
+            const size_t end = std::min( remaining.find( PATHENV_SEP ), remaining.size() );
+            const std::string path( remaining.substr( 0, end ) );
+            if( ! path.empty() && path_exists( path ) )
             {
-                std::string path(start,end-start);
-                if( ! path.empty() && file_exists(path) )
-                {
-                    config_path_def *psub = new config_path_def{ nullptr, path };
-                    *nextpath=psub;
-                    nextpath = &(psub->next);
-                }
+                last = config_dir_list->insert_after( last, path );
             }
-            start = end;
-            if( *start ) start++;
+            remaining.remove_prefix( std::min( end + 1, remaining.size() ) );
         }
     }
-    if( auto userdir = user_config_dir(); userdir && file_exists(*userdir))
+    if( const auto userdir = user_config_dir(); userdir && path_exists( *userdir ) )
     {
-        config_path_def *psub = new config_path_def{ nullptr, *userdir };
-        *nextpath=psub;
-        nextpath = &(psub->next);
+        last = config_dir_list->insert_after( last, *userdir );
     }
-    if( file_exists(system_config_dir()))
+    if( const std::string systemdir = system_config_dir(); path_exists( systemdir ) )
     {
-        config_path_def *psub = new config_path_def{ nullptr, system_config_dir() };
-        *nextpath=psub;
-        nextpath = &(psub->next);
+        config_dir_list->insert_after( last, systemdir );
     }
-    return config_dir_list;
+    return *config_dir_list;
 }
 
 void reset_config_dirs()
 {
-    config_path_def *cpd;
-    while( config_dir_list )
-    {
-        cpd=config_dir_list;
-        config_dir_list=cpd->next;
-        delete cpd;
-    }
-    config_dirs_set=0;
-}
-
-void set_user_config_dir( const std::string &cfgdir )
-{
-    usercfg = cfgdir;
+    config_dir_list.reset();
 }
 
 void push_file_context( const std::string &context_dir )
@@ -507,14 +474,14 @@ std::string absolute_filename( const std::string &relname, const std::string &ba
 
 std::optional<std::string> find_config_file( const std::string &config, const std::string &name, const std::string &dflt_ext )
 {
-    for( config_path_def *cpd=config_dirs(); cpd; cpd=cpd->next )
+    for( const std::string &dir : config_dirs() )
     {
-        std::string spec=build_config_filespec( cpd->path, false, config, name, dflt_ext);
-        if( file_exists(spec) ) return spec;
+        std::string spec=build_config_filespec( dir, false, config, name, dflt_ext);
+        if( path_exists(spec) ) return spec;
         if( ! dflt_ext.empty() )
         {
-            spec=build_config_filespec( cpd->path, false, config, name, "");
-            if( file_exists(spec) ) return spec;
+            spec=build_config_filespec( dir, false, config, name, "");
+            if( path_exists(spec) ) return spec;
         }
     }
     return std::nullopt;
@@ -522,15 +489,15 @@ std::optional<std::string> find_config_file( const std::string &config, const st
 
 std::optional<std::string> find_relative_file( const std::string &base, const std::string &name, const std::string &dflt_ext )
 {
-    bool pathonly = file_exists(base) && ! is_dir(base);
+    bool pathonly = path_exists(base) && ! is_dir(base);
 
     std::string spec=build_config_filespec( base, pathonly, "", name, dflt_ext);
-    if( file_exists(spec) ) return spec;
+    if( path_exists(spec) ) return spec;
 
     if( ! dflt_ext.empty() )
     {
         spec=build_config_filespec( base, pathonly, "", name, "");
-        if( file_exists(spec) ) return spec;
+        if( path_exists(spec) ) return spec;
     }
 
     return std::nullopt;
@@ -548,15 +515,15 @@ std::optional<std::string> find_file( const std::string &name, const std::string
         for( file_context *context = current_context; context && ! spec; context=context->parent )
         {
             std::string trySpec = build_filespec(context->dir,name,dflt_ext);
-            if( ! dflt_ext.empty() && ! file_exists(trySpec)) trySpec = build_filespec(context->dir,name,"");
-            if( file_exists(trySpec)) spec = trySpec;
+            if( ! dflt_ext.empty() && ! path_exists(trySpec)) trySpec = build_filespec(context->dir,name,"");
+            if( path_exists(trySpec)) spec = trySpec;
         }
     }
     if( ! spec && (tryopt & FF_TRYLOCAL) )
     {
         std::string trySpec = build_filespec("",name,dflt_ext);
-        if( ! dflt_ext.empty() && ! file_exists(trySpec)) trySpec = build_filespec("",name,"");
-        if( file_exists(trySpec)) spec = trySpec;
+        if( ! dflt_ext.empty() && ! path_exists(trySpec)) trySpec = build_filespec("",name,"");
+        if( path_exists(trySpec)) spec = trySpec;
     }
     if( ! spec && ! config.empty() )
     {

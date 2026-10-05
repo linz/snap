@@ -1288,11 +1288,11 @@ static void setup_transformation( void )
         if( need_ingeoid || need_outgeoid )
         {
             const char *gfile = geoid_file;
-            if( ! gfile || ! file_exists(gfile) )
+            if( ! gfile || ! path_exists(gfile) )
             {
                 gfile = create_geoid_filename(geoid_file);
             }
-            if( ! gfile || ! file_exists(gfile) )
+            if( ! gfile || ! path_exists(gfile) )
             {
                 printf("Cannot find geoid file %s\n",geoid_file ? geoid_file : "");
                 exit(1);

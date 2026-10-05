@@ -68,7 +68,7 @@ int add_data_file( const std::string &name, int format, const std::optional<std:
     if( context )
     {
         std::string filename = build_filespec(context->dir,name,"");
-        if( file_exists(filename) ) resolved_name = filename;
+        if( path_exists(filename) ) resolved_name = filename;
     }
 
     return add_data_file_nocopy( resolved_name, format, subtype, recode, context );
@@ -121,7 +121,7 @@ int survey_data_file_id( std::string_view name, file_context *context )
     if( context )
     {
         std::string filename = build_filespec(context->dir,std::string(name),"");
-        if( file_exists(filename) ) matchName=filename;
+        if( path_exists(filename) ) matchName=filename;
     }
 
     /* Case sensitive match - not checking for ambiguity */

@@ -151,13 +151,13 @@ try
 
     /* Check that the command file exists */
 
-    if( config_file && !file_exists(config_file) )
+    if( config_file && !path_exists(config_file) )
     {
         xprintf("\nCannot open configuration file %s\n", config_file );
         return DEFAULT_RETURN_STATUS;
     }
 
-    if( !file_exists(command_file) )
+    if( !path_exists(command_file) )
     {
         xprintf("\nCannot open command file %s\n", command_file );
         return DEFAULT_RETURN_STATUS;

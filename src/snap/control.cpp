@@ -289,7 +289,7 @@ static int process_configuration_file( const char *file_name, char cfg_only )
     CFG_FILE *cfg;
     int sts;
 
-    if( ! file_exists( file_name ) ) return FILE_OPEN_ERROR;
+    if( ! path_exists( file_name ) ) return FILE_OPEN_ERROR;
 
     initialise_config();
     cfg = open_config_file( file_name, COMMENT_CHAR );
@@ -327,7 +327,7 @@ int process_default_configuration( void )
     std::string spec;
     sts = OK;
     spec=build_config_filespec(system_config_dir(),false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
-    if( file_exists( spec ))
+    if( path_exists( spec ))
     {
         sts = read_configuration_file( spec.c_str() );
     }
@@ -335,7 +335,7 @@ int process_default_configuration( void )
     if( auto userdir = user_config_dir() )
     {
         spec=build_config_filespec(*userdir,false,SNAP_CONFIG_SECTION, SNAP_CONFIG_FILE, "" );
-        if( file_exists( spec ))
+        if( path_exists( spec ))
         {
             sts1 = read_configuration_file( spec.c_str() );
             if( sts == OK ) sts = sts1;
@@ -343,7 +343,7 @@ int process_default_configuration( void )
     }
 
     spec=build_config_filespec( command_file, true, "", SNAP_CONFIG_FILE, "" );
-    if( file_exists( spec ))
+    if( path_exists( spec ))
     {
         sts1 = read_configuration_file( spec.c_str() );
         if( sts == OK ) sts = sts1;

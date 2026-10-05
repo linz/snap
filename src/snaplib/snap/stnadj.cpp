@@ -112,7 +112,7 @@ int read_station_file( const char *fname, const char *base_dir, int format, cons
     if( ! net ) clear_stnadj_globals();
 
     std::string stnfile = build_filespec( base_dir?base_dir:"", fname, "" );
-    if( !file_exists(stnfile ) ) stnfile = fname;
+    if( !path_exists(stnfile ) ) stnfile = fname;
     if( options ) station_fileoptions = copy_string( options );
 
     stndata = new_network();

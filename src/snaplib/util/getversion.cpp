@@ -23,7 +23,7 @@ const char *getProgramVersion( const char *version )
 
     char format[20];
     std::string versionfile=build_filespec(image_dir(),"VERSION","");
-    if( file_exists(versionfile))
+    if( path_exists(versionfile))
     {
         sprintf(format,"%%%ds",MAXVER);
         FILE *vf=fopen(versionfile.c_str(),"r");
@@ -38,7 +38,7 @@ const char *getProgramVersion( const char *version )
         strncpy(progversion,version,MAXVER);
     }
     versionfile=build_filespec(image_dir(),"VERSIONID","");
-    if( file_exists(versionfile))
+    if( path_exists(versionfile))
     {
         char *pv=progversion+strlen(progversion);
         FILE *vf=fopen(versionfile.c_str(),"r");

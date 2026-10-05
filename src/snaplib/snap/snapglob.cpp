@@ -90,7 +90,7 @@ void init_snap_globals()
 void set_snap_command_file( const std::string &cmd_file )
 {
     if( ! initialised ) init_snap_globals();
-    if( file_exists( cmd_file ) )
+    if( path_exists( cmd_file ) )
     {
         command_file = copy_string( cmd_file.c_str() );
     }
@@ -101,7 +101,7 @@ void set_snap_command_file( const std::string &cmd_file )
         for( const std::string_view extension : extensions )
         {
             const std::string candidate = std::string(cmd_file).append(extension);
-            if( file_exists(candidate) )
+            if( path_exists(candidate) )
             {
                 cf = candidate;
                 break;
