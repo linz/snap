@@ -42,6 +42,7 @@
 #include <cctype>
 #include <optional>
 #include <stdio.h>
+#include <filesystem>
 #include <string>
 #include <string.h>
 #include <string_view>
@@ -251,8 +252,7 @@ void add_default_configuration_files( void )
     spec=build_config_filespec( command_file, true, "", SNAPPLOT_CONFIG_FILE, "" );
     if( file_exists( spec )) store_configuration_file( spec.c_str() );
 
-    int nch = path_len( command_file, 1 );
-    spec = std::string(command_file, nch) + SNAPPLOT_CONFIG_EXT;
+    spec = std::filesystem::path( native_path(command_file) ).replace_extension().string() + SNAPPLOT_CONFIG_EXT;
     if( file_exists( spec )) store_configuration_file( spec.c_str() );
 }
 

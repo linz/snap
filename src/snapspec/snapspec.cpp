@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <array>
 #include <optional>
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <boost/algorithm/string/predicate.hpp>
@@ -804,8 +805,7 @@ static int reload_relative_covariances( BINARY_FILE *b, stn_relacc_array *ra )
 
 static std::string cache_covariance_filename( const std::string &bfn )
 {
-    const int flen = path_len(bfn.c_str(),1);
-    return bfn.substr(0,flen) + CACHE_COVARIANCE_EXT;
+    return std::filesystem::path( native_path(bfn) ).replace_extension().string() + CACHE_COVARIANCE_EXT;
 }
 
 /// The text of a run date held in a fixed size buffer, up to the first NUL.
@@ -1138,7 +1138,7 @@ static std::string output_filename( std::string_view filename, const std::string
     {
         return std::string( filename );
     }
-    return basename.substr( 0, path_len( basename.c_str(), 1 ) ) + std::string( ext );
+    return std::filesystem::path( native_path(basename) ).replace_extension().string() + std::string( ext );
 }
 
 static void write_output_csv( const std::string &csvname, stn_relacc_array *ra )

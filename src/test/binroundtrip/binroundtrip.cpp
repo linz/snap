@@ -332,9 +332,7 @@ static void dump_filenames_text( std::ostream &out )
         out << portable_path( sd->name ) << "\n";
         out << sd->subtype.value_or("") << "\n";
         out << portable_path( sd->recodefile.value_or("") ) << "\n";
-        const char *context_def = context_definition( sd->context );
-        out << (context_def ? context_def : "") << "\n";
-        check_free( (void*)context_def );
+        out << context_definition( sd->context ) << "\n";
     }
 }
 

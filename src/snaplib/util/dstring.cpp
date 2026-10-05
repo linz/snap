@@ -35,26 +35,6 @@ char *copy_string_nch( const char *string, int nch )
     return s;
 }
 
-void dump_string_c( const char *string, FILE *b )
-{
-    int len;
-    len = string ? strlen(string) : -1;
-    fwrite(&len,sizeof(len),1,b);
-    if( len > 0 ) fwrite(string,len,1,b);
-}
-
-char *reload_string_c( FILE *b )
-{
-    int len;
-    char *s;
-    fread(&len,sizeof(len),1,b);
-    if( len < 0 ) return 0;
-    s = (char *) check_malloc( len+1 );
-    fread( s, len, 1, b );
-    s[len] = 0;
-    return s;
-}
-
 // Throws std::overflow_error if string.size() doesn't fit in the int32_t length
 // prefix, rather than silently truncating it - matching write_raw_long32's
 // precedent (util/binfile.h).

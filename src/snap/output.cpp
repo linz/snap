@@ -34,6 +34,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <boost/algorithm/string/predicate.hpp>
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -417,9 +418,8 @@ static void close_listing_file( void )
     if( ! lst ) return;
     if( errcount > 0 )
     {
-        int ierrname=path_len(err_name.c_str(),0);
         print_section_header( lst, "ERRORS" );
-        fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,err_name.c_str()+ierrname);
+        fprintf(lst,"\nNote: %d errors reported in %s\n",errcount,std::filesystem::path(err_name).filename().string().c_str());
         print_section_footer( lst );
     }
     if( ! output_noruntime ) print_report_footer(lst);
@@ -595,7 +595,7 @@ void print_report_footer( FILE * )
 
 void print_control_options( FILE *lst )
 {
-    fprintf( lst, "\n\nProgram options read from %s\n\n",command_file + path_len(command_file,0) );
+    fprintf( lst, "\n\nProgram options read from %s\n\n",std::filesystem::path(native_path(command_file)).filename().string().c_str() );
     fprintf( lst, "Job: %s\n\n", job_title );
     print_solution_type( lst );
 }

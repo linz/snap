@@ -22,6 +22,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <array>
+#include <filesystem>
 #include <string>
 #include <string_view>
 
@@ -109,8 +110,13 @@ void set_snap_command_file( const std::string &cmd_file )
         command_file = copy_string( cf.c_str() );
     }
 
-    cmd_dir=copy_string_nch( command_file, path_len(command_file,0));
-    root_name=copy_string_nch( command_file, path_len(command_file,1));
+    const std::filesystem::path command_path( native_path( command_file ) );
+    std::filesystem::path command_dir = command_path;
+    command_dir.remove_filename();
+    std::filesystem::path command_root = command_path;
+    command_root.replace_extension();
+    cmd_dir=copy_string( command_dir.string().c_str() );
+    root_name=copy_string( command_root.string().c_str() );
     push_file_context( cmd_dir );
 }
 

@@ -16,18 +16,15 @@
 
 char *copy_string( const char *string);
 char *copy_string_nch( const char *string, int nch );
-void dump_string_c( const char *string, FILE *f );
-char *reload_string_c( FILE *f );
-/* std::string-based equivalents of dump_string_c/reload_string_c, sharing the
- * same on-disk length-prefixed format. Unlike the char* versions, there is no
- * null-vs-empty distinction - callers with a genuine optional string need
+/* Length-prefixed on-disk strings. There is no null-vs-empty distinction in the
+ * std::string versions - callers with a genuine optional string need
  * std::optional<std::string> around this, not a sentinel value. */
 void dump_string( const std::string &string, FILE *f );
 std::string reload_string( FILE *f );
 /* std::optional<std::string> overloads, for fields that are genuinely absent
  * (not just empty) - preserves the exact same on-disk length-prefixed format
- * as dump_string_c/reload_string_c (-1 for absent, real length otherwise), so
- * a field switching from char* to this loses nothing byte-for-byte on disk.
+ * (-1 for absent, real length otherwise), so a field switching from char* to
+ * this loses nothing byte-for-byte on disk.
  * reload_string can't be overloaded by return type alone, hence the
  * distinct name here. */
 void dump_string( const std::optional<std::string> &string, FILE *f );

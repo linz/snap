@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <filesystem>
+#include <string>
 #include "coordsys/coordsys.h"
 #include "coordsys/crdsys_hrs_func.h"
 #include "geoid/griddata.h"
@@ -44,16 +46,11 @@ vdatum::~vdatum()
     delete func;
 }
 
-vdatum *geoid_vdatum( const char *geoidfile, ref_frame *rf )
+vdatum *geoid_vdatum( const std::string &geoidfile, ref_frame *rf )
 {
-    char hrs_name[128];
-    int plen=path_len(geoidfile,0);
-    char *end;
-    strncpy(hrs_name,geoidfile+plen,120);
-    hrs_name[120]=0;
-    end=strchr(hrs_name,'.');
-    if( end ) *end=0;
-    strcat( hrs_name," geoid");
+    std::string hrs_name = std::filesystem::path( native_path(geoidfile) ).filename().string().substr(0,120);
+    if( const size_t dot = hrs_name.find('.'); dot != std::string::npos ) hrs_name.resize(dot);
+    hrs_name += " geoid";
 
     vdatum_func *hrf=create_grid_vdatum_func( geoidfile, 1 );
     return new vdatum( "geoid", hrs_name, rf, hrf );

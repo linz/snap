@@ -75,7 +75,7 @@ void check_find_relative_file()
     std::filesystem::create_directories( tmp / "sub" );
     { std::ofstream(tmp / "sub" / "target.dat").put('x'); }
     // base must be a real, existing file for pathonly to extract its
-    // directory (path_len) - a nonexistent filename is used as a literal
+    // directory - a nonexistent filename is used as a literal
     // directory prefix instead, which is not what this exercises.
     { std::ofstream(tmp / "sub" / "other.dat").put('y'); }
     std::string basefile = (tmp / "sub" / "other.dat").string();
@@ -146,6 +146,69 @@ void check_find_config_file_via_snapenv()
     std::filesystem::remove_all(tmp);
 }
 
+// native_path converts every alternative separator to the native one, and
+// changes nothing else: nothing is collapsed, removed or resolved.
+void check_native_path()
+{
+#ifdef UNIX
+    check( native_path( "a\\b/c\\\\d\\" ) == "a/b/c//d/",
+           "native_path: every backslash becomes /, the existing / is unchanged, none are collapsed or removed" );
+    check( native_path( ".\\..\\a" ) == "./../a", "native_path: . and .. segments are kept" );
+#else
+    check( native_path( "a/b\\c//d/" ) == "a\\b\\c\\\\d\\",
+           "native_path: every / becomes a backslash, the existing backslash is unchanged, none are collapsed or removed" );
+    check( native_path( "./..//a" ) == ".\\..\\\\a", "native_path: . and .. segments are kept" );
+#endif
+    check( native_path( "" ).empty(), "native_path: empty string" );
+}
+
+// pathonly takes the directory of a filename, including when it has no directory,
+// sits in the root, or was written with the alternative separator.
+void check_build_config_filespec_pathonly()
+{
+    check( build_config_filespec("c.cfg",true,"","name",".ext") == "name.ext",
+           "pathonly: filename with no directory gives no directory prefix" );
+    check( build_config_filespec("/c.cfg",true,"","name",".ext") == "name.ext",
+           "pathonly: filename in the root directory gives no directory prefix" );
+    check( build_config_filespec("/a/b/",true,"","name",".ext") == "/a/b/name.ext",
+           "pathonly: trailing separator is the end of the directory" );
+    check( build_config_filespec("/a.b/c",true,"","name",".ext") == "/a.b/name.ext",
+           "pathonly: a dot in the directory is not an extension" );
+#ifdef UNIX
+    check( build_config_filespec("\\a\\b\\c.cfg",true,"","name",".ext") == "/a/b/name.ext",
+           "pathonly: backslash in a filename is a directory separator" );
+#endif
+}
+
+// context_definition writes the chain of directories below the root context as
+// "//" delimited relative paths, and recreate_context rebuilds the same context.
+void check_context_round_trip()
+{
+    std::filesystem::path tmp = std::filesystem::temp_directory_path() / "snap_fileutil_test_context";
+    push_file_context( tmp.string() );
+    file_context *root = current_file_context();
+    check( context_definition( root ).empty(), "context_definition: root context is empty" );
+
+    push_file_context( (tmp / "a").string() );
+    push_file_context( (tmp / "a" / "b").string() );
+    file_context *leaf = current_file_context();
+    const std::string definition = context_definition( leaf );
+    check( definition == "//a//b", "context_definition: relative directories joined with //, root first" );
+
+    // The leading // of the definition gives recreate_context an empty first segment, so
+    // the rebuilt chain has an extra link under the root and is not the same object as
+    // leaf (a long-standing flaw, see reload_filenames). It does end in the same directory.
+    file_context *recreated = recreate_context( definition );
+    check( recreated != nullptr && recreated->dir == leaf->dir,
+           "recreate_context: rebuilds a context for the same directory from its definition" );
+    check( recreate_context( "" ) == root, "recreate_context: empty definition gives the root context" );
+    check( current_file_context() == leaf, "recreate_context: leaves the current context unchanged" );
+
+    pop_file_context();
+    pop_file_context();
+    pop_file_context();
+}
+
 } // namespace
 
 int main()
@@ -153,6 +216,9 @@ int main()
     check_build_filespec_basic();
     check_build_config_filespec_basic();
     check_normalization();
+    check_native_path();
+    check_build_config_filespec_pathonly();
+    check_context_round_trip();
     check_find_relative_file();
     check_find_file_tryopt_bitmask();
     check_find_config_file_via_snapenv();

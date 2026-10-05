@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <filesystem>
 #include <string>
 #include <stdlib.h>
 #include <math.h>
@@ -53,7 +54,7 @@ int reload_binary_data( )
 {
     int sts;
 
-    const std::string bfn = std::string(root_name).substr(0, path_len(root_name, 1)) + BINFILE_EXT;
+    const std::string bfn = std::filesystem::path( native_path(root_name) ).replace_extension().string() + BINFILE_EXT;
 
     auto [file, result] = open_binary_file( bfn, BINFILE_SIGNATURE );
     b = file;

@@ -389,7 +389,7 @@ int set_coordsys_ref_frame( coordsys *cs, ref_frame *rf );
 bool coordsys_vdatum_compatible( coordsys *cs, vdatum *hrs );
 vdatum *coordsys_vdatum( coordsys *cs );
 int set_coordsys_vdatum( coordsys *cs, vdatum *hrs );
-void set_coordsys_geoid( coordsys *cs, const char *geoidfile );
+void set_coordsys_geoid( coordsys *cs, const std::string &geoidfile );
 bool coordsys_heights_orthometric( coordsys *cs );
 
 /* Define the reference epoch for the coordinate system deformation model */
@@ -420,7 +420,7 @@ int check_coordsys_range( coordsys *cs, double xyz[3] );
 
 /* Routines relating to vertical datum systems */
 
-vdatum *geoid_vdatum( const char *geoidfile, ref_frame *rf );
+vdatum *geoid_vdatum( const std::string &geoidfile, ref_frame *rf );
 vdatum *copy_vdatum( vdatum *hrs );
 int identical_vdatum( vdatum *hrs1, vdatum *hrs2 );
 int calc_vdatum_offset( vdatum *hrs, double llh[3], double *height, double *exu );

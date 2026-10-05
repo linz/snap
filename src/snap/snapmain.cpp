@@ -48,6 +48,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <exception>
+#include <filesystem>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -868,7 +869,7 @@ static void print_command_file( void )
     cmd = fopen( command_file, "r" );
     if( !cmd ) return;
     if( !skip_utf8_bom(cmd)) {fclose(cmd); return;}
-    fprintf(lst,"\nThe command file %s contains:\n", command_file+path_len(command_file,0));
+    fprintf(lst,"\nThe command file %s contains:\n", std::filesystem::path(native_path(command_file)).filename().string().c_str());
     while( fgets(inrec,256,cmd)) 
     {
         if (strlen(inrec) == 0) continue;

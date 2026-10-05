@@ -201,13 +201,11 @@ void dump_filenames( BINARY_FILE *b )
     fwrite( &nsdindx, sizeof(nsdindx), 1, b->f );
     for( i=0; i<nsdindx; i++ )
     {
-        const char *context_def=context_definition(sdindx[i]->context);
         fwrite( &sdindx[i]->format, sizeof(sdindx[i]->format), 1, b->f );
-        dump_filepath( sdindx[i]->name.c_str(), b->f );
+        dump_filepath( sdindx[i]->name, b->f );
         dump_string( sdindx[i]->subtype, b->f );
         dump_filepath( sdindx[i]->recodefile, b->f );
-        dump_string_c( context_def, b->f );
-        check_free((void *) context_def);
+        dump_string( context_definition(sdindx[i]->context), b->f );
     }
     end_section( b );
 }
@@ -219,7 +217,6 @@ int reload_filenames( BINARY_FILE *b )
     std::string name;
     std::optional<std::string> subtype;
     std::optional<std::string> recodefile;
-    char *context_def;
 
     if( find_section(b,"DATA_FILES") != OK ) return MISSING_DATA;
     fread( &i, sizeof(i), 1, b->f );
@@ -231,9 +228,8 @@ int reload_filenames( BINARY_FILE *b )
         recodefile = reload_optional_string( b->f );
         // Note: flawed implementation of restoring context.  
         // 
-        context_def = reload_string_c( b->f );
+        const std::string context_def = reload_string( b->f );
         file_context *context=recreate_context(context_def);
-        check_free(context_def);
         add_data_file_nocopy( name, fmt, subtype, recodefile, context );
     }
     return check_end_section( b );

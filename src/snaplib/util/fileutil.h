@@ -17,6 +17,7 @@
 #include <istream>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #ifndef UNIX
 #define PATH_SEPARATOR '\\'
@@ -49,7 +50,12 @@ struct file_context
    struct file_context *next;  // Used for keeping list of contexts to search/clean.
 };
 
-int path_len( const char *base, int want_name );
+/// Returns path with every alternative separator (PATH_SEPARATOR2) replaced by the platform's
+/// PATH_SEPARATOR. Nothing is collapsed, removed or resolved: the number and position of the
+/// separators are unchanged, and "." and ".." segments are kept, unlike build_config_filespec.
+/// Use before taking a path from the command line or a config file apart with
+/// std::filesystem, which on POSIX does not treat a backslash as a separator.
+std::string native_path( std::string_view path );
 int file_exists( const std::string &file );
 int is_dir( const std::string &path );
 int file_size( const std::string &path );
@@ -83,7 +89,7 @@ std::string build_config_filespec(
                                 ///< true, a filename whose directory component is used
                                 ///< instead), or "" for none
     bool pathonly,              ///< if true, dir is treated as a filename and only its
-                                ///< directory component (path_len(dir,0)) is used
+                                ///< directory component is used
     const std::string &config, ///< config subdirectory of dir to insert before name, or
                                 ///< "" for none
     const std::string &name,    ///< base filename
@@ -111,8 +117,8 @@ void pop_file_context();
 file_context *current_file_context();
 file_context *set_file_context( file_context *new_context );
 void free_file_contexts();
-const char *context_definition(file_context *context);
-file_context *recreate_context( const  char *context_def );
+std::string context_definition(file_context *context);
+file_context *recreate_context( std::string_view context_def );
 /* relative_filename and absolute_filename both operate lexically on the path
    strings - neither requires filepath, relname, or basedir to exist on disk. */
 
@@ -133,12 +139,12 @@ std::string absolute_filename( const std::string &relname, const std::string &ba
    into a portable, cross-platform file format. */
 std::string portable_path( const std::string &path );
 
-/* Writes path to disk via dump_string_c (util/dstring.h), normalized via
-   portable_path first. Use in place of dump_string_c for any path being written
+/* Writes path to disk via dump_string (util/dstring.h), normalized via
+   portable_path first. Use in place of dump_string for any path being written
    to a .bin file. */
-void dump_filepath( const char *path, FILE *f );
+void dump_filepath( const std::string &path, FILE *f );
 /* std::optional<std::string> overload, for a genuinely-absent path field -
-   writes std::nullopt exactly as dump_filepath(nullptr, f) does. */
+   writes std::nullopt exactly as dump_string(std::nullopt, f) does. */
 void dump_filepath( const std::optional<std::string> &path, FILE *f );
 
 /// Searches the user's then the system's configuration directories (each in turn, with

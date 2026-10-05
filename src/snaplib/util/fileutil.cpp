@@ -28,13 +28,13 @@
 #define _stat stat
 #include <unistd.h>
 #endif
+#include <algorithm>
 #include <filesystem>
 #include <system_error>
 #include <vector>
 
 
 #include "util/fileutil.h"
-#include "util/chkalloc.h"
 #include "util/dstring.h"
 #include "util/errdef.h"
 
@@ -58,22 +58,14 @@ static file_context *context_list = 0;
 
 #define SNAPTMP_TEMPLATE "SNAP_TMP_XXXXXX"
 
-int path_len( const char *base, int want_name )
+std::string native_path( const std::string_view path )
 {
-    const char *c;
-    int i, idot, ipath;
-
-    idot = -2;
-    ipath = -1;
-    for( c = base, i=0; *c; c++, i++ )
+    std::string result( path );
+    for( char &c : result )
     {
-        if( *c == DRIVE_SEPARATOR ||
-                *c == PATH_SEPARATOR  ||
-                *c == PATH_SEPARATOR2 ) ipath = i;
-        else if( *c == EXTENSION_SEPARATOR ) idot = i;
+        if( c == PATH_SEPARATOR2 ) c = PATH_SEPARATOR;
     }
-    if( idot < ipath ) idot = i;
-    return want_name ? idot : ipath+1;
+    return result;
 }
 
 /* Check whether a file exists */
@@ -158,13 +150,8 @@ static std::string normalize_path( const std::string &path )
 std::string build_config_filespec( const std::string &dir, const bool pathonly, const std::string &config,
                                    const std::string &name, const std::string &dflt_ext )
 {
-    std::string dirpart;
-    if( ! dir.empty() )
-    {
-        int dirlen = pathonly ? path_len(dir.c_str(),0) : (int) dir.size();
-        if( dirlen > 0 && (dir[dirlen-1]==PATH_SEPARATOR || dir[dirlen-1]==PATH_SEPARATOR2) ) dirlen--;
-        if( dirlen > 0 ) dirpart = dir.substr(0,dirlen);
-    }
+    std::string dirpart = pathonly ? std::filesystem::path( native_path(dir) ).parent_path().string() : dir;
+    if( ! dirpart.empty() && (dirpart.back()==PATH_SEPARATOR || dirpart.back()==PATH_SEPARATOR2) ) dirpart.pop_back();
 
     std::string spec;
     if( ! dirpart.empty() ) { spec += dirpart; spec += PATH_SEPARATOR; }
@@ -385,14 +372,9 @@ std::string portable_path( const std::string &path )
     return result;
 }
 
-void dump_filepath( const char *path, FILE *f )
+void dump_filepath( const std::string &path, FILE *f )
 {
-    if( ! path )
-    {
-        dump_string_c( nullptr, f );
-        return;
-    }
-    dump_string_c( portable_path(path).c_str(), f );
+    dump_string( portable_path(path), f );
 }
 
 void dump_filepath( const std::optional<std::string> &path, FILE *f )
@@ -423,55 +405,42 @@ void dump_filepath( const std::optional<std::string> &path, FILE *f )
 // every separator within each reldir's own content (via portable_path).
 // std::filesystem::path (used by relative_filename/absolute_filename)
 // accepts '/' as a valid separator on both platforms - unlike '\\' on POSIX.
-const char *context_definition(file_context *context)
+std::string context_definition(file_context *context)
 {
-    int nch=1;
+    std::string context_def;
     for( file_context *child=context; child->parent; child=child->parent )
     {
         if( ! child->reldir )
         {
             child->reldir = portable_path( relative_filename(child->dir,child->parent->dir) );
         }
-        nch += child->reldir->size()+2;
-    }
-    char *context_def = (char *) check_malloc(nch);
-    char *endptr=context_def+nch-1;
-    *endptr = 0;
-    for( file_context *child=context; child->parent; child=child->parent )
-    {
-        nch=child->reldir->size();
-        endptr -= (nch+2);
-        *endptr='/';
-        *(endptr+1)='/';
-        strncpy(endptr+2,child->reldir->c_str(),nch);
+        context_def.insert( 0, "//" + *child->reldir );
     }
     return context_def;
 }
 
 
-file_context *recreate_context(  const char *context_def )
+file_context *recreate_context( const std::string_view context_def )
 {
     file_context *saved_context=current_context;
     file_context *context=current_context;
     if( ! context )
     {
-        return 0;
+        return nullptr;
     }
     while( context->parent ) context=context->parent;
-    if( ! context_def || ! *context_def ) return context;
+    if( context_def.empty() ) return context;
     set_file_context( context );
-    while( *context_def )
+    size_t start = 0;
+    while( start < context_def.size() )
     {
-        const char *start=context_def;
-        const char *end=context_def;
-        while( *end && ! (*end == '/' && *(end+1) == '/')) end++;
-        std::string reldir(start, end-start);
-        std::string absdir = absolute_filename(reldir,context->dir);
+        const size_t end = std::min( context_def.find( "//", start ), context_def.size() );
+        const std::string reldir( context_def.substr( start, end-start ) );
+        const std::string absdir = absolute_filename(reldir,context->dir);
         push_file_context(absdir);
         context=current_context;
         if( ! context->reldir ) context->reldir=reldir;
-        context_def = end;
-        if( *context_def == '/' ) context_def += 2;
+        start = end + 2;
     }
     set_file_context(saved_context);
     return context;

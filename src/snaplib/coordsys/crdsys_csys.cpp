@@ -140,7 +140,7 @@ int set_coordsys_vdatum( coordsys *cs, vdatum *hrs )
     return sts;
 }
 
-void set_coordsys_geoid( coordsys *cs, const char *geoidfile )
+void set_coordsys_geoid( coordsys *cs, const std::string &geoidfile )
 {
     set_coordsys_vdatum( cs, geoid_vdatum( geoidfile, cs->rf ) );
 }

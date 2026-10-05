@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <filesystem>
 #include <string>
 #include <string_view>
 #include <utility>
@@ -224,9 +225,8 @@ static int calc_grid_vdatum_func( vdatum_func *hrf, double llh[3], double *heigh
 
 vdatum_func *create_grid_vdatum_func( const std::string &grid_file, int isgeoid )
 {
-    const int plen = path_len( grid_file.c_str(), 0 );
     const std::string description = std::string( isgeoid ? "Geoid" : "Grid offset" ) +
-                                     " defined in " + grid_file.substr( plen, 150 );
+                                     " defined in " + std::filesystem::path( grid_file ).filename().string().substr( 0, 150 );
     return new vdatum_func( isgeoid ? "GEOID" : "GRID", description,
                              new grid_vdatum_func_data( grid_file, ! isgeoid ),
                              delete_grid_vdatum_func_data, describe_grid_vdatum_func,
