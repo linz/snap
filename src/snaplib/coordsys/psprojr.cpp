@@ -12,6 +12,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <boost/algorithm/string/predicate.hpp>
 
 #include "coordsys/crdsys_prj.h"
 #include "util/errdef.h"
@@ -98,15 +99,14 @@ projection *create_ps_projection(  double cm, double sf,
 
 static int read_north_south( FieldScanner &scanner, void *address )
 {
-    char def[11];
-    int sts;
-    sts = next_string_field( scanner, def, 10 );
+    std::string def;
+    int sts = next_string_field( scanner, def, 10 );
     if( sts != OK ) return sts;
-    if( _stricmp(def,"north") == 0 )
+    if( boost::algorithm::iequals(def,"north") )
     {
         *(char *)address = 0;
     }
-    else if( _stricmp(def,"south") == 0 )
+    else if( boost::algorithm::iequals(def,"south") )
     {
         *(char *) address = 1;
     }

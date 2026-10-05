@@ -175,24 +175,23 @@ static int rf_linzdef_describe( ref_frame *rf, output_string_def *os )
 ref_deformation *rfdef_parse_linzdef( input_string_def &is )
 {
     std::optional<std::string> ldeffile;
-    char filename[MAX_FILENAME_LEN];
-    char version[VERSIONLEN+1];
-    int sts;
+    std::string filename;
+    std::string version;
 
-    sts = next_string_field( is.scanner, filename, MAX_FILENAME_LEN );
+    int sts = next_string_field( is.scanner, filename, MAX_FILENAME_LEN );
     if( sts != OK )
     {
         report_string_error( is, sts, "Missing filename for LINZDEF deformation");
         return nullptr;
     }
 
-    sts = next_string_field( is.scanner, version, VERSIONLEN+1 );
-    if( sts != OK ) { version[0]=0; }
+    sts = next_string_field( is.scanner, version, VERSIONLEN );
+    if( sts != OK ) { version.clear(); }
 
     ldeffile = find_relative_file( is.sourcename, filename, ".grd" );
     if( ! ldeffile )
     {
-        std::string errmess = "Cannot open LINZDEF deformation grid file " + std::string(filename);
+        std::string errmess = "Cannot open LINZDEF deformation grid file " + filename;
         report_string_error(is, FILE_OPEN_ERROR, errmess );
         return nullptr;
     }

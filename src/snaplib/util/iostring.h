@@ -58,10 +58,14 @@ struct output_string_def
    fields (sourcename/source/report_error) - only report_string_error()
    and unread_string() below do. */
 
-/// Reads the next field (quote-transparent) from scanner into buf,
-/// truncating without error if it doesn't fit.
+/// Reads the next field (quote-transparent) from scanner into field,
+/// truncating to maxlength characters without error if it is longer.
 /// \return OK, or NO_MORE_DATA/MISSING_DATA on failure (see errdef.h).
-int next_string_field( FieldScanner &scanner, char *buf, int nbuf );
+/// field is only set when OK is returned.
+int next_string_field(
+    FieldScanner &scanner,  ///< the scanner to read from
+    std::string &field,     ///< set to the field when OK is returned
+    size_t maxlength );     ///< the most characters to keep
 
 /// Reads the next field (quote-transparent) from scanner and, if it
 /// case-insensitively equals test, consumes it. Otherwise leaves scanner
@@ -75,7 +79,7 @@ int test_next_string_field( FieldScanner &scanner, std::string_view test );
 int double_from_string( FieldScanner &scanner, void *value );
 
 /// \return the remainder of def's input, unconsumed, verbatim.
-char *unread_string( input_string_def &def );
+std::string_view unread_string( input_string_def &def );
 
 void report_string_error( input_string_def &def, int status, std::string_view message );
 

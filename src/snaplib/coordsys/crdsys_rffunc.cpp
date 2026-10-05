@@ -36,10 +36,10 @@ int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff )
     }
     else
     {
-        char gridtype[20+1];
+        std::string gridtype;
         std::optional<std::string> gfile;
-        char gridfile[MAX_FILENAME_LEN+1];
-        char description[255+1];
+        std::string gridfile;
+        std::string description;
         sts = next_string_field( is.scanner, gridtype, 20 );
         if( sts == OK )
             sts = next_string_field( is.scanner, gridfile, MAX_FILENAME_LEN );
@@ -52,7 +52,6 @@ int parse_ref_frame_func_def ( input_string_def &is, ref_frame_func **rff )
                 report_string_error(is, sts,"Reference frame grid file does not exist");
             }
         }
-        description[0] = 0;
         next_string_field( is.scanner, description, 255 );
         if( sts == OK )
         {

@@ -40,11 +40,11 @@ static int read_next_field_status( FieldScanner &scanner, std::string_view &fiel
     return OK;
 }
 
-int next_string_field( FieldScanner &scanner, char *buf, int nbuf )
+int next_string_field( FieldScanner &scanner, std::string &field, const size_t maxlength )
 {
-    std::string_view field;
-    int sts = read_next_field_status( scanner, field );
-    if( sts == OK ) copy_field( field, buf, nbuf );
+    std::string_view text;
+    const int sts = read_next_field_status( scanner, text );
+    if( sts == OK ) field.assign( text.substr( 0, maxlength ) );
     return sts;
 }
 
@@ -69,9 +69,9 @@ int double_from_string( FieldScanner &scanner, void *value )
     return OK;
 }
 
-char *unread_string( input_string_def &def )
+std::string_view unread_string( input_string_def &def )
 {
-    return const_cast<char *>( def.scanner.remainder().data() );
+    return def.scanner.remainder();
 }
 
 void report_string_error( input_string_def &def, int status, std::string_view message )

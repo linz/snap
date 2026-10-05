@@ -28,26 +28,27 @@ void check_next_string_field()
 {
     static const std::string text = "abc \"quoted value\" toolongfield";
     input_string_def is( text );
-    char buf[8];
+    std::string field;
 
-    check( next_string_field(is.scanner,buf,sizeof(buf)) == OK, "next_string_field: plain field returns OK" );
-    check( std::string(buf)=="abc", "next_string_field: plain field value" );
+    check( next_string_field(is.scanner,field,7) == OK, "next_string_field: plain field returns OK" );
+    check( field=="abc", "next_string_field: plain field value" );
 
-    check( next_string_field(is.scanner,buf,sizeof(buf)) == OK, "next_string_field: quoted field returns OK" );
-    check( std::string(buf)=="quoted ", "next_string_field: quoted field truncates without error (7 of 12 chars, verbatim)" );
+    check( next_string_field(is.scanner,field,7) == OK, "next_string_field: quoted field returns OK" );
+    check( field=="quoted ", "next_string_field: quoted field truncates without error (7 of 12 chars, verbatim)" );
 
-    check( next_string_field(is.scanner,buf,sizeof(buf)) == OK, "next_string_field: trailing plain field" );
-    check( std::string(buf)=="toolong", "next_string_field: truncates to buffer capacity" );
+    check( next_string_field(is.scanner,field,7) == OK, "next_string_field: trailing plain field" );
+    check( field=="toolong", "next_string_field: truncates to maxlength" );
 
-    check( next_string_field(is.scanner,buf,sizeof(buf)) == NO_MORE_DATA, "next_string_field: NO_MORE_DATA at end of input" );
+    check( next_string_field(is.scanner,field,7) == NO_MORE_DATA, "next_string_field: NO_MORE_DATA at end of input" );
+    check( field=="toolong", "next_string_field: field unchanged when nothing is read" );
 }
 
 void check_next_string_field_missing_data()
 {
     static const std::string text = "\"unterminated";
     input_string_def is( text );
-    char buf[20];
-    check( next_string_field(is.scanner,buf,sizeof(buf)) == MISSING_DATA, "next_string_field: MISSING_DATA on malformed quote" );
+    std::string field;
+    check( next_string_field(is.scanner,field,19) == MISSING_DATA, "next_string_field: MISSING_DATA on malformed quote" );
 }
 
 void check_double_from_string()
@@ -78,7 +79,7 @@ void check_unread_string()
     static const std::string text = "abc  def";
     input_string_def is( text );
     is.scanner.next();
-    check( std::string(unread_string(is))=="  def", "unread_string: verbatim remainder after consuming one field" );
+    check( unread_string(is)=="  def", "unread_string: verbatim remainder after consuming one field" );
 }
 
 int lastStatus=0;

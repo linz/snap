@@ -30,11 +30,10 @@
 
 int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
 {
-    char type[20+1];
-    int sts;
+    std::string type;
+    int sts = OK;
 
     *prdf = nullptr;
-    sts = OK;
 
     if( test_next_string_field( is.scanner, "DEFORMATION" ))
     {
@@ -67,7 +66,7 @@ int parse_ref_deformation_def ( input_string_def &is, ref_deformation **prdf )
         }
         else
         {
-            std::string errmsg = "Invalid DEFORMATION type " + std::string(type);
+            std::string errmsg = "Invalid DEFORMATION type " + type;
             report_string_error(is, INVALID_DATA, errmsg);
             return INVALID_DATA;
         }
