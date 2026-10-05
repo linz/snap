@@ -2852,7 +2852,7 @@ static void load_interactively( void )
         const std::unique_ptr<DATAFILE> d = DATAFILE::open( fname, "SNAP data file" );
         if( d )
         {
-            read_snap_data( d.get(), 0 );
+            read_snap_data( *d, nullptr );
         }
     }
 }
@@ -2899,7 +2899,7 @@ static void load_data_files( const std::string &coord_file, const std::vector<st
         const std::unique_ptr<DATAFILE> d = DATAFILE::open( f, "SNAP data file" );
         if( d )
         {
-            read_snap_data( d.get(), 0 );
+            read_snap_data( *d, nullptr );
         }
     }
 }

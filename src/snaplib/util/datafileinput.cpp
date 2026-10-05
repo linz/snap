@@ -15,7 +15,7 @@ using boost::numeric_cast;
 DatafileInput::DatafileInput( const std::string &filename, const std::string &description ) :
     RecordInputBase( filename),
     _df_own( DATAFILE::open( filename, description ) ),
-    _check_progress(0),
+    _check_progress(nullptr),
     _aborted(false)
 {
     if( ! _df_own )
@@ -29,15 +29,15 @@ DatafileInput::DatafileInput( const std::string &filename, const std::string &de
     _df_own->set_continuation( 0 );
 }
 
-DatafileInput::DatafileInput( DATAFILE *df, int (*check_progress)( DATAFILE *df ) ) :
-    RecordInputBase( df->file_name() ),
-    _df( *df ),
+DatafileInput::DatafileInput( DATAFILE &df, bool (*check_progress)( DATAFILE &df ) ) :
+    RecordInputBase( df.file_name() ),
+    _df( df ),
     _check_progress(check_progress),
     _aborted(false)
 {
-    setName( df->file_name() );
-    df->set_comment( 0 );
-    df->set_continuation( 0 );
+    setName( df.file_name() );
+    df.set_comment( 0 );
+    df.set_continuation( 0 );
 }
 
 bool DatafileInput::getNextLine( std::string &line )

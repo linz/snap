@@ -42,10 +42,10 @@
 
 // #pragma warning ( disable : 4100 )
 
-static int datafile_progress( DATAFILE * )
+static bool datafile_progress( DATAFILE & )
 {
     update_file_display();
-    return 1;
+    return true;
 }
 // #pragma warning ( default : 4100 )
 
@@ -122,16 +122,16 @@ long read_data_files( FILE *lst )
         switch( sd->format )
         {
         case GB_FORMAT:
-            read_gb_data( d.get(), datafile_progress);
+            read_gb_data( *d, datafile_progress);
             break;
         case SNAP_FORMAT:
-            read_snap_data( d.get(), datafile_progress );
+            read_snap_data( *d, datafile_progress );
             break;
         case CSV_FORMAT:
-            load_snap_csv_obs( sd->subtype.value_or(""), d.get(), datafile_progress );
+            load_snap_csv_obs( sd->subtype.value_or(""), *d, datafile_progress );
             break;
         case SINEX_FORMAT:
-            load_sinex_obs( sd->subtype.value_or(""), d.get(), datafile_progress );
+            load_sinex_obs( sd->subtype.value_or(""), *d, datafile_progress );
             break;
         default:
             handle_error( INTERNAL_ERROR, "Program error: Invalid file format",

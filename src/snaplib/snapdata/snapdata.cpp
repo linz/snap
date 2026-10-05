@@ -156,18 +156,18 @@ struct vecerr_def
 
 struct snapfile_def
 {
-    explicit snapfile_def( DATAFILE *datafile );
+    explicit snapfile_def( DATAFILE &datafile );
     snapfile_def( const snapfile_def & ) = delete;
     snapfile_def &operator=( const snapfile_def & ) = delete;
     ~snapfile_def();
 
     /// The scanner over the current record of the data file
-    FieldScanner &scanner() { return df->input_string().scanner; }
+    FieldScanner &scanner() { return df.input_string().scanner; }
 
     /// Reports an error in the current record of the data file
-    int error( int sts, std::string_view errmsg ) { return df->error( sts, errmsg ); }
+    int error( int sts, std::string_view errmsg ) { return df.error( sts, errmsg ); }
 
-    DATAFILE *df;
+    DATAFILE &df;
 
     std::vector<data_field> fields;     /* Definitions of data fields */
     std::vector<data_class> clsf;       /* Definitions of classifications */
@@ -301,7 +301,7 @@ static command commands[] =
     {"data",0,read_data_command,CMD_ENDDATA}
 };
 
-snapfile_def::snapfile_def( DATAFILE *datafile ) :
+snapfile_def::snapfile_def( DATAFILE &datafile ) :
     df( datafile ),
     dmsformat( AF_DMS )
 {
@@ -1553,7 +1553,7 @@ static int read_vector_covariance( snapfile_def *sd, int data_available )
 
                     while( sd->scanner().atEnd() )
                     {
-                        if( sd->df->read_record() != OK ) break;
+                        if( sd->df.read_record() != OK ) break;
                     }
                     ok = read_double_field( sd->scanner(), val ) == FieldResult::Ok;
                     if( ri >= 0 && rj >= 0 ) Lij(cvr,ri,rj) = val;
@@ -1887,7 +1887,7 @@ static int read_data_line( snapfile_def *sd, bool rej )
         return MISSING_DATA;
     }
 
-    ldt_lineno( sd->df->line_number() );
+    ldt_lineno( sd->df.line_number() );
 
     int sts = read_station( sd, stn_id, ihgt );
 
@@ -2024,21 +2024,21 @@ static void process_command( snapfile_def *sd )
 }
 
 
-int read_snap_data( DATAFILE *df, int (*check_progress)( DATAFILE *df ) )
+int read_snap_data( DATAFILE &df, bool (*check_progress)( DATAFILE &df ) )
 {
-    df->read_record();  /* Skip over the header line */
+    df.read_record();  /* Skip over the header line */
 
     snapfile_def sd( df );
 
     int sts = OK;
-    while( df->read_record() == OK )
+    while( df.read_record() == OK )
     {
         if( check_progress && !(*check_progress)(df) )
         {
             sts = OPERATION_ABORTED;
             break;
         }
-        FieldScanner &scanner = df->input_string().scanner;
+        FieldScanner &scanner = df.input_string().scanner;
         if( scanner.atEnd() ) continue;
         if( scanner.skipIfNext( COMMAND_PREFIX ) )
         {

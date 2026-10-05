@@ -1232,13 +1232,13 @@ void SnapCsvObs::EndSet()
 //
 // Global CSV load function
 
-int load_snap_csv_obs(const std::string &options, DATAFILE *df, int (*check_progress)(DATAFILE *df))
+int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_progress)(DATAFILE &df))
 {
     try
     {
         OptionString config(options);
         std::string format = config.valueOf("format", "obs");
-        auto formatfile = find_file(format, ".dtf", df->file_name(), FF_TRYALL, CSVFORMAT_CONFIG);
+        auto formatfile = find_file(format, ".dtf", df.file_name(), FF_TRYALL, CSVFORMAT_CONFIG);
         if (!formatfile)
         {
             std::ostringstream os;

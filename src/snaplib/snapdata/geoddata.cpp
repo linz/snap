@@ -51,18 +51,18 @@ gb_types[] =
 static double gb_date( long ldate, int itime );
 
 
-int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
+int read_gb_data( DATAFILE &d, bool (*check_progress)( DATAFILE &d ) )
 {
-    d->read_record();   /* Skip the header line */
+    d.read_record();   /* Skip the header line */
 
-    d->read_record();   /* Read the file type */
+    d.read_record();   /* Read the file type */
 
     int dtype = -1;
     bool dms = false;
     bool heights = false;
     bool refcoef = false;
     std::string type;
-    if( read_string_field( d->input_string().scanner, type, 2 ) == FieldResult::Ok )
+    if( read_string_field( d.input_string().scanner, type, 2 ) == FieldResult::Ok )
     {
         for( const auto &gb_type : gb_types )
         {
@@ -79,7 +79,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 
     if( dtype < 0 )
     {
-        d->error( INVALID_DATA, "Missing or invalid type of data file");
+        d.error( INVALID_DATA, "Missing or invalid type of data file");
         return INVALID_DATA;
     }
 
@@ -91,10 +91,10 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
     int oldto = -1;
     int refclassid = -1;
 
-    d->skip_to_blank_line();   /* Skip over comments section */
+    d.skip_to_blank_line();   /* Skip over comments section */
 
     int rtnsts = OK;
-    while( d->read_record() == OK )
+    while( d.read_record() == OK )
     {
 
         if( check_progress && !(*check_progress)( d ) )
@@ -103,7 +103,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
             break;
         }
 
-        FieldScanner &scanner = d->input_string().scanner;
+        FieldScanner &scanner = d.input_string().scanner;
         std::string fromcode;
         std::string tocode;
         bool sts = read_string_field( scanner, fromcode, NAMELEN ) == FieldResult::Ok &&
@@ -158,7 +158,7 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 
         if( !sts )
         {
-            d->error( INVALID_DATA, "Cannot interpret data");
+            d.error( INVALID_DATA, "Cannot interpret data");
             continue;
         }
 
@@ -168,8 +168,8 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
             inobs = false;
             if( from == 0 )
             {
-                d->error( INVALID_DATA,
-                          "Station number " + fromcode + " in the data file is missing from the coordinate file" );
+                d.error( INVALID_DATA,
+                         "Station number " + fromcode + " in the data file is missing from the coordinate file" );
                 continue;
             }
 
@@ -183,8 +183,8 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 
         if( to <= 0 )
         {
-            d->error( INVALID_DATA,
-                      "Station number " + tocode + " in data file is missing from the coordinate file" );
+            d.error( INVALID_DATA,
+                     "Station number " + tocode + " in data file is missing from the coordinate file" );
             continue;
         }
 
@@ -194,13 +194,13 @@ int read_gb_data( DATAFILE *d, int (*check_progress)( DATAFILE *d ) )
 
         if( error < 1.0e-12 )
         {
-            d->error( INVALID_DATA, "Error specified for data is too small");
+            d.error( INVALID_DATA, "Error specified for data is too small");
             continue;
         }
 
         ldt_tgtstn( to, tohgt );
         ldt_nextdata( dtype );
-        ldt_lineno( d->line_number() );
+        ldt_lineno( d.line_number() );
         ldt_value( &value );
         ldt_error( &error );
         if( unused ) ldt_unused();
