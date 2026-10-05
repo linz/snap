@@ -1243,7 +1243,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
         {
             std::ostringstream os;
             os << "Undefined delimited text file format " << format;
-            handle_error(INVALID_DATA, os.str().c_str(), 0);
+            handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
             return INVALID_DATA;
         }
         SnapCsvObs csvobs(*formatfile, config);
@@ -1259,7 +1259,7 @@ int load_snap_csv_obs(const std::string &options, DATAFILE &df, bool (*check_pro
     }
     catch (RecordError &error)
     {
-        handle_error(INVALID_DATA, error.message().c_str(), error.location().c_str());
+        handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }
     return OK;

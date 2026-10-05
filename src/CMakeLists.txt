@@ -144,6 +144,11 @@ target_link_libraries(obsmod_test PRIVATE snaplib snap_link_deps)
 add_executable(commandfile_test test/commandfile_test/commandfile_test.cpp)
 target_link_libraries(commandfile_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for
+# util/errdef.cpp. Exit code is the pass/fail signal.
+add_executable(errdef_test test/errdef_test/errdef_test.cpp)
+target_link_libraries(errdef_test PRIVATE snaplib snap_link_deps)
+
 # Every standalone unit test above. build.py's test target builds this, and
 # regression_tests/unittests/run_test.py then runs each *_test executable it
 # finds in the build directory, so a new unit test must be added here.
@@ -159,7 +164,8 @@ add_custom_target(unit_tests DEPENDS
     writecsv_test
     criteria_test
     obsmod_test
-    commandfile_test)
+    commandfile_test
+    errdef_test)
 
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)

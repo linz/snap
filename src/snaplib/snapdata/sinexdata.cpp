@@ -328,7 +328,7 @@ int load_sinex_obs(const std::string &options, DATAFILE &df, bool (*check_progre
     }
     catch (RecordError &error)
     {
-        handle_error(INVALID_DATA, error.message().c_str(), error.location().c_str());
+        handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }
     return OK;

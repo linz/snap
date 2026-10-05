@@ -1368,7 +1368,7 @@ int main( int argc, char *argv[] )
     nelt = ( (long) maxrow * (maxrow+1))/2;
     calccvr = (ltmat) malloc( nelt * sizeof(double) );
     rescvr = (ltmat) malloc( nelt * sizeof(double) );
-    if( !calccvr || !rescvr ) handle_error( MEM_ALLOC_ERROR, NULL, NULL) ;
+    if( !calccvr || !rescvr ) handle_error( MEM_ALLOC_ERROR, NO_MESSAGE, NO_MESSAGE) ;
 
     calcval = (double *) check_malloc( maxrow * sizeof(double) );
     resval = (double *) check_malloc( maxrow * sizeof(double) );

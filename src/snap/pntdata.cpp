@@ -248,7 +248,7 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
 
     if (type != LT && type != LN && type != OH && type != EH)
     {
-        handle_error(INTERNAL_ERROR, "Invalid PNTDATA type in list_pntdata_residuals", 0);
+        handle_error(INTERNAL_ERROR, "Invalid PNTDATA type in list_pntdata_residuals", NO_MESSAGE);
     }
 
     errmult = 1.0;

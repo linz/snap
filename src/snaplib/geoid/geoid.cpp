@@ -79,12 +79,13 @@ geoid_def *create_geoid_grid( const char *source )
     grid_def *grd;
     coordsys *cs = 0;
 
+    const error_message sourceMessage = source ? error_message( source ) : NO_MESSAGE;
     std::string filename = get_geoid_filename( source ? std::optional<std::string>(source) : std::nullopt );
     status = grd_open_grid_file( filename, 1, &grd );
 
     if( status != OK )
     {
-        handle_error( status, "Unable to load geoid grid model", source );
+        handle_error( status, "Unable to load geoid grid model", sourceMessage );
     }
     else
     {
@@ -93,13 +94,13 @@ geoid_def *create_geoid_grid( const char *source )
         {
             grd_delete_grid( grd );
             status = INVALID_DATA;
-            handle_error( status, "Invalid coordinate system in geoid definition", source );
+            handle_error( status, "Invalid coordinate system in geoid definition", sourceMessage );
         }
         else if( ! is_geodetic( cs ) )
         {
             delete cs;
             status = INVALID_DATA;
-            handle_error( status,"Geoid coordinate system must be geodetic", source );
+            handle_error( status,"Geoid coordinate system must be geodetic", sourceMessage );
         }
     }
 

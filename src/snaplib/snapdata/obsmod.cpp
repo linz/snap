@@ -592,11 +592,11 @@ static void describe_obs_date_criterion( FILE *lst, const obs_date_criterion &da
 static void init_obs_stations_criterion( obs_stations_criterion &stations, network *nw  )
 {
     void *psc=new_station_criteria();
-    set_error_location( stations.config_loc.c_str() );
+    set_error_location( stations.config_loc );
     int sts=compile_station_criteria( psc, nw,
             stations.station_list,
             stations.config_filename );
-    set_error_location( nullptr );
+    set_error_location( NO_MESSAGE );
     if( sts != OK )
     {
         delete_station_criteria( psc );
@@ -868,7 +868,7 @@ static int get_file_id( obs_modifications *obsmod, CFG_FILE *cfg, std::string_vi
     {
         handle_error( INTERNAL_ERROR,
             "Program error: Survey file id function not initialised in observation modifications",
-            nullptr );
+            NO_MESSAGE );
         return -1;
     }
 
@@ -1469,9 +1469,9 @@ int check_obsmod_station_criteria_codes( void *pobsmod, network *nw )
             const obs_stations_criterion *stations=std::get_if<obs_stations_criterion>( &oc.type );
             if( stations && stations->criteria )
             {
-                set_error_location( stations->config_loc.c_str() );
+                set_error_location( stations->config_loc );
                 int sts=check_station_criteria_codes( stations->criteria, nw );
-                set_error_location( nullptr );
+                set_error_location( NO_MESSAGE );
                 if( sts != OK ) return_sts=sts;
             }
         }

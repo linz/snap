@@ -53,7 +53,7 @@ int merge_network( network *base, network *data, int mergeopts,
     convertcoords = ! identical_coordinate_systems( data->geosys, base->geosys );
     if( convertcoords && (define_coord_conversion_epoch( &cconv, data->geosys, base->geosys, mergedate ) != OK) )
     {
-        handle_error( INCONSISTENT_DATA, "Networks to merge have incompatible coordinate systems", NULL );
+        handle_error( INCONSISTENT_DATA, "Networks to merge have incompatible coordinate systems", NO_MESSAGE );
         return INCONSISTENT_DATA;
     }
 

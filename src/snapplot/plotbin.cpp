@@ -65,7 +65,7 @@ int reload_binary_data( )
         {
             handle_error( WARNING_ERROR | SHOW_DIALOG,
                           "Cannot reload data - binary file version is not compatible with this version of SNAP",
-                          bfn.c_str() );
+                          bfn );
         }
         return NO_MORE_DATA;
     }
@@ -80,7 +80,7 @@ int reload_binary_data( )
     {
 
         handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Cannot reload data from binary file",
-                      bfn.c_str());
+                      bfn);
         sts = FILE_READ_ERROR;
     }
     else

@@ -147,7 +147,7 @@ void *check_malloc_x( size_t size, const char *file, int line )
     mh = (MemHandle *) malloc( size + sizeof(MemHandle) );
     if( mh == NULL )
     {
-        handle_error( MEM_ALLOC_ERROR, NULL, NULL );
+        handle_error( MEM_ALLOC_ERROR, NO_MESSAGE, NO_MESSAGE );
         return NULL;
     }
 

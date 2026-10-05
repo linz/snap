@@ -74,7 +74,7 @@ ref_frame * load_ref_frame( std::string_view code )
     if( sts == MISSING_DATA )
     {
         const std::string errmsg = "Reference frame " + std::string( code.substr( 0, 20 ) ) + " is not defined";
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
     }
     return rf;
 }
@@ -94,7 +94,7 @@ ellipsoid * load_ellipsoid( std::string_view code )
     if( sts == MISSING_DATA )
     {
         const std::string errmsg = "Ellipsoid " + std::string( code.substr( 0, 20 ) ) + " is not defined";
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
     }
 
     return el;
@@ -158,7 +158,7 @@ coordsys * load_coordsys( std::string_view code )
     {
         const std::string errmsg = "Invalid coordinate definition (" +
             std::string( rest.substr( 0, 40 ) ) + ") in " + std::string( code.substr( 0, 40 ) );
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
         return nullptr;
     }
 
@@ -166,7 +166,7 @@ coordsys * load_coordsys( std::string_view code )
     if( epochstr && ! parse_crdsys_epoch( *epochstr, epoch ) )
     {
         const std::string errmsg = "Invalid coordinate system epoch in " + std::string( code.substr( 0, 40 ) );
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
         return nullptr;
     }
 
@@ -174,7 +174,7 @@ coordsys * load_coordsys( std::string_view code )
     if( cscode.empty() || cscode.size() > CRDSYS_CODE_LEN )
     {
         const std::string errmsg = "Invalid coordinate system code in " + std::string( code.substr( 0, 40 ) );
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
         return nullptr;
     }
 
@@ -184,7 +184,7 @@ coordsys * load_coordsys( std::string_view code )
         if( dtmcode->size() > CRDSYS_CODE_LEN )
         {
             const std::string errmsg = "Invalid alternative ref frame code in " + std::string( code.substr( 0, 40 ) );
-            handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+            handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
             return nullptr;
         }
         else if( ! dtmcode->empty() )
@@ -200,7 +200,7 @@ coordsys * load_coordsys( std::string_view code )
         if( hrscode->size() > CRDSYS_CODE_LEN )
         {
             const std::string errmsg = "Invalid height system code in " + std::string( code.substr( 0, 40 ) );
-            handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+            handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
             return nullptr;
         }
         else if( ! hrscode->empty() )
@@ -224,7 +224,7 @@ coordsys * load_coordsys( std::string_view code )
     if( sts == MISSING_DATA )
     {
         const std::string errmsg = "Coordinate system " + std::string( cscode ) + " is not defined";
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
     }
 
 
@@ -243,7 +243,7 @@ coordsys * load_coordsys( std::string_view code )
                 char errmsg[100];
                 sprintf(errmsg,"Vertical datum %.20s not compatible with coordinate system %.20s",
                         hrs->code.c_str(), cs->code.c_str() );
-                handle_error( INVALID_DATA, errmsg, nullptr );
+                handle_error( INVALID_DATA, errmsg, NO_MESSAGE );
                 delete cs;
                 delete hrs;
                 return nullptr;
@@ -292,7 +292,7 @@ vdatum * load_vdatum( std::string_view code )
     if( sts == MISSING_DATA )
     {
         const std::string errmsg = "Vertical datum " + std::string( code.substr( 0, 20 ) ) + " is not defined";
-        handle_error(INVALID_DATA,errmsg.c_str(),nullptr);
+        handle_error(INVALID_DATA,errmsg,NO_MESSAGE);
     }
     return hrs;
 }

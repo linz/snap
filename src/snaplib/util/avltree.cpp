@@ -54,7 +54,7 @@ void *init_avltree( int copysize, int (*compare)(void *, void *) )
 
     if( a == NULL )
     {
-        handle_error(MEM_ALLOC_ERROR,"Unable to allocate sufficient memory",NULL);
+        handle_error(MEM_ALLOC_ERROR,"Unable to allocate sufficient memory",NO_MESSAGE);
         return (void *) NULL;
     }
 
@@ -99,7 +99,7 @@ static avlnode_t *make_node( avltree_t *a, void *value)
         copy = (void *) malloc( a->copysize );
         if( !copy )
         {
-            handle_error(MEM_ALLOC_ERROR,"Unable to allocate sufficient memory",NULL);
+            handle_error(MEM_ALLOC_ERROR,"Unable to allocate sufficient memory",NO_MESSAGE);
             return (avlnode_t *) NULL;
         }
         memcpy( copy, value, a->copysize );
@@ -112,7 +112,7 @@ static avlnode_t *make_node( avltree_t *a, void *value)
     node = (avlnode_t *) malloc( sizeof( avlnode_t ) );
     if( node == NULL )
     {
-        handle_error(MEM_ALLOC_ERROR,"Unable to allocate sufficient memory",NULL);
+        handle_error(MEM_ALLOC_ERROR,"Unable to allocate sufficient memory",NO_MESSAGE);
         if( a->copysize ) free( copy );
         return (avlnode_t *) NULL;
     }

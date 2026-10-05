@@ -72,13 +72,13 @@ CFG_FILE::CFG_FILE( const std::string &name, const char comment_char ) :
     f.open( name );
     if( ! f.is_open() )
     {
-        handle_error(FILE_OPEN_ERROR,"Cannot open configuration file",name.c_str());
+        handle_error(FILE_OPEN_ERROR,"Cannot open configuration file",name);
         return;
     }
     if( ! skip_utf8_bom(f) )
     {
         f.close();
-        handle_error(FILE_OPEN_ERROR,"Cannot handle UTF16 file",name.c_str());
+        handle_error(FILE_OPEN_ERROR,"Cannot handle UTF16 file",name);
     }
 }
 
@@ -152,7 +152,7 @@ std::string get_config_directory( CFG_FILE *cfg )
 int send_config_error( CFG_FILE *cfg, const int stat, const std::string &mess1 )
 {
     const std::string mess2 = get_config_location(cfg);
-    handle_error(stat,mess1.c_str(),mess2.c_str());
+    handle_error(stat,mess1,mess2);
     if( WARNING_ERROR_CONDITION(stat)) cfg->errcount++;
     return stat;
 }

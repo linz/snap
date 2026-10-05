@@ -520,7 +520,7 @@ int load_snap_csv_stations(network *net, const std::string &filename, const std:
         {
             std::ostringstream os;
             os << "Undefined delimited text file format " << format;
-            handle_error(INVALID_DATA, os.str().c_str(), 0);
+            handle_error(INVALID_DATA, os.str(), NO_MESSAGE);
             return INVALID_DATA;
         }
         string netname = "Read from " + filename;
@@ -537,7 +537,7 @@ int load_snap_csv_stations(network *net, const std::string &filename, const std:
     }
     catch (RecordError &error)
     {
-        handle_error(INVALID_DATA, error.message().c_str(), error.location().c_str());
+        handle_error(INVALID_DATA, error.message(), error.location());
         return INVALID_DATA;
     }
     return sts;

@@ -110,13 +110,13 @@ static int load_grid_vdatum_func( vdatum_func *hrf, grid_vdatum_func_data *ghrfd
     }
     if( ! hrf->hrs )
     {
-        handle_error(INTERNAL_ERROR,"load_grid_vdatum_func called before hrs set",nullptr);
+        handle_error(INTERNAL_ERROR,"load_grid_vdatum_func called before hrs set",NO_MESSAGE);
         return INTERNAL_ERROR;
     }
     ref_frame *rf=vdatum_ref_frame( hrf->hrs );
     if( ! rf )
     {
-        handle_error(INTERNAL_ERROR,"load_grid_vdatum_func called before hrs set",nullptr);
+        handle_error(INTERNAL_ERROR,"load_grid_vdatum_func called before hrs set",NO_MESSAGE);
         return INTERNAL_ERROR;
     }
     /* Load the geoid */

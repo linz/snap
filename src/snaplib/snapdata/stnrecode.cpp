@@ -162,7 +162,7 @@ static void update_stn_recode( const std::string &codefrom, stn_recode &src, con
         const std::string codeto=(src_update.reject ? std::string(1,RECODE_IGNORE_CHAR) : std::string())+src_update.codeto;
         const std::string errmsg="Overriding recode of "+codefrom.substr(0,STNCODELEN)+" to "+
                 codeto.substr(0,STNCODELEN+1)+" with recode to "+describe_stn_recode(src,0);
-        handle_error(INFO_ERROR,errmsg.c_str(),NO_MESSAGE);
+        handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
         if( diffmark ) return;
     }
     if( src_update.herror <= 0.0 )
@@ -223,7 +223,7 @@ static void add_stn_recode_to_list( stn_recode_list &list, const std::string &co
                 ) continue;
         const std::string errmsg="Recode of "+codefrom.substr(0,STNCODELEN)+" to "+describe_stn_recode(trans,0)+
                 " conflicts with "+describe_stn_recode(src,0);
-        handle_error(INFO_ERROR,errmsg.c_str(),NO_MESSAGE);
+        handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
     }
 }
 

@@ -121,7 +121,7 @@ int add_station_colocation_constraints()
                            << ' ' << recodeLimit(*recode)
                            << " inconsistent with " << std::string_view(rec2->codeto).substr(0,STNCODELEN)
                            << ' ' << recodeLimit(*rec2);
-                    handle_error(INCONSISTENT_DATA,errmsg.str().c_str(),NO_MESSAGE);
+                    handle_error(INCONSISTENT_DATA,errmsg.str(),NO_MESSAGE);
                     sts0=INCONSISTENT_DATA;
                 }
             }

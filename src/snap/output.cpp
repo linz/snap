@@ -180,7 +180,7 @@ static output_option csvopt[] =
     {NULL,NULL,0,{0},0}
 };
 
-static int print_err( int sts, const char *mess1, const char *mess2 );
+static int print_err( int sts, std::string_view mess1, error_message mess2 );
 static int errcount = 0;
 static int page_width = 80;
 static std::string divider;
@@ -347,7 +347,7 @@ int add_requested_covariance_connections()
             process_selected_stations( net, rco->stnlist, command_file->path, (void *)usenode.data(), set_usenode );
             if( get_error_count() > errcount )
             {
-                handle_error(sts,"Error in relative_covariance station list",rco->stnlist.c_str());
+                handle_error(sts,"Error in relative_covariance station list",rco->stnlist);
                 sts=INVALID_DATA;
                 break;
             }
@@ -431,7 +431,7 @@ static void close_listing_file( void )
 }
 
 
-static void close_error_file( const char *mess1, const char *mess2 )
+static void close_error_file( const error_message mess1, const error_message mess2 )
 {
     set_error_handler( DEFAULT_ERROR_HANDLER );
     
@@ -453,18 +453,18 @@ static void close_error_file( const char *mess1, const char *mess2 )
         if( mess1 || mess2 )
         {
             fprintf(stderr,"\nThe program stopped with the following error:\n");
-            if(mess1) fprintf(stderr,"%s\n",mess1);
-            if(mess2) fprintf(stderr,"%s\n",mess2);
+            if(mess1) fprintf(stderr,"%.*s\n",boost::numeric_cast<int>(mess1->size()),mess1->data());
+            if(mess2) fprintf(stderr,"%.*s\n",boost::numeric_cast<int>(mess2->size()),mess2->data());
         }
         fprintf(stderr,"\n****************************************************\n\n");
     }
 }
 
 
-static int print_err( int sts, const char *mess1, const char *mess2 )
+static int print_err( const int sts, const std::string_view mess1, const error_message mess2 )
 {
-    fprintf(err,"\n%s: %s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error", mess1 );
-    if( mess2 ) fprintf(err,"       %s\n",mess2);
+    fprintf(err,"\n%s: %.*s\n", INFO_ERROR_CONDITION(sts) ? "Warning" : "Error", boost::numeric_cast<int>(mess1.size()), mess1.data() );
+    if( mess2 ) fprintf(err,"       %.*s\n",boost::numeric_cast<int>(mess2->size()),mess2->data());
     fflush(err);
     errcount++;
     if( FATAL_ERROR_CONDITION(sts) )
@@ -474,7 +474,7 @@ static int print_err( int sts, const char *mess1, const char *mess2 )
     return sts;
 }
 
-void close_output_files( const char *mess1, const char *mess2 )
+void close_output_files( const error_message mess1, const error_message mess2 )
 {
     close_listing_file();
     close_error_file( mess1, mess2 );
@@ -657,7 +657,7 @@ void handle_singularity( int sts )
 
     fprintf( lst, "%s\n\n", errmess.c_str());
 
-    handle_error(INVALID_DATA,"Normal equations are singular",errmess.c_str());
+    handle_error(INVALID_DATA,"Normal equations are singular",errmess);
     print_section_footer( lst );
 }
 
@@ -1051,7 +1051,7 @@ void print_solution_json_file()
     f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open JSON solution file", bfn.c_str() );
+        handle_error( FILE_OPEN_ERROR,"Unable to open JSON solution file", bfn );
     }
     else
     {

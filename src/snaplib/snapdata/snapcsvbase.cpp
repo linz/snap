@@ -307,7 +307,7 @@ void SnapCsvBase::definitionError(const std::string &message, RecordErrorType er
     if (errortype == Warning)
     {
         // Unsatisfactory handling of warnings
-        handle_error(INFO_ERROR, fullmessage.c_str(), NULL);
+        handle_error(INFO_ERROR, fullmessage, NO_MESSAGE);
         return;
     }
     throw RecordError(errortype, fullmessage, filename, lineno);

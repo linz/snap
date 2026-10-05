@@ -675,12 +675,12 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
         const std::string stationList( haveAll ? allStart : listStart );
 
         /* Set up error handler so that errors can be attributed to configuration file */
-        set_error_location( get_config_location(cfg).c_str());
+        set_error_location( get_config_location(cfg) );
         nerr = get_error_count();
 
         process_selected_stations( net,stationList,cfg->name,&spm,set_station_mode);
 
-        set_error_location(NULL);
+        set_error_location(NO_MESSAGE);
         cfg->errcount += (get_error_count()-nerr);
     }
 

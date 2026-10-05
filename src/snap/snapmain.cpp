@@ -184,7 +184,7 @@ try
         {
             xprintf("\nErrors loading configuration file %s\n", config_file->c_str() );
             handle_error( INVALID_DATA, "The configuration file is not correct", NO_MESSAGE );
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
     }
@@ -200,7 +200,7 @@ try
     {
         xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -259,7 +259,7 @@ try
         if( dump == NULL )
         {
             xprintf("\nUnable to create binary file\n");
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
         create_section( dump, "OBSERVATIONS" );
@@ -283,7 +283,7 @@ try
             if( sts == INFO_ERROR ) sts=OK;
             if( sts != OK ) 
             {
-                close_output_files(0,0);
+                close_output_files(NO_MESSAGE,NO_MESSAGE);
                 return DEFAULT_RETURN_STATUS;
             }
             reset_stnadj_initial_coords();
@@ -325,14 +325,14 @@ try
         xprintf( "\n%d errors reported reading the data files\n", (int) read_errors);
         sprintf( errmess, "%d errors reported reading the data files", (int) read_errors);
         handle_error(INVALID_DATA, errmess, NO_MESSAGE );
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
     else if ( sts != OK )
     {
         xprintf("\nErrors encountered reading the data files\n");
         handle_error( INVALID_DATA, "Errors encountered reading the data files", NO_MESSAGE );
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -349,7 +349,7 @@ try
     {
         xprintf("\nErrors defining colocation constraints\n");
         handle_error(INVALID_DATA, "Errors defining colocation constraints",NO_MESSAGE);
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -366,7 +366,7 @@ try
     {
         xprintf("\nErrors loading command file %s\n", command_file->path.c_str() );
         handle_error(INVALID_DATA, "The command file is not correct",NO_MESSAGE);
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -382,7 +382,7 @@ try
     {
         xprintf("\nUnable to initialise the deformation model\n");
         handle_error( INVALID_DATA, "Unable to initialised deformation model", NO_MESSAGE );
-        close_output_files(0,0);
+        close_output_files(NO_MESSAGE,NO_MESSAGE);
         return DEFAULT_RETURN_STATUS;
     }
 
@@ -436,7 +436,7 @@ try
         if( sts != OK )
         {
             xprintf("\nThe adjustment cannot be solved - observations cannot be summed\n");
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
 
@@ -479,7 +479,7 @@ try
         {
             handle_singularity( sts );
             xprintf("\nThe adjustment cannot be solved - equations are singular\n");
-            close_output_files(0,0);
+            close_output_files(NO_MESSAGE,NO_MESSAGE);
             return DEFAULT_RETURN_STATUS;
         }
 
@@ -695,7 +695,7 @@ try
         if( output_sinex ) print_coord_sinex();
     }
 
-    close_output_files( 0, 0 );
+    close_output_files( NO_MESSAGE, NO_MESSAGE );
 
 
     /* CSV flelist (after all other files) */
@@ -728,13 +728,13 @@ catch( const std::exception &e )
     char errmess[256];
     snprintf( errmess, sizeof(errmess), "Unexpected internal error: %s", e.what() );
     handle_error( INVALID_DATA, errmess, NO_MESSAGE );
-    close_output_files(0,0);
+    close_output_files(NO_MESSAGE,NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
 }
 catch( ... )
 {
     handle_error( INVALID_DATA, "Unexpected internal error of unknown type", NO_MESSAGE );
-    close_output_files(0,0);
+    close_output_files(NO_MESSAGE,NO_MESSAGE);
     return DEFAULT_RETURN_STATUS;
 }
 
@@ -1057,7 +1057,7 @@ static void update_station_file( const std::string &filename)
     else
     {
         handle_error( FILE_OPEN_ERROR, "Unable to create updated station coordinate file",
-                      filename.c_str());
+                      filename);
     }
 }
 
@@ -1074,7 +1074,7 @@ BINARY_FILE *open_dump_file( void )
     b = create_binary_file( bfn, BINFILE_SIGNATURE );
     if( !b )
     {
-        handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn.c_str() );
+        handle_error( FILE_OPEN_ERROR, "Unable to open binary file", bfn );
     }
 
     return b;

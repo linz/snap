@@ -73,7 +73,7 @@ std::unique_ptr<DATAFILE> DATAFILE::open( std::string_view fname, std::string_vi
     if( f == nullptr )
     {
         const std::string msg = "Unable to open " + std::string( description.substr( 0, 60 ) );
-        handle_error( FILE_OPEN_ERROR, msg.c_str(), filename.c_str() );
+        handle_error( FILE_OPEN_ERROR, msg, filename );
         return nullptr;
     }
 
@@ -88,13 +88,13 @@ std::unique_ptr<DATAFILE> DATAFILE::open( std::string_view fname, std::string_vi
     if( unicode )
     {
         fclose( f );
-        handle_error( FILE_OPEN_ERROR, "Cannot use unicode file - convert to ASCII", filename.c_str() );
+        handle_error( FILE_OPEN_ERROR, "Cannot use unicode file - convert to ASCII", filename );
         return nullptr;
     }
     if( binary )
     {
         fclose( f );
-        handle_error( FILE_OPEN_ERROR, "File appears to contain binary data", filename.c_str() );
+        handle_error( FILE_OPEN_ERROR, "File appears to contain binary data", filename );
         return nullptr;
     }
     fseek( f, 0L, SEEK_SET );
@@ -219,7 +219,7 @@ int DATAFILE::error( int sts, std::string_view errmsg )
         location = "Line: " + std::to_string( _reclineno ) + "  ";
     }
     location += "File: " + _fname.substr( 0, MAX_FILENAME_LEN );
-    handle_error( sts, std::string( errmsg ).c_str(), location.c_str() );
+    handle_error( sts, errmsg, location );
     if( sts >= WARNING_ERROR ) _errcount++;
     return sts;
 }

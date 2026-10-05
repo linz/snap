@@ -476,7 +476,7 @@ int check_station_criteria_codes( void *psc, network *nw )
         if( code->id != CRIT_ID_MISSING ) continue;
         const std::string source=c.source ? source_prefix+sc->sources[*c.source] : default_source;
         const std::string errmess="Invalid station "+code->code.substr(0,20)+" in "+source.substr(0,80);
-        handle_error(code->missing_error,errmess.c_str(),NULL);
+        handle_error(code->missing_error,errmess,NO_MESSAGE);
         if( sts != INVALID_DATA ) sts=code->missing_error;
     }
     return sts;
@@ -503,7 +503,7 @@ static int compile_station_list_file_criteria( station_criteria *sc, network *nw
     if( !list_file )
     {
         const std::string errmess="Cannot open station list file "+file.substr(0,MAX_FILENAME_LEN)+"\n";
-        handle_error( INVALID_DATA, errmess.c_str(), NULL  );
+        handle_error( INVALID_DATA, errmess, NO_MESSAGE  );
         return INVALID_DATA;
     }
     record_filename( *spec, "station_list_file" );
@@ -755,7 +755,7 @@ static int compile_station_criteria1( station_criteria *sc, network *nw, std::st
     if( errmess[0] )
     {
         sts=INVALID_DATA;
-        handle_error(INVALID_DATA,errmess,NULL);
+        handle_error(INVALID_DATA,errmess,NO_MESSAGE);
     }
     return sts;
 }

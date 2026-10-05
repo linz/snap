@@ -22,6 +22,10 @@
 */
 
 
+#include <cstdio>
+#include <optional>
+#include <string_view>
+
 #define OK                0
 #define NO_MORE_DATA      1
 #define EOF_ENCOUNTERED   2
@@ -73,11 +77,20 @@
    program to report errors.  If a fatal error condition is encountered
    the program always exits. */
 
-typedef int (*errhandler_type)( int sts, const char *msg1, const char *msg2 );
+/* A message that may be absent.  Absent is distinct from empty: an empty
+   message is printed as an empty line, an absent one is not printed (or
+   replaced by a default or the location). */
 
-int handle_error( int sts, const char *mess1, const char *mess2 );
-int default_error_handler( int sts, const char *mess1, const char *mess2 );
-int null_error_handler( int sts, const char *mess1, const char *mess2 );
+using error_message = std::optional<std::string_view>;
+
+/* A handler is always passed a message for msg1 - handle_error substitutes
+   a default when mess1 is absent. */
+
+typedef int (*errhandler_type)( int sts, std::string_view msg1, error_message msg2 );
+
+int handle_error( int sts, error_message mess1, error_message mess2 );
+int default_error_handler( int sts, std::string_view mess1, error_message mess2 );
+int null_error_handler( int sts, std::string_view mess1, error_message mess2 );
 errhandler_type set_error_handler( errhandler_type errhndler );
 int get_error_count( void );
 
@@ -92,10 +105,10 @@ FILE * set_error_file( FILE *errfile );
 int  set_error_level( int level );
 int set_error_prefix( int prefix );
 
-void set_error_location( const char *loc );
+void set_error_location( error_message loc );
 
 
-#define NO_MESSAGE ((char *) 0)
+inline constexpr std::nullopt_t NO_MESSAGE = std::nullopt;
 #define DEFAULT_ERROR_HANDLER ( (errhandler_type) 0 )
 #define DEFAULT_ERROR_FILE    ( (FILE *) 0 )
 

@@ -124,7 +124,7 @@ int read_station_recode_file( stn_recode_map *stt, std::string_view filename, st
         {
             std::ostringstream os;
             os << "Cannot find station recode file " << filename;
-            handle_error( INVALID_DATA, os.str().c_str(), 0 );
+            handle_error( INVALID_DATA, os.str(), NO_MESSAGE );
             return INVALID_DATA;
         }
 
@@ -134,7 +134,7 @@ int read_station_recode_file( stn_recode_map *stt, std::string_view filename, st
         {
             std::ostringstream os;
             os << "Undefined delimited text file format stnrecode";
-            handle_error( INVALID_DATA, os.str().c_str(), 0 );
+            handle_error( INVALID_DATA, os.str(), NO_MESSAGE );
             return INVALID_DATA;
         }
         SnapCsvRecode csvstnrecode( stt, *formatfile );
@@ -144,7 +144,7 @@ int read_station_recode_file( stn_recode_map *stt, std::string_view filename, st
     }
     catch( RecordError &error )
     {
-        handle_error( INVALID_DATA, error.message().c_str(), error.location().c_str() );
+        handle_error( INVALID_DATA, error.message(), error.location() );
         return INVALID_DATA;
     }
     return sts;

@@ -35,6 +35,7 @@
 #include <string>
 #include <string_view>
 
+#include "util/errdef.h"
 #include "util/readcfg.h"
 #include "util/writecsv.h"
 
@@ -128,7 +129,7 @@ FILE *err = 0;
 int read_output_options( CFG_FILE *cfg, std::string_view string, void *value, int len, int code );
 
 int open_output_files( );
-void close_output_files( const char *mess1, const char *mess2 );
+void close_output_files( error_message mess1, error_message mess2 );
 void init_output_options( void );
 void eliminate_inconsistent_outputs( void );
 void print_report_header( FILE *out );

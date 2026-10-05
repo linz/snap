@@ -72,7 +72,7 @@ void *check_malloc( size_t size )
     {
         char errmess[80];
         sprintf(errmess,"Memory allocation error: required %ld bytes",(long) size);
-        handle_error( MEM_ALLOC_ERROR, errmess, NULL );
+        handle_error( MEM_ALLOC_ERROR, errmess, NO_MESSAGE );
     }
 
     OFFSET_PTR( mem );
@@ -95,7 +95,7 @@ void *check_realloc( void *ptr, size_t size )
     mem = realloc( ptr, size );
     if( mem == NULL )
     {
-        handle_error( MEM_ALLOC_ERROR, NULL, NULL );
+        handle_error( MEM_ALLOC_ERROR, NO_MESSAGE, NO_MESSAGE );
     }
     OFFSET_PTR( mem );
 

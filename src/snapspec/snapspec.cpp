@@ -1947,12 +1947,12 @@ static int read_limit_order_command(CFG_FILE *cfg, std::string_view string, void
 
     const std::string data( scanner.remainder() );
 
-    set_error_location( get_config_location(cfg).c_str());
+    set_error_location( get_config_location(cfg) );
     nerr = get_error_count();
 
     process_selected_stations( net,data,cfg->name,&p,set_max_order);
 
-    set_error_location(NULL);
+    set_error_location(NO_MESSAGE);
     cfg->errcount += (get_error_count()-nerr);
 
     return OK;
@@ -1966,13 +1966,13 @@ static int read_ignore_command(CFG_FILE *cfg, std::string_view string, void *val
     p.ra = * (stn_relacc_array **) value;
     p.order = SDC_IGNORE_MARK;
 
-    set_error_location( get_config_location(cfg).c_str());
+    set_error_location( get_config_location(cfg) );
     nerr = get_error_count();
 
     const std::string data( string );
     process_selected_stations( net,data,cfg->name,&p,set_max_order);
 
-    set_error_location(NULL);
+    set_error_location(NO_MESSAGE);
     cfg->errcount += (get_error_count()-nerr);
 
     return OK;
@@ -2005,12 +2005,12 @@ static int read_set_priority_command(CFG_FILE *cfg, std::string_view string, voi
 
     const std::string data( scanner.remainder() );
 
-    set_error_location( get_config_location(cfg).c_str());
+    set_error_location( get_config_location(cfg) );
     nerr = get_error_count();
 
     process_selected_stations( net,data,cfg->name,&p,set_priority);
 
-    set_error_location(NULL);
+    set_error_location(NO_MESSAGE);
     cfg->errcount += (get_error_count()-nerr);
 
     return OK;

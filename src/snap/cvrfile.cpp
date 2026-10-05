@@ -58,7 +58,7 @@ void print_coord_covariance( void )
     f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open covariance_file", bfn.c_str() );
+        handle_error( FILE_OPEN_ERROR,"Unable to open covariance_file", bfn );
     }
     else
     {
@@ -152,7 +152,7 @@ void print_coord_covariance_json( void )
     f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open JSON covariance_file", bfn.c_str() );
+        handle_error( FILE_OPEN_ERROR,"Unable to open JSON covariance_file", bfn );
     }
     else
     {
@@ -330,7 +330,7 @@ void print_coord_sinex( void )
     f = fopen( bfn.c_str(), "w" );
     if( !f )
     {
-        handle_error( FILE_OPEN_ERROR,"Unable to open SINEX output file", bfn.c_str() );
+        handle_error( FILE_OPEN_ERROR,"Unable to open SINEX output file", bfn );
     }
     else
     {
