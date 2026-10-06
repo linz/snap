@@ -544,7 +544,7 @@ static int write_dxf_point( double x, double y, int pen )
 
 
 static long write_dxf_text( double x, double y, int pen, double size,
-                            double angle, const char *text )
+                            double angle, const std::string &text )
 {
     long id;
     if( !dxf ) return 0;
@@ -554,7 +554,7 @@ static long write_dxf_text( double x, double y, int pen, double size,
     fprintf(dxf,"  0\nTEXT\n  8\n%s\n 62\n256\n",cur_layer.c_str());
     id = write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x,precision,y);
-    fprintf(dxf," 40\n%.*lf\n  1\n%s\n",precision,size,text);
+    fprintf(dxf," 40\n%.*lf\n  1\n%s\n",precision,size,text.c_str());
     fprintf(dxf," 50\n%.6lf\n",angle);
 
     return id;
@@ -685,7 +685,7 @@ static void dxf_line( void *, double x, double y, int pen, int )
     }
 }
 
-static void dxf_text( void *, double x, double y, double size, int pen, const char *text )
+static void dxf_text( void *, double x, double y, double size, int pen, const std::string &text )
 {
     write_dxf_text( x, y, pen+1, size, 0.0, text );
 }

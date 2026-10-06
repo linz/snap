@@ -37,4 +37,24 @@ inline std::string format_scientific(
     return text.str();
 }
 
+/// Pads text on the right with spaces to a minimum width, as printf's "%-*s"
+/// does. Text that is already wider is returned whole, never truncated.
+inline std::string pad_right(
+    std::string text,               ///< the text to pad
+    const std::string::size_type minimumWidth )  ///< the result is at least this many characters
+{
+    if( text.size() < minimumWidth ) text.resize( minimumWidth, ' ' );
+    return text;
+}
+
+/// Pads text on the left with spaces to a minimum width, as printf's "%*s"
+/// does. Text that is already wider is returned whole, never truncated.
+inline std::string pad_left(
+    const std::string &text,        ///< the text to pad
+    const std::string::size_type minimumWidth )  ///< the result is at least this many characters
+{
+    if( text.size() >= minimumWidth ) return text;
+    return std::string( minimumWidth - text.size(), ' ' ) + text;
+}
+
 #endif

@@ -7,7 +7,7 @@ void map_plotter_line( map_plotter *plotter, double px, double py, int pen, int 
     (plotter->line_func)(plotter->plotobj, px,  py,  pen, dashed );
 }
 
-void map_plotter_text( map_plotter *plotter, double px, double py, double size, int pen, char *text )
+void map_plotter_text( map_plotter *plotter, double px, double py, double size, int pen, const std::string &text )
 {
     (plotter->text_func)(plotter->plotobj,  px,  py,  size,  pen,  text );
 }

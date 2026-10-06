@@ -111,15 +111,13 @@ void load_observations_from_binary( void )
 /* Doesn't sit comfortably here and doesn't use a library for definition
    of note functions but.. */
 
-#define NOTEWIDTH 90
-#define NOTEPREFIX 6
+inline constexpr long NOTEWIDTH = 90;
 
 void display_note_text( void *dest, PutTextFunc f, int64_t loc )
 {
     PutTextInfo jmp;
-    char note[NOTEWIDTH + NOTEPREFIX + 1];
     long size;
-    int block, type;
+    int type;
     int firstline, c;
     if( loc < 0 ) return;
     const int64_t curloc = ftell64( b->f );
@@ -128,7 +126,7 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
     jmp.type = ptfNone;
     firstline = 1;
 
-    strcpy( note, "Note: " );
+    std::string prefix = "Note: ";
     while( read_bindata_header( &size, &type ) && type == NOTEDATA )
     {
         c = fgetc( b->f );
@@ -138,14 +136,15 @@ void display_note_text( void *dest, PutTextFunc f, int64_t loc )
         size -= 2;  /* To account for the tail of the note */
         while ( size )
         {
-            block = size > NOTEWIDTH ? NOTEWIDTH : size;
-            fread( note + NOTEPREFIX, 1, block, b->f );
-            note[NOTEPREFIX + block] = 0;
-            (*f)( dest, &jmp, note );
+            const long block = size > NOTEWIDTH ? NOTEWIDTH : size;
+            std::string text( block, '\0' );
+            fread( &text[0], 1, block, b->f );
+            text.resize( strlen( text.c_str() ) );  /* The text ends at the first NUL, as it did as a C string */
+            (*f)( dest, &jmp, prefix + text );
             size -= block;
         }
         fgetc(b->f); fgetc(b->f);  /* Tail of the note */
-        strcpy( note, "      " );
+        prefix = "      ";
     }
 
     fseek64( b->f, curloc, SEEK_SET );

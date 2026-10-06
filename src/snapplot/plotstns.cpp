@@ -1462,7 +1462,7 @@ int plot_station_names( map_plotter *plotter, int first )
             name += stationName;
         }
 
-        PLOTTEXT( plotter, x+s1, y+s1, stn_name_size, pen, name.data() );
+        PLOTTEXT( plotter, x+s1, y+s1, stn_name_size, pen, name );
         flag_station_visible( istn );
     }
 

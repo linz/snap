@@ -48,12 +48,25 @@ void check_format_scientific()
     check_equal( format_scientific( 0.0, 2 ), "0.00e+00", "scientific: zero" );
 }
 
+void check_padding()
+{
+    check_equal( pad_right( "To", 6 ), "To    ", "pad_right: shorter than the width" );
+    check_equal( pad_right( "Length", 6 ), "Length", "pad_right: exactly the width" );
+    check_equal( pad_right( "Observations", 6 ), "Observations", "pad_right: wider than the width is not truncated" );
+    check_equal( pad_right( "", 3 ), "   ", "pad_right: empty text" );
+    check_equal( pad_left( "To", 6 ), "    To", "pad_left: shorter than the width" );
+    check_equal( pad_left( "Length", 6 ), "Length", "pad_left: exactly the width" );
+    check_equal( pad_left( "Observations", 6 ), "Observations", "pad_left: wider than the width is not truncated" );
+    check_equal( pad_left( "", 3 ), "   ", "pad_left: empty text" );
+}
+
 }
 
 int main()
 {
     check_format_fixed();
     check_format_scientific();
+    check_padding();
 
     if( failures )
     {

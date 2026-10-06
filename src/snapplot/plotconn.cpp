@@ -2415,10 +2415,6 @@ struct ConnData
     double azimuth;
 };
 
-static double *connAz = NULL;
-static int *connId = NULL;
-static char buf[256+MAX_FILENAME_LEN];
-
 static const DmsFormat angleFormat( 3, 1 );
 static const DmsFormat signedAngleFormat( 3, 1, 1, " ", " ", "", " ", "-" );
 static const DmsFormat latitudeObservationFormat( 3, 1, 1, " ", " ", "", "N", "S" );
@@ -2438,13 +2434,12 @@ void list_connections( void *dest, PutTextFunc f, int from )
 
     jump.type = ptfNone;
 
-    sprintf( buf, "%-10s %8s %7s  %s","To","Length","Azimuth","Observations" );
-    (*f)( dest, &jump, buf);
+    (*f)( dest, &jump, pad_right( "To", 10 ) + " " + pad_left( "Length", 8 ) + " " + pad_left( "Azimuth", 7 ) + "  Observations" );
 
-    if( !connAz ) connAz = (double *) check_malloc( max_conn * sizeof( double ) );
-    if( !connId ) connId = (int *) check_malloc( max_conn * sizeof( int ) );
-    nconn=0;
     fp = &connlst[from];
+    std::vector<double> connAz( fp->nconn );
+    std::vector<int> connId( fp->nconn );
+    nconn=0;
     fs = stnptr( from );
     pntdata_id = -1;
     for( id = 0; id < fp->nconn; id++ )
@@ -2477,17 +2472,14 @@ void list_connections( void *dest, PutTextFunc f, int from )
         int i;
         int to;
         double d;
-        int nc;
-        char *b;
         int count[NOBSTYPE][2];
         id = connId[ic];
         tp = &fp->to[id];
         to = tp->to;
         ts = stnptr( to );
         jump.to = to;
-        d = calc_distance( fs, 0.0, ts, 0.0, NULL, NULL );
-        sprintf( buf, "%-10s %7.1lfm N%05.1lfE  %n", ts->Code, d, connAz[id], &nc);
-        b = buf+nc;
+        d = calc_distance( fs, 0.0, ts, 0.0, nullptr, nullptr );
+        std::string line = pad_right( ts->Code, 10 ) + " " + format_fixed( d, 1, 7 ) + "m N" + format_fixed( connAz[id], 1, 5, '0' ) + "E  ";
         for( i = 0; i < NOBSTYPE; i++ ) count[i][0] = count[i][1] = 0;
         for( first_conn = 1;
                 get_connection_data( from, tp, connection, first_conn);
@@ -2504,13 +2496,11 @@ void list_connections( void *dest, PutTextFunc f, int from )
             {
                 if( count[i][0] )
                 {
-                    sprintf(b," >%s(%d)%n",datatype[i].code.data(),count[i][0], &nc );
-                    b += nc;
+                    line += " >" + std::string( datatype[i].code ) + "(" + std::to_string( count[i][0] ) + ")";
                 }
                 if( count[i][1] )
                 {
-                    sprintf(b," <%s(%d)%n",datatype[i].code.data(),count[i][1], &nc );
-                    b += nc;
+                    line += " <" + std::string( datatype[i].code ) + "(" + std::to_string( count[i][1] ) + ")";
                 }
             }
             else
@@ -2518,12 +2508,11 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 int total = count[i][0] + count[i][1];
                 if( total )
                 {
-                    sprintf(b," %s(%d)%n",datatype[i].code.data(),total, &nc );
-                    b += nc;
+                    line += " " + std::string( datatype[i].code ) + "(" + std::to_string( total ) + ")";
                 }
             }
         }
-        (*f)( dest, &jump, buf);
+        (*f)( dest, &jump, line );
     }
 
     if( pntdata_id >= 0 )
@@ -2540,38 +2529,32 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 first_conn = 0, jump.obs_id++ )
         {
 
-            int obstype;
-            int nch;
-            obstype = connection->type;
+            const int obstype = connection->type;
 
-            sprintf(buf,"%-22s",datatype[obstype].name.data());
-            nch = strlen(buf);
+            std::string line = pad_right( std::string( datatype[obstype].name ), 22 );
 
             if( binary_data )
             {
                 float sres;
                 sres = connection->sres;
                 if( aposteriori_errors ) sres /= seu;
-                sprintf(buf+nch,"  S.R. %7.3f", sres );
-                nch = strlen(buf);
+                line += "  S.R. " + format_fixed( sres, 3, 7 );
                 if( connection->flags & CONN_REJECTED )
                 {
-                    sprintf(buf+nch," %-11s","Rejected");
+                    line += " " + pad_right( "Rejected", 11 );
                 }
                 else if( connection->flags & CONN_UNUSED )
                 {
-                    sprintf(buf+nch," %-11s","Not used");
+                    line += " " + pad_right( "Not used", 11 );
                 }
                 else
                 {
-                    sprintf(buf+nch," Rdncy %5.3f",connection->rfac);
+                    line += " Rdncy " + format_fixed( connection->rfac, 3, 5 );
                 }
-                nch = strlen(buf);
             }
-            sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
-                    MAX_FILENAME_LEN,
-                    survey_data_file_name( connection->file ).c_str());
-            (*f)( dest, &jump, buf );
+            line += "   Line " + pad_left( std::to_string( connection->line ), 2 ) + ": "
+                    + survey_data_file_name( connection->file ).substr( 0, MAX_FILENAME_LEN );
+            (*f)( dest, &jump, line );
         }
     }
 }
@@ -2590,12 +2573,10 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
     jmp.type = ptfStation;
     jmp.from = from;
 
-    sprintf( buf,"From %s: %.50s", sfrom->Code,sfrom->Name.c_str());
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "From " + std::string( sfrom->Code ) + ": " + sfrom->Name.substr( 0, 50 ) );
 
     jmp.from = to;
-    sprintf( buf,"To   %s: %.50s", sto->Code,sto->Name.c_str());
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "To   " + std::string( sto->Code ) + ": " + sto->Name.substr( 0, 50 ) );
 
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
@@ -2609,10 +2590,9 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
     hd = calc_hgt_diff( sfrom, 0.0, sto, 0.0, NULL, NULL );
     edist = calc_ellipsoidal_distance( sfrom, sto, NULL, NULL );
 
-    sprintf( buf, "Slope dist %.3lf  Ell dist %.3lf   Az %s  Hgt diff %.3lf",
-             dist,edist,dms_string(az,angleFormat).c_str(),hd);
     jmp.type = ptfNone;
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Slope dist " + format_fixed( dist, 3 ) + "  Ell dist " + format_fixed( edist, 3 )
+                      + "   Az " + dms_string( az, angleFormat ) + "  Hgt diff " + format_fixed( hd, 3 ) );
     if( !geodetic_coordsys() )
     {
         double x1, y1;
@@ -2625,9 +2605,7 @@ static void list_line_statistics( void *dest, PutTextFunc f, int from, int to )
             az = atan2( x2-x1, y2-y1 ) * RTOD;
             while( az > 360.0 ) az -= 360.0;
             while( az < 0.0 ) az += 360.0;
-            sprintf(buf, "Projection distance %.3lf  azimuth %s", dist,
-                    dms_string( az, angleFormat ).c_str() );
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, "Projection distance " + format_fixed( dist, 3 ) + "  azimuth " + dms_string( az, angleFormat ) );
         }
     }
     (*f)( dest, &jmp, "" );
@@ -2662,25 +2640,15 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
 
     if( binary_data )
     {
-        int nch;
-        if( aposteriori_errors )
-        {
-            strcpy(buf,"Aposteriori ");
-        }
-        else
-        {
-            strcpy(buf,"Apriori ");
-        }
-        nch = strlen(buf);
+        std::string prefix = aposteriori_errors ? "Aposteriori " : "Apriori ";
         if( use_confidence_limit )
         {
-            sprintf(buf+nch,"%.2lf%% conf. lim. ",confidence_limit);
+            prefix += format_fixed( confidence_limit, 2 ) + "% conf. lim. ";
         }
         else if( confidence_limit != 1.0 )
         {
-            sprintf(buf+nch,"%.1lf times ", confidence_limit);
+            prefix += format_fixed( confidence_limit, 1 ) + " times ";
         }
-        nch = strlen(buf);
 
         if( cvr.emax > 0.0 && dimension != 1 )
         {
@@ -2694,17 +2662,15 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             emax = cvr.emax * errell_factor * 1000.0;
             emin = cvr.emin * errell_factor * 1000.0;
 
-            sprintf(buf+nch,"error ellipse %.1lfmm at N%.0lfE, %.1lfmm at N%.0lfE",
-                    emax,b1,emin,b2 );
-            (*f)( dest, &jump, buf );
+            (*f)( dest, &jump, prefix + "error ellipse " + format_fixed( emax, 1 ) + "mm at N" + format_fixed( b1, 0 )
+                               + "E, " + format_fixed( emin, 1 ) + "mm at N" + format_fixed( b2, 0 ) + "E" );
         }
 
         if( cvr.sehgt && dimension != 2 )
         {
             double hgterr;
             hgterr = cvr.sehgt * hgterr_factor * 1000.0;
-            sprintf(buf+nch,"height error %.1lfmm",hgterr);
-            (*f)( dest, &jump, buf );
+            (*f)( dest, &jump, prefix + "height error " + format_fixed( hgterr, 1 ) + "mm" );
         }
     }
 
@@ -2721,50 +2687,38 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
             first_conn = 0, jump.obs_id++ )
     {
 
-        char reverse;
-        int obstype;
-        int nch;
+        const int obstype = connection->type;
 
-        obstype = connection->type;
+        const bool reverse = datatype[obstype].isdirectional &&
+                             connection->flags & CONN_OBS_REVERSE;
 
-        reverse = datatype[obstype].isdirectional &&
-                  connection->flags & CONN_OBS_REVERSE;
-
-        sprintf(buf,"%s %5s",datatype[obstype].name.data(),reverse ? "(rvs)" : "");
-        buf[0] = TOUPPER(buf[0]);
-        for( nch = strlen(buf); nch < 26; nch++ ) { buf[nch] = ' ';}
-        buf[nch] = 0;
+        std::string line = std::string( datatype[obstype].name ) + " " + pad_left( reverse ? "(rvs)" : "", 5 );
+        line[0] = static_cast<char>( TOUPPER( line[0] ) );
+        line = pad_right( line, 26 );
 
         if( binary_data )
         {
             float sres;
             sres = connection->sres;
             if( aposteriori_errors ) sres /= seu;
-            sprintf(buf+nch,"  S.R. %7.3f", sres );
-            nch = strlen(buf);
+            line += "  S.R. " + format_fixed( sres, 3, 7 );
             if( connection->flags & CONN_REJECTED )
             {
-                sprintf(buf+nch," %-11s","Rejected");
+                line += " " + pad_right( "Rejected", 11 );
             }
             else if( connection->flags & CONN_UNUSED )
             {
-                sprintf(buf+nch," %-11s","Not used");
+                line += " " + pad_right( "Not used", 11 );
             }
             else
             {
-                sprintf(buf+nch," Rdncy %5.3f",connection->rfac);
+                line += " Rdncy " + format_fixed( connection->rfac, 3, 5 );
             }
-            nch = strlen(buf);
         }
-        {
-            sprintf( buf+nch, "%21s", pdate_as_string( connection->date ).c_str() );
-            nch=strlen(buf);
-        }
-        nch=strlen(buf);
-        sprintf(buf+nch,"   Line %2d: %.*s", connection->line,
-                MAX_FILENAME_LEN,
-                survey_data_file_name( connection->file ).c_str());
-        (*f)( dest, &jump, buf );
+        line += pad_left( pdate_as_string( connection->date ), 21 );
+        line += "   Line " + pad_left( std::to_string( connection->line ), 2 ) + ": "
+                + survey_data_file_name( connection->file ).substr( 0, MAX_FILENAME_LEN );
+        (*f)( dest, &jump, line );
     }
 }
 
@@ -2796,28 +2750,22 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     jmp.type = ptfStation;
     jmp.from = sd->from;
 
-    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name.c_str());
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "From:  " + pad_right( sfrom->Code, 10 ) + "  " + sfrom->Name.substr( 0, 50 ) );
 
     jmp.from = o->tgt.to;
-    sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name.c_str());
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "To:    " + pad_right( sto->Code, 10 ) + "  " + sto->Name.substr( 0, 50 ) );
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
     if( have_obs_ids )
     {
-        sprintf(buf,"Id: %d", o->tgt.id );
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Id: " + std::to_string( o->tgt.id ) );
     }
 
     if( sd->date != UNDEFINED_DATE )
     {
-        sprintf(buf,"Date/time:  %s",pdate_as_string( sd->date ).c_str());
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
-    sprintf(buf,"Source: Line %d,  %s",  (int) (o->tgt.lineno),
-            survey_data_file_name( sd->file ).c_str() );
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Source: Line " + std::to_string( o->tgt.lineno ) + ",  " + survey_data_file_name( sd->file ) );
     if( o->tgt.noteloc ) display_note_text( dest, f, o->tgt.noteloc );
 
     if( o->tgt.nclass )
@@ -2826,74 +2774,62 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
         classdata *c;
         for( n = o->tgt.nclass, c = sd->clsf + o->tgt.iclass; n--; c++ )
         {
-            sprintf(buf,"%s: %s", obs_classes.name( c->class_id ).c_str(),
-                    obs_classes.value_name( c->class_id, c->name_id ).c_str() );
-            (*f)(dest, &jmp, buf );
+            (*f)(dest, &jmp, obs_classes.name( c->class_id ) + ": " + obs_classes.value_name( c->class_id, c->name_id ) );
         }
     }
     (*f)(dest, &jmp, "");
 
     type = o->tgt.type;
-    sprintf(buf,"Observation type: %s",datatype[type].name.data());
-    if(  o->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
-    else if(  o->tgt.unused ) strcat( buf, "  (not used)");
-    (*f)( dest, &jmp, buf );
-    sprintf(buf,"H.I.  %.3lfm       H.T.  %.3lfm",sd->fromhgt,
-            o->tgt.tohgt );
-    (*f)( dest, &jmp, buf );
+    std::string typeText = "Observation type: " + std::string( datatype[type].name );
+    if(  o->tgt.unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
+    else if(  o->tgt.unused ) typeText += "  (not used)";
+    (*f)( dest, &jmp, typeText );
+    (*f)( dest, &jmp, "H.I.  " + format_fixed( sd->fromhgt, 3 ) + "m       H.T.  " + format_fixed( o->tgt.tohgt, 3 ) + "m" );
     if( datatype[type].isangle )
     {
-        sprintf(buf,"Observed value:  %s  +/-  %6.1lf",
-                dms_string(degree_angle(o->value), signedAngleFormat).c_str(),
-                o->error*semult*RTOS );
+        (*f)( dest, &jmp, "Observed value:  " + dms_string( degree_angle( o->value ), signedAngleFormat )
+                          + "  +/-  " + format_fixed( o->error*semult*RTOS, 1, 6 ) );
     }
     else
     {
-        sprintf(buf,"Observed value:  %12.4lf  +/-  %6.4lf",o->value,o->error*semult);
+        (*f)( dest, &jmp, "Observed value:  " + format_fixed( o->value, 4, 12 ) + "  +/-  " + format_fixed( o->error*semult, 4, 6 ) );
     }
-    (*f)( dest, &jmp, buf );
 
     if( binary_data )
     {
         if( datatype[type].isangle )
         {
-            int nch;
             double obslength, altres;
-            sprintf(buf,"Calculated:      %s  +/-  %6.1lf",
-                    dms_string(degree_angle(o->calc), signedAngleFormat).c_str(),
-                    o->calcerr*semult*RTOS );
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.1lf  +/-  %6.1f%n",o->residual*RTOS,
-                    o->reserr*semult*RTOS, &nch );
+            (*f)( dest, &jmp, "Calculated:      " + dms_string( degree_angle( o->calc ), signedAngleFormat )
+                              + "  +/-  " + format_fixed( o->calcerr*semult*RTOS, 1, 6 ) );
+            std::string residualText = "Residual:        " + format_fixed( o->residual*RTOS, 1, 12 )
+                                       + "  +/-  " + format_fixed( o->reserr*semult*RTOS, 1, 6 );
 
             switch( type )
             {
             case AZ:
             case ZD:
-                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,NULL,NULL);
+                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,nullptr,nullptr);
                 altres = o->residual*obslength;
                 if( type == ZD ) altres *= sin( o->value );
-                sprintf( buf+nch,"     (%.3lfm offset)", altres);
+                residualText += "     (" + format_fixed( altres, 3 ) + "m offset)";
                 break;
             case HA:
             case PB:
-                obslength = calc_ellipsoidal_distance( stnptr(sd->from), stnptr(o->tgt.to),NULL,NULL);
+                obslength = calc_ellipsoidal_distance( stnptr(sd->from), stnptr(o->tgt.to),nullptr,nullptr);
                 altres = o->residual*obslength;
                 if( type == ZD ) altres *= sin( o->value );
-                sprintf( buf+nch,"     (%.3lfm offset)", altres);
+                residualText += "     (" + format_fixed( altres, 3 ) + "m offset)";
                 break;
             }
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, residualText );
         }
         else
         {
-            int nch;
             double obslength;
-            sprintf(buf,"Calculated:      %12.4lf  +/-  %6.4lf",o->calc,
-                    o->calcerr*semult);
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.4lf  +/-  %6.4lf%n",o->residual,
-                    o->reserr*semult, &nch);
+            (*f)( dest, &jmp, "Calculated:      " + format_fixed( o->calc, 4, 12 ) + "  +/-  " + format_fixed( o->calcerr*semult, 4, 6 ) );
+            std::string residualText = "Residual:        " + format_fixed( o->residual, 4, 12 )
+                                       + "  +/-  " + format_fixed( o->reserr*semult, 4, 6 );
 
             switch( type )
             {
@@ -2904,53 +2840,46 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
             case DR:
                 if( o->value > 0.0 )
                 {
-                    sprintf(buf+nch, "    (%.2lfppm)",
-                            1.0e6*o->residual/o->value );
+                    residualText += "    (" + format_fixed( 1.0e6*o->residual/o->value, 2 ) + "ppm)";
                 }
                 break;
             case LV:
-                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,NULL,NULL);
+                obslength = calc_distance( stnptr(sd->from), 0.0, stnptr(o->tgt.to), 0.0,nullptr,nullptr);
                 if( obslength > 0 )
                 {
-                    sprintf(buf+nch,"   (%.2lfppm of distance between stations)",
-                            1.0e6*o->residual/obslength );
+                    residualText += "   (" + format_fixed( 1.0e6*o->residual/obslength, 2 ) + "ppm of distance between stations)";
                 }
                 break;
             }
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, residualText );
         }
-        sprintf(buf,"Standardised Residual: %-10.3lf",o->sres*srmult);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Standardised Residual: " + pad_right( format_fixed( o->sres*srmult, 3 ), 10 ) );
     }
 
-    buf[0] = 0;
+    std::string parameterText;
     if( type == ZD && o->refcoef)
     {
-        sprintf(buf,"%s (%.3lf)",param_name(o->refcoef).data(), param_value(o->refcoef) );
+        parameterText = std::string( param_name( o->refcoef ) ) + " (" + format_fixed( param_value( o->refcoef ), 3 ) + ")";
     }
     else if( o->prm_id && (type == ED || type == MD || type == HD || type == SD || type == DR ))
     {
-        sprintf( buf, "   %s  (%.1lfppm)", param_name( o->prm_id ).data(), param_value(o->prm_id));
+        parameterText = "   " + std::string( param_name( o->prm_id ) ) + "  (" + format_fixed( param_value( o->prm_id ), 1 ) + "ppm)";
     }
     else if( o->prm_id && (type == AZ || type == PB) )
     {
-        sprintf( buf, "   %s  (%.1lfsec)", param_name( o->prm_id ).data(), param_value( o->prm_id) );
+        parameterText = "   " + std::string( param_name( o->prm_id ) ) + "  (" + format_fixed( param_value( o->prm_id ), 1 ) + "sec)";
     }
-    if( buf[0] ) (*f)( dest, &jmp, buf );
+    if( !parameterText.empty() ) (*f)( dest, &jmp, parameterText );
 
     if( datatype[type].joinsgroup )
     {
         int iobs;
         obsdata *o;
         (*f)(dest, &jmp, "" );
-        sprintf(buf,"Related observations from station %s",stnptr(sd->from)->Code);
-        (*f)(dest, &jmp, buf );
-        strcpy( buf, "     Target         Observed");
-        if( binary_data ) strcat( buf, "   Residual    S.R." );
-        (*f)(dest, &jmp, buf );
+        (*f)(dest, &jmp, "Related observations from station " + std::string( stnptr(sd->from)->Code ) );
+        (*f)(dest, &jmp, std::string( "     Target         Observed" ) + ( binary_data ? "   Residual    S.R." : "" ) );
         for( iobs=0, o=sd->obs.odata; iobs < sd->nobs; iobs++, o++ )
         {
-            int nch;
             if( o->tgt.type != type ) continue;
             if( iobs == index )
             {
@@ -2974,36 +2903,26 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
                     jmp.type = ptfLine;
                 }
             }
-            sprintf(buf,"     %-10s  %n",stnptr(o->tgt.to)->Code,&nch);
+            std::string line = "     " + pad_right( stnptr(o->tgt.to)->Code, 10 ) + "  ";
             if( datatype[type].isangle )
             {
-                int nch2;
-                sprintf(buf+nch,"%s%n",
-                        dms_string(o->value * RTOD, signedAngleFormat).c_str(),&nch2 );
-                nch += nch2;
+                line += dms_string( o->value * RTOD, signedAngleFormat );
                 if( binary_data )
                 {
-                    sprintf(buf+nch,"  %7.1lf  %7.2lf%s",o->residual*RTOS,o->sres*srmult,
-                            o->tgt.unused ? "  (not used)" : "" );
+                    line += "  " + format_fixed( o->residual*RTOS, 1, 7 ) + "  " + format_fixed( o->sres*srmult, 2, 7 )
+                            + ( o->tgt.unused ? "  (not used)" : "" );
                 }
             }
             else
             {
-                int nch2;
-                sprintf(buf+nch,"%12.4lf%n",o->value,&nch2);
-                nch += nch2;
+                line += format_fixed( o->value, 4, 12 );
                 if( binary_data )
                 {
-                    sprintf(buf+nch,"  %7.4lf  %7.2lf%s",o->residual,o->sres*srmult,
-                            o->tgt.unused ? "  (not used)" : "" );
+                    line += "  " + format_fixed( o->residual, 4, 7 ) + "  " + format_fixed( o->sres*srmult, 2, 7 )
+                            + ( o->tgt.unused ? "  (not used)" : "" );
                 }
             }
-            (*f)(dest,&jmp,buf);
-        }
-        if( type == DR && binary_data )
-        {
-            sprintf( buf, "Group scale factor = %.1lfppm +/- %.1lfppm",
-                     sd->schval, sd->schvar*semult );
+            (*f)(dest,&jmp,line);
         }
     }
 }
@@ -3023,7 +2942,6 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     int ispoint;
     double oxyz[3], eoxyz[3], cxyz[3], ecxyz[3], renu[3], erenu[6],
            sres[3], rfac[3], small;
-    int nch;
     double obslen, calclen, reslen, vsres;
     int axis, rank;
     small = 0.0;
@@ -3063,55 +2981,46 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     jmp.type = ptfStation;
     jmp.from = from;
 
-    sprintf( buf,"From:  %-10s  %.50s", sfrom->Code,sfrom->Name.c_str());
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "From:  " + pad_right( sfrom->Code, 10 ) + "  " + sfrom->Name.substr( 0, 50 ) );
 
     if( to )
     {
         sto = stnptr( to );
         jmp.from = to;
-        sprintf( buf,"To:    %-10s  %.50s", sto->Code,sto->Name.c_str());
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "To:    " + pad_right( sto->Code, 10 ) + "  " + sto->Name.substr( 0, 50 ) );
     }
 
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
     if( have_obs_ids )
     {
-        char idbuf[32];
-        sprintf( buf, "Id:" );
+        std::string idText = "Id:";
         if( ofrom != VD_REF_STN )
         {
-            sprintf( idbuf," %d", v[ofrom].tgt.id );
-            strcat(buf,idbuf);
+            idText += " " + std::to_string( v[ofrom].tgt.id );
         }
         if( oto != VD_REF_STN )
         {
-            sprintf( idbuf," %d", v[oto].tgt.id );
-            strcat(buf,idbuf);
+            idText += " " + std::to_string( v[oto].tgt.id );
         }
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, idText );
     }
 
     if( sd->date != UNDEFINED_DATE )
     {
-        sprintf(buf,"Date/time:  %s",pdate_as_string( sd->date ).c_str());
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
-    sprintf(buf,"Source: Line %d,  %s",  (int) (tgt->lineno),
-            survey_data_file_name( sd->file ).c_str() );
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Source: Line " + std::to_string( tgt->lineno ) + ",  " + survey_data_file_name( sd->file ) );
     if( tgt->noteloc ) display_note_text( dest, f, tgt->noteloc );
-    buf[0] = 0;
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "" );
     type = tgt->type;
-    sprintf(buf,"Observation type: %s",datatype[type].name.data());
-    if( index >= sd->nobs ) strcat( buf, "  (calculated)");
-    if( unused & REJECT_OBS_BIT ) strcat( buf, "  (rejected)");
-    else if( unused ) strcat( buf, "  (not used)");
-    (*f)( dest, &jmp, buf );
-    if( sd->reffrm ) sprintf(buf,"Reference frame: %s",rftrans_from_id(sd->reffrm)->name.c_str());
-    (*f)( dest, &jmp, buf );
+    std::string typeText = "Observation type: " + std::string( datatype[type].name );
+    if( index >= sd->nobs ) typeText += "  (calculated)";
+    if( unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
+    else if( unused ) typeText += "  (not used)";
+    (*f)( dest, &jmp, typeText );
+    if( sd->reffrm ) (*f)( dest, &jmp, "Reference frame: " + rftrans_from_id(sd->reffrm)->name );
+    std::string heightText;
     if( datatype[type].ispoint )
     {
         calc_vecdata_point( sd, oto, VD_OBSVEC | VD_STDERR, oxyz, eoxyz );
@@ -3124,7 +3033,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
                                 NULL, rfac );
             small = (rfac[0]+rfac[1]+rfac[2])*1.0e-3;
         }
-        sprintf(buf,"H.I.  %.3lfm",v[oto].tgt.tohgt);
+        heightText = "H.I.  " + format_fixed( v[oto].tgt.tohgt, 3 ) + "m";
     }
     else
     {
@@ -3138,20 +3047,18 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
                                  NULL, rfac );
             small = (rfac[0]+rfac[1]+rfac[2])*1.0e-3;
         }
-        sprintf(buf,"H.I.  %.3lfm       H.T.  %.3lfm",
-                (ofrom == VD_REF_STN) ? sd->fromhgt : v[ofrom].tgt.tohgt,
-                (oto == VD_REF_STN) ? sd->fromhgt : v[oto].tgt.tohgt );
+        heightText = "H.I.  " + format_fixed( (ofrom == VD_REF_STN) ? sd->fromhgt : v[ofrom].tgt.tohgt, 3 )
+                     + "m       H.T.  " + format_fixed( (oto == VD_REF_STN) ? sd->fromhgt : v[oto].tgt.tohgt, 3 ) + "m";
     }
-    (*f)(dest, &jmp, buf );
+    (*f)(dest, &jmp, heightText );
 
-    strcpy(buf,"     Observed (XYZ)");
-    if( binary_data ) strcat(buf,"     Calculated (XYZ)   Residual (ENU)    S.R  Redundancy");
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, std::string( "     Observed (XYZ)" )
+                      + ( binary_data ? "     Calculated (XYZ)   Residual (ENU)    S.R  Redundancy" : "" ) );
     obslen = sqrt( oxyz[0]*oxyz[0] + oxyz[1]*oxyz[1] + oxyz[2]*oxyz[2] );
     ndp = (obslen < 999999.0) ? 4 : 3;
     for( axis = 0; axis < 3; axis++ )
     {
-        sprintf( buf, "%12.*lf %7.*lf%n",ndp,oxyz[axis],ndp,eoxyz[axis]*semult,&nch);
+        std::string axisText = format_fixed( oxyz[axis], ndp, 12 ) + " " + format_fixed( eoxyz[axis]*semult, ndp, 7 );
         if( binary_data )
         {
             sres[axis] = erenu[axis] > small ? fabs(renu[axis]/erenu[axis]) : -1.0;
@@ -3163,24 +3070,23 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             {
                 rfac[axis] = 1.0;
             }
-            sprintf(buf+nch," %12.*lf %7.*lf %8.*lf %7.*lf %7.2lf %7.2lf",
-                    ndp,cxyz[axis], ndp,ecxyz[axis]*semult,
-                    ndp,renu[axis], ndp,erenu[axis]*semult,
-                    sres[axis]*srmult, rfac[axis] );
+            axisText += " " + format_fixed( cxyz[axis], ndp, 12 ) + " " + format_fixed( ecxyz[axis]*semult, ndp, 7 )
+                        + " " + format_fixed( renu[axis], ndp, 8 ) + " " + format_fixed( erenu[axis]*semult, ndp, 7 )
+                        + " " + format_fixed( sres[axis]*srmult, 2, 7 ) + " " + format_fixed( rfac[axis], 2, 7 );
         }
-        (*f)(dest,&jmp,buf);
+        (*f)(dest,&jmp,axisText);
     }
-    sprintf(buf,"%12.*lf%n",ndp,obslen,&nch);
+    std::string lengthText = format_fixed( obslen, ndp, 12 );
     if( binary_data )
     {
         calclen = sqrt(cxyz[0]*cxyz[0]+cxyz[1]*cxyz[1]+cxyz[2]*cxyz[2]);
         reslen = sqrt(renu[0]*renu[0]+renu[1]*renu[1]+renu[2]*renu[2]);
         calc_vecdata_vector( sd, ofrom, oto, VD_RESVEC, renu, erenu );
         vsres = vector_standardised_residual( renu, erenu, &rank );
-        sprintf(buf+nch,"         %12.*lf         %8.*lf         %7.2lf",
-                ndp,calclen, ndp,reslen, vsres*srmult );
+        lengthText += "         " + format_fixed( calclen, ndp, 12 ) + "         " + format_fixed( reslen, ndp, 8 )
+                      + "         " + format_fixed( vsres*srmult, 2, 7 );
     }
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, lengthText );
 
     if( tgt->nclass )
     {
@@ -3189,9 +3095,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
         (*f)(dest, &jmp, "Classifications");
         for( n = tgt->nclass, c = sd->clsf + tgt->iclass; n--; c++ )
         {
-            sprintf(buf,"     %-15s  %s", obs_classes.name( c->class_id ).c_str(),
-                    obs_classes.value_name( c->class_id, c->name_id ).c_str() );
-            (*f)(dest, &jmp, buf );
+            (*f)(dest, &jmp, "     " + pad_right( obs_classes.name( c->class_id ), 15 ) + "  " + obs_classes.value_name( c->class_id, c->name_id ) );
         }
     }
 
@@ -3200,12 +3104,9 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     {
         int iobs;
         (*f)( dest, &jmp, "" );
-        sprintf(buf,"Other %s in set referenced to station %s",
-                ispoint ? "points" : "vectors", sfrom->Code);
-        (*f)( dest, &jmp, buf );
-        strcpy(buf,"     To             Distance");
-        if(binary_data) strcat(buf,"          Residual (E,N,U)        Std.Res");
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, std::string( "Other " ) + ( ispoint ? "points" : "vectors" ) + " in set referenced to station " + sfrom->Code );
+        (*f)( dest, &jmp, std::string( "     To             Distance" )
+                          + ( binary_data ? "          Residual (E,N,U)        Std.Res" : "" ) );
         for( iobs = ispoint ? 0 : -1; iobs < sd->nobs; iobs++ )
         {
             int otgt;
@@ -3245,35 +3146,35 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
             if( obs_id < 0 ) jmp.type = ptfNone;
             if( ispoint )
             {
-                calc_vecdata_point( sd, otgt, VD_OBSVEC, oxyz, NULL );
+                calc_vecdata_point( sd, otgt, VD_OBSVEC, oxyz, nullptr );
                 obslen = sqrt( oxyz[0]*oxyz[0] + oxyz[1]*oxyz[1] + oxyz[2]*oxyz[2] );
-                sprintf(buf,"     %-10s   %12.4lf%n",stnptr(to)->Code, obslen, &nch );
+                std::string line = "     " + pad_right( stnptr(to)->Code, 10 ) + "   " + format_fixed( obslen, 4, 12 );
                 if( binary_data )
                 {
                     calc_vecdata_point( sd, otgt, VD_RESVEC, renu, erenu );
                     vsres = vector_standardised_residual( renu, erenu, &rank );
                     calc_vecdata_point( sd,otgt, VD_RESVEC | VD_TOPOCENTRIC,
-                                        renu, NULL );
-                    sprintf(buf+nch,"   %8.4lf %8.4lf %8.4lf   %7.2lf",
-                            renu[0],renu[1],renu[2], vsres*srmult );
+                                        renu, nullptr );
+                    line += "   " + format_fixed( renu[0], 4, 8 ) + " " + format_fixed( renu[1], 4, 8 ) + " " + format_fixed( renu[2], 4, 8 )
+                            + "   " + format_fixed( vsres*srmult, 2, 7 );
                 }
-                (*f)(dest,&jmp,buf);
+                (*f)(dest,&jmp,line);
             }
             else
             {
-                calc_vecdata_vector( sd, ofrom, otgt, VD_OBSVEC, oxyz, NULL );
+                calc_vecdata_vector( sd, ofrom, otgt, VD_OBSVEC, oxyz, nullptr );
                 obslen = sqrt( oxyz[0]*oxyz[0] + oxyz[1]*oxyz[1] + oxyz[2]*oxyz[2] );
-                sprintf(buf,"     %-10s   %12.4lf%n",stnptr(to)->Code, obslen, &nch );
+                std::string line = "     " + pad_right( stnptr(to)->Code, 10 ) + "   " + format_fixed( obslen, 4, 12 );
                 if( binary_data )
                 {
                     calc_vecdata_vector( sd, ofrom, otgt, VD_RESVEC, renu, erenu );
                     vsres = vector_standardised_residual( renu, erenu, &rank );
                     calc_vecdata_vector( sd, ofrom, otgt, VD_RESVEC | VD_TOPOCENTRIC,
-                                         renu, NULL );
-                    sprintf(buf+nch,"   %8.4lf %8.4lf %8.4lf   %7.2lf",
-                            renu[0],renu[1],renu[2], vsres*srmult );
+                                         renu, nullptr );
+                    line += "   " + format_fixed( renu[0], 4, 8 ) + " " + format_fixed( renu[1], 4, 8 ) + " " + format_fixed( renu[2], 4, 8 )
+                            + "   " + format_fixed( vsres*srmult, 2, 7 );
                 }
-                (*f)(dest,&jmp,buf);
+                (*f)(dest,&jmp,line);
             }
         }
     }
@@ -3297,71 +3198,53 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     jmp.type = ptfStation;
     jmp.from = sd->from;
 
-    sprintf( buf,"Station:  %-10s  %.50s", sfrom->Code,sfrom->Name.c_str());
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Station:  " + pad_right( sfrom->Code, 10 ) + "  " + sfrom->Name.substr( 0, 50 ) );
     jmp.type = ptfNone;
     (*f)( dest, &jmp, "" );
     if( have_obs_ids )
     {
-        sprintf(buf,"Id: %d", p->tgt.id );
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Id: " + std::to_string( p->tgt.id ) );
     }
     if( sd->date != UNDEFINED_DATE )
     {
-        sprintf(buf,"Date/time:  %s",pdate_as_string( sd->date ).c_str());
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Date/time:  " + pdate_as_string( sd->date ) );
     }
-    sprintf(buf,"Source: Line %d,  %s",  (int) (p->tgt.lineno),
-            survey_data_file_name( sd->file ).c_str() );
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "Source: Line " + std::to_string( p->tgt.lineno ) + ",  " + survey_data_file_name( sd->file ) );
     if( p->tgt.noteloc ) display_note_text( dest, f, p->tgt.noteloc );
-    buf[0] = 0;
-    (*f)( dest, &jmp, buf );
+    (*f)( dest, &jmp, "" );
     type = p->tgt.type;
-    sprintf(buf,"Observation type: %s",datatype[type].name.data());
-    if(  p->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
-    else if(  p->tgt.unused ) strcat( buf, "  (not used)");
-    (*f)( dest, &jmp, buf );
+    std::string typeText = "Observation type: " + std::string( datatype[type].name );
+    if(  p->tgt.unused & REJECT_OBS_BIT ) typeText += "  (rejected)";
+    else if(  p->tgt.unused ) typeText += "  (not used)";
+    (*f)( dest, &jmp, typeText );
     /* Only used for angle observations, which includes latitude and longitude */
     const DmsFormat &format = type == LT ? latitudeObservationFormat
                               : type == LN ? longitudeObservationFormat : signedAngleFormat;
     if( datatype[type].isangle )
     {
-        sprintf(buf,"Observed value:  %s  +/-  %6.1lf",
-                dms_string(p->value * RTOD, format).c_str(),
-                p->error*semult*RTOS );
+        (*f)( dest, &jmp, "Observed value:  " + dms_string( p->value * RTOD, format )
+                          + "  +/-  " + format_fixed( p->error*semult*RTOS, 1, 6 ) );
     }
     else
     {
-        sprintf(buf,"Observed value:  %12.4lf  +/-  %6.4lf",p->value,p->error*semult);
+        (*f)( dest, &jmp, "Observed value:  " + format_fixed( p->value, 4, 12 ) + "  +/-  " + format_fixed( p->error*semult, 4, 6 ) );
     }
-    (*f)( dest, &jmp, buf );
 
     if( binary_data )
     {
         if( datatype[type].isangle )
         {
-            int nch;
-            sprintf(buf,"Calculated:      %s  +/-  %6.1lf",
-                    dms_string(p->calc * RTOD, format).c_str(),
-                    p->calcerr*semult*RTOS );
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.1lf  +/-  %6.1f%n",p->residual*RTOS,
-                    p->reserr*semult*RTOS, &nch );
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, "Calculated:      " + dms_string( p->calc * RTOD, format )
+                              + "  +/-  " + format_fixed( p->calcerr*semult*RTOS, 1, 6 ) );
+            (*f)( dest, &jmp, "Residual:        " + format_fixed( p->residual*RTOS, 1, 12 )
+                              + "  +/-  " + format_fixed( p->reserr*semult*RTOS, 1, 6 ) );
         }
         else
         {
-            int nch;
-            sprintf(buf,"Calculated:      %12.4lf  +/-  %6.4lf",p->calc,
-                    p->calcerr*semult);
-            (*f)( dest, &jmp, buf );
-            sprintf(buf,"Residual:        %12.4lf  +/-  %6.4lf%n",p->residual,
-                    p->reserr*semult, &nch);
-            (*f)( dest, &jmp, buf );
+            (*f)( dest, &jmp, "Calculated:      " + format_fixed( p->calc, 4, 12 ) + "  +/-  " + format_fixed( p->calcerr*semult, 4, 6 ) );
+            (*f)( dest, &jmp, "Residual:        " + format_fixed( p->residual, 4, 12 ) + "  +/-  " + format_fixed( p->reserr*semult, 4, 6 ) );
         }
-        sprintf(buf,"Standardised Residual: %-10.3lf",p->sres*srmult);
-        (*f)( dest, &jmp, buf );
+        (*f)( dest, &jmp, "Standardised Residual: " + pad_right( format_fixed( p->sres*srmult, 3 ), 10 ) );
     }
 
 
@@ -3372,9 +3255,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
         (*f)(dest, &jmp, "Classifications");
         for( n = p->tgt.nclass, c = sd->clsf + p->tgt.iclass; n--; c++ )
         {
-            sprintf(buf,"     %-15s  %s", obs_classes.name( c->class_id ).c_str(),
-                    obs_classes.value_name( c->class_id, c->name_id ).c_str() );
-            (*f)(dest, &jmp, buf );
+            (*f)(dest, &jmp, "     " + pad_right( obs_classes.name( c->class_id ), 15 ) + "  " + obs_classes.value_name( c->class_id, c->name_id ) );
         }
     }
 }
@@ -3416,10 +3297,6 @@ void free_connection_resources()
     srIndex = NULL;
     if( srIndex2 ) check_free( srIndex2 );
     srIndex2 = NULL;
-    if( connAz ) check_free( connAz );
-    connAz = NULL;
-    if( connId ) check_free( connId );
-    connId = NULL;
     if( pens ) check_free( pens );
     pens = NULL;
     max_pens = 0;

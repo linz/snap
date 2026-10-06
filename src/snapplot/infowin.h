@@ -23,13 +23,13 @@ struct PutTextInfo
 };
 
 
-typedef void (*PutTextFunc)( void *object, PutTextInfo *jump, const char *text );
+typedef void (*PutTextFunc)( void *object, PutTextInfo *jump, const std::string &text );
 
-/* A std::string overload of calling a PutTextFunc, passing no PutTextInfo */
+/* Calls a PutTextFunc, passing no PutTextInfo */
 
 inline void put_text( void *object, PutTextFunc f, const std::string &text )
 {
-    (*f)( object, NULL, text.c_str() );
+    (*f)( object, nullptr, text );
 }
 
 #endif
