@@ -91,8 +91,7 @@ wxMainProgWindow::wxMainProgWindow( const wxString &title, bool hasProgress, boo
 
 
     running = false;
-    buffer = 0;
-    buflen = 0;
+    buffer.resize( 1024 );
     instance = this;
 
     lastUpdate = clock();
@@ -117,9 +116,6 @@ wxMainProgWindow::~wxMainProgWindow()
 
     set_printf_target( 0 );
 
-    if( buffer ) delete [] buffer;
-    buffer = 0;
-    buflen = 0;
     instance = 0;
 }
 
@@ -153,11 +149,6 @@ void wxMainProgWindow::RunMainProg( int (*mainfunc)( int argc, char *argv[] ))
     // closeButton->SetDefault();
 }
 
-void wxMainProgWindow::AppendMessage( char *message )
-{
-    AppendString( wxString(message));
-}
-
 void wxMainProgWindow::AppendString( const wxString &text )
 {
 
@@ -184,29 +175,18 @@ void wxMainProgWindow::AppendString( const wxString &text )
 
 int wxMainProgWindow::DoPrintArgs( const char *format, va_list args )
 {
-    int len;
     va_list copy;
     va_copy(copy,args);
 
-    if( ! buffer )
+    // The first call may truncate, and only measures the length needed
+    const int required = vsnprintf( buffer.data(), buffer.size(), format, args );
+    if( required >= 0 && buffer.size() < static_cast<size_t>(required) + 1 )
     {
-        buflen=1024;
-        buffer=new char[buflen];
-    }
-    len = vsnprintf( buffer, buflen, format, args );
-    if( buflen < len+1 )
-    {
-        if( buffer ) { delete [] buffer; buffer = 0; }
-        buflen = 1024;
-        while( buflen < len+1 ) buflen += 1024;
-        buffer = new char[buflen];
+        buffer.resize( static_cast<size_t>(required) + 1 );
     }
 
-    if( buffer )
-    {
-        len=vsnprintf( buffer, buflen, format, copy );
-        AppendMessage( buffer );
-    }
+    const int len = vsnprintf( buffer.data(), buffer.size(), format, copy );
+    AppendString( wxString( buffer.data() ) );
     va_end(copy);
     return len;
 }

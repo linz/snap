@@ -6,6 +6,7 @@
 #include "util/errdef.h"
 
 #include <time.h>
+#include <vector>
 
 class wxMainProgWindow : public wxDialog
 {
@@ -17,7 +18,6 @@ private:
     void OnCloseButton( wxCommandEvent &event );
     void OnClose( wxCloseEvent &event );
 
-    void AppendMessage( char *message );
     void AppendString( const wxString &string );
     int DoPrintArgs( const char *format, va_list args );
     int DoErrorHandler( int sts, std::string_view msg1, error_message msg2 );
@@ -37,8 +37,7 @@ private:
     wxButton *closeButton;
 
     wxString lastLine;
-    char *buffer;
-    int buflen;
+    std::vector<char> buffer;
     bool running;
     bool hasProgress;
     bool reportTimes;
