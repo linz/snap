@@ -818,7 +818,7 @@ static int read_error_command( snapfile_def *sd, int errtype, std::string_view c
 
 static void report_missing_default_error( snapfile_def *sd, snap_data_type *obstype )
 {
-    std::string errmsg = std::string( "Error of " ) + datatype[obstype->type].name + " not defined";
+    std::string errmsg = std::string( "Error of " ).append( datatype[obstype->type].name ).append( " not defined" );
     const auto errcmd = std::find_if( std::begin( commands ), std::end( commands ),
         [obstype]( const command &cmd ) { return cmd.action == read_error_command && cmd.id == obstype->errortype; } );
     if( errcmd != std::end( commands ) ) errmsg += " - use " + command_text( errcmd->command );
@@ -1291,7 +1291,7 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
             if( nobs && st->obsclass != sd->obsclass )
             {
                 sd->error( INCONSISTENT_DATA,
-                           std::string( datatype[sd->fields[0].id].name ) + " obs not compatible with " + dt->name );
+                           std::string( datatype[sd->fields[0].id].name ) + " obs not compatible with " + std::string( dt->name ) );
                 sd->definition_err = 1;
                 break;
             }
@@ -1401,7 +1401,7 @@ static int read_data_command( snapfile_def *sd, int id, std::string_view cmd )
     else if( nobs > 1 && oneonly )
     {
         sd->error( INCONSISTENT_DATA,
-                   std::string( "Cannot combine " ) + datatype[oneonly-1].name + " with other observations" );
+                   std::string( "Cannot combine " ).append( datatype[oneonly-1].name ).append( " with other observations" ) );
         sd->definition_err = 1;
     }
 
@@ -1645,7 +1645,7 @@ static int read_data_error( snapfile_def *sd, data_field * )
         if( read_double_field( sd->scanner(), error ) != FieldResult::Ok )
         {
             sd->error( INVALID_DATA,
-                       std::string( "Invalid or missing error for " ) + datatype[st->type].name );
+                       std::string( "Invalid or missing error for " ).append( datatype[st->type].name ) );
             ldt_cancel_data();
             return 0;
         }

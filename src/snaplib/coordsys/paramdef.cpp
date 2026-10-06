@@ -14,6 +14,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <algorithm>
+#include <string>
 #include "util/errdef.h"
 #include "coordsys/paramdef.h"
 #include "util/dms.h"
@@ -91,21 +93,18 @@ int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base
 {
     int sts;
     int iprm;
-    char errmess[128];
     sts = OK;
     for( iprm = 0; iprm < nprm; iprm++, prms++ )
     {
         sts = (*prms->read)( is.scanner, OFFSET_ADDRESS(base,prms->offset) );
         if( sts == MISSING_DATA )
         {
-            sprintf(errmess,"%s is missing",prms->name);
-            report_string_error( is, sts, errmess );
+            report_string_error( is, sts, std::string( prms->name ) + " is missing" );
             break;
         }
         else if ( sts != OK )
         {
-            sprintf(errmess,"Invalid definition of %s",prms->name);
-            report_string_error( is, sts, errmess );
+            report_string_error( is, sts, "Invalid definition of " + std::string( prms->name ) );
             break;
         }
     }
@@ -113,26 +112,24 @@ int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base
 }
 
 void print_param_list( output_string_def *os, param_def *prms, int nprm,
-                       void *base, const char *prefix )
+                       void *base, const std::string_view prefix )
 {
     int iprm;
-    int maxlen = 0;
+    size_t maxlen = 0;
     for( iprm = 0; iprm < nprm; iprm++ )
     {
-        int prmlen;
         if( !prms[iprm].print ) continue;
-        prmlen = strlen( prms[iprm].name );
-        if( prmlen > maxlen ) maxlen = prmlen;
+        maxlen = std::max( maxlen, prms[iprm].name.size() );
     }
-    if( maxlen > 80 ) maxlen = 80;
+    maxlen = std::min( maxlen, static_cast<size_t>( 80 ) );
     for( iprm = 0; iprm < nprm; iprm++ )
     {
-        char buf[81];
         param_def *pd = prms+iprm;
         if( !pd->print ) continue;
-        if( prefix ) write_output_string( os, prefix );
-        sprintf( buf, "%-*.*s",maxlen,maxlen,pd->name );
-        write_output_string( os, buf );
+        if( !prefix.empty() ) write_output_string( os, prefix );
+        const std::string_view name = pd->name.substr( 0, maxlen );
+        write_output_string( os, name );
+        write_output_string( os, std::string( maxlen - name.size(), ' ' ) );
         write_output_string( os, "  " );
         (*pd->print)( os, OFFSET_ADDRESS( base, pd->offset ));
         write_output_string( os, "\n" );

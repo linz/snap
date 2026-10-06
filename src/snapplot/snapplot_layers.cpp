@@ -392,7 +392,7 @@ static void setup_data_type_layers()
         // itype+1 into data_type_layers to skip the header row; datatype[]/obstypecount[]
         // have no header row of their own, so they stay indexed by the plain itype
         l = &(data_type_layers[itype+1]);
-        init_layer(l,datatype[itype].name,dflt_data_colour, 0 );
+        init_layer(l,datatype[itype].name.data(),dflt_data_colour, 0 );
         if( obstypecount[itype] == 0 ) l->pen_id = UNUSED_LAYER_PEN_ID;
     }
     data_type_layers[NOBSTYPE+1].name = 0;

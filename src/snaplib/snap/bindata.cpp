@@ -651,7 +651,7 @@ void print_json_observation_types( FILE *out )
     for( int type=0; type<NOBSTYPE; type++ ) if( obstypecount[type] )
     {
         if( first ) { first=0; } else { fprintf(out,","); }
-        fprintf(out,"\n  \"%s\": \"%s\"",datatype[type].code,datatype[type].name);
+        fprintf(out,"\n  \"%s\": \"%s\"",datatype[type].code.data(),datatype[type].name.data());
     }
     fprintf(out,"\n}\n");
 }
@@ -708,7 +708,7 @@ void print_json_observations( FILE *out )
             {
                 fprintf( out, "        \"date\":\"%s\",\n",date_as_string(sd->date).c_str());
             }
-            fprintf( out, "        \"type\":\"%s\",\n",datatype[tgt->type].code);
+            fprintf( out, "        \"type\":\"%s\",\n",datatype[tgt->type].code.data());
             fprintf( out, "        \"errfct\":%.4lf,\n",tgt->errfct);
 
             switch( sd->format )

@@ -8,9 +8,9 @@ class SnapplotObsSource : public wxTabbedTextSource
 public:
     SnapplotObsSource();
     ~SnapplotObsSource();
-    virtual char *GetHeader();
+    virtual std::string GetHeader();
     virtual int GetRowCount();
-    virtual char *GetRow( int i );
+    virtual std::string GetRow( int i );
 };
 
 class SnapplotObsList : public wxTabbedTextGrid

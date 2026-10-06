@@ -436,8 +436,8 @@ bool SnapMgrScriptEnv::GetValue( const wxString &name, Value &value )
     DEFINE_VARIABLE("$coordsys_file", get_default_crdsys_file().value_or("") );
     DEFINE_VARIABLE("$user_script_path",userScriptPath );
     DEFINE_VARIABLE("$system_script_path",scriptPath);    
-    DEFINE_VARIABLE("$version",PROGRAM_VERSION);    
-    DEFINE_VARIABLE("$version_date",PROGRAM_DATE);    
+    DEFINE_VARIABLE("$version",wxString(PROGRAM_VERSION));
+    DEFINE_VARIABLE("$version_date",wxString(PROGRAM_DATE));
     DEFINE_VARIABLE("$user_id",SnapJob::SnapUser());    
     DEFINE_VARIABLE("$is_windows",iswindows ? wxString("1") : wxString(""));    
     DEFINE_VARIABLE("$is_linux",islinux ? wxString("1") : wxString(""));    

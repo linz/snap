@@ -14,14 +14,15 @@ class Value
 public:
     Value();
     Value( wxString value );
+    // Deleted so that a string literal is an error, not a silent conversion to bool
+    Value( const char *value ) = delete;
     Value( bool value);
-    Value( const char *values );
     Value( double value );
     Value( const Value &variable, bool valueOnly=false );
     ~Value();
     Value & operator= (const Value &value );
     Value & operator= (const wxString &value ) { SetValue(value); return *this; }
-    Value & operator= (const char *value ) { SetValue( wxString(value)); return *this; }
+    Value & operator= (const char *value ) = delete;
     Value & operator= (bool value) { SetValue(value); return *this; }
     Value & operator= (double value) { SetValue(value); return *this; }
     void SetValue( const wxString &value );

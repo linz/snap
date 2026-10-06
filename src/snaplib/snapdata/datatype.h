@@ -60,8 +60,8 @@ enum
 struct datatypedef
 {
     int    id;
-    const char   *code;
-    const char   *name;
+    std::string_view code; /* Always a view of a string literal, so data() is null terminated */
+    std::string_view name; /* Always a view of a string literal, so data() is null terminated */
     bool   ispoint;    /* True if is a point observation (ie no target station) */
     bool   isvector;   /* True if multiple components of observation */
     bool   isangle;    /* True if components are read as angles */

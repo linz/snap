@@ -97,8 +97,8 @@ void maximum_relative_covariance( double *h, double *v );
 int nearest_connection( double e, double n, double tol, int *from, int *to );
 
 long sres_index_count();
-char *sres_list_header();
-char *sres_item_description( long id );
+std::string sres_list_header();
+std::string sres_item_description( long id );
 void sres_item_info( long id, PutTextInfo *jmp );
 void set_sres_display_option( int mode );
 int get_sres_display_option();

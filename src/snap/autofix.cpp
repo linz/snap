@@ -71,7 +71,7 @@ static void init_obsflags()
             char errmess[80];
             datatypedef *dtd;
             dtd=datatypedef_from_id(i);
-            sprintf(errmess,"Data type %.20s not handled in autofix.c",dtd->name);
+            sprintf(errmess,"Data type %.20s not handled in autofix.c",dtd->name.data());
             handle_error(WARNING_ERROR,errmess,NO_MESSAGE);
         }
     }

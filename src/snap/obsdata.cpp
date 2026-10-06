@@ -98,7 +98,7 @@ void list_obsdata( FILE *out, survdata *o )
             fprintf( out, "%*s        ",stn_name_width,"");
         }
 
-        fprintf( out, "%2s%c  ",datatype[type].code, t->tgt.unused ? '*' : ' ');
+        fprintf( out, "%2s%c  ",datatype[type].code.data(), t->tgt.unused ? '*' : ' ');
 
         if( datatype[type].isangle )
         {
@@ -231,7 +231,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
         {
             char buf[256];
             sprintf(buf,"Unable to calculate %s obs from colocated stations %s to %s - obs not used",
-                    datatype[t->tgt.type].name,st1->Code,st2->Code );
+                    datatype[t->tgt.type].name.data(),st1->Code,st2->Code );
 
             handle_error( WARNING_ERROR, buf, NO_MESSAGE );
             status = INVALID_DATA;
@@ -414,7 +414,7 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                     unused = ' ';
                 }
 
-                std::string typecode = datatype[type].code;
+                std::string typecode( datatype[type].code );
                 if( unused != ' ' ) typecode += unused;
                 set_residual_field( OF_TYPE, typecode );
 

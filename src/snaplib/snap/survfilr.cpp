@@ -156,10 +156,10 @@ long read_data_files( FILE *lst )
                 if( sd->obscount[c] )
                 {
                     xprintf("        %4ld %s%s\n",sd->obscount[c],
-                            datatype[c].name,PLURAL(sd->obscount[c]) );
+                            datatype[c].name.data(),PLURAL(sd->obscount[c]) );
                     if( lst )
                         fprintf(lst,"    %4ld %s%s\n",sd->obscount[c],
-                                datatype[c].name,PLURAL(sd->obscount[c]) );
+                                datatype[c].name.data(),PLURAL(sd->obscount[c]) );
                 }
             }
             

@@ -320,7 +320,7 @@ static void describe_obs_datatype_criterion( FILE *lst, const obs_datatype_crite
     if( ntype == 1 )
     {
         datatypedef *dtype=datatypedef_from_id(itype);
-        fprintf(lst,"which are of type %s (%s)",dtype->code,dtype->name);
+        fprintf(lst,"which are of type %s (%s)",dtype->code.data(),dtype->name.data());
     }
     else
     {
@@ -330,7 +330,7 @@ static void describe_obs_datatype_criterion( FILE *lst, const obs_datatype_crite
             if( datatype.select[i])
             {
                 datatypedef *dtype=datatypedef_from_id(i);
-                fprintf(lst,"\n%s        - %s (%s)",prefix.c_str(), dtype->code, dtype->name);
+                fprintf(lst,"\n%s        - %s (%s)",prefix.c_str(), dtype->code.data(), dtype->name.data());
             }
         }
     }

@@ -540,7 +540,7 @@ static void print_summary_level( FILE *lst, summary_def *sdf,
                             if( ! lastlevel )
                             {
                                 sprintf(ttlbuf,"%.4s %s",
-                                    datatype[obstype_from_index[ilvl]].code,
+                                    datatype[obstype_from_index[ilvl]].code.data(),
                                     title.c_str());
                                 title=ttlbuf;
                             }

@@ -10,14 +10,9 @@ class SnapplotStationSource : public wxTabbedTextSource
 public:
     SnapplotStationSource();
     ~SnapplotStationSource();
-    virtual char *GetHeader();
+    virtual std::string GetHeader();
     virtual int GetRowCount();
-    virtual char *GetRow( int i );
-
-private:
-    // The grid wants a char * that stays valid after the call, until the next call
-    std::string _header;
-    std::string _row;
+    virtual std::string GetRow( int i );
 };
 
 class SnapplotStationList : public wxTabbedTextGrid

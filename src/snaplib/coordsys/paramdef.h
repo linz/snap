@@ -12,6 +12,8 @@
 #include "util/iostring.h"
 #endif
 
+#include <string_view>
+
 #include "stddef.h"
 
 /* Definition of parameters of an object.  Used to create lists of parameters which
@@ -19,8 +21,8 @@
 
 struct param_def
 {
-    const char *name;     /* Name of parameter - used for descriptive output */
-    const char *code;     /* Code - not used at present */
+    std::string_view name;     /* Name of parameter - used for descriptive output */
+    std::string_view code;     /* Code - not used at present */
     size_t offset;     /* Offset into the objects data structure */
 
     /* Read, write, and print functions.  print is a nicely formatted
@@ -45,7 +47,7 @@ int print_radians( output_string_def *os, void *address );
 int print_latitude( output_string_def *os, void *address );
 int print_longitude( output_string_def *os, void *address );
 void print_param_list( output_string_def *os, param_def *prms, int nprm,
-                       void *base, const char *prefix );
+                       void *base, std::string_view prefix );
 
 int read_radians( FieldScanner &scanner, void *address );
 int read_param_list( input_string_def &is, param_def *prms, int nprm, void *base );

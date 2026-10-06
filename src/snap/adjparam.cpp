@@ -113,7 +113,7 @@ void list_calculated_parameters( FILE *out )
         for( np = 0; np++ < nparam;  )
         {
             if( ! get_obs_param_used(np) ) continue;
-            fputs( get_obs_param_name(np), out );
+            fputs( get_obs_param_name(np).c_str(), out );
             fputs( "\n", out );
         }
     }
@@ -179,9 +179,9 @@ void print_adjusted_parameters( FILE *out )
         }
         for( np = 0; np++ < nparam;  )
         {
-            const char *name=get_obs_param_name(np);
+            const std::string &name=get_obs_param_name(np);
             double value=get_obs_param_value(np);
-            fprintf(out,"%-30.30s   %11.5lf  ",name,value);
+            fprintf(out,"%-30.30s   %11.5lf  ",name.c_str(),value);
             if( get_obs_param_rowno(np,0) ) 
             {
                 double covar=sqrt(get_obs_param_covar(np))*semult;

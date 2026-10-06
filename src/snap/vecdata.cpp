@@ -258,7 +258,7 @@ void list_vecdata( FILE *out, survdata  *v )
 
             if( axis == 0 )
             {
-                fprintf( out, "%2s%c  ",datatype[t->tgt.type].code,
+                fprintf( out, "%2s%c  ",datatype[t->tgt.type].code.data(),
                          t->tgt.unused ? '*' : ' ');
             }
             else

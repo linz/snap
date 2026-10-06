@@ -146,7 +146,7 @@ void list_pntdata(FILE *out, survdata *p)
             stn_name_width, station_code(p->from), 0.0);
 
     fprintf(out, "%*s        ", stn_name_width, "");
-    fprintf(out, "%2s%c  ", datatype[type].code,
+    fprintf(out, "%2s%c  ", datatype[type].code.data(),
             t->unused ? '*' : ' ');
 
     switch (type)

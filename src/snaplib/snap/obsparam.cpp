@@ -116,11 +116,12 @@ double get_obs_param_covar( int prmid )
     return 0.0;
 }
 
-const char *get_obs_param_name( int prmid )
+const std::string &get_obs_param_name( const int prmid )
 {
-    obs_param *oprm = get_obs_param(prmid);
-    if( oprm ) return oprm->prmname().c_str();
-    return "";
+    static const std::string noName;
+    const obs_param *oprm = get_obs_param(prmid);
+    if( oprm ) return oprm->prmname();
+    return noName;
 }
 
 void update_obs_param_value( int prmid, double value, double covar )

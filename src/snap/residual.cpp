@@ -321,7 +321,7 @@ void print_worst_residuals( FILE *out )
                 fprintf( out, " %7d", ws->id );
             }
             fprintf(out,"   %-2s%c  %7.3lf  ",
-                    datatype[ws->type].code,ws->unused,
+                    datatype[ws->type].code.data(),ws->unused,
                     ws->sres);
             if( prob[maxi][maxj] > 0.0 )
             {

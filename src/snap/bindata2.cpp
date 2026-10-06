@@ -204,7 +204,7 @@ static void list_datatypes_used( FILE *out )
     fprintf(out,"\nThe following codes are used to identify data types\n");
     for( type=0; type<NOBSTYPE; type++ ) if( obstypecount[type] )
         {
-            fprintf(out,"   %-2s  %ss\n",datatype[type].code,datatype[type].name);
+            fprintf(out,"   %-2s  %ss\n",datatype[type].code.data(),datatype[type].name.data());
         }
 }
 
@@ -319,7 +319,7 @@ static void print_obsheader( FILE *lst, bindata *b )
             survey_data_file_name(sd->file).c_str(),(int)(tgt->lineno));
     if( sd->from ) { fprintf(lst,"%s ",stnptr(sd->from)->Code ); }
     if( tgt->to ) { fprintf( lst, "%s%s ",(sd->from ? "to " : ""),stnptr(tgt->to)->Code);}
-    fprintf(lst,": %s",datatype[tgt->type].code);
+    fprintf(lst,": %s",datatype[tgt->type].code.data());
     if( ntgt > 1 ) fprintf(lst," ...");
     fprintf(lst,"\n\n");
 }
@@ -373,7 +373,7 @@ int sum_bindata( int iteration )
                 sd->from && tgt->to ? " - " : "",
                 tgt->to ? stnptr(tgt->to)->Code : "",
                 tgt->obsid,
-                datatype[tgt->type].code,
+                datatype[tgt->type].code.data(),
                 sd->nobs
                 );
             if( nbin > 1 )  fprintf(lst,",\n");
@@ -1402,7 +1402,7 @@ static void write_observation_csv_common_start( output_csv &csv, survdata *sd, t
     station *to = stnptr(tgt->to);
     if( ! from ) { from = to; to = nullptr; }
     if( obsset < 0 ) obsset=tgt->obsid;
-    std::string type = datatype[tgt->type].code;
+    std::string type( datatype[tgt->type].code );
     if( ! component.empty() && type.size()+component.size()+2 < 16 ) { type += '-'; type += component; }
     csv.writeInt( tgt->obsid );
     if( have_obs_ids ) csv.writeInt( tgt->id );

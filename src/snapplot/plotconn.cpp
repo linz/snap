@@ -29,6 +29,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
+#include <algorithm>
 #include <optional>
 #include <set>
 #include <string>
@@ -2002,7 +2003,7 @@ void SresDef::set_sort_key( int order )
     case SRF_TO:      cmpval = stnptr(from)->Code;
         break;
     case SRF_TYPE:    get_connection_data_by_id( from, to_id, obs_id, connection );
-        cmpval = datatype[connection->type].code;
+        cmpval = std::string( datatype[connection->type].code );
         break;
     case SRF_STATUS:  get_connection_data_by_id( from, to_id, obs_id, connection );
         cmpval =   (connection->flags & CONN_REJECTED ) ? "reject" :
@@ -2115,19 +2116,12 @@ long sres_index_count( void )
     return srIndexCount;
 }
 
-#define SRES_BUF_SIZE 1024
-static char sres_buf[SRES_BUF_SIZE];
-
-char *sres_list_header()
+std::string sres_list_header()
 {
-    int nch;
-    int i;
-    sres_buf[0] = 0;
-    nch = 0;
-    for( i = 0; i < nDisplayFields; i++ )
+    std::string header;
+    for( int i = 0; i < nDisplayFields; i++ )
     {
         std::string data;
-        int datalen;
         int number = 0;
         switch( displayFields[i] )
         {
@@ -2152,14 +2146,13 @@ char *sres_list_header()
             }
             break;
         }
-        datalen = numeric_cast<int>(data.size());
-        if( datalen < displayFieldWidths[i] ) datalen = displayFieldWidths[i];
-        if( nch + datalen + 2 > SRES_BUF_SIZE ) break;
-        if( i ) { sres_buf[nch++] = '\t'; }
-        sprintf( sres_buf + nch, "%s%-*.*s", number ? " " : "", datalen, datalen, data.c_str() );
-        nch += datalen + number;
+        const int datalen = std::max( numeric_cast<int>( data.size() ), displayFieldWidths[i] );
+        if( i ) header += '\t';
+        if( number ) header += ' ';
+        header += data;
+        header.append( numeric_cast<size_t>( datalen ) - data.size(), ' ' );
     }
-    return sres_buf;
+    return header;
 }
 
 /// Returns the date as text, empty if it is undefined
@@ -2168,19 +2161,17 @@ static std::string pdate_as_string( const double date )
     return date == UNDEFINED_DATE ? std::string() : date_as_string(date,DateStringFormat::timeIfNotMidnight);
 }
 
-char *sres_item_description( long id )
+std::string sres_item_description( long id )
 {
     SresDef *sr;
     station *sfrom;
     station *sto;
     tconn_ptr *tp;
-    int nch;
-    int i;
     double value;
     float sres;
     if( !indexValid ) SetupSresIndex();
-    if( !indexValid ) return nullptr;
-    if( id < 0 || id >= srIndexCount ) return nullptr;
+    if( !indexValid ) return std::string();
+    if( id < 0 || id >= srIndexCount ) return std::string();
     id = srIndex[id];
     sr = &srList[id];
     sfrom = stnptr( sr->from );
@@ -2189,13 +2180,11 @@ char *sres_item_description( long id )
     get_connection_data_by_id( sr->from, sr->to_id, sr->obs_id, connection );
     sres = connection->sres;
     if( aposteriori_errors && seu > 0.0 ) sres /= seu;
-    sres_buf[0] = 0;
-    nch = 0;
-    for( i = 0; i < nDisplayFields; i++ )
+    std::string description;
+    for( int i = 0; i < nDisplayFields; i++ )
     {
         std::string data;
         char number[32];
-        int datalen;
         switch( displayFields[i] )
         {
         case SRF_FROM:    data = sfrom->Code; break;
@@ -2241,13 +2230,10 @@ char *sres_item_description( long id )
             }
             break;
         }
-        datalen = data.size();
-        if( nch + datalen + 2 > SRES_BUF_SIZE ) break;
-        if( i > 0 ) { sres_buf[nch++] = '\t'; }
-        strcpy( sres_buf+nch, data.c_str() );
-        nch += datalen;
+        if( i > 0 ) description += '\t';
+        description += data;
     }
-    return sres_buf;
+    return description;
 }
 
 void sres_item_info( long id, PutTextInfo *jmp )
@@ -2520,12 +2506,12 @@ void list_connections( void *dest, PutTextFunc f, int from )
             {
                 if( count[i][0] )
                 {
-                    sprintf(b," >%s(%d)%n",datatype[i].code, count[i][0], &nc );
+                    sprintf(b," >%s(%d)%n",datatype[i].code.data(),count[i][0], &nc );
                     b += nc;
                 }
                 if( count[i][1] )
                 {
-                    sprintf(b," <%s(%d)%n",datatype[i].code, count[i][1], &nc );
+                    sprintf(b," <%s(%d)%n",datatype[i].code.data(),count[i][1], &nc );
                     b += nc;
                 }
             }
@@ -2534,7 +2520,7 @@ void list_connections( void *dest, PutTextFunc f, int from )
                 int total = count[i][0] + count[i][1];
                 if( total )
                 {
-                    sprintf(b," %s(%d)%n",datatype[i].code, total, &nc );
+                    sprintf(b," %s(%d)%n",datatype[i].code.data(),total, &nc );
                     b += nc;
                 }
             }
@@ -2560,7 +2546,7 @@ void list_connections( void *dest, PutTextFunc f, int from )
             int nch;
             obstype = connection->type;
 
-            sprintf(buf,"%-22s",datatype[obstype].name);
+            sprintf(buf,"%-22s",datatype[obstype].name.data());
             nch = strlen(buf);
 
             if( binary_data )
@@ -2746,7 +2732,7 @@ void list_observations( void *dest, PutTextFunc f, int from, int to )
         reverse = datatype[obstype].isdirectional &&
                   connection->flags & CONN_OBS_REVERSE;
 
-        sprintf(buf,"%s %5s",datatype[obstype].name, reverse ? "(rvs)" : "");
+        sprintf(buf,"%s %5s",datatype[obstype].name.data(),reverse ? "(rvs)" : "");
         buf[0] = TOUPPER(buf[0]);
         for( nch = strlen(buf); nch < 26; nch++ ) { buf[nch] = ' ';}
         buf[nch] = 0;
@@ -2850,7 +2836,7 @@ void list_obsdata( void *dest, PutTextFunc f, survdata *sd, int64_t binloc, int 
     (*f)(dest, &jmp, "");
 
     type = o->tgt.type;
-    sprintf(buf,"Observation type: %s",datatype[type].name);
+    sprintf(buf,"Observation type: %s",datatype[type].name.data());
     if(  o->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
     else if(  o->tgt.unused ) strcat( buf, "  (not used)");
     (*f)( dest, &jmp, buf );
@@ -3121,7 +3107,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     buf[0] = 0;
     (*f)( dest, &jmp, buf );
     type = tgt->type;
-    sprintf(buf,"Observation type: %s",datatype[type].name);
+    sprintf(buf,"Observation type: %s",datatype[type].name.data());
     if( index >= sd->nobs ) strcat( buf, "  (calculated)");
     if( unused & REJECT_OBS_BIT ) strcat( buf, "  (rejected)");
     else if( unused ) strcat( buf, "  (not used)");
@@ -3334,7 +3320,7 @@ void list_pntdata( void *dest, PutTextFunc f, survdata *sd, int index )
     buf[0] = 0;
     (*f)( dest, &jmp, buf );
     type = p->tgt.type;
-    sprintf(buf,"Observation type: %s",datatype[type].name);
+    sprintf(buf,"Observation type: %s",datatype[type].name.data());
     if(  p->tgt.unused & REJECT_OBS_BIT ) strcat(buf,"  (rejected)");
     else if(  p->tgt.unused ) strcat( buf, "  (not used)");
     (*f)( dest, &jmp, buf );
