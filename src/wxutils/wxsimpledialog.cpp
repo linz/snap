@@ -6,51 +6,35 @@
 
 #include <stdarg.h>
 
+#include <boost/numeric/conversion/cast.hpp>
 
-wxOptionValidatorBase::wxOptionValidatorBase( ListControlOption *options, int *value ) :
+
+wxOptionValidatorBase::wxOptionValidatorBase( const std::vector<ListControlOption> &options, int *const value ) :
     wxValidator(),
-    value(value),
-    nOptions(0),
-    optValues(0)
+    _value(value)
 {
-    for( int i=0; options[i].name; i++ )
+    for( const ListControlOption &option : options )
     {
-        nOptions++;
-    }
-    optValues = new int[nOptions];
-    for( int i=0; i < nOptions; i++ )
-    {
-        optValues[i]=options[i].value;
+        _optValues.push_back( option.value );
     }
 }
 
 wxOptionValidatorBase::wxOptionValidatorBase( const wxOptionValidatorBase &validator ) :
     wxValidator(),
-    value(validator.value),
-    nOptions( validator.nOptions ),
-    optValues( 0 )
+    _value(validator._value),
+    _optValues(validator._optValues)
 {
-    optValues = new int[nOptions];
-    for( int i=0; i < nOptions; i++ )
-    {
-        optValues[i]=validator.optValues[i];
-    }
-}
-
-wxOptionValidatorBase::~wxOptionValidatorBase()
-{
-    delete [] optValues;
 }
 
 bool wxOptionValidatorBase::TransferToWindow()
 {
-    int optVal = value ? *value : optValues[0];
+    const int optVal = _value ? *_value : _optValues[0];
     SetSelectedIndex(0);
-    for( int i = 0; i < nOptions; i++ )
+    for( size_t i = 0; i < _optValues.size(); i++ )
     {
-        if( optValues[i] == optVal )
+        if( _optValues[i] == optVal )
         {
-            SetSelectedIndex(i);
+            SetSelectedIndex( boost::numeric_cast<int>(i) );
             break;
         }
     }
@@ -59,16 +43,16 @@ bool wxOptionValidatorBase::TransferToWindow()
 
 bool wxOptionValidatorBase::TransferFromWindow()
 {
-    if( value )
+    if( _value )
     {
-        int optval=GetSelectedIndex();
-        if( optval >= 0 && optval < nOptions )
+        const int optval=GetSelectedIndex();
+        if( optval >= 0 && optval < boost::numeric_cast<int>(_optValues.size()) )
         {
-            *value = optValues[optval];
+            *_value = _optValues[optval];
         }
         else
         {
-            *value = 0;
+            *_value = 0;
         }
     }
     return true;
@@ -98,7 +82,7 @@ void wxRadioBoxOptionValidator::SetSelectedIndex( int i )
 class wxControlWithItemsValidator : public wxOptionValidatorBase
 {
 public:
-    wxControlWithItemsValidator( wxControlWithItems *ctrl, ListControlOption *options, int *value = NULL):
+    wxControlWithItemsValidator( wxControlWithItems *ctrl, const std::vector<ListControlOption> &options, int *value = nullptr ):
         wxOptionValidatorBase(options,value), ctrl(ctrl) {};
     wxControlWithItemsValidator( const wxControlWithItemsValidator &validator ) : wxOptionValidatorBase(validator), ctrl(validator.ctrl) {};
     virtual wxValidator *Clone() const { return new wxControlWithItemsValidator( *this ); }
@@ -357,12 +341,12 @@ wxRadioBox *wxSimpleDialog::RadioBox( int &value, wxString options, wxString lab
     return ctrl;
 }
 
-wxRadioBox *wxSimpleDialog::RadioBox( int &value, ListControlOption *options, wxString label, bool horizontal )
+wxRadioBox *wxSimpleDialog::RadioBox( int &value, const std::vector<ListControlOption> &options, wxString label, bool horizontal )
 {
     wxArrayString arrLabels;
-    for( int i = 0; options[i].name; i++ )
+    for( const ListControlOption &option : options )
     {
-        arrLabels.Add( wxString(options[i].name));
+        arrLabels.Add( wxString(option.name) );
     }
     wxRadioBox *ctrl = new wxRadioBox(this,
                                       wxID_ANY,
@@ -394,7 +378,7 @@ wxChoice *wxSimpleDialog::DropDownBox( int &value, wxString options )
     return ctrl;
 }
 
-wxChoice *wxSimpleDialog::DropDownBox( int &value, ListControlOption *options )
+wxChoice *wxSimpleDialog::DropDownBox( int &value, const std::vector<ListControlOption> &options )
 {
     wxArrayString arrLabels;
 
@@ -519,7 +503,7 @@ wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, wxString opt
     return rb;
 }
 
-wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, ListControlOption *options, bool horizontal )
+wxRadioBox *wxSimpleDialog::AddRadioBox(wxString label, int &value, const std::vector<ListControlOption> &options, bool horizontal )
 {
     wxRadioBox *rb = RadioBox( value, options, label, horizontal );
     AddControl( wxEmptyString, rb );
@@ -533,7 +517,7 @@ wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, wxString op
     return ddb;
 }
 
-wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, ListControlOption *options )
+wxChoice *wxSimpleDialog::AddDropDownBox(wxString label, int &value, const std::vector<ListControlOption> &options )
 {
     wxChoice *ddb = DropDownBox( value, options );
     AddControl( label, ddb );
@@ -751,12 +735,12 @@ void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &
     ctrl->SetValidator( wxGenericValidator( &value ) );
 }
 
-void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, ListControlOption *options )
+void wxSimpleDialog::SetControlWithItemsOptions( wxControlWithItems *ctrl, int &value, const std::vector<ListControlOption> &options )
 {
     ctrl->Clear();
-    for( int i = 0; options[i].name; i++ )
+    for( const ListControlOption &option : options )
     {
-        ctrl->Append( wxString(options[i].name));
+        ctrl->Append( wxString(option.name) );
     }
 
     ctrl->SetValidator(wxControlWithItemsValidator( ctrl, options, &value ));

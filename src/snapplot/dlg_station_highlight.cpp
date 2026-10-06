@@ -14,6 +14,8 @@
 #include "plotconn.h"
 //}
 
+#include "util/textformat.hpp"
+
 
 struct SelectionData
 {
@@ -43,27 +45,25 @@ const SelectionData stationSelectionOption[nStationSelectionOptions] =
 
 enum { scAll, scStatus, scHorAdj, scHorErr, scVrtAdj, scVrtErr, scOrder };
 
-static char horErrOpt[128]={0};
-static char vrtErrOpt[128]={0};
+// The horizontal and vertical error labels depend on the error options, so the
+// dialog constructor fills them in.
 
-static ListControlOption stnCriteria[] =
+static std::vector<ListControlOption> stnCriteria =
 {
     {"All stations", scAll},
     {"By status (select on right ->)", scStatus},
     {"Horizontal adjustment > threshold", scHorAdj},
-    {const_cast<const char *>(horErrOpt), scHorErr},
+    {"", scHorErr},
     {"Vertical adjustment > threshold", scVrtAdj},
-    {const_cast<const char *>(vrtErrOpt), scVrtErr},
-    {"Station order = threshold", scOrder },
-    {0,0}
+    {"", scVrtErr},
+    {"Station order = threshold", scOrder }
 };
 
-static ListControlOption obsHighlightOptions[] =
+static const std::vector<ListControlOption> obsHighlightOptions =
 {
     {"&Don't highlight observations", PCONN_HIGHLIGHT_NONE },
     {"&Between highlighted stations", PCONN_HIGHLIGHT_IF_BOTH },
-    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER },
-    {0,0}
+    {"&To or from highlighted stations", PCONN_HIGHLIGHT_IF_EITHER }
 };
 
 class StationHighlightDialog : public wxSimpleDialog
@@ -113,20 +113,15 @@ StationHighlightDialog::StationHighlightDialog( bool hideShow, wxHelpController 
     stnSelValue = "";
     nSelected = -1;
 
-    if( use_confidence_limit )
+    const std::string errorType = aposteriori_errors ? "A posteriori" : "A priori";
+    const auto errorLabel = [&]( const std::string &direction )
     {
-        sprintf(horErrOpt,"%s %.1lf%% horizontal conf lim > threshold",
-                aposteriori_errors ? "A posteriori" : "A priori", confidence_limit);
-        sprintf(vrtErrOpt,"%s %.1lf%% vertical conf lim > threshold",
-                aposteriori_errors ? "A posteriori" : "A priori", confidence_limit);
-    }
-    else
-    {
-        sprintf(horErrOpt,"%s horizontal error > threshold",
-                aposteriori_errors ? "A posteriori" : "A priori");
-        sprintf(vrtErrOpt,"%s vertical error > threshold",
-                aposteriori_errors ? "A posteriori" : "A priori");
-    }
+        return use_confidence_limit
+               ? errorType + " " + format_fixed( confidence_limit, 1 ) + "% " + direction + " conf lim > threshold"
+               : errorType + " " + direction + " error > threshold";
+    };
+    stnCriteria[3].name = errorLabel( "horizontal" );   // the scHorErr entry
+    stnCriteria[5].name = errorLabel( "vertical" );     // the scVrtErr entry
 
     wxBoxSizer *box1 = new wxBoxSizer( wxHORIZONTAL );
     wxBoxSizer *bxCol1 = new wxBoxSizer( wxVERTICAL );
