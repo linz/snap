@@ -14,6 +14,7 @@
 #include <stdint.h>
 #include <optional>
 #include <string>
+#include <string_view>
 
 #ifndef _DATATYPE_H
 #include "snapdata/datatype.h"
@@ -58,8 +59,8 @@ void get_sres_pen_options( double *max, int *apost, int *npens );
 void setup_rfac_pens( int npens );
 void get_rfac_pen_options( int *npens );
 
-int set_datapen_definition( char *def );
-void get_datapen_definition( char *def );  /* Assumes def is big enough */
+int set_datapen_definition( std::string_view def );
+std::string get_datapen_definition();
 
 /* Options for displaying highlights */
 
@@ -108,10 +109,10 @@ int get_sres_sort_option();
 void init_displayed_fields();
 void set_displayed_fields( int *fields, int nFields );
 int get_displayed_fields( int *fields, int maxFields );
-int get_display_field_code( const char *name );
+int get_display_field_code( std::string_view name );
 std::optional<std::string> get_display_field_name( int code );
-int read_display_fields_definition( char *def );
-void write_display_fields_definition( char *def, int nchar );
+int read_display_fields_definition( std::string_view def );
+std::string write_display_fields_definition();
 
 /* Choice of data to display in the data list window */
 

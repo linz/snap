@@ -523,8 +523,7 @@ static int read_error_scale_command( CFG_FILE *, std::string_view string, void *
 
 static int read_observation_colour_command( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    std::string buf(string);
-    return set_datapen_definition( buf.data() );
+    return set_datapen_definition( string );
 }
 
 static int read_station_colour_command( CFG_FILE *, std::string_view string, void *, int, int )
@@ -598,8 +597,7 @@ static int read_observation_spacing_command( CFG_FILE *, std::string_view string
 
 static int read_obs_listing_fields_command( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    std::string buf(string);
-    read_display_fields_definition( buf.data() );
+    read_display_fields_definition( string );
     return OK;
 }
 
@@ -608,7 +606,7 @@ static int read_obs_listing_order_command( CFG_FILE *, std::string_view string, 
 {
     FieldScanner scanner(string);
     auto fld = scanner.next();
-    int order = fld ? get_display_field_code( std::string(*fld).c_str() ) : 0;
+    int order = fld ? get_display_field_code( *fld ) : 0;
     set_sres_sort_option( order );
     return OK;
 }
@@ -935,7 +933,6 @@ static int read_config_menu_command( CFG_FILE *cfg, std::string_view string, voi
 
 int write_config_file( FILE *out, int key_only )
 {
-    char def[256];
     fprintf( out, "! SNAPPLOT configuration file\n\n");
     if( !key_only )
     {
@@ -968,8 +965,7 @@ int write_config_file( FILE *out, int key_only )
         fprintf( out, "error_scale vertical %.2lf%s\n",
                  val, autoscl ? " times_default" : "" );
         fputs( "obs_listing_fields ",out);
-        write_display_fields_definition( def, 256 );
-        fputs( def, out );
+        fputs( write_display_fields_definition().c_str(), out );
         fputs( "\n", out );
         fprintf( out, "obs_listing_order %s\n",get_display_field_name(get_sres_sort_option()).value_or("").c_str());
         fputs( "observation_options ", out );
@@ -1098,10 +1094,8 @@ int write_config_file( FILE *out, int key_only )
         }
         fprintf( out, "\n! Key defined as follows:\n\n");
     }
-    get_stationpen_definition( def );
-    fprintf(out,"station_colours %s\n",def );
-    get_datapen_definition( def );
-    fprintf(out,"observation_colours %s\n",def );
+    fprintf(out,"station_colours %s\n",get_stationpen_definition().c_str() );
+    fprintf(out,"observation_colours %s\n",get_datapen_definition().c_str() );
     print_key( out, "key" );
     return OK;
 }

@@ -39,6 +39,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 #include "util/snapctype.h"
+#include "util/fieldscanner.hpp"
 #include "util/textformat.hpp"
 
 #ifdef _WIN32
@@ -996,53 +997,69 @@ int get_data_pen_type()
     return data_pen_type;
 }
 
-int set_datapen_definition( char *def )
+/// Parses the whole of field as an int, with no trailing characters.
+static std::optional<int> parse_whole_int( const std::string_view field )
 {
-    char *fld;
-    int pen_data_type;
-    fld = strtok( def, " \t\n\r" );
+    const auto parsed = parse_leading_field<int>( field );
+    if( !parsed || parsed->result.ptr != field.data() + field.size() ) return std::nullopt;
+    return parsed->value;
+}
+
+int set_datapen_definition( const std::string_view def )
+{
+    constexpr std::string_view delimiters = " \t\n\r";
+    FieldScanner scanner( def );
+    auto fld = scanner.nextToken( delimiters );
     if( !fld ) return MISSING_DATA;
-    if( _stricmp( def, "by_type") == 0 )
+    int pen_data_type;
+    if( boost::algorithm::iequals( *fld, "by_type" ) )
     {
         pen_data_type = DPEN_BY_TYPE;
     }
-    else if( _stricmp( def, "by_file") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_file" ) )
     {
         pen_data_type = DPEN_BY_FILE;
     }
-    else if( _stricmp( def, "by_redundancy") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_redundancy" ) )
     {
-        int ngrp;
-        char garbage[2];
-        fld = strtok(NULL," \t\r\n");
-        ngrp = 5;
-        if( fld && sscanf(fld,"%d%1c",&ngrp,garbage) != 1 ) return INVALID_DATA;
+        int ngrp = 5;
+        fld = scanner.nextToken( delimiters );
+        if( fld )
+        {
+            const auto parsedGroups = parse_whole_int( *fld );
+            if( !parsedGroups ) return INVALID_DATA;
+            ngrp = *parsedGroups;
+        }
         pen_data_type = DPEN_BY_RFAC;
         nrfac = ngrp;
     }
-    else if( _stricmp( def, "by_std_residual") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_std_residual" ) )
     {
-        int apost, ngrp;
-        double maxsr;
-        char garbage[2];
-        fld = strtok(NULL," \t\r\n");
-        maxsr = 3.0;
-        ngrp = 6;
-        apost = 1;
-        if( fld && _stricmp(fld,"aposteriori") == 0 )
+        double maxsr = 3.0;
+        int ngrp = 6;
+        int apost = 1;
+        fld = scanner.nextToken( delimiters );
+        if( fld && boost::algorithm::iequals( *fld, "aposteriori" ) )
         {
-            fld = strtok(NULL," \t\r\n");
+            fld = scanner.nextToken( delimiters );
         }
-        else if( fld && _stricmp(fld,"apriori") == 0 )
+        else if( fld && boost::algorithm::iequals( *fld, "apriori" ) )
         {
             apost = 0;
-            fld = strtok(NULL," \t\r\n");
+            fld = scanner.nextToken( delimiters );
         }
         if( fld )
         {
-            if( sscanf(fld,"%lf%1c",&maxsr,garbage) != 1 ) return INVALID_DATA;
-            fld = strtok(NULL," \t\r\n");
-            if( fld && sscanf(fld,"%d%1c",&ngrp,garbage) != 1 ) return INVALID_DATA;
+            const auto parsedMaxsr = parse_double( *fld );
+            if( !parsedMaxsr ) return INVALID_DATA;
+            maxsr = *parsedMaxsr;
+            fld = scanner.nextToken( delimiters );
+            if( fld )
+            {
+                const auto parsedGroups = parse_whole_int( *fld );
+                if( !parsedGroups ) return INVALID_DATA;
+                ngrp = *parsedGroups;
+            }
         }
 
         pen_data_type = DPEN_BY_SRES;
@@ -1050,15 +1067,15 @@ int set_datapen_definition( char *def )
         aposteriori_sres = apost;
         nsres = ngrp;
     }
-    else if( _stricmp( def, "by_classification") == 0 )
+    else if( boost::algorithm::iequals( *fld, "by_classification" ) )
     {
         int i, found;
-        fld = strtok(NULL," \t\r\n");
+        fld = scanner.nextToken( delimiters );
         if( ! fld ) return MISSING_DATA;
         found = 0;
         for( i = 0; i++ < obs_classes.count(); )
         {
-            if( boost::algorithm::iequals( fld, obs_classes.name(i)) )
+            if( boost::algorithm::iequals( *fld, obs_classes.name(i)) )
             {
                 found = 1;
                 break;
@@ -1077,21 +1094,17 @@ int set_datapen_definition( char *def )
     return OK;
 }
 
-void get_datapen_definition( char *def )
+std::string get_datapen_definition()
 {
     switch( data_pen_type )
     {
-    case DPEN_BY_TYPE:  strcpy(def,"by_type"); break;
-    case DPEN_BY_FILE:  strcpy(def,"by_file"); break;
-    case DPEN_BY_RFAC:  sprintf(def,"by_redundancy %d\n", nrfac ); break;
-    case DPEN_BY_SRES:  sprintf(def,"by_std_residual %s %.3lf %d\n",
-                                    aposteriori_sres ? "aposteriori" : "apriori",
-                                    maxsres, nsres );
-        break;
-
-    default:            sprintf(def,"by_classification %s",
-                                    obs_classes.name(data_pen_type).c_str());
-        break;
+    case DPEN_BY_TYPE:  return "by_type";
+    case DPEN_BY_FILE:  return "by_file";
+    case DPEN_BY_RFAC:  return "by_redundancy " + std::to_string( nrfac ) + "\n";
+    case DPEN_BY_SRES:  return std::string( "by_std_residual " ) +
+                               ( aposteriori_sres ? "aposteriori " : "apriori " ) +
+                               format_fixed( maxsres, 3 ) + " " + std::to_string( nsres ) + "\n";
+    default:            return "by_classification " + obs_classes.name( data_pen_type );
     }
 }
 
@@ -1600,13 +1613,13 @@ struct
 };
 
 
-int get_display_field_code( const char *field )
+int get_display_field_code( const std::string_view field )
 {
     int i;
     int fieldCode = 0;
     for( i = 0; displayFieldDefs[i].name; i++ )
     {
-        if( _stricmp(field, displayFieldDefs[i].name) == 0 )
+        if( boost::algorithm::iequals( field, displayFieldDefs[i].name ) )
         {
             fieldCode = displayFieldDefs[i].code;
             break;
@@ -1643,41 +1656,38 @@ std::optional<std::string> get_display_field_name( int fieldCode )
 }
 
 
-int read_display_fields_definition( char *def )
+int read_display_fields_definition( const std::string_view def )
 {
-    char *fld;
+    constexpr std::string_view delimiters = " \t\n\r";
+    FieldScanner scanner( def );
     nDisplayFields = 0;
-    while( nDisplayFields < MAX_DISPLAY_FIELDS  &&
-            NULL != (fld = strtok( def, " \t\n\r" ) ) )
+    while( nDisplayFields < MAX_DISPLAY_FIELDS )
     {
-        int fieldCode = get_display_field_code(fld);
+        const auto fld = scanner.nextToken( delimiters );
+        if( !fld ) break;
+        const int fieldCode = get_display_field_code( *fld );
         if( fieldCode != 0 )
         {
             displayFields[nDisplayFields++] = fieldCode;
         }
-        def = NULL;
     }
     return OK;
 }
 
 
-void write_display_fields_definition( char *def, int nchar )
+std::string write_display_fields_definition()
 {
-    int nch = 0;
-    int i;
-    for( i = 0; i < nDisplayFields; i++ )
+    std::string def;
+    for( int i = 0; i < nDisplayFields; i++ )
     {
-        auto fieldName = get_display_field_name(displayFields[i]);
+        const auto fieldName = get_display_field_name( displayFields[i] );
         if( fieldName )
         {
-            int fnlen = numeric_cast<int>(fieldName->size());
-            if( fnlen + nch + 2 > nchar ) break;
-            if( nch ) def[nch++] = ' ';
-            strcpy( def+nch, fieldName->c_str() );
-            nch += fnlen;
+            if( !def.empty() ) def += ' ';
+            def += *fieldName;
         }
     }
-    def[nch] = 0;
+    return def;
 }
 
 

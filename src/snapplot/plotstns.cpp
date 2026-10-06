@@ -478,15 +478,6 @@ static void replace_tabs( std::string &text )
     std::replace( text.begin(), text.end(), '\t', ' ' );
 }
 
-static void replace_tabs( char *buf )
-{
-    char *c;
-    for( c =  buf; *c; c++ )
-    {
-        if( *c == '\t' ) *c = ' ';
-    }
-}
-
 std::string station_list_item( const int istnsrt )
 {
     double emax, emin, b1;
@@ -1269,10 +1260,10 @@ int get_station_colourby_class()
     return stn_colourby_class;
 }
 
-void get_stationpen_definition( char *def )
+std::string get_stationpen_definition()
 {
-    if( stn_colourby_class == 0 ) strcpy(def,"usage");
-    else strcpy(def,net->class_name(stn_colourby_class).c_str());
+    if( stn_colourby_class == 0 ) return "usage";
+    return net->class_name(stn_colourby_class);
 }
 
 void init_plotting_stations( void )
@@ -1431,54 +1422,47 @@ int plot_height_errors( map_plotter *plotter, int first )
 
 int plot_station_names( map_plotter *plotter, int first )
 {
-    int istn, nch, count, pen;
-    double x, y, s1;
-    char name[80];
-    int pltnames, pltcodes;
-
-    pltnames = option_selected(NAME_OPT);
-    pltcodes = option_selected(CODE_OPT);
+    const int pltnames = option_selected(NAME_OPT);
+    const int pltcodes = option_selected(CODE_OPT);
 
     if( !pltnames && !pltcodes ) return ALL_DONE;
 
-    pen = get_pen(TEXT_PEN);
+    const int pen = get_pen(TEXT_PEN);
     if( !pen_visible(pen) ) return ALL_DONE;
 
-    s1 = stn_symbol_size*0.6;
+    const double s1 = stn_symbol_size*0.6;
 
+    int count = 5;
     if( first < 0 ) {first = 0; count = nstns; }
-    else count = 5;
 
-    for( istn = first; istn++ < nstns; )
+    for( int istn = first; istn++ < nstns; )
     {
 
         if( !count-- ) { return istn-1; }
 
         if( ! station_plotable( istn ) ) continue;
 
+        double x, y;
         get_station_coordinates( istn, &x, &y );
 
-        nch = 0;
-        name[0] = 0;
+        std::string name;
         if( pltcodes )
         {
-            strcpy( name, stnptr(istn)->Code );
+            name = stnptr(istn)->Code;
         }
 
         if( pltnames )
         {
             if( pltcodes )
             {
-                nch = strlen(name);
-                strcpy( name+nch, "  ");
-                nch += 2;
+                name += "  ";
             }
-            strncpy( name+nch, stnptr(istn)->Name.c_str(), 80-nch);
-            name[79] = 0;
-            replace_tabs( name+nch  );
+            std::string stationName = stnptr(istn)->Name;
+            replace_tabs( stationName );
+            name += stationName;
         }
 
-        PLOTTEXT( plotter, x+s1, y+s1, stn_name_size, pen, name );
+        PLOTTEXT( plotter, x+s1, y+s1, stn_name_size, pen, name.data() );
         flag_station_visible( istn );
     }
 
