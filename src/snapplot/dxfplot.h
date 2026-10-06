@@ -8,7 +8,9 @@
 
 */
 
-int open_dxf_file( const char *dxfname ) ;
+#include <string>
+
+int open_dxf_file( const std::string &dxfname ) ;
 int close_dxf_file( void ) ;
 int plot_dxf( void );
 

@@ -801,7 +801,7 @@ void SnapplotFrame::OnCmdExportDxf( wxCommandEvent & WXUNUSED(event) )
 
     if( dlgFile.ShowModal() != wxID_OK ) return;
 
-    if( open_dxf_file( dlgFile.GetPath().mb_str() ) != OK )
+    if( open_dxf_file( dlgFile.GetPath().ToStdString() ) != OK )
     {
         wxMessageBox(
             wxString::Format( "Unable to save DXF file to %s", dlgFile.GetFilename()),

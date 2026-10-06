@@ -341,11 +341,11 @@ static int setup_dxf_layers( void )
     nused = 1;
     for( int i=1; i<=npen; i++)
     {
-        const char *name = pen_name(i-1);
-        if( !name || ! name[0] || ! pen_has_colour(i-1) ) continue;
+        const std::string &name = pen_name(i-1);
+        if( name.empty() || ! pen_has_colour(i-1) ) continue;
         nused++;
         std::string &layer = layer_name[i];
-        layer = boost::algorithm::to_upper_copy( std::string(name) );
+        layer = boost::algorithm::to_upper_copy( name );
         if( layer == "TEXT" ) text_layer=i;
         boost::algorithm::replace_all( layer, " ", "_" );
         for( int j = 0; j < i; j++ )
@@ -393,10 +393,10 @@ static void set_layer( int pen )
 
 static void write_symbol_blocks();
 
-int open_dxf_file( const char *dxfname )
+int open_dxf_file( const std::string &dxfname )
 {
     int i;
-    dxf = fopen(dxfname,"w");
+    dxf = fopen(dxfname.c_str(),"w");
     poly_id = 0;
     nppt = 0;
     entid = 0;
@@ -574,7 +574,7 @@ static long write_dxf_circle( double x, double y, double rad, int pen )
     return id;
 }
 
-static long write_dxf_blockref( double x, double y, const char *blkname, double blocksize, int pen )
+static long write_dxf_blockref( double x, double y, const std::string &blkname, double blocksize, int pen )
 {
     long id;
     if( !dxf ) return 0;
@@ -585,24 +585,24 @@ static long write_dxf_blockref( double x, double y, const char *blkname, double 
     fprintf(dxf,"  8\n%s\n 62\n0\n",cur_layer.c_str());
     id = write_dxf_entity_id();
     fprintf(dxf," 10\n%.*lf\n 20\n%.*lf\n",precision,x, precision,y );
-    fprintf(dxf,"  2\n%s\n",blkname);
+    fprintf(dxf,"  2\n%s\n",blkname.c_str());
     fprintf(dxf," 41\n%.*lf\n 42\n%.*lf\n",precision,blocksize,precision,blocksize );
 
     return id;
 }
 
 
-static long start_block( const char *blockname )
+static long start_block( const std::string &blockname )
 {
     long id;
     fprintf(dxf,"  0\nBLOCK\n");
     fprintf(dxf,"  8\n0\n");
     id = write_dxf_entity_id();
-    fprintf(dxf,"  2\n%s\n",blockname);
+    fprintf(dxf,"  2\n%s\n",blockname.c_str());
     fprintf(dxf," 70\n0\n");
     fprintf(dxf," 10\n0.0\n");
     fprintf(dxf," 20\n0.0\n");
-    fprintf(dxf,"  3\n%s\n",blockname);
+    fprintf(dxf,"  3\n%s\n",blockname.c_str());
     return id;
 }
 
@@ -611,23 +611,16 @@ static void end_block( long )
     fprintf(dxf,"  0\nENDBLK\n");
 }
 
-static const char *symbol_block_name( int symbol )
+static std::string symbol_block_name( int symbol )
 {
-    static const char *free_station = "free_station";
-    static const char *fixed_station = "fixed_station";
-    static const char *hor_fixed_station = "hor_fixed_station";
-    static const char *vrt_fixed_station = "vrt_fixed_station";
-    static const char *rejected_station = "rejected_station";
-
     switch (symbol)
     {
-    case FREE_STN_SYM: return free_station;
-    case FIXED_STN_SYM: return fixed_station;
-    case HOR_FIXED_STN_SYM: return hor_fixed_station;
-    case VRT_FIXED_STN_SYM: return vrt_fixed_station;
-    case REJECTED_STN_SYM: return rejected_station;
+    case FIXED_STN_SYM: return "fixed_station";
+    case HOR_FIXED_STN_SYM: return "hor_fixed_station";
+    case VRT_FIXED_STN_SYM: return "vrt_fixed_station";
+    case REJECTED_STN_SYM: return "rejected_station";
     }
-    return free_station;
+    return "free_station";
 }
 static void write_symbol_blocks()
 {
@@ -636,7 +629,7 @@ static void write_symbol_blocks()
 
     for( int symbol = 0; symbol < N_STN_SYM; symbol++ )
     {
-        const char *blockname = symbol_block_name( symbol );
+        const std::string blockname = symbol_block_name( symbol );
         int npt = get_symbol_points( symbol, points, maxpts );
         if( npt < 0 ) { npt = 0; points[0].x = 1.0; }
 
@@ -748,8 +741,7 @@ static void dxf_ellipse( void *, double x, double y, double a, double b, double 
 
 static void dxf_symbol( void *, double px, double py, int pen, int symbol )
 {
-    const char *blockname = symbol_block_name( symbol );
-    write_dxf_blockref( px, py, blockname, stn_symbol_size, pen );
+    write_dxf_blockref( px, py, symbol_block_name( symbol ), stn_symbol_size, pen );
 }
 
 int close_dxf_file()

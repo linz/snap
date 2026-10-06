@@ -1007,9 +1007,9 @@ int pen_count( void )
     return symbology->LayerCount();
 }
 
-const char *pen_name( int ipen )
+const std::string &pen_name( int ipen )
 {
-    return symbology->GetLayer(ipen).NamePtr();
+    return symbology->GetLayer(ipen).NameString();
 }
 
 bool pen_has_colour( int ipen )
