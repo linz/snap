@@ -120,8 +120,8 @@ void wxBitmapGridRenderer::Draw( wxGrid& grid, wxGridCellAttr& attr, wxDC& dc, c
             return;
         }
 
-        // A master row never has a colour swatch (see init_layer()'s title
-        // case), so column 0 is otherwise blank there - use it for the
+        // A master row never has a colour swatch (see the layer_s constructor's
+        // isHeader case), so column 0 is otherwise blank there - use it for the
         // disclosure triangle instead of widening column 1. Every master row
         // is collapsible, even a single-child one that draws no checkbox.
         if( col == 0 && sym.IsControlCheckbox() ) {

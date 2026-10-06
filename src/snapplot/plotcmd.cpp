@@ -616,8 +616,7 @@ static int read_obs_listing_order_command( CFG_FILE *, std::string_view string, 
 
 static int read_key_command( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    std::string buf(string);
-    int sts = read_key_definition( buf.data() );
+    int sts = read_key_definition( string );
     if( sts == INCONSISTENT_DATA ) sts = OK;  /* Ignore non-existent pen codes */
     return sts;
 }
@@ -872,7 +871,7 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
 
 static int read_station_font( CFG_FILE *, std::string_view string, void *, int, int )
 {
-    set_station_font( std::string(string).c_str() );
+    set_station_font( std::string(string) );
     return OK;
 }
 
@@ -1024,7 +1023,7 @@ int write_config_file( FILE *out, int key_only )
         }
 
         fprintf(out,"\n! Station code and name font\n");
-        fprintf(out,"station_font %s\n",get_station_font());
+        fprintf(out,"station_font %s\n",get_station_font().c_str());
         fprintf(out,"\n! Station offsets\n");
         fprintf( out, "ignore_station_offsets %s\n",using_station_offsets() ?
                  "no" : "yes" );

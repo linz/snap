@@ -39,6 +39,7 @@
 #include <boost/numeric/conversion/cast.hpp>
 using boost::numeric_cast;
 #include "util/snapctype.h"
+#include "util/textformat.hpp"
 
 #ifdef _WIN32
 #include <crtdbg.h>
@@ -828,77 +829,64 @@ void set_displayby_enabled( const int id, const bool enabled )
     }
 }
 
-static char *range_name_alloc = NULL;
-static const char **range_names = NULL;
-static double *range_values = NULL;
-static int nranges = 0;
-static int reverse_range = 0;
+// Range i runs up to range_values[i]. The names are in key order, which is
+// the reverse of range_values order if reverse_range is set.
+static std::vector<double> range_values;
+static std::vector<std::string> range_names;
+static bool reverse_range = false;
 
 static double maxsres = 3.0;
 static int  nsres = 6;
 static int  nrfac = 5;
 static double sresmult;
 
-#define LABEL_SIZE 64
-
 static void free_range_pens()
 {
-    if( range_name_alloc ) check_free( range_name_alloc );
-    range_name_alloc = NULL;
-    range_names = NULL;
-    range_values = NULL;
+    range_names.clear();
+    range_values.clear();
 }
 
-static void setup_ranges( double maxval, int ninterval, int reverse, const char *name, const char *prefix )
+static void setup_ranges( double maxval, int ninterval, const bool reverse, const std::string &name, const std::string_view prefix )
 {
-    char *data;
-    int i;
-
     if( maxval < 0.0 ) maxval = 1.0;
     if( maxval > 100.0 ) maxval = 100.0;
     if( ninterval < 2 || ninterval > 20 ) ninterval = 5;
     ninterval++;
     free_range_pens();
-    data = (char *) check_malloc( ninterval * (sizeof(char *)+sizeof(double)+LABEL_SIZE) );
-    range_name_alloc = data;
-    range_values = (double *) data;
-    data += ninterval * sizeof(double);
-    range_names = (const char **) data;
-    data += ninterval * sizeof(char *);
     reverse_range = reverse;
-    nranges = reverse_range ? ninterval-1 : 0;
+    range_values.resize( ninterval );
+    range_names.resize( ninterval );
 
-    for( i = 0; i < ninterval; i++ )
+    for( int i = 0; i < ninterval; i++ )
     {
         range_values[i] = (maxval * (i+1))/(ninterval-1);
+        std::string label = std::string( prefix ) + std::to_string( i ) + "|";
         if( i == 0 )
         {
-            sprintf( data, "%s%d| 0.00 - %5.2lf",prefix,i,range_values[i] );
+            label += " 0.00 - " + format_fixed( range_values[i], 2, 5 );
         }
         else if( i == ninterval-1 )
         {
-            sprintf( data, "%s%d|%5.2lf - ",prefix,i,range_values[i-1]);
+            label += format_fixed( range_values[i-1], 2, 5 ) + " - ";
         }
         else
         {
-            sprintf( data, "%s%d|%5.2lf - %5.2lf", prefix,i,range_values[i-1],range_values[i] );
+            label += format_fixed( range_values[i-1], 2, 5 ) + " - " + format_fixed( range_values[i], 2, 5 );
         }
-        range_names[nranges] = data;
-        if( reverse_range ) nranges--; else nranges++;
-        data += LABEL_SIZE;
+        range_names[reverse_range ? ninterval-1-i : i] = std::move( label );
     }
-    nranges = ninterval;
 
     // Only give the list its default rainbow colouring when it's freshly
     // built - a cache hit means copy_layer() has already restored whatever
     // colours were previously chosen, and this would overwrite them.
-    if( setup_data_layers( nranges, range_names, name, 0 ) ) {
+    if( setup_data_layers( range_names, name, false ) ) {
         set_pen_colour_range();
     }
 }
 
 static int get_range_pen( double value )
 {
+    const int nranges = boost::numeric_cast<int>( range_values.size() );
     int i;
     for( i=0; i<nranges-1; i++ )
     {
@@ -910,7 +898,7 @@ static int get_range_pen( double value )
 
 static void setup_datatype_pens( void )
 {
-    setup_data_layers( 0, NULL, NULL, 0 );
+    setup_data_layers( {}, "", false );
 }
 
 static const char *nmApostStdRes = "Aposteriori std residuals";
@@ -924,7 +912,7 @@ static const char *cdRedundancy = "RDC_";
 // data_user_layers left null, the same way setup_datatype_pens() does.
 static void setup_datafile_pens( void )
 {
-    setup_data_layers( 0, NULL, NULL, 0 );
+    setup_data_layers( {}, "", false );
 }
 
 // Evicts the cached residual list before overwriting maxsres/nsres if either
@@ -974,7 +962,7 @@ void setup_data_pens( int type )
     if( type == DPEN_BY_SRES )
     {
         data_pen_type = DPEN_BY_SRES;
-        setup_ranges( maxsres, nsres, 1, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
+        setup_ranges( maxsres, nsres, true, aposteriori_sres ? nmApostStdRes : nmStdRes, cdStdRes );
         sresmult = 1.0;
         if( aposteriori_sres ) sresmult = 1.0/seu;
     }
@@ -982,7 +970,7 @@ void setup_data_pens( int type )
     else if( type == DPEN_BY_RFAC )
     {
         data_pen_type = DPEN_BY_RFAC;
-        setup_ranges( 1.0, nrfac, 0, nmRedundancy, cdRedundancy );
+        setup_ranges( 1.0, nrfac, false, nmRedundancy, cdRedundancy );
     }
 
     else if( type == DPEN_BY_FILE )

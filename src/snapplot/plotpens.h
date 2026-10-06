@@ -1,6 +1,11 @@
 #ifndef _PLOTPENS_H
 #define _PLOTPENS_H
 
+#include <cstdio>
+#include <string>
+#include <string_view>
+#include <vector>
+
 /*
    $Log: plotpens.h,v $
    Revision 1.1  1996/01/03 22:28:01  CHRIS
@@ -74,7 +79,8 @@ struct symbolpoint
 };
 
 // Returns true if the list was freshly built, false if reused from cache.
-bool setup_data_layers( int ndatapens, const char **datapennames, const char *header, int sorted  );
+/// An empty datapennames clears the active colour-by list.
+bool setup_data_layers( const std::vector<std::string> &datapennames, const std::string &header, bool sorted );
 // Points data_user_layers at classification class_type's list (building and
 // caching it first if needed), the exclusive Colour-by mode path. Returns
 // true if it was freshly built, false if reused from cache or class_type has
@@ -92,7 +98,7 @@ void invalidate_active_station_class_layer_cache();
 // Resets every data_type_layers row's colour back to the default palette entry.
 void reset_data_type_layer_colours();
 // Evicts a cached colour-by list by its header text, forcing a rebuild next time it's selected.
-void invalidate_data_user_layer_cache( const char *header );
+void invalidate_data_user_layer_cache( const std::string &header );
 // Evicts whichever colour-by list is currently active, without needing to know its header.
 void invalidate_active_data_user_layer_cache();
 // Returns the pen-type code (DPEN_BY_* or a classification id) of the active observation colour-by mode.
@@ -112,8 +118,8 @@ void get_pen_colour( int ipen, unsigned char &red, unsigned char &green, unsigne
 
 int station_class_pen( int cvalue );
 int background_pen( int layer_id );
-const char *get_station_font();
-void set_station_font( const char *fontdef );
+std::string get_station_font();
+void set_station_font( const std::string &fontdef );
 int get_station_font_id();
 
 void init_options( void );
@@ -130,7 +136,7 @@ bool classification_value_selected( int class_type, int value_id );
 int select_display_options( void );
 int background_option( int layer_id );
 
-int read_key_definition( char *def );
+int read_key_definition( std::string_view def );
 void print_key( FILE *out, const char *prefix );
 
 #endif

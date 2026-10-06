@@ -162,6 +162,32 @@ void check_next_token()
         check( scanner.nextToken(';') == " c ", "nextToken: whitespace around a field kept" );
         check( ! scanner.nextToken(';'), "nextToken: nullopt after the last field" );
     }
+    // A set of delimiters, as strtok takes: any one of them separates fields.
+    {
+        FieldScanner scanner( " \t a\t\tb \r\n c\n" );
+        check( scanner.nextToken(" \t\r\n") == "a", "nextToken set: first field after mixed leading delimiters" );
+        check( scanner.nextToken(" \t\r\n") == "b", "nextToken set: tabs and spaces together separate fields" );
+        check( scanner.nextToken(" \t\r\n") == "c", "nextToken set: carriage return and newline separate fields" );
+        check( ! scanner.nextToken(" \t\r\n"), "nextToken set: nullopt after trailing delimiters" );
+    }
+    // Unlike next(), only the characters given separate fields: a vertical
+    // tab or form feed is not one of strtok's " \t\r\n".
+    {
+        FieldScanner scanner( "a\vb\fc d" );
+        check( scanner.nextToken(" \t\r\n") == "a\vb\fc", "nextToken set: vertical tab and form feed are not delimiters" );
+        check( scanner.nextToken(" \t\r\n") == "d", "nextToken set: space still separates" );
+        FieldScanner nextScanner( "a\vb" );
+        check( nextScanner.next() == "a", "next: vertical tab separates fields, unlike the set above" );
+    }
+    // A single character set behaves as the char version does.
+    {
+        FieldScanner scanner( "#a##b" );
+        check( scanner.nextToken("#") == "a", "nextToken set: single character, first field" );
+        check( scanner.nextToken("#") == "b", "nextToken set: single character, repeated delimiters" );
+        check( ! scanner.nextToken("#"), "nextToken set: single character, nullopt at the end" );
+        FieldScanner empty( "" );
+        check( ! empty.nextToken(" \t\r\n"), "nextToken set: nullopt on empty input" );
+    }
     // snaplist's angle_format line, as read from its configuration file
     // (backslash escapes are still raw text here, decoded later).
     {

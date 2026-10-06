@@ -934,7 +934,7 @@ void SnapplotFrame::OnCmdViewMapFont( wxCommandEvent & WXUNUSED(event) )
     wxFont newFont = wxGetFontFromUser( this, stationFont, "New map font style");
     if( newFont.IsOk() )
     {
-        set_station_font( newFont.GetNativeFontInfoUserDesc().mb_str() );
+        set_station_font( newFont.GetNativeFontInfoUserDesc().ToStdString() );
         mapWindow->RedrawMap();
     }
 }
