@@ -1164,7 +1164,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
     {
         rfid = get_rftrans_id( rfnameStr, REFFRM_TOPOCENTRIC );
         rf=rftrans_from_id( rfid );
-        if( ! rftrans_topocentric( rf ) )
+        if( ! rf->istopo )
         {
             sprintf(errmess,"Ref frame %s defined as both topocentric and geocentric",rfnameStr.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
@@ -1175,7 +1175,7 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
     {
         rfid = get_rftrans_id( rfnameStr, iers ? REFFRM_IERS : REFFRM_GEOCENTRIC );
         rf=rftrans_from_id( rfid );
-        if( rftrans_topocentric( rf ) && iers )
+        if( rf->istopo && iers )
         {
             sprintf(errmess,"Topocentric ref frame %s cannot be defined with IERS parameters",rfnameStr.c_str());
             send_config_error( cfg, INVALID_DATA, errmess );
@@ -1183,10 +1183,10 @@ static int read_rftrans( CFG_FILE *cfg, std::string_view string, void *, int, in
         }
     }
 
-    if( origintype != REFFRM_ORIGIN_DEFAULT ) set_rftrans_origintype( rf, origintype );
-    if( date != UNDEFINED_DATE ) set_rftrans_ref_date( rf, date );
+    if( origintype != REFFRM_ORIGIN_DEFAULT ) rf->setOriginType( origintype );
+    if( date != UNDEFINED_DATE ) rf->setRefDate( date );
 
-    set_rftrans_parameters( rf, val, calcval, defined );
+    rf->setParameters( val, calcval, defined );
     return OK;
 }
 

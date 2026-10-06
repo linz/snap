@@ -764,7 +764,7 @@ void print_json_observations( FILE *out )
             if( sd->format == SD_VECDATA )
             {
                 fprintf( out, "        \"ref_frame\": \"%s\",\n", 
-                                  rftrans_name(rftrans_from_id(sd->reffrm)));
+                                  rftrans_from_id(sd->reffrm)->name.c_str());
             }
             if( tgt->nclass )
             {

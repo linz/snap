@@ -276,7 +276,7 @@ static void record_parameter_usage( survdata *sd )
             break;
 
             case SD_VECDATA:
-                flag_rftrans_used( rftrans_from_id(sd->reffrm), 
+                rftrans_from_id(sd->reffrm)->flagUsed(
                         dt->ispoint ? FRF_ABSOLUTE : FRF_VECDIFF );
                 break;
 

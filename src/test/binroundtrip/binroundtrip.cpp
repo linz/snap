@@ -336,8 +336,8 @@ static void dump_filenames_text( std::ostream &out )
     }
 }
 
-// Field order mirrors write_rftrans_fixed_width's RFTRANS_DISK_FIELDS
-// (rftrndmp.cpp), then the 12 bitfields in the same declared order
+// Field order mirrors dump_rftransformations (rftrndmp.cpp): the id, then
+// write_rftrans_fixed_width's RFTRANS_DISK_FIELDS, then the 12 bitfields in the same declared order
 // pack_rftrans_flags packs them in (rftrndmp.cpp) - not part of the table,
 // since bitfields have no address for offsetof to take - then trailing
 // name, matching dump_rftransformations' on-disk write order.
@@ -347,7 +347,9 @@ static void dump_rftransformations_text( std::ostream &out )
     for( int irf = 1; irf <= nrf; irf++ ) {
         const rfTransformation *rf = rftrans_from_id( irf );
         out << "=== RFTRANSFORMATIONS[" << irf << "] ===\n";
-        dump_disk_fields_text( out, *rf, RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT );
+        dump_bare_value( out, static_cast<long long>( rf->id ) );
+        dump_disk_fields_text( out, static_cast<const RfTransformationData &>( *rf ),
+                               RFTRANS_DISK_FIELDS, RFTRANS_DISK_FIELD_COUNT );
         out << rf->istopo << "\n" << rf->isiers << "\n" << rf->userates << "\n" << rf->usetrans << "\n"
             << rf->localoriginok << "\n" << rf->localorigin << "\n" << rf->calctrans << "\n"
             << rf->calcrot << "\n" << rf->calcscale << "\n" << rf->calctransrate << "\n"

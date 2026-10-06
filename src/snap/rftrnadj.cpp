@@ -179,7 +179,7 @@ static void init_rftrans_prms( rfTransformation *rf )
     double origin[3];
     int i;
 
-    setup_rftrans( rf );
+    rf->setup();
 
     /* Define the parameters of the reference frame */
 
@@ -209,7 +209,7 @@ static void init_rftrans_prms( rfTransformation *rf )
     {
         get_network_topocentre_xyz( net, origin );
     }
-    set_rftrans_origin( rf, origin );
+    rf->setOrigin( origin );
 }
 
 static void update_rftrans_prms( rfTransformation *rf, int get_covariance )
@@ -277,7 +277,7 @@ void update_rftrans_prms_list( int get_covariance )
         rfTransformation *rf;
         rf = rftrans_from_id(nrf);
         update_rftrans_prms( rf, get_covariance );
-        setup_rftrans( rf);
+        rf->setup();
     }
 }
 
@@ -610,7 +610,7 @@ void print_rftrans_list( FILE *out )
         for( nrf = 1; nrf <= rftrans_count(); nrf++ )
         {
             rfTransformation *rf = rftrans_from_id( nrf );
-            if( rftrans_topocentric(rf) ) { topo_header=1; break; }
+            if( rf->istopo ) { topo_header=1; break; }
         }
     }
 
@@ -639,8 +639,8 @@ void print_rftrans_list( FILE *out )
         int ot=output_types;
         if( ! ot )
         {
-            if( rftrans_topocentric(rf) ) ot = OUTPUT_TOPO;
-            else if( rftrans_iers(rf) ) ot = OUTPUT_IERS;
+            if( rf->istopo ) ot = OUTPUT_TOPO;
+            else if( rf->isiers ) ot = OUTPUT_IERS;
             else ot = OUTPUT_GEO;
         }
         print_rftrans( rftrans_from_id(nrf), semult, out, ot );

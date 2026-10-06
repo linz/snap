@@ -68,11 +68,11 @@ static double *get_transformation( int rfid, int inverse )
     }
     if( inverse )
     {
-        return rftrans_invtmat( rf );
+        return &rf->invtmat[0][0];
     }
     else
     {
-        return rftrans_tmat( rf );
+        return &rf->tmat[0][0];
     }
 }
 
