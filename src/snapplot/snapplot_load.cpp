@@ -10,6 +10,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <optional>
+#include <string>
+#include <vector>
 #include "util/errdef.h"
 
 #define MAIN
@@ -39,31 +42,29 @@
 
 static void print_help( void );
 
-#define MAXFILES 20
+inline constexpr size_t MAXFILES = 20;
 
 int snapplot_load( int argc, char *argv[] )
 {
 
     int sts;
     int binary_data;
-    char *firstfile = NULL;
-    char *filelist[MAXFILES];
-    char *cfgfile[MAXFILES];
-    char *projection = NULL;
-    coordsys *projcs = NULL;
-    int nfiles = 0;
-    int ncfgfiles = 0;
+    std::optional<std::string> firstfile;
+    std::vector<std::string> filelist;
+    std::vector<std::string> cfgfile;
+    std::optional<std::string> projection;
+    coordsys *projcs = nullptr;
+    size_t nbkgfiles = 0;
     int syntax_error = 0;
     int narg;
     int use_command_file = 1;
     int use_binary_file = 1;
-    int i;
 
     /* print_header(); */
 
     for( narg = 1; narg < argc; narg++ )
     {
-        char *arg = argv[narg];
+        const std::string arg = argv[narg];
         if( arg[0] == '-' ) switch( arg[1] )
             {
 
@@ -74,17 +75,17 @@ int snapplot_load( int argc, char *argv[] )
             case 'F': use_command_file = 0; break;
 
             case 'c':
-            case 'C': if( ncfgfiles >= MAXFILES )
+            case 'C': if( cfgfile.size() >= MAXFILES )
                 {
                     print_log("\nToo many config files in command line\n");
                 }
                 else if( arg[2] )
                 {
-                    cfgfile[ncfgfiles++] = arg+2;
+                    cfgfile.push_back( arg.substr(2) );
                 }
                 else if( ++narg < argc )
                 {
-                    cfgfile[ncfgfiles++] = argv[narg];
+                    cfgfile.push_back( argv[narg] );
                 }
                 else
                 {
@@ -94,21 +95,23 @@ int snapplot_load( int argc, char *argv[] )
                 break;
 
             case 'b':
-            case 'B': if( ncfgfiles >= MAXFILES )
+            case 'B': if( nbkgfiles >= MAXFILES )
                 {
-                    print_log("\nToo many config files in command line\n");
+                    print_log("\nToo many background files in command line\n");
                 }
                 else if( arg[2] )
                 {
-                    add_background_file( arg+2 );
+                    add_background_file( arg.substr(2) );
+                    nbkgfiles++;
                 }
                 else if( ++narg < argc )
                 {
                     add_background_file( argv[narg] );
+                    nbkgfiles++;
                 }
                 else
                 {
-                    print_log("\nMissing name of config file\n");
+                    print_log("\nMissing name of background file\n");
                     syntax_error = 1;
                 }
                 break;
@@ -116,7 +119,7 @@ int snapplot_load( int argc, char *argv[] )
             case 'p':
             case 'P': if( arg[2] )
                 {
-                    projection = arg+2;
+                    projection = arg.substr(2);
                 }
                 else if( ++narg < argc )
                 {
@@ -129,7 +132,7 @@ int snapplot_load( int argc, char *argv[] )
                 }
                 break;
 
-            default:  print_log("\nInvalid option %s in command line\n",arg);
+            default:  print_log("\nInvalid option %s in command line\n",arg.c_str());
                 syntax_error = 1;
                 break;
 
@@ -141,9 +144,9 @@ int snapplot_load( int argc, char *argv[] )
             firstfile = arg;
         }
 
-        else if(nfiles < MAXFILES)
+        else if( filelist.size() < MAXFILES )
         {
-            filelist[nfiles++] = arg;
+            filelist.push_back( arg );
         }
 
         else
@@ -179,31 +182,19 @@ int snapplot_load( int argc, char *argv[] )
     init_snap_gps_covariance();
 
 
-    /*
-    { char helpfile[256];
-      int nch;
-      strncpy(helpfile, prog_dir, 255 );
-      helpfile[255] = 0;
-      nch = strlen(helpfile);
-      strncpy(helpfile+nch,"SNAPPLOT.HLP",255-nch);
-      helpfile[255] = 0;
-      install_help_file( helpfile );
-      }
-      */
-
     install_default_crdsys_file();
 
     if( projection )
     {
-        projcs = load_coordsys( projection );
+        projcs = load_coordsys( *projection );
         if( !projcs )
         {
-            print_log("\n%s is not a valid projection code\n",projection);
+            print_log("\n%s is not a valid projection code\n",projection->c_str());
             return 0;
         }
         if( !is_projection( projcs ) )
         {
-            print_log("\n%s in not a projection coordinate system\n");
+            print_log("\n%s is not a projection coordinate system\n",projection->c_str());
             return 0;
         }
     }
@@ -211,7 +202,7 @@ int snapplot_load( int argc, char *argv[] )
     /* Note: even if not using a command file we call set_snap_command_file
        as it ensures that default paths etc are defined */
 
-    set_snap_command_file( firstfile );
+    set_snap_command_file( *firstfile );
 
     if( use_binary_file )
     {
@@ -240,19 +231,19 @@ int snapplot_load( int argc, char *argv[] )
                       command_file->path.c_str());
             return 0;
         }
-        for( i = 0; i < nfiles; i++ )
+        for( const std::string &file : filelist )
         {
-            add_configuration_file( filelist[i] );
+            add_configuration_file( file );
         }
     }
     else
     {
-        print_log("\nReading coordinates from file %s\n",firstfile);
+        print_log("\nReading coordinates from file %s\n",firstfile->c_str());
         /* Adding the following line as init function was removed from read_station_file.
          * Possibly not necessary?
          */
         set_stnadj_init_network();
-        sts = read_station_file( firstfile, command_file->dir, STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE );
+        sts = read_station_file( *firstfile, command_file->dir, STN_FORMAT_SNAP, "", 0, UNDEFINED_DATE );
         if( sts == OK )
         {
             print_log("    %d stations read\n",number_of_stations(net));
@@ -262,23 +253,23 @@ int snapplot_load( int argc, char *argv[] )
             print_log("\nErrors encountered reading coordinate file\n");
             return 0;
         }
-        for( i = 0; i < nfiles; i++ )
+        for( const std::string &file : filelist )
         {
-            add_data_file( filelist[i], SNAP_FORMAT, std::nullopt, std::nullopt, 0 );
+            add_data_file( file, SNAP_FORMAT, std::nullopt, std::nullopt, 0 );
         }
     }
 
 
-    for( i = 0; i < ncfgfiles; i++ )
+    for( const std::string &file : cfgfile )
     {
-        auto filename = find_file( cfgfile[i], SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
+        auto filename = find_file( file, SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
         if( filename )
         {
             add_configuration_file( *filename );
         }
         else
         {
-            handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found", cfgfile[i] );
+            handle_error( FILE_OPEN_ERROR | SHOW_DIALOG, "Configuration file cannot be found", file );
         }
     }
 
