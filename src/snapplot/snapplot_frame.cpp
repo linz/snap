@@ -672,7 +672,7 @@ void SnapplotFrame::ShowObsList()
     dataView->ChangeSelection( obsListPage );
 }
 
-void SnapplotFrame::ReadConfiguration( const char *filename )
+void SnapplotFrame::ReadConfiguration( const std::string &filename )
 {
     process_configuration_file( filename );
     UpdateColourByMenuCheck();
@@ -706,7 +706,7 @@ void SnapplotFrame::OnCmdSaveConfig( wxCommandEvent & WXUNUSED(event) )
     );
 
     if( dlgFile.ShowModal() == wxID_OK &&
-            ! save_configuration( dlgFile.GetPath().mb_str()) )
+            ! save_configuration( dlgFile.GetPath().ToStdString() ) )
     {
         wxMessageBox(
             wxString::Format( "Unable to save configuration to %s", dlgFile.GetFilename()),
@@ -734,7 +734,7 @@ void SnapplotFrame::OnCmdRestoreConfig( wxCommandEvent & WXUNUSED(event) )
 
     if( ! configFile.IsEmpty() )
     {
-        ReadConfiguration( configFile.mb_str() );
+        ReadConfiguration( configFile.ToStdString() );
     }
 }
 
@@ -1104,7 +1104,7 @@ void SnapplotFrame::OnCmdReadConfig( wxCommandEvent &event )
     int id = event.GetId();
     if( id >= configMenuCommandFirst && id <= configMenuCommandLast )
     {
-        ReadConfiguration( config_menu_filename( id - configMenuCommandFirst ).data() );
+        ReadConfiguration( std::string( config_menu_filename( id - configMenuCommandFirst ) ) );
     }
 }
 

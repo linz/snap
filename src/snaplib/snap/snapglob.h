@@ -86,9 +86,10 @@ enum { ADJUST=1, PREANALYSIS, DATA_CHECK, DATA_CONSISTENCY };
 
 /* Basic data relating to the adjustment */
 
-#define JOBTITLELEN 80
+/// The longest job title that is stored in the binary file.
+inline constexpr int JOBTITLELEN = 80;
 
-SCOPE char job_title[JOBTITLELEN+1];
+SCOPE std::string job_title;
 SCOPE std::string run_time;
 SCOPE int dimension;
 SCOPE int program_mode;

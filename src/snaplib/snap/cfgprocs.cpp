@@ -586,3 +586,9 @@ int read_recode_command( CFG_FILE *cfg, std::string_view string, void *, int, in
     return OK;
 }
 
+int read_job_title_command( CFG_FILE *, const std::string_view string, void *, int, int )
+{
+    job_title = std::string( string.substr( 0, JOBTITLELEN-1 ) );
+    return OK;
+}
+

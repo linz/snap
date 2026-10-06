@@ -56,7 +56,7 @@ void init_snap_globals()
     }
     run_time = get_date();
 
-    job_title[0] = 0;
+    job_title.clear();
     dimension = 2;
     program_mode = ADJUST;
     min_iterations = 0;
@@ -137,12 +137,31 @@ void *snap_obs_modifications( bool create )
     return obs_modifications;
 }
 
+/// Writes the job title as a JOBTITLELEN+1 byte field, padded with NUL bytes.
+static void write_job_title_field( FILE *const f )
+{
+    std::string field = job_title.substr( 0, JOBTITLELEN );
+    field.resize( JOBTITLELEN+1, '\0' );
+    fwrite( field.data(), field.size(), 1, f );
+}
+
+/// Reads the job title from a JOBTITLELEN+1 byte field, up to the first NUL byte.
+/// Returns false, leaving job_title unchanged, if the field cannot be read.
+static bool read_job_title_field( FILE *const f )
+{
+    std::array<char,JOBTITLELEN+1> field{};
+    if( fread( field.data(), field.size(), 1, f ) != 1 ) return false;
+    const std::string_view text( field.data(), field.size() );
+    job_title = std::string( text.substr( 0, text.find( '\0' ) ) );
+    return true;
+}
+
 void dump_snap_globals( BINARY_FILE *b )
 {
     if( ! initialised ) init_snap_globals();
     create_section( b, "SNAP_GLOBALS" );
 
-    fwrite( job_title, JOBTITLELEN+1, 1, b->f );
+    write_job_title_field( b->f );
     write_run_date_field( b->f, run_time );
     dump_bin(b, dimension);
     dump_bin(b, program_mode);
@@ -175,7 +194,7 @@ int reload_snap_globals( BINARY_FILE *b )
 
     if( find_section( b, "SNAP_GLOBALS" ) != OK ) return MISSING_DATA;
 
-    fread( job_title, JOBTITLELEN+1, 1, b->f );
+    read_job_title_field( b->f );
     read_run_date_field( b->f, run_time );
     reload_bin(b, dimension);
     reload_bin(b, program_mode);

@@ -597,7 +597,7 @@ void print_report_footer( FILE * )
 void print_control_options( FILE *lst )
 {
     fprintf( lst, "\n\nProgram options read from %s\n\n",std::filesystem::path(native_path(command_file->path)).filename().string().c_str() );
-    fprintf( lst, "Job: %s\n\n", job_title );
+    fprintf( lst, "Job: %s\n\n", job_title.c_str() );
     print_solution_type( lst );
 }
 
@@ -609,7 +609,7 @@ void print_section_header( FILE *out, const char *heading )
     new_page( out );
     print_line( out );
     rtl = boost::numeric_cast<int>(run_time.size());
-    fprintf(out,"%-*s   %s\n\n",page_width - rtl - 3, job_title,
+    fprintf(out,"%-*s   %s\n\n",page_width - rtl - 3, job_title.c_str(),
             output_noruntime ? "" : run_time.c_str() );
 
     rtl = (page_width - strlen( heading ))/2;

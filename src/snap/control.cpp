@@ -147,7 +147,7 @@ struct station_process_mode
 
 static config_item snap_commands[] =
 {
-    {"title",job_title,CFG_ABSOLUTE,JOBTITLELEN,STORE_AS_STRING,CFG_REQUIRED+CFG_ONEONLY,0},
+    {"title",nullptr,CFG_ABSOLUTE,0,read_job_title_command,CFG_REQUIRED+CFG_ONEONLY,0},
     {"mode",&program_mode,CFG_ABSOLUTE,0,read_program_mode,CONFIG_CMD,0},
     {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },

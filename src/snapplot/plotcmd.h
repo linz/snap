@@ -8,6 +8,7 @@
 
 */
 
+#include <string>
 #include <string_view>
 
 int read_plot_command_file( const std::string &fname, int got_data );
@@ -15,12 +16,12 @@ int read_plot_command_file( const std::string &fname, int got_data );
 /* Done before configuration file read */
 void add_default_configuration_files( void );
 /* Done before list processed */
-int add_configuration_file( const char *fname );
+void add_configuration_file( const std::string &fname );
 /* Done after file loaded */
 int process_configuration_file_list( void );
 
 /* Done in interactive section of program */
-int process_configuration_file( const char *fname );
+int process_configuration_file( const std::string &fname );
 
 void abort_snapplot_config_file( void );
 
@@ -32,7 +33,7 @@ std::string_view config_menu_filename( int i );
 
 /* Function to write configuration information to a file */
 
-int save_configuration( const char *cfgname );
+int save_configuration( const std::string &cfgname );
 int write_config_file( FILE *out, int key_only );
 
 

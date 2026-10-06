@@ -35,14 +35,14 @@
 #include "plotcmd.h"
 #include "util/fileutil.h"
 #include "util/dstring.h"
-#include "util/chkalloc.h"
-#include "util/linklist.h"
 #include "util/fieldscanner.hpp"
 
 #include <cctype>
 #include <optional>
 #include <stdio.h>
 #include <filesystem>
+#include <fstream>
+#include <limits>
 #include <string>
 #include <string.h>
 #include <string_view>
@@ -73,7 +73,7 @@ static int read_config_menu_command( CFG_FILE *cfg, std::string_view string, voi
 
 static config_item snapplot_general_commands[] =
 {
-    {"title",job_title,CFG_ABSOLUTE,JOBTITLELEN,STORE_AS_STRING,CFG_ONEONLY,0},
+    {"title",nullptr,CFG_ABSOLUTE,0,read_job_title_command,CFG_ONEONLY,0},
     {"coordinate_file",NULL,CFG_ABSOLUTE,0,load_coordinate_file,CFG_REQUIRED, 0},
     {"add_coordinate_file",NULL,CFG_ABSOLUTE,0,add_coordinate_file, 0, 0 },
     {"data_file",NULL,CFG_ABSOLUTE,0,load_data_file,0,0},
@@ -130,7 +130,7 @@ static config_item snapplot_cfg_commands[] =
 };
 
 static config_item *snapplot_commands = NULL;
-static void *cfg_list = NULL;
+static std::vector<std::string> cfg_list;
 
 static void add_config_menu_item( std::string_view filename, std::string_view text );
 
@@ -172,17 +172,16 @@ int read_plot_command_file( const std::string &fname, const int got_data )
 {
     int sts;
 
-    if( !got_data ) job_title[0] = 0;
+    if( !got_data ) job_title.clear();
 
     snapplot_commands = got_data ? snapplot_binary_commands :
                         snapplot_general_commands;
 
     sts = read_command_file( fname, 1 );
 
-    if( sts == OK && !job_title[0] && net->name )
+    if( sts == OK && job_title.empty() && net->name )
     {
-        strncpy( job_title, net->name->c_str(), JOBTITLELEN );
-        job_title[JOBTITLELEN] = 0;
+        job_title = net->name->substr( 0, JOBTITLELEN );
     }
 
     return sts;
@@ -192,7 +191,7 @@ int read_plot_command_file( const std::string &fname, const int got_data )
 
 CFG_FILE *current_cfg = NULL;
 
-int read_plot_configuration_file( const char *cfg_file )
+int read_plot_configuration_file( const std::string &cfg_file )
 {
     int sts;
     CFG_FILE *old_cfg;
@@ -223,65 +222,52 @@ void abort_snapplot_config_file( void )
 
 /* Add a configuration file to a list of files to process */
 
-static void store_configuration_file( const char *fname )
+void add_configuration_file( const std::string &fname )
 {
-    if( !cfg_list )
-    {
-        cfg_list = create_list( 0 );
-    }
-    add_to_list( cfg_list, copy_string(fname) );
-}
-
-int add_configuration_file( const char *fname )
-{
-    store_configuration_file( fname );
-    return OK;
+    cfg_list.push_back( fname );
 }
 
 void add_default_configuration_files( void )
 {
     std::string spec = build_config_filespec( system_config_dir(),false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
-    if( path_exists( spec )) store_configuration_file( spec.c_str() );
+    if( path_exists( spec )) add_configuration_file( spec );
 
     if( auto userdir = user_config_dir() )
     {
         spec=build_config_filespec( *userdir,false,SNAPPLOT_CONFIG_SECTION, SNAPPLOT_CONFIG_FILE, "" );
-        if( path_exists( spec )) store_configuration_file( spec.c_str() );
+        if( path_exists( spec )) add_configuration_file( spec );
     }
 
     spec=build_config_filespec( command_file->path, true, "", SNAPPLOT_CONFIG_FILE, "" );
-    if( path_exists( spec )) store_configuration_file( spec.c_str() );
+    if( path_exists( spec )) add_configuration_file( spec );
 
     spec = std::filesystem::path( native_path(command_file->path) ).replace_extension().string() + SNAPPLOT_CONFIG_EXT;
-    if( path_exists( spec )) store_configuration_file( spec.c_str() );
+    if( path_exists( spec )) add_configuration_file( spec );
 }
 
 int process_configuration_file_list( void )
 {
     int sts = OK;
-    char *fname;
 
-    if( !cfg_list ) return OK;
-    reset_list_pointer( cfg_list );
-    while( NULL != (fname = (char *) next_list_item( cfg_list )) )
+    for( size_t i = 0; i < cfg_list.size(); i++ )
     {
-        int fsts;
-        fsts = read_plot_configuration_file( fname );
+        // A copy, as reading a file can add to cfg_list and reallocate it
+        const std::string fname = cfg_list[i];
+        const int fsts = read_plot_configuration_file( fname );
         if( fsts != OK ) sts = fsts;
-        check_free( fname );
     }
-    clear_list( cfg_list, NO_ACTION );
+    cfg_list.clear();
     return sts;
 }
 
 
-int process_configuration_file( const char *fname )
+int process_configuration_file( const std::string &fname )
 {
     int sts;
     auto fspec = find_file( fname, SNAPPLOT_CONFIG_EXT, std::nullopt, FF_TRYLOCAL, SNAPPLOT_CONFIG_SECTION );
     if( fspec )
     {
-        sts = read_plot_configuration_file( fspec->c_str() );
+        sts = read_plot_configuration_file( *fspec );
     }
     else
     {
@@ -327,7 +313,11 @@ static int load_plot_data( CFG_FILE *cfg, std::string_view string, void *value, 
     {
         if( plot_data.empty() ) return MISSING_DATA;
         auto cfgfile=find_file(std::string(plot_data),SNAPPLOT_CONFIG_EXT,std::optional<std::string>(cfg->name),FF_TRYNONE,SNAPPLOT_CONFIG_SECTION);
-        if( ! cfgfile || add_configuration_file( cfgfile->c_str() ) != OK )
+        if( cfgfile )
+        {
+            add_configuration_file( *cfgfile );
+        }
+        else
         {
             send_config_error( cfg, INVALID_DATA, "Cannot find configuration file " + std::string(plot_data) );
         }
@@ -712,15 +702,13 @@ static void set_station_mode( int istn, int mode )
 static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
                                        int mode)
 {
-    FILE *list_file;
-    char stn_code[21];
-
     std::string list_spec = build_filespec( command_file ? command_file->dir : "", name, DFLTSTLIST_EXT );
-    list_file = fopen( list_spec.c_str(), "r" );
+    std::ifstream list_file( list_spec );
     if( !list_file )
     {
         list_spec = build_filespec( "", name, DFLTSTLIST_EXT );
-        list_file = fopen( list_spec.c_str(), "r" );
+        list_file.clear();
+        list_file.open( list_spec );
     }
 
     if( !list_file )
@@ -731,20 +719,19 @@ static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
 
     skip_utf8_bom( list_file );
 
-    while( fscanf(list_file,"%20s",stn_code) == 1 )
+    std::string stn_code;
+    while( list_file >> stn_code )
     {
 
         if( stn_code[0] == COMMENT_CHAR )
         {
-            int c;
-            do { c = fgetc(list_file); }
-            while (c != '\n' && c != EOF);
+            list_file.ignore( std::numeric_limits<std::streamsize>::max(), '\n' );
         }
         else
         {
             int istn;
 
-            _strupr(stn_code);
+            for( char &c : stn_code ) c = static_cast<char>( std::toupper( static_cast<unsigned char>(c) ) );
             istn = find_station( net, stn_code );
 
             /* Is the string matched as a station */
@@ -756,11 +743,10 @@ static void process_station_list_file( CFG_FILE *cfg, const std::string &name,
             }
             else
             {
-                send_config_error( cfg, INVALID_DATA, "Invalid station " + std::string(stn_code) + " in list " + name );
+                send_config_error( cfg, INVALID_DATA, "Invalid station " + stn_code + " in list " + name );
             }
         }
     }
-    fclose( list_file );
 }
 
 
@@ -1100,9 +1086,9 @@ int write_config_file( FILE *out, int key_only )
     return OK;
 }
 
-int save_configuration( const char *cfgname )
+int save_configuration( const std::string &cfgname )
 {
-    FILE *cfg =  fopen(cfgname,"w");
+    FILE *cfg =  fopen(cfgname.c_str(),"w");
     if( !cfg )
     {
         return 0;
