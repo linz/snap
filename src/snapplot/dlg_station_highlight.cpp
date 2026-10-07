@@ -371,7 +371,7 @@ void StationHighlightDialog::SelectStations( bool select )
         }
         else if( stnSelOpt == scOrder )
         {
-            int orderid = get_station_class( st, net->orderclsid );
+            int orderid = st->get_class( net->orderclsid );
             if( orderid != iorder ) continue;
         }
         else

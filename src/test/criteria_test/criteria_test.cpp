@@ -74,8 +74,8 @@ struct TestNetwork
         {
             station *stn=new_network_station( nw, code, code, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 );
             const std::string c( code );
-            if( c == "AAA" || c == "AB1" ) set_station_class( stn, grp, x );
-            if( c == "AB2" ) set_station_class( stn, grp, y );
+            if( c == "AAA" || c == "AB1" ) stn->set_class( grp, x );
+            if( c == "AB2" ) stn->set_class( grp, y );
         }
     }
     ~TestNetwork() { delete_network( nw ); }

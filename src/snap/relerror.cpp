@@ -64,7 +64,7 @@ static void calc_relative_obseq( station *st1, station *st2, void *hA )
 
 static void station_vertical( int id, double vrt[3] )
 {
-    rot_vertical( & (stnptr(id)->rTopo), vrt );
+    stnptr(id)->rTopo.rot_vertical( vrt );
 }
 
 static void *hA;
@@ -311,8 +311,8 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
                 }
 
                 fprintf(lst,"     %-*s  %-*s  %7.0lf ",
-                        stn_name_width, stnptr(istn)->Code,
-                        stn_name_width, stnptr(jstn)->Code, veclen );
+                        stn_name_width, stnptr(istn)->Code.c_str(),
+                        stn_name_width, stnptr(jstn)->Code.c_str(), veclen );
                 if( gothtol ) fprintf(lst,"    %8.2lf",hratio);
                 if( gotvtol ) fprintf(lst,"    %8.2lf",vratio);
                 fprintf(lst,"\n");
@@ -332,7 +332,7 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
         fprintf(lst, "    Vectors exceeding tolerance: %10ld\n",nfailh);
         if( istnmaxh )
             fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n",
-                    maxhratio, stnptr(istnmaxh)->Code, stnptr(jstnmaxh)->Code );
+                    maxhratio, stnptr(istnmaxh)->Code.c_str(), stnptr(jstnmaxh)->Code.c_str() );
     }
 
     if( gotvtol )
@@ -343,7 +343,7 @@ void test_relative_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
         fprintf(lst, "    Vectors exceeding tolerance: %10ld\n",nfailv);
         if( istnmaxv )
             fprintf(lst, "    Largest error/tolerance:     %10.2lf (%s to %s)\n",
-                    maxvratio, stnptr(istnmaxv)->Code, stnptr(jstnmaxv)->Code );
+                    maxvratio, stnptr(istnmaxv)->Code.c_str(), stnptr(jstnmaxv)->Code.c_str() );
     }
 
     term_calc_covar();

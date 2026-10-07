@@ -467,7 +467,7 @@ static std::string snap_name( int type, int group_id, long id )
         {
             return std::string( missing_station_name( numeric_cast<int>( id ) ).value_or( std::string_view() ) );
         }
-        return station_code( numeric_cast<int>( id ) );
+        return std::string( station_code( numeric_cast<int>( id ) ) );
     case ID_COEF:
         switch( group_id )
         {

@@ -100,7 +100,7 @@ int calc_station_geoid_info_from_coordsys( network *nw, coordsys *cs, int fixed_
         else
         {
             // Changing ellipsoidal height, so ensure cached XYZ is updated 
-            modify_station_coords(st,st->ELat,st->ELon,st->OHgt,nw->crdsys->rf->el);
+            st->modify_coords(st->ELat,st->ELon,st->OHgt,*nw->crdsys->rf->el);
         }
         ninvalid--;
         ncalc++;
@@ -217,7 +217,7 @@ int set_network_geoid_def( network *nw, geoid_def *gd, int fixed_height_type, in
         else
         {
             // Changing ellipsoidal height, so ensure cached XYZ is updated 
-            modify_station_coords(st,st->ELat,st->ELon,st->OHgt,nw->crdsys->rf->el);
+            st->modify_coords(st->ELat,st->ELon,st->OHgt,*nw->crdsys->rf->el);
         }
         ninvalid--;
         ncalc++;

@@ -17,10 +17,16 @@
 #include "util/chkalloc.h"
 #include "util/binfile.h"
 
+#include <boost/numeric/conversion/cast.hpp>
+
+using boost::numeric_cast;
+
 // Single source of truth for the fixed-width on-disk station layout.
-// Excludes the three trailing pointers (classval, ts, hook) and Name (a
-// variable-length std::string). Each is already handled separately
-// below. classval is a raw int array sized by nclass. Name goes through
+// Excludes classval (a std::vector<int>), Name (a variable-length
+// std::string) and the two trailing pointers (ts, hook). Each is already
+// handled separately below. The class values are written after the fixed
+// block as a 32 bit count followed by the values, so the file has the same
+// bytes as when the count was a member of station. Name goes through
 // dump_string/reload_string. ts goes through
 // dump_station_offset/reload_station_offset. hook is a void pointer to
 // scratch space defined at runtime, so there's nothing meaningful to
@@ -57,7 +63,7 @@
 // Uses DiskField (util/binfile.h) and has external linkage via the
 // `extern` declarations in network.h - see the comment there.
 constexpr DiskField STATION_DISK_FIELDS[] = {
-    { FieldKind::Int8,    offsetof(station, Code),  sizeof(station::Code) / sizeof(station::Code[0]) },
+    { FieldKind::Int8,    offsetof(station, Code),  sizeof(StationCode) },
     { FieldKind::Int32,   offsetof(station, id),    1 },
     { FieldKind::Float64, offsetof(station, ELat),  1 },
     { FieldKind::Float64, offsetof(station, ELon),  1 },
@@ -70,7 +76,6 @@ constexpr DiskField STATION_DISK_FIELDS[] = {
     { FieldKind::Float64, offsetof(station, rGrav), sizeof(station::rGrav) / sizeof(double) },
     { FieldKind::Float64, offsetof(station, dNdLt), 1 },
     { FieldKind::Float64, offsetof(station, dEdLn), 1 },
-    { FieldKind::Int32,   offsetof(station, nclass), 1 },
 };
 constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof(STATION_DISK_FIELDS[0]);
 
@@ -78,7 +83,7 @@ constexpr size_t STATION_DISK_FIELD_COUNT = sizeof(STATION_DISK_FIELDS) / sizeof
 // memory layout. Uses the same rounded-up-to-next-alignment check as
 // survdata_disk_fields_contiguous() in bindata.cpp. Every consecutive
 // pair in this table is checked - there's no interior exclusion to
-// skip, unlike rftrndmp.cpp's table. The last tracked field (nclass)
+// skip, unlike rftrndmp.cpp's table. The last tracked field (dEdLn)
 // must, by the same rule, be immediately followed by the first
 // excluded member (classval).
 static constexpr bool station_disk_fields_contiguous()
@@ -181,24 +186,22 @@ static void reload_station_offset( station *st, FILE *f )
 void dump_station( station *st, FILE *f )
 {
     write_station_fixed_width( *st, f );
-    if( st->nclass > 0 ) fwrite( st->classval, sizeof(int), st->nclass, f );
+    write_disk_field( f, FieldKind::Int32, numeric_cast<int>( st->classval.size() ) );
+    if( !st->classval.empty() ) fwrite( st->classval.data(), sizeof(int), st->classval.size(), f );
     dump_station_offset( st, f );  // handle ts
     dump_string( st->Name, f );
 }
 
 station *reload_station( FILE *f )
 {
-    station *st;
-    int nclass;
-    st = new_station();
+    station *st = new station;
     read_station_fixed_width( f, *st );
-    nclass = st->nclass;
+    int nclass = 0;
+    read_disk_field( f, FieldKind::Int32, nclass );
     if( nclass > 0 )
     {
-        st->nclass = 0;
-        st->classval = 0;
-        init_station_classes( st, nclass );
-        fread( st->classval, sizeof(int), nclass,f );
+        st->set_class_count( nclass );
+        fread( st->classval.data(), sizeof(int), st->classval.size(), f );
     }
     reload_station_offset( st, f );  // reconstruct ts
     st->Name = reload_string( f );

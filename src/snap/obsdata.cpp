@@ -80,7 +80,7 @@ void list_obsdata( FILE *out, survdata *o )
         fprintf(out,"%2d:%-4d  ",(int)(o->file+1),(int)(t->tgt.lineno));
         if( iobs == 0 )
         {
-            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(o->from), o->fromhgt );
+            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(o->from).c_str(), o->fromhgt );
         }
         else
         {
@@ -89,7 +89,7 @@ void list_obsdata( FILE *out, survdata *o )
 
         if( t->tgt.to != to || t->tgt.tohgt != tohgt )
         {
-            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(t->tgt.to), t->tgt.tohgt );
+            fprintf( out, "%-*s %5.3lf  ", stn_name_width,station_code(t->tgt.to).c_str(), t->tgt.tohgt );
             to = t->tgt.to;
             tohgt = t->tgt.tohgt;
         }
@@ -231,7 +231,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
         {
             char buf[256];
             sprintf(buf,"Unable to calculate %s obs from colocated stations %s to %s - obs not used",
-                    datatype[t->tgt.type].name.data(),st1->Code,st2->Code );
+                    datatype[t->tgt.type].name.data(),st1->Code.c_str(),st2->Code.c_str() );
 
             handle_error( WARNING_ERROR, buf, NO_MESSAGE );
             status = INVALID_DATA;
@@ -290,7 +290,7 @@ int obsdata_obseq( survdata *o, void *hA, int nextra )
             {
                 char buf[256];
                 sprintf(buf,"Unable to calculate %s projection bearin from %s to %s - obs not used",
-                        bproj_name(o->reffrm).data(),st1->Code,st2->Code );
+                        bproj_name(o->reffrm).data(),st1->Code.c_str(),st2->Code.c_str() );
                 handle_error( WARNING_ERROR, buf, NO_MESSAGE );
                 status = INVALID_DATA;
                 continue;

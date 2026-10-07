@@ -18,63 +18,53 @@
 /*                                                                */
 /*----------------------------------------------------------------*/
 
-void init_toprot( double Lat, double Lon, rotmat *topo )
+rotmat::rotmat( const double Lat, const double Lon )
+    : cslt( cos(Lat) ),
+      snlt( sin(Lat) ),
+      csln( cos(Lon) ),
+      snln( sin(Lon) )
 {
-    topo->cslt = cos(Lat);
-    topo->snlt = sin(Lat);
-    topo->csln = cos(Lon);
-    topo->snln = sin(Lon);
 }
 
 
-void init_gravrot( double Lat, double Lon, double Xi, double Eta, rotmat *grav )
+rotmat rotmat::gravimetric( const double Lat, const double Lon, const double Xi, const double Eta )
 {
-    Lat += Xi;
-    Lon += Eta/cos(Lat);
-    init_toprot( Lat, Lon, grav );
+    const double gravLat = Lat + Xi;
+    const double gravLon = Lon + Eta/cos(gravLat);
+    return rotmat( gravLat, gravLon );
 }
 
 
-#define Rslt rot->snlt
-#define Rsln rot->snln
-#define Rclt rot->cslt
-#define Rcln rot->csln
-
-void rotvec ( vector3 in, rotmat *rot, vector3 out )
+void rotmat::rotvec( vector3 in, vector3 out ) const
 {
     vector3 tmp;
 
-    tmp[0] = -in[0]*Rsln      + in[1]*Rcln;
-    tmp[1] = -in[0]*Rslt*Rcln - in[1]*Rslt*Rsln + in[2]*Rclt;
-    tmp[2] =  in[0]*Rclt*Rcln + in[1]*Rclt*Rsln + in[2]*Rslt;
+    tmp[0] = -in[0]*snln      + in[1]*csln;
+    tmp[1] = -in[0]*snlt*csln - in[1]*snlt*snln + in[2]*cslt;
+    tmp[2] =  in[0]*cslt*csln + in[1]*cslt*snln + in[2]*snlt;
     out[0] = tmp[0];
     out[1] = tmp[1];
     out[2] = tmp[2];
 }
 
-void unrotvec( vector3 in, rotmat *rot, vector3 out )
+void rotmat::unrotvec( vector3 in, vector3 out ) const
 {
     vector3 tmp;
 
-    tmp[0] = -in[0]*Rsln      - in[1]*Rslt*Rcln + in[2]*Rclt*Rcln;
-    tmp[1] =  in[0]*Rcln      - in[1]*Rslt*Rsln + in[2]*Rclt*Rsln;
-    tmp[2] =                    in[1]*Rclt      + in[2]*Rslt;
+    tmp[0] = -in[0]*snln      - in[1]*snlt*csln + in[2]*cslt*csln;
+    tmp[1] =  in[0]*csln      - in[1]*snlt*snln + in[2]*cslt*snln;
+    tmp[2] =                    in[1]*cslt      + in[2]*snlt;
     out[0] = tmp[0];
     out[1] = tmp[1];
     out[2] = tmp[2];
 }
 
-void rot_vertical( rotmat *rot, vector3 vrt )
+void rotmat::rot_vertical( vector3 vrt ) const
 {
-    vrt[0] = Rclt*Rcln;
-    vrt[1] = Rclt*Rsln;
-    vrt[2] = Rslt;
+    vrt[0] = cslt*csln;
+    vrt[1] = cslt*snln;
+    vrt[2] = snlt;
 }
-
-#undef Rslt
-#undef Rsln
-#undef Rclt
-#undef Rcln
 
 
 /*----------------------------------------------------------------*/

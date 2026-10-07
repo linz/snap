@@ -199,7 +199,7 @@ int write_station_file( const std::optional<std::string> &prog, const std::optio
         comment << "Updated at " << run_time_text;
     }
 
-    const int sts=write_network( net, filename.c_str(), comment.str().c_str(), coord_precision,
+    const int sts=write_network( net, filename, comment.str(), coord_precision,
                           check_rejected );
     if( sts == OK )
     {

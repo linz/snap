@@ -522,8 +522,8 @@ void list_vecdata_residuals( FILE *out, survdata  *v, TableWriter &table )
 
         dummy1 = *from;
         dummy2 = *to;
-        modify_station_xyz( &dummy1, d1xyz, el );
-        modify_station_xyz( &dummy2, d2xyz, el );
+        dummy1.modify_xyz( d1xyz, *el );
+        dummy2.modify_xyz( d2xyz, *el );
 
         convert_coords( &from_xyz, d1xyz, NULL, d1xyz, NULL );
         convert_coords( &from_xyz, d2xyz, NULL, d2xyz, NULL );
@@ -684,7 +684,7 @@ static int list_stations( FILE *out, TableWriter &table )
             const int idclass = table.classId( i );
             if( idclass > 0 )
             {
-                const int idvalue = get_station_class( st, idclass );
+                const int idvalue = st->get_class( idclass );
                 if(idvalue > 0 )
                 {
                     value = net->class_value( idclass, idvalue );
@@ -1188,8 +1188,8 @@ int main( int argc, char *argv[] )
     el = net->crdsys->rf->el;
 
     get_network_topocentre( net, &lat, &lon );
-    init_station( &dummy1, "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, el );
-    init_station( &dummy2, "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, el );
+    dummy1 = station( "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, *el );
+    dummy2 = station( "0", "0", lat, lon, 0.0, 0.0, 0.0, 0.0, *el );
 
     reload_obs_classes( b );
 

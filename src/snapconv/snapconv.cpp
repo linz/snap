@@ -202,7 +202,7 @@ int main( int argc, char *argv[] )
         set_network_height_coord_orthometric( net );
     }
 
-    if( write_network( net, argv[3], msg.c_str(), 0, 0 ) != OK )
+    if( write_network( net, argv[3], msg, 0, nullptr ) != OK )
     {
         return 2;
     }

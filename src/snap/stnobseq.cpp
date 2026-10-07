@@ -75,8 +75,8 @@ static int add_colocation_constraint( station *stcol, station *st0, double herro
     {
         char errmsg[80+STNCODELEN*2];
         sprintf(errmsg,"Cannot colocate %.*s with %.*s - already colocated with %.*s",
-                STNCODELEN,stcol->Code,STNCODELEN,st0->Code,
-                STNCODELEN,stnptr(sa->idcol)->Code );
+                STNCODELEN,stcol->Code.c_str(),STNCODELEN,st0->Code.c_str(),
+                STNCODELEN,stnptr(sa->idcol)->Code.c_str() );
         handle_error(INCONSISTENT_DATA,errmsg,NO_MESSAGE);
         return INCONSISTENT_DATA;
     }
@@ -351,7 +351,7 @@ void set_station_obseq( station *st, vector3 dst, void *hA, int irow, double dat
         if( output_deformation && lst )
         {
             fprintf(lst,"Deformation at %-*s, %7.2lf (%7.4lf,%7.4lf,%7.4lf)  %s\n",
-                    stn_name_width,st->Code,date_as_year(date),
+                    stn_name_width,st->Code.c_str(),date_as_year(date),
                     denu[0],denu[1],denu[2],
                     st->Name.c_str());
         }
@@ -458,7 +458,7 @@ void sum_floating_stations( int iteration )
         lsq_sum_obseqn( hA );
         if( output_observation_equations )
         {
-            const std::string source = std::string("{\"station\":\"") + st->Code + "\"}";
+            const std::string source = std::string("{\"station\":\"") + std::string( st->Code ) + "\"}";
             if( nfloat ) fprintf(lst,",\n");
             nfloat++;
             print_obseqn_json( lst, hA, source, 2 );
@@ -536,7 +536,7 @@ void print_coordinate_changes( FILE *out )
         if( sa->hrowno || sa->vrowno )
         {
 
-            fprintf(out,"%-*s  ",stn_name_width,st->Code);
+            fprintf(out,"%-*s  ",stn_name_width,st->Code.c_str());
 
             if( sa->hrowno )
             {
@@ -739,7 +739,7 @@ void print_adjusted_coordinates( FILE *lst )
         /* Print the first line - latitude or easting */
 
         fprintf(lst,"\n%c%-*s ",stnadj(st)->flag.rejected ? REJECTED_STN_FLAG : ' ',
-                stn_name_width,st->Code);
+                stn_name_width,st->Code.c_str());
         if( projection_coords )
         {
             fprintf(lst,"%13.*lf  ",(int) coord_precision, easting);
@@ -1154,7 +1154,7 @@ void write_station_csv()
 
         for( int i = 0; i < net->classification_count(); i++ )
         {
-            int iclass = get_station_class( st, i+1 );
+            int iclass = st->get_class( i+1 );
             csv->writeString( net->class_value(i+1, iclass) );
         }
 
@@ -1257,9 +1257,9 @@ void print_floated_stations( FILE *out )
             double resval=res[rowno];
             double ser=sqrt(fabs(Lij(rescvr,rowno,rowno)))*semult;
             fprintf( out, "%-*s %-*s  %-5s  %10.4lf  %10.4lf  %10.4lf  %10.4lf ",
-                     stn_name_width, (rowno==0 ? st->Code : ""), 
+                     stn_name_width, (rowno==0 ? st->Code.c_str() : ""),
                      relative_floating ? stn_name_width+1 : 0,
-                     stcol ? stcol->Code : "",
+                     stcol ? stcol->Code.c_str() : "",
                      coordname[axis].data(),
                      (axis < 2 ? sa->herror : sa->verror)*semult,
                      sqrt(fabs(Lij(calccvr,rowno,rowno)))*semult,

@@ -31,7 +31,7 @@ int merge_network( network *base, network *data, int mergeopts,
     station *st, *stnew;
     station **stnewlist = 0;
     station **stdellist = 0;
-    ellipsoid *el=base->crdsys->rf->el;
+    ellipsoid &el=*base->crdsys->rf->el;
     int nnew = 0;
     int *classmap=NULL;
     int nclass=0;
@@ -164,8 +164,8 @@ int merge_network( network *base, network *data, int mergeopts,
                 stnew=st0;
                 if( updateexu ) 
                 {
-                    modify_station_coords_xeu( st0, 
-                        llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], 
+                    st0->modify_coords_xeu(
+                        llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT],
                         exu[CRD_LAT],exu[CRD_LON],exu[CRD_HGT], 
                         el );
                 }
@@ -176,17 +176,17 @@ int merge_network( network *base, network *data, int mergeopts,
                         llh[CRD_HGT] += exu[CRD_HGT];
                         llh[CRD_HGT] -= st0->GUnd;
                     }
-                    modify_station_coords( st0, 
+                    st0->modify_coords(
                         llh[CRD_LAT],llh[CRD_LON],llh[CRD_HGT], el );
                 }
                 loadclass=updatecls;
-                if( nclassnew ) init_station_classes( st0, nclassnew );
+                if( nclassnew ) st0->set_class_count( nclassnew );
             }
         }
 
         if( ! stnew )
         {
-            stnew = new_network_station( base, st->Code, st->Name.c_str(),
+            stnew = new_network_station( base, st->Code, st->Name,
                                      llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT],
                                      exu[CRD_LAT], exu[CRD_LON], exu[CRD_HGT] );
             loadclass=1;
@@ -197,9 +197,9 @@ int merge_network( network *base, network *data, int mergeopts,
             {
                 if( classmap[i] > 0 )
                 {
-                    std::string classval = data->class_value( i, get_station_class(st,i));
+                    std::string classval = data->class_value( i, st->get_class(i));
                     int tgtval = base->class_value_id(classmap[i],classval,1);
-                    set_station_class( stnew, classmap[i],tgtval );
+                    stnew->set_class( classmap[i],tgtval );
                 }
             }
         }

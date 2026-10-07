@@ -281,7 +281,7 @@ void calc_station_offset( station *st, double date, vector3 denu )
         }
         if( comp->isxyz == STN_TS_XYZ )
         {
-            rotvec( cenu, &(st->rTopo), cenu );
+            st->rTopo.rotvec( cenu, cenu );
         }
         vecadd( denu, cenu, denu );
     }
@@ -293,7 +293,7 @@ void print_station_offset( FILE *lst, station *st )
     stn_offset_comp *comp;
 
     if( ! sto ) return;
-    fprintf(lst,"%s %s\n",st->Code, sto->isdeformation ? "deformation" : "offset");
+    fprintf(lst,"%s %s\n",st->Code.c_str(), sto->isdeformation ? "deformation" : "offset");
     for( comp=sto->components; comp; comp=comp->next )
     {
         stn_tspoint *tsp=&(comp->basepoint);

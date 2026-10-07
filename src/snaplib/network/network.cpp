@@ -157,7 +157,7 @@ std::string network::order( int orderid ) const
 
 int network::station_order( station *stn ) const
 {
-    return orderclsid ? get_station_class( stn, orderclsid ) : 0;
+    return orderclsid ? stn->get_class( orderclsid ) : 0;
 }
 
 int network_has_explicit_geoid_info( network *nw )

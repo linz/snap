@@ -317,8 +317,8 @@ static void print_obsheader( FILE *lst, bindata *b )
     tgt=get_trgtdata(sd,0);
     fprintf(lst,"\nFile %s: line %d: Station ",
             survey_data_file_name(sd->file).c_str(),(int)(tgt->lineno));
-    if( sd->from ) { fprintf(lst,"%s ",stnptr(sd->from)->Code ); }
-    if( tgt->to ) { fprintf( lst, "%s%s ",(sd->from ? "to " : ""),stnptr(tgt->to)->Code);}
+    if( sd->from ) { fprintf(lst,"%s ",stnptr(sd->from)->Code.c_str() ); }
+    if( tgt->to ) { fprintf( lst, "%s%s ",(sd->from ? "to " : ""),stnptr(tgt->to)->Code.c_str());}
     fprintf(lst,": %s",datatype[tgt->type].code.data());
     if( ntgt > 1 ) fprintf(lst," ...");
     fprintf(lst,"\n\n");
@@ -367,9 +367,9 @@ int sum_bindata( int iteration )
             std::ostringstream source;
             source << "{\"file\": \"" << survey_data_file_name(sd->file).substr(0,80)
                    << "\",\"lineno\": " << tgt->lineno
-                   << ", \"station\": \"" << (sd->from ? stnptr(sd->from)->Code : "")
+                   << ", \"station\": \"" << (sd->from ? stnptr(sd->from)->Code.c_str() : "")
                    << (sd->from && tgt->to ? " - " : "")
-                   << (tgt->to ? stnptr(tgt->to)->Code : "")
+                   << (tgt->to ? stnptr(tgt->to)->Code.c_str() : "")
                    << "\", \"obsid\": " << tgt->obsid
                    << ", \"type\": \"" << datatype[tgt->type].code
                    << "\",\"nobs\": " << sd->nobs << "}";

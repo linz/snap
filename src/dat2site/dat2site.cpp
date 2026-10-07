@@ -1354,7 +1354,7 @@ static void fix_station( stn *st, double lat, double lon, double hgt, int flag )
     {
         if( !(flag & ST_FIXH) ) lat = lon = 0.0;
         if( !(flag & ST_FIXV) ) hgt = 0.0;
-        station *s = new_network_station( net, st->code.c_str(), st->code.c_str(), lat, lon, hgt,
+        station *s = new_network_station( net, st->code, st->code, lat, lon, hgt,
                                       0.0, 0.0, 0.0 );
         link_station(s,st);
     }

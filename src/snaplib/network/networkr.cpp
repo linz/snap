@@ -322,10 +322,10 @@ int read_network( network *nw, std::string_view fname, int options )
             continue;
         }
 
-        station *st = new_network_station( nw, stcode.c_str(), stname.c_str(), lat, lon, hgt, xi, eta, und );
+        station *st = new_network_station( nw, stcode, stname, lat, lon, hgt, xi, eta, und );
         for( int i = 1; i <= nclass; i++ )
         {
-            set_station_class( st, i, clsids[i]);
+            st->set_class( i, clsids[i]);
         }
     }
     while( stf->read_record() == OK );

@@ -24,7 +24,7 @@
 /* Basic routine to write a station data file                  */
 
 
-int write_network( network *nw, const char *fname, const char *comment,
+int write_network( network *nw, const std::string &fname, const std::string_view comment,
                    int coord_precision, int (*select)(station *st) )
 {
     FILE *stf;
@@ -40,9 +40,7 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     if( !nw || !nw->stnlist || !nw->crdsys ) return MISSING_DATA;
 
-    if( !fname ) return MISSING_DATA;
-
-    stf = fopen( fname, "w" );
+    stf = fopen( fname.c_str(), "w" );
     if( stf == NULL )
     {
         handle_error( FILE_OPEN_ERROR, "Unable to create new coordinate file",
@@ -119,7 +117,7 @@ int write_network( network *nw, const char *fname, const char *comment,
 
     /* Print details of the the program creating the file */
 
-    if( comment && strlen(comment) > 0 ) fprintf( stf,"! %s\n", comment );
+    if( ! comment.empty() ) fprintf( stf,"! %s\n", std::string( comment ).c_str() );
 
     fprintf(stf,"\n");
 
@@ -171,7 +169,7 @@ int write_network( network *nw, const char *fname, const char *comment,
     while( NULL != (st = next_station(nw) ) )
     {
         if( select && !(*select)(st)) continue;
-        fprintf(stf,"%-5s",st->Code);
+        fprintf(stf,"%-5s",st->Code.c_str());
 
         if( projection_coords )
         {
@@ -222,7 +220,7 @@ int write_network( network *nw, const char *fname, const char *comment,
             int i;
             for( i = 0; i++ < nclass; )
             {
-                int clsid = get_station_class( st, i );
+                int clsid = st->get_class( i );
                 std::string cval = nw->class_value( i, clsid );
                 fprintf( stf, " %-5s", cval.empty() ? "-" : cval.c_str() );
             }

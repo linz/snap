@@ -1813,15 +1813,15 @@ int SresDef::compare_from( const SresDef &other ) const
 
 int SresDef::compare_line( const SresDef &other ) const
 {
-    const char *f1 = std::get<std::string>(cmpval).c_str();
-    const char *f2 = std::get<std::string>(other.cmpval).c_str();
+    std::string_view f1 = std::get<std::string>(cmpval);
+    std::string_view f2 = std::get<std::string>(other.cmpval);
     int to1 = connlst[from].to[to_id].to;
     int to2 = connlst[other.from].to[other.to_id].to;
-    const char *t1 = to1 ? stnptr(to1)->Code : "";
-    const char *t2 = to2 ? stnptr(to2)->Code : "";
+    std::string_view t1 = to1 ? std::string_view( stnptr(to1)->Code ) : std::string_view();
+    std::string_view t2 = to2 ? std::string_view( stnptr(to2)->Code ) : std::string_view();
 
-    if( stncodecmp(f1,t1) > 0 ) { const char *t = t1; t1 = f1; f1 = t; }
-    if( stncodecmp(f2,t2) > 0 ) { const char *t = t2; t2 = f2; f2 = t; }
+    if( stncodecmp(f1,t1) > 0 ) std::swap( t1, f1 );
+    if( stncodecmp(f2,t2) > 0 ) std::swap( t2, f2 );
 
     int cmp = stncodecmp( f1, f2 );
     if( cmp == 0 ) cmp = stncodecmp(t1,t2);
@@ -1998,7 +1998,7 @@ void SresDef::set_sort_key( int order )
     switch (order)
     {
     case SRF_FROM:
-    case SRF_TO:      cmpval = stnptr(from)->Code;
+    case SRF_TO:      cmpval = std::string( stnptr(from)->Code );
         break;
     case SRF_TYPE:    get_connection_data_by_id( from, to_id, obs_id, connection );
         cmpval = std::string( datatype[connection->type].code );
@@ -2186,7 +2186,7 @@ std::string sres_item_description( long id )
         switch( displayFields[i] )
         {
         case SRF_FROM:    data = sfrom->Code; break;
-        case SRF_TO:      data = sto ? sto->Code : ""; break;
+        case SRF_TO:      data = sto ? sto->Code.c_str() : ""; break;
         case SRF_TYPE:    data = datatype[connection->type].code; break;
         case SRF_STATUS:  data =   (connection->flags & CONN_REJECTED ) ? "reject" :
                                        (connection->flags & CONN_UNUSED) ? "unused" : "";
@@ -3104,7 +3104,7 @@ void list_vecdata( void *dest, PutTextFunc f, survdata *sd, unsigned char flags,
     {
         int iobs;
         (*f)( dest, &jmp, "" );
-        (*f)( dest, &jmp, std::string( "Other " ) + ( ispoint ? "points" : "vectors" ) + " in set referenced to station " + sfrom->Code );
+        (*f)( dest, &jmp, std::string( "Other " ) + ( ispoint ? "points" : "vectors" ) + " in set referenced to station " + std::string( sfrom->Code ) );
         (*f)( dest, &jmp, std::string( "     To             Distance" )
                           + ( binary_data ? "          Residual (E,N,U)        Std.Res" : "" ) );
         for( iobs = ispoint ? 0 : -1; iobs < sd->nobs; iobs++ )

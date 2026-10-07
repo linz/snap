@@ -212,16 +212,16 @@ int sl_reindex_stations( station_list *sl )
 
 int sl_remove_duplicate_stations( station_list *sl, int reindex, void *data, stnfunc function )
 {
-    const char *code=0;
+    std::optional<std::string_view> code;
     int nremove=0;
 
     index_stations(sl);
     for( int i=1; i <= sl->count; i++ )
     {
         station *st=sl->codeindex[i];
-        if( code == 0 || stncodecmp(st->Code,code) != 0 )
+        if( ! code || stncodecmp(st->Code,*code) != 0 )
         {
-            code=st->Code;
+            code=std::string_view( st->Code );
         }
         else
         {

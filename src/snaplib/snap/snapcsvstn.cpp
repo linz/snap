@@ -459,11 +459,11 @@ void SnapCsvStn::loadRecord()
 
     crdxi *= STOR;
     crdeta *= STOR;
-    station *st = new_network_station(_net, code.c_str(), name.c_str(), crdlat, crdlon, crdhgt, crdxi, crdeta, crdund);
+    station *st = new_network_station(_net, code, name, crdlat, crdlon, crdhgt, crdxi, crdeta, crdund);
 
     for (auto c = _classifications.begin(); c < _classifications.end(); c++)
     {
-        set_station_class(st, (*c)->classId(), (*c)->classValue());
+        st->set_class((*c)->classId(), (*c)->classValue());
     }
     for (auto cc = _classCols.begin(); cc != _classCols.end(); cc++)
     {
@@ -472,7 +472,7 @@ void SnapCsvStn::loadRecord()
         {
             int idclass = cc->classId();
             int idvalue = _net->class_value_id(idclass, value, 1);
-            set_station_class(st, idclass, idvalue);
+            st->set_class(idclass, idvalue);
         }
     }
 }

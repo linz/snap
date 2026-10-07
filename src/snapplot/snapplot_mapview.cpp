@@ -432,7 +432,7 @@ void SnapplotMapView::OnIdle( wxIdleEvent & WXUNUSED(event)  )
     if( istn )
     {
         coordString.Append("\r\n");
-        coordString.Append(stnptr(istn)->Code);
+        coordString.Append(stnptr(istn)->Code.c_str());
         coordString.Append("\r\n");
         coordString.Append(stnptr(istn)->Name.c_str());
         coordString.Replace("\t"," ");

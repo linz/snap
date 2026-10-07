@@ -526,7 +526,7 @@ static void dump_ordering( FILE *lst )
     for( i1=0; i1++<nconnlst; )
     {
         stn=station_ptr(net,order2[i1]);
-        fprintf(lst,"   %s\n",stn->Code);
+        fprintf(lst,"   %s\n",stn->Code.c_str());
     }
 }
 

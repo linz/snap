@@ -236,7 +236,7 @@ void list_vecdata( FILE *out, survdata  *v )
                 if( axis == 0 && iobs == 0 )
                 {
                     fprintf( out, "%-*s %5.3lf  ", stn_name_width,
-                             station_code(v->from), v->fromhgt );
+                             station_code(v->from).c_str(), v->fromhgt );
                 }
                 else
                 {
@@ -247,7 +247,7 @@ void list_vecdata( FILE *out, survdata  *v )
             if( axis == 0 )
             {
                 fprintf( out, "%-*s %5.3lf  ", stn_name_width,
-                         station_code(t->tgt.to), t->tgt.tohgt );
+                         station_code(t->tgt.to).c_str(), t->tgt.tohgt );
             }
             else
             {

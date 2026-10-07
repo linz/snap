@@ -687,13 +687,13 @@ void print_json_observations( FILE *out )
             /* Could be more rigorous here! */
             if( sd->from )
             {
-                fprintf( out, "        \"from\":\"%s\",\n",station_code(sd->from));
+                fprintf( out, "        \"from\":\"%s\",\n",station_code(sd->from).c_str());
                 fprintf( out, "        \"from_hgt\":%.4lf,\n",sd->fromhgt);
                 totype=tostr;
             }
             if( tgt->to )
             {
-                fprintf( out, "        \"%s\":\"%s\",\n",totype,station_code(tgt->to));
+                fprintf( out, "        \"%s\":\"%s\",\n",totype,station_code(tgt->to).c_str());
             }
             else
             {

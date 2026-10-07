@@ -502,7 +502,7 @@ try
         {
 
             xprintf("   Maximum adjustment is %.4lf at station %s\n",
-                    maxadj,station_code(maxstn));
+                    maxadj,station_code(maxstn).c_str());
             xprintf("   %d station adjustments exceed convergence criteria\n",
                     nstnadj );
         }
@@ -539,7 +539,7 @@ try
         if( maxadj > max_adjustment )
         {
             sprintf(errmess,"Adjustment %.4lf at station %s greater than allowable maximum",
-                    maxadj, station_code(maxstn) );
+                    maxadj, station_code(maxstn).c_str() );
             handle_error( WARNING_ERROR, errmess, NO_MESSAGE );
             break;
         }

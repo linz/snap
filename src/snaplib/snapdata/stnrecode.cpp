@@ -273,7 +273,7 @@ void add_stn_recode_to_map( stn_recode_map *stt, std::string_view codefrom, std:
 struct stn_recode_suffix_data
 {
     stn_recode_map *srm;
-    char *suffix;
+    std::string_view suffix;
     double datefrom;
     double dateto;
     double herror;
@@ -283,20 +283,16 @@ struct stn_recode_suffix_data
 
 static void apply_recode_suffix( station *st, void *psrd )
 {
-    char codeto[STNCODELEN+1];
-    stn_recode_suffix_data *srd=(stn_recode_suffix_data *) psrd;
-    char *suffix=srd->suffix;
-    int sfxlen=strlen(suffix);
-    const char *codefrom=st->Code;
-    int codelen=strlen(codefrom);
+    const stn_recode_suffix_data *srd=static_cast<const stn_recode_suffix_data *>( psrd );
+    const std::string_view suffix=srd->suffix;
+    const std::string_view codefrom=st->Code;
 
     /* Check if reprocessing a code for which a suffix is already applied */
-    if( codelen > sfxlen && _stricmp(suffix,codefrom+(codelen-sfxlen))==0 ) return;
-    if( sfxlen > STNCODELEN ) return;
+    if( codefrom.size() > suffix.size() && compare_ignoring_case(suffix,codefrom.substr(codefrom.size()-suffix.size()))==0 ) return;
+    if( suffix.size() > STNCODELEN ) return;
 
-    strcpy(codeto,codefrom);
-    codeto[STNCODELEN-sfxlen]=0;
-    strcat(codeto,suffix);
+    std::string codeto( codefrom.substr(0,STNCODELEN-suffix.size()) );
+    codeto += suffix;
     add_stn_recode_to_map_err( srd->srm, codefrom, codeto, srd->datefrom, srd->dateto, srd->herror, srd->verror );
 }
 
@@ -673,7 +669,7 @@ int read_station_recode_definition( stn_recode_map *stt, std::string_view def, c
         {
             stn_recode_suffix_data srd;
             srd.srm=stt;
-            srd.suffix=suffix->data();
+            srd.suffix=*suffix;
             srd.datefrom=datefrom;
             srd.dateto=dateto;
             srd.herror=herror;
@@ -818,7 +814,7 @@ std::optional<recode_result> recoded_network_station( void *recode_data, std::st
             if( id )
             {
                 station *st=station_ptr(srd->net,id);
-                duplicate_network_station( srd->net, st, recoded_code.c_str(), st->Name.c_str() );
+                duplicate_network_station( srd->net, st, recoded_code, st->Name );
             }
         }
     }

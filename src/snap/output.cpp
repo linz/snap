@@ -71,6 +71,10 @@
 #include "util/xprintf.h"
 #include "util/getversion.h"
 
+#include <boost/numeric/conversion/cast.hpp>
+
+using boost::numeric_cast;
+
 struct output_subcommand
 {
     const std::string_view name;
@@ -505,7 +509,7 @@ void eliminate_inconsistent_outputs( void )
 
     for( i=0; i++<number_of_stations( net ); )
     {
-        nc = strlen(station_code(i));
+        nc = numeric_cast<int>( station_code(i).size() );
         if( nc > stn_name_width ) stn_name_width = nc;
     }
 
@@ -643,7 +647,7 @@ void handle_singularity( int sts )
     std::string errmess = "A singularity was detected at " + paramname;
     if(stno)
     {
-        errmess += std::string( " of station " ) + station_code(stno);
+        errmess += std::string( " of station " ) + std::string( station_code(stno) );
     }
 
     fprintf( lst, "%s\n\n", errmess.c_str());
@@ -694,7 +698,7 @@ void print_iteration_update( int iteration, double maxadj,
     if( output_iteration_summary )
     {
         fprintf(lst,"\nIteration %d: Maximum change is %.4lf metres at station %s\n",
-                (int)iteration, maxadj, station_code(maxstn));
+                (int)iteration, maxadj, station_code(maxstn).c_str());
         fprintf(lst,"             %d station adjustments exceed convergence criteria\n",
                 (int)nstnadj );
     }
@@ -810,7 +814,7 @@ void print_problem_summary( FILE *lst )
             adj = 'F';
         }
 
-        fprintf( lst,"%-*s    %c ",stn_name_width,st->Code, adj );
+        fprintf( lst,"%-*s    %c ",stn_name_width,st->Code.c_str(), adj );
         if( havefloat )
         {
             if( dimension != 1 )
@@ -840,7 +844,7 @@ void print_problem_summary( FILE *lst )
                 if( stnadj(st)->idcol )
                 {
                     station *stcol=stnptr(stnadj(st)->idcol);
-                    fprintf(lst," %-*s",stn_name_width,stcol->Code);
+                    fprintf(lst," %-*s",stn_name_width,stcol->Code.c_str());
                 }
                 else
                 {
@@ -869,7 +873,7 @@ void print_problem_summary( FILE *lst )
     {
         if( !stnadj(st)->flag.rejected ) continue;
         fprintf(lst,"%c%-*s   %s\n",stnadj(st)->flag.autoreject ? '*' : ' ',
-                stn_name_width,st->Code, st->Name.c_str() );
+                stn_name_width,st->Code.c_str(), st->Name.c_str() );
     }
 
     /* Print out auto constrained stations */
@@ -902,7 +906,7 @@ void print_problem_summary( FILE *lst )
             if( sa->flag.auto_h==auto_h && sa->flag.auto_v==auto_v )
             {
                 if( row >= 80 ) { fputs("\n",lst); row=0; }
-                fprintf(lst," %-*s", stn_name_width,st->Code );
+                fprintf(lst," %-*s", stn_name_width,st->Code.c_str() );
                 row += stn_name_width+1;
             }
         }
@@ -1022,7 +1026,7 @@ void print_json_params( FILE *lst, int nprefix )
             fprintf(lst,"%s\n%*s\"%s%s%s\"",
                     i > 1 ? "," : "",
                     nprefix+2,"",
-                    stno ? station_code(stno) : "",
+                    stno ? station_code(stno).c_str() : "",
                     stno ? ": " : "",
                     paramname.c_str() );
         }

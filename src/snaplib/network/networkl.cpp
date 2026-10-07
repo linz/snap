@@ -276,7 +276,7 @@ static criterion new_classification_criterion( int class_id, int value_id, crite
 static bool classification_criterion_match( const criterion &c, station *stn )
 {
     const classification_criterion &clsf=std::get<classification_criterion>( c.type );
-    return get_station_class( stn, clsf.class_id ) == clsf.value_id;
+    return stn->get_class( clsf.class_id ) == clsf.value_id;
 }
 
 /*-----------------------------------------------------------------------*/

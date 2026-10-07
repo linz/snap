@@ -310,8 +310,8 @@ void print_worst_residuals( FILE *out )
             list_note( out, ws->note );
 
             fprintf(out,"\n%-*s  %-*s",
-                    stn_name_width, station_code(from),
-                    stn_name_width, to ? station_code(to) : "");
+                    stn_name_width, station_code(from).c_str(),
+                    stn_name_width, to ? station_code(to).c_str() : "");
             if( have_obs_ids )
             {
                 fprintf( out, " %7d", ws->id );

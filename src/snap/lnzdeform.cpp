@@ -140,7 +140,7 @@ static int init_linzdef_deformation( void *deformation )
         if( convert_coords( &tovcs, xyz, NULL, xyz, NULL ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %.20s to deformation model coordinate system %.20s",
-                    st->Code, vcs->code.c_str());
+                    st->Code.c_str(), vcs->code.c_str());
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }
@@ -156,7 +156,7 @@ static int init_linzdef_deformation( void *deformation )
             if( sts != STS_OK )
             {
                 sprintf(buf,"Cannot calculate deformation of %.20s at date %.1lf",
-                        st->Code, model->epoch);
+                        st->Code.c_str(), model->epoch);
                 handle_error(WARNING_ERROR,buf,NO_MESSAGE);
                 return INVALID_DATA;
             }
@@ -193,7 +193,7 @@ static int calc_linzdef_deformation( void *deformation, station *st, double date
         if( sts != STS_OK )
         {
             sprintf(buf,"Cannot calculate deformation of %.20s at %.1lf",
-                    st->Code,year);
+                    st->Code.c_str(),year);
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }

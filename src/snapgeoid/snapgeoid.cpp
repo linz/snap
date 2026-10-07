@@ -368,9 +368,7 @@ int main( int argc, char *argv[] )
 
     /* And write the file out again */
 
-    if( write_network( &net, newfn.c_str(),
-                       geoid_msg[0] ? geoid_msg : NULL,
-                       0,NULL) != OK )
+    if( write_network( &net, newfn, geoid_msg, 0, nullptr ) != OK )
     {
         return 2;
     }

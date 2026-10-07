@@ -194,7 +194,6 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     double u1, u2;
 
     double llh[3];
-    rotmat toporot;
 
     sts = calculate_geoid_undulation( gd, lat, lon, &exu[CRD_HGT] );
     if( sts != OK ) return sts;
@@ -207,7 +206,7 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     llh[CRD_HGT] = 0.0;
 
     llh_to_xyz( el, llh, xyz, NULL, NULL );
-    init_toprot( llh[CRD_LAT], llh[CRD_LON], &toporot );
+    const rotmat toporot( llh[CRD_LAT], llh[CRD_LON] );
 
     /* Calculate geoid heights half a grid spacing south (u1) and north (u2)
        of the reference point, and determine the deflection north from
@@ -230,7 +229,7 @@ int calculate_geoid_exu( geoid_def *gd, double lat, double lon, double exu[3] )
     /* Convert the north vector dxyz to an west vector by taking a dot product with
        the local vertical */
 
-    rot_vertical( &toporot, xyzp );
+    toporot.rot_vertical( xyzp );
     vecprd( dxyz, xyzp, dxyz );
 
     /* Calculate the west and east undulations and use this to derive deflection east */

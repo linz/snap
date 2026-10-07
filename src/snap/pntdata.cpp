@@ -143,7 +143,7 @@ void list_pntdata(FILE *out, survdata *p)
     list_note(out, t->noteloc);
 
     fprintf(out, "%2d:%-4d  %-*s %5.3lf  ", (int)(p->file + 1), (int)(t->lineno),
-            stn_name_width, station_code(p->from), 0.0);
+            stn_name_width, station_code(p->from).c_str(), 0.0);
 
     fprintf(out, "%*s        ", stn_name_width, "");
     fprintf(out, "%2s%c  ", datatype[type].code.data(),

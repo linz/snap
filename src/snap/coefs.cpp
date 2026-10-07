@@ -40,8 +40,8 @@ double zd_ref_correction( int p, station *st1, station *st2, void *hA, int irow 
 
     /* Calculate the angle subtended by the verticals at the two stations */
 
-    rot_vertical( &st1->rTopo, vrt1 );
-    rot_vertical( &st2->rTopo, vrt2 );
+    st1->rTopo.rot_vertical( vrt1 );
+    st2->rTopo.rot_vertical( vrt2 );
 
     angle = vecdot( vrt1, vrt2 );
     angle = 1.0 - angle*angle;

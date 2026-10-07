@@ -394,7 +394,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
             }
 
             fprintf(lst,"     %-*s  ",
-                    stn_name_width, stnptr(istn)->Code );
+                    stn_name_width, stnptr(istn)->Code.c_str() );
             if( gothtol ) fprintf(lst,"    %8.2lf",hratio);
             if( gotvtol ) fprintf(lst,"    %8.2lf",vratio);
             fprintf(lst,"\n");
@@ -412,7 +412,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
         fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailh);
         if( istnmaxh )
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
-                    maxhratio, stnptr(istnmaxh)->Code );
+                    maxhratio, stnptr(istnmaxh)->Code.c_str() );
     }
 
     if( gotvtol )
@@ -422,7 +422,7 @@ void test_absolute_accuracy_specs( SpecDef *spec, int apriori, int *stn_testids,
         fprintf(lst, "    Stations exceeding tolerance: %10ld\n",nfailv);
         if( istnmaxv )
             fprintf(lst, "     Largest error/tolerance:     %10.2lf (%s)\n",
-                    maxvratio, stnptr(istnmaxv)->Code );
+                    maxvratio, stnptr(istnmaxv)->Code.c_str() );
     }
 
 }

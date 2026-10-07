@@ -206,7 +206,7 @@ int main( int argc, char *argv[] )
         for( int istn = 1; istn <= nstn; istn++ )
         {
             station *st = station_ptr( base, istn );
-            set_station_class( st, clsid, 0 );
+            st->set_class( clsid, 0 );
         }
 
     }
@@ -224,7 +224,7 @@ int main( int argc, char *argv[] )
         for( int istn = 1; istn <= nstn; istn++ )
         {
             station *st = station_ptr( data, istn );
-            set_station_class( st, clsid, 0 );
+            st->set_class( clsid, 0 );
         }
     }
 
@@ -256,7 +256,7 @@ int main( int argc, char *argv[] )
     if( updatecls ) mergeopt |= NW_MERGEOPT_CLASSES;
     sts=merge_network( base, data, mergeopt, mergedate, &select_station );
 
-    if( sts != OK || write_network( base, newfile, 0, 0, 0 ) != OK )
+    if( sts != OK || write_network( base, newfile, std::string_view(), 0, nullptr ) != OK )
     {
         return 2;
     }

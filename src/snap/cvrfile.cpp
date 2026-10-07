@@ -23,6 +23,10 @@
 #include <string>
 #include <string_view>
 
+#include <boost/numeric/conversion/cast.hpp>
+
+using boost::numeric_cast;
+
 #include "cvrfile.h"
 #include "output.h"
 #include "snap/stnadj.h"
@@ -84,7 +88,7 @@ void print_coord_covariance( void )
     {
         st = stnptr( istn );
         sa = stnadj( st );
-        fprintf(f,"%*s ",stn_name_width,st->Code );
+        fprintf(f,"%*s ",stn_name_width,st->Code.c_str() );
         if( projection_coords )
         {
             double northing, easting;
@@ -182,7 +186,7 @@ void print_coord_covariance_json( void )
         st = stnptr( istn );
         sa = stnadj( st );
         if( istn > 1 ) fprintf(f,",");
-        fprintf(f,"\n    {\n      \"code\": \"%s\",\n",st->Code);
+        fprintf(f,"\n    {\n      \"code\": \"%s\",\n",st->Code.c_str());
         fprintf(f,"      \"coord\": [");
         height=st->OHgt;
         if( ellipsoidal ) height=st->OHgt+st->GUnd;
@@ -298,7 +302,7 @@ static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix
                 icvr[i]=BLT(invnorm,irow1[i]-1,irow2[j]-1);
             }
         }
-        unrotvec(icvr,&(st2->rTopo),icvr);
+        st2->rTopo.unrotvec( icvr, icvr );
         for( i=0; i<3; i++ )
         {
             cvr[i][j]=icvr[i];
@@ -306,7 +310,7 @@ static void station_cvr( bltmatrix* invnorm, station *st1, station *st2, tmatrix
     }
     for( i=0; i<3; i++ )
     {
-        unrotvec(&(cvr[i][0]),&(st1->rTopo),&(cvr[i][0]));
+        st1->rTopo.unrotvec( &(cvr[i][0]), &(cvr[i][0]) );
     }
 }
     
@@ -357,7 +361,8 @@ void print_coord_sinex( void )
             st = stnptr( istn );
             sa = stnadj( st );
             if( ! sa->obscount ) continue;
-            if( (int) strlen(st->Code) > maxcodlen ) maxcodlen=strlen(st->Code);
+            const int codelen = numeric_cast<int>( st->Code.size() );
+            if( codelen > maxcodlen ) maxcodlen = codelen;
             if( sa->hrowno ||  sa->vrowno ) 
             {
                 nsnxprm += 3;
@@ -435,7 +440,7 @@ void print_coord_sinex( void )
             st = stnptr( istn );
             sa = stnadj( st );
             if( ! sa->obscount ) continue;
-            mark= strlen(st->Code) <= 4 ? dflt_mark : st->Code+4;
+            mark= st->Code.size() <= 4 ? dflt_mark : st->Code.c_str()+4;
             lon=st->ELon*RTOD;
             if( lon < 0 ) lon += 360.0;
             lat=st->ELat*RTOD;
@@ -443,7 +448,7 @@ void print_coord_sinex( void )
             const std::string longitudeText = dms_string(lon,longitudeFormat);
 
             fprintf(f," %-4.4s %-2.2s %-9.9s P %-22.22s %11.11s %11.11s %7.1lf\n",
-                    st->Code,mark,st->Code,st->Name.c_str(),longitudeText.c_str(),latitudeText.c_str(),st->OHgt+st->GUnd
+                    st->Code.c_str(),mark,st->Code.c_str(),st->Name.c_str(),longitudeText.c_str(),latitudeText.c_str(),st->OHgt+st->GUnd
                    );
         }
         fprintf(f,"-SITE/ID\n");
@@ -487,7 +492,7 @@ void print_coord_sinex( void )
             if( ! sa->obscount ) continue;
             if( ! ( sa->hrowno ||  sa->vrowno ) ) continue;
 
-            mark= strlen(st->Code) <= 4 ? dflt_mark : st->Code+4;
+            mark= st->Code.size() <= 4 ? dflt_mark : st->Code.c_str()+4;
 
             llh[CRD_LON]=st->ELon;
             llh[CRD_LAT]=st->ELat;
@@ -501,7 +506,7 @@ void print_coord_sinex( void )
             for ( int i=0; i<3; i++ )
             {
                 nprm++;
-                fprintf(f," %5d %-6.6s %-4.4s %-2.2s 0001 ",nprm,params[i].data(),st->Code,
+                fprintf(f," %5d %-6.6s %-4.4s %-2.2s 0001 ",nprm,params[i].data(),st->Code.c_str(),
                         mark);
                 print_sinex_date(f,epoch);
                 fprintf(f," m    %d %21.14lE %11.5lE\n",

@@ -800,7 +800,7 @@ static int process_station_list( CFG_FILE *cfg, std::string_view string, void *,
                 for( istn = number_of_stations(net); istn; istn-- )
                 {
                     station *st = stnptr(istn);
-                    int iorder = get_station_class( st, net->orderclsid );
+                    int iorder = st->get_class( net->orderclsid );
                     if( iorder == orderId )
                     {
                         set_station_mode( istn, mode );
@@ -1018,7 +1018,7 @@ int write_config_file( FILE *out, int key_only )
                 if( get_station_offset( istn, &oe, &on ) )
                 {
                     fprintf( out, "offset_station %s  %.2lf %.2lf\n",
-                             stnptr(istn)->Code, oe, on );
+                             stnptr(istn)->Code.c_str(), oe, on );
                 }
             }
         }
@@ -1043,7 +1043,7 @@ int write_config_file( FILE *out, int key_only )
                         fprintf( out, "\nhighlight" );
                         nline = 0;
                     }
-                    fprintf(out," %s",stnptr(istn)->Code );
+                    fprintf(out," %s",stnptr(istn)->Code.c_str() );
                     nline++;
                 }
             }
@@ -1071,7 +1071,7 @@ int write_config_file( FILE *out, int key_only )
                         fprintf( out, "\nhide" );
                         nline = 0;
                     }
-                    fprintf(out," %s",stnptr(istn)->Code );
+                    fprintf(out," %s",stnptr(istn)->Code.c_str() );
                     nline++;
                 }
             }

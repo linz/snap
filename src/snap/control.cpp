@@ -533,7 +533,7 @@ static void set_station_mode( station *st, void *modep )
         {
             char errmsg[80+STNCODELEN*2];
             sprintf(errmsg,"Cannot float station %s - already co-located with %s",
-                    st->Code,stnptr(sa->idcol)->Code);
+                    st->Code.c_str(),stnptr(sa->idcol)->Code.c_str());
             handle_error(INFO_ERROR,errmsg,NO_MESSAGE);
         }
         else

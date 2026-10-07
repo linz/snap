@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <string_view>
 
 /// Functions that write numbers as text, replacing sprintf into a fixed buffer.
 /// They are written with streams because the project builds as C++17. From C++20
@@ -40,11 +41,12 @@ inline std::string format_scientific(
 /// Pads text on the right with spaces to a minimum width, as printf's "%-*s"
 /// does. Text that is already wider is returned whole, never truncated.
 inline std::string pad_right(
-    std::string text,               ///< the text to pad
+    const std::string_view text,    ///< the text to pad
     const std::string::size_type minimumWidth )  ///< the result is at least this many characters
 {
-    if( text.size() < minimumWidth ) text.resize( minimumWidth, ' ' );
-    return text;
+    std::string padded( text );
+    if( padded.size() < minimumWidth ) padded.resize( minimumWidth, ' ' );
+    return padded;
 }
 
 /// Pads text on the left with spaces to a minimum width, as printf's "%*s"

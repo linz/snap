@@ -111,7 +111,7 @@ static int init_griddef( void * )
         if( convert_coords( &tovcs, xyz, nullptr, xyz, nullptr ) != OK )
         {
             sprintf(buf,"Cannot convert coordinates of %-20s to velocity coordinate system %-20s",
-                    st->Code, vcs->code.c_str());
+                    st->Code.c_str(), vcs->code.c_str());
             handle_error(WARNING_ERROR,buf,NO_MESSAGE);
             return INVALID_DATA;
         }

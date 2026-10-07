@@ -70,7 +70,7 @@ wxString wxStationSelectorTable::GetValue( int row, int col )
 {
     int istn = id[row];
     station *stn = stnptr(istn);
-    return col == 0 ? stn->Code : stn->Name.c_str();
+    return col == 0 ? stn->Code.c_str() : stn->Name.c_str();
 }
 
 void wxStationSelectorTable::SetValue( int WXUNUSED(row), int WXUNUSED(col), const wxString & WXUNUSED(value)  ) {}

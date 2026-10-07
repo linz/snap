@@ -28,7 +28,7 @@ void print_gps_baselines( FILE *out, int *stn, int nstns )
         station *s2;
         s2 = station_ptr( net, stn[j] );
         calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, NULL, NULL );
-        fprintf(out,"%-5s %-5s %10.3lf %10.3lf %10.3lf\n",s1->Code,s2->Code,
+        fprintf(out,"%-5s %-5s %10.3lf %10.3lf %10.3lf\n",s1->Code.c_str(),s2->Code.c_str(),
                 dxyz[0],dxyz[1],dxyz[2] );
     }
 }
@@ -39,12 +39,12 @@ void print_multistation_gps( FILE *out, int *stn, int nstns )
     int i;
     vector3 dxyz;
     s1 = station_ptr( net, stn[0] );
-    fprintf(out,"%s\n",s1->Code);
+    fprintf(out,"%s\n",s1->Code.c_str());
     for( i = 1; i < nstns; i++ )
     {
         s2 = station_ptr( net, stn[i] );
         calc_vec_dif( s1, 0.0, s2, 0.0, dxyz, NULL, NULL );
-        fprintf(out,"%-5s %10.3lf %10.3lf %10.3lf\n",s2->Code,
+        fprintf(out,"%-5s %10.3lf %10.3lf %10.3lf\n",s2->Code.c_str(),
                 dxyz[0],dxyz[1],dxyz[2] );
     }
 }

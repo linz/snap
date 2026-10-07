@@ -292,7 +292,7 @@ static void build_sort_index( void )
 
         switch( indexCol )
         {
-        case STNF_CODE: sortValues[istn].value = stn->Code; break;
+        case STNF_CODE: sortValues[istn].value = std::string( stn->Code ); break;
         case STNF_NAME: sortValues[istn].value = stn->Name; break;
         case STNF_LAT:  sortValues[istn].value = (float) stn->ELat; break;
         case STNF_LON:  sortValues[istn].value = (float) stn->ELon; break;
@@ -318,7 +318,7 @@ static void build_sort_index( void )
             break;
         default:
             classid = indexCol - STNF_CLASS;
-            valueid = get_station_class( stn, classid );
+            valueid = stn->get_class( classid );
             sortValues[istn].value = net->class_value( classid, valueid );
             break;
 
@@ -495,7 +495,7 @@ std::string station_list_item( const int istnsrt )
         if( icol ) row += '\t';
         switch( slist_field[icol] )
         {
-        case STNF_CODE: row += stn->Code; break;
+        case STNF_CODE: row += std::string_view( stn->Code ); break;
         case STNF_NAME:
         {
             std::string name = stn->Name.substr( 0, MAXCOLWIDTH );
@@ -530,7 +530,7 @@ std::string station_list_item( const int istnsrt )
         default:
         {
             const int classid = slist_field[icol]-STNF_CLASS;
-            const int valueid = get_station_class( stn, classid );
+            const int valueid = stn->get_class( classid );
             std::string value = net->class_value( classid, valueid ).substr( 0, MAXCOLWIDTH );
             replace_tabs( value );
             row += value;
@@ -606,7 +606,7 @@ void list_station_details( void *dest, PutTextFunc f, int istn )
         put_text( dest, f, "" );
         for( i = 0; i++ < nclass; )
         {
-            std::string classification = net->class_name(i) + ": " + net->class_value(i,get_station_class(stn,i));
+            std::string classification = net->class_name(i) + ": " + net->class_value(i,stn->get_class(i));
             replace_tabs( classification );
             put_text( dest, f, classification );
         }
@@ -1172,7 +1172,7 @@ int station_showable( int istn )
     if( ! option_selected(symbol_opt[stns[istn].symbol]) ) return 0;
     if( stn_colourby_class > 0 )
     {
-        int cvalue = get_station_class(stnptr(istn),stn_colourby_class);
+        int cvalue = stnptr(istn)->get_class(stn_colourby_class);
         if( ! pen_selected(station_class_pen( cvalue )) ) return 0;
     }
     return 1;
@@ -1316,7 +1316,7 @@ int plot_stations( map_plotter *plotter, int first, int highlightonly )
             if( highlightonly ) continue;
             if( stn_colourby_class > 0 )
             {
-                pen = get_station_class( stnptr(istn), stn_colourby_class );
+                pen = stnptr(istn)->get_class( stn_colourby_class );
                 pen = station_class_pen( pen );
             }
             else

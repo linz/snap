@@ -64,7 +64,7 @@ static int convert_stn_coords( coord_conversion *ccv, station *st, int hgtfixopt
     /* Update the station components that are defined in terms of the
        ellipsoid */
 
-    modify_station_coords( st, llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT], ccv->to->rf->el );
+    st->modify_coords( llh[CRD_LAT], llh[CRD_LON], llh[CRD_HGT], *ccv->to->rf->el );
     return sts;
 
 }
@@ -163,7 +163,7 @@ int add_station( network *nw, station *st )
 
     /* Make sure station is on the right ellipsoid */
 
-    modify_station_coords( st, st->ELat, st->ELon, st->OHgt, nw->crdsys->rf->el );
+    st->modify_coords( st->ELat, st->ELon, st->OHgt, *nw->crdsys->rf->el );
 
     sl_add_station( nw->stnlist, st );
 
@@ -174,20 +174,15 @@ int add_station( network *nw, station *st )
 
 
 station * new_network_station( network *nw,
-                               const char *code, const char *Name,
-                               double Lat, double Lon, double Hgt,
-                               double Xi, double Eta, double Und )
+                               const std::string_view code, const std::string_view Name,
+                               const double Lat, const double Lon, const double Hgt,
+                               const double Xi, const double Eta, const double Und )
 {
+    if( !nw->crdsys ) return nullptr;
 
-    station *st;
+    station *st = new station( code, Name, Lat, Lon, Hgt, Xi, Eta, Und, *nw->crdsys->rf->el );
 
-    if( !nw->crdsys ) return NULL;
-
-    st = new_station();
-
-    init_station( st, code, Name, Lat, Lon, Hgt, Xi, Eta, Und, nw->crdsys->rf->el );
-
-    init_station_classes( st, nw->classification_count() );
+    st->set_class_count( nw->classification_count() );
 
     add_station( nw, st );
 
@@ -195,35 +190,30 @@ station * new_network_station( network *nw,
 }
 
 station * duplicate_network_station( network *nw,
-        station *st, const char *newcode, const char *newname )
+        station *st, const std::string_view newcode, const std::string_view newname )
 {
+    if( !nw->crdsys ) return nullptr;
 
-    station *stnew;
+    station *stnew = new station( newcode, newname,
+            st->ELat, st->ELon, st->OHgt,
+            st->GXi, st->GEta, st->GUnd, *nw->crdsys->rf->el );
 
-    if( !nw->crdsys ) return NULL;
-
-    stnew = new_station();
-
-    init_station( stnew, newcode, newname, 
-            st->ELat, st->ELon, st->OHgt, 
-            st->GXi, st->GEta, st->GUnd, nw->crdsys->rf->el );
-
-    init_station_classes( stnew, nw->classification_count() );
+    stnew->set_class_count( nw->classification_count() );
 
     add_station( nw, stnew );
-    if( stnew->nclass == st->nclass )
+    if( stnew->classval.size() == st->classval.size() )
     {
-        memcpy( stnew->classval, st->classval, sizeof(int)*st->nclass);
+        stnew->classval = st->classval;
     }
 
-    return st;
+    return stnew;
 }
 
 
 void modify_network_station_coords( network *nw, station *st, double Lat,
                                     double Lon, double Hgt )
 {
-    modify_station_coords( st, Lat, Lon, Hgt, nw->crdsys->rf->el );
+    st->modify_coords( Lat, Lon, Hgt, *nw->crdsys->rf->el );
 }
 
 

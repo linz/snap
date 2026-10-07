@@ -1074,7 +1074,7 @@ static void write_results( hSDCTest hsdc, stn_relacc_array *ra )
                 fprintf(out,"\n%s\n",header);
                 headed = 1;
             }
-            fprintf(out,"%s\n",stnptr(istn)->Code);
+            fprintf(out,"%s\n",stnptr(istn)->Code.c_str());
         }
     }
 }
@@ -1091,7 +1091,7 @@ static void write_station_index( hSDCTest, stn_relacc_array *ra )
     {
         int ist0 = i+1;
         fprintf(out,"  %4d %-*s %4d %4d\n",
-                ist0,stn_name_width,stnptr(ist0)->Code,
+                ist0,stn_name_width,stnptr(ist0)->Code.c_str(),
                 f_station_role(ra,i), f_station_priority(ra,i));
     }
     fprintf(out,"\n");
@@ -1329,7 +1329,7 @@ static void write_coord_files( hSDCTest hsdc, stn_relacc_array *ra, const std::s
             sprintf(comment,"Stations assigned order %s by snapspec - run at %s",
                     order,spec_run_time.c_str());
             station_order = iorder;
-            write_network(net,crdfile.c_str(),comment,coord_precision,stations_of_order);
+            write_network(net,crdfile,comment,coord_precision,stations_of_order);
             break;
         }
     }
@@ -1369,7 +1369,7 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
 
         order = iorder ? hsdc->tests[iorder-1].scOrder: dfltOrder;
 
-        set_station_class( stn, order_class, net->order_id( order, 1 ));
+        stn->set_class( order_class, net->order_id( order, 1 ));
     }
 
 }
@@ -1377,7 +1377,7 @@ static void update_station_orders( hSDCTest hsdc, stn_relacc_array *ra )
 
 static void update_crdfile( const std::string &fname )
 {
-    write_network( net, fname.c_str(), "Coordinate orders updated by snapspec",coord_precision,0);
+    write_network( net, fname, "Coordinate orders updated by snapspec",coord_precision,nullptr);
     printf("Updated station orders in %s\n",fname.c_str());
 }
 
@@ -1467,7 +1467,7 @@ static int get_max_control_order( hSDCTest hsdc, stn_relacc_array *ra, const cha
             if( ra->logfile )
             {
                 fprintf(ra->logfile,"Control station %s has unrecognised order %s\n",
-                        st->Code, net->order( orderid ).c_str() );
+                        st->Code.c_str(), net->order( orderid ).c_str() );
             }
             nbadorder++;
             order_lookup[orderid] = -3;

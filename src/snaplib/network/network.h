@@ -18,9 +18,11 @@
 #include "geoid/geoid.h"
 #endif
 
+#include <algorithm>
 #include <optional>
 #include <string>
 #include <string_view>
+#include <vector>
 
 #ifndef _GEODETIC_H
 #include "util/geodetic.h"
@@ -47,38 +49,112 @@
             of up to STNCODELEN characters.
 ------------------------------------------------------------------------*/
 
-#define STNCODELEN 15
+inline constexpr int STNCODELEN = 15;
+
+/// A station code of up to STNCODELEN characters.  It is held in a fixed array
+/// so that the code has a fixed size and needs no allocation, and so that
+/// STATION_DISK_FIELDS can still read and write it in place.
+class StationCode
+{
+public:
+    StationCode() = default;
+
+    /// Replaces the code, truncating it to STNCODELEN characters.
+    void assign( const std::string_view code ) ///< The new code
+    {
+        const size_t length = std::min( code.size(), _capacity - 1 );
+        code.copy( _chars, length );
+        std::fill( _chars + length, _chars + _capacity, '\0' );
+    }
+
+    /// The number of characters before the terminating NUL
+    size_t size() const
+    {
+        const size_t end = std::string_view( _chars, _capacity ).find( '\0' );
+        return end == std::string_view::npos ? _capacity : end;
+    }
+
+    bool empty() const { return _chars[0] == '\0'; }
+
+    operator std::string_view() const { return std::string_view( _chars, size() ); }
+
+    /// The NUL terminated code, for the printf family and other C interfaces
+    const char *c_str() const { return _chars; }
+
+private:
+    static constexpr size_t _capacity = STNCODELEN + 1;
+    char _chars[_capacity] = {};
+};
+
+static_assert( sizeof(StationCode) == STNCODELEN+1, "StationCode is written to disk as STNCODELEN+1 bytes" );
 
 struct station
 {
-    char    Code[STNCODELEN+1];   /* Station ID */
-    int     id;        /* Used to identify the station - populated when indexed */
-    double  ELat;      /* Ellipsoidal lat, long, hgt */
-    double  ELon;
-    double  OHgt;      /* Orthometric height */
-    double  GXi;       /* Gravitational corrections to ellipsoidal */
-    double  GEta;      /* coordinates */
-    double  GUnd;
+    StationCode Code;     /* Station ID */
+    int     id = 0;    /* Used to identify the station - populated when indexed */
+    double  ELat = 0.0; /* Ellipsoidal lat, long, hgt */
+    double  ELon = 0.0;
+    double  OHgt = 0.0; /* Orthometric height */
+    double  GXi = 0.0;  /* Gravitational corrections to ellipsoidal */
+    double  GEta = 0.0; /* coordinates */
+    double  GUnd = 0.0;
 
     /* The following components are used primarily to calculate
        observations between stations and to facilitate station
        adjustments */
 
-    double  XYZ[3];    /* Geocentric coordinates */
+    double  XYZ[3] = {};  /* Geocentric coordinates */
     rotmat  rTopo;     /* Rotation to topocentric system */
     rotmat  rGrav;     /* Rotation to gravimetric system */
-    double  dNdLt;     /* The rate of change of latitude with distance */
-    double  dEdLn;     /* The rate of change of longitude with distance */
-    int   nclass;      /* Count of classifications */
-    int   *classval;   /* Array of class values */
+    double  dNdLt = 0.0; /* The rate of change of latitude with distance */
+    double  dEdLn = 0.0; /* The rate of change of longitude with distance */
+    std::vector<int> classval;  /* Class values, one per classification */
     std::string Name;  /* Station name */
-    void    *ts;       /* Station coordinate time series data */
-    void    *hook;     /* Pointer to user defined info */
+    void    *ts = nullptr;   /* Station coordinate time series data, freed by delete_station */
+    void    *hook = nullptr; /* Pointer to user defined info, owned by the program that sets it */
+
+    station() = default;
+
+    /// Creates a station and calculates the quantities derived from its
+    /// coordinates.  Its classifications are not set.
+    station( std::string_view code,   ///< The station code, truncated to STNCODELEN characters
+             std::string_view name,   ///< The station name
+             double Lat,              ///< Ellipsoidal latitude (radians)
+             double Lon,              ///< Ellipsoidal longitude (radians)
+             double Hgt,              ///< Orthometric height
+             double Xi,               ///< Gravitational (deflection of the vertical) correction to the latitude (GXi)
+             double Eta,              ///< Gravitational (deflection of the vertical) correction to the longitude (GEta)
+             double Und,              ///< Geoid undulation (GUnd)
+             ellipsoid &el );         ///< The ellipsoid of the network's coordinate system
+
+    /// Sets the coordinates and recalculates the quantities derived from them.
+    void modify_coords( double Lat, double Lon, double Hgt, ellipsoid &el );
+
+    /// As modify_coords, also setting the gravitational corrections.
+    void modify_coords_xeu( double Lat, double Lon, double Hgt,
+                            double Xi, double Eta, double Und, ellipsoid &el );
+
+    /// Sets the geocentric coordinates and recalculates the others from them.
+    void modify_xyz( double xyz[3], ellipsoid &el );
+
+    /// Sets the number of classifications.  The existing class values are kept
+    /// (up to the new count) and any added ones are zero.
+    void set_class_count( int count );
+
+    /// Sets the value of a classification (class ids start at 1)
+    void set_class( int class_id, int value );
+
+    /// The value of a classification (class ids start at 1), or 0 if there is
+    /// no such classification.
+    int get_class( int class_id ) const;
+
+private:
+    void _derive_geometry( ellipsoid &el );
 };
 
-// The fixed-width on-disk layout of every field above except the three
-// trailing pointers (classval, ts, hook) and Name (a variable-length
-// std::string) - see netstns1.cpp, where this table is defined (without
+// The fixed-width on-disk layout of every field above except classval (a
+// std::vector), Name (a variable-length std::string) and the two trailing
+// pointers (ts, hook) - see netstns1.cpp, where this table is defined (without
 // `static`) and checked at compile time against station's actual memory
 // layout. Exposed here, rather than kept file-local, so a second caller
 // elsewhere can walk the same fields via for_each_disk_field
@@ -265,29 +341,10 @@ List of station/network functions supplied by the library
    you must have an ellipsoid definition.  This is used to calculate the
    parameters used for geodetic calculations.  */
 
-station *new_station( void );
+/// Deletes a station allocated with new, including its station offset data
+/// (ts), which the station destructor does not free because copies of a
+/// station share the ts pointer.
 void    delete_station( station *st );
-
-void    init_station( station *st,
-                      const char *code, const char *Name,
-                      double Lat, double Lon, double Hgt,
-                      double Xi, double Eta, double Und,
-                      ellipsoid *el );
-
-void    modify_station_coords( station *st,
-                               double Lat, double Lon, double Hgt,
-                               ellipsoid *el );
-
-void modify_station_coords_xeu( station *st,
-                            double Lat, double Lon, double Hgt,
-                            double Xi, double Eta, double Und,
-                            ellipsoid *el );
-
-void    modify_station_xyz( station *st, double xyz[3], ellipsoid *el );
-
-void init_station_classes( station *s, int nclass );
-void set_station_class( station *s, int class_id, int value );
-int get_station_class( station *s, int class_id );
 
 void    stnmultifunc( station *st, void *data );
 
@@ -444,7 +501,9 @@ void set_network_initstn_func( network *nw, stationfunc initfunc, stationfunc un
 void delete_network( network *nw );
 
 int read_network( network *nw, std::string_view filename, int options );
-int write_network( network *nw, const char *filename, const char *comment,
+/// Writes the network's stations to a coordinate file.  An empty comment is
+/// not written.
+int write_network( network *nw, const std::string &filename, std::string_view comment,
                    int coord_precision, int (*select)(station *st) );
 
 int merge_network( network *base, network *data, int mergeopts,
@@ -460,14 +519,14 @@ int   set_network_coordsys( network *nw, coordsys *cs, double epoch, int hgtfixo
 void    set_network_name( network *nw, const std::string &name );
 
 station * new_network_station( network *nw,
-                               const char *code, const char *Name,
+                               std::string_view code, std::string_view Name,
                                double Lat, double Lon, double Hgt,
                                double Xi, double Eta, double Und );
 
 station * duplicate_network_station(  network *nw,
             station *st,
-            const char *newcode,
-            const char *name
+            std::string_view newcode,
+            std::string_view name
         );
 
 void    modify_network_station_coords( network *nw, station *st, double Lat,
