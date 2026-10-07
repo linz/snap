@@ -471,7 +471,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
                 else
                 {
                     set_residual_field( OF_FLAGS,
-                            std::string( 1, rfunused ) + residual_flag( unused == ' ', 1, sres[axis] ) );
+                            std::string( 1, rfunused ).append( residual_flag( unused == ' ', 1, sres[axis] ) ) );
                 }
                 print_residual_line( out );
             }
@@ -486,7 +486,7 @@ void list_vecdata_residuals( FILE *out, survdata  *v, double semult )
             {
                 set_residual_field_value( OF_SRES, 2, t->vsres/semult );
                 set_residual_field( OF_FLAGS,
-                        std::string( 1, unused ) + residual_flag( unused == ' ', t->rank, t->vsres/semult ) );
+                        std::string( 1, unused ).append( residual_flag( unused == ' ', t->rank, t->vsres/semult ) ) );
             }
             else
             {

@@ -1726,9 +1726,9 @@ namespace {
 /// characters of field participate (as a fixed %Ns-sized buffer would only
 /// have captured that many) - a no-op unless field is actually longer than
 /// cap, which it practically never is for a real keyword here.
-bool truncatedIEquals( std::string_view field, std::size_t cap, const char *literal )
+bool truncatedIEquals( const std::string_view field, const std::size_t cap, const std::string_view literal )
 {
-    return boost::algorithm::iequals( field.substr(0,std::min(field.size(),cap)), std::string_view(literal) );
+    return boost::algorithm::iequals( field.substr(0,cap), literal );
 }
 }
 

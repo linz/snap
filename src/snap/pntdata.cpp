@@ -289,7 +289,7 @@ void list_pntdata_residuals(FILE *out, survdata *p, double semult)
     {
         set_residual_field_value(OF_SRES, 2, sres);
         set_residual_field(OF_FLAGS,
-                std::string(1, rfunused) + residual_flag((unused != ' '), 1, sres));
+                std::string(1, rfunused).append( residual_flag((unused != ' '), 1, sres) ));
     }
 
     if (redundancy < 0)

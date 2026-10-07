@@ -433,7 +433,7 @@ void sum_floating_stations( int iteration )
 {
     /*  ... need to update to include co-location constraint
      */
-    char header[20];
+    const std::string header = "float_stations_" + std::to_string(iteration);
     int istn, maxstn;
     station *st;
     void *hA;
@@ -443,7 +443,6 @@ void sum_floating_stations( int iteration )
 
     if( output_observation_equations )
     {
-        sprintf(header,"float_stations_%d",iteration);
         print_json_start(lst,header);
         fprintf(lst,"\n{ \"float_stations\": [\n");
     }
@@ -459,8 +458,7 @@ void sum_floating_stations( int iteration )
         lsq_sum_obseqn( hA );
         if( output_observation_equations )
         {
-            char source[100];
-            sprintf(source,"{\"station\":\"%.20s\"}",st->Code);
+            const std::string source = std::string("{\"station\":\"") + st->Code + "\"}";
             if( nfloat ) fprintf(lst,",\n");
             nfloat++;
             print_obseqn_json( lst, hA, source, 2 );
@@ -1269,7 +1267,7 @@ void print_floated_stations( FILE *out )
             if( ser > 1.0e-5 )
             {
                 double stres = fabs(resval)/ ser;
-                fprintf( out, "%8.2lf %s\n", stres, residual_flag( 0, 1, stres ));
+                fprintf( out, "%8.2lf %s\n", stres, std::string( residual_flag( 0, 1, stres ) ).c_str());
             }
             else
             {

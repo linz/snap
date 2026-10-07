@@ -328,7 +328,7 @@ static void print_obsheader( FILE *lst, bindata *b )
 
 int sum_bindata( int iteration )
 {
-    char header[30];
+    const std::string header = "obs_equation_" + std::to_string(iteration);
     void *hA;
     bindata *b;
     int nrow;
@@ -337,7 +337,6 @@ int sum_bindata( int iteration )
 
     if( output_observation_equations )
     {
-        sprintf(header,"obs_equation_%d",iteration);
         print_section_header(lst, "OBSERVATION EQUATIONS");
         print_json_start(lst,header);
         fprintf(lst,"{\n");
@@ -363,21 +362,19 @@ int sum_bindata( int iteration )
         }
         if( output_observation_equations )
         {
-            char source[200];
-            survdata *sd = (survdata *) b->data;
-            trgtdata *tgt=get_trgtdata(sd,0);
-            sprintf(source,"{\"file\": \"%.80s\",\"lineno\": %d, \"station\": \"%s%s%s\", \"obsid\": %d, \"type\": \"%s\",\"nobs\": %d}",
-                survey_data_file_name(sd->file).c_str(),
-                (int)(tgt->lineno),
-                sd->from ? stnptr(sd->from)->Code : "",
-                sd->from && tgt->to ? " - " : "",
-                tgt->to ? stnptr(tgt->to)->Code : "",
-                tgt->obsid,
-                datatype[tgt->type].code.data(),
-                sd->nobs
-                );
+            const survdata *sd = static_cast<survdata *>(b->data);
+            const trgtdata *tgt=get_trgtdata(sd,0);
+            std::ostringstream source;
+            source << "{\"file\": \"" << survey_data_file_name(sd->file).substr(0,80)
+                   << "\",\"lineno\": " << tgt->lineno
+                   << ", \"station\": \"" << (sd->from ? stnptr(sd->from)->Code : "")
+                   << (sd->from && tgt->to ? " - " : "")
+                   << (tgt->to ? stnptr(tgt->to)->Code : "")
+                   << "\", \"obsid\": " << tgt->obsid
+                   << ", \"type\": \"" << datatype[tgt->type].code
+                   << "\",\"nobs\": " << sd->nobs << "}";
             if( nbin > 1 )  fprintf(lst,",\n");
-            print_obseqn_json( lst, hA, source, 0 );
+            print_obseqn_json( lst, hA, source.str(), 0 );
         }
         stsobs=lsq_sum_obseqn( hA );
         if( stsobs != OK )
@@ -1437,7 +1434,6 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
 
     if( output_csv_shape )
     {
-        char wkt[128];
         double ef, nf, et=0, nt=0;
         projection *prj = is_projection(net->crdsys) ? net->crdsys->prj : 0;
         int ndp = prj ? 4 : 9;
@@ -1457,16 +1453,17 @@ static void write_observation_csv_common_end( output_csv &csv, survdata *sd, trg
                 nt = to->ELat*RTOD;
             }
         }
+        std::ostringstream wkt;
+        wkt << std::fixed << std::setprecision(ndp);
         if( to )
         {
-            sprintf(wkt,"LINESTRING(%.*lf %.*lf, %.*lf %.*lf)",
-                    ndp,ef,ndp,nf,ndp,et,ndp,nt);
+            wkt << "LINESTRING(" << ef << " " << nf << ", " << et << " " << nt << ")";
         }
         else
         {
-            sprintf(wkt,"POINT(%.*lf %.*lf)",ndp,ef,ndp,nf);
+            wkt << "POINT(" << ef << " " << nf << ")";
         }
-        csv.writeString(wkt);
+        csv.writeString(wkt.str());
     }
 
     csv.endRecord();
@@ -1730,11 +1727,11 @@ void write_observation_csv()
 
     /* Allocate space for the least squares results */
 
-    if( ! got_vector_data() ) output_csv_veccomp = 0;
+    if( ! got_vector_data() ) output_csv_veccomp = false;
     if( ! output_csv_veccomp )
     {
-        output_csv_vecinline = 0;
-        output_csv_vecsum = 1;
+        output_csv_vecinline = false;
+        output_csv_vecsum = true;
     }
 
     b = create_bindata();

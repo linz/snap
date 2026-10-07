@@ -15,6 +15,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include <boost/numeric/conversion/cast.hpp>
 
 #include "util/lsobseq.h"
 #include "util/chkalloc.h"
@@ -231,7 +232,7 @@ void print_obseqn( FILE *out, void *hA )
     }
 }
 
-void print_obseqn_json( FILE *out, void *hA, const char *srcjson, int nprefix )
+void print_obseqn_json( FILE *out, void *hA, const std::optional<std::string_view> source, const int nprefix )
 {
     obseqn *A;
     int i, j;
@@ -242,9 +243,9 @@ void print_obseqn_json( FILE *out, void *hA, const char *srcjson, int nprefix )
     cvr = A->cvr;
 
     fprintf( out, "{\n%*s",nprefix,"" );
-    if( srcjson )
+    if( source )
     {
-        fprintf( out, "  \"source\": %s,\n%*s",srcjson,nprefix,"" );
+        fprintf( out, "  \"source\": %.*s,\n%*s",boost::numeric_cast<int>(source->size()),source->data(),nprefix,"" );
     }
     fprintf( out, "  \"nobs\": %d,\n%*s", A->nrow,nprefix,"" );
     fprintf( out, "  \"obs\": [\n%*s",nprefix,"");

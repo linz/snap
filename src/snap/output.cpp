@@ -36,6 +36,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 #include <filesystem>
+#include <initializer_list>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -70,22 +71,29 @@
 #include "util/xprintf.h"
 #include "util/getversion.h"
 
-#define MAX_SUBCOMMANDS 10
-
 struct output_subcommand
 {
-    const char *name;
-    config_store_func store;
-    int code;
+    const std::string_view name;
+    const config_store_func store;
+    const int code;
+
+    output_subcommand( const std::string_view name, const config_store_func store, const int code )
+        : name( name ), store( store ), code( code ) {}
 };
 
 struct output_option
 {
-    const char *name;
-    char *status;
-    char dflt;
-    char incompatible[MAX_INCOMPATIBLE_MODES];
-    output_subcommand (*subcommands)[MAX_SUBCOMMANDS];
+    const std::string_view name;
+    bool *status;                                      ///< The output_ flag that this option sets
+    const bool defaultValue;
+    const std::vector<int> incompatibleModes;          ///< Program modes in which the output is not valid
+    const std::vector<output_subcommand> *const subcommands;  ///< nullptr if the option has none
+
+    output_option( const std::string_view name, bool *const status, const bool defaultValue,
+                   const std::initializer_list<int> incompatibleModes = {},
+                   const std::vector<output_subcommand> *const subcommands = nullptr )
+        : name( name ), status( status ), defaultValue( defaultValue ),
+          incompatibleModes( incompatibleModes ), subcommands( subcommands ) {}
 };
 
 struct relcvr_opt
@@ -100,84 +108,72 @@ static int read_cvr_connections( CFG_FILE *cfg, std::string_view string, void *v
 #define RELCVR_CMD_UNDER 0
 #define RELCVR_CMD_BETWEEN 1
 
-static output_subcommand relcvr_subcommands[MAX_SUBCOMMANDS]=
+static const std::vector<output_subcommand> relcvr_subcommands=
 {
     {"under",read_cvr_connections,RELCVR_CMD_UNDER},
-    {"between",read_cvr_connections,RELCVR_CMD_BETWEEN},
-    {0,0,0}
+    {"between",read_cvr_connections,RELCVR_CMD_BETWEEN}
 };
 
-static output_option output[] =
+static std::vector<output_option> output =
 {
-    {"command_file",&output_command_file,0,{0},0},
-    {"input_data",&output_input_data,0,{0},0},
-    {"station_recoding",&output_stn_recode,0,{0},0},
-    {"file_summary",&output_file_summary,1,{0},0},
-    {"problem_definition",&output_problem_definition,0,{0},0},
-    {"observation_equations",&output_observation_equations,0,{0},0},
-    {"normal_equations",&output_normal_equations,0,{0},0},
-    {"observation_deformation",&output_deformation,0,{0},0},
-    {"station_adjustments",&output_station_adjustments,0,{ PREANALYSIS, 0},0},
-    {"iteration_summary",&output_iteration_summary,1,{ PREANALYSIS, 0},0},
-    {"solution_summary",&output_ls_summary,1,{ 0 },0},
-    {"residuals",&output_residuals,1,{ PREANALYSIS, 0},0},
-    {"file_locations",&output_file_locations,1,{ PREANALYSIS, 0},0},
-    {"distance_ratio_scales",&output_distance_ratio_scales,1,{ PREANALYSIS, 0},0},
-    {"worst_residuals",&output_worst_residuals,1,{0},0},
-    {"error_summary",&output_error_summary,1,{0},0},
-    {"grouped_data_by_type",&output_sort_by_type,1,{0},0},
-    {
-        "station_coordinates",&output_station_coordinates,1,
-        {DATA_CONSISTENCY, 0}
-    ,0},
-    {
-        "floated_stations",&output_floated_stations,1,
-        {DATA_CONSISTENCY, DATA_CHECK, 0}
-    ,0},
-    {"station_offsets",&output_station_offsets,1,{0},0},
-    {"rejected_stations",&output_rejected_stations,1,{0},0},
-    {"rejected_station_coordinates",&output_rejected_coordinates,1,{0},0},
-    {"reference_frames",&output_reference_frames,1,{DATA_CONSISTENCY, 0},0},
-    {"topocentric_ref_frame",&output_reffrm_topo,0,{0},0},
-    {"geocentric_ref_frame",&output_reffrm_geo,0,{0},0},
-    {"iers_ref_frame",&output_reffrm_iers,0,{0},0},
-    {"parameters",&output_parameters,1,{DATA_CONSISTENCY, 0},0},
-    {"form_feeds",&output_form_feeds,0,{0},0},
-    {
-        "coordinate_file",&output_coordinate_file,1,
-        {DATA_CONSISTENCY,DATA_CHECK,PREANALYSIS,0}
-    ,0},
-    {"binary_file",&output_binary_file,1,{0},0},
-    {"decomposition",&output_decomposition,0,{0},0},
-    {"relative_covariances",&output_relative_covariances,1,{0},&relcvr_subcommands},
-    {"all_relative_covariances",&output_all_covariances,0,{0},0},
-    {"full_covariance_matrix",&output_full_covariance,0,{0},0},
-    {"sort_stations",&output_sorted_stations,0,{0},0},
-    {"xyz_vector_residuals",&output_xyz_vector_residuals,0,{0},0},
-    {"notes",&output_notes,1,{0},0},
-    {"covariance_matrix_file",&output_covariance,0,{0},0},
-    {"covariance_json",&output_covariance_json,0,{0},0},
-    {"solution_json",&output_solution_json,0,{0},0},
-    {"sinex",&output_sinex,0,{0},0},
-    {"debug_reordering",&output_debug_reordering,0,{0},0},
-    {NULL,NULL,0,{0},0}
+    {"command_file",&output_command_file,false},
+    {"input_data",&output_input_data,false},
+    {"station_recoding",&output_stn_recode,false},
+    {"file_summary",&output_file_summary,true},
+    {"problem_definition",&output_problem_definition,false},
+    {"observation_equations",&output_observation_equations,false},
+    {"normal_equations",&output_normal_equations,false},
+    {"observation_deformation",&output_deformation,false},
+    {"station_adjustments",&output_station_adjustments,false,{PREANALYSIS}},
+    {"iteration_summary",&output_iteration_summary,true,{PREANALYSIS}},
+    {"solution_summary",&output_ls_summary,true},
+    {"residuals",&output_residuals,true,{PREANALYSIS}},
+    {"file_locations",&output_file_locations,true,{PREANALYSIS}},
+    {"distance_ratio_scales",&output_distance_ratio_scales,true,{PREANALYSIS}},
+    {"worst_residuals",&output_worst_residuals,true},
+    {"error_summary",&output_error_summary,true},
+    {"grouped_data_by_type",&output_sort_by_type,true},
+    {"station_coordinates",&output_station_coordinates,true,{DATA_CONSISTENCY}},
+    {"floated_stations",&output_floated_stations,true,{DATA_CONSISTENCY, DATA_CHECK}},
+    {"station_offsets",&output_station_offsets,true},
+    {"rejected_stations",&output_rejected_stations,true},
+    {"rejected_station_coordinates",&output_rejected_coordinates,true},
+    {"reference_frames",&output_reference_frames,true,{DATA_CONSISTENCY}},
+    {"topocentric_ref_frame",&output_reffrm_topo,false},
+    {"geocentric_ref_frame",&output_reffrm_geo,false},
+    {"iers_ref_frame",&output_reffrm_iers,false},
+    {"parameters",&output_parameters,true,{DATA_CONSISTENCY}},
+    {"form_feeds",&output_form_feeds,false},
+    {"coordinate_file",&output_coordinate_file,true,{DATA_CONSISTENCY, DATA_CHECK, PREANALYSIS}},
+    {"binary_file",&output_binary_file,true},
+    {"decomposition",&output_decomposition,false},
+    {"relative_covariances",&output_relative_covariances,true,{},&relcvr_subcommands},
+    {"all_relative_covariances",&output_all_covariances,false},
+    {"full_covariance_matrix",&output_full_covariance,false},
+    {"sort_stations",&output_sorted_stations,false},
+    {"xyz_vector_residuals",&output_xyz_vector_residuals,false},
+    {"notes",&output_notes,true},
+    {"covariance_matrix_file",&output_covariance,false},
+    {"covariance_json",&output_covariance_json,false},
+    {"solution_json",&output_solution_json,false},
+    {"sinex",&output_sinex,false},
+    {"debug_reordering",&output_debug_reordering,false}
 };
 
-static output_option csvopt[] =
+static std::vector<output_option> csvopt =
 {
-    {"wkt_shape",&output_csv_shape,0,{0},0},
-    {"vector_components",&output_csv_veccomp,1,{0},0},
-    {"vector_summary",&output_csv_vecsum,1,{0},0},
-    {"vectors_inline",&output_csv_vecinline,1,{0},0},
-    {"enu_residuals",&output_csv_vecenu,1,{0},0},
-    {"correlations",&output_csv_correlations,0,{0},0},
-    {"stations",&output_csv_stations,0,{0},0},
-    {"observations",&output_csv_obs,0,{0},0},
-    {"filelist",&output_csv_filelist,0,{0},0},
-    {"metadata",&output_csv_metadata,0,{0},0},
-    {"all",&output_csv_allfiles,0,{0},0},
-    {"tab_delimited",&output_csv_tab,0,{0},0},
-    {NULL,NULL,0,{0},0}
+    {"wkt_shape",&output_csv_shape,false},
+    {"vector_components",&output_csv_veccomp,true},
+    {"vector_summary",&output_csv_vecsum,true},
+    {"vectors_inline",&output_csv_vecinline,true},
+    {"enu_residuals",&output_csv_vecenu,true},
+    {"correlations",&output_csv_correlations,false},
+    {"stations",&output_csv_stations,false},
+    {"observations",&output_csv_obs,false},
+    {"filelist",&output_csv_filelist,false},
+    {"metadata",&output_csv_metadata,false},
+    {"all",&output_csv_allfiles,false},
+    {"tab_delimited",&output_csv_tab,false}
 };
 
 static int print_err( int sts, std::string_view mess1, error_message mess2 );
@@ -188,73 +184,71 @@ static relcvr_opt *relcvr_opts = NULL;
 
 int read_output_options( CFG_FILE *cfg, std::string_view string, void *, int, int code )
 {
-    output_option *output_set;
-    output_option *o=0;
-    char set;
-    char errmess[80];
-
-    output_set = code == CSV_OPTIONS ? csvopt : output;
+    std::vector<output_option> &output_set = code == CSV_OPTIONS ? csvopt : output;
+    output_option *o=nullptr;
 
     FieldScanner scanner(string);
     for( auto stOpt = scanner.next(); stOpt; stOpt = scanner.next() )
     {
-        std::string_view st = *stOpt;
+        const std::string_view st = *stOpt;
 
         // If the last output command has a matched subcommand, then execute its store
         // function on the remainder of the string and return
         if( o && o->subcommands )
         {
-            output_subcommand *sc;
-            for( sc=*(o->subcommands); sc->name; sc++ )
+            const output_subcommand *sc=nullptr;
+            for( const output_subcommand &subcommand : *o->subcommands )
             {
-                if( boost::algorithm::iequals(sc->name, st) ) break;
+                if( boost::algorithm::iequals(subcommand.name, st) )
+                {
+                    sc = &subcommand;
+                    break;
+                }
             }
-            if( sc->name )
+            if( sc )
             {
                 const std::string_view rest = scanner.remainder();
                 if( rest.empty() )
                 {
-                    sprintf(errmess,"Incomplete output option %.30s", o->name );
-                    send_config_error( cfg, INVALID_DATA, errmess );
+                    send_config_error( cfg, INVALID_DATA, "Incomplete output option " + std::string(o->name.substr(0,30)) );
                     return OK;
                 }
                 else
                 {
-                    return (sc->store)(cfg,rest,0,0,sc->code);
+                    return (sc->store)(cfg,rest,nullptr,0,sc->code);
                 }
             }
         }
 
         if( boost::algorithm::iequals( st, "everything") )
         {
-            for( o = output_set; o->name; o++ ) *(o->status) = 1;
+            for( output_option &option : output_set ) *(option.status) = true;
+            o = nullptr;
             continue;
         }
         std::string_view name = st;
+        bool set = true;
         if( boost::algorithm::istarts_with(st,"no_") )
         {
-            set = 0;
+            set = false;
             name = st.substr(3);
         }
-        else
-        {
-            set = 1;
-        }
 
-        for( o = output_set; o->name; o++ )
+        o = nullptr;
+        for( output_option &option : output_set )
         {
-            if( boost::algorithm::iequals( name, o->name ) )
+            if( boost::algorithm::iequals( name, option.name ) )
             {
-                *(o->status) = set;
+                *(option.status) = set;
+                o = &option;
                 break;
             }
         }
-        if( !o->name )
+        if( !o )
         {
-            sprintf(errmess,"Invalid output option %.30s", std::string(name).c_str() );
-            send_config_error( cfg, INVALID_DATA, errmess );
+            send_config_error( cfg, INVALID_DATA, "Invalid output option " + std::string(name.substr(0,30)) );
         }
-        if( ! set || ! o->name ) o=0;
+        if( ! set ) o=nullptr;
     }
     return OK;
 }
@@ -487,24 +481,25 @@ void close_output_files( const error_message mess1, const error_message mess2 )
 
 void init_output_options( void )
 {
-    output_option *o;
-    for( o = output; o->name; o++ ) *(o->status) = o->dflt;
-    for( o = csvopt; o->name; o++ ) *(o->status) = o->dflt;
+    for( const output_option &option : output ) *(option.status) = option.defaultValue;
+    for( const output_option &option : csvopt ) *(option.status) = option.defaultValue;
 }
 
 
 void eliminate_inconsistent_outputs( void )
 {
-    output_option *o;
     int i;
     int nc;
 
-    for( o = output; o->name; o++ )
+    for( output_option &option : output )
     {
-        for( i=0; i<MAX_INCOMPATIBLE_MODES; i++ )
+        for( const int mode : option.incompatibleModes )
         {
-            if( o->incompatible[i] == 0 ) break;
-            if( o->incompatible[i] == program_mode ) { o->status = 0; break; }
+            // This nulls the table's pointer to the flag and never clears the flag itself, so no
+            // output is cancelled. It was probably meant to be *(option.status) = false. That would stop
+            // coordinate_file (and others) being written in data_check mode, which changes the
+            // regression results, so it is left as it was until it is raised as an issue.
+            if( mode == program_mode ) { option.status = nullptr; break; }
         }
     }
 
@@ -530,12 +525,11 @@ static void print_line( FILE *out )
     fputs( divider.c_str(), out );
 }
 
-static void print_centred( FILE *out, const char *heading )
+static void print_centred( FILE *out, const std::string_view heading )
 {
-    int pos;
-    pos = (page_width - strlen(heading))/2;
-    if( pos < 0 ) pos = 0;
-    fprintf(out,"%*s%s\n",pos,"",heading);
+    const int length = boost::numeric_cast<int>(heading.size());
+    const int pos = std::max( 0, (page_width - length)/2 );
+    fprintf(out,"%*s%.*s\n",pos,"",length,heading.data());
 }
 
 static void skip_line( FILE *out )
@@ -566,25 +560,27 @@ void print_solution_type( FILE *lst )
 
 void print_report_header( FILE *out )
 {
-    char heading[100];
-
     print_line( out );
     skip_line( out );
-    sprintf(heading,"PROGRAM %.20s  Version %.20s",PROGRAM,PROGRAM_VERSION);
+    std::string heading = "PROGRAM ";
+    heading.append( std::string_view(PROGRAM).substr(0,20) ).append( "  Version " )
+           .append( std::string_view(PROGRAM_VERSION).substr(0,20) );
     print_centred( out, heading );
     skip_line( out );
     print_centred( out, "Survey Network Adjustment Program" );
     skip_line( out );
     print_centred( out, "Copyright: Land Information New Zealand" );
     print_centred( out, "Author: Chris Crook" );
-    sprintf(heading,"Version date: %.20s",PROGRAM_DATE);
+    heading = "Version date: ";
+    heading.append( std::string_view(PROGRAM_DATE).substr(0,20) );
     print_centred( out, heading );
     skip_line( out );
     print_line( out );
-    sprintf(heading,"Run at %.20s",run_time.c_str());
+    heading = "Run at ";
+    heading.append( std::string_view(run_time).substr(0,20) );
     if( snap_user )
     {
-        sprintf(heading+strlen(heading)," by %.40s",snap_user->c_str());
+        heading.append( " by " ).append( std::string_view(*snap_user).substr(0,40) );
     }
     print_centred( out, heading );
     skip_line( out );
@@ -602,18 +598,13 @@ void print_control_options( FILE *lst )
 }
 
 
-void print_section_header( FILE *out, const char *heading )
+void print_section_header( FILE *out, const std::string_view heading )
 {
-    int rtl;
-
     new_page( out );
     print_line( out );
-    rtl = boost::numeric_cast<int>(run_time.size());
+    const int rtl = boost::numeric_cast<int>(run_time.size());
     fprintf(out,"%-*s   %s\n\n",page_width - rtl - 3, job_title.c_str(),
             output_noruntime ? "" : run_time.c_str() );
-
-    rtl = (page_width - strlen( heading ))/2;
-    if( rtl < 0 ) rtl = 0;
 
     print_centred(out,heading);
     fputc('\n',out);
@@ -680,11 +671,9 @@ void print_convergence_warning( FILE *out )
 
 void print_iteration_header( int iteration )
 {
-    char heading[35];
     if( output_observation_equations || output_station_adjustments )
     {
-        sprintf(heading,"ITERATION NUMBER %d",(int) iteration);
-        print_section_header( lst, heading );
+        print_section_header( lst, "ITERATION NUMBER " + std::to_string(iteration) );
     }
     else if( iteration == 1 && output_iteration_summary )
     {
@@ -1010,14 +999,14 @@ void print_bandwidth_reduction( FILE *lst )
     }
 }
 
-void print_json_start( FILE *out, const char *name )
+void print_json_start( FILE *out, const std::string_view name )
 {
-    fprintf( out, "\nBEGIN_JSON %s\n",name);
+    fprintf( out, "\nBEGIN_JSON %.*s\n",boost::numeric_cast<int>(name.size()),name.data());
 }
 
-void print_json_end( FILE *out, const char *name )
+void print_json_end( FILE *out, const std::string_view name )
 {
-    fprintf( out, "\nEND_JSON %s\n",name);
+    fprintf( out, "\nEND_JSON %.*s\n",boost::numeric_cast<int>(name.size()),name.data());
 }
 
 void print_json_params( FILE *lst, int nprefix )

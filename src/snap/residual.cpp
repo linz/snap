@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <string>
 
 #include "snap/snapglob.h"
 #include "util/chkalloc.h"
@@ -118,23 +119,18 @@ static void setup_flag_values( void )
 }
 
 
-const char *residual_flag( int unused, int rank, double sres )
+std::string_view residual_flag( const int unused, int rank, double sres )
 {
-    const static char *blank = "";
-    const static char *flag1 = FLAG1;
-    const static char *flag2 = FLAG2;
-    int used;
-
     if( !flag_values_set ) setup_flag_values();
 
     rank--;
     if( rank < 0 || rank > 2 ) rank = 2;
-    used = unused ? 0 : 1;
+    const int used = unused ? 0 : 1;
 
     if( sres < 0.0 ) sres = -sres;
-    if( sres > flagval[rank][used][1] ) return flag2;
-    if( sres > flagval[rank][used][0] ) return flag1;
-    return blank;
+    if( sres > flagval[rank][used][1] ) return FLAG2;
+    if( sres > flagval[rank][used][0] ) return FLAG1;
+    return "";
 }
 
 
@@ -331,7 +327,7 @@ void print_worst_residuals( FILE *out )
             {
                 fputs("   -   ", out );
             }
-            fprintf(out," %-3s",residual_flag( 1-maxi, maxj+1,ws->sres) );
+            fprintf(out," %-3s",std::string( residual_flag( 1-maxi, maxj+1,ws->sres) ).c_str() );
             fprintf(out,"  %5d  %s\n",(int)(ws->line),survey_data_file_name(ws->file).c_str());
 
             index[maxi][maxj]++;

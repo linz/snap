@@ -522,7 +522,7 @@ void list_obsdata_residuals( FILE *out, survdata *o, double semult )
                 }
 
                 set_residual_field( OF_FLAGS,
-                        std::string( 1, rfunused ) + residual_flag((unused != ' '), 1, sres ));
+                        std::string( 1, rfunused ).append( residual_flag((unused != ' '), 1, sres ) ));
 
                 print_residual_line( out );
 

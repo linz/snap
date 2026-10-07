@@ -49,6 +49,10 @@
 #include <time.h>
 #include <exception>
 #include <filesystem>
+#include <iomanip>
+#include <optional>
+#include <sstream>
+#include <boost/algorithm/string/predicate.hpp>
 #include "util/snapctype.h"
 
 #define _SNAPMAIN_C
@@ -209,7 +213,7 @@ try
     eliminate_inconsistent_outputs();
     if( output_all_covariances )
     {
-        output_relative_covariances = 1;
+        output_relative_covariances = true;
     }
 
     /* If the command file is to be echoed to the output - do it now */
@@ -448,8 +452,7 @@ try
 
         if( output_normal_equations )
         {
-            char header[30];
-            sprintf(header,"normal_equations_%d",iterations);
+            const std::string header = "normal_equations_" + std::to_string(iterations);
             print_section_header( lst, "NORMAL EQUATIONS" );
             print_json_start(lst,header);
             fprintf(lst,"{\n");
@@ -485,8 +488,7 @@ try
 
         if( output_normal_equations )
         {
-            char header[30];
-            sprintf(header,"solution_vector_%d",iterations);
+            const std::string header = "solution_vector_" + std::to_string(iterations);
             print_json_start(lst,header);
             lsq_print_solution_vector_json( lst, 0, 0 );
             print_json_end(lst,header);
@@ -741,30 +743,27 @@ catch( ... )
 
 static int read_parameters( int argc, char *argv[] )
 {
-    char *arg;
     int sts;
-    char *cfg_file;
-    char *cmd_file;
+    std::optional<std::string> cfg_file;
+    std::optional<std::string> cmd_file;
 
     sts = OK;
-    cfg_file = NULL;
-    cmd_file = NULL;
 
-    output_noruntime = 0;
+    output_noruntime = false;
 
     for( argc--, argv++; sts==OK && argc; argc--, argv++ )
     {
-        arg = argv[0];
+        const std::string arg = argv[0];
         if( arg[0] == '-' )
         {
             switch( arg[1] )
             {
             case 'c':
-            case 'C': if( arg[2] )
+            case 'C': if( arg.size() > 2 )
                 {
-                    cfg_file = arg+2;
+                    cfg_file = arg.substr(2);
                 }
-                else if( argc )
+                else if( argc > 1 )
                 {
                     cfg_file = *++argv;
                     argc--;
@@ -780,15 +779,15 @@ static int read_parameters( int argc, char *argv[] )
             case 't':
             case 'T': {
                 int nthread;
-                char *topt=arg+2;
-                if( ! *topt && argc > 1 ){ argc--; argv++; topt=argv[0]; }
-                if( _stricmp(topt,"auto") == 0 )
+                std::string topt = arg.substr(2);
+                if( topt.empty() && argc > 1 ){ argc--; argv++; topt=argv[0]; }
+                if( boost::algorithm::iequals( topt, "auto" ) )
                 {
                     blt_set_number_of_threads(BLT_DEFAULT_NTHREAD);
                 }
-                else if( sscanf(topt,"%d",&nthread) != 1 )
+                else if( sscanf(topt.c_str(),"%d",&nthread) != 1 )
                 {
-                    xprintf("\nInvalid value %s for number of threads (-t switch)",topt);
+                    xprintf("\nInvalid value %s for number of threads (-t switch)",topt.c_str());
                     sts=INVALID_DATA;
                 }
                 else
@@ -802,7 +801,7 @@ static int read_parameters( int argc, char *argv[] )
 
             case 'q':
             case 'Q':
-                output_noruntime = 1;
+                output_noruntime = true;
                 break;
 
             case 'z':
@@ -822,7 +821,7 @@ static int read_parameters( int argc, char *argv[] )
         }
         else
         {
-            xprintf("\nCommand line option %s is not understood\n",arg);
+            xprintf("\nCommand line option %s is not understood\n",arg.c_str());
             sts = INVALID_DATA;
         }
     }
@@ -835,11 +834,11 @@ static int read_parameters( int argc, char *argv[] )
 
     if( sts != OK ) return sts;
 
-    set_snap_command_file( cmd_file );
+    set_snap_command_file( *cmd_file );
 
     if( cfg_file )
     {
-        auto cf = find_configuration_file( cfg_file );
+        auto cf = find_configuration_file( *cfg_file );
         if( cf )
         {
             set_snap_config_file( *cf );
@@ -914,12 +913,16 @@ static void write_filelist_csv()
         time_t modtime=file_modtime(filename);
         if( modtime != 0 )
         {
-            char dbuf[30];
-            struct tm *ltime=localtime(&(modtime));
-            sprintf(dbuf,"%04d-%02d-%02d %02d:%02d:%02d",
-                    ltime->tm_year+1900,ltime->tm_mon+1,ltime->tm_mday,
-                    ltime->tm_hour,ltime->tm_min,ltime->tm_sec);
-            csv->writeString(dbuf);
+            const struct tm *ltime=localtime(&(modtime));
+            std::ostringstream modified;
+            modified << std::setfill('0')
+                     << std::setw(4) << ltime->tm_year+1900 << '-'
+                     << std::setw(2) << ltime->tm_mon+1 << '-'
+                     << std::setw(2) << ltime->tm_mday << ' '
+                     << std::setw(2) << ltime->tm_hour << ':'
+                     << std::setw(2) << ltime->tm_min << ':'
+                     << std::setw(2) << ltime->tm_sec;
+            csv->writeString(modified.str());
             csv->writeInt(file_size(filename));
         }
         else
