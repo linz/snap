@@ -166,6 +166,12 @@ target_link_libraries(rotmat_test PRIVATE snaplib snap_link_deps)
 add_executable(station_test test/station_test/station_test.cpp)
 target_link_libraries(station_test PRIVATE snaplib snap_link_deps)
 
+# Test-only tool, not a shipped application - standalone unit test for the
+# StringLimited class in snaplib/util/stringlimited.hpp. Exit code is the pass/fail
+# signal.
+add_executable(stringlimited_test test/stringlimited_test/stringlimited_test.cpp)
+target_link_libraries(stringlimited_test PRIVATE snaplib snap_link_deps)
+
 # Every standalone unit test above. build.py's test target builds this, and
 # regression_tests/unittests/run_test.py then runs each *_test executable it
 # finds in the build directory, so a new unit test must be added here.
@@ -185,7 +191,8 @@ add_custom_target(unit_tests DEPENDS
     errdef_test
     stationcode_test
     rotmat_test
-    station_test)
+    station_test
+    stringlimited_test)
 
 add_executable(snaplist snaplist/snaplist.cpp)
 target_link_libraries(snaplist PRIVATE snaplib snap_link_deps)
